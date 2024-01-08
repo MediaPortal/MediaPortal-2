@@ -447,7 +447,7 @@
       <Generator></Generator>
     </Content>
     <Content Include="Skin\Nereus\screens\dialogFanartSettings.xaml">
-      <Generator>MSBuild:Compile</Generator>
+      <Generator></Generator>
     </Content>
     <Content Include="Skin\Nereus\screens\dialogHeaderSettings.xaml" />
     <Content Include="Skin\Nereus\screens\MediaInfoVideoDetails.inc" />
@@ -494,9 +494,7 @@
     <Content Include="Skin\Nereus\screens\SimpleFilterItems.xaml" />
     <Content Include="Skin\Nereus\screens\SimpleSearch.xaml" />
     <Content Include="Skin\Nereus\screens\SimpleShowItems.xaml" />
-    <Content Include="Skin\Nereus\screens\WatchSystemNotifications.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Content>
+    <Content Include="Skin\Nereus\screens\WatchSystemNotifications.xaml" />
     <Content Include="Skin\Nereus\screens\WindowControlButtons.inc">
       <SubType>Designer</SubType>
     </Content>

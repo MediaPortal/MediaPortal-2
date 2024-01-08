@@ -42,6 +42,9 @@ namespace MediaPortal.UiComponents.Nereus.Settings
     [Setting(SettingScope.User, true)]
     public bool EnableFanart { get; set; }
 
+    [Setting(SettingScope.User, 0.85)]
+    public double FanartOverlayOpacity { get; set; }
+
     [Setting(SettingScope.User, false)]
     public bool EnableTouchDisplay { get; set; }
 
@@ -50,9 +53,6 @@ namespace MediaPortal.UiComponents.Nereus.Settings
 
     [Setting(SettingScope.User, false)]
     public bool EnableMenuSelection { get; set; }
-
-    [Setting(SettingScope.User, 0.85)]
-    public double FanartOverlayOpacity { get; set; }
 
     [Setting(SettingScope.User, true)]
     public bool EnableGridDetails { get; set; }

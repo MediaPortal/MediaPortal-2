@@ -26,7 +26,7 @@ using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.UiComponents.Nereus.Settings.Configuration
 {
-  public class DialogConfiguration : CustomConfigSetting
+  public class DialogScrollingConfiguration : CustomConfigSetting
   {
   }
 }

@@ -31,11 +31,9 @@
     <Model Id="CED34107-565C-48D9-BEC8-195F7969F90F" Name="NereusHomeMenuModel" ClassName="MediaPortal.UiComponents.Nereus.Models.HomeMenuModel"/>
     <Model Id="6A232D95-9BDE-4005-905E-69CB092B012B" Name="ScreenModeModel" ClassName="MediaPortal.UiComponents.Nereus.Models.ScreenModeModel"/>
     <Model Id="E06B2C11-AB3F-41DA-8E91-33D83EA30A9A" Name="SkinSettingsActionContributor" ClassName="MediaPortal.UiComponents.Nereus.Actions.SkinSettingsAction"/>
-    <Model Id="AB34B067-DDA7-4D1C-A50E-A7BBFBBD2925" Name="AutoScrollConfigurationModel" ClassName="MediaPortal.UiComponents.Nereus.Models.AutoScrollConfigurationModel"/>
+    <Model Id="AB34B067-DDA7-4D1C-A50E-A7BBFBBD2925" Name="ScrollConfigurationModel" ClassName="MediaPortal.UiComponents.Nereus.Models.ScrollConfigurationModel"/>
     <Model Id="03C73355-E01C-4d30-AE69-14408ADB2174" Name="SkinColorConfigurationModel" ClassName="MediaPortal.UiComponents.Nereus.Models.SkinColorConfigurationModel"/>
-    <Model Id="5C314F18-6A81-47b7-91DB-02DBCF5176F0" Name="DialogConfigurationModel" ClassName="MediaPortal.UiComponents.Nereus.Models.DialogConfigurationModel"/>
     <Model Id="B5FE25BA-BDAC-44ea-BF82-F059C00052DC" Name="HeaderConfigurationModel" ClassName="MediaPortal.UiComponents.Nereus.Models.HeaderConfigurationModel"/>
-    <Model Id="543CFC2F-816D-48ae-BEE3-BB3B85876505" Name="FanartConfigurationModel" ClassName="MediaPortal.UiComponents.Nereus.Models.FanartConfigurationModel"/>
   </Register>
 
   <Register Location="/Workflow/States">
@@ -55,16 +53,7 @@
                  DisplayLabel="[Nereus.Configuration.SelectSkinColor]"
                  WorkflowModel="03C73355-E01C-4d30-AE69-14408ADB2174"/>
   </Register>
-
-  <Register Location="/Workflow/States">
-    <!-- DialogConfiguration Dialog -->
-    <DialogState Id="C364F2E3-346E-4861-B9EE-CF5A74487244"
-                 Name="dialogDialogSettings"
-                 DialogScreen="dialogDialogSettings"
-                 DisplayLabel="[Nereus.Configuration.Dialog]"
-                 WorkflowModel="5C314F18-6A81-47b7-91DB-02DBCF5176F0"/>
-  </Register>
-
+ 
   <Register Location="/Workflow/States">
     <!-- HeaderConfiguration Dialog -->
     <DialogState Id="8272EC9D-00FD-4d5e-AC6E-CEF94086CA00"
@@ -74,15 +63,6 @@
                  WorkflowModel="B5FE25BA-BDAC-44ea-BF82-F059C00052DC"/>
   </Register>
 
-  <Register Location="/Workflow/States">
-    <!-- FanArtConfiguration Dialog -->
-    <DialogState Id="5C9FACE7-BD16-4965-A08E-B0F6872EB7EF"
-                 Name="dialogFanartSettings"
-                 DialogScreen="dialogFanartSettings"
-                 DisplayLabel="[Nereus.Configuration.Fanart]"
-                 WorkflowModel="543CFC2F-816D-48ae-BEE3-BB3B85876505"/>
-  </Register>
-  
   <!-- Language resources -->
   <Register Location="/Resources/Language">
     <Resource Id="NereusLanguage" Directory="Language" Type="Language"/>
@@ -140,12 +120,6 @@
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableHelpTextConfiguration"/>
 
     <ConfigSetting
-        Id="NereusEnableFanart"
-        Text="[Nereus.Configuration.EnableFanart]"
-        HelpText="[Nereus.Configuration.EnableFanart.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableFanartConfiguration"/>
-
-    <ConfigSetting
         Id="NereusEnableTouchDisplay"
         Text="[Nereus.Configuration.EnableTouchDisplay]"
         HelpText="[Nereus.Configuration.EnableTouchDisplay.Help]"
@@ -163,31 +137,19 @@
         HelpText="[Nereus.Configuration.EnableMenuSelection.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableMenuSelectionConfiguration"/>
 
-    <ConfigSetting
-        Id="NereusFanartOverlayOpacity"
-        Text="[Nereus.Configuration.FanartOverlayOpacity]"
-        HelpText="[Nereus.Configuration.FanartOverlayOpacity.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.FanartOverlayOpacityConfiguration"/>
-
-    <ConfigSetting
-        Id="NereusEnableLoopScrolling"
-        Text="[Nereus.Configuration.EnableLoopScrolling]"
-        HelpText="[Nereus.Configuration.EnableLoopScrolling.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableLoopScrollingConfiguration"/>
-
     <CustomConfigSetting
-        Id="NereusEnableAutoScrollingDialog"
-        Text="[Nereus.Configuration.EnableAutoScrolling]"
-        HelpText="[Nereus.Configuration.EnableAutoScrolling.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableAutoScrollingConfiguration"
+        Id="NereusScrollingDialog"
+        Text="[Nereus.Configuration.ScrollConfiguration]"
+        HelpText="[Nereus.Configuration.ScrollConfiguration.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.DialogScrollingConfiguration"
         AdditionalData="WorkflowState=E3DABC33-4339-446B-A495-AE1A8C630B2B,ConfAppPanel=..."/>
 
     <CustomConfigSetting
-        Id="NereusDialogDialog"
+        Id="NereusDialogOpacity"
         Text="[Nereus.Configuration.Dialog]"
         HelpText="[Nereus.Configuration.Dialog.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.DialogConfiguration"
-        AdditionalData="WorkflowState=C364F2E3-346E-4861-B9EE-CF5A74487244,ConfAppPanel=..."/>
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.DialogOpacityConfiguration"
+        AdditionalTypes="CustomConfigController=MediaPortal.UiComponents.Nereus.Settings.ConfigurationControllers.DialogSettingController" />
 
     <CustomConfigSetting
         Id="NereusHeaderDialog"
@@ -195,13 +157,6 @@
         HelpText="[Nereus.Configuration.Header.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.HeaderConfiguration"
         AdditionalData="WorkflowState=8272EC9D-00FD-4d5e-AC6E-CEF94086CA00,ConfAppPanel=..."/>
-
-    <CustomConfigSetting
-        Id="NereusFanartDialog"
-        Text="[Nereus.Configuration.FanartOverlayOpacity]"
-        HelpText="[Nereus.Configuration.FanartOverlayOpacity.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.FanartConfiguration"
-        AdditionalData="WorkflowState=5C9FACE7-BD16-4965-A08E-B0F6872EB7EF,ConfAppPanel=..."/>
     
     <CustomConfigSetting
         Id="NereusSkinColorSelectionDialog"
@@ -209,7 +164,14 @@
         HelpText="[Nereus.Configuration.SelectSkinColor.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.SkinColorConfiguration"
         AdditionalData="WorkflowState=F07881D8-FCB4-4327-A8D0-C20FF5DA3E6A,ConfAppPanel=..."/>
-    
+
+    <CustomConfigSetting
+        Id="NereusFanartOverlayOpacity"
+        Text="[Nereus.Configuration.FanartOverlayOpacity]"
+        HelpText="[Nereus.Configuration.FanartOverlayOpacity.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.FanartOverlayOpacityConfiguration"
+        AdditionalTypes="CustomConfigController=MediaPortal.UiComponents.Nereus.Settings.ConfigurationControllers.FanartVisibilityController" />
+
     <ConfigSetting
         Id="NereusEnableAgeCertificationLogos"
         Text="[Nereus.Configuration.EnableAgeCertificationLogos]"

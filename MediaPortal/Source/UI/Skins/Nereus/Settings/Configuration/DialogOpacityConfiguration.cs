@@ -32,24 +32,48 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Nereus.Settings.Configuration
 {
-  public class EnableFanartConfiguration : YesNo, IDisposable
+  public class DialogOpacityConfiguration : LimitedNumberSelect, IDisposable
   {
-    public EnableFanartConfiguration()
+    public DialogOpacityConfiguration()
     {
       SkinChangeMonitor.Instance.RegisterConfiguration(NereusSkinSettings.SKIN_NAME, this);
     }
 
+    // Accessed and set from FanartVisibilityController
+    public bool UseRoundedDialogCorners { get; set; }
+    public bool UseNoColor { get; set; }
+    public bool UseWhiteColor { get; set; }
+    public bool UseFocusColor { get; set; }
+    public bool UseTransparency { get; set; }
+
+
     public override void Load()
     {
       base.Load();
-      _yes = SettingsManager.Load<NereusSkinSettings>().EnableFanart;
+      _lowerLimit = 0.7;
+      _upperLimit = 1.0;
+      _step = 0.05;
+      _type = NumberType.FloatingPoint;
+      var settings = SettingsManager.Load<NereusSkinSettings>();
+      _value = settings.DialogBackgroundOpacity;
+
+      UseRoundedDialogCorners = settings.UseRoundedDialogCorners;
+      UseNoColor = settings.UseNoColor;
+      UseWhiteColor = settings.UseWhiteColor;
+      UseFocusColor = settings.UseFocusColor;
+      UseTransparency = settings.UseTransparency;
     }
 
     public override void Save()
     {
       base.Save();
       var settings = SettingsManager.Load<NereusSkinSettings>();
-      settings.EnableFanart = _yes;
+      settings.DialogBackgroundOpacity = _value;
+      settings.UseRoundedDialogCorners = UseRoundedDialogCorners;
+      settings.UseNoColor = UseNoColor;
+      settings.UseWhiteColor = UseWhiteColor;
+      settings.UseFocusColor = UseFocusColor;
+      settings.UseTransparency = UseTransparency;
       SettingsManager.Save(settings);
     }
 

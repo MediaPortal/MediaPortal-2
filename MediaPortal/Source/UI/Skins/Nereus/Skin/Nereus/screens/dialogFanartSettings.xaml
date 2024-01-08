@@ -12,51 +12,71 @@
     <ResourceWrapper x:Key="Wrap_Text" Resource="[Nereus.Configuration.FanartOverlayOpacity.Help]"/>
 
     <!-- AutoScrollConfigurationModel -->
-    <Model x:Key="FanartConfigurationModel" Id="543CFC2F-816D-48ae-BEE3-BB3B85876505"/>
+    <Model x:Key="Model" Id="545674F1-D92A-4383-B6C1-D758CECDBDF5"/>
+
+    <LocalizedStringToDoubleConverter x:Key="OpacityConverter"/>
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <Grid Margin="10" DataContext="{Binding Source={StaticResource FanartConfigurationModel}}">
-        <Grid.RowDefinitions>
-          <RowDefinition Height="Auto" />
-          <RowDefinition Height="Auto" />
-          <RowDefinition Height="Auto" />
-          <RowDefinition Height="Auto" />
-          <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
+      <Grid x:Name="ContentsGrid" DataContext="{Binding Source={StaticResource Model},Path=CurrentConfigController,Mode=OneTime}" 
+            Margin="10" VerticalAlignment="Stretch">
         <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="900" />
-          <ColumnDefinition Width="175" />
+          <ColumnDefinition Width="1040"/>
         </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="120"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
         <CheckBox Margin="0,1,25,10" VerticalAlignment="Center" IsChecked="{Binding Path=EnableFanart,Mode=TwoWay}" Content="[Nereus.Configuration.EnableFanart.Help]">
           <CheckBox.Triggers>
             <Trigger Property="IsChecked" Value="False">
               <Setter TargetName="OpacityLabel" Property="Opacity" Value="0.4"/>
+              <Setter TargetName="OpacityLabel2" Property="Opacity" Value="0.4"/>
+              <Setter TargetName="VisibilityPreview" Property="IsVisible" Value="False"/>
+              <Setter TargetName="NumberSelectContent" Property="IsEnabled" Value="False"/>
+              <Setter TargetName="UpButton" Property="IsEnabled" Value="False"/>
+              <Setter TargetName="DownButton" Property="IsEnabled" Value="False"/>
             </Trigger>
           </CheckBox.Triggers>
         </CheckBox>
-        <Label x:Name="OpacityLabel" Grid.Row="1" Content="{ThemeResource Wrap_Text}" Color="{ThemeResource TextColor}" 
-                Margin="55,0,0,10" Opacity="1" Wrap="True" Width="800"/>
-        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Path=FanartOverlayOpacity,Mode=TwoWay}" Margin="5,0,5,10" VerticalAlignment="Center"
-                 IsEnabled="{Binding Path=EnableFanart}" Style="{ThemeResource SymbolTextBoxStyle}"/>
 
-        <Grid Grid.Row="2" Grid.ColumnSpan="2" HorizontalAlignment="Center">
-          <Image Source="Fanart.jpg" Width="700" Stretch="Uniform" HorizontalAlignment="Center"/>
-          <Image Source="background.png" Width="700" Stretch="Uniform" HorizontalAlignment="Center" Opacity="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].FanartOverlayOpacity}">
+        <Label x:Name="OpacityLabel" Grid.Row="1" Content="{ThemeResource Wrap_Text}" Color="{ThemeResource TextColor}" 
+                Margin="55,0,0,10" Opacity="1" Wrap="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+
+        <Grid Grid.Row="2" Margin="55,0,0,0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Label x:Name="OpacityLabel2" Content="[Nereus.Configuration.DialogBackgroundOpacity]" Color="{ThemeResource TextColor}" 
+                 Opacity="1" VerticalAlignment="Stretch" Margin="0,10,0,10"/>
+          <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <TextBox x:Name="NumberSelectContent" Margin="10,0,10,0" PreferredTextLength="4"
+                     Text="{Binding Path=Value,Mode=TwoWay}"
+                     HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Button x:Name="UpButton" Style="{ThemeResource ChapterUpButtonStyle}" Height="30" Margin="0,0,0,2"
+                      IsEnabled="{Binding IsUpEnabled}"
+                      Command="{Command Up}"/>
+              <Button x:Name="DownButton" Style="{ThemeResource ChapterDownButtonStyle}" Height="30"
+                      IsEnabled="{Binding IsDownEnabled}"
+                      Command="{Command Down}"/>
+            </StackPanel>
+          </StackPanel>          
+        </Grid>
+
+        <Grid x:Name="VisibilityPreview" Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Stretch">
+          <Image Source="Fanart.jpg" Width="1000" Stretch="Uniform" HorizontalAlignment="Center"/>
+          <Image Source="background.png" Width="1000" Stretch="Uniform" HorizontalAlignment="Center" Opacity="{Binding Path=Value,Converter={StaticResource OpacityConverter}}">
           </Image>
         </Grid>
 
-        <!--Button Grid.Row="3" Grid.ColumnSpan="2" Name="ButtonRefresh" SetFocusPrio="Default" Style="{ThemeResource WizardButtonStyle}" Content="[Nereus.Configuration.Refresh]" Margin="10,10,10,30" HorizontalAlignment="Left">
-          <Button.Command>
-            <CommandList>
-              <Command Path="SaveSettings" />
-              <Command Path="Refresh" />
-            </CommandList>
-          </Button.Command>
-        </Button-->
-
         <!-- OK & Cancel button -->
-        <Grid Grid.Row="4" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Margin="0,10,0,0">
+        <Grid Grid.Row="4" HorizontalAlignment="Stretch" Margin="0,20,0,0">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*" />
@@ -68,7 +88,7 @@
           <Button Name="ButtonOk" Grid.Column="0" Style="{ThemeResource DialogButtonStyle}" Content="[System.Ok]" HorizontalAlignment="Center">
             <Button.Command>
               <CommandList>
-                <Command Path="SaveSettings" />
+                <Command Path="Save" />
                 <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog" />
               </CommandList>
             </Button.Command>
@@ -76,7 +96,6 @@
 
           <Button Name="ButtonCancel" Grid.Column="1" SetFocusPrio="Default" Style="{ThemeResource DialogButtonStyle}"
                   Content="[System.Cancel]" HorizontalAlignment="Center" Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}" />
-
         </Grid>
 
       </Grid>

@@ -29,48 +29,80 @@ using MediaPortal.Common.General;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
-using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Nereus.Settings;
 
 namespace MediaPortal.UiComponents.Nereus.Models
 {
   /// <summary>
-  /// Workflow model for the fanart configuration.
+  /// Workflow model for the  scroll configuration.
   /// </summary>
-  public class FanartConfigurationModel : IWorkflowModel
+  public class ScrollConfigurationModel : IWorkflowModel
   {
-    public const string FANART_CONFIGURATION_MODEL_ID_STR = "543CFC2F-816D-48ae-BEE3-BB3B85876505";
-    public const double DEFAULT_FANART_OVERLAY_OPACITY = 0.85;
-    
+    public const string SCROLL_CONFIGURATION_MODEL_ID_STR = "AB34B067-DDA7-4D1C-A50E-A7BBFBBD2925";
+    public const double DEFAULT_SCROLL_SPEED = 20.0;
+    public const double DEFAULT_SCROLL_DELAY = 2.0;
 
     #region Private fields
 
-    protected AbstractProperty _fanartOverlayOpacityProperty = new WProperty(typeof(string), string.Empty);
-    protected AbstractProperty _enableFanartProperty = new WProperty(typeof(bool), true);
+    protected AbstractProperty _scrollSpeedProperty = new WProperty(typeof(string), string.Empty);
+    protected AbstractProperty _scrollDelayProperty = new WProperty(typeof(string), string.Empty);
+    protected AbstractProperty _autoScrollProperty = new WProperty(typeof(bool), true);
+    protected AbstractProperty _manualScrollProperty = new WProperty(typeof(bool), true);
+    protected AbstractProperty _enableLoopScrollingProperty = new WProperty(typeof(bool), true);
 
     #endregion
 
     #region Public fields (can be used by the GUI)
 
-    public AbstractProperty EnableFanartProperty
+    public AbstractProperty UseAutoScrollProperty
     {
-      get { return _enableFanartProperty; }
+      get { return _autoScrollProperty; }
     }
-    public bool EnableFanart
+    public bool UseAutoScroll
     {
-      get { return (bool)_enableFanartProperty.GetValue(); }
-      set { _enableFanartProperty.SetValue(value); }
+      get { return (bool)_autoScrollProperty.GetValue(); }
+      set { _autoScrollProperty.SetValue(value); }
     }
 
-    public AbstractProperty FanartOverlayOpacityProperty
+    public AbstractProperty UseManualScrollProperty
     {
-      get { return _fanartOverlayOpacityProperty; }
+      get { return _manualScrollProperty; }
     }
-    public string FanartOverlayOpacity
+    public bool UseManualScroll
     {
-      get { return (string)_fanartOverlayOpacityProperty.GetValue(); }
-      set { _fanartOverlayOpacityProperty.SetValue(value); }
+      get { return (bool)_manualScrollProperty.GetValue(); }
+      set { _manualScrollProperty.SetValue(value); }
+    }
+
+    public AbstractProperty ScrollSpeedProperty
+    {
+      get { return _scrollSpeedProperty; }
+    }
+    public string ScrollSpeed
+    {
+      get { return (string)_scrollSpeedProperty.GetValue(); }
+      set { _scrollSpeedProperty.SetValue(value); }
+    }
+
+    public AbstractProperty ScrollDelayProperty
+    {
+      get { return _scrollDelayProperty; }
+    }
+    public string ScrollDelay
+    {
+      get { return (string)_scrollDelayProperty.GetValue(); }
+      set { _scrollDelayProperty.SetValue(value); }
+    }
+
+    public AbstractProperty EnableLoopScrollingProperty
+    {
+      get { return _enableLoopScrollingProperty; }
+    }
+    public bool EnableLoopScrolling
+    {
+      get { return (bool)_enableLoopScrollingProperty.GetValue(); }
+      set { _enableLoopScrollingProperty.SetValue(value); }
     }
 
     #endregion
@@ -80,8 +112,11 @@ namespace MediaPortal.UiComponents.Nereus.Models
     private void GetConfigFromSettings()
     {
       NereusSkinSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<NereusSkinSettings>();
-      EnableFanart = settings.EnableFanart;
-      FanartOverlayOpacity = Convert.ToDouble(settings.FanartOverlayOpacity).ToString();
+      EnableLoopScrolling = settings.EnableLoopScrolling;
+      UseAutoScroll = settings.EnableAutoScrolling;
+      UseManualScroll = !settings.EnableAutoScrolling;
+      ScrollSpeed = Convert.ToInt32(settings.AutoScrollSpeed).ToString();
+      ScrollDelay = Convert.ToInt32(settings.AutoScrollDelay).ToString();
     }
 
     #endregion
@@ -96,20 +131,20 @@ namespace MediaPortal.UiComponents.Nereus.Models
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       NereusSkinSettings settings = settingsManager.Load<NereusSkinSettings>();
 
-      settings.EnableFanart = EnableFanart;
+      settings.EnableAutoScrolling = UseAutoScroll;
+      settings.EnableLoopScrolling = EnableLoopScrolling;
 
-      if (double.TryParse(FanartOverlayOpacity, out var opacity) && opacity >= 0.7 && opacity <= 1.0)
-        settings.FanartOverlayOpacity = opacity;
+      if (int.TryParse(ScrollSpeed, out var speed) && speed > 0)
+        settings.AutoScrollSpeed = speed;
       else
-        settings.FanartOverlayOpacity = DEFAULT_FANART_OVERLAY_OPACITY;
+        settings.AutoScrollSpeed = DEFAULT_SCROLL_SPEED;
+
+      if (int.TryParse(ScrollDelay, out var delay) && delay > 0)
+        settings.AutoScrollDelay = delay;
+      else
+        settings.AutoScrollDelay = DEFAULT_SCROLL_DELAY;
 
       settingsManager.Save(settings);
-    }
-
-    public void Refresh()
-    {
-      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      screenManager.Reload();
     }
 
     #endregion
@@ -118,7 +153,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
 
     public Guid ModelId
     {
-      get { return new Guid(FANART_CONFIGURATION_MODEL_ID_STR); }
+      get { return new Guid(SCROLL_CONFIGURATION_MODEL_ID_STR); }
     }
 
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)

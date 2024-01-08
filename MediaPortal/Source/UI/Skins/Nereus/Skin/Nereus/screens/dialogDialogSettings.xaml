@@ -1,111 +1,419 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Include
+
+<!--
+This is the master template for a standard dialog.
+Usage:
+  <Include
+      xmlns="www.team-mediaportal.com/2008/mpf/directx"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Source="screens\master_dialog_bare.xaml"
+      >
+    <Include.Resources>
+      <ResourceWrapper x:Key="Dialog_Header_Text">
+        [Header text to be shown as dialog title]
+      </ResourceWrapper>
+      <ControlTemplate x:Key="Contents_Template">
+        [Element which represents the contents area of the dialog.
+         Will be placed into a ScrollViewer.]
+      </ControlTemplate>
+    </Include.Resources>
+  </Include>
+Parameters which have to be accessible by a DynamicResource lookup:
+ - Dialog_Header_Text (String): The text to be displayed as dialog title
+ - Contents_Template (ConrolTemplate): Template for the content area of the dialog.
+-->
+
+<Screen
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Source="screens\master_dialog_bare.xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    x:Name="DialogScreen"
     >
 
-  <Include.Resources>
-
-    <!-- Header -->
-    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Nereus.Configuration.Dialog]"/>
-
+  <Screen.Resources>
+    <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
     <!-- AutoScrollConfigurationModel -->
-    <Model x:Key="DialogConfigurationModel" Id="5C314F18-6A81-47b7-91DB-02DBCF5176F0"/>
+    <Model x:Key="Model" Id="545674F1-D92A-4383-B6C1-D758CECDBDF5"/>
 
-    <!-- Contents -->
-    <ControlTemplate x:Key="Contents_Template">
-      <StackPanel DataContext="{Binding Source={StaticResource DialogConfigurationModel}}" Margin="10">
+    <Storyboard x:Key="Show1DialogStoryboard" FillBehavior="HoldEnd">
+      <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ScreenAnimationElement" Storyboard.TargetProperty="Opacity">
+        <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:00.2" Value="1"/>
+      </DoubleAnimationUsingKeyFrames>
+      <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" DecelerationRatio="0.4"
+                                     Storyboard.TargetName="DialogBorder" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
+        <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+        <EasingDoubleKeyFrame KeyTime="00:00:00.4" Value="1"/>
+      </DoubleAnimationUsingKeyFrames>
+      <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" DecelerationRatio="0.4"
+                                     Storyboard.TargetName="DialogBorder" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
+        <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+        <EasingDoubleKeyFrame KeyTime="00:00:00.4" Value="1"/>
+      </DoubleAnimationUsingKeyFrames>
+    </Storyboard>
 
-        <CheckBox Margin="0,1,25,30" VerticalAlignment="Center" IsChecked="{Binding Path=UseRoundedDialogCorners,Mode=TwoWay}" Content="[Nereus.Configuration.UseRoundesCorners]"/>
+    <Storyboard x:Key="Hide1DialogStoryboard" FillBehavior="HoldEnd">
+      <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="DialogBorder" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
+        <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:00.3" Value="0"/>
+      </DoubleAnimationUsingKeyFrames>
+      <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="DialogBorder" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
+        <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:00.3" Value="0"/>
+      </DoubleAnimationUsingKeyFrames>
+      <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ScreenAnimationElement" Storyboard.TargetProperty="Opacity">
+        <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="1"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:00.3" Value="0"/>
+      </DoubleAnimationUsingKeyFrames>
+    </Storyboard>
 
-        <!--Glow Color Selection-->
-        <Label Content="[Nereus.Configuration.SelectGlowColor]" Color="{ThemeResource TextColor}" Margin="5,0,0,10"/>
-        <Grid Margin="55,0,0,0">
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
+  </Screen.Resources>
+  <Screen.Triggers>
+    <EventTrigger RoutedEvent="Screen.Show">
+      <EventTrigger.Actions>
+        <BeginStoryboard Storyboard="{ThemeResource Show1DialogStoryboard}"/>
+      </EventTrigger.Actions>
+    </EventTrigger>
+    <EventTrigger RoutedEvent="Screen.Hide">
+      <EventTrigger.Actions>
+        <BeginStoryboard Storyboard="{ThemeResource Hide1DialogStoryboard}"/>
+      </EventTrigger.Actions>
+    </EventTrigger>
+  </Screen.Triggers>
+
+  <Grid x:Name="ScreenAnimationElement" RenderTransformOrigin="0.5,0.5" Background="{ThemeResource DialogScreenBackgroundColor}"  
+        DataContext="{Binding Source={StaticResource Model},Path=CurrentConfigController,Mode=OneTime}">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+
+    <DockPanel x:Name="DialogBorder" LastChildFill="True" RenderTransformOrigin="0.5,0.5" Margin="50"
+                 HorizontalAlignment="Center" VerticalAlignment="Center">
+      <DockPanel.Resources>
+        <Model x:Key="MenuModel" Id="CED34107-565C-48D9-BEC8-195F7969F90F"/>
+        <LocalizedStringToDoubleConverter x:Key="OpacityConverter"/>
+      </DockPanel.Resources>
+      <DockPanel.RenderTransform>
+        <TransformGroup>
+          <ScaleTransform ScaleX="1" ScaleY="1"/>
+        </TransformGroup>
+      </DockPanel.RenderTransform>
+
+      <mp_special_controls:UserInputCapture VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+               MousePositionMode="Relative" Buttons="Left"
+               MouseClickedCommand="{CommandStencil Source={StaticResource MenuModel},Path=CloseTopmostDialog}">
+        <mp_special_controls:UserInputCapture.IsActive>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp;{1}">
+            <Binding ElementName="ContentPanel" Path="!IsKeyboardFocusWithin"/>
+            <Binding ElementName="ContentPanel" Path="!IsMouseOver"/>
+          </MultiBinding>
+        </mp_special_controls:UserInputCapture.IsActive>
+      </mp_special_controls:UserInputCapture>
+
+      <!-- Effect around dialog with rounded corners and glow -->
+      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="3" Opacity="0.04"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-15">
+        <Border.BorderBrush>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {3} : {4})">
+            <Binding Path="UseWhiteColor"/>
+            <Binding Path="UseFocusColor"/>
+            <Binding Source="White"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+            <Binding Source="Transparent"/>
+          </MultiBinding>
+        </Border.BorderBrush>
+        <Border.CornerRadius>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Path="UseRoundedDialogCorners"/>
+            <Binding Source="19"/>
+            <Binding Source="0"/>
+          </MultiBinding>
+        </Border.CornerRadius>
+      </Border>
+      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" Opacity="0.06"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-12">
+        <Border.BorderBrush>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {3} : {4})">
+            <Binding Path="UseWhiteColor"/>
+            <Binding Path="UseFocusColor"/>
+            <Binding Source="White"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+            <Binding Source="Transparent"/>
+          </MultiBinding>
+        </Border.BorderBrush>
+        <Border.CornerRadius>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Path="UseRoundedDialogCorners"/>
+            <Binding Source="16"/>
+            <Binding Source="0"/>
+          </MultiBinding>
+        </Border.CornerRadius>
+      </Border>
+      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" Opacity="0.08"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-10">
+        <Border.BorderBrush>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {3} : {4})">
+            <Binding Path="UseWhiteColor"/>
+            <Binding Path="UseFocusColor"/>
+            <Binding Source="White"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+            <Binding Source="Transparent"/>
+          </MultiBinding>
+        </Border.BorderBrush>
+        <Border.CornerRadius>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Path="UseRoundedDialogCorners"/>
+            <Binding Source="14"/>
+            <Binding Source="0"/>
+          </MultiBinding>
+        </Border.CornerRadius>
+      </Border>
+      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" Opacity="0.1"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-8">
+        <Border.BorderBrush>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {3} : {4})">
+            <Binding Path="UseWhiteColor"/>
+            <Binding Path="UseFocusColor"/>
+            <Binding Source="White"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+            <Binding Source="Transparent"/>
+          </MultiBinding>
+        </Border.BorderBrush>
+        <Border.CornerRadius>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Path="UseRoundedDialogCorners"/>
+            <Binding Source="12"/>
+            <Binding Source="0"/>
+          </MultiBinding>
+        </Border.CornerRadius>
+      </Border>
+      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" Opacity="0.13"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-6">
+        <Border.BorderBrush>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {3} : {4})">
+            <Binding Path="UseWhiteColor"/>
+            <Binding Path="UseFocusColor"/>
+            <Binding Source="White"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+            <Binding Source="Transparent"/>
+          </MultiBinding>
+        </Border.BorderBrush>
+        <Border.CornerRadius>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Path="UseRoundedDialogCorners"/>
+            <Binding Source="10"/>
+            <Binding Source="0"/>
+          </MultiBinding>
+        </Border.CornerRadius>
+      </Border>
+      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" Opacity="0.18"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-4">
+        <Border.BorderBrush>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {3} : {4})">
+            <Binding Path="UseWhiteColor"/>
+            <Binding Path="UseFocusColor"/>
+            <Binding Source="White"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+            <Binding Source="Transparent"/>
+          </MultiBinding>
+        </Border.BorderBrush>
+        <Border.CornerRadius>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Path="UseRoundedDialogCorners"/>
+            <Binding Source="8"/>
+            <Binding Source="0"/>
+          </MultiBinding>
+        </Border.CornerRadius>
+      </Border>
+      <Border x:Name="OpacityBorder" DockPanel.Dock="Center" Background="{ThemeResource DialogBackgroundColor}" BorderBrush="Transparent" BorderThickness="2" VerticalAlignment="Stretch"
+              HorizontalAlignment="Stretch" Margin="-2" Opacity="{Binding Path=Value,Converter={StaticResource OpacityConverter}}">
+        <Border.CornerRadius>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Path="UseRoundedDialogCorners"/>
+            <Binding Source="{ThemeResource DialogBorderCornerRadius}"/>
+            <Binding Source="0"/>
+          </MultiBinding>
+        </Border.CornerRadius>
+      </Border>
+      <Border DockPanel.Dock="Center" BorderThickness="2" Opacity="0.25"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-2">
+        <Border.BorderBrush>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {3} : {4})">
+            <Binding Path="UseWhiteColor"/>
+            <Binding Path="UseFocusColor"/>
+            <Binding Source="White"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+            <Binding Source="Transparent"/>
+          </MultiBinding>
+        </Border.BorderBrush>
+        <Border.CornerRadius>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Path="UseRoundedDialogCorners"/>
+            <Binding Source="{ThemeResource DialogBorderCornerRadius}"/>
+            <Binding Source="0"/>
+          </MultiBinding>
+        </Border.CornerRadius>
+      </Border>
+
+      <Grid x:Name="DialogHeaderGrid" DockPanel.Dock="Top"
+            VerticalAlignment="Top" HorizontalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="6"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.RowSpan="2" BorderThickness="0" Background="{ThemeResource NereusColorMedium}">
+          <Border.CornerRadius>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding Path="UseRoundedDialogCorners"/>
+              <Binding Source="{ThemeResource DialogBorderCornerRadius}"/>
+              <Binding Source="0"/>
+            </MultiBinding>
+          </Border.CornerRadius>
+        </Border>
+        <Border Grid.RowSpan="2" BorderThickness="0">
+          <Border.Background>
+            <LinearGradientBrush StartPoint="0.5,1" EndPoint="0.5,0">
+              <GradientStop Color="#60000000" Offset="0.00"/>
+              <GradientStop Color="#00000000" Offset="0.50"/>
+              <GradientStop Color="#00000000" Offset="1.00"/>
+            </LinearGradientBrush>
+          </Border.Background>
+          <Border.CornerRadius>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding Path="UseRoundedDialogCorners"/>
+              <Binding Source="{ThemeResource DialogBorderCornerRadius}"/>
+              <Binding Source="0"/>
+            </MultiBinding>
+          </Border.CornerRadius>
+        </Border>
+        <Border Grid.Row="1" BorderThickness="0" Background="{ThemeResource NereusColorLight}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+
+        <Label x:Name="DialogTitle" Grid.Column="0" Grid.Row="0" FontSize="{ThemeResource DialogTitleFontSize}" Margin="10,5,10,5"
+               Content="[Nereus.Configuration.Dialog]" Color="{ThemeResource DialogHeaderColor}"
+               VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="Noto-Bold"
+               IsVisible="{Binding RelativeSource={RelativeSource Self},Path=Content,Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+        <Control x:Name="AlternativeHeaderControl" Grid.Row="0" Grid.Column="0"
+                 VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                 Template="{DynamicResource ResourceKey=Alternative_Contents_Template}"
+                 IsVisible="{Binding RelativeSource={RelativeSource Self},Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      </Grid>
+
+      <!-- ##### This part is the content area - all other parts normally refer to master_dialog_bare and need manual updates, if it is changed.
+           Background: Show effects of the settings live in its own dialog ######
+      -->
+      <StackPanel x:Name="ContentPanel"  Margin="20" DockPanel.Dock="Center" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+
+          <CheckBox Margin="0,1,25,30" VerticalAlignment="Center" IsChecked="{Binding Path=UseRoundedDialogCorners,Mode=TwoWay}" Content="[Nereus.Configuration.UseRoundesCorners]"/>
+
+          <!--Glow Color Selection-->
+          <Label Content="[Nereus.Configuration.SelectGlowColor]" Color="{ThemeResource TextColor}" Margin="5,0,0,10"/>
+          <Grid Margin="55,0,0,0">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
           </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="*" />
-          </Grid.ColumnDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
 
-          <RadioButton x:Name="NoColor" Margin="0,1,0,1" VerticalAlignment="Center"
-                       IsChecked="{Binding Path=UseNoColor,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="[Nereus.Configuration.NoColor]"/>
-          <RadioButton x:Name="WhiteColor" Grid.Row="1" Margin="0,1,0,1" VerticalAlignment="Center"
-                       IsChecked="{Binding Path=UseWhiteColor,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="[Nereus.Configuration.WhiteColor]"/>
-          <RadioButton x:Name="FocusColor" Grid.Row="2" Margin="0,1,0,1" VerticalAlignment="Center"
-                       IsChecked="{Binding Path=UseFocusColor,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="[Nereus.Configuration.FocusColor]"/>
+            <RadioButton x:Name="NoColor" Margin="0,1,0,1" VerticalAlignment="Center"
+                         IsChecked="{Binding Path=UseNoColor,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="[Nereus.Configuration.NoColor]"/>
+            <RadioButton x:Name="WhiteColor" Grid.Row="1" Margin="0,1,0,1" VerticalAlignment="Center"
+                         IsChecked="{Binding Path=UseWhiteColor,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="[Nereus.Configuration.WhiteColor]"/>
+            <RadioButton x:Name="FocusColor" Grid.Row="2" Margin="0,1,0,1" VerticalAlignment="Center"
+                         IsChecked="{Binding Path=UseFocusColor,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="[Nereus.Configuration.FocusColor]"/>
 
-          <Border Grid.Row="0" Grid.Column="1" Width="60" Height="30" BorderBrush="{ThemeResource NereusGreyMedium}" 
-                  BorderThickness="1" Margin="15,0,0,0" HorizontalAlignment="Left"/>
-          <Border Grid.Row="1" Grid.Column="1" Width="60" Height="30" Background="White" 
-                  BorderThickness="0" Margin="15,0,0,0" HorizontalAlignment="Left"/>
-          <Border Grid.Row="2" Grid.Column="1" Width="60" Height="30" Background="{ThemeResource NereusColorLight}" 
-                  BorderThickness="0" Margin="15,0,0,0" HorizontalAlignment="Left"/>
-        </Grid>
+            <Border Grid.Row="0" Grid.Column="1" Width="60" Height="30" BorderBrush="{ThemeResource NereusGreyMedium}" 
+                    BorderThickness="1" Margin="15,0,0,0" HorizontalAlignment="Left"/>
+            <Border Grid.Row="1" Grid.Column="1" Width="60" Height="30" Background="White" 
+                    BorderThickness="0" Margin="15,0,0,0" HorizontalAlignment="Left"/>
+            <Border Grid.Row="2" Grid.Column="1" Width="60" Height="30" Background="{ThemeResource NereusColorLight}" 
+                    BorderThickness="0" Margin="15,0,0,0" HorizontalAlignment="Left"/>
+          </Grid>
 
-        <!-- Dialog Background Settings-->
-        <Grid Margin="0,30,0,0">
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="*" />
-          </Grid.ColumnDefinitions>
-          <CheckBox Margin="0,1,25,10" VerticalAlignment="Center" IsChecked="{Binding Path=UseTransparency,Mode=TwoWay}" Content="[Nereus.Configuration.DialogTransparency]">
-            <CheckBox.Triggers>
-              <Trigger Property="IsChecked" Value="False">
-                <Setter TargetName="OpacityLabel" Property="Opacity" Value="0.4"/>
+          <!-- Dialog Background Settings-->
+          <Grid Margin="0,30,0,20">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <CheckBox Margin="0,1,25,10" VerticalAlignment="Center" IsChecked="{Binding Path=UseTransparency,Mode=TwoWay}" Content="[Nereus.Configuration.DialogTransparency]">
+              <CheckBox.Triggers>
+                <Trigger Property="IsChecked" Value="False">
+                  <Setter TargetName="OpacityLabel" Property="Opacity" Value="0.4"/>
+                  <Setter TargetName="NumberSelectContent" Property="IsEnabled" Value="False"/>
+                  <Setter TargetName="UpButton" Property="IsEnabled" Value="False"/>
+                  <Setter TargetName="DownButton" Property="IsEnabled" Value="False"/>
+                  <Setter TargetName="OpacityBorder" Property="Opacity" Value="1"/>
               </Trigger>
-            </CheckBox.Triggers>
-          </CheckBox>
-          <Label x:Name="OpacityLabel" Grid.Row="1" Content="[Nereus.Configuration.DialogBackgroundOpacity]" Color="{ThemeResource TextColor}" 
+              </CheckBox.Triggers>
+            </CheckBox>
+            <Label x:Name="OpacityLabel" Grid.Row="1" Content="[Nereus.Configuration.DialogBackgroundOpacity]" Color="{ThemeResource TextColor}" 
                  VerticalAlignment="Center" Margin="55,0,0,10" Opacity="1"/>
-          <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Path=DialogBackgroundOpacity,Mode=TwoWay}" Margin="5,0,5,10" Width="160"
-                   VerticalAlignment="Center" IsEnabled="{Binding Path=UseTransparency}" Style="{ThemeResource SymbolTextBoxStyle}"/>
-        </Grid>
+            <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+              <TextBox x:Name="NumberSelectContent" Margin="10,0,10,0" PreferredTextLength="4"
+                     Text="{Binding Path=Value,Mode=TwoWay}"
+                     HorizontalAlignment="Center" VerticalAlignment="Center"/>
+              <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Button x:Name="UpButton" Style="{ThemeResource ChapterUpButtonStyle}" Height="30" Margin="0,0,0,2"
+                      IsEnabled="{Binding IsUpEnabled}"
+                      Command="{Command Up}"/>
+                <Button x:Name="DownButton" Style="{ThemeResource ChapterDownButtonStyle}" Height="30"
+                      IsEnabled="{Binding IsDownEnabled}"
+                      Command="{Command Down}"/>
+              </StackPanel>
+            </StackPanel>
+          </Grid>
 
-        <Button Name="ButtonRefresh" SetFocusPrio="Default" Style="{ThemeResource WizardButtonStyle}" Content="[Nereus.Configuration.Refresh]" Margin="10,10,10,30" HorizontalAlignment="Left">
-          <Button.Command>
-            <CommandList>
-              <Command Path="SaveSettings" />
-              <Command Path="Refresh" />
-            </CommandList>
-          </Button.Command>
-        </Button>
+          <!-- OK & Cancel button -->
+          <Grid Height="10"/>
+          <Grid HorizontalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-        <!-- OK & Cancel button -->
-        <Grid Height="10"/>
-        <Grid HorizontalAlignment="Stretch">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-          </Grid.RowDefinitions>
+            <Button Name="ButtonOk" Grid.Column="0" Style="{ThemeResource DialogButtonStyle}" Content="[System.Ok]" HorizontalAlignment="Center">
+              <Button.Command>
+                <CommandList>
+                  <Command Path="Save" />
+                  <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog" />
+                </CommandList>
+              </Button.Command>
+            </Button>
 
-          <Button Name="ButtonOk" Grid.Column="0" Style="{ThemeResource DialogButtonStyle}" Content="[System.Ok]" HorizontalAlignment="Center">
-            <Button.Command>
-              <CommandList>
-                <Command Path="SaveSettings" />
-                <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog" />
-              </CommandList>
-            </Button.Command>
-          </Button>
+            <Button Name="ButtonCancel" Grid.Column="1" SetFocusPrio="Default" Style="{ThemeResource DialogButtonStyle}"
+                    Content="[System.Cancel]" HorizontalAlignment="Center" Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}" />
 
-          <Button Name="ButtonCancel" Grid.Column="1" SetFocusPrio="Default" Style="{ThemeResource DialogButtonStyle}"
-                  Content="[System.Cancel]" HorizontalAlignment="Center" Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}" />
+          </Grid>
+        </StackPanel>
+      <!-- ##### END: This part is the content area - all other parts normally refer to master_dialog_bare and need manual updates, if it is changed.
+           Background: Show effects of the settings live in its own dialog ######
+      -->
 
-        </Grid>
-      </StackPanel>
-    </ControlTemplate>
+    </DockPanel>
 
-  </Include.Resources>
-</Include>
+    <Control x:Name="AdditionalKeyBindings" Visibility="Hidden" Template="{DynamicResource ResourceKey=Additional_KeyBindings}"/>
+  </Grid>
+</Screen>
+
