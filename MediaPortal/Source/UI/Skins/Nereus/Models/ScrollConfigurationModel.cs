@@ -50,10 +50,46 @@ namespace MediaPortal.UiComponents.Nereus.Models
     protected AbstractProperty _autoScrollProperty = new WProperty(typeof(bool), true);
     protected AbstractProperty _manualScrollProperty = new WProperty(typeof(bool), true);
     protected AbstractProperty _enableLoopScrollingProperty = new WProperty(typeof(bool), true);
+    private const int MaxScrollSpeed = 60;
+    private const int MaxScrollDelay = 10;
+    private const int ScrollSpeedStepSize = 5; // Step size for ScrollSpeed
+    private const int ScrollDelayStepSize = 1; // Step size for ScrollDelay
 
     #endregion
 
     #region Public fields (can be used by the GUI)
+
+    public void IncreaseScrollSpeed()
+    {
+      if (int.TryParse(ScrollSpeed, out var speed) && speed <= MaxScrollSpeed - ScrollSpeedStepSize)
+      {
+        ScrollSpeed = (speed + ScrollSpeedStepSize).ToString(); // Increment speed by step size
+      }
+    }
+
+    public void DecreaseScrollSpeed()
+    {
+      if (int.TryParse(ScrollSpeed, out var speed) && speed >= ScrollSpeedStepSize)
+      {
+        ScrollSpeed = (speed - ScrollSpeedStepSize).ToString(); // Decrement speed by step size
+      }
+    }
+
+    public void IncreaseScrollDelay()
+    {
+      if (int.TryParse(ScrollDelay, out var delay) && delay <= MaxScrollDelay - ScrollDelayStepSize)
+      {
+        ScrollDelay = (delay + ScrollDelayStepSize).ToString(); // Increment delay by step size
+      }
+    }
+
+    public void DecreaseScrollDelay()
+    {
+      if (int.TryParse(ScrollDelay, out var delay) && delay >= ScrollDelayStepSize)
+      {
+        ScrollDelay = (delay - ScrollDelayStepSize).ToString(); // Decrement delay by step size
+      }
+    }
 
     public AbstractProperty UseAutoScrollProperty
     {
@@ -134,12 +170,12 @@ namespace MediaPortal.UiComponents.Nereus.Models
       settings.EnableAutoScrolling = UseAutoScroll;
       settings.EnableLoopScrolling = EnableLoopScrolling;
 
-      if (int.TryParse(ScrollSpeed, out var speed) && speed > 0)
+      if (int.TryParse(ScrollSpeed, out var speed) && speed > 0 && speed < MaxScrollSpeed)
         settings.AutoScrollSpeed = speed;
       else
         settings.AutoScrollSpeed = DEFAULT_SCROLL_SPEED;
 
-      if (int.TryParse(ScrollDelay, out var delay) && delay > 0)
+      if (int.TryParse(ScrollDelay, out var delay) && delay > 0 && delay < MaxScrollDelay)
         settings.AutoScrollDelay = delay;
       else
         settings.AutoScrollDelay = DEFAULT_SCROLL_DELAY;

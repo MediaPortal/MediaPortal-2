@@ -134,12 +134,32 @@
           </Grid.ColumnDefinitions>
 
           <Label Grid.Column="0" Content="[Nereus.Configuration.AutoScrollSpeed]" Color="{ThemeResource TextColor}" Margin="50,0,25,0"/>
-          <TextBox x:Name="AutoScrollSpeed" Text="{Binding Path=ScrollSpeed,Mode=TwoWay}" Margin="5,0,5,0" Grid.Column="1" Width="140"
+          <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                      <TextBox x:Name="AutoScrollSpeed" Text="{Binding Path=ScrollSpeed,Mode=TwoWay}" Margin="5,0,5,0"  Width="140"
                    HorizontalAlignment="Right" IsEnabled="{Binding Path=UseAutoScroll}"/>
 
+          <!--Add buttons for speed up and down in 0.1 steps-->
+          <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Button Style="{ThemeResource ChapterUpButtonStyle}" Height="30" Margin="0,0,0,2"
+                    Command="{Command Source={StaticResource ScrollConfigurationModel},Path=IncreaseScrollSpeed}"/>
+            <Button Style="{ThemeResource ChapterDownButtonStyle}" Height="30"
+                    Command="{Command Source={StaticResource ScrollConfigurationModel},Path=DecreaseScrollSpeed}"/>
+            </StackPanel>
+          </StackPanel>
+
           <Label Grid.Row="1" Content="[Nereus.Configuration.AutoScrollDelay]" Color="{ThemeResource TextColor}" Margin="50,0,25,0"/>
-          <TextBox Grid.Row="1" x:Name="AutoScrollDelay" Text="{Binding Path=ScrollDelay,Mode=TwoWay}" Margin="5,0,5,0" Grid.Column="1" Width="140"
-                   HorizontalAlignment="Right" IsEnabled="{Binding Path=UseAutoScroll}"/>
+          
+          <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center">
+            <TextBox x:Name="AutoScrollDelay" Text="{Binding Path=ScrollDelay,Mode=TwoWay}" Margin="5,0,5,0" Width="140"
+                     HorizontalAlignment="Right" IsEnabled="{Binding Path=UseAutoScroll}"/>
+          <!--Add buttons for speed up and down in 0.1 steps-->
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Button Style="{ThemeResource ChapterUpButtonStyle}" Height="30" Margin="0,0,0,2"
+                      Command="{Command Source={StaticResource ScrollConfigurationModel},Path=IncreaseScrollDelay}"/>
+              <Button Style="{ThemeResource ChapterDownButtonStyle}" Height="30"
+                      Command="{Command Source={StaticResource ScrollConfigurationModel},Path=DecreaseScrollDelay}"/>
+            </StackPanel>
+          </StackPanel>
 
           <ScrollViewer Grid.Column="3" Grid.RowSpan="2" CanContentScroll="True" HorizontalScrollBarVisibility="Disabled" Focusable="True" 
                         Margin="50,0,10,0" VerticalAlignment="Top" Height="100" Width="200" HorizontalAlignment="Right"
