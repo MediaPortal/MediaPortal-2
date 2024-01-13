@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  
+  <string name="UserConfig.AddUser">追加</string>
+  <string name="UserConfig.Yes"> はい</string>
+  <string name="UserConfig.No">いいえ</string>
+  <string name="UserConfig.Default">デフォルト</string>
+  <string name="UserConfig.LocalShare">クライアントメディアソース</string>
+  <string name="UserConfig.LocalShares">クライアントメディアソース</string>
+  <string name="UserConfig.GlobalShare">サーバーメディアソース</string>
+  <string name="UserConfig.GlobalShares">サーバーメディアソース</string>
+  <string name="UserConfig.NoConfigGlobalSharesHomeServerNotConnected"> ホームサーバーは現在接続されていないため、サーバーメディアソースは現在管理できません</string>
+  <string name="UserConfig.NoConfigLocalSharesHomeServerLocal"> ホームサーバーは同じマシンに配置されているため、サーバーメディアソースのみを構成できます。</string>
+
+  </resources>

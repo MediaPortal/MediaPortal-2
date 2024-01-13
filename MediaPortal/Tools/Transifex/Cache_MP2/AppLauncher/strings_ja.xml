@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <string name="AppLauncher.Stop">止まる</string>
+  <string name="AppLauncher.Settings.Title">設定</string>
+  <string name="AppLauncher.Settings.Add.Description">説明</string>
+  <string name="AppLauncher.Settings.Add.Search"> 
+探す</string>
+  </resources>

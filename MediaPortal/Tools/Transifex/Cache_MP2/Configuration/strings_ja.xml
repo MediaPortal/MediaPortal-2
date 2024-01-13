@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Configuration.Name">設定</string>
+  <string name="Configuration.Name.Help"> メディアソースを構成し、MediaPortalのルックアンドフィールを変更します。</string>
+  <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">設定</string>
+  <string name="Configuration.MainSettings">主な設定</string>
+  <!--2nd Header for root configuration section-->
+  <string name="Configuration.NoSettingsInThisSection">このセクションには設定はありません</string>
+  <string name="Configuration.ErrorFloatingPointValue"> \'{0}\'は有効な浮動小数点数ではありません</string>
+  <string name="Configuration.ErrorIntegerValue">\'{0}\'は有効な整数ではありません</string>
+  <string name="Configuration.ErrorNumericLowerLimit">\'{1}\'と\'{2}\'の間の値を使用してください</string>
+  <!--0 = current value, 1 = lower limit, 2 = upper limit-->
+  <string name="Configuration.ErrorNumericUpperLimit">\'{1}\'と\'{2}\'の間の値を使用してください</string>
+  <!--0 = current value, 1 = lower limit, 2 = upper limit-->
+</resources>

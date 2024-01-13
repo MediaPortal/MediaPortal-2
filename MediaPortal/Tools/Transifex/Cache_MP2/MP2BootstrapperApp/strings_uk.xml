@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!-- General -->
+  <string name="General.FinishButton">Фініш</string>
+  <string name="General.BackButton">Назад</string>
+  <string name="General.AbortButton">Скасувати</string>
+  </resources>

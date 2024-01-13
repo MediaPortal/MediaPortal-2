@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!-- General -->
+  <string name="General.FinishButton">समाप्त</string>
+  <string name="General.BackButton">वापस</string>
+  <string name="General.AbortButton">रद्द करें</string>
+  <string name="InstallNewTypePageView.Client">ग्राहक</string>
+  <string name="InstallCustomPropertiesPageView.BrowseButton">ब्राउज़ करें</string>
+  </resources>

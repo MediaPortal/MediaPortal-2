@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="InputDevices.Config.Section">Inmatningsenheter</string>
+  <string name="InputDevices.Config.FunctionShortcuts">Snabbval för funktioner</string>
+  <string name="InputDevices.Config.FunctionShortcuts.Help">Här kan du knyta funktioner i MediaPortal 2 till knappar/tangenter på din inmatningsenhet. Du kan t.ex. knyta ljudvolym upp/ner till \"+\" och \"-\" på ditt tangentbord om du saknar ljudvolymknappar på ditt tangentbord.</string>
+  <string name="InputDevices.Config.ConfigurationShortcuts">Snabbval för konfigurering</string>
+  <string name="InputDevices.Config.ConfigurationShortcuts.Help">Här kan du skapa snabbval genom att knyta konfigurationssidor och inställningssidor till knappar/tangenter på din inmatningsenhet. </string>
+  <string name="InputDevices.Config.ScreenShortcuts">Snabbval för sidor</string>
+  <string name="InputDevices.Config.ScreenShortcuts.Help">Här kan du skapa snabbval genom att knyta menyval till knappar/tangenter på din inmatningsenhet. T.ex. kan du knyta \'F2\' på tangentbordet till \'Nyheter\'</string>
+
+  <string name="InputDevices.Dialog.SelectDevice.Help">Tryck på en tangent/ knapp på inmatningsenheten som du vill konfigurera</string>
+  <string name="InputDevices.Dialog.AddInput.Help">Tryck på önskad tangent/knapp på inmatningsenheten</string>
+  
+  <string name="InputDevices.Mapping.Key">Tangent/knapp</string>
+  <string name="InputDevices.Mapping.ClearMapping">Rensa</string>
+  </resources>

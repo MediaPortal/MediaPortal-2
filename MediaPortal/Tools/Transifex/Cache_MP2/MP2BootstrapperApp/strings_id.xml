@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!-- General -->
+  <string name="General.FinishButton">Selesai</string>
+  <string name="General.BackButton">Kembali</string>
+  <string name="General.AbortButton">Batal</string>
+  <string name="InstallNewTypePageView.Client">Klien</string>
+  <string name="InstallCustomPropertiesPageView.BrowseButton">Ramban</string>
+  <!-- InstallOverviewPageView -->
+  <string name="InstallOverviewPageView.Header">Tinjauan</string>
+  </resources>

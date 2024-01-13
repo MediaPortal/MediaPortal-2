@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Image">イメージプレーヤー</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration">スライドショーの画像の長さ</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration.Help">スライドショーモードで各画像が表示される時間を秒単位で設定します</string>
+  <string name="Settings.Players.Image.KenBurnsEffect">ケンバーンズ効果を使用する</string>
+  <string name="Settings.Players.Image.KenBurnsEffect.Help">画像を表示するときにパンとズームのアニメーションを使用します</string>
+</resources>

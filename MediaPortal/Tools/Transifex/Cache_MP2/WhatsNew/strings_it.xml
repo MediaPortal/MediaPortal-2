@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="WhatsNew.ScreenTitle">Novità in MediaPortal 2.3</string>
+  <string name="WhatsNew.WhatsNewText">Nuova interfaccia Nereus disponibile: con un design veloce, fresco e moderno. Provala ora! Sarà possibile riapplicare facilmente l\'interfaccia corrente e non andrà persa alcuna impostazione.</string>
+  <string name="WhatsNew.ButtonText">Cambiamenti a Nereus</string>
+
+  <string name="WhatsNew.ScreenTitle_2.4">Novità in MediaPortal 2.4</string>
+  <string name="WhatsNew.WhatsNewText_2.4">I layout della nostra interfaccia predefinita Nereus sono stati migliorati. Provali ora! Puoi facilmente cambiarli nel menù di configurazione delle schermate.</string>
+  <string name="WhatsNew.ButtonText_2.4">Applica i nuovi layout predefiniti</string>
+</resources>

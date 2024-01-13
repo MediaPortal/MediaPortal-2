@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!-- General -->
+  <string name="General.FinishButton">סיים</string>
+  <string name="General.BackButton">אחורה</string>
+  <string name="General.AbortButton">בטל</string>
+  <string name="InstallNewTypePageView.Client">לקוח</string>
+  <string name="InstallCustomPropertiesPageView.BrowseButton">בחר</string>
+  <!-- InstallOverviewPageView -->
+  <string name="InstallOverviewPageView.Header">מבט כללי</string>
+  </resources>

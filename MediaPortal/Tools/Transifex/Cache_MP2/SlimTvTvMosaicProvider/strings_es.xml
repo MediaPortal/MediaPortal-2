@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Settings.Plugins.TV">TV</string>
+  <string name="Settings.Plugins.tv.tvmosaicserveraddress">Dirección del servidor TVMosaic</string>
+  <string name="Settings.Plugins.tv.tvmosaicusername">Usuario de TVMosaic</string>
+  <string name="Settings.Plugins.tv.tvmosaicpassword">Contraseña de TVMosaic</string>
+  
+  <string name="Settings.Plugins.tv.tvmosaicserveraddress.help">Por favor ingrese la dirección del servidor de TVMosaic</string>
+  <string name="Settings.Plugins.tv.tvmosaicusername.help">Por favor ingrese su nombre de usuario de TVMosaic</string>
+  <string name="Settings.Plugins.tv.tvmosaicpassword.help">Por favor ingrese su contraseña de TVMosaic</string>
+</resources>

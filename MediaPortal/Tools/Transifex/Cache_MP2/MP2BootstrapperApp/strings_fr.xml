@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!-- Package descriptions -->
+  <string name="PackageDescription.LAVFilters">Filtres directshow recommandés pour une expérience de lecture audio et vidéo optimale.</string>
+
+  <!-- Feature descriptions -->
+  <string name="FeatureDescription.Client">L\'interface utilisateur. Joue des fichiers multimédias.</string>
+  <string name="FeatureDescription.Server">Le serveur de MediaPortal 2. Fournit la MediaLibrary et d\'autres services.</string>
+  <string name="FeatureDescription.ServiceMonitor">L\'interface graphique utilisateur pour la partie serveur de MediaPortal 2. Fournit la surveillance et la configuration pour MP2-Server.</string>
+  <string name="FeatureDescription.LogCollector">LogCollector vous permet de collecter facilement tous les fichiers journaux de MediaPortal 2 pour créer des rapports de bugs.</string>
+  <string name="FeatureDescription.SlimTv.ServiceClient">Regardez et enregistrez la télévision en direct en utilisant le service TV fonctionnant sur un serveur MP2 disponible dans le réseau.</string>
+  <string name="FeatureDescription.SlimTv.TvMosaicClient">Regardez et enregistrez la télévision en direct en utilisant un serveur TV Mosaic disponible sur le réseau.</string>
+  <string name="FeatureDescription.SlimTv.Service3">Regardez et enregistrez la télévision en direct en utilisant le service TV 3.</string>
+  <string name="FeatureDescription.SlimTv.Service35">Regardez et enregistrez la télévision en direct en utilisant le service TV 3.5.</string>
+  
+  <!-- General -->
+  <string name="General.FinishButton">Terminé</string>
+  <string name="General.NextButton">Suivant</string>
+  <string name="General.BackButton">Retour</string>
+  <string name="General.AbortButton">Annuler</string>
+  <string name="General.FinishSubHeader">Profitez de votre expérience MediaPortal 2</string>
+  
+  <!-- InstallWelcomePageView -->
+  <string name="InstallWelcomePageView.Header">Bienvenue sur MediaPortal 2</string>
+  <string name="InstallWelcomePageView.Description">MediaPortal 2 est un logiciel de centre multimédia complet qui répond à la plupart des besoins courants des utilisateurs dès le départ. En plus de son support pour la télévision en direct et la radio, il offre un serveur multimédia complet pour la musique, les films et les séries. Les informations sont automatiquement téléchargées à partir de différentes sources pour fournir des affiches, des fanarts, des pochettes d\'album et diverses métadonnées supplémentaires, telles que la distribution, le personnel, et plus encore. MediaPortal 2 offre également un accès à des sources de vidéos en ligne. Les actualités intégrées, les informations météorologiques et la gestion de vos images numériques complètent ce package logiciel.</string>
+  <string name="InstallWelcomePageView.AcceptLicenceTerms">J\'accepte les termes de l\'Accord de licence ci-dessous.</string>
+
+  <!-- InstallNewTypePageView -->
+  <string name="InstallNewTypePageView.Header">Nouvelle installation</string>
+  <string name="InstallNewTypePageView.SubHeader">Sélectionnez le type d\'installation</string>
+  <string name="InstallNewTypePageView.ServerClient">Client et Serveur</string>
+  <string name="InstallNewTypePageView.Client">Client</string>
+  <string name="InstallNewTypePageView.Server">Serveur</string>
+  <string name="InstallNewTypePageView.Custom">Custom</string>
+  <string name="InstallNewTypePageView.ServerClientDescription">Installation unique d\'un siège ou d\'un serveur complet avec interface utilisateur</string>
+  <string name="InstallNewTypePageView.ClientDescription">Installez uniquement l\'interface utilisateur, le serveur est disponible sur le réseau.</string>
+  <string name="InstallNewTypePageView.ServerDescription">Installer un serveur dédié sans interface utilisateur</string>
+  <string name="InstallNewTypePageView.CustomDescription">Configure les chemins d\'installation et les fonctionnalités</string>
+
+  <!-- InstallExistTypePageView -->
+  <string name="InstallExistTypePageView.Header">L\'installation existe déjà</string>
+  <string name="InstallExistTypePageView.SubHeader">Sélectionnez l\'action pour l\'installation existante</string>
+  <string name="InstallExistTypePageView.Modify">Modifier</string>
+  <string name="InstallExistTypePageView.Repair">Réparation</string>
+  <string name="InstallExistTypePageView.Uninstall">Désinstaller</string>
+  <string name="InstallExistTypePageView.ModifyDescription">Modifie l\'installation existante en supprimant ou en ajoutant des fonctionnalités</string>
+  <string name="InstallExistTypePageView.RepairDescription">Répare les erreurs dans l\'installation existante en corrigeant les fichiers manquants et corrompus, les raccourcis et les entrées de registre.</string>
+  <string name="InstallExistTypePageView.UninstallDescription">Désinstalle complètement l\'installation existante</string>
+
+  <!-- InstallCustomPageView -->
+  <string name="InstallCustomPageView.Header">Installation personnalisée</string>
+  <string name="InstallCustomPageView.SubHeader">Sélectionnez les fonctionnalités à installer</string>
+  <string name="InstallCustomPageView.RequiredHardDriveSpace">Nécessite {0} sur votre disque dur.</string>
+
+  <!-- InstallCustomPropertiesPageView -->
+  <string name="InstallCustomPropertiesPageView.Header">Installation personnalisée</string>
+  <string name="InstallCustomPropertiesPageView.SubHeader">Configurer les propriétés d\'installation supplémentaires</string>
+  <string name="InstallCustomPropertiesPageView.CreateDesktopShortcuts">Créer des raccourcis sur le bureau</string>
+  <string name="InstallCustomPropertiesPageView.CreateStartMenuShortcuts">Créer des raccourcis dans le menu Démarrer</string>
+  <string name="InstallCustomPropertiesPageView.BrowseButton">Parcourir</string>
+  <string name="InstallCustomPropertiesPageView.InvalidPath">L\'emplacement d\'installation spécifié est invalide.</string>
+
+  <!-- InstallPluginsPageView -->
+  <string name="InstallPluginsPageView.Header">Plugins supplémentaires</string>
+  <string name="InstallPluginsPageView.SubHeader">Sélectionnez les plugins supplémentaires à installer</string>
+
+  <!-- InstallOverviewPageView -->
+  <string name="InstallOverviewPageView.Header">Aperçu</string>
+  <string name="InstallOverviewPageView.InstallButton">Installer</string>
+
+  <!-- InstallationInProgressPageView -->
+  <string name="InstallationInProgressPageView.InstallingHeader">Installer</string>
+  <string name="InstallationInProgressPageView.ModifyingHeader">Modifiant</string>
+  <string name="InstallationInProgressPageView.RepairingHeader">Réparation</string>
+  <string name="InstallationInProgressPageView.UninstallingHeader">Désinstallation</string>
+  <string name="InstallationInProgressPageView.DefaultHeader">Traitement</string>
+
+  <!-- RepairPagePageView -->
+  <string name="RepairPagePageView.Header">Réparation de l\'installation</string>
+  <string name="RepairPagePageView.SubHeader">Effectue une installation de réparation</string>
+  <string name="RepairPagePageView.Message">Êtes-vous sûr de vouloir réparer la version existante de MediaPortal 2 ?</string>
+
+  <!-- UninstallPagePageView -->
+  <string name="UninstallPagePageView.Header">Désinstaller MediaPortal</string>
+  <string name="UninstallPagePageView.UninstallButton">Désinstaller</string>
+  <string name="UninstallPagePageView.Message">Êtes-vous sûr de vouloir désinstaller MediaPortal 2 ?</string>
+
+  <!-- InstallCancelledPageView -->
+  <string name="InstallCancelledPageView.Header">Installation annulée</string>  
+  <string name="InstallCancelledPageView.Message">L\'installation a été annulée.</string>
+
+  <!-- InstallErrorPageView -->
+  <string name="InstallErrorPageView.Header">Erreur d\'installation</string>
+  <string name="InstallErrorPageView.Message">L\'installation a échoué en raison d\'une erreur inattendue.</string>
+
+  <!-- InstallInitializingPageView -->
+  <string name="InstallInitializingPageView.Header">Bienvenue sur MediaPortal 2</string>
+  <string name="InstallInitializingPageView.Message">Initialisation</string>
+
+  <!-- ModifyPageView -->
+  <string name="ModifyPageView.Header">Modifier l\'installation</string>
+  <string name="ModifyPageView.SubHeader">Sélectionnez les fonctionnalités à modifier</string>
+
+  <!-- ModifyFinishPageView -->
+  <string name="ModifyFinishPageView.Header">Modifier terminé</string>
+
+  <!-- InstallFinishPageView -->
+  <string name="InstallFinishPageView.Header">Installation terminée</string>
+  <string name="InstallFinishPageView.Message">L\'installation est maintenant terminée.</string>
+  <string name="InstallFinishPageView.WikiPre">Dans notre</string>
+  <string name="InstallFinishPageView.WikiPost">vous pouvez trouver de l\'aide pour tout configurer</string>
+
+  <!-- RepairFinishPageView -->
+  <string name="RepairFinishPageView.Header">Réparation terminée</string>
+
+  <!-- UninstallFinishPageView -->
+  <string name="UninstallFinishPageView.Header">Désinstallation terminée</string>
+  <string name="UninstallFinishPageView.SubHeader">Merci d\'utiliser MediaPortal 2.</string>
+  <string name="UninstallFinishPageView.Message">La désinstallation est maintenant terminée.</string>
+
+  <!-- DowngradePageView -->
+  <string name="DowngradePageView.Header">Nouvelle version installée</string>
+  <string name="DowngradePageView.Message">Une version plus récente de MediaPortal 2 est déjà installée. Si vous souhaitez rétrograder, vous devez désinstaller la version existante avant d\'exécuter cette installation.</string>
+
+</resources>

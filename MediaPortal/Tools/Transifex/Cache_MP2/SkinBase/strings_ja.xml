@@ -1,0 +1,138 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="System.Yes"> はい</string>
+  <string name="System.No">いいえ</string>
+  <string name="System.Done">終わり</string>
+  <string name="System.Finish">終了</string>
+  <string name="System.Ok">Ok</string>
+  <string name="System.Cancel">キャンセル</string>
+  <string name="System.Continue">継続する</string>
+  <string name="System.Add">追加</string>
+  <string name="System.Remove">削除する</string>
+  <string name="System.Hint">ヒント</string>
+  <string name="System.Information">情報</string>
+  <string name="System.Warning"> 警告</string>
+  <string name="System.Error">エラー</string>
+  <string name="Home.HomeStateDisplayLabel">家</string>
+  <string name="Dialogs.WarningHeaderText"> 警告</string>
+  <string name="Dialogs.ErrorHeaderText">エラー</string>
+  <string name="Media.MyMusic">音楽</string>
+  <string name="Media.MyVideos">ビデオ</string>
+  <string name="Media.MyPictures"> ピクチャー</string>
+  <!--{0} = server name, {1} = host name-->
+  <string name="ServerConnection.HomeServer">ホームサーバー</string>
+  <string name="ServerConnection.HomeServerWorkflowStateLabel">ホームサーバー</string>
+  <string name="ServerConnection.AttachedText.After"></string>
+  <string name="ServerConnection.DetachConfirmDialogHeader"> ホームサーバーから切り離す</string>
+  <string name="ServerConnection.DetachConfirmDialogText">ホームサーバーからデタッチすると、クライアントメディアソースとそのメディアアイテムに関するすべてのデータがホームサーバーのメディアライブラリから削除されます。後で再度取り付けることができます。本当にホスト\'{1}\'のホームサーバー\'{0}\'からデタッチしますか？</string>
+  <string name="ServerConnection.DetachFromServer"> ホームサーバーから切り離す</string>
+  <string name="ServerConnection.AttachToServerHeader">MediaPortal2サーバーに接続する</string>
+  <string name="ServerConnection.AttachButton"> 添付</string>
+  <string name="ServerConnection.AttachInfoDialogHeader">サーバーが接続されています</string>
+  <!--{0} = server name, {1} = host name-->
+  <string name="Notifications.Title">通知</string>
+  <string name="Notifications.WatchNotificationsWorkflowStateLabel">通知</string>
+  <string name="ImporterMessages.ImportCompletedTitle">インポートが完了しました</string>
+  <!--For MP UI player subsystem-->
+  <!--for example "Fullscreen TV"-->
+  <string name="Players.AudioVisualization">オーディオの視覚化</string>
+  <!--for example "Video player"-->
+  <!--for example "Focus video player"-->
+  <!--for example "Audio menu for Lammbock"-->
+  <!--for example "Close video player"-->
+  <string name="Players.ChoosePlayerSubtitle"> 字幕</string>
+  <string name="Settings.Appearance.Skin">スキン</string>
+  <string name="Settings.Appearance.Skin.Formats.DateFormat">日付形式</string>
+  <string name="Settings.Appearance.Skin.Formats.TimeFormat"> 時間形式</string>
+  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">スキンで使用される時間形式。 「11:50」の場合は「t」、「11:50:37」の場合は「T」を使用します。</string>
+  <string name="Settings.General">全般的</string>
+  <string name="Settings.General.System">システム</string>
+  <string name="Settings.General.System.Autostart">自動スタート</string>
+  <string name="Settings.General.System.Autostart.Help">Windowsの起動時にMediaPortalを自動的に起動します</string>
+  <string name="Settings.General.Connectivity">接続性</string>
+  <string name="Settings.General.Connectivity.HomeServer">ホームサーバー</string>
+  <string name="Settings.General.Connectivity.HomeServer.Help">ホームサーバー情報、ホームサーバーへの接続とホームサーバーからの切り離し</string>
+  <string name="Settings.General.Connectivity.ServerListener">サーバーリスナー</string>
+  <string name="Settings.General.Connectivity.ServerListener.Help">MediaPortal 2サーバーがネットワークで使用可能になったときに、切り離された状態で通知を有効にする</string>
+  <string name="Settings.General.Connectivity.ClientName">クライアント名</string>
+  <string name="Settings.General.Connectivity.ClientName.Help">このMediaPortal2クライアントの名前を設定します</string>
+  <string name="Settings.Regional">地域</string>
+  <string name="Settings.Regional.Language">言語</string>
+  <string name="Settings.Regional.Language.Main">言語</string>
+  <string name="Settings.Regional.Language.Main.Help">アプリケーションで使用される主な言語を設定します</string>
+  <string name="Settings.Shares">メディアソース</string>
+  <!--Section name-->
+  <string name="Settings.Shares.Configure">メディアソースを構成する</string>
+  <!--Group name-->
+  <string name="Settings.Shares.ConfigureShares.SharesConfiguration">メディアソースの構成</string>
+  <!--Setting-->
+  <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help">すべてのメディアソースを構成する</string>
+  <string name="Settings.Shares.Overview"> 概要</string>
+  <!--Group name-->
+  <string name="Settings.Shares.Overview.SharesOverview"> メディアソースの概要</string>
+  <!--Setting-->
+  <string name="Settings.Shares.Overview.SharesOverview.Help">Global overview over media sources</string>
+  <string name="Settings.Shares.Imports.ReImportAllShares"> すべてのメディアソースを再インポートします</string>
+  <string name="Settings.Plugins">プラグイン</string>
+  <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel"> メディアソースの概要</string>
+  <string name="SharesOverview.Title"> メディアソースの概要</string>
+  <string name="SharesOverview.ReImportAllShares"> すべてのメディアソースを再インポートします</string>
+  <string name="SharesOverview.NotConnectedToHomeServer"> ホームサーバーが接続されていないため、サーバーのメディアソース情報を取得できません</string>
+  <string name="Shares.NoSharesInThisView"> このビューにはメディアソースはありません</string>
+  <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
+  <!--Shares configuration workflow-->
+  <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">メディアソースの構成</string>
+  <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">メディアソースを削除する</string>
+  <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">メディアソース情報</string>
+  <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">リソースプロバイダーを選択してください</string>
+  <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">パスを編集</string>
+  <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">パスを選択</string>
+  <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">名前を編集</string>
+  <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">カテゴリを選択</string>
+  <string name="SharesConfig.CannotAddSharesTitle">メディアソースを追加できません</string>
+  <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected"> ホームサーバーは同じコンピューターに配置されているため、すべてのメディアソースをサーバーに登録する必要があります。ただし、サーバーは現在接続されていません。ホームサーバーを起動して、再試行してください。</string>
+  <string name="SharesConfig.SharesConfiguration.Title"> 
+メディアソースの構成</string>
+  <string name="SharesConfig.NoSharesAvailable">利用可能なメディアソースはありません</string>
+  <string name="SharesConfig.ShareInformationHeader">メディアソース情報</string>
+  <string name="SharesConfig.ShareNameInfo"> 名前：</string>
+  <string name="SharesConfig.ShareResourceProviderInfo"> ベースリソースプロバイダー：</string>
+  <string name="SharesConfig.ShareSystem">システム：</string>
+  <string name="SharesConfig.SharePathInfo">パス：</string>
+  <string name="SharesConfig.ShareResourcePathInfo">テクニカルパス：</string>
+  <string name="SharesConfig.ShareMediaCategoriesInfo">メディアカテゴリ：</string>
+  <string name="SharesConfig.ReImportShare">メディアソースを再インポートする</string>
+  <string name="SharesConfig.SetupDefaultShares"> デフォルトのソースを設定する</string>
+  <string name="SharesConfig.RemoveShares">メディアソースを削除する</string>
+  <string name="SharesConfig.EditShare">メディアソースを編集する</string>
+  <string name="SharesConfig.ChooseSystem">システムを選択</string>
+  <string name="SharesConfig.ChooseSharesToBeRemoved">削除するメディアソースを選択してください</string>
+  <string name="SharesConfig.ChooseSystemForShare">メディアソースを選択</string>
+  <string name="SharesConfig.LocalShare">クライアントメディアソース</string>
+  <string name="SharesConfig.LocalShares">クライアントメディアソース</string>
+  <string name="SharesConfig.GlobalShare">サーバーメディアソース</string>
+  <string name="SharesConfig.GlobalShares">サーバーメディアソース</string>
+  <string name="SharesConfig.NoConfigGlobalSharesHomeServerNotConnected"> ホームサーバーは現在接続されていないため、サーバーメディアソースは現在管理できません</string>
+  <string name="SharesConfig.NoConfigLocalSharesHomeServerLocal"> ホームサーバーは同じマシンに配置されているため、サーバーメディアソースのみを構成できます。</string>
+  <string name="SharesConfig.ChooseResourceProviderForShare">メディアソースのリソースプロバイダーを選択してください</string>
+  <string name="SharesConfig.EditResourceProviderPathForShare">メディアソースへのパスを編集します</string>
+  <string name="SharesConfig.ChooseResourceProviderPathForShare">メディアソースのパスを選択してください</string>
+  <string name="SharesConfig.EditShareName">メディアソースの表示名を編集してください</string>
+  <string name="SharesConfig.ChooseShareCategories">メディアソースにあるメディアコンテンツのカテゴリを選択してください</string>
+  <string name="SharesConfig.SharePathExists">そのパスを持つメディアソースはすでに存在します</string>
+  <string name="SharesConfig.ShareNameExists"> その名前のメディアソースはすでに存在します</string>
+  <string name="SharesConfig.MenuAddShare">メディアソースを追加</string>
+  <string name="SharesConfig.MenuEditShares">編集</string>
+  <string name="SharesConfig.MenuRemoveShares">メディアソースを削除する</string>
+  <string name="SharesConfig.AddServerShare">サーバーメディアソースを追加する</string>
+  <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
+  <string name="SharesConfig.EditServerShare">サーバーメディアソースの編集</string>
+  <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
+  <string name="SharesConfig.AddLocalShare"> クライアントメディアソースを追加する</string>
+  <string name="SharesConfig.EditLocalShare">クライアントメディアソースを編集する</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader"> メディアソースを更新する</string>
+  <string name="UPnPFrontendServer.Manufacturer">チームメディアポータル</string>
+  <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="UPnPFrontendServer.ModelNumber">1</string>
+  <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->
+</resources>

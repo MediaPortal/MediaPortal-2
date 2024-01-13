@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!-- General -->
+  <string name="General.FinishButton">Terminar</string>
+  <string name="General.BackButton">Voltar</string>
+  <string name="General.AbortButton">Cancelar</string>
+  <string name="InstallNewTypePageView.Client">Cliente</string>
+  <string name="InstallCustomPropertiesPageView.BrowseButton">Navegar</string>
+  <!-- InstallOverviewPageView -->
+  <string name="InstallOverviewPageView.Header">Vista Geral</string>
+  </resources>

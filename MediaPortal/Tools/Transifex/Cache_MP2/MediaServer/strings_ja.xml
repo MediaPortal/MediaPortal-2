@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="MediaServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="MediaServer.ModelUrl">www.team-mediaportal.com</string>
+
+  <string name="MediaServer.AudiotContainter"> オーディオ</string>
+  <string name="MediaServer.ArtistContainter">アーティスト</string>
+  <string name="MediaServer.AlbumArtistContainter">アルバムアーティスト</string>
+  <string name="MediaServer.YearContainter">年</string>
+  <string name="MediaServer.ImageContainter">画像</string>
+  <string name="MediaServer.VideoContainter">ビデオ</string>
+  <string name="MediaServer.MovieContainter">映画</string>
+  <string name="MediaServer.ActorContainter">俳優</string>
+  <string name="MediaServer.SeriesContainter">シリーズ</string>
+  <string name="MediaServer.TV"> テレビ</string>
+  </resources>

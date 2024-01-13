@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.General.System.SystemStateDialog">シャットダウンメニュー</string>
+  <string name="SystemState.Title">シャットダウンメニュー</string>
+  <string name="SystemState.Shutdown"> シャットダウン</string>
+  <string name="SystemState.Suspend">サスペンド</string>
+  <string name="SystemState.Restart"> Windowsを再起動</string>
+  <string name="SystemState.Logoff"> ログオフ</string>
+  <string name="SystemState.MinimizeMP"> MediaPortalを最小化する</string>
+  <string name="SystemState.ShutdownMP">MediaPortalを閉じる</string>
+  <string name="SystemState.ShutdownDialogStateDisplayLabel">シャットダウンメニュー</string>
+  <string name="SleepTimer.Stop">止まる</string>
+</resources>

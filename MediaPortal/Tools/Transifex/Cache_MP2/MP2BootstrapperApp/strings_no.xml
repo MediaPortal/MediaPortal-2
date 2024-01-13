@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!-- General -->
+  <string name="General.FinishButton">Slutt</string>
+  <string name="General.BackButton">Tilbake</string>
+  <string name="General.AbortButton">Avbryt</string>
+  <string name="InstallNewTypePageView.Client">Klient</string>
+  <string name="InstallCustomPropertiesPageView.BrowseButton">Utforsk</string>
+  <!-- InstallOverviewPageView -->
+  <string name="InstallOverviewPageView.Header">Oversikt</string>
+  </resources>

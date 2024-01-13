@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="InputDevices.Config.Section">Input Apparaten</string>
+  <string name="InputDevices.Config.FunctionShortcuts">Functiesnelkoppelingen</string>
+  <string name="InputDevices.Config.FunctionShortcuts.Help">Hiermee kunt u MediaPortal functies toewijzen aan toetsen/knoppen op uw invoerapparaten. U kan bijvoorbeeld Volume Op/Neer toewijzen aan \'+\' en \'-\' op uw toetsenbord als u geen volumetoetsen heeft op uw toetsenbord.</string>
+  <string name="InputDevices.Config.ActionShortcuts">Actiesnelkoppelingen</string>
+  <string name="InputDevices.Config.ActionShortcuts.Help">Hiermee kunt u MediaPortal globale acties toewijzen aan toetsen/knoppen van uw invoerapparaat voor snelle toegang.</string>
+  <string name="InputDevices.Config.ConfigurationShortcuts">Configuratiesnelkoppelingen</string>
+  <string name="InputDevices.Config.ConfigurationShortcuts.Help">Hiermee kunt u MediaPortal configuratie- en instelschermen toewijzen aan toetsen/knoppen van uw invoerapparaat voor snelle toegang.</string>
+  <string name="InputDevices.Config.ScreenShortcuts">Schermsnelkoppelingen</string>
+  <string name="InputDevices.Config.ScreenShortcuts.Help">Hiermee kunt u MediaPortal menuschermen toewijzen aan toetsen/knoppen op uw invoerapparaten voor snelle toegang. U kan bijvoorbeeld \'F2\' op uw toetsenbord instellen om het \'Nieuws\' scherm te openen..</string>
+
+  <string name="InputDevices.Dialog.SelectDevice.Help">Druk op een knop op het invoerapparaat dat u wilt configureren.</string>
+  <string name="InputDevices.Dialog.AddInput.Help">Druk de gewenste toets/knop combinatie in op het invoerapparaat!</string>
+  
+  <string name="InputDevices.Mapping.Key">Toets/Knop</string>
+  <string name="InputDevices.Mapping.ClearMapping">Leegmaken</string>
+  </resources>

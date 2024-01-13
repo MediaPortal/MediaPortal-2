@@ -1,0 +1,146 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--Headlines for HomeContent-->
+  <string name="Media.LatestPlayed"> 最新のプレイ</string>
+  <string name="Media.LatestAdded"> 
+最新の追加</string>
+  <string name="Media.Favorites">お気に入り</string>
+  <string name="Media.Unplayed"> 未再生</string>
+  <string name="Media.CurrentPrograms">現在のプログラム</string>
+  <string name="Media.CurrentSchedules">現在のスケジュール</string>
+  <!--Menu items for the five Media navigation parts-->
+  <string name="Media.BrowseMediaMenuItem">メディアを閲覧する</string>
+  <string name="Media.BrowseMediaMenuItem.Help">メディアソース構造ごとに、あらゆる種類のメディアのメディアライブラリを参照します。ここでは、リムーバブルドライブにもアクセスできます。</string>
+  <string name="Media.LocalMediaMenuItem">ローカルメディア</string>
+  <string name="Media.AudioMenuItem"> オーディオ</string>
+  <string name="Media.AudioMenuItem.Help">オーディオライブラリから音楽やオーディオブックを再生して、追加のメディア情報を確認します。お気に入りの曲のプレイリストを作成することもできます。</string>
+  <string name="Media.VideosMenuItem">ビデオ</string>
+  <string name="Media.VideosMenuItem.Help">ビデオのメディアライブラリを参照します。このビューでは、を含むすべてのビデオを見ることができます。映画、エピソード、未分類。フィルタを設定して、必要に応じてビューを正確に絞り込むことができます。</string>
+  <string name="Media.SeriesMenuItem">シリーズ</string>
+  <string name="Media.SeriesMenuItem.Help">シリーズのメディアライブラリを参照します。レーティング、ジャンル、俳優、ポスター、ファンアートなど、シーズンやエピソードに関する追加情報も入手できます。フィルタを設定して、必要に応じてビューを正確に絞り込むことができます。</string>
+  <string name="Media.MoviesMenuItem">映画</string>
+  <string name="Media.MoviesMenuItem.Help">映画のメディアライブラリを参照します。評価、ジャンル、俳優、ポスター、ファンアートなどの追加情報を入手してください。フィルタを設定して、必要に応じてビューを正確に絞り込むことができます。</string>
+  <string name="Media.ImagesMenuItem">画像</string>
+  <string name="Media.ImagesMenuItem.Help">メディアライブラリで画像を参照します。場所、年、画像の詳細などの追加情報を取得します。フィルタを設定して、必要に応じてビューを正確に絞り込むことができます。</string>
+  <string name="Media.LatestMediaMenuItem"> 最新メディア</string>
+  <!--General strings used in filter/sort/group menus-->
+  <string name="Media.TrackMenuItem">追跡</string>
+  <string name="Media.ArtistMenuItem">アーティスト</string>
+  <string name="Media.ComposerMenuItem">作曲</string>
+  <string name="Media.GenreMenuItem"> ジャンル</string>
+  <string name="Media.YearMenuItem">年</string>
+  <string name="Media.SizeMenuItem">サイズ</string>
+  <string name="Media.SystemMenuItem"> 
+システム</string>
+  <string name="Media.ActorMenuItem">俳優</string>
+  <string name="Media.DirectorMenuItem">監督</string>
+  <string name="Media.EpisodeMenuItem">エピソード</string>
+  <string name="Media.AudioLanguageMenuItem">言語</string>
+  <string name="Media.MoviesCollectionMenuItem">コレクション</string>
+  <string name="Media.SeriesNameMenuItem">シリーズ</string>
+  <string name="Media.SimpleSearchFilterMenuItem">探す</string>
+  <!--Filter titles-->
+  <!--Special filters names-->
+  <string name="Media.ImageFilterSmall">小さい</string>
+  <string name="Media.ImageFilterMedium"> 中くらい</string>
+  <string name="Media.ImageFilterBig">大きい</string>
+  <!--Navbar display labels for sub view navigation-->
+  <!--For example: "R.E.M."-->
+  <!--For example: "R.E.M."-->
+  <!--For example: "Artist: R.E.M."-->
+  <string name="Media.FilterMoviesNavbarDisplayLabel">映画: {0}</string>
+  <!--Display labels for workflow navigation contexts-->
+  <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">メディアを閲覧する</string>
+  <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">ローカルメディア</string>
+  <string name="Media.AudioNavigationRootWorkflowNavigationContextDisplayLabel"> オーディオライブラリ</string>
+  <string name="Media.VideoNavigationRootWorkflowNavigationContextDisplayLabel">ビデオライブラリ</string>
+  <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel">シリーズライブラリ</string>
+  <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel"> 映画ライブラリ</string>
+  <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">画像ライブラリ</string>
+  <string name="Media.LatestMediaWorkflowNavigationContextDisplayLabel"> 最新メディア</string>
+  <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">現在のビデオ</string>
+  <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel"> フルスクリーンビデオ</string>
+  <string name="Media.AudioCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">現在のオーディオ</string>
+  <string name="Media.AudioFullscreenContentWorkflowStateNavigationContextDisplayLabel">オーディオの視覚化</string>
+  <string name="Media.ShowPlaylistWorkflowStateNavigationContextDisplayLabel">プレイリスト</string>
+  <string name="Media.EditPlaylistWorkflowStateNavigationContextDisplayLabel">プレイリストの編集</string>
+  <string name="Media.PlaylistsOverviewWorkflowStateNavigationContextDisplayLabel"> プレイリスト</string>
+  <string name="Media.PlaylistInfoWorkflowStateNavigationContextDisplayLabel">プレイリスト情報</string>
+  <string name="Media.RemovePlaylistsWorkflowStateNavigationContextDisplayLabel">プレイリストを削除する</string>
+  <string name="Media.SavePlaylistEditNameWorkflowStateNavigationContextDisplayLabel">プレイリスト名を編集する</string>
+  <string name="Media.SavePlaylistSuccessfulWorkflowStateNavigationContextDisplayLabel"> 成功</string>
+  <string name="Media.SavePlaylistFailedWorkflowStateNavigationContextDisplayLabel">失敗</string>
+  <!--Screen headers-->
+  <string name="Media.MoviesItemsHeader">映画</string>
+  <string name="Media.ChooseActorHeader">俳優</string>
+  <string name="Media.ChooseMovieHeader">映画</string>
+  <string name="Media.ChooseImageHeader">画像</string>
+  <string name="Media.ChooseSeriesHeader">シリーズ</string>
+  <string name="Media.ChooseArtistHeader">アーティスト</string>
+  <string name="Media.ChooseVideoHeader"> ビデオ</string>
+  <string name="Media.ChooseVideoLanguageHeader"> 言語</string>
+  <string name="Media.PlaylistsOverviewHeader"> プレイリスト</string>
+  <string name="Media.RemovePlaylistsHeader">プレイリストを削除する</string>
+  <!--View occupation names-->
+  <string name="Media.ArtistOccupationName">アーティスト</string>
+  <string name="Media.ActorOccupationName">俳優</string>
+  <string name="Media.DirectorOccupationName">監督</string>
+  <string name="Media.ComposerOccupationName">作曲</string>
+  <!--View names (names for the view instances)-->
+  <string name="Media.BrowseMediaRootViewName">メディアを閲覧する</string>
+  <string name="Media.LocalMediaRootViewName">ローカルメディア</string>
+  <string name="Media.AudioRootViewName"> オーディオ</string>
+  <string name="Media.VideosRootViewName"> ビデオ</string>
+  <string name="Media.SeriesRootViewName">シリーズ</string>
+  <string name="Media.EpisodeRootViewName">エピソード</string>
+  <string name="Media.ImagesRootViewName">画像</string>
+  <!--General strings used in views-->
+  <!--Shown in the header of an items list-->
+  <!--Shown in the header of an items list-->
+  <!--Shown in the header of an items list-->
+  <!--Shown in the header of an items list, e.g. "15/350 items"-->
+  <!--Shown in the header of an items list, e.g. "45 items"-->
+  <!--Playlists-->
+  <string name="Media.ManagePlaylists"> プレイリスト</string>
+  <string name="Media.AddToPlaylistProgressDialogHeader">進捗</string>
+  <string name="Media.StopAddToPlaylistButton">止まる</string>
+  <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">デフォルト</string>
+  <!--MediaItemAction dialog-->
+  <string name="Media.Refresh">更新</string>
+  <string name="Media.ReimportMediaItem.Done">終わり</string>
+  <string name="Media.ReimportMediaItem.Description">説明</string>
+  <string name="Media.SubtitleSearch.Language">言語</string>
+  <!--Play items dialog-->
+  <!--Player context names-->
+  <string name="Media.AudioContextName"> オーディオ</string>
+  <!--Video currently playing-->
+  <!--Person currently playing-->
+  <!--Series currently playing-->
+  <!--Image currently playing-->
+  <!--DVD currently playing-->
+  <!--Audio currently playing-->
+  <string name="Media.RemovePlaylistsAction">プレイリストを削除する</string>
+  <string name="Media.RepeatMode.None">なし</string>
+  <!--VideoPlayerUIContributor-->
+  <!--Video Player time units-->
+  <string name="Media.List">リスト</string>
+  <string name="Media.ListSmall">小さな</string>
+  <string name="Media.ListMedium">中くらい</string>
+  <string name="Media.ListLarge">大きい</string>
+  <string name="Media.PosterLayout">ポスター</string>
+  <string name="Media.ThumbnailLayout">サムネイル</string>
+  <string name="Media.BannerLayout">バナー</string>
+  <string name="Media.ExtendedMediaDetails">メディアの詳細を表示</string>
+  <string name="Media.ShowWatchedFlags">監視されたフラグを表示する</string>
+  <string name="Media.GroupingBrowseDefault">デフォルト</string>
+  <!--Stubs-->
+  <!--Virtual-->
+  <!--Settings-->
+  <string name="Settings.Players.InstantSkipSeconds">インスタントスキップ秒</string>
+  <string name="Settings.Players.InstantSkipSeconds.Help">瞬時にスキップする秒数を選択する</string>
+  <string name="Settings.Players.PreferInstantSkipSeconds">インスタントスキップ秒を優先する</string>
+  <string name="Settings.Players.PreferInstantSkipSeconds.Help">相対パーセントではなく絶対秒を使用して即座にスキップする場合に選択します</string>
+  <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
+</resources>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="WMC.Configuration.EnableFanart">ファンアートを有効にする</string>
+  <string name="WMC.Configuration.EnableFanart.Help">背景のファンアートを表示するかどうか</string>
+  <string name="WMC.Configuration.FanartOverlayOpacity">ファンアートの可視性</string>
+  <string name="WMC.Configuration.FanartOverlayOpacity.Help"> 
+背景のファンアートオーバーレイの不透明度を調整します。値を小さくすると、ファンアートの視認性が高まります（デフォルトは1.0）</string>
+  <string name="WMC.Configuration.EnableWatchedFlags">監視対象フラグを有効にする</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.Help">Whether to display watched icons in the selected views.</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.ListView">リストビュー</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.GridView">グリッドビュー</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.CoverView"> 
+カバービュー</string>
+  <string name="WMC.Configuration.EnableAgeCertificationLogos">年齢認定ロゴを有効にする</string>
+  <string name="WMC.Configuration.EnableAgeCertificationLogos.Help">メディア画面に年齢証明書のロゴを表示するかどうか。</string>  
+  <string name="WMC.Configuration.MovieGridViewType">映画のグリッドレイアウト</string>
+  <string name="WMC.Configuration.MovieGridViewType.Help">ムービーグリッドビューで使用されるレイアウトを選択します。</string>
+  <string name="WMC.Configuration.SeriesGridViewType">シリーズグリッドレイアウト</string>
+  <string name="WMC.Configuration.SeriesGridViewType.Help">直列グリッドビューで使用されるレイアウトを選択します。</string>
+  <string name="WMC.Configuration.SeasonGridViewType">シーズングリッドレイアウト</string>
+  <string name="WMC.Configuration.SeasonGridViewType.Help">シーズングリッドビューで使用されるレイアウトを選択します。</string>
+  <string name="WMC.Configuration.GridViewType.Poster"> 
+ポスター</string>
+  <string name="WMC.Configuration.GridViewType.Banner"> バナー</string>
+  <string name="WMC.Configuration.GridViewType.Thumbnail">サムネイル</string>  
+  <string name="WMC.Configuration.EnableMediaItemDetailsView"> 
+メディアアイテムの詳細ビューを有効にする</string>
+  <string name="WMC.Configuration.EnableMediaItemDetailsView.Help"> 
+ 
+メディアアイテムを直接再生するのではなく、メディアアイテムの詳細を表示するかどうか。</string>
+
+  <string name="WMC.Home.LatestAdded"> 
+最新の追加</string>
+  <string name="WMC.Home.LatestPlayed"> 最新のプレイ</string>
+  <string name="WMC.Home.ContinuePlayed">再生を続ける</string>
+  <string name="WMC.Home.CurrentPrograms">現在のプログラム</string>
+  <string name="WMC.Home.CurrentSchedules">現在のスケジュール</string>
+  <string name="WMC.Home.Favorites">お気に入り</string>
+  <string name="WMC.Home.Unplayed"> 未再生</string>
+
+</resources>

@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="MainForm.Title"> MediaPortal2サーバーアプリケーション</string>
+  <string name="MainForm.AttachedClients">接続されているクライアント</string>
+  <string name="MainForm.Client">クライアント</string>
+  <string name="MainForm.System">システム</string>
+  <string name="MainForm.ConnectionState">接続状態</string>
+  <string name="MainForm.Connected">接続済み</string>
+  <string name="MainForm.Disconnected">切断されている</string>
+  <string name="UPnPBackendServer.DefaultFriendlyName">MediaPortal2サーバー</string>
+  <string name="UPnPBackendServer.Manufacturer">チームメディアポータル</string>
+  <string name="UPnPBackendServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="UPnPBackendServer.ModelDescription">MediaPortal 2サーバー-オーディオファイル、ビデオ、画像をホストし、メディアデータベースを提供します</string>
+  <string name="UPnPBackendServer.ModelName">MediaPortal2サーバー</string>
+  <string name="UPnPBackendServer.ModelNumber">1</string>
+  <string name="UPnPBackendServer.ModelUrl">...</string>
+  <string name="MediaLibrary.EmptyOrMiscCharGroupName">＆lt;空またはその他の文字＆gt;</string>
+</resources>

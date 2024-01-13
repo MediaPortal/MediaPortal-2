@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!-- General -->
+  <string name="General.FinishButton">结束</string>
+  <string name="General.BackButton">后退</string>
+  <string name="General.AbortButton">取消</string>
+  <string name="InstallNewTypePageView.Client">客户端</string>
+  <string name="InstallCustomPropertiesPageView.BrowseButton">浏览</string>
+  <!-- InstallOverviewPageView -->
+  <string name="InstallOverviewPageView.Header">概览</string>
+  </resources>

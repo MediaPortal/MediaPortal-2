@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="InputDevices.Config.Section">Dispositivos de Entrada</string>
+  <string name="InputDevices.Config.FunctionShortcuts">Atalhos de Função</string>
+  <string name="InputDevices.Config.FunctionShortcuts.Help">Permite atribuir funções MediaPortal a teclas ou botões em dispositivos de entrada. Pode por exemplo atribuir Subir/Descer volume ás teclas \'+\' e \'-\' no teclado caso não possua teclas de volume no teclado.</string>
+  <string name="InputDevices.Config.ActionShortcuts">Atalhos de Acção</string>
+  <string name="InputDevices.Config.ActionShortcuts.Help">Permite associar acções globais MediaPortal a teclas/botões físicos para acesso rápido.</string>
+  <string name="InputDevices.Config.ConfigurationShortcuts">Atalhos de configuração</string>
+  <string name="InputDevices.Config.ConfigurationShortcuts.Help">Permite atribuir o ecrã de configuração e definições do MediaPortal a teclas ou botões do dispositivo de entrada para  acesso rápido.  </string>
+  <string name="InputDevices.Config.ScreenShortcuts">Atalhos de Ecrã</string>
+  <string name="InputDevices.Config.ScreenShortcuts.Help">Permite atribuir regras de menu MediaPortal a teclas ou botões no dispositivo de entrada para acesso rápido. Pode por exemplo começar a utilizar \'F2\' no teclado para  abrir o menu \'Notícias\'.</string>
+
+  <string name="InputDevices.Dialog.SelectDevice.Help">Pressione a tecla ou botão no dispositivo de entrada que pretende configurar</string>
+  <string name="InputDevices.Dialog.AddInput.Help">Pressione a combinação de teclas ou botões no dispositivo de entrada!</string>
+  
+  <string name="InputDevices.Mapping.Key">Tecla/Botão</string>
+  <string name="InputDevices.Mapping.ClearMapping">Limpar</string>
+  </resources>

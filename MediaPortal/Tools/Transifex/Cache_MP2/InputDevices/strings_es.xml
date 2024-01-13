@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="InputDevices.Config.Section">Dispositivos de entrada</string>
+  <string name="InputDevices.Config.FunctionShortcuts">Atajos para funciones</string>
+  <string name="InputDevices.Config.FunctionShortcuts.Help">Le permite asignar funciones de MediaPortal a teclas/botones de su dispositivo de entrada. Por ejemplo podría asignar Subir/Bajar volumen a las teclas \'+\' y \'-\' en su teclado si no tiene teclas de volumen en su teclado.</string>
+  <string name="InputDevices.Config.ActionShortcuts">Atajos de acciones</string>
+  <string name="InputDevices.Config.ActionShortcuts.Help">Le permite asignar las acciones globales de MediaPortal a teclas/botones de su dispositvo de entrada para un acceso rápido</string>
+  <string name="InputDevices.Config.ConfigurationShortcuts">Configuración de atajos</string>
+  <string name="InputDevices.Config.ConfigurationShortcuts.Help">Le permite asignar las pantallas de configuración y ajustes de MediaPortal a teclas/botones de su dispositvo de entrada para un acceso rápido</string>
+  <string name="InputDevices.Config.ScreenShortcuts">Atajos de pantalla</string>
+  <string name="InputDevices.Config.ScreenShortcuts.Help">Le permite asignar opciones del menu de MediaPortal a teclas/botones de su dispositivo de entrada. Por ejemplo podría definir la tecla \'F2\' de su teclado para abrir la pantalla de \'Noticias\'.</string>
+
+  <string name="InputDevices.Dialog.SelectDevice.Header">Seleccionar dispositivo</string>
+  <string name="InputDevices.Dialog.AddInput.Header">Clave/Botón del Mapa</string>
+  <string name="InputDevices.Dialog.SelectDevice.Help">Pulse la tecla/botón del dispositivo de entrada que quiere configurar</string>
+  <string name="InputDevices.Dialog.AddInput.Help">Pulse la combinación deseada de teclas/botones en el dispositivo de entrada!</string>
+  
+  <string name="InputDevices.Mapping.Key">Tecla/Botón</string>
+  <string name="InputDevices.Mapping.ClearMapping">Limpiar</string>
+  <string name="InputDevices.Mapping.ClearAllMappings">Borrar todo</string>
+  <string name="InputDevices.Mapping.RestoreDefaultMapping">Restaurar valores predeterminados</string>
+  <string name="InputDevices.Mapping.MappingsWillBeOverwrittenWarning">Todas las asignaciones existentes serán sobrescritas. ¿Desea continuar?</string>
+  
+</resources>

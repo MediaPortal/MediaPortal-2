@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!-- General -->
+  <string name="General.FinishButton">Lokið</string>
+  <string name="General.BackButton">Til baka</string>
+  <string name="General.AbortButton">Hætta við</string>
+  <string name="InstallNewTypePageView.Client">Biðlari</string>
+  <string name="InstallCustomPropertiesPageView.BrowseButton">Vafra</string>
+  <!-- InstallOverviewPageView -->
+  <string name="InstallOverviewPageView.Header">Yfirlit</string>
+  </resources>

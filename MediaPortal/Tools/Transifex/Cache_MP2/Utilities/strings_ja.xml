@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Utilities.MenuItem"> ユーティリティ</string>
+  <string name="Utilities.MainWorkflowNavigationContextDisplayLabel"> ユーティリティ</string>
+  <string name="Utilities.MainScreenTitle"> ユーティリティ</string>
+  <string name="Utilities.LocalShareLocation"> ローカルシェア</string>
+  <string name="Utilities.ServerShareLocation">サーバーシェア</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyTitle">成功</string>
+  <string name="Utilities.ImportPlaylistProgressTitle">進捗</string>
+  <string name="Utilities.StopImportPlaylistButton">止まる</string>
+  <string name="Utilities.ServerNotConnected">サーバーが接続されていません</string>
+</resources>

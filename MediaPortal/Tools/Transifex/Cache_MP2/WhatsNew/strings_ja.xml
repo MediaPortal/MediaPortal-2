@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="WhatsNew.ScreenTitle">MediaPortal2.3の新機能</string>
+  <string name="WhatsNew.WhatsNewText">速くてフレッシュでモダンなデザインの新しいスキンネレウス。今すぐお試しください！現在のスキンに簡単に戻すことができ、設定を失うことはありません。</string>
+  <string name="WhatsNew.ScreenTitle_2.4">MediaPortal2.4の新機能</string>
+  <string name="WhatsNew.WhatsNewText_2.4">デフォルトのスキンNereusは、画面レイアウトをさらに改善しました。それらを試してみてください！画面のビュー設定内で簡単に変更できます。</string>
+  <string name="WhatsNew.ButtonText_2.4">新しいデフォルトを適用する</string>
+</resources>

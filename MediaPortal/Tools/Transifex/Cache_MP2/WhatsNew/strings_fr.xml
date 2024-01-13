@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="WhatsNew.ScreenTitle">Quoi de neuf dans MediaPortal 2.3</string>
+  <string name="WhatsNew.WhatsNewText">Nouvelle peau Nereus avec un design rapide, frais et moderne. Essayez-le des à présent! Vous pouvez facilement revenir au design actuel sans perdre vos paramètre.</string>
+  <string name="WhatsNew.ButtonText">Utiliser Nereus</string>
+
+  <string name="WhatsNew.ScreenTitle_2.4">Quoi de neuf dans MediaPortal 2.4</string>
+  <string name="WhatsNew.WhatsNewText_2.4">Notre peau par défaut Nereus a reçu des vues améliorées. Essayez-les! Vous pouvez facilement les modifier depuis les paramètres.</string>
+  <string name="WhatsNew.ButtonText_2.4">Appliquer les nouveaux défauts</string>
+</resources>

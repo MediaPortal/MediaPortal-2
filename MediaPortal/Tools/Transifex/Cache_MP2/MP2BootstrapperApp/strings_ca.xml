@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!-- General -->
+  <string name="General.FinishButton">Finalitzar</string>
+  <string name="General.BackButton">Enrere</string>
+  <string name="General.AbortButton">Cancel·la</string>
+  <string name="InstallNewTypePageView.Client">Client</string>
+  <string name="InstallCustomPropertiesPageView.BrowseButton">Explora</string>
+  <!-- InstallOverviewPageView -->
+  <string name="InstallOverviewPageView.Header">Vista</string>
+  </resources>

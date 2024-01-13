@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!-- General -->
+  <string name="General.FinishButton">Finito</string>
+  <string name="General.BackButton">Indietro</string>
+  <string name="General.AbortButton">Annulla</string>
+  <string name="InstallNewTypePageView.Client">Client</string>
+  <string name="InstallCustomPropertiesPageView.BrowseButton">Sfoglia</string>
+  <!-- InstallOverviewPageView -->
+  <string name="InstallOverviewPageView.Header">Panoramica</string>
+  </resources>

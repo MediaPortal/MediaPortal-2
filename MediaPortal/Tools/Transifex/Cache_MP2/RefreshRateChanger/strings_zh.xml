@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="RefreshRateChanger.RateMappings">刷新率映射</string>
+  <string name="RefreshRateChanger.RateMappings.Help">覆盖默认映射。格式：fps:Hz； fps:Hz（即“23:24”：对于视频 fps=23.976，将屏幕刷新率更改为 24Hz）。</string>
+</resources>

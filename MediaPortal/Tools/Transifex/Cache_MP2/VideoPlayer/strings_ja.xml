@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players.Codecs">コーデック</string>
+  <string name="Settings.Players.Codecs.VideoCodecs">ビデオコーデック</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2">MPEG2ビデオコーデック</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2.Help"> MPEG2ビデオ（DVD、DVB-SD）に使用するコーデックを設定します</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4">MPEG4ビデオコーデック</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">MPEG4ビデオに使用するコーデックを設定する（H.264、x264)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC">AVCビデオコーデック</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">AVCビデオ（HDTV、BluRay）に使用するコーデックを設定します</string>
+  <string name="Settings.Players.Codecs.AudioCodecs">オーディオコーデック</string>
+  <string name="Settings.Players.Codecs.AudioRenderer">オーディオレンダラー</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">MPEG1/2オーディオコーデック</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec.Help">MPEG1/2オーディオコーデックを設定する</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC">LATM-AACオーディオコーデック</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC.Help"> LATM-AACオーディオコーデックを設定する</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC">AACオーディオコーデック</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC.Help">AACオーディオコーデックを設定する</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer">オーディオレンダラー</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer.Help"> オーディオレンダラーを設定する</string>
+  <string name="Settings.Players.VideoPlayer"> ビデオプレーヤー</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio"> マルチチャネルオーディオストリームを優先する</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help"> 有効にすると、6chストリームが優先されます（つまり、AC3、AAC)</string>
+  <string name="Settings.Players.DVDPlayer">DVDプレーヤー</string>
+  <string name="Settings.Players.Subtitles">字幕</string>
+  <string name="Playback.NotSpecified">指定されていない</string>
+  <string name="Playback.CaptionNormal"> 通常のキャプション</string>
+  <string name="Playback.CaptionBig">ビッグキャプション</string>
+  <string name="Playback.CaptionChildren"> 子供のキャプション</string>
+  <string name="Playback.CCNormal">通常のCC</string>
+  <string name="Playback.CCBig">ビッグCC</string>
+  <string name="Playback.CCChildren">チルドレンCC</string>
+  <string name="Playback.Forced">強制</string>
+  <string name="Playback.DirectorComments1">ディレクターのコメント</string>
+  <string name="Playback.DirectorComments2">監督コメント（2）</string>
+  <string name="Playback.Chapter">チャプター{0}</string>
+  <!--For example: "Chapter 1"-->
+  <string name="Playback.Title">タイトル{0}</string>
+  <!--For example: "Title 1"-->
+</resources>

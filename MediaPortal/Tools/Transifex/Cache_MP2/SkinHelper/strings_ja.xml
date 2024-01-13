@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="SkinHelper.ThemeColorsWorkflowNavigationContextDisplayLabel">テーマカラー</string>
+  <string name="SkinHelper.MenuShowThemeColors">テーマの色を表示する</string>
+  <string name="SkinHelper.ShowThemeColorsTitle">テーマカラー</string>
+  <string name="SkinHelper.ShowThemeColorsText">この画面には、現在のテーマで定義されているすべてのカラーリソース（および継承されたリソース）が表示されます</string>
+  <string name="SkinHelper.LoadSkinTitle"> スキンをロードする</string>
+</resources>

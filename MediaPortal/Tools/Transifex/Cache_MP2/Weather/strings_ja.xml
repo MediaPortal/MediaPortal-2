@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Weather.WeatherStateDisplayLabel"> 天気</string>
+  <string name="Weather.WeatherSetupStateDisplayLabel"> 天気の設定</string>
+  <!--Dialog state, doesn't appear at the UI-->
+  <string name="Weather.WeatherLocationStateDisplayLabel">場所を選択</string>
+  <!--Dialog state, doesn't appear at the UI-->
+  <string name="Weather.Title"> 天気</string>
+  <string name="Weather.ChooseLocation">場所を選択</string>
+  <string name="Weather.Refresh">更新</string>
+  <string name="Weather.Updating"> 更新中...</string>
+  <string name="Weather.Weather"> 天気</string>
+  <string name="Weather.Temp">温度</string>
+  <string name="Weather.Wind">風</string>
+  <string name="Weather.Humidity">湿度</string>
+  <string name="Weather.Precipitation">降水量</string>
+  <string name="Weather.Pressure">プレッシャー</string>
+  <!--Forecast names are mostly assigned 1:1-->
+  <string name="Settings.Plugins.Weather"> 天気</string>
+</resources>

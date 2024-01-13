@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio"> オーディオ</string>
+  <string name="Menu.Image">画像</string>
+  <string name="Menu.TV"> テレビ</string>
+  <string name="Menu.News">ニュース</string>
+  <string name="Menu.Weather"> 天気</string>
+  <string name="Menu.Settings">設定</string>
+  <string name="Menu.Others">その他</string>
+  <string name="Menu.Main"> メインメニュー</string>
+</resources>

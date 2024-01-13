@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="SlimTvClient.Tv"> テレビ</string>
+  <string name="SlimTvClient.Guide.Tv">テレビガイド</string>
+  <string name="SlimTvClient.CurrentlyPlayingInformationHeader">プログラム情報</string>
+  <string name="SlimTvClient.ChannelLabel">チャネル</string>
+  <string name="SlimTvClient.ProgramLabel">プログラム</string>
+  <string name="SlimTvClient.DescriptionLabel">説明</string>
+  <string name="SlimTvClient.GenreLabel"> ジャンル</string>
+  <string name="SlimTvClient.ProgramStartLabel"> 始まる時間</string>
+  <string name="SlimTvClient.ProgramEndLabel">終了時間</string>
+  <string name="SlimTvClient.EpisodeLabel">エピソード</string>
+  <string name="SlimTvClient.Progress">進捗</string>
+  <string name="SlimTvClient.NoProgram">プログラムデータはありません。</string>
+  <string name="SlimTvClient.ChooseProgramAction">プログラムアクションを選択してください...</string>
+  <string name="SlimTvClient.ProgramOver"> 
+プログラムはすでに終わっています</string>
+  <string name="SlimTvClient.WatchNow">今すぐ番組を見る</string>
+  <string name="SlimTvClient.RecordNow">今すぐ録音</string>
+  <string name="SlimTvClient.DeleteSchedule">スケジュールを削除する</string>
+  <string name="SlimTvClient.CreateSchedule">記録のスケジュール</string>
+  <!--Extended recording features-->
+  <!--Schedule management-->
+  <string name="SlimTvClient.Schedules">スケジュール</string>
+  <string name="SlimTvClient.ScheduleManagement">スケジュールを管理する</string>
+  <string name="SlimTvClient.ErrorNoTvProvider">利用可能なテレビプロバイダーはありません（まだ）</string>
+  <!--Settings-->
+  <string name="SlimTvClient.EpgNumberOfRows">EPGの行数</string>
+  <string name="SlimTvClient.ChannelLogoAutoUpdate"> チャンネルロゴの自動更新</string>
+  <string name="SlimTvClient.ChannelLogoAutoUpdate.Help">チャネルロゴを自動的に更新するかどうかを構成します。</string>
+  <string name="SlimTvClient.Notifications">通知</string>
+  <string name="SlimTvClient.NoColor">なし</string>
+  <string name="SlimTvClient.RecordingsMenuItem">録音</string>
+  <string name="SlimTvClient.RecordingsRootViewName">録音</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">チャネル</string>
+  <string name="SlimTvClient.RecordingsByChannelHeader"> チャネル別の録音</string>
+</resources>

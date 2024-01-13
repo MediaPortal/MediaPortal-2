@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="InputDevices.Config.Section">Périphériques d\'Entrés</string>
+  <string name="InputDevices.Config.FunctionShortcuts">Gestionnaire de saisi des clés</string>
+  <string name="InputDevices.Config.FunctionShortcuts.Help">Cela vous permet de lier les fonctions de MediaPortal aux touches de vos périphériques d’entrée. Vous pouvez par exemple affecter VolumeUp / Down à \'+\' et \'-\' sur votre clavier si vous n\'avez pas de touches de volume sur votre clavier.</string>
+  <string name="InputDevices.Config.ActionShortcuts">Raccourcis d\'action</string>
+  <string name="InputDevices.Config.ActionShortcuts.Help">Cela vous permet de mapper des actions générales de MediaPortal sur les touches / boutons de votre périphérique pour un accès rapide.</string>
+  <string name="InputDevices.Config.ConfigurationShortcuts"> Ecran de Configuration du Gestionnaire des Entrées </string>
+  <string name="InputDevices.Config.ConfigurationShortcuts.Help">Cela vous permet de définir des accès aux différent écran de MediaPortal grâce à une touche de votre périphérique d\'entrée pour un accès rapide.</string>
+  <string name="InputDevices.Config.ScreenShortcuts"> Ecran Principal du Gestionnaire des Entrées </string>
+  <string name="InputDevices.Config.ScreenShortcuts.Help">Cela vous permet d\'accéder aux écrans de menu de MediaPortal à partir des touches de votre périphérique d\'entrée pour un accès rapide. Par exemple, vous pouvez définir \"F2\" sur votre clavier pour ouvrir l\'écran \"Actualités\".</string>
+
+  <string name="InputDevices.Dialog.SelectDevice.Header">Sélectionnez l\'appareil</string>
+  <string name="InputDevices.Dialog.AddInput.Header">Clé/Bouton de la carte</string>
+  <string name="InputDevices.Dialog.SelectDevice.Help">Veuillez appuyer sur le bouton du périphérique, que vous souhaitez configurer.</string>
+  <string name="InputDevices.Dialog.AddInput.Help">Appuyer sur la combinaison de touche souhaitée du périphérique !</string>
+  
+  <string name="InputDevices.Mapping.Key">Clé</string>
+  <string name="InputDevices.Mapping.ClearMapping">Supprimer</string>
+  <string name="InputDevices.Mapping.ClearAllMappings">Tout effacer</string>
+  <string name="InputDevices.Mapping.RestoreDefaultMapping">Restaurer les paramètres par défaut</string>
+  <string name="InputDevices.Mapping.MappingsWillBeOverwrittenWarning">Toutes les correspondances existantes seront écrasées. Voulez-vous continuer ?</string>
+  
+</resources>

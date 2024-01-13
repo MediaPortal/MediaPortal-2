@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!-- Setting -->
+  <string name="Settings.Transcode.HWAcceleration.Help">サポートされている場合、トランスコーディング中にハードウェアアクセラレーションを有効にします。</string>
+  <string name="Settings.Transcode.Cache"> キャッシュ</string> <!-- Setting -->
+  <string name="Settings.Transcode.Cache.Help">トランスコーディングのキャッシュを有効にして、後で再利用できるようにします</string>
+  <!-- Setting -->
+  <string name="Settings.Transcode.CacheAge.Help">キャッシュされたトランスコーディングの最大日数は、有効期限が切れる前に保存する必要があります。 0は、期限切れにならないことを意味します。</string>
+  <string name="Settings.Transcode.CacheSize">キャッシュの最大サイズ（GB）</string> <!-- Setting -->
+  <string name="Settings.Transcode.CacheSize.Help">キャッシュの最大サイズ（GB単位）。キャッシュがいっぱいになると、最も古いトランスコーディングが削除されます。0は、サイズ制限がないことを意味します。</string>
+  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleForce.Help">他の形式の字幕がサポートされていない場合は、ハードコードされた字幕を強制します</string>
+  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleBox.Help">ハードコードされた字幕の周りにボックスを表示します。</string>
+  <string name="Settings.Transcode.SubtitleFont">字幕フォント</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleFontSize.Help">ハードコードされた字幕に使用されるフォントのサイズ。</string>
+  <string name="Settings.Transcode.SubtitleFontColor">字幕フォントの色</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleFontColor.Help"> ハードコードされた字幕に使用するフォントの色。</string>
+
+  <string name="Settings.Transcode.None">なし</string>
+  <string name="Settings.Transcode.Default">デフォルト</string>
+
+</resources>

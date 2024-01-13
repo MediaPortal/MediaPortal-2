@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!-- General -->
+  <string name="General.FinishButton">Befejezés</string>
+  <string name="General.BackButton">Vissza</string>
+  <string name="General.AbortButton">Mégse</string>
+  <string name="InstallNewTypePageView.Client">Kliens</string>
+  <string name="InstallCustomPropertiesPageView.BrowseButton">Tallózás</string>
+  <!-- InstallOverviewPageView -->
+  <string name="InstallOverviewPageView.Header">Áttekintés</string>
+  </resources>

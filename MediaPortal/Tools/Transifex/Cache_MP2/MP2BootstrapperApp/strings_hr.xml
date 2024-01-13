@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!-- General -->
+  <string name="General.FinishButton">Završi</string>
+  <string name="General.BackButton">Natrag</string>
+  <string name="General.AbortButton">Odustani</string>
+  <string name="InstallNewTypePageView.Client">Klijent</string>
+  <string name="InstallCustomPropertiesPageView.BrowseButton">Pregledajte</string>
+  <!-- InstallOverviewPageView -->
+  <string name="InstallOverviewPageView.Header">Pregled</string>
+  </resources>

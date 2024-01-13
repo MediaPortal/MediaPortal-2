@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="Settings.InputDevice.Section"> 入力デバイス</string>
+  
+  <string name="Settings.WifiRemote.AuthenticationMethod">認証方法</string> <!-- Setting -->
+  <string name="Settings.WifiRemote.AutoLoginTimeout.Help"> クライアントの再認証が必要になるまでの時間（分単位）</string>
+  </resources>

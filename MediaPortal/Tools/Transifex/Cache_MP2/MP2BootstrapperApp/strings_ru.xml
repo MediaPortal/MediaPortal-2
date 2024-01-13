@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!-- General -->
+  <string name="General.FinishButton">Закончить</string>
+  <string name="General.BackButton">Назад</string>
+  <string name="General.AbortButton">Отмена</string>
+  <string name="InstallNewTypePageView.Client">Клиент</string>
+  <string name="InstallCustomPropertiesPageView.BrowseButton">Просмотр</string>
+  <!-- InstallOverviewPageView -->
+  <string name="InstallOverviewPageView.Header">Обзор</string>
+  </resources>

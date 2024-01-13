@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="News.Title">ニュース</string>
+  <string name="News.FeedsStateDisplayLabel">ニュース</string>
+  <string name="News.Published">公開済み</string>
+  <string name="Settings.Plugins.News">ニュース</string>
+</resources>

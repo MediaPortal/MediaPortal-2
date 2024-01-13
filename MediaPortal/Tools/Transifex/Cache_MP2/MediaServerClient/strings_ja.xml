@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!--Client Settings-->
+  <string name="Settings.DLNA.Title">DLNA</string> <string name="Settings.DLNA.Clients.Config.Clients">クライアント</string> 
+  <string name="Settings.DLNA.Clients.Config.Profile">プロフィール</string>
+  <string name="Settings.DLNA.Clients.Config.DeleteClient">クライアントを削除する</string>
+  <string name="Settings.DLNA.Clients.Config.Yes"> はい</string>
+  <string name="Settings.DLNA.Clients.Config.No">いいえ</string>
+  <string name="Settings.DLNA.Clients.NoConfigHomeServerNotConnected">ホームサーバーは現在接続されていないため、現在DLNAクライアントを管理することはできません。</string>
+  <string name="Settings.DLNA.Clients.Config.NoUser">なし</string>
+  </resources>

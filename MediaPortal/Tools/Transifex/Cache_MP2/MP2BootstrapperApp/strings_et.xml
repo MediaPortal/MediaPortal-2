@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!-- General -->
+  <string name="General.FinishButton">Lõpeta</string>
+  <string name="General.BackButton">Tagasi</string>
+  <string name="General.AbortButton">Loobu</string>
+  <string name="InstallNewTypePageView.Client">Klient</string>
+  <string name="InstallCustomPropertiesPageView.BrowseButton">Lehitse</string>
+  <!-- InstallOverviewPageView -->
+  <string name="InstallOverviewPageView.Header">Ülevaade</string>
+  </resources>

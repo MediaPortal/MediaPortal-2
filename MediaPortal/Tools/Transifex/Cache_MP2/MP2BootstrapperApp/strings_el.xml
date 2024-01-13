@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!-- General -->
+  <string name="General.FinishButton">Τέλος</string>
+  <string name="General.BackButton">Πίσω</string>
+  <string name="General.AbortButton">Άκυρο</string>
+  <string name="InstallNewTypePageView.Client">Πελάτης</string>
+  <string name="InstallCustomPropertiesPageView.BrowseButton">Περιήγηση</string>
+  <!-- InstallOverviewPageView -->
+  <string name="InstallOverviewPageView.Header">Επισκόπηση</string>
+  </resources>

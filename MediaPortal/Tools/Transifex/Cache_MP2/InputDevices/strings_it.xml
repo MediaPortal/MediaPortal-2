@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="InputDevices.Config.Section">Gestione dispositivi di immissione</string>
+  <string name="InputDevices.Config.FunctionShortcuts">Gestione tasti</string>
+  <string name="InputDevices.Config.FunctionShortcuts.Help">Questa funzione permette di assegnare ai pulsanti di dispositivi HID tasti differenti. Ad esempio puoi assegnare Volume Su/Giù ai tasti \"+\" e \"-\" della tastiera.</string>
+  <string name="InputDevices.Config.ActionShortcuts">Gestione scorciatoie azioni</string>
+  <string name="InputDevices.Config.ActionShortcuts.Help">Questa funzione permette di assegnare ai pulsanti di dispositivi HID delle azioni globali per l\'accesso rapido.</string>
+  <string name="InputDevices.Config.ConfigurationShortcuts">Gestione scorciatoie configurazioni</string>
+  <string name="InputDevices.Config.ConfigurationShortcuts.Help">Questa funzione permette di assegnare ai pulsanti di dispositivi HID delle schermate di configurazione per l\'accesso rapido.</string>
+  <string name="InputDevices.Config.ScreenShortcuts">Gestione scorciatoie schermate</string>
+  <string name="InputDevices.Config.ScreenShortcuts.Help">Questa funzione permette di assegnare ai pulsanti di dispositivi HID delle schermate per l\'accesso rapido. Ad esempio è possibile assegnare a F2 per aprire la schermata \"Notizie\".</string>
+
+  <string name="InputDevices.Dialog.SelectDevice.Help">Premi un pulsante sul dispositivo HID che desideri configurare</string>
+  <string name="InputDevices.Dialog.AddInput.Help">Premi la combinazione di tasti che vuoi configurare!</string>
+  
+  <string name="InputDevices.Mapping.Key">Tasto</string>
+  <string name="InputDevices.Mapping.ClearMapping">Pulisci</string>
+  </resources>

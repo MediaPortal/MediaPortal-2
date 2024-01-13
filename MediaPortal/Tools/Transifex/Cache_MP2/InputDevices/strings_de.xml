@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="InputDevices.Config.Section">Eingabegeräte</string>
+  <string name="InputDevices.Config.FunctionShortcuts">Shortcuts für Funktionen</string>
+  <string name="InputDevices.Config.FunctionShortcuts.Help">Hier lassen sich Tasten des Eingabegerätes verschiedenen MediaPortal-Funktionen zuweisen. So könnte man z. B. den Tasten \'+\' und \'-\' auf der Tastatur die Funktionen \"Vol +\" bzw. \"Vol -\" zuordnen, falls die Tastatur keine eigenen Lautstärke-Tasten besitzt. </string>
+  <string name="InputDevices.Config.ActionShortcuts">Shortcuts für Aktionen</string>
+  <string name="InputDevices.Config.ActionShortcuts.Help">Diese ermöglicht globale MediaPortal Aktionen Tasten / Knöpfen ihrer Eingabegeräte für den Schnellzugriff zuzuweisen</string>
+  <string name="InputDevices.Config.ConfigurationShortcuts">Konfiguriere Shortcuts</string>
+  <string name="InputDevices.Config.ConfigurationShortcuts.Help">Hier können Tasten des Eingabegerätes einem beliebigen Setup-Screen als Schnellzugriff zugewiesen werden. </string>
+  <string name="InputDevices.Config.ScreenShortcuts">Screen-Shortcuts</string>
+  <string name="InputDevices.Config.ScreenShortcuts.Help">Hier können Tasten des Eingabegerätes einem beliebigen MediaPortal-Screen als Schnellzugriff zugewiesen werden. Zum Beispiel könnte \'F2\' auf der Tastatur als Aufruf für den News-Screen definiert werden. </string>
+
+  <string name="InputDevices.Dialog.SelectDevice.Header">Gerät auswählen</string>
+  <string name="InputDevices.Dialog.AddInput.Header">Taste zuweisen</string>
+  <string name="InputDevices.Dialog.SelectDevice.Help">Bitte eine beliebige Taste auf dem zu konfigurierenden Eingabegerät drücken.</string>
+  <string name="InputDevices.Dialog.AddInput.Help">Bitte die gewünschte Tastenkombination auf dem Eingabegerät drücken. </string>
+  
+  <string name="InputDevices.Mapping.Key">Taste</string>
+  <string name="InputDevices.Mapping.ClearMapping">Löschen</string>
+  <string name="InputDevices.Mapping.ClearAllMappings">Alles löschen</string>
+  <string name="InputDevices.Mapping.RestoreDefaultMapping">Standardwerte wiederherstellen</string>
+  <string name="InputDevices.Mapping.MappingsWillBeOverwrittenWarning">Alle vorhandenen Zuordnungen werden überschrieben. Möchten Sie fortfahren?</string>
+  
+</resources>

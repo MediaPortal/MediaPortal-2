@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Nereus.Configuration.EnableHelpTexts">ヘルプテキストを有効にする</string>
+  <string name="Nereus.Configuration.EnableHelpTexts.Help">メニューのヘルプテキストをホーム画面に表示するかどうか。</string>
+  <string name="Nereus.Configuration.EnableFanart">ファンアートを有効にする</string>
+  <string name="Nereus.Configuration.EnableFanart.Help">背景のファンアートを表示するかどうか</string>
+  <!--string name="Nereus.Configuration.EnableLoopScrolling">Enable loop scrolling</string-->
+  <string name="Nereus.Configuration.EnableLoopScrolling.Help">メディアリストでループスクロールを使用するかどうか。</string>
+  <string name="Nereus.Configuration.EnableGridDetails">グリッドの詳細を有効にする</string>
+  <string name="Nereus.Configuration.EnableGridDetails.Help">グリッドビューの右側のメディアアイテムの詳細を表示するかどうか。無効にすると、簡略化された詳細が下部に表示されます。</string>
+  <string name="Nereus.Configuration.EnableCoverDetails">カバーの詳細を有効にする</string>
+  <string name="Nereus.Configuration.EnableCoverDetails.Help">カバービューのメディアアイテムの詳細を表示するかどうか。</string>
+  <string name="Nereus.Configuration.EnableAutoScrolling">自動スクロールを有効にする</string>
+  <string name="Nereus.Configuration.EnableAutoScrolling.Help">スクロールビューで手動スクロールの代わりに自動スクロールを使用するかどうか。</string>
+  <string name="Nereus.Configuration.AutoScrolling">自動スクロール</string>
+  <string name="Nereus.Configuration.ManualAutoScrolling">手動スクロール</string>
+  <string name="Nereus.Configuration.AutoScrollSpeed">スクロール速度</string>
+  <string name="Nereus.Configuration.AutoScrollDelay"> スクロール遅延</string>
+  <string name="Nereus.Configuration.FanartOverlayOpacity">ファンアートの可視性</string>
+  <string name="Nereus.Configuration.EnableWatchedFlags">監視対象フラグを有効にする</string>
+  <string name="Nereus.Configuration.EnableWatchedFlags.Help">選択したビューに監視アイコンを表示するかどうか。</string>
+  <string name="Nereus.Configuration.EnableWatchedFlags.ListView">リストビュー</string>
+  <string name="Nereus.Configuration.EnableWatchedFlags.GridView">グリッドビュー</string>
+  <string name="Nereus.Configuration.EnableWatchedFlags.CoverView">カバービュー</string>
+  <string name="Nereus.Configuration.EnableAgeCertificationLogos">年齢認定ロゴを有効にする</string>
+  <string name="Nereus.Configuration.EnableAgeCertificationLogos.Help">メディア画面に年齢証明書のロゴを表示するかどうか。</string>
+  <string name="Nereus.Configuration.MovieGridViewType">映画のグリッドレイアウト</string>
+  <string name="Nereus.Configuration.MovieGridViewType.Help">ムービーグリッドビューで使用されるレイアウトを選択します。</string>
+  <string name="Nereus.Configuration.SeriesGridViewType">シリーズグリッドレイアウト</string>
+  <string name="Nereus.Configuration.SeriesGridViewType.Help">直列グリッドビューで使用されるレイアウトを選択します。</string>
+  <string name="Nereus.Configuration.SeasonGridViewType">シーズングリッドレイアウト</string>
+  <string name="Nereus.Configuration.SeasonGridViewType.Help">シーズングリッドビューで使用されるレイアウトを選択します。</string>
+  <string name="Nereus.Configuration.GridViewType.Poster">ポスター</string>
+  <string name="Nereus.Configuration.GridViewType.Banner">バナー</string>
+  <string name="Nereus.Configuration.GridViewType.Thumbnail">サムネイル</string>
+  <string name="Nereus.Configuration.EnableMediaItemDetailsView">メディアアイテムの詳細ビューを有効にする</string>
+  <string name="Nereus.Configuration.EnableMediaItemDetailsView.Help">メディアアイテムを直接再生するのではなく、メディアアイテムの詳細を表示するかどうか。</string>
+  <string name="Nereus.Configuration.EnableTouchDisplay">タッチディスプレイのサポートを有効にする</string>
+  <string name="Nereus.Configuration.EnableTouchDisplay.Help">自動スライドメニューを無効にし、タッチディスプレイのサポートを向上させるためにナビゲーションボタンを強制的に表示するかどうか。</string>
+  <string name="Nereus.Configuration.NoColor">なし</string>
+  <string name="Nereus.Home.LatestAdded">最新の追加</string>
+  <string name="Nereus.Home.LatestPlayed"> 最新のプレイ</string>
+  <string name="Nereus.Home.ContinuePlayed">再生を続ける</string>
+  <string name="Nereus.Home.CurrentPrograms">現在のプログラム</string>
+  <string name="Nereus.Home.CurrentSchedules">現在のスケジュール</string>
+  <string name="Nereus.Home.Favorites">お気に入り</string>
+  <string name="Nereus.Home.TopLanguages"> 言語</string>
+  <string name="Nereus.Home.Unplayed"> 未再生</string>
+  <string name="Nereus.Home.CurrentWeather"> 現時点の</string>
+  <string name="Nereus.Home.Forecast">天気</string>
+  <string name="Nereus.Home.News">ニュースプロバイダー</string>
+  <string name="Nereus.Home.TopNews">トップニュース</string>
+  <string name="Nereus.Home.LatestLaunched">最新の発売</string>
+
+  <string name="Nereus.Shortcut.Genre"> ジャンル</string>
+  <string name="Nereus.Shortcut.Year">年</string>
+  <string name="Nereus.Shortcut.Age">年</string>
+  <string name="Nereus.Shortcut.Actor">俳優</string>
+  <string name="Nereus.Shortcut.Artist">アーティスト</string>
+  <string name="Nereus.Shortcut.Search">探す</string>
+  <string name="Nereus.Shortcut.Track">追跡</string>
+  <string name="Nereus.Shortcut.Album"> アルバム</string>
+  <string name="Nereus.Shortcut.LiveTV">生放送</string>
+  <string name="Nereus.Shortcut.TVGuide">テレビガイド</string>
+  <string name="Nereus.Shortcut.Schedules">スケジュール</string>
+  <string name="Nereus.Shortcut.Recordings">録音</string>
+  <string name="Nereus.Shortcut.Place">場所</string>
+  <string name="Nereus.Shortcut.System">システム</string>
+  <string name="Nereus.Shortcut.Size">サイズ</string>
+  <string name="Nereus.Shortcut.Setup">設定</string>
+  <string name="Nereus.Shortcut.Location">位置</string>
+  <string name="Nereus.Shortcut.Refresh">更新</string>
+  
+  <string name="Nereus.Home.OtherPlugins">その他</string>
+  <string name="Nereus.Home.OtherPlugins.Help">他のすべてのプラグイン。</string>
+  
+  <string name="Nereus.Dialog.EditMenu.Header">編集メニュー</string>
+  <string name="Nereus.Dialog.AddMenuItem.Header">メニュー項目を追加</string>
+
+  <string name="Nereus.Dialog.EditMediaList.Header">ホームコンテンツを編集する</string>
+  <string name="Nereus.Dialog.AddMediaListItem.Header"> はじめて編集する</string>
+
+  <string name="Nereus.Info.Director">監督</string>
+  <string name="Nereus.Info.Subtitles">字幕</string>
+  <string name="Nereus.Info.Actors">俳優</string>
+  <string name="Nereus.Info.Collection">コレクション</string>
+  <string name="Nereus.Info.Audio">オーディオトラック</string>
+  <string name="Nereus.Info.Artists">アーティスト</string>
+  <string name="Nereus.Info.AlbumArtists">アルバムアーティスト</string>
+  <string name="Nereus.Info.Composer">作曲</string>
+
+  <string name="Nereus.Configuration.SelectSkinColor">肌の配色を選択</string>
+  <string name="Nereus.Configuration.SelectSkinColor.Help">パターンを選択して肌の配色を設定する</string>
+  
+</resources>

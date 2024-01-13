@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!-- General -->
+  <string name="General.FinishButton">Bitti</string>
+  <string name="General.BackButton">Geri</string>
+  <string name="General.AbortButton">Vazgeç</string>
+  <string name="InstallNewTypePageView.Client">İstemci</string>
+  <string name="InstallCustomPropertiesPageView.BrowseButton">Gözat</string>
+  <!-- InstallOverviewPageView -->
+  <string name="InstallOverviewPageView.Header">Genel Bakış</string>
+  </resources>

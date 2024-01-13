@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Menu.Audio"> オーディオ</string>
+  <string name="Menu.Image">画像</string>
+  <string name="Menu.MediaHub"> ビデオハブ</string>
+  <string name="Menu.TV"> テレビ</string>
+  <string name="Menu.News">ニュース</string>
+  <string name="Menu.Weather"> 天気</string>
+  <string name="Menu.Settings">設定</string>
+  <string name="Menu.Others">その他</string>
+  <string name="Menu.Home">家</string>
+  <string name="Menu.Main"> メインメニュー</string>
+  <string name="Movies.Title">映画</string>
+  <string name="Series.Title">シリーズ</string>
+  <string name="Audio.Title"> オーディオ</string>
+  <string name="Recordings.Title">録音</string>
+  <string name="Images.Title">画像</string>
+  <string name="Videos.Title">ビデオ</string>
+  <string name="Video.Title">ビデオ</string>
+  <string name="Subtitle.Title"> 字幕</string>
+  <string name="News.Title">ニュース</string>
+  <string name="Weather.Title"> 天気</string>
+  <string name="General.Title">全般的</string>
+</resources>

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="ContextMenu.StartService">サービス開始</string>
+  <string name="ContextMenu.StopService">サービスを停止します</string>
+  <string name="ContextMenu.EnableAutostart">自動起動を有効にする</string>
+  <string name="ContextMenu.DisableAutostart">自動起動を無効にする</string>
+</resources>

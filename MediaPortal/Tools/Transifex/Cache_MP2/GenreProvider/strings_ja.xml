@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Match.Video.Music">音楽</string>
+  <string name="Match.Video.TVMovie"> テレビ</string>
+  <string name="Match.Video.News">ニュース</string>
+  <string name="Match.Epg.Series">シリーズ</string>
+  <string name="Match.Epg.Music">音楽</string>
+  <string name="Match.Epg.News">ニュース</string>
+  <string name="Label.Video.Music">音楽</string>
+  <string name="Label.Video.TVMovie"> テレビ</string>
+  <string name="Label.Video.News">ニュース</string>
+  <string name="Label.Epg.Series">シリーズ</string>
+  <string name="Label.Epg.Music">音楽</string>
+  <string name="Label.Epg.News">ニュース</string>
+  </resources>

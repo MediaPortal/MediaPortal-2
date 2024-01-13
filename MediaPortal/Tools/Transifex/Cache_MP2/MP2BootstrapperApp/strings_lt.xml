@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!-- General -->
+  <string name="General.FinishButton">Baigti</string>
+  <string name="General.BackButton">atgal</string>
+  <string name="General.AbortButton">Nutraukti</string>
+  <string name="InstallNewTypePageView.Client">Klientas</string>
+  <string name="InstallCustomPropertiesPageView.BrowseButton">Naršyti</string>
+  <!-- InstallOverviewPageView -->
+  <string name="InstallOverviewPageView.Header">Apžvalga</string>
+  </resources>

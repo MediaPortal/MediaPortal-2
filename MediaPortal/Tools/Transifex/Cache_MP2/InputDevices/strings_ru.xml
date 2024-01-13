@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="InputDevices.Config.Section">Устройства ввода</string>
+  <string name="InputDevices.Config.FunctionShortcuts">Назначить функцию</string>
+  <string name="InputDevices.Config.FunctionShortcuts.Help">Это позволяет вам сопоставлять функции MediaPortal с клавишами/кнопками на ваших устройствах ввода. Например, вы можете назначить Громкость Больше/Меньше на «+» и «-» на клавиатуре, если у вас нет специальных клавиш регулировки громкости на клавиатуре. </string>
+  <string name="InputDevices.Config.ActionShortcuts">Назначить действие</string>
+  <string name="InputDevices.Config.ActionShortcuts.Help">Это позволяет вам сопоставлять глобальные действия MediaPortal с клавишами/кнопками вашего устройства ввода для быстрого доступа.</string>
+  <string name="InputDevices.Config.ConfigurationShortcuts">Назначить конфигурацию</string>
+  <string name="InputDevices.Config.ConfigurationShortcuts.Help">Это позволяет сопоставлять экраны конфигурации и настройки MediaPortal с клавишами/кнопками вашего устройства ввода для быстрого доступа. </string>
+  <string name="InputDevices.Config.ScreenShortcuts">Назначить экран</string>
+  <string name="InputDevices.Config.ScreenShortcuts.Help">Это позволяет вам сопоставлять экраны меню MediaPortal с клавишами/кнопками на вашем устройстве ввода для быстрого доступа. Например, вы можете определить «F2» на клавиатуре, чтобы открыть экран «Новости». </string>
+
+  <string name="InputDevices.Dialog.SelectDevice.Help">Нажмите нужную клавишу/кнопку на устройстве ввода, чтобы запомнить</string>
+  <string name="InputDevices.Dialog.AddInput.Help">Нажмите нужную комбинацию клавиш/кнопок на устройстве ввода! </string>
+  
+  <string name="InputDevices.Mapping.Key">Ключ/Кнопка</string>
+  <string name="InputDevices.Mapping.ClearMapping">Ясно</string>
+  </resources>

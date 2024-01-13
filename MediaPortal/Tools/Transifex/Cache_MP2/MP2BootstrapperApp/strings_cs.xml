@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!-- General -->
+  <string name="General.FinishButton">Dokončeno</string>
+  <string name="General.BackButton">Zpět</string>
+  <string name="General.AbortButton">Storno</string>
+  <string name="InstallNewTypePageView.Client">Klient</string>
+  <string name="InstallCustomPropertiesPageView.BrowseButton">Procházet</string>
+  <!-- InstallOverviewPageView -->
+  <string name="InstallOverviewPageView.Header">Přehled</string>
+  </resources>
