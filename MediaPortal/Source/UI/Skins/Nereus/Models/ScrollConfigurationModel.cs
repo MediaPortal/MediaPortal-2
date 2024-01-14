@@ -22,15 +22,16 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
 using MediaPortal.Common;
+using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Settings;
-using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UiComponents.Configuration.ConfigurationControllers;
 using MediaPortal.UiComponents.Nereus.Settings;
+using System;
+using System.Collections.Generic;
 
 namespace MediaPortal.UiComponents.Nereus.Models
 {
@@ -39,57 +40,40 @@ namespace MediaPortal.UiComponents.Nereus.Models
   /// </summary>
   public class ScrollConfigurationModel : IWorkflowModel
   {
+    // Used to initialize the NumberSelectControllers that are used to
+    // manage the AutoScrollSpeed and AutoScrollDelay settings
+    protected class CustomNumberSetting : LimitedNumberSelect
+    {
+      public CustomNumberSetting(NumberType type, double value, double step, double lowerLimit, double upperLimit)
+      {
+        _type = type;
+        _value = value;
+        _step = step;
+        _lowerLimit = lowerLimit;
+        _upperLimit = upperLimit;
+      }
+    }
+
     public const string SCROLL_CONFIGURATION_MODEL_ID_STR = "AB34B067-DDA7-4D1C-A50E-A7BBFBBD2925";
-    public const double DEFAULT_SCROLL_SPEED = 20.0;
-    public const double DEFAULT_SCROLL_DELAY = 2.0;
+    //private const double DEFAULT_SCROLL_SPEED = 20.0;
+    //private const double DEFAULT_SCROLL_DELAY = 2.0;
+    private const int MAX_SCROLL_SPEED = 60;
+    private const int MAX_SCROLL_DELAY = 10;
+    private const int SCROLL_SPEED_STEP = 5; // Step size for ScrollSpeed
+    private const int SCROLL_DELAY_STEP = 1; // Step size for ScrollDelay
 
     #region Private fields
 
-    protected AbstractProperty _scrollSpeedProperty = new WProperty(typeof(string), string.Empty);
-    protected AbstractProperty _scrollDelayProperty = new WProperty(typeof(string), string.Empty);
     protected AbstractProperty _autoScrollProperty = new WProperty(typeof(bool), true);
     protected AbstractProperty _manualScrollProperty = new WProperty(typeof(bool), true);
     protected AbstractProperty _enableLoopScrollingProperty = new WProperty(typeof(bool), true);
-    private const int MaxScrollSpeed = 60;
-    private const int MaxScrollDelay = 10;
-    private const int ScrollSpeedStepSize = 5; // Step size for ScrollSpeed
-    private const int ScrollDelayStepSize = 1; // Step size for ScrollDelay
+
+    protected NumberSelectController _scrollSpeedController;
+    protected NumberSelectController _scrollDelayController;
 
     #endregion
 
     #region Public fields (can be used by the GUI)
-
-    public void IncreaseScrollSpeed()
-    {
-      if (int.TryParse(ScrollSpeed, out var speed) && speed <= MaxScrollSpeed - ScrollSpeedStepSize)
-      {
-        ScrollSpeed = (speed + ScrollSpeedStepSize).ToString(); // Increment speed by step size
-      }
-    }
-
-    public void DecreaseScrollSpeed()
-    {
-      if (int.TryParse(ScrollSpeed, out var speed) && speed >= ScrollSpeedStepSize)
-      {
-        ScrollSpeed = (speed - ScrollSpeedStepSize).ToString(); // Decrement speed by step size
-      }
-    }
-
-    public void IncreaseScrollDelay()
-    {
-      if (int.TryParse(ScrollDelay, out var delay) && delay <= MaxScrollDelay - ScrollDelayStepSize)
-      {
-        ScrollDelay = (delay + ScrollDelayStepSize).ToString(); // Increment delay by step size
-      }
-    }
-
-    public void DecreaseScrollDelay()
-    {
-      if (int.TryParse(ScrollDelay, out var delay) && delay >= ScrollDelayStepSize)
-      {
-        ScrollDelay = (delay - ScrollDelayStepSize).ToString(); // Decrement delay by step size
-      }
-    }
 
     public AbstractProperty UseAutoScrollProperty
     {
@@ -111,26 +95,6 @@ namespace MediaPortal.UiComponents.Nereus.Models
       set { _manualScrollProperty.SetValue(value); }
     }
 
-    public AbstractProperty ScrollSpeedProperty
-    {
-      get { return _scrollSpeedProperty; }
-    }
-    public string ScrollSpeed
-    {
-      get { return (string)_scrollSpeedProperty.GetValue(); }
-      set { _scrollSpeedProperty.SetValue(value); }
-    }
-
-    public AbstractProperty ScrollDelayProperty
-    {
-      get { return _scrollDelayProperty; }
-    }
-    public string ScrollDelay
-    {
-      get { return (string)_scrollDelayProperty.GetValue(); }
-      set { _scrollDelayProperty.SetValue(value); }
-    }
-
     public AbstractProperty EnableLoopScrollingProperty
     {
       get { return _enableLoopScrollingProperty; }
@@ -139,6 +103,16 @@ namespace MediaPortal.UiComponents.Nereus.Models
     {
       get { return (bool)_enableLoopScrollingProperty.GetValue(); }
       set { _enableLoopScrollingProperty.SetValue(value); }
+    }
+
+    public NumberSelectController ScrollSpeedController
+    {
+      get { return _scrollSpeedController; }
+    }
+
+    public NumberSelectController ScrollDelayController
+    {
+      get { return _scrollDelayController; }
     }
 
     #endregion
@@ -151,8 +125,18 @@ namespace MediaPortal.UiComponents.Nereus.Models
       EnableLoopScrolling = settings.EnableLoopScrolling;
       UseAutoScroll = settings.EnableAutoScrolling;
       UseManualScroll = !settings.EnableAutoScrolling;
-      ScrollSpeed = Convert.ToInt32(settings.AutoScrollSpeed).ToString();
-      ScrollDelay = Convert.ToInt32(settings.AutoScrollDelay).ToString();
+
+      // Use a NumberSelectController to validate the settings, it contains all
+      // required properties for input validation and up/down button enabling.
+      _scrollSpeedController = new NumberSelectController();
+      _scrollSpeedController.Initialize(
+        new CustomNumberSetting(NumberSelect.NumberType.Integer, settings.AutoScrollSpeed, SCROLL_SPEED_STEP, 0, MAX_SCROLL_SPEED)
+      );
+
+      _scrollDelayController = new NumberSelectController();
+      _scrollDelayController.Initialize(
+        new CustomNumberSetting(NumberSelect.NumberType.Integer, settings.AutoScrollDelay, SCROLL_DELAY_STEP, 0, MAX_SCROLL_DELAY)
+      );
     }
 
     #endregion
@@ -169,16 +153,10 @@ namespace MediaPortal.UiComponents.Nereus.Models
 
       settings.EnableAutoScrolling = UseAutoScroll;
       settings.EnableLoopScrolling = EnableLoopScrolling;
-
-      if (int.TryParse(ScrollSpeed, out var speed) && speed > 0 && speed < MaxScrollSpeed)
-        settings.AutoScrollSpeed = speed;
-      else
-        settings.AutoScrollSpeed = DEFAULT_SCROLL_SPEED;
-
-      if (int.TryParse(ScrollDelay, out var delay) && delay > 0 && delay < MaxScrollDelay)
-        settings.AutoScrollDelay = delay;
-      else
-        settings.AutoScrollDelay = DEFAULT_SCROLL_DELAY;
+      if (_scrollDelayController.IsValueValid)
+        settings.AutoScrollSpeed = Convert.ToDouble(_scrollSpeedController.Value);
+      if (_scrollDelayController.IsValueValid)
+        settings.AutoScrollDelay = Convert.ToDouble(_scrollDelayController.Value);
 
       settingsManager.Save(settings);
     }

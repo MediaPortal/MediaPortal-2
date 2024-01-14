@@ -124,7 +124,9 @@
         <Grid Margin="10,0,0,10">
           <Grid.RowDefinitions>
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
@@ -136,29 +138,79 @@
           <Label Grid.Column="0" Content="[Nereus.Configuration.AutoScrollSpeed]" Color="{ThemeResource TextColor}" Margin="50,0,25,0"/>
           
           <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-            <TextBox x:Name="AutoScrollSpeed" Text="{Binding Path=ScrollSpeed,Mode=TwoWay}" Margin="5,0,5,0"  Width="140"
+            <TextBox x:Name="AutoScrollSpeed" Text="{Binding Path=ScrollSpeedController.Value,Mode=TwoWay}" Margin="5,0,5,0"  Width="140"
                      HorizontalAlignment="Right" IsEnabled="{Binding Path=UseAutoScroll}"/>
 
             <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
-              <Button Style="{ThemeResource ChapterUpButtonStyle}" Height="30" Margin="0,0,0,2" IsEnabled="{Binding Path=UseAutoScroll}"
-                      Command="{Command Source={StaticResource ScrollConfigurationModel},Path=IncreaseScrollSpeed}"/>
-              <Button Style="{ThemeResource ChapterDownButtonStyle}" Height="30" IsEnabled="{Binding Path=UseAutoScroll}"
-                      Command="{Command Source={StaticResource ScrollConfigurationModel},Path=DecreaseScrollSpeed}"/>
+              <Button Style="{ThemeResource ChapterUpButtonStyle}" Height="30" Margin="0,0,0,2" IsEnabled="false"
+                      Command="{Command Path=ScrollSpeedController.Up}">
+                <Button.Triggers>
+                  <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                      <Condition Binding="{Binding UseAutoScroll}" Value="true"/>
+                      <Condition Binding="{Binding ScrollSpeedController.IsUpEnabled}" Value="true"/>
+                    </MultiTrigger.Conditions>
+                    <Setter Property="IsEnabled" Value="true"/>
+                  </MultiTrigger>
+                </Button.Triggers>
+              </Button>
+              <Button Style="{ThemeResource ChapterDownButtonStyle}" Height="30" IsEnabled="false"
+                      Command="{Command Path=ScrollSpeedController.Down}">
+                <Button.Triggers>
+                  <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                      <Condition Binding="{Binding UseAutoScroll}" Value="true"/>
+                      <Condition Binding="{Binding ScrollSpeedController.IsDownEnabled}" Value="true"/>
+                    </MultiTrigger.Conditions>
+                    <Setter Property="IsEnabled" Value="true"/>
+                  </MultiTrigger>
+                </Button.Triggers>
+              </Button>
             </StackPanel>
           </StackPanel>
 
-          <Label Grid.Row="1" Content="[Nereus.Configuration.AutoScrollDelay]" Color="{ThemeResource TextColor}" Margin="50,0,25,0"/>
+          <Label x:Name="ScrollSpeedErrorText" Grid.ColumnSpan="2" Grid.Row="1" Margin="10,20,10,10" Wrap="true" HorizontalAlignment="Center"
+                 Color="{ThemeResource ErrorTextColor}"
+                 Content="{Binding Path=ScrollSpeedController.ErrorText}"
+                 IsVisible="{Binding Path=ScrollSpeedController.ErrorText, Converter={StaticResource EmptyStringToFalseConverter}}"/>
+
+          <Label Grid.Row="2" Content="[Nereus.Configuration.AutoScrollDelay]" Color="{ThemeResource TextColor}" Margin="50,0,25,0"/>
           
-          <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center">
-            <TextBox x:Name="AutoScrollDelay" Text="{Binding Path=ScrollDelay,Mode=TwoWay}" Margin="5,0,5,0" Width="140"
+          <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal" VerticalAlignment="Center">
+            <TextBox x:Name="AutoScrollDelay" Text="{Binding Path=ScrollDelayController.Value,Mode=TwoWay}" Margin="5,0,5,0" Width="140"
                      HorizontalAlignment="Right" IsEnabled="{Binding Path=UseAutoScroll}"/>
             <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
-              <Button Style="{ThemeResource ChapterUpButtonStyle}" Height="30" Margin="0,0,0,2" IsEnabled="{Binding Path=UseAutoScroll}"
-                      Command="{Command Source={StaticResource ScrollConfigurationModel},Path=IncreaseScrollDelay}"/>
-              <Button Style="{ThemeResource ChapterDownButtonStyle}" Height="30" IsEnabled="{Binding Path=UseAutoScroll}"
-                      Command="{Command Source={StaticResource ScrollConfigurationModel},Path=DecreaseScrollDelay}"/>
+              <Button Style="{ThemeResource ChapterUpButtonStyle}" Height="30" Margin="0,0,0,2" IsEnabled="false"
+                      Command="{Command Path=ScrollDelayController.Up}">
+                <Button.Triggers>
+                  <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                      <Condition Binding="{Binding UseAutoScroll}" Value="true"/>
+                      <Condition Binding="{Binding ScrollDelayController.IsUpEnabled}" Value="true"/>
+                    </MultiTrigger.Conditions>
+                    <Setter Property="IsEnabled" Value="true"/>
+                  </MultiTrigger>
+                </Button.Triggers>
+              </Button>
+              <Button Style="{ThemeResource ChapterDownButtonStyle}" Height="30" IsEnabled="false"
+                      Command="{Command Path=ScrollDelayController.Down}">
+                <Button.Triggers>
+                  <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                      <Condition Binding="{Binding UseAutoScroll}" Value="true"/>
+                      <Condition Binding="{Binding ScrollDelayController.IsDownEnabled}" Value="true"/>
+                    </MultiTrigger.Conditions>
+                    <Setter Property="IsEnabled" Value="true"/>
+                  </MultiTrigger>
+                </Button.Triggers>
+              </Button>
             </StackPanel>
           </StackPanel>
+
+          <Label x:Name="ScrollDelayErrorText" Grid.ColumnSpan="2" Grid.Row="3" Margin="10,20,10,10" Wrap="true" HorizontalAlignment="Center"
+                 Color="{ThemeResource ErrorTextColor}"
+                 Content="{Binding Path=ScrollDelayController.ErrorText}"
+                 IsVisible="{Binding Path=ScrollDelayController.ErrorText, Converter={StaticResource EmptyStringToFalseConverter}}"/>
 
           <ScrollViewer Grid.Column="3" Grid.RowSpan="2" CanContentScroll="True" HorizontalScrollBarVisibility="Disabled" Focusable="True" 
                         Margin="50,0,10,0" VerticalAlignment="Top" Height="100" Width="200" HorizontalAlignment="Right"
@@ -182,9 +234,11 @@
                    Content="Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text">
             </Label>
           </ScrollViewer>
-          <Label Grid.Column="3" Grid.RowSpan="2"  Wrap="True" Color="White" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                 Content="Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text" ScrollDelay="{Binding Path=ScrollDelay}" ScrollSpeed="{Binding Path=ScrollSpeed}"
-                 IsVisible="{Binding Path=UseAutoScroll}" Scroll="Auto" Height="100" Width="200" Opacity="0.7" Focusable="True" Margin="50,0,10,0">
+          <Label Grid.Column="3" Grid.RowSpan="2" Wrap="True" Color="White" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                 Content="Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text"
+                 IsVisible="{Binding Path=UseAutoScroll}" Scroll="Auto" Height="100" Width="200" Opacity="0.7" Focusable="True" Margin="50,0,10,0"                 
+                 ScrollDelay="{Binding Path=ScrollDelayController.Value}"
+                 ScrollSpeed="{Binding Path=ScrollSpeedController.Value}">
           </Label>
         </Grid>
 
