@@ -9,6 +9,7 @@
     <ItemGroup>
       <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
       <PluginFiles Include="$(TargetDir)Cinema.OnlineLibraries.dll" />
+      <PluginFiles Include="$(TargetDir)DotNetStreamSource.dll" />
       <PluginFiles Include="$(ProjectDir)plugin.xml" />
     </ItemGroup>
 
