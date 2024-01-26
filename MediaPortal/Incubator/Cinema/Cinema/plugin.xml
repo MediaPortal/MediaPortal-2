@@ -8,8 +8,8 @@
   Description="Cinemaprogramm, Trailer, Infos">
   
   <Version
-    PluginVersion="1.4"
-    ReleaseDate="2015-10-10 01:00:00 GMT+01:00"
+    PluginVersion="1.4.1"
+    ReleaseDate="2024-01-26 01:00:00 GMT+01:00"
     CurrentAPI="1"/>
 
   <Runtime>
