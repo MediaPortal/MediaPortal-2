@@ -80,15 +80,8 @@
     </DockPanel>
 
     <mp_special_controls:PlayerControl x:Name="PrimaryOSD"  Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="3" IsEnabled="{Binding IsOSDVisible}"
-                                       Style="{ThemeResource PrimaryVideoOSDStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>    
-    
-    <KeyBinding Key="Info" Command="{Command ShowVideoInfo}"/>
-    <KeyBinding Key="ZoomMode" Command="{Command PlayerUIContributor.ShowZoomModeDialog}"/>
+                                       Style="{ThemeResource PrimaryVideoOSDStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
 
-    <KeyBinding Key="Up" Command="{Command Source={StaticResource ExtendedVideoSkip}, Path=InstantSkipForward}"/>
-    <KeyBinding Key="Down" Command="{Command Source={StaticResource ExtendedVideoSkip}, Path=InstantSkipBackward}"/>
-
-    <KeyBinding Key="Right" Command="{Command Source={StaticResource ExtendedVideoSkip}, Path=SkipStepForward}"/>
-    <KeyBinding Key="Left" Command="{Command Source={StaticResource ExtendedVideoSkip}, Path=SkipStepBackward}"/>
+    <Include Source="screens\FullScreenContentVideoKeyBindings.inc"/>
   </Grid>
 </Screen>
