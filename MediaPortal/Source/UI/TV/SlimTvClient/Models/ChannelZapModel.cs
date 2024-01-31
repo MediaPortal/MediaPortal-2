@@ -130,11 +130,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       // Clear zap timer first so that ChannelNumberOrIndex string is
       // cleared regardless of whether the channel number parsing fails,
       // otherwise it will keep it's erroneous value on the next zap attempt
+      string channelNumberOrIndex = ChannelNumberOrIndex;
       ClearZapTimer();
 
       // Zap to channel
       int number;
-      if (!int.TryParse(ChannelNumberOrIndex, out number))
+      if (!int.TryParse(channelNumberOrIndex, out number))
         return;
 
 #if DEBUG_FOCUS
