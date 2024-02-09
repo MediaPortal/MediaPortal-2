@@ -62,7 +62,7 @@
         <Label x:Name="NextProgramLabel" Grid.Column="3" Content="[SlimTvClient.NextProgram]" VerticalAlignment="Center"
                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="-5,5,10,5"/>
 
-        <Button Style="{ThemeResource BaseGuideButtonStyle}" Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SelectGroup}" 
+        <Button Style="{ThemeResource BaseGuideButtonStyle}" Command="{Command SelectGroup}" 
                 VerticalAlignment="Stretch" Grid.Row="1" Margin="0,5,0,26">
           <Label x:Name="GroupNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
                  Opacity="0.5" Content="{Binding CurrentGroupName}" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,8,0">

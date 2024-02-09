@@ -30,7 +30,7 @@
   <KeyBinding Key="Record" Command="{Command RecordDialog}"/>
   <KeyBinding Key="R" Command="{Command RecordDialog}"/>
 
-  <KeyBinding Key="Ok" Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=SlimTVClient-miniguide}" IsEnabled="{Binding Source={StaticResource AudioPlayerModel}, Path=!IsOSDVisible}"/>
+  <KeyBinding Key="Ok" Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=33C4FB78-223E-4E87-8A87-EC5968601357}" IsEnabled="{Binding Source={StaticResource AudioPlayerModel}, Path=!IsOSDVisible}"/>
 
   <!-- Channel zapping by numbers -->
   <KeyBinding Key="0" Command="{Command Source={StaticResource ChannelZapModel},Path=ZapByNumber,Parameters=0}" IsEnabled="{Binding Source={StaticResource AudioPlayerModel}, Path=!IsOSDVisible}"/>

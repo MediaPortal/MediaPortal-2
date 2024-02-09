@@ -1183,9 +1183,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       get { return MODEL_ID; }
     }
 
-    protected override void OnCurrentGroupChanged(int oldindex, int newindex)
+    protected override void OnChannelsChanged(object sender, EventArgs e)
     {
-      base.OnCurrentGroupChanged(oldindex, newindex);
+      base.OnChannelsChanged(sender, e);
       _ = UpdateChannels();
     }
 

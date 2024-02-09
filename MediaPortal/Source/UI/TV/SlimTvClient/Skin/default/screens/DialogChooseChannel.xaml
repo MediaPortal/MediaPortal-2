@@ -11,11 +11,11 @@
     <!-- Dialog title -->
     <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[SlimTvClient.ChooseChannel]"/>
 
-    <!-- SlimTvSingleChannelGuide model -->
-    <Model x:Key="SlimTvSingleChannelGuide" Id="74F50A53-BEF7-415c-A240-2EC718DA8C0F"/>
+    <!-- SlimTvDialogModel model -->
+    <Model x:Key="SlimTvDialogModel" Id="AAED3DED-1396-4997-9C2E-6FBB95BC8FD0"/>
 
     <ResourceWrapper x:Key="Menu_Items" EnableBindings="True"
-        Resource="{Binding Source={StaticResource SlimTvSingleChannelGuide},Path=SingleChannelList,Mode=OneTime}"/>
+        Resource="{Binding Source={StaticResource SlimTvDialogModel},Path=Items,Mode=OneTime}"/>
 
     <!-- Menu_Command -->
     <CommandList x:Key="Menu_Command">

@@ -22,9 +22,6 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
@@ -33,16 +30,18 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Exceptions;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
+using MediaPortal.Plugins.SlimTv.Client.Messaging;
+using MediaPortal.Plugins.SlimTv.Client.TvHandler;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Extensions;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using MediaPortal.Plugins.SlimTv.Client.Messaging;
-using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
-using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
-using MediaPortal.Plugins.SlimTv.Client.TvHandler;
+using MediaPortal.UiComponents.Media.General;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
 {
@@ -143,40 +142,40 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     public void SelectGroup()
     {
-      var channelGroups = ChannelNavigation.ChannelGroups.GetItemsWithCurrent(out int currentIndex);
-      ChannelGroupList.Clear();
-      for (int index = 0; index < channelGroups.Count; index++)
+      var channelGroupsNavigation = ChannelNavigation.ChannelGroups;
+      var channelGroups = channelGroupsNavigation.GetItemsWithCurrent(out int currentIndex);
+
+      List<ListItem> items = new List<ListItem>();
+      int index = 0;
+      foreach (var group in channelGroups)
       {
-        var channelGroup = channelGroups[index];
-        int groupIndex = index;
-        ListItem channel = new ListItem(Consts.KEY_NAME, channelGroup.Name)
+        int itemIndex = index++;
+        items.Add(new ListItem(Consts.KEY_NAME, group.Name)
         {
-          Command = new MethodDelegateCommand(() => ChannelNavigation.ChannelGroups.CurrentIndex = groupIndex),
-          Selected = groupIndex == currentIndex
-        };
-        ChannelGroupList.Add(channel);
+          Command = new MethodDelegateCommand(() => channelGroupsNavigation.CurrentIndex = itemIndex),
+          Selected = itemIndex == currentIndex
+        });
       }
-      ChannelGroupList.FireChange();
-      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseGroup");
+      SlimTvDialogModel.Instance.ShowItemsDialog("DialogChooseGroup", items);
     }
 
     public void SelectChannel()
     {
-      var channels = ChannelNavigation.Channels.GetItemsWithCurrent(out int currentIndex);
-      SingleChannelList.Clear();
-      for (int index = 0; index < channels.Count; index++)
+      var channelNavigation = ChannelNavigation.Channels;
+      var channels = channelNavigation.GetItemsWithCurrent(out int currentIndex);
+
+      List<ListItem> items = new List<ListItem>();
+      int index = 0;
+      foreach (var channel in channels)
       {
-        var channel = channels[index];
-        int channelIndex = index;
-        ListItem channelItem = new ListItem(Consts.KEY_NAME, channel.Name)
+        int itemIndex = index++;
+        items.Add(new ListItem(Consts.KEY_NAME, channel.Name)
         {
-          Command = new MethodDelegateCommand(() => ChannelNavigation.Channels.CurrentIndex = channelIndex),
-          Selected = channelIndex == currentIndex
-        };
-        SingleChannelList.Add(channelItem);
+          Command = new MethodDelegateCommand(() => channelNavigation.CurrentIndex = itemIndex),
+          Selected = itemIndex == currentIndex
+        });
       }
-      SingleChannelList.FireChange();
-      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseChannel");
+      SlimTvDialogModel.Instance.ShowItemsDialog("DialogChooseChannel", items);
     }
 
     /// <summary>

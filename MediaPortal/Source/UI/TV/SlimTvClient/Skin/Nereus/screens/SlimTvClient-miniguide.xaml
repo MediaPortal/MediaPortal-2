@@ -67,7 +67,7 @@
         <Label x:Name="NextProgramLabel" Grid.Column="3" Content="[SlimTvClient.NextProgram]" VerticalAlignment="Center"
                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="-5,30,10,5"/>
 
-        <Button Style="{ThemeResource BaseGuideButtonStyle}" Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SelectGroup}" 
+        <Button Style="{ThemeResource BaseGuideButtonStyle}" Command="{Command SelectGroup}" 
                 VerticalAlignment="Stretch" Grid.Row="1" Margin="25,0,5,23">
           <Button.Triggers>
             <Trigger Property="HasFocus" Value="True">
