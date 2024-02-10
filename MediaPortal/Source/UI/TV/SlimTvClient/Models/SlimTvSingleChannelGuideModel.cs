@@ -244,12 +244,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       UpdatePrograms();
     }
 
-    protected override void OnCurrentGroupChanged(int oldindex, int newindex)
-    {
-      base.OnCurrentGroupChanged(oldindex, newindex);
-      UpdatePrograms();
-    }
-
     public override void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
       base.EnterModelContext(oldContext, newContext);
