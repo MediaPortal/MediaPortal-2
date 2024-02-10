@@ -43,6 +43,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Messaging
       /// </summary>
       GroupChanged,
       /// <summary>
+      /// Indicates that the current channels were changed. This usually happens asynchronously after changing the channel group.
+      /// </summary>
+      ChannelsChanged,
+      /// <summary>
       /// Indicates that the programs were changed. This usually happens when scrolling through the EPG.
       /// </summary>
       ProgramsChanged,

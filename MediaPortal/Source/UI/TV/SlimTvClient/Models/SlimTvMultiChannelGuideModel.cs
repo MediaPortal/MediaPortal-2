@@ -563,6 +563,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       base.OnChannelsChanged(sender, e);
       UpdateChannels();
       _ = UpdatePrograms();
+      // Notify listeners about channels change
+      SlimTvClientMessaging.SendSlimTvClientMessage(SlimTvClientMessaging.MessageType.ChannelsChanged);
     }
 
     /// <summary>

@@ -204,8 +204,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         SlimTvClientMessaging.MessageType messageType = (SlimTvClientMessaging.MessageType)message.MessageType;
         switch (messageType)
         {
-          case SlimTvClientMessaging.MessageType.GroupChanged:
-            OnGroupChanged();
+          case SlimTvClientMessaging.MessageType.ChannelsChanged:
+            OnChannelsChanged();
             break;
           case SlimTvClientMessaging.MessageType.ProgramsChanged:
             if (message.MessageData.TryGetValue("MoveCursor", out object difference) && difference is TimeSpan)
@@ -265,9 +265,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       base.Dispose();
     }
 
-    private void OnGroupChanged()
+    private void OnChannelsChanged()
     {
-      // Group changed, recreate all.
+      // Channels changed, recreate all.
       RecreateAndArrangeChildren();
       ArrangeOverride();
     }
