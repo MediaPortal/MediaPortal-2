@@ -32,10 +32,13 @@ namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.General
   /// <summary>
   /// Configuration wrapper around the <see cref="ServerSettings.HttpServerPort"/> setting.
   /// </summary>
+  /// 
   public class HttpServerPortSetting : LimitedNumberSelect
   {
     #region Base overrides
 
+    private const string RES_RESTART_TITLE = "[System.RestartWarning.Title]";
+    private const string RES_RESTART_NOTIFICATION = "[System.RestartWarning]";
     public override void Load()
     {
       _type = NumberType.Integer;
@@ -53,11 +56,7 @@ namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.General
       {
         settings.HttpServerPort = value;
         SettingsManager.Save(settings);
-        //TODO: make notification texts localizable or handle rester notification differently
-        ServiceRegistration.Get<INotificationService>().EnqueueNotification(NotificationType.UserInteractionRequired, 
-          "Restart required", 
-          "A restart of Media Portal is required before the modifications are accepted.", 
-          true);
+        ServiceRegistration.Get<INotificationService>().EnqueueNotification(NotificationType.UserInteractionRequired,RES_RESTART_TITLE, RES_RESTART_NOTIFICATION, true);
       }
     }
 
