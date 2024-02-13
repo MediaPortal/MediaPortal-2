@@ -27,13 +27,15 @@ using System.Globalization;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
+using MediaPortal.UI.Presentation.UiNotifications;
 
 namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.Regional
 {
   public class MainLanguage : SingleSelectionList
   {
     #region Variables
-
+    private const string RES_RESTART_TITLE = "[System.RestartWarning.Title]";
+    private const string RES_RESTART_NOTIFICATION = "[System.RestartWarning]";
     private IList<CultureInfo> _cultures;
 
     #endregion
@@ -65,6 +67,7 @@ namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.Regional
     public override void Save()
     {
       ServiceRegistration.Get<ILocalization>().ChangeLanguage(_cultures[Selected]);
+      ServiceRegistration.Get<INotificationService>().EnqueueNotification(NotificationType.UserInteractionRequired, RES_RESTART_TITLE, RES_RESTART_NOTIFICATION, true);
     }
 
     #endregion
