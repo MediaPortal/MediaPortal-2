@@ -21,6 +21,9 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Skin\default\screens\master_configuration_dialog_wbrestart.xaml" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
@@ -35,6 +38,9 @@
     <Content Include="Language\strings_en.xml" />
     <Content Include="Skin\default\screens\configuration-section.xaml" />
     <Content Include="Skin\default\screens\master_configuration_dialog.xaml" />
+    <Content Include="Skin\default\screens\master_configuration_dialog_wbrestart.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Content>
     <Content Include="Skin\default\screens\master_configuration_dialog_wob.xaml" />
     <Content Include="Skin\default\screens\master_configuration_dialog_wb.xaml" />
     <Content Include="Skin\default\screens\master_configuration_entry.xaml" />

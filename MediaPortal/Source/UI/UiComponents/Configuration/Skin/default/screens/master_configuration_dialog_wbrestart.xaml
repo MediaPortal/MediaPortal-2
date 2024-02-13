@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+This is the master template for a standard configuration dialog with Ok and Cancel dialog buttons.
+
+Usage:
+
+  <Include
+      xmlns="www.team-mediaportal.com/2008/mpf/directx"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Source="screens\master_configuration_dialog_wb.xaml"
+      >
+    <Include.Resources>
+      <ControlTemplate x:Key="Config_Contents_Template">
+        [Element which represents the contents area of the dialog.]
+      </ControlTemplate>
+    </Include.Resources>
+  </Include>
+
+Parameters which have to be accessible by a DynamicResource lookup:
+ - Config_Contents_Template (ControlTemplate): Template for configurable element
+   to be displayed.
+-->
+
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_configuration_dialog.xaml"
+    >
+  <Include.Resources>
+    <!-- Configuration model -->
+    <Model x:Key="Model" Id="545674F1-D92A-4383-B6C1-D758CECDBDF5"/>
+    <Model x:Key="ScreenModeModel" Id="6A232D95-9BDE-4005-905E-69CB092B012B"/>
+
+    <ControlTemplate x:Key="Config_Client_Template">
+      <DockPanel LastChildFill="True">
+        <Grid Margin="0,10,0,0" DockPanel.Dock="Bottom" x:Name="ButtonsPanel">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          
+          <Label Grid.ColumnSpan="5" Content="[System.RestartWarning]" Color="{ThemeResource EmphasisTextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="10,0,10,10"/>
+          
+          <Button x:Name="OkButton" Grid.Column="0" Grid.Row="2" Style="{ThemeResource DialogButtonStyle}"
+                  Content="[System.Ok]" HorizontalAlignment="Center">
+            <Button.Command>
+              <CommandList>
+                <Command Source="{StaticResource Model}" Path="CurrentConfigController.Save"/>
+                <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
+              </CommandList>
+            </Button.Command>
+          </Button>
+          <Button x:Name="OkRestartButton" Grid.Column="2" Grid.Row="2" Style="{ThemeResource DialogButtonStyle}"
+                  Content="[System.OkRestart]" HorizontalAlignment="Center">
+            <Button.Command>
+              <CommandList>
+                <Command Source="{StaticResource Model}" Path="CurrentConfigController.Save"/>
+                <Command Source="{Service Window}" Path="Restart"/>
+              </CommandList>
+            </Button.Command>
+          </Button>
+          <Button x:Name="CancelButton" Grid.Column="4" Grid.Row="2" Style="{ThemeResource DialogButtonStyle}"
+                  Content="[System.Cancel]" HorizontalAlignment="Center">
+            <Button.Command>
+              <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
+            </Button.Command>
+          </Button>
+        </Grid>
+
+        <!-- Must be last child of DockPanel (LastChildFill) -->
+        <Control Template="{DynamicResource ResourceKey=Config_Contents_Template}"
+                 DockPanel.Dock="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+      </DockPanel>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

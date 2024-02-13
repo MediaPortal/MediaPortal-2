@@ -4,6 +4,7 @@
   <string name="System.No">No</string>
   <string name="System.Done">Done</string>
   <string name="System.Finish">Finish</string>
+  <string name="System.OkRestart">Ok &amp; Restart Client</string>
   <string name="System.Ok">Ok</string>
   <string name="System.Cancel">Cancel</string>
   <string name="System.Discard">Discard</string>
@@ -16,6 +17,8 @@
   <string name="System.Information">Information</string>
   <string name="System.Warning">Warning</string>
   <string name="System.Error">Error</string>
+  <string name="System.RestartWarning.Title">Restart required</string>
+  <string name="System.RestartWarning">A restart of the MediaPortal 2 client is required for the changes to take effect</string>
 
   <string name="Keys.Shift">Shift</string>
   <string name="Keys.CapsLock">Caps Lock</string>
