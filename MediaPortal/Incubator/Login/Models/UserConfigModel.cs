@@ -22,36 +22,34 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Common;
+using MediaPortal.Common.Async;
 using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Messaging;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.SystemCommunication;
+using MediaPortal.Common.UserManagement;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Screens;
+using MediaPortal.UI.Presentation.Utilities;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Shares;
 using MediaPortal.UiComponents.Login.General;
-using MediaPortal.Common.UserProfileDataManagement;
-using MediaPortal.Common.SystemCommunication;
-using MediaPortal.Common.Localization;
-using System.IO;
-using MediaPortal.Utilities.Graphics;
-using System.Drawing.Imaging;
-using System.Threading.Tasks;
-using MediaPortal.Common.Async;
-using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Services.ServerCommunication;
-using MediaPortal.Common.UserManagement;
 using MediaPortal.UiComponents.Login.Settings;
-using MediaPortal.UI.General;
-using MediaPortal.UI.Presentation.Utilities;
+using MediaPortal.Utilities.Graphics;
+using System;
+using System.Collections.Generic;
+using System.Drawing.Imaging;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Login.Models
 {
@@ -59,7 +57,7 @@ namespace MediaPortal.UiComponents.Login.Models
   /// Provides a workflow model to attend the complex configuration process for server and client shares
   /// in the MP2 configuration.
   /// </summary>
-  public class UserConfigModel : IWorkflowModel, IDisposable
+  public class UserConfigModel : IWorkflowModel
   {
     internal class AccessCheck : IUserRestriction
     {
@@ -128,11 +126,14 @@ namespace MediaPortal.UiComponents.Login.Models
       _isUserSelectedProperty = new WProperty(typeof(bool), false);
       _isSystemUserSelectedProperty = new WProperty(typeof(bool), false);
 
+      _serverSharesList = new ItemsList();
+      _localSharesList = new ItemsList();
+      _userList = new ItemsList();
+      _restrictionGroupList = new ItemsList();
       _templateList = new ItemsList();
-      ListItem item = null;
       foreach (var profile in UserSettingStorage.UserProfileTemplates)
       {
-        item = new ListItem();
+        ListItem item = new ListItem();
         item.SetLabel(Consts.KEY_NAME, profile.TemplateName);
         item.AdditionalProperties[Consts.KEY_PROFILE_TEMPLATE_ID] = profile.TemplateId;
         _templateList.Add(item);
@@ -142,16 +143,6 @@ namespace MediaPortal.UiComponents.Login.Models
       FillRestrictionGroupList();
 
       UserProxy = new UserProxy();
-    }
-
-    public void Dispose()
-    {
-      UserProxy = null;
-      _serverSharesList = null;
-      _localSharesList = null;
-      _userList = null;
-      _templateList = null;
-      _restrictionGroupList = null;
     }
 
     #endregion
@@ -195,8 +186,8 @@ namespace MediaPortal.UiComponents.Login.Models
           case ServerConnectionMessaging.MessageType.HomeServerDetached:
           case ServerConnectionMessaging.MessageType.HomeServerConnected:
           case ServerConnectionMessaging.MessageType.HomeServerDisconnected:
-            _ = UpdateUserLists_NoLock(false);
-            _ = UpdateShareLists_NoLock(false);
+            _ = UpdateUserLists_NoLock();
+            _ = UpdateShareLists_NoLock();
             break;
         }
       }
@@ -206,7 +197,7 @@ namespace MediaPortal.UiComponents.Login.Models
         switch (messageType)
         {
           case ContentDirectoryMessaging.MessageType.RegisteredSharesChanged:
-            _ = UpdateShareLists_NoLock(false);
+            _ = UpdateShareLists_NoLock();
             break;
         }
       }
@@ -217,7 +208,7 @@ namespace MediaPortal.UiComponents.Login.Models
         {
           case SharesMessaging.MessageType.ShareAdded:
           case SharesMessaging.MessageType.ShareRemoved:
-            _ = UpdateShareLists_NoLock(false);
+            _ = UpdateShareLists_NoLock();
             break;
         }
       }
@@ -241,47 +232,27 @@ namespace MediaPortal.UiComponents.Login.Models
 
     public ItemsList ServerSharesList
     {
-      get
-      {
-        lock (_syncObj)
-          return _serverSharesList;
-      }
+      get { return _serverSharesList; }
     }
 
     public ItemsList LocalSharesList
     {
-      get
-      {
-        lock (_syncObj)
-          return _localSharesList;
-      }
+      get { return _localSharesList; }
     }
 
     public ItemsList UserList
     {
-      get
-      {
-        lock (_syncObj)
-          return _userList;
-      }
+      get { return _userList; }
     }
 
     public ItemsList ProfileTemplateList
     {
-      get
-      {
-        lock (_syncObj)
-          return _templateList;
-      }
+      get { return _templateList; }
     }
 
     public ItemsList RestrictionGroupList
     {
-      get
-      {
-        lock (_syncObj)
-          return _restrictionGroupList;
-      }
+      get { return _restrictionGroupList; }
     }
 
     public AbstractProperty IsHomeServerConnectedProperty
@@ -431,18 +402,24 @@ namespace MediaPortal.UiComponents.Login.Models
 
     public void OpenSelectSharesDialog()
     {
-      foreach (ListItem item in _serverSharesList)
-        item.Selected = UserProxy.SelectedShares.Contains(((Share)item.AdditionalProperties[Consts.KEY_SHARE]).ShareId);
-      foreach (ListItem item in _localSharesList)
-        item.Selected = UserProxy.SelectedShares.Contains(((Share)item.AdditionalProperties[Consts.KEY_SHARE]).ShareId);
+      lock (_serverSharesList.SyncRoot)
+        foreach (ListItem item in _serverSharesList)
+          item.Selected = UserProxy.SelectedShares.Contains(((Share)item.AdditionalProperties[Consts.KEY_SHARE]).ShareId);
+      lock (_localSharesList.SyncRoot)
+        foreach (ListItem item in _localSharesList)
+          item.Selected = UserProxy.SelectedShares.Contains(((Share)item.AdditionalProperties[Consts.KEY_SHARE]).ShareId);
+
       ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogSelectShares",
         (string name, System.Guid id) =>
         {
           UserProxy.SelectedShares.Clear();
-          foreach (ListItem item in _serverSharesList.Where(i => i.Selected))
-            UserProxy.SelectedShares.Add(((Share)item.AdditionalProperties[Consts.KEY_SHARE]).ShareId);
-          foreach (ListItem item in _localSharesList.Where(i => i.Selected))
-            UserProxy.SelectedShares.Add(((Share)item.AdditionalProperties[Consts.KEY_SHARE]).ShareId);
+          lock (_serverSharesList.SyncRoot)
+            foreach (ListItem item in _serverSharesList.Where(i => i.Selected))
+              UserProxy.SelectedShares.Add(((Share)item.AdditionalProperties[Consts.KEY_SHARE]).ShareId);
+
+          lock (_localSharesList.SyncRoot)
+            foreach (ListItem item in _localSharesList.Where(i => i.Selected))
+              UserProxy.SelectedShares.Add(((Share)item.AdditionalProperties[Consts.KEY_SHARE]).ShareId);
           SetSelectedShares();
         });
     }
@@ -487,7 +464,7 @@ namespace MediaPortal.UiComponents.Login.Models
         SetUser(user);
         // Auto save to avoid unsaved user profiles
         SaveUser().TryWait();
-        UpdateUserLists_NoLock(false, UserProxy.Id).TryWait();
+        UpdateUserLists_NoLock(UserProxy.Id).TryWait();
       }
       catch (Exception e)
       {
@@ -506,8 +483,9 @@ namespace MediaPortal.UiComponents.Login.Models
       string testName = baseName;
       do
       {
-        if (_userList.Select(item => item.Labels[Consts.KEY_NAME]).All(name => name.Evaluate() != testName))
-          return testName;
+        lock (_userList.SyncRoot)
+          if (_userList.Select(item => item.Labels[Consts.KEY_NAME]).All(name => name.Evaluate() != testName))
+            return testName;
 
         testName = string.Format("{0} ({1})", baseName, ++counter);
       } while (counter < 10);
@@ -536,7 +514,7 @@ namespace MediaPortal.UiComponents.Login.Models
         SetUser(user);
         // Auto save to avoid unsaved user profiles
         SaveUser().TryWait();
-        UpdateUserLists_NoLock(false, UserProxy.Id).TryWait();
+        UpdateUserLists_NoLock(UserProxy.Id).TryWait();
       }
       catch (Exception e)
       {
@@ -548,16 +526,26 @@ namespace MediaPortal.UiComponents.Login.Models
     {
       try
       {
-        ListItem item = _userList.FirstOrDefault(i => i.Selected);
-        if (item == null)
-          return;
+        UserProfile user;
+        ListItem newSelectedItem = null;
+        lock (_userList.SyncRoot)
+        {
+          ListItem item = _userList.FirstOrDefault(i => i.Selected);
+          if (item == null)
+            return;
 
-        int oldItemIndex = _userList.IndexOf(item) - 1;
-        UserProfile user = (UserProfile)item.AdditionalProperties[Consts.KEY_USER];
+          int newSelectedItemIndex = Math.Max(0, _userList.IndexOf(item) - 1);
+          if (newSelectedItemIndex < _userList.Count - 1)
+            newSelectedItem = _userList[newSelectedItemIndex];
 
-        item.SelectedProperty.Detach(OnUserItemSelectionChanged);
-        lock (_syncObj)
+          item.SelectedProperty.Detach(OnUserItemSelectionChanged);
           _userList.Remove(item);
+          user = (UserProfile)item.AdditionalProperties[Consts.KEY_USER];
+        }
+
+        _userList.FireChange();
+        if (newSelectedItem != null)
+          newSelectedItem.Selected = true;
 
         if (user.ProfileId != Guid.Empty)
         {
@@ -570,18 +558,6 @@ namespace MediaPortal.UiComponents.Login.Models
             }
           }
         }
-
-        // Set focus to first in list
-        if (oldItemIndex > 0 && oldItemIndex < _userList.Count)
-          _userList[oldItemIndex].Selected = true;
-        else
-        {
-          var firstItem = _userList.FirstOrDefault();
-          if (firstItem != null)
-            firstItem.Selected = true;
-        }
-
-        _userList.FireChange();
       }
       catch (NotConnectedException)
       {
@@ -655,7 +631,9 @@ namespace MediaPortal.UiComponents.Login.Models
             }
           }
 
-          ListItem item = _userList.FirstOrDefault(i => i.Selected);
+          ListItem item;
+          lock (_userList.SyncRoot)
+            item = _userList.FirstOrDefault(i => i.Selected);
           if (item == null)
             return;
 
@@ -764,22 +742,26 @@ namespace MediaPortal.UiComponents.Login.Models
 
     private void FillRestrictionGroupList()
     {
-      _restrictionGroupList = new ItemsList();
       IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
       ILocalization loc = ServiceRegistration.Get<ILocalization>();
-      foreach (string restrictionGroup in userManagement.RestrictionGroups.OrderBy(r => r))
-      {
-        ListItem item = new ListItem();
-        // Try translation or use the orginal value
-        string labelResource;
-        if (!loc.TryTranslate("RestrictionGroup", restrictionGroup, out labelResource))
-          labelResource = restrictionGroup;
 
-        item.SetLabel(Consts.KEY_NAME, labelResource);
-        item.AdditionalProperties[Consts.KEY_RESTRICTION_GROUP] = restrictionGroup;
-        lock (_syncObj)
+      lock (_restrictionGroupList.SyncRoot)
+      {
+        _restrictionGroupList.Clear();
+        foreach (string restrictionGroup in userManagement.RestrictionGroups.OrderBy(r => r))
+        {
+          ListItem item = new ListItem();
+          // Try translation or use the orginal value
+          string labelResource;
+          if (!loc.TryTranslate("RestrictionGroup", restrictionGroup, out labelResource))
+            labelResource = restrictionGroup;
+
+          item.SetLabel(Consts.KEY_NAME, labelResource);
+          item.AdditionalProperties[Consts.KEY_RESTRICTION_GROUP] = restrictionGroup;
           _restrictionGroupList.Add(item);
+        }
       }
+      _restrictionGroupList.FireChange();
     }
 
     private static void RequestRestrictions()
@@ -823,16 +805,8 @@ namespace MediaPortal.UiComponents.Login.Models
       return !hasSettings && hasOwn;
     }
 
-    protected internal async Task UpdateUserLists_NoLock(bool create, Guid? selectedUserId = null)
+    protected internal async Task UpdateUserLists_NoLock(Guid? selectedUserId = null)
     {
-      lock (_syncObj)
-      {
-        if (_updatingProperties)
-          return;
-        _updatingProperties = true;
-        if (create)
-          _userList = new ItemsList();
-      }
       try
       {
         IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
@@ -843,25 +817,23 @@ namespace MediaPortal.UiComponents.Login.Models
 
         // add users to expose them
         var users = await userManagement.UserProfileDataManagement.GetProfilesAsync();
-        _userList.Clear();
         bool selectedOnce = false;
-        foreach (UserProfile user in users)
+        lock (_userList.SyncRoot)
         {
-          if (!manageAllUsers && user.ProfileId != userManagement.CurrentUser.ProfileId)
-            continue;
+          _userList.Clear();
+          foreach (UserProfile user in users)
+          {
+            if (!manageAllUsers && user.ProfileId != userManagement.CurrentUser.ProfileId)
+              continue;
 
-          ListItem item = new ListItem();
-          item.SetLabel(Consts.KEY_NAME, user.Name);
-          item.AdditionalProperties[Consts.KEY_USER] = user;
-          if (selectedUserId.HasValue)
-            selectedOnce |= item.Selected = user.ProfileId == selectedUserId;
-          item.SelectedProperty.Attach(OnUserItemSelectionChanged);
-          lock (_syncObj)
+            ListItem item = new ListItem();
+            item.SetLabel(Consts.KEY_NAME, user.Name);
+            item.AdditionalProperties[Consts.KEY_USER] = user;
+            if (!selectedOnce)
+              selectedOnce = item.Selected = !selectedUserId.HasValue || user.ProfileId == selectedUserId;
+            item.SelectedProperty.Attach(OnUserItemSelectionChanged);
             _userList.Add(item);
-        }
-        if (!selectedOnce && _userList.Count > 0)
-        {
-          _userList[0].Selected = true;
+          }
         }
         _userList.FireChange();
       }
@@ -873,11 +845,6 @@ namespace MediaPortal.UiComponents.Login.Models
       {
         ServiceRegistration.Get<ILogger>().Warn("Problems updating users", e);
       }
-      finally
-      {
-        lock (_syncObj)
-          _updatingProperties = false;
-      }
     }
 
     private void OnUserItemSelectionChanged(AbstractProperty property, object oldValue)
@@ -887,10 +854,8 @@ namespace MediaPortal.UiComponents.Login.Models
         return;
 
       UserProfile userProfile = null;
-      lock (_syncObj)
-      {
+      lock (_userList.SyncRoot)
         userProfile = _userList.Where(i => i.Selected).Select(i => (UserProfile)i.AdditionalProperties[Consts.KEY_USER]).FirstOrDefault();
-      }
       SetUser(userProfile);
     }
 
@@ -906,33 +871,31 @@ namespace MediaPortal.UiComponents.Login.Models
       userProfile.RestrictionGroups = template.RestrictionGroups;
     }
 
-    protected internal async Task UpdateShareLists_NoLock(bool create)
+    protected internal async Task UpdateShareLists_NoLock()
     {
       lock (_syncObj)
       {
         if (_updatingProperties)
           return;
         _updatingProperties = true;
-        if (create)
-        {
-          _serverSharesList = new ItemsList();
-          _localSharesList = new ItemsList();
-        }
       }
+
       try
       {
         ILocalSharesManagement sharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
         var shares = sharesManagement.Shares.Values;
-        _localSharesList.Clear();
-        foreach (Share share in shares)
+        lock (_localSharesList.SyncRoot)
         {
-          ListItem item = new ListItem();
-          item.SetLabel(Consts.KEY_NAME, share.Name);
-          item.AdditionalProperties[Consts.KEY_SHARE] = share;
-          if (UserProxy != null)
-            item.Selected = UserProxy.SelectedShares.Contains(share.ShareId);
-          lock (_syncObj)
+          _localSharesList.Clear();
+          foreach (Share share in shares)
+          {
+            ListItem item = new ListItem();
+            item.SetLabel(Consts.KEY_NAME, share.Name);
+            item.AdditionalProperties[Consts.KEY_SHARE] = share;
+            if (UserProxy != null)
+              item.Selected = UserProxy.SelectedShares.Contains(share.ShareId);
             _localSharesList.Add(item);
+          }
         }
 
         IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
@@ -941,16 +904,18 @@ namespace MediaPortal.UiComponents.Login.Models
 
         // add users to expose them
         shares = await scm.ContentDirectory.GetSharesAsync(scm.HomeServerSystemId, SharesFilter.All);
-        _serverSharesList.Clear();
-        foreach (Share share in shares)
+        lock (_serverSharesList.SyncRoot)
         {
-          ListItem item = new ListItem();
-          item.SetLabel(Consts.KEY_NAME, share.Name);
-          item.AdditionalProperties[Consts.KEY_SHARE] = share;
-          if (UserProxy != null)
-            item.Selected = UserProxy.SelectedShares.Contains(share.ShareId);
-          lock (_syncObj)
+          _serverSharesList.Clear();
+          foreach (Share share in shares)
+          {
+            ListItem item = new ListItem();
+            item.SetLabel(Consts.KEY_NAME, share.Name);
+            item.AdditionalProperties[Consts.KEY_SHARE] = share;
+            if (UserProxy != null)
+              item.Selected = UserProxy.SelectedShares.Contains(share.ShareId);
             _serverSharesList.Add(item);
+          }
         }
         SystemName homeServerSystem = scm.LastHomeServerSystem;
         IsLocalHomeServer = homeServerSystem != null && homeServerSystem.IsLocalSystem();
@@ -971,17 +936,17 @@ namespace MediaPortal.UiComponents.Login.Models
         lock (_syncObj)
           _updatingProperties = false;
       }
+
+      _localSharesList.FireChange();
+      _serverSharesList.FireChange();
     }
 
     protected void ClearData()
     {
-      lock (_syncObj)
-      {
-        _userList = null;
-        _localSharesList = null;
-        _serverSharesList = null;
-        _restrictionGroupList = null;
-      }
+      _userList = new ItemsList();
+      _localSharesList = new ItemsList();
+      _serverSharesList = new ItemsList();
+      _restrictionGroupList = new ItemsList();
     }
 
     protected void DisconnectedError()
@@ -1009,8 +974,8 @@ namespace MediaPortal.UiComponents.Login.Models
       SubscribeToMessages();
       ClearData();
       FillRestrictionGroupList();
-      _ = UpdateShareLists_NoLock(true);
-      _ = UpdateUserLists_NoLock(true);
+      _ = UpdateShareLists_NoLock();
+      _ = UpdateUserLists_NoLock();
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
