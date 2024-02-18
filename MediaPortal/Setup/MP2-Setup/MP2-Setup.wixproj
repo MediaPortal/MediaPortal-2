@@ -10,6 +10,7 @@
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)\$(Platform)\$(Configuration)\$(ReferencedTargetFramework)</IntermediateOutputPath>
     <OutputPath>bin\$(Platform)\$(Configuration)\$(ReferencedTargetFramework)</OutputPath>
     <Platforms>x86</Platforms>
+    <DefaultItemExcludes>$(DefaultItemExcludes);obj\**</DefaultItemExcludes>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DefineConstants>Debug;</DefineConstants>

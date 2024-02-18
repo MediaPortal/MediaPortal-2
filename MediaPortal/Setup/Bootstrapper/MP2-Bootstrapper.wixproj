@@ -13,6 +13,7 @@
     <OutputType>Bundle</OutputType>
     <OutputPath>..\..\Bin\MP2-Setup\$(Configuration)\$(ReferencedTargetFramework)\en-us\</OutputPath>
     <Platforms>x86</Platforms>
+    <DefaultItemExcludes>$(DefaultItemExcludes);obj\**</DefaultItemExcludes>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DefineConstants>Debug</DefineConstants>
