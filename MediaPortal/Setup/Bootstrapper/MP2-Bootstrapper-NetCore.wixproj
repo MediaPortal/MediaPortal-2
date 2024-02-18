@@ -1,4 +1,4 @@
-﻿<Project Sdk="WixToolset.Sdk/4.0.0">
+﻿<Project Sdk="WixToolset.Sdk/4.0.4">
   <PropertyGroup>
     <!--
     This project exists to build a .net core version of the setup. It merely imports the main setup project and 

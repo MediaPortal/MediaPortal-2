@@ -16,7 +16,7 @@
     <Content Include="CustomAction.config" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="WixToolset.Dtf.CustomAction" Version="4.0.0" />
+    <PackageReference Include="WixToolset.Dtf.CustomAction" Version="4.0.4" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Backend\MediaPortal.Backend.csproj" />

@@ -1,4 +1,4 @@
-﻿<Project Sdk="WixToolset.Sdk/4.0.0">
+﻿<Project Sdk="WixToolset.Sdk/4.0.4">
   <!--
     This project exists to build a .net core version of the setup. It merely imports the main setup project and 
     overrides the target framework to use when importing the MP2 projects and decide what setup features are available.
