@@ -35,10 +35,10 @@ namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.General
   /// 
   public class HttpServerPortSetting : LimitedNumberSelect
   {
-    #region Base overrides
-
     private const string RES_RESTART_TITLE = "[System.RestartWarning.Title]";
     private const string RES_RESTART_NOTIFICATION = "[System.RestartWarning]";
+
+    #region Base overrides
     public override void Load()
     {
       _type = NumberType.Integer;
