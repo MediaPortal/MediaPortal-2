@@ -69,7 +69,7 @@
     <Component Id="ClientLauncher.Registry.AutoStart" Guid="B602BA6F-90F7-4450-8E8C-C9EDFC6BEE6D">
       <RegistryValue Root="HKCU"
                      Key="Software\Microsoft\Windows\Currentversion\Run"
-                     Name="MP2 ClientLauncher"
+                     Name="MP2-ClientLauncher"
                      Value='"[#ClientLauncher.exe]"'
                      KeyPath="yes"
                      Type="expandable"/>

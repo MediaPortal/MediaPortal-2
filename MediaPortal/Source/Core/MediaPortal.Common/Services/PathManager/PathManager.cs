@@ -63,7 +63,13 @@ namespace MediaPortal.Common.Services.PathManager
 
     public void InitializeDefaults()
     {
+      // In .net core Assembly.GetEntryAssembly().Location returns the path to the main dll
+      // rather than the main executable, Environment.ProcessPath should be used instead.
+#if NET6_0_OR_GREATER
+      string applicationPath = Environment.ProcessPath;
+#else
       string applicationPath = Assembly.GetEntryAssembly().Location;
+#endif
       InitializeDefaults(applicationPath);
     }
 
@@ -94,7 +100,7 @@ namespace MediaPortal.Common.Services.PathManager
         };
     }
 
-    #endregion
+#endregion
 
     #region IPathManager Implementation
 
@@ -170,7 +176,7 @@ namespace MediaPortal.Common.Services.PathManager
 
     #endregion
 
-		#region IStatus implementation
+    #region IStatus implementation
 
 		public IList<string> GetStatus()
 		{
@@ -180,7 +186,7 @@ namespace MediaPortal.Common.Services.PathManager
 		  return status;
 		}
 
-		#endregion
+    #endregion
 
     #region Private methods
 

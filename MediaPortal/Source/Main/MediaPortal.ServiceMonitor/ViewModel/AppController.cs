@@ -63,7 +63,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     #region Constants
 
     private const string SERVER_SERVICE_NAME = "MP2-Server"; // Name of the installed MP2 Server Service
-    protected const string AUTOSTART_REGISTER_NAME = "MP2 ServiceMonitor";
+    protected const string AUTOSTART_REGISTER_NAME = "MP2-ServiceMonitor";
 
     private const int WM_POWERBROADCAST = 0x0218;
     private const int PBT_APMQUERYSUSPENDFAILED = 0x0002;
