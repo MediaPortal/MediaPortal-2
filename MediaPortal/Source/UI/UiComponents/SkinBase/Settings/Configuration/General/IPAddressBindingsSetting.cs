@@ -39,6 +39,8 @@ namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.General
   {
     #region Public Methods
 
+    private const string RES_RESTART_TITLE = "[System.RestartWarning.Title]";
+    private const string RES_RESTART_NOTIFICATION = "[System.RestartWarning]";
     public override int DisplayLength
     {
       get { return 40; }
@@ -86,11 +88,7 @@ namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.General
       {
         settings.IPAddressBindings = newValue;
         SettingsManager.Save(settings);
-        //TODO: make notification texts localizable or handle rester notification differently
-        ServiceRegistration.Get<INotificationService>().EnqueueNotification(NotificationType.UserInteractionRequired,
-          "Restart required",
-          "A restart of Media Portal is required before the modifications are accepted.",
-          true);
+        ServiceRegistration.Get<INotificationService>().EnqueueNotification(NotificationType.UserInteractionRequired, RES_RESTART_TITLE, RES_RESTART_NOTIFICATION, true);
       }
     }
 

@@ -34,8 +34,10 @@ namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.General
   /// </summary>
   public class UseIPv4Setting : YesNo
   {
-    #region Public Methods
+    private const string RES_RESTART_TITLE = "[System.RestartWarning.Title]";
+    private const string RES_RESTART_NOTIFICATION = "[System.RestartWarning]";
 
+    #region Public Methods
     public override void Load()
     {
       _yes = SettingsManager.Load<ServerSettings>().UseIPv4;
@@ -48,11 +50,7 @@ namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.General
       {
         settings.UseIPv4 = _yes;
         SettingsManager.Save(settings);
-        //TODO: make notification texts localizable or handle rester notification differently
-        ServiceRegistration.Get<INotificationService>().EnqueueNotification(NotificationType.UserInteractionRequired,
-          "Restart required",
-          "A restart of Media Portal is required before the modifications are accepted.",
-          true);
+        ServiceRegistration.Get<INotificationService>().EnqueueNotification(NotificationType.UserInteractionRequired, RES_RESTART_TITLE, RES_RESTART_NOTIFICATION, true);
       }
     }
 
