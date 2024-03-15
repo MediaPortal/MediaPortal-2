@@ -85,16 +85,5 @@
 
       <ComponentGroupRef Id="Server.Heat" />
     </Feature>
-
-    <SetProperty Id="RestartService" Value="&quot;net&quot; start MP2-Server" Before="RestartService" Sequence="execute" />
-    <CustomAction Id="RestartService" DllEntry="WixQuietExec" Execute="deferred" Return="asyncWait" BinaryRef="Wix4UtilCA_$(sys.BUILDARCHSHORT)" />
-        
-    <InstallExecuteSequence>
-      <!-- The ServiceControl element above handles starting/stopping the server on install/uninstall,
-           however it also needs to be restarted after a modify or repair install. This action does
-           that provided the server feature is already installed and not being uninstalled. -->
-      <Custom Action="RestartService" Before="InstallFinalize" Condition="(!Server=3) AND (&amp;Server&lt;&gt;2)" />
-    </InstallExecuteSequence>
-
   </Fragment>
 </Wix>

@@ -257,7 +257,6 @@ namespace MP2BootstrapperApp.Models
 
     private void ApplyBegin(object sender, ApplyBeginEventArgs e)
     {
-      IpcUtils.StopMediaPortalProcesses();
     }
 
     protected void ApplyComplete(object sender, ApplyCompleteEventArgs e)
