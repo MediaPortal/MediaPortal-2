@@ -1,4 +1,4 @@
-﻿<Project Sdk="WixToolset.Sdk/4.0.0">
+﻿<Project Sdk="WixToolset.Sdk/4.0.4">
   <PropertyGroup>
     <!--
     Wix projects don't have a TargetFramework nor a concept of multi-targeting, but the project references
@@ -13,6 +13,7 @@
     <OutputType>Bundle</OutputType>
     <OutputPath>..\..\Bin\MP2-Setup\$(Configuration)\$(ReferencedTargetFramework)\en-us\</OutputPath>
     <Platforms>x86</Platforms>
+    <DefaultItemExcludes>$(DefaultItemExcludes);obj\**</DefaultItemExcludes>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DefineConstants>Debug</DefineConstants>
@@ -25,10 +26,10 @@
     <DefineConstants>$(DefineConstants);IsNetCore=$(IsNetCore)</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="WixToolset.NetFx.wixext" Version="4.0.0" />
-    <PackageReference Include="WixToolset.UI.wixext" Version="4.0.0" />
-    <PackageReference Include="WixToolset.Util.wixext" Version="4.0.0" />
-    <PackageReference Include="WixToolset.Bal.wixext" Version="4.0.0" />
+    <PackageReference Include="WixToolset.NetFx.wixext" Version="4.0.4" />
+    <PackageReference Include="WixToolset.UI.wixext" Version="4.0.4" />
+    <PackageReference Include="WixToolset.Util.wixext" Version="4.0.4" />
+    <PackageReference Include="WixToolset.Bal.wixext" Version="4.0.4" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources" />

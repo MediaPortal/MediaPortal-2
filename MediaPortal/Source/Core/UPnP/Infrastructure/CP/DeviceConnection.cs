@@ -243,9 +243,14 @@ namespace UPnP.Infrastructure.CP
       {
         SOAPHandler.ActionFailed(state.Action, state.ClientState, string.Format("Network error when invoking action '{0}': {1}", state.Action.Name, e.Message));
       }
-      catch (TaskCanceledException)
+      catch (TaskCanceledException e)
       {
-        // DeviceConnection is probably disposing, ignore 
+        // This exception is thrown when a request times out
+        SOAPHandler.ActionFailed(state.Action, state.ClientState, string.Format("Network task cancelled when invoking action '{0}': {1}", state.Action.Name, e.Message));
+      }
+      catch (Exception e)
+      {
+        SOAPHandler.ActionFailed(state.Action, state.ClientState, string.Format("Unexpected error when invoking action '{0}': {1}", state.Action.Name, e.Message));
       }
       finally
       {

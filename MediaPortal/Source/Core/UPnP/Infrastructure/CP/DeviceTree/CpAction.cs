@@ -134,7 +134,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
         {
           lock (_syncObj)
             if (_waitHandle == null)
-              _waitHandle = new EventWaitHandle(false, EventResetMode.ManualReset);
+              _waitHandle = new EventWaitHandle(IsCompleted, EventResetMode.ManualReset);
           return _waitHandle;
         }
       }

@@ -1,4 +1,4 @@
-﻿<Project Sdk="WixToolset.Sdk/4.0.0">
+﻿<Project Sdk="WixToolset.Sdk/4.0.4">
   <PropertyGroup>
     <!--
     Wix projects don't have a TargetFramework nor a concept of multi-targeting, but the project references
@@ -10,6 +10,7 @@
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)\$(Platform)\$(Configuration)\$(ReferencedTargetFramework)</IntermediateOutputPath>
     <OutputPath>bin\$(Platform)\$(Configuration)\$(ReferencedTargetFramework)</OutputPath>
     <Platforms>x86</Platforms>
+    <DefaultItemExcludes>$(DefaultItemExcludes);obj\**</DefaultItemExcludes>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DefineConstants>Debug;</DefineConstants>
@@ -31,11 +32,11 @@
     <Content Include="xslt\ServiceMonitor.Heat.xslt" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="WixToolset.Heat" Version="4.0.0" />
-    <PackageReference Include="WixToolset.Util.wixext" Version="4.0.0" />
-    <PackageReference Include="WixToolset.NetFx.wixext" Version="4.0.0" />
-    <PackageReference Include="WixToolset.Firewall.wixext" Version="4.0.0" />
-    <PackageReference Include="WixToolset.UI.wixext" Version="4.0.0" />
+    <PackageReference Include="WixToolset.Heat" Version="4.0.4" />
+    <PackageReference Include="WixToolset.Util.wixext" Version="4.0.4" />
+    <PackageReference Include="WixToolset.NetFx.wixext" Version="4.0.4" />
+    <PackageReference Include="WixToolset.Firewall.wixext" Version="4.0.4" />
+    <PackageReference Include="WixToolset.UI.wixext" Version="4.0.4" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Main\MediaPortal.Client\MediaPortal.Client.csproj">
