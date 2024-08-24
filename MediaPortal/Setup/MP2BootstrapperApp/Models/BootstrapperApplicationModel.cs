@@ -219,6 +219,17 @@ namespace MP2BootstrapperApp.Models
         planPackageBeginEventArgs.State = requestState.Value;
     }
 
+    private void PlanMsiPackage(object sender, PlanMsiPackageEventArgs e)
+    {
+      // MP2-944: If this is the main MP2 package and its being installed, set REINSTALLMODE to amus (rather than the default omus),
+      // this means that all files will be overwritten during the install, regardless of version, instead of the default only overwrite
+      // older versions. This works around an issue where dlls are missing after the install if a later MP2 version contains older versions
+      // of any dlls.
+      // This is a known issue with windows installer, e.g. see here https://stackoverflow.com/questions/47157021/downgraded-ms-dll-disappears-on-upgrade-windows-installer
+      if (e.PackageId == MainPackage.Id && e.Action == ActionState.Install)
+        e.FileVersioning = BOOTSTRAPPER_MSI_FILE_VERSIONING.All;
+    }
+
     private void PlanMsiFeature(object sender, PlanMsiFeatureEventArgs e)
     {
       if (Enum.TryParse(e.PackageId, out PackageId detectedPackageId))
@@ -296,6 +307,7 @@ namespace MP2BootstrapperApp.Models
       BootstrapperApplication.ApplyBegin += ApplyBegin;
       BootstrapperApplication.ApplyComplete += ApplyComplete;
       BootstrapperApplication.PlanPackageBegin += PlanPackageBegin;
+      BootstrapperApplication.PlanMsiPackage += PlanMsiPackage;
       BootstrapperApplication.PlanMsiFeature += PlanMsiFeature;
       BootstrapperApplication.PlanRelatedBundle += PlanRelatedBundle;
       BootstrapperApplication.PlanComplete += PlanComplete;
