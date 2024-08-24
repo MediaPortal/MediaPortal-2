@@ -122,6 +122,48 @@ namespace MediaPortal.Common.Services.Settings
 
     #endregion
 
+    protected SettingsFileHandler LoadSettingsFile(Type settingsType, SettingScope settingScope)
+    {
+      string filePath;
+      if (settingScope == SettingScope.User)
+        filePath = GetUserFilePath(settingsType);
+      else if (settingScope == SettingScope.Global)
+        filePath = GetGlobalFilePath(settingsType);
+      else
+        throw new ArgumentException($"Unknown SettingScope {settingScope}", nameof(settingScope));
+
+      SettingsFileHandler handler = new SettingsFileHandler(filePath);
+      try
+      {
+        handler.Load();
+      }
+      catch (Exception e)
+      {
+        // MP2-964: An exception here usually means the settings file is empty or corrupt.
+        // The SettingsFileHandler keeps a backup file which is loaded if the 'main' file is absent, but not if the file is present but corrupt.
+        // This behaviour needs to be taken into account when handling an invalid settings file, where either defaults should always be used, or any backup file should always be used.
+        // Previously the 'main' file was deleted, then default settings were returned. However, subsequent requests for the the same settings would instead use any backup values present,
+        // instead of the defaults previously returned, due to the main file now being absent and the SettingsFileHandler automatically using any backup file present.
+        // This causes an inconsistent view of the settings which can lead to weird behaviour, e.g the client not notifying about/automatically connecting to a server if the ServerConnectionSettings become corrupt.
+        // Instead try and load any backup file if an exception occurs to make it consistent with all subsequent calls to this method.
+        ServiceRegistration.Get<ILogger>().Error("SettingsManager: Error loading global settings file for setting type '{0}'... Will revert this settings file.", e, settingsType.Name);
+        handler.Clear();
+        // This deletes the 'main' settings file, a backup file may still exist which will be used by subsequent calls to handler.Load()
+        RemoveSettingsData(settingsType, settingScope == SettingScope.User, settingScope == SettingScope.Global);
+        try
+        {
+          // The main file was deleted above, this will load any backup file present, or do nothing if absent.
+          handler.Load();
+        }
+        catch
+        {
+          // The backup file is invalid, don't log here, an exception has already been logged above
+          handler.Clear();
+        }
+      }
+      return handler;
+    }
+
     protected object LoadSettingsObject(Type settingsType)
     {
       return LoadSettingsObject(settingsType, true, true);
@@ -129,36 +171,9 @@ namespace MediaPortal.Common.Services.Settings
 
     protected object LoadSettingsObject(Type settingsType, bool useGlobaleScope, bool useUserScope)
     {
-      SettingsFileHandler globalHandler = null;
-      SettingsFileHandler userHandler = null;
-      if (useGlobaleScope)
-      {
-        globalHandler = new SettingsFileHandler(GetGlobalFilePath(settingsType));
-        try
-        {
-          globalHandler.Load();
-        }
-        catch (Exception e)
-        {
-          ServiceRegistration.Get<ILogger>().Error("SettingsManager: Error loading global settings file for setting type '{0}'... Will clear this settings file.", e, settingsType.Name);
-          globalHandler.Clear();
-          RemoveSettingsData(settingsType, false, true);
-        }
-      }
-      if (useUserScope)
-      {
-        userHandler = new SettingsFileHandler(GetUserFilePath(settingsType));
-        try
-        {
-          userHandler.Load();
-        }
-        catch (Exception e)
-        {
-          ServiceRegistration.Get<ILogger>().Error("SettingsManager: Error loading user settings file for setting type '{0}'... Will clear this settings file.", e, settingsType.Name);
-          userHandler.Clear();
-          RemoveSettingsData(settingsType, true, false);
-        }
-      }
+      SettingsFileHandler globalHandler = useGlobaleScope ? LoadSettingsFile(settingsType, SettingScope.Global) : null;
+      SettingsFileHandler userHandler = useUserScope ? LoadSettingsFile(settingsType, SettingScope.User) : null;
+
       try
       {
         object result = Activator.CreateInstance(settingsType);
