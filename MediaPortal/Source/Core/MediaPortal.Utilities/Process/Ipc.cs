@@ -62,7 +62,7 @@ namespace MediaPortal.Utilities.Process
 
     public const ushort NEGATIVE_RESPONSE_CODE = 0x8000;
 
-    public static readonly string PIPE_PREFIX = "MP2IPC_";
+    public static readonly string PIPE_PREFIX = "MP2IPCv2_";
 
     /// <summary>
     /// Writes a string into an byte array in UTF8 encodung including 2 byte length information up front

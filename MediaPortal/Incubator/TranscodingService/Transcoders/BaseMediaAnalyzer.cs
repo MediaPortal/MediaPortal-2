@@ -470,29 +470,39 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
     {
       List<Guid> ids = new List<Guid>();
       string filePath = DEFAULT_ANALYSIS_CACHE_PATH;
+
+      // Analysis directory doesn't exist so there will be no ids.
+      // Avoids Directory.Enumerate below throwing DirectoryNotFoundExceptions.
+      if (!Directory.Exists(filePath))
+        return ids;
+
       foreach (var file in Directory.EnumerateFiles(filePath, "*.analysis"))
       {
         if (Guid.TryParse(Path.GetFileNameWithoutExtension(file), out var guid) && !ids.Contains(guid))
           ids.Add(guid);
       }
       filePath = Path.Combine(DEFAULT_ANALYSIS_CACHE_PATH, VIDEO_CATEGORY);
-      foreach (var file in Directory.EnumerateFiles(filePath, "*.analysis"))
-      {
-        if (Guid.TryParse(Path.GetFileNameWithoutExtension(file), out var guid) && !ids.Contains(guid))
-          ids.Add(guid);
-      }
+      if (Directory.Exists(filePath))
+        foreach (var file in Directory.EnumerateFiles(filePath, "*.analysis"))
+        {
+          if (Guid.TryParse(Path.GetFileNameWithoutExtension(file), out var guid) && !ids.Contains(guid))
+            ids.Add(guid);
+        }
+
       filePath = Path.Combine(DEFAULT_ANALYSIS_CACHE_PATH, AUDIO_CATEGORY);
-      foreach (var file in Directory.EnumerateFiles(filePath, "*.analysis"))
-      {
-        if (Guid.TryParse(Path.GetFileNameWithoutExtension(file), out var guid) && !ids.Contains(guid))
-          ids.Add(guid);
-      }
+      if (Directory.Exists(filePath))
+        foreach (var file in Directory.EnumerateFiles(filePath, "*.analysis"))
+        {
+          if (Guid.TryParse(Path.GetFileNameWithoutExtension(file), out var guid) && !ids.Contains(guid))
+            ids.Add(guid);
+        }
       filePath = Path.Combine(DEFAULT_ANALYSIS_CACHE_PATH, IMAGE_CATEGORY);
-      foreach (var file in Directory.EnumerateFiles(filePath, "*.analysis"))
-      {
-        if (Guid.TryParse(Path.GetFileNameWithoutExtension(file), out var guid) && !ids.Contains(guid))
-          ids.Add(guid);
-      }
+      if (Directory.Exists(filePath))
+        foreach (var file in Directory.EnumerateFiles(filePath, "*.analysis"))
+        {
+          if (Guid.TryParse(Path.GetFileNameWithoutExtension(file), out var guid) && !ids.Contains(guid))
+            ids.Add(guid);
+        }
 
       return ids;
     }

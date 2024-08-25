@@ -12,6 +12,7 @@
     <PropertyRef Id="PropertiesFile" />
     <PropertyRef Id="AddRemovePropertiesFile" />
     <PropertyRef Id="LaunchConditionsFile" />
+    <PropertyRef Id="CloseApplicationsFile" />
 
     <!--
     Source media for the installation.

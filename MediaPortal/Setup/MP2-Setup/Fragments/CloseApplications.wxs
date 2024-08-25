@@ -1,0 +1,54 @@
+﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+  <Fragment>
+
+    <!-- Fragments can declare a PropertyRef to this property to import this fragment  -->
+    <Property Id="CloseApplicationsFile" Value="1" />
+
+    <!-- Close all potentially running MP2 applications by sending a WM_ENDSESSION message -->
+    <util:CloseApplication Target="MP2-ServiceMonitor.exe" EndSessionMessage="yes" RebootPrompt="no" Timeout="30" />
+    <util:CloseApplication Target="MP2-Client.exe" EndSessionMessage="yes" RebootPrompt="no" Timeout="30" />
+    <util:CloseApplication Target="MP2-Client (x64).exe" EndSessionMessage="yes" RebootPrompt="no" Timeout="30" />
+    <util:CloseApplication Target="MP2-ClientLauncher.exe" EndSessionMessage="yes" RebootPrompt="no"  Timeout="30" />
+
+    <!-- 
+    The ServiceControl element in the MP2-Server feature handles stopping/starting the server service only if the server feature is being modified (installed/uninstalled).
+    The service also needs to be stopped in case a child feature, e.g. TVE, is being modified, these custom actions manually stop and start the service in all cases.
+    -->
+    <?define StopServiceCommand = ""net" stop MP2-Server" ?>
+    <?define StartServiceCommand = ""net" start MP2-Server" ?>
+    <!-- Set the command to execute to stop the service, must be in a property with the same id as the action so it is available to the deferred action -->
+    <SetProperty Id="StopServerService" Value="$(StopServiceCommand)" Before="StopServerService" Sequence="execute" />
+    <CustomAction Id="StopServerService" DllEntry="WixQuietExec" Execute="deferred" Return="ignore" BinaryRef="Wix4UtilCA_$(sys.BUILDARCHSHORT)" />
+    <!-- Used to roll back the above action, i.e. restart the service, in case the install fails  -->
+    <SetProperty Id="RollbackStopServerService" Value="$(StartServiceCommand)" Before="RollbackStopServerService" Sequence="execute" />
+    <CustomAction Id="RollbackStopServerService" DllEntry="WixQuietExec" Execute="rollback" Return="ignore" BinaryRef="Wix4UtilCA_$(sys.BUILDARCHSHORT)" />
+
+    <!-- Set the command to execute to start the service, must be in a property with the same id as the action so it is available to the deferred action -->
+    <SetProperty Id="StartServerService" Value="$(StartServiceCommand)" Before="StartServerService" Sequence="execute" />
+    <CustomAction Id="StartServerService" DllEntry="WixQuietExec" Execute="deferred" Return="asyncWait" BinaryRef="Wix4UtilCA_$(sys.BUILDARCHSHORT)" />
+    <!-- Used to roll back the above action, i.e. stop the service, in case the install fails  -->
+    <SetProperty Id="RollbackStartServerService" Value="$(StopServiceCommand)" Before="RollbackStartServerService" Sequence="execute" />
+    <CustomAction Id="RollbackStartServerService" DllEntry="WixQuietExec" Execute="rollback" Return="ignore" BinaryRef="Wix4UtilCA_$(sys.BUILDARCHSHORT)" />
+
+    <InstallExecuteSequence>
+      <!-- The default for the CloseApplication action is before InstallFiles, however the applications need to be closed
+           before any previous versions of the package are removed, notably because the 2.5 package does not internally
+           handle stopping the applications and therefore relies on the upgrading package doing it first.
+           -->
+      <Custom Action="Wix4CloseApplications_$(sys.BUILDARCHSHORT)" Before="RemoveExistingProducts" />
+      
+      <!--
+      Stop the server service at the start of the install and start it at the end
+      only if the server feature is already installed and not being uninstalled, the
+      ServiceControl element in the server feature will handle all other cases
+      -->
+      <Custom Action="StopServerService" After="InstallInitialize" Condition="(!Server=3) AND (&amp;Server&lt;&gt;2)" />
+      <Custom Action="RollbackStopServerService" Before="StopServerService" Condition="(!Server=3) AND (&amp;Server&lt;&gt;2)" />
+
+      <Custom Action="StartServerService" Before="InstallFinalize" Condition="(!Server=3) AND (&amp;Server&lt;&gt;2)" />
+      <Custom Action="RollbackStartServerService" Before="StartServerService" Condition="(!Server=3) AND (&amp;Server&lt;&gt;2)" />
+    </InstallExecuteSequence>
+
+  </Fragment>
+</Wix>

@@ -481,7 +481,7 @@ namespace MediaPortal.UiComponents.Media.Models
         navigationData = GetNavigationData(newContext, false);
         navigationData.Enable();
 
-        if (navigationData.CurrentScreenData.SkipForSingleItem && navigationData.CurrentScreenData.Items.Count == 1)
+        if (navigationData.CurrentScreenData.SkipForSingleItem && navigationData.CurrentScreenData.Items?.Count == 1)
         {
           newContext.SetContextVariable(WorkflowManager.KEY_NAVIGATION_SKIP_ACTION, new MethodDelegateCommand(() =>
           {

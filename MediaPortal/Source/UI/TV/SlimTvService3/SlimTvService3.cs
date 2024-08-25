@@ -247,17 +247,14 @@ namespace MediaPortal.Plugins.SlimTv.Service
     public override bool DeInit()
     {
       var thread = _serviceThread;
+      _serviceThread = null;
       _tvServiceThread = null;
       if (thread != null && thread.IsAlive)
       {
         try
         {
-          bool joined = thread.Join(MAX_WAIT_MS);
-          if (!joined)
-          {
-            thread.Abort();
-            thread.Join();
-          }
+          thread.Abort();
+          thread.Join();
         }
         catch (Exception ex)
         {
