@@ -311,9 +311,6 @@
             </StackPanel>
           </StackPanel>
 
-          <Label x:Name="Description" Grid.Row="1" Margin="0,40,0,30" TextTrimming="WordEllipsis"
-                 HorizontalAlignment="Stretch" Wrap="True" Opacity="0.6" Content="{Binding Path=Description}"
-                 FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
         </Grid>
       </ControlTemplate>
     </media:AudioAlbumAspectWrapper.Template>
