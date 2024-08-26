@@ -2,9 +2,11 @@
 <Grid
   xmlns="www.team-mediaportal.com/2008/mpf/directx"
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-  xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
+  xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+  xmlns:media_consts="clr-namespace:MediaPortal.UiComponents.Media.General;assembly=Media"
   xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
+
   Grid.Column="0" Grid.Row="0" x:Name="MediaItemDetails" Margin="0,60,20,-10"
   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
@@ -23,41 +25,52 @@
     <ColumnDefinition Width="456"/>
   </Grid.ColumnDefinitions>
 
-  <Image HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="Uniform" Margin="0,5,0,15" Height="120" Width="250">
-    <Image.Source>
-      <fanart:FanArtImageSource fanart:FanArtMediaType="Audio" fanart:FanArtType="ClearArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
-                                fanart:MaxWidth="250" fanart:MaxHeight="120"/>
-    </Image.Source>
-  </Image>
-
   <Grid Grid.Row="2" Grid.Column="1" Height="456" Width="456" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-    <Grid.RowDefinitions>
-      <RowDefinition Height="*"/>
-    </Grid.RowDefinitions>
-    <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="*"/>
-    </Grid.ColumnDefinitions>
-    <Image Stretch="Fill" Margin="0,-190,0,0" Width="420" Height="420" HorizontalAlignment="Center" VerticalAlignment="Top">
+    <Image x:Name="DiscArt" Stretch="Fill" Margin="-230,0,230,0" Width="420" Height="420" HorizontalAlignment="Right" VerticalAlignment="Center">
       <Image.Source>
         <ImageSourceWrapper Delay="0.5" DelayInOut="true" VerticalTextureAlignment="Center"
                             Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=DiscArt;420;420}"/>
       </Image.Source>
     </Image>
-    <Image HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" Width="456" Height="456">
+    <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Margin="0" Width="456" Height="456">
       <Image.Source>
         <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
                             Source="Square_large.png"/>
       </Image.Source>
     </Image>
-    <Image x:Name="AlbumCover" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill" Margin="8" Width="440" Height="440">
+    <Image x:Name="AlbumCover" HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Margin="8" Width="440" Height="440">
       <Image.Source>
         <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
                             Source="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"/>
       </Image.Source>
     </Image>
-    <Image HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Width="200" Height="200" 
+    <Image HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Width="200" Height="200"
            Source="audio.png" IsVisible="{Binding ElementName=AlbumCover, Path=!HasImage}"/>
+
   </Grid>
+
+  <Image x:Name="ClearLogoFull" Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Center" 
+         Stretch="Uniform" Height="340" Margin="0,0,20,0">
+    <Image.Source>
+      <ImageSourceWrapper Delay="0.5" DelayInOut="true">
+        <ImageSourceWrapper.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Artist" fanart:FanArtType="Logo" fanart:MaxWidth="260" fanart:MaxHeight="340">
+            <fanart:FanArtImageSource.FanArtName>
+              <Binding Path="MediaItemId">
+                <Binding.Source>
+                  <RelationshipQuery
+                     QueryMode="SingleItem"
+                     NecessaryRequestedMIAs="{x:Static media_consts:Consts.NECESSARY_PERSON_MIAS}"
+                     Role="{x:Static aspect:PersonAspect.ROLE_ALBUMARTIST}"
+                     LinkedMediaItemId="{Binding Source={Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}, Path=MediaItemId}" />
+                </Binding.Source>
+              </Binding>
+            </fanart:FanArtImageSource.FanArtName>
+          </fanart:FanArtImageSource>
+        </ImageSourceWrapper.Source>
+      </ImageSourceWrapper>
+    </Image.Source>
+  </Image>
 
   <media:AudioAlbumAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
                                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,20,0" Grid.Row="1" Grid.RowSpan="2">
@@ -295,13 +308,7 @@
                   </ControlTemplate>
                 </media:UserDataWrapper.Template>
               </media:UserDataWrapper>
-              <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Uniform" Height="140" Margin="60,-40,-280,-40">
-                <Image.Source>
-                  <ImageSourceWrapper Delay="0.5" Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=ClearArt;140;240}"/>
-                </Image.Source>
-              </Image>
             </StackPanel>
-
           </StackPanel>
 
           <Label x:Name="Description" Grid.Row="1" Margin="0,40,0,30" TextTrimming="WordEllipsis"
