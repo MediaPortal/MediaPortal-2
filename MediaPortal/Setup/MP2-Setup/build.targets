@@ -94,14 +94,16 @@
       <DirectoryRefId>CLIENT_PLUGINS_FOLDER</DirectoryRefId>
       <SuppressRootDirectory>false</SuppressRootDirectory>
     </HarvestDirectory>
+	</ItemGroup>
 
+  <ItemGroup Condition="'$(IsNetCore)' == 'true'">
     <HarvestDirectory Include="$(ServerBaseDirectory)\Plugins\SlimTv.Service35">
       <PreprocessorVariable>var.SlimTv.Service35.TargetDir</PreprocessorVariable>
       <ComponentGroupName>SlimTv.Service35.Heat</ComponentGroupName>
       <DirectoryRefId>SERVER_PLUGINS_FOLDER</DirectoryRefId>
       <SuppressRootDirectory>false</SuppressRootDirectory>
     </HarvestDirectory>
-	</ItemGroup>
+  </ItemGroup>
 
   <ItemGroup Condition="'$(IsNetCore)' != 'true'">
     <HarvestDirectory Include="$(ServerBaseDirectory)\Plugins\SlimTv.Service3">
