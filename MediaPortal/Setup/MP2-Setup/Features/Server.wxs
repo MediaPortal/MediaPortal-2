@@ -72,8 +72,10 @@
       <?if NOT $(IsNetCore) ~= true ?>
       <FeatureRef Id="SlimTv.Service3" />
       <?endif?>
-      
+
+      <?if $(IsNetCore) ~= true ?>
       <FeatureRef Id="SlimTv.Service35" />
+      <?endif?>
 
       <ComponentRef Id="SERVER_DATA_FOLDER" />
       <ComponentRef Id="SERVER_CONFIG_FOLDER" />
