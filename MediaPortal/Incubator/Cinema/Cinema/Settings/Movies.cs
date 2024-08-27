@@ -43,7 +43,7 @@ namespace Cinema.Settings
     /// <summary>
     /// List of all Locations
     /// </summary>
-    [Setting(SettingScope.User, null)]
+    [Setting(SettingScope.User)]
     public List<CinemaMovies> CinemaMovies { get; set; }
   }
 }
