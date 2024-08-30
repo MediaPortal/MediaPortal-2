@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("HomeMenuEditor")]
+[assembly: AssemblyTitle("InputDevices.Common")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyTrademark("")]
@@ -16,6 +16,6 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("8a94cde9-eda2-4dd7-b860-0421e578055c")]
+[assembly: Guid("c874df53-5ffc-40a2-89b5-e0f68e28cca4")]
 
 // Other attributes are included from VersionInfo.cs!

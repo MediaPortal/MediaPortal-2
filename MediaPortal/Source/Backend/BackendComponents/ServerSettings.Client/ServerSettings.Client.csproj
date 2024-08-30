@@ -41,6 +41,11 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="plugin.xml">
       <SubType>Designer</SubType>
     </Content>
