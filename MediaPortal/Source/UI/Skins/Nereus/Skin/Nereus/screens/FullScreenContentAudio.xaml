@@ -7,6 +7,7 @@
     mp_special_workflow:WorkflowContext.StateSlot="Root"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    xmlns:media_consts="clr-namespace:MediaPortal.UiComponents.Media.General;assembly=Media"
     xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
     xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
     x:Name="FullscreenContentAudioScreen">
@@ -20,9 +21,9 @@
           <Model x:Key="AudioPlayerModel" Id="D8998340-DA2D-42be-A29B-6D7A72AEA2DC"/>
         </Grid.Resources>
         <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="25*"/>
-          <ColumnDefinition Width="38*"/>
-          <ColumnDefinition Width="37*"/>
+          <ColumnDefinition Width="465"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
           <RowDefinition Height="140"/>
@@ -239,11 +240,12 @@
                 <Grid IsVisible="{Binding ElementName=Disc, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
                   <Image Source="HomeContentIcons\disc.png" Height="30" Width="30" Stretch="Uniform" Margin="0,0,5,0"
                          VerticalAlignment="Center" HorizontalAlignment="Left"/>
-                  <StackPanel Orientation="Horizontal" Margin="40,0,0,0">
-                    <Label x:Name="Disc" FontSize="{ThemeResource SmallFontSize}" Content="{Binding Path=DiscId}" Color="{ThemeResource TextColor}" Opacity="0.6"/>
-                    <Label FontSize="{ThemeResource SmallFontSize}" Content="/" Color="{ThemeResource TextColor}" Opacity="0.6"
+                  <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="40,0,0,0" Opacity="0.6">
+                    <Label x:Name="Disc" FontSize="{ThemeResource SmallFontSize}" Content="{Binding Path=DiscId}" Color="{ThemeResource TextColor}" VerticalAlignment="Center"/>
+                    <Label FontSize="{ThemeResource SmallerFontSize}" Content=" | " Color="{ThemeResource TextColor}" VerticalAlignment="Center"
                            IsVisible="{Binding ElementName=NumDiscs, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>
-                    <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding Path=NumDiscs}" Color="{ThemeResource TextColor}" Opacity="0.6"/>
+                    <Label x:Name="NumDiscs" FontSize="{ThemeResource SmallFontSize}" Content="{Binding Path=NumDiscs}"
+                           Color="{ThemeResource TextColor}" VerticalAlignment="Center"/>
                   </StackPanel>
                 </Grid>
 
@@ -251,6 +253,29 @@
             </ControlTemplate>
           </media:AudioAspectWrapper.Template>
         </media:AudioAspectWrapper>
+
+        <Image x:Name="ClearLogoFull" Grid.Column="2" Grid.Row="3" HorizontalAlignment="Left" VerticalAlignment="Center" 
+               Stretch="Uniform" Margin="10,120,10,10" IsVisible="{Binding Source={StaticResource AudioPlayerModel}, Path=!IsOSDVisible}">
+          <Image.Source>
+            <ImageSourceWrapper Delay="0.5" DelayInOut="true">
+              <ImageSourceWrapper.Source>
+                <fanart:FanArtImageSource fanart:FanArtMediaType="Artist" fanart:FanArtType="Logo" fanart:MaxWidth="300" fanart:MaxHeight="180">
+                  <fanart:FanArtImageSource.FanArtName>
+                    <Binding Path="MediaItemId">
+                      <Binding.Source>
+                        <RelationshipQuery
+                           QueryMode="SingleItem"
+                           NecessaryRequestedMIAs="{x:Static media_consts:Consts.NECESSARY_PERSON_MIAS}"
+                           Role="{x:Static aspect:PersonAspect.ROLE_ALBUMARTIST}"
+                           LinkedMediaItemId="{Binding Source={Binding MediaItem}, Path=MediaItemId}" />
+                      </Binding.Source>
+                    </Binding>
+                  </fanart:FanArtImageSource.FanArtName>
+                </fanart:FanArtImageSource>
+              </ImageSourceWrapper.Source>
+            </ImageSourceWrapper>
+          </Image.Source>
+        </Image>
 
         <media:AudioAspectWrapper MediaItem="{Binding MediaItem}" Grid.Column="2" Grid.Row="2" 
                                   Margin="30,30,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
