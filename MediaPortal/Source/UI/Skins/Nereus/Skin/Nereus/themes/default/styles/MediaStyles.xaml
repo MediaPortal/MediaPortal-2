@@ -83,45 +83,55 @@
 
               <ControlTemplate x:Key="OSD_Cover_Template">
                 <Grid>
-                  <media:MovieAspectWrapper MediaItem="{Binding Path=MediaItem}" HorizontalAlignment="Left" Height="145">
-                    <media:MovieAspectWrapper.IsVisible>
-                      <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
-                        <Binding Path="MediaItem" />
-                        <Binding Source="{x:Static aspect:MovieAspect.ASPECT_ID}" />
-                      </MultiBinding>
-                    </media:MovieAspectWrapper.IsVisible>
-                    <media:MovieAspectWrapper.Template>
-                      <ControlTemplate>
-                        <Grid>
-                        <Image x:Name="MovieThumbnail" Stretch="Uniform" Source="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MediaItem}" Height="145"/>
-                        <Image x:Name="MoviePoster" Stretch="Uniform" Height="145" FallbackSource="{Binding MediaItem}" 
-                               IsVisible="{Binding ElementName=MovieThumbnail, Path=!HasImage}">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                  </Grid.ColumnDefinitions>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                  </Grid.RowDefinitions>
+
+                  <mp_special_controls:PlayerControl PlayerContext="CurrentPlayer">
+                    <mp_special_controls:PlayerControl.TemplateControl>
+                      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                        <Image x:Name="FanArtImage_Movie" Stretch="Uniform" Height="145">
+                          <Image.IsVisible>
+                            <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                              <Binding Path="MediaItem"  />
+                              <Binding Source="{x:Static aspect:MovieAspect.ASPECT_ID}" />
+                            </MultiBinding>
+                          </Image.IsVisible>
                           <Image.Source>
-                            <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster"
-                                                fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}"
-                                                fanart:MaxWidth="{StaticResource MEDIA_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_POSTER_HEIGHT}"/>
+                            <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="ClearArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                                      fanart:MaxWidth="320" fanart:MaxHeight="145"/>
                           </Image.Source>
-                        </Image>    
-                        </Grid>
+                        </Image>
+                        <Image x:Name="FanArtImage_Series" Stretch="Uniform" Height="145">
+                          <Image.IsVisible>
+                            <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                              <Binding Path="MediaItem"  />
+                              <Binding Source="{x:Static aspect:EpisodeAspect.ASPECT_ID}" />
+                            </MultiBinding>
+                          </Image.IsVisible>
+                          <Image.Source>
+                            <fanart:FanArtImageSource fanart:FanArtMediaType="Episode" fanart:FanArtType="ClearArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                                      fanart:MaxWidth="320" fanart:MaxHeight="145"/>
+                          </Image.Source>
+                        </Image>
+                        <Image x:Name="Fallback" HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Uniform" Height="145">
+                          <Image.IsVisible>
+                            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                              <Binding ElementName="FanArtImage_Movie" Path="!IsVisible"/>
+                              <Binding ElementName="FanArtImage_Series" Path="!IsVisible"/>
+                            </MultiBinding>
+                          </Image.IsVisible>
+                          <Image.Source>
+                            <ImageSourceWrapper Source="{Binding MediaItem}"/>
+                          </Image.Source>
+                        </Image>
 
-                      </ControlTemplate>
-                    </media:MovieAspectWrapper.Template>
-                  </media:MovieAspectWrapper>
-
-                  <media:MovieAspectWrapper MediaItem="{Binding Path=MediaItem}" HorizontalAlignment="Left" Height="145">
-                    <media:MovieAspectWrapper.IsVisible>
-                      <MultiBinding Converter="{StaticResource InvertedMediaItemAspectToBoolConverter}">
-                        <Binding Path="MediaItem" />
-                        <Binding Source="{x:Static aspect:MovieAspect.ASPECT_ID}" />
-                      </MultiBinding>
-                    </media:MovieAspectWrapper.IsVisible>
-                    <media:MovieAspectWrapper.Template>
-                      <ControlTemplate>
-                        <Image Stretch="Uniform" Source="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MediaItem}" Height="145"/>
-                      </ControlTemplate>
-                    </media:MovieAspectWrapper.Template>
-                  </media:MovieAspectWrapper>
-
+                      </Grid>
+                    </mp_special_controls:PlayerControl.TemplateControl>
+                  </mp_special_controls:PlayerControl>
                 </Grid>
               </ControlTemplate>
 
