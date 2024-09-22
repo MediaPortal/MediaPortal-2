@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Cinema.Models;
 using Cinema.Settings;
 using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.Settings;
 
 namespace Cinema.Helper
@@ -23,29 +24,36 @@ namespace Cinema.Helper
 
     public static async void StartUpdate()
     {
-      List<string> ids = new List<string>();
-      foreach (var cinema in _locations.LocationSetupList)
+      try
       {
-        ids.Add(cinema.Id);
+        List<string> ids = new List<string>();
+        foreach (var cinema in _locations.LocationSetupList)
+        {
+          ids.Add(cinema.Id);
+        }
+
+        var ret = OnlineLibraries.Read.MoviesForAllDaysAndCinemas(
+          _settings.ContentLanguage,
+          _settings.LocationCountryCode,
+          _settings.LocationPostalCode,
+          _locations.LocationSetupList);
+
+        Movies movies = new Movies(ret);
+
+        ServiceRegistration.Get<ISettingsManager>().Save(movies);
+
+        List<Task> allTasks = new List<Task>();
+
+        allTasks.Add(Task.Run(() => LoadImages(ret)));
+        await Task.WhenAll(allTasks);
+
+        _settings.LastUpdate = DateTime.Now;
+        ServiceRegistration.Get<ISettingsManager>().Save(_settings);
       }
-
-      var ret = OnlineLibraries.Read.MoviesForAllDaysAndCinemas(
-        _settings.ContentLanguage,
-        _settings.LocationCountryCode,
-        _settings.LocationPostalCode,
-        _locations.LocationSetupList);
-
-      Movies movies = new Movies(ret);
-
-      ServiceRegistration.Get<ISettingsManager>().Save(movies);
-
-      List<Task> allTasks = new List<Task>();
-
-      allTasks.Add(Task.Run(() => LoadImages(ret)));
-      await Task.WhenAll(allTasks);
-
-      _settings.LastUpdate = DateTime.Now;
-      ServiceRegistration.Get<ISettingsManager>().Save(_settings);
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Cinema: Exception updating movie list", ex);
+      }
     }
 
 

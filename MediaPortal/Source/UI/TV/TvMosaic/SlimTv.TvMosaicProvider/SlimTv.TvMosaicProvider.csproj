@@ -14,6 +14,11 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\..\..\Backend\BackendComponents\ServerSettings.Interfaces\ServerSettings.Interfaces.csproj" />
     <ProjectReference Include="..\..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj" />
     <ProjectReference Include="..\..\..\..\Core\MediaPortal.UI\MediaPortal.UI.csproj" />

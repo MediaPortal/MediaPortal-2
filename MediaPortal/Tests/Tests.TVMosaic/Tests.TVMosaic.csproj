@@ -2,7 +2,6 @@
   <PropertyGroup>
     <TargetFrameworks>net48;net6.0-windows</TargetFrameworks>
     <OutputType>Library</OutputType>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup>
