@@ -286,6 +286,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Webradio.OnlineLibraries", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Webradio.Stations.Scrapper", "..\Incubator\Webradio\Webradio.Stations.Scrapper\Webradio.Stations.Scrapper.csproj", "{28D68614-CF47-44D6-9DE5-3DA582933D83}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MPUrlSourcePlayer", "UI\Players\MPUrlSourcePlayer\MPUrlSourcePlayer.csproj", "{3B25FC15-E2A6-402D-B02A-D80EA52A23D2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -1022,6 +1024,13 @@ Global
 		{28D68614-CF47-44D6-9DE5-3DA582933D83}.Debug|x64.ActiveCfg = Debug|Any CPU
 		{28D68614-CF47-44D6-9DE5-3DA582933D83}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{28D68614-CF47-44D6-9DE5-3DA582933D83}.Release|x64.ActiveCfg = Release|Any CPU
+		{3B25FC15-E2A6-402D-B02A-D80EA52A23D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B25FC15-E2A6-402D-B02A-D80EA52A23D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B25FC15-E2A6-402D-B02A-D80EA52A23D2}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3B25FC15-E2A6-402D-B02A-D80EA52A23D2}.Debug|x64.Build.0 = Debug|Any CPU
+		{3B25FC15-E2A6-402D-B02A-D80EA52A23D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B25FC15-E2A6-402D-B02A-D80EA52A23D2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B25FC15-E2A6-402D-B02A-D80EA52A23D2}.Release|x64.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1158,6 +1167,7 @@ Global
 		{621772BE-CB7B-4546-A3D6-D8957504F042} = {AD2B34C0-774F-4A38-B30B-288A3BA964A3}
 		{665BCA81-36B3-47F2-93E8-CD15DD78A5C0} = {AD2B34C0-774F-4A38-B30B-288A3BA964A3}
 		{28D68614-CF47-44D6-9DE5-3DA582933D83} = {AD2B34C0-774F-4A38-B30B-288A3BA964A3}
+		{3B25FC15-E2A6-402D-B02A-D80EA52A23D2} = {6419E9F7-0103-4AAE-B8D2-268893EB15D6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2EFE6986-DFCD-450F-BFEE-15D3F8642201}

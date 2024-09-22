@@ -22,6 +22,7 @@
     <ProjectReference Include="..\..\..\..\Backend\BackendComponents\ServerSettings.Interfaces\ServerSettings.Interfaces.csproj" />
     <ProjectReference Include="..\..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj" />
     <ProjectReference Include="..\..\..\..\Core\MediaPortal.UI\MediaPortal.UI.csproj" />
+    <ProjectReference Include="..\..\..\Players\MPUrlSourcePlayer\MPUrlSourcePlayer.csproj" />
     <ProjectReference Include="..\..\..\Players\VideoPlayer\VideoPlayers.csproj" />
     <ProjectReference Include="..\..\..\SkinEngine\SkinEngine.csproj" />
     <ProjectReference Include="..\..\SlimTvClient\SlimTv.Client.csproj" />

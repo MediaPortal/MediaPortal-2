@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net48;net6.0-windows</TargetFrameworks>
+    <OutputType>Library</OutputType>
+    <RootNamespace>MediaPortal.UI.Players.MPUrlSource</RootNamespace>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="plugin.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="plugin.xml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MediaPortal.UrlSourceSplitter" Version="2.2.10.5911" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DirectShowWrapper\DirectShowWrapper.csproj" />
+    <ProjectReference Include="..\VideoPlayer\VideoPlayers.csproj" />
+  </ItemGroup>
+  <Import Project="build.targets" />
+</Project>

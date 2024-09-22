@@ -1,0 +1,27 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="MPUrlSourcePlayer"
+    PluginId="{9C2572E4-E8EC-456B-97DA-DF10ADF2EE71}"
+    Author="Brownard"
+    Copyright="GPL"
+    Description="This plugin contains players that use the MPUrlSource splitter for playback">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2024-09-22 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <PluginReference PluginId="{A965AFE5-44F9-46e0-980E-40BBE17F25CA}" CompatibleAPI="1"/> <!-- VideoPlayers -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="MPUrlSourcePlayer.dll"/>
+  </Runtime>
+
+  <Register Location="/VideoPlayers/MimeTypeRegistrations">
+    <!-- Try to play all unknown video types by default video player -->
+    <VideoPlayerMimeTypeMapping Id="MPUrlSource" ClassName="MediaPortal.UI.Players.MPUrlSource.MPUrlSourcePlayer" MimeType="video/mpurlsource"/>
+  </Register>
+
+</Plugin>

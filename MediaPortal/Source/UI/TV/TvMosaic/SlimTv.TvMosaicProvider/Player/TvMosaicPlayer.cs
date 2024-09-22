@@ -39,10 +39,11 @@ using System.Collections.Generic;
 using System.Linq;
 using SharpDX;
 using SharpDX.Direct3D9;
+using MediaPortal.UI.Players.MPUrlSource;
 
 namespace SlimTv.TvMosaicProvider.Player
 {
-  public class TvMosaicPlayer : TvStreamPlayer, IUIContributorPlayer, IReusablePlayer, ILivePlayer
+  public class TvMosaicPlayer : MPUrlSourcePlayer, IUIContributorPlayer, IReusablePlayer, ILivePlayer
   {
     #region Variables
 

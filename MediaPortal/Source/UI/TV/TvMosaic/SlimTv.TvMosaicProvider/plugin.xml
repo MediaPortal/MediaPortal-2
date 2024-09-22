@@ -18,6 +18,7 @@
     <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/>    <!-- ConfigurationManager -->
     <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/>    <!-- Configuration plugin -->
     <PluginReference PluginId="{A965AFE5-44F9-46e0-980E-40BBE17F25CA}" CompatibleAPI="1"/>    <!-- VideoPlayers -->
+    <PluginReference PluginId="{9C2572E4-E8EC-456B-97DA-DF10ADF2EE71}" CompatibleAPI="1"/>    <!-- MPUrlSourcePlayer -->
   </DependsOn>
 
   <ConflictsWith>
