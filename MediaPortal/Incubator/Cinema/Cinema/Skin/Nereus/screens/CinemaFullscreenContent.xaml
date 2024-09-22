@@ -80,7 +80,7 @@
     </DockPanel>
 
     <mp_special_controls:PlayerControl x:Name="PrimaryOSD"  Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="3" IsEnabled="{Binding IsOSDVisible}"
-                                       Style="{ThemeResource PrimaryVideoOSDStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                                       Style="{ThemeResource PrimaryCinemaOSDStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
 
     <Include Source="screens\FullScreenContentVideoKeyBindings.inc"/>
   </Grid>
