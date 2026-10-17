@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Windows-only companion to MediaPortal.Common.
+
+    MediaPortal.Common has to compile without a -windows target for the Linux and Android
+    server, but a few of its types are WinForms by nature (a Form DPI helper, a Control
+    awaiter) and cannot be made portable - they are Win32, not Windows-specific incidental
+    code. Those live here instead, so that Common's assembly does not pull in
+    UseWindowsForms and therefore does not force a -windows target framework on everything
+    that references it.
+
+    Rule for this project: it may reference MediaPortal.Common, never the other way round.
+    If you are about to add code here, first check whether it is genuinely Win32 or only
+    written with a Win32 API by accident - most of the spine is the latter and should be
+    replaced with a portable equivalent rather than moved here.
+  -->
+  <PropertyGroup>
+    <TargetFrameworks>net48;net6.0-windows</TargetFrameworks>
+    <AssemblyName>MediaPortal.Common.Windows</AssemblyName>
+    <RootNamespace>MediaPortal.Common</RootNamespace>
+    <UseWindowsForms>true</UseWindowsForms>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MediaPortal.Common\MediaPortal.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' != 'net48'">
+    <!--
+      Declare the platform instead of leaving it implied. Without this the compiler treats
+      these members as reachable everywhere and reports every caller with CA1416; with it, any
+      attempt to call this assembly from portable (non -windows) code is a diagnostic at the
+      call site, which is the point of having a satellite at all.
+
+      The attribute type does not exist on .NET Framework, hence the condition - the net48 leg
+      has no platform analysis anyway.
+    -->
+    <AssemblyAttribute Include="System.Runtime.Versioning.SupportedOSPlatformAttribute">
+      <_Parameter1>windows</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+</Project>

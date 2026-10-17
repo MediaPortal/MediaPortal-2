@@ -73,7 +73,7 @@ you lower the floor. The codes that matter for the multiplatform work are:
 construction*, so calls to it produce no diagnostic at all. This is measurable: deleting
 three WinForms call sites from `MediaPortal.Common` moved `CA1416` by exactly zero.
 
-So `CA1416` is a good proxy for the GDI+/WMI/Registry surface (its 486 sites land on
+So `CA1416` is a good proxy for the GDI+/WMI/Registry surface (its 488 sites land on
 `ImageUtilities.cs` 108, `Images.cs` 74, `CrashLoggerBase.cs` 30, `WindowsAPI.cs` 26,
 `IpcServer.cs` 20, `SplashScreen.cs` 20, ...) and a blind one for the WinForms spine.
 Two companions close the gap:
@@ -88,8 +88,27 @@ Two companions close the gap:
 Typical loop:
 
     .\build.ps1                       # builds Debug, writes build\artifacts\build-Server-Debug.log
-    .\warnings.ps1 -LogPath ..\..\build\artifacts\build-Server-Debug.log -UpdateBaseline
+    .\warnings.ps1 -UpdateBaseline    # -LogPath is optional; without it the newest build log is used
     git add scripts\ci\warning-baseline.json
+
+Floors may rise legitimately. When they do, `warnings.ps1` keeps failing until the floor is
+re-baselined on purpose, and the reason belongs in `notes.<CODE>` inside
+`warning-baseline.json` (preserved across re-generation) as well as in the commit message.
+
+## Known pre-existing breakage
+
+`MP2-Client.sln` **does not restore** on the current upstream tree, independently of any work
+here:
+
+    UiComponents\Utilities\Utilities.csproj      : error NU1107: Version conflict for "BASS.NET"
+    UiComponents\PartyMusicPlayer\PartyMusicPlayer.csproj : error NU1107: same
+
+`BassLibraries` pulls `BassRegistration 2.4.14.1`, which depends on the package id `Bass.Net`,
+while those projects reference the id `BASS.NET`. It is a package-graph conflict decided purely
+by `PackageReference` entries, so no source change outside those two projects can cause or fix
+it. Consequence for the gates: `build.ps1 -Solution Server -Ratchet` is the Windows regression
+gate that actually runs; the Client solution cannot serve as one until this is resolved
+(fix = settle on one BASS package id, or drop `BassRegistration`).
 
 ## Locale
 

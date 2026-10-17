@@ -11,10 +11,10 @@
                                                                          "WinForms":  0
                                                                      },
                   "MediaPortal\\Source\\Core\\MediaPortal.Common":  {
-                                                                        "Drawing":  5,
-                                                                        "WinForms":  6
+                                                                        "Drawing":  4,
+                                                                        "WinForms":  4
                                                                     }
               },
-    "filesAffected":  13,
-    "totalRefs":  67
+    "filesAffected":  11,
+    "totalRefs":  64
 }
