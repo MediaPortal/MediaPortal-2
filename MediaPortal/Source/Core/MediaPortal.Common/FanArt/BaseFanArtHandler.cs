@@ -27,10 +27,11 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
+using MediaPortal.Common.Services.Imaging;
+using MediaPortal.Common.Services.ThumbnailGenerator;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -324,9 +325,15 @@ namespace MediaPortal.Common.FanArt
       {
         if (File.Exists(savePath))
           return Task.FromResult(false);
-        using (MemoryStream ms = new MemoryStream(imageData))
-        using (Image img = Image.FromStream(ms, true, true))
-          img.Save(savePath, System.Drawing.Imaging.ImageFormat.Jpeg);
+        byte[] jpeg;
+        using (Stream source = new MemoryStream(imageData))
+        {
+          if (!ServiceRegistration.Get<IImageTransformer>().TryEncode(source, ImageType.Jpeg, out jpeg) || jpeg == null)
+            // The transformer already logged why; the file name says .jpg, so writing the bytes
+            // unchanged is not an option.
+            return Task.FromResult(false);
+        }
+        File.WriteAllBytes(savePath, jpeg);
         return Task.FromResult(true);
       }
       catch (Exception ex)

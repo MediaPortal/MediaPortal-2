@@ -51,6 +51,7 @@ using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.Common;
 using MediaPortal.Common.Services.Runtime;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.Windows.Imaging;
 using MediaPortal.Utilities.Events;
 using MediaPortal.Utilities.Process;
 using MediaPortal.Utilities.Screens;
@@ -191,6 +192,9 @@ namespace MediaPortal.Client
 #endif
 
           ApplicationCore.RegisterCoreServices();
+          // The fan art handlers that run in this process re-encode artwork through
+          // IImageTransformer, which the portable core only declares. Windows host, so GDI+ serves.
+          GdiPlusImageTransformer.Register();
 
           logger = ServiceRegistration.Get<ILogger>();
 

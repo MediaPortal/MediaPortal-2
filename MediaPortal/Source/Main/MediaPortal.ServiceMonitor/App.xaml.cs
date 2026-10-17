@@ -38,6 +38,7 @@ using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Services.Logging;
 using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.Services.Runtime;
+using MediaPortal.Common.Windows.Imaging;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.ServiceMonitor.UPNP;
 using MediaPortal.ServiceMonitor.ViewModel;
@@ -118,6 +119,9 @@ namespace MediaPortal.ServiceMonitor
         {
           ApplicationCore.RegisterVitalCoreServices(true);
           ApplicationCore.RegisterCoreServices();
+          // This process never imports media or handles fan art today, but it registers the core
+          // services that own the seam, so it fills it like every other Windows host does.
+          GdiPlusImageTransformer.Register();
           logger = ServiceRegistration.Get<ILogger>();
 
           logger.Debug("Starting Localization");

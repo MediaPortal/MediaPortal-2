@@ -24,15 +24,20 @@
   Windows-only and on net8.0 does not even compile without a package reference. Only the second
   one is counted as spine; the first is reported next to it for context. See Measure-DrawingRefs.
 
-  Two ledger sections are counted, and both may only shrink:
+  Two ledger sections are counted:
 
-    core       Common, Utilities, Backend - code that has to become portable.
+    core       Common, Utilities, Backend - code that has to become portable. May only shrink.
     satellites *.Windows companion assemblies. Code moved here is quarantined, NOT fixed.
-               They need their own floor because a satellite declares
-               [SupportedOSPlatform("windows")], which makes CA1416 treat its own call sites
-               as platform-neutral: moving code there removes it from the CA1416 count without
+               They need their own column because a satellite declares
+               [SupportedOSPlatform("windows")], which makes CA1416 treat its own call sites as
+               platform-neutral: moving code there removes it from the CA1416 count without
                removing a single Windows dependency. Measured, not theorised - extracting
                SplashScreen.cs moved CA1416 by -20 while changing no behaviour at all.
+
+  The two are gated as core-must-not-grow and core+satellites-must-not-grow, not each on its own.
+  Gating a satellite's own total would forbid the operation this port consists of: taking Windows
+  code out of the core and putting it where it belongs, which shrinks one and grows the other by
+  the same amount. Relocating is allowed; adding is not.
 
   Counts are textual references in code (comments stripped). Crude on purpose: a grep cannot
   miss a namespace, whereas an analyzer can be silenced or satisfied by an annotation.
@@ -88,6 +93,12 @@ function Measure-DrawingRefs {
 
   # The gated number stays "how many times the file mentions the System.Drawing namespace", so
   # this classifier decides who owns those mentions rather than changing the scale of the metric.
+  # The gated number counts namespace mentions **and** GDI+ identifier occurrences. Mention
+  # counting alone was measured to be insufficient: adding `typeof(Bitmap)` to a file that already
+  # imported System.Drawing left the count unchanged, i.e. the gate could not see new coupling in
+  # the one file that still has the most of it. Identifiers are only attributed to System.Drawing
+  # inside a file that imports or qualifies the namespace, so that an unrelated `Color`/`Size`/
+  # `Image` property elsewhere in the tree is not counted.
   $ns = ([regex]::Matches($Text, 'System\.Drawing')).Count
   if ($ns -eq 0) { return @{ Windows = 0; Portable = 0 } }
 
@@ -105,16 +116,18 @@ function Measure-DrawingRefs {
 
   # Bare identifiers only count as System.Drawing when the file imports the namespace; otherwise
   # every unrelated Color/Size/Point in the tree would be attributed to it.
-  if ([regex]::IsMatch($Text, '(^|\s)using\s+System\.Drawing\s*;')) {
+  $importsNamespace = [regex]::IsMatch($Text, '(^|\s)using\s+System\.Drawing\s*;')
+  $identifierRefs = 0
+  if ($importsNamespace) {
     foreach ($type in $DrawingWindowsTypes) {
-      if ([regex]::IsMatch($Text, "(?<![\.\w])$type\b")) { $windows = $true; break }
+      $identifierRefs += ([regex]::Matches($Text, "(?<![\.\w])$type\b")).Count
+      if ($identifierRefs -gt 0) { $windows = $true }
     }
   }
 
-  if ($windows) { return @{ Windows = $ns; Portable = 0 } }
-  # A type outside both lists is treated as Windows. Guessing the other way would hide a real
-  # dependency from the one metric that is supposed to be un-silenceable.
-  if ($unknown) { return @{ Windows = $ns; Portable = 0 } }
+  # A type outside both lists counts as Windows: guessing the other way would hide a real
+  # dependency from the one metric that is supposed to be impossible to silence.
+  if ($windows -or $unknown) { return @{ Windows = ($ns + $identifierRefs); Portable = 0 } }
   # Only value types (Color, SizeF, Rectangle, ...) behind the namespace: portable, but still
   # reported, because a plain 'using System.Drawing;' pulls the old System.Drawing assembly in
   # on net48 even when just primitives are used.
@@ -231,7 +244,15 @@ function Write-AreaReport {
 }
 
 Write-AreaReport -Title 'Windows spine still compiled into the portable core (must become 0):' -Colour Cyan -Measure $core
-Write-AreaReport -Title 'Windows-only satellites (quarantined, not fixed - must not grow):' -Colour DarkGray -Measure $sat
+Write-AreaReport -Title 'Windows-only satellites (quarantined, not fixed - must not grow on their own):' -Colour DarkGray -Measure $sat
+
+# The two ledgers are only meaningful together. Gating each one on its own forbids the exact
+# operation this port is made of: taking Windows code out of the core and putting it where it
+# belongs, which shrinks the core and grows the satellite by the same amount. So the rule is
+# core must never grow, and core + satellites must never grow either. A satellite may only get
+# bigger because something left the core.
+$combinedRefs = $core.TotalRefs + $sat.TotalRefs
+$combinedFiles = $core.Files.Count + $sat.Files.Count
 
 # Drops the placeholder 'Drawing' key from the report data written to the baseline; only the
 # two classified columns are meaningful, and writing a permanent zero invites misreading.
@@ -251,7 +272,7 @@ function Format-AreaCounts {
 if ($UpdateBaseline) {
   $payload = [ordered]@{
     generated = (Get-Date).ToString('yyyy-MM-dd')
-    note      = 'Textual references to System.Windows.Forms and to the Windows-only half of System.Drawing, comments stripped. GDI+ here means System.Drawing.Common types (Image, Bitmap, Graphics, ImageFormat, ...): Windows-only, and on net8.0 they do not even compile without a package reference. The portable half (Color, SizeF, Rectangle, ... in System.Drawing.Primitives) is measured separately into drawingPortableRefs and is NOT gated, because it runs on Linux - measured, not assumed. core = code that must become portable, floor must reach 0. satellites = *.Windows companions holding quarantined code; they must not grow either, because moving code there changes no behaviour and buys no portability (their SupportedOSPlatform declaration even hides those call sites from CA1416).'
+    note      = 'Textual references to System.Windows.Forms and to the Windows-only half of System.Drawing, comments stripped. GDI+ here means System.Drawing.Common types (Image, Bitmap, Graphics, ImageFormat, ...): Windows-only, and on net8.0 they do not even compile without a package reference. The portable half (Color, SizeF, Rectangle, ... in System.Drawing.Primitives) is measured separately into drawingPortableRefs and is NOT gated, because it runs on Linux - measured, not assumed. core = code that must become portable, floor must reach 0. satellites = *.Windows companions holding quarantined code. Gate: core may not grow AND core + satellites (combinedTotalRefs) may not grow either, which is what allows Windows code to be relocated into a satellite without letting new Windows coupling in. A satellite declaration (SupportedOSPlatform) also hides its own call sites from CA1416, so this ledger is the only thing watching it.'
     areas     = Format-AreaCounts -Areas $core.Areas
     filesAffected = $core.Files.Count
     totalRefs = $core.TotalRefs
@@ -260,6 +281,8 @@ if ($UpdateBaseline) {
     satelliteFilesAffected = $sat.Files.Count
     satelliteTotalRefs = $sat.TotalRefs
     satelliteDrawingPortableRefs = $sat.PortableRefs
+    combinedTotalRefs = $combinedRefs
+    combinedFilesAffected = $combinedFiles
   }
   # No BOM: PowerShell 5.1 -Encoding utf8 would prepend one.
   [System.IO.File]::WriteAllText(
@@ -297,10 +320,21 @@ function Test-Growth {
 
 Test-Growth -Label 'portable core' -Now $core.TotalRefs -Floor ([int]$doc.totalRefs) -FilesNow $core.Files.Count -FilesFloor ([int]$doc.filesAffected)
 
-if ($doc.PSObject.Properties.Name -contains 'satelliteTotalRefs') {
-  Test-Growth -Label 'Windows satellites' -Now $sat.TotalRefs -Floor ([int]$doc.satelliteTotalRefs) -FilesNow $sat.Files.Count -FilesFloor ([int]$doc.satelliteFilesAffected)
+if ($doc.PSObject.Properties.Name -contains 'combinedTotalRefs') {
+  Test-Growth -Label 'core + satellites' -Now $combinedRefs -Floor ([int]$doc.combinedTotalRefs) -FilesNow $combinedFiles -FilesFloor ([int]$doc.combinedFilesAffected)
+  if ($doc.PSObject.Properties.Name -contains 'satelliteTotalRefs') {
+    $satDelta = $sat.TotalRefs - [int]$doc.satelliteTotalRefs
+    $coreDelta = $core.TotalRefs - [int]$doc.totalRefs
+    if ($satDelta -gt 0) {
+      if ($coreDelta -le 0) {
+        Write-Host "note: satellites grew by $satDelta while the core shrank by $([Math]::Abs($coreDelta)) - relocated, not fixed." -ForegroundColor DarkYellow
+      } else {
+        Write-Host "note: satellites grew by $satDelta and the core grew by $coreDelta - the core growth is what failed the gate." -ForegroundColor DarkYellow
+      }
+    }
+  }
 } else {
-  Write-Host "baseline has no satellite section yet - run -UpdateBaseline to start gating it" -ForegroundColor Yellow
+  Write-Host "baseline has no combined section yet - run -UpdateBaseline to start gating relocation" -ForegroundColor Yellow
 }
 
 if ($fail) {
@@ -308,7 +342,7 @@ if ($fail) {
   Write-Host "Files carrying the spine (worst first):" -ForegroundColor Red
   @($core.Files) + @($sat.Files) | Sort-Object Refs -Descending | Select-Object -First 12 | Format-Table -AutoSize | Out-String | Write-Host
   Write-Host "In the portable core: replace with a portable equivalent, or move genuinely Win32 code to a *.Windows satellite." -ForegroundColor Red
-  Write-Host "In a satellite: it must not grow - a satellite is a quarantine, not a solution." -ForegroundColor Red
+  Write-Host "If core + satellites grew: you added Windows coupling without removing any - a satellite absorbs a dependency, it does not create one." -ForegroundColor Red
   exit 1
 }
 

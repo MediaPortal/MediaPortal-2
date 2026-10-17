@@ -26,8 +26,8 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using System.IO;
-using MediaPortal.Utilities.Graphics;
-using System.Drawing.Imaging;
+using MediaPortal.Common.Services.Imaging;
+using MediaPortal.Common.Services.ThumbnailGenerator;
 using System.Text.RegularExpressions;
 using DuoVia.FuzzyStrings;
 using MediaPortal.Utilities;
@@ -143,12 +143,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       try
       {
-        using (MemoryStream stream = new MemoryStream(Thumbnail))
-        using (MemoryStream resized = (MemoryStream)ImageUtilities.ResizeImage(stream, ImageFormat.Jpeg, MAX_COVER_WIDTH, MAX_COVER_HEIGHT))
+        using (Stream stream = new MemoryStream(Thumbnail))
         {
-          if (resized == null)
+          byte[] resized;
+          if (!ServiceRegistration.Get<IImageTransformer>().TryResize(stream, MAX_COVER_WIDTH, MAX_COVER_HEIGHT, ImageType.Jpeg, out resized))
             return false;
-          MediaItemAspect.SetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, resized.ToArray());
+          MediaItemAspect.SetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, resized);
         }
         HasThumbnail = true;
         Thumbnail = null;

@@ -44,6 +44,7 @@ using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.UI;
 using MediaPortal.Utilities.Process;
+using MediaPortal.Common.Windows.Imaging;
 
 [assembly: CLSCompliant(true)]
 namespace MediaPortal.Server
@@ -103,6 +104,11 @@ namespace MediaPortal.Server
           // Check if user wants to override the default Application Data location.
           ApplicationCore.RegisterVitalCoreServices(true, _dataDirectory);
           ApplicationCore.RegisterCoreServices();
+          // Media import resizes thumbnails and fan art handlers re-encode artwork; the portable
+          // core only declares the seam (IImageTransformer) and each host fills it. This is a
+          // Windows host, so GDI+ serves. A Linux server host registers a portable transformer
+          // here instead - nothing else in the tree depends on which one it is.
+          GdiPlusImageTransformer.Register();
           logger = ServiceRegistration.Get<ILogger>();
 
 #if !DEBUG

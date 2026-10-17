@@ -210,6 +210,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj" />
+    <ProjectReference Include="..\..\Core\MediaPortal.Common.Windows\MediaPortal.Common.Windows.csproj" />
     <ProjectReference Include="..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj" />
   </ItemGroup>
   <ItemGroup>

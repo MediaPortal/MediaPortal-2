@@ -33,6 +33,7 @@ using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Services.Runtime;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.Common.SystemResolver;
+using MediaPortal.Common.Windows.Imaging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -97,6 +98,8 @@ namespace MediaPortal.DevTools
         logger.Info("Initialising core services");
         ApplicationCore.RegisterVitalCoreServices(false);
         ApplicationCore.RegisterCoreServices();
+        // Windows-only development host; see the note on IImageTransformer about who fills it.
+        GdiPlusImageTransformer.Register();
 
         logger.Info("Starting localization");
         ServiceRegistration.Set<ILocalization>(new NoLocalization());

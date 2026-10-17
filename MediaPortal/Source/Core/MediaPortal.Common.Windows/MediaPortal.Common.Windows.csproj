@@ -25,6 +25,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MediaPortal.Common\MediaPortal.Common.csproj" />
+    <!--
+      Explicit, not inherited: this assembly's compile-time references do not arrive through
+      MediaPortal.Common. It is here for ImageUtilities, whose scaling arithmetic the transformer
+      reuses so that switching to the interface does not change stored image bytes.
+    -->
+    <ProjectReference Include="..\MediaPortal.Utilities\MediaPortal.Utilities.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != 'net48'">

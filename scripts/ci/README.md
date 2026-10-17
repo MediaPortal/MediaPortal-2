@@ -124,7 +124,49 @@ Floors may rise legitimately. When they do, `warnings.ps1` keeps failing until t
 re-baselined on purpose, and the reason belongs in `notes.<CODE>` inside
 `warning-baseline.json` (preserved across re-generation) as well as in the commit message.
 
-## Satellite boundaries
+## A satellite may only grow by what the core shrinks
+
+`spine.ps1` gates two numbers, not three:
+
+* the **core** total (Common, Utilities, Backend) may not grow, and its target is 0;
+* the **core + satellites** total may not grow either.
+
+Gating each section on its own looked tidy and was wrong: it failed a commit that took two GDI+
+references *out* of `MediaPortal.Common` and put them into `MediaPortal.Common.Windows`, which is
+the operation this port is made of. With the combined rule, relocating Windows code is allowed and
+inventing new Windows coupling is not - a satellite absorbs a dependency, it does not create one.
+When a satellite does grow and the core did not, the report says so explicitly instead of letting
+the reader work out which case happened.
+
+The count is namespace mentions **plus** GDI+ identifier occurrences, and both were forced by
+measurement. Mention counting alone was blind: adding `typeof(Bitmap)` to a file that already
+imported `System.Drawing` did not change the number, so the gate could not see new coupling in the
+one file that has the most of it (`ImageUtilities.cs`, 7 mentions but 32 references). Identifiers
+are only attributed to `System.Drawing` inside files that import or qualify it, which keeps an
+unrelated `Image`/`Color`/`Size` member elsewhere in the tree out of the count.
+
+## Platform services: the core declares the seam, the host fills it
+
+`MediaPortal.Common` cannot reference a platform assembly, so where it needs a Windows technology it
+declares an interface and each host registers an implementation during startup, next to the other
+platform services it installs:
+
+| Seam | Declared in | Windows implementation | Installed by |
+| --- | --- | --- | --- |
+| `IImageTransformer` (decode/resize/encode) | `MediaPortal.Common\Services\Imaging` | `GdiPlusImageTransformer` in `MediaPortal.Common.Windows` | `ApplicationLauncher` of Server, Client, ServiceMonitor; `Client.cs` in DevTools |
+| `LauncherExceptionHandling.LastResortReporter` | `MediaPortal.Common\Exceptions` | a `MessageBox` lambda in the launcher | the same launchers, each with its own dialog kind |
+| `UiCrashLogger.ScreenInfoProvider` | `MediaPortal.Common\Services\Logging` | a `SystemInformation` lambda | the Client launcher |
+
+Two rules follow from that shape, and both are easy to break by accident:
+
+* **Every host must fill every seam it can reach.** The defaults are chosen so a headless host still
+  works; an unregistered `IImageTransformer` is not fatal but costs thumbnails and only shows up as a
+  warning. A new host must register one, and the Linux host must register a portable one - that is
+  the point of the seam.
+* **Do not "simplify" a seam by giving the core a default that names a Windows type.** The whole
+  value of `IImageTransformer` is that `MediaPortal.Common` no longer mentions `System.Drawing`;
+  `MediaPortal.Common` now measures 0 WinForms *and* 0 GDI+ references.
+
 
 `satellites.ps1` is the third gate, and it exists because a satellite move can break a project
 that never calls the moved code. Moving a type keeps its namespace, and a `using` of that

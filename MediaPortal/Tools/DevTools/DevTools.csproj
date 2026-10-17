@@ -13,6 +13,7 @@
     <ProjectReference Include="..\..\Source\Backend\Database\SQLiteDatabase\SQLiteDatabase.csproj" />
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Backend\MediaPortal.Backend.csproj" />
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj" />
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.Common.Windows\MediaPortal.Common.Windows.csproj" />
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj" />
     <ProjectReference Include="..\..\Source\Core\UPnP\UPnP.csproj" />
     <ProjectReference Include="..\..\Source\Extensions\ResourceProviders\NetworkNeighborhoodResourceProvider\NetworkNeighborhoodResourceProvider.csproj" />

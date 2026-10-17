@@ -32,6 +32,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj" />
+    <ProjectReference Include="..\..\Core\MediaPortal.Common.Windows\MediaPortal.Common.Windows.csproj" />
     <ProjectReference Include="..\..\Core\MediaPortal.UI\MediaPortal.UI.csproj" />
     <ProjectReference Include="..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj" />
     <!-- The client launcher shows SplashScreen and calls SafeActivate, both WinForms. -->
