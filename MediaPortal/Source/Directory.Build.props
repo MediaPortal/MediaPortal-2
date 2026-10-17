@@ -1,0 +1,23 @@
+<Project>
+
+  <!--
+    Shared build settings for everything under Source\.
+
+    Kept deliberately minimal: this file is evaluated by every project in the tree, so
+    each entry here must be a strict improvement with no behavioural change on Windows.
+
+    Reference assemblies for .NET Framework, used only when building the net48 target on
+    a non-Windows host (Linux CI / containers). On Windows this block is skipped entirely,
+    so desktop builds are byte-for-byte unchanged.
+
+    Note: this only makes net48 *compile* on Linux. Projects whose .resx files contain
+    non-string resources additionally need GenerateResourceUsePreserializedResources plus
+    System.Resources.Extensions, which changes the net48 runtime output. We deliberately do
+    NOT enable that globally - see the notes in scripts/ci/README.md. Linux builds target
+    the portable TFMs instead.
+  -->
+  <ItemGroup Condition="'$(OS)' != 'Windows_NT' AND '$(TargetFramework)' == 'net48'">
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+</Project>
