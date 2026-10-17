@@ -1,0 +1,20 @@
+﻿{
+    "generated":  "2026-10-17",
+    "note":  "Textual references to System.Windows.Forms / System.Drawing in the portable core. Must only decrease. Reaches zero when Common/Utilities/Backend can drop the -windows target.",
+    "areas":  {
+                  "MediaPortal\\Source\\Core\\MediaPortal.Utilities":  {
+                                                                           "Drawing":  39,
+                                                                           "WinForms":  17
+                                                                       },
+                  "MediaPortal\\Source\\Core\\MediaPortal.Backend":  {
+                                                                         "Drawing":  0,
+                                                                         "WinForms":  0
+                                                                     },
+                  "MediaPortal\\Source\\Core\\MediaPortal.Common":  {
+                                                                        "Drawing":  5,
+                                                                        "WinForms":  6
+                                                                    }
+              },
+    "filesAffected":  13,
+    "totalRefs":  67
+}

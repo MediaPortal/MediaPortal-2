@@ -24,8 +24,8 @@
 
 using System;
 using System.IO;
+using System.Net.NetworkInformation;
 using System.Text;
-using System.Windows.Forms;
 using System.Management;
 using Microsoft.Win32;
 
@@ -94,7 +94,10 @@ namespace MediaPortal.Common.Services.Logging
       systemInfo.AppendLine("== Software");
       systemInfo.AppendLine("  OS Version:\t\t" + Environment.OSVersion);
       systemInfo.AppendLine("  Hostname:\t\t" + Environment.MachineName);
-      systemInfo.AppendLine("  Network attached?\t" + SystemInformation.Network);
+      // SystemInformation.Network came from System.Windows.Forms, which is Windows-only. This is
+      // a diagnostic line in a crash report; NetworkInterface.GetIsNetworkAvailable() answers the
+      // same question ("is any non-loopback interface up?") on every platform.
+      systemInfo.AppendLine("  Network attached?\t" + NetworkInterface.GetIsNetworkAvailable());
 
       systemInfo.AppendLine();
       systemInfo.AppendLine("== Hardware");

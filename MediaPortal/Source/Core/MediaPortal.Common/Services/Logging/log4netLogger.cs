@@ -26,7 +26,6 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Windows.Forms;
 using System.Xml;
 using log4net;
 using log4net.Core;
@@ -46,8 +45,15 @@ namespace MediaPortal.Common.Services.Logging
     public Log4NetLogger(string logPath)
     {
       XmlDocument xmlDoc = new XmlDocument();
-      // Fallback "app.dll.config" for .NET 5
-      var configs = new[] { Application.ExecutablePath + ".config", Path.ChangeExtension( Application.ExecutablePath, ".dll") + ".config" };
+      // Application.ExecutablePath came from System.Windows.Forms, which is Windows-only. The
+      // entry assembly location is the portable equivalent and matches both candidates: on
+      // .NET Framework it is the .exe (so "<exe>.config" still resolves), on .NET it is the
+      // managed .dll - which is the file that actually carries a .config there, since the
+      // apphost .exe never does. Same fallback order as before.
+      string executablePath = Assembly.GetEntryAssembly()?.Location;
+      if (string.IsNullOrEmpty(executablePath))
+        executablePath = Assembly.GetExecutingAssembly().Location;
+      var configs = new[] { executablePath + ".config", Path.ChangeExtension(executablePath, ".dll") + ".config" };
       var config = configs.FirstOrDefault(c => File.Exists(c));
       using (Stream stream = new FileStream(config, FileMode.Open, FileAccess.Read))
         xmlDoc.Load(stream);

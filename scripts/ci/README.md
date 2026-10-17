@@ -8,6 +8,8 @@ does *not*, because those differences are how CI surprises happen.
 | --- | --- |
 | `build.ps1` | Build MP2 solutions on Windows with full MSBuild, write logs to `build/artifacts/`. `-Ratchet` also applies the warning gate. |
 | `warnings.ps1` | The ratchet: fail if any warning code exceeds its committed count. `-UpdateBaseline` lowers the floor. |
+| `spine.ps1` | Second ratchet for the WinForms/GDI+ references that the analyzer cannot see in a `-windows` project. |
+| `spine-baseline.json` | Committed ceiling for those references in the portable core. |
 | `common.ps1` | Shared helpers (MSBuild discovery, log parsing). Dot-sourced, not run directly. |
 | `warning-baseline.json` | Committed maximum allowed count per warning code. |
 | `Dockerfile.canary` | Linux verification image for the portability canary (`MediaPortal\Tests\Canary.Portable`). |
@@ -62,6 +64,26 @@ you lower the floor. The codes that matter for the multiplatform work are:
 | `SYSLIB0006` | `Thread.Abort()` / `Thread.ResetAbort()` - compiles, then always throws `PlatformNotSupportedException`. |
 | `SYSLIB0011` | `BinaryFormatter` - obsolete, and unsupported for untrusted data. |
 | `SYSLIB0004` | Constrained Execution Regions - not supported. |
+
+### What CA1416 cannot see
+
+`CA1416` only fires for Windows-only APIs that arrive from **NuGet packages** -
+`System.Drawing.Common`, `System.Management`, `Microsoft.Win32.Registry`. Anything the
+`-windows` target framework itself supplies (`System.Windows.Forms`, WPF) is Windows *by
+construction*, so calls to it produce no diagnostic at all. This is measurable: deleting
+three WinForms call sites from `MediaPortal.Common` moved `CA1416` by exactly zero.
+
+So `CA1416` is a good proxy for the GDI+/WMI/Registry surface (its 486 sites land on
+`ImageUtilities.cs` 108, `Images.cs` 74, `CrashLoggerBase.cs` 30, `WindowsAPI.cs` 26,
+`IpcServer.cs` 20, `SplashScreen.cs` 20, ...) and a blind one for the WinForms spine.
+Two companions close the gap:
+
+* **`spine.ps1`** counts textual `System.Windows.Forms` / `System.Drawing` references in
+  `MediaPortal.Common`, `MediaPortal.Utilities` and `MediaPortal.Backend`, and ratchets
+  them. Crude by design - a grep cannot be silenced by an annotation or a `NoWarn`.
+* **The canary** (`MediaPortal\Tests\Canary.Portable`) is the only *authoritative* check:
+  compiling a file for a portable TFM makes the analyzer see Windows as genuinely absent,
+  which is when the missing diagnostics appear.
 
 Typical loop:
 

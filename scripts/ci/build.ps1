@@ -68,4 +68,10 @@ foreach ($name in $Solution) {
   }
 }
 
+if ($Ratchet) {
+  # Independent of which solutions were built: it scans source, not a build log.
+  & (Join-Path $PSScriptRoot 'spine.ps1')
+  if ($LASTEXITCODE -ne 0) { $exitCode = 1 }
+}
+
 exit $exitCode
