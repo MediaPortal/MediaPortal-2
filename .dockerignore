@@ -5,3 +5,5 @@ build/
 **/obj/
 **/.vs/
 Packages/
+# 76 MB of source that no solution builds; excluded so the cross-compile context stays small.
+MediaPortal/Graveyard/

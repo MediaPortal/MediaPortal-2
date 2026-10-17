@@ -18,7 +18,14 @@
     <ProjectReference Include="..\..\Source\Extensions\ResourceProviders\NetworkNeighborhoodResourceProvider\NetworkNeighborhoodResourceProvider.csproj" />
   </ItemGroup>
   <PropertyGroup>
-    <PostBuildEvent>mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)"
+    <!--
+      Copies the tool next to the solution's Bin\ layout, which is the Windows install layout.
+      Both commands are Windows commands - on Linux MSBuild runs this event through /bin/sh and
+      xcopy fails with exit 127 - so the event is only meaningful on Windows. Guarded on $(OS)
+      rather than on the TFM because the project still has to *build* on Linux for the
+      cross-compile probe in scripts/ci/Dockerfile.cross.
+    -->
+    <PostBuildEvent Condition="'$(OS)' == 'Windows_NT'">mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)"
 xcopy /Y "$(TargetDir)$(ProjectName).*" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)"</PostBuildEvent>
   </PropertyGroup>
 </Project>

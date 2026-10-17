@@ -10,11 +10,15 @@
     a non-Windows host (Linux CI / containers). On Windows this block is skipped entirely,
     so desktop builds are byte-for-byte unchanged.
 
-    Note: this only makes net48 *compile* on Linux. Projects whose .resx files contain
-    non-string resources additionally need GenerateResourceUsePreserializedResources plus
-    System.Resources.Extensions, which changes the net48 runtime output. We deliberately do
-    NOT enable that globally - see the notes in scripts/ci/README.md. Linux builds target
-    the portable TFMs instead.
+    The identical file at ..\Directory.Build.props covers the projects outside Source\
+    (Incubator, Tests, Tools). MSBuild stops walking upwards at the first such file it
+    finds, so the two must be kept in sync by hand.
+
+    History: this was not enough on its own for years, because MediaPortal.Utilities carried
+    non-string .resx resources which abort `dotnet build` with MSB3822/MSB3823 on any host
+    without Visual Studio. Those resources were dead and have been deleted, so `dotnet build`
+    now handles the whole server solution - see "Which build host, and why it matters" and
+    "Compiling on Linux" in scripts/ci/README.md.
   -->
   <ItemGroup Condition="'$(OS)' != 'Windows_NT' AND '$(TargetFramework)' == 'net48'">
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />

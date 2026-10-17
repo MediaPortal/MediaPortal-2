@@ -12,21 +12,30 @@ does *not*, because those differences are how CI surprises happen.
 | `spine-baseline.json` | Committed ceiling for those references in the portable core. |
 | `common.ps1` | Shared helpers (MSBuild discovery, log parsing). Dot-sourced, not run directly. |
 | `warning-baseline.json` | Committed maximum allowed count per warning code. |
+| `satellites.ps1` | Enforces the satellite boundary: a namespace that only exists in a `*.Windows` project may not be imported by a project that does not reference it. |
 | `Dockerfile.canary` | Linux verification image for the portability canary (`MediaPortal\Tests\Canary.Portable`). |
 | `test-canary-linux.ps1` | Builds that image and runs the canary tests inside a Linux container. |
+| `Dockerfile.cross` | Linux **cross-compile** image: builds the whole `MP2-Server.sln` under `mcr.microsoft.com/dotnet/sdk:8.0`. |
+| `test-server-linux.ps1` | Runs that image (see "Compiling on Linux" below for the package-cache it needs). |
 
-## Why full MSBuild and not `dotnet build`
+## Which build host, and why it matters
 
-`dotnet build` cannot build the `net48` target of this tree. Projects whose `.resx`
-contains non-string resources fail with `MSB3822`/`MSB3823`: the `GenerateResource` task
-needs design-time assemblies the .NET CLI host does not load. Full Visual Studio MSBuild
-handles them. `MediaPortal.Client.Launcher.csproj` already carries a
-`System.Resources.Extensions` workaround for this, but with `PrivateAssets="All"`, which
-keeps the assembly out of the runtime output - applying that globally would risk breaking
-resource loading on .NET Framework, so it stays out of `Source\Directory.Build.props`.
+`dotnet build` used to be impossible on this tree: any project whose `.resx` holds non-string
+resources aborts with `MSB3822`/`MSB3823`, because the .NET CLI host does not load the
+design-time assemblies `GenerateResource` needs. On this tree that blocker had exactly one
+home - the `MediaPortal.Utilities\Properties\Resources.resx` bitmap/icon set, which turned out
+to be dead code (`internal` generated class, no `InternalsVisibleTo`, no consumer anywhere).
+With it deleted, the .NET CLI builds the whole server solution:
 
-Use `dotnet` for the portable TFMs and for Linux; use full MSBuild for anything that still
-ships `net48`.
+    dotnet build -t:Rebuild MP2-Server.sln     # 0 errors, 458 warnings, ~65 s (MSBuild: ~4 min, 730 warnings)
+
+`MediaPortal.Client.Launcher.csproj` still carries its own `System.Resources.Extensions`
+workaround for the same problem, with `PrivateAssets="All"`, which keeps the assembly out of
+the runtime output - that is why the fix was never promoted to `Source\Directory.Build.props`.
+
+Windows gates keep using **full Visual Studio MSBuild**, not because `dotnet` cannot build the
+tree, but because the committed warning floors were measured with it and are only comparable
+to itself (next section). Use `dotnet` for single portable projects and for the Linux probe.
 
 ## The warning surface is toolchain dependent - read this before trusting a count
 
@@ -192,3 +201,66 @@ The canary exists so that Linux coverage grows file by file while the rest of th
 still Windows-only, and shrinks back to nothing once `MediaPortal.Common`/`Utilities`
 themselves target a portable TFM. See the header comment in
 `MediaPortal\Tests\Canary.Portable\Canary.Portable.csproj` for the per-file procedure.
+
+## Compiling on Linux (the cross-compile probe)
+
+    .\test-server-linux.ps1
+
+This builds **all 93 projects of `MP2-Server.sln`** inside `mcr.microsoft.com/dotnet/sdk:8.0`
+and is green: **0 errors, 129 assemblies produced (64 `net6.0-windows`, 63 `net48`), 2 min
+48 s**. It is a build-system result, not a runtime one - a `-windows` assembly still cannot
+execute on Linux, and nothing here means MP2 *runs* there. What it does settle is that the
+remaining work is code that calls Windows APIs, not build topology. Three things were needed:
+
+* `-p:EnableWindowsTargeting=true`, so a non-Windows SDK will restore and compile `-windows`
+  targets at all.
+* `Directory.Build.props` (one in `MediaPortal\`, one in `MediaPortal\Source\`; MSBuild stops
+  at the first one it finds, so both are needed) adding
+  `Microsoft.NETFramework.ReferenceAssemblies` **only** when `'$(OS)' != 'Windows_NT'`, which
+  makes the `net48` legs compile off-Windows without touching Windows builds.
+* `Tools\DevTools` had a `mkdir`/`xcopy` post-build event; on Linux MSBuild runs the event
+  through `/bin/sh` and `xcopy` exits 127. It is now guarded by `Condition="'$(OS)' ==
+  'Windows_NT'"`. Expect more of these - `xcopy` in post-build steps is an MP2 idiom.
+
+The analyzer surface is the same on both hosts where it should be: the Linux log reports
+**468 CA1416 sites**, the same number the Windows gate sees. `MSB3884` appears 230 times on
+Linux, which is the "AllRules.ruleset not found" consequence described above - so total
+warning counts still must never be compared across hosts.
+
+## The dependency closure is not reproducible
+
+**A clean checkout cannot restore, on any operating system.** `MediaPortal\NuGet.Config` adds
+one feed:
+
+    <add key="TeamMediaPortal source @ MyGet" value="https://www.myget.org/F/mediaportal/" />
+
+Its v3 index answers `200`, but package lookup (`FindPackagesById`) answers **HTTP 500**, and
+NuGet turns a failing source into a failed restore (`NU1301`, 292 of them on the first Linux
+attempt). Removing that line leaves six package ids that exist on no other feed:
+
+| Package | Needed by |
+| --- | --- |
+| `BASSCombined`, `BassRegistration`, `BASS.NET` 2.4.14.1 | `Extensions\BassLibraries`, `MetadataExtractors\AudioMetadataExtractor`, and transitively the Client NU1107 conflict |
+| `MediaPortal.TagLib` | `AudioMetadataExtractor` |
+| `ffmpeg` 3.4.2 | `Incubator\TranscodingService` |
+| `OnlineVideos.Core` | `Incubator\MP2Extended` |
+
+Windows builds pass only because these packages are already in the *developer machine's* NuGet
+cache; there is no `Packages\` folder in the repository. Until that changes, a fresh clone, a
+clean agent, or any container will fail at restore, and the "restore is green" premise behind
+every later phase is not safe.
+
+The probe works around it with a **read-only** fallback folder pointing at a populated cache
+(`-e NUGET_FALLBACK_PACKAGES=...`, which never writes to the host cache) and deletes the dead
+feed line inside the image layer only. The repository's own `NuGet.Config` is untouched,
+because the real fix is a decision, not a patch:
+
+1. Vendor the six `.nupkg` files into the repository and add a local source (self-contained,
+   but redistributes third-party binaries - BASS and ffmpeg have licence terms to check first).
+2. Re-point the references at packages that do exist (`ffmpeg` on nuget.org is a different,
+   much older package; `BASS.NET` on nuget.org is 1.0.0, not 2.4.14.1 - so this is not a one-line
+   change).
+3. Keep a mirror of the old feed somewhere we control.
+
+Whichever is chosen, the NU1107 Client conflict above should be fixed in the same step, since
+it is the same package family.

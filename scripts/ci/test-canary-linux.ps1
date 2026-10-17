@@ -7,7 +7,9 @@
 [CmdletBinding()]
 param([string]$ImageName = 'mp2-canary')
 
-$ErrorActionPreference = 'Stop'
+# Docker writes its BuildKit progress to stderr, which PowerShell turns into a terminating
+# error record under 'Stop'. Failures are detected through $LASTEXITCODE instead.
+$ErrorActionPreference = 'Continue'
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 
 & docker build -f (Join-Path $PSScriptRoot 'Dockerfile.canary') -t $ImageName $repoRoot

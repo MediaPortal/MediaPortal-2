@@ -1,0 +1,39 @@
+# Cross-compile probe: does the MP2 server solution COMPILE on Linux?
+#
+#   docker build -f scripts/ci/Dockerfile.cross -t mp2-cross .
+#   docker run --rm mp2-cross
+#
+# "Compiles" is deliberately not "runs". Everything produced here for net6.0-windows is a
+# Windows-targeted assembly that cannot execute on Linux. What this probe separates is
+# build-system problems from runtime problems: if the whole solution compiles on Linux, the
+# remaining porting work is about code that executes Windows APIs, not about the toolchain.
+#
+# Three things make it possible, each verified on Windows first:
+#   - MediaPortal.Utilities no longer carries non-string .resx resources, which is what made
+#     MSB3822/MSB3823 abort `dotnet build` on this tree.
+#   - EnableWindowsTargeting lets a non-Windows SDK restore and compile -windows targets.
+#   - Directory.Build.props supplies .NET Framework reference assemblies for the net48 legs.
+#
+# Restore needs packages that no longer exist anywhere on the internet - the MyGet feed in
+# MediaPortal\NuGet.Config answers HTTP 500, and BASSCombined / BassRegistration / BASS.NET
+# 2.4.14.1 / MediaPortal.TagLib / OnlineVideos.Core / ffmpeg 3.4.2 are not on nuget.org. Run
+# the container with a read-only fallback package folder pointing at a machine that has them:
+#
+#   -v <nuget-cache>:/nuget-cache:ro -e NUGET_FALLBACK_PACKAGES=/nuget-cache
+#
+# The dead source is removed below so that its HTTP 500 does not fail the whole restore; the
+# repo's own NuGet.Config is left alone until the "reproducible dependency closure" decision
+# (see the note in scripts/ci/README.md).
+#
+# The whole tree is copied (minus .dockerignore entries) rather than a whitelist of project
+# folders, because a missing project would show up as an unrelated error and defeat the purpose.
+FROM mcr.microsoft.com/dotnet/sdk:8.0
+
+WORKDIR /src
+
+COPY . .
+
+RUN sed -i '/myget/Id' /src/MediaPortal/NuGet.Config \
+ && dotnet --info | head -n 8 && uname -a
+
+CMD ["dotnet", "build", "/src/MediaPortal/Source/MP2-Server.sln", "-c", "Debug", "--nologo", "-v", "m", "-p:EnableWindowsTargeting=true"]
