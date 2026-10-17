@@ -24,9 +24,7 @@
       IsNetCore=$(IsNetCore);
       SlimTv.Client.TargetDir=$(ClientBaseDirectory)\Plugins\SlimTv.Client;
       SlimTv.NativeProvider.TargetDir=$(ClientBaseDirectory)\Plugins\SlimTv.NativeProvider;
-      SlimTv.TvMosaicProvider.TargetDir=$(ClientBaseDirectory)\Plugins\SlimTv.TvMosaicProvider;
-      SlimTv.Service3.TargetDir=$(ServerBaseDirectory)\Plugins\SlimTv.Service3;
-      SlimTv.Service35.TargetDir=$(ServerBaseDirectory)\Plugins\SlimTv.Service35
+      SlimTv.TvMosaicProvider.TargetDir=$(ClientBaseDirectory)\Plugins\SlimTv.TvMosaicProvider
     </DefineConstants>
   </PropertyGroup>
   
@@ -95,22 +93,7 @@
       <SuppressRootDirectory>false</SuppressRootDirectory>
     </HarvestDirectory>
 
-    <HarvestDirectory Include="$(ServerBaseDirectory)\Plugins\SlimTv.Service35">
-      <PreprocessorVariable>var.SlimTv.Service35.TargetDir</PreprocessorVariable>
-      <ComponentGroupName>SlimTv.Service35.Heat</ComponentGroupName>
-      <DirectoryRefId>SERVER_PLUGINS_FOLDER</DirectoryRefId>
-      <SuppressRootDirectory>false</SuppressRootDirectory>
-    </HarvestDirectory>
 	</ItemGroup>
-
-  <ItemGroup Condition="'$(IsNetCore)' != 'true'">
-    <HarvestDirectory Include="$(ServerBaseDirectory)\Plugins\SlimTv.Service3">
-      <PreprocessorVariable>var.SlimTv.Service3.TargetDir</PreprocessorVariable>
-      <ComponentGroupName>SlimTv.Service3.Heat</ComponentGroupName>
-      <DirectoryRefId>SERVER_PLUGINS_FOLDER</DirectoryRefId>
-      <SuppressRootDirectory>false</SuppressRootDirectory>
-    </HarvestDirectory>
-  </ItemGroup>
 
   <ItemGroup>
     <Resources Include="$(ProjectDir)MP2-Setup-Logging.bat"/>

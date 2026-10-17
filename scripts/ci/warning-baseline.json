@@ -19,14 +19,12 @@
                      "CS0169":  12,
                      "CS0219":  8,
                      "CS0414":  2,
-                     "CS0618":  4,
                      "CS0649":  12,
                      "CS0659":  8,
                      "CS0661":  4,
                      "CS0672":  4,
                      "CS8073":  6,
                      "MSB3245":  10,
-                     "MSB3270":  2,
                      "NU1504":  4,
                      "SYSLIB0004":  14,
                      "SYSLIB0006":  4,
@@ -36,6 +34,8 @@
                      "SYSLIB0022":  4
                  },
     "notes":  {
-                  "CA1416":  "CA1416 sees call sites only in assemblies that do NOT declare a platform, so this floor is a bound on the visible part, not on Windows coupling. Two measured consequences. (1) A [SupportedOSPlatform(\"windows\")] assembly is invisible from the inside: extracting SplashScreen.cs removed 20 diagnostics with zero Windows dependencies removed, and moving ImageUtilities.cs into MediaPortal.Utilities.Windows removed 102 more the same way. (2) The attribute is still worth declaring, because it is what turns a call from portable code into a call-site diagnostic. So the real budget of Windows coupling lives in spine-baseline.json combinedTotalRefs (core + satellites, currently 83, and it may only shrink), which counts textual references and cannot be silenced by an annotation. This floor was lowered from 488 to the measured 366 when the core reached zero, because keeping a deliberate surplus would have allowed 122 new Windows call sites in portable code before complaining."
+                    "CS0618":  "Absent means budget zero, and it became zero when the TV service layer was deleted: the four obsolete-API call sites were all in the removed SlimTv projects. If this code reappears it is a new dependency on something obsolete, not a leftover.",
+                    "MSB3270":  "Absent means budget zero. The two mismatches were MSIL projects referencing assemblies that the compiler built with /platform:x86, and the only such references in the tree came from the MediaPortal.TvEngine.* packages: measured with AssemblyName.ProcessorArchitecture, TvBusinessLayer, TvControl, TVDatabase, TvLibrary.Interfaces and TvThumbnails are X86, while Gentle (the other raw reference set in the deleted projects) is MSIL. Four projects referenced those packages and only two emitted the warning, because the two others resolved a different leg. With the TV service layer deleted, no project references MediaPortal.TvEngine.* any more, so this is the measured end of the x86-compiled managed dependencies in the server graph.",
+                    "CA1416":  "CA1416 sees call sites only in assemblies that do NOT declare a platform, so this floor is a bound on the visible part, not on Windows coupling. Two measured consequences. (1) A [SupportedOSPlatform(\"windows\")] assembly is invisible from the inside: extracting SplashScreen.cs removed 20 diagnostics with zero Windows dependencies removed, and moving ImageUtilities.cs into MediaPortal.Utilities.Windows removed 102 more the same way. (2) The attribute is still worth declaring, because it is what turns a call from portable code into a call-site diagnostic. So the real budget of Windows coupling lives in spine-baseline.json combinedTotalRefs (core + satellites, currently 83, and it may only shrink), which counts textual references and cannot be silenced by an annotation. This floor was lowered from 488 to the measured 366 when the core reached zero, because keeping a deliberate surplus would have allowed 122 new Windows call sites in portable code before complaining."
               }
 }

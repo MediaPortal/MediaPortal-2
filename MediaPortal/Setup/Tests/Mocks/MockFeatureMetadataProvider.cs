@@ -32,7 +32,7 @@ namespace Tests.Mocks
   {
     public IEnumerable<IFeatureMetadata> GetMetadata()
     {
-      return new IFeatureMetadata[] { new TvService3(), new TvService35(), new TvServiceClient() };
+      return new IFeatureMetadata[] { new TvServiceClient(), new TvMosaicClient() };
     }
   }
 }

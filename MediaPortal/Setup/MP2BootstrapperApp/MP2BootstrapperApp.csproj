@@ -104,8 +104,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Features\SlimTv.TvMosaicClient.png" />
-    <Resource Include="Resources\Features\SlimTv.Service3.png" />
-    <Resource Include="Resources\Features\SlimTv.Service35.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Features\SlimTv.ServiceClient.png" />

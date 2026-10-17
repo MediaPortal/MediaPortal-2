@@ -43,7 +43,6 @@
     <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\Tve3RecordingMetadataExtractor\Tve3RecordingMetadataExtractor.csproj" />
     <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\VideoMetadataExtractor\VideoMetadataExtractor.csproj" />
     <ProjectReference Include="..\..\Source\UI\TV\SlimTvInterfaces\SlimTv.Interfaces.csproj" />
-    <ProjectReference Include="..\..\Source\UI\TV\SlimTvResources\SlimTv.Resources.csproj" />
     <ProjectReference Include="..\MediaPortal.Mock\MediaPortal.Mock.csproj" />
   </ItemGroup>
   <ItemGroup>

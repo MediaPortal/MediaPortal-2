@@ -64,15 +64,5 @@ namespace MP2BootstrapperApp.BundlePackages
     /// </summary>
     public const string SlimTvTvMosaicClient = "SlimTv.TvMosaicClient";
 
-    /// <summary>
-    /// Id of the TV Service 3 feature
-    /// </summary>
-    public const string SlimTvService3 = "SlimTv.Service3";
-
-    /// <summary>
-    /// Id of the TV Service 3.5 feature
-    /// </summary>
-    public const string SlimTvService35 = "SlimTv.Service35";
-
   }
 }

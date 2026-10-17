@@ -241,6 +241,164 @@ zero portability gain. A `System.Drawing.X` type that is in neither list is coun
 the pessimistic reading is the only safe default for a gate whose whole job is not being
 silenced.
 
+## The TV service layer is gone
+
+Removed by decision, not by decay: `Source\UI\TV\SlimTvService3`, `SlimTvService35`, `SlimTvProxy3`,
+`SlimTvIntegration`, `SlimTvResources` and the orphan `SlimTvService` folder - **54 files, 6 833
+lines** - together with their installer features, bootstrapper metadata and one test. That means
+live TV, EPG, timeshift and timers served by the MP2 TV Server are no longer part of what this tree
+builds or installs. `SlimTv.Interfaces` (the shared TV contract, referenced by **18** projects
+including MediaServer, MPExtendedProvider, NativeProvider, TvMosaicProvider, TranscodingService and
+two metadata extractors) and `SlimTv.Client` stay, so the client-side and TVMosaic paths still
+compile.
+
+Two findings worth keeping:
+
+* `SlimTv.Service3` was the **only** consumer of the Gentle Framework assemblies
+  (`Gentle.Common`, `Gentle.FrameWork`, `Gentle.Provider.MySQL/SQLite/SQLServer`, referenced as raw
+  `<Reference>`s from a `lib` folder). Gentle cannot run on .NET Core, measured rather than asserted:
+  `Gentle.Common` is a `v4.0.30319` image that references **`System.Web`** and
+  `System.Configuration`, and `Gentle.Provider.SQLite` is still a `v2.0.50727` image. *That* is why
+  Service3 was the single project in the tree targeting plain `net48` while Service35 was the
+  CoreWCF-based successor. It is also what the (commented-out) `Gentle.*` binding redirects in
+  `MediaPortal.Server\app.config` were about - they pinned `1.5.0.29053-1.5.0.29112` to
+  `1.5.0.29113`, the exact version of the DLLs on disk. With Service3 gone, **Gentle has zero
+  references left in the tree**.
+* The same is true of the `MediaPortal.TvEngine.*` NuGet packages - the last consumers were in the
+  deleted set (measured: no `.csproj` in the repo mentions `Gentle` or `TvEngine` any more). Both
+  dependency groups can now be dropped from the package story entirely.
+
+`MediaPortal.TvEngine.*` also carried the tree's only **x86-compiled managed assemblies**. Measured
+with `AssemblyName.ProcessorArchitecture` on the packages in the NuGet cache: `TvBusinessLayer`,
+`TvControl`, `TVDatabase`, `TvLibrary.Interfaces` and `TvThumbnails` are `X86` (not AnyCPU), so any
+assembly referencing them inherits a 32-bit process requirement. That is what the two `MSB3270`
+"processor architecture mismatch" warnings in the ratchet baseline were reporting - Gentle itself is
+`MSIL` and innocent. Deleting the TV service layer took the warning count from 2 to 0 and, more
+importantly, removed the x86 pin from the server graph; see "What actually pins MP2 to 32-bit".
+
+The removal touched seven surfaces, which is the checklist for removing *any* plugin in this tree:
+project + `.sln` block and its `ProjectConfigurationPlatforms` lines, the feature `.wxs`, the
+`FeatureRef` in `Server.wxs`/`Client.wxs`, the `DefineConstants` + `HarvestDirectory` pair in
+`MP2-Setup\build.targets`, the `F_*` strings in `en-us.wxl`, the bootstrapper (`FeatureId` const,
+`Features\Metadata\*.cs`, `strings_*.xml`, `Resources\Features\*.png`, the `.csproj` resource
+entries) and `Setup\Tests` (the mock `BootstrapperApplicationData.xml`, `MockFeatureMetadataProvider`
+and `PluginInstallationTests`).
+
+`PluginInstallationTests` is worth a note: the deleted services were the only features in the
+product that declared *related* features (`Service3` pulled `ServiceClient` in automatically), so
+that branch of `FeatureUtils.GetSelectableChildFeatures` no longer has a real instance. The theory
+was rewritten against the surviving features and now covers the parent check and the
+"no relations" path; the conflict rule is still covered by `ServiceClient` ↔ `TvMosaicClient`.
+
+## Target framework: what the newest SDK actually says about this tree
+
+Asked "can we drop `net48` and move to the newest .NET?", the answer was measured, not argued.
+`test-server-linux.ps1` takes `-SdkTag` and `-BuildArg`, and `Dockerfile.cross` forwards both into
+the container. Three experiments on `MP2-Server.sln`, all re-run after the TV service layer was
+removed (the numbers before that removal were 467 warnings / 3:01 on the unchanged tree and
+**11** errors on the forced-`net10.0` probe - the extra error is explained below and is now gone):
+
+| Experiment | Result |
+| --- | --- |
+| SDK **10.0.402**, tree unchanged (`net48;net6.0-windows`) | **0 errors**, 449 warnings, 2:26 |
+| SDK **8.0.426**, tree unchanged (the committed gate) | 0 errors, 449 warnings, 2:26 |
+| SDK 10, `TargetFrameworks` globally set to `net10.0-windows` | **10 errors**, 306 warnings, 0:40 |
+
+The first two rows being identical is the point: the two SDKs disagree about nothing in this tree.
+Both report the same **366 CA1416** sites, the same 216 `MSB3884` and the same 122 assemblies, so
+choosing a newer target framework is not a toolchain risk at all - see "The warning surface is
+toolchain dependent" for why *absolute* totals still must not be compared between hosts and
+configurations. (CA1416 did not move when the TV layer was deleted: those projects had no visible
+platform call sites, which is exactly what a `[SupportedOSPlatform]`-free, Windows-only plugin looks
+like in this metric - another reminder that the ledger in `spine-baseline.json` is the real budget.)
+
+Read the third row carefully, because it is **not** what it looks like. A global
+`-p:TargetFrameworks=` does not reach every project: the 23 old-style projects use
+`TargetFrameworkVersion` and ignore the property entirely. Before the TV service layer was deleted it
+also did not reach the one SDK-style project that declared the *singular*
+`<TargetFramework>net48</TargetFramework>` (`SlimTv.Service3.csproj`) - that leg failed with
+`MSB3644`, an artefact of the probe rather than a porting problem, and it disappeared with the
+project, which is why this row now reads 10 and not 11.
+
+What was actually measured is therefore: **ten errors in two files, across every project that did
+accept a `net10.0-windows` leg.** Both are `WFO1000` ("property does not configure the code
+serialization for its property content"):
+
+* `Core/MediaPortal.Utilities.Windows/SplashScreen.cs` - 9 properties of a WinForms splash form.
+* `Core/MediaPortal.Common/Services/ResourceAccess/ImpersonationProcess/AsyncImpersonationProcess.cs:336`
+  - `PriorityClass`, one property of a `Process` subclass.
+
+They appear only on a `net10.0-windows` leg: the same SDK 10 building the committed
+`net48;net6.0-windows` legs reports **zero** `WFO1000`. The WinForms source generator that
+introduced the rule is enabled by the newer target, not by the newer SDK. The fix is per-property
+(`[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]` on runtime-only
+properties), and the second one disappears on its own once `MediaPortal.Common` stops setting
+`UseWindowsForms` - which is exactly the retargeting task the now-empty spine unlocked.
+
+Nothing else. No missing API, no removed type, no package that refuses `net10.0` - because the
+dual TFM was already compiling `net6.0-windows` everywhere, and .NET's compatibility surface
+between 6 and 10 carries the rest.
+
+Two things this measurement cannot see, both of which are real work:
+
+* The **23 old-style (`non-SDK`) projects** - 12 of them are tools and templates, the rest are the
+  five database backends, `HttpServer`, `TvdbLib`, `Test.MediaServer` and the dead
+  `MediaPortal.Manager`. Overriding `TargetFrameworks` does nothing to them; they need their
+  project files rewritten. They are also the reason `net48` is load-bearing: an old-style project
+  cannot produce a `net10.0` output at all.
+* **`net6.0` is out of support since 2024-11-12** and `net8.0`/`net9.0` both end 2026-11-10, while
+  `net10.0` runs to 2028-11-14 (from the dotnet/core releases index, not from memory). A port that
+  lands on `net6.0` or `net8.0` lands on an unsupported runtime.
+
+Gotcha found while building this: Docker substitutes build `ARG`s in `ADD`/`COPY`/`ENTRYPOINT`/
+`FROM`/`LABEL` only. A shell-form `CMD` that references `${BUILD_ARGS}` sees an empty string at
+runtime, which silently dropped `-p:EnableWindowsTargeting=true` and produced 16 identical
+`NETSDK1100` errors that looked like a toolchain verdict. The Dockerfile re-exports the `ARG` as
+`ENV`; a probe that reports zero errors of a single code is the symptom to look for.
+
+## What actually pins MP2 to 32-bit
+
+`<PlatformTarget>x86</PlatformTarget>` appears in 22 project files and `x86` appears in the
+solution configuration matrix of all three solutions (444 `x86` config entries in `MP2-Client.sln`
+alone), which makes it look like a deep constraint. It is not. Measured, in order of how much they
+really constrain a 64-bit build:
+
+* **The observable switch is `Prefer32Bit`, not `PlatformTarget`.** Of the 18 executables in the
+  tree, exactly two carry `Prefer32Bit=true`: `MediaPortal.Client` and `MediaPortal.Server`, both
+  `AnyCPU`. On .NET Framework, `AnyCPU` + `Prefer32Bit=true` *is* "run 32-bit on a 64-bit OS", so
+  today's shipped server is a 32-bit process even though nothing calls itself x86. On .NET Core and
+  later the flag is ignored and bitness comes from the apphost RID, so retargeting to `net10.0`
+  with no other change already produces an x64 process on an x64 SDK.
+* **The last x86-compiled *managed* dependency is gone.** `MediaPortal.TvEngine.*` shipped
+  `TvBusinessLayer`, `TvControl`, `TVDatabase`, `TvLibrary.Interfaces` and `TvThumbnails` compiled
+  with `/platform:x86` (measured with `AssemblyName.ProcessorArchitecture`, not inferred from a
+  folder name), which forced any referencing assembly into a 32-bit process. Only the TV service
+  layer referenced them, and it was deleted; the two `MSB3270` architecture-mismatch warnings those
+  references produced are now at zero. `Gentle` - the other foreign blob in that layer - is `MSIL`
+  and was a *framework* blocker, not an architecture one.
+* **Two checked-in dependencies are genuinely 32-bit-only**, and both are dead products: the
+  Firebird set under `Backend\Database\FirebirdDatabase\References` (`fbembed.dll`, ICU 3.0,
+  `msvcr80`, and `FirebirdSql.Data.FirebirdClient, Version=2.5.0.0 ... processorArchitecture=x86`)
+  and `ScimoreDb` (client marked `X86`, native embedded server `X86`). Modern Firebird ships x64 and
+  its current client is `AnyCPU`, so Firebird survives a move to x64; ScimoreDB has no vendor.
+  `SQLCEDatabase` pulls `Microsoft.SqlServerCe`, a product Microsoft discontinued.
+* **`EVRPresenter` is not a blocker**: the tree ships both `Release\Win32` and `Release\x64`
+  native builds of the DirectShow EVR presenter, which is the usual reason media players stayed
+  32-bit.
+* **BASS and ffmpeg ship both bitnesses**, with three exceptions in the pinned package:
+  `bass_adx`, `bass_aix` and `bass_wadsp` are 32-bit only. All three are emulator/game audio
+  add-ons, not media-centre codecs.
+* **DirectShow is the real reason to be careful, and it is a client problem.** The heaviest users
+  are `UI\Players\VideoPlayer\Tools\FilterGraphTools.cs` (54 hits), `TsVideoPlayer.cs` (34) and
+  `DirectShowWrapper\DirectShow.cs` (31). DirectShow filters are in-proc COM: a 64-bit process
+  can only load 64-bit filters, so a 64-bit *client* changes what the user's installed codec pack
+  has to be. That is a Windows-only concern (DirectShow does not exist on Linux or Android) and it
+  belongs to the player the new frontend replaces, not to the backend.
+
+Conclusion recorded for the plan: the **server and the portable core can go x64-only at once**;
+x64-only for the Windows *player* is a decision about third-party filters, and Linux needs its own
+answer per distribution architecture (x64 and ARM64), which 32-bit Windows support never provided.
+
 ## Known pre-existing breakage
 
 `MP2-Client.sln` **does not restore** on the current upstream tree, independently of any work
@@ -286,8 +444,9 @@ Two more things `-Project` builds reveal, both pre-existing:
   `windows7apicodepack-core`/`-shell` 1.1.0) have to be unpacked into
   `MediaPortal\Packages\Windows7APICodePack-{Core,Shell}.1.1.0.0\lib\` by hand. With both done the
   project builds clean (0 errors, 2 warnings) at `Platform=x86`.
-* Some folders under `Source` contain source files that belong to no project (for example
-  `UI\TV\SlimTvService`, superseded by `SlimTvService3`). They are not compiled by anything.
+* Some folders under `Source` contain source files that belong to no project (the orphan
+  `UI\TV\SlimTvService` was one; the whole TV service layer was removed by decision, see
+  "The TV service layer is gone"). They are not compiled by anything.
 
 ## Locale
 

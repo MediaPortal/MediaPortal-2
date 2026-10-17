@@ -34,9 +34,9 @@ namespace Tests
   public class PluginInstallationTests
   {
     [Theory]
-    [InlineData(new[] { FeatureId.Client }, new[] { FeatureId.SlimTvServiceClient })]
-    [InlineData(new[] { FeatureId.Server }, new[] { FeatureId.SlimTvService3, FeatureId.SlimTvService35 })]
-    [InlineData(new[] { FeatureId.Client, FeatureId.Server }, new[] { FeatureId.SlimTvService3, FeatureId.SlimTvService35 })]
+    [InlineData(new[] { FeatureId.Client }, new[] { FeatureId.SlimTvServiceClient, FeatureId.SlimTvTvMosaicClient })]
+    [InlineData(new[] { FeatureId.Server }, new string[0])]
+    [InlineData(new[] { FeatureId.Client, FeatureId.Server }, new[] { FeatureId.SlimTvServiceClient, FeatureId.SlimTvTvMosaicClient })]
     [InlineData(new[] { FeatureId.LogCollector }, new string[0])]
     void Should_OnlyReturnPluginFeaturesWhereParentFeatureIsBeingInstalledAndNotIncludedWithRelatedFeature(string[] plannedParents, string[] expectedFeatures)
     {
@@ -48,10 +48,14 @@ namespace Tests
       Assert.Equal(expectedFeatures.OrderBy(f => f), availableFeatures.OrderBy(f => f));
     }
 
+    // The removed TV services (SlimTv.Service3 / .Service35) were the only features that declared
+    // related features - they pulled the TV Service Client in automatically. No shipped feature has
+    // related features now, so these rows cover the parent check and the "no relations" path.
     [Theory]
-    [InlineData(new[] { FeatureId.Client, FeatureId.Server }, FeatureId.SlimTvService3, new[] { FeatureId.SlimTvService3, FeatureId.SlimTvServiceClient })]
-    [InlineData(new[] { FeatureId.Server }, FeatureId.SlimTvService3, new[] { FeatureId.SlimTvService3 })]
-    [InlineData(new[] { FeatureId.Client }, FeatureId.SlimTvService3, new string[0])]
+    [InlineData(new[] { FeatureId.Client }, FeatureId.SlimTvServiceClient, new[] { FeatureId.SlimTvServiceClient })]
+    [InlineData(new[] { FeatureId.Client, FeatureId.Server }, FeatureId.SlimTvTvMosaicClient, new[] { FeatureId.SlimTvTvMosaicClient })]
+    [InlineData(new[] { FeatureId.Server }, FeatureId.SlimTvServiceClient, new string[0])]
+    [InlineData(new[] { FeatureId.Client }, FeatureId.SlimTvTvMosaicClient, new[] { FeatureId.SlimTvTvMosaicClient })]
     void Should_OnlyInstallRelatedPluginFeaturesWhenParentFeatureIsBeingInstalled(string[] plannedParents, string installingFeature, string[] expectedInstallableFeatures)
     {
       IBundleMsiPackage featurePackage = MockBundlePackageFactory.CreateCurrentInstall().First(p => p.PackageId == PackageId.MediaPortal2) as IBundleMsiPackage;
@@ -64,7 +68,8 @@ namespace Tests
     }
 
     [Theory]
-    [InlineData(new[] { FeatureId.Client, FeatureId.Server, FeatureId.SlimTvService35 }, FeatureId.SlimTvService3)]
+    [InlineData(new[] { FeatureId.Client, FeatureId.Server, FeatureId.SlimTvTvMosaicClient }, FeatureId.SlimTvServiceClient)]
+    [InlineData(new[] { FeatureId.Client, FeatureId.Server, FeatureId.SlimTvServiceClient }, FeatureId.SlimTvTvMosaicClient)]
     void Should_NotInstallPluginFeatureWhenConflictingFeatureIsBeingInstalled(string[] plannedFeatures, string conflictingfeature)
     {
       IBundleMsiPackage featurePackage = MockBundlePackageFactory.CreateCurrentInstall().First(p => p.PackageId == PackageId.MediaPortal2) as IBundleMsiPackage;

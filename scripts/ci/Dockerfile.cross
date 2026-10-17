@@ -27,7 +27,12 @@
 #
 # The whole tree is copied (minus .dockerignore entries) rather than a whitelist of project
 # folders, because a missing project would show up as an unrelated error and defeat the purpose.
-FROM mcr.microsoft.com/dotnet/sdk:8.0
+# Base tag is a build ARG so the same probe can be run against a different toolchain -
+# `-t mp2-cross-net10 --build-arg SDK_TAG=10.0` re-answers "what does the newest SDK do with
+# this tree?" without maintaining a second Dockerfile. Default stays the pinned 8.0 that the
+# gate is calibrated on.
+ARG SDK_TAG=8.0
+FROM mcr.microsoft.com/dotnet/sdk:${SDK_TAG}
 
 WORKDIR /src
 
@@ -36,4 +41,14 @@ COPY . .
 RUN sed -i '/myget/Id' /src/MediaPortal/NuGet.Config \
  && dotnet --info | head -n 8 && uname -a
 
-CMD ["dotnet", "build", "/src/MediaPortal/Source/MP2-Server.sln", "-c", "Debug", "--nologo", "-v", "m", "-p:EnableWindowsTargeting=true"]
+# The projects ask for net48;net6.0-windows. Passing TargetFrameworks here overrides that
+# globally, which is the cheapest way to ask "does the source build against a TFM nobody has
+# targeted yet" without editing 165 project files.
+#
+# It must be re-exported as ENV: Docker substitutes ARG in ADD/COPY/ENTRYPOINT/FROM/LABEL only,
+# so a shell-form CMD referencing ${BUILD_ARGS} would expand it to empty at runtime. That mistake
+# silently removed -p:EnableWindowsTargeting and produced 16 x NETSDK1100 instead of a real answer.
+ARG BUILD_ARGS=-p:EnableWindowsTargeting=true
+ENV BUILD_ARGS=${BUILD_ARGS}
+
+CMD bash -c "dotnet build /src/MediaPortal/Source/MP2-Server.sln -c Debug --nologo -v m ${BUILD_ARGS}"
