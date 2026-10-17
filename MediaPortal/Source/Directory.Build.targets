@@ -1,0 +1,32 @@
+<Project>
+
+  <!--
+    Analyzer configuration, evaluated AFTER every project body (that is the only place where a
+    project's own <CodeAnalysisRuleSet> can be overridden).
+
+    Why this exists: 116 projects asked for "AllRules.ruleset" and 131 for
+    "MinimumRecommendedRules.ruleset". Those two names only resolve inside a Visual Studio
+    installation. On any other host - `dotnet build` on Windows, the Linux container, CI - MSBuild
+    reported MSB3884 "rule set not found" 216 times and analysed the tree with a different, smaller
+    rule set than the Windows gate used. Two hosts, two measurements of the same source, which made
+    the warning ratchet unreadable across platforms.
+
+    Severity now lives in exactly one place, MediaPortal\.editorconfig, which every host and every
+    editor reads. The property below clears the legacy names so MSBuild stops looking for them, and
+    the stale "Visual Studio 10.0" CodeAnalysisRuleSetDirectories entries in 34 project files go
+    with them.
+
+    EnableNETAnalyzers is forced on because the SDK enables the .NET analyzers by default only for
+    TargetFramework >= net5.0; without this, every net48 leg would be analysed less strictly than
+    the net6.0 legs while the port is being measured.
+  -->
+  <PropertyGroup Condition="'$(CodeAnalysisRuleSet)' == 'AllRules.ruleset' OR '$(CodeAnalysisRuleSet)' == 'MinimumRecommendedRules.ruleset'">
+    <CodeAnalysisRuleSet></CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories></CodeAnalysisRuleSetDirectories>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+  </PropertyGroup>
+
+</Project>

@@ -6,7 +6,7 @@ does *not*, because those differences are how CI surprises happen.
 
 | Script | Purpose |
 | --- | --- |
-| `build.ps1` | Build MP2 solutions on Windows with full MSBuild, write logs to `build/artifacts/`. `-Ratchet` also applies the warning gate. |
+| `build.ps1` | Build MP2 solutions with the .NET SDK (`-BuildHost Dotnet`, default) or full Visual Studio MSBuild (`-BuildHost MsBuild`), write logs to `build/artifacts/`. `-Ratchet` also applies the warning gate. |
 | `warnings.ps1` | The ratchet: fail if any warning code exceeds its committed count. `-UpdateBaseline` lowers the floor. |
 | `spine.ps1` | Second ratchet for the WinForms/GDI+ references that the analyzer cannot see in a `-windows` project. |
 | `spine-baseline.json` | Committed ceiling for those references in the portable core. |
@@ -34,32 +34,60 @@ With it deleted, the .NET CLI builds the whole server solution:
 workaround for the same problem, with `PrivateAssets="All"`, which keeps the assembly out of
 the runtime output - that is why the fix was never promoted to `Source\Directory.Build.props`.
 
-Windows gates keep using **full Visual Studio MSBuild**, not because `dotnet` cannot build the
-tree, but because the committed warning floors were measured with it and are only comparable
-to itself (next section). Use `dotnet` for single portable projects and for the Linux probe.
+The gate now runs on **the .NET SDK host** (`dotnet msbuild`, `-BuildHost Dotnet` is the default), and the
+remaining reason to keep Visual Studio MSBuild around disappeared in October 2026:
+
+| host | server solution, 2026-10-18 |
+|---|---|
+| `MSBuild.exe` 17.14 (Visual Studio 2022) | 0 errors / **1776** warnings — works today, but **cannot build `net10.0-*` at all** |
+| `dotnet msbuild` (SDK 10.0.402) | **0 errors / 2330 warnings / 122 assemblies** — the gate |
+
+Why the switch is forced and not a preference: the port retargets to .NET 10, and **Visual Studio 2022 cannot host
+.NET 10**. With SDK 10.0.402 installed machine-wide, VS 17.14 still resolves `C:\Program Files\dotnet\sdk\9.0.301`
+and stops with `NETSDK1045` ("The SDK 'Microsoft.NET.Sdk' 10.0.0 could not be found"); `MSBuildSdksPath`,
+`DOTNET_ROOT` and a `global.json` pin are all ignored, and the reason is measurable — SDK 10 ships MSBuild 18.9.15
+while SDK 9 ships 17.14.5, so the resolver skips every SDK newer than the hosting MSBuild. A .NET 10 tree and a
+Visual Studio 2022 build host are mutually exclusive. `-BuildHost MsBuild` still works (that is how the table above
+was measured) and `Find-MsBuild` stays for it; do not use it for anything that must compile `net10.0-*`.
+
+Driving it with the SDK host has one trap: **`dotnet` needs a verb**. `dotnet <path>.sln /t:Rebuild` fails with "The
+application or command could not be found"; `dotnet msbuild <path>.sln /t:Rebuild …` works and forwards the
+`/flp:logfile=…;verbosity=…` file logger, so `Get-LogDiagnostics` reads the same format from both hosts.
 
 ## The warning surface is toolchain dependent - read this before trusting a count
 
-Most projects declare `<CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>`. That is
-a *bare* name, and MSBuild resolves bare rule set names through the Visual Studio
-"Static Analysis Tools\Rule Sets" directory. On a machine with that component installed it
-resolves to Microsoft's "All Rules" set, which is:
+This used to be the trap in this repository, and it is now closed. Most projects declared
+`<CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>` (116 projects) or
+`MinimumRecommendedRules.ruleset` (131). Those are *bare* names that MSBuild resolves through Visual Studio's
+"Static Analysis Tools\Rule Sets" directory — files that are **not in this repository**. On a full Visual Studio
+box every analyzer rule ran as a warning; on a plain SDK host the file could not be found, MSBuild emitted
+`MSB3884` (216 times here) and a much smaller default set applied. `CA1063` was 78 on a VS box and ~0 on an SDK
+agent, so **a warning count was only comparable to a count taken with the same toolset**.
 
-    <RuleSet Name="Microsoft All Rules" ...>
-      <IncludeAll Action="Warning" />
-    </RuleSet>
+The fix is what the section title used to warn about, done properly:
 
-So on a full Visual Studio box every analyzer rule runs as a warning, while on a plain SDK
-host the file cannot be found, MSBuild emits `warning MSB3884`, and the default (much
-smaller) analysis set applies. Concretely: `CA1063` appears ~78 times on a VS box and would
-be ~0 on a bare SDK agent. **A warning count is therefore only comparable to another count
-taken with the same toolset, configuration and verbosity.** `warning-baseline.json` records
-those; do not compare it against a `dotnet build` log or a Linux log.
+- **Severity lives in `MediaPortal\.editorconfig`.** `CA1416` plus eight code-quality rules are pinned to
+  `warning` there, for every host, configuration, and target framework. Analyzer severity does not belong in a
+  Windows-only, IDE-only rule-set file that silently disappears on a Linux agent — it belongs in the file every
+  editor and CI system already reads.
+- **`Source\Directory.Build.targets` (+ root twin) clears the VS-only names** and sets `EnableNETAnalyzers=true`
+  for old-style `net48` projects (the SDK leaves analyzers off there). With the names cleared, `MSB3884` is gone
+  and there is exactly one source of severity.
+- **The baseline still records the toolset**, and `warnings.ps1` still refuses to score a log whose `Tool:` line
+  does not match — now as a belt-and-braces check rather than a necessity.
 
-The correct fix is to commit an explicit ruleset into the repository and reference it by
-path, so every host analyzes with the same rules. That is deliberately *not* done here yet:
-it changes the diagnostic surface of ~133 projects at once and needs a decision about which
-rule families we actually intend to enforce.
+Measured on identical source with this baseline flow, 2026-10-18:
+
+| host | total | per-code differences vs the SDK host |
+|---|---|---|
+| Visual Studio MSBuild 17.14, before the change | 1776 | eight analyzer rules under-reported (CA1063 78 vs 832, …) |
+| Visual Studio MSBuild 17.14, after | 2322 | **only CA2024 (0 vs 4) and NETSDK1138 (0 vs 4)** |
+| .NET SDK 10.0.402 (`dotnet msbuild`) | **2330** | — |
+
+So the hosts now agree on every code except two that come from the SDK's newer analyzer set and targets, and
+**CA1416 is 366 on all three measurement environments** — Visual Studio, the SDK host, and the Linux container.
+Totals across *platforms* (Windows 2330 vs the Linux probe's 449) still must not be compared: they compile
+different project sets. Compare per-code inventories, and treat `CA1416` as the metric.
 
 ## The ratchet
 

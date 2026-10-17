@@ -16,12 +16,14 @@ function Find-MsBuild {
 <#
     Returns the path to a full Visual Studio MSBuild.exe.
 
-    We deliberately do not use `dotnet build` for the whole tree:
-      * the net48 target fails under the .NET CLI (MSB3822/MSB3823 - non-string .resx
-        entries need design-time assemblies the CLI host does not carry) while full
-        MSBuild handles them;
-      * non-SDK projects in the tree need desktop toolset resolution.
-    `dotnet` remains the right tool for the portable TFMs and for Linux.
+    This is now the *alternative* host (build.ps1 -BuildHost MsBuild); the default is the .NET SDK.
+    Two historical reasons for insisting on Visual Studio MSBuild are gone: the net48 legs used to
+    abort under the CLI with MSB3822/MSB3823 because of non-string .resx entries, and those
+    resources turned out to be dead and were deleted; and the rule sets named in the project files
+    only resolved here, which meant every other host silently analysed less. Severity now comes
+    from MediaPortal\.editorconfig, so both hosts run the same rules - but not the same totals,
+    because a Visual Studio that is not installed cannot build net10 either (17.14 rejects it with
+    NETSDK1045). Use this host only to compare against an old measurement.
 #>
   $candidates = @()
   $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'

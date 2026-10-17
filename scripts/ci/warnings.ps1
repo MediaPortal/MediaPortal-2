@@ -74,7 +74,7 @@ function Save-Baseline {
   $payload = [ordered]@{
     generated = (Get-Date).ToString('yyyy-MM-dd')
     log       = Split-Path $LogPath -Leaf
-    toolset   = 'Full Visual Studio MSBuild. Counts depend on this: the bare AllRules.ruleset only resolves on a Visual Studio host, so these numbers are NOT comparable with dotnet build or Linux logs. See README.md.'
+    toolset   = 'The .NET SDK host (dotnet msbuild). Counts depend on this: severity comes from MediaPortal\.editorconfig, but the inventory also depends on which target frameworks the host builds and analyses, so it is NOT comparable with a full Visual Studio MSBuild log (that host sees fewer target frameworks and applies its own rule sets). See README.md, "Which build host, and why it matters".'
     note      = 'Maximum allowed occurrences per warning code. Regenerate with warnings.ps1 -UpdateBaseline after an intentional change and record why in notes.<CODE> and the commit message.'
     warnings  = [ordered]@{}
     notes     = $notes

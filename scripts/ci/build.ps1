@@ -1,11 +1,20 @@
 <#
 .SYNOPSIS
-  Builds MP2 solutions - or single projects - on Windows with full Visual Studio MSBuild.
+  Builds MP2 solutions - or single projects - and feeds the warning ratchet.
+
+.DESCRIPTION
+  The default host is `dotnet` (the .NET SDK), because that is what every contributor and every
+  container actually has: it needs no Visual Studio, it is the only host that can target .NET 10
+  (Visual Studio 2022 17.14 refuses with NETSDK1045 - its MSBuild is 17.14, the .NET 10 SDK ships
+  18.9), and since MediaPortal\.editorconfig carries the analyzer severity it measures the same
+  rules as any other host. `-BuildHost MsBuild` still works and is kept for comparison; the two
+  hosts are NOT comparable in absolute totals - see "The warning surface is toolchain dependent"
+  in scripts/ci/README.md.
 
 .EXAMPLE
-  .\build.ps1                       # server solution
-  .\build.ps1 -Solution Server,Client
-  .\build.ps1 -Configuration Release -Ratchet
+  .\build.ps1                       # server solution, dotnet host, with the ratchet
+  .\build.ps1 -Solution Server,Client -Ratchet
+  .\build.ps1 -BuildHost MsBuild    # full Visual Studio MSBuild, for comparison
 
 .EXAMPLE
   # One project, e.g. when its solution does not restore as a whole (see README).
@@ -27,13 +36,18 @@ param(
   [ValidateSet('Debug', 'Release')]
   [string]$Configuration = 'Debug',
 
+  # 'Dotnet' (default) uses the .NET SDK on PATH. 'MsBuild' uses full Visual Studio MSBuild.
+  [ValidateSet('Dotnet', 'MsBuild')]
+  [string]$BuildHost = 'Dotnet',
+
   [string]$MsBuildPath,
+  [string]$DotnetPath,
   [string]$ArtifactsDir,
   [switch]$SkipRestore,
 
-  # Extra MSBuild properties for -Project builds, e.g. 'Platform=x86'. A bare project build has no
-  # solution to take the platform from and defaults to AnyCPU, which projects such as
-  # MediaPortal.Manager (Debug|x86 only) do not define.
+  # Extra MSBuild properties, e.g. 'Platform=x86'. A bare project build has no solution to take the
+  # platform from and defaults to AnyCPU, which projects such as MediaPortal.Manager (Debug|x86
+  # only) do not define.
   [string[]]$MsBuildProperty,
 
   # After building, fail if the warning inventory regressed against the committed baseline.
@@ -48,8 +62,21 @@ $sourceDir = Join-Path $repoRoot 'MediaPortal\Source'
 if (-not $ArtifactsDir) { $ArtifactsDir = Join-Path $repoRoot 'build\artifacts' }
 New-Item -ItemType Directory -Force -Path $ArtifactsDir | Out-Null
 
-$msbuild = if ($MsBuildPath) { $MsBuildPath } else { Find-MsBuild }
-Write-Host "MSBuild : $msbuild"
+if ($BuildHost -eq 'MsBuild') {
+  $tool = if ($MsBuildPath) { $MsBuildPath } else { Find-MsBuild }
+  # MSBuild.exe takes the project or solution as its first argument.
+  $toolArgs = @()
+} else {
+  $tool = if ($DotnetPath) { $DotnetPath } else { (Get-Command dotnet -ErrorAction SilentlyContinue).Source }
+  if (-not $tool) { throw 'dotnet not found on PATH. Install the .NET SDK, or pass -DotnetPath.' }
+  # `dotnet` needs a verb before anything else, and `dotnet msbuild` is a thin wrapper that accepts
+  # the same /t:, /v:, /m, /p: and /flp: switches as MSBuild.exe. That keeps one argument list for
+  # both hosts instead of translating between the CLI and MSBuild spellings.
+  $toolArgs = @('msbuild')
+}
+
+Write-Host "Host    : $BuildHost"
+Write-Host "Tool    : $tool"
 Write-Host "Config  : $Configuration"
 
 $solutions = @{
@@ -60,6 +87,11 @@ $solutions = @{
 
 # A bare project needs what a solution would have defined.
 $solutionLevelArgs = @()
+
+# Both hosts take MSBuild syntax for properties and loggers, so one argument list serves both.
+# EnableWindowsTargeting lets the net48 legs resolve reference assemblies without Visual Studio,
+# which is what makes the Windows numbers and the Linux container numbers describe the same build.
+$hostArgs = @("/p:Configuration=$Configuration", '/p:EnableWindowsTargeting=true')
 
 function Invoke-BuildTarget {
   [CmdletBinding()]
@@ -80,11 +112,11 @@ function Invoke-BuildTarget {
   if (-not $SkipRestore) {
     # Out-Host, not the pipeline: whatever a native command prints would otherwise become this
     # function's return value and mask the numeric code the caller tests.
-    & $msbuild $Path /t:Restore /v:q /nologo /m /p:Configuration=$Configuration @solutionLevelArgs | Out-Host
+    & $tool @toolArgs $Path /t:Restore /v:q /nologo /m @hostArgs @solutionLevelArgs | Out-Host
     if ($LASTEXITCODE -ne 0) { Write-Host "RESTORE FAILED ($Name)" -ForegroundColor Red; return 1 }
   }
 
-  & $msbuild $Path /t:Rebuild /v:m /nologo /m /p:Configuration=$Configuration @solutionLevelArgs "/flp:logfile=$log;verbosity=normal" | Out-Host
+  & $tool @toolArgs $Path /t:Rebuild /v:m /nologo /m @hostArgs "/flp:logfile=$log;verbosity=normal" @solutionLevelArgs | Out-Host
   if ($LASTEXITCODE -ne 0) {
     Write-Host "BUILD FAILED ($Name), exit $LASTEXITCODE  ->  $log" -ForegroundColor Red
     return 1

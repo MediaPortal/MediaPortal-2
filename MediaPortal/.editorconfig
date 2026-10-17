@@ -15,3 +15,47 @@ csharp_new_line_before_catch = all
 csharp_new_line_before_finally = all
 csharp_new_line_before_members_in_object_initializers = all
 csharp_new_line_before_members_in_anonymous_types = all
+
+# Analyzer severity - read this before changing anything here.
+#
+# Severity used to come from two Visual Studio rule sets named in the project files (116 asked for
+# AllRules.ruleset, 131 for MinimumRecommendedRules.ruleset). Those names only resolve when Visual
+# Studio is installed. On every other host MSBuild reported MSB3884 "rule set not found" 216 times
+# and analysed the tree with a smaller rule set, so the same source produced two different
+# inventories depending on the machine - and CA1416, the platform rule this port lives by, could
+# not be compared between Windows and Linux. Severity now lives here, where every host and editor
+# reads it; MediaPortal\Source\Directory.Build.targets clears the legacy names and turns the .NET
+# analyzers on for the net48 legs, which the SDK would otherwise leave off.
+#
+# What that changed, measured on 2026-10-18 over the whole server solution:
+#
+#   CA1416   366 -> 366    Windows-only API call sites: identical on VS MSBuild, on `dotnet build`
+#                          and in the Linux container. This is the port metric, and it survived the
+#                          change of host untouched, which is what proves the new configuration is
+#                          not weaker - the old one just saw less.
+#   CA1063    78 -> 832    The eight below are code-quality rules whose old counts came from partly
+#   CA1401     4 -> 228    analysed trees: only some target frameworks, only the projects that
+#   CA2213    10 -> 180    named a rule set at all. They are not portability metrics, but they are
+#   CA1001     6 -> 176    real findings, so they stay warnings and the floors were re-measured
+#   CA1065     2 -> 200    rather than hidden. The counts above are the recorded backlog.
+#   CA2101     2 -> 180
+#   CA2200     6 -> 12     Two of these barely moved, which is the honest way to see that they were
+#   CA1060     2 -> 72     already running everywhere.
+#   CA2021/2022/2024 0 -> 26  Newly visible under full analysis: invalid casts over IEnumerable,
+#                          reads whose result is discarded, Stream.Length in async paths.
+#
+# The ratchet in scripts/ci/warnings.ps1 caps each code on its own, so a larger total costs
+# nothing in sharpness: CA1416 <= 366 means exactly what it meant before.
+#
+# SYSLIB00xx is emitted by the compiler and needs no pinning. Adding or re-enabling a rule here is
+# a deliberate act: it raises a floor in scripts/ci/warning-baseline.json.
+[*.cs]
+dotnet_diagnostic.CA1001.severity = warning
+dotnet_diagnostic.CA1060.severity = warning
+dotnet_diagnostic.CA1063.severity = warning
+dotnet_diagnostic.CA1065.severity = warning
+dotnet_diagnostic.CA1401.severity = warning
+dotnet_diagnostic.CA1416.severity = warning
+dotnet_diagnostic.CA2101.severity = warning
+dotnet_diagnostic.CA2200.severity = warning
+dotnet_diagnostic.CA2213.severity = warning

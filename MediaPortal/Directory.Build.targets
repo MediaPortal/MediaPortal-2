@@ -1,0 +1,22 @@
+<Project>
+
+  <!--
+    Twin of Source\Directory.Build.targets. MSBuild stops walking upwards at the first
+    Directory.Build.* file it finds, so projects outside Source\ (Incubator\, Tests\, Tools\,
+    Setup\, Resources\, Graveyard\) never see the one inside Source\ and need their own copy.
+    Same rule as the Directory.Build.props pair: the two files must be kept in sync by hand.
+
+    Summary: clear the two Visual-Studio-only rule set names the project files still carry, so
+    severity comes from MediaPortal\.editorconfig on every host, and force the .NET analyzers on
+    for net48 legs where the SDK would leave them off.
+  -->
+  <PropertyGroup Condition="'$(CodeAnalysisRuleSet)' == 'AllRules.ruleset' OR '$(CodeAnalysisRuleSet)' == 'MinimumRecommendedRules.ruleset'">
+    <CodeAnalysisRuleSet></CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories></CodeAnalysisRuleSetDirectories>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+  </PropertyGroup>
+
+</Project>
