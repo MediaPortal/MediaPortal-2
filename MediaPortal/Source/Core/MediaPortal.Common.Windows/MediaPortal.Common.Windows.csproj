@@ -29,10 +29,11 @@
 
   <ItemGroup Condition="'$(TargetFramework)' != 'net48'">
     <!--
-      Declare the platform instead of leaving it implied. Without this the compiler treats
-      these members as reachable everywhere and reports every caller with CA1416; with it, any
-      attempt to call this assembly from portable (non -windows) code is a diagnostic at the
-      call site, which is the point of having a satellite at all.
+      Declare the platform instead of leaving it implied. As long as no assembly in a call chain
+      declares one, CA1416 cannot judge a cross-assembly call at all and every caller looks
+      platform-neutral - which is exactly how the two callers of TryEnableDPIAwareness stayed
+      invisible for years. Declaring it means any call from portable (non -windows) code becomes a
+      diagnostic at the call site, which is the point of having a satellite at all.
 
       The attribute type does not exist on .NET Framework, hence the condition - the net48 leg
       has no platform analysis anyway.

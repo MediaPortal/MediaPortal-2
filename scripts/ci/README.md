@@ -73,17 +73,36 @@ you lower the floor. The codes that matter for the multiplatform work are:
 construction*, so calls to it produce no diagnostic at all. This is measurable: deleting
 three WinForms call sites from `MediaPortal.Common` moved `CA1416` by exactly zero.
 
-So `CA1416` is a good proxy for the GDI+/WMI/Registry surface (its 488 sites land on
-`ImageUtilities.cs` 108, `Images.cs` 74, `CrashLoggerBase.cs` 30, `WindowsAPI.cs` 26,
-`IpcServer.cs` 20, `SplashScreen.cs` 20, ...) and a blind one for the WinForms spine.
+So `CA1416` is a good proxy for the GDI+/WMI/Registry surface (its 468 visible sites land on
+`ImageUtilities.cs` 108, `Images.cs` 74, `CrashLoggerBase.cs` 30, `Proxy.cs` 28,
+`WindowsAPI.cs` 26, `IpcServer.cs` 20, ...) and a blind one for the WinForms spine.
 Two companions close the gap:
 
-* **`spine.ps1`** counts textual `System.Windows.Forms` / `System.Drawing` references in
-  `MediaPortal.Common`, `MediaPortal.Utilities` and `MediaPortal.Backend`, and ratchets
-  them. Crude by design - a grep cannot be silenced by an annotation or a `NoWarn`.
+* **`spine.ps1`** counts textual `System.Windows.Forms` / `System.Drawing` references and
+  ratchets them in two sections: the *portable core* (`MediaPortal.Common`, `Utilities`,
+  `Backend`, floor must reach 0) and the `*.Windows` *satellites* (discovered automatically,
+  floor must not grow). Crude by design - a grep cannot be silenced by an annotation.
 * **The canary** (`MediaPortal\Tests\Canary.Portable`) is the only *authoritative* check:
   compiling a file for a portable TFM makes the analyzer see Windows as genuinely absent,
   which is when the missing diagnostics appear.
+
+### A satellite is a firewall outward and a cloak inward
+
+A `*.Windows` satellite declares `[assembly: SupportedOSPlatform("windows")]`. That declaration
+cuts both ways, and both halves have been measured here:
+
+* **Outward, desirable.** Before any assembly in a call chain declares a platform, `CA1416`
+  cannot judge a cross-assembly call at all, so every caller looks platform-neutral. Declaring
+  it is what made `MediaPortal.Server`'s two `FormDpiAwarenessExtension` calls appear as
+  warnings - true positives that had been invisible for years.
+* **Inward, undesirable.** Inside an assembly that declares `windows`, every Windows call is
+  by definition legal. Moving `SplashScreen.cs` into `MediaPortal.Utilities.Windows` moved
+  `CA1416` by **-20 while changing no behaviour whatsoever**: the 20 GDI+ call sites still
+  exist, they simply stopped being reported.
+
+Consequence for the floor: `CA1416` is treated as a *budget of Windows coupling*, not a count of
+diagnostics, so it stayed at 488 while only 468 are visible. The 20-unit slack is stated in
+`notes.CA1416` and is exactly what `spine.ps1`'s satellite section prevents from growing.
 
 Typical loop:
 
@@ -109,6 +128,19 @@ by `PackageReference` entries, so no source change outside those two projects ca
 it. Consequence for the gates: `build.ps1 -Solution Server -Ratchet` is the Windows regression
 gate that actually runs; the Client solution cannot serve as one until this is resolved
 (fix = settle on one BASS package id, or drop `BassRegistration`).
+
+Workaround, and it is a good one: the two conflicting projects are UI *components*, and neither
+`MediaPortal.Client` nor `SkinEngine` depends on them, so **individual Client-side projects still
+restore and build**. `build.ps1 -Project` builds one project and injects the two properties MP2
+expects (`$(SolutionDir)`, which `MediaPortal.Common\build.targets` needs to copy dependencies,
+and `$(SolutionName)`, which selects the `Bin` subfolder); without them a bare project build dies
+with `MSB3021: ... ..\..\..\Bin\*Undefined*\... Illegales Zeichen im Pfad`.
+
+    .\build.ps1 -Project UI\SkinEngine\SkinEngine.csproj
+    .\build.ps1 -Project Main\MediaPortal.Client\MediaPortal.Client.csproj
+
+The warning floors are measured on a solution, so they are not applied to `-Project` builds;
+`spine.ps1` still runs if you pass `-Ratchet`.
 
 ## Locale
 

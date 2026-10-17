@@ -187,6 +187,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TvMosaic.Server", "Extensio
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Common.Windows", "Core\MediaPortal.Common.Windows\MediaPortal.Common.Windows.csproj", "{E38364A8-05BD-43B3-A4D9-C11840D76870}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Utilities.Windows", "Core\MediaPortal.Utilities.Windows\MediaPortal.Utilities.Windows.csproj", "{04720521-4A23-477C-9143-696DE06035B7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -1021,6 +1023,18 @@ Global
 		{E38364A8-05BD-43B3-A4D9-C11840D76870}.Release|x64.Build.0 = Release|Any CPU
 		{E38364A8-05BD-43B3-A4D9-C11840D76870}.Release|x86.ActiveCfg = Release|Any CPU
 		{E38364A8-05BD-43B3-A4D9-C11840D76870}.Release|x86.Build.0 = Release|Any CPU
+		{04720521-4A23-477C-9143-696DE06035B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04720521-4A23-477C-9143-696DE06035B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04720521-4A23-477C-9143-696DE06035B7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{04720521-4A23-477C-9143-696DE06035B7}.Debug|x64.Build.0 = Debug|Any CPU
+		{04720521-4A23-477C-9143-696DE06035B7}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{04720521-4A23-477C-9143-696DE06035B7}.Debug|x86.Build.0 = Debug|Any CPU
+		{04720521-4A23-477C-9143-696DE06035B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04720521-4A23-477C-9143-696DE06035B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04720521-4A23-477C-9143-696DE06035B7}.Release|x64.ActiveCfg = Release|Any CPU
+		{04720521-4A23-477C-9143-696DE06035B7}.Release|x64.Build.0 = Release|Any CPU
+		{04720521-4A23-477C-9143-696DE06035B7}.Release|x86.ActiveCfg = Release|Any CPU
+		{04720521-4A23-477C-9143-696DE06035B7}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1112,6 +1126,7 @@ Global
 		{05FD1725-E6E9-41F2-94CC-B762ADDF5B80} = {1D7CBAB2-F708-4A74-8DF9-610497AED552}
 		{C4177AB5-5605-4084-8512-F88658578225} = {1D7CBAB2-F708-4A74-8DF9-610497AED552}
 		{E38364A8-05BD-43B3-A4D9-C11840D76870} = {843A0AD1-33FC-4952-9465-B5E79C2C67D1}
+		{04720521-4A23-477C-9143-696DE06035B7} = {843A0AD1-33FC-4952-9465-B5E79C2C67D1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1EEA469D-E8FA-442D-A7DC-FA62A56A8808}

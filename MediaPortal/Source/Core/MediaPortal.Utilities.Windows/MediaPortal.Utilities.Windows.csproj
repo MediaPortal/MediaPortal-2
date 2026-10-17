@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Windows-only companion to MediaPortal.Utilities.
+
+    MediaPortal.Utilities has to compile without a -windows target for the Linux and Android
+    server. Two of its files are WinForms itself rather than code that merely happens to use a
+    Win32 API, so they cannot be made portable:
+
+      Screens\SplashScreen.cs    a borderless topmost Form with a System.Windows.Forms.Timer
+      Screens\FormExtensions.cs  SafeActivate(), which P/Invokes SetForegroundWindow
+
+    Both keep their original namespace MediaPortal.Utilities.Screens, so consumers only need the
+    assembly reference, not a source change. Callers of the moved API in the tree:
+    MediaPortal.Client\ApplicationLauncher.cs (SplashScreen, SafeActivate) and the SkinEngine
+    GUI\MainForm.cs (SafeActivate, four call sites).
+
+    Rule for this project: it may reference MediaPortal.Utilities, never the other way round.
+    GDI+ (System.Drawing) is deliberately NOT moved here: it is incidental rather than structural,
+    and the plan is to replace it with an image-transform abstraction, not to quarantine it.
+  -->
+  <PropertyGroup>
+    <TargetFrameworks>net48;net6.0-windows</TargetFrameworks>
+    <AssemblyName>MediaPortal.Utilities.Windows</AssemblyName>
+    <RootNamespace>MediaPortal.Utilities</RootNamespace>
+    <UseWindowsForms>true</UseWindowsForms>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MediaPortal.Utilities\MediaPortal.Utilities.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' != 'net48'">
+    <!--
+      Declare the platform instead of leaving it implied, so that a call from portable
+      (non -windows) code is a diagnostic at the call site. See the same block in
+      MediaPortal.Common.Windows for why the absence of such a declaration hides callers.
+    -->
+    <AssemblyAttribute Include="System.Runtime.Versioning.SupportedOSPlatformAttribute">
+      <_Parameter1>windows</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+</Project>

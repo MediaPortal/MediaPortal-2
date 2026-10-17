@@ -1,20 +1,32 @@
-﻿{
+{
     "generated":  "2026-10-17",
-    "note":  "Textual references to System.Windows.Forms / System.Drawing in the portable core. Must only decrease. Reaches zero when Common/Utilities/Backend can drop the -windows target.",
+    "note":  "Textual references to System.Windows.Forms / System.Drawing, comments stripped. core = code that must become portable, floor must reach 0. satellites = *.Windows companions holding quarantined code; they must not grow either, because moving code there changes no behaviour and buys no portability (their SupportedOSPlatform declaration even hides those call sites from CA1416).",
     "areas":  {
+                  "MediaPortal\\Source\\Core\\MediaPortal.Common":  {
+                                                                        "Drawing":  4,
+                                                                        "WinForms":  2
+                                                                    },
                   "MediaPortal\\Source\\Core\\MediaPortal.Utilities":  {
-                                                                           "Drawing":  39,
-                                                                           "WinForms":  17
+                                                                           "Drawing":  15,
+                                                                           "WinForms":  0
                                                                        },
                   "MediaPortal\\Source\\Core\\MediaPortal.Backend":  {
                                                                          "Drawing":  0,
                                                                          "WinForms":  0
-                                                                     },
-                  "MediaPortal\\Source\\Core\\MediaPortal.Common":  {
-                                                                        "Drawing":  4,
-                                                                        "WinForms":  4
-                                                                    }
+                                                                     }
               },
-    "filesAffected":  11,
-    "totalRefs":  64
+    "filesAffected":  7,
+    "totalRefs":  21,
+    "satelliteAreas":  {
+                           "MediaPortal\\Source\\Core\\MediaPortal.Common.Windows":  {
+                                                                                         "Drawing":  1,
+                                                                                         "WinForms":  2
+                                                                                     },
+                           "MediaPortal\\Source\\Core\\MediaPortal.Utilities.Windows":  {
+                                                                                            "Drawing":  20,
+                                                                                            "WinForms":  17
+                                                                                        }
+                       },
+    "satelliteFilesAffected":  4,
+    "satelliteTotalRefs":  40
 }
