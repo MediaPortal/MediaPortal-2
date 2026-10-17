@@ -28,7 +28,6 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using MediaPortal.Common.Logging;
 
 namespace MediaPortal.Common.Exceptions
@@ -39,6 +38,22 @@ namespace MediaPortal.Common.Exceptions
   public class LauncherExceptionHandling
   {
     public static string LogPath { get; set; }
+
+    /// <summary>
+    /// Last resort, used when there is no logger yet and no writable log directory. The default
+    /// writes to the console, which is all a headless host has. A Windows launcher replaces it
+    /// with a dialog - see MediaPortal.Server/ApplicationLauncher.cs, the two launchers that still
+    /// have a UI. This hook exists so that the crash path of the portable core does not pull in a
+    /// UI toolkit: an unhandled exception must be reportable even when the toolkit is the thing
+    /// that failed, or when there is no toolkit at all.
+    /// </summary>
+    public static Action<string, string> LastResortReporter = ReportToConsole;
+
+    private static void ReportToConsole(string caption, string message)
+    {
+      Console.Error.WriteLine(caption);
+      Console.Error.WriteLine(message);
+    }
 
     public static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
     {
@@ -82,7 +97,10 @@ namespace MediaPortal.Common.Exceptions
       }
       catch { }
 
-      MessageBox.Show(ExceptionInfo(text, ex, false), caption);
+      // Last resort. Read the hook once: this code runs while the application is already failing,
+      // and a null hook here would replace the reported exception with a NullReferenceException.
+      Action<string, string> reporter = LastResortReporter ?? ReportToConsole;
+      reporter(caption, ExceptionInfo(text, ex, false));
     }
 
     public static string ExceptionInfo(string text, Exception ex, bool full)

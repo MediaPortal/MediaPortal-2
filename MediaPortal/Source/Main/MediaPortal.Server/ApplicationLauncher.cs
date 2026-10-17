@@ -213,6 +213,11 @@ namespace MediaPortal.Server
 
     protected void RunAsConsole()
     {
+      // Despite its name this mode still runs a WinForms message loop (see Application.Run below),
+      // so a dialog is the right last-resort crash report here. A genuinely headless host must keep
+      // the console default instead.
+      LauncherExceptionHandling.LastResortReporter = (caption, message) => MessageBox.Show(message, caption);
+
       Application.ThreadException += LauncherExceptionHandling.Application_ThreadException;
       AppDomain.CurrentDomain.UnhandledException += LauncherExceptionHandling.CurrentDomain_UnhandledException;
       TaskScheduler.UnobservedTaskException += LauncherExceptionHandling.TaskScheduler_UnobservedTaskException;

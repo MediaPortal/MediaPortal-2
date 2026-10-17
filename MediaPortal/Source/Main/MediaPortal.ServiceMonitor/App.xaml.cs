@@ -97,6 +97,9 @@ namespace MediaPortal.ServiceMonitor
       }
 
       // Make sure we're properly handling exceptions
+      // This is a WPF application, so its last-resort crash report is a WPF dialog; the portable
+      // default in LauncherExceptionHandling only writes to the console.
+      LauncherExceptionHandling.LastResortReporter = (caption, message) => MessageBox.Show(message, caption);
       DispatcherUnhandledException += OnUnhandledException;
       AppDomain.CurrentDomain.UnhandledException += LauncherExceptionHandling.CurrentDomain_UnhandledException;
 

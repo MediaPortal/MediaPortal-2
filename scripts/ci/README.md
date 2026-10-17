@@ -114,6 +114,24 @@ Floors may rise legitimately. When they do, `warnings.ps1` keeps failing until t
 re-baselined on purpose, and the reason belongs in `notes.<CODE>` inside
 `warning-baseline.json` (preserved across re-generation) as well as in the commit message.
 
+## Satellite boundaries
+
+`satellites.ps1` is the third gate, and it exists because a satellite move can break a project
+that never calls the moved code. Moving a type keeps its namespace, and a `using` of that
+namespace is a compile dependency even when the only line that used the type is commented out.
+That happened here: `MediaPortal.ServiceMonitor` still had `using MediaPortal.Common.UI;`, so
+moving `FormDpiAwareness.cs` broke it - and ServiceMonitor lives in `MP2-ServiceMonitor.sln`,
+which no build here performs.
+
+The rule it enforces: if a namespace is declared **only** inside a `*.Windows` satellite, any
+file importing it must belong to a project that references that satellite. Namespaces declared in
+two places (`MediaPortal.Common.Async` is in both `MediaPortal.Common` and
+`MediaPortal.Common.Windows`) prove nothing and are ignored. It reads source rather than build
+output, which is what gives it coverage of projects whose solutions currently do not restore.
+
+It is slow (tens of seconds - it walks every `.cs` file under `Source`, `Extensions`, `Tests` and
+`Incubator`) but runs once per `-Ratchet`.
+
 ## Known pre-existing breakage
 
 `MP2-Client.sln` **does not restore** on the current upstream tree, independently of any work
@@ -141,6 +159,15 @@ with `MSB3021: ... ..\..\..\Bin\*Undefined*\... Illegales Zeichen im Pfad`.
 
 The warning floors are measured on a solution, so they are not applied to `-Project` builds;
 `spine.ps1` still runs if you pass `-Ratchet`.
+
+Two more things `-Project` builds reveal, both pre-existing:
+
+* `Main\MediaPortal.Manager` is in **no solution** and three of its files still `using`
+  `MediaPortal.Core.*` / `MediaPortal.UI.Presentation.*`, namespaces that do not exist in MP2 (they
+  are MP1-era). It cannot compile and is not expected to. It also only defines `Debug|x86`, so a
+  bare build needs `-MsBuildProperty Platform=x86` before it will even reach the compiler.
+* Some folders under `Source` contain source files that belong to no project (for example
+  `UI\TV\SlimTvService`, superseded by `SlimTvService3`). They are not compiled by anything.
 
 ## Locale
 

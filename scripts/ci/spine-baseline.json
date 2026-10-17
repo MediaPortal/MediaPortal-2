@@ -4,7 +4,7 @@
     "areas":  {
                   "MediaPortal\\Source\\Core\\MediaPortal.Common":  {
                                                                         "Drawing":  4,
-                                                                        "WinForms":  2
+                                                                        "WinForms":  0
                                                                     },
                   "MediaPortal\\Source\\Core\\MediaPortal.Utilities":  {
                                                                            "Drawing":  15,
@@ -15,8 +15,8 @@
                                                                          "WinForms":  0
                                                                      }
               },
-    "filesAffected":  7,
-    "totalRefs":  21,
+    "filesAffected":  5,
+    "totalRefs":  19,
     "satelliteAreas":  {
                            "MediaPortal\\Source\\Core\\MediaPortal.Common.Windows":  {
                                                                                          "Drawing":  1,

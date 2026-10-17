@@ -29,7 +29,6 @@ using System.Text;
 using System.Windows.Forms;
 using MediaPortal.Core.Logging;
 using MediaPortal.Utilities.CommandLine;
-using MediaPortal.Utilities.Screens;
 
 namespace MediaPortal.Manager
 {

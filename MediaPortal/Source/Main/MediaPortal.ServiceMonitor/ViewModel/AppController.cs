@@ -40,7 +40,6 @@ using MediaPortal.ServiceMonitor.Utilities;
 using MediaPortal.ServiceMonitor.View;
 using System.ServiceProcess;
 using System.Windows.Forms;
-using MediaPortal.Common.UI;
 using MediaPortal.Utilities.Process;
 using MediaPortal.Utilities.SystemAPI;
 using Application = System.Windows.Application;

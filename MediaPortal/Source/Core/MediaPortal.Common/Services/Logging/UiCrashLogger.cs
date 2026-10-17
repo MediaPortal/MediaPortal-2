@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
-using System.Windows.Forms;
 
 namespace MediaPortal.Common.Services.Logging
 {
@@ -86,11 +85,27 @@ namespace MediaPortal.Common.Services.Logging
       }
     }
 
+    /// <summary>
+    /// Supplies the body of the "Screen Information" section. The framework offers no portable way
+    /// to query a monitor resolution, so the default states that plainly rather than guessing. A
+    /// Windows application installs a provider - see MediaPortal.Client/ApplicationLauncher.cs,
+    /// which is this logger's only consumer.
+    /// </summary>
+    public static Func<string> ScreenInfoProvider = UnavailableScreenInfo;
+
+    private static string UnavailableScreenInfo()
+    {
+      return "  Screen Resolution:\tnot available on this platform";
+    }
+
     protected static string ScreenInfo()
     {
       StringBuilder screenInfo = new StringBuilder();
       screenInfo.AppendLine("== Screen Information");
-      screenInfo.AppendLine("  Screen Resolution:\t" + SystemInformation.PrimaryMonitorSize.ToString());
+      // Read the hook into a local: a crash log is written while the application is already
+      // failing, and a null hook here would throw inside the handler that reports the failure.
+      Func<string> provider = ScreenInfoProvider ?? UnavailableScreenInfo;
+      screenInfo.AppendLine(provider());
 
       return screenInfo.ToString();
     }

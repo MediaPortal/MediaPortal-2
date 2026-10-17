@@ -162,6 +162,10 @@ namespace MediaPortal.Client
 
       string logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"Team MediaPortal\MP2-Client\Log");
       LauncherExceptionHandling.LogPath = logPath;
+      // This application has a UI, so its last-resort crash report is a dialog and its crash log
+      // carries the real monitor resolution. A headless host keeps the portable defaults.
+      LauncherExceptionHandling.LastResortReporter = (caption, message) => MessageBox.Show(message, caption);
+      UiCrashLogger.ScreenInfoProvider = () => "  Screen Resolution:\t" + SystemInformation.PrimaryMonitorSize;
       Application.ThreadException += LauncherExceptionHandling.Application_ThreadException;
       AppDomain.CurrentDomain.UnhandledException += LauncherExceptionHandling.CurrentDomain_UnhandledException;
       TaskScheduler.UnobservedTaskException += LauncherExceptionHandling.TaskScheduler_UnobservedTaskException;

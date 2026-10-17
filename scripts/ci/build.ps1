@@ -31,6 +31,11 @@ param(
   [string]$ArtifactsDir,
   [switch]$SkipRestore,
 
+  # Extra MSBuild properties for -Project builds, e.g. 'Platform=x86'. A bare project build has no
+  # solution to take the platform from and defaults to AnyCPU, which projects such as
+  # MediaPortal.Manager (Debug|x86 only) do not define.
+  [string[]]$MsBuildProperty,
+
   # After building, fail if the warning inventory regressed against the committed baseline.
   [switch]$Ratchet
 )
@@ -101,6 +106,7 @@ $exitCode = 0
 
 if ($Project) {
   $solutionLevelArgs = @("/p:SolutionDir=$sourceDir\", "/p:SolutionName=$SolutionName")
+  foreach ($extra in @($MsBuildProperty)) { if ($extra) { $solutionLevelArgs += "/p:$extra" } }
   foreach ($p in $Project) {
     $full = if ([System.IO.Path]::IsPathRooted($p)) { $p } else { Join-Path $sourceDir $p }
     if (-not (Test-Path $full)) { Write-Host "project not found: $full" -ForegroundColor Red; $exitCode = 1; continue }
@@ -116,8 +122,11 @@ if ($Project) {
 }
 
 if ($Ratchet) {
-  # Independent of what was built: it scans source, not a build log.
+  # Independent of what was built: these scan source, not a build log.
   & (Join-Path $PSScriptRoot 'spine.ps1')
+  if ($LASTEXITCODE -ne 0) { $exitCode = 1 }
+
+  & (Join-Path $PSScriptRoot 'satellites.ps1')
   if ($LASTEXITCODE -ne 0) { $exitCode = 1 }
 }
 
