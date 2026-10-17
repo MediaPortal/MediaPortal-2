@@ -1,32 +1,39 @@
 {
-    "generated":  "2026-10-17",
-    "note":  "Textual references to System.Windows.Forms / System.Drawing, comments stripped. core = code that must become portable, floor must reach 0. satellites = *.Windows companions holding quarantined code; they must not grow either, because moving code there changes no behaviour and buys no portability (their SupportedOSPlatform declaration even hides those call sites from CA1416).",
+    "generated":  "2026-10-18",
+    "note":  "Textual references to System.Windows.Forms and to the Windows-only half of System.Drawing, comments stripped. GDI+ here means System.Drawing.Common types (Image, Bitmap, Graphics, ImageFormat, ...): Windows-only, and on net8.0 they do not even compile without a package reference. The portable half (Color, SizeF, Rectangle, ... in System.Drawing.Primitives) is measured separately into drawingPortableRefs and is NOT gated, because it runs on Linux - measured, not assumed. core = code that must become portable, floor must reach 0. satellites = *.Windows companions holding quarantined code; they must not grow either, because moving code there changes no behaviour and buys no portability (their SupportedOSPlatform declaration even hides those call sites from CA1416).",
     "areas":  {
                   "MediaPortal\\Source\\Core\\MediaPortal.Common":  {
-                                                                        "Drawing":  4,
-                                                                        "WinForms":  0
+                                                                        "WinForms":  0,
+                                                                        "DrawingWindows":  3,
+                                                                        "DrawingPortable":  1
                                                                     },
                   "MediaPortal\\Source\\Core\\MediaPortal.Utilities":  {
-                                                                           "Drawing":  7,
-                                                                           "WinForms":  0
+                                                                           "WinForms":  0,
+                                                                           "DrawingWindows":  7,
+                                                                           "DrawingPortable":  0
                                                                        },
                   "MediaPortal\\Source\\Core\\MediaPortal.Backend":  {
-                                                                         "Drawing":  0,
-                                                                         "WinForms":  0
+                                                                         "WinForms":  0,
+                                                                         "DrawingWindows":  0,
+                                                                         "DrawingPortable":  0
                                                                      }
               },
-    "filesAffected":  4,
-    "totalRefs":  11,
+    "filesAffected":  3,
+    "totalRefs":  10,
+    "drawingPortableRefs":  1,
     "satelliteAreas":  {
                            "MediaPortal\\Source\\Core\\MediaPortal.Common.Windows":  {
-                                                                                         "Drawing":  1,
-                                                                                         "WinForms":  2
+                                                                                         "WinForms":  2,
+                                                                                         "DrawingWindows":  0,
+                                                                                         "DrawingPortable":  1
                                                                                      },
                            "MediaPortal\\Source\\Core\\MediaPortal.Utilities.Windows":  {
-                                                                                            "Drawing":  20,
-                                                                                            "WinForms":  17
+                                                                                            "WinForms":  17,
+                                                                                            "DrawingWindows":  20,
+                                                                                            "DrawingPortable":  0
                                                                                         }
                        },
     "satelliteFilesAffected":  4,
-    "satelliteTotalRefs":  40
+    "satelliteTotalRefs":  39,
+    "satelliteDrawingPortableRefs":  1
 }

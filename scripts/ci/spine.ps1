@@ -12,10 +12,17 @@
   WinForms call sites from MediaPortal.Common changed CA1416 by exactly zero.
 
   So the portable core needs a second, deliberately crude metric: how many references to
-  System.Windows.Forms and System.Drawing are still compiled into the assemblies that must
-  run on Linux. It cannot tell whether a specific call works, but it can only go down, and
-  it is the number that has to reach zero before those assemblies can lose their -windows
-  target.
+  System.Windows.Forms and to Windows-only System.Drawing types are still compiled into the
+  assemblies that must run on Linux. It cannot tell whether a specific call works, but it can
+  only go down, and it is the number that has to reach zero before those assemblies can lose
+  their -windows target.
+
+  "System.Drawing" is not itself a Windows dependency, and treating it as one produced a false
+  entry in the must-reach-zero list. It is two assemblies: System.Drawing.Primitives (Color,
+  SizeF, Rectangle, ...) ships with the shared framework and was measured running on net8.0 in a
+  Linux container, while System.Drawing.Common (Image, Bitmap, Graphics, ImageFormat, ...) is
+  Windows-only and on net8.0 does not even compile without a package reference. Only the second
+  one is counted as spine; the first is reported next to it for context. See Measure-DrawingRefs.
 
   Two ledger sections are counted, and both may only shrink:
 
@@ -57,10 +64,68 @@ function Get-CodeOnlyText {
   return [regex]::Replace($noBlocks, '(?<!:)//[^\r\n]*', ' ')
 }
 
+function Measure-DrawingRefs {
+<#
+    Splits the System.Drawing references in one comment-stripped file into the two kinds that
+    have opposite portability. Counts are textual on purpose (same as the rest of this script),
+    but "System.Drawing" alone is not a Windows dependency:
+
+      System.Drawing.Primitives.dll  Color, KnownColor, Point/PointF, Size/SizeF,
+                                     Rectangle/RectangleF, ContentAlignment
+          Ships with the shared framework. Measured in a Linux container on net8.0: compiles and
+          runs (Color.FromArgb(...), SizeF, Rectangle, KnownColor all print correct values).
+
+      System.Drawing.Common.dll      Image, Bitmap, Graphics, ImageFormat, ImageCodecInfo, ...
+          Windows-only. Measured in the same container: without a package reference those types do
+          not even compile (CS1069 "type has been forwarded to System.Drawing.Common").
+
+    Counting both together would put a value type used by a config class in the same "must reach
+    zero" list as a GDI+ decode, and would push someone to change a public API for no portability
+    gain. Returns a hashtable with Windows and Portable counts.
+#>
+  [CmdletBinding()]
+  param([Parameter(Mandatory)][string] $Text)
+
+  # The gated number stays "how many times the file mentions the System.Drawing namespace", so
+  # this classifier decides who owns those mentions rather than changing the scale of the metric.
+  $ns = ([regex]::Matches($Text, 'System\.Drawing')).Count
+  if ($ns -eq 0) { return @{ Windows = 0; Portable = 0 } }
+
+  # Qualified references to a Windows-only sub-namespace, or to a known GDI+ type.
+  $windows = $false
+  $unknown = $false
+  foreach ($m in [regex]::Matches($Text, 'System\.Drawing\.([A-Za-z_]\w*)')) {
+    $type = $m.Groups[1].Value
+    if ($DrawingWindowsNamespaces -contains $type -or $DrawingWindowsTypes -contains $type) {
+      $windows = $true
+    } elseif ($DrawingPrimitiveTypes -notcontains $type) {
+      $unknown = $true
+    }
+  }
+
+  # Bare identifiers only count as System.Drawing when the file imports the namespace; otherwise
+  # every unrelated Color/Size/Point in the tree would be attributed to it.
+  if ([regex]::IsMatch($Text, '(^|\s)using\s+System\.Drawing\s*;')) {
+    foreach ($type in $DrawingWindowsTypes) {
+      if ([regex]::IsMatch($Text, "(?<![\.\w])$type\b")) { $windows = $true; break }
+    }
+  }
+
+  if ($windows) { return @{ Windows = $ns; Portable = 0 } }
+  # A type outside both lists is treated as Windows. Guessing the other way would hide a real
+  # dependency from the one metric that is supposed to be un-silenceable.
+  if ($unknown) { return @{ Windows = $ns; Portable = 0 } }
+  # Only value types (Color, SizeF, Rectangle, ...) behind the namespace: portable, but still
+  # reported, because a plain 'using System.Drawing;' pulls the old System.Drawing assembly in
+  # on net48 even when just primitives are used.
+  return @{ Windows = 0; Portable = $ns }
+}
+
 function Measure-SpineArea {
 <#
-    Counts WinForms/GDI+ references over a set of source directories.
-    Returns Areas (per directory code counts), Files (per file totals) and TotalRefs.
+    Counts Windows references over a set of source directories.
+    Returns Areas (per directory code counts), Files (per file totals), TotalRefs (Windows) and
+    PortableRefs (System.Drawing primitives, reported for context, never gated).
 #>
   [CmdletBinding()]
   param(
@@ -71,17 +136,29 @@ function Measure-SpineArea {
   $areas = [ordered]@{}
   $files = @()
   $total = 0
+  $portable = 0
 
   foreach ($dir in $Dirs) {
     $areaRoot = Join-Path $repoRoot $dir
     if (-not (Test-Path $areaRoot)) { throw "source area missing: $areaRoot" }
     $areaCounts = @{}
     foreach ($k in $Patterns.Keys) { $areaCounts[$k] = 0 }
+    # Filled by Measure-DrawingRefs instead of a regex, but reported next to the others.
+    $areaCounts['DrawingWindows'] = 0
+    $areaCounts['DrawingPortable'] = 0
 
     foreach ($file in (Get-ChildItem $areaRoot -Recurse -Filter *.cs -File | Where-Object { $_.FullName -notmatch '\\(bin|obj)\\' })) {
       $text = Get-CodeOnlyText -Text ([System.IO.File]::ReadAllText($file.FullName))
       $fileHits = 0
       foreach ($k in $Patterns.Keys) {
+        if ($k -eq 'Drawing') {
+          $d = Measure-DrawingRefs -Text $text
+          $areaCounts['DrawingWindows'] += $d.Windows
+          $areaCounts['DrawingPortable'] += $d.Portable
+          $portable += $d.Portable
+          $fileHits += $d.Windows
+          continue
+        }
         $n = ([regex]::Matches($text, $Patterns[$k])).Count
         $areaCounts[$k] += $n
         $fileHits += $n
@@ -94,7 +171,7 @@ function Measure-SpineArea {
     $areas[$dir] = $areaCounts
   }
 
-  return [pscustomobject]@{ Areas = $areas; Files = $files; TotalRefs = $total }
+  return [pscustomobject]@{ Areas = $areas; Files = $files; TotalRefs = $total; PortableRefs = $portable }
 }
 
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
@@ -114,9 +191,27 @@ $satelliteAreas = @(
     Sort-Object
 )
 
+# System.Drawing type sets used to classify a reference as Windows-only or portable. Kept as
+# data so the reason a reference was counted can be looked up; see Measure-DrawingRefs for the
+# measurements behind the split.
+$DrawingPrimitiveTypes = @(
+  'Color', 'KnownColor', 'Point', 'PointF', 'Size', 'SizeF', 'Rectangle', 'RectangleF', 'ContentAlignment'
+)
+$DrawingWindowsTypes = @(
+  'Bitmap', 'BitmapData', 'BufferedGraphics', 'Brush', 'ColorMap', 'ColorMatrix', 'CompositingMode',
+  'CompositingQuality', 'Font', 'FontFamily', 'FrameDimension', 'Graphics', 'GraphicsUnit', 'Icon',
+  'Image', 'ImageAnimator', 'ImageAttributes', 'ImageCodecInfo', 'ImageFormat', 'InterpolationMode',
+  'Metafile', 'Pen', 'PixelFormat', 'PixelOffsetMode', 'PrintDocument', 'SolidBrush', 'SmoothingMode',
+  'StringFormat', 'SystemIcons', 'TextureBrush'
+)
+# Namespaces under System.Drawing that are all in System.Drawing.Common.
+$DrawingWindowsNamespaces = @('Imaging', 'Drawing2D', 'Text', 'Design', 'Printing')
+
 $patterns = [ordered]@{
   WinForms = 'System\.Windows\.Forms'
-  Drawing  = 'System\.Drawing'
+  # 'Drawing' is not a regex - the value is unused, the key asks Measure-SpineArea to run
+  # Measure-DrawingRefs, which fills DrawingWindows (gated) and DrawingPortable (reported).
+  Drawing  = $null
 }
 
 $core = Measure-SpineArea -Dirs $coreAreas -Patterns $patterns
@@ -128,7 +223,8 @@ function Write-AreaReport {
 
   Write-Host $Title -ForegroundColor $Colour
   foreach ($area in $Measure.Areas.Keys) {
-    "  {0,-52} WinForms {1,4}   System.Drawing {2,4}" -f $area, $Measure.Areas[$area]['WinForms'], $Measure.Areas[$area]['Drawing']
+    "  {0,-52} WinForms {1,4}   GDI+ {2,4}   Drawing primitives {3,4}" -f $area, `
+      $Measure.Areas[$area]['WinForms'], $Measure.Areas[$area]['DrawingWindows'], $Measure.Areas[$area]['DrawingPortable']
   }
   "  {0,-52} files affected {1,4}   total refs {2,4}" -f '', $Measure.Files.Count, $Measure.TotalRefs
   $Measure.Files | Sort-Object Refs -Descending | ForEach-Object { "    {0,-80} {1,3}" -f $_.File, $_.Refs } | ForEach-Object { Write-Host $_ }
@@ -137,16 +233,33 @@ function Write-AreaReport {
 Write-AreaReport -Title 'Windows spine still compiled into the portable core (must become 0):' -Colour Cyan -Measure $core
 Write-AreaReport -Title 'Windows-only satellites (quarantined, not fixed - must not grow):' -Colour DarkGray -Measure $sat
 
+# Drops the placeholder 'Drawing' key from the report data written to the baseline; only the
+# two classified columns are meaningful, and writing a permanent zero invites misreading.
+function Format-AreaCounts {
+  [CmdletBinding()]
+  param([System.Collections.Specialized.OrderedDictionary] $Areas)
+
+  $out = [ordered]@{}
+  foreach ($dir in $Areas.Keys) {
+    $cols = [ordered]@{}
+    foreach ($col in @('WinForms', 'DrawingWindows', 'DrawingPortable')) { $cols[$col] = $Areas[$dir][$col] }
+    $out[$dir] = $cols
+  }
+  return $out
+}
+
 if ($UpdateBaseline) {
   $payload = [ordered]@{
     generated = (Get-Date).ToString('yyyy-MM-dd')
-    note      = 'Textual references to System.Windows.Forms / System.Drawing, comments stripped. core = code that must become portable, floor must reach 0. satellites = *.Windows companions holding quarantined code; they must not grow either, because moving code there changes no behaviour and buys no portability (their SupportedOSPlatform declaration even hides those call sites from CA1416).'
-    areas     = $core.Areas
+    note      = 'Textual references to System.Windows.Forms and to the Windows-only half of System.Drawing, comments stripped. GDI+ here means System.Drawing.Common types (Image, Bitmap, Graphics, ImageFormat, ...): Windows-only, and on net8.0 they do not even compile without a package reference. The portable half (Color, SizeF, Rectangle, ... in System.Drawing.Primitives) is measured separately into drawingPortableRefs and is NOT gated, because it runs on Linux - measured, not assumed. core = code that must become portable, floor must reach 0. satellites = *.Windows companions holding quarantined code; they must not grow either, because moving code there changes no behaviour and buys no portability (their SupportedOSPlatform declaration even hides those call sites from CA1416).'
+    areas     = Format-AreaCounts -Areas $core.Areas
     filesAffected = $core.Files.Count
     totalRefs = $core.TotalRefs
-    satelliteAreas = $sat.Areas
+    drawingPortableRefs = $core.PortableRefs
+    satelliteAreas = Format-AreaCounts -Areas $sat.Areas
     satelliteFilesAffected = $sat.Files.Count
     satelliteTotalRefs = $sat.TotalRefs
+    satelliteDrawingPortableRefs = $sat.PortableRefs
   }
   # No BOM: PowerShell 5.1 -Encoding utf8 would prepend one.
   [System.IO.File]::WriteAllText(

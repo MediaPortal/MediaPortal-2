@@ -1,0 +1,16 @@
+# Runs scripts/ci/drawing-probe on Linux.
+#
+#   docker build -f scripts/ci/Dockerfile.drawing -t mp2-drawing .
+#   docker run --rm mp2-drawing
+#
+# Only the probe directory is copied - it references no MediaPortal code on purpose, so the
+# result describes the framework and cannot be influenced by anything in the tree.
+FROM mcr.microsoft.com/dotnet/sdk:8.0
+
+WORKDIR /probe
+
+COPY scripts/ci/drawing-probe ./
+
+RUN dotnet build --nologo -v q -c Release
+
+CMD ["dotnet", "run", "--no-build", "--nologo", "-v", "q", "-c", "Release"]

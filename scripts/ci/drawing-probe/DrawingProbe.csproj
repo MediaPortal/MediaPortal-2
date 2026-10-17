@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Not part of any solution and not built by any gate. This is the measurement behind the
+    "A `using System.Drawing` is not necessarily a Windows dependency" section of
+    scripts/ci/README.md, and behind the two-column split in spine.ps1.
+
+    The exact docker command lines are in scripts/ci/Dockerfile.drawing next to it - XML
+    comments may not contain a double hyphen, so they cannot be repeated here.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <AssemblyName>DrawingProbe</AssemblyName>
+    <RootNamespace>DrawingProbe</RootNamespace>
+    <!-- The analyzer is part of what is being observed; do not let it hide call sites. -->
+    <NoWarn>$(NoWarn);CA1416</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+      Deliberately referenced. Without it, `new Bitmap(...)` never reaches the runtime: the
+      compiler reports CS1069 "The type name 'Bitmap' could not be found in the namespace
+      'System.Drawing'. This type has been forwarded to assembly 'System.Drawing.Common'" - which
+      was measured too. Remove this ItemGroup and re-run to see it.
+    -->
+    <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
+  </ItemGroup>
+
+</Project>

@@ -17,6 +17,7 @@ does *not*, because those differences are how CI surprises happen.
 | `test-canary-linux.ps1` | Builds that image and runs the canary tests inside a Linux container. |
 | `Dockerfile.cross` | Linux **cross-compile** image: builds the whole `MP2-Server.sln` under `mcr.microsoft.com/dotnet/sdk:8.0`. |
 | `test-server-linux.ps1` | Runs that image (see "Compiling on Linux" below for the package-cache it needs). |
+| `Dockerfile.drawing`, `drawing-probe/` | Not a gate: measures which half of `System.Drawing` works on Linux. Read it before changing what `spine.ps1` counts. |
 
 ## Which build host, and why it matters
 
@@ -140,6 +141,38 @@ output, which is what gives it coverage of projects whose solutions currently do
 
 It is slow (tens of seconds - it walks every `.cs` file under `Source`, `Extensions`, `Tests` and
 `Incubator`) but runs once per `-Ratchet`.
+
+## A `using System.Drawing` is not necessarily a Windows dependency
+
+`System.Drawing` is two assemblies with opposite portability, and a metric that treats the
+namespace as one thing lies about both:
+
+| Assembly | Types | Off Windows |
+| --- | --- | --- |
+| `System.Drawing.Primitives` | `Color`, `KnownColor`, `Point`/`PointF`, `Size`/`SizeF`, `Rectangle`/`RectangleF`, `ContentAlignment` | ships with the shared framework; **works** |
+| `System.Drawing.Common` | `Image`, `Bitmap`, `Graphics`, `ImageFormat`, `ImageCodecInfo`, `Icon`, `PixelFormat`, ... | Windows-only; **not even compilable** without a package reference |
+
+Both halves were measured in `mcr.microsoft.com/dotnet/sdk:8.0` on `net8.0`, not looked up. The
+probe is committed at `scripts/ci/drawing-probe` (build it with `scripts/ci/Dockerfile.drawing`)
+and its output on Linux is:
+
+    PRIMITIVES WORK: argb=ff0c2238 size=4x3 rect=3 known=Red
+    IMAGING REFUSES: System.TypeInitializationException: The type initializer for 'Gdip' threw an exception.
+      innermost: System.PlatformNotSupportedException: System.Drawing.Common is not supported on
+                 non-Windows platforms. See https://aka.ms/systemdrawingnonwindows for more information.
+
+And that is with the `System.Drawing.Common` package *referenced*. Without it the imaging half
+does not even reach the runtime: `CS1069: The type name 'Bitmap' could not be found in the
+namespace 'System.Drawing'. This type has been forwarded to assembly 'System.Drawing.Common'`.
+
+Consequence for `spine.ps1`: `System.Drawing` mentions are classified per file. A file that only
+touches value types (`MediaPortal.Common\Configuration\ConfigColoredItemList.cs`, which exposes
+`System.Drawing.Color` in its config API) is counted in a separate **Drawing primitives** column
+that is reported but *not* gated. Without that split the must-reach-zero list contains a type
+that is already portable, and the next person to hit it "fixes" a public configuration API for
+zero portability gain. A `System.Drawing.X` type that is in neither list is counted as Windows -
+the pessimistic reading is the only safe default for a gate whose whole job is not being
+silenced.
 
 ## Known pre-existing breakage
 
