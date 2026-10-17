@@ -1,0 +1,7 @@
+# Docker build contexts must not carry build output or VCS data.
+.git/
+build/
+**/bin/
+**/obj/
+**/.vs/
+Packages/

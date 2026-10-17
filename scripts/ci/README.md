@@ -10,6 +10,8 @@ does *not*, because those differences are how CI surprises happen.
 | `warnings.ps1` | The ratchet: fail if any warning code exceeds its committed count. `-UpdateBaseline` lowers the floor. |
 | `common.ps1` | Shared helpers (MSBuild discovery, log parsing). Dot-sourced, not run directly. |
 | `warning-baseline.json` | Committed maximum allowed count per warning code. |
+| `Dockerfile.canary` | Linux verification image for the portability canary (`MediaPortal\Tests\Canary.Portable`). |
+| `test-canary-linux.ps1` | Builds that image and runs the canary tests inside a Linux container. |
 
 ## Why full MSBuild and not `dotnet build`
 
@@ -76,5 +78,17 @@ Never script against the summary text.
 
 ## Linux
 
-Linux build and test entry points arrive together with the container setup. Until they
-exist, do not claim Linux support.
+What runs on Linux today is the **portability canary** only:
+
+    .\test-canary-linux.ps1
+
+That compiles a whitelist of `MediaPortal.Utilities` sources for `net8.0` and runs their
+tests inside `mcr.microsoft.com/dotnet/sdk:8.0`. It is a real signal about a real slice of
+MP2, and it is deliberately narrow. Nothing else in the tree runs on Linux: every other
+project targets `net48;net6.0-windows`, and a `-windows` TFM cannot execute there. So "the
+canary is green" must never be reported as "MP2 runs on Linux".
+
+The canary exists so that Linux coverage grows file by file while the rest of the tree is
+still Windows-only, and shrinks back to nothing once `MediaPortal.Common`/`Utilities`
+themselves target a portable TFM. See the header comment in
+`MediaPortal\Tests\Canary.Portable\Canary.Portable.csproj` for the per-file procedure.

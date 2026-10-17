@@ -1,0 +1,68 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Portability canary.
+
+    This project does NOT reference MediaPortal.Utilities. It compiles individual source
+    files from it (linked, below) directly into a plain net8.0 assembly and runs tests
+    against them. That gives three things the normal build cannot:
+
+      1. Proof that a given file compiles for a portable TFM with no Windows dependency.
+         CA1416 and SYSLIB are errors here, so a file containing a Windows-only call site
+         cannot join the list - the build fails instead of quietly shipping a
+         PlatformNotSupportedException.
+      2. A runnable behaviour baseline for those files, so that retargeting the real
+         assembly later is provably equivalent and not merely "it still compiles".
+      3. A Linux signal today: dotnet test on this project runs in a linux container while
+         the rest of the tree is net48;net6.0-windows and cannot run there at all.
+
+    Procedure for the next file:
+      a. add its Compile Include below (plus anything it needs),
+      b. build - compile errors are the porting work, CA1416 errors are the platform work,
+      c. add tests pinning current behaviour BEFORE changing the source,
+      d. fix, then run on Windows and in the Linux container,
+      e. when MediaPortal.Utilities itself targets a portable TFM, delete the entry - the
+         canary shrinks to nothing as the port completes.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>Canary.Portable</RootNamespace>
+    <AssemblyName>Canary.Portable</AssemblyName>
+    <IsPackable>false</IsPackable>
+    <Nullable>disable</Nullable>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningsAsErrors>CA1416;SYSLIB0004;SYSLIB0006;SYSLIB0011</WarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
+    <PackageReference Include="NUnit" Version="3.13.3" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.4.2" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <!-- A property, not an item: it is referenced as $(UtilitiesRoot). -->
+    <UtilitiesRoot>$(MSBuildThisFileDirectory)../../Source/Core/MediaPortal.Utilities/</UtilitiesRoot>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Whitelist: sources verified portable by this project compiling them. Keep sorted. -->
+    <Compile Include="$(UtilitiesRoot)StringUtils.cs"><Link>Utilities\StringUtils.cs</Link></Compile>
+    <Compile Include="$(UtilitiesRoot)CollectionUtils.cs"><Link>Utilities\CollectionUtils.cs</Link></Compile>
+    <Compile Include="$(UtilitiesRoot)ObjectUtils.cs"><Link>Utilities\ObjectUtils.cs</Link></Compile>
+    <Compile Include="$(UtilitiesRoot)OrdinalStringComparer.cs"><Link>Utilities\OrdinalStringComparer.cs</Link></Compile>
+    <Compile Include="$(UtilitiesRoot)Conversion\Conversion.cs"><Link>Utilities\Conversion\Conversion.cs</Link></Compile>
+    <Compile Include="$(UtilitiesRoot)DB\InstructionList.cs"><Link>Utilities\DB\InstructionList.cs</Link></Compile>
+    <Compile Include="$(UtilitiesRoot)DB\SQLUtils.cs"><Link>Utilities\DB\SQLUtils.cs</Link></Compile>
+    <Compile Include="$(UtilitiesRoot)Events\DelayedEvent.cs"><Link>Utilities\Events\DelayedEvent.cs</Link></Compile>
+    <Compile Include="$(UtilitiesRoot)Collections\SafeList.cs"><Link>Utilities\Collections\SafeList.cs</Link></Compile>
+    <Compile Include="$(UtilitiesRoot)Collections\SafeDictionary.cs"><Link>Utilities\Collections\SafeDictionary.cs</Link></Compile>
+    <Compile Include="$(UtilitiesRoot)Cache\ILRUCache.cs"><Link>Utilities\Cache\ILRUCache.cs</Link></Compile>
+    <Compile Include="$(UtilitiesRoot)Cache\SmallLRUCache.cs"><Link>Utilities\Cache\SmallLRUCache.cs</Link></Compile>
+    <Compile Include="$(UtilitiesRoot)Cache\LargeLRUCache.cs"><Link>Utilities\Cache\LargeLRUCache.cs</Link></Compile>
+    <Compile Include="$(UtilitiesRoot)Localization\StringsFile\StringFile.cs"><Link>Utilities\Localization\StringFile.cs</Link></Compile>
+    <Compile Include="$(UtilitiesRoot)Localization\StringsFile\StringLocalized.cs"><Link>Utilities\Localization\StringLocalized.cs</Link></Compile>
+  </ItemGroup>
+
+</Project>

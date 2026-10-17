@@ -1,0 +1,21 @@
+# Linux verification for the portability canary.
+#
+#   docker build -f scripts/ci/Dockerfile.canary -t mp2-canary .
+#   docker run --rm mp2-canary
+#
+# Only the canary project and the MediaPortal.Utilities sources it links are copied, so the
+# context stays small and the image cannot accidentally pull in a Windows-only project.
+# The .editorconfig is copied too: analyzer severities must match the Windows build, or a
+# green run here would not mean what it appears to mean.
+FROM mcr.microsoft.com/dotnet/sdk:8.0
+
+WORKDIR /src
+
+COPY MediaPortal/.editorconfig ./MediaPortal/.editorconfig
+COPY MediaPortal/Tests/Canary.Portable/ ./MediaPortal/Tests/Canary.Portable/
+COPY MediaPortal/Source/Core/MediaPortal.Utilities/ ./MediaPortal/Source/Core/MediaPortal.Utilities/
+
+# Show the actual platform the assertions are running on - this line is the point of the file.
+RUN dotnet --info | head -n 12 && uname -a
+
+CMD ["dotnet", "test", "/src/MediaPortal/Tests/Canary.Portable/Canary.Portable.csproj", "-c", "Debug", "--nologo", "-v", "q"]
