@@ -1,5 +1,5 @@
 {
-    "generated":  "2026-10-17",
+    "generated":  "2026-10-18",
     "log":  "build-Server-Debug.log",
     "toolset":  "Full Visual Studio MSBuild. Counts depend on this: the bare AllRules.ruleset only resolves on a Visual Studio host, so these numbers are NOT comparable with dotnet build or Linux logs. See README.md.",
     "note":  "Maximum allowed occurrences per warning code. Regenerate with warnings.ps1 -UpdateBaseline after an intentional change and record why in notes.\u003cCODE\u003e and the commit message.",
@@ -9,7 +9,7 @@
                      "CA1063":  78,
                      "CA1065":  2,
                      "CA1401":  4,
-                     "CA1416":  488,
+                     "CA1416":  366,
                      "CA2101":  2,
                      "CA2200":  6,
                      "CA2213":  10,
@@ -36,6 +36,6 @@
                      "SYSLIB0022":  4
                  },
     "notes":  {
-                  "CA1416":  "Floor is the budget of Windows coupling, not a count of visible diagnostics, and it is deliberately left at 488 although only 468 are currently visible. Extracting SplashScreen.cs into MediaPortal.Utilities.Windows removed 20 diagnostics without removing one Windows dependency: that assembly declares [SupportedOSPlatform(\"windows\")], which makes CA1416 treat its OWN call sites as platform-neutral. The declaration is still worth it - it is what turns a call from portable code into a call-site diagnostic - but the consequence is that satellites are invisible to CA1416 from the inside. Downside stated plainly: up to 20 new Windows calls could be added before this floor complains. spine.ps1 is what closes that hole; it gates the *.Windows assemblies in their own section so quarantined code cannot grow. Lower 488 only when a Windows dependency is genuinely removed."
+                  "CA1416":  "CA1416 sees call sites only in assemblies that do NOT declare a platform, so this floor is a bound on the visible part, not on Windows coupling. Two measured consequences. (1) A [SupportedOSPlatform(\"windows\")] assembly is invisible from the inside: extracting SplashScreen.cs removed 20 diagnostics with zero Windows dependencies removed, and moving ImageUtilities.cs into MediaPortal.Utilities.Windows removed 102 more the same way. (2) The attribute is still worth declaring, because it is what turns a call from portable code into a call-site diagnostic. So the real budget of Windows coupling lives in spine-baseline.json combinedTotalRefs (core + satellites, currently 83, and it may only shrink), which counts textual references and cannot be silenced by an annotation. This floor was lowered from 488 to the measured 366 when the core reached zero, because keeping a deliberate surplus would have allowed 122 new Windows call sites in portable code before complaining."
               }
 }

@@ -32,7 +32,6 @@ using MediaPortal.Common;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ThumbnailGenerator;
-using MediaPortal.Utilities.Graphics;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
 {

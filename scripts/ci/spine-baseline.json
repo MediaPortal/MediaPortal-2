@@ -9,7 +9,7 @@
                                                                     },
                   "MediaPortal\\Source\\Core\\MediaPortal.Utilities":  {
                                                                            "WinForms":  0,
-                                                                           "DrawingWindows":  32,
+                                                                           "DrawingWindows":  0,
                                                                            "DrawingPortable":  0
                                                                        },
                   "MediaPortal\\Source\\Core\\MediaPortal.Backend":  {
@@ -18,8 +18,8 @@
                                                                          "DrawingPortable":  0
                                                                      }
               },
-    "filesAffected":  1,
-    "totalRefs":  32,
+    "filesAffected":  0,
+    "totalRefs":  0,
     "drawingPortableRefs":  1,
     "satelliteAreas":  {
                            "MediaPortal\\Source\\Core\\MediaPortal.Common.Windows":  {
@@ -29,12 +29,12 @@
                                                                                      },
                            "MediaPortal\\Source\\Core\\MediaPortal.Utilities.Windows":  {
                                                                                             "WinForms":  17,
-                                                                                            "DrawingWindows":  23,
+                                                                                            "DrawingWindows":  55,
                                                                                             "DrawingPortable":  0
                                                                                         }
                        },
-    "satelliteFilesAffected":  5,
-    "satelliteTotalRefs":  51,
+    "satelliteFilesAffected":  6,
+    "satelliteTotalRefs":  83,
     "satelliteDrawingPortableRefs":  1,
     "combinedTotalRefs":  83,
     "combinedFilesAffected":  6

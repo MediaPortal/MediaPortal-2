@@ -25,6 +25,8 @@
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj" />
     <ProjectReference Include="..\..\Source\Core\MediaPortal.UI\MediaPortal.UI.csproj" />
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj" />
+    <!-- ImageUtilities lives here since it cannot work outside Windows. -->
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.Utilities.Windows\MediaPortal.Utilities.Windows.csproj" />
     <ProjectReference Include="..\..\Source\UI\UiComponents\SkinBase\SkinBase.csproj" />
   </ItemGroup>
   <ItemGroup>

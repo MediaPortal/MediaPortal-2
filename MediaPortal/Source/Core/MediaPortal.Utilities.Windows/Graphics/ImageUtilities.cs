@@ -34,6 +34,21 @@ namespace MediaPortal.Utilities.Graphics
   /// <summary>
   /// Provides various image utilities, such as high quality resizing and the ability to save a JPEG.
   /// </summary>
+  /// <remarks>
+  /// This class lives in MediaPortal.Utilities.Windows and not in MediaPortal.Utilities because it
+  /// is GDI+: every method touches <c>Image</c>, <c>Bitmap</c> or <c>ImageCodecInfo</c>, and
+  /// <c>System.Drawing.Common</c> throws <c>PlatformNotSupportedException</c> for those types off
+  /// Windows (measured - see scripts/ci/drawing-probe). The namespace intentionally stayed
+  /// <c>MediaPortal.Utilities.Graphics</c> so that callers did not have to change; the type is what
+  /// moved assemblies.
+  /// <para>
+  /// Core code that needs a picture resized should not call this. It should ask for
+  /// <c>MediaPortal.Common.Services.Imaging.IImageTransformer</c>, which the Windows hosts back with
+  /// exactly these methods (see GdiPlusImageTransformer) and which a portable host can back with
+  /// something else. This class remains the right call from Windows-only code: the thumbnail
+  /// providers, the splash screen and skin textures.
+  /// </para>
+  /// </remarks>
   public static class ImageUtilities
   {
     /// <summary>

@@ -107,12 +107,17 @@ cuts both ways, and both halves have been measured here:
   warnings - true positives that had been invisible for years.
 * **Inward, undesirable.** Inside an assembly that declares `windows`, every Windows call is
   by definition legal. Moving `SplashScreen.cs` into `MediaPortal.Utilities.Windows` moved
-  `CA1416` by **-20 while changing no behaviour whatsoever**: the 20 GDI+ call sites still
-  exist, they simply stopped being reported.
+  `CA1416` by **-20 while changing no behaviour whatsoever**, and moving `ImageUtilities.cs` in
+  the same direction later moved it by a further **-102**. None of those call sites disappeared;
+  they simply stopped being reported.
 
-Consequence for the floor: `CA1416` is treated as a *budget of Windows coupling*, not a count of
-diagnostics, so it stayed at 488 while only 468 are visible. The 20-unit slack is stated in
-`notes.CA1416` and is exactly what `spine.ps1`'s satellite section prevents from growing.
+Consequence for the floor: `CA1416` is a *proxy* for Windows coupling and the relocations made it
+a weaker one, so the budget no longer lives in `warning-baseline.json`. Visible `CA1416` and the
+floor were both re-set to 366 when the cloak could no longer be accounted for by hand, and the
+number that now represents the amount of Windows code left to port is `combinedTotalRefs` in
+`spine-baseline.json` - `spine.ps1` counts references in the source of both areas, so it cannot be
+lowered by moving a file into an assembly that declares `windows`. `notes.CA1416` says this too,
+because a reader who only sees 366 will otherwise believe the port is two thirds done.
 
 Typical loop:
 
@@ -144,6 +149,26 @@ imported `System.Drawing` did not change the number, so the gate could not see n
 one file that has the most of it (`ImageUtilities.cs`, 7 mentions but 32 references). Identifiers
 are only attributed to `System.Drawing` inside files that import or qualify it, which keeps an
 unrelated `Image`/`Color`/`Size` member elsewhere in the tree out of the count.
+
+### The core spine is at zero
+
+That is the state the gate now holds, and it is worth stating precisely because of what it does
+*not* mean:
+
+    MediaPortal\Source\Core\MediaPortal.Common      WinForms 0  GDI+  0  Drawing primitives 1
+    MediaPortal\Source\Core\MediaPortal.Utilities   WinForms 0  GDI+  0  Drawing primitives 0
+    MediaPortal\Source\Core\MediaPortal.Backend     WinForms 0  GDI+  0  Drawing primitives 0
+                                                    files affected 0  total refs 0
+    satellites (MediaPortal.Common.Windows, MediaPortal.Utilities.Windows)  WinForms 19  GDI+ 64  refs 83
+
+It means: no source file compiled into `MediaPortal.Common`, `MediaPortal.Utilities` or
+`MediaPortal.Backend` references WinForms or `System.Drawing.Common` any more, so those three
+assemblies can be re-targeted to a portable TFM without first deleting code. It does **not** mean
+the code runs off Windows - 83 references still exist one project over, `MediaPortal.Common` still
+*builds* as `net6.0-windows` because of `UseWindowsForms`, and the Windows API Code Pack, BASS and
+the shell providers are all still Windows. Reaching zero was done by two moves (`SplashScreen.cs`,
+`ImageUtilities.cs` into `MediaPortal.Utilities.Windows`) and one seam (`IImageTransformer`);
+`git mv` is enough for the first kind, the second kind needs a host to install an implementation.
 
 ## Platform services: the core declares the seam, the host fills it
 
@@ -250,6 +275,17 @@ Two more things `-Project` builds reveal, both pre-existing:
   `MediaPortal.Core.*` / `MediaPortal.UI.Presentation.*`, namespaces that do not exist in MP2 (they
   are MP1-era). It cannot compile and is not expected to. It also only defines `Debug|x86`, so a
   bare build needs `-MsBuildProperty Platform=x86` before it will even reach the compiler.
+* `Extensions\MetadataExtractors\ShellThumbnailProvider` is in no solution either, and was
+  unbuildable for two reasons that have nothing to do with each other. Its TFM was `v4.7` while
+  every core project multi-targets `net48`, and MSBuild refuses a project reference from a lower
+  .NET Framework version - that one is fixed here (raised to `v4.8`). Its `packages.config`
+  dependencies (`Windows7APICodePack-Core`/`-Shell` 1.1.0.0) were never restored because no
+  solution ever pulls the project; the `HintPath`s point into `MediaPortal\Packages`, which did not
+  exist. That is a per-machine problem, not a source problem: `Packages` is gitignored, and
+  `dotnet restore` does not understand `packages.config`, so the two `.nupkg`s (both on nuget.org as
+  `windows7apicodepack-core`/`-shell` 1.1.0) have to be unpacked into
+  `MediaPortal\Packages\Windows7APICodePack-{Core,Shell}.1.1.0.0\lib\` by hand. With both done the
+  project builds clean (0 errors, 2 warnings) at `Platform=x86`.
 * Some folders under `Source` contain source files that belong to no project (for example
   `UI\TV\SlimTvService`, superseded by `SlimTvService3`). They are not compiled by anything.
 
