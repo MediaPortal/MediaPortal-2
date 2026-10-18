@@ -21,11 +21,6 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Update="Services\ResourceAccess\ImpersonationService\AsyncImpersonationProcess.cs">
-      <SubType>Component</SubType>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\MediaPortal.Utilities\MediaPortal.Utilities.csproj" />
     <ProjectReference Include="..\UPnP\UPnP.csproj" />
   </ItemGroup>
@@ -41,9 +36,20 @@
     <PackageReference Include="Newtonsoft.Json">
       <Version>13.0.1</Version>
     </PackageReference>
-    <PackageReference Include="System.Management" Version="6.0.0" />
+    <!--
+      Two Windows-oriented packages used to sit here; both are gone now, and every one of them that
+      leaves the core is one fewer thing to re-home when this project stops targeting Windows.
+
+      System.Management had exactly one consumer, CrashLoggerBase's drive enumeration, which now
+      uses System.IO.DriveInfo.
+
+      System.ServiceProcess.ServiceController looked unused - nothing mentions ServiceController -
+      but it was not dead: SystemStateService and PowerEventHandler used PowerBroadcastStatus, whose
+      .NET implementation ships in that package. Both classes now live in
+      MediaPortal.Common.Windows, which references the package itself. A dependency that hides
+      behind an enum name is worth remembering when grepping package names "proves" one unused.
+    -->
     <PackageReference Include="System.Runtime.Caching" Version="6.0.0" />
-    <PackageReference Include="System.ServiceProcess.ServiceController" Version="6.0.0" />
     <PackageReference Include="System.Threading.Tasks.Dataflow" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup>

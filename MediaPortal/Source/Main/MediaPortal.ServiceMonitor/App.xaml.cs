@@ -106,7 +106,9 @@ namespace MediaPortal.ServiceMonitor
       DispatcherUnhandledException += OnUnhandledException;
       AppDomain.CurrentDomain.UnhandledException += LauncherExceptionHandling.CurrentDomain_UnhandledException;
 
-      var systemStateService = new SystemStateService();
+      // Windows host (MP2-ServiceMonitor is a WinForms tray app): the Win32 power backend from
+      // MediaPortal.Common.Windows, same choice as in MP2-Server and MP2-Client.
+      var systemStateService = new WindowsSystemStateService();
       ServiceRegistration.Set<ISystemStateService>(systemStateService);
       systemStateService.SwitchSystemState(SystemState.Initializing, false);
 
@@ -200,7 +202,7 @@ namespace MediaPortal.ServiceMonitor
 
     private void OnExit(object sender, ExitEventArgs e)
     {
-      var systemStateService = (SystemStateService) ServiceRegistration.Get<ISystemStateService>();
+      var systemStateService = (WindowsSystemStateService) ServiceRegistration.Get<ISystemStateService>();
 
       systemStateService.SwitchSystemState(SystemState.ShuttingDown, true);
       ServiceRegistration.IsShuttingDown = true;

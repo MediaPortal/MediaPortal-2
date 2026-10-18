@@ -76,7 +76,7 @@ namespace MediaPortal.DevTools
   public class Client
   {
     private ILogger logger = null;
-    private SystemStateService stateService = null;
+    private PortableSystemStateService stateService = null;
     private IServerConnectionManager connectionManager = null;
 
     public bool Connected { get; set; }
@@ -90,7 +90,11 @@ namespace MediaPortal.DevTools
     {
       try
       {
-        stateService = new SystemStateService();
+        // A headless harness: it drives SystemState transitions so the rest of the core behaves, but
+        // must not power the machine or hold a keep-awake while a developer runs a test loop. The
+        // portable state service gives it the transitions without the Win32 backend, which also keeps
+        // DevTools free of a reference to MediaPortal.Common.Windows.
+        stateService = new PortableSystemStateService();
         ServiceRegistration.Set<ISystemStateService>(stateService);
 
         stateService.SwitchSystemState(SystemState.Initializing, false);

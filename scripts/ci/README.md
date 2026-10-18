@@ -1197,3 +1197,62 @@ because the real fix is a decision, not a patch:
 
 Whichever is chosen, the NU1107 Client conflict above should be fixed in the same step, since
 it is the same package family.
+
+
+## `GenerateAssemblyInfo=false` deletes the platform declaration, and `CA1416` notices
+
+`MP2-Server` reports `CA1416` on `Application.Run(form)`, `MessageBox.Show(...)`, `ServiceBase.Run(...)`
+and on every call into `MediaPortal.Common.Windows` - in a project whose target framework is
+`net10.0-windows` and which sets `UseWindowsForms`. The message is always *"this call site is reachable
+on all platforms"*, which is the message the analyzer uses when the **caller** declares no platform.
+
+It is not a puzzle and it is not debt. The SDK derives `[assembly: SupportedOSPlatform("Windows7.0")]`
+from a `-windows` target framework and emits it **as part of the generated assembly info**; these
+executables set `GenerateAssemblyInfo=false` because they hand-write `VersionInfo.cs`, so the platform
+attribute is never generated. Verified three ways:
+
+- `MediaPortal\Source\Main\MediaPortal.Server\obj\Debug\net10.0-windows\` contains no
+  `*.AssemblyInfo.cs` at all, while `MediaPortal.Common.Windows`'s generated file contains
+  `SupportedOSPlatformAttribute("windows")` (from the explicit `AssemblyAttribute` item) *and*
+  `SupportedOSPlatformAttribute("Windows7.0")` (from the target framework).
+- Adding the attribute by hand to `MediaPortal.Server` alone took that project's `CA1416` count from
+  47 sites to **0** in a one-project probe build.
+- The three satellite `Register()` calls in `ApplicationLauncher.cs` were already in that set, which is
+  why the seam pattern appeared to "cost" `CA1416` findings every time one moved.
+
+Two rules follow. When a `-windows` executable is told it is calling Windows-only APIs everywhere,
+check for the missing assembly attribute before believing the count. And when a satellite member is
+called from a Windows-only host, a new finding there is the pattern's price, not a regression - but say
+which one it is, because a ratchet floor that moves for an unexplained reason stops being evidence.
+
+## Attribute a delta by measuring both sides, not by arithmetic
+
+The step that translated the crash logger and moved the power handling measured **-9** `CA1416`
+(140 -> 131). The inventory of the files it touched said -20. Both numbers are right and neither
+explains the other: 11 findings appeared in `MediaPortal.Server` (the paragraph above). The only way to
+get an attribution that survives review is to build the *old* commit too:
+
+```powershell
+git worktree add ..\mp2-baseline-check HEAD     # a second checkout of the same repo, no new clone
+Set-Location ..\mp2-baseline-check
+New-Item -ItemType Directory -Force build\artifacts | Out-Null   # the gate does not create it
+& scripts\ci\build.ps1 -Solution Server
+# then group 'warning CA1416' lines by file:line and Compare-Object against the new tree's log
+```
+
+`git worktree` shares the object database, so this costs a restore and a build, not a clone. Remove it
+with `git worktree remove ..\mp2-baseline-check --force` (build output makes it dirty on purpose).
+
+Use the same "count on both hosts" trick for `CA1416` parity: the Windows build log is German and the
+container's is English, so comparing message text gives 107 vs 108 and looks like a difference. Compare
+`file:line` sets instead - those came out identical at 107 sites, with 618 gated findings on both hosts.
+
+## Transitive package assemblies land in plugin folders
+
+`UiComponents\News\build.targets` copied `System.ServiceProcess.ServiceController.dll` into
+`Plugins\News` although no code in that plugin uses it, simply because `CopyLocalLockFileAssemblies`
+puts every transitive package assembly into a project's `bin` - and the plugin got it as long as
+`MediaPortal.Common` happened to reference the package. Removing the package from `Common` turned that
+into `MSB3030: could not copy ... file not found`, i.e. a build break in an unrelated plugin. When a
+`build.targets` copy list names a third-party DLL, check which project actually depends on it before
+assuming the plugin does.

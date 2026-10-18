@@ -30,13 +30,32 @@ using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.Common.Services.Runtime
 {
-  public class SystemStateService : ISystemStateService, IDisposable
+  /// <summary>
+  /// Windows implementation of <see cref="ISystemStateService"/>.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// This is the original <c>SystemStateService</c> from <c>MediaPortal.Common</c>, moved here
+  /// unchanged in behaviour. Everything it does beyond sending the in-process
+  /// <see cref="SystemState"/> messages is Win32: <c>ExitWindowsEx</c> and <c>SetSuspendState</c>
+  /// for the machine actions, <c>SetThreadExecutionState</c> for keep-awake, and a hidden message
+  /// window (<see cref="PowerEventHandler"/>) to receive <c>WM_POWERBROADCAST</c>. The portable
+  /// core keeps the messaging half in <c>PortableSystemStateService</c>.
+  /// </para>
+  /// <para>
+  /// Unlike the other Windows companions (<c>GdiPlusImageTransformer</c>,
+  /// <c>DokanResourceMountingService</c>, <c>WindowsImpersonationService</c>) this class has no
+  /// static <c>Register()</c> method: the three Windows hosts hold on to the instance for the whole
+  /// process lifetime to push state transitions and to dispose it, so they construct it directly.
+  /// </para>
+  /// </remarks>
+  public class WindowsSystemStateService : ISystemStateService, IDisposable
   {
     protected SystemState _state = SystemState.Starting;
     protected PowerEventHandler _powerEventHandler;
     protected SuspendLevel _lastContinuousSuspendLevel = SuspendLevel.None;
 
-    public SystemStateService()
+    public WindowsSystemStateService()
     {
       _powerEventHandler = new PowerEventHandler();
       _powerEventHandler.OnPowerEvent += SendSystemStatePowerMessage;

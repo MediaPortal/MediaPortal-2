@@ -4,11 +4,15 @@
     Windows-only companion to MediaPortal.Common.
 
     MediaPortal.Common has to compile without a -windows target for the Linux and Android
-    server, but a few of its types are WinForms by nature (a Form DPI helper, a Control
-    awaiter) and cannot be made portable - they are Win32, not Windows-specific incidental
-    code. Those live here instead, so that Common's assembly does not pull in
-    UseWindowsForms and therefore does not force a -windows target framework on everything
-    that references it.
+    server, but some of its code cannot be made portable - it either is Win32 by nature (a Form
+    DPI helper, a Control awaiter, a WM_POWERBROADCAST message window, the Dokan file system
+    driver, a LogonUser token) or reaches for a Windows-only type such as PowerBroadcastStatus.
+    Those live here instead, so that Common's assembly does not pull in UseWindowsForms and
+    therefore does not force a -windows target framework on everything that references it.
+
+    For each moved subsystem Common keeps the interface plus a degraded implementation that says
+    what is missing, and the hosts call this assembly's Register() (or construct the class, when
+    they need to keep the instance) right after ApplicationCore.RegisterCoreServices().
 
     Rule for this project: it may reference MediaPortal.Common, never the other way round.
     If you are about to add code here, first check whether it is genuinely Win32 or only
@@ -31,6 +35,16 @@
       arithmetic so that switching to IImageTransformer does not change stored image bytes.
     -->
     <ProjectReference Include="..\MediaPortal.Utilities.Windows\MediaPortal.Utilities.Windows.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      Moved here with WindowsSystemStateService and PowerEventHandler, which use the
+      PowerBroadcastStatus enum from this package. It left MediaPortal.Common with them - a
+      portable assembly must not name that type even behind an OperatingSystem.IsWindows() guard,
+      because CA1416 would then be a permanent feature of the core.
+    -->
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>

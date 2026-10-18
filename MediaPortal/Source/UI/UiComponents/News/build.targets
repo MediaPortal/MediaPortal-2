@@ -8,7 +8,14 @@
     <ItemGroup>
       <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
       <PluginFiles Include="$(TargetDir)System.ServiceModel.Syndication.dll" />
-      <PluginFiles Include="$(TargetDir)System.ServiceProcess.ServiceController.dll" />
+      <!--
+        System.ServiceProcess.ServiceController.dll used to be listed here. This plugin never used
+        it: the assembly only appeared in the output folder because MediaPortal.Common referenced the
+        package and CopyLocalLockFileAssemblies copies transitive package assemblies into every
+        consumer's bin. That is also why it was shipped into Plugins\News - a plugin folder carrying
+        a DLL nothing in it loads. Removed together with the package reference in Common; if a plugin
+        ever really needs a package, declare it in that plugin's csproj so the copy has a reason.
+      -->
       <PluginFiles Include="$(ProjectDir)plugin.xml" />
     </ItemGroup>
 

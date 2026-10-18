@@ -25,9 +25,8 @@
 using System;
 using System.IO;
 using System.Net.NetworkInformation;
+using System.Runtime.InteropServices;
 using System.Text;
-using System.Management;
-using Microsoft.Win32;
 
 namespace MediaPortal.Common.Services.Logging
 {
@@ -106,103 +105,173 @@ namespace MediaPortal.Common.Services.Logging
       return systemInfo.ToString();
     }
 
+    /// <summary>
+    /// One line per mounted volume: name, type, file system, total size and free space.
+    /// </summary>
+    /// <remarks>
+    /// This enumerated the WMI class <c>Win32_LogicalDisk</c>, which is the only reason
+    /// <c>MediaPortal.Common</c> referenced <c>System.Management</c>. <see cref="System.IO.DriveInfo"/>
+    /// answers the same four questions on every platform (<see cref="System.IO.DriveInfo.Name"/>,
+    /// <c>DriveType</c>, <c>DriveFormat</c>, <c>TotalSize</c>/<c>TotalFreeSpace</c>), so the package left
+    /// the portable core together with the code that needed it.
+    /// </remarks>
     protected static string DriveInfo()
     {
       StringBuilder driveInfo = new StringBuilder();
-      ManagementClass mc = new ManagementClass("Win32_LogicalDisk");
-      ManagementObjectCollection moc = mc.GetInstances();
 
-      // more info on extra disk parameters here: http://msdn.microsoft.com/library/default.asp?url=/library/en-us/wmisdk/wmi/win32_logicaldisk.asp?frame=true
-
-      foreach (ManagementObject mo in moc)
+      foreach (System.IO.DriveInfo disk in System.IO.DriveInfo.GetDrives())
       {
-        string driveType;
-        switch ((UInt32)mo["DriveType"])
+        string format = "-";
+        string size = "-";
+        string free = "-";
+        try
         {
-          case 1:
-            driveType = "No Root Directory";
-            break;
-          case 2:
-            driveType = "Removable Disk";
-            break;
-          case 3:
-            driveType = "Local Disk";
-            break;
-          case 4:
-            driveType = "Network Drive";
-            break;
-          case 5:
-            driveType = "CD Drive";
-            break;
-          case 6:
-            driveType = "RAM Disk";
-            break;
-          case 0:
-          default:
-            driveType = "Unknown";
-            break;
+          // Unlike WMI, which handed back null properties, reading an unready or vanishing volume
+          // throws here. A crash report that fails to be written because one card reader was pulled
+          // is the worse outcome, so an unreadable volume is reported as such and the loop continues.
+          if (disk.IsReady)
+          {
+            format = disk.DriveFormat;
+            size = GetSizeString(disk.TotalSize);
+            free = GetSizeString(disk.TotalFreeSpace);
+          }
+        }
+        catch (Exception ex)
+        {
+          size = "unavailable (" + ex.GetType().Name + ")";
         }
 
-        string size = GetSizeString(mo["Size"]);
-        string free = GetSizeString(mo["FreeSpace"]);
-
-        driveInfo.AppendLine(String.Format("  Volume: {0} - {1}({2})\tSize: {3} Free: {4}", mo["DeviceID"], driveType, mo["FileSystem"], size, free));
+        driveInfo.AppendLine(String.Format("  Volume: {0} - {1}({2})\tSize: {3} Free: {4}", disk.Name,
+            DescribeDriveType(disk.DriveType), format, size, free));
       }
 
       return driveInfo.ToString();
     }
 
-    protected static string GetSizeString(object size)
+    /// <summary>
+    /// Keeps the wording the WMI enumeration used ("Local Disk" rather than "Fixed"), so crash logs
+    /// can still be compared against the reports MP2 has produced for years.
+    /// </summary>
+    private static string DescribeDriveType(System.IO.DriveType driveType)
     {
-      string stringSize = "-";
-      if (size != null)
+      switch (driveType)
       {
-        UInt64 uBytes = (UInt64)size;
-        double bytes = uBytes;
-
-        string end = "B";
-        if (bytes > 1024)
-        {
-          end = "KB";
-          bytes /= 1024;
-        }
-
-        if (bytes > 1024)
-        {
-          end = "MB";
-          bytes /= 1024;
-        }
-
-        if (bytes > 1024)
-        {
-          end = "GB";
-          bytes /= 1024;
-        }
-
-        stringSize = bytes.ToString("F02") + end;
+        case System.IO.DriveType.Unknown: return "Unknown";
+        case System.IO.DriveType.NoRootDirectory: return "No Root Directory";
+        case System.IO.DriveType.Removable: return "Removable Disk";
+        case System.IO.DriveType.Fixed: return "Local Disk";
+        case System.IO.DriveType.Network: return "Network Drive";
+        case System.IO.DriveType.Ram: return "RAM Disk";
+        case System.IO.DriveType.CDRom: return "CD Drive";
+        default: return driveType.ToString();
       }
-      return stringSize;
     }
 
+    protected static string GetSizeString(long bytes)
+    {
+      double size = bytes;
+      string end = "B";
+      if (size > 1024)
+      {
+        end = "KB";
+        size /= 1024;
+      }
+
+      if (size > 1024)
+      {
+        end = "MB";
+        size /= 1024;
+      }
+
+      if (size > 1024)
+      {
+        end = "GB";
+        size /= 1024;
+      }
+
+      return size.ToString("F02") + end;
+    }
+
+    /// <summary>
+    /// CPU model, clock and logical CPU count for the crash report.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Windows keeps these in <c>HKLM\HARDWARE\DESCRIPTION\System\CentralProcessor</c>
+    /// (<c>ProcessorNameString</c> and <c>~MHz</c>), and the old code read that key once per logical
+    /// CPU and concatenated the results - so an eight-core machine got the same sentence eight times
+    /// with nothing between them. <c>/proc/cpuinfo</c> carries the same two values on Linux and
+    /// Android. There is no portable BCL call for a CPU brand string, so where neither source exists
+    /// (macOS, iOS) the line reports what is known - architecture and core count - rather than
+    /// spawning <c>sysctl</c> from a process that is already dying.
+    /// </para>
+    /// <para>
+    /// This must not throw; every source is read defensively.
+    /// </para>
+    /// </remarks>
     protected static string GetCPUInfos()
     {
-      RegistryKey mainKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey("HARDWARE\\DESCRIPTION\\System\\CentralProcessor");
-      if (mainKey == null)
-        return string.Empty;
-      string[] subKeys = mainKey.GetSubKeyNames();
-      string cpuInfos = string.Empty;
-      foreach (string t in subKeys)
+      string brand = null;
+      string clock = null;
+      try
       {
-        RegistryKey key = mainKey.OpenSubKey(t);
-        if (key == null)
-          continue;
-        string cpuType = (string) key.GetValue("ProcessorNameString", "<unknown>");
-        int cpuSpeed = (int) key.GetValue("~MHz", 0);
-        cpuInfos += cpuType + " running at ~" + cpuSpeed + " MHz.";
-        key.Close();
+        if (OperatingSystem.IsWindows())
+        {
+          using (Microsoft.Win32.RegistryKey mainKey =
+                     Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"HARDWARE\DESCRIPTION\System\CentralProcessor"))
+          {
+            string[] subKeys = mainKey == null ? null : mainKey.GetSubKeyNames();
+            if (subKeys != null && subKeys.Length > 0)
+            {
+              using (Microsoft.Win32.RegistryKey key = mainKey.OpenSubKey(subKeys[0]))
+              {
+                if (key != null)
+                {
+                  brand = key.GetValue("ProcessorNameString") as string;
+                  object mhz = key.GetValue("~MHz");
+                  if (mhz != null)
+                    clock = mhz.ToString();
+                }
+              }
+            }
+          }
+        }
+        else if (OperatingSystem.IsLinux() || OperatingSystem.IsAndroid())
+        {
+          const string cpuInfoPath = "/proc/cpuinfo";
+          if (File.Exists(cpuInfoPath))
+          {
+            foreach (string line in File.ReadLines(cpuInfoPath))
+            {
+              int colon = line.IndexOf(':');
+              if (colon <= 0)
+              {
+                if (brand != null && clock != null)
+                  break; // an empty line separates processors; stop once both values are found
+                continue;
+              }
+              string field = line.Substring(0, colon).Trim();
+              string value = line.Substring(colon + 1).Trim();
+              if (brand == null && field.Equals("model name", StringComparison.OrdinalIgnoreCase))
+                brand = value;
+              else if (clock == null && field.Equals("cpu MHz", StringComparison.OrdinalIgnoreCase))
+                clock = value;
+              if (brand != null && clock != null)
+                break;
+            }
+          }
+        }
       }
-      mainKey.Close();
-      return cpuInfos;
+      catch (Exception ex)
+      {
+        brand = "unreadable (" + ex.GetType().Name + ")";
+      }
+
+      string detail = string.IsNullOrEmpty(brand) ? "unknown CPU" : brand.Trim();
+      if (!string.IsNullOrEmpty(clock))
+        detail += " running at ~" + clock + " MHz";
+      return detail + " (" + RuntimeInformation.ProcessArchitecture + ", " + Environment.ProcessorCount +
+             " logical CPUs)";
     }
 
     protected static void CopyLogFiles(string logPath, string crashLogPath)

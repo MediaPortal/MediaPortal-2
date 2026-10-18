@@ -173,7 +173,10 @@ namespace MediaPortal.Client
       AppDomain.CurrentDomain.UnhandledException += LauncherExceptionHandling.CurrentDomain_UnhandledException;
       TaskScheduler.UnobservedTaskException += LauncherExceptionHandling.TaskScheduler_UnobservedTaskException;
 
-      SystemStateService systemStateService = new SystemStateService();
+      // Windows host: the Win32 power backend from MediaPortal.Common.Windows (see the same choice in
+      // MediaPortal.Server's ApplicationLauncher). Without it ApplicationCore would have installed the
+      // portable state service, which does not touch the machine.
+      WindowsSystemStateService systemStateService = new WindowsSystemStateService();
       ServiceRegistration.Set<ISystemStateService>(systemStateService);
       systemStateService.SwitchSystemState(SystemState.Initializing, false);
 

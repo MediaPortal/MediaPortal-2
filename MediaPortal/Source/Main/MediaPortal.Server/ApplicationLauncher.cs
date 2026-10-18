@@ -54,7 +54,7 @@ namespace MediaPortal.Server
   public class ApplicationLauncher
   {
     protected static WindowsService _windowsService;
-    protected SystemStateService _systemStateService = null;
+    protected WindowsSystemStateService _systemStateService = null;
     protected string _dataDirectory = null;
     protected IpcServer _ipcServer;
 
@@ -94,7 +94,12 @@ namespace MediaPortal.Server
       string logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"Team MediaPortal\MP2-Server\Log");
 #endif
 
-      _systemStateService = new SystemStateService();
+      // The machine's power state (ExitWindowsEx, SetSuspendState, SetThreadExecutionState) and the
+      // WM_POWERBROADCAST window are Win32, so they live in MediaPortal.Common.Windows. This is a
+      // Windows host and it keeps the instance to drive the state transitions below, which is why it
+      // constructs the class instead of going through a Register() like the other satellites.
+      // ApplicationCore.RegisterCoreServices() would otherwise install PortableSystemStateService.
+      _systemStateService = new WindowsSystemStateService();
       ServiceRegistration.Set<ISystemStateService>(_systemStateService);
       _systemStateService.SwitchSystemState(SystemState.Initializing, false);
 

@@ -25,9 +25,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Runtime;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.PluginItemBuilders;
 using MediaPortal.Common.ResourceAccess;
@@ -100,18 +102,33 @@ namespace MediaPortal.Common
       logger.Info("ApplicationCore: Copyright:        {0}", fileVersionInfo.LegalCopyright);
       logger.Info("ApplicationCore: Version:          {0}", fileVersionInfo.FileVersion);
       logger.Info("ApplicationCore: Source:           {0}", fileVersionInfo.ProductVersion);
-      logger.Info("ApplicationCore: Architecture:     {0}", IntPtr.Size > 4 ? "x64" : "x86");
+      logger.Info("ApplicationCore: Architecture:     {0}", RuntimeInformation.ProcessArchitecture);
       // Operating system info
       logger.Info("ApplicationCore: OS version:       {0}", Environment.OSVersion);
-      foreach (string key in new[] { "ProductName", "ReleaseId", "BuildLab", "InstallationType", "EditionID" })
+      if (OperatingSystem.IsWindows())
       {
-        try
+        // These five values are what a user sees in winver.exe and what a support thread quotes.
+        // Environment.OSVersion reports "Microsoft Windows NT 6.2.9200.0" on every Windows 10/11
+        // build regardless of compatibility switches, and RuntimeInformation.OSDescription gives
+        // "Windows 10.0.22631" - neither tells you whether it is Home or Pro, or which feature
+        // update is installed, which is exactly what a crash report needs.
+        foreach (string key in new[] { "ProductName", "ReleaseId", "BuildLab", "InstallationType", "EditionID" })
         {
-          var value = Microsoft.Win32.Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", key, string.Empty).ToString();
-          logger.Info("ApplicationCore: {0,-18}{1}", key + ":", value);
+          try
+          {
+            var value = Microsoft.Win32.Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", key, string.Empty).ToString();
+            logger.Info("ApplicationCore: {0,-18}{1}", key + ":", value);
+          }
+          catch { break; }
         }
-        catch { break; }
       }
+      else
+      {
+        // No registry here. RuntimeInformation.OSDescription is the distribution string on Linux
+        // ("Linux 6.6.87.2-microsoft-standard-WSL2" under WSL2), so the log still identifies the box.
+        logger.Info("ApplicationCore: OS description:   {0}", RuntimeInformation.OSDescription);
+      }
+      logger.Info("ApplicationCore: Runtime:          {0}", RuntimeInformation.FrameworkDescription);
       logger.Info("ApplicationCore: ----------------------------------------------------------");
 
       logger.Debug("ApplicationCore: Registering ILogger service");
@@ -133,6 +150,16 @@ namespace MediaPortal.Common
       // installs WindowsImpersonationService (MediaPortal.Common.Windows) during startup.
       logger.Debug("ApplicationCore: Registering IImpersonationService");
       ServiceRegistration.Set<IImpersonationService>(new CurrentUserImpersonationService());
+
+      // Guarded, unlike every other registration here: the Windows hosts create their state service
+      // before calling this method (they need it early, for the Initializing transition), so
+      // overwriting here would replace the one they hold a reference to. This only fills the gap for
+      // a host that has no Windows power backend.
+      if (ServiceRegistration.Get<ISystemStateService>(false) == null)
+      {
+        logger.Debug("ApplicationCore: Registering ISystemStateService");
+        ServiceRegistration.Set<ISystemStateService>(new Services.Runtime.PortableSystemStateService());
+      }
 
       logger.Debug("ApplicationCore: Registering IRegistry service");
       ServiceRegistration.Set<IRegistry>(new Services.Registry.Registry());

@@ -27,13 +27,13 @@ Verified 2026-10-18 with `build.ps1 -Solution Server,Client -Ratchet`, `tests.ps
 
 | Measurement | Value | How to reproduce |
 | --- | --- | --- |
-| Server solution compiles on Windows | 0 errors, 627 gated findings (was 685) | `build.ps1 -Solution Server -Ratchet` |
+| Server solution compiles on Windows | 0 errors, 618 gated findings (was 685) | `build.ps1 -Solution Server -Ratchet` |
 | Client solution compiles on Windows | 0 errors, ~2430 findings (not gated) | `build.ps1 -Solution Client` |
 | Server solution compiles **on Linux** | 0 errors | `test-server-linux.ps1` |
 | Core assemblies on a portable target framework | **2 of 90** - `MediaPortal.Utilities` and `UPnP` are `net10.0` with `CA1416` as error | `MediaPortal.Utilities.csproj`, `UPnP.csproj` |
 | Portable-core WinForms / GDI+ references | **0** (86 quarantined in 6 satellite files) | `spine.ps1`, `satellites.ps1` |
 | Portable-core P/Invoke declarations | **76** in 10 files (was 95; 18 left with Dokan and impersonation), invisible to `CA1416` | `spine.ps1` (P/Invoke column) |
-| `CA1416` call sites, Windows vs Linux | 140 on both hosts, identical inventories (was 196) - and the whole surface is 627 findings on both | build log, `warnings.ps1` on both logs |
+| `CA1416` call sites, Windows vs Linux | 131 findings (107 distinct source lines) on both hosts, inventories identical (was 196/140) - and the whole surface is 618 findings on both | build log, `warnings.ps1` on both logs |
 | Unit tests, Windows | 4/4 suites, 271 executed, 0 failed (3 canary tests skip: Linux-only) | `tests.ps1` |
 | Unit tests, Linux (canary) | 31 executed, 0 failed (1 skips: Windows-only), incl. live IPC round trips and XDG autostart | `test-canary-linux.ps1` |
 | Built executables are 64-bit | 5/5 apphosts measure `x64`, managed side `MSIL` | `architecture.ps1` |
@@ -210,10 +210,55 @@ class is the existing no-credential path generalised, and every caller keeps its
 refuses rather than pretending, because returning `true` would promise access as another user. `CA1416` went
 **147 -> 140** and the core P/Invoke column **86 -> 76**, combined total unchanged.
 
-What remains in `MediaPortal.Common` from the measured inventory: crash-report WMI queries (13 findings, a
-translation rather than a satellite - a crash report should say what it can on every platform), power/session
-broadcasts (5, a platform-event seam) and one `Registry.GetValue` that logs the Windows product name (a guard
-with `RuntimeInformation` as the portable answer).
+The rest of that inventory went in one step, split by what each piece actually is. **The crash report was
+translated rather than relocated** - a crash log should say what it can on every platform, so moving it to a
+satellite would have been a way of deleting the information. `DriveInfo()` enumerated the WMI class
+`Win32_LogicalDisk`; `System.IO.DriveInfo.GetDrives()` answers the same four questions (name, type, file
+system, size and free space) everywhere, keeps the WMI wording ("Local Disk", "CD Drive") so old and new reports
+still compare, and reads sizes only when `IsReady` - WMI handed back null properties where this throws, and a
+crash report that fails because a card reader was pulled is the worse outcome. `GetCPUInfos()` read
+`HKLM\HARDWARE\DESCRIPTION\System\CentralProcessor` once per logical CPU and concatenated the result, so an
+eight-core machine got the same sentence eight times with nothing between them; it now reads that key once
+behind `OperatingSystem.IsWindows()`, reads `model name`/`cpu MHz` from `/proc/cpuinfo` on Linux and Android,
+and says architecture plus core count where neither exists. `GetSizeString(object)` became
+`GetSizeString(long)` - its `object` parameter existed only to unbox what WMI returned. `MediaPortal.Common`
+no longer references `System.Management`, and nothing in the tree does. `ApplicationCore`'s product-name block
+is guarded the same way, with `RuntimeInformation.OSDescription` for platforms without a registry, and its
+"Architecture: x64/x86" line now prints `RuntimeInformation.ProcessArchitecture` rather than inferring the
+instruction set from pointer size - which on the arm64 devices this port is aiming at would have said "x64"
+about an ARM CPU.
+
+**The power handling moved whole**, because there is nothing portable about it: `SystemStateService` calls
+`ExitWindowsEx`, `SetSuspendState` and `SetThreadExecutionState`, and `PowerEventHandler` is a hidden window
+running a Win32 message loop to catch `WM_POWERBROADCAST`. Both are in the satellite now (the service as
+`WindowsSystemStateService`), and the core registers `PortableSystemStateService` - which does the half that
+is not Win32 in full (the `SystemState` machine and the `SystemMessaging` notifications every consumer reacts
+to), remembers the requested suspend level, and for the machine-level actions logs once that this platform
+build cannot change the machine's power state. That is the honest state, not a placeholder: the replacements
+are per-platform and not interchangeable (logind over DBus, or `systemctl` with the same polkit approval, on
+Linux; nothing at all for an Android app powering the device off), so the follow-up is recorded rather than
+implied. Unlike the other three satellites this one has no `Register()` - the hosts hold the instance to drive
+state transitions and to dispose it, so they construct it directly. `ApplicationCore`'s registration is
+guarded by `Get<ISystemStateService>(false) == null`, the only conditional registration here, because
+`MP2-Server` creates its state service *before* calling `RegisterCoreServices()`.
+
+`CA1416` went **140 -> 131**, which is worth spelling out because the arithmetic is not the story. Measured
+per file in a build of `HEAD` in a throw-away worktree and in a build of the new tree: `CrashLoggerBase` 13,
+`SystemStateService` 4, `PowerEventHandler` 1, `ApplicationCore` 1 went to zero - 19 gone - and 11 appeared in
+`MediaPortal.Server\ApplicationLauncher.cs`, which calls `WindowsSystemStateService` exactly the way it already
+calls the three satellite `Register()` methods. Those 11 are the seam pattern's price, and chasing their cause
+found something bigger: **`MediaPortal.Server` is built with `GenerateAssemblyInfo=false`, which also suppresses
+the `[SupportedOSPlatform]` attribute the SDK derives from a `-windows` target framework.** Verified directly -
+that project has no generated `AssemblyInfo.cs` at all, while `MediaPortal.Common.Windows`' has two of those
+attributes. Adding the attribute by hand took `MP2-Server`'s whole `CA1416` count to zero in a probe build, so
+most of the 47 findings that project reports (`MainForm`, `Program`, `WindowsService`, `ApplicationLauncher`) are
+an artifact of a build property, not Windows coupling. Two follow-ups, in order: declare the platform on the
+Windows-only hosts (which is restoring what the SDK would have emitted, not muting the analyzer), and then stop
+mistaking a `-windows` host's findings for port debt. Two smaller things fell out of the same step: `DevTools`
+now uses the portable state service (a headless harness should not power off a developer's machine), and
+`UiComponents\News\build.targets` stopped copying `System.ServiceProcess.ServiceController.dll` into
+`Plugins\News` - a DLL that folder only ever had because `CopyLocalLockFileAssemblies` copies transitive package
+assemblies into every consumer's output, and no code in that plugin reads it.
 
 **d. Database that is not Windows-shaped.** Decide Firebird's future, verify SQLite as the primary
 store on Linux (native binaries per RID, no `System.Data.SQLite` interop surprises), delete ScimoreDB
