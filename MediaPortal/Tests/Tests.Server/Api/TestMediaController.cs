@@ -219,6 +219,22 @@ namespace Tests.Server.Api
     }
 
     /// <summary>
+    /// Asks the list endpoint for the titles inside one title - or for a whole shelf, when no parent is named.
+    /// </summary>
+    /// <param name="library">The server's library.</param>
+    /// <param name="aspect">Which kind of title is wanted.</param>
+    /// <param name="sort">The order, or null for the endpoint's own.</param>
+    /// <param name="seen">The watched filter, or null for both halves.</param>
+    /// <param name="inside">The title to look inside, or <see cref="Guid.Empty"/> for the whole shelf.</param>
+    private static MediaController.TitlesResult GetTitlesInside(IMediaLibrary library, string aspect, string sort,
+        string seen, Guid inside, out ActionResult<MediaController.TitlesResult> action)
+    {
+      ServiceRegistration.Set<IMediaLibrary>(library);
+      action = new MediaController().GetTitles(aspect, sort, null, 0, 0, null, seen, inside);
+      return Body(action);
+    }
+
+    /// <summary>
     /// Asks the details endpoint for one title, the way <see cref="GetTitles"/> asks the list endpoint.
     /// </summary>
     private static MediaController.ItemResult GetItem(IMediaLibrary library, Guid id,
@@ -1570,6 +1586,422 @@ namespace Tests.Server.Api
       Assert.That(library.SharedReports, Is.EqualTo(new List<string> { "watched=True" }));
       Assert.That(library.PerUserReports, Is.Empty);
       Assert.That(Body(action).Resume, Is.Null, "a report filed under no profile has no position to hand back");
+    }
+
+    #endregion
+
+    #region The titles inside a title
+
+    private static readonly Guid ALBUM_ID = new Guid("aaaaaaaa-0000-4000-8000-000000000a01");
+    private static readonly Guid TRACK_ID = new Guid("aaaaaaaa-0000-4000-8000-000000000a02");
+    private static readonly Guid SERIES_ID = new Guid("aaaaaaaa-0000-4000-8000-000000000a03");
+    private static readonly Guid SEASON_ID = new Guid("aaaaaaaa-0000-4000-8000-000000000a04");
+    private static readonly Guid COLLECTION_ID = new Guid("aaaaaaaa-0000-4000-8000-000000000a05");
+    private static readonly Guid EPISODE_ID = new Guid("aaaaaaaa-0000-4000-8000-000000000a06");
+    private static readonly Guid NOTHING_ID = new Guid("aaaaaaaa-0000-4000-8000-000000000a07");
+
+    /// <summary>
+    /// A library that answers a question about one title with one title and every other question with a list.
+    /// </summary>
+    /// <remarks>
+    /// That is the shape a request for the titles inside a title has: the server first reads the title it was
+    /// pointed at, to find out whether it is an album or a series or nothing worth opening, and only then asks what
+    /// is inside it. A fake that answered both questions the same way could not tell those two reads apart, which is
+    /// the whole thing these tests are about.
+    /// <para>
+    /// Every aspect a shelf of films, a shelf of music or a shelf of episodes is read through is in the metadata,
+    /// which is what a household's server has after its first import; the optional list this makes the parent lookup
+    /// ask for is then the interesting one.
+    /// </para>
+    /// </remarks>
+    private static IMediaLibrary ContainingLibrary(MediaItem parent, IList<MediaItem> contents, int matches,
+        out List<MediaItemQuery> asked, out List<IFilter> countedThrough)
+    {
+      List<MediaItemQuery> questions = new List<MediaItemQuery>();
+      List<IFilter> counts = new List<IFilter>();
+
+      var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+      library.Setup(get => get.GetManagedMediaItemAspectMetadata()).Returns(
+          new Dictionary<Guid, MediaItemAspectMetadata>
+          {
+              { MediaAspect.ASPECT_ID, MediaAspect.Metadata },
+              { MovieAspect.ASPECT_ID, MovieAspect.Metadata },
+              { MovieCollectionAspect.ASPECT_ID, MovieCollectionAspect.Metadata },
+              { EpisodeAspect.ASPECT_ID, EpisodeAspect.Metadata },
+              { SeriesAspect.ASPECT_ID, SeriesAspect.Metadata },
+              { SeasonAspect.ASPECT_ID, SeasonAspect.Metadata },
+              { AudioAspect.ASPECT_ID, AudioAspect.Metadata },
+              { AudioAlbumAspect.ASPECT_ID, AudioAlbumAspect.Metadata }
+          });
+      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, null, false))
+          .Callback<MediaItemQuery, bool, Guid?, bool>(
+              (query, online, profile, virtualItems) => questions.Add(query))
+          .Returns<MediaItemQuery, bool, Guid?, bool>((query, online, profile, virtualItems) =>
+              parent != null && query.Filter is MediaItemIdFilter
+                  ? new List<MediaItem> { parent }
+                  : contents);
+      library.Setup(get => get.CountMediaItems(It.IsAny<IEnumerable<Guid>>(), It.IsAny<IFilter>(), false, false))
+          .Callback<IEnumerable<Guid>, IFilter, bool, bool>(
+              (necessary, filter, online, virtualItems) => counts.Add(filter))
+          .Returns(matches);
+
+      asked = questions;
+      countedThrough = counts;
+      return library.Object;
+    }
+
+    /// <summary>
+    /// A title that holds others: the media aspect, and whichever aspect says what kind of container it is.
+    /// </summary>
+    private static MediaItem CreateParentItem(Guid id, string title, SingleMediaItemAspectMetadata container)
+    {
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>
+      {
+          { MediaAspect.ASPECT_ID, new List<MediaItemAspect> { CreateMediaAspect(title, title, new DateTime(2024, 1, 1)) } },
+          { container.AspectId, new List<MediaItemAspect> { new SingleMediaItemAspect(container) } }
+      };
+      return new TestItem(id, aspects, null, false);
+    }
+
+    /// <summary>One album as the music importer left it: who made it, and how much is on it.</summary>
+    private static MediaItem CreateAlbumItem(Guid id, string title, string artist, int tracks)
+    {
+      SingleMediaItemAspect album = new SingleMediaItemAspect(AudioAlbumAspect.Metadata);
+      album.SetAttribute(AudioAlbumAspect.ATTR_ALBUM, title);
+      if (artist != null)
+        album.SetCollectionAttribute(AudioAlbumAspect.ATTR_ARTISTS, new[] { artist });
+      if (tracks > 0)
+        album.SetAttribute(AudioAlbumAspect.ATTR_NUMTRACKS, tracks);
+
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>
+      {
+          { MediaAspect.ASPECT_ID, new List<MediaItemAspect> { CreateMediaAspect(title, title, new DateTime(1979, 3, 1)) } },
+          { AudioAlbumAspect.ASPECT_ID, new List<MediaItemAspect> { album } }
+      };
+      return new TestItem(id, aspects, null, false);
+    }
+
+    /// <summary>One track: its number, who is credited on it, and how long it plays.</summary>
+    private static MediaItem CreateTrackItem(Guid id, string title, int number, string artist, int seconds,
+        string path = null)
+    {
+      SingleMediaItemAspect audio = new SingleMediaItemAspect(AudioAspect.Metadata);
+      audio.SetAttribute(AudioAspect.ATTR_TRACKNAME, title);
+      if (number > 0)
+        audio.SetAttribute(AudioAspect.ATTR_TRACK, number);
+      if (artist != null)
+        audio.SetCollectionAttribute(AudioAspect.ATTR_ARTISTS, new[] { artist });
+      if (seconds > 0)
+        audio.SetAttribute(AudioAspect.ATTR_DURATION, (long) seconds);
+
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>
+      {
+          { MediaAspect.ASPECT_ID, new List<MediaItemAspect> { CreateMediaAspect(title, title, new DateTime(1979, 3, 1)) } },
+          { AudioAspect.ASPECT_ID, new List<MediaItemAspect> { audio } }
+      };
+      return new TestItem(id, aspects, path == null ? null : CreateLocator(path), false);
+    }
+
+    /// <summary>One episode, numbered the way an importer that knows the season numbers it.</summary>
+    private static MediaItem CreateEpisodeItem(Guid id, string title, int season, int number, string path = null)
+    {
+      SingleMediaItemAspect episode = new SingleMediaItemAspect(EpisodeAspect.Metadata);
+      episode.SetAttribute(EpisodeAspect.ATTR_SERIES_NAME, "Alien Earth");
+      episode.SetAttribute(EpisodeAspect.ATTR_SEASON, season);
+      episode.SetCollectionAttribute(EpisodeAspect.ATTR_EPISODE, new[] { number });
+
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>
+      {
+          { MediaAspect.ASPECT_ID, new List<MediaItemAspect> { CreateMediaAspect(title, title, new DateTime(2025, 8, 5)) } },
+          { EpisodeAspect.ASPECT_ID, new List<MediaItemAspect> { episode } }
+      };
+      return new TestItem(id, aspects, path == null ? null : CreateLocator(path), false);
+    }
+
+    [Test]
+    public void TheTracksOfAnAlbumAreFoundTheWayMP2FindsThem()
+    {
+      List<MediaItemQuery> asked;
+      List<IFilter> counted;
+      IMediaLibrary library = ContainingLibrary(
+          CreateParentItem(ALBUM_ID, "The Dark Side of the Moon", AudioAlbumAspect.Metadata),
+          new List<MediaItem>(), 0, out asked, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      MediaController.TitlesResult result =
+          GetTitlesInside(library, "AudioItem", null, null, ALBUM_ID, out action);
+
+      Assert.That(Status(action), Is.Null, "an album whose tracks are being listed is a normal question");
+      Assert.That(asked, Has.Count.EqualTo(2),
+          "the server first reads the title it was pointed at, because only the title itself can say it is an album");
+      Assert.That(asked[0].Filter, Is.InstanceOf<MediaItemIdFilter>());
+
+      RelationshipFilter link = (RelationshipFilter) asked[1].Filter;
+      Assert.That(link.Role, Is.EqualTo(AudioAspect.ROLE_TRACK));
+      Assert.That(link.LinkedRole, Is.EqualTo(AudioAlbumAspect.ROLE_ALBUM));
+      Assert.That(link.LinkedMediaItemId, Is.EqualTo(ALBUM_ID),
+          "the same pair of roles MP2's own screens use to reach an album's music, so the answer is the same list "
+          + "the old front end showed");
+      Assert.That(result.Inside, Is.EqualTo(ALBUM_ID),
+          "and the answer says which title it was read from, so that twelve tracks cannot be mistaken for a library "
+          + "of twelve");
+    }
+
+    [Test]
+    public void TheEpisodesOfASeriesAndOfASeasonAreBothFound()
+    {
+      List<MediaItemQuery> asked;
+      List<IFilter> counted;
+      IMediaLibrary series = ContainingLibrary(
+          CreateParentItem(SERIES_ID, "Alien Earth", SeriesAspect.Metadata),
+          new List<MediaItem>(), 0, out asked, out counted);
+      IMediaLibrary season = ContainingLibrary(
+          CreateParentItem(SEASON_ID, "Alien Earth S01", SeasonAspect.Metadata),
+          new List<MediaItem>(), 0, out List<MediaItemQuery> seasonAsked, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      GetTitlesInside(series, "EpisodeItem", null, null, SERIES_ID, out action);
+      GetTitlesInside(season, "EpisodeItem", null, null, SEASON_ID, out action);
+
+      RelationshipFilter ofSeries = (RelationshipFilter) asked[1].Filter;
+      Assert.That(ofSeries.Role, Is.EqualTo(EpisodeAspect.ROLE_EPISODE));
+      Assert.That(ofSeries.LinkedRole, Is.EqualTo(SeriesAspect.ROLE_SERIES));
+
+      RelationshipFilter ofSeason = (RelationshipFilter) seasonAsked[1].Filter;
+      Assert.That(ofSeason.LinkedRole, Is.EqualTo(SeasonAspect.ROLE_SEASON),
+          "an importer that filed the episodes under their season is not a library the front end cannot browse");
+    }
+
+    [Test]
+    public void TheFilmsOfACollectionAreFoundThroughTheCollectionRole()
+    {
+      List<MediaItemQuery> asked;
+      List<IFilter> counted;
+      IMediaLibrary library = ContainingLibrary(
+          CreateParentItem(COLLECTION_ID, "Alien Collection", MovieCollectionAspect.Metadata),
+          new List<MediaItem>(), 0, out asked, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      GetTitlesInside(library, "MovieItem", null, null, COLLECTION_ID, out action);
+
+      RelationshipFilter link = (RelationshipFilter) asked[1].Filter;
+      Assert.That(link.Role, Is.EqualTo(MovieAspect.ROLE_MOVIE));
+      Assert.That(link.LinkedRole, Is.EqualTo(MovieCollectionAspect.ROLE_MOVIE_COLLECTION));
+    }
+
+    [Test]
+    public void ATitleTheServerDoesNotHaveIsAnsweredAsMissing()
+    {
+      List<MediaItemQuery> asked;
+      List<IFilter> counted;
+      IMediaLibrary library = ContainingLibrary(null, new List<MediaItem>(), 0, out asked, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      MediaController.TitlesResult result =
+          GetTitlesInside(library, "AudioItem", null, null, NOTHING_ID, out action);
+
+      Assert.That(Status(action), Is.EqualTo(StatusCodes.Status404NotFound),
+          "an id that leads nowhere is not a shelf with nothing on it, and a 200 with an empty list is how a broken "
+          + "link is forgiven until it is noticed");
+      Assert.That(result.Error, Does.Contain(NOTHING_ID.ToString("D")));
+      Assert.That(asked, Has.Count.EqualTo(1), "and the server does not go on to ask after the contents");
+    }
+
+    [Test]
+    public void ATitleThatCannotHoldThisKindOfTitleIsRefusedRatherThanAnsweredWithAnEmptyList()
+    {
+      List<MediaItemQuery> asked;
+      List<IFilter> counted;
+      IMediaLibrary library = ContainingLibrary(
+          CreateParentItem(ALBUM_ID, "The Dark Side of the Moon", AudioAlbumAspect.Metadata),
+          new List<MediaItem>(), 0, out asked, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      MediaController.TitlesResult result =
+          GetTitlesInside(library, "MovieItem", null, null, ALBUM_ID, out action);
+
+      Assert.That(Status(action), Is.EqualTo(StatusCodes.Status400BadRequest));
+      Assert.That(result.Error, Does.Contain("MovieItem"),
+          "the message names the kind that was asked for, because the mistake is in whoever asked");
+      Assert.That(asked, Has.Count.EqualTo(1),
+          "an empty list would read as \"this album holds no films\", which is a statement about somebody's music");
+    }
+
+    [Test]
+    public void AQuestionAboutOneAlbumAndAboutUnwatchedTitlesAsksBothAtOnce()
+    {
+      List<MediaItemQuery> asked;
+      List<IFilter> counted;
+      IMediaLibrary library = ContainingLibrary(
+          CreateParentItem(ALBUM_ID, "The Dark Side of the Moon", AudioAlbumAspect.Metadata),
+          new List<MediaItem>(), 0, out asked, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      GetTitlesInside(library, "AudioItem", null, "unwatched", ALBUM_ID, out action);
+
+      BooleanCombinationFilter both = (BooleanCombinationFilter) asked[1].Filter;
+      Assert.That(both.Operator, Is.EqualTo(BooleanOperator.And));
+      Assert.That(both.Operands.OfType<RelationshipFilter>().Count(), Is.EqualTo(1));
+
+      // The watched half is itself a combination - "counted zero times, or never written at all" - so the question
+      // about one album and about unwatched titles is three conditions deep. Nesting is what the library speaks in,
+      // and flattening it here would be inventing a filter MP2 cannot ask.
+      BooleanCombinationFilter unwatched = both.Operands.OfType<BooleanCombinationFilter>().Single();
+      Assert.That(unwatched.Operator, Is.EqualTo(BooleanOperator.Or));
+      Assert.That(unwatched.Operands.OfType<RelationalFilter>().Single().AttributeType,
+          Is.SameAs(MediaAspect.ATTR_PLAYCOUNT));
+      Assert.That(counted[0], Is.SameAs(asked[1].Filter),
+          "so the \"3 of 9 tracks\" a screen says is counting the tracks of that album, not the whole library");
+    }
+
+    [Test]
+    public void AWholeShelfIsNotAskedAboutAnyParent()
+    {
+      List<MediaItemQuery> asked;
+      List<IFilter> counted;
+      IMediaLibrary library = ContainingLibrary(null, new List<MediaItem>(), 0, out asked, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      MediaController.TitlesResult result =
+          GetTitlesInside(library, "AlbumItem", null, null, Guid.Empty, out action);
+
+      Assert.That(asked, Has.Count.EqualTo(1), "no parent means no read of a parent");
+      Assert.That(result.Inside, Is.Null, "and the answer says so, which is how a screen knows it is on the shelf");
+    }
+
+    [Test]
+    public void AnAlbumRowNamesWhoMadeItAndHowMuchIsOnIt()
+    {
+      List<MediaItemQuery> asked;
+      List<IFilter> counted;
+      IMediaLibrary library = ContainingLibrary(null,
+          new List<MediaItem> { CreateAlbumItem(ALBUM_ID, "The Dark Side of the Moon", "Pink Floyd", 10) },
+          1, out asked, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      MediaController.TitlesResult result =
+          GetTitlesInside(library, "AlbumItem", null, null, Guid.Empty, out action);
+
+      MediaController.TitleResult album = result.Titles[0];
+      Assert.That(album.Artist, Is.EqualTo("Pink Floyd"));
+      Assert.That(album.TrackCount, Is.EqualTo(10));
+      Assert.That(album.Path, Is.Null, "an album is not a file, and a row that offered one would be lying");
+    }
+
+    [Test]
+    public void AnAlbumNobodyTaggedSaysNothingRatherThanNothingKnown()
+    {
+      List<MediaItemQuery> asked;
+      List<IFilter> counted;
+      IMediaLibrary library = ContainingLibrary(null,
+          new List<MediaItem> { CreateAlbumItem(ALBUM_ID, "Untitled", null, 0) }, 1, out asked, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      MediaController.TitlesResult result =
+          GetTitlesInside(library, "AlbumItem", null, null, Guid.Empty, out action);
+
+      Assert.That(result.Titles[0].Artist, Is.Null);
+      Assert.That(result.Titles[0].TrackCount, Is.Null,
+          "a zero here would be a claim that nothing is on the album, made by reading an empty column");
+    }
+
+    [Test]
+    public void ATrackRowCarriesItsNumberItsCreditedArtistAndItsLength()
+    {
+      List<MediaItemQuery> asked;
+      List<IFilter> counted;
+      IMediaLibrary library = ContainingLibrary(
+          CreateParentItem(ALBUM_ID, "The Dark Side of the Moon", AudioAlbumAspect.Metadata),
+          new List<MediaItem> { CreateTrackItem(TRACK_ID, "Time", 4, "Pink Floyd", 204, RESOURCE_PATH) },
+          1, out asked, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      MediaController.TitlesResult result =
+          GetTitlesInside(library, "AudioItem", null, null, ALBUM_ID, out action);
+
+      MediaController.TitleResult track = result.Titles[0];
+      Assert.That(track.Track, Is.EqualTo(4), "the number a listener calls a song by");
+      Assert.That(track.Artist, Is.EqualTo("Pink Floyd"));
+      Assert.That(track.RuntimeMinutes, Is.EqualTo(3), "three minutes and twenty-four seconds is three minutes");
+      Assert.That(track.Path, Is.EqualTo(RESOURCE_PATH));
+    }
+
+    [Test]
+    public void AnEpisodeRowCarriesItsSeasonAndItsNumber()
+    {
+      List<MediaItemQuery> asked;
+      List<IFilter> counted;
+      IMediaLibrary library = ContainingLibrary(
+          CreateParentItem(SERIES_ID, "Alien Earth", SeriesAspect.Metadata),
+          new List<MediaItem>
+          {
+              CreateEpisodeItem(EPISODE_ID, "Nimmerland", 1, 1, RESOURCE_PATH),
+              CreateEpisodeItem(TRACK_ID, "Specials", 0, 3, RESOURCE_PATH)
+          },
+          2, out asked, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      MediaController.TitlesResult result =
+          GetTitlesInside(library, "EpisodeItem", null, null, SERIES_ID, out action);
+
+      Assert.That(result.Titles[0].Season, Is.EqualTo(1));
+      Assert.That(result.Titles[0].Episode, Is.EqualTo(1));
+      Assert.That(result.Titles[1].Season, Is.Null,
+          "a zero in that column is either a special or nothing written, and a row that announced specials about an "
+          + "untagged file would be describing somebody's television series out of an empty column");
+      Assert.That(result.Titles[1].Episode, Is.EqualTo(3));
+    }
+
+    [Test]
+    public void TracksAreOrderedByNumberAndEpisodesBySeasonAndThenByNumber()
+    {
+      List<MediaItemQuery> asked;
+      List<IFilter> counted;
+      IMediaLibrary library = ContainingLibrary(
+          CreateParentItem(ALBUM_ID, "The Dark Side of the Moon", AudioAlbumAspect.Metadata),
+          new List<MediaItem>(), 0, out asked, out counted);
+      IMediaLibrary series = ContainingLibrary(
+          CreateParentItem(SERIES_ID, "Alien Earth", SeriesAspect.Metadata),
+          new List<MediaItem>(), 0, out List<MediaItemQuery> seasonAsked, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      MediaController.TitlesResult tracks = GetTitlesInside(library, "AudioItem", "track", null, ALBUM_ID, out action);
+      MediaController.TitlesResult episodes =
+          GetTitlesInside(series, "EpisodeItem", "episode", null, SERIES_ID, out action);
+
+      Assert.That(asked[1].SortInformation, Has.Count.EqualTo(1));
+      Assert.That(((AttributeSortInformation) asked[1].SortInformation[0]).AttributeType,
+          Is.SameAs(AudioAspect.ATTR_TRACK),
+          "an album whose third track is listed under B is not the thing a listener sat down for");
+      Assert.That(tracks.Sort, Is.EqualTo("track"));
+
+      Assert.That(seasonAsked[1].SortInformation, Has.Count.EqualTo(2),
+          "one column would interleave a season two after a season one");
+      Assert.That(((AttributeSortInformation) seasonAsked[1].SortInformation[0]).AttributeType,
+          Is.SameAs(EpisodeAspect.ATTR_SEASON));
+      Assert.That(((AttributeSortInformation) seasonAsked[1].SortInformation[1]).AttributeType,
+          Is.SameAs(EpisodeAspect.ATTR_EPISODE));
+      Assert.That(episodes.Sort, Is.EqualTo("episode"));
+    }
+
+    [Test]
+    public void AWholeShelfIsStillSortedByName()
+    {
+      List<MediaItemQuery> asked;
+      List<IFilter> counted;
+      IMediaLibrary library = ContainingLibrary(null, new List<MediaItem>(), 0, out asked, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      GetTitlesInside(library, "AudioItem", "track", null, Guid.Empty, out action);
+
+      Assert.That(((AttributeSortInformation) asked[0].SortInformation[0]).AttributeType,
+          Is.SameAs(AudioAspect.ATTR_TRACK),
+          "a shelf of every track in the library by number is a strange order, but it is the one that was asked "
+          + "for, and the answer says so");
+
+      GetTitlesInside(library, "AudioItem", null, null, Guid.Empty, out action);
+      Assert.That(((AttributeSortInformation) asked[1].SortInformation[0]).AttributeType,
+          Is.SameAs(MediaAspect.ATTR_SORT_TITLE), "and nothing was asked, so the name order stands");
     }
 
     #endregion

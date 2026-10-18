@@ -522,7 +522,7 @@ namespace MediaPortal.Frontend.ViewModels
         try
         {
           MediaTitles titles = await _client.GetTitlesAsync(section.Aspect.Name, "lastplayed", true,
-              UNFINISHED_ROWS, 0, null, "started", cancellation);
+              UNFINISHED_ROWS, 0, null, "started", null, cancellation);
           if (titles.Titles != null)
             found.AddRange(titles.Titles);
         }

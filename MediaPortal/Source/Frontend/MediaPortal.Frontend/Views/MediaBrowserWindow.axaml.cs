@@ -31,6 +31,7 @@ namespace MediaPortal.Frontend.Views
   public partial class MediaBrowserWindow : Window
   {
     private readonly Func<Window>? _nowPlayingScreen;
+    private readonly Func<TitleViewModel, Window>? _insideScreen;
 
     public MediaBrowserWindow()
         : this(new MediaBrowserViewModel(), null)
@@ -43,10 +44,17 @@ namespace MediaPortal.Frontend.Views
     /// player, so the screen it shows is built there - a title opened from here and a title opened from the home
     /// screen are the same film at the same position, not two players.
     /// </param>
-    public MediaBrowserWindow(MediaBrowserViewModel browser, Func<Window>? nowPlayingScreen = null)
+    /// <param name="insideScreen">
+    /// How to reach the list of titles inside one title - the tracks of the album that was pressed - or
+    /// <c>null</c> on a server that has nothing of that kind. Pressing an album has to lead somewhere, and the
+    /// window it leads to belongs to the application for the same reason the playback screen does.
+    /// </param>
+    public MediaBrowserWindow(MediaBrowserViewModel browser, Func<Window>? nowPlayingScreen = null,
+        Func<TitleViewModel, Window>? insideScreen = null)
     {
       DataContext = browser;
       _nowPlayingScreen = nowPlayingScreen;
+      _insideScreen = insideScreen;
       InitializeComponent();
 
       playButton.IsVisible = browser.Selected != null;
@@ -62,13 +70,17 @@ namespace MediaPortal.Frontend.Views
         {
           viewModel.OpenCommand.Execute(null);
           viewModel.PlayRequested += OnPlayRequested;
+          viewModel.ChildrenRequested += OnChildrenRequested;
         }
       };
 
       Closed += delegate
       {
         if (DataContext is MediaBrowserViewModel viewModel)
+        {
           viewModel.PlayRequested -= OnPlayRequested;
+          viewModel.ChildrenRequested -= OnChildrenRequested;
+        }
       };
 
       // OK on the remote is Enter here, and Avalonia hands it to the focused control before anyone else; the
@@ -157,6 +169,26 @@ namespace MediaPortal.Frontend.Views
         return;
 
       Window screen = _nowPlayingScreen();
+      if (!screen.IsVisible)
+        screen.Show();
+      screen.Activate();
+    }
+
+    /// <summary>
+    /// A row that holds other titles was pressed: the titles inside it are opened in their own window over this
+    /// one, and this one stays where it was.
+    /// </summary>
+    /// <remarks>
+    /// The album list is left open underneath rather than closed, because "back" on a remote has to arrive back on
+    /// the shelf the viewer came from, and a shelf that was closed has to be read from the server again to be
+    /// seen. It is the same reason the playback screen is shown over a list instead of instead-of it.
+    /// </remarks>
+    private void OnChildrenRequested(object? sender, TitleViewModel parent)
+    {
+      if (_insideScreen == null)
+        return;
+
+      Window screen = _insideScreen(parent);
       if (!screen.IsVisible)
         screen.Show();
       screen.Activate();

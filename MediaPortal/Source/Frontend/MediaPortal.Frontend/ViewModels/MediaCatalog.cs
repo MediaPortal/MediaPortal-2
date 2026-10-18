@@ -117,5 +117,115 @@ namespace MediaPortal.Frontend.ViewModels
           return label;
       return aspectName;
     }
+
+  }
+
+  /// <summary>
+  /// What the aspects of a MediaPortal library contain, in the two ways a screen has to know it: what a tile is
+  /// called, and what pressing one of its titles means.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// The names here are the server's own spellings - the aspect names <c>GET api/library/aspects</c> reports - and
+  /// not labels invented here, because the front end asks the server by those names and a table keyed by anything
+  /// else would have to translate twice and get it wrong once.
+  /// </para>
+  /// <para>
+  /// Pressing a row means two different things and always did in MP2: a film is pressed to watch it, an album is
+  /// pressed to see what is on it. Nothing in the answer for one title says which kind it is - an album has no
+  /// path, and neither has a film whose disc is out of the drive - but the aspect a list was read through says it
+  /// exactly, and that is the same fact MP2's own directories are built on.
+  /// </para>
+  /// </remarks>
+  public static class MediaCatalog
+  {
+    /// <summary>
+    /// The aspects whose titles are not things to watch but collections of them, what is filed inside each one, and
+    /// the order those titles are watched or listened to in.
+    /// </summary>
+    /// <remarks>
+    /// A series leads straight to its episodes rather than to its seasons, which is what MP2 offers too: the
+    /// episodes of a whole series sorted by season and number are one list a viewer walks with the arrow keys, and a
+    /// screen they have to press through twice per series is a screen in the way of the thing they came to do. A
+    /// season is still accepted as a parent by the server, because which of the two an importer files episodes
+    /// under depends on where the metadata came from.
+    /// </remarks>
+    private static readonly (string Aspect, string ChildAspect, string ChildSort)[] CONTAINERS =
+    {
+        ("AlbumItem", "AudioItem", "track"),
+        ("SeriesItem", "EpisodeItem", "episode"),
+        ("SeasonItem", "EpisodeItem", "episode"),
+        ("MovieCollectionItem", "MovieItem", "title")
+    };
+
+    /// <summary>
+    /// Whether pressing a title of this aspect opens something rather than playing it.
+    /// </summary>
+    public static bool HoldsTitles(string? aspectName)
+    {
+      return FindContainer(aspectName) != null;
+    }
+
+    /// <summary>
+    /// The aspect of the titles filed inside this one, or the aspect itself when nothing is filed inside it.
+    /// </summary>
+    public static string ChildAspectFor(string? aspectName)
+    {
+      (string Aspect, string ChildAspect, string ChildSort)? container = FindContainer(aspectName);
+      return container?.ChildAspect ?? aspectName ?? "";
+    }
+
+    /// <summary>
+    /// How the titles inside this aspect are ordered: tracks by their number, episodes by season and number, films
+    /// of a collection by name. <c>title</c> for anything else, which is what a whole shelf is ordered by.
+    /// </summary>
+    public static string ChildSortFor(string? aspectName)
+    {
+      (string Aspect, string ChildAspect, string ChildSort)? container = FindContainer(aspectName);
+      return container?.ChildSort ?? "title";
+    }
+
+    private static (string Aspect, string ChildAspect, string ChildSort)? FindContainer(string? aspectName)
+    {
+      if (string.IsNullOrEmpty(aspectName))
+        return null;
+
+      foreach ((string name, string child, string sort) in CONTAINERS)
+        if (string.Equals(name, aspectName, StringComparison.OrdinalIgnoreCase))
+          return (name, child, sort);
+
+      return null;
+    }
+
+    /// <summary>
+    /// What the rows of a list read through this aspect are called, in the words a status line uses: "12 of 40
+    /// films", "9 of 9 tracks".
+    /// </summary>
+    /// <remarks>
+    /// Not the tile's label, because a tile is a place somebody presses and this is a count of things: the tile
+    /// called <i>Music</i> holds tracks, and "12 of 12 music" is not English. Falling back to the label means a
+    /// server with an aspect this list has never met still gets a word, and it is the word its own tile uses.
+    /// </remarks>
+    public static string RowNounFor(string? aspectName)
+    {
+      foreach ((string name, string noun) in ROW_NOUNS)
+        if (string.Equals(name, aspectName, StringComparison.OrdinalIgnoreCase))
+          return noun;
+
+      return HomeSection.LabelFor(aspectName ?? "").ToLowerInvariant();
+    }
+
+    private static readonly (string Aspect, string Noun)[] ROW_NOUNS =
+    {
+        ("MovieItem", "films"),
+        ("SeriesItem", "series"),
+        ("SeasonItem", "seasons"),
+        ("EpisodeItem", "episodes"),
+        ("VideoItem", "videos"),
+        ("AudioItem", "tracks"),
+        ("AlbumItem", "albums"),
+        ("MovieCollectionItem", "films"),
+        ("ImageItem", "pictures")
+    };
   }
 }

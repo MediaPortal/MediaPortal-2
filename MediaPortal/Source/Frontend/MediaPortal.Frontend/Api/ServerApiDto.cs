@@ -133,7 +133,12 @@ namespace MediaPortal.Frontend.Api
       [property: JsonPropertyName("stub")] bool Stub,
       [property: JsonPropertyName("playCount")] int? PlayCount = null,
       [property: JsonPropertyName("lastPlayed")] DateTime? LastPlayed = null,
-      [property: JsonPropertyName("resume")] int? Resume = null);
+      [property: JsonPropertyName("resume")] int? Resume = null,
+      [property: JsonPropertyName("season")] int? Season = null,
+      [property: JsonPropertyName("episode")] int? Episode = null,
+      [property: JsonPropertyName("track")] int? Track = null,
+      [property: JsonPropertyName("artist")] string? Artist = null,
+      [property: JsonPropertyName("trackCount")] int? TrackCount = null);
 
   /// <summary>
   /// The answer of <c>GET api/media/titles</c>: one page of titles plus what is left behind it.
@@ -154,7 +159,8 @@ namespace MediaPortal.Frontend.Api
       [property: JsonPropertyName("titles")] IReadOnlyList<MediaTitle>? Titles,
       [property: JsonPropertyName("error")] string? Error,
       [property: JsonPropertyName("search")] string? Search = null,
-      [property: JsonPropertyName("seen")] string? Seen = null)
+      [property: JsonPropertyName("seen")] string? Seen = null,
+      [property: JsonPropertyName("inside")] Guid? Inside = null)
   {
     /// <summary>
     /// Titles the server has for this aspect beyond the page that arrived.

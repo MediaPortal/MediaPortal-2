@@ -923,7 +923,7 @@ namespace Tests.Frontend
 
       MediaTitles titles = Task.Run(delegate
       {
-        return client.GetTitlesAsync("MediaItem", null, false, 60, 0, null, null, CancellationToken.None);
+        return client.GetTitlesAsync("MediaItem", null, false, 60, 0, null, null, null, CancellationToken.None);
       })
           .GetAwaiter().GetResult();
 
@@ -1087,7 +1087,7 @@ namespace Tests.Frontend
       {
         MediaTitles answer = Task.Run(delegate
         {
-          return client.GetTitlesAsync("MovieItem", null, false, 60, 0, "alien", null, CancellationToken.None);
+          return client.GetTitlesAsync("MovieItem", null, false, 60, 0, "alien", null, null, CancellationToken.None);
         }).GetAwaiter().GetResult();
 
         Assert.That(server.Question, Is.EqualTo("alien"));
@@ -1105,7 +1105,7 @@ namespace Tests.Frontend
       {
         Task.Run(delegate
         {
-          return client.GetTitlesAsync("MovieItem", null, false, 60, 0, "R&D 2 + 2", null, CancellationToken.None);
+          return client.GetTitlesAsync("MovieItem", null, false, 60, 0, "R&D 2 + 2", null, null, CancellationToken.None);
         }).GetAwaiter().GetResult();
 
         Assert.That(server.LastUrl, Does.Contain("search=R%26D%202%20%2B%202"),
@@ -1370,7 +1370,7 @@ namespace Tests.Frontend
       {
         MediaTitles answer = Task.Run(delegate
         {
-          return client.GetTitlesAsync("MovieItem", null, false, 60, 0, null, "watched", CancellationToken.None);
+          return client.GetTitlesAsync("MovieItem", null, false, 60, 0, null, "watched", null, CancellationToken.None);
         }).GetAwaiter().GetResult();
 
         Assert.That(server.Filter, Is.EqualTo("watched"), "the word travels as the server's own two words");
@@ -1414,7 +1414,7 @@ namespace Tests.Frontend
       {
         MediaTitles answer = Task.Run(delegate
         {
-          return client.GetTitlesAsync("MovieItem", null, false, 60, 0, null, null, CancellationToken.None);
+          return client.GetTitlesAsync("MovieItem", null, false, 60, 0, null, null, null, CancellationToken.None);
         }).GetAwaiter().GetResult();
 
         MediaTitle stopped = answer.Titles.Single(title => title.Title == "Army of Thieves");
@@ -1838,6 +1838,388 @@ namespace Tests.Frontend
       Assert.That(home.Unfinished[0].ResumePercent, Is.EqualTo(61));
       Assert.That(home.Unfinished[0].ResumeText, Is.EqualTo("61% watched"));
       Assert.That(home.UnfinishedStatus, Does.Contain("2 titles left half way"));
+    }
+
+    #endregion
+    #region The titles inside a title
+
+    /// <summary>
+    /// A tile for a shelf named by its aspect, so that one helper speaks for albums, series and films alike.
+    /// </summary>
+    private static HomeSection ShelfCalled(string aspectName)
+    {
+      return new HomeSection(HomeSection.LabelFor(aspectName),
+          new AspectViewModel(new FrontendAspect(Guid.Empty, aspectName, false, false, null,
+              Array.Empty<AspectAttribute>())));
+    }
+
+    /// <summary>One row as a server that knows what is inside what answers it.</summary>
+    private static MediaTitle ARow(string name, string? path = null, int? year = null, int? minutes = null,
+        int? track = null, string? artist = null, int? season = null, int? episode = null,
+        int? trackCount = null)
+    {
+      return new MediaTitle(new Guid(7, 0, 1, new byte[] { 128, 0, 0, 0, 0, 0, 0, (byte) name.Length }), name, null,
+          year, minutes, path, false, Season: season, Episode: episode, Track: track, Artist: artist,
+          TrackCount: trackCount);
+    }
+
+    internal static readonly Guid ALBUM_ID = new Guid("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+
+    private static string RowJson(string id, string title, string extra)
+    {
+      return "{\"id\":\"" + id + "\",\"title\":\"" + title + "\"" + extra + "}";
+    }
+
+    /// <summary>
+    /// A server that hands out the titles of whichever shelf it is asked about and remembers the question. The rows
+    /// differ per aspect on purpose: a test can then tell a track list from a film list by what came back, not by
+    /// repeating what the code under test was supposed to do.
+    /// </summary>
+    private class CatalogueServer : HttpMessageHandler
+    {
+      internal string? Aspect { get; private set; }
+
+      internal string? Inside { get; private set; }
+
+      internal string? Sort { get; private set; }
+
+      internal string? LastUrl { get; private set; }
+
+      /// <summary>Hands out empty shelves, for the difference between "nothing here" and "nothing matched".</summary>
+      internal bool Empty { get; set; }
+
+      protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+          CancellationToken cancellation)
+      {
+        LastUrl = request.RequestUri.PathAndQuery;
+        Aspect = Asked(request.RequestUri.Query, "aspect");
+        Inside = Asked(request.RequestUri.Query, "inside");
+        Sort = Asked(request.RequestUri.Query, "sort");
+
+        string playable = ",\"path\":\"" + (RESOURCE_SYSTEM_ID.ToString("B") + "://" + LOCAL_PATH)
+            .Replace("\\", "\\\\") + "\"";
+        List<string> rows = new List<string>();
+        if (!Empty)
+        {
+          if (Aspect == "AlbumItem")
+          {
+            rows.Add(RowJson(ALBUM_ID.ToString("D"), "Kind of Blue", ",\"year\":1959,\"trackCount\":5"));
+          }
+          else if (Aspect == "AudioItem")
+          {
+            rows.Add(RowJson(new Guid(1, 0, 4, new byte[] { 128, 0, 0, 0, 0, 0, 0, 1 }).ToString("D"),
+                "Blue in Green", ",\"track\":4,\"artist\":\"Miles Davis\"" + playable));
+            rows.Add(RowJson(new Guid(1, 0, 4, new byte[] { 128, 0, 0, 0, 0, 0, 0, 2 }).ToString("D"),
+                "Flamenco Sketches", ",\"track\":5,\"artist\":\"Miles Davis\"" + playable));
+          }
+          else if (Aspect == "EpisodeItem")
+          {
+            rows.Add(RowJson(new Guid(1, 0, 4, new byte[] { 128, 0, 0, 0, 0, 0, 0, 3 }).ToString("D"),
+                "Low Tide", ",\"season\":1,\"episode\":2" + playable));
+          }
+          else
+          {
+            rows.Add(RowJson(new Guid(1, 0, 4, new byte[] { 128, 0, 0, 0, 0, 0, 0, 4 }).ToString("D"),
+                "Alien", ",\"year\":1979,\"runtimeMinutes\":117" + playable));
+          }
+        }
+
+        StringBuilder body = new StringBuilder();
+        body.Append("{\"total\":").Append(rows.Count)
+            .Append(",\"offset\":0,\"limit\":60,\"returned\":").Append(rows.Count)
+            .Append(",\"sort\":\"").Append(Sort ?? "title").Append('"');
+        if (Inside != null)
+          body.Append(",\"inside\":\"").Append(Inside).Append('"');
+        body.Append(",\"titles\":[");
+        for (int i = 0; i < rows.Count; i++)
+        {
+          if (i > 0)
+            body.Append(',');
+          body.Append(rows[i]);
+        }
+        body.Append("]}");
+
+        return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+        {
+          RequestMessage = request,
+          Content = new StringContent(body.ToString(), Encoding.UTF8, "application/json")
+        });
+      }
+
+      /// <summary>The value of one query parameter, or <c>null</c> when the request did not carry it.</summary>
+      private static string? Asked(string query, string name)
+      {
+        if (string.IsNullOrEmpty(query))
+          return null;
+
+        foreach (string pair in query.TrimStart('?').Split('&'))
+        {
+          int equals = pair.IndexOf('=');
+          if (equals > 0 && pair.Substring(0, equals) == name)
+            return Uri.UnescapeDataString(pair.Substring(equals + 1));
+        }
+        return null;
+      }
+    }
+
+    [Test]
+    public void ATitleThatHoldsTitlesIsCountedRatherThanTimed()
+    {
+      TitleViewModel album = new TitleViewModel(ARow("Kind of Blue", trackCount: 5),
+          MediaCatalog.HoldsTitles("AlbumItem"));
+
+      Assert.That(album.Detail, Is.EqualTo("5 tracks"),
+          "an album is opened, not played, so how long it is has no meaning; how many things are on it does");
+      Assert.That(album.Detail, Does.Not.Contain("not playable"),
+          "refusing to play a row the viewer was never meant to play is not an answer, it is a bug");
+    }
+
+    [Test]
+    public void AContainerNobodyCountedSaysNothingRatherThanTheWrongThing()
+    {
+      TitleViewModel album = new TitleViewModel(ARow("Kind of Blue"), MediaCatalog.HoldsTitles("AlbumItem"));
+
+      Assert.That(album.Detail, Is.Empty,
+          "a server that never stored how many tracks an album has leaves the row blank; guessing zero would be "
+          + "saying something the library does not know");
+    }
+
+    [Test]
+    public void ARowThatHoldsNothingAndHasNoFileSaysItCannotBeWatched()
+    {
+      TitleViewModel film = new TitleViewModel(ARow("Alien"));
+
+      Assert.That(film.Detail, Is.EqualTo("not playable here"));
+    }
+
+    [Test]
+    public void ATrackRowCarriesItsNumberAndWhoIsCredited()
+    {
+      TitleViewModel track = new TitleViewModel(ARow("Blue in Green", track: 4, artist: "Miles Davis"));
+
+      Assert.That(track.Position, Is.EqualTo("4."));
+      Assert.That(track.Line, Is.EqualTo("4. Blue in Green"),
+          "a listener looks for the fourth track by its number, and two tracks called 'Untitled' are only "
+          + "distinguishable by that number");
+      Assert.That(track.Artist, Is.EqualTo("Miles Davis"),
+          "on its own line, because the name is what is scanned and the artist is what is checked afterwards");
+    }
+
+    [Test]
+    public void AnEpisodeRowSaysWhichOneItIs()
+    {
+      TitleViewModel episode = new TitleViewModel(ARow("Low Tide", season: 1, episode: 2));
+
+      Assert.That(episode.Position, Is.EqualTo("S01E02"));
+      Assert.That(episode.Line, Is.EqualTo("S01E02 Low Tide"),
+          "in the same shape as every other episode row, which is what makes a row scanable without reading it");
+    }
+
+    [Test]
+    public void AFilmRowCarriesNoPosition()
+    {
+      TitleViewModel film = new TitleViewModel(ARow("Alien", year: 1979));
+
+      Assert.That(film.Position, Is.Empty);
+      Assert.That(film.Line, Is.EqualTo("Alien (1979)"));
+    }
+
+    [Test]
+    public void OnlyAlbumsSeriesSeasonsAndCollectionsAreOpened()
+    {
+      Assert.That(MediaCatalog.HoldsTitles("AlbumItem"), Is.True);
+      Assert.That(MediaCatalog.HoldsTitles("SeriesItem"), Is.True);
+      Assert.That(MediaCatalog.HoldsTitles("SeasonItem"), Is.True);
+      Assert.That(MediaCatalog.HoldsTitles("MovieCollectionItem"), Is.True);
+
+      Assert.That(MediaCatalog.HoldsTitles("MovieItem"), Is.False,
+          "a film is watched, and a screen that opened something when a viewer pressed OK on the film they came for "
+          + "would make the film unwatchable");
+      Assert.That(MediaCatalog.HoldsTitles("EpisodeItem"), Is.False);
+      Assert.That(MediaCatalog.HoldsTitles("AudioItem"), Is.False);
+      Assert.That(MediaCatalog.HoldsTitles("VideoItem"), Is.False);
+      Assert.That(MediaCatalog.HoldsTitles("ImageItem"), Is.False);
+      Assert.That(MediaCatalog.HoldsTitles("WhateverItemANewServerInvented"), Is.False,
+          "an aspect this front end has never met is played, which is what every aspect MP2 ever had is or holds");
+      Assert.That(MediaCatalog.HoldsTitles(null), Is.False);
+    }
+
+    [Test]
+    public void EveryKindOfContainerSaysWhatIsFiledInsideItAndInWhatOrder()
+    {
+      Assert.That(MediaCatalog.ChildAspectFor("AlbumItem"), Is.EqualTo("AudioItem"));
+      Assert.That(MediaCatalog.ChildSortFor("AlbumItem"), Is.EqualTo("track"),
+          "an album is listened to in the order its tracks were pressed, not in alphabetical order");
+      Assert.That(MediaCatalog.ChildAspectFor("SeriesItem"), Is.EqualTo("EpisodeItem"),
+          "a series leads to its episodes directly; MP2 offers the same, and pressing through a season screen per "
+          + "series is a screen in the way of the thing the viewer came to do");
+      Assert.That(MediaCatalog.ChildSortFor("SeriesItem"), Is.EqualTo("episode"));
+      Assert.That(MediaCatalog.ChildSortFor("SeasonItem"), Is.EqualTo("episode"));
+      Assert.That(MediaCatalog.ChildAspectFor("MovieCollectionItem"), Is.EqualTo("MovieItem"));
+      Assert.That(MediaCatalog.ChildSortFor("MovieCollectionItem"), Is.EqualTo("title"));
+
+      Assert.That(MediaCatalog.ChildAspectFor("MovieItem"), Is.EqualTo("MovieItem"),
+          "nothing is filed inside a film, so asking what is inside one gives the same kind back");
+      Assert.That(MediaCatalog.ChildSortFor("MovieItem"), Is.EqualTo("title"));
+      Assert.That(MediaCatalog.ChildAspectFor(null), Is.Empty);
+    }
+
+    [Test]
+    public void TheRowsOfAListAreNamedForTheStatusLine()
+    {
+      Assert.That(MediaCatalog.RowNounFor("AudioItem"), Is.EqualTo("tracks"));
+      Assert.That(MediaCatalog.RowNounFor("EpisodeItem"), Is.EqualTo("episodes"));
+      Assert.That(MediaCatalog.RowNounFor("MovieItem"), Is.EqualTo("films"));
+      Assert.That(MediaCatalog.RowNounFor("AlbumItem"), Is.EqualTo("albums"));
+      Assert.That(MediaCatalog.RowNounFor("ImageItem"), Is.EqualTo("pictures"));
+      Assert.That(MediaCatalog.RowNounFor("WhateverItemANewServerInvented"), Is.EqualTo("whateveritemanewserverinvented"),
+          "an unknown aspect still gets a word, and it is the word the server's own tile uses");
+    }
+
+    [AvaloniaTest]
+    public void PressingAnAlbumAsksForWhatIsOnItInsteadOfPlayingIt()
+    {
+      CatalogueServer server = new CatalogueServer();
+      MediaBrowserViewModel albums = new MediaBrowserViewModel(
+          new ServerApiClient(SIGN_IN_URL, new HttpClient(server)), ShelfCalled("AlbumItem"));
+
+      TitleViewModel? opened = null;
+      bool played = false;
+      albums.ChildrenRequested += delegate(object? sender, TitleViewModel row) { opened = row; };
+      albums.PlayRequested += delegate { played = true; };
+
+      albums.OpenCommand.Execute(null);
+      WaitUntil("the albums to arrive", delegate { return albums.Titles.Count == 1; });
+
+      Assert.That(albums.DrillsIn, Is.True, "a shelf of albums is a shelf of things to open");
+      Assert.That(albums.Titles[0].Detail, Is.EqualTo("5 tracks"));
+
+      albums.Play(albums.Titles[0]);
+
+      Assert.That(opened, Is.SameAs(albums.Titles[0]), "the viewer pressed OK on an album, so: what is on it?");
+      Assert.That(played, Is.False, "and nothing was played, because an album has no file to play");
+      Assert.That(albums.Selected, Is.SameAs(albums.Titles[0]),
+          "the row stays highlighted, because that is the row the next screen is about");
+      Assert.That(albums.Status, Does.Not.Contain("cannot be watched"),
+          "the album was not refused; it was understood");
+    }
+
+    [AvaloniaTest]
+    public void TheTracksOfAnAlbumAreAskedForAsTheTracksOfThatAlbum()
+    {
+      CatalogueServer server = new CatalogueServer();
+      using (var client = new ServerApiClient(SIGN_IN_URL, new HttpClient(server)))
+      {
+        MediaBrowserViewModel albums = new MediaBrowserViewModel(client, ShelfCalled("AlbumItem"));
+        albums.OpenCommand.Execute(null);
+        WaitUntil("the album to arrive", delegate { return albums.Titles.Count == 1; });
+
+        MediaBrowserViewModel tracks =
+            new MediaBrowserViewModel(client, ShelfCalled("AlbumItem"), albums.Titles[0]);
+        tracks.OpenCommand.Execute(null);
+        WaitUntil("the tracks to arrive", delegate { return tracks.Titles.Count == 2; });
+
+        Assert.That(server.Aspect, Is.EqualTo("AudioItem"),
+            "the tracks were asked for, not another page of albums");
+        Assert.That(server.Inside, Is.EqualTo(ALBUM_ID.ToString("D")), "of the album that was pressed, and of no other");
+        Assert.That(server.Sort, Is.EqualTo("track"));
+        Assert.That(tracks.Inside, Is.EqualTo(ALBUM_ID));
+        Assert.That(tracks.SortOrder, Is.EqualTo("track"));
+
+        Assert.That(tracks.Heading, Is.EqualTo("Kind of Blue"),
+            "headed by the album, because that is where the viewer is");
+        Assert.That(tracks.Titles[0].Line, Is.EqualTo("4. Blue in Green"));
+        Assert.That(tracks.Status, Is.EqualTo("2 of 2 tracks, sorted by track"),
+            "the rows are counted as what they are: tracks, not two of Kind of Blue");
+        Assert.That(tracks.DrillsIn, Is.False, "a track is listened to; a screen that opened another list from it "
+            + "would never let anyone hear anything");
+      }
+    }
+
+    [AvaloniaTest]
+    public void ATrackIsPlayedRatherThanOpened()
+    {
+      CatalogueServer server = new CatalogueServer();
+      using (var client = new ServerApiClient(SIGN_IN_URL, new HttpClient(server)))
+      {
+        MediaBrowserViewModel albums = new MediaBrowserViewModel(client, ShelfCalled("AlbumItem"));
+        albums.OpenCommand.Execute(null);
+        WaitUntil("the album to arrive", delegate { return albums.Titles.Count == 1; });
+
+        MediaBrowserViewModel tracks = new MediaBrowserViewModel(client, ShelfCalled("AlbumItem"), albums.Titles[0]);
+        TitleViewModel? opened = null;
+        TitleViewModel? played = null;
+        tracks.ChildrenRequested += delegate(object? sender, TitleViewModel row) { opened = row; };
+        tracks.PlayRequested += delegate(object? sender, TitleViewModel row) { played = row; };
+        tracks.OpenCommand.Execute(null);
+        WaitUntil("the tracks to arrive", delegate { return tracks.Titles.Count == 2; });
+
+        tracks.Play(tracks.Titles[0]);
+
+        Assert.That(played, Is.SameAs(tracks.Titles[0]), "the drill-down ends at the leaf, or it goes nowhere");
+        Assert.That(opened, Is.Null);
+      }
+    }
+
+    [AvaloniaTest]
+    public void AFilmIsStillPlayedRatherThanOpened()
+    {
+      CatalogueServer server = new CatalogueServer();
+      MediaBrowserViewModel films = new MediaBrowserViewModel(
+          new ServerApiClient(SIGN_IN_URL, new HttpClient(server)), MoviesSection);
+
+      TitleViewModel? opened = null;
+      TitleViewModel? played = null;
+      films.ChildrenRequested += delegate(object? sender, TitleViewModel row) { opened = row; };
+      films.PlayRequested += delegate(object? sender, TitleViewModel row) { played = row; };
+
+      films.OpenCommand.Execute(null);
+      WaitUntil("the films to arrive", delegate { return films.Titles.Count == 1; });
+      films.Play(films.Titles[0]);
+
+      Assert.That(played, Is.SameAs(films.Titles[0]));
+      Assert.That(opened, Is.Null, "nothing about a film was opened, so the viewer who came to watch can watch");
+      Assert.That(films.Status, Is.EqualTo("1 of 1 movies, sorted by title"),
+          "a whole shelf is counted with the word on the tile it came from; only a list read out of one title is "
+          + "counted with the word for what it holds");
+    }
+
+    [AvaloniaTest]
+    public void TheEpisodesOfASeriesAreAskedForInOrderOfSeasonAndEpisode()
+    {
+      CatalogueServer server = new CatalogueServer();
+      using (var client = new ServerApiClient(SIGN_IN_URL, new HttpClient(server)))
+      {
+        MediaBrowserViewModel series = new MediaBrowserViewModel(client, ShelfCalled("SeriesItem"));
+        series.OpenCommand.Execute(null);
+        WaitUntil("the series to arrive", delegate { return series.Titles.Count == 1; });
+
+        MediaBrowserViewModel episodes =
+            new MediaBrowserViewModel(client, ShelfCalled("SeriesItem"), series.Titles[0]);
+        episodes.OpenCommand.Execute(null);
+        WaitUntil("the episodes to arrive", delegate { return episodes.Titles.Count == 1; });
+
+        Assert.That(server.LastUrl, Does.Contain("aspect=EpisodeItem"));
+        Assert.That(episodes.Titles[0].Line, Is.EqualTo("S01E02 Low Tide"));
+        Assert.That(episodes.Status, Is.EqualTo("1 of 1 episodes, sorted by episode"));
+      }
+    }
+
+    [AvaloniaTest]
+    public void AnEmptyAlbumSaysTheServerHasNoTracks()
+    {
+      CatalogueServer server = new CatalogueServer();
+      server.Empty = true;
+      using (var client = new ServerApiClient(SIGN_IN_URL, new HttpClient(server)))
+      {
+        MediaBrowserViewModel tracks = new MediaBrowserViewModel(client, ShelfCalled("AlbumItem"),
+            new TitleViewModel(ARow("Kind of Blue", trackCount: 0), true));
+        tracks.OpenCommand.Execute(null);
+        WaitUntil("the empty answer", delegate { return tracks.Status.StartsWith("This server"); });
+
+        Assert.That(tracks.Status, Is.EqualTo("This server has no tracks"),
+          "the album was empty, and saying 'no tracks' is the truth a viewer can act on; 'no Kind of Blue' is not");
+      }
     }
 
     #endregion

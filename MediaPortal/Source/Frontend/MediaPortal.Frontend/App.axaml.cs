@@ -432,11 +432,40 @@ namespace MediaPortal.Frontend
     /// </summary>
     private Avalonia.Controls.Window BuildBrowserScreen(HomeSection section)
     {
-      MediaBrowserViewModel browser = new MediaBrowserViewModel(_home.Client, section);
+      return BuildTitlesScreen(new MediaBrowserViewModel(_home.Client, section), section);
+    }
+
+    /// <summary>
+    /// A list of titles, with the two ways out of it wired up: the player for a title that is one, and another list
+    /// for a title that holds others.
+    /// </summary>
+    /// <param name="browser">The list to show.</param>
+    /// <param name="section">
+    /// The tile it belongs to, which is what lets a title inside it be asked about: the tracks of an album are read
+    /// through the album's section, because that is where the child aspect comes from.
+    /// </param>
+    /// <remarks>
+    /// The list of what-is-inside is built by the same method, so a series opened from its tile and a collection
+    /// opened out of a collection are the same screen with the same keys and the same way back, and neither had to
+    /// be thought of separately.
+    /// </remarks>
+    private Avalonia.Controls.Window BuildTitlesScreen(MediaBrowserViewModel browser, HomeSection? section)
+    {
       browser.PlayRequested += OnTitleChosen;
       _lastBrowser = browser;
+
+      Func<TitleViewModel, Avalonia.Controls.Window>? inside = section == null
+          ? null
+          : delegate (TitleViewModel parent)
+          {
+            // Said on the console as well as shown, because a press that opens nothing looks exactly like a press
+            // that was never received when there is no window manager to show a window in.
+            Console.WriteLine("inside:   " + parent.Name + " - the titles inside it, from " + section.Label);
+            return BuildTitlesScreen(new MediaBrowserViewModel(_home.Client, section, parent), section);
+          };
+
       return new MediaBrowserWindow(browser,
-          _nowPlaying == null ? null : new Func<Avalonia.Controls.Window>(NowPlayingScreen));
+          _nowPlaying == null ? null : new Func<Avalonia.Controls.Window>(NowPlayingScreen), inside);
     }
 
     /// <summary>

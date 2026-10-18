@@ -39,11 +39,20 @@ namespace MediaPortal.Frontend.ViewModels
   public sealed class TitleViewModel : INotifyPropertyChanged
   {
     private readonly string? _unplayableReason;
+
+    /// <summary>
+    /// Whether this row is one of the titles that hold others, so that it is counted and opened rather than timed
+    /// and played. Decided by whoever made the row - the list knows what aspect it read - because nothing the
+    /// server says about a single title can tell an album from a film whose file went missing.
+    /// </summary>
+    private readonly bool _holdsTitles;
+
     private MediaTitle _title;
 
-    public TitleViewModel(MediaTitle title)
+    public TitleViewModel(MediaTitle title, bool holdsTitles = false)
     {
       _title = title;
+      _holdsTitles = holdsTitles;
       if (!MediaLibraryPath.TryAsLocalFile(title.Path, out string localPath, out string? reason))
         _unplayableReason = reason;
       else
@@ -192,19 +201,72 @@ namespace MediaPortal.Frontend.ViewModels
       get { return Title.Resume.HasValue ? Title.Resume.Value + "% watched" : ""; }
     }
 
-    /// <summary>What the left column of the row says: the name, then the year it is known by.</summary>
+    /// <summary>What the left column of the row says: where it sits in what holds it, then the name, then the year.</summary>
+    /// <remarks>
+    /// <para>
+    /// A track is numbered and an episode is addressed, because those are the names people give them - "track 4",
+    /// "S02E05" - and a list of a series' episodes in which nothing says which is which leaves the viewer reading
+    /// the whole list to find out what they stopped watching. Both numbers come from the server rather than from
+    /// parsing the name, because importers put the number in the file name, in the metadata, in both, or in
+    /// neither, and the column the server read is the one the library is sorted by.
+    /// </para>
+    /// <para>
+    /// A year still follows the name, and for a track or an episode it usually will not be there at all: the importer
+    /// that files a song does not usually know when it was recorded.
+    /// </para>
+    /// </remarks>
     public string Line
     {
-      get { return Title.Year.HasValue ? Name + " (" + Title.Year.Value + ")" : Name; }
+      get
+      {
+        string where = Position;
+        string what = Title.Year.HasValue ? Name + " (" + Title.Year.Value + ")" : Name;
+        return string.IsNullOrEmpty(where) ? what : where + " " + what;
+      }
     }
 
     /// <summary>
-    /// The right column: how long it is, and what is wrong with it if something is.
+    /// The number or address this title has inside the one that holds it: <c>4.</c> for the fourth track,
+    /// <c>S02E05</c> for an episode. Empty for the titles that are not inside anything, which is most of what a
+    /// television shows.
     /// </summary>
+    public string Position
+    {
+      get
+      {
+        if (Title.Track.HasValue)
+          return Title.Track.Value.ToString(CultureInfo.InvariantCulture) + ".";
+
+        if (!Title.Season.HasValue && !Title.Episode.HasValue)
+          return "";
+
+        string season = Title.Season.HasValue
+            ? "S" + Title.Season.Value.ToString("00", CultureInfo.InvariantCulture)
+            : "";
+        string episode = Title.Episode.HasValue
+            ? "E" + Title.Episode.Value.ToString("00", CultureInfo.InvariantCulture)
+            : "";
+        return season + episode;
+      }
+    }
+
+    /// <summary>
+    /// The right column: how long it is, how many things are on it, and what is wrong with it if something is.
+    /// </summary>
+    /// <remarks>
+    /// A title that holds others is counted rather than timed. Saying "not playable here" about an album would be
+    /// true of the file and wrong about the row: the row is not a thing to play, it is a thing to open, and a
+    /// viewer who is told it cannot be watched from here stops looking for the music that is on it.
+    /// </remarks>
     public string Detail
     {
       get
       {
+        if (_holdsTitles)
+          return Title.TrackCount.HasValue
+              ? Title.TrackCount.Value + " tracks"
+              : "";
+
         if (!Playable)
           return "not playable here";
         string length = Title.RuntimeMinutes.HasValue
@@ -214,6 +276,15 @@ namespace MediaPortal.Frontend.ViewModels
           return string.IsNullOrEmpty(length) ? "stub" : length + " · stub";
         return length;
       }
+    }
+
+    /// <summary>
+    /// Who made this, for the music that says so, and nothing for the media that does not. A second line rather
+    /// than a longer name, because the name is what a viewer scans for and the artist is what they check after.
+    /// </summary>
+    public string Artist
+    {
+      get { return Title.Artist ?? ""; }
     }
   }
 
@@ -301,23 +372,68 @@ namespace MediaPortal.Frontend.ViewModels
     private string _activeSeen = "";
 
     public MediaBrowserViewModel()
-        : this(null, null)
+        : this(null, null, null)
     {
     }
 
     public MediaBrowserViewModel(ServerApiClient? client, HomeSection? section)
+        : this(client, section, null)
+    {
+    }
+
+    /// <summary>
+    /// The titles behind a home tile, or - when <paramref name="parent"/> is named - the titles inside one title.
+    /// </summary>
+    /// <param name="client">The server to ask.</param>
+    /// <param name="section">The tile this list came from.</param>
+    /// <param name="parent">
+    /// The album or series that was pressed, whose tracks or episodes are what this list is. Null for a whole
+    /// shelf, which is what opening a tile gives.
+    /// </param>
+    /// <remarks>
+    /// A list opened from a parent asks for a different aspect than the tile it came from - the tracks of an album
+    /// are audio items, not album items - and asks for them in the order they are listened to rather than
+    /// alphabetically, because an album whose third track is listed under "B" is not the thing the viewer sat down
+    /// for. Both come from <see cref="MediaCatalog"/> rather than from a guess about the parent's name.
+    /// </remarks>
+    public MediaBrowserViewModel(ServerApiClient? client, HomeSection? section, TitleViewModel? parent)
     {
       _client = client;
       Section = section;
-      AspectName = section?.Aspect.Name ?? "";
-      Heading = section?.Label ?? "Titles";
+      Parent = parent;
+      AspectName = parent == null
+          ? section?.Aspect.Name ?? ""
+          : MediaCatalog.ChildAspectFor(section?.Aspect.Name);
+      Inside = parent == null ? null : parent.Title.Id;
+      SortOrder = parent == null ? "title" : MediaCatalog.ChildSortFor(section?.Aspect.Name);
+      DrillsIn = MediaCatalog.HoldsTitles(AspectName);
+      Heading = parent == null ? section?.Label ?? "Titles" : parent.Name;
       _status = client == null ? "No server configured"
           : section == null ? "No section chosen"
-          : "Reading " + section.Label;
+          : "Reading " + Heading;
     }
 
     /// <summary>The tile this list came from, or <c>null</c> in the designer.</summary>
     public HomeSection? Section { get; }
+
+    /// <summary>
+    /// The album or series whose titles this list is, or <c>null</c> when it is a whole shelf. What the screen says
+    /// at the top when a viewer wonders how they got here.
+    /// </summary>
+    public TitleViewModel? Parent { get; }
+
+    /// <summary>The id the server is told to look inside of, or <c>null</c> for the whole shelf.</summary>
+    public Guid? Inside { get; }
+
+    /// <summary>
+    /// Whether pressing a row of this list opens what it holds rather than playing it, which is decided by the
+    /// aspect rather than by whether the row has a file: an album never has one, and neither has a film whose
+    /// disc is out of the drive, and only one of those two is a row worth opening.
+    /// </summary>
+    public bool DrillsIn { get; }
+
+    /// <summary>What this list is ordered by, in the server's own word.</summary>
+    public string SortOrder { get; }
 
     /// <summary>The aspect the server is asked for, in its own spelling.</summary>
     public string AspectName { get; }
@@ -332,6 +448,18 @@ namespace MediaPortal.Frontend.ViewModels
     /// owns the player, so it decides what that means; this class only says which file it handed over.
     /// </summary>
     public event EventHandler<TitleViewModel>? PlayRequested;
+
+    /// <summary>
+    /// Raised when a viewer pressed a row that holds other titles - an album, a series - instead of playing
+    /// anything. The application owns the windows, so it decides what "go inside" means; this class only says
+    /// which row was pressed and that pressing it could not have meant play.
+    /// </summary>
+    /// <remarks>
+    /// A separate event rather than the same one with a flag, because the two things a viewer can mean by pressing
+    /// OK lead to two different windows, and a handler that has to ask a question of the argument to know which it
+    /// was given is a handler that gets it wrong on the day the server reports a series with a path on it.
+    /// </remarks>
+    public event EventHandler<TitleViewModel>? ChildrenRequested;
 
     /// <summary>
     /// Reads the first page. Called when the screen appears, so that opening a tile and pressing Refresh on the
@@ -504,8 +632,8 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
-    /// The viewer pressed OK on a row: either the application is told to play it, or the row's own reason why not
-    /// is put on the status line. Both are said in the same place, so "nothing happened" is never the answer.
+    /// The viewer pressed OK on a row: play it, open what it holds, or say on the status line why neither is
+    /// possible. All three are said in the same place, so "nothing happened" is never the answer.
     /// </summary>
     [RelayCommand]
     public void Play()
@@ -518,6 +646,15 @@ namespace MediaPortal.Frontend.ViewModels
       if (title == null)
       {
         Status = "Nothing selected";
+        return;
+      }
+
+      // Asked before the file is looked at, because on a list of albums the question "where is its file?" was
+      // never the question. An album is opened; the tracks inside it are what gets played.
+      if (DrillsIn)
+      {
+        Selected = title;
+        ChildrenRequested?.Invoke(this, title);
         return;
       }
 
@@ -735,15 +872,15 @@ namespace MediaPortal.Frontend.ViewModels
       IsBusy = true;
       try
       {
-        MediaTitles answer = await _client.GetTitlesAsync(AspectName, "title", false, PAGE_SIZE, offset,
+        MediaTitles answer = await _client.GetTitlesAsync(AspectName, SortOrder, false, PAGE_SIZE, offset,
             string.IsNullOrEmpty(ActiveSearch) ? null : ActiveSearch,
-            string.IsNullOrEmpty(ActiveSeen) ? null : ActiveSeen, cancellation.Token);
+            string.IsNullOrEmpty(ActiveSeen) ? null : ActiveSeen, Inside, cancellation.Token);
 
         if (offset == 0)
           Titles.Clear();
 
         foreach (MediaTitle title in answer.Titles ?? Array.Empty<MediaTitle>())
-          Titles.Add(new TitleViewModel(title));
+          Titles.Add(new TitleViewModel(title, DrillsIn));
 
         Selected = Selected ?? (Titles.Count > 0 ? Titles[0] : null);
         CanLoadMore = answer.Remaining > 0;
@@ -755,23 +892,28 @@ namespace MediaPortal.Frontend.ViewModels
             : ActiveSeen == "watched" ? "watched "
             : "";
 
+        // What the rows are called. A shelf is named by the tile it came from, because that is the word the viewer
+        // pressed; a list opened out of one title is named by what it holds, because "12 of 12 the dark side of the
+        // moon" is not a sentence and the moon does not have twelve of itself.
+        string about = Parent == null ? Heading.ToLowerInvariant() : MediaCatalog.RowNounFor(AspectName);
+
         if (answer.Total == 0)
         {
           // Two different nothings. "no films" and "no films called 'alien'" need different next moves from a
           // viewer, and only the second one has a search box to clear.
           Status = string.IsNullOrEmpty(ActiveSearch)
-              ? "This server has no " + seeing + Heading.ToLowerInvariant()
+              ? "This server has no " + seeing + about
               : "Nothing in " + Heading.ToLowerInvariant() + " matches '" + ActiveSearch + "'";
         }
         else if (string.IsNullOrEmpty(ActiveSearch))
         {
           Status = string.Format("{0} of {1} {2}{3}, sorted by {4}", Titles.Count, answer.Total, seeing,
-              Heading.ToLowerInvariant(), answer.Sort ?? "the server's order");
+              about, answer.Sort ?? "the server's order");
         }
         else if (Titles.Count < answer.Total)
         {
           Status = string.Format("{0} of {1} {2}{3} match '{4}', sorted by {5}", Titles.Count, answer.Total,
-              seeing, Heading.ToLowerInvariant(), ActiveSearch, answer.Sort ?? "the server's order");
+              seeing, about, ActiveSearch, answer.Sort ?? "the server's order");
         }
         else
         {

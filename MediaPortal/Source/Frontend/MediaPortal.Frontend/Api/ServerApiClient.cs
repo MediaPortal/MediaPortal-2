@@ -334,8 +334,13 @@ namespace MediaPortal.Frontend.Api
     /// <c>unwatched</c> or <c>watched</c>, or null for both. Lower-cased on the way out because the server's own
     /// answer quotes those two words and a log line should read like the answer.
     /// </param>
+    /// <param name="inside">
+    /// The id of a title that holds others - an album, a series, a season - to list the titles inside it, or null
+    /// for the whole shelf. The server answers a parent that cannot hold this kind of title with a refusal, so a
+    /// screen that got here by pressing an album is asking a question the server agrees is worth answering.
+    /// </param>
     public async Task<MediaTitles> GetTitlesAsync(string aspect, string? sort = null, bool descending = false,
-        int limit = 0, int offset = 0, string? search = null, string? seen = null,
+        int limit = 0, int offset = 0, string? search = null, string? seen = null, Guid? inside = null,
         CancellationToken cancellation = default)
     {
       if (string.IsNullOrWhiteSpace(aspect))
@@ -361,6 +366,12 @@ namespace MediaPortal.Frontend.Api
       if (!string.IsNullOrWhiteSpace(seen))
       {
         url += "&seen=" + Uri.EscapeDataString(seen.Trim().ToLowerInvariant());
+      }
+      if (inside.HasValue && inside.Value != Guid.Empty)
+      {
+        // The id in its hyphenated form, which is the one the server printed in the list this id was picked from
+        // and needs no escaping.
+        url += "&inside=" + inside.Value.ToString("D");
       }
 
       return await GetJsonAsync<MediaTitles>(url, cancellation).ConfigureAwait(false);

@@ -180,6 +180,51 @@ namespace MediaPortal.Server.Api
       /// resume, and a row offering to resume one would offer to watch it again from the first minute.
       /// </remarks>
       public int? Resume { get; set; }
+
+      /// <summary>
+      /// For an episode: the season number the library holds. Null for anything that is not an episode, and for an
+      /// episode whose season was never written.
+      /// </summary>
+      /// <remarks>
+      /// A season of nought is MP2's own spelling for specials, but it is also what an episode with nothing
+      /// written in that column reads as, and the two cannot be told apart from the attribute alone. Nought is
+      /// therefore reported as nothing known: a row that announced "specials" about a file nobody tagged would be
+      /// making a claim about somebody's television series out of an empty column.
+      /// </remarks>
+      public int? Season { get; set; }
+
+      /// <summary>
+      /// For an episode: its number within the season, or null. Where a file holds two episodes the lowest number
+      /// is named here, because that is the one a row has room for; the item carries all of them.
+      /// </summary>
+      public int? Episode { get; set; }
+
+      /// <summary>
+      /// For a track: its number on the album, or null when the album it came from numbered nothing.
+      /// </summary>
+      public int? Track { get; set; }
+
+      /// <summary>
+      /// The name of whoever made this: for an album or a track, the first artist the library lists. Null for the
+      /// media that has no artist - a film is not credited to one on the aspects this endpoint reads.
+      /// </summary>
+      /// <remarks>
+      /// One name and not the list, because this is a row in a list: an album credited to four people and a
+      /// compiler is one line on a television two metres away. MP2 stores these names on the title itself
+      /// (<c>AudioAlbumAspect.ATTR_ARTISTS</c>, <c>AudioAspect.ATTR_ARTISTS</c>), so unlike genres and people they
+      /// cost no relationship query to say.
+      /// </remarks>
+      public string Artist { get; set; }
+
+      /// <summary>
+      /// For an album: how many tracks the library says belong on it. Null when it does not say.
+      /// </summary>
+      /// <remarks>
+      /// The number the album was tagged with, not a count of the track items that turned up - which is what a
+      /// viewer reading "12 tracks" on a shelf of a half-ripped CD gets, and what the difference between the two
+      /// means is the importer's business, not this answer's.
+      /// </remarks>
+      public int? TrackCount { get; set; }
     }
 
     /// <summary>
@@ -223,6 +268,14 @@ namespace MediaPortal.Server.Api
       /// </summary>
       public string Seen { get; set; }
 
+      /// <summary>
+      /// The title this answer was read from inside of - the album whose tracks these are, the series whose
+      /// episodes these are - or null when the answer is the whole shelf. Echoed for the same reason as
+      /// <see cref="Search"/>: a list of twelve tracks has to be able to say that it is the tracks of one album
+      /// rather than a library of twelve.
+      /// </summary>
+      public Guid? Inside { get; set; }
+
       public List<TitleResult> Titles { get; set; }
 
       /// <summary>
@@ -248,10 +301,16 @@ namespace MediaPortal.Server.Api
     /// <c>started</c> for the ones somebody began and did not finish, anything else - including nothing - for
     /// both. The <c>seen</c> field of the answer says which of the four readings was applied.
     /// </param>
+    /// <param name="inside">
+    /// The id of a title that holds other titles - an album, a series, a season, a film collection - to list the
+    /// titles inside it: the tracks of an album with <c>aspect=AudioItem</c>, the episodes of a series with
+    /// <c>aspect=EpisodeItem</c>. What is asked for has to be something that title can hold, or the answer is a
+    /// refusal rather than an empty list. Null or empty means the whole shelf, which is what it has always meant.
+    /// </param>
     [HttpGet("titles")]
     public ActionResult<TitlesResult> GetTitles([FromQuery] string aspect, [FromQuery] string sort,
         [FromQuery] string order, [FromQuery] int limit, [FromQuery] int offset, [FromQuery] string search,
-        [FromQuery] string seen)
+        [FromQuery] string seen, [FromQuery] Guid inside = default(Guid))
     {
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
       if (mediaLibrary == null)
@@ -328,6 +387,48 @@ namespace MediaPortal.Server.Api
                   new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.EQ, 0),
                   new EmptyFilter(MediaAspect.ATTR_PLAYCOUNT)));
 
+        // The titles inside one title: the tracks on an album, the episodes of a season or a series, the films of
+        // a collection. MP2 does not store a parent on its children - an episode carries the <i>name</i> of its
+        // series, which is a string two series can share and that an importer rewrites - it links the two with a
+        // relationship row, and that is how MP2's own screens find an album's music and a series' episodes
+        // (LocalAlbumFanartProvider.cs:79 asks for the tracks of an album exactly this way). Which pair of roles
+        // makes the link mean something is what <see cref="TryRelationship"/> knows.
+        //
+        // A parent that cannot hold the aspect being asked about is refused instead of answered with an empty
+        // list. An empty list reads as "this album has no music in it", and the truth is "an album never holds
+        // films, and you have asked me the wrong question" - the second is a bug in whoever asked, and saying it
+        // loudly is kinder than agreeing.
+        IFilter withinFilter = null;
+        if (inside != Guid.Empty)
+        {
+          MediaItem parent = FindParentTitle(mediaLibrary, metadata, inside);
+          if (parent == null)
+            return NotFound(new TitlesResult
+            {
+              Aspect = match.Value.Name,
+              Error = "this server has no title with the id '" + inside.ToString("D") + "' to list titles inside"
+            });
+
+          Guid role;
+          Guid linkedRole;
+          if (!TryRelationship(aspectId, parent, out role, out linkedRole))
+            return BadRequest(new TitlesResult
+            {
+              Aspect = match.Value.Name,
+              Inside = inside,
+              Error = "'" + match.Value.Name + "' titles are not filed inside the title " + inside.ToString("D")
+            });
+
+          withinFilter = new RelationshipFilter(role, linkedRole, inside);
+        }
+
+        // Both questions at once if both were asked: the tracks of this album that nobody has finished, say.
+        IFilter asking = seenFilter == null
+            ? withinFilter
+            : withinFilter == null
+                ? seenFilter
+                : BooleanCombinationFilter.CombineFilters(BooleanOperator.And, seenFilter, withinFilter);
+
         // MP2 already knows how to look for words in the library, and it is not "compare the title":
         // BuildSimpleTextSearchQuery asks the database whether any of the short text attributes of the aspects
         // being asked about carry the words, which is what typing "star trek" has to mean - a film is found under
@@ -338,13 +439,13 @@ namespace MediaPortal.Server.Api
         // out, because every film whose plot mentions "spaceship" is not what a search for it asked for, and the
         // match is not case sensitive, because a remote control has no shift key.
         MediaItemQuery query = finding == null
-            ? new MediaItemQuery(necessary, optional, seenFilter)
-            : mediaLibrary.BuildSimpleTextSearchQuery(finding, necessary, optional, seenFilter, false, false);
+            ? new MediaItemQuery(necessary, optional, asking)
+            : mediaLibrary.BuildSimpleTextSearchQuery(finding, necessary, optional, asking, false, false);
 
         string sortBy = ReadSort(sort);
-        ISortInformation sortInformation = BuildSort(sortBy, order);
-        if (sortInformation != null)
-          query.SetSortInformation(new List<ISortInformation> { sortInformation });
+        List<ISortInformation> sorts = BuildSorts(sortBy, order);
+        if (sorts.Count > 0)
+          query.SetSortInformation(sorts);
         query.Offset = (uint)skip;
         query.Limit = (uint)take;
 
@@ -374,6 +475,7 @@ namespace MediaPortal.Server.Api
           Sort = sortBy + (IsDescending(order) ? " descending" : ""),
           Search = finding,
           Seen = seeing,
+          Inside = inside == Guid.Empty ? (Guid?)null : inside,
           Titles = titles
         };
       }
@@ -517,6 +619,26 @@ namespace MediaPortal.Server.Api
     private static string Text(string value)
     {
       return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+    }
+
+    /// <summary>
+    /// The first name in a list of them, or <c>null</c> when the list is empty or holds nothing but blanks.
+    /// </summary>
+    /// <remarks>
+    /// MP2 keeps the artists of an album and of a track as a list - an album can be credited to a band, a producer
+    /// and a featured artist at once - and this is a row in a list, which has room for the one name a viewer reads
+    /// first. The whole list is on the item for whoever wants all of it.
+    /// </remarks>
+    private static string FirstText(IEnumerable<string> values)
+    {
+      if (values == null)
+        return null;
+
+      foreach (string value in values)
+        if (!string.IsNullOrWhiteSpace(value))
+          return value;
+
+      return null;
     }
 
     /// <summary>
@@ -795,7 +917,8 @@ namespace MediaPortal.Server.Api
     }
 
     /// <summary>
-    /// The three sorts a title list has: by name, by year, or by none at all.
+    /// The sorts a title list has: by name, by year, by when it was last watched, by where a title sits in the one
+    /// that holds it, or by none at all.
     /// </summary>
     /// <remarks>
     /// Anything else a caller sends is taken to mean "none" rather than refused. A front end that asks for a sort
@@ -808,6 +931,10 @@ namespace MediaPortal.Server.Api
         return "year";
       if (string.Equals(sort, "lastplayed", StringComparison.OrdinalIgnoreCase))
         return "lastplayed";
+      if (string.Equals(sort, "episode", StringComparison.OrdinalIgnoreCase))
+        return "episode";
+      if (string.Equals(sort, "track", StringComparison.OrdinalIgnoreCase))
+        return "track";
       if (string.Equals(sort, "none", StringComparison.OrdinalIgnoreCase))
         return "none";
       return "title";
@@ -839,23 +966,159 @@ namespace MediaPortal.Server.Api
           || string.Equals(order, "descending", StringComparison.OrdinalIgnoreCase);
     }
 
-    private static ISortInformation BuildSort(string sortBy, string order)
+    /// <summary>
+    /// What the database is asked to put in order, which for the two orders that follow the shape of a shelf is
+    /// more than one column.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// An episode list is sorted by season and then by episode, because a series is watched in that order and one
+    /// column would interleave a season two after a season one. MP2's own screens sort an episode by its number
+    /// (WifiRemote/Helper.cs:315), and an episode number is a collection - a double episode is one item carrying
+    /// two numbers - which the database flattens into the same ordering a single number would get.
+    /// </para>
+    /// <para>
+    /// The empty list means "in whatever order the database fancies", which is what <c>sort=none</c> promises.
+    /// </para>
+    /// </remarks>
+    private static List<ISortInformation> BuildSorts(string sortBy, string order)
     {
       SortDirection direction = IsDescending(order) ? SortDirection.Descending : SortDirection.Ascending;
+      List<ISortInformation> sorts = new List<ISortInformation>();
       switch (sortBy)
       {
         case "title":
-          return new AttributeSortInformation(MediaAspect.ATTR_SORT_TITLE, direction);
+          sorts.Add(new AttributeSortInformation(MediaAspect.ATTR_SORT_TITLE, direction));
+          break;
         case "year":
-          return new AttributeSortInformation(MediaAspect.ATTR_RECORDINGTIME, direction);
+          sorts.Add(new AttributeSortInformation(MediaAspect.ATTR_RECORDINGTIME, direction));
+          break;
         case "lastplayed":
           // Newest viewing first, which is the order a "what was I watching" list wants. A title nobody ever
           // opened has nothing in that column; where it lands among them is the database's idea of sorting
           // nothing, not this endpoint's, and that is why a continue-watching list asks for watched titles.
-          return new AttributeSortInformation(MediaAspect.ATTR_LASTPLAYED, direction);
-        default:
-          return null;
+          sorts.Add(new AttributeSortInformation(MediaAspect.ATTR_LASTPLAYED, direction));
+          break;
+        case "episode":
+          sorts.Add(new AttributeSortInformation(EpisodeAspect.ATTR_SEASON, direction));
+          sorts.Add(new AttributeSortInformation(EpisodeAspect.ATTR_EPISODE, direction));
+          break;
+        case "track":
+          sorts.Add(new AttributeSortInformation(AudioAspect.ATTR_TRACK, direction));
+          break;
       }
+      return sorts;
+    }
+
+    /// <summary>
+    /// The aspects that hold other titles, and so are worth reading when a request names a title to look inside.
+    /// </summary>
+    /// <remarks>
+    /// Only these are asked about, because the question "what is this title?" has exactly these answers as far as
+    /// the titles-in-a-title business goes: a series holds seasons and episodes, a season holds episodes, an album
+    /// holds tracks and a film collection holds films. Asking for every aspect of the parent to answer it would be
+    /// a wider read of the database than the question needs.
+    /// </remarks>
+    private static readonly Guid[] PARENT_ASPECTS =
+    {
+        SeriesAspect.ASPECT_ID,
+        SeasonAspect.ASPECT_ID,
+        AudioAlbumAspect.ASPECT_ID,
+        MovieCollectionAspect.ASPECT_ID
+    };
+
+    /// <summary>
+    /// Reads the one title a request wants to list titles inside of, so that the server can tell what it has been
+    /// asked to open.
+    /// </summary>
+    /// <param name="mediaLibrary">The library to ask.</param>
+    /// <param name="metadata">
+    /// The aspects this server manages, which is what makes it safe to ask for the parent's: an aspect the database
+    /// was never told about is left out of the request rather than making the whole search fail.
+    /// </param>
+    /// <param name="id">The media item id the request named.</param>
+    /// <returns>The parent as the library has it, or <c>null</c> when there is no such title.</returns>
+    private static MediaItem FindParentTitle(IMediaLibrary mediaLibrary,
+        IDictionary<Guid, MediaItemAspectMetadata> metadata, Guid id)
+    {
+      List<Guid> optional = PARENT_ASPECTS.Where(aspectId => metadata.ContainsKey(aspectId)).ToList();
+      MediaItemQuery query = new MediaItemQuery(new List<Guid> { MediaAspect.ASPECT_ID }, optional,
+          new MediaItemIdFilter(id));
+      query.Limit = 1;
+      IList<MediaItem> found = mediaLibrary.Search(query, false, null, false);
+      return found != null && found.Count > 0 ? found[0] : null;
+    }
+
+    /// <summary>
+    /// Which pair of roles links a title to the titles of the kind being asked about, if the parent holds them at
+    /// all.
+    /// </summary>
+    /// <param name="childAspectId">The aspect of the titles being listed, as the request resolved it.</param>
+    /// <param name="parent">The title they are supposed to be inside.</param>
+    /// <param name="role">The role on the child's side of the link.</param>
+    /// <param name="linkedRole">The role on the parent's side of the link.</param>
+    /// <returns>
+    /// <c>true</c> when this kind of title is filed inside that kind of parent, in which case the two roles say
+    /// how; <c>false</c> when the question does not make sense and the caller should say so.
+    /// </returns>
+    /// <remarks>
+    /// The pairs are MP2's own, taken from the screens that walk these relationships for a living: an album's
+    /// tracks are reached by <c>ROLE_TRACK</c> to <c>ROLE_ALBUM</c> (LocalAlbumFanartProvider.cs:79), a series'
+    /// and a season's episodes by <c>ROLE_EPISODE</c> to <c>ROLE_SERIES</c> and <c>ROLE_SEASON</c>
+    /// (LocalSeriesFanartProvider.cs:77,81), a collection's films by <c>ROLE_MOVIE</c> to
+    /// <c>ROLE_MOVIE_COLLECTION</c> (LocalMovieCollectionFanartProvider.cs:75).
+    /// <para>
+    /// A season is accepted where its series is not, and the other way round: MP2 files both, and which one a
+    /// given importer filled in depends on where the metadata came from. Asking after a series and finding a
+    /// season holding the same episodes is not a mistake worth refusing a viewer for.
+    /// </para>
+    /// </remarks>
+    private static bool TryRelationship(Guid childAspectId, MediaItem parent, out Guid role, out Guid linkedRole)
+    {
+      role = Guid.Empty;
+      linkedRole = Guid.Empty;
+      if (parent == null)
+        return false;
+
+      // The aspects this title actually carries. An entry with nothing in it is the database saying "that one was
+      // asked for and there is none", so it does not count as the title having it - which is the difference
+      // between answering a question about an album's tracks and refusing one because the id was once mentioned.
+      HashSet<Guid> has = new HashSet<Guid>(parent.Aspects
+          .Where(entry => entry.Value != null && entry.Value.Count > 0)
+          .Select(entry => entry.Key));
+
+      if (childAspectId == EpisodeAspect.ASPECT_ID)
+      {
+        if (has.Contains(SeriesAspect.ASPECT_ID))
+        {
+          role = EpisodeAspect.ROLE_EPISODE;
+          linkedRole = SeriesAspect.ROLE_SERIES;
+          return true;
+        }
+        if (has.Contains(SeasonAspect.ASPECT_ID))
+        {
+          role = EpisodeAspect.ROLE_EPISODE;
+          linkedRole = SeasonAspect.ROLE_SEASON;
+          return true;
+        }
+        return false;
+      }
+
+      if (childAspectId == AudioAspect.ASPECT_ID && has.Contains(AudioAlbumAspect.ASPECT_ID))
+      {
+        role = AudioAspect.ROLE_TRACK;
+        linkedRole = AudioAlbumAspect.ROLE_ALBUM;
+        return true;
+      }
+
+      if (childAspectId == MovieAspect.ASPECT_ID && has.Contains(MovieCollectionAspect.ASPECT_ID))
+      {
+        role = MovieAspect.ROLE_MOVIE;
+        linkedRole = MovieCollectionAspect.ROLE_MOVIE_COLLECTION;
+        return true;
+      }
+
+      return false;
     }
 
     /// <summary>
@@ -899,6 +1162,58 @@ namespace MediaPortal.Server.Api
         int runtime = movie.GetAttributeValue<int>(MovieAspect.ATTR_RUNTIME_M);
         if (runtime > 0)
           result.RuntimeMinutes = runtime;
+      }
+
+      // Where a title sits in the one that holds it, and who made it. Everything here comes off the aspect the
+      // request was already about - a caller listing episodes asked for the episode aspect, one listing tracks
+      // asked for the audio aspect - so a shelf of films pays nothing for a shelf of music having these fields.
+      SingleMediaItemAspect episodeAspect;
+      if (MediaItemAspect.TryGetAspect(item.Aspects, EpisodeAspect.Metadata, out episodeAspect))
+      {
+        int season = episodeAspect.GetAttributeValue<int>(EpisodeAspect.ATTR_SEASON);
+        if (season > 0)
+          result.Season = season;
+
+        // The lowest number, as the details endpoint says it: an episode number is a collection in MP2 because a
+        // file holding two episodes is one item carrying two numbers, and a row has room for one.
+        IEnumerable<int> numbers = episodeAspect.GetCollectionAttribute<int>(EpisodeAspect.ATTR_EPISODE);
+        if (numbers != null)
+        {
+          List<int> ordered = numbers.Where(number => number > 0).Distinct().OrderBy(number => number).ToList();
+          if (ordered.Count > 0)
+            result.Episode = ordered[0];
+        }
+      }
+
+      SingleMediaItemAspect album;
+      if (MediaItemAspect.TryGetAspect(item.Aspects, AudioAlbumAspect.Metadata, out album))
+      {
+        result.Artist = Text(FirstText(album.GetCollectionAttribute<string>(AudioAlbumAspect.ATTR_ARTISTS)));
+        int tracks = album.GetAttributeValue<int>(AudioAlbumAspect.ATTR_NUMTRACKS);
+        if (tracks > 0)
+          result.TrackCount = tracks;
+      }
+
+      SingleMediaItemAspect audio;
+      if (MediaItemAspect.TryGetAspect(item.Aspects, AudioAspect.Metadata, out audio))
+      {
+        int track = audio.GetAttributeValue<int>(AudioAspect.ATTR_TRACK);
+        if (track > 0)
+          result.Track = track;
+
+        // A track is credited to whoever made the album it came from unless the file itself says otherwise, which
+        // is what a various-artists compilation looks like: the album has one name on it and the track has another.
+        if (string.IsNullOrEmpty(result.Artist))
+          result.Artist = Text(FirstText(audio.GetCollectionAttribute<string>(AudioAspect.ATTR_ARTISTS)));
+
+        // A track's length is on its own aspect, in seconds, because a three-and-a-half-minute song is not a
+        // rounding error away from nothing the way a film is: it is three minutes of the four the row will say.
+        if (!result.RuntimeMinutes.HasValue)
+        {
+          long seconds = audio.GetAttributeValue<long>(AudioAspect.ATTR_DURATION);
+          if (seconds >= 60)
+            result.RuntimeMinutes = (int)(seconds / 60);
+        }
       }
 
       result.Stub = item.IsStub;
