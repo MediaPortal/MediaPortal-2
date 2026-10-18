@@ -398,6 +398,37 @@ Windows gives for an unregistered extension, and both of its callers already fal
 implementation.
 Where the fallback is not already there, the file moves to a satellite instead.
 
+**The worst case of the P/Invoke blind spot is a static initializer.**
+`SingleInstanceHelper` declared
+
+    public static readonly uint SHOW_MP2_CLIENT_MESSAGE = WindowsAPI.RegisterWindowMessage("...");
+
+A field initializer runs the first time anything touches the class, so on a machine without
+`user32.dll` the first reference to `SingleInstanceHelper` - which is the first thing each launcher
+does - would have thrown `DllNotFoundException` out of a type initializer, where no caller can catch
+it. `CA1416` said nothing, because a DLL name is a string to the analyzer, and `spine.ps1` said nothing
+until the P/Invoke column existed. The registrations are now behind `OperatingSystem.IsWindows()`, as
+are the `MutexSecurity` grant (Windows-only type; the named mutex itself is not) and
+`SwitchToCurrentInstance`'s `HWND_BROADCAST` post.
+
+The claim that a *named mutex* is usable off Windows was measured rather than assumed, in
+`MediaPortal\Tests\Canary.Portable\NamedPrimitiveBehaviourTests.cs`, which runs in the Linux container
+under `test-canary-linux.ps1`. Two properties `SingleInstanceHelper` relies on are pinned there:
+another thread cannot take a held named mutex, and a second handle created from the same name sees it
+as taken and acquires it after the owner releases. Writing the tests produced two corrections that were
+wrong about Windows as well as Linux, and both matter whenever launcher code is ported:
+
+* a second `WaitOne()` on a mutex the same thread already holds **succeeds** - a Win32 mutex is
+  recursive for its owning thread, so contention only exists across threads.
+* `ReleaseMutex()` from a thread other than the owner throws *"Object synchronization method was
+  called from an unsynchronized block of code"*.
+
+That second one exposed a trap in the reporting rather than in the code: the run printed
+`Passed! - Failed: 0, Passed: 9` and only afterwards `Test Run Aborted`. **A crashed test host still
+prints a green summary line**, so a summary line is never evidence on its own. `tests.ps1` reads
+`$LASTEXITCODE` first and parses the numbers only for its table, which is why this surfaced as a
+failure instead of a pass - verified while writing this, not assumed.
+
 ## Platform services: the core declares the seam, the host fills it
 
 `MediaPortal.Common` cannot reference a platform assembly, so where it needs a Windows technology it
