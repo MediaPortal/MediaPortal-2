@@ -27,13 +27,13 @@ Verified 2026-10-18 with `build.ps1 -Solution Server,Client -Ratchet`, `tests.ps
 
 | Measurement | Value | How to reproduce |
 | --- | --- | --- |
-| Server solution compiles on Windows | 0 errors, 648 gated findings (was 685) | `build.ps1 -Solution Server -Ratchet` |
+| Server solution compiles on Windows | 0 errors, 634 gated findings (was 685) | `build.ps1 -Solution Server -Ratchet` |
 | Client solution compiles on Windows | 0 errors, ~2430 findings (not gated) | `build.ps1 -Solution Client` |
 | Server solution compiles **on Linux** | 0 errors | `test-server-linux.ps1` |
 | Core assemblies on a portable target framework | **2 of 90** - `MediaPortal.Utilities` and `UPnP` are `net10.0` with `CA1416` as error | `MediaPortal.Utilities.csproj`, `UPnP.csproj` |
 | Portable-core WinForms / GDI+ references | **0** (86 quarantined in 6 satellite files) | `spine.ps1`, `satellites.ps1` |
-| Portable-core P/Invoke declarations | **94** in 13 files, invisible to `CA1416` | `spine.ps1` (P/Invoke column) |
-| `CA1416` call sites, Windows vs Linux | 161 on both (was 196) - identical inventories | build log, `warnings.ps1` |
+| Portable-core P/Invoke declarations | **86** in 12 files (was 95; 8 moved with Dokan), invisible to `CA1416` | `spine.ps1` (P/Invoke column) |
+| `CA1416` call sites, Windows vs Linux | 147 on both hosts, identical inventories (was 196) - and the whole surface is 634 findings on both | build log, `warnings.ps1` on both logs |
 | Unit tests, Windows | 4/4 suites, 271 executed, 0 failed (3 canary tests skip: Linux-only) | `tests.ps1` |
 | Unit tests, Linux (canary) | 31 executed, 0 failed (1 skips: Windows-only), incl. live IPC round trips and XDG autostart | `test-canary-linux.ps1` |
 | Built executables are 64-bit | 5/5 apphosts measure `x64`, managed side `MSIL` | `architecture.ps1` |
@@ -191,6 +191,20 @@ WMI queries (13), Windows identity impersonation (6), power/session broadcasts (
 `Registry.GetValue` in `ApplicationCore`. The two `System.Windows.Forms` strings a plain search finds in
 that project are both comments recording earlier removals, which is the difference between grep and a
 ledger that strips comments.
+
+**`MediaPortal.Common` is the project now being emptied, one Windows subsystem at a time.** The first
+subsystem out was **Dokan** (17 files, the .NET binding of a Windows user-mode file system driver), and it
+left without a single line of its code changing: `MediaPortal.Common` keeps the interface
+`IResourceMountingService`, registers a portable implementation that answers "this platform cannot mount
+resources into the local file system", and the three Windows hosts install the Dokan-backed one during
+startup next to `GdiPlusImageTransformer.Register()`. `CA1416` went **161 -> 147** and the core's P/Invoke
+column **94 -> 86**, with the satellites gaining exactly the same 14 and 8 - `spine.ps1` prints that
+exchange as "relocated, not fixed", and `satellites.ps1` independently reports the
+`MediaPortal.Common.Services.Dokan` namespaces as satellite-owned. That the *whole* solution-wide delta
+equals the moved files' own count is the evidence that nothing Windows-shaped stayed behind in the core.
+What remains in `MediaPortal.Common` from the measured inventory: Windows identity impersonation (6
+sites), crash-report WMI queries (13), power/session broadcasts (5) and one `Registry.GetValue` that logs
+the Windows product name.
 
 **d. Database that is not Windows-shaped.** Decide Firebird's future, verify SQLite as the primary
 store on Linux (native binaries per RID, no `System.Data.SQLite` interop surprises), delete ScimoreDB

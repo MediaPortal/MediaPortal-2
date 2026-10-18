@@ -34,8 +34,36 @@ using MediaPortal.Common.SystemResolver;
 
 namespace MediaPortal.Common.Services.ResourceAccess
 {
-  public class ResourceMountingService : IResourceMountingService, IDisposable
+  /// <summary>
+  /// <see cref="IResourceMountingService"/> backed by the Dokan user-mode file system.
+  /// </summary>
+  /// <remarks>
+  /// Lives in <c>MediaPortal.Common.Windows</c> because Dokan is a Windows file system driver: the
+  /// binding in <c>Services\Dokan</c> talks to <c>dokan2.dll</c> through P/Invoke and fills Win32
+  /// structures such as <c>WIN32_FIND_DATA</c>. The interface stayed in <c>MediaPortal.Common</c>, so
+  /// the code that mounts resources does not know which of the two implementations it got.
+  ///
+  /// This used to be called <c>ResourceMountingService</c> and was registered unconditionally by
+  /// <see cref="MediaPortal.Common.ApplicationCore"/>. The name says which backend it is now, because
+  /// <c>MediaPortal.Common</c> ships a second, portable implementation for platforms without a
+  /// mount-capable back end.
+  /// </remarks>
+  public class DokanResourceMountingService : IResourceMountingService, IDisposable
   {
+    /// <summary>
+    /// Registers this implementation as the process-wide <see cref="IResourceMountingService"/>,
+    /// replacing the portable one that <see cref="ApplicationCore.RegisterCoreServices"/> installed.
+    /// </summary>
+    /// <remarks>
+    /// Called by the Windows hosts during startup, next to <c>GdiPlusImageTransformer.Register()</c>.
+    /// <c>MediaPortal.Common</c> cannot call this itself without referencing a platform assembly, which
+    /// would put the dependency right back where it was.
+    /// </remarks>
+    public static void Register()
+    {
+      ServiceRegistration.Set<IResourceMountingService>(new DokanResourceMountingService());
+    }
+
     protected object _syncObj = new object();
     protected Dokan.Dokan _dokanExecutor = null;
 
@@ -82,7 +110,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
 
       if (_dokanExecutor == null)
       {
-        ServiceRegistration.Get<ILogger>().Warn("ResourceMountingService: Due to problems in DOKAN, resources cannot be mounted into the local filesystem");
+        ServiceRegistration.Get<ILogger>().Warn("DokanResourceMountingService: Due to problems in DOKAN, resources cannot be mounted into the local filesystem");
       }
       else
       {
@@ -101,7 +129,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
 
     public void Restart()
     {
-      ServiceRegistration.Get<ILogger>().Info("ResourceMountingService: Restarting service");
+      ServiceRegistration.Get<ILogger>().Info("DokanResourceMountingService: Restarting service");
       lock (_syncObj)
       {
         Shutdown();

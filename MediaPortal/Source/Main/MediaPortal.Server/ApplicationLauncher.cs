@@ -38,6 +38,7 @@ using MediaPortal.Common.PathManager;
 using System.IO;
 #endif
 using MediaPortal.Common.Services.Logging;
+using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Common.Services.Runtime;
 using MediaPortal.Common;
 using MediaPortal.Common.Runtime;
@@ -109,6 +110,9 @@ namespace MediaPortal.Server
           // Windows host, so GDI+ serves. A Linux server host registers a portable transformer
           // here instead - nothing else in the tree depends on which one it is.
           GdiPlusImageTransformer.Register();
+          // Same pattern for the local file system mount: ApplicationCore installed the answer
+          // "this platform cannot mount", and on Windows the Dokan driver serves it.
+          DokanResourceMountingService.Register();
           logger = ServiceRegistration.Get<ILogger>();
 
 #if !DEBUG

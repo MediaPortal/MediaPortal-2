@@ -352,6 +352,10 @@ stating precisely because of what it does *not* mean:
                                                     files affected 13  total refs 95
     satellites (MediaPortal.Common.Windows, MediaPortal.Utilities.Windows)  WinForms 19  GDI+ 64  P/Invoke 3  refs 86
 
+That table is the state on the day the P/Invoke column was introduced, and the live figures are in
+`spine-baseline.json`; it is kept verbatim because every number in it has since moved and the reasons are
+the interesting part.
+
 WinForms and GDI+ are zero in the core: no source file compiled into `MediaPortal.Common`,
 `MediaPortal.Utilities` or `MediaPortal.Backend` references them any more. That was done by two moves
 (`SplashScreen.cs`, `ImageUtilities.cs` into `MediaPortal.Utilities.Windows`) and one seam
@@ -545,6 +549,36 @@ details from the same probe, both of which can produce a confidently wrong numbe
   hits; `spine.ps1` reports 0. Both hits are comments describing earlier removals of `SystemInformation` and
   `Application.ExecutablePath`. The ledger strips comments before matching, which is the only reason its
   number is a measurement of code rather than of text.
+
+### What a whole Windows subsystem leaving the core looks like
+
+`Services\Dokan` (17 files, the .NET binding for the Dokan user-mode file system driver) was the
+largest single block of Windows coupling in `MediaPortal.Common`. Moving it is the first case of a
+*subsystem* rather than a helper crossing into a satellite, and three things made it mechanical:
+
+* **Find the one consumer first.** A repo-wide search for `Dokan` outside its own folder returned
+  exactly one file, `Services\ResourceAccess\ResourceMountingService.cs`. That file is the seam, so it
+  moved with the binding and was renamed `DokanResourceMountingService` with a static `Register()`, the
+  way `GdiPlusImageTransformer` does. `MediaPortal.Common` keeps the interface
+  (`IResourceMountingService`, which always lived outside the `Dokan` folder) and now registers
+  `UnsupportedResourceMountingService`, which answers "this platform cannot mount".
+* **Check whether the degraded state already exists before inventing one.** The Dokan implementation
+  already ran in a "no mount" mode on every Windows machine without the driver: `Dokan.Install()`
+  returns `null`, it logged a warning, `RootPath` was null, `IsVirtualResource()` was false and the
+  mutators returned null - which is also what the interface documents. `MountingDataProxy.MountResource()`
+  branches on `CreateRootDirectory(...) == null` today. So the portable class is not new behaviour to
+  test; it is an existing runtime state promoted to an implementation, and reading that one caller is
+  what proves it. (It is also one bug better: `RootDirectories` used to dereference the null executor.)
+* **Let two independent checks agree.** The spine ledger reported the move as an exchange - core P/Invoke
+  **94 -> 86**, satellites **86 -> 94**, combined unchanged at 180 - and printed "satellites grew by 8
+  while the core shrank by 8 - relocated, not fixed". `satellites.ps1` separately reports
+  `MediaPortal.Common.Services.Dokan` and `.Native` as namespaces now owned exclusively by
+  `MediaPortal.Common.Windows.csproj`. A count and a name-based structure check agreeing is worth more
+  than either alone.
+
+`CA1416` fell by exactly 14 (161 -> 147): 13 findings in `Dokan\Proxy.cs`, 1 in `DokanFileInfo.cs`. That
+the solution-wide delta equals the moved files' own count is the check that nothing Windows-shaped from
+Dokan stayed behind in the core - had one call site remained, the number would have dropped by less.
 
 ## Platform services: the core declares the seam, the host fills it
 
@@ -989,6 +1023,13 @@ answer* rather than an error, so they are worth writing down:
 * **`Get-Content -Raw` decodes BOM-less UTF-8 as the ANSI codepage**, which mangles the typographic
   quotes that localized NuGet messages use (`„log4net"`), and a package-id regex then matches nothing.
   Anything that parses diagnostic text is read with `[IO.File]::ReadAllText($path, [Text.Encoding]::UTF8)`.
+* **The write direction adds a BOM that no source file has.** `Set-Content -Encoding UTF8` on PS 5.1
+  emits UTF-8 *with* BOM; every `.cs` file in the tree is BOM-less (checked byte by byte across
+  `MediaPortal.Common`, `MediaPortal.Common.Windows` and the Dokan move). A two-line log-prefix rename
+  done with `Get-Content -Raw` + `Set-Content` therefore showed up in `git diff` as an encoding change on
+  top of the edit, and the BOM only becomes visible when the next tool complains. Text edits to sources
+  go through `[IO.File]::WriteAllText($path, $text, (New-Object System.Text.UTF8Encoding($false)))`, which
+  round-trips without a BOM on both hosts.
 
 If a script here is ever ported to PS 7 only, delete this section; until then, test the interesting path
 by invoking the script the way the gate does (`powershell -NoProfile -File wrapper.ps1` reproduces a

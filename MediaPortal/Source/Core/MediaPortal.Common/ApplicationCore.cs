@@ -173,8 +173,12 @@ namespace MediaPortal.Common
       logger.Debug("ApplicationCore: Registering IResourceServer service");
       ServiceRegistration.Set<IResourceServer>(new ResourceServer());
 
+      // Mounting resources into the local file system is done by a file system driver, which is a
+      // per-platform technology (Dokan on Windows, FUSE on Linux, nothing on Android). The portable
+      // core can only say "not here"; a Windows host replaces this with the Dokan-backed
+      // implementation from MediaPortal.Common.Windows, next to GdiPlusImageTransformer.Register().
       logger.Debug("ApplicationCore: Registering IResourceMountingService");
-      ServiceRegistration.Set<IResourceMountingService>(new ResourceMountingService());
+      ServiceRegistration.Set<IResourceMountingService>(new UnsupportedResourceMountingService());
 
       logger.Debug("ApplicationCore: Registering IRemoteResourceInformationService");
       ServiceRegistration.Set<IRemoteResourceInformationService>(new RemoteResourceInformationService());

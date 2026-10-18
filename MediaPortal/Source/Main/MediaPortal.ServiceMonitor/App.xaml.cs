@@ -37,6 +37,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Services.Logging;
 using MediaPortal.Common.Exceptions;
+using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Common.Services.Runtime;
 using MediaPortal.Common.Windows.Imaging;
 using MediaPortal.Common.SystemResolver;
@@ -122,6 +123,9 @@ namespace MediaPortal.ServiceMonitor
           // This process never imports media or handles fan art today, but it registers the core
           // services that own the seam, so it fills it like every other Windows host does.
           GdiPlusImageTransformer.Register();
+          // Same pattern for the local file system mount: ApplicationCore installed the answer
+          // "this platform cannot mount", and on Windows the Dokan driver serves it.
+          DokanResourceMountingService.Register();
           logger = ServiceRegistration.Get<ILogger>();
 
           logger.Debug("Starting Localization");

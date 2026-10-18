@@ -49,6 +49,7 @@ using MediaPortal.UI.Settings;
 using MediaPortal.UI.Shares;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.Common;
+using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Common.Services.Runtime;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Windows.Imaging;
@@ -195,6 +196,9 @@ namespace MediaPortal.Client
           // The fan art handlers that run in this process re-encode artwork through
           // IImageTransformer, which the portable core only declares. Windows host, so GDI+ serves.
           GdiPlusImageTransformer.Register();
+          // Same pattern for the local file system mount: ApplicationCore installed the answer
+          // "this platform cannot mount", and on Windows the Dokan driver serves it.
+          DokanResourceMountingService.Register();
 
           logger = ServiceRegistration.Get<ILogger>();
 
