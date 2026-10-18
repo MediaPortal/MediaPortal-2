@@ -23,10 +23,13 @@
   e_sqlite3 native library, which SQLitePCLRaw looks for next to its own provider assembly) are not
   where a plain publish puts them. The rules mirror Source\Backend\Database\SQLiteDatabase\build.targets.
 
-  Only what a minimal server needs is deployed: without a plugin registering ISQLDatabase the server
-  comes up, logs that it has no plugins, and then dies in DatabaseManager.Startup with "There is no
-  database present in the system". That failure is correct behaviour, but it means the plugins are
-  part of "the server runs", not an optional extra.
+  What is deployed is a decision: without a plugin registering ISQLDatabase the server comes up, logs
+  that it has no plugins, and then dies in DatabaseManager.Startup with "There is no database present
+  in the system" - so the database is part of "the server runs", not an optional extra. The second
+  plugin, NfoMetadataExtractors, is the smallest thing that makes the server useful rather than merely
+  alive: it is a metadata extractor, and without one the server can look at a folder of films and put
+  nothing in the library. TV backends, fanart handlers that talk to the internet and the online
+  metadata libraries are still absent.
 
 .EXAMPLE
   .\deploy-server-layout.ps1
@@ -223,6 +226,44 @@ if ($native) {
   Write-Warning ("{0} not found under {1}\runtimes\{{{2}}}/native - the plugin will not be able to open a database on this platform." -f `
       $nativeName, $pluginTargetDir, ($rids -join ', '))
 }
+
+# ---------------------------------------------------------------------------
+# 2b. The metadata extractor that reads what a media folder already holds
+# ---------------------------------------------------------------------------
+
+# A server with no metadata extractor can walk a share all day and learn nothing: every file is
+# offered to the extractors, none of them answers, and the library stays empty - which is exactly the
+# state a freshly deployed server was in, and the reason a shelf full of nothing looked like a
+# front-end problem. NfoMetadataExtractors is the extractor that needs nothing installed: it reads the
+# .nfo sidecar Kodi and Tiny Media Manager write next to the video, and the poster they leave beside it.
+#
+# It is also the first plugin in this tree whose Windows target framework was removed rather than
+# skipped. It had been -windows only because it referenced the online-metadata library (TMDB, TVDb),
+# which uses System.Drawing; two files named that library and used no type from it.
+$nfoName = 'NfoMetadataExtractors'
+$nfo = Publish-PluginProject -Name $nfoName -Project ([IO.Path]::Combine('Extensions', 'MetadataExtractors', 'NfoMetadataExtractors', 'NfoMetadataExtractors.csproj'))
+$nfoTargetDir = $nfo.TargetDir
+$nfoDest = [IO.Path]::Combine($OutputDir, 'Plugins', $nfoName)
+New-Item -ItemType Directory -Path $nfoDest -Force | Out-Null
+
+Write-Step "deploying $nfoName from $nfoTargetDir"
+
+Copy-Item ([IO.Path]::Combine($nfoTargetDir, "$nfoName.dll")) $nfoDest -Force
+Copy-Item ([IO.Path]::Combine($nfo.ProjectDir, 'plugin.xml')) $nfoDest -Force
+if ($Configuration -eq 'Debug') {
+  $nfoPdb = [IO.Path]::Combine($nfoTargetDir, "$nfoName.pdb")
+  if (Test-Path $nfoPdb) { Copy-Item $nfoPdb $nfoDest -Force }
+}
+
+# The NFO stub parser is written against Newtonsoft.Json, and plugin.xml asks the loader to load it by
+# name from this folder - it used to be reached through the online library's folder above, and that
+# dependency is gone. A plugin's assemblies are searched for in the plugin's own folder, so the copy
+# belongs here even though the host directory has a Newtonsoft of its own.
+$nfoJson = [IO.Path]::Combine($nfoTargetDir, 'Newtonsoft.Json.dll')
+if (-not (Test-Path $nfoJson)) {
+  throw "Newtonsoft.Json.dll was not copied to $nfoTargetDir - the NFO readers cannot parse a stub without it"
+}
+Copy-Item $nfoJson $nfoDest -Force
 
 # ---------------------------------------------------------------------------
 # 3. Report

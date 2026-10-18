@@ -24,7 +24,6 @@
 
 using System.Collections.Generic;
 using MediaPortal.Common.Settings;
-using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings
 {

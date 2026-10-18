@@ -1439,6 +1439,16 @@ subfolder: SQLitePCLRaw probes the directory of `SQLitePCLRaw.provider.e_sqlite3
 `System.Data.SQLite` wanted `x64\SQLite.Interop.dll`. A missing driver assembly fails the layout build
 instead of producing a plugin that throws later.
 `Source\Backend\Database\SQLiteDatabase\build.targets` is the reference for those rules.
+`Source\Backend\Database\SQLiteDatabase\build.targets` is the reference for those rules.
+
+Since the metadata-import slice the script deploys a second plugin, `NfoMetadataExtractors`, and what makes that one
+different is instructive: it is the first plugin in the tree whose `-windows` target framework was *removed* (it was
+Windows-only only because of a `ProjectReference` on the online-metadata library that two files named without using a type
+from it - see section **aj** of `docs/multiplatform/ROADMAP.md`), and it is the first plugin deployed whose directory must contain a third-party assembly the
+plugin itself depends on, `Newtonsoft.Json.dll`, because `plugin.xml` now asks the loader to load it by name from the
+plugin's own folder. That copy needs `CopyLocalLockFileAssemblies=true` in the project - without it a package assembly
+never appears in `bin` and MSBuild copies nothing at all silently - so the script checks the file exists after building and
+throws if it does not, rather than shipping a plugin whose assembly load fails when the server starts.
 
 `run-server-check.ps1` starts `MP2-Server-Headless --data <scratch>` and asserts six things,
 because "the process exited 0" alone is not one of them:

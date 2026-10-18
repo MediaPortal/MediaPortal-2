@@ -24,14 +24,17 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.Logging;
@@ -295,6 +298,86 @@ namespace Tests.Server.NfoMetadataExtractor
           TmdbId = 6
         }
       };
+    }
+
+    /// <summary>
+    /// A nfo file that is not XML - a bare IMDb link, which is what some tools leave behind - can only
+    /// be resolved by asking an online source whether the id it holds belongs to a film. That question
+    /// used to be asked of a type in the OnlineLibraries assembly, which is built for Windows, so this
+    /// plugin was Windows-only for one line of code. It now asks for <see cref="IOnlineMovieMatcher"/>
+    /// and accepts that a server may have no online source at all.
+    /// </summary>
+    [Test]
+    public void TestNfoMovieReaderWithoutAnOnlineSourceLeavesAnUnreadableNfoAlone()
+    {
+      //Arrange
+      if (ServiceRegistration.IsRegistered<IOnlineMovieMatcher>())
+        ServiceRegistration.Remove<IOnlineMovieMatcher>();
+      Mock<IFileSystemResourceAccessor> mockRA = CreateNfoAccessor("https://www.imdb.com/title/tt4116284/");
+      NfoMovieReader reader = CreateMovieReader();
+
+      //Act
+      bool result = reader.TryParseForImdbId(mockRA.Object).Result;
+
+      //Assert
+      // Not storing the id is the honest answer: with no online source nothing can tell that this id
+      // belongs to a film rather than to an episode of some series, and a wrong guess would put a
+      // television show on the films shelf.
+      Assert.IsFalse(result);
+      Assert.AreEqual(0, reader.GetMovieStubs().Count);
+    }
+
+    /// <summary>
+    /// The other half: with an online source registered under the portable name, the same unreadable
+    /// nfo still becomes a stub holding the IMDb id, which is what it did before this plugin could load
+    /// on a server that has no online libraries.
+    /// </summary>
+    [Test]
+    public void TestNfoMovieReaderWithAnOnlineSourceStoresTheImdbId()
+    {
+      //Arrange
+      Mock<IOnlineMovieMatcher> matcher = new Mock<IOnlineMovieMatcher>();
+      matcher.Setup(m => m.FindAndUpdateMovieAsync(It.IsAny<MovieInfo>(), It.IsAny<string>()))
+          .ReturnsAsync(true);
+      ServiceRegistration.Set<IOnlineMovieMatcher>(matcher.Object);
+      Mock<IFileSystemResourceAccessor> mockRA = CreateNfoAccessor("https://www.imdb.com/title/tt4116284/");
+      NfoMovieReader reader = CreateMovieReader();
+
+      try
+      {
+        //Act
+        bool result = reader.TryParseForImdbId(mockRA.Object).Result;
+
+        //Assert
+        Assert.IsTrue(result);
+        Assert.AreEqual(1, reader.GetMovieStubs().Count);
+        Assert.AreEqual("tt4116284", reader.GetMovieStubs()[0].Id);
+        matcher.Verify(m => m.FindAndUpdateMovieAsync(
+            It.Is<MovieInfo>(info => info.ImdbId == "tt4116284"), It.IsAny<string>()), Times.Once);
+      }
+      finally
+      {
+        // The registration is process-wide, so leaving a fake matcher behind would decide the answer
+        // for every other test in this assembly that runs afterwards.
+        ServiceRegistration.Remove<IOnlineMovieMatcher>();
+      }
+    }
+
+    private static Mock<IFileSystemResourceAccessor> CreateNfoAccessor(string content)
+    {
+      Mock<IFileSystemResourceAccessor> mockRA = new Mock<IFileSystemResourceAccessor>();
+      mockRA.Setup(r => r.OpenReadAsync()).Returns(Task.FromResult(
+          (Stream)new MemoryStream(Encoding.UTF8.GetBytes(content))));
+      mockRA.SetupGet(r => r.CanonicalLocalResourcePath)
+          .Returns(ResourcePath.BuildBaseProviderPath(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID,
+              @"TestData\MovieNfo\movie.nfo"));
+      return mockRA;
+    }
+
+    private static NfoMovieReader CreateMovieReader()
+    {
+      return new NfoMovieReader(new ConsoleLogger(LogLevel.All, true), 1, false, false, false, null,
+          new NfoMovieMetadataExtractorSettings(), false);
     }
   }
 }

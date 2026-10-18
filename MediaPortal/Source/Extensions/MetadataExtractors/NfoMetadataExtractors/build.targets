@@ -15,7 +15,21 @@
       <PluginFiles Include="$(TargetDir)$(ProjectName).pdb" />
     </ItemGroup>
 
+    <!--
+      Newtonsoft.Json travels with this plugin now. It used to arrive through the OnlineLibraries
+      plugin, whose folder the plugin.xml reached with a relative path above this one; that dependency
+      is gone, so the library the NFO stub parser is written against has to be in this folder, which is
+      the one the plugin loader searches.
+    -->
+    <ItemGroup>
+      <References Include="$(TargetDir)Newtonsoft.Json.dll" />
+    </ItemGroup>
+
+    <Warning Condition="!Exists('$(TargetDir)Newtonsoft.Json.dll')"
+             Text="Newtonsoft.Json.dll is not in $(TargetDir) - the NFO stub parser cannot read a .nfo stub at runtime." />
+
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
+    <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
   </Target>
 
 </Project>

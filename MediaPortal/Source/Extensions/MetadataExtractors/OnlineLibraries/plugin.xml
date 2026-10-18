@@ -27,6 +27,15 @@
     <!--Online Matcher Service-->
     <Service Id="OnlineMatcherService" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Libraries.IOnlineMatcherService"
         ServiceClassName="MediaPortal.Extensions.OnlineLibraries.OnlineMatcherService"/>
+    <!--
+      The one method of the matcher that a local metadata extractor needs, as its own service. The NFO
+      extractors ask for IOnlineMovieMatcher rather than for IOnlineMatcherService above because that
+      interface lives in this assembly, which is built for Windows; a plugin that reads a .nfo file off
+      a disk should not inherit that. This is a forwarder to the same OnlineMatcherService instance
+      (see OnlineMovieMatcher), so registering it costs the server nothing but a type.
+    -->
+    <Service Id="OnlineMovieMatcher" RegistrationClassName="MediaPortal.Common.MediaManagement.IOnlineMovieMatcher"
+        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.OnlineMovieMatcher"/>
   </Register>
 
 </Plugin>

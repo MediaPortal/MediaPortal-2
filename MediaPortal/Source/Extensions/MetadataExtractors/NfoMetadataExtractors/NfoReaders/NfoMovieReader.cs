@@ -32,7 +32,6 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.GenreConverter;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
-using MediaPortal.Extensions.OnlineLibraries;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -169,7 +168,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
             _debugLogger.Debug("[#{0}]: Imdb-ID: '{1}' found when parsing the nfo-file as plain text.", _miNumber, imdbId);
 
             // Returns true, if the found IMDB-ID represents a movie (not a series)
-            if (await OnlineMatcherService.Instance.FindAndUpdateMovieAsync(new MovieInfo { ImdbId = imdbId }, MEDIA_CATEGORY_NAME_MOVIE).ConfigureAwait(false))
+            // The online source is a plugin, not a fact about the platform. Asking for it as an
+            // optional service is what lets this plugin - which reads a file off a disk and needs
+            // nothing else - run on a server that has no online library installed, instead of
+            // throwing on a type that is not there. Without one nobody can tell a film's IMDb id
+            // from a series' with the same title, so the id is left unconfirmed rather than stored
+            // as a film on a guess.
+            IOnlineMovieMatcher matcher = ServiceRegistration.Get<IOnlineMovieMatcher>(false);
+            if (matcher == null)
+              _debugLogger.Warn("[#{0}]: Imdb-ID: '{1}' found in a nfo-file that could not be read, "
+                  + "but this server has no online source that could tell a movie from a series. "
+                  + "Not storing it.", _miNumber, imdbId);
+            else if (await matcher.FindAndUpdateMovieAsync(new MovieInfo { ImdbId = imdbId }, MEDIA_CATEGORY_NAME_MOVIE).ConfigureAwait(false))
             {
               _debugLogger.Debug("[#{0}]: Imdb-ID: '{1}' confirmed online to represent a movie. Storing only Imdb-ID.", _miNumber, imdbId);
               var stub = new MovieStub { Id = imdbId };

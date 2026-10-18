@@ -2271,6 +2271,49 @@ artwork into a library that a running front end has already looked at will not s
 now-playing screen and on the home strip is still missing, as is the pictures pillar itself; and the thumbnail endpoint is
 only the *reading* half of item **p2-3**, whose streaming-with-ranges half is still open.
 
+**A plugin that was one stale reference away from portable.** The library screens can draw a picture, but nothing in this
+tree could fill a library: `deploy-server-layout.ps1` deployed exactly one plugin, `SQLiteDatabase`, and the plugin loader
+scans `<APPLICATION_ROOT>\Plugins` - which `LoadPluginsData()` treats as optional, so a server with no plugin directory
+starts happily and simply has no metadata extractors. Files get walked, nobody answers, the library stays empty, and every
+screen looks like a design problem when it is an import problem. The candidate to deploy first was
+`NfoMetadataExtractors`: it reads `.nfo` XML and local `folder.jpg` off disk, needs no network for the common case, and it
+writes `ThumbnailLargeAspect` - the exact aspect the thumbnail endpoint serves. It was one of 46 projects still on
+`net10.0-windows`, and `CA1416` was clean there, which means the target framework was never justified by an actual platform
+call. Two things pinned it: `System.Net.Http.WebRequest` (a package that does not exist for plain `net10.0`, and nothing in
+the project uses a single type from it) and a `ProjectReference` on `OnlineLibraries`, which is the one extension that
+genuinely needs Windows - it resizes TVDb banners with `System.Drawing`, and `System.Drawing` propagates its platform
+attribute to everyone who references it.
+
+**A dependency that had quietly gone stale.** Removing the `OnlineLibraries` reference looked like it would cascade and
+produced two compile errors, both of them `using` lines. Exactly one call site really used the library: when a `.nfo` file
+is not XML at all but contains an IMDb id, `NfoMovieReader` asked `OnlineMatcherService.Instance` to fetch the title over
+the network. That path is a bonus, not a requirement, so the plugin now asks for `IOnlineMovieMatcher` - a one-method
+interface in `MediaPortal.Common.MediaManagement`, next to the other importer-facing seams - through
+`ServiceRegistration.Get<IOnlineMovieMatcher>(false)`, and when no online source is registered it logs, stores nothing, and
+leaves the file for a later run instead of failing the import. `OnlineLibraries` registers itself under the new interface
+too, so behaviour on a Windows server is unchanged. What was deliberately not done is registering `OnlineMatcherService` a
+second time with a second interface: the plugin manager constructs a new object for every `<Service>` entry, so that would
+have produced a second instance of a class written as a singleton - the registered class is a three-line forwarder that
+calls through to `Instance`. Both branches of the seam are pinned by tests (a registered matcher is asked with the id from
+the file and the title is stored; with no matcher nothing throws and nothing is stored).
+
+**A plugin folder has to be self-contained, and that is a build setting.** The plugin's stub parser is written against
+`Newtonsoft.Json`, which used to arrive because the `OnlineLibraries` plugin loaded it into the same process. So
+`plugin.xml` now lists `Newtonsoft.Json.dll` as an assembly of the NFO plugin itself, and its `build.targets` copies the
+file from the project output into the plugin directory - except that the copy was a no-op for a reason worth writing down:
+**package assemblies only reach a project's output when the project sets `CopyLocalLockFileAssemblies`**, and this project
+did not, so `$(TargetDir)Newtonsoft.Json.dll` did not exist and MSBuild copied nothing without complaining. That is the
+mirror image of the `Plugins\News` case in `scripts/ci/README.md`, where a copy list named a DLL the plugin did not depend
+on: here it named a file the plugin did depend on and that never appeared. The layout script now refuses to
+produce a plugin directory that is missing a file its plugin needs, which is what turned the silent copy into a failure.
+
+**What the layout now assembles is still not proof that the plugin works.** `deploy-server-layout.ps1` reports `17
+assemblies, 2 plugin(s): NfoMetadataExtractors, SQLiteDatabase`, and `Plugins\NfoMetadataExtractors` holds the plugin
+assembly, its `plugin.xml` and `Newtonsoft.Json.dll`. That is a directory satisfying the loader's contract; that the server
+starts with it, that the extractors are registered under `/Media/MetadataExtractors`, and that a folder of video files plus
+`.nfo` files actually becomes titles in the database are the next steps and are not claimed here. The suite stands at **786
+tests, 0 failures** (`Tests.Server` 303 -> **305** for the two matcher-seam tests).
+
 ## What cannot be verified without the user
 
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,

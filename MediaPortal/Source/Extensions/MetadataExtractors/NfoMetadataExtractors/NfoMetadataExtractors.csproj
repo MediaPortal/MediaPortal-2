@@ -1,10 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net10.0-windows</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
         <OutputType>Library</OutputType>
     <RootNamespace>MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors</RootNamespace>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <!--
+      The plugin loader looks for a plugin's assemblies in the plugin's own folder, and this plugin's
+      stub parser is written against Newtonsoft.Json, so the package has to reach the build output for
+      build.targets to copy it. Every other MP2 plugin project that ships a third-party library sets
+      this; this one did not, because until now the library arrived through the OnlineLibraries plugin.
+    -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <OutputPath>bin\x86\Debug\</OutputPath>
@@ -35,9 +42,6 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System.Net.Http.WebRequest" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
@@ -50,7 +54,13 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj" />
     <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj" />
-    <ProjectReference Include="..\OnlineLibraries\OnlineLibraries.csproj" />
+    <!--
+      No OnlineLibraries reference, though this project used to carry one. The two files that still
+      named it did not use a single type from it, and that library is where MP2's System.Drawing use
+      lives (resizing TVDb banners) - so a stale reference was the only thing keeping a plugin that
+      reads local .nfo files off a portable target framework. The plugin.xml dependency on the
+      OnlineLibraries plugin went the same way.
+    -->
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json">
