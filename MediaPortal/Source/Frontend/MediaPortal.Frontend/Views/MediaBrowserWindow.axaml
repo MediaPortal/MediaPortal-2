@@ -32,7 +32,7 @@
                FontSize="14"
                Opacity="0.45"
                Margin="0,12,0,0"
-               Text="Arrows move · OK plays · Menu reads more · Back returns" />
+               Text="Arrows move · OK plays · I reads more · I or Esc closes the details · Back returns" />
 
     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24">
 
@@ -71,6 +71,42 @@
                 Padding="28,10"
                 FontSize="22" />
       </StackPanel>
+
+      <!--
+        What the server knows about the selected title, over the button column: the list stays where it is, so
+        closing the panel returns to the same row. Nothing in it takes the focus, because a details panel you have
+        to navigate to is a screen inside a screen, and the remote has one set of arrows.
+      -->
+      <Border Name="detailsPanel"
+              Grid.Column="1"
+              IsVisible="{Binding DetailsVisible}"
+              Background="#FF161F29"
+              BorderBrush="#FF2E4A63"
+              BorderThickness="2"
+              Padding="26,22"
+              MinWidth="420"
+              VerticalAlignment="Stretch">
+        <StackPanel Spacing="14">
+          <TextBlock Text="{Binding DetailsHeading}"
+                     FontSize="28"
+                     FontWeight="SemiBold"
+                     TextWrapping="Wrap" />
+          <TextBlock Text="{Binding DetailsLine}"
+                     FontSize="17"
+                     Opacity="0.72"
+                     TextWrapping="Wrap" />
+          <TextBlock Name="detailsText"
+                     Text="{Binding DetailsText}"
+                     FontSize="18"
+                     LineHeight="26"
+                     MaxHeight="380"
+                     TextWrapping="Wrap" />
+          <TextBlock Text="{Binding DetailsPath}"
+                     FontSize="13"
+                     Opacity="0.42"
+                     TextWrapping="Wrap" />
+        </StackPanel>
+      </Border>
 
     </Grid>
   </DockPanel>

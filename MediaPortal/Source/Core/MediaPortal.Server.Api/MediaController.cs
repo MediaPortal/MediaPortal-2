@@ -237,6 +237,228 @@ namespace MediaPortal.Server.Api
     }
 
     /// <summary>
+    /// One title in full: what the library knows about it beyond the row in a list.
+    /// </summary>
+    public class ItemResult
+    {
+      public Guid Id { get; set; }
+
+      public string Title { get; set; }
+
+      public string SortTitle { get; set; }
+
+      /// <summary>Year from the recording/import date, the same one the title list shows.</summary>
+      public int? Year { get; set; }
+
+      public int? RuntimeMinutes { get; set; }
+
+      /// <summary>
+      /// What the title is about, in the library's own words: the comment the importer or the viewer left on the
+      /// Media aspect. Null when nothing was written there, which for an imported film without an NFO file is the
+      /// normal answer, not a failure of this endpoint.
+      /// </summary>
+      public string Overview { get; set; }
+
+      /// <summary>The plot the video importer found, which MP2 keeps apart from the comment.</summary>
+      public string StoryPlot { get; set; }
+
+      public string Tagline { get; set; }
+
+      public string Certification { get; set; }
+
+      /// <summary>The collection a film belongs to, e.g. "Alien Collection". Null for the rest.</summary>
+      public string Collection { get; set; }
+
+      /// <summary>The library's rating for the title, on MP2's 0-10 scale. Null when nothing rated it.</summary>
+      public int? Rating { get; set; }
+
+      /// <summary>For an episode: the series it belongs to. Null for anything else.</summary>
+      public string SeriesName { get; set; }
+
+      public int? Season { get; set; }
+
+      public int? Episode { get; set; }
+
+      /// <summary>The episode's own name, which for a series is usually not the title of the file.</summary>
+      public string EpisodeName { get; set; }
+
+      /// <summary>How often the library was told this title was played, across all titles.</summary>
+      public int? PlayCount { get; set; }
+
+      /// <summary>When it was last played, or null if the library was never told.</summary>
+      public DateTime? LastPlayed { get; set; }
+
+      /// <summary>Serialized path of the primary resource, exactly as the title list gives it.</summary>
+      public string Path { get; set; }
+
+      public bool Stub { get; set; }
+
+      /// <summary>Set when the answer is empty for a reason the caller can act on.</summary>
+      public string Error { get; set; }
+    }
+
+    /// <summary>
+    /// Everything this server knows about one title, by its id.
+    /// </summary>
+    /// <param name="id">The media item id, as <c>GET api/media/titles</c> reported it.</param>
+    /// <remarks>
+    /// <para>
+    /// The id is enough: a media item id is a Guid the database gave to one item, so unlike
+    /// <see cref="IMediaLibrary.LoadItem(string, Guid, IEnumerable{Guid}, IEnumerable{Guid}, Guid?)} this does not
+    /// have to be told which media system the item came from - the search finds the item wherever it is filed.
+    /// </para>
+    /// <para>
+    /// <b>What is not in the answer, on purpose:</b> genres and people. MP2 does not store them on the title; the
+    /// importer files them as separate items linked by relationships (<c>GenreAspect</c>, <c>PersonAspect</c>), so
+    /// naming them here would mean a relationship query per title and an answer that looks complete while
+    /// reporting the ids of other items. The fields the title carries itself are what arrives, and a null means
+    /// the library has nothing - which is the common case for a film imported without an NFO file.
+    /// </para>
+    /// </remarks>
+    [HttpGet("items/{id}")]
+    public ActionResult<ItemResult> GetItem(Guid id)
+    {
+      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
+      if (mediaLibrary == null)
+        return StatusCode(StatusCodes.Status503ServiceUnavailable);
+
+      try
+      {
+        // The Media aspect is the necessary one because it is the one this answer is meaningless without: an item
+        // the database holds with no title and no date is a row, not a title, and "no such title" is the honest
+        // answer to a request for it. Everything else is optional, so a film with only a Media aspect still gets
+        // its answer rather than a 404 for lacking a plot.
+        List<Guid> necessary = new List<Guid> { MediaAspect.ASPECT_ID };
+        List<Guid> optional = new List<Guid>
+        {
+          ProviderResourceAspect.ASPECT_ID,
+          MovieAspect.ASPECT_ID,
+          VideoAspect.ASPECT_ID,
+          EpisodeAspect.ASPECT_ID
+        };
+
+        MediaItemQuery query = new MediaItemQuery(necessary, optional, new MediaItemIdFilter(id));
+        IList<MediaItem> items = mediaLibrary.Search(query, false, null, false);
+        MediaItem item = items == null ? null : items.FirstOrDefault();
+
+        if (item == null)
+          return NotFound(new ItemResult { Id = id, Error = "this server has no title with the id " + id });
+
+        return ToItem(item);
+      }
+      catch (IllegalCallException ex)
+      {
+        return NotReadyItem(ex);
+      }
+    }
+
+    /// <summary>
+    /// The attribute's text, or null when it holds none.
+    /// </summary>
+    /// <remarks>
+    /// The database stores an unset single-string attribute as the empty string, and a details screen handed one
+    /// would draw a blank line - which reads as a broken screen rather than as a title nobody described. Trimmed
+    /// for the same reason: a stored space is not a plot summary.
+    /// </remarks>
+    private static string Text(string value)
+    {
+      return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+    }
+
+    /// <summary>
+    /// Turns a media item into the answer of <see cref="GetItem"/>.
+    /// </summary>
+    /// <remarks>
+    /// Every attribute read is one the item may not carry, so each is read inside its aspect's presence check -
+    /// and a missing one stays null rather than becoming zero, which for a runtime or a season number would be a
+    /// claim about the media that the database never made.
+    /// </remarks>
+    private static ItemResult ToItem(MediaItem item)
+    {
+      ItemResult result = new ItemResult { Id = item.MediaItemId };
+
+      SingleMediaItemAspect media;
+      if (MediaItemAspect.TryGetAspect(item.Aspects, MediaAspect.Metadata, out media))
+      {
+        result.Title = Text(media.GetAttributeValue<string>(MediaAspect.ATTR_TITLE));
+        result.SortTitle = Text(media.GetAttributeValue<string>(MediaAspect.ATTR_SORT_TITLE));
+        result.Overview = Text(media.GetAttributeValue<string>(MediaAspect.ATTR_COMMENT));
+        result.Rating = media.GetAttributeValue<int>(MediaAspect.ATTR_RATING);
+        result.PlayCount = media.GetAttributeValue<int>(MediaAspect.ATTR_PLAYCOUNT);
+        DateTime lastPlayed = media.GetAttributeValue<DateTime>(MediaAspect.ATTR_LASTPLAYED);
+        if (lastPlayed != DateTime.MinValue)
+          result.LastPlayed = lastPlayed;
+        DateTime recordingTime = media.GetAttributeValue<DateTime>(MediaAspect.ATTR_RECORDINGTIME);
+        if (recordingTime != DateTime.MinValue)
+          result.Year = recordingTime.Year;
+      }
+
+      // The same rule as the title list: "<Unknown>" is MediaItem.Title's own fallback, and a details screen has
+      // even less business showing an internal fallback as the name of a film than a list does.
+      if (result.Title == "<Unknown>")
+        result.Title = null;
+
+      SingleMediaItemAspect movie;
+      if (MediaItemAspect.TryGetAspect(item.Aspects, MovieAspect.Metadata, out movie))
+      {
+        int runtime = movie.GetAttributeValue<int>(MovieAspect.ATTR_RUNTIME_M);
+        if (runtime > 0)
+          result.RuntimeMinutes = runtime;
+        result.Certification = Text(movie.GetAttributeValue<string>(MovieAspect.ATTR_CERTIFICATION));
+        result.Tagline = Text(movie.GetAttributeValue<string>(MovieAspect.ATTR_TAGLINE));
+        result.Collection = Text(movie.GetAttributeValue<string>(MovieAspect.ATTR_COLLECTION_NAME));
+      }
+
+      SingleMediaItemAspect video;
+      if (MediaItemAspect.TryGetAspect(item.Aspects, VideoAspect.Metadata, out video))
+        result.StoryPlot = Text(video.GetAttributeValue<string>(VideoAspect.ATTR_STORYPLOT));
+
+      SingleMediaItemAspect episode;
+      if (MediaItemAspect.TryGetAspect(item.Aspects, EpisodeAspect.Metadata, out episode))
+      {
+        result.SeriesName = Text(episode.GetAttributeValue<string>(EpisodeAspect.ATTR_SERIES_NAME));
+        result.Season = episode.GetAttributeValue<int>(EpisodeAspect.ATTR_SEASON);
+        result.EpisodeName = Text(episode.GetAttributeValue<string>(EpisodeAspect.ATTR_EPISODE_NAME));
+
+        // An episode number is a collection in MP2 - a double episode is one item carrying two numbers - so it is
+        // read as one, the way the series relationship extractors read it. The first number is what the answer
+        // names, because "S01E01" is what a viewer recognises; the rest of a double episode is on the title
+        // itself and a screen that has to show two numbers can ask for the item again.
+        IEnumerable<int> numbers = episode.GetCollectionAttribute<int>(EpisodeAspect.ATTR_EPISODE);
+        if (numbers != null)
+        {
+          List<int> ordered = numbers.Where(number => number > 0).Distinct().OrderBy(number => number).ToList();
+          if (ordered.Count > 0)
+            result.Episode = ordered[0];
+        }
+      }
+
+      result.Stub = item.IsStub;
+      result.Path = ReadPath(item);
+      return result;
+    }
+
+    /// <summary>
+    /// The answer for a media library that cannot answer yet, in the shape <see cref="GetItem"/> gives.
+    /// </summary>
+    /// <remarks>
+    /// A second method rather than a shared one because the two endpoints answer with different types, and
+    /// <see cref="NotReady"/> builds a <see cref="TitlesResult"/> body; a client that reads <c>error</c> out of
+    /// either gets the same word from both, which is the only promise that has to hold.
+    /// </remarks>
+    private static ObjectResult NotReadyItem(IllegalCallException exception)
+    {
+      ILogger logger = ServiceRegistration.Get<ILogger>(false);
+      if (logger != null)
+        logger.Info("MediaController: the media library refused a details request, answering 503: {0}",
+            exception.Message);
+      return new ObjectResult(new ItemResult { Error = exception.Message })
+      {
+        StatusCode = StatusCodes.Status503ServiceUnavailable
+      };
+    }
+
+    /// <summary>
     /// The three sorts a title list has: by name, by year, or by none at all.
     /// </summary>
     /// <remarks>

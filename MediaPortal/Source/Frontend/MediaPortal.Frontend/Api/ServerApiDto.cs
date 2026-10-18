@@ -159,4 +159,58 @@ namespace MediaPortal.Frontend.Api
       get { return Math.Max(Total - Offset - Returned, 0); }
     }
   }
+
+  /// <summary>
+  /// One title as <c>GET api/media/items/{id}</c> answers it: what the library knows beyond the row in a list.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Every field is nullable because that is what the library's own data looks like: a film imported from a bare
+  /// file name has a title and a path and nothing else, and a details screen that was given empty strings would
+  /// render a blank line where the truth is "this server was never told". <paramref name="Overview"/> and
+  /// <paramref name="StoryPlot"/> are two fields because MP2 keeps two fields - the comment on the Media aspect
+  /// and the plot on the Video aspect - and one title commonly has one and not the other.
+  /// </para>
+  /// <para>
+  /// There are no genres and no people here, and that is the server's decision, not an omission here: MP2 files
+  /// those as separate items linked by relationships, so naming them would mean a query per title.
+  /// </para>
+  /// </remarks>
+  public record MediaItemDetails(
+      [property: JsonPropertyName("id")] Guid Id,
+      [property: JsonPropertyName("title")] string? Title,
+      [property: JsonPropertyName("sortTitle")] string? SortTitle,
+      [property: JsonPropertyName("year")] int? Year,
+      [property: JsonPropertyName("runtimeMinutes")] int? RuntimeMinutes,
+      [property: JsonPropertyName("overview")] string? Overview,
+      [property: JsonPropertyName("storyPlot")] string? StoryPlot,
+      [property: JsonPropertyName("tagline")] string? Tagline,
+      [property: JsonPropertyName("certification")] string? Certification,
+      [property: JsonPropertyName("collection")] string? Collection,
+      [property: JsonPropertyName("rating")] int? Rating,
+      [property: JsonPropertyName("seriesName")] string? SeriesName,
+      [property: JsonPropertyName("season")] int? Season,
+      [property: JsonPropertyName("episode")] int? Episode,
+      [property: JsonPropertyName("episodeName")] string? EpisodeName,
+      [property: JsonPropertyName("playCount")] int? PlayCount,
+      [property: JsonPropertyName("lastPlayed")] DateTime? LastPlayed,
+      [property: JsonPropertyName("path")] string? Path,
+      [property: JsonPropertyName("stub")] bool Stub,
+      [property: JsonPropertyName("error")] string? Error)
+  {
+    /// <summary>
+    /// The longest single line of prose the title carries, or null when it carries none. What a details screen
+    /// puts in the middle of the screen, decided here so that two screens do not pick different fields and then
+    /// disagree about what a film is about.
+    /// </summary>
+    public string? Description
+    {
+      get
+      {
+        if (!string.IsNullOrWhiteSpace(Overview))
+          return Overview!.Trim();
+        return string.IsNullOrWhiteSpace(StoryPlot) ? null : StoryPlot!.Trim();
+      }
+    }
+  }
 }

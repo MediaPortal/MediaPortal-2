@@ -446,6 +446,265 @@ namespace Tests.Frontend
           "so there is nothing left to ask for; the paging itself is the server endpoint's own test");
     }
 
+    #region What one title says about itself
+
+    /// <summary>
+    /// A title as an importer leaves it after reading the sidecar file next to the film: a plot, a length, a
+    /// certificate, and the record of the evening it was last watched. None of it fits in a row of a list, which
+    /// is exactly why a screen that only lists titles has to be able to ask about one.
+    /// </summary>
+    private class DescribedItem : MediaItem
+    {
+      private readonly string _serialized;
+
+      internal DescribedItem(Guid id, string title, string serialized)
+          : base(id, Describe(title))
+      {
+        _serialized = serialized;
+      }
+
+      private static IDictionary<Guid, IList<MediaItemAspect>> Describe(string title)
+      {
+        SingleMediaItemAspect media = new SingleMediaItemAspect(ServerMediaAspect.Metadata);
+        media.SetAttribute(ServerMediaAspect.ATTR_TITLE, title);
+        media.SetAttribute(ServerMediaAspect.ATTR_SORT_TITLE, title);
+        media.SetAttribute(ServerMediaAspect.ATTR_RECORDINGTIME, new DateTime(1997, 12, 19));
+        media.SetAttribute(ServerMediaAspect.ATTR_COMMENT,
+            "A treasure hunter follows a drawing from 1912 to a wreck, and to the woman he met on it.");
+        media.SetAttribute(ServerMediaAspect.ATTR_RATING, 9);
+        media.SetAttribute(ServerMediaAspect.ATTR_PLAYCOUNT, 2);
+        media.SetAttribute(ServerMediaAspect.ATTR_LASTPLAYED, new DateTime(2025, 3, 2));
+
+        SingleMediaItemAspect movie = new SingleMediaItemAspect(MovieAspect.Metadata);
+        movie.SetAttribute(MovieAspect.ATTR_RUNTIME_M, 195);
+        movie.SetAttribute(MovieAspect.ATTR_CERTIFICATION, "PG-13");
+        movie.SetAttribute(MovieAspect.ATTR_TAGLINE, "Nothing on Earth could come between them.");
+
+        return new Dictionary<Guid, IList<MediaItemAspect>>
+        {
+            { ServerMediaAspect.ASPECT_ID, new List<MediaItemAspect> { media } },
+            { MovieAspect.ASPECT_ID, new List<MediaItemAspect> { movie } }
+        };
+      }
+
+      public override IResourceLocator GetResourceLocator()
+      {
+        return new StubLocator(ResourcePath.Deserialize(_serialized));
+      }
+    }
+
+    private const string TITANIC = "11111111-1111-1111-1111-111111111111";
+
+    /// <summary>
+    /// One film as the details endpoint answers it, with nothing said about where it is kept - which is the
+    /// situation a title on another machine puts the viewer in.
+    /// </summary>
+    private static readonly string TITANIC_DETAILS =
+        "{\"id\":\"" + TITANIC + "\",\"title\":\"Titanic\",\"year\":1997,\"runtimeMinutes\":195,"
+        + "\"overview\":\"A drawing from 1912 leads a treasure hunter to a wreck.\","
+        + "\"certification\":\"PG-13\",\"rating\":9,\"playCount\":2,"
+        + "\"lastPlayed\":\"2025-03-02T00:00:00\"}";
+
+    /// <summary>
+    /// A server that answers the details question with what the test names, and counts how often it was asked.
+    /// Every other URL is answered with the one-row title list, so that a screen can be opened on it.
+    /// </summary>
+    private class DetailsServer : HttpMessageHandler
+    {
+      private readonly HttpStatusCode _code;
+      private readonly string _details;
+
+      internal DetailsServer(HttpStatusCode code, string details)
+      {
+        _code = code;
+        _details = details;
+      }
+
+      internal int TimesAsked { get; private set; }
+
+      protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+          CancellationToken cancellation)
+      {
+        if (request.RequestUri!.AbsolutePath.EndsWith("api/media/items/" + TITANIC))
+        {
+          TimesAsked++;
+          return Task.FromResult(new HttpResponseMessage(_code)
+          {
+            RequestMessage = request,
+            Content = new StringContent(_details, Encoding.UTF8, "application/json")
+          });
+        }
+
+        return Task.FromResult(Answer(request, HttpStatusCode.OK,
+            "{\"total\":1,\"offset\":0,\"limit\":60,\"returned\":1,\"sort\":\"title\",\"titles\":"
+            + "[{\"id\":\"" + TITANIC + "\",\"title\":\"Titanic\",\"year\":1997}]}"));
+      }
+
+      private static HttpResponseMessage Answer(HttpRequestMessage request, HttpStatusCode code, string body)
+      {
+        return new HttpResponseMessage(code)
+        {
+          RequestMessage = request,
+          Content = new StringContent(body, Encoding.UTF8, "application/json")
+        };
+      }
+    }
+
+    private static MediaBrowserViewModel BrowserOn(DetailsServer server)
+    {
+      return new MediaBrowserViewModel(new ServerApiClient(SIGN_IN_URL, new HttpClient(server)), MoviesSection);
+    }
+
+    [AvaloniaTest]
+    public void TheInfoKeyShowsWhatTheServerKnowsAboutTheSelectedTitle()
+    {
+      RegisterLibrary(new DescribedItem(new Guid(TITANIC), "Titanic",
+          RESOURCE_SYSTEM_ID.ToString("B") + "://" + LOCAL_PATH));
+      InProcessApi server = StartServer();
+
+      MediaBrowserViewModel browser =
+          new MediaBrowserViewModel(new ServerApiClient(server.BaseUrl), MoviesSection);
+      browser.OpenCommand.Execute(null);
+      WaitUntil("the title to arrive", delegate { return browser.Titles.Count == 1; });
+
+      browser.ToggleDetailsCommand.Execute(null);
+      WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
+
+      Assert.That(browser.DetailsHeading, Is.EqualTo("Titanic (1997)"));
+      Assert.That(browser.DetailsLine, Does.Contain("195 min"));
+      Assert.That(browser.DetailsLine, Does.Contain("PG-13"),
+          "how old a viewer has to be is the first thing two people argue about over a film");
+      Assert.That(browser.DetailsLine, Does.Contain("rated 9/10"));
+      Assert.That(browser.DetailsLine, Does.Contain("watched 2"), "and whether they have seen it");
+      Assert.That(browser.DetailsLine, Does.Contain("2025-03-02"));
+      Assert.That(browser.DetailsText, Does.StartWith("A treasure hunter"),
+          "the prose the server holds is what the panel is there for");
+      Assert.That(browser.DetailsPath, Does.Contain("MediaPortal2-Film.mkv"),
+          "and where the file is, because a viewer who cannot find it wants to know why");
+    }
+
+    [AvaloniaTest]
+    public void ThePanelClosesAndReopensWithoutAskingTheServerAgain()
+    {
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK, TITANIC_DETAILS);
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.Selected = new TitleViewModel(new MediaTitle(new Guid(TITANIC), "Titanic", null, 1997, null, null, false));
+
+      browser.ToggleDetailsCommand.Execute(null);
+      WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
+      browser.ToggleDetailsCommand.Execute(null);
+      Pump();
+      Assert.That(browser.DetailsVisible, Is.False, "the same key that opened the panel closes it");
+
+      browser.ToggleDetailsCommand.Execute(null);
+      Pump();
+      Assert.That(browser.DetailsVisible, Is.True, "and opens it again on the spot");
+      Assert.That(server.TimesAsked, Is.EqualTo(1),
+          "a viewer who presses the key twice to look and again to think does not wait twice");
+    }
+
+    [AvaloniaTest]
+    public void ATitleTheServerNoLongerHasSaysSoRatherThanOpeningAnEmptyPanel()
+    {
+      DetailsServer server = new DetailsServer(HttpStatusCode.NotFound,
+          "{\"id\":\"" + TITANIC + "\",\"error\":\"this server has no title with the id " + TITANIC + "\"}");
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.Selected = new TitleViewModel(new MediaTitle(new Guid(TITANIC), "Titanic", null, 1997, null, null, false));
+
+      browser.ToggleDetailsCommand.Execute(null);
+      WaitUntil("the server's answer", delegate { return browser.Status.Contains("no title"); });
+
+      Assert.That(browser.DetailsVisible, Is.False,
+          "an empty panel would be a second, worse answer to the question than the status line");
+      Assert.That(browser.Status, Does.Contain("no title with the id"),
+          "the server's own words are the honest ones: the library was rebuilt under the list");
+    }
+
+    [AvaloniaTest]
+    public void ADetailTheServerKeepsForSignedInUsersSaysHowToSignIn()
+    {
+      DetailsServer server = new DetailsServer(HttpStatusCode.Forbidden, "");
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.Selected = new TitleViewModel(new MediaTitle(new Guid(TITANIC), "Titanic", null, 1997, null, null, false));
+
+      browser.ToggleDetailsCommand.Execute(null);
+      WaitUntil("the server's answer",
+          delegate { return browser.Status.IndexOf("sign in", StringComparison.OrdinalIgnoreCase) >= 0; });
+      Assert.That(browser.DetailsVisible, Is.False);
+      Assert.That(browser.Status, Does.Contain("sign in").IgnoreCase,
+          "a 403 without a way out of it reads as a broken server");
+    }
+
+    [AvaloniaTest]
+    public void AnEpisodeSaysWhichEpisodeItIs()
+    {
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK,
+          "{\"id\":\"" + TITANIC + "\",\"title\":\"Alien Earth\",\"year\":2025,"
+          + "\"seriesName\":\"Alien Earth\",\"season\":1,\"episode\":1,"
+          + "\"episodeName\":\"Nimmerland\",\"runtimeMinutes\":52}");
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.Selected = new TitleViewModel(
+          new MediaTitle(new Guid(TITANIC), "Alien Earth", null, 2025, null, null, false));
+
+      browser.ToggleDetailsCommand.Execute(null);
+      WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
+
+      Assert.That(browser.DetailsLine, Does.Contain("S01E01"),
+          "the number a viewer is looking for in a series, in the shape every series app uses");
+      Assert.That(browser.DetailsLine, Does.Contain("Nimmerland"));
+      Assert.That(browser.DetailsText, Is.EqualTo("Nothing was written about this title on this server."),
+          "a series episode imported without a summary has none, and the panel says that instead of lying");
+    }
+
+    [AvaloniaTest]
+    public void TheInfoKeyOpensThePanelAndBackClosesThePanelBeforeTheWindow()
+    {
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK, TITANIC_DETAILS);
+      MediaBrowserViewModel browser = BrowserOn(server);
+      MediaBrowserWindow window = new MediaBrowserWindow(browser);
+      window.Show();
+      WaitUntil("the row to arrive", delegate { return browser.Titles.Count == 1; });
+
+      ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "titlesList");
+      Border panel = window.GetVisualDescendants().OfType<Border>()
+          .First(border => border.Name == "detailsPanel");
+      Assert.That(panel.IsVisible, Is.False, "nothing is on screen until it is asked for");
+
+      titles.Focus();
+      window.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.I,
+        Source = titles
+      });
+      WaitUntil("the panel to open", delegate { return panel.IsVisible; });
+      Assert.That(browser.DetailsHeading, Is.EqualTo("Titanic (1997)"));
+      Assert.That(titles.Items.Count, Is.EqualTo(1), "the list stayed where it was behind the panel");
+
+      window.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Escape,
+        Source = titles
+      });
+      Pump();
+      Assert.That(panel.IsVisible, Is.False);
+      Assert.That(window.IsVisible, Is.True, "back put the panel away, not the screen");
+      Assert.That(browser.Selected, Is.Not.Null, "and the viewer is still on the same row");
+
+      window.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Escape,
+        Source = titles
+      });
+      Pump();
+      Assert.That(window.IsVisible, Is.False, "the second back is the way out of the screen");
+    }
+
+    #endregion
+
     #region Asking who is allowed
 
     /// <summary>

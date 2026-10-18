@@ -16,7 +16,9 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -144,6 +146,28 @@ namespace MediaPortal.Frontend.ViewModels
     [ObservableProperty]
     private TitleViewModel? _selected;
 
+    /// <summary>
+    /// Whether the details panel is on screen. Off until a viewer asks for one title, because the list is the
+    /// screen - the panel is a question about one row, not a second place to navigate to.
+    /// </summary>
+    [ObservableProperty]
+    private bool _detailsVisible;
+
+    [ObservableProperty]
+    private string _detailsHeading = "";
+
+    [ObservableProperty]
+    private string _detailsLine = "";
+
+    [ObservableProperty]
+    private string _detailsText = "";
+
+    [ObservableProperty]
+    private string _detailsPath = "";
+
+    /// <summary>The title the last details read was for, so that opening it again costs nothing.</summary>
+    private Guid _detailsFor;
+
     public MediaBrowserViewModel()
         : this(null, null)
     {
@@ -225,6 +249,128 @@ namespace MediaPortal.Frontend.ViewModels
 
       Selected = title;
       PlayRequested?.Invoke(this, title);
+    }
+
+    /// <summary>
+    /// Opens the details of the selected title, or closes the panel again. The screen's "info" key, and the only
+    /// way a viewer learns that the server knows more about a film than its name and its length.
+    /// </summary>
+    /// <remarks>
+    /// The read is per title and remembered: pressing the key twice on the same row costs nothing, which is what
+    /// a viewer who pressed it to look and again to think expects. A failure leaves the panel closed - an empty
+    /// panel would be a second, worse answer to the question than the status line.
+    /// </remarks>
+    [RelayCommand]
+    public async Task ToggleDetailsAsync()
+    {
+      if (DetailsVisible)
+      {
+        DetailsVisible = false;
+        return;
+      }
+
+      TitleViewModel? title = Selected;
+      if (title == null)
+      {
+        Status = "Nothing selected";
+        return;
+      }
+      if (_client == null)
+      {
+        Status = "No server configured";
+        return;
+      }
+      if (_detailsFor == title.Title.Id)
+      {
+        DetailsVisible = true;
+        return;
+      }
+
+      await ReadDetailsAsync(title);
+    }
+
+    /// <summary>Closes the panel. Escape on the screen, and what a viewer presses to get the list back.</summary>
+    public void CloseDetails()
+    {
+      DetailsVisible = false;
+    }
+
+    private async Task ReadDetailsAsync(TitleViewModel title)
+    {
+      if (_client == null)
+        return;
+
+      try
+      {
+        MediaItemDetails details = await _client.GetItemAsync(title.Title.Id);
+        _detailsFor = title.Title.Id;
+
+        string name = string.IsNullOrWhiteSpace(details.Title) ? title.Name : details.Title!.Trim();
+        DetailsHeading = details.Year.HasValue ? name + " (" + details.Year.Value + ")" : name;
+        DetailsLine = DescribeLine(details, title);
+        DetailsText = details.Description ?? "Nothing was written about this title on this server.";
+        DetailsPath = details.Path ?? title.Title.Path ?? "This title has no resource the server can name.";
+        DetailsVisible = true;
+      }
+      catch (ServerApiException ex)
+      {
+        if (ex.StatusCode == 403)
+          Status = "The details are only for signed-in users on this server. Sign in on the server screen.";
+        else if (ex.NotReady)
+          Status = "The server is not ready yet: " + ex.Message;
+        else
+          Status = ex.Message;
+      }
+      catch (Exception ex)
+      {
+        Status = "Reading the details failed: " + ex.Message;
+      }
+    }
+
+    /// <summary>
+    /// The one line under the title: what a viewer decides with, in the order they decide with it - which episode
+    /// it is, how long, what it costs to watch in years, and whether they have seen it.
+    /// </summary>
+    private static string DescribeLine(MediaItemDetails details, TitleViewModel title)
+    {
+      List<string> parts = new List<string>();
+
+      if (details.Season.HasValue || details.Episode.HasValue)
+      {
+        string number = "S" + (details.Season ?? 0).ToString("00", CultureInfo.InvariantCulture)
+            + "E" + (details.Episode ?? 0).ToString("00", CultureInfo.InvariantCulture);
+        parts.Add(string.IsNullOrWhiteSpace(details.EpisodeName) ? number : number + " · " + details.EpisodeName!.Trim());
+      }
+      else if (!string.IsNullOrWhiteSpace(details.SeriesName))
+      {
+        parts.Add(details.SeriesName!.Trim());
+      }
+
+      if (!string.IsNullOrWhiteSpace(details.Collection))
+        parts.Add(details.Collection!.Trim());
+
+      int? minutes = details.RuntimeMinutes ?? title.Title.RuntimeMinutes;
+      if (minutes.HasValue && minutes.Value > 0)
+        parts.Add(minutes.Value + " min");
+
+      if (!string.IsNullOrWhiteSpace(details.Certification))
+        parts.Add(details.Certification!.Trim());
+
+      if (details.Rating.HasValue && details.Rating.Value > 0)
+        parts.Add("rated " + details.Rating.Value + "/10");
+
+      if (details.PlayCount.HasValue && details.PlayCount.Value > 0)
+      {
+        string played = "watched " + details.PlayCount.Value + "×";
+        if (details.LastPlayed.HasValue)
+          played += ", last " + details.LastPlayed.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+        parts.Add(played);
+      }
+
+      if (details.Stub || title.Title.Stub)
+        parts.Add("stub");
+
+      return parts.Count == 0 ? "No more is known about this title" : string.Join(" · ", parts);
     }
 
     private async Task ReadAsync(int offset)

@@ -31,6 +31,7 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Headless;
+using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
@@ -60,7 +61,7 @@ namespace FrontendProbe
   public static class RenderProbe
   {
     private const string USAGE =
-        "Frontend.RenderProbe --out <file.png> [--screen <home|nowplaying|connect|browser>] [--server <url>] [--width <n>] [--height <n>]\n" +
+        "Frontend.RenderProbe --out <file.png> [--screen <home|nowplaying|connect|browser|details>] [--server <url>] [--width <n>] [--height <n>]\n" +
         "  --out <file>     where to write the rendered frame (PNG); its directory is created\n" +
         "  --screen <name>  which screen to render (default home)\n" +
         "  --server <url>   render the populated screen by asking this server (otherwise MP2_SERVER,\n" +
@@ -179,6 +180,11 @@ namespace FrontendProbe
       bool online = !string.IsNullOrWhiteSpace(url);
 
       Window window;
+
+      // Set when the frame to render is the list with its details panel open. The key is pressed once the window
+      // is on screen, because that is when a viewer would press it - and the panel has to survive the layout the
+      // window does when it opens.
+      bool detailsAsked = false;
       HomeViewModel? home = null;
       ConnectionViewModel? connection = null;
       string playbackStatus = "";
@@ -263,7 +269,8 @@ namespace FrontendProbe
 
         window = new ConnectionWindow(connection);
       }
-      else if (screenName.Equals("browser", StringComparison.Ordinal))
+      else if (screenName.Equals("browser", StringComparison.Ordinal)
+          || screenName.Equals("details", StringComparison.Ordinal))
       {
         if (online)
           Console.WriteLine("note:     --server belongs to the home screen; the title list is scripted instead");
@@ -290,11 +297,13 @@ namespace FrontendProbe
           return 1;
         }
 
+        detailsAsked = screenName.Equals("details", StringComparison.Ordinal);
         window = new MediaBrowserWindow(browser, null);
       }
       else
       {
-        return Usage("unknown screen '" + screenName + "'; this probe renders home, nowplaying, connect or browser.");
+        return Usage("unknown screen '" + screenName + "'; this probe renders home, nowplaying, connect, browser"
+            + " or details.");
       }
 
       window.Width = width;
@@ -343,6 +352,30 @@ namespace FrontendProbe
           Console.WriteLine("FAILED:   a populated screen was asked for ('" + url + "'), but the server answered no"
               + " aspects. Status says: '" + home.Status + "'.");
           return 4;
+        }
+      }
+
+      if (detailsAsked && window is MediaBrowserWindow detailsScreen)
+      {
+        // The key a viewer presses, raised the way the remote raises it, rather than the view model's command
+        // called from here: the frame is then the proof that the key, the handler on the window and the panel
+        // hang together, and not merely that the panel can be made to show.
+        detailsScreen.RaiseEvent(new KeyEventArgs
+        {
+          RoutedEvent = InputElement.KeyDownEvent,
+          Key = Key.I,
+          Source = detailsScreen
+        });
+        Pump(TimeSpan.FromMilliseconds(500));
+
+        MediaBrowserViewModel list = (MediaBrowserViewModel) detailsScreen.DataContext!;
+        Console.WriteLine("details:  " + (list.DetailsVisible
+            ? "panel open on \"" + list.DetailsHeading + "\" - \"" + list.DetailsLine + "\""
+            : "the panel stayed closed; status says '" + list.Status + "'"));
+        if (!list.DetailsVisible)
+        {
+          Console.WriteLine("FAILED:   the info key did not open the panel, so the frame would be the plain list twice.");
+          return 1;
         }
       }
 
@@ -488,6 +521,29 @@ namespace FrontendProbe
           CancellationToken cancellation)
       {
         string folder = Path.Combine(Path.GetTempPath(), "mp2-render");
+
+        // One film read up close, which is what no row of a list has room for. Answered in the shape of
+        // GET api/media/items/{id} for whichever id is asked, because the frame is about the panel rather than
+        // about a database: the title it opens on is the first of the twelve below.
+        if (request.RequestUri!.AbsolutePath.Contains("api/media/items/", StringComparison.Ordinal))
+        {
+          MediaItemDetails one = new MediaItemDetails(
+              new Guid("00000000-0000-4000-8000-000000000001"), NAMES[0], NAMES[0], 2011, 88,
+              "Two sisters inherit a house at the end of a road that stops at the sea, and spend the winter"
+              + " finding out what the last owner left inside the walls. A quiet film about a house, the tide, and"
+              + " the letters nobody ever posted.",
+              null, "Some doors are worth leaving shut.", "FSK 12", null, 8, null, null, null, null, 1,
+              new DateTime(2025, 1, 12),
+              "{D3525B2F-7322-430C-87E7-CDA8EBD6EDD2}://" + Path.Combine(folder, NAMES[0] + ".mkv"),
+              false, null);
+
+          return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+          {
+            RequestMessage = request,
+            Content = new StringContent(JsonSerializer.Serialize(one), Encoding.UTF8, "application/json")
+          });
+        }
+
         List<MediaTitle> titles = new List<MediaTitle>();
 
         for (int i = 0; i < NAMES.Length; i++)

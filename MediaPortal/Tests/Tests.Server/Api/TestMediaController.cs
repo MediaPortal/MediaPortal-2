@@ -188,6 +188,62 @@ namespace Tests.Server.Api
     }
 
     /// <summary>
+    /// Asks the details endpoint for one title, the way <see cref="GetTitles"/> asks the list endpoint.
+    /// </summary>
+    private static MediaController.ItemResult GetItem(IMediaLibrary library, Guid id,
+        out ActionResult<MediaController.ItemResult> action)
+    {
+      ServiceRegistration.Set<IMediaLibrary>(library);
+      action = new MediaController().GetItem(id);
+      return Body(action);
+    }
+
+    /// <summary>
+    /// An item with everything a details screen reads on it, each attribute written out separately because a test
+    /// that filled them from a loop could not say which one the endpoint had mixed up.
+    /// </summary>
+    private static MediaItem CreateDetailedItem(Guid id, string title, string overview, string storyPlot,
+        string seriesName, int season, int episode, string episodeName)
+    {
+      SingleMediaItemAspect media = CreateMediaAspect(title, title, new DateTime(2025, 4, 27, 20, 15, 0));
+      media.SetAttribute(MediaAspect.ATTR_COMMENT, overview);
+      media.SetAttribute(MediaAspect.ATTR_RATING, 8);
+      media.SetAttribute(MediaAspect.ATTR_PLAYCOUNT, 3);
+      media.SetAttribute(MediaAspect.ATTR_LASTPLAYED, new DateTime(2025, 5, 1, 21, 30, 0));
+
+      SingleMediaItemAspect movie = CreateMovieAspect(52);
+      movie.SetAttribute(MovieAspect.ATTR_CERTIFICATION, "FSK 16");
+      movie.SetAttribute(MovieAspect.ATTR_TAGLINE, "In space, no one can hear you run");
+      movie.SetAttribute(MovieAspect.ATTR_COLLECTION_NAME, "Alien Collection");
+
+      SingleMediaItemAspect video = new SingleMediaItemAspect(VideoAspect.Metadata);
+      video.SetAttribute(VideoAspect.ATTR_STORYPLOT, storyPlot);
+
+      SingleMediaItemAspect episodeAspect = new SingleMediaItemAspect(EpisodeAspect.Metadata);
+      episodeAspect.SetAttribute(EpisodeAspect.ATTR_SERIES_NAME, seriesName);
+      episodeAspect.SetAttribute(EpisodeAspect.ATTR_SEASON, season);
+      episodeAspect.SetCollectionAttribute(EpisodeAspect.ATTR_EPISODE, new[] { episode });
+      episodeAspect.SetAttribute(EpisodeAspect.ATTR_EPISODE_NAME, episodeName);
+
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>
+      {
+          { MediaAspect.ASPECT_ID, new List<MediaItemAspect> { media } },
+          { MovieAspect.ASPECT_ID, new List<MediaItemAspect> { movie } },
+          { VideoAspect.ASPECT_ID, new List<MediaItemAspect> { video } },
+          { EpisodeAspect.ASPECT_ID, new List<MediaItemAspect> { episodeAspect } }
+      };
+      return new TestItem(id, aspects, CreateLocator(RESOURCE_PATH));
+    }
+
+    /// <summary>A resource locator that hands back the path a test names.</summary>
+    private static IResourceLocator CreateLocator(string serializedPath)
+    {
+      var locator = new Mock<IResourceLocator>();
+      locator.Setup(get => get.NativeResourcePath).Returns(ResourcePath.Deserialize(serializedPath));
+      return locator.Object;
+    }
+
+    /// <summary>
     /// The status code a controller asked the framework to send, or null when it simply returned a body.
     /// </summary>
     /// <remarks>
@@ -497,6 +553,130 @@ namespace Tests.Server.Api
       Assert.That(result.Limit, Is.EqualTo(2));
       Assert.That(result.Returned, Is.EqualTo(2));
       Assert.That(result.Error, Is.Null);
+    }
+
+    #endregion
+
+    #region What one title holds
+
+    [Test]
+    public void OneTitleAnswersWithWhatTheLibraryKnowsAboutIt()
+    {
+      Guid id = Guid.NewGuid();
+      MediaItem item = CreateDetailedItem(id, "Alien Earth", "A family on a distant world.",
+          "Stranded colonists learn the planet was inhabited.", "Alien Earth", 1, 1, "Nimmerland");
+
+      ActionResult<MediaController.ItemResult> action;
+      MediaController.ItemResult result = GetItem(
+          CreateLibrary(new List<MediaItem> { item }, 1, out _, out _), id, out action);
+
+      Assert.That(Status(action), Is.Null, "the item was found, so the answer is a plain body");
+      Assert.That(result.Id, Is.EqualTo(id));
+      Assert.That(result.Title, Is.EqualTo("Alien Earth"));
+      Assert.That(result.Year, Is.EqualTo(2025));
+      Assert.That(result.RuntimeMinutes, Is.EqualTo(52));
+      Assert.That(result.Overview, Is.EqualTo("A family on a distant world."));
+      Assert.That(result.StoryPlot, Is.EqualTo("Stranded colonists learn the planet was inhabited."));
+      Assert.That(result.Certification, Is.EqualTo("FSK 16"));
+      Assert.That(result.Tagline, Is.EqualTo("In space, no one can hear you run"));
+      Assert.That(result.Collection, Is.EqualTo("Alien Collection"));
+      Assert.That(result.Rating, Is.EqualTo(8));
+      Assert.That(result.PlayCount, Is.EqualTo(3));
+      Assert.That(result.LastPlayed, Is.EqualTo(new DateTime(2025, 5, 1, 21, 30, 0)));
+      Assert.That(result.Path, Is.EqualTo(RESOURCE_PATH),
+          "the same path the title list gave, so the row that offered the film can still play it");
+    }
+
+    [Test]
+    public void AnEpisodeNamesItsSeriesAndNumbers()
+    {
+      Guid id = Guid.NewGuid();
+      MediaItem item = CreateDetailedItem(id, "Nimmerland", "", "", "Alien Earth", 1, 1, "Nimmerland");
+
+      ActionResult<MediaController.ItemResult> action;
+      MediaController.ItemResult result = GetItem(
+          CreateLibrary(new List<MediaItem> { item }, 1, out _, out _), id, out action);
+
+      Assert.That(result.SeriesName, Is.EqualTo("Alien Earth"));
+      Assert.That(result.Season, Is.EqualTo(1));
+      Assert.That(result.Episode, Is.EqualTo(1));
+      Assert.That(result.EpisodeName, Is.EqualTo("Nimmerland"));
+      Assert.That(result.Overview, Is.Null,
+          "an attribute the database holds empty is answered as nothing, not as an empty string that a screen "
+          + "would draw as a blank line");
+    }
+
+    [Test]
+    public void TheDetailsAreAskedForByIdAndNotGuessedAt()
+    {
+      Guid id = Guid.NewGuid();
+      List<MediaItemQuery> queries;
+      MediaItem item = CreateItem(id, "One Of One", "One Of One", DateTime.Now);
+
+      ActionResult<MediaController.ItemResult> action;
+      GetItem(CreateLibrary(new List<MediaItem> { item }, 1, out queries, out _), id, out action);
+
+      Assert.That(queries, Has.Count.EqualTo(1), "one question to the library per details screen");
+      Assert.That(queries[0].Filter, Is.InstanceOf<MediaItemIdFilter>());
+      Assert.That(((MediaItemIdFilter) queries[0].Filter).MediaItemIds,
+          Is.EquivalentTo(new[] { id }),
+          "the id the caller gave is the id the library was asked for; nothing here lists the library and picks");
+    }
+
+    [Test]
+    public void ATitleTheServerDoesNotHaveIsNotFoundAndNamed()
+    {
+      Guid id = Guid.NewGuid();
+      ActionResult<MediaController.ItemResult> action;
+      MediaController.ItemResult result = GetItem(
+          CreateLibrary(new List<MediaItem>(), 0, out _, out _), id, out action);
+
+      Assert.That(Status(action), Is.EqualTo(404));
+      Assert.That(result.Error, Does.Contain(id.ToString()));
+      Assert.That(result.Title, Is.Null, "a 404 with a title in it would be two answers to one question");
+    }
+
+    [Test]
+    public void ATitleNobodyDescribedStillAnswersWithWhatItHas()
+    {
+      Guid id = Guid.NewGuid();
+      MediaItem item = CreateItem(id, "Imported Without Metadata", "Imported Without Metadata",
+          new DateTime(2024, 1, 1), 0);
+
+      ActionResult<MediaController.ItemResult> action;
+      MediaController.ItemResult result = GetItem(
+          CreateLibrary(new List<MediaItem> { item }, 1, out _, out _), id, out action);
+
+      Assert.That(result.Title, Is.EqualTo("Imported Without Metadata"));
+      Assert.That(result.Overview, Is.Null);
+      Assert.That(result.StoryPlot, Is.Null);
+      Assert.That(result.RuntimeMinutes, Is.Null);
+      Assert.That(result.Season, Is.Null, "a film is not season zero");
+      Assert.That(result.Rating, Is.EqualTo(0),
+          "the library's own default for an unrated title is zero, and the endpoint reports the number rather "
+          + "than quietly deciding that nobody meant it");
+    }
+
+    [Test]
+    public void NoMediaLibraryAnswersServiceUnavailableToADetailsRequest()
+    {
+      RemoveMediaLibrary();
+      ActionResult<MediaController.ItemResult> action = new MediaController().GetItem(Guid.NewGuid());
+      Assert.That(Status(action), Is.EqualTo(503));
+    }
+
+    [Test]
+    public void ARefusedDetailsRequestIsAnsweredAsServiceUnavailable()
+    {
+      var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, null, false))
+          .Throws(new IllegalCallException("the media library is reloading"));
+
+      ActionResult<MediaController.ItemResult> action;
+      MediaController.ItemResult result = GetItem(library.Object, Guid.NewGuid(), out action);
+
+      Assert.That(Status(action), Is.EqualTo(503));
+      Assert.That(result.Error, Is.EqualTo("the media library is reloading"));
     }
 
     #endregion

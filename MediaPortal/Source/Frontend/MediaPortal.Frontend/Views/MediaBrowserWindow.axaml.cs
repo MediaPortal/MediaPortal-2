@@ -77,15 +77,33 @@ namespace MediaPortal.Frontend.Views
       AddHandler(KeyDownEvent,
           delegate (object? sender, KeyEventArgs args)
           {
-            if (args.Key == Key.Escape || args.Key == Key.Back)
+            if (!(DataContext is MediaBrowserViewModel viewModel))
+              return;
+
+            if (args.Key == Key.I || args.Key == Key.Apps)
             {
+              // The "info" key of a remote, which is the Apps key in everything that reaches this code, plus the
+              // letter for a keyboard. It reads about the selected title rather than playing it, which is the one
+              // question a title list cannot answer from its own rows.
+              viewModel.ToggleDetailsCommand.Execute(null);
+              args.Handled = true;
+            }
+            else if (args.Key == Key.Escape || args.Key == Key.Back)
+            {
+              // Back means "away with the newest thing on the screen", which is the panel when one is open. A
+              // viewer who read about three films and pressed back each time expects to still be in the list.
+              if (viewModel.DetailsVisible)
+              {
+                viewModel.CloseDetails();
+                args.Handled = true;
+                return;
+              }
               Close();
               args.Handled = true;
             }
             else if (args.Key == Key.Enter || args.Key == Key.Return || args.Key == Key.MediaPlayPause)
             {
-              if (DataContext is MediaBrowserViewModel viewModel)
-                viewModel.PlayCommand.Execute(null);
+              viewModel.PlayCommand.Execute(null);
               args.Handled = true;
             }
           },

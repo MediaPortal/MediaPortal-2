@@ -1635,6 +1635,51 @@ carries the row and is measured with it (`2120 distinct colours, 265 700 high-co
 is green on Windows: **621 tests, 0 failures** across `Canary.Portable` (29), `Tests.Server` (238), `Tests.Client`
 (90), `Tests.Frontend` (196) and `Setup\Tests` (68).
 
+### z. What one title says about itself, and the key that asks for it
+
+**The feature.** A list of titles can only say a name, a year and a length, so a viewer deciding what to watch had
+no way to find out that the server has known the plot of every film since it was imported. The library list now
+answers the remote's **info** key (and the letter `I`) with a panel beside the list: the title and year, one line of
+what a viewer decides with (`88 min · FSK 12 · rated 8/10 · watched 1×, last 2025-01-12`, or `S01E01 · Nimmerland`
+for an episode), the longest prose the title carries, and where the file is. Pressing the key again, or Back, puts
+the panel away - Back closes the panel *before* the screen, which is what "back" has always meant on a remote: away
+with the newest thing.
+
+**The server had never been asked for one title.** `GET api/media/titles` lists; nothing read a single film. The new
+`GET api/media/items/{id}` answers the fields the title carries itself - title, sort title, year, runtime, overview,
+story plot, tagline, certification, collection, rating, series/season/episode, play count, last played, path, stub -
+`404` with the id named in `error` when the library has no such title, `503` when the library is missing or still
+starting, and the same `[MediaPortalAuthorize]` as the rest of the controller. It does *not* use
+`IMediaLibrary.LoadItem`, because that wants the id of a **resource system** the front end has never seen; a client
+that holds a title from a list holds only its `MediaItemId`. So the endpoint asks the library for the one item whose
+id it is given (`MediaItemIdFilter`), with `MediaAspect` necessary and everything else optional - a film imported
+without an NFO file still gets an answer instead of a 404 for lacking a plot. Genres and people are deliberately
+absent: in MP2 they are their own related items (`GenreAspect`, `PersonAspect`), reachable through a second query,
+and an endpoint that quietly ran three queries per title would be a different decision made silently.
+
+**Two things the database does that a first draft got wrong.** `EpisodeAspect.ATTR_EPISODE` is a *collection*
+attribute - a double episode stores two episode numbers for one media item - so reading it with the single-value
+getter throws, and the endpoint reads it with `GetCollectionAttribute<int>`. And an unset single-string attribute
+comes back as `""`, not null, which a details screen would have drawn as a blank line: blank lines read as a broken
+screen rather than as a film nobody described, so the controller trims and turns empty into null before answering.
+
+**The panel is an overlay, not a screen.** It sits in the column the Play and More buttons occupy, and nothing in it
+takes focus: a details area a viewer has to navigate into is a screen inside a screen, and a remote has one set of
+arrows. The list stays where it was behind it, so closing the panel returns to the same row, and the read is
+remembered per title - pressing the key to look, and again to think, costs one request. A failure leaves the panel
+closed and puts the server's words in the status line, because an empty panel is a second and worse answer to the
+question; a `403` says how to sign in rather than reporting a number.
+
+**Where the numbers stand.** Seven tests on the endpoint (unknown id, no library, library still starting, a film
+with everything, a film with nothing, an episode including the double-episode case, and an item whose aspects are
+partial) take `TestMediaController` to 25; six in the front end (the panel from a real in-process server, the cache,
+the 404, the 403, the episode line, and `Key.I`/Escape going through the window's own handler) take
+`Tests.Frontend` to 202. The render gate gained a fifth frame: `details-windows.png`, 1863 distinct colours and
+17 701 high-contrast edges, written only if the panel is really open - the probe presses `Key.I` on the window
+rather than calling the command, and refuses to write the frame otherwise. Whole suite on Windows: **634 tests,
+0 failures** - `Canary.Portable` (29), `Tests.Server` (245), `Tests.Client` (90), `Tests.Frontend` (202),
+`Setup\Tests` (68).
+
 ## What cannot be verified without the user
 
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,

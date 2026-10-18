@@ -1757,6 +1757,13 @@ by a factor of twenty-odd when it started drawing a *picture* rather than only t
 screen through `VideoFrameSink` with eight colour bars pushed in a known order, and `CheckBars` then reads them
 back out of the captured frame - all eight, in that order, in those colours - so a front end that draws a black
 rectangle where the film should be fails this gate instead of passing it with a healthy-looking frame counter.
+The library list is drawn too, from a scripted page of twelve films (`browser-windows.png`, 2064 distinct colours,
+88 850 edges), and the frame after it is that same list with the info key pressed (`details-windows.png`, 1863
+colours, 17 701 edges, `details: panel open on "Nimmerland (2011)" - "88 min · FSK 12 · rated 8/10 · watched 1×,
+last 2025-01-12"`). That fifth frame presses `Key.I` on the window rather than calling the view model's command, so
+it only goes green if the key, the handler on the window and the panel hold together; the probe refuses to write a
+frame at all when the panel stayed closed, because a "details" picture of the plain list would be a picture of
+nothing. It is committed as `docs\multiplatform\screenshots\details-windows-skia.png`.
 `test-frontend-linux.ps1 -ServeFromHost` starts
 `MP2-Server-Headless` on this machine, waits until it really serves aspects (measured: a just-started server answers
 `200` with an *empty* list, and 25 aspects about a second later), and passes `MP2_SERVER` to the container as

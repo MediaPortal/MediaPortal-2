@@ -349,6 +349,21 @@ namespace MediaPortal.Frontend.Api
       return await GetJsonAsync<MediaTitles>(url, cancellation).ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// What the server knows about one title, by the id a title list gave.
+    /// </summary>
+    /// <param name="mediaItemId">The id from <see cref="MediaTitle.Id"/>.</param>
+    /// <remarks>
+    /// A 404 is an exception like any other answer this client does not understand, and the message carries the
+    /// server's own words: "this server has no title with the id ..." is what a details screen should say, because
+    /// it is what happened - usually that the library was rebuilt between listing a title and asking about it.
+    /// </remarks>
+    public async Task<MediaItemDetails> GetItemAsync(Guid mediaItemId, CancellationToken cancellation = default)
+    {
+      return await GetJsonAsync<MediaItemDetails>(
+          "api/media/items/" + mediaItemId.ToString("D"), cancellation).ConfigureAwait(false);
+    }
+
     public void Dispose()
     {
       if (_ownsHttpClient)
