@@ -24,6 +24,14 @@
   Windows-only and on net8.0 does not even compile without a package reference. Only the second
   one is counted as spine; the first is reported next to it for context. See Measure-DrawingRefs.
 
+  A third category is counted because both other metrics are structurally blind to it. A
+  [DllImport] declaration produces no CA1416 diagnostic - the analyzer reasons about types in
+  referenced assemblies, and a DLL name is a string - and it is neither WinForms nor GDI+, so it
+  appeared in none of the columns above. When the count was taken the "portable core" read 0 spine
+  references while containing 95 P/Invoke declarations (MediaPortal.Utilities 74, MediaPortal.Common
+  21, MediaPortal.Backend 0), e.g. NativeMethods.cs alone declares 43. A number that reads zero while
+  Kernel32 is being loaded is not a portability measurement, so P/Invoke is gated like the others.
+
   Two ledger sections are counted:
 
     core       Common, Utilities, Backend - code that has to become portable. May only shrink.
@@ -225,6 +233,12 @@ $patterns = [ordered]@{
   # 'Drawing' is not a regex - the value is unused, the key asks Measure-SpineArea to run
   # Measure-DrawingRefs, which fills DrawingWindows (gated) and DrawingPortable (reported).
   Drawing  = $null
+  # A P/Invoke declaration is the one Windows dependency that neither this ledger nor CA1416 used to
+  # see: DllImport produces no CA1416 diagnostic at all (the analyzer has no idea what is behind the
+  # string), and it is neither WinForms nor GDI+. Measured when it was added: 95 declarations sat in
+  # the "portable core" (MediaPortal.Common 21, MediaPortal.Utilities 74, MediaPortal.Backend 0)
+  # while the core spine column read 0 - so 0 never meant portable, it meant "no WinForms or GDI+".
+  PInvoke  = '\[DllImport\s*\('
 }
 
 $core = Measure-SpineArea -Dirs $coreAreas -Patterns $patterns
@@ -236,8 +250,8 @@ function Write-AreaReport {
 
   Write-Host $Title -ForegroundColor $Colour
   foreach ($area in $Measure.Areas.Keys) {
-    "  {0,-52} WinForms {1,4}   GDI+ {2,4}   Drawing primitives {3,4}" -f $area, `
-      $Measure.Areas[$area]['WinForms'], $Measure.Areas[$area]['DrawingWindows'], $Measure.Areas[$area]['DrawingPortable']
+    "  {0,-52} WinForms {1,4}   GDI+ {2,4}   P/Invoke {3,4}   Drawing primitives {4,4}" -f $area, `
+      $Measure.Areas[$area]['WinForms'], $Measure.Areas[$area]['DrawingWindows'], $Measure.Areas[$area]['PInvoke'], $Measure.Areas[$area]['DrawingPortable']
   }
   "  {0,-52} files affected {1,4}   total refs {2,4}" -f '', $Measure.Files.Count, $Measure.TotalRefs
   $Measure.Files | Sort-Object Refs -Descending | ForEach-Object { "    {0,-80} {1,3}" -f $_.File, $_.Refs } | ForEach-Object { Write-Host $_ }
@@ -263,7 +277,7 @@ function Format-AreaCounts {
   $out = [ordered]@{}
   foreach ($dir in $Areas.Keys) {
     $cols = [ordered]@{}
-    foreach ($col in @('WinForms', 'DrawingWindows', 'DrawingPortable')) { $cols[$col] = $Areas[$dir][$col] }
+    foreach ($col in @('WinForms', 'DrawingWindows', 'PInvoke', 'DrawingPortable')) { $cols[$col] = $Areas[$dir][$col] }
     $out[$dir] = $cols
   }
   return $out
@@ -272,7 +286,7 @@ function Format-AreaCounts {
 if ($UpdateBaseline) {
   $payload = [ordered]@{
     generated = (Get-Date).ToString('yyyy-MM-dd')
-    note      = 'Textual references to System.Windows.Forms and to the Windows-only half of System.Drawing, comments stripped. GDI+ here means System.Drawing.Common types (Image, Bitmap, Graphics, ImageFormat, ...): Windows-only, and on net8.0 they do not even compile without a package reference. The portable half (Color, SizeF, Rectangle, ... in System.Drawing.Primitives) is measured separately into drawingPortableRefs and is NOT gated, because it runs on Linux - measured, not assumed. core = code that must become portable, floor must reach 0. satellites = *.Windows companions holding quarantined code. Gate: core may not grow AND core + satellites (combinedTotalRefs) may not grow either, which is what allows Windows code to be relocated into a satellite without letting new Windows coupling in. A satellite declaration (SupportedOSPlatform) also hides its own call sites from CA1416, so this ledger is the only thing watching it.'
+    note      = 'Textual references to System.Windows.Forms and to the Windows-only half of System.Drawing, comments stripped. GDI+ here means System.Drawing.Common types (Image, Bitmap, Graphics, ImageFormat, ...): Windows-only, and on net8.0 they do not even compile without a package reference. The portable half (Color, SizeF, Rectangle, ... in System.Drawing.Primitives) is measured separately into drawingPortableRefs and is NOT gated, because it runs on Linux - measured, not assumed. core = code that must become portable, floor must reach 0. satellites = *.Windows companions holding quarantined code. Gate: core may not grow AND core + satellites (combinedTotalRefs) may not grow either, which is what allows Windows code to be relocated into a satellite without letting new Windows coupling in. A satellite declaration (SupportedOSPlatform) also hides its own call sites from CA1416, so this ledger is the only thing watching it. The P/Invoke column counts [DllImport] declarations: CA1416 never reports them (the analyzer cannot know what a DLL name implies) and they are neither WinForms nor GDI+, so before this column existed 95 of them sat in the core while the WinForms/GDI+ columns read 0. Counted from files on disk, so a file a csproj excludes with Compile Remove still counts - crude on purpose, see the header.'
     areas     = Format-AreaCounts -Areas $core.Areas
     filesAffected = $core.Files.Count
     totalRefs = $core.TotalRefs

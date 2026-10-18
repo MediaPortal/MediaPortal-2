@@ -330,25 +330,73 @@ one file that has the most of it (`ImageUtilities.cs`, 7 mentions but 32 referen
 are only attributed to `System.Drawing` inside files that import or qualify it, which keeps an
 unrelated `Image`/`Color`/`Size` member elsewhere in the tree out of the count.
 
-### The core spine is at zero
+### The core spine is at zero, and what that number turned out not to cover
 
-That is the state the gate now holds, and it is worth stating precisely because of what it does
-*not* mean:
+That is the state the gate holds for the two categories it originally counted, and it is worth
+stating precisely because of what it does *not* mean:
 
-    MediaPortal\Source\Core\MediaPortal.Common      WinForms 0  GDI+  0  Drawing primitives 1
-    MediaPortal\Source\Core\MediaPortal.Utilities   WinForms 0  GDI+  0  Drawing primitives 0
-    MediaPortal\Source\Core\MediaPortal.Backend     WinForms 0  GDI+  0  Drawing primitives 0
-                                                    files affected 0  total refs 0
-    satellites (MediaPortal.Common.Windows, MediaPortal.Utilities.Windows)  WinForms 19  GDI+ 64  refs 83
+    MediaPortal\Source\Core\MediaPortal.Common      WinForms 0  GDI+  0  P/Invoke 21  Drawing primitives 1
+    MediaPortal\Source\Core\MediaPortal.Utilities   WinForms 0  GDI+  0  P/Invoke 74  Drawing primitives 0
+    MediaPortal\Source\Core\MediaPortal.Backend     WinForms 0  GDI+  0  P/Invoke  0  Drawing primitives 0
+                                                    files affected 13  total refs 95
+    satellites (MediaPortal.Common.Windows, MediaPortal.Utilities.Windows)  WinForms 19  GDI+ 64  P/Invoke 3  refs 86
 
-It means: no source file compiled into `MediaPortal.Common`, `MediaPortal.Utilities` or
-`MediaPortal.Backend` references WinForms or `System.Drawing.Common` any more, so those three
-assemblies can be re-targeted to a portable TFM without first deleting code. It does **not** mean
-the code runs off Windows - 83 references still exist one project over, `MediaPortal.Common` still
-*builds* as `net6.0-windows` because of `UseWindowsForms`, and the Windows API Code Pack, BASS and
-the shell providers are all still Windows. Reaching zero was done by two moves (`SplashScreen.cs`,
-`ImageUtilities.cs` into `MediaPortal.Utilities.Windows`) and one seam (`IImageTransformer`);
-`git mv` is enough for the first kind, the second kind needs a host to install an implementation.
+WinForms and GDI+ are zero in the core: no source file compiled into `MediaPortal.Common`,
+`MediaPortal.Utilities` or `MediaPortal.Backend` references them any more. That was done by two moves
+(`SplashScreen.cs`, `ImageUtilities.cs` into `MediaPortal.Utilities.Windows`) and one seam
+(`IImageTransformer`); `git mv` is enough for the first kind, the second needs a host to install an
+implementation.
+
+The P/Invoke column is new, and the reason it is new is a measurement that should have been obvious.
+A `[DllImport]` declaration produces no `CA1416` diagnostic - the analyzer reasons over types in
+referenced assemblies and a DLL name is a string - and it is neither WinForms nor GDI+, so it was in
+none of the columns above. With the core spine reading **0**, the same three assemblies contained
+**95 P/Invoke declarations in 13 files** (`SystemAPI\NativeMethods.cs` alone declares 43,
+`SystemAPI\WindowsAPI.cs` 13, `MediaPortal.Common\Services\Dokan\Native\DokanNativeMethods.cs` 8).
+A gate that reads zero while Kernel32 is being loaded is not a portability measurement. The count is
+textual, comments stripped, from files on disk - which means it also counts
+`MediaPortal.Utilities\MimeTypeDetector.cs`, a file the csproj excludes with `<Compile Remove>` and
+which therefore ships nothing; leaving it counted is deliberate, because a counter that starts
+ consulting the build system is a counter whose silence you cannot interpret. It also means the old
+line "`MediaPortal.Common` still builds as `net6.0-windows`" was stale prose from before the retarget;
+all three are `net10.0-windows` now, for the reasons in the next section.
+
+### How a core assembly loses its `-windows` target
+
+All 90 projects under `MediaPortal\Source` target `net10.0-windows`. Nothing in the tree can run on
+Linux until the backend ones stop doing that, and the question "what actually stops
+`MediaPortal.Utilities`?" was answered by editing the file and letting the compiler reply, with the
+build redirected to a throwaway output path:
+
+* `UseWindowsForms=true` must go, and it can: with the TFM and that property changed by hand, the
+  project compiles with **0 errors**. The WinForms code left when the satellites were extracted, and
+  only the property stayed behind.
+* What is left is **35 distinct `CA1416` call sites in six files** (72 lines in the log, because
+  MSBuild lists each diagnostic twice when a build fails): `SystemAPI\WindowsAPI.cs` 13 registry
+  reads/writes under `LocalMachine`/`CurrentUser`, `Process\IpcServer.cs` 8 (`PipeSecurity` ACL,
+  `WellKnownSidType`, and `PipeTransmissionMode.Message`, which Unix named pipes do not implement at
+  all - that one is a behaviour gap, not an annotation problem), `Process\SingleInstanceHelper.cs` 8
+  (`MutexSecurity` ACL on a named mutex; the mutex itself is cross-platform),
+  `SystemAPI\MimeTypeDetector.cs` 3 (`HKCR` lookup), `FileSystem\DriveUtils.cs` 3 (WMI
+  `ManagementObject` for disk size), `ThreadingUtils.cs` 1 (`ApartmentState.STA`).
+* The 95 P/Invoke declarations are *additional* to those 35 and are not part of that compile error
+  surface at all, which is exactly the trap.
+
+Two decisions came out of that measurement, and both are now conventions:
+
+**A platform branch is written `if (OperatingSystem.IsWindows())`, never
+`RuntimeInformation.IsOSPlatform(OSPlatform.Windows)`.** `CA1416` recognises the first as a guard and
+stays silent; it does not recognise the second, so with the second you get the same warning as with no
+guard at all. That asymmetry is the whole reason for the rule - it is what makes a branch verifiable
+by the compiler instead of by a reviewer. Before this was written down the tree contained exactly zero
+calls to either.
+
+**Registry and WMI lookups keep their non-Windows answer, they do not gain a stub.**
+`MimeTypeDetector.GetMimeTypeFromRegistry` returns `null` off Windows, which is the same answer
+Windows gives for an unregistered extension, and both of its callers already fall through to
+`GetMimeTypeFromExtension` - a built-in map of 979 extensions that is the actual portable
+implementation.
+Where the fallback is not already there, the file moves to a satellite instead.
 
 ## Platform services: the core declares the seam, the host fills it
 

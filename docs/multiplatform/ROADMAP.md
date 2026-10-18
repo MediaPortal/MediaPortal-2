@@ -27,10 +27,11 @@ Verified 2026-10-18 with `build.ps1 -Solution Server,Client -Ratchet`, `tests.ps
 
 | Measurement | Value | How to reproduce |
 | --- | --- | --- |
-| Server solution compiles on Windows | 0 errors, 686 gated findings | `build.ps1 -Solution Server -Ratchet` |
+| Server solution compiles on Windows | 0 errors, 685 gated findings | `build.ps1 -Solution Server -Ratchet` |
 | Client solution compiles on Windows | 0 errors, ~2460 findings (not gated) | `build.ps1 -Solution Client` |
 | Server solution compiles **on Linux** | 0 errors | `test-server-linux.ps1` |
-| Portable-core Windows API references | **0** (83 quarantined in 6 satellite files) | `spine.ps1`, `satellites.ps1` |
+| Portable-core WinForms / GDI+ references | **0** (86 quarantined in 6 satellite files) | `spine.ps1`, `satellites.ps1` |
+| Portable-core P/Invoke declarations | **95** in 13 files, invisible to `CA1416` | `spine.ps1` (P/Invoke column) |
 | `CA1416` call sites, Windows vs Linux | 196 on both - identical inventories | build log, `warnings.ps1` |
 | Unit tests, Windows | 4/4 suites, 262 tests, 0 failed | `tests.ps1` |
 | Unit tests, Linux (canary) | 20/20 | `test-canary-linux.ps1` |
@@ -93,10 +94,24 @@ the bin; `DiscUtils` has .NET-targeted builds.
 findings**, and the Windows and Linux inventories are identical for 35 of 38 codes, so this is one
 list rather than two. 17 of the 196 are WinForms members in `MP2-Server`'s own `MainForm.cs` and
 `ApplicationLauncher.cs` - a Windows tray host that should become a satellite instead of being
-"fixed". Registry use, `Environment.SpecialFolder` assumptions and GDI+ are invisible to the analyzer;
-`spine.ps1` counts the ones inside the portable core and that count is already 0, so new work happens
-at the platform-service seam, not inside the core. Gate: the `CA1416` floor goes down, `spine.ps1`
-stays at 0.
+"fixed".
+
+The analyzer is not the whole inventory, and one number proves it: with the portable core reading
+**0** spine references, it contains **95 `[DllImport]` declarations in 13 files**. `CA1416` does not
+report P/Invoke at all and P/Invoke is neither WinForms nor GDI+, so `spine.ps1` now counts them in a
+third column, gated by the same "core may not grow, and a satellite may only grow by what the core
+shrinks" rule.
+
+The first candidate to lose its `-windows` target is `MediaPortal.Utilities`, and the work was
+measured rather than estimated: with the TFM and `UseWindowsForms` changed by hand the project
+compiles with 0 errors and shows 35 `CA1416` sites in six files (13 registry, 8 named-pipe ACL, 8
+mutex ACL, 3 `HKCR`, 3 WMI, 1 `ApartmentState`). Two files already have their fallback written:
+`ThreadingUtils.RunSTAThreaded` and `MimeTypeDetector.GetMimeTypeFromRegistry`, both guarded by
+`OperatingSystem.IsWindows()` - the form of the branch that `CA1416` understands, which is what makes
+the guard checkable. Registry and WMI use outside those, `Environment.SpecialFolder` assumptions and
+GDI+ stay at the platform-service seam, not inside the core. Gate: the `CA1416` floor goes down,
+`spine.ps1` stays at 0 in both of its columns, and `-p:WarningsAsErrors=CA1416` is added to a project
+the moment that project reaches zero.
 
 **d. Database that is not Windows-shaped.** Decide Firebird's future, verify SQLite as the primary
 store on Linux (native binaries per RID, no `System.Data.SQLite` interop surprises), delete ScimoreDB

@@ -1,41 +1,46 @@
 {
     "generated":  "2026-10-18",
-    "note":  "Textual references to System.Windows.Forms and to the Windows-only half of System.Drawing, comments stripped. GDI+ here means System.Drawing.Common types (Image, Bitmap, Graphics, ImageFormat, ...): Windows-only, and on net8.0 they do not even compile without a package reference. The portable half (Color, SizeF, Rectangle, ... in System.Drawing.Primitives) is measured separately into drawingPortableRefs and is NOT gated, because it runs on Linux - measured, not assumed. core = code that must become portable, floor must reach 0. satellites = *.Windows companions holding quarantined code. Gate: core may not grow AND core + satellites (combinedTotalRefs) may not grow either, which is what allows Windows code to be relocated into a satellite without letting new Windows coupling in. A satellite declaration (SupportedOSPlatform) also hides its own call sites from CA1416, so this ledger is the only thing watching it.",
+    "note":  "Textual references to System.Windows.Forms and to the Windows-only half of System.Drawing, comments stripped. GDI+ here means System.Drawing.Common types (Image, Bitmap, Graphics, ImageFormat, ...): Windows-only, and on net8.0 they do not even compile without a package reference. The portable half (Color, SizeF, Rectangle, ... in System.Drawing.Primitives) is measured separately into drawingPortableRefs and is NOT gated, because it runs on Linux - measured, not assumed. core = code that must become portable, floor must reach 0. satellites = *.Windows companions holding quarantined code. Gate: core may not grow AND core + satellites (combinedTotalRefs) may not grow either, which is what allows Windows code to be relocated into a satellite without letting new Windows coupling in. A satellite declaration (SupportedOSPlatform) also hides its own call sites from CA1416, so this ledger is the only thing watching it. The P/Invoke column counts [DllImport] declarations: CA1416 never reports them (the analyzer cannot know what a DLL name implies) and they are neither WinForms nor GDI+, so before this column existed 95 of them sat in the core while the WinForms/GDI+ columns read 0. Counted from files on disk, so a file a csproj excludes with Compile Remove still counts - crude on purpose, see the header.",
     "areas":  {
                   "MediaPortal\\Source\\Core\\MediaPortal.Common":  {
                                                                         "WinForms":  0,
                                                                         "DrawingWindows":  0,
+                                                                        "PInvoke":  21,
                                                                         "DrawingPortable":  1
                                                                     },
                   "MediaPortal\\Source\\Core\\MediaPortal.Utilities":  {
                                                                            "WinForms":  0,
                                                                            "DrawingWindows":  0,
+                                                                           "PInvoke":  74,
                                                                            "DrawingPortable":  0
                                                                        },
                   "MediaPortal\\Source\\Core\\MediaPortal.Backend":  {
                                                                          "WinForms":  0,
                                                                          "DrawingWindows":  0,
+                                                                         "PInvoke":  0,
                                                                          "DrawingPortable":  0
                                                                      }
               },
-    "filesAffected":  0,
-    "totalRefs":  0,
+    "filesAffected":  13,
+    "totalRefs":  95,
     "drawingPortableRefs":  1,
     "satelliteAreas":  {
                            "MediaPortal\\Source\\Core\\MediaPortal.Common.Windows":  {
                                                                                          "WinForms":  2,
                                                                                          "DrawingWindows":  9,
+                                                                                         "PInvoke":  3,
                                                                                          "DrawingPortable":  1
                                                                                      },
                            "MediaPortal\\Source\\Core\\MediaPortal.Utilities.Windows":  {
                                                                                             "WinForms":  17,
                                                                                             "DrawingWindows":  55,
+                                                                                            "PInvoke":  0,
                                                                                             "DrawingPortable":  0
                                                                                         }
                        },
     "satelliteFilesAffected":  6,
-    "satelliteTotalRefs":  83,
+    "satelliteTotalRefs":  86,
     "satelliteDrawingPortableRefs":  1,
-    "combinedTotalRefs":  83,
-    "combinedFilesAffected":  6
+    "combinedTotalRefs":  181,
+    "combinedFilesAffected":  19
 }

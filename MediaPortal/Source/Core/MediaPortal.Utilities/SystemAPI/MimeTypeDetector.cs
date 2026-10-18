@@ -1107,6 +1107,14 @@ namespace MediaPortal.Utilities.SystemAPI
     /// <returns>Mime type or <c>null</c>, if the mime type could not be examined.</returns>
     public static string GetMimeTypeFromRegistry(string filename)
     {
+      // HKEY_CLASSES_ROOT is a Windows registry hive. On other platforms there is no per-machine
+      // extension registration to consult, and both callers immediately fall through to
+      // GetMimeTypeFromExtension, which is the same answer Windows gives for an unregistered
+      // extension. The guard is OperatingSystem.IsWindows() rather than a RuntimeInformation check
+      // because CA1416 understands the former: the compiler verifies the branch, a comment cannot.
+      if (!OperatingSystem.IsWindows())
+        return null;
+
       try
       {
         string ext = Path.GetExtension(filename);

@@ -54,7 +54,15 @@ namespace MediaPortal.Utilities
     public static Thread RunSTAThreaded(ThreadStart threadStart)
     {
       Thread newThread = new Thread(threadStart);
-      newThread.SetApartmentState(ApartmentState.STA);
+      // Apartment state is a COM concept. SetApartmentState is only available on Windows, and the
+      // only thing that has ever needed STA here is SkinEngine's ClipboardManager talking to the OLE
+      // clipboard, which does not exist elsewhere. On other platforms the thread runs MTA, which is
+      // what every other thread in the process does anyway.
+      // OperatingSystem.IsWindows() and not RuntimeInformation.IsOSPlatform(OSPlatform.Windows):
+      // CA1416 recognises the first as a platform guard and stays silent, and does not recognise the
+      // second - so the choice is what makes this branch verifiable by the compiler.
+      if (OperatingSystem.IsWindows())
+        newThread.SetApartmentState(ApartmentState.STA);
       newThread.Start();
       return newThread;
     }
