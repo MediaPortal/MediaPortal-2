@@ -35,11 +35,11 @@ Verified 2026-10-18 with `build.ps1 -Solution Server,Client -Ratchet`, `tests.ps
 | Portable-core WinForms / GDI+ references | **0** (83 quarantined in 10 satellite files) | `spine.ps1`, `satellites.ps1` |
 | Portable-core P/Invoke declarations | **73** in 9 files (was 95, then 76; the last three were the Kernel32 waitable timer) - invisible to `CA1416` | `spine.ps1` (P/Invoke column) |
 | `CA1416` call sites, Windows vs Linux | **0** on both hosts, floor 0 (was 196 at the retarget) - the 107 that remained were all in `-windows` assemblies that had lost their platform declaration; see "the floor went to zero" below | build log, `warnings.ps1` on both logs |
-| Unit tests, Windows | 4/4 suites, 359 passed, 0 failed, 0 skipped; a suite whose assembly predates its own sources reports STALE instead of running the old binary | `tests.ps1` |
+| Unit tests, Windows | 4/4 suites, 371 passed, 0 failed, 0 skipped; a suite whose assembly predates its own sources reports STALE instead of running the old binary | `tests.ps1` |
 | Unit tests, Linux (canary) | 31 executed, 0 failed (1 skips: Windows-only), incl. live IPC round trips and XDG autostart | `test-canary-linux.ps1` |
 | Server actually **runs** | **yes on Windows and on Linux** as a headless process. Windows: reaches the Running state, creates the SQLite store, answers UPnP discovery over the network, exits 0 with an error-free log. Linux: reaches the same Running state with 0 `FATAL`, 0 `ERROR` and one `WARN` - the documented note that a container has no FUSE driver. Android is still unmeasured | `run-server-check.ps1`, `test-server-upnp.ps1`, `test-server-run-linux.ps1` |
 | Server **answers HTTP** | **yes on both hosts**, measured with the same probe: `GET /MediaPortal/Server/health` answers `200` with the server's version and the path it was called with - `pathBase=/MediaPortal/Server`, `path=/health` on Windows *and* in the container, because the shared listener now hands requests over in exactly the shape http.sys uses. The gate checks that text, not just the status code | `run-server-check.ps1 -ProbeUrl`, item **l** below |
-| Server **has an HTTP API** | **one endpoint, on both hosts**, in an assembly of its own (`MediaPortal.Server.Api`): `GET /MediaPortal/Server/api/serverinfo` is a discovered MVC controller (the first in this tree) that reads MP2's own settings service on a request thread, and the gates on Windows and in the container both require its content. It is unauthenticated because the token endpoint that would authenticate it is still .NET Framework only | `run-server-check.ps1 -ProbeUrl`, items **m** and **o** below |
+| Server **has an HTTP API** | **three endpoints, on both hosts**, in an assembly of its own (`MediaPortal.Server.Api`): `GET /MediaPortal/Server/api/serverinfo`, `GET api/library/aspects` and `GET api/library/count?aspect=…`. They are discovered MVC controllers (the first in this tree) that read MP2's own settings and media-library services on a request thread, and the gates on Windows and in the container require their content, not just a `200`. A library that is absent or still starting is answered with `503` and a reason rather than an empty answer or an internal error. They are unauthenticated because the token endpoint that would authenticate them is still .NET Framework only - which is why they serve schema and no household data | `run-server-check.ps1 -ProbeUrl`, items **m**, **o** and **p** below |
 | Server **runs on Linux** | **yes** - `HeadlessServerLauncher: Switching to running state`, item **g**'s goal, measured. The layout assembles, `libe_sqlite3.so` (linux-x64) loads, SQLite 3.53.3 opens the store, the subschemas `MediaPortal-Basis`, `MediaLibrary`, `UserProfileDataManagement` and `ClientManager` are created from their SQL scripts, and the resource server plus two control points and one UPnP server share port 55555 through one listener | `test-server-run-linux.ps1`, items **i**, **j** and **k** below |
 | Database plugin on a portable driver | `SQLiteDatabase` is `net10.0` with `CA1416` as error, no Win32 calls left, and no longer loads a Windows-only interop library: it talks to SQLite through `Microsoft.Data.Sqlite` (SQLite 3.53.3), whose `e_sqlite3` native is copied into the layout per platform | `SQLiteDatabase.csproj`, items **h** and **j** below |
 | Built executables are 64-bit | 5/5 apphosts measure `x64`, managed side `MSIL` | `architecture.ps1` |
@@ -795,6 +795,60 @@ stay, because that is how plugin controllers reach the API today - but with the 
 controller in one assembly and asserts both halves. And `build.ps1 -Solution Server` does not build the test
 projects, which `dotnet test --no-build` revealed by running 4 tests where 12 existed: the gate is `tests.ps1
 -Build`, and `--no-build` is only honest directly after it.
+
+### p. The first endpoint that reads the media database
+
+`GET api/library/aspects` describes what the media database is made of - the media item aspects, their attributes,
+their CLR types, and which attributes are indexed or hold collections. `GET api/library/count?aspect=Core` answers
+how many items carry a given aspect, taking aspect *names* on the wire and handing the ids it looked up to
+`IMediaLibrary.CountMediaItems`, echoing both in the answer so a client can cache the id.
+
+Those two were chosen for one reason: they are the only questions about the media library that are not questions
+about the household. Titles, watch state, playlists and users all wait for the OAuth token endpoint (item **m**),
+while the schema is the shape of the database and nobody's data. Three smaller decisions came out of writing them:
+
+- **`503` and `404` instead of `0`.** A host without the backend answers `503` rather than "zero aspects", and an
+  unknown aspect name answers `404` rather than "zero items". A client cannot tell an empty library from an absent
+  one if both are `0`.
+- **Ordered by name**, aspects and attributes both. Two answers from two servers should be diffable.
+- **The flags are the point.** `Indexed` and `Collection` are in the answer because a front end decides with them
+  whether a filter is cheap and whether an attribute is edited with a list control. They are also the two fields
+  most likely to be mapped wrongly, so they are asserted by name.
+
+Nine tests covered the endpoint against a mocked `IMediaLibrary` - mocked *strictly*, so an endpoint that decided to
+reach for another member of that interface would fail rather than run an unexpected query - with the real
+`MediaItemAspectMetadata` types as input, because the mapping is what is under test. All nine passed on the first
+run. The live server then failed twice, and both failures were worth more than the tests:
+
+| What was green | What the live server showed |
+| --- | --- |
+| The nine unit tests | `api/library/aspects` answered **`500`**, a `NullReferenceException` in the mapping. While `MIA_Management.AddMediaItemAspectStorage` creates an aspect's tables it keeps a **null placeholder** under that aspect's id and fills the metadata in afterwards - so a server asked about its schema *while it is starting* is asked about a dictionary with holes in it. The endpoint skips those (an aspect whose storage does not exist yet has no describable shape), and the fixture's dictionary has a hole in it now. A mock cannot contain a bug that only the real implementation has; this is the argument for running the real server in the gate, restated with a number. |
+| The gate's content check, working for two probes | It threw `WildcardPatternException: "*""aspects"":[*"`. The expected text was compared with `-like`, and a fragment of JSON is full of characters that `-like` reads as wildcards. It compares literal substrings now, which is also the claim being made. |
+
+| Measurement | Value |
+| --- | --- |
+| Endpoints the server answers | 2 → **3**, each with expected content in the gate |
+| Unit tests | 359 → **371** |
+| Fresh install, Linux container | `{"count":18,"aspects":[{"id":"e33242e8-…","name":"AlbumItem","systemAspect":false,…` - the same schema from the same SQL scripts on the platform without http.sys |
+| Ratchet / spine / packages | `486` findings = baseline, `Spine OK.`, 0 vulnerable packages |
+
+Those aspect counts are not a difference between the platforms. One Windows probe counted `10` aspects, container
+probes counted `22` and `18` on two runs of the same image, and every log shows the same **25** aspect storages
+being created - the probe asks while the server is still answering, so the number measures *when it asked*, not
+what the database holds. That is why the gate asserts the endpoint by shape (`"aspects":[`) and never by a count.
+
+Then a probe of a server that had been up for half a minute answered `500`, and following that thread turned up the
+more important half of the endpoint:
+
+| What was measured | What it turned out to be |
+| --- | --- |
+| `api/library/aspects` answered `500`, `NullReferenceException` in `MediaLibrary.GetManagedMediaItemAspectMetadata` - although the previous run had answered `200` | The request had arrived while the library was still starting. That method, and `CountMediaItems` with it, reached through `_miaManagement`, which `MediaLibrary.Startup()` only creates later, so a question that early died somewhere inside and the endpoint could report nothing but an internal error. The library now rejects such calls with the `IllegalCallException` it already uses for every other call made in the wrong state (the maintenance-mode checks throw it), and the endpoint answers **`503`** with the reason in the body. "Too early, ask again" stopped being "the server broke". Three tests cover it, one per call the endpoints make. |
+| The same run's log: a `65` second gap between the HTTP listener coming up and the first database line | That run's own. Two reproductions of the same launch - with the console redirected and without - go from launch to the `Running` state in `1.4 s` and `1.7 s`, and the gate's runs are the same. The one thing that run had and the others did not is that it followed a server which had been killed rather than stopped, and the database's lock timeout is configured at `30000 ms`. |
+
+A slow or stalled start is therefore no longer a lie from the API, but the gate had to be told about it too: the
+probes now retry a `503` like a missing answer and fail on the answer that never changed. Without that rule the
+gate would fail or pass depending on which side of a service-startup order the request happened to land, which
+teaches nothing; a `500` still fails on the spot, because nothing is ever legitimately "not ready" with a `500`.
 
 ## Phase 2 - Avalonia front end
 

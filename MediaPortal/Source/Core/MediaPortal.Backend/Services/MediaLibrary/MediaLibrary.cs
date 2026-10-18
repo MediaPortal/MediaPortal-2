@@ -1614,6 +1614,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public int CountMediaItems(IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline, bool includeVirtual)
     {
+      ThrowIfNotStarted();
+
       if (_maintenanceMode)
         return 0;
 
@@ -2907,8 +2909,22 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
+    /// <summary>
+    /// Fails fast if the library is queried before <see cref="Startup"/> has created its managers. Every
+    /// query below reaches through <see cref="_miaManagement"/>, so without this guard the caller - the HTTP
+    /// API among them - got a <see cref="NullReferenceException"/> from somewhere deep inside and had nothing
+    /// better to report than an internal error. <see cref="IllegalCallException"/> is what this class throws
+    /// for every other call made in the wrong state, see the maintenance mode checks.
+    /// </summary>
+    protected void ThrowIfNotStarted()
+    {
+      if (_miaManagement == null)
+        throw new IllegalCallException("The media library has not finished starting up");
+    }
+
     public IDictionary<Guid, MediaItemAspectMetadata> GetManagedMediaItemAspectMetadata()
     {
+      ThrowIfNotStarted();
       return _miaManagement.ManagedMediaItemAspectTypes;
     }
 

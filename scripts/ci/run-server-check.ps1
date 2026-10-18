@@ -57,12 +57,14 @@ param(
   # to run the host with --check (a probe needs the server to stay up). An entry may be written as
   # "url|text", which additionally requires the answer to contain that text - a status code alone is
   # also produced by an empty answer in front of MP2, and it says nothing about the served content.
-  # The first URL is the health endpoint (no services involved), the second one an MVC controller, so the
-  # gate covers both halves of the HTTP layer: an endpoint mapped directly and one discovered as a
-  # controller of an application part, routed below the prefix.
+  # The first URL is the health endpoint (no services involved), the second one an MVC controller that reads
+  # the process itself, the third one a controller that reads the media database. So the gate covers the whole
+  # HTTP layer in three steps: an endpoint mapped directly, a controller discovered as an application part
+  # below the prefix, and such a controller reaching IMediaLibrary on a request thread.
   [string[]]$ProbeUrl = @(
     'http://127.0.0.1:55555/MediaPortal/Server/health|MediaPortal 2 Server',
-    'http://127.0.0.1:55555/MediaPortal/Server/api/serverinfo|"pathBase":"/MediaPortal/Server"'
+    'http://127.0.0.1:55555/MediaPortal/Server/api/serverinfo|"pathBase":"/MediaPortal/Server"',
+    'http://127.0.0.1:55555/MediaPortal/Server/api/library/aspects|"aspects":['
   ),
 
   # How long the probes may keep asking before the run counts as failed. The server is held open for
@@ -102,6 +104,7 @@ function Request-Probes([string[]]$Urls, $Server, [int]$DeadlineSeconds)
   try {
     $pending = New-Object 'System.Collections.Generic.List[string]'
     foreach ($url in $Urls) { $pending.Add($url) }
+    $unavailable = @{}
 
     $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
     while ($pending.Count -gt 0 -and $stopwatch.Elapsed.TotalSeconds -lt $DeadlineSeconds) {
@@ -112,6 +115,14 @@ function Request-Probes([string[]]$Urls, $Server, [int]$DeadlineSeconds)
           if (-not $get.Wait(11000)) { continue }
           $response = $get.Result
           $text = $response.Content.ReadAsStringAsync().Result
+          if ([int] $response.StatusCode -eq 503) {
+            # 503 is the server saying "not yet" rather than answering a question. The resource server opens its
+            # port before the media library has finished starting, so a probe that judged that answer as final
+            # would fail a build over the order in which services happen to come up. It is retried like a
+            # missing answer, so an endpoint that stays unavailable still fails - with the answer it kept giving.
+            $unavailable[$url] = [pscustomobject]@{ Url = $url; StatusCode = 503; Body = $text }
+            continue
+          }
           $results += [pscustomobject]@{ Url = $url; StatusCode = [int]$response.StatusCode; Body = $text }
           $pending.Remove($url) | Out-Null
         } catch {
@@ -120,7 +131,10 @@ function Request-Probes([string[]]$Urls, $Server, [int]$DeadlineSeconds)
       }
       if ($pending.Count -gt 0) { Start-Sleep -Milliseconds 500 }
     }
-    foreach ($url in $pending) { $results += [pscustomobject]@{ Url = $url; StatusCode = 0; Body = '' } }
+    foreach ($url in $pending) {
+      if ($unavailable.ContainsKey($url)) { $results += $unavailable[$url] }
+      else { $results += [pscustomobject]@{ Url = $url; StatusCode = 0; Body = '' } }
+    }
   } finally {
     $client.Dispose()
   }
@@ -226,7 +240,10 @@ foreach ($probe in $probeResults) {
     continue
   }
   $expected = ($probes | Where-Object { $_.Url -eq $probe.Url } | Select-Object -First 1).Expect
-  if ($expected -and ($probe.Body -notlike "*$expected*")) {
+  # Contains(), not -like: the expected text is usually a fragment of JSON, and JSON is full of characters that
+  # -like reads as wildcards - asking for "aspects":[ made the gate throw WildcardPatternException instead of
+  # reporting anything about the server. A literal substring is also the claim being made: this text is in there.
+  if ($expected -and -not ([string] $probe.Body).Contains($expected)) {
     $failures += "the probe of $($probe.Url) answered 200 but without '$expected' in the body: $($probe.Body)"
   }
 }
