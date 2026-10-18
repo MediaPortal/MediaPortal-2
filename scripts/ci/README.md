@@ -28,9 +28,10 @@ does *not*, because those differences are how CI surprises happen.
     .\tests.ps1                                    # the four Windows suites, against built output
     .\packages.ps1                                 # advisory and netfx-fallback inventory (a report)
 
-On Linux: `.\test-canary-linux.ps1` runs the canary's tests in a container, and
-`.\test-server-linux.ps1` compiles the whole server solution there. Both need a populated package
-cache - see "The dependency closure is not reproducible".
+On Linux: `.\test-canary-linux.ps1` runs the canary's tests in a container,
+`.\test-server-linux.ps1` compiles the whole server solution there, and
+`.\test-server-run-linux.ps1` assembles the layout and *starts* the server there. All three need a
+populated package cache - see "The dependency closure is not reproducible".
 
 ## Which build host, and why it matters
 
@@ -1435,3 +1436,41 @@ Both bit while writing the script above:
 - `powershell -File script.ps1 -Solution Server,Client` passes the single string `"Server,Client"` to a
   `[string[]]` parameter, which fails its `ValidateSet`. Array arguments need `-Command`, or repeated
   `-Solution Server -Solution Client`.
+- Both scripts in that pair, and `deploy-server-layout.ps1`/`run-server-check.ps1`, also had to lose
+  every hardcoded backslash before they would run in a Linux container: `Join-Path $repoRoot
+  'MediaPortal\Source'` yields a path containing a literal backslash there, i.e. one *file name*.
+  Assemble paths from components (`Join-Path (Join-Path $root 'MediaPortal') 'Source'`) in anything a
+  container is expected to execute.
+
+## The server runs on Linux: `test-server-run-linux.ps1`
+
+`test-server-linux.ps1` answers "does it compile there?", which is a question about the toolchain.
+This one starts the server: `Dockerfile.server` copies the tree into a .NET 10 SDK image, installs
+PowerShell with `dotnet tool install --global PowerShell` (the SDK image already has `dotnet`; this
+avoids a Microsoft apt feed, GPG keys and `curl` in the image), and its `CMD` runs the *same* two
+scripts the Windows gate runs:
+
+    docker build -f scripts/ci/Dockerfile.server -t mp2-server .
+    docker run --rm -v <nuget-cache>:/nuget-cache:ro -e NUGET_FALLBACK_PACKAGES=/nuget-cache mp2-server
+
+or `.\test-server-run-linux.ps1`, which does both and maps the exit code. Keeping the logic in the
+scripts rather than in a `RUN` line is deliberate: a fix then applies to both platforms at once, and a
+green result here means the same thing as a green result there.
+
+`build/` is in `.dockerignore`, so the container never sees the Windows layout; it builds its own from
+the copied source. `-SkipImageBuild` therefore means "run the snapshot currently in Docker" - the same
+caveat as the cross-compile probe, which prints a warning comparing the image timestamp with the newest
+source file.
+
+What it currently measures, and why that is the useful output: the layout assembles, the host executes
+on .NET 10.0.13, `SystemResolver` reports a local system id, and the `SQLiteDatabase` plugin is
+activated and logs its settings. Then three `FATAL` lines appear, in this order - the missing
+`SQLite.Interop.dll`, `HTTPAPI.dll` (ASP.NET Core's `http.sys` server, reached from
+`ResourceServer.CreateAndStartServer`), and a `ServiceNotFoundException` during teardown that buries the
+first two. They are analysed as ROADMAP item **i**. The loop from here is: fix the first one, rebuild the
+image, read the new first one.
+
+Two things it does not cover, both on purpose. The UPnP gate stays on Windows because Docker Desktop's
+NAT does not give a container the LAN's multicast group, so `test-server-upnp.ps1` would be testing the
+VM's networking rather than MP2. And the check stops at process teardown: it does not assert that the
+server served anything, which is what the Windows UPnP probe is for.

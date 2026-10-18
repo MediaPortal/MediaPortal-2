@@ -23,7 +23,7 @@ Decisions that are settled and should not be reopened:
 ## Where the tree stands
 
 Verified 2026-10-18 with `build.ps1 -Solution Server,Client -Ratchet`, `tests.ps1`, `packages.ps1`,
-`test-canary-linux.ps1` and `test-server-linux.ps1`:
+`test-canary-linux.ps1`, `test-server-linux.ps1` and `test-server-run-linux.ps1`:
 
 | Measurement | Value | How to reproduce |
 | --- | --- | --- |
@@ -38,6 +38,7 @@ Verified 2026-10-18 with `build.ps1 -Solution Server,Client -Ratchet`, `tests.ps
 | Unit tests, Windows | 4/4 suites, 290 executed, 0 failed (3 canary tests skip: Linux-only) | `tests.ps1` |
 | Unit tests, Linux (canary) | 31 executed, 0 failed (1 skips: Windows-only), incl. live IPC round trips and XDG autostart | `test-canary-linux.ps1` |
 | Server actually **runs** | **yes on Windows** as a headless process: reaches the Running state, creates the SQLite store, answers UPnP discovery over the network, exits 0 with an error-free log; no other platform runs it, though `MP2-Server-Headless.dll` is the first MP2 executable `test-server-linux.ps1` builds | `run-server-check.ps1`, `test-server-upnp.ps1`, `test-server-linux.ps1` |
+| Server **starts on Linux** | yes - the layout assembles and the host executes under .NET 10.0.13, activates the `SQLiteDatabase` plugin and logs its settings; it then dies on the first Windows-only native, so three `FATAL` lines stand between that and item **g**'s Running state | `test-server-run-linux.ps1`, item **i** below |
 | Database plugin on a portable target framework | `SQLiteDatabase` is `net10.0` with `CA1416` as error and no Win32 calls left; the native SQLite library it loads is still win-x64 only | `SQLiteDatabase.csproj`, item **h** below |
 | Built executables are 64-bit | 5/5 apphosts measure `x64`, managed side `MSIL` | `architecture.ps1` |
 | 32-bit declarations in source | 0 in SDK-style projects, 42 in old-style ones | `architecture.ps1` |
@@ -471,6 +472,28 @@ The run also corrected an assumption in item **g**. The HTTP traffic is logged b
 control point are already ASP.NET Core hosts. `http.sys` is the Windows-only *server* behind that
 abstraction, so Linux needs Kestrel as a provider swap, not the replacement of an HTTP stack that item
 **g** anticipated.
+
+**i. The server starts on Linux (2026-10-18).** Items **d** through **h** were all argued from
+inventories and compile results. This one is a log: `Dockerfile.server` and `test-server-run-linux.ps1`
+build the layout and start the host *inside a Linux container*, using the same two scripts the Windows
+gate runs (`deploy-server-layout.ps1`, `run-server-check.ps1`) rather than a Linux-specific reimplementation,
+so a green result here and a green result there mean the same thing.
+
+It got further than expected. `dotnet publish` assembled the layout, the host started on `.NET 10.0.13`,
+`SystemResolver` produced a local system id (so the machine-id path that replaced the registry read
+works), plugins were reflected and `SQLiteDatabase` was activated and logged its settings. Then:
+
+| Order | Log line | Root cause | Portable answer |
+| --- | --- | --- | --- |
+| 1 | `[FATAL] SQLiteDatabase: Error establishing database connection` - `System.DllNotFoundException: Unable to load shared library 'SQLite.Interop.dll'`, tried as `.so` and bare in the plugin folder and the runtime directory | item **h**'s prediction, measured: `System.Data.SQLite` has no Linux native | `Microsoft.Data.Sqlite`, whose `e_sqlite3` natives cover linux-x64 and android; the collation registration and the Guid-as-BLOB storage have to be ported by hand, which is why this is a step and not a package bump |
+| 2 | `[FATAL] HeadlessServerLauncher: error while starting the core` - `TypeInitializationException` for `Microsoft.AspNetCore.Server.HttpSys.HttpApi`, `DllNotFoundException: 'HTTPAPI.dll'`, thrown from `ResourceServer.CreateAndStartServer` | `http.sys` does not exist outside Windows; one `UseHttpSys` call in `UPnP.Infrastructure.Http.HttpServer` is the seam, and every HTTP host in the server goes through it | Kestrel. Not a straight swap: MP2 puts several hosts on port 55555 under different base paths, which `http.sys` does natively and Kestrel does not, so off Windows the hosts have to share one listener and dispatch on path prefix |
+| 3 | `[FATAL] HeadlessServerLauncher: error while shutting down` - `ServiceNotFoundException: Could not find the IUserProfileDataManagement service` from `BackendExtension.ShutdownBackendServices` | teardown assumes every service it wants to stop was registered. The database failed above, so the service was never built - and the real cause got buried under two extra `FATAL`s | shutdown has to tolerate services that never came up. Not Linux-specific: the same line appeared on Windows when two servers collided on a port, see item **g** |
+
+Writing the probe also exposed a portability bug in the tooling itself: `Join-Path $repoRoot
+'MediaPortal\Source'` and `Join-Path $PSScriptRoot '..\..'` are correct on Windows and wrong on Linux,
+where a backslash is not a separator, so `'MediaPortal\Source'` is one *file name*. That is the same
+class of defect `PathManager` had, sitting in the scripts that are supposed to prove the server runs on
+Linux; all of them now build paths from separate components.
 
 ## Phase 2 - Avalonia front end
 

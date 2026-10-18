@@ -54,9 +54,15 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
-$sourceRoot = Join-Path $repoRoot 'MediaPortal\Source'
-if (-not $OutputDir) { $OutputDir = Join-Path $repoRoot 'build\artifacts\server-layout' }
+# Path separators: every path here is assembled with Join-Path from separate components. A literal
+# 'MediaPortal\Source' works on Windows and silently becomes a single file *name* containing a
+# backslash on Linux, where backslash is not a separator - the same bug PathManager had, in the
+# tooling that is supposed to prove the server runs on Linux.
+$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot (Join-Path '..' '..'))).Path
+$sourceRoot = Join-Path (Join-Path $repoRoot 'MediaPortal') 'Source'
+if (-not $OutputDir) {
+  $OutputDir = Join-Path (Join-Path (Join-Path $repoRoot 'build') 'artifacts') 'server-layout'
+}
 
 $dotnet = if ($DotnetPath) { $DotnetPath } else { (Get-Command dotnet -ErrorAction SilentlyContinue).Source }
 if (-not $dotnet) { throw 'dotnet not found on PATH. Install the .NET SDK, or pass -DotnetPath.' }

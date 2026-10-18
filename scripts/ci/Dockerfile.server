@@ -1,0 +1,50 @@
+# Run probe: does the MP2 server START on Linux?
+#
+#   docker build -f scripts/ci/Dockerfile.server -t mp2-server .
+#   docker run --rm -v <nuget-cache>:/nuget-cache:ro -e NUGET_FALLBACK_PACKAGES=/nuget-cache mp2-server
+#
+# This is not Dockerfile.cross. That image answers "does the source compile on Linux" and every
+# assembly it produces for a -windows target is unrunnable there. Here the tree is built for the
+# container's own platform (net10.0, no -windows TFM in MP2-Server.sln any more) and then *executed*,
+# which is the only way to find the defects a compiler cannot see. Both SSDP shutdown bugs this tree
+# had were found that way on Windows; whether the server also runs here is what this image answers.
+#
+# It runs the same two scripts the Windows gate runs - deploy-server-layout.ps1 assembles the
+# layout, run-server-check.ps1 starts the host, waits for "Switching to running state" and then
+# stops it - so a green result here and a green result there mean the same thing. Keeping the
+# logic in the scripts instead of in this file is deliberate: a fix then applies to both platforms
+# at once. (That also required the scripts to stop hardcoding backslash paths - a literal
+# 'MediaPortal\Source' is one file *name* on Linux.)
+#
+# PowerShell comes from `dotnet tool install`, not from apt: the SDK image already has dotnet, and
+# this avoids adding a Microsoft package feed, GPG keys and a curl dependency to the image.
+#
+# Restore still needs the read-only fallback folder for the MyGet-only packages, exactly as
+# Dockerfile.cross does; see scripts/ci/README.md.
+#
+# What is known to fail here, and in which order: System.Data.SQLite has no Linux native
+# (SQLite.Interop.dll is Windows-only), so opening the database throws before the server reaches
+# Running; the UPnP/Resource HTTP servers use ASP.NET Core's HttpSys server, which is Windows-only
+# (Kestrel is the portable provider, but MP2 relies on http.sys port sharing because several hosts
+# listen on one port under different base paths). Each of those becomes a ROADMAP item with a log
+# line attached, which is the point of the probe.
+ARG SDK_TAG=10.0
+FROM mcr.microsoft.com/dotnet/sdk:${SDK_TAG}
+
+ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
+ENV PATH="${PATH}:/root/.dotnet/tools"
+
+WORKDIR /src
+
+COPY . .
+
+RUN sed -i '/myget/Id' /src/MediaPortal/NuGet.Config \
+ && dotnet tool install --global PowerShell \
+ && dotnet --info | head -n 4 && uname -a && pwsh -NoProfile -Command '$PSVersionTable.PSVersion.ToString()'
+
+# Exported so the shell-form CMD below sees it; Docker only substitutes ARG in a handful of
+# instructions, and a shell-form CMD is evaluated at container start, not at build.
+ARG NUGET_FALLBACK_PACKAGES=/nuget-cache
+ENV NUGET_FALLBACK_PACKAGES=${NUGET_FALLBACK_PACKAGES}
+
+CMD bash -c "pwsh -NoProfile -File /src/scripts/ci/deploy-server-layout.ps1 && pwsh -NoProfile -File /src/scripts/ci/run-server-check.ps1 -LayoutDir /src/build/artifacts/server-layout"
