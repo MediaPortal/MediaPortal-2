@@ -27,8 +27,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
 using System.IO;
+using System.IO.Compression;
 using CommandLine;
-using Ionic.Zip;
 
 namespace MediaPortal.LogCollector
 {
@@ -82,46 +82,80 @@ namespace MediaPortal.LogCollector
       if (File.Exists(targetFile))
         File.Delete(targetFile);
 
-      ZipFile archive = new ZipFile(targetFile);
-      foreach (var product in products)
+      // DotNetZip was the original implementation. Its last release (1.16.0) still carries
+      // GHSA-xhg6-9j5j-w4vf, a directory traversal with no patched version - the project is
+      // unmaintained and the maintained fork is a different package id. Everything this tool asks of a
+      // zip library is in the framework, so the dependency goes away entirely rather than being
+      // version-pinned to an advisory.
+      using (var archive = new ZipArchive(new FileStream(targetFile, FileMode.Create), ZipArchiveMode.Create))
       {
-        string sourceFolder = Path.Combine(dataPath, @"Team MediaPortal", product, "Log");
-        if (!Directory.Exists(sourceFolder))
+        foreach (var product in products)
         {
-          Console.WriteLine("Skipping non-existant folder {0}", sourceFolder);
-          continue;
+          string sourceFolder = Path.Combine(dataPath, @"Team MediaPortal", product, "Log");
+          if (!Directory.Exists(sourceFolder))
+          {
+            Console.WriteLine("Skipping non-existant folder {0}", sourceFolder);
+            continue;
+          }
+          Console.WriteLine("Adding folder {0}", sourceFolder);
+          try
+          {
+            AddFolder(archive, sourceFolder, product);
+          }
+          catch (Exception ex)
+          {
+            Console.WriteLine("Error adding folder {0}: {1}", sourceFolder, ex);
+          }
         }
-        Console.WriteLine("Adding folder {0}", sourceFolder);
+
         try
         {
-          archive.AddDirectory(sourceFolder, product);
+          string applicationEventLog = CollectEventLog(outputPath, "Application");
+          archive.CreateEntryFromFile(applicationEventLog, EntryName("Windows Logs", Path.GetFileName(applicationEventLog)));
+          string systemEventLog = CollectEventLog(outputPath, "System");
+          archive.CreateEntryFromFile(systemEventLog, EntryName("Windows Logs", Path.GetFileName(systemEventLog)));
         }
         catch (Exception ex)
         {
-          Console.WriteLine("Error adding folder {0}: {1}", sourceFolder, ex);
+          Console.WriteLine("Error collecting event log files {0}.", ex);
         }
       }
-
-      try
-      {
-        string applicationEventLog = CollectEventLog(outputPath, "Application");
-        archive.AddFile(applicationEventLog, "Windows Logs");
-        string systemEventLog = CollectEventLog(outputPath, "System");
-        archive.AddFile(systemEventLog, "Windows Logs");
-      }
-      catch (Exception ex)
-      {
-        Console.WriteLine("Error collecting event log files {0}.", ex);
-      }
-
-      archive.Save();
-      archive.Dispose();
       Console.WriteLine("Successful created log archive: {0}", targetFile);
 
       CleanupTempEventLogFiles(outputPath);
 
       var psi = new ProcessStartInfo { FileName = outputPath, UseShellExecute = true };
       Process.Start(psi); // Opens output folder
+    }
+
+    /// <summary>
+    /// Adds a folder recursively to the archive, with every entry below <paramref name="entryPrefix"/>.
+    /// </summary>
+    private static void AddFolder(ZipArchive archive, string sourceFolder, string entryPrefix)
+    {
+      foreach (var file in Directory.GetFiles(sourceFolder, "*", SearchOption.AllDirectories))
+      {
+        try
+        {
+          string relative = file.Substring(sourceFolder.Length)
+            .TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+          archive.CreateEntryFromFile(file, EntryName(entryPrefix, relative));
+        }
+        catch (Exception ex)
+        {
+          // A log collector that gives up because one file is locked by the process that is still
+          // writing it is not a collector worth having; report the file and keep going.
+          Console.WriteLine("Error adding file {0}: {1}", file, ex);
+        }
+      }
+    }
+
+    /// <summary>
+    /// Zip entry names use forward slashes by specification, on every platform.
+    /// </summary>
+    private static string EntryName(string prefix, string relativePath)
+    {
+      return prefix + "/" + relativePath.Replace('\\', '/');
     }
 
     private static string CollectEventLog(string pathToFile, string logType)

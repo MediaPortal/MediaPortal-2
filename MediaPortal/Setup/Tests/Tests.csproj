@@ -25,7 +25,10 @@
     <PackageReference Include="xunit.runner.visualstudio">
       <Version>2.4.5</Version>
     </PackageReference>
-    <PackageReference Include="Microsoft.Windows.Compatibility" Version="7.0.1" />
+    <!-- Microsoft.Windows.Compatibility removed: it is a compatibility crutch for code ported off
+         .NET Framework, and on net10.0 the namespaces this project uses are all in-box. The package
+         dragged two advisories into the installer tests (GHSA-555c-2p6r-68mm for itself and
+         GHSA-98g6-xh36-x2p7 through System.Data.SqlClient). -->
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\LanguageTests\strings_en.xml" />

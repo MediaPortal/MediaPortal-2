@@ -19,6 +19,16 @@
     <EmbeddedResource Include="NfoMetadataExtractor\TestData\MovieNfo\movie.nfo" />
   </ItemGroup>
   <ItemGroup>
+    <!-- The server's shipped log configuration, verified against the log4net version we reference by
+         Log4NetLoggerTests. Appender, layout and evaluator types are strings resolved by reflection
+         at runtime, so a namespace move is invisible to the compiler and would only surface as MP2
+         silently not logging. Linked under a name that is not "app.config": the SDK would treat a
+         file with that name in the project as this assembly's own application configuration. -->
+    <None Include="..\..\Source\Main\MediaPortal.Server\app.config" Link="Logging\Server.app.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
     <PackageReference Include="Moq">
       <Version>4.18.1</Version>

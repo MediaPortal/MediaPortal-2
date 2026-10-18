@@ -28,15 +28,19 @@ Verified 2026-10-18 with `build.ps1 -Solution Server,Client -Ratchet`, `tests.ps
 | Measurement | Value | How to reproduce |
 | --- | --- | --- |
 | Server solution compiles on Windows | 0 errors, 686 gated findings | `build.ps1 -Solution Server -Ratchet` |
-| Client solution compiles on Windows | 0 errors, 2551 findings (not gated) | `build.ps1 -Solution Client` |
+| Client solution compiles on Windows | 0 errors, ~2460 findings (not gated) | `build.ps1 -Solution Client` |
 | Server solution compiles **on Linux** | 0 errors | `test-server-linux.ps1` |
 | Portable-core Windows API references | **0** (83 quarantined in 6 satellite files) | `spine.ps1`, `satellites.ps1` |
 | `CA1416` call sites, Windows vs Linux | 196 on both - identical inventories | build log, `warnings.ps1` |
-| Unit tests, Windows | 4/4 suites pass | `tests.ps1` |
+| Unit tests, Windows | 4/4 suites, 262 tests, 0 failed | `tests.ps1` |
 | Unit tests, Linux (canary) | 20/20 | `test-canary-linux.ps1` |
-| Packages with known advisories | **4** (1 moderate, 3 high) | `packages.ps1` |
+| Packages with known advisories | **0** (was 5: 1 critical, 3 high, 1 moderate) | `packages.ps1 -FailOn Low` |
 | Packages via .NET Framework fallback | 7 | `packages.ps1` |
 | Clean machine can restore | **no** - 6 package ids exist nowhere reachable | CI README, "The dependency closure is not reproducible" |
+
+The client's finding total is written with a tilde on purpose: it includes the restore-time NuGet codes
+that are deliberately outside the ratchet, so it moves by a few between runs of identical source. The
+gated server number is exact because the codes it counts are functions of the source.
 
 The last row gates everything else: nothing builds reproducibly on a clean agent or a container until
 those six ids have a home. That is why it is Phase 1a and not a footnote.
@@ -52,23 +56,31 @@ two it carries only in older versions. Order of attack: rebuild the two small on
 vendor `ffmpeg` and the BASS binaries as a checked-in feed after their licence terms are read. Gate: a
 restore with an empty packages folder and `-p:RestoreSources` limited to nuget.org plus that folder.
 
-**b. Kill the advisories.** Four packages, one of which is in almost everything:
+**b. Kill the advisories - done 2026-10-18.** What was there, and what closed it:
 
-| Severity | Package | Version | Projects | Advisory |
-| --- | --- | --- | --- | --- |
-| Moderate | `log4net` | 2.0.14 | 104 | GHSA-4f7c-pmjv-c25w |
-| High | `System.Data.SqlClient` | 4.8.5 | 1 | GHSA-98g6-xh36-x2p7 |
-| High | `Microsoft.Windows.Compatibility` | 7.0.1 | 1 | GHSA-555c-2p6r-68mm |
-| High | `DotNetZip` | 1.15.0 | 1 | GHSA-xhg6-9j5j-w4vf |
+| Severity | Package | Version | Projects | Advisory | Closed by |
+| --- | --- | --- | --- | --- | --- |
+| Critical | `System.Drawing.Common` | 5.0.0 | 1 | GHSA-rxg9-xrhp-64gj | transitive, went with `DotNetZip` |
+| Moderate | `log4net` | 2.0.14 | 104 | GHSA-4f7c-pmjv-c25w | bumped to 3.5.0 |
+| High | `Microsoft.Windows.Compatibility` | 7.0.1 | 1 | GHSA-555c-2p6r-68mm | reference deleted |
+| High | `System.Data.SqlClient` | 4.8.5 | 1 | GHSA-98g6-xh36-x2p7 | transitive, went with it |
+| High | `DotNetZip` | 1.15.0 | 1 | GHSA-xhg6-9j5j-w4vf | reference deleted |
 
-The 104 projects behind `log4net` are one version bump in one place; the per-project log count made a
-one-line fix look like 104 problems, which is exactly why `packages.ps1` counts packages instead.
-`System.Data.SqlClient` is Windows-flavoured by design, so replacing it with `Microsoft.Data.SqlClient`
-or the provider the database actually uses is a porting task wearing a security badge.
-`Microsoft.Windows.Compatibility` is itself a compatibility shim - its presence usually means
-something else was ported badly, and that something is the real target. `DotNetZip` is unmaintained;
-`System.IO.Compression` covers most of what MP2 asks of it. Gate: `packages.ps1 -FailOn High` in the
-pipeline, then the same with `-FailOn Moderate`.
+`packages.ps1 -FailOn Low` now exits 0 across 115 projects, which is the gate for this item. Three
+notes that outlive the fix. `log4net`'s advisory is patched only from 3.3.0, so the bump had to be a
+major-version jump - possible because the whole of MP2's log4net surface is one file, and now guarded by
+tests that configure the shipped server config file, because an appender that stops resolving by name is
+dropped silently and the product just stops writing logs. `DotNetZip`'s traversal has no patched release
+of that package id at all, so `LogCollector` writes its archive with `System.IO.Compression` (verified
+against a real log tree, same entry layout). And `Microsoft.Windows.Compatibility` turned out to be
+exactly what it looks like: `Setup\Tests` imported none of the namespaces it supplies, nothing in the
+tree needed `System.Data.SqlClient` - MP2's database access is SQLite - so both highs were two deleted
+lines rather than a migration.
+
+The `log4net` work is also what surfaced the tree's sharpest test trap, written up in the CI README
+under "What decides the log level": the logger constructor applies the level from the settings service
+over the configuration file, and `ServiceRegistration` is a process-wide singleton, so a test's result
+depends on which fixtures ran before it.
 
 Seven more packages still run through the .NET Framework compatibility path (`BASS.NET`,
 `BassRegistration`, `MediaPortal.TagLib`, `SharpLibHid`, `DiscUtils`, `OnlineVideos.Core`,

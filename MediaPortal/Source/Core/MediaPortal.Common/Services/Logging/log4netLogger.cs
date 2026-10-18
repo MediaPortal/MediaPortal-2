@@ -43,19 +43,26 @@ namespace MediaPortal.Common.Services.Logging
     /// </summary>
     /// <param name="logPath">Path where the logfiles should be written to.</param>
     public Log4NetLogger(string logPath)
+      : this(logPath, FindConfigurationFile())
+    {
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="Log4NetLogger"/> instance that reads its log4net section from a
+    /// configuration file the caller names.
+    /// </summary>
+    /// <param name="logPath">Path where the logfiles should be written to.</param>
+    /// <param name="configurationFile">File containing the <c>&lt;log4net&gt;</c> section.</param>
+    /// <remarks>
+    /// The one-argument constructor has to guess where the configuration lives, and a guess about
+    /// file layout is exactly the kind of assumption that does not survive a platform change. Putting
+    /// the guess in one method (see <see cref="FindConfigurationFile"/>) keeps every caller that knows
+    /// better - hosts, services, and tests - able to say so instead of working around the guess.
+    /// </remarks>
+    public Log4NetLogger(string logPath, string configurationFile)
     {
       XmlDocument xmlDoc = new XmlDocument();
-      // Application.ExecutablePath came from System.Windows.Forms, which is Windows-only. The
-      // entry assembly location is the portable equivalent and matches both candidates: on
-      // .NET Framework it is the .exe (so "<exe>.config" still resolves), on .NET it is the
-      // managed .dll - which is the file that actually carries a .config there, since the
-      // apphost .exe never does. Same fallback order as before.
-      string executablePath = Assembly.GetEntryAssembly()?.Location;
-      if (string.IsNullOrEmpty(executablePath))
-        executablePath = Assembly.GetExecutingAssembly().Location;
-      var configs = new[] { executablePath + ".config", Path.ChangeExtension(executablePath, ".dll") + ".config" };
-      var config = configs.FirstOrDefault(c => File.Exists(c));
-      using (Stream stream = new FileStream(config, FileMode.Open, FileAccess.Read))
+      using (Stream stream = new FileStream(configurationFile, FileMode.Open, FileAccess.Read))
         xmlDoc.Load(stream);
       XmlNodeList nodeList = xmlDoc.SelectNodes("configuration/log4net/appender/file");
       foreach (XmlNode node in nodeList)
@@ -81,6 +88,32 @@ namespace MediaPortal.Common.Services.Logging
         var settings = settingsManager.Load<LogSettings>();
         SetLogLevel(settings.LogLevel);
       }
+    }
+
+    /// <summary>
+    /// Determines the configuration file of the current process.
+    /// </summary>
+    /// <remarks>
+    /// Application.ExecutablePath came from System.Windows.Forms, which is Windows-only. The entry
+    /// assembly location is the portable equivalent and matches both candidates: on .NET Framework it
+    /// is the .exe (so "&lt;exe&gt;.config" still resolves), on .NET it is the managed .dll - which is
+    /// the file that actually carries a .config there, since the apphost .exe never does. Same
+    /// fallback order as before.
+    /// </remarks>
+    private static string FindConfigurationFile()
+    {
+      string executablePath = Assembly.GetEntryAssembly()?.Location;
+      if (string.IsNullOrEmpty(executablePath))
+        executablePath = Assembly.GetExecutingAssembly().Location;
+      var configs = new[] { executablePath + ".config", Path.ChangeExtension(executablePath, ".dll") + ".config" };
+      var config = configs.FirstOrDefault(c => File.Exists(c));
+      if (config == null)
+        // Used to fall through as an ArgumentNullException from new FileStream(null, ...). Same
+        // outcome - the logger cannot start - but the message says what was looked for, which is the
+        // difference between a five-minute and an hour when this happens on a machine you cannot sit at.
+        throw new FileNotFoundException(
+          "No log4net configuration found. Looked for: " + string.Join(", ", configs), executablePath + ".config");
+      return config;
     }
 
     protected ILog GetLogger

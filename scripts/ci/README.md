@@ -163,7 +163,7 @@ server's and adds the entire UI on top, so scoring it here would report hundreds
 are simply outside the measurement. The client is built by the gate but not scored until it gets its
 own baseline file, which it will not need for long if Phase 2 lands.
 
-### Package health: the whole advisory surface is four packages
+### Package health: the advisory surface is empty, and how that was measured
 
 `packages.ps1` answers what `NU19xx` only hints at, and does it deterministically. It does not parse a
 build log and does not call `dotnet list package` per project (that needs a restore of its own, and a
@@ -171,24 +171,88 @@ restore is exactly the thing that fails here). It reads the `logs` array of ever
 `obj\project.assets.json` - the structured output of the last restore - and ignores any file that does
 not describe a `net10.0` target, so a leftover from before the retarget cannot inflate a number.
 
-Measured 2026-10-18, 115 current assets files:
+This is what it found (2026-10-18, 115 current assets files) and what closed each one:
 
-| Code | Package | Version | Projects | Advisory |
-| --- | --- | --- | --- | --- |
-| `NU1902` Moderate | `log4net` | 2.0.14 | **104** | GHSA-4f7c-pmjv-c25w |
-| `NU1903` High | `DotNetZip` | 1.15.0 | 1 | GHSA-xhg6-9j5j-w4vf |
-| `NU1903` High | `Microsoft.Windows.Compatibility` | 7.0.1 | 1 | GHSA-555c-2p6r-68mm |
-| `NU1903` High | `System.Data.SqlClient` | 4.8.5 | 1 | GHSA-98g6-xh36-x2p7 |
+| Severity | Package | Version | Projects | Advisory | Closed by |
+| --- | --- | --- | --- | --- | --- |
+| Moderate | `log4net` | 2.0.14 | **104** | GHSA-4f7c-pmjv-c25w | bumped to 3.5.0 |
+| High | `DotNetZip` | 1.15.0 | 1 | GHSA-xhg6-9j5j-w4vf | dependency deleted |
+| High | `Microsoft.Windows.Compatibility` | 7.0.1 | 1 | GHSA-555c-2p6r-68mm | dependency deleted |
+| High | `System.Data.SqlClient` | 4.8.5 | 1 | GHSA-98g6-xh36-x2p7 | went with it |
+| **Critical** | `System.Drawing.Common` | 5.0.0 | 1 | GHSA-rxg9-xrhp-64gj | went with DotNetZip |
 
-Four packages. The 104 projects behind `log4net` are one version bump in one place, which is why the
-per-project log count was actively misleading: it made a one-line fix look like 104 problems.
+Five entries, four packages, **and `packages.ps1 -FailOn Low` now exits 0** on the same 115 projects.
+The counts of projects were the point of reading the assets files: `log4net` looked like 104 problems
+in a build log and was one version bump in `MediaPortal.Common.csproj`, the only direct reference in
+the tree. Details worth keeping, because each one decided a fix rather than being trivia:
+
+- GHSA-4f7c-pmjv-c25w (silent log event loss in `XmlLayout`) is only patched from log4net **3.3.0**, so
+  no 2.x bump could have cleared it. The whole of MP2's log4net surface is one file
+  (`log4netLogger.cs`), which is what made a major-version jump safe to attempt; `Log4NetLoggerTests`
+  is what makes it safe to *keep*, including a test that configures the shipped `MP2-Server` config
+  file and asserts every appender it names by string still resolves. Appenders that stop resolving are
+  dropped silently, so the product runs and simply stops writing logs.
+- `DotNetZip`'s traversal spans 1.10.1-1.16.0 with **no patched release of that package id** (the
+  maintained fix lives in a fork under a different id), so `LogCollector` was moved to
+  `System.IO.Compression` - six lines of zip code - instead of being pinned to an advisory. That
+  package was also what dragged `System.Drawing.Common` 5.0.0 in, so one deletion closed a Critical.
+- `Microsoft.Windows.Compatibility` is a crutch for code ported off .NET Framework; `Setup\Tests`
+  imported none of the namespaces it supplies, and `System.Data.SqlClient` reached the project only
+  through it. Both highs were one deletion.
+
+Three things that hid part of the answer while the script was being written:
+
+- The first version matched an allow-list of codes, so **`NU1904` - Critical - was silently dropped**.
+  There is now a `^NU19\d\d$` fallback that ranks any unknown advisory code and prints the code once.
+- Messages are **localized, and the quote characters differ by locale** (`Das Paket „log4net" ...`), so
+  ids are extracted with a character class covering ASCII quotes, typographic quotes and guillemets.
+  Severity comes from the code, never from prose.
+- **`Write-Host` output cannot be redirected.** `-Format json` writes to the success stream; a pipeline
+  should use `packages.ps1 -Format json | ConvertFrom-Json`. A redirected run of the earlier version
+  reported "no advisories" for this reason, which is the most dangerous kind of wrong output.
+
+Two caveats about the number, both from how `project.assets.json` comes to exist:
+
+- It describes **the last restore each project actually did**. The gate restores only what it builds,
+  so `MediaPortal\Setup\*` and `Tools\LogCollector` keep whatever an earlier restore left; build or
+  restore them before reading a clean report. The first version of this table missed both projects for
+  exactly that reason, which is how the Critical turned up.
+- A missing file means *never restored*, not *clean*. The script prints both file counts on every run;
+  if the second number does not look like the number of projects you expect, the report is not a
+  measurement of the tree.
 
 `NU1701` (restored through the .NET Framework fallback, so it runs on .NET compatibility rather than
 support) names seven packages: `BASS.NET` 2.4.14.1 and `BassRegistration` 2.4.14.1 (23 projects each),
 `MediaPortal.TagLib` 2.3.1 (11), `SharpLibHid` 1.5.1, `DiscUtils` 0.11.1, `OnlineVideos.Core` 2.1.0,
 `WorldWeatherOnlineHelper` 1.0.0.3. `NU1510` names five references the SDK now supplies implicitly
-(`Microsoft.CSharp` in 32 projects, plus `System.Threading.Tasks.Dataflow`, `System.Drawing.Common`,
-`System.Resources.Extensions`, `System.Security.Permissions`) - each is a one-line deletion.
+(`Microsoft.CSharp` in 31 projects, plus `System.Threading.Tasks.Dataflow`, `System.Drawing.Common`,
+`System.Resources.Extensions`, `System.Security.Permissions`) - each is a one-line deletion. Six of the
+`NU1701` seven are also the dead-feed packages below, so they cannot be bumped until Phase 1a lands.
+
+### What decides the log level, and why a logging test failed only in a full run
+
+`Log4NetLogger`'s constructor does not stop at the configuration file. After `XmlConfigurator` it asks
+the service container for `ISettingsManager` and, **if one happens to be registered**, loads
+`LogSettings` and applies `SetLogLevel(settings.LogLevel)` on top of what the file said - which also
+saves the level back. So the persisted setting always wins, and the default in `LogSettings` is
+`Information`: a server configured for `ERROR` in its config file logs at `INFO` as soon as one
+`LogSettings` has ever been saved. That is product behaviour, not a defect, but nothing in the tree
+said so until a test found it.
+
+The test found it the way order dependence is usually found - green alone, red in a full run.
+`EventsBelowTheConfiguredLevel_AreNotWritten` wrote an `INFO` line it expected to be dropped, because
+`ServiceRegistration` is a **process-wide singleton** and an earlier fixture in `Tests.Server` (via
+`MockCore`) had left an `ISettingsManager` registered for the rest of the test host's life. Nothing was
+parallel; the ambient container was simply different. Any test whose behaviour can be steered by a
+registered service has to say which registration it assumes, so that fixture now snapshots the ambient
+`ISettingsManager`/`ILogger`, removes them for the duration, registers `NoLogger` (production's own
+silent `ILogger`, so no new test double was needed), and restores what it found in teardown. A fourth
+test, `PersistedLogLevelOverridesTheConfigurationFile`, then pins the precedence rule itself with an
+in-memory settings manager, including that switching level persists exactly once.
+
+The general form is worth keeping: **a global singleton service container turns test order into test
+inputs.** In this tree that applies to every test that constructs anything calling
+`ServiceRegistration.Get`, which is most of the server.
 
 ### What CA1416 cannot see
 

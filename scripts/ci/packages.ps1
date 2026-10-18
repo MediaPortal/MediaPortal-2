@@ -32,8 +32,9 @@
 param(
   [Parameter(ValueFromPipeline)][string[]]$Root,
 
-  # Exit 1 when at least one package with this severity (or worse) is present.
-  [ValidateSet('None', 'Low', 'Moderate', 'High')]
+  # Exit 1 when at least one package with this severity (or worse) is present. An advisory whose code
+  # this script does not know is ranked as High, so -FailOn High catches it.
+  [ValidateSet('None', 'Low', 'Moderate', 'High', 'Critical')]
   [string]$FailOn = 'None',
 
   [ValidateSet('table', 'json')]
@@ -45,8 +46,13 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 $roots = if ($Root) { $Root } else { @($repoRoot) }
 
-# NuGet's audit codes and the severity each one means. Keep in sync with NuGet's NuGetAuditMode docs.
-$severityByCode = @{ NU1901 = 'Low'; NU1902 = 'Moderate'; NU1903 = 'High' }
+# NuGet's audit codes and the severity each one means. NU1904 = critical was learned from the assets
+# files themselves ("...weist eine bekannte Kritisch Schweregrad-Sicherheitsanfälligkeit auf"), after
+# an earlier version of this script listed only NU1901..NU1903 and therefore dropped a real critical
+# advisory (System.Drawing.Common 5.0.0, GHSA-rxg9-xrhp-64gj) in silence. Anything in the NU19xx
+# family is now reported even if its severity is unknown here - see the advisoryRe below.
+$severityByCode = @{ NU1901 = 'Low'; NU1902 = 'Moderate'; NU1903 = 'High'; NU1904 = 'Critical' }
+$advisoryRe = [regex]'^NU19\d\d$'
 $interesting = @($severityByCode.Keys) + @('NU1701', 'NU1510', 'NU1504')
 
 # Package ids are quoted in every locale NuGet ships, but not with the same characters: ASCII quotes
@@ -90,6 +96,7 @@ function Get-PackageFromMessage {
 }
 
 $perProject = @{}
+$unknownCodes = [System.Collections.Generic.HashSet[string]]::new()
 $assetsFiles = 0
 $considered = 0
 
@@ -115,7 +122,7 @@ foreach ($r in $roots) {
 
     foreach ($entry in @($doc.logs)) {
       if (-not $entry.code) { continue }
-      if ($interesting -notcontains $entry.code) { continue }
+      if (($interesting -notcontains $entry.code) -and -not $advisoryRe.IsMatch($entry.code)) { continue }
       $msgUrl = $null
       $msgId = $null
       $msgVer = $null
@@ -129,6 +136,12 @@ foreach ($r in $roots) {
       if (-not $msgVer) { $msgVer = '-' }
       $sev = '-'
       if ($severityByCode.ContainsKey($entry.code)) { $sev = $severityByCode[$entry.code] }
+      elseif ($advisoryRe.IsMatch($entry.code)) {
+        # A severity NuGet invented after this script was written. Named so a reader cannot mistake it
+        # for "no severity", and ranked as High by -FailOn so an unknown advisory still stops a build.
+        $sev = 'Advisory'
+        [void]$unknownCodes.Add($entry.code)
+      }
 
       $key = $entry.code + '|' + $msgId + '|' + $msgVer
       if (-not $perProject.ContainsKey($key)) {
@@ -150,13 +163,19 @@ $rows = @($perProject.Values |
   Sort-Object @{E = { $_.Code } }, @{E = { -$_.Projects.Count } }, Package)
 
 if ($Format -eq 'json') {
+  # Emit, do not Write-Host. -Format json exists to be piped into ConvertFrom-Json or Out-File, and
+  # Write-Host writes to the host rather than to the success stream: an earlier version of this script
+  # produced an empty file for the caller, which then read exactly like "no advisories found".
   $rows | ForEach-Object {
     [pscustomobject]@{
       code = $_.Code; severity = $_.Severity; package = $_.Package; version = $_.Version
       url = $_.Url; projectCount = $_.Projects.Count; projects = @($_.Projects | Sort-Object)
     }
-  } | ConvertTo-Json -Depth 4 | Write-Host
+  } | ConvertTo-Json -Depth 4
 } else {
+  if ($unknownCodes.Count) {
+    Write-Host "unknown audit codes treated as advisories (severity unknown): $($unknownCodes -join ', ')" -ForegroundColor Yellow
+  }
   Write-Host "assets files scanned: $assetsFiles, describing a net10.0 target: $considered"
   if (-not $rows.Count) {
     Write-Host "Nothing to report - no NuGet restore diagnostics in the current assets files." -ForegroundColor Green
@@ -175,10 +194,11 @@ if ($Format -eq 'json') {
 }
 
 if ($FailOn -ne 'None') {
-  $rank = @{ Low = 1; Moderate = 2; High = 3 }
+  $rank = @{ Low = 1; Moderate = 2; High = 3; Critical = 4; Advisory = 3 }
   $limit = $rank[$FailOn]
   foreach ($row in $rows) {
-    if ($row.Severity -ne '-' -and $rank[$row.Severity] -ge $limit) {
+    $rowRank = $rank[$row.Severity]
+    if ($rowRank -and $rowRank -ge $limit) {
       Write-Host "FAIL: $($row.Package) $($row.Version) carries a $($row.Severity) advisory ($($row.Url))" -ForegroundColor Red
       exit 1
     }
