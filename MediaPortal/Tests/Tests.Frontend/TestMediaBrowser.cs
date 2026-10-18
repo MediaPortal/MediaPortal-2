@@ -21,6 +21,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
@@ -508,6 +509,10 @@ namespace Tests.Frontend
       Assert.That(signedInAs, Is.EqualTo("georg"));
       Assert.That(server.TokenBody, Does.Contain("grant_type=password"));
       Assert.That(server.TokenBody, Does.Contain("username=georg"));
+      Assert.That(Uri.UnescapeDataString(server.TokenBody!),
+          Does.Contain("password=" + Convert.ToBase64String(Encoding.UTF8.GetBytes("georgs-password"))),
+          "MP2 base64s the password before sending it - the server hands what arrives to FromBase64String, so a "
+          + "plain-text password is not rejected, it is a format error on the other side");
       Assert.That(client.AccessToken, Is.EqualTo("ticket-1"), "the client remembers the ticket");
 
       MediaTitles titles = Task.Run(delegate { return client.GetTitlesAsync("MediaItem", null, false, 60, 0, CancellationToken.None); })
@@ -544,6 +549,31 @@ namespace Tests.Frontend
 
       client.SignOut();
       Assert.That(client.AccessToken, Is.Null);
+    }
+
+    [AvaloniaTest]
+    public void AServerThatCannotLookAnybodyUpIsExplainedRatherThanQuoted()
+    {
+      ServerApiException refused = new ServerApiException(SIGN_IN_URL, HttpStatusCode.BadRequest,
+          "{\"error\":\"invalid_grant\",\"error_description\":\"User management not available.\"}");
+
+      string said = HomeViewModel.DescribeSignInFailure(refused);
+
+      Assert.That(said, Does.Contain("profile"), "the screen has to say what to do, not repeat the server");
+      Assert.That(said, Does.Contain("Web authorization"),
+          "and the way out of it is a setting on the server, so it belongs in the sentence");
+      Assert.That(said, Does.Not.Contain("User management not available"),
+          "that string is the confusing half of the problem - it is what a server with no accounts answers");
+    }
+
+    [AvaloniaTest]
+    public void AWrongPasswordIsStillAnsweredInTheServersOwnWords()
+    {
+      ServerApiException refused = new ServerApiException(SIGN_IN_URL, HttpStatusCode.BadRequest,
+          "{\"error\":\"invalid_grant\",\"error_description\":\"The user name or password is incorrect.\"}");
+
+      Assert.That(HomeViewModel.DescribeSignInFailure(refused), Does.Contain("password is incorrect"),
+          "a wrong password needs no interpretation, and inventing one would hide what the server said");
     }
 
     #endregion

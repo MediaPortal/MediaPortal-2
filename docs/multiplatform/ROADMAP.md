@@ -1506,13 +1506,28 @@ front end lacked was the ability to stop being a stranger.
 
 `ServerApiClient` now signs in through MP2's own endpoint - `POST Token`, OAuth password grant, form-encoded, the
 `{access_token, token_type, expires_in, issued, expires}` answer - and sends the ticket as `Authorization: Bearer`
-on every request after that. There is no second way in here, and no invented account system. The home screen grew
+on every request after that. There is no second way in here, and no invented account system. One detail is not
+negotiable and was only found by reading the server: the `password` field goes out **base64-encoded**, because
+`ResourceServer.GrantResourceOwnerCredentials` hands whatever arrives to `Convert.FromBase64String` before
+decoding it as UTF-8. A plain-text password is therefore not rejected by MP2 - it is a format error on the server.
+Encoding, not protection: over MP2's plain HTTP the password is readable on the network, which is exactly what the
+"Web authorization" switch is for.
+The home screen grew
 a name-and-password row beside the server picker; a successful sign-in repeats the name back and re-reads the
 library, and a title list that is refused says *"Films is only for signed-in users on this server. Sign in on the
 server screen."* instead of showing an empty list, because an empty list is read as a broken front end. Two
 client tests pin the two halves that matter: the ticket from a successful sign-in is really on the next request's
-headers, and a refused one (`{"error":"invalid_grant","error_description":"…"}`) leaves the client a stranger with
-the server's own sentence as the exception message.
+headers (and the password that got it there is the base64 the server expects), and a refused one
+(`{"error":"invalid_grant","error_description":"…"}`) leaves the client a stranger with the server's own sentence
+as the exception message.
+
+One answer from that endpoint needed translating before the screen could use it. A wrong password gets *"The user
+name or password is incorrect."*, but a name that does not exist - and a server where nobody ever set profiles up -
+both fall through to **"User management not available."** (`ResourceServer`, after the profile lookup fails). So
+the same words cover "typo" and "this server has no accounts", and only one of them is fixed by typing again.
+`HomeViewModel.DescribeSignInFailure` turns that particular answer into what can be done - add a profile on the
+server, or switch "Web authorization" off there and the library is open to the house - and leaves every other
+refusal in the server's own words, where a wrong password needs no interpretation.
 
 **A test host that cannot answer "who is asking" is not a server.** Adding the filter's check to the tests turned
 every 403 into a **500**: the attribute loads `ServerSettings` through `ISettingsManager`, and `InProcessApi` had
@@ -1548,6 +1563,42 @@ tile a viewer last watched.
 
 **Where the numbers stand.** `Tests.Server` 238, `Tests.Frontend` 187 (the browser screen's 11 and the sign-in
 pair among them), the whole suite **612 tests, 0 failures** on Windows.
+
+### x. What happens to the skins, decided rather than drifted into
+
+**The MPF skin engine is not being ported.** It is the part of the old client that a multiplatform front end
+does not need twice: MPF (`SkinEngine`) is a WPF-derived immediate/retained hybrid with its own layout engine,
+its own focus model and its own XAML loader, and Avalonia already is all of that. So the question was never "how
+do we run MPF on Linux" but "what do we keep from what somebody spent years building in it".
+
+**Answer, from the user:** *Nereus* and *WMC* can be rescued by fixing them from MPF to WPF; the other skins are
+not needed, and neither is the Graveyard. The deletion happened and is recorded with its measurements in
+`scripts\ci\README.md` ("The other skins are gone, and so is the Graveyard"): BlueVision and Titanium Extended
+(1068 files between them) and `MediaPortal\Graveyard\` (842 files, seven abandoned skins), the 28 lines they
+occupied in `MP2-Client.sln`, and the stale mentions in the two `Directory.Build.props` files,
+`Directory.Build.targets`, `architecture.ps1` and the translation tool's project list. `build.ps1 -Solution
+Client` still reports 0 errors afterwards, and `Nereus` and `WMC` are what is left under `Source\UI\Skins\`.
+
+**What "rescued" means here, said plainly, because the phrase hides a fork.** Fixing Nereus and WPF skins from
+MPF to WPF makes them run in the *old* WPF client on Windows. It does not make them run in Avalonia: MPF screens
+are written against MPF's own element types and attached properties, and no amount of WPF-compatible syntax
+changes that. So the two skins are kept as two different things, and it matters which one is meant:
+
+- **As a specification for the new screens** - what a film row contains, how a selected item announces itself,
+  what a section page puts where, how the TV layout uses a 1920x1080 room. This is worth more than any
+  screenshot could be, it costs nothing to use, and it is the reason they stay in the tree.
+- **As a runnable skin in the old client** - possible, and the work is real (the MPF types under
+  `Source\UI\SkinEngine`), but it is optional and it does not unblock anything in this port.
+
+**Where the new screens stand against that specification.** The four screens that exist now - connect, home,
+the title list, playback - were designed from MP2's behaviour and from what a 10-foot interface has to survive
+(D-pad only, no hover, no right-click, text readable from a sofa), not copied from either skin. The next pass on
+them is a comparison: sit each rendered frame next to the Nereus and WMC screens and take the differences that a
+viewer would notice - selection treatment, row composition, what a section header carries - and then decide per
+difference, in the Avalonia idiom, rather than translating MPF markup. That is the part of "restore the MP2
+functionality with these skins" that can be done honestly; translating the XAML files themselves would produce a
+skin that looks like Nereus and works like nothing, because the code behind MPF's attached properties would not
+be there.
 
 ## What cannot be verified without the user
 

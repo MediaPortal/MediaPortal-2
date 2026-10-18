@@ -200,9 +200,7 @@ namespace MediaPortal.Frontend.ViewModels
       catch (ServerApiException ex)
       {
         SignedInAs = null;
-        Status = ex.StatusCode == 400 || ex.StatusCode == 401
-            ? "The server does not accept that name and password: " + ex.Message
-            : ex.Message;
+        Status = DescribeSignInFailure(ex);
       }
       catch (OperationCanceledException)
       {
@@ -215,6 +213,39 @@ namespace MediaPortal.Frontend.ViewModels
         SignedInAs = null;
         Status = "Sign-in failed: " + ex.Message;
       }
+    }
+
+    /// <summary>
+    /// What a refused sign-in means to the person standing in front of the screen.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// MP2's token endpoint has two failure answers, and one of them is a lie by omission: a wrong password gets
+    /// "The user name or password is incorrect.", while a name that does not exist - and a server on which
+    /// nobody has ever set profiles up - both fall through to "User management not available."
+    /// (<c>ResourceServer.GrantResourceOwnerCredentials</c>). A viewer told the latter cannot tell a typo from a
+    /// server that has no accounts at all, and the difference is the difference between typing again and going
+    /// to the server to configure it.
+    /// </para>
+    /// <para>
+    /// So that one answer is translated into what can actually be done about it. Turning off "Web authorization"
+    /// is offered as the equal alternative rather than as a workaround, because on a home network it is a
+    /// supported configuration, not a mistake - it is the setting the server itself suggests when it cannot
+    /// identify anybody.
+    /// </para>
+    /// </remarks>
+    public static string DescribeSignInFailure(ServerApiException failure)
+    {
+      if (failure.Message.IndexOf("User management not available", StringComparison.OrdinalIgnoreCase) >= 0)
+      {
+        return "The server could not find that profile. MP2 says the same thing when a profile was never set up, "
+            + "so either add one in the server's configuration, or switch \"Web authorization\" off there and the "
+            + "library is open to the whole house.";
+      }
+
+      return failure.StatusCode == 400 || failure.StatusCode == 401
+          ? "The server does not accept that name and password: " + failure.Message
+          : failure.Message;
     }
 
     /// <summary>

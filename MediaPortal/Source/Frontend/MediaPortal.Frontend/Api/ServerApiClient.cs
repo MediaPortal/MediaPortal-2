@@ -21,6 +21,7 @@ using System.Net;
 using System.Collections.Generic;
 using System.Net.Http.Headers;
 using System.Net.Http;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -143,7 +144,7 @@ namespace MediaPortal.Frontend.Api
       {
           new KeyValuePair<string, string>("grant_type", "password"),
           new KeyValuePair<string, string>("username", userName),
-          new KeyValuePair<string, string>("password", password ?? string.Empty)
+          new KeyValuePair<string, string>("password", EncodePassword(password))
       });
 
       try
@@ -189,6 +190,21 @@ namespace MediaPortal.Frontend.Api
     public void SignOut()
     {
       _accessToken = null;
+    }
+
+    /// <summary>
+    /// How MP2's token endpoint wants the password on the wire.
+    /// </summary>
+    /// <remarks>
+    /// Not this client's invention: <c>ResourceServer.GrantResourceOwnerCredentials</c> calls
+    /// <c>Convert.FromBase64String</c> on whatever arrives in the <c>password</c> field and decodes the result as
+    /// UTF-8. A plain-text password therefore is not merely rejected - it is a format error on the server. This
+    /// is encoding, not protection: over MP2's plain HTTP the password is readable by anybody on the network,
+    /// which is why the server's "Web authorization" switch exists.
+    /// </remarks>
+    private static string EncodePassword(string? password)
+    {
+      return Convert.ToBase64String(Encoding.UTF8.GetBytes(password ?? string.Empty));
     }
 
     private static TokenAnswer? TryRead(string body)
