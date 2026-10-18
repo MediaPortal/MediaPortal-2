@@ -169,8 +169,7 @@ foreach ($apphost in ($apphosts | Sort-Object Name)) {
 # 20 old-style projects still carry <PlatformTarget>x86</PlatformTarget> and none of them can produce a
 # net10.0 output at all.
 $built = @{}
-foreach ($sln in (Get-ChildItem $root -Recurse -Include '*.sln' -ErrorAction SilentlyContinue |
-                    Where-Object { $_.FullName -notmatch '\\Graveyard\\' })) {
+foreach ($sln in (Get-ChildItem $root -Recurse -Include '*.sln' -ErrorAction SilentlyContinue)) {
   foreach ($m in [regex]::Matches([IO.File]::ReadAllText($sln.FullName), '(?m)^Project\([^\)]*\)\s*=\s*"[^"]*",\s*"([^"]+)"')) {
     $target = [IO.Path]::GetFullPath([IO.Path]::Combine($sln.DirectoryName, ($m.Groups[1].Value -replace '\\', '\')))
     $built[$target] = $sln.Name
@@ -205,7 +204,7 @@ function Remove-XmlComments {
 }
 
 $scanned = @(Get-ChildItem (Join-Path $root 'MediaPortal') -Recurse -Include '*.csproj', '*.props', '*.targets' -ErrorAction SilentlyContinue |
-  Where-Object { $_.FullName -notmatch '\\Graveyard\\|\\bin\\|\\obj\\|\\packages\\' })
+  Where-Object { $_.FullName -notmatch '\\bin\\|\\obj\\|\\packages\\' })
 
 $declarations = @()
 foreach ($file in $scanned) {
@@ -233,7 +232,7 @@ foreach ($file in $scanned) {
 $live = @($declarations | Where-Object { $_.Sdk })
 $dead = @($declarations | Where-Object { -not $_.Sdk })
 
-"declarations that ask for 32-bit (scanned $($scanned.Count) project files outside Graveyard/bin/obj):"
+"declarations that ask for 32-bit (scanned $($scanned.Count) project files outside bin/obj):"
 "  in SDK-style projects, which build on net10.0 and would really be 32-bit: $($live.Count)"
 foreach ($d in ($live | Sort-Object File, Line)) {
   $by = if ($d.BuiltBy) { "built by $($d.BuiltBy)" } else { "no solution references it" }

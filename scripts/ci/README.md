@@ -783,7 +783,42 @@ now enumerates every feature's `Relations`/`Conflicts` through the real
 `AssemblyFeatureMetadataProvider` and fails if any pair exercises those code paths without a
 `PluginInstallationTests` case. A feature that gains a relation must come with a test.
 
+## The other skins are gone, and so is the Graveyard (2026-11-05)
+
+Decision, not decay: the front end is being rebuilt in Avalonia (see `docs\multiplatform\ROADMAP.md`), and the
+only two MPF skins worth reading afterwards are **Nereus** and **WMC** - the user's call, and the reason they are
+the two that remain under `Source\UI\Skins\`. Deleted:
+
+- `Source\UI\Skins\BlueVision` and `Source\UI\Skins\Titanium Extended` - **1068 files** between them, including
+  the `.sln` BlueVision carried inside its own folder.
+- `MediaPortal\Graveyard\` - **842 files**, seven abandoned skins and an old `SlimTvClient`: ApolloOne,
+  Black Backdrop, News, Reflexion, RisingSkin, Titanium, SlimTvClient. No `.sln` in the tree referenced anything
+  in it (measured before deleting: zero matches for `Graveyard` across all `*.sln`), which is what made this a
+  folder removal rather than a porting task.
+
+`MP2-Client.sln` lost **28 lines** for the two projects: the two `Project(...)` headers, their two `EndProject`
+lines, 22 build-configuration entries and 2 `NestedProjects` entries. Proved rather than assumed:
+
+    .\build.ps1 -Solution Client     # BUILD OK (Client): 0 errors, 1423 findings
+    .\architecture.ps1               # exit 0 - 277 project files scanned, 0 SDK-style x86 declarations,
+                                     # 5 built executables all x64
+
+`Client` still has no `warning-baseline.Client.json`, so the ratchet reports "no baseline" and passes for that
+solution; the 1423 above is the number to calibrate from if that ever changes. One caveat so that nobody re-derives
+a wrong figure from this file: the count of old-style (non-SDK) projects earlier in this document says 23, which
+was a count of named folders at the time of the .NET 10 retarget. Measured now by scanning every `.csproj` for an
+`Sdk=` attribute on its `<Project>` element: **37 of 157** project files are old-style, 42 of them carry a
+`<PlatformTarget>x86</PlatformTarget>` declaration, and none is referenced by a gated project.
+
+What was deliberately **not** touched: the `Skin\BlueVision\…` fragment folders that live *inside* live plugin
+projects (`UiComponents\News`, `TV\SlimTvClient`, `Incubator\AppLauncher`, `HomeEditor`, `Trakt`,
+`InputDeviceManager`). Those are content items of plugins that remain, they only ever render if the BlueVision
+skin is installed, and editing six project files to remove inert content is churn with no behaviour behind it. If
+BlueVision fragments are wanted gone for tidiness, that is a pass of its own with the client build as its proof.
+
 ## Retargeting the tree to .NET 10 (done 2026-10-18)
+
+
 
 `net48` is gone from everything the CI gate builds. **137 SDK-style projects** were rewritten from a
 multi-target `<TargetFrameworks>` to a single `<TargetFramework>` - the census before the change was
@@ -794,8 +829,9 @@ now **125 × `net10.0-windows` + 6 × `net10.0`** (the six plain ones are the tw
 the rewrite count is 137 and the census 131). The single-TFM decision is the user's: *"we do not need
 a dual platform solution"*.
 
-The **23 old-style (non-SDK) projects were deliberately left alone**. They are `Graveyard\`,
-`Incubator` tools, `Resources\Templates`, the five `Backend\Database\*` backends, `HttpServer`,
+The **23 old-style (non-SDK) projects were deliberately left alone**. They were the `Graveyard\` projects (since
+deleted - see "The other skins are gone, and so is the Graveyard"), `Incubator` tools, `Resources\Templates`,
+the five `Backend\Database\*` backends, `HttpServer`,
 `TvdbLib`, `ShellThumbnailProvider`, `MediaPortal.Manager` and `Test.MediaServer`, and **no gated
 project references any of them** - which is what made the retarget self-contained. To keep the two
 halves from contaminating each other, both `Directory.Build.props` files now apply the .NET Framework

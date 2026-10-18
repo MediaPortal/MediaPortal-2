@@ -7,7 +7,7 @@
     each entry here must be a strict improvement with no behavioural change on Windows.
 
     Reference assemblies for .NET Framework. Since the 2026-10 retarget no SDK-style project
-    builds net48 anymore, so this now serves only the old-style projects (Tools\, Graveyard\,
+    builds net48 anymore, so this now serves only the old-style projects (Tools\,
     Incubator\, some Backend\Database\ providers) that still carry TargetFrameworkVersion
     v4.8 and are built by no CI gate. On Windows the block is skipped entirely, so desktop
     builds are byte-for-byte unchanged.

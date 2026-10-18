@@ -30,11 +30,6 @@ file_filter=Cache_MP2\BDHandler\strings_<lang>.xml
 source_file=Cache_MP2\BDHandler\strings_en.xml
 source_lang=en
 type=ANDROID
-[o:mediaportal:p:MP2:r:BlueVision]
-file_filter=Cache_MP2\BlueVision\strings_<lang>.xml
-source_file=Cache_MP2\BlueVision\strings_en.xml
-source_lang=en
-type=ANDROID
 [o:mediaportal:p:MP2:r:BluRayPlayer]
 file_filter=Cache_MP2\BluRayPlayer\strings_<lang>.xml
 source_file=Cache_MP2\BluRayPlayer\strings_en.xml
