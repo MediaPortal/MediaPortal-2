@@ -127,8 +127,12 @@ namespace MediaPortal.Common
     {
       ILogger logger = ServiceRegistration.Get<ILogger>();
 
+      // Impersonation is a Windows logon session (LogonUser + a token on the calling thread). The
+      // portable core runs everything as the current user, which is the same path the Windows
+      // implementation takes for resources nobody registered a credential for; a Windows host
+      // installs WindowsImpersonationService (MediaPortal.Common.Windows) during startup.
       logger.Debug("ApplicationCore: Registering IImpersonationService");
-      ServiceRegistration.Set<IImpersonationService>(new ImpersonationService());
+      ServiceRegistration.Set<IImpersonationService>(new CurrentUserImpersonationService());
 
       logger.Debug("ApplicationCore: Registering IRegistry service");
       ServiceRegistration.Set<IRegistry>(new Services.Registry.Registry());

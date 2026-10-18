@@ -27,13 +27,13 @@ Verified 2026-10-18 with `build.ps1 -Solution Server,Client -Ratchet`, `tests.ps
 
 | Measurement | Value | How to reproduce |
 | --- | --- | --- |
-| Server solution compiles on Windows | 0 errors, 634 gated findings (was 685) | `build.ps1 -Solution Server -Ratchet` |
+| Server solution compiles on Windows | 0 errors, 627 gated findings (was 685) | `build.ps1 -Solution Server -Ratchet` |
 | Client solution compiles on Windows | 0 errors, ~2430 findings (not gated) | `build.ps1 -Solution Client` |
 | Server solution compiles **on Linux** | 0 errors | `test-server-linux.ps1` |
 | Core assemblies on a portable target framework | **2 of 90** - `MediaPortal.Utilities` and `UPnP` are `net10.0` with `CA1416` as error | `MediaPortal.Utilities.csproj`, `UPnP.csproj` |
 | Portable-core WinForms / GDI+ references | **0** (86 quarantined in 6 satellite files) | `spine.ps1`, `satellites.ps1` |
-| Portable-core P/Invoke declarations | **86** in 12 files (was 95; 8 moved with Dokan), invisible to `CA1416` | `spine.ps1` (P/Invoke column) |
-| `CA1416` call sites, Windows vs Linux | 147 on both hosts, identical inventories (was 196) - and the whole surface is 634 findings on both | build log, `warnings.ps1` on both logs |
+| Portable-core P/Invoke declarations | **76** in 10 files (was 95; 18 left with Dokan and impersonation), invisible to `CA1416` | `spine.ps1` (P/Invoke column) |
+| `CA1416` call sites, Windows vs Linux | 140 on both hosts, identical inventories (was 196) - and the whole surface is 627 findings on both | build log, `warnings.ps1` on both logs |
 | Unit tests, Windows | 4/4 suites, 271 executed, 0 failed (3 canary tests skip: Linux-only) | `tests.ps1` |
 | Unit tests, Linux (canary) | 31 executed, 0 failed (1 skips: Windows-only), incl. live IPC round trips and XDG autostart | `test-canary-linux.ps1` |
 | Built executables are 64-bit | 5/5 apphosts measure `x64`, managed side `MSIL` | `architecture.ps1` |
@@ -202,9 +202,18 @@ column **94 -> 86**, with the satellites gaining exactly the same 14 and 8 - `sp
 exchange as "relocated, not fixed", and `satellites.ps1` independently reports the
 `MediaPortal.Common.Services.Dokan` namespaces as satellite-owned. That the *whole* solution-wide delta
 equals the moved files' own count is the evidence that nothing Windows-shaped stayed behind in the core.
-What remains in `MediaPortal.Common` from the measured inventory: Windows identity impersonation (6
-sites), crash-report WMI queries (13), power/session broadcasts (5) and one `Registry.GetValue` that logs
-the Windows product name.
+**Windows identity impersonation followed it out** - five files (`WindowsImpersonationService`,
+`WindowsIdentityWrapper`, `TokenWrapper`, `LogonHelper`, `AsyncImpersonationProcess`) into the satellite, with
+`CurrentUserImpersonationService` registered by the core. That one is the cleanest case for the seam pattern:
+the Windows class already invokes the delegate directly whenever no credential matches a path, so the portable
+class is the existing no-credential path generalised, and every caller keeps its current code path. `TryRegisterCredential`
+refuses rather than pretending, because returning `true` would promise access as another user. `CA1416` went
+**147 -> 140** and the core P/Invoke column **86 -> 76**, combined total unchanged.
+
+What remains in `MediaPortal.Common` from the measured inventory: crash-report WMI queries (13 findings, a
+translation rather than a satellite - a crash report should say what it can on every platform), power/session
+broadcasts (5, a platform-event seam) and one `Registry.GetValue` that logs the Windows product name (a guard
+with `RuntimeInformation` as the portable answer).
 
 **d. Database that is not Windows-shaped.** Decide Firebird's future, verify SQLite as the primary
 store on Linux (native binaries per RID, no `System.Data.SQLite` interop surprises), delete ScimoreDB

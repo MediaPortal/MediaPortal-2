@@ -580,6 +580,35 @@ largest single block of Windows coupling in `MediaPortal.Common`. Moving it is t
 the solution-wide delta equals the moved files' own count is the check that nothing Windows-shaped from
 Dokan stayed behind in the core - had one call site remained, the number would have dropped by less.
 
+### The second subsystem out: Windows impersonation
+
+`IImpersonationService` had one implementation, and it is a Windows logon session - `LogonUser`, a token
+duplicated onto the calling thread, `CreateProcessWithToken` for external programs. Five files moved to
+`MediaPortal.Common.Windows` (`WindowsImpersonationService`, `WindowsIdentityWrapper`, `TokenWrapper`,
+`LogonHelper`, `AsyncImpersonationProcess`), the interface stayed in the core, and the core now registers
+`CurrentUserImpersonationService`. `CA1416` fell **147 -> 140** and the core's P/Invoke column **86 -> 76**;
+combined total unchanged at 180.
+
+Three things are worth keeping from this one, because they were not obvious from the Dokan case:
+
+* **The portable implementation is the existing no-credential path, member by member.** When no identity
+  matches a path, the Windows class invokes the delegate directly (`action.Invoke()`), creates the process
+  with `ProcessUtils.Create`, and `TryUnregisterCredential` returns `false`. So `CurrentUserImpersonationService`
+  does exactly that for every path, and no caller gained a code path. The one member deliberately *not*
+  faked is `TryRegisterCredential`: storing the credential and returning `true` would tell the caller it may
+  reach a protected SMB share as another user, which is a promise this class cannot keep. It returns `false`,
+  which `NetworkNeighborhoodResourceProvider` already handles.
+* **`sealed` is a correctness detail for the ratchet.** The new class started as `public class` and the gate
+  failed with `CA1063 +2` - "implement IDisposable correctly" wants the `Dispose(bool)` pattern, and it does
+  not apply to sealed types. The moved Windows class is sealed, so it never had those findings. Two findings
+  in a brand-new file are new debt, so the class was sealed rather than the floor raised. Note that the gate
+  prints "Ratchet failed" *before* the spine and architecture sections, so a green-looking tail is not a green
+  run - read the `findings:` line and the delta table, not the last screen.
+* **A finding count and a source-line count differ when a line hosts two Windows-only members.** The
+  impersonation move removed 6 source lines carrying 7 findings (`WindowsIdentityWrapper.cs` has 5 lines with
+  7 column-distinct sites, `LogonHelper.cs` 1). Quoting either number without saying which unit it is makes two
+  honest reports look like a contradiction.
+
 ## Platform services: the core declares the seam, the host fills it
 
 `MediaPortal.Common` cannot reference a platform assembly, so where it needs a Windows technology it
@@ -1007,7 +1036,7 @@ Two more things `-Project` builds reveal, both pre-existing:
 ## Scripting against the Windows PowerShell host
 
 Every script in this directory runs on Windows PowerShell 5.1 as well as 7, because that is what a
-contributor's `powershell.exe` and a plain Windows agent have. Three things about it produced a *wrong
+contributor's `powershell.exe` and a plain Windows agent have. These are the things that produced a *wrong
 answer* rather than an error, so they are worth writing down:
 
 * **`Write-Host` output cannot be redirected.** It goes to the information stream, and `>`,
@@ -1023,6 +1052,21 @@ answer* rather than an error, so they are worth writing down:
 * **`Get-Content -Raw` decodes BOM-less UTF-8 as the ANSI codepage**, which mangles the typographic
   quotes that localized NuGet messages use (`„log4net"`), and a package-id regex then matches nothing.
   Anything that parses diagnostic text is read with `[IO.File]::ReadAllText($path, [Text.Encoding]::UTF8)`.
+* **The format operator cannot be appended to a `Write-Host` call.** `Write-Host ("a" + "b {0}") -f $x
+  -ForegroundColor Yellow` binds `-f` as a *parameter of Write-Host*, which has none: the statement throws a
+  "parameter cannot be found" error, the message never prints, and with `$ErrorActionPreference = 'Continue'`
+  the script carries on as if nothing happened - so the guardrail that was supposed to warn existed and
+  printed nothing. Build the string first (`$text = "..." -f $x; Write-Host $text -ForegroundColor Yellow`).
+* **A .NET method exception inside an `if` condition kills only that statement.**
+  `[datetime]::TryParse($s, $ci, [DateTimeStyles]::AdjustToUniversal -bor [DateTimeStyles]::RoundtripKind, [ref]$out)`
+  throws (`RoundtripKind` cannot be combined with `AdjustToUniversal`) instead of returning `$false`, so the
+  `[ref]` target stayed at `[datetime]::MinValue` and the guard reported "an image from 0001-01-01". The plain
+  two-argument `TryParse` handles an ISO-8601 `Z` value and converts it to local time. Rule: when a
+  *guardrail* prints a suspicious value, check the guardrail before believing the thing it guards.
+* **`.NET` path APIs ignore PowerShell's location.** `[IO.File]::ReadAllText('scripts\ci\build.ps1')` resolves
+  against the *process* working directory, not the `Set-Location` directory, and failed with "part of the path
+  could not be found" while the same relative path worked for `Get-Content`. Use absolute paths or
+  `(Resolve-Path ...)` with the .NET APIs.
 * **The write direction adds a BOM that no source file has.** `Set-Content -Encoding UTF8` on PS 5.1
   emits UTF-8 *with* BOM; every `.cs` file in the tree is BOM-less (checked byte by byte across
   `MediaPortal.Common`, `MediaPortal.Common.Windows` and the Dokan move). A two-line log-prefix rename
@@ -1060,6 +1104,13 @@ themselves target a portable TFM. See the header comment in
 ## Compiling on Linux (the cross-compile probe)
 
     .\test-server-linux.ps1
+
+**`-SkipImageBuild` does not skip a cache, it skips the sources.** `Dockerfile.cross` does `COPY . /src`, so
+the image carries a snapshot of the tree taken when the image was built. Running with `-SkipImageBuild`
+therefore compiles *that snapshot*: it reported 634 findings / `CA1416` 147 while the same tree on Windows had
+already moved to 627 / 140, i.e. a green probe that had nothing to do with the working tree. The script now
+compares the image creation time with the newest `.cs`/`.csproj`/`.props`/`.sln` and prints a `WARNING:` line
+naming both timestamps (verified with a deliberately newer file). Drop the flag for a real answer.
 
 This builds **all 84 projects of `MP2-Server.sln`** inside `mcr.microsoft.com/dotnet/sdk:10.0`
 and is green: **0 errors**, ~2 min. Since the retarget this is a *pure* `net10` result — before it,

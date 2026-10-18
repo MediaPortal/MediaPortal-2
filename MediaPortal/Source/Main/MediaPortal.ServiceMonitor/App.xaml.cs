@@ -38,6 +38,7 @@ using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Services.Logging;
 using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.Services.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess.ImpersonationService;
 using MediaPortal.Common.Services.Runtime;
 using MediaPortal.Common.Windows.Imaging;
 using MediaPortal.Common.SystemResolver;
@@ -126,6 +127,8 @@ namespace MediaPortal.ServiceMonitor
           // Same pattern for the local file system mount: ApplicationCore installed the answer
           // "this platform cannot mount", and on Windows the Dokan driver serves it.
           DokanResourceMountingService.Register();
+          // Impersonation likewise: the core runs as the current user, this host can do better.
+          WindowsImpersonationService.Register();
           logger = ServiceRegistration.Get<ILogger>();
 
           logger.Debug("Starting Localization");

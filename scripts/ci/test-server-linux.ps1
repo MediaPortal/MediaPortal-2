@@ -51,6 +51,33 @@ if (-not $SkipImageBuild) {
   & docker build -f (Join-Path $PSScriptRoot 'Dockerfile.cross') -t $ImageName `
       --build-arg "SDK_TAG=$SdkTag" --build-arg "BUILD_ARGS=$($props -join ' ')" $repoRoot
   if ($LASTEXITCODE -ne 0) { throw "Container image build failed ($LASTEXITCODE)." }
+} else {
+  # -SkipImageBuild does not reuse a build cache over the current sources: Dockerfile.cross does
+  # COPY . /src, so the image carries a snapshot of the tree taken when it was built. Measured -
+  # running with this flag reported the warning inventory of an earlier commit (634 findings,
+  # CA1416 147) while the same sources on Windows had already moved to 627/140. A green probe then
+  # means "the old snapshot still builds", which is worth knowing before anyone reads it as a
+  # result for today. Compare the timestamps and say it out loud.
+  $imageCreatedText = (& docker image inspect $ImageName --format '{{.Created}}' 2>$null)
+  $imageCreated = [datetime]::MinValue
+  if ($imageCreatedText) {
+    # Docker reports UTC. The plain TryParse overload converts an ISO-8601 "Z" value to local time;
+    # the overload that takes a CultureInfo plus DateTimeStyles was tried first and *throws*
+    # (RoundtripKind cannot be combined with AdjustToUniversal), which left the parse silently
+    # returning MinValue and printed "an image from 0001-01-01". Stick to the overload that works
+    # and compare both sides in UTC.
+    $parsed = [datetime]::MinValue
+    if ([datetime]::TryParse("$imageCreatedText", [ref]$parsed)) { $imageCreated = $parsed.ToUniversalTime() }
+  }
+  $newest = (Get-ChildItem $repoRoot -Recurse -Include '*.cs', '*.csproj', '*.props', '*.sln' -File -ErrorAction SilentlyContinue |
+      Where-Object { $_.FullName -notmatch '\\(bin|obj|\.git|packages)\\' } |
+      Measure-Object -Property LastWriteTime -Maximum).Maximum
+  if ($newest -and $newest.ToUniversalTime() -gt $imageCreated) {
+    $text = ("WARNING: -SkipImageBuild with an image from {0} UTC, newest source from {1} UTC - the " +
+        "container compiles the SNAPSHOT, not the current tree. Drop -SkipImageBuild for a real " +
+        "answer.") -f $imageCreated.ToString('s'), $newest.ToUniversalTime().ToString('s')
+    Write-Host $text -ForegroundColor Yellow
+  }
 }
 
 & docker run --rm `

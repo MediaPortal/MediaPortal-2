@@ -37,10 +37,32 @@ using MediaPortal.Utilities.Process;
 namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
 {
   /// <summary>
-  /// Standard implementation of <see cref="IImpersonationService"/>
+  /// Standard implementation of <see cref="IImpersonationService"/>: logs a user in with
+  /// <c>LogonUser</c> and runs the caller's delegate under the resulting token.
   /// </summary>
-  internal sealed class ImpersonationService : IImpersonationService
+  /// <remarks>
+  /// Lives in <c>MediaPortal.Common.Windows</c>. The mechanism is a Windows logon session - a token
+  /// duplicated into the calling thread, plus <c>CreateProcessWithToken</c> for external programs - and
+  /// there is no equivalent concept on Linux or Android, so this is quarantined rather than ported.
+  /// The interface stayed in <c>MediaPortal.Common</c>, and <c>ApplicationCore</c> registers the
+  /// portable <see cref="MediaPortal.Common.Services.ResourceAccess.CurrentUserImpersonationService"/>
+  /// unless a Windows host replaces it here.
+  ///
+  /// Used to be named <c>ImpersonationService</c> and registered unconditionally; the name now says
+  /// which backend it is. The behaviour it degrades to is unchanged: with no credential registered for a
+  /// path it invokes the delegate directly and creates plain processes, which is exactly what the
+  /// portable implementation does for every path.
+  /// </remarks>
+  public sealed class WindowsImpersonationService : IImpersonationService
   {
+    /// <summary>
+    /// Registers this implementation as the process-wide <see cref="IImpersonationService"/>, replacing
+    /// the portable one installed by <see cref="MediaPortal.Common.ApplicationCore.RegisterCoreServices"/>.
+    /// </summary>
+    public static void Register()
+    {
+      ServiceRegistration.Set<IImpersonationService>(new WindowsImpersonationService());
+    }
     #region Private fields
 
     /// <summary>
@@ -59,9 +81,9 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     #region Constructor
 
     /// <summary>
-    /// Creates a new instance of <see cref="ImpersonationService"/>
+    /// Creates a new instance of <see cref="WindowsImpersonationService"/>
     /// </summary>
-    internal ImpersonationService()
+    internal WindowsImpersonationService()
     {
 #if DEBUG
       _debugLogger = FileLogger.CreateFileLogger(ServiceRegistration.Get<IPathManager>().GetPath(@"<LOG>\ImpersonationService.log"), LogLevel.Debug, false, true);
