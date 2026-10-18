@@ -261,8 +261,8 @@ namespace FrontendProbe
           Console.WriteLine("note:     --server belongs to the home screen; the library behind this one is scripted"
               + " instead, because the gate's server holds no titles on purpose");
 
-        // The home screen of a household that has been watching things: two tiles, and under them the titles that
-        // were started and not finished. Unlike the shelf frames this one reads its content through the whole
+        // The home screen of a household that has been watching things: MP2's main menu, and under it the titles
+        // that were started and not finished. Unlike the shelf frames this one reads its content through the whole
         // path - the screen asks the server for its parts, counts them, and then asks each part what it holds
         // that was left half way - because the strip is not one answer but a merge of several.
         home = new HomeViewModel(new ServerApiClient(new Uri("http://127.0.0.1:1/MediaPortal/Server/"),
@@ -319,6 +319,16 @@ namespace FrontendProbe
               + " tile(s), but the script offers two parts of the library a viewer can watch.");
           return 1;
         }
+        if (home.Menu.Count(entry => entry.Openable) != 2)
+        {
+          // The screen does not draw `Sections` any more, it draws the menu built from them, so this is the check
+          // that belongs to the picture: the two parts the script offers have to be the two entries a viewer can
+          // open, and the seven the script cannot fill have to be saying so rather than being missing.
+          Console.WriteLine("FAILED:   " + home.Menu.Count(entry => entry.Openable)
+              + " openable menu entr(ies) of " + home.Menu.Count + "; expected two, because the script offers two "
+              + "parts of the library a viewer can watch.");
+          return 1;
+        }
         if ((home.ServerDescription ?? "").IndexOf("MediaPortal 2 Server", StringComparison.Ordinal) < 0)
         {
           // Cheap and specific: every question the home screen asks goes to a different endpoint, and a script
@@ -331,6 +341,8 @@ namespace FrontendProbe
 
         Console.WriteLine("content:  " + home.UnfinishedStatus + " - tiles: "
             + string.Join(", ", home.Sections.Select(section => section.Label + " (" + section.CountText + ")")));
+        Console.WriteLine("menu:     " + string.Join(" | ",
+            home.Menu.Select(entry => entry.Label + " " + entry.Detail)));
         Console.WriteLine("strip:    " + string.Join(" | ",
             home.Unfinished.Select(row => row.Name + " - " + row.LastPlayedText)));
         Console.WriteLine("resume:   " + string.Join(" | ",
@@ -554,12 +566,32 @@ namespace FrontendProbe
       }
 
       Console.WriteLine("screen:   " + screenName);
+      if (home != null)
+      {
+        // The picture has to be taken after the screen has finished reading, not while it is reading: caught here
+        // by the line below printing `Movies ?` for a server that answers `0`, because the counts are one request
+        // per aspect and the capture happened between the aspect list and the last of them.
+        for (int tick = 0; tick < 20 && !home.IsBusy; tick++)
+          Pump(TimeSpan.FromMilliseconds(50));
+        for (int tick = 0; tick < 200 && home.IsBusy; tick++)
+          Pump(TimeSpan.FromMilliseconds(50));
+      }
+
       Console.WriteLine("status:   " + (home != null
           ? home.Status + ", " + home.Aspects.Count + " aspect row(s)"
           : (connection != null
               ? connection.Status + ", " + connection.Servers.Count + " server(s) listed, saving "
                 + (connection.SaveCommand.CanExecute(null) ? "is offered" : "is not offered yet")
               : playbackStatus)));
+
+      if (home != null && screenName.Equals("home", StringComparison.Ordinal))
+      {
+        // Said here, after the screen has read the server and just before the picture is taken, because this is the
+        // one view of the menu against a real MP2 server: what the gate prints is then something the run claims and
+        // can be wrong about, rather than a sentence about a picture that nobody can check.
+        Console.WriteLine("menu:     " + string.Join(" | ",
+            home.Menu.Select(entry => entry.Label + " " + entry.Detail)));
+      }
 
       window.UpdateLayout();
       Pump(TimeSpan.FromMilliseconds(500));

@@ -407,7 +407,7 @@ namespace Tests.Frontend
     }
 
     [AvaloniaTest]
-    public void AServerWithNothingTheViewerCanWatchGetsNoTilesRatherThanEmptyOnes()
+    public void AServerWithNothingTheViewerCanWatchOffersNothingToOpenRatherThanEmptyTiles()
     {
       var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
       library.Setup(get => get.GetManagedMediaItemAspectMetadata()).Returns(
@@ -422,7 +422,13 @@ namespace Tests.Frontend
       home.RefreshCommand.Execute(null);
       WaitUntil("the aspects to arrive", delegate { return home.Aspects.Count > 0; });
 
+      // MP2's menu is still on the screen - it is the same menu whether or not this server can fill it - but
+      // none of it opens, because there is no aspect on the server that a viewer can watch titles from.
       Assert.That(home.Sections, Is.Empty);
+      Assert.That(home.Menu, Is.Not.Empty);
+      Assert.That(home.Open(EntryNamed(home.Menu, "TV Series")), Is.Null,
+          "a tile that would open onto nothing is refused, and the status line says so");
+      Assert.That(home.Status, Does.Contain("not on this server"));
     }
 
     [AvaloniaTest]
@@ -445,11 +451,12 @@ namespace Tests.Frontend
       WaitUntil("the tiles to appear", delegate { return home.Sections.Count > 0; });
 
       ListBox tiles = window.GetVisualDescendants().OfType<ListBox>()
-          .First(list => list.Name == "sectionsList");
-      Assert.That(tiles.Items.Count, Is.EqualTo(1));
+          .First(list => list.Name == "menuList");
+      Assert.That(tiles.Items.Count, Is.EqualTo(home.Menu.Count),
+          "the whole menu is on the screen, not only the part of it this server can fill");
 
       tiles.Focus();
-      tiles.SelectedItem = home.Sections[0];
+      tiles.SelectedItem = EntryNamed(home.Menu, "Movies");
       window.RaiseEvent(new KeyEventArgs
       {
         RoutedEvent = InputElement.KeyDownEvent,
@@ -2220,6 +2227,175 @@ namespace Tests.Frontend
         Assert.That(tracks.Status, Is.EqualTo("This server has no tracks"),
           "the album was empty, and saying 'no tracks' is the truth a viewer can act on; 'no Kind of Blue' is not");
       }
+    }
+
+    #endregion
+    #region The home screen's main menu
+
+    /// <summary>
+    /// An aspect the way the front end holds one, for a menu built without a server in the way.
+    /// </summary>
+    private static AspectViewModel AspectCalled(string name)
+    {
+      return new AspectViewModel(new FrontendAspect(Guid.NewGuid(), name, false, false, null,
+          Array.Empty<AspectAttribute>()));
+    }
+
+    /// <summary>
+    /// The menu entry with this label, with a failure that says what the menu did offer - because "Movies is not
+    /// in the menu" is the one thing a reader cannot check for themselves from the assertion.
+    /// </summary>
+    private static MainMenuEntry EntryNamed(IEnumerable<MainMenuEntry> menu, string label)
+    {
+      MainMenuEntry? entry = menu.FirstOrDefault(candidate => candidate.Label == label);
+      Assert.That(entry, Is.Not.Null, "the menu offered: " + string.Join(", ",
+          menu.Select(candidate => candidate.Label)));
+      return entry!;
+    }
+
+    [Test]
+    public void TheMenuIsThereBeforeAnyServerHasAnswered()
+    {
+      HomeViewModel home = new HomeViewModel();
+
+      Assert.That(home.Menu, Is.Not.Empty,
+          "a home screen that waits for a server before it offers anything to press is a dark rectangle with a "
+          + "clock on it; the menu is what a media centre is, so it is on screen from the first frame");
+      Assert.That(home.Menu.Count(entry => entry.Openable), Is.Zero,
+          "and none of it can be opened, because there is nothing to open it from");
+      Assert.That(EntryNamed(home.Menu, "Movies").Detail, Is.EqualTo("no server connected"),
+          "the tile says that out loud rather than leaving the viewer to work it out from an empty list");
+    }
+
+    [Test]
+    public void TheMenuIsMP2sOwnEntriesInMP2sOwnOrder()
+    {
+      HomeViewModel home = new HomeViewModel();
+
+      Assert.That(home.Menu.Select(entry => entry.Label), Is.EqualTo(new[]
+      {
+          "Movies", "TV Series", "Music", "Videos", "Pictures", "Latest media", "TV", "Radio", "Settings"
+      }), "the names and the order are the entries MP2's own plugins contribute to the home state - "
+          + "media-actions.xml:5-56 for the six media ones, SlimTvClient-actions.xml:5 and :62 for television and "
+          + "radio, configuration-actions.xml:6 for settings - and not a set of words invented for this front end");
+    }
+
+    [Test]
+    public void TheReasonOnATileIsShortEnoughToBeReadOffIt()
+    {
+      // The menu is two rows of five across the 1184 lines a 1280-wide screen leaves after its margins, so a tile
+      // is about 237 lines wide; at the 14-point size the detail is drawn in, a character costs some seven lines,
+      // which puts the limit near thirty characters. The cap is that arithmetic with a little left over, so that a
+      // reason ends on its own tile instead of running into the tile beside it. The long form of every reason is
+      // in MainMenu's remarks, where it can be as long as it needs to be.
+      foreach (MainMenuEntry entry in MainMenu.Build(Array.Empty<AspectViewModel>(), false))
+        Assert.That(entry.Detail, Has.Length.LessThanOrEqualTo(30),
+            entry.Label + " says more than its tile can hold");
+    }
+
+    [Test]
+    public void AnEntryThisBuildHasNothingBehindSaysWhatIsMissing()
+    {
+      HomeViewModel home = new HomeViewModel();
+      MainMenuEntry television = EntryNamed(home.Menu, "TV");
+
+      Assert.That(television.Openable, Is.False);
+      Assert.That(television.Detail, Does.Contain("no TV backend"),
+          "an entry that leads nowhere explains itself, because a silent one is read as a broken front end");
+      Assert.That(home.Open(television), Is.Null);
+      Assert.That(home.Status, Does.Contain("no TV backend"),
+          "and pressing it says the same sentence the tile already says, rather than nothing at all");
+    }
+
+    [Test]
+    public void TheMusicTileOpensAlbumsBecauseThatIsWhatHoldsTheTracks()
+    {
+      List<MainMenuEntry> menu = MainMenu.Build(
+          new[] { AspectCalled("AudioItem"), AspectCalled("AlbumItem") }, true);
+
+      Assert.That(EntryNamed(menu, "Music").Section!.Aspect.Name, Is.EqualTo("AlbumItem"),
+          "the tile that says Music opens the shelf that has something inside it, because that is the shelf a "
+          + "viewer can go on from");
+    }
+
+    [Test]
+    public void TheMusicTileFallsBackToTracksWhenTheServerHasNoAlbums()
+    {
+      List<MainMenuEntry> menu = MainMenu.Build(new[] { AspectCalled("AudioItem") }, true);
+
+      Assert.That(EntryNamed(menu, "Music").Section!.Aspect.Name, Is.EqualTo("AudioItem"),
+          "a library imported without albums still has its music on the screen");
+    }
+
+    [Test]
+    public void EveryCataloguedPartOfTheServerStillGetsATile()
+    {
+      List<MainMenuEntry> menu = MainMenu.Build(
+          new[] { AspectCalled("MovieItem"), AspectCalled("EpisodeItem") }, true);
+
+      Assert.That(EntryNamed(menu, "Episodes").Openable, Is.True,
+          "episodes are not one of MP2's home entries - they are reached through their series - but a server that "
+          + "holds them is not allowed to hide them either");
+      Assert.That(menu.Count(entry => entry.Openable), Is.EqualTo(2));
+      Assert.That(menu.IndexOf(EntryNamed(menu, "Movies")), Is.LessThan(menu.IndexOf(EntryNamed(menu, "Episodes"))),
+          "MP2's own entries first, whatever the server adds after them");
+    }
+
+    [Test]
+    public void ThePartsOfTheSchemaNobodySitsDownToWatchStayOffTheMenu()
+    {
+      List<MainMenuEntry> menu = MainMenu.Build(
+          new[] { AspectCalled("PersonItem"), AspectCalled("GenreItem") }, true);
+
+      Assert.That(menu.Count(entry => entry.Openable), Is.Zero,
+          "an actor and a genre are how the library is organised inside, not a part of it to watch");
+      Assert.That(menu.Select(entry => entry.Label), Does.Not.Contain("PersonItem"));
+    }
+
+    [AvaloniaTest]
+    public void TheMenuCountsWhatTheServerHasAndNamesWhatItHasNot()
+    {
+      RegisterLibrary(Title("Alien Earth", 2025, RESOURCE_SYSTEM_ID.ToString("B") + "://" + LOCAL_PATH));
+      InProcessApi server = StartServer();
+
+      HomeViewModel home = new HomeViewModel(new ServerApiClient(server.BaseUrl));
+      Refreshed(home);
+
+      Assert.That(EntryNamed(home.Menu, "Movies").Detail, Is.EqualTo("1"),
+          "the tile carries the server's own count of its own aspect");
+      MainMenuEntry music = EntryNamed(home.Menu, "Music");
+      Assert.That(music.Openable, Is.False);
+      Assert.That(music.Detail, Is.EqualTo("not on this server"),
+          "this server has no music at all, which is a different answer from 'no server' and from 'nothing to "
+          + "watch', and the tile says which of the three it is");
+      Assert.That(home.Open(music), Is.Null);
+      Assert.That(home.Status, Does.Contain("not on this server"));
+    }
+
+    [AvaloniaTest]
+    public void AServerThatWentAwayIsNotPretendedToStillBeThere()
+    {
+      HomeViewModel home = new HomeViewModel(new ServerApiClient(SIGN_IN_URL));
+      Assert.That(EntryNamed(home.Menu, "Movies").Detail, Is.EqualTo("no server connected"),
+          "having an address is not having a server; until one has answered, the menu says no server");
+    }
+
+    [AvaloniaTest]
+    public void PointingAtANewServerEmptiesTheMenuBackToNoServer()
+    {
+      RegisterLibrary(Title("Alien Earth", 2025, RESOURCE_SYSTEM_ID.ToString("B") + "://" + LOCAL_PATH));
+      InProcessApi server = StartServer();
+
+      HomeViewModel home = new HomeViewModel(new ServerApiClient(server.BaseUrl));
+      home.RefreshCommand.Execute(null);
+      WaitUntil("the menu to fill", delegate { return home.Menu.Any(entry => entry.Openable); });
+
+      home.UseServer(new ServerApiClient(new Uri("http://127.0.0.1:2/MediaPortal/Server/")));
+
+      Assert.That(home.Menu.Count(entry => entry.Openable), Is.Zero,
+          "the films of the old server are not films of the new one, and a menu still offering them would be "
+          + "offering titles that are not there");
+      Assert.That(EntryNamed(home.Menu, "Movies").Detail, Is.EqualTo("no server connected"));
     }
 
     #endregion

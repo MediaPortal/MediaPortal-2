@@ -36,34 +36,50 @@
                  Text="{Binding ServerUrl, StringFormat='Server: {0}'}" />
     </StackPanel>
 
-    <!-- The library itself. Each tile is one part of it that this server actually holds, so a fresh server
-         with only music on it offers music and nothing else; the counts are on the tile because "how much is
-         there?" is the question a viewer is asking when they look at one. -->
-    <ListBox Name="sectionsList"
+    <!-- The main menu, and it is on screen before a server has answered: the parts a media centre is made of,
+         each with either its count or the reason it cannot be opened here. The names and the order are MP2's own
+         (see MainMenu for which plugin contributes which entry), because a viewer who has used MediaPortal before
+         should not have to learn a new set of words to find the same things. -->
+    <ListBox Name="menuList"
              DockPanel.Dock="Top"
              Focusable="True"
-             ItemsSource="{Binding Sections}"
+             ItemsSource="{Binding Menu}"
              FontSize="22"
-             Margin="0,0,0,18"
+             Padding="0"
+             Margin="0,0,0,14"
              Background="Transparent"
              BorderThickness="0">
       <ListBox.ItemsPanel>
         <ItemsPanelTemplate>
-          <WrapPanel />
+          <!-- Two rows, whatever the count: the screen is 720 lines tall and the menu shares it with the strip
+               below, so a list that grows downwards eats the room the strip and the buttons need. Measured on this
+               very frame: a wrap panel laid these nine entries out in three rows and 211 lines of ink, and the
+               same entries in a grid of two rows take 126 - which is the difference between the buttons sitting
+               above the bottom margin and sitting in the last thirty lines of it. -->
+          <UniformGrid Rows="2" />
         </ItemsPanelTemplate>
       </ListBox.ItemsPanel>
       <ListBox.ItemTemplate>
-        <DataTemplate x:DataType="vm:HomeSection">
-          <StackPanel Spacing="4" MinWidth="190" Margin="0,0,26,14">
-            <TextBlock Text="{Binding Badge}"
-                       FontSize="34"
-                       FontWeight="SemiBold"
-                       Opacity="0.8" />
-            <TextBlock Text="{Binding Label}"
-                       FontSize="22" />
-            <TextBlock Text="{Binding CountText}"
+        <DataTemplate x:DataType="vm:MainMenuEntry">
+          <StackPanel Spacing="2" Margin="0,4,18,10">
+            <StackPanel Orientation="Horizontal" Spacing="10">
+              <TextBlock Text="{Binding Badge}"
+                         FontSize="24"
+                         Width="30"
+                         TextAlignment="Center"
+                         Opacity="0.75" />
+              <TextBlock Text="{Binding Label}"
+                         FontSize="22"
+                         TextTrimming="CharacterEllipsis" />
+            </StackPanel>
+            <!-- What pressing does, or what stops it: "4 films" on a tile that opens, "not on this server" on one
+                 that does not, and "no TV backend" on one this build has no way to serve. A tile that is silent
+                 about all three reads as a broken front end. -->
+            <TextBlock Text="{Binding Detail}"
                        FontSize="14"
-                       Opacity="0.55" />
+                       Opacity="0.55"
+                       Margin="8,0,0,0"
+                       TextTrimming="CharacterEllipsis" />
           </StackPanel>
         </DataTemplate>
       </ListBox.ItemTemplate>

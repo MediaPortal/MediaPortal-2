@@ -1747,8 +1747,15 @@ where a window *should be* is a capture of whatever happens to be there.
 It runs from two gates, twice each, and all four runs show real data. `test-frontend-check.ps1` runs it **while
 its server is still up** (item 6 of that script, `-SkipRender` to leave it out, `-RenderDir` to move the output),
 which writes `build\artifacts\frontend-render\home-windows.png` from the populated screen
-(`status: 25 aspects on MediaPortal 2 Server, 25 aspect row(s)`) and `nowplaying-windows.png` from the playback
-screen (`status: Playing, 0:45 / 1:30`, 2120 distinct colours, 265 700 edges). That frame also carries the sound and
+(`status: 25 aspects on MediaPortal 2 Server, 25 aspect row(s)`) - MP2's main menu in two rows of five, each tile
+carrying either the server's own count or the reason it has nothing behind it (`Movies 0`,
+`Videos 0`, `TV no TV backend`, `Settings no settings API yet`), with an `Episodes` tile after MP2's own because
+that server reports an aspect MP2's menu has no word for - and `nowplaying-windows.png` from the playback
+screen (`status: Playing, 0:45 / 1:30`, 2120 distinct colours, 265 700 edges). The home frame is taken only once the
+screen has stopped reading, which the probe now waits for: it used to capture while the count requests were still
+arriving, and printed `Movies ?` for a server that answers `0` - a picture of a screen mid-thought rather than of a
+screen. What the menu settled to is printed as a `menu:` line, so the claim about that frame is a sentence the run
+asserts rather than one a reader has to pick out of a picture. That frame also carries the sound and
 subtitle row: the scripted player names three sound tracks and two subtitles, so the frame shows what the screen
 does with an engine's own track names - `Sound: eng - Language (eng)` and `Subtitles: no subtitles`, the second
 being the "off" entry the picker starts on because the media had no subtitles selected. A media whose player names
@@ -1782,23 +1789,35 @@ date came from stopping it halfway, which is the distinction the whole feature t
 `docs\multiplatform\screenshots\seen-windows-skia.png`.
 
 The eighth frame is the home screen of a scripted server that holds twelve titles and says four of them were left
-half way (`continue-windows.png`): the strip under the two tiles lists the film whose name alone is known, the
+half way (`continue-windows.png`). Above the fold is MP2's main menu - two rows of five, `Movies 12` and
+`Episodes 3` being the two parts of the library the script offers, and the seven entries it cannot fill each
+carrying its own reason (`TV Series not on this server`, `TV no TV backend`, `Settings no settings API yet`), which
+is what the probe's `menu:` line prints. Under the menu the strip lists the film whose name alone is known, the
 episode, and two more films, newest stop first, each with its runtime and the date it was stopped, none of them
 carrying the tick that section **ac** introduced, and three of the four also carrying the position the viewer left -
 `12% watched`, `74% watched`, `61% watched` - while the oldest of them carries none. The probe refuses the picture
 unless those four - and only those four - are on the strip in that order, with exactly those three figures and the
-one empty space, no title is marked watched, both tiles are present, and the server named at the top is the scripted
-one; a wrong endpoint path in the probe once rendered a frame with no server name at all, so that condition is now
-asserted too. Measuring the pixels independently of the probe agrees, and says where the strip's columns actually
-are: the four row bands (`y 366..380`, `416..430`, `466..480`, `516..530`) each hold a title (`x 61..294` at its
-widest), a short middle column somewhere in `x 441..510` depending on how long the runtime is, and a date at
-`x 675..845`; and the three rows that carry a position hold a fourth
-block at `x 1004..1127` - some 120 pixels of it, beginning within ten pixels of one another across the three rows -
-where the row with nothing stored ends at `x 845`. The same measurement on the frame drawn before the positions
-existed finds three blocks in every row and no ink past `x 997` anywhere. Three figures is also proof that the
+one empty space, no title is marked watched, the two parts the script offers are also the two openable entries of
+the menu, and the server named at the top is the scripted one; a wrong endpoint path in the probe once rendered a
+frame with no server name at all, so that condition is now asserted too. Measuring the pixels independently of the
+probe agrees, and says where the screen actually is: the menu's labels at `y 190..208` and `y 274..293` with their
+reasons under them at `y 222..231` and `y 305..316`, the strip's heading at `y 360..376`, and its four row bands at
+`y 401..416`, `451..466`, `501..516` and `551..566` - each band holding a title (`x 60..302` at its widest), a
+short middle column somewhere in `x 440..511` depending on how long the runtime is, and a date at `x 674..846`; and
+the three rows that carry a position hold a fourth block at `x 1004..1127` - some 120 pixels of it, beginning
+within ten pixels of one another across the three rows - where the row with nothing stored ends at `x 846`. The same
+measurement on the frame drawn before the positions existed, which is still in git, finds three blocks in every row
+and no ink past `x 997` anywhere. Three figures is also proof that the
 positions came attached to the titles rather than being invented per row, since they differ from row to row in the
 order the script stored them. It is committed as
 `docs\multiplatform\screenshots\continue-windows-skia.png`.
+
+Six Windows baselines were re-copied when the main menu arrived, four of them (`details`, `search`, `nowplaying`,
+`connect`) for a reason that has nothing to do with it: a picture is copied by the slice that changes it, and the
+slices since had changed those screens - a second line under a row of titles, the playback screen's engine line,
+the address line on the server screen - without anybody re-copying the frame. A committed screenshot the current
+code cannot draw is worse than no screenshot, so every frame that differs gets re-copied, not only the one a slice
+meant to touch.
 
 `test-frontend-linux.ps1 -ServeFromHost` starts
 `MP2-Server-Headless` on this machine, waits until it really serves aspects (measured: a just-started server answers

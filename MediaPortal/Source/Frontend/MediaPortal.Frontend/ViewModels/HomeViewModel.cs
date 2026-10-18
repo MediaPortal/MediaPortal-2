@@ -86,6 +86,11 @@ namespace MediaPortal.Frontend.ViewModels
     {
       _client = client;
       _status = client == null ? "No server configured" : "Not connected yet";
+
+      // The menu before anything has been read. A viewer who turns a television on before the server has finished
+      // starting up is looking at this state, and it has to say what a media centre is - and what is missing from
+      // it - rather than offering nothing to press.
+      RebuildMenu(false);
     }
 
     public ObservableCollection<AspectViewModel> Aspects { get; } = new ObservableCollection<AspectViewModel>();
@@ -98,6 +103,62 @@ namespace MediaPortal.Frontend.ViewModels
     /// looked at the aspect list below it would be a tile that lies about the library half the time.
     /// </remarks>
     public ObservableCollection<HomeSection> Sections { get; } = new ObservableCollection<HomeSection>();
+
+    /// <summary>
+    /// The main menu: the parts a media centre is made of, each one either openable or saying what is missing.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This is what the home screen shows, and it is on screen before any server has answered, which is the whole
+    /// point of it. The tiles used to be the server's own aspect list filtered down to the watchable ones, so a
+    /// front end that had not reached a server - a server still booting, a machine whose address changed, a
+    /// television that was switched on first - offered nothing to press and looked broken rather than idle.
+    /// </para>
+    /// <para>
+    /// The names and the order are MP2's (see <see cref="MainMenu"/>), and the counts come from the same read that
+    /// fills <see cref="Sections"/>, so a tile saying "4 films" is still the server's own number rather than one
+    /// this screen kept around.
+    /// </para>
+    /// </remarks>
+    public ObservableCollection<MainMenuEntry> Menu { get; } = new ObservableCollection<MainMenuEntry>();
+
+    /// <summary>
+    /// Pressing a menu entry: the part of the library to open, or null when this entry cannot be opened - in which
+    /// case the status line says why.
+    /// </summary>
+    /// <remarks>
+    /// Returning the section rather than raising an event keeps the decision and its reason in one place: the entry
+    /// knows what it is missing, and this is the screen that knows what the viewer pressed. The window opens what
+    /// comes back and does not have to work out whether a null meant "no" or "not yet".
+    /// </remarks>
+    public HomeSection? Open(MainMenuEntry? entry)
+    {
+      if (entry == null)
+      {
+        Status = "Nothing selected";
+        return null;
+      }
+
+      HomeSection? section = entry.Section;
+      if (section == null)
+      {
+        Status = entry.Label + " - " + entry.Detail;
+        return null;
+      }
+
+      return section;
+    }
+
+    /// <summary>
+    /// Rebuilds the menu from what the server holds. Called wherever <see cref="Sections"/> is refilled, so that a
+    /// tile's number and a tile's aspect can never come from two different readings.
+    /// </summary>
+    private void RebuildMenu(bool connected)
+    {
+      Menu.Clear();
+      foreach (MainMenuEntry entry in MainMenu.Build(Aspects, connected))
+        Menu.Add(entry);
+    }
 
     /// <summary>
     /// Titles somebody started and did not finish, most recently stopped first.
@@ -249,6 +310,7 @@ namespace MediaPortal.Frontend.ViewModels
       SignedInAs = null;
       Aspects.Clear();
       Sections.Clear();
+      RebuildMenu(false);
       Unfinished.Clear();
       ReportUnfinished(0);
       SelectedAspect = null;
@@ -425,6 +487,10 @@ namespace MediaPortal.Frontend.ViewModels
         if (SelectedAspect == null && Aspects.Count > 0)
           SelectedAspect = Aspects[0];
 
+        // Whether an entry of the menu can be filled at all is settled by this list alone, so the menu stops
+        // saying "no server connected" the moment the answer is in; the counts come later, in this same run.
+        RebuildMenu(true);
+
         Status = string.Format("{0} aspects on {1}", aspects.Count, info.Name);
 
         // Each count is its own request, and one that fails leaves that row at "?" rather than failing the
@@ -447,6 +513,10 @@ namespace MediaPortal.Frontend.ViewModels
         Sections.Clear();
         foreach (HomeSection section in HomeSection.For(Aspects))
           Sections.Add(section);
+
+        // From the same aspects, in the same breath, so that the menu's "4 films" is the number that arrived in
+        // this reading and not the one that was on screen before the server was switched.
+        RebuildMenu(true);
 
         // Last, because it is the only reading on this screen that is a convenience rather than the point of it:
         // a server that answers the tiles but not this has cost the viewer nothing they came for.

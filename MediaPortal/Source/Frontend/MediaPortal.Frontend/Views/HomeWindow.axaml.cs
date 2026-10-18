@@ -82,7 +82,7 @@ namespace MediaPortal.Frontend.Views
       // button nobody needs to press before the library appears.
       var ring = new List<Control>();
       if (_sectionScreen != null)
-        ring.Add(sectionsList);
+        ring.Add(menuList);
       if (_nowPlayingScreen != null)
         ring.Add(unfinishedList);
       ring.Add(refreshButton);
@@ -119,9 +119,14 @@ namespace MediaPortal.Frontend.Views
               Close();
             else if (args.Key == Key.Enter || args.Key == Key.Return)
             {
-              if (sectionsList.IsFocused && sectionsList.SelectedItem is HomeSection section)
+              if (menuList.IsFocused && menuList.SelectedItem is MainMenuEntry entry)
               {
-                OpenSection(section);
+                // The view model decides whether this entry can be opened and says why not when it cannot; the
+                // screen only opens what comes back. A press on "TV" therefore gets the same sentence on screen
+                // that the tile already carries, instead of the remote clicking against nothing.
+                HomeSection? section = _home.Open(entry);
+                if (section != null)
+                  OpenSection(section);
                 args.Handled = true;
               }
               else if (unfinishedList.IsFocused && unfinishedList.SelectedItem is TitleViewModel unfinished)
@@ -139,7 +144,10 @@ namespace MediaPortal.Frontend.Views
     /// </summary>
     private void OpenSection(HomeSection section)
     {
-      Window screen = _sectionScreen!(section);
+      if (_sectionScreen == null)
+        return;
+
+      Window screen = _sectionScreen(section);
       if (!screen.IsVisible)
         screen.Show();
       screen.Activate();
