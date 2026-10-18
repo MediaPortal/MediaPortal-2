@@ -1,5 +1,6 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="using:MediaPortal.Frontend.Views"
              x:Class="MediaPortal.Frontend.App"
              RequestedThemeVariant="Dark">
 
@@ -11,5 +12,14 @@
   <Application.Styles>
     <FluentTheme />
   </Application.Styles>
+
+  <!--
+    One converter for the whole application, because the memory it holds is the decoded pictures of the library
+    and a second window of the same library should draw the same posters out of the same memory rather than
+    decode them again.
+  -->
+  <Application.Resources>
+    <views:ArtworkConverter x:Key="artwork" />
+  </Application.Resources>
 
 </Application>

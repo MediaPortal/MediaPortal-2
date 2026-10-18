@@ -637,6 +637,27 @@ namespace Tests.Frontend
     /// A server that answers the details question with what the test names, and counts how often it was asked.
     /// Every other URL is answered with the one-row title list, so that a screen can be opened on it.
     /// </summary>
+    /// <summary>
+    /// Whether this request is the screen asking for a title's picture rather than for anything this fixture is
+    /// about.
+    /// </summary>
+    /// <remarks>
+    /// A shelf read now brings a page of picture requests with it, which is what a shelf does on a real server.
+    /// The fakes below answer them with "no picture", for two reasons: the libraries they stand in for have none,
+    /// and a fake that answered every URL with its titles JSON would be recorded as having been asked about
+    /// titles, which would make a test that reads the question back from the server read a picture request
+    /// instead.
+    /// </remarks>
+    private static bool IsPictureRequest(HttpRequestMessage request)
+    {
+      return request.RequestUri!.AbsolutePath.EndsWith("/thumbnail", StringComparison.Ordinal);
+    }
+
+    private static HttpResponseMessage NoPicture(HttpRequestMessage request)
+    {
+      return new HttpResponseMessage(HttpStatusCode.NotFound) { RequestMessage = request };
+    }
+
     private class DetailsServer : HttpMessageHandler
     {
       private readonly HttpStatusCode _code;
@@ -653,6 +674,9 @@ namespace Tests.Frontend
       protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
           CancellationToken cancellation)
       {
+        if (IsPictureRequest(request))
+          return Task.FromResult(NoPicture(request));
+
         if (request.RequestUri!.AbsolutePath.EndsWith("api/media/items/" + TITANIC))
         {
           TimesAsked++;
@@ -1029,6 +1053,9 @@ namespace Tests.Frontend
       protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
           CancellationToken cancellation)
       {
+        if (IsPictureRequest(request))
+          return Task.FromResult(NoPicture(request));
+
         TimesAsked++;
         LastUrl = request.RequestUri.PathAndQuery;
         Question = QuestionIn(request.RequestUri.Query);
@@ -1302,6 +1329,9 @@ namespace Tests.Frontend
       protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
           CancellationToken cancellation)
       {
+        if (IsPictureRequest(request))
+          return Task.FromResult(NoPicture(request));
+
         TimesAsked++;
         LastUrl = request.RequestUri.PathAndQuery;
         Filter = ParameterIn(request.RequestUri.Query, "seen");
@@ -1898,6 +1928,9 @@ namespace Tests.Frontend
       protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
           CancellationToken cancellation)
       {
+        if (IsPictureRequest(request))
+          return Task.FromResult(NoPicture(request));
+
         LastUrl = request.RequestUri.PathAndQuery;
         Aspect = Asked(request.RequestUri.Query, "aspect");
         Inside = Asked(request.RequestUri.Query, "inside");

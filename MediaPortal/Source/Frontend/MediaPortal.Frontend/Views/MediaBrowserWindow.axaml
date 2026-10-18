@@ -81,18 +81,34 @@
                FontSize="24">
         <ListBox.ItemTemplate>
           <DataTemplate x:DataType="vm:TitleViewModel">
-            <Grid ColumnDefinitions="Auto,5*,1.4*" ColumnSpacing="20" MinWidth="700" Margin="0,8">
+            <Grid ColumnDefinitions="Auto,Auto,5*,1.4*" ColumnSpacing="20" MinWidth="700" Margin="0,8">
+              <!--
+                The title's picture, in the column MP2's own shelves put it: first, so that the eye runs down a
+                column of pictures rather than past the names to find out what a row is. The box behind the image
+                is what a viewer sees when the library has no picture for a title, which is most of them; it is
+                drawn as a fixed square so that a shelf of titles with art and one without line up identically,
+                and the image is laid over it rather than swapped for it because a poster that arrives a moment
+                after the row should not move the row.
+              -->
+              <Panel Width="64" Height="64">
+                <Border Background="#FF17202A" BorderBrush="#FF2E4A63" BorderThickness="1" />
+                <Image Source="{Binding Artwork, Converter={StaticResource artwork}}"
+                       Stretch="Uniform"
+                       Width="64"
+                       Height="64" />
+              </Panel>
               <!--
                 The tick in front of a title the library was told was watched. It is a column of its own rather
                 than a character glued to the name so that the names of marked and unmarked rows start at the same
                 x, which is what lets a viewer scan a shelf by eye; the reserved width says nothing about a row,
                 only the mark does.
               -->
-              <TextBlock Text="{Binding SeenMark}"
+              <TextBlock Grid.Column="1"
+                         Text="{Binding SeenMark}"
                          MinWidth="34"
                          Opacity="0.55" />
-              <TextBlock Grid.Column="1" Text="{Binding Line}" TextTrimming="CharacterEllipsis" />
-              <TextBlock Grid.Column="2"
+              <TextBlock Grid.Column="2" Text="{Binding Line}" TextTrimming="CharacterEllipsis" />
+              <TextBlock Grid.Column="3"
                          Text="{Binding Detail}"
                          HorizontalAlignment="Right"
                          Opacity="0.65"
@@ -131,9 +147,22 @@
               BorderBrush="#FF2E4A63"
               BorderThickness="2"
               Padding="26,22"
-              MinWidth="420"
+              Width="440"
               VerticalAlignment="Stretch">
         <StackPanel Spacing="14">
+          <!--
+            The title's picture above its own words, which is where MP2's details screens put it and where a
+            viewer looking for "is this the one with the red helicopter in it" looks first. The panel is not
+            reserved when there is no picture: a details panel is a tall column of text already, and an empty
+            frame above the plot would be a frame asking to be filled. When the picture does exist it arrives a
+            moment after the words, so the panel grows - which is the right way round for something that is a
+            confirmation rather than the answer.
+          -->
+          <Panel IsVisible="{Binding DetailsArtwork, Converter={x:Static ObjectConverters.IsNotNull}}">
+            <Image Source="{Binding DetailsArtwork, Converter={StaticResource artwork}}"
+                   Stretch="Uniform"
+                   MaxHeight="240" />
+          </Panel>
           <TextBlock Text="{Binding DetailsHeading}"
                      FontSize="28"
                      FontWeight="SemiBold"

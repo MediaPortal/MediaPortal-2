@@ -1764,28 +1764,47 @@ by a factor of twenty-odd when it started drawing a *picture* rather than only t
 screen through `VideoFrameSink` with eight colour bars pushed in a known order, and `CheckBars` then reads them
 back out of the captured frame - all eight, in that order, in those colours - so a front end that draws a black
 rectangle where the film should be fails this gate instead of passing it with a healthy-looking frame counter.
-The library list is drawn too, from a scripted page of twelve films (`browser-windows.png`, 2064 distinct colours,
-88 850 edges), and the frame after it is that same list with the info key pressed (`details-windows.png`, 1863
-colours, 17 701 edges, `details: panel open on "Nimmerland (2011)" - "88 min · FSK 12 · rated 8/10 · watched 1×,
+The library list is drawn too, from a scripted page of twelve films (`browser-windows.png`, 2207 distinct colours,
+120 481 edges), and the frame after it is that same list with the info key pressed (`details-windows.png`, 3689
+colours, 167 490 edges, `details: panel open on "Nimmerland (2011)" - "88 min · FSK 12 · rated 8/10 · watched 1×,
 last 2025-01-12"`). That fifth frame presses `Key.I` on the window rather than calling the view model's command, so
 it only goes green if the key, the handler on the window and the panel hold together; the probe refuses to write a
 frame at all when the panel stayed closed, because a "details" picture of the plain list would be a picture of
-nothing. It is committed as `docs\multiplatform\screenshots\details-windows-skia.png`.
+nothing. Both are committed, as `docs\multiplatform\screenshots\browser-windows-skia.png` and
+`docs\multiplatform\screenshots\details-windows-skia.png`.
+
+Those two frames carry the titles' *pictures* too, and a colour count cannot tell a poster from the box that is drawn
+where there is none, so both frames are asked about by colour instead. The scripted library stores a flat poster in
+one colour for the first film (rgb 212,64,168), one in a second colour for the third (rgb 32,176,152), nothing for
+nine of the twelve, and bytes that are not a picture at all for the fifth. `CheckPosters` then wants to see a 64 by 64
+patch of the first colour in the picture column of row one (measured: `x 60..123, y 199..262`), the second colour two
+rows further down that same column (`y 401..464`; rows are 101 lines apart in this frame), and the plain box - not a
+poster - on the row whose stored bytes are junk, because a shelf that drew *a* poster there drew some other title's.
+The details frame is asked for all of that *and* for a 240 by 240 patch of the first colour in the panel on the right
+(`x 892..1131, y 206..445`), plus one more clause: nothing of the second colour anywhere on the right half, which is
+what a panel that had read the picture of the wrong title leaves behind. The probe prints what it saw as a `pictures:`
+line, and - unlike the colour and edge counts, which are only compared with a baseline - this check *refuses* a frame
+it does not like, so a shelf that loses its pictures stops the build instead of quietly becoming a different number.
+What measuring these two frames turned up - that with the details panel open the list behind it had been vanishing off
+the window entirely - is in ROADMAP item **ai**.
 The sixth frame is that list again with a word in the search box (`search-windows.png`): the probe focuses the real
 `TextBox`, types `alien` through `TextInput`, presses `Key.Enter`, and refuses to write the picture unless the list
 came back with a single row *and* the header fell to "1 title in films matches 'alien'" - so the frame is the search
 box, the filtered list and the counted total drawn together, and it fails if the keystrokes never reached the field
 rather than passing with a picture of the unfiltered shelf. It is committed as
 `docs\multiplatform\screenshots\search-windows-skia.png`. Sampling the pixel band where list rows three and deeper
-would be says the same thing without the probe's help: 338 distinct colours on the unfiltered frame, one on the
+would be says the same thing without the probe's help: 683 distinct colours on the unfiltered frame, two on the
 search frame.
 The seventh frame is the same list after the watched key was pressed twice (`seen-windows.png`): three rows, each
 carrying the tick in front of its name, the button reading "Watched only" and the status line saying
 "3 of 3 watched films". The probe refuses the picture unless the filter really reached the third state and every
-row that survived carries a mark. The tick can also be measured rather than trusted: sampling the mark column of
-the *unfiltered* shelf frame row by row gives 46-58 bright pixels on rows one, three and seven and zero on every
-other row - the three titles the script says were watched to the end, and notably not the one whose last-played
-date came from stopping it halfway, which is the distinction the whole feature turns on. It is committed as
+row that survived carries a mark. The tick can also be measured rather than trusted: sampling the mark column
+(`x 138..178`, pushed right by the new picture column) row by row gives 45, 37 and 37 bright pixels on the three rows
+of the watched-only frame and zero on the rows below them, and marks the first and the third row of the *unfiltered*
+shelf frame (45 and 37) while leaving the rows directly under it empty. The third watched title is off the bottom of
+that shelf frame now: a row with a picture in it measures 101 lines where the same row in the previously committed
+frame measured some 67 lines, so the seven rows that used to be on screen became five. Notably still unmarked is the title whose
+last-played date came from stopping it halfway, which is the distinction the whole feature turns on. It is committed as
 `docs\multiplatform\screenshots\seen-windows-skia.png`.
 
 The eighth frame is the home screen of a scripted server that holds twelve titles and says four of them were left
@@ -1811,6 +1830,11 @@ and no ink past `x 997` anywhere. Three figures is also proof that the
 positions came attached to the titles rather than being invented per row, since they differ from row to row in the
 order the script stored them. It is committed as
 `docs\multiplatform\screenshots\continue-windows-skia.png`.
+
+Five more were re-copied when the shelf grew a picture column (`browser`, `details`, `search`, `seen`, `connect`):
+the first four because the rows they show are taller and carry pictures now, `connect` because of its known
+nondeterministic status line. `browser` had never been committed at all before that, so the frame the picture work
+made meaningful - posters and empty boxes side by side in one list - is now on disk next to the others.
 
 Six Windows baselines were re-copied when the main menu arrived, four of them (`details`, `search`, `nowplaying`,
 `connect`) for a reason that has nothing to do with it: a picture is copied by the slice that changes it, and the

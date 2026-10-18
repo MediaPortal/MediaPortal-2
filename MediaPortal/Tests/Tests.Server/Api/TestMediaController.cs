@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -2002,6 +2003,263 @@ namespace Tests.Server.Api
       GetTitlesInside(library, "AudioItem", null, null, Guid.Empty, out action);
       Assert.That(((AttributeSortInformation) asked[1].SortInformation[0]).AttributeType,
           Is.SameAs(MediaAspect.ATTR_SORT_TITLE), "and nothing was asked, so the name order stands");
+    }
+
+    #endregion
+
+    #region The picture of a title
+
+    private static readonly Guid PICTURE_ID = new Guid("77777777-7777-7777-7777-777777777777");
+
+    /// <summary>
+    /// A library that answers picture questions with the given titles and remembers what it was asked.
+    /// </summary>
+    /// <remarks>
+    /// The profile is recorded rather than constrained to null by the matcher, so that a test can say what went
+    /// wrong when an endpoint starts passing the caller's profile into a picture query: the mock would otherwise
+    /// answer the unexpected call with its own exception, which is a true complaint but a confusing one.
+    /// </remarks>
+    private static IMediaLibrary PictureLibrary(out List<MediaItemQuery> asked, out List<Guid?> profiles,
+        params MediaItem[] items)
+    {
+      List<MediaItemQuery> questions = new List<MediaItemQuery>();
+      List<Guid?> named = new List<Guid?>();
+
+      var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+      library.Setup(get => get.GetManagedMediaItemAspectMetadata()).Returns(
+          new Dictionary<Guid, MediaItemAspectMetadata>
+          {
+              { ThumbnailLargeAspect.ASPECT_ID, ThumbnailLargeAspect.Metadata }
+          });
+      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, It.IsAny<Guid?>(), false))
+          .Callback<MediaItemQuery, bool, Guid?, bool>((query, online, profile, virtualItems) =>
+          {
+            questions.Add(query);
+            named.Add(profile);
+          })
+          .Returns(items.ToList());
+
+      asked = questions;
+      profiles = named;
+      return library.Object;
+    }
+
+    /// <summary>
+    /// A title whose picture is the given bytes - or no picture at all, when the library holds an aspect with
+    /// nothing in it, which is what an online provider that found nothing leaves behind.
+    /// </summary>
+    private static MediaItem PicturedItem(Guid id, byte[] picture)
+    {
+      SingleMediaItemAspect thumbnail = new SingleMediaItemAspect(ThumbnailLargeAspect.Metadata);
+      thumbnail.SetAttribute(ThumbnailLargeAspect.ATTR_THUMBNAIL, picture);
+
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>
+      {
+          { ThumbnailLargeAspect.ASPECT_ID, new List<MediaItemAspect> { thumbnail } }
+      };
+      return new TestItem(id, aspects, null);
+    }
+
+    /// <summary>
+    /// Bytes that begin like a PNG, which is all an endpoint that does not decode pictures can tell.
+    /// </summary>
+    private static byte[] Png(string body)
+    {
+      List<byte> bytes = new List<byte> { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
+      bytes.AddRange(Encoding.ASCII.GetBytes(body));
+      return bytes.ToArray();
+    }
+
+    /// <summary>
+    /// A controller answering a picture request, with the HTTP response the endpoint writes its cache header to.
+    /// </summary>
+    private static MediaController AskedForAPicture()
+    {
+      return new MediaController
+      {
+        ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+      };
+    }
+
+    private static byte[] Bytes(IActionResult result)
+    {
+      return (result as FileContentResult)?.FileContents;
+    }
+
+    private static int PictureStatus(IActionResult result)
+    {
+      // A FileContentResult carries no status code of its own - MVC sends 200 for it - so the absence of one is
+      // the answer, not a gap in the test.
+      return (result as IStatusCodeActionResult)?.StatusCode ?? 200;
+    }
+
+    [Test]
+    public void ATitlesPictureIsTheBytesTheLibraryHolds()
+    {
+      byte[] picture = Png("poster");
+      List<MediaItemQuery> asked;
+      List<Guid?> profiles;
+      ServiceRegistration.Set<IMediaLibrary>(PictureLibrary(out asked, out profiles, PicturedItem(PICTURE_ID, picture)));
+
+      IActionResult result = AskedForAPicture().GetThumbnail(PICTURE_ID);
+
+      Assert.That(PictureStatus(result), Is.EqualTo(200));
+      Assert.That(Bytes(result), Is.EqualTo(picture),
+          "the picture a front end draws is the one the importer stored, byte for byte");
+      Assert.That(((FileContentResult) result).ContentType, Is.EqualTo("image/png"));
+    }
+
+    [Test]
+    public void AServerWithNoMediaLibraryHasNoPicturesEither()
+    {
+      RemoveMediaLibrary();
+      Assert.That(PictureStatus(AskedForAPicture().GetThumbnail(PICTURE_ID)), Is.EqualTo(503));
+    }
+
+    [Test]
+    public void ALibraryThatIsNotYetStartedSaysSoAboutPicturesToo()
+    {
+      var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, It.IsAny<Guid?>(), false))
+          .Throws(new IllegalCallException("the media library is still starting"));
+      ServiceRegistration.Set<IMediaLibrary>(library.Object);
+
+      Assert.That(PictureStatus(AskedForAPicture().GetThumbnail(PICTURE_ID)), Is.EqualTo(503),
+          "a picture that cannot be read yet is not a title without a picture");
+    }
+
+    [Test]
+    public void ATitleWithoutAPictureIsAnsweredAsMissingRatherThanBroken()
+    {
+      List<MediaItemQuery> asked;
+      List<Guid?> profiles;
+      ServiceRegistration.Set<IMediaLibrary>(
+          PictureLibrary(out asked, out profiles, PicturedItem(PICTURE_ID, null)));
+
+      IActionResult result = AskedForAPicture().GetThumbnail(PICTURE_ID);
+
+      Assert.That(PictureStatus(result), Is.EqualTo(404));
+      Assert.That(((ObjectResult) result).Value, Is.InstanceOf<MediaController.ItemResult>(),
+          "the body still says who was answered, so a screen that logs the failure knows which title has no art");
+      Assert.That(((MediaController.ItemResult) ((ObjectResult) result).Value).Error,
+          Does.Contain(PICTURE_ID.ToString()));
+    }
+
+    [Test]
+    public void APictureOfZeroBytesIsNoPicture()
+    {
+      List<MediaItemQuery> asked;
+      List<Guid?> profiles;
+      ServiceRegistration.Set<IMediaLibrary>(
+          PictureLibrary(out asked, out profiles, PicturedItem(PICTURE_ID, new byte[0])));
+
+      Assert.That(PictureStatus(AskedForAPicture().GetThumbnail(PICTURE_ID)), Is.EqualTo(404),
+          "an empty array is not a picture, and handing it to a decoder would turn a missing poster into an error");
+    }
+
+    [Test]
+    public void ATitleTheServerDoesNotKnowHasNoPictureEither()
+    {
+      List<MediaItemQuery> asked;
+      List<Guid?> profiles;
+      ServiceRegistration.Set<IMediaLibrary>(PictureLibrary(out asked, out profiles));
+
+      Assert.That(PictureStatus(AskedForAPicture().GetThumbnail(Guid.NewGuid())), Is.EqualTo(404),
+          "a title that is gone and a title that never had art look the same to the screen that has to draw one");
+    }
+
+    [Test]
+    public void APictureQuestionAsksTheLibraryForNothingButThePicture()
+    {
+      List<MediaItemQuery> asked;
+      List<Guid?> profiles;
+      ServiceRegistration.Set<IMediaLibrary>(PictureLibrary(out asked, out profiles, PicturedItem(PICTURE_ID, Png("x"))));
+
+      AskedForAPicture().GetThumbnail(PICTURE_ID);
+
+      Assert.That(asked, Has.Count.EqualTo(1), "one question per picture");
+      Assert.That(asked[0].NecessaryRequestedMIATypeIDs, Is.EquivalentTo(new[] { ThumbnailLargeAspect.ASPECT_ID }));
+      Assert.That(asked[0].OptionalRequestedMIATypeIDs, Is.Empty,
+          "a picture does not need the title next to it, and reading the plot out of the database to draw a poster "
+          + "is work nobody asked for");
+      Assert.That(asked[0].Filter, Is.InstanceOf<MediaItemIdFilter>());
+      Assert.That(((MediaItemIdFilter) asked[0].Filter).MediaItemIds, Is.EquivalentTo(new[] { PICTURE_ID }));
+    }
+
+    [Test]
+    public void APictureIsTheSameForEverybodyInTheHousehold()
+    {
+      List<MediaItemQuery> asked;
+      List<Guid?> profiles;
+      ServiceRegistration.Set<IMediaLibrary>(PictureLibrary(out asked, out profiles, PicturedItem(PICTURE_ID, Png("x"))));
+
+      MediaController controller = AskedForAPicture();
+      ClaimsPrincipal caller = new ClaimsPrincipal(new ClaimsIdentity(new[]
+      {
+        new Claim(ClaimTypes.Name, "georg"),
+        new Claim(ClaimTypes.Sid, VIEWER.ToString())
+      }, "MediaPortalTest"));
+      controller.ControllerContext.HttpContext.User = caller;
+
+      controller.GetThumbnail(PICTURE_ID);
+
+      Assert.That(profiles, Has.Count.EqualTo(1));
+      Assert.That(profiles[0], Is.Null,
+          "a poster is not somebody's data, so asking as a named person must not make the library join that "
+          + "person's user data onto it");
+    }
+
+    [Test]
+    public void APictureSaysHowLongItMayBeKept()
+    {
+      List<MediaItemQuery> asked;
+      List<Guid?> profiles;
+      ServiceRegistration.Set<IMediaLibrary>(PictureLibrary(out asked, out profiles, PicturedItem(PICTURE_ID, Png("x"))));
+
+      MediaController controller = AskedForAPicture();
+      controller.GetThumbnail(PICTURE_ID);
+
+      Assert.That(controller.HttpContext.Response.Headers["Cache-Control"].ToString(),
+          Does.Contain("max-age=" + MediaController.THUMBNAIL_CACHE_SECONDS),
+          "walking a shelf of fifty films must not fetch the same fifty pictures on every visit");
+    }
+
+    [TestCase("png", "image/png")]
+    [TestCase("jpeg", "image/jpeg")]
+    [TestCase("gif", "image/gif")]
+    [TestCase("bmp", "image/bmp")]
+    [TestCase("other", "application/octet-stream")]
+    public void APictureIsNamedFromTheBytesThatBeginIt(string kind, string mediaType)
+    {
+      byte[] picture;
+      switch (kind)
+      {
+        case "png":
+          picture = Png("x");
+          break;
+        case "jpeg":
+          picture = new byte[] { 0xFF, 0xD8, 0xFF, 0xE0, 0x00 };
+          break;
+        case "gif":
+          picture = Encoding.ASCII.GetBytes("GIF89a");
+          break;
+        case "bmp":
+          picture = Encoding.ASCII.GetBytes("BM......");
+          break;
+        default:
+          picture = new byte[] { 0x00, 0x01, 0x02, 0x03 };
+          break;
+      }
+
+      List<MediaItemQuery> asked;
+      List<Guid?> profiles;
+      ServiceRegistration.Set<IMediaLibrary>(
+          PictureLibrary(out asked, out profiles, PicturedItem(PICTURE_ID, picture)));
+
+      IActionResult result = AskedForAPicture().GetThumbnail(PICTURE_ID);
+
+      Assert.That(((FileContentResult) result).ContentType, Is.EqualTo(mediaType),
+          kind + " is what the database holds and the type a viewer's decoder is told");
     }
 
     #endregion

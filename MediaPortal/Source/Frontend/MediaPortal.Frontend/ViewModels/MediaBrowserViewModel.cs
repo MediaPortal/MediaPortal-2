@@ -125,6 +125,35 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
+    /// The bytes of this title's picture, or null while they are on their way and when the server has none.
+    /// </summary>
+    /// <remarks>
+    /// Bytes rather than an image, because a row is drawn as soon as its name arrives and its poster comes a moment
+    /// later - and because turning bytes into a picture needs the toolkit, which a row that is tested without a
+    /// window has no business doing. The screen converts them, and remembers the picture it made.
+    /// </remarks>
+    public byte[]? Artwork
+    {
+      get { return _artwork; }
+      private set
+      {
+        _artwork = value;
+        Raise();
+      }
+    }
+
+    private byte[]? _artwork;
+
+    /// <summary>
+    /// Puts the server's answer about this title's picture on the row.
+    /// </summary>
+    /// <param name="picture">The bytes, or null when this server has no picture for the title.</param>
+    internal void ShowArtwork(byte[]? picture)
+    {
+      Artwork = picture;
+    }
+
+    /// <summary>
     /// The name, or a word that says there is none. An empty row reads as a rendering bug; "Untitled" reads as
     /// a file nobody named, which is what it is.
     /// </summary>
@@ -348,6 +377,19 @@ namespace MediaPortal.Frontend.ViewModels
     private Guid _detailsFor;
 
     /// <summary>
+    /// The pictures of the titles on this screen: asked for once per title, remembered across pages and searches,
+    /// and never asked for more than a few at a time.
+    /// </summary>
+    private readonly Artwork? _artwork;
+
+    /// <summary>
+    /// The picture of the title the details panel is about, or null while it is on its way and when the server has
+    /// none. Null is drawn as nothing, which leaves the placeholder the panel drew behind it.
+    /// </summary>
+    [ObservableProperty]
+    private byte[]? _detailsArtwork;
+
+    /// <summary>
     /// What the viewer has typed into the search box, which is not yet what the list is filtered by - the list
     /// moves when they press Enter or the Find button, not on every keystroke, because every keystroke would be a
     /// round trip to the server while the box is still being written in.
@@ -399,6 +441,7 @@ namespace MediaPortal.Frontend.ViewModels
     public MediaBrowserViewModel(ServerApiClient? client, HomeSection? section, TitleViewModel? parent)
     {
       _client = client;
+      _artwork = client == null ? null : new Artwork(id => client.GetThumbnailAsync(id));
       Section = section;
       Parent = parent;
       AspectName = parent == null
@@ -792,6 +835,7 @@ namespace MediaPortal.Frontend.ViewModels
         DetailsText = details.Description ?? "Nothing was written about this title on this server.";
         DetailsPath = details.Path ?? title.Title.Path ?? "This title has no resource the server can name.";
         DetailsVisible = true;
+        await ReadDetailsArtworkAsync(title);
       }
       catch (ServerApiException ex)
       {
@@ -805,6 +849,80 @@ namespace MediaPortal.Frontend.ViewModels
       catch (Exception ex)
       {
         Status = "Reading the details failed: " + ex.Message;
+      }
+    }
+
+    /// <summary>
+    /// The picture of the title the details panel is now about.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Read apart from the details themselves, because the two answers arrive at different speeds and mean
+    /// different things when they fail: a details panel with no plot is still the film's details, while a poster
+    /// that is not there is the ordinary state of a library and not a complaint. The panel is therefore shown as
+    /// soon as the words are, and the picture goes into it when it comes.
+    /// </para>
+    /// <para>
+    /// The last question asked is the one that may write: a viewer pressing the info key on two rows in quick
+    /// succession must not end up with the first title's poster above the second title's plot.
+    /// </para>
+    /// </remarks>
+    private async Task ReadDetailsArtworkAsync(TitleViewModel title)
+    {
+      Artwork? artwork = _artwork;
+      if (artwork == null)
+        return;
+
+      DetailsArtwork = null;
+      try
+      {
+        byte[]? picture = await artwork.LoadAsync(title.Title.Id);
+        if (_detailsFor == title.Title.Id)
+          DetailsArtwork = picture;
+      }
+      catch (ServerApiException)
+      {
+        // Nothing is said. The panel is already answering the question the viewer asked - what this film is about
+        // - and a poster the server could not hand over changes nothing about that answer.
+      }
+    }
+
+    /// <summary>
+    /// Asks the server for the picture of every row that was just read, a few requests at a time.
+    /// </summary>
+    /// <remarks>
+    /// The whole page is asked for rather than only the rows on screen, because the rows on screen are not
+    /// something a view model knows - the screen decides that as it lays them out - and because the page is
+    /// already bounded (<see cref="PAGE_SIZE"/>), so the most this can queue is one page of small reads. Whoever
+    /// scrolls a row into view a second later finds its poster there rather than watching it arrive.
+    /// </remarks>
+    private async Task ReadArtworkAsync()
+    {
+      Artwork? artwork = _artwork;
+      if (artwork == null)
+        return;
+
+      List<Task> asking = new List<Task>();
+      foreach (TitleViewModel row in new List<TitleViewModel>(Titles))
+        asking.Add(PutArtworkOnAsync(artwork, row));
+
+      await Task.WhenAll(asking);
+    }
+
+    /// <summary>
+    /// One row's picture, put on the row when it arrives.
+    /// </summary>
+    private static async Task PutArtworkOnAsync(Artwork artwork, TitleViewModel row)
+    {
+      try
+      {
+        row.ShowArtwork(await artwork.LoadAsync(row.Title.Id));
+      }
+      catch (ServerApiException)
+      {
+        // A shelf whose server went quiet mid-picture keeps the rows it has. The list itself was read
+        // successfully - that is what the status line is already about - and a row without a poster is a row a
+        // viewer can still read, select and play.
       }
     }
 
@@ -884,6 +1002,12 @@ namespace MediaPortal.Frontend.ViewModels
 
         Selected = Selected ?? (Titles.Count > 0 ? Titles[0] : null);
         CanLoadMore = answer.Remaining > 0;
+
+        // The pictures come after the names rather than before them. A viewer reads a shelf by its titles, and a
+        // list that waited for sixty downloads before drawing its first row would look like a front end that had
+        // stopped. Not awaited, and not cancelled when a newer page arrives: a picture that is already on its way
+        // is remembered, so the shelf it was read for can be scrolled back to without asking again.
+        _ = ReadArtworkAsync();
 
         // The filter in front of the count rather than behind it, because the number is the answer and the filter
         // is the reason the answer is that small: "12 of 40 unwatched films" reads as one statement, while

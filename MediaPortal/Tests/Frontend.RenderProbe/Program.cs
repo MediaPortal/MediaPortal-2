@@ -685,6 +685,25 @@ namespace FrontendProbe
       if (!isPng)
         return 3;
 
+      if (screenName == "browser" || screenName == "details")
+      {
+        // The scripted database stores a flat poster for two of the twelve films, nothing for nine, and bytes
+        // that are not a picture for one. Whether any of that reached the shelf is a question about the colour of
+        // particular pixels, and only a frame with the whole twelve rows on it can answer it in order - which is
+        // why the filtered frames (search results, the watched half) are not asked: their rows are wherever the
+        // filter left them.
+        //
+        // This runs after the frame was written on purpose. A poster the check cannot find is a complaint about
+        // colour, and the thing a person needs in order to judge it is the frame itself.
+        string? posters = CheckPosters(frame, screenName == "details", out string posterReport);
+        Console.WriteLine("pictures: " + posterReport);
+        if (posters != null)
+        {
+          Console.WriteLine("FAILED:   " + posters);
+          return 1;
+        }
+      }
+
       Console.WriteLine("PROBE OK: the front end drew " + statistics.PixelCount + " pixels of real content on "
           + RuntimeInformation.OSDescription.Trim());
       return 0;
@@ -791,6 +810,66 @@ namespace FrontendProbe
       private static readonly Dictionary<string, int> COUNTS =
           new Dictionary<string, int> { { "MovieItem", 12 }, { "EpisodeItem", 3 }, { "PersonItem", 40 } };
 
+      /// <summary>
+      /// The id of one of the twelve films, in the same shape the title list below gives it.
+      /// </summary>
+      private static Guid FilmId(int index)
+      {
+        return new Guid(string.Format("00000000-0000-4000-8000-{0:D12}", index + 1));
+      }
+
+      /// <summary>
+      /// What the database holds for the three titles whose pictures get asked for.
+      /// </summary>
+      /// <remarks>
+      /// <para>
+      /// Two real pictures, each one flat colour, because the check on the other side of this asks the rendered
+      /// frame for a colour and a square: anything with detail in it would make the check depend on how a picture
+      /// was drawn rather than on whether it arrived at all. Two colours, not one, because one poster on screen
+      /// could be any row's poster - two, in two rows and two colours, is what says each row drew its own.
+      /// </para>
+      /// <para>
+      /// The third entry is not a picture. A library can hold bytes that are not an image - a download cut short,
+      /// a file somebody renamed - and the shelf has to survive it, which is only observable with a real decoder
+      /// and therefore belongs here rather than in the headless unit tests.
+      /// </para>
+      /// </remarks>
+      private static readonly Dictionary<Guid, byte[]> StoredPictures = new Dictionary<Guid, byte[]>
+      {
+          { FilmId(0), SolidPicture(POSTER_PINK) },
+          { FilmId(2), SolidPicture(POSTER_TEAL) },
+          { FilmId(4), System.Text.Encoding.ASCII.GetBytes("this used to be a poster") }
+      };
+
+      /// <summary>
+      /// A flat colour as the importer stores one: PNG bytes of a 64 by 64 picture, which is MP2's thumbnail size.
+      /// </summary>
+      private static byte[] SolidPicture(int[] rgb)
+      {
+        WriteableBitmap picture = new WriteableBitmap(new PixelSize(64, 64), new Vector(96, 96),
+            PixelFormats.Bgra8888, AlphaFormat.Opaque);
+        using (ILockedFramebuffer surface = picture.Lock())
+        {
+          int redOffset = surface.Format == PixelFormat.Rgba8888 ? 0 : 2;
+          int blueOffset = surface.Format == PixelFormat.Rgba8888 ? 2 : 0;
+          for (int y = 0; y < 64; y++)
+          {
+            for (int x = 0; x < 64; x++)
+            {
+              IntPtr at = surface.Address + y * surface.RowBytes + x * 4;
+              System.Runtime.InteropServices.Marshal.WriteByte(at + redOffset, (byte) rgb[0]);
+              System.Runtime.InteropServices.Marshal.WriteByte(at + 1, (byte) rgb[1]);
+              System.Runtime.InteropServices.Marshal.WriteByte(at + blueOffset, (byte) rgb[2]);
+              System.Runtime.InteropServices.Marshal.WriteByte(at + 3, 255);
+            }
+          }
+        }
+
+        using MemoryStream png = new MemoryStream();
+        picture.Save(png);
+        return png.ToArray();
+      }
+
       protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
           CancellationToken cancellation)
       {
@@ -828,6 +907,26 @@ namespace FrontendProbe
           string counted = ParameterIn(request.RequestUri.Query, "aspect") ?? "MovieItem";
           COUNTS.TryGetValue(counted, out int howMany);
           return Answer(request, new MediaCount(counted, null, howMany));
+        }
+
+        // The pictures of the shelf. Three of the twelve titles answer, because a real library's shelf is exactly
+        // this mixture: two films whose poster the importer stored in the database, one whose stored picture is
+        // not a picture, and nine with nothing stored at all. The gate then asks the rendered frame for the two
+        // posters by colour and for the box behind the corrupt one, which is the only way to find out whether the
+        // bytes that came over HTTP were the pixels a viewer would have seen.
+        if (path.EndsWith("/thumbnail", StringComparison.Ordinal))
+        {
+          Guid asked = Guid.Parse(path.Substring(path.LastIndexOf('/') - 36, 36));
+          if (StoredPictures.TryGetValue(asked, out byte[]? stored))
+          {
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+              RequestMessage = request,
+              Content = new ByteArrayContent(stored)
+            });
+          }
+
+          return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound) { RequestMessage = request });
         }
 
         // One film read up close, which is what no row of a list has room for. Answered in the shape of
@@ -1140,30 +1239,10 @@ namespace FrontendProbe
     /// </remarks>
     private static string? CheckBars(WriteableBitmap frame)
     {
-      using ILockedFramebuffer surface = frame.Lock();
-
-      int redOffset;
-      int blueOffset;
-      if (surface.Format == PixelFormat.Rgba8888)
-      {
-        redOffset = 0;
-        blueOffset = 2;
-      }
-      else if (surface.Format == PixelFormat.Bgra8888)
-      {
-        redOffset = 2;
-        blueOffset = 0;
-      }
-      else
-      {
-        return "the frame is " + surface.Format + ", which this check cannot read";
-      }
-
-      int width = surface.Size.Width;
-      int height = surface.Size.Height;
-      int rowBytes = surface.RowBytes;
-      byte[] pixels = new byte[rowBytes * height];
-      Marshal.Copy(surface.Address, pixels, 0, pixels.Length);
+      string? unreadable = ReadFrame(frame, out byte[] pixels, out int rowBytes, out int width, out int height,
+          out int redOffset, out int blueOffset);
+      if (unreadable != null)
+        return unreadable;
 
       // The middle of the screen first, then a little above and below it: whether a line crosses the picture
       // depends on the letterboxing, and the letterboxing belongs to the layout, not to this check.
@@ -1237,6 +1316,356 @@ namespace FrontendProbe
               + wanted[2] + ") - the picture between its white borders is not the picture that was pushed";
         }
       }
+      return null;
+    }
+
+    /// <summary>
+    /// The frame's pixels, and the two offsets anyone reading a colour from them needs.
+    /// </summary>
+    /// <returns>null when the pixels were read; a sentence about why they could not be when they were not.</returns>
+    private static string? ReadFrame(WriteableBitmap frame, out byte[] pixels, out int rowBytes, out int width,
+        out int height, out int redOffset, out int blueOffset)
+    {
+      using ILockedFramebuffer surface = frame.Lock();
+
+      if (surface.Format == PixelFormat.Rgba8888)
+      {
+        redOffset = 0;
+        blueOffset = 2;
+      }
+      else if (surface.Format == PixelFormat.Bgra8888)
+      {
+        redOffset = 2;
+        blueOffset = 0;
+      }
+      else
+      {
+        pixels = Array.Empty<byte>();
+        rowBytes = width = height = 0;
+        redOffset = blueOffset = 0;
+        return "the frame is " + surface.Format + ", which this check cannot read";
+      }
+
+      width = surface.Size.Width;
+      height = surface.Size.Height;
+      rowBytes = surface.RowBytes;
+      pixels = new byte[rowBytes * height];
+      Marshal.Copy(surface.Address, pixels, 0, pixels.Length);
+      return null;
+    }
+
+    /// <summary>The first scripted film's poster, as the scripted database stores it.</summary>
+    private static readonly int[] POSTER_PINK = { 212, 64, 168 };
+
+    /// <summary>The third scripted film's poster.</summary>
+    private static readonly int[] POSTER_TEAL = { 32, 176, 152 };
+
+    /// <summary>The box the shelf draws behind a picture, which is what a title without one shows.</summary>
+    private static readonly int[] PLACEHOLDER_BOX = { 23, 32, 42 };
+
+    /// <summary>
+    /// How many pixels of one poster colour the details panel has to show. A shelf thumbnail is 64 by 64 = 4096,
+    /// the panel's own picture measured 240 by 240 = 57600, so anything between the two says something is wrong.
+    /// </summary>
+    private const int PANEL_POSTER_MINIMUM = 30000;
+
+    /// <summary>
+    /// One flat-coloured patch of the frame: how big it is and where it lies.
+    /// </summary>
+    private sealed class Patch
+    {
+      public Patch(int left, int top, int right, int bottom, int pixels)
+      {
+        Left = left;
+        Top = top;
+        Right = right;
+        Bottom = bottom;
+        Pixels = pixels;
+      }
+
+      public int Left { get; }
+
+      public int Top { get; }
+
+      public int Right { get; }
+
+      public int Bottom { get; }
+
+      public int Pixels { get; }
+
+      public int CentreX
+      {
+        get { return (Left + Right) / 2; }
+      }
+
+      public int CentreY
+      {
+        get { return (Top + Bottom) / 2; }
+      }
+
+      public override string ToString()
+      {
+        return Pixels + " px at x " + Left + ".." + Right + ", y " + Top + ".." + Bottom;
+      }
+    }
+
+    /// <summary>
+    /// Whether the pixel at one place in the frame is this colour, give or take the tolerance a rendered frame
+    /// leaves for a blit and for the few pixels an edge is made of.
+    /// </summary>
+    private static bool IsColour(byte[] pixels, int rowBytes, int redOffset, int blueOffset, int x, int y,
+        int[] rgb, int tolerance)
+    {
+      int at = y * rowBytes + x * 4;
+      return Math.Abs(pixels[at + redOffset] - rgb[0]) <= tolerance
+          && Math.Abs(pixels[at + 1] - rgb[1]) <= tolerance
+          && Math.Abs(pixels[at + blueOffset] - rgb[2]) <= tolerance;
+    }
+
+    /// <summary>
+    /// Every connected patch of one colour in the frame, largest first.
+    /// </summary>
+    private static List<Patch> FindPatches(byte[] pixels, int rowBytes, int width, int height, int redOffset,
+        int blueOffset, int[] rgb)
+    {
+      bool[] seen = new bool[width * height];
+      Stack<long> todo = new Stack<long>();
+      List<Patch> patches = new List<Patch>();
+
+      for (int y = 0; y < height; y++)
+      {
+        for (int x = 0; x < width; x++)
+        {
+          int start = y * width + x;
+          if (seen[start] || !IsColour(pixels, rowBytes, redOffset, blueOffset, x, y, rgb, 24))
+            continue;
+
+          seen[start] = true;
+          todo.Push(start);
+
+          int left = x, top = y, right = x, bottom = y, count = 0;
+          while (todo.Count > 0)
+          {
+            long here = todo.Pop();
+            int atX = (int) (here % width);
+            int atY = (int) (here / width);
+            count++;
+            if (atX < left) left = atX;
+            if (atX > right) right = atX;
+            if (atY < top) top = atY;
+            if (atY > bottom) bottom = atY;
+
+            for (int dy = -1; dy <= 1; dy++)
+            {
+              for (int dx = -1; dx <= 1; dx++)
+              {
+                int nextX = atX + dx;
+                int nextY = atY + dy;
+                if (nextX < 0 || nextY < 0 || nextX >= width || nextY >= height)
+                  continue;
+
+                int next = nextY * width + nextX;
+                if (seen[next] || !IsColour(pixels, rowBytes, redOffset, blueOffset, nextX, nextY, rgb, 24))
+                  continue;
+
+                seen[next] = true;
+                todo.Push(next);
+              }
+            }
+          }
+
+          patches.Add(new Patch(left, top, right, bottom, count));
+        }
+      }
+
+      patches.Sort(delegate (Patch a, Patch b) { return b.Pixels.CompareTo(a.Pixels); });
+      return patches;
+    }
+
+    /// <summary>
+    /// Whether the pictures the scripted library stores reached the screen.
+    /// </summary>
+    /// <param name="frame">The rendered screen.</param>
+    /// <param name="detailsOpen">Whether the frame shows the details panel, which hides the shelf.</param>
+    /// <param name="report">What was found, in the words the gate prints.</param>
+    /// <returns>null when the frame is as it should be; a sentence about what it is not when it is not.</returns>
+    /// <remarks>
+    /// The counts this probe otherwise prints - colours, edges, contrast - cannot tell a poster from a poster of
+    /// the wrong film, nor a decoded picture from the box that is drawn where there is none. So the posters are
+    /// looked for by the colour they were stored in. With the panel open the shelf is asked about as well: the
+    /// panel sits beside the list rather than over it, and a frame where opening a panel emptied the list behind it
+    /// is exactly the mistake this check used to be blind to.
+    /// </remarks>
+    private static string? CheckPosters(WriteableBitmap frame, bool detailsOpen, out string report)
+    {
+      string? shelf = CheckShelfPosters(frame, out string shelfReport);
+      if (shelf != null || !detailsOpen)
+      {
+        report = shelfReport;
+        return shelf;
+      }
+
+      string? panel = CheckPanelPoster(frame, out string panelReport);
+      report = shelfReport + ", " + panelReport;
+      return panel;
+    }
+
+    /// <summary>
+    /// Whether the details panel drew the poster of the title it was opened on, and not another title's.
+    /// </summary>
+    /// <remarks>
+    /// The panel opens on the first film, whose stored poster is pink; the teal one belongs to the third film, and
+    /// a teal panel would mean the panel read a different id than the row it was opened from. The size is asked
+    /// for too: the panel draws its poster larger than a row does, so a row-sized patch on the right would say the
+    /// panel is showing a picture that was read for the shelf. Measured here, the panel's poster is 240 by 240.
+    /// </remarks>
+    private static string? CheckPanelPoster(WriteableBitmap frame, out string report)
+    {
+      string? unreadable = ReadFrame(frame, out byte[] pixels, out int rowBytes, out int width, out int height,
+          out int redOffset, out int blueOffset);
+      if (unreadable != null)
+      {
+        report = "the frame could not be read";
+        return unreadable;
+      }
+
+      List<Patch> pink = FindPatches(pixels, rowBytes, width, height, redOffset, blueOffset, POSTER_PINK);
+      List<Patch> teal = FindPatches(pixels, rowBytes, width, height, redOffset, blueOffset, POSTER_TEAL);
+
+      Patch? panel = null;
+      foreach (Patch candidate in pink)
+      {
+        if (panel == null && candidate.Pixels >= PANEL_POSTER_MINIMUM && candidate.CentreX > width / 2)
+          panel = candidate;
+      }
+
+      foreach (Patch candidate in teal)
+      {
+        if (candidate.Pixels >= PANEL_POSTER_MINIMUM && candidate.CentreX > width / 2)
+        {
+          report = candidate.ToString();
+          return "the details panel is drawn in the third film's colour, so it shows a picture that was stored "
+              + "for another title";
+        }
+      }
+
+      if (panel == null)
+      {
+        report = pink.Count == 0 ? "no poster" : pink[0].ToString();
+        return "no poster of at least " + PANEL_POSTER_MINIMUM + " pixels of rgb("
+            + string.Join(",", POSTER_PINK) + ") was found on the right half of the frame, where the panel that is "
+            + "open on the first film draws its picture"
+            + (pink.Count == 0 ? "" : "; the pink on the frame is " + pink[0]);
+      }
+
+      report = "the panel draws the poster of the title it is open on (" + panel.Pixels + " px at x "
+          + panel.Left + ".." + panel.Right + ", y " + panel.Top + ".." + panel.Bottom + "), and not the other "
+          + "film's";
+      return null;
+    }
+
+    /// <summary>
+    /// Whether the shelf drew the pictures the server stored for it, and the box where it had none.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The two posters are looked for by colour, and the row whose stored bytes are not a picture is looked for by
+    /// its geometry: two rows below the first poster, in the same column, where the shelf's own row pitch says it
+    /// must be. Nothing here knows the layout, the font or the scale; the pitch is measured out of the frame.
+    /// </para>
+    /// </remarks>
+    private static string? CheckShelfPosters(WriteableBitmap frame, out string report)
+    {
+      string? unreadable = ReadFrame(frame, out byte[] pixels, out int rowBytes, out int width, out int height,
+          out int redOffset, out int blueOffset);
+      if (unreadable != null)
+      {
+        report = "the frame could not be read";
+        return unreadable;
+      }
+
+      List<Patch> pink = FindPatches(pixels, rowBytes, width, height, redOffset, blueOffset, POSTER_PINK);
+      List<Patch> teal = FindPatches(pixels, rowBytes, width, height, redOffset, blueOffset, POSTER_TEAL);
+
+      if (pink.Count == 0)
+      {
+        report = "no poster";
+        return "nothing on the frame is rgb(" + string.Join(",", POSTER_PINK)
+            + "), the colour of the first film's poster; the bytes the server sent never became a picture";
+      }
+      if (teal.Count == 0)
+      {
+        report = "one poster";
+        return "nothing on the frame is rgb(" + string.Join(",", POSTER_TEAL)
+            + "), the colour of the third film's poster; a shelf that draws one picture out of two is a shelf "
+            + "whose rows are interchangeable";
+      }
+
+      Patch firstRow = pink[0];
+      foreach (Patch candidate in pink)
+        if (candidate.Left < firstRow.Left && candidate.Pixels >= 3000)
+          firstRow = candidate;
+
+      Patch secondRow = teal[0];
+      foreach (Patch candidate in teal)
+        if (candidate.Left < secondRow.Left && candidate.Pixels >= 3000)
+          secondRow = candidate;
+
+      if (firstRow.Pixels < 3000)
+      {
+        report = firstRow.ToString();
+        return "the first film's poster is a patch of " + firstRow.Pixels
+            + " pixels, which is not the 64 by 64 picture that was stored";
+      }
+      if (secondRow.Pixels < 3000)
+      {
+        report = secondRow.ToString();
+        return "the third film's poster is a patch of " + secondRow.Pixels
+            + " pixels, which is not the 64 by 64 picture that was stored";
+      }
+      if (Math.Abs(firstRow.CentreX - secondRow.CentreX) > 6)
+      {
+        report = firstRow + " / " + secondRow;
+        return "the two posters are " + Math.Abs(firstRow.CentreX - secondRow.CentreX)
+            + " pixels apart horizontally; one shelf has one column of pictures";
+      }
+      if (secondRow.CentreY <= firstRow.CentreY)
+      {
+        report = firstRow + " / " + secondRow;
+        return "the third film's poster is not below the first film's, so the rows are not the rows the server sent";
+      }
+
+      int pitch = secondRow.CentreY - firstRow.CentreY;
+      int brokenRow = firstRow.CentreY + 2 * pitch;
+      if (brokenRow >= height)
+      {
+        report = firstRow + " / " + secondRow;
+        return "the row whose stored bytes are not a picture is below the frame at y " + brokenRow;
+      }
+
+      bool boxShows = IsColour(pixels, rowBytes, redOffset, blueOffset, firstRow.CentreX, brokenRow,
+          PLACEHOLDER_BOX, 10);
+      bool posterThere = IsColour(pixels, rowBytes, redOffset, blueOffset, firstRow.CentreX, brokenRow,
+          POSTER_PINK, 24)
+          || IsColour(pixels, rowBytes, redOffset, blueOffset, firstRow.CentreX, brokenRow, POSTER_TEAL, 24);
+      if (posterThere)
+      {
+        report = firstRow + " / " + secondRow;
+        return "a poster was drawn on the row whose stored bytes are not a picture, which means the shelf put "
+            + "another title's picture there";
+      }
+      if (!boxShows)
+      {
+        int at = brokenRow * rowBytes + firstRow.CentreX * 4;
+        report = firstRow + " / " + secondRow;
+        return "the picture square of the row with the unreadable bytes is rgb(" + pixels[at + redOffset] + ","
+            + pixels[at + 1] + "," + pixels[at + blueOffset] + ") rather than the box behind it, rgb("
+            + string.Join(",", PLACEHOLDER_BOX) + ")";
+      }
+
+      report = "row at y " + firstRow.Top + " draws the poster of the first film (" + firstRow.Pixels
+          + " px), the row at y " + secondRow.Top + " the third film's own (" + secondRow.Pixels
+          + " px), the row at y " + brokenRow + " shows the box because its stored bytes are not a picture";
       return null;
     }
 

@@ -743,6 +743,123 @@ namespace MediaPortal.Server.Api
       };
     }
 
+    #region The picture of a title
+
+    /// <summary>
+    /// How long a front end may keep a picture it fetched, in seconds.
+    /// </summary>
+    /// <remarks>
+    /// A day. The address names the title rather than the picture, so a reimport that swaps a poster would go
+    /// unseen for as long as a client believed the URL; a day is short enough that a viewer who replaces a poster
+    /// sees it after restarting the television, and long enough that walking a shelf of fifty films does not fetch
+    /// the same fifty pictures again on every visit.
+    /// </remarks>
+    public const int THUMBNAIL_CACHE_SECONDS = 86400;
+
+    /// <summary>
+    /// The picture a front end draws next to a title: the bytes MP2's own importers store in the database.
+    /// </summary>
+    /// <param name="id">The media item id, as <c>GET api/media/titles</c> reported it.</param>
+    /// <remarks>
+    /// <para>
+    /// <b>Where the bytes come from.</b> MP2 has never kept a poster in a file next to the film and served the
+    /// file; the importers and online metadata providers write the picture into the media item itself, as the
+    /// <see cref="ThumbnailLargeAspect.ATTR_THUMBNAIL"/> blob, and the old skin engine read exactly that -
+    /// <c>ImageSourceFactory.CreateMediaItemThumbnailAspectSource</c> (ImageSourceFactory.cs:123) pulls the byte
+    /// array out of the item's aspects and hands it to a texture, cached by media item id. This endpoint serves
+    /// the same bytes over HTTP, which is what a front end on another machine needs, and nothing else: no
+    /// thumbnail is generated here, no picture is downloaded from the internet here, and a title the library has
+    /// no picture for is not given one.
+    /// </para>
+    /// <para>
+    /// <b>A 404 says two things and that is deliberate.</b> The query asks for the thumbnail aspect as a
+    /// <i>necessary</i> aspect, so it finds nothing both when no title has that id and when the title exists but
+    /// nobody ever gave it a picture. Telling those apart would cost a second query for information a screen
+    /// cannot use: in both cases the picture is not there, the placeholder is drawn, and the title next to it is
+    /// still listed and still playable. The body says so in words rather than pretending to know.
+    /// </para>
+    /// <para>
+    /// <b>Why the caller's profile is not passed to the query.</b> The profile parameter of
+    /// <see cref="IMediaLibrary.Search"/> exists so that the library can attach one person's user data - their
+    /// position in a title, their rating of it. A picture is nobody's: it is the same poster for everybody in the
+    /// household, so joining a user data table onto it would make two people's requests fetch different amounts of
+    /// database to return the same bytes.
+    /// </para>
+    /// <para>
+    /// An empty blob is treated as no picture. The database can hold one - a provider that found nothing and wrote
+    /// an array of zero length rather than nothing - and a front end handed zero bytes gets a decode failure where
+    /// it should have got a placeholder.
+    /// </para>
+    /// </remarks>
+    [HttpGet("items/{id}/thumbnail")]
+    public IActionResult GetThumbnail(Guid id)
+    {
+      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
+      if (mediaLibrary == null)
+        return StatusCode(StatusCodes.Status503ServiceUnavailable);
+
+      try
+      {
+        List<Guid> necessary = new List<Guid> { ThumbnailLargeAspect.ASPECT_ID };
+        MediaItemQuery query = new MediaItemQuery(necessary, null, new MediaItemIdFilter(id));
+        IList<MediaItem> items = mediaLibrary.Search(query, false, null, false);
+        MediaItem item = items == null ? null : items.FirstOrDefault();
+
+        byte[] picture = null;
+        SingleMediaItemAspect thumbnail;
+        if (item != null &&
+            MediaItemAspect.TryGetAspect(item.Aspects, ThumbnailLargeAspect.Metadata, out thumbnail))
+          picture = thumbnail.GetAttributeValue<byte[]>(ThumbnailLargeAspect.ATTR_THUMBNAIL);
+
+        if (picture == null || picture.Length == 0)
+        {
+          return NotFound(new ItemResult
+          {
+            Id = id,
+            Error = "this server has no picture for the id " + id
+          });
+        }
+
+        Response.Headers["Cache-Control"] = "private, max-age=" + THUMBNAIL_CACHE_SECONDS;
+        return File(picture, PictureMediaType(picture));
+      }
+      catch (IllegalCallException ex)
+      {
+        ILogger logger = ServiceRegistration.Get<ILogger>(false);
+        if (logger != null)
+          logger.Info("MediaController: the media library refused a picture request, answering 503: {0}",
+              ex.Message);
+        return StatusCode(StatusCodes.Status503ServiceUnavailable);
+      }
+    }
+
+    /// <summary>
+    /// The media type of a picture from the bytes that begin it, or
+    /// <c>application/octet-stream</c> when none of them match.
+    /// </summary>
+    /// <remarks>
+    /// Read from the data rather than stored, because the database does not record what format a thumbnail is in
+    /// - it holds a byte array and trusts whoever wrote it - and the importers write whatever their source gave
+    /// them (the video thumbnailer writes PNG, online providers write what their servers serve, which is usually
+    /// JPEG). A wrong type would make a browser refuse to draw a picture it should draw, which is why the fallback
+    /// is the honest "bytes of an unknown kind" rather than a guess at JPEG.
+    /// </remarks>
+    private static string PictureMediaType(byte[] picture)
+    {
+      if (picture.Length >= 8 && picture[0] == 0x89 && picture[1] == 0x50 && picture[2] == 0x4E &&
+          picture[3] == 0x47)
+        return "image/png";
+      if (picture.Length >= 3 && picture[0] == 0xFF && picture[1] == 0xD8 && picture[2] == 0xFF)
+        return "image/jpeg";
+      if (picture.Length >= 3 && picture[0] == 'G' && picture[1] == 'I' && picture[2] == 'F')
+        return "image/gif";
+      if (picture.Length >= 2 && picture[0] == 'B' && picture[1] == 'M')
+        return "image/bmp";
+      return "application/octet-stream";
+    }
+
+    #endregion
+
     /// <summary>
     /// What a viewer reports having watched.
     /// </summary>

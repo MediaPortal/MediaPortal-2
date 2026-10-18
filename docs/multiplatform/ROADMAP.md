@@ -2202,6 +2202,75 @@ suite on Windows is **716 tests, 0 failures**.
 
 **Frames.** `home-windows.png` and `continue-windows.png` now show the menu over the "left half way" strip, and the probe still refuses the picture unless the strip holds exactly those four titles in that order with those three positions. Getting there caught a second thing: the probe took the home picture while the screen was still asking, one request per aspect, for how many titles each holds - so the tiles read `Movies ?` of a server that answers `0`. It waits for the screen to stop reading now, prints the menu it drew as a `menu:` line so that the claim about the frame is a sentence the run makes rather than one a reader picks out of a picture, and refuses a `continue` frame whose menu does not offer exactly the two parts the script has. Measuring the refreshed frame says where the screen actually is: menu labels at `y 190..208` and `y 274..293` with their reasons at `y 222..231` and `y 305..316`, the strip's heading at `y 360..376`, its four rows at `y 401..416`, `451..466`, `501..516` and `551..566`, and the buttons and footer at `y 605..649` - all of it inside 648 lines. Four other Windows baselines (`details`, `search`, `nowplaying`, `connect`) had drifted: each was last copied for the slice that changed it, and the slices since then had changed those screens without re-copying them, so the committed pictures no longer matched what the code draws. All six refreshed frames are in `docs/multiplatform/screenshots/`; the playback frame still measures what the probe says it measures (`2120 distinct colours, 265 700 high-contrast edges`, all eight bars read back out of the picture), so its numbers did not move.
 
+### ai. Titles in the shelf now carry the picture the library holds
+
+**What the server gives.** `GET api/media/items/{id}/thumbnail` answers with the bytes MediaPortal 2 already stores for
+a title: the `ThumbnailLargeAspect` blob, sniffed for PNG, JPEG, GIF or BMP and sent with that media type and
+`Cache-Control: private, max-age=86400`. A title with no stored picture is a `404`, which is an ordinary answer and not a
+failure - the client caches it as "this one has none" - while a server without a library answers `503`. An unknown id, an
+aspect that exists but holds nothing, and a title whose picture was never imported all answer `404` too, so the front end
+never has to tell those apart. The query asks for that one aspect and no other, and a poster is nobody's personal data, so
+the read does not go through a user's view of the library the way the title lists do.
+
+**Bytes in the view model, pictures in the view.** The split is deliberate: `MediaBrowserViewModel` asks for `byte[]`,
+`TitleViewModel` holds bytes, and only `ArtworkConverter` in `Views/` turns them into an Avalonia `Bitmap`, cached under a
+pixel budget with the evicted bitmaps disposed. That is what keeps the view models testable, and the reason it matters
+here is measurable: the headless test harness runs with `UseHeadlessDrawing = true`, where `new Bitmap(anything)` succeeds
+and returns a 1x1 bitmap for any input at all - a real PNG, a PNG header with nothing behind it, or twenty bytes of ASCII
+alike. So no assertion made in the headless suite can prove that a picture decodes; those tests assert only that the
+converter caches by identity and hands back what it was given. Whether a poster really becomes pixels is claimed only by
+the render gate, which draws with Skia and reads the frame back.
+
+**`Artwork` - one fetch per title, however often it is looked at.** Five rows are on screen at a time, every refresh looks
+at them again, several titles are looked at twice as the shelf scrolls, and the details panel asks again for the row it was
+opened on. The class in `ViewModels/Artwork.cs` gives each title at most one request in flight (a `TaskCompletionSource`
+registered so a second caller joins the first rather than starting a second HTTP call), remembers answers - including
+"there is none" - for up to 200 titles least-recently-used, and keeps at most four requests on the wire at a moment. A
+title whose bytes arrived corrupted counts as answered, so one broken file in the library does not make the front end ask
+again every time that row scrolls past.
+
+**A cache written for one thread, used by several.** Running the whole suite after the artwork tests had been added failed
+once, in `TestArtwork.OnlyALittleIsAskedForAtOneMoment`, with "Operations that change non-concurrent collections must have
+exclusive access" from `Artwork.Remember`. The class had been written assuming it was called from the UI thread, which held
+while callers awaited on a dispatcher - but HTTP answers arrive on thread-pool threads, and so does everything a unit test
+uses. Every table mutation now happens under one lock, the awaited fetch is completed outside that lock so no HTTP callback
+runs user code inside it, and the counter is `Interlocked`. The fix was checked with a new test
+(`PicturesAskedForFromSeveralThreadsAtOnceAreFetchedOnceEach`) that releases 48 concurrent requests for 24 titles from 48
+thread-pool threads and asserts each title was fetched exactly once; four repeat runs were green. The test's own fake
+source needed the same treatment, which is worth saying out loud: a fake whose counters race can turn a green run into
+luck.
+
+**Measurement found the details panel eating the shelf.** Before any of this could be verified the details frame had to be
+made honest, and the first measurement showed something wrong in a frame that had been committed for slices: with the panel
+open, the shelf behind it drew nothing. The pixel numbers said why - a rectangle in the panel's border colour covering
+`x 72..1279, y 182..654`, the whole content area, in the old baseline and the new one alike. The panel sits in a grid column
+of `Auto` width and its plot text has `TextWrapping="Wrap"`; an `Auto` column measures wrapped text as if it were unwrapped,
+so the panel's `MinWidth="420"` was a floor with no ceiling and the column took the window. It now has a `Width` of its own
+(440) and the row's minimum width dropped from 760 to 700 so that rows still fit beside it. After the fix the details frame
+shows both: the shelf's posters *and* the panel's own picture, 57 600 pixels of it at `x 892..1131, y 206..445`. The headless
+suite never saw this because it asserts on view models, which were correct, and the probe never failed on it because a frame
+with a panel and no list is still a colourful frame. That is the gap the new `pictures:` check in the probe closes.
+
+**What the gate now proves.** `CheckPosters` runs on the browser and details frames. It measures the row pitch from the frame
+rather than from the XAML (101 lines here), expects film 1's pink poster patch in the picture column of row one and film 3's
+teal patch two rows down the same column, expects the placeholder box rather than a poster on the row whose stored bytes are
+junk, and on the details frame expects a picture in the panel and *no* teal patch on the right half - a panel showing the
+picture of a different title would be caught by exactly that clause. Frame statistics moved with the layout: `browser` 2207
+colours / 120 481 edges, `details` 3689 / 167 490 (it draws a shelf again), `search` 1529 / 102 617, `seen` 2191 / 116 226;
+the band below the first row now holds 683 distinct colours against two on the filtered frame. Five baselines were re-copied
+and `browser-windows-skia.png` is committed for the first time. `scripts/ci/README.md` carries the measurements, and the suite
+stands at **784 tests, 0 failures**: 14 new server tests for the endpoint (`Tests.Server` 289 -> **303**) and 15 new
+front-end ones in `TestArtwork` (`Tests.Frontend` 279 -> **294**).
+
+**What is honestly not claimed.** A real MP2 library's posters come from importers that this tree does not run, so against a
+stock database the shelf will mostly show boxes - the picture path is exercised by the gate's scripted bytes, not by a
+populated library. There is no batch picture endpoint: each row asks for its own thumbnail, bounded by the four-at-a-time rule
+rather than by one request per screen. Nothing is resized or transcoded server-side, so a 64-pixel box downloads the stored
+blob whole, and a title remembered as having no picture is not asked about again until the front end restarts - importing
+artwork into a library that a running front end has already looked at will not show up. The still that belongs on the
+now-playing screen and on the home strip is still missing, as is the pictures pillar itself; and the thumbnail endpoint is
+only the *reading* half of item **p2-3**, whose streaming-with-ranges half is still open.
+
 ## What cannot be verified without the user
 
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,

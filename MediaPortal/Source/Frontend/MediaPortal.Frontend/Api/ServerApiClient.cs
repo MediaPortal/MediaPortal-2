@@ -393,6 +393,37 @@ namespace MediaPortal.Frontend.Api
     }
 
     /// <summary>
+    /// The picture of a title, as the server's database holds it, or null when it has none.
+    /// </summary>
+    /// <param name="mediaItemId">The id from <see cref="MediaTitle.Id"/>.</param>
+    /// <returns>The bytes of the picture - PNG, JPEG, whatever the importer stored - or null.</returns>
+    /// <remarks>
+    /// <para>
+    /// <b>A missing picture is not a failure.</b> A 404 here means either that the title is gone or that nobody
+    /// ever gave it a poster, and both leave a screen drawing the same placeholder; turning that into an exception
+    /// would mean every shelf of titles without art threw an exception per row. A server that is not there at all
+    /// still throws, because that is worth telling the viewer about - it is the difference between "this film has
+    /// no poster" and "the server went away".
+    /// </para>
+    /// <para>
+    /// Nothing here decodes or resizes the bytes. The server stores the picture at MP2's own thumbnail size (at
+    /// most 256 pixels across, which is what the old skin engine drew), so a front end that scaled it again would
+    /// only blur it.
+    /// </para>
+    /// </remarks>
+    public async Task<byte[]?> GetThumbnailAsync(Guid mediaItemId, CancellationToken cancellation = default)
+    {
+      Uri url = new Uri(BaseUrl, "api/media/items/" + mediaItemId.ToString("D") + "/thumbnail");
+      RawAnswer answer = await GetRawAsync(url, cancellation).ConfigureAwait(false);
+
+      if (answer.Status == HttpStatusCode.NotFound)
+        return null;
+      if (!answer.Success)
+        throw new ServerApiException(url, answer.Status, Summarize(answer.Text()));
+      return answer.Body;
+    }
+
+    /// <summary>
     /// Tells the server how far a viewer got into a title, so that the library's "watched" figures say something
     /// about the viewer rather than about the file's import date.
     /// </summary>
@@ -501,30 +532,53 @@ namespace MediaPortal.Frontend.Api
     private async Task<T> GetJsonAsync<T>(string relativeUrl, CancellationToken cancellation)
     {
       Uri url = new Uri(BaseUrl, relativeUrl);
+      RawAnswer answer = await GetRawAsync(url, cancellation).ConfigureAwait(false);
+      string body = answer.Text();
+
+      if (!answer.Success)
+        throw new ServerApiException(url, answer.Status, Summarize(body));
+
+      T? parsed;
+      try
+      {
+        parsed = JsonSerializer.Deserialize<T>(body, JSON_OPTIONS);
+      }
+      catch (JsonException ex)
+      {
+        throw new ServerApiException(url,
+            string.Format("The answer from {0} could not be read: {1}", url, ex.Message), ex);
+      }
+      if (parsed == null)
+        throw new ServerApiException(url,
+            string.Format("The server answered {0} at {1} with a body that was not JSON.",
+                (int) answer.Status, url));
+      return parsed;
+    }
+
+    /// <summary>
+    /// One GET, answered with the bytes the server sent and nothing made of them.
+    /// </summary>
+    /// <remarks>
+    /// Everything that can go wrong on the way - no route, a timeout, a server that closed the connection - is
+    /// turned into <see cref="ServerApiException"/> here, so that every caller of it reports a connection problem
+    /// in the same words whether it wanted JSON or a picture. What the server said about a title it does not have
+    /// is a different matter: a status that is not a success comes back here to be judged by the caller, because
+    /// for a title it is an error worth showing while for a picture it is the ordinary case.
+    /// </remarks>
+    private async Task<RawAnswer> GetRawAsync(Uri url, CancellationToken cancellation)
+    {
       try
       {
         using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url))
-      {
-        AddToken(request);
-        using (HttpResponseMessage response = await _http.SendAsync(request,
-            HttpCompletionOption.ResponseContentRead, cancellation).ConfigureAwait(false))
         {
-          string body = await response.Content.ReadAsStringAsync(cancellation).ConfigureAwait(false);
-          if (!response.IsSuccessStatusCode)
-            throw new ServerApiException(url, response.StatusCode, Summarize(body));
-
-          T? parsed = JsonSerializer.Deserialize<T>(body, JSON_OPTIONS);
-          if (parsed == null)
-            throw new ServerApiException(url,
-                string.Format("The server answered {0} at {1} with a body that was not JSON.",
-                    (int) response.StatusCode, url));
-          return parsed;
+          AddToken(request);
+          using (HttpResponseMessage response = await _http.SendAsync(request,
+              HttpCompletionOption.ResponseContentRead, cancellation).ConfigureAwait(false))
+          {
+            byte[] body = await response.Content.ReadAsByteArrayAsync(cancellation).ConfigureAwait(false);
+            return new RawAnswer(response.StatusCode, response.IsSuccessStatusCode, body);
+          }
         }
-      }
-      }
-      catch (ServerApiException)
-      {
-        throw;
       }
       catch (HttpRequestException ex)
       {
@@ -540,10 +594,31 @@ namespace MediaPortal.Frontend.Api
         throw new ServerApiException(url,
             string.Format("{0} did not answer within {1}.", url, _http.Timeout), ex);
       }
-      catch (JsonException ex)
+    }
+
+    /// <summary>
+    /// What a GET brought back, before anybody decided what it means.
+    /// </summary>
+    private sealed class RawAnswer
+    {
+      public RawAnswer(HttpStatusCode status, bool success, byte[] body)
       {
-        throw new ServerApiException(url,
-            string.Format("The answer from {0} could not be read: {1}", url, ex.Message), ex);
+        Status = status;
+        Success = success;
+        Body = body;
+      }
+
+      public HttpStatusCode Status { get; }
+
+      public bool Success { get; }
+
+      /// <summary>The body, as it arrived.</summary>
+      public byte[] Body { get; }
+
+      /// <summary>The body read as the text a server writes when it has something to say about a failure.</summary>
+      public string Text()
+      {
+        return Encoding.UTF8.GetString(Body);
       }
     }
 
