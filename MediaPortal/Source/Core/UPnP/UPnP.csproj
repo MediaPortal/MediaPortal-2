@@ -1,9 +1,21 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net10.0-windows</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <OutputType>Library</OutputType>
     <SignAssembly>true</SignAssembly>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <!--
+      Second core assembly on a portable target framework, after MediaPortal.Utilities. No code changed:
+      UPnP declares no P/Invoke, no WinForms and no Windows-only call site, which was measured by building
+      it at net10.0 with CA1416 as an error (0 errors, 0 findings). The property below is what keeps that
+      true.
+
+      UPnP is first in line for a reason worth writing down: MediaPortal.Common references it, and
+      MediaPortal.Backend references Common, so a portable Common needs a portable UPnP first. The order
+      comes from the reference graph, not from which project looks cheapest - Backend has fewer Windows
+      call sites than Common but cannot go first.
+    -->
+    <WarningsAsErrors>CA1416</WarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Test|x86' ">
     <DebugSymbols>true</DebugSymbols>

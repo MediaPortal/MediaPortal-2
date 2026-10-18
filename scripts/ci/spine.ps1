@@ -34,7 +34,7 @@
 
   Two ledger sections are counted:
 
-    core       Common, Utilities, Backend - code that has to become portable. May only shrink.
+    core       Common, Utilities, Backend, UPnP - code that has to become portable. May only shrink.
     satellites *.Windows companion assemblies. Code moved here is quarantined, NOT fixed.
                They need their own column because a satellite declares
                [SupportedOSPlatform("windows")], which makes CA1416 treat its own call sites as
@@ -199,10 +199,17 @@ $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 if (-not $BaselinePath) { $BaselinePath = Join-Path $PSScriptRoot 'spine-baseline.json' }
 
 # Assemblies that must eventually build without a -windows target.
+#
+# Listed, unlike the satellites, but the list has a rule: it must contain every project that a core
+# assembly references. UPnP was missing from it for as long as everything was net10.0-windows anyway,
+# and while it is missing a future [DllImport] there would be counted nowhere - MediaPortal.Common
+# references UPnP, so a Windows dependency in UPnP is a Windows dependency in the core. Add the project
+# here the moment a core project starts referencing it.
 $coreAreas = @(
   'MediaPortal\Source\Core\MediaPortal.Common',
   'MediaPortal\Source\Core\MediaPortal.Utilities',
-  'MediaPortal\Source\Core\MediaPortal.Backend'
+  'MediaPortal\Source\Core\MediaPortal.Backend',
+  'MediaPortal\Source\Core\UPnP'
 )
 
 # Windows-only satellites are discovered, not listed, so a new one cannot escape the ledger.

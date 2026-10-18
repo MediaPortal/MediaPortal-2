@@ -30,7 +30,7 @@ Verified 2026-10-18 with `build.ps1 -Solution Server,Client -Ratchet`, `tests.ps
 | Server solution compiles on Windows | 0 errors, 648 gated findings (was 685) | `build.ps1 -Solution Server -Ratchet` |
 | Client solution compiles on Windows | 0 errors, ~2430 findings (not gated) | `build.ps1 -Solution Client` |
 | Server solution compiles **on Linux** | 0 errors | `test-server-linux.ps1` |
-| Core assemblies on a portable target framework | **1 of 90** - `MediaPortal.Utilities` is `net10.0`, `UseWindowsForms=false`, `CA1416` as error | `MediaPortal.Utilities.csproj` |
+| Core assemblies on a portable target framework | **2 of 90** - `MediaPortal.Utilities` and `UPnP` are `net10.0` with `CA1416` as error | `MediaPortal.Utilities.csproj`, `UPnP.csproj` |
 | Portable-core WinForms / GDI+ references | **0** (86 quarantined in 6 satellite files) | `spine.ps1`, `satellites.ps1` |
 | Portable-core P/Invoke declarations | **94** in 13 files, invisible to `CA1416` | `spine.ps1` (P/Invoke column) |
 | `CA1416` call sites, Windows vs Linux | 161 on both (was 196) - identical inventories | build log, `warnings.ps1` |
@@ -168,10 +168,29 @@ satellite candidates, listed below, and the honest statement about the retarget 
 that now lives in the project file: this assembly compiles for every platform, and it gains no
 `CA1416`-visible Windows-only call site without failing the build.
 
-Next in the same sequence is `MediaPortal.Backend` (0 P/Invoke declarations, no WinForms: the cheapest
-of the three core projects) and then `MediaPortal.Common` (21 P/Invoke, plus the `IImageTransformer`
-seam already in place). `CA1416` elsewhere in the tree is still dominated by the WinForms UI, which
-Phase 2 replaces rather than repairs.
+Next in the same sequence is UPnP, then `MediaPortal.Common`, then `MediaPortal.Backend` - and the order is
+set by the reference graph, not by which project looks cheapest. Common references UPnP and Backend
+references Common, so a portable project can never sit below a `-windows` one: Backend has no P/Invoke
+declaration at all and would be trivially portable, but it cannot move until Common does. An earlier
+version of this paragraph ranked the projects by their spine counts and had it backwards.
+
+**UPnP crossed the line without any code changing.** The project is now `net10.0` with
+`<WarningsAsErrors>CA1416</WarningsAsErrors>`, and the measurement behind it is that the build produced
+zero errors and zero findings on the portable target: no `[DllImport]`, no WinForms, no Windows-only
+call site. What the flip did expose was a hole in the ledger rather than in the code. `spine.ps1` counts
+a fixed list of "core" directories, and UPnP had never been on it - while `MediaPortal.Common` references
+UPnP, so anything Windows-shaped added there would have entered the portable core uncounted. Adding the
+directory found nothing (it adds 0 to every column, which is why nobody noticed), and the script now
+carries the rule: a project belongs in the ledger the moment a core project references it.
+
+The same probe measured the next project before reverting it, so the size of the following step is known
+rather than guessed. `MediaPortal.Common` builds at `net10.0` with **0 errors other than `CA1416`, which
+reports 39 distinct lines** (43 if a line referencing two Windows-only members is counted twice): the
+Dokan file-system proxy (14, a Windows-only user-mode driver client and a satellite candidate), crash-report
+WMI queries (13), Windows identity impersonation (6), power/session broadcasts (5) and one
+`Registry.GetValue` in `ApplicationCore`. The two `System.Windows.Forms` strings a plain search finds in
+that project are both comments recording earlier removals, which is the difference between grep and a
+ledger that strips comments.
 
 **d. Database that is not Windows-shaped.** Decide Firebird's future, verify SQLite as the primary
 store on Linux (native binaries per RID, no `System.Data.SQLite` interop surprises), delete ScimoreDB

@@ -516,6 +516,36 @@ project's own stale `bin\Debug\{net48,net6.0-windows,net10.0-windows}` and match
 were deleted: a `net10.0-windows` folder with an 08:23 timestamp sitting beside a `net10.0` folder with
 08:31 is exactly the false witness that already produced one wrong number in this project's history.
 
+### The second assembly off Windows found a hole in the ledger
+
+`UPnP` is now `net10.0` with `CA1416` as an error, and its migration was a single property: the project
+declares no `[DllImport]`, no WinForms and no Windows-only call site, so the portable build produced 0
+errors and 0 findings on the first try. Two things worth recording came out of it anyway.
+
+The first is which project is *eligible* next. A portable project cannot reference a `-windows` one, so
+the retarget order is fixed by the reference graph: `UPnP` -> `MediaPortal.Common` -> `MediaPortal.Backend`.
+Ranked by Windows-dependency counts the order would have been Backend, UPnP, Common - Backend has zero P/Invoke
+declarations and no WinForms - and it is unbuildable, because Backend references Common. Eligibility is
+measured from the graph; cost is measured from the code.
+
+The second is that `spine.ps1` counts a hard-coded list of core directories, and `UPnP` was never on it.
+Since `MediaPortal.Common` references `UPnP`, any Windows dependency added there would have entered the
+portable core without moving a single number in the gate - the same class of blind spot as `CA1416` never
+seeing a `[DllImport]`. Adding the directory changed every column by 0, which is precisely why the omission
+had survived: a gate that reports nothing looks identical to a gate that checked and found nothing. The
+script now states the rule (a project joins the ledger when a core project references it). Two counting
+details from the same probe, both of which can produce a confidently wrong number:
+
+* **Decide what a "site" is before quoting a count.** Flipped to `net10.0`, `MediaPortal.Common` reports
+  `CA1416` on 39 distinct source lines, or 43 if a line that touches two Windows-only members counts once
+  per member - and the probe log contains 88 message occurrences, because each site is reported two or four
+  times over (several compiles of the same project, and lines with more than one Windows-only member). Only
+  one of those three numbers is comparable across runs; the baseline stores findings, not log lines.
+* **`grep` is not a ledger.** A plain search for `System.Windows.Forms` in `MediaPortal.Common` returns two
+  hits; `spine.ps1` reports 0. Both hits are comments describing earlier removals of `SystemInformation` and
+  `Application.ExecutablePath`. The ledger strips comments before matching, which is the only reason its
+  number is a measurement of code rather than of text.
+
 ## Platform services: the core declares the seam, the host fills it
 
 `MediaPortal.Common` cannot reference a platform assembly, so where it needs a Windows technology it
