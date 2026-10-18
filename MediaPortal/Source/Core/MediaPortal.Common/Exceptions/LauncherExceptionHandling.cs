@@ -173,16 +173,25 @@ namespace MediaPortal.Common.Exceptions
       return exceptionInfo.ToString();
     }
 
+    /// <summary>
+    /// Number of inner exceptions reported for one exception. The limit exists for the message building
+    /// itself: this code runs while the application is already failing, and printing the failure must not be
+    /// the thing that ends the process.
+    /// </summary>
+    private const int MaxReportedExceptionDepth = 50;
+
     public static string WriteInnerException(Exception exception)
     {
       StringBuilder exceptionInfo = new StringBuilder();
-      if (exception != null)
+      // Walk down the chain instead of recursing into it. Recursing is what used to happen here, with the
+      // exception itself instead of its inner exception as the argument, which never reached the end of the
+      // chain and ended in "Stack overflow." - taking the report of the real startup failure with it.
+      int depth = 0;
+      while (exception != null && depth < MaxReportedExceptionDepth)
       {
         exceptionInfo.AppendLine("  " + exception.Message);
-        if (exception.InnerException != null)
-        {
-          exceptionInfo.AppendLine(WriteInnerException(exception));
-        }
+        exception = exception.InnerException;
+        depth++;
       }
       return exceptionInfo.ToString();
     }

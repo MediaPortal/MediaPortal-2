@@ -35,10 +35,10 @@ Verified 2026-10-18 with `build.ps1 -Solution Server,Client -Ratchet`, `tests.ps
 | Portable-core WinForms / GDI+ references | **0** (83 quarantined in 10 satellite files) | `spine.ps1`, `satellites.ps1` |
 | Portable-core P/Invoke declarations | **73** in 9 files (was 95, then 76; the last three were the Kernel32 waitable timer) - invisible to `CA1416` | `spine.ps1` (P/Invoke column) |
 | `CA1416` call sites, Windows vs Linux | **0** on both hosts, floor 0 (was 196 at the retarget) - the 107 that remained were all in `-windows` assemblies that had lost their platform declaration; see "the floor went to zero" below | build log, `warnings.ps1` on both logs |
-| Unit tests, Windows | 4/4 suites, 311 executed, 0 failed (3 canary tests skip: Linux-only); a suite whose assembly predates its own sources reports STALE instead of running the old binary | `tests.ps1` |
+| Unit tests, Windows | 4/4 suites, 335 passed, 0 failed, 0 skipped; a suite whose assembly predates its own sources reports STALE instead of running the old binary | `tests.ps1` |
 | Unit tests, Linux (canary) | 31 executed, 0 failed (1 skips: Windows-only), incl. live IPC round trips and XDG autostart | `test-canary-linux.ps1` |
-| Server actually **runs** | **yes on Windows** as a headless process: reaches the Running state, creates the SQLite store, answers UPnP discovery over the network, exits 0 with an error-free log; no other platform runs it, though `MP2-Server-Headless.dll` is the first MP2 executable `test-server-linux.ps1` builds | `run-server-check.ps1`, `test-server-upnp.ps1`, `test-server-linux.ps1` |
-| Server **starts on Linux** | yes, and its database now opens there: the layout assembles, the host executes under .NET 10.0.13, `libe_sqlite3.so` (linux-x64) loads, SQLite 3.53.3 reports its version from an open connection, and the host shuts down cleanly. One `FATAL` stands between that and item **g**'s Running state (was three): `HTTPAPI.dll` | `test-server-run-linux.ps1`, items **i** and **j** below |
+| Server actually **runs** | **yes on Windows and on Linux** as a headless process. Windows: reaches the Running state, creates the SQLite store, answers UPnP discovery over the network, exits 0 with an error-free log. Linux: reaches the same Running state with 0 `FATAL` and 0 `ERROR` lines (7 `WARN`, all of them SSDP multicast options in a single-NIC container plus the documented resource-mounting note). Android is still unmeasured | `run-server-check.ps1`, `test-server-upnp.ps1`, `test-server-run-linux.ps1` |
+| Server **runs on Linux** | **yes** - `HeadlessServerLauncher: Switching to running state`, item **g**'s goal, measured. The layout assembles, `libe_sqlite3.so` (linux-x64) loads, SQLite 3.53.3 opens the store, the subschemas `MediaPortal-Basis`, `MediaLibrary`, `UserProfileDataManagement` and `ClientManager` are created from their SQL scripts, and the resource server plus two control points and one UPnP server share port 55555 through one listener | `test-server-run-linux.ps1`, items **i**, **j** and **k** below |
 | Database plugin on a portable driver | `SQLiteDatabase` is `net10.0` with `CA1416` as error, no Win32 calls left, and no longer loads a Windows-only interop library: it talks to SQLite through `Microsoft.Data.Sqlite` (SQLite 3.53.3), whose `e_sqlite3` native is copied into the layout per platform | `SQLiteDatabase.csproj`, items **h** and **j** below |
 | Built executables are 64-bit | 5/5 apphosts measure `x64`, managed side `MSIL` | `architecture.ps1` |
 | 32-bit declarations in source | 0 in SDK-style projects, 42 in old-style ones | `architecture.ps1` |
@@ -368,7 +368,7 @@ machine with WiX installed.
 contracts. Phase 2 needs the same contracts over a real endpoint. Gate: an end-to-end call from a
 separate process to a server on Linux returning a real library item.
 
-**g. The server runs - done on Windows 2026-10-18, nowhere else.** Until today every claim about the
+**g. The server runs - done on Windows 2026-10-18, on Linux since item k.** Until today every claim about the
 server was a claim about the compiler. That changed with `MediaPortal.Server.Headless`, an
 `net10.0` console host (`MP2-Server-Headless`) that repeats `MediaPortal.Server`'s startup sequence in
 the same order - vital services, core services, backend services, plugin `Initialize`/`Startup`,
@@ -552,6 +552,65 @@ can race with `Main()`'s), it tolerates services that are not there, and the two
 `TestStopCoreServicesWithNothingRegisteredDoesNotThrow`. The run ends at one `FATAL` now, which is the
 number of real blockers: `HTTPAPI.dll`. The next step is Kestrel behind a shared listener in
 `UPnP.Infrastructure.Http.HttpServer`, Windows keeping `http.sys` untouched.
+
+**k. The HTTP layer leaves http.sys: one listener, many base paths (2026-10-19).** Item **i**'s row 2 was the
+last blocker: `DllNotFoundException: HTTPAPI.dll`, thrown from `ResourceServer.CreateAndStartServer`, with the
+same seam used by the UPnP server and the control point. `http.sys` is not a library that can be missing - it is
+a kernel driver, and what MP2 actually depends on is one of its features: several independent web hosts listen
+on port 55555, each owning a different URL prefix. Kestrel does not offer that, so the feature had to be
+implemented. Four things were measured before writing anything, in a scratch ASP.NET Core project, and two of
+them changed the design:
+
+| Question | Measurement |
+| --- | --- |
+| Can two Kestrel hosts share a port if each is given a base path in its URL, the way `BuildUrls` builds them for http.sys? | No, and not with a conflict message but with `InvalidOperationException: A path base can only be configured using IApplicationBuilder.UsePathBase()` - `UseUrls("http://127.0.0.1:55199/a/")` is not a valid Kestrel address at all. So a prefix cannot travel in the URL; dispatching has to happen inside one listener |
+| Does the GENA `XmlSerializer` still get its synchronous request-stream read? | Yes. `KestrelServerOptions.AllowSynchronousIO = true` is the counterpart of the `HttpSysOptions` setting MP2 already uses, and a handler calling `StreamReader.ReadToEnd()` on `Request.Body` succeeded against a Kestrel listener with it set |
+| Is prefix matching a `StartsWith`? | No, and the first version got it wrong: `"/a/x".StartsWithSegments("/a/")` is **false** for every request, because the trailing slash makes the prefix two segments, the second one empty. Prefixes are compared after trimming the trailing separator, case-insensitively, and on segment boundaries - `/MediaPortal/Server` does not match `/MediaPortal/ServerRoom` |
+| Can one listener bind `0.0.0.0` and `[::]` for a wildcard URL? | On Windows yes; on Linux the second bind fails with `SocketException (98): Address already in use` for `http://[::]:55555`, because a dual stack IPv6 socket already owns the port and covers IPv4. A wildcard is therefore served by one socket - `[::]` where IPv6 is bindable, `0.0.0.0` where it is not |
+
+`SharedHttpPortHost` in `UPnP/Infrastructure/Http` keeps one listener per TCP port, registers endpoints by URL
+prefix, and dispatches each request to the endpoint with the longest matching prefix - the rule http.sys
+applies, now with fourteen tests of its own. Three properties were chosen to keep the two hosts' behaviour
+identical rather than merely working:
+
+- **Requests are not rewritten.** `PathBase` stays empty and `Path` keeps the prefix, because that is what
+  http.sys hands over here: the UPnP endpoints work on `HttpRequest.GetUri()` (which is built from
+  `PathBase` + `Path`) and match against `DescriptionPathBase`, which contains the prefix, while the resource
+  server registers the MVC route `MediaPortal/api/{controller}/{id?}` - a route that starts with the prefix and
+  therefore only matches while the path still carries it.
+- **An endpoint with a pipeline is registered first.** The resource server needs `AddControllers` and one
+  `AddApplicationPart` per middleware, and the DI container is closed once the listener is built; plain
+  handlers can join and leave while it runs. MP2's own startup order already satisfies this - the resource
+  server comes with the core services, the UPnP servers come from plugin startup - and registering the other
+  way round says so in an exception instead of failing quietly.
+- **Endpoints are reference counted.** The first registration opens the port and the last one closes it, so
+  disposing a UPnP server does not take the resource server's listener with it. Restarting the resource server
+  inside one process gets the port back, which is asserted with a `TcpListener`.
+
+Windows keeps `http.sys` and its `WebHost.CreateDefaultBuilder` untouched; the portable path uses
+`WebApplication`, which is also the modern API - `WebHostBuilder` and `IWebHost` now carry `ASPDEPR004` and
+`ASPDEPR008` deprecation warnings, and the container run is the only thing that will ever exercise it off
+Windows.
+
+**The step reported two bugs that had nothing to do with HTTP.** The container failed the same way twice before
+the second failure was understood, and both times the message was wrong:
+
+| Symptom | What it really was |
+| --- | --- |
+| The log ends in `Stack overflow.` with 58000 lines of `LauncherExceptionHandling.WriteInnerException` frames, and the process dies with signal 6 (exit 134) | `WriteInnerException` recursed on `exception` instead of `exception.InnerException`, so *any* exception with an inner exception ended the process while its report was being built. It fires on the last-resort path only - no logger registered and no writable log directory - which is exactly the state of a host that dies during core startup. It had been hiding the reason of failures twice. Now iterative, bounded, with five tests |
+| `DirectoryNotFoundException: Could not find a part of the path '/src/build/artifacts/server-layout\Scripts\/MediaPortal-Basis-create-1.0.sql'` | Item **g**'s separator class again, one layer further: `PathManager.SetPath` normalized the separators of stored labels, but four subschemas ask for `"<APPLICATION_ROOT>\Scripts\"`, and the part *behind* the label was never normalized. On Linux that is one file name containing backslashes. `GetPath` now normalizes what it returns, with five tests |
+
+The probe reported on itself as well: `-SkipImageBuild` reuses the image, which holds a *snapshot* of the tree,
+and the script warns about that in yellow - a warning that was filtered away twice, producing two confident
+readings of a binary that no longer existed. Read the warning; rebuild the image when the tree moved.
+
+After this step the Linux log reads: database opens, `libe_sqlite3.so (linux-x64)`, SQLite 3.53.3, all four
+subschemas created from their SQL scripts, then four HTTP endpoints on one port -
+`/MediaPortal/Server`, `/MediaPortal/UPnPControlPoint_D0278452`, `/MediaPortal/UPnPControlPoint_8C0745F5`,
+`/MediaPortal/UPnPServer_49EAC870` - and `Switching to running state`. Zero `FATAL`, zero `ERROR`, seven
+`WARN`: the resource-mounting note that a container has no FUSE driver for, and `Could not set IPv4 options /
+Cannot assign requested address` from the SSDP and GENA multicast setup, which is the next item - the container
+has one NIC and no multicast route, and those listeners are the ones that still use the APM socket bridge.
 
 ## Phase 2 - Avalonia front end
 

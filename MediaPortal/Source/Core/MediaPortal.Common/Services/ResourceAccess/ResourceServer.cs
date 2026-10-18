@@ -82,44 +82,58 @@ namespace MediaPortal.Common.Services.ResourceAccess
 
 #if NET5_0_OR_GREATER
         var urls = HttpServer.BuildUrls(_servicePrefix, filters, _serverPort);
-        IWebHost host = HttpServer.CreateWebHostBuilder(urls)
-          .ConfigureServices(services=>
+
+        Action<IServiceCollection> configureServices = services =>
+        {
+          //ToDo
+          //services.AddAuthentication();
+
+          var mvc = services.AddControllers();
+          // This is only needed to tell the app where to look for API Controllers
+          // and is currently a hack because plugins that have controllers might not
+          // necessarily register a middleware (but all do currently)
+          // ToDo: A separate API host should probably be created with the necessary interfaces.
+          foreach(Type middleWareType in _middleWares)
+            mvc.AddApplicationPart(middleWareType.Assembly);
+        };
+
+        Action<IApplicationBuilder> configurePipeline = app =>
+        {
+          app.UseRouting();
+
+          //ToDo
+          //app.UseAuthentication();
+          app.UseAuthorization();
+          // Support conventional routing
+          var routeTemplate = (_servicePrefix + "/api/{controller}/{id?}").TrimStart('/'); // No leading slash allowed
+          app.UseEndpoints(endpoints =>
           {
-            //ToDo
-            //services.AddAuthentication();
+            endpoints.MapControllerRoute("DefaultApi", routeTemplate);
+            endpoints.MapControllers();
+          });
 
-            var mvc = services.AddControllers();
-            // This is only needed to tell the app where to look for API Controllers
-            // and is currently a hack because plugins that have controllers might not
-            // necessarily register a middleware (but all do currently)
-            // ToDo: A separate API host should probably be created with the necessary interfaces.
-            foreach(Type middleWareType in _middleWares)
-              mvc.AddApplicationPart(middleWareType.Assembly);
-          })
-          .Configure(app => 
+          // Configure MiddleWare
+          foreach (Type middleWareType in _middleWares)
           {
-            app.UseRouting();
+            app.UseMiddleware(middleWareType);
+          }
+        };
 
-            //ToDo
-            //app.UseAuthentication();
-            app.UseAuthorization();
-            // Support conventional routing
-            var routeTemplate = (_servicePrefix + "/api/{controller}/{id?}").TrimStart('/'); // No leading slash allowed
-            app.UseEndpoints(endpoints =>
-            {
-              endpoints.MapControllerRoute("DefaultApi", routeTemplate);
-              endpoints.MapControllers();
-            });
-
-            // Configure MiddleWare
-            foreach (Type middleWareType in _middleWares)
-            {
-              app.UseMiddleware(middleWareType);
-            }
-          })
-          .Build();
-        host.Start();
-        _httpServer = host;
+        if (OperatingSystem.IsWindows())
+        {
+          IWebHost host = HttpServer.CreateWebHostBuilder(urls)
+            .ConfigureServices(configureServices)
+            .Configure(configurePipeline)
+            .Build();
+          host.Start();
+          _httpServer = host;
+        }
+        else
+        {
+          // http.sys is not available, so this endpoint joins the shared listener of its port. It is
+          // registered before the UPnP endpoints, which is required for endpoints that need services.
+          _httpServer = SharedHttpPortHost.Start(urls, configureServices, configurePipeline);
+        }
 #else
         var startOptions = HttpServer.BuildStartOptions(_servicePrefix, filters, _serverPort);
         _httpServer = WebApp.Start(startOptions, builder =>

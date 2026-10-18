@@ -9,22 +9,30 @@
 
   The value is in the failure list. Compiling proves nothing about code that calls Windows APIs at
   runtime, and this tree has already shown twice that a startup/shutdown defect can sit behind a
-  green build. What the probe has measured so far, in the order it reaches things:
+  green build. The list it produced, in the order the server reaches things, is closed:
 
-    1. Fixed (ROADMAP item j): System.Data.SQLite's SQLite.Interop.dll, Windows-only. The plugin uses
+    1. Closed (ROADMAP item j): System.Data.SQLite's SQLite.Interop.dll, Windows-only. The plugin uses
        Microsoft.Data.Sqlite now, and the layout copies the platform's own e_sqlite3 native, so the
        database opens here - the log shows SQLiteVersion: 3.53.3 from a connection on Linux.
-    2. Open: ASP.NET Core's HttpSys server (UPnP + resource servers) - http.sys does not exist outside
-       Windows, so the first FATAL is DllNotFoundException: HTTPAPI.dll. Fix: Kestrel, which needs work
-       because MP2 puts several hosts on one port under different base paths, something http.sys does
-       natively and Kestrel does not.
+    2. Closed (ROADMAP item k): ASP.NET Core's HttpSys server. http.sys is a kernel driver, so the one
+       feature MP2 needed from it - several hosts sharing port 55555, each owning a URL prefix - is
+       provided off Windows by SharedHttpPortHost, one Kestrel listener per port dispatching on the
+       longest prefix. The log shows the resource server, two control points and one UPnP server on
+       55555 together.
+    3. Closed (ROADMAP item k): PathManager normalized stored labels but not the sub-path callers write
+       behind them, so the subschemas' "<APPLICATION_ROOT>\Scripts\" was one file name on Linux and the
+       database subschemas could not be created.
+
+  What is left in the log is WARN only: the resource-mounting note (no FUSE driver in the container) and
+  "Could not set IPv4 options / Cannot assign requested address" from the SSDP and GENA multicast setup,
+  which needs a NIC with a multicast route.
 
   Also measured here, because it only shows up in a log: Stop() runs twice on the failed-startup path,
   and the second pass reported its own FATAL below the real one. Teardown is idempotent now, so the
   number of FATAL lines in this output is the number of real blockers.
 
   A green result means the headless host reaches "Switching to running state" on Linux, which is ROADMAP
-  item d completed.
+  item d completed - measured green since item k.
 .EXAMPLE
   .\test-server-run-linux.ps1
 .EXAMPLE

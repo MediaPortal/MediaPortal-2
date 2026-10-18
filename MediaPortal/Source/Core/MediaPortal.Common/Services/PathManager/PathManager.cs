@@ -137,7 +137,12 @@ namespace MediaPortal.Common.Services.PathManager
           pathLabels = label.Matches(pathPattern);
         }
 
-      return pathPattern;
+      // The stored label values are normalized by SetPath, but the part a caller writes behind the label is
+      // not: subschemas ask for "<APPLICATION_ROOT>\Scripts\", which on Linux resolved to
+      // '/srv/mediaportal\Scripts\/MediaPortal-Basis-create-1.0.sql' - one file name with backslashes in it,
+      // measured as DirectoryNotFoundException while creating the database subschema. A path that leaves this
+      // class is a path for the running platform, so its separators are the platform's.
+      return NormalizeSeparators(pathPattern);
     }
 
     public void RemovePath(string label)

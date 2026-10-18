@@ -58,11 +58,20 @@ namespace UPnP.Infrastructure.Http
       IDisposable server = null;
       try
       {
-        var host = CreateWebHostBuilder(urls)
-              .Configure(app => { app.Run(handler); })
-              .Build();
-        host.Start();
-        server = host;
+        if (OperatingSystem.IsWindows())
+        {
+          var host = CreateWebHostBuilder(urls)
+                .Configure(app => { app.Run(handler); })
+                .Build();
+          host.Start();
+          server = host;
+        }
+        else
+        {
+          // Without http.sys a second host cannot bind a port that is already bound, so all endpoints of a
+          // port share one listener that dispatches by URL prefix.
+          server = SharedHttpPortHost.Start(urls, handler);
+        }
       }
       catch (Exception)
       {
@@ -107,6 +116,10 @@ namespace UPnP.Infrastructure.Http
       return urls.ToArray();
     }
 
+    /// <summary>
+    /// Creates a web host that listens on the given URLs using http.sys. Only usable on Windows; on other
+    /// platforms the endpoints of a port are served by <see cref="SharedHttpPortHost"/>.
+    /// </summary>
     public static IWebHostBuilder CreateWebHostBuilder(string[] urls)
     {
 #pragma warning disable CA1416 // Validate platform compatibility

@@ -1499,12 +1499,25 @@ the copied source. `-SkipImageBuild` therefore means "run the snapshot currently
 caveat as the cross-compile probe, which prints a warning comparing the image timestamp with the newest
 source file.
 
-What it currently measures, and why that is the useful output: the layout assembles, the host executes
-on .NET 10.0.13, `SystemResolver` reports a local system id, the SQLite plugin loads the platform's
-`libe_sqlite3.so` and logs `SQLiteVersion: 3.53.3`, and the server then stops cleanly. One `FATAL` line
-remains: `HTTPAPI.dll`, ASP.NET Core's `http.sys` server, reached from
-`ResourceServer.CreateAndStartServer`. That is the next thing to port, and it is ROADMAP item **i** row 2.
-The loop from here is: fix the first one, rebuild the image, read the new first one.
+What it currently measures: the layout assembles, the host executes on .NET 10.0.13, `SystemResolver`
+reports a local system id, the SQLite plugin loads the platform's `libe_sqlite3.so` and logs
+`SQLiteVersion: 3.53.3`, the subschemas `MediaPortal-Basis`, `MediaLibrary`,
+`UserProfileDataManagement` and `ClientManager` are created from their SQL scripts, four HTTP endpoints
+(`/MediaPortal/Server`, two control points, one UPnP server) take port 55555 together through
+`SharedHttpPortHost`, and the log reaches `HeadlessServerLauncher: Switching to running state`. Zero
+`FATAL`, zero `ERROR`; the seven `WARN` lines are the documented "no file system driver to mount
+resources" note plus `Could not set IPv4 options / Cannot assign requested address` from the SSDP and
+GENA multicast setup, which needs a NIC with a multicast route - see the last paragraph. ROADMAP items
+**d** and **g** are measured on Linux now, not argued.
+
+The loop this probe is built for - fix the first failure, rebuild, read the next one - ran three times to
+get here: the SQLite interop library, then `HTTPAPI.dll`, then a `\Scripts\` path. Two of those three
+took an extra round because of a trap in the loop itself: `-SkipImageBuild` runs the image that is
+currently in Docker, and the image holds a *snapshot* of the tree. The script compares the image
+timestamp with the newest source file and prints a yellow warning, and twice that warning was scrolled
+past while reading the filtered output, which produced two confident readings of a binary that no longer
+existed. Nothing in the gate can tell a stale reading from a real one if its output is filtered down to
+the interesting lines: rebuild the image whenever the tree moved.
 
 Reading that list in order is the point of the probe, and it has been misleading in both directions. When
 three `FATAL`s were listed, the third (`ServiceNotFoundException` during teardown) looked like a
