@@ -33,6 +33,7 @@ namespace MediaPortal.Frontend.Views
     private readonly Func<Window>? _nowPlayingScreen;
     private readonly Func<Window>? _connectScreen;
     private readonly Func<HomeSection, Window>? _sectionScreen;
+    private readonly HomeViewModel _home;
 
     /// <summary>
     /// For the XAML loader and the designer: a screen with a view model that has no server, which is what it
@@ -57,6 +58,7 @@ namespace MediaPortal.Frontend.Views
         Func<HomeSection, Window>? sectionScreen = null)
     {
       DataContext = home;
+      _home = home;
       _nowPlayingScreen = nowPlayingScreen;
       _connectScreen = connectScreen;
       _sectionScreen = sectionScreen;
@@ -67,6 +69,12 @@ namespace MediaPortal.Frontend.Views
       nowPlayingButton.IsVisible = _nowPlayingScreen != null;
       connectButton.IsVisible = _connectScreen != null;
 
+      // A list of films that cannot be started is worse than no list, so on a machine with no player the strip
+      // stays out of the way entirely; the view model still read it, and the aspects below still say what the
+      // library holds.
+      if (_nowPlayingScreen == null)
+        unfinishedPanel.IsVisible = false;
+
       // The ring is in the order the areas are arranged: the buttons on top, the list below it. Left/right (and
       // up/down between the two areas) walk it; the list keeps its own up/down over its items, because it
       // handles those keys before they reach the ring.
@@ -75,6 +83,8 @@ namespace MediaPortal.Frontend.Views
       var ring = new List<Control>();
       if (_sectionScreen != null)
         ring.Add(sectionsList);
+      if (_nowPlayingScreen != null)
+        ring.Add(unfinishedList);
       ring.Add(refreshButton);
       if (_nowPlayingScreen != null)
         ring.Add(nowPlayingButton);
@@ -88,8 +98,16 @@ namespace MediaPortal.Frontend.Views
       // The command is the one the button on the screen uses, so opening and pressing run the same code.
       Opened += delegate
       {
+        _home.ResumeRequested += OnResumeRequested;
         if (DataContext is HomeViewModel viewModel)
           viewModel.RefreshCommand.Execute(null);
+      };
+
+      // Same reason the library screen does it: the view model outlives this window, and a handler left on it
+      // would have a closed window opening a playback screen from a key press nobody made on it.
+      Closed += delegate
+      {
+        _home.ResumeRequested -= OnResumeRequested;
       };
 
       // The back key of a remote closes the screen. There is nowhere else to go yet; when the front end has
@@ -106,6 +124,11 @@ namespace MediaPortal.Frontend.Views
                 OpenSection(section);
                 args.Handled = true;
               }
+              else if (unfinishedList.IsFocused && unfinishedList.SelectedItem is TitleViewModel unfinished)
+              {
+                _home.ResumeCommand.Execute(unfinished);
+                args.Handled = true;
+              }
             }
           },
           RoutingStrategies.Tunnel);
@@ -117,6 +140,22 @@ namespace MediaPortal.Frontend.Views
     private void OpenSection(HomeSection section)
     {
       Window screen = _sectionScreen!(section);
+      if (!screen.IsVisible)
+        screen.Show();
+      screen.Activate();
+    }
+
+    /// <summary>
+    /// A row of the "left half way" strip was pressed. The application is the one that starts the film - it owns
+    /// the player - so this screen only gets out of the way and shows the playback, the same screen the
+    /// "Now playing" button shows.
+    /// </summary>
+    private void OnResumeRequested(object? sender, TitleViewModel title)
+    {
+      if (_nowPlayingScreen == null)
+        return;
+
+      Window screen = _nowPlayingScreen();
       if (!screen.IsVisible)
         screen.Show();
       screen.Activate();

@@ -106,6 +106,23 @@ namespace MediaPortal.Frontend.ViewModels
       get { return Seen ? "\u2713" : ""; }
     }
 
+    /// <summary>
+    /// When the library says this title was last opened, or nothing when it never was.
+    /// </summary>
+    /// <remarks>
+    /// Written out in full with no culture involved: the date is the one thing on the row that has to be readable
+    /// the same way on a machine set up in Berlin and one set up in Tokyo, and a "02/12" that means two different
+    /// days depending on a regional setting is worse on a television than a long date.
+    /// </remarks>
+    public string LastPlayedText
+    {
+      get
+      {
+        DateTime? when = Title.LastPlayed;
+        return when.HasValue ? when.Value.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture) : "";
+      }
+    }
+
     /// <summary>What the left column of the row says: the name, then the year it is known by.</summary>
     public string Line
     {

@@ -161,6 +161,12 @@ namespace MediaPortal.Frontend
               Console.WriteLine, ForgetReportedTitles);
           desktop.Exit += delegate { _reporter?.Dispose(); };
 
+          // A title picked on the home screen's "left half way" strip is played by exactly the same code as a
+          // title picked in the library - same player, same media id handed to the reporter, so finishing it
+          // updates the same library the strip read from.
+          _home.ResumeRequested += OnTitleChosen;
+          desktop.Exit += delegate { _home.ResumeRequested -= OnTitleChosen; };
+
           // Ask for the pictures now, before anything is open: an engine decides how it will deliver them when a
           // media starts, so a sink offered afterwards is a question asked after the answer. Refusing is not a
           // reason to stop the front end - the film still plays, and its sound still arrives - but it is a reason

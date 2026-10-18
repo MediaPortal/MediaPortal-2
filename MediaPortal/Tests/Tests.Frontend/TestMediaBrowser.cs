@@ -201,20 +201,141 @@ namespace Tests.Frontend
     /// The library behind the in-process server: a movie aspect with the given titles, and the media aspect the
     /// titles themselves live in.
     /// </summary>
+    /// <remarks>
+    /// The titles it hands out and the number it counts depend on the filter it was asked with - see
+    /// <see cref="Described"/>. That is not decoration: a screen that filters by watched state cannot be told
+    /// apart from one that does not by a shelf that answers every question with the same four titles.
+    /// </remarks>
     private static void RegisterLibrary(params MediaItem[] items)
     {
       var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
-      library.Setup(get => get.GetManagedMediaItemAspectMetadata()).Returns(
-          new Dictionary<Guid, MediaItemAspectMetadata>
-          {
-              { ServerMediaAspect.ASPECT_ID, ServerMediaAspect.Metadata },
-              { MovieAspect.ASPECT_ID, MovieAspect.Metadata },
-              { InProcessApi.VIDEO_ASPECT_ID, InProcessApi.CreateAspect(InProcessApi.VIDEO_ASPECT_ID, "VideoFile") }
-          });
-      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, null, false)).Returns(items);
-      library.Setup(get => get.CountMediaItems(It.IsAny<IEnumerable<Guid>>(), null, false, It.IsAny<bool>()))
-          .Returns(items.Length);
+      library.Setup(get => get.GetManagedMediaItemAspectMetadata()).Returns(ShelfAspects());
+      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, null, false))
+          .Returns((MediaItemQuery query, bool onlyOnline, Guid? profile, bool virtualItems) =>
+              DescribedItems(items, query.Filter));
+      library.Setup(get => get.CountMediaItems(It.IsAny<IEnumerable<Guid>>(), It.IsAny<IFilter>(), false,
+              It.IsAny<bool>()))
+          .Returns((IEnumerable<Guid> types, IFilter filter, bool onlyOnline, bool virtualItems) =>
+              DescribedItems(items, filter).Count);
       InProcessApi.RegisterMediaLibrary(library.Object);
+    }
+
+    /// <summary>
+    /// The aspects of the shelf: the media aspect the titles live on, the movie aspect that makes them films,
+    /// and an aspect nothing on the home screen offers a tile for.
+    /// </summary>
+    private static IDictionary<Guid, MediaItemAspectMetadata> ShelfAspects()
+    {
+      return new Dictionary<Guid, MediaItemAspectMetadata>
+      {
+          { ServerMediaAspect.ASPECT_ID, ServerMediaAspect.Metadata },
+          { MovieAspect.ASPECT_ID, MovieAspect.Metadata },
+          { InProcessApi.VIDEO_ASPECT_ID, InProcessApi.CreateAspect(InProcessApi.VIDEO_ASPECT_ID, "VideoFile") }
+      };
+    }
+
+    /// <summary>
+    /// The titles of the shelf that a filter describes.
+    /// </summary>
+    private static IList<MediaItem> DescribedItems(MediaItem[] shelf, IFilter filter)
+    {
+      return shelf.Where(item => Described(filter, item)).ToList();
+    }
+
+    /// <summary>
+    /// Whether one title is what a filter describes.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The handful of conditions the watched questions are made of, evaluated here instead of by a database.
+    /// Anything else is refused out loud, because a shelf that answered an unknown condition with "yes" would
+    /// silently approve whatever filter replaces it.
+    /// </para>
+    /// <para>
+    /// A condition about a value that was never stored is <em>not</em> satisfied - <c>NULL = 0</c> is unknown in
+    /// SQL and an unknown throws the row out, which is the very trap the endpoint's second filter half exists
+    /// for. Evaluating it the same way here is what makes "the endpoint forgot the NULL half" fail a test instead
+    /// of passing one.
+    /// </para>
+    /// </remarks>
+    private static bool Described(IFilter filter, MediaItem item)
+    {
+      switch (filter)
+      {
+        case null:
+          return true;
+        case BooleanCombinationFilter combined:
+          return combined.Operator == BooleanOperator.And
+              ? combined.Operands.All(operand => Described(operand, item))
+              : combined.Operands.Any(operand => Described(operand, item));
+        case NotFilter negated:
+          return !Described(negated.InnerFilter, item);
+        case MediaItemIdFilter byId:
+          // The shape of "the title with this id, if there is one", which is what the details endpoint asks. It
+          // arrives at the same shelf as the watched questions, so the shelf answers it too.
+          return byId.MediaItemIds.Contains(item.MediaItemId);
+        case EmptyFilter empty:
+          return Stored(item, empty.AttributeType) == null;
+        case RelationalFilter condition:
+          return Holds(condition, item);
+        default:
+          throw new InvalidOperationException("this shelf cannot answer a " + filter.GetType().Name
+              + "; a test that asks a new question has to say what its answer looks like");
+      }
+    }
+
+    private static bool Holds(RelationalFilter condition, MediaItem item)
+    {
+      object stored = Stored(item, condition.AttributeType);
+      switch (condition.Operator)
+      {
+        case RelationalOperator.EQ:
+          return Equals(stored, condition.FilterValue);
+        case RelationalOperator.GT:
+          return stored is int number && condition.FilterValue is int wanted && number > wanted;
+        default:
+          throw new InvalidOperationException("this shelf cannot answer a " + condition.Operator + " condition");
+      }
+    }
+
+    /// <summary>
+    /// What the title's media aspect holds for one attribute, or <c>null</c> when nothing was ever written there.
+    /// </summary>
+    private static object Stored(MediaItem item, MediaItemAspectMetadata.AttributeSpecification attribute)
+    {
+      if (!item.Aspects.TryGetValue(ServerMediaAspect.ASPECT_ID, out IList<MediaItemAspect> aspects))
+        return null;
+      return aspects.OfType<SingleMediaItemAspect>().FirstOrDefault()?.GetAttributeValue(attribute);
+    }
+
+    /// <summary>
+    /// A title the library was told about: a row of the shelf that also carries what watching it left behind.
+    /// </summary>
+    /// <param name="playCount">
+    /// How often it was finished, or <c>null</c> for a title nobody ever opened - the two are different to the
+    /// library, one is written and the other is an empty column.
+    /// </param>
+    /// <param name="lastPlayed">
+    /// When it was last opened, or <see cref="DateTime.MinValue"/> for "never".
+    /// </param>
+    private static MediaItem WatchedTitle(string name, int year, int? playCount, DateTime lastPlayed)
+    {
+      return new WatchedItem(Guid.NewGuid(), name, year,
+          RESOURCE_SYSTEM_ID.ToString("B") + "://" + LOCAL_PATH, playCount, lastPlayed);
+    }
+
+    private class WatchedItem : ItemWithPath
+    {
+      internal WatchedItem(Guid id, string title, int year, string serialized, int? playCount, DateTime lastPlayed)
+          : base(id, title, year, serialized)
+      {
+        SingleMediaItemAspect media =
+            (SingleMediaItemAspect) Aspects[ServerMediaAspect.ASPECT_ID][0];
+        if (playCount.HasValue)
+          media.SetAttribute(ServerMediaAspect.ATTR_PLAYCOUNT, playCount.Value);
+        if (lastPlayed != DateTime.MinValue)
+          media.SetAttribute(ServerMediaAspect.ATTR_LASTPLAYED, lastPlayed);
+      }
     }
 
     private InProcessApi StartServer()
@@ -1367,6 +1488,162 @@ namespace Tests.Frontend
       WaitUntil("the shelf back", delegate { return browser.Titles.Count == SEEN_SHELF.Length; });
       Assert.That(window.IsVisible, Is.True,
           "back undid the filter rather than leaving the screen, because the filter was the newest thing on it");
+    }
+
+    #endregion
+
+    #region What the home screen offers from what was left half way
+
+    /// <summary>
+    /// The four titles the strip tests run on. Every question the screen can ask has a different answer here, so
+    /// an unfiltered request cannot pass for a filtered one: the whole shelf is four, "watched" is one,
+    /// "unwatched" is three and "started" is two.
+    /// </summary>
+    private static MediaItem[] HalfWayShelf()
+    {
+      return new[]
+      {
+          WatchedTitle("Alien", 1979, 2, new DateTime(2024, 5, 1, 20, 0, 0)),
+          WatchedTitle("Nimmerland", 2025, null, DateTime.MinValue),
+          WatchedTitle("Alien Earth", 2025, 0, new DateTime(2025, 4, 27, 21, 30, 0)),
+          WatchedTitle("Army of Thieves", 2018, 0, new DateTime(2024, 3, 3, 18, 0, 0))
+      };
+    }
+
+    private static HomeViewModel HomeOn(InProcessApi server)
+    {
+      return new HomeViewModel(new ServerApiClient(server.BaseUrl));
+    }
+
+    private static void Refreshed(HomeViewModel home)
+    {
+      home.RefreshCommand.Execute(null);
+      WaitUntil("the read to finish",
+          delegate { return home.RefreshCommand.ExecutionTask != null && home.RefreshCommand.ExecutionTask.IsCompleted; });
+      Pump();
+    }
+
+    [AvaloniaTest]
+    public void TheHomeScreenListsWhatWasLeftHalfWay()
+    {
+      RegisterLibrary(HalfWayShelf());
+      InProcessApi server = StartServer();
+
+      HomeViewModel home = HomeOn(server);
+      Refreshed(home);
+
+      Assert.That(home.Unfinished.Select(row => row.Name),
+          Is.EqualTo(new[] { "Alien Earth", "Army of Thieves" }),
+          "the two titles that were opened and not finished, the one stopped most recently first: not the film "
+          + "that was watched through (its last-played date is what a finished viewing leaves behind) and not the "
+          + "one nobody ever opened. Four titles are on the shelf, so this answer is only possible if the screen "
+          + "asked for \"started\" - every other question has a different answer here");
+      Assert.That(home.UnfinishedStatus, Does.Contain("2 titles left half way"));
+      Assert.That(home.HasUnfinished, Is.True);
+      Assert.That(home.Unfinished[0].LastPlayedText, Is.EqualTo("2025-04-27 21:30"),
+          "the row says when it was stopped, in the same words whatever the machine's regional settings are");
+      Assert.That(home.Unfinished[0].Playable, Is.True,
+          "and it is a row the viewer can actually start, not a name on a screen");
+    }
+
+    [AvaloniaTest]
+    public void AHomeScreenWithNothingLeftHalfWayShowsNoStrip()
+    {
+      RegisterLibrary(WatchedTitle("Alien", 1979, 2, new DateTime(2024, 5, 1, 20, 0, 0)),
+          WatchedTitle("Nimmerland", 2025, null, DateTime.MinValue));
+      InProcessApi server = StartServer();
+
+      HomeViewModel home = HomeOn(server);
+      Refreshed(home);
+
+      Assert.That(home.Aspects, Is.Not.Empty, "the screen did read the server");
+      Assert.That(home.Unfinished, Is.Empty);
+      Assert.That(home.HasUnfinished, Is.False,
+          "a strip holding nothing takes itself off the screen rather than asking the viewer to wonder about it");
+      Assert.That(home.UnfinishedStatus, Is.Empty);
+    }
+
+    [AvaloniaTest]
+    public void APartOfTheLibraryThatWillNotSayLeavesItsReasonOnTheStrip()
+    {
+      // The titles request refused while the aspect list and the counts answered. Silently hiding the strip here
+      // would make "the server wouldn't tell" look exactly like "you have nothing to watch".
+      var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+      library.Setup(get => get.GetManagedMediaItemAspectMetadata()).Returns(ShelfAspects());
+      library.Setup(get => get.CountMediaItems(It.IsAny<IEnumerable<Guid>>(), It.IsAny<IFilter>(), false,
+              It.IsAny<bool>()))
+          .Returns(4);
+      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, null, false))
+          .Throws(new InvalidOperationException("this shelf will not hand out titles"));
+      InProcessApi.RegisterMediaLibrary(library.Object);
+      InProcessApi server = StartServer();
+
+      HomeViewModel home = HomeOn(server);
+      Refreshed(home);
+
+      Assert.That(home.Sections, Is.Not.Empty, "the tiles arrived, so this is not a screen that failed");
+      Assert.That(home.Unfinished, Is.Empty);
+      Assert.That(home.HasUnfinished, Is.True, "and the strip stays to say what went wrong");
+      Assert.That(home.UnfinishedStatus, Does.Contain("Could not check what you left half way"));
+      Assert.That(home.UnfinishedStatus, Does.Contain("did not answer"));
+    }
+
+    [AvaloniaTest]
+    public void PressingARowOfTheStripIsPlayedLikeATitleInTheLibrary()
+    {
+      RegisterLibrary(HalfWayShelf());
+      InProcessApi server = StartServer();
+
+      HomeViewModel home = HomeOn(server);
+      var played = new List<TitleViewModel>();
+      home.ResumeRequested += delegate (object? sender, TitleViewModel row) { played.Add(row); };
+      Refreshed(home);
+
+      Assert.That(home.Unfinished, Has.Count.EqualTo(2));
+      home.ResumeCommand.Execute(home.Unfinished[0]);
+
+      Assert.That(played, Has.Count.EqualTo(1),
+          "the home screen does not own a player; it says which title, and the application opens it through the "
+          + "one playback path the library already uses");
+      Assert.That(played[0].Name, Is.EqualTo("Alien Earth"));
+      Assert.That(played[0].Title.Id, Is.EqualTo(home.Unfinished[0].Title.Id),
+          "the same title, so the viewing is reported against the same library entry the strip read from");
+    }
+
+    [AvaloniaTest]
+    public void TheStripIsOnTheKeyboardRingAndStartsTheFilmFromThere()
+    {
+      RegisterLibrary(HalfWayShelf());
+      InProcessApi server = StartServer();
+
+      HomeViewModel home = HomeOn(server);
+      Window playback = new Window();
+      var opened = new List<Window>();
+      var window = new HomeWindow(home, delegate
+      {
+        opened.Add(playback);
+        return playback;
+      });
+      window.Show();
+      Refreshed(home);
+      Pump();
+
+      ListBox strip = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "unfinishedList");
+      Assert.That(strip.Items.Count, Is.EqualTo(2));
+
+      strip.Focus();
+      strip.SelectedIndex = 0;
+      window.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Enter,
+        Source = strip
+      });
+      Pump();
+
+      Assert.That(opened, Is.EqualTo(new[] { playback }),
+          "OK on a row of the strip gets out of the way and shows the playback");
     }
 
     #endregion

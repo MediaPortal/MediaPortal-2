@@ -193,8 +193,9 @@ namespace MediaPortal.Server.Api
     /// their short text - the <c>search</c> field of the answer says what was asked for.
     /// </param>
     /// <param name="seen">
-    /// <c>unwatched</c> for the titles nobody has finished, <c>watched</c> for the ones somebody has, anything else
-    /// - including nothing - for both. The <c>seen</c> field of the answer says which of the three was applied.
+    /// <c>unwatched</c> for the titles nobody has finished, <c>watched</c> for the ones somebody has,
+    /// <c>started</c> for the ones somebody began and did not finish, anything else - including nothing - for
+    /// both. The <c>seen</c> field of the answer says which of the four readings was applied.
     /// </param>
     [HttpGet("titles")]
     public ActionResult<TitlesResult> GetTitles([FromQuery] string aspect, [FromQuery] string sort,
@@ -262,6 +263,19 @@ namespace MediaPortal.Server.Api
           seenFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
               new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.EQ, 0),
               new EmptyFilter(MediaAspect.ATTR_PLAYCOUNT));
+        else if (seeing == "started")
+          // The third question a viewer asks: "what did I leave half way?". MP2's own
+          // BaseContinueWatchMediaListProvider answers it per profile, with "a play date exists, and the played
+          // percentage is between one and ninety-nine" (BaseContinueWatchMediaListProvider.cs:43-46); the two
+          // halves of that condition are exactly what LastPlayed-with-no-PlayCount means on the Media aspect,
+          // which is what a server without profiles - this one - has. Without the second half the filter would
+          // also hand back films that were watched to the end, because finishing a film leaves its last-played
+          // date behind, and a "still to finish" list holding finished films is worse than no list.
+          seenFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
+              new NotFilter(new EmptyFilter(MediaAspect.ATTR_LASTPLAYED)),
+              BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
+                  new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.EQ, 0),
+                  new EmptyFilter(MediaAspect.ATTR_PLAYCOUNT)));
 
         // MP2 already knows how to look for words in the library, and it is not "compare the title":
         // BuildSimpleTextSearchQuery asks the database whether any of the short text attributes of the aspects
@@ -697,10 +711,10 @@ namespace MediaPortal.Server.Api
     }
 
     /// <summary>
-    /// The watched filter a request asked for, as the three words this endpoint answers with.
+    /// The watched filter a request asked for, as the words this endpoint answers with.
     /// </summary>
     /// <remarks>
-    /// Anything that is not one of the two named filters means "both", which is also what a misspelling means. A
+    /// Anything that is not one of the three named filters means "both", which is also what a misspelling means. A
     /// front end that asked for <c>seen=unwatched</c> gets <c>unwatched</c> back in the answer, so the difference
     /// between the two readings of a one-row list - a short shelf, or a filter nobody remembers - is a field
     /// rather than a guess.
@@ -711,6 +725,8 @@ namespace MediaPortal.Server.Api
         return "unwatched";
       if (string.Equals(seen, "watched", StringComparison.OrdinalIgnoreCase))
         return "watched";
+      if (string.Equals(seen, "started", StringComparison.OrdinalIgnoreCase))
+        return "started";
       return null;
     }
 

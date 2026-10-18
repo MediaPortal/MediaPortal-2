@@ -1780,6 +1780,21 @@ the *unfiltered* shelf frame row by row gives 46-58 bright pixels on rows one, t
 other row - the three titles the script says were watched to the end, and notably not the one whose last-played
 date came from stopping it halfway, which is the distinction the whole feature turns on. It is committed as
 `docs\multiplatform\screenshots\seen-windows-skia.png`.
+
+The eighth frame is the home screen of a scripted server that holds twelve titles and says four of them were left
+half way (`continue-windows.png`): the strip under the two tiles lists the film whose name alone is known, the
+episode, and two more films, newest stop first, each with its runtime and the date it was stopped, none of them
+carrying the tick that section **ac** introduced. The probe refuses the picture unless those four - and only those
+four - are on the strip in that order, no title is marked watched, both tiles are present, and the server named at
+the top is the scripted one; a wrong endpoint path in the probe once rendered a frame with no server name at all, so
+that condition is now asserted too. Measuring the pixels independently of the probe agrees, and says where the
+strip's columns actually are: a row band holds three ink blocks - a title at `x 61..261`, a short middle column at
+`x 528..595`, and a 172-pixel block at `x 826..997` where a `yyyy-MM-dd HH:mm` date belongs - and sampling that
+column across the whole lower half of the frame finds exactly four bands (peaks of 89, 93, 88 and 102 bright pixels),
+against zero bands in the same column of the home screen drawn against a real empty server. Four dated rows is also
+proof that the merge happened, since the films can only supply three of them and the series one. It is committed as
+`docs\multiplatform\screenshots\continue-windows-skia.png`.
+
 `test-frontend-linux.ps1 -ServeFromHost` starts
 `MP2-Server-Headless` on this machine, waits until it really serves aspects (measured: a just-started server answers
 `200` with an *empty* list, and 25 aspects about a second later), and passes `MP2_SERVER` to the container as
@@ -1792,7 +1807,7 @@ on that platform and not only on Windows), and the image refuses to go green unl
 `populated from`, so the screenshots cannot silently fall back to the offline or the error picture (asking for a
 server and getting no aspects is the probe's own exit 4, so it is refused there rather than re-derived here).
 Without `-ServeFromHost` the run still renders, and the OK line says the frame is the screen's own "no server"
-state. All four frames are committed under `docs\multiplatform\screenshots\` as
+state. Those four frames are committed under `docs\multiplatform\screenshots\` as
 `home-windows-skia.png`, `home-linux-skia.png`, `nowplaying-windows-skia.png` and `nowplaying-linux-skia.png`,
 and the host script refuses a green run whose mount delivered only one of the two Linux frames.
 

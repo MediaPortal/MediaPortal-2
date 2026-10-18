@@ -14,7 +14,7 @@
     5. the same front end aimed at a port nobody listens on must exit 1 and say so, because a check that
        cannot fail is not a check;
     6. while the server is still up, Frontend.RenderProbe draws the real screens through Skia and writes
-       seven PNGs (default build\artifacts\frontend-render\: home, browser, details, search, seen,
+       eight PNGs (default build\artifacts\frontend-render\: home, continue, browser, details, search, seen,
        nowplaying and connect).
        The probe fails this gate if a frame comes back flat; the pictures themselves are for a person, and
        -SkipRender leaves them out.
@@ -290,8 +290,10 @@ try {
       if (-not $RenderDir) { $RenderDir = Join-Path (Join-Path $repoRoot 'build\artifacts') 'frontend-render' }
       New-Item -ItemType Directory -Path $RenderDir -Force | Out-Null
 
-      # Seven screens, seven frames. The home screen is drawn from a server that is really answering; the
-      # playback screen is drawn from a scripted player, because a frame that is supposed to mean the same
+      # Eight screens, eight frames. The home screen is drawn from a server that is really answering; the
+      # continue frame is the same screen of a household that has been watching things, drawn from a scripted
+      # server, because the strip cannot be drawn from an empty database; the playback screen is drawn from a
+      # scripted player, because a frame that is supposed to mean the same
       # thing on Windows and in a container cannot depend on what a decoder happened to decode; the title
       # list is drawn from a scripted page of films, for the same reason - the gate's database is empty; the
       # details frame is that same list with the info key pressed, because a panel that only works when
@@ -303,6 +305,7 @@ try {
       # thing a viewer who has never pointed the front end at a server sees.
       $frames = @(
         @{ Name = 'home-windows'; Arguments = '--server "' + $ServerUrl + '"' },
+        @{ Name = 'continue-windows'; Arguments = '--screen continue' },
         @{ Name = 'browser-windows'; Arguments = '--screen browser' },
         @{ Name = 'details-windows'; Arguments = '--screen details' },
         @{ Name = 'search-windows'; Arguments = '--screen search' },

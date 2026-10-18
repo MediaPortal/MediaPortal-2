@@ -1256,6 +1256,78 @@ namespace Tests.Server.Api
       Assert.That(result.Sort, Is.EqualTo("lastplayed descending"));
     }
 
+    [Test]
+    public void AListLeftHalfWayAsksForATitleThatWasOpenedButNotFinished()
+    {
+      List<MediaItemQuery> asked;
+      List<IFilter> counted;
+      IMediaLibrary library = WatchedLibrary(new List<MediaItem>(), 5, out asked, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      MediaController.TitlesResult result =
+          GetTitles(library, "MovieItem", null, null, 0, 0, null, "started", out action);
+
+      BooleanCombinationFilter combined = (BooleanCombinationFilter) asked[0].Filter;
+      Assert.That(combined.Operator, Is.EqualTo(BooleanOperator.And),
+          "two conditions have to hold at once, or the list is one of the two the viewer did not ask for");
+      Assert.That(result.Seen, Is.EqualTo("started"));
+
+      NotFilter opened = combined.Operands.OfType<NotFilter>().Single();
+      EmptyFilter date = (EmptyFilter) opened.InnerFilter;
+      Assert.That(date.AttributeType, Is.SameAs(MediaAspect.ATTR_LASTPLAYED),
+          "somebody has to have opened it - without this half, every film nobody ever touched turns up as \"you "
+          + "left it half way\", which is the whole shelf wearing a different name");
+
+      BooleanCombinationFilter notFinished = combined.Operands.OfType<BooleanCombinationFilter>().Single();
+      Assert.That(notFinished.Operator, Is.EqualTo(BooleanOperator.Or));
+
+      RelationalFilter zero = notFinished.Operands.OfType<RelationalFilter>().Single();
+      Assert.That(zero.AttributeType, Is.SameAs(MediaAspect.ATTR_PLAYCOUNT));
+      Assert.That(zero.Operator, Is.EqualTo(RelationalOperator.EQ));
+      Assert.That(zero.FilterValue, Is.EqualTo(0),
+          "and nothing was ever counted as finished - a watched film keeps its last-played date behind it, so "
+          + "without this half the strip would tell the viewer to sit down and watch again a film they finished");
+
+      EmptyFilter nothing = notFinished.Operands.OfType<EmptyFilter>().Single();
+      Assert.That(nothing.AttributeType, Is.SameAs(MediaAspect.ATTR_PLAYCOUNT),
+          "again the NULL half: a title whose play count was never written was not finished either");
+    }
+
+    [Test]
+    public void AListLeftHalfWayIsCountedThroughItsOwnQuestion()
+    {
+      List<MediaItemQuery> asked;
+      List<IFilter> counted;
+      IMediaLibrary library = WatchedLibrary(new List<MediaItem>(), 3, out asked, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      GetTitles(library, "MovieItem", "lastplayed", "desc", 8, 0, null, "started", out action);
+
+      Assert.That(counted, Has.Count.EqualTo(1));
+      Assert.That(counted[0], Is.SameAs(asked[0].Filter),
+          "the home screen says how many titles it found; counting the whole shelf behind that number would be a "
+          + "\"3 titles left half way\" over a library of four thousand");
+    }
+
+    [Test]
+    public void AWordAndAHalfWayFilterAreAskedAsOneQuestion()
+    {
+      List<Question> questions;
+      List<IFilter> counted;
+      IMediaLibrary library = SearchingLibrary(new List<MediaItem>(), 1, out questions, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      GetTitles(library, "MovieItem", null, null, 0, 0, "alien", "started", out action);
+
+      Assert.That(questions, Has.Count.EqualTo(1));
+      Assert.That(questions[0].Words, Is.EqualTo("alien"));
+
+      BooleanCombinationFilter extra = (BooleanCombinationFilter) questions[0].Extra;
+      Assert.That(extra, Is.Not.Null);
+      Assert.That(extra.Operands.OfType<NotFilter>().Any(), Is.True,
+          "searching among the titles left half way keeps both halves of the watched question");
+    }
+
     #endregion
   }
 }

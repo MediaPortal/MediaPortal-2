@@ -69,6 +69,53 @@
       </ListBox.ItemTemplate>
     </ListBox>
 
+    <!-- What somebody left half way. Between the tiles and the buttons because it is the only thing here that is
+         about tonight rather than about the library in general, and below the tiles because the tiles are still
+         what somebody came to look at. It is off screen when there is nothing in it - see HomeViewModel, which
+         keeps the heading up when a part of the library refused to answer, so that an empty shelf and a silent
+         server do not look the same. -->
+    <StackPanel Name="unfinishedPanel"
+                DockPanel.Dock="Top"
+                IsVisible="{Binding HasUnfinished}"
+                Spacing="4"
+                Margin="0,0,0,18">
+      <StackPanel Orientation="Horizontal" Spacing="14">
+        <TextBlock Text="Left half way"
+                   FontSize="22"
+                   FontWeight="SemiBold" />
+        <TextBlock Text="{Binding UnfinishedStatus}"
+                   FontSize="14"
+                   Opacity="0.55"
+                   VerticalAlignment="Center" />
+      </StackPanel>
+      <ListBox Name="unfinishedList"
+               Focusable="True"
+               ItemsSource="{Binding Unfinished}"
+               FontSize="20"
+               MaxHeight="240"
+               Background="Transparent"
+               BorderThickness="0">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="vm:TitleViewModel">
+            <Grid ColumnDefinitions="1.6*,1*,1.4*" ColumnSpacing="16" MinWidth="640" Margin="0,2">
+              <TextBlock Grid.Column="0"
+                         Text="{Binding Line}"
+                         TextTrimming="CharacterEllipsis" />
+              <TextBlock Grid.Column="1"
+                         Text="{Binding Detail}"
+                         Opacity="0.55"
+                         TextTrimming="CharacterEllipsis" />
+              <!-- The time the server says this title was last opened, which is the row's claim to be on this
+                   strip at all. -->
+              <TextBlock Grid.Column="2"
+                         Text="{Binding LastPlayedText}"
+                         Opacity="0.7" />
+            </Grid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </StackPanel>
+
     <!-- The two things a viewer can do from the home screen: ask the server again, and open what is playing.
          The playback button is only there when the application has a player to show (see App), so a machine
          without libVLC does not get a button that leads to a screen that cannot play anything. -->

@@ -61,7 +61,7 @@ namespace FrontendProbe
   public static class RenderProbe
   {
     private const string USAGE =
-        "Frontend.RenderProbe --out <file.png> [--screen <home|nowplaying|connect|browser|details|search|seen>] [--server <url>] [--width <n>] [--height <n>]\n" +
+        "Frontend.RenderProbe --out <file.png> [--screen <home|continue|nowplaying|connect|browser|details|search|seen>] [--server <url>] [--width <n>] [--height <n>]\n" +
         "  --out <file>     where to write the rendered frame (PNG); its directory is created\n" +
         "  --screen <name>  which screen to render (default home)\n" +
         "  --server <url>   render the populated screen by asking this server (otherwise MP2_SERVER,\n" +
@@ -255,6 +255,75 @@ namespace FrontendProbe
 
         window = new HomeWindow(home);
       }
+      else if (screenName.Equals("continue", StringComparison.Ordinal))
+      {
+        if (online)
+          Console.WriteLine("note:     --server belongs to the home screen; the library behind this one is scripted"
+              + " instead, because the gate's server holds no titles on purpose");
+
+        // The home screen of a household that has been watching things: two tiles, and under them the titles that
+        // were started and not finished. Unlike the shelf frames this one reads its content through the whole
+        // path - the screen asks the server for its parts, counts them, and then asks each part what it holds
+        // that was left half way - because the strip is not one answer but a merge of several.
+        home = new HomeViewModel(new ServerApiClient(new Uri("http://127.0.0.1:1/MediaPortal/Server/"),
+            new HttpClient(new ScriptedTitles())));
+        home.RefreshCommand.Execute(null);
+
+        if (!PumpUntil(delegate { return home.Unfinished.Count > 0; }, TimeSpan.FromSeconds(10)))
+        {
+          Console.WriteLine("FAILED:   the strip never filled, so the frame would show an ordinary home screen and"
+              + " prove nothing about the titles left half way.");
+          return 1;
+        }
+        Pump(TimeSpan.FromMilliseconds(300));
+
+        // The frame is refused unless the strip is the answer the script describes. Two of the four rows came from
+        // the other part of the library, and they sit in the middle of the list rather than at its end: that is
+        // the whole point of asking every tile rather than only the first one.
+        string[] expected = { "Salt and Static", "S01E02 - Low Tide", "Northlight", "A Quiet Harbour" };
+        string[] shown = home.Unfinished.Select(row => row.Name).ToArray();
+        if (!shown.SequenceEqual(expected))
+        {
+          Console.WriteLine("FAILED:   the strip holds \"" + string.Join("\", \"", shown)
+              + "\"; expected the four stopped titles newest first, \"" + string.Join("\", \"", expected) + "\".");
+          return 1;
+        }
+        if (home.Unfinished.Any(row => row.Seen))
+        {
+          Console.WriteLine("FAILED:   a row of the strip carries a watched mark; a title that was finished does"
+              + " not belong on a list of things still to watch.");
+          return 1;
+        }
+        if (home.Sections.Count != 2)
+        {
+          Console.WriteLine("FAILED:   " + home.Sections.Count
+              + " tile(s), but the script offers two parts of the library a viewer can watch.");
+          return 1;
+        }
+        if ((home.ServerDescription ?? "").IndexOf("MediaPortal 2 Server", StringComparison.Ordinal) < 0)
+        {
+          // Cheap and specific: every question the home screen asks goes to a different endpoint, and a script
+          // that answers the wrong path still lets the tiles fill up - the screen just quietly has no server to
+          // name at the top. Checked here because that is the one mistake a frame of this screen would not show.
+          Console.WriteLine("FAILED:   the screen never showed the scripted server as \""
+              + home.ServerDescription + "\" - the script answers a path the screen does not ask.");
+          return 1;
+        }
+
+        Console.WriteLine("content:  " + home.UnfinishedStatus + " - tiles: "
+            + string.Join(", ", home.Sections.Select(section => section.Label + " (" + section.CountText + ")")));
+        Console.WriteLine("strip:    " + string.Join(" | ",
+            home.Unfinished.Select(row => row.Name + " - " + row.LastPlayedText)));
+
+        // The playback screen is handed over although the frame never opens it: the strip hides itself on a
+        // machine that cannot start a film, and a picture of a list the viewer cannot act on would be the frame
+        // that lies.
+        window = new HomeWindow(home, delegate
+        {
+          return new NowPlayingWindow(new NowPlayingViewModel(new ScriptedPlayer(),
+              action => Dispatcher.UIThread.Post(action)));
+        });
+      }
       else if (screenName.Equals("connect", StringComparison.Ordinal))
       {
         if (online)
@@ -314,8 +383,8 @@ namespace FrontendProbe
       }
       else
       {
-        return Usage("unknown screen '" + screenName + "'; this probe renders home, nowplaying, connect, browser,"
-            + " details, search or seen.");
+        return Usage("unknown screen '" + screenName + "'; this probe renders home, continue, nowplaying, connect,"
+            + " browser, details, search or seen.");
       }
 
       window.Width = width;
@@ -601,7 +670,7 @@ namespace FrontendProbe
       };
 
       /// <summary>
-      /// Which of the twelve the library was told had been watched to the end: the index into <see cref="NAMES"/>,
+      /// Which of the films the library was told had been watched to the end: the index into <see cref="NAMES"/>,
       /// how often, and when last. Three of twelve is what a shelf looks like after a weekend of television, and it
       /// leaves nine rows to draw the other state.
       /// </summary>
@@ -618,18 +687,84 @@ namespace FrontendProbe
       /// the script because "watched" and "was opened once" are different statements, and a row that shows a tick on
       /// the second one is showing the viewer a film they still have to watch.
       /// </summary>
+      /// <remarks>
+      /// Four of them, on three different weeks, because the home screen's strip promises the most recently stopped
+      /// title first - an order that cannot be seen in a frame holding one row.
+      /// </remarks>
       private static readonly Dictionary<int, DateTime> STOPPED_HALFWAY =
-          new Dictionary<int, DateTime> { { 4, new DateTime(2025, 3, 1, 22, 5, 0) } };
+          new Dictionary<int, DateTime>
+          {
+              { 4, new DateTime(2025, 3, 1, 22, 5, 0) },
+              { 8, new DateTime(2025, 4, 18, 20, 10, 0) },
+              { 10, new DateTime(2025, 4, 22, 18, 45, 0) }
+          };
+
+      /// <summary>
+      /// The series side of the same household. The strip asks every part of the library it offers a tile for, so
+      /// a second aspect is the only way a frame can show what the screen does with answers from two of them: it
+      /// puts them in one list by the date they were stopped, not in two lists by where they came from.
+      /// </summary>
+      private static readonly string[] EPISODES =
+      {
+          "S01E01 - The House at the End", "S01E02 - Low Tide", "S01E03 - The Letters"
+      };
+
+      private static readonly Dictionary<int, (int PlayCount, DateTime LastPlayed)> EPISODES_FINISHED =
+          new Dictionary<int, (int PlayCount, DateTime LastPlayed)>
+          {
+              { 0, (1, new DateTime(2025, 2, 1, 20, 30, 0)) }
+          };
+
+      private static readonly Dictionary<int, DateTime> EPISODES_STOPPED_HALFWAY =
+          new Dictionary<int, DateTime> { { 1, new DateTime(2025, 4, 20, 21, 5, 0) } };
+
+      /// <summary>How many titles the library says each aspect holds, for the tiles on the home screen.</summary>
+      private static readonly Dictionary<string, int> COUNTS =
+          new Dictionary<string, int> { { "MovieItem", 12 }, { "EpisodeItem", 3 }, { "PersonItem", 40 } };
 
       protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
           CancellationToken cancellation)
       {
         string folder = Path.Combine(Path.GetTempPath(), "mp2-render");
+        string path = request.RequestUri!.AbsolutePath;
+
+        // The three questions a home screen asks before it can show a tile: who is there, what parts of a library
+        // is it made of, and how many titles each holds. Answered here for the same reason the titles are: the
+        // gate's server has an empty database on purpose, and a strip of titles left half way cannot be drawn
+        // from one, so the whole screen - tiles, counts and strip - is scripted in the server's own shapes.
+        if (path.Contains("api/serverinfo", StringComparison.Ordinal))
+        {
+          ServerInfo info = new ServerInfo("MediaPortal 2 Server", "2.0.0-probe", ".NET 10.0",
+              "Windows", "x64", "x64", 4711, "2025-04-26T19:00:00Z", "/MediaPortal/Server",
+              new List<string> { "127.0.0.1:1234" }, true, false);
+          return Answer(request, info);
+        }
+
+        if (path.Contains("api/library/aspects", StringComparison.Ordinal))
+        {
+          LibraryAspects aspects = new LibraryAspects(3, new List<MediaAspect>
+          {
+              new MediaAspect(new Guid("00000000-0000-4000-8000-0000000000a1"), "MovieItem", false, false, null,
+                  Array.Empty<AspectAttribute>()),
+              new MediaAspect(new Guid("00000000-0000-4000-8000-0000000000a2"), "EpisodeItem", false, false, null,
+                  Array.Empty<AspectAttribute>()),
+              new MediaAspect(new Guid("00000000-0000-4000-8000-0000000000a3"), "PersonItem", true, false, null,
+                  Array.Empty<AspectAttribute>())
+          });
+          return Answer(request, aspects);
+        }
+
+        if (path.Contains("api/library/count", StringComparison.Ordinal))
+        {
+          string counted = ParameterIn(request.RequestUri.Query, "aspect") ?? "MovieItem";
+          COUNTS.TryGetValue(counted, out int howMany);
+          return Answer(request, new MediaCount(counted, null, howMany));
+        }
 
         // One film read up close, which is what no row of a list has room for. Answered in the shape of
         // GET api/media/items/{id} for whichever id is asked, because the frame is about the panel rather than
         // about a database: the title it opens on is the first of the twelve below.
-        if (request.RequestUri!.AbsolutePath.Contains("api/media/items/", StringComparison.Ordinal))
+        if (path.Contains("api/media/items/", StringComparison.Ordinal))
         {
           MediaItemDetails one = new MediaItemDetails(
               new Guid("00000000-0000-4000-8000-000000000001"), NAMES[0], NAMES[0], 2011, 88,
@@ -641,11 +776,7 @@ namespace FrontendProbe
               "{D3525B2F-7322-430C-87E7-CDA8EBD6EDD2}://" + Path.Combine(folder, NAMES[0] + ".mkv"),
               false, null);
 
-          return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
-          {
-            RequestMessage = request,
-            Content = new StringContent(JsonSerializer.Serialize(one), Encoding.UTF8, "application/json")
-          });
+          return Answer(request, one);
         }
 
         List<MediaTitle> titles = new List<MediaTitle>();
@@ -656,16 +787,27 @@ namespace FrontendProbe
         // question produces.
         string finding = ParameterIn(request.RequestUri.Query, "search");
         string seeing = ParameterIn(request.RequestUri.Query, "seen");
+        string askedAspect = ParameterIn(request.RequestUri.Query, "aspect") ?? "MovieItem";
+        bool episodes = string.Equals(askedAspect, "EpisodeItem", StringComparison.OrdinalIgnoreCase);
+        string[] shelf = episodes ? EPISODES : NAMES;
+        Dictionary<int, (int PlayCount, DateTime LastPlayed)> finishedOn =
+            episodes ? EPISODES_FINISHED : FINISHED;
+        Dictionary<int, DateTime> stoppedOn = episodes ? EPISODES_STOPPED_HALFWAY : STOPPED_HALFWAY;
+
         List<string> matching = new List<string>();
-        foreach (string name in NAMES)
+        foreach (string name in shelf)
         {
           if (finding != null && name.IndexOf(finding, StringComparison.OrdinalIgnoreCase) < 0)
             continue;
 
-          bool finished = FINISHED.ContainsKey(Array.IndexOf(NAMES, name));
+          int scripted = Array.IndexOf(shelf, name);
+          bool finished = finishedOn.ContainsKey(scripted);
+          bool opened = stoppedOn.ContainsKey(scripted) || finished;
           if (seeing == "watched" && !finished)
             continue;
           if (seeing == "unwatched" && finished)
+            continue;
+          if (seeing == "started" && (finished || !opened))
             continue;
 
           matching.Add(name);
@@ -673,26 +815,32 @@ namespace FrontendProbe
 
         for (int i = 0; i < matching.Count; i++)
         {
-          int scripted = Array.IndexOf(NAMES, matching[i]);
-          FINISHED.TryGetValue(scripted, out (int PlayCount, DateTime LastPlayed) viewing);
+          int scripted = Array.IndexOf(shelf, matching[i]);
+          finishedOn.TryGetValue(scripted, out (int PlayCount, DateTime LastPlayed) viewing);
           DateTime? lastPlayed = viewing.PlayCount > 0
               ? viewing.LastPlayed
-              : STOPPED_HALFWAY.TryGetValue(scripted, out DateTime stopped) ? stopped : (DateTime?) null;
+              : stoppedOn.TryGetValue(scripted, out DateTime stopped) ? stopped : (DateTime?) null;
 
           titles.Add(new MediaTitle(
-              new Guid(string.Format("00000000-0000-4000-8000-{0:D12}", scripted + 1)),
+              new Guid(string.Format("00000000-0000-4000-8000-{0:D12}", scripted + 1 + (episodes ? 100 : 0))),
               matching[i], matching[i], 2011 + scripted, 88 + scripted * 3,
               "{D3525B2F-7322-430C-87E7-CDA8EBD6EDD2}://" + Path.Combine(folder, matching[i] + ".mkv"),
               false, viewing.PlayCount, lastPlayed));
         }
 
-        MediaTitles page = new MediaTitles("MovieItem", null, matching.Count, 0, matching.Count, matching.Count,
+        MediaTitles page = new MediaTitles(askedAspect, null, matching.Count, 0, matching.Count, matching.Count,
             "title", titles, null, finding, seeing);
 
+        return Answer(request, page);
+      }
+
+      /// <summary>One scripted answer, in the server's own JSON shape.</summary>
+      private static Task<HttpResponseMessage> Answer<T>(HttpRequestMessage request, T body)
+      {
         return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
         {
           RequestMessage = request,
-          Content = new StringContent(JsonSerializer.Serialize(page), Encoding.UTF8, "application/json")
+          Content = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json")
         });
       }
 
