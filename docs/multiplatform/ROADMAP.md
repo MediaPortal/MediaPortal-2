@@ -1248,14 +1248,17 @@ true - and a gate on one platform alone would have kept saying nothing about it.
 playback screen from a scripted player, so that the frame means the same thing everywhere (a real decoder would
 have been at a different moment on each host, or at none). The Windows gate and the container each write three
 PNGs now - `home-<os>.png`, `nowplaying-<os>.png` and, since section **u**, `connect-<os>.png`, the screen with
-nothing found yet. The playback frame measured 1346 distinct colours and
-11 988 high-contrast edges on Windows and 2148 / 12 024 in the container, both with `status: Playing,
-0:45 / 1:30` - the clock and the half-filled bar drawn by Skia, on both platforms, from the same code.
+nothing found yet. The playback frame measured 1488 distinct colours and 327 691 high-contrast edges on Windows
+and 2282 / 327 711 in the container, both with `status: Playing, 0:45 / 1:30` - the clock and the half-filled bar
+drawn by Skia, on both platforms, from the same code. Those counts are an order of magnitude above the frame this
+screen produced before section **v**, for the reason that the frame now contains a *picture*: the probe pushes
+eight colour bars through `VideoFrameSink`, and `CheckBars` finds them in the captured pixels in the order and the
+colours they were pushed in, which is what turns "a frame counter moved" into "these pixels were drawn".
 
-**What is not here yet.** The picture (above), and anything that would tell the player *what* to play: the API
-still has no endpoint that answers "what can I watch", the sample database holds 0 items, and the front end has
-not asked `/Token` for anything - so the playback screen opens showing "Nothing playing" until the server side
-catches up. No mpv back end, and the DirectShow projects are still in the tree.
+**What is not here yet.** Anything that would tell the player *what* to play: the API still has no endpoint that
+answers "what can I watch", the sample database holds 0 items, and the front end has not asked `/Token` for
+anything - so the playback screen opens showing "Nothing playing" until the server side catches up. No mpv back
+end, and the DirectShow projects are still in the tree.
 
 ### u. The viewer picks a server from a list; typing an address is the fallback
 
@@ -1356,7 +1359,7 @@ process-wide environment variable to find out would have changed the answer for 
 **The third frame.** The render probe gained `--screen connect`, and both front-end gates draw it, so the screen
 that exists to work with *nothing* is also proven to draw on both platforms: `status: Nothing has been saved
 yet. Search the network, or type the address of the MediaPortal server., 0 server(s) listed, saving is not
-offered yet`, 2122 distinct colours and 28 185 high-contrast edges on Windows, 2919 / 28 429 in the container
+offered yet`, 2128 distinct colours and 28 185 high-contrast edges on Windows, 2919 / 28 429 in the container
 (the colour counts differ between platforms because text antialiasing does; the structure of the frame is the
 claim, and the search is switched off inside the probe so that nobody's LAN changes the picture). Both frames
 are committed as `connect-windows-skia.png` and `connect-linux-skia.png`.
@@ -1370,6 +1373,75 @@ same trust model the LAN API has always had. And the container cannot run this g
 route to a host multicast group - so discovery is gated on Windows while the Linux image keeps the same unit
 tests and renders the connect screen with the search switched off (`connect-linux.png`), which is the frame a
 viewer sees before there is anything to show.
+
+### v. The film, on the screen, of a film somebody owns
+
+**The claim, and how it is measured.** `MediaPortal.Frontend.exe --play "<file>" [seconds]` opens a real file in
+the libVLC player, hands its decoded frames to `VideoFrameSink`, and draws them in the Avalonia window behind the
+playback overlay. Measured with the user's own file (`Alien Earth - S01E01 - Nimmerland.mkv`, 665 MB, HEVC in
+Matroska): the front end logged `video: 316 frame(s) of 1920x832 drawn, 345 delivered by the player`, and a
+screenshot of the desktop taken while it ran shows a ship's corridor where the black rectangle used to be. The
+gate that keeps this honest is `scripts\ci\test-player-file.ps1`, which plays a file a person has, reads the
+container with ffprobe, and fails if the engine disagrees with the container about length, tracks, or - since
+this section - the size of the picture.
+
+**Padding is not a black border.** The container says the film is 1920x**804**; the decoder works in 64-line
+blocks and hands over a 1920x**832** frame, and ffprobe's `coded_height` is a third number (808). Drawing the
+buffer draws the padding, which stretches the film by 3.5 % - invisible in a log, obvious in a room. libVLC knows
+both numbers and is the only party that can say which is the film, so `LibVlcPlayer.FitPictureToSource` asks
+`MediaPlayer.Size(0, ref w, ref h)` once per video and tells the sink where the picture stops; the sink keeps
+buffer size and picture size apart (`Width`/`Height` versus `PictureWidth`/`PictureHeight`), and
+`TryCopyLatest` copies rows from the buffer's pitch up to the picture's width, so a padded row and a padded tail
+are both left behind without anyone having to know which one this video had. When the engine declines to answer,
+the whole buffer is picture - the worst a wrong answer can then cost is the stretch it would have cost anyway.
+Three sources now agree on 804: the container, the engine, and the gate.
+
+**A black rectangle and a dark scene look the same in a frame counter,** so the front end measures the picture it
+drew: `picture: mean luminance 7, 729 distinct colour(s) in 48,240 sampled pixels`. A surface that is not being
+written to reports one colour and luminance 0; a scene shot at night reports the numbers above, which is the
+difference between a broken pipeline and a film that is dark at 0:31. The render probe does the same thing with
+real Skia on both platforms and with a *known* picture - eight bars pushed through the sink in a known order -
+and fails if the drawn bars are not those bars in those places and colours (`bars: all eight, in the order they
+were pushed, in the colours they were pushed in`).
+
+**The byte order was wrong, and only a screenshot could show it.** Avalonia handed the surface a
+`WriteableBitmap` whose locked buffer said `Rgba8888` although `Bgra8888` had been asked for. The copy assumed
+blue-first bytes, so red and blue reached the screen traded. The surface now asks the framebuffer what it is,
+swaps when it says `Rgba8888`, and refuses an unknown format with a sentence rather than drawing a guess
+(`VideoSurface.LastFailure`). Measured on Avalonia 12.1.4; the probe's own captured frames came back `Rgba8888`
+too, so this is what the compositor wants rather than a quirk of one control.
+
+**Then the picture path killed the process, and it was worth the week.** Disposing the sink of a *playing*
+player - which is exactly what happens when a window closes - ended in `0xC0000005` inside libVLC, in the
+decoder, with nothing in any log but `avcodec decoder: Using D3D11VA ...`. Two independent faults, found by
+bisecting with a throwaway host:
+
+- The sink unpinned its buffers while a decoder thread could still be writing into them. The addresses handed to
+  an engine point *inside managed arrays*; the moment the pin is gone the collector may move them, and a decoder
+  writing into a moved array is not an exception anybody can catch. The sink now counts the buffers an engine
+  holds (`TryAcquireBufferForWriting` … `EndWrite`), asks its engine to stop through
+  `EngineWillStopWriting`, and only then frees - and if a writer is still in a buffer after half a second it
+  **keeps the pin** and says so (`ReleasedCleanly == false`), because a few megabytes the process will not see
+  again is a cheaper failure than its heap. The same wait guards the resolution-change path, where the old
+  buffers used to be freed under a frame in flight.
+- A memory video output cannot be refused at lock time. With the sink gone, `OnVideoLock` answered the engine
+  with the null it had not asked for, and VLC 3.0.20 takes that as an access violation rather than a dropped
+  frame. The player now keeps a scratch block the size of one agreed picture and gives that to any picture with
+  nowhere to go, tagged so that the unlock and display callbacks know it is not a frame a screen should draw. And
+  the engine is stopped *before* the sink is let go, not after: while `Stop` runs libVLC is still locking the
+  pictures it has in flight, which are the ones that were being refused.
+
+Five runs of the scenario that used to crash every time now exit 0, `ReleasedCleanly=True`, and the whole
+real-file gate is green with the sink disposed mid-play. `Tests.Frontend` is **174**: 12 tests of the sink
+(including the two that reach into the assembly to create the held-buffer state, which the public surface cannot
+produce), 5 of the surface, and the real-file fixture's 9 whenever a file is supplied.
+
+**Two things had to be learned about the test platform to get there.** A `DispatcherTimer` never ticks under
+`Avalonia.Headless.NUnit` (measured over a second of pumping), so `VideoSurface` exposes `DrawNow()` - the work
+the timer does - for tests to drive. And in the headless drawing mode the existing 155 tests insist on, a
+`WriteableBitmap`'s locked buffer does not retain what was written into it, so *colour* claims are made in the
+render probe, which runs real Skia, while the headless tests claim behaviour. A test that asserted colours in the
+headless suite would have been asserting garbage, in the literal sense.
 
 ## What cannot be verified without the user
 

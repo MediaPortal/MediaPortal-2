@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        xmlns:views="using:MediaPortal.Frontend.Views"
         x:Class="MediaPortal.Frontend.Views.NowPlayingWindow"
         x:DataType="vm:NowPlayingViewModel"
         Name="nowPlaying"
@@ -55,20 +56,24 @@
     <Grid RowDefinitions="*,Auto,Auto">
 
       <!--
-        The picture area is an empty black frame in this build: nothing draws video into the front end's own
-        control tree yet, which Phase 3 of the ROADMAP records as the open part of the player work. An empty
-        frame that tells the viewer what the player is doing is the truth; a fake preview would not be.
+        The picture. VideoSurface draws the frames the player hands over and stays empty when there are none - an
+        empty black frame that tells the viewer what the player is doing is the truth, and a fake preview would
+        not be. The state text sits on top of it, because the first seconds of a file are black anyway and a
+        viewer wants to know whether "Starting" means starting.
       -->
       <Border Grid.Row="0"
               Name="videoArea"
               Background="#FF000000"
               BorderBrush="#FF243546"
               BorderThickness="1">
-        <TextBlock Text="{Binding StateText}"
-                   FontSize="22"
-                   Foreground="#FF3D556B"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center"/>
+        <Panel>
+          <views:VideoSurface Name="videoSurface"/>
+          <TextBlock Text="{Binding StateText}"
+                     FontSize="22"
+                     Foreground="#FF3D556B"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Center"/>
+        </Panel>
       </Border>
 
       <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="16" Margin="0,18,0,0">

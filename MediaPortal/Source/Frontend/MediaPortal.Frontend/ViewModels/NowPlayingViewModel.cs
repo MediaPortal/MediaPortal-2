@@ -304,6 +304,25 @@ namespace MediaPortal.Frontend.ViewModels
           : Refuse(_player.LastFailure ?? "this player draws into no window.");
     }
 
+    /// <summary>
+    /// Take the picture as frames instead of as somebody else's window, so that this screen's own
+    /// <see cref="VideoSurface"/> can draw them. Ask before anything is playing: an engine decides how it will
+    /// deliver pictures when a media starts, and a sink offered after that arrives too late to be used.
+    /// </summary>
+    /// <returns>
+    /// True when the frames will come. False means the playback screen has no picture, and says so on its own
+    /// status line - which is a worse screen and a better outcome than a black rectangle that might be a paused
+    /// film.
+    /// </returns>
+    public bool AttachVideo(VideoFrameSink frames)
+    {
+      if (_player == null)
+        return Refuse("no player on this machine.");
+      return _player.AttachTo(frames)
+          ? true
+          : Refuse(_player.LastFailure ?? "this player hands out no pictures.");
+    }
+
     public void Dispose()
     {
       if (_disposed)

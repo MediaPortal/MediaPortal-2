@@ -51,6 +51,12 @@ namespace Tests.Frontend
     public int Volume { get; set; } = 100;
     public bool Muted { get; set; }
 
+    /// <summary>
+    /// What the fake reports for <see cref="IVideoPlayer.Statistics"/>. Settable, so that a test can script the
+    /// one thing no other property can express: a player that says it is playing while nothing decodes.
+    /// </summary>
+    public PlayerStatistics Statistics { get; set; } = PlayerStatistics.None;
+
     /// <summary>False makes <see cref="Open"/> refuse with <see cref="RefuseWith"/>.</summary>
     public bool AcceptsOpen { get; set; } = true;
 
@@ -79,6 +85,23 @@ namespace Tests.Frontend
         LastFailure = "no window was given.";
         return false;
       }
+      LastFailure = null;
+      return true;
+    }
+
+    /// <summary>
+    /// The sink this fake was asked to fill. A test writes pictures into it and then looks at what the screen made
+    /// of them, which is how the drawing half of playback is covered on a host with no video decoder in it.
+    /// </summary>
+    public VideoFrameSink? Frames
+    {
+      get; private set;
+    }
+
+    public bool AttachTo(VideoFrameSink frameSink)
+    {
+      Calls.Add("AttachToFrames");
+      Frames = frameSink;
       LastFailure = null;
       return true;
     }

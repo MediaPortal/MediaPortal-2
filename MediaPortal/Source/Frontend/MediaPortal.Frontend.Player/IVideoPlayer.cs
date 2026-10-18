@@ -121,5 +121,33 @@ namespace MediaPortal.Frontend.Player
     /// (Android's Surface) that is the answer, and an honest one, rather than a handle quietly ignored.
     /// </returns>
     bool AttachTo(nint videoTarget);
+
+    /// <summary>
+    /// Give the pictures to <paramref name="frameSink"/> instead of to a window: the engine decodes into memory
+    /// the sink owns, and whatever reads the sink decides where they end up - a control, a thumbnail, nowhere.
+    /// </summary>
+    /// <returns>
+    /// True when this engine will fill the sink. False, with <see cref="LastFailure"/> explaining, when it cannot
+    /// or when this player already gave its pictures to something else: a window and a sink are two answers to one
+    /// question, and a player that answered both would leave one of them showing a picture it stopped being given.
+    /// A player that handed its pictures to the same sink before answers true again, so a screen that re-attaches
+    /// on every navigation is not punished for it.
+    /// </returns>
+    /// <remarks>
+    /// Ask before <see cref="Open"/>, not after: the engine decides how it will deliver pictures when the media
+    /// starts, and a sink introduced after that is a message delivered too late.
+    /// </remarks>
+    bool AttachTo(VideoFrameSink frameSink);
+
+    /// <summary>
+    /// Frames the engine has counted for the media that is open now. All zeros when nothing is open or when the
+    /// engine does not count - which is why the answer is a value and not a nullable one: "no media" and "no
+    /// counters" both read as nothing, and only the counters' behaviour over time tells them apart.
+    /// </summary>
+    /// <remarks>
+    /// Reading this never starts or stops anything and never throws. See <see cref="PlayerStatistics"/> for why
+    /// a state and a picture need a third thing to compare them with.
+    /// </remarks>
+    PlayerStatistics Statistics { get; }
   }
 }

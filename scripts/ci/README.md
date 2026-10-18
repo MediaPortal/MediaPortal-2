@@ -1698,14 +1698,20 @@ It runs from two gates, twice each, and all four runs show real data. `test-fron
 its server is still up** (item 6 of that script, `-SkipRender` to leave it out, `-RenderDir` to move the output),
 which writes `build\artifacts\frontend-render\home-windows.png` from the populated screen
 (`status: 25 aspects on MediaPortal 2 Server, 25 aspect row(s)`) and `nowplaying-windows.png` from the playback
-screen (`status: Playing, 0:45 / 1:30`, 1346 distinct colours, 11 988 edges).
+screen (`status: Playing, 0:45 / 1:30`, 1488 distinct colours, 327 691 edges). The playback screen's counts went up
+by a factor of twenty-odd when it started drawing a *picture* rather than only text and bars: the probe drives the
+screen through `VideoFrameSink` with eight colour bars pushed in a known order, and `CheckBars` then reads them
+back out of the captured frame - all eight, in that order, in those colours - so a front end that draws a black
+rectangle where the film should be fails this gate instead of passing it with a healthy-looking frame counter.
 `test-frontend-linux.ps1 -ServeFromHost` starts
 `MP2-Server-Headless` on this machine, waits until it really serves aspects (measured: a just-started server answers
 `200` with an *empty* list, and 25 aspects about a second later), and passes `MP2_SERVER` to the container as
 `http://host.docker.internal:55555/MediaPortal/Server` - measured from inside the image to resolve and answer
 `HTTP/1.1 200 OK` / `Server: Microsoft-HTTPAPI/2.0`, while `172.17.0.1` does not connect at all. The frames the
 container writes are then the populated ones too (`3872 distinct colours`, 119 642 bytes for the home screen;
-2148 colours and 24 645 bytes for the playback screen), and the image refuses to go green unless its output says
+2282 colours, 327 711 edges and 25 193 bytes for the playback screen, with `bars: all eight` - the colour bars
+pushed through `VideoFrameSink` are read back out of the frame the Linux Skia drew, so the picture path is proven
+on that platform and not only on Windows), and the image refuses to go green unless its output says
 `populated from`, so the screenshots cannot silently fall back to the offline or the error picture (asking for a
 server and getting no aspects is the probe's own exit 4, so it is refused there rather than re-derived here).
 Without `-ServeFromHost` the run still renders, and the OK line says the frame is the screen's own "no server"

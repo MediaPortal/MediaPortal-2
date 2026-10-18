@@ -41,7 +41,12 @@ namespace MediaPortal.Frontend
         "                   otherwise " + ServerApiClient.DefaultUrl + ")\n" +
         "  --check          read the server and the player, print what was found, exit - without a window\n" +
         "  --discover [sec] ask the network which MediaPortal servers are there, print them, exit.\n" +
-        "                   Listens for <sec> seconds (default 3); the exit code is 0 only if a server answered.";
+        "                   Listens for <sec> seconds (default 3); the exit code is 0 only if a server answered.\n" +
+        "  --play <file> [sec]\n" +
+        "                   open the playback screen and play that file - the same screen and the same transport\n" +
+        "                   the library opens, so a film can be watched before any library exists.\n" +
+        "                   With <sec>, leave after that many seconds and print how many frames the screen drew;\n" +
+        "                   the exit code is 0 only if at least one picture arrived.";
 
     [STAThread]
     public static int Main(string[] args)
@@ -50,6 +55,8 @@ namespace MediaPortal.Frontend
       bool check = false;
       bool discover = false;
       int discoverSeconds = 3;
+      string? playFile = null;
+      int playSeconds = 0;
 
       for (int i = 0; i < args.Length; i++)
       {
@@ -72,6 +79,18 @@ namespace MediaPortal.Frontend
             // wireless network is slower to answer than a cable.
             if (i + 1 < args.Length && int.TryParse(args[i + 1], out int seconds) && seconds > 0)
               discoverSeconds = Math.Min(seconds, 60);
+            break;
+          case "--play":
+            if (i + 1 >= args.Length)
+            {
+              Console.WriteLine("--play needs a file to play.\n" + USAGE);
+              return 2;
+            }
+            playFile = args[++i];
+            // The same optional number of seconds --discover takes, for the same reason: the person who started
+            // it may be a script with a deadline.
+            if (i + 1 < args.Length && int.TryParse(args[i + 1], out int playFor) && playFor > 0)
+              playSeconds = Math.Min(playFor, 3600);
             break;
           case "--help":
           case "-h":
@@ -124,8 +143,37 @@ namespace MediaPortal.Frontend
       bool havePlayer = LibVlcPlayer.TryCreate(out player, out playerReason);
       Console.WriteLine(havePlayer ? "player:   " + player!.EngineDescription : "player:   none - " + playerReason);
 
+      // --play is checked here, where an answer can still be a sentence on a terminal, rather than in a window
+      // that opens to say the same thing. A file that is not there and a machine with no engine are the two ways
+      // this request fails, and both are the caller's mistake to fix.
+      if (playFile != null)
+      {
+        string fullPath;
+        try
+        {
+          fullPath = System.IO.Path.GetFullPath(playFile);
+        }
+        catch (Exception ex)
+        {
+          Console.WriteLine("play:     that is not a usable path - " + ex.Message);
+          return 2;
+        }
+
+        if (!System.IO.File.Exists(fullPath))
+        {
+          Console.WriteLine("play:     there is no file at " + fullPath);
+          return 2;
+        }
+        if (!havePlayer)
+        {
+          Console.WriteLine("play:     this machine has no player to play it with - " + playerReason);
+          return 2;
+        }
+        playFile = fullPath;
+      }
+
       AppBuilder app = BuildAvaloniaApp(() => new App(new HomeViewModel(client), player, settings, null,
-          serverMayBeChanged, serverMayBeChanged && !settings.HasUsableUrl));
+          serverMayBeChanged, serverMayBeChanged && !settings.HasUsableUrl, playFile, playSeconds));
       return app.StartWithClassicDesktopLifetime(args);
     }
 

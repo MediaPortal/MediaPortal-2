@@ -27,6 +27,18 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
+  <!--
+    Playing a file that a person actually watches needs a file that cannot live in a repository, so those tests
+    are not compiled unless somebody asks for them: -p:RealMediaTests=true, which scripts\ci\test-player-file.ps1
+    does after it has checked the file exists. A [TestCase] that skips when its input is missing would keep the
+    suite green while never decoding a frame of video, and "green" is worth nothing if it can be green while
+    nothing video-related has run. Compiled in, a missing file is a failure instead - see the fixture.
+  -->
+  <ItemGroup Condition="'$(RealMediaTests)' != 'true'">
+    <Compile Remove="RealMedia\**" />
+    <None Remove="RealMedia\**" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
     <PackageReference Include="Moq" Version="4.18.1" />

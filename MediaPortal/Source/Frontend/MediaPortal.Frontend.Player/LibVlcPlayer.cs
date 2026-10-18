@@ -1,4 +1,4 @@
-/*
+﻿/*
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -40,10 +40,12 @@ namespace MediaPortal.Frontend.Player
   /// not build a new player per item, which is what the old tree's players tended to encourage.
   /// </para>
   /// <para>
-  /// <b>What is not here.</b> Rendering into a window is implemented for a Win32 HWND only. On Linux the picture
-  /// needs an X11/Wayland window and on Android a Surface, and both are a handle this class cannot validate from
-  /// here; <see cref="AttachTo"/> reports false on those platforms instead of accepting a handle it cannot use.
-  /// Decoding and timing do not need any of that, which is why they are measurable headless on all three.
+  /// <b>What is not here.</b> Drawing into somebody else's window is implemented for a Win32 HWND only. On Linux
+  /// the picture needs an X11/Wayland window and on Android a Surface, and both are a handle this class cannot
+  /// validate from here; <see cref="AttachTo(nint)"/> reports false on those platforms instead of accepting a
+  /// handle it cannot use. Handing the pictures to a <see cref="VideoFrameSink"/> instead needs no platform
+  /// knowledge at all, which is why that is the road the screens take and why it works on all three - and why
+  /// decoding and timing are measurable headless everywhere.
   /// </para>
   /// </remarks>
   public sealed class LibVlcPlayer : IVideoPlayer
@@ -74,6 +76,29 @@ namespace MediaPortal.Frontend.Player
     // anything reports what the engine would do, not silence.
     private int _volume = 100;
     private bool _muted;
+
+    // Where the pictures go, if anywhere: a window handle or a sink, never both. Volatile because the engine's
+    // video thread reads it in the frame callbacks while a screen's thread writes it in AttachTo.
+    private volatile VideoFrameSink? _frameSink;
+    private bool _drawsIntoWindow;
+
+    // A memory video output cannot be refused at the moment it hands over a picture: measured with VLC 3.0.20,
+    // answering its lock callback with the nothing it was not offered is an access violation inside the decoder,
+    // not a dropped frame. So a picture with nowhere to go - the screen is gone, or a sink is being taken away and
+    // the engine refused to stop - is written into this scratch of the player's own instead. It is the size the
+    // engine was last told a picture is, and it is only ever built on that path, which in practice means during a
+    // teardown that is happening anyway.
+    private readonly object _overflowGate = new object();
+    private byte[]? _overflow;
+    private GCHandle _overflowPin;
+    private int _overflowSize;
+    private volatile int _frameBytes;
+
+    /// <summary>
+    /// What the lock callback hands back for a picture that went into the overflow rather than a sink: a number
+    /// outside the range of sink buffer indexes, so that the unlock and display callbacks can tell the two apart.
+    /// </summary>
+    private const int OverflowTag = int.MaxValue - 1;
 
     private LibVlcPlayer(LibVLC libVlc, MediaPlayer player, string engineVersion)
     {
@@ -494,6 +519,12 @@ namespace MediaPortal.Frontend.Player
 
     public bool AttachTo(nint videoTarget)
     {
+      if (_frameSink != null)
+      {
+        Fail("this player already hands its pictures to a frame sink; a window and a sink are two answers "
+             + "to the same question.");
+        return false;
+      }
       if (!OperatingSystem.IsWindows())
       {
         Fail("this build cannot draw into a window on this platform yet; the audio and timing half still runs.");
@@ -502,11 +533,325 @@ namespace MediaPortal.Frontend.Player
       try
       {
         _player.Hwnd = videoTarget;
+        _drawsIntoWindow = true;
         return true;
       }
       catch (VLCException ex)
       {
         return Fail("libVLC refused the window handle: " + ex.Message);
+      }
+    }
+
+    /// <summary>
+    /// Hand this player's pictures to a sink. See <see cref="IVideoPlayer.AttachTo(VideoFrameSink)"/> for what
+    /// the answer means; what follows is how libVLC is persuaded to do it.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// libVLC's memory-output contract is two pairs of callbacks. The format pair is asked "what will you accept,
+    /// and how big?" when the video's size becomes known - answering 0 there is how this class says no - and the
+    /// frame pair is asked per picture: "here is a plane, give me somewhere to write it" and, later, "I have
+    /// shown it". <see cref="VideoFrameSink"/> owns the buffers, so the answer to the first question is three
+    /// pinned arrays and the answer to the second is one of their addresses.
+    /// </para>
+    /// <para>
+    /// <b>Nothing is scaled here, on purpose.</b> The size the sink is given is the size the video is, and a
+    /// screen that wants it smaller draws it smaller - which the compositor does on the graphics card instead of
+    /// copying and resampling a few million bytes on a CPU thread.
+    /// </para>
+    /// </remarks>
+    public bool AttachTo(VideoFrameSink frameSink)
+    {
+      if (frameSink == null)
+        throw new ArgumentNullException(nameof(frameSink));
+
+      if (ReferenceEquals(_frameSink, frameSink))
+        return true;
+      if (_frameSink != null)
+        return Fail("this player already hands its pictures to another sink.");
+      if (_drawsIntoWindow)
+        return Fail("this player draws into a window; a window and a sink are two answers to one question.");
+
+      try
+      {
+        // libVLC reads the format callbacks as the decision to stop using a video output plugin, so these two
+        // calls are the whole of "give me the pictures instead of a window". They are wired once per player: the
+        // format callback is asked again whenever a new media's size becomes known, which is what makes a
+        // resolution change mid-film work without anything here noticing.
+        _player.SetVideoFormatCallbacks(OnVideoFormat, OnVideoCleanup);
+        _player.SetVideoCallbacks(OnVideoLock, OnVideoUnlock, OnVideoDisplay);
+      }
+      catch (VLCException ex)
+      {
+        return Fail("libVLC would not take over its own picture memory: " + ex.Message);
+      }
+      catch (EntryPointNotFoundException ex)
+      {
+        return Fail("this libVLC has no memory video output: " + ex.Message);
+      }
+
+      _frameSink = frameSink;
+
+      // Whoever disposes the sink has to stop this player from writing before the buffers go away, because the
+      // addresses the engine holds point inside arrays belonging to the sink. The sink asks, this class answers;
+      // see VideoFrameSink.EngineWillStopWriting for the hazard that makes this handshake necessary.
+      frameSink.EngineWillStopWriting = StopHandingPicturesOver;
+      return true;
+    }
+
+    /// <summary>
+    /// Stop the engine from writing into a sink's buffers any more, so that the sink can take its memory back.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This stops playback, and it is the only honest way to do the job. The binding refuses to take the callbacks
+    /// back (<c>SetVideoCallbacks(null, ...)</c> throws <see cref="ArgumentNullException"/>), and dropping the
+    /// callbacks here in our own code would not help either: libVLC writes into the buffer address it was handed
+    /// once, at the format callback, and carries on writing there whether or not the lock callback likes the next
+    /// frame. <c>libvlc_media_player_stop</c> is the call that actually tears the video output down, and it waits
+    /// for the threads it owns, which is exactly the guarantee a sink needs before unpinning.
+    /// </para>
+    /// <para>
+    /// Stopping is also the truth of the situation: a player whose picture surface has been destroyed has nothing
+    /// left to show, and running a decoder for an invisible picture would be the odd choice.
+    /// </para>
+    /// <para>
+    /// Must not be called from one of libVLC's own callbacks - it waits for the very threads a callback is running
+    /// on. Both callers (a sink being disposed, and <see cref="Dispose"/>) are threads of the front end.
+    /// </para>
+    /// </remarks>
+    private void StopHandingPicturesOver()
+    {
+      try
+      {
+        _player.Stop();
+      }
+      catch (VLCException)
+      {
+        // libVLC could not stop. The sink's own wait on the writers it still has is what stands between a decoder
+        // and unpinned memory, so a refusal here costs a late handover, not the heap.
+      }
+      catch (ObjectDisposedException)
+      {
+        // The player is already gone, and with it the engine that could have written.
+      }
+
+      // Only now may the sink be let go, and the order is not a detail. While <c>Stop</c> runs libVLC is still
+      // locking and unlocking pictures - measured here, it locks the ones it has in flight on its way out - and a
+      // lock callback with no sink to take the picture is an access violation inside the decoder rather than a
+      // dropped frame. Until this call returns, those pictures keep going into the sink's buffers, which are
+      // alive: the sink is waiting for this method.
+      _frameSink = null;
+    }
+
+    /// <summary>
+    /// libVLC's format callback: agree a pixel format and a size, and say how many buffers it may write at once.
+    /// </summary>
+    /// <remarks>
+    /// "RV24" is four bytes a pixel with blue first on every platform this runs on, which is the byte order a
+    /// screen's BGRA surface wants; agreeing on that here is what keeps a picture from coming out with its red
+    /// and blue swapped, the most reliable way to make a film look like a fever dream.
+    /// </remarks>
+    private uint OnVideoFormat(ref IntPtr opaque, IntPtr chroma, ref uint width, ref uint height,
+                               ref uint pitches, ref uint lines)
+    {
+      opaque = IntPtr.Zero;
+      VideoFrameSink? sink = _frameSink;
+      if (sink == null)
+        return 0;
+
+      if (sink.Allocate((int)width, (int)height, out int stride) == 0)
+        return 0;
+
+      WriteFourCC(chroma, 'R', 'V', '2', '4');
+      pitches = (uint)stride;
+      lines = height;
+
+      // How large one picture is, remembered for the overflow buffer: these two are the numbers libVLC itself was
+      // just given, so they are the only ones it can ever write.
+      _frameBytes = stride * (int)lines;
+
+      FitPictureToSource(sink);
+
+      // One plane: a packed 32-bit picture has nothing else to plan.
+      return 1;
+    }
+
+    /// <summary>
+    /// Cut the padding out of the picture: tell the sink how much of the buffers the film actually fills.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The size libVLC asks a memory output for is the frame the decoder works in, and a codec rounds that up to
+    /// the block it likes - the HEVC of the film this was found with decodes 1920x804 into 1920x832 because 832 is
+    /// a whole number of 64-line coding tree units. libVLC itself knows both numbers, and only it knows which of
+    /// them is the film, so the question is asked here once per video rather than guessed at by rounding.
+    /// </para>
+    /// <para>
+    /// When libVLC declines to answer, or answers with a size that is not inside the buffers, the whole buffer is
+    /// taken to be picture, which is what videos whose height happens to fit need and the most a wrong answer can
+    /// cost: a few percent of stretch, not a crash.
+    /// </para>
+    /// </remarks>
+    private void FitPictureToSource(VideoFrameSink sink)
+    {
+      try
+      {
+        uint sourceWidth = 0;
+        uint sourceHeight = 0;
+        if (!_player.Size(0, ref sourceWidth, ref sourceHeight))
+          return;
+
+        if (sourceWidth == 0 || sourceHeight == 0
+            || sourceWidth == (uint)sink.Width && sourceHeight == (uint)sink.Height)
+          return;
+
+        sink.SetVisibleSize((int)sourceWidth, (int)sourceHeight);
+      }
+      catch (VLCException)
+      {
+        // No answer is an answer of its own, and it means "draw what you were given".
+      }
+    }
+
+    /// <summary>libVLC is finished with this picture memory; let it go and wait to be asked again.</summary>
+    private void OnVideoCleanup(ref IntPtr opaque)
+    {
+      _frameSink?.Abandon();
+    }
+
+    /// <summary>
+    /// libVLC wants to decode a picture: hand it a buffer and remember which, because that number comes back with
+    /// the finished frame.
+    /// </summary>
+    private IntPtr OnVideoLock(IntPtr opaque, IntPtr planes)
+    {
+      VideoFrameSink? sink = _frameSink;
+      if (sink != null && sink.TryAcquireForWriting(out int index, out IntPtr address))
+      {
+        // One plane, so one address to write, at the front of the array libVLC handed over.
+        Marshal.WriteIntPtr(planes, 0, address);
+
+        // The value returned here is handed back to the display callback untouched, and 0 already means "no
+        // buffer" to libVLC - hence the index plus one, which keeps index 0 usable.
+        return new IntPtr(index + 1L);
+      }
+
+      // No screen for this picture. It still has to be told somewhere to put it, so it goes into the player's own
+      // scratch (see _overflow) and the tags below make sure nobody mistakes it for a frame a screen should draw.
+      if (TryOverflowAddress(out IntPtr spare))
+      {
+        Marshal.WriteIntPtr(planes, 0, spare);
+        return new IntPtr(OverflowTag);
+      }
+
+      return IntPtr.Zero;
+    }
+
+    /// <summary>
+    /// A pinned block the size of one picture, for the pictures that have no sink to go to.
+    /// </summary>
+    /// <returns>False only when the memory is not there, or no video size has ever been agreed.</returns>
+    private bool TryOverflowAddress(out IntPtr address)
+    {
+      address = IntPtr.Zero;
+      int bytes = _frameBytes;
+      if (bytes <= 0)
+        return false;
+
+      lock (_overflowGate)
+      {
+        if (_overflowSize != bytes)
+        {
+          if (_overflowPin.IsAllocated)
+            _overflowPin.Free();
+          _overflow = null;
+          _overflowSize = 0;
+
+          try
+          {
+            _overflow = new byte[bytes];
+            _overflowPin = GCHandle.Alloc(_overflow, GCHandleType.Pinned);
+            _overflowSize = bytes;
+          }
+          catch (OutOfMemoryException)
+          {
+            return false;
+          }
+        }
+
+        address = Marshal.UnsafeAddrOfPinnedArrayElement(_overflow!, 0);
+        return true;
+      }
+    }
+
+    /// <summary>
+    /// Which sink buffer a picture was, or -1 when it was one of the ones nobody wanted.
+    /// </summary>
+    private static int SinkIndexOf(IntPtr picture)
+    {
+      long tag = picture.ToInt64();
+      return tag >= 1 && tag <= VideoFrameSink.BufferCount ? (int)tag - 1 : -1;
+    }
+
+    /// <summary>
+    /// libVLC has finished <i>writing</i> a picture. There is nothing to unlock, because the buffer was never
+    /// locked: a screen copies out of it rather than holding it, which is the whole design of
+    /// <see cref="VideoFrameSink"/>. What does happen here is the one thing the sink cannot see for itself - the
+    /// moment a buffer stops being written into, which is what a sink waiting to let its memory go counts on.
+    /// </summary>
+    private void OnVideoUnlock(IntPtr opaque, IntPtr picture, IntPtr planes)
+    {
+      if (SinkIndexOf(picture) >= 0)
+        _frameSink?.EndWrite();
+    }
+
+    /// <summary>The picture libVLC was told about is on screen; it is now the newest one a screen can get.</summary>
+    private void OnVideoDisplay(IntPtr opaque, IntPtr picture)
+    {
+      int index = SinkIndexOf(picture);
+      if (index < 0)
+        return;
+
+      VideoFrameSink? sink = _frameSink;
+      sink?.Finish(index);
+    }
+
+    private static void WriteFourCC(IntPtr where, char first, char second, char third, char fourth)
+    {
+      Marshal.WriteByte(where, 0, (byte)first);
+      Marshal.WriteByte(where, 1, (byte)second);
+      Marshal.WriteByte(where, 2, (byte)third);
+      Marshal.WriteByte(where, 3, (byte)fourth);
+    }
+
+    public PlayerStatistics Statistics
+    {
+      get
+      {
+        Media? media;
+        lock (_gate)
+          media = _media;
+        if (media == null)
+          return PlayerStatistics.None;
+
+        try
+        {
+          // libVLC counts per media rather than per player, and restarts the counters when a new media is set -
+          // which is the lifetime this property promises, so no adjusting is needed here.
+          MediaStats counted = media.Statistics;
+          return new PlayerStatistics(counted.DecodedVideo, counted.LostPictures, counted.DecodedAudio);
+        }
+        catch (VLCException)
+        {
+          return PlayerStatistics.None;
+        }
+        catch (ObjectDisposedException)
+        {
+          // Stop() or Dispose() released the media between the read above and this call. "Nothing is open" is
+          // the truth, and it is a better answer than a crash in a property whose job is to never crash.
+          return PlayerStatistics.None;
+        }
       }
     }
 
@@ -526,9 +871,27 @@ namespace MediaPortal.Frontend.Player
       {
         // Already on our way out; a native refusal here has nowhere to be reported.
       }
+
+      // The engine is stopped, so nothing can write any more: take the picture memory back before the native
+      // objects go, which is the order that leaves a screen holding nothing but its own arrays.
+      StopHandingPicturesOver();
       ReleaseMedia();
       _player.Dispose();
       _libVlc.Dispose();
+
+      // The engine's own cleanup callback has already run by now and let the buffers go; this makes the leaving
+      // final. A screen holding this sink stops being handed pictures rather than being handed ones nobody will
+      // ever write again, and a screen that wants to keep playing builds a sink for the next player.
+      _frameSink?.Release();
+
+      // And the scratch the player kept for the pictures that had no screen to go to.
+      lock (_overflowGate)
+      {
+        if (_overflowPin.IsAllocated)
+          _overflowPin.Free();
+        _overflow = null;
+        _overflowSize = 0;
+      }
     }
 
     private void OnEndReached(object? sender, EventArgs e)
@@ -707,3 +1070,4 @@ namespace MediaPortal.Frontend.Player
     }
   }
 }
+

@@ -17,10 +17,12 @@
 
 using System;
 using System.Collections.Generic;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using MediaPortal.Frontend.Input;
+using MediaPortal.Frontend.Player;
 using MediaPortal.Frontend.ViewModels;
 
 namespace MediaPortal.Frontend.Views
@@ -57,10 +59,29 @@ namespace MediaPortal.Frontend.Views
     }
 
     public NowPlayingWindow(NowPlayingViewModel viewModel)
+        : this(viewModel, null)
+    {
+    }
+
+    /// <summary>
+    /// The playback screen, optionally showing the frames a player is handing over.
+    /// </summary>
+    /// <param name="frames">
+    /// The frames to draw, or null. Null is a normal answer and not a failure to check: it means this machine has
+    /// no player or one that will not hand its pictures over, and the screen then shows its state text in the
+    /// black frame rather than pretending there is a picture behind it.
+    /// </param>
+    public NowPlayingWindow(NowPlayingViewModel viewModel, VideoFrameSink? frames)
     {
       _viewModel = viewModel;
       DataContext = viewModel;
       InitializeComponent();
+
+      // The surface belongs to this window and follows the frames, which belong to the player. Closing the window
+      // therefore stops the drawing and nothing else - the film carries on playing, and the next time this screen
+      // opens it follows the same frames again.
+      videoSurface.Follow(frames);
+      Closed += delegate { videoSurface.Dispose(); };
 
       // Left and right are the transport's seek keys on every remote, so the window takes them before the ring
       // gets them: the d-pad only ever moves between the buttons when the button row is the only thing there,
@@ -92,6 +113,21 @@ namespace MediaPortal.Frontend.Views
               Close();
           },
           RoutingStrategies.Tunnel);
+    }
+
+    /// <summary>
+    /// How many pictures this screen has drawn. Reported by <c>--play</c> when it is asked to leave after a while,
+    /// and read by a test that wants to know a frame really arrived rather than only that a control was built.
+    /// </summary>
+    public long FramesDrawn
+    {
+      get { return videoSurface.FramesDrawn; }
+    }
+
+    /// <summary>The size of the picture on screen, or null while the frame is empty.</summary>
+    public PixelSize? PictureSize
+    {
+      get { return videoSurface.PictureSize; }
     }
 
     private void OnPause(object? sender, RoutedEventArgs e)

@@ -177,6 +177,8 @@ namespace FrontendProbe
       HomeViewModel? home = null;
       ConnectionViewModel? connection = null;
       string playbackStatus = "";
+      VideoFrameSink? frames = null;
+      Func<long>? pictureFrames = null;
 
       if (screenName.Equals("nowplaying", StringComparison.Ordinal))
       {
@@ -199,8 +201,20 @@ namespace FrontendProbe
         player.RaisePosition(45_000, 90_000);
         Pump(TimeSpan.FromMilliseconds(250));
 
+        // A picture, and deliberately not one from a decoder: the frame sink is filled by hand so that the same
+        // bytes arrive at the screen on every host, while still going through the whole road a real film takes -
+        // sink, copy, bitmap, compositor, file. A black rectangle would have proved that the screen draws; this
+        // proves that a film would be visible on it.
+        frames = new VideoFrameSink();
+        if (!TestPattern.Write(frames, 640, 360))
+        {
+          Console.WriteLine("FAILED:   the frame sink refused the test picture, so there is nothing to draw.");
+          return 1;
+        }
+
         playbackStatus = playback.StateText + ", " + playback.PositionText;
-        window = new NowPlayingWindow(playback);
+        window = new NowPlayingWindow(playback, frames);
+        pictureFrames = () => ((NowPlayingWindow)window).FramesDrawn;
       }
       else if (screenName.Equals("home", StringComparison.Ordinal))
       {
@@ -260,6 +274,24 @@ namespace FrontendProbe
       {
         Console.WriteLine("FAILED:   the window never got a size (bounds " + window.Bounds + ").");
         return 1;
+      }
+
+      if (pictureFrames != null)
+      {
+        // The surface pulls the newest picture on a timer, so the picture only reaches the bitmap while the
+        // dispatcher is running. Asking for it before that is what made this check fail on its first run, for no
+        // reason but timing - and it is the reason the pump comes first and the number is read afterwards.
+        PumpUntil(() => pictureFrames() > 0, TimeSpan.FromSeconds(5));
+        long drawn = pictureFrames();
+        Console.WriteLine("picture:  " + drawn + " frame(s) drawn on the screen"
+            + (drawn > 0 ? "" : " - the video surface stayed empty"));
+        if (drawn == 0)
+        {
+          // A playback screen rendered without its picture is a black rectangle, and a gate that called that
+          // green would be measuring the wrong thing entirely.
+          Console.WriteLine("FAILED:   nothing reached the video surface, so this frame has no film in it.");
+          return 1;
+        }
       }
 
       if (online && home != null)
@@ -331,6 +363,22 @@ namespace FrontendProbe
         Console.WriteLine("FAILED:   only " + statistics.Edges
             + " high-contrast edges; text and borders produce thousands, a blank panel produces none.");
         return 1;
+      }
+
+      if (pictureFrames != null)
+      {
+        // The frame counter says a picture arrived, and the colour count says it is not flat. Neither says the
+        // colours are the ones that went in: a film drawn with its red and blue traded is colourful, varied and
+        // wrong, and that is a mistake a count cannot see. So the bars are looked for by name, in order, where
+        // they should be.
+        string? bars = CheckBars(frame);
+        if (bars != null)
+        {
+          Console.WriteLine("bars:     " + bars);
+          Console.WriteLine("FAILED:   the picture on screen is not the picture that was pushed into the sink.");
+          return 1;
+        }
+        Console.WriteLine("bars:     all eight, in the order they were pushed, in the colours they were pushed in");
       }
 
       try
@@ -457,6 +505,26 @@ namespace FrontendProbe
         return videoTarget != 0;
       }
 
+      /// <summary>
+      /// Refused, and the probe does not need it: the pictures for a rendered frame are pushed into the sink by
+      /// the probe itself and handed to the window directly, so no player has to be involved in them. Answering
+      /// true here would suggest this player produced them, which it did not.
+      /// </summary>
+      public bool AttachTo(VideoFrameSink frameSink)
+      {
+        return false;
+      }
+
+      /// <summary>
+      /// Nothing counted. This player exists so that the playback screen's frame means the same thing on every
+      /// host; a frame that carried decoder counters would not mean the same thing twice anywhere, and no screen
+      /// asks for them yet.
+      /// </summary>
+      public PlayerStatistics Statistics
+      {
+        get { return PlayerStatistics.None; }
+      }
+
       public void Dispose()
       {
       }
@@ -503,6 +571,137 @@ namespace FrontendProbe
     /// image: a themed screen has hundreds of colours (anti-aliasing), a few percent of pixels that are not the
     /// background, and thousands of edges where text and borders are.
     /// </summary>
+    /// <summary>
+    /// The test picture's bars as red-green-blue, in the order they were pushed into the sink.
+    /// </summary>
+    private static readonly int[][] BarColors =
+    {
+      new[] { 200, 200, 200 }, new[] { 255, 255, 0 }, new[] { 0, 255, 255 }, new[] { 0, 255, 0 },
+      new[] { 255, 0, 255 }, new[] { 255, 0, 0 }, new[] { 0, 0, 255 }, new[] { 0, 0, 0 }
+    };
+
+    /// <summary>
+    /// Look for the test picture's eight bars on the rendered frame, in the order and the colours they were
+    /// pushed in.
+    /// </summary>
+    /// <returns>
+    /// null when they are all where they should be; a sentence about what was found instead when they are not.
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// A frame counter says a picture arrived and a colour count says it is not flat. Neither of them says the
+    /// colours are the ones that went in, and the likeliest way for a video path to be wrong while both of those
+    /// counts stay green is a picture drawn with red and blue traded - a forest gone to rust, which is as
+    /// colourful as it is wrong. So the bars are looked for by name, along a line through the middle of the
+    /// screen, between the picture's own white borders.
+    /// </para>
+    /// <para>
+    /// Nothing here knows the layout or the scale factor: the compositor may fit the picture wherever it likes.
+    /// What it may not do is change what the picture is.
+    /// </para>
+    /// </remarks>
+    private static string? CheckBars(WriteableBitmap frame)
+    {
+      using ILockedFramebuffer surface = frame.Lock();
+
+      int redOffset;
+      int blueOffset;
+      if (surface.Format == PixelFormat.Rgba8888)
+      {
+        redOffset = 0;
+        blueOffset = 2;
+      }
+      else if (surface.Format == PixelFormat.Bgra8888)
+      {
+        redOffset = 2;
+        blueOffset = 0;
+      }
+      else
+      {
+        return "the frame is " + surface.Format + ", which this check cannot read";
+      }
+
+      int width = surface.Size.Width;
+      int height = surface.Size.Height;
+      int rowBytes = surface.RowBytes;
+      byte[] pixels = new byte[rowBytes * height];
+      Marshal.Copy(surface.Address, pixels, 0, pixels.Length);
+
+      // The middle of the screen first, then a little above and below it: whether a line crosses the picture
+      // depends on the letterboxing, and the letterboxing belongs to the layout, not to this check.
+      string? firstFailure = null;
+      foreach (int y in new[] { height / 2, height * 2 / 5, height * 3 / 5 })
+      {
+        string? failure = CheckOneRow(pixels, rowBytes, width, y, redOffset, blueOffset);
+        if (failure == null)
+          return null;
+        if (firstFailure == null)
+          firstFailure = failure;
+      }
+      return firstFailure ?? "no line to look at";
+    }
+
+    /// <summary>
+    /// One line of the frame: find the picture by its white borders, then ask the eight places between them for
+    /// the colours that should be there.
+    /// </summary>
+    private static string? CheckOneRow(byte[] pixels, int rowBytes, int width, int y, int redOffset,
+                                       int blueOffset)
+    {
+      List<int[]> whiteRuns = new List<int[]>();
+      int runStart = -1;
+      for (int x = 0; x <= width; x++)
+      {
+        bool white = false;
+        if (x < width)
+        {
+          int at = y * rowBytes + x * 4;
+          white = pixels[at + redOffset] >= 240 && pixels[at + 1] >= 240 && pixels[at + blueOffset] >= 240;
+        }
+
+        if (white && runStart < 0)
+          runStart = x;
+        else if (!white && runStart >= 0)
+        {
+          if (x - runStart >= 3)
+            whiteRuns.Add(new[] { runStart, x });
+          runStart = -1;
+        }
+      }
+
+      if (whiteRuns.Count < 2)
+        return "line " + y + " holds no pair of white borders to find the picture by";
+
+      int left = whiteRuns[0][1];
+      int right = whiteRuns[whiteRuns.Count - 1][0];
+      if (right - left < width / 4)
+      {
+        return "the outermost white marks on line " + y + " are " + (right - left)
+            + " pixels apart out of " + width + ", which is a caption, not a picture";
+      }
+
+      int barWidth = (right - left) / BarColors.Length;
+      if (barWidth < 4)
+        return "the bars between the borders on line " + y + " would be " + barWidth + " pixels wide";
+
+      for (int i = 0; i < BarColors.Length; i++)
+      {
+        int x = left + (2 * i + 1) * barWidth / 2;
+        int at = y * rowBytes + x * 4;
+        int red = pixels[at + redOffset];
+        int green = pixels[at + 1];
+        int blue = pixels[at + blueOffset];
+        int[] wanted = BarColors[i];
+        if (Math.Abs(red - wanted[0]) > 24 || Math.Abs(green - wanted[1]) > 24 || Math.Abs(blue - wanted[2]) > 24)
+        {
+          return "bar " + (i + 1) + " of " + BarColors.Length + " on line " + y + " at x=" + x + " is rgb("
+              + red + "," + green + "," + blue + ") instead of rgb(" + wanted[0] + "," + wanted[1] + ","
+              + wanted[2] + ") - the picture between its white borders is not the picture that was pushed";
+        }
+      }
+      return null;
+    }
+
     private static FrameStatistics Measure(WriteableBitmap frame)
     {
       using ILockedFramebuffer surface = frame.Lock();
