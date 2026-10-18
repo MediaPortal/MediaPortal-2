@@ -68,13 +68,42 @@ namespace Tests.Frontend
     public IReadOnlyList<PlaybackTrack> Tracks(TrackKind kind)
     {
       Calls.Add("Tracks:" + kind);
-      return Array.Empty<PlaybackTrack>();
+      return kind == TrackKind.Audio ? Audio : Subtitles;
     }
+
+    /// <summary>What <see cref="IVideoPlayer.Tracks"/> returns for audio. Settable so a media can have tracks.</summary>
+    public IReadOnlyList<PlaybackTrack> Audio { get; set; } = Array.Empty<PlaybackTrack>();
+
+    /// <summary>What <see cref="IVideoPlayer.Tracks"/> returns for subtitles.</summary>
+    public IReadOnlyList<PlaybackTrack> Subtitles { get; set; } = Array.Empty<PlaybackTrack>();
+
+    /// <summary>The id the fake reports as in use. -1 means off, as an engine reports it.</summary>
+    public int CurrentAudioId { get; set; } = -1;
+
+    public int CurrentSubtitleId { get; set; } = -1;
 
     public bool SelectTrack(PlaybackTrack track)
     {
       Calls.Add("SelectTrack:" + track.Id);
+      if (RefusesTrackSelection)
+      {
+        LastFailure = "the player would not switch.";
+        return false;
+      }
+      if (track.Kind == TrackKind.Audio)
+        CurrentAudioId = track.Id;
+      else
+        CurrentSubtitleId = track.Id;
       return true;
+    }
+
+    /// <summary>False makes <see cref="SelectTrack"/> fail, as an engine does with a track it cannot decode.</summary>
+    public bool RefusesTrackSelection { get; set; }
+
+    public int CurrentTrackId(TrackKind kind)
+    {
+      Calls.Add("CurrentTrackId:" + kind);
+      return kind == TrackKind.Audio ? CurrentAudioId : CurrentSubtitleId;
     }
 
     public bool AttachTo(nint videoTarget)

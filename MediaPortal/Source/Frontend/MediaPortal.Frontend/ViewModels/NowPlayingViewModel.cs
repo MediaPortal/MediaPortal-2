@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.CompilerServices;
@@ -77,6 +78,19 @@ namespace MediaPortal.Frontend.ViewModels
     private bool _hasMedia;
     private int _volume = 100;
     private bool _muted;
+
+    private List<PlaybackTrack> _audioTracks = new List<PlaybackTrack>();
+    private List<PlaybackTrack> _subtitleTracks = new List<PlaybackTrack>();
+    private int _realSubtitleCount;
+    private int _audioCurrent = -1;
+    private int _subtitleCurrent = -1;
+
+    /// <summary>
+    /// The entry that switches subtitles off. Id -1 is the engine's own convention for that (see
+    /// <see cref="PlaybackTrack"/>), so the list a viewer picks from and the number the engine gets are the same
+    /// idea rather than two.
+    /// </summary>
+    private static readonly PlaybackTrack SubtitleOff = new PlaybackTrack(TrackKind.Subtitle, -1, "no subtitles");
 
     /// <param name="player">The player to drive, or null for a screen that has no engine on this machine.</param>
     /// <param name="marshal">
@@ -194,6 +208,122 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
+    /// The audio tracks of what is loaded, as the engine named them. Empty before something plays, and empty for
+    /// a media with a single track - which is the same answer, and the reason <see cref="HasTrackChoice"/> exists.
+    /// </summary>
+    public IReadOnlyList<PlaybackTrack> AudioTracks
+    {
+      get { return _audioTracks; }
+    }
+
+    /// <summary>
+    /// The subtitle tracks, with the "no subtitles" entry first: a viewer who wants them back off has to be able
+    /// to reach that too, and a list that only goes one way is a viewer stuck with subtitles.
+    /// </summary>
+    public IReadOnlyList<PlaybackTrack> SubtitleTracks
+    {
+      get { return _subtitleTracks; }
+    }
+
+    /// <summary>True when there is something to pick, which is when a screen shows the track buttons at all.</summary>
+    public bool HasTrackChoice
+    {
+      get { return _audioTracks.Count > 1 || _realSubtitleCount > 1; }
+    }
+
+    /// <summary>e.g. "Sound: eng - English (Original)". The line a screen shows beside the buttons.</summary>
+    public string AudioTrackLine
+    {
+      get { return "Sound: " + Describe(_audioTracks, _audioCurrent); }
+    }
+
+    /// <summary>e.g. "Subtitles: none".</summary>
+    public string SubtitleTrackLine
+    {
+      get { return "Subtitles: " + Describe(_subtitleTracks, _subtitleCurrent); }
+    }
+
+    /// <summary>
+    /// Asks the engine what tracks the loaded media has. Called when a media starts playing, and safe to call
+    /// again after a chapter change; it does nothing when there is no media, so that an idle screen keeps an
+    /// empty list instead of the previous film's tracks.
+    /// </summary>
+    public void ReadTracks()
+    {
+      if (_disposed || _player == null || !_hasMedia)
+        return;
+
+      _audioTracks = new List<PlaybackTrack>(_player.Tracks(TrackKind.Audio));
+      List<PlaybackTrack> subtitles = new List<PlaybackTrack>(_player.Tracks(TrackKind.Subtitle));
+      _realSubtitleCount = subtitles.Count;
+      subtitles.Insert(0, SubtitleOff);
+      _subtitleTracks = subtitles;
+      _audioCurrent = _player.CurrentTrackId(TrackKind.Audio);
+      _subtitleCurrent = _player.CurrentTrackId(TrackKind.Subtitle);
+      Raise();
+    }
+
+    /// <summary>Switches to the next audio track, wrapping around. False when the engine refused.</summary>
+    public bool NextAudioTrack()
+    {
+      return SelectNext(TrackKind.Audio);
+    }
+
+    /// <summary>Switches to the next subtitle, wrapping around through "no subtitles".</summary>
+    public bool NextSubtitleTrack()
+    {
+      return SelectNext(TrackKind.Subtitle);
+    }
+
+    /// <summary>Switches to one of the listed tracks. The engine's answer, with the reason on the status line.</summary>
+    public bool SelectTrack(PlaybackTrack track)
+    {
+      if (_player == null || !_hasMedia)
+        return Refuse("nothing is playing.");
+      if (!_player.SelectTrack(track))
+        return Refuse("the player would not switch to " + track.Label + ".");
+
+      if (track.Kind == TrackKind.Audio)
+        _audioCurrent = track.Id;
+      else
+        _subtitleCurrent = track.Id;
+      Raise();
+      return true;
+    }
+
+    /// <summary>
+    /// Moves one entry along in the list for a kind, from wherever the engine says we are. Wraps, because a
+    /// viewer with four audio tracks should not have to press the button four times to get back to the first.
+    /// </summary>
+    private bool SelectNext(TrackKind kind)
+    {
+      if (_player == null || !_hasMedia)
+        return Refuse("nothing is playing.");
+
+      List<PlaybackTrack> list = kind == TrackKind.Audio ? _audioTracks : _subtitleTracks;
+      int current = kind == TrackKind.Audio ? _audioCurrent : _subtitleCurrent;
+      if (list.Count == 0)
+        return Refuse("this media has no " + (kind == TrackKind.Audio ? "sound tracks." : "subtitles."));
+
+      int at = list.FindIndex(delegate (PlaybackTrack track) { return track.Id == current; });
+      PlaybackTrack wanted = list[(at + 1) % list.Count];
+      return SelectTrack(wanted);
+    }
+
+    /// <summary>The label of the track with <paramref name="current"/> id, or the same wording a picker shows.</summary>
+    private static string Describe(List<PlaybackTrack> tracks, int current)
+    {
+      foreach (PlaybackTrack track in tracks)
+      {
+        if (track.Id == current)
+          return track.Label;
+      }
+      // An engine can name a track it has not listed (a stream it added itself) or report -1 for a kind with no
+      // off entry; "not known" is the truth then, and better than showing the first track as if it were chosen.
+      return current < 0 ? "none" : "not known";
+    }
+
+    /// <summary>
     /// Loads and starts a media. False, with the reason in <see cref="StatusLine"/>, when there is no player or
     /// the engine refused it.
     /// </summary>
@@ -211,6 +341,10 @@ namespace MediaPortal.Frontend.ViewModels
       bool previousHasMedia = _hasMedia;
       _title = ShortName(location);
       _hasMedia = true;
+
+      // The old media's tracks are not this media's tracks. Emptied before the engine is asked, so that a
+      // viewer looking at the screen while a file opens cannot pick a subtitle out of the previous film.
+      ClearTracks();
 
       if (!_player.Open(location))
       {
@@ -339,7 +473,14 @@ namespace MediaPortal.Frontend.ViewModels
 
     private void OnPlayerEvent(object? sender, PlayerStateChangedEventArgs args)
     {
-      _marshal(delegate { DescribeState(args.NewState, null); });
+      _marshal(delegate
+      {
+        DescribeState(args.NewState, null);
+        // A media names its own tracks when it starts, and an engine that was not told them yet reports none, so
+        // the moment to ask is when it reached "Playing" - not on the position events, which come several a second.
+        if (args.NewState == PlayerState.Playing)
+          ReadTracks();
+      });
     }
 
     private void OnPositionChanged(object? sender, PlaybackPositionEventArgs args)
@@ -415,6 +556,15 @@ namespace MediaPortal.Frontend.ViewModels
       _statusLine = reason;
       Raise();
       return false;
+    }
+
+    private void ClearTracks()
+    {
+      _audioTracks = new List<PlaybackTrack>();
+      _subtitleTracks = new List<PlaybackTrack>();
+      _realSubtitleCount = 0;
+      _audioCurrent = -1;
+      _subtitleCurrent = -1;
     }
 
     private void Raise()

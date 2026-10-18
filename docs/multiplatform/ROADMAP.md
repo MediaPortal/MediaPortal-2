@@ -1600,6 +1600,41 @@ functionality with these skins" that can be done honestly; translating the XAML 
 skin that looks like Nereus and works like nothing, because the code behind MPF's attached properties would not
 be there.
 
+### y. Sound and subtitles, because a player with one language is a toy
+
+**The feature.** The playback screen picked nothing before this: a film with a German and an English track played
+whatever the engine chose, and the only way to change it was to leave the media centre. There is now a row under
+the transport keys - `Sound` and `Subtitles`, each with the current choice spelled out beside it - and each button
+moves to the next track of its kind, wrapping. Subtitles cycle through "no subtitles" as one of the entries,
+because the way back is the thing a viewer looks for and cannot find in a list that only goes one way. The row is
+absent for a media that has nothing to choose, which is why the tests, not the screenshot, carry that half.
+
+**One number the seam did not have.** `Tracks(kind)` and `SelectTrack(track)` already existed, so the picking was
+there; what was missing was the answer to "which one is on now", so the seam gained
+`IVideoPlayer.CurrentTrackId(kind)`. Asked rather than remembered by the caller on purpose: a media chooses its own
+default track when it starts, and a screen that marked what the viewer last pressed would mark the wrong row for
+every media nobody touched. libVLC answers it with `AudioTrack`/`Spu` and reports the off entry as -1, which is the
+same convention the seam already promised, so no second vocabulary came in. The engine's track names are kept as
+the engine said them, with the two-letter language in front when the container carries one -
+`eng - Language (eng)`, `Director's commentary` when it does not.
+
+**A hidden area is not an area, and the d-pad had to be told.** The row appears and disappears with the media, and
+the ring that walks the screen with the arrow keys took its `IsVisible` from each button - which says true for a
+button inside a collapsed panel, because it is that control's own answer and not the state of the screen. The
+result was a key press that went to something the viewer could not see, and Avalonia refusing the focus, so the
+remote's key was swallowed at the end of the transport row. `DpadNavigation` now walks the ancestors
+(`EffectivelyVisible`) instead of asking the control alone, and the areas that are not on screen are walked over
+rather than walked into. Two tests pin both halves: with a film that has no tracks, the wrap from the last button
+still lands on `Close`; with a film that has them, `Close` → down is `Sound`, → down is `Subtitles`, → down is
+`Pause`, so the pickers joined the one loop a remote has rather than becoming a second one.
+
+**Where the numbers stand.** `Tests.Frontend` 196 (six of them new: the tracks of a film that started, the off
+entry, the wrap-around, a refusal the engine explains, the second film being asked for its own tracks rather than
+keeping the first one's, and the keys doing nothing while nothing is loaded). The playback screen's rendered frame
+carries the row and is measured with it (`2120 distinct colours, 265 700 high-contrast edges`), and the whole suite
+is green on Windows: **621 tests, 0 failures** across `Canary.Portable` (29), `Tests.Server` (238), `Tests.Client`
+(90), `Tests.Frontend` (196) and `Setup\Tests` (68).
+
 ## What cannot be verified without the user
 
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,

@@ -1748,7 +1748,11 @@ It runs from two gates, twice each, and all four runs show real data. `test-fron
 its server is still up** (item 6 of that script, `-SkipRender` to leave it out, `-RenderDir` to move the output),
 which writes `build\artifacts\frontend-render\home-windows.png` from the populated screen
 (`status: 25 aspects on MediaPortal 2 Server, 25 aspect row(s)`) and `nowplaying-windows.png` from the playback
-screen (`status: Playing, 0:45 / 1:30`, 1488 distinct colours, 327 691 edges). The playback screen's counts went up
+screen (`status: Playing, 0:45 / 1:30`, 2120 distinct colours, 265 700 edges). That frame also carries the sound and
+subtitle row: the scripted player names three sound tracks and two subtitles, so the frame shows what the screen
+does with an engine's own track names - `Sound: eng - Language (eng)` and `Subtitles: no subtitles`, the second
+being the "off" entry the picker starts on because the media had no subtitles selected. A media whose player names
+one track gets no row at all, which is the other half of the behaviour and is what the tests cover. The playback screen's counts went up
 by a factor of twenty-odd when it started drawing a *picture* rather than only text and bars: the probe drives the
 screen through `VideoFrameSink` with eight colour bars pushed in a known order, and `CheckBars` then reads them
 back out of the captured frame - all eight, in that order, in those colours - so a front end that draws a black

@@ -112,6 +112,15 @@ namespace MediaPortal.Frontend.Player
     bool SelectTrack(PlaybackTrack track);
 
     /// <summary>
+    /// The id of the track this player is using for <paramref name="kind"/>, or -1 when that kind is off.
+    /// </summary>
+    /// <remarks>
+    /// Asked, not remembered by the caller: a media can pick its own default track when it starts, so a screen
+    /// that marked what the viewer last chose would mark the wrong row for every media nobody touched.
+    /// </remarks>
+    int CurrentTrackId(TrackKind kind);
+
+    /// <summary>
     /// The native window the engine may draw into: an HWND on Windows, 0 for none. 0 is a supported answer, not
     /// a degraded one - it is how a background transcode or a headless test runs.
     /// </summary>

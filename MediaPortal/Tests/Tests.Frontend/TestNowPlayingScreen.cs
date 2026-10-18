@@ -322,6 +322,135 @@ namespace Tests.Frontend
       screen.Dispose();
     }
 
+    // ---- the tracks a film carries --------------------------------------------------------------------
+
+    [Test]
+    public void AFilmThatStartedNamesItsTracksAndSaysWhichOneIsInUse()
+    {
+      _player.Audio = new PlaybackTrack[]
+      {
+          new PlaybackTrack(TrackKind.Audio, 1, "Language (eng)", "eng"),
+          new PlaybackTrack(TrackKind.Audio, 2, "Language (ger)", "ger")
+      };
+      _player.CurrentAudioId = 2;
+
+      _screen.Play(SomeFile("film.mkv"));
+      Pump();
+
+      Assert.That(_screen.AudioTracks.Count, Is.EqualTo(2));
+      Assert.That(_screen.HasTrackChoice, Is.True);
+      Assert.That(_screen.AudioTrackLine, Is.EqualTo("Sound: ger - Language (ger)"),
+          "the track the engine chose is the one on screen, not the first of the list");
+    }
+
+    [Test]
+    public void SubtitlesCanBeSwitchedOffFromTheList()
+    {
+      _player.Subtitles = new PlaybackTrack[]
+      {
+          new PlaybackTrack(TrackKind.Subtitle, 1, "Language (eng)", "eng")
+      };
+      _player.CurrentSubtitleId = 1;
+
+      _screen.Play(SomeFile("film.mkv"));
+      Pump();
+
+      // The off entry is in the list, so the way back is where a viewer looks for it.
+      Assert.That(_screen.SubtitleTracks.Count, Is.EqualTo(2));
+      Assert.That(_screen.SubtitleTracks[0].Id, Is.EqualTo(-1));
+      Assert.That(_screen.SubtitleTrackLine, Is.EqualTo("Subtitles: eng - Language (eng)"));
+
+      Assert.That(_screen.NextSubtitleTrack(), Is.True);
+      Pump();
+      Assert.That(_player.CurrentSubtitleId, Is.EqualTo(-1), "the engine got the off id");
+      Assert.That(_screen.SubtitleTrackLine, Is.EqualTo("Subtitles: no subtitles"));
+
+      Assert.That(_screen.NextSubtitleTrack(), Is.True);
+      Pump();
+      Assert.That(_player.CurrentSubtitleId, Is.EqualTo(1), "and the next press is back on the only subtitle");
+    }
+
+    [Test]
+    public void SoundCyclesThroughTheTracksAndWrapsAround()
+    {
+      _player.Audio = new PlaybackTrack[]
+      {
+          new PlaybackTrack(TrackKind.Audio, 1, "Language (eng)", "eng"),
+          new PlaybackTrack(TrackKind.Audio, 2, "Language (ger)", "ger"),
+          new PlaybackTrack(TrackKind.Audio, 3, "Director's commentary")
+      };
+      _player.CurrentAudioId = 1;
+
+      _screen.Play(SomeFile("film.mkv"));
+      Pump();
+
+      Assert.That(_screen.NextAudioTrack(), Is.True);
+      Assert.That(_screen.AudioTrackLine, Does.Contain("ger"));
+      Assert.That(_screen.NextAudioTrack(), Is.True);
+      Assert.That(_screen.AudioTrackLine, Does.Contain("Director's commentary"),
+          "a track with no language on it is named the way the engine named it");
+      Assert.That(_screen.NextAudioTrack(), Is.True);
+      Assert.That(_screen.AudioTrackLine, Does.Contain("eng"), "and the fourth press is back at the first");
+    }
+
+    [Test]
+    public void ATrackThePlayerRefusesLeavesItsReasonOnTheScreen()
+    {
+      _player.Audio = new PlaybackTrack[]
+      {
+          new PlaybackTrack(TrackKind.Audio, 1, "Language (eng)", "eng"),
+          new PlaybackTrack(TrackKind.Audio, 2, "Language (ger)", "ger")
+      };
+      _screen.Play(SomeFile("film.mkv"));
+      Pump();
+
+      _player.RefusesTrackSelection = true;
+      Assert.That(_screen.NextAudioTrack(), Is.False);
+      Pump();
+      Assert.That(_screen.StatusLine, Does.Contain("would not switch"));
+      Assert.That(_screen.AudioTrackLine, Does.Contain("none"),
+          "and the line still says what is really playing, not what was asked for");
+    }
+
+    [Test]
+    public void TheNextFilmIsAskedForItsOwnTracks()
+    {
+      _player.Audio = new PlaybackTrack[]
+      {
+          new PlaybackTrack(TrackKind.Audio, 1, "Language (eng)", "eng"),
+          new PlaybackTrack(TrackKind.Audio, 2, "Language (ger)", "ger")
+      };
+      _screen.Play(SomeFile("first.mkv"));
+      Pump();
+      Assert.That(_screen.AudioTracks.Count, Is.EqualTo(2));
+
+      // A single-track film: the picker has nothing to choose, and must not offer the previous film's tracks.
+      _player.Audio = new PlaybackTrack[] { new PlaybackTrack(TrackKind.Audio, 1, "Language (eng)", "eng") };
+      _player.CurrentAudioId = 1;
+      _screen.Play(SomeFile("second.mkv"));
+      Pump();
+
+      Assert.That(_screen.AudioTracks.Count, Is.EqualTo(1));
+      Assert.That(_screen.HasTrackChoice, Is.False, "one sound track is not a choice");
+
+      // Once per media and not once per tick: the position events arrive several a second, and a screen that
+      // asked the engine for its tracks along with them would be spending every one of them on a list nobody
+      // is looking at. Two films, two questions.
+      _player.RaisePosition(10_000, 60_000);
+      _player.RaisePosition(11_000, 60_000);
+      Pump();
+      Assert.That(_player.Calls, Has.Exactly(2).EqualTo("Tracks:Audio"));
+    }
+
+    [Test]
+    public void TrackKeysDoNothingWhenNothingIsLoaded()
+    {
+      Assert.That(_screen.NextAudioTrack(), Is.False);
+      Assert.That(_screen.NextSubtitleTrack(), Is.False);
+      Assert.That(_screen.StatusLine, Does.Contain("nothing is playing"));
+      Assert.That(_screen.HasTrackChoice, Is.False);
+    }
+
     // ---- how things end -------------------------------------------------------------------------------
 
     [Test]

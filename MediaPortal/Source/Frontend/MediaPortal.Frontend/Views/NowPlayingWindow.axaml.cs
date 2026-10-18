@@ -101,7 +101,8 @@ namespace MediaPortal.Frontend.Views
       DpadNavigation.Attach(this, new List<Control>
           {
             pauseButton, backButton, forwardButton, stopButton,
-            volumeDownButton, volumeUpButton, muteButton, closeButton
+            volumeDownButton, volumeUpButton, muteButton, closeButton,
+            audioButton, subtitleButton
           });
 
       // Back closes the screen but changes nothing about the playback. Escape and Backspace are the two keys a
@@ -185,6 +186,16 @@ namespace MediaPortal.Frontend.Views
     private void OnMute(object? sender, RoutedEventArgs e)
     {
       _viewModel.ToggleMute();
+    }
+
+    private void OnNextAudioTrack(object? sender, RoutedEventArgs e)
+    {
+      _viewModel.NextAudioTrack();
+    }
+
+    private void OnNextSubtitleTrack(object? sender, RoutedEventArgs e)
+    {
+      _viewModel.NextSubtitleTrack();
     }
 
     private void OnClose(object? sender, RoutedEventArgs e)

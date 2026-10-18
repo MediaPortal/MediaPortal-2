@@ -33,6 +33,25 @@
       <Setter Property="BorderBrush" Value="#FF63A8FF"/>
       <Setter Property="BorderThickness" Value="3"/>
     </Style>
+    <Style Selector="Button.track">
+      <Setter Property="Background" Value="#FF16212C"/>
+      <Setter Property="Foreground" Value="#FFD3E0EC"/>
+      <Setter Property="BorderBrush" Value="#FF2E4A63"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="Padding" Value="12,6"/>
+      <Setter Property="FontSize" Value="16"/>
+      <Setter Property="Focusable" Value="True"/>
+    </Style>
+    <Style Selector="Button.track:focus /template/ ContentPresenter">
+      <Setter Property="BorderBrush" Value="#FF63A8FF"/>
+      <Setter Property="BorderThickness" Value="2"/>
+    </Style>
+    <Style Selector="TextBlock.trackLabel">
+      <Setter Property="FontSize" Value="16"/>
+      <Setter Property="Foreground" Value="#FFE8EEF4"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+      <Setter Property="Margin" Value="0,0,18,0"/>
+    </Style>
   </Window.Styles>
 
   <DockPanel Margin="48,32">
@@ -53,7 +72,7 @@
                  HorizontalAlignment="Left"/>
     </Border>
 
-    <Grid RowDefinitions="*,Auto,Auto">
+    <Grid RowDefinitions="*,Auto,Auto,Auto">
 
       <!--
         The picture. VideoSurface draws the frames the player hands over and stays empty when there are none - an
@@ -96,6 +115,20 @@
         <Button Name="volumeUpButton" Classes="transport" Content="Vol +" Click="OnVolumeUp"/>
         <Button Name="muteButton" Classes="transport" Content="Mute" Click="OnMute"/>
         <Button Name="closeButton" Classes="transport" Content="Close" Click="OnClose"/>
+      </StackPanel>
+
+      <!--
+        Sound and subtitles, on their own row because a viewer reaches for them once per film and then never
+        again - which is exactly the wrong shape for a row of eight transport keys. Each button moves to the
+        next track and the line beside it says what is now chosen, so the answer arrives without a dialog to
+        close. The row disappears for a media with one track: a button that can only do one thing is noise.
+      -->
+      <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="10" Margin="0,14,0,0"
+                  IsVisible="{Binding HasTrackChoice}">
+        <Button Name="audioButton" Classes="track" Content="Sound" Click="OnNextAudioTrack"/>
+        <TextBlock Text="{Binding AudioTrackLine}" Classes="trackLabel"/>
+        <Button Name="subtitleButton" Classes="track" Content="Subtitles" Click="OnNextSubtitleTrack"/>
+        <TextBlock Text="{Binding SubtitleTrackLine}" Classes="trackLabel"/>
       </StackPanel>
     </Grid>
   </DockPanel>

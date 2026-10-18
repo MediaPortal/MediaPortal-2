@@ -17,9 +17,11 @@
 
 using System;
 using System.Collections.Generic;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.VisualTree;
 
 namespace MediaPortal.Frontend.Input
 {
@@ -125,7 +127,32 @@ namespace MediaPortal.Frontend.Input
       // A hidden area is not an area: the home screen keeps the playback button out of the ring on a machine
       // without a player, but the buttons it does put in can still be disabled by the state of the screen, and
       // Avalonia refuses focus to both kinds.
-      return control.IsVisible && control.IsEnabled && control.Focusable;
+      return control.IsEnabled && control.Focusable && EffectivelyVisible(control);
+    }
+
+    /// <summary>
+    /// Whether <paramref name="control"/> is on screen: visible itself, and inside nothing that is hidden.
+    /// </summary>
+    /// <remarks>
+    /// <c>IsVisible</c> is a control's own answer, so a button inside a collapsed panel still says true - and the
+    /// ring would then hand the focus to something the viewer cannot see, which Avalonia refuses anyway. The
+    /// playback screen's track row is the case this is for: it appears and disappears with the media, and while
+    /// it is away its buttons must be walked over rather than walked into.
+    /// </remarks>
+    private static bool EffectivelyVisible(Control control)
+    {
+      // Avalonia's own IsVisible is a control's own answer, so a button inside a collapsed panel still says
+      // true - and the ring would then hand the focus to something the viewer cannot see, which Avalonia refuses
+      // anyway. The playback screen's track row is the case this is for: it appears and disappears with the
+      // media, and while it is away its buttons must be walked over rather than walked into.
+      Visual? current = control;
+      while (current != null)
+      {
+        if (!current.IsVisible)
+          return false;
+        current = current.GetVisualParent();
+      }
+      return true;
     }
 
     private static int DirectionOf(Key key)

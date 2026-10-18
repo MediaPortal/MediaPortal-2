@@ -268,11 +268,45 @@ namespace Tests.Frontend
       Assert.That(player.TimeInMs, Is.EqualTo(30_000), "left moved the film back");
 
       // Up belongs to the ring, and the ring wraps: from the first button it lands on the last one. A row of
-      // eight buttons that could only be walked in one direction would leave a viewer stuck at the end of it.
+      // buttons that could only be walked in one direction would leave a viewer stuck at the end of it. This
+      // media has no tracks to pick, so the sound and subtitle buttons are hidden - and a hidden button is not
+      // an area, which is why the wrap still lands on Close.
       Assert.That(PressKey(pause, Key.Up), Is.True, "the ring used the key");
       Assert.That(ButtonNamed(window, "closeButton").IsFocused, Is.True,
           "and the focus wrapped to the last button of the row");
       Assert.That(player.TimeInMs, Is.EqualTo(30_000), "while the film did not move at all");
+    }
+
+    [AvaloniaTest]
+    public void TheTrackButtonsAreWalkedAsSoonAsTheFilmHasTracks()
+    {
+      // The two pickers join the same ring rather than a second one, because a remote has one d-pad and a viewer
+      // who presses up from Mute expects to keep walking the screen, not to be told the key does nothing.
+      var player = new FakePlayer();
+      player.Audio = new PlaybackTrack[]
+      {
+          new PlaybackTrack(TrackKind.Audio, 1, "Language (eng)", "eng"),
+          new PlaybackTrack(TrackKind.Audio, 2, "Language (ger)", "ger")
+      };
+      player.CurrentAudioId = 1;
+      NowPlayingWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
+      screen.Play(Film("film.mkv"));
+      Pump();
+
+      Button close = ButtonNamed(window, "closeButton");
+      Assert.That(close.Focus(), Is.True);
+      Pump();
+
+      Assert.That(PressKey(close, Key.Down), Is.True, "the ring took the key past the end of the transport row");
+      Assert.That(ButtonNamed(window, "audioButton").IsFocused, Is.True,
+          "and lands on the sound picker, which the visible track row just put into the ring");
+
+      Assert.That(PressKey(ButtonNamed(window, "audioButton"), Key.Down), Is.True);
+      Assert.That(ButtonNamed(window, "subtitleButton").IsFocused, Is.True, "the next area is the subtitle picker");
+
+      Assert.That(PressKey(ButtonNamed(window, "subtitleButton"), Key.Down), Is.True);
+      Assert.That(ButtonNamed(window, "pauseButton").IsFocused, Is.True,
+          "and one further still wraps to the first button, so the pickers are part of the same loop");
     }
 
     [AvaloniaTest]

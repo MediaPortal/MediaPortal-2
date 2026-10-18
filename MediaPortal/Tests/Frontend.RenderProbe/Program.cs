@@ -571,13 +571,44 @@ namespace FrontendProbe
 
       public IReadOnlyList<PlaybackTrack> Tracks(TrackKind kind)
       {
-        return Array.Empty<PlaybackTrack>();
+        return kind == TrackKind.Audio ? _audio : _subtitles;
       }
 
       public bool SelectTrack(PlaybackTrack track)
       {
-        return false;
+        if (track.Kind == TrackKind.Audio)
+          _audioCurrent = track.Id;
+        else
+          _subtitleCurrent = track.Id;
+        return true;
       }
+
+      public int CurrentTrackId(TrackKind kind)
+      {
+        return kind == TrackKind.Audio ? _audioCurrent : _subtitleCurrent;
+      }
+
+      /// <summary>
+      /// Three sound tracks and two subtitles, one of them with no language on it, which is what a real file
+      /// usually looks like. The playback screen's frame is meant to prove the picker draws what an engine says,
+      /// including the case where an engine says nothing but a name - an empty list would prove only that an
+      /// empty list draws nothing.
+      /// </summary>
+      private readonly List<PlaybackTrack> _audio = new List<PlaybackTrack>
+      {
+          new PlaybackTrack(TrackKind.Audio, 1, "Language (eng)", "eng"),
+          new PlaybackTrack(TrackKind.Audio, 2, "Language (ger)", "ger"),
+          new PlaybackTrack(TrackKind.Audio, 3, "Director's commentary")
+      };
+
+      private readonly List<PlaybackTrack> _subtitles = new List<PlaybackTrack>
+      {
+          new PlaybackTrack(TrackKind.Subtitle, 1, "Language (eng)", "eng"),
+          new PlaybackTrack(TrackKind.Subtitle, 2, "German (forced)")
+      };
+
+      private int _audioCurrent = 1;
+      private int _subtitleCurrent = -1;
 
       public bool AttachTo(nint videoTarget)
       {

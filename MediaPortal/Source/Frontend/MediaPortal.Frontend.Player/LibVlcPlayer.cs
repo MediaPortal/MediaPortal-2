@@ -517,6 +517,19 @@ namespace MediaPortal.Frontend.Player
       }
     }
 
+    public int CurrentTrackId(TrackKind kind)
+    {
+      try
+      {
+        // libVLC reports the off entry as -1, which is the same number the seam promises for "off".
+        return kind == TrackKind.Audio ? _player.AudioTrack : _player.Spu;
+      }
+      catch (VLCException)
+      {
+        return -1;
+      }
+    }
+
     public bool AttachTo(nint videoTarget)
     {
       if (_frameSink != null)
