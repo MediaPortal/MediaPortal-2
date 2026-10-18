@@ -20,6 +20,12 @@
                                                                          "PInvoke":  0,
                                                                          "DrawingPortable":  0
                                                                      },
+                  "MediaPortal\\Source\\Core\\MediaPortal.Server.Api":  {
+                                                                            "WinForms":  0,
+                                                                            "DrawingWindows":  0,
+                                                                            "PInvoke":  0,
+                                                                            "DrawingPortable":  0
+                                                                        },
                   "MediaPortal\\Source\\Core\\UPnP":  {
                                                           "WinForms":  0,
                                                           "DrawingWindows":  0,

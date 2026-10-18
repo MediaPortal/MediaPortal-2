@@ -205,10 +205,17 @@ if (-not $BaselinePath) { $BaselinePath = Join-Path $PSScriptRoot 'spine-baselin
 # and while it is missing a future [DllImport] there would be counted nowhere - MediaPortal.Common
 # references UPnP, so a Windows dependency in UPnP is a Windows dependency in the core. Add the project
 # here the moment a core project starts referencing it.
+#
+# MediaPortal.Server.Api is in the list although no core project references it (nothing in the spine is
+# allowed to know it exists - it references the spine, not the other way round). It is here because the
+# gate is about the target framework, not about the direction of the arrow: the assembly is served over
+# the portable HTTP listener on Linux, so a WinForms type or a [DllImport] in it would be a lie about the
+# API being reachable from every platform, and nothing else in the tree would notice.
 $coreAreas = @(
   'MediaPortal\Source\Core\MediaPortal.Common',
   'MediaPortal\Source\Core\MediaPortal.Utilities',
   'MediaPortal\Source\Core\MediaPortal.Backend',
+  'MediaPortal\Source\Core\MediaPortal.Server.Api',
   'MediaPortal\Source\Core\UPnP'
 )
 

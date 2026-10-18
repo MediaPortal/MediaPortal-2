@@ -26,11 +26,12 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Mvc;
+using MediaPortal.Common;
 using MediaPortal.Common.Services.ResourceAccess.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.SystemResolver;
 
-namespace MediaPortal.Common.Services.ResourceAccess.Api
+namespace MediaPortal.Server.Api
 {
   /// <summary>
   /// What the server is and what it runs on: the first endpoint of the HTTP API that the new front end is
@@ -38,18 +39,19 @@ namespace MediaPortal.Common.Services.ResourceAccess.Api
   /// </summary>
   /// <remarks>
   /// <para>
-  /// The class exists as much for the seam as for the answer. The resource server adds the assembly of every
-  /// registered resource access module as an MVC application part, and <c>ResourceAccessModule</c> lives in
-  /// <c>MediaPortal.Common</c>, so a controller in this assembly is discovered without any further wiring. That
-  /// makes this the smallest possible thing which proves the whole chain works on both HTTP hosts: attribute
-  /// routing below the URL prefix, JSON serialization of a server type, and an MP2 service resolved on an
-  /// ASP.NET Core request thread. The API stays in <c>MediaPortal.Common</c> only while that holds; once it has
-  /// several controllers it should move to a portable project of its own, which is a file move plus one
-  /// <c>AddApplicationPart</c>.
+  /// The endpoint came from <c>MediaPortal.Common</c>, where it had been discovered by accident: the resource
+  /// server searched the assemblies of the registered resource access modules, and one of them lives in that
+  /// assembly. This assembly is searched because the composition root of the server says so, through
+  /// <see cref="MediaPortalServerApi.Register"/>. What it proved then and still proves on every run of the gates
+  /// is the whole chain on both HTTP hosts: attribute routing below the URL prefix, JSON serialization of a
+  /// server type, an MP2 service resolved on an ASP.NET Core request thread, and the same answer from http.sys
+  /// and from the portable listener.
   /// </para>
   /// <para>
-  /// Deliberately <em>not</em> decorated with <see cref="MediaPortalAuthorizeAttribute"/>: that filter asks for
-  /// an identity whose authentication type is <see cref="ResourceServer.MEDIAPORTAL_AUTHENTICATION_TYPE"/>, and
+  /// Deliberately <em>not</em> decorated with
+  /// <see cref="MediaPortal.Common.Services.ResourceAccess.MediaPortalAuthorizeAttribute"/>: that filter asks for
+  /// an identity whose authentication type is
+  /// <see cref="MediaPortal.Common.Services.ResourceAccess.ResourceServer.MEDIAPORTAL_AUTHENTICATION_TYPE"/>, and
   /// the component which hands out such identities - the OAuth token endpoint - belongs to the Owin stack that
   /// only the .NET Framework target of this project still builds. Requiring it here would answer 403 to every
   /// client on every platform. The unauthenticated surface is not new (the resource access module below this
@@ -73,7 +75,8 @@ namespace MediaPortal.Common.Services.ResourceAccess.Api
       public string Name { get; set; }
 
       /// <summary>
-      /// Version of the server's own assembly - the same number the health endpoint reports.
+      /// Version of the assembly serving the request. The API assembly links the same <c>VersionInfo.cs</c> as the
+      /// rest of the server, so this is the number the health endpoint reports as well.
       /// </summary>
       public string Version { get; set; }
 

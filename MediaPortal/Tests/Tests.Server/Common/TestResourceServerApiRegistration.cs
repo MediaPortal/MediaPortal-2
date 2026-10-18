@@ -27,14 +27,17 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using MediaPortal.Common;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
-using MediaPortal.Common.Services.ResourceAccess.Api;
+using MediaPortal.Server.Api;
 using UPnP.Infrastructure.Http;
 
 namespace Tests.Server.Common
@@ -50,6 +53,64 @@ namespace Tests.Server.Common
     public IActionResult Get()
     {
       return Content("probed");
+    }
+  }
+
+  /// <summary>
+  /// A middleware in the same assembly as <see cref="ApiSeamProbeController"/>, standing in for the resource
+  /// access module a plugin registers. It exists so that the rule "the assembly of a registered middleware is
+  /// searched for controllers too" can be tested with both halves in one assembly - which is exactly the shape
+  /// the rule was written for.
+  /// </summary>
+  public class ApiSeamProbeMiddleware
+  {
+    private readonly RequestDelegate _next;
+
+    public ApiSeamProbeMiddleware(RequestDelegate next)
+    {
+      _next = next;
+    }
+
+    public async Task Invoke(HttpContext context)
+    {
+      await _next(context).ConfigureAwait(false);
+    }
+  }
+
+  /// <summary>
+  /// Records the assemblies a composition root declares. It is the only way to see what a call to
+  /// <see cref="MediaPortalServerApi.Register"/> did without building a whole server around it.
+  /// </summary>
+  internal class RecordingResourceServer : IResourceServer
+  {
+    public List<Assembly> ControllerAssemblyTypes { get; } = new List<Assembly>();
+
+    public string AddressIPv4 { get { return "127.0.0.1"; } }
+
+    public int PortIPv4 { get { return 0; } }
+
+    public string AddressIPv6 { get { return null; } }
+
+    public int PortIPv6 { get { return -1; } }
+
+    public void Startup() { }
+
+    public void Shutdown() { }
+
+    public void RestartHttpServers() { }
+
+    public string GetServiceUrl(IPAddress ipAddress)
+    {
+      return "http://127.0.0.1:0";
+    }
+
+    public void AddHttpModule(Type moduleType) { }
+
+    public void RemoveHttpModule(Type moduleType) { }
+
+    public void AddHttpControllerAssembly(Type controllerType)
+    {
+      ControllerAssemblyTypes.Add(controllerType.Assembly);
     }
   }
 
@@ -72,6 +133,8 @@ namespace Tests.Server.Common
       foreach (IDisposable registration in _registrations)
         registration.Dispose();
       _registrations.Clear();
+      if (ServiceRegistration.IsRegistered<IResourceServer>())
+        ServiceRegistration.Remove<IResourceServer>();
     }
 
     private static int GetFreePort()
@@ -143,9 +206,9 @@ namespace Tests.Server.Common
       // The shortcut the resource server has always used: a plugin reached the API by registering a middleware,
       // and its controllers came along with the assembly. The explicit registration must not drop that, or
       // every plugin controller which relies on the shortcut disappears.
-      int port = StartResourceServerLikeEndpoint(new[] { typeof(ResourceAccessModule) }, null);
+      int port = StartResourceServerLikeEndpoint(new[] { typeof(ApiSeamProbeMiddleware) }, null);
 
-      Assert.That(await GetAsync(port, "/MediaPortal/Server/api/serverinfo"), Does.StartWith("200 "));
+      Assert.That(await GetAsync(port, "/MediaPortal/Server/api/probe"), Is.EqualTo("200 probed"));
     }
 
     #endregion
@@ -163,6 +226,31 @@ namespace Tests.Server.Common
       Assert.That(() => server.AddHttpControllerAssembly(typeof(ApiSeamProbeController)), Throws.Nothing,
           "registering the same assembly twice is harmless");
       Assert.That(() => server.AddHttpControllerAssembly(null), Throws.TypeOf<ArgumentNullException>());
+    }
+
+    /// <summary>
+    /// The one line each server's composition root calls, checked against a resource server that records what it
+    /// was handed. The two hosts are covered end to end by the gates, which ask the running server for an
+    /// endpoint that only this assembly serves.
+    /// </summary>
+    [Test]
+    public void TheApiNamesItsOwnAssemblyToTheRegisteredResourceServer()
+    {
+      RecordingResourceServer server = new RecordingResourceServer();
+      ServiceRegistration.Set<IResourceServer>(server);
+
+      MediaPortalServerApi.Register();
+
+      Assert.That(server.ControllerAssemblyTypes, Is.EquivalentTo(new[] { typeof(MediaPortalServerApi).Assembly }));
+    }
+
+    [Test]
+    public void RegisteringTheApiWithoutAResourceServerSaysWhatIsWrong()
+    {
+      // Called in the wrong place in a start sequence, this is the failure a future maintainer sees - a sentence
+      // about the resource server, not a NullReferenceException in a log file.
+      Assert.That(() => MediaPortalServerApi.Register(), Throws.TypeOf<InvalidOperationException>()
+          .With.Message.Contains("resource server"));
     }
 
     #endregion

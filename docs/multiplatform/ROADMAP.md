@@ -35,11 +35,11 @@ Verified 2026-10-18 with `build.ps1 -Solution Server,Client -Ratchet`, `tests.ps
 | Portable-core WinForms / GDI+ references | **0** (83 quarantined in 10 satellite files) | `spine.ps1`, `satellites.ps1` |
 | Portable-core P/Invoke declarations | **73** in 9 files (was 95, then 76; the last three were the Kernel32 waitable timer) - invisible to `CA1416` | `spine.ps1` (P/Invoke column) |
 | `CA1416` call sites, Windows vs Linux | **0** on both hosts, floor 0 (was 196 at the retarget) - the 107 that remained were all in `-windows` assemblies that had lost their platform declaration; see "the floor went to zero" below | build log, `warnings.ps1` on both logs |
-| Unit tests, Windows | 4/4 suites, 357 passed, 0 failed, 0 skipped; a suite whose assembly predates its own sources reports STALE instead of running the old binary | `tests.ps1` |
+| Unit tests, Windows | 4/4 suites, 359 passed, 0 failed, 0 skipped; a suite whose assembly predates its own sources reports STALE instead of running the old binary | `tests.ps1` |
 | Unit tests, Linux (canary) | 31 executed, 0 failed (1 skips: Windows-only), incl. live IPC round trips and XDG autostart | `test-canary-linux.ps1` |
 | Server actually **runs** | **yes on Windows and on Linux** as a headless process. Windows: reaches the Running state, creates the SQLite store, answers UPnP discovery over the network, exits 0 with an error-free log. Linux: reaches the same Running state with 0 `FATAL`, 0 `ERROR` and one `WARN` - the documented note that a container has no FUSE driver. Android is still unmeasured | `run-server-check.ps1`, `test-server-upnp.ps1`, `test-server-run-linux.ps1` |
 | Server **answers HTTP** | **yes on both hosts**, measured with the same probe: `GET /MediaPortal/Server/health` answers `200` with the server's version and the path it was called with - `pathBase=/MediaPortal/Server`, `path=/health` on Windows *and* in the container, because the shared listener now hands requests over in exactly the shape http.sys uses. The gate checks that text, not just the status code | `run-server-check.ps1 -ProbeUrl`, item **l** below |
-| Server **has an HTTP API** | **one endpoint, on both hosts**: `GET /MediaPortal/Server/api/serverinfo` is a discovered MVC controller (the first in this tree) that reads MP2's own settings service on a request thread, and the gates on Windows and in the container both require its content. It is unauthenticated because the token endpoint that would authenticate it is still .NET Framework only | `run-server-check.ps1 -ProbeUrl`, item **m** below |
+| Server **has an HTTP API** | **one endpoint, on both hosts**, in an assembly of its own (`MediaPortal.Server.Api`): `GET /MediaPortal/Server/api/serverinfo` is a discovered MVC controller (the first in this tree) that reads MP2's own settings service on a request thread, and the gates on Windows and in the container both require its content. It is unauthenticated because the token endpoint that would authenticate it is still .NET Framework only | `run-server-check.ps1 -ProbeUrl`, items **m** and **o** below |
 | Server **runs on Linux** | **yes** - `HeadlessServerLauncher: Switching to running state`, item **g**'s goal, measured. The layout assembles, `libe_sqlite3.so` (linux-x64) loads, SQLite 3.53.3 opens the store, the subschemas `MediaPortal-Basis`, `MediaLibrary`, `UserProfileDataManagement` and `ClientManager` are created from their SQL scripts, and the resource server plus two control points and one UPnP server share port 55555 through one listener | `test-server-run-linux.ps1`, items **i**, **j** and **k** below |
 | Database plugin on a portable driver | `SQLiteDatabase` is `net10.0` with `CA1416` as error, no Win32 calls left, and no longer loads a Windows-only interop library: it talks to SQLite through `Microsoft.Data.Sqlite` (SQLite 3.53.3), whose `e_sqlite3` native is copied into the layout per platform | `SQLiteDatabase.csproj`, items **h** and **j** below |
 | Built executables are 64-bit | 5/5 apphosts measure `x64`, managed side `MSIL` | `architecture.ps1` |
@@ -758,6 +758,43 @@ The build found both, which is why the gate builds the whole solution rather tha
 | Windows live server (gate) | both probes with expected content, `Running` state, clean stop |
 | Linux container, fresh image | exit `0`, both probes `200` with expected content, same `Running` state, clean stop - the seam is exercised on the shared listener too, not only on http.sys |
 | Ratchet / spine / packages | `486` findings = baseline, `Spine OK.`, 0 vulnerable packages at `-FailOn Low` |
+
+### o. The API moves into an assembly of its own, because the media library is on the other side of a reference
+
+The second endpoint could not be written where the first one lived. That is the whole reason for this round, and
+it is a fact about the tree rather than a preference:
+
+| Fact | Consequence |
+| --- | --- |
+| `IMediaLibrary` - the API over the media database - is in `MediaPortal.Backend`, and the reference direction is Backend -> Common | A library controller cannot live in `MediaPortal.Common`, because that would mean the core referencing the database layer |
+| `MediaPortal.Common` is also what the client, the plugins and the portable tests reference | The alternative - moving the library API down into the core - would drag the database layer into the client. Not an option either |
+| An assembly holding only controllers registers no HTTP middleware, and the resource server used to decide "search this assembly?" from "did it register middleware?" | So the seam from item **n** had to exist first. It is now used by the thing it was built for |
+
+`MediaPortal.Server.Api` is that assembly: `net10.0` with no platform suffix, `CA1416` as an error, references to
+`MediaPortal.Common` and `MediaPortal.Backend`, and the shared `VersionInfo.cs` linked in - without it the
+endpoint would report version `0.0.0.0` while the health endpoint next door reports the server's version, and the
+gates compare those numbers. `ServerInfoController` moved into it, and `MediaPortalServerApi.Register()` is the
+door: the headless host and the Windows server each call it while they register their services, which is the only
+moment when naming an assembly to MVC is allowed. It cannot be called from `ApplicationCore` - that would be the
+core referencing the API, the same forbidden arrow in the other direction - so the composition roots name it, which
+is also where it belongs: which controllers a process serves is a property of the process.
+
+| Measurement | Value |
+| --- | --- |
+| Controllers the launchers reach | still 1, now through `AddHttpControllerAssembly` rather than by accident |
+| Unit tests | 357 → **359** (a test that the API names its own assembly to the registered resource server, and one that calling it in the wrong order says so in a sentence) |
+| Deployment layout | 17 assemblies, `MediaPortal.Server.Api.dll` among them, without the layout script knowing its name - it publishes the headless host, and the host references the API |
+| Spine | new area `MediaPortal.Server.Api` measured at WinForms 0, GDI+ 0, P/Invoke 0; in the core list although no core project references it, because the list is about target frameworks, not about the direction of an arrow |
+| Ratchet | `486` findings = baseline |
+| Linux container, fresh image | the new project restored, built and published inside the image, and both probes answered `200` with their expected content - the API assembly is portable by measurement, not by the absence of a `-windows` suffix |
+| `GET api/serverinfo` on the live Windows server | `200` with the expected content, served from the new assembly - the existing gate probe became the end-to-end proof that the project, its registration and its deployment all work |
+
+Two smaller things the round produced. The rule "the assembly of a registered middleware is searched too" had to
+stay, because that is how plugin controllers reach the API today - but with the only controller gone from
+`MediaPortal.Common` it was no longer testable against real types, so the fixture now carries a middleware and a
+controller in one assembly and asserts both halves. And `build.ps1 -Solution Server` does not build the test
+projects, which `dotnet test --no-build` revealed by running 4 tests where 12 existed: the gate is `tests.ps1
+-Build`, and `--no-build` is only honest directly after it.
 
 ## Phase 2 - Avalonia front end
 

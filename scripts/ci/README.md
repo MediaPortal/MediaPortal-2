@@ -538,7 +538,11 @@ Since `MediaPortal.Common` references `UPnP`, any Windows dependency added there
 portable core without moving a single number in the gate - the same class of blind spot as `CA1416` never
 seeing a `[DllImport]`. Adding the directory changed every column by 0, which is precisely why the omission
 had survived: a gate that reports nothing looks identical to a gate that checked and found nothing. The
-script now states the rule (a project joins the ledger when a core project references it). Two counting
+script now states the rule (a project joins the ledger when a core project references it), plus one
+deliberate exception: `MediaPortal.Server.Api` is listed although no core project references it - nothing in
+the spine may know that assembly exists - because the ledger is a statement about target frameworks, and an
+assembly served over the portable HTTP listener on Linux has no business hiding a `[DllImport]` from the only
+gate that looks for them. Two counting
 details from the same probe, both of which can produce a confidently wrong number:
 
 * **Decide what a "site" is before quoting a count.** Flipped to `net10.0`, `MediaPortal.Common` reports

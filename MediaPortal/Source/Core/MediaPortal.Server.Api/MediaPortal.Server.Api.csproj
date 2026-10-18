@@ -1,0 +1,58 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    The HTTP API of the server, in an assembly of its own.
+
+    It began as one controller inside MediaPortal.Common, which worked by accident: the resource server adds the
+    assembly of every registered resource access module as an MVC application part, and ResourceAccessModule lives
+    in Common. The accident stopped working at the second controller. The media library is reached through
+    IMediaLibrary, which lives in MediaPortal.Backend, and the reference direction is Backend -> Common - the core
+    must not know the database layer (and the client references the core), so neither of them can host an endpoint
+    that reads the library. An assembly that may reference Backend, that only the server hosts reference, and that
+    contains nothing but controllers is the smallest thing which works.
+
+    This is also what the resource server's own comment asked for - "A separate API host should probably be created
+    with the necessary interfaces". The interfaces half is IResourceServer.AddHttpControllerAssembly; the host half
+    is this assembly plus one call in each server's composition root.
+
+    Rules, all of them cheap to keep and expensive to undo:
+      - net10.0, never a -windows suffix. Every endpoint here is reached from the Linux container through the
+        portable HTTP listener; naming a platform here would make the API Windows-only by declaration.
+      - Data transfer objects out, server types never. MediaItem, MediaItemAspectMetadata and ResourcePath are
+        server-side shapes that are free to change, while the JSON this assembly writes is a contract clients get
+        built against. Each endpoint maps to its own result object.
+      - Nothing but controllers and their DTOs live here. No settings classes, no service registrations - the
+        assembly enters the server through MediaPortalServerApi.Register() and through nothing else.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Library</OutputType>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <RootNamespace>MediaPortal.Server.Api</RootNamespace>
+    <!--
+      CA1416 as an error, like the core assemblies: an API assembly is reached from every platform the server
+      runs on, so a Windows-only call in it is a crash on Linux, not a cosmetic warning.
+    -->
+    <WarningsAsErrors>CA1416</WarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+      The assembly version has to be the server's. GET api/serverinfo reports the version of the assembly it is
+      served from and the gates compare that number with the one the health endpoint reports, so an assembly
+      without the shared version info would answer with 0.0.0.0 and look like a different product.
+    -->
+    <Compile Include="..\MediaPortal.Common\VersionInfo\VersionInfo.cs" Link="Properties\VersionInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      Named explicitly although MediaPortal.Common already brings it transitively through UPnP: this assembly's
+      entire reason to exist is ASP.NET Core, so it says so itself instead of inheriting the fact.
+    -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="..\MediaPortal.Common\MediaPortal.Common.csproj" />
+    <ProjectReference Include="..\MediaPortal.Backend\MediaPortal.Backend.csproj" />
+  </ItemGroup>
+
+</Project>

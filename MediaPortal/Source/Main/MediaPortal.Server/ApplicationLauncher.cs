@@ -47,6 +47,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.UI;
 using MediaPortal.Utilities.Process;
 using MediaPortal.Common.Windows.Imaging;
+using MediaPortal.Server.Api;
 
 [assembly: CLSCompliant(true)]
 namespace MediaPortal.Server
@@ -133,6 +134,11 @@ namespace MediaPortal.Server
 #endif
 
           BackendExtension.RegisterBackendServices();
+
+          // The HTTP API lives in its own assembly - the only one allowed to combine the core with the media
+          // library - and MVC searches just the assemblies named before the resource server builds its pipeline,
+          // which happens when the core services start below.
+          MediaPortalServerApi.Register();
         }
         catch (Exception e)
         {

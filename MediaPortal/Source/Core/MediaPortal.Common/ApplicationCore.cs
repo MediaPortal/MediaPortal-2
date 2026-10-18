@@ -42,7 +42,6 @@ using MediaPortal.Common.Services.Logging;
 using MediaPortal.Common.Services.MediaManagement;
 using MediaPortal.Common.Services.Messaging;
 using MediaPortal.Common.Services.ResourceAccess;
-using MediaPortal.Common.Services.ResourceAccess.Api;
 using MediaPortal.Common.Services.ResourceAccess.ImpersonationService;
 using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Services.Threading;
@@ -212,15 +211,6 @@ namespace MediaPortal.Common
 
       logger.Debug("ApplicationCore: Registering IResourceServer service");
       ServiceRegistration.Set<IResourceServer>(new ResourceServer());
-
-      // Which assemblies MVC searches for API controllers is a decision of the code that composes the
-      // server - it should not be a side effect of which of those assemblies happen to also register HTTP
-      // middleware. The core's own controllers live in this assembly and are declared here, so that they
-      // stay reachable even if the assembly stops registering ResourceAccessModule. (The controllers
-      // themselves only exist where ASP.NET Core does.)
-#if NET5_0_OR_GREATER
-      ServiceRegistration.Get<IResourceServer>().AddHttpControllerAssembly(typeof(ServerInfoController));
-#endif
 
       // Mounting resources into the local file system is done by a file system driver, which is a
       // per-platform technology (Dokan on Windows, FUSE on Linux, nothing on Android). The portable

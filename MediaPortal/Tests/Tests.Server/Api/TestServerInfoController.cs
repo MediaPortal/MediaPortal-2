@@ -36,13 +36,13 @@ using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
-using MediaPortal.Common.Services.ResourceAccess.Api;
 using MediaPortal.Common.Services.ResourceAccess.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.SystemResolver;
+using MediaPortal.Server.Api;
 using UPnP.Infrastructure.Http;
 
-namespace Tests.Server.Common
+namespace Tests.Server.Api
 {
   /// <summary>
   /// Tests for the first endpoint of the HTTP API. The point is not the information it prints but the chain it

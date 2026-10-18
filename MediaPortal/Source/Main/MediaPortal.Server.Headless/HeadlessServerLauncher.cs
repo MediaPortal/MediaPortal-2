@@ -35,6 +35,7 @@ using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Services.Runtime;
+using MediaPortal.Server.Api;
 using MediaPortal.Utilities.Process;
 
 namespace MediaPortal.Server.Headless
@@ -137,6 +138,12 @@ namespace MediaPortal.Server.Headless
         logger.Info("HeadlessServerLauncher: no window, no service controller, no platform upgrades");
         BackendExtension.RegisterBackendServices();
         _backendRegistered = true;
+
+        // The server's HTTP API lives in an assembly of its own, and MVC only searches assemblies that were
+        // named before the resource server built its pipeline - which happens below, when the core services
+        // start. Naming the API here (not in the core, which must not know the API assembly exists) is what
+        // makes the api/... endpoints answer at all.
+        MediaPortalServerApi.Register();
       }
       catch (Exception e)
       {
