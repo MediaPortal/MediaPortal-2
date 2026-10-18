@@ -158,7 +158,7 @@ namespace MediaPortal.Frontend
           // so. The playback screen is the one place that knows a viewing ended; this is the one place that knows
           // which server to say it to.
           _reporter = new PlaybackReporter(_nowPlaying, delegate { return _home.Client; },
-              Console.WriteLine, ForgetReportedTitles);
+              Console.WriteLine, HeardAboutPlayback);
           desktop.Exit += delegate { _reporter?.Dispose(); };
 
           // A title picked on the home screen's "left half way" strip is played by exactly the same code as a
@@ -471,9 +471,33 @@ namespace MediaPortal.Frontend
     /// keeps its old numbers until it is next opened; holding on to every browser screen - any of which can carry
     /// a thousand titles - to keep that one honest is the worse of the two mistakes.
     /// </remarks>
-    private void ForgetReportedTitles(Guid mediaItemId)
+    /// <summary>
+    /// Something was watched and the library took the report, so the screens that might still be describing that
+    /// title from before the film are told what the library now says about it.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The rows are updated from the answer the report itself brought back rather than read again: that answer
+    /// already names the count, the date and the position, so asking a second question at the moment a film ends
+    /// would cost a round trip to learn what has just been said. The strip and the list also keep their order and
+    /// the viewer's place in them, which a refresh would not.
+    /// </para>
+    /// <para>
+    /// The details panel is still dropped, because it says more than those three figures - the title's attributes,
+    /// what is next in its series - and only a read can bring the rest of it up to date.
+    /// </para>
+    /// </remarks>
+    private void HeardAboutPlayback(Guid mediaItemId, MediaPlayback after)
     {
+      bool onList = _lastBrowser != null && _lastBrowser.ApplyPlayback(after);
+      bool onStrip = _home.ApplyPlayback(after);
       _lastBrowser?.ForgetDetails(mediaItemId);
+
+      Console.WriteLine("screens:  " + (!onList && !onStrip
+          ? "nothing on screen was showing that title"
+          : after.Watched
+              ? "the library says it is watched through, and the screens say it too"
+              : "the library says how far it got, and the screens say that too"));
     }
 
     /// <summary>

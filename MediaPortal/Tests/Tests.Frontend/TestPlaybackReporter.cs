@@ -51,7 +51,13 @@ namespace Tests.Frontend
     private NowPlayingViewModel _screen = null!;
     private readonly Queue<Action> _queued = new Queue<Action>();
     private readonly List<string> _said = new List<string>();
-    private readonly List<Guid> _readAgain = new List<Guid>();
+
+    /// <summary>
+    /// What the library said about each title a report was taken for, in the order the reports came back. The
+    /// screens are handed the server's own answer rather than the id alone, so that a row can say what the library
+    /// says instead of working out for itself what a percentage means.
+    /// </summary>
+    private readonly List<MediaPlayback> _answers = new List<MediaPlayback>();
 
     [SetUp]
     public void SetUp()
@@ -59,7 +65,7 @@ namespace Tests.Frontend
       // The fixture is one instance reused for every test, so what a test heard is cleared here rather than
       // trusted to arrive empty: a sentence left over from the previous viewing would be read as this one.
       _said.Clear();
-      _readAgain.Clear();
+      _answers.Clear();
       _queued.Clear();
 
       _player = new FakePlayer();
@@ -133,11 +139,15 @@ namespace Tests.Frontend
 
     private static readonly string ANSWER =
         "{\"id\":\"" + TITLE_ID + "\",\"title\":\"Alien Earth\",\"watched\":false,\"playCount\":3,"
-        + "\"lastPlayed\":\"2026-02-14T22:05:00\"}";
+        + "\"lastPlayed\":\"2026-02-14T22:05:00\",\"resume\":50}";
 
     private PlaybackReporter ReportTo(Func<ServerApiClient?> clients)
     {
-      return new PlaybackReporter(_screen, clients, _said.Add, _readAgain.Add);
+      return new PlaybackReporter(_screen, clients, _said.Add,
+          delegate (Guid mediaItemId, MediaPlayback after)
+          {
+            _answers.Add(after);
+          });
     }
 
     [Test]
@@ -166,7 +176,7 @@ namespace Tests.Frontend
     }
 
     [Test]
-    public async Task AScreenShowingTheTitleIsAskedToReadItAgainOnceTheServerAgrees()
+    public async Task AScreenShowingTheTitleIsToldWhatTheLibraryNowSays()
     {
       PlaybackServer server = new PlaybackServer(HttpStatusCode.OK, ANSWER);
       using (var client = new ServerApiClient(SERVER, new HttpClient(server)))
@@ -175,8 +185,16 @@ namespace Tests.Frontend
         WatchHalfAFilmAndStop();
         await reporter.LastReport!;
 
-        Assert.That(_readAgain, Is.EqualTo(new[] { TITLE_ID }),
-            "the counters the browser showed were moved by this report, so they are the ones to re-read");
+        Assert.That(_answers, Has.Count.EqualTo(1),
+            "the row on screen was moved by this report, so the screen hearing about it is the point");
+        MediaPlayback said = _answers[0];
+        Assert.That(said.Id, Is.EqualTo(TITLE_ID));
+        Assert.That(said.PlayCount, Is.EqualTo(3), "the library's count, not the one the screen inferred");
+        Assert.That(said.Watched, Is.False, "stopped halfway, and the server is the one that says so");
+        Assert.That(said.Resume, Is.EqualTo(50),
+            "the position to come back to travels with the answer, which is why a row can be rewritten from it "
+            + "instead of asking the server what it has just been told");
+        Assert.That(said.LastPlayed, Is.EqualTo(new DateTime(2026, 2, 14, 22, 5, 0)));
       }
     }
 
@@ -195,7 +213,7 @@ namespace Tests.Frontend
         Assert.That(_said[0], Does.Contain("did not take the report"));
         Assert.That(_said[0], Does.Contain("sign in"),
             "the server's sentence, because a report lost in a status code teaches nobody anything");
-        Assert.That(_readAgain, Is.Empty, "nothing changed on the server, so no screen has a reason to ask again");
+        Assert.That(_answers, Is.Empty, "nothing changed on the server, so no screen has a reason to hear about it");
       }
     }
 
@@ -209,7 +227,7 @@ namespace Tests.Frontend
         Assert.That(reporter.LastReport, Is.Null, "there was nothing to start");
         Assert.That(_said, Has.Count.EqualTo(1));
         Assert.That(_said[0], Does.Contain("no server configured"));
-        Assert.That(_readAgain, Is.Empty);
+        Assert.That(_answers, Is.Empty);
       }
     }
 

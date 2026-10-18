@@ -1702,5 +1702,144 @@ namespace Tests.Frontend
     }
 
     #endregion
+
+    #region What a screen does with a viewing the library has just taken
+
+    /// <summary>
+    /// What the server answers a report with, for the tests below. The figures are the library's own, gathered on
+    /// the way back from the report rather than asked for again - which is the whole reason a row can be rewritten
+    /// the moment a film ends instead of waiting for somebody to press Refresh.
+    /// </summary>
+    private static MediaPlayback LibrarySays(TitleViewModel row, int playCount, bool watched, int? resume)
+    {
+      return new MediaPlayback(row.Title.Id, playCount, new DateTime(2026, 2, 14, 22, 5, 0), watched, null, resume);
+    }
+
+    [AvaloniaTest]
+    public void ARowTheViewerJustFinishedSaysSoWithoutWaitingForARefresh()
+    {
+      SeenServer server = new SeenServer();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.OpenCommand.Execute(null);
+      WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SEEN_SHELF.Length; });
+
+      TitleViewModel stopped = browser.Titles.Single(title => title.Name == "Army of Thieves");
+      Assert.That(stopped.Seen, Is.False);
+      Assert.That(stopped.ResumePercent, Is.EqualTo(42));
+
+      int announced = 0;
+      stopped.PropertyChanged += delegate { announced++; };
+      int askedBefore = server.TimesAsked;
+
+      Assert.That(browser.ApplyPlayback(LibrarySays(stopped, 1, true, null)), Is.True);
+
+      Assert.That(stopped.Seen, Is.True, "the tick arrived with the report instead of with a refresh");
+      Assert.That(stopped.SeenMark, Is.EqualTo("\u2713"));
+      Assert.That(stopped.ResumePercent, Is.Null,
+          "and the position went away with it: a title that is finished has nothing left to resume, and a row "
+          + "showing both is describing two viewings at once");
+      Assert.That(stopped.LastPlayedText, Is.EqualTo("2026-02-14 22:05"));
+      Assert.That(announced, Is.EqualTo(1), "the row said so itself, which is what a bound screen has to hear");
+      Assert.That(server.TimesAsked, Is.EqualTo(askedBefore),
+          "and the server was not asked again about something it has just answered");
+    }
+
+    [AvaloniaTest]
+    public void ATitleStoppedAgainKeepsItsRowAndGainsTheNewerFigure()
+    {
+      SeenServer server = new SeenServer();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.OpenCommand.Execute(null);
+      WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SEEN_SHELF.Length; });
+
+      TitleViewModel stopped = browser.Titles.Single(title => title.Name == "Army of Thieves");
+      Assert.That(browser.ApplyPlayback(LibrarySays(stopped, 0, false, 61)), Is.True);
+
+      Assert.That(stopped.ResumePercent, Is.EqualTo(61), "the newer position, because the newer viewing is the "
+          + "one a viewer would be coming back to");
+      Assert.That(stopped.ResumeText, Is.EqualTo("61% watched"));
+      Assert.That(stopped.Seen, Is.False, "stopped again rather than finished, and the library said so");
+    }
+
+    [AvaloniaTest]
+    public void AReportAboutATitleThatIsNotOnThisListChangesNothing()
+    {
+      SeenServer server = new SeenServer();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.OpenCommand.Execute(null);
+      WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SEEN_SHELF.Length; });
+
+      // The ordinary case for a film picked on the home screen's strip while a library list of something else is
+      // open: the report happened, and this list has nothing of it to show.
+      MediaPlayback elsewhere = new MediaPlayback(new Guid("77777777-7777-7777-7777-777777777777"), 1,
+          new DateTime(2026, 2, 14, 22, 5, 0), true, null, null);
+
+      string[] seenBefore = browser.Titles.Where(title => title.Seen).Select(title => title.Name).ToArray();
+      Assert.That(browser.ApplyPlayback(elsewhere), Is.False);
+
+      Assert.That(browser.Titles.Where(title => title.Seen).Select(title => title.Name).ToArray(),
+          Is.EqualTo(seenBefore),
+          "no row of this list was rewritten to agree with a title it is not showing");
+    }
+
+    [AvaloniaTest]
+    public void FinishingAStripTitleTakesItOffTheStrip()
+    {
+      RegisterLibrary(HalfWayShelf());
+      InProcessApi server = StartServer();
+
+      HomeViewModel home = HomeOn(server);
+      Refreshed(home);
+      Assert.That(home.Unfinished.Select(row => row.Name),
+          Is.EqualTo(new[] { "Alien Earth", "Army of Thieves" }));
+
+      TitleViewModel newest = home.Unfinished[0];
+      Assert.That(home.ApplyPlayback(LibrarySays(newest, 1, true, null)), Is.True);
+
+      Assert.That(home.Unfinished.Select(row => row.Name), Is.EqualTo(new[] { "Army of Thieves" }),
+          "a watched-through title is not something left half way, and the strip exists to offer something to go "
+          + "back into");
+      Assert.That(home.UnfinishedStatus, Does.Contain("1 title left half way"),
+          "and the line above the rows counts what is on the strip now");
+      Assert.That(home.HasUnfinished, Is.True, "one row is left, so the strip stays");
+    }
+
+    [AvaloniaTest]
+    public void FinishingTheLastStripTitleTakesTheStripOffTheScreen()
+    {
+      RegisterLibrary(HalfWayShelf());
+      InProcessApi server = StartServer();
+
+      HomeViewModel home = HomeOn(server);
+      Refreshed(home);
+
+      foreach (TitleViewModel row in home.Unfinished.ToArray())
+        Assert.That(home.ApplyPlayback(LibrarySays(row, 1, true, null)), Is.True);
+
+      Assert.That(home.Unfinished, Is.Empty);
+      Assert.That(home.UnfinishedStatus, Is.Empty);
+      Assert.That(home.HasUnfinished, Is.False,
+          "an empty strip takes itself off the screen rather than keeping a heading about nothing");
+    }
+
+    [AvaloniaTest]
+    public void StoppingAStripTitleAgainLeavesItsRowAndMovesItsFigure()
+    {
+      RegisterLibrary(HalfWayShelf());
+      InProcessApi server = StartServer();
+
+      HomeViewModel home = HomeOn(server);
+      Refreshed(home);
+
+      TitleViewModel newest = home.Unfinished[0];
+      Assert.That(home.ApplyPlayback(LibrarySays(newest, 0, false, 61)), Is.True);
+
+      Assert.That(home.Unfinished, Has.Count.EqualTo(2), "still something left half way, so still on the strip");
+      Assert.That(home.Unfinished[0].ResumePercent, Is.EqualTo(61));
+      Assert.That(home.Unfinished[0].ResumeText, Is.EqualTo("61% watched"));
+      Assert.That(home.UnfinishedStatus, Does.Contain("2 titles left half way"));
+    }
+
+    #endregion
   }
 }

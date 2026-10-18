@@ -47,7 +47,7 @@ namespace MediaPortal.Frontend.ViewModels
     private readonly NowPlayingViewModel _screen;
     private readonly Func<ServerApiClient?> _clients;
     private readonly Action<string> _say;
-    private readonly Action<Guid>? _watched;
+    private readonly Action<Guid, MediaPlayback>? _watched;
     private Task? _lastReport;
 
     /// <param name="screen">The playback screen whose reports are carried to the server.</param>
@@ -57,11 +57,12 @@ namespace MediaPortal.Frontend.ViewModels
     /// </param>
     /// <param name="say">Where the outcome goes. The application passes its console.</param>
     /// <param name="watched">
-    /// Told which title the library has just changed its mind about, so that a screen still showing the counters
-    /// from before the film can go and read them again. Only called when the server took the report.
+    /// Told which title the library has just changed its mind about, together with what the library now says about
+    /// it, so that a screen still showing the row from before the film can say the same thing the server says
+    /// rather than guess at it. Only called when the server took the report.
     /// </param>
     public PlaybackReporter(NowPlayingViewModel screen, Func<ServerApiClient?> clients, Action<string> say,
-        Action<Guid>? watched)
+        Action<Guid, MediaPlayback>? watched)
     {
       _screen = screen ?? throw new ArgumentNullException("screen");
       _clients = clients ?? throw new ArgumentNullException("clients");
@@ -118,7 +119,7 @@ namespace MediaPortal.Frontend.ViewModels
             {
               _say("watched:  " + args.Percentage + "% - the library now says it was played "
                   + report.Result.PlayCount + " time(s)");
-              _watched?.Invoke(args.MediaItemId);
+              _watched?.Invoke(args.MediaItemId, report.Result);
             }
           });
     }

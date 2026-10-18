@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,21 +36,70 @@ namespace MediaPortal.Frontend.ViewModels
   /// hundred titles on a machine that can reach only half of them is not a screen that should let the viewer
   /// press their way through the other half to find out.
   /// </remarks>
-  public sealed class TitleViewModel
+  public sealed class TitleViewModel : INotifyPropertyChanged
   {
     private readonly string? _unplayableReason;
+    private MediaTitle _title;
 
     public TitleViewModel(MediaTitle title)
     {
-      Title = title;
+      _title = title;
       if (!MediaLibraryPath.TryAsLocalFile(title.Path, out string localPath, out string? reason))
         _unplayableReason = reason;
       else
         LocalPath = localPath;
     }
 
-    /// <summary>The answer from the server, unchanged.</summary>
-    public MediaTitle Title { get; }
+    /// <summary>
+    /// The answer from the server, with one exception: a viewing reported while this row was on screen is folded
+    /// into it, because the library has just been changed and the row would otherwise be the only place on the
+    /// front end still describing the old state.
+    /// </summary>
+    public MediaTitle Title
+    {
+      get { return _title; }
+      private set
+      {
+        _title = value;
+        Raise();
+      }
+    }
+
+    /// <summary>
+    /// Folds the library's own answer to a playback report into this row.
+    /// </summary>
+    /// <param name="after">
+    /// What the server said when the viewing was reported to it - not what the playback screen thinks it watched,
+    /// which is the difference between a row that agrees with the library and a row that agrees with a guess.
+    /// </param>
+    /// <remarks>
+    /// The tick, the date and the position are all written from that one answer, which is also the only way the
+    /// row can be right about a title the viewer finished: a finished title has no position left to offer, and a
+    /// row that kept showing "42% watched" next to a tick would be describing two different viewings at once.
+    /// </remarks>
+    internal void ApplyPlayback(MediaPlayback after)
+    {
+      Title = _title with
+      {
+        PlayCount = after.PlayCount,
+        LastPlayed = after.LastPlayed,
+        Resume = after.Resume
+      };
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    /// <summary>
+    /// The one notification this row sends: a name of <c>null</c> means "read all of them again", which is what a
+    /// row whose figures moved has to say, since the tick, the date and the position are all derived from the same
+    /// answer.
+    /// </summary>
+    private static readonly PropertyChangedEventArgs AllProperties = new PropertyChangedEventArgs(null);
+
+    private void Raise()
+    {
+      PropertyChanged?.Invoke(this, AllProperties);
+    }
 
     /// <summary>The file to open, when this machine can open it.</summary>
     public string? LocalPath { get; }
@@ -539,6 +589,54 @@ namespace MediaPortal.Frontend.ViewModels
     {
       if (_detailsFor == mediaItemId)
         _detailsFor = Guid.Empty;
+    }
+
+    /// <summary>
+    /// Tells the list what the library now says about one of the titles on it, so that the row a viewer has just
+    /// watched reads the same as the library instead of waiting for somebody to press Refresh.
+    /// </summary>
+    /// <param name="after">The library's answer to the report of that viewing.</param>
+    /// <returns>
+    /// True when one of these rows was that title. False means it is not on this screen - the ordinary case when a
+    /// film was picked on the home screen while a list of something else is open - and nothing is changed.
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// The row is rewritten from the server's answer rather than from what the playback screen believes it watched.
+    /// That is the difference between a row that agrees with the library and a row that agrees with a guess, and it
+    /// is the same reason the watched mark reads the play count rather than a memory of the film having ended.
+    /// </para>
+    /// <para>
+    /// A row is left where it is, including on a filtered list: it stays in the order it arrived in, because
+    /// re-sorting rows under a viewer who is halfway down a shelf of three hundred films loses the place they were
+    /// looking for. The next question they ask the server is answered with the new figures.
+    /// </para>
+    /// </remarks>
+    public bool ApplyPlayback(MediaPlayback after)
+    {
+      TitleViewModel? row = null;
+      foreach (TitleViewModel candidate in Titles)
+      {
+        if (candidate.Title.Id == after.Id)
+        {
+          row = candidate;
+          break;
+        }
+      }
+
+      if (row == null)
+        return false;
+
+      row.ApplyPlayback(after);
+
+      // The details panel holds numbers of its own, read from the server earlier, and they are now about a title
+      // the library has changed. Dropped rather than corrected by hand, because the panel says more than these
+      // three figures do and only a read can bring the rest of it up to date.
+      if (_detailsFor == after.Id)
+        _detailsFor = Guid.Empty;
+
+      // Nothing is announced at the list's own level: it is the row that changed, and the row says so itself.
+      return true;
     }
 
     private async Task ReadDetailsAsync(TitleViewModel title)

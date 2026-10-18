@@ -1957,8 +1957,9 @@ onwards: `KEY_PLAY_DATE`, `KEY_PLAY_PERCENTAGE`, `KEY_PLAY_COUNT` written into t
 asked). The front end
 does not resolve a profile, so it has no percentage to offer, and a strip labelled "Continue watching" that starts
 every film at zero would be a lie with a nicer name. So the strip is named for what is actually known - *left half
-way* - and the position follows when the endpoint knows who is asking. That step is the next one, and until it is
-taken the wording of the strip is the test that says so.
+way* - and the position follows when the endpoint knows who is asking. That step is section **ae**, taken a slice
+later; the name stayed, because the list is still a list of unfinished titles, and a title somebody watched through
+does not belong on it whatever figure is attached to it.
 
 **One question per tile, merged by date.** The home screen asks each aspect it offers (`Films`, `Episodes`, …) for
 its own eight newest stops and merges the answers by date. Eight *per part* is what makes the merge safe: the
@@ -2092,6 +2093,65 @@ pixels wide, three rows agreeing to within ten pixels at their left edge) where 
 `x 845`; and every row's date column moved from `x 827..997` to `x 675..845`, which is what adding a fourth
 proportional column does to the three that were there. The frame drawn before this change has three blocks in every
 row and no ink past `x 997`.
+
+### af. The row you watched from says so when the film ends
+
+**What was added.** A viewing used to change the library and nothing else: go back to the list you picked the film
+from and the row still said what it said before you pressed play, until somebody pressed Refresh. The report's own
+answer now travels on to the screens that might still be showing that title:
+
+- a finished film in the library list gains its tick, its count and its date, and loses its resume figure - a
+  title that is over has nothing left to come back to, and a row carrying a tick next to "42% watched" would be
+  describing two viewings at once;
+- a strip title that was watched through **leaves** the "Left half way" list, and the line above the list counts
+  what is on it now;
+- a strip title stopped again keeps its row and gains the newer figure, which is the pair the strip exists for:
+  the row is the offer, the figure says how much of it is already gone;
+- the details panel cached for that title is dropped, because it says more than those three figures and only a read
+  can bring the rest of it up to date.
+
+**From the answer, not from a second question.** `POST api/media/titles/{id}/playback` has always answered with the
+library's own numbers after taking the report - the count, the date, whether it counts as watched - and section
+**ae** added the position to it. That answer is what the rows are rewritten from. Asking again would be a round trip
+whose entire purpose is to learn what has just been said, at the exact moment a film ends; and a refresh of the list
+would also throw away the order the viewer was reading and the place their selection had reached, which on a shelf
+of three hundred films is not a small thing to spend on a tick. `PlaybackReporter`'s callback therefore grew from
+"which title changed" to "which title changed, and what the library now says about it" - and it still fires only
+when the server *took* the report, which a test holds it to: a refused report leaves every screen alone.
+
+**What does not move.** Rows stay where they are. A list that re-sorted itself the moment something was watched
+would move the row the viewer is looking for out from under them, so the tick appears in the row's old place and
+the next question asked of the server comes back in the new order. A filtered list is left alone too: the list is
+the answer to the question that was asked of it, and the row that has since changed says so on itself. The tiles and
+their counts are untouched, because watching a title does not change how many titles there are.
+
+**The strip is the exception, on purpose.** A finished title is taken out of `Unfinished` rather than left on it,
+because that list's whole promise is "press this to go back into it". When the last row goes, the strip takes itself
+off the screen with it - the same rule that keeps a home screen from carrying a heading about nothing. The count
+line keeps saying how many parts of the library refused to answer, from a figure remembered for the last read
+rather than recomputed as nought: a note about a silent part of the library must not vanish because somebody
+watched something.
+
+**A row had to learn to speak.** `TitleViewModel` was immutable and said nothing when it changed, because rows used
+to be built anew for every read. It now holds its `MediaTitle` and replaces it with the library's newer figures,
+announcing the change the way the playback screen does it: one notification naming no property, meaning "read all of
+them again" - the tick, the date, the position and the length are all read off the same answer, so announcing them
+separately would be three notifications about one event.
+**What is honestly not claimed.** This is the front end hearing about *its own* viewings. A second television on the
+same server still shows its own stale row until it asks again, because there is no event stream from the server to a
+front end yet - that is `p2-4-api-events`, and until it exists a media centre cannot tell two screens about one
+change. And no frame shows any of this: a picture holds one moment, and the point of this slice is the difference
+between two moments, so it is proven by tests against the same in-process server the other list tests use.
+
+**Tests.** Six new front-end tests (`TestMediaBrowser` 42 → **48**, `Tests.Frontend` 247 → **253**): that the
+row a viewer finished gains its tick, gains its date, loses its position, and is announced exactly once, while the
+server is asked *no additional question* (the fake handler counts its own requests and the count does not move); that
+a stopped-again title gains `61% watched` and stays unmarked; that a report about a title this list is not showing
+changes none of its rows and answers `false`; that finishing a strip title leaves the other row and recounts the
+heading; and that finishing both takes the strip off the screen. The reporter's own test was rewritten to assert what
+it hands over rather than the id alone - the library's count, its "not watched", its position of `50%` and its date -
+because screens being handed a guess instead of the answer would still have passed the old version of it. The whole
+suite on Windows is **716 tests, 0 failures**.
 
 ## What cannot be verified without the user
 

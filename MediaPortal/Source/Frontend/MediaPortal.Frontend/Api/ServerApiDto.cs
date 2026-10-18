@@ -232,5 +232,6 @@ namespace MediaPortal.Frontend.Api
       [property: JsonPropertyName("playCount")] int PlayCount,
       [property: JsonPropertyName("lastPlayed")] DateTime? LastPlayed,
       [property: JsonPropertyName("watched")] bool Watched,
-      [property: JsonPropertyName("error")] string? Error);
+      [property: JsonPropertyName("error")] string? Error,
+      [property: JsonPropertyName("resume")] int? Resume = null);
 }

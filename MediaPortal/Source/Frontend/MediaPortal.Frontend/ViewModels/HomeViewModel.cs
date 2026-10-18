@@ -111,9 +111,10 @@ namespace MediaPortal.Frontend.ViewModels
     /// <para>
     /// Read with the <c>started</c> filter, which is the server's answer to "was there a last-played date and no
     /// finished viewing behind it" - so it holds films that were stopped half way and none that were watched
-    /// through, the distinction the shelf marks with a tick (section <i>ac</i>). What it does not hold is a
-    /// position to jump back to: MP2 stores that per profile, and this front end has no profile yet, so pressing
-    /// a row starts the film again. That is why the heading says "left half way" and not "continue watching".
+    /// through, the distinction the shelf marks with a tick (section <i>ac</i>). Each row also carries how far this
+    /// caller got, because the request named a profile (section <i>ae</i>), which is what lets pressing a row go
+    /// back into the film rather than starting it again; a server that was not told who is asking answers without
+    /// those figures, and the rows then offer the beginning.
     /// </para>
     /// </remarks>
     public ObservableCollection<TitleViewModel> Unfinished { get; } = new ObservableCollection<TitleViewModel>();
@@ -140,6 +141,52 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     private string? _unfinishedStatus;
+
+    /// <summary>
+    /// How many parts of the library refused to answer the last time the strip was read, so that the line above it
+    /// can be said again in the same words after a row left it. A note about a silent part must not survive one
+    /// fewer row, or disappear because something was watched.
+    /// </summary>
+    private int _unfinishedSilent;
+
+    /// <summary>
+    /// Tells the strip what the library now says about one of the titles it is showing, so that a film the viewer
+    /// has just watched does not stay on a list of things still to watch.
+    /// </summary>
+    /// <param name="after">The library's answer to the report of that viewing.</param>
+    /// <returns>
+    /// True when the strip was showing that title. False means it was not - a film picked in the library, or one
+    /// that was not on the strip to begin with - and the strip is left as it was.
+    /// </returns>
+    /// <remarks>
+    /// A finished title leaves the strip instead of staying on it with a tick, because the strip's whole promise
+    /// is "press this to go back into it" and a title that is over is not that. A title stopped again keeps its row
+    /// and gains the newer figure, which is the pair the strip exists for: the row is the offer, the figure says
+    /// how much of it is already gone.
+    /// </remarks>
+    public bool ApplyPlayback(MediaPlayback after)
+    {
+      TitleViewModel? row = null;
+      foreach (TitleViewModel candidate in Unfinished)
+      {
+        if (candidate.Title.Id == after.Id)
+        {
+          row = candidate;
+          break;
+        }
+      }
+
+      if (row == null)
+        return false;
+
+      if (after.Watched)
+        Unfinished.Remove(row);
+      else
+        row.ApplyPlayback(after);
+
+      ReportUnfinished(_unfinishedSilent);
+      return true;
+    }
 
     /// <summary>
     /// Said when the viewer presses OK on a row of the strip.
@@ -504,6 +551,8 @@ namespace MediaPortal.Frontend.ViewModels
     /// </remarks>
     private void ReportUnfinished(int silent)
     {
+      _unfinishedSilent = silent;
+
       string line;
       if (Unfinished.Count == 0 && silent == 0)
         line = "";
