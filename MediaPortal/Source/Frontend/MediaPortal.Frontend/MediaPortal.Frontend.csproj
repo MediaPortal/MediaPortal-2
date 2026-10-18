@@ -41,11 +41,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- The player. See the rule above about the one reference that is allowed. -->
-    <ProjectReference Include="..\MediaPortal.Frontend.Player\MediaPortal.Frontend.Player.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <!-- The player. Part of this front end, not of the server - see the rule in the header above. -->
     <ProjectReference Include="..\MediaPortal.Frontend.Player\MediaPortal.Frontend.Player.csproj" />
   </ItemGroup>

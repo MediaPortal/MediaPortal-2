@@ -26,6 +26,7 @@ using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Server.Api;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.Http;
@@ -63,7 +64,16 @@ namespace Tests.Frontend
           app =>
           {
             app.UseRouting();
-            app.UseEndpoints(endpoints => endpoints.MapControllers());
+            app.UseEndpoints(endpoints =>
+            {
+              // The health endpoint is not a controller - the real server maps it in
+              // ResourceServer.ConfigureApiPipeline - so a fixture that only maps controllers has no /health at
+              // all. That mattered as soon as the front end's "which server is this?" screen asked: it got a 404
+              // from a server that is answering perfectly. The fixture is meant to look like the real server, so
+              // it answers the same way the real server does, with the real handler rather than a copy of it.
+              endpoints.MapGet(ResourceServer.HEALTH_URL_SUFFIX, ResourceServer.WriteHealthResponse);
+              endpoints.MapControllers();
+            });
           });
 
       return new InProcessApi(host, new Uri(string.Format("http://127.0.0.1:{0}/MediaPortal/Server/", port)));

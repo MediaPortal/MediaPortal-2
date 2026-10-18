@@ -42,7 +42,7 @@ namespace MediaPortal.Frontend.ViewModels
   /// </remarks>
   public partial class HomeViewModel : ObservableObject
   {
-    private readonly ServerApiClient? _client;
+    private ServerApiClient? _client;
     private CancellationTokenSource? _runningRefresh;
 
     // One run at a time may touch Aspects. Cancelling the older run is not enough for that: a cancelled run
@@ -89,6 +89,31 @@ namespace MediaPortal.Frontend.ViewModels
     public string ServerUrl
     {
       get { return _client == null ? "(none)" : _client.BaseUrl.ToString(); }
+    }
+
+    /// <summary>
+    /// Points the screen at a different server. The library shown is thrown away with the old address - keeping the
+    /// aspects of one server under the name of another is how a viewer ends up clicking a film that is not there.
+    /// </summary>
+    /// <remarks>
+    /// The client being replaced is cancelled but deliberately <em>not</em> disposed: a refresh from it may be
+    /// between awaits, and taking the <c>HttpClient</c> away from under it is exactly the
+    /// <c>ObjectDisposedException</c> this class already documents twice. Its handler is released when the client is
+    /// collected, and a viewer changes the server address a handful of times per installation, so the one client that
+    /// is not disposed is not a leak that ever grows.
+    /// </remarks>
+    public void UseServer(ServerApiClient client)
+    {
+      CancellationTokenSource? running = _runningRefresh;
+      running?.Cancel();
+
+      _client = client;
+      Aspects.Clear();
+      SelectedAspect = null;
+      ServerDescription = null;
+      IsBusy = false;
+      Status = "Server address set to " + client.BaseUrl;
+      OnPropertyChanged(nameof(ServerUrl));
     }
 
     /// <summary>

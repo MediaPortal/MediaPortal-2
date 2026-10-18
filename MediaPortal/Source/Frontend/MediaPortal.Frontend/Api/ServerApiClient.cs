@@ -105,8 +105,37 @@ namespace MediaPortal.Frontend.Api
     /// </summary>
     public static Uri ResolveBaseUrl(string? fromCommandLine)
     {
-      string? fromEnvironment = Environment.GetEnvironmentVariable(UrlEnvironmentVariable);
-      string chosen = FirstNonEmpty(fromCommandLine, fromEnvironment, DefaultUrl);
+      return ResolveBaseUrl(fromCommandLine, null);
+    }
+
+    /// <summary>
+    /// The same, with the address the viewer last saved on the screen taking part.
+    /// </summary>
+    /// <remarks>
+    /// The order is argument, environment, saved address, built-in default. A saved address loses to the first two
+    /// on purpose: whoever starts the front end over ssh, or in a container, knows which server they meant, and that
+    /// must not be silently overridden by whatever was typed into the box months ago. It wins over the default,
+    /// because the default is a guess and the saved address was a decision.
+    /// </remarks>
+    public static Uri ResolveBaseUrl(string? fromCommandLine, string? fromSettings)
+    {
+      return ResolveBaseUrl(fromCommandLine, Environment.GetEnvironmentVariable(UrlEnvironmentVariable),
+                            fromSettings);
+    }
+
+    /// <summary>
+    /// The rule itself, with every input in the signature: the environment is not a constant, it is one of the
+    /// four places the address can come from.
+    /// </summary>
+    /// <remarks>
+    /// This overload exists because the container image sets <c>MP2_SERVER</c> for its own reasons, and a test
+    /// that asked the two-argument version "where would a start with no argument go?" got the image's answer
+    /// instead of the rule's. Saying the environment out loud is also the only way to test that it really does
+    /// outrank a saved address - setting it process-wide to find out would disturb every other test in the run.
+    /// </remarks>
+    public static Uri ResolveBaseUrl(string? fromCommandLine, string? fromEnvironment, string? fromSettings)
+    {
+      string chosen = FirstNonEmpty(fromCommandLine, fromEnvironment, fromSettings, DefaultUrl);
       if (!Uri.TryCreate(chosen, UriKind.Absolute, out Uri? parsed))
         throw new ArgumentException(string.Format(
             "'{0}' is not an absolute URL; expected something like {1}", chosen, DefaultUrl), nameof(fromCommandLine));

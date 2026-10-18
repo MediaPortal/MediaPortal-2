@@ -191,6 +191,58 @@ namespace Tests.Frontend
     }
 
     [AvaloniaTest]
+    public void AnAreaThatIsDisabledIsWalkedPast()
+    {
+      // The first run of the server screen is what this is for: with an empty address the test and save buttons are
+      // disabled, and a ring that insists on the next control in order traps the viewer in the text field. The areas
+      // that are not there are walked over.
+      var panel = new StackPanel();
+      var field = new TextBox();
+      var disabled = new Button { Content = "test", IsEnabled = false };
+      var reachable = new Button { Content = "close" };
+      panel.Children.Add(field);
+      panel.Children.Add(disabled);
+      panel.Children.Add(reachable);
+
+      Window window = new Window { Content = panel };
+      DpadNavigation.Attach(window, new List<Control> { field, disabled, reachable });
+      window.Show();
+      Dispatcher.UIThread.RunJobs();
+      _windows.Add(window);
+
+      Focus(field);
+      KeyEventArgs args = Press(field, Key.Right);
+
+      Assert.That(disabled.IsFocused, Is.False);
+      Assert.That(reachable.IsFocused, Is.True, "the focus went to the next area that could take it");
+      Assert.That(args.Handled, Is.True, "and the key really did move the focus, so the ring claims it");
+    }
+
+    [AvaloniaTest]
+    public void ARingWithOnlyOneReachableAreaHasNowhereToGo()
+    {
+      // Walking past a disabled area must not turn into walking back into the one that already has the focus: that
+      // would claim the key while achieving nothing, which is the failure the test above this one exists for.
+      var panel = new StackPanel();
+      var onlyOne = new Button { Content = "only" };
+      var disabled = new Button { Content = "test", IsEnabled = false };
+      panel.Children.Add(onlyOne);
+      panel.Children.Add(disabled);
+
+      Window window = new Window { Content = panel };
+      DpadNavigation.Attach(window, new List<Control> { onlyOne, disabled });
+      window.Show();
+      Dispatcher.UIThread.RunJobs();
+      _windows.Add(window);
+
+      Focus(onlyOne);
+      KeyEventArgs args = Press(onlyOne, Key.Right);
+
+      Assert.That(onlyOne.IsFocused, Is.True, "the focus stayed where it was");
+      Assert.That(args.Handled, Is.False, "a full lap with nowhere to go is not a move");
+    }
+
+    [AvaloniaTest]
     public void WithNothingInTheRingFocusedTheFirstAreaIsTheAnswer()
     {
       // A screen that has just appeared has no focus in the ring yet. The first key press should still land

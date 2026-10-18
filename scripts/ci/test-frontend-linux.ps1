@@ -184,6 +184,14 @@ if (-not (Test-Path $playbackShot)) {
   throw "the run was green but the playback screen left no frame at '$playbackShot'."
 }
 
+# The third frame is the screen a viewer sees before there is anything to show: no server picked, nothing
+# saved. It is in the list because it is the one screen that has to work with no server at all - if the front
+# end needs a connection to build a window, this frame is where that shows up.
+$connectShot = Join-Path $RenderDir 'connect-linux.png'
+if (-not (Test-Path $connectShot)) {
+  throw "the run was green but the server-picking screen left no frame at '$connectShot'."
+}
+
 # The image checks this too, and both sides are worth checking: the image refuses a frame that did not reach the
 # server, and this refuses a run whose output does not say it was populated, so neither can report the offline
 # picture as the data picture.
@@ -194,6 +202,7 @@ if ($ServeFromHost) {
   }
 }
 
-Write-Host ("Front end compiles on Linux, its headless UI tests pass there, and it rendered {0} ({1:N0} bytes) and {2} ({3:N0} bytes){4}." -f `
+Write-Host ("Front end compiles on Linux, its headless UI tests pass there, and it rendered {0} ({1:N0} bytes), {2} ({3:N0} bytes) and {4} ({5:N0} bytes){6}." -f `
     $screenshot, (Get-Item $screenshot).Length, $playbackShot, (Get-Item $playbackShot).Length,
+    $connectShot, (Get-Item $connectShot).Length,
     $(if ($ServeFromHost) { ', the home screen populated from the host server' } else { '' })) -ForegroundColor Green

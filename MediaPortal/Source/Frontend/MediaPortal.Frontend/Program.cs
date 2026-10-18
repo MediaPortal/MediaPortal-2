@@ -16,12 +16,15 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Threading;
 using MediaPortal.Frontend.Api;
+using MediaPortal.Frontend.Discovery;
 using MediaPortal.Frontend.Player;
+using MediaPortal.Frontend.Settings;
 using MediaPortal.Frontend.ViewModels;
 
 namespace MediaPortal.Frontend
@@ -34,14 +37,19 @@ namespace MediaPortal.Frontend
     private const string USAGE =
         "MediaPortal.Frontend [--server <url>] [--check]\n" +
         "  --server <url>   the server to talk to, e.g. http://192.168.1.5:55555/MediaPortal/Server\n" +
-        "                   (otherwise MP2_SERVER, otherwise " + ServerApiClient.DefaultUrl + ")\n" +
-        "  --check          read the server and the player, print what was found, exit - without a window";
+        "                   (otherwise MP2_SERVER, otherwise the address saved on the \"which server?\" screen,\n" +
+        "                   otherwise " + ServerApiClient.DefaultUrl + ")\n" +
+        "  --check          read the server and the player, print what was found, exit - without a window\n" +
+        "  --discover [sec] ask the network which MediaPortal servers are there, print them, exit.\n" +
+        "                   Listens for <sec> seconds (default 3); the exit code is 0 only if a server answered.";
 
     [STAThread]
     public static int Main(string[] args)
     {
       string? serverUrl = null;
       bool check = false;
+      bool discover = false;
+      int discoverSeconds = 3;
 
       for (int i = 0; i < args.Length; i++)
       {
@@ -58,6 +66,13 @@ namespace MediaPortal.Frontend
           case "--check":
             check = true;
             break;
+          case "--discover":
+            discover = true;
+            // An optional number of seconds, because a gate wants to say how long it is willing to wait and a
+            // wireless network is slower to answer than a cable.
+            if (i + 1 < args.Length && int.TryParse(args[i + 1], out int seconds) && seconds > 0)
+              discoverSeconds = Math.Min(seconds, 60);
+            break;
           case "--help":
           case "-h":
             Console.WriteLine(USAGE);
@@ -67,13 +82,21 @@ namespace MediaPortal.Frontend
         }
       }
 
+      // Read once, for the whole run: what the saved address is, and - if it could not be read - the sentence that
+      // says why. A front end that started silently on a stale address after a broken file would be investigated for
+      // an hour by somebody who could have been told in one line.
+      ServerSettings settings = ServerSettings.Load(null, out string? settingsProblem);
+
+      if (discover)
+        return RunDiscoverAsync(discoverSeconds).GetAwaiter().GetResult();
+
       if (check)
-        return RunCheckAsync(serverUrl).GetAwaiter().GetResult();
+        return RunCheckAsync(serverUrl, settings, settingsProblem).GetAwaiter().GetResult();
 
       Uri baseUrl;
       try
       {
-        baseUrl = ServerApiClient.ResolveBaseUrl(serverUrl);
+        baseUrl = ServerApiClient.ResolveBaseUrl(serverUrl, settings.HasUsableUrl ? settings.ServerUrl : null);
       }
       catch (ArgumentException ex)
       {
@@ -81,9 +104,16 @@ namespace MediaPortal.Frontend
         return 2;
       }
 
+      ReportSettings(settings, settingsProblem);
+
       // The client lives as long as the application; it is not disposed on purpose, the process outlives its
       // sockets and there is nothing to flush.
       ServerApiClient client = new ServerApiClient(baseUrl);
+
+      // Whoever started the front end with an address meant that address, so the screen that chooses one is not
+      // offered: a button whose choice is then ignored is worse than no button.
+      bool serverMayBeChanged = string.IsNullOrWhiteSpace(serverUrl)
+          && string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(ServerApiClient.UrlEnvironmentVariable));
 
       // One player for the whole application, built here so that the reason for its absence is printed where a
       // human reads it. A machine without libVLC still gets a front end - the library browses, the playback
@@ -94,7 +124,8 @@ namespace MediaPortal.Frontend
       bool havePlayer = LibVlcPlayer.TryCreate(out player, out playerReason);
       Console.WriteLine(havePlayer ? "player:   " + player!.EngineDescription : "player:   none - " + playerReason);
 
-      AppBuilder app = BuildAvaloniaApp(() => new App(new HomeViewModel(client), player));
+      AppBuilder app = BuildAvaloniaApp(() => new App(new HomeViewModel(client), player, settings, null,
+          serverMayBeChanged, serverMayBeChanged && !settings.HasUsableUrl));
       return app.StartWithClassicDesktopLifetime(args);
     }
 
@@ -111,16 +142,62 @@ namespace MediaPortal.Frontend
     }
 
     /// <summary>
+    /// Asks the network which MediaPortal 2 servers are there, and prints what answered. No window, no display.
+    /// </summary>
+    /// <remarks>
+    /// This is the same search the "which server?" screen runs, in front of a person who wants to know why the list
+    /// is empty - and in front of a gate, which is the only way to prove that a server running on another machine
+    /// really is found rather than merely hoped for. The exit code is about the answer, not about the search: a
+    /// network with no server on it is a working search that found nothing, and the caller can read that difference
+    /// in the lines above it.
+    /// </remarks>
+    private static async Task<int> RunDiscoverAsync(int seconds)
+    {
+      SsdpSearchOptions options = SsdpSearchOptions.ForNetworkSearch(TimeSpan.FromSeconds(seconds));
+      Console.WriteLine("search:   " + options.SearchTarget);
+      Console.WriteLine("listening: " + options.ListenWindow.TotalSeconds + "s on udp/" + SsdpAnnouncement.SsdpPort);
+
+      SsdpSearchResult result;
+      try
+      {
+        result = await new SsdpSearchClient().SearchAsync(options, CancellationToken.None);
+      }
+      catch (Exception ex)
+      {
+        // Not a "nothing found": the search itself could not be run, which is the one case worth an exception on
+        // the console, because there is nobody to ask and the sentence on the screen is not being drawn either.
+        Console.WriteLine("search:   failed - " + ex.GetType().Name + ": " + ex.Message);
+        return 2;
+      }
+
+      foreach (string failure in result.SendFailures) Console.WriteLine("send:     " + failure);
+      foreach (SsdpAnnouncement announcement in result.Announcements)
+      {
+        Console.WriteLine("device:   " + announcement.Location
+            + (announcement.IsMediaPortalServer ? string.Empty : " (announced something else)"));
+      }
+
+      IReadOnlyList<DetectedServer> servers =
+          await new ServerLocator().LocateAsync(result.Announcements, CancellationToken.None);
+      foreach (DetectedServer server in servers)
+        Console.WriteLine("server:   " + server.Name + " " + server.Version + " at " + server.BaseUrl);
+
+      Console.WriteLine("answered: " + result.MessagesReceived + " message(s), " + result.Announcements.Count
+          + " device(s), " + servers.Count + " MediaPortal server(s)");
+      return servers.Count > 0 ? 0 : 1;
+    }
+
+    /// <summary>
     /// Asks the server the same questions the home screen asks and prints the answers. No window, no display,
     /// no platform-specific code - which is what makes it usable as a gate: if this prints a library, the API,
     /// the HTTP layer, the JSON and the front end's reading of it all work on this machine.
     /// </summary>
-    private static async Task<int> RunCheckAsync(string? serverUrl)
+    private static async Task<int> RunCheckAsync(string? serverUrl, ServerSettings settings, string? settingsProblem)
     {
       Uri baseUrl;
       try
       {
-        baseUrl = ServerApiClient.ResolveBaseUrl(serverUrl);
+        baseUrl = ServerApiClient.ResolveBaseUrl(serverUrl, settings.HasUsableUrl ? settings.ServerUrl : null);
       }
       catch (ArgumentException ex)
       {
@@ -128,6 +205,7 @@ namespace MediaPortal.Frontend
         return 2;
       }
 
+      ReportSettings(settings, settingsProblem);
       Console.WriteLine("server:   " + baseUrl);
       ReportPlayer();
       using (ServerApiClient client = new ServerApiClient(baseUrl))
@@ -164,6 +242,21 @@ namespace MediaPortal.Frontend
 
       Console.WriteLine("the front end read a running server.");
       return 0;
+    }
+
+    /// <summary>
+    /// Prints where the saved server address lives and what is in it, before anything is asked of a server: when the
+    /// front end talks to a machine nobody meant, the first question is always which address it picked and where it
+    /// picked it up.
+    /// </summary>
+    private static void ReportSettings(ServerSettings settings, string? problem)
+    {
+      string saved = string.IsNullOrWhiteSpace(settings.ServerUrl)
+          ? "nothing saved"
+          : (settings.HasUsableUrl ? settings.ServerUrl : "'" + settings.ServerUrl + "' is not a usable address");
+      Console.WriteLine("settings: {0} ({1})", ServerSettings.DefaultFilePath, saved);
+      if (problem != null)
+        Console.WriteLine("settings: " + problem);
     }
 
     /// <summary>

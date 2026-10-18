@@ -57,6 +57,18 @@
               MinWidth="180"
               Padding="28,10"
               FontSize="20" />
+      <!-- Where the server is comes from a screen, not from a command line: whoever sits in front of a television
+           cannot edit an argument, and a machine whose address changed (a reinstalled server, a new router) would
+           otherwise be a media centre that only ever says it found no media. -->
+      <Button Name="connectButton"
+              Content="Server"
+              Click="OnConnect"
+              IsVisible="False"
+              HorizontalAlignment="Left"
+              HorizontalContentAlignment="Center"
+              MinWidth="180"
+              Padding="28,10"
+              FontSize="20" />
     </StackPanel>
 
     <Grid ColumnDefinitions="420,*" ColumnSpacing="40">

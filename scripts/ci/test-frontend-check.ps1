@@ -133,6 +133,12 @@ if (-not (Test-Path $hostDll)) { throw "no $hostDll - run deploy-server-layout.p
 $dataDir = Join-Path ([IO.Path]::GetTempPath()) ('mp2-frontend-check-' + [Guid]::NewGuid().ToString('N').Substring(0, 8))
 New-Item -ItemType Directory -Path $dataDir -Force | Out-Null
 
+# The front end loads the last server it used from its settings file before it looks at --server, and it
+# saves that file on exit. Pointed at the real location this gate would read whatever a developer last
+# connected to, and would overwrite it with the throwaway address it tests; it also makes the "settings:"
+# line in the output a fact about this run rather than a fact about whoever runs the gate.
+$env:MP2_SETTINGS_FILE = Join-Path ([IO.Path]::GetTempPath()) ('mp2-frontend-check-settings-' + [Guid]::NewGuid().ToString('N').Substring(0, 8) + '.xml')
+
 <#
 .SYNOPSIS
   Runs "MediaPortal.Frontend --check" as its own process and returns its exit code and its whole output.
@@ -190,7 +196,32 @@ try {
   if (-not $server.WaitForExit(500)) {
     # 500 ms is not a wait for startup, it is a check that the process died immediately (a missing plugin,
     # a port already taken). Everything else is asked about by the front end itself.
-    Write-Step "server pid $($server.Id) is up, asking it through the front end"
+    Write-Step "server pid $($server.Id) is up, waiting for its HTTP prefix"
+
+    # Between "the process exists" and "http.sys hands out http://+:55555/MediaPortal/Server" there is a window
+    # of a few hundred milliseconds in which a request is refused outright. The front end is right to call that
+    # a failure with exit 1 - it is the behaviour that makes the gate meaningful - and this loop only retries
+    # the 503 the server sends when it is up but still starting. So the waiting happens here, where "not yet"
+    # is the expected answer, and the front end's first attempt is a test rather than a race.
+    $healthUrl = $ServerUrl.TrimEnd('/') + '/health'
+    $readyDeadline = (Get-Date).AddSeconds($ReadyTimeoutSeconds)
+    $listening = $false
+    while ((Get-Date) -lt $readyDeadline) {
+      try {
+        Invoke-WebRequest -Uri $healthUrl -TimeoutSec 2 -UseBasicParsing -ErrorAction Stop | Out-Null
+        $listening = $true
+        break
+      } catch {
+        if ($_.Exception.Response) {   # any HTTP answer counts: a 503 here means the prefix is live
+          $listening = $true
+          break
+        }
+        Start-Sleep -Milliseconds 250
+      }
+    }
+    if (-not $listening) {
+      Write-Host "  $healthUrl never answered within $ReadyTimeoutSeconds seconds - asking anyway" -ForegroundColor Yellow
+    }
 
     $deadline = (Get-Date).AddSeconds($ReadyTimeoutSeconds)
     while ((Get-Date) -lt $deadline) {
@@ -221,8 +252,10 @@ try {
       'pathBase=/MediaPortal/Server',   # the prefix arrived intact through the client and the listener
       'library:',                       # the media-library endpoint was reached and parsed
       'aspects',
+      'health:',                        # the endpoint autodetection uses to confirm an announcement
       'player:',                        # the player was asked whether this machine can play, and answered -
                                         # either an engine name or one sentence about why there is none
+      'settings:',                      # where the address it used came from, so this run is traceable
       'the front end read a running server.'
     )
     foreach ($needle in $expected) {
@@ -256,12 +289,15 @@ try {
       if (-not $RenderDir) { $RenderDir = Join-Path (Join-Path $repoRoot 'build\artifacts') 'frontend-render' }
       New-Item -ItemType Directory -Path $RenderDir -Force | Out-Null
 
-      # Two screens, two frames. The home screen is drawn from a server that is really answering; the playback
-      # screen is drawn from a scripted player, because a frame that is supposed to mean the same thing on
-      # Windows and in a container cannot depend on what a decoder happened to decode.
+      # Three screens, three frames. The home screen is drawn from a server that is really answering; the
+      # playback screen is drawn from a scripted player, because a frame that is supposed to mean the same
+      # thing on Windows and in a container cannot depend on what a decoder happened to decode; and the
+      # connect screen is drawn with nothing found yet, which is the first thing a viewer who has never
+      # pointed the front end at a server sees.
       $frames = @(
         @{ Name = 'home-windows'; Arguments = '--server "' + $ServerUrl + '"' },
-        @{ Name = 'nowplaying-windows'; Arguments = '--screen nowplaying' }
+        @{ Name = 'nowplaying-windows'; Arguments = '--screen nowplaying' },
+        @{ Name = 'connect-windows'; Arguments = '--screen connect' }
       )
       foreach ($frame in $frames) {
         $renderFile = Join-Path $RenderDir ($frame.Name + '.png')

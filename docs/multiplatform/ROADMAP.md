@@ -35,13 +35,13 @@ Verified 2026-10-18 with `build.ps1 -Solution Server,Client -Ratchet`, `tests.ps
 | Portable-core WinForms / GDI+ references | **0** (83 quarantined in 10 satellite files) | `spine.ps1`, `satellites.ps1` |
 | Portable-core P/Invoke declarations | **73** in 9 files (was 95, then 76; the last three were the Kernel32 waitable timer) - invisible to `CA1416` | `spine.ps1` (P/Invoke column) |
 | `CA1416` call sites, Windows vs Linux | **0** on both hosts, floor 0 (was 196 at the retarget) - the 107 that remained were all in `-windows` assemblies that had lost their platform declaration; see "the floor went to zero" below | build log, `warnings.ps1` on both logs |
-| Unit tests, Windows | **5/5 suites, 405 passed**, 0 failed, 0 skipped (Canary.Portable 29, Tests.Server 184, Tests.Client 90, **Tests.Frontend 34**, Setup\Tests 68); a suite whose assembly predates its own sources reports STALE instead of running the old binary | `tests.ps1` |
+| Unit tests, Windows | **5/5 suites, 562 passed**, 0 failed, 0 skipped (Canary.Portable 29, Tests.Server 220, Tests.Client 90, **Tests.Frontend 155**, Setup\Tests 68); a suite whose assembly predates its own sources reports STALE instead of running the old binary | `tests.ps1` |
 | Unit tests, Linux (canary) | 31 executed, 0 failed (1 skips: Windows-only), incl. live IPC round trips and XDG autostart | `test-canary-linux.ps1` |
-| Unit tests, Linux (**front end**) | **34 executed, 0 failed** - the real `HomeWindow.axaml`, Fluent theme, bindings, D-pad handler and HTTP client, headless with no display in the image; the same image then draws the screen through Skia and writes the PNG out, populated from the host's server through `host.docker.internal` (`3872 distinct colours` of a `1280x720` frame) | `test-frontend-linux.ps1 -ServeFromHost` |
+| Unit tests, Linux (**front end**) | **155 executed, 0 failed** - the real `ConnectionWindow.axaml`/`HomeWindow.axaml`, Fluent theme, bindings, D-pad handler, HTTP client and the SSDP layer, headless with no display in the image; the same image then draws three screens through Skia and writes the PNGs out, the home one populated from the host's server through `host.docker.internal` | `test-frontend-linux.ps1 -ServeFromHost` |
 | Server actually **runs** | **yes on Windows and on Linux** as a headless process. Windows: reaches the Running state, creates the SQLite store, answers UPnP discovery over the network, exits 0 with an error-free log. Linux: reaches the same Running state with 0 `FATAL`, 0 `ERROR` and one `WARN` - the documented note that a container has no FUSE driver. Android is still unmeasured | `run-server-check.ps1`, `test-server-upnp.ps1`, `test-server-run-linux.ps1` |
 | Server **answers HTTP** | **yes on both hosts**, measured with the same probe: `GET /MediaPortal/Server/health` answers `200` with the server's version and the path it was called with - `pathBase=/MediaPortal/Server`, `path=/health` on Windows *and* in the container, because the shared listener now hands requests over in exactly the shape http.sys uses. The gate checks that text, not just the status code | `run-server-check.ps1 -ProbeUrl`, item **l** below |
 | Server **has an HTTP API** | **three endpoints, on both hosts**, in an assembly of its own (`MediaPortal.Server.Api`): `GET /MediaPortal/Server/api/serverinfo`, `GET api/library/aspects` and `GET api/library/count?aspect=…`. They are discovered MVC controllers (the first in this tree) that read MP2's own settings and media-library services on a request thread, and the gates on Windows and in the container require their content, not just a `200`. A library that is absent or still starting is answered with `503` and a reason rather than an empty answer or an internal error. They are unauthenticated because the token endpoint that would authenticate them is still .NET Framework only - which is why they serve schema and no household data | `run-server-check.ps1 -ProbeUrl`, items **m**, **o** and **p** below |
-| Front end (Phase 2) | **exists, and it reads a running server**: an Avalonia 12 app on the bare spine (no `MediaPortal.Common`, no dependency injection, no log4net) with its own JSON API client, a ViewModel that never touches a UI type, D-pad navigation that moves focus the way a remote does, a headless UI suite (34 tests) and a gate that runs the built app against the real server. Writing it found five real bugs - three in the front end, one in the API, and one that killed the process from a button press - and its whole suite also runs headless in a Linux container, with no display and no `EnableWindowsTargeting`. A render probe draws the same window on the **Skia** backend on both hosts and writes the frame out (`docs\multiplatform\screenshots\`) | `build.ps1 -Solution Frontend -Ratchet`, `tests.ps1`, `test-frontend-check.ps1`, `test-frontend-linux.ps1`, item **q** below |
+| Front end (Phase 2) | **exists, it finds a server by itself, and it reads it**: an Avalonia 12 app on the bare spine (no `MediaPortal.Common`, no dependency injection, no log4net) with its own JSON API client, its own SSDP/UPnP discovery (a server is listed only after its own HTTP API answered), a screen where the viewer picks the server from what the network reported and typing an address is the fallback, a ViewModel that never touches a UI type, D-pad navigation that moves focus the way a remote does, a headless UI suite (154 tests) and gates that run the built app against a real server and against a real announcement. Writing it found the bugs the design did not anticipate - a process-killing crash from a button press, a fixture that reported 17 failures it had not caused, a screen that overwrote text while it was being typed - and its whole suite also runs headless in a Linux container, with no display and no `EnableWindowsTargeting`. A render probe draws three windows on the **Skia** backend on both hosts and writes the frames out (`docs\multiplatform\screenshots\`) | `build.ps1 -Solution Frontend -Ratchet`, `tests.ps1`, `test-frontend-check.ps1`, `test-frontend-discovery.ps1`, `test-frontend-linux.ps1`, items **q** and **u** below |
 | Server **runs on Linux** | **yes** - `HeadlessServerLauncher: Switching to running state`, item **g**'s goal, measured. The layout assembles, `libe_sqlite3.so` (linux-x64) loads, SQLite 3.53.3 opens the store, the subschemas `MediaPortal-Basis`, `MediaLibrary`, `UserProfileDataManagement` and `ClientManager` are created from their SQL scripts, and the resource server plus two control points and one UPnP server share port 55555 through one listener | `test-server-run-linux.ps1`, items **i**, **j** and **k** below |
 | Database plugin on a portable driver | `SQLiteDatabase` is `net10.0` with `CA1416` as error, no Win32 calls left, and no longer loads a Windows-only interop library: it talks to SQLite through `Microsoft.Data.Sqlite` (SQLite 3.53.3), whose `e_sqlite3` native is copied into the layout per platform | `SQLiteDatabase.csproj`, items **h** and **j** below |
 | Built executables are 64-bit | 5/5 apphosts measure `x64`, managed side `MSIL` | `architecture.ps1` |
@@ -1246,8 +1246,9 @@ true - and a gate on one platform alone would have kept saying nothing about it.
 
 **Frames, both platforms, both screens.** `Frontend.RenderProbe` takes `--screen nowplaying` and drives the
 playback screen from a scripted player, so that the frame means the same thing everywhere (a real decoder would
-have been at a different moment on each host, or at none). The Windows gate and the container each write two
-PNGs now: `home-<os>.png` and `nowplaying-<os>.png`. The playback frame measured 1346 distinct colours and
+have been at a different moment on each host, or at none). The Windows gate and the container each write three
+PNGs now - `home-<os>.png`, `nowplaying-<os>.png` and, since section **u**, `connect-<os>.png`, the screen with
+nothing found yet. The playback frame measured 1346 distinct colours and
 11 988 high-contrast edges on Windows and 2148 / 12 024 in the container, both with `status: Playing,
 0:45 / 1:30` - the clock and the half-filled bar drawn by Skia, on both platforms, from the same code.
 
@@ -1255,6 +1256,120 @@ PNGs now: `home-<os>.png` and `nowplaying-<os>.png`. The playback frame measured
 still has no endpoint that answers "what can I watch", the sample database holds 0 items, and the front end has
 not asked `/Token` for anything - so the playback screen opens showing "Nothing playing" until the server side
 catches up. No mpv back end, and the DirectShow projects are still in the tree.
+
+### u. The viewer picks a server from a list; typing an address is the fallback
+
+**The requirement, in the user's words.** "The servers shall be autodetected and listed, so user can pick one.
+Manual IP address entry shall be only a backup. Also earlier it was handled like that." That last sentence is
+accurate and it was the accusation: the front end up to this point opened a text box and asked for a URL, which
+is the way the old MP2 setup wizard only ever worked when discovery had failed.
+
+**The announcement was already in the product.** The server multicasts itself: the log line
+`UPnP server: HTTP listener started on addresses http://+:55555/MediaPortal/UPnPServer_A1E50389` is the same
+listener that answers SSDP, the device type is
+`urn:schemas-team-mediaportal-com:device:MP2-Server:1` (`UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE`, versioned
+into the URN by `DvDevice.DeviceTypeVersion_URN`), and `SSDPServerController` replies to a device-type search as
+well as to `ssdp:all`. Nothing on the server side had to change. What was missing was somebody on the other
+side of the LAN asking.
+
+**Why the front end writes its own SSDP rather than reusing `UPnP.csproj`.** Two independent walls: that project
+carries `<FrameworkReference Include="Microsoft.AspNetCore.App"/>`, which does not exist for `net10.0-android`,
+and the MP2 glue around it lives in `MediaPortal.Common`, which the front end's boundary rule forbids (the only
+project reference allowed is `MediaPortal.Frontend.Player`). So the front end speaks the protocol itself: four
+files in `MediaPortal\Source\Frontend\MediaPortal.Frontend\Discovery\`. `SsdpAnnouncement` holds the protocol
+strings and a parser that cannot throw; `SsdpSearchClient` owns one real IPv4 UDP socket - multicast with the
+ST-tTL, and unicast targets too - and reports `SendFailures` instead of throwing, because "the network is quiet"
+and "I could not ask" are different sentences on a screen. `ServerLocator` probes what came back, and
+`DetectedServer` is what the list shows. The two duplicated constant strings are pinned by
+`TheSearchTargetIsTheDeviceTypeTheServerPublishes`, which compares them against
+`MediaPortal.Common.UPnP.UPnPTypesAndIds` reached through the API assembly: a server-side rename breaks a test
+instead of quietly ending discovery.
+
+**One rule holds the whole thing together: nothing is listed unless its own HTTP API answered.** An SSDP
+announcement is a claim; the locator asks `/health` and `api/serverinfo` of the address behind it and lists the
+server only if it replies, so every entry a viewer can select is an entry that will work when the front end
+dials it. The answer is also used to fix the guess: the announcement's `LOCATION` is
+`http://172.20.224.1:55555/MediaPortal/UPnPServer_A1E50389/upnphost/description/uuid:185c...` - a description
+document path, not the API - so the API URL is built from host and port plus `/MediaPortal/Server/`, and if
+`/health` reports a different `pathBase` the locator takes the server's word over the front end's guess
+(`CorrectedBaseUrl`). A sender's IP is never the address: the announcement that the CI gate receives arrives
+from `127.0.0.1` and still points at `172.20.224.1`, which is the only address a client on another machine
+could use.
+
+**The screen does what the requirement says.** Detected servers first, `Search again` under them, and the
+address field below both, labelled as the fallback rather than hidden. `Left`/`Right` leave the list, `Up`/`Down`
+walk it, `Enter` on an entry saves it and connects. When exactly one server is found it is put in the field -
+unless the viewer is already typing, which is a fix the first run of the new tests forced: overwriting input as
+it is being typed is the kind of cleverness users forgive only once. Nothing is saved from an announcement alone.
+
+**The address survives a restart.** `ServerSettings` writes the last used server where the platform expects a
+per-user config file; `--server` overrides it for one run and says so; `MP2_SETTINGS_FILE` points the whole
+thing at another file, which is how the tests and the gates stay away from a developer's real configuration and
+from each other.
+
+**Measured.** `Tests.Frontend` went from 99 to **155** tests (`Bestanden! - Fehler: 0, erfolgreich: 155,
+uebersprungen: 0, gesamt: 155`) - the additions are the settings file, the discovery layer and the new screen,
+among them a `FakeUpnpServer` that is a real UDP device on loopback, so the announcement really is sent,
+received, parsed, probed and listed. The same suite in the Linux container reports
+`Passed! - Failed: 0, Passed: 155, Skipped: 0, Total: 155`, all five Windows suites together report
+`All suites passed. 562 tests executed`, and the Frontend warning ratchet is still at its floor of **237**
+findings - none of this code added a warning.
+The new gate `scripts\ci\test-frontend-discovery.ps1` deploys a server layout, starts it, waits for
+`UPnP server online hosting`, and runs the *front end binary* with `--discover`:
+
+    search:   urn:schemas-team-mediaportal-com:device:MP2-Server:1
+    listening: 6s on udp/1900
+    device:   http://172.20.224.1:55555/MediaPortal/UPnPServer_A1E50389/upnphost/description/uuid:185c1727-...
+    server:   MediaPortal 2 Server 2.5.2305.14606 at http://172.20.224.1:55555/MediaPortal/Server/
+    answered: 1 message(s), 1 device(s), 1 MediaPortal server(s)
+
+That is the front end finding a server it had never been told about, and then confirming it by dialling it.
+`ForNetworkSearch` unicasts the request at this machine in addition to multicasting it, which is what makes the
+gate deterministic: containers, VPN adapters and "public network" profiles drop multicast, and a gate that
+depended on multicast would fail for reasons that have nothing to do with the code.
+
+**Three things the gates broke first, all worth knowing.** `FakeUpnpServer` was disposed twice (once by a
+`using`, once by the fixture's sweep) and the throwing `TearDown` then took the whole fixture down: 17 tests
+reported failures that did not exist. `Dispose()` is idempotent now and `TearDown` collects, clears, and fails
+at the end. Separately, the new gate script redirected both child streams and read them one after the other,
+which deadlocks as soon as the child fills the pipe nobody is reading - the server looked hung and kept holding
+port 55555; both streams are drained concurrently now. And `test-frontend-check.ps1` lost a race it had always
+been winning: it started the server, checked that the process was alive, and immediately ran the front end -
+which correctly refused a port that http.sys had not registered yet, in the few hundred milliseconds between
+those two events. Refusing is the behaviour the gate depends on, so the waiting moved into the gate, which
+polls `/health` until *any* HTTP answer arrives (a `503` counts: the prefix is live) before letting the front
+end ask its serious questions.
+
+**And the container caught a claim that was not true on the platform it ran on.**
+`TheTestedAddressIsWhatTheNextStartReads` asks a fair question: after the viewer picks a server and saves it,
+where does a start with no argument go? On Windows it went to the address just chosen. In the container it went
+to `http://host.docker.internal:55555/MediaPortal/Server` - because the image exports `MP2_SERVER` so that its
+own render step draws a populated screen, and the resolution order is argument, environment, saved, default, so
+the environment won. It won *correctly*; what was wrong was the test, which had been asserting a three-input
+rule with a fourth input silently present in some environments. The fix was not to make the assertion pass but
+to put the environment in the signature - `ResolveBaseUrl(argument, environment, saved)` - which then let the
+whole precedence table be stated as a pure function, including the rule that an operator's environment outranks
+a decision somebody took on the screen months ago. That rule had never been tested, because setting a
+process-wide environment variable to find out would have changed the answer for every other test in the run.
+`Tests.Frontend` is **155** on both platforms after this.
+
+**The third frame.** The render probe gained `--screen connect`, and both front-end gates draw it, so the screen
+that exists to work with *nothing* is also proven to draw on both platforms: `status: Nothing has been saved
+yet. Search the network, or type the address of the MediaPortal server., 0 server(s) listed, saving is not
+offered yet`, 2122 distinct colours and 28 185 high-contrast edges on Windows, 2919 / 28 429 in the container
+(the colour counts differ between platforms because text antialiasing does; the structure of the frame is the
+claim, and the search is switched off inside the probe so that nobody's LAN changes the picture). Both frames
+are committed as `connect-windows-skia.png` and `connect-linux-skia.png`.
+
+**What is not here yet.** The front end answers searches only when asked; it does not keep a listening socket
+open for the server's periodic `NOTIFY`, so a server that starts after the front end appears on the next
+`Search again` rather than by itself. Android needs the multicast lock (`WifiManager.MulticastLock`) before a
+WiFi search can hear anything - the code path is platform-neutral, the lock is not, and it stays untested until
+there is a device. The server picked is trusted: there is no pairing, PIN or certificate involved, which is the
+same trust model the LAN API has always had. And the container cannot run this gate - a Docker guest has no
+route to a host multicast group - so discovery is gated on Windows while the Linux image keeps the same unit
+tests and renders the connect screen with the search switched off (`connect-linux.png`), which is the frame a
+viewer sees before there is anything to show.
 
 ## What cannot be verified without the user
 

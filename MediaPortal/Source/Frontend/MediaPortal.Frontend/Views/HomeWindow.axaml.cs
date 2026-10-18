@@ -31,6 +31,7 @@ namespace MediaPortal.Frontend.Views
   public partial class HomeWindow : Window
   {
     private readonly Func<Window>? _nowPlayingScreen;
+    private readonly Func<Window>? _connectScreen;
 
     /// <summary>
     /// For the XAML loader and the designer: a screen with a view model that has no server, which is what it
@@ -47,15 +48,21 @@ namespace MediaPortal.Frontend.Views
     /// application because the playback belongs to the application, not to this window: closing the playback
     /// screen leaves the film running.
     /// </param>
-    public HomeWindow(HomeViewModel home, Func<Window>? nowPlayingScreen = null)
+    /// <param name="connectScreen">
+    /// How to build the screen that picks the server, or <c>null</c> when the operator has taken that decision away
+    /// by starting the front end with an address of its own.
+    /// </param>
+    public HomeWindow(HomeViewModel home, Func<Window>? nowPlayingScreen = null, Func<Window>? connectScreen = null)
     {
       DataContext = home;
       _nowPlayingScreen = nowPlayingScreen;
+      _connectScreen = connectScreen;
       InitializeComponent();
 
       // A button that opens nothing is worse than no button, so the playback button is only offered - and only
       // walks with the d-pad - when the application can actually build the screen.
       nowPlayingButton.IsVisible = _nowPlayingScreen != null;
+      connectButton.IsVisible = _connectScreen != null;
 
       // The ring is in the order the areas are arranged: the buttons on top, the list below it. Left/right (and
       // up/down between the two areas) walk it; the list keeps its own up/down over its items, because it
@@ -63,6 +70,8 @@ namespace MediaPortal.Frontend.Views
       var ring = new List<Control> { refreshButton };
       if (_nowPlayingScreen != null)
         ring.Add(nowPlayingButton);
+      if (_connectScreen != null)
+        ring.Add(connectButton);
       ring.Add(aspectsList);
       DpadNavigation.Attach(this, ring);
 
@@ -96,6 +105,22 @@ namespace MediaPortal.Frontend.Views
         return;
 
       Window screen = _nowPlayingScreen();
+      if (!screen.IsVisible)
+        screen.Show();
+      screen.Activate();
+    }
+
+    /// <summary>
+    /// Opens the screen that picks the server. Over the library rather than instead of it: a viewer who changes
+    /// their mind and presses Back has to be left where they were, with the server they had not replaced still
+    /// filling the screen.
+    /// </summary>
+    private void OnConnect(object? sender, RoutedEventArgs e)
+    {
+      if (_connectScreen == null)
+        return;
+
+      Window screen = _connectScreen();
       if (!screen.IsVisible)
         screen.Show();
       screen.Activate();

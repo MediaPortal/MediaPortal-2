@@ -1,0 +1,113 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        xmlns:dis="using:MediaPortal.Frontend.Discovery"
+        x:Class="MediaPortal.Frontend.Views.ConnectionWindow"
+        x:DataType="vm:ConnectionViewModel"
+        Name="connection"
+        Width="1280" Height="720"
+        WindowState="Maximized"
+        Background="#FF101418"
+        Title="MediaPortal 2 - Server">
+
+  <!--
+    Choosing the server with a remote. The servers that answered the network search are listed first, because on a
+    television picking a name is the only thing a viewer should have to do; the address field sits underneath,
+    labelled as the way in when the list stays empty. Saving is disabled until whatever is in the field has been
+    confirmed to be a server - see ConnectionViewModel for why that trade-off was made.
+  -->
+
+  <DockPanel Margin="48,36">
+
+    <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,24">
+      <TextBlock Text="Which server?"
+                 FontSize="40"
+                 FontWeight="SemiBold" />
+      <TextBlock Text="MediaPortal servers answer on their own when they are asked. Pick one from the list and save it."
+                 FontSize="18"
+                 Opacity="0.7"
+                 TextWrapping="Wrap"
+                 MaxWidth="980" />
+    </StackPanel>
+
+    <TextBlock DockPanel.Dock="Bottom"
+               FontSize="13"
+               Opacity="0.4"
+               Margin="0,24,0,0"
+               Text="{Binding SettingsFile, StringFormat='Saved in {0}'}" />
+
+    <StackPanel Spacing="14" MaxWidth="980" HorizontalAlignment="Left">
+
+      <TextBlock Name="listHeading"
+                 Text="{Binding ListHeading}"
+                 FontSize="22"
+                 Opacity="0.85" />
+
+      <ListBox Name="serversList"
+               Focusable="True"
+               ItemsSource="{Binding Servers}"
+               SelectedItem="{Binding SelectedServer, Mode=TwoWay}"
+               MinHeight="120"
+               MaxHeight="230"
+               FontSize="24">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="dis:DetectedServer">
+            <StackPanel Spacing="2" Margin="4,6">
+              <TextBlock Text="{Binding Name}" FontSize="26" />
+              <TextBlock Text="{Binding DetailLine}" FontSize="16" Opacity="0.65" />
+            </StackPanel>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+
+      <TextBlock Text="Only if the list stays empty - type the address, for example http://192.168.1.10:55555/MediaPortal/Server"
+                 FontSize="16"
+                 Opacity="0.6"
+                 TextWrapping="Wrap"
+                 MaxWidth="980" />
+
+      <TextBox Name="serverUrlBox"
+               Focusable="True"
+               Text="{Binding ServerUrlText, Mode=TwoWay}"
+               PlaceholderText="http://&lt;address&gt;:&lt;port&gt;/MediaPortal/Server"
+               FontSize="26"
+               Padding="14,10" />
+
+      <StackPanel Orientation="Horizontal" Spacing="14" Margin="0,4,0,0">
+        <Button Name="searchButton"
+                Content="Search again"
+                Command="{Binding RescanCommand}"
+                MinWidth="220"
+                Padding="24,10"
+                FontSize="22" />
+        <Button Name="testButton"
+                Content="Test"
+                Command="{Binding TestCommand}"
+                IsEnabled="{Binding CanTest}"
+                MinWidth="150"
+                Padding="24,10"
+                FontSize="22" />
+        <Button Name="saveButton"
+                Content="Save and use"
+                Command="{Binding SaveCommand}"
+                IsEnabled="{Binding Tested}"
+                MinWidth="220"
+                Padding="24,10"
+                FontSize="22" />
+        <Button Name="closeButton"
+                Content="Close"
+                Click="OnClose"
+                MinWidth="150"
+                Padding="24,10"
+                FontSize="22" />
+      </StackPanel>
+
+      <TextBlock Name="statusLine"
+                 Text="{Binding Status}"
+                 FontSize="22"
+                 Opacity="0.85"
+                 TextWrapping="Wrap" />
+
+    </StackPanel>
+  </DockPanel>
+</Window>

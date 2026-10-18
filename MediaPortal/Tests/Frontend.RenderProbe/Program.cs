@@ -33,6 +33,7 @@ using Avalonia.Threading;
 using MediaPortal.Frontend;
 using MediaPortal.Frontend.Api;
 using MediaPortal.Frontend.Player;
+using MediaPortal.Frontend.Settings;
 using MediaPortal.Frontend.ViewModels;
 using MediaPortal.Frontend.Views;
 
@@ -54,7 +55,7 @@ namespace FrontendProbe
   public static class RenderProbe
   {
     private const string USAGE =
-        "Frontend.RenderProbe --out <file.png> [--screen <home|nowplaying>] [--server <url>] [--width <n>] [--height <n>]\n" +
+        "Frontend.RenderProbe --out <file.png> [--screen <home|nowplaying|connect>] [--server <url>] [--width <n>] [--height <n>]\n" +
         "  --out <file>     where to write the rendered frame (PNG); its directory is created\n" +
         "  --screen <name>  which screen to render (default home)\n" +
         "  --server <url>   render the populated screen by asking this server (otherwise MP2_SERVER,\n" +
@@ -174,6 +175,7 @@ namespace FrontendProbe
 
       Window window;
       HomeViewModel? home = null;
+      ConnectionViewModel? connection = null;
       string playbackStatus = "";
 
       if (screenName.Equals("nowplaying", StringComparison.Ordinal))
@@ -220,9 +222,31 @@ namespace FrontendProbe
 
         window = new HomeWindow(home);
       }
+      else if (screenName.Equals("connect", StringComparison.Ordinal))
+      {
+        if (online)
+          Console.WriteLine("note:     --server belongs to the home screen; the server screen starts from the address"
+              + " this machine saved instead");
+
+        // The screen exactly as a first start shows it: whatever address this machine happens to have saved, which
+        // on a machine that was never configured is none. Filling the field in by hand would render a picture that
+        // nobody ever sees.
+        ServerSettings saved = ServerSettings.Load(null, out string? readProblem);
+        connection = new ConnectionViewModel(saved, null, readProblem);
+
+      // The frame has to be the same picture every time this runs, so the search the screen starts by itself is
+      // switched off: what is drawn is the screen as it looks in the moment before it asks the network anything.
+      // Whether the search works is not a question about pixels; the discovery tests and the SSDP gate answer it.
+      connection.AutoScan = false;
+        Console.WriteLine("content:  " + (saved.HasUsableUrl
+            ? "the address saved in " + connection.SettingsFile
+            : "no address saved - the empty field, the explanation and the two buttons that are not offered yet"));
+
+        window = new ConnectionWindow(connection);
+      }
       else
       {
-        return Usage("unknown screen '" + screenName + "'; this probe renders home or nowplaying.");
+        return Usage("unknown screen '" + screenName + "'; this probe renders home, nowplaying or connect.");
       }
 
       window.Width = width;
@@ -259,7 +283,10 @@ namespace FrontendProbe
       Console.WriteLine("screen:   " + screenName);
       Console.WriteLine("status:   " + (home != null
           ? home.Status + ", " + home.Aspects.Count + " aspect row(s)"
-          : playbackStatus));
+          : (connection != null
+              ? connection.Status + ", " + connection.Servers.Count + " server(s) listed, saving "
+                + (connection.SaveCommand.CanExecute(null) ? "is offered" : "is not offered yet")
+              : playbackStatus)));
 
       window.UpdateLayout();
       Pump(TimeSpan.FromMilliseconds(500));

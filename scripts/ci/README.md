@@ -20,8 +20,9 @@ does *not*, because those differences are how CI surprises happen.
 | `test-canary-linux.ps1` | Builds that image and runs the canary tests inside a Linux container. |
 | `Dockerfile.cross` | Linux **cross-compile** image: builds the whole `MP2-Server.sln` under `mcr.microsoft.com/dotnet/sdk:$SDK_TAG` (default `10.0`). |
 | `test-server-linux.ps1` | Runs that image (see "Compiling on Linux" below for the package-cache it needs). |
-| `test-frontend-check.ps1` | Starts the real server, runs the built front end with `--check` against it, then against a port nobody listens on: exit 0 plus the server's own answers (and the player's answer about whether this machine can play), then exit 1 plus a readable message. While that server is up it also renders both screens with `Frontend.RenderProbe` (`-SkipRender`, `-RenderDir`), and it refuses to execute a DLL older than its own sources. |
-| `Dockerfile.frontend` | Linux image that builds `MP2-Frontend.sln`, runs `Tests.Frontend` headless and renders both screens with `Frontend.RenderProbe` on Skia - no display, no `-windows` target, and deliberately no `EnableWindowsTargeting`. |
+| `test-frontend-check.ps1` | Starts the real server, runs the built front end with `--check` against it, then against a port nobody listens on: exit 0 plus the server's own answers (the player's answer about whether this machine can play, and where the address it used came from), then exit 1 plus a readable message. `MP2_SETTINGS_FILE` is pointed at a temp file so the run can neither read nor overwrite the developer's saved server. While that server is up it renders three screens with `Frontend.RenderProbe` - home, playback, and the pick-a-server screen with nothing found yet (`-SkipRender`, `-RenderDir`) - and it refuses to execute a DLL older than its own sources. |
+| `test-frontend-discovery.ps1` | The autodetection gate. Deploys a server layout, starts the server, waits for its `UPnP server online hosting` line, and runs `MediaPortal.Frontend --discover` as its own process: the front end must find the server from its SSDP announcement alone (nothing is passed to it, and `MP2_SETTINGS_FILE` points at a file that does not exist), list it, and exit 0. Windows only: a container guest has no route to a host multicast group. |
+| `Dockerfile.frontend` | Linux image that builds `MP2-Frontend.sln`, runs `Tests.Frontend` headless and renders three screens with `Frontend.RenderProbe` on Skia - no display, no `-windows` target, and deliberately no `EnableWindowsTargeting`. |
 | `test-frontend-linux.ps1` | Runs that image (same package-cache requirement). `-ServeFromHost` starts the server on this machine and points the container at it through `host.docker.internal:55555`, so the home-screen frame the run produces is the populated screen. |
 | `Dockerfile.drawing`, `drawing-probe/` | Not a gate: measures which half of `System.Drawing` works on Linux. Read it before changing what `spine.ps1` counts. |
 
@@ -32,7 +33,8 @@ does *not*, because those differences are how CI surprises happen.
     .\packages.ps1                                 # advisory and netfx-fallback inventory (a report)
     .\run-server-check.ps1                         # assembles the layout, starts the headless server, probes its HTTP
     .\test-server-upnp.ps1                         # multicasts an M-SEARCH at that server and wants a 200 OK
-    .\test-frontend-check.ps1                      # runs the front end against that server, and against a dead port; renders the screen on Skia while the server is up
+    .\test-frontend-check.ps1                      # runs the front end against that server, and against a dead port; renders the screens on Skia while the server is up
+    .\test-frontend-discovery.ps1                  # starts a server and makes the front end find it over SSDP, with nothing told to it
 
 On Linux: `.\test-canary-linux.ps1` runs the canary's tests in a container,
 `.\test-server-linux.ps1` compiles the whole server solution there, `.\test-server-run-linux.ps1`

@@ -66,7 +66,7 @@ namespace MediaPortal.Frontend.Input
           {
             if (args.Handled)
               return;
-            Control? target = NextInRing(ring, args.Key);
+            Control? target = NextReachableInRing(ring, args.Key);
             if (target == null)
               return;
 
@@ -80,26 +80,79 @@ namespace MediaPortal.Frontend.Input
     }
 
     /// <summary>
+    /// Which control the given key moves the focus to, walking past the areas of the ring that cannot take the
+    /// focus. <c>null</c> means the key is not a directional one, or that nothing in the ring could be reached.
+    /// </summary>
+    /// <remarks>
+    /// Skipping matters as soon as a screen can offer less than it was built for. The first run of the server
+    /// screen is the example: with an empty address both the test and the save button are disabled, and a ring
+    /// that insists on the next control in order leaves the viewer trapped in the field with no way to the close
+    /// button. A remote has no mouse to fall back on, so the areas that are not there are walked over rather than
+    /// walked into.
+    /// </remarks>
+    public static Control? NextReachableInRing(IReadOnlyList<Control> ring, Key key)
+    {
+      int direction = DirectionOf(key);
+      if (direction == 0)
+        return null;
+      if (ring.Count == 0)
+        throw new ArgumentException("a ring with no controls has nothing to move between", nameof(ring));
+
+      int from = IndexOfFocused(ring);
+      if (from < 0)
+      {
+        // Nothing in the ring has the focus; the answer to "go anywhere" is the first area that can take it.
+        for (int i = 0; i < ring.Count; i++)
+          if (CanTakeFocus(ring[i]))
+            return ring[i];
+        return null;
+      }
+
+      // One lap at most. If every area is unreachable - or the only reachable one is the one that already has the
+      // focus - the key is nobody's, which the caller reports by not claiming it.
+      for (int step = 1; step <= ring.Count; step++)
+      {
+        Control candidate = ring[(((from + direction * step) % ring.Count) + ring.Count) % ring.Count];
+        if (!ReferenceEquals(candidate, ring[from]) && CanTakeFocus(candidate))
+          return candidate;
+      }
+
+      return null;
+    }
+
+    private static bool CanTakeFocus(Control control)
+    {
+      // A hidden area is not an area: the home screen keeps the playback button out of the ring on a machine
+      // without a player, but the buttons it does put in can still be disabled by the state of the screen, and
+      // Avalonia refuses focus to both kinds.
+      return control.IsVisible && control.IsEnabled && control.Focusable;
+    }
+
+    private static int DirectionOf(Key key)
+    {
+      switch (key)
+      {
+        case Key.Right:
+        case Key.Down:
+          return 1;
+        case Key.Left:
+        case Key.Up:
+          return -1;
+        default:
+          return 0;
+      }
+    }
+
+    /// <summary>
     /// Which control the given key moves focus to, or <c>null</c> when the key is not a directional one. Split
     /// out of the event handler because "what does Right mean here" is the whole behaviour, and it is the part
     /// worth testing without a window, a focus scope or a display.
     /// </summary>
     public static Control? NextInRing(IReadOnlyList<Control> ring, Key key)
     {
-      int direction;
-      switch (key)
-      {
-        case Key.Right:
-        case Key.Down:
-          direction = 1;
-          break;
-        case Key.Left:
-        case Key.Up:
-          direction = -1;
-          break;
-        default:
-          return null;
-      }
+      int direction = DirectionOf(key);
+      if (direction == 0)
+        return null;
 
       int from = IndexOfFocused(ring);
       if (from < 0)
