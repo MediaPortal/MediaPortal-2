@@ -244,14 +244,24 @@ namespace MediaPortal.Common
       ServiceRegistration.Get<IRemoteResourceInformationService>().Startup();
     }
 
+    /// <summary>
+    /// Brings the core services down.
+    /// </summary>
+    /// <remarks>
+    /// Each service is resolved optionally. This runs on the way out of a startup that may have failed
+    /// partway - measured in the Linux container, where the HTTP server could not start at all - and a
+    /// strict <see cref="ServiceRegistration.Get{T}()"/> here turned teardown into a second
+    /// <c>FATAL</c> sitting below the failure that mattered. The launcher that calls this resolves its
+    /// own services the same way, for the same reason.
+    /// </remarks>
     public static void StopCoreServices()
     {
       ResourcePath.ClearResourceCache();
-      ServiceRegistration.Get<IRemoteResourceInformationService>().Shutdown();
-      ServiceRegistration.Get<IResourceMountingService>().Shutdown();
-      ServiceRegistration.Get<IResourceServer>().Shutdown();
-      ServiceRegistration.Get<ITaskScheduler>().Shutdown();
-      ServiceRegistration.Get<IThreadPool>().Shutdown();
+      ServiceRegistration.Get<IRemoteResourceInformationService>(false)?.Shutdown();
+      ServiceRegistration.Get<IResourceMountingService>(false)?.Shutdown();
+      ServiceRegistration.Get<IResourceServer>(false)?.Shutdown();
+      ServiceRegistration.Get<ITaskScheduler>(false)?.Shutdown();
+      ServiceRegistration.Get<IThreadPool>(false)?.Shutdown();
     }
 
     public static async System.Threading.Tasks.Task RegisterDefaultMediaItemAspectTypes()

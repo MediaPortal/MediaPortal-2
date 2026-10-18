@@ -11,6 +11,11 @@
   rebuilding the reference closure before every suite costs more than the tests themselves. Pass
   -Build to let dotnet test build first.
 
+  Because --no-build runs the assembly on disk, each suite is checked for staleness first: if a source
+  file in the suite's own project is newer than its test assembly, the suite reports STALE and fails
+  instead of reporting a green result for a binary that does not contain the current sources. The check
+  covers the suite's own folder only; edits to a referenced project still need -Build.
+
   Which suites run by default is a decision, not an accident:
     Canary.Portable  - the portability canary, the only suite that also runs on Linux.
     Tests.Server     - the server/backend suite, part of MP2-Server.sln.
@@ -72,6 +77,33 @@ foreach ($name in $chosen) {
   Write-Host "=== $name" -ForegroundColor Cyan
   $cliArgs = @('test', $proj, '-c', $Configuration, '--nologo', '-v', 'q')
   if (-not $Build) { $cliArgs += '--no-build' }
+
+  # '--no-build' runs the assembly that happens to be on disk. That is the fast and documented path -
+  # but it means a green line can be evidence about a binary that predates the sources, which is how a
+  # test added after the last build silently does not run. Compare the newest source file in the suite's
+  # own project with the test assembly and refuse to report a result in that case.
+  # Only the suite's own folder is watched (not its referenced projects), so this is a floor: an edit to
+  # MediaPortal.Backend after the build still needs -Build.
+  if (-not $Build) {
+    $projectDir = Split-Path $proj -Parent
+    $testAssemblyName = [IO.Path]::GetFileNameWithoutExtension($proj)
+    $testDll = Get-ChildItem -Path (Join-Path $projectDir 'bin') -Recurse -Filter "$testAssemblyName.dll" -File -ErrorAction SilentlyContinue |
+        Where-Object { $_.FullName -notmatch '\\obj\\' } |
+        Sort-Object -Property LastWriteTime -Descending | Select-Object -First 1
+    if ($testDll) {
+      $newestSource = Get-ChildItem -Path $projectDir -Recurse -Include '*.cs', '*.csproj', '*.props', '*.targets' -File -ErrorAction SilentlyContinue |
+          Where-Object { $_.FullName -notmatch '\\(bin|obj)\\' } |
+          Sort-Object -Property LastWriteTime -Descending | Select-Object -First 1
+      if ($newestSource -and $newestSource.LastWriteTime -gt $testDll.LastWriteTime) {
+        Write-Host ("  STALE: {0} was built at {1}, but {2} is newer ({3})." -f `
+            $testDll.Name, $testDll.LastWriteTime.ToString('s'), $newestSource.Name, $newestSource.LastWriteTime.ToString('s')) -ForegroundColor Red
+        Write-Host "  The suite would run a binary that does not contain the current sources. Run tests.ps1 -Build, or build the solution first." -ForegroundColor Red
+        $failures += "$name (stale build)"
+        $results += [pscustomobject]@{ Suite = $name; Tests = 0; Passed = 0; Failed = 0; Result = 'STALE (not built after the last source change)' }
+        continue
+      }
+    }
+  }
 
   # Capture the console output as data, then read the exit code. A suite that dies without printing
   # a summary line (non-zero exit, no "Passed!" text) must still count as failed, so the exit code -

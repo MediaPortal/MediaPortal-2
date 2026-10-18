@@ -25,8 +25,9 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SQLite;
+using System.Globalization;
 using System.IO;
+using Microsoft.Data.Sqlite;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,7 +46,7 @@ using MediaPortal.Common.Settings;
 namespace MediaPortal.Database.SQLite
 {
   /// <summary>
-  /// Implementation of ISQLDatabase using the System.Data.SQLite wrapper for the SQLite database
+  /// Implementation of ISQLDatabase using the Microsoft.Data.Sqlite driver for the SQLite database
   /// </summary>
   /// <remarks>
   /// The purpose of this database is to have an inbuilt database without the need to install an external
@@ -64,11 +65,26 @@ namespace MediaPortal.Database.SQLite
     #region Variables
 
     private readonly string _connectionString;
+
+    /// <summary>
+    /// The PRAGMA statements every connection runs right after opening. The old driver took journal
+    /// mode, synchronous mode and cache size as connection-string keywords; Microsoft.Data.Sqlite
+    /// rejects them there (measured: "Connection string keyword 'journal_mode' is not supported"), so
+    /// they are statements now, executed at one place together with the user-configurable
+    /// InitializationCommand.
+    /// </summary>
+    private readonly string _connectionPragmas;
+
+    /// <summary>
+    /// SQLite engine version, read from the first connection that opens. The old driver had a static
+    /// version property; Microsoft.Data.Sqlite only reports it on an open connection.
+    /// </summary>
+    private string _sqliteVersion;
+
 #if !NO_POOL
-    private ConnectionPool<SQLiteConnection> _connectionPool;
+    private ConnectionPool<SqliteConnection> _connectionPool;
 #endif
     private readonly SQLiteSettings _settings;
-    private readonly ILogger _sqliteDebugLogger;
     private readonly AsynchronousMessageQueue _messageQueue;
     private readonly ActionBlock<bool> _maintenanceScheduler;
     private readonly ICollection<Guid> _importingShareIds;
@@ -94,80 +110,72 @@ namespace MediaPortal.Database.SQLite
         _settings = ServiceRegistration.Get<ISettingsManager>().Load<SQLiteSettings>();
         _settings.LogSettings();
 
-        LogVersionInformation();
-
+        // LogVersionInformation() is called further down, once a connection exists: the driver only
+        // reports the SQLite version on an open connection, and loading the native library is itself
+        // the first thing that can fail on a new platform - worth having in the log with a name.
         if (_settings.EnableTraceLogging)
         {
-          _sqliteDebugLogger = FileLogger.CreateFileLogger(ServiceRegistration.Get<IPathManager>().GetPath(@"<LOG>\SQLiteDebug.log"), LogLevel.Debug, false, true);
-          SQLiteLog.Initialize();
-          SQLiteLog.RemoveDefaultHandler();
-          SQLiteLog.Log += MPSQLiteLogEventHandler;
+          // System.Data.SQLite surfaced SQLite's "log" hook as a static event, which is how
+          // SQLiteDebug.log was written. Microsoft.Data.Sqlite does not expose it, so the setting has
+          // nothing to attach to any more. Saying so in the log beats a silently missing file.
+          ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: SQLite trace logging is not available with the Microsoft.Data.Sqlite driver; the EnableTraceLogging setting has no effect.");
         }
 
         var pathManager = ServiceRegistration.Get<IPathManager>();
         string dataDirectory = pathManager.GetPath("<DATABASE>");
         string databaseFile = Path.Combine(dataDirectory, _settings.DatabaseFileName);
 
-        // We use an URI instead of a simple database path and filename. The reason is that
-        // only this way we can switch on the shared cache mode of SQLite in System.Data.SQLite
-        // However, when using an URI, SQLite ignores the page size value specified in the connection string.
-        // Therefore we have to use a workaround below to create a database file with the specified page size.
-        string databaseFileForUri = databaseFile.Replace('\\', '/');
-        string databaseUri = System.Web.HttpUtility.UrlPathEncode("file:///" + databaseFileForUri + "?cache=shared");
-
+        // The old provider needed a SQLite *URI* ("file:/path?cache=shared") to switch on shared
+        // cache mode, and SQLite ignores the page size of a connection string when a URI is used -
+        // which is why the original code had a workaround to create the file with the right page
+        // size. Microsoft.Data.Sqlite has a Cache keyword for shared cache, so the URI, the
+        // HttpUtility encoding of it and that workaround all go away. (The page size still has to be
+        // set before the file is written, because SQLite stores it permanently in the header.)
 #if !NO_POOL
-        _connectionPool = new ConnectionPool<SQLiteConnection>(CreateOpenAndInitializeConnection);
+        _connectionPool = new ConnectionPool<SqliteConnection>(CreateOpenAndInitializeConnection);
 #endif
 
-        // We are using the ConnectionStringBuilder to generate the connection string
-        // This ensures code compatibility in case of changes to the SQLite connection string parameters
-        // More information on the parameters can be found here: http://www.sqlite.org/pragma.html
-        var connBuilder = new SQLiteConnectionStringBuilder
+        var connBuilder = new SqliteConnectionStringBuilder
         {
-          // Name of the database file including path as URI 
-          FullUri = databaseUri,
+          DataSource = databaseFile,
 
-          // Use SQLite database version 3.x  
-          Version = 3,
-
-          // Store GUIDs as binaries, not as string
-          // Saves some space in the database and is said to make search queries on GUIDs faster  
-          BinaryGUID = true,
+          // Shared cache mode, the equivalent of the old "?cache=shared" URI parameter: several
+          // connections to the same database inside this process share one page cache.
+          Cache = SqliteCacheMode.Shared,
 
           DefaultTimeout = _settings.LockTimeout,
-          CacheSize = _settings.CacheSizeInPages,
 
-          // Use the Write Ahead Log mode
-          // In this journal mode write locks do not block reads
-          // Needed to prevent sluggish behaviour of MP2 client when trying to read from the database (through MP2 server)
-          // while MP2 server writes to the database (such as when importing shares)
-          // More information can be found here: http://www.sqlite.org/wal.html
-          JournalMode = SQLiteJournalModeEnum.Wal,
-
-          // Do not use the inbuilt connection pooling of System.Data.SQLite
-          // We use our own connection pool which is faster.
-#if NO_POOL
-          Pooling = true,
-#else
+          // The driver's own pool is never used, in every build configuration. This is not a
+          // performance preference but a correctness one, measured: pooled connections are reset when
+          // returned, and that reset removes registered collations - after overriding the built-in
+          // NOCASE once, the *next* consumer of a pooled handle got "no such collation sequence:
+          // NOCASE", i.e. not even SQLite's own. MP2's ConnectionPool hands out the connections this
+          // class created and initialized, so the collation and PRAGMAs stay attached to them.
           Pooling = false,
-#endif
-
-          // Sychronization Mode "Normal" enables parallel database access while at the same time preventing database
-          // corruption and is therefore a good compromise between "Off" (more performance) and "On"
-          // More information can be found here: http://www.sqlite.org/pragma.html#pragma_synchronous
-          SyncMode = SynchronizationModes.Normal,
 
           // MP2's database backend uses foreign key constraints to ensure referential integrity.
           // SQLite supports this, but it has to be enabled for each database connection by a PRAGMA command
           // For details see http://www.sqlite.org/foreignkeys.html
           ForeignKeys = true
         };
-
-        if (_settings.EnableTraceLogging)
-          connBuilder.Flags = SQLiteConnectionFlags.LogAll;
-
         _connectionString = connBuilder.ToString();
         ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Connection String used: '{0}'", _connectionString);
+
+        // Statements from the first comment: journal mode, synchronous mode and cache size were
+        // connection-string keywords in the old driver and are PRAGMAs in this one. The values and
+        // their reasoning are unchanged:
+        //   - WAL: write locks do not block reads, which is what keeps the client responsive while the
+        //     server imports shares (http://www.sqlite.org/wal.html). Persistent per database file.
+        //   - synchronous=NORMAL: parallel access with durability against crashes, the compromise
+        //     between OFF (faster) and FULL (safest) (http://sqlite.org/pragma.html#pragma_synchronous).
+        //   - cache_size: a positive value is pages, which is what SQLiteSettings reports.
+        // The user-configurable InitializationCommand goes last so that it can override any of these.
+        _connectionPragmas =
+          "PRAGMA journal_mode=WAL;" +
+          "PRAGMA synchronous=NORMAL;" +
+          string.Format(CultureInfo.InvariantCulture, "PRAGMA cache_size={0};", _settings.CacheSizeInPages) +
+          _settings.InitializationCommand;
+
 
         if (!File.Exists(databaseFile))
         {
@@ -176,19 +184,21 @@ namespace MediaPortal.Database.SQLite
           if (!Directory.Exists(dataDirectory))
             Directory.CreateDirectory(dataDirectory);
 
-          // Since we use an URI in the standard connection string and system.data.sqlite therefore
-          // ignores the page size value in the connection string, this is a workaroung to make sure
-          // the page size value as specified in the settings is used. When the database file does
-          // not yet exists, we create a special connection string where we additionally set the
-          // datasource (which overrides the URI) and the page size. We then create a connection with
-          // that special connection string, open it and close it. That way the database file is created
-          // with the desired page size. The page size is permanently stored in the database file so that
-          // it is used when as of now we use connections with URI.
-          connBuilder.DataSource = databaseFile;
-          connBuilder.PageSize = _settings.PageSize;
-          using (var connection = new SQLiteConnection(connBuilder.ToString()))
+          // The page size is stored permanently in the database header, so it has to be set before the
+          // file is written - the old code needed a second connection string for this because the URI
+          // form made SQLite ignore the keyword. There is no keyword to set here either, so the pragma
+          // is executed and VACUUM forces the first write. On a database that does not exist yet this
+          // leaves a valid empty file with the configured page size; measured, the value survives a
+          // reopen.
+          using (var connection = new SqliteConnection(_connectionString))
           {
             connection.Open();
+            using (var command = connection.CreateCommand())
+            {
+              command.CommandText = string.Format(CultureInfo.InvariantCulture,
+                "PRAGMA page_size={0};VACUUM;", _settings.PageSize);
+              command.ExecuteNonQuery();
+            }
             connection.Close();
           }
         }
@@ -210,15 +220,22 @@ namespace MediaPortal.Database.SQLite
         // Avoiding the creation of an "-shm"-file materially improves the database performance.
         if (_settings.UseExclusiveMode)
         {
-          connBuilder.JournalMode = SQLiteJournalModeEnum.Off;
-          using (var connection = new SQLiteConnection(connBuilder.ToString()))
+          // "JournalMode=Off" was a connection-string keyword in the old driver; as a statement it
+          // means the same thing for this one connection, and it still has to run before entering
+          // WAL mode, which is what the paragraph above is about.
+          using (var connection = new SqliteConnection(_connectionString))
           {
             connection.Open();
-            using (var command = new SQLiteCommand(SQLiteSettings.EXCLUSIVE_MODE_COMMAND, connection))
+            using (var command = connection.CreateCommand())
+            {
+              command.CommandText = "PRAGMA journal_mode=OFF;" + SQLiteSettings.EXCLUSIVE_MODE_COMMAND;
               command.ExecuteNonQuery();
+            }
             connection.Close();
           }
         }
+
+        LogVersionInformation();
 
         // Just test one "regular" connection, which is the first connection in the pool
         using (var transaction = BeginTransaction())
@@ -236,7 +253,7 @@ namespace MediaPortal.Database.SQLite
 #if !NO_POOL
     #region Public properties
 
-    public ConnectionPool<SQLiteConnection> ConnectionPool
+    public ConnectionPool<SqliteConnection> ConnectionPool
     {
       get
       {
@@ -250,41 +267,34 @@ namespace MediaPortal.Database.SQLite
     #region Private methods
 
     /// <summary>
-    /// Creates a new <see cref="SQLiteConnection"/> object, opens it and executes the
-    /// InitializationCommand via ExecuteNonQuery()
+    /// Creates a new <see cref="SqliteConnection"/> object, opens it, registers the culture-aware
+    /// NOCASE collation and runs <see cref="_connectionPragmas"/> via ExecuteNonQuery()
     /// </summary>
-    /// <returns>Newly created and initialized <see cref="SQLiteConnection"/></returns>
-    public SQLiteConnection CreateOpenAndInitializeConnection()
+    /// <returns>Newly created and initialized <see cref="SqliteConnection"/></returns>
+    public SqliteConnection CreateOpenAndInitializeConnection()
     {
-      var connection = new SQLiteConnection(_connectionString);
+      var connection = new SqliteConnection(_connectionString);
       connection.Open();
-      connection.SetChunkSize(_settings.ChunkSizeInMegabytes * 1024 * 1024);
-      using (var command = new SQLiteCommand(_settings.InitializationCommand, connection))
-        command.ExecuteNonQuery();
-      return connection;
-    }
 
-    /// <summary>
-    /// Log event handler for trace logging
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void MPSQLiteLogEventHandler(object sender, LogEventArgs e)
-    {
-      if (_sqliteDebugLogger == null || e == null)
-        return;
-
-      string logText = e.Message;
-      if (logText == null)
-        logText = "<null>";
-      else
+      // Two per-connection things the old driver did differently:
+      //   - Collations. SQLiteCultureSensitiveCollation replaced SQLite's built-in NOCASE through a
+      //     [SQLiteFunction] attribute that System.Data.SQLite registered on every connection; this
+      //     driver has an explicit call, and it is per connection - measured, a second connection to
+      //     the same database does not see it. MP2's schema declares columns "COLLATE NOCASE" in
+      //     almost every table, so registering here is what keeps media library ordering the same.
+      //   - SetChunkSize(). It made System.Data.SQLite read large values in chunks; this driver has no
+      //     equivalent, so the ChunkSize setting is inert. It stays in the settings class because
+      //     existing settings files carry it.
+      connection.CreateCollation(SQLiteCultureSensitiveCollation.CollationName, SQLiteCultureSensitiveCollation.Compare);
+      using (var command = connection.CreateCommand())
       {
-        logText = logText.Trim();
-        if (logText.Length == 0)
-          logText = "<empty>";
+        command.CommandText = _connectionPragmas;
+        command.ExecuteNonQuery();
       }
 
-      _sqliteDebugLogger.Debug("SQLite ({0}): {1}", e.ErrorCode, logText);
+      if (_sqliteVersion == null)
+        _sqliteVersion = connection.ServerVersion;
+      return connection;
     }
 
     /// <summary>
@@ -334,7 +344,7 @@ namespace MediaPortal.Database.SQLite
       ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Performing database maintenance...");
       try
       {
-        using (var connection = new SQLiteConnection(_connectionString))
+        using (var connection = new SqliteConnection(_connectionString))
         {
           await connection.OpenAsync();
           using (var command = connection.CreateCommand())
@@ -350,31 +360,28 @@ namespace MediaPortal.Database.SQLite
         ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Error while performing database maintenance:", e);
       }
       ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Database maintenance finished");
-      LogStatistics();
     }
 
     /// <summary>
-    /// Logs statistical data of the SQLite engine
+    /// Logs version information about the SQLite engine and the driver in front of it.
     /// </summary>
-    private void LogStatistics()
-    {
-      IDictionary<String, long> statistics = new Dictionary<string, long>();
-      SQLiteConnection.GetMemoryStatistics(ref statistics);
-      var statisticsString = String.Join("; ", statistics.Select(kvp => String.Format("{0}={1:N0}", kvp.Key, kvp.Value)));
-      ServiceRegistration.Get<ILogger>().Debug("SQLiteDatabase: Memory Statistics: {0}", statisticsString);
-    }
-
-    /// <summary>
-    /// Logs version information about the used SQLite libraries
-    /// </summary>
+    /// <remarks>
+    /// The old provider had static properties for the wrapper version, the interop version, the SQLite
+    /// version and each of their source ids; this driver reports only the SQLite engine version, and
+    /// only on an open connection - which is why this runs after the database file has been created
+    /// and why it opens a connection of its own. What matters on a new platform is that this line
+    /// appears at all: getting it here means the native library loaded, and if it does not load, the
+    /// exception says so at a known point instead of during somebody's first query.
+    /// </remarks>
     private void LogVersionInformation()
     {
-      ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: ProviderVersion={0} (SourceID: {1})", SQLiteConnection.ProviderVersion, SQLiteConnection.ProviderSourceId);
-      ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: InteropVersion: {0} (SourceID: {1})", SQLiteConnection.InteropVersion, SQLiteConnection.InteropSourceId);
-      ServiceRegistration.Get<ILogger>().Debug("SQLiteDatabase: InteropCompileOptions: {0}", SQLiteConnection.InteropCompileOptions);
-      ServiceRegistration.Get<ILogger>().Debug("SQLiteDatabase: InteropDefineConstants: {0}", SQLiteConnection.DefineConstants);
-      ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: SQLiteVersion: {0} (SourceID: {1})", SQLiteConnection.SQLiteVersion, SQLiteConnection.SQLiteSourceId);
-      ServiceRegistration.Get<ILogger>().Debug("SQLiteDatabase: SQLiteCompileOptions: {0}", SQLiteConnection.SQLiteCompileOptions);
+      using (var connection = new SqliteConnection(_connectionString))
+      {
+        connection.Open();
+        ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: SQLiteVersion: {0}", connection.ServerVersion);
+        ServiceRegistration.Get<ILogger>().Debug("SQLiteDatabase: Driver: {0}", typeof(SqliteConnection).Assembly.GetName().Version);
+        connection.Close();
+      }
     }
 
     #endregion
@@ -388,7 +395,9 @@ namespace MediaPortal.Database.SQLite
 
     public string DatabaseVersion
     {
-      get { return SQLiteConnection.ProviderVersion; }
+      // The SQLite engine version, from the first connection that opened (see _sqliteVersion). Only
+      // used in a diagnostic message by SqlScriptPreprocessor.
+      get { return _sqliteVersion ?? "unknown"; }
     }
 
     public uint MaxObjectNameLength
@@ -460,15 +469,11 @@ namespace MediaPortal.Database.SQLite
 
     public IDbDataParameter AddParameter(IDbCommand command, string name, object value, Type type)
     {
-      if (type == typeof(byte[]))
-      {
-        var result = (SQLiteParameter)command.CreateParameter();
-        result.ParameterName = name;
-        result.Value = value ?? DBNull.Value;
-        result.DbType = DbType.Binary;
-        command.Parameters.Add(result);
-        return result;
-      }
+      // The BLOB cases (byte[] and Guid) live in SQLiteValues where the storage decision can be
+      // tested against a real database; everything else is the shared binder.
+      var binary = SQLiteValues.TryAddBinaryParameter(command, name, value, type);
+      if (binary != null)
+        return binary;
 
       return DBUtils.AddSimpleParameter(command, name, value, type);
     }
@@ -480,7 +485,7 @@ namespace MediaPortal.Database.SQLite
 
       if (type == typeof(byte[]))
       {
-        var result = (byte[])((SQLiteDataReader)reader).GetValue(colIndex);
+        var result = (byte[])((SqliteDataReader)reader).GetValue(colIndex);
         return result;
       }
 

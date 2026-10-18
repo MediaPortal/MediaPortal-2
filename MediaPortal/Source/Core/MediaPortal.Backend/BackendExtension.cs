@@ -99,12 +99,49 @@ namespace MediaPortal.Backend
       ServiceRegistration.Get<IMediaLibrary>().ActivateImporterWorker();
     }
 
+    /// <summary>
+    /// Shuts the backend services down.
+    /// </summary>
+    /// <remarks>
+    /// A service that is not registered is skipped instead of throwing. Startup registers these
+    /// one by one, so when an early one fails - the database could not be opened, for instance - the
+    /// later ones were never built, and asking for them here threw a <c>ServiceNotFoundException</c>
+    /// that reached the launcher as a second <c>FATAL</c>. That buried the actual failure two lines
+    /// above it, which is exactly what a shutdown path must not do. Measured in the Linux container
+    /// run (ROADMAP items i and j): the database failing to open produced this exception on top.
+    /// </remarks>
     public static void ShutdownBackendServices()
     {
-      ((UserProfileDataManagement)ServiceRegistration.Get<IUserProfileDataManagement>()).Shutdown();
-      ServiceRegistration.Get<IClientManager>().Shutdown();
-      ServiceRegistration.Get<IMediaLibrary>().Shutdown();
-      ServiceRegistration.Get<IBackendServer>().Shutdown();
+      // The logger is optional here. On the failure path this runs after the core services have been
+      // taken apart, and in the container's failed startup the ILogger service was already gone - so
+      // asking for it strictly replaced one shutdown exception with another. Measured.
+      ILogger logger = ServiceRegistration.Get<ILogger>(false) ?? new NoLogger();
+
+      // Ordered as before: user profiles first, then clients, then the library that uses them, then
+      // the server that hosts them.
+      var userProfileDataManagement = ServiceRegistration.Get<IUserProfileDataManagement>(false) as UserProfileDataManagement;
+      if (userProfileDataManagement != null)
+        userProfileDataManagement.Shutdown();
+      else
+        logger.Debug("BackendExtension: Skipping shutdown of IUserProfileDataManagement, the service is not registered");
+
+      var clientManager = ServiceRegistration.Get<IClientManager>(false);
+      if (clientManager != null)
+        clientManager.Shutdown();
+      else
+        logger.Debug("BackendExtension: Skipping shutdown of IClientManager, the service is not registered");
+
+      var mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
+      if (mediaLibrary != null)
+        mediaLibrary.Shutdown();
+      else
+        logger.Debug("BackendExtension: Skipping shutdown of IMediaLibrary, the service is not registered");
+
+      var backendServer = ServiceRegistration.Get<IBackendServer>(false);
+      if (backendServer != null)
+        backendServer.Shutdown();
+      else
+        logger.Debug("BackendExtension: Skipping shutdown of IBackendServer, the service is not registered");
     }
 
     public static void DisposeBackendServices()

@@ -15,24 +15,37 @@
       <PluginFiles Include="$(TargetDir)$(ProjectName).pdb" />
     </ItemGroup>
 
+    <!--
+      The driver is Microsoft.Data.Sqlite now, which is four managed assemblies and one native
+      library. All of them belong next to the plugin: the plugin loader resolves the managed ones
+      from the plugin folder, and SQLitePCLRaw looks for e_sqlite3 in the directory of
+      SQLitePCLRaw.provider.e_sqlite3.dll, so the native goes in flat - not into an x64\ subfolder
+      the way System.Data.SQLite wanted its SQLite.Interop.dll.
+
+      Which native belongs here is the build host's own RID, and the name differs per platform
+      (e_sqlite3.dll / libe_sqlite3.so / libe_sqlite3.dylib), hence the wildcard. The build output has
+      a runtimes\<rid>\native folder for every RID the package graph mentions, so naming one is a
+      decision, not a lookup: hardcoding win-x64 puts a Windows dll into a Linux layout, which is the
+      DllNotFoundException the server then dies with. NETCoreSdkPortableRuntimeIdentifier is the RID of
+      the SDK running this build, and it knows about musl (linux-musl-x64) as well as the CPU.
+    -->
     <ItemGroup>
-      <References Include="$(TargetDir)System.Data.SQLite.dll" />
+      <References Include="$(TargetDir)Microsoft.Data.Sqlite.dll" />
+      <References Include="$(TargetDir)SQLitePCLRaw.batteries_v2.dll" />
+      <References Include="$(TargetDir)SQLitePCLRaw.core.dll" />
+      <References Include="$(TargetDir)SQLitePCLRaw.provider.e_sqlite3.dll" />
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'">
-      <SQLiteInterop64 Include="$(TargetDir)\runtimes\win-x64\native\SQLite.Interop.dll" />
-      <SQLiteInterop86 Include="$(TargetDir)\runtimes\win-x86\native\SQLite.Interop.dll" />
+    <ItemGroup>
+      <SQLiteNative Include="$(TargetDir)runtimes/$(NETCoreSdkPortableRuntimeIdentifier)/native/*e_sqlite3*" />
     </ItemGroup>
-    <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
-      <SQLiteInterop64 Include="$(TargetDir)\x64\SQLite.Interop.dll" />
-      <SQLiteInterop86 Include="$(TargetDir)\x86\SQLite.Interop.dll" />
-      <References Include="$(TargetDir)System.Data.SQLite.Linq.dll" />
-    </ItemGroup>
+
+    <Warning Condition="'@(SQLiteNative)' == ''"
+             Text="No SQLite native under $(TargetDir)runtimes/$(NETCoreSdkPortableRuntimeIdentifier)/native - the plugin will fail to open a database at runtime." />
 
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
-    <Copy SourceFiles="@(SQLiteInterop64)" DestinationFolder="$(PluginDestination)x64\" />
-    <Copy SourceFiles="@(SQLiteInterop86)" DestinationFolder="$(PluginDestination)x86\" />
+    <Copy SourceFiles="@(SQLiteNative)" DestinationFolder="$(PluginDestination)" />
   </Target>
 
 </Project>

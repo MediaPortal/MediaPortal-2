@@ -23,7 +23,7 @@
 #endregion
 
 using System.Data;
-using System.Data.SQLite;
+using Microsoft.Data.Sqlite;
 using MediaPortal.Backend.Database;
 using MediaPortal.Backend.Services.Database;
 
@@ -33,9 +33,9 @@ namespace MediaPortal.Database.SQLite
   {
     #region Variables
 
-    private System.Data.SQLite.SQLiteTransaction _transaction;
+    private SqliteTransaction _transaction;
     private readonly SQLiteDatabase _database;
-    private SQLiteConnection _connection;
+    private SqliteConnection _connection;
     private readonly SQLiteSettings _settings;
 
     #endregion
@@ -60,9 +60,9 @@ namespace MediaPortal.Database.SQLite
 
     public void Dispose()
     {
-      // Dispose the System.Data.SQLite.SQLiteTransaction. If neither Commit nor Rollback was
-      // called before, the standard behaviour of System.Data.SQLite.SQLiteTransaction is to
-      // issue a Rollback during disposing.
+      // Dispose the SqliteTransaction. If neither Commit nor Rollback was called before, the
+      // standard behaviour of Microsoft.Data.Sqlite's transaction is to issue a Rollback while
+      // disposing - which is what MP2 relies on here.
       _transaction?.Dispose();
       _transaction = null;
 #if NO_POOL

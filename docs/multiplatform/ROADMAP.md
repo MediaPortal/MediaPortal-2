@@ -35,11 +35,11 @@ Verified 2026-10-18 with `build.ps1 -Solution Server,Client -Ratchet`, `tests.ps
 | Portable-core WinForms / GDI+ references | **0** (83 quarantined in 10 satellite files) | `spine.ps1`, `satellites.ps1` |
 | Portable-core P/Invoke declarations | **73** in 9 files (was 95, then 76; the last three were the Kernel32 waitable timer) - invisible to `CA1416` | `spine.ps1` (P/Invoke column) |
 | `CA1416` call sites, Windows vs Linux | **0** on both hosts, floor 0 (was 196 at the retarget) - the 107 that remained were all in `-windows` assemblies that had lost their platform declaration; see "the floor went to zero" below | build log, `warnings.ps1` on both logs |
-| Unit tests, Windows | 4/4 suites, 290 executed, 0 failed (3 canary tests skip: Linux-only) | `tests.ps1` |
+| Unit tests, Windows | 4/4 suites, 311 executed, 0 failed (3 canary tests skip: Linux-only); a suite whose assembly predates its own sources reports STALE instead of running the old binary | `tests.ps1` |
 | Unit tests, Linux (canary) | 31 executed, 0 failed (1 skips: Windows-only), incl. live IPC round trips and XDG autostart | `test-canary-linux.ps1` |
 | Server actually **runs** | **yes on Windows** as a headless process: reaches the Running state, creates the SQLite store, answers UPnP discovery over the network, exits 0 with an error-free log; no other platform runs it, though `MP2-Server-Headless.dll` is the first MP2 executable `test-server-linux.ps1` builds | `run-server-check.ps1`, `test-server-upnp.ps1`, `test-server-linux.ps1` |
-| Server **starts on Linux** | yes - the layout assembles and the host executes under .NET 10.0.13, activates the `SQLiteDatabase` plugin and logs its settings; it then dies on the first Windows-only native, so three `FATAL` lines stand between that and item **g**'s Running state | `test-server-run-linux.ps1`, item **i** below |
-| Database plugin on a portable target framework | `SQLiteDatabase` is `net10.0` with `CA1416` as error and no Win32 calls left; the native SQLite library it loads is still win-x64 only | `SQLiteDatabase.csproj`, item **h** below |
+| Server **starts on Linux** | yes, and its database now opens there: the layout assembles, the host executes under .NET 10.0.13, `libe_sqlite3.so` (linux-x64) loads, SQLite 3.53.3 reports its version from an open connection, and the host shuts down cleanly. One `FATAL` stands between that and item **g**'s Running state (was three): `HTTPAPI.dll` | `test-server-run-linux.ps1`, items **i** and **j** below |
+| Database plugin on a portable driver | `SQLiteDatabase` is `net10.0` with `CA1416` as error, no Win32 calls left, and no longer loads a Windows-only interop library: it talks to SQLite through `Microsoft.Data.Sqlite` (SQLite 3.53.3), whose `e_sqlite3` native is copied into the layout per platform | `SQLiteDatabase.csproj`, items **h** and **j** below |
 | Built executables are 64-bit | 5/5 apphosts measure `x64`, managed side `MSIL` | `architecture.ps1` |
 | 32-bit declarations in source | 0 in SDK-style projects, 42 in old-style ones | `architecture.ps1` |
 | Packages with known advisories | **0** (was 5: 1 critical, 3 high, 1 moderate) | `packages.ps1 -FailOn Low` |
@@ -443,12 +443,9 @@ Two things in there were measured rather than assumed, and both were surprises:
   case-sensitivity test asserts that the two differ, not which one wins; nobody should depend on a
   direction that changes with the platform.
 
-What is *not* portable yet is one level down: `System.Data.SQLite.Core` is a .NET Standard assembly that
+What was *not* portable was one level down: `System.Data.SQLite.Core` is a .NET Standard assembly that
 compiles everywhere, but it loads `SQLite.Interop.dll`, and the package ships win-x64 and win-x86 only.
-Until that becomes `Microsoft.Data.Sqlite` the provider builds for `net10.0` and opens a database on
-Windows only. The swap touches `SQLiteDatabase.cs` (32 KB), `ConnectionPool.cs`, the `SQLiteFunction`
-aggregate and collation registrations, and the connection-string keywords - which is why it is its own
-step rather than a package bump.
+That is item **j**.
 
 **Running the server found more, after item g had already proved the point.** Three things turned up
 once the server was started and stopped repeatedly, and none of them is visible to a compiler:
@@ -494,6 +491,67 @@ Writing the probe also exposed a portability bug in the tooling itself: `Join-Pa
 where a backslash is not a separator, so `'MediaPortal\Source'` is one *file name*. That is the same
 class of defect `PathManager` had, sitting in the scripts that are supposed to prove the server runs on
 Linux; all of them now build paths from separate components.
+
+**j. The SQLite driver swap: the database opens on Linux (2026-10-19).** Item **i**'s first `FATAL` was
+`DllNotFoundException: SQLite.Interop.dll`. `Microsoft.Data.Sqlite` replaces `System.Data.SQLite`: same
+SQLite engine through `SQLitePCLRaw`, with `e_sqlite3` natives for linux, android, macOS and Windows
+(SDK 10.0.13, SQLite 3.53.3 measured in both layouts). Not a package bump:
+
+| Decision | Why |
+| --- | --- |
+| `Guid` keys keep binding as 16-byte BLOBs in `Guid.ToByteArray()` order | MP2 databases were written by `System.Data.SQLite` with `BinaryGUID=true`. Measured on a real 16 MB datastore: `MIA_TYPES.MIAM_ID` is declared TEXT but stored as `typeof=blob len=16`. `Microsoft.Data.Sqlite` binds a Guid as TEXT - `WHERE MIAM_ID=@g` returned **0 rows** against such a row, the same query with the bytes returned **1**. Silent empty results are the worst shape a storage-format change can take, so the decision is centralised in `SQLiteValues` and pinned by four tests |
+| `Pooling=False`, MP2's own `ConnectionPool<T>` live again | `CreateCollation` registrations are per connection, and the driver's pool *removes* them when a connection is returned: the next user of that connection got `no such collation sequence: NOCASE` - not even SQLite's own built-in. `NO_POOL` had been defined in both configurations, which meant the driver pool was in use and MP2's pool was dead code; it is the only pooling now, so `ConnectionPool` got its first tests (5) and two fixes: `_pool` disposed, and the slot reservation made atomic - "read the count, then increment" let every racing thread past the maximum at once |
+| The `NOCASE` override survives as a comparison delegate | the old one was a `[SQLiteFunction]` aggregate, which is a `System.Data.SQLite` extension point. `CreateCollation("NOCASE", ...)` overrides the built-in (measured), and ~18 schema fragments of a real datastore use `COLLATE NOCASE`, so it is load-bearing, not cosmetic. Item **h**'s platform split (Win32 `CompareStringEx` on Windows, `NaturalStringComparer` elsewhere) is exactly what the new registration point needs |
+| `PRAGMA page_size` moves out of the connection string | `Page Size`, `journal_mode`, `Cache Size`, `FullUri`, `BinaryGuid` and unknown keywords throw `ArgumentException` (measured) - the driver validates the string. Page size is set with `PRAGMA page_size=N;VACUUM;` at creation and persists across reopen; journal mode and cache size go through the `_connectionPragmas` batch that runs on every connection |
+| `ChunkSize`, `SQLiteLog` and `GetMemoryStatistics` are gone | no equivalent in the new driver. The settings entry stays (a config file must still load) and says it is inert; trace logging logs one line naming the loss instead of failing the constructor; `DatabaseVersion` is `ServerVersion` from an open connection |
+
+The native library is a decision, not a lookup, and this step proved that twice. The plugin's build
+output has `runtimes\<rid>\native` for *every* RID in the package graph, so picking one is a choice: the
+first Linux run of the new layout took `linux-musl-x64`, because that was first in a hand-written list,
+inside a glibc Debian image. Both the layout script and `build.targets` now ask
+`RuntimeInformation.RuntimeIdentifier` (musl-aware) / `$(NETCoreSdkPortableRuntimeIdentifier)`, and the
+targets file warns when it finds no native at all instead of quietly shipping a plugin that throws.
+Windows is unaffected: the layout prints `native SQLite library: e_sqlite3.dll (win-x64)` and the server
+still logs `SQLiteVersion: 3.53.3`, reaches Running, and stops cleanly.
+
+**The probe found a bug in itself while doing this.** `deploy-server-layout.ps1` assigns its
+platform check to `$isWindows`, and pwsh defines `$IsWindows` as a *read-only* automatic variable:
+"Cannot overwrite variable IsWindows because it is read-only or constant" stopped the layout mid-way -
+inside the container only, because the build host runs Windows PowerShell 5.1, where the name does not
+exist. A script whose whole job is to prove the server runs on Linux had a defect that only appears on
+Linux; recorded in the CI README with the other traps.
+
+The same class of defect was found in the test gate, by arithmetic rather than by a container.
+`tests.ps1` runs `dotnet test --no-build` on purpose, and the suite reported 122 passed for a project
+whose assembly held 123 tests: the test added after the last build simply was not in the binary that
+ran, and the line was green anyway. Each suite now compares its own sources with its own assembly and
+reports `STALE` (a failure, not a warning) when the sources are newer - a floor, not a transitive-closure
+proof, and documented as such. The first version of that guard globbed for
+`Tests.Server.csproj.dll`, matched nothing, and silently did nothing, so the guard itself was tested by
+touching a source file and requiring the red output.
+
+After this step the Linux run had two `FATAL` lines left: `HTTPAPI.dll` (item **i** row 2, Kestrel), and
+one from teardown. The teardown turned out to be its own bug, and chasing it through three rebuilds was
+worth the time.
+
+`ServiceNotFoundException: Could not find the IUserProfileDataManagement service` reads as "startup did
+not register it", so that is what was fixed first - `ShutdownBackendServices` and `StopCoreServices` now
+resolve optionally and skip what is absent, with two tests for the case the compiler cannot reach. That
+removed the exception and left the `FATAL`: only the *name* of the missing service changed, from
+`IUserProfileDataManagement` to `ILogger` to `IRemoteResourceInformationService`, one per rebuild. A bug
+whose symptom moves each time it is fixed is a symptom of something else, and here it was: `Stop()` runs
+**twice** on the failed-startup path - `Start()` calls it from its catch, `Main()` calls it again in its
+`finally`. `DisposeServices()` has carried a comment about exactly that since it was written and guarded
+against it; the shutdown sequence above it did not. So the second pass walked a registry the first pass
+had already emptied, and reported a shutdown failure directly below the startup failure that mattered -
+with a different service named depending on which had been disposed first.
+
+Three changes, then, not one: the teardown is idempotent (`Interlocked.Exchange`, because an IPC shutdown
+can race with `Main()`'s), it tolerates services that are not there, and the two together are pinned by
+`TestShutdownWithNothingRegisteredDoesNotThrow`, `TestShutdownWithoutALoggerDoesNotThrow` and
+`TestStopCoreServicesWithNothingRegisteredDoesNotThrow`. The run ends at one `FATAL` now, which is the
+number of real blockers: `HTTPAPI.dll`. The next step is Kestrel behind a shared listener in
+`UPnP.Infrastructure.Http.HttpServer`, Windows keeping `http.sys` untouched.
 
 ## Phase 2 - Avalonia front end
 

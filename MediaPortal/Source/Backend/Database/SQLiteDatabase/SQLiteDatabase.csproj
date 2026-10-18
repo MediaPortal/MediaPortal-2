@@ -12,12 +12,13 @@
         elsewhere it delegates to NaturalStringComparer. The P/Invoke is annotated
         [SupportedOSPlatform("windows")], and CA1416 is an error in this project - so deleting the
         guard is a build failure rather than a runtime surprise.
-
-    What is still Windows-only and not fixable by retargeting: the System.Data.SQLite package. Its
-    managed assembly is .NET Standard, but the native SQLite.Interop.dll it P/Invokes ships for
-    win-x64 and win-x86 only (see scripts/ci/deploy-server-layout.ps1, which places it in x64\).
-    Opening a database off Windows needs a provider swap to Microsoft.Data.Sqlite, which is the next
-    step and tracked in docs/multiplatform/ROADMAP.md Phase 1d.
+      - The driver itself. System.Data.SQLite's managed assembly is .NET Standard but the native
+        SQLite.Interop.dll it P/Invokes ships for win-x64 and win-x86 only, so opening a database off
+        Windows threw DllNotFoundException (measured in the Linux container, see
+        scripts/ci/test-server-run-linux.ps1). Microsoft.Data.Sqlite's e_sqlite3 covers every platform
+        this tree targets. What that swap changed in behaviour - Guid storage, per-connection
+        collations, no driver pool, PRAGMAs instead of keywords - is documented at each site in
+        SQLiteDatabase.cs, with the measurement that forced it.
   -->
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -35,7 +36,15 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NO_POOL</DefineConstants>
+    <!--
+      NO_POOL used to be defined here, which compiled out MediaPortal's own ConnectionPool and let the
+      driver pool connections instead. That is no longer possible: the new driver resets pooled
+      connections when they are returned, and the reset removes registered collations - after one
+      NOCASE override, the next consumer of a pooled handle got "no such collation sequence: NOCASE",
+      i.e. not even SQLite's own. So Pooling=False in the connection string (see SQLiteDatabase) and
+      MP2's pool, which hands back the connections it initialized, is live in every configuration.
+    -->
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
@@ -43,7 +52,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;NO_POOL</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -58,12 +67,25 @@
     <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'">
-    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.117" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
-    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.113.7" />
-    <PackageReference Include="System.Data.SQLite.Linq" Version="1.0.113" />
-    <Reference Include="System.Web" />
+    <!--
+      Microsoft.Data.Sqlite instead of System.Data.SQLite, because of one measured fact: the
+      SQLite.Interop.dll that System.Data.SQLite P/Invokes ships for win-x64 and win-x86 only, so the
+      provider could open a database on Windows and nowhere else (`test-server-run-linux.ps1` shows
+      the DllNotFoundException). SQLitePCLRaw's e_sqlite3 covers win-x64, linux-x64/arm64, osx and
+      android/ios, which is the whole target list.
+      The swap is not free - three behaviours differ and are handled in SQLiteDatabase.cs, each one
+      measured against a database the old provider wrote:
+        - Guid parameters bind as TEXT, while the old provider's BinaryGUID=true stored 16-byte
+          BLOBs. A Guid parameter therefore matches nothing in an existing database, silently. The
+          provider binds Guid.ToByteArray() instead.
+        - Collations are registered per connection and are not carried across connections. With the
+          driver's own pool active, overriding the built-in NOCASE even leaves later pooled
+          connections without any NOCASE at all, so Pooling=False and MP2's own ConnectionPool.
+        - The connection string accepts only the driver's own keywords: journal_mode, page_size,
+          synchronous and cache_size have to be PRAGMA statements, which is what the existing
+          InitializationCommand mechanism is for.
+    -->
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.13" />
   </ItemGroup>
   <Import Project="build.targets" />
 </Project>

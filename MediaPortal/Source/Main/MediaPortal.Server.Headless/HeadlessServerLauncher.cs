@@ -91,6 +91,10 @@ namespace MediaPortal.Server.Headless
     private bool _coreStarted;
     private bool _coreServicesRegistered;
     private bool _backendRegistered;
+
+    // 0 while the teardown sequence has not run, 1 once it has. An int so the check-and-set is atomic:
+    // an IPC shutdown can race with the one Main() performs.
+    private int _stopped;
     private bool _servicesDisposed;
 
     #endregion
@@ -211,6 +215,16 @@ namespace MediaPortal.Server.Headless
     /// </summary>
     public void Stop()
     {
+      // Stop() runs twice on the failed-startup path: Start() calls it from its catch, and Main() calls
+      // it again in its finally block. DisposeServices() has guarded against that since it was written;
+      // the teardown sequence below had not, so the second pass asked for the services the first pass
+      // had already removed and reported "error while shutting down" as a second FATAL directly below
+      // the startup failure that mattered. Measured in the Linux container run (ROADMAP item i/j), where
+      // the service named in that second FATAL changed every time a caller was made tolerant - because
+      // the caller was never the problem.
+      if (Interlocked.Exchange(ref _stopped, 1) != 0)
+        return;
+
       try
       {
         _systemStateService.SwitchSystemState(SystemState.ShuttingDown, true);

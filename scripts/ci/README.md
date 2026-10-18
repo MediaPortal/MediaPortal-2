@@ -25,7 +25,7 @@ does *not*, because those differences are how CI surprises happen.
 ## The gate, in the order that fails fastest
 
     .\build.ps1 -Solution Server,Client -Ratchet   # builds, then warning + spine + satellite gates
-    .\tests.ps1                                    # the four Windows suites, against built output
+    .\tests.ps1                                    # four Windows suites, against built output; refuses to run a stale one
     .\packages.ps1                                 # advisory and netfx-fallback inventory (a report)
 
 On Linux: `.\test-canary-linux.ps1` runs the canary's tests in a container,
@@ -1323,6 +1323,31 @@ Remove the line afterwards, of course. If the build stays green, the gate is dec
 because the assembly declares a platform it should not (see the `GenerateAssemblyInfo` section above)
 or because `AllRules.ruleset` downgraded the diagnostic.
 
+## A green test suite can be a stale one
+
+`tests.ps1` runs `dotnet test --no-build` by default, on purpose: the reference closure of these suites
+is most of the tree, and rebuilding it before every suite costs more than running them. The contract is
+"build first" - which turned out not to be a contract anyone keeps, because the failure is silent. Added
+a test after the last build, ran the gate, and it reported 122 passed while the assembly on disk held 123
+tests: the newest one simply was not in the binary that ran, and the line was green either way.
+
+The gate now compares the suite's own sources with its own assembly before running it, and says no:
+
+```
+=== Tests.Server
+  STALE: Tests.Server.dll was built at 2026-10-18T12:04:39, but TestSQLiteValues.cs is newer (2026-10-18T12:06:46).
+  The suite would run a binary that does not contain the current sources. Run tests.ps1 -Build, or build the solution first.
+```
+
+The comparison is deliberately narrow - the suite's folder against its own output - because a correct
+transitive closure check would need MSBuild's project graph for every suite. It is a floor, not a
+guarantee: an edit to `MediaPortal.Backend` after the build still needs `-Build`. Writing it also
+produced a lesson worth repeating: the first version globbed for `"$projectLeaf.dll"` where
+`$projectLeaf` was the *project file* name, so it looked for `Tests.Server.csproj.dll`, found nothing,
+and the check did nothing at all. A guard that silently opts out is the same class of defect as the
+green-but-stale suite it was meant to catch, so it was tested by touching a source file and requiring the
+red output.
+
 ## The server runs: `deploy-server-layout.ps1` and `run-server-check.ps1`
 
 Every gate in this folder until now answers a question about the compiler. These two answer the other
@@ -1334,10 +1359,13 @@ script and not MSBuild because MP2's own plugin deployment (`build.targets` in ~
 into `$(SolutionDir)..\Bin\$(SolutionName)\bin\$(OutDir)\Plugins\` under
 `Condition="'$(MP2IsSolutionBuild)' == 'true'"` - a property `dotnet publish` never sets, writing a
 Windows installer staging tree. What a plugin directory must contain is not "the build output":
-`plugin.xml` is source, `System.Data.SQLite.dll` is a copied local dependency, and the native
-`SQLite.Interop.dll` has to end up in an `x64\` subfolder of the plugin folder because that is where
-the managed wrapper searches for it. `Source\Backend\Database\SQLiteDatabase\build.targets` is the
-reference for those rules.
+`plugin.xml` is source, and for the SQLite plugin the four driver assemblies (`Microsoft.Data.Sqlite.dll`
+plus `SQLitePCLRaw.batteries_v2.dll`, `.core.dll` and `.provider.e_sqlite3.dll`) are copied next to it
+together with the *platform's* `e_sqlite3` native. Flat, in the plugin folder, not in an `x64\`
+subfolder: SQLitePCLRaw probes the directory of `SQLitePCLRaw.provider.e_sqlite3.dll`, while the older
+`System.Data.SQLite` wanted `x64\SQLite.Interop.dll`. A missing driver assembly fails the layout build
+instead of producing a plugin that throws later.
+`Source\Backend\Database\SQLiteDatabase\build.targets` is the reference for those rules.
 
 `run-server-check.ps1` starts `MP2-Server-Headless --check --data <scratch>` and asserts four things,
 because "the process exited 0" alone is not one of them:
@@ -1352,8 +1380,10 @@ Assertion 4 is what proves the database layer rather than the service registrati
 the log inside it is the only diagnostic there is - and its path is printed.
 
 Two caveats to know before trusting a green run: it is a **Windows** green run, and the log says so.
-`HttpSysListener` appears for the resource and UPnP servers, and the SQLite plugin still loads a win-x64
-native. Both are listed as open in `docs/multiplatform/ROADMAP.md` Phase 1. The log also names the
+`HttpSysListener` appears for the resource and UPnP servers, which is Windows' `http.sys` - the one
+remaining native the Linux probe trips over. The SQLite half is no longer a caveat: the layout copies the
+platform's own `e_sqlite3` native and the server logs `SQLiteVersion` from an open connection, on both
+platforms. The log also names the
 listener as `Microsoft.AspNetCore.Server.HttpSys.HttpSysListener` - the HTTP stack is already ASP.NET
 Core, so Linux needs `UseKestrel()` rather than a new HTTP server.
 
@@ -1441,6 +1471,13 @@ Both bit while writing the script above:
   'MediaPortal\Source'` yields a path containing a literal backslash there, i.e. one *file name*.
   Assemble paths from components (`Join-Path (Join-Path $root 'MediaPortal') 'Source'`) in anything a
   container is expected to execute.
+- Related, and nastier because it is silent on the build host: do not assign to `$IsWindows`,
+  `$IsLinux` or `$IsMacOS` in these scripts. pwsh defines them as **read-only** automatic variables, so
+  `$isWindows = ...` fails with "Cannot overwrite variable IsWindows because it is read-only or
+  constant" - under Windows PowerShell 5.1, which the build host runs, those names do not exist and the
+  same line works. It stopped `deploy-server-layout.ps1` in the middle only inside the container. Ask
+  .NET instead (`[System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform(...)`) and store the
+  answer in a name that is not reserved (`$onWindows`).
 
 ## The server runs on Linux: `test-server-run-linux.ps1`
 
@@ -1463,12 +1500,17 @@ caveat as the cross-compile probe, which prints a warning comparing the image ti
 source file.
 
 What it currently measures, and why that is the useful output: the layout assembles, the host executes
-on .NET 10.0.13, `SystemResolver` reports a local system id, and the `SQLiteDatabase` plugin is
-activated and logs its settings. Then three `FATAL` lines appear, in this order - the missing
-`SQLite.Interop.dll`, `HTTPAPI.dll` (ASP.NET Core's `http.sys` server, reached from
-`ResourceServer.CreateAndStartServer`), and a `ServiceNotFoundException` during teardown that buries the
-first two. They are analysed as ROADMAP item **i**. The loop from here is: fix the first one, rebuild the
-image, read the new first one.
+on .NET 10.0.13, `SystemResolver` reports a local system id, the SQLite plugin loads the platform's
+`libe_sqlite3.so` and logs `SQLiteVersion: 3.53.3`, and the server then stops cleanly. One `FATAL` line
+remains: `HTTPAPI.dll`, ASP.NET Core's `http.sys` server, reached from
+`ResourceServer.CreateAndStartServer`. That is the next thing to port, and it is ROADMAP item **i** row 2.
+The loop from here is: fix the first one, rebuild the image, read the new first one.
+
+Reading that list in order is the point of the probe, and it has been misleading in both directions. When
+three `FATAL`s were listed, the third (`ServiceNotFoundException` during teardown) looked like a
+consequence of the first; it was not, it was `Stop()` running twice, and it stayed after the database
+started working - with a different service named each time a caller was made tolerant. Conversely the
+count is now smaller than the number of fixes: teardown tolerance alone removed two of the three.
 
 Two things it does not cover, both on purpose. The UPnP gate stays on Windows because Docker Desktop's
 NAT does not give a container the LAN's multicast group, so `test-server-upnp.ps1` would be testing the

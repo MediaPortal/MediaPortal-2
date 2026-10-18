@@ -19,9 +19,9 @@
 
   The plugin directory contents are copied by explicit rules rather than by "copy everything in the
   build output", because the plugin loader treats anything in the plugin folder as part of the
-  plugin, and because the interesting parts (System.Data.SQLite's native SQLite.Interop.dll, which
-  it looks for in an x64\ or x86\ subfolder next to its managed assembly) are not where a plain
-  publish puts them. The rules mirror Source\Backend\Database\SQLiteDatabase\build.targets.
+  plugin, and because the interesting parts (the Microsoft.Data.Sqlite driver assemblies and the
+  e_sqlite3 native library, which SQLitePCLRaw looks for next to its own provider assembly) are not
+  where a plain publish puts them. The rules mirror Source\Backend\Database\SQLiteDatabase\build.targets.
 
   Only what a minimal server needs is deployed: without a plugin registering ISQLDatabase the server
   comes up, logs that it has no plugins, and then dies in DatabaseManager.Startup with "There is no
@@ -34,8 +34,9 @@
 
 .EXAMPLE
   .\deploy-server-layout.ps1 -Configuration Release -RuntimeIdentifier linux-x64
-  # Cross-publishes the managed host for Linux. See the warning the script prints for the SQLite
-  # native library: the managed System.Data.SQLite package this tree uses ships no Linux native.
+  # Cross-publishes the managed host for Linux. The native SQLite library is taken for the platform
+  # the script *runs* on, so a cross-published layout carries the host's native - build the Linux
+  # layout on Linux (scripts/ci/test-server-run-linux.ps1 does exactly that inside a container).
 #>
 [CmdletBinding()]
 param(
@@ -161,23 +162,66 @@ if ($Configuration -eq 'Debug') {
   if (Test-Path $pdb) { Copy-Item $pdb $pluginDest -Force }
 }
 
-# System.Data.SQLite: managed wrapper plus a native interop DLL that the wrapper looks for in an
-# x64\ or x86\ subdirectory of its own directory. Neither lands in a plugin folder by itself - the
-# first is a copied local dependency, the second comes from the NuGet package's runtimes\ folder.
-$managed = [IO.Path]::Combine($pluginTargetDir, 'System.Data.SQLite.dll')
-if (-not (Test-Path $managed)) { throw "System.Data.SQLite.dll was not copied to $pluginTargetDir" }
-Copy-Item $managed $pluginDest -Force
+# The driver's managed assemblies and its native library. None of these land in a plugin folder by
+# itself: they are package dependencies, and the plugin folder is what the plugin loader searches.
+foreach ($assembly in 'Microsoft.Data.Sqlite.dll', 'SQLitePCLRaw.batteries_v2.dll', 'SQLitePCLRaw.core.dll', 'SQLitePCLRaw.provider.e_sqlite3.dll') {
+  $source = [IO.Path]::Combine($pluginTargetDir, $assembly)
+  if (-not (Test-Path $source)) { throw "$assembly was not copied to $pluginTargetDir - the plugin cannot work without it" }
+  Copy-Item $source $pluginDest -Force
+}
 
-$interop = [IO.Path]::Combine($pluginTargetDir, 'runtimes', 'win-x64', 'native', 'SQLite.Interop.dll')
-if (Test-Path $interop) {
-  $interopDest = [IO.Path]::Combine($pluginDest, 'x64')
-  New-Item -ItemType Directory -Path $interopDest -Force | Out-Null
-  Copy-Item $interop $interopDest -Force
+# The native library goes in *flat* next to the plugin, because that is where SQLitePCLRaw looks: it
+# probes the directory of SQLitePCLRaw.provider.e_sqlite3.dll. (System.Data.SQLite wanted its
+# SQLite.Interop.dll in an x64\ subfolder; that convention is gone.)
+#
+# Which RID's build to take is asked of .NET, and the answer is kept in variables that are not called
+# $IsWindows or $IsMacOS: pwsh defines those names as *read-only* automatic variables, so assigning to
+# them fails - and fails only under pwsh, i.e. only inside the Linux container, never on the Windows
+# build host with Windows PowerShell 5.1, where the names do not exist.
+$osPlatform = [System.Runtime.InteropServices.OSPlatform]
+$onWindows = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($osPlatform::Windows)
+$onMac = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($osPlatform::OSX)
+
+if ($onWindows) {
+  $nativeName = 'e_sqlite3.dll'
+  $fallbackRids = @('win-x64')
+} elseif ($onMac) {
+  $nativeName = 'libe_sqlite3.dylib'
+  $fallbackRids = @('osx-x64', 'osx-arm64')
 } else {
-  # True for a Linux layout, and the reason the SQLite provider is still a Windows-only component:
-  # the System.Data.SQLite.Core package carries Windows natives only. Saying it here, at the moment
-  # somebody builds a Linux layout, beats a DllNotFoundException at three in the morning.
-  Write-Warning "SQLite.Interop.dll not found under the plugin output's runtimes folder - the plugin will not be able to open a database on this platform."
+  $nativeName = 'libe_sqlite3.so'
+  $fallbackRids = @('linux-x64', 'linux-arm64')
+}
+
+# The host's own RID first. `RuntimeInformation.RuntimeIdentifier` knows the C library, which matters
+# more than it sounds: the plugin's build output carries a runtimes\ folder for every RID the package
+# graph mentions, so guessing costs nothing to write and lands the wrong binary anyway. The first
+# measured run of this script in the (glibc, Debian) SDK container took 'linux-musl-x64' because that
+# was first in a hand-written list, and the server then died on the native library it could not load.
+# The property is .NET Core only, hence the fallback list - Windows PowerShell 5.1 runs on
+# .NET Framework, where it does not exist.
+$rids = @()
+$ridProperty = [System.Runtime.InteropServices.RuntimeInformation].GetProperty('RuntimeIdentifier')
+if ($ridProperty) {
+  $hostRid = [string]$ridProperty.GetValue($null)
+  if ($hostRid) { $rids += $hostRid }
+}
+$rids += $fallbackRids | Where-Object { $rids -notcontains $_ }
+
+$native = $null
+foreach ($rid in $rids) {
+  $candidate = [IO.Path]::Combine((Join-Path (Join-Path $pluginTargetDir 'runtimes') $rid), 'native', $nativeName)
+  if (Test-Path $candidate) { $native = $candidate; break }
+}
+
+if ($native) {
+  Copy-Item $native $pluginDest -Force
+  Write-Step ("  native SQLite library: {0} ({1})" -f $nativeName, (Split-Path (Split-Path (Split-Path $native -Parent) -Parent) -Leaf))
+} else {
+  # A missing native is the DllNotFoundException the server dies with at startup, and it is much
+  # easier to read here than to find in a container log.
+  Write-Warning ("{0} not found under {1}\runtimes\{{{2}}}/native - the plugin will not be able to open a database on this platform." -f `
+      $nativeName, $pluginTargetDir, ($rids -join ', '))
 }
 
 # ---------------------------------------------------------------------------

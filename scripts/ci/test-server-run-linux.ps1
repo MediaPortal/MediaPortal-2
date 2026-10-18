@@ -9,16 +9,22 @@
 
   The value is in the failure list. Compiling proves nothing about code that calls Windows APIs at
   runtime, and this tree has already shown twice that a startup/shutdown defect can sit behind a
-  green build. Expected blockers, in the order the server reaches them:
+  green build. What the probe has measured so far, in the order it reaches things:
 
-    1. System.Data.SQLite - SQLite.Interop.dll is Windows-only, so the database cannot open.
-       Fix: Microsoft.Data.Sqlite (e_sqlite3 natives exist for linux-x64 and android).
-    2. ASP.NET Core's HttpSys server (UPnP + resource servers) - http.sys does not exist outside
-       Windows. Fix: Kestrel, which needs work because MP2 puts several hosts on one port under
-       different base paths, something http.sys does natively and Kestrel does not.
+    1. Fixed (ROADMAP item j): System.Data.SQLite's SQLite.Interop.dll, Windows-only. The plugin uses
+       Microsoft.Data.Sqlite now, and the layout copies the platform's own e_sqlite3 native, so the
+       database opens here - the log shows SQLiteVersion: 3.53.3 from a connection on Linux.
+    2. Open: ASP.NET Core's HttpSys server (UPnP + resource servers) - http.sys does not exist outside
+       Windows, so the first FATAL is DllNotFoundException: HTTPAPI.dll. Fix: Kestrel, which needs work
+       because MP2 puts several hosts on one port under different base paths, something http.sys does
+       natively and Kestrel does not.
 
-  A red result here is useful; a green one means the headless host reaches "Switching to running
-  state" on Linux, which is ROADMAP item d completed.
+  Also measured here, because it only shows up in a log: Stop() runs twice on the failed-startup path,
+  and the second pass reported its own FATAL below the real one. Teardown is idempotent now, so the
+  number of FATAL lines in this output is the number of real blockers.
+
+  A green result means the headless host reaches "Switching to running state" on Linux, which is ROADMAP
+  item d completed.
 .EXAMPLE
   .\test-server-run-linux.ps1
 .EXAMPLE

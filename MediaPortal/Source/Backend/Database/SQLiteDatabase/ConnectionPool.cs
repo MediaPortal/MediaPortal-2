@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Threading;
 using System.Data.Common;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -144,12 +145,15 @@ namespace MediaPortal.Database.SQLite
 
       // No connection available in the pool. If _maxConnections is not reached, yet,
       // instantiate and initialize a new connection and return it to the caller.
-      if (_numberOfConnections < _maxConnections)
+      // The slot is reserved atomically: this pool is the only pooling the SQLite provider has
+      // (the driver's own pool is turned off because it drops registered collations), so several
+      // threads do land here at once, and "test then increment" would let them all past the limit.
+      if (Interlocked.Increment(ref _numberOfConnections) <= _maxConnections)
       {
-        _numberOfConnections++;
         ServiceRegistration.Get<ILogger>().Debug("SQLiteDatabase: {0} connections in use", _numberOfConnections);
         return _connectionGenerator();
       }
+      Interlocked.Decrement(ref _numberOfConnections);
 
       // No connection available in the pool and _maxConnections is already reached.
       // Wait _connectionTimeout ms for a connection to be returned to the pool.
@@ -174,20 +178,29 @@ namespace MediaPortal.Database.SQLite
     #region IDisposable Implementation
 
     /// <summary>
-    /// Disposes of all the connections in the pool. System.Data.SQLite makes sure that
-    /// during disposing the connections are closed.
+    /// Disposes of all the connections in the pool. Closing a <c>SqliteConnection</c> is what
+    /// releases the database file, so a pool that is disposed with connections still checked out
+    /// keeps the file (and its WAL sidecars) locked - which is why this reports the situation
+    /// instead of quietly leaving handles behind.
     /// </summary>
     public void Dispose()
     {
       if (!_disposed)
       {
         _disposed = true;
-        for (int i = 1; i <= _numberOfConnections; i++)
+        try
         {
-          T connection;
-          if (!_pool.TryTake(out connection, _connectionTimeout))
-            throw new TimeoutException("Disposing ConnectionPool failed. Probably a connection wasn't returned to the pool.");
-          connection.Dispose();
+          for (int i = 1; i <= _numberOfConnections; i++)
+          {
+            T connection;
+            if (!_pool.TryTake(out connection, _connectionTimeout))
+              throw new TimeoutException("Disposing ConnectionPool failed. Probably a connection wasn't returned to the pool.");
+            connection.Dispose();
+          }
+        }
+        finally
+        {
+          _pool.Dispose();
         }
       }
     }
