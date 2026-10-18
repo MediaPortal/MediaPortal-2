@@ -22,7 +22,7 @@ does *not*, because those differences are how CI surprises happen.
 | `test-server-linux.ps1` | Runs that image (see "Compiling on Linux" below for the package-cache it needs). |
 | `test-frontend-check.ps1` | Starts the real server, runs the built front end with `--check` against it, then against a port nobody listens on: exit 0 plus the server's own answers, then exit 1 plus a readable message. While that server is up it also renders the screen with `Frontend.RenderProbe` (`-SkipRender`, `-RenderDir`), and it refuses to execute a DLL older than its own sources. |
 | `Dockerfile.frontend` | Linux image that builds `MP2-Frontend.sln`, runs `Tests.Frontend` headless and renders the screen with `Frontend.RenderProbe` on Skia - no display, no `-windows` target, and deliberately no `EnableWindowsTargeting`. |
-| `test-frontend-linux.ps1` | Runs that image (same package-cache requirement). |
+| `test-frontend-linux.ps1` | Runs that image (same package-cache requirement). `-ServeFromHost` starts the server on this machine and points the container at it through `host.docker.internal:55555`, so the screenshot the run produces is the populated screen. |
 | `Dockerfile.drawing`, `drawing-probe/` | Not a gate: measures which half of `System.Drawing` works on Linux. Read it before changing what `spine.ps1` counts. |
 
 ## The gate, in the order that fails fastest
@@ -1631,7 +1631,8 @@ captures the frame, counts its pixels and writes a PNG:
 - `--server` renders the populated screen; without it (and without `MP2_SERVER`) the screen's own "no server"
   state is rendered, which is a real state and gets measured too.
 - `--width`/`--height` default to 1280x720, and anything below 100x100 is refused as an argument error (exit 2).
-- Exit 0 drew something, 1 the frame is flat or the app would not set up, 2 usage, 3 the write failed.
+- Exit 0 drew something, 1 the frame is flat or the app would not set up, 2 usage, 3 the write failed, 4 a
+  populated screen was asked for and the server answered no aspects (an error screen against a URL proves nothing).
 
 What it prints is what a gate judges, because a gate cannot look at a picture:
 
@@ -1640,11 +1641,18 @@ What it prints is what a gate judges, because a gate cannot look at a picture:
 
 Flat frames fail: under 16 distinct colours, or under 1% of pixels differing from the dominant background colour.
 
-It runs from two gates. `test-frontend-check.ps1` runs it **while its server is still up** (item 6 of that script,
-`-SkipRender` to leave it out, `-RenderDir` to move the output), so `build\artifacts\frontend-render\home-windows.png`
-is the populated screen: `status: 25 aspects on MediaPortal 2 Server, 25 aspect row(s)`. `Dockerfile.frontend` runs
-it offline into `/out`, which `test-frontend-linux.ps1` mounts at `build\artifacts\frontend-render` and requires to
-contain `home-linux.png`. The two frames are committed under `docs\multiplatform\screenshots\`.
+It runs from two gates, and both show real data. `test-frontend-check.ps1` runs it **while its server is still up**
+(item 6 of that script, `-SkipRender` to leave it out, `-RenderDir` to move the output), so
+`build\artifacts\frontend-render\home-windows.png` is the populated screen:
+`status: 25 aspects on MediaPortal 2 Server, 25 aspect row(s)`. `test-frontend-linux.ps1 -ServeFromHost` starts
+`MP2-Server-Headless` on this machine, waits until it really serves aspects (measured: a just-started server answers
+`200` with an *empty* list, and 25 aspects about a second later), and passes `MP2_SERVER` to the container as
+`http://host.docker.internal:55555/MediaPortal/Server` - measured from inside the image to resolve and answer
+`HTTP/1.1 200 OK` / `Server: Microsoft-HTTPAPI/2.0`, while `172.17.0.1` does not connect at all. The frame the
+container writes is then the populated screen too (`3872 distinct colours`, 119 642 bytes), and the image refuses to
+go green unless its output says `aspects on`, so the screenshot cannot silently fall back to the offline or the
+error picture. Without `-ServeFromHost` the run still renders, and the OK line says the frame is the screen's own
+"no server" state. Both frames are committed under `docs\multiplatform\screenshots\`.
 
 Three things came out of adding it, all of them measurements rather than opinions:
 
@@ -1677,7 +1685,8 @@ then runs `Tests.Frontend`, i.e. it builds the real `HomeWindow.axaml`, loads th
 the Inter font, drives the D-pad handler, and calls the real `MediaPortal.Server.Api` controllers over a
 Kestrel host - inside a container, under a user with no display, on a machine that has never seen
 Windows. Measured: `Passed! - Failed: 0, Passed: 34, Skipped: 0, Total: 34, Duration: 2 s`, then
-`FRONTEND LINUX OK: 34 tests ran headless on Linux x86_64, screenshot in /out/home-linux.png` on
+`FRONTEND LINUX OK: 34 tests ran headless on Linux x86_64, populated from
+http://host.docker.internal:55555/MediaPortal/Server screenshot in /out/home-linux.png` on
 `Linux 6.6.87.2-microsoft-standard-WSL2 x86_64, dotnet 10.0.402`.
 
 Two properties of that image are the gate, not the packaging:
@@ -1690,6 +1699,12 @@ Two properties of that image are the gate, not the packaging:
   exits 1 if it is not at least 1, because `dotnet test` reports "no tests were discovered" and exits 0.
   Without that line this image would go green the moment someone broke the test project - the same class
   of false green as a stale test assembly, see "A green test suite can be a stale one".
+- **`-ServeFromHost` waits for aspects, not for a port.** `/health` answers as soon as the listener is up, and a
+  server that has just started answers `api/library/aspects` with `200` and an empty list before it answers with 25
+  aspects a second later; waiting for the port or for a `200` would let the probe render an empty screen and make
+  the verdict a race. The URL is built by concatenation, not `Join-Path`, which inserts a backslash on Windows -
+  measured, that produced 90 seconds of "the server never served aspects" for a server that was serving them the
+  whole time.
 
 What green here does *not* mean: there is still no X server in the image and none is installed, so nothing has
 appeared on a Linux desktop. Since the render probe runs in this image too, the Skia backend, the native

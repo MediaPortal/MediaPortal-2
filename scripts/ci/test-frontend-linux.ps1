@@ -15,8 +15,18 @@
 
   The container is built from the whole tree on purpose (see Dockerfile.cross' note on -SkipImageBuild):
   an image reused from an earlier commit would report the front end of that commit.
+
+  -ServeFromHost is the stronger run. The image has no server in it, so by default the probe draws the screen's
+  own "no server" state - a real state, labelled as one in the OK line, but not the screen anybody will watch on a
+  TV. With the switch, this script starts MP2-Server-Headless on the *host* (same layout the server gates use) and
+  points the container at it through `host.docker.internal:55555`, which was measured from inside this image: it
+  resolves and answers `HTTP/1.1 200 OK` with `Server: Microsoft-HTTPAPI/2.0`, while `172.17.0.1` does not connect
+  at all. The image then refuses to go green unless the probe reports `content:  populated`, so the screenshot
+  cannot quietly fall back to the offline picture.
 .EXAMPLE
   .\test-frontend-linux.ps1
+.EXAMPLE
+  .\test-frontend-linux.ps1 -ServeFromHost -SkipImageBuild
 .EXAMPLE
   .\test-frontend-linux.ps1 -FallbackPackageFolder D:\shared\nuget-cache
 #>
@@ -30,6 +40,20 @@ param(
 
   # Where the screenshot the container renders is written. Mounted into the image at /out.
   [string]$RenderDir,
+
+  # Render the populated screen: start the server on this machine and let the container reach it.
+  [switch]$ServeFromHost,
+
+  # What the container is told to ask. `host.docker.internal` is Docker Desktop's name for the host.
+  [string]$HostServerUrl = 'http://host.docker.internal:55555/MediaPortal/Server',
+
+  # The runnable server layout, same default as run-server-check.ps1 and test-frontend-check.ps1.
+  [string]$LayoutDir,
+
+  [switch]$SkipDeploy,
+
+  # How long the host server is held open for the container.
+  [int]$HoldSeconds = 420,
 
   [switch]$SkipImageBuild
 )
@@ -71,17 +95,100 @@ if (-not $SkipImageBuild) {
 if (-not $RenderDir) { $RenderDir = Join-Path (Join-Path $repoRoot 'build\artifacts') 'frontend-render' }
 New-Item -ItemType Directory -Path $RenderDir -Force | Out-Null
 
-& docker run --rm `
-  -v "${FallbackPackageFolder}:/nuget-cache:ro" `
-  -e 'NUGET_FALLBACK_PACKAGES=/nuget-cache' `
-  -v "${RenderDir}:/out" `
-  $ImageName
-$exit = $LASTEXITCODE
+$runArgs = @('--rm',
+             '-v', "${FallbackPackageFolder}:/nuget-cache:ro",
+             '-e', 'NUGET_FALLBACK_PACKAGES=/nuget-cache',
+             '-v', "${RenderDir}:/out")
+
+$server = $null
+$dataDir = $null
+try {
+  if ($ServeFromHost) {
+    if (-not $LayoutDir) { $LayoutDir = Join-Path (Join-Path $repoRoot 'build\artifacts') 'server-layout' }
+    if (-not $SkipDeploy) {
+      & (Join-Path $PSScriptRoot 'deploy-server-layout.ps1') -OutputDir $LayoutDir
+      if (-not $?) { throw 'layout deployment failed' }
+    }
+    $hostDll = Join-Path $LayoutDir 'MP2-Server-Headless.dll'
+    if (-not (Test-Path $hostDll)) { throw "no $hostDll - run deploy-server-layout.ps1 first" }
+
+    $dataDir = Join-Path ([IO.Path]::GetTempPath()) ('mp2-frontend-linux-' + [Guid]::NewGuid().ToString('N').Substring(0, 8))
+    New-Item -ItemType Directory -Path $dataDir -Force | Out-Null
+
+    Write-Host "==> starting the server on this host, so that the container has something to read ($HostServerUrl)" -ForegroundColor Cyan
+    $server = Start-Process dotnet `
+        -ArgumentList ('"' + $hostDll + '"', '--duration', "$HoldSeconds", '--data', '"' + $dataDir + '"') `
+        -WorkingDirectory $LayoutDir -PassThru -WindowStyle Hidden
+
+    # /health answers as soon as the listener is up, which is earlier than the point where the media library can
+    # serve anything: measured, a server that has just started answers `200` with an *empty* aspect list, and 25
+    # aspects about a second later. The screen is only populated once aspects exist, so that is what is waited
+    # for - otherwise the probe would render the empty screen and the gate would depend on a race.
+    #
+    # Concatenated with '/', deliberately not Join-Path: Join-Path inserts a backslash on Windows, which turns
+    # into a 404 here and looked for 90 seconds like a server that never got ready. The last answer is kept so a
+    # failure says what the server actually said.
+    $localUrl = ($HostServerUrl -replace 'host\.docker\.internal', '127.0.0.1').TrimEnd('/')
+    $aspectsUrl = $localUrl + '/api/library/aspects'
+    $ready = $false
+    $lastAnswer = 'no attempt made'
+    for ($try = 0; $try -lt 45; $try++) {
+      if ($server.HasExited) { throw "the server exited (exit $($server.ExitCode)) before the container could use it" }
+      try {
+        $answer = Invoke-WebRequest -Uri $aspectsUrl -UseBasicParsing -TimeoutSec 5
+        $aspects = $answer.Content | ConvertFrom-Json
+        $count = 0
+        if ($aspects.count) { $count = [int]$aspects.count } elseif ($aspects.aspects) { $count = @($aspects.aspects).Count }
+        if ($count -gt 0) {
+          Write-Host "==> the host server serves $count aspect(s) on $($try * 2)s of waiting" -ForegroundColor Cyan
+          $ready = $true
+          break
+        }
+        $lastAnswer = "HTTP $($answer.StatusCode) with $count aspects (the library is still starting)"
+      } catch {
+        $lastAnswer = $_.Exception.Message
+        if ($_.Exception.Response) { $lastAnswer = "HTTP $([int]$_.Exception.Response.StatusCode)" }
+      }
+      Start-Sleep -Seconds 2
+    }
+    if (-not $ready) { throw "the host server never served aspects at $aspectsUrl; last answer: $lastAnswer" }
+    Write-Host "==> server pid $($server.Id) is serving aspects; the container will read it as $HostServerUrl" -ForegroundColor Cyan
+
+    $runArgs += @('-e', "MP2_SERVER=$HostServerUrl")
+  }
+
+  Write-Host '==> docker run' -ForegroundColor Cyan
+  $run = & docker run @runArgs $ImageName 2>&1
+  $exit = $LASTEXITCODE
+  $run | ForEach-Object { "$_" }
+} finally {
+  if ($server -and -not $server.HasExited) {
+    Write-Host '==> stopping the host server' -ForegroundColor Cyan
+    Stop-Process -Id $server.Id -Force -ErrorAction SilentlyContinue
+    $server.WaitForExit(15000) | Out-Null
+  }
+  if ($server) { $server.Dispose() }
+  if ($dataDir) { Remove-Item $dataDir -Recurse -Force -ErrorAction SilentlyContinue }
+}
 
 if ($exit -ne 0) { throw "Front end build/test on Linux failed ($exit)." }
 $screenshot = Join-Path $RenderDir 'home-linux.png'
 if (-not (Test-Path $screenshot)) {
   throw "the run was green but no screenshot arrived at '$screenshot' - the mount is not working."
 }
-Write-Host ("Front end compiles on Linux, its headless UI tests pass there, and it rendered {0} ({1:N0} bytes)." -f `
-    $screenshot, (Get-Item $screenshot).Length) -ForegroundColor Green
+
+# The image checks this too, and both sides are worth checking: the image refuses a frame that did not reach the
+# server, and this refuses a run whose output does not say it was populated, so neither can report the offline
+# picture as the data picture.
+if ($ServeFromHost) {
+  $text = ($run | Out-String)
+  if ($text -notmatch 'aspects on ') {
+    throw "asked for a populated screen and the run never said it drew one - see the output above."
+  }
+  if ($text -notmatch 'content:\s+populated from') {
+    throw "the screen showed aspects but did not report where it read them from."
+  }
+}
+
+Write-Host ("Front end compiles on Linux, its headless UI tests pass there, and it rendered {0} ({1:N0} bytes{2})." -f `
+    $screenshot, (Get-Item $screenshot).Length, $(if ($ServeFromHost) { ', populated from the host server' } else { '' })) -ForegroundColor Green

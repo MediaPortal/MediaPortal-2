@@ -61,7 +61,7 @@ namespace FrontendProbe
     /// <summary>
     /// Runs the probe. Exit codes: <c>0</c> a frame with real content was rendered and written, <c>1</c> the
     /// render produced nothing worth looking at, <c>2</c> the arguments were wrong, <c>3</c> the image could not
-    /// be written or is not a PNG.
+    /// be written or is not a PNG, <c>4</c> a populated screen was asked for and the server answered no aspects.
     /// </summary>
     public static int Main(string[] args)
     {
@@ -196,12 +196,20 @@ namespace FrontendProbe
 
       if (online)
       {
-        // The window reads the server when it opens - the same command the refresh button runs - so the probe
-        // does not start a second read of its own. Firing one here is what crashed this probe's first run: two
-        // runs were then in flight deliberately, and surviving that is the view model's job, not something to
-        // work around here. Pumping is what a running application does while it waits.
+        // The window reads the server when it opens - the same command the button runs - so the probe does not
+        // start a second read of its own. Firing one here is what crashed this probe's first run: two runs were
+        // then in flight deliberately, and surviving that is the view model's job, not something to work around
+        // here. Pumping is what a running application does while it waits.
+        //
+        // Asking for a populated screen and getting none is a failure, not a note. A frame of an error screen
+        // drawn against a URL is worthless as evidence, and a gate that received exit 0 from it would have no way
+        // of knowing - which is why this returns 1 rather than rendering on.
         if (!PumpUntil(() => viewModel.Aspects.Count > 0, TimeSpan.FromSeconds(30)))
-          Console.WriteLine("note:     the server answered no aspects; the empty or error state is what is rendered.");
+        {
+          Console.WriteLine("FAILED:   a populated screen was asked for ('" + url + "'), but the server answered no"
+              + " aspects. Status says: '" + viewModel.Status + "'.");
+          return 4;
+        }
       }
 
       Console.WriteLine("status:   " + viewModel.Status + ", " + viewModel.Aspects.Count + " aspect row(s)");

@@ -37,7 +37,7 @@ Verified 2026-10-18 with `build.ps1 -Solution Server,Client -Ratchet`, `tests.ps
 | `CA1416` call sites, Windows vs Linux | **0** on both hosts, floor 0 (was 196 at the retarget) - the 107 that remained were all in `-windows` assemblies that had lost their platform declaration; see "the floor went to zero" below | build log, `warnings.ps1` on both logs |
 | Unit tests, Windows | **5/5 suites, 405 passed**, 0 failed, 0 skipped (Canary.Portable 29, Tests.Server 184, Tests.Client 90, **Tests.Frontend 34**, Setup\Tests 68); a suite whose assembly predates its own sources reports STALE instead of running the old binary | `tests.ps1` |
 | Unit tests, Linux (canary) | 31 executed, 0 failed (1 skips: Windows-only), incl. live IPC round trips and XDG autostart | `test-canary-linux.ps1` |
-| Unit tests, Linux (**front end**) | **34 executed, 0 failed** - the real `HomeWindow.axaml`, Fluent theme, bindings, D-pad handler and HTTP client, headless with no display in the image; the same image then draws the screen through Skia (`1310 distinct colours` of a `1280x720` frame) and writes the PNG out | `test-frontend-linux.ps1` |
+| Unit tests, Linux (**front end**) | **34 executed, 0 failed** - the real `HomeWindow.axaml`, Fluent theme, bindings, D-pad handler and HTTP client, headless with no display in the image; the same image then draws the screen through Skia and writes the PNG out, populated from the host's server through `host.docker.internal` (`3872 distinct colours` of a `1280x720` frame) | `test-frontend-linux.ps1 -ServeFromHost` |
 | Server actually **runs** | **yes on Windows and on Linux** as a headless process. Windows: reaches the Running state, creates the SQLite store, answers UPnP discovery over the network, exits 0 with an error-free log. Linux: reaches the same Running state with 0 `FATAL`, 0 `ERROR` and one `WARN` - the documented note that a container has no FUSE driver. Android is still unmeasured | `run-server-check.ps1`, `test-server-upnp.ps1`, `test-server-run-linux.ps1` |
 | Server **answers HTTP** | **yes on both hosts**, measured with the same probe: `GET /MediaPortal/Server/health` answers `200` with the server's version and the path it was called with - `pathBase=/MediaPortal/Server`, `path=/health` on Windows *and* in the container, because the shared listener now hands requests over in exactly the shape http.sys uses. The gate checks that text, not just the status code | `run-server-check.ps1 -ProbeUrl`, item **l** below |
 | Server **has an HTTP API** | **three endpoints, on both hosts**, in an assembly of its own (`MediaPortal.Server.Api`): `GET /MediaPortal/Server/api/serverinfo`, `GET api/library/aspects` and `GET api/library/count?aspect=…`. They are discovered MVC controllers (the first in this tree) that read MP2's own settings and media-library services on a request thread, and the gates on Windows and in the container require their content, not just a `200`. A library that is absent or still starting is answered with `503` and a reason rather than an empty answer or an internal error. They are unauthenticated because the token endpoint that would authenticate them is still .NET Framework only - which is why they serve schema and no household data | `run-server-check.ps1 -ProbeUrl`, items **m**, **o** and **p** below |
@@ -899,8 +899,8 @@ immediately on `1`, and it also runs the front end against a port nobody listens
 | `tests.ps1` | `Tests.Frontend` added to the default set (see the scoreboard) |
 | `test-frontend-check.ps1` | `FRONTEND CHECK OK - the front end read a running server (attempt 1) and refused a dead one.`, and while that server is still up it renders the populated screen with Skia: `pixels: 921600 (Rgba8888), 2592 distinct colours, 234687 differing from the background, 65736 high-contrast edges, mean luminance 31` |
 | `Frontend.RenderProbe` (Windows, populated) | `PROBE OK: the front end drew 921600 pixels of real content on Microsoft Windows 10.0.26200`, `status: 25 aspects on MediaPortal 2 Server, 25 aspect row(s)`, `home-windows.png` 107 757 bytes |
-| `Frontend.RenderProbe` (Linux container, offline) | `PROBE OK: the front end drew 921600 pixels of real content on Ubuntu 24.04.5 LTS`, `home-linux.png` 20 030 bytes - the container has no server, so what it proves is the render path and the font path, not the data path |
-| `test-frontend-linux.ps1` | `Passed! - Failed: 0, Passed: 34, Skipped: 0, Total: 34, Duration: 2 s`, then `FRONTEND LINUX OK: 34 tests ran headless on Linux x86_64, screenshot in /out/home-linux.png` - on `Linux 6.6.87.2-microsoft-standard-WSL2 x86_64, dotnet 10.0.402`, with no display in the image and no `-p:EnableWindowsTargeting` passed |
+| `Frontend.RenderProbe` (Linux container, `-ServeFromHost`) | `PROBE OK: the front end drew 921600 pixels of real content on Ubuntu 24.04.5 LTS`, `status: 25 aspects on MediaPortal 2 Server, 25 aspect row(s)`, `3872 distinct colours`, `home-linux.png` 119 642 bytes - the container read the Windows host's server through `host.docker.internal`, measured answering `HTTP/1.1 200 OK` / `Server: Microsoft-HTTPAPI/2.0` from inside the image |
+| `test-frontend-linux.ps1` | `Passed! - Failed: 0, Passed: 34, Skipped: 0, Total: 34, Duration: 2 s`, then `FRONTEND LINUX OK: 34 tests ran headless on Linux x86_64, populated from http://host.docker.internal:55555/MediaPortal/Server screenshot in /out/home-linux.png` - on `Linux 6.6.87.2-microsoft-standard-WSL2 x86_64, dotnet 10.0.402`, with no display in the image and no `-p:EnableWindowsTargeting` passed |
 
 Two things about that gate are worth stating because they were not obvious when the script was written. It asserts
 the *shape* of the answer (`pathBase=/MediaPortal/Server`, `library:`, `aspects`) and never a count: this run
@@ -939,13 +939,23 @@ frame:    1280, 720 at 96, 96, implementation Avalonia.Media.Imaging.WriteableBi
 pixels:   921600 (Rgba8888), 2592 distinct colours, 234687 differing from the background, 65736 high-contrast edges, mean luminance 31
 ```
 
-It runs in two gates. `test-frontend-check.ps1` runs it **while its own server is still up**, so the frame is the
-populated screen - `25 aspects`, 2592 distinct colours, 65 736 high-contrast edges, i.e. rows of text, not a
-gradient. `Dockerfile.frontend` runs it offline (the container has no server) and mounts the result back onto the
-host, which is what produced `docs\multiplatform\screenshots\home-linux-skia.png`. Both frames are committed next
-to this document: `home-windows-skia.png` (populated, 107 757 bytes) and `home-linux-skia.png` (the offline screen,
-20 030 bytes). Whether the screen looks *right* is a different question and stays with the user; the probe's job is
-only to prove that real pixels come out, on both platforms, unattended.
+It runs in two gates, and both render the *populated* screen. `test-frontend-check.ps1` runs it **while its own
+server is still up**: `25 aspects`, 2592 distinct colours, 65 736 high-contrast edges, i.e. rows of text, not a
+gradient. `test-frontend-linux.ps1 -ServeFromHost` starts `MP2-Server-Headless` on the Windows host, waits until it
+really serves aspects, and tells the container `MP2_SERVER=http://host.docker.internal:55555/MediaPortal/Server`;
+measured from inside the image, `host.docker.internal` resolves and the server answers `HTTP/1.1 200 OK` with
+`Server: Microsoft-HTTPAPI/2.0`, while `172.17.0.1` does not connect at all. The frame the container writes is then
+the same screen, drawn by Linux: `25 aspects on MediaPortal 2 Server`, **3872 distinct colours**, 119 642 bytes of
+PNG. Both frames are committed next to this document - `home-windows-skia.png` (107 757 bytes) and
+`home-linux-skia.png` (119 642 bytes). Without `-ServeFromHost` the image still renders, and the OK line then says
+plainly that the frame is the screen's own "no server" state.
+
+Whether the screen looks *right* is a different question and stays with the user. The probe's job is only to prove
+that real pixels come out, on both platforms, unattended - and that it cannot lie, `--server`/`MP2_SERVER` now
+exits **4** when a populated screen was asked for and the server answered no aspects: an error screen drawn against
+a URL is worthless as evidence, and exit 0 for it would leave a gate no wiser. The image additionally refuses a run
+whose output never contains `aspects on`, so neither the container nor the host script can report the offline or
+the error picture as the data picture.
 
 What it found the first time it was run is the reason this section exists. The window's `Opened` handler runs the
 same command the refresh button runs, so the probe's render overlapped that first read - and the process died with
@@ -995,12 +1005,13 @@ rather than an intention - the gated build, the suite on Windows, the front end 
 server's screen rendered through Skia, and the suite plus a render in a Linux container. What is still ahead, in the
 order that keeps the risk where it can be seen:
 
-1. Pixels, not only layout - **done for "does it draw", open for "does it look right"**. `Frontend.RenderProbe`
-   renders through Skia and both frames are committed (`docs\multiplatform\screenshots\`), so the screenshot the
-   phase gate asks for by name exists; item **q** records what it found. Two gaps are honest to state: the
-   container's frame is the *offline* screen, because there is no server inside the image (pointing the probe at a
-   server on the host from inside the container is the next step for that frame), and nobody has judged whether the
-   screen looks good - that is the taste review reserved for the user. Android still has no measurement at all.
+1. Pixels, not only layout - **done, on both platforms, with data on screen**. `Frontend.RenderProbe` renders the
+   real window through Skia; the Windows frame comes from the server the check gate starts, and the container's
+   frame comes from the host's server through `host.docker.internal` (`-ServeFromHost`), so both committed frames
+   in `docs\multiplatform\screenshots\` show 25 aspect rows. The phase gate's named screenshot exists and is
+   populated; item **q** records what the render found. What is left of this item is not measurable here: whether
+   the screen looks *right* (the taste review reserved for the user), and Android, which still has no measurement
+   at all - including no Skia render, because nothing has drawn the front end on that platform yet.
 2. The OAuth token endpoint on .NET. Every endpoint that carries user data, and therefore every screen worth
    building next (browse, playlists, settings), is blocked on it - see item **m**.
 3. Bind the platform-neutral pieces of the old client's view models. Anything that imported

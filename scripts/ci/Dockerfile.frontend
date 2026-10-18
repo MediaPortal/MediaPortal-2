@@ -25,6 +25,14 @@
 # 500 does not fail the whole restore), and packages like MediaPortal.TagLib exist only in a cache that
 # a machine which built the old tree still has.
 #
+# MP2_SERVER is read by Frontend.RenderProbe: set it to a server the container can reach and the rendered frame
+# becomes the populated screen instead of the "no server" one. `test-frontend-linux.ps1 -ServeFromHost` points it
+# at the Windows host through `host.docker.internal`, which was measured from inside this image answering
+# `HTTP/1.1 200 OK` / `Server: Microsoft-HTTPAPI/2.0` on port 55555 (the alternative `172.17.0.1` does not connect
+# on Docker Desktop). When MP2_SERVER is set the CMD *requires* the rendered status line to say "aspects on", so a
+# screenshot cannot silently degrade into the offline picture; when it is unset the OK line says the frame is the
+# offline screen, which is a real state and is labelled as one.
+#
 # Base tag is a build ARG so the probe can be replayed against another toolchain on purpose.
 ARG SDK_TAG=10.0
 FROM mcr.microsoft.com/dotnet/sdk:${SDK_TAG}
@@ -58,6 +66,11 @@ CMD bash -c '\
   total=$(echo "$out" | sed -n "s/.*Total: *\([0-9][0-9]*\).*/\1/p" | tail -n 1); \
   if [ "$rc" -ne 0 ]; then echo "TEST RUN FAILED ($rc)"; exit "$rc"; fi; \
   if [ "${total:-0}" -lt 1 ]; then echo "ZERO TESTS DISCOVERED - a green run here would mean nothing"; exit 1; fi; \
-  dotnet /src/MediaPortal/Tests/Frontend.RenderProbe/bin/Debug/net10.0/Frontend.RenderProbe.dll --out /out/home-linux.png; rc=$?; \
+  out=$(dotnet /src/MediaPortal/Tests/Frontend.RenderProbe/bin/Debug/net10.0/Frontend.RenderProbe.dll --out /out/home-linux.png 2>&1); rc=$?; echo "$out"; \
   if [ "$rc" -ne 0 ]; then echo "RENDER PROBE FAILED ($rc) - see its output above"; exit "$rc"; fi; \
-  echo "FRONTEND LINUX OK: $total tests ran headless on $(uname -sm), screenshot in /out/home-linux.png"'
+  frame="offline (no MP2_SERVER given), so the screen shows its own no-server state"; \
+  if [ -n "$MP2_SERVER" ]; then \
+    if echo "$out" | grep -q "aspects on "; then frame="populated from $MP2_SERVER"; \
+    else echo "THE SCREEN NEVER SHOWED THE SERVER AT $MP2_SERVER - the frame is an error screen, not a data screen"; exit 1; fi; \
+  fi; \
+  echo "FRONTEND LINUX OK: $total tests ran headless on $(uname -sm), $frame screenshot in /out/home-linux.png"'
