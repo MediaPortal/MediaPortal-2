@@ -800,7 +800,10 @@ namespace Tests.Frontend
           + "plain-text password is not rejected, it is a format error on the other side");
       Assert.That(client.AccessToken, Is.EqualTo("ticket-1"), "the client remembers the ticket");
 
-      MediaTitles titles = Task.Run(delegate { return client.GetTitlesAsync("MediaItem", null, false, 60, 0, CancellationToken.None); })
+      MediaTitles titles = Task.Run(delegate
+      {
+        return client.GetTitlesAsync("MediaItem", null, false, 60, 0, null, CancellationToken.None);
+      })
           .GetAwaiter().GetResult();
 
       Assert.That(titles.Titles, Has.Count.EqualTo(1));
@@ -874,6 +877,242 @@ namespace Tests.Frontend
           Content = new StringContent("")
         });
       }
+    }
+
+    #endregion
+
+    #region Finding a title by name
+
+    private static readonly string[] SHELF = { "Alien", "Alien Earth", "Army of Thieves", "Nimmerland" };
+
+    /// <summary>
+    /// A server that answers the title question the way a library does - with only the titles carrying the words it
+    /// was given - and remembers the words it heard, so that a test can read the question back rather than guess it
+    /// from the answer.
+    /// </summary>
+    private class SearchServer : HttpMessageHandler
+    {
+      internal string Question { get; private set; }
+
+      internal string LastUrl { get; private set; }
+
+      internal int TimesAsked { get; private set; }
+
+      protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+          CancellationToken cancellation)
+      {
+        TimesAsked++;
+        LastUrl = request.RequestUri.PathAndQuery;
+        Question = QuestionIn(request.RequestUri.Query);
+
+        List<string> matching = new List<string>();
+        foreach (string name in SHELF)
+        {
+          if (Question == null || name.IndexOf(Question, StringComparison.OrdinalIgnoreCase) >= 0)
+            matching.Add(name);
+        }
+
+        StringBuilder body = new StringBuilder();
+        body.Append("{\"total\":").Append(matching.Count)
+            .Append(",\"offset\":0,\"limit\":60,\"returned\":").Append(matching.Count)
+            .Append(",\"sort\":\"title\"");
+        if (Question != null)
+          body.Append(",\"search\":\"").Append(Question).Append("\"");
+
+        body.Append(",\"titles\":[");
+        for (int i = 0; i < matching.Count; i++)
+        {
+          if (i > 0)
+            body.Append(',');
+          body.Append("{\"id\":\"").Append(new Guid(1, 0, 4, new byte[] { 128, 0, 0, 0, 0, 0, 0, (byte) i }))
+              .Append("\",\"title\":\"").Append(matching[i]).Append("\",\"year\":2000}");
+        }
+        body.Append("]}");
+
+        return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+        {
+          RequestMessage = request,
+          Content = new StringContent(body.ToString(), Encoding.UTF8, "application/json")
+        });
+      }
+
+      /// <summary>The words in <c>search=...</c>, or <c>null</c> when the request asked for no words.</summary>
+      private static string QuestionIn(string query)
+      {
+        if (string.IsNullOrEmpty(query))
+          return null;
+
+        foreach (string pair in query.TrimStart('?').Split('&'))
+        {
+          int equals = pair.IndexOf('=');
+          if (equals > 0 && pair.Substring(0, equals) == "search")
+            return Uri.UnescapeDataString(pair.Substring(equals + 1));
+        }
+        return null;
+      }
+    }
+
+    private static MediaBrowserViewModel BrowserOn(SearchServer server)
+    {
+      return new MediaBrowserViewModel(
+          new ServerApiClient(SIGN_IN_URL, new HttpClient(server)), MoviesSection);
+    }
+
+    [Test]
+    public void TheWordsTravelToTheServerAndWhatItFoundTravelsBack()
+    {
+      SearchServer server = new SearchServer();
+      using (var client = new ServerApiClient(SIGN_IN_URL, new HttpClient(server)))
+      {
+        MediaTitles answer = Task.Run(delegate
+        {
+          return client.GetTitlesAsync("MovieItem", null, false, 60, 0, "alien", CancellationToken.None);
+        }).GetAwaiter().GetResult();
+
+        Assert.That(server.Question, Is.EqualTo("alien"));
+        Assert.That(answer.Titles.Select(title => title.Title), Is.EqualTo(new[] { "Alien", "Alien Earth" }),
+            "the library decided what matches, not a filter written here");
+        Assert.That(answer.Search, Is.EqualTo("alien"), "and the answer says which question it is the answer to");
+      }
+    }
+
+    [Test]
+    public void TypingAnAmpersandIsATitleRatherThanASyntaxError()
+    {
+      SearchServer server = new SearchServer();
+      using (var client = new ServerApiClient(SIGN_IN_URL, new HttpClient(server)))
+      {
+        Task.Run(delegate
+        {
+          return client.GetTitlesAsync("MovieItem", null, false, 60, 0, "R&D 2 + 2", CancellationToken.None);
+        }).GetAwaiter().GetResult();
+
+        Assert.That(server.LastUrl, Does.Contain("search=R%26D%202%20%2B%202"),
+            "escaped, because an unescaped ampersand would end the search where a title has a comma in it");
+        Assert.That(server.Question, Is.EqualTo("R&D 2 + 2"), "and the same words on the other side");
+      }
+    }
+
+    [AvaloniaTest]
+    public void TypingANameAndPressingEnterLeavesOnlyTheMatchingTitles()
+    {
+      SearchServer server = new SearchServer();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.OpenCommand.Execute(null);
+      WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SHELF.Length; });
+      Assert.That(browser.HasSearch, Is.False, "a list that was not searched does not offer to undo a search");
+
+      browser.SearchText = "alien";
+      browser.FindCommand.Execute(null);
+      WaitUntil("the matches to arrive", delegate { return browser.Titles.Count == 2; });
+
+      Assert.That(browser.Titles.Select(title => title.Name), Is.EqualTo(new[] { "Alien", "Alien Earth" }));
+      Assert.That(browser.HasSearch, Is.True, "the Clear button appeared, because the list is no longer the shelf");
+      Assert.That(browser.Status, Is.EqualTo("2 titles in movies match 'alien'"),
+          "the status line says what was asked and what came of it, in that order");
+    }
+
+    [AvaloniaTest]
+    public void ClearingTheBoxBringsTheWholeShelfBack()
+    {
+      SearchServer server = new SearchServer();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.OpenCommand.Execute(null);
+      WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SHELF.Length; });
+
+      browser.SearchText = "nimmerland";
+      browser.FindCommand.Execute(null);
+      WaitUntil("the one match", delegate { return browser.Titles.Count == 1; });
+
+      browser.ClearSearchCommand.Execute(null);
+      WaitUntil("the shelf back", delegate { return browser.Titles.Count == SHELF.Length; });
+
+      Assert.That(server.Question, Is.Null, "clearing is not a search for the empty string");
+      Assert.That(browser.HasSearch, Is.False);
+      Assert.That(browser.SearchText, Is.Empty, "the box is empty too, or the next Find starts from a leftover");
+    }
+
+    [AvaloniaTest]
+    public void AnEmptiedBoxFindsWhenEnteredAsAQuestionOfNothing()
+    {
+      SearchServer server = new SearchServer();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.OpenCommand.Execute(null);
+      WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SHELF.Length; });
+
+      browser.SearchText = "  ";
+      browser.FindCommand.Execute(null);
+      Pump();
+
+      Assert.That(server.Question, Is.Null,
+          "somebody who deleted the words and pressed Enter means the whole shelf, not the titles called '  '");
+      Assert.That(browser.Titles, Has.Count.EqualTo(SHELF.Length));
+    }
+
+    [AvaloniaTest]
+    public void TheNextPageIsAskedForWithTheSameWords()
+    {
+      SearchServer server = new SearchServer();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.OpenCommand.Execute(null);
+      WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SHELF.Length; });
+
+      browser.SearchText = "a";
+      browser.FindCommand.Execute(null);
+      WaitUntil("the matches to arrive", delegate { return browser.Titles.Count == SHELF.Length; });
+
+      browser.LoadMoreCommand.Execute(null);
+      WaitUntil("the second page", delegate { return server.TimesAsked == 3; });
+
+      Assert.That(server.LastUrl, Does.Contain("search=a"),
+          "More walks through the matches; a second page of the whole shelf would be a different list");
+      Assert.That(server.LastUrl, Does.Contain("offset="));
+    }
+
+    [AvaloniaTest]
+    public void TheFindKeyHandsTheKeyboardToTheBoxAndBackGivesTheShelfBack()
+    {
+      SearchServer server = new SearchServer();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      MediaBrowserWindow window = new MediaBrowserWindow(browser);
+      window.Show();
+      WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SHELF.Length; });
+
+      ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "titlesList");
+      TextBox box = window.GetVisualDescendants().OfType<TextBox>()
+          .First(field => field.Name == "searchBox");
+
+      titles.Focus();
+      window.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.F,
+        Source = titles
+      });
+      Pump();
+      Assert.That(box.IsFocused, Is.True, "one key is all it takes to start typing a title");
+
+      box.Text = "alien";
+      window.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Enter,
+        Source = box
+      });
+      WaitUntil("the matches to arrive", delegate { return browser.Titles.Count == 2; });
+      Assert.That(titles.IsFocused, Is.True,
+          "Enter searched, so the arrows belong to the results again - not to the box they came from");
+
+      window.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Escape,
+        Source = titles
+      });
+      WaitUntil("the shelf back", delegate { return browser.Titles.Count == SHELF.Length; });
+      Assert.That(window.IsVisible, Is.True,
+          "the first back undid the search rather than leaving the screen; the search was the newest thing");
     }
 
     #endregion

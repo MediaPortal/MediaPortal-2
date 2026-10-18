@@ -1764,6 +1764,14 @@ last 2025-01-12"`). That fifth frame presses `Key.I` on the window rather than c
 it only goes green if the key, the handler on the window and the panel hold together; the probe refuses to write a
 frame at all when the panel stayed closed, because a "details" picture of the plain list would be a picture of
 nothing. It is committed as `docs\multiplatform\screenshots\details-windows-skia.png`.
+The sixth frame is that list again with a word in the search box (`search-windows.png`): the probe focuses the real
+`TextBox`, types `alien` through `TextInput`, presses `Key.Enter`, and refuses to write the picture unless the list
+came back with a single row *and* the header fell to "1 title in films matches 'alien'" - so the frame is the search
+box, the filtered list and the counted total drawn together, and it fails if the keystrokes never reached the field
+rather than passing with a picture of the unfiltered shelf. It is committed as
+`docs\multiplatform\screenshots\search-windows-skia.png`. Sampling the pixel band where list rows three and deeper
+would be says the same thing without the probe's help: 338 distinct colours on the unfiltered frame, one on the
+search frame.
 `test-frontend-linux.ps1 -ServeFromHost` starts
 `MP2-Server-Headless` on this machine, waits until it really serves aspects (measured: a just-started server answers
 `200` with an *empty* list, and 25 aspects about a second later), and passes `MP2_SERVER` to the container as

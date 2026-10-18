@@ -149,7 +149,8 @@ namespace MediaPortal.Frontend.Api
       [property: JsonPropertyName("returned")] int Returned,
       [property: JsonPropertyName("sort")] string? Sort,
       [property: JsonPropertyName("titles")] IReadOnlyList<MediaTitle>? Titles,
-      [property: JsonPropertyName("error")] string? Error)
+      [property: JsonPropertyName("error")] string? Error,
+      [property: JsonPropertyName("search")] string? Search = null)
   {
     /// <summary>
     /// Titles the server has for this aspect beyond the page that arrived.

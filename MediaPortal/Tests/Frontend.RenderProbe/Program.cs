@@ -61,7 +61,7 @@ namespace FrontendProbe
   public static class RenderProbe
   {
     private const string USAGE =
-        "Frontend.RenderProbe --out <file.png> [--screen <home|nowplaying|connect|browser|details>] [--server <url>] [--width <n>] [--height <n>]\n" +
+        "Frontend.RenderProbe --out <file.png> [--screen <home|nowplaying|connect|browser|details|search>] [--server <url>] [--width <n>] [--height <n>]\n" +
         "  --out <file>     where to write the rendered frame (PNG); its directory is created\n" +
         "  --screen <name>  which screen to render (default home)\n" +
         "  --server <url>   render the populated screen by asking this server (otherwise MP2_SERVER,\n" +
@@ -185,6 +185,10 @@ namespace FrontendProbe
       // is on screen, because that is when a viewer would press it - and the panel has to survive the layout the
       // window does when it opens.
       bool detailsAsked = false;
+
+      // The same for a list that has been searched: the words are typed into the box on screen and Enter is sent
+      // to the box, so the frame covers the key handling, the round trip and the list coming back smaller.
+      bool searchAsked = false;
       HomeViewModel? home = null;
       ConnectionViewModel? connection = null;
       string playbackStatus = "";
@@ -270,7 +274,8 @@ namespace FrontendProbe
         window = new ConnectionWindow(connection);
       }
       else if (screenName.Equals("browser", StringComparison.Ordinal)
-          || screenName.Equals("details", StringComparison.Ordinal))
+          || screenName.Equals("details", StringComparison.Ordinal)
+          || screenName.Equals("search", StringComparison.Ordinal))
       {
         if (online)
           Console.WriteLine("note:     --server belongs to the home screen; the title list is scripted instead");
@@ -298,12 +303,13 @@ namespace FrontendProbe
         }
 
         detailsAsked = screenName.Equals("details", StringComparison.Ordinal);
+        searchAsked = screenName.Equals("search", StringComparison.Ordinal);
         window = new MediaBrowserWindow(browser, null);
       }
       else
       {
-        return Usage("unknown screen '" + screenName + "'; this probe renders home, nowplaying, connect, browser"
-            + " or details.");
+        return Usage("unknown screen '" + screenName + "'; this probe renders home, nowplaying, connect, browser,"
+            + " details or search.");
       }
 
       window.Width = width;
@@ -375,6 +381,36 @@ namespace FrontendProbe
         if (!list.DetailsVisible)
         {
           Console.WriteLine("FAILED:   the info key did not open the panel, so the frame would be the plain list twice.");
+          return 1;
+        }
+      }
+
+      if (searchAsked && window is MediaBrowserWindow searchScreen)
+      {
+        // Typed into the box that is really on the screen and entered there, rather than handed to the view model:
+        // the frame is then the proof that the box, the Enter key, the question sent to the server and the shorter
+        // list are one road, which is the road a viewer takes.
+        MediaBrowserViewModel shelf = (MediaBrowserViewModel) searchScreen.DataContext!;
+        int before = shelf.Titles.Count;
+
+        TextBox box = Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(searchScreen)
+            .OfType<TextBox>().First(field => field.Name == "searchBox");
+        box.Focus();
+        box.Text = "alien";
+        searchScreen.RaiseEvent(new KeyEventArgs
+        {
+          RoutedEvent = InputElement.KeyDownEvent,
+          Key = Key.Enter,
+          Source = box
+        });
+        Pump(TimeSpan.FromMilliseconds(500));
+
+        MediaBrowserViewModel list = (MediaBrowserViewModel) searchScreen.DataContext!;
+        Console.WriteLine("search:   \"" + list.ActiveSearch + "\" left " + list.Titles.Count + " of " + before
+            + " scripted title(s) - " + list.Status);
+        if (!list.HasSearch || list.Titles.Count == 0 || list.Titles.Count >= before)
+        {
+          Console.WriteLine("FAILED:   the list did not get shorter, so the frame would only be the whole shelf again.");
           return 1;
         }
       }
@@ -546,23 +582,50 @@ namespace FrontendProbe
 
         List<MediaTitle> titles = new List<MediaTitle>();
 
-        for (int i = 0; i < NAMES.Length; i++)
+        // A searched shelf, if the request asked for one. Filtered here in the same shape a real library answers
+        // in - matching titles, echoing the words back - because the frame is about what the screen does with a
+        // filtered answer, and the answer it is given has to be the answer a search produces.
+        string finding = FindingIn(request.RequestUri.Query);
+        List<string> matching = new List<string>();
+        foreach (string name in NAMES)
         {
+          if (finding == null || name.IndexOf(finding, StringComparison.OrdinalIgnoreCase) >= 0)
+            matching.Add(name);
+        }
+
+        for (int i = 0; i < matching.Count; i++)
+        {
+          int scripted = Array.IndexOf(NAMES, matching[i]);
           titles.Add(new MediaTitle(
-              new Guid(string.Format("00000000-0000-4000-8000-{0:D12}", i + 1)),
-              NAMES[i], NAMES[i], 2011 + i, 88 + i * 3,
-              "{D3525B2F-7322-430C-87E7-CDA8EBD6EDD2}://" + Path.Combine(folder, NAMES[i] + ".mkv"),
+              new Guid(string.Format("00000000-0000-4000-8000-{0:D12}", scripted + 1)),
+              matching[i], matching[i], 2011 + scripted, 88 + scripted * 3,
+              "{D3525B2F-7322-430C-87E7-CDA8EBD6EDD2}://" + Path.Combine(folder, matching[i] + ".mkv"),
               false));
         }
 
-        MediaTitles page = new MediaTitles("MovieItem", null, NAMES.Length, 0, NAMES.Length, NAMES.Length,
-            "title", titles, null);
+        MediaTitles page = new MediaTitles("MovieItem", null, matching.Count, 0, matching.Count, matching.Count,
+            "title", titles, null, finding);
 
         return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
         {
           RequestMessage = request,
           Content = new StringContent(JsonSerializer.Serialize(page), Encoding.UTF8, "application/json")
         });
+      }
+
+      /// <summary>The words in <c>?search=...</c>, or <c>null</c> when the request asked for the whole shelf.</summary>
+      private static string FindingIn(string query)
+      {
+        if (string.IsNullOrEmpty(query))
+          return null;
+
+        foreach (string pair in query.TrimStart('?').Split('&'))
+        {
+          int equals = pair.IndexOf('=');
+          if (equals > 0 && pair.Substring(0, equals) == "search")
+            return Uri.UnescapeDataString(pair.Substring(equals + 1));
+        }
+        return null;
       }
     }
 

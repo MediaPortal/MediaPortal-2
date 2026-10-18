@@ -182,8 +182,15 @@ namespace Tests.Server.Api
     private static MediaController.TitlesResult GetTitles(IMediaLibrary library, string aspect, string sort,
         string order, int limit, int offset, out ActionResult<MediaController.TitlesResult> action)
     {
+      return GetTitles(library, aspect, sort, order, limit, offset, null, out action);
+    }
+
+    private static MediaController.TitlesResult GetTitles(IMediaLibrary library, string aspect, string sort,
+        string order, int limit, int offset, string search,
+        out ActionResult<MediaController.TitlesResult> action)
+    {
       ServiceRegistration.Set<IMediaLibrary>(library);
-      action = new MediaController().GetTitles(aspect, sort, order, limit, offset);
+      action = new MediaController().GetTitles(aspect, sort, order, limit, offset, search);
       return Body(action);
     }
 
@@ -272,7 +279,7 @@ namespace Tests.Server.Api
     public void NoMediaLibraryAnswersServiceUnavailable()
     {
       ActionResult<MediaController.TitlesResult> action =
-          new MediaController().GetTitles("MovieItem", null, null, 0, 0);
+          new MediaController().GetTitles("MovieItem", null, null, 0, 0, null);
       Assert.That(Status(action), Is.EqualTo(StatusCodes.Status503ServiceUnavailable),
           "the resource server starts before the media library does, so too early has to mean try again");
     }
@@ -307,7 +314,7 @@ namespace Tests.Server.Api
       ServiceRegistration.Set<IMediaLibrary>(library.Object);
 
       ActionResult<MediaController.TitlesResult> action =
-          new MediaController().GetTitles("MovieItem", null, null, 0, 0);
+          new MediaController().GetTitles("MovieItem", null, null, 0, 0, null);
       Assert.That(Status(action), Is.EqualTo(StatusCodes.Status503ServiceUnavailable));
       Assert.That(Body(action).Error, Does.Contain("initializing"),
           "the server's reason is passed through rather than swallowed");
@@ -872,6 +879,172 @@ namespace Tests.Server.Api
           new MediaController.PlaybackRequest { Percentage = 100 });
 
       Assert.That(Status(action), Is.EqualTo(503));
+    }
+
+    #endregion
+
+    #region What a search asks the library
+
+    /// <summary>
+    /// One "find these words" question, as the library heard it.
+    /// </summary>
+    private class Question
+    {
+      internal string Words;
+      internal List<Guid> Necessary;
+      internal List<Guid> Optional;
+      internal IFilter Extra;
+      internal bool LargeText;
+      internal bool CaseSensitive;
+    }
+
+    /// <summary>The filter the library says it built out of the words. Only its identity matters here.</summary>
+    private static readonly IFilter SEARCH_FILTER = new FalseFilter();
+
+    /// <summary>
+    /// A library that answers the search question the way MP2's real one does - by handing back a query it built
+    /// itself - and writes down every question it was asked and every total it was asked to count.
+    /// </summary>
+    private static IMediaLibrary SearchingLibrary(IList<MediaItem> items, int matches, out List<Question> questions,
+        out List<IFilter> countedThrough)
+    {
+      List<Question> asked = new List<Question>();
+      List<IFilter> counts = new List<IFilter>();
+
+      var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+      library.Setup(get => get.GetManagedMediaItemAspectMetadata()).Returns(
+          new Dictionary<Guid, MediaItemAspectMetadata>
+          {
+              { MediaAspect.ASPECT_ID, MediaAspect.Metadata },
+              { MovieAspect.ASPECT_ID, MovieAspect.Metadata }
+          });
+
+      library.Setup(get => get.BuildSimpleTextSearchQuery(It.IsAny<string>(), It.IsAny<IEnumerable<Guid>>(),
+              It.IsAny<IEnumerable<Guid>>(), It.IsAny<IFilter>(), It.IsAny<bool>(), It.IsAny<bool>()))
+          .Returns((string words, IEnumerable<Guid> necessary, IEnumerable<Guid> optional, IFilter extra,
+              bool largeText, bool caseSensitive) =>
+          {
+            Question question = new Question();
+            question.Words = words;
+            question.Necessary = new List<Guid>(necessary);
+            question.Optional = new List<Guid>(optional);
+            question.Extra = extra;
+            question.LargeText = largeText;
+            question.CaseSensitive = caseSensitive;
+            asked.Add(question);
+            return new MediaItemQuery(necessary, optional, SEARCH_FILTER);
+          });
+
+      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, null, false)).Returns(items);
+      library.Setup(get => get.CountMediaItems(It.IsAny<IEnumerable<Guid>>(), It.IsAny<IFilter>(), false, false))
+          .Callback<IEnumerable<Guid>, IFilter, bool, bool>(
+              (necessary, filter, online, virtualItems) => counts.Add(filter))
+          .Returns(matches);
+
+      questions = asked;
+      countedThrough = counts;
+      return library.Object;
+    }
+
+    [Test]
+    public void TheWordsArePutToTheLibrarysOwnSearchRatherThanToAFilterBuiltHere()
+    {
+      List<Question> questions;
+      List<IFilter> counted;
+      IMediaLibrary library = SearchingLibrary(new List<MediaItem>(), 1, out questions, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      GetTitles(library, "MovieItem", null, null, 0, 0, "  alien earth  ", out action);
+
+      Assert.That(questions, Has.Count.EqualTo(1), "asked once, however the screen spells the question");
+      Assert.That(questions[0].Words, Is.EqualTo("alien earth"), "and asked without the spaces around it");
+      Assert.That(questions[0].Necessary, Is.EquivalentTo(new[] { MovieAspect.ASPECT_ID }),
+          "a search for a film is still a search among films");
+      Assert.That(questions[0].Optional, Does.Contain(MediaAspect.ASPECT_ID));
+
+      Assert.That(questions[0].LargeText, Is.False,
+          "plot text is not searched: every film mentioning a spaceship is not the answer to typing 'spaceship'");
+      Assert.That(questions[0].CaseSensitive, Is.False, "a remote control has no shift key");
+    }
+
+    [Test]
+    public void TheNumberOfMatchesIsCountedThroughTheSameQuestionTheTitlesCameThrough()
+    {
+      List<Question> questions;
+      List<IFilter> counted;
+      IMediaLibrary library = SearchingLibrary(new List<MediaItem>
+      {
+          CreateItem(Guid.NewGuid(), "Alien", "Alien", new DateTime(1979, 5, 25)),
+          CreateItem(Guid.NewGuid(), "Alien Earth", "Alien Earth", new DateTime(2025, 4, 6))
+      }, 2, out questions, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      MediaController.TitlesResult result = GetTitles(library, "MovieItem", null, null, 0, 0, "alien", out action);
+
+      Assert.That(counted, Has.Count.EqualTo(1));
+      Assert.That(counted[0], Is.SameAs(SEARCH_FILTER),
+          "a total counted over the whole shelf while the list shows matches is a list that never stops offering more");
+      Assert.That(result.Total, Is.EqualTo(2));
+      Assert.That(result.Returned, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void TheAnswerSaysWhichWordsItIsAbout()
+    {
+      List<Question> questions;
+      List<IFilter> counted;
+      IMediaLibrary library = SearchingLibrary(new List<MediaItem>(), 0, out questions, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      MediaController.TitlesResult result = GetTitles(library, "MovieItem", null, null, 0, 0, "star trek", out action);
+
+      Assert.That(result.Search, Is.EqualTo("star trek"),
+          "an empty list is a different story when it was filtered, and only the answer can say which it was");
+    }
+
+    [Test]
+    public void AskingForTheWholeShelfAsksNoQuestion()
+    {
+      List<Question> questions;
+      List<IFilter> counted;
+      IMediaLibrary library = SearchingLibrary(new List<MediaItem>(), 7, out questions, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      MediaController.TitlesResult result = GetTitles(library, "MovieItem", null, null, 0, 0, out action);
+
+      Assert.That(questions, Is.Empty, "no words, no search");
+      Assert.That(counted[0], Is.Null, "and the whole shelf is what the total counts");
+      Assert.That(result.Search, Is.Null);
+      Assert.That(result.Total, Is.EqualTo(7));
+    }
+
+    [Test]
+    public void SpacesAreNotAWord()
+    {
+      List<Question> questions;
+      List<IFilter> counted;
+      IMediaLibrary library = SearchingLibrary(new List<MediaItem>(), 7, out questions, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      MediaController.TitlesResult result = GetTitles(library, "MovieItem", null, null, 0, 0, "   ", out action);
+
+      Assert.That(questions, Is.Empty,
+          "a search box somebody emptied means \"show everything again\", not \"find the titles that are spaces\"");
+      Assert.That(result.Search, Is.Null);
+    }
+
+    [Test]
+    public void SearchingAnAspectNobodyHasIsRefusedBeforeTheLibraryIsAsked()
+    {
+      List<Question> questions;
+      List<IFilter> counted;
+      IMediaLibrary library = SearchingLibrary(new List<MediaItem>(), 0, out questions, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      GetTitles(library, "Novel", null, null, 0, 0, "alien", out action);
+
+      Assert.That(Status(action), Is.EqualTo(404));
+      Assert.That(questions, Is.Empty, "the question is refused here rather than passed on to be answered with nothing");
     }
 
     #endregion

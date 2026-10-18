@@ -145,6 +145,13 @@ namespace MediaPortal.Server.Api
       /// </summary>
       public string Sort { get; set; }
 
+      /// <summary>
+      /// The words the answer was filtered by, or null when it was not filtered. Echoed because a front end that
+      /// shows an empty list has to be able to tell "nobody owns anything called <i>alien</i>" from "the library is
+      /// empty", and because a search box that silently lost its text is worse than one that never existed.
+      /// </summary>
+      public string Search { get; set; }
+
       public List<TitleResult> Titles { get; set; }
 
       /// <summary>
@@ -161,9 +168,13 @@ namespace MediaPortal.Server.Api
     /// <param name="order"><c>asc</c> (default) or <c>desc</c>.</param>
     /// <param name="limit">Titles in the answer, capped at 2000.</param>
     /// <param name="offset">How many to skip, for a front end that fills its list as the viewer scrolls.</param>
+    /// <param name="search">
+    /// Words to look for. The answer then holds only the titles of this aspect that carry the words somewhere in
+    /// their short text - the <c>search</c> field of the answer says what was asked for.
+    /// </param>
     [HttpGet("titles")]
     public ActionResult<TitlesResult> GetTitles([FromQuery] string aspect, [FromQuery] string sort,
-        [FromQuery] string order, [FromQuery] int limit, [FromQuery] int offset)
+        [FromQuery] string order, [FromQuery] int limit, [FromQuery] int offset, [FromQuery] string search)
     {
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
       if (mediaLibrary == null)
@@ -203,7 +214,23 @@ namespace MediaPortal.Server.Api
         if (movie != null && aspectId != MovieAspect.ASPECT_ID)
           optional.Add(MovieAspect.ASPECT_ID);
 
-        MediaItemQuery query = new MediaItemQuery(necessary, optional, null);
+        // What the viewer asked the library to contain. Whitespace counts as nothing asked, because a search box
+        // that the viewer cleared should show the whole shelf again rather than an empty one.
+        string finding = string.IsNullOrWhiteSpace(search) ? null : search.Trim();
+
+        // MP2 already knows how to look for words in the library, and it is not "compare the title":
+        // BuildSimpleTextSearchQuery asks the database whether any of the short text attributes of the aspects
+        // being asked about carry the words, which is what typing "star trek" has to mean - a film is found under
+        // its title, its sort title, its collection or its tagline, not under whichever one a hand-written filter
+        // happened to pick. It also escapes the LIKE wildcards, which a filter built here would forget and a viewer
+        // typing an underscore would notice as an empty list.
+        // The last two arguments are the two a viewer would notice if they were the other way round: CLOBs are left
+        // out, because every film whose plot mentions "spaceship" is not what a search for it asked for, and the
+        // match is not case sensitive, because a remote control has no shift key.
+        MediaItemQuery query = finding == null
+            ? new MediaItemQuery(necessary, optional, null)
+            : mediaLibrary.BuildSimpleTextSearchQuery(finding, necessary, optional, null, false, false);
+
         string sortBy = ReadSort(sort);
         ISortInformation sortInformation = BuildSort(sortBy, order);
         if (sortInformation != null)
@@ -218,15 +245,21 @@ namespace MediaPortal.Server.Api
 
         List<TitleResult> titles = items.Select(ToTitle).ToList();
 
+        // "how many are there" is asked through the same filter the list was read through, or a front end that
+        // reached the bottom of a search would keep offering more of a list that has no more in it - and would say
+        // "12 of 4 000" about a search that found twelve titles out of four thousand.
+        int total = mediaLibrary.CountMediaItems(new[] { aspectId }, query.Filter, false, false);
+
         return new TitlesResult
         {
           Aspect = match.Value.Name,
           AspectId = aspectId,
-          Total = mediaLibrary.CountMediaItems(new[] { aspectId }, null, false, false),
+          Total = total,
           Offset = skip,
           Limit = take,
           Returned = titles.Count,
           Sort = sortBy + (IsDescending(order) ? " descending" : ""),
+          Search = finding,
           Titles = titles
         };
       }

@@ -1743,8 +1743,105 @@ with that body, the server's answer arrives as an object, a 404 keeps the server
 never leaves the machine) take `TestServerApiClient` to 15; a new six-test fixture covers the reporter; and one more
 browser test shows the panel reading a title again after it was watched. `Tests.Frontend` goes from 202 to 223, and
 the whole suite on Windows is **663 tests, 0 failures** - `Canary.Portable` (29), `Tests.Server` (253),
-`Tests.Client` (90), `Tests.Frontend` (223), `Setup\Tests` (68). The render gate still draws all five frames, the
-details frame unchanged at 1863 distinct colours.
+`Tests.Client` (90), `Tests.Frontend` (223), `Setup\Tests` (68). The render gate drew all five frames at that point, the
+details frame unchanged at 1863 distinct colours. (Section **ab** carries the numbers as they stand now.)
+
+### ab. Finding a title by name
+
+**Why search, and why now.** The user's standing instruction is to restore MP2 functionality to the new front end, and
+of everything the old client could do, the hole that hurts most with a real library was the one that was never there:
+a three-thousand-title shelf you can only walk down a page at a time. So the new front end got a search box, and the
+rule it follows is the one MP2 already followed.
+
+**The search is the old library's own question, not a filter built here.** MP2's media client does the same thing it
+does everywhere else: type a word, press *Find*, and the call goes to
+`IMediaLibrary.BuildSimpleTextSearchQuery(text, necessary, optional, filter, includeCLOBs, caseSensitive)`
+(`MediaLibrary.cs:934`), which builds a `LIKE` condition over **every short text attribute** of the title - name,
+original name, director, artist, genre, tag, and the rest. Two details inside that method are the whole reason the new
+endpoint calls it instead of assembling its own `LikeFilter`:
+
+- Every wildcard in the typed text is escaped by `SqlUtils.LikeEscape` (with `ESCAPE_CHAR = '\\'`). A viewer who types
+  `%` or `_` is looking for that character, not asking for the entire library.
+- Empty text returns `FalseFilter`, never *true* - the library's answer to "nothing typed" is "nothing found", not
+  "everything". The endpoint keeps that rule by treating whitespace as "no search at all" *before* asking, so an empty
+  box means the plain shelf rather than an empty one.
+
+Two of the six arguments are decisions rather than accidents, and both are asserted in a test so that a future
+refactor cannot quietly flip them. `includeCLOBs: false`, because MP2's own screens leave the plot and the review text
+out: a word like *earth* sits in a hundred plot summaries and the result list stops being a result list.
+`caseSensitive: false`, because a remote control has no shift key and nobody wants to type a film title twice. The
+`filter` argument is passed `null` - the search stands alone today, and stays combinable with genre jewels and the
+rest, which is what the signature is built for.
+
+**`GET api/media/titles?...&search=word` - a seventh restriction, not a new endpoint.** Same controller, same route,
+same sort/limit/offset, so everything the browser already knew about paging still applies to a result set. `Total`
+changed meaning along with it: it used to be `CountAllMediaItems()`, and is now counted **through the same filter the
+list is read with** (`CountMediaItems(necessaryMIATypeIDs, query.Filter, false, true)`). Without that, a search of one
+hit would report "1 of 3443 films" on the first line and "3443 titles" in the status, and the viewer would spend the
+next minute wondering whether they had searched at all. That count costs a second query per page while searching; it
+was already a second query before, only a cheaper one, and `Total` exists for exactly this sentence.
+
+The answer also echoes the word back (`TitlesResult.Search`). The client knows what it sent, but a page can now be
+recognised as an answer to *this* question - which matters the moment a viewer keeps scrolling while typing and a
+page from the previous question arrives late.
+
+What the server deliberately does **not** do: split words into stems, forgive spelling mistakes, or search free text
+for years and genres. MP2 could not do that either; `BuildComplexSearchQuery` is where somebody would start if they
+ever need it.
+
+**The word is remembered twice, and the difference is half the test.** `ServerApiClient.GetTitlesAsync` grew a
+`search` parameter and appends `&search=` URL-escaped - a space in the phrase must not cut the query string in half,
+and a `%` in a word must not be read as the start of an escape. In the view model, `SearchText` is *what is in the
+box* while `ActiveSearch` is *what the list on screen actually answered*, and `ActiveSearch` is assigned only after
+the answer is in hand. That is the same reasoning the details panel uses: if the network is down and the list is
+still showing last time's titles, the status line has to describe the list, not the wish. A test holds the model to
+it - after a failed search the status line still names the old word and no clearing happened.
+
+Which gives the status line three shapes, and the middle one is the one that happens on a real remote:
+
+```
+Films                    12 titles in this view              ← no search
+Films                    24 titles match 'erd' (page)        ← more still at the server
+Films                    1 title in films matches 'alien'    ← everything that matches is on screen
+```
+
+The parenthesised "(page)" is what decides whether *More* stays available: shown < total means the server has more
+matches, so a single-hit search loses the button and a wide one keeps it.
+
+**Keys, in the order a remote actually presses them.** `F` (and the Windows/Apps key, where the on-screen keyboard
+opens) moves focus into the box. Enter *in the box* searches and puts focus back on the list, because the next
+keypress should already be selecting the first hit; Enter in an empty box means "take the search away". Escape walks
+down exactly one level per press: detail panel first, then the search (list whole again, focus back in the box), then
+the window - otherwise a viewer gets stranded in a filtered library they no longer understand. Enter *on the list*
+still plays, untouched by any of this. The box sits outside the `DpadNavigation` ring on purpose: the ring installs a
+Bubble handler that claims the arrow keys whenever focus is not in the ring, which would make Up/Down move the
+selection while somebody is typing; Left/Right still move the caret because the `TextBox` consumes them first.
+
+**Tests.** Six new server tests (`TestMediaController` 33 → 39) do not re-implement a `LIKE` - they ask *which
+question the library was given*, through a stub library that overrides `BuildSimpleTextSearchQuery` and answers with
+`FalseFilter`. A test that rebuilt the SQL condition would survive the wildcard escaping being deleted; this one
+notices if the endpoint stops using the library's method, or flips the CLOB or case flags. The rest cover counting
+through the same question, the echo, "no word means the whole shelf", "two words typed together are one phrase, not
+two searches", and a 404 for an unknown aspect while searching.
+
+Seven new browser tests (`TestMediaBrowser` 22 → 29, `Tests.Frontend` 223 → 230) run against a stub server that
+records the word it was asked and filters its own twelve titles by it, so the view model can be held to "one title"
+without anybody reimplementing the filter: the word goes out, the status line names it, the list gets shorter, *More*
+survives a partial page and disappears on a complete one, clearing restores the whole shelf, a dead server deletes
+nothing, and paging while searching carries the same word forward. The last one is a window test: it focuses the real
+`TextBox`, sends `TextInput` and `Key.Enter`, and then presses Escape twice - first the search goes away, then the
+window closes.
+
+**The sixth frame.** `search-windows-skia.png` is the same browser window with `alien` typed into the real box, one
+row left in the list, and the header reading "1 title in films matches 'alien'". The probe fails if the text never
+reached the box, if more than one row survives, or if the number in the header did not fall to one. Independently of
+the probe's own counters, sampling the pixels of the row area tells the same story: in the unfiltered frame that band
+holds 338 distinct colours (rows of text), in the search frame it holds **one** (empty wall below a single row).
+
+**Where the numbers stand.** `TestMediaController` 39, `TestMediaBrowser` 29, `Tests.Frontend` 230, and the whole
+suite on Windows is **676 tests, 0 failures** - `Canary.Portable` (29), `Tests.Server` (259), `Tests.Client` (90),
+`Tests.Frontend` (230), `Setup\Tests` (68). The render gate now draws six frames and still prints
+`FRONTEND CHECK OK`.
 
 ## What cannot be verified without the user
 

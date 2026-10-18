@@ -331,7 +331,7 @@ namespace MediaPortal.Frontend.Api
     /// </para>
     /// </remarks>
     public async Task<MediaTitles> GetTitlesAsync(string aspect, string? sort = null, bool descending = false,
-        int limit = 0, int offset = 0, CancellationToken cancellation = default)
+        int limit = 0, int offset = 0, string? search = null, CancellationToken cancellation = default)
     {
       if (string.IsNullOrWhiteSpace(aspect))
         throw new ArgumentException("Titles of which aspect?", nameof(aspect));
@@ -344,7 +344,15 @@ namespace MediaPortal.Frontend.Api
       if (limit > 0)
         url += "&limit=" + limit.ToString(CultureInfo.InvariantCulture);
       if (offset > 0)
+      {
         url += "&offset=" + offset.ToString(CultureInfo.InvariantCulture);
+      }
+      if (!string.IsNullOrWhiteSpace(search))
+      {
+        // Escaped, because a viewer searching for "2 + 2" or for "A_B" would otherwise be sending a URL whose
+        // characters mean something else than the words they typed.
+        url += "&search=" + Uri.EscapeDataString(search.Trim());
+      }
 
       return await GetJsonAsync<MediaTitles>(url, cancellation).ConfigureAwait(false);
     }

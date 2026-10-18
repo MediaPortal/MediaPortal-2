@@ -18,7 +18,7 @@
 
   <DockPanel Margin="48,36">
 
-    <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,18">
+    <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,12">
       <TextBlock Text="{Binding Heading}"
                  FontSize="40"
                  FontWeight="SemiBold" />
@@ -28,11 +28,38 @@
                  TextTrimming="CharacterEllipsis" />
     </StackPanel>
 
+    <!--
+      Finding a title by typing its name, because paging through two thousand rows to reach the one in your head
+      is not searching. It is always on screen rather than behind a key: a viewer who cannot see the box will never
+      think to look for it. Escape in the box puts the whole shelf back, Enter asks the server.
+    -->
+    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="14" Margin="0,0,0,16">
+      <TextBox Name="searchBox"
+               Text="{Binding SearchText, Mode=TwoWay}"
+               PlaceholderText="Find a title by name"
+               Width="520"
+               FontSize="22"
+               Padding="14,8" />
+      <Button Name="findButton"
+              Content="Find"
+              Command="{Binding FindCommand}"
+              MinWidth="150"
+              Padding="24,8"
+              FontSize="22" />
+      <Button Name="clearButton"
+              Content="Clear"
+              Command="{Binding ClearSearchCommand}"
+              IsVisible="{Binding HasSearch}"
+              MinWidth="150"
+              Padding="24,8"
+              FontSize="22" />
+    </StackPanel>
+
     <TextBlock DockPanel.Dock="Bottom"
                FontSize="14"
                Opacity="0.45"
                Margin="0,12,0,0"
-               Text="Arrows move · OK plays · I reads more · I or Esc closes the details · Back returns" />
+               Text="Arrows move · OK plays · I reads more · F finds · Esc clears the search or closes the details · Back returns" />
 
     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24">
 

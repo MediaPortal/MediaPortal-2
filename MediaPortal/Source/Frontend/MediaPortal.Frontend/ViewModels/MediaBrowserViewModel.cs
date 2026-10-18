@@ -168,6 +168,18 @@ namespace MediaPortal.Frontend.ViewModels
     /// <summary>The title the last details read was for, so that opening it again costs nothing.</summary>
     private Guid _detailsFor;
 
+    /// <summary>
+    /// What the viewer has typed into the search box, which is not yet what the list is filtered by - the list
+    /// moves when they press Enter or the Find button, not on every keystroke, because every keystroke would be a
+    /// round trip to the server while the box is still being written in.
+    /// </summary>
+    [ObservableProperty]
+    private string _searchText = "";
+
+    /// <summary>The words the list on screen was read with, or "" when the whole shelf is showing.</summary>
+    [ObservableProperty]
+    private string _activeSearch = "";
+
     public MediaBrowserViewModel()
         : this(null, null)
     {
@@ -221,6 +233,81 @@ namespace MediaPortal.Frontend.ViewModels
     public async Task LoadMoreAsync()
     {
         await ReadAsync(Titles.Count);
+    }
+
+    /// <summary>
+    /// Whether a search is on this list, which is what the "Clear" button appears and disappears for.
+    /// </summary>
+    public bool HasSearch
+    {
+      get { return !string.IsNullOrEmpty(ActiveSearch); }
+    }
+
+    partial void OnActiveSearchChanged(string value)
+    {
+      OnPropertyChanged(nameof(HasSearch));
+    }
+
+    /// <summary>
+    /// Filters the list to the titles carrying the words in the search box. Enter on the box and the Find button
+    /// both lead here.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The search is sent as a question about the whole aspect rather than run over the titles already on screen,
+    /// because a shelf of two thousand films has the one the viewer means on a page nobody has reached yet. Paging
+    /// then walks through the matches, not through the shelf: <c>More</c> asks for the next page of the same
+    /// question.
+    /// </para>
+    /// <para>
+    /// An empty box means the whole shelf again. Someone who deleted the words to look at everything should not
+    /// have to hunt for a second control to say so, which is also why this does not treat empty as "no matches".
+    /// </para>
+    /// </remarks>
+    [RelayCommand]
+    public async Task FindAsync()
+    {
+      string words = (SearchText ?? "").Trim();
+      if (words.Length == 0)
+      {
+        await ClearSearchAsync();
+        return;
+      }
+
+      if (!string.Equals(words, ActiveSearch, StringComparison.Ordinal))
+      {
+        ActiveSearch = words;
+        ClearDetailsForNewList();
+      }
+
+      await ReadAsync(0);
+    }
+
+    /// <summary>Puts the whole shelf back. Escape on the search box comes here.</summary>
+    [RelayCommand]
+    public async Task ClearSearchAsync()
+    {
+      SearchText = "";
+      if (HasSearch)
+      {
+        ActiveSearch = "";
+        ClearDetailsForNewList();
+      }
+
+      await ReadAsync(0);
+    }
+
+    /// <summary>
+    /// Puts the list back to its beginning because a different question was asked of the server.
+    /// </summary>
+    private void ClearDetailsForNewList()
+    {
+      // A details panel left open is about a title from the list that is on its way away, and a row a viewer can no
+      // longer see is not a row they are reading about.
+      DetailsVisible = false;
+      Selected = null;
+      Titles.Clear();
+      CanLoadMore = false;
     }
 
     /// <summary>
@@ -408,7 +495,7 @@ namespace MediaPortal.Frontend.ViewModels
       try
       {
         MediaTitles answer = await _client.GetTitlesAsync(AspectName, "title", false, PAGE_SIZE, offset,
-            cancellation.Token);
+            string.IsNullOrEmpty(ActiveSearch) ? null : ActiveSearch, cancellation.Token);
 
         if (offset == 0)
           Titles.Clear();
@@ -419,10 +506,31 @@ namespace MediaPortal.Frontend.ViewModels
         Selected = Selected ?? (Titles.Count > 0 ? Titles[0] : null);
         CanLoadMore = answer.Remaining > 0;
 
-        Status = answer.Total == 0
-            ? "This server has no " + Heading.ToLowerInvariant()
-            : string.Format("{0} of {1} {2}, sorted by {3}", Titles.Count, answer.Total, Heading.ToLowerInvariant(),
-                answer.Sort ?? "the server's order");
+        if (answer.Total == 0)
+        {
+          // Two different nothings. "no films" and "no films called 'alien'" need different next moves from a
+          // viewer, and only the second one has a search box to clear.
+          Status = string.IsNullOrEmpty(ActiveSearch)
+              ? "This server has no " + Heading.ToLowerInvariant()
+              : "Nothing in " + Heading.ToLowerInvariant() + " matches '" + ActiveSearch + "'";
+        }
+        else if (string.IsNullOrEmpty(ActiveSearch))
+        {
+          Status = string.Format("{0} of {1} {2}, sorted by {3}", Titles.Count, answer.Total,
+              Heading.ToLowerInvariant(), answer.Sort ?? "the server's order");
+        }
+        else if (Titles.Count < answer.Total)
+        {
+          Status = string.Format("{0} of {1} {2} match '{3}', sorted by {4}", Titles.Count, answer.Total,
+              Heading.ToLowerInvariant(), ActiveSearch, answer.Sort ?? "the server's order");
+        }
+        else
+        {
+          // Every match is already on screen, so "1 of 1" would be a stranger's way of putting it.
+          Status = string.Format("{0} {1} {2} {3} '{4}'", answer.Total,
+              answer.Total == 1 ? "title in" : "titles in", Heading.ToLowerInvariant(),
+              answer.Total == 1 ? "matches" : "match", ActiveSearch);
+        }
         if (!string.IsNullOrEmpty(answer.Error))
           Status = answer.Error;
       }

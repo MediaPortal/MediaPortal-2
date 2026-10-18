@@ -88,13 +88,37 @@ namespace MediaPortal.Frontend.Views
               viewModel.ToggleDetailsCommand.Execute(null);
               args.Handled = true;
             }
+            else if (args.Key == Key.F && !searchBox.IsFocused)
+            {
+              // Finding is the one thing on this screen that needs the keyboard, so it is the one key that moves
+              // the focus out of the list - and Enter or Escape brings it straight back, because the next thing a
+              // viewer does with a result is walk through it with the arrows.
+              searchBox.Focus();
+              args.Handled = true;
+            }
+            else if (searchBox.IsFocused && (args.Key == Key.Enter || args.Key == Key.Return))
+            {
+              // Enter means different things depending on where the caret is: "play this" on a row, "search for
+              // this" in the box. The box gets asked first, or typing a title would start a film.
+              viewModel.FindCommand.Execute(null);
+              titlesList.Focus();
+              args.Handled = true;
+            }
             else if (args.Key == Key.Escape || args.Key == Key.Back)
             {
-              // Back means "away with the newest thing on the screen", which is the panel when one is open. A
-              // viewer who read about three films and pressed back each time expects to still be in the list.
+              // Back means "away with the newest thing on the screen", which is the panel when one is open, and
+              // the search when there is one. A viewer who pressed back three times expects to be back where they
+              // started, not outside the screen.
               if (viewModel.DetailsVisible)
               {
                 viewModel.CloseDetails();
+                args.Handled = true;
+                return;
+              }
+              if (searchBox.IsFocused || viewModel.HasSearch)
+              {
+                viewModel.ClearSearchCommand.Execute(null);
+                searchBox.Focus();
                 args.Handled = true;
                 return;
               }
