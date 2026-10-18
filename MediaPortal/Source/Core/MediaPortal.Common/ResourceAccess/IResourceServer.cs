@@ -60,5 +60,26 @@ namespace MediaPortal.Common.ResourceAccess
     /// </summary>
     /// <param name="moduleType">Type of OwinMiddleware to remove.</param>
     void RemoveHttpModule(Type moduleType);
+
+    /// <summary>
+    /// Adds the assembly of <paramref name="controllerType"/> to the assemblies that MVC searches for
+    /// API controllers.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Until now the only way for an assembly to be searched was to contain a resource access module, because
+    /// the module's assembly was added as an application part on the way. That silently excluded assemblies
+    /// with controllers but without middleware, which is the normal shape of an API assembly, and the resource
+    /// server's own comment at the time called the shortcut a hack.
+    /// </para>
+    /// <para>
+    /// Call it with any controller type of the assembly, from the code that composes the server, before
+    /// <see cref="Startup"/>. Calling it later rebuilds the HTTP pipeline, which the shared listener of the
+    /// platforms without http.sys refuses once other endpoints have joined the port - so the API of the server
+    /// itself is registered while the services are registered, not while they start.
+    /// </para>
+    /// </remarks>
+    /// <param name="controllerType">Any controller type in the assembly to search.</param>
+    void AddHttpControllerAssembly(Type controllerType);
   }
 }

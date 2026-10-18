@@ -103,6 +103,12 @@ namespace MediaPortal.Common.Services.ResourceAccess
 #endif
 
     protected readonly List<Type> _middleWares = new List<Type>();
+
+    /// <summary>
+    /// Types whose assemblies MVC searches for API controllers, in addition to the assemblies of the
+    /// resource access modules. See <see cref="AddHttpControllerAssembly"/>.
+    /// </summary>
+    protected readonly List<Type> _controllerTypes = new List<Type>();
     protected IDisposable _httpServer;
     protected int _serverPort = UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER;
     protected readonly object _syncObj = new object();
@@ -135,12 +141,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
           //services.AddAuthentication();
 
           var mvc = services.AddControllers();
-          // This is only needed to tell the app where to look for API Controllers
-          // and is currently a hack because plugins that have controllers might not
-          // necessarily register a middleware (but all do currently)
-          // ToDo: A separate API host should probably be created with the necessary interfaces.
-          foreach(Type middleWareType in _middleWares)
-            mvc.AddApplicationPart(middleWareType.Assembly);
+          AddApplicationParts(mvc, _middleWares, _controllerTypes);
         };
 
         Action<IApplicationBuilder> configurePipeline = app =>
@@ -375,6 +376,53 @@ namespace MediaPortal.Common.Services.ResourceAccess
     {
       _middleWares.Remove(moduleType);
     }
+
+    public void AddHttpControllerAssembly(Type controllerType)
+    {
+      if (controllerType == null)
+        throw new ArgumentNullException("controllerType");
+
+      if (!_controllerTypes.Contains(controllerType))
+        _controllerTypes.Add(controllerType);
+
+      if (_httpServer != null)
+      {
+        // The set of controller assemblies is part of the service collection, so it is fixed once the host is
+        // built - the same constraint the resource access modules have, and it is rebuilt the same way. On the
+        // platforms without http.sys the shared listener refuses a rebuilt endpoint after other endpoints have
+        // joined its port, which is why a server registers the assemblies of its own API while it registers
+        // its services, not while it starts them.
+        StopServer();
+        CreateAndStartServer();
+      }
+    }
+
+#if NET5_0_OR_GREATER
+    /// <summary>
+    /// Tells MVC which assemblies to search for API controllers.
+    /// </summary>
+    /// <remarks>
+    /// The assemblies of the resource access modules are searched because that is how every assembly with
+    /// controllers reached this host before <see cref="AddHttpControllerAssembly"/> existed - it worked by
+    /// accident, and an assembly with controllers but without a middleware was invisible. Both lists end up
+    /// here so that nothing which relies on the shortcut stops working while the explicit registration is
+    /// introduced.
+    /// </remarks>
+    public static void AddApplicationParts(IMvcBuilder mvcBuilder, IEnumerable<Type> moduleTypes,
+        IEnumerable<Type> controllerTypes)
+    {
+      if (moduleTypes != null)
+      {
+        foreach (Type moduleType in moduleTypes)
+          mvcBuilder.AddApplicationPart(moduleType.Assembly);
+      }
+      if (controllerTypes != null)
+      {
+        foreach (Type controllerType in controllerTypes)
+          mvcBuilder.AddApplicationPart(controllerType.Assembly);
+      }
+    }
+#endif
 
     #endregion
   }

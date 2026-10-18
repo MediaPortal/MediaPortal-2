@@ -91,6 +91,11 @@ namespace Test.MediaServer
     {
       throw new NotImplementedException();
     }
+
+    public void AddHttpControllerAssembly(Type controllerType)
+    {
+      throw new NotImplementedException();
+    }
   }
 
   class TestMediaLibraryAlbumItem : MediaLibraryAlbumItem

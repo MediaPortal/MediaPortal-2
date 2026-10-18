@@ -35,7 +35,7 @@ Verified 2026-10-18 with `build.ps1 -Solution Server,Client -Ratchet`, `tests.ps
 | Portable-core WinForms / GDI+ references | **0** (83 quarantined in 10 satellite files) | `spine.ps1`, `satellites.ps1` |
 | Portable-core P/Invoke declarations | **73** in 9 files (was 95, then 76; the last three were the Kernel32 waitable timer) - invisible to `CA1416` | `spine.ps1` (P/Invoke column) |
 | `CA1416` call sites, Windows vs Linux | **0** on both hosts, floor 0 (was 196 at the retarget) - the 107 that remained were all in `-windows` assemblies that had lost their platform declaration; see "the floor went to zero" below | build log, `warnings.ps1` on both logs |
-| Unit tests, Windows | 4/4 suites, 353 passed, 0 failed, 0 skipped; a suite whose assembly predates its own sources reports STALE instead of running the old binary | `tests.ps1` |
+| Unit tests, Windows | 4/4 suites, 357 passed, 0 failed, 0 skipped; a suite whose assembly predates its own sources reports STALE instead of running the old binary | `tests.ps1` |
 | Unit tests, Linux (canary) | 31 executed, 0 failed (1 skips: Windows-only), incl. live IPC round trips and XDG autostart | `test-canary-linux.ps1` |
 | Server actually **runs** | **yes on Windows and on Linux** as a headless process. Windows: reaches the Running state, creates the SQLite store, answers UPnP discovery over the network, exits 0 with an error-free log. Linux: reaches the same Running state with 0 `FATAL`, 0 `ERROR` and one `WARN` - the documented note that a container has no FUSE driver. Android is still unmeasured | `run-server-check.ps1`, `test-server-upnp.ps1`, `test-server-run-linux.ps1` |
 | Server **answers HTTP** | **yes on both hosts**, measured with the same probe: `GET /MediaPortal/Server/health` answers `200` with the server's version and the path it was called with - `pathBase=/MediaPortal/Server`, `path=/health` on Windows *and* in the container, because the shared listener now hands requests over in exactly the shape http.sys uses. The gate checks that text, not just the status code | `run-server-check.ps1 -ProbeUrl`, item **l** below |
@@ -714,6 +714,50 @@ attribute route, and an unknown controller still answering `404`).
 | Probes in the gate | 1 → **2**, each with expected content |
 | Unit tests | 347 → **353** |
 | Ratchet / spine | `486` findings = baseline, `Spine OK.` |
+
+### n. Who decides where MVC looks for controllers
+
+`ServerInfoController` was discovered by accident rather than by decision: `configureServices` added the assembly
+of every registered *resource access module* as an MVC application part, and the first controller happened to sit
+in the assembly that registers `ResourceAccessModule`, which is `MediaPortal.Common`. The author had left a
+comment on that line saying it "is currently a hack because plugins that have controllers might not necessarily
+register a middleware". One endpoint could live with the accident. The next one cannot:
+
+| Fact | Consequence |
+| --- | --- |
+| `MediaPortal.Backend` references `MediaPortal.Common`, never the other way round, and the media database API (`IMediaLibrary`) is in Backend | A controller that serves the library cannot live next to `ServerInfoController`. It needs an assembly that the launchers and Backend can both reach - and an assembly like that registers no HTTP middleware at all, so under the old rule it would have been invisible |
+| The old rule read "an assembly is searched for controllers if it registered middleware" | That rule says nothing about controllers. An assembly with controllers and no middleware was invisible; an assembly with middleware and no controllers cost an `AddApplicationPart` that did nothing |
+| `RestartHttpServers` rebuilds the pipeline, and the shared listener refuses to add an endpoint that a running pipeline already holds | A controller assembly has to be declared *before* `Startup`. The interface says so; a call after startup rebuilds where the platform allows it and says what happened |
+
+So the seam is now explicit: `IResourceServer.AddHttpControllerAssembly(Type)`, and a static
+`ResourceServer.AddApplicationParts(mvc, moduleTypes, controllerTypes)` that holds the union rule so it can be
+read in one place. `ApplicationCore.RegisterCoreServices()` declares the core's own controller assembly - under
+`#if NET5_0_OR_GREATER`, because the `net48` target has neither MVC nor the controller - which means the core API
+no longer depends on `ResourceAccessModule` happening to be registered.
+
+Four tests in `Tests.Server\Common\TestResourceServerApiRegistration.cs`, all of them over a real socket through
+the shared listener rather than against MVC's internals (the feature-provider types are not reachable from the
+test assembly, and asserting on the HTTP answer is the assertion that matters anyway):
+
+- A controller in a declared assembly answers `200`.
+- The same controller's route answers `404` when its assembly was **not** declared. This negative control is what
+  makes the seam mean something: it proves MVC does not sweep every loaded assembly, so declaring an assembly is
+  the thing that moves a controller in and out.
+- The old rule still holds: with modules registered and no controller declared explicitly, `/api/serverinfo` still
+  answers `200`. Nothing that used to answer stopped answering.
+- Argument validation, deduplication, and "declaring a controller while not started does not start the server".
+
+Changing an interface is a tree-wide event: two stub implementations of `IResourceServer` in the test projects had
+to grow the member (one records the declared assemblies, the other throws like every other member of that stub).
+The build found both, which is why the gate builds the whole solution rather than the projects that were touched.
+
+| Measurement | Value |
+| --- | --- |
+| `api/probe` with the controller's assembly declared / not declared | `200` / `404` |
+| Unit tests | 353 → **357** |
+| Windows live server (gate) | both probes with expected content, `Running` state, clean stop |
+| Linux container, fresh image | exit `0`, both probes `200` with expected content, same `Running` state, clean stop - the seam is exercised on the shared listener too, not only on http.sys |
+| Ratchet / spine / packages | `486` findings = baseline, `Spine OK.`, 0 vulnerable packages at `-FailOn Low` |
 
 ## Phase 2 - Avalonia front end
 

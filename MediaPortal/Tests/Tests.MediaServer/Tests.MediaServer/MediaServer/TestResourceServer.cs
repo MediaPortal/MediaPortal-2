@@ -55,5 +55,15 @@ namespace Tests.Server.MediaServer
     public void RemoveHttpModule(Type moduleType)
     {
     }
+
+    /// <summary>
+    /// The assembly types that the code using this stub declared as sources of API controllers.
+    /// </summary>
+    public List<Type> ControllerAssemblyTypes { get; } = new List<Type>();
+
+    public void AddHttpControllerAssembly(Type controllerType)
+    {
+      ControllerAssemblyTypes.Add(controllerType);
+    }
   }
 }
