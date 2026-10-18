@@ -1,0 +1,15 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="MediaPortal.Frontend.App"
+             RequestedThemeVariant="Dark">
+
+  <!--
+    Dark, because this runs on a television in a darkened room; the Fluent theme is the one Avalonia ships
+    and styles, and it is the same on every platform, which is the point of replacing the MP2 skin engine
+    rather than emulating it.
+  -->
+  <Application.Styles>
+    <FluentTheme />
+  </Application.Styles>
+
+</Application>

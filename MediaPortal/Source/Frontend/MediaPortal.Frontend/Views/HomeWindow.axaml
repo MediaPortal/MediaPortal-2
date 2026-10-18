@@ -1,0 +1,106 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        xmlns:api="using:MediaPortal.Frontend.Api"
+        x:Class="MediaPortal.Frontend.Views.HomeWindow"
+        x:DataType="vm:HomeViewModel"
+        Name="home"
+        Width="1280" Height="720"
+        WindowState="Maximized"
+        Background="#FF101418"
+        Title="MediaPortal 2">
+
+  <!--
+    The home screen of the new front end, sized for a television: one list of what the library is made of, and
+    the selected aspect's attributes next to it. Font sizes are large because the viewer is three metres away,
+    and the two areas are what the remote's left/right keys move between - see DpadNavigation for why that ring
+    is stated in code rather than inferred.
+  -->
+
+  <DockPanel Margin="48,36">
+
+    <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,20">
+      <TextBlock Text="MediaPortal 2"
+                 FontSize="40"
+                 FontWeight="SemiBold" />
+      <TextBlock Text="{Binding ServerDescription}"
+                 FontSize="20"
+                 Opacity="0.85"
+                 TextTrimming="CharacterEllipsis" />
+      <TextBlock Text="{Binding Status}"
+                 FontSize="16"
+                 Opacity="0.6"
+                 TextTrimming="CharacterEllipsis" />
+      <TextBlock FontSize="14"
+                 Opacity="0.4"
+                 Text="{Binding ServerUrl, StringFormat='Server: {0}'}" />
+    </StackPanel>
+
+    <Button DockPanel.Dock="Top"
+            Name="refreshButton"
+            Content="Refresh"
+            Command="{Binding RefreshCommand}"
+            HorizontalAlignment="Left"
+            HorizontalContentAlignment="Center"
+            MinWidth="180"
+            Padding="28,10"
+            FontSize="20"
+            Margin="0,0,0,24" />
+
+    <Grid ColumnDefinitions="420,*" ColumnSpacing="40">
+
+      <!-- Focusable is stated rather than trusted: measured on this very screen, the list reported itself not
+           focusable, which left the remote's arrow keys unable to reach it at all. A control the viewer has to
+           walk into with a remote says so on the screen. -->
+      <ListBox Name="aspectsList"
+               Focusable="True"
+               ItemsSource="{Binding Aspects}"
+               SelectedItem="{Binding SelectedAspect, Mode=TwoWay}"
+               FontSize="22">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="vm:AspectViewModel">
+            <DockPanel MinWidth="340" Margin="0,7">
+              <TextBlock DockPanel.Dock="Right"
+                         Text="{Binding CountText}"
+                         Opacity="0.7"
+                         FontWeight="SemiBold" />
+              <TextBlock Text="{Binding Name}" />
+            </DockPanel>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+
+      <StackPanel Grid.Column="1" Spacing="12">
+        <TextBlock Text="{Binding SelectedAspect.Name}"
+                   FontSize="28"
+                   FontWeight="SemiBold" />
+        <TextBlock FontSize="15"
+                   Opacity="0.6"
+                   Text="Attributes - indexed ones can be filtered and sorted cheaply" />
+
+        <ItemsControl ItemsSource="{Binding SelectedAspect.Attributes}" FontSize="18">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="api:AspectAttribute">
+              <Grid ColumnDefinitions="2*,3*,1.4*,1*" ColumnSpacing="16" Margin="0,4">
+                <TextBlock Text="{Binding Name}" />
+                <TextBlock Grid.Column="1"
+                           Text="{Binding Type}"
+                           Opacity="0.7"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Column="2"
+                           Text="indexed"
+                           Opacity="0.7"
+                           IsVisible="{Binding Indexed}" />
+                <TextBlock Grid.Column="3"
+                           Text="list"
+                           Opacity="0.7"
+                           IsVisible="{Binding Collection}" />
+              </Grid>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+
+    </Grid>
+  </DockPanel>
+</Window>

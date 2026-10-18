@@ -23,7 +23,7 @@
 #>
 [CmdletBinding()]
 param(
-  [ValidateSet('Server', 'Client', 'ServiceMonitor')]
+  [ValidateSet('Server', 'Client', 'ServiceMonitor', 'Frontend')]
   [string[]]$Solution = @('Server'),
 
   # Build these projects instead of a solution. Path is absolute or relative to MediaPortal\Source.
@@ -83,6 +83,7 @@ $solutions = @{
   Server         = Join-Path $sourceDir 'MP2-Server.sln'
   Client         = Join-Path $sourceDir 'MP2-Client.sln'
   ServiceMonitor = Join-Path $sourceDir 'MP2-ServiceMonitor.sln'
+  Frontend       = Join-Path $sourceDir 'MP2-Frontend.sln'
 }
 
 # A bare project needs what a solution would have defined.
@@ -138,7 +139,14 @@ function Invoke-BuildTarget {
   if ($diag.errors -gt 0) { return 1 }
 
   if ($Ratchet -and $ApplyRatchet) {
-    & (Join-Path $PSScriptRoot 'warnings.ps1') -LogPath $log -Solution $Name
+    # A baseline describes one solution's inventory, so a solution with a baseline of its own is scored
+    # against that file. Without one, warnings.ps1 says so and passes - which is the honest state for a
+    # solution nobody has calibrated yet, and it says it out loud instead of scoring against wrong floors.
+    $ownBaseline = Join-Path $PSScriptRoot "warning-baseline.$Name.json"
+    $baselineArgs = @{}
+    if (Test-Path $ownBaseline) { $baselineArgs['BaselinePath'] = $ownBaseline }
+
+    & (Join-Path $PSScriptRoot 'warnings.ps1') -LogPath $log -Solution $Name @baselineArgs
     if ($LASTEXITCODE -ne 0) { return 1 }
   }
   return 0

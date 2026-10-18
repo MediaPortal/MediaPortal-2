@@ -31,7 +31,13 @@
                                                           "DrawingWindows":  0,
                                                           "PInvoke":  0,
                                                           "DrawingPortable":  0
-                                                      }
+                                                      },
+                  "MediaPortal\\Source\\Frontend\\MediaPortal.Frontend":  {
+                                                                              "WinForms":  0,
+                                                                              "DrawingWindows":  0,
+                                                                              "PInvoke":  0,
+                                                                              "DrawingPortable":  0
+                                                                          }
               },
     "filesAffected":  9,
     "totalRefs":  73,

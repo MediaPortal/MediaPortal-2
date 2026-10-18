@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    The new front end, in an assembly of its own.
+
+    It is not connected to any MP2 assembly on purpose. It reaches the server through the HTTP API that
+    MediaPortal.Server.Api serves and knows nothing about MediaPortal.Common, the media library types, or the
+    WinForms UI it replaces. That separation is what makes it buildable and testable on a host without Windows,
+    which the old client never was; the price is that its picture of the server is only ever what the API
+    chooses to say, so the API is the contract and is versioned like one.
+
+    Rules, same shape as the API assembly's:
+      - net10.0, never a -windows suffix, and CA1416 as an error. A platform-specific call here is a crash on
+        the platform that lacks it, not a cosmetic warning.
+      - No MP2 project references. If something in the server has to be visible to the front end, an endpoint
+        exposes it; the front end does not reach into the process.
+      - The UI is Avalonia and the presentation pattern is MVVM (CommunityToolkit.Mvvm). Views contain no
+        decisions; view models contain no Avalonia types except where a view model *is* the thing under
+        test, which is rare and said out loud when it happens.
+
+    GenerateAssemblyInfo is off because VersionInfo.cs is linked in, the way MediaPortal.Server.Api does it, so
+    the front end reports the same version as the server it talks to. With generation off, the
+    SupportedOSPlatform attribute the SDK would have written is not written either - the correct result, since
+    this assembly declares no platform.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>MediaPortal.Frontend</RootNamespace>
+    <AssemblyName>MediaPortal.Frontend</AssemblyName>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Nullable>enable</Nullable>
+    <WarningsAsErrors>CA1416</WarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs" Link="Properties\VersionInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.4" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+  </ItemGroup>
+
+</Project>

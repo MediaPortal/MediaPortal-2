@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    The tests of the new front end.
+
+    They are split from Tests.Server because they need a different NUnit: Avalonia's headless test runner is
+    built against NUnit 4, while the suites inherited from the old tree are on NUnit 3. Two runners in one
+    assembly is not possible, and downgrading the front end to the older framework to keep the counts tidy
+    would be the wrong way round.
+
+    What is deliberately real here, and what is not:
+      - The HTTP client is tested against an ASP.NET Core host that is actually started, serving the real
+        controllers of MediaPortal.Server.Api. Parsing JSON that a mock produced tests the mock; these tests
+        fail if the server's answer and the client's records drift apart, which is the failure mode this split
+        of two assemblies makes easy.
+      - The media library behind those controllers is mocked, strictly, because building a real one needs a
+        database, a plugin manager and a startup sequence - that combination is the server's own gates' work.
+      - The screen is tested with Avalonia's headless platform, so it runs with no display: on a build agent,
+        in a container, and eventually on a device.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Tests.Frontend</RootNamespace>
+    <AssemblyName>Tests.Frontend</AssemblyName>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="Moq" Version="4.18.1" />
+    <PackageReference Include="NUnit" Version="4.5.1" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+    <PackageReference Include="Avalonia" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Headless.NUnit" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.Server.Api\MediaPortal.Server.Api.csproj" />
+    <ProjectReference Include="..\..\Source\Core\UPnP\UPnP.csproj" />
+    <ProjectReference Include="..\..\Source\Frontend\MediaPortal.Frontend\MediaPortal.Frontend.csproj" />
+  </ItemGroup>
+
+</Project>

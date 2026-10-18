@@ -20,6 +20,10 @@
     Canary.Portable  - the portability canary, the only suite that also runs on Linux.
     Tests.Server     - the server/backend suite, part of MP2-Server.sln.
     Tests.Client     - the client suite; it passes, but exercises WinForms code that Phase 2 removes.
+    Tests.Frontend   - the new Avalonia front end, run headless: its own client against the server's real
+                       controllers, and the real screens on a platform with no display. It is a separate
+                       suite (and a separate NUnit version) because Avalonia.Headless needs NUnit 4 while the
+                       inherited suites are pinned to NUnit 3; see Tests.Frontend.csproj.
     Setup\Tests      - the bootstrapper installer tests (pure C#, no WiX needed).
   Tests.MediaServer is NOT in the default set: it belongs to a solution that is not in the gate and
   has not been verified since the retarget, so including it would report an unknown as a failure.
@@ -47,10 +51,11 @@ $suites = [ordered]@{
   'Canary.Portable'   = 'MediaPortal\Tests\Canary.Portable\Canary.Portable.csproj'
   'Tests.Server'      = 'MediaPortal\Tests\Tests.Server\Tests.Server.csproj'
   'Tests.Client'      = 'MediaPortal\Tests\Tests.Client\Tests.Client.csproj'
+  'Tests.Frontend'    = 'MediaPortal\Tests\Tests.Frontend\Tests.Frontend.csproj'
   'Tests.MediaServer' = 'MediaPortal\Tests\Tests.MediaServer\Tests.MediaServer\Tests.MediaServer.csproj'
   'Setup\Tests'       = 'MediaPortal\Setup\Tests\Tests.csproj'
 }
-$default = @('Canary.Portable', 'Tests.Server', 'Tests.Client', 'Setup\Tests')
+$default = @('Canary.Portable', 'Tests.Server', 'Tests.Client', 'Tests.Frontend', 'Setup\Tests')
 $chosen = if ($Include) { $Include } else { $default }
 
 foreach ($name in $chosen) {

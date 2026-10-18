@@ -1,0 +1,36 @@
+{
+    "generated":  "2026-10-18",
+    "log":  "build-Frontend-Debug.log",
+    "solution":  "Frontend",
+    "toolset":  "The .NET SDK host (dotnet msbuild). Counts depend on this: severity comes from MediaPortal\\.editorconfig, but the inventory also depends on which target frameworks the host builds and analyses, so it is NOT comparable with a full Visual Studio MSBuild log (that host sees fewer target frameworks and applies its own rule sets). See README.md, \"Which build host, and why it matters\".",
+    "note":  "Maximum allowed occurrences per warning code. Regenerate with warnings.ps1 -UpdateBaseline after an intentional change and record why in notes.\u003cCODE\u003e and the commit message. Codes listed in \"untracked\" are reported under \"informational\" instead and never fail the gate. These floors describe MP2-Frontend.sln: the two new projects (MediaPortal.Frontend, Tests.Frontend) plus every project they reference. Measured when this file was created, the two new projects contributed 0 findings of any code - the whole inventory belongs to the inherited closure (MediaPortal.Utilities, Common, Backend, Server.Api, UPnP), whose numbers are also gated by warning-baseline.json under the Server solution. What this file therefore protects is that the front end does not become the place where those codes grow again.",
+    "untracked":  [
+                      "NU1504",
+                      "NU1510",
+                      "NU1701",
+                      "NU1901",
+                      "NU1902",
+                      "NU1903",
+                      "NU1904"
+                  ],
+    "warnings":  {
+                     "ASPDEPR008":  4,
+                     "CA1001":  14,
+                     "CA1060":  7,
+                     "CA1063":  96,
+                     "CA1065":  3,
+                     "CA1401":  54,
+                     "CA2022":  2,
+                     "CA2101":  18,
+                     "CA2200":  1,
+                     "CA2213":  21,
+                     "CS0169":  1,
+                     "CS0659":  1,
+                     "CS8073":  2,
+                     "SYSLIB0004":  6,
+                     "SYSLIB0006":  2,
+                     "SYSLIB0022":  2,
+                     "SYSLIB0045":  1,
+                     "SYSLIB0060":  2
+                 }
+}

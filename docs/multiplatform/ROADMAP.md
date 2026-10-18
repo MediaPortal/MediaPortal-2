@@ -35,11 +35,12 @@ Verified 2026-10-18 with `build.ps1 -Solution Server,Client -Ratchet`, `tests.ps
 | Portable-core WinForms / GDI+ references | **0** (83 quarantined in 10 satellite files) | `spine.ps1`, `satellites.ps1` |
 | Portable-core P/Invoke declarations | **73** in 9 files (was 95, then 76; the last three were the Kernel32 waitable timer) - invisible to `CA1416` | `spine.ps1` (P/Invoke column) |
 | `CA1416` call sites, Windows vs Linux | **0** on both hosts, floor 0 (was 196 at the retarget) - the 107 that remained were all in `-windows` assemblies that had lost their platform declaration; see "the floor went to zero" below | build log, `warnings.ps1` on both logs |
-| Unit tests, Windows | 4/4 suites, 371 passed, 0 failed, 0 skipped; a suite whose assembly predates its own sources reports STALE instead of running the old binary | `tests.ps1` |
+| Unit tests, Windows | **5/5 suites, 403 passed**, 0 failed, 0 skipped (Utilities 29, Common 184, UI 90, **Frontend 32**, Server 68); a suite whose assembly predates its own sources reports STALE instead of running the old binary | `tests.ps1` |
 | Unit tests, Linux (canary) | 31 executed, 0 failed (1 skips: Windows-only), incl. live IPC round trips and XDG autostart | `test-canary-linux.ps1` |
 | Server actually **runs** | **yes on Windows and on Linux** as a headless process. Windows: reaches the Running state, creates the SQLite store, answers UPnP discovery over the network, exits 0 with an error-free log. Linux: reaches the same Running state with 0 `FATAL`, 0 `ERROR` and one `WARN` - the documented note that a container has no FUSE driver. Android is still unmeasured | `run-server-check.ps1`, `test-server-upnp.ps1`, `test-server-run-linux.ps1` |
 | Server **answers HTTP** | **yes on both hosts**, measured with the same probe: `GET /MediaPortal/Server/health` answers `200` with the server's version and the path it was called with - `pathBase=/MediaPortal/Server`, `path=/health` on Windows *and* in the container, because the shared listener now hands requests over in exactly the shape http.sys uses. The gate checks that text, not just the status code | `run-server-check.ps1 -ProbeUrl`, item **l** below |
 | Server **has an HTTP API** | **three endpoints, on both hosts**, in an assembly of its own (`MediaPortal.Server.Api`): `GET /MediaPortal/Server/api/serverinfo`, `GET api/library/aspects` and `GET api/library/count?aspect=…`. They are discovered MVC controllers (the first in this tree) that read MP2's own settings and media-library services on a request thread, and the gates on Windows and in the container require their content, not just a `200`. A library that is absent or still starting is answered with `503` and a reason rather than an empty answer or an internal error. They are unauthenticated because the token endpoint that would authenticate them is still .NET Framework only - which is why they serve schema and no household data | `run-server-check.ps1 -ProbeUrl`, items **m**, **o** and **p** below |
+| Front end (Phase 2) | **exists, and it reads a running server**: an Avalonia 12 app on the bare spine (no `MediaPortal.Common`, no dependency injection, no log4net) with its own JSON API client, a ViewModel that never touches a UI type, D-pad navigation that moves focus the way a remote does, a headless UI suite (32 tests) and a gate that runs the built app against the real server. Writing it found four real bugs - three in the front end, one in the API | `build.ps1 -Solution Frontend -Ratchet`, `tests.ps1`, `test-frontend-check.ps1`, item **q** below |
 | Server **runs on Linux** | **yes** - `HeadlessServerLauncher: Switching to running state`, item **g**'s goal, measured. The layout assembles, `libe_sqlite3.so` (linux-x64) loads, SQLite 3.53.3 opens the store, the subschemas `MediaPortal-Basis`, `MediaLibrary`, `UserProfileDataManagement` and `ClientManager` are created from their SQL scripts, and the resource server plus two control points and one UPnP server share port 55555 through one listener | `test-server-run-linux.ps1`, items **i**, **j** and **k** below |
 | Database plugin on a portable driver | `SQLiteDatabase` is `net10.0` with `CA1416` as error, no Win32 calls left, and no longer loads a Windows-only interop library: it talks to SQLite through `Microsoft.Data.Sqlite` (SQLite 3.53.3), whose `e_sqlite3` native is copied into the layout per platform | `SQLiteDatabase.csproj`, items **h** and **j** below |
 | Built executables are 64-bit | 5/5 apphosts measure `x64`, managed side `MSIL` | `architecture.ps1` |
@@ -852,20 +853,85 @@ teaches nothing; a `500` still fails on the spot, because nothing is ever legiti
 
 ## Phase 2 - Avalonia front end
 
-Not started. Sequence that keeps risk visible:
+### q. The front end exists, and it reads a running server
 
-1. Headless spike: an Avalonia window implementing the ten-foot navigation model (D-pad focus, no
-   mouse) that runs on Windows and in a Linux container on the software renderer. No MP2 code yet -
-   this proves the focus model and the CI story first.
-2. Bind the existing platform-neutral ViewModels without change. Anything importing
-   `MediaPortal.GUI.Library` is a View, not a ViewModel, and gets rewritten.
-3. Configure the renderer per OS: DirectX on Windows, Metal on macOS/iOS, Vulkan/Skia on
-   Linux/Android - each proven by a probe like `Dockerfile.drawing`, none assumed.
-4. Skin engine replacement. The skin XML model gets no Avalonia equivalent; the migration story for
-   users is that the new UI ships its own themes.
+Started, not finished. What exists is deliberately the thinnest thing that can be *proven* rather than the
+broadest thing that can be demoed: one screen, one API client, and gates that say whether the front end actually
+talks to a real server on a machine with no display.
 
-Gate: the client stops being WinForms, the satellite list in `spine.ps1` shrinks, and a screenshot
-from a Linux container is in the commit that closes the phase.
+    MediaPortal\Source\Frontend\MediaPortal.Frontend   the application (net10.0, WinExe)
+    MediaPortal\Tests\Tests.Frontend                   32 tests, headless, no display
+    MediaPortal\Source\MP2-Frontend.sln                the two of them plus what they reference
+    scripts\ci\test-frontend-check.ps1                 the front end against a server that is really running
+
+`MediaPortal.Frontend` references **no MP2 project at all**. That is not an oversight and not a style preference:
+`MediaPortal.GUI.Library`, `MediaPortal.Common.Utils` and everything behind them drag WinForms and `System.Drawing`
+in with them, and the whole point of the phase is a client that builds on Linux and Android. What it references is
+Avalonia 12.1.4 (which carries a `net10.0` dependency group - verified against the feed before the project was
+created, not assumed) and CommunityToolkit.Mvvm 8.4.2. `CA1416` is an error in this project rather than a ratchet
+floor, because a platform warning here is not debt to be paid later - it is the end of the plan.
+
+The application has a mode with no window, `--check`, and that mode is what makes the front end gateable:
+
+```
+server:   http://127.0.0.1:55555/MediaPortal/Server
+health:   MediaPortal 2 Server 2.5.2305.14606 (pathBase=/MediaPortal/Server)
+server:   MediaPortal 2 Server 2.5.2305.14606 - .NET 10.0.13, Microsoft Windows 10.0.26200/X64
+library:  11 aspects
+first:    AlbumItem with 13 attributes
+items:    0 media items
+the front end read a running server.
+```
+
+Exit codes are a contract, because a gate has to be able to fail: `0` read everything, `1` something refused,
+`2` the URL given was not a URL, `3` the server answered `503` - i.e. the item **p** "ask again" answer, which is
+the first consumer of that contract anywhere in the tree. `test-frontend-check.ps1` retries on `3` and fails
+immediately on `1`, and it also runs the front end against a port nobody listens on and requires exit `1` with a
+`FAILED:` line, because a check that cannot fail is not a check.
+
+| Gate | Result |
+| --- | --- |
+| `build.ps1 -Solution Frontend -Ratchet` | `BUILD OK (Frontend): 0 errors, 238 findings` → scored against a baseline of its own, `Ratchet OK.` |
+| `warning-baseline.Frontend.json` | 18 codes / 237 findings, **0 of them from the two new projects** - the inventory belongs to the inherited closure the solution also builds |
+| `spine.ps1` | `MediaPortal\Source\Frontend\MediaPortal.Frontend  WinForms 0   GDI+ 0   P/Invoke 0` and it is now a gated core area, so a future `[DllImport]` there is caught |
+| `tests.ps1` | `Tests.Frontend` added to the default set (see the scoreboard) |
+| `test-frontend-check.ps1` | `FRONTEND CHECK OK - the front end read a running server (attempt 1) and refused a dead one.` |
+
+Two things about that gate are worth stating because they were not obvious when the script was written. It asserts
+the *shape* of the answer (`pathBase=/MediaPortal/Server`, `library:`, `aspects`) and never a count: this run
+printed `11` aspects, and item **p** has recorded `10`, `18` and `22` from the same tree. And the server's console
+is left unredirected while the front end's is captured - the front end prints a dozen short lines that are the
+evidence, the server prints thousands that are not.
+
+| What was measured | What it turned out to be |
+| --- | --- |
+| A home screen that compiles, binds and shows an empty list | Nothing asked it to read the server: `RefreshCommand` was wired to the button only. A screen that waits for a press in front of a server that is answering perfectly is worse than a screen that says it cannot reach it, so opening the screen now runs the same command the button runs. Found by the test that shows the real XAML, not by reading the code. |
+| `list.Focusable` on that screen | **`False`**. The remote's arrow keys could therefore never enter the list - and worse, the ring had already marked the key handled, so nothing else could answer it either. Two fixes: the list says `Focusable="True"` on the screen, and `DpadNavigation` claims a key only when `Focus()` returned true. The test for the second one builds a control that cannot take focus and requires the key to stay unhandled. |
+| The `503` contract, exercised by a client for the first time | It arrived as a `500`. `NotReady` reported itself through `ServiceRegistration.Get<ILogger>()`, which *demands* a logger; a host without one threw from inside the `catch`, and the exception the caller could have acted on became one it could not. It asks for the logger without demanding one (`Get<ILogger>(false)`), which changes nothing on the real server, where one is always registered. A contract that depends on something else working is not a contract. |
+| How long a front end waits before it says "no answer" | `HttpClient`'s default: **100 seconds**. On a screen that is not patience but a hang, so the shipped client has a 15 second bound of its own (`ServerApiClient.DefaultTimeout`), readable through `Timeout` so that a test can state it instead of a reader having to trust it. |
+
+
+### What the sequence looks like now
+
+The headless spike is not a spike any more: the ten-foot navigation model exists (`DpadNavigation`, ten tests),
+it runs with no display, and the CI story is three gates rather than an intention. What is still ahead, in the
+order that keeps the risk where it can be seen:
+
+1. The same screen and the same suite in a Linux container on the software renderer, proven the way
+   `Dockerfile.drawing` proves drawing. The tests are headless already, so the open question is rendering and
+   not the navigation model - but "open question" is exactly what this document refuses to write up as a result.
+2. The OAuth token endpoint on .NET. Every endpoint that carries user data, and therefore every screen worth
+   building next (browse, playlists, settings), is blocked on it - see item **m**.
+3. Bind the platform-neutral pieces of the old client's view models. Anything that imported
+   `MediaPortal.GUI.Library` was a View, not a ViewModel, and gets rewritten rather than ported.
+4. The renderer per OS: DirectX on Windows, Metal on macOS/iOS, Vulkan/Skia on Linux/Android, each proven by a
+   probe of its own, none assumed.
+5. Skin engine replacement. The skin XML model gets no Avalonia equivalent; the migration story for users is
+   that the new UI ships its own themes.
+
+Gate: the client stops being WinForms, the satellite list in `spine.ps1` shrinks, the front end's suite runs in
+the Linux container as well as on Windows, and a screenshot from that container is in the commit that closes the
+phase.
 
 ## Phase 3 - player engine
 

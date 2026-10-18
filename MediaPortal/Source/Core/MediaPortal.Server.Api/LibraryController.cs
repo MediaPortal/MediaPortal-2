@@ -247,7 +247,13 @@ namespace MediaPortal.Server.Api
     /// </summary>
     private static ObjectResult NotReady(IllegalCallException exception)
     {
-      ServiceRegistration.Get<ILogger>().Info("LibraryController: the media library refused a request, answering 503: {0}", exception.Message);
+      // Asked for without being demanded: this method is the answer to a request that is already going wrong, and
+      // a report that throws because nothing registered a logger would turn the 503 the caller can act on back
+      // into the 500 it cannot. The server always has a logger; a host that builds these controllers without one
+      // - a test, for instance - still gets the 503.
+      ILogger logger = ServiceRegistration.Get<ILogger>(false);
+      if (logger != null)
+        logger.Info("LibraryController: the media library refused a request, answering 503: {0}", exception.Message);
       return new ObjectResult(new ErrorResponse { Error = exception.Message }) { StatusCode = StatusCodes.Status503ServiceUnavailable };
     }
 

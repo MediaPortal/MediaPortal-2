@@ -216,7 +216,11 @@ $coreAreas = @(
   'MediaPortal\Source\Core\MediaPortal.Utilities',
   'MediaPortal\Source\Core\MediaPortal.Backend',
   'MediaPortal\Source\Core\MediaPortal.Server.Api',
-  'MediaPortal\Source\Core\UPnP'
+  'MediaPortal\Source\Core\UPnP',
+  # The new front end belongs here, not in a list of its own: it is written once for every platform, so a
+  # WinForms using, a GDI+ call or a [DllImport] in it would not be a wart but the end of the whole plan - and
+  # CA1416 alone would not have caught the P/Invoke (see the note above). Measured when it was added: 0 of each.
+  'MediaPortal\Source\Frontend\MediaPortal.Frontend'
 )
 
 # Windows-only satellites are discovered, not listed, so a new one cannot escape the ledger.
