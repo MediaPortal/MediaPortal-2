@@ -26,6 +26,14 @@
   probe needs the server to stay up, so when probing, the host runs with --duration instead of --check -
   --check exits the moment the Running state is reached.
 
+  The sixth assertion asks the same server the two questions its bearer-token stack answers: an endpoint
+  behind MediaPortalAuthorizeAttribute without a token has to say 403, and the token endpoint has to answer
+  a grant it cannot grant with the OAuth error for it rather than with a token or a stack trace. See
+  -AuthProbeUrl and -AuthTokenUser. This is the only place where the whole chain - the routing below the
+  prefix, UseAuthentication() before UseAuthorization(), the signing key in the settings store and the
+  filter - is measured on a real listener over a real socket; the unit tests cover the parts, and only they
+  can cover the rules that need a profile to exist.
+
   The data directory is left in place on failure and named in the output, because the log inside it
   is the diagnostic.
 
@@ -70,6 +78,17 @@ param(
   # How long the probes may keep asking before the run counts as failed. The server is held open for
   # this long plus a margin, so a slow machine slows the probe, not the verdict.
   [int]$ProbeTimeoutSeconds = 45,
+
+  # The base URL of the resource server, used by the auth checks: the token endpoint and the endpoint behind
+  # MediaPortalAuthorizeAttribute are asked over HTTP, in the same run and against the same process as the URL
+  # probes. Empty disables those checks.
+  [string]$AuthProbeUrl = 'http://127.0.0.1:55555/MediaPortal/Server',
+
+  # A profile that exists in -DataDir. Given, the gate also walks the positive path - ask for a token, use it,
+  # get the profile's name back. Without it only the refusals are measured, because a fresh data directory has
+  # no user profiles at all: its USER_PROFILES table stays empty until a client creates the first one, so there
+  # is nobody on a fresh server to log in as.
+  [string]$AuthTokenUser = '',
 
   [switch]$SkipDeploy,
 
@@ -141,6 +160,107 @@ function Request-Probes([string[]]$Urls, $Server, [int]$DeadlineSeconds)
   return $results
 }
 
+# Asks one request until it is answered, so that an auth check does not have to guess when the server got
+# around to opening its port. Only 503 ("not yet") is retried: any other answer, including a wrong one, is what
+# the server really said and is reported as such.
+function Request-WithRetry([scriptblock]$Make, $Server, [int]$DeadlineSeconds)
+{
+  $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+  $answer = [pscustomobject]@{ StatusCode = 0; Body = '' }
+  while ($stopwatch.Elapsed.TotalSeconds -lt $DeadlineSeconds) {
+    if ($Server.HasExited) { break }
+    try {
+      $task = & $Make
+      if ($task.Wait(11000)) {
+        $response = $task.Result
+        $answer = [pscustomobject]@{
+          StatusCode = [int] $response.StatusCode
+          Body = $response.Content.ReadAsStringAsync().Result
+        }
+        if ($answer.StatusCode -ne 503) { break }
+      }
+    } catch {
+      # Nothing is listening yet, or the request did not finish; retried until the deadline.
+    }
+    Start-Sleep -Milliseconds 500
+  }
+  return $answer
+}
+
+# What the bearer-token stack says over HTTP. The refusals are measurable on any server; the positive path needs
+# -AuthTokenUser, because a fresh data directory has no profiles to log in to.
+function Test-AuthEndpoints([string]$BaseUrl, $Server, [int]$DeadlineSeconds, [string]$TokenUser)
+{
+  if (-not ('System.Net.Http.HttpClient' -as [type])) { Add-Type -AssemblyName System.Net.Http }
+  $client = New-Object System.Net.Http.HttpClient
+  $client.Timeout = [TimeSpan]::FromSeconds(10)
+  $checks = @()
+
+  function Get-WithHeader([string]$url, [string]$headerValue) {
+    $request = New-Object System.Net.Http.HttpRequestMessage([System.Net.Http.HttpMethod]::Get, $url)
+    if ($headerValue) { $request.Headers.Add('Authorization', $headerValue) }
+    return $client.SendAsync($request)
+  }
+
+  function Post-Form([string]$url, [string]$form) {
+    $content = New-Object System.Net.Http.StringContent($form, [System.Text.Encoding]::UTF8,
+      'application/x-www-form-urlencoded')
+    return $client.PostAsync($url, $content)
+  }
+
+  try {
+    $ask = {
+      param($name, $expect, $expectText, $make)
+      $answer = Request-WithRetry -Make $make -Server $Server -DeadlineSeconds $DeadlineSeconds
+      [pscustomobject]@{
+        Name = $name
+        Expect = $expect
+        ExpectText = $expectText
+        StatusCode = $answer.StatusCode
+        Body = $answer.Body
+      }
+    }
+
+    $sessionUrl = $BaseUrl.TrimEnd('/') + '/api/session'
+    $tokenUrl = $BaseUrl.TrimEnd('/') + '/Token'
+
+    $checks += & $ask 'GET api/session without a token' 403 '' { Get-WithHeader $sessionUrl $null }
+    $checks += & $ask 'GET api/session with a token this server never signed' 403 '' {
+      Get-WithHeader $sessionUrl 'Bearer not.a.real.token'
+    }
+    $checks += & $ask 'POST Token with a grant the server does not implement' 400 'unsupported_grant_type' {
+      Post-Form $tokenUrl 'grant_type=authorization_code&username=mp2-gate&password='
+    }
+    $checks += & $ask 'POST Token for a profile that does not exist' 400 'invalid_grant' {
+      Post-Form $tokenUrl 'grant_type=password&username=mp2-gate-nobody&password='
+    }
+
+    if ($TokenUser) {
+      $answer = Request-WithRetry -Make {
+        Post-Form $tokenUrl ('grant_type=password&username=' + $TokenUser + '&password=')
+      } -Server $Server -DeadlineSeconds $DeadlineSeconds
+      $checks += [pscustomobject]@{
+        Name = "POST Token for the profile '$TokenUser'"
+        Expect = 200
+        ExpectText = 'access_token'
+        StatusCode = $answer.StatusCode
+        Body = $answer.Body
+      }
+
+      $token = $null
+      if ($answer.StatusCode -eq 200) {
+        try { $token = ($answer.Body | ConvertFrom-Json).access_token } catch { $token = $null }
+      }
+      $checks += & $ask "GET api/session with the token issued for '$TokenUser'" 200 ('"name":"' + $TokenUser + '"') {
+        Get-WithHeader $sessionUrl ('Bearer ' + $token)
+      }
+    }
+  } finally {
+    $client.Dispose()
+  }
+  return $checks
+}
+
 if (-not $SkipDeploy) {
   & (Join-Path $PSScriptRoot 'deploy-server-layout.ps1') -Configuration $Configuration -OutputDir $LayoutDir
   if (-not $?) { throw 'layout deployment failed' }
@@ -171,8 +291,13 @@ foreach ($entry in ($ProbeUrl | Where-Object { $_ })) {
 }
 $probeUrls = @($probes | ForEach-Object { $_.Url })
 # --check returns the moment the Running state is reached, which leaves no window in which a request could
-# be answered, so a probing run holds the server open for a fixed time instead.
-$holdSeconds = if ($probes.Count -gt 0) { $ProbeTimeoutSeconds + 15 } else { 0 }
+# be answered, so a probing run holds the server open for a fixed time instead. Each probing step gets the
+# whole deadline; in practice every request is answered within a second of the server being up, so the window
+# bounds a slow start rather than the work.
+$probeWindowSeconds = 0
+if ($probes.Count -gt 0) { $probeWindowSeconds += $ProbeTimeoutSeconds }
+if ($AuthProbeUrl) { $probeWindowSeconds += $ProbeTimeoutSeconds }
+$holdSeconds = if ($probeWindowSeconds -gt 0) { $probeWindowSeconds + 15 } else { 0 }
 $runArguments = if ($probes.Count -gt 0) { '--duration ' + $holdSeconds } else { '--check' }
 if ($TimeoutSeconds -lt $holdSeconds + 60) {
   # Otherwise this script would kill a server that is only still starting on purpose.
@@ -196,6 +321,11 @@ $psi.UseShellExecute = $false
 
 $server = [System.Diagnostics.Process]::Start($psi)
 $probeResults = @(Request-Probes -Urls $probeUrls -Server $server -DeadlineSeconds $ProbeTimeoutSeconds)
+$authChecks = @()
+if ($AuthProbeUrl) {
+  $tokenUser = $AuthTokenUser
+  $authChecks = @(Test-AuthEndpoints $AuthProbeUrl $server $ProbeTimeoutSeconds $tokenUser)
+}
 $timedOut = -not $server.WaitForExit($TimeoutSeconds * 1000)
 if ($timedOut) {
   Write-Fail "the server did not exit within $TimeoutSeconds seconds; killing it"
@@ -248,6 +378,16 @@ foreach ($probe in $probeResults) {
   }
 }
 
+foreach ($check in $authChecks) {
+  $answered = if ($check.StatusCode -eq 0) { 'no response at all' } else { "HTTP $($check.StatusCode)" }
+  $wanted = "HTTP $($check.Expect)"
+  if ($check.ExpectText) { $wanted += " containing '$($check.ExpectText)'" }
+  $textMatches = (-not $check.ExpectText) -or ([string] $check.Body).Contains($check.ExpectText)
+  if ($check.StatusCode -ne $check.Expect -or -not $textMatches) {
+    $failures += "$($check.Name): wanted $wanted, got $answered - body: $($check.Body)"
+  }
+}
+
 Write-Host ''
 Write-Host "exit code: $exitCode"
 if ($probeResults.Count -gt 0) {
@@ -255,6 +395,18 @@ if ($probeResults.Count -gt 0) {
   foreach ($probe in $probeResults) {
     $snippet = if ($probe.Body) { $probe.Body.Substring(0, [Math]::Min(140, $probe.Body.Length)) } else { '' }
     Write-Host ("  {0} -> {1} {2}" -f $probe.Url, $probe.StatusCode, $snippet)
+  }
+}
+if ($authChecks.Count -gt 0) {
+  Write-Host 'auth checks:'
+  foreach ($check in $authChecks) {
+    $snippet = if ($check.Body) { $check.Body.Substring(0, [Math]::Min(110, $check.Body.Length)) } else { '' }
+    Write-Host ("  {0} -> {1} (wanted {2}) {3}" -f $check.Name, $check.StatusCode, $check.Expect, $snippet)
+  }
+  if (-not $AuthTokenUser) {
+    Write-Host '  the positive path (a real profile getting a real token over HTTP) was not measured: a fresh'
+    Write-Host '  data directory has no user profiles, so there is nobody to log in as. Pass -AuthTokenUser with'
+    Write-Host '  the name of a profile in -DataDir to measure that too.'
   }
 }
 Write-Host "log:       $logFile"

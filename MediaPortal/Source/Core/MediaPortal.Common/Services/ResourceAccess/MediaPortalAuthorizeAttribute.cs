@@ -25,7 +25,7 @@
 using MediaPortal.Common.Services.ResourceAccess.Settings;
 using MediaPortal.Common.Settings;
 #if NET5_0_OR_GREATER
-using Microsoft.AspNetCore.Authorization;
+using System;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 #else
@@ -37,7 +37,30 @@ using System.Web.Http.Controllers;
 namespace MediaPortal.Common.Services.ResourceAccess
 {
 #if NET5_0_OR_GREATER
-  public class MediaPortalAuthorizeAttribute : AuthorizeAttribute, IAuthorizationFilter
+  /// <summary>
+  /// Requires a caller identified by <see cref="ResourceServer"/>'s bearer token, unless the server was told not
+  /// to authorize at all.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// It is an <see cref="IAuthorizationFilter"/> and deliberately <em>not</em> an <see cref="AuthorizeAttribute"/>,
+  /// which is what it was when this branch was written. Deriving from <c>AuthorizeAttribute</c> also makes the
+  /// attribute an <c>IAuthorizeData</c>, and that adds the framework's own "the caller must be authenticated"
+  /// policy to the endpoint on top of the rule below. The framework runs its policy in <c>UseAuthorization()</c>,
+  /// before any MVC filter, so an anonymous caller is answered with <c>401</c> here and - the part that matters -
+  /// is refused even when <see cref="ServerSettings.WebAutorizationEnabled"/> is off, because the framework has
+  /// never heard of that setting. MP2's rule has always been "identify the caller unless the server was configured
+  /// not to care", which is a rule the framework cannot express; applied twice, the stricter of the two wins and
+  /// the setting stops meaning anything.
+  /// </para>
+  /// <para>
+  /// The status code for a refusal is <c>403</c>, the one this branch already produced. A missing or bad token
+  /// would be a <c>401</c> by the letter of RFC 6749; the difference decides nothing for MP2's clients, which ask
+  /// the token endpoint again either way, and changing it now would be a change in the API's answers rather than
+  /// part of making authorization work on this target.
+  /// </para>
+  /// </remarks>
+  public class MediaPortalAuthorizeAttribute : Attribute, IAuthorizationFilter
   {
     private bool? _webAutorizationEnabled = null;
 

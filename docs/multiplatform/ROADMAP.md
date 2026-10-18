@@ -852,6 +852,69 @@ probes now retry a `503` like a missing answer and fail on the answer that never
 gate would fail or pass depending on which side of a service-startup order the request happened to land, which
 teaches nothing; a `500` still fails on the spot, because nothing is ever legitimately "not ready" with a `500`.
 
+### r. The token endpoint: the point at which a request becomes somebody
+
+Item **m** closed with a debt written into the API assembly: no endpoint could carry user data, because the
+component that turns a request into a named identity did not exist on this target. `MediaPortalAuthorizeAttribute`
+had been ported, but the thing it asks - "is this caller authenticated as *MediaPortal*?" - could only ever be
+answered "no": the whole OAuth server sat inside the `#else` of `ResourceServer`, behind
+`OAuthAuthorizationServerOptions` and `OAuthAuthorizationServerProvider` from
+`Microsoft.Owin.Security.OAuth`, a .NET Framework library with no ASP.NET Core successor. Its access token was
+protected by `System.Web.Security.MachineKey`, whose key comes from IIS or from `machineKey` in web.config, so not
+even the token format survived the move.
+
+Five pieces and two endpoints exist now, each of them small enough to read:
+
+| Piece | What it decides, and why it is that shape |
+| --- | --- |
+| `MediaPortalAccessToken` | `base64url(json).base64url(hmac-sha256)` over the three claims MP2 has always put in an identity (name, profile id, role) plus issuer and expiry. The alternative was `DataProtection`, the .NET Core replacement for MachineKey: it works, but it keeps its key ring in a folder whose protection is platform specific, and it produces ciphertext nobody can read in a log or on another machine. A signed, plainly readable token is verifiable on Android with the same thirty lines, and a support case can decode one. Signature checked with `CryptographicOperations.FixedTimeEquals`; expiry takes an injectable clock so that "expired" is a test rather than a sleep. |
+| `MediaPortalSigningKey` | 32 random bytes, base64 in `ServerSettings.WebAccessTokenSigningKey`, made on first use. Made rather than required, because a server that will not start until somebody has produced a random string does not start. A stored value that cannot be decoded is *replaced*, never hashed-into-something: hashing a corrupt value would turn a broken setting into a key anybody can compute, at the cost of logging every issued token out - which is the correct failure. |
+| `MediaPortalCredentials` | The old `GrantResourceOwnerCredentials` callback with the Owin type taken away from around it, so that the decision "may this person in" is a function rather than a middleware delegate, and a test can call it with a profile store of its own. The wire format is unchanged (the client base64s the password), as are the two legacy rules it enforces: a profile with an empty stored password admits anyone who names it, and the administrator role goes to a profile that restricts nothing. Neither is a new decision; both are now written down where a change would have to argue with a test. |
+| `MediaPortalBearerHandler` + `IMediaPortalAccessTokenProtector` | `Authorization: Bearer …` to `HttpContext.User`, with the authentication type the filter compares. The protector is an interface and a registered service so that a test hands the handler a key it knows and can produce an expired token on purpose. A header for another scheme is left alone, and a rejected token is logged without repeating it. |
+| `TokenController` (`POST {prefix}/Token`), `SessionController` (`GET {prefix}/api/session`) | The OAuth password grant with the field names and error strings clients of the 2.3 series read (`access_token`, `token_type`, `expires_in`, `invalid_grant`, `unsupported_grant_type`), form-encoded as before and JSON as well, because a client written today sends JSON. The second one is the first endpoint behind the filter: it reports the caller and nobody else, which is the smallest thing a wrong answer about authentication can show up on. |
+
+The pipeline is two lines - `services.AddMediaPortalTokenAuthentication()` and `app.UseAuthentication()` before
+`app.UseAuthorization()` - and those two lines produced the one real bug this step found, which is worth
+recording because no unit test could have found it:
+
+| What was measured | What it turned out to be |
+| --- | --- |
+| `GET api/session` with no token answered **`401`**, where MP2's own filter says `403` | While `MediaPortalAuthorizeAttribute` derived from `AuthorizeAttribute` it was *also* an `IAuthorizeData`, so the endpoint carried the framework's own "caller must be authenticated" policy on top of MP2's rule. The framework runs that policy in `UseAuthorization()`, before any MVC filter, so it answered first. The status code is the small part: **`WebAutorizationEnabled=false` silently stopped working**, because the framework has never heard of that setting and refused the anonymous caller anyway. The attribute is an `IAuthorizationFilter` and nothing else now, which is what the .NET Framework branch always was - there, `AuthorizeAttribute.IsAuthorized` *is* the mechanism, so deriving from it was the port keeping a base class it no longer needed. |
+| How a test tells those two refusals apart | The answer carries a `WWW-Authenticate` header when the framework challenged, and none when MediaPortal refused. The test asserts on the header rather than on a number that both paths produce. |
+
+Neither of those shows up if the parts are tested separately: the filter is correct about a `ClaimsPrincipal` it
+is handed, the handler is correct about a token it is given, and the order they run in is invisible to both. So
+the 11 tests in `TestTokenEndpointOverHttp` start the resource server's *own* configuration -
+`ResourceServer.ConfigureApiServices` and `ConfigureApiPipeline`, extracted from the listener setup for exactly
+this reason, which is also what both HTTP hosts are handed - on `SharedHttpPortHost`, MP2's portable listener, on
+a loopback port, and talk to it with `HttpClient`. That is the listener Linux and Android use, so the portable
+path is the one being measured.
+
+What is measured where, because it matters for what may be believed:
+
+| Claim | Measured by |
+| --- | --- |
+| Token round trip, one character changed, another server's key, expiry, garbage that must not throw, errors that must not repeat the token; key generation, reuse, corrupt stored key, too-short stored key; every credential rule including which profile is an administrator; the handler with no header, another scheme, a good token, a broken one | 25 tests, no listener (`Tests.Server\Api\TestAccessToken.cs`) |
+| Middleware order, endpoint shapes, form and JSON bodies, the two error answers being indistinguishable so the endpoint cannot enumerate profiles, `WebAutorizationEnabled=false` really opening the endpoint, `/health` staying anonymous beside a protected neighbour, nothing reachable outside the prefix | 11 tests over a socket on the portable host (`TestTokenEndpointOverHttp.cs`) |
+| The same endpoints served by a server that booted a database, on http.sys | the new sixth assertion in `run-server-check.ps1`, which asks four questions and wants `403`, `403`, `400 unsupported_grant_type`, `400 invalid_grant` |
+
+What is deliberately **not** measured by the live gate, stated rather than left out quietly: the live gate never
+receives a token. A fresh data directory contains no user profiles at all - `USER_PROFILES` has `0` rows after a
+first run, measured in the database the gate's own server writes - so on a fresh server there is nobody to log in
+as; a real installation gets its first profile from the client's UI, through the UPnP `CreateProfile` action. The
+gate takes `-AuthTokenUser` to walk the positive path against a data directory that does have profiles, and says
+in its output which of the two it measured. The positive path itself is measured over a socket in the tests, on
+the same two configuration methods.
+
+Two things are left as decisions rather than done here. The existing endpoints - `api/serverinfo`,
+`api/library/aspects` - stay anonymous, because with `WebAutorizationEnabled` defaulting to true, putting them
+behind the token in the same change would break every client that has no token yet, the gates among them: that is
+a change of defaults, and it should be argued as one. And nothing in the tree asks for a token yet - the front end
+will, at the moment it shows a user their own data rather than the library's schema.
+
+Numbers for this step: `Tests.Server` 184 → **220**, the suite 405 → **441**, the warning count unchanged at
+**522** with the ratchet green, and the server gate now prints six assertions where it printed five.
+
 ## Phase 2 - Avalonia front end
 
 ### q. The front end exists, and it reads a running server
@@ -1012,8 +1075,11 @@ order that keeps the risk where it can be seen:
    populated; item **q** records what the render found. What is left of this item is not measurable here: whether
    the screen looks *right* (the taste review reserved for the user), and Android, which still has no measurement
    at all - including no Skia render, because nothing has drawn the front end on that platform yet.
-2. The OAuth token endpoint on .NET. Every endpoint that carries user data, and therefore every screen worth
-   building next (browse, playlists, settings), is blocked on it - see item **m**.
+2. The OAuth token endpoint on .NET - **done**, item **r**: token format, signing key, credential check, bearer
+   handler, `POST Token` and the first endpoint behind the filter, with the middleware order itself under test over
+   a socket rather than assumed. Two things follow from it and are deliberately not decided here: putting the
+   existing anonymous endpoints behind a token (a change of defaults, and the gates are clients too), and the front
+   end asking for a token at the point where it shows a user their own data.
 3. Bind the platform-neutral pieces of the old client's view models. Anything that imported
    `MediaPortal.GUI.Library` was a View, not a ViewModel, and gets rewritten rather than ported.
 4. The renderer per OS: DirectX on Windows, Metal on macOS/iOS, Vulkan/Skia on Linux/Android, each proven by a

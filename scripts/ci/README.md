@@ -1378,7 +1378,7 @@ subfolder: SQLitePCLRaw probes the directory of `SQLitePCLRaw.provider.e_sqlite3
 instead of producing a plugin that throws later.
 `Source\Backend\Database\SQLiteDatabase\build.targets` is the reference for those rules.
 
-`run-server-check.ps1` starts `MP2-Server-Headless --data <scratch>` and asserts five things,
+`run-server-check.ps1` starts `MP2-Server-Headless --data <scratch>` and asserts six things,
 because "the process exited 0" alone is not one of them:
 
 1. it exits by itself within the timeout,
@@ -1386,7 +1386,10 @@ because "the process exited 0" alone is not one of them:
 3. `<DATA>\Log\Server.log` contains `Switching to running state`,
 4. `<DATA>\Database` is not empty,
 5. every URL in `-ProbeUrl` answers `200`, and an entry written as `url|text` also answers with a body
-   containing that text.
+   containing that text,
+6. the auth checks answer as specified: `GET api/session` is `403` without a token and `403` with a token this
+   server never signed, and `POST Token` answers `400` with `unsupported_grant_type` for a grant it does not
+   implement and with `invalid_grant` for a profile that does not exist.
 
 Assertion 4 is what proves the database layer rather than the service registration: a fresh run leaves
 `Datastore.s3db` plus its `-wal`/`-shm` partners there. The data directory is kept in both outcomes -
@@ -1397,6 +1400,19 @@ without plugins, users, tokens or a database) and `api/serverinfo`, an MVC contr
 application part of the resource server's assembly - the two ways an endpoint exists here, each proven over a
 socket. Probing needs the server to stay up, so a probing run passes `--duration` rather than `--check`;
 `-ProbeUrl @()` restores the old, non-probing behaviour.
+
+Assertion 6 is the same trick one layer up, for the part of the HTTP layer that decides *who* is asking. It asks
+four questions and expects refusals, which is what a fresh server can answer: the positive path - a real profile
+getting a real token and opening `api/session` - needs a profile to exist, and a fresh data directory has none.
+That was measured, not assumed: after a first run the `USER_PROFILES` table in `Datastore.s3db` holds `0` rows,
+because the first profile is created by a client through the UPnP `CreateProfile` action. So the gate takes
+`-AuthTokenUser <name>` to walk the positive path against a `-DataDir` that has profiles, and prints which of the
+two it measured rather than quietly passing a shorter list. The positive path itself is covered by
+`Tests.Server\Api\TestTokenEndpointOverHttp.cs`, which starts `ResourceServer.ConfigureApiServices` and
+`ConfigureApiPipeline` - the same two methods both HTTP hosts are handed - on the portable listener over a
+loopback socket. That split is deliberate: middleware order is the thing no unit test of the parts can see, and a
+test that builds the server's real pipeline sees it while a container image does not have to be rebuilt to check it.
+`-AuthProbeUrl ''` drops assertion 6, for running the script against a server that is not MP2's.
 
 The body is printed on purpose, and it is checked: the default entry asks for `MediaPortal 2 Server` in the
 answer, because a status code on its own is also produced by whatever proxy sits in front of the server.

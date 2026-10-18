@@ -28,6 +28,7 @@ using System.Net;
 using System.Net.Sockets;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess.Auth;
 using MediaPortal.Common.Services.ResourceAccess.Settings;
 using MediaPortal.Common.Settings;
 using UPnP.Infrastructure.Dv;
@@ -120,6 +121,59 @@ namespace MediaPortal.Common.Services.ResourceAccess
       //CreateAndStartServer();
     }
 
+#if NET5_0_OR_GREATER
+    /// <summary>
+    /// Configures the services behind the resource server's HTTP endpoints.
+    /// </summary>
+    /// <remarks>
+    /// Split out of <see cref="CreateAndStartServer"/> and public because the order of these services is part of
+    /// what has to be right: a test builds the same pipeline in front of an in-memory listener and drives it with
+    /// HTTP requests, which is the only way to find out that authentication runs before authorization without
+    /// starting a real port. Both HTTP hosts - http.sys and <see cref="SharedHttpPortHost"/> - hand the same two
+    /// delegates their services, so the test measures the configuration that is really used.
+    /// </remarks>
+    public void ConfigureApiServices(IServiceCollection services)
+    {
+      // The bearer scheme that turns "Authorization: ******" into HttpContext.User. Without it
+      // MediaPortalAuthorizeAttribute answers 403 to every request on this target, because the Owin OAuth
+      // middleware that used to do this job does not exist here.
+      services.AddMediaPortalTokenAuthentication();
+
+      var mvc = services.AddControllers();
+      AddApplicationParts(mvc, _middleWares, _controllerTypes);
+    }
+
+    /// <summary>
+    /// Builds the request pipeline of the resource server's HTTP endpoints. See
+    /// <see cref="ConfigureApiServices"/> for why this is a method of its own.
+    /// </summary>
+    public void ConfigureApiPipeline(IApplicationBuilder app)
+    {
+      app.UseRouting();
+
+      // Order matters: UseAuthentication populates HttpContext.User from the bearer token, UseAuthorization
+      // reads it. Leaving the first out is what made every [MediaPortalAuthorize] endpoint answer 403.
+      app.UseAuthentication();
+      app.UseAuthorization();
+      // Both HTTP hosts hand the request over below the prefix: http.sys reports it as PathBase, and
+      // SharedHttpPortHost does the same on purpose (measured with the health endpoint, which prints the
+      // two values). The route template is therefore relative to the prefix on every platform - it used
+      // to contain "/MediaPortal/Server", which could only ever match when the prefix was left in Path.
+      app.UseEndpoints(endpoints =>
+      {
+        endpoints.MapGet(HEALTH_URL_SUFFIX, WriteHealthResponse);
+        endpoints.MapControllerRoute("DefaultApi", "api/{controller}/{id?}");
+        endpoints.MapControllers();
+      });
+
+      // Configure MiddleWare
+      foreach (Type middleWareType in _middleWares)
+      {
+        app.UseMiddleware(middleWareType);
+      }
+    }
+#endif
+
     private void CreateAndStartServer()
     {
       ServerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ServerSettings>();
@@ -135,39 +189,12 @@ namespace MediaPortal.Common.Services.ResourceAccess
 #if NET5_0_OR_GREATER
         var urls = HttpServer.BuildUrls(_servicePrefix, filters, _serverPort);
 
-        Action<IServiceCollection> configureServices = services =>
-        {
-          //ToDo
-          //services.AddAuthentication();
-
-          var mvc = services.AddControllers();
-          AddApplicationParts(mvc, _middleWares, _controllerTypes);
-        };
-
-        Action<IApplicationBuilder> configurePipeline = app =>
-        {
-          app.UseRouting();
-
-          //ToDo
-          //app.UseAuthentication();
-          app.UseAuthorization();
-          // Both HTTP hosts hand the request over below the prefix: http.sys reports it as PathBase, and
-          // SharedHttpPortHost does the same on purpose (measured with the health endpoint, which prints the
-          // two values). The route template is therefore relative to the prefix on every platform - it used
-          // to contain "/MediaPortal/Server", which could only ever match when the prefix was left in Path.
-          app.UseEndpoints(endpoints =>
-          {
-            endpoints.MapGet(HEALTH_URL_SUFFIX, WriteHealthResponse);
-            endpoints.MapControllerRoute("DefaultApi", "api/{controller}/{id?}");
-            endpoints.MapControllers();
-          });
-
-          // Configure MiddleWare
-          foreach (Type middleWareType in _middleWares)
-          {
-            app.UseMiddleware(middleWareType);
-          }
-        };
+        // Both listeners take these two as delegates: the services behind the endpoints and the
+        // pipeline in front of them are the same whether http.sys or the portable host serves the port, so
+        // one configuration is measured and used. They live in ConfigureApiServices and
+        // ConfigureApiPipeline, which a test also drives directly against an in-memory listener.
+        Action<IServiceCollection> configureServices = ConfigureApiServices;
+        Action<IApplicationBuilder> configurePipeline = ConfigureApiPipeline;
 
         if (OperatingSystem.IsWindows())
         {

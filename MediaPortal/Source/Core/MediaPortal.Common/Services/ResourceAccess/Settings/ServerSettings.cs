@@ -37,6 +37,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.Settings
     protected bool _limitIPEndpoints = false;
     protected string _ipAddressBindings = null;
     protected bool _webAutorizationEnabled = true;
+    protected string _webAccessTokenSigningKey = "";
 
     [Setting(SettingScope.Global)]
     public int HttpServerPort
@@ -78,6 +79,22 @@ namespace MediaPortal.Common.Services.ResourceAccess.Settings
     {
       get { return _webAutorizationEnabled; }
       set { _webAutorizationEnabled = value; }
+    }
+
+    /// <summary>
+    /// Base64 of the key that signs the HTTP API's access tokens. Empty until the server generates one the first
+    /// time a token is asked for; see <c>MediaPortalSigningKey</c>.
+    /// </summary>
+    /// <remarks>
+    /// Replacing the value logs every issued token out, which is what a user who suspects a token has leaked
+    /// wants. It is a global setting and not per profile because the key signs statements about profiles, so a
+    /// second copy of it per profile would only be a way to get it wrong.
+    /// </remarks>
+    [Setting(SettingScope.Global, "")]
+    public string WebAccessTokenSigningKey
+    {
+      get { return _webAccessTokenSigningKey; }
+      set { _webAccessTokenSigningKey = value; }
     }
 
     /// <summary>
