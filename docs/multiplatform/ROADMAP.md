@@ -37,6 +37,7 @@ Verified 2026-10-18 with `build.ps1 -Solution Server,Client -Ratchet`, `tests.ps
 | `CA1416` call sites, Windows vs Linux | **0** on both hosts, floor 0 (was 196 at the retarget) - the 107 that remained were all in `-windows` assemblies that had lost their platform declaration; see "the floor went to zero" below | build log, `warnings.ps1` on both logs |
 | Unit tests, Windows | 4/4 suites, 279 executed, 0 failed (3 canary tests skip: Linux-only) | `tests.ps1` |
 | Unit tests, Linux (canary) | 31 executed, 0 failed (1 skips: Windows-only), incl. live IPC round trips and XDG autostart | `test-canary-linux.ps1` |
+| Server actually **runs** | **yes on Windows** as a headless process: reaches the Running state, creates the SQLite store, exits 0; no other platform runs it, though `MP2-Server-Headless.dll` is the first MP2 executable `test-server-linux.ps1` builds | `run-server-check.ps1`, `test-server-linux.ps1` |
 | Built executables are 64-bit | 5/5 apphosts measure `x64`, managed side `MSIL` | `architecture.ps1` |
 | 32-bit declarations in source | 0 in SDK-style projects, 42 in old-style ones | `architecture.ps1` |
 | Packages with known advisories | **0** (was 5: 1 critical, 3 high, 1 moderate) | `packages.ps1 -FailOn Low` |
@@ -364,6 +365,52 @@ machine with WiX installed.
 **f. The API the new frontend consumes.** The client reaches the backend through in-process service
 contracts. Phase 2 needs the same contracts over a real endpoint. Gate: an end-to-end call from a
 separate process to a server on Linux returning a real library item.
+
+**g. The server runs - done on Windows 2026-10-18, nowhere else.** Until today every claim about the
+server was a claim about the compiler. That changed with `MediaPortal.Server.Headless`, an
+`net10.0` console host (`MP2-Server-Headless`) that repeats `MediaPortal.Server`'s startup sequence in
+the same order - vital services, core services, backend services, plugin `Initialize`/`Startup`,
+`StartCoreServices`, IPC, `StartupBackendServices`, media accessor, `Running`, migration, importer
+worker - and drops everything that needs a desktop: no `MainForm`, no `ServiceBase`, no
+`Application.Exit`, no `MediaPortal.Common.Windows` registrations. Ctrl+C and SIGTERM both request a
+clean shutdown; `--check` brings the server up and immediately down again, which is the shape a
+container needs.
+
+Because it does not upgrade the platform seams, it runs the degraded path that no executable used to
+run: `PortableSystemStateService`, no resource mounting, current-user impersonation, no image
+transformer. That is the point - those fallbacks were written by now, not by a hypothetical future host.
+
+Deployment came with it (`deploy-server-layout.ps1`), and had to: every plugin's `build.targets` copies
+into `$(SolutionDir)..\Bin\$(SolutionName)\bin\$(OutDir)\Plugins\`, but only when `$(MP2IsSolutionBuild)`
+is set, which `dotnet publish` never sets. So the layout is assembled in the script from the published
+host plus one plugin directory per plugin, following the rules
+`Source\Backend\Database\SQLiteDatabase\build.targets` encodes - `plugin.xml` comes from the project
+directory, `System.Data.SQLite.dll` is a copied local dependency, and its native `SQLite.Interop.dll`
+has to sit in an `x64\` subfolder because that is where the wrapper looks for it.
+
+Gate: `run-server-check.ps1` - exit code 0, `Switching to running state` in the log, no `FATAL` line,
+and `<DATA>\Database` not empty. Measured on the first run: `Datastore.s3db` (16 MB, WAL alongside),
+subschema versions logged, `ImporterWorker: Activated (0 ImportJobs pending)`, zero `ERROR` and zero
+`WARN` lines in the whole log.
+
+What the first run actually bought were three bugs that no amount of reading had surfaced:
+
+| Found | Where | Why the compiler could not see it |
+| --- | --- | --- |
+| `Unkown path label '<LOG>'` | `PathManager.InitializeDefaults` built `DEFAULTS` as `@"<APPLICATION_ROOT>\Defaults"` | A backslash is a filename character off Windows, so `Paths.xml` - which is what defines `<LOG>`, `<DATA>`, `<PLUGINS>`, `<DATABASE>` - was simply never found |
+| Path values full of backslashes | `Defaults\Paths.xml` values, e.g. `<DATA>\Log` | Same class of bug one level down: labels are data, so `SetPath` now normalises separators (`NormalizeSeparators`) instead of every platform needing its own `Paths.xml` |
+| Server died when `Plugins` did not exist | `PluginManager.LoadPluginsData` | `Directory.GetDirectories` throws on a missing directory but not on an empty one, and startup called it unconditionally |
+
+Still Windows-only on this path, and each one is the next step: the SQLite plugin itself
+(`net10.0-windows`, `System.Data.SQLite` natives for win-x64 only, `CompareStringEx` for the `NOCASE`
+collation, `GlobalMemoryStatusEx` for cache sizing), and the HTTP stack - the log shows
+`HttpSysListener`, and `http.sys` does not exist off Windows, so the resource and UPnP servers need
+Kestrel on Linux. The gate for item **d** ("compiles" becomes "runs") is this same script inside the
+container.
+
+One side effect worth naming: adding the host to `MP2-Server.sln` made `test-server-linux.ps1` build
+`bin/Debug/net10.0/MP2-Server-Headless.dll`, which is the first MP2 *executable* that compiles on
+Linux. Compiling is not running - which is precisely the lesson this step paid for.
 
 ## Phase 2 - Avalonia front end
 

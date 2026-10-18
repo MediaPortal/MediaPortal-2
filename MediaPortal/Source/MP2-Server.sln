@@ -1,4 +1,4 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32407.343
@@ -170,6 +170,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Common.Windows", "Core\MediaPortal.Common.Windows\MediaPortal.Common.Windows.csproj", "{E38364A8-05BD-43B3-A4D9-C11840D76870}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Utilities.Windows", "Core\MediaPortal.Utilities.Windows\MediaPortal.Utilities.Windows.csproj", "{04720521-4A23-477C-9143-696DE06035B7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Server.Headless", "Main\MediaPortal.Server.Headless\MediaPortal.Server.Headless.csproj", "{34EE1E8F-C2DA-47E6-A5E4-AAD68DDF4D6F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -911,6 +913,18 @@ Global
 		{04720521-4A23-477C-9143-696DE06035B7}.Release|x64.Build.0 = Release|Any CPU
 		{04720521-4A23-477C-9143-696DE06035B7}.Release|x86.ActiveCfg = Release|Any CPU
 		{04720521-4A23-477C-9143-696DE06035B7}.Release|x86.Build.0 = Release|Any CPU
+		{34EE1E8F-C2DA-47E6-A5E4-AAD68DDF4D6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{34EE1E8F-C2DA-47E6-A5E4-AAD68DDF4D6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{34EE1E8F-C2DA-47E6-A5E4-AAD68DDF4D6F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{34EE1E8F-C2DA-47E6-A5E4-AAD68DDF4D6F}.Debug|x64.Build.0 = Debug|Any CPU
+		{34EE1E8F-C2DA-47E6-A5E4-AAD68DDF4D6F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{34EE1E8F-C2DA-47E6-A5E4-AAD68DDF4D6F}.Debug|x86.Build.0 = Debug|Any CPU
+		{34EE1E8F-C2DA-47E6-A5E4-AAD68DDF4D6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{34EE1E8F-C2DA-47E6-A5E4-AAD68DDF4D6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{34EE1E8F-C2DA-47E6-A5E4-AAD68DDF4D6F}.Release|x64.ActiveCfg = Release|Any CPU
+		{34EE1E8F-C2DA-47E6-A5E4-AAD68DDF4D6F}.Release|x64.Build.0 = Release|Any CPU
+		{34EE1E8F-C2DA-47E6-A5E4-AAD68DDF4D6F}.Release|x86.ActiveCfg = Release|Any CPU
+		{34EE1E8F-C2DA-47E6-A5E4-AAD68DDF4D6F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -994,10 +1008,9 @@ Global
 		{5B658CDD-2211-4DB5-8765-997D4501BCA2} = {4B3FDD47-818E-455A-B3AD-5AFDDABFA4D5}
 		{E38364A8-05BD-43B3-A4D9-C11840D76870} = {843A0AD1-33FC-4952-9465-B5E79C2C67D1}
 		{04720521-4A23-477C-9143-696DE06035B7} = {843A0AD1-33FC-4952-9465-B5E79C2C67D1}
+		{34EE1E8F-C2DA-47E6-A5E4-AAD68DDF4D6F} = {23FE1AB5-FA54-4863-8E01-871B3A969E71}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1EEA469D-E8FA-442D-A7DC-FA62A56A8808}
 	EndGlobalSection
 EndGlobal
-
-

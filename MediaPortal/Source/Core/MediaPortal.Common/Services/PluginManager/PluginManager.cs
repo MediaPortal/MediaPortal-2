@@ -1174,6 +1174,20 @@ namespace MediaPortal.Common.Services.PluginManager
     {
       IDictionary<Guid, IPluginMetadata> result = new Dictionary<Guid, IPluginMetadata>();
       String pluginsDirectoryPath = ServiceRegistration.Get<IPathManager>().GetPath("<PLUGINS>");
+      // A missing Plugins directory means "nothing installed", which is a state a server can
+      // legitimately be in: freshly published output, a container whose plugins are mounted
+      // elsewhere, or an install whose plugin tree has not been unpacked yet.
+      // Directory.GetDirectories threw DirectoryNotFoundException for that, and because
+      // LoadPluginsData runs on the startup path the whole server died over a folder nobody had
+      // created. An <em>empty</em> Plugins directory has always started fine, so the difference
+      // between the two was never a deliberate rule.
+      if (!Directory.Exists(pluginsDirectoryPath))
+      {
+        ServiceRegistration.Get<ILogger>().Warn(
+            "Plugin directory '{0}' does not exist, continuing without plugins", pluginsDirectoryPath);
+        return result;
+      }
+
       foreach (string pluginDirectoryPath in Directory.GetDirectories(pluginsDirectoryPath))
       {
         if ((Path.GetFileName(pluginDirectoryPath) ?? string.Empty).StartsWith("."))

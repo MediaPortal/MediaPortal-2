@@ -1,0 +1,65 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    A server host with no window and no service controller.
+
+    MP2-Server is a WinExe: its launcher either shows a MainForm or runs under ServiceBase, and both
+    need Windows. That is fine for the Windows product and fatal for the port, because it means there
+    is nothing to execute on Linux - the whole server solution compiles there (the CI proves it) and
+    nothing has ever run there. This project is the thing that runs: the same startup sequence as
+    MediaPortal.Server, from RegisterVitalCoreServices to ActivateImporterWorker, with no WinForms,
+    no ServiceBase, no registry and no tray icon, on a portable target framework with CA1416 as an
+    error.
+
+    Rules for this project, all of them learned from the thing it replaces:
+      - It stays net10.0. The moment it needs a -windows reference it has stopped being the proof that
+        the core runs headless and become a second copy of MP2-Server.
+      - Platform capability comes from the seams (ISystemStateService, ITaskWakeUpTimer,
+        IImpersonationService, IResourceMountingService, IImageTransformer). The core installs a
+        degraded implementation of each; a Windows host upgrades them, this one does not, and that
+        asymmetry is the point - it is what makes the degraded path get exercised.
+      - Windows-specific behaviour belongs to MediaPortal.Server, not to a branch in this file.
+
+    CodeAnalysisRuleSet is deliberately not set. AllRules.ruleset, which nearly every project in the
+    tree names, does not exist in the repository, so naming it buys an MSB3884 warning and nothing
+    else; analysis comes from MediaPortal\.editorconfig either way.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>MP2-Server-Headless</AssemblyName>
+    <RootNamespace>MediaPortal.Server.Headless</RootNamespace>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <WarningsAsErrors>CA1416</WarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs" Link="Properties\VersionInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj" />
+    <ProjectReference Include="..\..\Core\MediaPortal.Backend\MediaPortal.Backend.csproj" />
+    <ProjectReference Include="..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj" />
+  </ItemGroup>
+
+  <!--
+    MediaPortal.Server gets these files from Source\Base\Server through its build.targets, which
+    copies them into the legacy Bin\MP2-Server\bin layout next to the plugins. This host runs from
+    its own output directory instead - that is the whole point of it, a published folder is the
+    deployment - so the same content goes there directly.
+
+    Both halves are read at runtime, not at build time:
+      - Defaults\Paths.xml defines the path labels <DATA>, <CONFIG>, <LOG>, <PLUGINS>, <DATABASE>
+        and <REMOTERESOURCES>. Without it PathManager only knows the labels it seeds itself and the
+        first GetPath("<LOG>") throws "Unkown path label".
+      - Scripts\*.sql are the database schema and migration scripts that IDatabaseManager applies.
+  -->
+  <ItemGroup>
+    <Content Include="..\..\Base\Server\**\*.*">
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

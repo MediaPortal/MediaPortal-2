@@ -71,12 +71,15 @@ namespace MediaPortal.Common.Services.PathManager
     {
       SetPath("APPLICATION_PATH", applicationPath);
       SetPath("APPLICATION_ROOT", Path.GetDirectoryName(applicationPath));
-      SetPath("DEFAULTS", @"<APPLICATION_ROOT>\Defaults");
+      // Path.Combine, not a literal: "<APPLICATION_ROOT>\Defaults" is only a path on Windows. On
+      // Linux this produced a label whose value was one nonsense name containing a backslash, so
+      // Paths.xml was never found and every later GetPath("<LOG>") died with "Unkown path label".
+      SetPath("DEFAULTS", Path.Combine("<APPLICATION_ROOT>", "Defaults"));
 
       foreach (KeyValuePair<string, string> mapping in GetStandardSpecialFolderMappings())
         SetPath(mapping.Key, mapping.Value);
 
-      LoadPaths(GetPath(@"<DEFAULTS>\Paths.xml"));
+      LoadPaths(Path.Combine(GetPath(@"<DEFAULTS>"), "Paths.xml"));
     }
 
     /// <summary>
@@ -108,7 +111,8 @@ namespace MediaPortal.Common.Services.PathManager
     public void SetPath(string label, string pathPattern)
     {
       label = CheckFormat(label);
-      pathPattern = StringUtils.RemoveSuffixIfPresent(pathPattern, "\\");
+      pathPattern = NormalizeSeparators(pathPattern);
+      pathPattern = StringUtils.RemoveSuffixIfPresent(pathPattern, Path.DirectorySeparatorChar.ToString());
       lock (_syncObj)
         _paths[label] = pathPattern;
     }
@@ -183,6 +187,32 @@ namespace MediaPortal.Common.Services.PathManager
 		#endregion
 
     #region Private methods
+
+    /// <summary>
+    /// Rewrites Windows directory separators in a path pattern to the separator of the current
+    /// platform.
+    /// </summary>
+    /// <remarks>
+    /// Path labels are data, not code: they come from <c>Defaults\Paths.xml</c>, which is written
+    /// for Windows and uses backslashes throughout (<c>&lt;DATA&gt;\Log</c>,
+    /// <c>&lt;APPLICATION_ROOT&gt;\Plugins</c>). On Windows the backslash already is the separator,
+    /// so this is a no-op there. Elsewhere a backslash is an ordinary character in a file name, and
+    /// without this step <c>GetPath("&lt;LOG&gt;")</c> hands back
+    /// <c>/srv/mp2/MP2-Server\Log</c> - one directory with a backslash in its name, which
+    /// <c>Directory.CreateDirectory</c> happily creates and which then looks like an empty
+    /// installation to everything else. The alternative would be a Paths.xml per platform, which
+    /// means every future label has to be duplicated in two files.
+    /// UNC paths (<c>\\server\share</c>) cannot survive this translation; they are meaningless on a
+    /// platform that has no UNC namespace, where a network share is a mounted directory.
+    /// </remarks>
+    /// <param name="pathPattern">The path pattern as written in a Defaults file or set by a caller.</param>
+    /// <returns>The pattern with the platform separator in place of any backslash.</returns>
+    private static string NormalizeSeparators(string pathPattern)
+    {
+      if (string.IsNullOrEmpty(pathPattern) || Path.DirectorySeparatorChar == '\\')
+        return pathPattern;
+      return pathPattern.Replace('\\', Path.DirectorySeparatorChar);
+    }
 
     /// <summary>
     /// Brings the specified label in the correct form to be used as lookup value in our

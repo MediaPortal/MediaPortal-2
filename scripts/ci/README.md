@@ -1321,3 +1321,66 @@ dotnet build MediaPortal\Source\Core\MediaPortal.Common\MediaPortal.Common.cspro
 Remove the line afterwards, of course. If the build stays green, the gate is decorative - usually
 because the assembly declares a platform it should not (see the `GenerateAssemblyInfo` section above)
 or because `AllRules.ruleset` downgraded the diagnostic.
+
+## The server runs: `deploy-server-layout.ps1` and `run-server-check.ps1`
+
+Every gate in this folder until now answers a question about the compiler. These two answer the other
+question, and the difference turned out to be three bugs.
+
+`deploy-server-layout.ps1` assembles a directory that can actually start: `dotnet publish` of
+`MediaPortal.Server.Headless`, then one directory per plugin under `Plugins\`. The plugin half is a
+script and not MSBuild because MP2's own plugin deployment (`build.targets` in ~100 projects) copies
+into `$(SolutionDir)..\Bin\$(SolutionName)\bin\$(OutDir)\Plugins\` under
+`Condition="'$(MP2IsSolutionBuild)' == 'true'"` - a property `dotnet publish` never sets, writing a
+Windows installer staging tree. What a plugin directory must contain is not "the build output":
+`plugin.xml` is source, `System.Data.SQLite.dll` is a copied local dependency, and the native
+`SQLite.Interop.dll` has to end up in an `x64\` subfolder of the plugin folder because that is where
+the managed wrapper searches for it. `Source\Backend\Database\SQLiteDatabase\build.targets` is the
+reference for those rules.
+
+`run-server-check.ps1` starts `MP2-Server-Headless --check --data <scratch>` and asserts four things,
+because "the process exited 0" alone is not one of them:
+
+1. it exits by itself within the timeout,
+2. with exit code 0,
+3. `<DATA>\Log\Server.log` contains `Switching to running state`,
+4. `<DATA>\Database` is not empty.
+
+Assertion 4 is what proves the database layer rather than the service registration: a fresh run leaves
+`Datastore.s3db` plus its `-wal`/`-shm` partners there. The data directory is kept in both outcomes -
+the log inside it is the only diagnostic there is - and its path is printed.
+
+Two caveats to know before trusting a green run: it is a **Windows** green run, and the log says so.
+`HttpSysListener` appears for the resource and UPnP servers (`http.sys` is Windows-only, so Linux needs
+Kestrel), and the SQLite provider is `net10.0-windows` with a win-x64 native. Both are listed as open
+in `docs/multiplatform/ROADMAP.md` Phase 1g.
+
+### MSBuild's `-getProperty` needs `-noconsolelogger`
+
+Asking MSBuild where a project builds to beats globbing `bin\<Configuration>\*\` - stale
+pre-retarget `net48` and `net6.0-windows` output folders are still on disk here, and a glob finds all
+three. But the plain invocation puts the build's own warnings in front of the value:
+
+```powershell
+dotnet msbuild some.csproj -getProperty:TargetDir -p:Configuration=Debug -v:q
+# ...NU1510 warning lines..., then the JSON. ConvertFrom-Json then fails with
+# "Invalid JSON primitive: D." - the D of a drive letter.
+```
+
+`-noconsolelogger` silences the build logging and leaves only what the CLI prints. One property prints
+the bare value; two or more print a JSON object - `deploy-server-layout.ps1` handles both spellings.
+
+### A PowerShell function returns your build log
+
+`function F { dotnet build ...; return $dir }` returns an *array*: the command's stdout is part of the
+function output. The symptom was a "deploying plugin from <several warning lines and a path>" message
+followed by `Join-Path : Cannot bind argument to parameter 'Path' because it is an empty string`. Pipe
+chatty commands to `Out-Host` (writes to the host, contributes nothing to the pipeline) or to
+`Out-Null`. Two related traps hit in the same file:
+
+- `"output for plugin $Name:`n..."` is a parse error, not a string: after `$Name` a colon starts a
+  drive-qualified variable reference. Write `$($Name):` or rephrase.
+- `$LASTEXITCODE` after `& $tool @args | Tee-Object ...` reflects the *native command*, which is what
+  you want, but after a pipeline that ends in a cmdlet which can fail (like `Select-Object -First N`,
+  which can stop the pipeline), it can be `-1` for a build that succeeded. Judge builds by
+  `$LASTEXITCODE` captured immediately after the tool call.
