@@ -24,7 +24,6 @@
 
 using System;
 using System.IO;
-using System.Management;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -49,6 +48,18 @@ namespace MediaPortal.Utilities.FileSystem
 
     #region Windows API functions
 
+    // Everything in this region is a kernel32 call. It is not flagged by CA1416 (a DLL name is a string
+    // to the analyzer) and it does not stop this assembly from targeting a portable framework, but it
+    // does throw DllNotFoundException as soon as it is *called* off Windows. Drive ejecting, volume
+    // serials and the "\\.\C" physical-drive path below are Windows facilities; the portable answer is
+    // not to reimplement them here but to keep this class out of the portable core, which is why it is
+    // listed as a satellite candidate in docs/multiplatform/ROADMAP.md.
+    //
+    // GetDiskFreeSpaceEx used to be declared here for a GetFreeDiskSpace method that had no callers
+    // anywhere in the tree; it was deleted along with them rather than ported. Volume sizes come from
+    // System.IO.DriveInfo, which answers on every platform (and is what the rest of this class already
+    // uses for name and type).
+
     private const int OPEN_EXISTING = 3;
     private const uint GENERIC_READ = 0x80000000;
     private const uint GENERIC_WRITE = 0x40000000;
@@ -64,10 +75,6 @@ namespace MediaPortal.Utilities.FileSystem
     public static extern bool GetVolumeInformation(string RootPathName, StringBuilder VolumeNameBuffer, int VolumeNameSize,
       out uint VolumeSerialNumber, out uint MaximumComponentLength, out uint FileSystemFlags, StringBuilder FileSystemNameBuffer,
       int nFileSystemNameSize);
-
-    [DllImport("kernel32.dll")]
-    public static extern bool GetDiskFreeSpaceEx(string lpDirectoryName, out UInt64 lpFreeBytesAvailable, out UInt64 lpTotalNumberOfBytes,
-        out UInt64 lpTotalNumberOfFreeBytes);
 
     [DllImport("kernel32", SetLastError = true)]
     public static extern IntPtr CreateFile(string filename, uint desiredAccess, uint shareMode, IntPtr securityAttributes, int creationDisposition, int flagsAndAttributes, IntPtr templateFile);
@@ -212,61 +219,6 @@ namespace MediaPortal.Utilities.FileSystem
       catch (IOException)
       {
         return DriveType.Unknown;
-      }
-    }
-
-    /// <summary>
-    /// Gets the Size of a Disk
-    /// </summary>
-    /// <param name="drive"></param>
-    /// <returns></returns>
-    public static long GetDiskSize(string drive)
-    {
-      try
-      {
-        string cmd = String.Format("win32_logicaldisk.deviceid=\"{0}:\"", drive[0]);
-        using (ManagementObject disk = new ManagementObject(cmd))
-        {
-          disk.Get();
-          return Int64.Parse(disk["Size"].ToString());
-        }
-      }
-      catch (Exception)
-      {
-        return -1;
-      }
-    }
-
-    /// <summary>
-    /// Returns the Free disk space of a drive
-    /// </summary>
-    /// <exception cref="ArgumentNullException"></exception>
-    /// <exception cref="ArgumentException"></exception>
-    /// <param name="drive"></param>
-    /// <returns></returns>
-    public static long GetFreeDiskSpace(string drive)
-    {
-      if (!drive.StartsWith(@"\\"))
-      {
-        // This is not a UNC path.
-        try
-        {
-          DriveInfo nfo = new DriveInfo(drive[0] + @":\");
-          return nfo.AvailableFreeSpace;
-        }
-        catch (IOException)
-        {
-          return 0;
-        }
-      }
-      else
-      {
-        // UNC path.
-        ulong freeBytesAvailable;
-        ulong totalNumberOfBytes;
-        ulong totalNumberOfFreeBytes;
-        GetDiskFreeSpaceEx(drive, out freeBytesAvailable, out totalNumberOfBytes, out totalNumberOfFreeBytes);
-        return (long)freeBytesAvailable;
       }
     }
 

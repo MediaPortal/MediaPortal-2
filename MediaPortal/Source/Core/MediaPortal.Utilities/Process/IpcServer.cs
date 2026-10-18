@@ -140,23 +140,45 @@ namespace MediaPortal.Utilities.Process
 
     private void OpenNewPipe()
     {
-      // start a new server pipe with read and write access for any authenticated user of this system.
-      // it is important to have PipeAccessRights.CreateNewInstance allowed, or else it would not be possible to create anew pipe for the next client.
-      var pipeSecurity = new PipeSecurity();
-      pipeSecurity.SetAccessRule(
-        new PipeAccessRule(
-          new SecurityIdentifier(WellKnownSidType.AuthenticatedUserSid, null),
-          PipeAccessRights.ReadWrite | PipeAccessRights.CreateNewInstance, AccessControlType.Allow));
+      NamedPipeServerStream pipe;
+      if (OperatingSystem.IsWindows())
+      {
+        // start a new server pipe with read and write access for any authenticated user of this system.
+        // it is important to have PipeAccessRights.CreateNewInstance allowed, or else it would not be possible to create anew pipe for the next client.
+        var pipeSecurity = new PipeSecurity();
+        pipeSecurity.SetAccessRule(
+          new PipeAccessRule(
+            new SecurityIdentifier(WellKnownSidType.AuthenticatedUserSid, null),
+            PipeAccessRights.ReadWrite | PipeAccessRights.CreateNewInstance, AccessControlType.Allow));
 
 #if NET5_0_OR_GREATER
-      var pipe = NamedPipeServerStreamConstructors.New(PipeName,
-        PipeDirection.InOut, NamedPipeServerStream.MaxAllowedServerInstances,
-        PipeTransmissionMode.Message, PipeOptions.Asynchronous, 1024, 1024, pipeSecurity);
+        pipe = NamedPipeServerStreamConstructors.New(PipeName,
+          PipeDirection.InOut, NamedPipeServerStream.MaxAllowedServerInstances,
+          PipeTransmissionMode.Message, PipeOptions.Asynchronous, 1024, 1024, pipeSecurity);
 #else
-      var pipe = new NamedPipeServerStream(PipeName,
-        PipeDirection.InOut, NamedPipeServerStream.MaxAllowedServerInstances,
-        PipeTransmissionMode.Message, PipeOptions.Asynchronous, 1024, 1024, pipeSecurity);
+        pipe = new NamedPipeServerStream(PipeName,
+          PipeDirection.InOut, NamedPipeServerStream.MaxAllowedServerInstances,
+          PipeTransmissionMode.Message, PipeOptions.Asynchronous, 1024, 1024, pipeSecurity);
 #endif
+      }
+      else
+      {
+        // Two Windows specifics are dropped together here, and only one of them is an ACL.
+        //
+        // PipeSecurity has no non-Windows implementation, so there is nothing to grant. What is left
+        // is the file-system permissions of the socket .NET creates for the pipe
+        // (/tmp/CoreFxPipe_<name>), which is a coarser but conventional answer.
+        //
+        // PipeTransmissionMode.Message is the one that is not just an annotation problem: Unix named
+        // pipes are byte streams, and asking for message mode throws. Nothing in this class or in
+        // IpcClient depends on message boundaries anyway - both sides loop until the 6-byte header and
+        // the announced payload are complete - so Byte mode is the same protocol over a stream, not a
+        // degraded one. A Windows client and a Linux server could never speak here regardless: these
+        // pipes are how a local launcher tells a local process to shut down.
+        pipe = new NamedPipeServerStream(PipeName,
+          PipeDirection.InOut, NamedPipeServerStream.MaxAllowedServerInstances,
+          PipeTransmissionMode.Byte, PipeOptions.Asynchronous, 1024, 1024);
+      }
 
       lock (_serverPipes)
       {

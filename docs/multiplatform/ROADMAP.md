@@ -27,19 +27,25 @@ Verified 2026-10-18 with `build.ps1 -Solution Server,Client -Ratchet`, `tests.ps
 
 | Measurement | Value | How to reproduce |
 | --- | --- | --- |
-| Server solution compiles on Windows | 0 errors, 685 gated findings | `build.ps1 -Solution Server -Ratchet` |
-| Client solution compiles on Windows | 0 errors, ~2460 findings (not gated) | `build.ps1 -Solution Client` |
+| Server solution compiles on Windows | 0 errors, 648 gated findings (was 685) | `build.ps1 -Solution Server -Ratchet` |
+| Client solution compiles on Windows | 0 errors, ~2430 findings (not gated) | `build.ps1 -Solution Client` |
 | Server solution compiles **on Linux** | 0 errors | `test-server-linux.ps1` |
+| Core assemblies on a portable target framework | **1 of 90** - `MediaPortal.Utilities` is `net10.0`, `UseWindowsForms=false`, `CA1416` as error | `MediaPortal.Utilities.csproj` |
 | Portable-core WinForms / GDI+ references | **0** (86 quarantined in 6 satellite files) | `spine.ps1`, `satellites.ps1` |
-| Portable-core P/Invoke declarations | **95** in 13 files, invisible to `CA1416` | `spine.ps1` (P/Invoke column) |
-| `CA1416` call sites, Windows vs Linux | 196 on both - identical inventories | build log, `warnings.ps1` |
-| Unit tests, Windows | 4/4 suites, 262 tests, 0 failed | `tests.ps1` |
-| Unit tests, Linux (canary) | 20/20 | `test-canary-linux.ps1` |
+| Portable-core P/Invoke declarations | **94** in 13 files, invisible to `CA1416` | `spine.ps1` (P/Invoke column) |
+| `CA1416` call sites, Windows vs Linux | 161 on both (was 196) - identical inventories | build log, `warnings.ps1` |
+| Unit tests, Windows | 4/4 suites, 271 executed, 0 failed (3 canary tests skip: Linux-only) | `tests.ps1` |
+| Unit tests, Linux (canary) | 31 executed, 0 failed (1 skips: Windows-only), incl. live IPC round trips and XDG autostart | `test-canary-linux.ps1` |
 | Built executables are 64-bit | 5/5 apphosts measure `x64`, managed side `MSIL` | `architecture.ps1` |
 | 32-bit declarations in source | 0 in SDK-style projects, 42 in old-style ones | `architecture.ps1` |
 | Packages with known advisories | **0** (was 5: 1 critical, 3 high, 1 moderate) | `packages.ps1 -FailOn Low` |
 | Packages via .NET Framework fallback | 7 | `packages.ps1` |
 | Clean machine can restore | **no** - 6 package ids exist nowhere reachable | CI README, "The dependency closure is not reproducible" |
+
+The two unit-test rows say "executed" and name the skips because of a reporting property found while
+adding platform-guarded tests: **a test that `Assume`-skips is absent from all four numbers on the
+summary line**, not counted as skipped. A green suite whose total quietly shrank by three is therefore
+not evidence that the same tests ran, so the counts are written next to the reason they differ.
 
 The client's finding total is written with a tilde on purpose: it includes the restore-time NuGet codes
 that are deliberately outside the ratchet, so it moves by a few between runs of identical source. The
@@ -97,21 +103,75 @@ list rather than two. 17 of the 196 are WinForms members in `MP2-Server`'s own `
 "fixed".
 
 The analyzer is not the whole inventory, and one number proves it: with the portable core reading
-**0** spine references, it contains **95 `[DllImport]` declarations in 13 files**. `CA1416` does not
+**0** spine references, it contains **94 `[DllImport]` declarations in 13 files**. `CA1416` does not
 report P/Invoke at all and P/Invoke is neither WinForms nor GDI+, so `spine.ps1` now counts them in a
 third column, gated by the same "core may not grow, and a satellite may only grow by what the core
 shrinks" rule.
 
-The first candidate to lose its `-windows` target is `MediaPortal.Utilities`, and the work was
-measured rather than estimated: with the TFM and `UseWindowsForms` changed by hand the project
-compiles with 0 errors and shows 35 `CA1416` sites in six files (13 registry, 8 named-pipe ACL, 8
-mutex ACL, 3 `HKCR`, 3 WMI, 1 `ApartmentState`). Two files already have their fallback written:
-`ThreadingUtils.RunSTAThreaded` and `MimeTypeDetector.GetMimeTypeFromRegistry`, both guarded by
-`OperatingSystem.IsWindows()` - the form of the branch that `CA1416` understands, which is what makes
-the guard checkable. Registry and WMI use outside those, `Environment.SpecialFolder` assumptions and
-GDI+ stay at the platform-service seam, not inside the core. Gate: the `CA1416` floor goes down,
-`spine.ps1` stays at 0 in both of its columns, and `-p:WarningsAsErrors=CA1416` is added to a project
-the moment that project reaches zero.
+**`MediaPortal.Utilities` lost its `-windows` target - done 2026-10-18.** The work was measured rather
+than estimated first: with the TFM and `UseWindowsForms` changed by hand the project compiled with 0
+errors and showed 35 `CA1416` call sites in six files (named-pipe ACL 8, mutex ACL 8, autostart registry
+9, `HKCR` 3, WMI 3, `ApartmentState` 1). Each was then closed in a way appropriate to what it actually
+was, and the project now carries `<TargetFramework>net10.0</TargetFramework>`, `UseWindowsForms=false`
+and `<WarningsAsErrors>CA1416</WarningsAsErrors>`, so it cannot regress:
+
+| Site | What it really was | What was done |
+| --- | --- | --- |
+| `ThreadingUtils.RunSTAThreaded` | `ApartmentState.STA` means nothing off Windows | guarded; the call degrades to a plain thread |
+| `SystemAPI\MimeTypeDetector` | `HKCR` MIME lookup | returns `null` off Windows; the 979-entry extension map is the real implementation |
+| `Process\SingleInstanceHelper` | a portable named mutex with a Windows ACL and a `HWND_BROADCAST` post | mutex kept, ACL and broadcast guarded; semantics measured in the container |
+| `Process\IpcServer.OpenNewPipe` | pipe ACL **and** message transmission mode | Windows branch unchanged; elsewhere byte mode without an ACL, because Unix pipes are byte streams |
+| `SystemAPI\WindowsAPI` autostart, 3 methods | not "registry access" but autostart | moved into a new `AutostartRegistry` with a real Linux answer (XDG desktop entry); `IsSupported` reports false where no mechanism exists |
+| `FileSystem\DriveUtils.GetDiskSize`, `GetFreeDiskSpace` | dead - no callers anywhere in the tree | deleted, together with the `System.Management` and `System.Drawing.Common` package references they were the only users of |
+
+`CA1416` across the Server solution went **196 → 161**, and `spine.ps1`'s P/Invoke ledger went 95 → 94
+(the deleted `GetDiskFreeSpaceEx`). Committing the new floors with `-UpdateBaseline` is part of the
+work, not an afterthought: a ratchet that is not re-armed keeps the old ceiling as permission.
+
+Two of those files turned out to hide something the analyzer cannot see in either direction, and both
+are now covered by a test that runs on Linux rather than by a comment:
+
+- `PipeTransmissionMode.Message` is flagged as Windows-only, and the honest answer is not "guard it" -
+  Unix pipes are byte streams, so message mode does not exist there. The reason dropping it is safe
+  was read out of the code, not assumed: the server loop and `IpcClient.SendReceive` both re-read until
+  the 6-byte header and the announced payload are complete, so the protocol never depended on message
+  boundaries. Four canary tests now run a real `IpcServer` and `IpcClient` against each other over a
+  real pipe, which pins that on both platforms instead of trusting the reading.
+- `IpcClient.GetRunningApps()` enumerated `Directory.GetFiles(@"\\.\pipe\")`. That is a string literal:
+  it is not a P/Invoke, not WinForms, and not a `CA1416` candidate, so it would have crossed the
+  portable-core line unnoticed and thrown `DirectoryNotFoundException` on the first call. Off Windows
+  .NET materialises a named pipe as a Unix domain socket called `CoreFxPipe_<name>` in the temp
+  directory; whether that convention is real was settled by a test that opens a server and asserts the
+  listing contains it and, after `Close()`, no longer does - green on Windows and in the container.
+
+This is the third class of Windows dependency that the metrics cannot express, after the P/Invoke
+declarations and the stale build output: **a Windows path inside a string**. A guard that is never
+executed is not a port, which is why the canary now links the IPC sources and executes both halves of
+each branch on the machine it applies to.
+
+The autostart methods were the fourth case of the same shape, and the one with the most useful
+finding: three `WindowsAPI` methods looked like "13 registry call sites blocking the port", which is
+what an inventory made of `CA1416` lines says. Read as a feature - and with its callers, which turned
+out to be three UI/launcher components that all pass `user: true` - it is autostart, which has a
+straightforward Linux answer in an XDG autostart desktop entry, plus a per-scope split that maps onto
+the `user` parameter already in the signature. `AutostartRegistry` now holds that translation and
+`IsSupported` says `false` for platforms where no mechanism exists (Android has none; macOS would need
+`~/Library/LaunchAgents`, a format nothing here can verify, so it is reported rather than guessed). The
+desktop-entry half is tested through the redirection the specification itself provides
+(`XDG_CONFIG_HOME`, `XDG_CONFIG_DIRS`), which means no test-only hook in the production code.
+
+What the retarget deliberately does **not** claim: that every type in `MediaPortal.Utilities` works on
+Linux. The assembly still declares 73 kernel32 and advapi32 `[DllImport]`s - `DriveUtils` ejecting an
+optical disc, `WindowsAPI`'s window and handle helpers, `NetworkResourcesEnumerator`'s shares APIs - and
+those throw `DllNotFoundException` when called off Windows, invisibly to every analyzer. They are
+satellite candidates, listed below, and the honest statement about the retarget is the checkable one
+that now lives in the project file: this assembly compiles for every platform, and it gains no
+`CA1416`-visible Windows-only call site without failing the build.
+
+Next in the same sequence is `MediaPortal.Backend` (0 P/Invoke declarations, no WinForms: the cheapest
+of the three core projects) and then `MediaPortal.Common` (21 P/Invoke, plus the `IImageTransformer`
+seam already in place). `CA1416` elsewhere in the tree is still dominated by the WinForms UI, which
+Phase 2 replaces rather than repairs.
 
 **d. Database that is not Windows-shaped.** Decide Firebird's future, verify SQLite as the primary
 store on Linux (native binaries per RID, no `System.Data.SQLite` interop surprises), delete ScimoreDB

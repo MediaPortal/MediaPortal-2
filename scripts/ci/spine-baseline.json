@@ -11,7 +11,7 @@
                   "MediaPortal\\Source\\Core\\MediaPortal.Utilities":  {
                                                                            "WinForms":  0,
                                                                            "DrawingWindows":  0,
-                                                                           "PInvoke":  74,
+                                                                           "PInvoke":  73,
                                                                            "DrawingPortable":  0
                                                                        },
                   "MediaPortal\\Source\\Core\\MediaPortal.Backend":  {
@@ -22,7 +22,7 @@
                                                                      }
               },
     "filesAffected":  13,
-    "totalRefs":  95,
+    "totalRefs":  94,
     "drawingPortableRefs":  1,
     "satelliteAreas":  {
                            "MediaPortal\\Source\\Core\\MediaPortal.Common.Windows":  {
@@ -41,6 +41,6 @@
     "satelliteFilesAffected":  6,
     "satelliteTotalRefs":  86,
     "satelliteDrawingPortableRefs":  1,
-    "combinedTotalRefs":  181,
+    "combinedTotalRefs":  180,
     "combinedFilesAffected":  19
 }

@@ -27,7 +27,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using MediaPortal.Utilities.Exceptions;
-using Microsoft.Win32;
 
 namespace MediaPortal.Utilities.SystemAPI
 {
@@ -306,7 +305,7 @@ namespace MediaPortal.Utilities.SystemAPI
 
     #endregion
 
-    public const string AUTOSTART_REGISTRY_KEY = @"Software\Microsoft\Windows\Currentversion\Run";
+    public const string AUTOSTART_REGISTRY_KEY = AutostartRegistry.AUTOSTART_REGISTRY_KEY;
 
     public const int S_OK = 0x0;
     public const int S_FALSE = 0x1;
@@ -363,61 +362,51 @@ namespace MediaPortal.Utilities.SystemAPI
     }
 
     /// <summary>
-    /// Adds the application with the specified <paramref name="applicationPath"/> to the autostart
-    /// registry key. The application will be automatically started the next system startup.
+    /// Registers the application with the specified <paramref name="applicationPath"/> for autostart.
+    /// The application will be started the next time it is logged in.
     /// </summary>
     /// <param name="applicationPath">Path of the application to be auto-started.</param>
-    /// <param name="registerName">The name used in the registry as key for the autostart value.</param>
-    /// <param name="user">If set to <c>true</c>, the autostart application will be added to the HCKU
-    /// registry hive, else it will be added to the HKLM hive.</param>
-    /// <exception cref="EnvironmentException">If the appropriate registry key cannot accessed.</exception>
+    /// <param name="registerName">Name identifying the application in the platform's autostart
+    /// list.</param>
+    /// <param name="user">If set to <c>true</c>, the application is registered for the current user
+    /// only, else for every user of the machine.</param>
+    /// <exception cref="PlatformNotSupportedException">If the platform offers no autostart
+    /// mechanism.</exception>
+    /// <exception cref="EnvironmentException">If the autostart location cannot be written.</exception>
+    /// <remarks>Implemented by <see cref="AutostartRegistry"/>, which translates this to the
+    /// <c>CurrentVersion\Run</c> key on Windows and to an XDG desktop entry on Linux.</remarks>
     public static void AddAutostartApplication(string applicationPath, string registerName, bool user)
     {
-      RegistryKey root = user ? Registry.CurrentUser : Registry.LocalMachine;
-      // open RegisteryKey with write access
-      using (RegistryKey key = root.OpenSubKey(AUTOSTART_REGISTRY_KEY, true))
-      {
-        if (key == null)
-          throw new EnvironmentException(@"Unable to access/create registry key '{0}\{1}'",
-              user ? "HKCU" : "HKLM", AUTOSTART_REGISTRY_KEY);
-        key.SetValue(registerName, applicationPath, RegistryValueKind.ExpandString);
-      }
+      AutostartRegistry.Register(applicationPath, registerName, user);
     }
 
     /// <summary>
-    /// Removes an application from the autostart registry key.
+    /// Removes an application from the autostart registration.
     /// </summary>
-    /// <param name="registerName">The name used in the registry as key for the autostart value.</param>
-    /// <param name="user">If set to <c>true</c>, the autostart application will be removed from the HCKU
-    /// registry hive, else it will be removed from the HKLM hive.</param>
-    /// <exception cref="EnvironmentException">If the appropriate registry key cannot accessed.</exception>
+    /// <param name="registerName">Name identifying the application in the platform's autostart
+    /// list.</param>
+    /// <param name="user">If set to <c>true</c>, the current user's registration is removed, else the
+    /// machine-wide one.</param>
+    /// <exception cref="PlatformNotSupportedException">If the platform offers no autostart
+    /// mechanism.</exception>
+    /// <exception cref="EnvironmentException">If the autostart location cannot be written.</exception>
     public static void RemoveAutostartApplication(string registerName, bool user)
     {
-      RegistryKey root = user ? Registry.CurrentUser : Registry.LocalMachine;
-      // open RegisteryKey with write access
-      using (RegistryKey key = root.OpenSubKey(AUTOSTART_REGISTRY_KEY, true))
-      {
-        if (key == null)
-          throw new EnvironmentException(@"Unable to access registry key '{0}\{1}'",
-              user ? "HKCU" : "HKLM", AUTOSTART_REGISTRY_KEY);
-        key.DeleteValue(registerName, false);
-      }
+      AutostartRegistry.Unregister(registerName, user);
     }
 
     /// <summary>
     /// Returns the application path for the application registered to be autostarted with the
     /// specified <paramref name="registerName"/>.
     /// </summary>
-    /// <param name="registerName">The name used in the registry as key for the autostart value.</param>
-    /// <param name="user">If set to <c>true</c>, the autostart application path will be searched in the HCKU
-    /// registry hive, else it will be searched in the HKLM hive.</param>
+    /// <param name="registerName">The name identifying the registered application.</param>
+    /// <param name="user">If set to <c>true</c>, the current user's autostart registration is searched,
+    /// else the machine-wide one.</param>
     /// <returns>Application path registered to be autostarted with the specified
     /// <paramref name="registerName"/>.</returns>
     public static string GetAutostartApplicationPath(string registerName, bool user)
     {
-      RegistryKey root = user ? Registry.CurrentUser : Registry.LocalMachine;
-      using (RegistryKey key = root.OpenSubKey(AUTOSTART_REGISTRY_KEY))
-        return key == null ? null : key.GetValue(registerName) as string;
+      return AutostartRegistry.GetRegisteredApplicationPath(registerName, user);
     }
   }
 }

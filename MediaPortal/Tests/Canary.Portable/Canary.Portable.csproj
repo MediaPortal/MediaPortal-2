@@ -4,7 +4,7 @@
     Portability canary.
 
     This project does NOT reference MediaPortal.Utilities. It compiles individual source
-    files from it (linked, below) directly into a plain net8.0 assembly and runs tests
+    files from it (linked, below) directly into a plain net10.0 assembly and runs tests
     against them. That gives three things the normal build cannot:
 
       1. Proof that a given file compiles for a portable TFM with no Windows dependency.
@@ -14,7 +14,7 @@
       2. A runnable behaviour baseline for those files, so that retargeting the real
          assembly later is provably equivalent and not merely "it still compiles".
       3. A Linux signal today: dotnet test on this project runs in a linux container while
-         the rest of the tree is net48;net6.0-windows and cannot run there at all.
+         the rest of the tree is net10.0-windows and cannot run there at all.
 
     Procedure for the next file:
       a. add its Compile Include below (plus anything it needs),
@@ -52,10 +52,12 @@
     <Compile Include="$(UtilitiesRoot)CollectionUtils.cs"><Link>Utilities\CollectionUtils.cs</Link></Compile>
     <Compile Include="$(UtilitiesRoot)ObjectUtils.cs"><Link>Utilities\ObjectUtils.cs</Link></Compile>
     <Compile Include="$(UtilitiesRoot)OrdinalStringComparer.cs"><Link>Utilities\OrdinalStringComparer.cs</Link></Compile>
+    <Compile Include="$(UtilitiesRoot)SystemAPI\AutostartRegistry.cs"><Link>Utilities\SystemAPI\AutostartRegistry.cs</Link></Compile>
     <Compile Include="$(UtilitiesRoot)Conversion\Conversion.cs"><Link>Utilities\Conversion\Conversion.cs</Link></Compile>
     <Compile Include="$(UtilitiesRoot)DB\InstructionList.cs"><Link>Utilities\DB\InstructionList.cs</Link></Compile>
     <Compile Include="$(UtilitiesRoot)DB\SQLUtils.cs"><Link>Utilities\DB\SQLUtils.cs</Link></Compile>
     <Compile Include="$(UtilitiesRoot)Events\DelayedEvent.cs"><Link>Utilities\Events\DelayedEvent.cs</Link></Compile>
+    <Compile Include="$(UtilitiesRoot)Exceptions\Exceptions.cs"><Link>Utilities\Exceptions\Exceptions.cs</Link></Compile>
     <Compile Include="$(UtilitiesRoot)Collections\SafeList.cs"><Link>Utilities\Collections\SafeList.cs</Link></Compile>
     <Compile Include="$(UtilitiesRoot)Collections\SafeDictionary.cs"><Link>Utilities\Collections\SafeDictionary.cs</Link></Compile>
     <Compile Include="$(UtilitiesRoot)Cache\ILRUCache.cs"><Link>Utilities\Cache\ILRUCache.cs</Link></Compile>
@@ -63,6 +65,24 @@
     <Compile Include="$(UtilitiesRoot)Cache\LargeLRUCache.cs"><Link>Utilities\Cache\LargeLRUCache.cs</Link></Compile>
     <Compile Include="$(UtilitiesRoot)Localization\StringsFile\StringFile.cs"><Link>Utilities\Localization\StringFile.cs</Link></Compile>
     <Compile Include="$(UtilitiesRoot)Localization\StringsFile\StringLocalized.cs"><Link>Utilities\Localization\StringLocalized.cs</Link></Compile>
+    <!--
+      The IPC trio plus its command table: the first whitelisted sources that need a Windows-leaning
+      *package* (NamedPipeServerStream.NetFrameworkVersion, which supplies the NamedPipeServerStream
+      factory overload taking a PipeSecurity; PipeSecurity itself comes from the shared framework).
+      That is a different thing from needing a Windows *target framework*: the package carries
+      net5.0/net6.0/netstandard2.0 assets, restores and compiles on every platform, and its types
+      throw off Windows. Which is why IpcServer now builds its pipe inside OperatingSystem.IsWindows()
+      and uses byte transmission mode elsewhere - CA1416 honours the guard, this project turns CA1416
+      into an error, and so an unguarded call in a linked file fails the build instead of shipping a
+      PlatformNotSupportedException.
+    -->
+    <Compile Include="$(UtilitiesRoot)Process\Ipc.cs"><Link>Utilities\Process\Ipc.cs</Link></Compile>
+    <Compile Include="$(UtilitiesRoot)Process\IpcClient.cs"><Link>Utilities\Process\IpcClient.cs</Link></Compile>
+    <Compile Include="$(UtilitiesRoot)Process\IpcServer.cs"><Link>Utilities\Process\IpcServer.cs</Link></Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NamedPipeServerStream.NetFrameworkVersion" Version="1.1.8" />
   </ItemGroup>
 
 </Project>

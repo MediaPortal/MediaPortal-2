@@ -44,12 +44,28 @@ namespace MediaPortal.Utilities.Process
     /// <returns>Returns an array with the names of all running MP2 apps.</returns>
     public static string[] GetRunningApps()
     {
-      var pipes = Directory.GetFiles(@"\\.\pipe\");
+      return OperatingSystem.IsWindows()
+        // Named pipes are a kernel object namespace, and \\.\pipe\ is how it is listed.
+        ? NamesFromDirectoryListing(@"\\.\pipe\", "")
+        // There is no pipe namespace off Windows. .NET materialises each named pipe as a Unix domain
+        // socket file in the temp directory named "CoreFxPipe_<pipe name>", so that file name is the
+        // only trace of the pipe left to enumerate. It is a runtime convention rather than a documented
+        // API, which is exactly why Canary.Portable has a test that opens a server and then asserts this
+        // method finds it: the convention is pinned by a run on the platform it applies to, not by a guess.
+        : NamesFromDirectoryListing(Path.GetTempPath(), "CoreFxPipe_");
+    }
+
+    private static string[] NamesFromDirectoryListing(string directory, string pipeFilePrefix)
+    {
       var appNames = new List<string>();
-      foreach (var pipe in pipes)
+      foreach (var pipe in Directory.GetFiles(directory))
       {
-        var name = pipe.Substring(pipe.LastIndexOf('\\') + 1);
-        if(name.StartsWith(Ipc.PIPE_PREFIX, StringComparison.OrdinalIgnoreCase))
+        // Windows paths are delimited by backslashes, the temp directory is not; the last separator is
+        // found by looking for either instead of hard-coding one.
+        var name = Path.GetFileName(pipe);
+        if (name.StartsWith(pipeFilePrefix, StringComparison.OrdinalIgnoreCase))
+          name = name.Substring(pipeFilePrefix.Length);
+        if (name.StartsWith(Ipc.PIPE_PREFIX, StringComparison.OrdinalIgnoreCase))
           appNames.Add(name.Substring(Ipc.PIPE_PREFIX.Length));
       }
       return appNames.ToArray();

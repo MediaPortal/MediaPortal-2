@@ -1,12 +1,26 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net10.0-windows</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <OutputType>Library</OutputType>
     <StartupObject></StartupObject>
     <OldToolsVersion>3.5</OldToolsVersion>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <UseWindowsForms>true</UseWindowsForms>
+    <UseWindowsForms>false</UseWindowsForms>
+  </PropertyGroup>
+  <PropertyGroup>
+    <!--
+      First core assembly to stop targeting a Windows target framework. CA1416 is an error here so that
+      a Windows-only call site cannot be added to this project by accident - the guard convention is
+      OperatingSystem.IsWindows(), which is the form the analyzer recognises.
+
+      What this does not claim: that every type in here works on Linux. DriveUtils still declares
+      kernel32 P/Invokes (no CA1416, but DllNotFoundException the moment they are called), and
+      WindowsAPI still declares 43 of them; those classes are satellite candidates, listed in
+      docs/multiplatform/ROADMAP.md. The claim is narrower and checkable: this assembly compiles for
+      every platform and gains no Windows-only call site without failing the build.
+    -->
+    <WarningsAsErrors>CA1416</WarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <OutputPath>bin\x86\Debug\</OutputPath>
@@ -28,8 +42,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="NamedPipeServerStream.NetFrameworkVersion" Version="1.1.8" />
-    <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
-    <PackageReference Include="System.Management" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
     <Reference Include="System.Net.Http" />

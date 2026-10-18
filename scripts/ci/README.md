@@ -225,9 +225,12 @@ Two caveats about the number, both from how `project.assets.json` comes to exist
 `NU1701` (restored through the .NET Framework fallback, so it runs on .NET compatibility rather than
 support) names seven packages: `BASS.NET` 2.4.14.1 and `BassRegistration` 2.4.14.1 (23 projects each),
 `MediaPortal.TagLib` 2.3.1 (11), `SharpLibHid` 1.5.1, `DiscUtils` 0.11.1, `OnlineVideos.Core` 2.1.0,
-`WorldWeatherOnlineHelper` 1.0.0.3. `NU1510` names five references the SDK now supplies implicitly
-(`Microsoft.CSharp` in 31 projects, plus `System.Threading.Tasks.Dataflow`, `System.Drawing.Common`,
-`System.Resources.Extensions`, `System.Security.Permissions`) - each is a one-line deletion. Six of the
+`WorldWeatherOnlineHelper` 1.0.0.3. `NU1510` names four references the SDK now supplies implicitly
+(`Microsoft.CSharp` in 31 projects, plus `System.Threading.Tasks.Dataflow`, `System.Resources.Extensions`
+and `System.Security.Permissions`) - each is a one-line deletion. It used to be five: the fifth was
+`System.Drawing.Common` in `MediaPortal.Utilities`, and it left with the retarget of that project (see
+"The first core assembly off Windows"), which is the only way this line shrinks - the SDK can point at an
+unnecessary reference but only a call graph says whether it is also an unused one. Six of the
 `NU1701` seven are also the dead-feed packages below, so they cannot be bumped until Phase 1a lands.
 
 ### What decides the log level, and why a logging test failed only in a full run
@@ -275,6 +278,14 @@ Two companions close the gap:
 * **The canary** (`MediaPortal\Tests\Canary.Portable`) is the only *authoritative* check:
   compiling a file for a portable TFM makes the analyzer see Windows as genuinely absent,
   which is when the missing diagnostics appear.
+
+There is a third category that neither companion can express, and it turned up in
+`IpcClient.GetRunningApps()`: `Directory.GetFiles(@"\\.\pipe\")`. A string literal is not a Windows API,
+not a `[DllImport]`, not a `using`, so `CA1416`, `spine.ps1` and a TFM flip are all blind to it. It
+walked through the portable core and would have thrown `DirectoryNotFoundException` on the first call on
+Linux. Nothing static catches that; the canary test that opens an `IpcServer` and then requires
+`GetRunningApps()` to list it does. When a Windows dependency can be written as data, only execution on
+the other platform can rule on it.
 
 ### A satellite is a firewall outward and a cloak inward
 
@@ -428,6 +439,82 @@ That second one exposed a trap in the reporting rather than in the code: the run
 prints a green summary line**, so a summary line is never evidence on its own. `tests.ps1` reads
 `$LASTEXITCODE` first and parses the numbers only for its table, which is why this surfaced as a
 failure instead of a pass - verified while writing this, not assumed.
+
+**A platform-skipped test is missing from all four numbers on the summary line.** Not from "skipped" -
+from failed, passed, skipped *and* total. `Assume.That(OperatingSystem.IsLinux())` prints its reason in
+the detailed console output, but the summary of a suite containing three such tests on Windows reports
+`29 passed, 0 skipped, total 29` while the assembly contains 32 tests. So a suite whose reported total
+drops can be perfectly green and still not have run what it usually runs, and the summary alone cannot
+tell those two situations apart. `tests.ps1` prints the per-suite numbers, and the ROADMAP scoreboard
+writes the count as "executed" with the skips named beside it, so that the difference between "fewer
+tests passed" and "fewer tests ran" is visible in the number itself.
+
+### Guarding a pipe: where "just add `OperatingSystem.IsWindows()`" is not the answer
+
+`Process\IpcServer.cs` contributed 8 of the 35 sites, and it is the file where the guard recipe stops
+being sufficient, because two of the Windows-specific things there are decisions rather than calls.
+
+* **`PipeTransmissionMode.Message`.** Unix named pipes are byte streams; asking for message mode throws.
+  So the non-Windows branch uses `PipeTransmissionMode.Byte`, and the question that matters is whether
+  the protocol relied on message boundaries. It did not, and that was read out of the code before being
+  trusted: the server's read loop and `IpcClient.SendReceive` both keep reading until the 6-byte header
+  and the announced payload have arrived, and every response carries its length in its own header. Byte
+  mode is the same protocol over a stream, not a degraded one.
+* **`PipeSecurity`.** Off Windows there is no ACL API to call, so there is nothing to grant and the
+  socket file's own permissions are the answer. Dropping it is a real (small) behaviour difference, not
+  a silent one: these pipes carry a local launcher's "shut down" to a local process.
+
+Neither half is verifiable by reading, so `Canary.Portable` links `Ipc.cs`, `IpcClient.cs` and
+`IpcServer.cs` and `IpcRoundTripTests.cs` runs a server and client against each other over a real pipe -
+a round trip, a second concurrent connection (which exercises the `OpenNewPipe()` call inside the
+connection callback), a shutdown delivered to the custom callback, and a `GetRunningApps()` listing that
+must contain an open server and lose it after `Close()`. Green on Windows (the `IsWindows()` branch) and
+green in the container (the else-branch), 27 tests.
+
+The canary gained a `<PackageReference>` to do this - `NamedPipeServerStream.NetFrameworkVersion`, the
+package that supplies the `NamedPipeServerStream` factory overload taking a `PipeSecurity`. That is worth
+distinguishing from a Windows *target framework*: the package carries `net5.0`/`net6.0`/`netstandard2.0`
+assets, restores and compiles everywhere, and its types throw off Windows, which is exactly why they sit
+inside the guard. A linked file needing a package is not a failed port; a linked file needing
+`net10.0-windows` is.
+
+### The first core assembly off Windows
+
+`MediaPortal.Utilities` is now `<TargetFramework>net10.0</TargetFramework>` with `UseWindowsForms=false`
+and `<WarningsAsErrors>CA1416</WarningsAsErrors>` in its own project file, which is what keeps the state
+from rotting back. How the last groups of call sites went:
+
+* **ApartmentState, `HKCR`, pipe ACL, mutex ACL** - guards, as above.
+* **Autostart (9 sites in three `WindowsAPI` methods)** - the inventory called these "registry", but read
+  together with their callers they are a feature, and a feature gets translated:
+  `SystemAPI\AutostartRegistry.cs` does the `CurrentVersion\Run` value on Windows and an XDG autostart
+  desktop entry on Linux, and reports `IsSupported == false` where no mechanism exists. `WindowsAPI`'s
+  three methods delegate, so no call site changed. On Linux the path lives in the entry's `Exec=` key and
+  is quoted per the key-file rules, which is what lets a path containing spaces survive a round trip -
+  worth a test rather than a paragraph, so it has one
+  (`DesktopEntryQuotingSurvivesCharactersThatWouldBreakALine`).
+* **WMI disk size, `GetDiskFreeSpaceEx` (4 sites)** - dead. `GetDiskSize` and `GetFreeDiskSpace` had no
+  callers anywhere in the tree, so they were deleted rather than ported, which in turn revealed that
+  `System.Management` and `System.Drawing.Common` were referenced by `MediaPortal.Utilities` only for
+  them. Both package references are gone: two Windows-backed dependencies left the portable core because
+  a call graph was checked instead of a warning list.
+
+Measured effect: `CA1416` in the Server solution **196 → 161**, spine P/Invoke ledger **95 → 94**, and
+`spine.ps1` now reports the core's remaining declarations as 73 in `Utilities` plus 21 in `Common`. Both
+baselines were re-armed with `-UpdateBaseline` in the same change.
+
+The order that fell out of doing this: delete dead code first (free, and it can remove dependencies
+outright), then ask what feature a call site is implementing before choosing between a guard, a
+translation, or a satellite. The inventory says *where*; only the callers say *which*.
+
+Two verification details, because the claim "the assembly is portable now" is the kind that is easy to
+make and hard to mean. First, what reaches the *shipped* output was checked, not assumed: the copy of
+`MediaPortal.Utilities.dll` inside `MediaPortal\Bin\MP2-Server\bin\Debug\net10.0-windows\` contains no
+reference to `System.Windows.Forms` (it did before the flip) even though it now lives next to
+Windows-targeted assemblies - the folder name describes the consumer, not the dependency. Second, the
+project's own stale `bin\Debug\{net48,net6.0-windows,net10.0-windows}` and matching `obj` directories
+were deleted: a `net10.0-windows` folder with an 08:23 timestamp sitting beside a `net10.0` folder with
+08:31 is exactly the false witness that already produced one wrong number in this project's history.
 
 ## Platform services: the core declares the seam, the host fills it
 
