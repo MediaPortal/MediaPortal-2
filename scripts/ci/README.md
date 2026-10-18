@@ -1380,12 +1380,12 @@ because "the process exited 0" alone is not one of them:
 Assertion 4 is what proves the database layer rather than the service registration: a fresh run leaves
 `Datastore.s3db` plus its `-wal`/`-shm` partners there. The data directory is kept in both outcomes -
 the log inside it is the only diagnostic there is - and its path is printed. Assertion 5 is what proves
-the HTTP layer, because "the listener started" and "the server answers" are different statements. The
-default probe is the resource server's health endpoint,
-`http://127.0.0.1:55555/MediaPortal/Server/health`, which answers without plugins, users, tokens or the
-database and reports the `PathBase`/`Path` it was called with. Probing needs the server to stay up, so a
-probing run passes `--duration` rather than `--check`; `-ProbeUrl @()` restores the old, non-probing
-behaviour.
+the HTTP layer, because "the listener started" and "the server answers" are different statements. The two
+default probes are the resource server's health endpoint (a delegate mapped onto the pipeline, answering
+without plugins, users, tokens or a database) and `api/serverinfo`, an MVC controller discovered as an
+application part of the resource server's assembly - the two ways an endpoint exists here, each proven over a
+socket. Probing needs the server to stay up, so a probing run passes `--duration` rather than `--check`;
+`-ProbeUrl @()` restores the old, non-probing behaviour.
 
 The body is printed on purpose, and it is checked: the default entry asks for `MediaPortal 2 Server` in the
 answer, because a status code on its own is also produced by whatever proxy sits in front of the server.

@@ -57,7 +57,13 @@ param(
   # to run the host with --check (a probe needs the server to stay up). An entry may be written as
   # "url|text", which additionally requires the answer to contain that text - a status code alone is
   # also produced by an empty answer in front of MP2, and it says nothing about the served content.
-  [string[]]$ProbeUrl = @('http://127.0.0.1:55555/MediaPortal/Server/health|MediaPortal 2 Server'),
+  # The first URL is the health endpoint (no services involved), the second one an MVC controller, so the
+  # gate covers both halves of the HTTP layer: an endpoint mapped directly and one discovered as a
+  # controller of an application part, routed below the prefix.
+  [string[]]$ProbeUrl = @(
+    'http://127.0.0.1:55555/MediaPortal/Server/health|MediaPortal 2 Server',
+    'http://127.0.0.1:55555/MediaPortal/Server/api/serverinfo|"pathBase":"/MediaPortal/Server"'
+  ),
 
   # How long the probes may keep asking before the run counts as failed. The server is held open for
   # this long plus a margin, so a slow machine slows the probe, not the verdict.

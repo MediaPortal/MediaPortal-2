@@ -35,10 +35,11 @@ Verified 2026-10-18 with `build.ps1 -Solution Server,Client -Ratchet`, `tests.ps
 | Portable-core WinForms / GDI+ references | **0** (83 quarantined in 10 satellite files) | `spine.ps1`, `satellites.ps1` |
 | Portable-core P/Invoke declarations | **73** in 9 files (was 95, then 76; the last three were the Kernel32 waitable timer) - invisible to `CA1416` | `spine.ps1` (P/Invoke column) |
 | `CA1416` call sites, Windows vs Linux | **0** on both hosts, floor 0 (was 196 at the retarget) - the 107 that remained were all in `-windows` assemblies that had lost their platform declaration; see "the floor went to zero" below | build log, `warnings.ps1` on both logs |
-| Unit tests, Windows | 4/4 suites, 347 passed, 0 failed, 0 skipped; a suite whose assembly predates its own sources reports STALE instead of running the old binary | `tests.ps1` |
+| Unit tests, Windows | 4/4 suites, 353 passed, 0 failed, 0 skipped; a suite whose assembly predates its own sources reports STALE instead of running the old binary | `tests.ps1` |
 | Unit tests, Linux (canary) | 31 executed, 0 failed (1 skips: Windows-only), incl. live IPC round trips and XDG autostart | `test-canary-linux.ps1` |
 | Server actually **runs** | **yes on Windows and on Linux** as a headless process. Windows: reaches the Running state, creates the SQLite store, answers UPnP discovery over the network, exits 0 with an error-free log. Linux: reaches the same Running state with 0 `FATAL`, 0 `ERROR` and one `WARN` - the documented note that a container has no FUSE driver. Android is still unmeasured | `run-server-check.ps1`, `test-server-upnp.ps1`, `test-server-run-linux.ps1` |
 | Server **answers HTTP** | **yes on both hosts**, measured with the same probe: `GET /MediaPortal/Server/health` answers `200` with the server's version and the path it was called with - `pathBase=/MediaPortal/Server`, `path=/health` on Windows *and* in the container, because the shared listener now hands requests over in exactly the shape http.sys uses. The gate checks that text, not just the status code | `run-server-check.ps1 -ProbeUrl`, item **l** below |
+| Server **has an HTTP API** | **one endpoint, on both hosts**: `GET /MediaPortal/Server/api/serverinfo` is a discovered MVC controller (the first in this tree) that reads MP2's own settings service on a request thread, and the gates on Windows and in the container both require its content. It is unauthenticated because the token endpoint that would authenticate it is still .NET Framework only | `run-server-check.ps1 -ProbeUrl`, item **m** below |
 | Server **runs on Linux** | **yes** - `HeadlessServerLauncher: Switching to running state`, item **g**'s goal, measured. The layout assembles, `libe_sqlite3.so` (linux-x64) loads, SQLite 3.53.3 opens the store, the subschemas `MediaPortal-Basis`, `MediaLibrary`, `UserProfileDataManagement` and `ClientManager` are created from their SQL scripts, and the resource server plus two control points and one UPnP server share port 55555 through one listener | `test-server-run-linux.ps1`, items **i**, **j** and **k** below |
 | Database plugin on a portable driver | `SQLiteDatabase` is `net10.0` with `CA1416` as error, no Win32 calls left, and no longer loads a Windows-only interop library: it talks to SQLite through `Microsoft.Data.Sqlite` (SQLite 3.53.3), whose `e_sqlite3` native is copied into the layout per platform | `SQLiteDatabase.csproj`, items **h** and **j** below |
 | Built executables are 64-bit | 5/5 apphosts measure `x64`, managed side `MSIL` | `architecture.ps1` |
@@ -663,6 +664,56 @@ the regression itself: join, close, and require that nothing was logged.
 | Health probe, Windows (`http.sys`) | no such assertion | `200`, `pathBase=/MediaPortal/Server`, `path=/health` |
 | Health probe, container (shared Kestrel listener) | no such assertion | `200`, `pathBase=/MediaPortal/Server`, `path=/health` - the same answer as on Windows, after the unification |
 | Unit tests | 335 | **347** (5 multicast teardown, 5 health endpoint, 2 for the path shape of the shared listener, 1 of them a routed pipeline) |
+
+### m. The first controller: the HTTP API the new front end will talk to
+
+Item **l** ended with a listener that answers, which is not the same claim as an API. The health endpoint is a
+delegate mapped onto the pipeline; a front end needs MP2's own services behind URLs. Until this round the tree
+had **zero** MVC controllers - the conventional `api/{controller}` route the resource server declares had never
+matched anything, on either host.
+
+Two facts decided the shape of the first slice, and both were read out of the code before writing it:
+
+- `ResourceServer.CreateAndStartServer` already adds the assembly of every registered resource access module as
+  an MVC application part (`mvc.AddApplicationPart(middleWareType.Assembly)`), with the author's own note that
+  this "is currently a hack because plugins that have controllers might not necessarily register a middleware
+  ... A separate API host should probably be created with the necessary interfaces". `ResourceAccessModule`
+  itself lives in `MediaPortal.Common`, so a controller in that assembly is discovered without any wiring. That
+  is where the API starts. It moves to a portable project of its own once it holds several controllers, which is
+  a file move plus one `AddApplicationPart` - and the reason it does not move today is that a new project also
+  means a solution entry and two more rows in the spine and architecture gates, paid for one endpoint at a time.
+- `ServiceRegistration` is a process-wide singleton over a `ConcurrentDictionary`, with no thread affinity and a
+  documented "all public methods are multithreading-safe". A controller can therefore resolve MP2 services on
+  an ASP.NET Core request thread. The first endpoint does exactly that with `ISettingsManager`, and a test
+  registers a stub settings service to prove the answer came from the registration rather than from a default.
+
+`GET api/serverinfo` reports the name, version, the .NET the process runs on, the operating system, both
+architectures (the machine's and the process's), the process id, the server's UTC time, the URL prefix the
+request arrived on, and the IP endpoints the server was configured to listen on. Writing it surfaced two things
+that are worth more than the endpoint itself:
+
+| Finding | Consequence |
+| --- | --- |
+| The resource server runs inside the **client** too, below `/MediaPortal/Client` - the base path is decided by `ISystemResolver.SystemType`, which is why the constant reads `/Server` or `/Client` | Left alone, a client would have answered questions about a server and served API endpoints it does not use. The endpoint now answers `404` when the resolver reports a process that is not a server |
+| `MediaPortalAuthorizeAttribute` demands an identity whose authentication type is `"MediaPortal"`, and the component that issues such identities is the Owin OAuth token endpoint, which only the .NET Framework target of this project still builds | The filter cannot be applied on .NET today - it would answer `403` to every client on every platform. The endpoint is therefore unauthenticated, which is no worse than the resource access module underneath it (that one serves files without any credentials). **Handing user data to the API is blocked on porting the token endpoint**, and that is recorded as a Phase 2 dependency, not as a nice-to-have |
+
+The gate asks a second URL now, with expected content, so both platforms prove a discovered controller and not
+merely a mapped delegate: `http://127.0.0.1:55555/MediaPortal/Server/api/serverinfo` has to answer `200` and
+contain `"pathBase":"/MediaPortal/Server"`. Six tests cover the endpoint - the answer's content, the answer
+without the settings service, the settings read through the registration, the client guard, the server case, and
+one that reaches the controller over a real socket through the shared listener with the resource server's own
+registration (its assembly as an application part, `MapControllers` plus the conventional route next to the
+attribute route, and an unknown controller still answering `404`).
+
+| Measurement | Value |
+| --- | --- |
+| Controllers in the tree before this round | **0**, on either platform |
+| `GET api/serverinfo` on Windows (`http.sys`) | `200`, `version 2.5.2305.14606`, `framework .NET 10.0.13`, `operatingSystem Microsoft Windows 10.0.26200`, served below `PathBase=/MediaPortal/Server` |
+| `GET api/serverinfo` in the Linux container (shared listener) | `200`, same version, `operatingSystem Ubuntu 24.04.5 LTS` - the same controller, the same route, discovered the same way, on the platform without http.sys |
+| Container log after the change | 0 `FATAL`, 0 `ERROR`, 1 `WARN` (the documented no-FUSE note) |
+| Probes in the gate | 1 → **2**, each with expected content |
+| Unit tests | 347 → **353** |
+| Ratchet / spine | `486` findings = baseline, `Spine OK.` |
 
 ## Phase 2 - Avalonia front end
 
