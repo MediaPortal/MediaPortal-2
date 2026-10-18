@@ -1367,25 +1367,33 @@ subfolder: SQLitePCLRaw probes the directory of `SQLitePCLRaw.provider.e_sqlite3
 instead of producing a plugin that throws later.
 `Source\Backend\Database\SQLiteDatabase\build.targets` is the reference for those rules.
 
-`run-server-check.ps1` starts `MP2-Server-Headless --check --data <scratch>` and asserts four things,
+`run-server-check.ps1` starts `MP2-Server-Headless --data <scratch>` and asserts five things,
 because "the process exited 0" alone is not one of them:
 
 1. it exits by itself within the timeout,
 2. with exit code 0,
 3. `<DATA>\Log\Server.log` contains `Switching to running state`,
-4. `<DATA>\Database` is not empty.
+4. `<DATA>\Database` is not empty,
+5. every URL in `-ProbeUrl` answers `200` while the server is up.
 
 Assertion 4 is what proves the database layer rather than the service registration: a fresh run leaves
 `Datastore.s3db` plus its `-wal`/`-shm` partners there. The data directory is kept in both outcomes -
-the log inside it is the only diagnostic there is - and its path is printed.
+the log inside it is the only diagnostic there is - and its path is printed. Assertion 5 is what proves
+the HTTP layer, because "the listener started" and "the server answers" are different statements. The
+default probe is the resource server's health endpoint,
+`http://127.0.0.1:55555/MediaPortal/Server/health`, which answers without plugins, users, tokens or the
+database and reports the `PathBase`/`Path` it was called with - the two HTTP hosts do not agree about
+those (http.sys moves the registered prefix into `PathBase`, the shared Kestrel listener keeps it in
+`Path`), and the printed response body is how each platform measures its own host. Probing needs the
+server to stay up, so a probing run passes `--duration` rather than `--check`; `-ProbeUrl @()` restores
+the old, non-probing behaviour.
 
-Two caveats to know before trusting a green run: it is a **Windows** green run, and the log says so.
-`HttpSysListener` appears for the resource and UPnP servers, which is Windows' `http.sys` - the one
-remaining native the Linux probe trips over. The SQLite half is no longer a caveat: the layout copies the
-platform's own `e_sqlite3` native and the server logs `SQLiteVersion` from an open connection, on both
-platforms. The log also names the
-listener as `Microsoft.AspNetCore.Server.HttpSys.HttpSysListener` - the HTTP stack is already ASP.NET
-Core, so Linux needs `UseKestrel()` rather than a new HTTP server.
+What tells the two HTTP hosts apart is the body of that probe: on Windows the health endpoint reports
+`pathBase=/MediaPortal/Server` and `path=/health` (http.sys moves the prefix it registered into `PathBase`),
+in the Linux container it reports `pathBase=""` and `path=/MediaPortal/Server/health` (the shared Kestrel
+listener leaves the path alone). Both answer `200`, which is the point of registering each endpoint in both
+shapes. The SQLite half is no longer a caveat either: the layout copies the platform's own `e_sqlite3` native
+and the server logs `SQLiteVersion` from an open connection, on both platforms.
 
 ### MSBuild's `-getProperty` needs `-noconsolelogger`
 

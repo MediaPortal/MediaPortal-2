@@ -362,7 +362,8 @@ namespace UPnP.Infrastructure.Utils
         }
         catch (SocketException e)
         {
-          UPnPConfiguration.LOGGER.Warn("GENAServerController: Could not set IPv4 options", e);
+          UPnPConfiguration.LOGGER.Warn("SSDP: could not join IPv4 multicast group {0} on interface {1}", e,
+              UPnPConsts.SSDP_MULTICAST_ADDRESS_V4, NetworkHelper.IPAddrToString(address));
         }
       else if (family == AddressFamily.InterNetworkV6)
         try
@@ -376,7 +377,8 @@ namespace UPnP.Infrastructure.Utils
         }
         catch (SocketException e)
         {
-          UPnPConfiguration.LOGGER.Warn("GENAServerController: Could not add socket to IPv6 multicast groups", e);
+          UPnPConfiguration.LOGGER.Warn("SSDP: could not join IPv6 multicast groups on interface {0}", e,
+              NetworkHelper.IPAddrToString(address));
         }
     }
 
@@ -394,7 +396,8 @@ namespace UPnP.Infrastructure.Utils
         }
         catch (SocketException e)
         {
-          UPnPConfiguration.LOGGER.Warn("GENAServerController: Could not set IPv4 options", e);
+          UPnPConfiguration.LOGGER.Warn("GENA: could not join IPv4 multicast group {0} on interface {1}", e,
+              UPnPConsts.GENA_MULTICAST_ADDRESS_V4, IPAddrToString(address));
         }
       else if (family == AddressFamily.InterNetworkV6)
         try
@@ -408,74 +411,91 @@ namespace UPnP.Infrastructure.Utils
         }
         catch (SocketException e)
         {
-          UPnPConfiguration.LOGGER.Warn("GENAServerController: Could not add socket to IPv6 multicast groups", e);
+          UPnPConfiguration.LOGGER.Warn("GENA: could not join IPv6 multicast groups on interface {0}", e,
+              IPAddrToString(address));
         }
     }
 
-    public static void DisposeSSDPMulticastSocket(Socket socket)
+    /// <summary>
+    /// Leaves the SSDP multicast groups the given socket joined, and closes it.
+    /// </summary>
+    /// <param name="socket">Socket opened with <see cref="BindAndConfigureSSDPMulticastSocket"/>.</param>
+    /// <param name="exitMulticastGroup"><c>false</c> if the network interface the socket is bound to is
+    /// already gone. Leaving a group only works while that interface exists, so skipping it avoids a
+    /// socket error that carries no information; closing the socket drops the membership anyway.</param>
+    public static void DisposeSSDPMulticastSocket(Socket socket, bool exitMulticastGroup = true)
     {
-      try
-      {
-        if (socket.AddressFamily == AddressFamily.InterNetwork)
-          try
-          {
-            socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.DropMembership, new MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V4));
-          }
-          catch (SocketException e)
-          {
-            UPnPConfiguration.LOGGER.Warn("GENAServerController: Could not set IPv4 options", e);
-          }
-        else if (socket.AddressFamily == AddressFamily.InterNetworkV6)
-          try
-          {
-            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership, new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_NODE_LOCAL));
-            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership, new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_LINK_LOCAL));
-            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership, new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_SITE_LOCAL));
-            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership, new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_GLOBAL));
-          }
-          catch (SocketException e)
-          {
-            UPnPConfiguration.LOGGER.Warn("GENAServerController: Could not remove socket from IPv6 multicast groups", e);
-          }
-      }
-      catch (ObjectDisposedException)
-      { }
-      catch (SocketException)
-      { }
+      if (exitMulticastGroup)
+        DropMulticastGroups(socket, "SSDP", UPnPConsts.SSDP_MULTICAST_ADDRESS_V4,
+            UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_NODE_LOCAL, UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_LINK_LOCAL,
+            UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_SITE_LOCAL, UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_GLOBAL);
       socket.Close();
     }
 
-    public static void DisposeGENAMulticastSocket(Socket socket)
+    /// <summary>
+    /// Leaves the GENA multicast groups the given socket joined, and closes it.
+    /// </summary>
+    /// <param name="socket">Socket opened with <see cref="BindAndConfigureGENAMulticastSocket"/>.</param>
+    /// <param name="exitMulticastGroup"><c>false</c> if the network interface the socket is bound to is
+    /// already gone; see <see cref="DisposeSSDPMulticastSocket"/>.</param>
+    public static void DisposeGENAMulticastSocket(Socket socket, bool exitMulticastGroup = true)
     {
+      if (exitMulticastGroup)
+        DropMulticastGroups(socket, "GENA", UPnPConsts.GENA_MULTICAST_ADDRESS_V4,
+            UPnPConsts.GENA_MULTICAST_ADDRESS_V6_NODE_LOCAL, UPnPConsts.GENA_MULTICAST_ADDRESS_V6_LINK_LOCAL,
+            UPnPConsts.GENA_MULTICAST_ADDRESS_V6_SITE_LOCAL, UPnPConsts.GENA_MULTICAST_ADDRESS_V6_GLOBAL);
+      socket.Close();
+    }
+
+    /// <summary>
+    /// Leaves the given multicast groups on the interface the socket is bound to.
+    /// </summary>
+    /// <remarks>
+    /// Leaving a group has to name the interface that joined it. The one-argument <see cref="MulticastOption"/>
+    /// asks the stack to drop a membership of <see cref="IPAddress.Any"/>, which was never added: Windows
+    /// answers that without complaint, Linux fails it with <c>SocketError.AddressNotAvailable</c> ("Cannot
+    /// assign requested address") for every socket that is closed. The interface is the address the socket is
+    /// bound to, which is exactly what <see cref="BindAndConfigureSSDPMulticastSocket"/> joined on.
+    /// </remarks>
+    static void DropMulticastGroups(Socket socket, string kind, IPAddress groupV4, params IPAddress[] groupsV6)
+    {
+      IPAddress boundAddress;
       try
       {
-        if (socket.AddressFamily == AddressFamily.InterNetwork)
-          try
-          {
-            socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.DropMembership, new MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V4));
-          }
-          catch (SocketException e)
-          {
-            UPnPConfiguration.LOGGER.Warn("GENAServerController: Could not set IPv4 options", e);
-          }
-        else if (socket.AddressFamily == AddressFamily.InterNetworkV6)
-          try
-          {
-            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership, new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_NODE_LOCAL));
-            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership, new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_LINK_LOCAL));
-            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership, new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_SITE_LOCAL));
-            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership, new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_GLOBAL));
-          }
-          catch (SocketException e)
-          {
-            UPnPConfiguration.LOGGER.Warn("GENAServerController: Could not remove socket from IPv6 multicast groups", e);
-          }
+        boundAddress = (socket.LocalEndPoint as IPEndPoint)?.Address;
       }
       catch (ObjectDisposedException)
-      { }
+      {
+        boundAddress = null;
+      }
       catch (SocketException)
-      { }
-      socket.Close();
+      {
+        boundAddress = null;
+      }
+      if (boundAddress == null)
+        return; // nothing to leave; closing the socket drops the memberships
+
+      if (boundAddress.AddressFamily == AddressFamily.InterNetwork)
+        try
+        {
+          socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.DropMembership, new MulticastOption(groupV4, boundAddress));
+        }
+        catch (SocketException e)
+        {
+          UPnPConfiguration.LOGGER.Warn("{0}: could not leave IPv4 multicast group {1} on interface {2}", e,
+              kind, groupV4, IPAddrToString(boundAddress));
+        }
+      else if (boundAddress.AddressFamily == AddressFamily.InterNetworkV6)
+        foreach (IPAddress group in groupsV6)
+          try
+          {
+            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership, new IPv6MulticastOption(group, boundAddress.ScopeId));
+          }
+          catch (SocketException e)
+          {
+            UPnPConfiguration.LOGGER.Warn("{0}: could not leave IPv6 multicast group {1} on interface {2}", e,
+                kind, group, IPAddrToString(boundAddress));
+          }
     }
 
     public static string TranslateBindableAddress(IPAddress address)

@@ -54,10 +54,16 @@ namespace UPnP.Infrastructure.Http
   /// change between platforms.
   /// </para>
   /// <para>
-  /// Requests are dispatched without touching <c>HttpRequest.PathBase</c> and <c>HttpRequest.Path</c>: with
-  /// http.sys the path of a request to a host registered for <c>http://+:55555/MyPrefix</c> still contains
-  /// <c>/MyPrefix</c> and <c>PathBase</c> stays empty (the resource server relies on that - its MVC route
-  /// template contains the prefix). Endpoints therefore see exactly the same request here.
+  /// Requests are dispatched without touching <c>HttpRequest.PathBase</c> and <c>HttpRequest.Path</c>: the
+  /// path of a request to an endpoint registered for <c>http://+:55555/MyPrefix</c> keeps its
+  /// <c>/MyPrefix</c> segment and <c>PathBase</c> stays empty, because MP2's UPnP handlers match against
+  /// the raw request URL. That is deliberately <em>not</em> what http.sys does: http.sys moves the prefix it
+  /// registered into <c>PathBase</c>, measured on Windows with a request for
+  /// <c>http://127.0.0.1:55555/MediaPortal/Server/health</c> arriving as <c>PathBase=/MediaPortal/Server</c>,
+  /// <c>Path=/health</c>. Two consequences, both measured rather than assumed: an endpoint that has to answer
+  /// on both hosts must be registered for both shapes (the resource server's health endpoint is), and the
+  /// UPnP handlers are unaffected either way because they compare against <c>PathBase + Path</c>, which is
+  /// the full path on both hosts.
   /// </para>
   /// <para>
   /// A prefix that serves an ASP.NET Core pipeline (MVC controllers and middlewares) has to provide its

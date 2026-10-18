@@ -23,9 +23,17 @@
        behind them, so the subschemas' "<APPLICATION_ROOT>\Scripts\" was one file name on Linux and the
        database subschemas could not be created.
 
-  What is left in the log is WARN only: the resource-mounting note (no FUSE driver in the container) and
-  "Could not set IPv4 options / Cannot assign requested address" from the SSDP and GENA multicast setup,
-  which needs a NIC with a multicast route.
+  What is left in the log is one WARN, and it is the documented one: the resource-mounting note that a
+  container has no FUSE driver for. The three "Could not set IPv4 options / Cannot assign requested address"
+  lines this probe used to end with were not the multicast setup - they were sockets being closed, where
+  leaving a multicast group has to name the interface that joined it (Windows tolerated the missing
+  interface, Linux did not). See ROADMAP item l.
+
+  The probe also asks a second question now, through run-server-check.ps1's -ProbeUrl: it requests
+  http://127.0.0.1:55555/MediaPortal/Server/health while the server runs and requires 200. "The listener
+  started" and "the server answers" are different claims; here the endpoint answers with the PathBase and
+  Path it was called with, which is how this container measured that the shared listener leaves the prefix in
+  Path while http.sys moves it into PathBase.
 
   Also measured here, because it only shows up in a log: Stop() runs twice on the failed-startup path,
   and the second pass reported its own FATAL below the real one. Teardown is idempotent now, so the

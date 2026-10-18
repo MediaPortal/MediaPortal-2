@@ -319,7 +319,8 @@ namespace UPnP.Infrastructure.Dv.SSDP
           }
           catch (SocketException e)
           {
-            UPnPConfiguration.LOGGER.Warn("GENAServerController: Could not set IPv4 options", e);
+            UPnPConfiguration.LOGGER.Warn("SSDP: could not set IPv4 options on unicast socket for interface {0}", e,
+                NetworkHelper.IPAddrToString(address));
           }
         else
           try
@@ -332,7 +333,8 @@ namespace UPnP.Infrastructure.Dv.SSDP
           }
           catch (SocketException e)
           {
-            UPnPConfiguration.LOGGER.Warn("GENAServerController: Could not set IPv6 options", e);
+            UPnPConfiguration.LOGGER.Warn("SSDP: could not set IPv6 options on unicast socket for interface {0}", e,
+                NetworkHelper.IPAddrToString(address));
           }
         StartReceive(new UDPAsyncReceiveState<EndpointConfiguration>(config, UPnPConsts.UDP_SSDP_RECEIVE_BUFFER_SIZE, socket));
       }
@@ -368,7 +370,7 @@ namespace UPnP.Infrastructure.Dv.SSDP
         UPnPConfiguration.LOGGER.Info("UPnPServerController: SSDP disabled for IP endpoint '{0}'",
             NetworkHelper.IPAddrToString(config.EndPointIPAddress));
         config.SSDP_UDP_MulticastReceiveSocket = null;
-        NetworkHelper.DisposeSSDPMulticastSocket(socket);
+        NetworkHelper.DisposeSSDPMulticastSocket(socket, exitMulticastGroup);
       }
       socket = config.SSDP_UDP_UnicastSocket;
       config.SSDP_UDP_UnicastSocket = null;

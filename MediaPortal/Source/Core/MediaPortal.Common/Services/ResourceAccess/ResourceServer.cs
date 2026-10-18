@@ -34,7 +34,9 @@ using UPnP.Infrastructure.Dv;
 #if NET5_0_OR_GREATER
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using System.Threading.Tasks;
 using UPnP.Infrastructure.Http;
 #else
 using MediaPortal.Common.UserManagement;
@@ -55,6 +57,50 @@ namespace MediaPortal.Common.Services.ResourceAccess
   public class ResourceServer : IResourceServer, IDisposable
   {
     public const string MEDIAPORTAL_AUTHENTICATION_TYPE = "MediaPortal";
+
+    /// <summary>
+    /// URL path of the health endpoint, below the resource server's base path
+    /// (<c>/MediaPortal/Server</c> on a server, <c>/MediaPortal/Client</c> on a client - the base path is
+    /// resolved from the running system, so the endpoint is built from it at startup).
+    /// </summary>
+    /// <remarks>
+    /// This is the one address of the server that answers without plugins, users, tokens or the database
+    /// being involved. A service manager (systemd, Android) needs such an address to tell "starting" from
+    /// "ready", and the CI gates use it as the proof that the platform's HTTP listener really serves the
+    /// endpoint it registered - "the listener started" is not the same statement as "the server answers".
+    /// </remarks>
+    public const string HEALTH_URL_SUFFIX = "/health";
+
+#if NET5_0_OR_GREATER
+    /// <summary>
+    /// Writes the answer of the <see cref="HEALTH_URL_SUFFIX"/> endpoint.
+    /// </summary>
+    public static Task WriteHealthResponse(HttpContext context)
+    {
+      context.Response.StatusCode = (int)HttpStatusCode.OK;
+      context.Response.ContentType = "application/json; charset=utf-8";
+      return context.Response.WriteAsync(HealthJson(context.Request));
+    }
+
+    /// <summary>
+    /// The body of the health answer as JSON. Kept separate from the response so that it can be asserted
+    /// without a request pipeline.
+    /// </summary>
+    /// <remarks>
+    /// It reports what the request looked like from the server's side, because the two HTTP hosts do not
+    /// agree about the endpoint: http.sys puts the prefix it registered into <c>PathBase</c> and leaves
+    /// <c>Path</c> relative to it, while the shared Kestrel listener keeps the prefix inside <c>Path</c>.
+    /// Printing the two values is how each platform's gate measures that instead of assuming it.
+    /// </remarks>
+    public static string HealthJson(HttpRequest request)
+    {
+      return "{\"name\":\"MediaPortal 2 Server\",\"version\":\"" +
+             typeof(ResourceServer).Assembly.GetName().Version +
+             "\",\"utc\":\"" + DateTime.UtcNow.ToString("O") +
+             "\",\"pathBase\":\"" + WebUtility.HtmlEncode(request.PathBase.Value) +
+             "\",\"path\":\"" + WebUtility.HtmlEncode(request.Path.Value) + "\"}";
+    }
+#endif
 
     protected readonly List<Type> _middleWares = new List<Type>();
     protected IDisposable _httpServer;
@@ -108,7 +154,15 @@ namespace MediaPortal.Common.Services.ResourceAccess
           var routeTemplate = (_servicePrefix + "/api/{controller}/{id?}").TrimStart('/'); // No leading slash allowed
           app.UseEndpoints(endpoints =>
           {
+            // The two HTTP hosts differ in one measurable detail, so everything here is registered for both
+            // shapes: http.sys reports the URL prefix it registered as PathBase, which leaves the path route
+            // matching sees relative to it, while the shared Kestrel listener keeps the prefix inside Path
+            // (the UPnP handlers depend on that). One of each pair matches on each platform, and each
+            // platform's gate proves its own.
+            endpoints.MapGet(HEALTH_URL_SUFFIX, WriteHealthResponse);
+            endpoints.MapGet(_servicePrefix + HEALTH_URL_SUFFIX, WriteHealthResponse);
             endpoints.MapControllerRoute("DefaultApi", routeTemplate);
+            endpoints.MapControllerRoute("DefaultApiWithoutPrefix", routeTemplate.Substring(_servicePrefix.Length + 1));
             endpoints.MapControllers();
           });
 
