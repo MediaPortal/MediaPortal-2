@@ -1,3 +1,20 @@
+/*
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 using System;
 using System.Collections.Generic;
 
@@ -14,10 +31,11 @@ namespace MediaPortal.Frontend.Player
   /// answer is a question every screen then has to ask twice.
   /// </para>
   /// <para>
-  /// Threading: <see cref="StateChanged"/>, <see cref="Failed"/> and <see cref="EndOfMedia"/> arrive on the
-  /// engine's own thread, not the caller's and not a UI thread. That is said here rather than hidden because the
-  /// alternative - marshalling inside the player - needs to know about dispatchers, which is exactly the
-  /// knowledge this assembly must not have. A screen marshals for itself; a test asserts the order.
+  /// Threading: <see cref="StateChanged"/>, <see cref="Failed"/>, <see cref="EndOfMedia"/> and
+  /// <see cref="PositionChanged"/> arrive on the engine's own thread, not the caller's and not a UI thread. That
+  /// is said here rather than hidden because the alternative - marshalling inside the player - needs to know
+  /// about dispatchers, which is exactly the knowledge this assembly must not have. A screen marshals for
+  /// itself; a test asserts the order.
   /// </para>
   /// <para>
   /// Failures do not throw. <see cref="Open"/> and the transport calls answer <c>false</c> and leave a sentence
@@ -45,6 +63,14 @@ namespace MediaPortal.Frontend.Player
 
     /// <summary>Fires when the media ran out. Not fired by <see cref="Stop"/>.</summary>
     event EventHandler? EndOfMedia;
+
+    /// <summary>
+    /// Fires as playback advances, and when the length becomes known, so that a progress bar can follow the
+    /// events instead of asking several times a second. The values are the engine's own at that moment - after a
+    /// seek that means the position the decoder reached, not the one that was asked for; see
+    /// <see cref="PlaybackPositionEventArgs"/>.
+    /// </summary>
+    event EventHandler<PlaybackPositionEventArgs>? PositionChanged;
 
     /// <summary>
     /// Load a media and start playing it. True means the engine accepted it, which is not the same as it

@@ -20,9 +20,9 @@ does *not*, because those differences are how CI surprises happen.
 | `test-canary-linux.ps1` | Builds that image and runs the canary tests inside a Linux container. |
 | `Dockerfile.cross` | Linux **cross-compile** image: builds the whole `MP2-Server.sln` under `mcr.microsoft.com/dotnet/sdk:$SDK_TAG` (default `10.0`). |
 | `test-server-linux.ps1` | Runs that image (see "Compiling on Linux" below for the package-cache it needs). |
-| `test-frontend-check.ps1` | Starts the real server, runs the built front end with `--check` against it, then against a port nobody listens on: exit 0 plus the server's own answers, then exit 1 plus a readable message. While that server is up it also renders the screen with `Frontend.RenderProbe` (`-SkipRender`, `-RenderDir`), and it refuses to execute a DLL older than its own sources. |
-| `Dockerfile.frontend` | Linux image that builds `MP2-Frontend.sln`, runs `Tests.Frontend` headless and renders the screen with `Frontend.RenderProbe` on Skia - no display, no `-windows` target, and deliberately no `EnableWindowsTargeting`. |
-| `test-frontend-linux.ps1` | Runs that image (same package-cache requirement). `-ServeFromHost` starts the server on this machine and points the container at it through `host.docker.internal:55555`, so the screenshot the run produces is the populated screen. |
+| `test-frontend-check.ps1` | Starts the real server, runs the built front end with `--check` against it, then against a port nobody listens on: exit 0 plus the server's own answers (and the player's answer about whether this machine can play), then exit 1 plus a readable message. While that server is up it also renders both screens with `Frontend.RenderProbe` (`-SkipRender`, `-RenderDir`), and it refuses to execute a DLL older than its own sources. |
+| `Dockerfile.frontend` | Linux image that builds `MP2-Frontend.sln`, runs `Tests.Frontend` headless and renders both screens with `Frontend.RenderProbe` on Skia - no display, no `-windows` target, and deliberately no `EnableWindowsTargeting`. |
+| `test-frontend-linux.ps1` | Runs that image (same package-cache requirement). `-ServeFromHost` starts the server on this machine and points the container at it through `host.docker.internal:55555`, so the home-screen frame the run produces is the populated screen. |
 | `Dockerfile.drawing`, `drawing-probe/` | Not a gate: measures which half of `System.Drawing` works on Linux. Read it before changing what `spine.ps1` counts. |
 
 ## The gate, in the order that fails fastest
@@ -1660,8 +1660,9 @@ One correction, recorded because it was written down wrong first: the four bugs 
 `Tests.Frontend`/`--check`, and the suite totals in the commit that introduced them attributed the 403
 tests to the wrong suite names. `tests.ps1` prints them in default order - Canary.Portable 29,
 Tests.Server 184, Tests.Client 90, Tests.Frontend 32, Setup\Tests 68 - which is what ROADMAP now says.
-(Both numbers have grown since: 34 and 405, the second one including the crash the render probe found; they
-stand at 66 and 473 since the player's 32 tests joined `Tests.Frontend`.)
+(Both numbers have grown since: 34 and 405, the second one including the crash the render probe found; 66 and
+473 since the player's 32 tests joined `Tests.Frontend`; 99 and 506 since the playback screen and its view model
+joined it.)
 
 ### The front end draws: `Frontend.RenderProbe`
 
@@ -1675,6 +1676,9 @@ captures the frame, counts its pixels and writes a PNG:
         --out build\artifacts\frontend-render\home.png --server http://127.0.0.1:55555/MediaPortal/Server
 
 - `--out` is required, its directory is created, and the file must come back with a PNG signature.
+- `--screen home|nowplaying` picks the screen (default `home`). The playback screen is driven by a *scripted*
+  player rather than libVLC: a frame that is supposed to mean the same thing on Windows and in a container cannot
+  depend on which moment a decoder happened to reach, and the probe's job is the drawing, not the decoding.
 - `--server` renders the populated screen; without it (and without `MP2_SERVER`) the screen's own "no server"
   state is rendered, which is a real state and gets measured too.
 - `--width`/`--height` default to 1280x720, and anything below 100x100 is refused as an argument error (exit 2).
@@ -1688,18 +1692,24 @@ What it prints is what a gate judges, because a gate cannot look at a picture:
 
 Flat frames fail: under 16 distinct colours, or under 1% of pixels differing from the dominant background colour.
 
-It runs from two gates, and both show real data. `test-frontend-check.ps1` runs it **while its server is still up**
-(item 6 of that script, `-SkipRender` to leave it out, `-RenderDir` to move the output), so
-`build\artifacts\frontend-render\home-windows.png` is the populated screen:
-`status: 25 aspects on MediaPortal 2 Server, 25 aspect row(s)`. `test-frontend-linux.ps1 -ServeFromHost` starts
+It runs from two gates, twice each, and all four runs show real data. `test-frontend-check.ps1` runs it **while
+its server is still up** (item 6 of that script, `-SkipRender` to leave it out, `-RenderDir` to move the output),
+which writes `build\artifacts\frontend-render\home-windows.png` from the populated screen
+(`status: 25 aspects on MediaPortal 2 Server, 25 aspect row(s)`) and `nowplaying-windows.png` from the playback
+screen (`status: Playing, 0:45 / 1:30`, 1346 distinct colours, 11 988 edges).
+`test-frontend-linux.ps1 -ServeFromHost` starts
 `MP2-Server-Headless` on this machine, waits until it really serves aspects (measured: a just-started server answers
 `200` with an *empty* list, and 25 aspects about a second later), and passes `MP2_SERVER` to the container as
 `http://host.docker.internal:55555/MediaPortal/Server` - measured from inside the image to resolve and answer
-`HTTP/1.1 200 OK` / `Server: Microsoft-HTTPAPI/2.0`, while `172.17.0.1` does not connect at all. The frame the
-container writes is then the populated screen too (`3872 distinct colours`, 119 642 bytes), and the image refuses to
-go green unless its output says `aspects on`, so the screenshot cannot silently fall back to the offline or the
-error picture. Without `-ServeFromHost` the run still renders, and the OK line says the frame is the screen's own
-"no server" state. Both frames are committed under `docs\multiplatform\screenshots\`.
+`HTTP/1.1 200 OK` / `Server: Microsoft-HTTPAPI/2.0`, while `172.17.0.1` does not connect at all. The frames the
+container writes are then the populated ones too (`3872 distinct colours`, 119 642 bytes for the home screen;
+2148 colours and 24 645 bytes for the playback screen), and the image refuses to go green unless its output says
+`populated from`, so the screenshots cannot silently fall back to the offline or the error picture (asking for a
+server and getting no aspects is the probe's own exit 4, so it is refused there rather than re-derived here).
+Without `-ServeFromHost` the run still renders, and the OK line says the frame is the screen's own "no server"
+state. All four frames are committed under `docs\multiplatform\screenshots\` as
+`home-windows-skia.png`, `home-linux-skia.png`, `nowplaying-windows-skia.png` and `nowplaying-linux-skia.png`,
+and the host script refuses a green run whose mount delivered only one of the two Linux frames.
 
 Three things came out of adding it, all of them measurements rather than opinions:
 
@@ -1731,12 +1741,13 @@ system configured"; and the locked framebuffer is `Rgba8888` under Skia where th
 then runs `Tests.Frontend`, i.e. it builds the real `HomeWindow.axaml`, loads the real Fluent theme and
 the Inter font, drives the D-pad handler, and calls the real `MediaPortal.Server.Api` controllers over a
 Kestrel host - inside a container, under a user with no display, on a machine that has never seen
-Windows. Measured: `Passed! - Failed: 0, Passed: 66, Skipped: 0, Total: 66, Duration: 8 s`, then
-`FRONTEND LINUX OK: 66 tests ran headless on Linux x86_64, populated from
-http://host.docker.internal:55555/MediaPortal/Server screenshot in /out/home-linux.png` on
+Windows. Measured: `Passed! - Failed: 0, Passed: 99, Skipped: 0, Total: 99, Duration: 8 s`, then
+`FRONTEND LINUX OK: 99 tests ran headless on Linux x86_64, populated from
+http://host.docker.internal:55555/MediaPortal/Server screenshots in /out/home-linux.png and
+/out/nowplaying-linux.png` on
 `Linux 6.6.87.2-microsoft-standard-WSL2 x86_64, dotnet 10.0.402`.
 
-Thirty-two of those 66 belong to `MediaPortal.Frontend.Player`, and the image carries a real engine so that
+Thirty-two of those 99 belong to `MediaPortal.Frontend.Player`, and the image carries a real engine so that
 sixteen of them are measurements rather than skips. Ubuntu noble has no `vlc-nox` - naming it failed the apt
 step - so the engine comes from `libvlc5` and the plugins from `vlc-plugin-base`, and the plugins live in the
 multiarch directory `/usr/lib/x86_64-linux-gnu/vlc/plugins`; `/usr/lib/vlc/plugins` exists and is empty, which
@@ -1747,8 +1758,17 @@ anything is skipped, which is what makes the 66 mean 66: on the engine tests a s
 measuring nothing. That rule is what made the first player run say `Failed: 16, Passed: 50` - libVLC was found,
 `Core.Initialize(directory)` is refused on Linux, and the fix (a loader resolver that answers `libvlc` with the
 versioned file the distribution actually ships) is ROADMAP item **s**. Two consequences worth stating plainly:
-the same 66 tests pass on Windows against VLC 3.0.20 and on Linux against the distribution's libVLC, and an
+the same 99 tests pass on Windows against VLC 3.0.20 and on Linux against the distribution's libVLC, and an
 image whose VLC packages rot will fail this gate rather than quietly shrink the measurement.
+
+**The second thing the container caught was a race, not a platform hole.** `TheScreenFillsItselfInFromWhatTheServerSent`
+had been green on Windows for many runs and failed here on `Does.Contain("17")` with the aspect row showing `?`:
+the aspects arrive in one request and each aspect's count in another, and the test asserted the count the moment
+the aspects were on screen. Windows' scheduler won that race, Linux' did not, and the code under test was
+identical and correct - the screen really does fill the number in a moment later. The test waits for the count
+now. The reason this belongs in this README rather than only in ROADMAP is the gate: a suite run on one platform
+alone would have kept reporting this as a passing test forever, and the claim it makes ("the screen shows what it
+read") was never actually being checked on the slower host.
 
 Two properties of that image are the gate, not the packaging:
 

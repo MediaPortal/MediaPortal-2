@@ -15,6 +15,7 @@
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
+using System;
 using System.Collections.Generic;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -29,6 +30,8 @@ namespace MediaPortal.Frontend.Views
   /// </summary>
   public partial class HomeWindow : Window
   {
+    private readonly Func<Window>? _nowPlayingScreen;
+
     /// <summary>
     /// For the XAML loader and the designer: a screen with a view model that has no server, which is what it
     /// says on screen.
@@ -38,15 +41,30 @@ namespace MediaPortal.Frontend.Views
     {
     }
 
-    public HomeWindow(HomeViewModel home)
+    /// <param name="home">What the screen shows.</param>
+    /// <param name="nowPlayingScreen">
+    /// How to build the playback screen, or <c>null</c> on a machine with no player. The screen is built by the
+    /// application because the playback belongs to the application, not to this window: closing the playback
+    /// screen leaves the film running.
+    /// </param>
+    public HomeWindow(HomeViewModel home, Func<Window>? nowPlayingScreen = null)
     {
       DataContext = home;
+      _nowPlayingScreen = nowPlayingScreen;
       InitializeComponent();
 
-      // The ring is in the order the areas are arranged: the button on top, the list below it. Left/right (and
+      // A button that opens nothing is worse than no button, so the playback button is only offered - and only
+      // walks with the d-pad - when the application can actually build the screen.
+      nowPlayingButton.IsVisible = _nowPlayingScreen != null;
+
+      // The ring is in the order the areas are arranged: the buttons on top, the list below it. Left/right (and
       // up/down between the two areas) walk it; the list keeps its own up/down over its items, because it
       // handles those keys before they reach the ring.
-      DpadNavigation.Attach(this, new List<Control> { refreshButton, aspectsList });
+      var ring = new List<Control> { refreshButton };
+      if (_nowPlayingScreen != null)
+        ring.Add(nowPlayingButton);
+      ring.Add(aspectsList);
+      DpadNavigation.Attach(this, ring);
 
       // The screen fills itself in when it appears: a home screen that waits for someone to press "Refresh" shows
       // an empty list in front of a server that is answering perfectly, which is the worse of the two answers.
@@ -66,6 +84,21 @@ namespace MediaPortal.Frontend.Views
               Close();
           },
           RoutingStrategies.Tunnel);
+    }
+
+    /// <summary>
+    /// Opens the playback screen over the home screen. The window shown is the application's, so a viewer who
+    /// goes back to the library and returns finds the same film at the same position.
+    /// </summary>
+    private void OnNowPlaying(object? sender, RoutedEventArgs e)
+    {
+      if (_nowPlayingScreen == null)
+        return;
+
+      Window screen = _nowPlayingScreen();
+      if (!screen.IsVisible)
+        screen.Show();
+      screen.Activate();
     }
   }
 }

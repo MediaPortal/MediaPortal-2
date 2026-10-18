@@ -177,18 +177,23 @@ if (-not (Test-Path $screenshot)) {
   throw "the run was green but no screenshot arrived at '$screenshot' - the mount is not working."
 }
 
+# The playback screen is the second frame and is checked the same way, because a screen that only ever ran on
+# Avalonia's managed rasterizer has never been drawn by the code a Linux TV draws with.
+$playbackShot = Join-Path $RenderDir 'nowplaying-linux.png'
+if (-not (Test-Path $playbackShot)) {
+  throw "the run was green but the playback screen left no frame at '$playbackShot'."
+}
+
 # The image checks this too, and both sides are worth checking: the image refuses a frame that did not reach the
 # server, and this refuses a run whose output does not say it was populated, so neither can report the offline
 # picture as the data picture.
 if ($ServeFromHost) {
   $text = ($run | Out-String)
-  if ($text -notmatch 'aspects on ') {
-    throw "asked for a populated screen and the run never said it drew one - see the output above."
-  }
   if ($text -notmatch 'content:\s+populated from') {
-    throw "the screen showed aspects but did not report where it read them from."
+    throw "asked for a populated screen and the run never said it drew one - see the output above."
   }
 }
 
-Write-Host ("Front end compiles on Linux, its headless UI tests pass there, and it rendered {0} ({1:N0} bytes{2})." -f `
-    $screenshot, (Get-Item $screenshot).Length, $(if ($ServeFromHost) { ', populated from the host server' } else { '' })) -ForegroundColor Green
+Write-Host ("Front end compiles on Linux, its headless UI tests pass there, and it rendered {0} ({1:N0} bytes) and {2} ({3:N0} bytes){4}." -f `
+    $screenshot, (Get-Item $screenshot).Length, $playbackShot, (Get-Item $playbackShot).Length,
+    $(if ($ServeFromHost) { ', the home screen populated from the host server' } else { '' })) -ForegroundColor Green

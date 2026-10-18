@@ -24,6 +24,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Headless;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
@@ -31,6 +32,7 @@ using Avalonia.Platform;
 using Avalonia.Threading;
 using MediaPortal.Frontend;
 using MediaPortal.Frontend.Api;
+using MediaPortal.Frontend.Player;
 using MediaPortal.Frontend.ViewModels;
 using MediaPortal.Frontend.Views;
 
@@ -52,8 +54,9 @@ namespace FrontendProbe
   public static class RenderProbe
   {
     private const string USAGE =
-        "Frontend.RenderProbe --out <file.png> [--server <url>] [--width <n>] [--height <n>]\n" +
+        "Frontend.RenderProbe --out <file.png> [--screen <home|nowplaying>] [--server <url>] [--width <n>] [--height <n>]\n" +
         "  --out <file>     where to write the rendered frame (PNG); its directory is created\n" +
+        "  --screen <name>  which screen to render (default home)\n" +
         "  --server <url>   render the populated screen by asking this server (otherwise MP2_SERVER,\n" +
         "                   otherwise the screen's own 'no server' state is rendered - a real state too)\n" +
         "  --width/--height window size in device-independent pixels (default 1280x720, a 720p TV)";
@@ -67,6 +70,7 @@ namespace FrontendProbe
     {
       string? outPath = null;
       string? serverUrl = null;
+      string screenName = "home";
       int width = 1280;
       int height = 720;
 
@@ -78,6 +82,11 @@ namespace FrontendProbe
             if (i + 1 >= args.Length)
               return Usage("--out needs a file name.");
             outPath = args[++i];
+            break;
+          case "--screen":
+            if (i + 1 >= args.Length)
+              return Usage("--screen needs a name.");
+            screenName = args[++i].Trim().ToLowerInvariant();
             break;
           case "--server":
             if (i + 1 >= args.Length)
@@ -163,24 +172,59 @@ namespace FrontendProbe
           : serverUrl;
       bool online = !string.IsNullOrWhiteSpace(url);
 
-      HomeViewModel viewModel;
-      try
+      Window window;
+      HomeViewModel? home = null;
+      string playbackStatus = "";
+
+      if (screenName.Equals("nowplaying", StringComparison.Ordinal))
       {
-        viewModel = online
-            ? new HomeViewModel(new ServerApiClient(ServerApiClient.ResolveBaseUrl(url!)))
-            : new HomeViewModel();
+        // The playback screen in the state a viewer spends almost all their time in: something playing, halfway
+        // through. The player here is scripted rather than libVLC, on purpose - the frame has to be the same on
+        // Windows and in a container for the two pictures to mean the same thing, and which frame a real decoder
+        // has drawn when the probe captures is nobody's promise. What the screen does with a position, a state
+        // and a name is what is being measured.
+        if (online)
+          Console.WriteLine("note:     --server belongs to the home screen; the playback screen is scripted instead");
+
+        ScriptedPlayer player = new ScriptedPlayer();
+        NowPlayingViewModel playback =
+            new NowPlayingViewModel(player, action => Dispatcher.UIThread.Post(action));
+        playback.Play(MediaLocation.FromFile(
+            Path.Combine(Path.GetTempPath(), "mp2-render", "the-big-film.mkv")));
+
+        // Halfway through a minute and a half, because a bar that is half filled is also the proof that the
+        // binding is a fraction of the length and not a count of milliseconds.
+        player.RaisePosition(45_000, 90_000);
+        Pump(TimeSpan.FromMilliseconds(250));
+
+        playbackStatus = playback.StateText + ", " + playback.PositionText;
+        window = new NowPlayingWindow(playback);
       }
-      catch (ArgumentException ex)
+      else if (screenName.Equals("home", StringComparison.Ordinal))
       {
-        Console.WriteLine("FAILED:   " + ex.Message);
-        return 2;
+        try
+        {
+          home = online
+              ? new HomeViewModel(new ServerApiClient(ServerApiClient.ResolveBaseUrl(url!)))
+              : new HomeViewModel();
+        }
+        catch (ArgumentException ex)
+        {
+          Console.WriteLine("FAILED:   " + ex.Message);
+          return 2;
+        }
+
+        Console.WriteLine("content:  " + (online
+            ? "populated from " + home.ServerUrl
+            : "offline - the screen's own 'no server' state is what gets rendered"));
+
+        window = new HomeWindow(home);
+      }
+      else
+      {
+        return Usage("unknown screen '" + screenName + "'; this probe renders home or nowplaying.");
       }
 
-      Console.WriteLine("content:  " + (online
-          ? "populated from " + viewModel.ServerUrl
-          : "offline - the screen's own 'no server' state is what gets rendered"));
-
-      HomeWindow window = new HomeWindow(viewModel);
       window.Width = width;
       window.Height = height;
       window.Show();
@@ -194,7 +238,7 @@ namespace FrontendProbe
         return 1;
       }
 
-      if (online)
+      if (online && home != null)
       {
         // The window reads the server when it opens - the same command the button runs - so the probe does not
         // start a second read of its own. Firing one here is what crashed this probe's first run: two runs were
@@ -204,15 +248,18 @@ namespace FrontendProbe
         // Asking for a populated screen and getting none is a failure, not a note. A frame of an error screen
         // drawn against a URL is worthless as evidence, and a gate that received exit 0 from it would have no way
         // of knowing - which is why this returns 1 rather than rendering on.
-        if (!PumpUntil(() => viewModel.Aspects.Count > 0, TimeSpan.FromSeconds(30)))
+        if (!PumpUntil(() => home.Aspects.Count > 0, TimeSpan.FromSeconds(30)))
         {
           Console.WriteLine("FAILED:   a populated screen was asked for ('" + url + "'), but the server answered no"
-              + " aspects. Status says: '" + viewModel.Status + "'.");
+              + " aspects. Status says: '" + home.Status + "'.");
           return 4;
         }
       }
 
-      Console.WriteLine("status:   " + viewModel.Status + ", " + viewModel.Aspects.Count + " aspect row(s)");
+      Console.WriteLine("screen:   " + screenName);
+      Console.WriteLine("status:   " + (home != null
+          ? home.Status + ", " + home.Aspects.Count + " aspect row(s)"
+          : playbackStatus));
 
       window.UpdateLayout();
       Pump(TimeSpan.FromMilliseconds(500));
@@ -307,6 +354,100 @@ namespace FrontendProbe
       if (skia is null)
         return "the Avalonia.Skia assembly is not loaded - whatever drew, it was not Skia";
       return "Avalonia.Skia " + skia.GetName().Version;
+    }
+
+    /// <summary>
+    /// A player that does what it is told and nothing else, for rendering the playback screen in a state a
+    /// viewer recognises.
+    /// </summary>
+    /// <remarks>
+    /// The point is that the frame is the same on every host: a real decoder would have drawn a different moment
+    /// (or no moment at all, with no media to decode) on Windows than in a container, and then the two pictures
+    /// could not be compared. Note that this is not the probe claiming a player works - the real libVLC has its
+    /// own tests on both platforms - it is the probe needing a screen to draw.
+    /// </remarks>
+    private sealed class ScriptedPlayer : IVideoPlayer
+    {
+      private long _time;
+      private long _length = 90_000;
+
+      public PlayerState State { get; private set; } = PlayerState.Idle;
+      public MediaLocation? Current { get; private set; }
+      public string? LastFailure { get; private set; }
+
+      public long LengthInMs { get { return _length; } }
+      public long TimeInMs { get { return _time; } set { _time = value; } }
+      public int Volume { get; set; } = 80;
+      public bool Muted { get; set; }
+
+      public event EventHandler<PlayerStateChangedEventArgs>? StateChanged;
+
+      // Accessor-only, because a player scripted to be halfway through a film neither fails nor finishes. A
+      // field-like event that is never raised is a compiler warning, and the warning is right to ask.
+      public event EventHandler<PlayerFailedEventArgs>? Failed { add { } remove { } }
+      public event EventHandler? EndOfMedia { add { } remove { } }
+      public event EventHandler<PlaybackPositionEventArgs>? PositionChanged;
+
+      public bool Open(MediaLocation location)
+      {
+        Current = location;
+        _time = 0;
+        Announce(PlayerState.Opening);
+        Announce(PlayerState.Playing);
+        return true;
+      }
+
+      public bool Play()
+      {
+        Announce(PlayerState.Playing);
+        return true;
+      }
+
+      public bool Pause()
+      {
+        Announce(PlayerState.Paused);
+        return true;
+      }
+
+      public bool Stop()
+      {
+        Announce(PlayerState.Stopped);
+        return true;
+      }
+
+      public IReadOnlyList<PlaybackTrack> Tracks(TrackKind kind)
+      {
+        return Array.Empty<PlaybackTrack>();
+      }
+
+      public bool SelectTrack(PlaybackTrack track)
+      {
+        return false;
+      }
+
+      public bool AttachTo(nint videoTarget)
+      {
+        return videoTarget != 0;
+      }
+
+      public void Dispose()
+      {
+      }
+
+      /// <summary>Puts the picture where a viewer who has been watching for three quarters of a minute is.</summary>
+      public void RaisePosition(long timeInMs, long lengthInMs)
+      {
+        _time = timeInMs;
+        _length = lengthInMs;
+        PositionChanged?.Invoke(this, new PlaybackPositionEventArgs(timeInMs, lengthInMs));
+      }
+
+      private void Announce(PlayerState newState)
+      {
+        PlayerState old = State;
+        State = newState;
+        StateChanged?.Invoke(this, new PlayerStateChangedEventArgs(old, newState));
+      }
     }
 
     private readonly struct FrameStatistics

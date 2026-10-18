@@ -13,9 +13,10 @@
     4. the run must exit 0 and print the answers it got;
     5. the same front end aimed at a port nobody listens on must exit 1 and say so, because a check that
        cannot fail is not a check;
-    6. while the server is still up, Frontend.RenderProbe draws the real screen through Skia and writes a PNG
-       (default build\artifacts\frontend-render\home-windows.png). The probe fails this gate if the frame comes
-       back flat; the picture itself is for a person, and -SkipRender leaves it out.
+    6. while the server is still up, Frontend.RenderProbe draws the real screens through Skia and writes two
+       PNGs (default build\artifacts\frontend-render\home-windows.png and nowplaying-windows.png). The probe
+       fails this gate if a frame comes back flat; the pictures themselves are for a person, and -SkipRender
+       leaves them out.
 
   What is asserted about the printed answers is their shape, never their counts: how many aspects a freshly
   created database exposes is a measurement of when the request arrived relative to the media library's
@@ -220,6 +221,8 @@ try {
       'pathBase=/MediaPortal/Server',   # the prefix arrived intact through the client and the listener
       'library:',                       # the media-library endpoint was reached and parsed
       'aspects',
+      'player:',                        # the player was asked whether this machine can play, and answered -
+                                        # either an engine name or one sentence about why there is none
       'the front end read a running server.'
     )
     foreach ($needle in $expected) {
@@ -252,15 +255,25 @@ try {
     } else {
       if (-not $RenderDir) { $RenderDir = Join-Path (Join-Path $repoRoot 'build\artifacts') 'frontend-render' }
       New-Item -ItemType Directory -Path $RenderDir -Force | Out-Null
-      $renderFile = Join-Path $RenderDir 'home-windows.png'
-      Write-Step "rendering the populated screen with Skia to $renderFile"
-      $render = Invoke-FrontendProcess `
-          -Arguments ('"' + $probeDll + '" --out "' + $renderFile + '" --server "' + $ServerUrl + '"') `
-          -WorkingDirectory (Split-Path $probeDll -Parent)
-      Write-Host "--- Frontend.RenderProbe, exit $($render.Code)"
-      ($render.Text -split "`r?`n" | Where-Object { $_.Trim() }) | ForEach-Object { "    $_" } | Write-Host
-      if ($render.Code -ne 0) {
-        $failures += "the render probe exited $($render.Code) - see its output above"
+
+      # Two screens, two frames. The home screen is drawn from a server that is really answering; the playback
+      # screen is drawn from a scripted player, because a frame that is supposed to mean the same thing on
+      # Windows and in a container cannot depend on what a decoder happened to decode.
+      $frames = @(
+        @{ Name = 'home-windows'; Arguments = '--server "' + $ServerUrl + '"' },
+        @{ Name = 'nowplaying-windows'; Arguments = '--screen nowplaying' }
+      )
+      foreach ($frame in $frames) {
+        $renderFile = Join-Path $RenderDir ($frame.Name + '.png')
+        Write-Step "rendering $($frame.Name) with Skia to $renderFile"
+        $render = Invoke-FrontendProcess `
+            -Arguments ('"' + $probeDll + '" --out "' + $renderFile + '" ' + $frame.Arguments) `
+            -WorkingDirectory (Split-Path $probeDll -Parent)
+        Write-Host "--- Frontend.RenderProbe $($frame.Name), exit $($render.Code)"
+        ($render.Text -split "`r?`n" | Where-Object { $_.Trim() }) | ForEach-Object { "    $_" } | Write-Host
+        if ($render.Code -ne 0) {
+          $failures += "the render probe for $($frame.Name) exited $($render.Code) - see its output above"
+        }
       }
     }
   }

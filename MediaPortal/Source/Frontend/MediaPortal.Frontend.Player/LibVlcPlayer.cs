@@ -1,3 +1,20 @@
+/*
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -45,6 +62,10 @@ namespace MediaPortal.Frontend.Player
     private Media? _media;
     private PlayerState _state = PlayerState.Idle;
     private MediaLocation? _current;
+
+    // The last position pair handed to a listener, so that a tick which moved nothing says nothing.
+    private long _lastPositionTimeMs = -1;
+    private long _lastPositionLengthMs = -1;
     private string? _lastFailure;
     private bool _ended;
     private bool _disposed;
@@ -71,6 +92,11 @@ namespace MediaPortal.Frontend.Player
       _player.Stopped += (s, e) => Publish(StateOf(VLCState.Stopped));
       _player.EndReached += OnEndReached;
       _player.EncounteredError += OnEncounteredError;
+
+      // Position and length come as two native events but are one fact for a screen - a progress bar needs both
+      // numbers together, and a length that arrives after the first position tick is worth publishing on its own.
+      _player.TimeChanged += (s, e) => PublishPosition();
+      _player.LengthChanged += (s, e) => PublishPosition();
     }
 
     /// <summary>e.g. "libVLC 3.0.20" - the version of the native library actually loaded, not of the binding.</summary>
@@ -250,6 +276,7 @@ namespace MediaPortal.Frontend.Player
     public event EventHandler<PlayerStateChangedEventArgs>? StateChanged;
     public event EventHandler<PlayerFailedEventArgs>? Failed;
     public event EventHandler? EndOfMedia;
+    public event EventHandler<PlaybackPositionEventArgs>? PositionChanged;
 
     public bool Open(MediaLocation location)
     {
@@ -260,6 +287,12 @@ namespace MediaPortal.Frontend.Player
         _lastFailure = null;
         _ended = false;
         _current = location;
+
+        // A new media begins its own position story. Without this a second file of the same length would have its
+        // opening tick suppressed as a duplicate of the previous media's, and a screen would keep showing the
+        // position the last one ended at.
+        _lastPositionTimeMs = -1;
+        _lastPositionLengthMs = -1;
       }
 
       try
@@ -590,6 +623,49 @@ namespace MediaPortal.Frontend.Player
         _state = newState;
       }
       StateChanged?.Invoke(this, new PlayerStateChangedEventArgs(oldState, newState));
+    }
+
+    /// <summary>
+    /// Reads the engine's position and length and tells whoever is watching, unless nothing moved.
+    /// </summary>
+    /// <remarks>
+    /// Reading inside the callback is deliberate: the pair has to be the pair the engine believed at that moment,
+    /// and taking them at two different times is how a progress bar ends up ahead of its own length. The
+    /// duplicate suppression is not politeness - libVLC raises the time event per tick (measured: several times a
+    /// second), and a screen that rebuilt its layout on every one of them would spend its frame budget on a
+    /// slider that did not move.
+    /// </remarks>
+    private void PublishPosition()
+    {
+      long time;
+      long length;
+      try
+      {
+        time = _player.Time;
+        length = _player.Length;
+      }
+      catch (ObjectDisposedException)
+      {
+        // The native object went away between the event being queued and it arriving. Nothing to publish.
+        return;
+      }
+
+      if (time < 0)
+        time = 0;
+      if (length < 0)
+        length = 0;
+
+      lock (_gate)
+      {
+        if (_disposed)
+          return;
+        if (time == _lastPositionTimeMs && length == _lastPositionLengthMs)
+          return;
+        _lastPositionTimeMs = time;
+        _lastPositionLengthMs = length;
+      }
+
+      PositionChanged?.Invoke(this, new PlaybackPositionEventArgs(time, length));
     }
 
     /// <summary>Records a failure and returns false, so that a guard reads as one statement.</summary>

@@ -1,4 +1,22 @@
+/*
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using MediaPortal.Frontend.Player;
@@ -107,6 +125,55 @@ namespace Tests.Frontend
           "the position did not move in 700 ms, so the clock is not running");
       Assert.That(later, Is.LessThanOrEqualTo(_player.LengthInMs),
           "the position cannot pass the end of the media");
+    }
+
+    [Test]
+    public void PositionEventsArriveWhilePlaying()
+    {
+      List<PlaybackPositionEventArgs> events = new List<PlaybackPositionEventArgs>();
+      _player!.PositionChanged += delegate (object? sender, PlaybackPositionEventArgs args)
+      {
+        lock (events)
+          events.Add(args);
+      };
+
+      string path = PlayerFixture.WriteWav(10, "position-events");
+      _player.Open(MediaLocation.FromFile(path));
+      WaitForState(PlayerState.Playing, 15000, _player.LastFailure ?? "(no reason)");
+
+      // Waited for rather than slept through, because a headless run is not paced to wall clock (see
+      // PlayerOptions.Headless): the growth of the list is the only deadline here worth trusting.
+      AssertThatWithin(8000, delegate
+      {
+        lock (events)
+          return events.Count >= 2;
+      }, "no position events arrived while playing, so a screen would have to poll the engine");
+
+      PlaybackPositionEventArgs[] seen;
+      lock (events)
+        seen = events.ToArray();
+
+      Assert.That(seen[seen.Length - 1].LengthInMs, Is.EqualTo(10000).Within(60),
+          "the length in the event is the media's own length, not a number the player made up");
+      Assert.That(seen[seen.Length - 1].TimeInMs, Is.GreaterThanOrEqualTo(seen[0].TimeInMs),
+          "the positions a screen is told must not run backwards");
+
+      for (int i = 0; i < seen.Length; i++)
+      {
+        Assert.That(seen[i].TimeInMs, Is.GreaterThanOrEqualTo(0),
+            "the seam promised never to hand out libVLC's -1 for unknown");
+        Assert.That(seen[i].Fraction, Is.InRange(-1d, 1d),
+            "a progress value outside the bar is a layout bug waiting to happen");
+        if (i > 0)
+        {
+          Assert.That(seen[i].TimeInMs == seen[i - 1].TimeInMs &&
+                      seen[i].LengthInMs == seen[i - 1].LengthInMs, Is.False,
+                      "the same position was published twice; a screen rebuilding its layout per event would " +
+                      "spend its frame budget on a bar that did not move");
+        }
+      }
+
+      TestContext.Progress.WriteLine($"  position events: {seen.Length}, last {seen[seen.Length - 1].TimeInMs} ms");
     }
 
     [Test]

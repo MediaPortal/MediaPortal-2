@@ -1,0 +1,97 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        x:Class="MediaPortal.Frontend.Views.NowPlayingWindow"
+        x:DataType="vm:NowPlayingViewModel"
+        Name="nowPlaying"
+        Width="1280" Height="720"
+        WindowState="Maximized"
+        Background="#FF101418"
+        Title="MediaPortal 2 - Now playing">
+
+  <!--
+    The playback screen, sized for a television like the home screen: the name of what is playing, the picture
+    area, the position, and a row of transport buttons that a remote can reach with the d-pad. Everything on it
+    is bound to NowPlayingViewModel, which is the only thing between this screen and the player library - the
+    screen itself never asks what an engine is.
+  -->
+
+  <Window.Styles>
+    <Style Selector="Button.transport">
+      <Setter Property="Background" Value="#FF1B2A38"/>
+      <Setter Property="Foreground" Value="#FFE8EEF4"/>
+      <Setter Property="BorderBrush" Value="#FF2E4A63"/>
+      <Setter Property="BorderThickness" Value="2"/>
+      <Setter Property="Padding" Value="18,10"/>
+      <Setter Property="FontSize" Value="20"/>
+      <Setter Property="Focusable" Value="True"/>
+      <Setter Property="MinWidth" Value="130"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="Button.transport:focus /template/ ContentPresenter">
+      <Setter Property="BorderBrush" Value="#FF63A8FF"/>
+      <Setter Property="BorderThickness" Value="3"/>
+    </Style>
+  </Window.Styles>
+
+  <DockPanel Margin="48,32">
+
+    <StackPanel DockPanel.Dock="Top" Spacing="4">
+      <TextBlock Text="{Binding Title}"
+                 FontSize="32"
+                 TextTrimming="CharacterEllipsis"
+                 HorizontalAlignment="Left"/>
+      <TextBlock Text="{Binding StateText}" FontSize="16" Foreground="#FF9FB6CC"/>
+    </StackPanel>
+
+    <Border DockPanel.Dock="Bottom" Margin="0,12,0,0">
+      <TextBlock Text="{Binding StatusLine}"
+                 FontSize="15"
+                 Foreground="#FF9FB6CC"
+                 TextWrapping="Wrap"
+                 HorizontalAlignment="Left"/>
+    </Border>
+
+    <Grid RowDefinitions="*,Auto,Auto">
+
+      <!--
+        The picture area is an empty black frame in this build: nothing draws video into the front end's own
+        control tree yet, which Phase 3 of the ROADMAP records as the open part of the player work. An empty
+        frame that tells the viewer what the player is doing is the truth; a fake preview would not be.
+      -->
+      <Border Grid.Row="0"
+              Name="videoArea"
+              Background="#FF000000"
+              BorderBrush="#FF243546"
+              BorderThickness="1">
+        <TextBlock Text="{Binding StateText}"
+                   FontSize="22"
+                   Foreground="#FF3D556B"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"/>
+      </Border>
+
+      <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="16" Margin="0,18,0,0">
+        <TextBlock Text="{Binding PositionText}" FontSize="22" VerticalAlignment="Center"/>
+        <ProgressBar Name="progressBar"
+                     Width="820"
+                     MinHeight="14"
+                     Minimum="0"
+                     Maximum="1"
+                     Value="{Binding Progress}"
+                     VerticalAlignment="Center"/>
+      </StackPanel>
+
+      <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="10" Margin="0,18,0,0">
+        <Button Name="pauseButton" Classes="transport" Content="{Binding TransportLabel}" Click="OnPause"/>
+        <Button Name="backButton" Classes="transport" Content="-30 s" Click="OnBack"/>
+        <Button Name="forwardButton" Classes="transport" Content="+30 s" Click="OnForward"/>
+        <Button Name="stopButton" Classes="transport" Content="Stop" Click="OnStop"/>
+        <Button Name="volumeDownButton" Classes="transport" Content="Vol -" Click="OnVolumeDown"/>
+        <Button Name="volumeUpButton" Classes="transport" Content="Vol +" Click="OnVolumeUp"/>
+        <Button Name="muteButton" Classes="transport" Content="Mute" Click="OnMute"/>
+        <Button Name="closeButton" Classes="transport" Content="Close" Click="OnClose"/>
+      </StackPanel>
+    </Grid>
+  </DockPanel>
+</Window>

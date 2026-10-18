@@ -24,10 +24,12 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Headless.NUnit;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using NUnit.Framework;
 using MediaPortal.Frontend.Api;
+using MediaPortal.Frontend.Player;
 using MediaPortal.Frontend.ViewModels;
 using MediaPortal.Frontend.Views;
 
@@ -60,6 +62,7 @@ namespace Tests.Frontend
     private readonly List<HomeViewModel> _homes = new List<HomeViewModel>();
     private readonly List<IDisposable> _clients = new List<IDisposable>();
     private readonly List<InProcessApi> _servers = new List<InProcessApi>();
+    private readonly List<NowPlayingViewModel> _playbacks = new List<NowPlayingViewModel>();
     private readonly List<string> _leftovers = new List<string>();
 
     [TearDown]
@@ -88,6 +91,10 @@ namespace Tests.Frontend
 
       foreach (IDisposable client in _clients)
         client.Dispose();
+
+      foreach (NowPlayingViewModel playback in _playbacks)
+        playback.Dispose();
+      _playbacks.Clear();
 
       foreach (InProcessApi server in _servers)
       {
@@ -178,10 +185,22 @@ namespace Tests.Frontend
           ?? throw new AssertionException("the screen has no list to show aspects in");
     }
 
+    /// <summary>
+    /// The Refresh button, found by the name the screen gives it. Found by name rather than by "the only button
+    /// on the screen", because the screen has more than one button since it grew a way to the playback screen -
+    /// and a test that grabs "the single button" starts failing for reasons that have nothing to do with what it
+    /// is checking.
+    /// </summary>
     private static Button RefreshButton(Window window)
     {
-      return window.GetVisualDescendants().OfType<Button>().SingleOrDefault()
-          ?? throw new AssertionException("the screen has no refresh button");
+      return window.GetVisualDescendants().OfType<Button>().SingleOrDefault(button => button.Name == "refreshButton")
+          ?? throw new AssertionException("the screen has no button named \"refreshButton\"");
+    }
+
+    private static Button NowPlayingButton(Window window)
+    {
+      return window.GetVisualDescendants().OfType<Button>().SingleOrDefault(button => button.Name == "nowPlayingButton")
+          ?? throw new AssertionException("the screen has no button named \"nowPlayingButton\"");
     }
 
     private static IEnumerable<string> VisibleTexts(Window window)
@@ -209,6 +228,14 @@ namespace Tests.Frontend
     {
       HomeWindow window = ShowScreenThatReadsAServer(17, out HomeViewModel home);
       WaitUntil(home, "two aspects to be on screen", delegate { return home.Aspects.Count == 2; });
+
+      // The count of an aspect is its own request after the aspects arrived, so a screen that already lists both
+      // aspects does not necessarily know their numbers yet. Measured on the first Linux container run of this
+      // test: the frame and the view model said "17" on Windows and "?" on Linux, with the same code and the same
+      // in-process server, because the count was still on the wire. Waiting for the number is the same claim
+      // made at a moment when it can be true; asserting it without waiting is a race that Windows happens to win.
+      WaitUntil(home, "the count of the selected aspect to arrive",
+          delegate { return home.SelectedAspect != null && home.SelectedAspect.Count.HasValue; });
 
       ListBox list = AspectList(window);
       Assert.That(list.Items.Count, Is.EqualTo(2), "two aspects were read, two rows are shown");
@@ -274,6 +301,65 @@ namespace Tests.Frontend
 
       Assert.That(closed, Is.True);
       _windows.Remove(window);
+    }
+
+    /// <summary>
+    /// The way from the library to what is playing, measured on the real home screen: the button is only there
+    /// when the application has a player to show, and pressing it opens the application's own playback screen
+    /// rather than a new empty one.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheWayToThePlaybackScreenIsOfferedOnlyWhenThereIsAPlayer()
+    {
+      HomeWindow withoutPlayer = Show(new HomeViewModel());
+      Assert.That(NowPlayingButton(withoutPlayer).IsVisible, Is.False,
+          "a machine without a player is not offered a screen that could not play anything");
+
+      var playback = new NowPlayingViewModel(new FakePlayer());
+      _playbacks.Add(playback);
+      var playbackScreen = new NowPlayingWindow(playback);
+      _windows.Add(playbackScreen);
+
+      var withPlayer = new HomeWindow(new HomeViewModel(), delegate { return playbackScreen; });
+      withPlayer.Show();
+      _windows.Add(withPlayer);
+      Pump();
+
+      Assert.That(NowPlayingButton(withPlayer).IsVisible, Is.True, "with a player, the way there appears");
+    }
+
+    [AvaloniaTest]
+    public void ThePlaybackButtonOpensTheApplicationOwnPlaybackScreen()
+    {
+      var player = new FakePlayer();
+      var playback = new NowPlayingViewModel(player);
+      _playbacks.Add(playback);
+      Assert.That(playback.Play(MediaLocation.FromUrl("http://mediaportal.example/the-film.mkv")),
+          Is.True, playback.StatusLine);
+
+      var playbackScreen = new NowPlayingWindow(playback);
+      var home = new HomeWindow(new HomeViewModel(), delegate { return playbackScreen; });
+      home.Show();
+      _windows.Add(home);
+      _windows.Add(playbackScreen);
+      Pump();
+
+      Button button = NowPlayingButton(home);
+      button.RaiseEvent(new RoutedEventArgs(Button.ClickEvent, button));
+      Pump();
+
+      Assert.That(playbackScreen.IsVisible, Is.True, "the button opened the playback screen");
+      Assert.That(playbackScreen.DataContext, Is.SameAs(playback),
+          "and what it shows is the application's playback, not a fresh screen that knows nothing about the film");
+      Assert.That(
+          playbackScreen.GetVisualDescendants().OfType<TextBlock>().Select(text => text.Text ?? "")
+              .Any(text => text.Contains("the-film.mkv")),
+          Is.True, "including the name of what is playing");
+
+      // A second press must not stack a second screen or lose the playback.
+      button.RaiseEvent(new RoutedEventArgs(Button.ClickEvent, button));
+      Pump();
+      Assert.That(playbackScreen.IsVisible, Is.True, "the same screen is still the screen");
     }
 
     [AvaloniaTest]

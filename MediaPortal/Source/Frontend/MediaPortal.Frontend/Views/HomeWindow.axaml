@@ -36,16 +36,28 @@
                  Text="{Binding ServerUrl, StringFormat='Server: {0}'}" />
     </StackPanel>
 
-    <Button DockPanel.Dock="Top"
-            Name="refreshButton"
-            Content="Refresh"
-            Command="{Binding RefreshCommand}"
-            HorizontalAlignment="Left"
-            HorizontalContentAlignment="Center"
-            MinWidth="180"
-            Padding="28,10"
-            FontSize="20"
-            Margin="0,0,0,24" />
+    <!-- The two things a viewer can do from the home screen: ask the server again, and open what is playing.
+         The playback button is only there when the application has a player to show (see App), so a machine
+         without libVLC does not get a button that leads to a screen that cannot play anything. -->
+    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="16" Margin="0,0,0,24">
+      <Button Name="refreshButton"
+              Content="Refresh"
+              Command="{Binding RefreshCommand}"
+              HorizontalAlignment="Left"
+              HorizontalContentAlignment="Center"
+              MinWidth="180"
+              Padding="28,10"
+              FontSize="20" />
+      <Button Name="nowPlayingButton"
+              Content="Now playing"
+              Click="OnNowPlaying"
+              IsVisible="False"
+              HorizontalAlignment="Left"
+              HorizontalContentAlignment="Center"
+              MinWidth="180"
+              Padding="28,10"
+              FontSize="20" />
+    </StackPanel>
 
     <Grid ColumnDefinitions="420,*" ColumnSpacing="40">
 

@@ -19,7 +19,9 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Threading;
 using MediaPortal.Frontend.Api;
+using MediaPortal.Frontend.Player;
 using MediaPortal.Frontend.ViewModels;
 
 namespace MediaPortal.Frontend
@@ -33,7 +35,7 @@ namespace MediaPortal.Frontend
         "MediaPortal.Frontend [--server <url>] [--check]\n" +
         "  --server <url>   the server to talk to, e.g. http://192.168.1.5:55555/MediaPortal/Server\n" +
         "                   (otherwise MP2_SERVER, otherwise " + ServerApiClient.DefaultUrl + ")\n" +
-        "  --check          read the server, print what was found, exit - without opening a window";
+        "  --check          read the server and the player, print what was found, exit - without a window";
 
     [STAThread]
     public static int Main(string[] args)
@@ -82,7 +84,17 @@ namespace MediaPortal.Frontend
       // The client lives as long as the application; it is not disposed on purpose, the process outlives its
       // sockets and there is nothing to flush.
       ServerApiClient client = new ServerApiClient(baseUrl);
-      AppBuilder app = BuildAvaloniaApp(() => new App(new HomeViewModel(client)));
+
+      // One player for the whole application, built here so that the reason for its absence is printed where a
+      // human reads it. A machine without libVLC still gets a front end - the library browses, the playback
+      // screen is simply not offered - because not being able to play a film is not a reason to refuse to show
+      // one's music collection.
+      LibVlcPlayer? player;
+      string playerReason;
+      bool havePlayer = LibVlcPlayer.TryCreate(out player, out playerReason);
+      Console.WriteLine(havePlayer ? "player:   " + player!.EngineDescription : "player:   none - " + playerReason);
+
+      AppBuilder app = BuildAvaloniaApp(() => new App(new HomeViewModel(client), player));
       return app.StartWithClassicDesktopLifetime(args);
     }
 
@@ -117,6 +129,7 @@ namespace MediaPortal.Frontend
       }
 
       Console.WriteLine("server:   " + baseUrl);
+      ReportPlayer();
       using (ServerApiClient client = new ServerApiClient(baseUrl))
       using (CancellationTokenSource cancellation = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
       {
@@ -151,6 +164,31 @@ namespace MediaPortal.Frontend
 
       Console.WriteLine("the front end read a running server.");
       return 0;
+    }
+
+    /// <summary>
+    /// Builds a player the way the application builds it and prints what came of it, then throws it away again.
+    /// </summary>
+    /// <remarks>
+    /// Headless on purpose: <c>--check</c> is meant to work over a plain ssh session with no display, and the
+    /// answer to "can this machine play at all" does not depend on a window. A missing player is printed and
+    /// changes nothing about the exit code - a media centre without libVLC still browses its library, and the
+    /// gate is about the front end working, not about one optional library being installed.
+    /// </remarks>
+    private static void ReportPlayer()
+    {
+      LibVlcPlayer? player;
+      string reason;
+      if (!LibVlcPlayer.TryCreate(out player, out reason, new PlayerOptions { Headless = true }))
+      {
+        Console.WriteLine("player:   none - " + reason);
+        return;
+      }
+
+      using (player!)
+      {
+        Console.WriteLine("player:   " + player!.EngineDescription);
+      }
     }
   }
 }

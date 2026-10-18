@@ -1187,6 +1187,75 @@ container with no GPU - they stay on the hand-off list at the end of this docume
 phase gate - the DirectShow projects disappearing from `spine.ps1` and `packages.ps1` - is untouched: the
 player exists alongside the old code, it has not replaced it in the client yet.
 
+### t. The player meets a screen: transport, position, and a frame of both on both platforms
+
+The seam of section `s.` could play, but nothing asked it to. This section is the first consumer: a playback
+screen a viewer can drive from a remote, and the front end's own startup asking the player whether the machine
+can play at all.
+
+**What exists.** `NowPlayingViewModel` (front end, `ViewModels\`) is the whole distance between a screen and
+the player: title, state, `PositionText`, `StatusLine`, a `Progress` fraction, volume, mute, and
+`Play`/`TogglePause`/`Stop`/`Skip`/`SetVolume`/`ToggleMute`. It is the first class in the front end that owns a
+player, and the first thing in the tree that has to obey the seam's threading note: every engine event goes
+through a marshaller (`Dispatcher.UIThread.Post` in a window), while everything the screen itself triggered runs
+inline. That distinction was not invented - three bugs in the first version came from getting it wrong, each
+caught by its own test: a refusal became invisible until the next pump, mute lost the state the player was built
+with, and a synchronous first `Playing` event painted itself next to the *previous* media's name. `Skip` clamps
+to the media rather than running past it, and a stream with no length is refused with a sentence.
+
+**Bindings are not decoration.** The view model notifies through `INotifyPropertyChanged` with one fan-out per
+change (a `null` property name means "read all of them again"). Without it the tests pass - they read properties
+directly - while a viewer watches a screen that never updates, which is why
+`APropertyThatMovedAnnouncesItselfSoThatAScreenRedrawsIt` asserts the notification itself and
+`TheTransportButtonsReachThePlayer` asserts the *button's* text rather than the view model's.
+
+**The screen.** `Views\NowPlayingWindow.axaml` follows the home screen's conventions (1280x720 maximised, the
+same background, `Focusable` stated, the ring declared in code): name of the media, state, the picture area,
+`PositionText` with a bar, and eight transport buttons. Left and right are taken by the window *before* the ring
+sees them - they seek by thirty seconds, because a viewer who presses right mid-film must not watch the
+highlight move - while up and down still walk the row, and the ring wraps so that nobody is stuck at its end.
+Closing the screen stops nothing: the playback belongs to the application (`App` builds the view model with the
+dispatcher as marshaller and releases it at `Exit`), which is what a viewer expects from a media centre when the
+music carries on into the library. The home screen offers a `Now playing` button only when the application
+managed to build a player; a machine without libVLC is not offered a door to a room with nothing in it.
+
+**The program asks, and prints the answer.** `Main` builds one player for the application and prints the
+engine's name or the one-sentence refusal. `--check` gained the same question, headless and before anything
+touches the network, so the difference between a Windows box with VLC and a container without it is a line in a
+gate log rather than a guess: `player:   libVLC 3.0.20 Vetinari`. A missing player does not change the exit
+code - browsing a library without playing a film is still a working front end.
+
+**The picture area is empty, on purpose.** Nothing in this build draws video into Avalonia's own control tree;
+the seam's `AttachTo(nint)` exists and is tested, but no screen hands it a handle, because passing the top-level
+window would put the player's surface into a layering fight with the surface Avalonia draws into, and a
+headless render could not tell success from failure either way. An empty black frame that says what the player
+is doing is the truth. Embedding the surface - a child native window on Windows, the platform's equivalent
+elsewhere - is the next open item of this phase, and it needs a host with a display to be believed.
+
+**Measured where.** Windows: `Bestanden! - Fehler: 0, erfolgreich: 99, uebersprungen: 0, gesamt: 99` in
+`Tests.Frontend` (66 before this section), and **506 tests across all five suites, 0 skipped**, with the
+Frontend ratchet still at its floor of **237** findings - none of this code added a warning. Linux: the
+container reports `Passed! - Failed: 0, Passed: 99, Skipped: 0, Total: 99` on Ubuntu 24.04 x86_64, which
+includes the same position events coming out of the distribution's libVLC.
+
+**The container found a race that Windows wins.** `TheScreenFillsItselfInFromWhatTheServerSent` asserted the
+selected aspect's count as `17` straight after the aspects appeared, and on Linux the frame said `?`: the count
+is a second request per aspect, and the request had not answered yet. Same code, same in-process server, a
+different scheduler. The test now waits for the count, which is the same claim made at a moment when it can be
+true - and a gate on one platform alone would have kept saying nothing about it.
+
+**Frames, both platforms, both screens.** `Frontend.RenderProbe` takes `--screen nowplaying` and drives the
+playback screen from a scripted player, so that the frame means the same thing everywhere (a real decoder would
+have been at a different moment on each host, or at none). The Windows gate and the container each write two
+PNGs now: `home-<os>.png` and `nowplaying-<os>.png`. The playback frame measured 1346 distinct colours and
+11 988 high-contrast edges on Windows and 2148 / 12 024 in the container, both with `status: Playing,
+0:45 / 1:30` - the clock and the half-filled bar drawn by Skia, on both platforms, from the same code.
+
+**What is not here yet.** The picture (above), and anything that would tell the player *what* to play: the API
+still has no endpoint that answers "what can I watch", the sample database holds 0 items, and the front end has
+not asked `/Token` for anything - so the playback screen opens showing "Nothing playing" until the server side
+catches up. No mpv back end, and the DirectShow projects are still in the tree.
+
 ## What cannot be verified without the user
 
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,

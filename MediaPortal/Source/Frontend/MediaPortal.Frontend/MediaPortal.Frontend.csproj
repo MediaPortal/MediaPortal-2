@@ -13,7 +13,10 @@
       - net10.0, never a -windows suffix, and CA1416 as an error. A platform-specific call here is a crash on
         the platform that lacks it, not a cosmetic warning.
       - No MP2 project references. If something in the server has to be visible to the front end, an endpoint
-        exposes it; the front end does not reach into the process.
+        exposes it; the front end does not reach into the process. The one project reference allowed is
+        MediaPortal.Frontend.Player, which is part of this front end rather than of the server: it carries no MP2
+        reference of its own, no UI toolkit and no platform suffix, so referencing it costs this assembly nothing
+        it could not do itself - and playing is a thing the front end has to do in its own process anyway.
       - The UI is Avalonia and the presentation pattern is MVVM (CommunityToolkit.Mvvm). Views contain no
         decisions; view models contain no Avalonia types except where a view model *is* the thing under
         test, which is rare and said out loud when it happens.
@@ -35,6 +38,16 @@
 
   <ItemGroup>
     <Compile Include="..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs" Link="Properties\VersionInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The player. See the rule above about the one reference that is allowed. -->
+    <ProjectReference Include="..\MediaPortal.Frontend.Player\MediaPortal.Frontend.Player.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The player. Part of this front end, not of the server - see the rule in the header above. -->
+    <ProjectReference Include="..\MediaPortal.Frontend.Player\MediaPortal.Frontend.Player.csproj" />
   </ItemGroup>
 
   <ItemGroup>

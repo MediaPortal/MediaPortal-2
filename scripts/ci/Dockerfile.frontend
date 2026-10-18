@@ -89,12 +89,15 @@ CMD bash -c '\
   if [ "$rc" -ne 0 ]; then echo "TEST RUN FAILED ($rc)"; exit "$rc"; fi; \
   if [ "${total:-0}" -lt 1 ]; then echo "ZERO TESTS DISCOVERED - a green run here would mean nothing"; exit 1; fi; \
   skipped=$(echo "$out" | sed -n "s/.*Skipped: *\([0-9][0-9]*\).*/\1/p" | tail -n 1); \
-  if [ "${skipped:-0}" -ne 0 ]; then echo "THE SUITE SKIPPED $skipped TESTS - this image installs vlc-nox, so the libVLC player tests have an engine and must run"; exit "$rc"; fi; \
-  out=$(dotnet /src/MediaPortal/Tests/Frontend.RenderProbe/bin/Debug/net10.0/Frontend.RenderProbe.dll --out /out/home-linux.png 2>&1); rc=$?; echo "$out"; \
-  if [ "$rc" -ne 0 ]; then echo "RENDER PROBE FAILED ($rc) - see its output above"; exit "$rc"; fi; \
-  frame="offline (no MP2_SERVER given), so the screen shows its own no-server state"; \
+  if [ "${skipped:-0}" -ne 0 ]; then echo "THE SUITE SKIPPED $skipped TESTS - this image installs libvlc5 and vlc-plugin-base, so the libVLC player tests have an engine and must run"; exit "$rc"; fi; \
+  probe=/src/MediaPortal/Tests/Frontend.RenderProbe/bin/Debug/net10.0/Frontend.RenderProbe.dll; \
+  out=$(dotnet $probe --out /out/home-linux.png 2>&1); rc=$?; echo "$out"; \
+  if [ "$rc" -ne 0 ]; then echo "RENDER PROBE FAILED (home, $rc) - see its output above"; exit "$rc"; fi; \
+  out2=$(dotnet $probe --screen nowplaying --out /out/nowplaying-linux.png 2>&1); rc2=$?; echo "$out2"; \
+  if [ "$rc2" -ne 0 ]; then echo "RENDER PROBE FAILED (nowplaying, $rc2) - see its output above"; exit "$rc2"; fi; \
+  frame="offline (no MP2_SERVER given), so the home screen shows its own no-server state"; \
   if [ -n "$MP2_SERVER" ]; then \
-    if echo "$out" | grep -q "aspects on "; then frame="populated from $MP2_SERVER"; \
+    if echo "$out" | grep -q "populated from"; then frame="populated from $MP2_SERVER"; \
     else echo "THE SCREEN NEVER SHOWED THE SERVER AT $MP2_SERVER - the frame is an error screen, not a data screen"; exit 1; fi; \
   fi; \
-  echo "FRONTEND LINUX OK: $total tests ran headless on $(uname -sm), $frame screenshot in /out/home-linux.png"'
+  echo "FRONTEND LINUX OK: $total tests ran headless on $(uname -sm), $frame screenshots in /out/home-linux.png and /out/nowplaying-linux.png"'
