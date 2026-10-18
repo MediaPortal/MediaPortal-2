@@ -11,7 +11,7 @@ does *not*, because those differences are how CI surprises happen.
 | `spine.ps1` | Second ratchet for the WinForms/GDI+ references that the analyzer cannot see in a `-windows` project. |
 | `spine-baseline.json` | Committed ceiling for those references in the portable core. |
 | `common.ps1` | Shared helpers (MSBuild discovery, log parsing). Dot-sourced, not run directly. |
-| `warning-baseline.json` | Committed maximum allowed count per warning code, for `MP2-Server.sln` (see `"solution"`). |
+| `warning-baseline.json` | Committed maximum allowed count per warning code, for `MP2-Server.sln` (see `"solution"`). `build.ps1 -Ratchet` uses `warning-baseline.<Solution>.json` when that file exists, which is how `warning-baseline.Frontend.json` is the floor of `MP2-Frontend.sln` and nothing else. |
 | `tests.ps1` | Runs the Windows test suites (canary, server, client, installer) and prints one line each. Assumes `build.ps1` already built; `-Build` to rebuild. |
 | `packages.ps1` | Package health from `obj\project.assets.json`: which packages carry advisories, which only work through the .NET Framework fallback, which references are now implicit. Deterministic, unlike the same codes in a build log. `-FailOn High` for a pipeline that must not ship one. |
 | `satellites.ps1` | Enforces the satellite boundary: a namespace that only exists in a `*.Windows` project may not be imported by a project that does not reference it. |
@@ -20,18 +20,25 @@ does *not*, because those differences are how CI surprises happen.
 | `test-canary-linux.ps1` | Builds that image and runs the canary tests inside a Linux container. |
 | `Dockerfile.cross` | Linux **cross-compile** image: builds the whole `MP2-Server.sln` under `mcr.microsoft.com/dotnet/sdk:$SDK_TAG` (default `10.0`). |
 | `test-server-linux.ps1` | Runs that image (see "Compiling on Linux" below for the package-cache it needs). |
+| `test-frontend-check.ps1` | Starts the real server, runs the built front end with `--check` against it, then against a port nobody listens on: exit 0 plus the server's own answers, then exit 1 plus a readable message. |
+| `Dockerfile.frontend` | Linux image that builds `MP2-Frontend.sln` and runs `Tests.Frontend` headless - no display, no `-windows` target, and deliberately no `EnableWindowsTargeting`. |
+| `test-frontend-linux.ps1` | Runs that image (same package-cache requirement). |
 | `Dockerfile.drawing`, `drawing-probe/` | Not a gate: measures which half of `System.Drawing` works on Linux. Read it before changing what `spine.ps1` counts. |
 
 ## The gate, in the order that fails fastest
 
-    .\build.ps1 -Solution Server,Client -Ratchet   # builds, then warning + spine + satellite gates
-    .\tests.ps1                                    # four Windows suites, against built output; refuses to run a stale one
+    .\build.ps1 -Solution Server,Frontend,Client -Ratchet   # builds, then warning + spine + satellite gates
+    .\tests.ps1                                    # five Windows suites, against built output; refuses to run a stale one
     .\packages.ps1                                 # advisory and netfx-fallback inventory (a report)
+    .\run-server-check.ps1                         # assembles the layout, starts the headless server, probes its HTTP
+    .\test-server-upnp.ps1                         # multicasts an M-SEARCH at that server and wants a 200 OK
+    .\test-frontend-check.ps1                      # runs the front end against that server, and against a dead port
 
 On Linux: `.\test-canary-linux.ps1` runs the canary's tests in a container,
-`.\test-server-linux.ps1` compiles the whole server solution there, and
-`.\test-server-run-linux.ps1` assembles the layout and *starts* the server there. All three need a
-populated package cache - see "The dependency closure is not reproducible".
+`.\test-server-linux.ps1` compiles the whole server solution there, `.\test-server-run-linux.ps1`
+assembles the layout and *starts* the server there, and `.\test-frontend-linux.ps1` builds the front
+end and runs its headless UI tests there. All four need a populated package cache - see "The
+dependency closure is not reproducible".
 
 ## Which build host, and why it matters
 
@@ -1544,3 +1551,92 @@ Two things it does not cover, both on purpose. The UPnP gate stays on Windows be
 NAT does not give a container the LAN's multicast group, so `test-server-upnp.ps1` would be testing the
 VM's networking rather than MP2. And the check stops at process teardown: it does not assert that the
 server served anything, which is what the Windows UPnP probe is for.
+
+
+## The front end: `MP2-Frontend.sln` and `test-frontend-check.ps1`
+
+`MediaPortal\Source\Frontend\MediaPortal.Frontend` is the Phase 2 UI, and it is the first thing in this
+tree that is neither a server assembly nor a `-windows` one. It has its own solution
+(`MP2-Frontend.sln`) and its own floor (`warning-baseline.Frontend.json`), because `build.ps1 -Ratchet`
+now looks for `warning-baseline.<Solution>.json` and uses it when present - otherwise a second solution
+would either be scored against the server's numbers or not scored at all (`warnings.ps1` prints "Not
+scored: this baseline describes 'Server'" and exits 0 for an unknown solution, which is exactly the kind
+of green that means nothing). The Frontend floor is 237 findings and every one of them is a NuGet code
+inherited from the `Server.Api` -> `Backend` -> `Common` -> `Utilities` closure its tests reference; **the
+front end's own code contributes 0**, and that is what the `"untracked"` list in the file is for.
+
+Two details of the wiring are decisions, not plumbing:
+- **`Tests.Frontend` is a separate project from `Tests.Server` because of NUnit.** Avalonia's headless
+  runner (`Avalonia.Headless.NUnit`) is built against NUnit 4.5.1; the inherited suites are on NUnit 3
+  and `Assert.That(cond, "text {0}", arg)` still *compiles* there while substituting nothing. One
+  assembly cannot host both runners, and matching the old count by downgrading the new code would be the
+  wrong way round. `tests.ps1` therefore reports five suites, not four.
+- **The front end has no MP2 project reference except the API it consumes**, and `spine.ps1` counts it
+  as a core area with 0 WinForms, 0 GDI+ and 0 P/Invoke. It reaches the server through HTTP only, so it
+  carries no Windows dependency and no dependency on the server's startup order.
+
+`test-frontend-check.ps1` is the part that makes it a claim rather than a folder of XAML: it assembles
+the server layout, starts the headless host, and runs the *built front end binary* with `--check`. It
+retries the `503` case (a server whose library is still starting is not a failure), then asserts the
+answer's shape - `pathBase=/MediaPortal/Server`, `library:`, `aspects`, the closing line - and never a
+number, because aspect counts move between runs. Then it runs the same binary against a port nobody
+listens on and requires exit 1 with a readable message. Exit codes are part of the contract: 0 ok, 1
+refused, 2 bad URL, 3 server not ready.
+
+### Headless Avalonia is not what a normal test suite expects
+
+Writing the UI suite produced a class of failure no compiler or linter sees, and the measurements are
+worth recording because they read like bugs in the test code:
+
+- **A test that `await`s deadlocks.** `[AvaloniaTest]` runs its body on the dispatcher thread with
+  `AvaloniaSynchronizationContext` installed. NUnit waits for the returned `Task` *with that thread
+  blocked*, so the continuation - queued for that same dispatcher - never runs. It looks like a hanging
+  suite (it sat for eight minutes before anyone instrumented it). The rule in `TestHomeWindow` is now:
+  start the work, pump (`Dispatcher.UIThread.RunJobs()` plus a 5 ms sleep) until the condition holds or a
+  deadline expires, then assert. The deadline is what turns a regression into a failure instead of a
+  hang.
+- **Teardown must clean up before it complains.** The fixture hosts the API on one shared HTTP port; if
+  a test throws while its request is in flight, `Dispose` of that host on the UI thread wedges, and every
+  later test times out on top of it. So teardown closes the host from a pool thread with a bounded wait,
+  and only *then* rethrows the first failure.
+- **Closing that host on the Avalonia UI thread while a request may be in flight hangs**; from a pool
+  thread with `Task.Run(...).Wait(...)` it completes (measured).
+- **`ListBox.Focusable` was `False` on the real screen.** The D-pad walked into the list area, `Focus()`
+  returned false, and the handler had already marked the key handled - so the remote's down button did
+  nothing and nothing reported it. Fixed in the XAML (`Focusable="True"`) and in the handler (mark
+  handled only when focus actually moved), each with a test.
+- **`Button` handles `Key.Enter` itself**, so a "non-directional keys are not mine" test cannot use
+  Enter; it uses `F9`.
+- **NUnit 4 removed the `params object[]` message overloads** (`Assert.Fail(string, args)` is CS1501), so
+  messages are built with `string.Format` or concatenation.
+
+One correction, recorded because it was written down wrong first: the four bugs above were found by
+`Tests.Frontend`/`--check`, and the suite totals in the commit that introduced them attributed the 403
+tests to the wrong suite names. `tests.ps1` prints them in default order - Canary.Portable 29,
+Tests.Server 184, Tests.Client 90, Tests.Frontend 32, Setup\Tests 68 - which is what ROADMAP now says.
+### The front end runs on Linux: `test-frontend-linux.ps1`
+
+`Dockerfile.cross` compiles; this one *executes*. `Dockerfile.frontend` builds `MP2-Frontend.sln` and
+then runs `Tests.Frontend`, i.e. it builds the real `HomeWindow.axaml`, loads the real Fluent theme and
+the Inter font, drives the D-pad handler, and calls the real `MediaPortal.Server.Api` controllers over a
+Kestrel host - inside a container, under a user with no display, on a machine that has never seen
+Windows. First run, measured: `Passed! - Failed: 0, Passed: 32, Skipped: 0, Total: 32, Duration: 5 s`,
+then `FRONTEND LINUX OK: 32 tests ran headless on Linux x86_64` on
+`Linux 6.6.87.2-microsoft-standard-WSL2 x86_64, dotnet 10.0.402`.
+
+Two properties of that image are the gate, not the packaging:
+
+- **No `-p:EnableWindowsTargeting=true`.** `Dockerfile.cross` needs it because the server solution still
+  contains `-windows` projects. Nothing in the front end's closure may need it, so leaving it out means
+  the day a `-windows` project is referenced from this side the build answers `NETSDK1100` on Linux -
+  which is the regression worth failing on, rather than a flag that quietly absorbs it.
+- **A run that discovers no tests is a failure.** The `CMD` parses `Total:` out of the test output and
+  exits 1 if it is not at least 1, because `dotnet test` reports "no tests were discovered" and exits 0.
+  Without that line this image would go green the moment someone broke the test project - the same class
+  of false green as a stale test assembly, see "A green test suite can be a stale one".
+
+What green here does *not* mean: nothing was displayed. There is no X server in the image and none is
+installed, and the suite runs on Avalonia's `UseHeadlessDrawing = true` path, the pure-managed
+rasterizer. That is the right coverage for a build agent, a container and eventually a device, but it is
+not a claim that a Linux desktop shows a window - rendering against a real display, and Android, are
+separate measurements that have not been made.

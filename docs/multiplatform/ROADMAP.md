@@ -35,12 +35,13 @@ Verified 2026-10-18 with `build.ps1 -Solution Server,Client -Ratchet`, `tests.ps
 | Portable-core WinForms / GDI+ references | **0** (83 quarantined in 10 satellite files) | `spine.ps1`, `satellites.ps1` |
 | Portable-core P/Invoke declarations | **73** in 9 files (was 95, then 76; the last three were the Kernel32 waitable timer) - invisible to `CA1416` | `spine.ps1` (P/Invoke column) |
 | `CA1416` call sites, Windows vs Linux | **0** on both hosts, floor 0 (was 196 at the retarget) - the 107 that remained were all in `-windows` assemblies that had lost their platform declaration; see "the floor went to zero" below | build log, `warnings.ps1` on both logs |
-| Unit tests, Windows | **5/5 suites, 403 passed**, 0 failed, 0 skipped (Utilities 29, Common 184, UI 90, **Frontend 32**, Server 68); a suite whose assembly predates its own sources reports STALE instead of running the old binary | `tests.ps1` |
+| Unit tests, Windows | **5/5 suites, 403 passed**, 0 failed, 0 skipped (Canary.Portable 29, Tests.Server 184, Tests.Client 90, **Tests.Frontend 32**, Setup\Tests 68); a suite whose assembly predates its own sources reports STALE instead of running the old binary | `tests.ps1` |
 | Unit tests, Linux (canary) | 31 executed, 0 failed (1 skips: Windows-only), incl. live IPC round trips and XDG autostart | `test-canary-linux.ps1` |
+| Unit tests, Linux (**front end**) | **32 executed, 0 failed** - the real `HomeWindow.axaml`, Fluent theme, bindings, D-pad handler and HTTP client, headless with no display in the image | `test-frontend-linux.ps1` |
 | Server actually **runs** | **yes on Windows and on Linux** as a headless process. Windows: reaches the Running state, creates the SQLite store, answers UPnP discovery over the network, exits 0 with an error-free log. Linux: reaches the same Running state with 0 `FATAL`, 0 `ERROR` and one `WARN` - the documented note that a container has no FUSE driver. Android is still unmeasured | `run-server-check.ps1`, `test-server-upnp.ps1`, `test-server-run-linux.ps1` |
 | Server **answers HTTP** | **yes on both hosts**, measured with the same probe: `GET /MediaPortal/Server/health` answers `200` with the server's version and the path it was called with - `pathBase=/MediaPortal/Server`, `path=/health` on Windows *and* in the container, because the shared listener now hands requests over in exactly the shape http.sys uses. The gate checks that text, not just the status code | `run-server-check.ps1 -ProbeUrl`, item **l** below |
 | Server **has an HTTP API** | **three endpoints, on both hosts**, in an assembly of its own (`MediaPortal.Server.Api`): `GET /MediaPortal/Server/api/serverinfo`, `GET api/library/aspects` and `GET api/library/count?aspect=…`. They are discovered MVC controllers (the first in this tree) that read MP2's own settings and media-library services on a request thread, and the gates on Windows and in the container require their content, not just a `200`. A library that is absent or still starting is answered with `503` and a reason rather than an empty answer or an internal error. They are unauthenticated because the token endpoint that would authenticate them is still .NET Framework only - which is why they serve schema and no household data | `run-server-check.ps1 -ProbeUrl`, items **m**, **o** and **p** below |
-| Front end (Phase 2) | **exists, and it reads a running server**: an Avalonia 12 app on the bare spine (no `MediaPortal.Common`, no dependency injection, no log4net) with its own JSON API client, a ViewModel that never touches a UI type, D-pad navigation that moves focus the way a remote does, a headless UI suite (32 tests) and a gate that runs the built app against the real server. Writing it found four real bugs - three in the front end, one in the API | `build.ps1 -Solution Frontend -Ratchet`, `tests.ps1`, `test-frontend-check.ps1`, item **q** below |
+| Front end (Phase 2) | **exists, and it reads a running server**: an Avalonia 12 app on the bare spine (no `MediaPortal.Common`, no dependency injection, no log4net) with its own JSON API client, a ViewModel that never touches a UI type, D-pad navigation that moves focus the way a remote does, a headless UI suite (32 tests) and a gate that runs the built app against the real server. Writing It found four real bugs - three in the front end, one in the API - and its whole suite (32 tests) also runs headless in a Linux container, with no display and no `EnableWindowsTargeting` | `build.ps1 -Solution Frontend -Ratchet`, `tests.ps1`, `test-frontend-check.ps1`, `test-frontend-linux.ps1`, item **q** below |
 | Server **runs on Linux** | **yes** - `HeadlessServerLauncher: Switching to running state`, item **g**'s goal, measured. The layout assembles, `libe_sqlite3.so` (linux-x64) loads, SQLite 3.53.3 opens the store, the subschemas `MediaPortal-Basis`, `MediaLibrary`, `UserProfileDataManagement` and `ClientManager` are created from their SQL scripts, and the resource server plus two control points and one UPnP server share port 55555 through one listener | `test-server-run-linux.ps1`, items **i**, **j** and **k** below |
 | Database plugin on a portable driver | `SQLiteDatabase` is `net10.0` with `CA1416` as error, no Win32 calls left, and no longer loads a Windows-only interop library: it talks to SQLite through `Microsoft.Data.Sqlite` (SQLite 3.53.3), whose `e_sqlite3` native is copied into the layout per platform | `SQLiteDatabase.csproj`, items **h** and **j** below |
 | Built executables are 64-bit | 5/5 apphosts measure `x64`, managed side `MSIL` | `architecture.ps1` |
@@ -896,12 +897,27 @@ immediately on `1`, and it also runs the front end against a port nobody listens
 | `spine.ps1` | `MediaPortal\Source\Frontend\MediaPortal.Frontend  WinForms 0   GDI+ 0   P/Invoke 0` and it is now a gated core area, so a future `[DllImport]` there is caught |
 | `tests.ps1` | `Tests.Frontend` added to the default set (see the scoreboard) |
 | `test-frontend-check.ps1` | `FRONTEND CHECK OK - the front end read a running server (attempt 1) and refused a dead one.` |
+| `test-frontend-linux.ps1` | `Passed! - Failed: 0, Passed: 32, Skipped: 0, Total: 32, Duration: 5 s`, then `FRONTEND LINUX OK: 32 tests ran headless on Linux x86_64` - on `Linux 6.6.87.2-microsoft-standard-WSL2 x86_64, dotnet 10.0.402`, with no display in the image and no `-p:EnableWindowsTargeting` passed |
 
 Two things about that gate are worth stating because they were not obvious when the script was written. It asserts
 the *shape* of the answer (`pathBase=/MediaPortal/Server`, `library:`, `aspects`) and never a count: this run
 printed `11` aspects, and item **p** has recorded `10`, `18` and `22` from the same tree. And the server's console
 is left unredirected while the front end's is captured - the front end prints a dozen short lines that are the
 evidence, the server prints thousands that are not.
+
+The same suite then ran on Linux (`Dockerfile.frontend` + `test-frontend-linux.ps1`): the real `HomeWindow.axaml`
+built by the XAML compiler, the Fluent theme and Inter font loaded, the D-pad handler driving focus, and the API
+client talking to real `MediaPortal.Server.Api` controllers on Kestrel - 32 tests, 0 failed, no display, no X
+server installed. Two properties of that image are the gate rather than packaging. It does **not** pass
+`-p:EnableWindowsTargeting=true`: `Dockerfile.cross` needs it for the `-windows` projects still in
+`MP2-Server.sln`, nothing in the front end's closure may need it, so the first `-windows` reference from this side
+answers `NETSDK1100` instead of being quietly absorbed. And its `CMD` fails when the test output does not report at
+least one test, because `dotnet test` exits `0` when it discovers nothing - the same false green that "a green test
+suite can be a stale one" records for Windows.
+
+What that still does not measure is a *display*: the suite runs on Avalonia's pure-managed headless rasterizer,
+which is the path a build agent, a container and eventually a device share, but nobody has seen the window on a
+Linux desktop (that is the taste review reserved for the user), and Android still has no measurement at all.
 
 | What was measured | What it turned out to be |
 | --- | --- |
@@ -914,12 +930,14 @@ evidence, the server prints thousands that are not.
 ### What the sequence looks like now
 
 The headless spike is not a spike any more: the ten-foot navigation model exists (`DpadNavigation`, ten tests),
-it runs with no display, and the CI story is three gates rather than an intention. What is still ahead, in the
+it runs with no display, and the CI story is four gates rather than an intention - the gated build, the suite on
+Windows, the front end against a live server, and the suite in a Linux container. What is still ahead, in the
 order that keeps the risk where it can be seen:
 
-1. The same screen and the same suite in a Linux container on the software renderer, proven the way
-   `Dockerfile.drawing` proves drawing. The tests are headless already, so the open question is rendering and
-   not the navigation model - but "open question" is exactly what this document refuses to write up as a result.
+1. Pixels, not only layout. The 32 tests pass in a Linux container now (`test-frontend-linux.ps1`, item **q**), but
+   they run on Avalonia's pure-managed headless rasterizer, which is not the Skia backend a real desktop uses. The
+   open item is a render on the real backend and a PNG out of the container - the phase gate below asks for that
+   screenshot by name, so until it exists the phase is open and this document does not read it as closed.
 2. The OAuth token endpoint on .NET. Every endpoint that carries user data, and therefore every screen worth
    building next (browse, playlists, settings), is blocked on it - see item **m**.
 3. Bind the platform-neutral pieces of the old client's view models. Anything that imported

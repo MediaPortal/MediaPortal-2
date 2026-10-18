@@ -1,0 +1,48 @@
+# Linux verification for the new front end (Phase 2).
+#
+#   docker build -f scripts/ci/Dockerfile.frontend -t mp2-frontend .
+#   docker run --rm -v "$HOME/.nuget/packages:/nuget-cache:ro" \
+#       -e NUGET_FALLBACK_PACKAGES=/nuget-cache mp2-frontend
+#
+# This is not Dockerfile.cross. That file asks "does the server solution compile on Linux?"; this one
+# asks the stronger question the front end exists to answer: does the UI code *run* there? The suite it
+# executes builds the real `HomeWindow.axaml`, loads the real Fluent theme, and drives it through
+# Avalonia's headless platform - so a green run here means Avalonia's XAML compiler, the theme, the
+# data bindings, the D-pad handler and the API client all work on a host that has neither Windows nor a
+# display. "No display" is the point: a TV front end has to survive a set-top box, a container and a
+# device, and `UseHeadlessDrawing = true` is the same pure-managed rasterizer path those hosts use.
+#
+# Deliberately absent: `-p:EnableWindowsTargeting=true`.
+#
+# Dockerfile.cross needs it because MP2-Server.sln still contains `net10.0-windows` projects. Every
+# project in MP2-Frontend.sln is `net10.0` - the front end, its test suite, and the API/Backend/Common/
+# UPnP/Utilities closure the tests host to get real controllers - so passing the flag here would hide
+# the exact regression that matters: the day a `-windows` project is referenced from this side, the
+# build answers NETSDK1100 and says so, instead of quietly succeeding on a Linux SDK.
+#
+# Restore still needs the fallback package folder, for the same reason as every other gate on this
+# tree: the MyGet feed in MediaPortal/NuGet.Config answers HTTP 500 (its line is removed below so the
+# 500 does not fail the whole restore), and packages like MediaPortal.TagLib exist only in a cache that
+# a machine which built the old tree still has.
+#
+# Base tag is a build ARG so the probe can be replayed against another toolchain on purpose.
+ARG SDK_TAG=10.0
+FROM mcr.microsoft.com/dotnet/sdk:${SDK_TAG}
+
+WORKDIR /src
+
+COPY . .
+
+RUN sed -i '/myget/Id' /src/MediaPortal/NuGet.Config \
+ && dotnet --info | head -n 8 && uname -a
+
+CMD bash -c '\
+  echo "== running on: $(uname -srmi), dotnet $(dotnet --version)"; \
+  dotnet build /src/MediaPortal/Source/MP2-Frontend.sln -c Debug --nologo -v m || exit 1; \
+  out=$(dotnet test /src/MediaPortal/Tests/Tests.Frontend/Tests.Frontend.csproj -c Debug --nologo -v m --no-build 2>&1); rc=$?; \
+  echo "$out"; \
+  echo "$out" | grep -E "Passed!|Failed!|Total:|error" | tail -n 20; \
+  total=$(echo "$out" | sed -n "s/.*Total: *\([0-9][0-9]*\).*/\1/p" | tail -n 1); \
+  if [ "$rc" -ne 0 ]; then echo "TEST RUN FAILED ($rc)"; exit "$rc"; fi; \
+  if [ "${total:-0}" -lt 1 ]; then echo "ZERO TESTS DISCOVERED - a green run here would mean nothing"; exit 1; fi; \
+  echo "FRONTEND LINUX OK: $total tests ran headless on $(uname -sm)"'
