@@ -5,6 +5,14 @@
     <TargetFramework>net10.0-windows</TargetFramework>
     <AssemblyName>MP2-ClientLauncher</AssemblyName>
     <UseWPF>true</UseWPF>
+    <!--
+      Declared, not inherited. This project shows a NotifyIcon tray icon and filters Win32 messages,
+      which are WinForms types, but it never said so: it compiled because MediaPortal.Common used to
+      target net10.0-windows with UseWindowsForms=true, and a framework reference flows through a
+      project reference. The common assembly is portable now, so the dependency this project actually
+      has has to be its own. The same was true of MediaPortal.UI.
+    -->
+    <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>MediaPortal.Client.Launcher</RootNamespace>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>

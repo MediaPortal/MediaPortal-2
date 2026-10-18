@@ -131,6 +131,8 @@ namespace MediaPortal.ServiceMonitor
           DokanResourceMountingService.Register();
           // Impersonation likewise: the core runs as the current user, this host can do better.
           WindowsImpersonationService.Register();
+          // And the wake-up timer, so a scheduled task can still resume the machine from standby here.
+          MediaPortal.Common.Services.TaskScheduler.WindowsTaskWakeUpTimerFactory.Register();
           logger = ServiceRegistration.Get<ILogger>();
 
           logger.Debug("Starting Localization");

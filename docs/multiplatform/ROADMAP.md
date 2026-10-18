@@ -30,11 +30,12 @@ Verified 2026-10-18 with `build.ps1 -Solution Server,Client -Ratchet`, `tests.ps
 | Server solution compiles on Windows | 0 errors, 487 gated findings (was 685) | `build.ps1 -Solution Server -Ratchet` |
 | Client solution compiles on Windows | 0 errors, ~2430 findings (not gated) | `build.ps1 -Solution Client` |
 | Server solution compiles **on Linux** | 0 errors | `test-server-linux.ps1` |
-| Core assemblies on a portable target framework | **2 of 90** - `MediaPortal.Utilities` and `UPnP` are `net10.0` with `CA1416` as error | `MediaPortal.Utilities.csproj`, `UPnP.csproj` |
-| Portable-core WinForms / GDI+ references | **0** (86 quarantined in 6 satellite files) | `spine.ps1`, `satellites.ps1` |
-| Portable-core P/Invoke declarations | **76** in 10 files (was 95; 18 left with Dokan and impersonation), invisible to `CA1416` | `spine.ps1` (P/Invoke column) |
+| Core assemblies on a portable target framework | **3 of 90** - `MediaPortal.Utilities`, `UPnP` and (since 2026-10-18) `MediaPortal.Common` are `net10.0` with `CA1416` as error | `MediaPortal.Common.csproj`, `MediaPortal.Utilities.csproj`, `UPnP.csproj` |
+| Portable assemblies that declare no platform | 3 - the same three; the other 105 got `[assembly: SupportedOSPlatform("Windows7.0")]` back from `MP2AddWindowsPlatformAttribute` | `MediaPortal\Directory.Build.targets`, `$(IntermediateOutputPath)*.PlatformAttributes.cs` |
+| Portable-core WinForms / GDI+ references | **0** (83 quarantined in 10 satellite files) | `spine.ps1`, `satellites.ps1` |
+| Portable-core P/Invoke declarations | **73** in 9 files (was 95, then 76; the last three were the Kernel32 waitable timer) - invisible to `CA1416` | `spine.ps1` (P/Invoke column) |
 | `CA1416` call sites, Windows vs Linux | **0** on both hosts, floor 0 (was 196 at the retarget) - the 107 that remained were all in `-windows` assemblies that had lost their platform declaration; see "the floor went to zero" below | build log, `warnings.ps1` on both logs |
-| Unit tests, Windows | 4/4 suites, 271 executed, 0 failed (3 canary tests skip: Linux-only) | `tests.ps1` |
+| Unit tests, Windows | 4/4 suites, 279 executed, 0 failed (3 canary tests skip: Linux-only) | `tests.ps1` |
 | Unit tests, Linux (canary) | 31 executed, 0 failed (1 skips: Windows-only), incl. live IPC round trips and XDG autostart | `test-canary-linux.ps1` |
 | Built executables are 64-bit | 5/5 apphosts measure `x64`, managed side `MSIL` | `architecture.ps1` |
 | 32-bit declarations in source | 0 in SDK-style projects, 42 in old-style ones | `architecture.ps1` |
@@ -277,6 +278,49 @@ now uses the portable state service (a headless harness should not power off a d
 `UiComponents\News\build.targets` stopped copying `System.ServiceProcess.ServiceController.dll` into
 `Plugins\News` - a DLL that folder only ever had because `CopyLocalLockFileAssemblies` copies transitive package
 assemblies into every consumer's output, and no code in that plugin reads it.
+
+**For the core, (c) is done: `MediaPortal.Common` targets `net10.0` (2026-10-18).** The common assembly is
+the one everything else stands on - server, database layer, and in Phase 2 the Avalonia frontend - so while
+it carried `-windows` every project above it did too. It now builds as `net10.0` with `UseWindowsForms`
+gone and `<WarningsAsErrors>CA1416</WarningsAsErrors>` set: **0 errors and 0 `CA1416` on both hosts**, with
+the gated total unmoved at 487 and `MediaPortal.Common -> bin/Debug/net10.0/MediaPortal.Common.dll` in both
+build logs. That the analyzer now has teeth here is not an inference - an unguarded
+`Microsoft.Win32.Registry.CurrentUser` inserted into the core produced `error CA1416` and exit 1, and was
+removed again.
+
+Two things had to happen first, and one of them is the more instructive.
+
+*The last P/Invoke in the core left.* `TaskWaitableTimer` was a `WaitHandle` over `CreateWaitableTimer` /
+`SetWaitableTimer`, and it did two jobs at once: fire at a due time (portable, and all the task scheduler
+needed) and wake the machine from standby with `bResume: true` (Win32, and the reason a 4 a.m. TV recording
+happens). It is now `ITaskWakeUpTimer`, with `PortableTaskWakeUpTimer` in the core, `WindowsTaskWaitableTimer`
+plus a factory in `MediaPortal.Common.Windows`, and `WakesSystemFromSuspend` as the flag that says which one
+a host got - the portable one says so in the log too, because "the application wakes, the machine does not"
+is otherwise invisible until a recording is missing. `TaskScheduler` resolves the factory the first time it
+wants to wake anything rather than in its constructor, which is what makes the host's registration order
+irrelevant. `spine.ps1`: core P/Invoke **76 → 73** in **9** files, satellites **104 → 107**, combined
+**180 unchanged** - moving Windows code into a satellite costs nothing on that ledger, which is the point of
+it. Eight new tests in `Tests.Server\Services\TaskScheduler` pin the rules the handshake thread and
+cancellation token used to enforce (a replaced, disarmed or closed timer never fires; a throwing handler is
+reported instead of taking the process down), and took `tests.ps1` from 271 to **279 executed, 0 failed**.
+
+*A framework reference flows through a project reference.* Flipping `MediaPortal.Common` broke
+`MediaPortal.UI` and `MediaPortal.Client.Launcher` with 28 `CS0234`/`CS0246` errors about
+`System.Windows.Forms` - not because those projects gained a dependency, but because they lost one they never
+declared. Both are full of WinForms (`WindowsMessaging` handles `Message`, the launcher shows a `NotifyIcon`);
+they compiled because `MediaPortal.Common` had `UseWindowsForms=true`, the SDK turns that into a
+`FrameworkReference` to `Microsoft.WindowsDesktop.App`, and framework references arrive through project
+references. Both projects now say `<UseWindowsForms>true</UseWindowsForms>` themselves. The general form is
+in `scripts/ci/README.md`: when a project's own `<Reference>`/`<UseXxx>` declarations are thinner than its
+`using` statements, a retarget somewhere below it will look like it broke unrelated code.
+
+`System.Runtime.Caching` was the last package the core could not obviously keep, and it measured fine: a
+throwaway `net10.0` program ran `MemoryCache` (named instance with `null` and empty `NameValueCollection`
+config, `CacheItemPolicy` sliding expiration, `MemoryCache.Default`, and the 200×50 get/set loop
+`RelationshipCache` performs) on `linux-x64` in a container - all four checks pass, so it is not a blocker
+for the flip. It does drag `System.Configuration.ConfigurationManager`, `System.Security.Permissions` and
+`Microsoft.Win32.SystemEvents` into a portable project's output, which is worth remembering when the caching
+strategy is revisited.
 
 **d. Database that is not Windows-shaped.** Decide Firebird's future, verify SQLite as the primary
 store on Linux (native binaries per RID, no `System.Data.SQLite` interop surprises), delete ScimoreDB

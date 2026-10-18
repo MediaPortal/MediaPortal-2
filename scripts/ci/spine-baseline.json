@@ -5,7 +5,7 @@
                   "MediaPortal\\Source\\Core\\MediaPortal.Common":  {
                                                                         "WinForms":  0,
                                                                         "DrawingWindows":  0,
-                                                                        "PInvoke":  3,
+                                                                        "PInvoke":  0,
                                                                         "DrawingPortable":  1
                                                                     },
                   "MediaPortal\\Source\\Core\\MediaPortal.Utilities":  {
@@ -27,14 +27,14 @@
                                                           "DrawingPortable":  0
                                                       }
               },
-    "filesAffected":  10,
-    "totalRefs":  76,
+    "filesAffected":  9,
+    "totalRefs":  73,
     "drawingPortableRefs":  1,
     "satelliteAreas":  {
                            "MediaPortal\\Source\\Core\\MediaPortal.Common.Windows":  {
                                                                                          "WinForms":  2,
                                                                                          "DrawingWindows":  9,
-                                                                                         "PInvoke":  21,
+                                                                                         "PInvoke":  24,
                                                                                          "DrawingPortable":  1
                                                                                      },
                            "MediaPortal\\Source\\Core\\MediaPortal.Utilities.Windows":  {
@@ -44,8 +44,8 @@
                                                                                             "DrawingPortable":  0
                                                                                         }
                        },
-    "satelliteFilesAffected":  9,
-    "satelliteTotalRefs":  104,
+    "satelliteFilesAffected":  10,
+    "satelliteTotalRefs":  107,
     "satelliteDrawingPortableRefs":  1,
     "combinedTotalRefs":  180,
     "combinedFilesAffected":  19

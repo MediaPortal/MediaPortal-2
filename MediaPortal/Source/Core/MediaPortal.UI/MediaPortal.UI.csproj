@@ -4,6 +4,14 @@
     <OutputType>Library</OutputType>
     <OldToolsVersion>3.5</OldToolsVersion>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <!--
+      This project speaks WinForms: WindowsMessaging handles System.Windows.Forms.Message,
+      DeviceVolumeMonitor and UserManagement use its message window, IScreenControl and IInputManager
+      take WinForms types in their signatures. It never declared that, because MediaPortal.Common
+      carried UseWindowsForms=true and a framework reference arrives through a project reference.
+      Common is portable now, so the dependency has to be stated where it lives.
+    -->
+    <UseWindowsForms>true</UseWindowsForms>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">

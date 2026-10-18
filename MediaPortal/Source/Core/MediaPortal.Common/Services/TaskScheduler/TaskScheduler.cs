@@ -59,7 +59,7 @@ namespace MediaPortal.Common.Services.TaskScheduler
     /// <summary>
     /// Timer to wake up system from standby if a task is due.
     /// </summary>
-    protected TaskWaitableTimer _wakeUpTimer;
+    protected ITaskWakeUpTimer _wakeUpTimer;
 
     protected AsynchronousMessageQueue _messageQueue;
 
@@ -71,8 +71,7 @@ namespace MediaPortal.Common.Services.TaskScheduler
     {
       _settings = ServiceRegistration.Get<ISettingsManager>().Load<TaskSchedulerSettings>();
       SaveChanges(false);
-      _wakeUpTimer = new TaskWaitableTimer();
-      _wakeUpTimer.OnTimerExpired += OnResume;
+      // The wake-up timer is created on first use, not here: see the WakeUpTimer property.
       _messageQueue = new AsynchronousMessageQueue(this, new[] { SystemMessaging.CHANNEL });
       _messageQueue.MessageReceived += OnMessageReceived;
       // Message queue will be started in Startup()
@@ -146,6 +145,30 @@ namespace MediaPortal.Common.Services.TaskScheduler
     }
 
     /// <summary>
+    /// The wake-up timer, created the first time the scheduler actually wants one.
+    /// </summary>
+    /// <remarks>
+    /// Lazily, and through <see cref="ITaskWakeUpTimerFactory"/> rather than <c>new</c>: whether
+    /// expiring the timer can also resume the machine is a platform question, and the answer is put
+    /// into the service registry by the host - which does it after
+    /// <c>ApplicationCore.RegisterCoreServices()</c>, next to the other
+    /// <c>MediaPortal.Common.Windows</c> registrations. Constructing the timer here would run during
+    /// that very call and would always pick the core's fallback. The only caller is
+    /// <see cref="DoSuspend"/>, which holds <see cref="_syncObj"/>.
+    /// </remarks>
+    private ITaskWakeUpTimer WakeUpTimer
+    {
+      get
+      {
+        if (_wakeUpTimer != null)
+          return _wakeUpTimer;
+        _wakeUpTimer = ServiceRegistration.Get<ITaskWakeUpTimerFactory>().CreateWakeUpTimer();
+        _wakeUpTimer.OnTimerExpired += OnResume;
+        return _wakeUpTimer;
+      }
+    }
+
+    /// <summary>
     /// Executed when the system woke up for a task.
     /// </summary>
     private void OnResume()
@@ -170,7 +193,7 @@ namespace MediaPortal.Common.Services.TaskScheduler
           double secondsToWait = (nextTaskRun - now).TotalSeconds;
 
           ServiceRegistration.Get<ILogger>().Debug("TaskScheduler: Schedule next wake up: {0} (in {1} minutes)", nextTaskRun, (int) secondsToWait / 60);
-          _wakeUpTimer.SecondsToWait = secondsToWait;
+          WakeUpTimer.SecondsToWait = secondsToWait;
         }
       }
     }
@@ -297,7 +320,9 @@ namespace MediaPortal.Common.Services.TaskScheduler
     public void Shutdown()
     {
       _messageQueue.Shutdown();
-      _wakeUpTimer.Close();
+      // Null when the scheduler never wanted to wake the machine, see WakeUpTimer.
+      if (_wakeUpTimer != null)
+        _wakeUpTimer.Close();
       StopWorker();
       ServiceRegistration.Get<ISettingsManager>().Save(_settings);
     }

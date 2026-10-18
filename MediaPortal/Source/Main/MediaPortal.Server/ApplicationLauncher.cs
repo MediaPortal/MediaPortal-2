@@ -121,6 +121,10 @@ namespace MediaPortal.Server
           DokanResourceMountingService.Register();
           // Impersonation likewise: the core runs as the current user, this host can do better.
           WindowsImpersonationService.Register();
+          // And the wake-up timer: expiring it has to be able to resume the machine, or a task
+          // scheduled for 4 a.m. on a sleeping machine never runs. Fully qualified because this file
+          // uses System.Threading.Tasks.TaskScheduler, which the namespace would make ambiguous.
+          MediaPortal.Common.Services.TaskScheduler.WindowsTaskWakeUpTimerFactory.Register();
           logger = ServiceRegistration.Get<ILogger>();
 
 #if !DEBUG

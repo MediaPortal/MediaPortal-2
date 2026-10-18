@@ -161,6 +161,14 @@ namespace MediaPortal.Common
         ServiceRegistration.Set<ISystemStateService>(new Services.Runtime.PortableSystemStateService());
       }
 
+      // The wake-up timer factory is the same seam one level down: the core hands out a timer that
+      // fires at a due time, and a Windows host replaces it with one whose expiry also resumes the
+      // machine. Unconditional (unlike the state service above) because nothing holds the instance -
+      // the task scheduler asks for the factory the first time it wants to wake anything, which is
+      // long after the host has had its say.
+      logger.Debug("ApplicationCore: Registering ITaskWakeUpTimerFactory");
+      ServiceRegistration.Set<ITaskWakeUpTimerFactory>(new Services.TaskScheduler.PortableTaskWakeUpTimerFactory());
+
       logger.Debug("ApplicationCore: Registering IRegistry service");
       ServiceRegistration.Set<IRegistry>(new Services.Registry.Registry());
 

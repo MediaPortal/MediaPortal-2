@@ -1,11 +1,33 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net10.0-windows</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <OutputType>Library</OutputType>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <UseWindowsForms>true</UseWindowsForms>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <!--
+      A portable target framework, and no WinForms. This is the point the whole of Phase 1 has been
+      walking towards: MediaPortal.Common is the assembly the server, the database layer and (in
+      Phase 2) the Avalonia frontend all reference, so as long as it carried -windows everything
+      above it did too, and CA1416 had nothing to say about it.
+
+      Getting here is what the last several steps were for, each one removing a hard Windows
+      dependency rather than papering over it: System.Management (WMI disk/CPU queries -> DriveInfo
+      and /proc/cpuinfo), System.ServiceProcess.ServiceController plus the power handling and the
+      WM_POWERBROADCAST window (all three classes moved to MediaPortal.Common.Windows behind
+      ISystemStateService), Dokan behind IResourceMountingService, LogonUser impersonation behind
+      IImpersonationService, GDI+ behind IImageTransformer, and the Kernel32 waitable timer behind
+      ITaskWakeUpTimer. What is left is registry access that is guarded by OperatingSystem.IsWindows(),
+      which is why CA1416 is an error below: the analyzer's judgement of this assembly is now
+      trustworthy enough to gate on.
+
+      UseWindowsForms is not set at all rather than set to false. Nothing in this project names a
+      WinForms type any more (Application.ExecutablePath and SystemInformation.Network became
+      Environment and NetworkInterface on the way here), and the SDK refuses the combination:
+      UseWindowsForms=true needs a -windows target framework, which is exactly the constraint being
+      lifted.
+    -->
+    <WarningsAsErrors>CA1416</WarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup>
     <!--required for assemblies from nuget packages to be copied to output folder, so our build.targets can copy them further -->

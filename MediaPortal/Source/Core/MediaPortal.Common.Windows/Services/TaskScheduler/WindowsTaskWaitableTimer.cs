@@ -26,6 +26,7 @@ using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Threading;
+using MediaPortal.Common.TaskScheduler;
 using Microsoft.Win32.SafeHandles;
 
 namespace MediaPortal.Common.Services.TaskScheduler
@@ -33,7 +34,25 @@ namespace MediaPortal.Common.Services.TaskScheduler
   /// <summary>
   /// Implements a timer which the process can be waiting on. The timer supports waking up the system from a suspended state.
   /// </summary>
-  public class TaskWaitableTimer : WaitHandle
+  /// <remarks>
+  /// <para>
+  /// This was <c>TaskWaitableTimer</c> in <c>MediaPortal.Common</c>, where it was the only
+  /// implementation of everything the task scheduler needed from a timer. It is the last Kernel32
+  /// <c>[DllImport]</c> in the core, and it is genuinely Win32 rather than merely written with it:
+  /// <c>CreateWaitableTimer</c>/<c>SetWaitableTimer</c> with <c>bResume: true</c> is what brings a
+  /// suspended machine out of standby in time for a recording, and no thread in a portable assembly
+  /// can do that. So the class stayed Win32 and moved here, while <c>PortableTaskWakeUpTimer</c> in
+  /// the core covers the scheduling half everywhere else; <see cref="ITaskWakeUpTimer"/> holds the
+  /// reasoning.
+  /// </para>
+  /// <para>
+  /// The implementation is unchanged from the core, including the dedicated waiting thread and the
+  /// handshake event that used to block the caller until the Win32 timer was armed. What it now
+  /// reports through <see cref="WakesSystemFromSuspend"/> is the capability the portable timer
+  /// cannot offer.
+  /// </para>
+  /// </remarks>
+  public class WindowsTaskWaitableTimer : WaitHandle, ITaskWakeUpTimer
   {
     /// <summary>
     /// Wrap the system function <i>SetWaitableTimer</i>.
@@ -54,18 +73,20 @@ namespace MediaPortal.Common.Services.TaskScheduler
     private static extern bool CancelWaitableTimer(SafeWaitHandle hTimer);
 
     /// <summary>
-    /// Event handler to be used when the timer expires.
-    /// </summary>
-    public delegate void TimerExpiredHandler();
-
-    public delegate void TimerExceptionHandler(TaskWaitableTimer sender, TimerException exception);
-
-    /// <summary>
     /// Clients can register for the expiration of this timer.
     /// </summary>
-    public event TimerExpiredHandler OnTimerExpired;
+    public event ITaskWakeUpTimer.TimerExpiredHandler OnTimerExpired;
 
-    public event TimerExceptionHandler OnTimerException;
+    public event ITaskWakeUpTimer.TimerExceptionHandler OnTimerException;
+
+    /// <summary>
+    /// This is the one implementation that does wake the machine: the Win32 waitable timer is armed
+    /// with <c>bResume: true</c>.
+    /// </summary>
+    public bool WakesSystemFromSuspend
+    {
+      get { return true; }
+    }
 
     /// <summary>
     /// The <see cref="CancellationTokenSource"/> will be created by <see cref="SecondsToWait"/> and
@@ -93,7 +114,7 @@ namespace MediaPortal.Common.Services.TaskScheduler
     /// <see cref="WaitHandle.SafeWaitHandle"/> will be used to store the system API handle of the newly created timer.
     /// </remarks>
     /// <exception cref="TimerException">When the timer could not be created.</exception>
-    public TaskWaitableTimer()
+    public WindowsTaskWaitableTimer()
     {
       // Create it
       SafeWaitHandle = CreateWaitableTimer(IntPtr.Zero, false, null);
@@ -106,7 +127,7 @@ namespace MediaPortal.Common.Services.TaskScheduler
     /// <summary>
     /// Make sure that <see cref="Close"/> is called.
     /// </summary>
-    ~TaskWaitableTimer()
+    ~WindowsTaskWaitableTimer()
     {
       // Forward
       Close();
@@ -254,25 +275,5 @@ namespace MediaPortal.Common.Services.TaskScheduler
       // Forward
       base.Close();
     }
-  }
-
-  /// <summary>
-  /// Used by the <see cref="TaskWaitableTimer"/> to report errors.
-  /// </summary>
-  public class TimerException : Exception
-  {
-    /// <summary>
-    /// Create a new instance of this exception.
-    /// </summary>
-    /// <param name="reason">Some text to describe the error condition.</param>
-    public TimerException(string reason) : base(reason) { }
-
-    /// <summary>
-    /// Create a new instance of this exception.
-    /// </summary>
-    /// <param name="reason">Some text to describe the error condition.</param>
-    /// <param name="innerException">The exception that is the cause of the current exception, 
-    /// or a null reference (Nothing in Visual Basic) if no inner exception is specified.</param>
-    public TimerException(string reason, Exception innerException) : base(reason, innerException) { }
   }
 }

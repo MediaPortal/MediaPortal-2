@@ -1284,3 +1284,40 @@ handshakes, and `TestAsync.TestTimeOut` asserts a timeout threshold directly.
 So: **do not read a single client failure as a regression while a container build is running.**
 Re-run the suite alone before believing it, and never "fix" it by raising a floor. A named client
 test that fails repeatedly on an idle machine is real.
+
+## A framework reference flows through a project reference
+
+`MediaPortal.Common` targeting `net10.0-windows` with `UseWindowsForms=true` did not just make
+*itself* a Windows assembly. `UseWindowsForms` becomes a `FrameworkReference` to
+`Microsoft.WindowsDesktop.App`, and framework references flow through `ProjectReference`, so every
+project that referenced `Common` could compile `System.Windows.Forms.*` while declaring nothing of the
+sort. Flipping `Common` to `net10.0` therefore failed 28 errors in two projects that had never
+mentioned WinForms:
+
+```
+MediaPortal.UI\General\WindowsMessaging.cs(25,22): error CS0234: ... "Forms" ist im Namespace "System.Windows" nicht vorhanden
+MediaPortal.ClientLauncher\ApplicationLauncher.cs(55,20): error CS0246: ... "NotifyIcon" wurde nicht gefunden
+```
+
+Both were honest WinForms users (`WindowsMessaging` handles `System.Windows.Forms.Message`, the
+launcher shows a tray icon) and now set `<UseWindowsForms>true</UseWindowsForms>` themselves. The
+check before retargeting a widely-referenced project: grep its consumers for `System.Windows.Forms`,
+`System.IO.Ports`, `WPF`-only and `WindowsDesktop` types, and compare against what those projects
+declare. Expect the fix to be "declare what you use", not "put the framework reference back".
+
+## Prove a portable project's `CA1416` gate actually bites
+
+`<WarningsAsErrors>CA1416</WarningsAsErrors>` in a portable project is worth nothing until it has
+failed once. It takes ten seconds to find out, and this is how `MediaPortal.Common` was checked after
+the flip:
+
+```powershell
+# one unguarded Windows-only call into the portable core
+#   var probe = Microsoft.Win32.Registry.CurrentUser;
+dotnet build MediaPortal\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj -c Debug
+# expect: error CA1416 ... "Registry.CurrentUser" nur unterstützt für: 'windows'   and exit 1
+```
+
+Remove the line afterwards, of course. If the build stays green, the gate is decorative - usually
+because the assembly declares a platform it should not (see the `GenerateAssemblyInfo` section above)
+or because `AllRules.ruleset` downgraded the diagnostic.
