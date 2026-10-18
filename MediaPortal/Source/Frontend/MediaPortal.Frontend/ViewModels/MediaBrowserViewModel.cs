@@ -295,6 +295,22 @@ namespace MediaPortal.Frontend.ViewModels
       DetailsVisible = false;
     }
 
+    /// <summary>
+    /// Forgets what was read about one title, so that the next look at it asks the server again.
+    /// </summary>
+    /// <remarks>
+    /// A viewing that has just been reported changes the two numbers the panel shows - how often the title was
+    /// played and when it was last watched - so a panel that answers from the read made before the film started is
+    /// showing something the viewer knows to be wrong. Called from whichever thread the report came back on, which
+    /// is why this only touches a field and says nothing to the screen; the next <see cref="ToggleDetailsAsync"/>
+    /// does the talking.
+    /// </remarks>
+    public void ForgetDetails(Guid mediaItemId)
+    {
+      if (_detailsFor == mediaItemId)
+        _detailsFor = Guid.Empty;
+    }
+
     private async Task ReadDetailsAsync(TitleViewModel title)
     {
       if (_client == null)

@@ -680,5 +680,200 @@ namespace Tests.Server.Api
     }
 
     #endregion
+
+    #region What a watched title says
+
+    private static readonly Guid PLAYBACK_ID = new Guid("55555555-5555-5555-5555-555555555555");
+    private static readonly DateTime LAST_PLAYED_BEFORE = new DateTime(2025, 5, 1, 21, 30, 0);
+    private static readonly DateTime LAST_PLAYED_AFTER = new DateTime(2026, 2, 14, 22, 5, 0);
+
+    /// <summary>
+    /// A library that is told about a viewing and then answers with its own counters, the way
+    /// <c>MediaLibrary.NotifyPlayback</c> behaves: the date moves for any viewing, the count only for a finished
+    /// one. The title is rebuilt for every search, so what a test reads back is what the endpoint read after the
+    /// write rather than what the fixture handed out before it.
+    /// </summary>
+    private class PlaybackLibrary
+    {
+      private readonly Guid _id;
+      private int _playCount;
+      private DateTime _lastPlayed;
+
+      internal readonly List<Notice> Notices = new List<Notice>();
+
+      internal PlaybackLibrary(Guid id, int playCount, DateTime lastPlayed)
+      {
+        _id = id;
+        _playCount = playCount;
+        _lastPlayed = lastPlayed;
+
+        var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+        library.Setup(get => get.GetManagedMediaItemAspectMetadata()).Returns(
+            new Dictionary<Guid, MediaItemAspectMetadata> { { MediaAspect.ASPECT_ID, MediaAspect.Metadata } });
+        library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, null, false))
+            .Returns(delegate { return new List<MediaItem> { TitleNow() }; });
+        library.Setup(get => get.NotifyPlayback(It.IsAny<Guid>(), It.IsAny<bool>()))
+            .Callback<Guid, bool>(delegate (Guid mediaItemId, bool watched)
+            {
+              Notices.Add(new Notice(mediaItemId, watched));
+              _lastPlayed = LAST_PLAYED_AFTER;
+              if (watched)
+                _playCount++;
+            });
+        Library = library.Object;
+      }
+
+      internal IMediaLibrary Library { get; }
+
+      internal MediaItem TitleNow()
+      {
+        SingleMediaItemAspect media = CreateMediaAspect("Alien Earth", "Alien Earth", new DateTime(2025, 4, 27));
+        media.SetAttribute(MediaAspect.ATTR_PLAYCOUNT, _playCount);
+        if (_lastPlayed != DateTime.MinValue)
+          media.SetAttribute(MediaAspect.ATTR_LASTPLAYED, _lastPlayed);
+
+        return new TestItem(_id, new Dictionary<Guid, IList<MediaItemAspect>>
+        {
+            { MediaAspect.ASPECT_ID, new List<MediaItemAspect> { media } }
+        }, null);
+      }
+
+      internal class Notice
+      {
+        internal Notice(Guid mediaItemId, bool watched)
+        {
+          MediaItemId = mediaItemId;
+          Watched = watched;
+        }
+
+        internal Guid MediaItemId { get; }
+        internal bool Watched { get; }
+      }
+    }
+
+    /// <summary>
+    /// Posts a report to the endpoint. A null percentage is the body a caller forgot to fill in, which is a
+    /// different thing from a percentage of zero and has to stay a different thing.
+    /// </summary>
+    private static ActionResult<MediaController.PlaybackResult> ReportPlayback(IMediaLibrary library, Guid id,
+        int? percentage)
+    {
+      ServiceRegistration.Set<IMediaLibrary>(library);
+      return new MediaController().ReportPlayback(id, percentage.HasValue
+          ? new MediaController.PlaybackRequest { Percentage = percentage.Value }
+          : null);
+    }
+
+    [Test]
+    public void ATitleWatchedToTheEndIsCountedAsWatched()
+    {
+      PlaybackLibrary library = new PlaybackLibrary(PLAYBACK_ID, 2, LAST_PLAYED_BEFORE);
+
+      ActionResult<MediaController.PlaybackResult> action = ReportPlayback(library.Library, PLAYBACK_ID, 100);
+
+      Assert.That(Status(action), Is.Null, "a report the library took is a plain 200");
+      MediaController.PlaybackResult result = Body(action);
+      Assert.That(result.Id, Is.EqualTo(PLAYBACK_ID));
+      Assert.That(result.Watched, Is.True);
+      Assert.That(result.PlayCount, Is.EqualTo(3), "the count after the write, not the one from before it");
+      Assert.That(result.LastPlayed, Is.EqualTo(LAST_PLAYED_AFTER));
+      Assert.That(library.Notices, Has.Count.EqualTo(1));
+      Assert.That(library.Notices[0].MediaItemId, Is.EqualTo(PLAYBACK_ID));
+      Assert.That(library.Notices[0].Watched, Is.True, "the library is told in its own words: watched, or not");
+    }
+
+    [Test]
+    public void ATitleStartedButNotFinishedDoesNotCountAsWatched()
+    {
+      PlaybackLibrary library = new PlaybackLibrary(PLAYBACK_ID, 2, LAST_PLAYED_BEFORE);
+
+      MediaController.PlaybackResult result = Body(ReportPlayback(library.Library, PLAYBACK_ID, 40));
+
+      Assert.That(result.Watched, Is.False);
+      Assert.That(result.PlayCount, Is.EqualTo(2), "half a film is not a viewing");
+      Assert.That(library.Notices[0].Watched, Is.False);
+      Assert.That(result.LastPlayed, Is.EqualTo(LAST_PLAYED_AFTER),
+          "but the date does move: a title somebody started is not a title nobody has ever seen");
+    }
+
+    [Test]
+    public void NinetyNinePerCentIsNotAFinishedFilm()
+    {
+      PlaybackLibrary library = new PlaybackLibrary(PLAYBACK_ID, 0, DateTime.MinValue);
+
+      MediaController.PlaybackResult result = Body(ReportPlayback(library.Library, PLAYBACK_ID, 99));
+
+      Assert.That(result.Watched, Is.False);
+      Assert.That(result.PlayCount, Is.EqualTo(0),
+          "a tick on the wrong film is a lie a viewer has to notice in order to correct");
+    }
+
+    [Test]
+    public void AReportForATitleTheServerDoesNotKnowIsRefused()
+    {
+      // The title was removed between the list showing it and the viewer finishing it.
+      var empty = new Mock<IMediaLibrary>(MockBehavior.Strict);
+      empty.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, null, false))
+          .Returns(new List<MediaItem>());
+
+      ActionResult<MediaController.PlaybackResult> action = ReportPlayback(empty.Object, PLAYBACK_ID, 100);
+
+      Assert.That(Status(action), Is.EqualTo(404));
+      Assert.That(Body(action).Error, Does.Contain(PLAYBACK_ID.ToString()),
+          "the id that was asked about is named in the complaint, or the complaint is useless");
+      empty.Verify(get => get.NotifyPlayback(It.IsAny<Guid>(), It.IsAny<bool>()), Times.Never(),
+          "a library that never heard of the id is not told to mark it");
+    }
+
+    [Test]
+    public void AReportNobodyFilledInIsRefusedRatherThanTakenAsFinished()
+    {
+      PlaybackLibrary library = new PlaybackLibrary(PLAYBACK_ID, 2, LAST_PLAYED_BEFORE);
+
+      ActionResult<MediaController.PlaybackResult> action = ReportPlayback(library.Library, PLAYBACK_ID, null);
+
+      Assert.That(Status(action), Is.EqualTo(400));
+      Assert.That(Body(action).Error, Is.Not.Null.And.Not.Empty);
+      Assert.That(library.Notices, Is.Empty, "a request with no number in it is not a claim that something ended");
+    }
+
+    [Test]
+    public void ANumberOutsideTheScaleIsRefused()
+    {
+      PlaybackLibrary library = new PlaybackLibrary(PLAYBACK_ID, 2, LAST_PLAYED_BEFORE);
+
+      foreach (int nonsense in new[] { -1, 101, 4000 })
+      {
+        ActionResult<MediaController.PlaybackResult> action = ReportPlayback(library.Library, PLAYBACK_ID, nonsense);
+        Assert.That(Status(action), Is.EqualTo(400), "how far somebody watched is not " + nonsense + " per cent");
+      }
+      Assert.That(library.Notices, Is.Empty);
+    }
+
+    [Test]
+    public void AReportToALibraryThatIsNotReadySaysSo()
+    {
+      var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, null, false))
+          .Throws(new IllegalCallException("the media library is reloading"));
+
+      ActionResult<MediaController.PlaybackResult> action = ReportPlayback(library.Object, PLAYBACK_ID, 100);
+
+      Assert.That(Status(action), Is.EqualTo(503));
+      Assert.That(Body(action).Error, Is.EqualTo("the media library is reloading"));
+    }
+
+    [Test]
+    public void NoMediaLibraryAnswersServiceUnavailableToAReport()
+    {
+      RemoveMediaLibrary();
+
+      ActionResult<MediaController.PlaybackResult> action = new MediaController().ReportPlayback(PLAYBACK_ID,
+          new MediaController.PlaybackRequest { Percentage = 100 });
+
+      Assert.That(Status(action), Is.EqualTo(503));
+    }
+
+    #endregion
   }
 }

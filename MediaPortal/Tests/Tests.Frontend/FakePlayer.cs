@@ -65,6 +65,13 @@ namespace Tests.Frontend
     public bool PausesWhenAsked { get; set; } = true;
     public bool StopsWhenAsked { get; set; } = true;
 
+    /// <summary>
+    /// Whether stopping makes the player forget how long the media was, as libVLC really does once a media is
+    /// closed. A screen that works out "how far did they get" after the stop is over gets a zero length and a
+    /// meaningless percentage, so one test needs an engine that behaves like that.
+    /// </summary>
+    public bool ForgetsLengthOnStop { get; set; }
+
     public IReadOnlyList<PlaybackTrack> Tracks(TrackKind kind)
     {
       Calls.Add("Tracks:" + kind);
@@ -178,6 +185,8 @@ namespace Tests.Frontend
         LastFailure = "the engine would not stop.";
         return false;
       }
+      if (ForgetsLengthOnStop)
+        LengthInMs = 0;
       RaiseState(PlayerState.Stopped);
       return true;
     }

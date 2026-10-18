@@ -459,6 +459,146 @@ namespace MediaPortal.Server.Api
     }
 
     /// <summary>
+    /// What a viewer reports having watched.
+    /// </summary>
+    public class PlaybackRequest
+    {
+      /// <summary>
+      /// How far into the title they got, 0 to 100. A hundred says it was watched to the end; anything less says
+      /// it was started.
+      /// </summary>
+      public int Percentage { get; set; }
+    }
+
+    /// <summary>
+    /// What the library believes about a title after it was told the title was watched.
+    /// </summary>
+    public class PlaybackResult
+    {
+      public Guid Id { get; set; }
+
+      /// <summary>How often the title has been watched to the end, including this time when it was.</summary>
+      public int PlayCount { get; set; }
+
+      /// <summary>When it was last watched, as the library now has it.</summary>
+      public DateTime? LastPlayed { get; set; }
+
+      /// <summary>Whether this report counted as a completed viewing.</summary>
+      public bool Watched { get; set; }
+
+      /// <summary>Set when the report was refused, in words a screen can show.</summary>
+      public string Error { get; set; }
+    }
+
+    /// <summary>
+    /// Tells the library that a title was watched, and answers with what it now believes.
+    /// </summary>
+    /// <param name="id">The media item id, as <c>GET api/media/titles</c> reported it.</param>
+    /// <param name="playback">How far the viewer got.</param>
+    /// <remarks>
+    /// <para>
+    /// This is the write that makes the numbers <see cref="GetItem"/> reads true. Without it a film can be watched
+    /// a dozen times and the library will go on saying nobody ever played it, and a media centre whose "watched"
+    /// column is decoration is one a viewer stops trusting. The library is told in the words it has always used,
+    /// <see cref="IMediaLibrary.NotifyPlayback(Guid, bool)"/>, which counts a title as watched at the end and
+    /// marks the date on anything shorter.
+    /// </para>
+    /// <para>
+    /// <b>The title's own counters, not one viewer's.</b> MP2 also keeps per-profile counts and resume positions
+    /// through <see cref="IMediaLibrary.NotifyUserPlayback(Guid, Guid, int, bool)"/>; this does not write those,
+    /// because they belong to a user profile and this front end has no profile to name - a bearer token says which
+    /// machine may ask, not which person is sitting on the sofa. Several viewers sharing one "watched" flag is a
+    /// simplification, and it is written down here rather than discovered by whoever adds the profile picker.
+    /// </para>
+    /// <para>
+    /// The answer is what the library holds afterwards, read back rather than calculated here, so that a screen
+    /// can put the real number on the row instead of the one it hoped for.
+    /// </para>
+    /// </remarks>
+    [HttpPost("items/{id}/playback")]
+    public ActionResult<PlaybackResult> ReportPlayback(Guid id, [FromBody] PlaybackRequest playback)
+    {
+      if (playback == null || playback.Percentage < 0 || playback.Percentage > 100)
+      {
+        return BadRequest(new PlaybackResult
+        {
+          Id = id,
+          Error = "how far a viewer watched is a number from 0 to 100"
+        });
+      }
+
+      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
+      if (mediaLibrary == null)
+        return StatusCode(StatusCodes.Status503ServiceUnavailable);
+
+      try
+      {
+        // Asked for before the write, because "there is no such title" and "the title is there and now says it was
+        // played" are different answers; a library that never heard of the id must not be told to mark it, and a
+        // client must not be told it recorded something that went nowhere.
+        if (FindTitle(mediaLibrary, id) == null)
+          return NotFound(new PlaybackResult { Id = id, Error = "this server has no title with the id " + id });
+
+        bool watched = playback.Percentage >= 100;
+        mediaLibrary.NotifyPlayback(id, watched);
+        return ToPlayback(id, FindTitle(mediaLibrary, id), watched);
+      }
+      catch (IllegalCallException ex)
+      {
+        return NotReadyPlayback(ex, id);
+      }
+    }
+
+    /// <summary>
+    /// The one item with this id, or null when the library has none.
+    /// </summary>
+    /// <remarks>
+    /// Only the Media aspect is necessary and nothing optional is asked for: this is the lookup that decides
+    /// "is there such a title, and what does it say about being played", and a details answer would be a second
+    /// read of the same row for no reason.
+    /// </remarks>
+    private static MediaItem FindTitle(IMediaLibrary mediaLibrary, Guid id)
+    {
+      MediaItemQuery query = new MediaItemQuery(
+          new List<Guid> { MediaAspect.ASPECT_ID }, null, new MediaItemIdFilter(id));
+      IList<MediaItem> items = mediaLibrary.Search(query, false, null, false);
+      return items == null ? null : items.FirstOrDefault();
+    }
+
+    /// <summary>
+    /// The playback counters of a title, as the library holds them now.
+    /// </summary>
+    private static PlaybackResult ToPlayback(Guid id, MediaItem item, bool watched)
+    {
+      PlaybackResult result = new PlaybackResult { Id = id, Watched = watched };
+
+      SingleMediaItemAspect media;
+      if (item != null && MediaItemAspect.TryGetAspect(item.Aspects, MediaAspect.Metadata, out media))
+      {
+        result.PlayCount = media.GetAttributeValue<int>(MediaAspect.ATTR_PLAYCOUNT);
+        DateTime lastPlayed = media.GetAttributeValue<DateTime>(MediaAspect.ATTR_LASTPLAYED);
+        if (lastPlayed != DateTime.MinValue)
+          result.LastPlayed = lastPlayed;
+      }
+      return result;
+    }
+
+    /// <summary>
+    /// The answer for a media library that cannot write yet, in the shape <see cref="ReportPlayback"/> gives.
+    /// </summary>
+    private static ObjectResult NotReadyPlayback(IllegalCallException exception, Guid id)
+    {
+      ILogger logger = ServiceRegistration.Get<ILogger>(false);
+      if (logger != null)
+        logger.Info("MediaController: the media library refused a playback report, answering 503: {0}",
+            exception.Message);
+      return new ObjectResult(new PlaybackResult { Id = id, Error = exception.Message })
+      {
+        StatusCode = StatusCodes.Status503ServiceUnavailable
+      };
+    }
+
+    /// <summary>
     /// The three sorts a title list has: by name, by year, or by none at all.
     /// </summary>
     /// <remarks>

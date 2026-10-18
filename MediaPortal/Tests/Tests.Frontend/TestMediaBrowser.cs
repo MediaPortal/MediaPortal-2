@@ -604,6 +604,32 @@ namespace Tests.Frontend
     }
 
     [AvaloniaTest]
+    public void ATitleWatchedAfterThePanelClosedIsReadAgainRatherThanShownFromMemory()
+    {
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK, TITANIC_DETAILS);
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.Selected = new TitleViewModel(new MediaTitle(new Guid(TITANIC), "Titanic", null, 1997, null, null, false));
+
+      browser.ToggleDetailsCommand.Execute(null);
+      WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
+      browser.CloseDetails();
+
+      browser.ForgetDetails(Guid.Empty);
+      browser.ToggleDetailsCommand.Execute(null);
+      Pump();
+      Assert.That(server.TimesAsked, Is.EqualTo(1),
+          "a viewing of some other title leaves what this panel knows about this one alone");
+      browser.CloseDetails();
+
+      browser.ForgetDetails(new Guid(TITANIC));
+      browser.ToggleDetailsCommand.Execute(null);
+      WaitUntil("the second read", delegate { return server.TimesAsked == 2; });
+
+      Assert.That(browser.DetailsLine, Does.Contain("watched 2"),
+          "the panel comes back with whatever the server says now, not with the counters from before the film");
+    }
+
+    [AvaloniaTest]
     public void ATitleTheServerNoLongerHasSaysSoRatherThanOpeningAnEmptyPanel()
     {
       DetailsServer server = new DetailsServer(HttpStatusCode.NotFound,

@@ -1680,6 +1680,72 @@ rather than calling the command, and refuses to write the frame otherwise. Whole
 0 failures** - `Canary.Portable` (29), `Tests.Server` (245), `Tests.Client` (90), `Tests.Frontend` (202),
 `Setup\Tests` (68).
 
+### aa. The library learns what was watched
+
+**The feature.** The details panel had just started showing `watched 1×, last 2025-01-12`, which is an odd thing for
+a media centre to show while every number in it is a fossil: nothing in the new front end ever told the library that
+a film had been played. That is now fixed at both ends. Watching something reports it, and the panel that shows the
+counters is told to go and read them again, so the sentence under a film describes the viewer's history rather than
+the state of the database on the day it was imported.
+
+**One new verb on the server.** `POST api/media/items/{id}/playback` with `{"percentage":50}` in the body - the
+number is the content of the request, not a way of choosing which title, and `?percentage=100` on a POST reads like a
+GET that was told to lie. It answers with what the library believes *now*: id, title, whether it counts as watched,
+the play count and the last-played date. `404` naming the id when the library holds no such title, `503` when the
+library is missing or still importing, and the same `[MediaPortalAuthorize]` as the rest of the controller. The
+client refuses a number outside 0-100 before it opens a connection, because a client that already knows the answer
+should not go and ask a server the same question.
+
+**`NotifyPlayback`, not `NotifyUserPlayback`.** MP2 offers both, and the difference is who the answer belongs to.
+`NotifyUserPlayback(userId, …)` stores *per-profile* user data - percentage watched, watched date, parents updated -
+and needs a `userId` to store it under. `NotifyPlayback(mediaItemId, watched)` writes to the title itself:
+`ATTR_LASTPLAYED` on anything, `ATTR_PLAYCOUNT` when it was finished. The new front end has a bearer token, which is
+not a profile, and inventing a profile to hold a percentage would mean choosing one on the viewer's behalf - the
+same decision the server already refuses to make when it signs a token in without a profile. So the front end
+reports what it actually knows (this title was played; it ended) and the profile-based counters stay untouched until
+there is a profile to write them to.
+
+**What counts as watched.** Only the engine saying *the media ended* produces a 100, because "they stopped it at 99%"
+and "they saw the last second" are different statements and only the second earns a tick. Anything else - stop, or
+switching to another media - reports where the viewer got to, floored at 1 and capped at 99; below 1% nothing is
+said, because a title opened and closed in ten seconds was not watched and a viewer who cancels the wrong thing
+should not lose their history over it. One report per media: stopping after the credits does not count twice.
+And "how far" is worked out *before* the engine is told to stop or to open the next file, because a real engine takes
+the media's length away with the media - `FakePlayer.ForgetsLengthOnStop` exists so that a test can hold the view
+model to that ordering instead of discovering it on a Sunday evening.
+
+**Said out loud, never waited for.** `PlaybackReporter` subscribes to the playback screen, asks the application
+which server to report to *when the report is made* (the front end can be moved to another server while a film
+plays), sends it, and writes the outcome on the console: the library's new play count, the server's own refusal
+words, "no server configured", or "cancelled". It is started and not waited on - a media centre that holds up the
+next screen, or the shutdown, on a network round trip is worse than one that loses a mark now and then - but not
+waiting is no reason to be silent, because a missing tick is noticed a week later with no idea when it stopped
+working. Only when the server agrees does the browser screen get `ForgetDetails`, which is also the answer to the
+panel that reopens with the numbers from before the film.
+
+**A bug the reporter tests were written for.** The first version ended in
+`ContinueWith(…, TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.OnlyOnRanToCompletion)` - meaning to
+say "whatever happens, print something". That asks a finished task for two mutually exclusive endings, and
+`ContinueWith` does not pick one: it throws `ArgumentOutOfRangeException` (*"the specified TaskContinuationOptions
+exclude all continuation kinds"*), which was verified rather than assumed. The POST had already been sent by then, so
+the film *was* marked watched while the exception landed on the thread the engine had raised "stopped" from - the
+worst kind of bug, one that works. A continuation with no options and a branch inside it says both outcomes instead
+of neither, and the reporter fixture fails the moment anything throws out of a report.
+
+**Where the numbers stand.** Eight endpoint tests (a film watched to the end, one started but not finished, 99%
+being explicitly not a finished film, an id the library does not have, a report with no percentage in it, a number
+off the scale, a library still starting, and no library at all) take `TestMediaController` from 25 to 33. Ten more on
+the playback screen (100 only when the engine says the media ended, 99 rather than 100 for a stop on the last frame,
+the furthest point rather than the last one, measuring before the engine forgets the film, nothing at all for a
+viewing that never got going or for a file that is not a library title, one report per media, and the previous film
+reported when the next one starts) take `TestNowPlayingScreen` to 39; four on the client (the POST really is a POST
+with that body, the server's answer arrives as an object, a 404 keeps the server's words, an impossible percentage
+never leaves the machine) take `TestServerApiClient` to 15; a new six-test fixture covers the reporter; and one more
+browser test shows the panel reading a title again after it was watched. `Tests.Frontend` goes from 202 to 223, and
+the whole suite on Windows is **663 tests, 0 failures** - `Canary.Portable` (29), `Tests.Server` (253),
+`Tests.Client` (90), `Tests.Frontend` (223), `Setup\Tests` (68). The render gate still draws all five frames, the
+details frame unchanged at 1863 distinct colours.
+
 ## What cannot be verified without the user
 
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,

@@ -18,6 +18,8 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Threading;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -47,6 +49,8 @@ namespace MediaPortal.Frontend
     private readonly int _playSeconds;
     private NowPlayingViewModel? _nowPlaying;
     private NowPlayingWindow? _playWindow;
+    private MediaBrowserViewModel? _lastBrowser;
+    private PlaybackReporter? _reporter;
     private readonly string? _shotPath;
     private readonly TimeSpan _playStart;
 
@@ -149,6 +153,13 @@ namespace MediaPortal.Frontend
           // The player goes with it. Without this the engine and its threads stay behind when the last window
           // closes, which a viewer notices as a process that never goes away.
           desktop.Exit += delegate { _nowPlaying.Dispose(); };
+
+          // Watching something is what a media centre is for, and the library only knows about it if somebody says
+          // so. The playback screen is the one place that knows a viewing ended; this is the one place that knows
+          // which server to say it to.
+          _reporter = new PlaybackReporter(_nowPlaying, delegate { return _home.Client; },
+              Console.WriteLine, ForgetReportedTitles);
+          desktop.Exit += delegate { _reporter?.Dispose(); };
 
           // Ask for the pictures now, before anything is open: an engine decides how it will deliver them when a
           // media starts, so a sink offered afterwards is a question asked after the answer. Refusing is not a
@@ -417,6 +428,7 @@ namespace MediaPortal.Frontend
     {
       MediaBrowserViewModel browser = new MediaBrowserViewModel(_home.Client, section);
       browser.PlayRequested += OnTitleChosen;
+      _lastBrowser = browser;
       return new MediaBrowserWindow(browser,
           _nowPlaying == null ? null : new Func<Avalonia.Controls.Window>(NowPlayingScreen));
     }
@@ -437,10 +449,24 @@ namespace MediaPortal.Frontend
         return;
       }
 
-      if (_nowPlaying.Play(MediaLocation.FromFile(title.LocalPath!)))
+      if (_nowPlaying.Play(MediaLocation.FromFile(title.LocalPath!), title.Title.Id))
         Console.WriteLine("play:     " + System.IO.Path.GetFileName(title.LocalPath) + " from the library");
       else
         Console.WriteLine("play:     refused - " + _nowPlaying.StatusLine);
+    }
+
+    /// <summary>
+    /// Tells the browser screen that what it showed about one title is now out of date.
+    /// </summary>
+    /// <remarks>
+    /// The screen most likely to still be showing the numbers from before the film is the one the viewer pressed
+    /// play in, which is the last one this application built. A tile opened earlier and left open in the background
+    /// keeps its old numbers until it is next opened; holding on to every browser screen - any of which can carry
+    /// a thousand titles - to keep that one honest is the worse of the two mistakes.
+    /// </remarks>
+    private void ForgetReportedTitles(Guid mediaItemId)
+    {
+      _lastBrowser?.ForgetDetails(mediaItemId);
     }
 
     /// <summary>

@@ -86,6 +86,21 @@ namespace MediaPortal.Frontend.ViewModels
     private int _subtitleCurrent = -1;
 
     /// <summary>
+    /// The library title the current media came from, or null for a file that was opened without one. Only with an
+    /// id is there anything to tell the server about.
+    /// </summary>
+    private Guid? _mediaItemId;
+
+    /// <summary>
+    /// How far into the current media the viewer got. The furthest, not the last: a viewer who watches to the end,
+    /// rewinds two minutes to show somebody a scene, and then closes the screen did watch most of the film.
+    /// </summary>
+    private long _furthestMs;
+
+    /// <summary>Whether the current media was already reported, so that stopping after the end says it once.</summary>
+    private bool _reported;
+
+    /// <summary>
     /// The entry that switches subtitles off. Id -1 is the engine's own convention for that (see
     /// <see cref="PlaybackTrack"/>), so the list a viewer picks from and the number the engine gets are the same
     /// idea rather than two.
@@ -327,7 +342,39 @@ namespace MediaPortal.Frontend.ViewModels
     /// Loads and starts a media. False, with the reason in <see cref="StatusLine"/>, when there is no player or
     /// the engine refused it.
     /// </summary>
+    /// <summary>
+    /// Raised when a viewing has a final answer to "how far did they get": the media ended, the viewer pressed
+    /// Stop, or another media was opened on top of it.
+    /// </summary>
+    /// <remarks>
+    /// Only raised for media that were opened with a library id (<see cref="Play(MediaLocation, Guid?)"/>), and
+    /// only once per media. Whoever listens owns what happens next: the screen has no idea whether this machine
+    /// is talking to a server, and a report that fails is not the viewer's problem to see.
+    /// </remarks>
+    public event EventHandler<PlaybackReportedEventArgs>? PlaybackReported;
+
+    /// <summary>
+    /// The library title being played, or null for a file that was opened without one.
+    /// </summary>
+    public Guid? MediaItemId
+    {
+      get { return _mediaItemId; }
+    }
+
     public bool Play(MediaLocation location)
+    {
+      return Play(location, (Guid?) null);
+    }
+
+    /// <summary>
+    /// As <see cref="Play(MediaLocation)"/>, for a file the viewer chose in the library.
+    /// </summary>
+    /// <param name="location">The media to open.</param>
+    /// <param name="mediaItemId">
+    /// The library title behind it, which is what a finished or abandoned viewing is reported against. Null plays
+    /// the file without telling the library anything - which is what <c>--play</c> on the command line is for.
+    /// </param>
+    public bool Play(MediaLocation location, Guid? mediaItemId)
     {
       if (_disposed)
         return Refuse("this screen is closed.");
@@ -339,6 +386,13 @@ namespace MediaPortal.Frontend.ViewModels
       // the same one-frame lie as a progress bar holding the last media's position.
       string previousTitle = _title;
       bool previousHasMedia = _hasMedia;
+      Guid? previousId = _mediaItemId;
+
+      // How far the viewer got in the previous media, measured before the new one is opened: the engine forgets
+      // the length of what it was playing when it is told to open something else, and "how far" without a length
+      // has no answer.
+      int previousPercentage = PercentageReached(_furthestMs);
+
       _title = ShortName(location);
       _hasMedia = true;
 
@@ -352,6 +406,14 @@ namespace MediaPortal.Frontend.ViewModels
         _hasMedia = previousHasMedia;
         return Refuse(_player.LastFailure ?? "the player gave no reason.");
       }
+
+      // Whatever was playing before this is over now - the next episode, another film, or the same film from the
+      // top. It is said here rather than left to the caller because this is the one place that knows how far the
+      // viewer actually got.
+      Report(previousId, previousPercentage);
+      _mediaItemId = mediaItemId;
+      _furthestMs = 0;
+      _reported = false;
 
       Raise();
       return true;
@@ -377,7 +439,15 @@ namespace MediaPortal.Frontend.ViewModels
     {
       if (_player == null || !_hasMedia)
         return false;
-      return _player.Stop() ? true : Refuse(_player.LastFailure ?? "the player gave no reason.");
+
+      // Measured before the engine is stopped, because a stopped player no longer knows how long the film was,
+      // and "43 minutes" without a length is not a percentage.
+      int reached = PercentageReached(_furthestMs);
+      if (!_player.Stop())
+        return Refuse(_player.LastFailure ?? "the player gave no reason.");
+
+      Report(_mediaItemId, reached);
+      return true;
     }
 
     /// <summary>
@@ -399,6 +469,8 @@ namespace MediaPortal.Frontend.ViewModels
       if (wanted > length)
         wanted = length;
       _player.TimeInMs = wanted;
+      if (wanted > _furthestMs)
+        _furthestMs = wanted;
       return true;
     }
 
@@ -487,6 +559,8 @@ namespace MediaPortal.Frontend.ViewModels
     {
       _marshal(delegate
       {
+        if (args.TimeInMs > _furthestMs)
+          _furthestMs = args.TimeInMs;
         _positionText = Format(args.TimeInMs) + " / " +
                         (args.LengthInMs > 0 ? Format(args.LengthInMs) : "--:--");
         double fraction = args.Fraction;
@@ -516,8 +590,56 @@ namespace MediaPortal.Frontend.ViewModels
         // The engine also moves to Ended, so the state text arrives through the state event; what this adds is
         // the position of the very end, because a bar that stops short of the end reads as a stalled player.
         _statusLine = "Finished";
+
+        // The one place a completed viewing is decided. Not "99% and then it stopped", which is a player that
+        // ran out of stream, and not the last position, which after the credits is the end of a file rather than
+        // the end of a film the viewer watched.
+        Report(_mediaItemId, 100);
         Raise();
       });
+    }
+
+    /// <summary>
+    /// Says once what the viewer got of a title, to whoever is listening.
+    /// </summary>
+    /// <param name="mediaItemId">The library title, or null when the media was opened without one.</param>
+    /// <param name="percentage">
+    /// 1 to 100. Zero means there is nothing worth saying: ninety seconds of a film somebody abandoned during the
+    /// studio logos is not a fact about that film, and writing it down would make "never watched" unanswerable.
+    /// </param>
+    private void Report(Guid? mediaItemId, int percentage)
+    {
+      if (_reported || percentage < 1 || mediaItemId == null || mediaItemId == Guid.Empty)
+        return;
+
+      EventHandler<PlaybackReportedEventArgs>? listeners = PlaybackReported;
+      if (listeners == null)
+        return;
+
+      _reported = true;
+      listeners(this, new PlaybackReportedEventArgs(_mediaItemId.Value, percentage));
+    }
+
+    /// <summary>
+    /// How far the viewer got, as a whole percentage rounded down, and never a hundred.
+    /// </summary>
+    /// <remarks>
+    /// Stopping at 99.5% of a file is a person who left, and a tick on the wrong film is a lie a viewer has to
+    /// notice in order to correct. Only the engine saying "that media ended" produces a hundred (see
+    /// <see cref="OnEndOfMedia"/>). A length of zero - live TV, a stream still being probed, anything a player
+    /// holds no position in - has no percentage to report and says so with a zero.
+    /// </remarks>
+    private int PercentageReached(long reachedMs)
+    {
+      if (_player == null || reachedMs <= 0)
+        return 0;
+
+      long length = _player.LengthInMs;
+      if (length <= 0)
+        return 0;
+
+      long percent = reachedMs * 100 / length;
+      return percent > 99 ? 99 : (int) percent;
     }
 
     /// <summary>Turns a state into the words a viewer reads. One place, so the words cannot disagree.</summary>

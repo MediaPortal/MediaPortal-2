@@ -538,5 +538,212 @@ namespace Tests.Frontend
       Assert.That(_screen.Play(SomeFile("film.mkv")), Is.False);
       Assert.That(_screen.StatusLine, Does.Contain("closed"));
     }
+
+    #region What a viewing leaves behind
+
+    private static readonly Guid TITLE_ID = new Guid("66666666-6666-6666-6666-666666666666");
+
+    private readonly List<PlaybackReportedEventArgs> _reports = new List<PlaybackReportedEventArgs>();
+
+    /// <summary>
+    /// Listens once, the way the application does. Every test about reporting starts with this, because a screen
+    /// nobody is listening to keeps its opinions to itself - which is a behaviour of its own, and is tested apart.
+    /// </summary>
+    private void Listen()
+    {
+      _reports.Clear();
+      _screen.PlaybackReported += delegate (object? sender, PlaybackReportedEventArgs args) { _reports.Add(args); };
+    }
+
+    [Test]
+    public void AFilmWatchedToTheEndIsReportedAsWatched()
+    {
+      Listen();
+      _screen.Play(SomeFile("Alien Earth.mkv"), TITLE_ID);
+      Pump();
+      _player.RaisePosition(59_000, 60_000);
+      Pump();
+
+      _player.RaiseEndOfMedia();
+      Pump();
+
+      Assert.That(_reports, Has.Count.EqualTo(1));
+      Assert.That(_reports[0].MediaItemId, Is.EqualTo(TITLE_ID));
+      Assert.That(_reports[0].Percentage, Is.EqualTo(100),
+          "the engine said the media ended, which is the only thing that says a film was finished");
+    }
+
+    [Test]
+    public void StoppingHalfwayReportsHowFarTheViewerGot()
+    {
+      Listen();
+      _screen.Play(SomeFile("film.mkv"), TITLE_ID);
+      Pump();
+      _player.RaisePosition(30_000, 60_000);
+      Pump();
+
+      Assert.That(_screen.Stop(), Is.True);
+      Pump();
+
+      Assert.That(_reports, Has.Count.EqualTo(1));
+      Assert.That(_reports[0].Percentage, Is.EqualTo(50));
+    }
+
+    [Test]
+    public void HowFarSomebodyGotIsMeasuredBeforeTheEngineForgetsTheFilm()
+    {
+      // Not a trick of the fake: closing a media really does take its length away, so a screen that works the
+      // percentage out after the stop is over is left dividing by nothing and reports nothing at all.
+      _player.ForgetsLengthOnStop = true;
+      Listen();
+      _screen.Play(SomeFile("film.mkv"), TITLE_ID);
+      Pump();
+      _player.RaisePosition(45_000, 60_000);
+      Pump();
+
+      _screen.Stop();
+      Pump();
+
+      Assert.That(_player.LengthInMs, Is.EqualTo(0), "the engine really did forget");
+      Assert.That(_reports, Has.Count.EqualTo(1));
+      Assert.That(_reports[0].Percentage, Is.EqualTo(75));
+    }
+
+    [Test]
+    public void StoppingABarFromTheEndDoesNotClaimTheFilmWasFinished()
+    {
+      // The position the engine reports can reach the length itself - a paused last frame, a seek to the end - and
+      // a percentage worked out from it would read as a hundred. Only the engine's own "that media ended" says a
+      // film was finished; everything a viewer stopped is a film they left.
+      Listen();
+      _screen.Play(SomeFile("film.mkv"), TITLE_ID);
+      Pump();
+      _player.RaisePosition(60_000, 60_000);
+      Pump();
+
+      _screen.Stop();
+      Pump();
+
+      Assert.That(_reports, Has.Count.EqualTo(1));
+      Assert.That(_reports[0].Percentage, Is.EqualTo(99),
+          "a hundred is earned by finishing, not by a number reaching the end");
+    }
+
+    [Test]
+    public void AFilmNobodyGotIntoIsNotReportedAtAll()
+    {
+      Listen();
+      _screen.Play(SomeFile("film.mkv"), TITLE_ID);
+      Pump();
+      _player.RaisePosition(500, 60_000);
+      Pump();
+
+      _screen.Stop();
+      Pump();
+
+      Assert.That(_reports, Is.Empty,
+          "thirty seconds of studio logos is not a fact about a film, and writing it down would make a library"
+          + " that says a title was never watched impossible to answer");
+    }
+
+    [Test]
+    public void AFilePlayedWithoutALibraryTitleIsNotReported()
+    {
+      Listen();
+      _screen.Play(SomeFile("something-on-a-usb-stick.mkv"));
+      Pump();
+      _player.RaisePosition(40_000, 60_000);
+      Pump();
+
+      _player.RaiseEndOfMedia();
+      Pump();
+
+      Assert.That(_screen.MediaItemId, Is.Null);
+      Assert.That(_reports, Is.Empty, "there is nothing to tell the server about a file it has never seen");
+    }
+
+    [Test]
+    public void TheFurthestPointCountsRatherThanTheLastOne()
+    {
+      Listen();
+      _screen.Play(SomeFile("film.mkv"), TITLE_ID);
+      Pump();
+      _player.RaisePosition(50_000, 60_000);
+      Pump();
+
+      // The thing people do at the end of a film: wind back a minute to show somebody what they missed.
+      Assert.That(_screen.Skip(-20_000), Is.True);
+      _player.RaisePosition(30_000, 60_000);
+      Pump();
+
+      _screen.Stop();
+      Pump();
+
+      Assert.That(_reports, Has.Count.EqualTo(1));
+      Assert.That(_reports[0].Percentage, Is.EqualTo(83),
+          "they saw five sixths of it, whatever position the screen stopped on");
+    }
+
+    [Test]
+    public void TheNextFilmIsReportedForItselfAndNotForTheOneBefore()
+    {
+      Listen();
+      Guid first = Guid.NewGuid();
+      Guid second = Guid.NewGuid();
+
+      _screen.Play(SomeFile("first.mkv"), first);
+      Pump();
+      _player.RaisePosition(30_000, 60_000);
+      Pump();
+
+      _screen.Play(SomeFile("second.mkv"), second);
+      Pump();
+
+      Assert.That(_reports, Has.Count.EqualTo(1), "the first film got its one report when it was replaced");
+      Assert.That(_reports[0].MediaItemId, Is.EqualTo(first));
+      Assert.That(_reports[0].Percentage, Is.EqualTo(50));
+
+      _player.RaiseEndOfMedia();
+      Pump();
+
+      Assert.That(_reports, Has.Count.EqualTo(2));
+      Assert.That(_reports[1].MediaItemId, Is.EqualTo(second), "the second film is not credited to the first");
+      Assert.That(_reports[1].Percentage, Is.EqualTo(100));
+    }
+
+    [Test]
+    public void FinishingAFilmAndThenPressingStopSaysItOnce()
+    {
+      Listen();
+      _screen.Play(SomeFile("film.mkv"), TITLE_ID);
+      Pump();
+
+      _player.RaiseEndOfMedia();
+      Pump();
+      _screen.Stop();
+      Pump();
+
+      Assert.That(_reports, Has.Count.EqualTo(1),
+          "a play count that climbs because a viewer pressed Stop after the credits is a wrong play count");
+    }
+
+    [Test]
+    public void AScreenNobodyListensToKeepsItsReportsToItself()
+    {
+      // No Listen(): a screen on a machine where nothing subscribed. The film still ends and the screen still says
+      // so, but no report is invented for nobody. The list is emptied by hand because this fixture is one object
+      // for every test in it, so whatever an earlier test collected would otherwise still be in there.
+      _reports.Clear();
+      _screen.Play(SomeFile("film.mkv"), TITLE_ID);
+      Pump();
+
+      _player.RaiseEndOfMedia();
+      Pump();
+
+      Assert.That(_screen.StateText, Is.EqualTo("Finished"));
+      Assert.That(_reports, Is.Empty);
+    }
+
+    #endregion
   }
 }

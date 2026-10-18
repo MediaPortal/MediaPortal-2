@@ -23,8 +23,12 @@ using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using MediaPortal.Backend.MediaLibrary;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Frontend.Api;
 using MediaPortal.Utilities.Exceptions;
+using ServerMediaAspect = MediaPortal.Common.MediaManagement.DefaultItemAspects.MediaAspect;
 
 namespace Tests.Frontend
 {
@@ -278,5 +282,137 @@ namespace Tests.Frontend
 
       Assert.That(() => ServerApiClient.ResolveBaseUrl("not a url"), Throws.ArgumentException);
     }
+
+    #region Telling the server what was watched
+
+    private static readonly Guid WATCHED_ID = new Guid("77777777-7777-7777-7777-777777777777");
+    private static readonly DateTime LAST_PLAYED = new DateTime(2026, 2, 14, 22, 5, 0);
+
+    /// <summary>
+    /// A title carrying the two counters a playback report moves and nothing else, which is all the endpoint needs
+    /// to find it and to answer with what it now says about it.
+    /// </summary>
+    private class WatchedItem : MediaItem
+    {
+      public WatchedItem(Guid id, int playCount)
+          : base(id, Build(playCount))
+      {
+      }
+
+      private static IDictionary<Guid, IList<MediaItemAspect>> Build(int playCount)
+      {
+        SingleMediaItemAspect media = new SingleMediaItemAspect(ServerMediaAspect.Metadata);
+        media.SetAttribute(ServerMediaAspect.ATTR_TITLE, "Alien Earth");
+        media.SetAttribute(ServerMediaAspect.ATTR_PLAYCOUNT, playCount);
+        media.SetAttribute(ServerMediaAspect.ATTR_LASTPLAYED, LAST_PLAYED);
+        return new Dictionary<Guid, IList<MediaItemAspect>>
+        {
+            { ServerMediaAspect.ASPECT_ID, new List<MediaItemAspect> { media } }
+        };
+      }
+
+      public override IResourceLocator GetResourceLocator()
+      {
+        return null;
+      }
+    }
+
+    /// <summary>
+    /// A library that writes down every playback report it is given, so that one test can read both ends of the
+    /// round trip: what the client decided and what the library was finally told.
+    /// </summary>
+    private static IMediaLibrary ReportingLibrary(out List<string> notices)
+    {
+      List<string> told = new List<string>();
+      var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+      library.Setup(get => get.GetManagedMediaItemAspectMetadata()).Returns(
+          new Dictionary<Guid, MediaItemAspectMetadata> { { ServerMediaAspect.ASPECT_ID, ServerMediaAspect.Metadata } });
+      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, null, false))
+          .Returns(delegate { return new List<MediaItem> { new WatchedItem(WATCHED_ID, 3) }; });
+      library.Setup(get => get.NotifyPlayback(It.IsAny<Guid>(), It.IsAny<bool>()))
+          .Callback<Guid, bool>(delegate (Guid mediaItemId, bool watched)
+          {
+            told.Add(mediaItemId.ToString("D") + (watched ? " finished" : " started"));
+          });
+
+      notices = told;
+      return library.Object;
+    }
+
+    [Test]
+    public async Task AFinishedFilmIsReportedAndTheServersAnswerComesBack()
+    {
+      List<string> notices;
+      InProcessApi api = StartServer(ReportingLibrary(out notices));
+
+      using (var client = new ServerApiClient(api.BaseUrl))
+      {
+        MediaPlayback said = await client.ReportPlaybackAsync(WATCHED_ID, 100, CancellationToken.None);
+
+        Assert.That(said.Id, Is.EqualTo(WATCHED_ID));
+        Assert.That(said.Watched, Is.True);
+        Assert.That(said.PlayCount, Is.EqualTo(3), "what the library holds, not what the client hoped for");
+        Assert.That(said.LastPlayed, Is.EqualTo(LAST_PLAYED));
+        Assert.That(said.Error, Is.Null);
+      }
+
+      Assert.That(notices, Is.EqualTo(new[] { WATCHED_ID.ToString("D") + " finished" }),
+          "told once, with the id the client was given, in the words the library speaks");
+    }
+
+    [Test]
+    public async Task AFilmThatWasStartedAndLeftIsReportedAsStarted()
+    {
+      List<string> notices;
+      InProcessApi api = StartServer(ReportingLibrary(out notices));
+
+      using (var client = new ServerApiClient(api.BaseUrl))
+      {
+        MediaPlayback said = await client.ReportPlaybackAsync(WATCHED_ID, 35, CancellationToken.None);
+        Assert.That(said.Watched, Is.False, "a third of a film is not a watched film");
+      }
+
+      Assert.That(notices, Is.EqualTo(new[] { WATCHED_ID.ToString("D") + " started" }));
+    }
+
+    [Test]
+    public void ATitleTheServerHasNeverHeardOfComesBackAsTheServersOwnRefusal()
+    {
+      var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, null, false))
+          .Returns(new List<MediaItem>());
+      InProcessApi api = StartServer(library.Object);
+
+      using (var client = new ServerApiClient(api.BaseUrl))
+      {
+        ServerApiException error = Assert.ThrowsAsync<ServerApiException>(
+            () => client.ReportPlaybackAsync(WATCHED_ID, 100, CancellationToken.None))!;
+
+        Assert.That(error.StatusCode, Is.EqualTo(404));
+        Assert.That(error.Message, Does.Contain(WATCHED_ID.ToString("D")),
+            "the id is named, because a report that vanished silently is one nobody can explain later");
+        library.Verify(get => get.NotifyPlayback(It.IsAny<Guid>(), It.IsAny<bool>()), Times.Never());
+      }
+    }
+
+    [Test]
+    public void ANumberThatIsNotAPercentageNeverLeavesTheMachine()
+    {
+      List<string> notices;
+      InProcessApi api = StartServer(ReportingLibrary(out notices));
+
+      using (var client = new ServerApiClient(api.BaseUrl))
+      {
+        Assert.ThrowsAsync<ArgumentOutOfRangeException>(
+            () => client.ReportPlaybackAsync(WATCHED_ID, 101, CancellationToken.None));
+        Assert.ThrowsAsync<ArgumentOutOfRangeException>(
+            () => client.ReportPlaybackAsync(WATCHED_ID, -1, CancellationToken.None));
+      }
+
+      Assert.That(notices, Is.Empty,
+          "a client that already knows the number is nonsense does not go and ask a server the same question");
+    }
+
+    #endregion
   }
 }

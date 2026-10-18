@@ -213,4 +213,19 @@ namespace MediaPortal.Frontend.Api
       }
     }
   }
+
+  /// <summary>
+  /// The answer of <c>POST api/media/items/{id}/playback</c>: not an echo of what was reported, but what the
+  /// library holds afterwards.
+  /// </summary>
+  /// <remarks>
+  /// A screen that reported "finished" can put the server's own count on the row it is looking at, instead of
+  /// the number it hoped for. <paramref name="Error"/> is only set on an answer that did not record anything.
+  /// </remarks>
+  public record MediaPlayback(
+      [property: JsonPropertyName("id")] Guid Id,
+      [property: JsonPropertyName("playCount")] int PlayCount,
+      [property: JsonPropertyName("lastPlayed")] DateTime? LastPlayed,
+      [property: JsonPropertyName("watched")] bool Watched,
+      [property: JsonPropertyName("error")] string? Error);
 }

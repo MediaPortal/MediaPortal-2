@@ -364,6 +364,83 @@ namespace MediaPortal.Frontend.Api
           "api/media/items/" + mediaItemId.ToString("D"), cancellation).ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// Tells the server how far a viewer got into a title, so that the library's "watched" figures say something
+    /// about the viewer rather than about the file's import date.
+    /// </summary>
+    /// <param name="mediaItemId">The id from <see cref="MediaTitle.Id"/>.</param>
+    /// <param name="percentage">0 to 100; 100 says the title was watched to the end.</param>
+    /// <returns>What the library believes now - the count and the date, as it holds them.</returns>
+    /// <remarks>
+    /// <para>
+    /// JSON rather than a query parameter, because the number is the content of the request rather than a way of
+    /// choosing which title: <c>?percentage=100</c> on a POST reads like a GET that was told to lie.
+    /// </para>
+    /// <para>
+    /// Nothing here retries. A report that failed is a report that did not happen, and a client that kept trying
+    /// against a server that said "no such title" would be arguing with an answer that is not going to change -
+    /// while the viewer has already gone to bed. Whoever called it decides whether to say anything.
+    /// </para>
+    /// </remarks>
+    public async Task<MediaPlayback> ReportPlaybackAsync(Guid mediaItemId, int percentage,
+        CancellationToken cancellation = default)
+    {
+      if (percentage < 0 || percentage > 100)
+      {
+        throw new ArgumentOutOfRangeException(nameof(percentage), percentage,
+            "How far a viewer watched is a number from 0 to 100.");
+      }
+
+      Uri url = new Uri(BaseUrl, "api/media/items/" + mediaItemId.ToString("D") + "/playback");
+      string json = "{\"percentage\":" + percentage.ToString(CultureInfo.InvariantCulture) + "}";
+
+      using (StringContent body = new StringContent(json, Encoding.UTF8, "application/json"))
+      using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url) { Content = body })
+      {
+        AddToken(request);
+        try
+        {
+          using (HttpResponseMessage response = await _http.SendAsync(request,
+              HttpCompletionOption.ResponseContentRead, cancellation).ConfigureAwait(false))
+          {
+            string text = await response.Content.ReadAsStringAsync(cancellation).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+              throw new ServerApiException(url, response.StatusCode, Summarize(text));
+
+            MediaPlayback? said = JsonSerializer.Deserialize<MediaPlayback>(text, JSON_OPTIONS);
+            if (said == null)
+            {
+              throw new ServerApiException(url,
+                  string.Format("The server answered {0} at {1} with a body that was not JSON.",
+                      (int) response.StatusCode, url));
+            }
+            return said;
+          }
+        }
+        catch (ServerApiException)
+        {
+          throw;
+        }
+        catch (HttpRequestException ex)
+        {
+          throw new ServerApiException(url,
+              string.Format("No usable answer from {0}: {1}", url, ex.Message), ex);
+        }
+        catch (TaskCanceledException ex)
+        {
+          if (cancellation.IsCancellationRequested)
+            throw;
+          throw new ServerApiException(url,
+              string.Format("{0} did not answer within {1}.", url, _http.Timeout), ex);
+        }
+        catch (JsonException ex)
+        {
+          throw new ServerApiException(url,
+              string.Format("The answer from {0} could not be read: {1}", url, ex.Message), ex);
+        }
+      }
+    }
+
     public void Dispose()
     {
       if (_ownsHttpClient)
