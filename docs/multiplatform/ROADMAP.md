@@ -1465,6 +1465,90 @@ the timer does - for tests to drive. And in the headless drawing mode the existi
 render probe, which runs real Skia, while the headless tests claim behaviour. A test that asserted colours in the
 headless suite would have been asserting garbage, in the literal sense.
 
+### w. The library on screen: tiles, a list of titles, and the door that was locked
+
+**What was missing was not a skin, it was a road.** The playback screen could show a film somebody owns, but the
+home screen offered three buttons that led to developer screens, which is not a media centre. The shortest
+honest road from a running server to a film on the sofa is: a tile for a part of the library, a list of titles in
+that part, and OK on one of them. That slice is what this section is about - one endpoint, one sign-in, two
+screens - and the surprise it turned up was that the door between them had a lock on it all along.
+
+**The endpoint.** `GET api/media/titles?aspect=MovieItem&sort=title&order=desc&limit=60&offset=0` in
+`MediaController` answers one page of titles plus what is left behind the page:
+
+```
+{"aspect":"MovieItem","total":412,"offset":0,"limit":60,"returned":60,"sort":"title",
+ "titles":[{"id":"…","title":"Alien Earth","sortTitle":"Alien Earth","year":2025,
+            "runtimeMinutes":43,"path":"{D3525B2F-…}://C:\Video\Alien Earth.mkv","stub":false}]}
+```
+
+The names in that answer are the names the server really has: the aspect carrying a title's title is
+**`MediaItem`** and the one carrying its year is **`MovieItem`** - not "Media" and "Movie", which is what a reader
+of the old client's XML would expect and what this code said for about an hour. `Path` is deliberately still the
+server's own serialization (`{provider-id}://path`) rather than a file name, because whether that resource can be
+opened depends on which machine is asking; the translation lives on the client
+(`MediaLibraryPath.TryAsLocalFile`), and everything it cannot translate - a stacked provider, an archive entry -
+comes back as a sentence about why rather than as a path the player would fail on later. One line of the
+controller is worth keeping in mind when reading other code here: `MediaItem.GetResourceLocator()` **throws** on
+an item whose editions are inconsistent, so it is called per item inside a guard, not once per page. Limits are
+`DEFAULT_LIMIT = 500` and `MAX_LIMIT = 2000`, because a title list is a UI's memory, not a database dump.
+Eighteen tests in `TestMediaController` cover the sorting, the paging arithmetic, the two limits, the four error
+answers, the stub flag and the throwing locator. Two of them exist because `ActionResult<T>` in this ASP.NET
+version keeps the framework's result in `.Result` and the payload in `.Value`, and the `ActionResult<T>` itself is
+not castable to `IStatusCodeActionResult` - the `.Result` is. That is not obvious, so it is written down in the
+test helper that reads it.
+
+**The lock.** `MediaPortalAuthorizeAttribute` guards the endpoint, and
+`ServerSettings.WebAutorizationEnabled` is `true` in a field initializer *and* in its `[Setting]` default. So a
+stranger at the library endpoints is answered **403**, and that is not a regression to work around - the gate
+`run-server-check.ps1` asserts precisely that an endpoint behind that filter says 403 without a token. What the
+front end lacked was the ability to stop being a stranger.
+
+`ServerApiClient` now signs in through MP2's own endpoint - `POST Token`, OAuth password grant, form-encoded, the
+`{access_token, token_type, expires_in, issued, expires}` answer - and sends the ticket as `Authorization: Bearer`
+on every request after that. There is no second way in here, and no invented account system. The home screen grew
+a name-and-password row beside the server picker; a successful sign-in repeats the name back and re-reads the
+library, and a title list that is refused says *"Films is only for signed-in users on this server. Sign in on the
+server screen."* instead of showing an empty list, because an empty list is read as a broken front end. Two
+client tests pin the two halves that matter: the ticket from a successful sign-in is really on the next request's
+headers, and a refused one (`{"error":"invalid_grant","error_description":"…"}`) leaves the client a stranger with
+the server's own sentence as the exception message.
+
+**A test host that cannot answer "who is asking" is not a server.** Adding the filter's check to the tests turned
+every 403 into a **500**: the attribute loads `ServerSettings` through `ISettingsManager`, and `InProcessApi` had
+never registered that service, so the attribute threw instead of answering. `InProcessApi.RegisterSettings(bool
+anonymousAccessAllowed)` now registers a settings manager whose flag the test chooses - off for the tests about
+titles and pictures, on for the one test that wants to hear 403. The same run produced a second cross-platform
+lesson: `Path.IsPathFullyQualified("/media/Film.mkv")` is **false on Windows**, so a fixture path that "works on
+both platforms" has to be built from `Path.GetTempPath()`, not written as a POSIX-looking string.
+
+**The screens.** `HomeSection` (in `MediaCatalog.cs`) is the catalogue of parts of the library a viewer would
+want to watch - films, series, episodes, music, videos - filtered against the aspects *this* server actually
+has, so a server without the music plugin does not offer a music tile that cannot be filled. Each tile on the
+home screen opens a `MediaBrowserWindow` bound to `MediaBrowserViewModel`: 60 titles at a time, sorted by title,
+`More` asking for what comes after what is on screen, the first row selected because a list with nothing selected
+is a list whose OK key does nothing, and a row that names its title, its year and whether this machine could open
+it (`not playable here` before anything is pressed, the same words again if OK is pressed anyway). Enter plays,
+Escape closes, and the D-pad handler attached to the other screens is attached here too.
+
+**What it looks like, measured.** The render probe gained a fourth frame, `--screen browser`, which fills the
+list through the *wire format* - twelve titles in the endpoint's own JSON, served by a handler rather than a
+network - so the frame covers deserialisation and binding and not only drawing, the same reason the playback
+frame goes through the frame sink rather than painting a bitmap. Measured on Windows:
+`12 title(s) under "Films"`, `2058 distinct colours, 531385 differing from the background, 88529 high-contrast
+edges`, and the 1280x720 PNG shows rows of `Title (year)` with a detail line, the first row highlighted, the
+status line `12 of 12 films, sorted by title`, and the Esc hint.
+
+**Where this is still short.** A server with no user accounts cannot be signed into, and the front end then
+repeats the server's words, which is the honest answer but not a friendly one; the first-start experience on such
+a server wants its own sentence. A title whose resource is stacked (an archive entry, a virtual provider) is
+listed and marked not playable - the missing piece is a server endpoint that streams any resource whatever it is,
+which is the next thing after this. And the tiles count what the server counts; they do not yet remember which
+tile a viewer last watched.
+
+**Where the numbers stand.** `Tests.Server` 238, `Tests.Frontend` 187 (the browser screen's 11 and the sign-in
+pair among them), the whole suite **612 tests, 0 failures** on Windows.
+
 ## What cannot be verified without the user
 
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,

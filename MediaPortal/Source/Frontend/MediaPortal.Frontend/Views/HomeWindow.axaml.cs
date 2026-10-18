@@ -32,6 +32,7 @@ namespace MediaPortal.Frontend.Views
   {
     private readonly Func<Window>? _nowPlayingScreen;
     private readonly Func<Window>? _connectScreen;
+    private readonly Func<HomeSection, Window>? _sectionScreen;
 
     /// <summary>
     /// For the XAML loader and the designer: a screen with a view model that has no server, which is what it
@@ -52,11 +53,13 @@ namespace MediaPortal.Frontend.Views
     /// How to build the screen that picks the server, or <c>null</c> when the operator has taken that decision away
     /// by starting the front end with an address of its own.
     /// </param>
-    public HomeWindow(HomeViewModel home, Func<Window>? nowPlayingScreen = null, Func<Window>? connectScreen = null)
+    public HomeWindow(HomeViewModel home, Func<Window>? nowPlayingScreen = null, Func<Window>? connectScreen = null,
+        Func<HomeSection, Window>? sectionScreen = null)
     {
       DataContext = home;
       _nowPlayingScreen = nowPlayingScreen;
       _connectScreen = connectScreen;
+      _sectionScreen = sectionScreen;
       InitializeComponent();
 
       // A button that opens nothing is worse than no button, so the playback button is only offered - and only
@@ -67,7 +70,12 @@ namespace MediaPortal.Frontend.Views
       // The ring is in the order the areas are arranged: the buttons on top, the list below it. Left/right (and
       // up/down between the two areas) walk it; the list keeps its own up/down over its items, because it
       // handles those keys before they reach the ring.
-      var ring = new List<Control> { refreshButton };
+      // The tiles first: they are what the viewer came for, so the arrow keys start there rather than on a
+      // button nobody needs to press before the library appears.
+      var ring = new List<Control>();
+      if (_sectionScreen != null)
+        ring.Add(sectionsList);
+      ring.Add(refreshButton);
       if (_nowPlayingScreen != null)
         ring.Add(nowPlayingButton);
       if (_connectScreen != null)
@@ -91,8 +99,27 @@ namespace MediaPortal.Frontend.Views
           {
             if (args.Key == Key.Escape || args.Key == Key.Back)
               Close();
+            else if (args.Key == Key.Enter || args.Key == Key.Return)
+            {
+              if (sectionsList.IsFocused && sectionsList.SelectedItem is HomeSection section)
+              {
+                OpenSection(section);
+                args.Handled = true;
+              }
+            }
           },
           RoutingStrategies.Tunnel);
+    }
+
+    /// <summary>
+    /// Opens one tile: the titles of that part of the library, over the home screen.
+    /// </summary>
+    private void OpenSection(HomeSection section)
+    {
+      Window screen = _sectionScreen!(section);
+      if (!screen.IsVisible)
+        screen.Show();
+      screen.Activate();
     }
 
     /// <summary>

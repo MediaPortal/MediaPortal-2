@@ -13,10 +13,10 @@
     4. the run must exit 0 and print the answers it got;
     5. the same front end aimed at a port nobody listens on must exit 1 and say so, because a check that
        cannot fail is not a check;
-    6. while the server is still up, Frontend.RenderProbe draws the real screens through Skia and writes two
-       PNGs (default build\artifacts\frontend-render\home-windows.png and nowplaying-windows.png). The probe
-       fails this gate if a frame comes back flat; the pictures themselves are for a person, and -SkipRender
-       leaves them out.
+    6. while the server is still up, Frontend.RenderProbe draws the real screens through Skia and writes four
+       PNGs (default build\artifacts\frontend-render\: home, browser, nowplaying and connect). The probe fails
+       this gate if a frame comes back flat; the pictures themselves are for a person, and -SkipRender leaves
+       them out.
 
   What is asserted about the printed answers is their shape, never their counts: how many aspects a freshly
   created database exposes is a measurement of when the request arrived relative to the media library's
@@ -289,13 +289,15 @@ try {
       if (-not $RenderDir) { $RenderDir = Join-Path (Join-Path $repoRoot 'build\artifacts') 'frontend-render' }
       New-Item -ItemType Directory -Path $RenderDir -Force | Out-Null
 
-      # Three screens, three frames. The home screen is drawn from a server that is really answering; the
+      # Four screens, four frames. The home screen is drawn from a server that is really answering; the
       # playback screen is drawn from a scripted player, because a frame that is supposed to mean the same
-      # thing on Windows and in a container cannot depend on what a decoder happened to decode; and the
-      # connect screen is drawn with nothing found yet, which is the first thing a viewer who has never
+      # thing on Windows and in a container cannot depend on what a decoder happened to decode; the title
+      # list is drawn from a scripted page of films, for the same reason - the gate's database is empty; and
+      # the connect screen is drawn with nothing found yet, which is the first thing a viewer who has never
       # pointed the front end at a server sees.
       $frames = @(
         @{ Name = 'home-windows'; Arguments = '--server "' + $ServerUrl + '"' },
+        @{ Name = 'browser-windows'; Arguments = '--screen browser' },
         @{ Name = 'nowplaying-windows'; Arguments = '--screen nowplaying' },
         @{ Name = 'connect-windows'; Arguments = '--screen connect' }
       )

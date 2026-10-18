@@ -65,6 +65,12 @@ namespace MediaPortal.Frontend.ViewModels
     [ObservableProperty]
     private AspectViewModel? _selectedAspect;
 
+    [ObservableProperty]
+    private string _signInName = string.Empty;
+
+    [ObservableProperty]
+    private string? _signedInAs;
+
     /// <summary>
     /// For the XAML designer and for the tests that only check what the screen looks like before anything was
     /// read. A view model built this way says so in its status line instead of pretending to be connected.
@@ -81,6 +87,27 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     public ObservableCollection<AspectViewModel> Aspects { get; } = new ObservableCollection<AspectViewModel>();
+
+    /// <summary>
+    /// The parts of this server a viewer can sit down and watch, in the order the tiles are arranged.
+    /// </summary>
+    /// <remarks>
+    /// Filled at the end of a refresh, after the counts arrived, because a tile that said "?" until somebody
+    /// looked at the aspect list below it would be a tile that lies about the library half the time.
+    /// </remarks>
+    public ObservableCollection<HomeSection> Sections { get; } = new ObservableCollection<HomeSection>();
+
+    /// <summary>
+    /// The client the screen reads through, or <c>null</c> before a server was chosen.
+    /// </summary>
+    /// <remarks>
+    /// Screens that open from this one read from the same server, and "the same server" has to mean the client
+    /// that is on screen rather than one built again from a setting that may have changed since.
+    /// </remarks>
+    public ServerApiClient? Client
+    {
+      get { return _client; }
+    }
 
     /// <summary>
     /// Where the client is looking, shown on the screen so that "it says no media" can be answered without
@@ -108,12 +135,86 @@ namespace MediaPortal.Frontend.ViewModels
       running?.Cancel();
 
       _client = client;
+      SignedInAs = null;
       Aspects.Clear();
+      Sections.Clear();
       SelectedAspect = null;
       ServerDescription = null;
       IsBusy = false;
       Status = "Server address set to " + client.BaseUrl;
       OnPropertyChanged(nameof(ServerUrl));
+    }
+
+    /// <summary>
+    /// What was typed into the password box, for as long as it takes to hand it over.
+    /// </summary>
+    /// <remarks>
+    /// An ordinary property and not an observable one: nothing on screen displays it, and a screen that could
+    /// display it would be a screen that shows the password. It is cleared as soon as the server has answered,
+    /// so the front end does not go on holding a household's password while somebody is choosing a film.
+    /// </remarks>
+    public string SignInPassword
+    {
+      get;
+      set;
+    } = string.Empty;
+
+    /// <summary>
+    /// Tells the server who this is, so that the parts of the library it keeps for known callers open.
+    /// </summary>
+    /// <remarks>
+    /// MP2's server asks for this by default: <c>ServerSettings.WebAutorizationEnabled</c> is on, and the
+    /// endpoints that name titles answer a stranger with 403. The switch for a household that does not want it is
+    /// on the server, not here; what the front end can do is say which of the two situations it is standing in.
+    /// </remarks>
+    [RelayCommand]
+    public async Task SignInAsync()
+    {
+      if (_client == null)
+      {
+        Status = "No server configured";
+        return;
+      }
+
+      string name = SignInName.Trim();
+      if (name.Length == 0)
+      {
+        Status = "Say who you are first";
+        return;
+      }
+
+      string password = SignInPassword;
+      SignInPassword = string.Empty;
+      OnPropertyChanged(nameof(SignInPassword));
+
+      try
+      {
+        Status = "Asking " + _client.BaseUrl + " who " + name + " is";
+        string signedIn = await _client.SignInAsync(name, password, CancellationToken.None);
+        SignedInAs = signedIn;
+        Status = "Signed in as " + signedIn;
+
+        // The library was refused to a stranger a moment ago, so the screen has to ask again now that it is not.
+        await RefreshAsync();
+      }
+      catch (ServerApiException ex)
+      {
+        SignedInAs = null;
+        Status = ex.StatusCode == 400 || ex.StatusCode == 401
+            ? "The server does not accept that name and password: " + ex.Message
+            : ex.Message;
+      }
+      catch (OperationCanceledException)
+      {
+        Status = "Sign-in cancelled";
+      }
+      catch (Exception ex)
+      {
+        // Same reason as in RefreshAsync: this runs on a continuation from a button, and what escapes here would
+        // end the process rather than the attempt.
+        SignedInAs = null;
+        Status = "Sign-in failed: " + ex.Message;
+      }
     }
 
     /// <summary>
@@ -191,6 +292,12 @@ namespace MediaPortal.Frontend.ViewModels
             aspect.Count = null;
           }
         }
+
+        // The tiles come last: they are the first thing a viewer looks at, and a tile that already knows how
+        // many titles it holds answers the question the viewer was about to ask.
+        Sections.Clear();
+        foreach (HomeSection section in HomeSection.For(Aspects))
+          Sections.Add(section);
       }
       catch (ServerApiException ex)
       {

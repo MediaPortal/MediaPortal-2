@@ -106,4 +106,57 @@ namespace MediaPortal.Frontend.Api
       [property: JsonPropertyName("aspect")] string? Aspect,
       [property: JsonPropertyName("aspectId")] Guid? AspectId,
       [property: JsonPropertyName("count")] int Count);
+
+  /// <summary>
+  /// One title from <c>GET api/media/titles</c> - one row of the list a viewer picks from.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// <paramref name="Path"/> is the item's primary resource in the server's own serialization
+  /// (<c>{provider-id}://path</c>), not a file name the server invented for the client. It stays in that form on
+  /// purpose: the answer to "can this be watched here?" depends on where the client is, and a server that had
+  /// already decided it would have had to guess.
+  /// </para>
+  /// <para>
+  /// <paramref name="Title"/> is nullable because a title list contains items nobody ever named - an import that
+  /// found a file it could not identify leaves one behind. A screen showing the empty string looks like a bug;
+  /// a screen showing "Untitled" says what happened.
+  /// </para>
+  /// </remarks>
+  public record MediaTitle(
+      [property: JsonPropertyName("id")] Guid Id,
+      [property: JsonPropertyName("title")] string? Title,
+      [property: JsonPropertyName("sortTitle")] string? SortTitle,
+      [property: JsonPropertyName("year")] int? Year,
+      [property: JsonPropertyName("runtimeMinutes")] int? RuntimeMinutes,
+      [property: JsonPropertyName("path")] string? Path,
+      [property: JsonPropertyName("stub")] bool Stub);
+
+  /// <summary>
+  /// The answer of <c>GET api/media/titles</c>: one page of titles plus what is left behind it.
+  /// </summary>
+  /// <remarks>
+  /// <paramref name="Sort"/> is echoed by the server and is what a screen says out loud when a viewer wonders why
+  /// the list is in the order it is; <paramref name="Error"/> is only set on an empty answer that has a reason
+  /// the caller can act on.
+  /// </remarks>
+  public record MediaTitles(
+      [property: JsonPropertyName("aspect")] string? Aspect,
+      [property: JsonPropertyName("aspectId")] Guid? AspectId,
+      [property: JsonPropertyName("total")] int Total,
+      [property: JsonPropertyName("offset")] int Offset,
+      [property: JsonPropertyName("limit")] int Limit,
+      [property: JsonPropertyName("returned")] int Returned,
+      [property: JsonPropertyName("sort")] string? Sort,
+      [property: JsonPropertyName("titles")] IReadOnlyList<MediaTitle>? Titles,
+      [property: JsonPropertyName("error")] string? Error)
+  {
+    /// <summary>
+    /// Titles the server has for this aspect beyond the page that arrived.
+    /// </summary>
+    public int Remaining
+    {
+      get { return Math.Max(Total - Offset - Returned, 0); }
+    }
+  }
 }

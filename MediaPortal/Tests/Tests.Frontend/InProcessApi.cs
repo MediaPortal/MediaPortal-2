@@ -27,6 +27,8 @@ using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.Services.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess.Settings;
+using MediaPortal.Common.Settings;
 using MediaPortal.Server.Api;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.Http;
@@ -57,6 +59,7 @@ namespace Tests.Frontend
 
     public static InProcessApi Start()
     {
+      RegisterSettings(true);
       int port = GetFreePort();
       IDisposable host = SharedHttpPortHost.Start(
           new[] { "http://127.0.0.1:" + port + "/MediaPortal/Server" },
@@ -150,6 +153,29 @@ namespace Tests.Frontend
       library.Setup(get => get.CountMediaItems(It.IsAny<IEnumerable<Guid>>(), It.IsAny<IFilter>(), It.IsAny<bool>(),
           It.IsAny<bool>())).Throws(notStarted);
       return library;
+    }
+
+    /// <summary>
+    /// The settings a running server always has, so that the endpoints which ask who is calling can ask.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="MediaPortal.Common.Services.ResourceAccess.MediaPortalAuthorizeAttribute"/> reads
+    /// <c>ServerSettings.WebAutorizationEnabled</c> through this service, and without the service it does not
+    /// answer "anonymous is fine" - it throws, and the endpoint answers 500. A test host that leaves the service
+    /// out would be testing a server that cannot exist.
+    /// <para>
+    /// The flag is off by default here, which is what a home server set up to let the family watch something
+    /// looks like, and it lets the tests about titles and pictures talk about titles and pictures. Saying
+    /// <c>false</c> for <paramref name="anonymousAccessAllowed"/> builds the other server - the one that
+    /// answers a stranger with 403 - which is what the front end has to be able to say out loud.
+    /// </para>
+    /// </remarks>
+    public static void RegisterSettings(bool anonymousAccessAllowed)
+    {
+      var settings = new Mock<ISettingsManager>();
+      settings.Setup(get => get.Load<ServerSettings>())
+          .Returns(new ServerSettings { WebAutorizationEnabled = !anonymousAccessAllowed });
+      ServiceRegistration.Set<ISettingsManager>(settings.Object);
     }
 
     public static void RegisterMediaLibrary(IMediaLibrary mediaLibrary)

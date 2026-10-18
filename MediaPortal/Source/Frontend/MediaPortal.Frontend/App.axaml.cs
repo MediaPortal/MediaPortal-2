@@ -385,8 +385,62 @@ namespace MediaPortal.Frontend
     private Window BuildHomeScreen(IClassicDesktopStyleApplicationLifetime desktop)
     {
       return new HomeWindow(_home,
-          _nowPlaying == null ? null : delegate { return new NowPlayingWindow(_nowPlaying, _frames); },
-          _serverMayBeChanged ? delegate { return BuildConnectionScreen(desktop); } : null);
+          _nowPlaying == null ? null : new Func<Avalonia.Controls.Window>(NowPlayingScreen),
+          _serverMayBeChanged ? delegate { return BuildConnectionScreen(desktop); } : null,
+          delegate (HomeSection section) { return BuildBrowserScreen(section); });
+    }
+
+    /// <summary>
+    /// The playback screen, the one the whole application has.
+    /// </summary>
+    /// <remarks>
+    /// Asked for by the home screen's button and by a title chosen in the library. If the screen is already open
+    /// it is raised rather than built again: a viewer who goes back to the library to fetch the next episode and
+    /// returns has to find the same film at the same position, and a second window over the same player would
+    /// show the same film twice, which is confusing at best and at worst looks like two films competing for the
+    /// decoder.
+    /// </remarks>
+    private Avalonia.Controls.Window NowPlayingScreen()
+    {
+      NowPlayingWindow? open = _playWindow;
+      if (open != null && open.IsVisible)
+        return open;
+
+      _playWindow = new NowPlayingWindow(_nowPlaying!, _frames);
+      return _playWindow;
+    }
+
+    /// <summary>
+    /// One tile of the home screen opened: its titles, read through the client the home screen is using.
+    /// </summary>
+    private Avalonia.Controls.Window BuildBrowserScreen(HomeSection section)
+    {
+      MediaBrowserViewModel browser = new MediaBrowserViewModel(_home.Client, section);
+      browser.PlayRequested += OnTitleChosen;
+      return new MediaBrowserWindow(browser,
+          _nowPlaying == null ? null : new Func<Avalonia.Controls.Window>(NowPlayingScreen));
+    }
+
+    /// <summary>
+    /// A viewer pressed OK on a title. This is the moment the library becomes a film.
+    /// </summary>
+    /// <remarks>
+    /// Said on the console as well as put on the browser's status line, because the front end is also run from a
+    /// terminal on a machine without a window manager, where a silent refusal is indistinguishable from a
+    /// playback that is merely quiet.
+    /// </remarks>
+    private void OnTitleChosen(object? sender, TitleViewModel title)
+    {
+      if (_nowPlaying == null)
+      {
+        Console.WriteLine("play:     " + title.Name + " - this machine has no player");
+        return;
+      }
+
+      if (_nowPlaying.Play(MediaLocation.FromFile(title.LocalPath!)))
+        Console.WriteLine("play:     " + System.IO.Path.GetFileName(title.LocalPath) + " from the library");
+      else
+        Console.WriteLine("play:     refused - " + _nowPlaying.StatusLine);
     }
 
     /// <summary>

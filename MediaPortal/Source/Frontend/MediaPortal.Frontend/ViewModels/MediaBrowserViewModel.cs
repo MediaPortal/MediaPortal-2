@@ -1,0 +1,301 @@
+/*
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+using System;
+using System.Collections.ObjectModel;
+using System.Threading;
+using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using MediaPortal.Frontend.Api;
+
+namespace MediaPortal.Frontend.ViewModels
+{
+  /// <summary>
+  /// One row of the title list.
+  /// </summary>
+  /// <remarks>
+  /// The row decides here whether it can be watched, because the answer belongs to the row: a library of two
+  /// hundred titles on a machine that can reach only half of them is not a screen that should let the viewer
+  /// press their way through the other half to find out.
+  /// </remarks>
+  public sealed class TitleViewModel
+  {
+    private readonly string? _unplayableReason;
+
+    public TitleViewModel(MediaTitle title)
+    {
+      Title = title;
+      if (!MediaLibraryPath.TryAsLocalFile(title.Path, out string localPath, out string? reason))
+        _unplayableReason = reason;
+      else
+        LocalPath = localPath;
+    }
+
+    /// <summary>The answer from the server, unchanged.</summary>
+    public MediaTitle Title { get; }
+
+    /// <summary>The file to open, when this machine can open it.</summary>
+    public string? LocalPath { get; }
+
+    public bool Playable
+    {
+      get { return LocalPath != null; }
+    }
+
+    /// <summary>Why this title cannot be watched here, or <c>null</c> when it can.</summary>
+    public string? UnplayableReason
+    {
+      get { return _unplayableReason; }
+    }
+
+    /// <summary>
+    /// The name, or a word that says there is none. An empty row reads as a rendering bug; "Untitled" reads as
+    /// a file nobody named, which is what it is.
+    /// </summary>
+    public string Name
+    {
+      get { return string.IsNullOrWhiteSpace(Title.Title) ? "Untitled" : Title.Title!.Trim(); }
+    }
+
+    /// <summary>The name a viewer scans for, with the article moved to the back - what the server sorted by.</summary>
+    public string SortName
+    {
+      get
+      {
+        string? sort = Title.SortTitle;
+        return string.IsNullOrWhiteSpace(sort) ? Name : sort!.Trim();
+      }
+    }
+
+    /// <summary>What the left column of the row says: the name, then the year it is known by.</summary>
+    public string Line
+    {
+      get { return Title.Year.HasValue ? Name + " (" + Title.Year.Value + ")" : Name; }
+    }
+
+    /// <summary>
+    /// The right column: how long it is, and what is wrong with it if something is.
+    /// </summary>
+    public string Detail
+    {
+      get
+      {
+        if (!Playable)
+          return "not playable here";
+        string length = Title.RuntimeMinutes.HasValue
+            ? Title.RuntimeMinutes.Value + " min"
+            : "";
+        if (Title.Stub)
+          return string.IsNullOrEmpty(length) ? "stub" : length + " · stub";
+        return length;
+      }
+    }
+  }
+
+  /// <summary>
+  /// The list of titles behind one home tile, and the reading that fills it.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Pages are read one at a time and never all at once. A library of 40 000 items is a real household, and a
+  /// screen that fetched it to show twenty would be waiting minutes for a list nobody scrolls through in one
+  /// evening; "more" is a row on the screen because the viewer is the one who decides whether to ask again.
+  /// </para>
+  /// <para>
+  /// Like the home screen, this view model knows nothing about Avalonia, so the whole of it is testable against
+  /// a server that is really answering.
+  /// </para>
+  /// </remarks>
+  public partial class MediaBrowserViewModel : ObservableObject
+  {
+    /// <summary>
+    /// Titles per request. A television shows around ten rows, and reading ahead of what fits on the screen twice
+    /// over keeps the remote from waiting on the network without fetching a whole season.
+    /// </summary>
+    public const int PAGE_SIZE = 60;
+
+    private readonly ServerApiClient? _client;
+    private CancellationTokenSource? _running;
+
+    [ObservableProperty]
+    private string _status;
+
+    [ObservableProperty]
+    private bool _isBusy;
+
+    [ObservableProperty]
+    private bool _canLoadMore;
+
+    [ObservableProperty]
+    private TitleViewModel? _selected;
+
+    public MediaBrowserViewModel()
+        : this(null, null)
+    {
+    }
+
+    public MediaBrowserViewModel(ServerApiClient? client, HomeSection? section)
+    {
+      _client = client;
+      Section = section;
+      AspectName = section?.Aspect.Name ?? "";
+      Heading = section?.Label ?? "Titles";
+      _status = client == null ? "No server configured"
+          : section == null ? "No section chosen"
+          : "Reading " + section.Label;
+    }
+
+    /// <summary>The tile this list came from, or <c>null</c> in the designer.</summary>
+    public HomeSection? Section { get; }
+
+    /// <summary>The aspect the server is asked for, in its own spelling.</summary>
+    public string AspectName { get; }
+
+    /// <summary>What the screen is called at the top.</summary>
+    public string Heading { get; }
+
+    public ObservableCollection<TitleViewModel> Titles { get; } = new ObservableCollection<TitleViewModel>();
+
+    /// <summary>
+    /// Raised when a viewer asked to watch a title and this view model decided it is watchable. The application
+    /// owns the player, so it decides what that means; this class only says which file it handed over.
+    /// </summary>
+    public event EventHandler<TitleViewModel>? PlayRequested;
+
+    /// <summary>
+    /// Reads the first page. Called when the screen appears, so that opening a tile and pressing Refresh on the
+    /// home screen both lead to a filled list rather than an empty one.
+    /// </summary>
+    [RelayCommand]
+    public async Task OpenAsync()
+    {
+      Titles.Clear();
+      Selected = null;
+      CanLoadMore = false;
+      await ReadAsync(0);
+    }
+
+    /// <summary>
+    /// Reads the page after the ones already on screen.
+    /// </summary>
+    [RelayCommand]
+    public async Task LoadMoreAsync()
+    {
+        await ReadAsync(Titles.Count);
+    }
+
+    /// <summary>
+    /// The viewer pressed OK on a row: either the application is told to play it, or the row's own reason why not
+    /// is put on the status line. Both are said in the same place, so "nothing happened" is never the answer.
+    /// </summary>
+    [RelayCommand]
+    public void Play()
+    {
+      Play(Selected);
+    }
+
+    public void Play(TitleViewModel? title)
+    {
+      if (title == null)
+      {
+        Status = "Nothing selected";
+        return;
+      }
+
+      if (!title.Playable)
+      {
+        Status = title.Name + " cannot be watched from here: " + title.UnplayableReason;
+        return;
+      }
+
+      Selected = title;
+      PlayRequested?.Invoke(this, title);
+    }
+
+    private async Task ReadAsync(int offset)
+    {
+      if (_client == null)
+      {
+        Status = "No server configured";
+        return;
+      }
+
+      // One read at a time. A viewer holding down the arrow key on the "more" row can queue a dozen requests;
+      // the older ones are cancelled rather than allowed to append pages out of order.
+      CancellationTokenSource? previous = _running;
+      CancellationTokenSource cancellation = new CancellationTokenSource();
+      _running = cancellation;
+      previous?.Cancel();
+
+      IsBusy = true;
+      try
+      {
+        MediaTitles answer = await _client.GetTitlesAsync(AspectName, "title", false, PAGE_SIZE, offset,
+            cancellation.Token);
+
+        if (offset == 0)
+          Titles.Clear();
+
+        foreach (MediaTitle title in answer.Titles ?? Array.Empty<MediaTitle>())
+          Titles.Add(new TitleViewModel(title));
+
+        Selected = Selected ?? (Titles.Count > 0 ? Titles[0] : null);
+        CanLoadMore = answer.Remaining > 0;
+
+        Status = answer.Total == 0
+            ? "This server has no " + Heading.ToLowerInvariant()
+            : string.Format("{0} of {1} {2}, sorted by {3}", Titles.Count, answer.Total, Heading.ToLowerInvariant(),
+                answer.Sort ?? "the server's order");
+        if (!string.IsNullOrEmpty(answer.Error))
+          Status = answer.Error;
+      }
+      catch (ServerApiException ex)
+      {
+        if (ex.StatusCode == 403)
+        {
+          // MP2 asks for a token when the server was configured to know who is asking. Saying so is the whole
+          // answer available from this screen, and it is a better one than an empty list.
+          Status = Heading + " is only for signed-in users on this server. Sign in on the server screen.";
+        }
+        else if (ex.NotReady)
+          Status = "The server is not ready yet: " + ex.Message;
+        else
+          Status = ex.Message;
+      }
+      catch (OperationCanceledException)
+      {
+        // A newer read was asked for; it reports its own status.
+      }
+      catch (Exception ex)
+      {
+        // Reported rather than thrown: this method is reached from a button on screen, and an exception that
+        // escapes an async command ends the process, not just the read.
+        Status = "Reading failed: " + ex.Message;
+      }
+      finally
+      {
+        if (ReferenceEquals(_running, cancellation))
+        {
+          _running = null;
+          IsBusy = false;
+        }
+        cancellation.Dispose();
+      }
+    }
+  }
+}

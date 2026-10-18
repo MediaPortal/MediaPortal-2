@@ -20,9 +20,9 @@ does *not*, because those differences are how CI surprises happen.
 | `test-canary-linux.ps1` | Builds that image and runs the canary tests inside a Linux container. |
 | `Dockerfile.cross` | Linux **cross-compile** image: builds the whole `MP2-Server.sln` under `mcr.microsoft.com/dotnet/sdk:$SDK_TAG` (default `10.0`). |
 | `test-server-linux.ps1` | Runs that image (see "Compiling on Linux" below for the package-cache it needs). |
-| `test-frontend-check.ps1` | Starts the real server, runs the built front end with `--check` against it, then against a port nobody listens on: exit 0 plus the server's own answers (the player's answer about whether this machine can play, and where the address it used came from), then exit 1 plus a readable message. `MP2_SETTINGS_FILE` is pointed at a temp file so the run can neither read nor overwrite the developer's saved server. While that server is up it renders three screens with `Frontend.RenderProbe` - home, playback, and the pick-a-server screen with nothing found yet (`-SkipRender`, `-RenderDir`) - and it refuses to execute a DLL older than its own sources. |
+| `test-frontend-check.ps1` | Starts the real server, runs the built front end with `--check` against it, then against a port nobody listens on: exit 0 plus the server's own answers (the player's answer about whether this machine can play, and where the address it used came from), then exit 1 plus a readable message. `MP2_SETTINGS_FILE` is pointed at a temp file so the run can neither read nor overwrite the developer's saved server. While that server is up it renders four screens with `Frontend.RenderProbe` - home, the list of titles in one part of the library (twelve films served in the endpoint's own JSON, so the frame covers the parsing too), playback, and the pick-a-server screen with nothing found yet (`-SkipRender`, `-RenderDir`) - and it refuses to execute a DLL older than its own sources. |
 | `test-frontend-discovery.ps1` | The autodetection gate. Deploys a server layout, starts the server, waits for its `UPnP server online hosting` line, and runs `MediaPortal.Frontend --discover` as its own process: the front end must find the server from its SSDP announcement alone (nothing is passed to it, and `MP2_SETTINGS_FILE` points at a file that does not exist), list it, and exit 0. Windows only: a container guest has no route to a host multicast group. |
-| `Dockerfile.frontend` | Linux image that builds `MP2-Frontend.sln`, runs `Tests.Frontend` headless and renders three screens with `Frontend.RenderProbe` on Skia - no display, no `-windows` target, and deliberately no `EnableWindowsTargeting`. |
+| `Dockerfile.frontend` | Linux image that builds `MP2-Frontend.sln`, runs `Tests.Frontend` headless and renders four screens with `Frontend.RenderProbe` on Skia - no display, no `-windows` target, and deliberately no `EnableWindowsTargeting`. |
 | `test-frontend-linux.ps1` | Runs that image (same package-cache requirement). `-ServeFromHost` starts the server on this machine and points the container at it through `host.docker.internal:55555`, so the home-screen frame the run produces is the populated screen. |
 | `Dockerfile.drawing`, `drawing-probe/` | Not a gate: measures which half of `System.Drawing` works on Linux. Read it before changing what `spine.ps1` counts. |
 
@@ -1678,9 +1678,12 @@ captures the frame, counts its pixels and writes a PNG:
         --out build\artifacts\frontend-render\home.png --server http://127.0.0.1:55555/MediaPortal/Server
 
 - `--out` is required, its directory is created, and the file must come back with a PNG signature.
-- `--screen home|nowplaying` picks the screen (default `home`). The playback screen is driven by a *scripted*
-  player rather than libVLC: a frame that is supposed to mean the same thing on Windows and in a container cannot
-  depend on which moment a decoder happened to reach, and the probe's job is the drawing, not the decoding.
+- `--screen home|browser|nowplaying|connect` picks the screen (default `home`). The playback screen is driven by a
+  *scripted* player rather than libVLC, and the title list by a *scripted* page of twelve films served in the exact
+  JSON `GET api/media/titles` answers with: a frame that is supposed to mean the same thing on Windows and in a
+  container cannot depend on which moment a decoder happened to reach, nor on whether whoever runs the gate has
+  imported anything. Both still go through the real parsing and the real bindings - the probe's job is the
+  drawing, not the decoding and not a shortcut into the view model.
 - `--server` renders the populated screen; without it (and without `MP2_SERVER`) the screen's own "no server"
   state is rendered, which is a real state and gets measured too.
 - `--width`/`--height` default to 1280x720, and anything below 100x100 is refused as an argument error (exit 2).

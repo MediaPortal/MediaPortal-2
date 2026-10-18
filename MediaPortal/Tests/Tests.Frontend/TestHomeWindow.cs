@@ -181,8 +181,30 @@ namespace Tests.Frontend
 
     private static ListBox AspectList(Window window)
     {
-      return window.GetVisualDescendants().OfType<ListBox>().SingleOrDefault()
-          ?? throw new AssertionException("the screen has no list to show aspects in");
+      return ListBoxNamed(window, "aspectsList");
+    }
+
+    /// <summary>
+    /// The row of tiles a viewer opens a part of the library from, when the screen was given a way to open one.
+    /// </summary>
+    private static ListBox TilesList(Window window)
+    {
+      return ListBoxNamed(window, "sectionsList");
+    }
+
+    /// <summary>
+    /// One of the screen's lists, by the name the screen gives it.
+    /// </summary>
+    /// <remarks>
+    /// Found by name and not by "the only list on the screen": since the home screen shows the library as tiles
+    /// above the aspect list, there are two, and a test that grabs "the list" would be testing whichever one the
+    /// visual tree happened to yield.
+    /// </remarks>
+    private static ListBox ListBoxNamed(Window window, string name)
+    {
+      return window.GetVisualDescendants().OfType<ListBox>()
+          .FirstOrDefault(list => string.Equals(list.Name, name, System.StringComparison.Ordinal))
+          ?? throw new AssertionException("the screen has no list named '" + name + "'");
     }
 
     /// <summary>

@@ -36,6 +36,39 @@
                  Text="{Binding ServerUrl, StringFormat='Server: {0}'}" />
     </StackPanel>
 
+    <!-- The library itself. Each tile is one part of it that this server actually holds, so a fresh server
+         with only music on it offers music and nothing else; the counts are on the tile because "how much is
+         there?" is the question a viewer is asking when they look at one. -->
+    <ListBox Name="sectionsList"
+             DockPanel.Dock="Top"
+             Focusable="True"
+             ItemsSource="{Binding Sections}"
+             FontSize="22"
+             Margin="0,0,0,18"
+             Background="Transparent"
+             BorderThickness="0">
+      <ListBox.ItemsPanel>
+        <ItemsPanelTemplate>
+          <WrapPanel />
+        </ItemsPanelTemplate>
+      </ListBox.ItemsPanel>
+      <ListBox.ItemTemplate>
+        <DataTemplate x:DataType="vm:HomeSection">
+          <StackPanel Spacing="4" MinWidth="190" Margin="0,0,26,14">
+            <TextBlock Text="{Binding Badge}"
+                       FontSize="34"
+                       FontWeight="SemiBold"
+                       Opacity="0.8" />
+            <TextBlock Text="{Binding Label}"
+                       FontSize="22" />
+            <TextBlock Text="{Binding CountText}"
+                       FontSize="14"
+                       Opacity="0.55" />
+          </StackPanel>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+
     <!-- The two things a viewer can do from the home screen: ask the server again, and open what is playing.
          The playback button is only there when the application has a player to show (see App), so a machine
          without libVLC does not get a button that leads to a screen that cannot play anything. -->
@@ -73,6 +106,9 @@
 
     <Grid ColumnDefinitions="420,*" ColumnSpacing="40">
 
+      <!-- Below the tiles on purpose: what the database is made of is the answer to "why is there no tile for
+           X?", and the tiles are the reason somebody came to the screen. -->
+
       <!-- Focusable is stated rather than trusted: measured on this very screen, the list reported itself not
            focusable, which left the remote's arrow keys unable to reach it at all. A control the viewer has to
            walk into with a remote says so on the screen. -->
@@ -95,6 +131,35 @@
       </ListBox>
 
       <StackPanel Grid.Column="1" Spacing="12">
+        <!-- A server with MP2's own configuration keeps its titles from strangers, so the front end has to be
+             able to say who it is. The password is a box with dots rather than a PasswordBox because a
+             PasswordBox cannot be bound: a screen that cannot read what was typed cannot sign anybody in. What
+             is typed is handed to the server and forgotten straight afterwards. -->
+        <StackPanel Name="signInRow" Orientation="Horizontal" Spacing="12"
+                    IsVisible="{Binding SignedInAs, Converter={x:Static ObjectConverters.IsNull}}">
+          <TextBox Name="signInName"
+                   Text="{Binding SignInName}"
+                   Watermark="User name"
+                   FontSize="18"
+                   MinWidth="200" />
+          <TextBox Name="signInPassword"
+                   Text="{Binding SignInPassword}"
+                   PasswordChar="•"
+                   Watermark="Password"
+                   FontSize="18"
+                   MinWidth="200" />
+          <Button Name="signInButton"
+                  Content="Sign in"
+                  Command="{Binding SignInCommand}"
+                  FontSize="18"
+                  Padding="20,8" />
+        </StackPanel>
+        <TextBlock Name="signedInAs"
+                   FontSize="16"
+                   Opacity="0.75"
+                   IsVisible="{Binding SignedInAs, Converter={x:Static ObjectConverters.IsNotNull}}"
+                   Text="{Binding SignedInAs, StringFormat='Signed in as {0}'}" />
+
         <TextBlock Text="{Binding SelectedAspect.Name}"
                    FontSize="28"
                    FontWeight="SemiBold" />

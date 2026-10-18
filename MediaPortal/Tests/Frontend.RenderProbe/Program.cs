@@ -20,9 +20,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Text.Json;
 using System.Threading;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Headless;
@@ -55,7 +60,7 @@ namespace FrontendProbe
   public static class RenderProbe
   {
     private const string USAGE =
-        "Frontend.RenderProbe --out <file.png> [--screen <home|nowplaying|connect>] [--server <url>] [--width <n>] [--height <n>]\n" +
+        "Frontend.RenderProbe --out <file.png> [--screen <home|nowplaying|connect|browser>] [--server <url>] [--width <n>] [--height <n>]\n" +
         "  --out <file>     where to write the rendered frame (PNG); its directory is created\n" +
         "  --screen <name>  which screen to render (default home)\n" +
         "  --server <url>   render the populated screen by asking this server (otherwise MP2_SERVER,\n" +
@@ -258,9 +263,38 @@ namespace FrontendProbe
 
         window = new ConnectionWindow(connection);
       }
+      else if (screenName.Equals("browser", StringComparison.Ordinal))
+      {
+        if (online)
+          Console.WriteLine("note:     --server belongs to the home screen; the title list is scripted instead");
+
+        // The library list with something in it. Scripted rather than asked of the gate's server, whose database
+        // is empty on purpose: whether a row of titles is laid out and legible from a sofa cannot depend on
+        // whether whoever runs the gate happens to have imported anything. The titles arrive in the server's own
+        // answer shape (see <see cref="ScriptedTitles"/>), so the frame covers the parsing and the bindings too.
+        HomeSection films = new HomeSection("Films",
+            new AspectViewModel(new MediaAspect(Guid.Empty, "MovieItem", true, false, null,
+                Array.Empty<AspectAttribute>())));
+
+        MediaBrowserViewModel browser = new MediaBrowserViewModel(
+            new ServerApiClient(new Uri("http://127.0.0.1:1/MediaPortal/Server/"),
+                new HttpClient(new ScriptedTitles())), films);
+        browser.OpenCommand.Execute(null);
+        Pump(TimeSpan.FromMilliseconds(500));
+
+        Console.WriteLine("content:  " + browser.Titles.Count + " title(s) under \"" + browser.Heading
+            + "\", status: " + browser.Status);
+        if (browser.Titles.Count == 0)
+        {
+          Console.WriteLine("FAILED:   the list came up empty, so the frame would show an empty screen and prove nothing.");
+          return 1;
+        }
+
+        window = new MediaBrowserWindow(browser, null);
+      }
       else
       {
-        return Usage("unknown screen '" + screenName + "'; this probe renders home, nowplaying or connect.");
+        return Usage("unknown screen '" + screenName + "'; this probe renders home, nowplaying, connect or browser.");
       }
 
       window.Width = width;
@@ -429,6 +463,51 @@ namespace FrontendProbe
       if (skia is null)
         return "the Avalonia.Skia assembly is not loaded - whatever drew, it was not Skia";
       return "Avalonia.Skia " + skia.GetName().Version;
+    }
+
+    /// <summary>
+    /// Twelve films, in the exact shape <c>GET api/media/titles</c> answers in, served without a network.
+    /// </summary>
+    /// <remarks>
+    /// The answer is written as the wire format rather than handed to the screen as view models, so that the
+    /// frame proves the parsing and the bindings as well as the drawing - the same reason the playback frame goes
+    /// through the frame sink instead of painting a bitmap by hand. The paths point into this machine's temp
+    /// directory because that is a place this machine can open, which is what makes a row say its length instead
+    /// of "not playable here".
+    /// </remarks>
+    private sealed class ScriptedTitles : HttpMessageHandler
+    {
+      private static readonly string[] NAMES =
+      {
+          "Nimmerland", "Alien Earth", "The Long Shore", "Winter in the Mountains", "A Quiet Harbour",
+          "Paper Cities", "The Sixth Continent", "Between Two Rivers", "Northlight", "The Cartographer",
+          "Salt and Static", "A Room Facing East"
+      };
+
+      protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+          CancellationToken cancellation)
+      {
+        string folder = Path.Combine(Path.GetTempPath(), "mp2-render");
+        List<MediaTitle> titles = new List<MediaTitle>();
+
+        for (int i = 0; i < NAMES.Length; i++)
+        {
+          titles.Add(new MediaTitle(
+              new Guid(string.Format("00000000-0000-4000-8000-{0:D12}", i + 1)),
+              NAMES[i], NAMES[i], 2011 + i, 88 + i * 3,
+              "{D3525B2F-7322-430C-87E7-CDA8EBD6EDD2}://" + Path.Combine(folder, NAMES[i] + ".mkv"),
+              false));
+        }
+
+        MediaTitles page = new MediaTitles("MovieItem", null, NAMES.Length, 0, NAMES.Length, NAMES.Length,
+            "title", titles, null);
+
+        return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+        {
+          RequestMessage = request,
+          Content = new StringContent(JsonSerializer.Serialize(page), Encoding.UTF8, "application/json")
+        });
+      }
     }
 
     /// <summary>

@@ -16,7 +16,10 @@
 */
 
 using System;
+using System.Globalization;
 using System.Net;
+using System.Collections.Generic;
+using System.Net.Http.Headers;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
@@ -71,6 +74,7 @@ namespace MediaPortal.Frontend.Api
 
     private readonly HttpClient _http;
     private readonly bool _ownsHttpClient;
+    private string? _accessToken;
 
     public ServerApiClient(Uri baseUrl, HttpClient? httpClient = null, TimeSpan? timeout = null)
     {
@@ -98,6 +102,120 @@ namespace MediaPortal.Frontend.Api
     /// screen is built with is something a test can state instead of something a reader has to trust.
     /// </summary>
     public TimeSpan Timeout { get { return _http.Timeout; } }
+
+    /// <summary>
+    /// The bearer token this client sends along, or <c>null</c> while it is asking as a stranger.
+    /// </summary>
+    /// <remarks>
+    /// Set by <see cref="SignInAsync"/> and sent as <c>Authorization: Bearer</c> on every following request. A
+    /// server that has MP2's default configuration answers a stranger at the library endpoints with 403 - that
+    /// is the product's own rule, gate-tested in <c>run-server-check.ps1</c> - so this field is the difference
+    /// between a media centre and a screen that says "not for you".
+    /// </remarks>
+    public string? AccessToken
+    {
+      get { return _accessToken; }
+      set { _accessToken = string.IsNullOrWhiteSpace(value) ? null : value.Trim(); }
+    }
+
+    /// <summary>
+    /// Asks the server who this is, and keeps the token it hands back for every later request.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// MP2's own OAuth endpoint at <c>POST Token</c>, password grant, form encoded - the endpoint the 2.3 remote
+    /// clients use, with the error strings it has always produced. Nothing here invents a second way in.
+    /// </para>
+    /// <para>
+    /// Over plain HTTP, which is what MP2's resource server speaks on a home network. A password across a network
+    /// the viewer does not control is a bad idea and this code does not pretend otherwise; the server's own
+    /// "Web authorization" setting is the switch for a deployment that must not identify its callers at all.
+    /// </para>
+    /// </remarks>
+    /// <returns>The name the server says it signed in, which is what the screen repeats back.</returns>
+    public async Task<string> SignInAsync(string userName, string password, CancellationToken cancellation)
+    {
+      if (string.IsNullOrWhiteSpace(userName))
+        throw new ArgumentException("Nobody is named.", nameof(userName));
+
+      Uri url = new Uri(BaseUrl, "Token");
+      FormUrlEncodedContent form = new FormUrlEncodedContent(new[]
+      {
+          new KeyValuePair<string, string>("grant_type", "password"),
+          new KeyValuePair<string, string>("username", userName),
+          new KeyValuePair<string, string>("password", password ?? string.Empty)
+      });
+
+      try
+      {
+        using (HttpResponseMessage response = await _http.PostAsync(url, form, cancellation).ConfigureAwait(false))
+        {
+          string body = await response.Content.ReadAsStringAsync(cancellation).ConfigureAwait(false);
+          TokenAnswer? answer = TryRead(body);
+
+          if (!response.IsSuccessStatusCode || answer == null || string.IsNullOrEmpty(answer.access_token))
+          {
+            string said = answer != null && !string.IsNullOrEmpty(answer.error_description)
+                ? answer.error_description
+                : Summarize(body);
+            if (string.IsNullOrEmpty(said))
+              said = "the server answered " + (int) response.StatusCode;
+            throw new ServerApiException(url, response.StatusCode, said);
+          }
+
+          _accessToken = answer.access_token;
+          return userName;
+        }
+      }
+      catch (ServerApiException)
+      {
+        throw;
+      }
+      catch (HttpRequestException ex)
+      {
+        throw new ServerApiException(url, string.Format("No usable answer from {0}: {1}", url, ex.Message), ex);
+      }
+      catch (TaskCanceledException ex)
+      {
+        if (cancellation.IsCancellationRequested)
+          throw;
+        throw new ServerApiException(url, string.Format("{0} did not answer within {1}.", url, _http.Timeout), ex);
+      }
+    }
+
+    /// <summary>
+    /// Forgets who this client signed in as. The next request is a stranger's again.
+    /// </summary>
+    public void SignOut()
+    {
+      _accessToken = null;
+    }
+
+    private static TokenAnswer? TryRead(string body)
+    {
+      try
+      {
+        return JsonSerializer.Deserialize<TokenAnswer>(body, JSON_OPTIONS);
+      }
+      catch (JsonException)
+      {
+        return null;
+      }
+    }
+
+    /// <summary>
+    /// The body of <c>POST Token</c>, in both directions. The server spells its fields the way OAuth does and
+    /// the property names say so; <paramref name="userName"/> is what the server chose to answer with, which is
+    /// not always what was typed.
+    /// </summary>
+    private sealed class TokenAnswer
+    {
+      public string? access_token { get; set; }
+      public string? token_type { get; set; }
+      public long expires_in { get; set; }
+      public string? error { get; set; }
+      public string? error_description { get; set; }
+    }
 
     /// <summary>
     /// Works out which server to talk to: an explicit argument wins over <c>MP2_SERVER</c>, which wins over
@@ -179,6 +297,42 @@ namespace MediaPortal.Frontend.Api
       return await GetJsonAsync<MediaCount>(url, cancellation).ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// <c>GET api/media/titles</c> - the titles carrying one aspect, one page at a time.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This is the first endpoint of this client that can answer <c>403</c>. Titles are a household's data, and
+    /// MP2's rule is that a caller is identified unless the server was configured not to care; where it does
+    /// care, an anonymous request is refused. That reaches the caller as a <see cref="ServerApiException"/> with
+    /// <see cref="ServerApiException.StatusCode"/> 403, and the screen turns it into "this server wants you to
+    /// sign in". It is not retried here: an answer that was a decision is not a hiccup.
+    /// </para>
+    /// <para>
+    /// <paramref name="limit"/> and <paramref name="sort"/> are sent only when they say something, so that the
+    /// URL a viewer sees in a log is the request they meant rather than the whole parameter list with defaults
+    /// spelled out.
+    /// </para>
+    /// </remarks>
+    public async Task<MediaTitles> GetTitlesAsync(string aspect, string? sort = null, bool descending = false,
+        int limit = 0, int offset = 0, CancellationToken cancellation = default)
+    {
+      if (string.IsNullOrWhiteSpace(aspect))
+        throw new ArgumentException("Titles of which aspect?", nameof(aspect));
+
+      string url = "api/media/titles?aspect=" + Uri.EscapeDataString(aspect.Trim());
+      if (!string.IsNullOrEmpty(sort))
+        url += "&sort=" + Uri.EscapeDataString(sort);
+      if (descending)
+        url += "&order=desc";
+      if (limit > 0)
+        url += "&limit=" + limit.ToString(CultureInfo.InvariantCulture);
+      if (offset > 0)
+        url += "&offset=" + offset.ToString(CultureInfo.InvariantCulture);
+
+      return await GetJsonAsync<MediaTitles>(url, cancellation).ConfigureAwait(false);
+    }
+
     public void Dispose()
     {
       if (_ownsHttpClient)
@@ -193,13 +347,31 @@ namespace MediaPortal.Frontend.Api
       return DefaultUrl;
     }
 
+    /// <summary>
+    /// Puts the bearer token on one request, if this client has one.
+    /// </summary>
+    /// <remarks>
+    /// On the message rather than in <see cref="HttpClient.DefaultRequestHeaders"/>, because a token belongs to
+    /// one call: a screen that signs out while a read is in flight must not have its new anonymity overwritten by
+    /// whatever that read set up, and a client that signs in twice must not send two authorizations.
+    /// </remarks>
+    private void AddToken(HttpRequestMessage request)
+    {
+      string? token = _accessToken;
+      if (!string.IsNullOrEmpty(token))
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+    }
+
     private async Task<T> GetJsonAsync<T>(string relativeUrl, CancellationToken cancellation)
     {
       Uri url = new Uri(BaseUrl, relativeUrl);
       try
       {
-        using (HttpResponseMessage response = await _http.GetAsync(url, HttpCompletionOption.ResponseContentRead,
-            cancellation).ConfigureAwait(false))
+        using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url))
+      {
+        AddToken(request);
+        using (HttpResponseMessage response = await _http.SendAsync(request,
+            HttpCompletionOption.ResponseContentRead, cancellation).ConfigureAwait(false))
         {
           string body = await response.Content.ReadAsStringAsync(cancellation).ConfigureAwait(false);
           if (!response.IsSuccessStatusCode)
@@ -212,6 +384,7 @@ namespace MediaPortal.Frontend.Api
                     (int) response.StatusCode, url));
           return parsed;
         }
+      }
       }
       catch (ServerApiException)
       {

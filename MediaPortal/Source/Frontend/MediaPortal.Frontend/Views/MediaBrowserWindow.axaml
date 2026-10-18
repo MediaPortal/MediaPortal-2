@@ -1,0 +1,77 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        x:Class="MediaPortal.Frontend.Views.MediaBrowserWindow"
+        x:DataType="vm:MediaBrowserViewModel"
+        Name="browser"
+        Width="1280" Height="720"
+        WindowState="Maximized"
+        Background="#FF101418"
+        Title="MediaPortal 2">
+
+  <!--
+    One section of the library, as a television shows it: a long list, one row per title, big enough to read
+    from a sofa, walked with the four arrow keys. OK plays the selected row, "More" at the end of the list asks
+    for the next page, and Back goes home. The row itself says when a title cannot be watched from this machine,
+    so that the viewer does not have to discover it by pressing OK.
+  -->
+
+  <DockPanel Margin="48,36">
+
+    <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,18">
+      <TextBlock Text="{Binding Heading}"
+                 FontSize="40"
+                 FontWeight="SemiBold" />
+      <TextBlock Text="{Binding Status}"
+                 FontSize="18"
+                 Opacity="0.7"
+                 TextTrimming="CharacterEllipsis" />
+    </StackPanel>
+
+    <TextBlock DockPanel.Dock="Bottom"
+               FontSize="14"
+               Opacity="0.45"
+               Margin="0,12,0,0"
+               Text="Arrows move · OK plays · Menu reads more · Back returns" />
+
+    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24">
+
+      <ListBox Name="titlesList"
+               Focusable="True"
+               ItemsSource="{Binding Titles}"
+               SelectedItem="{Binding Selected, Mode=TwoWay}"
+               FontSize="24">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="vm:TitleViewModel">
+            <Grid ColumnDefinitions="5*,1.4*" ColumnSpacing="20" MinWidth="700" Margin="0,8">
+              <TextBlock Text="{Binding Line}" TextTrimming="CharacterEllipsis" />
+              <TextBlock Grid.Column="1"
+                         Text="{Binding Detail}"
+                         HorizontalAlignment="Right"
+                         Opacity="0.65"
+                         TextTrimming="CharacterEllipsis" />
+            </Grid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+
+      <StackPanel Grid.Column="1" Spacing="16" VerticalAlignment="Top">
+        <Button Name="playButton"
+                Content="Play"
+                Command="{Binding PlayCommand}"
+                IsVisible="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}"
+                MinWidth="180"
+                Padding="28,10"
+                FontSize="22" />
+        <Button Name="moreButton"
+                Content="More"
+                Command="{Binding LoadMoreCommand}"
+                IsVisible="{Binding CanLoadMore}"
+                MinWidth="180"
+                Padding="28,10"
+                FontSize="22" />
+      </StackPanel>
+
+    </Grid>
+  </DockPanel>
+</Window>
