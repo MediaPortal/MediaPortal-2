@@ -27,6 +27,10 @@ param(
   # used to serve. Everything else is downloaded into the image layer.
   [string]$FallbackPackageFolder = (Join-Path $env:USERPROFILE '.nuget\packages'),
   [string]$SdkTag = '10.0',
+
+  # Where the screenshot the container renders is written. Mounted into the image at /out.
+  [string]$RenderDir,
+
   [switch]$SkipImageBuild
 )
 
@@ -63,11 +67,21 @@ if (-not $SkipImageBuild) {
   }
 }
 
+# The screenshot the container renders is written here, so that the artifact leaves the image with the run.
+if (-not $RenderDir) { $RenderDir = Join-Path (Join-Path $repoRoot 'build\artifacts') 'frontend-render' }
+New-Item -ItemType Directory -Path $RenderDir -Force | Out-Null
+
 & docker run --rm `
   -v "${FallbackPackageFolder}:/nuget-cache:ro" `
   -e 'NUGET_FALLBACK_PACKAGES=/nuget-cache' `
+  -v "${RenderDir}:/out" `
   $ImageName
 $exit = $LASTEXITCODE
 
 if ($exit -ne 0) { throw "Front end build/test on Linux failed ($exit)." }
-Write-Host 'Front end compiles on Linux and its headless UI tests pass there.' -ForegroundColor Green
+$screenshot = Join-Path $RenderDir 'home-linux.png'
+if (-not (Test-Path $screenshot)) {
+  throw "the run was green but no screenshot arrived at '$screenshot' - the mount is not working."
+}
+Write-Host ("Front end compiles on Linux, its headless UI tests pass there, and it rendered {0} ({1:N0} bytes)." -f `
+    $screenshot, (Get-Item $screenshot).Length) -ForegroundColor Green

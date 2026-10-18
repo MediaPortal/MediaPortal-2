@@ -45,6 +45,14 @@ namespace MediaPortal.Frontend.ViewModels
     private readonly ServerApiClient? _client;
     private CancellationTokenSource? _runningRefresh;
 
+    // One run at a time may touch Aspects. Cancelling the older run is not enough for that: a cancelled run
+    // carries on until its next check, and until then it is clearing and adding to the same collection the newer
+    // run is writing. This is a chain of tasks rather than a SemaphoreSlim, because a Task needs no disposal -
+    // a semaphore owned by a view model that gets thrown away is a fresh way to hand ObjectDisposedException to
+    // a run that is still waiting on it, which is the very failure mode this class already documents.
+    private readonly object _gateLock = new object();
+    private Task _gate = Task.CompletedTask;
+
     [ObservableProperty]
     private string _status;
 
@@ -95,15 +103,41 @@ namespace MediaPortal.Frontend.ViewModels
         return;
       }
 
-      // Pressing the button twice should not leave two runs writing to the same list.
-      _runningRefresh?.Cancel();
-      _runningRefresh?.Dispose();
+      // Pressing the button twice should not leave two runs writing to the same list, so the older run is
+      // cancelled. It is deliberately *not* disposed here: every run disposes its own source in its finally
+      // below, and disposing a source that another run is still between awaits on makes the next
+      // `cancellation.Token` in that run throw ObjectDisposedException on the dispatcher. Measured: starting a
+      // second refresh while the first was in flight killed the process with exactly that. The assignment also
+      // happens before the cancel for the same family of reason - the older run's finally must no longer see its
+      // own source as the current one, or it would clear IsBusy while the new run is still going.
+      CancellationTokenSource? previous = _runningRefresh;
       CancellationTokenSource cancellation = new CancellationTokenSource();
       _runningRefresh = cancellation;
+      previous?.Cancel();
 
       IsBusy = true;
+
+      // Cancelling the older run is not enough to keep two runs out of the same list, so each run waits for the
+      // one before it. No `ConfigureAwait(false)` anywhere in here - the body raises collection-changed events
+      // that a bound screen listens to, so it has to resume the way the rest of the method does.
+      Task earlierRun;
+      TaskCompletionSource runFinished = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+      lock (_gateLock)
+      {
+        earlierRun = _gate;
+        _gate = runFinished.Task;
+      }
+
       try
       {
+        await earlierRun;
+
+        // Replaced by a newer press before it ever got the list. Checked here rather than relying on a token
+        // throwing, because a run that was cancelled while it queued behind the gate never reached an await
+        // that could throw.
+        if (cancellation.IsCancellationRequested)
+          return;
+
         Status = "Reading " + _client.BaseUrl;
 
         ServerInfo info = await _client.GetServerInfoAsync(cancellation.Token);
@@ -143,8 +177,19 @@ namespace MediaPortal.Frontend.ViewModels
       {
         // Replaced by a newer press of the same button, which reports its own status.
       }
+      catch (Exception ex)
+      {
+        // The last resort is here for one specific reason: the command hands this method to an `async void`
+        // continuation that rethrows whatever escapes it on the thread that pressed the button. Anything nobody
+        // thought of therefore does not end the read, it ends the front end - measured once already, with the
+        // cancellation source above. Reporting it costs one status line and keeps the screen alive.
+        Status = "Reading failed: " + ex.Message;
+      }
       finally
       {
+        // Lets the next press in. The chain never faults - every exception is reported in Status above - so a
+        // waiting run is never handed someone else's failure through `await earlierRun`.
+        runFinished.SetResult();
         if (ReferenceEquals(_runningRefresh, cancellation))
         {
           _runningRefresh = null;

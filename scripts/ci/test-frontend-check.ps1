@@ -12,7 +12,10 @@
     3. MediaPortal.Frontend --check is run against it as a separate process, over real HTTP on a real socket;
     4. the run must exit 0 and print the answers it got;
     5. the same front end aimed at a port nobody listens on must exit 1 and say so, because a check that
-       cannot fail is not a check.
+       cannot fail is not a check;
+    6. while the server is still up, Frontend.RenderProbe draws the real screen through Skia and writes a PNG
+       (default build\artifacts\frontend-render\home-windows.png). The probe fails this gate if the frame comes
+       back flat; the picture itself is for a person, and -SkipRender leaves it out.
 
   What is asserted about the printed answers is their shape, never their counts: how many aspects a freshly
   created database exposes is a measurement of when the request arrived relative to the media library's
@@ -49,6 +52,12 @@ param(
   # How long the front end may keep trying before the run counts as failed.
   [int]$ReadyTimeoutSeconds = 75,
 
+  # Where the rendered screenshot goes. The render probe runs while the server is still up, so the picture is
+  # the populated screen and not the offline one. Pass -SkipRender to leave the screen alone.
+  [string]$RenderDir,
+
+  [switch]$SkipRender,
+
   [string]$DotnetPath
 )
 
@@ -63,6 +72,39 @@ if (-not $dotnet) { throw 'dotnet not found on PATH. Install the .NET SDK, or pa
 function Write-Step([string]$message) { Write-Host "==> $message" -ForegroundColor Cyan }
 function Write-Fail([string]$message) { Write-Host "FAIL: $message" -ForegroundColor Red }
 
+<#
+.SYNOPSIS
+  Fails the gate if a source file is newer than the binary that should have been built from it.
+
+.DESCRIPTION
+  This gate executes whatever is on disk, which makes a stale build the one failure mode it cannot otherwise
+  see. It happened: after the HomeViewModel cancellation fix the first run still crashed with the old
+  ObjectDisposedException, because only the test project had been rebuilt - the probe kept running against the
+  copy of MediaPortal.Frontend.dll in its own bin folder. A gate that reports somebody else's binary is worse
+  than no gate, because its verdict is trusted.
+#>
+function Assert-FrontendBuildIsCurrent {
+  [CmdletBinding()]
+  param([string[]] $Dlls)
+
+  $sources = Get-ChildItem -Path (Join-Path $repoRoot 'MediaPortal\Source\Frontend'),
+                                 (Join-Path $repoRoot 'MediaPortal\Tests\Frontend.RenderProbe') `
+      -Recurse -File |
+    Where-Object { $_.FullName -notmatch '\\(bin|obj)\\' -and $_.Name -match '\.(cs|axaml|csproj)$' }
+
+  foreach ($dll in $Dlls) {
+    if (-not (Test-Path $dll)) { continue }   # the caller reports a missing binary in its own words
+    $built = (Get-Item $dll).LastWriteTime
+    $newer = @($sources | Where-Object { $_.LastWriteTime -gt $built } | Sort-Object LastWriteTime -Descending)
+    if ($newer.Count) {
+      Write-Fail ("$([IO.Path]::GetFileName($dll)) was built at $($built.ToString('HH:mm:ss')), but " +
+                  "$($newer[0].FullName) is newer ($($newer[0].LastWriteTime.ToString('HH:mm:ss')))")
+      Write-Host '   rebuild first:  .\build.ps1 -Solution Frontend' -ForegroundColor Yellow
+      exit 2
+    }
+  }
+}
+
 $frontendDll = Join-Path $repoRoot `
     "MediaPortal\Source\Frontend\MediaPortal.Frontend\bin\$Configuration\net10.0\MediaPortal.Frontend.dll"
 if (-not (Test-Path $frontendDll)) {
@@ -70,6 +112,14 @@ if (-not (Test-Path $frontendDll)) {
   Write-Host "   build it first:  .\build.ps1 -Solution Frontend -Configuration $Configuration" -ForegroundColor Yellow
   exit 2
 }
+
+# Defined up here as well so that the freshness check below can look at it; the render step uses the same path.
+$probeDll = Join-Path $repoRoot `
+    "MediaPortal\Tests\Frontend.RenderProbe\bin\$Configuration\net10.0\Frontend.RenderProbe.dll"
+
+$freshDlls = @($frontendDll)
+if (-not $SkipRender) { $freshDlls += $probeDll }
+Assert-FrontendBuildIsCurrent -Dlls $freshDlls
 
 if (-not $SkipDeploy) {
   & (Join-Path $PSScriptRoot 'deploy-server-layout.ps1') -Configuration $Configuration -OutputDir $LayoutDir
@@ -92,14 +142,14 @@ New-Item -ItemType Directory -Path $dataDir -Force | Out-Null
   has to be captured rather than scrolled past. StandardError is merged because a .NET unhandled exception
   report would otherwise vanish from the failure message.
 #>
-function Invoke-FrontendCheck {
+function Invoke-FrontendProcess {
   [CmdletBinding()]
-  param([string] $Url)
+  param([string] $Arguments, [string] $WorkingDirectory)
 
   $psi = New-Object System.Diagnostics.ProcessStartInfo
   $psi.FileName = $dotnet
-  $psi.Arguments = '"' + $frontendDll + '" --check --server "' + $Url + '"'
-  $psi.WorkingDirectory = Split-Path $frontendDll -Parent
+  $psi.Arguments = $Arguments
+  $psi.WorkingDirectory = $WorkingDirectory
   $psi.UseShellExecute = $false
   $psi.RedirectStandardOutput = $true
   $psi.RedirectStandardError = $true
@@ -113,6 +163,14 @@ function Invoke-FrontendCheck {
 
   try { return [pscustomobject]@{ Code = $process.ExitCode; Text = $output } }
   finally { $process.Dispose() }
+}
+
+function Invoke-FrontendCheck {
+  [CmdletBinding()]
+  param([string] $Url)
+
+  return Invoke-FrontendProcess -Arguments ('"' + $frontendDll + '" --check --server "' + $Url + '"') `
+      -WorkingDirectory (Split-Path $frontendDll -Parent)
 }
 
 Write-Step "starting the server (layout $LayoutDir, data $dataDir, held for $HoldSeconds seconds)"
@@ -184,6 +242,27 @@ try {
   }
   if (([string] $dead.Text).IndexOf('FAILED', [StringComparison]::Ordinal) -lt 0) {
     $failures += 'the front end failed but did not say so on its output'
+  }
+
+  # The screen itself, rendered while the server is still answering. The probe draws the real HomeWindow through
+  # Skia and fails if the frame is flat; the PNG it leaves behind is for a person, the exit code is for here.
+  if (-not $SkipRender) {
+    if (-not (Test-Path $probeDll)) {
+      $failures += "no render probe at $probeDll - build it with .\build.ps1 -Solution Frontend"
+    } else {
+      if (-not $RenderDir) { $RenderDir = Join-Path (Join-Path $repoRoot 'build\artifacts') 'frontend-render' }
+      New-Item -ItemType Directory -Path $RenderDir -Force | Out-Null
+      $renderFile = Join-Path $RenderDir 'home-windows.png'
+      Write-Step "rendering the populated screen with Skia to $renderFile"
+      $render = Invoke-FrontendProcess `
+          -Arguments ('"' + $probeDll + '" --out "' + $renderFile + '" --server "' + $ServerUrl + '"') `
+          -WorkingDirectory (Split-Path $probeDll -Parent)
+      Write-Host "--- Frontend.RenderProbe, exit $($render.Code)"
+      ($render.Text -split "`r?`n" | Where-Object { $_.Trim() }) | ForEach-Object { "    $_" } | Write-Host
+      if ($render.Code -ne 0) {
+        $failures += "the render probe exited $($render.Code) - see its output above"
+      }
+    }
   }
 } finally {
   if (-not $server.HasExited) {

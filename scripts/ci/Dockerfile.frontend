@@ -31,6 +31,18 @@ FROM mcr.microsoft.com/dotnet/sdk:${SDK_TAG}
 
 WORKDIR /src
 
+# fontconfig and freetype are for the render probe, not for the tests. The native libSkiaSharp.so that
+# Avalonia.Skia loads lists both as DT_NEEDED, and without them `Setup()` dies inside SkiaSharp.SKImageInfo
+# with a TypeInitializationException - measured on the first container run of Frontend.RenderProbe. The test
+# suite never notices, because its pure-managed headless rasterizer calls no native code at all; that is
+# exactly the blind spot the probe exists to close, and it is why the probe has to run in this image too.
+# The index cache is deleted in the same layer so it does not cost ~50 MB of image size.
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      libfontconfig1 \
+      libfreetype6 \
+ && rm -rf /var/lib/apt/lists/*
+
 COPY . .
 
 RUN sed -i '/myget/Id' /src/MediaPortal/NuGet.Config \
@@ -38,6 +50,7 @@ RUN sed -i '/myget/Id' /src/MediaPortal/NuGet.Config \
 
 CMD bash -c '\
   echo "== running on: $(uname -srmi), dotnet $(dotnet --version)"; \
+  mkdir -p /out; \
   dotnet build /src/MediaPortal/Source/MP2-Frontend.sln -c Debug --nologo -v m || exit 1; \
   out=$(dotnet test /src/MediaPortal/Tests/Tests.Frontend/Tests.Frontend.csproj -c Debug --nologo -v m --no-build 2>&1); rc=$?; \
   echo "$out"; \
@@ -45,4 +58,6 @@ CMD bash -c '\
   total=$(echo "$out" | sed -n "s/.*Total: *\([0-9][0-9]*\).*/\1/p" | tail -n 1); \
   if [ "$rc" -ne 0 ]; then echo "TEST RUN FAILED ($rc)"; exit "$rc"; fi; \
   if [ "${total:-0}" -lt 1 ]; then echo "ZERO TESTS DISCOVERED - a green run here would mean nothing"; exit 1; fi; \
-  echo "FRONTEND LINUX OK: $total tests ran headless on $(uname -sm)"'
+  dotnet /src/MediaPortal/Tests/Frontend.RenderProbe/bin/Debug/net10.0/Frontend.RenderProbe.dll --out /out/home-linux.png; rc=$?; \
+  if [ "$rc" -ne 0 ]; then echo "RENDER PROBE FAILED ($rc) - see its output above"; exit "$rc"; fi; \
+  echo "FRONTEND LINUX OK: $total tests ran headless on $(uname -sm), screenshot in /out/home-linux.png"'

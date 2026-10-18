@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    A render probe for the front end: it shows the real home screen on a host with no display, renders it with
+    the Skia backend, and writes the result out as an image.
+
+    Why this exists separately from Tests.Frontend: the test suite runs on Avalonia's pure-managed headless
+    rasterizer (`UseHeadlessDrawing = true`), which is the right choice for 32 tests - it is fast, and it needs
+    nothing from the platform. But it also means the suite never touches the Skia code path that Windows, Linux
+    and Android actually draw with, nor the font manager, nor image encoding. "The tests pass" is not "it draws".
+
+    It is an executable rather than a test because its output is an artifact: the gate mounts a folder and takes
+    a PNG out of the container, which is the evidence Phase 2 asks for by name. Nothing here decides whether the
+    screen looks right - a person has to look at that - but it does decide whether real pixels came out, and it
+    fails if the frame is one flat colour.
+
+    Same rules as the front end itself: net10.0, no -windows suffix, CA1416 as an error.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Frontend.RenderProbe</RootNamespace>
+    <AssemblyName>Frontend.RenderProbe</AssemblyName>
+    <Nullable>enable</Nullable>
+    <WarningsAsErrors>CA1416</WarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Skia" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Headless" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\Frontend\MediaPortal.Frontend\MediaPortal.Frontend.csproj" />
+  </ItemGroup>
+
+</Project>

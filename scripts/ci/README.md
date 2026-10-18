@@ -20,8 +20,8 @@ does *not*, because those differences are how CI surprises happen.
 | `test-canary-linux.ps1` | Builds that image and runs the canary tests inside a Linux container. |
 | `Dockerfile.cross` | Linux **cross-compile** image: builds the whole `MP2-Server.sln` under `mcr.microsoft.com/dotnet/sdk:$SDK_TAG` (default `10.0`). |
 | `test-server-linux.ps1` | Runs that image (see "Compiling on Linux" below for the package-cache it needs). |
-| `test-frontend-check.ps1` | Starts the real server, runs the built front end with `--check` against it, then against a port nobody listens on: exit 0 plus the server's own answers, then exit 1 plus a readable message. |
-| `Dockerfile.frontend` | Linux image that builds `MP2-Frontend.sln` and runs `Tests.Frontend` headless - no display, no `-windows` target, and deliberately no `EnableWindowsTargeting`. |
+| `test-frontend-check.ps1` | Starts the real server, runs the built front end with `--check` against it, then against a port nobody listens on: exit 0 plus the server's own answers, then exit 1 plus a readable message. While that server is up it also renders the screen with `Frontend.RenderProbe` (`-SkipRender`, `-RenderDir`), and it refuses to execute a DLL older than its own sources. |
+| `Dockerfile.frontend` | Linux image that builds `MP2-Frontend.sln`, runs `Tests.Frontend` headless and renders the screen with `Frontend.RenderProbe` on Skia - no display, no `-windows` target, and deliberately no `EnableWindowsTargeting`. |
 | `test-frontend-linux.ps1` | Runs that image (same package-cache requirement). |
 | `Dockerfile.drawing`, `drawing-probe/` | Not a gate: measures which half of `System.Drawing` works on Linux. Read it before changing what `spine.ps1` counts. |
 
@@ -32,13 +32,13 @@ does *not*, because those differences are how CI surprises happen.
     .\packages.ps1                                 # advisory and netfx-fallback inventory (a report)
     .\run-server-check.ps1                         # assembles the layout, starts the headless server, probes its HTTP
     .\test-server-upnp.ps1                         # multicasts an M-SEARCH at that server and wants a 200 OK
-    .\test-frontend-check.ps1                      # runs the front end against that server, and against a dead port
+    .\test-frontend-check.ps1                      # runs the front end against that server, and against a dead port; renders the screen on Skia while the server is up
 
 On Linux: `.\test-canary-linux.ps1` runs the canary's tests in a container,
 `.\test-server-linux.ps1` compiles the whole server solution there, `.\test-server-run-linux.ps1`
 assembles the layout and *starts* the server there, and `.\test-frontend-linux.ps1` builds the front
-end and runs its headless UI tests there. All four need a populated package cache - see "The
-dependency closure is not reproducible".
+end, runs its headless UI tests there and draws the screen with Skia. All four need a populated package
+cache - see "The dependency closure is not reproducible".
 
 ## Which build host, and why it matters
 
@@ -1614,14 +1614,70 @@ One correction, recorded because it was written down wrong first: the four bugs 
 `Tests.Frontend`/`--check`, and the suite totals in the commit that introduced them attributed the 403
 tests to the wrong suite names. `tests.ps1` prints them in default order - Canary.Portable 29,
 Tests.Server 184, Tests.Client 90, Tests.Frontend 32, Setup\Tests 68 - which is what ROADMAP now says.
+(Both numbers have grown since: 34 and 405, the second one including the crash the render probe found.)
+
+### The front end draws: `Frontend.RenderProbe`
+
+The suites above run on Avalonia's pure-managed headless rasterizer (`UseHeadlessDrawing = true`): fast, no
+display needed, and completely blind to Skia, to font shaping, and to image encoding. "The tests pass" is not "it
+draws". `MediaPortal\Tests\Frontend.RenderProbe` is a console project in `MP2-Frontend.sln` that configures the same
+`App` with the headless platform's stub rendering switched off plus `.UseSkia()`, shows the same `HomeWindow`,
+captures the frame, counts its pixels and writes a PNG:
+
+    dotnet MediaPortal\Tests\Frontend.RenderProbe\bin\Debug\net10.0\Frontend.RenderProbe.dll `
+        --out build\artifacts\frontend-render\home.png --server http://127.0.0.1:55555/MediaPortal/Server
+
+- `--out` is required, its directory is created, and the file must come back with a PNG signature.
+- `--server` renders the populated screen; without it (and without `MP2_SERVER`) the screen's own "no server"
+  state is rendered, which is a real state and gets measured too.
+- `--width`/`--height` default to 1280x720, and anything below 100x100 is refused as an argument error (exit 2).
+- Exit 0 drew something, 1 the frame is flat or the app would not set up, 2 usage, 3 the write failed.
+
+What it prints is what a gate judges, because a gate cannot look at a picture:
+
+    pixels:   921600 (Rgba8888), 2592 distinct colours, 234687 differing from the background,
+              65736 high-contrast edges, mean luminance 31
+
+Flat frames fail: under 16 distinct colours, or under 1% of pixels differing from the dominant background colour.
+
+It runs from two gates. `test-frontend-check.ps1` runs it **while its server is still up** (item 6 of that script,
+`-SkipRender` to leave it out, `-RenderDir` to move the output), so `build\artifacts\frontend-render\home-windows.png`
+is the populated screen: `status: 25 aspects on MediaPortal 2 Server, 25 aspect row(s)`. `Dockerfile.frontend` runs
+it offline into `/out`, which `test-frontend-linux.ps1` mounts at `build\artifacts\frontend-render` and requires to
+contain `home-linux.png`. The two frames are committed under `docs\multiplatform\screenshots\`.
+
+Three things came out of adding it, all of them measurements rather than opinions:
+
+- **It found a crash.** The window refreshes itself when it opens; that overlapped the probe's own read, and the
+  process died on the dispatcher with `ObjectDisposedException: The CancellationTokenSource has been disposed.`
+  `HomeViewModel` was disposing the previous run's cancellation source mid-flight. ROADMAP item **q** has the three
+  fixes and the two tests (`TwoRefreshesStartedTogetherLeaveOneCleanScreen`,
+  `PressingTheRefreshButtonTwiceDoesNotThrowOnTheDispatcher`); the second one goes through `RefreshCommand.Execute`
+  on purpose, because the toolkit rethrows whatever a command lets escape as `async void` - an awaited test never
+  sees it.
+- **The Skia path did not work on Linux.** `TypeInitializationException` from `SkiaSharp.SKImageInfo`: the native
+  `libSkiaSharp.so` needs `fontconfig` and `freetype`, and the image had neither. Both are installed in
+  `Dockerfile.frontend` now. The managed suite was green the whole time, which is precisely the point of the probe.
+- **This gate could run a binary nobody rebuilt.** After the fix the gate still crashed, because the probe kept
+  executing the copy of `MediaPortal.Frontend.dll` in its own `bin`. It now refuses to start when a `.cs`, `.axaml`
+  or `.csproj` under the front end or the probe is newer than the DLL it is about to run - same reasoning as
+  "A green test suite can be a stale one" above.
+
+The API facts it needed are recorded in the probe's comments, because they are not obvious from the docs:
+`CaptureRenderedFrame` is `Avalonia.Headless.HeadlessWindowExtensions.CaptureRenderedFrame(TopLevel)` and returns
+the public `WriteableBitmap` wrapper (so its type name proves nothing about the backend); `RenderToFile` is not
+public API at all; `Bitmap.Save(string)` is obsolete in Avalonia 12, pass `PngBitmapEncoderOptions.Default`;
+`AvaloniaLocator.Current` is gone in v12; `UseHeadlessDrawing = false` without `.UseSkia()` throws "No rendering
+system configured"; and the locked framebuffer is `Rgba8888` under Skia where the managed path is `Bgra8888`.
+
 ### The front end runs on Linux: `test-frontend-linux.ps1`
 
 `Dockerfile.cross` compiles; this one *executes*. `Dockerfile.frontend` builds `MP2-Frontend.sln` and
 then runs `Tests.Frontend`, i.e. it builds the real `HomeWindow.axaml`, loads the real Fluent theme and
 the Inter font, drives the D-pad handler, and calls the real `MediaPortal.Server.Api` controllers over a
 Kestrel host - inside a container, under a user with no display, on a machine that has never seen
-Windows. First run, measured: `Passed! - Failed: 0, Passed: 32, Skipped: 0, Total: 32, Duration: 5 s`,
-then `FRONTEND LINUX OK: 32 tests ran headless on Linux x86_64` on
+Windows. Measured: `Passed! - Failed: 0, Passed: 34, Skipped: 0, Total: 34, Duration: 2 s`, then
+`FRONTEND LINUX OK: 34 tests ran headless on Linux x86_64, screenshot in /out/home-linux.png` on
 `Linux 6.6.87.2-microsoft-standard-WSL2 x86_64, dotnet 10.0.402`.
 
 Two properties of that image are the gate, not the packaging:
@@ -1635,8 +1691,8 @@ Two properties of that image are the gate, not the packaging:
   Without that line this image would go green the moment someone broke the test project - the same class
   of false green as a stale test assembly, see "A green test suite can be a stale one".
 
-What green here does *not* mean: nothing was displayed. There is no X server in the image and none is
-installed, and the suite runs on Avalonia's `UseHeadlessDrawing = true` path, the pure-managed
-rasterizer. That is the right coverage for a build agent, a container and eventually a device, but it is
-not a claim that a Linux desktop shows a window - rendering against a real display, and Android, are
-separate measurements that have not been made.
+What green here does *not* mean: there is still no X server in the image and none is installed, so nothing has
+appeared on a Linux desktop. Since the render probe runs in this image too, the Skia backend, the native
+`libSkiaSharp.so`, font shaping through fontconfig/freetype and PNG encoding are all measured on Linux - but
+software-rendered into a bitmap, in a container, without a window manager, a compositor or a GPU. Whether the
+screen looks *right*, and Android, remain separate measurements that have not been made.

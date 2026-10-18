@@ -35,13 +35,13 @@ Verified 2026-10-18 with `build.ps1 -Solution Server,Client -Ratchet`, `tests.ps
 | Portable-core WinForms / GDI+ references | **0** (83 quarantined in 10 satellite files) | `spine.ps1`, `satellites.ps1` |
 | Portable-core P/Invoke declarations | **73** in 9 files (was 95, then 76; the last three were the Kernel32 waitable timer) - invisible to `CA1416` | `spine.ps1` (P/Invoke column) |
 | `CA1416` call sites, Windows vs Linux | **0** on both hosts, floor 0 (was 196 at the retarget) - the 107 that remained were all in `-windows` assemblies that had lost their platform declaration; see "the floor went to zero" below | build log, `warnings.ps1` on both logs |
-| Unit tests, Windows | **5/5 suites, 403 passed**, 0 failed, 0 skipped (Canary.Portable 29, Tests.Server 184, Tests.Client 90, **Tests.Frontend 32**, Setup\Tests 68); a suite whose assembly predates its own sources reports STALE instead of running the old binary | `tests.ps1` |
+| Unit tests, Windows | **5/5 suites, 405 passed**, 0 failed, 0 skipped (Canary.Portable 29, Tests.Server 184, Tests.Client 90, **Tests.Frontend 34**, Setup\Tests 68); a suite whose assembly predates its own sources reports STALE instead of running the old binary | `tests.ps1` |
 | Unit tests, Linux (canary) | 31 executed, 0 failed (1 skips: Windows-only), incl. live IPC round trips and XDG autostart | `test-canary-linux.ps1` |
-| Unit tests, Linux (**front end**) | **32 executed, 0 failed** - the real `HomeWindow.axaml`, Fluent theme, bindings, D-pad handler and HTTP client, headless with no display in the image | `test-frontend-linux.ps1` |
+| Unit tests, Linux (**front end**) | **34 executed, 0 failed** - the real `HomeWindow.axaml`, Fluent theme, bindings, D-pad handler and HTTP client, headless with no display in the image; the same image then draws the screen through Skia (`1310 distinct colours` of a `1280x720` frame) and writes the PNG out | `test-frontend-linux.ps1` |
 | Server actually **runs** | **yes on Windows and on Linux** as a headless process. Windows: reaches the Running state, creates the SQLite store, answers UPnP discovery over the network, exits 0 with an error-free log. Linux: reaches the same Running state with 0 `FATAL`, 0 `ERROR` and one `WARN` - the documented note that a container has no FUSE driver. Android is still unmeasured | `run-server-check.ps1`, `test-server-upnp.ps1`, `test-server-run-linux.ps1` |
 | Server **answers HTTP** | **yes on both hosts**, measured with the same probe: `GET /MediaPortal/Server/health` answers `200` with the server's version and the path it was called with - `pathBase=/MediaPortal/Server`, `path=/health` on Windows *and* in the container, because the shared listener now hands requests over in exactly the shape http.sys uses. The gate checks that text, not just the status code | `run-server-check.ps1 -ProbeUrl`, item **l** below |
 | Server **has an HTTP API** | **three endpoints, on both hosts**, in an assembly of its own (`MediaPortal.Server.Api`): `GET /MediaPortal/Server/api/serverinfo`, `GET api/library/aspects` and `GET api/library/count?aspect=…`. They are discovered MVC controllers (the first in this tree) that read MP2's own settings and media-library services on a request thread, and the gates on Windows and in the container require their content, not just a `200`. A library that is absent or still starting is answered with `503` and a reason rather than an empty answer or an internal error. They are unauthenticated because the token endpoint that would authenticate them is still .NET Framework only - which is why they serve schema and no household data | `run-server-check.ps1 -ProbeUrl`, items **m**, **o** and **p** below |
-| Front end (Phase 2) | **exists, and it reads a running server**: an Avalonia 12 app on the bare spine (no `MediaPortal.Common`, no dependency injection, no log4net) with its own JSON API client, a ViewModel that never touches a UI type, D-pad navigation that moves focus the way a remote does, a headless UI suite (32 tests) and a gate that runs the built app against the real server. Writing It found four real bugs - three in the front end, one in the API - and its whole suite (32 tests) also runs headless in a Linux container, with no display and no `EnableWindowsTargeting` | `build.ps1 -Solution Frontend -Ratchet`, `tests.ps1`, `test-frontend-check.ps1`, `test-frontend-linux.ps1`, item **q** below |
+| Front end (Phase 2) | **exists, and it reads a running server**: an Avalonia 12 app on the bare spine (no `MediaPortal.Common`, no dependency injection, no log4net) with its own JSON API client, a ViewModel that never touches a UI type, D-pad navigation that moves focus the way a remote does, a headless UI suite (34 tests) and a gate that runs the built app against the real server. Writing it found five real bugs - three in the front end, one in the API, and one that killed the process from a button press - and its whole suite also runs headless in a Linux container, with no display and no `EnableWindowsTargeting`. A render probe draws the same window on the **Skia** backend on both hosts and writes the frame out (`docs\multiplatform\screenshots\`) | `build.ps1 -Solution Frontend -Ratchet`, `tests.ps1`, `test-frontend-check.ps1`, `test-frontend-linux.ps1`, item **q** below |
 | Server **runs on Linux** | **yes** - `HeadlessServerLauncher: Switching to running state`, item **g**'s goal, measured. The layout assembles, `libe_sqlite3.so` (linux-x64) loads, SQLite 3.53.3 opens the store, the subschemas `MediaPortal-Basis`, `MediaLibrary`, `UserProfileDataManagement` and `ClientManager` are created from their SQL scripts, and the resource server plus two control points and one UPnP server share port 55555 through one listener | `test-server-run-linux.ps1`, items **i**, **j** and **k** below |
 | Database plugin on a portable driver | `SQLiteDatabase` is `net10.0` with `CA1416` as error, no Win32 calls left, and no longer loads a Windows-only interop library: it talks to SQLite through `Microsoft.Data.Sqlite` (SQLite 3.53.3), whose `e_sqlite3` native is copied into the layout per platform | `SQLiteDatabase.csproj`, items **h** and **j** below |
 | Built executables are 64-bit | 5/5 apphosts measure `x64`, managed side `MSIL` | `architecture.ps1` |
@@ -861,8 +861,9 @@ broadest thing that can be demoed: one screen, one API client, and gates that sa
 talks to a real server on a machine with no display.
 
     MediaPortal\Source\Frontend\MediaPortal.Frontend   the application (net10.0, WinExe)
-    MediaPortal\Tests\Tests.Frontend                   32 tests, headless, no display
-    MediaPortal\Source\MP2-Frontend.sln                the two of them plus what they reference
+    MediaPortal\Tests\Tests.Frontend                   34 tests, headless, no display
+    MediaPortal\Tests\Frontend.RenderProbe             the same window drawn with Skia, written out as a PNG
+    MediaPortal\Source\MP2-Frontend.sln                these three plus what they reference
     scripts\ci\test-frontend-check.ps1                 the front end against a server that is really running
 
 `MediaPortal.Frontend` references **no MP2 project at all**. That is not an oversight and not a style preference:
@@ -896,8 +897,10 @@ immediately on `1`, and it also runs the front end against a port nobody listens
 | `warning-baseline.Frontend.json` | 18 codes / 237 findings, **0 of them from the two new projects** - the inventory belongs to the inherited closure the solution also builds |
 | `spine.ps1` | `MediaPortal\Source\Frontend\MediaPortal.Frontend  WinForms 0   GDI+ 0   P/Invoke 0` and it is now a gated core area, so a future `[DllImport]` there is caught |
 | `tests.ps1` | `Tests.Frontend` added to the default set (see the scoreboard) |
-| `test-frontend-check.ps1` | `FRONTEND CHECK OK - the front end read a running server (attempt 1) and refused a dead one.` |
-| `test-frontend-linux.ps1` | `Passed! - Failed: 0, Passed: 32, Skipped: 0, Total: 32, Duration: 5 s`, then `FRONTEND LINUX OK: 32 tests ran headless on Linux x86_64` - on `Linux 6.6.87.2-microsoft-standard-WSL2 x86_64, dotnet 10.0.402`, with no display in the image and no `-p:EnableWindowsTargeting` passed |
+| `test-frontend-check.ps1` | `FRONTEND CHECK OK - the front end read a running server (attempt 1) and refused a dead one.`, and while that server is still up it renders the populated screen with Skia: `pixels: 921600 (Rgba8888), 2592 distinct colours, 234687 differing from the background, 65736 high-contrast edges, mean luminance 31` |
+| `Frontend.RenderProbe` (Windows, populated) | `PROBE OK: the front end drew 921600 pixels of real content on Microsoft Windows 10.0.26200`, `status: 25 aspects on MediaPortal 2 Server, 25 aspect row(s)`, `home-windows.png` 107 757 bytes |
+| `Frontend.RenderProbe` (Linux container, offline) | `PROBE OK: the front end drew 921600 pixels of real content on Ubuntu 24.04.5 LTS`, `home-linux.png` 20 030 bytes - the container has no server, so what it proves is the render path and the font path, not the data path |
+| `test-frontend-linux.ps1` | `Passed! - Failed: 0, Passed: 34, Skipped: 0, Total: 34, Duration: 2 s`, then `FRONTEND LINUX OK: 34 tests ran headless on Linux x86_64, screenshot in /out/home-linux.png` - on `Linux 6.6.87.2-microsoft-standard-WSL2 x86_64, dotnet 10.0.402`, with no display in the image and no `-p:EnableWindowsTargeting` passed |
 
 Two things about that gate are worth stating because they were not obvious when the script was written. It asserts
 the *shape* of the answer (`pathBase=/MediaPortal/Server`, `library:`, `aspects`) and never a count: this run
@@ -915,9 +918,66 @@ answers `NETSDK1100` instead of being quietly absorbed. And its `CMD` fails when
 least one test, because `dotnet test` exits `0` when it discovers nothing - the same false green that "a green test
 suite can be a stale one" records for Windows.
 
-What that still does not measure is a *display*: the suite runs on Avalonia's pure-managed headless rasterizer,
-which is the path a build agent, a container and eventually a device share, but nobody has seen the window on a
-Linux desktop (that is the taste review reserved for the user), and Android still has no measurement at all.
+### Pixels: the front end draws, and the drawing found a crash
+
+The suite runs on Avalonia's pure-managed headless rasterizer (`UseHeadlessDrawing = true`). That is the right
+choice for 34 assertions about layout, bindings and focus - it is fast and needs nothing from the host - and it is
+also a blind spot: that path executes no Skia, never shapes a glyph through a font manager, and never encodes an
+image. "The tests pass" was therefore not "it draws", and nothing in the tree could say it draws.
+
+`MediaPortal\Tests\Frontend.RenderProbe` is the answer to that: the same `App`, the same `HomeWindow`, the headless
+platform with its stub render interface switched *off* and `.UseSkia()` on, then
+`CaptureRenderedFrame()`, a pixel census, and a PNG. It prints what a gate can judge, because a gate cannot look
+at a picture:
+
+```
+host:     .NET 10.0.13, Microsoft Windows 10.0.26200, X64
+skia:     Avalonia.Skia 12.1.4.0
+content:  populated from http://127.0.0.1:55555/MediaPortal/Server/
+status:   25 aspects on MediaPortal 2 Server, 25 aspect row(s)
+frame:    1280, 720 at 96, 96, implementation Avalonia.Media.Imaging.WriteableBitmap
+pixels:   921600 (Rgba8888), 2592 distinct colours, 234687 differing from the background, 65736 high-contrast edges, mean luminance 31
+```
+
+It runs in two gates. `test-frontend-check.ps1` runs it **while its own server is still up**, so the frame is the
+populated screen - `25 aspects`, 2592 distinct colours, 65 736 high-contrast edges, i.e. rows of text, not a
+gradient. `Dockerfile.frontend` runs it offline (the container has no server) and mounts the result back onto the
+host, which is what produced `docs\multiplatform\screenshots\home-linux-skia.png`. Both frames are committed next
+to this document: `home-windows-skia.png` (populated, 107 757 bytes) and `home-linux-skia.png` (the offline screen,
+20 030 bytes). Whether the screen looks *right* is a different question and stays with the user; the probe's job is
+only to prove that real pixels come out, on both platforms, unattended.
+
+What it found the first time it was run is the reason this section exists. The window's `Opened` handler runs the
+same command the refresh button runs, so the probe's render overlapped that first read - and the process died with
+`System.ObjectDisposedException: The CancellationTokenSource has been disposed.`, unhandled, on the dispatcher.
+`HomeViewModel.RefreshAsync` had been disposing the *previous* run's cancellation source while that run was still
+between awaits; the next time that run read `Token` it threw. Nobody noticed for as long as the screen was only
+tested by awaiting `RefreshAsync()` from one test at a time. Three changes, each with a test:
+
+- the older source is only ever **cancelled**; every run disposes its own in its own `finally`, and
+  `_runningRefresh` is assigned before the cancel so a finishing run cannot clear `IsBusy` on a newer run's behalf;
+- one run at a time may touch `Aspects`. Cancelling is not enough for that - a cancelled run carries on until its
+  next check, and until then it is clearing and adding to the very collection the newer run is writing. The gate is
+  a chain of `Task`s rather than a `SemaphoreSlim`, deliberately: a task needs no disposal, so a view model that is
+  thrown away cannot hand `ObjectDisposedException` to a run still waiting on it, which is this class's second
+  encounter with the same family of bug;
+- the command path is covered too. `CommunityToolkit.Mvvm`'s `Execute()` funnels the task through an `async void`
+  continuation that **rethrows whatever escapes** on the thread that pressed the button; `await`ing the method in a
+  test never sees it, which is exactly why the crash was invisible. `PressingTheRefreshButtonTwiceDoesNotThrowOnTheDispatcher`
+  presses the command twice and awaits `ExecutionTask`, and `RefreshAsync` now ends in a last-resort `catch` that
+  reports through the status line - a screen that says "Reading failed: …" is worth more than a front end that dies.
+
+Two more measurements from wiring it up, both of which would have been guesses without the probe:
+
+| What was measured | What it turned out to be |
+| --- | --- |
+| The Skia render path on Linux | It did not work: `TypeInitializationException` from `SkiaSharp.SKImageInfo`. The native `libSkiaSharp.so` needs `fontconfig` and `freetype`, and the image had neither - so the first container run of the probe failed while the 34 managed tests next to it were green. Both packages are now installed in `Dockerfile.frontend`, with the failure recorded in the comment above them. This is the concrete cost of "the tests use the managed rasterizer": a missing system library on a target platform is invisible to them. |
+| A gate running a binary nobody rebuilt | The fix above appeared not to work: the check gate still crashed, because only the test project had been rebuilt and the probe kept executing the copy of `MediaPortal.Frontend.dll` in its own `bin`. `test-frontend-check.ps1` now refuses to run when a `.cs`/`.axaml`/`.csproj` is newer than the DLL it is about to execute (`STALE`-style, same reasoning as `tests.ps1`), because a gate that reports somebody else's binary is worse than no gate. |
+
+`RenderProbe` prints the frame's format (`Rgba8888` under Skia, where the managed path is `Bgra8888`), refuses a
+frame that is flat (below 16 distinct colours, or under 1% of pixels differing from the background), and reports
+`Avalonia.Media.Imaging.WriteableBitmap` as the implementation type - which is only the public wrapper, so the
+probe deliberately does not claim to have proven a native surface from that name alone.
 
 | What was measured | What it turned out to be |
 | --- | --- |
@@ -930,14 +990,17 @@ Linux desktop (that is the taste review reserved for the user), and Android stil
 ### What the sequence looks like now
 
 The headless spike is not a spike any more: the ten-foot navigation model exists (`DpadNavigation`, ten tests),
-it runs with no display, and the CI story is four gates rather than an intention - the gated build, the suite on
-Windows, the front end against a live server, and the suite in a Linux container. What is still ahead, in the
+it runs with no display, the screen draws on the real backend on two platforms, and the CI story is five gates
+rather than an intention - the gated build, the suite on Windows, the front end against a live server, that
+server's screen rendered through Skia, and the suite plus a render in a Linux container. What is still ahead, in the
 order that keeps the risk where it can be seen:
 
-1. Pixels, not only layout. The 32 tests pass in a Linux container now (`test-frontend-linux.ps1`, item **q**), but
-   they run on Avalonia's pure-managed headless rasterizer, which is not the Skia backend a real desktop uses. The
-   open item is a render on the real backend and a PNG out of the container - the phase gate below asks for that
-   screenshot by name, so until it exists the phase is open and this document does not read it as closed.
+1. Pixels, not only layout - **done for "does it draw", open for "does it look right"**. `Frontend.RenderProbe`
+   renders through Skia and both frames are committed (`docs\multiplatform\screenshots\`), so the screenshot the
+   phase gate asks for by name exists; item **q** records what it found. Two gaps are honest to state: the
+   container's frame is the *offline* screen, because there is no server inside the image (pointing the probe at a
+   server on the host from inside the container is the next step for that frame), and nobody has judged whether the
+   screen looks good - that is the taste review reserved for the user. Android still has no measurement at all.
 2. The OAuth token endpoint on .NET. Every endpoint that carries user data, and therefore every screen worth
    building next (browse, playlists, settings), is blocked on it - see item **m**.
 3. Bind the platform-neutral pieces of the old client's view models. Anything that imported

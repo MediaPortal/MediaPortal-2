@@ -105,6 +105,54 @@ namespace Tests.Frontend
     }
 
     [Test]
+    public async Task TwoRefreshesStartedTogetherLeaveOneCleanScreen()
+    {
+      // What this guards is a crash, not a preference. Starting a second read while the first was still in
+      // flight used to dispose the *first* run's cancellation source; the next time that run read `Token` it got
+      // ObjectDisposedException, on the dispatcher - an unhandled exception in a running application. It was
+      // measured, by the render probe's first run: the window's own read on open and the probe's read overlapped.
+      // A double press of a remote's OK button reaches the same line, so this is not a theoretical caller.
+      // Since then: the older source is only cancelled (its own run disposes it), and a gate keeps the two runs
+      // out of the same collection - a cancelled run carries on until its next await throws.
+      List<IEnumerable<Guid>> counted;
+      HomeViewModel home = ConnectedOut(4, out counted);
+
+      Task first = home.RefreshAsync();
+      Task second = home.RefreshAsync();
+
+      await Task.WhenAll(first, second);
+
+      Assert.That(home.Aspects.Count, Is.EqualTo(2), "one clean list, whatever order the runs finished in");
+      Assert.That(home.IsBusy, Is.False, "and the screen is not left waiting on a run that is gone");
+    }
+
+    [Test]
+    public async Task PressingTheRefreshButtonTwiceDoesNotThrowOnTheDispatcher()
+    {
+      // Same crash, but through the path a user takes. `RefreshCommand.Execute` is not a thin wrapper around the
+      // method: the toolkit's Execute() hands the task to an `async void` continuation that rethrows anything the
+      // command lets escape, on whatever context the press happened on - on the UI thread that is an unhandled
+      // exception, which is how the ObjectDisposedException above killed the process. The render probe found it,
+      // this test is what keeps it found: an awaited test would never have seen it.
+      List<IEnumerable<Guid>> counted;
+      HomeViewModel home = ConnectedOut(3, out counted);
+
+      home.RefreshCommand.Execute(null);
+      Task firstRun = home.RefreshCommand.ExecutionTask!;
+      home.RefreshCommand.Execute(null);
+      Task secondRun = home.RefreshCommand.ExecutionTask!;
+
+      Assert.That(firstRun, Is.Not.SameAs(secondRun), "two presses, two runs");
+
+      // Nothing should reach the rethrow path, so awaiting the runs here stays quiet.
+      await Task.WhenAll(firstRun, secondRun);
+
+      Assert.That(home.Aspects.Count, Is.EqualTo(2));
+      Assert.That(home.IsBusy, Is.False);
+      Assert.That(home.Status, Does.Contain("aspects"));
+    }
+
+    [Test]
     public async Task WhenNobodyAnswersTheScreenSaysSoRatherThanShowingAnEmptyLibrary()
     {
       Uri dead = new Uri(string.Format("http://127.0.0.1:{0}/MediaPortal/Server/", InProcessApi.GetFreePort()));
