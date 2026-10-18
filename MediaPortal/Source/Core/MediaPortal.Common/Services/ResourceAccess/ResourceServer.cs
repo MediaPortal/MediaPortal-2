@@ -150,19 +150,14 @@ namespace MediaPortal.Common.Services.ResourceAccess
           //ToDo
           //app.UseAuthentication();
           app.UseAuthorization();
-          // Support conventional routing
-          var routeTemplate = (_servicePrefix + "/api/{controller}/{id?}").TrimStart('/'); // No leading slash allowed
+          // Both HTTP hosts hand the request over below the prefix: http.sys reports it as PathBase, and
+          // SharedHttpPortHost does the same on purpose (measured with the health endpoint, which prints the
+          // two values). The route template is therefore relative to the prefix on every platform - it used
+          // to contain "/MediaPortal/Server", which could only ever match when the prefix was left in Path.
           app.UseEndpoints(endpoints =>
           {
-            // The two HTTP hosts differ in one measurable detail, so everything here is registered for both
-            // shapes: http.sys reports the URL prefix it registered as PathBase, which leaves the path route
-            // matching sees relative to it, while the shared Kestrel listener keeps the prefix inside Path
-            // (the UPnP handlers depend on that). One of each pair matches on each platform, and each
-            // platform's gate proves its own.
             endpoints.MapGet(HEALTH_URL_SUFFIX, WriteHealthResponse);
-            endpoints.MapGet(_servicePrefix + HEALTH_URL_SUFFIX, WriteHealthResponse);
-            endpoints.MapControllerRoute("DefaultApi", routeTemplate);
-            endpoints.MapControllerRoute("DefaultApiWithoutPrefix", routeTemplate.Substring(_servicePrefix.Length + 1));
+            endpoints.MapControllerRoute("DefaultApi", "api/{controller}/{id?}");
             endpoints.MapControllers();
           });
 

@@ -1374,7 +1374,8 @@ because "the process exited 0" alone is not one of them:
 2. with exit code 0,
 3. `<DATA>\Log\Server.log` contains `Switching to running state`,
 4. `<DATA>\Database` is not empty,
-5. every URL in `-ProbeUrl` answers `200` while the server is up.
+5. every URL in `-ProbeUrl` answers `200`, and an entry written as `url|text` also answers with a body
+   containing that text.
 
 Assertion 4 is what proves the database layer rather than the service registration: a fresh run leaves
 `Datastore.s3db` plus its `-wal`/`-shm` partners there. The data directory is kept in both outcomes -
@@ -1382,18 +1383,20 @@ the log inside it is the only diagnostic there is - and its path is printed. Ass
 the HTTP layer, because "the listener started" and "the server answers" are different statements. The
 default probe is the resource server's health endpoint,
 `http://127.0.0.1:55555/MediaPortal/Server/health`, which answers without plugins, users, tokens or the
-database and reports the `PathBase`/`Path` it was called with - the two HTTP hosts do not agree about
-those (http.sys moves the registered prefix into `PathBase`, the shared Kestrel listener keeps it in
-`Path`), and the printed response body is how each platform measures its own host. Probing needs the
-server to stay up, so a probing run passes `--duration` rather than `--check`; `-ProbeUrl @()` restores
-the old, non-probing behaviour.
+database and reports the `PathBase`/`Path` it was called with. Probing needs the server to stay up, so a
+probing run passes `--duration` rather than `--check`; `-ProbeUrl @()` restores the old, non-probing
+behaviour.
 
-What tells the two HTTP hosts apart is the body of that probe: on Windows the health endpoint reports
-`pathBase=/MediaPortal/Server` and `path=/health` (http.sys moves the prefix it registered into `PathBase`),
-in the Linux container it reports `pathBase=""` and `path=/MediaPortal/Server/health` (the shared Kestrel
-listener leaves the path alone). Both answer `200`, which is the point of registering each endpoint in both
-shapes. The SQLite half is no longer a caveat either: the layout copies the platform's own `e_sqlite3` native
-and the server logs `SQLiteVersion` from an open connection, on both platforms.
+The body is printed on purpose, and it is checked: the default entry asks for `MediaPortal 2 Server` in the
+answer, because a status code on its own is also produced by whatever proxy sits in front of the server.
+Among the reported fields, `PathBase`/`Path` are the ones that settled a question this repository had
+answered wrongly once: http.sys moves the prefix it registers into `PathBase` and lets `Path` continue behind
+it, and the shared Kestrel listener used to leave the whole path in `Path`. That disagreement meant a route
+written with the prefix in it could only ever match on one of the two platforms. The shared listener now
+reports the http.sys shape, so both gates print `pathBase=/MediaPortal/Server` and `path=/health` for the same
+request, and routes are written relative to the prefix everywhere. The SQLite half is no longer a caveat
+either: the layout copies the platform's own `e_sqlite3` native and the server logs `SQLiteVersion` from an
+open connection, on both platforms.
 
 ### MSBuild's `-getProperty` needs `-noconsolelogger`
 

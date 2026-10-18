@@ -16,7 +16,8 @@
     3. <DATA>\Log\Server.log contains the "Switching to running state" line, which is the last thing
        the launcher logs before the importer worker and the database migration run;
     4. the log contains no FATAL line;
-    5. every URL in -ProbeUrl answers 200 while the server is up.
+    5. every URL in -ProbeUrl answers 200 while the server is up, and an entry written as "url|text" also
+     answers with text containing that string.
 
   The fifth one is there because "the server reached the Running state" is a statement about its log, not
   about the network. The default probe is the resource server's health endpoint, which answers without
@@ -53,8 +54,10 @@ param(
   [int]$TimeoutSeconds = 180,
 
   # URLs the running server has to answer with 200. Empty disables probing, which is also the only way
-  # to run the host with --check (a probe needs the server to stay up).
-  [string[]]$ProbeUrl = @('http://127.0.0.1:55555/MediaPortal/Server/health'),
+  # to run the host with --check (a probe needs the server to stay up). An entry may be written as
+  # "url|text", which additionally requires the answer to contain that text - a status code alone is
+  # also produced by an empty answer in front of MP2, and it says nothing about the served content.
+  [string[]]$ProbeUrl = @('http://127.0.0.1:55555/MediaPortal/Server/health|MediaPortal 2 Server'),
 
   # How long the probes may keep asking before the run counts as failed. The server is held open for
   # this long plus a margin, so a slow machine slows the probe, not the verdict.
@@ -136,7 +139,17 @@ if (-not (Test-Path $DataDir)) {
 $logFile = [IO.Path]::Combine($DataDir, 'Log', 'Server.log')
 if (Test-Path $logFile) { Remove-Item $logFile -Force }
 
-$probes = @($ProbeUrl | Where-Object { $_ })
+# Split the "url|expected text" entries from -ProbeUrl. Keeping the expectation next to its URL means one
+# parameter can describe both "it answers" and "it answers with this content".
+$probes = @()
+foreach ($entry in ($ProbeUrl | Where-Object { $_ })) {
+  $parts = "$entry" -split '\|', 2
+  $probes += [pscustomobject]@{
+    Url = $parts[0].Trim()
+    Expect = if ($parts.Count -gt 1) { $parts[1] } else { '' }
+  }
+}
+$probeUrls = @($probes | ForEach-Object { $_.Url })
 # --check returns the moment the Running state is reached, which leaves no window in which a request could
 # be answered, so a probing run holds the server open for a fixed time instead.
 $holdSeconds = if ($probes.Count -gt 0) { $ProbeTimeoutSeconds + 15 } else { 0 }
@@ -162,7 +175,7 @@ $psi.WorkingDirectory = $LayoutDir
 $psi.UseShellExecute = $false
 
 $server = [System.Diagnostics.Process]::Start($psi)
-$probeResults = @(Request-Probes -Urls $probes -Server $server -DeadlineSeconds $ProbeTimeoutSeconds)
+$probeResults = @(Request-Probes -Urls $probeUrls -Server $server -DeadlineSeconds $ProbeTimeoutSeconds)
 $timedOut = -not $server.WaitForExit($TimeoutSeconds * 1000)
 if ($timedOut) {
   Write-Fail "the server did not exit within $TimeoutSeconds seconds; killing it"
@@ -204,6 +217,11 @@ foreach ($probe in $probeResults) {
   if ($probe.StatusCode -ne 200) {
     $answered = if ($probe.StatusCode -eq 0) { 'no response at all' } else { "HTTP $($probe.StatusCode)" }
     $failures += "the probe of $($probe.Url) got $answered - the server did not serve its own endpoint"
+    continue
+  }
+  $expected = ($probes | Where-Object { $_.Url -eq $probe.Url } | Select-Object -First 1).Expect
+  if ($expected -and ($probe.Body -notlike "*$expected*")) {
+    $failures += "the probe of $($probe.Url) answered 200 but without '$expected' in the body: $($probe.Body)"
   }
 }
 

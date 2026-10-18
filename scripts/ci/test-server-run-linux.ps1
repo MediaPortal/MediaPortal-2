@@ -30,10 +30,11 @@
   interface, Linux did not). See ROADMAP item l.
 
   The probe also asks a second question now, through run-server-check.ps1's -ProbeUrl: it requests
-  http://127.0.0.1:55555/MediaPortal/Server/health while the server runs and requires 200. "The listener
-  started" and "the server answers" are different claims; here the endpoint answers with the PathBase and
-  Path it was called with, which is how this container measured that the shared listener leaves the prefix in
-  Path while http.sys moves it into PathBase.
+  http://127.0.0.1:55555/MediaPortal/Server/health while the server runs and requires 200 plus the server's
+  name in the body. "The listener started" and "the server answers" are different claims; here the endpoint
+  also answers with the PathBase and Path it was called with, which is how this container measured - first
+  that the shared listener left the prefix in Path while http.sys moved it into PathBase, and then that both
+  now report pathBase=/MediaPortal/Server, path=/health like the Windows host does.
 
   Also measured here, because it only shows up in a log: Stop() runs twice on the failed-startup path,
   and the second pass reported its own FATAL below the real one. Teardown is idempotent now, so the

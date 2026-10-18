@@ -43,9 +43,9 @@ namespace Tests.Server.Upnp
   /// </summary>
   /// <remarks>
   /// The rules asserted here are the ones http.sys applies and that MP2 relies on: several endpoints on one
-  /// port, the longest matching URL prefix wins, matching is case-insensitive, a request keeps its full path
-  /// (the resource server's MVC route template contains the prefix), and synchronous access to the request
-  /// stream is allowed (the GENA handling reads it with the XmlSerializer).
+  /// port, the longest matching URL prefix wins, matching is case-insensitive, the request is handed over with
+  /// the prefix as PathBase and the remainder as Path (so route matching works the same on both hosts), and
+  /// synchronous access to the request stream is allowed (the GENA handling reads it with the XmlSerializer).
   /// </remarks>
   [TestFixture]
   public class TestSharedHttpPortHost
@@ -190,21 +190,42 @@ namespace Tests.Server.Upnp
     }
 
     [Test]
-    public async Task EndpointsSeeTheFullPathOfTheRequest()
+    public async Task EndpointsSeeTheRequestInTheShapeHttpSysHandsItOver()
     {
       int port = GetFreePort();
       string url = Url(port, "/MediaPortal/UPnPServer_1a2b3c");
       _registrations.Add(SharedHttpPortHost.Start(new[] { url }, context =>
       {
-        // The UPnP endpoints work on the full URI (HttpRequest.GetUri() builds it from PathBase and Path) and
-        // the resource server's MVC route template starts with the base path. Both only work while the
-        // dispatcher leaves the path alone, the way http.sys hands requests over.
-        string text = "Path=" + context.Request.Path + " PathBase=" + context.Request.PathBase;
+        // Measured on Windows: http.sys reports the prefix it registered as PathBase and lets Path continue
+        // behind it. The UPnP endpoints build their matching key from the full URI - PathBase + Path - so
+        // they behave the same in both shapes, but MVC route matching sees Path only, which is exactly why
+        // the two hosts must agree on this.
+        string text = "Path=" + context.Request.Path + " PathBase=" + context.Request.PathBase +
+                      " FullPath=" + context.Request.PathBase.Add(context.Request.Path);
         return context.Response.WriteAsync(text);
       }));
 
       Assert.That(await GetAsync(port, "/MediaPortal/UPnPServer_1a2b3c/description.xml"),
-          Is.EqualTo("200 Path=/MediaPortal/UPnPServer_1a2b3c/description.xml PathBase="));
+          Is.EqualTo("200 Path=/description.xml PathBase=/MediaPortal/UPnPServer_1a2b3c" +
+                     " FullPath=/MediaPortal/UPnPServer_1a2b3c/description.xml"));
+    }
+
+    [Test]
+    public async Task TheLongestPrefixBecomesThePathBaseOfTheEndpoint()
+    {
+      int port = GetFreePort();
+      RegisterHandler(port, "short", "/MediaPortal");
+      _registrations.Add(SharedHttpPortHost.Start(new[] { Url(port, "/MediaPortal/Server/deep") }, context =>
+          context.Response.WriteAsync("PathBase=" + context.Request.PathBase + " Path=" + context.Request.Path)));
+
+      // Two endpoints on one port, one prefix inside the other: each has to see itself as the base, and the
+      // shorter one still serves everything the longer one does not claim.
+      Assert.That(await GetAsync(port, "/MediaPortal/x"), Is.EqualTo("200 short"));
+      Assert.That(await GetAsync(port, "/MediaPortal/Server/other"), Is.EqualTo("200 short"));
+      Assert.That(await GetAsync(port, "/MediaPortal/Server/deep/x"),
+          Is.EqualTo("200 PathBase=/MediaPortal/Server/deep Path=/x"));
+      Assert.That(await GetAsync(port, "/MediaPortal/Server/deep"),
+          Is.EqualTo("200 PathBase=/MediaPortal/Server/deep Path="));
     }
 
     [Test]
@@ -260,9 +281,36 @@ namespace Tests.Server.Upnp
           "the pipeline must not be asked about requests of other endpoints");
     }
 
+    /// <summary>
+    /// The property the API of the new frontend depends on: routes are written relative to the URL prefix of
+    /// the endpoint, so the same code answers under "/MediaPortal/Server" on Windows (http.sys) and on every
+    /// other platform (the shared listener). Everything below the prefix that no route claims falls through to
+    /// the rest of the pipeline, which is where the resource access modules of the resource server live.
+    /// </summary>
     [Test]
-    public void EndpointWithPipelineHasToBeRegisteredFirst()
+    public async Task PipelineRoutesAreRelativeToThePrefixOfTheEndpoint()
     {
+      int port = GetFreePort();
+      _registrations.Add(SharedHttpPortHost.Start(new[] { Url(port, "/MediaPortal/Server") },
+          services => services.AddRouting(),
+          app =>
+          {
+            app.UseRouting();
+            app.UseEndpoints(endpoints =>
+            {
+              endpoints.MapGet("health", context => context.Response.WriteAsync("healthy"));
+              endpoints.MapGet("api/ping", context => context.Response.WriteAsync("pong"));
+            });
+            app.Run(context => context.Response.WriteAsync("rest of the pipeline"));
+          }));
+
+      Assert.That(await GetAsync(port, "/MediaPortal/Server/health"), Is.EqualTo("200 healthy"));
+      Assert.That(await GetAsync(port, "/MediaPortal/Server/api/ping"), Is.EqualTo("200 pong"));
+      Assert.That(await GetAsync(port, "/MediaPortal/Server/anythingElse"), Is.EqualTo("200 rest of the pipeline"));
+    }
+
+    [Test]
+    public void EndpointWithPipelineHasToBeRegisteredFirst()    {
       int port = GetFreePort();
       RegisterHandler(port, "upnp", "/MediaPortal/UPnPServer_1a2b3c");
 

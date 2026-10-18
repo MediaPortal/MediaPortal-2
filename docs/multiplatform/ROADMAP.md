@@ -35,10 +35,10 @@ Verified 2026-10-18 with `build.ps1 -Solution Server,Client -Ratchet`, `tests.ps
 | Portable-core WinForms / GDI+ references | **0** (83 quarantined in 10 satellite files) | `spine.ps1`, `satellites.ps1` |
 | Portable-core P/Invoke declarations | **73** in 9 files (was 95, then 76; the last three were the Kernel32 waitable timer) - invisible to `CA1416` | `spine.ps1` (P/Invoke column) |
 | `CA1416` call sites, Windows vs Linux | **0** on both hosts, floor 0 (was 196 at the retarget) - the 107 that remained were all in `-windows` assemblies that had lost their platform declaration; see "the floor went to zero" below | build log, `warnings.ps1` on both logs |
-| Unit tests, Windows | 4/4 suites, 345 passed, 0 failed, 0 skipped; a suite whose assembly predates its own sources reports STALE instead of running the old binary | `tests.ps1` |
+| Unit tests, Windows | 4/4 suites, 347 passed, 0 failed, 0 skipped; a suite whose assembly predates its own sources reports STALE instead of running the old binary | `tests.ps1` |
 | Unit tests, Linux (canary) | 31 executed, 0 failed (1 skips: Windows-only), incl. live IPC round trips and XDG autostart | `test-canary-linux.ps1` |
 | Server actually **runs** | **yes on Windows and on Linux** as a headless process. Windows: reaches the Running state, creates the SQLite store, answers UPnP discovery over the network, exits 0 with an error-free log. Linux: reaches the same Running state with 0 `FATAL`, 0 `ERROR` and one `WARN` - the documented note that a container has no FUSE driver. Android is still unmeasured | `run-server-check.ps1`, `test-server-upnp.ps1`, `test-server-run-linux.ps1` |
-| Server **answers HTTP** | **yes on both hosts**, measured with the same probe: `GET /MediaPortal/Server/health` answers `200` with the server's version and the path it was called with. Windows reports `pathBase=/MediaPortal/Server`, `path=/health`; the container reports `pathBase=""`, `path=/MediaPortal/Server/health` - the two listeners disagree about the prefix, and the endpoint answers on both | `run-server-check.ps1 -ProbeUrl`, item **l** below |
+| Server **answers HTTP** | **yes on both hosts**, measured with the same probe: `GET /MediaPortal/Server/health` answers `200` with the server's version and the path it was called with - `pathBase=/MediaPortal/Server`, `path=/health` on Windows *and* in the container, because the shared listener now hands requests over in exactly the shape http.sys uses. The gate checks that text, not just the status code | `run-server-check.ps1 -ProbeUrl`, item **l** below |
 | Server **runs on Linux** | **yes** - `HeadlessServerLauncher: Switching to running state`, item **g**'s goal, measured. The layout assembles, `libe_sqlite3.so` (linux-x64) loads, SQLite 3.53.3 opens the store, the subschemas `MediaPortal-Basis`, `MediaLibrary`, `UserProfileDataManagement` and `ClientManager` are created from their SQL scripts, and the resource server plus two control points and one UPnP server share port 55555 through one listener | `test-server-run-linux.ps1`, items **i**, **j** and **k** below |
 | Database plugin on a portable driver | `SQLiteDatabase` is `net10.0` with `CA1416` as error, no Win32 calls left, and no longer loads a Windows-only interop library: it talks to SQLite through `Microsoft.Data.Sqlite` (SQLite 3.53.3), whose `e_sqlite3` native is copied into the layout per platform | `SQLiteDatabase.csproj`, items **h** and **j** below |
 | Built executables are 64-bit | 5/5 apphosts measure `x64`, managed side `MSIL` | `architecture.ps1` |
@@ -632,9 +632,16 @@ claim this document had written down wrongly.
 
 | Question | Measurement |
 | --- | --- |
-| Does http.sys hand a prefixed request over with the prefix still in `Path`, the way the shared listener does? | **No.** `http://127.0.0.1:55555/MediaPortal/Server/health` arrives on Windows as `PathBase=/MediaPortal/Server`, `Path=/health` - http.sys moves the prefix it registered into `PathBase`. In the container the same request arrives as `PathBase=""`, `Path=/MediaPortal/Server/health`. The first probe run answered `404` on Windows, and that is how this was found |
+| Does http.sys hand a prefixed request over with the prefix still in `Path`, the way the shared listener did? | **No.** `http://127.0.0.1:55555/MediaPortal/Server/health` arrives on Windows as `PathBase=/MediaPortal/Server`, `Path=/health` - http.sys moves the prefix it registered into `PathBase`. Before the change described below, the container saw the same request as `PathBase=""`, `Path=/MediaPortal/Server/health`. The first probe run answered `404` on Windows, and that is how this was found |
 | What does that break? | Everything matching on `Path` alone. The UPnP endpoints compare against `PathBase + Path`, so they behave identically on both hosts, but the resource server's conventional route `MediaPortal/Server/api/{controller}` can only ever match on the shared listener - it was dead code on Windows from the start, and there are no controllers to notice |
-| How is that squared? | Registrations come in both shapes: `/health` and `/MediaPortal/Server/health`, `api/{controller}` and its prefixed twin. Exactly one matches per host, and each platform's gate proves its own |
+| How is that squared? | The shared listener was changed to hand requests over the way http.sys does: it matches the longest registered prefix, reports that prefix as `PathBase` and lets `Path` continue behind it (see `SharedHttpPortHost.DispatchAsync`). Every MP2 endpoint was checked before making the change - the UPnP host, GENA and the resource access modules all match on `PathBase + Path`, which is the string they built their keys from all along - so they are unaffected, while anything using routes suddenly works the same on both platforms. The resource server's registrations went back to one shape each: `/health` and `api/{controller}/{id?}` |
+
+**The unification is measurable, not assumed.** `SharedHttpPortHost` restores `PathBase`/`Path` after every
+request and hands both to the endpoint it dispatched to; `Tests.Server` pins the shape for one endpoint, for two
+endpoints whose prefixes nest inside each other, and for a routed pipeline whose routes are written relative to
+the prefix. The health endpoint still reports the pair, so the two gates keep printing what their own platform
+really does - which is how the container's answer above became `pathBase=/MediaPortal/Server`, identical to
+Windows, in the run that followed the change.
 
 **The teardown complained on Linux only, and the message was a copy-paste.** The container's three
 `Could not set IPv4 options / Cannot assign requested address` warnings came from
@@ -654,8 +661,8 @@ the regression itself: join, close, and require that nothing was logged.
 | Container `WARN` lines | 4 (three teardown, one resource-mounting) | **1** - the documented FUSE note |
 | Container `ERROR` / `FATAL` | 0 / 0 | 0 / 0 |
 | Health probe, Windows (`http.sys`) | no such assertion | `200`, `pathBase=/MediaPortal/Server`, `path=/health` |
-| Health probe, container (shared Kestrel listener) | no such assertion | `200`, `pathBase=""`, `path=/MediaPortal/Server/health` |
-| Unit tests | 335 | **345** (5 multicast teardown, 5 health endpoint) |
+| Health probe, container (shared Kestrel listener) | no such assertion | `200`, `pathBase=/MediaPortal/Server`, `path=/health` - the same answer as on Windows, after the unification |
+| Unit tests | 335 | **347** (5 multicast teardown, 5 health endpoint, 2 for the path shape of the shared listener, 1 of them a routed pipeline) |
 
 ## Phase 2 - Avalonia front end
 

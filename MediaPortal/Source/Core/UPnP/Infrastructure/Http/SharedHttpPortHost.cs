@@ -54,16 +54,12 @@ namespace UPnP.Infrastructure.Http
   /// change between platforms.
   /// </para>
   /// <para>
-  /// Requests are dispatched without touching <c>HttpRequest.PathBase</c> and <c>HttpRequest.Path</c>: the
-  /// path of a request to an endpoint registered for <c>http://+:55555/MyPrefix</c> keeps its
-  /// <c>/MyPrefix</c> segment and <c>PathBase</c> stays empty, because MP2's UPnP handlers match against
-  /// the raw request URL. That is deliberately <em>not</em> what http.sys does: http.sys moves the prefix it
-  /// registered into <c>PathBase</c>, measured on Windows with a request for
-  /// <c>http://127.0.0.1:55555/MediaPortal/Server/health</c> arriving as <c>PathBase=/MediaPortal/Server</c>,
-  /// <c>Path=/health</c>. Two consequences, both measured rather than assumed: an endpoint that has to answer
-  /// on both hosts must be registered for both shapes (the resource server's health endpoint is), and the
-  /// UPnP handlers are unaffected either way because they compare against <c>PathBase + Path</c>, which is
-  /// the full path on both hosts.
+  /// Requests are handed over in the shape http.sys uses, which was measured rather than assumed: a request
+  /// for <c>http://127.0.0.1:55555/MediaPortal/Server/health</c> arrives at the endpoint with
+  /// <c>PathBase=/MediaPortal/Server</c> and <c>Path=/health</c> on Windows, and the shared listener now
+  /// reports the same thing. That matters because code which matches on <c>Path</c> alone - MVC routing does -
+  /// would otherwise work on exactly one of the two hosts; the UPnP endpoints are unaffected either way,
+  /// because they compare against the full URL, and <c>PathBase + Path</c> is the full URL in both shapes.
   /// </para>
   /// <para>
   /// A prefix that serves an ASP.NET Core pipeline (MVC controllers and middlewares) has to provide its
@@ -282,12 +278,21 @@ namespace UPnP.Infrastructure.Http
 
       private async Task DispatchAsync(HttpContext context)
       {
+        HttpRequest request = context.Request;
+        // The whole path is the base plus the part Kestrel put in Path. For this listener Kestrel leaves the
+        // base empty, but matching on the combination keeps the dispatch correct if it ever does not.
+        PathString fullPath = request.PathBase.Add(request.Path);
+
         Endpoint match = null;
+        PathString remainder = PathString.Empty;
         foreach (Endpoint endpoint in _dispatchTable)
         {
-          if (context.Request.Path.StartsWithSegments(endpoint.Prefix, StringComparison.OrdinalIgnoreCase) &&
+          if (fullPath.StartsWithSegments(endpoint.Prefix, StringComparison.OrdinalIgnoreCase, out PathString rest) &&
               (match == null || endpoint.Prefix.Length > match.Prefix.Length))
+          {
             match = endpoint;
+            remainder = rest;
+          }
         }
 
         if (match == null)
@@ -295,10 +300,28 @@ namespace UPnP.Infrastructure.Http
           // http.sys answers with 404 for a port it listens on but has no URL prefix for.
           context.Response.StatusCode = StatusCodes.Status404NotFound;
           await context.Response.WriteAsync(string.Format(
-              "No MP2 HTTP endpoint is registered for the path '{0}'.", context.Request.Path));
+              "No MP2 HTTP endpoint is registered for the path '{0}'.", fullPath));
           return;
         }
-        await match.Handler(context);
+
+        // Hand the endpoint the request in the shape http.sys hands it over: the prefix it registered for is
+        // its PathBase, Path continues behind it. Measured on Windows, and the reason for doing it here is
+        // that code matching on Path alone - MVC routing does - then behaves the same on both hosts instead
+        // of working on one only. The UPnP endpoints are unaffected either way, they compare against the
+        // full URL, which is PathBase + Path on both shapes.
+        PathString previousPathBase = request.PathBase;
+        PathString previousPath = request.Path;
+        request.PathBase = previousPathBase.Add(match.Prefix);
+        request.Path = remainder;
+        try
+        {
+          await match.Handler(context);
+        }
+        finally
+        {
+          request.PathBase = previousPathBase;
+          request.Path = previousPath;
+        }
       }
     }
 
