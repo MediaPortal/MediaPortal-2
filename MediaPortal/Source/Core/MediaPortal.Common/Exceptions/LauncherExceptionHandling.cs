@@ -25,6 +25,7 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -67,7 +68,50 @@ namespace MediaPortal.Common.Exceptions
 
     public static void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
     {
+      if (IsAbortedSocketIo(e.Exception))
+      {
+        // Nothing failed here, see IsAbortedSocketIo. Logging it as an error puts two to six lines in the
+        // log of every shutdown and hides the failures this handler is for.
+        ILogger logger = ServiceRegistration.Get<ILogger>(false);
+        if (logger != null)
+        {
+          logger.Debug("ApplicationLauncher: a socket operation was still pending when its socket was closed: {0}",
+              e.Exception.Message);
+          return;
+        }
+      }
       HandleException("Unhandled Task Exception", "Unhandled task exception in application", e.Exception);
+    }
+
+    /// <summary>
+    /// Tells whether <paramref name="exception"/> only reports socket I/O that was still pending when the
+    /// socket was closed.
+    /// </summary>
+    /// <remarks>
+    /// The UPnP listeners are closed at shutdown while a receive is outstanding, and the socket APIs they
+    /// use (the APM <c>BeginReceiveFrom</c> bridge, which is built on the Task-based calls) report the
+    /// resulting abort through a Task that no one ever looks at. .NET hands that to
+    /// <see cref="TaskScheduler_UnobservedTaskException"/> from the finalizer thread, so it arrives here
+    /// as an application error once per listener on every shutdown - measured as
+    /// <see cref="SocketError.OperationAborted"/>. Aborting pending I/O is what closing a socket means, so
+    /// this is teardown, not a fault; anything else keeps going through the normal error path.
+    /// </remarks>
+    private static bool IsAbortedSocketIo(Exception exception)
+    {
+      if (exception == null)
+        return false;
+      SocketException socketException = exception as SocketException;
+      if (socketException != null)
+        return socketException.SocketErrorCode == SocketError.OperationAborted ||
+            socketException.SocketErrorCode == SocketError.Interrupted;
+      if (exception is AggregateException)
+      {
+        foreach (Exception inner in ((AggregateException) exception).Flatten().InnerExceptions)
+          if (IsAbortedSocketIo(inner))
+            return true;
+        return false;
+      }
+      return IsAbortedSocketIo(exception.InnerException);
     }
 
     public static void HandleException(string caption, string text, Exception ex)

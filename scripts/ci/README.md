@@ -1351,9 +1351,10 @@ Assertion 4 is what proves the database layer rather than the service registrati
 the log inside it is the only diagnostic there is - and its path is printed.
 
 Two caveats to know before trusting a green run: it is a **Windows** green run, and the log says so.
-`HttpSysListener` appears for the resource and UPnP servers (`http.sys` is Windows-only, so Linux needs
-Kestrel), and the SQLite provider is `net10.0-windows` with a win-x64 native. Both are listed as open
-in `docs/multiplatform/ROADMAP.md` Phase 1g.
+`HttpSysListener` appears for the resource and UPnP servers, and the SQLite plugin still loads a win-x64
+native. Both are listed as open in `docs/multiplatform/ROADMAP.md` Phase 1. The log also names the
+listener as `Microsoft.AspNetCore.Server.HttpSys.HttpSysListener` - the HTTP stack is already ASP.NET
+Core, so Linux needs `UseKestrel()` rather than a new HTTP server.
 
 ### MSBuild's `-getProperty` needs `-noconsolelogger`
 
@@ -1384,3 +1385,53 @@ chatty commands to `Out-Host` (writes to the host, contributes nothing to the pi
   you want, but after a pipeline that ends in a cmdlet which can fail (like `Select-Object -First N`,
   which can stop the pipeline), it can be `-1` for a build that succeeded. Judge builds by
   `$LASTEXITCODE` captured immediately after the tool call.
+## The server answers: `test-server-upnp.ps1`
+
+`run-server-check.ps1` proves the listeners come up and go down. It says nothing about whether they
+answer anything, which stopped being theoretical the day the SSDP receive loop was rewritten. So the
+headless host grew `--duration <seconds>` (stay up that long, then shut down exactly the way `--check`
+does - `WaitForExitRequest(TimeSpan)`, so Ctrl+C still cuts it short) and this script talks to the
+running server:
+
+1. start with `--duration`, wait for `UPnP server online hosting` in the log,
+2. multicast an M-SEARCH (`ST: ssdp:all`, `MX: 1`) to `239.255.255.250:1900`,
+3. require a `200 OK` whose `LOCATION` names MP2's own UPnP listener **and** whose `SERVER` header says
+   `MediaPortal-2-Server` - other devices on the LAN will answer the multicast too, and "somebody
+   answered" is not the assertion,
+4. require exit code 0, no `[ERROR]` line and no `Cannot acquire synchronization lock` line, because
+   the shutdown is the part that had the bug.
+
+Measured on the first green run: seven responses, the root device plus one per service.
+
+Multicast, not unicast, and that was measured too: an M-SEARCH sent to `127.0.0.1:1900` gets no answer
+at all on Windows. Several sockets share UDP port 1900 through `SO_REUSEADDR` - here MP2's three
+endpoints plus the Windows SSDP service - and Windows gives a *unicast* datagram to one of them, which
+is not the one MP2 is listening with. Multicast is what every real control point sends anyway.
+
+Two shutdown defects surfaced only because this script exists:
+
+- `SSDPServerController.Close()` called `Timer.Dispose(WaitHandle)` and waited on that handle **while
+  holding** `SyncObj`, while both timer callbacks take `SyncObj` (the advertisement one with
+  `Monitor.TryEnter(SyncObj, TIMEOUT_TIMER_LOCK_ACCESS)`). Every shutdown that raced a timer tick
+  therefore waited out the full lock timeout - measured as a 30 second stall plus
+  `Maybe a deadlock happened.` in the log - and only ended because the timeout exists. Stopping and
+  awaiting the timers happens outside the lock now.
+- Closing a UDP socket with a receive pending faults the `Task` behind `BeginReceiveFrom` (which is
+  built on `ReceiveFromAsync`), nobody observes it, and the finalizer hands it to
+  `TaskScheduler_UnobservedTaskException` as an application error - two to six `[ERROR]` lines per
+  shutdown. The server's listener uses `SocketAsyncEventArgs` now, where the abort is a `SocketError`
+  value. The client-side listeners still use the APM pair, so the launcher classifies abort-only
+  unobserved exceptions as teardown (`Debug`) rather than failure (`Error`); see Phase 1h in the
+  roadmap.
+
+### Comment-based help and `-File`
+
+Both bit while writing the script above:
+
+- A file whose first line is `#<#` is **not** a comment block: `#` starts a line comment, so the rest of
+  the help text is parsed as code. Windows PowerShell accepts `<#` as the first token of comment-based
+  help - that is what every other script in this folder uses. The symptom is unrelated parse errors on
+  the help text's own lines ("Unexpected token 'the'").
+- `powershell -File script.ps1 -Solution Server,Client` passes the single string `"Server,Client"` to a
+  `[string[]]` parameter, which fails its `ValidateSet`. Array arguments need `-Command`, or repeated
+  `-Solution Server -Solution Client`.

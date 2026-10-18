@@ -16,7 +16,7 @@
     "warnings":  {
                      "ASPDEPR008":  4,
                      "CA1001":  42,
-                     "CA1060":  18,
+                     "CA1060":  17,
                      "CA1063":  190,
                      "CA1065":  50,
                      "CA1401":  56,
@@ -55,7 +55,7 @@
     "notes":  {
                   "ASPDEPR008":  "4 findings, new with net10: System.Web-era ASP.NET APIs in the HTTP server area. Relevant because the API facade has to be rewritten for Kestrel anyway.",
                   "CA1001":  "42 findings (44 before the retarget). Two went away with deleted code.",
-                  "CA1060":  "18 findings, unchanged. Top-level statements in files that are not programs.",
+                  "CA1060":  "17 findings (was 18). Pinvoke declarations that are not in a dedicated native-methods class. One left when SQLiteSettings stopped calling GlobalMemoryStatusEx for RAM size; the SQLite provider still has its CompareStringEx, which is Windows-only on purpose. (The note here used to describe top-level statements, which is not what CA1060 reports.)",
                   "CA1063":  "190 findings (201 before the retarget, 380 and 832 in the two older counting units). The history of this code is a warning about counting: it was 78 on a Visual Studio box with the old rule sets, 832 when severity moved into .editorconfig (every host and every target framework leg reporting), 404 raw log lines once the tree was single-TFM, and 190 unique findings now. None of those jumps was new debt and none of them was fixed.",
                   "CA1065":  "50 findings, unchanged by the retarget. Properties throwing NotImplementedException - mostly in test mocks.",
                   "CA1401":  "56 findings (was 57; the public GetDiskFreeSpaceEx declaration in Utilities\\FileSystem\\DriveUtils.cs was deleted together with the dead method that called it - CA1401 is 'P/Invokes should not be visible', so a public DllImport is the finding itself). P/Invoke declarations without AllowSetForegroundWindow-style guards; they move when the Win32 layer moves behind a platform seam.",

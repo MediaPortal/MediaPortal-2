@@ -1,11 +1,32 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Portable since the server started running headless: the database provider is on the startup path
+    of every platform, so a -windows target framework here means the server cannot open its own
+    library anywhere else.
+
+    What was still Windows about it, and what replaced it:
+      - SQLiteSettings sized the page cache with GlobalMemoryStatusEx. Now GC.GetGCMemoryInfo(),
+        which also tells the truth inside a container (the Win32 call reports the host's RAM).
+      - LexicographicComparer implemented SQLite's NOCASE collation with kernel32's CompareStringEx.
+        The native call stays on Windows, where existing databases were built with that ordering;
+        elsewhere it delegates to NaturalStringComparer. The P/Invoke is annotated
+        [SupportedOSPlatform("windows")], and CA1416 is an error in this project - so deleting the
+        guard is a build failure rather than a runtime surprise.
+
+    What is still Windows-only and not fixable by retargeting: the System.Data.SQLite package. Its
+    managed assembly is .NET Standard, but the native SQLite.Interop.dll it P/Invokes ships for
+    win-x64 and win-x86 only (see scripts/ci/deploy-server-layout.ps1, which places it in x64\).
+    Opening a database off Windows needs a provider swap to Microsoft.Data.Sqlite, which is the next
+    step and tracked in docs/multiplatform/ROADMAP.md Phase 1d.
+  -->
   <PropertyGroup>
-    <TargetFramework>net10.0-windows</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <OutputType>Library</OutputType>
     <RootNamespace>MediaPortal.Database.SQLite</RootNamespace>
     <AssemblyName>SQLiteDatabase</AssemblyName>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <WarningsAsErrors>CA1416</WarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup>
     <!--required for assemblies from nuget packages to be copied to output folder, so our build.targets can copy them further -->

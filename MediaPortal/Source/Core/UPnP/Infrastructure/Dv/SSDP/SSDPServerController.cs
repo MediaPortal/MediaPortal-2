@@ -93,41 +93,59 @@ namespace UPnP.Infrastructure.Dv.SSDP
       }
     }
 
-    private void OnSSDPReceive(IAsyncResult ar)
+    /// <summary>
+    /// Handles one received SSDP datagram and asks for the next one.
+    /// </summary>
+    private void OnSSDPReceiveCompleted(object sender, SocketAsyncEventArgs args)
     {
+      UDPAsyncReceiveState<EndpointConfiguration> state = (UDPAsyncReceiveState<EndpointConfiguration>) args.UserToken;
+      EndpointConfiguration config = state.Endpoint;
+      SocketError error = args.SocketError;
+      if (error != SocketError.Success)
+      {
+        args.Dispose();
+        // A receive is pending when an endpoint goes away or the server shuts down, so an aborted
+        // operation is the normal way this loop ends. Reporting it while the system is still active is
+        // what makes it interesting.
+        if (_serverData.IsActive)
+          UPnPConfiguration.LOGGER.Info("SSDPServerController: Stopped listening for multicast messages at IP endpoint '{0}' (socket error '{1}')",
+              NetworkHelper.IPAddrToString(config.EndPointIPAddress), error);
+        return;
+      }
+
       lock (_serverData.SyncObj)
         if (!_serverData.IsActive)
+        {
+          args.Dispose();
           return;
-      UDPAsyncReceiveState<EndpointConfiguration> state = (UDPAsyncReceiveState<EndpointConfiguration>) ar.AsyncState;
-      EndpointConfiguration config = state.Endpoint;
-      Socket socket = state.Socket;
+        }
+
+      // To retrieve the remote endpoint address, it is necessary that the SocketOptionName.PacketInformation is set to true on the socket
       try
       {
-        EndPoint remoteEP = new IPEndPoint(
-            state.Endpoint.AddressFamily == AddressFamily.InterNetwork ?
-            IPAddress.Any : IPAddress.IPv6Any, 0);
-        // To retrieve the remote endpoint address, it is necessary that the SocketOptionName.PacketInformation is set to true on the socket
-        using (Stream stream = new MemoryStream(state.Buffer, 0, socket.EndReceiveFrom(ar, ref remoteEP)))
+        using (Stream stream = new MemoryStream(state.Buffer, 0, args.BytesTransferred))
         {
-          try
-          {
-            SimpleHTTPRequest header;
-            SimpleHTTPRequest.Parse(stream, out header);
-            HandleSSDPRequest(header, config, (IPEndPoint) remoteEP);
-          }
-          catch (Exception e)
-          {
-            UPnPConfiguration.LOGGER.Debug(
-                "SSDPServerController: Problem parsing incoming packet at IP endpoint '{0}'. Error message: '{1}'", e,
-                NetworkHelper.IPAddrToString(config.EndPointIPAddress), e.Message);
-          }
+          SimpleHTTPRequest header;
+          SimpleHTTPRequest.Parse(stream, out header);
+          HandleSSDPRequest(header, config, (IPEndPoint) args.RemoteEndPoint);
         }
-        StartReceive(state);
       }
-      catch (Exception) // SocketException, ObjectDisposedException
+      catch (Exception e)
       {
-        // Socket was closed - ignore this exception
-        UPnPConfiguration.LOGGER.Info("SSDPServerController: Stopping listening for multicast messages at IP endpoint '{0}'",
+        UPnPConfiguration.LOGGER.Debug(
+            "SSDPServerController: Problem parsing incoming packet at IP endpoint '{0}'. Error message: '{1}'", e,
+            NetworkHelper.IPAddrToString(config.EndPointIPAddress), e.Message);
+      }
+
+      try
+      {
+        if (!state.Socket.ReceiveFromAsync(args))
+          OnSSDPReceiveCompleted(null, args); // The socket completed the receive synchronously
+      }
+      catch (Exception e) // SocketException, ObjectDisposedException
+      {
+        args.Dispose();
+        UPnPConfiguration.LOGGER.Info("SSDPServerController: UPnP SSDP subsystem unable to receive from IP address '{0}'", e,
             NetworkHelper.IPAddrToString(config.EndPointIPAddress));
       }
     }
@@ -171,17 +189,25 @@ namespace UPnP.Infrastructure.Dv.SSDP
     /// </summary>
     public void Close()
     {
-      ManualResetEvent notifyObject = new ManualResetEvent(false);
+      // The timers are stopped - and the wait for their running callbacks happens - outside of
+      // SyncObj. Timer.Dispose(WaitHandle) only signals once callbacks that are already running have
+      // returned, and both callbacks take SyncObj, so waiting for them while holding the lock waits for
+      // them to give up waiting for the lock: the advertisement callback uses TryEnter with
+      // TIMEOUT_TIMER_LOCK_ACCESS, which turned every shutdown that raced a timer tick into a stall of
+      // that length (seen with a server that shut down a second after starting).
+      // Stopping the timers first also keeps the ordering the protocol expects: no "alive" message can
+      // be sent after the "byebye" messages below.
+      ManualResetEvent advertisementCompleted = new ManualResetEvent(_advertisementTimer == null);
+      ManualResetEvent searchResponseCompleted = new ManualResetEvent(_searchResponseTimer == null);
+      _advertisementTimer?.Dispose(advertisementCompleted);
+      _searchResponseTimer?.Dispose(searchResponseCompleted);
+      advertisementCompleted.WaitOne();
+      searchResponseCompleted.WaitOne();
+      advertisementCompleted.Close();
+      searchResponseCompleted.Close();
+
       lock (_serverData.SyncObj)
-      {
         RevokeAdvertisements();
-        _advertisementTimer.Dispose(notifyObject);
-        notifyObject.WaitOne();
-        notifyObject.Reset();
-        _searchResponseTimer.Dispose(notifyObject);
-      }
-      notifyObject.WaitOne();
-      notifyObject.Close();
       lock (_serverData.SyncObj)
         CloseSSDPEndpoints();
     }
@@ -352,15 +378,26 @@ namespace UPnP.Infrastructure.Dv.SSDP
 
     protected void StartReceive(UDPAsyncReceiveState<EndpointConfiguration> state)
     {
-      EndPoint remoteEP = new IPEndPoint(state.Endpoint.AddressFamily == AddressFamily.InterNetwork ?
+      // SocketAsyncEventArgs instead of the BeginReceiveFrom/EndReceiveFrom pair or ReceiveFromAsync that
+      // could be used here. Closing the socket at shutdown aborts the pending receive, and both Task-based
+      // shapes report that abort through a Task nobody ever looks at, which .NET turns into an
+      // "unobserved task exception" logged from the finalizer thread - three of them per shutdown, one for
+      // each endpoint, whenever the garbage collector happened to run at the wrong moment. With this API
+      // the abort arrives as a SocketError value.
+      SocketAsyncEventArgs args = new SocketAsyncEventArgs();
+      args.SetBuffer(state.Buffer, 0, state.Buffer.Length);
+      args.RemoteEndPoint = new IPEndPoint(state.Endpoint.AddressFamily == AddressFamily.InterNetwork ?
           IPAddress.Any : IPAddress.IPv6Any, 0);
+      args.UserToken = state;
+      args.Completed += OnSSDPReceiveCompleted;
       try
       {
-        state.Socket.BeginReceiveFrom(state.Buffer, 0, state.Buffer.Length, SocketFlags.None,
-            ref remoteEP, OnSSDPReceive, state);
+        if (!state.Socket.ReceiveFromAsync(args))
+          OnSSDPReceiveCompleted(null, args); // The socket completed the receive synchronously
       }
       catch (Exception e) // SocketException and ObjectDisposedException
       {
+        args.Dispose();
         UPnPConfiguration.LOGGER.Info("SSDPServerController: UPnP SSDP subsystem unable to receive from IP address '{0}'", e,
             NetworkHelper.IPAddrToString(state.Endpoint.EndPointIPAddress));
       }
@@ -381,12 +418,30 @@ namespace UPnP.Infrastructure.Dv.SSDP
 
     protected void ReconfigureAdvertisementTimer()
     {
-      _advertisementTimer.Change(GetAdvertisementRepetitionTime(), Timeout.Infinite);
+      ReconfigureTimer(_advertisementTimer, GetAdvertisementRepetitionTime());
     }
 
     protected void ReconfigureSearchResponseTimer(int milliseconds)
     {
-      _searchResponseTimer.Change(milliseconds, Timeout.Infinite);
+      ReconfigureTimer(_searchResponseTimer, milliseconds);
+    }
+
+    /// <summary>
+    /// Re-arms <paramref name="timer"/> for a single run in <paramref name="milliseconds"/>.
+    /// </summary>
+    /// <remarks>
+    /// A callback that was already past its active check when the SSDP system closed can get here after
+    /// the timer has been disposed. Re-arming is pointless in that case, and letting the
+    /// <see cref="ObjectDisposedException"/> escape would take the process down, because timer callbacks
+    /// have no caller to catch them.
+    /// </remarks>
+    private static void ReconfigureTimer(Timer timer, int milliseconds)
+    {
+      try
+      {
+        timer.Change(milliseconds, Timeout.Infinite);
+      }
+      catch (ObjectDisposedException) { }
     }
 
     protected void ProcessSearchRequest(PendingSearchRequest ps)

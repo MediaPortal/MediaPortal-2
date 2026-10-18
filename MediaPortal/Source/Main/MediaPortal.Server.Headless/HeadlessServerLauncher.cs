@@ -185,6 +185,15 @@ namespace MediaPortal.Server.Headless
       _exitRequested.Wait();
     }
 
+    /// <summary>
+    /// Waits for shutdown to be requested, but not longer than <paramref name="timeout"/>.
+    /// </summary>
+    /// <returns><c>true</c> if shutdown was requested before the timeout ran out.</returns>
+    public bool WaitForExitRequest(TimeSpan timeout)
+    {
+      return _exitRequested.Wait(timeout);
+    }
+
     public void RequestExit()
     {
       try
@@ -327,17 +336,20 @@ namespace MediaPortal.Server.Headless
     /// <summary>
     /// Runs the server until the process is asked to stop.
     /// </summary>
-    /// <param name="args"><c>--data &lt;path&gt;</c> puts the media database and configuration somewhere specific; <c>--check</c> shuts down again as soon as the server is up.</param>
+    /// <param name="args"><c>--data &lt;path&gt;</c> puts the media database and configuration somewhere specific; <c>--check</c> shuts down again as soon as the server is up; <c>--duration &lt;seconds&gt;</c> stays up for a fixed time first.</param>
     /// <returns>0 on a clean run, 1 if startup failed.</returns>
     public static int Main(string[] args)
     {
       string dataDirectory = null;
-      bool checkOnly = false;
+      int durationSeconds = 0;
       for (int i = 0; i < args.Length - 1; i++)
       {
         if (args[i] == "--data" || args[i] == "-d")
           dataDirectory = args[i + 1];
+        else if (args[i] == "--duration")
+          int.TryParse(args[i + 1], out durationSeconds);
       }
+      bool checkOnly = false;
       foreach (string arg in args)
       {
         if (arg == "--check")
@@ -372,6 +384,10 @@ namespace MediaPortal.Server.Headless
           // --check exists for the CI containers: bring the whole server up on a platform where
           // nobody has run it, then come down cleanly. A non-zero exit is the failure signal.
           if (checkOnly)
+            launcher.RequestExit();
+          else if (durationSeconds > 0 && !launcher.WaitForExitRequest(TimeSpan.FromSeconds(durationSeconds)))
+            // --duration keeps the server reachable for a fixed time, so that a test can send it traffic
+            // (an SSDP search, an HTTP request) and still get the clean shutdown that --check produces.
             launcher.RequestExit();
           launcher.WaitForExitRequest();
           return 0;

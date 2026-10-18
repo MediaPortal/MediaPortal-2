@@ -26,14 +26,31 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 
 namespace MediaPortal.Database.SQLite
 {
   /// <summary>
-  /// Comparer using the native CompareStringEx method. Makes it possible to support
-  /// culture sensitive and natural number sorting.
-  /// For details see here: http://msdn.microsoft.com/en-us/library/dd317761%28v=vs.85%29.aspx
+  /// Culture-sensitive and natural-number string comparison, the way SQLite's <c>NOCASE</c>
+  /// collation needs it.
   /// </summary>
+  /// <remarks>
+  /// <para>
+  /// On Windows this is the native <c>CompareStringEx</c> call it always was - see
+  /// http://msdn.microsoft.com/en-us/library/dd317761%28v=vs.85%29.aspx - because that is the sort
+  /// order the existing media databases were built with. Everywhere else it delegates to
+  /// <see cref="NaturalStringComparer"/>, which implements the same idea (case-insensitive, numbers
+  /// by value) on managed globalization.
+  /// </para>
+  /// <para>
+  /// The Windows path stays rather than being replaced everywhere for one reason: the collation is
+  /// stored in every SQLite database this server has ever written, and changing the comparison on
+  /// the platform where people's libraries already exist would silently reorder them. A platform
+  /// that has no <c>CompareStringEx</c> has no such legacy, so it gets the managed ordering, and the
+  /// cross-check test in <c>Tests.Server</c> is what keeps the two from drifting apart on the
+  /// comparisons that matter (letters, case, and numbers inside names).
+  /// </para>
+  /// </remarks>
   public class LexicographicComparer : IComparer<String>
   {
     #region Constants
@@ -72,6 +89,7 @@ namespace MediaPortal.Database.SQLite
     #region Imports
 
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
+    [SupportedOSPlatform("windows")]
     static extern Int32 CompareStringEx
     (
       String localeName,
@@ -91,6 +109,7 @@ namespace MediaPortal.Database.SQLite
 
     private readonly String _locale;
     private readonly CmpFlags _flags;
+    private readonly NaturalStringComparer _portable;
 
     #endregion
 
@@ -101,12 +120,26 @@ namespace MediaPortal.Database.SQLite
       // It is not recommended to use a neutral culture for comparing / sorting.
       // (http://msdn.microsoft.com/de-de/library/system.globalization.cultureinfo%28v=vs.110%29.aspx)
       // If a neutral culture is passed, we use InvariantCulture for sorting.
+      CultureInfo sortCulture;
       if (cultureInfo.Equals(CultureInfo.InvariantCulture) || cultureInfo.IsNeutralCulture)
+      {
         _locale = LOCALE_NAME_INVARIANT;
+        sortCulture = CultureInfo.InvariantCulture;
+      }
       else
+      {
         _locale = cultureInfo.Name;
+        sortCulture = cultureInfo;
+      }
       
       _flags = flags;
+
+      // Built here rather than on first use: the comparer is a long-lived static (SQLite registers it
+      // as a collation), and doing the allocation on a comparison thread would be the one place this
+      // class could throw at an awkward moment.
+      bool ignoreCase = (flags & (CmpFlags.NormIgnorecase | CmpFlags.LinguisticIgnorecase)) != 0;
+      bool digitsAsNumbers = (flags & CmpFlags.SortDigitsasnumbers) != 0;
+      _portable = new NaturalStringComparer(sortCulture, ignoreCase, digitsAsNumbers);
     }
 
     #endregion
@@ -114,6 +147,17 @@ namespace MediaPortal.Database.SQLite
     #region IComparer implementation
 
     public int Compare(string x, string y)
+    {
+      if (!OperatingSystem.IsWindows())
+        return _portable.Compare(x, y);
+      return WindowsCompare(x, y);
+    }
+
+    /// <summary>
+    /// The original native comparison, kept as the Windows implementation of the collation.
+    /// </summary>
+    [SupportedOSPlatform("windows")]
+    private int WindowsCompare(string x, string y)
     {
       int result = CompareStringEx(_locale, _flags, x, -1, y, -1, IntPtr.Zero, IntPtr.Zero, 0);
       

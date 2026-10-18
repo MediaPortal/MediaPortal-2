@@ -27,7 +27,7 @@ Verified 2026-10-18 with `build.ps1 -Solution Server,Client -Ratchet`, `tests.ps
 
 | Measurement | Value | How to reproduce |
 | --- | --- | --- |
-| Server solution compiles on Windows | 0 errors, 487 gated findings (was 685) | `build.ps1 -Solution Server -Ratchet` |
+| Server solution compiles on Windows | 0 errors, 486 gated findings (was 685, then 487) | `build.ps1 -Solution Server -Ratchet` |
 | Client solution compiles on Windows | 0 errors, ~2430 findings (not gated) | `build.ps1 -Solution Client` |
 | Server solution compiles **on Linux** | 0 errors | `test-server-linux.ps1` |
 | Core assemblies on a portable target framework | **4 of 90** - `MediaPortal.Utilities`, `UPnP`, `MediaPortal.Common` and `MediaPortal.Backend` are `net10.0` with `CA1416` as error | `MediaPortal.Common.csproj`, `MediaPortal.Backend.csproj`, `MediaPortal.Utilities.csproj`, `UPnP.csproj` |
@@ -35,9 +35,10 @@ Verified 2026-10-18 with `build.ps1 -Solution Server,Client -Ratchet`, `tests.ps
 | Portable-core WinForms / GDI+ references | **0** (83 quarantined in 10 satellite files) | `spine.ps1`, `satellites.ps1` |
 | Portable-core P/Invoke declarations | **73** in 9 files (was 95, then 76; the last three were the Kernel32 waitable timer) - invisible to `CA1416` | `spine.ps1` (P/Invoke column) |
 | `CA1416` call sites, Windows vs Linux | **0** on both hosts, floor 0 (was 196 at the retarget) - the 107 that remained were all in `-windows` assemblies that had lost their platform declaration; see "the floor went to zero" below | build log, `warnings.ps1` on both logs |
-| Unit tests, Windows | 4/4 suites, 279 executed, 0 failed (3 canary tests skip: Linux-only) | `tests.ps1` |
+| Unit tests, Windows | 4/4 suites, 290 executed, 0 failed (3 canary tests skip: Linux-only) | `tests.ps1` |
 | Unit tests, Linux (canary) | 31 executed, 0 failed (1 skips: Windows-only), incl. live IPC round trips and XDG autostart | `test-canary-linux.ps1` |
-| Server actually **runs** | **yes on Windows** as a headless process: reaches the Running state, creates the SQLite store, exits 0; no other platform runs it, though `MP2-Server-Headless.dll` is the first MP2 executable `test-server-linux.ps1` builds | `run-server-check.ps1`, `test-server-linux.ps1` |
+| Server actually **runs** | **yes on Windows** as a headless process: reaches the Running state, creates the SQLite store, answers UPnP discovery over the network, exits 0 with an error-free log; no other platform runs it, though `MP2-Server-Headless.dll` is the first MP2 executable `test-server-linux.ps1` builds | `run-server-check.ps1`, `test-server-upnp.ps1`, `test-server-linux.ps1` |
+| Database plugin on a portable target framework | `SQLiteDatabase` is `net10.0` with `CA1416` as error and no Win32 calls left; the native SQLite library it loads is still win-x64 only | `SQLiteDatabase.csproj`, item **h** below |
 | Built executables are 64-bit | 5/5 apphosts measure `x64`, managed side `MSIL` | `architecture.ps1` |
 | 32-bit declarations in source | 0 in SDK-style projects, 42 in old-style ones | `architecture.ps1` |
 | Packages with known advisories | **0** (was 5: 1 critical, 3 high, 1 moderate) | `packages.ps1 -FailOn Low` |
@@ -411,6 +412,65 @@ container.
 One side effect worth naming: adding the host to `MP2-Server.sln` made `test-server-linux.ps1` build
 `bin/Debug/net10.0/MP2-Server-Headless.dll`, which is the first MP2 *executable* that compiles on
 Linux. Compiling is not running - which is precisely the lesson this step paid for.
+
+**h. The database plugin left Windows; its native library did not (2026-10-18).** `SQLiteDatabase` was
+the first of the six database providers to flip to `net10.0` with `CA1416` as an error. The others are
+still .NET Framework 4.8 projects - `MySQL.Data`, a 2012 `FirebirdSql.Data.FirebirdClient`,
+`Microsoft.SqlServerCe`, `Scimore.*` x86 natives - so there was nothing cheap about them, while the
+SQLite provider was already SDK-style.
+
+Two Win32 calls lived in it:
+
+| Was | Now |
+| --- | --- |
+| `GlobalMemoryStatusEx` to size the SQLite cache | `GC.GetGCMemoryInfo().TotalAvailableMemoryBytes`, which is the amount of memory .NET is willing to use - closer to what cache sizing should ask about anyway |
+| `CompareStringEx` with `SORT_DIGITS_AS_NUMBERS`, the `NOCASE` collation MP2 databases were written with | kept, and still the Windows implementation, behind `[SupportedOSPlatform("windows")]` and an `OperatingSystem.IsWindows()` branch; everywhere else a new `NaturalStringComparer` does the same job in managed code |
+
+Splitting the comparison out was not decoration. While it lived behind an `IsWindows()` branch no test
+on a Windows machine could reach it, so it had never been tested at all. As a class of its own it is
+tested on every platform (`TestNaturalStringComparer`, 11 tests, 290 tests in the suite), and one test
+compares the two implementations pair by pair, so the managed one cannot drift.
+
+Two things in there were measured rather than assumed, and both were surprises:
+
+- `CompareStringEx` with `SORT_DIGITS_AS_NUMBERS` does **not** call `"x007"` and `"x7"` equal: the
+  longer digit run sorts first. A "natural" comparison that treats leading zeros as valueless would
+  order them equal, so the portable comparer now breaks the tie on digit-run length, to match the
+  ordering existing libraries were filed under.
+- Managed culture comparison (`StringComparer.Create(InvariantCulture, false)`, i.e. ICU off Windows)
+  puts lowercase *before* uppercase, which is the opposite of what the Windows path does. So the
+  case-sensitivity test asserts that the two differ, not which one wins; nobody should depend on a
+  direction that changes with the platform.
+
+What is *not* portable yet is one level down: `System.Data.SQLite.Core` is a .NET Standard assembly that
+compiles everywhere, but it loads `SQLite.Interop.dll`, and the package ships win-x64 and win-x86 only.
+Until that becomes `Microsoft.Data.Sqlite` the provider builds for `net10.0` and opens a database on
+Windows only. The swap touches `SQLiteDatabase.cs` (32 KB), `ConnectionPool.cs`, the `SQLiteFunction`
+aggregate and collation registrations, and the connection-string keywords - which is why it is its own
+step rather than a package bump.
+
+**Running the server found more, after item g had already proved the point.** Three things turned up
+once the server was started and stopped repeatedly, and none of them is visible to a compiler:
+
+| Found | Where | What it really was |
+| --- | --- | --- |
+| Shutdown stalled exactly 30 seconds, then logged `Cannot acquire synchronization lock. Maybe a deadlock happened.` | `SSDPServerController.Close` | `Timer.Dispose(WaitHandle)` and its `WaitOne()` ran *while holding* `SyncObj`, and both timer callbacks take `SyncObj` - so `Close` waited for a callback that was waiting for `Close`, until the callback's `TryEnter` timeout expired. Timers are stopped and awaited outside the lock now, which also keeps "alive" before "byebye" |
+| Two to six `Unhandled task exception` ERROR lines per shutdown | SSDP and GENA listeners | `BeginReceiveFrom` is implemented on top of `ReceiveFromAsync`, so closing a socket with a receive pending faults a `Task` nobody observes, which .NET reports from the finalizer thread. The server's listener now uses `SocketAsyncEventArgs`, where the abort is a `SocketError` value. The client-side listeners (`SSDPClientController`, `GENAClientController`) still use the APM pair, so `LauncherExceptionHandling` recognises abort-only unobserved exceptions and logs them as teardown at `Debug` instead of `Error` |
+| An M-SEARCH sent to `127.0.0.1:1900` is answered by nobody | Windows UDP socket selection | Several sockets share port 1900 through `SO_REUSEADDR` and Windows delivers a *unicast* datagram to one of them - the Windows SSDP service. Real control points multicast, so the probe multicasts too |
+
+That third line is the reason the probe exists: `run-server-check.ps1` shows the listeners coming up and
+going down, which says nothing about whether they answer anything, and the SSDP receive loop had just
+been rewritten. So the headless host grew `--duration <seconds>` (stay up, then shut down exactly the way
+`--check` does) and `test-server-upnp.ps1` multicasts an M-SEARCH with `MX: 1` and requires a `200 OK`
+whose `LOCATION` names MP2's own UPnP listener and whose `SERVER` header says `MediaPortal-2-Server` -
+headers no other product on the LAN sends - plus exit code 0, no `ERROR` line and no lock-contention
+line. First measured run: seven responses, one for the root device and one for each of its services.
+
+The run also corrected an assumption in item **g**. The HTTP traffic is logged by
+`Microsoft.AspNetCore.Server.HttpSys.HttpSysListener`: the resource server, the UPnP servers and the
+control point are already ASP.NET Core hosts. `http.sys` is the Windows-only *server* behind that
+abstraction, so Linux needs Kestrel as a provider swap, not the replacement of an HTTP stack that item
+**g** anticipated.
 
 ## Phase 2 - Avalonia front end
 
