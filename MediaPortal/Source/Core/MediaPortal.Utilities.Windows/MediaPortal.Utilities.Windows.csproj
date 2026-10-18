@@ -20,7 +20,7 @@
     and the plan is to replace it with an image-transform abstraction, not to quarantine it.
   -->
   <PropertyGroup>
-    <TargetFrameworks>net48;net6.0-windows</TargetFrameworks>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <AssemblyName>MediaPortal.Utilities.Windows</AssemblyName>
     <RootNamespace>MediaPortal.Utilities</RootNamespace>
     <UseWindowsForms>true</UseWindowsForms>
@@ -31,11 +31,13 @@
     <ProjectReference Include="..\MediaPortal.Utilities\MediaPortal.Utilities.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' != 'net48'">
+  <ItemGroup>
     <!--
       Declare the platform instead of leaving it implied, so that a call from portable
       (non -windows) code is a diagnostic at the call site. See the same block in
       MediaPortal.Common.Windows for why the absence of such a declaration hides callers.
+      Unconditional since the net48 legs were removed (the attribute type does not exist
+      on .NET Framework).
     -->
     <AssemblyAttribute Include="System.Runtime.Versioning.SupportedOSPlatformAttribute">
       <_Parameter1>windows</_Parameter1>

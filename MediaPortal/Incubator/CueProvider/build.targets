@@ -9,7 +9,7 @@
     <PluginFiles Include="$(ProjectDir)plugin.xml" />
   </ItemGroup>
 
-  <Target Name="CopyToOutput" AfterTargets="Build">
+  <Target Name="CopyToOutput" AfterTargets="Build" Condition="'$(MP2IsSolutionBuild)' == 'true'">
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
   </Target>
 

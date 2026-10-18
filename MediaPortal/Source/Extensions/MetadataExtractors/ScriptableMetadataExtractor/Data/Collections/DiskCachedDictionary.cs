@@ -24,14 +24,21 @@
 
 using MediaPortal.Common;
 using MediaPortal.Common.PathManager;
+using Newtonsoft.Json;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 
 namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.Data.Collections
 {
   public class DiskCachedDictionary<TKey, TValue> : CachedDictionary<TKey, int>
   {
-    private BinaryFormatter _serializer = new BinaryFormatter();
+    // This used to be a BinaryFormatter. .NET removed it (SYSLIB0011 is an error since .NET 8)
+    // because it was never portable and is a deserialization attack surface - exactly the two
+    // things this port is about. The payload here is a disposable on-disk cache, so JSON is
+    // enough and needs no new dependency. Cache files written by the old BinaryFormatter build
+    // are unreadable and get rewritten on the next scrape; nothing else is lost.
+    //
+    // Deliberately no TypeNameHandling: it would reintroduce "instantiate whatever the file
+    // says", which is the vulnerability BinaryFormatter had.
     private bool _initialized = false;
     private string _cacheLocation = null;
 
@@ -65,10 +72,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       Init();
 
       int lookup = key.GetHashCode();
-      FileStream stream = File.Create(_cacheLocation + lookup);
-
-      _serializer.Serialize(stream, value);
-      stream.Close();
+      File.WriteAllText(_cacheLocation + lookup, JsonConvert.SerializeObject(value));
 
       return lookup;
     }
@@ -77,8 +81,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
     {
       Init();
 
-      FileStream stream = File.OpenRead(_cacheLocation + lookup);
-      return (TValue)_serializer.Deserialize(stream);
+      return JsonConvert.DeserializeObject<TValue>(File.ReadAllText(_cacheLocation + lookup));
     }
 
     public void Add(TKey key, TValue value)

@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net48;net6.0-windows</TargetFrameworks>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
     <RootNamespace>MediaPortal.UiComponents.PartyMusicPlayer</RootNamespace>
     <OldToolsVersion>3.5</OldToolsVersion>
@@ -26,6 +26,15 @@
     <ProjectReference Include="..\..\SkinEngine\SkinEngine.csproj" />
     <ProjectReference Include="..\Media\Media.csproj" />
     <ProjectReference Include="..\SkinBase\SkinBase.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      Pin, not use: BassRegistration declares <dependency id="BASS.NET" /> without a version,
+      so this project sees NuGet's stale 1.0.0 and our 2.4.14.1 at equal distance and fails the
+      restore with NU1107. See Utilities.csproj for the same pin and the longer explanation.
+    -->
+    <PackageReference Include="BASS.NET" Version="2.4.14.1" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">

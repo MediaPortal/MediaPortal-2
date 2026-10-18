@@ -7,7 +7,11 @@
 # context stays small and the image cannot accidentally pull in a Windows-only project.
 # The .editorconfig is copied too: analyzer severities must match the Windows build, or a
 # green run here would not mean what it appears to mean.
-FROM mcr.microsoft.com/dotnet/sdk:8.0
+# The canary targets the same TFM as the tree (net10.0 since 2026-10-18), so the image must carry an
+# SDK able to build it - an 8.0 SDK answers NETSDK1045 and the run would prove nothing. The tag is a
+# build ARG so the canary can still be replayed against an older toolchain on purpose.
+ARG SDK_TAG=10.0
+FROM mcr.microsoft.com/dotnet/sdk:${SDK_TAG}
 
 WORKDIR /src
 

@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.ComponentModel;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
@@ -54,6 +55,7 @@ namespace MediaPortal.UiComponents.Diagnostics.Service.UserControls
     /// <summary>
     /// LogFile to watch
     /// </summary>
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public string FileName { get; set; }
 
     #endregion Public Properties

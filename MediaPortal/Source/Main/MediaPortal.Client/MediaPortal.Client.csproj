@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net48;net6.0-windows</TargetFrameworks>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <OutputType>WinExe</OutputType>
     <AssemblyName>MP2-Client</AssemblyName>
     <ApplicationIcon>MP2.ico</ApplicationIcon>
@@ -9,7 +9,11 @@
     <UseWindowsForms>true</UseWindowsForms>
     <LargeAddressAware>true</LargeAddressAware>
     <Platforms>AnyCPU;x64</Platforms>
-    <RuntimeIdentifiers>win7-x86;win7-x64</RuntimeIdentifiers>
+    <!--
+      Was win7-x86;win7-x64. .NET 10 no longer knows the win7-* RIDs (NETSDK1083), and the port
+      is x64-only, so a single modern RID is both the fix and the intent.
+    -->
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Prefer32Bit>true</Prefer32Bit>

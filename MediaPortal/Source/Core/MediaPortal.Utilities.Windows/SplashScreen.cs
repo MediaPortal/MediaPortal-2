@@ -71,6 +71,7 @@ namespace MediaPortal.Utilities.Screens
     /// <summary>
     /// Sets the content of the info label.
     /// </summary>
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public String InfoText
     {
       get { return _infoText; }
@@ -90,6 +91,7 @@ namespace MediaPortal.Utilities.Screens
     /// <summary>
     /// Sets the content of the status label.
     /// </summary>
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public String StatusText
     {
       get { return _statusText; }
@@ -109,17 +111,20 @@ namespace MediaPortal.Utilities.Screens
     /// <summary>
     /// Sets the screen where the SplashScreen should be shown.
     /// </summary>
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public int? StartupScreen { get; set; }
 
     /// <summary>
     /// Gets or sets a flag if the <see cref="SplashBackgroundImage"/> should be scaled to fullscreen.
     /// To enable resizing, set this property to <c>true</c>.
     /// </summary>
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public bool ScaleToFullscreen { get; set; }
 
     /// <summary>
     /// Sets the background image.
     /// </summary>
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public Image SplashBackgroundImage
     {
       get { return BackgroundImage; }
@@ -129,11 +134,13 @@ namespace MediaPortal.Utilities.Screens
     /// <summary>
     /// Allows to use a PictureBox control which also supports animations for GIF.
     /// </summary>
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public bool UsePictureBox { get; set; }
 
     /// <summary>
     /// Sets the color of the background image which will be presented transparent.
     /// </summary>
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public Color TransparentColor
     {
       get { return _transparentColor; }
@@ -148,6 +155,7 @@ namespace MediaPortal.Utilities.Screens
     /// <summary>
     /// Sets the duration how long the form will fade in. If set to <see cref="TimeSpan.Zero"/>, the form will be shown at once.
     /// </summary>
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public TimeSpan FadeInDuration
     {
       get { return _fadeInDuration; }
@@ -170,6 +178,7 @@ namespace MediaPortal.Utilities.Screens
     /// <summary>
     /// Sets the duration how long the form will fade out. If set to <see cref="TimeSpan.Zero"/>, the form will be hidden at once.
     /// </summary>
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public TimeSpan FadeOutDuration
     {
       get { return _fadeOutDuration; }

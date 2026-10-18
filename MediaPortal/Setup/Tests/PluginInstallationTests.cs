@@ -34,9 +34,9 @@ namespace Tests
   public class PluginInstallationTests
   {
     [Theory]
-    [InlineData(new[] { FeatureId.Client }, new[] { FeatureId.SlimTvServiceClient, FeatureId.SlimTvTvMosaicClient })]
+    [InlineData(new[] { FeatureId.Client }, new[] { FeatureId.SlimTvServiceClient })]
     [InlineData(new[] { FeatureId.Server }, new string[0])]
-    [InlineData(new[] { FeatureId.Client, FeatureId.Server }, new[] { FeatureId.SlimTvServiceClient, FeatureId.SlimTvTvMosaicClient })]
+    [InlineData(new[] { FeatureId.Client, FeatureId.Server }, new[] { FeatureId.SlimTvServiceClient })]
     [InlineData(new[] { FeatureId.LogCollector }, new string[0])]
     void Should_OnlyReturnPluginFeaturesWhereParentFeatureIsBeingInstalledAndNotIncludedWithRelatedFeature(string[] plannedParents, string[] expectedFeatures)
     {
@@ -48,14 +48,34 @@ namespace Tests
       Assert.Equal(expectedFeatures.OrderBy(f => f), availableFeatures.OrderBy(f => f));
     }
 
-    // The removed TV services (SlimTv.Service3 / .Service35) were the only features that declared
-    // related features - they pulled the TV Service Client in automatically. No shipped feature has
-    // related features now, so these rows cover the parent check and the "no relations" path.
+    // History: the TV layers used to drive this test class hard. SlimTv.Service3/.Service35 were the
+    // only features declaring *related* features (they pulled the TV Service Client in), and
+    // SlimTv.TvMosaicClient was the only one declaring a *conflict* with the TV Service Client. Both
+    // layers have been removed - the services in 2026-10 together with the TV engine, and TvMosaic
+    // right after - so no shipped feature declares relations or conflicts anymore.
+    //
+    // That is an invariant now, and Should_NotDeclareRelationsOrConflictsWithoutATest guards it: if a
+    // feature starts declaring relations again, this test says "go and cover it", because the
+    // FeatureUtils code paths below would otherwise silently lose their only product fixture.
+    [Fact]
+    void Should_NotDeclareRelationsOrConflictsWithoutATest()
+    {
+      IFeatureMetadata[] declaring = new AssemblyFeatureMetadataProvider().GetMetadata()
+          .Where(m => m.RelatedFeatures.Count > 0 || m.ConflictingFeatures.Count > 0)
+          .ToArray();
+
+      Assert.True(declaring.Length == 0,
+          "Feature(s) " + string.Join(", ", declaring.Select(m => m.Feature)) + " declare related or conflicting" +
+          " features. Since the TV layers were removed no shipped feature does - which means" +
+          " FeatureUtils.GetInstallableFeatureAndRelations and FeatureUtils.GetConflicts have no product fixture left." +
+          " If you re-introduce a relation or conflict, add theory rows for it here (git history of this file has the" +
+          " SlimTv.Service3/.Service35 and SlimTv.TvMosaicClient rows that used to cover both paths) instead of" +
+          " letting the code path go untested again.");
+    }
+
     [Theory]
     [InlineData(new[] { FeatureId.Client }, FeatureId.SlimTvServiceClient, new[] { FeatureId.SlimTvServiceClient })]
-    [InlineData(new[] { FeatureId.Client, FeatureId.Server }, FeatureId.SlimTvTvMosaicClient, new[] { FeatureId.SlimTvTvMosaicClient })]
     [InlineData(new[] { FeatureId.Server }, FeatureId.SlimTvServiceClient, new string[0])]
-    [InlineData(new[] { FeatureId.Client }, FeatureId.SlimTvTvMosaicClient, new[] { FeatureId.SlimTvTvMosaicClient })]
     void Should_OnlyInstallRelatedPluginFeaturesWhenParentFeatureIsBeingInstalled(string[] plannedParents, string installingFeature, string[] expectedInstallableFeatures)
     {
       IBundleMsiPackage featurePackage = MockBundlePackageFactory.CreateCurrentInstall().First(p => p.PackageId == PackageId.MediaPortal2) as IBundleMsiPackage;
@@ -65,20 +85,6 @@ namespace Tests
       ICollection<IBundlePackageFeature> installableFeatures = FeatureUtils.GetInstallableFeatureAndRelations(feature, plannedFeatures, featurePackage.Features);
 
       Assert.Equal(expectedInstallableFeatures.OrderBy(f => f), installableFeatures.Select(f => f.Id).OrderBy(f => f));
-    }
-
-    [Theory]
-    [InlineData(new[] { FeatureId.Client, FeatureId.Server, FeatureId.SlimTvTvMosaicClient }, FeatureId.SlimTvServiceClient)]
-    [InlineData(new[] { FeatureId.Client, FeatureId.Server, FeatureId.SlimTvServiceClient }, FeatureId.SlimTvTvMosaicClient)]
-    void Should_NotInstallPluginFeatureWhenConflictingFeatureIsBeingInstalled(string[] plannedFeatures, string conflictingfeature)
-    {
-      IBundleMsiPackage featurePackage = MockBundlePackageFactory.CreateCurrentInstall().First(p => p.PackageId == PackageId.MediaPortal2) as IBundleMsiPackage;
-      IBundlePackageFeature conflict = featurePackage.Features.First(f => f.Id == conflictingfeature);
-      IEnumerable<IBundlePackageFeature> features = featurePackage.Features.Where(f => plannedFeatures.Contains(f.Id));
-
-      IEnumerable<IBundlePackageFeature> conflicts = FeatureUtils.GetConflicts(conflict, features);
-
-      Assert.True(conflicts.Any());
     }
   }
 }

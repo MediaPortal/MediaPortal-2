@@ -23,8 +23,7 @@
       $(DefineConstants);
       IsNetCore=$(IsNetCore);
       SlimTv.Client.TargetDir=$(ClientBaseDirectory)\Plugins\SlimTv.Client;
-      SlimTv.NativeProvider.TargetDir=$(ClientBaseDirectory)\Plugins\SlimTv.NativeProvider;
-      SlimTv.TvMosaicProvider.TargetDir=$(ClientBaseDirectory)\Plugins\SlimTv.TvMosaicProvider
+      SlimTv.NativeProvider.TargetDir=$(ClientBaseDirectory)\Plugins\SlimTv.NativeProvider
     </DefineConstants>
   </PropertyGroup>
   
@@ -86,20 +85,13 @@
       <SuppressRootDirectory>false</SuppressRootDirectory>
     </HarvestDirectory>
 
-    <HarvestDirectory Include="$(ClientBaseDirectory)\Plugins\SlimTv.TvMosaicProvider">
-      <PreprocessorVariable>var.SlimTv.TvMosaicProvider.TargetDir</PreprocessorVariable>
-      <ComponentGroupName>SlimTv.TvMosaicProvider.Heat</ComponentGroupName>
-      <DirectoryRefId>CLIENT_PLUGINS_FOLDER</DirectoryRefId>
-      <SuppressRootDirectory>false</SuppressRootDirectory>
-    </HarvestDirectory>
-
 	</ItemGroup>
 
   <ItemGroup>
     <Resources Include="$(ProjectDir)MP2-Setup-Logging.bat"/>
   </ItemGroup>
 
-  <Target Name="CopyToOutput" AfterTargets="Build">
+  <Target Name="CopyToOutput" AfterTargets="Build" Condition="'$(MP2IsSolutionBuild)' == 'true'">
     <Copy SourceFiles="@(Resources)" DestinationFolder="$(TargetDir)en-us\" />
   </Target>
 

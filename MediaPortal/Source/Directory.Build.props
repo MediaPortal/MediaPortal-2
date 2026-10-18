@@ -6,9 +6,11 @@
     Kept deliberately minimal: this file is evaluated by every project in the tree, so
     each entry here must be a strict improvement with no behavioural change on Windows.
 
-    Reference assemblies for .NET Framework, used only when building the net48 target on
-    a non-Windows host (Linux CI / containers). On Windows this block is skipped entirely,
-    so desktop builds are byte-for-byte unchanged.
+    Reference assemblies for .NET Framework. Since the 2026-10 retarget no SDK-style project
+    builds net48 anymore, so this now serves only the old-style projects (Tools\, Graveyard\,
+    Incubator\, some Backend\Database\ providers) that still carry TargetFrameworkVersion
+    v4.8 and are built by no CI gate. On Windows the block is skipped entirely, so desktop
+    builds are byte-for-byte unchanged.
 
     The identical file at ..\Directory.Build.props covers the projects outside Source\
     (Incubator, Tests, Tools). MSBuild stops walking upwards at the first such file it
@@ -20,7 +22,7 @@
     now handles the whole server solution - see "Which build host, and why it matters" and
     "Compiling on Linux" in scripts/ci/README.md.
   -->
-  <ItemGroup Condition="'$(OS)' != 'Windows_NT' AND '$(TargetFramework)' == 'net48'">
+  <ItemGroup Condition="'$(OS)' != 'Windows_NT' AND '$(TargetFramework)' == '' AND '$(TargetFrameworkVersion)' == 'v4.8'">
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
   </ItemGroup>
 

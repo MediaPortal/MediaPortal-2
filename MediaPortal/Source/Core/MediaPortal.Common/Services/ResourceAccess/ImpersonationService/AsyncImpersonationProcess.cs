@@ -333,6 +333,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
       }
     }
 
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public new ProcessPriorityClass PriorityClass
     {
       get

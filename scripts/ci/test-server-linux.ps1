@@ -24,9 +24,10 @@ param(
   # BASS.NET 2.4.14.1, MediaPortal.TagLib, OnlineVideos.Core, ffmpeg 3.4.2). The container reads
   # them from here and downloads everything else from nuget.org into its own layer.
   [string]$FallbackPackageFolder = (Join-Path $env:USERPROFILE '.nuget\packages'),
-  # SDK image tag, e.g. '8.0' (default, what the gate is calibrated on) or '10.0'. Changing it
-  # also changes the image name you get, so pass -ImageName too if you want both side by side.
-  [string]$SdkTag = '8.0',
+  # SDK image tag, e.g. '10.0' (default: what the tree targets since 2026-10-18) or '8.0' (the old
+  # gate, which now answers NETSDK1045). Changing it also changes the image name you get, so pass
+  # -ImageName too if you want both side by side.
+  [string]$SdkTag = '10.0',
   # Extra MSBuild properties for the in-container build. Used to try a TFM the tree does not
   # target yet: '-p:TargetFrameworks=net10.0-windows' overrides every <TargetFrameworks>.
   [string[]]$BuildArg,

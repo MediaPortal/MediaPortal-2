@@ -10,7 +10,6 @@
   <string name="FeatureDescription.ServiceMonitor">L\'interface graphique utilisateur pour la partie serveur de MediaPortal 2. Fournit la surveillance et la configuration pour MP2-Server.</string>
   <string name="FeatureDescription.LogCollector">LogCollector vous permet de collecter facilement tous les fichiers journaux de MediaPortal 2 pour créer des rapports de bugs.</string>
   <string name="FeatureDescription.SlimTv.ServiceClient">Regardez et enregistrez la télévision en direct en utilisant le service TV fonctionnant sur un serveur MP2 disponible dans le réseau.</string>
-  <string name="FeatureDescription.SlimTv.TvMosaicClient">Regardez et enregistrez la télévision en direct en utilisant un serveur TV Mosaic disponible sur le réseau.</string>
   <string name="FeatureDescription.SlimTv.Service3">Regardez et enregistrez la télévision en direct en utilisant le service TV 3.</string>
   <string name="FeatureDescription.SlimTv.Service35">Regardez et enregistrez la télévision en direct en utilisant le service TV 3.5.</string>
   

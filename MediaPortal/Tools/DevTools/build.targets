@@ -4,7 +4,7 @@
     <AppDestination>$(SolutionDir)..\Bin\$(SolutionName)\bin\$(PlatformName)\$(ConfigurationName)\</AppDestination>
   </PropertyGroup>
 
-  <Target Name="CopyToOutput" AfterTargets="Build" Condition="'$(IsCrossTargetingBuild)' != 'true'">
+  <Target Name="CopyToOutput" AfterTargets="Build" Condition="'$(IsCrossTargetingBuild)' != 'true' AND '$(MP2IsSolutionBuild)' == 'true'">
     <ItemGroup>
       <BaseFiles Include="$(SolutionDir)Base\DevTools\**\*.*" />
     </ItemGroup>

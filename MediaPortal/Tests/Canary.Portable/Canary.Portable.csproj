@@ -25,7 +25,7 @@
          canary shrinks to nothing as the port completes.
   -->
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>Canary.Portable</RootNamespace>
     <AssemblyName>Canary.Portable</AssemblyName>
     <IsPackable>false</IsPackable>

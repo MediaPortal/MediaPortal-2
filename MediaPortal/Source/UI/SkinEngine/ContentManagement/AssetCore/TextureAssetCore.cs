@@ -30,7 +30,10 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Cache;
-#if !NET6_0
+// The BCL/FreeImage difference is a .NET Framework vs .NET Core difference, not a C# version
+// one, so the test says NETFRAMEWORK instead of a version symbol: it stays correct
+// when the tree moves to a newer .NET. See scripts/ci/README.md.
+#if NETFRAMEWORK
 using FreeImageAPI;
 #endif
 using MediaPortal.Common;
@@ -134,7 +137,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       // FreeImage decoding is kept in place as fallback to support image formats which are not handled by GDI.
       Texture texture = 
         AllocateFromImageStream_GDI(dataStream, ref info)
-#if NET6_0
+#if !NETFRAMEWORK
        ;
 #else
         ?? AllocateFromImageStream_FreeImage(dataStream, ref info);
@@ -188,7 +191,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       return texture;
     }
 
-#if !NET6_0
+#if NETFRAMEWORK
     protected Texture AllocateFromImageStream_FreeImage(Stream dataStream, ref ImageInformation info)
     {
       Texture texture = null;

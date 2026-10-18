@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net48;net6.0-windows</TargetFrameworks>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
     <RootNamespace>MediaPortal.UiComponents.Utilities</RootNamespace>
     <OldToolsVersion>3.5</OldToolsVersion>
@@ -26,6 +26,17 @@
     <ProjectReference Include="..\..\SkinEngine\SkinEngine.csproj" />
     <ProjectReference Include="..\Media\Media.csproj" />
     <ProjectReference Include="..\SkinBase\SkinBase.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      Not a use of BASS.NET here - a pin. The BassRegistration package declares
+      <dependency id="BASS.NET" /> without a version, so through BassLibraries this project
+      sees two equally distant candidates (the feed's stale 1.0.0 and our 2.4.14.1) and NuGet
+      fails the restore with NU1107 instead of choosing. A direct reference makes the choice
+      explicit. Same pin exists in Media.csproj, BassPlayer and the BASS metadata extractors.
+    -->
+    <PackageReference Include="BASS.NET" Version="2.4.14.1" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">

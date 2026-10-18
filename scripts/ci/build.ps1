@@ -112,7 +112,13 @@ function Invoke-BuildTarget {
   if (-not $SkipRestore) {
     # Out-Host, not the pipeline: whatever a native command prints would otherwise become this
     # function's return value and mask the numeric code the caller tests.
-    & $tool @toolArgs $Path /t:Restore /v:q /nologo /m @hostArgs @solutionLevelArgs | Out-Host
+    #
+    # RestoreForce: NuGet only re-audits packages when it actually re-resolves them, and the NU19xx /
+    # NU1701 / NU1510 findings are replayed into every later build from the assets file. Without a
+    # forced restore a project whose assets were still considered current stayed silent, so the same
+    # tree scored differently from one gated run to the next (NU1902 50 then 51 on MP2-Server.sln).
+    # The ratchet needs the run to be a function of the source, not of what happened last time.
+    & $tool @toolArgs $Path /t:Restore /v:q /nologo /m /p:RestoreForce=true @hostArgs @solutionLevelArgs | Out-Host
     if ($LASTEXITCODE -ne 0) { Write-Host "RESTORE FAILED ($Name)" -ForegroundColor Red; return 1 }
   }
 
@@ -124,11 +130,15 @@ function Invoke-BuildTarget {
 
   $diag = Get-LogDiagnostics -LogPath $log
   $warnTotal = ($diag.warnings.Values | Measure-Object -Sum).Sum
-  Write-Host "BUILD OK ($Name): $($diag.errors) errors, $warnTotal warnings  ->  $log"
+  # $warnTotal counts findings, not log lines; MSBuild writes each diagnostic at least twice into
+  # the file log (see Get-LogDiagnostics), so the suppressed count is printed to keep the number
+  # explainable to someone reading the log by hand.
+  $dupNote = if ($diag.duplicates) { ", $($diag.duplicates) duplicate log lines ignored" } else { '' }
+  Write-Host "BUILD OK ($Name): $($diag.errors) errors, $warnTotal findings$dupNote  ->  $log"
   if ($diag.errors -gt 0) { return 1 }
 
   if ($Ratchet -and $ApplyRatchet) {
-    & (Join-Path $PSScriptRoot 'warnings.ps1') -LogPath $log
+    & (Join-Path $PSScriptRoot 'warnings.ps1') -LogPath $log -Solution $Name
     if ($LASTEXITCODE -ne 0) { return 1 }
   }
   return 0

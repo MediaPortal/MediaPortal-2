@@ -3,7 +3,7 @@
 #   docker build -f scripts/ci/Dockerfile.cross -t mp2-cross .
 #   docker run --rm mp2-cross
 #
-# "Compiles" is deliberately not "runs". Everything produced here for net6.0-windows is a
+# "Compiles" is deliberately not "runs". Everything produced here for net10.0-windows is a
 # Windows-targeted assembly that cannot execute on Linux. What this probe separates is
 # build-system problems from runtime problems: if the whole solution compiles on Linux, the
 # remaining porting work is about code that executes Windows APIs, not about the toolchain.
@@ -12,7 +12,9 @@
 #   - MediaPortal.Utilities no longer carries non-string .resx resources, which is what made
 #     MSB3822/MSB3823 abort `dotnet build` on this tree.
 #   - EnableWindowsTargeting lets a non-Windows SDK restore and compile -windows targets.
-#   - Directory.Build.props supplies .NET Framework reference assemblies for the net48 legs.
+#   - The gated tree contains no old-style project, so nothing here needs .NET Framework
+#     reference assemblies (Directory.Build.props still supplies them, for the v4.8 projects
+#     outside the solutions).
 #
 # Restore needs packages that no longer exist anywhere on the internet - the MyGet feed in
 # MediaPortal\NuGet.Config answers HTTP 500, and BASSCombined / BassRegistration / BASS.NET
@@ -27,11 +29,11 @@
 #
 # The whole tree is copied (minus .dockerignore entries) rather than a whitelist of project
 # folders, because a missing project would show up as an unrelated error and defeat the purpose.
-# Base tag is a build ARG so the same probe can be run against a different toolchain -
-# `-t mp2-cross-net10 --build-arg SDK_TAG=10.0` re-answers "what does the newest SDK do with
-# this tree?" without maintaining a second Dockerfile. Default stays the pinned 8.0 that the
-# gate is calibrated on.
-ARG SDK_TAG=8.0
+# Base tag is a build ARG so the same probe can be run against a different toolchain.
+# `-t mp2-cross-net8 --build-arg SDK_TAG=8.0` re-answers "could the old gate build this tree?" -
+# today it answers "no, NETSDK1045", because the tree targets net10.0 since 2026-10-18, so the
+# default is the SDK the tree actually needs.
+ARG SDK_TAG=10.0
 FROM mcr.microsoft.com/dotnet/sdk:${SDK_TAG}
 
 WORKDIR /src
@@ -41,9 +43,10 @@ COPY . .
 RUN sed -i '/myget/Id' /src/MediaPortal/NuGet.Config \
  && dotnet --info | head -n 8 && uname -a
 
-# The projects ask for net48;net6.0-windows. Passing TargetFrameworks here overrides that
-# globally, which is the cheapest way to ask "does the source build against a TFM nobody has
-# targeted yet" without editing 165 project files.
+# The tree now declares net10.0-windows / net10.0 itself, so no override is needed to build it.
+# -BuildArg still accepts `-p:TargetFrameworks=...` for experiments, with the caveat measured in
+# scripts/ci/README.md: a global TargetFrameworks does not reach an old-style project (there are
+# none in MP2-Server.sln) and does not reach a project declaring the *singular* element either.
 #
 # It must be re-exported as ENV: Docker substitutes ARG in ADD/COPY/ENTRYPOINT/FROM/LABEL only,
 # so a shell-form CMD referencing ${BUILD_ARGS} would expand it to empty at runtime. That mistake

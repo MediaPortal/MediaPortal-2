@@ -52,8 +52,6 @@
   <!-- TV features related strings -->
   <String Id="F_SlimTvServiceClient" Value="Tv Service Client" />
   <String Id="F_SlimTvServiceClient_Desc" Value="Plugin for the MediaPortal 2 Client that provides access to the TV Server running on the MediaPortal 2 Server." />
-  <String Id="F_SlimTvTvMosaicClient" Value="Tv Mosaic Client" />
-  <String Id="F_SlimTvTvMosaicClient_Desc" Value="Plugin for the MediaPortal 2 Client that provides access to a TvMosaic server." />
 
   <!-- Launch Conditions -->
   <String Id="LC_OS" Value="[ProductName] requires minimum Windows 7 / 2008 R2 as operating system." />

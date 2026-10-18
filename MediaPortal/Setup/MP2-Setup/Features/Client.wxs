@@ -134,7 +134,6 @@
     <Feature Id="Client" Level="1" AllowAdvertise="no" ConfigurableDirectory="INSTALLDIR_CLIENT" Title="!(loc.F_Client)" Description="!(loc.F_Client_Desc)">
 
       <FeatureRef Id="SlimTv.ServiceClient" />
-      <FeatureRef Id="SlimTv.TvMosaicClient" />
 
       <ComponentRef Id="CLIENT_DATA_FOLDER" />
       <ComponentRef Id="CLIENT_CONFIG_FOLDER" />

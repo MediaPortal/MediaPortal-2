@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net48;net6.0-windows</TargetFrameworks>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
     <RootNamespace>MediaPortal.Mock</RootNamespace>
     <AssemblyName>MediaPortal.Mock</AssemblyName>
@@ -20,9 +20,6 @@
   <ItemGroup>
     <PackageReference Include="NUnit">
       <Version>3.13.3</Version>
-    </PackageReference>
-    <PackageReference Include="System.Data.SQLite.Core">
-      <Version>1.0.117</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'">

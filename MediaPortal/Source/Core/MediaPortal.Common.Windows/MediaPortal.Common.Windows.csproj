@@ -16,7 +16,7 @@
     replaced with a portable equivalent rather than moved here.
   -->
   <PropertyGroup>
-    <TargetFrameworks>net48;net6.0-windows</TargetFrameworks>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <AssemblyName>MediaPortal.Common.Windows</AssemblyName>
     <RootNamespace>MediaPortal.Common</RootNamespace>
     <UseWindowsForms>true</UseWindowsForms>
@@ -33,7 +33,7 @@
     <ProjectReference Include="..\MediaPortal.Utilities.Windows\MediaPortal.Utilities.Windows.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' != 'net48'">
+  <ItemGroup>
     <!--
       Declare the platform instead of leaving it implied. As long as no assembly in a call chain
       declares one, CA1416 cannot judge a cross-assembly call at all and every caller looks
@@ -41,8 +41,8 @@
       invisible for years. Declaring it means any call from portable (non -windows) code becomes a
       diagnostic at the call site, which is the point of having a satellite at all.
 
-      The attribute type does not exist on .NET Framework, hence the condition - the net48 leg
-      has no platform analysis anyway.
+      This used to be conditioned on the target framework because the attribute type does not
+      exist on .NET Framework; the net48 legs are gone, so the condition went with them.
     -->
     <AssemblyAttribute Include="System.Runtime.Versioning.SupportedOSPlatformAttribute">
       <_Parameter1>windows</_Parameter1>

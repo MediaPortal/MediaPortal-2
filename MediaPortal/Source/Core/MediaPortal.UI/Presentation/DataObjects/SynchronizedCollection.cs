@@ -1,7 +1,10 @@
 ﻿//-----------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 //-----------------------------------------------------------------------------
-#if NET6_0
+// The BCL/FreeImage difference is a .NET Framework vs .NET Core difference, not a C# version
+// one, so the test says NETFRAMEWORK instead of a version symbol: it stays correct
+// when the tree moves to a newer .NET. See scripts/ci/README.md.
+#if !NETFRAMEWORK
 namespace System.Collections.Generic
 {
   using System;

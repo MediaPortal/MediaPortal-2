@@ -7,11 +7,13 @@
     MSBuild stops walking upwards at the first Directory.Build.props it finds, so the projects
     under Source\ keep using theirs and never see this file. The two must be kept consistent.
 
-    Same single rule as there: .NET Framework reference assemblies, and only when a non-Windows
-    host is asked to build a net48 target. On Windows this file contributes nothing, so desktop
+    Same single rule as there: .NET Framework reference assemblies, and only for the
+    old-style projects that still carry TargetFrameworkVersion v4.8 on a non-Windows host.
+    Since the 2026-10 retarget no SDK-style project builds net48, so this file's whole rule
+    is now about those legacy projects. On Windows it contributes nothing, so desktop
     builds are unchanged.
   -->
-  <ItemGroup Condition="'$(OS)' != 'Windows_NT' AND '$(TargetFramework)' == 'net48'">
+  <ItemGroup Condition="'$(OS)' != 'Windows_NT' AND '$(TargetFramework)' == '' AND '$(TargetFrameworkVersion)' == 'v4.8'">
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
   </ItemGroup>
 

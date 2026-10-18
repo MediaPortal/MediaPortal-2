@@ -11,13 +11,25 @@ does *not*, because those differences are how CI surprises happen.
 | `spine.ps1` | Second ratchet for the WinForms/GDI+ references that the analyzer cannot see in a `-windows` project. |
 | `spine-baseline.json` | Committed ceiling for those references in the portable core. |
 | `common.ps1` | Shared helpers (MSBuild discovery, log parsing). Dot-sourced, not run directly. |
-| `warning-baseline.json` | Committed maximum allowed count per warning code. |
+| `warning-baseline.json` | Committed maximum allowed count per warning code, for `MP2-Server.sln` (see `"solution"`). |
+| `tests.ps1` | Runs the Windows test suites (canary, server, client, installer) and prints one line each. Assumes `build.ps1` already built; `-Build` to rebuild. |
+| `packages.ps1` | Package health from `obj\project.assets.json`: which packages carry advisories, which only work through the .NET Framework fallback, which references are now implicit. Deterministic, unlike the same codes in a build log. `-FailOn High` for a pipeline that must not ship one. |
 | `satellites.ps1` | Enforces the satellite boundary: a namespace that only exists in a `*.Windows` project may not be imported by a project that does not reference it. |
 | `Dockerfile.canary` | Linux verification image for the portability canary (`MediaPortal\Tests\Canary.Portable`). |
 | `test-canary-linux.ps1` | Builds that image and runs the canary tests inside a Linux container. |
-| `Dockerfile.cross` | Linux **cross-compile** image: builds the whole `MP2-Server.sln` under `mcr.microsoft.com/dotnet/sdk:8.0`. |
+| `Dockerfile.cross` | Linux **cross-compile** image: builds the whole `MP2-Server.sln` under `mcr.microsoft.com/dotnet/sdk:$SDK_TAG` (default `10.0`). |
 | `test-server-linux.ps1` | Runs that image (see "Compiling on Linux" below for the package-cache it needs). |
 | `Dockerfile.drawing`, `drawing-probe/` | Not a gate: measures which half of `System.Drawing` works on Linux. Read it before changing what `spine.ps1` counts. |
+
+## The gate, in the order that fails fastest
+
+    .\build.ps1 -Solution Server,Client -Ratchet   # builds, then warning + spine + satellite gates
+    .\tests.ps1                                    # the four Windows suites, against built output
+    .\packages.ps1                                 # advisory and netfx-fallback inventory (a report)
+
+On Linux: `.\test-canary-linux.ps1` runs the canary's tests in a container, and
+`.\test-server-linux.ps1` compiles the whole server solution there. Both need a populated package
+cache - see "The dependency closure is not reproducible".
 
 ## Which build host, and why it matters
 
@@ -85,16 +97,44 @@ Measured on identical source with this baseline flow, 2026-10-18:
 | .NET SDK 10.0.402 (`dotnet msbuild`) | **2330** | — |
 
 So the hosts now agree on every code except two that come from the SDK's newer analyzer set and targets, and
-**CA1416 is 366 on all three measurement environments** — Visual Studio, the SDK host, and the Linux container.
+**CA1416 was identical on all three measurement environments** — Visual Studio, the SDK host, and the Linux container.
 Totals across *platforms* (Windows 2330 vs the Linux probe's 449) still must not be compared: they compile
 different project sets. Compare per-code inventories, and treat `CA1416` as the metric.
+
+Those totals are all in the **old counting unit** (raw log lines, on the dual-`net48;net6.0-windows`
+tree). The same tree measured with today's de-duplicating parser gives **687 findings**, and the tree
+after the retarget gives **777**; see "A finding, not a log line" and "Retargeting the tree to
+.NET 10" for the measured bridge between the two units. Do not compare a number from one side of that
+line with a number from the other side.
 
 ## The ratchet
 
 Making all warnings errors on a codebase this age is not achievable, and an unenforced lint
 budget is decoration. Instead each warning code is capped at its last known count in
 `warning-baseline.json`. Adding a new instance of any code fails the build; fixing some lets
-you lower the floor. The codes that matter for the multiplatform work are:
+you lower the floor.
+
+### A finding, not a log line
+
+`Get-LogDiagnostics` (in `common.ps1`) counts **unique findings**, keyed by code + normalised file +
+line + column, or by identical line for diagnostics with no location. It has to, because the MSBuild
+file log does not contain one line per warning: every diagnostic appears at least twice, once flush
+left in the stream and once grouped under its project behind a `     5>` project-context prefix, and
+the same file is occasionally spelled two ways (`...\Source\..\Extensions\x.cs` and
+`...\Extensions\x.cs`). On `MP2-Server.sln` that is **1600 diagnostic lines for 777 findings**. The
+prefix has leading spaces and the indent varies, so both are stripped before the key is built - a
+parser that only anchors on `^D:\` silently keeps counting the doubled copy.
+
+Two consequences to remember. First, floors generated before 2026-10-18 are about twice as high as
+the same code measured today and cannot be compared with them; `warning-baseline.json` records the
+unit and `notes` carry the measured bridge (the pre/post table for CA1416 in particular). Second, a
+count that jumps for a whole family of codes is a *measurement* event, not a code event: check
+whether a detector turned on before believing the codebase got worse. The retarget did exactly this -
+NuGet audit is only enabled for `net8.0`+ targets, so `NU1902` went from 0 to 50 findings without a
+single package changing. (Those findings describe ~50 *projects* reachable from a handful of packages;
+see "Package health" below for the actual package list.)
+
+The codes that matter for the multiplatform work are:
 
 | Code | Meaning on .NET (non-Framework) |
 | --- | --- |
@@ -102,6 +142,53 @@ you lower the floor. The codes that matter for the multiplatform work are:
 | `SYSLIB0006` | `Thread.Abort()` / `Thread.ResetAbort()` - compiles, then always throws `PlatformNotSupportedException`. |
 | `SYSLIB0011` | `BinaryFormatter` - obsolete, and unsupported for untrusted data. |
 | `SYSLIB0004` | Constrained Execution Regions - not supported. |
+
+### Restore-time NuGet codes are not ratchet material
+
+Two consecutive runs of the same source, same options, forced restore (`/p:RestoreForce=true` on the
+`/t:Restore` pass in `build.ps1`, which is there so assets are never reused silently) produced
+**778 findings and then 776**: `NU1510` 21 then 20, `NU1902` 50 then 49. Nothing about the tree
+changed. A project only re-emits `NU15xx`/`NU1701`/`NU19xx` into the build log when it re-evaluates
+its assets, and which projects do that in a given pass depends on build order and parallelism.
+
+So those codes are listed in `warning-baseline.json` under `untracked`, their current numbers appear
+under `informational`, and the gate scores 686 findings instead of 776. They are not silenced - they
+are measured where the answer is data rather than log prose, by `packages.ps1`. The lesson generalises:
+**a code belongs in the ratchet only if its count is a function of the source.** If it depends on
+machine state, ordering, or cache warmth, it belongs in a report that reads that state directly.
+
+`warning-baseline.json` also records `"solution": "Server"`, and `warnings.ps1 -Solution` refuses to
+score a log from a different solution. The floors describe one inventory; `MP2-Client.sln` overlaps the
+server's and adds the entire UI on top, so scoring it here would report hundreds of "new" codes that
+are simply outside the measurement. The client is built by the gate but not scored until it gets its
+own baseline file, which it will not need for long if Phase 2 lands.
+
+### Package health: the whole advisory surface is four packages
+
+`packages.ps1` answers what `NU19xx` only hints at, and does it deterministically. It does not parse a
+build log and does not call `dotnet list package` per project (that needs a restore of its own, and a
+restore is exactly the thing that fails here). It reads the `logs` array of every
+`obj\project.assets.json` - the structured output of the last restore - and ignores any file that does
+not describe a `net10.0` target, so a leftover from before the retarget cannot inflate a number.
+
+Measured 2026-10-18, 115 current assets files:
+
+| Code | Package | Version | Projects | Advisory |
+| --- | --- | --- | --- | --- |
+| `NU1902` Moderate | `log4net` | 2.0.14 | **104** | GHSA-4f7c-pmjv-c25w |
+| `NU1903` High | `DotNetZip` | 1.15.0 | 1 | GHSA-xhg6-9j5j-w4vf |
+| `NU1903` High | `Microsoft.Windows.Compatibility` | 7.0.1 | 1 | GHSA-555c-2p6r-68mm |
+| `NU1903` High | `System.Data.SqlClient` | 4.8.5 | 1 | GHSA-98g6-xh36-x2p7 |
+
+Four packages. The 104 projects behind `log4net` are one version bump in one place, which is why the
+per-project log count was actively misleading: it made a one-line fix look like 104 problems.
+
+`NU1701` (restored through the .NET Framework fallback, so it runs on .NET compatibility rather than
+support) names seven packages: `BASS.NET` 2.4.14.1 and `BassRegistration` 2.4.14.1 (23 projects each),
+`MediaPortal.TagLib` 2.3.1 (11), `SharpLibHid` 1.5.1, `DiscUtils` 0.11.1, `OnlineVideos.Core` 2.1.0,
+`WorldWeatherOnlineHelper` 1.0.0.3. `NU1510` names five references the SDK now supplies implicitly
+(`Microsoft.CSharp` in 32 projects, plus `System.Threading.Tasks.Dataflow`, `System.Drawing.Common`,
+`System.Resources.Extensions`, `System.Security.Permissions`) - each is a one-line deletion.
 
 ### What CA1416 cannot see
 
@@ -316,9 +403,104 @@ and `PluginInstallationTests`).
 product that declared *related* features (`Service3` pulled `ServiceClient` in automatically), so
 that branch of `FeatureUtils.GetSelectableChildFeatures` no longer has a real instance. The theory
 was rewritten against the surviving features and now covers the parent check and the
-"no relations" path; the conflict rule is still covered by `ServiceClient` ↔ `TvMosaicClient`.
+"no relations" path.
 
-## Target framework: what the newest SDK actually says about this tree
+### TvMosaic followed (2026-10-18)
+
+`TvMosaic` was the last piece of the TV stack left standing: the provider, the API, the shared
+contracts, the server component, the metadata extractor, its test project, its installer feature,
+bootstrapper metadata, feature icon and the four Transifex translation strings - deleted on request,
+**after** checking that nothing outside `TvMosaic` referenced it (the only inbound reference was the
+`SlimTv.TvMosaicClient` feature id in `TvServiceClient.cs`, which declared a *relation*, not a code
+dependency). `SlimTv.Interfaces` and `SlimTv.Client` remain, so the TV client contract is intact.
+
+Deleting a feature turned out to need an invariant of its own: `PluginInstallationTests` covered the
+relation and conflict rules *by example*, using exactly the two features that were deleted, so the
+coverage silently vanished instead of failing. `Should_NotDeclareRelationsOrConflictsWithoutATest`
+now enumerates every feature's `Relations`/`Conflicts` through the real
+`AssemblyFeatureMetadataProvider` and fails if any pair exercises those code paths without a
+`PluginInstallationTests` case. A feature that gains a relation must come with a test.
+
+## Retargeting the tree to .NET 10 (done 2026-10-18)
+
+`net48` is gone from everything the CI gate builds. **137 SDK-style projects** were rewritten from a
+multi-target `<TargetFrameworks>` to a single `<TargetFramework>` - the census before the change was
+128 × `net48;net6.0-windows`, 1 × `net48;net6.0`, 1 × `net6.0`, 1 × `net47;net6.0` - and the tree is
+now **125 × `net10.0-windows` + 6 × `net10.0`** (the six plain ones are the two Incubator
+`*OnlineLibraries`, `Webradio.Stations.Scrapper`, `Setup\CustomActions`, `Tests\Canary.Portable` and
+`scripts\ci\drawing-probe`; plus six TvMosaic projects that were deleted the same day, which is why
+the rewrite count is 137 and the census 131). The single-TFM decision is the user's: *"we do not need
+a dual platform solution"*.
+
+The **23 old-style (non-SDK) projects were deliberately left alone**. They are `Graveyard\`,
+`Incubator` tools, `Resources\Templates`, the five `Backend\Database\*` backends, `HttpServer`,
+`TvdbLib`, `ShellThumbnailProvider`, `MediaPortal.Manager` and `Test.MediaServer`, and **no gated
+project references any of them** - which is what made the retarget self-contained. To keep the two
+halves from contaminating each other, both `Directory.Build.props` files now apply the .NET Framework
+reference-assembly rule only when `'$(TargetFramework)' == '' AND '$(TargetFrameworkVersion)' == 'v4.8'`,
+i.e. to old-style projects, instead of keying off a `net48` TFM that no longer exists.
+
+### What broke, in the order it surfaced
+
+MSBuild **skips a project whose dependency failed**, so the first build reports the errors of the first
+dependency layer only and the next build reveals the next layer. An error count going down after a fix
+means nothing until a build reports zero. The list, with what each one actually was:
+
+* **`WFO1000`, 17 sites, error-level on `net10.0-windows`.** Not a BinaryFormatter problem: the WinForms
+  analyzer complains that a property of a `Component`-derived type has no code-serialization metadata. It
+  fires on *any* `Component` subclass when `UseWindowsForms=true` - including
+  `internal class AsyncImpersonationProcess : Process`. Fix is per-property
+  `[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]` (plus `using System.ComponentModel;`):
+  9 properties in `SplashScreen.cs`, then `MainForm`/`CompressionWebClient`/`BaseClasses`/`SkinEngine\GUI\MainForm`/
+  `UserControlLogMonitor` and the client's six designer forms.
+* **`SYSLIB0011` is an error since .NET 8**, so `BinaryFormatter` could not be grandfathered.
+  `TvdbLib\Cache\BinaryCacheProvider.cs` was deleted (its own comment said "broken at the moment -> use
+  CacheProvider") and `DiskCachedDictionary` writes JSON via `JsonConvert` **without** `TypeNameHandling` -
+  that option is how you reintroduce the exact deserialization gadget class BinaryFormatter is notorious for.
+* **`NU1107` version conflict in `MP2-Client.sln`**, which had never restored in this project's history.
+  Root cause: `BassRegistration 2.4.14.1`'s nuspec declares `<dependency id="BASS.NET" />` with **no version**,
+  so NuGet resolves the feed's stale `1.0.0` for the transitive path, which ties with the direct `2.4.14.1`
+  at equal distance for *indirect* consumers only. Fix is what NuGet itself advises: a direct
+  `PackageReference` pin in the two failing projects (`Utilities`, `PartyMusicPlayer`). NuGet ids are
+  case-insensitive, which is why this hides as `Bass.Net` vs `BASS.NET`.
+* **`win7-x86` / `win7-x64` RIDs no longer exist** (`NETSDK1083`) → `win-x64`. `FreeImageLib\build.targets`
+  references literal `runtimes\win7-x86\native` paths *inside* a NuGet package and must **not** be changed.
+* **`CopyToOutput` (deploy to `MediaPortal\Bin`) started running in standalone builds.** With two TFMs the
+  copy target had been conditioned away; the guard had to be re-derived. `Exists('$(SolutionDir)')` is not a
+  solution build *is not* "SolutionDir is empty" and `$(SolutionName) != ''` is not it either: the SDK
+  auto-detects a sibling `.sln`, and `Microsoft.Common.CurrentVersion.targets` (SDK 10.0.402, line 349)
+  fills an empty `$(SolutionName)` with the literal `*Undefined*`. The working flag is `MP2IsSolutionBuild`
+  in both `Directory.Build.targets` twins, consumed by 122 `build.targets` files - defined there because a
+  target's *condition* is evaluated at execution time, after the project's own `build.targets` import.
+* Stray XML from a bad `-->` (`MSB4067`), and four `#if NET6_0` / `#if !NET6_0` sites that had to become
+  `#if !NETFRAMEWORK` / `#if NETFRAMEWORK` - a TFM-specific symbol is now always or never defined, which is
+  the trap in collapsing a multi-target build.
+
+### What it bought, measured on identical tooling
+
+Both numbers below come from **the same parser on the same day on the same SDK**, the second one taken in a
+`git worktree` checked out at the commit before the retarget, so the comparison is real:
+
+| code | before (`net48;net6.0-windows`) | after (`net10.0-windows`) | reading |
+|---|---|---|---|
+| total findings | 687 | 777 | +90, and the arithmetic closes exactly (see below) |
+| `SYSLIB0011` | 12 | **0** | BinaryFormatter gone from the tree, not suppressed |
+| `NETSDK1138` | 1 | **0** | "net6.0 is out of support" - net10.0 is supported to 2028-11-14 |
+| `CA1063` / `CA1001` | 201 / 44 | 190 / 42 | deleted code |
+| `NU1902` | 0 | **50** | NuGet audit only runs for `net8.0`+ targets: 50 packages with known advisories |
+| `NU1701` / `NU1510` | 0 | 20 / 20 | .NET-Framework-only packages; packages the SDK now supplies implicitly |
+| `ASPDEPR008`, `SYSLIB0060`, `SYSLIB0045`, `NETSDK1189`, `NETSDK1206` | 0 | 4 / 2 / 1 / 1 / 1 | detectors that only the newer target switches on |
+| `CA1416` | 179 | 196 | +17, all named, none of them new code |
+| 18 other codes | — | — | **byte-identical** between the two measurements |
+
+`+99` from detectors that the old TFMs kept switched off, `-27` from real removals, `+17` and `+1` from
+detections the newer analyzer makes: that is the whole +90. The `CA1416` rise was checked call site by call
+site: 12 of the 17 are in `MediaPortal.Server\MainForm.cs` and 5 in `ApplicationLauncher.cs`, all WinForms
+members (`Application.Run`, `MessageBox.Show`, `ListView.*`, `NotifyIcon.Icon`), in files that contain no new
+source (`MainForm.cs` gained a `using` and one designer attribute). Four `CA1416` findings disappeared, both
+explained. See `notes.CA1416` in `warning-baseline.json`.
+
+### How the decision was tested first
 
 Asked "can we drop `net48` and move to the newest .NET?", the answer was measured, not argued.
 `test-server-linux.ps1` takes `-SdkTag` and `-BuildArg`, and `Dockerfile.cross` forwards both into
@@ -356,7 +538,7 @@ serialization for its property content"):
 * `Core/MediaPortal.Common/Services/ResourceAccess/ImpersonationProcess/AsyncImpersonationProcess.cs:336`
   - `PriorityClass`, one property of a `Process` subclass.
 
-They appear only on a `net10.0-windows` leg: the same SDK 10 building the committed
+They appear only on a `net10.0-windows` leg: the same SDK 10 building the then-committed
 `net48;net6.0-windows` legs reports **zero** `WFO1000`. The WinForms source generator that
 introduced the rule is enabled by the newer target, not by the newer SDK. The fix is per-property
 (`[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]` on runtime-only
@@ -367,16 +549,18 @@ Nothing else. No missing API, no removed type, no package that refuses `net10.0`
 dual TFM was already compiling `net6.0-windows` everywhere, and .NET's compatibility surface
 between 6 and 10 carries the rest.
 
-Two things this measurement cannot see, both of which are real work:
+Two things this measurement could not see, both now handled or reclassified:
 
 * The **23 old-style (`non-SDK`) projects** - 12 of them are tools and templates, the rest are the
   five database backends, `HttpServer`, `TvdbLib`, `Test.MediaServer` and the dead
-  `MediaPortal.Manager`. Overriding `TargetFrameworks` does nothing to them; they need their
-  project files rewritten. They are also the reason `net48` is load-bearing: an old-style project
-  cannot produce a `net10.0` output at all.
-* **`net6.0` is out of support since 2024-11-12** and `net8.0`/`net9.0` both end 2026-11-10, while
+  `MediaPortal.Manager`. Overriding `TargetFrameworks` did nothing to them; they still need their
+  project files rewritten, and they still cannot produce a `net10.0` output at all. What changed is
+  that they no longer block anything: none of them is referenced by a gated project, so `net48`
+  stopped being load-bearing the moment the SDK-style half moved.
+* **`net6.0` was out of support since 2024-11-12** and `net8.0`/`net9.0` both end 2026-11-10, while
   `net10.0` runs to 2028-11-14 (from the dotnet/core releases index, not from memory). A port that
-  lands on `net6.0` or `net8.0` lands on an unsupported runtime.
+  landed on `net6.0` or `net8.0` would have landed on an unsupported runtime; the retarget removed
+  that risk, and `NETSDK1138` leaving the baseline is the machine-checked proof.
 
 Gotcha found while building this: Docker substitutes build `ARG`s in `ADD`/`COPY`/`ENTRYPOINT`/
 `FROM`/`LABEL` only. A shell-form `CMD` that references `${BUILD_ARGS}` sees an empty string at
@@ -483,17 +667,15 @@ Build output on many contributor machines is localized - the summary reads `0 Fe
 English shape `file(line,col): warning CODE: message`, which is what the parsers match.
 Never script against the summary text.
 
-## Linux
-
 What runs on Linux today is the **portability canary** only:
 
     .\test-canary-linux.ps1
 
-That compiles a whitelist of `MediaPortal.Utilities` sources for `net8.0` and runs their
-tests inside `mcr.microsoft.com/dotnet/sdk:8.0`. It is a real signal about a real slice of
-MP2, and it is deliberately narrow. Nothing else in the tree runs on Linux: every other
-project targets `net48;net6.0-windows`, and a `-windows` TFM cannot execute there. So "the
-canary is green" must never be reported as "MP2 runs on Linux".
+That compiles a whitelist of `MediaPortal.Utilities` sources for `net10.0` and runs their tests
+inside `mcr.microsoft.com/dotnet/sdk:10.0`. It is a real signal about a real slice of MP2, and it is
+deliberately narrow. Everything else in the tree still targets a `-windows` TFM, which cannot execute
+on Linux. So "the canary is green" must never be reported as "MP2 runs on Linux" - the retarget to
+net10 changed the runtime of the build, not the platform support of the assemblies.
 
 The canary exists so that Linux coverage grows file by file while the rest of the tree is
 still Windows-only, and shrinks back to nothing once `MediaPortal.Common`/`Utilities`
@@ -504,26 +686,37 @@ themselves target a portable TFM. See the header comment in
 
     .\test-server-linux.ps1
 
-This builds **all 93 projects of `MP2-Server.sln`** inside `mcr.microsoft.com/dotnet/sdk:8.0`
-and is green: **0 errors, 129 assemblies produced (64 `net6.0-windows`, 63 `net48`), 2 min
-48 s**. It is a build-system result, not a runtime one - a `-windows` assembly still cannot
-execute on Linux, and nothing here means MP2 *runs* there. What it does settle is that the
-remaining work is code that calls Windows APIs, not build topology. Three things were needed:
+This builds **all 84 projects of `MP2-Server.sln`** inside `mcr.microsoft.com/dotnet/sdk:10.0`
+and is green: **0 errors**, ~2 min. Since the retarget this is a *pure* `net10` result — before it,
+the same probe produced 129 assemblies (64 × `net6.0-windows`, 63 × `net48`) and needed the
+`Microsoft.NETFramework.ReferenceAssemblies` shim to do that. There is no `net48` leg in the solution
+anymore, so the shim only serves the old-style projects outside it now; keep the rule, those projects
+still need it off-Windows. It is still a build-system result, not a runtime one: a `-windows`
+assembly cannot execute on Linux. What it settles is that the remaining work is code that calls
+Windows APIs, not build topology. Three things were needed:
 
 * `-p:EnableWindowsTargeting=true`, so a non-Windows SDK will restore and compile `-windows`
   targets at all.
 * `Directory.Build.props` (one in `MediaPortal\`, one in `MediaPortal\Source\`; MSBuild stops
   at the first one it finds, so both are needed) adding
   `Microsoft.NETFramework.ReferenceAssemblies` **only** when `'$(OS)' != 'Windows_NT'`, which
-  makes the `net48` legs compile off-Windows without touching Windows builds.
+  makes the old-style `v4.8` projects compile off-Windows without touching Windows builds.
 * `Tools\DevTools` had a `mkdir`/`xcopy` post-build event; on Linux MSBuild runs the event
   through `/bin/sh` and `xcopy` exits 127. It is now guarded by `Condition="'$(OS)' ==
   'Windows_NT'"`. Expect more of these - `xcopy` in post-build steps is an MP2 idiom.
 
-The analyzer surface is the same on both hosts where it should be: the Linux log reports
-**468 CA1416 sites**, the same number the Windows gate sees. `MSB3884` appears 230 times on
-Linux, which is the "AllRules.ruleset not found" consequence described above - so total
-warning counts still must never be compared across hosts.
+**The inventory is the same on both hosts.** Parsing the container log and the Windows file log with
+the same `Get-LogDiagnostics` gives **35 of 38 codes identical, `CA1416` = 196 on both**. The three
+that differ (`NU1902`, `NU1701`, `NU1510`) are NuGet *restore* diagnostics which `dotnet build` prints
+twice on the console - once under "Determining projects to restore…", once in the build phase - while
+the MSBuild file log does not; keyed by (project, package, version, advisory) instead of by line, the
+two hosts agree exactly (20 `NU1701` each, symmetric difference 0).
+
+Which is also the second locale lesson: the container answers in English and the host in German, so
+**message text is never a join key** - the host writes "Das Paket „log4net" … weist eine bekannte
+Moderat Schweregrad-Sicherheitsanfälligkeit auf" for the finding the container calls "Package
+'log4net' 2.0.14 has a known moderate severity vulnerability". Only `file(line,col): warning CODE` is
+invariant; see "Locale".
 
 ## The dependency closure is not reproducible
 
@@ -547,6 +740,22 @@ Windows builds pass only because these packages are already in the *developer ma
 cache; there is no `Packages\` folder in the repository. Until that changes, a fresh clone, a
 clean agent, or any container will fail at restore, and the "restore is green" premise behind
 every later phase is not safe.
+
+Two probes on 2026-10-18, one of them wrong, and the one that settles it:
+
+- **Wrong.** `dotnet restore <sln> -p:RestoreSources=https://api.nuget.org/v3/index.json --force`
+  exits **0** for both solutions, which looks like "nothing needs MyGet". It proves nothing: NuGet
+  satisfies an exact pinned version from `%USERPROFILE%\.nuget\packages` before it asks any source,
+  and all six ids are sitting in that cache on this machine. **A forced restore is not evidence of
+  feed independence while the global package cache is warm.**
+- **Right.** The same command with `-p:RestorePackagesPath=<empty directory>` fails as expected:
+  `error NU1101: Das Paket "BASSCombined" wurde nicht gefunden` (also `BassRegistration`), and
+  `error NU1102: Das Paket "BASS.NET" der Version (>= 2.4.14.1) wurde nicht gefunden - 1 Version(en)
+  gefunden in "nuget.org" [Nächste Version: 1.0.0]`.
+- **Corroborated without building anything:** `https://api.nuget.org/v3-flatcontainer/<id>/index.json`
+  answers **404** for `basscombined`, `bassregistration`, `mediaportal.taglib`, `onlinevideos.core`;
+  `bass.net` and `ffmpeg` exist but only as 1.0.0 and 1.1.3 against the 2.4.14.1 and 3.4.2 this tree
+  asks for.
 
 The probe works around it with a **read-only** fallback folder pointing at a populated cache
 (`-e NUGET_FALLBACK_PACKAGES=...`, which never writes to the host cache) and deletes the dead

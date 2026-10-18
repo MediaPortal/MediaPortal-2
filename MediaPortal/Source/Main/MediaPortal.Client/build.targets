@@ -1,6 +1,6 @@
 <Project>
 
-  <Target Name="CopyToOutput" AfterTargets="Build" Condition="'$(IsCrossTargetingBuild)' != 'true'">
+  <Target Name="CopyToOutput" AfterTargets="Build" Condition="'$(IsCrossTargetingBuild)' != 'true' AND '$(MP2IsSolutionBuild)' == 'true'">
     <PropertyGroup>
       <ExeDestination>$(SolutionDir)..\Bin\$(SolutionName)\bin\$(ConfigurationName)\$(TargetFramework)\</ExeDestination>
     </PropertyGroup>

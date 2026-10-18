@@ -36,18 +36,22 @@ namespace MP2BootstrapperApp.Converters
 
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-      double size = System.Convert.ToDouble(value);
+      // Format with the culture WPF gives us (the one the surrounding text uses) instead of the
+      // thread culture; that way the number follows the UI language and a test that asks for
+      // InvariantCulture gets the same result on every machine.
+      CultureInfo format = culture ?? CultureInfo.CurrentCulture;
+      double size = System.Convert.ToDouble(value, format);
 
       if (size < KILOBYTE)
-        return size + " B";
+        return size.ToString("0", format) + " B";
 
       if (size < MEGABYTE)
-        return Math.Round(size / KILOBYTE) + " KB";
+        return Math.Round(size / KILOBYTE).ToString("0", format) + " KB";
 
       if (size < GIGABYTE)
-        return Math.Round(size / MEGABYTE) + " MB";
+        return Math.Round(size / MEGABYTE).ToString("0", format) + " MB";
 
-      return Math.Round(size / GIGABYTE, 1) + " GB";
+      return Math.Round(size / GIGABYTE, 1).ToString("0.0", format) + " GB";
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

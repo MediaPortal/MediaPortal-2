@@ -84,7 +84,6 @@
     <Compile Include="Util.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Cache\BinaryCacheProvider.cs" />
     <Compile Include="Cache\XmlCacheProvider.cs" />
     <Compile Include="Data\Banner\TvdbActorBanner.cs" />
     <Compile Include="Data\Banner\TvdbBannerWithThumb.cs" />

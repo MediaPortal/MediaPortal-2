@@ -21,7 +21,7 @@
     <References Include="$(TargetDir)System.Data.SqlServerCe.Entity.dll" />
   </ItemGroup>
 
-  <Target Name="CopyToOutput" AfterTargets="Build">
+  <Target Name="CopyToOutput" AfterTargets="Build" Condition="'$(MP2IsSolutionBuild)' == 'true'">
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
   </Target>

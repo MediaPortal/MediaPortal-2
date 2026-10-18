@@ -6,7 +6,7 @@
     <NoSourceFlag>true</NoSourceFlag>
   </PropertyGroup>
 
-  <Target Name="CopyAll" AfterTargets="AfterBuild">
+  <Target Name="CopyAll" AfterTargets="AfterBuild" Condition="'$(MP2IsSolutionBuild)' == 'true'">
 
     <PropertyGroup>
       <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>

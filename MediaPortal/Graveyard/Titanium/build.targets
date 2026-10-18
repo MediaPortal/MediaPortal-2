@@ -4,7 +4,7 @@
     <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
   </PropertyGroup>
 
-  <Target Name="CopyToOutput" AfterTargets="Build">
+  <Target Name="CopyToOutput" AfterTargets="Build" Condition="'$(MP2IsSolutionBuild)' == 'true'">
     <ItemGroup>
       <PluginFiles Include="$(ProjectDir)plugin.xml" />
     </ItemGroup>

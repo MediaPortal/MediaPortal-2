@@ -19,4 +19,14 @@
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
   </PropertyGroup>
 
+  <!--
+    MP2IsSolutionBuild - see Source\Directory.Build.targets for the full reasoning. In short: a
+    solution is being built only if SolutionName is set to something other than the SDK's
+    "*Undefined*" sentinel, and the Bin\<SolutionName>\ deployment steps in build.targets use this
+    property as their condition.
+  -->
+  <PropertyGroup>
+    <MP2IsSolutionBuild Condition="'$(SolutionName)' != '' AND '$(SolutionName)' != '*Undefined*'">true</MP2IsSolutionBuild>
+  </PropertyGroup>
+
 </Project>

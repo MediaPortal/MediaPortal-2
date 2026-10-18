@@ -29,4 +29,28 @@
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
   </PropertyGroup>
 
+  <!--
+    MP2IsSolutionBuild: "true" only when MSBuild is driving a .sln.
+
+    120 build.targets files in this tree end with a "CopyToOutput" step that deploys the built
+    assembly into Bin\<SolutionName>\, which only makes sense when a solution asked for the build.
+    Guarding them needs a reliable test, and the obvious ones do not work:
+
+      - Exists('$(SolutionDir)') is true even for a single project build, because the SDK
+        auto-detects a .sln in an ancestor directory and because many project files carry the old
+        NuGet boilerplate <SolutionDir Condition="$(SolutionDir) == '' Or ...>..\..\</SolutionDir>.
+      - '$(SolutionName)' == '' is never true: Microsoft.Common.CurrentVersion.targets fills an
+        empty SolutionName with the literal string "*Undefined*", which is why a stray standalone
+        build used to deploy into MediaPortal\Bin\*Undefined*\ (MSB3021 "the filename, directory
+        name, or volume label syntax is incorrect") instead of skipping.
+
+    So the sentinel has to be excluded explicitly. This is what makes `dotnet test <project>` work:
+    a test run builds the project graph without a solution, and the deployment steps now step aside
+    instead of failing the build. Target conditions are evaluated at execution time, so defining
+    the property here (after the project's own <Import Project="build.targets"/>) is early enough.
+  -->
+  <PropertyGroup>
+    <MP2IsSolutionBuild Condition="'$(SolutionName)' != '' AND '$(SolutionName)' != '*Undefined*'">true</MP2IsSolutionBuild>
+  </PropertyGroup>
+
 </Project>

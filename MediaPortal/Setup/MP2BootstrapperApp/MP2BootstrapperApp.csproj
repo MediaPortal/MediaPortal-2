@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net48;net6.0-windows</TargetFrameworks>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <RuntimeIdentifier>win-x86</RuntimeIdentifier>
     <OutputType>Library</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -103,7 +103,6 @@
     <Resource Include="Resources\path.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\Features\SlimTv.TvMosaicClient.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Features\SlimTv.ServiceClient.png" />

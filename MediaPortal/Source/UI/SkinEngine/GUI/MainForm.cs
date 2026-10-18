@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -295,6 +296,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       }
     }
 
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public SuspendLevel PlayerSuspendLevel
     {
       get { return _playerSuspendLevel; }
@@ -681,6 +683,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       StartUI();
     }
 
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public bool DisableTopMost
     {
       get { return _disableTopMost; }
@@ -721,6 +724,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       get { return Handle; }
     }
 
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public SuspendLevel ApplicationSuspendLevel
     {
       get { return _applicationSuspendLevel; }
@@ -737,6 +741,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       }
     }
 
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public IVideoPlayerSynchronizationStrategy VideoPlayerSynchronizationStrategy
     {
       get { return _videoPlayerSynchronizationStrategy; }

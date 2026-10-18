@@ -1,6 +1,6 @@
 <Project>
 
-  <Target Name="CopyToOutput" AfterTargets="Build" Condition="'$(IsCrossTargetingBuild)' != 'true'">
+  <Target Name="CopyToOutput" AfterTargets="Build" Condition="'$(IsCrossTargetingBuild)' != 'true' AND '$(MP2IsSolutionBuild)' == 'true'">
 
     <PropertyGroup>
       <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
@@ -18,14 +18,20 @@
       <PluginDependencies Include="$(TargetDir)HtmlAgilityPack.dll" />
     </ItemGroup>
 
-    <ItemGroup Condition="$(TargetFramework) == 'net48'">
-      <PluginDependencies Include="$(TargetDir)Microsoft.Bcl.AsyncInterfaces.dll" />
-      <PluginDependencies Include="$(TargetDir)System.Memory.dll" />
-      <PluginDependencies Include="$(TargetDir)System.Text.Json.dll" />
-      <PluginDependencies Include="$(TargetDir)System.Threading.Tasks.Extensions.dll" />
-      <PluginDependencies Include="$(TargetDir)System.Runtime.CompilerServices.Unsafe.dll" />
-      <PluginDependencies Include="$(TargetDir)System.Buffers.dll" />
-      <PluginDependencies Include="$(TargetDir)System.Numerics.Vectors.dll" />
+    <ItemGroup>
+      <!--
+        These seven polyfill assemblies only exist in the output when building for
+        .NET Framework; on .NET 10 the types are in the runtime. The 2026-10 retarget
+        removed the net48 leg, so the group is no longer conditional - it simply copies
+        nothing when the files are absent, which is what Copy does with missing items.
+      -->
+      <PluginDependencies Include="$(TargetDir)Microsoft.Bcl.AsyncInterfaces.dll" Condition="Exists('$(TargetDir)Microsoft.Bcl.AsyncInterfaces.dll')" />
+      <PluginDependencies Include="$(TargetDir)System.Memory.dll" Condition="Exists('$(TargetDir)System.Memory.dll')" />
+      <PluginDependencies Include="$(TargetDir)System.Text.Json.dll" Condition="Exists('$(TargetDir)System.Text.Json.dll')" />
+      <PluginDependencies Include="$(TargetDir)System.Threading.Tasks.Extensions.dll" Condition="Exists('$(TargetDir)System.Threading.Tasks.Extensions.dll')" />
+      <PluginDependencies Include="$(TargetDir)System.Runtime.CompilerServices.Unsafe.dll" Condition="Exists('$(TargetDir)System.Runtime.CompilerServices.Unsafe.dll')" />
+      <PluginDependencies Include="$(TargetDir)System.Buffers.dll" Condition="Exists('$(TargetDir)System.Buffers.dll')" />
+      <PluginDependencies Include="$(TargetDir)System.Numerics.Vectors.dll" Condition="Exists('$(TargetDir)System.Numerics.Vectors.dll')" />
     </ItemGroup>
 
     <ItemGroup>

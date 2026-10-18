@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.ComponentModel;
 using System.Net;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
@@ -32,6 +33,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     protected bool _enableCompression;
     protected int _requestTimeOut = 20000;
 
+    // WFO1000: this type derives from Component, so on .NET (Core) the WinForms designer
+    // generator inspects its public properties. Nothing here is designer-hosted.
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public int RequestTimeout
     {
       get { return _requestTimeOut; }

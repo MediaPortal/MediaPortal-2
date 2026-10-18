@@ -6,7 +6,10 @@
 The main goal of __MediaPortal 2__ is to provide __the__ best mediacenter software available when it comes to usability, flexibility and extensibility.
 
 Some of features are:
- * Watch, schedule and record live __TV__. We have our internal TVE3 and TVE3.5 provider, but also TVMosaic as alternative provider.
+ * Watch, schedule and record live __TV__ through a TV provider. __Note:__ during the multiplatform
+   work the internal TV service layer (TVE3 / TVE3.5) and the TVMosaic provider were removed; the
+   client-side TV contract (`SlimTv.Interfaces`, `SlimTv.Client`) is still in the tree, so a provider
+   can be plugged in again. See `scripts/ci/README.md`, "The TV service layer is gone".
  * Play all your __videos__, __movies__, __series__, DVDs and __Blu-ray__ discs.
  * Listen to __music__ and __radio__.
  * Enjoy __pictures__, home videos or create a slideshow.

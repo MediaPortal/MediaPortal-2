@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using MediaPortal.Backend.ClientCommunication;
@@ -68,6 +69,9 @@ namespace MediaPortal.Server
       UpdateClientsList();
     }
 
+    // WFO1000: MainForm is a Component, so the WinForms designer generator checks its public
+    // properties; this one is set at runtime by the tray/menu code only.
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public SuspendLevel ApplicationSuspendLevel
     {
       get { return _applicationSuspendLevel; }

@@ -30,7 +30,10 @@ namespace MP2BootstrapperApp.BundlePackages.Features.Metadata
   public class TvServiceClient : AbstractFeatureMetadata
   {
     public TvServiceClient()
-    : base(FeatureId.SlimTvServiceClient, null, new[] { FeatureId.SlimTvTvMosaicClient })
+    // No related features since the TV layers were removed - the TvMosaic client that used to be
+    // listed here is gone, and "install the TV service client together with the client" is what
+    // the parent check in FeatureUtils already does.
+    : base(FeatureId.SlimTvServiceClient, null, new string[0])
     {
     }
   }
