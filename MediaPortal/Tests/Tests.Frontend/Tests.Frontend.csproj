@@ -42,6 +42,7 @@
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Server.Api\MediaPortal.Server.Api.csproj" />
     <ProjectReference Include="..\..\Source\Core\UPnP\UPnP.csproj" />
     <ProjectReference Include="..\..\Source\Frontend\MediaPortal.Frontend\MediaPortal.Frontend.csproj" />
+    <ProjectReference Include="..\..\Source\Frontend\MediaPortal.Frontend.Player\MediaPortal.Frontend.Player.csproj" />
   </ItemGroup>
 
 </Project>

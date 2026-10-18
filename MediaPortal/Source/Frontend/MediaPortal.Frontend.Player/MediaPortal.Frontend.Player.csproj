@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    The player engine, in an assembly of its own.
+
+    This is what replaces DirectShow, and the replacement is structural rather than a rewrite: DirectShow is a
+    Windows COM framework, so every consumer of it in this tree was Windows-only by construction. libVLC is the
+    opposite arrangement - one decoding core whose output plugins are per-platform (DXVA2 on Windows, VAAPI on
+    Linux, MediaCodec on Android), driven through a C API. What this assembly adds is the seam, not a port.
+
+    Rules, same shape as the front end's:
+      - net10.0, never a -windows suffix, and CA1416 as an error. This assembly has to load on Android.
+      - No MP2 project references and no Avalonia reference. libVLC is handed a native window handle to draw
+        into; who owns that window is the host's business, which is why the front end can pass one and a
+        headless test can pass none.
+      - No LibVLCSharp type crosses the seam: everything above this assembly speaks PlayerState,
+        PlaybackTrack and IVideoPlayer. That is the only reason the engine could be swapped for MPV later
+        without touching a single screen.
+      - libVLC itself is NOT vendored and NOT downloaded. It is found at run time (see NativeLibraryLocator),
+        and a player that cannot find it says so in a sentence instead of throwing a DllNotFoundException.
+
+    GenerateAssemblyInfo is off because VersionInfo.cs is linked in, the way the front end and the API
+    assembly do it, so the player reports the product version rather than 1.0.0.0.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>MediaPortal.Frontend.Player</RootNamespace>
+    <AssemblyName>MediaPortal.Frontend.Player</AssemblyName>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Nullable>enable</Nullable>
+    <WarningsAsErrors>CA1416</WarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs" Link="Properties\VersionInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      The official VideoLAN binding, MPL-2.0, netstandard2.0 - it is the managed half only. libVLC's own
+      libraries stay on the machine (GPL), which is the normal dynamic-linking arrangement for VLC: nothing
+      of it is compiled into or shipped inside an MP2 assembly.
+    -->
+    <PackageReference Include="LibVLCSharp" Version="3.10.2" />
+  </ItemGroup>
+
+</Project>

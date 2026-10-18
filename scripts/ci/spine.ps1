@@ -220,7 +220,12 @@ $coreAreas = @(
   # The new front end belongs here, not in a list of its own: it is written once for every platform, so a
   # WinForms using, a GDI+ call or a [DllImport] in it would not be a wart but the end of the whole plan - and
   # CA1416 alone would not have caught the P/Invoke (see the note above). Measured when it was added: 0 of each.
-  'MediaPortal\Source\Frontend\MediaPortal.Frontend'
+  'MediaPortal\Source\Frontend\MediaPortal.Frontend',
+  # The player too, for the same reason and with a sharper point: everything native it needs arrives through the
+  # LibVLCSharp package, whose imports live in that assembly and not in this tree. So this directory has no
+  # business containing a [DllImport] at all - the day someone adds one to reach a codec directly, this line is
+  # where the gate says so. Measured when it was added: 0 of each.
+  'MediaPortal\Source\Frontend\MediaPortal.Frontend.Player'
 )
 
 # Windows-only satellites are discovered, not listed, so a new one cannot escape the ledger.
@@ -268,7 +273,7 @@ function Write-AreaReport {
 
   Write-Host $Title -ForegroundColor $Colour
   foreach ($area in $Measure.Areas.Keys) {
-    "  {0,-52} WinForms {1,4}   GDI+ {2,4}   P/Invoke {3,4}   Drawing primitives {4,4}" -f $area, `
+    "  {0,-58} WinForms {1,4}   GDI+ {2,4}   P/Invoke {3,4}   Drawing primitives {4,4}" -f $area, `
       $Measure.Areas[$area]['WinForms'], $Measure.Areas[$area]['DrawingWindows'], $Measure.Areas[$area]['PInvoke'], $Measure.Areas[$area]['DrawingPortable']
   }
   "  {0,-52} files affected {1,4}   total refs {2,4}" -f '', $Measure.Files.Count, $Measure.TotalRefs

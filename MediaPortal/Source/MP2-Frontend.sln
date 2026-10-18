@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Backend", "Core
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frontend.RenderProbe", "..\Tests\Frontend.RenderProbe\Frontend.RenderProbe.csproj", "{9A3E0360-346E-4C8A-84E6-ADAE0F07DCA3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Frontend.Player", "Frontend\MediaPortal.Frontend.Player\MediaPortal.Frontend.Player.csproj", "{5FA8FAEF-7666-42FB-8637-A542763A0AD9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -129,6 +131,18 @@ Global
 		{9A3E0360-346E-4C8A-84E6-ADAE0F07DCA3}.Release|x64.Build.0 = Release|Any CPU
 		{9A3E0360-346E-4C8A-84E6-ADAE0F07DCA3}.Release|x86.ActiveCfg = Release|Any CPU
 		{9A3E0360-346E-4C8A-84E6-ADAE0F07DCA3}.Release|x86.Build.0 = Release|Any CPU
+		{5FA8FAEF-7666-42FB-8637-A542763A0AD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5FA8FAEF-7666-42FB-8637-A542763A0AD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5FA8FAEF-7666-42FB-8637-A542763A0AD9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5FA8FAEF-7666-42FB-8637-A542763A0AD9}.Debug|x64.Build.0 = Debug|Any CPU
+		{5FA8FAEF-7666-42FB-8637-A542763A0AD9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5FA8FAEF-7666-42FB-8637-A542763A0AD9}.Debug|x86.Build.0 = Debug|Any CPU
+		{5FA8FAEF-7666-42FB-8637-A542763A0AD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5FA8FAEF-7666-42FB-8637-A542763A0AD9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5FA8FAEF-7666-42FB-8637-A542763A0AD9}.Release|x64.ActiveCfg = Release|Any CPU
+		{5FA8FAEF-7666-42FB-8637-A542763A0AD9}.Release|x64.Build.0 = Release|Any CPU
+		{5FA8FAEF-7666-42FB-8637-A542763A0AD9}.Release|x86.ActiveCfg = Release|Any CPU
+		{5FA8FAEF-7666-42FB-8637-A542763A0AD9}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -140,5 +154,6 @@ Global
 		{B0D9F7E5-B50C-49BF-B4C2-BF2F5FA6B86A} = {FBF56CC3-7AE6-AD2D-3F14-7F97FD322CD6}
 		{5C63F35A-9C77-4FED-B34A-8F8349329435} = {FBF56CC3-7AE6-AD2D-3F14-7F97FD322CD6}
 		{BBE1C42B-191A-48F0-81E3-9B3CB4CDF759} = {FBF56CC3-7AE6-AD2D-3F14-7F97FD322CD6}
+		{5FA8FAEF-7666-42FB-8637-A542763A0AD9} = {CE609670-85B9-0D16-FB54-ED063D5D8A6D}
 	EndGlobalSection
 EndGlobal

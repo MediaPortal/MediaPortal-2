@@ -172,6 +172,30 @@ server's and adds the entire UI on top, so scoring it here would report hundreds
 are simply outside the measurement. The client is built by the gate but not scored until it gets its
 own baseline file, which it will not need for long if Phase 2 lands.
 
+### Two builds on one working tree is one broken measurement
+
+Recorded because it produced a *better-looking* number, which is the dangerous direction. Two
+`build.ps1 -Ratchet` runs were allowed to overlap on this working tree (one Debug, one Release). The
+`MP2-Server.sln` count then read **384** findings in Debug and **470** in Release against a floor of
+**486** - "Improved, commit the new floor" - while simultaneously introducing codes the baseline had
+never listed, two `CS0105`s from `Incubator\TranscodingService`. A drop spread over whole code families
+(`CA1063` -6, `CA1065` -6, `CA1001` -4) is the signature the paragraph above warns about, only here
+caused by the measurement rather than by the tree: a project whose compile was disturbed contributes
+nothing, and the run that follows inherits its half-written state.
+
+That is what happened next: the following run failed with **58 x `CS0006`** - "metadata file
+`...\obj\Debug\net10.0\ref\MediaPortal.Common.dll` not found" - because one run's `Clean` deleted the
+reference assemblies while the other was consuming them, leaving the up-to-date check pointing at
+outputs that no longer exist. Recovery is mechanical: delete `obj\Debug` and `bin\Debug` of the projects
+named in the `CS0006` lines (`MediaPortal.Common` and `MediaPortal.Utilities` here), then build one
+solution at a time. Doing that reproduced **exactly the recorded floor, 486, green** - which is the
+evidence that nothing in the tree had changed and that the "improvement" was never real.
+
+Two rules follow. **Never let two `build.ps1` runs share a working tree** - a container build and a host
+build are fine (separate trees), an overlapping host build is not. And when a count improves across
+several unrelated code families at once, treat it as a measurement event until a clean sequential run
+reproduces it; only then is it a floor worth committing.
+
 ### Package health: the advisory surface is empty, and how that was measured
 
 `packages.ps1` answers what `NU19xx` only hints at, and does it deterministically. It does not parse a
@@ -1590,6 +1614,12 @@ Two details of the wiring are decisions, not plumbing:
 - **The front end has no MP2 project reference except the API it consumes**, and `spine.ps1` counts it
   as a core area with 0 WinForms, 0 GDI+ and 0 P/Invoke. It reaches the server through HTTP only, so it
   carries no Windows dependency and no dependency on the server's startup order.
+- **The player's suite is split by what it can measure without an engine.** `TestPlayerContract` (16 tests)
+  needs nothing but the assembly; `TestPlayerEngine` (16) drives a real libVLC and calls `Assert.Ignore` with
+  the engine's own refusal sentence when there is none - the only skips anywhere in the tree, on purpose, so
+  that a machine without VLC reports "not measured" instead of a failure. That is exactly why the Linux image
+  installs an engine and then refuses a run with any skips: on these sixteen a skip is a shrunken measurement
+  wearing green.
 
 `test-frontend-check.ps1` is the part that makes it a claim rather than a folder of XAML: it assembles
 the server layout, starts the headless host, and runs the *built front end binary* with `--check`. It
@@ -1630,7 +1660,8 @@ One correction, recorded because it was written down wrong first: the four bugs 
 `Tests.Frontend`/`--check`, and the suite totals in the commit that introduced them attributed the 403
 tests to the wrong suite names. `tests.ps1` prints them in default order - Canary.Portable 29,
 Tests.Server 184, Tests.Client 90, Tests.Frontend 32, Setup\Tests 68 - which is what ROADMAP now says.
-(Both numbers have grown since: 34 and 405, the second one including the crash the render probe found.)
+(Both numbers have grown since: 34 and 405, the second one including the crash the render probe found; they
+stand at 66 and 473 since the player's 32 tests joined `Tests.Frontend`.)
 
 ### The front end draws: `Frontend.RenderProbe`
 
@@ -1700,10 +1731,24 @@ system configured"; and the locked framebuffer is `Rgba8888` under Skia where th
 then runs `Tests.Frontend`, i.e. it builds the real `HomeWindow.axaml`, loads the real Fluent theme and
 the Inter font, drives the D-pad handler, and calls the real `MediaPortal.Server.Api` controllers over a
 Kestrel host - inside a container, under a user with no display, on a machine that has never seen
-Windows. Measured: `Passed! - Failed: 0, Passed: 34, Skipped: 0, Total: 34, Duration: 2 s`, then
-`FRONTEND LINUX OK: 34 tests ran headless on Linux x86_64, populated from
+Windows. Measured: `Passed! - Failed: 0, Passed: 66, Skipped: 0, Total: 66, Duration: 8 s`, then
+`FRONTEND LINUX OK: 66 tests ran headless on Linux x86_64, populated from
 http://host.docker.internal:55555/MediaPortal/Server screenshot in /out/home-linux.png` on
 `Linux 6.6.87.2-microsoft-standard-WSL2 x86_64, dotnet 10.0.402`.
+
+Thirty-two of those 66 belong to `MediaPortal.Frontend.Player`, and the image carries a real engine so that
+sixteen of them are measurements rather than skips. Ubuntu noble has no `vlc-nox` - naming it failed the apt
+step - so the engine comes from `libvlc5` and the plugins from `vlc-plugin-base`, and the plugins live in the
+multiarch directory `/usr/lib/x86_64-linux-gnu/vlc/plugins`; `/usr/lib/vlc/plugins` exists and is empty, which
+sent one debugging run in circles. The `RUN` that installs them then refuses an image that has a `libvlc.so*`
+but no `demux` plugins, because that combination is worse than having no engine at all: libVLC initialises,
+plays nothing, and the tests fail as timeouts instead of as a missing engine. The `CMD` refuses the run while
+anything is skipped, which is what makes the 66 mean 66: on the engine tests a skip would read as green while
+measuring nothing. That rule is what made the first player run say `Failed: 16, Passed: 50` - libVLC was found,
+`Core.Initialize(directory)` is refused on Linux, and the fix (a loader resolver that answers `libvlc` with the
+versioned file the distribution actually ships) is ROADMAP item **s**. Two consequences worth stating plainly:
+the same 66 tests pass on Windows against VLC 3.0.20 and on Linux against the distribution's libVLC, and an
+image whose VLC packages rot will fail this gate rather than quietly shrink the measurement.
 
 Two properties of that image are the gate, not the packaging:
 

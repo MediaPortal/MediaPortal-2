@@ -1099,6 +1099,94 @@ the player (DXVA2 / VAAPI / VideoToolbox) rather than through MP2. `EVRPresenter
 die here. Gate: the same file plays on Windows and on Linux through the same code path, and the deleted
 projects show up in `spine.ps1` / `packages.ps1`.
 
+### s. The player seam: one file, playing, on both platforms
+
+Phase 3 was started before Phase 2's loose ends because of what the machine said, not what the plan said:
+`dotnet workload list` reports no Android workload (so the Android items of Phase 1 cannot be measured at
+all), there is no mpv anywhere on this host, and there *is* a working VLC - `C:\Program Files\VideoLAN\VLC`
+with `libvlc.dll` at FileVersion 3.0.20 and a populated `plugins` tree. Decoding, clocking and track
+handling are therefore measurable today, on a real engine, from a unit test. Rendering into a window is not,
+and this section says which half is which.
+
+**What exists.** `MediaPortal\Source\Frontend\MediaPortal.Frontend.Player` - seven files, `net10.0`, and
+deliberately no reference to anything else in the tree. `IVideoPlayer` is the seam: state (`Idle`, `Opening`,
+`Playing`, `Paused`, `Stopped`, `Ended`, `Failed`), `Open`/`Play`/`Pause`/`Stop`, `LengthInMs`/`TimeInMs`,
+volume and mute, track lists and track selection, `AttachTo(nint)` for the host that owns a window, and three
+events. `LibVlcPlayer` is the only file in the repository that is allowed to know the name `LibVLCSharp`.
+`MediaLocation` decides what may be played at all (absolute paths, and URLs in eight schemes, with credentials
+stripped by `Describe()` so a log line cannot leak a password). `NativeLibVlc` owns "where is the engine".
+The assembly holds no Avalonia reference because the picture goes to whoever hosts it, and a player that
+depends on a UI toolkit is a player that cannot be tested headless or used by a second front end.
+
+**Found, never vendored.** libVLC is a GPL core plus a plugin per decoder, demuxer and output - a few hundred
+files. It arrives installed, the way VLC always arrives. LibVLCSharp itself (MPL-2.0) is an ordinary
+`PackageReference`; `packages.ps1` lists no advisory for it or its closure. Lookup order: an explicit
+directory from the caller, then `MP2_LIBVLC`, then the platform's usual folders, then - only where a loader
+can search - no directory at all. Every refusal is a sentence about what was looked at, because a TV set with
+a `DllNotFoundException` is a crash with no explanation.
+
+**Six things the engine taught by measurement.** Each of these was a test failing first:
+
+- `Length` and `Time` answer **-1** for "unknown", so `LengthInMs`/`TimeInMs` clamp to 0. The interface
+  promises 0; a screen that prints `-1` ms renders "-00:01" where there is nothing loaded.
+- Volume and mute **cannot be read back**. With `--aout=dummy` the getter answers 0 whatever was set; with a
+  real audio output it answers *one command behind* (set 42 while 100 was current, read 100). The player
+  therefore stores what the caller asked for and pushes it to the engine - the alternative is a volume slider
+  that visibly refuses to move.
+- libVLC fires **`Opening` (and `Buffering`) *after* `Playing`**, shortly before the end; the observed sequence
+  on a short file was `Opening, Playing, Opening, Ended`. Publishing that second `Opening` would make every
+  track change flash a spinner, so `PublishFromOpeningEvent()` drops those two events while playing.
+- A headless run is **not paced to wall clock**: a 4000 ms WAV reached `Ended` after 3040 ms, and after
+  **1957 ms with `--clock-synchro=1`** - so that flag is not the fix and nothing in the tests compares a
+  position with a stopwatch, only with other positions.
+- After a second `Open()` on the same player, `Length` is **0 for a few milliseconds** while the new media is
+  parsed. `OnePlayerPlaysSeveralItemsInSequence` waits for the length instead of reading it once.
+- `Dispose()` raises a native `Stopped`, which would arrive as an event *after* the object is gone; `Publish()`
+  returns early once disposed.
+
+**The Linux finding, which is the reason this section is in the roadmap.** The first container run reported
+`Failed: 16, Passed: 50`, and every one of the sixteen said the same thing: `Using libvlcDirectoryPath is not
+supported on the Linux platform. The recommended way is to have the libvlc librairies in /usr/lib.` Two bugs
+were in that message. The first was mine: `TryCreate` catches `VLCException`, `DllNotFoundException` and
+`EntryPointNotFoundException`, but not `InvalidOperationException`, so a refusal escaped as an exception
+instead of answering with a sentence as the seam promises. The second was the design: telling the binding
+where the engine is only works on Windows. On the other platforms the folder is honoured one level lower,
+with a `NativeLibrary` resolver registered against LibVLCSharp's own assembly that answers the request for
+`libvlc` with the file the locator actually found. That resolver is not a nicety: distribution packages ship
+the versioned `libvlc.so.5` and leave the unversioned `libvlc.so` to a `-dev` package, so a plain loader
+search finds nothing on a machine that plays every other video file. Without it the player would require
+`apt install libvlc-dev` to watch a film.
+
+**The image says what it needs.** Ubuntu noble has no `vlc-nox` (the first draft of the Dockerfile named it
+and apt failed the build); the engine is `libvlc5` and the plugins come from `vlc-plugin-base`, and they land
+in the multiarch directory `/usr/lib/x86_64-linux-gnu/vlc/plugins`, not in `/usr/lib/vlc/plugins`, which is
+empty. The build now asserts both halves - a `libvlc.so*` somewhere and a non-empty `demux` plugin directory -
+because an image with the library and no demuxers is worse than no engine: libVLC starts, plays nothing, and
+the tests fail as timeouts. The run also refuses while any test is skipped, which is what makes the number
+trustworthy: on the engine tests a skip means "not measured", not "fine".
+
+**Measured where.** Windows: `Bestanden! - Fehler: 0, erfolgreich: 66, uebersprungen: 0, gesamt: 66`, of
+which 32 are the player's - 16 (`TestPlayerContract`) that need no engine and run everywhere, and 16
+(`TestPlayerEngine`) that drive VLC 3.0.20 for real: it names the native library it loaded, a generated WAV
+plays and is as long as its header says, the clock runs, seeking to the end brings the end nearer, running out
+is announced once, stopping is not the same as running out, pause holds and play resumes, one player plays
+several items in sequence, a missing file fails with a sentence, pausing an idle player is refused with a
+reason, volume is clamped rather than refused, tracks are listed without the engine's "off" entry, two players
+can exist at once, and a disposed player refuses work instead of throwing. Linux: the same 66 in the
+container, `Passed! - Failed: 0, Passed: 66, Skipped: 0, Total: 66` on `Linux 6.6.87.2-microsoft-standard-WSL2
+x86_64, dotnet 10.0.402`, with the distribution's libVLC loaded through the resolver - the phase gate's
+"same file, same code path, both platforms", for everything a headless host can observe. Together with the
+other four suites the Windows ratchet is at **473 tests, 0 skipped**.
+
+**What is not here yet.** The picture: `AttachTo` accepts a window only on Windows, because Linux wants an
+X11/Wayland window and Android a `Surface`, and this assembly cannot validate either from here - it reports
+false rather than accepting a handle it cannot draw into. No front-end screen uses the player yet, which also
+means nothing asks the server for a token in order to show its own videos. No mpv back end. Hardware decode
+(DXVA2 / VAAPI / VideoToolbox), audio passthrough and HDR are the engine's business and unverifiable in a
+container with no GPU - they stay on the hand-off list at the end of this document. And the second half of the
+phase gate - the DirectShow projects disappearing from `spine.ps1` and `packages.ps1` - is untouched: the
+player exists alongside the old code, it has not replaced it in the client yet.
+
 ## What cannot be verified without the user
 
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,
