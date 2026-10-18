@@ -61,7 +61,7 @@ namespace FrontendProbe
   public static class RenderProbe
   {
     private const string USAGE =
-        "Frontend.RenderProbe --out <file.png> [--screen <home|nowplaying|connect|browser|details|search>] [--server <url>] [--width <n>] [--height <n>]\n" +
+        "Frontend.RenderProbe --out <file.png> [--screen <home|nowplaying|connect|browser|details|search|seen>] [--server <url>] [--width <n>] [--height <n>]\n" +
         "  --out <file>     where to write the rendered frame (PNG); its directory is created\n" +
         "  --screen <name>  which screen to render (default home)\n" +
         "  --server <url>   render the populated screen by asking this server (otherwise MP2_SERVER,\n" +
@@ -189,6 +189,10 @@ namespace FrontendProbe
       // The same for a list that has been searched: the words are typed into the box on screen and Enter is sent
       // to the box, so the frame covers the key handling, the round trip and the list coming back smaller.
       bool searchAsked = false;
+
+      // And the same for a list that has been filtered by watched state: the key is pressed on the window, twice,
+      // so that the frame is the third of the three states with its rows carrying the mark the server gave them.
+      bool seenAsked = false;
       HomeViewModel? home = null;
       ConnectionViewModel? connection = null;
       string playbackStatus = "";
@@ -275,7 +279,8 @@ namespace FrontendProbe
       }
       else if (screenName.Equals("browser", StringComparison.Ordinal)
           || screenName.Equals("details", StringComparison.Ordinal)
-          || screenName.Equals("search", StringComparison.Ordinal))
+          || screenName.Equals("search", StringComparison.Ordinal)
+          || screenName.Equals("seen", StringComparison.Ordinal))
       {
         if (online)
           Console.WriteLine("note:     --server belongs to the home screen; the title list is scripted instead");
@@ -304,12 +309,13 @@ namespace FrontendProbe
 
         detailsAsked = screenName.Equals("details", StringComparison.Ordinal);
         searchAsked = screenName.Equals("search", StringComparison.Ordinal);
+        seenAsked = screenName.Equals("seen", StringComparison.Ordinal);
         window = new MediaBrowserWindow(browser, null);
       }
       else
       {
         return Usage("unknown screen '" + screenName + "'; this probe renders home, nowplaying, connect, browser,"
-            + " details or search.");
+            + " details, search or seen.");
       }
 
       window.Width = width;
@@ -411,6 +417,47 @@ namespace FrontendProbe
         if (!list.HasSearch || list.Titles.Count == 0 || list.Titles.Count >= before)
         {
           Console.WriteLine("FAILED:   the list did not get shorter, so the frame would only be the whole shelf again.");
+          return 1;
+        }
+      }
+
+      if (seenAsked && window is MediaBrowserWindow seenScreen)
+      {
+        // Two presses, because the frame wanted is the state that shows both halves of the feature at once: the
+        // list filtered to what was watched, and the rows of that list carrying the mark that says so. The key is
+        // raised on the window in the same way a remote sends it, so the frame is evidence about the key, the
+        // question the screen asked with it, and the answer it drew.
+        MediaBrowserViewModel shelf = (MediaBrowserViewModel) seenScreen.DataContext!;
+        int before = shelf.Titles.Count;
+
+        ListBox rows = Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(seenScreen)
+            .OfType<ListBox>().First(list => list.Name == "titlesList");
+        rows.Focus();
+        for (int press = 0; press < 2; press++)
+        {
+          seenScreen.RaiseEvent(new KeyEventArgs
+          {
+            RoutedEvent = InputElement.KeyDownEvent,
+            Key = Key.W,
+            Source = rows
+          });
+          Pump(TimeSpan.FromMilliseconds(250));
+        }
+        Pump(TimeSpan.FromMilliseconds(250));
+
+        MediaBrowserViewModel list = (MediaBrowserViewModel) seenScreen.DataContext!;
+        int marked = list.Titles.Count(title => title.Seen);
+        Console.WriteLine("seen:     filter '" + list.ActiveSeen + "' left " + list.Titles.Count + " of " + before
+            + " scripted title(s), " + marked + " of them marked - " + list.Status);
+
+        if (!list.HasSeenFilter || list.ActiveSeen != "watched")
+        {
+          Console.WriteLine("FAILED:   the watched key did not reach the third state, so the frame is not the filtered list.");
+          return 1;
+        }
+        if (list.Titles.Count == 0 || list.Titles.Count >= before || marked != list.Titles.Count)
+        {
+          Console.WriteLine("FAILED:   the filtered rows are not the watched ones, so the frame proves nothing about the mark.");
           return 1;
         }
       }
@@ -553,6 +600,27 @@ namespace FrontendProbe
           "Salt and Static", "A Room Facing East"
       };
 
+      /// <summary>
+      /// Which of the twelve the library was told had been watched to the end: the index into <see cref="NAMES"/>,
+      /// how often, and when last. Three of twelve is what a shelf looks like after a weekend of television, and it
+      /// leaves nine rows to draw the other state.
+      /// </summary>
+      private static readonly Dictionary<int, (int PlayCount, DateTime LastPlayed)> FINISHED =
+          new Dictionary<int, (int PlayCount, DateTime LastPlayed)>
+          {
+              { 0, (2, new DateTime(2025, 1, 12, 21, 30, 0)) },
+              { 2, (1, new DateTime(2024, 11, 3, 20, 0, 0)) },
+              { 6, (1, new DateTime(2025, 2, 8, 19, 15, 0)) }
+          };
+
+      /// <summary>
+      /// One title somebody stopped halfway: a date in the library and no finished viewing behind it. It belongs in
+      /// the script because "watched" and "was opened once" are different statements, and a row that shows a tick on
+      /// the second one is showing the viewer a film they still have to watch.
+      /// </summary>
+      private static readonly Dictionary<int, DateTime> STOPPED_HALFWAY =
+          new Dictionary<int, DateTime> { { 4, new DateTime(2025, 3, 1, 22, 5, 0) } };
+
       protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
           CancellationToken cancellation)
       {
@@ -582,29 +650,44 @@ namespace FrontendProbe
 
         List<MediaTitle> titles = new List<MediaTitle>();
 
-        // A searched shelf, if the request asked for one. Filtered here in the same shape a real library answers
-        // in - matching titles, echoing the words back - because the frame is about what the screen does with a
-        // filtered answer, and the answer it is given has to be the answer a search produces.
-        string finding = FindingIn(request.RequestUri.Query);
+        // A searched and/or filtered shelf, if the request asked for one. Answered here in the same shape a real
+        // library answers in - matching titles, echoing the words and the filter back - because the frame is about
+        // what the screen does with a filtered answer, and the answer it is given has to be the answer a filtered
+        // question produces.
+        string finding = ParameterIn(request.RequestUri.Query, "search");
+        string seeing = ParameterIn(request.RequestUri.Query, "seen");
         List<string> matching = new List<string>();
         foreach (string name in NAMES)
         {
-          if (finding == null || name.IndexOf(finding, StringComparison.OrdinalIgnoreCase) >= 0)
-            matching.Add(name);
+          if (finding != null && name.IndexOf(finding, StringComparison.OrdinalIgnoreCase) < 0)
+            continue;
+
+          bool finished = FINISHED.ContainsKey(Array.IndexOf(NAMES, name));
+          if (seeing == "watched" && !finished)
+            continue;
+          if (seeing == "unwatched" && finished)
+            continue;
+
+          matching.Add(name);
         }
 
         for (int i = 0; i < matching.Count; i++)
         {
           int scripted = Array.IndexOf(NAMES, matching[i]);
+          FINISHED.TryGetValue(scripted, out (int PlayCount, DateTime LastPlayed) viewing);
+          DateTime? lastPlayed = viewing.PlayCount > 0
+              ? viewing.LastPlayed
+              : STOPPED_HALFWAY.TryGetValue(scripted, out DateTime stopped) ? stopped : (DateTime?) null;
+
           titles.Add(new MediaTitle(
               new Guid(string.Format("00000000-0000-4000-8000-{0:D12}", scripted + 1)),
               matching[i], matching[i], 2011 + scripted, 88 + scripted * 3,
               "{D3525B2F-7322-430C-87E7-CDA8EBD6EDD2}://" + Path.Combine(folder, matching[i] + ".mkv"),
-              false));
+              false, viewing.PlayCount, lastPlayed));
         }
 
         MediaTitles page = new MediaTitles("MovieItem", null, matching.Count, 0, matching.Count, matching.Count,
-            "title", titles, null, finding);
+            "title", titles, null, finding, seeing);
 
         return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
         {
@@ -613,16 +696,20 @@ namespace FrontendProbe
         });
       }
 
-      /// <summary>The words in <c>?search=...</c>, or <c>null</c> when the request asked for the whole shelf.</summary>
-      private static string FindingIn(string query)
+      /// <summary>
+      /// The value of one query parameter, or <c>null</c> when the request did not carry it. Written against the
+      /// wire format rather than against <see cref="Uri.ParseQuery"/>, because what matters here is that the
+      /// screen's own URL survives the trip.
+      /// </summary>
+      private static string ParameterIn(string? query, string name)
       {
         if (string.IsNullOrEmpty(query))
           return null;
 
-        foreach (string pair in query.TrimStart('?').Split('&'))
+        foreach (string pair in query!.TrimStart('?').Split('&'))
         {
           int equals = pair.IndexOf('=');
-          if (equals > 0 && pair.Substring(0, equals) == "search")
+          if (equals > 0 && pair.Substring(0, equals) == name)
             return Uri.UnescapeDataString(pair.Substring(equals + 1));
         }
         return null;

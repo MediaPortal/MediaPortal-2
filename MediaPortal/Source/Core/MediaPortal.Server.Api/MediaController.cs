@@ -116,6 +116,19 @@ namespace MediaPortal.Server.Api
       /// Said apart from "no path" because a viewer wants to know that the film is known, not lost.
       /// </summary>
       public bool Stub { get; set; }
+
+      /// <summary>
+      /// How often the library was told this title was played to the end, or null when it holds no Media aspect.
+      /// Zero means "never finished", which is not the same as "never opened" - <see cref="LastPlayed"/> says that.
+      /// </summary>
+      public int? PlayCount { get; set; }
+
+      /// <summary>
+      /// When the title was last played, or null when the library was never told. Carried in the list rather than
+      /// only in the item because a viewer scanning a shelf reads "seen" from the row, not from a panel opened per
+      /// title.
+      /// </summary>
+      public DateTime? LastPlayed { get; set; }
     }
 
     /// <summary>
@@ -152,6 +165,13 @@ namespace MediaPortal.Server.Api
       /// </summary>
       public string Search { get; set; }
 
+      /// <summary>
+      /// How the answer was filtered by watched state: <c>unwatched</c>, <c>watched</c>, or null when every title
+      /// was wanted. Echoed for the same reason as <see cref="Search"/>: a one-row list has to say whether it is a
+      /// short shelf or a filter the viewer forgot about.
+      /// </summary>
+      public string Seen { get; set; }
+
       public List<TitleResult> Titles { get; set; }
 
       /// <summary>
@@ -172,9 +192,14 @@ namespace MediaPortal.Server.Api
     /// Words to look for. The answer then holds only the titles of this aspect that carry the words somewhere in
     /// their short text - the <c>search</c> field of the answer says what was asked for.
     /// </param>
+    /// <param name="seen">
+    /// <c>unwatched</c> for the titles nobody has finished, <c>watched</c> for the ones somebody has, anything else
+    /// - including nothing - for both. The <c>seen</c> field of the answer says which of the three was applied.
+    /// </param>
     [HttpGet("titles")]
     public ActionResult<TitlesResult> GetTitles([FromQuery] string aspect, [FromQuery] string sort,
-        [FromQuery] string order, [FromQuery] int limit, [FromQuery] int offset, [FromQuery] string search)
+        [FromQuery] string order, [FromQuery] int limit, [FromQuery] int offset, [FromQuery] string search,
+        [FromQuery] string seen)
     {
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
       if (mediaLibrary == null)
@@ -218,6 +243,26 @@ namespace MediaPortal.Server.Api
         // that the viewer cleared should show the whole shelf again rather than an empty one.
         string finding = string.IsNullOrWhiteSpace(search) ? null : search.Trim();
 
+        // Whether the viewer has finished a title is a question MP2 already answers with one condition on the
+        // number this server itself wrote when a front end reported the end of a film: its own
+        // BaseLastWatchedMediaListProvider filters PlayCount > 0 and BaseUnwatchedMediaListProvider PlayCount = 0
+        // (BaseUnwatchedMediaListProvider.cs:45). The two conditions here are those two.
+        //
+        // The unwatched one needs a second half that MP2's provider does not, because PlayCount can be null rather
+        // than zero: an imported film nobody has opened has never had anything written to that column, and a
+        // condition of "PlayCount = 0" is not true about a column that holds nothing - in SQL it is unknown, and an
+        // unknown in a WHERE clause throws the title out of the list. That would mean a brand new library reporting
+        // "no unwatched titles", which is the one answer a viewer can tell is wrong. EmptyFilter compiles to
+        // "IS NULL" (CompiledFilter.cs:255), so the two together mean "nothing was ever written here, or zero was".
+        string seeing = ReadSeen(seen);
+        IFilter seenFilter = null;
+        if (seeing == "watched")
+          seenFilter = new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.GT, 0);
+        else if (seeing == "unwatched")
+          seenFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
+              new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.EQ, 0),
+              new EmptyFilter(MediaAspect.ATTR_PLAYCOUNT));
+
         // MP2 already knows how to look for words in the library, and it is not "compare the title":
         // BuildSimpleTextSearchQuery asks the database whether any of the short text attributes of the aspects
         // being asked about carry the words, which is what typing "star trek" has to mean - a film is found under
@@ -228,8 +273,8 @@ namespace MediaPortal.Server.Api
         // out, because every film whose plot mentions "spaceship" is not what a search for it asked for, and the
         // match is not case sensitive, because a remote control has no shift key.
         MediaItemQuery query = finding == null
-            ? new MediaItemQuery(necessary, optional, null)
-            : mediaLibrary.BuildSimpleTextSearchQuery(finding, necessary, optional, null, false, false);
+            ? new MediaItemQuery(necessary, optional, seenFilter)
+            : mediaLibrary.BuildSimpleTextSearchQuery(finding, necessary, optional, seenFilter, false, false);
 
         string sortBy = ReadSort(sort);
         ISortInformation sortInformation = BuildSort(sortBy, order);
@@ -260,6 +305,7 @@ namespace MediaPortal.Server.Api
           Returned = titles.Count,
           Sort = sortBy + (IsDescending(order) ? " descending" : ""),
           Search = finding,
+          Seen = seeing,
           Titles = titles
         };
       }
@@ -643,9 +689,29 @@ namespace MediaPortal.Server.Api
     {
       if (string.Equals(sort, "year", StringComparison.OrdinalIgnoreCase))
         return "year";
+      if (string.Equals(sort, "lastplayed", StringComparison.OrdinalIgnoreCase))
+        return "lastplayed";
       if (string.Equals(sort, "none", StringComparison.OrdinalIgnoreCase))
         return "none";
       return "title";
+    }
+
+    /// <summary>
+    /// The watched filter a request asked for, as the three words this endpoint answers with.
+    /// </summary>
+    /// <remarks>
+    /// Anything that is not one of the two named filters means "both", which is also what a misspelling means. A
+    /// front end that asked for <c>seen=unwatched</c> gets <c>unwatched</c> back in the answer, so the difference
+    /// between the two readings of a one-row list - a short shelf, or a filter nobody remembers - is a field
+    /// rather than a guess.
+    /// </remarks>
+    private static string ReadSeen(string seen)
+    {
+      if (string.Equals(seen, "unwatched", StringComparison.OrdinalIgnoreCase))
+        return "unwatched";
+      if (string.Equals(seen, "watched", StringComparison.OrdinalIgnoreCase))
+        return "watched";
+      return null;
     }
 
     private static bool IsDescending(string order)
@@ -663,6 +729,11 @@ namespace MediaPortal.Server.Api
           return new AttributeSortInformation(MediaAspect.ATTR_SORT_TITLE, direction);
         case "year":
           return new AttributeSortInformation(MediaAspect.ATTR_RECORDINGTIME, direction);
+        case "lastplayed":
+          // Newest viewing first, which is the order a "what was I watching" list wants. A title nobody ever
+          // opened has nothing in that column; where it lands among them is the database's idea of sorting
+          // nothing, not this endpoint's, and that is why a continue-watching list asks for watched titles.
+          return new AttributeSortInformation(MediaAspect.ATTR_LASTPLAYED, direction);
         default:
           return null;
       }
@@ -683,6 +754,14 @@ namespace MediaPortal.Server.Api
         DateTime recordingTime = media.GetAttributeValue<DateTime>(MediaAspect.ATTR_RECORDINGTIME);
         if (recordingTime != DateTime.MinValue)
           result.Year = recordingTime.Year;
+
+        // Whether the viewer has seen this one, which they read off the row rather than off a panel opened per
+        // title. Both numbers live on the Media aspect, which a title list asks for on every item anyway, so
+        // saying them here costs no second read of the database.
+        result.PlayCount = media.GetAttributeValue<int>(MediaAspect.ATTR_PLAYCOUNT);
+        DateTime lastPlayed = media.GetAttributeValue<DateTime>(MediaAspect.ATTR_LASTPLAYED);
+        if (lastPlayed != DateTime.MinValue)
+          result.LastPlayed = lastPlayed;
       }
 
       // "<Unknown>" is what MediaItem.Title falls back to. Said as null here, because a client that shows the

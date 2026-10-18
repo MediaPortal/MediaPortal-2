@@ -1772,6 +1772,14 @@ rather than passing with a picture of the unfiltered shelf. It is committed as
 `docs\multiplatform\screenshots\search-windows-skia.png`. Sampling the pixel band where list rows three and deeper
 would be says the same thing without the probe's help: 338 distinct colours on the unfiltered frame, one on the
 search frame.
+The seventh frame is the same list after the watched key was pressed twice (`seen-windows.png`): three rows, each
+carrying the tick in front of its name, the button reading "Watched only" and the status line saying
+"3 of 3 watched films". The probe refuses the picture unless the filter really reached the third state and every
+row that survived carries a mark. The tick can also be measured rather than trusted: sampling the mark column of
+the *unfiltered* shelf frame row by row gives 46-58 bright pixels on rows one, three and seven and zero on every
+other row - the three titles the script says were watched to the end, and notably not the one whose last-played
+date came from stopping it halfway, which is the distinction the whole feature turns on. It is committed as
+`docs\multiplatform\screenshots\seen-windows-skia.png`.
 `test-frontend-linux.ps1 -ServeFromHost` starts
 `MP2-Server-Headless` on this machine, waits until it really serves aspects (measured: a just-started server answers
 `200` with an *empty* list, and 25 aspects about a second later), and passes `MP2_SERVER` to the container as

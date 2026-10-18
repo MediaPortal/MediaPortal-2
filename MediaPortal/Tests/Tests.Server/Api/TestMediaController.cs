@@ -189,8 +189,15 @@ namespace Tests.Server.Api
         string order, int limit, int offset, string search,
         out ActionResult<MediaController.TitlesResult> action)
     {
+      return GetTitles(library, aspect, sort, order, limit, offset, search, null, out action);
+    }
+
+    private static MediaController.TitlesResult GetTitles(IMediaLibrary library, string aspect, string sort,
+        string order, int limit, int offset, string search, string seen,
+        out ActionResult<MediaController.TitlesResult> action)
+    {
       ServiceRegistration.Set<IMediaLibrary>(library);
-      action = new MediaController().GetTitles(aspect, sort, order, limit, offset, search);
+      action = new MediaController().GetTitles(aspect, sort, order, limit, offset, search, seen);
       return Body(action);
     }
 
@@ -279,7 +286,7 @@ namespace Tests.Server.Api
     public void NoMediaLibraryAnswersServiceUnavailable()
     {
       ActionResult<MediaController.TitlesResult> action =
-          new MediaController().GetTitles("MovieItem", null, null, 0, 0, null);
+          new MediaController().GetTitles("MovieItem", null, null, 0, 0, null, null);
       Assert.That(Status(action), Is.EqualTo(StatusCodes.Status503ServiceUnavailable),
           "the resource server starts before the media library does, so too early has to mean try again");
     }
@@ -314,7 +321,7 @@ namespace Tests.Server.Api
       ServiceRegistration.Set<IMediaLibrary>(library.Object);
 
       ActionResult<MediaController.TitlesResult> action =
-          new MediaController().GetTitles("MovieItem", null, null, 0, 0, null);
+          new MediaController().GetTitles("MovieItem", null, null, 0, 0, null, null);
       Assert.That(Status(action), Is.EqualTo(StatusCodes.Status503ServiceUnavailable));
       Assert.That(Body(action).Error, Does.Contain("initializing"),
           "the server's reason is passed through rather than swallowed");
@@ -1045,6 +1052,208 @@ namespace Tests.Server.Api
 
       Assert.That(Status(action), Is.EqualTo(404));
       Assert.That(questions, Is.Empty, "the question is refused here rather than passed on to be answered with nothing");
+    }
+
+    #endregion
+
+    #region What a watched filter asks the library
+
+    /// <summary>
+    /// A library that writes down the query it was asked to run and the condition its total was counted through.
+    /// </summary>
+    /// <remarks>
+    /// Separate from <see cref="CreateLibrary"/> because that one is set up strictly for the no-filter call, and a
+    /// watched filter is a condition - a stub that only answers "no condition" would let an endpoint that forgot to
+    /// pass the filter through look as if it had passed it.
+    /// </remarks>
+    private static IMediaLibrary WatchedLibrary(IList<MediaItem> items, int matches,
+        out List<MediaItemQuery> asked, out List<IFilter> countedThrough)
+    {
+      List<MediaItemQuery> questions = new List<MediaItemQuery>();
+      List<IFilter> counts = new List<IFilter>();
+
+      var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+      library.Setup(get => get.GetManagedMediaItemAspectMetadata()).Returns(
+          new Dictionary<Guid, MediaItemAspectMetadata>
+          {
+              { MediaAspect.ASPECT_ID, MediaAspect.Metadata },
+              { MovieAspect.ASPECT_ID, MovieAspect.Metadata }
+          });
+      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, null, false))
+          .Callback<MediaItemQuery, bool, Guid?, bool>(
+              (query, online, profile, virtualItems) => questions.Add(query))
+          .Returns(items);
+      library.Setup(get => get.CountMediaItems(It.IsAny<IEnumerable<Guid>>(), It.IsAny<IFilter>(), false, false))
+          .Callback<IEnumerable<Guid>, IFilter, bool, bool>(
+              (necessary, filter, online, virtualItems) => counts.Add(filter))
+          .Returns(matches);
+
+      asked = questions;
+      countedThrough = counts;
+      return library.Object;
+    }
+
+    /// <summary>
+    /// One title as a library that was told about a viewing looks: the media aspect carrying the play count and
+    /// the date.
+    /// </summary>
+    private static MediaItem CreateSeenItem(Guid id, string title, int playCount, DateTime lastPlayed)
+    {
+      SingleMediaItemAspect media = CreateMediaAspect(title, title, new DateTime(2020, 1, 1));
+      media.SetAttribute(MediaAspect.ATTR_PLAYCOUNT, playCount);
+      if (lastPlayed != DateTime.MinValue)
+        media.SetAttribute(MediaAspect.ATTR_LASTPLAYED, lastPlayed);
+
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>
+      {
+          { MediaAspect.ASPECT_ID, new List<MediaItemAspect> { media } }
+      };
+      return new TestItem(id, aspects, null, false);
+    }
+
+    [Test]
+    public void AWatchedListIsTheLibrarysOwnPlayCountCondition()
+    {
+      List<MediaItemQuery> asked;
+      List<IFilter> counted;
+      IMediaLibrary library = WatchedLibrary(new List<MediaItem>(), 3, out asked, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      MediaController.TitlesResult result =
+          GetTitles(library, "MovieItem", null, null, 0, 0, null, "watched", out action);
+
+      RelationalFilter condition = (RelationalFilter) asked[0].Filter;
+      Assert.That(condition.AttributeType, Is.SameAs(MediaAspect.ATTR_PLAYCOUNT),
+          "the same column MP2's own last-watched list filters on, not one invented for this endpoint");
+      Assert.That(condition.Operator, Is.EqualTo(RelationalOperator.GT));
+      Assert.That(condition.FilterValue, Is.EqualTo(0));
+      Assert.That(result.Seen, Is.EqualTo("watched"));
+    }
+
+    [Test]
+    public void AnUnwatchedListAlsoAsksForATitleNobodyEverOpened()
+    {
+      List<MediaItemQuery> asked;
+      List<IFilter> counted;
+      IMediaLibrary library = WatchedLibrary(new List<MediaItem>(), 400, out asked, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      GetTitles(library, "MovieItem", null, null, 0, 0, null, "unwatched", out action);
+
+      BooleanCombinationFilter combined = (BooleanCombinationFilter) asked[0].Filter;
+      Assert.That(combined.Operator, Is.EqualTo(BooleanOperator.Or));
+
+      RelationalFilter zero = combined.Operands.OfType<RelationalFilter>().Single();
+      Assert.That(zero.AttributeType, Is.SameAs(MediaAspect.ATTR_PLAYCOUNT));
+      Assert.That(zero.Operator, Is.EqualTo(RelationalOperator.EQ),
+          "MP2's own unwatched condition: a play count of zero");
+      Assert.That(zero.FilterValue, Is.EqualTo(0));
+
+      EmptyFilter nothing = combined.Operands.OfType<EmptyFilter>().Single();
+      Assert.That(nothing.AttributeType, Is.SameAs(MediaAspect.ATTR_PLAYCOUNT),
+          "and the half a freshly imported library needs: a title nobody ever opened has nothing written in that "
+          + "column at all, and a condition of \"equals zero\" is not true about nothing - without this half, a "
+          + "brand new library answers \"no unwatched titles\", which is the one answer a viewer knows is wrong");
+    }
+
+    [Test]
+    public void AFilterNobodyNamedAsksTheLibraryForNothing()
+    {
+      List<MediaItemQuery> asked;
+      List<IFilter> counted;
+      IMediaLibrary library = WatchedLibrary(new List<MediaItem>(), 10, out asked, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      MediaController.TitlesResult unnamed =
+          GetTitles(library, "MovieItem", null, null, 0, 0, null, null, out action);
+      Assert.That(asked[0].Filter, Is.Null, "both halves of the shelf, which is what a screen shows by default");
+      Assert.That(unnamed.Seen, Is.Null);
+
+      MediaController.TitlesResult misspelled =
+          GetTitles(library, "MovieItem", null, null, 0, 0, null, "half-seen", out action);
+      Assert.That(asked[1].Filter, Is.Null,
+          "a word this endpoint does not know is not a filter; asking for the whole shelf is the safe reading of "
+          + "a request that cannot be honoured, and the echo says so");
+      Assert.That(misspelled.Seen, Is.Null, "and the answer never claims a filter it did not apply");
+    }
+
+    [Test]
+    public void TheSizeOfAWatchedListIsCountedThroughTheSameFilter()
+    {
+      List<MediaItemQuery> asked;
+      List<IFilter> counted;
+      IMediaLibrary library = WatchedLibrary(new List<MediaItem>(), 7, out asked, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      GetTitles(library, "MovieItem", null, null, 0, 0, null, "unwatched", out action);
+
+      Assert.That(counted, Has.Count.EqualTo(1));
+      Assert.That(counted[0], Is.SameAs(asked[0].Filter),
+          "the total a front end shows and the list it shows have to be answers to one question, or \"7 of 3443 "
+          + "unwatched films\" would be counting the whole shelf behind a filtered list");
+    }
+
+    [Test]
+    public void AWatchedTitleCarriesItsFiguresIntoItsRow()
+    {
+      Guid seenId = Guid.NewGuid();
+      Guid freshId = Guid.NewGuid();
+      List<MediaItemQuery> asked;
+      IMediaLibrary library = WatchedLibrary(new List<MediaItem>
+      {
+          CreateSeenItem(seenId, "Alien Earth", 2, new DateTime(2025, 4, 27, 20, 15, 0)),
+          CreateSeenItem(freshId, "Silent Title", 0, DateTime.MinValue)
+      }, 2, out asked, out _);
+
+      ActionResult<MediaController.TitlesResult> action;
+      MediaController.TitlesResult result =
+          GetTitles(library, "MovieItem", null, null, 0, 0, null, null, out action);
+
+      MediaController.TitleResult seen = result.Titles.Single(title => title.Id == seenId);
+      Assert.That(seen.PlayCount, Is.EqualTo(2));
+      Assert.That(seen.LastPlayed, Is.EqualTo(new DateTime(2025, 4, 27, 20, 15, 0)));
+
+      MediaController.TitleResult fresh = result.Titles.Single(title => title.Id == freshId);
+      Assert.That(fresh.PlayCount, Is.EqualTo(0), "never finished, which a screen marks as unseen");
+      Assert.That(fresh.LastPlayed, Is.Null,
+          "and a title that was never opened says no date rather than showing the year 1 on screen");
+    }
+
+    [Test]
+    public void AWordAndAWatchedFilterAreAskedAsOneQuestion()
+    {
+      List<Question> questions;
+      List<IFilter> counted;
+      IMediaLibrary library = SearchingLibrary(new List<MediaItem>(), 1, out questions, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      GetTitles(library, "MovieItem", null, null, 0, 0, "alien", "unwatched", out action);
+
+      Assert.That(questions, Has.Count.EqualTo(1),
+          "a filtered search is one question to the library, not two that have to be joined here");
+      Assert.That(questions[0].Words, Is.EqualTo("alien"));
+
+      BooleanCombinationFilter extra = (BooleanCombinationFilter) questions[0].Extra;
+      Assert.That(extra, Is.Not.Null, "the watched condition travels into the library's own search builder");
+      Assert.That(extra.Operands.OfType<EmptyFilter>().Any(), Is.True,
+          "with the same second half, so that a search among unwatched titles finds the ones nobody ever opened");
+    }
+
+    [Test]
+    public void TheViewerCanSortByWhenItWasLastPlayed()
+    {
+      List<MediaItemQuery> asked;
+      IMediaLibrary library = WatchedLibrary(new List<MediaItem>(), 2, out asked, out _);
+
+      ActionResult<MediaController.TitlesResult> action;
+      MediaController.TitlesResult result =
+          GetTitles(library, "MovieItem", "lastplayed", "desc", 0, 0, null, "watched", out action);
+
+      AttributeSortInformation sort = (AttributeSortInformation) asked[0].SortInformation[0];
+      Assert.That(sort.AttributeType, Is.SameAs(MediaAspect.ATTR_LASTPLAYED));
+      Assert.That(sort.Direction, Is.EqualTo(SortDirection.Descending),
+          "the most recent viewing first, which is the only order a \"what was I watching\" list wants");
+      Assert.That(result.Sort, Is.EqualTo("lastplayed descending"));
     }
 
     #endregion

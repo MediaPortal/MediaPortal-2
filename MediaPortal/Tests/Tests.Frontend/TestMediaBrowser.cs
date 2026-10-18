@@ -802,7 +802,7 @@ namespace Tests.Frontend
 
       MediaTitles titles = Task.Run(delegate
       {
-        return client.GetTitlesAsync("MediaItem", null, false, 60, 0, null, CancellationToken.None);
+        return client.GetTitlesAsync("MediaItem", null, false, 60, 0, null, null, CancellationToken.None);
       })
           .GetAwaiter().GetResult();
 
@@ -966,7 +966,7 @@ namespace Tests.Frontend
       {
         MediaTitles answer = Task.Run(delegate
         {
-          return client.GetTitlesAsync("MovieItem", null, false, 60, 0, "alien", CancellationToken.None);
+          return client.GetTitlesAsync("MovieItem", null, false, 60, 0, "alien", null, CancellationToken.None);
         }).GetAwaiter().GetResult();
 
         Assert.That(server.Question, Is.EqualTo("alien"));
@@ -984,7 +984,7 @@ namespace Tests.Frontend
       {
         Task.Run(delegate
         {
-          return client.GetTitlesAsync("MovieItem", null, false, 60, 0, "R&D 2 + 2", CancellationToken.None);
+          return client.GetTitlesAsync("MovieItem", null, false, 60, 0, "R&D 2 + 2", null, CancellationToken.None);
         }).GetAwaiter().GetResult();
 
         Assert.That(server.LastUrl, Does.Contain("search=R%26D%202%20%2B%202"),
@@ -1113,6 +1113,260 @@ namespace Tests.Frontend
       WaitUntil("the shelf back", delegate { return browser.Titles.Count == SHELF.Length; });
       Assert.That(window.IsVisible, Is.True,
           "the first back undid the search rather than leaving the screen; the search was the newest thing");
+    }
+
+    #endregion
+
+    #region What the list knows about what was watched
+
+    /// <summary>
+    /// One row of the shelf this region runs on, with the two figures the library keeps about watching it.
+    /// </summary>
+    private class ShelfTitle
+    {
+      internal ShelfTitle(string name, int playCount, string lastPlayed)
+      {
+        Name = name;
+        PlayCount = playCount;
+        LastPlayed = lastPlayed;
+      }
+
+      internal string Name { get; }
+
+      internal int PlayCount { get; }
+
+      /// <summary>ISO date as JSON carries it, or <c>null</c> for a title the library was never told about.</summary>
+      internal string LastPlayed { get; }
+    }
+
+    private static readonly ShelfTitle[] SEEN_SHELF =
+    {
+        new ShelfTitle("Alien", 2, "1979-05-25T20:15:00"),
+        new ShelfTitle("Alien Earth", 0, null),
+        new ShelfTitle("Army of Thieves", 0, "2024-03-03T18:00:00"),
+        new ShelfTitle("Nimmerland", 1, "2025-01-12T21:30:00")
+    };
+
+    /// <summary>
+    /// A server that answers the watched filter the way the library does - by leaving out the titles the condition
+    /// does not describe - and remembers the word it was asked with.
+    /// </summary>
+    private class SeenServer : HttpMessageHandler
+    {
+      internal string Filter { get; private set; }
+
+      internal string LastUrl { get; private set; }
+
+      internal int TimesAsked { get; private set; }
+
+      protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+          CancellationToken cancellation)
+      {
+        TimesAsked++;
+        LastUrl = request.RequestUri.PathAndQuery;
+        Filter = ParameterIn(request.RequestUri.Query, "seen");
+
+        List<ShelfTitle> matching = new List<ShelfTitle>();
+        foreach (ShelfTitle title in SEEN_SHELF)
+        {
+          if (Filter == "watched" && title.PlayCount <= 0)
+            continue;
+          if (Filter == "unwatched" && title.PlayCount > 0)
+            continue;
+          matching.Add(title);
+        }
+
+        StringBuilder body = new StringBuilder();
+        body.Append("{\"total\":").Append(matching.Count)
+            .Append(",\"offset\":0,\"limit\":60,\"returned\":").Append(matching.Count)
+            .Append(",\"sort\":\"title\"");
+        if (Filter != null)
+          body.Append(",\"seen\":\"").Append(Filter).Append("\"");
+
+        body.Append(",\"titles\":[");
+        for (int i = 0; i < matching.Count; i++)
+        {
+          if (i > 0)
+            body.Append(',');
+          body.Append("{\"id\":\"").Append(new Guid(1, 0, 4, new byte[] { 128, 0, 0, 0, 0, 0, 0, (byte) i }))
+              .Append("\",\"title\":\"").Append(matching[i].Name).Append("\"")
+              .Append(",\"year\":2000")
+              .Append(",\"playCount\":").Append(matching[i].PlayCount);
+          if (matching[i].LastPlayed != null)
+            body.Append(",\"lastPlayed\":\"").Append(matching[i].LastPlayed).Append("\"");
+          body.Append('}');
+        }
+        body.Append("]}");
+
+        return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+        {
+          RequestMessage = request,
+          Content = new StringContent(body.ToString(), Encoding.UTF8, "application/json")
+        });
+      }
+
+      /// <summary>The value of one query parameter, or <c>null</c> when the request did not carry it.</summary>
+      private static string ParameterIn(string query, string name)
+      {
+        if (string.IsNullOrEmpty(query))
+          return null;
+
+        foreach (string pair in query.TrimStart('?').Split('&'))
+        {
+          int equals = pair.IndexOf('=');
+          if (equals > 0 && pair.Substring(0, equals) == name)
+            return Uri.UnescapeDataString(pair.Substring(equals + 1));
+        }
+        return null;
+      }
+    }
+
+    private static MediaBrowserViewModel BrowserOn(SeenServer server)
+    {
+      return new MediaBrowserViewModel(
+          new ServerApiClient(SIGN_IN_URL, new HttpClient(server)), MoviesSection);
+    }
+
+    [Test]
+    public void TheWatchedFiguresArriveWithTheTitle()
+    {
+      SeenServer server = new SeenServer();
+      using (var client = new ServerApiClient(SIGN_IN_URL, new HttpClient(server)))
+      {
+        MediaTitles answer = Task.Run(delegate
+        {
+          return client.GetTitlesAsync("MovieItem", null, false, 60, 0, null, "watched", CancellationToken.None);
+        }).GetAwaiter().GetResult();
+
+        Assert.That(server.Filter, Is.EqualTo("watched"), "the word travels as the server's own two words");
+        Assert.That(answer.Seen, Is.EqualTo("watched"), "and comes back attached to the answer");
+
+        MediaTitle alien = answer.Titles.Single(title => title.Title == "Alien");
+        Assert.That(alien.PlayCount, Is.EqualTo(2));
+        Assert.That(alien.LastPlayed, Is.EqualTo(new DateTime(1979, 5, 25, 20, 15, 0)));
+      }
+    }
+
+    [AvaloniaTest]
+    public void ARowIsMarkedSeenOnlyWhenTheLibrarySaysItWasFinished()
+    {
+      SeenServer server = new SeenServer();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.OpenCommand.Execute(null);
+      WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SEEN_SHELF.Length; });
+
+      TitleViewModel twice = browser.Titles.Single(title => title.Name == "Alien");
+      Assert.That(twice.Seen, Is.True);
+      Assert.That(twice.SeenMark, Is.EqualTo("\u2713"), "a title finished twice is still one tick, not two");
+
+      TitleViewModel started = browser.Titles.Single(title => title.Name == "Army of Thieves");
+      Assert.That(started.Seen, Is.False,
+          "a date in the library without a finished viewing behind it is somebody who stopped halfway, and a tick "
+          + "on that row would be a lie about a title they still have to watch");
+      Assert.That(started.SeenMark, Is.Empty);
+
+      TitleViewModel never = browser.Titles.Single(title => title.Name == "Alien Earth");
+      Assert.That(never.Seen, Is.False, "and a title the library never heard of plays the same way");
+    }
+
+    [AvaloniaTest]
+    public void OneKeyPressAsksTheServerForWhatIsLeftToWatch()
+    {
+      SeenServer server = new SeenServer();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.OpenCommand.Execute(null);
+      WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SEEN_SHELF.Length; });
+
+      browser.CycleSeenCommand.Execute(null);
+      WaitUntil("the unwatched titles", delegate { return browser.Titles.Count == 2; });
+
+      Assert.That(server.Filter, Is.EqualTo("unwatched"),
+          "the shelf is filtered where it is stored, because the two titles left are on pages nobody has read");
+      Assert.That(browser.Titles.Select(title => title.Name),
+          Is.EqualTo(new[] { "Alien Earth", "Army of Thieves" }));
+      Assert.That(browser.Status, Is.EqualTo("2 of 2 unwatched movies, sorted by title"),
+          "and the status line admits it filtered, so a short list is never mistaken for a small library");
+      Assert.That(browser.SeenLabel, Is.EqualTo("Unwatched only"));
+    }
+
+    [AvaloniaTest]
+    public void TheFilterWalksRoundBackToEverything()
+    {
+      SeenServer server = new SeenServer();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.OpenCommand.Execute(null);
+      WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SEEN_SHELF.Length; });
+      Assert.That(browser.SeenLabel, Is.EqualTo("All titles"));
+
+      browser.CycleSeenCommand.Execute(null);
+      WaitUntil("the unwatched titles", delegate { return browser.Titles.Count == 2; });
+
+      browser.CycleSeenCommand.Execute(null);
+      WaitUntil("the watched titles", delegate { return browser.Titles.Count == 2 && server.Filter == "watched"; });
+      Assert.That(browser.Titles.Select(title => title.Name), Is.EqualTo(new[] { "Alien", "Nimmerland" }));
+      Assert.That(browser.SeenLabel, Is.EqualTo("Watched only"));
+
+      browser.CycleSeenCommand.Execute(null);
+      WaitUntil("the whole shelf back", delegate { return browser.Titles.Count == SEEN_SHELF.Length; });
+      Assert.That(server.Filter, Is.Null, "the third press asks the question the screen started with");
+      Assert.That(browser.SeenLabel, Is.EqualTo("All titles"));
+      Assert.That(browser.HasSeenFilter, Is.False);
+    }
+
+    [AvaloniaTest]
+    public void TheWatchedFilterTravelsToTheNextPageToo()
+    {
+      SeenServer server = new SeenServer();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.OpenCommand.Execute(null);
+      WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SEEN_SHELF.Length; });
+
+      browser.CycleSeenCommand.Execute(null);
+      WaitUntil("the unwatched titles", delegate { return browser.Titles.Count == 2; });
+
+      browser.LoadMoreCommand.Execute(null);
+      WaitUntil("the second page", delegate { return server.TimesAsked == 3; });
+
+      Assert.That(server.LastUrl, Does.Contain("seen=unwatched"),
+          "More walks through the filtered shelf; an unfiltered second page would append titles the viewer "
+          + "had asked not to see");
+    }
+
+    [AvaloniaTest]
+    public void TheWatchedKeyFiltersTheScreenAndBackTakesItOffAgain()
+    {
+      SeenServer server = new SeenServer();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      MediaBrowserWindow window = new MediaBrowserWindow(browser);
+      window.Show();
+      WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SEEN_SHELF.Length; });
+
+      ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "titlesList");
+      Button seen = window.GetVisualDescendants().OfType<Button>()
+          .First(button => button.Name == "seenButton");
+      Assert.That(seen.Content, Is.EqualTo("All titles"));
+
+      titles.Focus();
+      window.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.W,
+        Source = titles
+      });
+      WaitUntil("the filtered list", delegate { return browser.Titles.Count == 2; });
+      Assert.That(seen.Content, Is.EqualTo("Unwatched only"),
+          "the button on the screen says the state the list is in, so the filter is visible without asking");
+
+      window.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Escape,
+        Source = titles
+      });
+      WaitUntil("the shelf back", delegate { return browser.Titles.Count == SEEN_SHELF.Length; });
+      Assert.That(window.IsVisible, Is.True,
+          "back undid the filter rather than leaving the screen, because the filter was the newest thing on it");
     }
 
     #endregion

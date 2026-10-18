@@ -96,6 +96,14 @@ namespace MediaPortal.Frontend.Views
               searchBox.Focus();
               args.Handled = true;
             }
+            else if (args.Key == Key.W && !searchBox.IsFocused)
+            {
+              // W for watched: everything, then what nobody has finished, then what somebody has. One key round
+              // three states rather than two switches, because a remote reaches its keyboard through one button
+              // and a viewer should be able to get back to "everything" without remembering which switch it was.
+              viewModel.CycleSeenCommand.Execute(null);
+              args.Handled = true;
+            }
             else if (searchBox.IsFocused && (args.Key == Key.Enter || args.Key == Key.Return))
             {
               // Enter means different things depending on where the caret is: "play this" on a row, "search for
@@ -119,6 +127,15 @@ namespace MediaPortal.Frontend.Views
               {
                 viewModel.ClearSearchCommand.Execute(null);
                 searchBox.Focus();
+                args.Handled = true;
+                return;
+              }
+              if (viewModel.HasSeenFilter)
+              {
+                // The watched filter goes after the search rather than before it: the thing asked for most
+                // recently is the thing a viewer means by "back", and a filter set before typing a title is the
+                // older of the two.
+                viewModel.ClearSeenCommand.Execute(null);
                 args.Handled = true;
                 return;
               }

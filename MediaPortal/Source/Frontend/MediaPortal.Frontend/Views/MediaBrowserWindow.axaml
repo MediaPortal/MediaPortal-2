@@ -53,13 +53,24 @@
               MinWidth="150"
               Padding="24,8"
               FontSize="22" />
+      <!--
+        The watched filter, on the same row as the search because it is the same kind of question - which of my
+        titles am I looking at - and a viewer who wants one usually wants to know the other. Its label says the
+        state it will leave, not the state it is in, so the screen reads as an answer without pressing anything.
+      -->
+      <Button Name="seenButton"
+              Content="{Binding SeenLabel}"
+              Command="{Binding CycleSeenCommand}"
+              MinWidth="220"
+              Padding="24,8"
+              FontSize="22" />
     </StackPanel>
 
     <TextBlock DockPanel.Dock="Bottom"
                FontSize="14"
                Opacity="0.45"
                Margin="0,12,0,0"
-               Text="Arrows move · OK plays · I reads more · F finds · Esc clears the search or closes the details · Back returns" />
+               Text="Arrows move · OK plays · I reads more · F finds · W filters watched · Esc clears the search or closes the details · Back returns" />
 
     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24">
 
@@ -70,9 +81,18 @@
                FontSize="24">
         <ListBox.ItemTemplate>
           <DataTemplate x:DataType="vm:TitleViewModel">
-            <Grid ColumnDefinitions="5*,1.4*" ColumnSpacing="20" MinWidth="700" Margin="0,8">
-              <TextBlock Text="{Binding Line}" TextTrimming="CharacterEllipsis" />
-              <TextBlock Grid.Column="1"
+            <Grid ColumnDefinitions="Auto,5*,1.4*" ColumnSpacing="20" MinWidth="700" Margin="0,8">
+              <!--
+                The tick in front of a title the library was told was watched. It is a column of its own rather
+                than a character glued to the name so that the names of marked and unmarked rows start at the same
+                x, which is what lets a viewer scan a shelf by eye; the reserved width says nothing about a row,
+                only the mark does.
+              -->
+              <TextBlock Text="{Binding SeenMark}"
+                         MinWidth="34"
+                         Opacity="0.55" />
+              <TextBlock Grid.Column="1" Text="{Binding Line}" TextTrimming="CharacterEllipsis" />
+              <TextBlock Grid.Column="2"
                          Text="{Binding Detail}"
                          HorizontalAlignment="Right"
                          Opacity="0.65"

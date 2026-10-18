@@ -330,8 +330,13 @@ namespace MediaPortal.Frontend.Api
     /// spelled out.
     /// </para>
     /// </remarks>
+    /// <param name="seen">
+    /// <c>unwatched</c> or <c>watched</c>, or null for both. Lower-cased on the way out because the server's own
+    /// answer quotes those two words and a log line should read like the answer.
+    /// </param>
     public async Task<MediaTitles> GetTitlesAsync(string aspect, string? sort = null, bool descending = false,
-        int limit = 0, int offset = 0, string? search = null, CancellationToken cancellation = default)
+        int limit = 0, int offset = 0, string? search = null, string? seen = null,
+        CancellationToken cancellation = default)
     {
       if (string.IsNullOrWhiteSpace(aspect))
         throw new ArgumentException("Titles of which aspect?", nameof(aspect));
@@ -352,6 +357,10 @@ namespace MediaPortal.Frontend.Api
         // Escaped, because a viewer searching for "2 + 2" or for "A_B" would otherwise be sending a URL whose
         // characters mean something else than the words they typed.
         url += "&search=" + Uri.EscapeDataString(search.Trim());
+      }
+      if (!string.IsNullOrWhiteSpace(seen))
+      {
+        url += "&seen=" + Uri.EscapeDataString(seen.Trim().ToLowerInvariant());
       }
 
       return await GetJsonAsync<MediaTitles>(url, cancellation).ConfigureAwait(false);

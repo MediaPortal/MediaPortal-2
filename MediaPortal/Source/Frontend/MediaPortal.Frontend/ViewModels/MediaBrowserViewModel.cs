@@ -84,6 +84,28 @@ namespace MediaPortal.Frontend.ViewModels
       }
     }
 
+    /// <summary>
+    /// Whether the library was told this title was watched to the end. The play count is the only evidence there
+    /// is: it is the number this server itself wrote when a front end reported the end of the film, so a row is
+    /// marked seen exactly when the library says it was finished and not when a file happens to exist.
+    /// </summary>
+    public bool Seen
+    {
+      get { return Title.PlayCount > 0; }
+    }
+
+    /// <summary>
+    /// The mark in front of a row that was watched, nothing in front of one that was not. An empty string rather
+    /// than a "not seen" mark, because ninety unmarked rows out of a shelf of three thousand are the information;
+    /// a cross on every one of them would be a wall of ink saying nothing.
+    /// </summary>
+    public string SeenMark
+    {
+      // Written as an escape rather than as the character, so that the mark does not depend on the encoding of
+      // this source file surviving a checkout on another machine.
+      get { return Seen ? "\u2713" : ""; }
+    }
+
     /// <summary>What the left column of the row says: the name, then the year it is known by.</summary>
     public string Line
     {
@@ -179,6 +201,18 @@ namespace MediaPortal.Frontend.ViewModels
     /// <summary>The words the list on screen was read with, or "" when the whole shelf is showing.</summary>
     [ObservableProperty]
     private string _activeSearch = "";
+
+    /// <summary>
+    /// Which half of the shelf is on screen: "" for both halves, <c>unwatched</c> for the titles nobody has
+    /// finished, <c>watched</c> for the ones somebody has. The server's own two words, so that what a log line
+    /// says, what the answer echoes back and what this screen are one and the same thing.
+    /// </summary>
+    /// <remarks>
+    /// Like <see cref="_activeSearch"/> this is what the list on screen answers, not what a button was last
+    /// pressed with - a filter that failed to load is not a filter the viewer is looking through.
+    /// </remarks>
+    [ObservableProperty]
+    private string _activeSeen = "";
 
     public MediaBrowserViewModel()
         : this(null, null)
@@ -294,6 +328,79 @@ namespace MediaPortal.Frontend.ViewModels
         ClearDetailsForNewList();
       }
 
+      await ReadAsync(0);
+    }
+
+    /// <summary>
+    /// What the watched filter on the button in front of the list says. The three states are named here rather than
+    /// in the markup because the same three words belong in a log line, in a test and in a screenshot.
+    /// </summary>
+    public string SeenLabel
+    {
+      get
+      {
+        if (ActiveSeen == "unwatched")
+          return "Unwatched only";
+        if (ActiveSeen == "watched")
+          return "Watched only";
+        return "All titles";
+      }
+    }
+
+    /// <summary>Whether the list is being looked through, which is what puts a word about it in the status line.</summary>
+    public bool HasSeenFilter
+    {
+      get { return !string.IsNullOrEmpty(ActiveSeen); }
+    }
+
+    partial void OnActiveSeenChanged(string value)
+    {
+      OnPropertyChanged(nameof(SeenLabel));
+      OnPropertyChanged(nameof(HasSeenFilter));
+    }
+
+    /// <summary>
+    /// Walks the watched filter one step round: everything, then what nobody has finished, then what somebody
+    /// has, then everything again. The key <c>W</c> and the button above the list both lead here.
+    /// </summary>
+    /// <remarks>
+    /// Three states on one control rather than two checkboxes, because a remote has no way of pressing two things
+    /// at once and "watched and unwatched" is the same question as "everything", which a viewer can always reach
+    /// with one more press.
+    /// <para>
+    /// The filter is asked of the server rather than applied to the rows on screen, for the same reason the search
+    /// is: on a shelf of three thousand films the twenty the viewer has not finished are on pages nobody has read.
+    /// </para>
+    /// </remarks>
+    [RelayCommand]
+    public async Task CycleSeenAsync()
+    {
+      ActiveSeen = ActiveSeen == "" ? "unwatched"
+          : ActiveSeen == "unwatched" ? "watched"
+          : "";
+      await ReaskAsync();
+    }
+
+    /// <summary>
+    /// Takes the watched filter off the list, which is what Escape does when there is nothing newer on the screen
+    /// to close. Nothing is re-read when no filter was on, because the list already answers that question.
+    /// </summary>
+    [RelayCommand]
+    public async Task ClearSeenAsync()
+    {
+      if (!HasSeenFilter)
+        return;
+
+      ActiveSeen = "";
+      await ReaskAsync();
+    }
+
+    /// <summary>
+    /// Asks the server the current question again from the first page, because the question changed under the list.
+    /// </summary>
+    private async Task ReaskAsync()
+    {
+      ClearDetailsForNewList();
       await ReadAsync(0);
     }
 
@@ -495,7 +602,8 @@ namespace MediaPortal.Frontend.ViewModels
       try
       {
         MediaTitles answer = await _client.GetTitlesAsync(AspectName, "title", false, PAGE_SIZE, offset,
-            string.IsNullOrEmpty(ActiveSearch) ? null : ActiveSearch, cancellation.Token);
+            string.IsNullOrEmpty(ActiveSearch) ? null : ActiveSearch,
+            string.IsNullOrEmpty(ActiveSeen) ? null : ActiveSeen, cancellation.Token);
 
         if (offset == 0)
           Titles.Clear();
@@ -506,28 +614,35 @@ namespace MediaPortal.Frontend.ViewModels
         Selected = Selected ?? (Titles.Count > 0 ? Titles[0] : null);
         CanLoadMore = answer.Remaining > 0;
 
+        // The filter in front of the count rather than behind it, because the number is the answer and the filter
+        // is the reason the answer is that small: "12 of 40 unwatched films" reads as one statement, while
+        // "12 of 40 films, unwatched" reads as two and can be misread as a description of the twelve.
+        string seeing = ActiveSeen == "unwatched" ? "unwatched "
+            : ActiveSeen == "watched" ? "watched "
+            : "";
+
         if (answer.Total == 0)
         {
           // Two different nothings. "no films" and "no films called 'alien'" need different next moves from a
           // viewer, and only the second one has a search box to clear.
           Status = string.IsNullOrEmpty(ActiveSearch)
-              ? "This server has no " + Heading.ToLowerInvariant()
+              ? "This server has no " + seeing + Heading.ToLowerInvariant()
               : "Nothing in " + Heading.ToLowerInvariant() + " matches '" + ActiveSearch + "'";
         }
         else if (string.IsNullOrEmpty(ActiveSearch))
         {
-          Status = string.Format("{0} of {1} {2}, sorted by {3}", Titles.Count, answer.Total,
+          Status = string.Format("{0} of {1} {2}{3}, sorted by {4}", Titles.Count, answer.Total, seeing,
               Heading.ToLowerInvariant(), answer.Sort ?? "the server's order");
         }
         else if (Titles.Count < answer.Total)
         {
-          Status = string.Format("{0} of {1} {2} match '{3}', sorted by {4}", Titles.Count, answer.Total,
-              Heading.ToLowerInvariant(), ActiveSearch, answer.Sort ?? "the server's order");
+          Status = string.Format("{0} of {1} {2}{3} match '{4}', sorted by {5}", Titles.Count, answer.Total,
+              seeing, Heading.ToLowerInvariant(), ActiveSearch, answer.Sort ?? "the server's order");
         }
         else
         {
           // Every match is already on screen, so "1 of 1" would be a stranger's way of putting it.
-          Status = string.Format("{0} {1} {2} {3} '{4}'", answer.Total,
+          Status = string.Format("{0} {1}{2} {3} {4} '{5}'", answer.Total, seeing,
               answer.Total == 1 ? "title in" : "titles in", Heading.ToLowerInvariant(),
               answer.Total == 1 ? "matches" : "match", ActiveSearch);
         }

@@ -1744,7 +1744,7 @@ never leaves the machine) take `TestServerApiClient` to 15; a new six-test fixtu
 browser test shows the panel reading a title again after it was watched. `Tests.Frontend` goes from 202 to 223, and
 the whole suite on Windows is **663 tests, 0 failures** - `Canary.Portable` (29), `Tests.Server` (253),
 `Tests.Client` (90), `Tests.Frontend` (223), `Setup\Tests` (68). The render gate drew all five frames at that point, the
-details frame unchanged at 1863 distinct colours. (Section **ab** carries the numbers as they stand now.)
+details frame unchanged at 1863 distinct colours. (Section **ac** carries the numbers as they stand now.)
 
 ### ab. Finding a title by name
 
@@ -1840,8 +1840,92 @@ holds 338 distinct colours (rows of text), in the search frame it holds **one** 
 
 **Where the numbers stand.** `TestMediaController` 39, `TestMediaBrowser` 29, `Tests.Frontend` 230, and the whole
 suite on Windows is **676 tests, 0 failures** - `Canary.Portable` (29), `Tests.Server` (259), `Tests.Client` (90),
-`Tests.Frontend` (230), `Setup\Tests` (68). The render gate now draws six frames and still prints
+`Tests.Frontend` (230), `Setup\Tests` (68). The render gate drew six frames at that point and printed
 `FRONTEND CHECK OK`.
+
+### ac. What the list knows about what you have seen
+
+**The hole the last two sections dug.** Section **aa** taught the server to remember that a film was finished, and
+section **ab** taught the shelf to be searched - but a viewer looking at a row of titles still could not tell a film
+they have seen from one they have not, which is the single most useful fact a library has about its own contents.
+The data was in the database and nowhere on the screen. This section closes that.
+
+**MP2 already had the two conditions, and they are one column.** Its own list providers do not keep a "watched"
+flag; they ask about the play count. `BaseLastWatchedMediaListProvider` filters `PlayCount > 0` and
+`BaseUnwatchedMediaListProvider` filters `PlayCount = 0` (`BaseUnwatchedMediaListProvider.cs:45`), falling back to
+those two when there is no user profile to read per-profile percentages from - which is exactly the situation this
+front end is in, for the reason **aa** gave: a bearer token is not a profile. So the new endpoint uses those two
+conditions rather than inventing a third vocabulary. `GET api/media/titles?...&seen=watched` and `&seen=unwatched`,
+echoed back in `seen`.
+
+**The unwatched condition needs a second half that MP2's does not, and the reason is NULL.** `PlayCount` is
+declared nullable on the Media aspect (`CreateSingleAttributeSpecification("PlayCount", typeof(int), Cardinality.Inline,
+true)`), and a film the importer just found has *nothing* written in that column - not zero, nothing. In SQL a
+comparison against nothing is not false, it is unknown, and a WHERE clause throws out a row whose condition came
+back unknown. So `PlayCount = 0` alone answers "which titles were watched zero times" over the titles the database
+happens to have written a zero for, and it says nothing at all about the ones nobody ever opened. Which produces the
+most confusing possible answer: a freshly imported library - where nothing has been watched yet - reporting *"no
+unwatched titles"*. The endpoint therefore asks for `PlayCount = 0 OR PlayCount IS NULL`, using MP2's own
+`EmptyFilter`, which compiles to `IS NULL` for an inline attribute (`CompiledFilter.cs:255`, whose comment records
+that those columns come from left outer joins and can be tested for nothing). The `watched` condition needs no such
+half: `PlayCount > 0` cannot be true about nothing either, and a title nobody opened is correctly not watched.
+
+The combination is built with `BooleanCombinationFilter.CombineFilters`, which is not decoration: it returns the
+single filter when only one is left and `null` when none was asked for, so an unfiltered request reaches the library
+without an empty `AND ()` in front of it, and a test asserts exactly that (`AFilterNobodyNamedAsksTheLibraryForNothing`
+also covers a misspelling, which is read as "both" and echoed as `null` - the answer never claims a filter it did
+not apply).
+
+**Same route, and the count goes through the same condition.** Like the search, the watched filter is a
+restriction on `GET api/media/titles`, and `Total` is counted through `query.Filter` - so the seven titles behind a
+filter are seven, not seven out of the whole shelf. One test does not check the number but the *identity*: it
+asserts that the filter instance the count was asked with is the same object the list was read with, because "7 of
+3443 unwatched films" is precisely the sentence this endpoint must not be able to produce. Sorting gained
+`sort=lastplayed` (MP2 orders its last-watched list by that column), which is what a "what was I watching" list
+asks for, and `search` and `seen` are combined as **one** question - the watched condition is handed to
+`BuildSimpleTextSearchQuery` as its own filter argument rather than ANDed together here, which is what the signature
+is for.
+
+**What the mark means, and what it refuses to say.** `TitleResult` gained `PlayCount` and `LastPlayed`, read off the
+Media aspect the list already asks for, so the row costs no second read. A row carries a tick when
+`PlayCount > 0` - nothing more and nothing less. Deliberately *not* marked: a title with a last-played date and no
+finished viewing behind it. That is somebody who stopped halfway, and a tick on that row would tell them a film
+they still have to watch is one they have seen; `ARowIsMarkedSeenOnlyWhenTheLibrarySaysItWasFinished` holds the
+screen to that, with a shelf that contains exactly such a title. Nor does a row get a cross when it is unseen:
+ninety unmarked rows out of three thousand are the information, and a mark on every one of them is a wall of ink
+saying nothing. The tick lives in a column of its own so that the names of marked and unmarked rows start at the
+same x, which is what lets a shelf be scanned by eye.
+
+**Three states, one key, one button.** `W` (and the button above the list, whose label *is* the state) walks
+everything → unwatched → watched → everything. Three states on one control rather than two checkboxes, because a
+remote reaches its keyboard through one button and nobody should have to remember which of two switches to untick.
+The filter goes to the server rather than being applied to the page for the same reason the search does - on a
+shelf of three thousand films the twenty that are left are on pages nobody has read - and paging carries it, which
+is what `TheWatchedFilterTravelsToTheNextPageToo` is for. Escape now walks four levels, one per press: details
+panel, search, watched filter, window. And the status line admits the filter in front of the count -
+"2 of 2 unwatched movies, sorted by title" - because a short list that does not say why it is short is a viewer
+wondering whether their library shrank.
+
+**Tests and a picture that measures itself.** Seven new server tests (`TestMediaController` 39 → 46) assert the
+conditions rather than a re-implementation: that `watched` is MP2's own `PlayCount > 0`, that `unwatched` is the OR
+of `= 0` and `IS NULL` - with the failure mode spelled out in the assertion message so nobody "simplifies" the
+second half away - that the count went through the same filter object, that the two figures arrive on the row,
+that a never-opened title arrives as zero and no date rather than as the year 1, that a word and a filter are one
+question, and that `sort=lastplayed` reaches the library as that column. Six new browser tests
+(`TestMediaBrowser` 29 → 35, `Tests.Frontend` 230 → 236) run against a stub that filters its own shelf by the word
+it received, so the view model is held to "these two titles" without anyone reimplementing the filter: the mark
+follows the server's figures, one press filters, the third press is back where it started, the filter survives
+paging, and in a real window one `W` filters the list and the first Escape puts the shelf back without leaving the
+screen. The whole suite on Windows is **689 tests, 0 failures** - `Canary.Portable` (29), `Tests.Server` (266),
+`Tests.Client` (90), `Tests.Frontend` (236), `Setup\Tests` (68).
+
+The seventh frame (`seen-windows-skia.png`) is that screen after two presses of the key: three rows, each with its
+tick, the button reading "Watched only", the status line saying "3 of 3 watched films". The probe refuses to write
+it unless the filter really reached the third state and every row that survived carries a mark. Independently of the
+probe, sampling pixels says the same thing about the *unfiltered* frame: in the mark column, rows one, three and
+seven of the shelf carry 46-58 bright pixels each and every other row carries zero - which is exactly the three
+titles the script says were finished, and it includes the strongest case in the whole feature, the row of the film
+somebody stopped halfway: it has a last-played date on the server and no tick on the screen.
 
 ## What cannot be verified without the user
 

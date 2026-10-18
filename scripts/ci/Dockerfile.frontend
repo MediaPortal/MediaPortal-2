@@ -103,9 +103,11 @@ CMD bash -c '\
   if [ "$rc5" -ne 0 ]; then echo "RENDER PROBE FAILED (details, $rc5) - see its output above"; exit "$rc5"; fi; \
   out6=$(dotnet $probe --screen search --out /out/search-linux.png 2>&1); rc6=$?; echo "$out6"; \
   if [ "$rc6" -ne 0 ]; then echo "RENDER PROBE FAILED (search, $rc6) - see its output above"; exit "$rc6"; fi; \
+  out7=$(dotnet $probe --screen seen --out /out/seen-linux.png 2>&1); rc7=$?; echo "$out7"; \
+  if [ "$rc7" -ne 0 ]; then echo "RENDER PROBE FAILED (seen, $rc7) - see its output above"; exit "$rc7"; fi; \
   frame="offline (no MP2_SERVER given), so the home screen shows its own no-server state"; \
   if [ -n "$MP2_SERVER" ]; then \
     if echo "$out" | grep -q "populated from"; then frame="populated from $MP2_SERVER"; \
     else echo "THE SCREEN NEVER SHOWED THE SERVER AT $MP2_SERVER - the frame is an error screen, not a data screen"; exit 1; fi; \
   fi; \
-  echo "FRONTEND LINUX OK: $total tests ran headless on $(uname -sm), $frame screenshots in /out/home-linux.png, /out/browser-linux.png, /out/details-linux.png, /out/search-linux.png, /out/nowplaying-linux.png and /out/connect-linux.png"'
+  echo "FRONTEND LINUX OK: $total tests ran headless on $(uname -sm), $frame screenshots in /out/home-linux.png, /out/browser-linux.png, /out/details-linux.png, /out/search-linux.png, /out/seen-linux.png, /out/nowplaying-linux.png and /out/connect-linux.png"'
