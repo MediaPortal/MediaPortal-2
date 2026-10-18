@@ -8,32 +8,25 @@
     <ApplicationIcon>MP2.ico</ApplicationIcon>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <StartupObject>MediaPortal.Server.ApplicationLauncher</StartupObject>
-    <LargeAddressAware>true</LargeAddressAware>
     <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\..\Bin\MP2-Server\bin\x86\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <UseVSHostingProcess>true</UseVSHostingProcess>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-    <NoWarn>CS3001,CS3003,CS3008</NoWarn>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <OutputPath>..\..\..\Bin\MP2-Server\bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>none</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-    <NoWarn>CS3001,CS3003,CS3008</NoWarn>
-  </PropertyGroup>
+  <!--
+    x64 only (docs/multiplatform/ROADMAP.md). Three 32-bit leftovers were removed here:
+
+    * The two x86 configuration groups. MP2-Server.sln and MP2-Setup.sln both map their x86 solution
+      platform to this project's "Any CPU" configuration, so the groups were unreachable from any
+      solution build in the tree; leaving them meant a hand-run "-p:Platform=x86" still produced an
+      image declaring itself 32-bit-only.
+    * <Prefer32Bit>true</Prefer32Bit> from the AnyCPU groups. That was the switch that actually made
+      MP2 32-bit: on .NET Framework, AnyCPU + Prefer32Bit means "run 32-bit on a 64-bit OS", so the
+      shipped server was a 32-bit process while nothing in the tree called itself x86. On .NET Core
+      and later the flag is ignored and bitness comes from the apphost RID, so the retarget alone
+      already yields an x64 process - scripts/ci/architecture.ps1 reads the PE header of the built
+      apphosts to prove it. The declaration is gone because a flag that is silently ignored is a flag
+      somebody will trust again one day.
+    * <LargeAddressAware>, the 4 GB address-space workaround that only means anything for a 32-bit
+      image.
+  -->
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>..\..\..\Bin\MP2-Server\bin\Debug\</OutputPath>
@@ -43,7 +36,6 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <OutputPath>..\..\..\Bin\MP2-Server\bin\Release\</OutputPath>
@@ -53,13 +45,11 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup>
-    <LargeAddressAware>true</LargeAddressAware>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="WindowsServiceInstaller.cs" />

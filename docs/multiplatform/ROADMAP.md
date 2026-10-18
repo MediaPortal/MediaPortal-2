@@ -34,6 +34,8 @@ Verified 2026-10-18 with `build.ps1 -Solution Server,Client -Ratchet`, `tests.ps
 | `CA1416` call sites, Windows vs Linux | 196 on both - identical inventories | build log, `warnings.ps1` |
 | Unit tests, Windows | 4/4 suites, 262 tests, 0 failed | `tests.ps1` |
 | Unit tests, Linux (canary) | 20/20 | `test-canary-linux.ps1` |
+| Built executables are 64-bit | 5/5 apphosts measure `x64`, managed side `MSIL` | `architecture.ps1` |
+| 32-bit declarations in source | 0 in SDK-style projects, 42 in old-style ones | `architecture.ps1` |
 | Packages with known advisories | **0** (was 5: 1 critical, 3 high, 1 moderate) | `packages.ps1 -FailOn Low` |
 | Packages via .NET Framework fallback | 7 | `packages.ps1` |
 | Clean machine can restore | **no** - 6 package ids exist nowhere reachable | CI README, "The dependency closure is not reproducible" |
@@ -101,9 +103,32 @@ store on Linux (native binaries per RID, no `System.Data.SQLite` interop surpris
 and SQL CE. Gate: `test-server-linux.ps1` grows from "compiles" to "runs" - the server creates a
 database in a container, imports a fixture library and answers a query.
 
-**e. x64 only.** Remove `Prefer32Bit`, the `x86` entries in `Platforms`, `Platform=x86` in the
-OnlineLibraries projects, and the bootstrapper's `win-x86` RID. Gate: no `x86` in any project file,
-both solutions still build.
+**e. x64 only - done 2026-10-18, except the installer.** The gate written here ("no `x86` in any
+project file") was the wrong test, and finding that out was the useful part: 42 of the 60-odd
+declarations are in old-style projects that cannot produce a `net10.0` output at all, while the one
+place that really built 32-bit - `MP2-ServiceMonitor.sln`, which maps its `x86` and `Test` platforms to
+project configurations with `<PlatformTarget>x86</PlatformTarget>`, and the project's own
+`$(Platform)` default of `x86` - was invisible to a search for `Prefer32Bit`.
+
+Removed: the x86 configuration groups in `MediaPortal.Server` and `MediaPortal.ServiceMonitor`, the
+`Prefer32Bit=true` on the `AnyCPU` groups of `MediaPortal.Server` and `MediaPortal.Client` (that pair
+was what actually made the shipped processes 32-bit on .NET Framework), `<LargeAddressAware>` from both
+executables, the ServiceMonitor platform default, and 24 mappings in `MP2-ServiceMonitor.sln`, which now
+aliases x86 and Test to `Any CPU` as every other solution in the tree already did.
+
+`Gate:` `architecture.ps1`, which reads the PE `Machine` field of every built apphost rather than the
+project files - all five measure `x64` with a managed side of `MSIL`, and it fails if a future SDK-style
+project declares 32-bit again. Its first run found a sixth executable that did not exist: the
+`bin\Debug\net6.0-windows` output folder the ServiceMonitor stopped using at the retarget is still on
+disk, and both rows measured `x64` so the table was right by luck. Rows now carry their write time and
+older duplicates are marked `stale`, because 442 pre-retarget output directories are still lying around
+and any inspection of build output that does not ask *when* is inspecting the disk, not the source.
+
+Still open, recorded by the same script so it stays visible: the installer chain
+(`MP2BootstrapperApp`'s `RuntimeIdentifier win-x86` plus the four WiX projects that really build x86).
+A managed bootstrapper application has to match `burn.exe`'s bitness, so the host RID cannot move on its
+own; it moves together with the packaging, in a change that has to be verified by running a setup on a
+machine with WiX installed.
 
 **f. The API the new frontend consumes.** The client reaches the backend through in-process service
 contracts. Phase 2 needs the same contracts over a real endpoint. Gate: an end-to-end call from a

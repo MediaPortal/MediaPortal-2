@@ -15,6 +15,7 @@ does *not*, because those differences are how CI surprises happen.
 | `tests.ps1` | Runs the Windows test suites (canary, server, client, installer) and prints one line each. Assumes `build.ps1` already built; `-Build` to rebuild. |
 | `packages.ps1` | Package health from `obj\project.assets.json`: which packages carry advisories, which only work through the .NET Framework fallback, which references are now implicit. Deterministic, unlike the same codes in a build log. `-FailOn High` for a pipeline that must not ship one. |
 | `satellites.ps1` | Enforces the satellite boundary: a namespace that only exists in a `*.Windows` project may not be imported by a project that does not reference it. |
+| `architecture.ps1` | x64-only check, read off the built images: PE `Machine` of every apphost in `MediaPortal\Bin` and `AssemblyName.ProcessorArchitecture` of its managed assembly, plus a list of source declarations that still ask for 32-bit. |
 | `Dockerfile.canary` | Linux verification image for the portability canary (`MediaPortal\Tests\Canary.Portable`). |
 | `test-canary-linux.ps1` | Builds that image and runs the canary tests inside a Linux container. |
 | `Dockerfile.cross` | Linux **cross-compile** image: builds the whole `MP2-Server.sln` under `mcr.microsoft.com/dotnet/sdk:$SDK_TAG` (default `10.0`). |
@@ -675,6 +676,55 @@ Conclusion recorded for the plan: the **server and the portable core can go x64-
 x64-only for the Windows *player* is a decision about third-party filters, and Linux needs its own
 answer per distribution architecture (x64 and ARM64), which 32-bit Windows support never provided.
 
+### What was changed for x64-only, and one correction to the above
+
+The claim that the two executables carrying `Prefer32Bit` were both plain `AnyCPU` was incomplete, and
+the case the analysis missed was the only place in the tree where a solution genuinely built 32-bit:
+
+* `MediaPortal.ServiceMonitor` defaulted `$(Platform)` to `x86` when built on its own, and
+  `MP2-ServiceMonitor.sln` mapped `Debug|x86`, `Release|x86` and `Test|x86` straight to project
+  configurations that set `<PlatformTarget>x86</PlatformTarget>`. It is the only one of the six
+  solutions that does not alias its x86 platform to `Any CPU`, and it mapped all four of its projects
+  that way - so `MediaPortal.Common`, `MediaPortal.Utilities` and `UPnP` were being built under a
+  platform they never even declared.
+* `MediaPortal.Server` carried both switches: `Prefer32Bit=true` on its `AnyCPU` groups *and* two
+  `|x86` groups with `PlatformTarget=x86`, unreachable only because every solution containing it
+  aliases x86 to `Any CPU`.
+
+Removed: the x86 configuration groups in `MediaPortal.Server` and `MediaPortal.ServiceMonitor`, the
+`Prefer32Bit=true` from `MediaPortal.Server` and `MediaPortal.Client`, `<LargeAddressAware>` from both
+executables (a 4 GB address-space workaround that only means anything for a 32-bit image), the
+`Platform == ''` -> `x86` default, and 24 mappings in `MP2-ServiceMonitor.sln`, which now aliases its
+x86 and Test platforms to `Any CPU` like every other solution here. The monitor's output moves from
+`Bin\MP2-ServiceMonitor\bin\x86\<config>` to `Bin\MP2-ServiceMonitor\bin\<config>`, which is where
+`MP2-Setup.sln` has always put it. `MP2-ServiceMonitor.sln` builds clean after the change.
+
+`architecture.ps1` is the guard, and it deliberately reads images rather than project files: the PE
+`Machine` field of every apphost in `MediaPortal\Bin`, plus `AssemblyName.ProcessorArchitecture` of the
+managed assembly next to it. All five built executables measure `x64` / `MSIL`. It also lists source
+declarations but only fails on ones in SDK-style projects - the 42 remaining
+`<PlatformTarget>x86</PlatformTarget>` lines are in the old-style tools and database backends, which
+cannot produce a `net10.0` output at all, so they are reported as a purge list rather than as
+violations. Grepping for `x86` and being satisfied with the count would have told you none of this.
+
+The first run reported six executables, and one of them was a lie. `MP2-ServiceMonitor` appeared twice:
+once in `bin\Debug\net10.0-windows`, written by the build that had just happened, and once in
+`bin\Debug\net6.0-windows`, the output directory of the target framework the project had before the
+retarget, which no build writes to any more but which nothing deletes either. Both measured `x64`, so
+the verdict was accidentally right, but the table was answering a question about the disk. Every row now
+carries the file's write time, and when one name appears more often than once the rows older than the
+newest write are marked `stale`. That is the general lesson about reading build output as evidence:
+442 directories named `net48`, `net6.0-windows`, `netstandard2.0` and similar still sit under `bin\Debug`
+and `bin\Release` across the tree, all of them pre-retarget, none of them tracked. They are harmless to
+a build and fatal to an inspection that does not ask when a file was written.
+
+Left open deliberately, and named by the script so it cannot be forgotten: `MP2BootstrapperApp` still
+declares `<RuntimeIdentifier>win-x86</RuntimeIdentifier>`, and the four WiX projects in `MP2-Setup.sln`
+map their x86 platform to a real x86 build. A managed bootstrapper application is loaded by `burn.exe`
+and has to match its bitness, so flipping the host RID alone would produce a setup that dies before its
+first dialog - on a machine that can build installers, which this one cannot. It moves with the
+packaging, as one change, verified by running the result.
+
 ## Known pre-existing breakage
 
 `MP2-Client.sln` **does not restore** on the current upstream tree, independently of any work
@@ -723,6 +773,30 @@ Two more things `-Project` builds reveal, both pre-existing:
 * Some folders under `Source` contain source files that belong to no project (the orphan
   `UI\TV\SlimTvService` was one; the whole TV service layer was removed by decision, see
   "The TV service layer is gone"). They are not compiled by anything.
+
+## Scripting against the Windows PowerShell host
+
+Every script in this directory runs on Windows PowerShell 5.1 as well as 7, because that is what a
+contributor's `powershell.exe` and a plain Windows agent have. Three things about it produced a *wrong
+answer* rather than an error, so they are worth writing down:
+
+* **`Write-Host` output cannot be redirected.** It goes to the information stream, and `>`,
+  `Out-File`, `$(…)` and a `ConvertFrom-Json` pipe all miss it. `packages.ps1 -Format json` therefore
+  writes to the success stream. A redirected run of the earlier version printed nothing and looked like
+  "no advisories", which is the most dangerous kind of clean.
+* **A script block passed where a .NET delegate is expected is not portable.**
+  `[regex]::Replace($text, $pattern, { param($m) ... }, 'Singleline')` worked when the script was run
+  directly and threw (`the property 'Value' was not found on this object`) the moment `build.ps1` ran
+  the same script in the gate - so a check looked healthy in development and died silently in the
+  pipeline. `architecture.ps1` now walks its matches with an explicit `foreach`. Related: PS 5.1 has no
+  bare `Directory.Exists`/`File.Exists`, only `[IO.Directory]::Exists`/`[IO.File]::Exists`.
+* **`Get-Content -Raw` decodes BOM-less UTF-8 as the ANSI codepage**, which mangles the typographic
+  quotes that localized NuGet messages use (`„log4net"`), and a package-id regex then matches nothing.
+  Anything that parses diagnostic text is read with `[IO.File]::ReadAllText($path, [Text.Encoding]::UTF8)`.
+
+If a script here is ever ported to PS 7 only, delete this section; until then, test the interesting path
+by invoking the script the way the gate does (`powershell -NoProfile -File wrapper.ps1` reproduces a
+class of these that a direct run will not).
 
 ## Locale
 

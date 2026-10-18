@@ -170,6 +170,10 @@ if ($Ratchet) {
 
   & (Join-Path $PSScriptRoot 'satellites.ps1')
   if ($LASTEXITCODE -ne 0) { $exitCode = 1 }
+
+  # Needs the build output, so it runs after the builds rather than with the two source scanners.
+  & (Join-Path $PSScriptRoot 'architecture.ps1')
+  if ($LASTEXITCODE -ne 0) { $exitCode = 1 }
 }
 
 exit $exitCode

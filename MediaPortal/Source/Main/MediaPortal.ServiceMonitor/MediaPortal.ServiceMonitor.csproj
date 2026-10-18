@@ -14,7 +14,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{B554FE2F-B4FC-4D70-87DB-BC214EA104E4}</ProjectGuid>
@@ -24,27 +24,17 @@
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <PlatformTarget>x86</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>..\..\..\Bin\MP2-ServiceMonitor\bin\x86\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <PlatformTarget>x86</PlatformTarget>
-    <DebugType>none</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>..\..\..\Bin\MP2-ServiceMonitor\bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
+  <!--
+    The x86 groups are gone, and MP2-ServiceMonitor.sln now maps its x86 and Test solution platforms
+    to "Any CPU". This was the one project in the tree that a solution really built 32-bit: the
+    solution mapped Debug|x86 / Release|x86 / Test|x86 to project configurations that set
+    <PlatformTarget>x86</PlatformTarget>, and the project additionally defaulted $(Platform) to x86
+    when built on its own. Every other solution in the tree already aliased its x86 platform to
+    "Any CPU", which is what this one now does too. The output folder moves from
+    ..\..\..\Bin\MP2-ServiceMonitor\bin\x86\&lt;config&gt; to the same
+    ..\..\..\Bin\MP2-ServiceMonitor\bin\&lt;config&gt; that MP2-Setup.sln has always produced for this
+    project when it built it as Any CPU.
+  -->
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>..\..\..\Bin\MP2-ServiceMonitor\bin\Debug\</OutputPath>
