@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
@@ -46,7 +47,13 @@ namespace MediaPortal.Frontend
         "                   open the playback screen and play that file - the same screen and the same transport\n" +
         "                   the library opens, so a film can be watched before any library exists.\n" +
         "                   With <sec>, leave after that many seconds and print how many frames the screen drew;\n" +
-        "                   the exit code is 0 only if at least one picture arrived.";
+        "                   the exit code is 0 only if at least one picture arrived.\n" +
+        "  --start <time>   with --play, begin at that point of the film: seconds, mm:ss or hh:mm:ss. Worth\n" +
+        "                   having because films open dark - a black title card says nothing about whether the\n" +
+        "                   picture works, and asking for a scene that has one is the only honest test.\n" +
+        "  --shot <file>  with --play, save a photograph of what the screen itself drew to that PNG before\n" +
+        "                   leaving. Counters can be wrong about a picture; this is the picture.";
+
 
     [STAThread]
     public static int Main(string[] args)
@@ -57,6 +64,8 @@ namespace MediaPortal.Frontend
       int discoverSeconds = 3;
       string? playFile = null;
       int playSeconds = 0;
+      string? shotPath = null;
+      string? startAt = null;
 
       for (int i = 0; i < args.Length; i++)
       {
@@ -91,6 +100,22 @@ namespace MediaPortal.Frontend
             // it may be a script with a deadline.
             if (i + 1 < args.Length && int.TryParse(args[i + 1], out int playFor) && playFor > 0)
               playSeconds = Math.Min(playFor, 3600);
+            break;
+          case "--start":
+            if (i + 1 >= args.Length)
+            {
+              Console.WriteLine("--start needs a point in the film, like 240, 4:00 or 0:04:00.\n" + USAGE);
+              return 2;
+            }
+            startAt = args[++i];
+            break;
+          case "--shot":
+            if (i + 1 >= args.Length)
+            {
+              Console.WriteLine("--shot needs a file to write the photograph to.\n" + USAGE);
+              return 2;
+            }
+            shotPath = args[++i];
             break;
           case "--help":
           case "-h":
@@ -172,9 +197,46 @@ namespace MediaPortal.Frontend
         playFile = fullPath;
       }
 
+      // --start is turned into a position here, where a bad one can still be a sentence on a terminal rather
+      // than a window that silently plays the wrong part of the film. Plain seconds, mm:ss and hh:mm:ss all
+      // work, because the three ways a person writes a point in a film are the three they think in.
+      TimeSpan playStart = TimeSpan.Zero;
+      if (startAt != null && !TryParseStart(startAt, out playStart))
+      {
+        Console.WriteLine("--start does not look like a point in a film: '" + startAt
+            + "'. Use seconds (240), mm:ss (4:00) or hh:mm:ss (0:04:00).\n" + USAGE);
+        return 2;
+      }
+
       AppBuilder app = BuildAvaloniaApp(() => new App(new HomeViewModel(client), player, settings, null,
-          serverMayBeChanged, serverMayBeChanged && !settings.HasUsableUrl, playFile, playSeconds));
+          serverMayBeChanged, serverMayBeChanged && !settings.HasUsableUrl, playFile, playSeconds, shotPath,
+          playStart));
       return app.StartWithClassicDesktopLifetime(args);
+    }
+
+    /// <summary>
+    /// Reads a point in a film written by hand: 240, 4:00, 1:02:03.
+    /// </summary>
+    private static bool TryParseStart(string text, out TimeSpan start)
+    {
+      start = TimeSpan.Zero;
+      if (string.IsNullOrWhiteSpace(text))
+        return false;
+
+      if (double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out double seconds)
+          && seconds >= 0)
+      {
+        start = TimeSpan.FromSeconds(seconds);
+        return true;
+      }
+
+      if (TimeSpan.TryParse(text, CultureInfo.InvariantCulture, out TimeSpan parsed) && parsed >= TimeSpan.Zero)
+      {
+        start = parsed;
+        return true;
+      }
+
+      return false;
     }
 
     /// <summary>

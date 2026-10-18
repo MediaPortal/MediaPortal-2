@@ -47,6 +47,8 @@ namespace MediaPortal.Frontend
     private readonly int _playSeconds;
     private NowPlayingViewModel? _nowPlaying;
     private NowPlayingWindow? _playWindow;
+    private readonly string? _shotPath;
+    private readonly TimeSpan _playStart;
 
     /// <summary>
     /// The pictures the player was asked to hand over, for as long as the application lives. It belongs here and
@@ -98,9 +100,20 @@ namespace MediaPortal.Frontend
     /// code says whether the picture was real, which is what a gate needs and no amount of looking at a window
     /// gives you.
     /// </param>
+    /// <param name="shotPath">
+    /// A file to write a photograph of the playback screen to when a timed <c>--play</c> run ends.
+    /// The counters say how many times the screen was asked to draw; this is what it drew, and the two have
+    /// disagreed before. A person - or a gate - looking at one PNG cannot be told a black rectangle is a film.
+    /// </param>
+    /// <param name="playStart">
+    /// How far into the film a command-line <c>--play</c> run should begin, from <c>--start</c>.
+    /// Zero plays from the beginning. It exists because films open dark - a black title card or a fade from
+    /// black tells you nothing about whether the picture path works, so a run that wants to prove it delivered a
+    /// picture has to ask for a scene that actually has one.
+    /// </param>
     public App(HomeViewModel home, IVideoPlayer? player = null, ServerSettings? settings = null,
         string? settingsPath = null, bool serverMayBeChanged = true, bool startAtConnectionScreen = false,
-        string? playFile = null, int playSeconds = 0)
+        string? playFile = null, int playSeconds = 0, string? shotPath = null, TimeSpan playStart = default)
     {
       _home = home;
       _player = player;
@@ -110,6 +123,8 @@ namespace MediaPortal.Frontend
       _startAtConnectionScreen = startAtConnectionScreen && serverMayBeChanged;
       _playFile = playFile;
       _playSeconds = playSeconds;
+      _shotPath = shotPath;
+      _playStart = playStart;
     }
 
     public override void Initialize()
@@ -180,6 +195,29 @@ namespace MediaPortal.Frontend
       else
         Console.WriteLine("play:     " + System.IO.Path.GetFileName(_playFile));
 
+      // A --start is asked for a moment after playing rather than immediately, because the position only exists
+      // once the player has read the file - setting it the instant Play returns is the same as asking for the
+      // beginning, which the player answers by ignoring it.
+      if (_playStart > TimeSpan.Zero && _player != null)
+      {
+        DispatcherTimer seek = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1500) };
+        seek.Tick += delegate
+        {
+          seek.Stop();
+          try
+          {
+            _player!.TimeInMs = (long)_playStart.TotalMilliseconds;
+            Console.WriteLine("start:    " + _playStart.ToString(@"hh\:mm\:ss", CultureInfo.InvariantCulture)
+                + " asked for");
+          }
+          catch (Exception ex)
+          {
+            Console.WriteLine("start:    could not be reached - " + ex.Message);
+          }
+        };
+        seek.Start();
+      }
+
       if (_playSeconds > 0)
       {
         // A run that knows when it is allowed to end is a run a gate can use. The number it leaves behind is not
@@ -190,6 +228,7 @@ namespace MediaPortal.Frontend
         {
           clock.Stop();
           ReportPlayback();
+          SaveShot();
           desktop.Shutdown((_playWindow?.FramesDrawn ?? 0L) > 0 ? 0 : 1);
         };
         clock.Start();
@@ -226,8 +265,55 @@ namespace MediaPortal.Frontend
           : "no frame reached the screen")
           + ", " + delivered.ToString("N0", CultureInfo.InvariantCulture) + " delivered by the player");
       Console.WriteLine("picture:  " + DescribePicture(_frames));
+      Console.WriteLine("layout:   " + DescribeLayout());
       if (_nowPlaying != null)
         Console.WriteLine("played:   " + _nowPlaying.PositionText + " (" + _nowPlaying.StateText + ")");
+    }
+
+    /// <summary>
+    /// How big the window and the picture area inside it were, in the units Avalonia lays out in.
+    /// </summary>
+    /// <remarks>
+    /// A film that arrives at the sink and never reaches the eyes has exactly two places it can get lost, and
+    /// the counters in the other lines cannot tell them apart: either the picture area has no size - a layout
+    /// that squeezed it to nothing shows "frames drawn" climbing while the pixels land in a rectangle nobody
+    /// can see - or it has a size and the compositor still shows black. This line is what separates those two,
+    /// and it is worth four words when the alternative is measuring somebody's desktop and guessing.
+    /// </remarks>
+    private string DescribeLayout()
+    {
+      if (_playWindow == null)
+        return "no playback window";
+
+      Rect screen = _playWindow.SurfaceBounds;
+      return "window " + (int)_playWindow.Bounds.Width + "x" + (int)_playWindow.Bounds.Height
+          + " at " + _playWindow.Position.X + "," + _playWindow.Position.Y
+          + " scaled " + _playWindow.RenderScaling.ToString("0.##", CultureInfo.InvariantCulture)
+          + ", picture area " + (int)screen.Width + "x" + (int)screen.Height
+          + " at " + (int)screen.X + "," + screen.Y
+          + (screen.Width < 160 || screen.Height < 90 ? "  <-- too small to be watched" : "");
+    }
+
+    /// <summary>
+    /// Asks the window for a photograph of what it actually drew and writes it where <c>--shot</c> asked.
+    /// </summary>
+    /// <remarks>
+    /// The window is asked, rather than the desktop photographed from outside: a screen capture of a maximised
+    /// window is also a capture of whatever happened to be behind it, other windows are open while tests run,
+    /// and a measurement of somebody's editor once looked exactly like a film. What the window says it drew is
+    /// the only picture this program can be held to.
+    /// </remarks>
+    private void SaveShot()
+    {
+      if (_shotPath == null || _playWindow == null)
+        return;
+
+      // What is saved is the picture the screen was handed, not a photograph of the monitor: a screen capture of
+      // a maximised window also captures whatever happened to be behind it, other programs are open while a gate
+      // runs, and a measurement of somebody's editor once looked exactly like a film. Together with the `layout:`
+      // line - which says the area it was drawn into was a watchable size - this is the picture this program can
+      // honestly be held to.
+      Console.WriteLine("shot:     " + _playWindow.SavePictureTo(_shotPath));
     }
 
     /// <summary>
@@ -257,12 +343,21 @@ namespace MediaPortal.Frontend
       if (!sink.TryCopyLatest(pixels, width * 4, width, height))
         return "no picture to look at";
 
+      return DescribePixels(pixels, width * 4, width, height);
+    }
+
+    /// <summary>
+    /// The two numbers, from bytes that a screen was given: how bright they are on average, and how many
+    /// different colours they hold.
+    /// </summary>
+    private static string DescribePixels(byte[] pixels, int stride, int width, int height)
+    {
       HashSet<int> colours = new HashSet<int>();
       long luminance = 0;
       long sampled = 0;
       for (int y = 0; y < height; y += 4)
       {
-        for (int x = 0, at = y * width * 4; x < width; x += 8, at += 8 * 4)
+        for (int x = 0, at = y * stride; x < width; x += 8, at += 8 * 4)
         {
           int blue = pixels[at];
           int green = pixels[at + 1];

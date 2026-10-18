@@ -1694,6 +1694,17 @@ What it prints is what a gate judges, because a gate cannot look at a picture:
 
 Flat frames fail: under 16 distinct colours, or under 1% of pixels differing from the dominant background colour.
 
+**A frame counter is not a picture, and one black screen proved it.** The playback surface copied decoded bytes
+into its `WriteableBitmap` but handed that bitmap to the `Image` control before the first copy had filled it, and
+never asked the control to draw again - so the compositor kept showing the empty first upload, a black rectangle
+the size of the film, while the app's own `video: N frame(s) drawn` counter climbed into the hundreds. The fix
+(`Views\VideoSurface.cs`) sets `Source` only after a copy succeeds and calls `InvalidateVisual()` after every
+fill. No headless test caught it, and neither did a desktop screenshot: a GDI capture of the maximised window's
+rectangle once reported `53 719 distinct colours` after the change, which was the editor showing beside the
+window, not a film. So the front end now photographs *itself* rather than the monitor being photographed from
+outside - see `--shot`, `--start` and the `layout:` line under the playback entry below - because a capture of
+where a window *should be* is a capture of whatever happens to be there.
+
 It runs from two gates, twice each, and all four runs show real data. `test-frontend-check.ps1` runs it **while
 its server is still up** (item 6 of that script, `-SkipRender` to leave it out, `-RenderDir` to move the output),
 which writes `build\artifacts\frontend-render\home-windows.png` from the populated screen

@@ -113,6 +113,38 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
+    /// Writes the picture currently on this surface to a PNG and says what it wrote.
+    /// </summary>
+    /// <remarks>
+    /// A frame counter says how often drawing was asked for; only the picture says whether there was anything to
+    /// see, and a person - or a gate - should be able to look at the one without photographing a desktop that has
+    /// other windows in it. What is saved is what the surface holds after the crop and the byte order have been
+    /// dealt with, which is the same thing the compositor was given to draw.
+    /// </remarks>
+    /// <returns>A sentence naming the file, or why there is nothing to name.</returns>
+    public string SavePicture(string path)
+    {
+      WriteableBitmap? bitmap = _bitmap;
+      if (bitmap == null || FramesDrawn == 0)
+        return "nothing had reached this screen, so there is no picture to write";
+
+      try
+      {
+        string? directory = System.IO.Path.GetDirectoryName(System.IO.Path.GetFullPath(path));
+        if (directory != null && !System.IO.Directory.Exists(directory))
+          System.IO.Directory.CreateDirectory(directory);
+
+        bitmap.Save(path, new PngBitmapEncoderOptions());
+        return path + " (" + bitmap.PixelSize.Width + "x" + bitmap.PixelSize.Height + ", the picture after "
+            + FramesDrawn.ToString("N0", System.Globalization.CultureInfo.InvariantCulture) + " frame(s))";
+      }
+      catch (Exception ex)
+      {
+        return "could not be written to " + path + " - " + ex.Message;
+      }
+    }
+
+    /// <summary>
     /// Start showing the pictures this sink receives. Passing null - no player, or a player that refused to hand
     /// its pictures over - stops the surface and leaves it empty, which the playback screen shows as its
     /// "nothing to draw" message instead of a black hole.
@@ -223,6 +255,18 @@ namespace MediaPortal.Frontend.Views
         }
       }
 
+      // The bytes are in the bitmap, and that is not the same as the screen knowing it. `Image` draws the bitmap
+      // it was given, and the first thing it was given was this one - empty, because the bitmap is built before
+      // the first picture is copied into it. Two things follow: the control is handed the bitmap only once it
+      // holds a frame, and it is asked to draw again after every fill, because it cannot notice that the bytes
+      // inside a bitmap it already has have changed. Without that ask the compositor keeps the upload it made
+      // first, which is a black rectangle the size of the film - the most convincing possible way to look like a
+      // decoder that produced nothing, right down to the counters happily counting hundreds of frames.
+      if (!ReferenceEquals(Source, bitmap))
+        Source = bitmap;
+
+      InvalidateVisual();
+
       _lastPulled = arrived;
       LastFailure = null;
       FramesDrawn++;
@@ -259,7 +303,9 @@ namespace MediaPortal.Frontend.Views
       _bitmap = new WriteableBitmap(new PixelSize(width, height), new Vector(96, 96),
           PixelFormat.Bgra8888, AlphaFormat.Opaque);
       _scratch = new byte[height * width * 4];
-      Source = _bitmap;
+
+      // Deliberately not `Source = _bitmap` here: the picture is put on the Image below, after the first frame has
+      // actually been copied in, so that the first thing the compositor ever sees of this bitmap is a picture.
     }
 
     private void Clear()

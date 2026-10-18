@@ -124,6 +124,28 @@ namespace MediaPortal.Frontend.Views
       get { return videoSurface.FramesDrawn; }
     }
 
+    /// <summary>
+    /// Where the picture area ended up inside the window, in the units Avalonia lays out in.
+    /// </summary>
+    /// <remarks>
+    /// Asked when a film is reported missing: pictures can fail to reach a person because nothing decoded them,
+    /// because they were decoded and never drawn, or because they were drawn into an area so small that no
+    /// amount of looking would find them. Only the second of those shows up in a frame counter.
+    /// </remarks>
+    public Rect SurfaceBounds
+    {
+      get { return videoSurface.Bounds; }
+    }
+
+    /// <summary>
+    /// The picture this screen was given, written to a PNG. <c>--shot</c> uses it, because "frames drawn" and
+    /// "a film was there" are different claims and only the file can settle the second one.
+    /// </summary>
+    public string SavePictureTo(string path)
+    {
+      return videoSurface.SavePicture(path);
+    }
+
     /// <summary>The size of the picture on screen, or null while the frame is empty.</summary>
     public PixelSize? PictureSize
     {

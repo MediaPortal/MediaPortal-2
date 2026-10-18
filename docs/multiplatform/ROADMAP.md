@@ -1432,9 +1432,31 @@ bisecting with a throwaway host:
   pictures it has in flight, which are the ones that were being refused.
 
 Five runs of the scenario that used to crash every time now exit 0, `ReleasedCleanly=True`, and the whole
-real-file gate is green with the sink disposed mid-play. `Tests.Frontend` is **174**: 12 tests of the sink
+real-file gate is green with the sink disposed mid-play. `Tests.Frontend` is **174**: 14 tests of the sink
 (including the two that reach into the assembly to create the held-buffer state, which the public surface cannot
-produce), 5 of the surface, and the real-file fixture's 9 whenever a file is supplied.
+produce), the playback screen's 23, and the real-file fixture's 9 whenever a file is supplied.
+
+**The picture was invisible, and the frame counter did not know it.** A report of "sound but no picture" was
+correct, and the counters had been arguing with it: `video: 975 frame(s) drawn` while the screen was black. The
+cause was in `VideoSurface`, one line of it: the surface copies decoded bytes into a `WriteableBitmap`, but it
+handed that bitmap to the `Image` control *before* the first copy had put anything in it, and never asked the
+control to draw again. The compositor kept the empty upload it made first and showed it forever, while
+`FramesDrawn` climbed merrily. The fix is to set `Source` only after a copy has succeeded and to call
+`InvalidateVisual()` after every fill - the control cannot notice that bytes inside a bitmap it already holds
+have changed. This is the clearest case in the whole project of a counter that measured the wrong thing: "drawing
+was asked for" is not "a picture is on the screen", and only the pixels can say the second.
+
+**The measurement lied once, and it was a screen capture of a desktop.** The way that was supposed to prove the
+fix - photograph the maximised window's rectangle with GDI and count its colours - reported `53 719 distinct
+colours` after the change, which looked like a film and was actually the editor showing through beside the
+window. A screen capture of where a window *should be* is a capture of whatever is there. So the front end now
+photographs *itself*: `--shot <file>` writes the surface's own picture to a PNG, `--start <time>` seeks past the
+part of the film that is legitimately dark, and the run prints a `layout:` line (window size, scaling, and the
+picture area inside it) so "the pixels landed in a rectangle nobody can see" is ruled out by geometry rather than
+by eye. The self-captured frame of the user's film at 4:00 is `picture: mean luminance 42, 1699 distinct
+colour(s)` in a 909 KB PNG of the scene - a night exterior - and at 0:11 the *file itself*, decoded by ffmpeg, is
+luminance 1 because the episode opens on a title card. Dark is not broken, and now the two can be told apart
+without a person at the screen.
 
 **Two things had to be learned about the test platform to get there.** A `DispatcherTimer` never ticks under
 `Avalonia.Headless.NUnit` (measured over a second of pumping), so `VideoSurface` exposes `DrawNow()` - the work
