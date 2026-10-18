@@ -1784,15 +1784,20 @@ date came from stopping it halfway, which is the distinction the whole feature t
 The eighth frame is the home screen of a scripted server that holds twelve titles and says four of them were left
 half way (`continue-windows.png`): the strip under the two tiles lists the film whose name alone is known, the
 episode, and two more films, newest stop first, each with its runtime and the date it was stopped, none of them
-carrying the tick that section **ac** introduced. The probe refuses the picture unless those four - and only those
-four - are on the strip in that order, no title is marked watched, both tiles are present, and the server named at
-the top is the scripted one; a wrong endpoint path in the probe once rendered a frame with no server name at all, so
-that condition is now asserted too. Measuring the pixels independently of the probe agrees, and says where the
-strip's columns actually are: a row band holds three ink blocks - a title at `x 61..261`, a short middle column at
-`x 528..595`, and a 172-pixel block at `x 826..997` where a `yyyy-MM-dd HH:mm` date belongs - and sampling that
-column across the whole lower half of the frame finds exactly four bands (peaks of 89, 93, 88 and 102 bright pixels),
-against zero bands in the same column of the home screen drawn against a real empty server. Four dated rows is also
-proof that the merge happened, since the films can only supply three of them and the series one. It is committed as
+carrying the tick that section **ac** introduced, and three of the four also carrying the position the viewer left -
+`12% watched`, `74% watched`, `61% watched` - while the oldest of them carries none. The probe refuses the picture
+unless those four - and only those four - are on the strip in that order, with exactly those three figures and the
+one empty space, no title is marked watched, both tiles are present, and the server named at the top is the scripted
+one; a wrong endpoint path in the probe once rendered a frame with no server name at all, so that condition is now
+asserted too. Measuring the pixels independently of the probe agrees, and says where the strip's columns actually
+are: the four row bands (`y 366..380`, `416..430`, `466..480`, `516..530`) each hold a title (`x 61..294` at its
+widest), a short middle column somewhere in `x 441..510` depending on how long the runtime is, and a date at
+`x 675..845`; and the three rows that carry a position hold a fourth
+block at `x 1004..1127` - some 120 pixels of it, beginning within ten pixels of one another across the three rows -
+where the row with nothing stored ends at `x 845`. The same measurement on the frame drawn before the positions
+existed finds three blocks in every row and no ink past `x 997` anywhere. Three figures is also proof that the
+positions came attached to the titles rather than being invented per row, since they differ from row to row in the
+order the script stored them. It is committed as
 `docs\multiplatform\screenshots\continue-windows-skia.png`.
 
 `test-frontend-linux.ps1 -ServeFromHost` starts

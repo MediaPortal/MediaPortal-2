@@ -1246,10 +1246,20 @@ namespace Tests.Frontend
     private class ShelfTitle
     {
       internal ShelfTitle(string name, int playCount, string lastPlayed)
+          : this(name, playCount, lastPlayed, null)
+      {
+      }
+
+      /// <param name="resume">
+      /// How far this viewer got, as the server reports it, or <c>null> for a title with no position on it - the
+      /// answer a request from nobody gets for every title.
+      /// </param>
+      internal ShelfTitle(string name, int playCount, string lastPlayed, int? resume)
       {
         Name = name;
         PlayCount = playCount;
         LastPlayed = lastPlayed;
+        Resume = resume;
       }
 
       internal string Name { get; }
@@ -1258,13 +1268,15 @@ namespace Tests.Frontend
 
       /// <summary>ISO date as JSON carries it, or <c>null</c> for a title the library was never told about.</summary>
       internal string LastPlayed { get; }
+
+      internal int? Resume { get; }
     }
 
     private static readonly ShelfTitle[] SEEN_SHELF =
     {
         new ShelfTitle("Alien", 2, "1979-05-25T20:15:00"),
         new ShelfTitle("Alien Earth", 0, null),
-        new ShelfTitle("Army of Thieves", 0, "2024-03-03T18:00:00"),
+        new ShelfTitle("Army of Thieves", 0, "2024-03-03T18:00:00", 42),
         new ShelfTitle("Nimmerland", 1, "2025-01-12T21:30:00")
     };
 
@@ -1315,6 +1327,8 @@ namespace Tests.Frontend
               .Append(",\"playCount\":").Append(matching[i].PlayCount);
           if (matching[i].LastPlayed != null)
             body.Append(",\"lastPlayed\":\"").Append(matching[i].LastPlayed).Append("\"");
+          if (matching[i].Resume != null)
+            body.Append(",\"resume\":").Append(matching[i].Resume.Value);
           body.Append('}');
         }
         body.Append("]}");
@@ -1388,6 +1402,47 @@ namespace Tests.Frontend
 
       TitleViewModel never = browser.Titles.Single(title => title.Name == "Alien Earth");
       Assert.That(never.Seen, Is.False, "and a title the library never heard of plays the same way");
+    }
+
+    // ---- how far this person got ---------------------------------------------------------------------
+
+    [Test]
+    public void HowFarOnePersonGotArrivesWithTheTitle()
+    {
+      SeenServer server = new SeenServer();
+      using (var client = new ServerApiClient(SIGN_IN_URL, new HttpClient(server)))
+      {
+        MediaTitles answer = Task.Run(delegate
+        {
+          return client.GetTitlesAsync("MovieItem", null, false, 60, 0, null, null, CancellationToken.None);
+        }).GetAwaiter().GetResult();
+
+        MediaTitle stopped = answer.Titles.Single(title => title.Title == "Army of Thieves");
+        Assert.That(stopped.Resume, Is.EqualTo(42),
+            "the figure this person left behind is carried under the server's own word for it");
+
+        MediaTitle finished = answer.Titles.Single(title => title.Title == "Alien");
+        Assert.That(finished.Resume, Is.Null,
+            "a title with no position on it answers with no figure, which is not the same figure as zero");
+      }
+    }
+
+    [AvaloniaTest]
+    public void ARowSaysHowFarItsViewerGotAndSaysNothingWhenTheyLeftNoPosition()
+    {
+      SeenServer server = new SeenServer();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.OpenCommand.Execute(null);
+      WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SEEN_SHELF.Length; });
+
+      TitleViewModel stopped = browser.Titles.Single(title => title.Name == "Army of Thieves");
+      Assert.That(stopped.ResumePercent, Is.EqualTo(42));
+      Assert.That(stopped.ResumeText, Is.EqualTo("42% watched"));
+
+      TitleViewModel finished = browser.Titles.Single(title => title.Name == "Alien");
+      Assert.That(finished.ResumePercent, Is.Null);
+      Assert.That(finished.ResumeText, Is.Empty,
+          "a row with nothing stored shows an empty space rather than a made-up figure or a bare percent sign");
     }
 
     [AvaloniaTest]

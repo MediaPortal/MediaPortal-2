@@ -455,8 +455,9 @@ namespace MediaPortal.Frontend
         return;
       }
 
-      if (_nowPlaying.Play(MediaLocation.FromFile(title.LocalPath!), title.Title.Id))
-        Console.WriteLine("play:     " + System.IO.Path.GetFileName(title.LocalPath) + " from the library");
+      if (_nowPlaying.Play(MediaLocation.FromFile(title.LocalPath!), title.Title.Id, title.ResumePercent ?? 0))
+        Console.WriteLine("play:     " + System.IO.Path.GetFileName(title.LocalPath) + " from the library"
+            + (title.ResumePercent.HasValue ? " - resumed at " + title.ResumePercent.Value + "%" : ""));
       else
         Console.WriteLine("play:     refused - " + _nowPlaying.StatusLine);
     }

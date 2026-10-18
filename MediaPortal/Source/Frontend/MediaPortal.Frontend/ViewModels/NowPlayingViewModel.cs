@@ -101,6 +101,17 @@ namespace MediaPortal.Frontend.ViewModels
     private bool _reported;
 
     /// <summary>
+    /// How far into the media being opened the viewer already got last time, 0 for "from the beginning".
+    /// </summary>
+    private int _resumePercent;
+
+    /// <summary>
+    /// Whether the seek for <see cref="_resumePercent"/> was carried out. A resume is applied once, on the first
+    /// position event that brings a length with it, and never again for that media.
+    /// </summary>
+    private bool _resumeApplied;
+
+    /// <summary>
     /// The entry that switches subtitles off. Id -1 is the engine's own convention for that (see
     /// <see cref="PlaybackTrack"/>), so the list a viewer picks from and the number the engine gets are the same
     /// idea rather than two.
@@ -376,6 +387,28 @@ namespace MediaPortal.Frontend.ViewModels
     /// </param>
     public bool Play(MediaLocation location, Guid? mediaItemId)
     {
+      return Play(location, mediaItemId, 0);
+    }
+
+    /// <summary>
+    /// As <see cref="Play(MediaLocation, Guid?)"/>, starting the media where the viewer left it.
+    /// </summary>
+    /// <param name="location">The media to open.</param>
+    /// <param name="mediaItemId">The library title behind it, or null to tell the library nothing.</param>
+    /// <param name="resumePercent">
+    /// How far the server says this viewer got, 1 to 99. Anything else - nought, a hundred, a negative - starts
+    /// the media at the beginning, because a hundred is a film that is finished and nought is a position nobody
+    /// needs moved to.
+    /// </param>
+    /// <remarks>
+    /// A percentage and not a time, because a percentage is what the library stores and what survives a re-encode:
+    /// a viewer who watched 42% of a film last month is at 42% of it today even if the file was replaced with a
+    /// longer cut. It is turned into a position as soon as the engine says how long the media is - see
+    /// <see cref="OnPositionChanged"/> - because before that there is no length to take a fraction of, and a seek
+    /// issued against a length of nought lands at the beginning with the confidence of a command that worked.
+    /// </remarks>
+    public bool Play(MediaLocation location, Guid? mediaItemId, int resumePercent)
+    {
       if (_disposed)
         return Refuse("this screen is closed.");
       if (_player == null)
@@ -400,10 +433,17 @@ namespace MediaPortal.Frontend.ViewModels
       // viewer looking at the screen while a file opens cannot pick a subtitle out of the previous film.
       ClearTracks();
 
+      // Armed before the engine is asked, not after: an engine can raise its first position event while the call
+      // to open the media is still running, and a resume armed afterwards would be a seek that never happens for
+      // the one media it was meant for.
+      _resumePercent = resumePercent >= 1 && resumePercent <= 99 ? resumePercent : 0;
+      _resumeApplied = false;
+
       if (!_player.Open(location))
       {
         _title = previousTitle;
         _hasMedia = previousHasMedia;
+        _resumePercent = 0;
         return Refuse(_player.LastFailure ?? "the player gave no reason.");
       }
 
@@ -557,8 +597,30 @@ namespace MediaPortal.Frontend.ViewModels
 
     private void OnPositionChanged(object? sender, PlaybackPositionEventArgs args)
     {
+      // The resume seek, applied the first time an event says how long the media is. Out here rather than inside
+      // the marshaller on purpose: the seek is the engine's business and can be issued from the thread the engine
+      // is on, while waiting for a UI turn would have the viewer watch the first minutes of a film they had
+      // already seen before the seek landed at all.
+      long resumedToMs = 0;
+      int resumedPercent = 0;
+      if (_resumePercent > 0 && !_resumeApplied && args.LengthInMs > 0 && _player != null)
+      {
+        resumedPercent = _resumePercent;
+        _resumeApplied = true;
+        _resumePercent = 0;
+        resumedToMs = args.LengthInMs * resumedPercent / 100;
+        _player.TimeInMs = resumedToMs;
+      }
+
+      long resume = resumedToMs;
+      int percent = resumedPercent;
       _marshal(delegate
       {
+        if (resume > 0)
+          // Said out loud because a film that starts twelve minutes in looks like a broken player unless the
+          // screen says that was on purpose.
+          _statusLine = "Resumed at " + percent + "% - " + Format(resume);
+
         if (args.TimeInMs > _furthestMs)
           _furthestMs = args.TimeInMs;
         _positionText = Format(args.TimeInMs) + " / " +

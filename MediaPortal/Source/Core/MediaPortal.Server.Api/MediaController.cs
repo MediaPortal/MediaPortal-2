@@ -24,7 +24,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MediaPortal.Backend.MediaLibrary;
@@ -35,6 +37,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Server.Api
@@ -78,6 +81,39 @@ namespace MediaPortal.Server.Api
     /// JSON array while the front end that asked can show twenty of them.
     /// </summary>
     public const int MAX_LIMIT = 2000;
+
+    /// <summary>
+    /// The MediaPortal user profile the bearer token names, or null when the request carries no name.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The token has always carried it: <c>MediaPortalCredentials</c> puts the profile id in
+    /// <see cref="ClaimTypes.Sid"/> when it grants a password grant
+    /// (MediaPortalCredentials.cs:165) and <c>MediaPortalAccessToken</c> signs it into the payload
+    /// (MediaPortalAccessToken.cs:70). <see cref="SessionController"/> was the only endpoint reading it, which
+    /// is why this controller could answer "who is watching?" but not "what has <i>this</i> person watched?".
+    /// </para>
+    /// <para>
+    /// Null is not a failure, it is an answer with a different scope: without a name the library is read as the
+    /// household's, so a title says whether <i>anybody</i> finished it and no resume position exists at all.
+    /// <see cref="Guid.Empty"/> is deliberately folded into that null rather than passed on - the query engine
+    /// treats a profile that merely <i>has</i> a value as a real one and joins the user data table on all zeros
+    /// (CompiledMediaItemQuery.cs:422), which yields no rows and looks like an empty shelf rather than like an
+    /// anonymous request.
+    /// </para>
+    /// </remarks>
+    private Guid? CallerProfile
+    {
+      get
+      {
+        ClaimsPrincipal caller = HttpContext != null ? HttpContext.User : null;
+        string sid = caller != null ? caller.FindFirstValue(ClaimTypes.Sid) : null;
+        Guid profileId;
+        if (sid == null || !Guid.TryParse(sid, out profileId) || profileId == Guid.Empty)
+          return null;
+        return profileId;
+      }
+    }
 
     /// <summary>
     /// One title, as a front end shows it in a list.
@@ -129,6 +165,21 @@ namespace MediaPortal.Server.Api
       /// title.
       /// </summary>
       public DateTime? LastPlayed { get; set; }
+
+      /// <summary>
+      /// How far the caller had got in this title, 1 to 99, or null. Null means one of two things and the answer
+      /// cannot tell them apart: the caller is nobody (an unauthenticated request has no resume positions), or
+      /// that person has nothing part-way here - never opened, or watched to the end, which is not a position to
+      /// resume from.
+      /// </summary>
+      /// <remarks>
+      /// Read from the caller's own user data, which the library only attaches when the request named somebody
+      /// (see <see cref="CallerProfile"/>). A hundred is deliberately not reported: MP2's continue-watch reading
+      /// of the same number asks for a percentage strictly between nought and a hundred
+      /// (BaseContinueWatchMediaListProvider.cs:43-46), because a film that is finished has nothing left to
+      /// resume, and a row offering to resume one would offer to watch it again from the first minute.
+      /// </remarks>
+      public int? Resume { get; set; }
     }
 
     /// <summary>
@@ -298,11 +349,14 @@ namespace MediaPortal.Server.Api
         query.Limit = (uint)take;
 
         // The last argument is includeVirtual, and false is the answer to "give me things to watch". The one
-        // before it is a user profile, which would add per-user data (watched state) the day this front end has
-        // one; nothing here asks for it, so nobody is asked to name themselves for it.
-        IList<MediaItem> items = mediaLibrary.Search(query, false, null, false);
+        // before it is the caller's user profile, which is what makes the library attach that person's own
+        // playback data - how far they got in each title - to the rows. It is null when the request carries no
+        // name, and then the answer is the household's: watched means "somebody finished it", and there is no
+        // resume position to report because nobody's was asked for.
+        Guid? profile = CallerProfile;
+        IList<MediaItem> items = mediaLibrary.Search(query, false, profile, false);
 
-        List<TitleResult> titles = items.Select(ToTitle).ToList();
+        List<TitleResult> titles = items.Select(item => ToTitle(item, profile.HasValue)).ToList();
 
         // "how many are there" is asked through the same filter the list was read through, or a front end that
         // reached the bottom of a search would keep offering more of a list that has no more in it - and would say
@@ -381,6 +435,12 @@ namespace MediaPortal.Server.Api
       /// <summary>When it was last played, or null if the library was never told.</summary>
       public DateTime? LastPlayed { get; set; }
 
+      /// <summary>
+      /// How far the caller had got, 1 to 99, or null - the same figure the title list carries and the same two
+      /// reasons for it to be absent: nobody asked, or this person has nothing part-way here.
+      /// </summary>
+      public int? Resume { get; set; }
+
       /// <summary>Serialized path of the primary resource, exactly as the title list gives it.</summary>
       public string Path { get; set; }
 
@@ -431,13 +491,14 @@ namespace MediaPortal.Server.Api
         };
 
         MediaItemQuery query = new MediaItemQuery(necessary, optional, new MediaItemIdFilter(id));
-        IList<MediaItem> items = mediaLibrary.Search(query, false, null, false);
+        Guid? profile = CallerProfile;
+        IList<MediaItem> items = mediaLibrary.Search(query, false, profile, false);
         MediaItem item = items == null ? null : items.FirstOrDefault();
 
         if (item == null)
           return NotFound(new ItemResult { Id = id, Error = "this server has no title with the id " + id });
 
-        return ToItem(item);
+        return ToItem(item, profile.HasValue);
       }
       catch (IllegalCallException ex)
       {
@@ -461,12 +522,16 @@ namespace MediaPortal.Server.Api
     /// <summary>
     /// Turns a media item into the answer of <see cref="GetItem"/>.
     /// </summary>
+    /// <param name="askedAsSomebody">
+    /// Whether the request named a user profile, which decides whether the answer may carry that person's position
+    /// in the title. The same rule as in <see cref="ToTitle"/>.
+    /// </param>
     /// <remarks>
     /// Every attribute read is one the item may not carry, so each is read inside its aspect's presence check -
     /// and a missing one stays null rather than becoming zero, which for a runtime or a season number would be a
     /// claim about the media that the database never made.
     /// </remarks>
-    private static ItemResult ToItem(MediaItem item)
+    private static ItemResult ToItem(MediaItem item, bool askedAsSomebody)
     {
       ItemResult result = new ItemResult { Id = item.MediaItemId };
 
@@ -485,6 +550,11 @@ namespace MediaPortal.Server.Api
         if (recordingTime != DateTime.MinValue)
           result.Year = recordingTime.Year;
       }
+
+      // The caller's own position, from the user data the search attached to this item when the request named
+      // somebody. Kept out of the aspect block above because it is not an attribute of the title - it is this
+      // person's, which is why two people asking about the same id get two different answers here.
+      result.Resume = askedAsSomebody ? ReadResume(item) : null;
 
       // The same rule as the title list: "<Unknown>" is MediaItem.Title's own fallback, and a details screen has
       // even less business showing an internal fallback as the name of a film than a list does.
@@ -579,6 +649,13 @@ namespace MediaPortal.Server.Api
       /// <summary>Whether this report counted as a completed viewing.</summary>
       public bool Watched { get; set; }
 
+      /// <summary>
+      /// What the library now holds as the caller's position in this title, 1 to 99, or null when it holds none.
+      /// Null after a successful report means the viewing was finished (a hundred is not a position to resume
+      /// from) or that the request came from nobody, whose playback is counted but not remembered.
+      /// </summary>
+      public int? Resume { get; set; }
+
       /// <summary>Set when the report was refused, in words a screen can show.</summary>
       public string Error { get; set; }
     }
@@ -597,11 +674,15 @@ namespace MediaPortal.Server.Api
     /// marks the date on anything shorter.
     /// </para>
     /// <para>
-    /// <b>The title's own counters, not one viewer's.</b> MP2 also keeps per-profile counts and resume positions
-    /// through <see cref="IMediaLibrary.NotifyUserPlayback(Guid, Guid, int, bool)"/>; this does not write those,
-    /// because they belong to a user profile and this front end has no profile to name - a bearer token says which
-    /// machine may ask, not which person is sitting on the sofa. Several viewers sharing one "watched" flag is a
-    /// simplification, and it is written down here rather than discovered by whoever adds the profile picker.
+    /// <b>Whose viewing it is.</b> When the bearer token names a MediaPortal profile, the report goes to
+    /// <see cref="IMediaLibrary.NotifyUserPlayback(Guid, Guid, int, bool)"/>, which is MP2's own entry point for
+    /// one person's playback: it writes that person's play date, play count and percentage, and - because it
+    /// calls <see cref="IMediaLibrary.NotifyPlayback(Guid, bool)"/> itself first
+    /// (MediaLibrary.cs:2809) - the title's shared counters as well. So the watched figures sections
+    /// <b>ac</b> and <b>ad</b> read keep moving whether or not anybody signed in, and the resume position is
+    /// remembered only for the person who asked. A request from nobody keeps the older, narrower path: the
+    /// household's counters move and no position is stored, because a position filed under no profile belongs to
+    /// nobody and would show up as a resume offer on somebody else's television.
     /// </para>
     /// <para>
     /// The answer is what the library holds afterwards, read back rather than calculated here, so that a screen
@@ -626,15 +707,24 @@ namespace MediaPortal.Server.Api
 
       try
       {
+        Guid? profile = CallerProfile;
+
         // Asked for before the write, because "there is no such title" and "the title is there and now says it was
         // played" are different answers; a library that never heard of the id must not be told to mark it, and a
         // client must not be told it recorded something that went nowhere.
-        if (FindTitle(mediaLibrary, id) == null)
+        if (FindTitle(mediaLibrary, id, profile) == null)
           return NotFound(new PlaybackResult { Id = id, Error = "this server has no title with the id " + id });
 
         bool watched = playback.Percentage >= 100;
-        mediaLibrary.NotifyPlayback(id, watched);
-        return ToPlayback(id, FindTitle(mediaLibrary, id), watched);
+        if (profile.HasValue)
+          // One person's viewing. This is the call that also stores the percentage to resume from, and it writes
+          // the shared counters itself, so nothing is called twice here.
+          mediaLibrary.NotifyUserPlayback(profile.Value, id, playback.Percentage, true);
+        else
+          // Nobody's viewing, so there is nobody to remember a position for: the title's own counters only.
+          mediaLibrary.NotifyPlayback(id, watched);
+
+        return ToPlayback(id, FindTitle(mediaLibrary, id, profile), watched, profile.HasValue);
       }
       catch (IllegalCallException ex)
       {
@@ -645,25 +735,38 @@ namespace MediaPortal.Server.Api
     /// <summary>
     /// The one item with this id, or null when the library has none.
     /// </summary>
+    /// <param name="profile">
+    /// The caller's profile, or null to read the title without anybody's playback data on it. Asked for with the
+    /// same profile the write went through, so that the numbers this answer reports are the ones that write
+    /// produced rather than a second opinion read from a different row of the database.
+    /// </param>
     /// <remarks>
     /// Only the Media aspect is necessary and nothing optional is asked for: this is the lookup that decides
     /// "is there such a title, and what does it say about being played", and a details answer would be a second
     /// read of the same row for no reason.
     /// </remarks>
-    private static MediaItem FindTitle(IMediaLibrary mediaLibrary, Guid id)
+    private static MediaItem FindTitle(IMediaLibrary mediaLibrary, Guid id, Guid? profile)
     {
       MediaItemQuery query = new MediaItemQuery(
           new List<Guid> { MediaAspect.ASPECT_ID }, null, new MediaItemIdFilter(id));
-      IList<MediaItem> items = mediaLibrary.Search(query, false, null, false);
+      IList<MediaItem> items = mediaLibrary.Search(query, false, profile, false);
       return items == null ? null : items.FirstOrDefault();
     }
 
     /// <summary>
     /// The playback counters of a title, as the library holds them now.
     /// </summary>
-    private static PlaybackResult ToPlayback(Guid id, MediaItem item, bool watched)
+    /// <param name="askedAsSomebody">
+    /// Whether the report came from a named profile, which decides whether the answer may carry a position at all.
+    /// </param>
+    private static PlaybackResult ToPlayback(Guid id, MediaItem item, bool watched, bool askedAsSomebody)
     {
-      PlaybackResult result = new PlaybackResult { Id = id, Watched = watched };
+      PlaybackResult result = new PlaybackResult
+      {
+        Id = id,
+        Watched = watched,
+        Resume = askedAsSomebody ? ReadResume(item) : null
+      };
 
       SingleMediaItemAspect media;
       if (item != null && MediaItemAspect.TryGetAspect(item.Aspects, MediaAspect.Metadata, out media))
@@ -758,7 +861,12 @@ namespace MediaPortal.Server.Api
     /// <summary>
     /// Turns a media item into the row a title list shows.
     /// </summary>
-    private static TitleResult ToTitle(MediaItem item)
+    /// <param name="askedAsSomebody">
+    /// Whether the request that produced this item named a user profile. It decides whether the row may carry a
+    /// resume position at all: the figure belongs to a person, and reporting somebody's position to a request that
+    /// named nobody would be showing one viewer another's place in the film.
+    /// </param>
+    private static TitleResult ToTitle(MediaItem item, bool askedAsSomebody)
     {
       TitleResult result = new TitleResult { Id = item.MediaItemId };
 
@@ -795,8 +903,51 @@ namespace MediaPortal.Server.Api
 
       result.Stub = item.IsStub;
 
+      // How far the caller got, if the library was told who the caller is. Read off the item rather than asked
+      // for separately: the search already carried this person's user data along with the row when the request
+      // named them, and asking per title would be one database round trip per row of a list.
+      result.Resume = askedAsSomebody ? ReadResume(item) : null;
+
       result.Path = ReadPath(item);
       return result;
+    }
+
+    /// <summary>
+    /// The caller's stored position in this title as a percentage from 1 to 99, or null when there is none to
+    /// offer.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// MP2 stores it as <see cref="UserDataKeysKnown.KEY_PLAY_PERCENTAGE"/> in the caller's user data, written by
+    /// <see cref="IMediaLibrary.NotifyUserPlayback(Guid, Guid, int, bool)"/> as a fixed-width string
+    /// (<c>GetSortablePlayPercentageString</c>, UserDataKeysKnown.cs:62: <c>"042"</c>) so that the database sorts
+    /// those rows in numeric order. Reading it back is a parse of that text, not a number: the column is a string
+    /// and an unparsable one means the library holds something this endpoint will not guess a meaning for.
+    /// </para>
+    /// <para>
+    /// Nought and a hundred both come back as null, and for different reasons worth stating: nought is "opened
+    /// and abandoned at the very start", where starting again is the same thing, and a hundred is finished. What
+    /// is left is exactly MP2's own continue-watch interval, and it is the interval a screen can act on by
+    /// seeking.
+    /// </para>
+    /// </remarks>
+    private static int? ReadResume(MediaItem item)
+    {
+      if (item == null || item.UserData == null)
+        return null;
+
+      string stored;
+      if (!item.UserData.TryGetValue(UserDataKeysKnown.KEY_PLAY_PERCENTAGE, out stored))
+        return null;
+
+      int percentage;
+      if (!int.TryParse(stored, NumberStyles.Integer, CultureInfo.InvariantCulture, out percentage))
+        return null;
+
+      if (percentage <= 0 || percentage >= 100)
+        return null;
+
+      return percentage;
     }
 
     /// <summary>

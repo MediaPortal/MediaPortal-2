@@ -40,7 +40,7 @@ Verified 2026-10-18 with `build.ps1 -Solution Server,Client -Ratchet`, `tests.ps
 | Unit tests, Linux (**front end**) | **155 executed, 0 failed** - the real `ConnectionWindow.axaml`/`HomeWindow.axaml`, Fluent theme, bindings, D-pad handler, HTTP client and the SSDP layer, headless with no display in the image; the same image then draws three screens through Skia and writes the PNGs out, the home one populated from the host's server through `host.docker.internal` | `test-frontend-linux.ps1 -ServeFromHost` |
 | Server actually **runs** | **yes on Windows and on Linux** as a headless process. Windows: reaches the Running state, creates the SQLite store, answers UPnP discovery over the network, exits 0 with an error-free log. Linux: reaches the same Running state with 0 `FATAL`, 0 `ERROR` and one `WARN` - the documented note that a container has no FUSE driver. Android is still unmeasured | `run-server-check.ps1`, `test-server-upnp.ps1`, `test-server-run-linux.ps1` |
 | Server **answers HTTP** | **yes on both hosts**, measured with the same probe: `GET /MediaPortal/Server/health` answers `200` with the server's version and the path it was called with - `pathBase=/MediaPortal/Server`, `path=/health` on Windows *and* in the container, because the shared listener now hands requests over in exactly the shape http.sys uses. The gate checks that text, not just the status code | `run-server-check.ps1 -ProbeUrl`, item **l** below |
-| Server **has an HTTP API** | **three endpoints, on both hosts**, in an assembly of its own (`MediaPortal.Server.Api`): `GET /MediaPortal/Server/api/serverinfo`, `GET api/library/aspects` and `GET api/library/count?aspect=â€¦`. They are discovered MVC controllers (the first in this tree) that read MP2's own settings and media-library services on a request thread, and the gates on Windows and in the container require their content, not just a `200`. A library that is absent or still starting is answered with `503` and a reason rather than an empty answer or an internal error. They are unauthenticated because the token endpoint that would authenticate them is still .NET Framework only - which is why they serve schema and no household data | `run-server-check.ps1 -ProbeUrl`, items **m**, **o** and **p** below |
+| Server **has an HTTP API** | **three endpoints, on both hosts**, in an assembly of its own (`MediaPortal.Server.Api`): `GET /MediaPortal/Server/api/serverinfo`, `GET api/library/aspects` and `GET api/library/count?aspect=…`. They are discovered MVC controllers (the first in this tree) that read MP2's own settings and media-library services on a request thread, and the gates on Windows and in the container require their content, not just a `200`. A library that is absent or still starting is answered with `503` and a reason rather than an empty answer or an internal error. They are unauthenticated because the token endpoint that would authenticate them is still .NET Framework only - which is why they serve schema and no household data | `run-server-check.ps1 -ProbeUrl`, items **m**, **o** and **p** below |
 | Front end (Phase 2) | **exists, it finds a server by itself, and it reads it**: an Avalonia 12 app on the bare spine (no `MediaPortal.Common`, no dependency injection, no log4net) with its own JSON API client, its own SSDP/UPnP discovery (a server is listed only after its own HTTP API answered), a screen where the viewer picks the server from what the network reported and typing an address is the fallback, a ViewModel that never touches a UI type, D-pad navigation that moves focus the way a remote does, a headless UI suite (154 tests) and gates that run the built app against a real server and against a real announcement. Writing it found the bugs the design did not anticipate - a process-killing crash from a button press, a fixture that reported 17 failures it had not caused, a screen that overwrote text while it was being typed - and its whole suite also runs headless in a Linux container, with no display and no `EnableWindowsTargeting`. A render probe draws three windows on the **Skia** backend on both hosts and writes the frames out (`docs\multiplatform\screenshots\`) | `build.ps1 -Solution Frontend -Ratchet`, `tests.ps1`, `test-frontend-check.ps1`, `test-frontend-discovery.ps1`, `test-frontend-linux.ps1`, items **q** and **u** below |
 | Server **runs on Linux** | **yes** - `HeadlessServerLauncher: Switching to running state`, item **g**'s goal, measured. The layout assembles, `libe_sqlite3.so` (linux-x64) loads, SQLite 3.53.3 opens the store, the subschemas `MediaPortal-Basis`, `MediaLibrary`, `UserProfileDataManagement` and `ClientManager` are created from their SQL scripts, and the resource server plus two control points and one UPnP server share port 55555 through one listener | `test-server-run-linux.ps1`, items **i**, **j** and **k** below |
 | Database plugin on a portable driver | `SQLiteDatabase` is `net10.0` with `CA1416` as error, no Win32 calls left, and no longer loads a Windows-only interop library: it talks to SQLite through `Microsoft.Data.Sqlite` (SQLite 3.53.3), whose `e_sqlite3` native is copied into the layout per platform | `SQLiteDatabase.csproj`, items **h** and **j** below |
@@ -132,7 +132,7 @@ and `<WarningsAsErrors>CA1416</WarningsAsErrors>`, so it cannot regress:
 | `SystemAPI\WindowsAPI` autostart, 3 methods | not "registry access" but autostart | moved into a new `AutostartRegistry` with a real Linux answer (XDG desktop entry); `IsSupported` reports false where no mechanism exists |
 | `FileSystem\DriveUtils.GetDiskSize`, `GetFreeDiskSpace` | dead - no callers anywhere in the tree | deleted, together with the `System.Management` and `System.Drawing.Common` package references they were the only users of |
 
-`CA1416` across the Server solution went **196 â†’ 161**, and `spine.ps1`'s P/Invoke ledger went 95 â†’ 94
+`CA1416` across the Server solution went **196 → 161**, and `spine.ps1`'s P/Invoke ledger went 95 → 94
 (the deleted `GetDiskFreeSpaceEx`). Committing the new floors with `-UpdateBaseline` is part of the
 work, not an afterthought: a ratchet that is not re-armed keeps the old ceiling as permission.
 
@@ -305,7 +305,7 @@ plus a factory in `MediaPortal.Common.Windows`, and `WakesSystemFromSuspend` as 
 a host got - the portable one says so in the log too, because "the application wakes, the machine does not"
 is otherwise invisible until a recording is missing. `TaskScheduler` resolves the factory the first time it
 wants to wake anything rather than in its constructor, which is what makes the host's registration order
-irrelevant. `spine.ps1`: core P/Invoke **76 â†’ 73** in **9** files, satellites **104 â†’ 107**, combined
+irrelevant. `spine.ps1`: core P/Invoke **76 → 73** in **9** files, satellites **104 → 107**, combined
 **180 unchanged** - moving Windows code into a satellite costs nothing on that ledger, which is the point of
 it. Eight new tests in `Tests.Server\Services\TaskScheduler` pin the rules the handshake thread and
 cancellation token used to enforce (a replaced, disarmed or closed timer never fires; a throwing handler is
@@ -323,14 +323,14 @@ in `scripts/ci/README.md`: when a project's own `<Reference>`/`<UseXxx>` declara
 
 `System.Runtime.Caching` was the last package the core could not obviously keep, and it measured fine: a
 throwaway `net10.0` program ran `MemoryCache` (named instance with `null` and empty `NameValueCollection`
-config, `CacheItemPolicy` sliding expiration, `MemoryCache.Default`, and the 200Ã—50 get/set loop
+config, `CacheItemPolicy` sliding expiration, `MemoryCache.Default`, and the 200×50 get/set loop
 `RelationshipCache` performs) on `linux-x64` in a container - all four checks pass, so it is not a blocker
 for the flip. It does drag `System.Configuration.ConfigurationManager`, `System.Security.Permissions` and
 `Microsoft.Win32.SystemEvents` into a portable project's output, which is worth remembering when the caching
 strategy is revisited.
 
-**The reference graph paid out immediately.** `MediaPortal.Backend` was next by dependency order (Backend â†’
-Common â†’ UPnP/Utilities) and needed no work at all: it references only the three now-portable assemblies, and
+**The reference graph paid out immediately.** `MediaPortal.Backend` was next by dependency order (Backend →
+Common → UPnP/Utilities) and needed no work at all: it references only the three now-portable assemblies, and
 `spine.ps1` had been reporting 0 WinForms, 0 GDI+ and 0 `[DllImport]` in it for weeks. Flipping it to
 `net10.0` with `CA1416` as error built **0 errors / 0 findings** on the first try, and the gated total stayed
 at 487. Four of the ninety SDK-style projects are portable now; the ones above them are the UI, which is what
@@ -713,8 +713,8 @@ attribute route, and an unknown controller still answering `404`).
 | `GET api/serverinfo` on Windows (`http.sys`) | `200`, `version 2.5.2305.14606`, `framework .NET 10.0.13`, `operatingSystem Microsoft Windows 10.0.26200`, served below `PathBase=/MediaPortal/Server` |
 | `GET api/serverinfo` in the Linux container (shared listener) | `200`, same version, `operatingSystem Ubuntu 24.04.5 LTS` - the same controller, the same route, discovered the same way, on the platform without http.sys |
 | Container log after the change | 0 `FATAL`, 0 `ERROR`, 1 `WARN` (the documented no-FUSE note) |
-| Probes in the gate | 1 â†’ **2**, each with expected content |
-| Unit tests | 347 â†’ **353** |
+| Probes in the gate | 1 → **2**, each with expected content |
+| Unit tests | 347 → **353** |
 | Ratchet / spine | `486` findings = baseline, `Spine OK.` |
 
 ### n. Who decides where MVC looks for controllers
@@ -756,7 +756,7 @@ The build found both, which is why the gate builds the whole solution rather tha
 | Measurement | Value |
 | --- | --- |
 | `api/probe` with the controller's assembly declared / not declared | `200` / `404` |
-| Unit tests | 353 â†’ **357** |
+| Unit tests | 353 → **357** |
 | Windows live server (gate) | both probes with expected content, `Running` state, clean stop |
 | Linux container, fresh image | exit `0`, both probes `200` with expected content, same `Running` state, clean stop - the seam is exercised on the shared listener too, not only on http.sys |
 | Ratchet / spine / packages | `486` findings = baseline, `Spine OK.`, 0 vulnerable packages at `-FailOn Low` |
@@ -784,7 +784,7 @@ is also where it belongs: which controllers a process serves is a property of th
 | Measurement | Value |
 | --- | --- |
 | Controllers the launchers reach | still 1, now through `AddHttpControllerAssembly` rather than by accident |
-| Unit tests | 357 â†’ **359** (a test that the API names its own assembly to the registered resource server, and one that calling it in the wrong order says so in a sentence) |
+| Unit tests | 357 → **359** (a test that the API names its own assembly to the registered resource server, and one that calling it in the wrong order says so in a sentence) |
 | Deployment layout | 17 assemblies, `MediaPortal.Server.Api.dll` among them, without the layout script knowing its name - it publishes the headless host, and the host references the API |
 | Spine | new area `MediaPortal.Server.Api` measured at WinForms 0, GDI+ 0, P/Invoke 0; in the core list although no core project references it, because the list is about target frameworks, not about the direction of an arrow |
 | Ratchet | `486` findings = baseline |
@@ -829,9 +829,9 @@ run. The live server then failed twice, and both failures were worth more than t
 
 | Measurement | Value |
 | --- | --- |
-| Endpoints the server answers | 2 â†’ **3**, each with expected content in the gate |
-| Unit tests | 359 â†’ **371** |
-| Fresh install, Linux container | `{"count":18,"aspects":[{"id":"e33242e8-â€¦","name":"AlbumItem","systemAspect":false,â€¦` - the same schema from the same SQL scripts on the platform without http.sys |
+| Endpoints the server answers | 2 → **3**, each with expected content in the gate |
+| Unit tests | 359 → **371** |
+| Fresh install, Linux container | `{"count":18,"aspects":[{"id":"e33242e8-…","name":"AlbumItem","systemAspect":false,…` - the same schema from the same SQL scripts on the platform without http.sys |
 | Ratchet / spine / packages | `486` findings = baseline, `Spine OK.`, 0 vulnerable packages |
 
 Those aspect counts are not a difference between the platforms. One Windows probe counted `10` aspects, container
@@ -870,7 +870,7 @@ Five pieces and two endpoints exist now, each of them small enough to read:
 | `MediaPortalAccessToken` | `base64url(json).base64url(hmac-sha256)` over the three claims MP2 has always put in an identity (name, profile id, role) plus issuer and expiry. The alternative was `DataProtection`, the .NET Core replacement for MachineKey: it works, but it keeps its key ring in a folder whose protection is platform specific, and it produces ciphertext nobody can read in a log or on another machine. A signed, plainly readable token is verifiable on Android with the same thirty lines, and a support case can decode one. Signature checked with `CryptographicOperations.FixedTimeEquals`; expiry takes an injectable clock so that "expired" is a test rather than a sleep. |
 | `MediaPortalSigningKey` | 32 random bytes, base64 in `ServerSettings.WebAccessTokenSigningKey`, made on first use. Made rather than required, because a server that will not start until somebody has produced a random string does not start. A stored value that cannot be decoded is *replaced*, never hashed-into-something: hashing a corrupt value would turn a broken setting into a key anybody can compute, at the cost of logging every issued token out - which is the correct failure. |
 | `MediaPortalCredentials` | The old `GrantResourceOwnerCredentials` callback with the Owin type taken away from around it, so that the decision "may this person in" is a function rather than a middleware delegate, and a test can call it with a profile store of its own. The wire format is unchanged (the client base64s the password), as are the two legacy rules it enforces: a profile with an empty stored password admits anyone who names it, and the administrator role goes to a profile that restricts nothing. Neither is a new decision; both are now written down where a change would have to argue with a test. |
-| `MediaPortalBearerHandler` + `IMediaPortalAccessTokenProtector` | `Authorization: Bearer â€¦` to `HttpContext.User`, with the authentication type the filter compares. The protector is an interface and a registered service so that a test hands the handler a key it knows and can produce an expired token on purpose. A header for another scheme is left alone, and a rejected token is logged without repeating it. |
+| `MediaPortalBearerHandler` + `IMediaPortalAccessTokenProtector` | `Authorization: Bearer …` to `HttpContext.User`, with the authentication type the filter compares. The protector is an interface and a registered service so that a test hands the handler a key it knows and can produce an expired token on purpose. A header for another scheme is left alone, and a rejected token is logged without repeating it. |
 | `TokenController` (`POST {prefix}/Token`), `SessionController` (`GET {prefix}/api/session`) | The OAuth password grant with the field names and error strings clients of the 2.3 series read (`access_token`, `token_type`, `expires_in`, `invalid_grant`, `unsupported_grant_type`), form-encoded as before and JSON as well, because a client written today sends JSON. The second one is the first endpoint behind the filter: it reports the caller and nobody else, which is the smallest thing a wrong answer about authentication can show up on. |
 
 The pipeline is two lines - `services.AddMediaPortalTokenAuthentication()` and `app.UseAuthentication()` before
@@ -912,7 +912,7 @@ behind the token in the same change would break every client that has no token y
 a change of defaults, and it should be argued as one. And nothing in the tree asks for a token yet - the front end
 will, at the moment it shows a user their own data rather than the library's schema.
 
-Numbers for this step: `Tests.Server` 184 â†’ **220**, the suite 405 â†’ **441**, the warning count unchanged at
+Numbers for this step: `Tests.Server` 184 → **220**, the suite 405 → **441**, the warning count unchanged at
 **522** with the ratchet green, and the server gate now prints six assertions where it printed five.
 
 ## Phase 2 - Avalonia front end
@@ -956,7 +956,7 @@ immediately on `1`, and it also runs the front end against a port nobody listens
 
 | Gate | Result |
 | --- | --- |
-| `build.ps1 -Solution Frontend -Ratchet` | `BUILD OK (Frontend): 0 errors, 238 findings` â†’ scored against a baseline of its own, `Ratchet OK.` |
+| `build.ps1 -Solution Frontend -Ratchet` | `BUILD OK (Frontend): 0 errors, 238 findings` → scored against a baseline of its own, `Ratchet OK.` |
 | `warning-baseline.Frontend.json` | 18 codes / 237 findings, **0 of them from the two new projects** - the inventory belongs to the inherited closure the solution also builds |
 | `spine.ps1` | `MediaPortal\Source\Frontend\MediaPortal.Frontend  WinForms 0   GDI+ 0   P/Invoke 0` and it is now a gated core area, so a future `[DllImport]` there is caught |
 | `tests.ps1` | `Tests.Frontend` added to the default set (see the scoreboard) |
@@ -1038,7 +1038,7 @@ tested by awaiting `RefreshAsync()` from one test at a time. Three changes, each
   continuation that **rethrows whatever escapes** on the thread that pressed the button; `await`ing the method in a
   test never sees it, which is exactly why the crash was invisible. `PressingTheRefreshButtonTwiceDoesNotThrowOnTheDispatcher`
   presses the command twice and awaits `ExecutionTask`, and `RefreshAsync` now ends in a last-resort `catch` that
-  reports through the status line - a screen that says "Reading failed: â€¦" is worth more than a front end that dies.
+  reports through the status line - a screen that says "Reading failed: …" is worth more than a front end that dies.
 
 Two more measurements from wiring it up, both of which would have been guesses without the probe:
 
@@ -1419,7 +1419,7 @@ bisecting with a throwaway host:
 - The sink unpinned its buffers while a decoder thread could still be writing into them. The addresses handed to
   an engine point *inside managed arrays*; the moment the pin is gone the collector may move them, and a decoder
   writing into a moved array is not an exception anybody can catch. The sink now counts the buffers an engine
-  holds (`TryAcquireBufferForWriting` â€¦ `EndWrite`), asks its engine to stop through
+  holds (`TryAcquireBufferForWriting` … `EndWrite`), asks its engine to stop through
   `EngineWillStopWriting`, and only then frees - and if a writer is still in a buffer after half a second it
   **keeps the pin** and says so (`ReleasedCleanly == false`), because a few megabytes the process will not see
   again is a cheaper failure than its heap. The same wait guards the resolution-change path, where the old
@@ -1478,8 +1478,8 @@ screens - and the surprise it turned up was that the door between them had a loc
 
 ```
 {"aspect":"MovieItem","total":412,"offset":0,"limit":60,"returned":60,"sort":"title",
- "titles":[{"id":"â€¦","title":"Alien Earth","sortTitle":"Alien Earth","year":2025,
-            "runtimeMinutes":43,"path":"{D3525B2F-â€¦}://C:\Video\Alien Earth.mkv","stub":false}]}
+ "titles":[{"id":"…","title":"Alien Earth","sortTitle":"Alien Earth","year":2025,
+            "runtimeMinutes":43,"path":"{D3525B2F-…}://C:\Video\Alien Earth.mkv","stub":false}]}
 ```
 
 The names in that answer are the names the server really has: the aspect carrying a title's title is
@@ -1518,7 +1518,7 @@ library, and a title list that is refused says *"Films is only for signed-in use
 server screen."* instead of showing an empty list, because an empty list is read as a broken front end. Two
 client tests pin the two halves that matter: the ticket from a successful sign-in is really on the next request's
 headers (and the password that got it there is the base64 the server expects), and a refused one
-(`{"error":"invalid_grant","error_description":"â€¦"}`) leaves the client a stranger with the server's own sentence
+(`{"error":"invalid_grant","error_description":"…"}`) leaves the client a stranger with the server's own sentence
 as the exception message.
 
 One answer from that endpoint needed translating before the screen could use it. A wrong password gets *"The user
@@ -1625,7 +1625,7 @@ result was a key press that went to something the viewer could not see, and Aval
 remote's key was swallowed at the end of the transport row. `DpadNavigation` now walks the ancestors
 (`EffectivelyVisible`) instead of asking the control alone, and the areas that are not on screen are walked over
 rather than walked into. Two tests pin both halves: with a film that has no tracks, the wrap from the last button
-still lands on `Close`; with a film that has them, `Close` â†’ down is `Sound`, â†’ down is `Subtitles`, â†’ down is
+still lands on `Close`; with a film that has them, `Close` → down is `Sound`, → down is `Subtitles`, → down is
 `Pause`, so the pickers joined the one loop a remote has rather than becoming a second one.
 
 **Where the numbers stand.** `Tests.Frontend` 196 (six of them new: the tracks of a film that started, the off
@@ -1640,7 +1640,7 @@ is green on Windows: **621 tests, 0 failures** across `Canary.Portable` (29), `T
 **The feature.** A list of titles can only say a name, a year and a length, so a viewer deciding what to watch had
 no way to find out that the server has known the plot of every film since it was imported. The library list now
 answers the remote's **info** key (and the letter `I`) with a panel beside the list: the title and year, one line of
-what a viewer decides with (`88 min Â· FSK 12 Â· rated 8/10 Â· watched 1Ã—, last 2025-01-12`, or `S01E01 Â· Nimmerland`
+what a viewer decides with (`88 min · FSK 12 · rated 8/10 · watched 1×, last 2025-01-12`, or `S01E01 · Nimmerland`
 for an episode), the longest prose the title carries, and where the file is. Pressing the key again, or Back, puts
 the panel away - Back closes the panel *before* the screen, which is what "back" has always meant on a remote: away
 with the newest thing.
@@ -1682,7 +1682,7 @@ rather than calling the command, and refuses to write the frame otherwise. Whole
 
 ### aa. The library learns what was watched
 
-**The feature.** The details panel had just started showing `watched 1Ã—, last 2025-01-12`, which is an odd thing for
+**The feature.** The details panel had just started showing `watched 1×, last 2025-01-12`, which is an odd thing for
 a media centre to show while every number in it is a fossil: nothing in the new front end ever told the library that
 a film had been played. That is now fixed at both ends. Watching something reports it, and the panel that shows the
 counters is told to go and read them again, so the sentence under a film describes the viewer's history rather than
@@ -1697,7 +1697,7 @@ client refuses a number outside 0-100 before it opens a connection, because a cl
 should not go and ask a server the same question.
 
 **`NotifyPlayback`, not `NotifyUserPlayback`.** MP2 offers both, and the difference is who the answer belongs to.
-`NotifyUserPlayback(userId, â€¦)` stores *per-profile* user data - percentage watched, watched date, parents updated -
+`NotifyUserPlayback(userId, …)` stores *per-profile* user data - percentage watched, watched date, parents updated -
 and needs a `userId` to store it under. `NotifyPlayback(mediaItemId, watched)` writes to the title itself:
 `ATTR_LASTPLAYED` on anything, `ATTR_PLAYCOUNT` when it was finished. The new front end has a bearer token, which is
 not a profile, and inventing a profile to hold a percentage would mean choosing one on the viewer's behalf - the
@@ -1724,7 +1724,7 @@ working. Only when the server agrees does the browser screen get `ForgetDetails`
 panel that reopens with the numbers from before the film.
 
 **A bug the reporter tests were written for.** The first version ended in
-`ContinueWith(â€¦, TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.OnlyOnRanToCompletion)` - meaning to
+`ContinueWith(…, TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.OnlyOnRanToCompletion)` - meaning to
 say "whatever happens, print something". That asks a finished task for two mutually exclusive endings, and
 `ContinueWith` does not pick one: it throws `ArgumentOutOfRangeException` (*"the specified TaskContinuationOptions
 exclude all continuation kinds"*), which was verified rather than assumed. The POST had already been sent by then, so
@@ -1800,9 +1800,9 @@ it - after a failed search the status line still names the old word and no clear
 Which gives the status line three shapes, and the middle one is the one that happens on a real remote:
 
 ```
-Films                    12 titles in this view              â† no search
-Films                    24 titles match 'erd' (page)        â† more still at the server
-Films                    1 title in films matches 'alien'    â† everything that matches is on screen
+Films                    12 titles in this view              ← no search
+Films                    24 titles match 'erd' (page)        ← more still at the server
+Films                    1 title in films matches 'alien'    ← everything that matches is on screen
 ```
 
 The parenthesised "(page)" is what decides whether *More* stays available: shown < total means the server has more
@@ -1817,14 +1817,14 @@ still plays, untouched by any of this. The box sits outside the `DpadNavigation`
 Bubble handler that claims the arrow keys whenever focus is not in the ring, which would make Up/Down move the
 selection while somebody is typing; Left/Right still move the caret because the `TextBox` consumes them first.
 
-**Tests.** Six new server tests (`TestMediaController` 33 â†’ 39) do not re-implement a `LIKE` - they ask *which
+**Tests.** Six new server tests (`TestMediaController` 33 → 39) do not re-implement a `LIKE` - they ask *which
 question the library was given*, through a stub library that overrides `BuildSimpleTextSearchQuery` and answers with
 `FalseFilter`. A test that rebuilt the SQL condition would survive the wildcard escaping being deleted; this one
 notices if the endpoint stops using the library's method, or flips the CLOB or case flags. The rest cover counting
 through the same question, the echo, "no word means the whole shelf", "two words typed together are one phrase, not
 two searches", and a 404 for an unknown aspect while searching.
 
-Seven new browser tests (`TestMediaBrowser` 22 â†’ 29, `Tests.Frontend` 223 â†’ 230) run against a stub server that
+Seven new browser tests (`TestMediaBrowser` 22 → 29, `Tests.Frontend` 223 → 230) run against a stub server that
 records the word it was asked and filters its own twelve titles by it, so the view model can be held to "one title"
 without anybody reimplementing the filter: the word goes out, the status line names it, the list gets shorter, *More*
 survives a partial page and disappears on a complete one, clearing restores the whole shelf, a dead server deletes
@@ -1897,7 +1897,7 @@ saying nothing. The tick lives in a column of its own so that the names of marke
 same x, which is what lets a shelf be scanned by eye.
 
 **Three states, one key, one button.** `W` (and the button above the list, whose label *is* the state) walks
-everything â†’ unwatched â†’ watched â†’ everything. Three states on one control rather than two checkboxes, because a
+everything → unwatched → watched → everything. Three states on one control rather than two checkboxes, because a
 remote reaches its keyboard through one button and nobody should have to remember which of two switches to untick.
 The filter goes to the server rather than being applied to the page for the same reason the search does - on a
 shelf of three thousand films the twenty that are left are on pages nobody has read - and paging carries it, which
@@ -1906,13 +1906,13 @@ panel, search, watched filter, window. And the status line admits the filter in 
 "2 of 2 unwatched movies, sorted by title" - because a short list that does not say why it is short is a viewer
 wondering whether their library shrank.
 
-**Tests and a picture that measures itself.** Seven new server tests (`TestMediaController` 39 â†’ 46) assert the
+**Tests and a picture that measures itself.** Seven new server tests (`TestMediaController` 39 → 46) assert the
 conditions rather than a re-implementation: that `watched` is MP2's own `PlayCount > 0`, that `unwatched` is the OR
 of `= 0` and `IS NULL` - with the failure mode spelled out in the assertion message so nobody "simplifies" the
 second half away - that the count went through the same filter object, that the two figures arrive on the row,
 that a never-opened title arrives as zero and no date rather than as the year 1, that a word and a filter are one
 question, and that `sort=lastplayed` reaches the library as that column. Six new browser tests
-(`TestMediaBrowser` 29 â†’ 35, `Tests.Frontend` 230 â†’ 236) run against a stub that filters its own shelf by the word
+(`TestMediaBrowser` 29 → 35, `Tests.Frontend` 230 → 236) run against a stub that filters its own shelf by the word
 it received, so the view model is held to "these two titles" without anyone reimplementing the filter: the mark
 follows the server's figures, one press filters, the third press is back where it started, the filter survives
 paging, and in a real window one `W` filters the list and the first Escape puts the shelf back without leaving the
@@ -1960,7 +1960,7 @@ every film at zero would be a lie with a nicer name. So the strip is named for w
 way* - and the position follows when the endpoint knows who is asking. That step is the next one, and until it is
 taken the wording of the strip is the test that says so.
 
-**One question per tile, merged by date.** The home screen asks each aspect it offers (`Films`, `Episodes`, â€¦) for
+**One question per tile, merged by date.** The home screen asks each aspect it offers (`Films`, `Episodes`, …) for
 its own eight newest stops and merges the answers by date. Eight *per part* is what makes the merge safe: the
 newest stop in the library is necessarily among the newest eight of the part it belongs to, so a shelf of forty
 thousand episodes cannot push a film off the strip by being newer in another part. A part that refuses does not
@@ -1980,10 +1980,10 @@ answered by an implicit "yes". The three possible answers to a titles request ar
 four titles / one watched / three unwatched / **two** started), so an unfiltered request cannot satisfy an assertion
 written for a filtered one.
 
-**Tests and a picture that measures itself.** Three new server tests (`TestMediaController` 46 â†’ **49**): that a
+**Tests and a picture that measures itself.** Three new server tests (`TestMediaController` 46 → **49**): that a
 half-way request is exactly "a date, and no counter - not a finished film", that the same filter object answered
 the count, and that a word and a half-way filter go as one question. Five new front-end tests (`TestMediaBrowser`
-35 â†’ **40**, `Tests.Frontend` 236 â†’ **241**): that the strip holds only the two half-watched titles and knows they
+35 → **40**, `Tests.Frontend` 236 → **241**): that the strip holds only the two half-watched titles and knows they
 were not finished, that a machine with nothing to resume shows no strip at all, that one refusing part of the
 library leaves its reason on the strip instead of pretending to be empty, that pressing a row raises the same
 playback request a library row raises (same title, same media id), and that in a real window the strip sits on the
@@ -1999,6 +1999,99 @@ at `x 528..595`, and a 172-pixel block at `x 826..997` wide enough for a `yyyy-M
 column holds exactly four bands in the lower half of the frame (peaks of 89, 93, 88 and 102 bright pixels) against
 zero bands in the same column of the home screen drawn against a real empty server. Four dated rows is also proof of
 the merge on its own: no single tile can produce four, because the films answer three and the series one.
+
+### ae. The server knows who is asking, and therefore where you stopped
+
+**What was added.** Section **ad** left a strip that could say *"you stopped this in April"* but not *"eleven minutes
+of it are gone"*, because the endpoint did not know who it was talking to. It knew all along. The bearer token the
+front end has sent with every request since the sign-in screen was written carries the profile id as a
+`ClaimTypes.Sid` claim (`MediaPortalCredentials.CreateIdentity`,
+`Source/Core/MediaPortal.Common/Services/ResourceAccess/Auth/MediaPortalCredentials.cs:165`, signed through
+`MediaPortalAccessToken`, `Source/Core/MediaPortal.Common/Services/ResourceAccess/Auth/MediaPortalAccessToken.cs:70`),
+and only `SessionController` ever looked at it. The media endpoint now reads it, asks the library about *that*
+person, and both ends of the resume moved with it:
+
+- **Reading.** `GET api/media/titles`, `GET api/media/titles/{id}` and the playback report answer with a
+  `resume` figure - the percentage this caller left, nothing when they left none.
+- **Writing.** A report from a known person goes to `NotifyUserPlayback`, which stores the percentage in that
+  person's own user data (`KEY_PLAY_PERCENTAGE`) instead of only moving the shared counters.
+- **Showing.** The "Left half way" strip grew a fourth column, `42% watched`, and a title with nothing stored shows
+  an empty space rather than a nought.
+- **Acting.** Choosing such a row starts the film there instead of at the beginning, and the screen says
+  *"Resumed at 42% - 00:42:00"*, because a film that opens twelve minutes in looks like a broken player otherwise.
+
+**Authentication was already on; only the filter was optional.** `ResourceServer.ConfigureApiPipeline`
+(`Source/Core/MediaPortal.Common/Services/ResourceAccess/ResourceServer.cs:156`) calls `UseAuthentication`
+unconditionally, while `ServerSettings.WebAutorizationEnabled` only decides whether the `[MediaPortalAuthorize]`
+*filter* rejects anonymous callers. So on a server that lets anonymous requests in, `HttpContext.User` still names
+the person behind a token that arrived. That is why the resume works without touching the sign-in screen, and why an
+anonymous request still gets the library-wide answer it always got.
+
+**An empty id is not a person.** `CallerProfile` folds three cases into "nobody": no `sid` claim, a claim that is
+not a Guid, and `Guid.Empty`. The third one looks harmless and is not - `CompiledMediaItemQuery`
+(`Source/Core/MediaPortal.Backend/Services/MediaLibrary/QueryEngine/CompiledMediaItemQuery.cs:422`) tests
+`_userProfileId.HasValue`, so an empty Guid asks the user-data join for a profile whose id is all zeros, which
+matches no rows and reads as *"this person has never watched anything"* on a profile that merely was not named. A
+wrong answer is worse than no answer.
+
+**A position is only sent to the person it belongs to.** `resume` is attached when the *request* was made as
+somebody, not merely when the library happened to hand data along. A fake library that returns user data to an
+anonymous query therefore cannot leak a position to a caller who is not that person, and that exact case is a test
+(`ARequestFromNobodyReportsNoPositionEvenWhenTheLibraryHandsOneOut`). The stored figure is MP2's own fixed-width
+text (`UserDataKeysKnown.GetSortablePlayPercentageString`,
+`Source/Core/MediaPortal.Common/UserProfileDataManagement/UserDataKeysKnown.cs:62`, writes `"042"` so a text column
+sorts numerically); the endpoint parses it and reports nought for anything outside one to ninety-nine.
+
+**One report, not two.** When a profile is known the controller calls *only* `NotifyUserPlayback`. That method
+calls `NotifyPlayback` itself (`Source/Core/MediaPortal.Backend/Services/MediaLibrary/MediaLibrary.cs:2802-2812`),
+so the shared `ATTR_LASTPLAYED` / `ATTR_PLAYCOUNT` counters that sections **ac** and **ad** filter on keep moving -
+and calling both would raise the play count twice for one viewing. A test asserts the shared path is *not*
+additionally called for a known person, and that an anonymous report still moves the shared counters on its own.
+Finishing behaviour is unchanged: `NotifyPlayback` still only counts a completed viewing at a hundred percent, which
+is what keeps a resumed film from being counted as watched when it was stopped again.
+
+**One to ninety-nine, at both ends.** The server reports nothing outside that band and the playback screen refuses
+a seek for it, which is MP2's own continue-watch interval
+(`Source/UI/UiComponents/Media/MediaLists/BaseContinueWatchMediaListProvider.cs:43-46`). Nought means "no position"
+- what a title nobody opened carries, and what an anonymous request is answered with. A hundred is a film that is
+over, and seeking to it would open a film one second before the credits. A percentage rather than a time, so that
+the figure still means the same thing when the file behind a title is replaced with a longer cut.
+
+**The seek waits for a length.** libVLC reports how long a media is only after it is prepared, and a fraction of
+nought is nought: a seek issued before the length is known lands at the beginning with the confidence of a command
+that worked, and a resume marked as spent. So the resume is armed when the media is opened, and applied the first
+time a position event names a length - and not again after that, so that a viewer who rewinds stays where they
+rewound to rather than being dragged back on every event.
+
+**What is deliberately not claimed.** The *positions* are per person now; the *filters* are not. `seen=started`,
+the watched counts and the tiles still answer for the library as a whole, so the strip can list a title you
+personally never opened if somebody else stopped it, and the two states are then distinguished by whether the row
+carries a figure at all. Nothing on screen says whose position a figure is; with one profile per front end that is a
+fine simplification, with several people sharing a server it is the next thing to fix. The seek itself has not been
+watched happening on a real engine - the container has no video output, so it is proven against a fake engine that
+reports lengths the way libVLC does, and the frame shows the figure, not the playing.
+
+**Tests.** Seven new server tests (`TestMediaController` 49 → **56**): that the library is asked about the person
+the token names and about nobody when no token named one; that a stored `"042"` arrives as `42`; that a request from
+nobody gets no position even when the library hands one out; that `100` and `000` offer nothing to resume; and that
+a known person's report is stored under their own name *without* also moving the shared counters, while an anonymous
+report still moves them. Two new front-end tests (`TestMediaBrowser` 40 → **42**): that `resume` arrives under the
+server's own word for it and that its absence is `null` rather than zero, and that the row says `42% watched` where
+there is a figure and nothing where there is none. Four new playback tests (`TestNowPlayingScreen` 39 → **43**):
+that a title left at 42% is sought to 42 seconds of a hundred-second film and says so; that the resume is one seek
+and not a fight with a viewer who rewinds; that it survives an engine that does not yet know the length and is still
+waiting when the length arrives; and that nought and a hundred start the film at the beginning. The whole suite on
+Windows is **710 tests, 0 failures** - `Tests.Server` (276), `Tests.Client` (90), `Tests.Frontend` (247),
+`Setup\Tests` (68) and the portability canary (29).
+
+**The same frame, with a column measured.** The scripted server behind the `continue` frame now stores a position
+for three of its four half-watched titles - 12%, 74% and 61% - and deliberately none for the fourth, and the probe
+refuses to write the picture unless the strip carries exactly those three figures and the empty space. Sampling the
+pixels agrees on its own: the three rows with a figure each carry a **fourth** ink block (`x 1004..1125`, about 120
+pixels wide, three rows agreeing to within ten pixels at their left edge) where the row without one stops at
+`x 845`; and every row's date column moved from `x 827..997` to `x 675..845`, which is what adding a fourth
+proportional column does to the three that were there. The frame drawn before this change has three blocks in every
+row and no ink past `x 997`.
 
 ## What cannot be verified without the user
 

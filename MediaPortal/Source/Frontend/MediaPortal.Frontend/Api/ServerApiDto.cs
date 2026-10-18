@@ -132,7 +132,8 @@ namespace MediaPortal.Frontend.Api
       [property: JsonPropertyName("path")] string? Path,
       [property: JsonPropertyName("stub")] bool Stub,
       [property: JsonPropertyName("playCount")] int? PlayCount = null,
-      [property: JsonPropertyName("lastPlayed")] DateTime? LastPlayed = null);
+      [property: JsonPropertyName("lastPlayed")] DateTime? LastPlayed = null,
+      [property: JsonPropertyName("resume")] int? Resume = null);
 
   /// <summary>
   /// The answer of <c>GET api/media/titles</c>: one page of titles plus what is left behind it.

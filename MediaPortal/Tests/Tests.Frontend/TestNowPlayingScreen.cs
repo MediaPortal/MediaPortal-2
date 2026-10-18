@@ -745,5 +745,82 @@ namespace Tests.Frontend
     }
 
     #endregion
+
+    #region starting where the viewer left it
+
+    [Test]
+    public void ATitleLeftHalfwayStartsWhereItsViewerStoppedIt()
+    {
+      // The figure is the server's, arrived with the title (see TestMediaBrowser), and it is a percentage rather
+      // than a time so that it still means the same thing when the file behind a title is replaced. What is
+      // asserted here is the other half: that the screen turns it into a seek instead of politely starting at the
+      // beginning and leaving the viewer to rewind by hand.
+      Assert.That(_screen.Play(SomeFile("resumed.mkv"), TITLE_ID, 42), Is.True, _screen.StatusLine);
+
+      _player.RaisePosition(1_000, 100_000);
+      Pump();
+
+      Assert.That(_player.TimeInMs, Is.EqualTo(42_000),
+          "42% of a hundred seconds is forty-two seconds, which is where this viewer stopped it");
+      Assert.That(_screen.StatusLine, Does.Contain("Resumed at 42%"),
+          "a film that starts minutes in looks like a broken player unless the screen says it was on purpose");
+    }
+
+    [Test]
+    public void TheResumeIsOneSeekAndNotAFightWithTheViewer()
+    {
+      Assert.That(_screen.Play(SomeFile("resumed-again.mkv"), TITLE_ID, 42), Is.True, _screen.StatusLine);
+
+      _player.RaisePosition(1_000, 200_000);
+      Pump();
+      Assert.That(_player.TimeInMs, Is.EqualTo(84_000));
+
+      // The next events report the position the seek produced. If the screen sought on every one of them, the
+      // viewer could never rewind: every skip back would be dragged to 42% again.
+      _player.RaisePosition(84_000, 200_000);
+      Pump();
+      _player.RaisePosition(20_000, 200_000);
+      Pump();
+
+      Assert.That(_player.TimeInMs, Is.EqualTo(20_000),
+          "a position the viewer moved to by hand stays where they moved it");
+    }
+
+    [Test]
+    public void TheResumeWaitsForAnEngineThatDoesNotYetKnowHowLongTheMediaIs()
+    {
+      // An engine reports a length only once the media is prepared, and a fraction of nought is nought: a seek
+      // issued against a length of nought would land at the beginning and consider the resume done.
+      Assert.That(_screen.Play(SomeFile("slow-open.mkv"), TITLE_ID, 25), Is.True, _screen.StatusLine);
+
+      _player.RaisePosition(0, 0);
+      Pump();
+      Assert.That(_player.TimeInMs, Is.EqualTo(0), "nothing to take a fraction of yet, so nothing is sought");
+
+      _player.RaisePosition(0, 200_000);
+      Pump();
+      Assert.That(_player.TimeInMs, Is.EqualTo(50_000),
+          "and the resume is still waiting when the length arrives, not spent on the first event");
+    }
+
+    [Test]
+    public void ATitleNobodyStoppedOrEverybodyFinishedStartsAtTheBeginning()
+    {
+      // Nought is "no position" - what a title the viewer never opened carries, and what the server answers when
+      // it was asked by nobody. A hundred is a film that is over. Neither is a place to seek to.
+      Assert.That(_screen.Play(SomeFile("new.mkv"), TITLE_ID, 0), Is.True, _screen.StatusLine);
+      _player.RaisePosition(0, 100_000);
+      Pump();
+      Assert.That(_player.TimeInMs, Is.EqualTo(0));
+      Assert.That(_screen.StatusLine, Does.Not.Contain("Resumed"));
+
+      Assert.That(_screen.Play(SomeFile("finished.mkv"), TITLE_ID, 100), Is.True, _screen.StatusLine);
+      _player.RaisePosition(0, 100_000);
+      Pump();
+      Assert.That(_player.TimeInMs, Is.EqualTo(0),
+          "a finished film plays from the start again rather than a second before the credits");
+    }
+
+    #endregion
   }
 }

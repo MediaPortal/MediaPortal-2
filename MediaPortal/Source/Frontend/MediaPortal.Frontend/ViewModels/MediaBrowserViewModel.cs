@@ -123,6 +123,25 @@ namespace MediaPortal.Frontend.ViewModels
       }
     }
 
+    /// <summary>
+    /// How far this viewer got in the title, as the server says it, or <c>null</c> when the server has no such
+    /// figure - which is also the case for every title of a server that was not told who is asking.
+    /// </summary>
+    public int? ResumePercent
+    {
+      get { return Title.Resume; }
+    }
+
+    /// <summary>
+    /// The resume column: how far the viewer got, or nothing. Nothing rather than "from the start" because a
+    /// title that was never opened and a title whose position the server does not know look the same here, and
+    /// both are honestly "nothing to report" - the offer to resume is the row itself, not this column.
+    /// </summary>
+    public string ResumeText
+    {
+      get { return Title.Resume.HasValue ? Title.Resume.Value + "% watched" : ""; }
+    }
+
     /// <summary>What the left column of the row says: the name, then the year it is known by.</summary>
     public string Line
     {

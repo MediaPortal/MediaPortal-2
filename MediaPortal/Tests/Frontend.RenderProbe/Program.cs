@@ -294,6 +294,25 @@ namespace FrontendProbe
               + " not belong on a list of things still to watch.");
           return 1;
         }
+        // Where the viewer left each of them, in the order the strip shows them. The newest three carry a figure
+        // and the oldest does not, which is the pair a frame has to hold: a percentage where the server had one,
+        // and an empty space where it had none rather than a nought invented for it.
+        string[] expectedPositions = { "12% watched", "74% watched", "61% watched", "" };
+        string[] shownPositions = home.Unfinished.Select(row => row.ResumeText).ToArray();
+        if (!shownPositions.SequenceEqual(expectedPositions))
+        {
+          Console.WriteLine("FAILED:   the strip's positions read \"" + string.Join("\", \"", shownPositions)
+              + "\"; expected \"" + string.Join("\", \"", expectedPositions)
+              + "\" - the three newest titles carry the position their viewer left, the oldest carries none.");
+          return 1;
+        }
+        if (home.Unfinished[0].ResumePercent != 12 || home.Unfinished[3].ResumePercent != null)
+        {
+          Console.WriteLine("FAILED:   the figure behind the words is not the one the script sent ("
+              + home.Unfinished[0].ResumePercent + ", " + home.Unfinished[3].ResumePercent + "), so the row would"
+              + " be saying one thing to the viewer and carrying another to the player.");
+          return 1;
+        }
         if (home.Sections.Count != 2)
         {
           Console.WriteLine("FAILED:   " + home.Sections.Count
@@ -314,6 +333,9 @@ namespace FrontendProbe
             + string.Join(", ", home.Sections.Select(section => section.Label + " (" + section.CountText + ")")));
         Console.WriteLine("strip:    " + string.Join(" | ",
             home.Unfinished.Select(row => row.Name + " - " + row.LastPlayedText)));
+        Console.WriteLine("resume:   " + string.Join(" | ",
+            home.Unfinished.Select(row => row.Name + " "
+                + (row.ResumePercent.HasValue ? row.ResumeText : "nothing stored"))));
 
         // The playback screen is handed over although the frame never opens it: the strip hides itself on a
         // machine that cannot start a film, and a picture of a list the viewer cannot act on would be the frame
@@ -718,6 +740,21 @@ namespace FrontendProbe
       private static readonly Dictionary<int, DateTime> EPISODES_STOPPED_HALFWAY =
           new Dictionary<int, DateTime> { { 1, new DateTime(2025, 4, 20, 21, 5, 0) } };
 
+      /// <summary>
+      /// How far the person using the front end got in the titles they stopped: the library's per-person figure,
+      /// which is what turns "you looked at this in April" into "eleven minutes of this are gone".
+      /// </summary>
+      /// <remarks>
+      /// Deliberately not every stopped title - <c>A Quiet Harbour</c> is left without a figure so that the frame
+      /// shows both states the column has: a percentage where the server had one, and nothing at all where it had
+      /// none. A screen that invented "0%" for the missing ones would look like a fact.
+      /// </remarks>
+      private static readonly Dictionary<int, int> LEFT_HALF_WAY =
+          new Dictionary<int, int> { { 8, 61 }, { 10, 12 } };
+
+      private static readonly Dictionary<int, int> EPISODES_LEFT_HALF_WAY =
+          new Dictionary<int, int> { { 1, 74 } };
+
       /// <summary>How many titles the library says each aspect holds, for the tiles on the home screen.</summary>
       private static readonly Dictionary<string, int> COUNTS =
           new Dictionary<string, int> { { "MovieItem", 12 }, { "EpisodeItem", 3 }, { "PersonItem", 40 } };
@@ -793,6 +830,7 @@ namespace FrontendProbe
         Dictionary<int, (int PlayCount, DateTime LastPlayed)> finishedOn =
             episodes ? EPISODES_FINISHED : FINISHED;
         Dictionary<int, DateTime> stoppedOn = episodes ? EPISODES_STOPPED_HALFWAY : STOPPED_HALFWAY;
+        Dictionary<int, int> leftAt = episodes ? EPISODES_LEFT_HALF_WAY : LEFT_HALF_WAY;
 
         List<string> matching = new List<string>();
         foreach (string name in shelf)
@@ -821,11 +859,15 @@ namespace FrontendProbe
               ? viewing.LastPlayed
               : stoppedOn.TryGetValue(scripted, out DateTime stopped) ? stopped : (DateTime?) null;
 
+          // The position is only ever sent for titles somebody stopped, and never as a nought: the server's own
+          // rule, kept here so that the frame is drawn from the same kind of answer a real server gives.
+          leftAt.TryGetValue(scripted, out int howFar);
+
           titles.Add(new MediaTitle(
               new Guid(string.Format("00000000-0000-4000-8000-{0:D12}", scripted + 1 + (episodes ? 100 : 0))),
               matching[i], matching[i], 2011 + scripted, 88 + scripted * 3,
               "{D3525B2F-7322-430C-87E7-CDA8EBD6EDD2}://" + Path.Combine(folder, matching[i] + ".mkv"),
-              false, viewing.PlayCount, lastPlayed));
+              false, viewing.PlayCount, lastPlayed, howFar > 0 ? howFar : (int?) null));
         }
 
         MediaTitles page = new MediaTitles(askedAspect, null, matching.Count, 0, matching.Count, matching.Count,

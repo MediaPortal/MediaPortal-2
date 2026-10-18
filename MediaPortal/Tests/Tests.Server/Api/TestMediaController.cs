@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -36,6 +37,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Server.Api;
 using MediaPortal.Utilities.Exceptions;
 
@@ -105,10 +107,25 @@ namespace Tests.Server.Api
 
       public TestItem(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects,
           IResourceLocator locator, bool unresolvable = false)
+          : this(mediaItemId, aspects, locator, null, unresolvable)
+      {
+      }
+
+      /// <param name="userData">
+      /// What the library holds for the profile the request named, in the same dictionary a real search result
+      /// carries - <c>MediaItem.UserData</c>. Null for the ordinary case of a title nobody's data on.
+      /// </param>
+      public TestItem(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects,
+          IResourceLocator locator, IDictionary<string, string> userData, bool unresolvable = false)
           : base(mediaItemId, aspects)
       {
         _locator = locator;
         _unresolvable = unresolvable;
+        if (userData != null)
+        {
+          foreach (KeyValuePair<string, string> entry in userData)
+            _userData[entry.Key] = entry.Value;
+        }
       }
 
       public override IResourceLocator GetResourceLocator()
@@ -1326,6 +1343,233 @@ namespace Tests.Server.Api
       Assert.That(extra, Is.Not.Null);
       Assert.That(extra.Operands.OfType<NotFilter>().Any(), Is.True,
           "searching among the titles left half way keeps both halves of the watched question");
+    }
+
+    #endregion
+
+    #region What one person's own playback data adds
+
+    /// <summary>
+    /// Somebody. The profile id a bearer token names once a client has signed in with a username and password.
+    /// </summary>
+    private static readonly Guid VIEWER = new Guid("66666666-6666-6666-6666-666666666666");
+
+    /// <summary>
+    /// A controller answering a request from one named person.
+    /// </summary>
+    /// <param name="profile">
+    /// The profile the token carries, or null for a request from nobody - which is what every other test in this
+    /// fixture asks as, because a controller built by hand has no HTTP context at all.
+    /// </param>
+    private static MediaController AskedBy(Guid? profile)
+    {
+      MediaController controller = new MediaController();
+      if (profile == null)
+        return controller;
+
+      ClaimsPrincipal caller = new ClaimsPrincipal(new ClaimsIdentity(new[]
+      {
+        new Claim(ClaimTypes.Name, "georg"),
+        new Claim(ClaimTypes.Sid, profile.Value.ToString())
+      }, "MediaPortalTest"));
+
+      controller.ControllerContext = new ControllerContext
+      {
+        HttpContext = new DefaultHttpContext { User = caller }
+      };
+      return controller;
+    }
+
+    /// <summary>
+    /// A library that answers under whatever name it is asked under and remembers both that name and every report
+    /// it was given.
+    /// </summary>
+    /// <remarks>
+    /// Both halves matter for a per-user feature, and they fail in opposite directions: asked under the wrong name
+    /// the answer is somebody else's place in the film, written under the wrong name the position is filed where
+    /// nobody will ever find it. Neither shows up in a screenshot of a shelf that has one viewer.
+    /// </remarks>
+    private class NameAwareLibrary
+    {
+      /// <summary>The profile each titles request was asked under, in order.</summary>
+      internal readonly List<Guid?> AskedProfiles = new List<Guid?>();
+
+      /// <summary>Reports of the form <c>profile|percentage|date updated</c>.</summary>
+      internal readonly List<string> PerUserReports = new List<string>();
+
+      /// <summary>Reports that went to the title's own counters instead of to a person.</summary>
+      internal readonly List<string> SharedReports = new List<string>();
+
+      private readonly IList<MediaItem> _items;
+
+      internal NameAwareLibrary(IList<MediaItem> items)
+      {
+        _items = items;
+
+        var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+        library.Setup(get => get.GetManagedMediaItemAspectMetadata()).Returns(
+            new Dictionary<Guid, MediaItemAspectMetadata>
+            {
+                { MediaAspect.ASPECT_ID, MediaAspect.Metadata },
+                { MovieAspect.ASPECT_ID, MovieAspect.Metadata }
+            });
+        library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, It.IsAny<Guid?>(), false))
+            .Callback<MediaItemQuery, bool, Guid?, bool>(
+                delegate (MediaItemQuery query, bool online, Guid? profile, bool virtualItems)
+                { AskedProfiles.Add(profile); })
+            .Returns(_items);
+        library.Setup(count => count.CountMediaItems(It.IsAny<IEnumerable<Guid>>(), It.IsAny<IFilter>(), false, false))
+            .Returns(delegate { return _items.Count; });
+        library.Setup(tell => tell.NotifyUserPlayback(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<int>(),
+                It.IsAny<bool>()))
+            .Callback<Guid, Guid, int, bool>(delegate (Guid user, Guid mediaItemId, int percentage, bool updateDate)
+            { PerUserReports.Add(user + "|" + percentage + "|" + updateDate); });
+        library.Setup(tell => tell.NotifyPlayback(It.IsAny<Guid>(), It.IsAny<bool>()))
+            .Callback<Guid, bool>(delegate (Guid mediaItemId, bool watched)
+            { SharedReports.Add("watched=" + watched); });
+
+        Library = library.Object;
+      }
+
+      internal IMediaLibrary Library { get; }
+    }
+
+    /// <summary>
+    /// A title carrying one person's stored position, in the shape the database actually holds it: the percentage
+    /// as the fixed-width text <c>UserDataKeysKnown.GetSortablePlayPercentageString</c> writes it
+    /// (<c>"042"</c>, so that a text column sorts numerically), on <c>MediaItem.UserData</c>.
+    /// </summary>
+    private static MediaItem TitleWithStoredPosition(Guid id, string storedPercentage)
+    {
+      IDictionary<string, string> userData = storedPercentage == null
+          ? null
+          : new Dictionary<string, string>
+          {
+              { UserDataKeysKnown.KEY_PLAY_PERCENTAGE, storedPercentage }
+          };
+
+      return new TestItem(id,
+          new Dictionary<Guid, IList<MediaItemAspect>>
+          {
+              { MediaAspect.ASPECT_ID, new List<MediaItemAspect>
+                  { CreateMediaAspect("Salt and Static", "Salt and Static", new DateTime(2025, 4, 27)) } }
+          },
+          null, userData);
+    }
+
+    private static MediaController.TitlesResult TitlesAs(IMediaLibrary library, Guid? profile)
+    {
+      ServiceRegistration.Set<IMediaLibrary>(library);
+      return Body(AskedBy(profile).GetTitles("MovieItem", null, null, 50, 0, null, null));
+    }
+
+    private static ActionResult<MediaController.PlaybackResult> ReportedBy(IMediaLibrary library, Guid? profile,
+        Guid id, int percentage)
+    {
+      ServiceRegistration.Set<IMediaLibrary>(library);
+      return AskedBy(profile).ReportPlayback(id, new MediaController.PlaybackRequest { Percentage = percentage });
+    }
+
+    [Test]
+    public void ThePersonNamedByTheTokenIsThePersonTheLibraryIsAskedAbout()
+    {
+      NameAwareLibrary library = new NameAwareLibrary(
+          new List<MediaItem> { TitleWithStoredPosition(PLAYBACK_ID, "042") });
+
+      MediaController.TitlesResult body = TitlesAs(library.Library, VIEWER);
+
+      Assert.That(library.AskedProfiles, Has.Count.EqualTo(1));
+      Assert.That(library.AskedProfiles[0], Is.EqualTo(VIEWER),
+          "a resume position belongs to a person, and the library only puts one on a row when the question named "
+          + "somebody; asking under nobody therefore offers to resume films nobody started");
+      Assert.That(body.Titles, Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public void ARequestFromNobodyAsksTheLibraryAboutNobody()
+    {
+      NameAwareLibrary library = new NameAwareLibrary(
+          new List<MediaItem> { TitleWithStoredPosition(PLAYBACK_ID, "042") });
+
+      TitlesAs(library.Library, null);
+
+      Assert.That(library.AskedProfiles[0], Is.Null,
+          "an unauthenticated request must not reach the library carrying a profile; Guid.Empty would be worse "
+          + "than null here, because the query engine joins the user data table on it and answers with nothing");
+    }
+
+    [Test]
+    public void APositionStoredForAPersonArrivesOnTheirRow()
+    {
+      NameAwareLibrary library = new NameAwareLibrary(
+          new List<MediaItem> { TitleWithStoredPosition(PLAYBACK_ID, "042") });
+
+      MediaController.TitlesResult body = TitlesAs(library.Library, VIEWER);
+
+      Assert.That(body.Titles[0].Resume, Is.EqualTo(42),
+          "the library stores \"042\" as text so that it sorts; an answer carrying the text, or nothing at all, "
+          + "is a screen that cannot say how far anybody got");
+    }
+
+    [Test]
+    public void ARequestFromNobodyReportsNoPositionEvenWhenTheLibraryHandsOneOut()
+    {
+      // The library in this test is deliberately worse than the real one: it puts a stored position on the item
+      // even though it was asked under nobody. Whatever the data layer does, an answer that names no caller may
+      // not present one person's place in a film as the position to resume from.
+      NameAwareLibrary library = new NameAwareLibrary(
+          new List<MediaItem> { TitleWithStoredPosition(PLAYBACK_ID, "042") });
+
+      MediaController.TitlesResult body = TitlesAs(library.Library, null);
+
+      Assert.That(body.Titles[0].Resume, Is.Null);
+    }
+
+    [Test]
+    public void AFinishedTitleAndAnAbandonedAtTheStartTitleOfferNothingToResume()
+    {
+      // A hundred is a film that is finished and nought is a film whose viewer never got anywhere: both have no
+      // position worth seeking to, which is MP2's own continue-watch interval of one to ninety-nine.
+      MediaController.TitlesResult finished = TitlesAs(new NameAwareLibrary(
+          new List<MediaItem> { TitleWithStoredPosition(PLAYBACK_ID, "100") }).Library, VIEWER);
+      MediaController.TitlesResult untouched = TitlesAs(new NameAwareLibrary(
+          new List<MediaItem> { TitleWithStoredPosition(PLAYBACK_ID, "000") }).Library, VIEWER);
+
+      Assert.That(finished.Titles[0].Resume, Is.Null, "a finished film has nothing left to resume");
+      Assert.That(untouched.Titles[0].Resume, Is.Null, "offering to resume the first second of a film is a no-op "
+          + "that looks like a feature");
+    }
+
+    [Test]
+    public void AReportFromAPersonIsStoredUnderTheirName()
+    {
+      NameAwareLibrary library = new NameAwareLibrary(
+          new List<MediaItem> { TitleWithStoredPosition(PLAYBACK_ID, "042") });
+
+      ActionResult<MediaController.PlaybackResult> action = ReportedBy(library.Library, VIEWER, PLAYBACK_ID, 42);
+
+      Assert.That(Status(action), Is.Null, "a report the library took is a plain 200");
+      Assert.That(library.PerUserReports, Is.EqualTo(new List<string> { VIEWER + "|42|True" }),
+          "the percentage is what makes a resume offer possible, and it only exists per profile");
+      Assert.That(library.SharedReports, Is.Empty,
+          "the endpoint must not also write the shared counters here: NotifyUserPlayback calls NotifyPlayback "
+          + "itself (MediaLibrary.cs:2809), so calling both would count one viewing twice");
+      Assert.That(Body(action).Resume, Is.EqualTo(42), "the answer says what the library now holds for this caller");
+    }
+
+    [Test]
+    public void AReportFromNobodyStillMovesTheSharedCounters()
+    {
+      // Nobody has no place to resume from, but a film watched by an anonymous front end is still a film watched,
+      // and the shelf's watched state is read from those shared counters (sections ac and ad).
+      NameAwareLibrary library = new NameAwareLibrary(
+          new List<MediaItem> { TitleWithStoredPosition(PLAYBACK_ID, "042") });
+
+      ActionResult<MediaController.PlaybackResult> action = ReportedBy(library.Library, null, PLAYBACK_ID, 100);
+
+      Assert.That(library.SharedReports, Is.EqualTo(new List<string> { "watched=True" }));
+      Assert.That(library.PerUserReports, Is.Empty);
+      Assert.That(Body(action).Resume, Is.Null, "a report filed under no profile has no position to hand back");
     }
 
     #endregion
