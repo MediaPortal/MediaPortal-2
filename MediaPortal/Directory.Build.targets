@@ -29,4 +29,48 @@
     <MP2IsSolutionBuild Condition="'$(SolutionName)' != '' AND '$(SolutionName)' != '*Undefined*'">true</MP2IsSolutionBuild>
   </PropertyGroup>
 
+  <!--
+    Restore the platform declaration that GenerateAssemblyInfo=false deletes.
+
+    A -windows target framework makes the SDK emit [assembly: SupportedOSPlatform("Windows7.0")] as
+    part of the generated assembly info. Most projects in this tree set GenerateAssemblyInfo=false
+    because they compile MediaPortal\Common\VersionInfo\VersionInfo.cs by hand, and that switch turns
+    off the platform attribute along with the version attributes. CA1416 then reads every call site
+    in those assemblies as "reachable on all platforms" and reports every Windows API they touch.
+    Measured on the Server solution: all 107 remaining CA1416 sites (131 in the ratchet's
+    file+line+message unit) sit in projects with a -windows target framework, MP2-Server included -
+    which is what flags Application.Run(form) and MessageBox.Show in a WinForms application.
+
+    Note that the obvious fix does not work. An <AssemblyAttribute> item has no effect while
+    GenerateAssemblyInfo=false, because that item is consumed by the GenerateAssemblyInfo target,
+    which the same property disables. That mistake was made here first and measured; it is written
+    down so that nobody spends an afternoon rediscovering it. So this target writes the one attribute
+    the SDK would have written, into the same intermediate folder, and hands it to the compiler.
+
+    Why this is not muting an analyzer: it emits what the SDK emits by default, so the declaration is
+    back where it is simply true, and CA1416 returns to being the tool it exists for - a tripwire
+    inside assemblies that really do run on more than Windows. Those are the portable core projects
+    (MediaPortal.Utilities and UPnP now, MediaPortal.Common when it is flipped); they have no
+    -windows target framework, so this target never runs for them and their
+    <WarningsAsErrors>CA1416</WarningsAsErrors> stay in force. The satellites do not set
+    GenerateAssemblyInfo=false either, so they already carry the generated attribute.
+  -->
+  <Target Name="MP2AddWindowsPlatformAttribute"
+          Condition="'$(GenerateAssemblyInfo)' == 'false' AND '$(TargetPlatformIdentifier)' == 'Windows' AND '$(SupportedOSPlatformVersion)' != ''"
+          BeforeTargets="BeforeCompile;CoreCompile">
+    <PropertyGroup>
+      <_MP2PlatformAttributesFile>$(IntermediateOutputPath)$(MSBuildProjectFile).PlatformAttributes.cs</_MP2PlatformAttributesFile>
+    </PropertyGroup>
+
+    <WriteLinesToFile File="$(_MP2PlatformAttributesFile)"
+                      Lines="[assembly: global::System.Runtime.Versioning.SupportedOSPlatformAttribute(&quot;$(TargetPlatformIdentifier)$(SupportedOSPlatformVersion)&quot;)]"
+                      Overwrite="true"
+                      WriteOnlyWhenDifferent="true" />
+
+    <ItemGroup>
+      <Compile Include="$(_MP2PlatformAttributesFile)" />
+      <FileWrites Include="$(_MP2PlatformAttributesFile)" />
+    </ItemGroup>
+  </Target>
+
 </Project>

@@ -53,4 +53,29 @@
     <MP2IsSolutionBuild Condition="'$(SolutionName)' != '' AND '$(SolutionName)' != '*Undefined*'">true</MP2IsSolutionBuild>
   </PropertyGroup>
 
+  <!--
+    Twin of ..\Directory.Build.targets - same target, same condition; read the comment there for why
+    a -windows target framework has to re-emit its SupportedOSPlatform attribute when
+    GenerateAssemblyInfo=false (short version: the SDK writes that attribute as part of the generated
+    assembly info, so turning the generation off loses it, and CA1416 then reports every Windows call
+    in the assembly). MSBuild imports only one of the two files, so both carry the target in full.
+  -->
+  <Target Name="MP2AddWindowsPlatformAttribute"
+          Condition="'$(GenerateAssemblyInfo)' == 'false' AND '$(TargetPlatformIdentifier)' == 'Windows' AND '$(SupportedOSPlatformVersion)' != ''"
+          BeforeTargets="BeforeCompile;CoreCompile">
+    <PropertyGroup>
+      <_MP2PlatformAttributesFile>$(IntermediateOutputPath)$(MSBuildProjectFile).PlatformAttributes.cs</_MP2PlatformAttributesFile>
+    </PropertyGroup>
+
+    <WriteLinesToFile File="$(_MP2PlatformAttributesFile)"
+                      Lines="[assembly: global::System.Runtime.Versioning.SupportedOSPlatformAttribute(&quot;$(TargetPlatformIdentifier)$(SupportedOSPlatformVersion)&quot;)]"
+                      Overwrite="true"
+                      WriteOnlyWhenDifferent="true" />
+
+    <ItemGroup>
+      <Compile Include="$(_MP2PlatformAttributesFile)" />
+      <FileWrites Include="$(_MP2PlatformAttributesFile)" />
+    </ItemGroup>
+  </Target>
+
 </Project>

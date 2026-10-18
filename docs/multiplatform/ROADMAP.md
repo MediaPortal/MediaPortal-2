@@ -27,13 +27,13 @@ Verified 2026-10-18 with `build.ps1 -Solution Server,Client -Ratchet`, `tests.ps
 
 | Measurement | Value | How to reproduce |
 | --- | --- | --- |
-| Server solution compiles on Windows | 0 errors, 618 gated findings (was 685) | `build.ps1 -Solution Server -Ratchet` |
+| Server solution compiles on Windows | 0 errors, 487 gated findings (was 685) | `build.ps1 -Solution Server -Ratchet` |
 | Client solution compiles on Windows | 0 errors, ~2430 findings (not gated) | `build.ps1 -Solution Client` |
 | Server solution compiles **on Linux** | 0 errors | `test-server-linux.ps1` |
 | Core assemblies on a portable target framework | **2 of 90** - `MediaPortal.Utilities` and `UPnP` are `net10.0` with `CA1416` as error | `MediaPortal.Utilities.csproj`, `UPnP.csproj` |
 | Portable-core WinForms / GDI+ references | **0** (86 quarantined in 6 satellite files) | `spine.ps1`, `satellites.ps1` |
 | Portable-core P/Invoke declarations | **76** in 10 files (was 95; 18 left with Dokan and impersonation), invisible to `CA1416` | `spine.ps1` (P/Invoke column) |
-| `CA1416` call sites, Windows vs Linux | 131 findings (107 distinct source lines) on both hosts, inventories identical (was 196/140) - and the whole surface is 618 findings on both | build log, `warnings.ps1` on both logs |
+| `CA1416` call sites, Windows vs Linux | **0** on both hosts, floor 0 (was 196 at the retarget) - the 107 that remained were all in `-windows` assemblies that had lost their platform declaration; see "the floor went to zero" below | build log, `warnings.ps1` on both logs |
 | Unit tests, Windows | 4/4 suites, 271 executed, 0 failed (3 canary tests skip: Linux-only) | `tests.ps1` |
 | Unit tests, Linux (canary) | 31 executed, 0 failed (1 skips: Windows-only), incl. live IPC round trips and XDG autostart | `test-canary-linux.ps1` |
 | Built executables are 64-bit | 5/5 apphosts measure `x64`, managed side `MSIL` | `architecture.ps1` |
@@ -250,11 +250,29 @@ calls the three satellite `Register()` methods. Those 11 are the seam pattern's 
 found something bigger: **`MediaPortal.Server` is built with `GenerateAssemblyInfo=false`, which also suppresses
 the `[SupportedOSPlatform]` attribute the SDK derives from a `-windows` target framework.** Verified directly -
 that project has no generated `AssemblyInfo.cs` at all, while `MediaPortal.Common.Windows`' has two of those
-attributes. Adding the attribute by hand took `MP2-Server`'s whole `CA1416` count to zero in a probe build, so
-most of the 47 findings that project reports (`MainForm`, `Program`, `WindowsService`, `ApplicationLauncher`) are
-an artifact of a build property, not Windows coupling. Two follow-ups, in order: declare the platform on the
-Windows-only hosts (which is restoring what the SDK would have emitted, not muting the analyzer), and then stop
-mistaking a `-windows` host's findings for port debt. Two smaller things fell out of the same step: `DevTools`
+attributes. The sentence that used to be here - "adding the
+attribute by hand took `MP2-Server`'s whole `CA1416` count to zero" - was wrong twice over, and correcting
+it is worth more than the claim was. An `<AssemblyAttribute>` item is inert while `GenerateAssemblyInfo=false`,
+because that item is consumed by the `GenerateAssemblyInfo` target the same property disables; and the
+probe's "zero" came from a filter of the form `MediaPortal\.Server\.csproj.*warning CA1416`, which cannot
+match, because in an MSBuild log the `[Project.csproj]` tag comes *after* the warning text. The mechanism
+itself survived retesting, and it was bigger than the 11 findings it turned up in: **every one of the 107
+remaining `CA1416` sites (131 in the ratchet's unit, in both solutions) sat in a `-windows` assembly that had
+lost its platform declaration**, `Application.Run(form)` and `MessageBox.Show` in a WinForms application
+among them. The fix is `MP2AddWindowsPlatformAttribute` in the two `Directory.Build.targets` files: it writes
+the single attribute the SDK would have written into `obj` and hands it to the compiler, for 106 projects,
+none of them portable - the condition is `GenerateAssemblyInfo == 'false' AND TargetPlatformIdentifier ==
+'Windows'`, so `MediaPortal.Utilities`, `UPnP` and (when it is flipped) `MediaPortal.Common` are untouched
+and their `<WarningsAsErrors>CA1416</WarningsAsErrors>` keeps its teeth. `CA1416` went **131 -> 0**, gated
+findings **618 -> 487**, and no other warning code moved by a single finding.
+
+So the `CA1416` floor is now **0**, which is stricter than 131 ever was: a `CA1416` finding can now only come
+from an assembly that declares no platform, which after this change means a portable one - the portable core
+touching a Windows-only API, and the gate stops the build over it. What the port's Windows budget actually is
+remains what it was: `spine.ps1`'s combined 180 references and 76 portable `[DllImport]` declarations, both
+unchanged by this step. `scripts/ci/README.md` carries both halves of the lesson - how to spot a `-windows`
+assembly that lost its declaration, and why a zero produced by a filter that cannot match is the most
+convincing wrong number there is. Two smaller things fell out of the same step: `DevTools`
 now uses the portable state service (a headless harness should not power off a developer's machine), and
 `UiComponents\News\build.targets` stopped copying `System.ServiceProcess.ServiceController.dll` into
 `Plugins\News` - a DLL that folder only ever had because `CopyLocalLockFileAssemblies` copies transitive package

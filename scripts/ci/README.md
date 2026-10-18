@@ -1215,15 +1215,31 @@ attribute is never generated. Verified three ways:
   `*.AssemblyInfo.cs` at all, while `MediaPortal.Common.Windows`'s generated file contains
   `SupportedOSPlatformAttribute("windows")` (from the explicit `AssemblyAttribute` item) *and*
   `SupportedOSPlatformAttribute("Windows7.0")` (from the target framework).
-- Adding the attribute by hand to `MediaPortal.Server` alone took that project's `CA1416` count from
-  47 sites to **0** in a one-project probe build.
-- The three satellite `Register()` calls in `ApplicationLauncher.cs` were already in that set, which is
-  why the seam pattern appeared to "cost" `CA1416` findings every time one moved.
+- Adding an `<AssemblyAttribute>` item does **nothing**, because that item is consumed by the
+  `GenerateAssemblyInfo` target - the very target `GenerateAssemblyInfo=false` switches off. That was the
+  fix attempted here first. It changed nothing, and the "proof" that it had worked was worse than the fix:
+  the filter `MediaPortal\.Server\.csproj.*warning CA1416` cannot match, because in an MSBuild log the
+  `[Project.csproj]` tag comes *after* the warning text. A zero from a pattern that cannot match is the
+  most convincing wrong number there is.
 
-Two rules follow. When a `-windows` executable is told it is calling Windows-only APIs everywhere,
-check for the missing assembly attribute before believing the count. And when a satellite member is
-called from a Windows-only host, a new finding there is the pattern's price, not a regression - but say
-which one it is, because a ratchet floor that moves for an unexplained reason stops being evidence.
+- What works is the `MP2AddWindowsPlatformAttribute` target in both `Directory.Build.targets` twins. It
+  writes `[assembly: SupportedOSPlatform("Windows7.0")]` into `$(IntermediateOutputPath)`, adds the file
+  to `@(Compile)` and stops for portable projects at the condition - which is exactly what the SDK's own
+  `GetAssemblyAttributes` does, minus the version attributes this tree writes by hand. It applies to
+  **106 projects**, none of them a portable one, and took `CA1416` from 131 findings to **0** in both
+  solutions while every other warning code stayed identical to the finding (618 -> 487, `-131`, no other
+  code moved).
+
+`Application.Run(form)` in a WinForms application, `MessageBox.Show`, `ServiceBase.Run` and the three
+satellite `Register()` calls in `ApplicationLauncher.cs` were never port debt. They were the sound of an
+analyzer being told nothing about the caller. The `CA1416` floor is now **0**, stricter than any number
+this tree has carried: a `CA1416` finding from now on means a *portable* assembly touched a Windows-only
+API, and that stops the build.
+
+Two rules follow. When a `-windows` assembly reports `CA1416` on everything it touches, look for the
+platform declaration before believing the count. And when a satellite member called from a Windows-only host
+produces findings, say which of the two cases you are looking at - a ratchet floor that moves for an
+unexplained reason stops being evidence.
 
 ## Attribute a delta by measuring both sides, not by arithmetic
 
@@ -1256,3 +1272,15 @@ puts every transitive package assembly into a project's `bin` - and the plugin g
 into `MSB3030: could not copy ... file not found`, i.e. a build break in an unrelated plugin. When a
 `build.targets` copy list names a third-party DLL, check which project actually depends on it before
 assuming the plugin does.
+
+## Known flakes: the client suite is timing-sensitive
+
+`tests.ps1` once reported `Tests.Client` 89/90 with one failure while a Docker Desktop Linux
+build was saturating the same cores; run alone on an idle machine the suite is 90/90, and so is
+`tests.ps1` (verified again after the change). The candidates are visible in the source:
+`TestWifiRemote.cs` blocks on `WaitOne(5000)` (and one `WaitOne(10)`) waiting for network
+handshakes, and `TestAsync.TestTimeOut` asserts a timeout threshold directly.
+
+So: **do not read a single client failure as a regression while a container build is running.**
+Re-run the suite alone before believing it, and never "fix" it by raising a floor. A named client
+test that fails repeatedly on an idle machine is real.
