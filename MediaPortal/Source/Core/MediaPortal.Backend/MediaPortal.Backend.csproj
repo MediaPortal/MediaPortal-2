@@ -1,10 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net10.0-windows</TargetFramework>
+    <!--
+      Portable since the assembly below it became portable: MediaPortal.Backend references
+      MediaPortal.Common, MediaPortal.Utilities and UPnP and nothing else, and it names no WinForms,
+      no GDI+ and no [DllImport] (spine.ps1 has been reporting 0 in every column for it). Same gate
+      as the core: CA1416 is an error, so a Windows-only call added here is a build failure rather
+      than a PlatformNotSupportedException on the first Linux user who hits it.
+    -->
+    <TargetFramework>net10.0</TargetFramework>
     <OutputType>Library</OutputType>
     <RootNamespace>MediaPortal.Backend</RootNamespace>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <WarningsAsErrors>CA1416</WarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\MediaPortal.Common\VersionInfo\VersionInfo.cs">

@@ -30,8 +30,8 @@ Verified 2026-10-18 with `build.ps1 -Solution Server,Client -Ratchet`, `tests.ps
 | Server solution compiles on Windows | 0 errors, 487 gated findings (was 685) | `build.ps1 -Solution Server -Ratchet` |
 | Client solution compiles on Windows | 0 errors, ~2430 findings (not gated) | `build.ps1 -Solution Client` |
 | Server solution compiles **on Linux** | 0 errors | `test-server-linux.ps1` |
-| Core assemblies on a portable target framework | **3 of 90** - `MediaPortal.Utilities`, `UPnP` and (since 2026-10-18) `MediaPortal.Common` are `net10.0` with `CA1416` as error | `MediaPortal.Common.csproj`, `MediaPortal.Utilities.csproj`, `UPnP.csproj` |
-| Portable assemblies that declare no platform | 3 - the same three; the other 105 got `[assembly: SupportedOSPlatform("Windows7.0")]` back from `MP2AddWindowsPlatformAttribute` | `MediaPortal\Directory.Build.targets`, `$(IntermediateOutputPath)*.PlatformAttributes.cs` |
+| Core assemblies on a portable target framework | **4 of 90** - `MediaPortal.Utilities`, `UPnP`, `MediaPortal.Common` and `MediaPortal.Backend` are `net10.0` with `CA1416` as error | `MediaPortal.Common.csproj`, `MediaPortal.Backend.csproj`, `MediaPortal.Utilities.csproj`, `UPnP.csproj` |
+| Portable assemblies that declare no platform | 4 - the same four; 77 projects built from `MediaPortal\Source` got `[assembly: SupportedOSPlatform("Windows7.0")]` back from `MP2AddWindowsPlatformAttribute`, and 0 portable ones did | `MediaPortal\Directory.Build.targets`, `$(IntermediateOutputPath)*.PlatformAttributes.cs` |
 | Portable-core WinForms / GDI+ references | **0** (83 quarantined in 10 satellite files) | `spine.ps1`, `satellites.ps1` |
 | Portable-core P/Invoke declarations | **73** in 9 files (was 95, then 76; the last three were the Kernel32 waitable timer) - invisible to `CA1416` | `spine.ps1` (P/Invoke column) |
 | `CA1416` call sites, Windows vs Linux | **0** on both hosts, floor 0 (was 196 at the retarget) - the 107 that remained were all in `-windows` assemblies that had lost their platform declaration; see "the floor went to zero" below | build log, `warnings.ps1` on both logs |
@@ -321,6 +321,13 @@ config, `CacheItemPolicy` sliding expiration, `MemoryCache.Default`, and the 200
 for the flip. It does drag `System.Configuration.ConfigurationManager`, `System.Security.Permissions` and
 `Microsoft.Win32.SystemEvents` into a portable project's output, which is worth remembering when the caching
 strategy is revisited.
+
+**The reference graph paid out immediately.** `MediaPortal.Backend` was next by dependency order (Backend →
+Common → UPnP/Utilities) and needed no work at all: it references only the three now-portable assemblies, and
+`spine.ps1` had been reporting 0 WinForms, 0 GDI+ and 0 `[DllImport]` in it for weeks. Flipping it to
+`net10.0` with `CA1416` as error built **0 errors / 0 findings** on the first try, and the gated total stayed
+at 487. Four of the ninety SDK-style projects are portable now; the ones above them are the UI, which is what
+Phase 2 replaces.
 
 **d. Database that is not Windows-shaped.** Decide Firebird's future, verify SQLite as the primary
 store on Linux (native binaries per RID, no `System.Data.SQLite` interop surprises), delete ScimoreDB
