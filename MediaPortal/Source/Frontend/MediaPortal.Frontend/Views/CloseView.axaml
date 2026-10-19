@@ -1,0 +1,51 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        x:Class="MediaPortal.Frontend.Views.CloseView"
+        x:DataType="vm:CloseViewModel"
+        Name="closeScreen"
+        Background="{DynamicResource ScreenBackgroundBrush}"
+        >
+
+  <!--
+    The way out of the application, which the reference kept in dialogSystemState: a small screen that
+    asks once, says what leaving really does, and answers a press of Back by putting the viewer back
+    where they came from. The markup is deliberately skin-neutral and speaks only the palette's own
+    keys - dressing the dialog in the worn skin's style is a later step, and a screen that waits for
+    its skin never opens the door.
+  -->
+  <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="18" MaxWidth="760"
+              Margin="48,36">
+    <TextBlock Text="Close MediaPortal"
+               FontSize="40"
+               FontWeight="SemiBold"
+               HorizontalAlignment="Center" />
+    <Border Background="{DynamicResource PanelBrush}"
+            BorderBrush="{DynamicResource OutlineBrush}"
+            BorderThickness="2"
+            Padding="26,20">
+      <TextBlock Text="{Binding Message}"
+                 FontSize="20"
+                 TextWrapping="Wrap"
+                 LineHeight="28" />
+    </Border>
+    <StackPanel Orientation="Horizontal" Spacing="14" HorizontalAlignment="Center">
+      <Button Name="confirmButton"
+              Content="Close MediaPortal"
+              Click="OnClose"
+              MinWidth="260"
+              Padding="28,12"
+              FontSize="22" />
+      <Button Name="backButton"
+              Content="Back"
+              Click="OnBack"
+              MinWidth="160"
+              Padding="28,12"
+              FontSize="22" />
+    </StackPanel>
+    <TextBlock FontSize="14"
+               Opacity="0.45"
+               HorizontalAlignment="Center"
+               Text="Enter closes the application · Back returns to where you came from" />
+  </StackPanel>
+</UserControl>

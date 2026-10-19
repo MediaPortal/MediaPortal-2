@@ -604,6 +604,17 @@ namespace MediaPortal.Frontend
     }
 
     /// <summary>
+    /// The screen that leaves the application, as a frame - this front end's <c>dialogSystemState</c>. It is a
+    /// stop of the workflow and not a window, so the trail names it and the back key steps off it like any
+    /// other screen, and it says what leaving really does while something is playing before it lets anybody
+    /// press the button that does it.
+    /// </summary>
+    private Workflow.WorkflowFrame CloseFrame()
+    {
+      return new Workflow.WorkflowFrame("close", "Close", new CloseViewModel(_nowPlaying));
+    }
+
+    /// <summary>
     /// The playback screen's frame.  The view model belongs to the application, not to this frame: a viewer who
     /// goes back to the library to fetch the next episode and returns has to find the same film at the same
     /// position, and the rebuilt screen shows exactly that because it is built over the same model again.
@@ -639,6 +650,9 @@ namespace MediaPortal.Frontend
 
       if (state == "connection")
         return new ConnectionView((ConnectionViewModel)frame.ViewModel, _workflow);
+
+      if (state == "close")
+        return new CloseView((CloseViewModel)frame.ViewModel, _workflow);
 
       if (state == "folders")
         return new FoldersView((FoldersViewModel)frame.ViewModel);
@@ -777,6 +791,13 @@ namespace MediaPortal.Frontend
 
       model.Add("Playback", "Frontend", "The sound of this machine",
           delegate { return new PlaybackView(_nowPlaying); });
+
+      // The way out. The reference front ends kept leaving the application in dialogSystemState, a dialog
+      // every viewer found because a television without a mouse still has to be left somehow; the settings
+      // hub is where this one advertises it, and it pushes the screen rather than embedding it, exactly as
+      // the server address row does - the trail and the back key belong to the close screen, not to the hub.
+      model.Add("Close", "Frontend", "Leave the application, whatever is playing",
+          null, delegate { _workflow.Push(CloseFrame()); });
 
       return model;
     }
