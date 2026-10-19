@@ -63,6 +63,13 @@ namespace MediaPortal.Frontend.Views
     private readonly ContentControl _superlayer = new ContentControl();
     private Avalonia.Threading.DispatcherTimer? _superlayerTimer;
 
+    /// <summary>
+    /// The on-screen keyboard's shelf: a layer over the screens, below the screensaver's black, that holds
+    /// the keyboard dialog of whatever field asked for it. The reference showed the keyboard as a dialog of
+    /// the skin; this is the same dialog, hung where our shell can hang one.
+    /// </summary>
+    private readonly ContentControl _keyboardLayer = new ContentControl();
+
     /// <summary>The window's own colour before any theme speaks one - the front end's factory look.</summary>
     private static readonly IBrush FactoryBackground = new SolidColorBrush(Color.FromRgb(0x10, 0x14, 0x18));
 
@@ -174,6 +181,13 @@ namespace MediaPortal.Frontend.Views
       shell.Children.Add(layout);
       shell.Children.Add(_superlayer);
 
+      // The keyboard dialog over the screens - above the superlayer, under the screensaver's black: a field
+      // that asked to be typed in is answered, and the room leaving still blacks the whole picture including
+      // the keys.
+      _keyboardLayer.Name = "ChromeKeyboard";
+      _keyboardLayer.IsVisible = false;
+      shell.Children.Add(_keyboardLayer);
+
       // The screensaver's black, above even the superlayer: a volume reading glowing over a screen that
       // decided the room left is the opposite of what a screensaver is for. It only ever paints while the
       // idle watch says the room is silent.
@@ -260,7 +274,8 @@ namespace MediaPortal.Frontend.Views
       // clock and the day it always showed.
       bool showTime = true;
       bool showDate = true;
-      if (Settings.SkinSettingsBase.LoadFor(Theming.FrontendTheme.CurrentName(this), null, out _)
+      if (Settings.SkinSettingsBase.LoadFor(Theming.FrontendTheme.CurrentName(Avalonia.Application.Current!),
+          null, out _)
           is Settings.NereusSkinSettings nereus)
       {
         showTime = nereus.ShowTime;
@@ -469,11 +484,53 @@ namespace MediaPortal.Frontend.Views
       _superlayer.IsVisible = false;
     }
 
+    /// <summary>
+    /// Whether the on-screen keyboard stands over the screen right now. Screens ask this before they answer a
+    /// key of their own - while the keys are out, the keys own the picture.
+    /// </summary>
+    public bool KeyboardOpen => _keyboardLayer.IsVisible;
+
+    /// <summary>
+    /// Shows the on-screen keyboard for one text field, in the layout the machine's language speaks. The
+    /// reference opened this dialog from the editor itself; here the field's shell window hosts it as a layer,
+    /// so the field stays visible above its own keys.
+    /// </summary>
+    public void ShowVirtualKeyboard(TextBox editor)
+    {
+      if (editor == null)
+        return;
+
+      var keyboard = new VirtualKeyboardView(editor,
+          ViewModels.VirtualKeyboardLayout.ForCulture(Settings.ClientSettings.UiCulture().Name));
+      keyboard.CloseRequested += delegate
+      {
+        CloseVirtualKeyboard();
+        // The reference hands the edit back to the editor; the viewer who pressed Done goes on typing, or
+        // presses on - the caret stayed where the keys left it.
+        editor.Focus();
+      };
+
+      _keyboardLayer.Content = keyboard;
+      _keyboardLayer.IsVisible = true;
+    }
+
+    /// <summary>Takes the keyboard away again. Pressing Done, pressing back, or walking to another screen.</summary>
+    public void CloseVirtualKeyboard()
+    {
+      _keyboardLayer.IsVisible = false;
+      _keyboardLayer.Content = null;
+    }
+
     private void ShowCurrentFrame()
     {
       Workflow.WorkflowFrame? frame = _workflow.Current;
       if (frame == null)
         return;
+
+      // Walking on closes the keyboard: a keyboard left over the next screen would be typing into a field
+      // that is no longer there.
+      if (_keyboardLayer.IsVisible)
+        CloseVirtualKeyboard();
 
       if (frame.View == null && _viewFactory != null)
         frame.View = _viewFactory(frame);

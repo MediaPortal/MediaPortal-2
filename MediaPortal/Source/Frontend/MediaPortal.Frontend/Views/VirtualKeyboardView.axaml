@@ -1,0 +1,68 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="MediaPortal.Frontend.Views.VirtualKeyboardView"
+             Name="keyboardScreen">
+
+  <!--
+    The on-screen keyboard, shaped by the reference: the dialog chrome (a bordered slab over the dialog's own
+    background, Nereus' VirtualKeyboardControlStyle), the text being edited standing above the keys like its
+    VisibleText label, the modifier and clipboard column on the left like its ControlArea, and the keyboard
+    itself sitting at the bottom of the screen with the reference's own margins. The key rows are built in
+    code from the ported layout - four grids, shown one at a time by the same rule the reference's visibility
+    expressions use.
+  -->
+
+  <Border Name="slab"
+          Background="{DynamicResource PanelBrush}"
+          BorderBrush="{DynamicResource OutlineBrush}"
+          BorderThickness="5"
+          HorizontalAlignment="Center"
+          VerticalAlignment="Bottom"
+          Margin="50,80,30,50">
+    <StackPanel Name="body" Spacing="6" Margin="5">
+
+      <TextBox Name="editText"
+               IsEnabled="False"
+               IsTabStop="False"
+               TextAlignment="Center"
+               FontSize="24"
+               MinHeight="40"
+               BorderThickness="0"
+               Background="Transparent"/>
+
+      <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+
+        <!-- The reference's ControlArea: its three sticky modifiers, then Copy and Paste. -->
+        <StackPanel Grid.Column="0" Spacing="4" MinWidth="118">
+          <ToggleButton Name="altGrButton"
+                        Content="Alt Gr"
+                        HorizontalContentAlignment="Center"
+                        FontSize="16"
+                        Padding="6,9"/>
+          <ToggleButton Name="shiftButton"
+                        Content="Shift"
+                        HorizontalContentAlignment="Center"
+                        FontSize="16"
+                        Padding="6,9"/>
+          <ToggleButton Name="capsButton"
+                        Content="Caps Lock"
+                        HorizontalContentAlignment="Center"
+                        FontSize="16"
+                        Padding="6,9"/>
+          <Button Name="copyButton"
+                  Content="Copy"
+                  FontSize="16"
+                  Padding="6,9"/>
+          <Button Name="pasteButton"
+                  Content="Paste"
+                  FontSize="16"
+                  Padding="6,9"/>
+        </StackPanel>
+
+        <!-- The four grids; exactly one is visible, per the reference's state expressions. -->
+        <StackPanel Grid.Column="1" Name="gridArea" Spacing="4"/>
+
+      </Grid>
+    </StackPanel>
+  </Border>
+</UserControl>

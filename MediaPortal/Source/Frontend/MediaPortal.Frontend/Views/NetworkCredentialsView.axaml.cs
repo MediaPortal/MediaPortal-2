@@ -49,6 +49,14 @@ namespace MediaPortal.Frontend.Views
       _ring.Add(reloadButton);
       DpadNavigation.Attach(this, _ring);
 
+      // The reference answers a focused editor with its on-screen keyboard when the viewer presses OK. These
+      // four fields answer nothing to Enter of their own, so they take the reference's key whole (Menu too);
+      // the password is masked on the keyboard just as the field masks it on the screen.
+      VirtualKeyboardService.SetTrigger(pathBox, VirtualKeyboardTrigger.EnterOrMenu);
+      VirtualKeyboardService.SetTrigger(userBox, VirtualKeyboardTrigger.EnterOrMenu);
+      VirtualKeyboardService.SetTrigger(domainBox, VirtualKeyboardTrigger.EnterOrMenu);
+      VirtualKeyboardService.SetTrigger(passwordBox, VirtualKeyboardTrigger.EnterOrMenu);
+
       // Opening the section reads the dictionary, exactly like the users row asks when it is opened - there
       // is nothing local to show before that. The model is read from the DataContext at that moment because
       // it is the hub that hands it over.

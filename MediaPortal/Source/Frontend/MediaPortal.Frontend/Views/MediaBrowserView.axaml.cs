@@ -111,12 +111,11 @@ namespace MediaPortal.Frontend.Views
             if (!(DataContext is MediaBrowserViewModel viewModel))
               return;
 
-            if (args.Key == Key.ContextMenus || args.Key == Key.F16)
+            if (args.Key == Key.F16)
             {
-              // The "Menu" key of a remote - F16 and ContextMenus are the two spellings that reach this code -
-              // opens the media list menu of the reference for the selected row. The Apps key would be the other
-              // natural spelling, but this screen already wears it for the details, and one key cannot answer
-              // two questions.
+              // The "Menu" key of a remote - F16 is the spelling that reaches this code; the apps key is not a
+              // candidate because this screen already wears it for the details, and one key cannot answer
+              // two questions. It opens the media list menu of the reference for the selected row.
               viewModel.ShowMenuCommand.Execute(null);
               args.Handled = true;
             }
