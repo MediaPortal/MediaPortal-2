@@ -1,6 +1,8 @@
-References
+﻿References
 /MediaPortal/Source/.vs
 /MediaPortal/Tools/Transifex/Cache_MP2/Force_Update_Done.DO_NOT_COMMIT
 
 # CI build output (scripts/ci/build.ps1)
 /build/
+# crash and hang dumps from dotnet test --blame
+TestResults/

@@ -309,6 +309,13 @@ namespace MediaPortal.Frontend.ViewModels
       CancellationTokenSource? running = _runningRefresh;
       running?.Cancel();
 
+      // The old stream belongs to the old server. Cancelling rather than disposing the source, and clearing the
+      // field rather than waiting for the watch to notice: the watch's own cleanup compares what it finds against
+      // the source it was started with, so a newer watch that is already in place here is left alone.
+      bool wasWatching = _watchCancellation != null;
+      _watchCancellation?.Cancel();
+      _watchCancellation = null;
+
       _client = client;
       SignedInAs = null;
       Aspects.Clear();
@@ -321,6 +328,9 @@ namespace MediaPortal.Frontend.ViewModels
       IsBusy = false;
       Status = "Server address set to " + client.BaseUrl;
       OnPropertyChanged(nameof(ServerUrl));
+
+      if (wasWatching)
+        WatchServerEvents();
     }
 
     /// <summary>
@@ -374,6 +384,11 @@ namespace MediaPortal.Frontend.ViewModels
 
         // The library was refused to a stranger a moment ago, so the screen has to ask again now that it is not.
         await RefreshAsync();
+
+        // And so does the stream: a server that wants to know its callers refused this connection a minute ago and
+        // stopped the watch. Starting it again is the difference between a screen that updates once, after the
+        // sign-in, and one that goes on updating afterwards by itself.
+        WatchServerEvents();
       }
       catch (ServerApiException ex)
       {
@@ -642,5 +657,219 @@ namespace MediaPortal.Frontend.ViewModels
       OnPropertyChanged(nameof(UnfinishedStatus));
       OnPropertyChanged(nameof(HasUnfinished));
     }
+
+    #region What the server says without being asked
+
+    /// <summary>
+    /// How long a burst of news from the server is allowed to gather before the screen asks again.
+    /// </summary>
+    /// <remarks>
+    /// Longer than the server's own half-second flush, or the debounce would fire once per server frame and the
+    /// whole point - one question to the server instead of one per directory the importer walked through - would be
+    /// lost. Short enough that a viewer who added a film sees it appear while still standing near the television.
+    /// </remarks>
+    public static TimeSpan EVENT_REFRESH_DEBOUNCE = TimeSpan.FromSeconds(2);
+
+    [ObservableProperty]
+    private string? _serverActivity;
+
+    /// <summary>
+    /// Whether there is anything to say about what the server is doing, which is what puts the line on the screen
+    /// and what takes it off again.
+    /// </summary>
+    public bool HasServerActivity
+    {
+      get { return !string.IsNullOrEmpty(ServerActivity); }
+    }
+
+    partial void OnServerActivityChanged(string? value)
+    {
+      OnPropertyChanged(nameof(HasServerActivity));
+    }
+
+    private Action<Action> _screenThread = delegate (Action action) { action(); };
+    private CancellationTokenSource? _watchCancellation;
+    private int _refreshArmed;
+
+    /// <summary>
+    /// Starts listening to the server's event stream, which is how the library on screen changes while nobody
+    /// presses anything.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Without this the front end is correct but slow: it shows what it read last, and the only way to make it
+    /// look again is to press refresh. Everything the server does on its own - an import that finishes at two in
+    /// the morning, a share added from another client, a file deleted from the disk - happened silently here.
+    /// </para>
+    /// <para>
+    /// Called by whoever owns the screen, once, because only that code knows how to get back onto the thread the
+    /// visual tree belongs to; like the playback screen, the running front end passes
+    /// <c>action =&gt; Dispatcher.UIThread.Post(action)</c>. Left out, what is heard is applied where it arrived,
+    /// which is what a test without a screen wants.
+    /// </para>
+    /// </remarks>
+    public void WatchServerEvents(Action<Action>? screenThread = null)
+    {
+      if (_client == null || _watchCancellation != null)
+        return;
+
+      if (screenThread != null)
+        _screenThread = screenThread;
+
+      CancellationTokenSource cancellation = new CancellationTokenSource();
+      _watchCancellation = cancellation;
+      ServerActivity = "Connecting to the server";
+
+      // Deliberately not awaited and not stored: the watch is the lifetime of the screen, the only thing that ends
+      // it is UseServer or the process, and every way it can fail is reported through ServerActivity rather than
+      // through a task nobody collects.
+      _ = WatchAsync(cancellation.Token, cancellation);
+    }
+
+    /// <summary>Whether the screen is currently hearing the server's news.</summary>
+    public bool IsWatchingEvents
+    {
+      get { return _watchCancellation != null; }
+    }
+
+    /// <summary>
+    /// Stops listening. Called when the front end closes; switching servers does it on its own.
+    /// </summary>
+    public void StopWatchingEvents()
+    {
+      CancellationTokenSource? source = _watchCancellation;
+      _watchCancellation = null;
+      ServerActivity = null;
+      source?.Cancel();
+    }
+
+    private async Task WatchAsync(CancellationToken cancellation, CancellationTokenSource source)
+    {
+      ServerApiClient client = _client!;
+      try
+      {
+        await client.WatchMediaEventsAsync(OnEventAsync, OnConnection, cancellation).ConfigureAwait(false);
+      }
+      catch (ServerApiException failure)
+      {
+        // Refused at the door: the server wants to know its callers and this one has not signed in. Saying that
+        // is the difference between a screen that quietly stops updating and one that says what to do about it.
+        _screenThread(delegate
+        {
+          ServerActivity = "The server would not let this screen listen. Sign in to see changes as they happen.";
+        });
+      }
+      catch (OperationCanceledException)
+      {
+        // The viewer switched servers. The expected ending.
+      }
+      catch (Exception ex)
+      {
+        _screenThread(delegate { ServerActivity = "Stopped listening: " + ex.Message; });
+      }
+      finally
+      {
+        // Only the watch this one started, or a watch started by UseServer while this was unwinding would have its
+        // own cancellation thrown away by the older run.
+        lock (_gateLock)
+        {
+          if (ReferenceEquals(_watchCancellation, source))
+          {
+            _watchCancellation = null;
+            source.Dispose();
+          }
+        }
+      }
+    }
+
+    /// <summary>
+    /// One frame, on the watcher's thread. Nothing here touches the screen; what it decides is posted.
+    /// </summary>
+    private Task OnEventAsync(MediaEvent mediaEvent)
+    {
+      _screenThread(delegate { ApplyEvent(mediaEvent); });
+      return Task.CompletedTask;
+    }
+
+    private void OnConnection(MediaEventConnection connection)
+    {
+      _screenThread(delegate
+      {
+        if (connection.IsConnected)
+          ServerActivity = "Listening to the server";
+        else
+          ServerActivity = "Lost the server. Trying again in " +
+              (int)Math.Round(connection.RetryAfter.TotalSeconds) + " seconds.";
+      });
+    }
+
+    /// <summary>
+    /// What a frame means on screen: a line about what the server is doing, and - when the frame says the titles
+    /// may have changed - one refresh, after the burst around it has finished.
+    /// </summary>
+    private void ApplyEvent(MediaEvent mediaEvent)
+    {
+      if (mediaEvent.Kind == MediaEvent.KIND_PROGRESS && mediaEvent.Jobs.Count > 0)
+        ServerActivity = DescribeJob(mediaEvent.Jobs[0]);
+      else if (mediaEvent.Kind == MediaEvent.KIND_IMPORT)
+      {
+        if (mediaEvent.State == "started" || mediaEvent.State == "scheduled")
+          ServerActivity = "The server is filing its library";
+        else if (mediaEvent.State == "completed" || mediaEvent.State == "canceled")
+          ServerActivity = "Listening to the server";
+      }
+      else if (mediaEvent.Kind == MediaEvent.KIND_GAP && mediaEvent.Dropped > 0)
+        ServerActivity = "The server had " + mediaEvent.Dropped + " changes to report at once";
+
+      if (mediaEvent.ShouldRefresh)
+        ArmRefresh();
+    }
+
+    private static string DescribeJob(MediaImportJob job)
+    {
+      string where = job.Path ?? "";
+      string local;
+      string? reason;
+      if (MediaLibraryPath.TryAsLocalFile(job.Path, out local, out reason))
+        where = local;
+
+      return where.Length == 0
+          ? "Filing " + job.Completed + " of " + job.Identified
+          : "Filing " + job.Completed + " of " + job.Identified + " in " + where;
+    }
+
+    /// <summary>
+    /// Asks the server once, a moment after its news stopped arriving.
+    /// </summary>
+    /// <remarks>
+    /// One pending refresh at a time, counted with an <see cref="Interlocked"/> rather than a timer: an importer
+    /// finishing produces a handful of frames inside a second, and each of them asking the library for its whole
+    /// shelf would be a screen that hammers the server because something happened on the wire. The flag is cleared
+    /// before the refresh starts, so news that arrives while a read is in flight arms the next one.
+    /// </remarks>
+    private void ArmRefresh()
+    {
+      if (Interlocked.CompareExchange(ref _refreshArmed, 1, 0) != 0)
+        return;
+
+      _ = ArmAfterBurstAsync();
+    }
+
+    private async Task ArmAfterBurstAsync()
+    {
+      try
+      {
+        await Task.Delay(EVENT_REFRESH_DEBOUNCE).ConfigureAwait(false);
+      }
+      catch (Exception)
+      {
+        // A delay does not fail. Reaching the reset below is the only thing that matters.
+      }
+
+      Interlocked.Exchange(ref _refreshArmed, 0);
+      _screenThread(delegate { _ = RefreshAsync(); });
+    }
+
+    #endregion
   }
 }

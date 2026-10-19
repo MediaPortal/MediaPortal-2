@@ -181,9 +181,15 @@ namespace MediaPortal.Frontend
           }
         }
 
+        // What the server says without being asked. The home screen's library otherwise only changes when somebody
+        // presses refresh, so an import that finishes while the viewer is in another room leaves the shelf showing
+        // yesterday. Like the playback screen, this needs the dispatcher: the stream is read on its own thread and
+        // the lists it updates belong to this one.
+        _home.WatchServerEvents(action => Dispatcher.UIThread.Post(action));
+        desktop.Exit += delegate { _home.StopWatchingEvents(); };
+
         if (_playFile != null && _nowPlaying != null)
-          desktop.MainWindow = BuildPlaybackScreen(desktop);
-        else
+          desktop.MainWindow = BuildPlaybackScreen(desktop);        else
         {
           desktop.MainWindow = _startAtConnectionScreen
               ? BuildConnectionScreen(desktop)

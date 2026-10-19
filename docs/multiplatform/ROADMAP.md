@@ -2704,16 +2704,94 @@ and a client `/MediaPortal/Client` - and with no resolver registered every reque
 any log line was written, which is how the first run of this fixture looked.
 
 **What this does not do.** The `200` inside a share is proved over a socket in the test, not on the deployed
-layout: the deployed server comes up with an empty library, nothing is registered as a share, and the HTTP API has
-no way to add one (shares come from the client side), so every path on a freshly installed server is refused -
-which is the correct behaviour for a server with no media, but means the deployment only demonstrates the
-refusals. The UPnP browse actions now consult the guard but are not driven over their own socket; their two
-questions are tested against the guard directly. Nothing was added to make `GetResource` authenticate, for the
+layout: the deployed server comes up with an empty library and nothing registered as a share, so every path on a
+freshly installed server is refused - which is the correct behaviour for a server with no media, but means the
+deployment only demonstrates the refusals. It is not that HTTP cannot add a share - `POST api/media/shares` exists,
+and section `ak` put a screen on it - but adding one needs a signed-in caller, and the probe that walks the deployed
+layout is deliberately anonymous, so it is turned away at the door along with everything else. The gap is the
+deployment's, not the API's: nothing signs the probe in, and nothing hands it a folder to share. The UPnP browse
+actions now consult the guard but are not driven over their own socket; their two questions are tested against the
+guard directly. Nothing was added to make `GetResource` authenticate, for the
 reason above. And a server with authorization on still cannot be *streamed from* by a player that has no ticket,
 carried over unchanged from section `am`.
 
 The suite stands at **908 tests, 0 failures** - Tests.Server at **404** where the last section left it at 392, and
 the front end unchanged at 317.
+
+### ao. The server tells the screen when something changed, instead of waiting to be asked
+
+Everything the front end knew up to here it knew because somebody pressed something. The shelf was read when a
+screen opened, the title was read when a row was selected, and an import that finished while nobody was looking
+finished invisibly: the film was in the library and the television did not know it. That is the shape of a polling
+client, and MP2 never had one - inside the server there has always been a message broker, and the old Windows
+client subscribed to it directly because it ran in the same process. What was missing was the same news crossing
+the socket.
+
+**The endpoint is `GET api/media/events`, and it is Server-Sent Events.** Of the three shapes available - long
+polling, WebSocket, SSE - SSE was picked for the boring reasons: the server writes and never reads, so the
+bidirectional frame of a WebSocket buys nothing while costing an upgrade handshake and a second path through the
+authorization filter; long polling means the client re-asks on a timer, which is the thing being removed. SSE is a
+response that does not end, so it reuses the pipeline, the guard (`[MediaPortalAuthorize]` like every other media
+route), and the logging that already work. It is text over HTTP/1.1, which is right for a dozen frames a minute and
+would be wrong for a frame-rate stream. A client that already speaks HTTP speaks this.
+
+**Five frames carry it.** `hello` opens every connection with the protocol version and the server's clock, so a
+client can tell "this server is too old for me" from "this server is not answering". `library` says titles changed
+or vanished, with the ids when there is room for them (`items`, and `itemsTruncated` when the server had more than
+`ITEMS_PER_FRAME` = 50 to say). `import` carries the importer's own states, `import-progress` carries counts while
+a job runs, and `gap` says the server ran out of room and dropped something - the alternative being a silence that
+looks exactly like a quiet library. Paths travel as `ResourcePath.Serialize()` strings and ids as lowercase `N`
+GUID strings, both because that is what the rest of the API already uses.
+
+**Between the broker and the socket sits one listener per connection**, subscribed to the two channels that mean
+something to a viewer: `MediaLibraryMessaging.CHANNEL` and `ImporterWorkerMessaging.CHANNEL`. It does not forward
+what it hears. Frames are coalesced per key over `FLUSH_TIME` (500 ms), so the hundred messages a share scan
+produces become one look at the server; and when 64 different keys are already waiting (`PENDING_LIMIT`) the
+listener writes a `gap` rather than growing without bound. A 15-second `:` comment keeps a healthy stream looking
+alive to anything in between that gives up on quiet connections.
+
+**The tests found two protocol bugs before anything was wired up**, both worth recording because neither was
+visible from the code. The first: the `event:` line was derived by looking for `{"kind":"` at the start of the
+serialized body, and `System.Text.Json` does not promise that an inherited property comes first - so every frame
+went out as `event: message` and only the body was right. Frames now carry their kind as a value of their own
+(`Pending.Kind`) instead of having it guessed back off the wire. The second: coalescing keyed the importer's
+`status` messages by directory, so 200 status messages about 200 directories produced 200 frames and the batching
+did nothing at all. The rule is now that `status` and `refresh-local-shares` key on state alone - newest wins, and
+the frame names the newest path - while `scheduled`, `started`, `completed` and `canceled` keep their path, because
+two shares finishing are two facts.
+
+**On the other end is `ServerApiClient.WatchMediaEventsAsync`, and the interesting part is what it refuses to
+retry.** A stream that breaks - the server restarting for a plugin update, a laptop whose address changed - is
+opened again after one second, then two, four, up to thirty, forever. A server that answers `401` or `403` is not a
+broken connection but a fact about this client, and reconnecting behind a locked door turns a message a person
+could act on into silence; that comes back as the same `ServerApiException` every other endpoint uses, and the home
+screen says the server would not let it listen. So does a frame the client cannot parse, for the same reason. The
+stream gets its own `HttpClient` with no timeout: the fifteen seconds that is right for a shelf of titles would
+kill a healthy stream the first evening the library had nothing to say.
+
+**The screen now moves by itself.** `HomeViewModel` refreshes only on the frames that mean "come and look", one
+pending refresh at a time and debounced, so the burst at the end of a scan is one reload and not two hundred; a
+line under the menu says what the server is doing while it does it, and says nothing when it is idle. Switching
+servers stops the old watch and starts a new one, signing in starts one that had been refused, and closing the
+front end stops it.
+
+**What this does not do.** Only the two channels above cross the socket; `ClientManagerMessaging` and whatever a
+plugin puts on its own channel stay inside the server, and there is nothing to bridge from TV because the TV
+backend went away with SlimTV. A frame is a nudge and not a diff - the client is told *that* the library changed
+and asks again for what it displays, which is deliberate: a diff would mean the server remembering what every
+connected screen already has. There is no `Last-Event-ID` resume, so a reconnect re-reads rather than replaying. A
+client that vanishes without closing its socket is noticed at the next write, which with a fifteen-second heartbeat
+means one request can outlive its client by up to that much, on both sides. And so far exactly one screen listens:
+the home screen's status line, with the shelf behind it - other screens still read when they open, which is still
+correct, they are simply not subscribed.
+
+**Two things the harness had to learn**, both recorded here because they cost an afternoon each. Cancelling a
+`StreamReader.ReadLineAsync` on an `HttpClient` response body does not merely abandon the read - it aborts the
+connection and disposes the `NetworkStream`, so a reader that wants "wait up to N ms for the next line" must keep
+one read in flight and race it against a timer, not hand the token to the read. And a fixture that shuts an
+in-process server down while a stream is open waits for that stream; a server with nothing to say finds out its
+client left only when it next writes, which is why `TestMediaEventStream` shortens `HEARTBEAT_TIME` to 200 ms for
+its own run rather than inheriting fifteen seconds of patience.
 
 ## What cannot be verified without the user
 

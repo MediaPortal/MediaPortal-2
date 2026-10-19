@@ -17,6 +17,7 @@
 
 using System;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Collections.Generic;
@@ -571,6 +572,209 @@ namespace MediaPortal.Frontend.Api
       return await SendJsonAsync<ImportStatus>(HttpMethod.Get, "api/media/import", null, cancellation)
           .ConfigureAwait(false);
     }
+
+    #region The event stream
+
+    /// <summary>
+    /// Where the server says what happened without being asked.
+    /// </summary>
+    public const string EventsUrl = "api/media/events";
+
+    /// <summary>
+    /// How long the first wait after a lost stream is, and the ceiling it doubles up to.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// One second, then two, four, eight, sixteen, and no further: a server that is restarting comes back within
+    /// the first three steps, and a server that is switched off tomorrow should cost this client one request a
+    /// half-minute rather than one a second until the power returns. Writable for the same reason the server's own
+    /// waiting times are: a test that measures reconnection should not spend half a minute on clocks.
+    /// </para>
+    /// <para>
+    /// The server also offers a <c>retry:</c> field for telling a client this. It is ignored on purpose - the
+    /// client is the one that knows whether a television is sitting in front of nothing.
+    /// </para>
+    /// </remarks>
+    public static TimeSpan EventRetryTime = TimeSpan.FromSeconds(1);
+
+    /// <summary>The longest the client will ever wait before asking for the stream again.</summary>
+    public static TimeSpan EventRetryCeiling = TimeSpan.FromSeconds(30);
+
+    /// <summary>
+    /// How long to wait after the <paramref name="attempt"/>'th failure, in the ladder described on
+    /// <see cref="EventRetryTime"/>.
+    /// </summary>
+    public static TimeSpan EventRetryDelay(int attempt)
+    {
+      if (attempt <= 0)
+        return EventRetryTime;
+
+      double seconds = EventRetryTime.TotalSeconds * Math.Pow(2, Math.Min(attempt, 10));
+      TimeSpan grown = TimeSpan.FromSeconds(seconds);
+      return grown > EventRetryCeiling ? EventRetryCeiling : grown;
+    }
+
+    /// <summary>
+    /// Keeps the server's event stream open, hands every frame to <paramref name="onEvent"/>, and reconnects when
+    /// the stream breaks.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <b>Why the task does not end.</b> The stream is how the front end learns that the library changed while
+    /// nobody pressed anything, and one dropped connection should not be the end of that - the server restarting
+    /// for a plugin update is an ordinary Tuesday. So the loop reconnects, with the patience of
+    /// <see cref="EventRetryDelay"/>, and this task only finishes when it is cancelled or when continuing would be
+    /// pretending.
+    /// </para>
+    /// <para>
+    /// <b>The two things that do stop it.</b> A server that refuses the stream outright - 401 or 403 - is not a
+    /// connection problem but a configuration one, and reconnecting forever behind a locked door would turn a
+    /// message a person could act on into silence; that comes back as the <see cref="ServerApiException"/> every
+    /// other endpoint uses. So does a frame this client cannot read, which means the two ends disagree about the
+    /// protocol and no retry will make them agree.
+    /// </para>
+    /// <para>
+    /// <b>Its own connection.</b> A stream is not a request: the 15 seconds this client waits for an answer is
+    /// right for a shelf of titles and would kill a healthy stream the first time the library had nothing to say.
+    /// The connection is therefore opened here, without a timeout, and cancellation is the only thing that ends it.
+    /// </para>
+    /// </remarks>
+    /// <param name="onEvent">
+    /// Called with every frame, on this task's thread, in the order they arrived. The screen is the caller's
+    /// thread to get back to.
+    /// </param>
+    /// <param name="onConnection">
+    /// Told when the stream is established and when it was lost and a reconnection is being attempted, so that a
+    /// status line can say "watching the server" instead of lying about it.
+    /// </param>
+    /// <param name="cancellation">Ending the watch. The connection is closed on the way out.</param>
+    public async Task WatchMediaEventsAsync(Func<MediaEvent, Task> onEvent,
+        Action<MediaEventConnection>? onConnection = null, CancellationToken cancellation = default)
+    {
+      if (onEvent == null)
+        throw new ArgumentNullException(nameof(onEvent));
+
+      Uri url = new Uri(BaseUrl, EventsUrl);
+      int failures = 0;
+
+      while (!cancellation.IsCancellationRequested)
+      {
+        bool connected = false;
+        try
+        {
+          connected = await ReadEventsAsync(url, onEvent, onConnection, cancellation).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
+        {
+          return;
+        }
+
+        if (connected)
+          // The stream was healthy and ended, which is what a server does when it shuts down. Start counting the
+          // waits again from the top, because this is a new interruption rather than the old one persisting.
+          failures = 0;
+
+        TimeSpan wait = EventRetryDelay(failures);
+        failures++;
+        onConnection?.Invoke(MediaEventConnection.Reconnecting(wait));
+
+        try
+        {
+          await Task.Delay(wait, cancellation).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+          return;
+        }
+      }
+    }
+
+    /// <summary>
+    /// One connection to the stream: open it, deliver frames until it ends, and say whether it ever worked.
+    /// </summary>
+    /// <returns>
+    /// <c>true</c> when the server accepted the request and at least the protocol was spoken, which is what makes
+    /// the next wait short instead of long; <c>false</c> when it never got that far.
+    /// </returns>
+    /// <exception cref="ServerApiException">The server said this client may not watch.</exception>
+    private async Task<bool> ReadEventsAsync(Uri url, Func<MediaEvent, Task> onEvent,
+        Action<MediaEventConnection>? onConnection, CancellationToken cancellation)
+    {
+      using (HttpClient stream = new HttpClient { Timeout = System.Threading.Timeout.InfiniteTimeSpan })
+      using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url))
+      {
+        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/event-stream"));
+        request.Headers.CacheControl = new CacheControlHeaderValue { NoCache = true };
+        AddToken(request);
+
+        HttpResponseMessage response;
+        try
+        {
+          response = await stream.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellation)
+              .ConfigureAwait(false);
+        }
+        catch (HttpRequestException)
+        {
+          // No server, no route, a reset mid-handshake. The same complaint a person gets from the connect screen,
+          // except that here it is worth trying again.
+          return false;
+        }
+        catch (TaskCanceledException) when (!cancellation.IsCancellationRequested)
+        {
+          // Cannot happen with an infinite timeout, and saying so in code costs one line and spares somebody a
+          // mystery when the timeout is ever made finite again.
+          return false;
+        }
+
+        using (response)
+        {
+          if (response.StatusCode == HttpStatusCode.Unauthorized ||
+              response.StatusCode == HttpStatusCode.Forbidden)
+            throw new ServerApiException(url, response.StatusCode,
+                response.ReasonPhrase ?? "The server would not let this client listen.");
+
+          if (!response.IsSuccessStatusCode)
+            return false;
+
+          bool spoke = false;
+          ServerEventFramer framer = new ServerEventFramer();
+
+          using (Stream body = await response.Content.ReadAsStreamAsync(cancellation).ConfigureAwait(false))
+          using (StreamReader reader = new StreamReader(body, Encoding.UTF8))
+          {
+            while (!cancellation.IsCancellationRequested)
+            {
+              string? line = await reader.ReadLineAsync(cancellation).ConfigureAwait(false);
+              if (line == null)
+                // The server closed it. Its shutdown, or a proxy giving up; either way the loop above decides
+                // whether to ask again.
+                return spoke;
+
+              Tuple<string?, string>? frame = framer.Feed(line);
+              if (frame == null)
+                continue;
+
+              if (frame.Item2.Length == 0)
+                // A frame with no body is a keepalive; it proved the wire works, which is all it does.
+                continue;
+
+              MediaEvent mediaEvent = MediaEvent.Parse(frame.Item2, frame.Item1);
+              if (mediaEvent.Kind == MediaEvent.KIND_HELLO)
+              {
+                spoke = true;
+                onConnection?.Invoke(MediaEventConnection.Connected);
+              }
+
+              await onEvent(mediaEvent).ConfigureAwait(false);
+            }
+          }
+
+          return spoke;
+        }
+      }
+    }
+
+    #endregion
 
     /// <summary>
     /// The body of <see cref="AddShareAsync"/>.

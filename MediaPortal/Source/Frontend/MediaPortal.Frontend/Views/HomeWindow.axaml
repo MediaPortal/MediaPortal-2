@@ -31,6 +31,15 @@
                  FontSize="16"
                  Opacity="0.6"
                  TextTrimming="CharacterEllipsis" />
+      <!-- What the server is doing right now, as the server itself said so: "Filing 120 of 340 in D:\Films" while
+           an import runs, "Listening to the server" when it is idle, "Lost the server" when the connection went.
+           Gone when nothing is being listened to, because a media centre that has nothing to say should not spend
+           a line of a television saying it. -->
+      <TextBlock Text="{Binding ServerActivity}"
+                 FontSize="14"
+                 Opacity="0.5"
+                 IsVisible="{Binding HasServerActivity}"
+                 TextTrimming="CharacterEllipsis" />
       <TextBlock FontSize="14"
                  Opacity="0.4"
                  Text="{Binding ServerUrl, StringFormat='Server: {0}'}" />
