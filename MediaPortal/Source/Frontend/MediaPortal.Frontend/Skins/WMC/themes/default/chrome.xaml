@@ -12,15 +12,20 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     x:DataType="chrome:ChromeInfo">
 
-  <!-- The header: the clock first, as the WMC masters read it, then the screen's words. -->
+  <!-- The header: the clock over its date at the left, as the WMC masters read it, and the screen's words
+       right-aligned - HeaderTextPanel sat in the masters' last column, against the right margin. -->
   <ControlTemplate x:Key="ChromeHeaderTemplate" TargetType="ContentControl">
     <Grid ColumnDefinitions="Auto,*" Margin="10,0" Background="{DynamicResource ScreenBackgroundBrush}">
-      <TextBlock Grid.Column="0" Text="{Binding Clock}"
-                 Foreground="{DynamicResource Muted}" FontSize="{DynamicResource DateTimeFontSize}"
-                 VerticalAlignment="Center" Margin="0,0,20,0"/>
+      <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" Margin="0,0,20,0">
+        <TextBlock Text="{Binding Clock}"
+                   Foreground="{DynamicResource Muted}" FontSize="{DynamicResource DateTimeFontSize}"/>
+        <TextBlock Text="{Binding Date}"
+                   Foreground="{DynamicResource Muted}" FontSize="{DynamicResource SmallerFontSize}"/>
+      </StackPanel>
       <TextBlock Grid.Column="1" Text="{Binding ScreenTitle}"
                  Foreground="{DynamicResource Text}" FontSize="{DynamicResource HeaderFontSize}"
-                 VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                 VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                 HorizontalAlignment="Right" Margin="0,0,40,0"/>
     </Grid>
   </ControlTemplate>
 

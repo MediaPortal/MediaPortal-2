@@ -78,15 +78,30 @@ namespace MediaPortal.Frontend.Theming
     private void ReportClock()
     {
       string now = FormatClock(DateTime.Now);
+      string today = FormatDate(DateTime.Now);
       if (_marshal == null)
+      {
         Clock = now;
+        Date = today;
+      }
       else
-        _marshal(() => Clock = now);
+        _marshal(() =>
+        {
+          Clock = now;
+          Date = today;
+        });
     }
 
     /// <summary>The header's clock, spelled the way the reference header spelled it.</summary>
     [ObservableProperty]
     private string _clock;
+
+    /// <summary>
+    /// The day the header's clock stands on - the reference showed the date under the time, and its skin
+    /// settings made it the clock's own companion (ShowDate next to ShowTime), not a stranger's.
+    /// </summary>
+    [ObservableProperty]
+    private string _date = FormatDate(DateTime.Now);
 
     /// <summary>The name of the screen the window is on; the header shows it where the reference masters showed their title.</summary>
     [ObservableProperty]
@@ -131,6 +146,11 @@ namespace MediaPortal.Frontend.Theming
     private static string FormatClock(DateTime now)
     {
       return now.ToString("HH:mm");
+    }
+
+    private static string FormatDate(DateTime now)
+    {
+      return now.ToString("dddd, dd.MM.yyyy");
     }
   }
 }
