@@ -167,61 +167,10 @@
            the newest, and this is the one you stopped half way through". -->
       <DockPanel Grid.Column="1">
 
-        <!-- What somebody left half way, when nothing is highlighted. It used to be the only content this screen
-           had; with the pane next to it it has become what MP2's "Continue Playing" list is - the answer for a
-           viewer who came back to something rather than to start something. It is off screen when there is nothing
-           in it - see HomeViewModel, which keeps the heading up when a part of the library refused to answer, so
-           that an empty shelf and a silent server do not look the same. -->
-        <StackPanel Name="unfinishedPanel"
-                    DockPanel.Dock="Bottom"
-                    IsVisible="{Binding HasUnfinished}"
-                    Spacing="3"
-                    Margin="0,10,0,0">
-          <StackPanel Orientation="Horizontal" Spacing="12">
-            <TextBlock Text="Continue playing"
-                       FontSize="19"
-                       FontWeight="SemiBold" />
-            <TextBlock Text="{Binding UnfinishedStatus}"
-                       FontSize="13"
-                       Opacity="0.5"
-                       VerticalAlignment="Center" />
-          </StackPanel>
-          <ListBox Name="unfinishedList"
-                   Focusable="True"
-                   ItemsSource="{Binding Unfinished}"
-                   FontSize="17"
-                   MaxHeight="150"
-                   Background="Transparent"
-                   BorderThickness="0">
-            <ListBox.ItemTemplate>
-              <DataTemplate x:DataType="vm:TitleViewModel">
-                <Grid ColumnDefinitions="1.5*,0.9*,1.2*,0.9*" ColumnSpacing="14" MinWidth="420" Margin="0,1">
-                  <TextBlock Grid.Column="0"
-                             Text="{Binding Line}"
-                             TextTrimming="CharacterEllipsis" />
-                  <TextBlock Grid.Column="1"
-                             Text="{Binding Detail}"
-                             Opacity="0.55"
-                             TextTrimming="CharacterEllipsis" />
-                  <!-- The time the server says this title was last opened, which is the row's claim to be on this
-                       strip at all. -->
-                  <TextBlock Grid.Column="2"
-                             Text="{Binding LastPlayedText}"
-                             Opacity="0.7" />
-                  <!-- How far this viewer got, when the server was told who is asking. Empty on a server that only
-                       counts the household's viewings, which is why it is the last column and not part of the
-                       title: a strip whose rows say "0% watched" on every row is claiming a precision it does not
-                       have. -->
-                  <TextBlock Grid.Column="3"
-                             Text="{Binding ResumeText}"
-                             Opacity="0.85"
-                             TextTrimming="CharacterEllipsis" />
-                </Grid>
-              </DataTemplate>
-            </ListBox.ItemTemplate>
-          </ListBox>
-        </StackPanel>
-
+        <!-- What somebody left half way is not a strip of its own here: the reference kept "where was I" inside
+             the highlighted entry's own lists (MovieHomeContent's ContinuePlayMovies, SeriesHomeContent's
+             ContinuePlaySeries), so a series left half way belongs to the series tile alone - see
+             HomeViewModel and HomeContentList. The pane below is what fills that role now. -->
         <ListBox Name="contentList"
                  Focusable="True"
                  ItemsSource="{Binding ContentRows}"

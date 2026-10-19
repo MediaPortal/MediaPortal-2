@@ -330,70 +330,118 @@ namespace FrontendProbe
           Console.WriteLine("note:     --server belongs to the home screen; the library behind this one is scripted"
               + " instead, because the gate's server holds no titles on purpose");
 
-        // The home screen of a household that has been watching things: MP2's main menu, and under it the titles
-        // that were started and not finished. Unlike the shelf frames this one reads its content through the whole
-        // path - the screen asks the server for its parts, counts them, and then asks each part what it holds
-        // that was left half way - because the strip is not one answer but a merge of several.
+        // The home screen of a household that has been watching things: MP2's main menu, and beside it the content
+        // pane of the first shelf a viewer can open. What was left half way is not a strip of its own across the
+        // whole menu: Nereus answered "where was I" per content type, ContinuePlayMovies inside the films entry
+        // and ContinuePlaySeries inside the series one, and the pane (ShowContentAsync, HomeContentList) is this
+        // front end's faithful shape of the same answer. Unlike the shelf frames this one reads its content
+        // through the whole path - the screen asks the server for its parts, counts them, and then asks the shelf
+        // it opened what it holds that was left half way.
         home = new HomeViewModel(new ServerApiClient(new Uri("http://127.0.0.1:1/MediaPortal/Server/"),
             new HttpClient(new ScriptedTitles())));
         home.RefreshCommand.Execute(null);
 
-        if (!PumpUntil(delegate { return home.Unfinished.Count > 0; }, TimeSpan.FromSeconds(10)))
+        if (!PumpUntil(delegate { return home.Menu.Any(entry => entry.Section != null); },
+                TimeSpan.FromSeconds(10)))
         {
-          Console.WriteLine("FAILED:   the strip never filled, so the frame would show an ordinary home screen and"
-              + " prove nothing about the titles left half way.");
+          Console.WriteLine("FAILED:   no menu entry ever gained a shelf, so the frame would show an ordinary home"
+              + " screen and prove nothing about the titles left half way.");
           return 1;
         }
         Pump(TimeSpan.FromMilliseconds(300));
 
-        // The frame is refused unless the strip is the answer the script describes. Two of the four rows came from
-        // the other part of the library, and they sit in the middle of the list rather than at its end: that is
-        // the whole point of asking every tile rather than only the first one.
-        string[] expected = { "Salt and Static", "S01E02 - Low Tide", "Northlight", "A Quiet Harbour" };
-        string[] shown = home.Unfinished.Select(row => row.Name).ToArray();
+        // The pane is asked the way the viewer's remote asks it: the first entry that opens a shelf of titles,
+        // which on this script is the films - the shelf whose titles were stopped half way.
+        MainMenuEntry shelf = home.Menu.First(entry => entry.Openable && entry.Section != null);
+        Task pane = home.ShowContentAsync(shelf);
+        if (!PumpUntil(delegate { return pane.IsCompleted; }, TimeSpan.FromSeconds(10)))
+        {
+          Console.WriteLine("FAILED:   the pane of \"" + shelf.Label + "\" never finished reading, so the frame"
+              + " would hold half an answer.");
+          return 1;
+        }
+        Pump(TimeSpan.FromMilliseconds(300));
+
+        // The rows between this list's heading and the next: the frame is about one list of the pane, and asking
+        // the whole pane would let a title of "Latest added" pass for a title of "Continue playing".
+        var continueList = new List<HomeRow>();
+        bool under = false;
+        foreach (HomeRow row in home.ContentRows)
+        {
+          if (row.IsHeading)
+            under = row.Text == "Continue playing";
+          else if (under)
+            continueList.Add(row);
+        }
+
+        if (!home.ContentRows.Any(row => row.IsHeading && row.Text == "Continue playing")
+            || continueList.Count == 0 || !continueList.All(row => row.IsTitle))
+        {
+          Console.WriteLine("FAILED:   the pane of \"" + shelf.Label + "\" wrote no list of titles under a"
+              + " \"Continue playing\" heading, so the frame would show a pane that does not answer \"where was"
+              + " I\" at all.");
+          return 1;
+        }
+
+        // The frame is refused unless the pane holds the answer the script describes, newest stop first. The
+        // episode the same household left halfway belongs to its series and to nothing else: finding it in the
+        // films pane would mean the answer had gone back to being one merged strip.
+        string[] expected = { "Salt and Static", "Northlight", "A Quiet Harbour" };
+        string[] shown = continueList.Select(row => row.Title!.Name).ToArray();
         if (!shown.SequenceEqual(expected))
         {
-          Console.WriteLine("FAILED:   the strip holds \"" + string.Join("\", \"", shown)
-              + "\"; expected the four stopped titles newest first, \"" + string.Join("\", \"", expected) + "\".");
+          Console.WriteLine("FAILED:   the pane's continue list holds \"" + string.Join("\", \"", shown)
+              + "\"; expected this shelf's three stopped titles newest first, \""
+              + string.Join("\", \"", expected) + "\".");
           return 1;
         }
-        if (home.Unfinished.Any(row => row.Seen))
+        if (home.ContentRows.Any(row => row.IsTitle && row.Title!.Name == "S01E02 - Low Tide"))
         {
-          Console.WriteLine("FAILED:   a row of the strip carries a watched mark; a title that was finished does"
-              + " not belong on a list of things still to watch.");
+          Console.WriteLine("FAILED:   the films pane offered a series episode; \"where was I\" is answered one"
+              + " shelf at a time, and an episode belongs to its series tile and to no other.");
           return 1;
         }
-        // Where the viewer left each of them, in the order the strip shows them. The newest three carry a figure
+        if (continueList.Any(row => row.Title!.Seen))
+        {
+          Console.WriteLine("FAILED:   a row of the continue list carries a watched mark; a title that was"
+              + " finished does not belong on a list of things still to watch.");
+          return 1;
+        }
+        // Where the viewer left each of them, in the order the pane shows them. The two newest carry a figure
         // and the oldest does not, which is the pair a frame has to hold: a percentage where the server had one,
         // and an empty space where it had none rather than a nought invented for it.
-        string[] expectedPositions = { "12% watched", "74% watched", "61% watched", "" };
-        string[] shownPositions = home.Unfinished.Select(row => row.ResumeText).ToArray();
+        string[] expectedPositions = { "12% watched", "61% watched", "" };
+        string[] shownPositions = continueList.Select(row => row.Title!.ResumeText).ToArray();
         if (!shownPositions.SequenceEqual(expectedPositions))
         {
-          Console.WriteLine("FAILED:   the strip's positions read \"" + string.Join("\", \"", shownPositions)
-              + "\"; expected \"" + string.Join("\", \"", expectedPositions)
-              + "\" - the three newest titles carry the position their viewer left, the oldest carries none.");
+          Console.WriteLine("FAILED:   the continue list's positions read \""
+              + string.Join("\", \"", shownPositions) + "\"; expected \"" + string.Join("\", \"", expectedPositions)
+              + "\" - the two newest titles carry the position their viewer left, the oldest carries none.");
           return 1;
         }
-        if (home.Unfinished[0].ResumePercent != 12 || home.Unfinished[3].ResumePercent != null)
+        if (continueList[0].Title!.ResumePercent != 12
+            || continueList[continueList.Count - 1].Title!.ResumePercent != null)
         {
           Console.WriteLine("FAILED:   the figure behind the words is not the one the script sent ("
-              + home.Unfinished[0].ResumePercent + ", " + home.Unfinished[3].ResumePercent + "), so the row would"
+              + continueList[0].Title!.ResumePercent + ", "
+              + continueList[continueList.Count - 1].Title!.ResumePercent + "), so the row would"
               + " be saying one thing to the viewer and carrying another to the player.");
           return 1;
         }
-        if (home.Sections.Count != 2)
+        if (home.Sections.Count != 1)
         {
           Console.WriteLine("FAILED:   " + home.Sections.Count
-              + " tile(s), but the script offers two parts of the library a viewer can watch.");
+              + " tile(s), but the script offers one part of the library a viewer can open as a tile of its own -"
+              + " episodes are reached through their series, not through a tile called Episodes.");
           return 1;
         }
-        if (home.Menu.Count(entry => entry.Openable) != 9)
+        if (home.Menu.Count(entry => entry.Openable) != 8)
         {
           // The screen does not draw `Sections` any more, it draws the menu built from them, so this is the check
-          // that belongs to the picture: the two parts the script offers have to be the two entries a viewer can
-          // open, and the entries the script cannot fill have to be saying so rather than being missing. The other
-          // seven openable entries are the folders screen, the pictures screen, the browse screen, the news,
+          // that belongs to the picture: the one shelf the script offers has to be an entry a viewer can open,
+          // the entries the script cannot fill have to be saying so rather than being missing, and no tile of
+          // episodes may have crept in after the menu. The other seven openable entries are the folders screen,
+          // the pictures screen, the browse screen, the news,
           // the weather, the party and the settings, all of which are openable whatever the server holds - one
           // reads the
           // folders the library was built from, one walks the shares, the third asks the server to group whatever
@@ -402,8 +450,8 @@ namespace FrontendProbe
           // been imported.
           Console.WriteLine("FAILED:   " + home.Menu.Count(entry => entry.Openable)
               + " openable menu entr(ies) of " + home.Menu.Count
-              + "; expected two plus the folders, pictures, browse, news, weather, party and settings screens,"
-              + " because the script offers two parts of the library a viewer can watch.");
+              + "; expected one plus the folders, pictures, browse, news, weather, party and settings screens,"
+              + " because the script offers one part of the library a viewer can open as a tile of its own.");
           return 1;
         }
         if ((home.ServerDescription ?? "").IndexOf("MediaPortal 2 Server", StringComparison.Ordinal) < 0)
@@ -416,19 +464,18 @@ namespace FrontendProbe
           return 1;
         }
 
-        Console.WriteLine("content:  " + home.UnfinishedStatus + " - tiles: "
+        Console.WriteLine("content:  " + shelf.Label + " pane, " + home.ContentRows.Count
+            + " row(s) - tiles: "
             + string.Join(", ", home.Sections.Select(section => section.Label + " (" + section.CountText + ")")));
         Console.WriteLine("menu:     " + string.Join(" | ",
             home.Menu.Select(entry => entry.Label + " " + entry.Detail)));
-        Console.WriteLine("strip:    " + string.Join(" | ",
-            home.Unfinished.Select(row => row.Name + " - " + row.LastPlayedText)));
-        Console.WriteLine("resume:   " + string.Join(" | ",
-            home.Unfinished.Select(row => row.Name + " "
-                + (row.ResumePercent.HasValue ? row.ResumeText : "nothing stored"))));
+        Console.WriteLine("continue: " + string.Join(" | ",
+            continueList.Select(row => row.Title!.Name + " "
+                + (row.Title!.ResumePercent.HasValue ? row.Title!.ResumeText : "nothing stored"))));
 
-        // The playback screen is handed over although the frame never opens it: the strip hides itself on a
-        // machine that cannot start a film, and a picture of a list the viewer cannot act on would be the frame
-        // that lies.
+        // The playback screen is handed over although the frame never opens it: a row of the pane only starts a
+        // film on a machine that can start one, and a picture of a list the viewer cannot act on would be the
+        // frame that lies.
         NowPlayingViewModel resumePlayback = new NowPlayingViewModel(new ScriptedPlayer(),
             action => Dispatcher.UIThread.Post(action));
         window = new ShellWindow(new HomeView(home, new WorkflowManager(),
@@ -1715,8 +1762,8 @@ namespace FrontendProbe
       /// the second one is showing the viewer a film they still have to watch.
       /// </summary>
       /// <remarks>
-      /// Four of them, on three different weeks, because the home screen's strip promises the most recently stopped
-      /// title first - an order that cannot be seen in a frame holding one row.
+      /// Three of them, on three different weeks, because the pane's continue list promises the most recently
+      /// stopped title first - an order that cannot be seen in a frame holding one row.
       /// </remarks>
       private static readonly Dictionary<int, DateTime> STOPPED_HALFWAY =
           new Dictionary<int, DateTime>
@@ -1727,9 +1774,9 @@ namespace FrontendProbe
           };
 
       /// <summary>
-      /// The series side of the same household. The strip asks every part of the library it offers a tile for, so
-      /// a second aspect is the only way a frame can show what the screen does with answers from two of them: it
-      /// puts them in one list by the date they were stopped, not in two lists by where they came from.
+      /// The series side of the same household. The pane answers one shelf at a time, so a second aspect is the
+      /// only way a frame can show it: the episode this household left halfway belongs to its series, and a
+      /// films pane that listed it would be the merged strip the pane exists not to be.
       /// </summary>
       private static readonly string[] EPISODES =
       {
@@ -1827,8 +1874,8 @@ namespace FrontendProbe
 
         // The three questions a home screen asks before it can show a tile: who is there, what parts of a library
         // is it made of, and how many titles each holds. Answered here for the same reason the titles are: the
-        // gate's server has an empty database on purpose, and a strip of titles left half way cannot be drawn
-        // from one, so the whole screen - tiles, counts and strip - is scripted in the server's own shapes.
+        // gate's server has an empty database on purpose, and a pane of titles left half way cannot be drawn
+        // from one, so the whole screen - tiles, counts and titles - is scripted in the server's own shapes.
         if (path.Contains("api/serverinfo", StringComparison.Ordinal))
         {
           ServerInfo info = new ServerInfo("MediaPortal 2 Server", "2.0.0-probe", ".NET 10.0",
@@ -1925,6 +1972,7 @@ namespace FrontendProbe
         // question produces.
         string finding = ParameterIn(request.RequestUri.Query, "search");
         string seeing = ParameterIn(request.RequestUri.Query, "seen");
+        string sorting = ParameterIn(request.RequestUri.Query, "sort");
         string askedAspect = ParameterIn(request.RequestUri.Query, "aspect") ?? "MovieItem";
         bool episodes = string.Equals(askedAspect, "EpisodeItem", StringComparison.OrdinalIgnoreCase);
         string[] shelf = episodes ? EPISODES : NAMES;
@@ -1969,6 +2017,19 @@ namespace FrontendProbe
               matching[i], matching[i], 2011 + scripted, 88 + scripted * 3,
               "{D3525B2F-7322-430C-87E7-CDA8EBD6EDD2}://" + Path.Combine(folder, matching[i] + ".mkv"),
               false, viewing.PlayCount, lastPlayed, howFar > 0 ? howFar : (int?) null));
+        }
+
+        // The real endpoint turns the sort word into the database's own order - "lastplayed" newest first is what
+        // the pane's "Continue playing" list asks for - so the scripted answer has to hand the titles back in the
+        // order it was asked for, or the frame would be testing an order no real server ever sends. Only that one
+        // order is answered here, because no other scripted frame presses one.
+        if (string.Equals(sorting, "lastplayed", StringComparison.OrdinalIgnoreCase))
+        {
+          bool newestFirst = string.Equals(ParameterIn(request.RequestUri.Query, "order"), "desc",
+              StringComparison.OrdinalIgnoreCase);
+          titles = newestFirst
+              ? titles.OrderByDescending(title => title.LastPlayed ?? DateTime.MinValue).ToList()
+              : titles.OrderBy(title => title.LastPlayed ?? DateTime.MinValue).ToList();
         }
 
         MediaTitles page = new MediaTitles(askedAspect, null, matching.Count, 0, matching.Count, matching.Count,

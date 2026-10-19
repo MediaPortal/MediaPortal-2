@@ -1675,7 +1675,7 @@ namespace Tests.Frontend
     #region What the home screen offers from what was left half way
 
     /// <summary>
-    /// The four titles the strip tests run on. Every question the screen can ask has a different answer here, so
+    /// The four titles the pane's continue-playing test runs on. Every question the screen can ask has a different answer here, so
     /// an unfiltered request cannot pass for a filtered one: the whole shelf is four, "watched" is one,
     /// "unwatched" is three and "started" is two.
     /// </summary>
@@ -1703,139 +1703,51 @@ namespace Tests.Frontend
       Pump();
     }
 
-    [AvaloniaTest]
-    public void TheHomeScreenListsWhatWasLeftHalfWay()
+    /// <summary>
+    /// The rows the pane wrote under one of its own headings: every row between that heading and the next, which
+    /// is the list the heading names and nothing else. Asking the whole pane instead would let a title of
+    /// "Latest added" pass for a title of "Continue playing".
+    /// </summary>
+    private static List<HomeRow> RowsUnder(HomeViewModel home, string heading)
     {
-      RegisterLibrary(HalfWayShelf());
-      InProcessApi server = StartServer();
+      Assert.That(home.ContentRows.Any(row => row.IsHeading && row.Text == heading), Is.True,
+          "the pane carried no \"" + heading + "\" heading at all: " + string.Join(" | ", PaneRows(home)));
 
-      HomeViewModel home = HomeOn(server);
-      Refreshed(home);
-
-      Assert.That(home.Unfinished.Select(row => row.Name),
-          Is.EqualTo(new[] { "Alien Earth", "Army of Thieves" }),
-          "the two titles that were opened and not finished, the one stopped most recently first: not the film "
-          + "that was watched through (its last-played date is what a finished viewing leaves behind) and not the "
-          + "one nobody ever opened. Four titles are on the shelf, so this answer is only possible if the screen "
-          + "asked for \"started\" - every other question has a different answer here");
-      Assert.That(home.UnfinishedStatus, Does.Contain("2 titles left half way"));
-      Assert.That(home.HasUnfinished, Is.True);
-      Assert.That(home.Unfinished[0].LastPlayedText, Is.EqualTo("2025-04-27 21:30"),
-          "the row says when it was stopped, in the same words whatever the machine's regional settings are");
-      Assert.That(home.Unfinished[0].Playable, Is.True,
-          "and it is a row the viewer can actually start, not a name on a screen");
-    }
-
-    [AvaloniaTest]
-    public void AHomeScreenWithNothingLeftHalfWayShowsNoStrip()
-    {
-      RegisterLibrary(WatchedTitle("Alien", 1979, 2, new DateTime(2024, 5, 1, 20, 0, 0)),
-          WatchedTitle("Nimmerland", 2025, null, DateTime.MinValue));
-      InProcessApi server = StartServer();
-
-      HomeViewModel home = HomeOn(server);
-      Refreshed(home);
-
-      Assert.That(home.Aspects, Is.Not.Empty, "the screen did read the server");
-      Assert.That(home.Unfinished, Is.Empty);
-      Assert.That(home.HasUnfinished, Is.False,
-          "a strip holding nothing takes itself off the screen rather than asking the viewer to wonder about it");
-      Assert.That(home.UnfinishedStatus, Is.Empty);
-    }
-
-    [AvaloniaTest]
-    public void APartOfTheLibraryThatWillNotSayLeavesItsReasonOnTheStrip()
-    {
-      // The titles request refused while the aspect list and the counts answered. Silently hiding the strip here
-      // would make "the server wouldn't tell" look exactly like "you have nothing to watch".
-      var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
-      library.Setup(get => get.GetManagedMediaItemAspectMetadata()).Returns(ShelfAspects());
-      library.Setup(get => get.CountMediaItems(It.IsAny<IEnumerable<Guid>>(), It.IsAny<IFilter>(), false,
-              It.IsAny<bool>()))
-          .Returns(4);
-      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, null, false))
-          .Throws(new InvalidOperationException("this shelf will not hand out titles"));
-      InProcessApi.RegisterMediaLibrary(library.Object);
-      InProcessApi server = StartServer();
-
-      HomeViewModel home = HomeOn(server);
-      Refreshed(home);
-
-      Assert.That(home.Sections, Is.Not.Empty, "the tiles arrived, so this is not a screen that failed");
-      Assert.That(home.Unfinished, Is.Empty);
-      Assert.That(home.HasUnfinished, Is.True, "and the strip stays to say what went wrong");
-      Assert.That(home.UnfinishedStatus, Does.Contain("Could not check what you left half way"));
-      Assert.That(home.UnfinishedStatus, Does.Contain("did not answer"));
-    }
-
-    [AvaloniaTest]
-    public void PressingARowOfTheStripIsPlayedLikeATitleInTheLibrary()
-    {
-      RegisterLibrary(HalfWayShelf());
-      InProcessApi server = StartServer();
-
-      HomeViewModel home = HomeOn(server);
-      var played = new List<TitleViewModel>();
-      home.ResumeRequested += delegate (object? sender, TitleViewModel row) { played.Add(row); };
-      Refreshed(home);
-
-      Assert.That(home.Unfinished, Has.Count.EqualTo(2));
-      home.ResumeCommand.Execute(home.Unfinished[0]);
-
-      Assert.That(played, Has.Count.EqualTo(1),
-          "the home screen does not own a player; it says which title, and the application opens it through the "
-          + "one playback path the library already uses");
-      Assert.That(played[0].Name, Is.EqualTo("Alien Earth"));
-      Assert.That(played[0].Title.Id, Is.EqualTo(home.Unfinished[0].Title.Id),
-          "the same title, so the viewing is reported against the same library entry the strip read from");
-    }
-
-    [AvaloniaTest]
-    public void TheStripIsOnTheKeyboardRingAndStartsTheFilmFromThere()
-    {
-      RegisterLibrary(HalfWayShelf());
-      InProcessApi server = StartServer();
-
-      HomeViewModel home = HomeOn(server);
-      var playback = new ContentControl();
-      var opened = new List<ContentControl>();
-      var workflow = new WorkflowManager();
-      var window = new ShellWindow(workflow, delegate (WorkflowFrame frame)
+      var rows = new List<HomeRow>();
+      bool under = false;
+      foreach (HomeRow row in home.ContentRows)
       {
-        if (frame.StateId == "home")
-        {
-          return new HomeView(home, workflow, delegate
-          {
-            opened.Add(playback);
-            return new WorkflowFrame("nowplaying", "Now playing", playback);
-          });
-        }
-        return frame.ViewModel as Control;
-      });
-      workflow.Push(new WorkflowFrame("home", "Home", home));
-      window.Show();
+        if (row.IsHeading)
+          under = row.Text == heading;
+        else if (under)
+          rows.Add(row);
+      }
+      return rows;
+    }
+
+    [AvaloniaTest]
+    public async Task TheHomePaneOffersThisSectionsOwnContinuePlayingTitles()
+    {
+      RegisterLibrary(HalfWayShelf());
+      InProcessApi server = StartServer();
+
+      HomeViewModel home = HomeOn(server);
       Refreshed(home);
-      Pump();
 
-      ListBox strip = window.GetVisualDescendants().OfType<ListBox>()
-          .First(list => list.Name == "unfinishedList");
-      Assert.That(strip.Items.Count, Is.EqualTo(2));
+      await home.ShowContentAsync(EntryNamed(home.Menu, "Movies"));
 
-      strip.Focus();
-      strip.SelectedIndex = 0;
-      strip.RaiseEvent(new KeyEventArgs
-      {
-        RoutedEvent = InputElement.KeyDownEvent,
-        Key = Key.Enter,
-        Source = strip
-      });
-      Pump();
+      string[] titles = RowsUnder(home, "Continue playing")
+          .Where(row => row.IsTitle).Select(row => row.Title!.Name).ToArray();
 
-      Assert.That(opened, Is.EqualTo(new[] { playback }),
-          "OK on a row of the strip gets out of the way and shows the playback");
-      Assert.That(workflow.Current.StateId, Is.EqualTo("nowplaying"),
-          "and the shell is showing it, not a second window beside the old one");
-      window.Close();
+      Assert.That(titles, Is.EqualTo(new[] { "Alien Earth", "Army of Thieves" }),
+          "the pane of the films shelf offers the list Nereus' MovieHomeContent called ContinuePlayMovies - "
+          + "\"where was I\", answered for the shelf the viewer is standing on, which is the shape MP2's home "
+          + "always had. The two titles that were opened and not finished, the one stopped most recently first: "
+          + "not the film that was watched through (its last-played date is what a finished viewing leaves "
+          + "behind) and not the one nobody ever opened. Four titles are on the shelf, so this answer is only "
+          + "possible if the pane asked for \"started\" - every other question has a different answer here, and "
+          + "one merged list beside the whole menu could only ever answer with the same titles from every shelf "
+          + "on the screen at once");
     }
 
     #endregion
@@ -1917,64 +1829,6 @@ namespace Tests.Frontend
       Assert.That(browser.Titles.Where(title => title.Seen).Select(title => title.Name).ToArray(),
           Is.EqualTo(seenBefore),
           "no row of this list was rewritten to agree with a title it is not showing");
-    }
-
-    [AvaloniaTest]
-    public void FinishingAStripTitleTakesItOffTheStrip()
-    {
-      RegisterLibrary(HalfWayShelf());
-      InProcessApi server = StartServer();
-
-      HomeViewModel home = HomeOn(server);
-      Refreshed(home);
-      Assert.That(home.Unfinished.Select(row => row.Name),
-          Is.EqualTo(new[] { "Alien Earth", "Army of Thieves" }));
-
-      TitleViewModel newest = home.Unfinished[0];
-      Assert.That(home.ApplyPlayback(LibrarySays(newest, 1, true, null)), Is.True);
-
-      Assert.That(home.Unfinished.Select(row => row.Name), Is.EqualTo(new[] { "Army of Thieves" }),
-          "a watched-through title is not something left half way, and the strip exists to offer something to go "
-          + "back into");
-      Assert.That(home.UnfinishedStatus, Does.Contain("1 title left half way"),
-          "and the line above the rows counts what is on the strip now");
-      Assert.That(home.HasUnfinished, Is.True, "one row is left, so the strip stays");
-    }
-
-    [AvaloniaTest]
-    public void FinishingTheLastStripTitleTakesTheStripOffTheScreen()
-    {
-      RegisterLibrary(HalfWayShelf());
-      InProcessApi server = StartServer();
-
-      HomeViewModel home = HomeOn(server);
-      Refreshed(home);
-
-      foreach (TitleViewModel row in home.Unfinished.ToArray())
-        Assert.That(home.ApplyPlayback(LibrarySays(row, 1, true, null)), Is.True);
-
-      Assert.That(home.Unfinished, Is.Empty);
-      Assert.That(home.UnfinishedStatus, Is.Empty);
-      Assert.That(home.HasUnfinished, Is.False,
-          "an empty strip takes itself off the screen rather than keeping a heading about nothing");
-    }
-
-    [AvaloniaTest]
-    public void StoppingAStripTitleAgainLeavesItsRowAndMovesItsFigure()
-    {
-      RegisterLibrary(HalfWayShelf());
-      InProcessApi server = StartServer();
-
-      HomeViewModel home = HomeOn(server);
-      Refreshed(home);
-
-      TitleViewModel newest = home.Unfinished[0];
-      Assert.That(home.ApplyPlayback(LibrarySays(newest, 0, false, 61)), Is.True);
-
-      Assert.That(home.Unfinished, Has.Count.EqualTo(2), "still something left half way, so still on the strip");
-      Assert.That(home.Unfinished[0].ResumePercent, Is.EqualTo(61));
-      Assert.That(home.Unfinished[0].ResumeText, Is.EqualTo("61% watched"));
-      Assert.That(home.UnfinishedStatus, Does.Contain("2 titles left half way"));
     }
 
     #endregion
@@ -2476,15 +2330,15 @@ namespace Tests.Frontend
       List<MainMenuEntry> menu = MainMenu.Build(
           new[] { AspectCalled("MovieItem"), AspectCalled("EpisodeItem") }, true);
 
-      Assert.That(EntryNamed(menu, "Episodes").Openable, Is.True,
-          "episodes are not one of MP2's home entries - they are reached through their series - but a server that "
-          + "holds them is not allowed to hide them either");
-      Assert.That(menu.Count(entry => entry.Openable), Is.EqualTo(9),
-          "the films, the episodes, and the seven screens that are the front end's own rather than parts of the "
+      Assert.That(menu.All(entry => entry.Label != "Episodes"), Is.True,
+          "episodes are not one of MP2's home entries and they stay that way: a viewer reaches them through their "
+          + "series, the shelf the drilldown table still leads from Series to EpisodeItem, the way Nereus reached "
+          + "ContinuePlaySeries inside the series entry - so a server that holds them gains no tile of its own, "
+          + "and the menu stays MP2's own entries in MP2's own order");
+      Assert.That(menu.Count(entry => entry.Openable), Is.EqualTo(8),
+          "the films, and the seven screens that are the front end's own rather than parts of the "
           + "library: the folders the media comes from, the picture folders, the browse screen, the news, "
           + "the weather, the party, and the settings its own look");
-      Assert.That(menu.IndexOf(EntryNamed(menu, "Movies")), Is.LessThan(menu.IndexOf(EntryNamed(menu, "Episodes"))),
-          "MP2's own entries first, whatever the server adds after them");
     }
 
     [Test]

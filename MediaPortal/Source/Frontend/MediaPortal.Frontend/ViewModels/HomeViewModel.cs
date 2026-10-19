@@ -386,94 +386,13 @@ namespace MediaPortal.Frontend.ViewModels
       _ = ShowContentAsync(value);
     }
 
-    /// <summary>
-    /// Titles somebody started and did not finish, most recently stopped first.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// This is the one thing a home screen can say that no tile can: not "here is a shelf of three thousand
-    /// films" but "you were in this one". It is the same row type the library list uses, so a title reads the same
-    /// in both places and the play path underneath is the one the library already proved.
-    /// </para>
-    /// <para>
-    /// Read with the <c>started</c> filter, which is the server's answer to "was there a last-played date and no
-    /// finished viewing behind it" - so it holds films that were stopped half way and none that were watched
-    /// through, the distinction the shelf marks with a tick (section <i>ac</i>). Each row also carries how far this
-    /// caller got, because the request named a profile (section <i>ae</i>), which is what lets pressing a row go
-    /// back into the film rather than starting it again; a server that was not told who is asking answers without
-    /// those figures, and the rows then offer the beginning.
-    /// </para>
-    /// </remarks>
-    public ObservableCollection<TitleViewModel> Unfinished { get; } = new ObservableCollection<TitleViewModel>();
-
-    /// <summary>
-    /// Whether the strip is on screen: rows to offer, or a library that refused to answer about them.
-    /// </summary>
-    /// <remarks>
-    /// A refusal keeps the heading on screen with its reason even though there is nothing to press. Hiding the
-    /// strip completely would make "the server wouldn't tell me" look like "you have nothing to watch", and those
-    /// two look identical to nobody but the viewer.
-    /// </remarks>
-    public bool HasUnfinished
-    {
-      get { return Unfinished.Count > 0 || !string.IsNullOrEmpty(_unfinishedStatus); }
-    }
-
-    /// <summary>
-    /// What the strip says above its rows: how many titles are in it, or why it could not be filled.
-    /// </summary>
-    public string UnfinishedStatus
-    {
-      get { return _unfinishedStatus ?? ""; }
-    }
-
-    private string? _unfinishedStatus;
-
-    /// <summary>
-    /// How many parts of the library refused to answer the last time the strip was read, so that the line above it
-    /// can be said again in the same words after a row left it. A note about a silent part must not survive one
-    /// fewer row, or disappear because something was watched.
-    /// </summary>
-    private int _unfinishedSilent;
-
-    /// <summary>
-    /// Tells the strip what the library now says about one of the titles it is showing, so that a film the viewer
-    /// has just watched does not stay on a list of things still to watch.
-    /// </summary>
-    /// <param name="after">The library's answer to the report of that viewing.</param>
-    /// <returns>
-    /// True when the strip was showing that title. False means it was not - a film picked in the library, or one
-    /// that was not on the strip to begin with - and the strip is left as it was.
-    /// </returns>
-    /// <remarks>
-    /// A finished title leaves the strip instead of staying on it with a tick, because the strip's whole promise
-    /// is "press this to go back into it" and a title that is over is not that. A title stopped again keeps its row
-    /// and gains the newer figure, which is the pair the strip exists for: the row is the offer, the figure says
-    /// how much of it is already gone.
-    /// </remarks>
-    public bool ApplyPlayback(MediaPlayback after)
-    {
-      TitleViewModel? row = null;
-      foreach (TitleViewModel candidate in Unfinished)
-      {
-        if (candidate.Title.Id == after.Id)
-        {
-          row = candidate;
-          break;
-        }
-      }
-
-      if (row == null)
-        return false;
-
-      if (after.Watched)
-        Unfinished.Remove(row);
-      else
-        row.ApplyPlayback(after);
-
-      ReportUnfinished(_unfinishedSilent);
-      return true;
-    }
+    // What somebody left half way is no strip of its own on this screen, and deliberately so. The reference
+    // skin (Nereus' HomeMenuModel with its one HomeContent per home entry, MovieHomeContent's
+    // "ContinuePlayMovies" beside SeriesHomeContent's "ContinuePlaySeries") answers "where was I" per content
+    // type, inside the lists of the highlighted entry - a series left half way belongs to the series tile and
+    // to nothing else. A single mixed strip beside the whole menu would offer series episodes under Movies and
+    // under Weather alike, which is precisely what MP2's home never did; the pane that follows the selection
+    // (ShowContentAsync, HomeContentList) is this front end's faithful shape of the same answer.
 
     /// <summary>
     /// Said when the viewer presses OK on a row of the strip.
@@ -545,8 +464,6 @@ namespace MediaPortal.Frontend.ViewModels
       Aspects.Clear();
       Sections.Clear();
       RebuildMenu(false);
-      Unfinished.Clear();
-      ReportUnfinished(0);
       SelectedAspect = null;
       ServerDescription = null;
       IsBusy = false;
@@ -716,9 +633,6 @@ namespace MediaPortal.Frontend.ViewModels
 
         // Gone before the new numbers arrive. Rows of the previous server sitting under the name of the current
         // one would be the one thing on this screen that lies on its own.
-        Unfinished.Clear();
-        ReportUnfinished(0);
-
         ServerInfo info = await _client.GetServerInfoAsync(cancellation.Token);
         ServerDescription = info.Describe();
 
@@ -759,10 +673,6 @@ namespace MediaPortal.Frontend.ViewModels
         // From the same aspects, in the same breath, so that the menu's "4 films" is the number that arrived in
         // this reading and not the one that was on screen before the server was switched.
         RebuildMenu(true);
-
-        // Last, because it is the only reading on this screen that is a convenience rather than the point of it:
-        // a server that answers the tiles but not this has cost the viewer nothing they came for.
-        await ReadUnfinishedAsync(cancellation.Token);
       }
       catch (ServerApiException ex)
       {
@@ -794,92 +704,6 @@ namespace MediaPortal.Frontend.ViewModels
         }
         cancellation.Dispose();
       }
-    }
-
-    /// <summary>
-    /// Rows the strip offers at most. Eight is what fits in a line and a half of a television screen; a household
-    /// that stopped more than eight films at once is not choosing from this list anyway.
-    /// </summary>
-    private const int UNFINISHED_ROWS = 8;
-
-    /// <summary>
-    /// Asks every part of the library on screen what it holds that somebody left half way, and puts the newest
-    /// stopped titles on the strip.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// Asked per section rather than once for the whole library, because the endpoint needs an aspect and a
-    /// viewer who stopped an episode and a film wants both back. Each part is asked for the same handful of rows
-    /// the strip can hold and the newest first, so taking the newest of the merged pages afterwards cannot lose a
-    /// title: the newest nine stopped titles overall are among the newest eight of each part.
-    /// </para>
-    /// <para>
-    /// One part refusing is reported and does not hide what the others answered, in the same spirit as the counts
-    /// above - a library that will not say is information, not a reason to show nothing.
-    /// </para>
-    /// </remarks>
-    private async Task ReadUnfinishedAsync(CancellationToken cancellation)
-    {
-      if (_client == null)
-        return;
-
-      List<MediaTitle> found = new List<MediaTitle>();
-      int silent = 0;
-
-      foreach (HomeSection section in Sections)
-      {
-        if (cancellation.IsCancellationRequested)
-          return;
-
-        try
-        {
-          MediaTitles titles = await _client.GetTitlesAsync(section.Aspect.Name, "lastplayed", true,
-              UNFINISHED_ROWS, 0, null, "started", null, null, null, cancellation);
-          if (titles.Titles != null)
-            found.AddRange(titles.Titles);
-        }
-        catch (ServerApiException)
-        {
-          silent++;
-        }
-      }
-
-      foreach (MediaTitle title in found
-          .OrderByDescending(t => t.LastPlayed)
-          .ThenBy(t => t.SortTitle ?? t.Title, StringComparer.OrdinalIgnoreCase)
-          .Take(UNFINISHED_ROWS))
-        Unfinished.Add(new TitleViewModel(title, false, _client));
-
-      ReportUnfinished(silent);
-    }
-
-    /// <summary>
-    /// The line above the strip: how many rows it holds, and how many parts of the library did not answer.
-    /// </summary>
-    /// <remarks>
-    /// An empty strip with nothing wrong leaves the line empty, which takes the strip off screen; an empty strip
-    /// behind a refusal keeps its reason, because "nothing to watch" and "the server wouldn't say" have to look
-    /// different.
-    /// </remarks>
-    private void ReportUnfinished(int silent)
-    {
-      _unfinishedSilent = silent;
-
-      string line;
-      if (Unfinished.Count == 0 && silent == 0)
-        line = "";
-      else
-      {
-        line = Unfinished.Count == 0
-            ? "Could not check what you left half way"
-            : Unfinished.Count == 1 ? "1 title left half way" : Unfinished.Count + " titles left half way";
-        if (silent > 0)
-          line += silent == 1 ? " - 1 part of the library did not answer" : " - " + silent + " parts of the library did not answer";
-      }
-
-      _unfinishedStatus = string.IsNullOrEmpty(line) ? null : line;
-      OnPropertyChanged(nameof(UnfinishedStatus));
-      OnPropertyChanged(nameof(HasUnfinished));
     }
 
     #region What the server says without being asked

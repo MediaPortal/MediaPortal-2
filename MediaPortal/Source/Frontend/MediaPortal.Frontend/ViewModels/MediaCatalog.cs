@@ -45,7 +45,6 @@ namespace MediaPortal.Frontend.ViewModels
     {
         ("MovieItem", "Movies"),
         ("SeriesItem", "TV Series"),
-        ("EpisodeItem", "Episodes"),
         ("VideoItem", "Videos"),
         ("AudioItem", "Music"),
         ("AlbumItem", "Albums"),

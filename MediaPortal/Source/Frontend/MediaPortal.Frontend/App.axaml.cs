@@ -877,10 +877,9 @@ namespace MediaPortal.Frontend
     private void HeardAboutPlayback(Guid mediaItemId, MediaPlayback after)
     {
       bool onList = _lastBrowser != null && _lastBrowser.ApplyPlayback(after);
-      bool onStrip = _home.ApplyPlayback(after);
       _lastBrowser?.ForgetDetails(mediaItemId);
 
-      Console.WriteLine("screens:  " + (!onList && !onStrip
+      Console.WriteLine("screens:  " + (!onList
           ? "nothing on screen was showing that title"
           : after.Watched
               ? "the library says it is watched through, and the screens say it too"

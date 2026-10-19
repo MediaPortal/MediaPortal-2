@@ -87,12 +87,6 @@ namespace MediaPortal.Frontend.Views
       nowPlayingButton.IsVisible = _nowPlayingScreen != null;
       connectButton.IsVisible = _connectScreen != null;
 
-      // A list of films that cannot be started is worse than no list, so on a machine with no player the strip
-      // stays out of the way entirely; the view model still read it, and the aspects below still say what the
-      // library holds.
-      if (_nowPlayingScreen == null)
-        unfinishedPanel.IsVisible = false;
-
       // The ring is in the order the areas are arranged on the screen: the menu on the left, its content to the
       // right of it, the server's aspect list on the far side, and the buttons underneath. Left/right walk it;
       // each list keeps its own up/down over its items, because it handles those keys before they reach the ring.
@@ -101,8 +95,6 @@ namespace MediaPortal.Frontend.Views
       if (_sectionScreen != null)
         ring.Add(menuList);
       ring.Add(contentList);
-      if (_nowPlayingScreen != null)
-        ring.Add(unfinishedList);
       ring.Add(aspectsList);
       ring.Add(refreshButton);
       if (_nowPlayingScreen != null)
@@ -114,7 +106,7 @@ namespace MediaPortal.Frontend.Views
       // The same screen with a mouse on a desk: double-clicking a tile, a title or a watched row sends the
       // Enter that a remote would have sent on that same list, and this screen's own handler below - which
       // already knows which lists open what and which rows merely explain something - decides the rest.
-      MouseRemote.Attach(this, menuList, unfinishedList, contentList);
+      MouseRemote.Attach(this, menuList, contentList);
 
       // A vertical list takes left and right for its own selection - Avalonia moves the highlight with every
       // arrow key, not just up and down - so a viewer standing on the menu and pressing Right would only walk
@@ -127,7 +119,7 @@ namespace MediaPortal.Frontend.Views
             if (args.Key != Key.Left && args.Key != Key.Right)
               return;
             if (!menuList.IsKeyboardFocusWithin && !contentList.IsKeyboardFocusWithin
-                && !aspectsList.IsKeyboardFocusWithin && !unfinishedList.IsKeyboardFocusWithin)
+                && !aspectsList.IsKeyboardFocusWithin)
               return;
 
             Control? next = DpadNavigation.NextReachableInRing(ring, args.Key);
@@ -153,12 +145,6 @@ namespace MediaPortal.Frontend.Views
                 OpenSection(section);
               else if (entry.ScreenKey != null)
                 OpenScreen(entry.ScreenKey);
-              args.Handled = true;
-            }
-            else if (unfinishedList.IsKeyboardFocusWithin
-                && unfinishedList.SelectedItem is TitleViewModel unfinished)
-            {
-              _home.ResumeCommand.Execute(unfinished);
               args.Handled = true;
             }
             else if (contentList.IsKeyboardFocusWithin && contentList.SelectedItem is HomeRow row
