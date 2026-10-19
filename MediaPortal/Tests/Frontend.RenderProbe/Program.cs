@@ -669,6 +669,13 @@ namespace FrontendProbe
         sections.Add("Appearance", "Frontend", "The colours and the skin this machine wears",
             () => new ThemeView(settingsScreen));
         sections.Add("Server address", "Frontend", "Which machine holds the library", null, delegate { });
+        sections.Add("Server settings", "Server", "Login, importer schedule and port on the server",
+            () =>
+            {
+              ServerSettingsViewModel serverSettings = new ServerSettingsViewModel(() => null);
+              serverSettings.LoadFrom(new ServerSettingsAnswer());
+              return new ServerSettingsView { DataContext = serverSettings };
+            });
         sections.Add("Media sources", "Server", "The folders the library reads, and their imports",
             () => new FoldersView(new FoldersViewModel(
                 new ServerApiClient(new Uri("http://127.0.0.1:9/MediaPortal/Server"),

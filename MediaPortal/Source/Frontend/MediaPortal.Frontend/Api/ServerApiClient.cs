@@ -48,7 +48,7 @@ namespace MediaPortal.Frontend.Api
   /// silently turn <c>api/serverinfo</c> into <c>/MediaPortal/api/serverinfo</c>.
   /// </para>
   /// </remarks>
-  public sealed class ServerApiClient : IDisposable
+  public sealed class ServerApiClient : IDisposable, IServerSettingsApi
   {
     /// <summary>
     /// Where the front end looks for a server when nothing else was said. The port is MP2's own and the prefix
@@ -606,6 +606,47 @@ namespace MediaPortal.Frontend.Api
     public async Task<ImportStatus> GetImportStatusAsync(CancellationToken cancellation = default)
     {
       return await SendJsonAsync<ImportStatus>(HttpMethod.Get, "api/media/import", null, cancellation)
+          .ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// <c>GET api/media/settings</c> - how the server is configured: login requirement,
+    /// listening address, and the importer's own schedule.
+    /// </summary>
+    /// <remarks>
+    /// These are the <b>server's</b> settings, stored on the machine the server runs on.
+    /// Refused with <c>401</c> when the server demands logins and this client has none -
+    /// which is the one setting here a screen can use to explain a server that has gone
+    /// quiet since it was configured.
+    /// </remarks>
+    public async Task<ServerSettingsAnswer> GetServerSettingsAsync(CancellationToken cancellation = default)
+    {
+      return await SendJsonAsync<ServerSettingsAnswer>(HttpMethod.Get, "api/media/settings", null, cancellation)
+          .ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// <c>PUT api/media/settings</c> - change how the server behaves, and have it store
+    /// the change.
+    /// </summary>
+    /// <param name="update">
+    /// The complete new state, read from <see cref="GetServerSettingsAsync"/> and edited.
+    /// The server stores what arrives, so fields not meant to change must come back as
+    /// they were.
+    /// </param>
+    /// <returns>
+    /// What the server now has, including <see cref="ServerSettingsAnswer.RestartNeededFor"/>:
+    /// the fields it has stored but will only act on after a restart. Saying "saved" for
+    /// a port number that stays the old one until the server comes back would be a lie.
+    /// </returns>
+    /// <remarks>
+    /// Refused with <c>400</c> and the server's reason for a port outside 1-65535 or an
+    /// import interval outside 0-24 hours.
+    /// </remarks>
+    public async Task<ServerSettingsAnswer> PutServerSettingsAsync(ServerSettingsUpdate update,
+        CancellationToken cancellation = default)
+    {
+      return await SendJsonAsync<ServerSettingsAnswer>(HttpMethod.Put, "api/media/settings", update, cancellation)
           .ConfigureAwait(false);
     }
 

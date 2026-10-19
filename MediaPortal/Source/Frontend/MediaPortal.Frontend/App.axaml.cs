@@ -270,14 +270,6 @@ namespace MediaPortal.Frontend
     /// <remarks>
     /// This is the same screen the library opens, with the same transport under it; the only difference is that
     /// nobody had to browse anything to get here. That is deliberate: a film watched through a side door would
-    /// prove nothing about the door people actually use.
-    /// </remarks>
-    /// <summary>
-    /// The playback screen, opened straight onto a file named on the command line.
-    /// </summary>
-    /// <remarks>
-    /// This is the same screen the library opens, with the same transport under it; the only difference is that
-    /// nobody had to browse anything to get here. That is deliberate: a film watched through a side door would
     /// prove nothing about the door people actually use. It is the whole workflow here - one frame - so Back
     /// still means what it means everywhere else, and at the root of the stack it leaves the application.
     /// </remarks>
@@ -659,6 +651,17 @@ namespace MediaPortal.Frontend
 
       model.Add("Server address", "Frontend", "Which machine holds the library",
           null, delegate { _workflow.Push(ConnectionFrame()); });
+
+      // The server's own settings, read over the API the moment the row is opened - there is
+      // nothing local to show before that. The provider is a delegate rather than the client
+      // itself because the viewer may point at a different server between visits.
+      model.Add("Server settings", "Server", "Login, importer schedule and port on the server",
+          delegate
+          {
+            ServerSettingsViewModel serverSettings = new ServerSettingsViewModel(() => _home.Client);
+            _ = serverSettings.ReloadAsync();
+            return new ServerSettingsView { DataContext = serverSettings };
+          });
 
       model.Add("Media sources", "Server", "The folders the library reads, and their imports",
           delegate { return new FoldersView(new FoldersViewModel(_home.Client)); });
