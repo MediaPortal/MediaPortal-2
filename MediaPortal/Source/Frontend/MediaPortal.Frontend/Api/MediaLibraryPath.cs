@@ -81,6 +81,14 @@ namespace MediaPortal.Frontend.Api
         return false;
       }
 
+      // The local provider stores "/D:/Movies", so one slash in front of the drive letter is the provider's own
+      // prefix rather than a separator. The server drops the same prefix when it spells a path for a person
+      // (LocalFsResourceProviderBase.ToDosPath); keeping it would call an ordinary Windows folder "a path this
+      // machine cannot open", which is the difference between showing somebody their own folder name and showing
+      // them a provider id.
+      if (path.Length > 3 && path[0] == '/' && char.IsLetter(path[1]) && path[2] == ':')
+        path = path.Substring(1);
+
       // Forward slashes are what MP2 stores; a Windows player takes them too, but the separators are normalized
       // so that what a person sees in a message is what their own shell would show.
       if (Path.DirectorySeparatorChar != '/' && path.Contains('/') && LooksLikeWindowsPath(path))

@@ -120,7 +120,12 @@ namespace MediaPortal.Frontend.ViewModels
         // also carries, so this shelf holds the whole video library (measured against a real one: four films, eight
         // episodes and the two unfiled clips). Saying so is worth more than a tidier sentence.
         ("Videos", new[] { "VideoItem" }, "every video the server knows, films and episodes included", null, null),
-        ("Pictures", new[] { "ImageItem" }, "the pictures, folder by folder", null, null),
+        // The folders, not the filed titles. A photograph rarely has anything for an importer's decision to attach
+        // to - no title, no year, no episode number - so a pictures screen backed by ImageItem titles shows an
+        // empty shelf over thousands of photographs, which is why MP2's own pictures screen walks the folders. If a
+        // server does hold filed images, they are still on this screen: the leftover rule at the bottom of Build
+        // gives them their own tile rather than dropping a part of somebody's library.
+        ("Pictures", Array.Empty<string>(), "the pictures, folder by folder", null, "pictures"),
         ("Latest media", Array.Empty<string>(), "the newest titles first", "no import-date sort", null),
         ("TV", Array.Empty<string>(), "live television and the programme guide", "no TV backend", null),
         ("Radio", Array.Empty<string>(), "radio stations and their guide", "no radio backend", null),

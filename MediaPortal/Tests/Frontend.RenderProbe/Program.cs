@@ -331,14 +331,17 @@ namespace FrontendProbe
               + " tile(s), but the script offers two parts of the library a viewer can watch.");
           return 1;
         }
-        if (home.Menu.Count(entry => entry.Openable) != 3)
+        if (home.Menu.Count(entry => entry.Openable) != 4)
         {
           // The screen does not draw `Sections` any more, it draws the menu built from them, so this is the check
           // that belongs to the picture: the two parts the script offers have to be the two entries a viewer can
-          // open, and the seven the script cannot fill have to be saying so rather than being missing. The third
-          // openable entry is the folders screen, which is openable whatever the server holds.
+          // open, and the seven the script cannot fill have to be saying so rather than being missing. The other
+          // two openable entries are the folders screen and the pictures screen, both of which are openable
+          // whatever the server holds - one reads the folders the library was built from, the other walks the
+          // shares, and neither needs a title to have been imported.
           Console.WriteLine("FAILED:   " + home.Menu.Count(entry => entry.Openable)
-              + " openable menu entr(ies) of " + home.Menu.Count + "; expected two plus the folders screen, because"
+              + " openable menu entr(ies) of " + home.Menu.Count
+              + "; expected two plus the folders and pictures screens, because"
               + " the script offers two parts of the library a viewer can watch.");
           return 1;
         }

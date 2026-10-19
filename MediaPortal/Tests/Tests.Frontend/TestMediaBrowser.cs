@@ -2368,10 +2368,11 @@ namespace Tests.Frontend
       Assert.That(home.Menu, Is.Not.Empty,
           "a home screen that waits for a server before it offers anything to press is a dark rectangle with a "
           + "clock on it; the menu is what a media centre is, so it is on screen from the first frame");
-      Assert.That(home.Menu.Count(entry => entry.Openable), Is.EqualTo(1),
-          "nothing but the folders screen can be opened, because there is no library to open and no server to ask "
-          + "about one. That one is openable on purpose: telling a viewer where the media should be is most useful "
-          + "of an empty media centre, and the screen says \"no server connected\" instead of an empty rectangle");
+      Assert.That(home.Menu.Count(entry => entry.Openable), Is.EqualTo(2),
+          "nothing but the two screens the front end owns - the folders the library comes from, and the picture "
+          + "folders - can be opened, because there is no library to open and no server to ask about one. Those two "
+          + "are openable on purpose: telling a viewer where the media should be is most useful of an empty media "
+          + "centre, and the screens say \"no server connected\" instead of an empty rectangle");
       Assert.That(EntryNamed(home.Menu, "Movies").Detail, Is.EqualTo("no server connected"),
           "the tile says that out loud rather than leaving the viewer to work it out from an empty list");
     }
@@ -2448,8 +2449,9 @@ namespace Tests.Frontend
       Assert.That(EntryNamed(menu, "Episodes").Openable, Is.True,
           "episodes are not one of MP2's home entries - they are reached through their series - but a server that "
           + "holds them is not allowed to hide them either");
-      Assert.That(menu.Count(entry => entry.Openable), Is.EqualTo(3),
-          "the films, the episodes, and the screen that says where they came from");
+      Assert.That(menu.Count(entry => entry.Openable), Is.EqualTo(4),
+          "the films, the episodes, and the two screens that are the front end's own rather than parts of the "
+          + "library: the folders the media comes from, and the picture folders");
       Assert.That(menu.IndexOf(EntryNamed(menu, "Movies")), Is.LessThan(menu.IndexOf(EntryNamed(menu, "Episodes"))),
           "MP2's own entries first, whatever the server adds after them");
     }
@@ -2460,10 +2462,10 @@ namespace Tests.Frontend
       List<MainMenuEntry> menu = MainMenu.Build(
           new[] { AspectCalled("PersonItem"), AspectCalled("GenreItem") }, true);
 
-      Assert.That(menu.Count(entry => entry.Openable), Is.EqualTo(1),
-          "an actor and a genre are how the library is organised inside, not a part of it to watch; the one screen "
-          + "that stays openable is the folders one, which is not about what the library holds but about where it "
-          + "comes from");
+      Assert.That(menu.Count(entry => entry.Openable), Is.EqualTo(2),
+          "an actor and a genre are how the library is organised inside, not a part of it to watch; the two screens "
+          + "that stay openable are the folders one and the pictures one, and neither is about what the library "
+          + "holds but about where its files are");
       Assert.That(menu.Select(entry => entry.Label), Does.Not.Contain("PersonItem"));
     }
 
@@ -2512,8 +2514,9 @@ namespace Tests.Frontend
       Assert.That(home.Menu.Count(entry => entry.Section != null), Is.Zero,
           "the films of the old server are not films of the new one, and a menu still offering them would be "
           + "offering titles that are not there");
-      Assert.That(home.Menu.Count(entry => entry.Openable), Is.EqualTo(1),
-          "only the screen that asks for folders survives a server that went away");
+      Assert.That(home.Menu.Count(entry => entry.Openable), Is.EqualTo(2),
+          "only the two screens that need nothing from a library - the folders and the pictures - survive a server "
+          + "that went away");
       Assert.That(EntryNamed(home.Menu, "Movies").Detail, Is.EqualTo("no server connected"));
     }
 

@@ -573,6 +573,85 @@ namespace MediaPortal.Frontend.Api
           .ConfigureAwait(false);
     }
 
+    #region The folders behind the library
+
+    /// <summary>
+    /// Where a folder's contents are asked for.
+    /// </summary>
+    public const string BrowseUrl = "api/media/browse";
+
+    /// <summary>
+    /// The path the server serves the bytes of any resource at - a picture, a file nobody filed as anything.
+    /// </summary>
+    public const string ResourceUrl = "GetResource";
+
+    /// <summary>
+    /// What one folder of the server's files holds: its subfolders and the pictures inside it.
+    /// </summary>
+    /// <param name="resourcePath">A serialized resource path, as <see cref="GetSharesAsync"/> reports them.</param>
+    /// <remarks>
+    /// The path goes in a query string, URL-encoded, because a serialized resource path contains ':' and '/' and
+    /// sometimes a space, and a path segment would have to be escaped anyway - <c>?</c> says plainly that the whole
+    /// rest of the address is one argument rather than a place in a hierarchy the server would try to route.
+    /// </remarks>
+    public async Task<FolderListing> GetFolderAsync(string resourcePath, CancellationToken cancellation = default)
+    {
+      if (string.IsNullOrEmpty(resourcePath))
+        throw new ArgumentException("Say which folder to look in.", nameof(resourcePath));
+
+      return await SendJsonAsync<FolderListing>(HttpMethod.Get,
+          BrowseUrl + "?path=" + Uri.EscapeDataString(resourcePath), null, cancellation).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// The address of a resource's bytes on this server.
+    /// </summary>
+    /// <param name="resourcePath">The serialized resource path.</param>
+    /// <remarks>
+    /// This is the address the server's own file server was built for and which UPnP renderers are handed; the
+    /// front end uses it for the same purpose, to fetch a picture. Unlike <see cref="GetStreamUri"/> it is not a
+    /// player's address - the bytes arrive here through <see cref="GetResourceBytesAsync"/>, with this client's
+    /// token on the request.
+    /// </remarks>
+    public Uri GetResourceUri(string resourcePath)
+    {
+      if (string.IsNullOrEmpty(resourcePath))
+        throw new ArgumentException("Say which resource is wanted.", nameof(resourcePath));
+
+      return new Uri(BaseUrl, ResourceUrl + "?ResourcePath=" + Uri.EscapeDataString(resourcePath));
+    }
+
+    /// <summary>
+    /// The bytes of one resource, or <c>null</c> when the server will not or cannot give them.
+    /// </summary>
+    /// <param name="resourcePath">The serialized resource path.</param>
+    /// <remarks>
+    /// <para>
+    /// A refusal is an answer and not a fault here. The file server says <c>403</c> for anything outside a share
+    /// and <c>404</c> - through its own error path - for a file that is gone, and to a picture screen both mean
+    /// the same thing: this one is not here to look at. Every other failure keeps its <see cref="ServerApiException"/>
+    /// so that a server that is down is not reported as an empty folder.
+    /// </para>
+    /// <para>
+    /// There is no smaller version of this: the server has no way to resize an image, so a tile's thumbnail is the
+    /// whole photograph. That is why the picture screen asks for a bounded number of them at a time and says
+    /// which ones it did not fetch.
+    /// </para>
+    /// </remarks>
+    public async Task<byte[]?> GetResourceBytesAsync(string resourcePath, CancellationToken cancellation = default)
+    {
+      Uri url = GetResourceUri(resourcePath);
+      RawAnswer answer = await GetRawAsync(url, cancellation).ConfigureAwait(false);
+
+      if (answer.Status == HttpStatusCode.NotFound || answer.Status == HttpStatusCode.Forbidden)
+        return null;
+      if (!answer.Success)
+        throw new ServerApiException(url, answer.Status, Summarize(answer.Text()));
+      return answer.Body;
+    }
+
+    #endregion
+
     #region The event stream
 
     /// <summary>

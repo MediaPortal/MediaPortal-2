@@ -1,0 +1,113 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        x:Class="MediaPortal.Frontend.Views.PicturesWindow"
+        x:DataType="vm:PicturesViewModel"
+        Name="pictures"
+        Width="1280" Height="720"
+        WindowState="Maximized"
+        Background="#FF101418"
+        Title="MediaPortal 2 - Pictures">
+
+  <!--
+    The photographs, folder by folder. Every other screen of this front end asks the library what it filed;
+    photographs usually have nothing for the importer's decision to attach to, so this one walks the folders the
+    server was told about, which is what MP2's own pictures screen has always done.
+
+    Two things share this window: the grid of tiles, and the picture being looked at. The viewer covers the grid
+    rather than opening another window, because on a television going "back" from a photograph means looking at
+    the rest of the folder, not leaving it.
+  -->
+
+  <Panel>
+
+    <DockPanel Margin="48,36">
+
+      <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,18">
+        <TextBlock Text="{Binding Heading}"
+                   FontSize="40"
+                   FontWeight="SemiBold" />
+        <TextBlock Text="{Binding Where}"
+                   FontSize="18"
+                   Opacity="0.7"
+                   TextTrimming="CharacterEllipsis" />
+      </StackPanel>
+
+      <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="20" Margin="0,16,0,0">
+        <Button Name="upButton"
+                Content="Up one folder"
+                FontSize="18"
+                Padding="16,8"
+                Focusable="True"
+                Command="{Binding GoUpCommand}" />
+        <!-- Said where the viewer is already looking, because "230 files, 120 of them not pictures" is worth
+             reading once when the folder looks empty. -->
+        <TextBlock Text="{Binding Status}"
+                   FontSize="18"
+                   Opacity="0.85"
+                   VerticalAlignment="Center"
+                   TextWrapping="Wrap"
+                   MaxWidth="900" />
+      </StackPanel>
+
+      <ListBox Name="tilesList"
+               Focusable="True"
+               ItemsSource="{Binding Tiles}"
+               SelectedItem="{Binding Selected, Mode=TwoWay}"
+               Background="Transparent"
+               ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+        <ListBox.ItemsPanel>
+          <ItemsPanelTemplate>
+            <WrapPanel />
+          </ItemsPanelTemplate>
+        </ListBox.ItemsPanel>
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="vm:PictureTile">
+            <StackPanel Width="216" Spacing="4" Margin="6,8">
+              <Panel Height="150">
+                <Border Background="#FF17202A"
+                        BorderBrush="#FF2E4A63"
+                        BorderThickness="1" />
+                <Image Source="{Binding Picture, Converter={StaticResource artwork}}"
+                       Stretch="Uniform"
+                       Margin="5" />
+                <!-- A tile whose bytes never arrived is still a tile with a name, and says why it has no picture
+                     rather than showing a grey box: the server has no way to resize an image, so a preview is the
+                     whole photograph fetched over the network, and only the first tiles of a folder are worth it. -->
+                <TextBlock Text="{Binding PictureNote}"
+                           IsVisible="{Binding HasNoPicture}"
+                           FontSize="14"
+                           Opacity="0.45"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Bottom"
+                           Margin="0,0,0,8" />
+              </Panel>
+              <TextBlock Text="{Binding Name}"
+                         FontSize="18"
+                         TextTrimming="CharacterEllipsis" />
+              <TextBlock Text="{Binding Detail}"
+                         FontSize="14"
+                         Opacity="0.6" />
+            </StackPanel>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </DockPanel>
+
+    <Panel Name="viewer"
+           Background="#F2000000"
+           IsVisible="{Binding IsViewing}">
+      <Image Source="{Binding ViewingBytes, Converter={StaticResource artwork}}"
+             Stretch="Uniform"
+             Margin="40,24,40,96" />
+      <StackPanel VerticalAlignment="Bottom" Spacing="4" Margin="48,0,48,24">
+        <TextBlock Text="{Binding Caption}"
+                   FontSize="20"
+                   Opacity="0.9" />
+        <TextBlock Text="Left and right look at the other pictures - Enter starts and stops the slideshow - Back closes this one"
+                   FontSize="15"
+                   Opacity="0.5" />
+      </StackPanel>
+    </Panel>
+  </Panel>
+</Window>

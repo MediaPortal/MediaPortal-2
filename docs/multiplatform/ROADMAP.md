@@ -2793,6 +2793,79 @@ in-process server down while a stream is open waits for that stream; a server wi
 client left only when it next writes, which is why `TestMediaEventStream` shortens `HEARTBEAT_TIME` to 200 ms for
 its own run rather than inheriting fifteen seconds of patience.
 
+### ap. The pictures pillar: the folders the server was told about, on the television
+
+The home menu has carried a Pictures tile since the first screen of the new front end, and it promised "the
+pictures, folder by folder". Nothing behind that promise was ever built. The tile led to the `ImageItem` shelf, and
+that shelf is empty on any real installation, because a photograph has nothing for the importer to attach itself
+to - no episode, no series, no id to look up. The MP2 client this tree is modelled on solved the same problem by
+walking folders, so this does the same thing over HTTP.
+
+**The server** answers `GET api/media/browse?path=<serialized resource path>` with the folders and the picture
+files inside one folder: names with the extension taken off, both lists sorted, `otherFileCount` for the files that
+are neither, and `foldersTruncated`/`picturesTruncated` when a list stopped at 500. A folder of four thousand
+thumbnails is ordinary, and an answer that pretends to have counted them is a lie.
+
+The question it asks the access layer is `IResourceAccessGuard.IsInsideAShare`, the weaker of the two, and
+deliberately so. The file server refuses a *folder* because a folder is not a stream; browsing has to start
+somewhere, and that somewhere is the share somebody registered. Outside a share the answer is an empty `403`,
+identical to the file server's, because an explanation would tell a stranger which folders exist on the machine. A
+server with no guard registered answers the same way - the missing piece is a decision, and guessing one is not the
+safer answer. A path that does not deserialize is a `400`: `ProviderPathSegment` fails with an `ArgumentException`
+and the GUID inside it fails with a `FormatException`, and both are somebody's typo about a string rather than a
+reason for a stack trace.
+
+**The client** gains `GetFolderAsync`, `GetResourceUri` and `GetResourceBytesAsync`. The last one carries the
+judgement worth writing down: a `403` or a `404` from the file server is *no picture*, not *a broken server*. A
+file outside every share and a file deleted since the folder was read look the same from here, and neither is worth
+an error banner over a television; anything else keeps its exception, because a screen that turns a broken server
+into an empty folder empties the shelf instead of reporting the break.
+
+**The screen** opens on the shares, which is the honest root - it is the boundary the server keeps, and inventing a
+root above it would mean a screen that shows folders it is not allowed to show. Tiles are folders first, then
+pictures. Enter walks in or raises a picture full-screen, Left and Right move through the folder, Space runs a
+slideshow that stops at the last picture and when the viewer leaves, and Back leaves the picture, then the folder,
+then the screen. Nothing is claimed to be above the list of shares, so the way up disappears there rather than
+pretending.
+
+Two limits stay on the record, and both belong to the server rather than the screen:
+
+- **There is no thumbnail.** Nothing in the API resizes, so a tile's preview is the whole photograph arriving over
+  the LAN. The screen fetches pictures for the first `TILES_WITH_A_PICTURE` = 24 tiles, skips files above 8 MB and
+  writes the reason on the tile, and says "no preview" on the rest. The next thing this pillar wants is a `?width=`
+  on `GetResource` that resizes server-side; the screen is already shaped for it.
+- **The screen remembers its own way back.** The endpoint deliberately does not name a folder's parent, because a
+  parent is one more thing a stranger could ask about for any path. Walking out is therefore the screen's memory
+  rather than the server's answer.
+
+Three findings are worth more than the tests that found them:
+
+- A test that runs on the user interface thread must not `await` the screen. The client hands its answers back
+  where they were asked, so a test waiting for an answer is waiting for the thread that is waiting for it; it fires
+  the command and pumps instead, with a deadline so a regression fails rather than hangs.
+- `SharedHttpPortHost` boots *and shuts down* by waiting synchronously for its own startup and shutdown, and
+  ASP.NET Core hands part of both to the context it was asked from. On an ordinary test thread that is invisible;
+  on a thread owning a user interface dispatcher it is a deadlock in the test's own `[TearDown]`, which the runner
+  reports as a crashed test host eleven tests later. Both directions go to another thread here.
+- Resource paths in tests are built by `LocalFsResourceProviderBase.ToResourcePath`, not written by hand. A
+  hand-written `{local}://...` looks entirely plausible, is a documentation shorthand rather than the format, and
+  failed as a GUID parse inside the controller - which is how the missing `FormatException` in the `400` handling
+  turned up. Following that same real path through the client then found a display bug the front end has had for
+  every local folder it ever named: the local provider stores `/D:/Movies`, that slash in front of the drive is the
+  provider's own prefix, and `MediaLibraryPath.TryAsLocalFile` was therefore answering "not a path this machine can
+  open" about an ordinary Windows folder. `LocalFsResourceProviderBase.ToDosPath` has dropped that prefix all along;
+  the client now drops it too.
+
+15 tests in `TestPicturesScreen`: the refusals of the controller against a scripted guard, the client over a real
+socket against a scripted server, the screen opening, walking in and walking back out, the bounded number of
+previews, and the wording of a folder's line. Four older home-menu tests moved with the Pictures tile becoming one
+of the entries that open a screen of the front end's own.
+
+Not done here: no EXIF and no order by date (the API has no import-date sort either, which is the same gap
+"Latest media" is waiting on), no rotate, no zoom, no interval a viewer can change, no import of photos, no albums
+and no faces. And the render gate still draws its own scripted frames, none of them this screen: the pictures
+window is proved by these tests and by its XAML compiling, not by a screenshot.
+
 ## What cannot be verified without the user
 
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,

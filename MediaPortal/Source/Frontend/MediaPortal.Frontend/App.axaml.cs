@@ -427,6 +427,9 @@ namespace MediaPortal.Frontend
       if (screenKey.Equals("folders", StringComparison.OrdinalIgnoreCase))
         return new FoldersWindow(new FoldersViewModel(_home.Client));
 
+      if (screenKey.Equals("pictures", StringComparison.OrdinalIgnoreCase))
+        return new PicturesWindow(new PicturesViewModel(_home.Client));
+
       // A tile naming a screen nobody builds is a mismatch between the menu and this method, which is a bug in the
       // front end rather than something the viewer can do anything about.
       throw new InvalidOperationException(
