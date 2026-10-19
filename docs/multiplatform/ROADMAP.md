@@ -3089,6 +3089,81 @@ Tests.Frontend went from 358 to 368 with these ten and the render gate from nine
 green.
 
 
+### au. The home screen becomes MP2's home, menu contributions and all
+
+The two rescued skins answered "what would it look like"; what was left on the other side of that question was
+"what would it *do*", and the honest answer so far had been three prototype buttons on a blank screen. A viewer
+sitting down with the Nereus colours said exactly that - "currently I see only 3 test buttons in home" - so the home
+screen was rebuilt as MP2's home is built, and it turned out MP2 had written its home down more completely than this
+front end had.
+
+**The menu is the plugins' own, not an invention.** MP2 never had a main menu coded anywhere: SkinBase's `MenuModel`
+collected every workflow action whose source state was the home state
+(`7F702D9C-F2DD-42da-9ED8-0BA92F07787F`), sorted them by `DisplayCategory` and then `SortOrder`, and handed the
+result to the skin - and every one of those contributions is still in this tree. The menu is now those fifteen
+contributions, in the order their XML sorts into, wearing the contributing plugins' own English words read from each
+plugin's `Language/strings_en.xml` by the key the contribution names: *Local media, Browse media, Audio, Videos,
+Movies, Series, Images, Latest media, News, TV, Radio, Weather, Party music player, Settings, Utilities*. That is why
+the music entry is called "Audio" and the pictures entry "Images" - those are the media plugin's words, and a viewer
+who has used MediaPortal before should not have to relearn which tile is which. Six more home contributions live in
+`wmc-actions.xml`; they are the television plugin's insides that the WMC skin promoted onto its home screen, and they
+need the TV service this tree no longer has, so they stay off the menu - a decision written down rather than drifted
+into. An entry with nothing behind it stays visible and says so in its small print ("no TV backend", "no settings
+API yet", "its screen is still old skin"), because a media centre that silently offers only what the last read
+happened to fill cannot tell "no television here" apart from "the read went wrong".
+
+**A test reads the plugins, so the menu cannot go stale.** `TestHomeMenuContributions.cs` repeats that whole
+reading on every test run - all workflow XML outside the skins, all `strings_en.xml` - and fails if the built menu
+misses a contribution, gains an invented one, lands in an order the plugins' `DisplayCategory`/`SortOrder` do not
+sort into, or wears a label no plugin actually owns. One exception is allowed and proven rather than trusted:
+`Home->Movies` and `Home->Series` genuinely tie on sort order `e` in the media plugin's file (MP2's own order between
+them was whatever its unstable list sort produced), so the test verifies the tie exists in the XML before permitting
+this front end's swap, and films lead because more people press them. Rename a plugin's string or contribute a new
+home entry anywhere in the tree, and the menu's drift shows up as a failing test rather than as a screen that quietly
+stopped matching the code beside it.
+
+**Beside the menu, the lists MP2 showed under it.** Nereus's `HomeMenuModel` handed the highlighted entry to a
+`HomeContent` model offering the same four lists - latest added, continue playing, favourites, unplayed - of which
+the skin drew at most six titles each (`AbstractHomeContent.CONTENT_LIST_LIMIT` is six, and that is still the cap).
+The content pane draws those lists under Nereus' own headings for whichever entry is highlighted, plus a stand-in
+"Newest by year" first, because sorting by year answers the neighbouring question ("what is newest") while saying in
+its own heading that it is not the importer-date question. Two of the five cannot be filled over HTTP - the API
+sorts by title, year, last-played, track and episode, so the day the importer first saw a file has no sort to ask
+for, and nothing on the server keeps favourites - and each stays on the pane as one line saying why, because four
+headings of which two quietly vanished would leave the viewer wondering whether the library is empty or the front end
+is broken. An entry that opens a screen rather than a shelf ("Local media", "Images") gets a line saying what
+pressing it brings up instead, and the half-watched strip that came back in `ad.` still sits under the pane.
+
+**The pane's gold test caught the WIP arranging its own answers wrongly.** The first version wrote all five
+headings first and then appended each list's titles as its four HTTP reads landed, so the titles ended up in a heap
+at the bottom of the pane, under everyone else's heading - and a refusal note could refuse a list it now sat two
+screens below. `ShowContentAsync` now arms the headings up front, remembers where each list's rows belong, and
+*inserts* each arriving answer - titles, "nothing here", or the refusal - under its own heading, with a generation
+counter so a walk past Movies to Images leaves the pane showing only what Images answered. The insertion order was
+pinned by tests that first failed on exactly that heap, which is the whole reason to write gold tests against a mock
+server rather than against pixels.
+
+**The d-pad lesson from the connection window, applied again.** A focused Avalonia `ListBox` treats Left and Right
+as "previous/next item" and consumes them, so the window-level ring handler never saw the keys and the viewer could
+not walk out of a list sideways - the same trap `ConnectionWindow` had already stepped out of with a *tunnel*
+handler that claims the keys before the list gets them. The home window grows the same handler over its four lists,
+and the ring is menu → content pane → leftovers strip → aspects → buttons, walked in one test.
+
+**What changed for the tests that were already there.** Six of them had pinned the prototype's invented menu -
+"Music", "TV Series", "Pictures", "Folders" - and were retargeted at the contributions table; "Local media" said
+38 characters on a tile that fits 30, so its second line is now "the server's folders". Tests.Frontend went from 368
+to 375 - three contribution-reading tests, three content-pane tests, one ring test - and the render gate's
+`home-windows` frame now draws the new home against a live server: menu column, content pane filling itself in, the
+two unfillable lists refusing in place. The front-end solution builds clean, the whole gate passes, and every
+Windows suite is green: 980 tests in total.
+
+**What this is not.** Nine of the fifteen entries are still a line rather than a screen - the television backend is
+gone, the settings API is not built, and News, Weather, Party music and Utilities are still written against the old
+skin engine; their places are on the menu so that the menu is MP2's, and their small print is the truth about this
+build. The pane is rows of text walked by the remote, not Nereus' poster art - the pictures seam already exists for
+when the rows learn to carry them - and highlighting an entry starts nothing; it only shows what would start.
+
+
 ## What cannot be verified without the user
 
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,

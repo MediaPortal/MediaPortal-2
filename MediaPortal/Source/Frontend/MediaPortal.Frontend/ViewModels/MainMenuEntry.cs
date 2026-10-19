@@ -36,6 +36,16 @@ namespace MediaPortal.Frontend.ViewModels
   /// </remarks>
   public sealed class MainMenuEntry
   {
+    /// <param name="mp2Action">
+    /// The name MP2's own workflow files give the contribution this entry is - <c>"Home->Movies"</c> - or null for an
+    /// entry the old client had no line for. The home-menu tests read the workflow XML of this tree and compare
+    /// these names, so that the menu here cannot drift away from the menu the previous code assembled.
+    /// </param>
+    /// <param name="labelKey">
+    /// The language resource MP2's label comes from - <c>[Media.MoviesMenuItem]</c> - or null when no plugin of this
+    /// tree named this entry. The same tests resolve this key in the plugin's own <c>strings_en.xml</c> and require
+    /// <see cref="Label"/> to be the string that is written there.
+    /// </param>
     /// <param name="label">What the tile says.</param>
     /// <param name="aspects">
     /// The aspects whose titles pressing opens, in the order they are preferred, or empty for an entry with nothing
@@ -47,15 +57,29 @@ namespace MediaPortal.Frontend.ViewModels
     /// <param name="missing">
     /// Why this build cannot open the entry at all - a missing backend, not a missing title - or null when it can.
     /// </param>
-    internal MainMenuEntry(string label, string[] aspects, string action, string? missing,
-        string? screenKey = null)
+    internal MainMenuEntry(string? mp2Action, string? labelKey, string label, string[] aspects, string action,
+        string? missing, string? screenKey = null)
     {
+      Mp2Action = mp2Action;
+      LabelKey = labelKey;
       Label = label;
       Aspects = aspects;
       Action = action;
       Missing = missing;
       ScreenKey = screenKey;
     }
+
+    /// <summary>
+    /// The name of the workflow action MP2 contributes this entry with, or null when the old client had no line for
+    /// it. See <see cref="MainMenu"/> for the files these names are taken from.
+    /// </summary>
+    public string? Mp2Action { get; }
+
+    /// <summary>
+    /// MP2's language resource for <see cref="Label"/>, in the brackets the old code writes it in, or null when the
+    /// entry is this front end's own.
+    /// </summary>
+    public string? LabelKey { get; }
 
     /// <summary>What the tile says, in the same words the rest of the front end uses for that part of the library.</summary>
     public string Label { get; }
@@ -134,7 +158,7 @@ namespace MediaPortal.Frontend.ViewModels
     /// </remarks>
     internal static MainMenuEntry FromSection(HomeSection section)
     {
-      MainMenuEntry entry = new MainMenuEntry(section.Label, new[] { section.Aspect.Name },
+      MainMenuEntry entry = new MainMenuEntry(null, null, section.Label, new[] { section.Aspect.Name },
           "the titles this server files here", null);
       entry.Section = section;
       return entry;

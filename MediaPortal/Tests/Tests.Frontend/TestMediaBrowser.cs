@@ -427,7 +427,7 @@ namespace Tests.Frontend
       // none of it opens, because there is no aspect on the server that a viewer can watch titles from.
       Assert.That(home.Sections, Is.Empty);
       Assert.That(home.Menu, Is.Not.Empty);
-      Assert.That(home.Open(EntryNamed(home.Menu, "TV Series")), Is.Null,
+      Assert.That(home.Open(EntryNamed(home.Menu, "Series")), Is.Null,
           "a tile that would open onto nothing is refused, and the status line says so");
       Assert.That(home.Status, Does.Contain("not on this server"));
     }
@@ -2384,13 +2384,13 @@ namespace Tests.Frontend
 
       Assert.That(home.Menu.Select(entry => entry.Label), Is.EqualTo(new[]
       {
-          "Movies", "TV Series", "Music", "Videos", "Pictures", "Latest media", "TV", "Radio", "Folders", "Settings"
+          "Local media", "Browse media", "Audio", "Videos", "Movies", "Series", "Images", "Latest media",
+          "News", "TV", "Radio", "Weather", "Party music player", "Settings", "Utilities"
       }), "the names and the order are the entries MP2's own plugins contribute to the home state - "
-          + "media-actions.xml:5-56 for the six media ones, SlimTvClient-actions.xml:5 and :62 for television and "
-          + "radio, configuration-actions.xml:6 for settings - and not a set of words invented for this front end. "
-          + "The one entry that is not MP2's own is Folders, which MP2 kept on a settings page and this front end "
-          + "puts last but one, in front of the settings it cannot open yet, because saying where the media lives "
-          + "is the first thing an empty media centre has to be asked");
+          + "media-actions.xml for the eight media ones, SlimTvClient-actions.xml for television and radio, and "
+          + "the news, weather, party, settings and utilities plugins' own files for the rest - and not a set of "
+          + "words invented for this front end. TestHomeMenuContributions reads those files on every run and says "
+          + "which line of this table no longer matches what the previous code assembles");
     }
 
     [Test]
@@ -2421,22 +2421,22 @@ namespace Tests.Frontend
     }
 
     [Test]
-    public void TheMusicTileOpensAlbumsBecauseThatIsWhatHoldsTheTracks()
+    public void TheAudioTileOpensAlbumsBecauseThatIsWhatHoldsTheTracks()
     {
       List<MainMenuEntry> menu = MainMenu.Build(
           new[] { AspectCalled("AudioItem"), AspectCalled("AlbumItem") }, true);
 
-      Assert.That(EntryNamed(menu, "Music").Section!.Aspect.Name, Is.EqualTo("AlbumItem"),
-          "the tile that says Music opens the shelf that has something inside it, because that is the shelf a "
+      Assert.That(EntryNamed(menu, "Audio").Section!.Aspect.Name, Is.EqualTo("AlbumItem"),
+          "the tile MP2 calls Audio opens the shelf that has something inside it, because that is the shelf a "
           + "viewer can go on from");
     }
 
     [Test]
-    public void TheMusicTileFallsBackToTracksWhenTheServerHasNoAlbums()
+    public void TheAudioTileFallsBackToTracksWhenTheServerHasNoAlbums()
     {
       List<MainMenuEntry> menu = MainMenu.Build(new[] { AspectCalled("AudioItem") }, true);
 
-      Assert.That(EntryNamed(menu, "Music").Section!.Aspect.Name, Is.EqualTo("AudioItem"),
+      Assert.That(EntryNamed(menu, "Audio").Section!.Aspect.Name, Is.EqualTo("AudioItem"),
           "a library imported without albums still has its music on the screen");
     }
 
@@ -2480,12 +2480,12 @@ namespace Tests.Frontend
 
       Assert.That(EntryNamed(home.Menu, "Movies").Detail, Is.EqualTo("1"),
           "the tile carries the server's own count of its own aspect");
-      MainMenuEntry music = EntryNamed(home.Menu, "Music");
-      Assert.That(music.Openable, Is.False);
-      Assert.That(music.Detail, Is.EqualTo("not on this server"),
+      MainMenuEntry audio = EntryNamed(home.Menu, "Audio");
+      Assert.That(audio.Openable, Is.False);
+      Assert.That(audio.Detail, Is.EqualTo("not on this server"),
           "this server has no music at all, which is a different answer from 'no server' and from 'nothing to "
           + "watch', and the tile says which of the three it is");
-      Assert.That(home.Open(music), Is.Null);
+      Assert.That(home.Open(audio), Is.Null);
       Assert.That(home.Status, Does.Contain("not on this server"));
     }
 
@@ -2518,6 +2518,88 @@ namespace Tests.Frontend
           "only the two screens that need nothing from a library - the folders and the pictures - survive a server "
           + "that went away");
       Assert.That(EntryNamed(home.Menu, "Movies").Detail, Is.EqualTo("no server connected"));
+    }
+
+    /// <summary>
+    /// The content pane written out as one sequence of lines: what the viewer walks, in the order the walk goes.
+    /// Titles say only that they are titles, because which words a title carries is the shelf endpoint's claim,
+    /// tested where the titles are read; here it is the shape of the pane that is in question.
+    /// </summary>
+    private static string[] PaneRows(HomeViewModel home)
+    {
+      return home.ContentRows.Select(row =>
+          row.IsHeading ? "heading:" + row.Text
+          : row.IsNote ? "note:" + row.Text
+          : "title").ToArray();
+    }
+
+    [AvaloniaTest]
+    public async Task ThePaneOfAShelfCarriesTheListsMP2sHomeHadAndSaysWhichTwoCannotBeFilled()
+    {
+      RegisterLibrary(Title("Alien Earth", 2025, RESOURCE_SYSTEM_ID.ToString("B") + "://" + LOCAL_PATH));
+      InProcessApi server = StartServer();
+
+      HomeViewModel home = HomeOn(server);
+      Refreshed(home);
+
+      await home.ShowContentAsync(EntryNamed(home.Menu, "Movies"));
+
+      Assert.That(PaneRows(home), Is.EqualTo(new[]
+      {
+          "heading:Newest by year",
+          "title",
+          "heading:Latest added",
+          "note:the server cannot sort by import date",
+          "heading:Continue playing",
+          "note:nothing here",
+          "heading:Unplayed",
+          "title",
+          "heading:Favorites",
+          "note:the server keeps no favourites over HTTP"
+      }), "the four lists Nereus' home content offered are the four headings a MediaPortal viewer expects, each "
+          + "one either filled from this server or saying in one line why it is not - and the stand-in list leads, "
+          + "because \"what arrived lately\" is the question MP2's own list answered");
+
+      Assert.That(home.ContentRows.First(row => row.IsTitle).Title!.Line, Does.Contain("Alien Earth"),
+          "the titles under the first heading are the server's own, not placeholders");
+      Assert.That(home.HasContent, Is.True);
+    }
+
+    [AvaloniaTest]
+    public async Task ThePaneOfAScreenSaysWhatPressingTheEntryOpens()
+    {
+      RegisterLibrary(Title("Alien Earth", 2025, RESOURCE_SYSTEM_ID.ToString("B") + "://" + LOCAL_PATH));
+      InProcessApi server = StartServer();
+
+      HomeViewModel home = HomeOn(server);
+      Refreshed(home);
+
+      await home.ShowContentAsync(EntryNamed(home.Menu, "Images"));
+
+      Assert.That(PaneRows(home), Is.EqualTo(new[] { "note:Press Enter: the pictures, folder by folder" }),
+          "an entry that opens a screen of its own has no lists to show, and the useful line is the one that says "
+          + "what pressing it does - an empty column next to the menu reads as a broken front end");
+    }
+
+    [AvaloniaTest]
+    public async Task WalkingTheMenuLeavesThePaneShowingOnlyWhatTheLastStopAnswered()
+    {
+      // What this guards is the race a remote makes by walking: every stop fires a read, HTTP answers whenever it
+      // likes, and an older answer landing under a newer heading tells the viewer about a shelf they have already
+      // walked past. The generation guard says only the newest reading may keep writing.
+      RegisterLibrary(Title("Alien Earth", 2025, RESOURCE_SYSTEM_ID.ToString("B") + "://" + LOCAL_PATH));
+      InProcessApi server = StartServer();
+
+      HomeViewModel home = HomeOn(server);
+      Refreshed(home);
+
+      Task first = home.ShowContentAsync(EntryNamed(home.Menu, "Movies"));
+      await home.ShowContentAsync(EntryNamed(home.Menu, "Images"));
+      await first;
+
+      Assert.That(PaneRows(home), Is.EqualTo(new[] { "note:Press Enter: the pictures, folder by folder" }),
+          "the films arrived after the viewer had already moved on, and the pane they would have written is the "
+          + "pictures pane now - the late answer had to throw itself away rather than append to it");
     }
 
     #endregion

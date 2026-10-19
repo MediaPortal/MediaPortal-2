@@ -23,21 +23,31 @@ namespace MediaPortal.Frontend.ViewModels
   /// </summary>
   /// <remarks>
   /// <para>
-  /// The list is MP2's own. The old client's home screen was assembled from the actions every plugin contributed
-  /// with the home state as their source, and those contributions are still in this tree: the media plugin offers
-  /// <c>Home->Movies</c>, <c>Home->Series</c>, <c>Home->Audio</c>, <c>Home->Images</c>, <c>Home->Videos</c> and
-  /// <c>Home->Latest Media</c> (<c>Source/UI/UiComponents/Media/Skin/default/workflow/media-actions.xml:5-56</c>),
-  /// the TV client offers <c>Home->SlimTvClient</c> and <c>Home->SlimTvClientRadio</c>
-  /// (<c>Source/UI/TV/SlimTvClient/Skin/default/workflow/SlimTvClient-actions.xml:5</c> and <c>:62</c>) and the
-  /// configuration plugin offers <c>Home->ConfigurationMain</c>
-  /// (<c>Source/UI/UiComponents/Configuration/Skin/default/workflow/configuration-actions.xml:6</c>). The order here
-  /// is the order MP2 sorts its media entries in - <c>a-Media</c> and the letters after it - with the entries no
-  /// plugin in this build contributes at the end, saying so.
+  /// This is MP2's menu, entry for entry and in MP2's order. The old client did not have a main menu written down
+  /// anywhere: <c>SkinBase</c>'s <c>MenuModel</c> (<c>Source/UI/UiComponents/SkinBase/Models/MenuModel.cs:41</c>)
+  /// collected every workflow action whose source state was the home state - <c>7F702D9C-F2DD-42da-9ED8-0BA92F07787F</c>
+  /// - sorted them by <c>DisplayCategory</c> and then <c>SortOrder</c> (<c>MenuModel.cs:121-153</c>) and handed the
+  /// result to the skin. Every one of those contributions is still in this tree, so this table was written from them
+  /// rather than invented: <c>Home-&gt;BrowseLocalMedia</c>, <c>Home-&gt;BrowseMedia</c>, <c>Home-&gt;Audio</c>,
+  /// <c>Home-&gt;Videos</c>, <c>Home-&gt;Movies</c>, <c>Home-&gt;Series</c>, <c>Home-&gt;Images</c> and
+  /// <c>Home-&gt;Latest Media</c> from <c>Media/Skin/default/workflow/media-actions.xml:5-56</c>;
+  /// <c>Home-&gt;News</c>, <c>Home-&gt;Weather</c>, <c>Home-&gt;UtilitiesMain</c>, <c>Home-&gt;PartyMusicConfig</c>
+  /// and <c>Home-&gt;ConfigurationMain</c> from the same file of their own plugin; and <c>Home-&gt;SlimTvClient</c>
+  /// and <c>Home-&gt;SlimTvClientRadio</c> from <c>TV/SlimTvClient/Skin/default/workflow/SlimTvClient-actions.xml:5</c>
+  /// and <c>:62</c>. The labels are those plugins' own English strings, read from each plugin's
+  /// <c>Language/strings_en.xml</c> by the key named in <see cref="MainMenuEntry.LabelKey"/>.
+  /// <c>Tests/Tests.Frontend/TestHomeMenuContributions.cs</c> repeats that reading on every test run, so a plugin
+  /// added to or renamed in this tree shows up as a failing test instead of as a menu that quietly stopped matching.
   /// </para>
   /// <para>
-  /// The <c>Weather</c>, <c>News</c>, <c>Utilities</c>, <c>PartyMusicConfig</c> and home-editor entries are not
-  /// repeated here, because each of those is a plugin this front end has no screen for at all: naming them one by
-  /// one would be a list of other people's missing work rather than a menu.
+  /// Two things are left out on purpose. <c>wmc-actions.xml</c> contributes six more home entries
+  /// (<c>SlimTvClient-&gt;Guide</c>, <c>-&gt;Schedules</c>, <c>-&gt;Recordings</c>, <c>-&gt;ProgramSearch</c> and the
+  /// two radio equivalents): those are the television plugin's insides, which the rescued WMC skin promoted onto its
+  /// home screen, and they need the TV service this tree no longer has. And MP2 shows an entry only when the plugin
+  /// that contributes it is installed; this front end has no plugin installation to ask, so an entry that nothing
+  /// backs stays on screen and says so in its small print - a media centre that silently offers six tiles in
+  /// whatever state the last read happened to leave them in cannot tell "no television here" apart from "the read
+  /// went wrong".
   /// </para>
   /// </remarks>
   public static class MainMenu
@@ -53,9 +63,10 @@ namespace MediaPortal.Frontend.ViewModels
       List<MainMenuEntry> menu = new List<MainMenuEntry>();
       HashSet<string> claimed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-      foreach ((string label, string[] aspects_, string action, string? missing, string? screen) in ENTRIES)
+      foreach ((string action_, string labelKey, string label, string[] aspects_, string detail, string? missing,
+          string? screen) in ENTRIES)
       {
-        MainMenuEntry entry = new MainMenuEntry(label, aspects_, action, missing, screen);
+        MainMenuEntry entry = new MainMenuEntry(action_, labelKey, label, aspects_, detail, missing, screen);
         foreach (string aspectName in aspects_)
           claimed.Add(aspectName);
 
@@ -97,42 +108,88 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
-    /// The entries, in MP2's order: the six the media plugin contributes, then the ones this build cannot back yet.
+    /// The entries, in the order MP2 sorts its home contributions into - <c>DisplayCategory</c> first and
+    /// <c>SortOrder</c> within it - and nothing else: every line of this table is a contribution the previous code
+    /// really makes. The two fields before the label are the evidence for that claim, and
+    /// <c>TestHomeMenuContributions</c> is what stops the claim from going stale.
     /// </summary>
     /// <remarks>
-    /// The fourth field is what the tile says when there is nothing behind the entry, so it has to be a line the
-    /// viewer can read from three metres away - the whole reason, in each case, is written out here where a reader
-    /// can have it: <c>Latest media</c> because the API can only sort by title, year, last-played, track and
-    /// episode, and the import date a "newest first" list would need is not one of them; <c>TV</c> and
-    /// <c>Radio</c> because live television and radio came from the TV service, which was removed from this tree
-    /// (commit 029a262aa4) and nothing serves it since; <c>Settings</c> because the server keeps its configuration
-    /// behind a .NET Remoting interface the new API has not grown an equivalent of yet.
-    /// The fifth field names a screen of the front end rather than a part of the library. An entry with one is
+    /// <para>
+    /// The labels are MP2's words, not the ones this front end would have chosen, because a viewer who has used
+    /// MediaPortal before should not have to learn that the tile they always pressed is now called something else:
+    /// the media plugin calls music <c>Audio</c> and pictures <c>Images</c>
+    /// (<c>Media/Language/strings_en.xml</c>), and the configuration plugin calls its screen <c>Settings</c>. Where
+    /// MP2's word leaves room for doubt, the tile's second line says what pressing brings up.
+    /// </para>
+    /// <para>
+    /// <c>Home-&gt;Movies</c> and <c>Home-&gt;Series</c> share sort order <c>e</c> in the media plugin's XML, so
+    /// MP2's own order between those two is whatever its unstable list sort produced. Films come first here because
+    /// more people press them. The sixth field is what the tile says when there is nothing behind the entry, so it
+    /// has to be a line the viewer can read from three metres away - the whole reason, in each case, is written out
+    /// here where a reader can have it: <c>Latest media</c> because the API can only sort by title, year,
+    /// last-played, track and episode, and the import date a "newest first" list would need is not one of them;
+    /// <c>TV</c> and <c>Radio</c> because live television and radio came from the TV service, which was removed from
+    /// this tree (commit 029a262aa4) and nothing serves it since; <c>Settings</c> because the server keeps its
+    /// configuration behind a .NET Remoting interface the new API has not grown an equivalent of yet;
+    /// <c>Browse media</c> because MP2's browse-by-category tree asks the database to group titles by an attribute
+    /// while the HTTP API lists and filters titles but does not group them; <c>News</c>, <c>Weather</c>,
+    /// <c>Party music player</c> and <c>Utilities</c> because those four are still written against the old skin
+    /// engine this front end replaced - their plugins are in this tree, their screens are not.
+    /// </para>
+    /// <para>
+    /// The last field names a screen of the front end rather than a part of the library. An entry with one is
     /// openable whatever the server holds, because there is nothing on the server for it to depend on; the key is
     /// handed to the function the application was given, which makes the screen or says it cannot.
+    /// </para>
     /// </remarks>
-    private static readonly (string Label, string[] Aspects, string Action, string? Missing, string? Screen)[] ENTRIES =
+    private static readonly (string Mp2Action, string LabelKey, string Label, string[] Aspects, string Action,
+        string? Missing, string? Screen)[] ENTRIES =
     {
-        ("Movies", new[] { "MovieItem" }, "the films on this server", null, null),
-        ("TV Series", new[] { "SeriesItem" }, "each series, and its episodes inside it", null, null),
-        ("Music", new[] { "AlbumItem", "AudioItem" }, "each album, and its tracks on it", null, null),
+        // MP2's "local media" is the file view - the folders the library is built from, before the importer's
+        // decisions have been applied to them. This front end has exactly that: the shares screen, which lists the
+        // server's folders and what it made of each. "Folder by folder" came off this line to fit the tile.
+        ("Home->BrowseLocalMedia", "[Media.LocalMediaMenuItem]", "Local media", Array.Empty<string>(),
+            "the server's folders", null, "folders"),
+        ("Home->BrowseMedia", "[Media.BrowseMediaMenuItem]", "Browse media", Array.Empty<string>(),
+            "the titles grouped by genre, year, actor", "no grouping over HTTP yet", null),
+        // "Audio" is the plugin's own word for the music library, and it covers both shapes the importer can leave
+        // the collection in; the second line is here so that the narrower word does not read as a mistake.
+        ("Home->Audio", "[Media.AudioMenuItem]", "Audio", new[] { "AlbumItem", "AudioItem" },
+            "each album, and its tracks on it", null, null),
         // Not "the files nobody filed as films": the server's VideoItem is the aspect every film and every episode
         // also carries, so this shelf holds the whole video library (measured against a real one: four films, eight
         // episodes and the two unfiled clips). Saying so is worth more than a tidier sentence.
-        ("Videos", new[] { "VideoItem" }, "every video the server knows, films and episodes included", null, null),
+        ("Home->Videos", "[Media.VideosMenuItem]", "Videos", new[] { "VideoItem" },
+            "every video the server knows, films and episodes included", null, null),
+        ("Home->Movies", "[Media.MoviesMenuItem]", "Movies", new[] { "MovieItem" },
+            "the films on this server", null, null),
+        ("Home->Series", "[Media.SeriesMenuItem]", "Series", new[] { "SeriesItem" },
+            "each series, and its episodes inside it", null, null),
         // The folders, not the filed titles. A photograph rarely has anything for an importer's decision to attach
         // to - no title, no year, no episode number - so a pictures screen backed by ImageItem titles shows an
         // empty shelf over thousands of photographs, which is why MP2's own pictures screen walks the folders. If a
         // server does hold filed images, they are still on this screen: the leftover rule at the bottom of Build
         // gives them their own tile rather than dropping a part of somebody's library.
-        ("Pictures", Array.Empty<string>(), "the pictures, folder by folder", null, "pictures"),
-        ("Latest media", Array.Empty<string>(), "the newest titles first", "no import-date sort", null),
-        ("TV", Array.Empty<string>(), "live television and the programme guide", "no TV backend", null),
-        ("Radio", Array.Empty<string>(), "radio stations and their guide", "no radio backend", null),
-        // The one part of MP2's configuration that has an HTTP API, and therefore the one part that can be edited
-        // from a television. Where the media lives is also the first thing an empty media centre needs asked.
-        ("Folders", Array.Empty<string>(), "where the library comes from", null, "folders"),
-        ("Settings", Array.Empty<string>(), "the server's own configuration", "no settings API yet", null)
+        ("Home->Images", "[Media.ImagesMenuItem]", "Images", Array.Empty<string>(),
+            "the pictures, folder by folder", null, "pictures"),
+        ("Home->Latest Media", "[Media.LatestMediaMenuItem]", "Latest media", Array.Empty<string>(),
+            "the newest titles first", "no import-date sort", null),
+        ("Home->News", "[News.Title]", "News", Array.Empty<string>(),
+            "the headlines", "its screen is still old skin", null),
+        ("Home->SlimTvClient", "[SlimTvClient.Tv]", "TV", Array.Empty<string>(),
+            "live television and the programme guide", "no TV backend", null),
+        ("Home->SlimTvClientRadio", "[SlimTvClient.Radio]", "Radio", Array.Empty<string>(),
+            "radio stations and their guide", "no radio backend", null),
+        ("Home->Weather", "[Weather.Title]", "Weather", Array.Empty<string>(),
+            "the forecast", "its screen is still old skin", null),
+        ("Home->PartyMusicConfig", "[PartyMusicPlayer.MenuItem]", "Party music player", Array.Empty<string>(),
+            "the party playlists", "its screen is still old skin", null),
+        // The one part of MP2's configuration that has an HTTP API, and therefore the one part that could be edited
+        // from a television. Where the library comes from is already on this menu, as "Local media".
+        ("Home->ConfigurationMain", "[Configuration.Name]", "Settings", Array.Empty<string>(),
+            "the server's own configuration", "no settings API yet", null),
+        ("Home->UtilitiesMain", "[Utilities.MenuItem]", "Utilities", Array.Empty<string>(),
+            "the little tools", "its screen is still old skin", null)
     };
   }
 }

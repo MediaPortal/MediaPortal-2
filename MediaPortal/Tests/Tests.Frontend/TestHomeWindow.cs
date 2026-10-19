@@ -185,6 +185,14 @@ namespace Tests.Frontend
     }
 
     /// <summary>
+    /// The pane that shows the lists of the highlighted menu entry - MP2's home content.
+    /// </summary>
+    private static ListBox ContentList(Window window)
+    {
+      return ListBoxNamed(window, "contentList");
+    }
+
+    /// <summary>
     /// The row of tiles a viewer opens a part of the library from, when the screen was given a way to open one.
     /// </summary>
     private static ListBox TilesList(Window window)
@@ -276,8 +284,11 @@ namespace Tests.Frontend
     [AvaloniaTest]
     public void TheRightKeyWalksFromTheButtonIntoTheList()
     {
-      // The remote's actual journey on the actual screen: focus starts on the button, Right leaves it, and the
-      // list - which is next in the ring the screen declared - takes the focus.
+      // The remote's actual journey on the actual screen: focus starts on the button, Right leaves it, and the ring
+      // the screen declared takes the focus. Since the home screen was arranged like MP2's - menu on the left, its
+      // content to the right, the server's aspect list on the far side, buttons underneath - the buttons are the
+      // last area, so Right from a button wraps the ring and lands on the first one: the content pane, which is
+      // where the viewer's eye is when they leave the button row.
       HomeWindow window = ShowScreenThatReadsAServer(1, out HomeViewModel home);
       WaitUntil(home, "the screen to be done reading before its keys are pressed",
           delegate { return !home.IsBusy; });
@@ -297,14 +308,74 @@ namespace Tests.Frontend
       // keeping it on the list itself, so "the focus is in the list" is the claim - asking the list whether it
       // personally holds the focus would be a question about an implementation detail, and a wrong one.
       Visual? focused = window.FocusManager.GetFocusedElement() as Visual;
-      ListBox list = AspectList(window);
+      ListBox list = ContentList(window);
       string where = focused == null ? "nobody" : focused.GetType().Name;
       string aboutList = string.Format("list Focusable={0} visible={1} enabled={2} bounds={3} attached={4} items={5}",
           list.Focusable, list.IsVisible, list.IsEnabled, list.Bounds,
           list.GetVisualParent() != null, list.Items.Count);
       Assert.That(Inside(focused, list), Is.True,
-          "the focus is in the list, which is next in the ring (focus was on: " + where + "; " + aboutList + ")");
+          "the focus is in the content pane, which is first in the ring (focus was on: " + where + "; " + aboutList + ")");
       Assert.That(button.IsFocused, Is.False, "the button is not it");
+    }
+
+    [AvaloniaTest]
+    public void TheRingWalksTheAreasInTheOrderTheyAreOnTheScreen()
+    {
+      // The claim the arrangement of the screen makes to the viewer: with a remote in hand, Right moves to the area
+      // to the right. MP2's home screen puts the main menu on the left and the highlighted entry's lists beside it,
+      // so this front end does the same and the ring has to follow - menu, content, aspect list - rather than the
+      // order the XAML happens to declare them in.
+      // The screen is shown with a section screen so that the menu is part of the walk at all: without a way to
+      // open a section the menu is deliberately not focusable (see HomeWindow), because a menu that leads nowhere
+      // should not be where the arrow keys start.
+      var home = new HomeViewModel(null);
+      var window = new HomeWindow(home, null, null, sectionScreen => null!, null);
+      window.Show();
+      _homes.Add(home);
+      _windows.Add(window);
+      Pump();
+
+      ListBox menu = ListBoxNamed(window, "menuList");
+      ListBox content = ContentList(window);
+      ListBox aspects = AspectList(window);
+
+      menu.Focus();
+      Pump();
+      Press(window, menu, Key.Right);
+      Visual? afterRight = window.FocusManager.GetFocusedElement() as Visual;
+      string where = afterRight == null ? "nobody" : afterRight.GetType().Name;
+      string aboutContent = string.Format("content Focusable={0} visible={1} enabled={2} bounds={3} items={4}",
+          content.Focusable, content.IsVisible, content.IsEnabled, content.Bounds, content.Items.Count);
+      Assert.That(Inside(afterRight, content), Is.True,
+          "Right from the menu lands in the content pane next to it (focus was on: " + where + "; "
+          + aboutContent + "; menu items=" + menu.Items.Count + ")");
+
+      content.Focus();
+      Pump();
+      Press(window, content, Key.Right);
+      Assert.That(Inside(window.FocusManager.GetFocusedElement() as Visual, aspects), Is.True,
+          "Right from the content pane lands in the aspect list on the far side");
+
+      aspects.Focus();
+      Pump();
+      Press(window, aspects, Key.Left);
+      Assert.That(Inside(window.FocusManager.GetFocusedElement() as Visual, content), Is.True,
+          "and Left walks back the same way");
+    }
+
+    /// <summary>
+    /// Presses one key on a control the way the remote does - a <see cref="KeyDownEvent"/> routed at it - and pumps
+    /// the screen so the focus change has happened by the time the caller looks.
+    /// </summary>
+    private static void Press(Window window, Control control, Key key)
+    {
+      control.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = key,
+        Source = control
+      });
+      Pump();
     }
 
     [AvaloniaTest]

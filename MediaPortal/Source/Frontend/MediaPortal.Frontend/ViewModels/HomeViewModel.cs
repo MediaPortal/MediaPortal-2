@@ -67,6 +67,13 @@ namespace MediaPortal.Frontend.ViewModels
     [ObservableProperty]
     private AspectViewModel? _selectedAspect;
 
+    /// <summary>
+    /// The menu entry the viewer is standing on, which is the entry whose lists the content pane next to the menu
+    /// shows. Set by the screen's selection, and by <see cref="RebuildMenu"/> when the menu was rebuilt under it.
+    /// </summary>
+    [ObservableProperty]
+    private MainMenuEntry? _selectedEntry;
+
     [ObservableProperty]
     private string _signInName = string.Empty;
 
@@ -158,9 +165,192 @@ namespace MediaPortal.Frontend.ViewModels
     /// </summary>
     private void RebuildMenu(bool connected)
     {
+      // Which entry the viewer was standing on, remembered across the rebuild. A refresh that left the selection at
+      // the top of the menu would also refill the content pane with the wrong entry's lists, which is a long way
+      // from what the viewer was looking at a second ago.
+      string? wasSelected = SelectedEntry?.Mp2Action;
+
       Menu.Clear();
       foreach (MainMenuEntry entry in MainMenu.Build(Aspects, connected))
         Menu.Add(entry);
+
+      if (wasSelected != null)
+      {
+        foreach (MainMenuEntry entry in Menu)
+        {
+          if (entry.Mp2Action == wasSelected)
+          {
+            // Going through the property, so the pane is refilled from the fresh reading; a menu rebuilt behind a
+            // viewer who is standing on "Movies" has to show the counts that arrived in this reading.
+            SelectedEntry = entry;
+            return;
+          }
+        }
+      }
+
+      SelectedEntry = null;
+    }
+
+    /// <summary>
+    /// The content pane: the lists of the menu entry the viewer is standing on, one after another, with their
+    /// headings.
+    /// </summary>
+    /// <remarks>
+    /// This is the half of MP2's home screen that the tiles never carried. <see cref="Menu"/> answers "which part of
+    /// the library?", and the pane answers "what is in it, and what would you watch tonight?" - the same split the
+    /// old client made between <c>MainMenu</c> and the <c>HomeContent</c> lists of the highlighted entry. It is one
+    /// flat list of <see cref="HomeRow"/>s rather than four lists, because a remote can only stop on something it
+    /// can walk into, and a heading nobody can stop on is decoration.
+    /// </remarks>
+    public ObservableCollection<HomeRow> ContentRows { get; } = new ObservableCollection<HomeRow>();
+
+    /// <summary>Whether the pane has anything to say, which is what keeps its heading off an empty screen.</summary>
+    public bool HasContent
+    {
+      get { return ContentRows.Count > 0; }
+    }
+
+    /// <summary>
+    /// Which reading of the pane is the current one. Only the newest is allowed to keep writing, because walking
+    /// the menu with a remote fires a load per stop, and an older answer arriving late would append its titles under
+    /// a newer entry's heading.
+    /// </summary>
+    private int _contentGeneration;
+
+    /// <summary>
+    /// Refills the content pane for <paramref name="entry"/>.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The headings go up before anything has been read, and the titles are appended under them as each answer
+    /// arrives. A pane that stayed blank until the last of four requests came back would look like an empty library
+    /// for as long as the slowest one took.
+    /// </para>
+    /// <para>
+    /// One list refusing leaves its own line and does not hide the others, which is the rule every other read on
+    /// this screen follows. A 403 is worth naming out loud though: three refusals in a row on a server that wants a
+    /// sign-in read as an empty library unless the refusal says what it is.
+    /// </para>
+    /// </remarks>
+    public async Task ShowContentAsync(MainMenuEntry? entry)
+    {
+      int generation = ++_contentGeneration;
+      ContentRows.Clear();
+
+      if (entry == null)
+      {
+        OnPropertyChanged(nameof(HasContent));
+        return;
+      }
+
+      IReadOnlyList<HomeContentList> lists = HomeContentList.For(entry);
+      if (lists.Count == 0)
+      {
+        // An entry that opens a whole screen, or one nothing backs. Saying what pressing does is the useful thing;
+        // the pane would otherwise be an empty column next to a menu that is anything but empty.
+        ContentRows.Add(HomeRow.Note(entry.Openable ? "Press Enter: " + entry.Action : entry.Detail));
+        OnPropertyChanged(nameof(HasContent));
+        return;
+      }
+
+      // The headings - and the lines saying which lists cannot be filled - go up before anything is read, each
+      // list remembering the row position its own titles will land at once an answer arrives. Without those
+      // positions, a title that arrives late would be appended after every later heading instead of under its
+      // own, and a pane whose newest films stand below the word "Favorites" is a pane that lies.
+      var rowPositions = new int[lists.Count];
+      int position = 0;
+      for (int i = 0; i < lists.Count; i++)
+      {
+        ContentRows.Add(HomeRow.Heading(lists[i].Heading));
+        position++;
+        if (lists[i].Missing != null)
+        {
+          ContentRows.Add(HomeRow.Note(lists[i].Missing));
+          position++;
+        }
+        rowPositions[i] = position;
+      }
+
+      OnPropertyChanged(nameof(HasContent));
+
+      if (_client == null)
+        return;
+
+      HomeSection section = entry.Section!;
+      int askedFor = -1;
+
+      // How many rows earlier lists have written. Everything is read in order and one list at a time, so when an
+      // answer arrives, every row to the left of the insertion point is already final - and the point a later
+      // list's titles have to land at has moved right by exactly this many rows.
+      int writtenBefore = 0;
+
+      try
+      {
+        for (int i = 0; i < lists.Count; i++)
+        {
+          HomeContentList list = lists[i];
+          if (list.Missing != null)
+            continue;
+
+          askedFor = i;
+          MediaTitles titles = await _client.GetTitlesAsync(section.Aspect.Name, list.Sort, list.Descending,
+              HomeContentList.CONTENT_LIST_LIMIT, 0, null, list.Seen, null);
+
+          if (generation != _contentGeneration)
+            return;
+
+          int at = rowPositions[i] + writtenBefore;
+          int first = at;
+          foreach (MediaTitle title in titles.Titles ?? Array.Empty<MediaTitle>())
+            ContentRows.Insert(at++, HomeRow.For(new TitleViewModel(title, false, _client)));
+
+          if (at == first)
+            ContentRows.Insert(at++, HomeRow.Note("nothing here"));
+
+          writtenBefore += at - first;
+          OnPropertyChanged(nameof(HasContent));
+        }
+      }
+      catch (ServerApiException ex)
+      {
+        if (generation != _contentGeneration)
+          return;
+
+        // The headings are already up, so the line has to appear under the list that was asked for rather than at
+        // the end of the pane; the loop stops, because every remaining list would be refused for the same reason.
+        ContentRows.Insert(askedFor < 0 ? ContentRows.Count : rowPositions[askedFor] + writtenBefore,
+            HomeRow.Note(DescribeContentFailure(ex, askedFor < 0 ? null : lists[askedFor])));
+        OnPropertyChanged(nameof(HasContent));
+      }
+      catch (Exception ex)
+      {
+        if (generation != _contentGeneration)
+          return;
+
+        ContentRows.Add(HomeRow.Note("reading failed: " + ex.Message));
+        OnPropertyChanged(nameof(HasContent));
+      }
+    }
+
+    /// <summary>
+    /// What one refused list says about itself, in the words a viewer needs: the refusal, and - when the server was
+    /// refusing everybody rather than this list - the fact that signing in is the way past it.
+    /// </summary>
+    private static string DescribeContentFailure(ServerApiException failure, HomeContentList? list)
+    {
+      if (failure.StatusCode == 403)
+        return "this server wants you to sign in first";
+      return failure.Message;
+    }
+
+    /// <summary>
+    /// Walking the menu with a remote: every stop refills the pane.
+    /// </summary>
+    partial void OnSelectedEntryChanged(MainMenuEntry? value)
+    {
+      // Deliberately not awaited: the key press that moved the selection must not wait on four HTTP requests, and
+      // the pane is designed to fill itself in as they arrive.
+      _ = ShowContentAsync(value);
     }
 
     /// <summary>

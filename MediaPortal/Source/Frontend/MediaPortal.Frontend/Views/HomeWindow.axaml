@@ -1,7 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
-        xmlns:api="using:MediaPortal.Frontend.Api"
         x:Class="MediaPortal.Frontend.Views.HomeWindow"
         x:DataType="vm:HomeViewModel"
         Name="home"
@@ -11,24 +10,28 @@
         Title="MediaPortal 2">
 
   <!--
-    The home screen of the new front end, sized for a television: one list of what the library is made of, and
-    the selected aspect's attributes next to it. Font sizes are large because the viewer is three metres away,
-    and the two areas are what the remote's left/right keys move between - see DpadNavigation for why that ring
-    is stated in code rather than inferred.
+    The home screen, arranged the way the old client arranged it: the main menu in a column on the left, and the
+    content of whichever entry is highlighted next to it. Nereus did exactly this in
+    screens/master_homemenu.xaml, where MainMenu is one list and the HomeContent lists of the highlighted entry fill
+    the rest of the screen; what the previous skin drew as poster grids is drawn here as rows, because the HTTP API
+    lists titles and does not send the artwork a poster needs.
+
+    Font sizes are large because the viewer is three metres away, and the areas are what the remote's keys move
+    between - see DpadNavigation, and HomeWindow's code-behind for the order the ring walks them in.
   -->
 
-  <DockPanel Margin="48,36">
+  <DockPanel Margin="48,30">
 
-    <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,20">
+    <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,18">
       <TextBlock Text="MediaPortal 2"
-                 FontSize="40"
+                 FontSize="34"
                  FontWeight="SemiBold" />
       <TextBlock Text="{Binding ServerDescription}"
-                 FontSize="20"
+                 FontSize="18"
                  Opacity="0.85"
                  TextTrimming="CharacterEllipsis" />
       <TextBlock Text="{Binding Status}"
-                 FontSize="16"
+                 FontSize="15"
                  Opacity="0.6"
                  TextTrimming="CharacterEllipsis" />
       <!-- What the server is doing right now, as the server itself said so: "Filing 120 of 340 in D:\Films" while
@@ -36,140 +39,32 @@
            Gone when nothing is being listened to, because a media centre that has nothing to say should not spend
            a line of a television saying it. -->
       <TextBlock Text="{Binding ServerActivity}"
-                 FontSize="14"
+                 FontSize="13"
                  Opacity="0.5"
                  IsVisible="{Binding HasServerActivity}"
                  TextTrimming="CharacterEllipsis" />
-      <TextBlock FontSize="14"
+      <TextBlock FontSize="13"
                  Opacity="0.4"
                  Text="{Binding ServerUrl, StringFormat='Server: {0}'}" />
     </StackPanel>
 
-    <!-- The main menu, and it is on screen before a server has answered: the parts a media centre is made of,
-         each with either its count or the reason it cannot be opened here. The names and the order are MP2's own
-         (see MainMenu for which plugin contributes which entry), because a viewer who has used MediaPortal before
-         should not have to learn a new set of words to find the same things. -->
-    <ListBox Name="menuList"
-             DockPanel.Dock="Top"
-             Focusable="True"
-             ItemsSource="{Binding Menu}"
-             FontSize="22"
-             Padding="0"
-             Margin="0,0,0,14"
-             Background="Transparent"
-             BorderThickness="0">
-      <ListBox.ItemsPanel>
-        <ItemsPanelTemplate>
-          <!-- Two rows, whatever the count: the screen is 720 lines tall and the menu shares it with the strip
-               below, so a list that grows downwards eats the room the strip and the buttons need. Measured on this
-               very frame: a wrap panel laid these nine entries out in three rows and 211 lines of ink, and the
-               same entries in a grid of two rows take 126 - which is the difference between the buttons sitting
-               above the bottom margin and sitting in the last thirty lines of it. -->
-          <UniformGrid Rows="2" />
-        </ItemsPanelTemplate>
-      </ListBox.ItemsPanel>
-      <ListBox.ItemTemplate>
-        <DataTemplate x:DataType="vm:MainMenuEntry">
-          <StackPanel Spacing="2" Margin="0,4,18,10">
-            <StackPanel Orientation="Horizontal" Spacing="10">
-              <TextBlock Text="{Binding Badge}"
-                         FontSize="24"
-                         Width="30"
-                         TextAlignment="Center"
-                         Opacity="0.75" />
-              <TextBlock Text="{Binding Label}"
-                         FontSize="22"
-                         TextTrimming="CharacterEllipsis" />
-            </StackPanel>
-            <!-- What pressing does, or what stops it: "4 films" on a tile that opens, "not on this server" on one
-                 that does not, and "no TV backend" on one this build has no way to serve. A tile that is silent
-                 about all three reads as a broken front end. -->
-            <TextBlock Text="{Binding Detail}"
-                       FontSize="14"
-                       Opacity="0.55"
-                       Margin="8,0,0,0"
-                       TextTrimming="CharacterEllipsis" />
-          </StackPanel>
-        </DataTemplate>
-      </ListBox.ItemTemplate>
-    </ListBox>
-
-    <!-- What somebody left half way. Between the tiles and the buttons because it is the only thing here that is
-         about tonight rather than about the library in general, and below the tiles because the tiles are still
-         what somebody came to look at. It is off screen when there is nothing in it - see HomeViewModel, which
-         keeps the heading up when a part of the library refused to answer, so that an empty shelf and a silent
-         server do not look the same. -->
-    <StackPanel Name="unfinishedPanel"
-                DockPanel.Dock="Top"
-                IsVisible="{Binding HasUnfinished}"
-                Spacing="4"
-                Margin="0,0,0,18">
-      <StackPanel Orientation="Horizontal" Spacing="14">
-        <TextBlock Text="Left half way"
-                   FontSize="22"
-                   FontWeight="SemiBold" />
-        <TextBlock Text="{Binding UnfinishedStatus}"
-                   FontSize="14"
-                   Opacity="0.55"
-                   VerticalAlignment="Center" />
-      </StackPanel>
-      <ListBox Name="unfinishedList"
-               Focusable="True"
-               ItemsSource="{Binding Unfinished}"
-               FontSize="20"
-               MaxHeight="240"
-               Background="Transparent"
-               BorderThickness="0">
-        <ListBox.ItemTemplate>
-          <DataTemplate x:DataType="vm:TitleViewModel">
-            <Grid ColumnDefinitions="1.5*,0.9*,1.3*,0.9*" ColumnSpacing="16" MinWidth="760" Margin="0,2">
-              <TextBlock Grid.Column="0"
-                         Text="{Binding Line}"
-                         TextTrimming="CharacterEllipsis" />
-              <TextBlock Grid.Column="1"
-                         Text="{Binding Detail}"
-                         Opacity="0.55"
-                         TextTrimming="CharacterEllipsis" />
-              <!-- The time the server says this title was last opened, which is the row's claim to be on this
-                   strip at all. -->
-              <TextBlock Grid.Column="2"
-                         Text="{Binding LastPlayedText}"
-                         Opacity="0.7" />
-              <!-- How far this viewer got, when the server was told who is asking. Empty on a server that only
-                   counts the household's viewings, which is why it is the last column and not part of the
-                   title: a strip whose rows say "0% watched" on every row is claiming a precision it does not
-                   have. -->
-              <TextBlock Grid.Column="3"
-                         Text="{Binding ResumeText}"
-                         Opacity="0.85"
-                         TextTrimming="CharacterEllipsis" />
-            </Grid>
-          </DataTemplate>
-        </ListBox.ItemTemplate>
-      </ListBox>
-    </StackPanel>
-
-    <!-- The two things a viewer can do from the home screen: ask the server again, and open what is playing.
-         The playback button is only there when the application has a player to show (see App), so a machine
-         without libVLC does not get a button that leads to a screen that cannot play anything. -->
-    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="16" Margin="0,0,0,24">
+    <!-- What a viewer can do from here, in one line at the bottom: ask the server again, open what is playing, and
+         say which machine the server lives on. The playback button is only there when the application has a player
+         to show (see App), so a machine without libVLC does not get a button that leads to a screen that cannot
+         play anything. MP2 keeps its equivalent of these off the home screen entirely - they are setup, not
+         content - which is why they are small, at the bottom, and not what the eye lands on. -->
+    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="14" Margin="0,16,0,0">
       <Button Name="refreshButton"
               Content="Refresh"
               Command="{Binding RefreshCommand}"
-              HorizontalAlignment="Left"
-              HorizontalContentAlignment="Center"
-              MinWidth="180"
-              Padding="28,10"
-              FontSize="20" />
+              Padding="20,7"
+              FontSize="17" />
       <Button Name="nowPlayingButton"
               Content="Now playing"
               Click="OnNowPlaying"
               IsVisible="False"
-              HorizontalAlignment="Left"
-              HorizontalContentAlignment="Center"
-              MinWidth="180"
-              Padding="28,10"
-              FontSize="20" />
+              Padding="20,7"
+              FontSize="17" />
       <!-- Where the server is comes from a screen, not from a command line: whoever sits in front of a television
            cannot edit an argument, and a machine whose address changed (a reinstalled server, a new router) would
            otherwise be a media centre that only ever says it found no media. -->
@@ -177,99 +72,211 @@
               Content="Server"
               Click="OnConnect"
               IsVisible="False"
-              HorizontalAlignment="Left"
-              HorizontalContentAlignment="Center"
-              MinWidth="180"
-              Padding="28,10"
-              FontSize="20" />
+              Padding="20,7"
+              FontSize="17" />
+
+      <!-- A server with MP2's own configuration keeps its titles from strangers, so the front end has to be able to
+           say who it is. The password is a box with dots rather than a PasswordBox because a PasswordBox cannot be
+           bound: a screen that cannot read what was typed cannot sign anybody in. What is typed is handed to the
+           server and forgotten straight afterwards. MP2 puts its profiles on the home screen too, as a face in the
+           corner; the boxes are this front end's plainer version of the same thing, and they are on the setup line
+           at the bottom rather than in the middle of the library. -->
+      <StackPanel Name="signInRow" Orientation="Horizontal" Spacing="10" Margin="18,0,0,0"
+                  IsVisible="{Binding SignedInAs, Converter={x:Static ObjectConverters.IsNull}}">
+        <TextBox Name="signInName"
+                 Text="{Binding SignInName}"
+                 Watermark="User name"
+                 FontSize="15"
+                 MinWidth="150" />
+        <TextBox Name="signInPassword"
+                 Text="{Binding SignInPassword}"
+                 PasswordChar="•"
+                 Watermark="Password"
+                 FontSize="15"
+                 MinWidth="150" />
+        <Button Name="signInButton"
+                Content="Sign in"
+                Command="{Binding SignInCommand}"
+                FontSize="15"
+                Padding="16,6" />
+      </StackPanel>
+      <TextBlock Name="signedInAs"
+                 FontSize="15"
+                 Opacity="0.75"
+                 VerticalAlignment="Center"
+                 IsVisible="{Binding SignedInAs, Converter={x:Static ObjectConverters.IsNotNull}}"
+                 Text="{Binding SignedInAs, StringFormat='Signed in as {0}'}" />
     </StackPanel>
 
-    <Grid ColumnDefinitions="420,*" ColumnSpacing="40">
+    <Grid ColumnDefinitions="330,*,270" ColumnSpacing="34">
 
-      <!-- Below the tiles on purpose: what the database is made of is the answer to "why is there no tile for
-           X?", and the tiles are the reason somebody came to the screen. -->
-
-      <!-- Focusable is stated rather than trusted: measured on this very screen, the list reported itself not
-           focusable, which left the remote's arrow keys unable to reach it at all. A control the viewer has to
-           walk into with a remote says so on the screen. -->
-      <ListBox Name="aspectsList"
+      <!-- The main menu: MP2's own entries, in MP2's own order, each with either its count or the reason it cannot
+           be opened here. See MainMenu for which plugin's workflow file contributes which line - the menu is not a
+           selection this front end made, it is the list the previous code assembled from the installed plugins, with
+           the plugins this build cannot run still named and still explaining themselves.
+           Focusable is stated rather than trusted: measured on this very screen, a list reported itself not
+           focusable, which left the remote's arrow keys unable to reach it at all. -->
+      <ListBox Name="menuList"
                Focusable="True"
-               ItemsSource="{Binding Aspects}"
-               SelectedItem="{Binding SelectedAspect, Mode=TwoWay}"
-               FontSize="22">
+               ItemsSource="{Binding Menu}"
+               SelectedItem="{Binding SelectedEntry, Mode=TwoWay}"
+               FontSize="21"
+               Padding="0"
+               Background="Transparent"
+               BorderThickness="0">
         <ListBox.ItemTemplate>
-          <DataTemplate x:DataType="vm:AspectViewModel">
-            <DockPanel MinWidth="340" Margin="0,7">
-              <TextBlock DockPanel.Dock="Right"
-                         Text="{Binding CountText}"
-                         Opacity="0.7"
-                         FontWeight="SemiBold" />
-              <TextBlock Text="{Binding Name}" />
-            </DockPanel>
+          <DataTemplate x:DataType="vm:MainMenuEntry">
+            <StackPanel Spacing="1" Margin="0,5,10,7">
+              <StackPanel Orientation="Horizontal" Spacing="10">
+                <TextBlock Text="{Binding Badge}"
+                           FontSize="21"
+                           Width="26"
+                           TextAlignment="Center"
+                           Opacity="0.7" />
+                <TextBlock Text="{Binding Label}"
+                           FontSize="21"
+                           TextTrimming="CharacterEllipsis" />
+              </StackPanel>
+              <!-- What pressing does, or what stops it: "4 films" on a tile that opens, "not on this server" on one
+                   that does not, and "no TV backend" on one this build has no way to serve. A tile that is silent
+                   about all three reads as a broken front end. -->
+              <TextBlock Text="{Binding Detail}"
+                         FontSize="13"
+                         Opacity="0.5"
+                         Margin="36,0,0,0"
+                         TextTrimming="CharacterEllipsis" />
+            </StackPanel>
           </DataTemplate>
         </ListBox.ItemTemplate>
       </ListBox>
 
-      <StackPanel Grid.Column="1" Spacing="12">
-        <!-- A server with MP2's own configuration keeps its titles from strangers, so the front end has to be
-             able to say who it is. The password is a box with dots rather than a PasswordBox because a
-             PasswordBox cannot be bound: a screen that cannot read what was typed cannot sign anybody in. What
-             is typed is handed to the server and forgotten straight afterwards. -->
-        <StackPanel Name="signInRow" Orientation="Horizontal" Spacing="12"
-                    IsVisible="{Binding SignedInAs, Converter={x:Static ObjectConverters.IsNull}}">
-          <TextBox Name="signInName"
-                   Text="{Binding SignInName}"
-                   Watermark="User name"
-                   FontSize="18"
-                   MinWidth="200" />
-          <TextBox Name="signInPassword"
-                   Text="{Binding SignInPassword}"
-                   PasswordChar="•"
-                   Watermark="Password"
-                   FontSize="18"
-                   MinWidth="200" />
-          <Button Name="signInButton"
-                  Content="Sign in"
-                  Command="{Binding SignInCommand}"
-                  FontSize="18"
-                  Padding="20,8" />
+      <!-- The content of the highlighted entry: its lists one after another, with their headings. This is the half
+           of MP2's home screen the menu alone cannot say - not "here are three thousand films" but "these six are
+           the newest, and this is the one you stopped half way through". -->
+      <DockPanel Grid.Column="1">
+
+        <!-- What somebody left half way, when nothing is highlighted. It used to be the only content this screen
+           had; with the pane next to it it has become what MP2's "Continue Playing" list is - the answer for a
+           viewer who came back to something rather than to start something. It is off screen when there is nothing
+           in it - see HomeViewModel, which keeps the heading up when a part of the library refused to answer, so
+           that an empty shelf and a silent server do not look the same. -->
+        <StackPanel Name="unfinishedPanel"
+                    DockPanel.Dock="Bottom"
+                    IsVisible="{Binding HasUnfinished}"
+                    Spacing="3"
+                    Margin="0,10,0,0">
+          <StackPanel Orientation="Horizontal" Spacing="12">
+            <TextBlock Text="Continue playing"
+                       FontSize="19"
+                       FontWeight="SemiBold" />
+            <TextBlock Text="{Binding UnfinishedStatus}"
+                       FontSize="13"
+                       Opacity="0.5"
+                       VerticalAlignment="Center" />
+          </StackPanel>
+          <ListBox Name="unfinishedList"
+                   Focusable="True"
+                   ItemsSource="{Binding Unfinished}"
+                   FontSize="17"
+                   MaxHeight="150"
+                   Background="Transparent"
+                   BorderThickness="0">
+            <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="vm:TitleViewModel">
+                <Grid ColumnDefinitions="1.5*,0.9*,1.2*,0.9*" ColumnSpacing="14" MinWidth="420" Margin="0,1">
+                  <TextBlock Grid.Column="0"
+                             Text="{Binding Line}"
+                             TextTrimming="CharacterEllipsis" />
+                  <TextBlock Grid.Column="1"
+                             Text="{Binding Detail}"
+                             Opacity="0.55"
+                             TextTrimming="CharacterEllipsis" />
+                  <!-- The time the server says this title was last opened, which is the row's claim to be on this
+                       strip at all. -->
+                  <TextBlock Grid.Column="2"
+                             Text="{Binding LastPlayedText}"
+                             Opacity="0.7" />
+                  <!-- How far this viewer got, when the server was told who is asking. Empty on a server that only
+                       counts the household's viewings, which is why it is the last column and not part of the
+                       title: a strip whose rows say "0% watched" on every row is claiming a precision it does not
+                       have. -->
+                  <TextBlock Grid.Column="3"
+                             Text="{Binding ResumeText}"
+                             Opacity="0.85"
+                             TextTrimming="CharacterEllipsis" />
+                </Grid>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
         </StackPanel>
-        <TextBlock Name="signedInAs"
-                   FontSize="16"
-                   Opacity="0.75"
-                   IsVisible="{Binding SignedInAs, Converter={x:Static ObjectConverters.IsNotNull}}"
-                   Text="{Binding SignedInAs, StringFormat='Signed in as {0}'}" />
 
-        <TextBlock Text="{Binding SelectedAspect.Name}"
-                   FontSize="28"
-                   FontWeight="SemiBold" />
-        <TextBlock FontSize="15"
-                   Opacity="0.6"
-                   Text="Attributes - indexed ones can be filtered and sorted cheaply" />
-
-        <ItemsControl ItemsSource="{Binding SelectedAspect.Attributes}" FontSize="18">
-          <ItemsControl.ItemTemplate>
-            <DataTemplate x:DataType="api:AspectAttribute">
-              <Grid ColumnDefinitions="2*,3*,1.4*,1*" ColumnSpacing="16" Margin="0,4">
-                <TextBlock Text="{Binding Name}" />
-                <TextBlock Grid.Column="1"
-                           Text="{Binding Type}"
-                           Opacity="0.7"
-                           TextTrimming="CharacterEllipsis" />
-                <TextBlock Grid.Column="2"
-                           Text="indexed"
-                           Opacity="0.7"
-                           IsVisible="{Binding Indexed}" />
-                <TextBlock Grid.Column="3"
-                           Text="list"
-                           Opacity="0.7"
-                           IsVisible="{Binding Collection}" />
-              </Grid>
+        <ListBox Name="contentList"
+                 Focusable="True"
+                 ItemsSource="{Binding ContentRows}"
+                 FontSize="17"
+                 Background="Transparent"
+                 BorderThickness="0">
+          <ListBox.ItemTemplate>
+            <!-- One template for three kinds of line, because the pane is a single walkable list - see HomeRow for
+                 why headings and titles are rows of one list rather than four lists of their own. -->
+            <DataTemplate x:DataType="vm:HomeRow">
+              <Panel Margin="0,2">
+                <TextBlock Text="{Binding Text}"
+                           FontSize="19"
+                           FontWeight="SemiBold"
+                           Margin="0,8,0,2"
+                           IsVisible="{Binding IsHeading}" />
+                <TextBlock Text="{Binding Text}"
+                           FontSize="14"
+                           Opacity="0.5"
+                           Margin="12,1,0,3"
+                           TextTrimming="CharacterEllipsis"
+                           IsVisible="{Binding IsNote}" />
+                <Grid ColumnDefinitions="2.2*,1*" ColumnSpacing="14" MinWidth="380"
+                      IsVisible="{Binding IsTitle}">
+                  <TextBlock Grid.Column="0"
+                             Text="{Binding Title.Line}"
+                             TextTrimming="CharacterEllipsis" />
+                  <TextBlock Grid.Column="1"
+                             Text="{Binding Title.Detail}"
+                             Opacity="0.55"
+                             TextTrimming="CharacterEllipsis" />
+                </Grid>
+              </Panel>
             </DataTemplate>
-          </ItemsControl.ItemTemplate>
-        </ItemsControl>
-      </StackPanel>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </DockPanel>
 
+      <!-- What the database is made of, in the third column and out of the way: it is the answer to "why is there no
+           number on that tile?", and MP2's home screen has no equivalent of it at all - it is this front end's way
+           of letting a viewer see the server's own aspect names, which is what a bug report needs. -->
+      <DockPanel Grid.Column="2">
+        <TextBlock DockPanel.Dock="Top"
+                   Text="On this server"
+                   FontSize="15"
+                   Opacity="0.5"
+                   Margin="0,0,0,6" />
+        <ListBox Name="aspectsList"
+                 Focusable="True"
+                 ItemsSource="{Binding Aspects}"
+                 SelectedItem="{Binding SelectedAspect, Mode=TwoWay}"
+                 FontSize="17"
+                 Background="Transparent"
+                 BorderThickness="0">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:AspectViewModel">
+              <DockPanel MinWidth="200" Margin="0,4">
+                <TextBlock DockPanel.Dock="Right"
+                           Text="{Binding CountText}"
+                           Opacity="0.7"
+                           FontWeight="SemiBold" />
+                <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+              </DockPanel>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </DockPanel>
     </Grid>
   </DockPanel>
 </Window>

@@ -82,23 +82,43 @@ namespace MediaPortal.Frontend.Views
       if (_nowPlayingScreen == null)
         unfinishedPanel.IsVisible = false;
 
-      // The ring is in the order the areas are arranged: the buttons on top, the list below it. Left/right (and
-      // up/down between the two areas) walk it; the list keeps its own up/down over its items, because it
-      // handles those keys before they reach the ring.
-      // The tiles first: they are what the viewer came for, so the arrow keys start there rather than on a
-      // button nobody needs to press before the library appears.
+      // The ring is in the order the areas are arranged on the screen: the menu on the left, its content to the
+      // right of it, the server's aspect list on the far side, and the buttons underneath. Left/right walk it; each
+      // list keeps its own up/down over its items, because it handles those keys before they reach the ring.
+      // The menu first: it is where MP2's home screen starts, and where a viewer with a remote expects to land.
       var ring = new List<Control>();
       if (_sectionScreen != null)
         ring.Add(menuList);
+      ring.Add(contentList);
       if (_nowPlayingScreen != null)
         ring.Add(unfinishedList);
+      ring.Add(aspectsList);
       ring.Add(refreshButton);
       if (_nowPlayingScreen != null)
         ring.Add(nowPlayingButton);
       if (_connectScreen != null)
         ring.Add(connectButton);
-      ring.Add(aspectsList);
       DpadNavigation.Attach(this, ring);
+
+      // A vertical list takes left and right for its own selection - Avalonia moves the highlight with every
+      // arrow key, not just up and down - so a viewer standing on the menu and pressing Right would only walk
+      // their highlight one entry further and the ring would never see the key. Claimed on the window while the
+      // key tunnels in, exactly where the connection screen had to learn the same lesson: left and right are how
+      // a viewer leaves one of these lists, while up and down stay its own.
+      AddHandler(KeyDownEvent,
+          delegate (object? sender, KeyEventArgs args)
+          {
+            if (args.Key != Key.Left && args.Key != Key.Right)
+              return;
+            if (!menuList.IsFocused && !contentList.IsFocused && !aspectsList.IsFocused
+                && !unfinishedList.IsFocused)
+              return;
+
+            Control? next = DpadNavigation.NextReachableInRing(ring, args.Key);
+            if (next != null && next.Focus())
+              args.Handled = true;
+          },
+          RoutingStrategies.Tunnel);
 
       // The screen fills itself in when it appears: a home screen that waits for someone to press "Refresh" shows
       // an empty list in front of a server that is answering perfectly, which is the worse of the two answers.
@@ -141,6 +161,15 @@ namespace MediaPortal.Frontend.Views
               else if (unfinishedList.IsFocused && unfinishedList.SelectedItem is TitleViewModel unfinished)
               {
                 _home.ResumeCommand.Execute(unfinished);
+                args.Handled = true;
+              }
+              else if (contentList.IsFocused && contentList.SelectedItem is HomeRow row && row.Title != null)
+              {
+                // The same path the "left half way" rows use, so a title pressed in one of MP2's lists starts the
+                // same way it does anywhere else on this screen - through the view model, which tells the server
+                // who is watching. Headings and the lines explaining a missing list swallow nothing: they are in the
+                // walk so that the eye has somewhere to stop, not because pressing them could do anything.
+                _home.ResumeCommand.Execute(row.Title);
                 args.Handled = true;
               }
             }

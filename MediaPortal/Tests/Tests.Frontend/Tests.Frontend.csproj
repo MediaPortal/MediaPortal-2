@@ -41,15 +41,17 @@
 
   <ItemGroup>
     <!--
-      Where the screens and the two rescued skins live, for the tests that read them. The location is handed over at
-      build time rather than derived from the working directory, because a test run's working directory is wherever
-      the runner happened to be started, and a test that cannot find the files it checks has to say so rather than
-      pass.
+      Where the screens, the two rescued skins, and the old plugins whose workflow files the home menu is copied
+      from live, for the tests that read them. The location is handed over at build time rather than derived from
+      the working directory, because a test run's working directory is wherever the runner happened to be started,
+      and a test that cannot find the files it checks has to say so rather than pass.
     -->
     <AssemblyMetadata Include="FrontendSource"
                       Value="$(MSBuildThisFileDirectory)../../Source/Frontend/MediaPortal.Frontend" />
     <AssemblyMetadata Include="SkinsRoot"
                       Value="$(MSBuildThisFileDirectory)../../Source/UI/Skins" />
+    <AssemblyMetadata Include="UiSourceRoot"
+                      Value="$(MSBuildThisFileDirectory)../../Source/UI" />
   </ItemGroup>
 
   <ItemGroup>
