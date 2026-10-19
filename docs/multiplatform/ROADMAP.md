@@ -3284,6 +3284,53 @@ live-server step counts nothing yet: its database is empty by design, so the rea
 the server's own tests over a mocked library and the pixels by the scripted frame - the day the gate gets a
 seeded database, the browse screen is the one that will thank it.
 
+### ay. News: the screen that talks to the internet instead of the server
+
+Eleven of the menu's entries ask the MP2 server something. News never did, not even in the old MP2: the news
+plugin ran on the television, downloaded MediaPortal's own feed list from `install.team-mediaportal.com`, picked
+the region for the interface language, and fetched the RSS itself. The server never had a news endpoint, so this
+screen is the one place in the front end that opens a socket to somebody else's machine - and that is on the
+record in its header comment rather than hidden, because a rule as clean as "the front end talks to the server
+and nothing else" should say out loud where it bends and why.
+
+The screen is the plugin's shape: the feeds down the left, their headlines in the middle, the selected story on
+the right. The feed list is fetched in the old plugin's culture ladder - the exact culture (`de-AT`), then the
+two-letter language (`de`), then English - and the ladder is a static function so that a test can be somebody
+from Vienna without anybody in the build being Austrian. Every feed is read the moment the window opens, because
+a screen called "News" that waits for a button is a screen that says the news is over; the old plugin's
+fifteen-minute background timer did not come along, since a screen open for ninety seconds of a television's
+evening does not need a clock of its own.
+
+**A refused feed is said, not swallowed.** Each feed answers on its own - `NewsFeedAnswer` is headlines *or* the
+reason - and the merged list is exactly what answered, newest first, with the undated items last rather than
+first: a feed that gives no date is not claiming to be the newest story on the internet. One paper answering
+with a 500 costs the viewer nothing of what the other two delivered, and buys itself a row of its own saying
+`500 Internal Server Error` and a name in the status line, `3 headlines from 2 of 3 feeds - refused: Dead Paper
+(500 Internal Server Error)`. A single try/catch around the whole refresh would have made one dead newspaper a
+blank screen, which is the failure mode this screen's whole design exists to avoid. Summaries arrive as HTML -
+feeds bury their words in paragraphs and links - so tags are stripped, entities decoded and whitespace collapsed
+before anything reaches a row, and when a feed carries both a summary and the full content, the content wins, as
+it did in the old reader.
+
+**Proof.** Eight new tests took the suite from 1000 to 1008, all green, and nothing in them touches the
+internet: the culture ladder climbs all three rungs of a feed list written inside the test, RSS 2.0 and Atom both
+become headlines with the right dates and stripped words, the refusing feed is named while the others still
+speak, the merged order is newest-first with the undated item last and "no date" printed rather than a
+placeholder, selecting a paper narrows the column without fetching again, and the tile stopped apologising -
+`News` now routes to a screen with no reason attached, which is true in a way no other tile is: it opens with a
+server, without one, and without any media at all. That made the fourth front-end-owned screen, and the menu
+tests that counted three became four; the render probe's continue frame counts six openable entries where it
+once counted five. The probe gained a `news` frame drawn from a *scripted internet* - the real XML shape, one RSS
+feed, one Atom feed, and one address that answers 500 - so the frame pictures the screen's best day and its
+ugliest honest one at once, and its picture shows the feed row carrying `500 Internal Server Error` beside two
+rows carrying counts.
+
+**What this is not yet.** Feed editing: the old plugin had a settings dialog for adding feeds by hand, and this
+screen reads MediaPortal's list only - an honest v1, since the alternative is a settings screen for a
+configuration API the server does not have. No icons, no cache, no background refresh; a story panel that shows
+the feed's own words, not the whole article behind the link, because fetching every linked page to read a
+screenful is not a thing a television should do.
+
 
 ## What cannot be verified without the user
 

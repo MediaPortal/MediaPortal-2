@@ -130,9 +130,10 @@ namespace MediaPortal.Frontend.ViewModels
     /// here where a reader can have it:
     /// <c>TV</c> and <c>Radio</c> because live television and radio came from the TV service, which was removed from
     /// this tree (commit 029a262aa4) and nothing serves it since; <c>Settings</c> because the server keeps its
-    /// configuration behind a .NET Remoting interface the new API has not grown an equivalent of yet; <c>News</c>,
-    /// <c>Weather</c>,
-    /// <c>Party music player</c> and <c>Utilities</c> because those four are still written against the old skin
+    /// configuration behind a .NET Remoting interface the new API has not grown an equivalent of yet; <c>News</c>
+    /// used to be on that list too, until the front end grew its own news screen and started reading the same
+    /// feeds the old plugin read; <c>Weather</c>,
+    /// <c>Party music player</c> and <c>Utilities</c> because those three are still written against the old skin
     /// engine this front end replaced - their plugins are in this tree, their screens are not.
     /// </para>
     /// <para>
@@ -186,7 +187,7 @@ namespace MediaPortal.Frontend.ViewModels
         ("Home->Latest Media", "[Media.LatestMediaMenuItem]", "Latest media", new[] { "VideoItem" },
             "the newest titles first", null, null, ("added", true)),
         ("Home->News", "[News.Title]", "News", Array.Empty<string>(),
-            "the headlines", "its screen is still old skin", null, null),
+            "the headlines", null, "news", null),
         ("Home->SlimTvClient", "[SlimTvClient.Tv]", "TV", Array.Empty<string>(),
             "live television and the programme guide", "no TV backend", null, null),
         ("Home->SlimTvClientRadio", "[SlimTvClient.Radio]", "Radio", Array.Empty<string>(),

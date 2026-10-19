@@ -226,6 +226,10 @@ namespace FrontendProbe
       ConnectionViewModel? connection = null;
       FoldersViewModel? foldersScreen = null;
 
+      // Set when the frame to render is the news screen. The read it starts when the window opens is waited for
+      // before the picture is taken, and its scripted internet lives in this file rather than out there.
+      NewsViewModel? newsScreen = null;
+
       // Set when the library screen lists what a running server really holds. The frame is then somebody's own
       // shelf with the pictures the importer found on it, which is the one frame that says the whole road works.
       MediaBrowserViewModel? browserScreen = null;
@@ -353,18 +357,18 @@ namespace FrontendProbe
               + " tile(s), but the script offers two parts of the library a viewer can watch.");
           return 1;
         }
-        if (home.Menu.Count(entry => entry.Openable) != 5)
+        if (home.Menu.Count(entry => entry.Openable) != 6)
         {
           // The screen does not draw `Sections` any more, it draws the menu built from them, so this is the check
           // that belongs to the picture: the two parts the script offers have to be the two entries a viewer can
           // open, and the seven the script cannot fill have to be saying so rather than being missing. The other
-          // three openable entries are the folders screen, the pictures screen and the browse screen, all of
-          // which are openable whatever the server holds - one reads the folders the library was built from, one
-          // walks the shares, and the third asks the server to group whatever it turns out to hold; none needs a
-          // title to have been imported.
+          // four openable entries are the folders screen, the pictures screen, the browse screen and the news
+          // screen, all of which are openable whatever the server holds - one reads the folders the library was
+          // built from, one walks the shares, the third asks the server to group whatever it turns out to hold,
+          // and the fourth asks the internet instead; none needs a title to have been imported.
           Console.WriteLine("FAILED:   " + home.Menu.Count(entry => entry.Openable)
               + " openable menu entr(ies) of " + home.Menu.Count
-              + "; expected two plus the folders, pictures and browse screens, because"
+              + "; expected two plus the folders, pictures, browse and news screens, because"
               + " the script offers two parts of the library a viewer can watch.");
           return 1;
         }
@@ -593,10 +597,23 @@ namespace FrontendProbe
 
         window = new BrowseWindow(browse);
       }
+      else if (screenName.Equals("news", StringComparison.Ordinal))
+      {
+        // The news screen, with the internet scripted. Not because fetching is expensive but because a frame and
+        // a gate must say the same thing on every machine that runs them: a gate that drew whatever
+        // install.team-mediaportal.com happened to serve today would fail on a Tuesday when the foundation
+        // repapered its feed list, and a frame of a screen with no internet is a frame of an empty list. The
+        // script serves the real XML shape, one RSS feed, one Atom feed and one refusal, so the frame shows the
+        // columns full, the merged order, and a feed row carrying a 500 - which is the screen's best day and its
+        // worst one at the same time.
+        newsScreen = new NewsViewModel(
+            new NewsApiClient(new HttpClient(new ScriptedNews())), "en");
+        window = new NewsWindow(newsScreen);
+      }
       else
       {
         return Usage("unknown screen '" + screenName + "'; this probe renders home, continue, nowplaying, connect,"
-            + " browser, details, search, seen, folders, pictures or browse.");
+            + " browser, details, search, seen, folders, pictures, browse or news.");
       }
 
       window.Width = width;
@@ -828,6 +845,35 @@ namespace FrontendProbe
       }
 
       Console.WriteLine("screen:   " + screenName);
+      if (newsScreen != null)
+      {
+        // The window started reading when it opened - that is the screen's own doing, not the probe's, and this
+        // wait is the proof. The picture is then taken with the columns full and the refusal in place.
+        if (!PumpUntil(delegate { return newsScreen.Feeds.Count == 4 && !newsScreen.IsBusy; },
+            TimeSpan.FromSeconds(10)))
+        {
+          Console.WriteLine("FAILED:   the news screen never listed the feeds it was served. Status: "
+              + newsScreen.Status);
+          return 1;
+        }
+
+        Console.WriteLine("content:  " + newsScreen.Headlines.Count + " headline(s), feeds: "
+            + string.Join(", ", newsScreen.Feeds.Select(feed => feed.Name + (feed.State.Length > 0
+                ? " [" + feed.State + "]" : ""))) + ", status: " + newsScreen.Status);
+        if (newsScreen.Headlines.Count != 3)
+        {
+          Console.WriteLine("FAILED:   the merged column shows " + newsScreen.Headlines.Count
+              + " headline(s); the script serves three across the two feeds that answer, and the third feed's"
+              + " refusal must cost nothing of them.");
+          return 1;
+        }
+        if (!newsScreen.Status.Contains("Dead Paper", StringComparison.Ordinal))
+        {
+          Console.WriteLine("FAILED:   the status line does not name the refusing feed; a screen that swallows"
+              + " a refusal swallows the difference between one dead paper and no papers at all.");
+          return 1;
+        }
+      }
       if (home != null)
       {
         // The picture has to be taken after the screen has finished reading, not while it is reading: caught here
@@ -1568,6 +1614,71 @@ namespace FrontendProbe
         {
           RequestMessage = request,
           Content = new StringContent(body, Encoding.UTF8, "application/json")
+        });
+      }
+    }
+
+    /// <summary>
+    /// The internet as the news frame needs it: MediaPortal's feed list in the shape the real one has, one RSS
+    /// feed, one Atom feed, and one address that refuses with a 500 so that the frame pictures the screen's
+    /// ugliest honest state next to its best one.
+    /// </summary>
+    private sealed class ScriptedNews : HttpMessageHandler
+    {
+      private const string FEEDS_XML = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<RegionalFeeds>
+  <Region Code=""en""><Feeds>
+    <Feed Name=""TV Weekly"">http://127.0.0.1:1/feeds/tv.rss</Feed>
+    <Feed Name=""Tech Wire"">http://127.0.0.1:1/feeds/tech.atom</Feed>
+    <Feed Name=""Dead Paper"">http://127.0.0.1:1/feeds/dead</Feed>
+  </Feeds></Region>
+</RegionalFeeds>";
+
+      private const string TV_RSS = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<rss version=""2.0""><channel>
+<title>TV Weekly</title><link>http://127.0.0.1:1/</link><description>What is on tonight</description>
+<item><title>Series returns for a final season</title><pubDate>Fri, 02 Jan 2026 08:00:00 GMT</pubDate>
+<description><![CDATA[<p>The cast returned <b>in full</b> &amp; filmed the whole season</p>]]></description></item>
+<item><title>Notes without a date</title><description>An item the feed forgot to date</description></item>
+</channel></rss>";
+
+      private const string TECH_ATOM = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<feed xmlns=""http://www.w3.org/2005/Atom"">
+<title>Tech Wire</title><updated>2026-01-03T10:00:00Z</updated>
+<entry>
+  <title>New player ships with hardware decoding</title>
+  <id>urn:uuid:6d67e0f1-3a1d-4c2e-9a11-0f9e8d7c6b5a</id>
+  <published>2026-01-03T10:00:00Z</published>
+  <updated>2026-01-03T11:00:00Z</updated>
+  <summary>Just the summary</summary>
+  <content type=""text"">The player decodes the big files on its own chip now</content>
+</entry>
+</feed>";
+
+      protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+          CancellationToken cancellation)
+      {
+        string path = request.RequestUri!.AbsolutePath;
+        if (path.EndsWith("/dead", StringComparison.Ordinal))
+        {
+          return Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError)
+          {
+            RequestMessage = request,
+            Content = new StringContent("gone", Encoding.UTF8, "text/plain")
+          });
+        }
+
+        string body = path.EndsWith("/DefaultFeeds.xml", StringComparison.Ordinal) ? FEEDS_XML
+            : path.EndsWith("/tv.rss", StringComparison.Ordinal) ? TV_RSS
+            : path.EndsWith("/tech.atom", StringComparison.Ordinal) ? TECH_ATOM
+            : null!;
+        if (body == null)
+          return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound) { RequestMessage = request });
+
+        return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+        {
+          RequestMessage = request,
+          Content = new StringContent(body, Encoding.UTF8, "application/rss+xml")
         });
       }
     }

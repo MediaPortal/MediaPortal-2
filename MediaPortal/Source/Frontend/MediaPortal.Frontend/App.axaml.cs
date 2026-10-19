@@ -458,6 +458,13 @@ namespace MediaPortal.Frontend
             delegate (HomeSection section) { return BuildBrowserScreen(section); });
       }
 
+      if (screenKey.Equals("news", StringComparison.OrdinalIgnoreCase))
+      {
+        // No server in sight: the news is not the server's data, and the old plugin read it from the television
+        // too. What the screen needs is an address to ask, and the feeds answer it themselves.
+        return new NewsWindow(new NewsViewModel(new NewsApiClient()));
+      }
+
       // A tile naming a screen nobody builds is a mismatch between the menu and this method, which is a bug in the
       // front end rather than something the viewer can do anything about.
       throw new InvalidOperationException(

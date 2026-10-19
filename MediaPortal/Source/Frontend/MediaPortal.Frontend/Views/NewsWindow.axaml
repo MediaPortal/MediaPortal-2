@@ -1,0 +1,99 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        x:Class="MediaPortal.Frontend.Views.NewsWindow"
+        x:DataType="vm:NewsViewModel"
+        Name="news"
+        Width="1280" Height="720"
+        WindowState="Maximized"
+        Background="{DynamicResource ScreenBackgroundBrush}"
+        Title="MediaPortal 2 - News">
+
+  <!--
+    The news, from the feeds MediaPortal chooses for the viewer's language. Two lists and the story: the papers
+    on the left with what each answered, the headlines in the middle newest first, and the words of the selected
+    headline on the right where there is room for a sentence to end.
+  -->
+
+  <DockPanel Margin="48,36">
+
+    <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,20">
+      <TextBlock Text="News"
+                 FontSize="40"
+                 FontWeight="SemiBold" />
+      <TextBlock Text="MediaPortal's own feed list, read the moment this screen opens"
+                 FontSize="18"
+                 Opacity="0.7"
+                 TextWrapping="Wrap"
+                 MaxWidth="1500"
+                 HorizontalAlignment="Left" />
+    </StackPanel>
+
+    <TextBlock DockPanel.Dock="Bottom"
+               Name="statusLine"
+               Text="{Binding Status}"
+               FontSize="20"
+               Opacity="0.85"
+               Margin="0,18,0,0"
+               TextWrapping="Wrap" />
+
+    <Grid ColumnDefinitions="260,*,460" ColumnSpacing="30">
+
+      <ListBox Name="feedsList"
+               Focusable="True"
+               ItemsSource="{Binding Feeds}"
+               SelectedItem="{Binding SelectedFeed, Mode=TwoWay}"
+               FontSize="20">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="vm:NewsFeedRow">
+            <StackPanel Spacing="2" Margin="4,8">
+              <TextBlock Text="{Binding Name}" FontSize="22" TextWrapping="Wrap" />
+              <TextBlock Text="{Binding State}" FontSize="16" Opacity="0.6" TextWrapping="Wrap" />
+            </StackPanel>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+
+      <ListBox Name="headlinesList"
+               Grid.Column="1"
+               Focusable="True"
+               ItemsSource="{Binding Headlines}"
+               SelectedItem="{Binding SelectedHeadline, Mode=TwoWay}"
+               FontSize="20">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="vm:NewsHeadlineRow">
+            <StackPanel Spacing="2" Margin="4,8">
+              <TextBlock Text="{Binding Title}" FontSize="21" TextWrapping="Wrap" />
+              <StackPanel Orientation="Horizontal" Spacing="14">
+                <TextBlock Text="{Binding FeedName}" FontSize="16" Opacity="0.6" />
+                <TextBlock Text="{Binding DateText}" FontSize="16" Opacity="0.45" />
+              </StackPanel>
+            </StackPanel>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+
+      <!-- The story panel: not a third list but the third question - after who and what, the words. It says what
+           there is nothing to say, because an empty half of the screen reads as a broken one. -->
+      <StackPanel Grid.Column="2" Spacing="10">
+        <TextBlock Text="{Binding SelectedHeadline.Title}"
+                   FontSize="26"
+                   FontWeight="SemiBold"
+                   TextWrapping="Wrap" />
+        <TextBlock Text="{Binding SelectedHeadline.FeedName}"
+                   FontSize="18"
+                   Opacity="0.6" />
+        <TextBlock Text="{Binding SelectedHeadline.Summary}"
+                   FontSize="20"
+                   Opacity="0.85"
+                   TextWrapping="Wrap"
+                   MaxHeight="480"
+                   TextTrimming="CharacterEllipsis" />
+        <TextBlock Text="Nothing is selected - a headline on the middle shows its words here"
+                   FontSize="18"
+                   Opacity="0.5"
+                   IsVisible="{Binding SelectedHeadline, Converter={x:Static ObjectConverters.IsNull}}" />
+      </StackPanel>
+    </Grid>
+  </DockPanel>
+</Window>
