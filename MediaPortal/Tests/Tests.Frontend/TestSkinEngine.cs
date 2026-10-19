@@ -180,6 +180,32 @@ namespace Tests.Frontend
     }
 
     [AvaloniaTest]
+    public void BothShippedSkinsAnswerTheDialogFrame()
+    {
+      // A dialog names the frame it stands on the way a list names its tiles and the playback screen names
+      // its bar, and both shipped skins have to answer: a dialog the worn skin dresses on one skin and not on
+      // the next is exactly the complaint the view-switcher once was. The two answers are meant to look
+      // different - Nereus keeps its corners square until the dialog corner flag exists, WMC rounds by its
+      // own DialogBorderCornerRadius and trims the card with the accent - and the default palette answers
+      // nothing, so a machine wearing no skin keeps the frame the dialog's own view was written with.
+      Application app = Application.Current!;
+
+      Assert.That(SkinEngine.Apply(app, "nereus", out string? nereusProblem), Is.True, nereusProblem ?? "applied");
+      Assert.That(Find(app, "DialogFrameTemplate"),
+          Is.InstanceOf<Avalonia.Controls.Templates.IDataTemplate>(),
+          "Nereus frames a dialog the way its dialog master did: a dark slab, outlined, square");
+
+      Assert.That(SkinEngine.Apply(app, "wmc", out string? wmcProblem), Is.True, wmcProblem ?? "applied");
+      Assert.That(Find(app, "DialogFrameTemplate"),
+          Is.InstanceOf<Avalonia.Controls.Templates.IDataTemplate>(),
+          "and WMC wears its own answer to the same key, its rounded card rather than Nereus' slab");
+
+      FrontendTheme.Apply(app, FrontendTheme.DEFAULT_NAME, out _);
+      Assert.That(Find(app, "DialogFrameTemplate"), Is.Null,
+          "the default theme keeps silent about dialog frames, and the dialog draws what it was written with");
+    }
+
+    [AvaloniaTest]
     public void BothShippedSkinsCarryTheTransportPicturesThePlaybackBarWears()
     {
       // Both bars say the state of play with the skin's own two pictures, asked by the name this front end

@@ -502,4 +502,25 @@
     </Border>
   </DataTemplate>
 
+  <!--
+    The dialog frame: the card a dialog stands on. WMC's dialogs were rounded boxes, and this skin's own
+    DialogBorderCornerRadius is the measurement of that roundness; the accent edge along the bottom is the
+    trim its bands - the settings rows, the home tiles - already wear. Like the rest of its bands the frame
+    frames whatever a screen opens and no view model's property bag, so this is the one template in the file
+    that names no view model: it is pinned to Object and its single pathless binding only passes the dialog's
+    own body through.
+  -->
+  <DataTemplate x:Key="DialogFrameTemplate" x:DataType="x:Object">
+    <Border Background="{DynamicResource PanelBrush}"
+            BorderBrush="{DynamicResource AccentBrush}"
+            BorderThickness="0,0,0,3"
+            CornerRadius="{DynamicResource DialogBorderCornerRadius}"
+            Padding="28,22"
+            MaxWidth="760"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center">
+      <ContentPresenter Content="{Binding}"/>
+    </Border>
+  </DataTemplate>
+
 </ResourceDictionary>
