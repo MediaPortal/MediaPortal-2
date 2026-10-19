@@ -54,9 +54,9 @@ namespace MediaPortal.Frontend
         "                   picture works, and asking for a scene that has one is the only honest test.\n" +
         "  --shot <file>  with --play, save a photograph of what the screen itself drew to that PNG before\n" +
         "                   leaving. Counters can be wrong about a picture; this is the picture.\n" +
-        "  --theme <name> draw with the colours of one of the old skins: " + FrontendTheme.DEFAULT_NAME
-            + ", nereus, wmc,\n" +
-        "                   wmc-dark or wmc-turquoise (otherwise MP2_THEME, otherwise "
+        "  --theme <name> wear one of the three skins the front end knows: " + FrontendTheme.DEFAULT_NAME
+            + ", nereus or wmc\n" +
+        "                   (otherwise MP2_THEME, otherwise "
             + FrontendTheme.DEFAULT_NAME + ").\n" +
         "                   An unknown name is said out loud and the colours you always had are used.";
 

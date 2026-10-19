@@ -1,4 +1,4 @@
-/*
+﻿/*
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -70,17 +70,7 @@ namespace Tests.Frontend
     private static readonly Dictionary<string, string[]> SKIN_FILES = new Dictionary<string, string[]>
     {
         ["nereus"] = new[] { "Nereus/Skin/Nereus/themes/default/styles/Colors.xaml" },
-        ["wmc"] = new[] { "WMC/Skin/WMCSkin/themes/default/styles/Colors.xaml" },
-        ["wmc-dark"] = new[]
-        {
-            "WMC/Skin/WMCSkin/themes/Dark-WMC/styles/Colors.xaml",
-            "WMC/Skin/WMCSkin/themes/default/styles/Colors.xaml"
-        },
-        ["wmc-turquoise"] = new[]
-        {
-            "WMC/Skin/WMCSkin/themes/Turquoise-WMC/styles/Colors.xaml",
-            "WMC/Skin/WMCSkin/themes/default/styles/Colors.xaml"
-        }
+        ["wmc"] = new[] { "WMC/Skin/WMCSkin/themes/default/styles/Colors.xaml" }
     };
 
     /// <summary>
@@ -89,9 +79,7 @@ namespace Tests.Frontend
     /// </summary>
     private static readonly Dictionary<string, string> NOT_FROM_A_SKIN = new Dictionary<string, string>
     {
-        ["wmc|WarningBrush"] = "WMC had no colour for a complaint, so the front end's own amber stands",
-        ["wmc-dark|WarningBrush"] = "WMC had no colour for a complaint, so the front end's own amber stands",
-        ["wmc-turquoise|WarningBrush"] = "WMC had no colour for a complaint, so the front end's own amber stands"
+        ["wmc|WarningBrush"] = "WMC had no colour for a complaint, so the front end's own amber stands"
     };
 
     [TearDown]
@@ -166,13 +154,6 @@ namespace Tests.Frontend
           Hex(FrontendTheme.DEFAULT_NAME, "AccentBrush"), Hex("nereus", "AccentBrush"), Hex("wmc", "AccentBrush")
       };
       Assert.That(seen.Distinct().Count(), Is.EqualTo(3), "two skins share an accent, so one is not a skin");
-
-      // The WMC variants are the same skin with a different colour family, so they keep that skin's background on
-      // purpose and differ where the family shows.
-      Assert.That(Hex("wmc-dark", "ScreenBackgroundBrush"), Is.EqualTo(Hex("wmc", "ScreenBackgroundBrush")));
-      Assert.That(Hex("wmc-dark", "AccentBrush"), Is.Not.EqualTo(Hex("wmc", "AccentBrush")));
-      Assert.That(Hex("wmc-turquoise", "AccentBrush"), Is.Not.EqualTo(Hex("wmc", "AccentBrush")));
-      Assert.That(Hex("wmc-turquoise", "PanelBrush"), Is.Not.EqualTo(Hex("wmc-dark", "PanelBrush")));
     }
 
     [Test]
@@ -209,15 +190,15 @@ namespace Tests.Frontend
       Assert.That(FrontendTheme.CurrentName(app), Is.EqualTo("nereus"));
       Assert.That(Resolved(app, "AccentBrush"), Is.EqualTo(FrontendTheme.ColorOf("nereus", "AccentBrush")));
 
-      FrontendTheme.Apply(app, "wmc-dark", out problem);
+      FrontendTheme.Apply(app, "wmc", out problem);
       Assert.That(problem, Is.Null);
 
       // The point of the test: the second palette replaced the first instead of being stacked under it. A stacked
       // dictionary would answer the accent from the newer theme and everything else from the older one, which looks
       // on a television like a theme that only half applied itself.
-      Assert.That(FrontendTheme.CurrentName(app), Is.EqualTo("wmc-dark"));
+      Assert.That(FrontendTheme.CurrentName(app), Is.EqualTo("wmc"));
       foreach (string key in FrontendTheme.Keys)
-        Assert.That(Resolved(app, key), Is.EqualTo(FrontendTheme.ColorOf("wmc-dark", key)),
+        Assert.That(Resolved(app, key), Is.EqualTo(FrontendTheme.ColorOf("wmc", key)),
             key + " still resolves to the theme that was applied before it");
     }
 
@@ -328,18 +309,26 @@ namespace Tests.Frontend
         Assert.That(FrontendTheme.SelectedName(null, "nereus"), Is.EqualTo("wmc"),
             "the environment is a voice raised about this particular run; a choice made earlier on the couch "
             + "does not shout it down");
-        Assert.That(FrontendTheme.SelectedName("nereus-red", "wmc-dark"), Is.EqualTo("nereus-red"),
+        Assert.That(FrontendTheme.SelectedName("nereus", "wmc"), Is.EqualTo("nereus"),
             "and whoever typed --theme outranks both");
 
         Environment.SetEnvironmentVariable(FrontendTheme.ENVIRONMENT_VARIABLE, "");
-        Assert.That(FrontendTheme.SelectedName(null, "nereus-red"), Is.EqualTo("nereus-red"),
+        Assert.That(FrontendTheme.SelectedName(null, "nereus"), Is.EqualTo("nereus"),
             "with nothing said about this run, the choice the viewer made on the screen is what gets worn");
-        Assert.That(FrontendTheme.SelectedName("  nereus-RED ", ""), Is.EqualTo("nereus-red"),
+        Assert.That(FrontendTheme.SelectedName("  NEREUS ", ""), Is.EqualTo("nereus"),
             "however it was spelled, a palette is answered as Names spells it");
         Assert.That(FrontendTheme.SelectedName(null, "   "), Is.EqualTo(FrontendTheme.DEFAULT_NAME),
             "a file that names nothing is nobody having chosen");
+
+        // A retired name was one skin in another tint. The tint was the skin's own setting, not a skin, so the
+        // file's owner now wears that skin in its shipped colours instead of losing their choice to a typo list.
+        Assert.That(FrontendTheme.SelectedName(null, "wmc-dark"), Is.EqualTo("wmc"),
+            "yesterday's 'wmc-dark' is today's WMC skin, not a complaint");
+        Assert.That(FrontendTheme.SelectedName(null, "nereus-red"), Is.EqualTo("nereus"),
+            "and yesterday's accent family is today's Nereus");
+
         Assert.That(FrontendTheme.SelectedName(null, "nereus-pink"), Is.EqualTo("nereus-pink"),
-            "a name that is no palette travels through untouched, so that Apply can quote it in its sentence "
+            "a name that was never a palette travels through untouched, so that Apply can quote it in its sentence "
             + "rather than quietly wearing the default");
       }
       finally
@@ -387,23 +376,23 @@ namespace Tests.Frontend
             + "the saved choice");
         Assert.That(settings.Themes.Single(choice => choice.IsCurrent).Name, Is.EqualTo(FrontendTheme.CurrentName(app)));
 
-        settings.Selected = settings.Themes.First(choice => choice.Name == "wmc-turquoise");
-        Assert.That(FrontendTheme.CurrentName(app), Is.EqualTo("wmc-turquoise"),
+        settings.Selected = settings.Themes.First(choice => choice.Name == "wmc");
+        Assert.That(FrontendTheme.CurrentName(app), Is.EqualTo("wmc"),
             "selecting is applying - there is no second button to press, and the screen itself repaints");
-        Assert.That(settings.Status, Does.StartWith("Wearing wmc-turquoise"));
-        Assert.That(settings.Themes.Single(choice => choice.IsCurrent).Name, Is.EqualTo("wmc-turquoise"),
+        Assert.That(settings.Status, Does.StartWith("Wearing wmc"));
+        Assert.That(settings.Themes.Single(choice => choice.IsCurrent).Name, Is.EqualTo("wmc"),
             "the marker moves with the theme, so the screen never claims two are worn");
 
         // The restart the viewer believes in: a new application would ask SelectedName, and SelectedName asks
         // this file. Here both halves are checked without pretending to restart the process.
         ThemeSettings onDisk = ThemeSettings.Load(file, out string? readProblem);
         Assert.That(readProblem, Is.Null, "a file this screen just wrote should read back cleanly");
-        Assert.That(onDisk.Theme, Is.EqualTo("wmc-turquoise"));
-        Assert.That(FrontendTheme.SelectedName(null, onDisk.Theme), Is.EqualTo("wmc-turquoise"),
+        Assert.That(onDisk.Theme, Is.EqualTo("wmc"));
+        Assert.That(FrontendTheme.SelectedName(null, onDisk.Theme), Is.EqualTo("wmc"),
             "and it would be worn again at the next start");
 
         ThemeViewModel secondVisit = new ThemeViewModel(app, file);
-        Assert.That(secondVisit.Selected!.Name, Is.EqualTo("wmc-turquoise"),
+        Assert.That(secondVisit.Selected!.Name, Is.EqualTo("wmc"),
             "backing out of the screen and coming back shows the choice, not where the viewer started");
       }
       finally
@@ -493,35 +482,27 @@ namespace Tests.Frontend
     }
 
     [Test]
-    public void ANereusFamilyIsNereusInAnotherTintAndNothingElse()
+    public void ARetiredNameIsNotALostChoice()
     {
-      // The families were a colour choice in the skin, not a different skin: a family palette may change only
-      // the three keys Nereus itself tinted with the family (the two panel shades and the accent) and has to
-      // leave every other key - including the orange of a complaint - exactly where the base palette puts it.
-      string[] tinted = { "AccentBrush", "PanelBrush", "PanelRaisedBrush" };
-
-      foreach (string family in new[]
+      // The eight retired names were never skins: they were one of the two real skins in another tint, which the
+      // reference kept as a setting of the skin. A viewer whose saved file still names one must not come back to
+      // a factory screen - the name resolves to its skin, in the colours that skin shipped, until the tint comes
+      // back as the skin setting it was.
+      foreach (string retired in new[]
       {
           "nereus-blue", "nereus-green", "nereus-orange", "nereus-purple", "nereus-red", "nereus-yellow"
       })
-      {
-        foreach (string key in FrontendTheme.Keys)
-        {
-          Color mine = FrontendTheme.ColorOf(family, key);
-          Color baseColour = FrontendTheme.ColorOf("nereus", key);
-          if (tinted.Contains(key))
-            Assert.That(mine, Is.Not.EqualTo(baseColour), family + "." + key + " is still the base palette's colour");
-          else
-            Assert.That(mine, Is.EqualTo(baseColour), family + "." + key + " was retinted; the family is a "
-                + "colour choice, not a second skin");
-        }
-      }
+        Assert.That(FrontendTheme.SelectedName(null, retired), Is.EqualTo("nereus"),
+            retired + " is Nereus in a tint, and the tint is a setting, not a choice of skin");
 
-      // And the families are seven different accents, not one accent spelled seven ways.
-      int distinct = new[] { "nereus", "nereus-blue", "nereus-green", "nereus-orange", "nereus-purple",
-          "nereus-red", "nereus-yellow" }
-          .Select(name => FrontendTheme.ColorOf(name, "AccentBrush")).Distinct().Count();
-      Assert.That(distinct, Is.EqualTo(7), "seven families that answer with the same colour are one family");
+      Assert.That(FrontendTheme.SelectedName(null, "wmc-dark"), Is.EqualTo("wmc"));
+      Assert.That(FrontendTheme.SelectedName(null, "wmc-turquoise"), Is.EqualTo("wmc"));
+
+      // And none of them is on the list anybody can pick: the picker says three, and three it is.
+      Assert.That(FrontendTheme.Names.Length, Is.EqualTo(3),
+          "the reference had one default look and two skins; the list says exactly that");
+      foreach (string retired in new[] { "nereus-blue", "wmc-dark", "wmc-turquoise" })
+        Assert.That(FrontendTheme.Names, Does.Not.Contain(retired));
     }
 
     [Test]

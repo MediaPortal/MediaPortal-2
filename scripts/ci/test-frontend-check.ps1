@@ -344,17 +344,17 @@ try {
         # what the frame stands on - so a palette that was applied to the application but never asked for by a screen
         # fails here rather than looking fine.
         @{ Name = 'nowplaying-nereus'; Arguments = '--screen nowplaying --theme nereus' },
-        @{ Name = 'nowplaying-wmc-dark'; Arguments = '--screen nowplaying --theme wmc-dark' },
+        @{ Name = 'nowplaying-wmc'; Arguments = '--screen nowplaying --theme wmc' },
         # The home screen in the two skins' colours is now one of these frames after all, and it is a frame about a
         # different claim than colour: both skins ship a templates file that redraws the home menu's tiles, and the
         # probe asks the on-screen list which tree it is drawing its items from while the picture is on. A skin that
         # only ever changed colours would pass every other frame and fail here.
         @{ Name = 'home-nereus'; Arguments = '--screen home --theme nereus' },
-        @{ Name = 'home-wmc-dark'; Arguments = '--screen home --theme wmc-dark' },
-        # The settings screen, wearing Nereus, is the frame that says the palettes are not a table in a binary
+        @{ Name = 'home-wmc'; Arguments = '--screen home --theme wmc' },
+        # The settings screen, wearing Nereus, is the frame that says the skins are not a table in a binary
         # but pixels on a television: every row paints its own accent as a swatch, and the probe counts the
-        # accents by name - eleven palettes, eleven accent colours looked for by hex, each needing a painted
-        # row. It is drawn with a theme other than its rows' colours on purpose: what a viewer picks on this
+        # accents by name - the three the front end knows, each needing a painted
+        # row. It is drawn with a skin other than its rows' colours on purpose: what a viewer picks on this
         # screen must survive being looked at through somebody else's colours.
         @{ Name = 'settings-nereus'; Arguments = '--screen settings --theme nereus' }
       )

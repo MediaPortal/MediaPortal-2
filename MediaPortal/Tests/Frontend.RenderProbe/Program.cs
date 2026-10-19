@@ -71,8 +71,8 @@ namespace FrontendProbe
         "  --server <url>   render the populated screen by asking this server (otherwise MP2_SERVER,\n" +
         "                   otherwise the screen's own 'no server' state is rendered - a real state too)\n" +
         "  --aspect <name>  which aspect the library screen lists when a server was given (default MovieItem)\n" +
-        "  --theme <name>   draw the frame with the colours of one of the old skins: default, nereus and its\n" +
-        "                   six nereus-<family> tints, wmc, wmc-dark or wmc-turquoise. A name that is not one\n" +
+        "  --theme <name> draw the frame wearing one of the three skins: default, nereus or wmc.\n" +
+        "                   A name that is not one\n" +
         "                   of those stops the run instead of quietly drawing the colours you always had,\n" +
         "                   because a gate that asked for one theme and was given another would report a pass\n" +
         "                   for a picture it never looked at\n" +
@@ -119,8 +119,7 @@ namespace FrontendProbe
             break;
           case "--theme":
             if (i + 1 >= args.Length)
-              return Usage("--theme needs a palette name: default, nereus, nereus-blue, ..., wmc, wmc-dark, "
-                  + "wmc-turquoise.");
+              return Usage("--theme needs a skin name: default, nereus or wmc.");
             theme = args[++i];
             break;
           case "--width":

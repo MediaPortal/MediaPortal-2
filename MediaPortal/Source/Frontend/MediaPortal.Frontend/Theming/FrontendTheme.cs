@@ -37,21 +37,23 @@ namespace MediaPortal.Frontend.Theming
   /// <c>DarkBlue1</c> tells the next reader nothing about why the video surface is the darkest thing on screen.
   /// </para>
   /// <para>
-  /// <b>Where the palettes come from.</b> <c>nereus</c>, <c>wmc</c>, <c>wmc-dark</c> and <c>wmc-turquoise</c> are
-  /// the skins MP2 shipped, and their colour files are still in this tree
+  /// <b>What may be chosen.</b> Exactly what the reference shipped: this front end's own colours
+  /// (<see cref="DEFAULT_NAME"/>) and the two skins MP2 had - <c>nereus</c> and <c>wmc</c>. There are three and
+  /// there were three; anything else a viewer may once have typed names one of these two skins in another tint
+  /// and is read as that skin (see <c>RETIRED</c>). The colour files are still in this tree
   /// (<c>Source/UI/Skins/Nereus/Skin/Nereus/themes/default/styles/Colors.xaml</c> and
-  /// <c>Source/UI/Skins/WMC/Skin/WMCSkin/themes/{default,Dark-WMC,Turquoise-WMC}/styles/Colors.xaml</c>). Every
+  /// <c>Source/UI/Skins/WMC/Skin/WMCSkin/themes/default/styles/Colors.xaml</c>). Every
   /// value below was read out of one of those files and names the key it came from, so that a viewer who thinks a
   /// colour is wrong can look the same key up in the skin and see which of the two is wrong. Values a screen of
   /// this front end has no use for - the gradients, the button bevels, the scroll bars, the star ratings - stay
-  /// where they are instead of being invented a place to appear. Nereus also offered seven accent families, and
-  /// the six not chosen as the base palette exist as <c>nereus-blue</c> and friends, built by the static
-  /// constructor below from the skin's own Light, Medium and Dark shades of each family.
+  /// where they are instead of being invented a place to appear. A skin's own colours - Nereus's seven accent
+  /// families, WMC's Dark and Turquoise schemes - are <em>settings of the skin</em>, not skins: they belong on
+  /// the skin's settings screen, which is being built, and not in this list.
   /// </para>
   /// <para>
   /// <b>Two kinds of value are not verbatim in a skin, and both say so where they stand.</b> WMC had no colour for a
   /// complaint, so the amber the folders screen shows when a share refuses to be removed stays the front end's own
-  /// in all three of its palettes; and where WMC drew button text with a partly transparent white the front end uses
+  /// in its palette; and where WMC drew button text with a partly transparent white the front end uses
   /// that same white opaque, because the transparency was counted against the panel behind it and this front end's
   /// panels are opaque. Everything else is checked against those files by
   /// <c>EveryColourOfASkinPaletteIsInThatSkin</c> in the tests, so a value that drifts away from the skin it claims
@@ -98,11 +100,10 @@ namespace MediaPortal.Frontend.Theming
     /// </summary>
     public const string CURRENT_KEY = "ThemeName";
 
-    /// <summary>Every palette, in the order a settings screen would list them.</summary>
+    /// <summary>The three that can be worn: this front end's own colours and the two skins MP2 shipped.</summary>
     public static readonly string[] Names =
     {
-        DEFAULT_NAME, "nereus", "nereus-blue", "nereus-green", "nereus-orange", "nereus-purple", "nereus-red",
-        "nereus-yellow", "wmc", "wmc-dark", "wmc-turquoise"
+        DEFAULT_NAME, "nereus", "wmc"
     };
 
     /// <summary>
@@ -180,76 +181,22 @@ namespace MediaPortal.Frontend.Theming
                 ["WarningBrush"] = "#FFFFB74D",            // this front end's own amber; WMC had no colour for a complaint
                 ["ScrimBrush"] = "#66000000",              // SlideMenuUnfocusedColor
                 ["VideoBrush"] = "#FF000000"
-            },
-
-            // The same skin with the blue taken out, which WMC called Dark.
-            ["wmc-dark"] = new Dictionary<string, string>
-            {
-                ["ScreenBackgroundBrush"] = "#FF101010",   // BackgroundGradientDarkColor
-                ["PanelBrush"] = "#F2647887",              // MediaItemBackgroundColor1
-                ["PanelRaisedBrush"] = "#F22F4256",        // MediaItemBackgroundColor2
-                ["PanelPressedBrush"] = "#FF757575",       // WindowHeaderColor
-                ["OutlineBrush"] = "#8CFFFFFF",            // DialogBorderColor, which this theme leaves alone
-                ["VideoOutlineBrush"] = "#80000000",       // ProgressBarBorderColor
-                ["TextBrush"] = "#FFFFFFFF",               // TextColor
-                ["MutedTextBrush"] = "#FFBBBBBB",          // MediaItemUnwatchedColor
-                ["DimTextBrush"] = "#FF5C5C5C",            // MediaItemOfflineColor
-                ["ButtonTextBrush"] = "#FFE0E0E0",         // ButtonStrokeColor, without its alpha
-                ["AccentBrush"] = "#FF757575",             // ProgressBarFillColor
-                ["WarningBrush"] = "#FFFFB74D",            // this front end's own amber; WMC had no colour for a complaint
-                ["ScrimBrush"] = "#66000000",              // SlideMenuUnfocusedColor
-                ["VideoBrush"] = "#FF000000"
-            },
-
-            // ... and the same again with turquoise, the third palette WMC shipped.
-            ["wmc-turquoise"] = new Dictionary<string, string>
-            {
-                ["ScreenBackgroundBrush"] = "#FF101010",   // BackgroundGradientDarkColor
-                ["PanelBrush"] = "#F2166B7A",              // MediaItemBackgroundColor1
-                ["PanelRaisedBrush"] = "#F2053C45",        // MediaItemBackgroundColor2
-                ["PanelPressedBrush"] = "#FF3D8795",       // WindowHeaderColor
-                ["OutlineBrush"] = "#8CFFFFFF",            // DialogBorderColor, which this theme leaves alone
-                ["VideoOutlineBrush"] = "#80000000",       // ProgressBarBorderColor
-                ["TextBrush"] = "#FFFFFFFF",               // TextColor
-                ["MutedTextBrush"] = "#FF3D8795",          // MediaItemUnwatchedColor
-                ["DimTextBrush"] = "#FF33707B",            // MediaItemOfflineColor
-                ["ButtonTextBrush"] = "#FFE0E0E0",         // ButtonStrokeColor, without its alpha
-                ["AccentBrush"] = "#FF3D8795",             // ProgressBarFillColor
-                ["WarningBrush"] = "#FFFFB74D",            // this front end's own amber; WMC had no colour for a complaint
-                ["ScrimBrush"] = "#66000000",              // SlideMenuUnfocusedColor
-                ["VideoBrush"] = "#FF000000"
             }
         };
 
-    static FrontendTheme()
-    {
-      // Nereus offered seven accent families - its colour file lists a Light, a Medium and a Dark shade of each,
-      // and its own settings screen let a viewer pick one - and the rescue had pinned the palette to turquoise,
-      // the first family the file lists. Each family comes back as its own palette here rather than as a second
-      // kind of choice: a family changes the three keys the skin tinted with the accent (the panels take the
-      // Dark and Medium shades, the accent takes the Light one) and leaves everything else - including the
-      // orange of a complaint - exactly where the turquoise palette put it.
-      string[,] families =
-      {
-          { "nereus-blue", "#FF4472C4", "#FF2F5597", "#FF203864" },     // NereusColor{Light,Medium,Dark}_Blue
-          { "nereus-green", "#FF70AD47", "#FF548235", "#FF385723" },    // NereusColor{Light,Medium,Dark}_Green
-          { "nereus-orange", "#FFED7D31", "#FFC55A11", "#FF843C0C" },   // NereusColor{Light,Medium,Dark}_Orange
-          { "nereus-purple", "#FF8758CC", "#FF602FA1", "#FF3B1E66" },   // NereusColor{Light,Medium,Dark}_Purple
-          { "nereus-red", "#FFCC5350", "#FFA03830", "#FF68150C" },      // NereusColor{Light,Medium,Dark}_Red
-          { "nereus-yellow", "#FFD3AC1B", "#FFAE8C0E", "#FF7F6000" }    // NereusColor{Light,Medium,Dark}_Yellow
-      };
-
-      for (int at = 0; at < families.GetLength(0); at++)
-      {
-        Dictionary<string, string> variant = new Dictionary<string, string>(PALETTES["nereus"])
+    /// <summary>
+    /// Names that used to be on the list and are not skins, were never skins: they are one of the two skins in
+    /// another tint, which the reference kept as settings of the skin rather than as choices of its own. A viewer
+    /// whose saved file still says one of these wears that skin in its shipped colours - the tint itself comes back
+    /// as the setting it was, not as a name here.
+    /// </summary>
+    private static readonly Dictionary<string, string> RETIRED =
+        new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            ["AccentBrush"] = families[at, 1],
-            ["PanelRaisedBrush"] = families[at, 2],
-            ["PanelBrush"] = families[at, 3]
+            ["nereus-blue"] = "nereus", ["nereus-green"] = "nereus", ["nereus-orange"] = "nereus",
+            ["nereus-purple"] = "nereus", ["nereus-red"] = "nereus", ["nereus-yellow"] = "nereus",
+            ["wmc-dark"] = "wmc", ["wmc-turquoise"] = "wmc"
         };
-        PALETTES[families[at, 0]] = variant;
-      }
-    }
 
     /// <summary>
     /// Whether <paramref name="name"/> names a palette, ignoring case and surrounding spaces.
@@ -289,7 +236,13 @@ namespace MediaPortal.Frontend.Theming
         return DEFAULT_NAME;
 
       wanted = wanted.Trim();
-      return IsKnown(wanted) ? CanonicalName(wanted) : wanted;
+      if (IsKnown(wanted))
+        return CanonicalName(wanted);
+
+      // A retired name is not an unknown one: it says a skin in another tint, and the skin is real even though
+      // the tint is not on this list. It wears its skin's shipped colours until the tint returns where it
+      // belonged - on the skin's own settings screen.
+      return RETIRED.TryGetValue(wanted, out string? baseName) ? baseName : wanted;
     }
 
     /// <summary>

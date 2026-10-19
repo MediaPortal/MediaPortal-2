@@ -148,22 +148,24 @@ namespace Tests.Frontend
     }
 
     [AvaloniaTest]
-    public void AThemeNameWearsItsSkin()
+    public void ARetiredNameWearsItsSkin()
     {
       Application app = Application.Current!;
-      FrontendTheme.Apply(app, "wmc-turquoise", out _);
+      FrontendTheme.Apply(app, FrontendTheme.SelectedName(null, "wmc-turquoise"), out _);
 
       WornSkin? worn = SkinEngine.Worn(app);
-      Assert.That(worn, Is.Not.Null, "a palette name with a skin behind it wears that skin");
+      Assert.That(worn, Is.Not.Null, "a retired name still names a real skin, and that skin is what gets worn");
       Assert.That(worn!.Manifest.Name, Is.EqualTo("wmc"));
-      Assert.That(worn.Theme.Name, Is.EqualTo("turquoise"));
+      Assert.That(worn.Theme.Name, Is.EqualTo("default"),
+          "the tint was a setting of the skin, not one of its themes; until it returns as a setting, "
+          + "the skin wears what it shipped with");
     }
 
     [AvaloniaTest]
     public void TheSkinsColourFilesAgreeWithThePaletteTable()
     {
       Application app = Application.Current!;
-      foreach (string name in new[] { "nereus", "wmc", "wmc-dark", "wmc-turquoise" })
+      foreach (string name in new[] { "nereus", "wmc" })
       {
         Assert.That(SkinEngine.Apply(app, name, out string? problem), Is.True, problem ?? name + " applied");
         WornSkin worn = SkinEngine.Worn(app)!;
@@ -180,17 +182,21 @@ namespace Tests.Frontend
     }
 
     [AvaloniaTest]
-    public void ThePaletteKeepsTheFinalWordOnTheColoursItSpeaks()
+    public void ThePaletteAndTheSkinStandOnTheApplicationTogether()
     {
-      // 'nereus-orange' is the skin's accent family spelled as a palette name: the skin's own colour file says
-      // turquoise, the palette says orange, and the palette wins - which is the whole layering of the engine.
+      // Two layers ride on the application when a skin is worn: the palette, which answers the fourteen keys the
+      // screens ask for by name, and the skin's own dictionary, which answers the reference's names. Neither may
+      // hide the other - a screen asking for AccentBrush and a screen asking for NereusColorLight_Torquoise have
+      // to be answered from one layer and the other in the same frame.
       Application app = Application.Current!;
-      FrontendTheme.Apply(app, "nereus-orange", out _);
+      FrontendTheme.Apply(app, "nereus", out _);
 
       Assert.That(app.TryFindResource("AccentBrush", out object? brush), Is.True);
       Assert.That(((ISolidColorBrush)brush!).Color,
-          Is.EqualTo(FrontendTheme.ColorOf("nereus-orange", "AccentBrush")));
-      Assert.That(SkinEngine.Worn(app), Is.Not.Null, "the accent family still wears the Nereus skin around it");
+          Is.EqualTo(FrontendTheme.ColorOf("nereus", "AccentBrush")));
+      Assert.That(SkinEngine.Worn(app), Is.Not.Null, "the palette does not displace the skin around it");
+      Assert.That(app.TryFindResource("NereusColorLight_Torquoise", out object? fromSkin), Is.True,
+          "and the reference's own colour names are still answered while the palette speaks");
     }
 
     [AvaloniaTest]

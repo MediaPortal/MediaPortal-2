@@ -92,7 +92,7 @@ public partial class ThemeViewModel : ObservableObject
     Selected = Find(wearing) ?? Themes[0];
     _applying = false;
 
-    Heading = "Which colours the front end wears. Picking a row changes them right here, and it stays worn after the next start.";
+    Heading = "Which skin this machine wears. Picking a row changes it right here, and it stays worn after the next start.";
     Status = "Wearing " + wearing + ".";
   }
 
@@ -159,20 +159,13 @@ public partial class ThemeViewModel : ObservableObject
   /// </summary>
   private static string DescriptionOf(string name)
   {
-    if (name.Equals(FrontendTheme.DEFAULT_NAME, StringComparison.OrdinalIgnoreCase))
-      return "This front end's own colours, as they come from the factory";
-
-    if (name.StartsWith("nereus-", StringComparison.OrdinalIgnoreCase))
-      return string.Format("Nereus in {0}, one of the seven accent families its colour file lists",
-          name.Substring("nereus-".Length));
-
     switch (name.ToLowerInvariant())
     {
-      case "nereus": return "Nereus as it shipped - turquoise, from the skin's Colors.xaml";
-      case "wmc": return "Windows Media Center's colours, as the WMC skin shipped them";
-      case "wmc-dark": return "WMC's Dark-WMC scheme - the same skin, charcoal instead of blue";
-      case "wmc-turquoise": return "WMC's Turquoise-WMC scheme - the same skin, teal and black";
-      default: return "a theme";
+      case FrontendTheme.DEFAULT_NAME:
+        return "This front end's own colours, as they come from the factory";
+      case "nereus": return "The Nereus skin, worn from its own files - colours, measurements, styles and tiles";
+      case "wmc": return "The Windows Media Center skin, worn from its own files, standing on its blue wash";
+      default: return "a skin";
     }
   }
 }
