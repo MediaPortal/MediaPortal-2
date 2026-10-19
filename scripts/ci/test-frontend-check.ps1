@@ -311,7 +311,11 @@ try {
         @{ Name = 'search-windows'; Arguments = '--screen search' },
         @{ Name = 'seen-windows'; Arguments = '--screen seen' },
         @{ Name = 'nowplaying-windows'; Arguments = '--screen nowplaying' },
-        @{ Name = 'connect-windows'; Arguments = '--screen connect' }
+        @{ Name = 'connect-windows'; Arguments = '--screen connect' },
+        # The pictures screen is drawn from a scripted server too, because whose photographs the gate's machine
+        # happens to hold is not something a frame may depend on - and because the question this screen has is
+        # whether a preview's bytes became pixels inside the right tile, which only a known picture can answer.
+        @{ Name = 'pictures-windows'; Arguments = '--screen pictures' }
       )
       foreach ($frame in $frames) {
         $renderFile = Join-Path $RenderDir ($frame.Name + '.png')

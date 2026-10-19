@@ -2863,8 +2863,10 @@ of the entries that open a screen of the front end's own.
 
 Not done here: no EXIF and no order by date (the API has no import-date sort either, which is the same gap
 "Latest media" is waiting on), no rotate, no zoom, no interval a viewer can change, no import of photos, no albums
-and no faces. And the render gate still draws its own scripted frames, none of them this screen: the pictures
-window is proved by these tests and by its XAML compiling, not by a screenshot.
+and no faces. The render gate draws this screen too now, from a scripted share of four photographs whose bytes it hands
+over itself, two of them in a flat colour: the frame is then asked whether those bytes came back as pixels, and
+whether they did so in two different squares, since a tile that painted twice cannot pass for two tiles each
+painting the picture it was given.
 
 ## What cannot be verified without the user
 

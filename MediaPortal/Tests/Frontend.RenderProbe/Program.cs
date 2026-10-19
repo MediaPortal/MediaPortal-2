@@ -61,7 +61,7 @@ namespace FrontendProbe
   public static class RenderProbe
   {
     private const string USAGE =
-        "Frontend.RenderProbe --out <file.png> [--screen <home|continue|nowplaying|connect|browser|details|search|seen|folders>] [--server <url>] [--aspect <name>] [--width <n>] [--height <n>]\n" +
+        "Frontend.RenderProbe --out <file.png> [--screen <home|continue|nowplaying|connect|browser|details|search|seen|folders|pictures>] [--server <url>] [--aspect <name>] [--width <n>] [--height <n>]\n" +
         "  --out <file>     where to write the rendered frame (PNG); its directory is created\n" +
         "  --screen <name>  which screen to render (default home)\n" +
         "  --server <url>   render the populated screen by asking this server (otherwise MP2_SERVER,\n" +
@@ -491,10 +491,47 @@ namespace FrontendProbe
         foldersScreen = folders;
         window = new FoldersWindow(folders);
       }
+      else if (screenName.Equals("pictures", StringComparison.Ordinal))
+      {
+        // The pictures screen drawn from a scripted server rather than from a disk: whose photographs and whose
+        // folders the gate's machine happens to have is nobody's business, and a frame that changed with them could
+        // not be compared with the run before it. The photographs are flat colours, so the question asked of the
+        // frame afterwards is whether a preview arrived, and not whether a photograph is nice.
+        PicturesViewModel pictures = new PicturesViewModel(new ServerApiClient(
+            new Uri("http://127.0.0.1:1/MediaPortal/Server/"),
+            new HttpClient(new ScriptedFoldersAndPictures())));
+        pictures.RefreshCommand.Execute(null);
+        if (!PumpUntil(delegate { return pictures.Tiles.Count > 0; }, TimeSpan.FromSeconds(10)))
+        {
+          Console.WriteLine("FAILED:   the pictures screen never listed the shares it was served. Status: "
+              + pictures.Status);
+          return 1;
+        }
+
+        // Walking into the folder is the frame worth having: the list of shares is one row of names, while a
+        // folder is where tiles, captions and previews are all on screen together.
+        _ = pictures.OpenAsync(pictures.Tiles[0]);
+        PumpUntil(delegate
+        {
+          return pictures.Tiles.Count(tile => tile.Picture != null) >= 2;
+        }, TimeSpan.FromSeconds(10));
+
+        Console.WriteLine("content:  " + pictures.Tiles.Count + " tile(s) in \"" + pictures.Heading + "\", "
+            + pictures.Tiles.Count(tile => tile.Picture != null) + " of them with a picture fetched, status: "
+            + pictures.Status);
+        if (pictures.Tiles.Count < 6)
+        {
+          Console.WriteLine("FAILED:   only " + pictures.Tiles.Count
+              + " tile(s); the script serves two folders and four photographs, so the frame would prove nothing.");
+          return 1;
+        }
+
+        window = new PicturesWindow(pictures);
+      }
       else
       {
         return Usage("unknown screen '" + screenName + "'; this probe renders home, continue, nowplaying, connect,"
-            + " browser, details, search, seen or folders.");
+            + " browser, details, search, seen, folders or pictures.");
       }
 
       window.Width = width;
@@ -845,6 +882,22 @@ namespace FrontendProbe
       if (!isPng)
         return 3;
 
+      if (screenName == "pictures")
+      {
+        // The scripted photographs are flat colours for exactly this question, which is the one the pictures
+        // screen actually has: did the bytes that came over HTTP for a tile become pixels inside that tile? A
+        // person looking at the frame can see that; a gate cannot, so the frame is asked for two colours and for
+        // the two places they turned up in.
+        string pictureReport;
+        string? picturesMissing = CheckPictureTiles(frame, out pictureReport);
+        Console.WriteLine("pictures: " + pictureReport);
+        if (picturesMissing != null)
+        {
+          Console.WriteLine("FAILED:   " + picturesMissing);
+          return 1;
+        }
+      }
+
       if (screenName == "browser" || screenName == "details")
       {
         // Only a cover of a colour this probe knows can be looked for in the pixels; a shelf of episode stills is
@@ -910,6 +963,63 @@ namespace FrontendProbe
     /// directory because that is a place this machine can open, which is what makes a row say its length instead
     /// of "not playable here".
     /// </remarks>
+    /// <summary>
+    /// Answers a request with one object in the server's own JSON shape, so that a scripted frame goes through the
+    /// client's parsing rather than skipping it.
+    /// </summary>
+    private static Task<HttpResponseMessage> Answer<T>(HttpRequestMessage request, T body)
+    {
+      return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+      {
+        RequestMessage = request,
+        Content = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json")
+      });
+    }
+
+    /// <summary>
+    /// A flat colour as the importer stores one: PNG bytes of a 64 by 64 picture, which is MP2's thumbnail size.
+    /// </summary>
+    /// <remarks>
+    /// Flat on purpose. A check that looks for a colour in a rendered frame can then be a statement about whether
+    /// the bytes that came over HTTP became the pixels a viewer would have seen, and not about how a particular
+    /// photograph happened to be drawn.
+    /// </remarks>
+    private static byte[] SolidPicture(int[] rgb)
+    {
+      WriteableBitmap picture = new WriteableBitmap(new PixelSize(64, 64), new Vector(96, 96),
+          PixelFormats.Bgra8888, AlphaFormat.Opaque);
+      using (ILockedFramebuffer surface = picture.Lock())
+      {
+        int redOffset = surface.Format == PixelFormat.Rgba8888 ? 0 : 2;
+        int blueOffset = surface.Format == PixelFormat.Rgba8888 ? 2 : 0;
+        for (int y = 0; y < 64; y++)
+        {
+          for (int x = 0; x < 64; x++)
+          {
+            IntPtr at = surface.Address + y * surface.RowBytes + x * 4;
+            System.Runtime.InteropServices.Marshal.WriteByte(at + redOffset, (byte) rgb[0]);
+            System.Runtime.InteropServices.Marshal.WriteByte(at + 1, (byte) rgb[1]);
+            System.Runtime.InteropServices.Marshal.WriteByte(at + blueOffset, (byte) rgb[2]);
+            System.Runtime.InteropServices.Marshal.WriteByte(at + 3, 255);
+          }
+        }
+      }
+
+      using MemoryStream png = new MemoryStream();
+      picture.Save(png);
+      return png.ToArray();
+    }
+
+    /// <summary>
+    /// Whether one pixel is the colour this probe knows, allowing for the blending a rounded corner or a scaling
+    /// step puts on an otherwise flat picture.
+    /// </summary>
+    private static bool IsColour(int red, int green, int blue, int[] wanted)
+    {
+      return Math.Abs(red - wanted[0]) <= 24 && Math.Abs(green - wanted[1]) <= 24
+          && Math.Abs(blue - wanted[2]) <= 24;
+    }
+
     private sealed class ScriptedTitles : HttpMessageHandler
     {
       private static readonly string[] NAMES =
@@ -1017,35 +1127,6 @@ namespace FrontendProbe
           { FilmId(2), SolidPicture(POSTER_TEAL) },
           { FilmId(4), System.Text.Encoding.ASCII.GetBytes("this used to be a poster") }
       };
-
-      /// <summary>
-      /// A flat colour as the importer stores one: PNG bytes of a 64 by 64 picture, which is MP2's thumbnail size.
-      /// </summary>
-      private static byte[] SolidPicture(int[] rgb)
-      {
-        WriteableBitmap picture = new WriteableBitmap(new PixelSize(64, 64), new Vector(96, 96),
-            PixelFormats.Bgra8888, AlphaFormat.Opaque);
-        using (ILockedFramebuffer surface = picture.Lock())
-        {
-          int redOffset = surface.Format == PixelFormat.Rgba8888 ? 0 : 2;
-          int blueOffset = surface.Format == PixelFormat.Rgba8888 ? 2 : 0;
-          for (int y = 0; y < 64; y++)
-          {
-            for (int x = 0; x < 64; x++)
-            {
-              IntPtr at = surface.Address + y * surface.RowBytes + x * 4;
-              System.Runtime.InteropServices.Marshal.WriteByte(at + redOffset, (byte) rgb[0]);
-              System.Runtime.InteropServices.Marshal.WriteByte(at + 1, (byte) rgb[1]);
-              System.Runtime.InteropServices.Marshal.WriteByte(at + blueOffset, (byte) rgb[2]);
-              System.Runtime.InteropServices.Marshal.WriteByte(at + 3, 255);
-            }
-          }
-        }
-
-        using MemoryStream png = new MemoryStream();
-        picture.Save(png);
-        return png.ToArray();
-      }
 
       protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
           CancellationToken cancellation)
@@ -1185,15 +1266,6 @@ namespace FrontendProbe
       }
 
       /// <summary>One scripted answer, in the server's own JSON shape.</summary>
-      private static Task<HttpResponseMessage> Answer<T>(HttpRequestMessage request, T body)
-      {
-        return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
-        {
-          RequestMessage = request,
-          Content = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json")
-        });
-      }
-
       /// <summary>
       /// The value of one query parameter, or <c>null</c> when the request did not carry it. Written against the
       /// wire format rather than against <see cref="Uri.ParseQuery"/>, because what matters here is that the
@@ -1211,6 +1283,147 @@ namespace FrontendProbe
             return Uri.UnescapeDataString(pair.Substring(equals + 1));
         }
         return null;
+      }
+    }
+
+    /// <summary>
+    /// One share, what is inside it, and two flat photographs to fetch, served without a network.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The paths are built by <c>LocalFsResourceProviderBase</c> rather than typed out: the provider's spelling is
+    /// a GUID followed by a <c>://</c>, a hand-written shorthand parses as nothing, and a frame whose paths the
+    /// screen could not have asked for would be a frame of a screen that never runs.
+    /// </para>
+    /// <para>
+    /// The answers are written as the wire format rather than as objects, so that the client's parsing and the
+    /// bindings are inside the frame as well as the drawing - the same reason the scripted titles are written that
+    /// way.
+    /// </para>
+    /// </remarks>
+    private sealed class ScriptedFoldersAndPictures : HttpMessageHandler
+    {
+      private static readonly string SHARE_DIR = Path.Combine(Path.GetTempPath(), "mp2-render-pictures");
+      private static readonly string TRIP_DIR = Path.Combine(SHARE_DIR, "2019");
+      private static readonly string SHARE_PATH = AsResourcePath(SHARE_DIR);
+      private static readonly string TRIP_PATH = AsResourcePath(TRIP_DIR);
+
+      /// <summary>
+      /// The photographs whose bytes this script hands back, in the two colours the frame then looks for.
+      /// </summary>
+      /// <remarks>
+      /// Two of four on purpose: a folder with more photographs than the screen fetches previews for is the
+      /// ordinary case, and the tiles that got nothing are part of the picture being judged.
+      /// </remarks>
+      private static readonly Dictionary<string, byte[]> PHOTOGRAPHS = new Dictionary<string, byte[]>
+      {
+          { "beach", SolidPicture(POSTER_PINK) },
+          { "harbour", SolidPicture(POSTER_TEAL) }
+      };
+
+      private static string AsResourcePath(string dosPath)
+      {
+        // The way a folder of this machine arrives from a server: the local provider's id in braces, "://", and the
+        // provider's own path, which starts with a slash even in front of a drive letter. Spelled by hand because
+        // the probe talks to the front end over HTTP and carries no server assembly with it.
+        return "{e88e64a8-0233-4fdf-ba27-0b44c6a39ae9}" + "://" + "/" + dosPath.Replace('\\', '/');
+      }
+
+      protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+          CancellationToken cancellation)
+      {
+        string path = request.RequestUri!.AbsolutePath;
+
+        if (path.EndsWith("/api/media/shares", StringComparison.Ordinal))
+          return Text(request, "{\"count\":1,\"shares\":[{"
+              + "\"id\":\"00000000-0000-4000-8000-0000000000b1\",\"name\":\"Photographs\","
+              + "\"path\":\"" + SHARE_DIR.Replace("\\", "\\\\") + "\","
+              + "\"resourcePath\":\"" + SHARE_PATH + "\","
+              + "\"systemId\":\"host\",\"local\":true,\"mediaCategories\":[\"Image\"],"
+              + "\"useShareWatcher\":true}],\"mediaCategories\":[\"Image\"]}");
+
+        if (path.EndsWith("/api/media/browse", StringComparison.Ordinal))
+        {
+          string asked = Query(request, "path");
+          if (asked == TRIP_PATH)
+            return Text(request, Listing(TRIP_PATH, "2019", new string[0], new string[0], 0));
+          return Text(request, Listing(SHARE_PATH, "Photographs",
+              new[] { "2019", "2020" }, new[] { "beach", "harbour", "dunes", "lighthouse" }, 3));
+        }
+
+        if (path.EndsWith("/GetResource", StringComparison.Ordinal))
+        {
+          string asked = Query(request, "ResourcePath");
+          string name = asked.Substring(asked.LastIndexOf('/') + 1);
+          if (name.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase))
+            name = name.Substring(0, name.Length - 4);
+
+          byte[]? bytes;
+          if (PHOTOGRAPHS.TryGetValue(name, out bytes))
+          {
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+              RequestMessage = request,
+              Content = new ByteArrayContent(bytes)
+            });
+          }
+
+          // The same answer the real file server gives for a file it will not or cannot hand over, which is what
+          // makes the tile say "no picture" rather than "the server is broken".
+          return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound) { RequestMessage = request });
+        }
+
+        return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound) { RequestMessage = request });
+      }
+
+      /// <summary>
+      /// One folder as <c>GET api/media/browse</c> answers it.
+      /// </summary>
+      private static string Listing(string path, string name, string[] folders, string[] pictures, int others)
+      {
+        List<string> folderEntries = new List<string>();
+        foreach (string folder in folders)
+          folderEntries.Add("{\"name\":\"" + folder + "\",\"path\":\"" + path + "/" + folder + "\"}");
+
+        List<string> pictureEntries = new List<string>();
+        foreach (string picture in pictures)
+        {
+          pictureEntries.Add("{\"name\":\"" + picture + "\",\"path\":\"" + path + "/" + picture + ".jpg\","
+              + "\"size\":180000,\"lastChanged\":\"2019-06-01T10:00:00\"}");
+        }
+
+        return "{\"path\":\"" + path + "\",\"name\":\"" + name + "\",\"folders\":["
+            + string.Join(",", folderEntries.ToArray()) + "],\"pictures\":["
+            + string.Join(",", pictureEntries.ToArray()) + "],\"foldersTruncated\":false,"
+            + "\"picturesTruncated\":false,\"otherFileCount\":" + others + "}";
+      }
+
+      private static Task<HttpResponseMessage> Text(HttpRequestMessage request, string json)
+      {
+        return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+        {
+          RequestMessage = request,
+          Content = new StringContent(json, Encoding.UTF8, "application/json")
+        });
+      }
+
+      /// <summary>
+      /// One query parameter of a request, unescaped. Small and deliberate: the screen's own escaping is part of
+      /// what the frame is testing, so this reads what arrived rather than what was meant.
+      /// </summary>
+      private static string Query(HttpRequestMessage request, string name)
+      {
+        string? query = request.RequestUri!.Query;
+        if (string.IsNullOrEmpty(query))
+          return string.Empty;
+
+        foreach (string pair in query!.TrimStart('?').Split('&'))
+        {
+          int equals = pair.IndexOf('=');
+          if (equals > 0 && pair.Substring(0, equals) == name)
+            return Uri.UnescapeDataString(pair.Substring(equals + 1));
+        }
+        return string.Empty;
       }
     }
 
@@ -1684,6 +1897,85 @@ namespace FrontendProbe
     /// lossless PNG of flat rgb(212,64,168) - the colour the scripted poster uses for the same reason - so a patch
     /// of that colour the size of a row's picture square can only be the decoded file.
     /// </remarks>
+    /// <summary>
+    /// Looks for the two scripted photographs in the rendered pictures screen.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Both colours have to be on screen, each with at least half a thumbnail's worth of pixels, and they have to
+    /// be in two different places. One tile painted twice would say as little as none painted at all; the claim
+    /// being checked is that every tile drew the picture it fetched for itself, in its own square.
+    /// </para>
+    /// <para>
+    /// Runs after the frame was written for the same reason the shelf's poster check does: a colour this probe
+    /// cannot find is a complaint worth judging with the picture in front of you.
+    /// </para>
+    /// </remarks>
+    private static string? CheckPictureTiles(WriteableBitmap frame, out string report)
+    {
+      byte[] pixels;
+      int rowBytes;
+      int width;
+      int height;
+      int redOffset;
+      int blueOffset;
+      string? unreadable = ReadFrame(frame, out pixels, out rowBytes, out width, out height, out redOffset,
+          out blueOffset);
+      if (unreadable != null)
+      {
+        report = unreadable;
+        return "the frame could not be read: " + unreadable;
+      }
+
+      int pink = 0;
+      int teal = 0;
+      int pinkLeft = width;
+      int pinkTop = height;
+      int tealLeft = width;
+      int tealTop = height;
+
+      for (int y = 0; y < height; y++)
+      {
+        for (int x = 0; x < width; x++)
+        {
+          int at = y * rowBytes + x * 4;
+          if (IsColour(pixels[at + redOffset], pixels[at + 1], pixels[at + blueOffset], POSTER_PINK))
+          {
+            pink++;
+            if (x < pinkLeft)
+              pinkLeft = x;
+            if (y < pinkTop)
+              pinkTop = y;
+          }
+          else if (IsColour(pixels[at + redOffset], pixels[at + 1], pixels[at + blueOffset], POSTER_TEAL))
+          {
+            teal++;
+            if (x < tealLeft)
+              tealLeft = x;
+            if (y < tealTop)
+              tealTop = y;
+          }
+        }
+      }
+
+      // A thumbnail is 64 by 64 = 4096 pixels; half of that is the line between "a picture is in this tile" and
+      // "an antialiased edge happened to be this colour".
+      const int ENOUGH_FOR_A_TILE = 2048;
+
+      report = "the scripted photographs cover " + pink + " and " + teal
+          + " pixels, starting at " + pinkLeft + "," + pinkTop + " and " + tealLeft + "," + tealTop;
+
+      if (pink < ENOUGH_FOR_A_TILE)
+        return "the first photograph covers only " + pink + " pixels, so no tile drew the bytes it fetched for it.";
+      if (teal < ENOUGH_FOR_A_TILE)
+        return "the second photograph covers only " + teal + " pixels, so one of the two previews never reached"
+            + " the screen.";
+      if (pinkLeft == tealLeft && pinkTop == tealTop)
+        return "both photographs were found in the same square, so one tile drew twice rather than two tiles each"
+            + " drawing the picture it was given.";
+      return null;
+    }
+
     private static string? CheckLivePoster(WriteableBitmap frame, out string report)
     {
       string? unreadable = ReadFrame(frame, out byte[] pixels, out int rowBytes, out int width, out int height,
