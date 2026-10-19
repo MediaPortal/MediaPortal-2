@@ -272,6 +272,18 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
+    /// What the viewer told the player before this machine started: start volume and the languages to reach
+    /// for. Null (the default, and what a test host wears) means the media's own answers stand untouched.
+    /// </summary>
+    public Settings.PlaybackSettings? Preferences { get; set; }
+
+    /// <summary>How far one press of forward or back reaches, as the viewer's answer or the shipped 30 s.</summary>
+    public long SkipStepMs => 1000L * (Preferences?.SkipStepSeconds ?? 30);
+
+    /// <summary>How much one press of the volume key moves, as the viewer's answer or the shipped 5.</summary>
+    public int VolumeStep => Preferences?.VolumeStep ?? 5;
+
+    /// <summary>
     /// Asks the engine what tracks the loaded media has. Called when a media starts playing, and safe to call
     /// again after a chapter change; it does nothing when there is no media, so that an idle screen keeps an
     /// empty list instead of the previous film's tracks.
@@ -288,8 +300,67 @@ namespace MediaPortal.Frontend.ViewModels
       _subtitleTracks = subtitles;
       _audioCurrent = _player.CurrentTrackId(TrackKind.Audio);
       _subtitleCurrent = _player.CurrentTrackId(TrackKind.Subtitle);
+      ApplyTrackPreferences(subtitles);
       Raise();
     }
+
+    /// <summary>
+    /// Honours the viewer's language answers once per media, the moment the media's tracks are known. A
+    /// preference, never a command: a language nobody speaks with a label stays unheard, the media's own
+    /// choice stands, and switching "Subtitles on" off switches the kind off only if the media had picked
+    /// one for itself.
+    /// </summary>
+    private void ApplyTrackPreferences(List<PlaybackTrack> realSubtitles)
+    {
+      Settings.PlaybackSettings? prefs = Preferences;
+      if (prefs == null || _trackPreferencesDone)
+        return;
+      _trackPreferencesDone = true;
+
+      if (prefs.AudioLanguage.Length > 0 && !SpeaksLanguage(_audioTracks, _audioCurrent, prefs.AudioLanguage))
+      {
+        foreach (PlaybackTrack track in _audioTracks)
+          if (string.Equals(track.Language, prefs.AudioLanguage, StringComparison.OrdinalIgnoreCase))
+          {
+            if (_player!.SelectTrack(track))
+              _audioCurrent = track.Id;
+            break;
+          }
+      }
+
+      if (!prefs.SubtitlesEnabled)
+      {
+        if (_subtitleCurrent >= 0)
+        {
+          if (_player!.SelectTrack(SubtitleOff))
+            _subtitleCurrent = -1;
+        }
+        return;
+      }
+
+      if (prefs.SubtitleLanguage.Length > 0 && !SpeaksLanguage(realSubtitles, _subtitleCurrent, prefs.SubtitleLanguage))
+      {
+        foreach (PlaybackTrack track in realSubtitles)
+          if (string.Equals(track.Language, prefs.SubtitleLanguage, StringComparison.OrdinalIgnoreCase))
+          {
+            if (_player!.SelectTrack(track))
+              _subtitleCurrent = track.Id;
+            break;
+          }
+      }
+    }
+
+    /// <summary>Whether the track this player is using for a kind says the wanted language. -1 never does.</summary>
+    private static bool SpeaksLanguage(List<PlaybackTrack> tracks, int currentId, string language)
+    {
+      foreach (PlaybackTrack track in tracks)
+        if (track.Id == currentId)
+          return string.Equals(track.Language, language, StringComparison.OrdinalIgnoreCase);
+
+      return false;
+    }
+
+    private bool _trackPreferencesDone;
 
     /// <summary>Switches to the next audio track, wrapping around. False when the engine refused.</summary>
     public bool NextAudioTrack()
@@ -594,6 +665,13 @@ namespace MediaPortal.Frontend.ViewModels
       // The old media's tracks are not this media's tracks. Emptied before the engine is asked, so that a
       // viewer looking at the screen while a file opens cannot pick a subtitle out of the previous film.
       ClearTracks();
+      _trackPreferencesDone = false;
+
+      // Where the sound begins, when the viewer said where it begins. Set before the engine is asked, so
+      // the first frame is already as loud as the answer says; mid-media turns by the viewer are never
+      // overruled, because this line is only on the road INTO a media.
+      if (Preferences != null)
+        _player.Volume = Preferences.InitialVolume;
 
       // Armed before the engine is asked, not after: an engine can raise its first position event while the call
       // to open the media is still running, and a resume armed afterwards would be a seek that never happens for

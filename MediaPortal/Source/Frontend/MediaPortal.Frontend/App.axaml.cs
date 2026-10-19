@@ -180,6 +180,19 @@ namespace MediaPortal.Frontend
 
         if (_nowPlaying != null)
         {
+          // What the viewer told the player: start volume and languages ride into every media from here,
+          // and the skip and volume keys read their reach from the same answer. Read once at start-up -
+          // the settings screen saves at once, and the next media picks the new answers up because the
+          // player re-reads Preferences on every Play and ReadTracks.
+          _nowPlaying.Preferences = Settings.PlaybackSettings.Load(null, out _);
+
+          // And when an answer is saved, the player adopts the very instance that was saved - the settings
+          // screen's rows and the keys of the playback screen never disagree about the next media.
+          Settings.PlaybackSettings.Changed += delegate (object? sender, EventArgs args)
+          {
+            if (_nowPlaying != null && sender is Settings.PlaybackSettings saved)
+              _nowPlaying.Preferences = saved;
+          };
           // The media info asks the current server, whoever it is when the key is pressed - the reader reads
           // the home screen's client at call time rather than holding on to one build's copy.
           _nowPlaying.DetailsReader = delegate (Guid mediaItemId)
@@ -761,6 +774,12 @@ namespace MediaPortal.Frontend
       // when the machine wears the front end's own face.
       model.Add("Skin settings", "Skin", "What the worn skin itself lets you change",
           delegate { return new SkinSettingsView(this); });
+
+      // What the viewer tells the player before it plays - the reference's playback settings, kept to the
+      // answers this player can honour. The screen saves each row at once; the player picks the answers
+      // up through the shared _nowPlaying, which is given the same file at startup.
+      model.Add("Playback settings", "Frontend", "Skip length, start volume, languages and slideshow",
+          delegate { return new PlaybackSettingsView(); });
 
       model.Add("Server address", "Frontend", "Which machine holds the library",
           null, delegate { _workflow.Push(ConnectionFrame()); });

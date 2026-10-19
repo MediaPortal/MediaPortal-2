@@ -39,15 +39,17 @@ namespace MediaPortal.Frontend.Views
   public partial class NowPlayingView : UserControl, IWorkflowScreen, Workflow.IFullScreenScreen
   {
     /// <summary>
-    /// How far the left and right keys of a remote jump. Long enough to be useful over an advertisement, short
-    /// enough to press twice by accident without losing the plot.
+    /// How far the left and right keys of a remote jump: the viewer's answer, or the shipped thirty seconds
+    /// when nobody said otherwise. Long enough to be useful over an advertisement, short enough to press
+    /// twice by accident without losing the plot.
     /// </summary>
-    private const long SkipLengthMs = 30 * 1000;
+    private long SkipLengthMs => _viewModel.SkipStepMs;
 
     /// <summary>
-    /// How much one press of a volume key changes the volume, in the player's 0-100 scale.
+    /// How much one press of a volume key changes the volume, in the player's 0-100 scale: the viewer's
+    /// answer, or the shipped five.
     /// </summary>
-    private const int VolumeStep = 5;
+    private int VolumeStep => _viewModel.VolumeStep;
 
     private readonly NowPlayingViewModel _viewModel;
     private readonly WorkflowManager? _workflow;

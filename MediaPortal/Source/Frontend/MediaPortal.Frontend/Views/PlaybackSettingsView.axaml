@@ -1,0 +1,76 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        x:Class="MediaPortal.Frontend.Views.PlaybackSettingsView"
+        x:DataType="vm:PlaybackSettingsViewModel"
+        Name="playbackSettings"
+        Background="{DynamicResource ScreenBackgroundBrush}"
+        >
+
+  <!--
+    The player's answers. The same working rows as every other settings screen here - a checkbox for the
+    two-answer switch, a button whose face shows the current choice for the rest, Enter and the remote's OK
+    working the highlighted row, and every row saving where it is answered and saying so underneath.
+  -->
+
+  <DockPanel Margin="48,14">
+
+    <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,8">
+      <TextBlock Text="{Binding Heading}"
+                 FontSize="24"
+                 FontWeight="SemiBold" />
+      <TextBlock Text="{Binding Subtitle}"
+                 FontSize="14"
+                 Opacity="0.7"
+                 TextWrapping="Wrap"
+                 MaxWidth="1500"
+                 HorizontalAlignment="Left" />
+    </StackPanel>
+
+    <TextBlock DockPanel.Dock="Bottom"
+               Name="statusLine"
+               Text="{Binding Status}"
+               FontSize="14"
+               Opacity="0.85"
+               Margin="0,8,0,0"
+               TextWrapping="Wrap" />
+
+    <ListBox Name="settingsList"
+             Focusable="True"
+             ItemsSource="{Binding Options}"
+             SelectedItem="{Binding Selected, Mode=TwoWay}"
+             FontSize="15">
+      <ListBox.Styles>
+        <Style Selector="ListBoxItem">
+          <Setter Property="Padding" Value="12,2"/>
+        </Style>
+      </ListBox.Styles>
+      <ListBox.ItemTemplate>
+        <DataTemplate x:DataType="vm:SkinSettingOption">
+          <Grid ColumnDefinitions="380,170,*" Margin="2,1">
+            <TextBlock Text="{Binding Label}"
+                       FontSize="16"
+                       VerticalAlignment="Center" />
+            <CheckBox Grid.Column="1"
+                      IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                      IsVisible="{Binding IsToggle}"
+                      VerticalAlignment="Center"
+                      HorizontalAlignment="Left" />
+            <Button Grid.Column="1"
+                    Content="{Binding ValueText}"
+                    IsVisible="{Binding !IsToggle}"
+                    Click="OnChoiceClick"
+                    MinWidth="150"
+                    HorizontalAlignment="Left" />
+            <TextBlock Grid.Column="2"
+                       Text="{Binding Description}"
+                       FontSize="13"
+                       Opacity="0.6"
+                       TextTrimming="CharacterEllipsis"
+                       VerticalAlignment="Center" />
+          </Grid>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+  </DockPanel>
+</UserControl>

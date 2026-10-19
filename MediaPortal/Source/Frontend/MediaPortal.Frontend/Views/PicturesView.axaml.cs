@@ -74,7 +74,7 @@ namespace MediaPortal.Frontend.Views
       // see HomeWindow for the general reason.
       MouseRemote.Attach(this, tilesList);
 
-      _slideshow = new DispatcherTimer { Interval = PicturesViewModel.SLIDESHOW_TIME };
+      _slideshow = new DispatcherTimer { Interval = SlideshowPace() };
       _slideshow.Tick += delegate
       {
         // The same command the viewer's key runs, so the timer cannot drift away from what pressing means.
@@ -82,7 +82,6 @@ namespace MediaPortal.Frontend.Views
           _pictures.NextCommand.Execute(null);
       };
       _pictures.PropertyChanged += OnPicturesChanged;
-
       // The grid of a folder belongs to the library and wears its chrome; a raised photograph belongs to the
       // television and covers it - the window is remembered on the way in because on the way out there is no
       // tree left to ask, and the chrome has to come back whatever happens to this screen.
@@ -181,6 +180,17 @@ namespace MediaPortal.Frontend.Views
       _slideshow.Stop();
       _pictures.PropertyChanged -= OnPicturesChanged;
       _pictures.Dispose();
+    }
+
+    /// <summary>
+    /// How long one picture stands: the viewer's answer in playback.json when they gave one, and the
+    /// shipped seven seconds otherwise - read once when the screen is built, because a slideshow that
+    /// changed pace mid-run would be a different kind of surprise.
+    /// </summary>
+    private static TimeSpan SlideshowPace()
+    {
+      int seconds = Settings.PlaybackSettings.Load(null, out _).SlideshowSeconds;
+      return seconds == 7 ? PicturesViewModel.SLIDESHOW_TIME : TimeSpan.FromSeconds(seconds);
     }
 
     /// <summary>
