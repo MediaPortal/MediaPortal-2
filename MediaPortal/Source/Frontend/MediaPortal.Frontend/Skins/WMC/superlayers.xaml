@@ -22,15 +22,32 @@
   </ControlTemplate>
 
   <!--
-    The skip step: the same slab the volume uses, raised a little so the position line under the picture
-    stays readable while the jump is being named.
+    The skip step: the reference's SkipStepOSD measured from its file - a 350x100 slab held in the
+    centre with a five-point air gap, the WMC blue the reference paints right into the brush (the blue
+    diagonal and the see-through white frame are the reference's own numbers, not palette colours, and
+    they stay that way because that is what the reference shows), four points of corner, and the step
+    named in the normal font, centred.
   -->
   <ControlTemplate x:Key="Superlayer_SkipStep" TargetType="ContentControl">
-    <Border Background="{DynamicResource Scrim}" IsHitTestVisible="False">
-      <Border Background="{DynamicResource Panel}" CornerRadius="{DynamicResource DialogBorderCornerRadius}"
-              HorizontalAlignment="Center" VerticalAlignment="Center" Padding="30,15" Margin="0,0,0,120">
-        <TextBlock Text="{TemplateBinding Content}"
-                   Foreground="{DynamicResource Text}" FontSize="{DynamicResource NormalFontSize}"/>
+    <Border Background="Transparent" IsHitTestVisible="False">
+      <Border Width="350" Height="100" Margin="5" CornerRadius="4" BorderThickness="3"
+              HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Border.BorderBrush>
+          <LinearGradientBrush StartPoint="0,0" EndPoint="0.02,1.4">
+            <GradientStop Color="#8CFFFFFF" Offset="0"/>
+            <GradientStop Color="#8CFFFFFF" Offset="0.7"/>
+            <GradientStop Color="#8CFFFFFF" Offset="1"/>
+          </LinearGradientBrush>
+        </Border.BorderBrush>
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+            <GradientStop Color="#F2447da7" Offset="0"/>
+            <GradientStop Color="#F2124273" Offset="1"/>
+          </LinearGradientBrush>
+        </Border.Background>
+        <TextBlock Text="{TemplateBinding Content}" Margin="5"
+                   Foreground="{DynamicResource Text}" FontSize="{DynamicResource NormalFontSize}"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
       </Border>
     </Border>
   </ControlTemplate>

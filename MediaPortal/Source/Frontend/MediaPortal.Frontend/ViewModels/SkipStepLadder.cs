@@ -166,6 +166,40 @@ namespace MediaPortal.Frontend.ViewModels
       _valid = true;
     }
 
+    /// <summary>The word the reference shows when a refused step parked at the beginning.</summary>
+    public const string START_WORD = "Start";
+
+    /// <summary>The word the reference shows when a refused step parked at the end.</summary>
+    public const string END_WORD = "End";
+
+    /// <summary>
+    /// What the reference's <c>FormatStepUnit</c> makes of a step: "+ 15 sec", "- 2 min", "+ 2 hrs", and
+    /// "Don't skip" for the zero rung. The unit words are the reference's own English strings, and so is
+    /// its arithmetic - including its one quirk, kept because the reference ships it: a whole-hours step
+    /// of more than three hours is written out in minutes ("+ 240 min" for four hours); one, two and
+    /// three hours get "hrs". The shipped ladder tops out at two hours, so nobody meets it by default.
+    /// </summary>
+    public static string FormatStep(int signedSeconds)
+    {
+      if (signedSeconds == 0)
+        return "Don't skip";
+
+      string sign = signedSeconds < 0 ? "-" : "+";
+      int absStep = Math.Abs(signedSeconds);
+      if (absStep >= 3600)
+      {
+        double hours = (double)absStep / 3600.0;
+        if (hours > 1 && hours != 2 && hours != 3)
+          return string.Format(CultureInfo.InvariantCulture, "{0} {1} min", sign, absStep / 60);
+        return string.Format(CultureInfo.InvariantCulture, "{0} {1} hrs", sign, absStep / 3600);
+      }
+
+      if (absStep >= 60)
+        return string.Format(CultureInfo.InvariantCulture, "{0} {1} min", sign, absStep / 60);
+
+      return string.Format(CultureInfo.InvariantCulture, "{0} {1} sec", sign, absStep);
+    }
+
     private static List<int> Parse(string? stepList)
     {
       List<int> steps = new List<int>();

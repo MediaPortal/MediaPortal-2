@@ -20,18 +20,29 @@
   </ControlTemplate>
 
   <!--
-    The skip step: the reference's SkipStepOSD, a slab with rounded borders above the centre of the
-    picture, naming how far the film just jumped. The rounded corners follow UseRoundedDialogCorners in
-    the reference; that flag belongs to the dialog masters and is honoured when the dialogs come (B5),
-    so this slab keeps the palette's square corners until then.
+    The skip step: the reference's SkipStepOSD measured from its file - a 350x100 dialog panel held in
+    the centre (pushed down a hundred and right-inset fifty, exactly as the reference places it), wrapped
+    in the six glow rings the reference stacks at growing opacity, the last ring a quarter-lit outline.
+    The rings take the palette's light colour, which is what the reference's NereusColorLight is; the
+    rounding flag belongs to the dialog masters (B5), so the rings stay square until then. Normal font
+    size, like the reference label - this says a number, it does not shout it.
   -->
   <ControlTemplate x:Key="Superlayer_SkipStep" TargetType="ContentControl">
-    <Border Background="{DynamicResource Scrim}" IsHitTestVisible="False">
-      <Border Background="{DynamicResource Panel}" BorderBrush="{DynamicResource Outline}" BorderThickness="2"
-              HorizontalAlignment="Center" VerticalAlignment="Center" Padding="34,16" Margin="0,0,0,140">
-        <TextBlock Text="{TemplateBinding Content}"
-                   Foreground="{DynamicResource Text}" FontSize="{DynamicResource DateTimeFontSize}"
-                   HorizontalAlignment="Center"/>
+    <Border Background="Transparent" IsHitTestVisible="False">
+      <Border Width="350" Height="100" Background="{DynamicResource Panel}"
+              HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,100,50,0">
+        <Panel>
+          <Border BorderBrush="{DynamicResource Outline}" BorderThickness="3" Opacity="0.04" Margin="-15"/>
+          <Border BorderBrush="{DynamicResource Outline}" BorderThickness="2" Opacity="0.06" Margin="-12"/>
+          <Border BorderBrush="{DynamicResource Outline}" BorderThickness="2" Opacity="0.08" Margin="-10"/>
+          <Border BorderBrush="{DynamicResource Outline}" BorderThickness="2" Opacity="0.10" Margin="-8"/>
+          <Border BorderBrush="{DynamicResource Outline}" BorderThickness="2" Opacity="0.13" Margin="-6"/>
+          <Border BorderBrush="{DynamicResource Outline}" BorderThickness="2" Opacity="0.18" Margin="-4"/>
+          <Border BorderBrush="{DynamicResource Outline}" BorderThickness="2" Opacity="0.25" Margin="-2"/>
+          <TextBlock Text="{TemplateBinding Content}" Margin="10,5"
+                     Foreground="{DynamicResource Text}" FontSize="{DynamicResource NormalFontSize}"
+                     HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Panel>
       </Border>
     </Border>
   </ControlTemplate>

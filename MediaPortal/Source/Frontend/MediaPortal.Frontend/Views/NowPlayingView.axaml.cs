@@ -206,12 +206,13 @@ namespace MediaPortal.Frontend.Views
     /// </summary>
     private void ShowSkipStep(SkipStepAction action)
     {
+      // The same words the reference's SkipStepOSD shows: FormatStepUnit for a step, the border's name
+      // when a step was refused.
       string words = action switch
       {
-        SkipStepAction.Skip => SkipWords(1000L * _viewModel.PendingSkipStepSeconds),
-        SkipStepAction.Nothing => "no skip",
-        SkipStepAction.ToStart => "« start",
-        _ => "end »"
+        SkipStepAction.ToStart => SkipStepLadder.START_WORD,
+        SkipStepAction.ToEnd => SkipStepLadder.END_WORD,
+        _ => SkipStepLadder.FormatStep(_viewModel.PendingSkipStepSeconds)
       };
       Say("Superlayer_SkipStep", words, _viewModel.SkipStepTimeoutMs + 300);
 

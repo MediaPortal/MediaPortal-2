@@ -170,6 +170,23 @@ namespace Tests.Frontend
       Assert.That(ladder.PendingStepSeconds, Is.EqualTo(15));
     }
 
+    // ---- the words the reference's SkipStepOSD shows ---------------------------------------------------
+
+    [Test]
+    public void TheOsdWordsAreTheReferenceFormatStepUnitOnes()
+    {
+      Assert.That(SkipStepLadder.FormatStep(0), Is.EqualTo("Don't skip"), "[Media.DontSkip]");
+      Assert.That(SkipStepLadder.FormatStep(15), Is.EqualTo("+ 15 sec"));
+      Assert.That(SkipStepLadder.FormatStep(-30), Is.EqualTo("- 30 sec"));
+      Assert.That(SkipStepLadder.FormatStep(90), Is.EqualTo("+ 1 min"), "whole units, the reference truncates");
+      Assert.That(SkipStepLadder.FormatStep(-180), Is.EqualTo("- 3 min"));
+      Assert.That(SkipStepLadder.FormatStep(3600), Is.EqualTo("+ 1 hrs"));
+      Assert.That(SkipStepLadder.FormatStep(7200), Is.EqualTo("+ 2 hrs"));
+      // The reference's own arithmetic quirk, kept because the reference ships it: only one, two and three
+      // whole hours are spelled as hours, anything longer is written out in minutes.
+      Assert.That(SkipStepLadder.FormatStep(14400), Is.EqualTo("+ 240 min"));
+    }
+
     // ---- the same ladder behind the now-playing screen ------------------------------------------------
 
     private FakePlayer _player = null!;
