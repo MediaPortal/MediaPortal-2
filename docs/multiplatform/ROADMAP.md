@@ -3023,6 +3023,72 @@ now about bandwidth rather than about memory, and says so; and the raised photog
 tile is still on screen behind it, which is correct for the one picture a viewer is looking at. Tests.Frontend went
 from 351 to 358 with these seven.
 
+### at. The two rescued skins, as colours rather than as code
+
+"Nereus and WMC can be rescued by fixing them from MPF to WPF" was the instruction, and the first thing worth
+reporting is that this was not a translation job waiting to be done. Both skin projects compile as they stand
+(`net10.0-windows`, `UseWPF`, zero errors), so nothing in them is MPF any more in the sense of a framework that
+needs upgrading. What is untranslated is the *markup*: 785 and 906 files of MP2's own XAML dialect, with
+`<Include>`, `<Model>`, `{ThemeResource ...}` and a namespace pointing at the skin engine's DirectX visuals - 927
+distinct element names, of which Avalonia understands none. Porting that means rewriting every one of 123 screens
+and templates as Avalonia, screen by screen, in a dialect where the layout concepts do not line up. What a viewer
+actually missed when the old skins went away, though, was not the bevels. It was the colours.
+
+**So the skins were rescued as palettes.** `Theming/FrontendTheme.cs` holds fourteen keys named after the job on the
+screen - `ScreenBackgroundBrush`, `PanelRaisedBrush`, `MutedTextBrush`, `AccentBrush`, `WarningBrush`, `ScrimBrush`,
+`VideoBrush` - rather than after the colour, because `DarkBlue1` tells the next reader nothing about why the video
+surface is the darkest thing on the television. Every one of the twenty-eight hex values that used to be written into
+the seven screens is now a `{DynamicResource}`, and five palettes answer those keys: `default` (what this front end
+has always looked like, so nobody's television changes because somebody else wanted Nereus), `nereus`, `wmc`,
+`wmc-dark` and `wmc-turquoise`. Each value carries the skin key it was read from next to it
+(`// NereusColorDark_Torquoise`, `// MediaItemBackgroundColor1`), which is what made the next step possible.
+
+**"Read from the skin" became a checked claim.** Every non-default palette colour has to appear in that theme's own
+`Colors.xaml` - or in the default theme a skin variant inherits from - and one test walks all four skin files and
+says which values no skin contains. It found two truths on its own: WMC has no colour for a complaint at all, so the
+amber the folders screen shows when a share refuses to be removed is the front end's own in every WMC palette; and
+the two WMC variants do not override the dialog border colour, which is why their outline is the default theme's.
+The only values exempted are the three warning colours, each with its reason in the test. A palette value that
+drifts away from its skin now fails a run instead of depending on somebody remembering where it came from.
+
+**What a theme has to be chosen by** is the same two ways a server address is: `--theme` on the command line, then
+`MP2_THEME` for a machine nobody types on. An unknown name is not quietly the default - the front end prints
+"'graveyard' is not a theme, so the front end draws with 'default'. Themes: default, nereus, ..." and carries on,
+because refusing to start over a typo is worse on a television than being told.
+
+**Ten tests, two of which read the screens.** A screen that asks for `{DynamicResource OutLineBrush}` - one letter
+out - compiles, loads, and draws that part of itself with nothing on it; nothing at runtime complains. So one test
+scans every `.axaml` in the front end and fails on any resource name that is not a key, another fails on a key no
+screen asks for, and a third applies one palette and then another and asserts that *every* key resolves to the second
+one, because a palette that was stacked under the first instead of replacing it reads on screen as a theme that only
+half applied itself. The scan bites when it is meant to: with a deliberate typo in a screen it answers
+`PicturesWindow.axaml asks for OutLineBrush`.
+
+**The render gate now measures colour.** `Frontend.RenderProbe --theme <name>` draws a frame in a palette, and every
+frame - themed or not - is now checked in the pixels: the corner, where nothing but the window's own background can
+be, has to be the palette's background colour, and that colour has to be at least 2% of the frame rather than a
+patch somewhere. Two frames were added, `nowplaying-nereus` and `nowplaying-wmc-dark`, and they are the honest
+choice rather than the flattering one: the playback screen carries eleven of the fourteen keys, while the home
+screen draws exactly one colour of its own and leaves the rest to the theme, so a pair of themed home frames would
+have proved only that a background changed. Measuring the written PNGs says more than the check does - the panel
+behind the transport buttons is 4732 sampled pixels of `#1B2A38` in the default palette and the same 4732 pixels of
+`#175F5D`, Nereus's medium turquoise, in Nereus's - and asking for a theme that does not exist exits 2 instead of
+handing back a default frame a gate could mistake for a pass.
+
+**What this is not.** The Fluent chrome is still Fluent's: buttons, list rows and text boxes that no screen paints
+itself keep the theme's colours, so a themed screen is its panels, its text and its accents rather than every pixel
+on it - mapping the Fluent resource names onto the palettes is the obvious next step and was deliberately not
+smuggled in here. Nereus is fixed to the turquoise accent family (the first its colour file lists) although the skin
+offers nine; WMC's gradients, bevels and star ratings were left in the skin because no screen of this front end has
+a use for them; nothing is picked from a settings screen yet, because there is no server settings API to store the
+choice in; and the default palette holds one colour fewer than the screens it replaced, since the details panel's
+`#161F29` and the tiles' `#FF17202A` are two shades nobody could point at. The skin *files* are still unread by the
+front end, and `Nereus/screens/CurrentlyPlayingImage.xaml` is still not well-formed - a tail of another screen sits
+after its `</Include>` - which matters only as long as somebody wants those screens rather than their colours.
+Tests.Frontend went from 358 to 368 with these ten and the render gate from nine frames to eleven; 973 tests, all
+green.
+
+
 ## What cannot be verified without the user
 
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,

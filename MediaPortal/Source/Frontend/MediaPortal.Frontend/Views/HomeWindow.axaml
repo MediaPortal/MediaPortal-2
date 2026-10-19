@@ -7,7 +7,7 @@
         Name="home"
         Width="1280" Height="720"
         WindowState="Maximized"
-        Background="#FF101418"
+        Background="{DynamicResource ScreenBackgroundBrush}"
         Title="MediaPortal 2">
 
   <!--

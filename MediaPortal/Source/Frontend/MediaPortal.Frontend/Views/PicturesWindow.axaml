@@ -6,7 +6,7 @@
         Name="pictures"
         Width="1280" Height="720"
         WindowState="Maximized"
-        Background="#FF101418"
+        Background="{DynamicResource ScreenBackgroundBrush}"
         Title="MediaPortal 2 - Pictures">
 
   <!--
@@ -65,8 +65,8 @@
           <DataTemplate x:DataType="vm:PictureTile">
             <StackPanel Width="216" Spacing="4" Margin="6,8">
               <Panel Height="150">
-                <Border Background="#FF17202A"
-                        BorderBrush="#FF2E4A63"
+                <Border Background="{DynamicResource PanelBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="1" />
                 <!-- The tile asks for the picture at tile size (ArtworkConverter.TILE_DECODE_WIDTH). What the
                      server sent is the whole photograph - it has no way to resize one - and decoding twelve
@@ -101,7 +101,7 @@
     </DockPanel>
 
     <Panel Name="viewer"
-           Background="#F2000000"
+           Background="{DynamicResource ScrimBrush}"
            IsVisible="{Binding IsViewing}">
       <!-- No ConverterParameter here on purpose: the raised photograph is the one place the whole decoded picture
            is wanted, and it is shown one at a time. The same bytes as the tile's, decoded a second time at full

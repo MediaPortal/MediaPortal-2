@@ -6,7 +6,7 @@
         Name="browser"
         Width="1280" Height="720"
         WindowState="Maximized"
-        Background="#FF101418"
+        Background="{DynamicResource ScreenBackgroundBrush}"
         Title="MediaPortal 2">
 
   <!--
@@ -92,7 +92,7 @@
                 after the row should not move the row.
               -->
               <Panel Width="64" Height="64">
-                <Border Background="#FF17202A" BorderBrush="#FF2E4A63" BorderThickness="1" />
+                <Border Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" />
                 <Image Source="{Binding Artwork, Converter={StaticResource artwork}}"
                        Stretch="Uniform"
                        Width="64"
@@ -144,8 +144,8 @@
       <Border Name="detailsPanel"
               Grid.Column="1"
               IsVisible="{Binding DetailsVisible}"
-              Background="#FF161F29"
-              BorderBrush="#FF2E4A63"
+              Background="{DynamicResource PanelBrush}"
+              BorderBrush="{DynamicResource OutlineBrush}"
               BorderThickness="2"
               Padding="26,22"
               Width="440"

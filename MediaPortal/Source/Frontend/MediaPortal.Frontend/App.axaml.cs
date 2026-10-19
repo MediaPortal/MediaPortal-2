@@ -28,6 +28,7 @@ using Avalonia.Threading;
 using MediaPortal.Frontend.Api;
 using MediaPortal.Frontend.Player;
 using MediaPortal.Frontend.Settings;
+using MediaPortal.Frontend.Theming;
 using MediaPortal.Frontend.ViewModels;
 using MediaPortal.Frontend.Views;
 
@@ -53,6 +54,7 @@ namespace MediaPortal.Frontend
     private PlaybackReporter? _reporter;
     private readonly string? _shotPath;
     private readonly TimeSpan _playStart;
+    private readonly string? _theme;
 
     /// <summary>
     /// The pictures the player was asked to hand over, for as long as the application lives. It belongs here and
@@ -115,9 +117,15 @@ namespace MediaPortal.Frontend
     /// black tells you nothing about whether the picture path works, so a run that wants to prove it delivered a
     /// picture has to ask for a scene that actually has one.
     /// </param>
+    /// <param name="theme">
+    /// Which palette to draw with, from <c>--theme</c> or <c>MP2_THEME</c>: one of the two old skins
+    /// <see cref="FrontendTheme"/> can reproduce, or the colours this front end has always used. <c>null</c> means
+    /// nobody said, which is the default palette.
+    /// </param>
     public App(HomeViewModel home, IVideoPlayer? player = null, ServerSettings? settings = null,
         string? settingsPath = null, bool serverMayBeChanged = true, bool startAtConnectionScreen = false,
-        string? playFile = null, int playSeconds = 0, string? shotPath = null, TimeSpan playStart = default)
+        string? playFile = null, int playSeconds = 0, string? shotPath = null, TimeSpan playStart = default,
+        string? theme = null)
     {
       _home = home;
       _player = player;
@@ -129,6 +137,7 @@ namespace MediaPortal.Frontend
       _playSeconds = playSeconds;
       _shotPath = shotPath;
       _playStart = playStart;
+      _theme = theme;
     }
 
     public override void Initialize()
@@ -138,6 +147,16 @@ namespace MediaPortal.Frontend
 
     public override void OnFrameworkInitializationCompleted()
     {
+      // The palette goes on before a single screen exists. Afterwards is too late: a screen that has already drawn
+      // keeps the brushes it resolved, so half of it would stay in the old colours and the half that changed would
+      // look like a bug in the new one. SelectedName is what makes MP2_THEME work for a device that was started with
+      // no command line at all.
+      string appliedTheme = FrontendTheme.Apply(this, FrontendTheme.SelectedName(_theme), out string? themeProblem);
+      if (themeProblem != null)
+        Console.WriteLine("theme:    " + themeProblem);
+      else if (!string.Equals(appliedTheme, FrontendTheme.DEFAULT_NAME, StringComparison.Ordinal))
+        Console.WriteLine("theme:    " + appliedTheme);
+
       if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
       {
         // The playback state belongs to the application and not to a window: closing the playback screen must

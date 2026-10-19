@@ -26,6 +26,7 @@ using MediaPortal.Frontend.Api;
 using MediaPortal.Frontend.Discovery;
 using MediaPortal.Frontend.Player;
 using MediaPortal.Frontend.Settings;
+using MediaPortal.Frontend.Theming;
 using MediaPortal.Frontend.ViewModels;
 
 namespace MediaPortal.Frontend
@@ -52,7 +53,12 @@ namespace MediaPortal.Frontend
         "                   having because films open dark - a black title card says nothing about whether the\n" +
         "                   picture works, and asking for a scene that has one is the only honest test.\n" +
         "  --shot <file>  with --play, save a photograph of what the screen itself drew to that PNG before\n" +
-        "                   leaving. Counters can be wrong about a picture; this is the picture.";
+        "                   leaving. Counters can be wrong about a picture; this is the picture.\n" +
+        "  --theme <name> draw with the colours of one of the old skins: " + FrontendTheme.DEFAULT_NAME
+            + ", nereus, wmc,\n" +
+        "                   wmc-dark or wmc-turquoise (otherwise MP2_THEME, otherwise "
+            + FrontendTheme.DEFAULT_NAME + ").\n" +
+        "                   An unknown name is said out loud and the colours you always had are used.";
 
 
     [STAThread]
@@ -66,6 +72,7 @@ namespace MediaPortal.Frontend
       int playSeconds = 0;
       string? shotPath = null;
       string? startAt = null;
+      string? theme = null;
 
       for (int i = 0; i < args.Length; i++)
       {
@@ -116,6 +123,14 @@ namespace MediaPortal.Frontend
               return 2;
             }
             shotPath = args[++i];
+            break;
+          case "--theme":
+            if (i + 1 >= args.Length)
+            {
+              Console.WriteLine("--theme needs a name: " + string.Join(", ", FrontendTheme.Names) + ".\n" + USAGE);
+              return 2;
+            }
+            theme = args[++i];
             break;
           case "--help":
           case "-h":
@@ -210,7 +225,7 @@ namespace MediaPortal.Frontend
 
       AppBuilder app = BuildAvaloniaApp(() => new App(new HomeViewModel(client), player, settings, null,
           serverMayBeChanged, serverMayBeChanged && !settings.HasUsableUrl, playFile, playSeconds, shotPath,
-          playStart));
+          playStart, theme));
       return app.StartWithClassicDesktopLifetime(args);
     }
 

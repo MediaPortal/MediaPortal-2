@@ -7,7 +7,7 @@
         Name="nowPlaying"
         Width="1280" Height="720"
         WindowState="Maximized"
-        Background="#FF101418"
+        Background="{DynamicResource ScreenBackgroundBrush}"
         Title="MediaPortal 2 - Now playing">
 
   <!--
@@ -19,9 +19,9 @@
 
   <Window.Styles>
     <Style Selector="Button.transport">
-      <Setter Property="Background" Value="#FF1B2A38"/>
-      <Setter Property="Foreground" Value="#FFE8EEF4"/>
-      <Setter Property="BorderBrush" Value="#FF2E4A63"/>
+      <Setter Property="Background" Value="{DynamicResource PanelRaisedBrush}"/>
+      <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
       <Setter Property="BorderThickness" Value="2"/>
       <Setter Property="Padding" Value="18,10"/>
       <Setter Property="FontSize" Value="20"/>
@@ -30,25 +30,25 @@
       <Setter Property="HorizontalContentAlignment" Value="Center"/>
     </Style>
     <Style Selector="Button.transport:focus /template/ ContentPresenter">
-      <Setter Property="BorderBrush" Value="#FF63A8FF"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
       <Setter Property="BorderThickness" Value="3"/>
     </Style>
     <Style Selector="Button.track">
-      <Setter Property="Background" Value="#FF16212C"/>
-      <Setter Property="Foreground" Value="#FFD3E0EC"/>
-      <Setter Property="BorderBrush" Value="#FF2E4A63"/>
+      <Setter Property="Background" Value="{DynamicResource PanelPressedBrush}"/>
+      <Setter Property="Foreground" Value="{DynamicResource ButtonTextBrush}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="Padding" Value="12,6"/>
       <Setter Property="FontSize" Value="16"/>
       <Setter Property="Focusable" Value="True"/>
     </Style>
     <Style Selector="Button.track:focus /template/ ContentPresenter">
-      <Setter Property="BorderBrush" Value="#FF63A8FF"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
       <Setter Property="BorderThickness" Value="2"/>
     </Style>
     <Style Selector="TextBlock.trackLabel">
       <Setter Property="FontSize" Value="16"/>
-      <Setter Property="Foreground" Value="#FFE8EEF4"/>
+      <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
       <Setter Property="VerticalAlignment" Value="Center"/>
       <Setter Property="Margin" Value="0,0,18,0"/>
     </Style>
@@ -61,13 +61,13 @@
                  FontSize="32"
                  TextTrimming="CharacterEllipsis"
                  HorizontalAlignment="Left"/>
-      <TextBlock Text="{Binding StateText}" FontSize="16" Foreground="#FF9FB6CC"/>
+      <TextBlock Text="{Binding StateText}" FontSize="16" Foreground="{DynamicResource MutedTextBrush}"/>
     </StackPanel>
 
     <Border DockPanel.Dock="Bottom" Margin="0,12,0,0">
       <TextBlock Text="{Binding StatusLine}"
                  FontSize="15"
-                 Foreground="#FF9FB6CC"
+                 Foreground="{DynamicResource MutedTextBrush}"
                  TextWrapping="Wrap"
                  HorizontalAlignment="Left"/>
     </Border>
@@ -82,14 +82,14 @@
       -->
       <Border Grid.Row="0"
               Name="videoArea"
-              Background="#FF000000"
-              BorderBrush="#FF243546"
+              Background="{DynamicResource VideoBrush}"
+              BorderBrush="{DynamicResource VideoOutlineBrush}"
               BorderThickness="1">
         <Panel>
           <views:VideoSurface Name="videoSurface"/>
           <TextBlock Text="{Binding StateText}"
                      FontSize="22"
-                     Foreground="#FF3D556B"
+                     Foreground="{DynamicResource DimTextBrush}"
                      HorizontalAlignment="Center"
                      VerticalAlignment="Center"/>
         </Panel>

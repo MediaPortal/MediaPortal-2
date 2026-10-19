@@ -14,10 +14,12 @@
     5. the same front end aimed at a port nobody listens on must exit 1 and say so, because a check that
        cannot fail is not a check;
     6. while the server is still up, Frontend.RenderProbe draws the real screens through Skia and writes
-       eight PNGs (default build\artifacts\frontend-render\: home, continue, browser, details, search, seen,
-       nowplaying and connect).
-       The probe fails this gate if a frame comes back flat; the pictures themselves are for a person, and
-       -SkipRender leaves them out.
+       eleven PNGs (default build\artifacts\frontend-render\: home, continue, browser, details, search,
+       seen, nowplaying, connect, pictures, and the home screen twice more drawn with the colours of the
+       two rescued skins).
+       The probe fails this gate if a frame comes back flat, and if the pixels it was painted with are not
+       the palette the frame asked for; the pictures themselves are for a person, and -SkipRender leaves
+       them out.
 
   What is asserted about the printed answers is their shape, never their counts: how many aspects a freshly
   created database exposes is a measurement of when the request arrived relative to the media library's
@@ -290,7 +292,7 @@ try {
       if (-not $RenderDir) { $RenderDir = Join-Path (Join-Path $repoRoot 'build\artifacts') 'frontend-render' }
       New-Item -ItemType Directory -Path $RenderDir -Force | Out-Null
 
-      # Eight screens, eight frames. The home screen is drawn from a server that is really answering; the
+      # Nine screens, eleven frames. The home screen is drawn from a server that is really answering; the
       # continue frame is the same screen of a household that has been watching things, drawn from a scripted
       # server, because the strip cannot be drawn from an empty database; the playback screen is drawn from a
       # scripted player, because a frame that is supposed to mean the same
@@ -315,7 +317,17 @@ try {
         # The pictures screen is drawn from a scripted server too, because whose photographs the gate's machine
         # happens to hold is not something a frame may depend on - and because the question this screen has is
         # whether a preview's bytes became pixels inside the right tile, which only a known picture can answer.
-        @{ Name = 'pictures-windows'; Arguments = '--screen pictures' }
+        @{ Name = 'pictures-windows'; Arguments = '--screen pictures' },
+        # The playback screen in the colours of the two skins MP2 shipped, because "the skins were rescued" is a
+        # claim about pixels and because that screen carries most of what a palette says: the background, the panel
+        # behind every transport button, the text on it, the outlines and the focus ring. The probe checks the frame
+        # against the palette itself - the corner has to be the palette's background colour and that colour has to be
+        # what the frame stands on - so a palette that was applied to the application but never asked for by a screen
+        # fails here rather than looking fine. The home screen is deliberately not one of these frames: it draws one
+        # colour of its own and leaves the rest to the theme, so its two frames would say nothing the first one
+        # did not already say.
+        @{ Name = 'nowplaying-nereus'; Arguments = '--screen nowplaying --theme nereus' },
+        @{ Name = 'nowplaying-wmc-dark'; Arguments = '--screen nowplaying --theme wmc-dark' }
       )
       foreach ($frame in $frames) {
         $renderFile = Join-Path $RenderDir ($frame.Name + '.png')

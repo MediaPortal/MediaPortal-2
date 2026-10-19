@@ -40,6 +40,7 @@ using MediaPortal.Frontend;
 using MediaPortal.Frontend.Api;
 using MediaPortal.Frontend.Player;
 using MediaPortal.Frontend.Settings;
+using MediaPortal.Frontend.Theming;
 using MediaPortal.Frontend.ViewModels;
 using MediaPortal.Frontend.Views;
 
@@ -61,12 +62,16 @@ namespace FrontendProbe
   public static class RenderProbe
   {
     private const string USAGE =
-        "Frontend.RenderProbe --out <file.png> [--screen <home|continue|nowplaying|connect|browser|details|search|seen|folders|pictures>] [--server <url>] [--aspect <name>] [--width <n>] [--height <n>]\n" +
+        "Frontend.RenderProbe --out <file.png> [--screen <home|continue|nowplaying|connect|browser|details|search|seen|folders|pictures>] [--server <url>] [--aspect <name>] [--theme <name>] [--width <n>] [--height <n>]\n" +
         "  --out <file>     where to write the rendered frame (PNG); its directory is created\n" +
         "  --screen <name>  which screen to render (default home)\n" +
         "  --server <url>   render the populated screen by asking this server (otherwise MP2_SERVER,\n" +
         "                   otherwise the screen's own 'no server' state is rendered - a real state too)\n" +
         "  --aspect <name>  which aspect the library screen lists when a server was given (default MovieItem)\n" +
+        "  --theme <name>   draw the frame with the colours of one of the old skins: default, nereus, wmc,\n" +
+        "                   wmc-dark or wmc-turquoise. A name that is not one of those stops the run instead of\n" +
+        "                   quietly drawing the colours you always had, because a gate that asked for one theme\n" +
+        "                   and was given another would report a pass for a picture it never looked at\n" +
         "  --width/--height window size in device-independent pixels (default 1280x720, a 720p TV)";
 
     /// <summary>
@@ -80,6 +85,7 @@ namespace FrontendProbe
       string? serverUrl = null;
       string screenName = "home";
       string aspectName = "MovieItem";
+      string? theme = null;
       int width = 1280;
       int height = 720;
 
@@ -106,6 +112,11 @@ namespace FrontendProbe
             if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[i + 1]))
               return Usage("--aspect needs a name.");
             aspectName = args[++i].Trim();
+            break;
+          case "--theme":
+            if (i + 1 >= args.Length)
+              return Usage("--theme needs a palette name: default, nereus, wmc, wmc-dark, wmc-turquoise.");
+            theme = args[++i];
             break;
           case "--width":
             if (i + 1 >= args.Length || !int.TryParse(args[++i], out width))
@@ -175,8 +186,19 @@ namespace FrontendProbe
         Console.WriteLine("FAILED:   this probe exists to measure the Skia path; without it the run says nothing.");
         return 1;
       }
-      Console.WriteLine("theme:    " + application.Styles.Count + " style set(s), requested variant "
+      Console.WriteLine("styles:   " + application.Styles.Count + " style set(s), requested variant "
           + application.ActualThemeVariant);
+
+      // The palette this frame is drawn with. A name that is not a palette stops the run instead of falling back
+      // to the default colours: a gate that asked for the Nereus look, was quietly given the default one, and
+      // found the pixels it expected would report a pass for a picture it never looked at.
+      string appliedTheme = FrontendTheme.Apply(application, FrontendTheme.SelectedName(theme),
+          out string? themeProblem);
+      if (themeProblem != null)
+      {
+        Console.WriteLine("FAILED:   " + themeProblem);
+        return 2;
+      }
 
       // A URL from the command line, else MP2_SERVER, else nothing - and "nothing" is a mode, not a failure: it
       // renders the screen a TV shows when the server is down. A URL that does not parse stops the run instead
@@ -882,6 +904,18 @@ namespace FrontendProbe
       if (!isPng)
         return 3;
 
+      // Which palette the frame was painted with is a claim about pixels, not about a dictionary: the colour behind
+      // the whole screen has to be the one the theme says it is, or the theme never reached the television. After
+      // the frame was written, on purpose - the thing needed to judge a complaint about colour is the frame.
+      string paletteReport;
+      string? paletteWrong = CheckBackgroundColour(frame, appliedTheme, out paletteReport);
+      Console.WriteLine("palette:  " + paletteReport);
+      if (paletteWrong != null)
+      {
+        Console.WriteLine("FAILED:   " + paletteWrong);
+        return 1;
+      }
+
       if (screenName == "pictures")
       {
         // The scripted photographs are flat colours for exactly this question, which is the one the pictures
@@ -1037,6 +1071,69 @@ namespace FrontendProbe
     /// pushes every other tile out of the converter's budget.
     /// </para>
     /// </remarks>
+    /// <summary>
+    /// Whether the frame was really painted with the palette it says it was.
+    /// </summary>
+    /// <remarks>
+    /// Two things have to hold. The pixel in the corner - where nothing but the window's own background can be -
+    /// has to be the palette's background colour, and that colour has to be what the frame is standing on rather
+    /// than a patch somewhere. A palette applied to the application but never asked for by a screen fails the
+    /// second half, which is the failure a green build would otherwise hide.
+    /// </remarks>
+    private static string? CheckBackgroundColour(WriteableBitmap frame, string theme, out string report)
+    {
+      Color wanted = FrontendTheme.ColorOf(theme, "ScreenBackgroundBrush");
+
+      string? unreadable = ReadFrame(frame, out byte[] pixels, out int rowBytes, out int width, out int height,
+          out int redOffset, out int blueOffset);
+      if (unreadable != null)
+      {
+        report = "the frame could not be read (" + unreadable + ")";
+        return "the frame could not be read to check its palette: " + unreadable;
+      }
+
+      int[] rgb = { wanted.R, wanted.G, wanted.B };
+      long painted = 0;
+      for (int y = 0; y < height; y++)
+      {
+        for (int x = 0; x < width; x++)
+        {
+          if (IsColour(pixels, rowBytes, redOffset, blueOffset, x, y, rgb, 4))
+            painted++;
+        }
+      }
+
+      long total = (long) width * height;
+      double percent = total == 0 ? 0 : painted * 100.0 / total;
+      string share = percent.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture);
+      bool cornerPainted = IsColour(pixels, rowBytes, redOffset, blueOffset, 0, 0, rgb, 4);
+
+      report = "'" + theme + "' draws " + Hex(wanted) + " behind the screen; the corner is that colour and "
+          + share + "% of the " + total + " pixels are";
+
+      if (!cornerPainted)
+        return "the top-left pixel is not " + Hex(wanted) + ", so the screen was not drawn with the theme '"
+            + theme + "'";
+
+      // A palette that coloured one corner and nothing else would satisfy the check above while never having
+      // reached a single screen, which is the thing this probe exists to notice.
+      if (percent < 2.0)
+        return "only " + share + "% of the frame carries the theme's background colour, so the palette did not "
+            + "reach the screens";
+
+      return null;
+    }
+
+    /// <summary>
+    /// A colour the way a palette writes one. <c>Color.ToString()</c> answers a well-known colour with its name
+    /// ("BLACK"), which in a log a gate reads is worse than useless beside the hex a palette is written in.
+    /// </summary>
+    private static string Hex(Color colour)
+    {
+      return string.Format(System.Globalization.CultureInfo.InvariantCulture, "#{0:X2}{1:X2}{2:X2}{3:X2}",
+          colour.A, colour.R, colour.G, colour.B);
+    }
+
     private static string? CheckShrunkDecode(out string report)
     {
       const int SOURCE_WIDTH = 300;
