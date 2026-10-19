@@ -45,8 +45,13 @@ public partial class PlaybackSettingsViewModel : ObservableObject
     _settings = PlaybackSettings.Load(settingsPath, out string? problem);
     Status = problem ?? "";
 
-    Options.Add(new SkinSettingOption("Skip length", "How far one press of forward or back reaches",
-        SkipText, AdvanceSkip, Changed));
+    Options.Add(new SkinSettingOption("Instant skip",
+        "How far one instant jump reaches - a share of the title, or seconds when those are preferred",
+        InstantSkipText, AdvanceInstantSkip, Changed));
+
+    Options.Add(new SkinSettingOption("Instant skip in seconds",
+        "Whether the instant jump counts seconds instead of per cent of the title",
+        () => _settings.PreferInstantSkipSeconds, v => _settings.PreferInstantSkipSeconds = v, Changed));
 
     Options.Add(new SkinSettingOption("Volume step", "How much one press of the volume key moves",
         VolumeStepText, AdvanceVolumeStep, Changed));
@@ -101,14 +106,19 @@ public partial class PlaybackSettingsViewModel : ObservableObject
     Selected?.Press();
   }
 
-  private string SkipText()
+  private string InstantSkipText()
   {
-    return _settings.SkipStepSeconds + " seconds";
+    return _settings.PreferInstantSkipSeconds
+        ? _settings.InstantSkipSeconds + " seconds"
+        : _settings.InstantSkipPercent + " per cent of the title";
   }
 
-  private void AdvanceSkip()
+  private void AdvanceInstantSkip()
   {
-    _settings.SkipStepSeconds = Next(PlaybackSettings.SKIP_STEPS, _settings.SkipStepSeconds);
+    if (_settings.PreferInstantSkipSeconds)
+      _settings.InstantSkipSeconds = Next(PlaybackSettings.INSTANT_SKIP_SECONDS, _settings.InstantSkipSeconds);
+    else
+      _settings.InstantSkipPercent = Next(PlaybackSettings.INSTANT_SKIP_PERCENTS, _settings.InstantSkipPercent);
   }
 
   private string VolumeStepText()

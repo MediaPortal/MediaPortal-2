@@ -66,9 +66,26 @@ public sealed class PlaybackSettings
     }
   }
 
-  /// <summary>How far one press of forward or back reaches, in seconds.</summary>
-  [JsonPropertyName("skipStepSeconds")]
-  public int SkipStepSeconds { get; set; } = 30;
+  /// <summary>
+  /// How far an instant skip reaches, as a percentage of the title's length - the reference's
+  /// <c>InstantSkipPercent</c> and its shipped twenty. The reference's default way of jumping: percent of
+  /// the whole film, so one press covers the same stretch of a short film and a long one.
+  /// </summary>
+  [JsonPropertyName("instantSkipPercent")]
+  public int InstantSkipPercent { get; set; } = 20;
+
+  /// <summary>
+  /// The other way to jump: a fixed number of seconds, the reference's <c>InstantSkipSeconds</c> and its
+  /// shipped five. Asked for when <see cref="PreferInstantSkipSeconds"/> says so, and used as the answer
+  /// when a stream has no length to take a percentage of.
+  /// </summary>
+  [JsonPropertyName("instantSkipSeconds")]
+  public int InstantSkipSeconds { get; set; } = 5;
+
+  /// <summary>Whether the instant skip counts in seconds instead of per cent - the reference's
+  /// <c>PreferInstantSkipSeconds</c>, shipped off because it prefers the percentage.</summary>
+  [JsonPropertyName("preferInstantSkipSeconds")]
+  public bool PreferInstantSkipSeconds { get; set; }
 
   /// <summary>
   /// The ladder the left and right keys climb when they are pressed one after the other: comma-separated
@@ -154,8 +171,11 @@ public sealed class PlaybackSettings
   [JsonPropertyName("kenBurnsEffect")]
   public bool KenBurnsEffect { get; set; } = true;
 
-  /// <summary>The answers the skip row walks, in the reference's own spread of the same choice.</summary>
-  public static readonly int[] SKIP_STEPS = { 5, 10, 30, 60, 120, 300 };
+  /// <summary>Ladder for the instant-skip row, in per cent; the reference's own twenty is on it.</summary>
+  public static readonly int[] INSTANT_SKIP_PERCENTS = { 5, 10, 20, 25, 50 };
+
+  /// <summary>Ladder for the instant-skip row when it counts in seconds; five is the reference's answer.</summary>
+  public static readonly int[] INSTANT_SKIP_SECONDS = { 5, 10, 15, 30, 60 };
 
   /// <summary>The reference's escalating skip ladder, verbatim.</summary>
   public const string DEFAULT_SKIP_STEP_LIST = "15,30,60,180,300,600,900,1800,3600,7200";
@@ -217,7 +237,8 @@ public sealed class PlaybackSettings
         return new PlaybackSettings();
       }
 
-      read.SkipStepSeconds = Clamp(read.SkipStepSeconds, 1, 3600, 30);
+      read.InstantSkipPercent = Clamp(read.InstantSkipPercent, 1, 100, 20);
+      read.InstantSkipSeconds = Clamp(read.InstantSkipSeconds, 1, 3600, 5);
       read.VolumeStep = Clamp(read.VolumeStep, 1, 50, 5);
       read.InitialVolume = Clamp(read.InitialVolume, 0, 100, 100);
       read.SlideshowSeconds = Clamp(read.SlideshowSeconds, 1, 600, 7);

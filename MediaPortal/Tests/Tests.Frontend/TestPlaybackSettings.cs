@@ -49,12 +49,15 @@ namespace Tests.Frontend
     }
 
     [Test]
-    public void TheShippedAnswersSkipThirtyAndStartFull()
+    public void TheShippedAnswersAreTheReferenceOnesAndStartFull()
     {
       PlaybackSettings settings = PlaybackSettings.Load(_file, out string? problem);
 
       Assert.That(problem, Is.Null, "a file that was never written is not a problem");
-      Assert.That(settings.SkipStepSeconds, Is.EqualTo(30));
+      Assert.That(settings.InstantSkipPercent, Is.EqualTo(20),
+          "the reference's instant skip is twenty per cent of the title, and ships that answer");
+      Assert.That(settings.InstantSkipSeconds, Is.EqualTo(5));
+      Assert.That(settings.PreferInstantSkipSeconds, Is.False, "the reference prefers the percentage");
       Assert.That(settings.VolumeStep, Is.EqualTo(5));
       Assert.That(settings.InitialVolume, Is.EqualTo(100));
       Assert.That(settings.SubtitlesEnabled, Is.True);
@@ -68,20 +71,26 @@ namespace Tests.Frontend
     public void AnswersWrittenComeBackAndNonsenseIsClamped()
     {
       PlaybackSettings settings = PlaybackSettings.Load(_file, out _);
-      settings.SkipStepSeconds = 120;
+      settings.InstantSkipPercent = 50;
+      settings.InstantSkipSeconds = 15;
+      settings.PreferInstantSkipSeconds = true;
       settings.InitialVolume = 40;
       settings.AudioLanguage = "eng";
       settings.Save(_file, out bool saved);
       Assert.That(saved, Is.True);
 
       PlaybackSettings again = PlaybackSettings.Load(_file, out _);
-      Assert.That(again.SkipStepSeconds, Is.EqualTo(120));
+      Assert.That(again.InstantSkipPercent, Is.EqualTo(50));
+      Assert.That(again.InstantSkipSeconds, Is.EqualTo(15));
+      Assert.That(again.PreferInstantSkipSeconds, Is.True);
       Assert.That(again.InitialVolume, Is.EqualTo(40));
       Assert.That(again.AudioLanguage, Is.EqualTo("eng"));
 
-      File.WriteAllText(_file, "{\"skipStepSeconds\": 99999, \"initialVolume\": -9, \"watchedMarkPercentage\": 400}");
+      File.WriteAllText(_file, "{\"instantSkipPercent\": 99999, \"instantSkipSeconds\": 0, " +
+          "\"initialVolume\": -9, \"watchedMarkPercentage\": 400}");
       PlaybackSettings edited = PlaybackSettings.Load(_file, out _);
-      Assert.That(edited.SkipStepSeconds, Is.EqualTo(30), "a skip of a thousand hours is not an answer");
+      Assert.That(edited.InstantSkipPercent, Is.EqualTo(20), "a skip of a thousand titles is not an answer");
+      Assert.That(edited.InstantSkipSeconds, Is.EqualTo(5), "a skip of no time at all is not an answer either");
       Assert.That(edited.InitialVolume, Is.EqualTo(100), "negative sound does not exist");
       Assert.That(edited.WatchedMarkPercentage, Is.EqualTo(90),
           "four hundred per cent of a film is not a thing, and the reference's ninety stands");
@@ -173,17 +182,30 @@ namespace Tests.Frontend
     }
 
     [Test]
-    public void ThePlayerKeysReadTheViewersReach()
+    public void ThePlayerKeysReadTheViewersJump()
     {
-      PlaybackSettings settings = new PlaybackSettings { SkipStepSeconds = 90, VolumeStep = 2 };
-      using NowPlayingViewModel nowPlaying = new NowPlayingViewModel(new FakePlayer());
+      PlaybackSettings settings = new PlaybackSettings { InstantSkipPercent = 50, VolumeStep = 2 };
+      FakePlayer player = new FakePlayer();
+      using NowPlayingViewModel nowPlaying = new NowPlayingViewModel(player);
       nowPlaying.Preferences = settings;
 
-      Assert.That(nowPlaying.SkipStepMs, Is.EqualTo(90_000));
+      // The fake's title is a minute long, so half of it is thirty seconds - the reference takes the
+      // percentage of the whole title, not of what is left.
+      Assert.That(nowPlaying.InstantSkipMs(1), Is.EqualTo(30_000));
+      Assert.That(nowPlaying.InstantSkipMs(-1), Is.EqualTo(-30_000));
       Assert.That(nowPlaying.VolumeStep, Is.EqualTo(2));
 
-      using NowPlayingViewModel bare = new NowPlayingViewModel(new FakePlayer());
-      Assert.That(bare.SkipStepMs, Is.EqualTo(30_000), "without an answer of their own, the shipped reach stands");
+      PlaybackSettings seconds = new PlaybackSettings { PreferInstantSkipSeconds = true, InstantSkipSeconds = 15 };
+      nowPlaying.Preferences = seconds;
+      Assert.That(nowPlaying.InstantSkipMs(1), Is.EqualTo(15_000),
+          "when seconds are preferred, the length of the title stops mattering");
+      Assert.That(nowPlaying.InstantSkipCaption, Is.EqualTo("15 s"));
+      nowPlaying.Preferences = settings;
+      Assert.That(nowPlaying.InstantSkipCaption, Is.EqualTo("50 %"));
+
+      using NowPlayingViewModel bare = new NowPlayingViewModel(player);
+      Assert.That(bare.InstantSkipMs(1), Is.EqualTo(12_000),
+          "without an answer of their own, the shipped twenty per cent of the minute stands");
       Assert.That(bare.VolumeStep, Is.EqualTo(5));
     }
 

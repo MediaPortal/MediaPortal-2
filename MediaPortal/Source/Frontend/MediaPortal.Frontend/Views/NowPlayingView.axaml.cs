@@ -40,14 +40,6 @@ namespace MediaPortal.Frontend.Views
   public partial class NowPlayingView : UserControl, IWorkflowScreen, Workflow.IFullScreenScreen
   {
     /// <summary>
-    /// How far the transport buttons on the screen jump: the viewer's answer, or the shipped thirty seconds
-    /// when nobody said otherwise. Long enough to be useful over an advertisement, short enough to press
-    /// twice by accident without losing the plot. The remote's left and right keys do not use this - they
-    /// climb the escalating ladder the reference puts behind those keys, see <see cref="ShowSkipStep"/>.
-    /// </summary>
-    private long SkipLengthMs => _viewModel.SkipStepMs;
-
-    /// <summary>
     /// How much one press of a volume key changes the volume, in the player's 0-100 scale: the viewer's
     /// answer, or the shipped five.
     /// </summary>
@@ -126,7 +118,7 @@ namespace MediaPortal.Frontend.Views
             }
             else if (!_osdVisible && (args.Key == Key.Up || args.Key == Key.Down))
             {
-              long jump = args.Key == Key.Up ? SkipLengthMs : -SkipLengthMs;
+              long jump = _viewModel.InstantSkipMs(args.Key == Key.Up ? 1 : -1);
               CancelSkipStep();
               _viewModel.Skip(jump);
               Say("Superlayer_SkipStep", SkipWords(jump), 1200);
@@ -211,16 +203,18 @@ namespace MediaPortal.Frontend.Views
 
     private void OnBack(object? sender, RoutedEventArgs e)
     {
+      long jump = _viewModel.InstantSkipMs(-1);
       CancelSkipStep();
-      _viewModel.Skip(-SkipLengthMs);
-      Say("Superlayer_SkipStep", SkipWords(-SkipLengthMs), 1200);
+      _viewModel.Skip(jump);
+      Say("Superlayer_SkipStep", SkipWords(jump), 1200);
     }
 
     private void OnForward(object? sender, RoutedEventArgs e)
     {
+      long jump = _viewModel.InstantSkipMs(1);
       CancelSkipStep();
-      _viewModel.Skip(SkipLengthMs);
-      Say("Superlayer_SkipStep", SkipWords(SkipLengthMs), 1200);
+      _viewModel.Skip(jump);
+      Say("Superlayer_SkipStep", SkipWords(jump), 1200);
     }
 
     private DispatcherTimer? _skipStepTimer;
@@ -386,11 +380,12 @@ namespace MediaPortal.Frontend.Views
       _viewModel.Changed += OnPlaybackChanged;
       _ = _viewModel.ReadCoverAsync();
 
-      // The reach written on the two jump buttons is the viewer's answer, not a remembered thirty, and the
-      // screen greets every showing the way the reference greets it: out from behind a half-second of black.
-      long jumpSeconds = _viewModel.SkipStepMs / 1000;
-      backButton.Content = "-" + jumpSeconds + " s";
-      forwardButton.Content = "+" + jumpSeconds + " s";
+      // The reach written on the two jump buttons is the instant skip's real worth right now - the
+      // reference's percentage of the title, or seconds when the viewer prefers seconds - and the screen
+      // greets every showing the way the reference greets it: out from behind a half-second of black.
+      string reach = _viewModel.InstantSkipCaption;
+      backButton.Content = "-" + reach;
+      forwardButton.Content = "+" + reach;
       RestartOpenFade();
     }
 

@@ -277,11 +277,38 @@ namespace MediaPortal.Frontend.ViewModels
     /// </summary>
     public Settings.PlaybackSettings? Preferences { get; set; }
 
-    /// <summary>How far one press of forward or back reaches, as the viewer's answer or the shipped 30 s.</summary>
-    public long SkipStepMs => 1000L * (Preferences?.SkipStepSeconds ?? 30);
-
     /// <summary>How much one press of the volume key moves, as the viewer's answer or the shipped 5.</summary>
     public int VolumeStep => Preferences?.VolumeStep ?? 5;
+
+    /// <summary>
+    /// How far one instant skip reaches in the given direction, in milliseconds: the reference's
+    /// <c>InstantSkip</c> semantics - a percentage of the whole title, unless the viewer prefers seconds.
+    /// A stream without a length cannot be skipped by percentage, so seconds answer there.
+    /// </summary>
+    public long InstantSkipMs(int direction)
+    {
+      Settings.PlaybackSettings? prefs = Preferences;
+      if (prefs != null && prefs.PreferInstantSkipSeconds)
+        return 1000L * prefs.InstantSkipSeconds * direction;
+
+      long length = _player?.LengthInMs ?? 0;
+      if (length <= 0)
+        return 1000L * (prefs?.InstantSkipSeconds ?? 5) * direction;
+
+      return (long)(direction * ((prefs?.InstantSkipPercent ?? 20) / 100.0) * length);
+    }
+
+    /// <summary>What an instant-skip jump is worth right now, written the way the reference counts it.</summary>
+    public string InstantSkipCaption
+    {
+      get
+      {
+        Settings.PlaybackSettings? prefs = Preferences;
+        if (prefs != null && prefs.PreferInstantSkipSeconds)
+          return prefs.InstantSkipSeconds + " s";
+        return (prefs?.InstantSkipPercent ?? 20) + " %";
+      }
+    }
 
     /// <summary>
     /// Asks the engine what tracks the loaded media has. Called when a media starts playing, and safe to call
