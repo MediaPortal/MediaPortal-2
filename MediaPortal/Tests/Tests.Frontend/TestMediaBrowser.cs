@@ -830,6 +830,54 @@ namespace Tests.Frontend
     }
 
     [AvaloniaTest]
+    public void TheAgeCertificationSwitchCommandsTheDetailsLine()
+    {
+      // EnableAgeCertificationLogos hung the certification logo on the poster in the reference. This
+      // machine's skins ship no logo pictures, so the certification stands in words - and the same switch
+      // says yes or no to the same fact.
+      string previousDir = Environment.GetEnvironmentVariable("MP2_SKIN_SETTINGS_DIR") ?? "";
+      Environment.SetEnvironmentVariable("MP2_SKIN_SETTINGS_DIR",
+          Path.Combine(Path.GetTempPath(), "mp2-age-" + Guid.NewGuid().ToString("N")));
+      string wasTheme = "";
+      try
+      {
+        Application app = Application.Current!;
+        wasTheme = FrontendTheme.CurrentName(app);
+        FrontendTheme.Apply(app, "nereus", out _);
+
+        string details =
+            "{\"id\":\"" + TITANIC + "\",\"title\":\"Titanic\",\"year\":1997,\"certification\":\"PG-13\"}";
+        DetailsServer server = new DetailsServer(HttpStatusCode.OK, details);
+        MediaBrowserViewModel browser = BrowserOn(server);
+        browser.Selected = new TitleViewModel(
+            new MediaTitle(new Guid(TITANIC), "Titanic", null, 1997, null, null, false));
+
+        WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
+        Assert.That(browser.DetailsLine, Does.Contain("PG-13"),
+            "the switch ships on, and the age the film carries is said");
+
+        NereusSkinSettings off = new NereusSkinSettings();
+        off.EnableAgeCertificationLogos = false;
+        off.Save(null, out _);
+
+        // A screen that reads the same title now - the switch is asked when the words are made, and a panel
+        // that has already made its words for this title keeps them.
+        MediaBrowserViewModel later = BrowserOn(server);
+        later.Selected = new TitleViewModel(
+            new MediaTitle(new Guid(TITANIC), "Titanic", null, 1997, null, null, false));
+        WaitUntil("the second reading to land", delegate { return later.DetailsVisible; });
+        Assert.That(later.DetailsLine, Does.Not.Contain("PG-13"),
+            "off takes the age away - the whole of what the switch ever governed");
+      }
+      finally
+      {
+        if (wasTheme.Length > 0)
+          FrontendTheme.Apply(Application.Current!, wasTheme, out _);
+        Environment.SetEnvironmentVariable("MP2_SKIN_SETTINGS_DIR", previousDir.Length == 0 ? null : previousDir);
+      }
+    }
+
+    [AvaloniaTest]
     public void TheWordsFromFileReadTheWayTheReferenceReadsThem()
     {
       // A server whose numbers for this title came from the metadata files next to the media - the genres, the

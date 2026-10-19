@@ -1699,6 +1699,25 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
+    /// Whether the worn face wants the age certification shown: <c>EnableAgeCertificationLogos</c> is a
+    /// switch every skin with settings carries, and the reference hung the certification logo on the poster
+    /// with it. The shipped skins have no logo pictures, so what this machine shows is the certification in
+    /// words - and the switch says yes or no to exactly the same fact either way.
+    /// </summary>
+    private static bool AgeLogosShown
+    {
+      get
+      {
+        Application? app = Application.Current;
+        if (app == null)
+          return true;
+
+        return SkinSettingsBase.LoadFor(FrontendTheme.CurrentName(app), null, out _)
+            is not SkinSettingsBase settings || settings.EnableAgeCertificationLogos;
+      }
+    }
+
+    /// <summary>
     /// The one line under the title: what a viewer decides with, in the order they decide with it - which episode
     /// it is, how long, what it costs to watch in years, and whether they have seen it.
     /// </summary>
@@ -1740,7 +1759,10 @@ namespace MediaPortal.Frontend.ViewModels
       if (minutes.HasValue && minutes.Value > 0)
         parts.Add(minutes.Value + " min");
 
-      if (!string.IsNullOrWhiteSpace(details.Certification))
+      // The age a viewer has to be, shown where the reference showed its age certification logo - and obeying
+      // the same switch (EnableAgeCertificationLogos), because the reference's logos and this machine's word
+      // answer the same question and one off means the other off.
+      if (!string.IsNullOrWhiteSpace(details.Certification) && AgeLogosShown)
         parts.Add(details.Certification!.Trim());
 
       if (details.Rating.HasValue && details.Rating.Value > 0)

@@ -50,6 +50,11 @@ namespace Tests.Frontend
     public void PutTheSkinSettingsFileBack()
     {
       Environment.SetEnvironmentVariable("MP2_SKIN_SETTINGS_DIR", _previousDir.Length == 0 ? null : _previousDir);
+
+      // The face the tests put on comes off again, so no other test wakes up wearing Nereus.
+      Application? app = Application.Current;
+      if (app != null)
+        FrontendTheme.Apply(app, FrontendTheme.DEFAULT_NAME, out _);
     }
 
     [AvaloniaTest]
