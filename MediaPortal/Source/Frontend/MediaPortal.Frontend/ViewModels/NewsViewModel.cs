@@ -274,7 +274,8 @@ namespace MediaPortal.Frontend.ViewModels
       if (_client == null || _feedSettings.IntervalMinutes <= 0)
         return;
 
-      Timer ticker = new Timer(TimeSpan.FromMinutes(_feedSettings.IntervalMinutes).TotalMilliseconds);
+      System.Timers.Timer ticker = new System.Timers.Timer(
+          TimeSpan.FromMinutes(_feedSettings.IntervalMinutes).TotalMilliseconds);
       ticker.Elapsed += (_, _) => Dispatcher.UIThread.Post(() => RefreshAsync());
       ticker.Start();
       _ticker = ticker;

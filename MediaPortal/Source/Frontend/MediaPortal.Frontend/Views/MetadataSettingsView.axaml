@@ -13,7 +13,7 @@
     <TextBlock Classes="hint" TextWrapping="Wrap"
                Text="These are the server's extractor settings, stored on its machine. What changes here takes effect with the next import pass - the library as it stands keeps what it already learned."/>
 
-    <ItemsControl x:Name="rowsList" ItemsSource="{Binding Rows}" Spacing="6" Margin="0,6,0,0">
+    <ItemsControl x:Name="rowsList" ItemsSource="{Binding Rows}" Margin="0,6,0,0">
       <ItemsControl.ItemTemplate>
         <DataTemplate x:DataType="vm:MetadataRow">
           <Grid ColumnDefinitions="300,*">

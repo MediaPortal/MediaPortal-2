@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using MediaPortal.Common.Async;
 using Microsoft.AspNetCore.Mvc;
 using MediaPortal.Common;
 using MediaPortal.Common.ResourceAccess;

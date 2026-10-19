@@ -18,8 +18,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 using System.Reflection;
 using MediaPortal.Common;
+using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Common.Settings;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -312,6 +314,14 @@ namespace MediaPortal.Server.Api
       }
 
       return null;
+    }
+
+    /// <summary>
+    /// The body of an answer that refused: the reason, in words a screen can show.
+    /// </summary>
+    public class ErrorResponse
+    {
+      public string Error { get; set; }
     }
 
     #endregion

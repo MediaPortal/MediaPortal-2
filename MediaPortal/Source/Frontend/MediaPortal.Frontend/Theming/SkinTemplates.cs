@@ -20,6 +20,7 @@ using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
+using Avalonia.VisualTree;
 
 namespace MediaPortal.Frontend.Theming
 {

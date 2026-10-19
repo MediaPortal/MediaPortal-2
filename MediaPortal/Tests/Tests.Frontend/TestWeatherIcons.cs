@@ -15,9 +15,12 @@
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using Avalonia;
 using Avalonia.Headless.NUnit;
 using NUnit.Framework;
@@ -119,22 +122,37 @@ namespace Tests.Frontend
     {
       Application app = Application.Current!;
 
+      // The pictures are listed off a disk folder (an embedded skin carries its pictures' directory nowhere),
+      // and a test run's default skins folder is deliberately an empty temp dir - so this points the engine at
+      // the shipped skins on disk, the way TestSkinFromDisk and TestHomeMenuImages do, and puts it back after.
+      string previous = SkinEngine.SkinsFolder;
+      SkinEngine.SkinsFolder = Path.Combine(MetadataPath("FrontendSource"), "Skins");
+
       HashSet<string> asked = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
       foreach (int number in REFERENCE_DAY.Values.Concat(REFERENCE_NIGHT.Values))
         asked.Add(number.ToString(CultureInfo.InvariantCulture));
       asked.Add(WeatherIconCodes.NotAvailable);
 
-      foreach (string skin in new[] { "nereus", "wmc" })
+      try
       {
-        Assert.That(SkinEngine.Apply(app, skin, out string? problem), Is.True, problem ?? "applied");
-        WornSkin worn = SkinEngine.Worn(app)!;
-        foreach (string name in asked)
+        foreach (string skin in new[] { "nereus", "wmc" })
         {
-          Assert.That(worn.Images.Has("Weather/64x64/" + name), Is.True,
-              skin + " owes the forecast rows a Weather/64x64/" + name);
-          Assert.That(worn.Images.Has("Weather/128x128/" + name), Is.True,
-              skin + " owes the current-weather panel a Weather/128x128/" + name);
+          Assert.That(SkinEngine.Apply(app, skin, out string? problem), Is.True, problem ?? "applied");
+          WornSkin worn = SkinEngine.Worn(app)!;
+          foreach (string name in asked)
+          {
+            Assert.That(worn.Images.Has("Weather/64x64/" + name), Is.True,
+                skin + " owes the forecast rows a Weather/64x64/" + name);
+            Assert.That(worn.Images.Has("Weather/128x128/" + name), Is.True,
+                skin + " owes the current-weather panel a Weather/128x128/" + name);
+          }
+          SkinEngine.Clear(app);
         }
+      }
+      finally
+      {
+        SkinEngine.Clear(app);
+        SkinEngine.SkinsFolder = previous;
       }
     }
 
@@ -151,6 +169,24 @@ namespace Tests.Frontend
           CultureInfo.InvariantCulture);
       Assert.That(without.Icon, Is.Null,
           "a day the response gave no code for simply has no picture, and the row says so");
+    }
+
+    /// <summary>
+    /// A directory the test project was told about at build time - see <c>TestSkinFromDisk</c> for why a test
+    /// cannot derive these from the working directory.
+    /// </summary>
+    private static string MetadataPath(string name)
+    {
+      AssemblyMetadataAttribute? value = typeof(TestWeatherIcons).Assembly
+          .GetCustomAttributes<AssemblyMetadataAttribute>()
+          .FirstOrDefault(a => string.Equals(a.Key, name, StringComparison.Ordinal));
+
+      Assert.That(value?.Value, Is.Not.Null.And.Not.Empty,
+          "the test project has to hand " + name + " over for this to be checkable");
+
+      string path = Path.GetFullPath(value!.Value!);
+      Assert.That(Directory.Exists(path), Is.True, name + " points at '" + path + "', which is not a directory");
+      return path;
     }
   }
 }

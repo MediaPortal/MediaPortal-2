@@ -104,6 +104,10 @@ namespace Tests.Frontend
 
       Resolver = new Mock<ISystemResolver>(MockBehavior.Strict);
       Resolver.SetupGet(get => get.LocalSystemId).Returns(LOCAL_SYSTEM);
+      // The fake is a running server, and 'serverinfo' asks every registered resolver its system type. Answering
+      // it costs nothing here; a mock leaking past its own test then still answers like a server instead of
+      // throwing 'strict mock has no setup' from inside the controller as a 500 for whoever runs next.
+      Resolver.SetupGet(get => get.SystemType).Returns(SystemType.Server);
 
       Accessor = new Mock<IMediaAccessor>(MockBehavior.Strict);
       Accessor.SetupGet(get => get.MediaCategories).Returns(new Dictionary<string, MediaCategory>

@@ -50,6 +50,7 @@ namespace Tests.Frontend
   {
     private string _previousDir = "";
     private string _ownDir = "";
+    private string _previousScreensFile = "";
 
     [SetUp]
     public void IsolateTheSkinSettingsFolder()
@@ -58,6 +59,13 @@ namespace Tests.Frontend
       _ownDir = Path.Combine(Path.GetTempPath(), "mp2-tiles-" + Guid.NewGuid().ToString("N"));
       Directory.CreateDirectory(_ownDir);
       Environment.SetEnvironmentVariable("MP2_SKIN_SETTINGS_DIR", _ownDir);
+
+      // The shapes the screens remembered are just as much the machine's memory as the skin settings are - and
+      // inside this fixture the tests write them on purpose, so each test starts with nobody having remembered
+      // anything and one test leaving the films in covers cannot decide how the next one opens.
+      _previousScreensFile = Environment.GetEnvironmentVariable("MP2_SCREEN_VIEWS_FILE") ?? "";
+      Environment.SetEnvironmentVariable("MP2_SCREEN_VIEWS_FILE",
+          Path.Combine(_ownDir, "screens.json"));
     }
 
     [TearDown]
@@ -65,6 +73,8 @@ namespace Tests.Frontend
     {
       Environment.SetEnvironmentVariable("MP2_SKIN_SETTINGS_DIR",
           _previousDir.Length == 0 ? null : _previousDir);
+      Environment.SetEnvironmentVariable("MP2_SCREEN_VIEWS_FILE",
+          _previousScreensFile.Length == 0 ? null : _previousScreensFile);
 
       Application? app = Application.Current;
       if (app != null)
@@ -185,30 +195,37 @@ namespace Tests.Frontend
     {
       Application app = RequireApplication();
 
-      // A view is the screen's promise, not one skin's privilege: where the worn skin draws no tiles, the
-      // front end's own frames answer, so the button on WMC and on the machine's own face is no longer a lie.
+      // WMC now carries its own shelf tiles, so it opens as a grid and its view button walks all three shapes.
       FrontendTheme.Apply(app, "wmc", out _);
       MediaBrowserViewModel wmc = new MediaBrowserViewModel(null, MoviesSection(), null);
-      Assert.That(wmc.HasTiles, Is.False);
-      Assert.That(wmc.Layout, Is.EqualTo(BrowserLayout.List),
-          "an unanswered screen still opens as the rows it was written with");
+      Assert.That(wmc.HasTiles, Is.True, "WMC learned the shelf tiles, so its films open as tiles");
+      Assert.That(wmc.Layout, Is.EqualTo(BrowserLayout.Grid));
 
-      wmc.SwitchView();
-      Assert.That(wmc.Layout, Is.EqualTo(BrowserLayout.Grid),
-          "and the view button has tiles to switch to even where no skin draws them");
       wmc.SwitchView();
       Assert.That(wmc.Layout, Is.EqualTo(BrowserLayout.Cover));
       wmc.SwitchView();
-      Assert.That(wmc.Layout, Is.EqualTo(BrowserLayout.List));
+      Assert.That(wmc.Layout, Is.EqualTo(BrowserLayout.List),
+          "and the walk closes back onto the rows the reference's view mode started from");
+      wmc.SwitchView();
+      Assert.That(wmc.Layout, Is.EqualTo(BrowserLayout.Grid));
 
-      // And the front end's own face: the same, with the quiet tick the list always had.
+      // And the front end's own face, which ships no tile template of its own: there the shelf still opens as the
+      // rows it was written with and still carries the quiet tick - but the button is no longer a lie, because a
+      // shelf walks all three shapes whether a skin draws them or the front end's own frames answer for them. The
+      // shapes the WMC walk above remembered are swept away first, so this screen really is one nobody has asked.
+      System.IO.File.Delete(Path.Combine(_ownDir, "screens.json"));
       FrontendTheme.Apply(app, FrontendTheme.DEFAULT_NAME, out _);
       MediaBrowserViewModel own = new MediaBrowserViewModel(null, MoviesSection(), null);
       Assert.That(own.HasTiles, Is.False);
       Assert.That(own.Layout, Is.EqualTo(BrowserLayout.List));
       Assert.That(own.WatchFlagsShown, Is.True, "with no skin to ask, the quiet tick stays");
       own.SwitchView();
-      Assert.That(own.Layout, Is.EqualTo(BrowserLayout.Grid));
+      Assert.That(own.Layout, Is.EqualTo(BrowserLayout.Grid),
+          "the view button has tiles to switch to even where no skin draws them");
+      own.SwitchView();
+      Assert.That(own.Layout, Is.EqualTo(BrowserLayout.Cover));
+      own.SwitchView();
+      Assert.That(own.Layout, Is.EqualTo(BrowserLayout.List));
     }
 
     [AvaloniaTest]

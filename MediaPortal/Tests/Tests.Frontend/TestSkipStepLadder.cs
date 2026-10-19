@@ -18,10 +18,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-
 using MediaPortal.Frontend.Api;
+using MediaPortal.Frontend.Player;
 using MediaPortal.Frontend.ViewModels;
-
 using NUnit.Framework;
 
 namespace Tests.Frontend

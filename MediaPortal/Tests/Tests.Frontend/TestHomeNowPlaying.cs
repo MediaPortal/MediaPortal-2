@@ -103,7 +103,7 @@ namespace Tests.Frontend
 
       // Pointing the screen at a server rebuilds the whole menu from the new reading; the film has not stopped,
       // so the tile's mark may not quietly fall off with the old entries.
-      home.UseServer(new ServerApiClient("http://127.0.0.1:1"));
+      home.UseServer(new ServerApiClient(new System.Uri("http://127.0.0.1:1")));
 
       Assert.That(Tile(home, "Home->Movies").IsPlaying, Is.True);
     }

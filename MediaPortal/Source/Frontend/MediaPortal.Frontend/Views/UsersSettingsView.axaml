@@ -82,7 +82,7 @@
                    Text="{Binding PasswordText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                    FontSize="16"
                    Focusable="True"
-                   UseMask="True"
+                   PasswordChar="•"
                    RevealPassword="True"
                    Padding="10,4"
                    Margin="0,4" />

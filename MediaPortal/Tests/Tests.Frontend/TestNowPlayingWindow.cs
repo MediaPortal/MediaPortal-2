@@ -128,8 +128,17 @@ namespace Tests.Frontend
     /// </summary>
     private static void OpenOsd(ShellWindow window)
     {
-      Assert.That(PressKey(window, Key.I), Is.True, "the playback screen answers the Info key");
+      Assert.That(PressKey(PlaybackView(window), Key.I), Is.True, "the playback screen answers the Info key");
       Pump();
+    }
+
+    /// <summary>
+    /// The screen inside the window. Keys are raised where the viewer's remote would let them arrive: at a
+    /// control inside the screen, so the route runs over the window down into the screen and back.
+    /// </summary>
+    private static NowPlayingView PlaybackView(ShellWindow window)
+    {
+      return window.GetVisualDescendants().OfType<NowPlayingView>().Single();
     }
 
     /// <summary>
@@ -241,13 +250,17 @@ namespace Tests.Frontend
       player.RaisePosition(40_000, 60_000);
       Pump();
 
+      // The jump buttons are the reference's instant skip: the viewer's saved answer, and by default a fifth
+      // of the media - twelve seconds of this minute-long one, not the fixed half minute the transport once
+      // carried.
       Press(ButtonNamed(window, "backButton"));
-      Assert.That(player.TimeInMs, Is.EqualTo(10_000), "the back button went back half a minute");
+      Assert.That(player.TimeInMs, Is.EqualTo(28_000), "the back button jumped back the saved distance");
 
       Press(ButtonNamed(window, "forwardButton"));
       Assert.That(player.TimeInMs, Is.EqualTo(40_000), "and the forward button came back again");
 
       // A jump never runs past the media: a viewer holding the key ends up at the end, not past it.
+      Press(ButtonNamed(window, "forwardButton"));
       Press(ButtonNamed(window, "forwardButton"));
       Assert.That(player.TimeInMs, Is.EqualTo(60_000), "forward stopped at the end of the media");
 
@@ -270,12 +283,12 @@ namespace Tests.Frontend
       player.RaisePosition(40_000, 60_000);
       Pump();
 
-      Assert.That(PressKey(window, Key.Right), Is.True, "the screen claimed the key");
+      Assert.That(PressKey(PlaybackView(window), Key.Right), Is.True, "the screen claimed the key");
       Assert.That(player.TimeInMs, Is.EqualTo(40_000), "the first press holds its step and waits - the ladder has not run out yet");
       screen.SkipStepElapsed();
       Assert.That(player.TimeInMs, Is.EqualTo(55_000), "the first rung of the reference ladder is fifteen seconds");
 
-      Assert.That(PressKey(window, Key.Left), Is.True, "the screen claimed the other key as well");
+      Assert.That(PressKey(PlaybackView(window), Key.Left), Is.True, "the screen claimed the other key as well");
       screen.SkipStepElapsed();
       Assert.That(player.TimeInMs, Is.EqualTo(40_000), "turning around at the bottom lands back where the run started");
 

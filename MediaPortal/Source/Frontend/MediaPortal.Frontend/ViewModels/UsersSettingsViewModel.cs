@@ -153,11 +153,13 @@ namespace MediaPortal.Frontend.ViewModels
           Name = name,
           Password = PasswordText.Length == 0 ? null : PasswordText
         });
+        PasswordText = "";
+        await LoadAsync();
+        // The list has been read back, and what the viewer keeps reading is the server's answer to the
+        // press, not the count the read-back brought.
         Status = answer.Error != null
             ? "The server would not add '" + name + "': " + answer.Error
             : string.Format("'{0}' was added.", name);
-        PasswordText = "";
-        await LoadAsync();
       }
       catch (ServerApiException e)
       {
@@ -205,10 +207,10 @@ namespace MediaPortal.Frontend.ViewModels
           Name = name,
           Password = PasswordText.Length == 0 ? null : PasswordText
         });
+        await LoadAsync();
         Status = answer.Error != null
             ? "The server would not change '" + who.Name + "': " + answer.Error
             : string.Format("'{0}' saved.", name);
-        await LoadAsync();
       }
       catch (ServerApiException e)
       {
@@ -241,10 +243,10 @@ namespace MediaPortal.Frontend.ViewModels
       try
       {
         UserAnswer answer = await client.UpdateUserAsync(who.ProfileId, new UpdateUserWish { Password = "" });
+        await LoadAsync();
         Status = answer.Error != null
             ? "The server would not change '" + who.Name + "': " + answer.Error
             : string.Format("'{0}' signs in without a password now.", who.Name);
-        await LoadAsync();
       }
       catch (ServerApiException e)
       {
@@ -281,10 +283,10 @@ namespace MediaPortal.Frontend.ViewModels
       try
       {
         UserAnswer answer = await client.DeleteUserAsync(who.ProfileId);
+        await LoadAsync();
         Status = answer.Error != null
             ? "The server would not remove '" + who.Name + "': " + answer.Error
             : string.Format("'{0}' was removed.", who.Name);
-        await LoadAsync();
       }
       catch (ServerApiException e)
       {

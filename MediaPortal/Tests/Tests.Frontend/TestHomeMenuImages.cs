@@ -181,7 +181,9 @@ namespace Tests.Frontend
         Pump();
 
         Control tile = TileOf(window, local);
-        Image picture = tile.GetVisualDescendants().OfType<Image>().Single();
+        // The tile carries two pictures: its own home menu image and the small 'this shelf is playing' mark that
+        // sits over it (invisible until something plays). The home menu image is the large one.
+        Image picture = LargestPicture(tile);
         Assert.That(picture.Source, Is.InstanceOf<Bitmap>(),
             "Nereus' home menu asked the skin for the local-media entry's picture and came back without one - the "
             + "converter, the format the skin spells the name in, or the file behind it");
@@ -198,7 +200,7 @@ namespace Tests.Frontend
         Pump();
 
         Control bare = TileOf(window, local);
-        Image none = bare.GetVisualDescendants().OfType<Image>().Single();
+        Image none = LargestPicture(bare);
         Assert.That(none.Source, Is.Null,
             "WMC has no local-media tile picture - the reference screen never had one - so the tile must come "
             + "back holding nothing rather than half a file");
@@ -267,9 +269,19 @@ namespace Tests.Frontend
       return container!;
     }
 
-    /// <summary>The tile's letter badge: the text block wearing the entry's own first letter as its text.</summary>
-    private static TextBlock BadgeOf(Control tile, MainMenuEntry entry)
+    /// <summary>
+    /// The tile's own picture: a tile can carry a second small picture over it (the 'is playing' mark), so the
+    /// picture a tile was built around is picked by size rather than by counting.
+    /// </summary>
+    private static Image LargestPicture(Control tile)
     {
+      IEnumerable<Image> pictures = tile.GetVisualDescendants().OfType<Image>().ToList();
+      Assert.That(pictures.Any(), Is.True, "the tile was written with a picture slot at all");
+      return pictures.OrderBy(image => image.Height is double h ? -h : 0).First();
+    }
+
+    /// <summary>The tile's letter badge: the text block wearing the entry's own first letter as its text.</summary>
+    private static TextBlock BadgeOf(Control tile, MainMenuEntry entry)    {
       TextBlock badge = tile.GetVisualDescendants().OfType<TextBlock>()
           .FirstOrDefault(t => t.Text == entry.Badge);
       Assert.That(badge, Is.Not.Null, "the tile was written with a badge for the no-picture case");

@@ -16,6 +16,7 @@
 */
 
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Headless.NUnit;
 using NUnit.Framework;
 using MediaPortal.Frontend.Theming;

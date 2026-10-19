@@ -72,6 +72,13 @@ namespace MediaPortal.Frontend.Views
       _ring.Add(addButton);
       DpadNavigation.Attach(this, _ring);
 
+      // The rename fields answer nothing to Enter (the save button beside them does the work), so they take
+      // the reference's OK whole; the new-folder path field already spends Enter on "add this folder", so its
+      // keyboard comes on the Menu key - the one key it has left, and no field here keeps its keys to itself.
+      VirtualKeyboardService.SetTrigger(editNameBox, VirtualKeyboardTrigger.EnterOrMenu);
+      VirtualKeyboardService.SetTrigger(editPathBox, VirtualKeyboardTrigger.EnterOrMenu);
+      VirtualKeyboardService.SetTrigger(folderPathBox, VirtualKeyboardTrigger.Menu);
+
 
 
       AddHandler(KeyDownEvent,
@@ -136,9 +143,11 @@ namespace MediaPortal.Frontend.Views
 
       int after = _ring.IndexOf(folderPathBox);
       int at = after < 0 ? _ring.Count : after + 1;
-      // Walked from the window rather than from the list: the boxes are the only check boxes the screen has, and
-      // the list's own containers are not realised until it has been measured.
-      foreach (CheckBox box in this.GetVisualDescendants().OfType<CheckBox>())
+      // Walked from the window rather than from the list: the list's own containers are not realised until it has
+      // been measured. Only the 'what kind of media is in it' list's boxes belong in the ring - the editor beside
+      // the selected folder carries its own 'watch' box and category boxes, and pulling those in instead put the
+      // arrow's next stop on a row the viewer was not editing.
+      foreach (CheckBox box in categoriesList.GetVisualDescendants().OfType<CheckBox>())
       {
         _ring.Insert(at++, box);
         _categoryBoxes.Add(box);

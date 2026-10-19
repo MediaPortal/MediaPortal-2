@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using MediaPortal.Common;
+using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Common.Settings;
 using MediaPortal.Utilities.Exceptions;
 using Microsoft.AspNetCore.Http;

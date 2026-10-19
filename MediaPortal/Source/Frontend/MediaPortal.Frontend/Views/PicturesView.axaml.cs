@@ -231,6 +231,10 @@ namespace MediaPortal.Frontend.Views
     // that was looked through. An ImageBrush's Viewbox is that window.
     private KenBurnsAnimator? _kenBurns;
     private Avalonia.Media.ImageBrush? _viewingBrush;
+
+    /// <summary>The whole photograph: the window the brush shows when the animation says nothing else.</summary>
+    private static readonly Avalonia.RelativeRect WholePicture = new Avalonia.RelativeRect(
+        0, 0, 1, 1, Avalonia.RelativeUnit.Relative);
     private DispatcherTimer? _kenBurnsTimer;
     private Avalonia.Size _viewingPixels;
 
@@ -253,16 +257,14 @@ namespace MediaPortal.Frontend.Views
           ? null
           : new Avalonia.Media.ImageBrush(picture)
           {
-            Stretch = Avalonia.Media.Stretch.Uniform,
-            ViewboxUnits = Avalonia.RelativeUnit.Relative,
-            Viewbox = new Avalonia.RelativeRect(0, 0, 1, 1)
+            Stretch = Avalonia.Media.Stretch.Uniform
           };
       viewingSurface.Fill = _viewingBrush;
 
       // The reference started its animation per picture, and so here does the moving window: the new
       // photograph hangs still for a moment and then begins to drift or deepen.
       if (_viewingBrush != null)
-        _viewingBrush.Viewbox = new Avalonia.RelativeRect(0, 0, 1, 1);
+        _viewingBrush.SourceRect = WholePicture;
       if (_kenBurns != null)
         _kenBurns.Initialize(DateTime.Now);
       else
@@ -284,7 +286,7 @@ namespace MediaPortal.Frontend.Views
           _kenBurnsTimer.Stop();
         _kenBurns = null;
         if (_viewingBrush != null)
-          _viewingBrush.Viewbox = new Avalonia.RelativeRect(0, 0, 1, 1);
+          _viewingBrush.SourceRect = WholePicture;
         return;
       }
 
@@ -315,7 +317,11 @@ namespace MediaPortal.Frontend.Views
 
       Avalonia.Rect crop = _kenBurns.RectAt(
           DateTime.Now, _viewingPixels, new Avalonia.Size(width, height));
-      _viewingBrush.Viewbox = new Avalonia.RelativeRect(crop.X, crop.Y, crop.Width, crop.Height);
+      // The window the animation computes is in the photograph's own pixels, which is exactly what the
+      // brush's source rectangle reads.
+      _viewingBrush.SourceRect = new Avalonia.RelativeRect(
+          new Avalonia.Point(crop.X, crop.Y), new Avalonia.Size(crop.Width, crop.Height),
+          Avalonia.RelativeUnit.Absolute);
     }
 
     /// <summary>The window this screen is currently standing in, or null between visits.</summary>
