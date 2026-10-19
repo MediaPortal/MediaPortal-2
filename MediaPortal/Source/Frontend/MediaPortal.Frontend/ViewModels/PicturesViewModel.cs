@@ -214,10 +214,16 @@ public partial class PicturesViewModel : ObservableObject, IDisposable
     OnPropertyChanged(nameof(CanGoUp));
     try
     {
-      await ReadFolderAsync(tile.Path, CancellationToken.None);
+      // A walk into a folder is a read like any other, so it is handed the screen's own cancellation. The viewer
+      // who presses back before the folder arrives has already left, and the answer must not be painted over the
+      // list of shares - or over the next folder - that the screen is standing in by then.
+      CancellationTokenSource walking = RestartFetching();
+      await ReadFolderAsync(tile.Path, walking.Token);
     }
     catch (OperationCanceledException)
     {
+      // The viewer moved on while the folder was on its way, and whoever moved them on has already said what the
+      // screen shows next. There is nothing here to undo.
     }
     catch (ServerApiException failure)
     {
@@ -251,7 +257,9 @@ public partial class PicturesViewModel : ObservableObject, IDisposable
       return;
     }
 
-    _ = ReadFolderAsync(previous, CancellationToken.None);
+    // The same cancellation as any other read, for the same reason: the viewer may be walking again, or back,
+    // before this folder arrives.
+    _ = ReadFolderAsync(previous, RestartFetching().Token);
     OnPropertyChanged(nameof(CanGoUp));
   }
 
@@ -323,6 +331,9 @@ public partial class PicturesViewModel : ObservableObject, IDisposable
   {
     SharesAnswer shares = await _client!.GetSharesAsync(cancellation);
 
+    // The same rule as for a folder: an answer nobody is waiting for any more is not an answer.
+    cancellation.ThrowIfCancellationRequested();
+
     Tiles.Clear();
     _current = null;
     List<FolderEntry> roots = new List<FolderEntry>();
@@ -349,7 +360,11 @@ public partial class PicturesViewModel : ObservableObject, IDisposable
   {
     FolderListing listing = await _client!.GetFolderAsync(path, cancellation);
 
-    CancellationTokenSource fetching = RestartFetching();
+    // Whoever asked for this folder has to still be asking when the answer comes. A folder that arrives after the
+    // viewer walked back or into somewhere else is not an answer, it is a folder from the past, and painting it
+    // over the screen would leave the viewer looking at a place they are not in.
+    cancellation.ThrowIfCancellationRequested();
+
     Tiles.Clear();
     _current = listing;
     _viewerTiles = new List<PictureTile>();
@@ -369,7 +384,7 @@ public partial class PicturesViewModel : ObservableObject, IDisposable
     OnPropertyChanged(nameof(IsAtRoot));
     OnPropertyChanged(nameof(CanGoUp));
 
-    _ = FetchPicturesAsync(_viewerTiles, fetching.Token);
+    _ = FetchPicturesAsync(_viewerTiles, cancellation);
   }
 
   /// <summary>

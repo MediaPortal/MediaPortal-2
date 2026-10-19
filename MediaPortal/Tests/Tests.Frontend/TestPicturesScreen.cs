@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2026 Team MediaPortal
+﻿#region Copyright (C) 2007-2026 Team MediaPortal
 
 /*
     Copyright (C) 2007-2026 Team MediaPortal
@@ -25,13 +25,20 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Controls;
+using Avalonia.Headless;
 using Avalonia.Headless.NUnit;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.VisualTree;
 using MediaPortal.Common;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Frontend.Api;
 using MediaPortal.Frontend.ViewModels;
+using MediaPortal.Frontend.Views;
 using MediaPortal.Server.Api;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -76,29 +83,56 @@ namespace Tests.Frontend
         LocalFsResourceProviderBase.ToResourcePath(TRIP_DIR).Serialize();
 
     private readonly List<IDisposable> _toDispose = new List<IDisposable>();
+    private readonly List<Window> _windows = new List<Window>();
     private List<string> _askedFor;
     private string _scriptedListing;
+
+    /// <summary>
+    /// How long the scripted server takes to answer a folder. Zero, as usual; a test that wants to know what the
+    /// screen does with an answer that came too late sets it.
+    /// </summary>
+    private volatile int _browseDelayMs;
 
     [SetUp]
     public void Prepare()
     {
       _askedFor = new List<string>();
       _scriptedListing = Listing(TRIP, "2019", 1, 1, 3, false);
+      _browseDelayMs = 0;
       ServiceRegistration.Remove<IResourceAccessGuard>();
     }
 
     [TearDown]
     public void DisposeOfEverything()
     {
+      // Screens go before servers: a window still on screen would keep asking a view model whose test has
+      // finished, and the answer it got would belong to no test at all.
+      foreach (Window window in _windows)
+      {
+        try
+        {
+          window.Close();
+        }
+        catch (Exception)
+        {
+          // A screen that would not close at the end of a test says nothing about the keys it answered.
+        }
+      }
+      _windows.Clear();
+
       foreach (IDisposable thing in _toDispose)
       {
         IDisposable closing = thing;
-        // Shutting the scripted server down waits for its own shutdown, and ASP.NET Core hands part of that
-        // shutdown to the context it was asked from. Asked from the thread that owns the user interface
-        // dispatcher, the wait would be waiting for that very thread - so it happens on another one, for the
-        // same reason it starts on another one. Nothing here needs the shutdown to have finished: every test
-        // takes a port that is free at the moment it asks, and the process ends with the run.
-        Task.Run(delegate
+        // Closing the listener from the display thread deadlocks - the hazard TestHomeWindow measured and wrote
+        // down - so it is closed where no display thread is involved, and this thread waits for that one, which it
+        // may do because nothing on the pool thread needs anything back from here.
+        //
+        // Waiting is not tidiness either: a port goes back in the pool of free ports when the listener closes,
+        // which is at the start of the shutdown rather than the end, so a test asking for a port while the
+        // previous test's server is still saying goodbye can be handed the same number and join a listener on its
+        // way out. Its requests are answered until the goodbye finishes and hang after that, which looks exactly
+        // like a screen that stopped listening to its server.
+        if (!Task.Run(delegate
         {
           try
           {
@@ -109,7 +143,11 @@ namespace Tests.Frontend
             // A server that could not close itself down cleanly at the end of a test says nothing about the
             // screen the test was looking at.
           }
-        });
+        }).Wait(TimeSpan.FromSeconds(10)))
+        {
+          TestContext.Progress.WriteLine("a scripted server of " + TestContext.CurrentContext.Test.Name
+              + " was still closing after ten seconds");
+        }
       }
       _toDispose.Clear();
       ServiceRegistration.Remove<IResourceAccessGuard>();
@@ -375,6 +413,200 @@ namespace Tests.Frontend
       Assert.That(listing.LocalPath, Does.Not.Contain("://"));
     }
 
+    // The keys
+
+    [AvaloniaTest]
+    public void TheNextArrowWalksTheCursorOntoTheNextTileWithNoMouseAnywhere()
+    {
+      string baseUrl = Start();
+      using (var client = new ServerApiClient(new Uri(baseUrl)))
+      using (var pictures = new PicturesViewModel(client))
+      {
+        PicturesWindow window = Show(pictures);
+        WaitFor(delegate { return pictures.Tiles.Count == 1; }, "the list of shares");
+        _ = pictures.OpenAsync(pictures.Tiles[0]);
+        WaitFor(delegate { return pictures.Tiles.Count == 2; }, "the folder to be read");
+
+        ListBox tiles = TilesOn(window);
+        Assert.That(tiles.Focus(), Is.True,
+            "the grid has to be able to hold the focus, because that is where a remote leaves it");
+
+        pictures.Selected = pictures.Tiles[0];
+        Pump();
+        ListBoxItem underTheCursor = ContainerFor(window, pictures.Tiles[0]);
+        Assert.That(underTheCursor.Focus(), Is.True,
+            "the tile the viewer is standing on has to be able to hold the focus");
+
+        // Through the headless platform's input pipeline rather than raised on the grid as the other keys here
+        // are: walking a selection along a grid is Avalonia's own code, and that code follows the container that
+        // holds the focus, so a key raised on the grid alone moves nothing.
+        window.KeyPress(Key.Right, RawInputModifiers.None, PhysicalKey.None, null);
+        Pump();
+        WaitFor(delegate { return pictures.Tiles.IndexOf(pictures.Selected) == 1; },
+            "the cursor to reach the next tile");
+
+        Assert.That(tiles.SelectedIndex, Is.EqualTo(1),
+            "what the grid has selected and what the screen thinks is selected cannot be two facts");
+        Assert.That(pictures.Tiles[1].Name, Is.EqualTo(pictures.Selected.Name),
+            "the arrow that means \"the next one\" has to land on the next tile, not somewhere else");
+      }
+    }
+
+    [AvaloniaTest]
+    public void EnterOnAFolderTileWalksIntoItAndTheArrowsThenBelongToTheNewFolder()
+    {
+      string baseUrl = Start();
+      using (var client = new ServerApiClient(new Uri(baseUrl)))
+      using (var pictures = new PicturesViewModel(client))
+      {
+        PicturesWindow window = Show(pictures);
+        WaitFor(delegate { return pictures.Tiles.Count == 1; }, "the list of shares");
+        _ = pictures.OpenAsync(pictures.Tiles[0]);
+        WaitFor(delegate { return pictures.Tiles.Count == 2; }, "the folder to be read");
+
+        pictures.Selected = pictures.Tiles[0];
+        Pump();
+        Assert.That(pictures.Selected.IsFolder, Is.True, "the test wants a folder under the cursor");
+
+        // What the folder the test is about to walk into holds, said differently, so that walking into it can be
+        // told apart from still standing where the test started.
+        _scriptedListing = Listing(TRIP, "The trip", 0, 2, 0, false);
+
+        Assert.That(PressKey(window, Key.Enter), Is.True, "the screen has to claim the key");
+        WaitFor(delegate { return pictures.Heading == "The trip"; }, "the folder to be read");
+
+        Assert.That(pictures.Tiles.Count, Is.EqualTo(2), "the tiles on screen are the new folder's, not the old "
+            + "one's with a new title over them");
+      }
+    }
+
+    [AvaloniaTest]
+    public void EnterOnAPhotographRaisesItRatherThanWalkingIntoIt()
+    {
+      string baseUrl = Start();
+      using (var client = new ServerApiClient(new Uri(baseUrl)))
+      using (var pictures = new PicturesViewModel(client))
+      {
+        PicturesWindow window = Show(pictures);
+        WaitFor(delegate { return pictures.Tiles.Count == 1; }, "the list of shares");
+        _scriptedListing = Listing(TRIP, "2019", 0, 3, 0, false);
+        _ = pictures.OpenAsync(pictures.Tiles[0]);
+        WaitFor(delegate { return pictures.Tiles.Count == 3; }, "the folder to be read");
+
+        pictures.Selected = pictures.Tiles[0];
+        Pump();
+
+        PressKey(window, Key.Enter);
+        WaitFor(delegate { return pictures.IsViewing; }, "the photograph to be raised");
+
+        Assert.That(pictures.Viewing, Is.SameAs(pictures.Tiles[0]));
+        Assert.That(pictures.CanGoUp, Is.True, "raising a photograph does not leave the folder");
+        WaitFor(delegate { return pictures.ViewingBytes != null; }, "the bytes of the photograph");
+        Assert.That(pictures.ViewingBytes!.Length, Is.EqualTo(4), "the screen shows the picture the server handed "
+            + "over, not a placeholder drawn in its place");
+      }
+    }
+
+    [AvaloniaTest]
+    public void BackStepsOutOfAFolderAndOnlyLeavesTheScreenFromTheListOfShares()
+    {
+      string baseUrl = Start();
+      using (var client = new ServerApiClient(new Uri(baseUrl)))
+      using (var pictures = new PicturesViewModel(client))
+      {
+        PicturesWindow window = Show(pictures);
+        WaitFor(delegate { return pictures.Tiles.Count == 1; }, "the list of shares");
+        _ = pictures.OpenAsync(pictures.Tiles[0]);
+        WaitFor(delegate { return pictures.Heading == "2019"; }, "the folder to be read");
+
+        PressKey(window, Key.Back);
+        WaitFor(delegate { return pictures.Heading == "Pictures"; }, "to be back at the list of shares");
+
+        Assert.That(window.IsVisible, Is.True,
+            "pressing back in the middle of a folder means out of the folder, not away from pictures");
+        Assert.That(pictures.CanGoUp, Is.False);
+
+        PressKey(window, Key.Back);
+        Pump();
+        Assert.That(window.IsVisible, Is.False, "from the one place with nowhere up to go, the key leaves");
+      }
+    }
+
+    /// <summary>
+    /// A folder whose answer arrives after the viewer walked back out of the walk must not be painted over the
+    /// screen they are standing in front of.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Walking into a folder and pressing back are two key presses, and on a slow server they can finish in either
+    /// order. The screen the viewer is looking at at the end is the list of shares, and a folder arriving late is
+    /// not a reason to move them somewhere they just left.
+    /// </para>
+    /// <para>
+    /// This is the shape the first version of the screen got wrong, and the suite found it rather than anybody:
+    /// there the folder was slow only because a screenful of other tests had the machine busy, which is a way for
+    /// a bug to hide in plain sight. The delay below is what turns that timing into a fact of the test instead of
+    /// a matter of luck.
+    /// </para>
+    /// </remarks>
+    [AvaloniaTest]
+    public void AFolderThatArrivesLateDoesNotPaintOverTheFolderTheViewerLeft()
+    {
+      _browseDelayMs = 1500;
+      string baseUrl = Start();
+      using (var client = new ServerApiClient(new Uri(baseUrl)))
+      using (var pictures = new PicturesViewModel(client))
+      {
+        PicturesWindow window = Show(pictures);
+        WaitFor(delegate { return pictures.Tiles.Count == 1; }, "the list of shares");
+
+        _ = pictures.OpenAsync(pictures.Tiles[0]);
+        WaitFor(delegate { return pictures.CanGoUp; }, "the walk into the folder to have started");
+
+        PressKey(window, Key.Back);
+        WaitFor(delegate { return pictures.Heading == "Pictures"; }, "to be back at the list of shares");
+
+        // Now let the folder turn up. It was asked for while the viewer was walking in, and it has nowhere to go.
+        Thread.Sleep(2500);
+        Pump();
+
+        Assert.That(pictures.Heading, Is.EqualTo("Pictures"),
+            "the folder the viewer walked out of must not be put back over the list of shares");
+        Assert.That(pictures.Tiles.Count, Is.EqualTo(1), "and its tiles must not be on the screen either");
+        Assert.That(window.IsVisible, Is.True);
+      }
+    }
+
+    [AvaloniaTest]
+    public void WhileAPhotographIsRaisedTheLeftAndRightKeysBelongToThePhotograph()
+    {
+      string baseUrl = Start();
+      using (var client = new ServerApiClient(new Uri(baseUrl)))
+      using (var pictures = new PicturesViewModel(client))
+      {
+        PicturesWindow window = Show(pictures);
+        WaitFor(delegate { return pictures.Tiles.Count == 1; }, "the list of shares");
+        _scriptedListing = Listing(TRIP, "2019", 0, 3, 0, false);
+        _ = pictures.OpenAsync(pictures.Tiles[0]);
+        WaitFor(delegate { return pictures.Tiles.Count == 3; }, "the folder to be read");
+
+        pictures.Selected = pictures.Tiles[0];
+        Pump();
+        PressKey(window, Key.Enter);
+        WaitFor(delegate { return pictures.IsViewing; }, "the photograph to be raised");
+        int selectedBefore = pictures.Tiles.IndexOf(pictures.Selected);
+
+        PressKey(window, Key.Right);
+        Assert.That(pictures.Caption, Does.Contain("2 of 3"), "the key the viewer is holding moves the photograph");
+        Assert.That(pictures.Tiles.IndexOf(pictures.Selected), Is.EqualTo(selectedBefore),
+            "and does not move the cursor behind the photograph out of sight");
+
+        PressKey(window, Key.Escape);
+        Assert.That(pictures.IsViewing, Is.False);
+        Assert.That(window.IsVisible, Is.True, "putting one photograph down is not leaving the pictures");
+      }
+    }
+
     // The plumbing of the fixture
 
     private static FolderListing ReadListing(string json)
@@ -461,7 +693,11 @@ namespace Tests.Frontend
                       + "\"systemId\":\"host\",\"local\":true,"
                       + "\"mediaCategories\":[\"Image\"],\"useShareWatcher\":true}],\"mediaCategories\":[\"Image\"]}";
                 else if (context.Request.Path.ToString().EndsWith("/api/media/browse", StringComparison.Ordinal))
+                {
+                  if (_browseDelayMs > 0)
+                    await Task.Delay(_browseDelayMs, context.RequestAborted);
                   body = _scriptedListing;
+                }
                 else
                 {
                   // A picture's bytes. Any bytes will do - nothing here decodes them.
@@ -497,6 +733,46 @@ namespace Tests.Frontend
     private static string Json(string text)
     {
       return text.Replace("\\", "\\\\").Replace("\"", "\\\"");
+    }
+
+    /// <summary>
+    /// Puts the screen on the (headless) display and takes responsibility for closing it again.
+    /// </summary>
+    private PicturesWindow Show(PicturesViewModel pictures)
+    {
+      var window = new PicturesWindow(pictures);
+      window.Show();
+      Pump();
+      _windows.Add(window);
+      return window;
+    }
+
+    private static ListBox TilesOn(Window window)
+    {
+      return window.GetVisualDescendants().OfType<ListBox>().SingleOrDefault()
+          ?? throw new AssertionException("the pictures screen has no grid of tiles");
+    }
+
+    /// <summary>
+    /// The container the grid put a tile in, which is the thing that holds the focus while a viewer stands on that
+    /// tile - the tile itself is only data.
+    /// </summary>
+    private static ListBoxItem ContainerFor(Window window, PictureTile tile)
+    {
+      return window.GetVisualDescendants().OfType<ListBoxItem>()
+          .SingleOrDefault(item => ReferenceEquals(item.DataContext, tile))
+          ?? throw new AssertionException("the tile \"" + tile.Name + "\" was never given a container to stand in");
+    }
+
+    /// <summary>
+    /// Raises a key the way Avalonia does, and reports whether the screen claimed it.
+    /// </summary>
+    private static bool PressKey(Control on, Key key)
+    {
+      var args = new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Key = key, Source = on };
+      on.RaiseEvent(args);
+      Pump();
+      return args.Handled;
     }
 
     /// <summary>

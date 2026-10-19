@@ -39,10 +39,11 @@ namespace MediaPortal.Frontend.Views
   /// </summary>
   /// <remarks>
   /// What only a screen knows, and the view model deliberately does not: the folders are read when the screen
-  /// opens, Enter walks into a folder or raises a photograph to full size, the arrow keys along the bottom of the
-  /// grid are the tile navigation while the viewer is the left and right keys, and the slideshow is a timer here
-  /// rather than a task in the view model - it is a thing that happens on screen, and it stops when the screen
-  /// closes without anybody having to remember to cancel it.
+  /// opens, Enter walks into a folder or raises a photograph to full size, back steps out of a folder and only
+  /// leaves the screen from the list of shares, the arrow keys along the bottom of the grid are the tile
+  /// navigation while the viewer is the left and right keys, and the slideshow is a timer here rather than a task
+  /// in the view model - it is a thing that happens on screen, and it stops when the screen closes without
+  /// anybody having to remember to cancel it.
   /// </remarks>
   public partial class PicturesWindow : Window
   {
@@ -116,7 +117,13 @@ namespace MediaPortal.Frontend.Views
 
             if (args.Key == Key.Escape || args.Key == Key.Back)
             {
-              Close();
+              // Pressing back in the middle of a folder means "out of this folder", not "away from pictures", so
+              // the key steps up and only the list of shares - the one place with nowhere up to go - lets it
+              // leave the screen. The button underneath the grid does the same thing for a viewer with a mouse.
+              if (_pictures.CanGoUp)
+                _pictures.GoUpCommand.Execute(null);
+              else
+                Close();
               args.Handled = true;
               return;
             }

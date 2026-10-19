@@ -2868,6 +2868,47 @@ over itself, two of them in a flat colour: the frame is then asked whether those
 whether they did so in two different squares, since a tile that painted twice cannot pass for two tiles each
 painting the picture it was given.
 
+### aq. The six keys of a remote, and the race a busy machine found
+
+The entry above ends with the pictures screen drawn by the render gate. That proves pixels, and pixels are not the
+whole claim: a person on a sofa holds four arrows, Enter and Back, and a ten-foot interface is judged by whether
+those six keys do what the screen appears to offer. So the screen now has the key tests the other screens have, and
+they earned one change to the screen and one to the view model.
+
+**Enter** walks into the folder under the cursor and raises a photograph to full size, with the same command the
+tile itself would run, so the keyboard and a touch cannot disagree about what "open" means. **The left and right
+keys while a photograph is raised** belong to the photograph: it moves, the cursor behind it does not, and putting
+the photograph down is not the same as leaving the pictures. **Back** was the one that was wrong: the screen closed
+from anywhere, which is what nobody means when they press back in the middle of a folder. It steps out of the
+folder now, and only the list of shares - the one place with nowhere up to go - lets the key leave the screen.
+
+One fact about Avalonia is worth writing down here because it is not guessable: walking a selection along a grid is
+the framework's own code, and that code follows the *container* holding the focus. A key raised on the list itself
+selects the first tile and then never moves again, which looks like a broken binding and is not. The test focuses
+the tile's container and sends the arrow through the headless platform's input pipeline.
+
+**The race** is the reason this entry exists. The new back-key test passed on its own and failed every time the
+whole suite ran. It was waiting for `CanGoUp`, which becomes true the moment the screen commits to walking into a
+folder - before the folder has been read - and then pressed back, so on a busy machine the back key won against the
+folder. The screen went up to the list of shares, the folder arrived a moment later, and the view model painted it
+over the screen the viewer had just walked back to; the read for it had been started with `CancellationToken.None`,
+so nothing was waiting to notice that nobody was waiting any more. Walking into a folder is now a read like any
+other: it is handed the screen's cancellation, and `ReadFolderAsync` refuses to show an answer nobody is waiting for
+any more. The test that pins this scripts a folder that takes a second and a half to arrive, so the timing is a fact
+of the test rather than a matter of luck - and it fails when the fix is taken out, which is the only way to know a
+test is measuring anything.
+
+The same hunt turned up why this fixture closes its scripted servers and *waits* for them, where it used to close
+them and move on: a port goes back in the pool of free ports when the listener closes, which is at the start of a
+shutdown rather than the end, so the next test can be handed the same number and join a server that is on its way
+out. Its requests are answered until the goodbye finishes and hang after that, which looks exactly like a screen
+that stopped listening to its server.
+
+Not done here: no mouse or touch test, no test of the slideshow's key or of its timer, and a read that fails with
+something that is neither a cancellation nor a complaint from the server still leaves the screen showing the folder
+it was already showing without saying why - the right fallback, but a silent one. Tests.Frontend went from 345 to
+351 with these six.
+
 ## What cannot be verified without the user
 
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,
