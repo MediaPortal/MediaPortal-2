@@ -45,12 +45,20 @@
              ItemsSource="{Binding Themes}"
              SelectedItem="{Binding Selected, Mode=TwoWay}"
              FontSize="15">
+      <!-- Eleven rows have to stand on one screenful under the skin header, and the platform's default item
+           padding alone eats a whole row's worth of them; two pixels top and bottom keep every row, including
+           the last, inside the viewport - which the render gate counts by the last row's swatch pixels. -->
+      <ListBox.Styles>
+        <Style Selector="ListBoxItem">
+          <Setter Property="Padding" Value="12,2"/>
+        </Style>
+      </ListBox.Styles>
       <ListBox.ItemTemplate>
         <DataTemplate x:DataType="vm:ThemeChoice">
           <StackPanel Orientation="Horizontal" Spacing="14" Margin="2,1">
             <TextBlock Text="{Binding Name}"
                        FontSize="16"
-                       MinWidth="220"
+                       MinWidth="150"
                        VerticalAlignment="Center" />
             <!-- The marker wears the accent it is announcing, so on every theme the word is drawn in that
                  theme's own brightest colour - the screen admits which row it applied, including after a
@@ -67,7 +75,7 @@
                        Opacity="0.7"
                        TextTrimming="CharacterEllipsis"
                        VerticalAlignment="Center"
-                       Width="430" />
+                       Width="250" />
             <!-- Two of the three colours a screen is made of, in the order they sit on one: a panel and an
                  accent on it. Small on purpose - eleven rows have to fit one screenful - and exact, because
                  the render gate counts these pixels by name to prove every palette reaches the television.

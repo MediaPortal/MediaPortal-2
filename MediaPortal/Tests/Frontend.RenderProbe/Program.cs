@@ -657,13 +657,23 @@ namespace FrontendProbe
       }
       else if (screenName.Equals("settings", StringComparison.Ordinal))
       {
-        // The front end's own settings screen: every palette there is, each row wearing its own swatches. This
-        // gate must not save a theme into the real viewer's file, so the screen points at a temporary file of
-        // the same fixed-neighbourhood kind the weather frame uses - and the frame is about picking, so nothing
-        // is picked; it is drawn with whatever --theme asked for.
+        // The front end's settings hub as the tile opens it: the list of places on the left, the picked
+        // section's screen on the right - and the first section is Appearance, so the palette rows and their
+        // miniature swatches are still what the frame measures. This gate must not save a theme into the real
+        // viewer's file, so the theme screen points at a temporary file of the same fixed-neighbourhood kind
+        // the weather frame uses - and the frame is about picking, so nothing is picked; it is drawn with
+        // whatever --theme asked for.
         string themeSettingsFile = Path.Combine(Path.GetTempPath(), "mp2-render-theme.json");
         settingsScreen = new ThemeViewModel(application, themeSettingsFile);
-        window = new ShellWindow(new ThemeView(settingsScreen));
+        SettingsViewModel sections = new SettingsViewModel();
+        sections.Add("Appearance", "Frontend", "The colours and the skin this machine wears",
+            () => new ThemeView(settingsScreen));
+        sections.Add("Server address", "Frontend", "Which machine holds the library", null, delegate { });
+        sections.Add("Media sources", "Server", "The folders the library reads, and their imports",
+            () => new FoldersView(new FoldersViewModel(
+                new ServerApiClient(new Uri("http://127.0.0.1:9/MediaPortal/Server"),
+                    new HttpClient(new ScriptedTitles())))));
+        window = new ShellWindow(new SettingsView(sections));
       }
       else
       {
