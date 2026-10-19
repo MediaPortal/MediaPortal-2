@@ -73,6 +73,10 @@ public partial class PlaybackSettingsViewModel : ObservableObject
     Options.Add(new SkinSettingOption("Ken Burns effect",
         "Whether a slideshow slowly zooms and pans the pictures it shows",
         () => _settings.KenBurnsEffect, v => _settings.KenBurnsEffect = v, Changed));
+
+    Options.Add(new SkinSettingOption("Close when finished",
+        "Whether the playback screen steps aside by itself when the film ends",
+        () => _settings.ClosePlayerWhenFinished, v => _settings.ClosePlayerWhenFinished = v, Changed));
   }
 
   public ObservableCollection<SkinSettingOption> Options { get; } = new ObservableCollection<SkinSettingOption>();

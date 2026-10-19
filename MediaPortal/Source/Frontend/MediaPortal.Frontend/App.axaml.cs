@@ -225,6 +225,28 @@ namespace MediaPortal.Frontend
               Console.WriteLine, HeardAboutPlayback);
           desktop.Exit += delegate { _reporter?.Dispose(); };
 
+          // The reference's "close players when finished", shipped on there (MediaModelSettings'
+          // DEFAULT_CLOSE_PLAYER_WHEN_FINISHED) and shipped on here: when the film the playback screen was
+          // showing really ends, the screen steps aside onto the shelf it was opened from. Only the engine's
+          // own ending does this - a viewer who pressed Stop stays exactly where they pressed it, and a film
+          // that was merely watched past the mark stays too.
+          _nowPlaying.PlaybackReported += delegate (object? sender, PlaybackReportedEventArgs args)
+          {
+            if (!args.EngineEnded)
+              return;
+            if (!(_nowPlaying.Preferences ?? Settings.PlaybackSettings.Load(null, out _)).ClosePlayerWhenFinished)
+              return;
+
+            Dispatcher.UIThread.Post(delegate
+            {
+              // Only over something: a playback screen that IS the whole workflow - a file named on the
+              // command line - has nothing under it, and "close" there would mean closing the application.
+              if (_workflow.Current is Workflow.WorkflowFrame current
+                  && current.StateId == "nowplaying" && _workflow.Stack.Count > 1)
+                _workflow.Pop();
+            });
+          };
+
           // A title picked on the home screen's "left half way" strip is played by exactly the same code as a
           // title picked in the library - same player, same media id handed to the reporter, so finishing it
           // updates the same library the strip read from.
@@ -953,9 +975,10 @@ namespace MediaPortal.Frontend
           NowPlayingViewModel playback = _nowPlaying;
           playback.PlaybackReported += delegate (object? sender, PlaybackReportedEventArgs args)
           {
-            // Only an ending reaches the queue. The report a replacement makes - "the viewer got to 37%
-            // of the song we just skipped" - is a fact for the library, not a reason to advance twice.
-            if (args.Percentage == 100)
+            // Only an ending reaches the queue. A report raised by the watched mark - a song somebody stopped
+            // at ninety-five per cent - is as finished-looking a hundred as the engine ever says, so the queue
+            // listens to the engine's voice on the report, not to its number.
+            if (args.EngineEnded)
               _party.TrackFinished(args.MediaItemId);
           };
           playback.PropertyChanged += delegate

@@ -130,6 +130,24 @@ namespace Tests.Frontend
     }
 
     [Test]
+    public void TheFinishedFilmClosesItsScreenBecauseTheReferenceShippedItThatWay()
+    {
+      Assert.That(PlaybackSettings.Load(_file, out _).ClosePlayerWhenFinished, Is.True,
+          "MediaModelSettings.DEFAULT_CLOSE_PLAYER_WHEN_FINISHED is true, and so this answer ships true");
+
+      PlaybackSettingsViewModel screen = new PlaybackSettingsViewModel(_file);
+      SkinSettingOption row = null;
+      foreach (SkinSettingOption option in screen.Options)
+        if (option.Label == "Close when finished")
+          row = option;
+      Assert.That(row, Is.Not.Null);
+
+      row.Press();
+      Assert.That(PlaybackSettings.Load(_file, out _).ClosePlayerWhenFinished, Is.False,
+          "turned off, the finished film stays on its screen until the viewer says otherwise");
+    }
+
+    [Test]
     public void ThePlayerKeysReadTheViewersReach()
     {
       PlaybackSettings settings = new PlaybackSettings { SkipStepSeconds = 90, VolumeStep = 2 };

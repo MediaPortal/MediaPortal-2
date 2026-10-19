@@ -901,7 +901,7 @@ namespace MediaPortal.Frontend.ViewModels
         // The one place a completed viewing is decided. Not "99% and then it stopped", which is a player that
         // ran out of stream, and not the last position, which after the credits is the end of a file rather than
         // the end of a film the viewer watched.
-        Report(_mediaItemId, 100);
+        Report(_mediaItemId, 100, engineEnded: true);
         Raise();
       });
     }
@@ -914,6 +914,10 @@ namespace MediaPortal.Frontend.ViewModels
     /// 1 to 100. Zero means there is nothing worth saying: ninety seconds of a film somebody abandoned during the
     /// studio logos is not a fact about that film, and writing it down would make "never watched" unanswerable.
     /// </param>
+    /// <param name="engineEnded">
+    /// Whether the player itself said this media ended - the one voice that says "finished", carried on to
+    /// whoever listens (see <see cref="PlaybackReportedEventArgs.EngineEnded"/>).
+    /// </param>
     /// <remarks>
     /// The reference's rule for what leaves a mark lives here (<c>PlayerContextManager.NotifyPlayback</c>):
     /// a viewing that reached the configured percentage counts as watched, and since the library door
@@ -921,7 +925,7 @@ namespace MediaPortal.Frontend.ViewModels
     /// watched-but-not-last-part media as fifty so the next part would resume; this front end reports one
     /// file at a time and has no "part" to ask, so only the first half of that rule applies.
     /// </remarks>
-    private void Report(Guid? mediaItemId, int percentage)
+    private void Report(Guid? mediaItemId, int percentage, bool engineEnded = false)
     {
       if (_reported || percentage < 1 || mediaItemId == null || mediaItemId == Guid.Empty)
         return;
@@ -935,7 +939,7 @@ namespace MediaPortal.Frontend.ViewModels
         return;
 
       _reported = true;
-      listeners(this, new PlaybackReportedEventArgs(_mediaItemId.Value, percentage));
+      listeners(this, new PlaybackReportedEventArgs(_mediaItemId.Value, percentage, engineEnded));
     }
 
     /// <summary>The reference's own answer, used when this screen was handed no preferences at all.</summary>

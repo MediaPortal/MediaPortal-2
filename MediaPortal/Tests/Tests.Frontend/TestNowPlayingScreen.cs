@@ -571,6 +571,8 @@ namespace Tests.Frontend
       Assert.That(_reports[0].MediaItemId, Is.EqualTo(TITLE_ID));
       Assert.That(_reports[0].Percentage, Is.EqualTo(100),
           "the engine said the media ended, which is the only thing that says a film was finished");
+      Assert.That(_reports[0].EngineEnded, Is.True,
+          "and it carries that voice, because the party queue may only advance on it");
     }
 
     [Test]
@@ -628,6 +630,8 @@ namespace Tests.Frontend
       Assert.That(_reports, Has.Count.EqualTo(1));
       Assert.That(_reports[0].Percentage, Is.EqualTo(100),
           "past the reference's ninety, a stopped film is a watched film");
+      Assert.That(_reports[0].EngineEnded, Is.False,
+          "watched is not the same as ended - the watched mark raises the number, not the engine's voice");
     }
 
     [Test]

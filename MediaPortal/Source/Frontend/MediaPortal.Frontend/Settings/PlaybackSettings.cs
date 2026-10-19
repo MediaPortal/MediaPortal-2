@@ -115,6 +115,15 @@ public sealed class PlaybackSettings
   [JsonPropertyName("watchedMarkPercentage")]
   public int WatchedMarkPercentage { get; set; } = 90;
 
+  /// <summary>
+  /// Whether the playback screen closes itself when the film ends - the reference's "close players when
+  /// finished", and the reference shipped it on (<c>MediaModelSettings.DEFAULT_CLOSE_PLAYER_WHEN_FINISHED</c>
+  /// is true, and the player context closed when its queue ran out). Only the engine's own ending counts; a
+  /// stopped or watched-mark-raised viewing keeps its screen.
+  /// </summary>
+  [JsonPropertyName("closePlayerWhenFinished")]
+  public bool ClosePlayerWhenFinished { get; set; } = true;
+
   /// <summary>The answers the watched-mark row walks. The reference offered the whole stretch of nought
   /// to a hundred as a number; a remote walks a ladder, and the file still takes any whole per cent.</summary>
   public static readonly int[] WATCHED_MARKS = { 50, 60, 70, 80, 90, 100 };
