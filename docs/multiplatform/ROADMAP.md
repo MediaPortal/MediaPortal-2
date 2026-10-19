@@ -2314,6 +2314,65 @@ starts with it, that the extractors are registered under `/Media/MetadataExtract
 `.nfo` files actually becomes titles in the database are the next steps and are not claimed here. The suite stands at **786
 tests, 0 failures** (`Tests.Server` 303 -> **305** for the two matcher-seam tests).
 
+### aj. A folder of files becomes a title, on any platform, and the server says where the film is
+
+**A gate that asks about content rather than code.** `scripts/ci/test-server-import.ps1` deploys the layout, writes a film
+folder the way a scraper leaves one (`.mkv`, `movie.nfo`, a poster the nfo names), starts the headless server against a
+scratch data directory, registers the folder through `POST api/media/shares`, and then asks the HTTP API whether the film
+arrived: the title and its year, the path a player would open, the plot, tagline, certification and runtime out of the
+nfo, an import queue drained to zero, and the title gone again after `DELETE api/media/shares/{id}`. Every gate before it
+asked the server about code; this one asks it about a library, which is the question the media centre lives on. It failed
+for three separate reasons before it passed, and each of them was a real defect.
+
+**Nothing in the portable layout ever called a file a video.** The extractor chain that fills a library is "something says
+this resource is a video, then the nfo readers may read it". The only extractor that says so upstream is
+`VideoMetadataExtractor`, which opens containers with MediaInfo, OpenCV and TagLib behind a `net10.0-windows` /
+`UseWindowsForms` project - so with the two portable plugins that a layout actually deploys, every nfo extractor bailed at
+"this resource is not a video", the importer walked the share from top to bottom, saved nothing, and logged no error at
+all. The first run of the new gate proved it: `MetadataExtractorBlock: processed 0`, an empty shelf, no failure line.
+`VideoContainerMetadataExtractor` closes that gap inside the nfo plugin: priority `Core` so it runs before the `Extended`
+nfo extractors, `processesNonFiles` so a film folder is claimed as the item it is, and the decision made from the
+extension alone through `MimeTypeDetector.GetMimeTypeFromExtension` - the content-sniffing overload of the same helper
+asks `urlmon.dll` what it makes of a file's first 256 bytes, which is both Windows-only and a read of every file in the
+library on every run. For a file it also notes that resource as the item's primary provider resource, which is MP2's
+convention - the extractor that recognises a resource is the one that knows what the item *is*, and everything that later
+asks the library "where is this film" reads that back. It writes no stream values on purpose: duration, resolution and
+codec stay unknown until an analyser that can read a container with managed code exists, and an aspect with no values
+contradicts nothing that a real analyser next to it might write. 33 tests, including that it disposes every child
+accessor `GetFiles` hands out and that it leaves a directory without a video alone.
+
+**An aspect is not a category.** `GET api/media/titles?aspect=Movie` answers `404 - this server has no aspect called
+'Movie'`, because the endpoint is asked for media item *aspects* (`MovieItem`, `EpisodeItem`, `VideoItem`, ...) while the
+shares endpoint next door is asked for media *categories* (`Movie`, `Series`, ...). The gate asked for the category and
+concluded the import had failed. Both endpoints now say what they accept: the titles endpoint's `404` enumerates every
+aspect name the running server manages and points at `GET api/library/aspects`, and its examples and refusals name
+`MovieItem`.
+
+**The database had been dropping half of every answer, silently.** With the import working, the title still came back with
+`path: null`. It was not the import: the ids of a query's results and the ids of the rows belonging to them were different
+bytes. `SQLiteDatabase.SaveTemporaryIds` filled the query engine's temporary id table by reusing one prepared parameter and
+assigning a `Guid` to it, which the driver binds as text, while that very provider stores every other id as sixteen bytes
+(`SQLiteValues`, so that databases written by the old `System.Data.SQLite` driver stay readable). Everything the engine
+cannot fetch in its main select is read through that table - every multiple aspect, so the provider resource a title's path
+lives in, the genres of a film, the actors and directors as relationships, editions, and per-user data such as a resume
+position, plus the long texts - and all of it came back empty for every paged query, with no exception anywhere. After the
+fix the same request answers with the path, and `GET api/media/items/{id}` returns the nfo's plot (MediaPortal 2 keeps it
+as `VideoAspect.StoryPlot`, which is why the field is `storyPlot`), tagline and runtime, and its certification as `US_PG`
+because that is how MP2 normalises an `<mpaa>` rating. The regression test inserts two rows, fills a temporary id table the
+way the provider does, and reads the rows back through it; against the previous binding it finds none of them. That test
+fails for the right reason and only for that reason, which was checked by reverting the fix and watching it fail.
+
+**What the gate still does not prove.** Pictures are the honest gap: the nfo readers deliberately keep a `<thumb>` as a
+stub for the fanart handler (`MovieFanArtHandler` copies it into the fanart cache as the poster) and leave
+`ThumbnailLargeAspect` empty - its writer is commented out upstream - so a title imported from nfo has nothing for
+`GET api/media/items/{id}/thumbnail` to serve until the fanart cache is reachable over HTTP, which is the pictures pillar on
+the backlog. The imported title also has no duration or resolution, for the reason above. And the gate runs the layout it
+deploys, which is win-x64; what travels to Linux and Android today is the extractor's own unit tests, not this gate.
+
+The suite stands at **842 tests, 0 failures**, with `Tests.Server` at **361** where the last commit left it at 305:
+33 tests for the new extractor, one for the temporary id table, and the 22 that came with the shares API in the same
+push.
+
 ## What cannot be verified without the user
 
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,

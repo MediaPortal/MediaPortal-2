@@ -4,7 +4,7 @@
     PluginId="{2505C495-28AA-4D1C-BDEE-CA4A3A89B0D5}"
     Author = "MJGraf"
     Copyright="GPL"
-    Description="Metadata extractors reading metadata from local nfo-files">
+    Description="Metadata extractors reading metadata from local nfo-files, and the video resource detection that they depend on">
 
   <Version
     PluginVersion="1.1"
@@ -28,6 +28,15 @@
   </Runtime>
 
   <Register Location="/Media/MetadataExtractors">
+    <!--
+      Not an nfo reader, but it has to be applied before every one of them: the nfo extractors only
+      touch a resource that an earlier extractor has marked as a video, and the extractor that used
+      to do that on Windows needs MediaInfo and OpenCV, which have no Linux or Android build. With
+      this one the nfo chain works on every platform.
+    -->
+    <Instance
+        Id="VideoContainerMetadataExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.VideoContainerMetadataExtractor"/>
     <Instance
         Id="NfoVideoMetadataExtractor"
         ClassName="MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoVideoMetadataExtractor"/>

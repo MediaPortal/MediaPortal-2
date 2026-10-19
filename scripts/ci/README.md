@@ -1950,3 +1950,44 @@ appeared on a Linux desktop. Since the render probe runs in this image too, the 
 `libSkiaSharp.so`, font shaping through fontconfig/freetype and PNG encoding are all measured on Linux - but
 software-rendered into a bitmap, in a container, without a window manager, a compositor or a GPU. Whether the
 screen looks *right*, and Android, remain separate measurements that have not been made.
+
+
+## A library appears over HTTP: `test-server-import.ps1`
+
+Every gate before this one asked the server about code. This one asks it about a library, which is the
+question a media centre actually lives on. It deploys the layout, writes a film folder the way a scraper
+leaves one (`Alien Earth - S01E01.mkv`, `movie.nfo` with `<title>`, `<originaltitle>`, `<plot>`, `<tagline>`,
+`<mpaa>`, `<runtime>`, and a `poster.jpg` the nfo names), starts `MediaPortal.Server.exe --headless --disable-auth`
+on a scratch data directory, registers that folder with `POST api/media/shares`, and then asks the API nine
+questions: did the folder and the file become two titles, does the folder title carry the year, does either of
+them carry a `path`, does the detail record return the plot, tagline, certification and runtime that were in the
+nfo, does the import queue drain to zero while the titles stay, and does deleting the share remove the titles
+again. It prints `PASS`/`FAIL` with the JSON it saw and exits non-zero on any failure, including a new `[ERROR]`
+line in `MediaPortal.log`. Measured: `PASS: a film folder registered as a share is searchable over HTTP with its metadata intact.`
+
+Three defects fell out of it, which is the argument for writing a gate like this rather than more unit tests:
+
+- **Nothing typed a video.** The importer walked the share and saved nothing, with no error: the extractor
+  upstream that decides "this is a video" is `VideoMetadataExtractor`, which sits in a `net10.0-windows` /
+  `UseWindowsForms` project (MediaInfo, OpenCV, TagLib) and is therefore not in the portable layout. The first
+  run measured `MetadataExtractorBlock: processed 0` and an empty shelf. `VideoContainerMetadataExtractor`
+  in the nfo plugin fills that role with managed code (extension through `MimeTypeDetector`, so no `urlmon.dll`
+  content sniffing and no read of every file), and its unit tests pin that it claims a file and the folder above
+  it, clears `IsVirtual`, and writes the primary provider resource for files.
+- **`aspect=Movie` is not a thing.** The titles endpoint takes media item *aspect* names (`MovieItem`,
+  `VideoItem`, `EpisodeItem`, ...) and the shares endpoint takes media *categories* (`Movie`, `Series`, ...);
+  the gate confused them and read a correct `404` as a broken import. The titles endpoint now names every aspect
+  the running server manages in that `404`, so the mistake answers with its own fix.
+- **Saved result sets did not match their own rows.** `path` stayed `null` after everything else looked right.
+  `SQLiteDatabase.SaveTemporaryIds` bound the query engine's temporary id table as text (a raw `Guid` assigned to
+  a `DbType.Binary` parameter) while the same provider stores ids as 16-byte blobs, so the `WHERE MEDIA_ITEM_ID IN
+  (SELECT ID FROM TTABLE9)` that fetches every multiple aspect matched nothing - no exception, just an item with no
+  provider resource, no genres, no actors, and no plot, on every paged query. `TestSQLiteValues` reproduces the
+  shape and fails against the old binding; the `SQLDebug.log` that `LoggingDbCommandWrapper` writes next to the
+  database is what made it visible, because it prints bound parameter values and a blob parameter prints as
+  `System.Byte[]` where a Guid prints as its text.
+
+What a `PASS` here does **not** mean: an nfo-imported title still has no picture over HTTP - MP2 keeps a `<thumb>`
+as a stub for the fanart handler and leaves `ThumbnailLargeAspect` empty, and the fanart cache has no endpoint yet -
+and it has no duration or resolution, because no analyser that reads a container in managed code is deployed. The
+gate runs the win-x64 layout; what the extractor proves about Linux and Android is its unit tests, not this script.

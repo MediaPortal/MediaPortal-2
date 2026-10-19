@@ -287,7 +287,7 @@ namespace MediaPortal.Server.Api
     /// <summary>
     /// Lists the titles carrying the given aspect.
     /// </summary>
-    /// <param name="aspect">Aspect name as <c>GET api/library/aspects</c> reports it, e.g. <c>Movie</c>.</param>
+    /// <param name="aspect">Aspect name as <c>GET api/library/aspects</c> reports it, e.g. <c>MovieItem</c>.</param>
     /// <param name="sort"><c>title</c> (default), <c>year</c>, or <c>none</c> for whatever order the database returns.</param>
     /// <param name="order"><c>asc</c> (default) or <c>desc</c>.</param>
     /// <param name="limit">Titles in the answer, capped at 2000.</param>
@@ -317,7 +317,7 @@ namespace MediaPortal.Server.Api
         return StatusCode(StatusCodes.Status503ServiceUnavailable);
 
       if (string.IsNullOrEmpty(aspect))
-        return BadRequest(new TitlesResult { Error = "an aspect has to be named, e.g. ?aspect=Movie" });
+        return BadRequest(new TitlesResult { Error = "an aspect has to be named, e.g. ?aspect=MovieItem" });
 
       int take = limit <= 0 ? DEFAULT_LIMIT : Math.Min(limit, MAX_LIMIT);
       int skip = Math.Max(offset, 0);
@@ -328,7 +328,19 @@ namespace MediaPortal.Server.Api
         KeyValuePair<Guid, MediaItemAspectMetadata> match = metadata.FirstOrDefault(entry =>
             entry.Value != null && string.Equals(entry.Value.Name, aspect, StringComparison.OrdinalIgnoreCase));
         if (match.Value == null)
-          return NotFound(new TitlesResult { Error = "this server has no aspect called '" + aspect + "'" });
+          // The names are worth reading here: what a shelf asks for is an aspect ("MovieItem"), while what a share
+          // is filed under is a media category ("Movie"), and the two lists are similar enough that mixing them up
+          // is the mistake every front end makes once. Naming the ones this server has turns a search through the
+          // source into one look at the answer.
+          return NotFound(new TitlesResult
+          {
+            Error = "this server has no aspect called '" + aspect + "'; it has " + string.Join(", ",
+                metadata.Where(entry => entry.Value != null)
+                    .Select(entry => entry.Value.Name)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)) +
+                " - see GET api/library/aspects"
+          });
 
         Guid aspectId = match.Key;
 
