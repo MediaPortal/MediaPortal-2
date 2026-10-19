@@ -216,12 +216,23 @@ namespace MediaPortal.Frontend.Views
       };
       Say("Superlayer_SkipStep", words, _viewModel.SkipStepTimeoutMs + 300);
 
+      // The reference's centred overlay icon belongs to the seeking moment; on this engine the waiting
+      // ladder is that moment, so the big half-transparent arrows answer the ladder.
+      int pending = _viewModel.PendingSkipStepSeconds;
+      if (pending > 0)
+        ShowStateIcon("fastforward.png");
+      else if (pending < 0)
+        ShowStateIcon("fastrewind.png");
+      else
+        HideStateIcon();
+
       if (_skipStepTimer == null)
       {
         _skipStepTimer = new DispatcherTimer();
         _skipStepTimer.Tick += delegate
         {
           _skipStepTimer!.Stop();
+          HideStateIcon();
           _viewModel.SkipStepElapsed();
         };
       }
@@ -235,11 +246,26 @@ namespace MediaPortal.Frontend.Views
     private void CancelSkipStep()
     {
       _skipStepTimer?.Stop();
+      HideStateIcon();
       _viewModel.CancelSkipStep();
+    }
+
+    /// <summary>Put one of the worn skin's pictures as the big centred state icon, if it carries one.</summary>
+    private void ShowStateIcon(string pictureName)
+    {
+      var bitmap = SkinImageConverter.WornPictures()?.Images.Load(pictureName);
+      stateIcon.Source = bitmap;
+      stateIcon.IsVisible = bitmap != null;
+    }
+
+    private void HideStateIcon()
+    {
+      stateIcon.IsVisible = false;
     }
 
     private void OnStop(object? sender, RoutedEventArgs e)
     {
+      CancelSkipStep();
       _viewModel.Stop();
     }
 
@@ -366,6 +392,7 @@ namespace MediaPortal.Frontend.Views
     public void OnScreenClosed()
     {
       _skipStepTimer?.Stop();
+      HideStateIcon();
       videoSurface.Dispose();
     }
 

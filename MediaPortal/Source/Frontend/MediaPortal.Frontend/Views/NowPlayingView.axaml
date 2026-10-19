@@ -125,6 +125,22 @@
                  VerticalAlignment="Center"
                  Margin="0,0,0,0"/>
           <views:VideoSurface Name="videoSurface"/>
+
+          <!--
+            The reference's player-state overlay: a big centred icon at seventy per cent strength saying the
+            picture is waiting for something. The reference shows it while its player is rate-seeking; this
+            engine seeks by jumping, so the icon answers the escalating skip ladder instead - the moment a
+            viewer is actually in, on this front end - fast-forward while the run is pointing forwards,
+            fast-rewind while it points back, gone the moment the jump lands or is cancelled. The pictures
+            are the skins' own fastforward.png / fastrewind.png; a skin without them draws nothing, which is
+            the same silence the reference keeps on a missing texture. (The reference's pause icon in this
+            overlay binds "pause.png", a picture neither shipped skin carries - only the PlayerControl button
+            states - so it is not ported: not a decision to skip, just nothing to draw.)
+          -->
+          <Image Name="stateIcon" Width="250" Opacity="0.7" IsVisible="False"
+                 IsHitTestVisible="False"
+                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
           <TextBlock Text="{Binding StateText}"
                      FontSize="22"
                      Foreground="{DynamicResource DimTextBrush}"
