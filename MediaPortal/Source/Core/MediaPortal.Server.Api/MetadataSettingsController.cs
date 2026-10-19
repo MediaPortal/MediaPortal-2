@@ -296,6 +296,12 @@ namespace MediaPortal.Server.Api
           continue;
 
         object settings = settingsManager.Load(settingsType);
+        if (settings == null)
+          // A settings manager that will not answer for this class is in no position to be edited through
+          // it; the block reads as absent, which is the same truthful answer as an extractor that is not
+          // installed.
+          continue;
+
         bool changed = false;
 
         foreach (FieldMap map in block)
