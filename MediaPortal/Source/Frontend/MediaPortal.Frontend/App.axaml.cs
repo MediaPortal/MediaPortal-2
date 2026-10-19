@@ -784,6 +784,16 @@ namespace MediaPortal.Frontend
       model.Add("Server address", "Frontend", "Which machine holds the library",
           null, delegate { _workflow.Push(ConnectionFrame()); });
 
+      // Who may sign in, read from the server's own user store the moment the row opens - the reference
+      // filed this as "Settings -> Benutzer" for exactly the same reason: the names live on the server,
+      // not on any one machine.
+      model.Add("Users", "Server", "Who can sign in on the server, and what they must say",
+          delegate
+          {
+            UsersSettingsViewModel users = new UsersSettingsViewModel(() => _home.Client);
+            return new UsersSettingsView { DataContext = users };
+          });
+
       // The server's own settings, read over the API the moment the row is opened - there is
       // nothing local to show before that. The provider is a delegate rather than the client
       // itself because the viewer may point at a different server between visits.

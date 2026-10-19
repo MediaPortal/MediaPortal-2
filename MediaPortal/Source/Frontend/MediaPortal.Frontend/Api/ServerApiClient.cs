@@ -48,7 +48,7 @@ namespace MediaPortal.Frontend.Api
   /// silently turn <c>api/serverinfo</c> into <c>/MediaPortal/api/serverinfo</c>.
   /// </para>
   /// </remarks>
-  public sealed class ServerApiClient : IDisposable, IServerSettingsApi, IMetadataSettingsApi
+  public sealed class ServerApiClient : IDisposable, IServerSettingsApi, IMetadataSettingsApi, IUsersApi
   {
     /// <summary>
     /// Where the front end looks for a server when nothing else was said. The port is MP2's own and the prefix
@@ -721,6 +721,49 @@ namespace MediaPortal.Frontend.Api
       return await SendJsonAsync<MetadataSettingsAnswer>(HttpMethod.Put, "api/media/settings/metadata", wish,
           cancellation).ConfigureAwait(false);
     }
+
+    #region The household's users
+
+    /// <summary>
+    /// <c>GET api/users</c> - every user the server keeps. The password itself never arrives; a screen only
+    /// learns that there is one.
+    /// </summary>
+    public async Task<UsersAnswer> GetUsersAsync(CancellationToken cancellation = default)
+    {
+      return await SendJsonAsync<UsersAnswer>(HttpMethod.Get, "api/users", null, cancellation)
+          .ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// <c>POST api/users</c> - add a user. The password is sent plain over the LAN and hashed on the server,
+    /// which is the same bargain the sign-in call already makes.
+    /// </summary>
+    public async Task<UserAnswer> CreateUserAsync(CreateUserWish wish, CancellationToken cancellation = default)
+    {
+      return await SendJsonAsync<UserAnswer>(HttpMethod.Post, "api/users", wish, cancellation)
+          .ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// <c>PUT api/users/{id}</c> - rename a user, change their password, or both.
+    /// </summary>
+    public async Task<UserAnswer> UpdateUserAsync(Guid profileId, UpdateUserWish wish,
+        CancellationToken cancellation = default)
+    {
+      return await SendJsonAsync<UserAnswer>(HttpMethod.Put, "api/users/" + profileId.ToString("N"), wish,
+          cancellation).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// <c>DELETE api/users/{id}</c> - remove a user. The signed-in user is refused by the server, in words.
+    /// </summary>
+    public async Task<UserAnswer> DeleteUserAsync(Guid profileId, CancellationToken cancellation = default)
+    {
+      return await SendJsonAsync<UserAnswer>(HttpMethod.Delete, "api/users/" + profileId.ToString("N"), null,
+          cancellation).ConfigureAwait(false);
+    }
+
+    #endregion
 
     #region The folders behind the library
 
