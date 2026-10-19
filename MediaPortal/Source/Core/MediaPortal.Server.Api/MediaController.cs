@@ -25,8 +25,11 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MediaPortal.Backend.MediaLibrary;
@@ -869,6 +872,295 @@ namespace MediaPortal.Server.Api
         return "image/bmp";
       return "application/octet-stream";
     }
+
+    #region Streaming
+
+    /// <summary>
+    /// The type sent for a media file whose extension means nothing to the server.
+    /// </summary>
+    public const string DEFAULT_STREAM_MEDIA_TYPE = "application/octet-stream";
+
+    /// <summary>
+    /// Why the server could not send the bytes of a title it knows about.
+    /// </summary>
+    public class StreamResult
+    {
+      public Guid Id { get; set; }
+
+      /// <summary>
+      /// What was looked for and what came of it, in words a screen can show as it stands.
+      /// </summary>
+      public string Error { get; set; }
+    }
+
+    /// <summary>
+    /// The title's own file, as a stream a player can watch.
+    /// </summary>
+    /// <param name="id">The media item id, as <c>GET api/media/titles</c> reported it.</param>
+    /// <param name="cancellationToken">Cancelled when the viewer walks away mid-film.</param>
+    /// <remarks>
+    /// <para>
+    /// <b>Why this endpoint exists at all.</b> <see cref="GetItem"/> hands a client the serialized
+    /// <see cref="ResourcePath"/> of a title, and a front end on the same machine as the server - or one that can
+    /// reach the same share - plays it directly. Everything else needs the bytes over HTTP: a television in the
+    /// living room whose files live in the cellar, a Linux client that was never given the Windows share, an
+    /// Android box that cannot open a path at all. Without this the library is a catalogue you can look at and
+    /// nothing you can watch away from the server.
+    /// </para>
+    /// <para>
+    /// <b>Why the id and not the path.</b> MP2 already has an HTTP file server
+    /// (<c>ResourceAccessModule</c>), and it is addressed by a serialized resource path handed in the URL. Its own
+    /// source says why that is not enough here: <c>IsAllowedToAccess</c> is a <c>TODO</c> that returns true, so
+    /// anybody who can name a path can read whatever the server's process may read - including the paths that were
+    /// never in anybody's library. This endpoint takes a media item id instead, so the largest set of files a
+    /// caller can ask for is the set the importer registered, which is exactly the set
+    /// <see cref="GetTitles"/> already lists. The path never leaves the server.
+    /// </para>
+    /// <para>
+    /// <b>Ranges, because a player seeks.</b> <see cref="FileStreamResult.EnableRangeProcessing"/> is on, which
+    /// makes ASP.NET answer a <c>Range</c> header with <c>206 Partial Content</c> and a <c>Content-Range</c> of
+    /// its own, refuse an impossible one with <c>416</c>, and advertise <c>Accept-Ranges: bytes</c>. That is not
+    /// a nicety: an MP4 keeps its index at the end of the file and a Matroska its cues after the clusters, so a
+    /// player that cannot seek gets a black screen and a working audio track - and libVLC is the player here.
+    /// A single range per request is all MP2's own module ever supported either, and it is all any player in
+    /// this tree asks for. <c>HEAD</c> is answered by the same action, because asking how long the film is before
+    /// committing to it is the first thing a player that can seek does.
+    /// </para>
+    /// <para>
+    /// <b>What the failures say.</b> <c>404</c> means the id names no title, or a title with no file recorded
+    /// (a stub, or an import that wrote the metadata and lost the resource); <c>410</c> means the title is there,
+    /// its file is named, and the server could not open it - the disk is unmounted, the network share is asleep,
+    /// the file was deleted since the last import. Those are different sentences to show a viewer: one is "your
+    /// library has a hole in it", the other is "your library is right and your disk is not answering".
+    /// <c>401</c> and <c>403</c> come from <see cref="MediaPortalAuthorizeAttribute"/> like everywhere else in
+    /// this API - a stream is the least anonymous thing a media centre serves.
+    /// </para>
+    /// <para>
+    /// The media type comes from the extension through MP2's own table
+    /// (<see cref="MediaPortal.Utilities.SystemAPI.MimeTypeDetector"/>), not from magic bytes: the sniffing that
+    /// table is paired with reads the whole file header off a local path, which the resource here may not be,
+    /// and a player is going to look at the bytes itself whatever this header says. An unknown extension is
+    /// <see cref="DEFAULT_STREAM_MEDIA_TYPE"/>, which is the truth rather than a guess at MP4.
+    /// </para>
+    /// </remarks>
+    [HttpGet("items/{id}/stream")]
+    [HttpHead("items/{id}/stream")]
+    public async Task<IActionResult> GetStream(Guid id, CancellationToken cancellationToken)
+    {
+      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
+      if (mediaLibrary == null)
+        return StatusCode(StatusCodes.Status503ServiceUnavailable);
+
+      // The accessor is opened before any byte is sent and closed when the response stream is closed, which is
+      // the only moment that is correct on every platform: a network provider's accessor holds the connection
+      // the stream reads from, and disposing it when the handler returns would pull the ground out from under a
+      // response that is still being written.
+      IResourceAccessor accessor = null;
+      bool streamClosesIt = false;
+
+      try
+      {
+        // ProviderResourceAspect is asked for as an optional aspect because GetResourceLocator reads the file
+        // out of it; an item found without it is an item whose file the server could not name even if it has one.
+        MediaItemQuery query = new MediaItemQuery(
+            new List<Guid> { MediaAspect.ASPECT_ID },
+            new List<Guid> { ProviderResourceAspect.ASPECT_ID },
+            new MediaItemIdFilter(id));
+
+        // Nobody's read: the profile parameter attaches one person's position in a title, and a position has no
+        // bearing on the bytes. It also means two people watching the same film cost the database the same
+        // amount of work.
+        IList<MediaItem> items = mediaLibrary.Search(query, false, null, false);
+        MediaItem item = items == null ? null : items.FirstOrDefault();
+
+        if (item == null)
+          return NotFound(new StreamResult { Id = id, Error = "this server has no title with the id " + id });
+
+        IResourceLocator locator = item.GetResourceLocator();
+        if (locator == null)
+        {
+          return NotFound(new StreamResult
+          {
+            Id = id,
+            Error = "this server has no file recorded for the title " + id
+          });
+        }
+
+        accessor = locator.CreateAccessor();
+        IFileSystemResourceAccessor file = accessor as IFileSystemResourceAccessor;
+        if (file == null)
+          return FileGone(id, "the server cannot read '" + locator.NativeSystemId + "' resources");
+
+        if (!file.Exists || !file.IsFile)
+          return FileGone(id, "'" + file.ResourceName + "' is not there any more");
+
+        Stream body = await file.OpenReadAsync().ConfigureAwait(false);
+        streamClosesIt = true;
+
+        return new FileStreamResult(new ResourceReadStream(body, accessor), StreamMediaType(file.ResourceName))
+        {
+          EnableRangeProcessing = true
+        };
+      }
+      catch (IllegalCallException ex)
+      {
+        LogStreamRefusal("the media library refused a stream request, answering 503: " + ex.Message);
+        return StatusCode(StatusCodes.Status503ServiceUnavailable);
+      }
+      catch (IOException ex)
+      {
+        return FileGone(id, "the file could not be read: " + ex.Message);
+      }
+      catch (UnauthorizedAccessException ex)
+      {
+        return FileGone(id, "the server is not allowed to read the file: " + ex.Message);
+      }
+      catch (ArgumentException ex)
+      {
+        // What MP2's resource access throws when a stored path resolves to nothing any provider claims.
+        return FileGone(id, "the file the library recorded cannot be reached: " + ex.Message);
+      }
+      catch (NotSupportedException ex)
+      {
+        return FileGone(id, "the server cannot open this kind of resource: " + ex.Message);
+      }
+      finally
+      {
+        if (!streamClosesIt && accessor != null)
+          accessor.Dispose();
+      }
+    }
+
+    /// <summary>
+    /// The answer for a title the library knows but cannot hand over, with the reason in the body.
+    /// </summary>
+    private ObjectResult FileGone(Guid id, string reason)
+    {
+      LogStreamRefusal(reason);
+      return new ObjectResult(new StreamResult { Id = id, Error = reason })
+      {
+        StatusCode = StatusCodes.Status410Gone
+      };
+    }
+
+    /// <summary>
+    /// One line in the server's log about a stream that did not happen.
+    /// </summary>
+    /// <remarks>
+    /// Logged because the viewer's symptom is a film that refuses to start, which they will describe as the
+    /// player being broken. The server is where the reason is, and without this line the reason is not there
+    /// either.
+    /// </remarks>
+    private static void LogStreamRefusal(string reason)
+    {
+      ILogger logger = ServiceRegistration.Get<ILogger>(false);
+      if (logger != null)
+        logger.Info("MediaController: a stream was asked for and refused: {0}", reason);
+    }
+
+    /// <summary>
+    /// The media type of a media file, from its extension, or <see cref="DEFAULT_STREAM_MEDIA_TYPE"/>.
+    /// </summary>
+    private static string StreamMediaType(string resourceName)
+    {
+      string type = MediaPortal.Utilities.SystemAPI.MimeTypeDetector.GetMimeTypeFromExtension(resourceName);
+      return string.IsNullOrEmpty(type) ? DEFAULT_STREAM_MEDIA_TYPE : type;
+    }
+
+    /// <summary>
+    /// The stream a response is written from, which closes the resource accessor that opened it.
+    /// </summary>
+    /// <remarks>
+    /// ASP.NET disposes the stream it was given and nothing else, so without this wrapper the accessor - and
+    /// with it a connection to whoever serves the file - would outlive every film watched, one per request.
+    /// Everything else is passed through untouched, including seeking, which is what makes a range request
+    /// work: a wrapper that lost the seek would turn this endpoint into a download.
+    /// </remarks>
+    private sealed class ResourceReadStream : Stream
+    {
+      private readonly Stream _inner;
+      private IResourceAccessor _accessor;
+
+      internal ResourceReadStream(Stream inner, IResourceAccessor accessor)
+      {
+        _inner = inner;
+        _accessor = accessor;
+      }
+
+      public override bool CanRead { get { return _inner.CanRead; } }
+      public override bool CanSeek { get { return _inner.CanSeek; } }
+      public override bool CanWrite { get { return _inner.CanWrite; } }
+      public override long Length { get { return _inner.Length; } }
+
+      public override long Position
+      {
+        get { return _inner.Position; }
+        set { _inner.Position = value; }
+      }
+
+      public override void Flush()
+      {
+        _inner.Flush();
+      }
+
+      public override Task FlushAsync(CancellationToken cancellationToken)
+      {
+        return _inner.FlushAsync(cancellationToken);
+      }
+
+      public override int Read(byte[] buffer, int offset, int count)
+      {
+        return _inner.Read(buffer, offset, count);
+      }
+
+      public override int Read(Span<byte> buffer)
+      {
+        return _inner.Read(buffer);
+      }
+
+      public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+      {
+        return _inner.ReadAsync(buffer, offset, count, cancellationToken);
+      }
+
+      public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+      {
+        return _inner.ReadAsync(buffer, cancellationToken);
+      }
+
+      public override long Seek(long offset, SeekOrigin origin)
+      {
+        return _inner.Seek(offset, origin);
+      }
+
+      public override void SetLength(long value)
+      {
+        _inner.SetLength(value);
+      }
+
+      public override void Write(byte[] buffer, int offset, int count)
+      {
+        _inner.Write(buffer, offset, count);
+      }
+
+      protected override void Dispose(bool disposing)
+      {
+        try
+        {
+          _inner.Dispose();
+        }
+        finally
+        {
+          IResourceAccessor accessor = _accessor;
+          _accessor = null;
+          if (accessor != null)
+            accessor.Dispose();
+          base.Dispose(disposing);
+        }
+      }
+    }
+
+    #endregion
 
     #endregion
 
