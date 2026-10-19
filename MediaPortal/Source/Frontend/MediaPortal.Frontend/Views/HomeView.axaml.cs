@@ -108,6 +108,12 @@ namespace MediaPortal.Frontend.Views
       // already knows which lists open what and which rows merely explain something - decides the rest.
       MouseRemote.Attach(this, menuList, contentList);
 
+      // The user buttons beside the sign-in boxes: names arrive from the server while the screen stands
+      // there, so the row is rebuilt when they do. Pressing one says the name and steps into the password
+      // box, which is what picking a name at a door means.
+      _home.SignInNames.CollectionChanged += delegate { RebuildSignInNames(); };
+      RebuildSignInNames();
+
       // A vertical list takes left and right for its own selection - Avalonia moves the highlight with every
       // arrow key, not just up and down - so a viewer standing on the menu and pressing Right would only walk
       // their highlight one entry further and the ring would never see the key. Claimed on the screen while the
@@ -163,6 +169,33 @@ namespace MediaPortal.Frontend.Views
 
       // The key that used to close the window is the shell's now: it pops the workflow, and at the root of the
       // stack that is the application's decision, not this screen's.
+    }
+
+    /// <summary>
+    /// The row of name buttons, rebuilt whenever the server's list arrives: one button per person, pressing
+    /// one fills the name box and moves the highlight to the password. A picked name is still a name to
+    /// prove - the buttons say WHO, the password box still asks whether.
+    /// </summary>
+    private void RebuildSignInNames()
+    {
+      signInNames.Children.Clear();
+      foreach (string name in _home.SignInNames)
+      {
+        var button = new Button
+        {
+          Content = name,
+          FontSize = 15,
+          Padding = new Avalonia.Thickness(12, 4),
+          Focusable = true
+        };
+        string picked = name;
+        button.Click += delegate
+        {
+          _home.PickSignInName(picked);
+          signInPassword.Focus();
+        };
+        signInNames.Children.Add(button);
+      }
     }
 
     private bool _firstActivation;

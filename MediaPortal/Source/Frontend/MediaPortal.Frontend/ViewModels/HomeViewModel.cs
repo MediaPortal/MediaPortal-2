@@ -105,6 +105,48 @@ namespace MediaPortal.Frontend.ViewModels
     partial void OnServerRefusesStrangersChanged(bool value)
     {
       OnPropertyChanged(nameof(SignInOffered));
+      if (value && !_signInNamesAsked)
+        _ = LoadSignInNamesAsync();
+    }
+
+    /// <summary>
+    /// The names the server keeps, as buttons beside the sign-in boxes: the reference let the household pick
+    /// WHO was walking in instead of making them spell it. It is an offer, not a gate - the typed boxes stay,
+    /// because a server without the users endpoint (or a household that would rather type) still signs in the
+    /// old way. Filled once per server, the first time the server asks who is calling.
+    /// </summary>
+    public System.Collections.ObjectModel.ObservableCollection<string> SignInNames { get; } =
+        new System.Collections.ObjectModel.ObservableCollection<string>();
+
+    private bool _signInNamesAsked;
+
+    private async Task LoadSignInNamesAsync()
+    {
+      ServerApiClient? client = _client;
+      if (client == null)
+        return;
+
+      _signInNamesAsked = true;
+      try
+      {
+        Api.UsersAnswer answer = await client.GetUsersAsync(CancellationToken.None);
+        foreach (Api.UserInfo user in answer.Users ?? Array.Empty<Api.UserInfo>())
+          if (user.Kind == "User")
+            SignInNames.Add(user.Name);
+      }
+      catch (Exception)
+      {
+        // The picker is a convenience on top of the typed boxes; a server that will not name its users
+        // leaves the boxes to speak, which is what they have always done.
+      }
+    }
+
+    /// <summary>Picking a name from the server's list puts it in the box; the password still has to be said.</summary>
+    [RelayCommand]
+    public void PickSignInName(string? name)
+    {
+      if (!string.IsNullOrWhiteSpace(name))
+        SignInName = name;
     }
 
     /// <summary>
@@ -535,6 +577,8 @@ namespace MediaPortal.Frontend.ViewModels
       _client = client;
       SignedInAs = null;
       ServerRefusesStrangers = false;
+      SignInNames.Clear();
+      _signInNamesAsked = false;
       Aspects.Clear();
       Sections.Clear();
       RebuildMenu(false);
@@ -596,6 +640,8 @@ namespace MediaPortal.Frontend.ViewModels
         string signedIn = await _client.SignInAsync(name, password, CancellationToken.None);
         SignedInAs = signedIn;
         Status = "Signed in as " + signedIn;
+        SignInNames.Clear();
+        _signInNamesAsked = false;
 
         // The library was refused to a stranger a moment ago, so the screen has to ask again now that it is not.
         await RefreshAsync();
