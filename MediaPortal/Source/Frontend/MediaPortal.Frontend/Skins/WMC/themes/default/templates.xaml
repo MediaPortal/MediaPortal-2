@@ -10,11 +10,16 @@
 -->
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:vm="clr-namespace:MediaPortal.Frontend.ViewModels">
+                    xmlns:vm="clr-namespace:MediaPortal.Frontend.ViewModels"
+                    xmlns:views="clr-namespace:MediaPortal.Frontend.Views">
 
   <!--
-    The home menu as WMC wore it: a full-width band the entry sits on, its word large, the count or the
-    refusal sitting on the band's right edge where WMC put its state - on the tile, never under it.
+    The home menu as WMC wore it: a full-width band the entry sits on, its own tile picture from this skin's
+    images/HomeMenu - the reference painted those for the same workflow action Ids, in this skin under the
+    Id's 'Focus' spelling, and that focused coloured variant is the one a band on the television wants - the
+    word large, and the count or the refusal sitting on the band's right edge where WMC put its state, on the
+    tile, never under it. The reference WMC home screen had no local-media tile, so that entry is this skin's
+    one letter badge.
   -->
   <DataTemplate x:Key="HomeMenuTileTemplate" x:DataType="vm:MainMenuEntry">
     <Border Background="{DynamicResource PanelBrush}"
@@ -23,9 +28,20 @@
             Padding="18,10,18,10"
             Margin="0,4,10,6">
       <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
-        <TextBlock Text="{Binding Badge}" FontSize="24" Opacity="0.85"
-                   VerticalAlignment="Center"
-                   Foreground="{DynamicResource TextBrush}"/>
+        <Panel MinWidth="36">
+          <Image Source="{Binding HomeImageId,
+                                  Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='HomeMenu/{0}Focus'}"
+                 Height="30"
+                 Stretch="Uniform"
+                 HorizontalAlignment="Center"/>
+          <TextBlock Text="{Binding Badge}" FontSize="24" Opacity="0.85"
+                     VerticalAlignment="Center"
+                     Foreground="{DynamicResource TextBrush}"
+                     IsVisible="{Binding HomeImageId,
+                                         Converter={x:Static views:SkinImageMissingConverter.Instance},
+                                         ConverterParameter='HomeMenu/{0}Focus'}"/>
+        </Panel>
         <TextBlock Grid.Column="1" Text="{Binding Label}"
                    FontSize="26" FontWeight="Bold"
                    VerticalAlignment="Center"

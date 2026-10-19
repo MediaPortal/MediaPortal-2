@@ -69,8 +69,14 @@ namespace MediaPortal.Frontend.ViewModels
     /// Whether that order runs newest-first, which belongs to the promise the label makes rather than to whoever
     /// opens the shelf.
     /// </param>
+    /// <param name="homeImageId">
+    /// The workflow action's own Id, which is the name both rescued skins give this entry's home-screen picture -
+    /// <c>images/HomeMenu/&lt;id&gt;.png</c> spells it bare in Nereus and <c>&lt;id&gt;Focus/NoFocus.png</c> in WMC.
+    /// See <see cref="HomeImageId"/>.
+    /// </param>
     internal MainMenuEntry(string? mp2Action, string? labelKey, string label, string[] aspects, string action,
-        string? missing, string? screenKey = null, string? sort = null, bool sortDescending = false)
+        string? missing, string? screenKey = null, string? sort = null, bool sortDescending = false,
+        string? homeImageId = null)
     {
       Mp2Action = mp2Action;
       LabelKey = labelKey;
@@ -81,6 +87,7 @@ namespace MediaPortal.Frontend.ViewModels
       ScreenKey = screenKey;
       Sort = sort;
       SortDescending = sortDescending;
+      HomeImageId = homeImageId;
     }
 
     /// <summary>
@@ -170,6 +177,30 @@ namespace MediaPortal.Frontend.ViewModels
     {
       get { return string.IsNullOrEmpty(Label) ? "?" : Label.Substring(0, 1); }
     }
+
+    /// <summary>
+    /// The workflow action's own Id, lower-cased and without braces - which is exactly the name both rescued
+    /// skins give this entry's home-screen picture: <c>images/HomeMenu/&lt;id&gt;.png</c> in Nereus, and
+    /// <c>images/HomeMenu/&lt;id&gt;Focus.png</c> / <c>&lt;id&gt;NoFocus.png</c> in WMC. Null for an entry this
+    /// front end made up, which no skin ever drew.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The Id is not a naming convention somebody could dream up; it is the identity MP2's own home tiles were
+    /// painted under, so asking the worn skin for a picture by this name is how the reference's
+    /// <c>HomeMenuModel</c> filled its tiles - its dictionary of home content is keyed by these very Ids. The
+    /// <c>HomeMenuTileTemplate</c> tests re-read the plugins' workflow XML and demand that this is still the
+    /// action's Id, and that the shipped skins still carry a picture of that name.
+    /// </para>
+    /// <para>
+    /// What the entry cannot know - and therefore does not - is the shape each skin spells the name in. That is
+    /// the skin's own sentence: a template hands this value to <c>SkinImageConverter</c> with its own format,
+    /// Nereus <c>HomeMenu/{0}</c> and WMC <c>HomeMenu/{0}Focus</c>. A tile whose skin has no such picture says
+    /// so by drawing no picture, which is why <see cref="Badge"/> stays on the entry: the letter is what a tile
+    /// wears when the skin has nothing to give it.
+    /// </para>
+    /// </remarks>
+    public string? HomeImageId { get; }
 
     /// <summary>
     /// A menu entry for one part of a library that MP2's own menu has no line for - a custom aspect somebody's

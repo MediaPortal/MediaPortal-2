@@ -64,10 +64,10 @@ namespace MediaPortal.Frontend.ViewModels
       HashSet<string> claimed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
       foreach ((string action_, string labelKey, string label, string[] aspects_, string detail, string? missing,
-          string? screen, (string Sort, bool Descending)? sort) in ENTRIES)
+          string? screen, (string Sort, bool Descending)? sort, string home) in ENTRIES)
       {
         MainMenuEntry entry = new MainMenuEntry(action_, labelKey, label, aspects_, detail, missing, screen,
-            sort?.Sort, sort?.Descending ?? false);
+            sort?.Sort, sort?.Descending ?? false, home);
         foreach (string aspectName in aspects_)
           claimed.Add(aspectName);
 
@@ -152,62 +152,77 @@ namespace MediaPortal.Frontend.ViewModels
     /// videos into "the newest titles first" instead of into "Videos" wearing a different label. The direction
     /// travels with it because "latest" read oldest-first is the opposite list.
     /// </para>
+    /// <para>
+    /// The ninth field is the entry's home picture as the two rescued skins name it: the workflow action's own Id,
+    /// lower-cased and without braces, because <c>images/HomeMenu</c> in both skins files its tiles under exactly
+    /// that name - bare in Nereus, with the skin adding its own <c>Focus</c> or <c>NoFocus</c> in WMC. Every one of
+    /// the fifteen was taken from the <c>Id</c> attribute of the same workflow element the first field names
+    /// (Nereus' own <c>HomeMenuModel</c> keys its home content by these very Ids, which is the second witness);
+    /// <c>TestHomeMenuContributions</c> re-reads those files and demands the field is still the element's Id, and
+    /// <c>TestHomeMenuImages</c> demands the shipped skins still carry a picture of that name. WMC is the one
+    /// skin's one exception - the reference WMC home screen never had a local-media tile, so that entry keeps its
+    /// letter badge there and nowhere else.
+    /// </para>
     /// </remarks>
     private static readonly (string Mp2Action, string LabelKey, string Label, string[] Aspects, string Action,
-        string? Missing, string? Screen, (string Sort, bool Descending)? Sort)[] ENTRIES =
+        string? Missing, string? Screen, (string Sort, bool Descending)? Sort, string Home)[] ENTRIES =
     {
         // MP2's "local media" is the file view - the folders the library is built from, before the importer's
         // decisions have been applied to them. This front end has exactly that: the shares screen, which lists the
         // server's folders and what it made of each. "Folder by folder" came off this line to fit the tile.
         ("Home->BrowseLocalMedia", "[Media.LocalMediaMenuItem]", "Local media", Array.Empty<string>(),
-            "the server's folders", null, "folders", null),
+            "the server's folders", null, "folders", null, "17d2390e-5b05-4fbd-89f6-24d60ceb427f"),
         ("Home->BrowseMedia", "[Media.BrowseMediaMenuItem]", "Browse media", Array.Empty<string>(),
-            "grouped by genre, year, actor", null, "browse", null),
+            "grouped by genre, year, actor", null, "browse", null, "93442df7-186d-42e5-a0f5-cf1493e68f49"),
         // "Audio" is the plugin's own word for the music library, and it covers both shapes the importer can leave
         // the collection in; the second line is here so that the narrower word does not read as a mistake.
         ("Home->Audio", "[Media.AudioMenuItem]", "Audio", new[] { "AlbumItem", "AudioItem" },
-            "each album, and its tracks on it", null, null, null),
+            "each album, and its tracks on it", null, null, null, "30715d73-4205-417f-80aa-e82f0834171f"),
         // Not "the files nobody filed as films": the server's VideoItem is the aspect every film and every episode
         // also carries, so this shelf holds the whole video library (measured against a real one: four films, eight
         // episodes and the two unfiled clips). Saying so is worth more than a tidier sentence.
         ("Home->Videos", "[Media.VideosMenuItem]", "Videos", new[] { "VideoItem" },
-            "every video the server knows, films and episodes included", null, null, null),
+            "every video the server knows, films and episodes included", null, null, null,
+            "a4df2df6-8d66-479a-9930-d7106525eb07"),
         ("Home->Movies", "[Media.MoviesMenuItem]", "Movies", new[] { "MovieItem" },
-            "the films on this server", null, null, null),
+            "the films on this server", null, null, null, "80d2e2cc-baaa-4750-807b-f37714153751"),
         ("Home->Series", "[Media.SeriesMenuItem]", "Series", new[] { "SeriesItem" },
-            "each series, and its episodes inside it", null, null, null),
+            "each series, and its episodes inside it", null, null, null, "30f57cba-459c-4202-a587-09fff5098251"),
         // The folders, not the filed titles. A photograph rarely has anything for an importer's decision to attach
         // to - no title, no year, no episode number - so a pictures screen backed by ImageItem titles shows an
         // empty shelf over thousands of photographs, which is why MP2's own pictures screen walks the folders. If a
         // server does hold filed images, they are still on this screen: the leftover rule at the bottom of Build
         // gives them their own tile rather than dropping a part of somebody's library.
         ("Home->Images", "[Media.ImagesMenuItem]", "Images", Array.Empty<string>(),
-            "the pictures, folder by folder", null, "pictures", null),
+            "the pictures, folder by folder", null, "pictures", null, "55556593-9fe9-436c-a3b6-a971e10c9d44"),
         // MP2's own "latest media" screen listed everything anybody sits down to watch - films, episodes and the
         // unfiled clips alike - in the order the library had learnt of them, which is exactly VideoItem read in the
         // date-the-library-first-saw-it order. The sort is the whole of the entry: without the eighth field this
         // tile would open the shelf "Videos" already names, alphabetically, and two labels would be one screen.
         ("Home->Latest Media", "[Media.LatestMediaMenuItem]", "Latest media", new[] { "VideoItem" },
-            "the newest titles first", null, null, ("added", true)),
+            "the newest titles first", null, null, ("added", true), "7d68c459-ee9b-4eaa-ae2c-c2c365139aee"),
         ("Home->News", "[News.Title]", "News", Array.Empty<string>(),
-            "the headlines", null, "news", null),
+            "the headlines", null, "news", null, "bb49a591-7705-408f-8177-45d633fdfad0"),
         ("Home->SlimTvClient", "[SlimTvClient.Tv]", "TV", Array.Empty<string>(),
-            "live television and the programme guide", "no TV backend", null, null),
+            "live television and the programme guide", "no TV backend", null, null,
+            "b4a9199f-6dd4-4bda-a077-de9c081f7703"),
         ("Home->SlimTvClientRadio", "[SlimTvClient.Radio]", "Radio", Array.Empty<string>(),
-            "radio stations and their guide", "no radio backend", null, null),
+            "radio stations and their guide", "no radio backend", null, null,
+            "e3bbc989-99db-40e9-a15f-ccb50b17a4c8"),
         ("Home->Weather", "[Weather.Title]", "Weather", Array.Empty<string>(),
-            "the forecast", null, "weather", null),
+            "the forecast", null, "weather", null, "e34fdb62-1f3e-4aa9-8a61-d143e0af77b5"),
         ("Home->PartyMusicConfig", "[PartyMusicPlayer.MenuItem]", "Party music player", Array.Empty<string>(),
-            "the music shelf, shuffled", null, "party", null),
+            "the music shelf, shuffled", null, "party", null, "e00b8442-8230-4d7b-b871-6ac77755a0d5"),
         // MP2's configuration tile, and from the viewer's seat it is still the door marked Settings. What sits
         // behind the door today is the front end's own settings - its look, chosen on the couch and worn from
         // then on - because that is the configuration this front end can actually change. The server's own
         // configuration is still behind the .NET Remoting interface the new API has not grown an equivalent of;
         // when it does, that belongs behind this same tile, one level in.
         ("Home->ConfigurationMain", "[Configuration.Name]", "Settings", Array.Empty<string>(),
-            "its look, chosen right here", null, "themes", null),
+            "its look, chosen right here", null, "themes", null, "f6255762-c52a-4231-9e67-14c28735216e"),
         ("Home->UtilitiesMain", "[Utilities.MenuItem]", "Utilities", Array.Empty<string>(),
-            "the little tools", "its tools went with the TV", null, null)
+            "the little tools", "its tools went with the TV", null, null,
+            "02992bec-1e6d-4c29-8d79-f95f59e3f625")
     };
   }
 }

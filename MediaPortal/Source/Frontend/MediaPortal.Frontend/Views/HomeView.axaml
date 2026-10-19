@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
         xmlns:theming="using:MediaPortal.Frontend.Theming"
+        xmlns:views="using:MediaPortal.Frontend.Views"
         x:Class="MediaPortal.Frontend.Views.HomeView"
         x:DataType="vm:HomeViewModel"
         Name="home"
@@ -127,11 +128,23 @@
           <DataTemplate x:DataType="vm:MainMenuEntry">
             <StackPanel Spacing="1" Margin="0,5,10,7">
               <StackPanel Orientation="Horizontal" Spacing="10">
-                <TextBlock Text="{Binding Badge}"
-                           FontSize="21"
-                           Width="26"
-                           TextAlignment="Center"
-                           Opacity="0.7" />
+                <!-- The entry's own home picture, asked of the skin the application wears by the workflow
+                     action's Id - the same picture the old client's tiles were painted with. Where no skin is
+                     worn, or the skin has no such picture, the letter badge below is what the tile wears;
+                     see MainMenuEntry.HomeImageId and SkinImageConverter. -->
+                <Panel Width="36">
+                  <Image Source="{Binding HomeImageId, Converter={x:Static views:SkinImageConverter.Instance},
+                                          ConverterParameter='HomeMenu/{0}'}"
+                         Height="34"
+                         Stretch="Uniform"
+                         HorizontalAlignment="Center" />
+                  <TextBlock Text="{Binding Badge}"
+                             FontSize="21"
+                             TextAlignment="Center"
+                             Opacity="0.7"
+                             IsVisible="{Binding HomeImageId, Converter={x:Static views:SkinImageMissingConverter.Instance},
+                                                 ConverterParameter='HomeMenu/{0}'}" />
+                </Panel>
                 <TextBlock Text="{Binding Label}"
                            FontSize="21"
                            TextTrimming="CharacterEllipsis" />
@@ -142,7 +155,7 @@
               <TextBlock Text="{Binding Detail}"
                          FontSize="13"
                          Opacity="0.5"
-                         Margin="36,0,0,0"
+                         Margin="46,0,0,0"
                          TextTrimming="CharacterEllipsis" />
             </StackPanel>
           </DataTemplate>

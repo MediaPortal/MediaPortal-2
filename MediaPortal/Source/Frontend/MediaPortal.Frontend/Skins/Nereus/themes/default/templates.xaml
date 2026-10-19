@@ -13,22 +13,36 @@
 -->
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:vm="clr-namespace:MediaPortal.Frontend.ViewModels">
+                    xmlns:vm="clr-namespace:MediaPortal.Frontend.ViewModels"
+                    xmlns:views="clr-namespace:MediaPortal.Frontend.Views">
 
   <!--
-    The home menu, as Nereus wore it: the badge column narrow, the entry's own words in Nereus' size, and the
-    answer to "what happens when you press" - the count, or the reason it cannot - small and grey underneath,
-    lined up under the words rather than under the badge.
+    The home menu, as Nereus wore it: the entry's own picture from this skin's images/HomeMenu - which the
+    reference painted for exactly these workflow action Ids and this skin carries verbatim - the entry's own
+    words in Nereus' size, and the answer to "what happens when you press" - the count, or the reason it
+    cannot - small and grey underneath, lined up under the words rather than under the picture. Nereus files
+    each tile by the bare Id, so that is the format this skin spells; an entry the skin has no picture for -
+    one this front end added on top of MP2's menu - wears its letter badge instead.
   -->
   <DataTemplate x:Key="HomeMenuTileTemplate" x:DataType="vm:MainMenuEntry">
     <StackPanel Spacing="1" Margin="0,5,10,7">
       <StackPanel Orientation="Horizontal" Spacing="10">
-        <TextBlock Text="{Binding Badge}"
-                   Width="26"
-                   TextAlignment="Center"
-                   Opacity="0.7"
-                   FontSize="{DynamicResource NormalFontSize}"
-                   Foreground="{DynamicResource TextBrush}"/>
+        <Panel Width="36">
+          <Image Source="{Binding HomeImageId,
+                                  Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='HomeMenu/{0}'}"
+                 Height="34"
+                 Stretch="Uniform"
+                 HorizontalAlignment="Center"/>
+          <TextBlock Text="{Binding Badge}"
+                     TextAlignment="Center"
+                     Opacity="0.7"
+                     FontSize="{DynamicResource NormalFontSize}"
+                     Foreground="{DynamicResource TextBrush}"
+                     IsVisible="{Binding HomeImageId,
+                                         Converter={x:Static views:SkinImageMissingConverter.Instance},
+                                         ConverterParameter='HomeMenu/{0}'}"/>
+        </Panel>
         <TextBlock Text="{Binding Label}"
                    FontSize="{DynamicResource NormalFontSize}"
                    TextTrimming="CharacterEllipsis"
@@ -37,7 +51,7 @@
       <TextBlock Text="{Binding Detail}"
                  FontSize="{DynamicResource SmallerFontSize}"
                  Opacity="0.5"
-                 Margin="36,0,0,0"
+                 Margin="46,0,0,0"
                  TextTrimming="CharacterEllipsis"
                  Foreground="{DynamicResource TextBrush}"/>
     </StackPanel>
