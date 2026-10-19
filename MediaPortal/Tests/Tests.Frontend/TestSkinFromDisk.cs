@@ -277,6 +277,38 @@ namespace Tests.Frontend
       SkinEngine.Clear(app);
     }
 
+    /// <summary>
+    /// WMC answers the shelf's four tile keys too: the grid drew its pictures rounded on a gradient ground in
+    /// its own file (GridViewMovieItemTemplate and siblings), and a shelf where WMC stays silent would be the
+    /// front end's own face, which is exactly what wearing a skin promises against. Nereus is checked beside it
+    /// - both skins now speak every key the shelf asks, each one with its own sizes.
+    /// </summary>
+    [AvaloniaTest]
+    public void BothShippedSkinsSpeakTheShelfsTiles()
+    {
+      Application app = Application.Current!;
+      SkinEngine.SkinsFolder = null;
+
+      string[] keys = new string[]
+      {
+          "MediaTilePosterTemplate", "MediaTileBannerTemplate", "MediaTileThumbnailTemplate",
+          "MediaTileCoverTemplate",
+      };
+
+      Assert.That(SkinEngine.Apply(app, "nereus", out string? problem), Is.True, problem ?? "");
+      foreach (string key in keys)
+        Assert.That(SkinEngine.TryTileTemplate(key), Is.Not.Null,
+            "the shipped Nereus speaks " + key);
+      SkinEngine.Clear(app);
+
+      Assert.That(SkinEngine.Apply(app, "wmc", out problem), Is.True, problem ?? "");
+      foreach (string key in keys)
+        Assert.That(SkinEngine.TryTileTemplate(key), Is.Not.Null,
+            "the shipped WMC speaks " + key + "; its grid wore these tiles and the shelf may not fall back"
+            + " to the front end's own face under this skin");
+      SkinEngine.Clear(app);
+    }
+
    /// <summary>
    /// The shipped WMC stands on a picture of its own - the reference's blue home wash, taken from the old
    /// skin folder and carried with the assembly. A manifest that names a file the assembly does not carry

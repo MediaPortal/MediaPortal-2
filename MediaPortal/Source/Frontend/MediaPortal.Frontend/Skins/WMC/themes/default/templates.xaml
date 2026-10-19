@@ -80,4 +80,227 @@
     </Border>
   </DataTemplate>
 
+  <!--
+    The media tiles as WMC wore its grid (themes/default/styles/MediaStyles.xaml, GridViewMovieItemTemplate
+    and its Banner/Thumbnail siblings). Three things set this skin's shelf apart from Nereus' and they are all
+    the reference's own: the picture stands without a frame but with rounded corners (the reference's
+    CornerRadius="6" opacity mask), a title without a picture gets the skin's diagonal gradient ground with
+    video.png on it (MediaItemBackgroundColor1/2, #F2447da7 over #F2124273, StartPoint 0,1 to EndPoint 1,0),
+    and a picture that is there carries no name bar - WMC let the poster speak and said the name in the
+    details beside the shelf. The sizes are this skin's MediaConsts: poster 162.5x250, banner 460x105,
+    thumbnail 263x162, cover 260x410. The watched and offline corners are the skin's own pictures, asked
+    from the worn skin like everywhere else, and they obey the grid's flag setting as Nereus' tiles do.
+
+    The one liberty taken: where the reference left a picture-less tile as a gradient with a video mark and
+    no word about it, these tiles add the name on the ground - a television shelf of identical gradients is
+    something the reference could name from its focus ribbon and this front end's grid cannot.
+  -->
+  <DataTemplate x:Key="MediaTilePosterTemplate" x:DataType="vm:TitleViewModel">
+    <Panel Width="163" Height="250" Margin="8,8,8,14">
+      <Border CornerRadius="6" ClipToBounds="True">
+        <Image Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance},
+                                ConverterParameter='tile'}"
+               Stretch="UniformToFill"/>
+      </Border>
+      <!-- no picture: the skin's gradient ground, its mark, the name -->
+      <Panel IsVisible="{Binding HasNoArtwork}">
+        <Border CornerRadius="6">
+          <Border.Background>
+            <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+              <GradientStop Color="#F2447DA7" Offset="0"/>
+              <GradientStop Color="#F2124273" Offset="1"/>
+            </LinearGradientBrush>
+          </Border.Background>
+        </Border>
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='video.png'}"
+               Stretch="Uniform" Width="70" Height="70" Opacity="0.6"
+               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextBrush}"
+                   FontSize="{DynamicResource SmallFontSize}" TextWrapping="Wrap"
+                   TextTrimming="CharacterEllipsis" MaxLines="4" TextAlignment="Center"
+                   Margin="10,10,10,10" VerticalAlignment="Bottom"/>
+      </Panel>
+      <!-- watched corners, if the grid's setting allows corners at all -->
+      <Panel IsVisible="{Binding WatchFlagsShown}">
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='watched.png'}"
+               Height="33" Stretch="Uniform" Opacity="0.9"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"
+               IsVisible="{Binding IsWatched}"/>
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='partlywatched.png'}"
+               Height="33" Stretch="Uniform" Opacity="0.9"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"
+               IsVisible="{Binding IsPartlyWatched}"/>
+      </Panel>
+      <!-- a title without a file behind it: WMC's corner flag with its offline mark -->
+      <Panel IsVisible="{Binding IsOffline}">
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='flag.png'}"
+               Height="90" Stretch="Uniform"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0"/>
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='offline.png'}"
+               Height="35" Stretch="Uniform"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,7,7,0"/>
+      </Panel>
+    </Panel>
+  </DataTemplate>
+
+  <DataTemplate x:Key="MediaTileBannerTemplate" x:DataType="vm:TitleViewModel">
+    <Panel Width="460" Height="105" Margin="8,6,8,10">
+      <Border CornerRadius="6" ClipToBounds="True">
+        <Image Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance},
+                                ConverterParameter='tile'}"
+               Stretch="UniformToFill"/>
+      </Border>
+      <Panel IsVisible="{Binding HasNoArtwork}">
+        <Border CornerRadius="6">
+          <Border.Background>
+            <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+              <GradientStop Color="#F2447DA7" Offset="0"/>
+              <GradientStop Color="#F2124273" Offset="1"/>
+            </LinearGradientBrush>
+          </Border.Background>
+        </Border>
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='video.png'}"
+               Stretch="Uniform" Width="60" Height="60" Opacity="0.6"
+               HorizontalAlignment="Left" VerticalAlignment="Center"/>
+        <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextBrush}"
+                   FontSize="{DynamicResource SmallFontSize}" TextWrapping="Wrap"
+                   TextTrimming="CharacterEllipsis" MaxLines="2"
+                   Margin="60,10,10,10" VerticalAlignment="Center"/>
+      </Panel>
+      <Panel IsVisible="{Binding WatchFlagsShown}">
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='watched.png'}"
+               Height="28" Stretch="Uniform" Opacity="0.9"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"
+               IsVisible="{Binding IsWatched}"/>
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='partlywatched.png'}"
+               Height="28" Stretch="Uniform" Opacity="0.9"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"
+               IsVisible="{Binding IsPartlyWatched}"/>
+      </Panel>
+      <!-- the corner flag of a title without a file, shrunk to the banner's height -->
+      <Panel IsVisible="{Binding IsOffline}">
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='flag.png'}"
+               Height="45" Stretch="Uniform"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2,-2,0"/>
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='offline.png'}"
+               Height="22" Stretch="Uniform"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,4,4,0"/>
+      </Panel>
+    </Panel>
+  </DataTemplate>
+
+  <DataTemplate x:Key="MediaTileThumbnailTemplate" x:DataType="vm:TitleViewModel">
+    <Panel Width="263" Height="162" Margin="8,6,8,10">
+      <Border CornerRadius="6" ClipToBounds="True">
+        <Image Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance},
+                                ConverterParameter='tile'}"
+               Stretch="UniformToFill"/>
+      </Border>
+      <Panel IsVisible="{Binding HasNoArtwork}">
+        <Border CornerRadius="6">
+          <Border.Background>
+            <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+              <GradientStop Color="#F2447DA7" Offset="0"/>
+              <GradientStop Color="#F2124273" Offset="1"/>
+            </LinearGradientBrush>
+          </Border.Background>
+        </Border>
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='video.png'}"
+               Stretch="Uniform" Width="64" Height="64" Opacity="0.6"
+               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextBrush}"
+                   FontSize="{DynamicResource SmallFontSize}" TextWrapping="Wrap"
+                   TextTrimming="CharacterEllipsis" MaxLines="2" TextAlignment="Center"
+                   Margin="10,10,10,8" VerticalAlignment="Bottom"/>
+      </Panel>
+      <Panel IsVisible="{Binding WatchFlagsShown}">
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='watched.png'}"
+               Height="30" Stretch="Uniform" Opacity="0.9"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"
+               IsVisible="{Binding IsWatched}"/>
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='partlywatched.png'}"
+               Height="30" Stretch="Uniform" Opacity="0.9"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"
+               IsVisible="{Binding IsPartlyWatched}"/>
+      </Panel>
+      <Panel IsVisible="{Binding IsOffline}">
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='flag.png'}"
+               Height="60" Stretch="Uniform"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2,-2,0"/>
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='offline.png'}"
+               Height="26" Stretch="Uniform"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,5,0"/>
+      </Panel>
+    </Panel>
+  </DataTemplate>
+
+  <!--
+    The cover: the same picture bigger than in the grid, at the reference's POSTER_COVER size, without a
+    frame and without a name bar - what WMC says about a cover it says in the details, not on the cover.
+  -->
+  <DataTemplate x:Key="MediaTileCoverTemplate" x:DataType="vm:TitleViewModel">
+    <Panel Width="260" Height="410" Margin="10,8,10,12">
+      <Border CornerRadius="6" ClipToBounds="True">
+        <Image Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance},
+                                ConverterParameter='tile'}"
+               Stretch="UniformToFill"/>
+      </Border>
+      <Panel IsVisible="{Binding HasNoArtwork}">
+        <Border CornerRadius="6">
+          <Border.Background>
+            <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+              <GradientStop Color="#F2447DA7" Offset="0"/>
+              <GradientStop Color="#F2124273" Offset="1"/>
+            </LinearGradientBrush>
+          </Border.Background>
+        </Border>
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='video.png'}"
+               Stretch="Uniform" Width="90" Height="90" Opacity="0.6"
+               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextBrush}"
+                   FontSize="{DynamicResource SmallFontSize}" TextWrapping="Wrap"
+                   TextTrimming="CharacterEllipsis" MaxLines="4" TextAlignment="Center"
+                   Margin="14,14,14,14" VerticalAlignment="Bottom"/>
+      </Panel>
+      <Panel IsVisible="{Binding WatchFlagsShown}">
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='watched.png'}"
+               Height="36" Stretch="Uniform" Opacity="0.9"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"
+               IsVisible="{Binding IsWatched}"/>
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='partlywatched.png'}"
+               Height="36" Stretch="Uniform" Opacity="0.9"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"
+               IsVisible="{Binding IsPartlyWatched}"/>
+      </Panel>
+      <Panel IsVisible="{Binding IsOffline}">
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='flag.png'}"
+               Height="96" Stretch="Uniform"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0"/>
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='offline.png'}"
+               Height="36" Stretch="Uniform"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,7,7,0"/>
+      </Panel>
+    </Panel>
+  </DataTemplate>
+
 </ResourceDictionary>
