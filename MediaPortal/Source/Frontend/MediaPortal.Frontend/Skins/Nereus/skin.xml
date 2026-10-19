@@ -17,6 +17,7 @@
     <File Role="resources" Name="metrics.xaml"/>
     <File Role="resources" Name="chrome.xaml"/>
     <File Role="styles" Name="styles.xaml"/>
+    <File Role="templates" Name="templates.xaml"/>
   </Theme>
 
   <Superlayers File="superlayers.xaml"/>

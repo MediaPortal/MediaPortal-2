@@ -22,6 +22,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Templates;
 using Avalonia.Markup.Xaml.Styling;
 using Avalonia.Platform;
 using Avalonia.Styling;
@@ -40,6 +41,7 @@ namespace MediaPortal.Frontend.Theming
       Resources = resources;
       Styles = styles;
     }
+
 
     public SkinManifest Manifest { get; }
 
@@ -260,6 +262,34 @@ namespace MediaPortal.Frontend.Theming
     public static WornSkin? Worn(Application app)
     {
       return WORN.TryGetValue(app, out WornSkin? worn) ? worn : null;
+    }
+
+    /// <summary>
+    /// A tile or row template the worn skin offers for a list to draw its items with instead of the view's own.
+    /// </summary>
+    /// <remarks>
+    /// This is the reference's arrangement, kept: a screen's lists were always there, bound and wired, but which
+    /// tree every item drew came from the skin's XAML - Nereus spelled a menu entry as a quiet text row with a
+    /// grey subtitle, WMC as a broad coloured band, and no C# anywhere decided the difference. The template comes
+    /// from the skin file and is built by Avalonia's runtime loader, so a person editing it sees the result the
+    /// next time the skin is put on, without a recompile.
+    /// <para>
+    /// Answers null when no skin is worn or this skin says nothing about this list - and the view keeps the
+    /// template it was written with. A skin is never required to speak every key; it overrides what it cares
+    /// about and stays quiet about the rest.
+    /// </para>
+    /// </remarks>
+    /// <param name="key">
+    /// The resource name the view asks about, by convention '&lt;Screen&gt;&lt;Thing&gt;Template' -
+    /// <c>HomeMenuTileTemplate</c>, <c>TitleRowTemplate</c>.
+    /// </param>
+    public static IDataTemplate? TryTileTemplate(string key)
+    {
+      Application? app = Application.Current;
+      if (app == null || !WORN.TryGetValue(app, out WornSkin? worn))
+        return null;
+
+      return worn.Resources.TryGetResource(key, null, out object? value) ? value as IDataTemplate : null;
     }
 
     /// <summary>

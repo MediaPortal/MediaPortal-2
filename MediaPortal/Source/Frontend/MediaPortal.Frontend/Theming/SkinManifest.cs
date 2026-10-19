@@ -233,9 +233,14 @@ namespace MediaPortal.Frontend.Theming
 
         string role = Attribute(file, "Role").ToLowerInvariant();
         string fileName = Attribute(file, "Name");
-        if (role != "colors" && role != "resources" && role != "styles" || fileName.Length == 0)
+        // "templates" is the file where the skin says how a screen's items look - DataTemplates under names
+        // the screens ask about. It is read exactly like a resources file; it gets its own role because what
+        // it answers is not a colour somebody can point at, and a person reading the manifest should see the
+        // difference.
+        if (role != "colors" && role != "resources" && role != "styles" && role != "templates"
+            || fileName.Length == 0)
           throw new InvalidDataException(string.Format(
-              "A File in theme '{0}' of the manifest '{1}' is not a colors, resources or styles file.",
+              "A File in theme '{0}' of the manifest '{1}' is not a colors, resources, styles or templates file.",
               name, manifestPath));
 
         files.Add(new SkinThemeFile(role, fileName));

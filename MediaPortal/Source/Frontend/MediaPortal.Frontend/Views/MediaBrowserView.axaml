@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        xmlns:theming="using:MediaPortal.Frontend.Theming"
         x:Class="MediaPortal.Frontend.Views.MediaBrowserView"
         x:DataType="vm:MediaBrowserViewModel"
         Name="browser"
@@ -75,6 +76,7 @@
 
       <ListBox Name="titlesList"
                Focusable="True"
+               theming:SkinTemplates.TileTemplate="TitleRowTemplate"
                ItemsSource="{Binding Titles}"
                SelectedItem="{Binding Selected, Mode=TwoWay}"
                FontSize="24">

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Nereus screen templates: how this skin draws the items of the screens that ask.
+
+  This is the part of the reference skin that was never a colour. The reference screens bound their lists to
+  models and left the item trees to the skin - master_homemenu spelled a menu entry as a quiet text row with
+  the entry's own words underneath - and that markup is what lives here, translated into the markup this front
+  end reads. The x:DataType on each template is kept on purpose: the runtime loader compiles these bindings, so
+  a rename of a view model property is a complaint when the skin goes on, not a silently blank tile.
+
+  A screen asks for a template by name (SkinTemplates.TileTemplate on its list). A key nobody asks about costs
+  nothing; a key the skin does not answer leaves the screen drawing the tree it was written with.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vm="clr-namespace:MediaPortal.Frontend.ViewModels">
+
+  <!--
+    The home menu, as Nereus wore it: the badge column narrow, the entry's own words in Nereus' size, and the
+    answer to "what happens when you press" - the count, or the reason it cannot - small and grey underneath,
+    lined up under the words rather than under the badge.
+  -->
+  <DataTemplate x:Key="HomeMenuTileTemplate" x:DataType="vm:MainMenuEntry">
+    <StackPanel Spacing="1" Margin="0,5,10,7">
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <TextBlock Text="{Binding Badge}"
+                   Width="26"
+                   TextAlignment="Center"
+                   Opacity="0.7"
+                   FontSize="{DynamicResource NormalFontSize}"
+                   Foreground="{DynamicResource TextBrush}"/>
+        <TextBlock Text="{Binding Label}"
+                   FontSize="{DynamicResource NormalFontSize}"
+                   TextTrimming="CharacterEllipsis"
+                   Foreground="{DynamicResource TextBrush}"/>
+      </StackPanel>
+      <TextBlock Text="{Binding Detail}"
+                 FontSize="{DynamicResource SmallerFontSize}"
+                 Opacity="0.5"
+                 Margin="36,0,0,0"
+                 TextTrimming="CharacterEllipsis"
+                 Foreground="{DynamicResource TextBrush}"/>
+    </StackPanel>
+  </DataTemplate>
+
+  <!--
+    A title's row in the shelf: the name, and what the library knows about it - length, year, where you left
+    off - in the right column, greyed the way Nereus greys everything that is not the headline.
+  -->
+  <DataTemplate x:Key="TitleRowTemplate" x:DataType="vm:TitleViewModel">
+    <Grid ColumnDefinitions="Auto,5*,1.4*" ColumnSpacing="20" MinWidth="700" Margin="0,8">
+      <TextBlock Text="{Binding SeenMark}" MinWidth="34" Opacity="0.55"
+                 Foreground="{DynamicResource TextBrush}"/>
+      <TextBlock Grid.Column="1" Text="{Binding Line}" TextTrimming="CharacterEllipsis"
+                 Foreground="{DynamicResource TextBrush}"/>
+      <TextBlock Grid.Column="2" Text="{Binding Detail}" HorizontalAlignment="Right" Opacity="0.65"
+                 TextTrimming="CharacterEllipsis"
+                 Foreground="{DynamicResource TextBrush}"/>
+    </Grid>
+  </DataTemplate>
+
+</ResourceDictionary>

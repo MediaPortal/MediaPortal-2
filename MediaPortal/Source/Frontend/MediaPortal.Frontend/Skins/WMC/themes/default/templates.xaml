@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  WMC screen templates: how this skin draws the items of the screens that ask.
+
+  WMC never drew a menu as a list of quiet text rows. Its home menu was a stack of broad coloured bands with
+  the word set big on them - the tile is the whole width and the accent is the band's underline, not a marker
+  beside the text. That difference is what this file is for: the same list, the same keys, the same bindings,
+  and a visibly different screen. The reference's WMC skin spelled the same thought with its own ControlTemplates
+  in screens/ and styles/; this is that intent in the markup this front end reads.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vm="clr-namespace:MediaPortal.Frontend.ViewModels">
+
+  <!--
+    The home menu as WMC wore it: a full-width band the entry sits on, its word large, the count or the
+    refusal sitting on the band's right edge where WMC put its state - on the tile, never under it.
+  -->
+  <DataTemplate x:Key="HomeMenuTileTemplate" x:DataType="vm:MainMenuEntry">
+    <Border Background="{DynamicResource PanelBrush}"
+            BorderBrush="{DynamicResource AccentBrush}"
+            BorderThickness="0,0,0,3"
+            Padding="18,10,18,10"
+            Margin="0,4,10,6">
+      <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+        <TextBlock Text="{Binding Badge}" FontSize="24" Opacity="0.85"
+                   VerticalAlignment="Center"
+                   Foreground="{DynamicResource TextBrush}"/>
+        <TextBlock Grid.Column="1" Text="{Binding Label}"
+                   FontSize="26" FontWeight="Bold"
+                   VerticalAlignment="Center"
+                   TextTrimming="CharacterEllipsis"
+                   Foreground="{DynamicResource TextBrush}"/>
+        <TextBlock Grid.Column="2" Text="{Binding Detail}"
+                   FontSize="{DynamicResource SmallerFontSize}"
+                   Foreground="{DynamicResource AccentBrush}"
+                   VerticalAlignment="Bottom"
+                   Margin="12,0,0,3"
+                   TextTrimming="CharacterEllipsis"/>
+      </Grid>
+    </Border>
+  </DataTemplate>
+
+  <!--
+    A title's row: WMC's list rows are rows of tiles too - the name large, the state on the right, the seen
+    mark folded into the band. No thin grey subtitle anywhere; that is Nereus' voice, not this one.
+  -->
+  <DataTemplate x:Key="TitleRowTemplate" x:DataType="vm:TitleViewModel">
+    <Border Background="{DynamicResource PanelBrush}"
+            Padding="14,8"
+            Margin="0,3,8,5"
+            MinWidth="700">
+      <Grid ColumnDefinitions="Auto,5*,1.4*" ColumnSpacing="20">
+        <TextBlock Text="{Binding SeenMark}" MinWidth="34"
+                   Foreground="{DynamicResource AccentBrush}"/>
+        <TextBlock Grid.Column="1" Text="{Binding Line}" FontSize="24" FontWeight="SemiBold"
+                   TextTrimming="CharacterEllipsis"
+                   Foreground="{DynamicResource TextBrush}"/>
+        <TextBlock Grid.Column="2" Text="{Binding Detail}" FontSize="16"
+                   HorizontalAlignment="Right"
+                   Foreground="{DynamicResource MutedTextBrush}"
+                   TextTrimming="CharacterEllipsis"/>
+      </Grid>
+    </Border>
+  </DataTemplate>
+
+</ResourceDictionary>

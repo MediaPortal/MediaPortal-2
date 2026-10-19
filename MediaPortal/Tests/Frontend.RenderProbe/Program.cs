@@ -30,12 +30,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Templates;
 using Avalonia.Headless;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using MediaPortal.Frontend;
 using MediaPortal.Frontend.Api;
 using MediaPortal.Frontend.Player;
@@ -1159,6 +1161,21 @@ namespace FrontendProbe
         return 1;
       }
 
+      if (screenName == "home")
+      {
+        // A skin's claim about the home screen is not only colours: when it offers a tile template, the menu
+        // must draw its items from that file and not from the tree the view was written with. This is the one
+        // check that says a skin changed a screen's shape, which no pixel count of a background colour could.
+        string tileReport;
+        string? tilesWrong = CheckSkinTiles(window, out tileReport);
+        Console.WriteLine("tiles:    " + tileReport);
+        if (tilesWrong != null)
+        {
+          Console.WriteLine("FAILED:   " + tilesWrong);
+          return 1;
+        }
+      }
+
       if (settingsScreen != null)
       {
         // The settings screen's claim is that every palette is on the television, not just in the table - and
@@ -1380,6 +1397,40 @@ namespace FrontendProbe
         return "only " + share + "% of the frame carries the theme's background colour, so the palette did not "
             + "reach the screens";
 
+      return null;
+    }
+
+    /// <summary>
+    /// Whether the home screen's menu draws its tiles from the worn skin. The claim a skin makes with a
+    /// templates file is a claim about the tree every menu entry builds, and the only honest way to check it
+    /// is to ask the on-screen list which template it answers to while the picture is on.
+    /// </summary>
+    private static string? CheckSkinTiles(Window window, out string report)
+    {
+      WornSkin? worn = SkinEngine.Worn(Application.Current);
+      IDataTemplate? skin = SkinEngine.TryTileTemplate("HomeMenuTileTemplate");
+      if (worn == null || skin == null)
+      {
+        report = "no skin speaks the home menu on this frame; the view's own tiles are the right ones";
+        return null;
+      }
+
+      ListBox? menu = window.GetVisualDescendants().OfType<ListBox>()
+          .FirstOrDefault(list => list.Name == "menuList");
+      if (menu == null)
+      {
+        report = "the home menu was not on the window";
+        return "the home frame lost its menu";
+      }
+
+      if (!ReferenceEquals(menu.ItemTemplate, skin))
+      {
+        report = "the menu answers to the view, not to the skin";
+        return string.Format("the worn skin '{0}' offers HomeMenuTileTemplate but the menu draws its own tree",
+            worn.Manifest.Name);
+      }
+
+      report = string.Format("skin '{0}' draws the home menu tiles, off its own file", worn.Manifest.Name);
       return null;
     }
 

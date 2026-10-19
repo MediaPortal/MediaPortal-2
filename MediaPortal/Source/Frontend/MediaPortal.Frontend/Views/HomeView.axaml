@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        xmlns:theming="using:MediaPortal.Frontend.Theming"
         x:Class="MediaPortal.Frontend.Views.HomeView"
         x:DataType="vm:HomeViewModel"
         Name="home"
@@ -115,6 +116,7 @@
            focusable, which left the remote's arrow keys unable to reach it at all. -->
       <ListBox Name="menuList"
                Focusable="True"
+               theming:SkinTemplates.TileTemplate="HomeMenuTileTemplate"
                ItemsSource="{Binding Menu}"
                SelectedItem="{Binding SelectedEntry, Mode=TwoWay}"
                FontSize="21"

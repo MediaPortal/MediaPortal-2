@@ -292,7 +292,7 @@ try {
       if (-not $RenderDir) { $RenderDir = Join-Path (Join-Path $repoRoot 'build\artifacts') 'frontend-render' }
       New-Item -ItemType Directory -Path $RenderDir -Force | Out-Null
 
-      # Fourteen screens, sixteen frames. The home screen is drawn from a server that is really answering; the
+      # Fourteen screens, eighteen frames. The home screen is drawn from a server that is really answering; the
       # continue frame is the same screen of a household that has been watching things, drawn from a scripted
       # server, because the strip cannot be drawn from an empty database; the playback screen is drawn from a
       # scripted player, because a frame that is supposed to mean the same
@@ -342,11 +342,15 @@ try {
         # behind every transport button, the text on it, the outlines and the focus ring. The probe checks the frame
         # against the palette itself - the corner has to be the palette's background colour and that colour has to be
         # what the frame stands on - so a palette that was applied to the application but never asked for by a screen
-        # fails here rather than looking fine. The home screen is deliberately not one of these frames: it draws one
-        # colour of its own and leaves the rest to the theme, so its two frames would say nothing the first one
-        # did not already say.
+        # fails here rather than looking fine.
         @{ Name = 'nowplaying-nereus'; Arguments = '--screen nowplaying --theme nereus' },
         @{ Name = 'nowplaying-wmc-dark'; Arguments = '--screen nowplaying --theme wmc-dark' },
+        # The home screen in the two skins' colours is now one of these frames after all, and it is a frame about a
+        # different claim than colour: both skins ship a templates file that redraws the home menu's tiles, and the
+        # probe asks the on-screen list which tree it is drawing its items from while the picture is on. A skin that
+        # only ever changed colours would pass every other frame and fail here.
+        @{ Name = 'home-nereus'; Arguments = '--screen home --theme nereus' },
+        @{ Name = 'home-wmc-dark'; Arguments = '--screen home --theme wmc-dark' },
         # The settings screen, wearing Nereus, is the frame that says the palettes are not a table in a binary
         # but pixels on a television: every row paints its own accent as a swatch, and the probe counts the
         # accents by name - eleven palettes, eleven accent colours looked for by hex, each needing a painted
