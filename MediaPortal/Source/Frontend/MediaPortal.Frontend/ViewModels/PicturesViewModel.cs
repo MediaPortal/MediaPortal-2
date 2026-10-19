@@ -60,7 +60,10 @@ namespace MediaPortal.Frontend.ViewModels;
 /// <b>Small pictures.</b> There is no way to ask the server for a resized image, so a tile's small picture is the
 /// whole photograph fetched over the network. That is worth doing for the first <see cref="TILES_WITH_A_PICTURE"/>
 /// tiles of a folder and not worth doing for all four thousand, and it is why a tile whose bytes never came is still
-/// a tile with a name rather than a broken image.
+/// a tile with a name rather than a broken image. What the screen draws of those bytes is small, though: the tile
+/// asks its picture to be decoded at tile size, which is the difference between twenty-four photographs costing a
+/// few megabytes of pixels and costing more pixels than the whole decoded-picture budget can hold at once - see
+/// <c>ArtworkConverter.TILE_DECODE_WIDTH</c>.
 /// </para>
 /// <para>
 /// The awaits keep their context, as everywhere else in this front end: what follows them writes properties a bound

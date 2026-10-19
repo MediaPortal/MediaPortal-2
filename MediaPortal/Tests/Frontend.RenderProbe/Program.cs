@@ -896,6 +896,17 @@ namespace FrontendProbe
           Console.WriteLine("FAILED:   " + picturesMissing);
           return 1;
         }
+
+        // The other question a tile's picture raises is how big the decoded thing is, and that is a question only
+        // a real decoder can answer - see the reason on the check itself.
+        string decodeReport;
+        string? decodeMissing = CheckShrunkDecode(out decodeReport);
+        Console.WriteLine("decode:   " + decodeReport);
+        if (decodeMissing != null)
+        {
+          Console.WriteLine("FAILED:   " + decodeMissing);
+          return 1;
+        }
       }
 
       if (screenName == "browser" || screenName == "details")
@@ -995,6 +1006,100 @@ namespace FrontendProbe
         for (int y = 0; y < 64; y++)
         {
           for (int x = 0; x < 64; x++)
+          {
+            IntPtr at = surface.Address + y * surface.RowBytes + x * 4;
+            System.Runtime.InteropServices.Marshal.WriteByte(at + redOffset, (byte) rgb[0]);
+            System.Runtime.InteropServices.Marshal.WriteByte(at + 1, (byte) rgb[1]);
+            System.Runtime.InteropServices.Marshal.WriteByte(at + blueOffset, (byte) rgb[2]);
+            System.Runtime.InteropServices.Marshal.WriteByte(at + 3, 255);
+          }
+        }
+      }
+
+      using MemoryStream png = new MemoryStream();
+      picture.Save(png);
+      return png.ToArray();
+    }
+
+    /// <summary>
+    /// Whether the converter really hands back a smaller picture when a template asks for one.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This can only be measured on a platform with a real decoder. The unit-test fixture writes down that
+    /// Avalonia's pure-managed headless rasterizer answers every array of bytes with a one-pixel picture, so a
+    /// shrink asked for there is a shrink that cannot be seen; here Skia is switched on, which is the same code
+    /// path Windows, Linux and Android decode their photographs with.
+    /// </para>
+    /// <para>
+    /// It is worth this much trouble because the whole point of the smaller decode is invisible otherwise: a tile
+    /// looks the same whether it holds a 100-pixel picture or a 12-megapixel one, while the second of the two
+    /// pushes every other tile out of the converter's budget.
+    /// </para>
+    /// </remarks>
+    private static string? CheckShrunkDecode(out string report)
+    {
+      const int SOURCE_WIDTH = 300;
+      const int SOURCE_HEIGHT = 150;
+      const int ASKED_WIDTH = 100;
+
+      ArtworkConverter converter = new ArtworkConverter();
+      byte[] bytes = SolidPictureOfSize(POSTER_PINK, SOURCE_WIDTH, SOURCE_HEIGHT);
+
+      object? whole = converter.Convert(bytes, typeof(Bitmap), null!,
+          System.Globalization.CultureInfo.InvariantCulture);
+      object? shrunk = converter.Convert(bytes, typeof(Bitmap), ASKED_WIDTH,
+          System.Globalization.CultureInfo.InvariantCulture);
+
+      if (whole is not Bitmap wholePicture || shrunk is not Bitmap shrunkPicture)
+      {
+        report = "the converter gave no picture for bytes that hold one";
+        return "the converter answered a picture with nothing on a platform that has a decoder: "
+            + (whole == null ? "the whole picture" : "the shrunk one") + " is missing";
+      }
+
+      // No string.Format with a culture here: this file spells its numbers by hand because it does not carry
+      // System.Globalization, and a report line has no business changing the usings of a probe.
+      report = "a " + SOURCE_WIDTH + "x" + SOURCE_HEIGHT + " picture decodes at "
+          + wholePicture.PixelSize.Width + "x" + wholePicture.PixelSize.Height + " asked for as a whole and at "
+          + shrunkPicture.PixelSize.Width + "x" + shrunkPicture.PixelSize.Height + " asked for at " + ASKED_WIDTH
+          + " across";
+
+      if (wholePicture.PixelSize.Width != SOURCE_WIDTH || wholePicture.PixelSize.Height != SOURCE_HEIGHT)
+        return "a picture nobody asked to shrink came back " + wholePicture.PixelSize.Width + "x"
+            + wholePicture.PixelSize.Height + " instead of " + SOURCE_WIDTH + "x" + SOURCE_HEIGHT
+            + " - a screen that raises a photograph is being handed a thumbnail of it";
+
+      if (shrunkPicture.PixelSize.Width != ASKED_WIDTH)
+        return "a picture asked for at " + ASKED_WIDTH + " across was decoded " + shrunkPicture.PixelSize.Width
+            + " across - the tile is being handed the whole photograph, which is the memory the smaller decode "
+            + "exists to avoid";
+
+      if (shrunkPicture.PixelSize.Height != SOURCE_HEIGHT * ASKED_WIDTH / SOURCE_WIDTH)
+        return "the shrunk picture is " + shrunkPicture.PixelSize.Height + " lines tall, which is not the same "
+            + "shape as the original - a tile that stretches its picture draws the photograph out of proportion";
+
+      if (converter.Held != 2)
+        return "the same bytes at two sizes were remembered as " + converter.Held
+            + " picture(s); a raised photograph and its tile need their own, or one evicts the other";
+
+      return null;
+    }
+
+    /// <summary>
+    /// A flat PNG of the given size, for the questions where the size of the file is the subject.
+    /// </summary>
+    private static byte[] SolidPictureOfSize(int[] rgb, int width, int height)
+    {
+      WriteableBitmap picture = new WriteableBitmap(new PixelSize(width, height), new Vector(96, 96),
+          PixelFormats.Bgra8888, AlphaFormat.Opaque);
+      using (ILockedFramebuffer surface = picture.Lock())
+      {
+        int redOffset = surface.Format == PixelFormat.Rgba8888 ? 0 : 2;
+        int blueOffset = surface.Format == PixelFormat.Rgba8888 ? 2 : 0;
+        for (int y = 0; y < height; y++)
+        {
+          for (int x = 0; x < width; x++)
           {
             IntPtr at = surface.Address + y * surface.RowBytes + x * 4;
             System.Runtime.InteropServices.Marshal.WriteByte(at + redOffset, (byte) rgb[0]);

@@ -2967,6 +2967,62 @@ request finishes on its own; both are the price of the bargain rather than a new
 the case where the alternative was a crash. The clipboard's abandoned thread may still write into the clipboard
 after the caller has given up on it, which is the honest version of a thing that was already true.
 
+### as. A tile asks for a picture the size of the tile
+
+The pictures screen cannot ask the server for a small picture - there is no such request, and `IImageTransformer`,
+the seam that would let a server resize one, is filled in by the Windows host and by nobody else yet. So a tile's
+preview has always been the whole photograph fetched over the network, and that was written down as the accepted
+cost. What was not written down was what happens next, in the converter that turns those bytes into something a
+screen can draw.
+
+The converter remembers decoded pictures, oldest thrown away first, with a budget of eight million pixels. A
+twelve-megapixel photograph from a camera does not fit in that budget *by itself*, so a folder of twenty-four of
+them - one screenful, the number of tiles the screen is willing to fetch pictures for - evicted each other as fast
+as they were decoded. Whoever scrolled through a folder of photographs was watching the same photograph be decoded
+again and again, and every pass of the scrollbar paid for it. The screen looked right and felt wrong, which is the
+kind of defect nobody can point at in a screenshot.
+
+**The fix is a size in the request.** A template that knows its picture is going into a tile now says so -
+`ConverterParameter=tile` - and the converter decodes at four hundred and thirty-two device pixels, which is twice
+the two hundred and six the tile has for the picture: sharp on a television driven at 200% scaling, and nothing
+beyond that. A template whose tiles are another size may pass a number of its own. A template that says nothing -
+the poster on a details screen, the shelf's covers - still gets the whole picture, because guessing a size for a
+caller that did not ask is how a picture ends up blurred for no reason.
+
+Two consequences had to be handled in the same place:
+
+- **The same bytes at two sizes are two remembered pictures.** The raised photograph and the tile it came from are
+  on screen at the same time and are made of the very same array of bytes, which is what the cache keys on. Keying
+  on the bytes alone would have handed the raised photograph a 432-pixel picture - or, depending on who asked
+  first, a twelve-megapixel picture in a two-hundred-pixel tile.
+- **A narrower picture stays as it is.** Scaling here is only ever downwards, so a 256-pixel thumbnail from the
+  server's database is decoded exactly as it was before, whether or not the template asked for something wider.
+
+A fact about Avalonia 12 belongs here, because the obvious API is gone: the constructor that used to take a size to
+decode to does not exist any more. `Bitmap.DecodeToWidth` and `DecodeToHeight` are what is left, and the pictures
+screen's tiles are decoded with the first of those at `MediumQuality`.
+
+**What proves it, and where that proof cannot reach.** The unit-test fixture records, from measurement, that
+Avalonia's pure-managed headless rasterizer answers every array of bytes with a one-pixel picture - so in that
+fixture a shrink cannot be seen any more than a decode can. The tests therefore prove the decisions: that the word
+`tile` means a size, however it is capitalised, that a number is honoured, that anything else means the whole
+picture, that the size is at least twice the tile's width and at most four times it (the first is a soft picture on
+a 4K panel, the second is the tiles no longer fitting in the budget, which is the two ways this number can be
+wrong), and that two sizes of the same bytes are two pictures.
+
+The shrink itself is proved where a real decoder runs: the render gate, which draws with Skia like every platform
+does. Its pictures frame now decodes a picture it knows the size of, asks for it twice, and prints what came back -
+`decode: a 300x150 picture decodes at 300x150 asked for as a whole and at 100x50 asked for at 100 across` - and
+fails with a named complaint when the asked-for picture is not smaller or is out of proportion. That complaint was
+heard: with the width removed from the call the frame answers `a picture asked for at 100 across was decoded 300
+across`, which is the sentence a future regression needs.
+
+Not done here: the bytes still cross the network whole, which is a server-side resize and therefore a decoder
+decision the server host has not made yet; the ceiling that refuses a preview for a file above eight megabytes is
+now about bandwidth rather than about memory, and says so; and the raised photograph is decoded in full while its
+tile is still on screen behind it, which is correct for the one picture a viewer is looking at. Tests.Frontend went
+from 351 to 358 with these seven.
+
 ## What cannot be verified without the user
 
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,

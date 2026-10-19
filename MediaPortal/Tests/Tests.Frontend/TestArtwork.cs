@@ -599,5 +599,92 @@ namespace Tests.Frontend
           "a row that is laid out twice must not decode its poster twice, or scrolling is a slideshow");
       Assert.That(converter.Held, Is.EqualTo(1));
     }
+
+    /// <summary>
+    /// How wide a tile of the pictures screen is, in logical pixels. The picture inside it is drawn two hundred and
+    /// six of those across; the tile's own width is the number a reader can check in the markup.
+    /// </summary>
+    private const int TILE_LOGICAL_WIDTH = 216;
+
+    [AvaloniaTest]
+    public void ATemplateThatSaysTileGetsATileSizedDecode()
+    {
+      Assert.That(ArtworkConverter.DecodeWidthFor(ArtworkConverter.TILE_PARAMETER),
+          Is.EqualTo(ArtworkConverter.TILE_DECODE_WIDTH),
+          "the pictures screen asks for its pictures by that word, so the word has to mean a size");
+    }
+
+    [Test]
+    public void TheWordForTileIsUnderstoodHoweverItIsCapitalised()
+    {
+      // XAML is written by people who capitalise, and a parameter that silently means "the whole picture" would
+      // undo the whole point of asking.
+      Assert.That(ArtworkConverter.DecodeWidthFor("TILE"), Is.EqualTo(ArtworkConverter.TILE_DECODE_WIDTH));
+      Assert.That(ArtworkConverter.DecodeWidthFor("Tile"), Is.EqualTo(ArtworkConverter.TILE_DECODE_WIDTH));
+    }
+
+    [Test]
+    public void ATileSizedDecodeIsWideEnoughForATelevisionAndNarrowEnoughToMatter()
+    {
+      // Lower bound: a television driven at 200% scaling paints that tile twice as many device pixels across, so
+      // anything less than double the tile's width is a blurred tile on the set that has the most pixels.
+      Assert.That(ArtworkConverter.TILE_DECODE_WIDTH, Is.GreaterThanOrEqualTo(2 * TILE_LOGICAL_WIDTH),
+          "a tile decoded narrower than twice its logical width is a soft picture on a 4K panel");
+
+      // Upper bound: the reason for asking at all is the decoded-picture budget, which holds eight million pixels.
+      // Four times the tile's width is where twenty-four tiles of a folder stop fitting in it.
+      Assert.That(ArtworkConverter.TILE_DECODE_WIDTH, Is.LessThanOrEqualTo(4 * TILE_LOGICAL_WIDTH),
+          "decoded tiles have to leave room in the budget for all of a folder's tiles at once");
+    }
+
+    [Test]
+    public void ATemplateMayAskForItsOwnWidth()
+    {
+      Assert.That(ArtworkConverter.DecodeWidthFor(97), Is.EqualTo(97),
+          "a template whose tiles are a different size should not have to take the pictures screen's number");
+    }
+
+    [Test]
+    public void AnythingThatIsNotASizeIsTheWholePicture()
+    {
+      // Every existing caller - the poster on a details screen, the raised photograph, the shelf's covers - passes
+      // nothing and must keep getting the whole picture it was given before.
+      Assert.That(ArtworkConverter.DecodeWidthFor(null!), Is.EqualTo(0));
+      Assert.That(ArtworkConverter.DecodeWidthFor("poster"), Is.EqualTo(0));
+      Assert.That(ArtworkConverter.DecodeWidthFor(0), Is.EqualTo(0));
+      Assert.That(ArtworkConverter.DecodeWidthFor(-4), Is.EqualTo(0));
+    }
+
+    [AvaloniaTest]
+    public void TheSameBytesAtTwoSizesAreTwoPictures()
+    {
+      ArtworkConverter converter = new ArtworkConverter();
+      byte[] bytes = Picture();
+
+      object? whole = converter.Convert(bytes, typeof(Bitmap), null!, System.Globalization.CultureInfo.InvariantCulture);
+      object? tile = converter.Convert(bytes, typeof(Bitmap), ArtworkConverter.TILE_PARAMETER,
+          System.Globalization.CultureInfo.InvariantCulture);
+
+      // The photograph a viewer raises and the tile it came from are on screen together, from the same array of
+      // bytes. If the size were not part of what the converter remembers, one of the two would be handed the
+      // other's decoding - a raised photograph drawn from a tile, or a grid of twelve-megapixel pictures.
+      Assert.That(tile, Is.Not.SameAs(whole));
+      Assert.That(converter.Held, Is.EqualTo(2));
+    }
+
+    [AvaloniaTest]
+    public void TheSameBytesAtTheSameSizeAreStillOnePicture()
+    {
+      ArtworkConverter converter = new ArtworkConverter();
+      byte[] bytes = Picture();
+
+      object? first = converter.Convert(bytes, typeof(Bitmap), ArtworkConverter.TILE_PARAMETER,
+          System.Globalization.CultureInfo.InvariantCulture);
+      object? again = converter.Convert(bytes, typeof(Bitmap), ArtworkConverter.TILE_PARAMETER,
+          System.Globalization.CultureInfo.InvariantCulture);
+
+      Assert.That(again, Is.SameAs(first), "asking for the same tile picture twice is one decode, not two");
+      Assert.That(converter.Held, Is.EqualTo(1));
+    }
   }
 }

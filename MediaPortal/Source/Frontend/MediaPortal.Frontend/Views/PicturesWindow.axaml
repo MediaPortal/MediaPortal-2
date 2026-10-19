@@ -68,7 +68,13 @@
                 <Border Background="#FF17202A"
                         BorderBrush="#FF2E4A63"
                         BorderThickness="1" />
-                <Image Source="{Binding Picture, Converter={StaticResource artwork}}"
+                <!-- The tile asks for the picture at tile size (ArtworkConverter.TILE_DECODE_WIDTH). What the
+                     server sent is the whole photograph - it has no way to resize one - and decoding twelve
+                     megapixels to paint two hundred of them twenty-four times over pushes every tile out of the
+                     decoded-picture budget as fast as it arrives, which shows up as a grid that redraws itself
+                     blank while it is being scrolled. The bytes are still the whole photograph; only the
+                     decoding is smaller. -->
+                <Image Source="{Binding Picture, Converter={StaticResource artwork}, ConverterParameter=tile}"
                        Stretch="Uniform"
                        Margin="5" />
                 <!-- A tile whose bytes never arrived is still a tile with a name, and says why it has no picture
@@ -97,6 +103,9 @@
     <Panel Name="viewer"
            Background="#F2000000"
            IsVisible="{Binding IsViewing}">
+      <!-- No ConverterParameter here on purpose: the raised photograph is the one place the whole decoded picture
+           is wanted, and it is shown one at a time. The same bytes as the tile's, decoded a second time at full
+           size - the converter remembers the two separately. -->
       <Image Source="{Binding ViewingBytes, Converter={StaticResource artwork}}"
              Stretch="Uniform"
              Margin="40,24,40,96" />

@@ -43,6 +43,16 @@ namespace MediaPortal.Frontend.Views
   /// to hand it back.
   /// </para>
   /// <para>
+  /// <b>A tile asks for a smaller picture than the photograph is.</b> A photograph from a camera is twelve
+  /// megapixels; the tile it is drawn in on the pictures screen is two hundred and six logical pixels across.
+  /// Decoding twelve megapixels to paint two hundred pixels costs the same memory as the raised picture and the
+  /// same time, twenty-four times over, and the budget below then throws almost all of it away again - so a
+  /// caller that knows the picture is going into a tile says so with the converter parameter
+  /// <c>"tile"</c> and gets it decoded at <see cref="TILE_DECODE_WIDTH"/>. The same bytes asked for at two
+  /// sizes are remembered as two pictures, because the raised photograph of the very same file has to stay
+  /// full-size while its tile is small.
+  /// </para>
+  /// <para>
   /// The budget is in pixels rather than titles because the pictures a library holds are not all one size: an
   /// album cover from an online provider and a frame the video thumbnailer grabbed can differ by a factor of four,
   /// and a count of remembered titles would be a guess at memory.
@@ -62,9 +72,49 @@ namespace MediaPortal.Frontend.Views
     /// </remarks>
     public const long MAX_HELD_PIXELS = 8L * 1024 * 1024;
 
+    /// <summary>
+    /// How wide a picture that is only ever drawn inside a tile is decoded.
+    /// </summary>
+    /// <remarks>
+    /// Four hundred and thirty-two device pixels. A tile of the pictures screen is 216 logical pixels wide and
+    /// draws its picture two hundred and six of those across, so this is twice the room the picture has - which
+    /// keeps a tile sharp on a television driven at 200% scaling and stops there. The arithmetic that matters is
+    /// what it does to the budget above: a decoded tile is about 130 thousand pixels, so all
+    /// <see cref="PicturesViewModel.TILES_WITH_A_PICTURE"/> tiles of a folder fit at once, where the same
+    /// twenty-four photographs at twelve megapixels each would be two hundred and eighty-eight million and would
+    /// push each other out of the cache as fast as they were decoded.
+    /// </remarks>
+    public const int TILE_DECODE_WIDTH = 432;
+
+    /// <summary>
+    /// The converter parameter a template passes to ask for a tile-sized decode.
+    /// </summary>
+    public const string TILE_PARAMETER = "tile";
+
+    /// <summary>
+    /// One remembered picture: the bytes it came from, the width it was decoded for, and the picture.
+    /// </summary>
+    private sealed class Remembered
+    {
+      internal readonly byte[] Bytes;
+      internal readonly int Width;
+      internal readonly Bitmap Picture;
+
+      internal Remembered(byte[] bytes, int width, Bitmap picture)
+      {
+        Bytes = bytes;
+        Width = width;
+        Picture = picture;
+      }
+
+      internal long Pixels
+      {
+        get { return (long) Picture.PixelSize.Width * Picture.PixelSize.Height; }
+      }
+    }
+
     /// <summary>Remembered pictures, least recently shown first.</summary>
-    private readonly List<KeyValuePair<byte[], Bitmap>> _held =
-        new List<KeyValuePair<byte[], Bitmap>>();
+    private readonly List<Remembered> _held = new List<Remembered>();
 
     private long _pixels;
 
@@ -79,21 +129,39 @@ namespace MediaPortal.Frontend.Views
       if (value is not byte[] bytes || bytes.Length == 0)
         return null;
 
-      Bitmap? already = LookForHeld(bytes);
+      int width = DecodeWidthFor(parameter);
+      Bitmap? already = LookForHeld(bytes, width);
       if (already != null)
         return already;
 
-      Bitmap? picture = Decode(bytes);
+      Bitmap? picture = Decode(bytes, width);
       if (picture == null)
         return null;
 
-      Hold(bytes, picture);
+      Hold(bytes, width, picture);
       return picture;
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
       throw new NotSupportedException("A picture is read from the server, never sent to it.");
+    }
+
+    /// <summary>
+    /// The width to decode for, or zero for the whole picture.
+    /// </summary>
+    /// <remarks>
+    /// A template that names no size gets the whole picture, which is what the raised photograph, a poster on a
+    /// details screen and every other existing caller want. A number is accepted as well, so a template whose
+    /// tiles are a different size can ask for its own; anything unrecognised is the whole picture again, because
+    /// guessing a size is how a picture ends up blurred for no reason.
+    /// </remarks>
+    public static int DecodeWidthFor(object? parameter)
+    {
+      if (parameter is string text)
+        return string.Equals(text, TILE_PARAMETER, StringComparison.OrdinalIgnoreCase) ? TILE_DECODE_WIDTH : 0;
+
+      return parameter is int requested && requested > 0 ? requested : 0;
     }
 
     /// <summary>
@@ -106,12 +174,18 @@ namespace MediaPortal.Frontend.Views
     /// draw it. The bytes stay out of the cache either way, so a row that is realised twice asks the same
     /// question twice, which is the honest cost of not knowing any better.
     /// </remarks>
-    private static Bitmap? Decode(byte[] bytes)
+    private static Bitmap? Decode(byte[] bytes, int width)
     {
       try
       {
         using (MemoryStream picture = new MemoryStream(bytes, false))
-          return new Bitmap(picture);
+        {
+          // Scaling is only ever downwards: a picture narrower than the width asked for comes back as it is,
+          // which is what a small thumbnail in a big tile wants anyway.
+          return width == 0
+              ? new Bitmap(picture)
+              : Bitmap.DecodeToWidth(picture, width, BitmapInterpolationMode.MediumQuality);
+        }
       }
       catch (Exception)
       {
@@ -120,24 +194,24 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
-    /// The picture these very bytes were decoded into before, moved to the recent end, or null when they have not
-    /// been decoded yet.
+    /// The picture these very bytes were decoded to this width before, moved to the recent end, or null when
+    /// they have not been decoded at this width yet.
     /// </summary>
     /// <remarks>
     /// Matched by the array itself rather than by its contents, because the bytes come out of the picture cache
     /// held by the view model: the same title hands out the same array every time its row is laid out, so
     /// reference equality is both enough and the cheapest question to ask.
     /// </remarks>
-    private Bitmap? LookForHeld(byte[] bytes)
+    private Bitmap? LookForHeld(byte[] bytes, int width)
     {
       for (int i = 0; i < _held.Count; i++)
       {
-        if (!ReferenceEquals(_held[i].Key, bytes))
+        if (!ReferenceEquals(_held[i].Bytes, bytes) || _held[i].Width != width)
           continue;
 
-        Bitmap picture = _held[i].Value;
+        Bitmap picture = _held[i].Picture;
         _held.RemoveAt(i);
-        _held.Add(new KeyValuePair<byte[], Bitmap>(bytes, picture));
+        _held.Add(new Remembered(bytes, width, picture));
         return picture;
       }
       return null;
@@ -146,17 +220,18 @@ namespace MediaPortal.Frontend.Views
     /// <summary>
     /// Remembers one decoded picture, making room for it by throwing away the oldest.
     /// </summary>
-    private void Hold(byte[] bytes, Bitmap picture)
+    private void Hold(byte[] bytes, int width, Bitmap picture)
     {
-      _held.Add(new KeyValuePair<byte[], Bitmap>(bytes, picture));
-      _pixels += (long) picture.PixelSize.Width * picture.PixelSize.Height;
+      Remembered entry = new Remembered(bytes, width, picture);
+      _held.Add(entry);
+      _pixels += entry.Pixels;
 
       while (_pixels > MAX_HELD_PIXELS && _held.Count > 1)
       {
-        KeyValuePair<byte[], Bitmap> oldest = _held[0];
+        Remembered oldest = _held[0];
         _held.RemoveAt(0);
-        _pixels -= (long) oldest.Value.PixelSize.Width * oldest.Value.PixelSize.Height;
-        oldest.Value.Dispose();
+        _pixels -= oldest.Pixels;
+        oldest.Picture.Dispose();
       }
     }
   }
