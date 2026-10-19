@@ -68,7 +68,7 @@
                 Command="{Binding RemoveSelectedPlaceCommand}" />
 
         <TextBox Name="searchBox"
-                 Watermark="Search for a place"
+                 views:VirtualKeyboardService.Trigger="Menu"
                  FontSize="20"
                  Focusable="True"
                  Text="{Binding SearchText, Mode=TwoWay}" />

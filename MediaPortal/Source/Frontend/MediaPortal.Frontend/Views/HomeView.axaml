@@ -91,11 +91,13 @@
       <StackPanel Name="signInRow" Orientation="Horizontal" Spacing="10" Margin="18,0,0,0"
                   IsVisible="{Binding SignInOffered}">
         <TextBox Name="signInName"
+                 views:VirtualKeyboardService.Trigger="EnterOrMenu"
                  Text="{Binding SignInName}"
                  Watermark="User name"
                  FontSize="15"
                  MinWidth="150" />
         <TextBox Name="signInPassword"
+                 views:VirtualKeyboardService.Trigger="EnterOrMenu"
                  Text="{Binding SignInPassword}"
                  PasswordChar="•"
                  Watermark="Password"

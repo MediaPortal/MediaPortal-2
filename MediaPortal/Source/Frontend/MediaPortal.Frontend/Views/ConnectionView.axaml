@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="using:MediaPortal.Frontend.Views"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
         xmlns:dis="using:MediaPortal.Frontend.Discovery"
         x:Class="MediaPortal.Frontend.Views.ConnectionView"
@@ -65,6 +66,7 @@
                  MaxWidth="980" />
 
       <TextBox Name="serverUrlBox"
+               views:VirtualKeyboardService.Trigger="Menu"
                Focusable="True"
                Text="{Binding ServerUrlText, Mode=TwoWay}"
                PlaceholderText="http://&lt;address&gt;:&lt;port&gt;/MediaPortal/Server"

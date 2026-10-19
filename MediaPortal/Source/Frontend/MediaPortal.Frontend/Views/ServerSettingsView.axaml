@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="using:MediaPortal.Frontend.Views"
              xmlns:vm="using:MediaPortal.Frontend.ViewModels"
              x:Class="MediaPortal.Frontend.Views.ServerSettingsView"
              x:DataType="vm:ServerSettingsViewModel">
@@ -26,13 +27,13 @@
 
       <TextBlock Grid.Row="2" Grid.Column="0" Text="Every ... hours" Classes="settinglabel"/>
       <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Spacing="8">
-        <TextBox Width="80" Text="{Binding ImporterHours}"/>
+        <TextBox Width="80" Text="{Binding ImporterHours}" views:VirtualKeyboardService.Trigger="EnterOrMenu"/>
         <TextBlock Classes="hint" VerticalAlignment="Center" Text="Between 0 and 24."/>
       </StackPanel>
 
       <TextBlock Grid.Row="3" Grid.Column="0" Text="Port" Classes="settinglabel"/>
       <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="8">
-        <TextBox Width="120" Text="{Binding Port}"/>
+        <TextBox Width="120" Text="{Binding Port}" views:VirtualKeyboardService.Trigger="EnterOrMenu"/>
         <TextBlock Classes="hint" VerticalAlignment="Center"
                    Text="Stored only - this server build always listens on the shared port 55555."/>
       </StackPanel>
@@ -48,7 +49,8 @@
                 IsChecked="{Binding LimitEndpoints}"/>
 
       <TextBlock Grid.Row="6" Grid.Column="0" Text="Addresses" Classes="settinglabel"/>
-      <TextBox Grid.Row="6" Grid.Column="1" Text="{Binding Bindings}" Watermark="192.168.1.10, 127.0.0.1"/>
+      <TextBox Grid.Row="6" Grid.Column="1" Text="{Binding Bindings}" Watermark="192.168.1.10, 127.0.0.1"
+               views:VirtualKeyboardService.Trigger="EnterOrMenu"/>
 
       <TextBlock Grid.Row="7" Grid.Column="0" Classes="settinglabel"
                  Text="Only one address will do"/>

@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="using:MediaPortal.Frontend.Views"
              xmlns:vm="using:MediaPortal.Frontend.ViewModels"
              x:Class="MediaPortal.Frontend.Views.MetadataSettingsView"
              x:DataType="vm:MetadataSettingsViewModel">
@@ -21,7 +22,8 @@
             <CheckBox Grid.Column="1" IsChecked="{Binding IsOn}" IsVisible="{Binding IsToggle}"
                       VerticalAlignment="Center"/>
             <TextBox Grid.Column="1" Text="{Binding Text}" IsVisible="{Binding IsText}" Width="160"
-                     HorizontalAlignment="Left" Watermark="en-GB"/>
+                     HorizontalAlignment="Left" Watermark="en-GB"
+                     views:VirtualKeyboardService.Trigger="EnterOrMenu"/>
           </Grid>
         </DataTemplate>
       </ItemsControl.ItemTemplate>

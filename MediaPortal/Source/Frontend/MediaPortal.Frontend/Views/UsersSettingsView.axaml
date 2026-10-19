@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="using:MediaPortal.Frontend.Views"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
         xmlns:api="using:MediaPortal.Frontend.Api"
         x:Class="MediaPortal.Frontend.Views.UsersSettingsView"
@@ -71,6 +72,7 @@
           <TextBlock Grid.Row="0" Grid.Column="0" Text="Name" FontSize="16" VerticalAlignment="Center" Margin="0,6" />
           <TextBox Grid.Row="0" Grid.Column="1"
                    Name="nameBox"
+                   views:VirtualKeyboardService.Trigger="EnterOrMenu"
                    Text="{Binding NameText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                    FontSize="16"
                    Focusable="True"
@@ -79,6 +81,7 @@
           <TextBlock Grid.Row="1" Grid.Column="0" Text="New password" FontSize="16" VerticalAlignment="Center" Margin="0,6" />
           <TextBox Grid.Row="1" Grid.Column="1"
                    Name="passwordBox"
+                   views:VirtualKeyboardService.Trigger="EnterOrMenu"
                    Text="{Binding PasswordText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                    FontSize="16"
                    Focusable="True"
