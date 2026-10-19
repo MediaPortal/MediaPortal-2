@@ -2373,6 +2373,83 @@ The suite stands at **842 tests, 0 failures**, with `Tests.Server` at **361** wh
 33 tests for the new extractor, one for the temporary id table, and the 22 that came with the shares API in the same
 push.
 
+### ak. A person can tell the media centre where their media is, from the television
+
+**"Only 3 test buttons in home" was measured before a line was written, and it was not a drawing bug.** The home menu is
+built from the aspects a server reports, so a front end with nothing to read shows its three buttons - Refresh, Now
+playing, Server - and nothing else. Pointed at a server holding a library a person would recognise (four films described
+by `movie.nfo`, two video files with nothing describing them at all, and the real `C:\Users\ge230\Videos\Alien Earth
+(2025)`, which is scraped with a `tvshow.nfo`, per-episode nfos, posters and fanart), the same build drew the menu with
+the server's own numbers: `Movies 4 | TV Series 1 | Music 0 | Videos 14 | Pictures 0 | Latest media no import-date sort |
+TV no TV backend | Radio no radio backend | Settings no settings API yet | Episodes 8`, 27 aspects, PROBE OK. What that
+measurement left as the real gap was not the drawing. **Nothing in the new front end could add a folder.** MP2's own
+shares editor is a window on a configuration tool that runs on Windows, so the server that the previous section gave an
+importer could be fed from the sofa on no platform at all - and on a fresh install on Linux or Android it could serve a
+library it could never gain.
+
+**The screen is `Views\FoldersWindow.axaml` with `FoldersViewModel`, on five new client calls** -
+`GetSharesAsync`, `AddShareAsync`, `RemoveShareAsync`, `ImportShareAsync`, `GetImportStatusAsync` - which sit on a verb
+helper in `ServerApiClient` that the playback reporter was moved onto as well, so there is one place that knows how a
+request is written and a refusal becomes an exception. The folders are a list on the left, wide, because the path is the
+thing a viewer checks ("is that the drive I meant?"); the things to do with a folder are a column on the right, because
+they are used once each. Under the path field is one tick box per media category the *server* offers - the five the demo
+server manages are Movie, Series, Video, Music and Picture - and under them one line about the import queue.
+
+**Four decisions on that screen are worth their reasons.** Nothing is ticked when the boxes arrive, and an add with
+nothing ticked is refused on the screen rather than sent, because the server would take the folder under every category
+it knows and a music folder read by the video extractors arrives as noise in the film list. Registering a folder already
+queues its import inside the library, so the screen queues nothing of its own and follows the queue instead: the line
+says `importing 1 folder`, then `nothing being imported`, and the "Import finished." underneath is said only when the
+screen watched something being done - a queue that was empty the whole time would otherwise erase the `Added "Films" as
+Movie.` sentence, which is the sentence the viewer pressed the button for. Forgetting a folder asks twice, hands the
+"press remove again" to the row the viewer is already looking at, and takes it back the moment another row is picked,
+because a share's titles go with it. A folder registered by another system is listed with that truth rather than with a
+button that would only be refused. And the tick boxes do not exist when the screen is built - they arrive with the
+server's answer - so the arrow ring is rebuilt when the collection changes; Enter means the field's confirmation in the
+field and the journey to the buttons on a row; Up and Down leave the field while Left and Right stay with the caret,
+because retyping a UNC path with a remote is not a thing to ask of anybody.
+
+**It is proven three ways.** Sixteen tests in `TestFoldersScreen` run the *real* `SharesController` in-process against
+real temporary directories, with only the library, the resolver, the accessor and the importer faked
+(`SharesFakes`); they cover what the list says, what a foreign folder says, an empty library, no server, an add with the
+categories the boxes were ticked to, an add refused for no category, a refusal for a folder the server cannot see, a
+folder that is already shared, the two presses of a delete, the queue followed until it empties, a paused queue, and what
+each of the server's refusals becomes on screen. Four more in `TestFoldersWindow` load the XAML on the headless platform
+and assert that the rows arrive, that the arrow key leaves the path field and lands on the first tick box (which is the
+whole reason the ring is rebuilt), that Enter in the field registers the folder it holds, and that Back closes the
+screen and leaves the library exactly as it found it. The visible proof is
+`build\artifacts\folders-live.png`, rendered by the probe's new `--screen folders` against the running server: three
+folders, five media types, one of them the real `Alien Earth (2025)`, and the queue line below the add button.
+
+**Two defects the screen's own tests caught, both in the view model.** `Dispose()` threw `ObjectDisposedException` the
+second time it was called: the screen calls it when it closes, and the source whose run had already finished was still
+sitting in the field waiting to be cancelled - so two owners, which is the normal case here, crashed the front end on
+its way out. It is idempotent now and cancels quietly. And `DescribeAddFailure` handed a 503 through as `The server
+answered 503 (ServiceUnavailable) at http://127.0.0.1:…`, which is a sentence for a log and not for a television; the
+number is now replaced with what can be done about it. `Tests.Frontend` is also a friend of the front end assembly now
+(`AssemblyInfo.cs`, one attribute, one comment) for two members only: the task that watches the queue - a screen that
+has to stop watching when it closes can only be proven to stop by waiting for the watch - and the interval it waits at,
+because a suite that slept through the real second and a half would spend minutes to say nothing interesting.
+
+**A hazard that was already written down and was walked into anyway.** Closing the in-process API from the display
+thread deadlocks the test host with no exception and no message, because the host's shutdown is a blocking wait for an
+awaited stop whose continuation is handed to the dispatcher that the wait is blocking. `TestHomeWindow` disposes its
+hosts on a thread-pool thread for exactly this reason and says so in a comment; the folders fixture does the same.
+Finding it again cost a dozen runs of a suite that simply never finished, which is the argument for writing hazards down
+where the next fixture will read them.
+
+**What this does not do.** The home menu now has one entry that is not MP2's own - `Folders`, last but one, in front of
+the `Settings` it cannot open yet - and the two tests that counted MP2's entries were updated to say why rather than to
+count a different number. The screen edits shares and nothing else: the rest of the server's configuration is still
+behind .NET Remoting, still `p2-5-api-settings` on the backlog. The two video files with nothing describing them still
+arrive with an empty title, because the extractor deliberately does not invent one from a filename; the display-side
+fallback is on the backlog with the pictures, which still 404 for anything imported from nfo. And the queue line counts
+jobs, not files - one job can be a hundred thousand files and the server has no count to give - so it says
+`importing 1 folder` where a progress bar would have had to invent a percentage.
+
+The suite stands at **862 tests, 0 failures**, with `Tests.Frontend` at **314** where the last section left it at 294:
+the twenty that came with this screen.
+
 ## What cannot be verified without the user
 
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,
