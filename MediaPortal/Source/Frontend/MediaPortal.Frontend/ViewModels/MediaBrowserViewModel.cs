@@ -520,7 +520,10 @@ namespace MediaPortal.Frontend.ViewModels
 
     [ObservableProperty]
     private string _detailsHeading = "";
-
+ 
+    [ObservableProperty]
+    private string _detailsTagline = "";
+ 
     [ObservableProperty]
     private string _detailsLine = "";
 
@@ -1586,6 +1589,9 @@ namespace MediaPortal.Frontend.ViewModels
 
         string name = string.IsNullOrWhiteSpace(details.Title) ? title.Name : details.Title!.Trim();
         DetailsHeading = details.Year.HasValue ? name + " (" + details.Year.Value + ")" : name;
+        // The reference's detail screens put the tagline under the title and above the facts - the sentence the
+        // studio wrote, before the sentences about length and kind. A title without one simply shows no line.
+        DetailsTagline = details.Tagline?.Trim() ?? "";
         DetailsLine = DescribeLine(details, title);
         DetailsText = details.Description ?? "Nothing was written about this title on this server.";
         DetailsPath = details.Path ?? title.Title.Path ?? "This title has no resource the server can name.";

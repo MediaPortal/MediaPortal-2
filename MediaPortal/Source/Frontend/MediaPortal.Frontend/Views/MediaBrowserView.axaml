@@ -313,6 +313,14 @@
                      FontSize="28"
                      FontWeight="SemiBold"
                      TextWrapping="Wrap" />
+          <!-- The studio's own sentence about the film, where the reference's detail screens put it: under the
+               title, above the facts, in italics. Titles without one show no line at all. -->
+          <TextBlock Text="{Binding DetailsTagline}"
+                     FontSize="18"
+                     FontStyle="Italic"
+                     Opacity="0.6"
+                     IsVisible="{Binding DetailsTagline, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                     TextWrapping="Wrap" />
           <TextBlock Text="{Binding DetailsLine}"
                      FontSize="17"
                      Opacity="0.72"

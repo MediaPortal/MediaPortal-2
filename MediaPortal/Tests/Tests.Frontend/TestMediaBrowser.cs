@@ -814,6 +814,9 @@ namespace Tests.Frontend
       WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
 
       Assert.That(browser.DetailsHeading, Is.EqualTo("Titanic (1997)"));
+      Assert.That(browser.DetailsTagline, Is.EqualTo("Nothing on Earth could come between them."),
+          "the reference detail screens put the studio's sentence under the title, and the server has always "
+          + "carried it - a details panel that drops it is reading the library with half an eye");
       Assert.That(browser.DetailsLine, Does.Contain("195 min"));
       Assert.That(browser.DetailsLine, Does.Contain("PG-13"),
           "how old a viewer has to be is the first thing two people argue about over a film");
