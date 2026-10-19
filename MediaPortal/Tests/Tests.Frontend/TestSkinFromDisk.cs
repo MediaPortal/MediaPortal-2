@@ -17,6 +17,8 @@
 
 using System;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
@@ -301,5 +303,89 @@ namespace Tests.Frontend
 
      SkinEngine.Clear(app);
    }
+
+    /// <summary>
+    /// A skin is hundreds of pictures before it is anything else, and the reference screens pulled them out of
+    /// the worn skin by name - <c>ImageSource="Square_small.png"</c> answered from the folder, not from the
+    /// assembly. The engine lists a skin's images directories when it puts the skin on and loads a picture the
+    /// first time a screen asks for it, so wearing Nereus means having its four hundred and forty-five
+    /// pictures to hand without carrying four hundred and forty-five bitmaps in memory.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheSkinCarriesItsPicturesByName()
+    {
+      Application app = Application.Current!;
+      SkinEngine.SkinsFolder = _root;
+      string skin = Path.Combine(_root, "disktest");
+
+      Directory.CreateDirectory(Path.Combine(skin, "images", "HomeContentIcons"));
+      using (WriteableBitmap square = new WriteableBitmap(new PixelSize(3, 3), new Vector(96, 96)))
+        square.Save(Path.Combine(skin, "images", "Square_small.png"));
+      using (WriteableBitmap album = new WriteableBitmap(new PixelSize(5, 5), new Vector(96, 96)))
+        album.Save(Path.Combine(skin, "images", "HomeContentIcons", "album.png"));
+      File.WriteAllText(Path.Combine(skin, "images", "notes.txt"), "not a picture, not catalogued");
+
+      Assert.That(SkinEngine.Apply(app, "disktest", out string? problem), Is.True, problem ?? "");
+      WornSkin? worn = SkinEngine.Worn(app);
+      Assert.That(worn, Is.Not.Null);
+
+      SkinImages images = worn!.Images;
+      Assert.That(images.Has("Square_small"), Is.True, "a picture at the top of the images directory answers "
+          + "by the bare name the reference screens spelled");
+      Assert.That(images.Has("HomeContentIcons/album"), Is.True, "and one in a folder answers by its path");
+      Assert.That(images.Has("album"), Is.True, "a name that is used once answers bare too");
+      Assert.That(images.Has("notes"), Is.False, "only picture files are pictures");
+
+      Bitmap? picture = images.Load("Square_small");
+      Assert.That(picture, Is.Not.Null, "asking for the picture reads it");
+      Assert.That(picture!.PixelSize.Width, Is.GreaterThan(0), "it is a picture with pixels in it");
+      Assert.That(images.Load("Square_small"), Is.SameAs(picture), "and it is read once, not once per asking");
+      Assert.That(images.Load("no.such.picture"), Is.Null, "a name the skin does not carry is answered with "
+          + "nothing, not with a crash - a screen without its picture draws without it");
+
+      SkinEngine.Clear(app);
+    }
+
+    /// <summary>
+    /// The same promise against the real shipped folders: Nereus with its four hundred and forty-five pictures
+    /// and WMC with its four hundred and fifty-three are part of this front end now, sitting in the skin folder
+    /// as files - and the engine knows them by name the moment the skin goes on.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheShippedSkinsCarryTheirRealPictures()
+    {
+      Application app = Application.Current!;
+      SkinEngine.SkinsFolder = Path.Combine(MetadataPath("FrontendSource"), "Skins");
+
+      Assert.That(SkinEngine.Apply(app, "nereus", out string? problem), Is.True, problem ?? "");
+      SkinImages nereus = SkinEngine.Worn(app)!.Images;
+      Assert.That(nereus.Count, Is.GreaterThan(400),
+          "the Nereus pictures came along; a skin without its images directory is a colour chart again");
+      Assert.That(nereus.Has("Square_small"), Is.True,
+          "the tile overlay the reference home screen drew with is answerable by its reference name");
+      Bitmap? square = nereus.Load("Square_small");
+      Assert.That(square, Is.Not.Null, "and the file really reads as a picture");
+      SkinEngine.Clear(app);
+
+      Assert.That(SkinEngine.Apply(app, "wmc", out problem), Is.True, problem ?? "");
+      SkinImages wmc = SkinEngine.Worn(app)!.Images;
+      Assert.That(wmc.Count, Is.GreaterThan(400), "and the same for WMC");
+      string onePicture = wmc.Names.First(n => n.Contains('/'));
+      Assert.That(wmc.Load(onePicture), Is.Not.Null, onePicture + " does not read as a picture");
+      SkinEngine.Clear(app);
+    }
+
+    /// <summary>
+    /// A directory the test project was told about at build time; see TestTheme's helper of the same name.
+    /// </summary>
+    private static string MetadataPath(string name)
+    {
+      AssemblyMetadataAttribute? value = typeof(TestSkinFromDisk).Assembly
+          .GetCustomAttributes<AssemblyMetadataAttribute>()
+          .FirstOrDefault(a => string.Equals(a.Key, name, StringComparison.Ordinal));
+      Assert.That(value?.Value, Is.Not.Null.And.Not.Empty,
+          "the test project has to hand " + name + " over for this to be checkable");
+      return Path.GetFullPath(value!.Value!);
+    }
  }
 }

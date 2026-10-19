@@ -35,13 +35,14 @@ namespace MediaPortal.Frontend.Theming
   public sealed class WornSkin
   {
     public WornSkin(SkinManifest manifest, SkinTheme theme, ResourceDictionary resources, Styles styles,
-        System.IDisposable? background = null)
+        System.IDisposable? background = null, SkinImages? images = null)
     {
       Manifest = manifest;
       Theme = theme;
       Resources = resources;
       Styles = styles;
       Background = background;
+      Images = images ?? new SkinImages();
     }
 
     public SkinManifest Manifest { get; }
@@ -61,6 +62,99 @@ namespace MediaPortal.Frontend.Theming
     /// hundred pictures behind.
     /// </summary>
     public System.IDisposable? Background { get; }
+
+    /// <summary>
+    /// Every picture the skin folder carries under its images directories, by name, loaded off disk the
+    /// first time a screen asks for it. A skin is hundreds of pictures as much as it is colours; this is
+    /// the directory of the skin's pictures, the way the reference screens pulled
+    /// <c>ImageSource="Square_small.png"</c> out of the skin they were wearing.
+    /// </summary>
+    public SkinImages Images { get; }
+  }
+
+  /// <summary>
+  /// The pictures one worn skin carries: its own images directory and its theme's images directory, listed
+  /// by name and read off disk only when a screen asks - a skin ships hundreds of pictures and a screen
+  /// shows a handful of them at a time.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// A name is the file's path under an images directory with slashes and without the extension -
+  /// 'Square_small', or 'HomeContentIcons/album' for a file in a subdirectory. A name that is unique among
+  /// the subdirectories answers as its bare file too, because that is how the reference screens spelled
+  /// them. When the skin's own theme directory carries a file the skin level also has, the theme's copy
+  /// wins: the theme is the more specific voice, as it is for colours.
+  /// </para>
+  /// <para>
+  /// Loaded pictures belong to the catalog and are disposed when the skin comes off, the same bargain the
+  /// background picture made.
+  /// </para>
+  /// </remarks>
+  public sealed class SkinImages : System.IDisposable
+  {
+    private readonly Dictionary<string, string> _locations =
+        new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, Avalonia.Media.Imaging.Bitmap> _loaded =
+        new Dictionary<string, Avalonia.Media.Imaging.Bitmap>(StringComparer.OrdinalIgnoreCase);
+
+    internal SkinImages()
+    {
+    }
+
+    internal void Add(string key, string location, bool overwriteBare = false)
+    {
+      _locations[key] = location;
+      int slash = key.LastIndexOf('/');
+      if (slash >= 0)
+      {
+        string bare = key.Substring(slash + 1);
+        if (overwriteBare || !_locations.ContainsKey(bare))
+          _locations[bare] = location;
+      }
+    }
+
+    /// <summary>How many pictures the skin carries.</summary>
+    public int Count => _locations.Count;
+
+    /// <summary>Every name a screen may ask for.</summary>
+    public IEnumerable<string> Names => _locations.Keys.OrderBy(k => k, StringComparer.OrdinalIgnoreCase);
+
+    public bool Has(string name) => _locations.ContainsKey(name);
+
+    /// <summary>Where a picture lives - a disk path, or the avares URI of a shipped skin's file.</summary>
+    public bool TryGetLocation(string name, out string location) => _locations.TryGetValue(name, out location!);
+
+    /// <summary>
+    /// The picture a screen asked for, read the first time and kept until the skin comes off. Null when the
+    /// skin carries no such picture or the file cannot be read - a screen with no picture in hand draws
+    /// without it rather than crashing the television.
+    /// </summary>
+    public Avalonia.Media.Imaging.Bitmap? Load(string name)
+    {
+      if (_loaded.TryGetValue(name, out Avalonia.Media.Imaging.Bitmap? known))
+        return known;
+      if (!_locations.TryGetValue(name, out string? location))
+        return null;
+
+      try
+      {
+        Avalonia.Media.Imaging.Bitmap bitmap =
+            (Avalonia.Media.Imaging.Bitmap) SkinEngine.ReadImage(location);
+        _loaded[name] = bitmap;
+        return bitmap;
+      }
+      catch (Exception)
+      {
+        return null;
+      }
+    }
+
+    public void Dispose()
+    {
+      foreach (Avalonia.Media.Imaging.Bitmap bitmap in _loaded.Values)
+        bitmap.Dispose();
+      _loaded.Clear();
+    }
   }
 
   /// <summary>
@@ -327,6 +421,7 @@ namespace MediaPortal.Frontend.Theming
       ResourceDictionary resources = new ResourceDictionary();
       Styles styles = new Styles();
       System.IDisposable? background = null;
+      SkinImages? images = null;
       try
       {
         Dress(manifest, manifest.DefaultTheme, resources, styles);
@@ -345,16 +440,22 @@ namespace MediaPortal.Frontend.Theming
           resources["SkinBackgroundImage"] = background;
         }
 
+        // The hundreds of pictures the skin folder carries. They are listed, not loaded - a screen asks one
+        // for 'Square_small' by name and gets the picture then, because loading four hundred and forty-five
+        // bitmaps to show four of them is how a television runs out of memory before the first menu.
+        images = ReadImages(manifest, theme);
+
         FlattenTopLevel(resources);
       }
       catch (Exception e)
       {
         background?.Dispose();
+        images?.Dispose();
         problem = string.Format("The skin '{0}' could not be read: {1}", manifest.Title, e.Message);
         return false;
       }
 
-      Wear(app, new WornSkin(manifest, theme, resources, styles, background));
+      Wear(app, new WornSkin(manifest, theme, resources, styles, background, images));
       problem = null;
       return true;
     }
@@ -368,6 +469,7 @@ namespace MediaPortal.Frontend.Theming
       app.Resources.MergedDictionaries.Remove(worn.Resources);
       app.Styles.Remove(worn.Styles);
       worn.Background?.Dispose();
+      worn.Images.Dispose();
       WORN.Remove(app);
       Changed?.Invoke(null, EventArgs.Empty);
     }
@@ -491,11 +593,44 @@ namespace MediaPortal.Frontend.Theming
     }
 
     /// <summary>
+    /// List the pictures a worn skin carries: the skin's own images directory, then its theme's, so the
+    /// theme's copy wins a name the way it wins a colour. Only a folder on disk can be listed - embedded
+    /// shipped skins carry their pictures' directory nowhere, and a screen that asks one answers without.
+    /// </summary>
+    private static SkinImages ReadImages(SkinManifest manifest, SkinTheme theme)
+    {
+      SkinImages images = new SkinImages();
+      AddImageDirectory(images, JoinAsset(manifest.Directory, "images"), false);
+      AddImageDirectory(images, JoinAsset(theme.Directory, "images"), true);
+      return images;
+    }
+
+    private static void AddImageDirectory(SkinImages images, string directory, bool themeLevel)
+    {
+      if (directory.StartsWith("avares://", StringComparison.OrdinalIgnoreCase) || !Directory.Exists(directory))
+        return;
+
+      // Shortest path first: a picture sitting at the top of the images directory is the one the reference
+      // screens spelled by its bare name, so it must win that name against a same-named file in a subfolder.
+      foreach (string file in Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories)
+          .OrderBy(f => f.Length))
+      {
+        string extension = Path.GetExtension(file).ToLowerInvariant();
+        if (extension != ".png" && extension != ".jpg" && extension != ".jpeg" && extension != ".bmp"
+            && extension != ".gif")
+          continue;
+
+        string key = file.Substring(directory.Length).TrimStart('\\', '/').Replace('\\', '/');
+        images.Add(key.Substring(0, key.Length - extension.Length), file, themeLevel);
+      }
+    }
+
+    /// <summary>
     /// Read one of a theme's picture files - the background the theme stands on - from disk or from the
     /// assembly. A file that is not a picture complains in the same sentence the rest of the skin is reported
     /// in, and the skin stays off rather than half-worn.
     /// </summary>
-    private static System.IDisposable ReadImage(string uriOrPath)
+    internal static System.IDisposable ReadImage(string uriOrPath)
     {
       try
       {

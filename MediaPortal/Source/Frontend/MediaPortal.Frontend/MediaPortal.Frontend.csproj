@@ -50,7 +50,20 @@
       (Avalonia's asset system cannot enumerate a folder); a test says out loud when the listing and the
       folders drift apart.
     -->
-    <AvaloniaResource Include="Skins\**\*" />
+    <AvaloniaResource Include="Skins\**\*.xaml" />
+    <AvaloniaResource Include="Skins\**\skin.xml" />
+    <AvaloniaResource Include="Skins\index.txt" />
+    <!--
+      The pictures, fonts and sounds a skin carries are hundreds of files and tens of megabytes; embedding
+      them in the assembly would bloat it for files a running front end reads from the skin folder on disk
+      anyway. They ride to the output folder as loose files instead, so an installed front end is a skin
+      folder the same way the reference's was. The theme's own background picture is the one image small
+      enough to ride inside too - the shipped fallback wears it without any disk folder.
+    -->
+    <AvaloniaResource Include="Skins\**\*.png" Exclude="Skins\**\images\**\*.png" />
+    <AvaloniaResource Include="Skins\**\fonts\**\*" />
+    <AvaloniaResource Include="Skins\**\sounds\**\*" />
+    <None Update="Skins\**\images\**\*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
