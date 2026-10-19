@@ -279,6 +279,16 @@ namespace MediaPortal.Frontend.ViewModels
       get { return !Seen && Title.Resume.HasValue && Title.Resume.Value > 0; }
     }
 
+    /// <summary>
+    /// Whether this title is one of the library's virtual entries - registered, but with no file behind it.
+    /// That is what the reference's <c>Virtual</c> meant, and it is why the tiles drew the corner flag with
+    /// the offline mark over such a row: the shelf lists the title, but there is nothing to watch.
+    /// </summary>
+    public bool IsOffline
+    {
+      get { return Title.Stub; }
+    }
+
     /// <summary>Whether this row's picture has arrived from the server yet (or exists at all).</summary>
     public bool HasArtwork
     {

@@ -125,6 +125,17 @@
                HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"
                IsVisible="{Binding IsPartlyWatched}"/>
       </Panel>
+      <!-- a title without a file behind it: the reference's corner flag with its offline mark -->
+      <Panel IsVisible="{Binding IsOffline}">
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='flag.png'}"
+               Height="90" Stretch="Uniform"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0"/>
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='offline.png'}"
+               Height="35" Stretch="Uniform"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,7,7,0"/>
+      </Panel>
     </Panel>
   </DataTemplate>
 
@@ -161,6 +172,17 @@
                Height="28" Stretch="Uniform" Opacity="0.9"
                HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"
                IsVisible="{Binding IsPartlyWatched}"/>
+      </Panel>
+      <!-- the corner flag of a title without a file, shrunk to the banner's height -->
+      <Panel IsVisible="{Binding IsOffline}">
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='flag.png'}"
+               Height="45" Stretch="Uniform"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2,-2,0"/>
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='offline.png'}"
+               Height="22" Stretch="Uniform"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,4,4,0"/>
       </Panel>
     </Panel>
   </DataTemplate>
@@ -204,6 +226,17 @@
                Height="28" Stretch="Uniform" Opacity="0.9"
                HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"
                IsVisible="{Binding IsPartlyWatched}"/>
+      </Panel>
+      <!-- the corner flag of a title without a file, at the thumbnail's height -->
+      <Panel IsVisible="{Binding IsOffline}">
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='flag.png'}"
+               Height="60" Stretch="Uniform"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2,-2,0"/>
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='offline.png'}"
+               Height="28" Stretch="Uniform"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,5,0"/>
       </Panel>
     </Panel>
   </DataTemplate>

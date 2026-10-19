@@ -222,6 +222,12 @@ namespace Tests.Frontend
       Assert.That(untouched.HasNoArtwork, Is.False);
       untouched.ShowArtwork(null);
       Assert.That(untouched.HasNoArtwork, Is.True, "a server that says there is none is believed");
+
+      // The corner flag of the reference's Virtual rows: a title the library knows but has no file behind.
+      TitleViewModel virtualTitle = new TitleViewModel(
+          new MediaTitle(Guid.NewGuid(), "Virtual", null, null, null, null, true));
+      Assert.That(virtualTitle.IsOffline, Is.True, "a stub row wears the flag and its offline mark");
+      Assert.That(untouched.IsOffline, Is.False, "an ordinary row wears neither");
     }
 
     /// <summary>
