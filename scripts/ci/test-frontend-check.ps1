@@ -292,7 +292,7 @@ try {
       if (-not $RenderDir) { $RenderDir = Join-Path (Join-Path $repoRoot 'build\artifacts') 'frontend-render' }
       New-Item -ItemType Directory -Path $RenderDir -Force | Out-Null
 
-      # Nine screens, eleven frames. The home screen is drawn from a server that is really answering; the
+      # Ten screens, twelve frames. The home screen is drawn from a server that is really answering; the
       # continue frame is the same screen of a household that has been watching things, drawn from a scripted
       # server, because the strip cannot be drawn from an empty database; the playback screen is drawn from a
       # scripted player, because a frame that is supposed to mean the same
@@ -318,6 +318,11 @@ try {
         # happens to hold is not something a frame may depend on - and because the question this screen has is
         # whether a preview's bytes became pixels inside the right tile, which only a known picture can answer.
         @{ Name = 'pictures-windows'; Arguments = '--screen pictures' },
+        # The browse screen is drawn from a scripted count too, for the same emptiness-of-database reason: the
+        # frame that matters is the third column full of groups, biggest first, with the empty value the database
+        # answers with taken out - the order and the hole are the screen's two promises about somebody else's
+        # numbers, and only a known answer shows whether it kept them.
+        @{ Name = 'browse-windows'; Arguments = '--screen browse' },
         # The playback screen in the colours of the two skins MP2 shipped, because "the skins were rescued" is a
         # claim about pixels and because that screen carries most of what a palette says: the background, the panel
         # behind every transport button, the text on it, the outlines and the focus ring. The probe checks the frame

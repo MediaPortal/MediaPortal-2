@@ -504,6 +504,11 @@ namespace MediaPortal.Frontend.ViewModels
       // every other top-level shelf - and the name order has always been it - reads by name.
       SortOrder = parent == null ? section?.Sort ?? "title" : MediaCatalog.ChildSortFor(section?.Aspect.Name);
       SortDescending = parent == null && (section?.SortDescending ?? false);
+      // The browse screen's picked value travels the same way the picked order did: with the section. A list
+      // opened out of one title is the titles inside it, and the genre of the shelf they were browsed under does
+      // not follow them down - the tracks of an Action album are nobody's Action genre.
+      GroupBy = parent == null ? section?.By : null;
+      GroupValue = parent == null ? section?.Value : null;
       DrillsIn = MediaCatalog.HoldsTitles(AspectName);
       Heading = parent == null ? section?.Label ?? "Titles" : parent.Name;
       _status = client == null ? "No server configured"
@@ -535,6 +540,17 @@ namespace MediaPortal.Frontend.ViewModels
 
     /// <summary>Whether <see cref="SortOrder"/> runs newest-first, which only a shelf opened by a tile can do.</summary>
     public bool SortDescending { get; }
+
+    /// <summary>
+    /// The category this list was browsed in - <c>genre</c>, <c>year</c>, <c>actors</c>, <c>directors</c> or
+    /// <c>writers</c> - or null when it is a whole shelf. With <see cref="GroupValue"/> it is the second half of
+    /// the browse screen: that screen counted the shelf, the viewer picked a value, and this list is the titles
+    /// that carry it.
+    /// </summary>
+    public string? GroupBy { get; }
+
+    /// <summary>The value picked on the browse screen, or null. Only means anything with <see cref="GroupBy"/>.</summary>
+    public string? GroupValue { get; }
 
     /// <summary>The aspect the server is asked for, in its own spelling.</summary>
     public string AspectName { get; }
@@ -1050,7 +1066,7 @@ namespace MediaPortal.Frontend.ViewModels
       {
         MediaTitles answer = await _client.GetTitlesAsync(AspectName, SortOrder, SortDescending, PAGE_SIZE, offset,
             string.IsNullOrEmpty(ActiveSearch) ? null : ActiveSearch,
-            string.IsNullOrEmpty(ActiveSeen) ? null : ActiveSeen, Inside, cancellation.Token);
+            string.IsNullOrEmpty(ActiveSeen) ? null : ActiveSeen, Inside, GroupBy, GroupValue, cancellation.Token);
 
         if (offset == 0)
           Titles.Clear();
@@ -1078,6 +1094,12 @@ namespace MediaPortal.Frontend.ViewModels
         // pressed; a list opened out of one title is named by what it holds, because "12 of 12 the dark side of the
         // moon" is not a sentence and the moon does not have twelve of itself.
         string about = Parent == null ? Heading.ToLowerInvariant() : MediaCatalog.RowNounFor(AspectName);
+
+        // A browsed shelf says what it was browsed by, so that "12 of 40 films" cannot be misread as the whole
+        // shelf when it is the twelve that carry a picked genre. "under" rather than "whose genre is" because the
+        // category might be a year, or a person, and "whose year is 2001" is not how anyone says it.
+        if (!string.IsNullOrEmpty(GroupBy) && !string.IsNullOrEmpty(GroupValue))
+          about += " under " + GroupValue;
 
         if (answer.Total == 0)
         {

@@ -130,9 +130,8 @@ namespace MediaPortal.Frontend.ViewModels
     /// here where a reader can have it:
     /// <c>TV</c> and <c>Radio</c> because live television and radio came from the TV service, which was removed from
     /// this tree (commit 029a262aa4) and nothing serves it since; <c>Settings</c> because the server keeps its
-    /// configuration behind a .NET Remoting interface the new API has not grown an equivalent of yet;
-    /// <c>Browse media</c> because MP2's browse-by-category tree asks the database to group titles by an attribute
-    /// while the HTTP API lists and filters titles but does not group them; <c>News</c>, <c>Weather</c>,
+    /// configuration behind a .NET Remoting interface the new API has not grown an equivalent of yet; <c>News</c>,
+    /// <c>Weather</c>,
     /// <c>Party music player</c> and <c>Utilities</c> because those four are still written against the old skin
     /// engine this front end replaced - their plugins are in this tree, their screens are not.
     /// </para>
@@ -159,7 +158,7 @@ namespace MediaPortal.Frontend.ViewModels
         ("Home->BrowseLocalMedia", "[Media.LocalMediaMenuItem]", "Local media", Array.Empty<string>(),
             "the server's folders", null, "folders", null),
         ("Home->BrowseMedia", "[Media.BrowseMediaMenuItem]", "Browse media", Array.Empty<string>(),
-            "the titles grouped by genre, year, actor", "no grouping over HTTP yet", null, null),
+            "grouped by genre, year, actor", null, "browse", null),
         // "Audio" is the plugin's own word for the music library, and it covers both shapes the importer can leave
         // the collection in; the second line is here so that the narrower word does not read as a mistake.
         ("Home->Audio", "[Media.AudioMenuItem]", "Audio", new[] { "AlbumItem", "AudioItem" },

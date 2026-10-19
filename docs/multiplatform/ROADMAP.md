@@ -3244,6 +3244,47 @@ a filtered list is counted through the very same filter so a screen can say "12 
 "12 of the whole shelf", and none of them trusts the year to be anything but a span. 991 tests, all green.
 
 
+### ax. The browse screen: three columns, the server's numbers, and a tile that stopped apologising
+
+The groups endpoint had grown, and the tile behind it still said `no grouping over HTTP yet` - which had become
+a lie the honest way, by the endpoint being built and the screen forgetting to follow. It follows now. "Browse
+media" opens three columns read left to right: the shelves the home screen has tiles for, the five groupings the
+server answers for, and the values that grouping takes in that shelf with the database's own count on each row -
+"Drama · 4 titles", biggest first, because the order is part of the answer and a screen that re-sorted it
+alphabetically would hide which genre this library actually lives in. Pressing OK on a value opens the ordinary
+titles screen wearing that filter: the same list, the same keys, the same play, with the count saying "12 of 12
+movies under Drama" so the filtered shelf is never mistaken for the whole one. Browsing is a way *into* the
+library, not a second library with its own rules - which is also why the picked pair travels as two fields on the
+same `HomeSection` a tile already carried, and why pressing into an album from a browsed shelf does not carry the
+genre down with it.
+
+The two halves of a filter travel together or not at all, in the client as in the server: a category whose value
+got lost would read the whole shelf under a heading naming one genre, and neither end is allowed to make that
+mistake on the other's behalf. The empty group the database answers with for "nobody wrote a genre" is dropped at
+the endpoint and filtered again in the DTO - a blank row among the genres is not a category, it is an apology,
+and this screen has now seen the last of those. An empty or refused answer is said instead: "None of the Movies
+carries a genre the importer wrote" names which of the two nothings the viewer is standing in front of, and the
+server's own refusal words reach the status line untouched.
+
+**Proof.** Nine new tests in Tests.Frontend took the suite from 991 to 1000, all green: that both halves travel
+or neither does, that the counts survive JSON in the server's order with the hole taken out, that a picked value
+hands over the shelf wearing the filter rather than opening a window directly, that the titles query really
+carries `by=genre&value=Drama`, and that the tile now names a screen instead of a reason - which moved four
+long-standing menu tests, the ones that counted "the two screens the front end owns", to three: folders,
+pictures, and a browse screen that reads whatever the server turns out to hold. The render probe gained a
+`browse` frame drawn from a scripted count, and its picture shows the third column full, biggest first, the empty
+value gone - the screen's two promises about somebody else's numbers, visible in pixels rather than asserted.
+The tile's own second line was cut to "grouped by genre, year, actor" to fit the 30-character tile, as the gate's
+tile-width test insists.
+
+**What this is not yet.** Person browsing in MP2's old sense - an actor as a node that leads to every film they
+appear in *across* shelves - still lives in the relationship tables and stays out, same as the endpoint said;
+what works is picking a person under "by actor" and getting that shelf's titles that name them. And the gate's
+live-server step counts nothing yet: its database is empty by design, so the real-database GROUP BY is pinned by
+the server's own tests over a mocked library and the pixels by the scripted frame - the day the gate gets a
+seeded database, the browse screen is the one that will thank it.
+
+
 ## What cannot be verified without the user
 
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,

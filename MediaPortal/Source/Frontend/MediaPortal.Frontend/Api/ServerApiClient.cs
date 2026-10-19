@@ -341,8 +341,15 @@ namespace MediaPortal.Frontend.Api
     /// for the whole shelf. The server answers a parent that cannot hold this kind of title with a refusal, so a
     /// screen that got here by pressing an album is asking a question the server agrees is worth answering.
     /// </param>
+    /// <param name="by">
+    /// A category of <see cref="GetGroupsAsync"/> - <c>genre</c>, <c>year</c>, <c>actors</c>, <c>directors</c>,
+    /// <c>writers</c> - to keep only the titles carrying <paramref name="value"/> under it, the second half of
+    /// browsing: the groups said which genres there are, this asks which films are in one of them. Sent together
+    /// or not at all, because the server refuses a category whose value went missing, and rightly.
+    /// </param>
     public async Task<MediaTitles> GetTitlesAsync(string aspect, string? sort = null, bool descending = false,
         int limit = 0, int offset = 0, string? search = null, string? seen = null, Guid? inside = null,
+        string? by = null, string? value = null,
         CancellationToken cancellation = default)
     {
       if (string.IsNullOrWhiteSpace(aspect))
@@ -375,8 +382,37 @@ namespace MediaPortal.Frontend.Api
         // and needs no escaping.
         url += "&inside=" + inside.Value.ToString("D");
       }
+      if (!string.IsNullOrWhiteSpace(by) && !string.IsNullOrWhiteSpace(value))
+      {
+        // Both or neither, as above; a genre with a space in its name is the reason for escaping here too.
+        url += "&by=" + Uri.EscapeDataString(by.Trim())
+            + "&value=" + Uri.EscapeDataString(value.Trim());
+      }
 
       return await GetJsonAsync<MediaTitles>(url, cancellation).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// <c>GET api/media/groups</c> - the values one category takes across one shelf, and how many titles carry
+    /// each, counted by the database rather than by whoever is asking.
+    /// </summary>
+    /// <param name="aspect">The shelf to count, by its server name.</param>
+    /// <param name="by">The category: <c>genre</c>, <c>year</c>, <c>actors</c>, <c>directors</c> or <c>writers</c>.</param>
+    /// <remarks>
+    /// The answer is already in the server's own order - biggest category first, then by name - and the client
+    /// keeps it, because that order is a statement about the library and a screen that re-sorted it alphabetically
+    /// would quietly unpick the one piece of judgement the counting involved.
+    /// </remarks>
+    public async Task<MediaGroups> GetGroupsAsync(string aspect, string by, CancellationToken cancellation = default)
+    {
+      if (string.IsNullOrWhiteSpace(aspect))
+        throw new ArgumentException("Groups of which aspect?", nameof(aspect));
+      if (string.IsNullOrWhiteSpace(by))
+        throw new ArgumentException("Grouped by what?", nameof(by));
+
+      string url = "api/media/groups?aspect=" + Uri.EscapeDataString(aspect.Trim())
+          + "&by=" + Uri.EscapeDataString(by.Trim());
+      return await GetJsonAsync<MediaGroups>(url, cancellation).ConfigureAwait(false);
     }
 
     /// <summary>

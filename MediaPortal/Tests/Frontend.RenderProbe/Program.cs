@@ -353,17 +353,18 @@ namespace FrontendProbe
               + " tile(s), but the script offers two parts of the library a viewer can watch.");
           return 1;
         }
-        if (home.Menu.Count(entry => entry.Openable) != 4)
+        if (home.Menu.Count(entry => entry.Openable) != 5)
         {
           // The screen does not draw `Sections` any more, it draws the menu built from them, so this is the check
           // that belongs to the picture: the two parts the script offers have to be the two entries a viewer can
           // open, and the seven the script cannot fill have to be saying so rather than being missing. The other
-          // two openable entries are the folders screen and the pictures screen, both of which are openable
-          // whatever the server holds - one reads the folders the library was built from, the other walks the
-          // shares, and neither needs a title to have been imported.
+          // three openable entries are the folders screen, the pictures screen and the browse screen, all of
+          // which are openable whatever the server holds - one reads the folders the library was built from, one
+          // walks the shares, and the third asks the server to group whatever it turns out to hold; none needs a
+          // title to have been imported.
           Console.WriteLine("FAILED:   " + home.Menu.Count(entry => entry.Openable)
               + " openable menu entr(ies) of " + home.Menu.Count
-              + "; expected two plus the folders and pictures screens, because"
+              + "; expected two plus the folders, pictures and browse screens, because"
               + " the script offers two parts of the library a viewer can watch.");
           return 1;
         }
@@ -550,10 +551,52 @@ namespace FrontendProbe
 
         window = new PicturesWindow(pictures);
       }
+      else if (screenName.Equals("browse", StringComparison.Ordinal))
+      {
+        // The browse screen drawn from a scripted count, for the same reason the title list is scripted: the
+        // gate's database is empty, and a frame of an empty third column would picture a screen that never got
+        // an answer rather than the screen itself. The numbers are the script's; everything between the answer
+        // and the pixels - JSON, the view model, the three columns - is the machinery a viewer actually uses.
+        HomeSection browsed = new HomeSection("Movies", new AspectViewModel(
+            new MediaAspect(new Guid("11111111-1111-1111-1111-111111111111"), "MovieItem", false, false,
+                null, Array.Empty<AspectAttribute>())));
+        BrowseViewModel browse = new BrowseViewModel(
+            new ServerApiClient(new Uri("http://127.0.0.1:1/MediaPortal/Server/"),
+                new HttpClient(new ScriptedBrowse())),
+            new List<HomeSection> { browsed });
+        browse.RefreshCommand.Execute(null);
+        if (!PumpUntil(delegate { return browse.Values.Count > 0; }, TimeSpan.FromSeconds(10)))
+        {
+          Console.WriteLine("FAILED:   the browse screen never listed the groups it was served. Status: "
+              + browse.Status);
+          return 1;
+        }
+
+        Console.WriteLine("content:  " + browse.Values.Count + " group(s) for " + browsed.Label + " by "
+            + browse.SelectedCategory!.Word + ": "
+            + string.Join(", ", browse.Values.Select(value => value.Value + " (" + value.Count + ")"))
+            + ", status: " + browse.Status);
+        if (!browse.Values.Select(value => value.Value).SequenceEqual(new[] { "Drama", "Action", "Shorts" }))
+        {
+          Console.WriteLine("FAILED:   the groups arrived as \""
+              + string.Join("\", \"", browse.Values.Select(value => value.Value))
+              + "\"; the script serves them biggest first with an empty hole among them, so the screen must show"
+              + " Drama, Action, Shorts - the order is the server's and the hole is not a row.");
+          return 1;
+        }
+        if (browse.SelectedValue == null || !browse.SelectedValue.Value.Equals("Drama", StringComparison.Ordinal))
+        {
+          Console.WriteLine("FAILED:   the first row of the third column is not already picked; a viewer who "
+              + "presses OK without reading should land on the biggest group, not on nothing.");
+          return 1;
+        }
+
+        window = new BrowseWindow(browse);
+      }
       else
       {
         return Usage("unknown screen '" + screenName + "'; this probe renders home, continue, nowplaying, connect,"
-            + " browser, details, search, seen, folders or pictures.");
+            + " browser, details, search, seen, folders, pictures or browse.");
       }
 
       window.Width = width;
@@ -1503,6 +1546,32 @@ namespace FrontendProbe
     /// way.
     /// </para>
     /// </remarks>
+    /// <summary>
+    /// A server that answers the one question the browse screen asks. The counts are the point of the frame: they
+    /// are served biggest first with a hole - the empty value a database answers with for "nobody wrote a genre" -
+    /// because whether the screen keeps the server's order and drops the hole is exactly what a picture can show
+    /// and a unit test can only assert.
+    /// </summary>
+    private sealed class ScriptedBrowse : HttpMessageHandler
+    {
+      private const string GROUPS = "{\"aspect\":\"MovieItem\",\"by\":\"genre\",\"groups\":["
+          + "{\"value\":\"Drama\",\"count\":7},{\"value\":\"\",\"count\":3},"
+          + "{\"value\":\"Action\",\"count\":5},{\"value\":\"Shorts\",\"count\":1}]}";
+
+      protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+          CancellationToken cancellation)
+      {
+        string body = request.RequestUri!.AbsolutePath.EndsWith("/groups", StringComparison.Ordinal)
+            ? GROUPS
+            : "{\"error\":\"this probe answers only the groups question\"}";
+        return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+        {
+          RequestMessage = request,
+          Content = new StringContent(body, Encoding.UTF8, "application/json")
+        });
+      }
+    }
+
     private sealed class ScriptedFoldersAndPictures : HttpMessageHandler
     {
       private static readonly string SHARE_DIR = Path.Combine(Path.GetTempPath(), "mp2-render-pictures");

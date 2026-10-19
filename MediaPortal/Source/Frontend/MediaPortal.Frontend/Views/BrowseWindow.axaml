@@ -1,0 +1,82 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        x:Class="MediaPortal.Frontend.Views.BrowseWindow"
+        x:DataType="vm:BrowseViewModel"
+        Name="browse"
+        Width="1280" Height="720"
+        WindowState="Maximized"
+        Background="{DynamicResource ScreenBackgroundBrush}"
+        Title="MediaPortal 2 - Browse">
+
+  <!--
+    The three questions the browse screen asks, in the three columns the viewer reads them in: which shelf,
+    grouped by what, and which of the values that grouping takes in this library. The columns are the same
+    width because each is read and none is merely context; the counts ride on the third column's rows because
+    a number you cannot see next to the name it counts is a number you do not trust.
+  -->
+
+  <DockPanel Margin="48,36">
+
+    <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,20">
+      <TextBlock Text="Browse media"
+                 FontSize="40"
+                 FontWeight="SemiBold" />
+      <TextBlock Text="Pick a shelf, then a way of grouping it, then a value - the titles wearing it open on OK"
+                 FontSize="18"
+                 Opacity="0.7"
+                 TextWrapping="Wrap"
+                 MaxWidth="1500"
+                 HorizontalAlignment="Left" />
+    </StackPanel>
+
+    <TextBlock DockPanel.Dock="Bottom"
+               Name="statusLine"
+               Text="{Binding Status}"
+               FontSize="20"
+               Opacity="0.85"
+               Margin="0,18,0,0"
+               TextWrapping="Wrap" />
+
+    <Grid ColumnDefinitions="*,260,*" ColumnSpacing="30">
+
+      <ListBox Name="shelvesList"
+               Focusable="True"
+               ItemsSource="{Binding Shelves}"
+               SelectedItem="{Binding SelectedShelf, Mode=TwoWay}"
+               FontSize="20">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="vm:HomeSection">
+            <TextBlock Text="{Binding Label}" FontSize="22" Margin="4,8" />
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+
+      <ListBox Name="categoriesList"
+               Grid.Column="1"
+               Focusable="True"
+               ItemsSource="{Binding Categories}"
+               SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
+               FontSize="20">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="vm:BrowseCategory">
+            <TextBlock Text="{Binding Label}" FontSize="22" Margin="4,8" />
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+
+      <ListBox Name="valuesList"
+               Grid.Column="2"
+               Focusable="True"
+               ItemsSource="{Binding Values}"
+               SelectedItem="{Binding SelectedValue, Mode=TwoWay}"
+               FontSize="20">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="vm:BrowseValue">
+            <TextBlock Text="{Binding Text}" FontSize="22" Margin="4,8" />
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </Grid>
+  </DockPanel>
+</Window>

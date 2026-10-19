@@ -52,16 +52,34 @@ namespace MediaPortal.Frontend.ViewModels
         ("ImageItem", "Pictures")
     };
 
-    public HomeSection(string label, AspectViewModel aspect, string? sort = null, bool sortDescending = false)
+    public HomeSection(string label, AspectViewModel aspect, string? sort = null, bool sortDescending = false,
+        string? by = null, string? value = null)
     {
       Label = label;
       Aspect = aspect;
       Sort = sort;
       SortDescending = sortDescending;
+      By = by;
+      Value = value;
     }
 
     /// <summary>What the tile says.</summary>
     public string Label { get; }
+
+    /// <summary>
+    /// The category of the browse screen's picked value - <c>genre</c>, <c>year</c>, <c>actors</c>,
+    /// <c>directors</c> or <c>writers</c> - or null for a shelf opened whole.
+    /// </summary>
+    /// <remarks>
+    /// A shelf opened through a picked genre is the same shelf read through one value, and the pair travels as
+    /// two properties because the server wants both halves or neither: a category whose value got lost would read
+    /// the whole shelf under a heading naming one genre, which the API itself refuses, so the section refuses it
+    /// first.
+    /// </remarks>
+    public string? By { get; }
+
+    /// <summary>The value the shelf was narrowed to, or null. Only means anything with <see cref="By"/>.</summary>
+    public string? Value { get; }
 
     /// <summary>
     /// The order the server should read this shelf in, in the API's own words, or null for the name order every

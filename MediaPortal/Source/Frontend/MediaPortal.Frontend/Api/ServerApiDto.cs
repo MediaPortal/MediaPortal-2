@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace MediaPortal.Frontend.Api
@@ -160,7 +161,9 @@ namespace MediaPortal.Frontend.Api
       [property: JsonPropertyName("error")] string? Error,
       [property: JsonPropertyName("search")] string? Search = null,
       [property: JsonPropertyName("seen")] string? Seen = null,
-      [property: JsonPropertyName("inside")] Guid? Inside = null)
+      [property: JsonPropertyName("inside")] Guid? Inside = null,
+      [property: JsonPropertyName("by")] string? By = null,
+      [property: JsonPropertyName("value")] string? Value = null)
   {
     /// <summary>
     /// Titles the server has for this aspect beyond the page that arrived.
@@ -168,6 +171,32 @@ namespace MediaPortal.Frontend.Api
     public int Remaining
     {
       get { return Math.Max(Total - Offset - Returned, 0); }
+    }
+  }
+
+  /// <summary>
+  /// One value a shelf can be counted under, and how many titles carry it - one answer of
+  /// <c>GET api/media/groups</c>.
+  /// </summary>
+  public record MediaGroup(
+      [property: JsonPropertyName("value")] string? Value,
+      [property: JsonPropertyName("count")] int Count);
+
+  /// <summary>
+  /// The answer of <c>GET api/media/groups</c>: the values of one category, biggest first, as the database counted
+  /// them.
+  /// </summary>
+  public record MediaGroups(
+      [property: JsonPropertyName("aspect")] string? Aspect,
+      [property: JsonPropertyName("aspectId")] Guid? AspectId,
+      [property: JsonPropertyName("by")] string? By,
+      [property: JsonPropertyName("groups")] IReadOnlyList<MediaGroup>? Groups,
+      [property: JsonPropertyName("error")] string? Error)
+  {
+    /// <summary>The groups without the holes: a value has to be words to be a row on a screen.</summary>
+    public IReadOnlyList<MediaGroup> Values
+    {
+      get { return Groups == null ? new List<MediaGroup>() : Groups.Where(group => !string.IsNullOrWhiteSpace(group.Value)).ToList(); }
     }
   }
 

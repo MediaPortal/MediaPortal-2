@@ -449,6 +449,15 @@ namespace MediaPortal.Frontend
       if (screenKey.Equals("pictures", StringComparison.OrdinalIgnoreCase))
         return new PicturesWindow(new PicturesViewModel(_home.Client));
 
+      if (screenKey.Equals("browse", StringComparison.OrdinalIgnoreCase))
+      {
+        // The shelves on offer are the home screen's tiles, taken as they stand so that a library that gained a
+        // shelf since the menu was built has it here too; the window opens the titles screen through the same
+        // door the tiles use, so a browsed list and an opened tile are the same screen.
+        return new BrowseWindow(new BrowseViewModel(_home.Client, HomeSection.For(_home.Aspects)),
+            delegate (HomeSection section) { return BuildBrowserScreen(section); });
+      }
+
       // A tile naming a screen nobody builds is a mismatch between the menu and this method, which is a bug in the
       // front end rather than something the viewer can do anything about.
       throw new InvalidOperationException(
