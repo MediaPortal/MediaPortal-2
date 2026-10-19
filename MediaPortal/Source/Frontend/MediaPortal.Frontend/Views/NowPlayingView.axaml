@@ -84,6 +84,17 @@
               BorderBrush="{DynamicResource VideoOutlineBrush}"
               BorderThickness="1">
         <Panel>
+          <!--
+            The playing title's own picture, behind the frames on purpose: a film covers it by playing, and a
+            song - which hands over no frames at all - wears it, which is the picture the reference's audio
+            screen showed large next to the transport. Asked of the library once per title, cleared with it.
+          -->
+          <Image Source="{Binding Cover, Converter={x:Static views:ArtworkConverter.Instance},
+                                  ConverterParameter=600}"
+                 Stretch="Uniform"
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Center"
+                 Margin="0,0,0,0"/>
           <views:VideoSurface Name="videoSurface"/>
           <TextBlock Text="{Binding StateText}"
                      FontSize="22"

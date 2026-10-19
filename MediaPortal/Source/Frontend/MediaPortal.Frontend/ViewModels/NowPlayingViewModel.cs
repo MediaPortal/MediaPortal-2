@@ -455,6 +455,58 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
+    /// How to ask the library for the picture of a title - the album's cover, a film's poster - or null while
+    /// there is no server. The playback screen shows it behind the frames, so a film hides its own picture by
+    /// playing and a song, which has no frames, wears it: the same shape the reference's audio screen had,
+    /// arrived at without a new signal for "no pictures expected".
+    /// </summary>
+    public Func<Guid, Task<byte[]?>>? CoverReader { get; set; }
+
+    private byte[]? _cover;
+
+    /// <summary>Which title <see cref="_cover"/> was read for, so the same title is asked once.</summary>
+    private Guid? _coverFor;
+
+    /// <summary>
+    /// The bytes of the playing title's cover, or null while none has arrived. A binding turns them into a
+    /// picture; this class never holds one, because a view model that held a bitmap could not be tested
+    /// without a screen.
+    /// </summary>
+    public byte[]? Cover
+    {
+      get { return _cover; }
+      private set
+      {
+        _cover = value;
+        Raise();
+      }
+    }
+
+    /// <summary>
+    /// Asks the library once for the playing title's picture. As with the media info: the same title is not
+    /// asked twice, a file without a library id is not asked at all, and a refused read is retried the next
+    /// time rather than interrupting the film.
+    /// </summary>
+    public async Task ReadCoverAsync()
+    {
+      Guid? id = _mediaItemId;
+      if (id == null || CoverReader == null || _coverFor == id)
+        return;
+
+      try
+      {
+        byte[]? bytes = await CoverReader(id.Value);
+        if (_mediaItemId == id)
+          Cover = bytes;
+        _coverFor = bytes != null ? id : null;
+      }
+      catch (Exception)
+      {
+        _coverFor = null;
+      }
+    }
+
+    /// <summary>
     /// Asks the library once what it says about the title being played. A second call for the same title is
     /// deliberately not a second read - the library does not rewrite a film's plot while it is watched - and
     /// a file without a library id is not asked at all, because the question would have no subject.
@@ -565,6 +617,8 @@ namespace MediaPortal.Frontend.ViewModels
       // What the library said about the previous title is not what it says about this one.
       _mediaInfo = null;
       _mediaInfoFor = null;
+      _cover = null;
+      _coverFor = null;
       _furthestMs = 0;
       _reported = false;
 

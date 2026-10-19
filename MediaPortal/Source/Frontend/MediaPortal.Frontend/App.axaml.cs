@@ -189,6 +189,17 @@ namespace MediaPortal.Frontend
             return client.GetItemAsync(mediaItemId);
           };
 
+          // The cover: the album's poster first, its fanart when the importer never knew a poster. No server
+          // is an ordinary answer here and says "no picture", not an exception - a song on a machine that
+          // streams files needs no complaint over it.
+          _nowPlaying.CoverReader = delegate (Guid mediaItemId)
+          {
+            ServerApiClient? client = _home.Client;
+            if (client == null)
+              return Task.FromResult<byte[]?>(null);
+            return CoverFrom(client, mediaItemId);
+          };
+
           // The player goes with it. Without this the engine and its threads stay behind when the last window
           // closes, which a viewer notices as a process that never goes away.
           desktop.Exit += delegate { _nowPlaying.Dispose(); };
@@ -291,6 +302,16 @@ namespace MediaPortal.Frontend
     private void FeedHomeFromPlayback()
     {
       _home.ShowPlaying(_nowPlaying != null && _nowPlaying.HasMedia ? _playingAspect : null);
+    }
+
+    /// <summary>
+    /// The playback screen's picture for a title: the poster the importer knew, or the fanart when it did not.
+    /// A server that has neither answers null, and the screen plays without a picture like before.
+    /// </summary>
+    private static async Task<byte[]?> CoverFrom(ServerApiClient client, Guid mediaItemId)
+    {
+      byte[]? poster = await client.GetFanArtAsync(mediaItemId, "Poster");
+      return poster ?? await client.GetFanArtAsync(mediaItemId, "FanArt");
     }
 
     /// <summary>

@@ -119,6 +119,13 @@ namespace MediaPortal.Frontend.Views
             audioButton, subtitleButton
           });
 
+      // The cover question goes out while the screen can see its answer: opened, it asks once, and while it is
+      // open every change of the player gets the same guarded question - a no-op until the id says otherwise.
+      // Detaching unsubscribes, because the model outlives every visit to this screen and the stale visitor
+      // has nothing left to draw.
+      AttachedToVisualTree += delegate { OnFollowingPlayback(); };
+      DetachedFromVisualTree += delegate { OnStoppingPlayback(); };
+
       // Back is the shell's key now: it pops this screen without changing anything about the playback, and when
       // this screen is all the window holds the shell closes the window - the behaviour <c>--play</c> relies on.
       // Escape and Backspace are the two keys a remote's back button sends, depending on the platform.
@@ -209,6 +216,28 @@ namespace MediaPortal.Frontend.Views
       mediaInfo.IsVisible = !mediaInfo.IsVisible;
       if (mediaInfo.IsVisible)
         _ = _viewModel.ReadMediaInfoAsync();
+    }
+
+    /// <summary>
+    /// While this screen is on its window it follows the playback far enough to ask for the cover - once when
+    /// opened, and after every change of the player the same guarded question, which the model answers without
+    /// a second read for the same title.
+    /// </summary>
+    private void OnFollowingPlayback()
+    {
+      _viewModel.Changed += OnPlaybackChanged;
+      _ = _viewModel.ReadCoverAsync();
+    }
+
+    private void OnStoppingPlayback()
+    {
+      _viewModel.Changed -= OnPlaybackChanged;
+    }
+
+    private void OnPlaybackChanged(object? sender, EventArgs e)
+    {
+      if (_viewModel.HasMedia)
+        _ = _viewModel.ReadCoverAsync();
     }
 
     /// <summary>

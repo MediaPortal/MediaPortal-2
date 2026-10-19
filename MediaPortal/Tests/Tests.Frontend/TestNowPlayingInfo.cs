@@ -127,5 +127,47 @@ namespace Tests.Frontend
       Assert.That(nowPlaying.MediaInfoText, Does.Contain("not answered"),
           "the new title says it is waiting rather than quoting the old one");
     }
+
+    [Test]
+    public async Task TheCoverArrivesOnceAndGoesWithTheTitle()
+    {
+      NowPlayingViewModel nowPlaying = Player();
+      Guid first = Guid.NewGuid();
+      Guid second = Guid.NewGuid();
+      int reads = 0;
+      nowPlaying.CoverReader = delegate (Guid asked)
+      {
+        reads++;
+        return Task.FromResult<byte[]?>(new byte[] { 1, 2, 3 });
+      };
+      nowPlaying.Play(MediaLocation.FromFile("d:\\media\\the.film.mkv"), first, 0);
+
+      await nowPlaying.ReadCoverAsync();
+      await nowPlaying.ReadCoverAsync();
+
+      Assert.That(nowPlaying.Cover, Is.Not.Null);
+      Assert.That(reads, Is.EqualTo(1), "the same title is asked once");
+
+      nowPlaying.Play(MediaLocation.FromFile("d:\\media\\the.other.mkv"), second, 0);
+      Assert.That(nowPlaying.Cover, Is.Null, "the next title does not wear this one's cover");
+    }
+
+    [Test]
+    public async Task AFileThatBelongsToNoLibraryGetsNoCover()
+    {
+      NowPlayingViewModel nowPlaying = Player();
+      int reads = 0;
+      nowPlaying.CoverReader = delegate (Guid asked)
+      {
+        reads++;
+        return Task.FromResult<byte[]?>(new byte[] { 1 });
+      };
+      nowPlaying.Play(MediaLocation.FromFile("d:\\media\\the.film.mkv"));
+
+      await nowPlaying.ReadCoverAsync();
+
+      Assert.That(reads, Is.EqualTo(0));
+      Assert.That(nowPlaying.Cover, Is.Null);
+    }
   }
 }
