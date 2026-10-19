@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.UPnP;
@@ -255,11 +256,29 @@ namespace MediaPortal.Common.Services.ResourceAccess
       // More actions go here
     }
 
+    /// <summary>
+    /// Whether the service may answer a question about this path at all.
+    /// </summary>
+    /// <remarks>
+    /// This used to be <c>return true;</c> beside a <c>TODO</c> about not having the shares, which let any client on
+    /// the network name any directory of the server and have it listed - the file server's leak one level up, since
+    /// listing a disk is a better way to find the files than guessing their names. The shares are the answer, and
+    /// the rule registered for them is the same one <c>GetResource</c> consults, with one difference documented on
+    /// <see cref="IResourceAccessGuard.IsInsideAShare"/>: browsing starts at a share, so the share's own root counts
+    /// as allowed here while the file server refuses it. A host that registers no guard gets no answers.
+    /// </remarks>
     protected static bool IsAllowedToAccess(ResourcePath resourcePath)
     {
-      // TODO: How to check safety? We don't have access to our shares store here... See also method IsAllowedToAccess
-      // in ResourceAccessModule
-      return true;
+      IResourceAccessGuard guard = ServiceRegistration.Get<IResourceAccessGuard>(false);
+      if (guard == null)
+      {
+        ServiceRegistration.Get<ILogger>().Warn(
+            "UPnPResourceInformationServiceImpl: no IResourceAccessGuard is registered, refusing '{0}'",
+            resourcePath);
+        return false;
+      }
+
+      return guard.IsInsideAShare(resourcePath);
     }
 
     static UPnPError OnGetMediaCategoriesFromMetadataExtractors(DvAction action, IList<object> inParams, out IList<object> outParams,

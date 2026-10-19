@@ -174,7 +174,9 @@ namespace MediaPortal.Common.Services.ResourceAccess
         string resourcePathStr = resourcePath.Serialize();
         if (_resourceAccessorCache.TryGetValue(resourcePathStr, out resource))
           return resource.ResourceAccessor;
-        // TODO: Security check. Only deliver resources which are located inside local shares.
+        // Nothing is checked here: the caller in Invoke has already asked the guard, and asking twice would mean
+        // reading the shares twice per request. What used to stand here was a TODO for the very check that was
+        // missing from the whole pipeline.
         ServiceRegistration.Get<ILogger>().Debug("ResourceAccessModule: Access of resource '{0}'", resourcePathStr);
         IResourceAccessor ra;
         if (!resourcePath.TryCreateLocalResourceAccessor(out ra))
@@ -346,10 +348,48 @@ namespace MediaPortal.Common.Services.ResourceAccess
       }
     }
 
+    /// <summary>
+    /// Whether the bytes behind this path may be written to the response of whoever asked.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This used to be <c>return true;</c> with a <c>TODO</c> saying the module has no access to the shares store -
+    /// and that is exactly what it turned out to mean in practice. Measured on the deployed layout with web
+    /// authorization at its shipped default, the API answered a stranger with <c>403</c> while this same socket
+    /// answered <c>GET GetResource?ResourcePath={local}:///C:/Windows/win.ini</c> with <c>200</c> and the file, and
+    /// the listener is bound to <c>0.0.0.0</c>. Anybody on the network could read any file the server's process
+    /// could read, whether or not it was ever in anybody's library.
+    /// </para>
+    /// <para>
+    /// The rule is registered elsewhere on purpose (see <see cref="IResourceAccessGuard"/>): what may be served is
+    /// whatever the owner of the data registered, and this assembly cannot see the media library. A host that
+    /// registers nothing gets nothing - failing closed is the right answer to missing plumbing, because the other
+    /// answer is this file's history repeating.
+    /// </para>
+    /// <para>
+    /// A refusal says nothing about the resource. The <c>403</c> the caller gets back carries no word about
+    /// whether the file exists, because an endpoint that explains itself is an endpoint for asking whether a file
+    /// exists.
+    /// </para>
+    /// </remarks>
     protected bool IsAllowedToAccess(ResourcePath resourcePath)
     {
-      // TODO: How to check safety? We don't have access to our shares store here... See also method IsAllowedToAccess
-      // in UPnPResourceInformationServiceImpl
+      IResourceAccessGuard guard = ServiceRegistration.Get<IResourceAccessGuard>(false);
+      if (guard == null)
+      {
+        ServiceRegistration.Get<ILogger>().Warn(
+            "ResourceAccessModule: no IResourceAccessGuard is registered, refusing resource '{0}'", resourcePath);
+        return false;
+      }
+
+      bool allowed = guard.IsAllowed(resourcePath);
+      if (!allowed)
+      {
+        // The caller logs the refusal with the path; saying it twice would only make it look like two things
+        // went wrong.
+        return false;
+      }
+
       return true;
     }
 

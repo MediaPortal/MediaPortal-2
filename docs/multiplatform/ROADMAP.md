@@ -2623,6 +2623,98 @@ every script in this repository: variable names are not case sensitive, so the `
 loop in `test-player-file.ps1` *is* the script's new `-Stream` switch, and assigning a media stream to a `[switch]`
 fails the run in a place that has nothing to do with the change.
 
+### an. The file server keeps its hands off everything that is not media
+
+The previous section ended by saying that the path-based `ResourceAccessModule` was still mounted and still
+answered anything. That sentence is no longer true, and this is what it was worth.
+
+**What was measured, on the deployed layout, with the settings a fresh install ships with.** The portable host was
+started with no configuration file at all, so web authorization was at its default of `true`, and the listener was
+bound to `0.0.0.0`:
+
+| asked as a stranger | before | after |
+| --- | --- | --- |
+| `GET health` | `200` | `200` |
+| `GET api/media/titles?aspect=MovieItem` | `403` | `403` |
+| `GET api/media/items/{id}/stream` | `403` | `403` |
+| `GET GetResource?ResourcePath={local}:///C:/Windows/win.ini` | **`200`, 76 bytes, the file** | `403` |
+| `GET GetResource?ResourcePath={local}:///…/database/MediaPortal2.db` | **`200`, the library** | `403` |
+
+So the API asked who was calling and the same socket did not. Anybody who could reach the port - any device on the
+LAN, since it listens on every address - read any file the server's process could read, including the server's own
+database, its configuration and its logs. Both places that decide this carried the same two-line
+`TODO: How to check safety? We don't have access to our shares store here...` above a `return true;`, and they were
+right: the file server lives in `MediaPortal.Common` and the shares live behind the media library in the backend,
+so the code that asked the question genuinely could not see what it needed.
+
+**The seam.** `IResourceAccessGuard` (`MediaPortal.Common/ResourceAccess`) states the question, and whoever owns
+the data registers the answer. `ResourceAccessModule.IsAllowedToAccess` now asks it, and a host that registers no
+guard is refused everything, logged once as a warning: an open file server is not the safer default for a missing
+piece of plumbing, and a server that came up without its backend has no media to serve anyway. A refusal answers
+`403` and says nothing else, because an endpoint that explains itself is an endpoint for asking whether a file
+exists.
+
+This is deliberately *not* an authentication seam, and that is not an oversight. `GetResource` URLs are handed to
+UPnP renderers for the television to fetch by itself, and a television cannot present a bearer ticket; putting a
+token in the URL would put the ticket in every log between here and there. What makes it safe is not who is asking
+but what is asked for, so the shipped guard answers with share membership rather than with identity.
+
+**The rule** (`SharesResourceAccessGuard`, `MediaPortal.Backend/Services/MediaLibrary`, registered in
+`BackendExtension.RegisterBackendServices()` next to the library itself): a resource may be served if it is
+*inside* a folder somebody registered as a share, on the same provider, and not otherwise. The details are the
+parts that make it a boundary rather than a string compare:
+
+- The whole file path lives inside one provider segment for the local filesystem provider
+  (`{local}:///D:/films/x.mkv` is one segment), so `ResourcePath.IsSameOrParentOf` - which walks segments - says
+  nothing about whether a file is under a folder, and it compares with `InvariantCulture`, which would refuse a
+  share whose case differs from what the importer wrote down. Case is ignored where Windows ignores it, and
+  nowhere else.
+- A prefix test is not a boundary: `/films/../windows/win.ini` starts with `/films/`, and the local provider turns
+  a provider path into a DOS path by swapping separators and nothing else. A path containing `..` or `.` is
+  refused rather than resolved - a resource path has no current directory to resolve against, and an imported
+  file's path never contains either.
+- `/films-x/film.mkv` starts with `/films`; the character after the share has to be a separator.
+- The provider id has to match, not only the text.
+- Chained paths - more than one segment, an entry in an archive, a stream a virtual provider transforms - are
+  refused, because no registered folder contains them. Those titles are streamed by id, which asks the library
+  instead of the filesystem; that is what section `am` built.
+- One film is hundreds of range requests and every one arrives here, so the share list is read once and kept for
+  thirty seconds. A guard that queried the database per request would behave correctly and cost the viewer their
+  film, and a cache is invisible unless somebody counts it, so `SharesReadCount` exists and a test reads the share
+  table twice hundred times and asserts it was read once. When the library cannot be reached the last list that
+  was read stays in force - dropping it because the database hiccuped would be a self-inflicted outage - and if
+  none ever was, nothing is served.
+
+**The same TODO one level up.** `UPnPResourceInformationServiceImpl` had the identical `return true;`, and its
+actions are worse: list the directories of, list the files of, name, does-it-exist, for any path a client names.
+Being a browse API, it needs one thing the file server does not - browsing *starts* at a share, so the share's own
+root has to count - which is why the interface asks two questions: `IsAllowed` for the bytes of a file, and
+`IsInsideAShare` for being allowed to talk about a resource at all. They differ by exactly the share root, and the
+difference is tested.
+
+**Twelve new tests** (`Tests.Server/Api/TestResourceAccessModuleOverHttp.cs`) drive the real pipeline over a real
+socket against real files on disk, with MP2's own `LocalFsResourceProvider` behind them rather than a mock - a mock
+accessor would have let the traversal case pass for the wrong reason, since it is the provider's translation of a
+provider path into a DOS path that makes `..\` interesting. A file outside every share, the operating system's own
+directory, `..\` out of a share, a folder called `films-other` next to a share called `films`, the share root
+itself, and a server with no guard registered: all `403` with an empty body. A file inside a share: `200` and the
+file's own 4096 bytes. Building them also found out something about the module that no test had ever recorded: its
+very first act is to ask `ISystemResolver` what kind of system this is, because a server answers `/MediaPortal/Server`
+and a client `/MediaPortal/Client` - and with no resolver registered every request to it died as a `500` before
+any log line was written, which is how the first run of this fixture looked.
+
+**What this does not do.** The `200` inside a share is proved over a socket in the test, not on the deployed
+layout: the deployed server comes up with an empty library, nothing is registered as a share, and the HTTP API has
+no way to add one (shares come from the client side), so every path on a freshly installed server is refused -
+which is the correct behaviour for a server with no media, but means the deployment only demonstrates the
+refusals. The UPnP browse actions now consult the guard but are not driven over their own socket; their two
+questions are tested against the guard directly. Nothing was added to make `GetResource` authenticate, for the
+reason above. And a server with authorization on still cannot be *streamed from* by a player that has no ticket,
+carried over unchanged from section `am`.
+
+The suite stands at **908 tests, 0 failures** - Tests.Server at **404** where the last section left it at 392, and
+the front end unchanged at 317.
+
 ## What cannot be verified without the user
 
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,

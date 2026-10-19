@@ -29,6 +29,7 @@ using MediaPortal.Backend.Services.UserProfileDataManagement;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Backend.Database;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Backend.Services.Database;
@@ -52,6 +53,12 @@ namespace MediaPortal.Backend
 
       logger.Debug("BackendExtension: Registering IMediaLibrary service");
       ServiceRegistration.Set<IMediaLibrary>(new Services.MediaLibrary.MediaLibrary());
+
+      // The file server asks this whether a resource may be sent to whoever asked for it. The answer is the shares,
+      // and the shares live here in the backend, which is why the rule is registered here and not in the module.
+      logger.Debug("BackendExtension: Registering IResourceAccessGuard service");
+      ServiceRegistration.Set<IResourceAccessGuard>(
+          new Services.MediaLibrary.SharesResourceAccessGuard(ServiceRegistration.Get<IMediaLibrary>()));
 
       logger.Debug("BackendExtension: Registering IMediaItemAspectTypeRegistration service");
       ServiceRegistration.Set<IMediaItemAspectTypeRegistration>(new MediaItemAspectTypeRegistration());
