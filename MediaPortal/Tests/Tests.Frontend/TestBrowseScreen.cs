@@ -106,7 +106,10 @@ namespace Tests.Frontend
         }
         else
         {
-          LastTitlesUrl = request.RequestUri.PathAndQuery;
+          // The screen's details read for the selected row arrives here too; it is answered from the shelf
+          // body, but it is not the titles question and does not overwrite the URL it was asked with.
+          if (!path.Contains("/items/", StringComparison.Ordinal))
+            LastTitlesUrl = request.RequestUri.PathAndQuery;
           body = TITLES;
         }
 

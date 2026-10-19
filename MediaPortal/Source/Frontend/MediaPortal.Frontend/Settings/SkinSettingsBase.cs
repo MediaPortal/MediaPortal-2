@@ -129,8 +129,13 @@ public abstract class SkinSettingsBase
   [JsonPropertyName("seasonGridViewType")]
   public GridViewType SeasonGridViewType { get; set; } = GridViewType.Poster;
 
+  /// <summary>
+  /// Whether a screen without a picked answer wears its details. The reference kept this off by default and
+  /// showed details only instead of playing; this front end shows details beside the shelf and its viewers
+  /// asked to see them, so the answer it gives until somebody says otherwise on the screen itself is yes.
+  /// </summary>
   [JsonPropertyName("enableMediaItemDetailsView")]
-  public bool EnableMediaItemDetailsView { get; set; }
+  public bool EnableMediaItemDetailsView { get; set; } = true;
 
   [JsonPropertyName("enableAgeCertificationLogos")]
   public bool EnableAgeCertificationLogos { get; set; } = true;

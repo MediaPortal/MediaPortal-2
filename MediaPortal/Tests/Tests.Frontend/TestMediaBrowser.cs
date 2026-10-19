@@ -807,7 +807,8 @@ namespace Tests.Frontend
       browser.OpenCommand.Execute(null);
       WaitUntil("the title to arrive", delegate { return browser.Titles.Count == 1; });
 
-      browser.ToggleDetailsCommand.Execute(null);
+      // The shelf selects its first row as it fills, and a screen that wears its details reads the selected
+      // row as the selection lands - nobody has to ask a screen to show what it is there to show.
       WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
 
       Assert.That(browser.DetailsHeading, Is.EqualTo("Titanic (1997)"));
@@ -838,7 +839,6 @@ namespace Tests.Frontend
       browser.Selected = new TitleViewModel(
           new MediaTitle(new Guid(TITANIC), "Alien Earth", null, 2025, null, null, false));
 
-      browser.ToggleDetailsCommand.Execute(null);
       WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
 
       Assert.That(browser.DetailsLine, Does.Contain("Science-Fiction, Drama"),
@@ -857,11 +857,10 @@ namespace Tests.Frontend
       MediaBrowserViewModel browser = BrowserOn(server);
       browser.Selected = new TitleViewModel(new MediaTitle(new Guid(TITANIC), "Titanic", null, 1997, null, null, false));
 
-      browser.ToggleDetailsCommand.Execute(null);
       WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
       browser.ToggleDetailsCommand.Execute(null);
       Pump();
-      Assert.That(browser.DetailsVisible, Is.False, "the same key that opened the panel closes it");
+      Assert.That(browser.DetailsVisible, Is.False, "the same key that showed the panel hides it");
 
       browser.ToggleDetailsCommand.Execute(null);
       Pump();
@@ -877,7 +876,6 @@ namespace Tests.Frontend
       MediaBrowserViewModel browser = BrowserOn(server);
       browser.Selected = new TitleViewModel(new MediaTitle(new Guid(TITANIC), "Titanic", null, 1997, null, null, false));
 
-      browser.ToggleDetailsCommand.Execute(null);
       WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
       browser.CloseDetails();
 
@@ -904,7 +902,6 @@ namespace Tests.Frontend
       MediaBrowserViewModel browser = BrowserOn(server);
       browser.Selected = new TitleViewModel(new MediaTitle(new Guid(TITANIC), "Titanic", null, 1997, null, null, false));
 
-      browser.ToggleDetailsCommand.Execute(null);
       WaitUntil("the server's answer", delegate { return browser.Status.Contains("no title"); });
 
       Assert.That(browser.DetailsVisible, Is.False,
@@ -920,7 +917,6 @@ namespace Tests.Frontend
       MediaBrowserViewModel browser = BrowserOn(server);
       browser.Selected = new TitleViewModel(new MediaTitle(new Guid(TITANIC), "Titanic", null, 1997, null, null, false));
 
-      browser.ToggleDetailsCommand.Execute(null);
       WaitUntil("the server's answer",
           delegate { return browser.Status.IndexOf("sign in", StringComparison.OrdinalIgnoreCase) >= 0; });
       Assert.That(browser.DetailsVisible, Is.False);
@@ -939,7 +935,6 @@ namespace Tests.Frontend
       browser.Selected = new TitleViewModel(
           new MediaTitle(new Guid(TITANIC), "Alien Earth", null, 2025, null, null, false));
 
-      browser.ToggleDetailsCommand.Execute(null);
       WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
 
       Assert.That(browser.DetailsLine, Does.Contain("S01E01"),
@@ -950,7 +945,7 @@ namespace Tests.Frontend
     }
 
     [AvaloniaTest]
-    public void TheInfoKeyOpensThePanelAndBackClosesThePanelBeforeTheWindow()
+    public void TheScreenWearsItsDetailsAndTheKeysTurnThemOffAndOn()
     {
       DetailsServer server = new DetailsServer(HttpStatusCode.OK, TITANIC_DETAILS);
       MediaBrowserViewModel browser = BrowserOn(server);
@@ -962,18 +957,33 @@ namespace Tests.Frontend
           .First(list => list.Name == "titlesList");
       Border panel = window.GetVisualDescendants().OfType<Border>()
           .First(border => border.Name == "detailsPanel");
-      Assert.That(panel.IsVisible, Is.False, "nothing is on screen until it is asked for");
 
+      // The row is selected as it arrives and the screen wears its details from the start - the panel is
+      // what the screen shows, not a favour a key grants.
       titles.Focus();
+      WaitUntil("the details to be worn", delegate { return panel.IsVisible; });
+      Assert.That(browser.DetailsHeading, Is.EqualTo("Titanic (1997)"));
+      Assert.That(browser.ShowDetails, Is.True, "a screen wears its details until its viewer says otherwise");
+      Assert.That(titles.Items.Count, Is.EqualTo(1), "the list stayed where it was behind the panel");
+
       titles.RaiseEvent(new KeyEventArgs
       {
         RoutedEvent = InputElement.KeyDownEvent,
         Key = Key.I,
         Source = titles
       });
-      WaitUntil("the panel to open", delegate { return panel.IsVisible; });
-      Assert.That(browser.DetailsHeading, Is.EqualTo("Titanic (1997)"));
-      Assert.That(titles.Items.Count, Is.EqualTo(1), "the list stayed where it was behind the panel");
+      Pump();
+      Assert.That(panel.IsVisible, Is.False, "the info key turns the details away");
+
+      titles.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.I,
+        Source = titles
+      });
+      WaitUntil("the details to come back", delegate { return panel.IsVisible; });
+      Assert.That(server.TimesAsked, Is.EqualTo(1),
+          "and they come back from what was already read, not from a second question to the server");
 
       titles.RaiseEvent(new KeyEventArgs
       {
@@ -983,7 +993,7 @@ namespace Tests.Frontend
       });
       Pump();
       Assert.That(panel.IsVisible, Is.False);
-      Assert.That(window.IsVisible, Is.True, "back put the panel away, not the screen");
+      Assert.That(window.IsVisible, Is.True, "back put the details away, not the screen");
       Assert.That(browser.Selected, Is.Not.Null, "and the viewer is still on the same row");
 
       titles.RaiseEvent(new KeyEventArgs
@@ -1171,9 +1181,14 @@ namespace Tests.Frontend
         if (IsPictureRequest(request))
           return Task.FromResult(NoPicture(request));
 
-        TimesAsked++;
-        LastUrl = request.RequestUri.PathAndQuery;
-        Question = QuestionIn(request.RequestUri.Query);
+        // The screen's details read for the selected row lands here too; it is answered from the shelf body,
+        // but it is not a question about the shelf and does not count as one.
+        if (!request.RequestUri.AbsoluteUri.Contains("/items/", StringComparison.OrdinalIgnoreCase))
+        {
+          TimesAsked++;
+          LastUrl = request.RequestUri.PathAndQuery;
+          Question = QuestionIn(request.RequestUri.Query);
+        }
 
         List<string> matching = new List<string>();
         foreach (string name in SHELF)
@@ -1447,9 +1462,14 @@ namespace Tests.Frontend
         if (IsPictureRequest(request))
           return Task.FromResult(NoPicture(request));
 
-        TimesAsked++;
-        LastUrl = request.RequestUri.PathAndQuery;
-        Filter = ParameterIn(request.RequestUri.Query, "seen");
+        // The screen's details read for the selected row lands here too; it is answered from the shelf body,
+        // but it is not a question about the shelf and does not count as one.
+        if (!request.RequestUri.AbsoluteUri.Contains("/items/", StringComparison.OrdinalIgnoreCase))
+        {
+          TimesAsked++;
+          LastUrl = request.RequestUri.PathAndQuery;
+          Filter = ParameterIn(request.RequestUri.Query, "seen");
+        }
 
         List<ShelfTitle> matching = new List<ShelfTitle>();
         foreach (ShelfTitle title in SEEN_SHELF)
@@ -1911,6 +1931,20 @@ namespace Tests.Frontend
       {
         if (IsPictureRequest(request))
           return Task.FromResult(NoPicture(request));
+
+        // The details read the screen fires for the selected row arrives here too. It is answered - the
+        // shelf's own list body parses well enough for the panel to stand - but it is not the shelf
+        // question, so it does not overwrite what the shelf was asked with.
+        if (request.RequestUri.AbsoluteUri.Contains("/items/", StringComparison.OrdinalIgnoreCase))
+        {
+          return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+          {
+            RequestMessage = request,
+            Content = new StringContent("{\"id\":\"" + new Guid(1, 0, 4,
+                new byte[] { 128, 0, 0, 0, 0, 0, 0, 4 }).ToString("D") + "\",\"title\":\"Alien\",\"year\":1979}",
+                Encoding.UTF8, "application/json")
+          });
+        }
 
         LastUrl = request.RequestUri.PathAndQuery;
         Aspect = Asked(request.RequestUri.Query, "aspect");

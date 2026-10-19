@@ -153,6 +153,12 @@ namespace FrontendProbe
       Environment.SetEnvironmentVariable("MP2_SKIN_SETTINGS_DIR",
           Path.Combine(Path.GetTempPath(), "mp2-render-skinsettings"));
 
+      // The same for the shapes the screens remember: a frame must not start in the shape some earlier run
+      // left behind, and a probe must not leave the machine's screens in a shape a viewer never picked.
+      Environment.SetEnvironmentVariable("MP2_SCREEN_VIEWS_FILE",
+          Path.Combine(Path.GetTempPath(),
+              "MediaPortal2-Probe-" + Guid.NewGuid().ToString("N") + "-screens.json"));
+
       Console.WriteLine("host:     " + RuntimeInformation.FrameworkDescription + ", "
           + RuntimeInformation.OSDescription + ", " + RuntimeInformation.OSArchitecture);
 
@@ -893,24 +899,27 @@ namespace FrontendProbe
 
       if (detailsAsked && (window as ShellWindow)?.Screen is MediaBrowserView detailsScreen)
       {
-        // The key a viewer presses, raised the way the remote raises it, rather than the view model's command
-        // called from here: the frame is then the proof that the key, the handler on the window and the panel
-        // hang together, and not merely that the panel can be made to show.
-        detailsScreen.RaiseEvent(new KeyEventArgs
-        {
-          RoutedEvent = InputElement.KeyDownEvent,
-          Key = Key.I,
-          Source = detailsScreen
-        });
-        Pump(TimeSpan.FromMilliseconds(500));
-
+        // The screen wears its details by default now, and the read starts when the selection lands - so the
+        // frame first waits for the panel to be up on its own. Where the selection never arrived, the info
+        // key pressed as a remote sends it is the viewer's way of asking, and the frame falls back to it.
         MediaBrowserViewModel list = (MediaBrowserViewModel) detailsScreen.DataContext!;
+        if (!PumpUntil(delegate { return list.DetailsVisible; }, TimeSpan.FromSeconds(10)))
+        {
+          detailsScreen.RaiseEvent(new KeyEventArgs
+          {
+            RoutedEvent = InputElement.KeyDownEvent,
+            Key = Key.I,
+            Source = detailsScreen
+          });
+          PumpUntil(delegate { return list.DetailsVisible; }, TimeSpan.FromSeconds(10));
+        }
+
         Console.WriteLine("details:  " + (list.DetailsVisible
             ? "panel open on \"" + list.DetailsHeading + "\" - \"" + list.DetailsLine + "\""
             : "the panel stayed closed; status says '" + list.Status + "'"));
         if (!list.DetailsVisible)
         {
-          Console.WriteLine("FAILED:   the info key did not open the panel, so the frame would be the plain list twice.");
+          Console.WriteLine("FAILED:   the screen showed no details, so the frame would be the plain list twice.");
           return 1;
         }
       }
@@ -1599,8 +1608,18 @@ namespace FrontendProbe
 
       if (skin == null)
       {
-        report = string.Format("the shelf says it is {0} but no skin answers its tile key", layoutName);
-        return string.Format("a {0} frame was drawn while no skin offers the shelf a tile template", layoutName);
+        // Every screen can be laid in tiles or covers now, whether a skin answers or not; where none does,
+        // the frame the shelf wears is the front end's own, and the honest check is that it wears one at
+        // all and lays it wrapped.
+        if (titles.ItemTemplate == null || !(titles.ItemsPanelRoot is WrapPanel))
+        {
+          report = string.Format("the shelf says {0} on the front end's own frames", layoutName);
+          return string.Format("the {0} frame has no built-in tile tree or no wrap panel", layoutName);
+        }
+
+        report = string.Format("no skin speaks this shelf's tiles; the front end's own {0} frame is drawn",
+            layoutName);
+        return null;
       }
 
       if (!ReferenceEquals(titles.ItemTemplate, skin))

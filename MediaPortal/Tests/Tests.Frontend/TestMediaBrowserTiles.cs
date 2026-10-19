@@ -181,26 +181,63 @@ namespace Tests.Frontend
     }
 
     [AvaloniaTest]
-    public void WmcAndTheOwnFaceKeepTheirShelvesAsRows()
+    public void EveryShelfWalksAllThreeViewsEvenWithoutASkin()
     {
       Application app = RequireApplication();
 
-      // WMC ships no media tiles in this front end; offering a "View: Grid" button there would be a lie.
+      // A view is the screen's promise, not one skin's privilege: where the worn skin draws no tiles, the
+      // front end's own frames answer, so the button on WMC and on the machine's own face is no longer a lie.
       FrontendTheme.Apply(app, "wmc", out _);
       MediaBrowserViewModel wmc = new MediaBrowserViewModel(null, MoviesSection(), null);
       Assert.That(wmc.HasTiles, Is.False);
-      Assert.That(wmc.Layout, Is.EqualTo(BrowserLayout.List));
+      Assert.That(wmc.Layout, Is.EqualTo(BrowserLayout.List),
+          "an unanswered screen still opens as the rows it was written with");
 
       wmc.SwitchView();
-      Assert.That(wmc.Layout, Is.EqualTo(BrowserLayout.List),
-          "where there are no tiles, the switch has nothing to switch to");
+      Assert.That(wmc.Layout, Is.EqualTo(BrowserLayout.Grid),
+          "and the view button has tiles to switch to even where no skin draws them");
+      wmc.SwitchView();
+      Assert.That(wmc.Layout, Is.EqualTo(BrowserLayout.Cover));
+      wmc.SwitchView();
+      Assert.That(wmc.Layout, Is.EqualTo(BrowserLayout.List));
 
-      // And the front end's own face: the same.
+      // And the front end's own face: the same, with the quiet tick the list always had.
       FrontendTheme.Apply(app, FrontendTheme.DEFAULT_NAME, out _);
       MediaBrowserViewModel own = new MediaBrowserViewModel(null, MoviesSection(), null);
       Assert.That(own.HasTiles, Is.False);
       Assert.That(own.Layout, Is.EqualTo(BrowserLayout.List));
       Assert.That(own.WatchFlagsShown, Is.True, "with no skin to ask, the quiet tick stays");
+      own.SwitchView();
+      Assert.That(own.Layout, Is.EqualTo(BrowserLayout.Grid));
+    }
+
+    [AvaloniaTest]
+    public void AShelfRemembersTheShapeItsViewerLeftItIn()
+    {
+      Application app = RequireApplication();
+      FrontendTheme.Apply(app, FrontendTheme.DEFAULT_NAME, out _);
+
+      MediaBrowserViewModel films = new MediaBrowserViewModel(null, MoviesSection(), null);
+      Assert.That(films.Layout, Is.EqualTo(BrowserLayout.List));
+
+      films.SwitchView();
+      films.SwitchView();
+      Assert.That(films.Layout, Is.EqualTo(BrowserLayout.Cover));
+
+      // The next time this screen opens - a new view model for the same shelf - it greets the viewer in the
+      // shape they chose here, which is what "stored by screen" asks for.
+      MediaBrowserViewModel again = new MediaBrowserViewModel(null, MoviesSection(), null);
+      Assert.That(again.Layout, Is.EqualTo(BrowserLayout.Cover),
+          "the films stay in covers because the films' screen was left in covers");
+      Assert.That(again.GridTemplateKey, Is.EqualTo(MediaBrowserViewModel.COVER_TEMPLATE_KEY));
+
+      // And a different screen is a different answer: nobody picked anything for the series' screen.
+      HomeSection series = new HomeSection("Series",
+          new AspectViewModel(new FrontendAspect(Guid.Parse("22222222-2222-2222-2222-222222222222"),
+              "SeriesItem", false, false,
+              null, Array.Empty<MediaPortal.Frontend.Api.AspectAttribute>())));
+      MediaBrowserViewModel episodes = new MediaBrowserViewModel(null, series, null);
+      Assert.That(episodes.Layout, Is.EqualTo(BrowserLayout.List));
     }
 
     [Test]

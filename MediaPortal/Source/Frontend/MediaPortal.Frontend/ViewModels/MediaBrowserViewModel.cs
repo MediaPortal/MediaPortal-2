@@ -493,11 +493,21 @@ namespace MediaPortal.Frontend.ViewModels
     private TitleViewModel? _selected;
 
     /// <summary>
-    /// Whether the details panel is on screen. Off until a viewer asks for one title, because the list is the
-    /// screen - the panel is a question about one row, not a second place to navigate to.
+    /// Whether the details panel is on screen right now - which it is whenever the screen wears details and a
+    /// title has been read about. The viewer's standing choice for the screen is <see cref="ShowDetails"/>;
+    /// this is that choice meeting a list with nothing selected.
     /// </summary>
     [ObservableProperty]
     private bool _detailsVisible;
+
+    /// <summary>
+    /// Whether this screen shows the selected title's details, as the viewer last answered it <em>on this
+    /// screen</em> and remembered in <see cref="ScreenViewSettings"/>. The reference kept the question in the
+    /// worn skin's settings (<c>EnableMediaItemDetailsView</c>) and so answered it only while a skin wearing
+    /// those settings was on; this screen asks it of the viewer whatever it wears, on every screen.
+    /// </summary>
+    [ObservableProperty]
+    private bool _showDetails = true;
 
     [ObservableProperty]
     private string _detailsHeading = "";
@@ -513,6 +523,16 @@ namespace MediaPortal.Frontend.ViewModels
 
     /// <summary>The title the last details read was for, so that opening it again costs nothing.</summary>
     private Guid _detailsFor;
+
+    /// <summary>
+    /// The title the newest details read was asked for. Walking a shelf with the details panel on fires a
+    /// read per row, and only the last row's answer may reach the panel - a plot that arrives after the
+    /// viewer walked on would otherwise sit under the next title's name.
+    /// </summary>
+    private Guid _detailsAskFor;
+
+    /// <summary>The shapes the viewer picked for each screen; the constructor loads them.</summary>
+    private readonly ScreenViewSettings _screens;
 
     /// <summary>
     /// The pictures of the titles on this screen: asked for once per title, remembered across pages and searches,
@@ -610,10 +630,19 @@ namespace MediaPortal.Frontend.ViewModels
       _skinSettings = WornSkinSettings();
       _tileKind = _skinSettings == null ? GridViewType.Poster : TileKindFor(AspectName, _skinSettings);
       HasTiles = SkinEngine.TryTileTemplate(TileKey(_tileKind)) != null;
-      // The cover is the third view of the reference's view mode, and a skin that does not draw one does not
-      // offer it: the viewer's cycle simply leaves that step out, rather than showing an empty frame.
-      HasCover = HasTiles && SkinEngine.TryTileTemplate(COVER_TEMPLATE_KEY) != null;
-      _layout = HasTiles ? BrowserLayout.Grid : BrowserLayout.List;
+      // The cover is the third view of the reference's view mode, and since the viewer asked for it on every
+      // screen it is a view rather than a privilege of one skin: a skin that draws its own covers gets its
+      // own, and every other screen gets this front end's cover frame. The remembered shape below is what
+      // decides whether a shelf opens as rows, tiles or covers.
+      HasCover = SkinEngine.TryTileTemplate(COVER_TEMPLATE_KEY) != null;
+      _screens = ScreenViewSettings.Load(null, out _);
+      _layout = RememberedLayout() ?? (HasTiles ? BrowserLayout.Grid : BrowserLayout.List);
+      // The details answer is the viewer's own for this screen first; where this screen was never asked,
+      // the worn skin's setting speaks - which is the reference's <c>EnableMediaItemDetailsView</c>, whose
+      // meaning now lives on the media screen itself rather than only behind a skin's settings page.
+      _showDetails = _screens.HasDetails(AspectName)
+          ? _screens.Details[AspectName]
+          : _skinSettings?.EnableMediaItemDetailsView ?? true;
       // The corners obey the setting of the layout they appear in - the reference gated the grid's corners on
       // extEnableGridWatchFlags and the cover's on extEnableCoverWatchFlags - and the list's quiet tick is the
       // screen's own old promise, which the list's setting speaks for since the reference gave it one too.
@@ -650,6 +679,19 @@ namespace MediaPortal.Frontend.ViewModels
     {
       Application? app = Application.Current;
       return app == null ? null : SkinSettingsBase.LoadFor(FrontendTheme.CurrentName(app), null, out _);
+    }
+
+    /// <summary>
+    /// The shape this screen's viewer last picked <em>on this screen</em>, or <c>null</c> when nobody ever
+    /// picked one. The reference opened each shelf in its skin's view mode; a screen here remembers the way
+    /// its viewer left it, which is what "the settings on the media screen are stored by screen" means.
+    /// </summary>
+    private BrowserLayout? RememberedLayout()
+    {
+      return _screens.Layouts.TryGetValue(AspectName, out string? word)
+          && Enum.TryParse<BrowserLayout>(word, true, out BrowserLayout shape)
+          ? shape
+          : null;
     }
 
     /// <summary>The tile shape this shelf's media takes in this skin's grid.</summary>
@@ -703,8 +745,32 @@ namespace MediaPortal.Frontend.ViewModels
     /// <summary>Whether the worn skin draws tiles for this shelf at all; without them there is nothing to view.</summary>
     public bool HasTiles { get; }
 
-    /// <summary>Whether the worn skin draws covers; without them the viewer's cycle has no cover step.</summary>
+    /// <summary>Whether the worn skin draws its own covers; a skin that does not gets this front end's frame.</summary>
     public bool HasCover { get; }
+
+    /// <summary>What the screen's details button says, so that the label and the state cannot drift apart.</summary>
+    public string DetailsLabel
+    {
+      get { return ShowDetails ? "Details: on" : "Details: off"; }
+    }
+
+    /// <summary>
+    /// The viewer answered the details question for this screen. It is written down where it is answered -
+    /// on the screen, by the button or the info key - and the shelf obeys it from then on, reading the
+    /// selected title as the selection walks.
+    /// </summary>
+    partial void OnShowDetailsChanged(bool value)
+    {
+      OnPropertyChanged(nameof(DetailsLabel));
+
+      if (value)
+        _ = ShowDetailsForSelectedAsync();
+      else
+        DetailsVisible = false;
+
+      _screens.Details[AspectName] = value;
+      _screens.Save(null, out _);
+    }
 
     /// <summary>The corners' answer for one layout, from the setting that governs exactly that layout.</summary>
     private bool WatchFlagsFor(BrowserLayout layout)
@@ -772,6 +838,14 @@ namespace MediaPortal.Frontend.ViewModels
     /// </summary>
     partial void OnSelectedChanged(TitleViewModel? value)
     {
+      // A screen that wears details reads every title the selection walks onto - the reference's details view
+      // followed the highlighted item exactly this way, and a panel that only answered on demand was the
+      // "nothing but the title" the viewer rightly calls a missing feature.
+      if (value == null)
+        DetailsVisible = false;
+      else if (ShowDetails)
+        _ = ShowDetailsForSelectedAsync();
+
       Artwork? fanart = _fanart;
       if (!FanartShown || fanart == null || value == null)
       {
@@ -855,23 +929,26 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
-    /// Rows or tiles or covers. The button and the <c>V</c> key; the grid sizes themselves are not pressed
-    /// here - they are the skin's settings, and a viewer changes them where settings are changed.
+    /// Rows or tiles or covers, whichever way the screen wears them. The button and the <c>V</c> key lead
+    /// here, on every screen whatever it wears: a skin draws its own tiles and covers, a screen without a
+    /// skin - or whose skin answers none of the tile keys - is laid out in this front end's own frames.
+    /// The tile picture inside the grid's frames is still the skin's business: its own settings say what
+    /// shape this media's tiles take, and the skin settings screen is where a viewer changes that.
     /// </summary>
     [RelayCommand]
     public void SwitchView()
     {
-      if (!HasTiles)
-        return;
-
-      // The reference's view mode walked list → grid → cover; a skin without covers skips that step, and the
-      // cycle closes back onto the rows it started from.
+      // The reference's view mode walked list → grid → cover, and the cycle closes back onto the rows it
+      // started from; all three steps belong to every screen now.
       Layout = Layout switch
       {
         BrowserLayout.List => BrowserLayout.Grid,
-        BrowserLayout.Grid => HasCover ? BrowserLayout.Cover : BrowserLayout.List,
+        BrowserLayout.Grid => BrowserLayout.Cover,
         _ => BrowserLayout.List
       };
+
+      _screens.Layouts[AspectName] = Layout.ToString();
+      _screens.Save(null, out _);
     }
 
     /// <summary>The tile this list came from, or <c>null</c> in the designer.</summary>
@@ -1144,47 +1221,47 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
-    /// Opens the details of the selected title, or closes the panel again. The screen's "info" key, and the only
-    /// way a viewer learns that the server knows more about a film than its name and its length.
+    /// Turns the screen's details on or off - the info key and the button above the list both lead here, and
+    /// the answer is remembered for this screen. Whether anything is read is not asked here: turning the
+    /// panel on reads the selected title, and every title the selection walks onto while it is on is read
+    /// when the selection arrives.
     /// </summary>
-    /// <remarks>
-    /// The read is per title and remembered: pressing the key twice on the same row costs nothing, which is what
-    /// a viewer who pressed it to look and again to think expects. A failure leaves the panel closed - an empty
-    /// panel would be a second, worse answer to the question than the status line.
-    /// </remarks>
     [RelayCommand]
-    public async Task ToggleDetailsAsync()
+    public void ToggleDetails()
     {
-      if (DetailsVisible)
-      {
-        DetailsVisible = false;
-        return;
-      }
+      ShowDetails = !ShowDetails;
+    }
 
+    /// <summary>
+    /// The selected title's details, asked of the server when the screen wears details and the selection
+    /// lands. A read already made for this title is not made again - walking off a row and back to it costs
+    /// nothing - and a failure leaves the panel as it was, because an empty panel about the wrong title is a
+    /// worse answer than no panel.
+    /// </summary>
+    private async Task ShowDetailsForSelectedAsync()
+    {
       TitleViewModel? title = Selected;
-      if (title == null)
-      {
-        Status = "Nothing selected";
+      if (!ShowDetails || title == null || _client == null)
         return;
-      }
-      if (_client == null)
-      {
-        Status = "No server configured";
-        return;
-      }
+
       if (_detailsFor == title.Title.Id)
       {
         DetailsVisible = true;
         return;
       }
 
+      _detailsAskFor = title.Title.Id;
       await ReadDetailsAsync(title);
     }
 
-    /// <summary>Closes the panel. Escape on the screen, and what a viewer presses to get the list back.</summary>
+    /// <summary>
+    /// Turns the panel off, which is what Escape does when there is nothing newer on the screen to close.
+    /// The screen's remembered answer goes with it, because on this screen the panel and the answer are the
+    /// same thing; <c>I</c> or the button puts both back.
+    /// </summary>
     public void CloseDetails()
     {
-      DetailsVisible = false;
+      ShowDetails = false;
     }
 
     /// <summary>
@@ -1194,7 +1271,7 @@ namespace MediaPortal.Frontend.ViewModels
     /// A viewing that has just been reported changes the two numbers the panel shows - how often the title was
     /// played and when it was last watched - so a panel that answers from the read made before the film started is
     /// showing something the viewer knows to be wrong. Called from whichever thread the report came back on, which
-    /// is why this only touches a field and says nothing to the screen; the next <see cref="ToggleDetailsAsync"/>
+    /// is why this only touches a field and says nothing to the screen; the next read for that title
     /// does the talking.
     /// </remarks>
     public void ForgetDetails(Guid mediaItemId)
@@ -1256,10 +1333,14 @@ namespace MediaPortal.Frontend.ViewModels
       if (_client == null)
         return;
 
+      Guid asked = title.Title.Id;
       try
       {
-        MediaItemDetails details = await _client.GetItemAsync(title.Title.Id);
-        _detailsFor = title.Title.Id;
+        MediaItemDetails details = await _client.GetItemAsync(asked);
+        if (_detailsAskFor != asked)
+          return;
+
+        _detailsFor = asked;
 
         string name = string.IsNullOrWhiteSpace(details.Title) ? title.Name : details.Title!.Trim();
         DetailsHeading = details.Year.HasValue ? name + " (" + details.Year.Value + ")" : name;

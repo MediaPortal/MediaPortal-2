@@ -76,7 +76,9 @@ namespace Tests.Frontend
       Assert.That(s.MovieGridViewType, Is.EqualTo(GridViewType.Poster));
       Assert.That(s.SeriesGridViewType, Is.EqualTo(GridViewType.Poster));
       Assert.That(s.SeasonGridViewType, Is.EqualTo(GridViewType.Poster));
-      Assert.That(s.EnableMediaItemDetailsView, Is.False);
+      Assert.That(s.EnableMediaItemDetailsView, Is.True,
+          "this front end wears its details by default; the reference's off-by-default belonged to a skin "
+          + "where details replaced playing, not to a panel beside the shelf");
       Assert.That(s.EnableAgeCertificationLogos, Is.True);
       Assert.That(s.EnableAutoScrolling, Is.True);
       Assert.That(s.AutoScrollSpeed, Is.EqualTo(20));
@@ -135,7 +137,7 @@ namespace Tests.Frontend
       Assert.That(s.SeriesGridViewType, Is.EqualTo(GridViewType.Poster));
       Assert.That(s.SeasonGridViewType, Is.EqualTo(GridViewType.Poster));
       Assert.That(s.EnableHomeContent, Is.True);
-      Assert.That(s.EnableMediaItemDetailsView, Is.False);
+      Assert.That(s.EnableMediaItemDetailsView, Is.True, "worn by default on every skin, as above");
       Assert.That(s.EnableAgeCertificationLogos, Is.True);
 
       // The absence is a fact: Nereus's colour and header switches must not appear on WMC just because a

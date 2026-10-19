@@ -293,7 +293,7 @@ try {
       if (-not $RenderDir) { $RenderDir = Join-Path (Join-Path $repoRoot 'build\artifacts') 'frontend-render' }
       New-Item -ItemType Directory -Path $RenderDir -Force | Out-Null
 
-      # Fourteen screens, twenty frames. The home screen is drawn from a server that is really answering; the
+      # Fourteen screens, twenty-one frames. The home screen is drawn from a server that is really answering; the
       # continue frame is the same screen of a household that has been watching things, drawn from a scripted
       # server, because the strip cannot be drawn from an empty database; the playback screen is drawn from a
       # scripted player, because a frame that is supposed to mean the same
@@ -367,7 +367,11 @@ try {
         # The same shelf walked into its cover view by the view key, which is the third shape the reference
         # skin ships: the frame proves the key reaches the cover layout and that the layout really wears the
         # skin's big cover template (260x410 frame, name under the picture) wrapped across the screen.
-        @{ Name = 'cover-nereus'; Arguments = '--screen cover --theme nereus' }
+        @{ Name = 'cover-nereus'; Arguments = '--screen cover --theme nereus' },
+        # The same cover view on a machine that wears no skin at all. The three views used to be one skin's
+        # privilege - a viewer who asked for tiles or covers anywhere else got rows - and this frame is the
+        # promise that the answer no longer depends on what is worn: the front end's own cover frame, wrapped.
+        @{ Name = 'cover-windows'; Arguments = '--screen cover' }
       )
       foreach ($frame in $frames) {
         $renderFile = Join-Path $RenderDir ($frame.Name + '.png')

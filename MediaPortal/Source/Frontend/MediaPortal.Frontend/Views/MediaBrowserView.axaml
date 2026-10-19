@@ -2,11 +2,118 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
         xmlns:theming="using:MediaPortal.Frontend.Theming"
+        xmlns:views="using:MediaPortal.Frontend.Views"
         x:Class="MediaPortal.Frontend.Views.MediaBrowserView"
         x:DataType="vm:MediaBrowserViewModel"
         Name="browser"
         Background="{DynamicResource ScreenBackgroundBrush}"
         >
+
+  <!--
+    The three frames every screen can be laid in when the worn skin answers none of the tile keys - and the
+    rows, which are what the screen was written with. The reference let only a skin dress a shelf; a viewer
+    who asked for tiles or covers on a machine wearing no skin got rows, which is the "only visible for
+    Nereus" complaint in its oldest form. Views are the screen's own promise now: the skin may dress them
+    better, and these are what it falls back to.
+  -->
+  <UserControl.Resources>
+
+    <!-- One row of the shelf, the way this screen is written: picture, mark, name, state. -->
+    <DataTemplate x:Key="BuiltinRowsTemplate" x:DataType="vm:TitleViewModel">
+      <Grid ColumnDefinitions="Auto,Auto,5*,1.4*" ColumnSpacing="20" MinWidth="700" Margin="0,8">
+        <!--
+          The title's picture, in the column MP2's own shelves put it: first, so that the eye runs down a
+          column of pictures rather than past the names to find out what a row is. The box behind the image
+          is what a viewer sees when the library has no picture for a title, which is most of them; it is
+          drawn as a fixed square so that a shelf of titles with art and one without line up identically,
+          and the image is laid over it rather than swapped for it because a poster that arrives a moment
+          after the row should not move the row.
+        -->
+        <Panel Width="64" Height="64">
+          <Border Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" />
+          <Image Source="{Binding Artwork, Converter={StaticResource artwork}}"
+                 Stretch="Uniform"
+                 Width="64"
+                 Height="64" />
+        </Panel>
+        <!--
+          The tick in front of a title the library was told was watched. It is a column of its own rather
+          than a character glued to the name so that the names of marked and unmarked rows start at the same
+          x, which is what lets a viewer scan a shelf by eye; the reserved width says nothing about a row,
+          only the mark does.
+        -->
+        <TextBlock Grid.Column="1"
+                   Text="{Binding SeenMark}"
+                   MinWidth="34"
+                   Opacity="0.55" />
+        <TextBlock Grid.Column="2" Text="{Binding Line}" TextTrimming="CharacterEllipsis" />
+        <TextBlock Grid.Column="3"
+                   Text="{Binding Detail}"
+                   HorizontalAlignment="Right"
+                   Opacity="0.65"
+                   TextTrimming="CharacterEllipsis" />
+      </Grid>
+    </DataTemplate>
+
+    <!--
+      A tile for a skin that draws none: the poster standing in its frame with the name under it, the watched
+      corner obeying the layout's flag like the skin tiles do. Narrow enough that a full-hd shelf lays four
+      across, which is what the reference's grid laid.
+    -->
+    <DataTemplate x:Key="BuiltinTilesTemplate" x:DataType="vm:TitleViewModel">
+      <Border Width="232"
+              Background="{DynamicResource PanelBrush}"
+              BorderBrush="{DynamicResource OutlineBrush}"
+              BorderThickness="1"
+              Padding="10"
+              Margin="8">
+        <StackPanel Spacing="7">
+          <Panel Width="208" Height="300">
+            <Border Background="{DynamicResource ScreenBackgroundBrush}" />
+            <Image Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance}}" Stretch="Uniform" />
+          </Panel>
+          <TextBlock Text="{Binding SeenMark}"
+                     IsVisible="{Binding WatchFlagsShown}"
+                     HorizontalAlignment="Center"
+                     Opacity="0.8" />
+          <TextBlock Text="{Binding Line}"
+                     FontSize="18"
+                     TextAlignment="Center"
+                     TextTrimming="CharacterEllipsis"
+                     TextWrapping="Wrap"
+                     MaxHeight="48" />
+        </StackPanel>
+      </Border>
+    </DataTemplate>
+
+    <!-- A cover for a skin that draws none: the same poster one step larger and the name larger with it,
+         which is the difference the reference drew between its grid tile and its cover. -->
+    <DataTemplate x:Key="BuiltinCoversTemplate" x:DataType="vm:TitleViewModel">
+      <Border Width="300"
+              Background="{DynamicResource PanelBrush}"
+              BorderBrush="{DynamicResource OutlineBrush}"
+              BorderThickness="1"
+              Padding="12"
+              Margin="10">
+        <StackPanel Spacing="9">
+          <Panel Width="272" Height="392">
+            <Border Background="{DynamicResource ScreenBackgroundBrush}" />
+            <Image Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance}}" Stretch="Uniform" />
+          </Panel>
+          <TextBlock Text="{Binding SeenMark}"
+                     IsVisible="{Binding WatchFlagsShown}"
+                     HorizontalAlignment="Center"
+                     Opacity="0.8" />
+          <TextBlock Text="{Binding Line}"
+                     FontSize="22"
+                     TextAlignment="Center"
+                     TextTrimming="CharacterEllipsis"
+                     TextWrapping="Wrap"
+                     MaxHeight="60" />
+        </StackPanel>
+      </Border>
+    </DataTemplate>
+  </UserControl.Resources>
 
   <!--
     One section of the library, as a television shows it: a long list, one row per title, big enough to read
@@ -80,15 +187,26 @@
               Padding="24,8"
               FontSize="22" />
       <!--
-        Rows or tiles, where the worn skin draws tiles at all. The tile shape is not asked here - the skin's
-        own settings say what shape this media wears, and the skin settings screen is where a viewer changes
-        that; this button only chooses whether the shelf is walked as rows or as the skin's grid.
+        The view of this screen - rows, tiles or covers - on every screen whatever it wears, because a view
+        is the screen's promise and not one skin's privilege. The tile shape inside the grid is still the
+        skin's own settings' answer; this button only chooses the shape the shelf is walked in, and the
+        screen remembers the answer it was last given.
       -->
       <Button Name="viewButton"
               Content="{Binding LayoutLabel}"
               Command="{Binding SwitchViewCommand}"
-              IsVisible="{Binding HasTiles}"
               MinWidth="180"
+              Padding="24,8"
+              FontSize="22" />
+      <!--
+        Whether the selected title's details stand beside the shelf, asked here rather than buried in a
+        skin's settings, and remembered for this screen alone: the films may wear their details while the
+        episodes stay quiet.
+      -->
+      <Button Name="detailsButton"
+              Content="{Binding DetailsLabel}"
+              Command="{Binding ToggleDetailsCommand}"
+              MinWidth="200"
               Padding="24,8"
               FontSize="22" />
     </StackPanel>
@@ -97,54 +215,16 @@
                FontSize="14"
                Opacity="0.45"
                Margin="0,12,0,0"
-               Text="Arrows move · OK plays · I reads more · F finds · W filters watched · V rows or tiles · Esc clears the search or closes the details · Back returns" />
+               Text="Arrows move · OK plays · F finds · W filters watched · V switches rows, tiles or covers · I shows or hides the details · Esc clears the search · Back returns" />
 
     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24">
 
       <ListBox Name="titlesList"
                Focusable="True"
-               theming:SkinTemplates.TileTemplate="TitleRowTemplate"
                ItemsSource="{Binding Titles}"
                SelectedItem="{Binding Selected, Mode=TwoWay}"
-               FontSize="24">
-        <ListBox.ItemTemplate>
-          <DataTemplate x:DataType="vm:TitleViewModel">
-            <Grid ColumnDefinitions="Auto,Auto,5*,1.4*" ColumnSpacing="20" MinWidth="700" Margin="0,8">
-              <!--
-                The title's picture, in the column MP2's own shelves put it: first, so that the eye runs down a
-                column of pictures rather than past the names to find out what a row is. The box behind the image
-                is what a viewer sees when the library has no picture for a title, which is most of them; it is
-                drawn as a fixed square so that a shelf of titles with art and one without line up identically,
-                and the image is laid over it rather than swapped for it because a poster that arrives a moment
-                after the row should not move the row.
-              -->
-              <Panel Width="64" Height="64">
-                <Border Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" />
-                <Image Source="{Binding Artwork, Converter={StaticResource artwork}}"
-                       Stretch="Uniform"
-                       Width="64"
-                       Height="64" />
-              </Panel>
-              <!--
-                The tick in front of a title the library was told was watched. It is a column of its own rather
-                than a character glued to the name so that the names of marked and unmarked rows start at the same
-                x, which is what lets a viewer scan a shelf by eye; the reserved width says nothing about a row,
-                only the mark does.
-              -->
-              <TextBlock Grid.Column="1"
-                         Text="{Binding SeenMark}"
-                         MinWidth="34"
-                         Opacity="0.55" />
-              <TextBlock Grid.Column="2" Text="{Binding Line}" TextTrimming="CharacterEllipsis" />
-              <TextBlock Grid.Column="3"
-                         Text="{Binding Detail}"
-                         HorizontalAlignment="Right"
-                         Opacity="0.65"
-                         TextTrimming="CharacterEllipsis" />
-            </Grid>
-          </DataTemplate>
-        </ListBox.ItemTemplate>
-      </ListBox>
+               ItemTemplate="{StaticResource BuiltinRowsTemplate}"
+               FontSize="24" />
 
       <StackPanel Grid.Column="1" Spacing="16" VerticalAlignment="Top">
         <Button Name="playButton"

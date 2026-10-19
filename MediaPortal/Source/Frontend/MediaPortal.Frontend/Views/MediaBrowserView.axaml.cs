@@ -86,6 +86,12 @@ namespace MediaPortal.Frontend.Views
         if (args.PropertyName == nameof(MediaBrowserViewModel.Layout))
           ApplyLayout();
       };
+      // A skin put on or taken off while this screen is open changes which frames answer the tile keys, and
+      // the view - not the skin's attachment - is the one that decides what the list draws. The deal lasts
+      // exactly as long as the screen is on the window, which is what keeps a closed shelf from being held
+      // alive by the application's event.
+      AttachedToVisualTree += delegate { SkinEngine.Changed += OnSkinChanged; };
+      DetachedFromVisualTree += delegate { SkinEngine.Changed -= OnSkinChanged; };
       ApplyLayout();
 
       // A double-click on a row means the Enter that plays it (or opens the series behind it); the search box
@@ -142,15 +148,9 @@ namespace MediaPortal.Frontend.Views
             }
             else if (args.Key == Key.Escape || args.Key == Key.Back)
             {
-              // Back means "away with the newest thing on the screen", which is the panel when one is open, and
-              // the search when there is one. A viewer who pressed back three times expects to be back where they
-              // started, not outside the screen.
-              if (viewModel.DetailsVisible)
-              {
-                viewModel.CloseDetails();
-                args.Handled = true;
-                return;
-              }
+              // Back means "away with the newest thing on the screen", which is the search when there is one,
+              // then the watched filter, then the details the screen was wearing. A viewer who pressed back
+              // three times expects to be back where they started, not outside the screen.
               if (searchBox.IsFocused || viewModel.HasSearch)
               {
                 viewModel.ClearSearchCommand.Execute(null);
@@ -160,10 +160,15 @@ namespace MediaPortal.Frontend.Views
               }
               if (viewModel.HasSeenFilter)
               {
-                // The watched filter goes after the search rather than before it: the thing asked for most
-                // recently is the thing a viewer means by "back", and a filter set before typing a title is the
-                // older of the two.
+                // The watched filter goes before the details for the same reason the search does: the thing
+                // asked for most recently is the thing a viewer means by "back".
                 viewModel.ClearSeenCommand.Execute(null);
+                args.Handled = true;
+                return;
+              }
+              if (viewModel.DetailsVisible)
+              {
+                viewModel.CloseDetails();
                 args.Handled = true;
                 return;
               }
@@ -228,15 +233,44 @@ namespace MediaPortal.Frontend.Views
       if (!(DataContext is MediaBrowserViewModel viewModel))
         return;
 
-      SkinTemplates.SetTileTemplate(titlesList, viewModel.GridTemplateKey);
+      // Ask the worn skin for the shape's own frame; when it answers none, fall back to this file's frame
+      // for that shape. That fallback is the whole point: the three views used to exist only while a skin
+      // that drew them was worn, which left every other screen with rows no matter what its viewer picked.
+      titlesList.ItemTemplate = SkinEngine.TryTileTemplate(viewModel.GridTemplateKey)
+          ?? BuiltinTemplate(viewModel.Layout);
 
       // A grid and a cover shelf are laid the same way - one after the other, wrapping whole - and only the
-      // pictures inside differ, which is the skin's business, asked through the template key above.
+      // pictures inside differ.
       if (viewModel.Layout != BrowserLayout.List)
         titlesList.ItemsPanel = TILE_WRAP_PANEL;
       else
         titlesList.ClearValue(ItemsControl.ItemsPanelProperty);
     }
+
+    private void OnSkinChanged(object? sender, EventArgs e)
+    {
+      ApplyLayout();
+    }
+
+    /// <summary>The frame this file draws for a shape the worn skin does not answer.</summary>
+    private IDataTemplate BuiltinTemplate(BrowserLayout layout)
+    {
+      string key = layout switch
+      {
+        BrowserLayout.Grid => "BuiltinTilesTemplate",
+        BrowserLayout.Cover => "BuiltinCoversTemplate",
+        _ => "BuiltinRowsTemplate"
+      };
+
+      if (_builtin.TryGetValue(key, out IDataTemplate? known))
+        return known;
+
+      IDataTemplate frame = (IDataTemplate)browser.FindResource(key)!;
+      _builtin.Add(key, frame);
+      return frame;
+    }
+
+    private readonly Dictionary<string, IDataTemplate> _builtin = new Dictionary<string, IDataTemplate>();
 
     /// <summary>The tiles' panel: laid left to right and wrapping whole, which is what a grid is at heart.</summary>
     private static readonly FuncTemplate<Panel?> TILE_WRAP_PANEL =

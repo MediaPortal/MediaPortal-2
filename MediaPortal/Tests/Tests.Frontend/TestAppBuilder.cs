@@ -21,14 +21,41 @@ using Avalonia;
 using Avalonia.Headless;
 using Avalonia.Headless.NUnit;
 using MediaPortal.Frontend;
+using NUnit.Framework;
+using NUnit.Framework.Interfaces;
 
 // The whole suite runs the application object the product runs, on a platform with no display. "No display" is
 // not a compromise here: the gate that will run these tests is a container and later a device build, neither of
 // which has a screen either.
 [assembly: AvaloniaTestApplication(typeof(Tests.Frontend.TestAppBuilder))]
 
+// Screens remember their viewer's answers on disk, and one test's answer must not answer another test's
+// shelf. Every test therefore starts with a memory of its own, the way it starts with an application of
+// its own.
+[assembly: Tests.Frontend.PerTestScreenMemoryAction]
+
 namespace Tests.Frontend
 {
+  /// <summary>
+  /// Gives every test a screens-settings file of its own, so that a test which turns a shelf into covers
+  /// cannot leave the next test's shelf in covers.
+  /// </summary>
+  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Assembly)]
+  public sealed class PerTestScreenMemoryAction : TestActionAttribute, ITestAction
+  {
+    public override ActionTargets Targets => ActionTargets.Test;
+
+    public override void BeforeTest(NUnit.Framework.Interfaces.ITest test)
+    {
+      Environment.SetEnvironmentVariable("MP2_SCREEN_VIEWS_FILE",
+          Path.Combine(Path.GetTempPath(), "mp2-test-screens-" + Guid.NewGuid().ToString("N") + ".json"));
+    }
+
+    public override void AfterTest(NUnit.Framework.Interfaces.ITest test)
+    {
+    }
+  }
+
   /// <summary>
   /// How a test builds the application. Kept separate from the tests so that the configuration is stated once.
   /// </summary>
@@ -51,6 +78,12 @@ namespace Tests.Frontend
       // engine reads - either a folder of their own on disk or the copy inside the assembly.
       Environment.SetEnvironmentVariable("MP2_SKINS_DIR",
           Path.Combine(Path.GetTempPath(), "MediaPortal2-Tests-" + Guid.NewGuid().ToString("N") + "-skins"));
+
+      // And the same isolation for the shapes the screens remembered: a test that turns a shelf into covers
+      // must not leave the machine's real films opened as covers tomorrow, and a test must not start in a
+      // shape some earlier run remembered.
+      Environment.SetEnvironmentVariable("MP2_SCREEN_VIEWS_FILE",
+          Path.Combine(Path.GetTempPath(), "MediaPortal2-Tests-" + Guid.NewGuid().ToString("N") + "-screens.json"));
     }
 
     public static AppBuilder BuildAvaloniaApp()

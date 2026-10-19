@@ -483,7 +483,6 @@ namespace Tests.Frontend
         WaitUntil("the rows to arrive", delegate { return films.Titles.Count == 3; });
 
         films.Selected = films.Titles[2];
-        films.ToggleDetailsCommand.Execute(null);
         WaitUntil("the details picture of the selected title", delegate { return films.DetailsArtwork != null; });
 
         Assert.That(films.DetailsArtwork, Is.EqualTo(Frame),
@@ -502,7 +501,6 @@ namespace Tests.Frontend
         WaitUntil("the rows to arrive", delegate { return films.Titles.Count == 3; });
 
         films.Selected = films.Titles[0];
-        films.ToggleDetailsCommand.Execute(null);
         WaitUntil("the details to be read", delegate { return films.DetailsVisible; });
         films.ToggleDetailsCommand.Execute(null);
         films.ToggleDetailsCommand.Execute(null);
