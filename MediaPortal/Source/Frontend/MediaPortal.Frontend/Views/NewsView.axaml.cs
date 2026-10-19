@@ -59,6 +59,11 @@ namespace MediaPortal.Frontend.Views
       _ring.Add(headlinesList);
       DpadNavigation.Attach(this, _ring);
 
+      // The interval clock ticks only while the news is actually in the window: it starts when the screen is
+      // attached and stops the moment another frame is shown in its place.
+      AttachedToVisualTree += (_, _) => _news.ScreenOpened();
+      DetachedFromVisualTree += (_, _) => _news.ScreenClosed();
+
       // A double-click on a paper means the Enter that walks to its headlines; a double-click on a headline is
       // nobody's action today, exactly as the key is not either, but the list is where the pointer lands.
       MouseRemote.Attach(this, feedsList, headlinesList);

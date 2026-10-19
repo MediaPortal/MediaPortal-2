@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -27,6 +28,7 @@ using Avalonia.Threading;
 using Avalonia.Headless.NUnit;
 using NUnit.Framework;
 using MediaPortal.Frontend.Api;
+using MediaPortal.Frontend.Settings;
 using MediaPortal.Frontend.ViewModels;
 
 namespace Tests.Frontend
@@ -340,6 +342,72 @@ namespace Tests.Frontend
       Pump();
       Assert.That(screen.Headlines.Count, Is.EqualTo(3),
           "and \"All headlines\" is the way back to the merged list");
+    }
+
+    #endregion
+
+    #region The viewer's own feeds
+
+    [Test]
+    [AvaloniaTest]
+    public void TheViewersOwnFeedsReadOnTopOfMediasList()
+    {
+      NewsServer server = new NewsServer();
+      NewsFeedsSettings own = new NewsFeedsSettings
+      {
+        IntervalMinutes = 15,
+        ExtraFeeds =
+        {
+          new NewsFeedEntry { Name = "Mein Blog", Url = "http://127.0.0.1:1/feeds/orf.rss" },
+          // A name with no address is a half an answer; it must not become a row that blames the network.
+          new NewsFeedEntry { Name = "Half-written", Url = "  " }
+        }
+      };
+
+      NewsViewModel screen = new NewsViewModel(new NewsApiClient(new HttpClient(server)), "en", own);
+      OpenAndWait(screen, 5);
+
+      Assert.That(screen.Feeds.Select(row => row.Name),
+          Is.EqualTo(new[] { "All headlines", "TV Weekly", "Tech Wire", "Dead Paper", "Mein Blog" }),
+          "MediaPortal's list first, the viewer's own on top of it, and the half-written one is not a feed yet");
+      Assert.That(screen.Feeds[4].State, Is.EqualTo("1 headline"),
+          "the viewer's feed is read like any other and answers with its own count");
+      Assert.That(screen.Headlines.Select(row => row.Title), Does.Contain("Wiener Ball"),
+          "and its headlines are in the merged list from the first read, not only after a second press");
+
+      Assert.That(server.RequestedPaths.Any(path => path.Contains("Half", StringComparison.OrdinalIgnoreCase)),
+          Is.False, "nothing was ever asked of a feed that has no address");
+      screen.Dispose();
+    }
+
+    [Test]
+    public void TheFeedsFileSurvivesBeingWrittenAndReadAgain()
+    {
+      string file = Path.Combine(Path.GetTempPath(),
+          "news-feeds-" + Guid.NewGuid().ToString("N") + ".json");
+      try
+      {
+        NewsFeedsSettings written = new NewsFeedsSettings { IntervalMinutes = 30 };
+        written.ExtraFeeds.Add(new NewsFeedEntry { Name = "Mein Blog", Url = "http://example.org/feed" });
+        string message = written.Save(file, out bool saved);
+        Assert.That(saved, Is.True, message);
+
+        NewsFeedsSettings read = NewsFeedsSettings.Load(file, out string? problem);
+        Assert.That(problem, Is.Null);
+        Assert.That(read.IntervalMinutes, Is.EqualTo(30));
+        Assert.That(read.ExtraBookmarks().Select(mark => mark.Name + "=" + mark.Url),
+          Is.EqualTo(new[] { "Mein Blog=http://example.org/feed" }));
+
+        Assert.That(NewsFeedsSettings.Combine(read.ExtraBookmarks(), read.ExtraBookmarks()).Count, Is.EqualTo(2),
+            "combining is appending, and an empty addition leaves the list standing alone");
+        Assert.That(NewsFeedsSettings.Combine(Array.Empty<NewsFeedBookmark>(), read.ExtraBookmarks()).Count,
+            Is.EqualTo(1),
+            "and an official list with nothing on it still carries the viewer's own feeds");
+      }
+      finally
+      {
+        File.Delete(file);
+      }
     }
 
     #endregion

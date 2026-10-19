@@ -22,9 +22,11 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediaPortal.Frontend.Api;
+using MediaPortal.Frontend.Settings;
 
 namespace MediaPortal.Frontend.ViewModels
 {
@@ -96,10 +98,12 @@ namespace MediaPortal.Frontend.ViewModels
   /// <remarks>
   /// <para>
   /// This is the screen the old MP2 drew from the same plugin's collector, and its shape is the plugin's: a list
-  /// of feeds, and their headlines. What changed is who counts as a source of truth. The old collector refetched
-  /// on a background timer and kept a merged list in memory; here the feeds are read when the screen opens and
-  /// when the viewer says so, because a screen that is open for ninety seconds of a television's evening does
-  /// not need a fifteen-minute clock of its own.
+  /// of feeds, and their headlines - MediaPortal's own, and the ones the viewer saved in news-feeds.json on top
+  /// of them. What changed is who counts as a source of truth. The old collector refetched on a background timer
+  /// whether anyone was watching or not; here the feeds are read when the screen opens and when the viewer says
+  /// so, and the clock only ticks at all when the viewer asked for one, and only while the screen is open - a
+  /// screen that is open for ninety seconds of a television's evening does not need a fifteen-minute clock of
+  /// its own unless it was told it does.
   /// </para>
   /// <para>
   /// <b>A feed that refuses is said, not swallowed.</b> Each feed answers on its own and keeps its own row in
@@ -119,8 +123,10 @@ namespace MediaPortal.Frontend.ViewModels
 
     private readonly NewsApiClient? _client;
     private readonly string _cultureName;
+    private readonly NewsFeedsSettings _feedSettings;
     private readonly List<NewsFeedAnswer> _answers = new List<NewsFeedAnswer>();
     private CancellationTokenSource? _running;
+    private System.Timers.Timer? _ticker;
 
     [ObservableProperty]
     private NewsFeedRow? _selectedFeed;
@@ -139,12 +145,15 @@ namespace MediaPortal.Frontend.ViewModels
     /// Which language's feed list to ask for; the machine's own by default, and named here so that a test can be
     /// somebody from Vienna.
     /// </param>
-    public NewsViewModel(NewsApiClient? client = null, string? cultureName = null)
+    public NewsViewModel(NewsApiClient? client = null, string? cultureName = null,
+        NewsFeedsSettings? feedSettings = null)
     {
       _client = client;
       _cultureName = string.IsNullOrWhiteSpace(cultureName)
           ? CultureInfo.CurrentUICulture.Name
           : cultureName.Trim();
+      // The viewer's own feeds and the refresh interval live in news-feeds.json beside the other settings.
+      _feedSettings = feedSettings ?? NewsFeedsSettings.Load(null, out _);
       Feeds.Add(ALL);
       if (_client == null)
         Status = "No news client";
@@ -200,9 +209,14 @@ namespace MediaPortal.Frontend.ViewModels
           return;
         }
 
+        // The feeds the viewer added themselves read on top of MediaPortal's list, and count towards it being
+        // worth asking at all: an empty official list with three of your own saved is not an empty world.
+        bookmarks = NewsFeedsSettings.Combine(bookmarks, _feedSettings.ExtraBookmarks());
+
         if (bookmarks.Count == 0)
         {
-          Status = "MediaPortal's feed list has no feeds for '" + _cultureName + "' and no English fallback";
+          Status = "MediaPortal's feed list has no feeds for '" + _cultureName
+              + "', no English fallback, and none of your own are saved";
           return;
         }
 
@@ -249,8 +263,34 @@ namespace MediaPortal.Frontend.ViewModels
       ShowHeadlines();
     }
 
+    /// <summary>
+    /// Asks again every interval while the screen is open, for as long as the viewer saved one - the old
+    /// collector's fifteen-minute clock, but only ticking while somebody is actually looking at the news, and
+    /// off by default so the screen keeps reading when it opens and when the viewer says so.
+    /// </summary>
+    public void ScreenOpened()
+    {
+      ScreenClosed();
+      if (_client == null || _feedSettings.IntervalMinutes <= 0)
+        return;
+
+      Timer ticker = new Timer(TimeSpan.FromMinutes(_feedSettings.IntervalMinutes).TotalMilliseconds);
+      ticker.Elapsed += (_, _) => Dispatcher.UIThread.Post(() => RefreshAsync());
+      ticker.Start();
+      _ticker = ticker;
+    }
+
+    /// <summary>Stops the interval clock; a closed news screen asks nobody anything.</summary>
+    public void ScreenClosed()
+    {
+      _ticker?.Stop();
+      _ticker?.Dispose();
+      _ticker = null;
+    }
+
     public void Dispose()
     {
+      ScreenClosed();
       _running?.Cancel();
       _running?.Dispose();
       // The screen owns the view model's whole world once it is built, and the view model owns the client it

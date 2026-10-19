@@ -736,8 +736,11 @@ namespace MediaPortal.Frontend
       if (screenKey.Equals("news", StringComparison.OrdinalIgnoreCase))
       {
         // No server in sight: the news is not the server's data, and the old plugin read it from the television
-        // too. What the screen needs is an address to ask, and the feeds answer it themselves.
-        return new Workflow.WorkflowFrame("news", "News", new NewsViewModel(new NewsApiClient()));
+        // too. What the screen needs is an address to ask, and the feeds answer it themselves - MediaPortal's
+        // list in the viewer's language, and whatever they saved in news-feeds.json on top of it.
+        return new Workflow.WorkflowFrame("news", "News", new NewsViewModel(new NewsApiClient(),
+            cultureName: Settings.ClientSettings.Load(null, out _).Culture,
+            feedSettings: NewsFeedsSettings.Load(null, out _)));
       }
 
       if (screenKey.Equals("weather", StringComparison.OrdinalIgnoreCase))
