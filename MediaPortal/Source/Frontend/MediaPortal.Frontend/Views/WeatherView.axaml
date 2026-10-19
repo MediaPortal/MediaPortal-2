@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        xmlns:views="using:MediaPortal.Frontend.Views"
         xmlns:theming="using:MediaPortal.Frontend.Theming"
         x:Class="MediaPortal.Frontend.Views.WeatherView"
         x:DataType="vm:WeatherViewModel"
@@ -103,12 +104,23 @@
                FontSize="20">
         <ListBox.ItemTemplate>
           <DataTemplate x:DataType="vm:WeatherDayRow">
-            <StackPanel Spacing="2" Margin="4,10">
-              <TextBlock Text="{Binding DateText}" FontSize="21" />
-              <TextBlock Text="{Binding Overview}" FontSize="18" Opacity="0.8" TextWrapping="Wrap" />
-              <StackPanel Orientation="Horizontal" Spacing="18">
-                <TextBlock Text="{Binding Range}" FontSize="18" Opacity="0.85" />
-                <TextBlock Text="{Binding Rain}" FontSize="16" Opacity="0.55" />
+            <StackPanel Orientation="Horizontal" Spacing="14" Margin="4,10">
+              <!-- The day's own picture out of the worn skin's Weather folder; a front end wearing only a
+                   palette draws the row without it, exactly like a home tile whose skin picture is missing. -->
+              <Image Source="{Binding Icon,
+                                      Converter={x:Static views:SkinImageConverter.Instance},
+                                      ConverterParameter='Weather/64x64/{0}'}"
+                     Width="48"
+                     Height="48"
+                     Stretch="Uniform"
+                     VerticalAlignment="Center"/>
+              <StackPanel Spacing="2" VerticalAlignment="Center">
+                <TextBlock Text="{Binding DateText}" FontSize="21" />
+                <TextBlock Text="{Binding Overview}" FontSize="18" Opacity="0.8" TextWrapping="Wrap" />
+                <StackPanel Orientation="Horizontal" Spacing="18">
+                  <TextBlock Text="{Binding Range}" FontSize="18" Opacity="0.85" />
+                  <TextBlock Text="{Binding Rain}" FontSize="16" Opacity="0.55" />
+                </StackPanel>
               </StackPanel>
             </StackPanel>
           </DataTemplate>
@@ -120,10 +132,22 @@
                    FontSize="28"
                    FontWeight="SemiBold"
                    TextWrapping="Wrap" />
-        <TextBlock Text="{Binding CurrentLine}"
-                   FontSize="44"
-                   Margin="0,8,0,4"
-                   TextWrapping="Wrap" />
+        <StackPanel Orientation="Horizontal" Spacing="20">
+          <!-- The sky right now, in the skin's own big picture - the same numbered weather pictures the
+               reference's weather screen painted, asked by name and answered by whichever skin is worn. -->
+          <Image Source="{Binding CurrentIcon,
+                                  Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='Weather/128x128/{0}'}"
+                 Width="110"
+                 Height="110"
+                 Stretch="Uniform"
+                 VerticalAlignment="Center"/>
+          <TextBlock Text="{Binding CurrentLine}"
+                     FontSize="44"
+                     Margin="0,8,0,4"
+                     TextWrapping="Wrap"
+                     VerticalAlignment="Center" />
+        </StackPanel>
         <TextBlock Text="{Binding CurrentDetail}"
                    FontSize="20"
                    Opacity="0.85"

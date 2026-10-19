@@ -26,9 +26,9 @@ namespace Tests.Frontend
   /// The component screens in the worn skin's own reading. The news, the weather and the party asked the
   /// palette and nothing else; now they name a row template the way the home menu and the settings hub do,
   /// and both shipped skins answer - Nereus a quiet sentence under each word, WMC the whole width with the
-  /// state on the band's edge. The weather's pictures stay out of these tests on purpose: both skins carry
-  /// images\Weather\128x128, but nothing in this tree says which picture belongs to which OpenWeatherMap
-  /// answer, and an invented mapping is a wrong forecast, not a missing one.
+  /// state on the band's edge. The weather's pictures have their own test now
+  /// (<see cref="TestWeatherIcons"/>): the reference grabber's translation tables live in this tree and said
+  /// which picture belongs to which OpenWeatherMap answer all along.
   /// </summary>
   [TestFixture]
   public class TestSkinComponentRows

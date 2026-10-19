@@ -40,18 +40,20 @@ namespace MediaPortal.Frontend.Api
 
   /// <summary>
   /// What the sky is doing right now. The units are the client's business (<see cref="WeatherApiClient.IsMetric"/>)
-  /// and the screen signs the numbers with them.
+  /// and the screen signs the numbers with them. <c>Icon</c> is the skin picture's name for this state, chosen
+  /// by night as the city's own clock says whether the sun is up.
   /// </summary>
   public record WeatherNow(string Description, double Temp, double FeelsLike, int Humidity, int Pressure,
-      double WindSpeed, string WindDirection);
+      double WindSpeed, string WindDirection, string? Icon = null);
 
   /// <summary>
   /// One day of the forecast. The description is the day's midday entry, falling back to its first: the free
   /// endpoint answers every three hours, and "what the day is like" is what a noon reading says far better than
-  /// what the small hours do.
+  /// what the small hours do. The icon is that same midday entry's, from the day table - the reference's
+  /// forecast days never asked whether it was night.
   /// </summary>
   public record WeatherDay(DateTimeOffset Date, string Description, double High, double Low,
-      double PrecipitationChance);
+      double PrecipitationChance, string? Icon = null);
 
   /// <summary>
   /// The answer for one city: the current weather and the days ahead, or the reason neither came. Like the
@@ -290,8 +292,52 @@ namespace MediaPortal.Frontend.Api
             main.GetProperty("humidity").GetInt32(),
             main.TryGetProperty("pressure", out JsonElement pressure) ? pressure.GetInt32() : 0,
             wind.TryGetProperty("speed", out JsonElement speed) ? speed.GetDouble() : 0,
-            WindDirectionOf(wind.TryGetProperty("deg", out JsonElement deg) ? deg.GetDouble() : 0));
+            WindDirectionOf(wind.TryGetProperty("deg", out JsonElement deg) ? deg.GetDouble() : 0),
+            CurrentIconOf(root));
       }
+    }
+
+    /// <summary>
+    /// The current weather's skin picture: the condition code through the reference's tables, and through its
+    /// night table when the city's own clock stands between its sunset and its sunrise - the very question the
+    /// reference asked before picking the picture, now answered with the sun times this response carries.
+    /// Null only when the response names no condition code at all.
+    /// </summary>
+    private static string? CurrentIconOf(JsonElement root)
+    {
+      int? code = ConditionCodeOf(root);
+      if (code == null)
+        return null;
+
+      bool isNight = false;
+      if (root.TryGetProperty("sys", out JsonElement sys)
+          && sys.TryGetProperty("sunrise", out JsonElement sunrise)
+          && sys.TryGetProperty("sunset", out JsonElement sunset)
+          && sunrise.TryGetInt64(out long rise) && sunset.TryGetInt64(out long set))
+      {
+        int offset = root.TryGetProperty("timezone", out JsonElement timezone)
+            && timezone.TryGetInt32(out int seconds) ? seconds : 0;
+        long cityNow = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + offset;
+        isNight = cityNow < rise || cityNow >= set;
+      }
+      return WeatherIconCodes.IconName(code.Value, isNight);
+    }
+
+    /// <summary>
+    /// The numeric condition id of an entry's first weather that names one; the description and the code come
+    /// from the same array, and a response without any is the "no description" case the screens already speak.
+    /// </summary>
+    private static int? ConditionCodeOf(JsonElement entry)
+    {
+      if (entry.TryGetProperty("weather", out JsonElement weather) && weather.ValueKind == JsonValueKind.Array)
+      {
+        foreach (JsonElement condition in weather.EnumerateArray())
+        {
+          if (condition.TryGetProperty("id", out JsonElement id) && id.TryGetInt32(out int code))
+            return code;
+        }
+      }
+      return null;
     }
 
     /// <summary>
@@ -336,7 +382,10 @@ namespace MediaPortal.Frontend.Api
               ConditionOf(midday),
               ofDay.Max(entry => entry.GetProperty("main").GetProperty("temp_max").GetDouble()),
               ofDay.Min(entry => entry.GetProperty("main").GetProperty("temp_min").GetDouble()),
-              ofDay.Max(entry => entry.TryGetProperty("pop", out JsonElement pop) ? pop.GetDouble() : 0)));
+              ofDay.Max(entry => entry.TryGetProperty("pop", out JsonElement pop) ? pop.GetDouble() : 0),
+              // The midday entry's picture, from the day table - a day is shown by day, exactly as the
+              // reference's forecast lines passed isNight: false for every one of them.
+              ConditionCodeOf(midday) is int code ? WeatherIconCodes.IconName(code, false) : null));
         }
         return days;
       }

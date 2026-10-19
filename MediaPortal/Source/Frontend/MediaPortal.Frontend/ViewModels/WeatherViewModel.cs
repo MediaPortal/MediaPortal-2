@@ -80,6 +80,13 @@ namespace MediaPortal.Frontend.ViewModels
       get { return _day; }
     }
 
+    /// <summary>The worn skin's picture for this day's midday entry - a bare number like "30", or "na";
+    /// null when that entry carried no condition code at all.</summary>
+    public string? Icon
+    {
+      get { return _day.Icon; }
+    }
+
     public bool Metric { get; }
 
     /// <summary>"Saturday 3 January", in the viewer's language - the API's own words cover the sky, not the calendar.</summary>
@@ -162,6 +169,11 @@ namespace MediaPortal.Frontend.ViewModels
 
     [ObservableProperty]
     private string _currentDetail = "";
+
+    /// <summary>The worn skin's picture for the sky right now, named as the reference's weather pictures are
+    /// (a bare number like "32", or "na"); null when the answer carried no condition code.</summary>
+    [ObservableProperty]
+    private string? _currentIcon;
 
     /// <param name="client">Where to read the sky from, or null for a screen that says it has nowhere.</param>
     /// <param name="settingsPath">Where the watched places live; the user's own file by default.</param>
@@ -268,6 +280,7 @@ namespace MediaPortal.Frontend.ViewModels
           CurrentTitle = place.Name;
           CurrentLine = "";
           CurrentDetail = "";
+          CurrentIcon = null;
           Days.Clear();
           Status = place.Name + " did not answer: " + answer.Error;
           return;
@@ -423,6 +436,7 @@ namespace MediaPortal.Frontend.ViewModels
       CurrentDetail = "feels like " + Temperature(answer.Now.FeelsLike, numbers, degree)
           + " · " + answer.Now.Humidity + "% humidity · " + answer.Now.Pressure + " hPa"
           + " · wind " + answer.Now.WindDirection + " " + answer.Now.WindSpeed.ToString("0.0", numbers) + " " + speed;
+      CurrentIcon = answer.Now.Icon;
 
       Days.Clear();
       foreach (WeatherDay day in answer.Days ?? Array.Empty<WeatherDay>())

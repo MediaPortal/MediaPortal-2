@@ -92,20 +92,30 @@
             CornerRadius="{DynamicResource DialogBorderCornerRadius}"
             Padding="18,10,18,10"
             Margin="0,4,10,6">
-      <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
-        <TextBlock Grid.Column="0"
+      <Grid ColumnDefinitions="Auto,Auto,*,Auto" ColumnSpacing="14">
+        <!-- The day's picture in the band's left edge, the way the reference's weather rows carried their
+             numbered icon; it stands empty when no skin pictures the day. -->
+        <Image Grid.Column="0"
+               Source="{Binding Icon,
+                                Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='Weather/64x64/{0}'}"
+               Width="42"
+               Height="42"
+               Stretch="Uniform"
+               VerticalAlignment="Center"/>
+        <TextBlock Grid.Column="1"
                    Text="{Binding DateText}"
                    FontSize="22"
                    FontWeight="Bold"
                    Foreground="{DynamicResource TextBrush}"
                    VerticalAlignment="Center"/>
-        <TextBlock Grid.Column="1"
+        <TextBlock Grid.Column="2"
                    Text="{Binding Overview}"
                    FontSize="{DynamicResource SmallerFontSize}"
                    Foreground="{DynamicResource MutedTextBrush}"
                    TextWrapping="Wrap"
                    VerticalAlignment="Center"/>
-        <StackPanel Grid.Column="2" Spacing="2" VerticalAlignment="Bottom">
+        <StackPanel Grid.Column="3" Spacing="2" VerticalAlignment="Bottom">
           <TextBlock Text="{Binding Range}"
                      FontSize="{DynamicResource SmallerFontSize}"
                      Foreground="{DynamicResource AccentBrush}"

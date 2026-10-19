@@ -71,21 +71,32 @@
   </DataTemplate>
 
   <DataTemplate x:Key="WeatherDayTemplate" x:DataType="vm:WeatherDayRow">
-    <StackPanel Spacing="2" Margin="0,7,10,9">
-      <TextBlock Text="{Binding DateText}"
-                 FontSize="{DynamicResource NormalFontSize}"
-                 Foreground="{DynamicResource TextBrush}"/>
-      <TextBlock Text="{Binding Overview}"
-                 FontSize="{DynamicResource SmallerFontSize}"
-                 Foreground="{DynamicResource MutedTextBrush}"
-                 TextWrapping="Wrap"/>
-      <StackPanel Orientation="Horizontal" Spacing="16">
-        <TextBlock Text="{Binding Range}"
+    <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,7,10,9">
+      <!-- The day's picture, named as the reference's weather rows named theirs and answered by the worn
+           skin; no skin or no code, and the row simply stands without it. -->
+      <Image Source="{Binding Icon,
+                              Converter={x:Static views:SkinImageConverter.Instance},
+                              ConverterParameter='Weather/64x64/{0}'}"
+             Width="44"
+             Height="44"
+             Stretch="Uniform"
+             VerticalAlignment="Center"/>
+      <StackPanel Spacing="2" VerticalAlignment="Center">
+        <TextBlock Text="{Binding DateText}"
+                   FontSize="{DynamicResource NormalFontSize}"
+                   Foreground="{DynamicResource TextBrush}"/>
+        <TextBlock Text="{Binding Overview}"
                    FontSize="{DynamicResource SmallerFontSize}"
-                   Foreground="{DynamicResource AccentBrush}"/>
-        <TextBlock Text="{Binding Rain}"
-                   FontSize="{DynamicResource SmallerFontSize}"
-                   Foreground="{DynamicResource MutedTextBrush}"/>
+                   Foreground="{DynamicResource MutedTextBrush}"
+                   TextWrapping="Wrap"/>
+        <StackPanel Orientation="Horizontal" Spacing="16">
+          <TextBlock Text="{Binding Range}"
+                     FontSize="{DynamicResource SmallerFontSize}"
+                     Foreground="{DynamicResource AccentBrush}"/>
+          <TextBlock Text="{Binding Rain}"
+                     FontSize="{DynamicResource SmallerFontSize}"
+                     Foreground="{DynamicResource MutedTextBrush}"/>
+        </StackPanel>
       </StackPanel>
     </StackPanel>
   </DataTemplate>
