@@ -16,9 +16,12 @@
 */
 
 using Avalonia.Controls;
+using Avalonia.Controls.Templates;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Layout;
 using MediaPortal.Frontend.Input;
+using MediaPortal.Frontend.Theming;
 using MediaPortal.Frontend.ViewModels;
 using MediaPortal.Frontend.Workflow;
 using System;
@@ -73,6 +76,18 @@ namespace MediaPortal.Frontend.Views
         ring.Add(moreButton);
       DpadNavigation.Attach(this, ring);
 
+      // Rows or tiles: the view owns the panel because a panel is a thing the view draws, while the pictures
+      // inside it belong to the skin - so switching means setting the wrap panel and handing the skin a
+      // different template key, both from what the view model just settled on. The first call matters: a
+      // viewer whose grid setting says "tiles" should never see a row flash before the tiles come.
+      browser.PropertyChanged += delegate (object? sender,
+          System.ComponentModel.PropertyChangedEventArgs args)
+      {
+        if (args.PropertyName == nameof(MediaBrowserViewModel.Layout))
+          ApplyLayout();
+      };
+      ApplyLayout();
+
       // A double-click on a row means the Enter that plays it (or opens the series behind it); the search box
       // keeps its Enter for the caret's sake and gets no second path. See HomeWindow for the general reason.
       MouseRemote.Attach(this, titlesList);
@@ -108,6 +123,13 @@ namespace MediaPortal.Frontend.Views
               // three states rather than two switches, because a remote reaches its keyboard through one button
               // and a viewer should be able to get back to "everything" without remembering which switch it was.
               viewModel.CycleSeenCommand.Execute(null);
+              args.Handled = true;
+            }
+            else if (args.Key == Key.V && !searchBox.IsFocused)
+            {
+              // V for view: rows or the skin's tiles. What shape the tiles take is not this key's business - the
+              // skin's own settings say that - so the key only has the one question left for the viewer.
+              viewModel.SwitchViewCommand.Execute(null);
               args.Handled = true;
             }
             else if (searchBox.IsFocused && (args.Key == Key.Enter || args.Key == Key.Return))
@@ -194,6 +216,29 @@ namespace MediaPortal.Frontend.Views
         viewModel.ChildrenRequested -= OnChildrenRequested;
       }
     }
+
+    /// <summary>
+    /// Lays the shelf out in the shape the view model settled on: the skin's tiles wrapped across the screen,
+    /// or the rows the view was written with.  Both halves belong together - tiles in a vertical strip and rows
+    /// wrapped into a grid would each be a half-dressed screen - so one method says both.  Avalonia's own
+    /// default panel is a StackPanel, which is what a reset back to plain finds again.
+    /// </summary>
+    private void ApplyLayout()
+    {
+      if (!(DataContext is MediaBrowserViewModel viewModel))
+        return;
+
+      SkinTemplates.SetTileTemplate(titlesList, viewModel.GridTemplateKey);
+
+      if (viewModel.Layout == BrowserLayout.Grid)
+        titlesList.ItemsPanel = TILE_WRAP_PANEL;
+      else
+        titlesList.ClearValue(ItemsControl.ItemsPanelProperty);
+    }
+
+    /// <summary>The tiles' panel: laid left to right and wrapping whole, which is what a grid is at heart.</summary>
+    private static readonly FuncTemplate<Panel?> TILE_WRAP_PANEL =
+        new FuncTemplate<Panel?>(() => new WrapPanel { Orientation = Orientation.Horizontal });
 
     private void OnPlayRequested(object? sender, TitleViewModel title)
     {

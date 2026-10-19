@@ -64,13 +64,25 @@
               MinWidth="220"
               Padding="24,8"
               FontSize="22" />
+      <!--
+        Rows or tiles, where the worn skin draws tiles at all. The tile shape is not asked here - the skin's
+        own settings say what shape this media wears, and the skin settings screen is where a viewer changes
+        that; this button only chooses whether the shelf is walked as rows or as the skin's grid.
+      -->
+      <Button Name="viewButton"
+              Content="{Binding LayoutLabel}"
+              Command="{Binding SwitchViewCommand}"
+              IsVisible="{Binding HasTiles}"
+              MinWidth="180"
+              Padding="24,8"
+              FontSize="22" />
     </StackPanel>
 
     <TextBlock DockPanel.Dock="Bottom"
                FontSize="14"
                Opacity="0.45"
                Margin="0,12,0,0"
-               Text="Arrows move · OK plays · I reads more · F finds · W filters watched · Esc clears the search or closes the details · Back returns" />
+               Text="Arrows move · OK plays · I reads more · F finds · W filters watched · V rows or tiles · Esc clears the search or closes the details · Back returns" />
 
     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24">
 

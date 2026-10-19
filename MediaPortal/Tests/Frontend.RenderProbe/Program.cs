@@ -33,6 +33,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Headless;
 using Avalonia.Input;
+using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
@@ -144,6 +145,14 @@ namespace FrontendProbe
       if (width < 100 || height < 100)
         return Usage("a window below 100x100 would not prove anything about rendering.");
 
+      // A frame has to mean the same thing on every machine, and a shelf's shape is read from the viewer's own
+      // skin settings when it opens. Those settings belong to the viewer, not to a gate frame - so the probe
+      // points them at an empty folder of its own, where the shipped defaults answer and every machine draws
+      // the same shelf. The screen where a viewer chooses those settings is untouched by this; it saves to the
+      // real file and is proved by its own tests.
+      Environment.SetEnvironmentVariable("MP2_SKIN_SETTINGS_DIR",
+          Path.Combine(Path.GetTempPath(), "mp2-render-skinsettings"));
+
       Console.WriteLine("host:     " + RuntimeInformation.FrameworkDescription + ", "
           + RuntimeInformation.OSDescription + ", " + RuntimeInformation.OSArchitecture);
 
@@ -249,6 +258,11 @@ namespace FrontendProbe
       // Set when the library screen lists what a running server really holds. The frame is then somebody's own
       // shelf with the pictures the importer found on it, which is the one frame that says the whole road works.
       MediaBrowserViewModel? browserScreen = null;
+
+      // Any shelf frame, scripted or live: the tile check asks this one view model what shape it settled on and
+      // whether the list on screen is drawing it. The live-only variable above carries a different claim - the
+      // poster-in-pixels check only holds for a shelf that came from a real server.
+      MediaBrowserViewModel? shelfScreen = null;
       string playbackStatus = "";
       VideoFrameSink? frames = null;
       Func<long>? pictureFrames = null;
@@ -507,6 +521,7 @@ namespace FrontendProbe
         MediaBrowserViewModel browser = new MediaBrowserViewModel(client, section);
         browser.OpenCommand.Execute(null);
         Pump(TimeSpan.FromMilliseconds(500));
+        shelfScreen = browser;
         if (live)
           browserScreen = browser;
 
@@ -1175,6 +1190,20 @@ namespace FrontendProbe
         }
       }
 
+      if (shelfScreen != null)
+      {
+        // The shelf's same claim, asked the same way: when the worn skin draws media tiles, the list on screen
+        // has to draw them from the skin's file and lay them wrapped, or the frame is a lie about the grid.
+        string shelfReport;
+        string? shelfWrong = CheckShelfTiles(window, shelfScreen, out shelfReport);
+        Console.WriteLine("shelf:    " + shelfReport);
+        if (shelfWrong != null)
+        {
+          Console.WriteLine("FAILED:   " + shelfWrong);
+          return 1;
+        }
+      }
+
       if (settingsScreen != null)
       {
         // The settings screen's claim is that every palette is on the television, not just in the table - and
@@ -1224,7 +1253,15 @@ namespace FrontendProbe
         // full of photographs, and the most the probe can say about those by itself is how many rows were given
         // bytes, which it printed before rendering. Whoever wants to see those pictures looks at the frame.
         bool knownCover = aspectName.Equals("MovieItem", StringComparison.OrdinalIgnoreCase);
-        if (browserScreen != null && !knownCover)
+        if (shelfScreen != null && shelfScreen.Layout == BrowserLayout.Grid)
+        {
+          // Tiles lay the same films in a grid, and where a flat poster lands then is a question about the
+          // grid's geometry rather than the list's rows - the shelf check above is what says the skin's tree is
+          // really on screen, and the frame shows a person where the pictures sit in it.
+          Console.WriteLine("pictures: the shelf wears tiles; which rows carry a poster is the line above, and"
+              + " where they sit in the grid is what the frame is for");
+        }
+        else if (browserScreen != null && !knownCover)
         {
           Console.WriteLine("pictures: the shelf was asked for '" + aspectName + "', whose pictures are photographs"
               + " - how many rows carry one is the line above, and the frame is for a person to look at");
@@ -1445,6 +1482,59 @@ namespace FrontendProbe
       }
 
       report = string.Format("skin '{0}' draws the home menu tiles, off its own file", worn.Manifest.Name);
+      return null;
+    }
+
+    /// <summary>
+    /// Whether the shelf's list on screen draws its tiles from the worn skin and lays them wrapped. The frame's
+    /// claim is the same one the home menu makes - a skin changed a screen's shape, not just its colours - and
+    /// the honest way to check it is to ask the on-screen list which template and which panel it is drawing with
+    /// while the picture is on. A shelf that opens as rows because its skin offers no tiles passes: that is the
+    /// truth of that skin, not a failure to draw.
+    /// </summary>
+    private static string? CheckShelfTiles(Window window, MediaBrowserViewModel shelf, out string report)
+    {
+      // The list is the only one on the browser screen; ask it for the tree its rows come from.
+      ListBox? titles = window.GetVisualDescendants().OfType<ListBox>()
+          .FirstOrDefault(list => list.Name == "titlesList");
+      if (titles == null)
+      {
+        report = "the shelf's list was not on the window";
+        return "the browser frame lost its list";
+      }
+
+      // Rows are the honest shape whenever the skin has no tile for this shelf or the viewer switched to rows;
+      // only a skin that does answer the tile key can be caught drawing the wrong thing.
+      IDataTemplate? skin = SkinEngine.TryTileTemplate(shelf.GridTemplateKey);
+      if (shelf.Layout != BrowserLayout.Grid)
+      {
+        report = skin == null
+            ? "no skin speaks this shelf's tiles; its rows are the honest shape"
+            : "the shelf is in rows, which the View button and the skin setting both allow";
+        return null;
+      }
+
+      if (skin == null)
+      {
+        report = "the shelf says it is a grid but no skin answers its tile key";
+        return "a grid frame was drawn while no skin offers the shelf a tile template";
+      }
+
+      if (!ReferenceEquals(titles.ItemTemplate, skin))
+      {
+        report = "the shelf answers to the view, not to the skin";
+        return string.Format("the worn skin offers '{0}' but the shelf draws its own tree",
+            shelf.GridTemplateKey);
+      }
+
+      // Wrapped is the whole point of the grid: tiles laid left to right, not a single vertical strip.
+      if (!(titles.ItemsPanelRoot is WrapPanel))
+      {
+        report = "the grid's panel is not a wrap panel";
+        return "the shelf wears a skin's tile but lays it in a list panel";
+      }
+
+      report = string.Format("the skin's '{0}' draws the shelf, wrapped on a WrapPanel", shelf.GridTemplateKey);
       return null;
     }
 

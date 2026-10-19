@@ -61,6 +61,14 @@ namespace MediaPortal.Frontend.Views
   public sealed class ArtworkConverter : IValueConverter
   {
     /// <summary>
+    /// The instance a skin template binds with, by name, the way the skin image converters are bound. A skin
+    /// file is read at runtime and reaches the application's resources by key; <c>x:Static</c> is the door that
+    /// needs no key. The converter remembers pictures per instance, so tiles drawn from a skin file share this
+    /// one cache rather than warming a second copy of the same photographs.
+    /// </summary>
+    public static readonly ArtworkConverter Instance = new ArtworkConverter();
+
+    /// <summary>
     /// How many decoded pixels may be held at once.
     /// </summary>
     /// <remarks>

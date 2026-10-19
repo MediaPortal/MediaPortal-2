@@ -22,13 +22,27 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediaPortal.Frontend.Api;
 using MediaPortal.Frontend.Player;
+using MediaPortal.Frontend.Settings;
+using MediaPortal.Frontend.Theming;
 
 namespace MediaPortal.Frontend.ViewModels
 {
+  /// <summary>
+  /// How the browser shows its titles: the screen's own rows, or the tiles the worn skin draws.
+  /// </summary>
+  public enum BrowserLayout
+  {
+    /// <summary>One row per title, the way the screen was written before any skin was asked.</summary>
+    List,
+
+    /// <summary>A grid of tiles, each drawn by the skin's <c>MediaTile…Template</c>.</summary>
+    Grid
+  }
   /// <summary>
   /// One row of the title list.
   /// </summary>
@@ -245,6 +259,55 @@ namespace MediaPortal.Frontend.ViewModels
       // this source file surviving a checkout on another machine.
       get { return Seen ? "\u2713" : ""; }
     }
+
+    /// <summary>
+    /// Whether a tile may wear the watched corner: the library was told this one was finished. The tiles draw
+    /// the skin's own <c>watched.png</c>; the list keeps its quiet tick, and both read this one answer.
+    /// </summary>
+    public bool IsWatched
+    {
+      get { return Seen; }
+    }
+
+    /// <summary>
+    /// Whether a tile may wear the partly-watched corner: somebody started it and the server knows how far.
+    /// A finished title is never partly one - the reference drew the full flag alone at a hundred percent,
+    /// and two corners on one tile would say two different things about the same viewing.
+    /// </summary>
+    public bool IsPartlyWatched
+    {
+      get { return !Seen && Title.Resume.HasValue && Title.Resume.Value > 0; }
+    }
+
+    /// <summary>Whether this row's picture has arrived from the server yet (or exists at all).</summary>
+    public bool HasArtwork
+    {
+      get { return _artwork != null; }
+    }
+
+    /// <summary>
+    /// The same answer facing the other way, for the templates' fallback layers: a tile without a picture
+    /// wears the skin's ground and its type mark instead of an artwork, and the binding wants that as a word
+    /// of its own rather than as a negation it would have to perform.
+    /// </summary>
+    public bool HasNoArtwork
+    {
+      get { return _artwork == null; }
+    }
+
+    /// <summary>
+    /// Whether this row's tile may show a watched corner at all - the worn skin's grid setting, carried down
+    /// from the shelf onto the row. The template binds it on the row because the compiled skin XAML asks the
+    /// row for everything it paints; the shelf is where the answer comes from and says it once, when the row
+    /// is made.
+    /// </summary>
+    public bool WatchFlagsShown
+    {
+      get { return _watchFlagsShown; }
+      internal set;
+    }
+
+    private bool _watchFlagsShown = true;
 
     /// <summary>
     /// When the library says this title was last opened, or nothing when it never was.
@@ -514,6 +577,106 @@ namespace MediaPortal.Frontend.ViewModels
       _status = client == null ? "No server configured"
           : section == null ? "No section chosen"
           : "Reading " + Heading;
+
+      // A shelf opens in the shape the worn skin draws it, the way the reference screens opened in the layout
+      // their view-mode carried: a skin is worn, it answers the tile keys, and the skin's own settings say what
+      // shape this media's tiles take - Nereus keeps a grid type for films, one for series and one for seasons,
+      // and the shelf follows them exactly as the reference's bindings followed <c>[Nereus].MovieGridViewType</c>.
+      // A machine wearing its own face has nobody to answer for tiles and stays the list it was written as;
+      // the View button, where tiles exist, puts that list one press away.
+      _skinSettings = WornSkinSettings();
+      _tileKind = _skinSettings == null ? GridViewType.Poster : TileKindFor(AspectName, _skinSettings);
+      HasTiles = SkinEngine.TryTileTemplate(TileKey(_tileKind)) != null;
+      _layout = HasTiles ? BrowserLayout.Grid : BrowserLayout.List;
+      // The grid corners obey the skin setting the reference gated them behind; the list's quiet tick is the
+      // screen's own old promise and no skin setting ever spoke for it.
+      _watchFlagsShown = _skinSettings?.EnableGridWatchedFlags ?? true;
+    }
+
+    private readonly SkinSettingsBase? _skinSettings;
+    private readonly GridViewType _tileKind;
+
+    /// <summary>
+    /// What the worn skin keeps as settings, or <c>null</c> when the machine wears its own face (or the tests
+    /// run it without an application). Read once when the shelf opens - a setting changed while the shelf is
+    /// on screen takes its shape the next time it opens, which is how the reference's screens did it too.
+    /// </summary>
+    private static SkinSettingsBase? WornSkinSettings()
+    {
+      Application? app = Application.Current;
+      return app == null ? null : SkinSettingsBase.LoadFor(FrontendTheme.CurrentName(app), null, out _);
+    }
+
+    /// <summary>The tile shape this shelf's media takes in this skin's grid.</summary>
+    /// <remarks>
+    /// The reference's settings class holds a grid type for exactly three media - films, series, seasons - and
+    /// everything else wore the skin's plain poster tile; this maps the same three and posts the rest.
+    /// </remarks>
+    internal static GridViewType TileKindFor(string? aspectName, SkinSettingsBase settings)
+    {
+      if (string.Equals(aspectName, "MovieItem", StringComparison.OrdinalIgnoreCase)
+          || string.Equals(aspectName, "MovieCollectionItem", StringComparison.OrdinalIgnoreCase))
+        return settings.MovieGridViewType;
+
+      if (string.Equals(aspectName, "SeriesItem", StringComparison.OrdinalIgnoreCase))
+        return settings.SeriesGridViewType;
+
+      if (string.Equals(aspectName, "SeasonItem", StringComparison.OrdinalIgnoreCase))
+        return settings.SeasonGridViewType;
+
+      return GridViewType.Poster;
+    }
+
+    /// <summary>The template name the grid asks the skin for at this tile shape.</summary>
+    internal static string TileKey(GridViewType kind)
+    {
+      return kind switch
+      {
+        GridViewType.Banner => "MediaTileBannerTemplate",
+        GridViewType.Thumbnail => "MediaTileThumbnailTemplate",
+        _ => "MediaTilePosterTemplate"
+      };
+    }
+
+    /// <summary>The template name the list on screen asks the skin for, whichever layout it stands in.</summary>
+    public string GridTemplateKey
+    {
+      get { return Layout == BrowserLayout.List ? "TitleRowTemplate" : TileKey(_tileKind); }
+    }
+
+    /// <summary>Whether the worn skin draws tiles for this shelf at all; without them there is nothing to view.</summary>
+    public bool HasTiles { get; }
+
+    /// <summary>How the titles are drawn right now.</summary>
+    [ObservableProperty]
+    private BrowserLayout _layout = BrowserLayout.List;
+
+    /// <summary>Whether a tile may show its watched corner at all - the skin setting's answer.</summary>
+    [ObservableProperty]
+    private bool _watchFlagsShown = true;
+
+    public string LayoutLabel
+    {
+      get { return Layout == BrowserLayout.Grid ? "View: Grid" : "View: List"; }
+    }
+
+    partial void OnLayoutChanged(BrowserLayout value)
+    {
+      OnPropertyChanged(nameof(LayoutLabel));
+      OnPropertyChanged(nameof(GridTemplateKey));
+    }
+
+    /// <summary>
+    /// Rows or tiles. The button and the <c>V</c> key; the grid sizes themselves are not pressed here - they
+    /// are the skin's settings, and a viewer changes them where settings are changed.
+    /// </summary>
+    [RelayCommand]
+    public void SwitchView()
+    {
+      if (!HasTiles)
+        return;
+
+      Layout = Layout == BrowserLayout.List ? BrowserLayout.Grid : BrowserLayout.List;
     }
 
     /// <summary>The tile this list came from, or <c>null</c> in the designer.</summary>
@@ -1072,7 +1235,7 @@ namespace MediaPortal.Frontend.ViewModels
           Titles.Clear();
 
         foreach (MediaTitle title in answer.Titles ?? Array.Empty<MediaTitle>())
-          Titles.Add(new TitleViewModel(title, DrillsIn, _client));
+          Titles.Add(new TitleViewModel(title, DrillsIn, _client) { WatchFlagsShown = WatchFlagsShown });
 
         Selected = Selected ?? (Titles.Count > 0 ? Titles[0] : null);
         CanLoadMore = answer.Remaining > 0;

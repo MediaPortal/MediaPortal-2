@@ -14,9 +14,10 @@
     5. the same front end aimed at a port nobody listens on must exit 1 and say so, because a check that
        cannot fail is not a check;
     6. while the server is still up, Frontend.RenderProbe draws the real screens through Skia and writes
-       eighteen PNGs (default build\artifacts\frontend-render\: home, continue, browser, details, search,
+       nineteen PNGs (default build\artifacts\frontend-render\: home, continue, browser, details, search,
        seen, nowplaying, connect, pictures, browse, news, weather, party - and then the playback screen,
-       the home menu and the settings screen once more each, wearing the two rescued skins).
+       the home menu and the settings screen once more each, wearing the two rescued skins, and the shelf
+       once more wearing the skin that draws its tiles).
        The probe fails this gate if a frame comes back flat, and if the pixels it was painted with are not
        the palette the frame asked for; the pictures themselves are for a person, and -SkipRender leaves
        them out.
@@ -292,7 +293,7 @@ try {
       if (-not $RenderDir) { $RenderDir = Join-Path (Join-Path $repoRoot 'build\artifacts') 'frontend-render' }
       New-Item -ItemType Directory -Path $RenderDir -Force | Out-Null
 
-      # Fourteen screens, eighteen frames. The home screen is drawn from a server that is really answering; the
+      # Fourteen screens, nineteen frames. The home screen is drawn from a server that is really answering; the
       # continue frame is the same screen of a household that has been watching things, drawn from a scripted
       # server, because the strip cannot be drawn from an empty database; the playback screen is drawn from a
       # scripted player, because a frame that is supposed to mean the same
@@ -356,7 +357,13 @@ try {
         # accents by name - the three the front end knows, each needing a painted
         # row. It is drawn with a skin other than its rows' colours on purpose: what a viewer picks on this
         # screen must survive being looked at through somebody else's colours.
-        @{ Name = 'settings-nereus'; Arguments = '--screen settings --theme nereus' }
+        @{ Name = 'settings-nereus'; Arguments = '--screen settings --theme nereus' },
+        # The shelf wearing Nereus is the frame that says the media tiles are real: Nereus answers the shelf's
+        # tile key, so the list has to open in its grid - the skin's poster template drawing the rows, wrapped
+        # across the screen - and the probe asks the on-screen list which template and which panel it is drawing
+        # with while the picture is on. A shelf that quietly stayed a list under a skin that offers tiles, or put
+        # the tiles in a plain strip, would pass every colour check and fail here.
+        @{ Name = 'browser-nereus'; Arguments = '--screen browser --theme nereus' }
       )
       foreach ($frame in $frames) {
         $renderFile = Join-Path $RenderDir ($frame.Name + '.png')
