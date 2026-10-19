@@ -111,23 +111,24 @@ namespace MediaPortal.Frontend.Views
             if (!(DataContext is MediaBrowserViewModel viewModel))
               return;
 
-            if (args.Key == Key.F16)
+            if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Menu, args.Key))
             {
-              // The "Menu" key of a remote - F16 is the spelling that reaches this code; the apps key is not a
-              // candidate because this screen already wears it for the details, and one key cannot answer
-              // two questions. It opens the media list menu of the reference for the selected row.
+              // The "Menu" key of a remote - F16 by default, whatever a viewer's remote really reports is read
+              // from keybindings.json. The apps key is not the default here because this screen already wears
+              // it for the details, and one key cannot answer two questions. It opens the media list menu of
+              // the reference for the selected row.
               viewModel.ShowMenuCommand.Execute(null);
               args.Handled = true;
             }
-            else if (args.Key == Key.I || args.Key == Key.Apps)
+            else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Details, args.Key))
             {
-              // The "info" key of a remote, which is the Apps key in everything that reaches this code, plus the
-              // letter for a keyboard. It reads about the selected title rather than playing it, which is the one
-              // question a title list cannot answer from its own rows.
+              // The "info" key of a remote, which is the Apps key by default in everything that reaches this
+              // code, plus the letter for a keyboard. It reads about the selected title rather than playing it,
+              // which is the one question a title list cannot answer from its own rows.
               viewModel.ToggleDetailsCommand.Execute(null);
               args.Handled = true;
             }
-            else if (args.Key == Key.F && !searchBox.IsFocused)
+            else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Find, args.Key) && !searchBox.IsFocused)
             {
               // Finding is the one thing on this screen that needs the keyboard, so it is the one key that moves
               // the focus out of the list - and Enter or Escape brings it straight back, because the next thing a
@@ -135,7 +136,7 @@ namespace MediaPortal.Frontend.Views
               searchBox.Focus();
               args.Handled = true;
             }
-            else if (args.Key == Key.W && !searchBox.IsFocused)
+            else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Watched, args.Key) && !searchBox.IsFocused)
             {
               // W for watched: everything, then what nobody has finished, then what somebody has. One key round
               // three states rather than two switches, because a remote reaches its keyboard through one button
@@ -143,14 +144,14 @@ namespace MediaPortal.Frontend.Views
               viewModel.CycleSeenCommand.Execute(null);
               args.Handled = true;
             }
-            else if (args.Key == Key.V && !searchBox.IsFocused)
+            else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.View, args.Key) && !searchBox.IsFocused)
             {
               // V for view: rows or the skin's tiles. What shape the tiles take is not this key's business - the
               // Media button asks that - so the key only has the one question left for the viewer.
               viewModel.SwitchViewCommand.Execute(null);
               args.Handled = true;
             }
-            else if (args.Key == Key.M && !searchBox.IsFocused)
+            else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Media, args.Key) && !searchBox.IsFocused)
             {
               // M for media: the picture the tiles wear, poster to banner to thumbnail. The same question the
               // button beside the view button asks, reachable from the sofa.
@@ -165,7 +166,7 @@ namespace MediaPortal.Frontend.Views
               titlesList.Focus();
               args.Handled = true;
             }
-            else if (args.Key == Key.Escape || args.Key == Key.Back)
+            else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Back, args.Key))
             {
               // Back means "away with the newest thing on the screen", which is the title's menu when one is
               // standing open, then the search when there is one, then the watched filter, then the details
@@ -202,7 +203,8 @@ namespace MediaPortal.Frontend.Views
               // Nothing is open to undo, so the key is not this screen's: it reaches the shell behind it, which
               // pops this screen off the workflow.
             }
-            else if ((args.Key == Key.Enter || args.Key == Key.Return || args.Key == Key.MediaPlayPause)
+            else if ((args.Key == Key.Enter || args.Key == Key.Return
+                    || Settings.KeyBindings.Current.Is(Settings.KeyAction.PlayPause, args.Key))
                 && !viewModel.MenuVisible)
             {
               // Enter is only "play the row" while nobody taller is wearing it: with the menu open the key

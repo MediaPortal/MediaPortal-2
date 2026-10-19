@@ -78,7 +78,7 @@ namespace MediaPortal.Frontend.Views
               return;
             }
 
-            if (args.Key == Key.Escape || args.Key == Key.Back)
+            if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Back, args.Key))
             {
               if (searchBox.IsFocused || _weather.Found.Count > 0)
               {

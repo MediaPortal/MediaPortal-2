@@ -226,7 +226,7 @@ namespace MediaPortal.Frontend.Views
               return;
             }
 
-            if (args.Key != Key.Escape && args.Key != Key.Back)
+            if (!Settings.KeyBindings.Current.Is(Settings.KeyAction.Back, args.Key))
               return;
             if (!_workflow.Pop())
               // At the root back means "leave the application", the same answer the home screen gave alone.

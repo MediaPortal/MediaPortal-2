@@ -101,7 +101,7 @@ namespace MediaPortal.Frontend.Views
               ToggleOsd();
               args.Handled = true;
             }
-            else if ((args.Key == Key.Escape || args.Key == Key.Back) && _osdVisible)
+            else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Back, args.Key) && _osdVisible)
             {
               CloseOsd();
               args.Handled = true;

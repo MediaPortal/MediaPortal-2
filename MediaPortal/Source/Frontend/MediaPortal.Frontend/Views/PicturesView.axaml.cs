@@ -104,13 +104,14 @@ namespace MediaPortal.Frontend.Views
           {
             if (_pictures.IsViewing)
             {
+              if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Back, args.Key))
+              {
+                _pictures.CloseViewerCommand.Execute(null);
+                args.Handled = true;
+                return;
+              }
               switch (args.Key)
               {
-                case Key.Escape:
-                case Key.Back:
-                  _pictures.CloseViewerCommand.Execute(null);
-                  args.Handled = true;
-                  return;
                 case Key.Left:
                   _pictures.PreviousCommand.Execute(null);
                   args.Handled = true;
@@ -128,7 +129,7 @@ namespace MediaPortal.Frontend.Views
               return;
             }
 
-            if (args.Key == Key.Escape || args.Key == Key.Back)
+            if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Back, args.Key))
             {
               // Pressing back in the middle of a folder means "out of this folder", not "away from pictures", so
               // the key steps up and only the list of shares - the one place with nowhere up to go - hands the

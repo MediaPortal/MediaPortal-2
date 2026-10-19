@@ -387,7 +387,8 @@ namespace MediaPortal.Frontend.Views
       {
         _windowKeys = delegate (object? sender, Avalonia.Input.KeyEventArgs keys)
         {
-          if (keys.Key == Avalonia.Input.Key.Escape || keys.Key == Avalonia.Input.Key.Back)
+          if (MediaPortal.Frontend.Settings.KeyBindings.Current.Is(
+                  MediaPortal.Frontend.Settings.KeyAction.Back, keys.Key))
           {
             keys.Handled = true;
             CloseRequested?.Invoke(this, EventArgs.Empty);

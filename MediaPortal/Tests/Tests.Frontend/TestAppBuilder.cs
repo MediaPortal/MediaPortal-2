@@ -84,6 +84,11 @@ namespace Tests.Frontend
       // shape some earlier run remembered.
       Environment.SetEnvironmentVariable("MP2_SCREEN_VIEWS_FILE",
           Path.Combine(Path.GetTempPath(), "MediaPortal2-Tests-" + Guid.NewGuid().ToString("N") + "-screens.json"));
+
+      // And for the key bindings: a viewer who refitted their remote must not bend every test run on the
+      // machine, and a test run must not answer from a file some earlier experiment left half-written.
+      Environment.SetEnvironmentVariable("MP2_KEYBINDINGS_FILE",
+          Path.Combine(Path.GetTempPath(), "MediaPortal2-Tests-" + Guid.NewGuid().ToString("N") + "-keys.json"));
     }
 
     public static AppBuilder BuildAvaloniaApp()
