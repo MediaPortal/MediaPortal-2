@@ -14,9 +14,9 @@
     5. the same front end aimed at a port nobody listens on must exit 1 and say so, because a check that
        cannot fail is not a check;
     6. while the server is still up, Frontend.RenderProbe draws the real screens through Skia and writes
-       eleven PNGs (default build\artifacts\frontend-render\: home, continue, browser, details, search,
-       seen, nowplaying, connect, pictures, and the home screen twice more drawn with the colours of the
-       two rescued skins).
+       fifteen PNGs (default build\artifacts\frontend-render\: home, continue, browser, details, search,
+       seen, nowplaying, connect, pictures, browse, news, weather, party, and the playback screen twice more
+       drawn with the colours of the two rescued skins).
        The probe fails this gate if a frame comes back flat, and if the pixels it was painted with are not
        the palette the frame asked for; the pictures themselves are for a person, and -SkipRender leaves
        them out.
@@ -292,7 +292,7 @@ try {
       if (-not $RenderDir) { $RenderDir = Join-Path (Join-Path $repoRoot 'build\artifacts') 'frontend-render' }
       New-Item -ItemType Directory -Path $RenderDir -Force | Out-Null
 
-      # Twelve screens, fourteen frames. The home screen is drawn from a server that is really answering; the
+      # Thirteen screens, fifteen frames. The home screen is drawn from a server that is really answering; the
       # continue frame is the same screen of a household that has been watching things, drawn from a scripted
       # server, because the strip cannot be drawn from an empty database; the playback screen is drawn from a
       # scripted player, because a frame that is supposed to mean the same
@@ -332,6 +332,11 @@ try {
         # afternoon, and the claim in this frame is the aggregation: a day takes its midday's words and its own
         # extremes, and the city's midnight divides its days, not the television's.
         @{ Name = 'weather-windows'; Arguments = '--screen weather' },
+        # The party screen is drawn from the scripted music shelf - eight songs with artists and track numbers -
+        # and from a fixed shuffle seed, because a frame of a shuffle whose order changes every afternoon means
+        # nothing; the claim in the frame is the queue and the song it says is playing, and both have to be the
+        # same claims on every machine that draws them.
+        @{ Name = 'party-windows'; Arguments = '--screen party' },
         # The playback screen in the colours of the two skins MP2 shipped, because "the skins were rescued" is a
         # claim about pixels and because that screen carries most of what a palette says: the background, the panel
         # behind every transport button, the text on it, the outlines and the focus ring. The probe checks the frame

@@ -130,11 +130,12 @@ namespace MediaPortal.Frontend.ViewModels
     /// here where a reader can have it:
     /// <c>TV</c> and <c>Radio</c> because live television and radio came from the TV service, which was removed from
     /// this tree (commit 029a262aa4) and nothing serves it since; <c>Settings</c> because the server keeps its
-    /// configuration behind a .NET Remoting interface the new API has not grown an equivalent of yet; <c>News</c>
-    /// and <c>Weather</c> used to be on that list too, until the front end grew their screens and started
-    /// reading the same feeds and the same forecast service the old plugins read; <c>Party music player</c> and
-    /// <c>Utilities</c> because those two are still written against the old skin
-    /// engine this front end replaced - their plugins are in this tree, their screens are not.
+    /// configuration behind a .NET Remoting interface the new API has not grown an equivalent of yet; <c>News</c>,
+    /// <c>Weather</c> and <c>Party music player</c> used to be on that list too, until the front end grew their
+    /// screens - the first two reading the same feeds and forecast service the old plugins read, the last one
+    /// shuffling the server's own music shelf and playing it through the application's player; and
+    /// <c>Utilities</c> because what that plugin launched was the TV client's setup, the radio's setup and the
+    /// playlist importer, every one of which served the television this tree no longer has.
     /// </para>
     /// <para>
     /// The seventh field names a screen of the front end rather than a part of the library. An entry with one is
@@ -195,13 +196,13 @@ namespace MediaPortal.Frontend.ViewModels
         ("Home->Weather", "[Weather.Title]", "Weather", Array.Empty<string>(),
             "the forecast", null, "weather", null),
         ("Home->PartyMusicConfig", "[PartyMusicPlayer.MenuItem]", "Party music player", Array.Empty<string>(),
-            "the party playlists", "its screen is still old skin", null, null),
+            "the music shelf, shuffled", null, "party", null),
         // The one part of MP2's configuration that has an HTTP API, and therefore the one part that could be edited
         // from a television. Where the library comes from is already on this menu, as "Local media".
         ("Home->ConfigurationMain", "[Configuration.Name]", "Settings", Array.Empty<string>(),
             "the server's own configuration", "no settings API yet", null, null),
         ("Home->UtilitiesMain", "[Utilities.MenuItem]", "Utilities", Array.Empty<string>(),
-            "the little tools", "its screen is still old skin", null, null)
+            "the little tools", "its tools went with the TV", null, null)
     };
   }
 }

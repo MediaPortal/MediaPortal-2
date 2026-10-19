@@ -1,0 +1,108 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        x:Class="MediaPortal.Frontend.Views.PartyWindow"
+        x:DataType="vm:PartyViewModel"
+        Name="party"
+        Width="1280" Height="720"
+        WindowState="Maximized"
+        Background="{DynamicResource ScreenBackgroundBrush}"
+        Title="MediaPortal 2 - Party music player">
+
+  <!--
+    The party, in the shape the plugin had: one button that starts the music and a list of what is coming, so
+    a viewer can see the party without touching it and skip a song without leaving the room. The queue on the
+    left is the screen's own doing; the right half is the song it asked the application to play - the player
+    lives one call away, and its own screen is a button away from here.
+  -->
+
+  <DockPanel Margin="48,36">
+
+    <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,20">
+      <TextBlock Text="Party music player"
+                 FontSize="40"
+                 FontWeight="SemiBold" />
+      <TextBlock Text="The music shelf, shuffled - press start and the songs keep coming"
+                 FontSize="18"
+                 Opacity="0.7"
+                 TextWrapping="Wrap"
+                 MaxWidth="1500"
+                 HorizontalAlignment="Left" />
+    </StackPanel>
+
+    <TextBlock DockPanel.Dock="Bottom"
+               Name="statusLine"
+               Text="{Binding Status}"
+               FontSize="20"
+               Opacity="0.85"
+               Margin="0,18,0,0"
+               TextWrapping="Wrap" />
+
+    <Grid ColumnDefinitions="560,*" ColumnSpacing="40">
+
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="16" Margin="0,0,0,18">
+          <Button Name="startButton"
+                  Content="Start the party"
+                  Command="{Binding StartCommand}"
+                  MinWidth="200"
+                  Padding="24,10"
+                  FontSize="22"
+                  Focusable="True" />
+          <Button Name="stopButton"
+                  Content="Stop"
+                  Command="{Binding StopCommand}"
+                  MinWidth="120"
+                  Padding="24,10"
+                  FontSize="22"
+                  Focusable="True" />
+          <Button Name="skipButton"
+                  Content="Next song"
+                  Command="{Binding SkipCommand}"
+                  MinWidth="160"
+                  Padding="24,10"
+                  FontSize="22"
+                  Focusable="True" />
+        </StackPanel>
+
+        <ListBox Name="queueList"
+                 Focusable="True"
+                 ItemsSource="{Binding Upcoming}"
+                 SelectedItem="{Binding Selected, Mode=TwoWay}"
+                 FontSize="20">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:TitleViewModel">
+              <StackPanel Spacing="2" Margin="4,8">
+                <TextBlock Text="{Binding Line}" FontSize="21" TextTrimming="CharacterEllipsis" />
+                <TextBlock Text="{Binding Detail}" FontSize="15" Opacity="0.5" TextTrimming="CharacterEllipsis" />
+              </StackPanel>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </DockPanel>
+
+      <StackPanel Grid.Column="1" Spacing="12" VerticalAlignment="Top">
+        <TextBlock Text="Now"
+                   FontSize="20"
+                   Opacity="0.6" />
+        <TextBlock Name="currentLine"
+                   Text="{Binding CurrentLine}"
+                   FontSize="44"
+                   TextWrapping="Wrap" />
+        <TextBlock Text="Nothing is being asked for - press start"
+                   FontSize="18"
+                   Opacity="0.5"
+                   IsVisible="{Binding CurrentLine, Converter={x:Static StringConverters.IsNullOrEmpty}}" />
+        <Button Name="nowPlayingButton"
+                Content="Open the playback screen"
+                Click="OnNowPlaying"
+                MinWidth="240"
+                Padding="24,10"
+                FontSize="20"
+                Margin="0,20,0,0"
+                HorizontalAlignment="Left"
+                Focusable="True" />
+      </StackPanel>
+    </Grid>
+  </DockPanel>
+</Window>

@@ -51,6 +51,7 @@ namespace MediaPortal.Frontend
     private NowPlayingViewModel? _nowPlaying;
     private NowPlayingWindow? _playWindow;
     private MediaBrowserViewModel? _lastBrowser;
+    private PartyViewModel? _party;
     private PlaybackReporter? _reporter;
     private readonly string? _shotPath;
     private readonly TimeSpan _playStart;
@@ -476,6 +477,39 @@ namespace MediaPortal.Frontend
             new WeatherApiClient(userApiKey: places.ApiKey)));
       }
 
+      if (screenKey.Equals("party", StringComparison.OrdinalIgnoreCase))
+      {
+        // One view model for the whole application, unlike every screen above: the queue belongs to the
+        // evening rather than to the window, the way the playback does. The screen asks, the application
+        // plays - and the application's own playback reports back into the screen, because a party cannot
+        // hear its own music without those two ears.
+        if (_party == null)
+        {
+          _party = new PartyViewModel(_home.Client);
+          _party.PlayRequested += OnPartySongChosen;
+
+          if (_nowPlaying != null)
+          {
+            NowPlayingViewModel playback = _nowPlaying;
+            playback.PlaybackReported += delegate (object? sender, PlaybackReportedEventArgs args)
+            {
+              // Only an ending reaches the queue. The report a replacement makes - "the viewer got to 37%
+              // of the song we just skipped" - is a fact for the library, not a reason to advance twice.
+              if (args.Percentage == 100)
+                _party.TrackFinished(args.MediaItemId);
+            };
+            playback.PropertyChanged += delegate
+            {
+              if (playback.StateText == "Failed")
+                _party.TrackRefused(playback.MediaItemId ?? Guid.Empty, playback.StatusLine);
+            };
+          }
+        }
+
+        return new PartyWindow(_party,
+            _nowPlaying == null ? null : new Func<Avalonia.Controls.Window>(NowPlayingScreen));
+      }
+
       // A tile naming a screen nobody builds is a mismatch between the menu and this method, which is a bug in the
       // front end rather than something the viewer can do anything about.
       throw new InvalidOperationException(
@@ -579,6 +613,46 @@ namespace MediaPortal.Frontend
       else
         Console.WriteLine("play:     refused - " + _nowPlaying.StatusLine
             + (streamed ? " (a server that wants to know its caller cannot be handed to the player as an address)" : ""));
+    }
+
+    /// <summary>
+    /// The party asked for a song. It is played by the same player as any other title and reported to the
+    /// library the same way; what the party gets on top is the answer.
+    /// </summary>
+    /// <remarks>
+    /// The title list never hears that its film would not open - the viewer is standing in front of the
+    /// screen and presses again. The party is by definition not being watched, so every refusal has to come
+    /// back to it, or a broken corner of the shelf would stop the evening in silence.
+    /// </remarks>
+    private void OnPartySongChosen(object? sender, TitleViewModel title)
+    {
+      if (_nowPlaying == null)
+      {
+        Console.WriteLine("play:     " + title.Name + " - this machine has no player");
+        _party?.TrackRefused(title.Title.Id, "this machine has no player");
+        return;
+      }
+
+      MediaLocation? location = title.PlaybackLocation;
+      if (location == null)
+      {
+        Console.WriteLine("play:     " + title.Name + " - " + title.UnplayableReason);
+        _party?.TrackRefused(title.Title.Id, title.UnplayableReason ?? "the title named no file at all");
+        return;
+      }
+
+      bool streamed = !location.Value.IsFile;
+      string what = streamed
+          ? location.Value.Describe()
+          : System.IO.Path.GetFileName(location.Value.EngineString);
+
+      if (_nowPlaying.Play(location.Value, title.Title.Id, title.ResumePercent ?? 0))
+        Console.WriteLine("play:     party - " + what + (streamed ? " - streamed from the server" : " from the library"));
+      else
+      {
+        Console.WriteLine("play:     party refused - " + _nowPlaying.StatusLine);
+        _party?.TrackRefused(title.Title.Id, _nowPlaying.StatusLine);
+      }
     }
 
     /// <summary>

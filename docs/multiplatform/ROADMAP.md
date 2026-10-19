@@ -3387,7 +3387,74 @@ drawn from a scripted internet - a city at UTC+2 with its slots around local noo
 are the same words.
 
 
+### ba. Party music player: the screen chooses, the application plays, and both keep score
+
+The old plugin was a whole evening's machinery: it configured a server-side player, shuffled the music
+library into it, and let the party run unattended. The multiplatform server has no player to configure and the
+front end owns playback now, so the party came back as the one screen that is only *half* in charge:
+`PartyViewModel` reads the server's `AudioItem` shelf a page at a time, shuffles everything playable into a
+queue, and asks for songs; the application - `App.OnPartySongChosen` - plays them through the same
+`NowPlayingViewModel` the library uses, so the song, its position in the library and its resume bookkeeping
+are the same machinery as anywhere else. The screen never touches a player.
+
+That split needed an ear, and the ear turned out to be the interesting part. `PlaybackReported` fires when a
+song *ends* (100%), when the viewer replaces it (<100%), and when playback stops - only the 100% report means
+"this one is done", because the others are statements about what the viewer did, not about what the queue
+owed. So the application forwards 100% endings to `TrackFinished` and failures (`StateText == "Failed"`) to
+`TrackRefused`, and both ears ignore any report whose id is not the song the queue is waiting on - a second
+"finished" about a song the queue already let go would skip one for an ending that already happened, and the
+test for exactly that reads like paranoia until you have watched a replaced track report twice.
+
+The rules the plugin actually earned its keep with came over intact. A song that will not open leaves the
+queue with the player's own reason in the status line and the party walks on - but three refusals in a row
+stop it, because one broken file is an evening saved and three are a fact about the shelf. When the shuffle
+runs dry the shelf starts again, reshuffled, with the song that just ended moved to the back so two rounds in
+a row never open on the same song. Stop means "no more songs after this one", not "silence now": the queue
+stays, the playing song is left alone, and - after a bug the stop test caught on paper before it could ship -
+a song ending after a stop leaves the queue but asks for nothing. Pressing a row puts that song on now and
+keeps the rest of the order; the one Party view model lives in the application, so closing the window closes
+a screen and does not end an evening.
+
+**What this is not yet.** No crossfades, no genre filter, no dance-meter; the plugin's party *settings* were
+settings of a server-side player that does not exist. No artwork in the queue. On a machine without libVLC the
+screen still queues and counts, it just cannot be heard - the same bargain every screen here makes with an
+absent player.
+
+**Proof.** Twelve new tests took the suite from 1015 to 1027 against a scripted music shelf, with the test
+standing in for the application on both sides of the split: start queues the shelf and asks for its head; the
+same seed twice is the same queue; endings, skips and jumps each ask for exactly one next song and name both
+halves of it in the status line; a stale ending asks for nothing; two rounds never open on the same song;
+refusals walk on and three in a row stop; the shelf that 404s is answered with its own sentence; unplayable
+titles stay out of the queue and are counted out loud; and a stopped party asks for nothing after the song it
+was already playing. The menu's openable count moved to six front-end-owned screens, the continue frame to
+eight, and the probe gained a `party` frame - a scripted shelf, a fixed shuffle seed, the probe pressing
+start - whose content line reads `8 song(s) queued, first Low Tide Again` so the picture and the assertion
+are the same words. Fifteen frames now.
+
+
+### bb. Four tiles that stayed words: what TV, Radio, Settings and Utilities owe before they can open
+
+Four entries of the fifteen remain non-openable, and the honesty rule says a row's reason text is a promise,
+so the reasons are recorded here as decisions rather than as gaps. **TV** and **Radio**: the multiplatform
+server's TV service layer was removed (`029a262aa4`) along with the backend plugins it talked to - there is no
+endpoint to point a TV guide at, and pretending otherwise with an empty screen would be the tile lying.
+**Settings**: the old MP2 settings screens were editors over a plugin configuration API the new server does
+not have; every setting this front end actually needs (server address, weather places) already has its own
+screen. **Utilities**: its plugin.xml turned out to be only a launcher for TV, radio and playlist-import
+tools - with the TV backend gone the tile's whole content went with it, which is why its row says *its tools
+went with the TV*.
+
+None of this is a verdict against the features; each row's `ScreenKey` slot is in the schema and stays null
+only while there is nothing behind it. If a TV service comes back to the server, the tile is one row and one
+screen away from opening, and the menu tests will demand the count changes when it does.
+
+**Proof.** `MainMenu`'s docstring names each missing entry's reason, the four menu tests count six openable
+rows against the catalogued fifteen, and no test had to be weakened for any of it - the counts moved only for
+the party.
+
+
 ## What cannot be verified without the user
+
 
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,
 DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library

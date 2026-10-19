@@ -62,7 +62,7 @@ namespace FrontendProbe
   public static class RenderProbe
   {
     private const string USAGE =
-        "Frontend.RenderProbe --out <file.png> [--screen <home|continue|nowplaying|connect|browser|details|search|seen|folders|pictures>] [--server <url>] [--aspect <name>] [--theme <name>] [--width <n>] [--height <n>]\n" +
+        "Frontend.RenderProbe --out <file.png> [--screen <home|continue|nowplaying|connect|browser|details|search|seen|folders|pictures|browse|news|weather|party>] [--server <url>] [--aspect <name>] [--theme <name>] [--width <n>] [--height <n>]\n" +
         "  --out <file>     where to write the rendered frame (PNG); its directory is created\n" +
         "  --screen <name>  which screen to render (default home)\n" +
         "  --server <url>   render the populated screen by asking this server (otherwise MP2_SERVER,\n" +
@@ -234,6 +234,10 @@ namespace FrontendProbe
       // OpenWeatherMap answering the current sky and the days ahead.
       WeatherViewModel? weatherScreen = null;
 
+      // And for the party screen: the scripted music shelf below answers the eight songs, and the shuffle runs
+      // from a fixed seed so that the queue in the frame is the same queue on every machine that draws it.
+      PartyViewModel? partyScreen = null;
+
       // Set when the library screen lists what a running server really holds. The frame is then somebody's own
       // shelf with the pictures the importer found on it, which is the one frame that says the whole road works.
       MediaBrowserViewModel? browserScreen = null;
@@ -361,18 +365,19 @@ namespace FrontendProbe
               + " tile(s), but the script offers two parts of the library a viewer can watch.");
           return 1;
         }
-        if (home.Menu.Count(entry => entry.Openable) != 7)
+        if (home.Menu.Count(entry => entry.Openable) != 8)
         {
           // The screen does not draw `Sections` any more, it draws the menu built from them, so this is the check
           // that belongs to the picture: the two parts the script offers have to be the two entries a viewer can
-          // open, and the seven the script cannot fill have to be saying so rather than being missing. The other
-          // five openable entries are the folders screen, the pictures screen, the browse screen, the news and
-          // the weather, all of which are openable whatever the server holds - one reads the folders the library
-          // was built from, one walks the shares, the third asks the server to group whatever it turns out to
-          // hold, and the last two ask the internet instead; none needs a title to have been imported.
+          // open, and the entries the script cannot fill have to be saying so rather than being missing. The other
+          // six openable entries are the folders screen, the pictures screen, the browse screen, the news,
+          // the weather and the party, all of which are openable whatever the server holds - one reads the
+          // folders the library was built from, one walks the shares, the third asks the server to group whatever
+          // it turns out to hold, two ask the internet instead, and the party simply queues nothing until a
+          // shelf answers; none needs a title to have been imported.
           Console.WriteLine("FAILED:   " + home.Menu.Count(entry => entry.Openable)
               + " openable menu entr(ies) of " + home.Menu.Count
-              + "; expected two plus the folders, pictures, browse, news and weather screens, because"
+              + "; expected two plus the folders, pictures, browse, news, weather and party screens, because"
               + " the script offers two parts of the library a viewer can watch.");
           return 1;
         }
@@ -629,10 +634,22 @@ namespace FrontendProbe
             new WeatherApiClient(new HttpClient(new ScriptedWeather())), weatherSettingsFile, "en-GB");
         window = new WeatherWindow(weatherScreen);
       }
+      else if (screenName.Equals("party", StringComparison.Ordinal))
+      {
+        // The party screen, over the scripted music shelf. The shuffle is the screen, and a shuffle that is
+        // random would make the frame mean something different on every afternoon - so the seed is fixed here
+        // and only here: the application passes none, and every real party dances in a different order. The
+        // probe presses start the way the focused button's click does, because the frame wanted is the party
+        // going, not the screen waiting for somebody to press something.
+        partyScreen = new PartyViewModel(
+            new ServerApiClient(new Uri("http://127.0.0.1:9/MediaPortal/Server"),
+                new HttpClient(new ScriptedTitles())), 20260205);
+        window = new PartyWindow(partyScreen);
+      }
       else
       {
         return Usage("unknown screen '" + screenName + "'; this probe renders home, continue, nowplaying, connect,"
-            + " browser, details, search, seen, folders, pictures, browse, news or weather.");
+            + " browser, details, search, seen, folders, pictures, browse, news, weather or party.");
       }
 
       window.Width = width;
@@ -901,6 +918,48 @@ namespace FrontendProbe
           Console.WriteLine("FAILED:   the days carry " + first.Range + " and " + second.Range
               + "; the script's three-hour entries span 6.1 over 1.2 and 3.9 over -1.4 in the city's own "
               + "local day - the aggregation is the frame's whole claim.");
+          return 1;
+        }
+      }
+      if (partyScreen != null)
+      {
+        // The party does not start itself - that is the viewer's press - so the probe presses the same command
+        // the button is wired to, and waits for what a start owes: the whole scripted shelf queued, and the
+        // first song of the shuffle asked for and printed big. A frame of a party that never started would be a
+        // frame of an empty list, and this screen's empty list is its offline state, not its subject.
+        partyScreen.StartCommand.Execute(null);
+        if (!PumpUntil(delegate { return partyScreen.Upcoming.Count == 8 && partyScreen.CurrentLine.Length > 0; },
+            TimeSpan.FromSeconds(10)))
+        {
+          Console.WriteLine("FAILED:   the party never started. Status: " + partyScreen.Status);
+          return 1;
+        }
+
+        Console.WriteLine("content:  " + partyScreen.Upcoming.Count + " song(s) queued, first "
+            + partyScreen.Upcoming[0].Name + ", now: " + partyScreen.CurrentLine
+            + ", rest: " + string.Join(", ", partyScreen.Upcoming.Skip(1).Select(song => song.Title.Title))
+            + ", status: " + partyScreen.Status);
+        if (!partyScreen.CurrentLine.Equals(partyScreen.Upcoming[0].Name, StringComparison.Ordinal))
+        {
+          Console.WriteLine("FAILED:   the big line and the head of the queue name different songs; the queue "
+              + "on the screen would then be scenery rather than a statement about this evening.");
+          return 1;
+        }
+
+        if (!partyScreen.Upcoming.Select(song => song.Title.Title)
+                .OrderBy(name => name, StringComparer.Ordinal)
+                .SequenceEqual(Enumerable.Range(0, 8).Select(at => ScriptedTitles.TRACKS[at, 0])
+                    .OrderBy(name => name, StringComparer.Ordinal)))
+        {
+          Console.WriteLine("FAILED:   the queue is not the whole scripted shelf in some order; the shuffle "
+              + "reorders the music, it does not edit it, and eight songs went in.");
+          return 1;
+        }
+
+        if (!partyScreen.Status.Contains("The party is on", StringComparison.Ordinal))
+        {
+          Console.WriteLine("FAILED:   the status line does not say the party is on after start; it says: '"
+              + partyScreen.Status + "'.");
           return 1;
         }
       }
@@ -1478,6 +1537,30 @@ namespace FrontendProbe
           { FilmId(4), System.Text.Encoding.ASCII.GetBytes("this used to be a poster") }
       };
 
+      /// <summary>
+      /// The music shelf: eight songs, each a name and the artist the shelf carries with it. Songs are the one
+      /// shelf no other frame touches, and the party screen is the one screen that plays without a picture -
+      /// so the shelf lives here, in the same shape the titles handler gives films.
+      /// </summary>
+      internal static readonly string[,] TRACKS =
+      {
+          { "Harbour Lights", "The Long Shore" },
+          { "Paper Radio", "Sixth Continent" },
+          { "Northlight", "The Cartographer" },
+          { "Salt and Static", "The Long Shore" },
+          { "A Room Facing East", "Paper Cities" },
+          { "Winter's End", "Nimmerland" },
+          { "Low Tide Again", "Between Two Rivers" },
+          { "The Last Ferry", "Sixth Continent" }
+      };
+
+      /// <summary>Whether this is the party's question - the shelf of songs rather than of films.</summary>
+      private static bool askedAspectMusic(HttpRequestMessage request)
+      {
+        return string.Equals(ParameterIn(request.RequestUri!.Query, "aspect"), "AudioItem",
+            StringComparison.OrdinalIgnoreCase);
+      }
+
       protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
           CancellationToken cancellation)
       {
@@ -1553,6 +1636,27 @@ namespace FrontendProbe
               false, null);
 
           return Answer(request, one);
+        }
+
+        // The music shelf, for the party screen. Songs rather than films because the party asks the server for
+        // the AudioItem aspect and the frame has to be what that question gets: short names with an artist and a
+        // track number behind them, files that end in .mp3, and no watching states - a song is not watched.
+        if (askedAspectMusic(request))
+        {
+          List<MediaTitle> songs = new List<MediaTitle>();
+          for (int at = 0; at < TRACKS.GetLength(0); at++)
+          {
+            songs.Add(new MediaTitle(
+                new Guid(string.Format("00000000-0000-5000-8000-{0:D12}", at + 1)),
+                TRACKS[at, 0], TRACKS[at, 0], 2014 + at, null,
+                "{D3525B2F-7322-430C-87E7-CDA8EBD6EDD2}://" + Path.Combine(folder,
+                    TRACKS[at, 0].Replace(' ', '_') + ".mp3"),
+                false, null, null, null, null, null, at + 1, TRACKS[at, 1]));
+          }
+
+          MediaTitles wholeShelf = new MediaTitles("AudioItem", null, songs.Count, 0, songs.Count, songs.Count,
+              "title", songs, null);
+          return Answer(request, wholeShelf);
         }
 
         List<MediaTitle> titles = new List<MediaTitle>();
