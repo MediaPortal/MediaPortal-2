@@ -398,15 +398,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       var result = false;
       
       // Create an IFileSystemResourceAccessor to the parent directory of the nfo-file 
-      var nfoDirectoryResourcePath = ResourcePathHelper.Combine(nfoFsra.CanonicalLocalResourcePath, "../");
-      IResourceAccessor nfoDirectoryRa;
-      IFileSystemResourceAccessor nfoDirectoryFsra = null;
-      if (nfoDirectoryResourcePath.TryCreateLocalResourceAccessor(out nfoDirectoryRa))
-      {
-        nfoDirectoryFsra = nfoDirectoryRa as IFileSystemResourceAccessor;
-        if (nfoDirectoryFsra == null)
-          nfoDirectoryRa.Dispose();
-      }
+      var nfoDirectoryFsra = TryGetNfoDirectoryAccessor(nfoFsra);
 
       using (nfoDirectoryFsra)
       {
@@ -739,7 +731,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     ///   - <see cref="_importOnly"/> is <c>true</c>; or
     ///   - <see cref="_forceQuickMode"/> is <c>true</c>; or
     ///   - a call to <see cref="ParseSimpleString"/> for <paramref name="element"/> returns <c>null</c>
-    ///   - <paramref name="element"/>.Value does not contain a valid and existing (absolute) http URL to an image; or
+    ///   - <paramref name="element"/>.Value does not contain a valid and existing (absolute) http or https URL to an image; or
     ///   - <paramref name="element"/>.Value does contain a valid and existing (relative) file path or <paramref name="nfoDirectoryFsra"/> is <c>null</c>;
     /// otherwise the image file read as byte array.
     /// </returns>
@@ -752,8 +744,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     ///     <example>extrafanart\fanart1.jpg</example>
     ///     <example>..\thumbs\fanart.jpg</example>
     ///     The path must be relative to the parent directory of the nfo-file
-    ///   - an absolute http URL
+    ///   - an absolute http or https URL
     ///     <example>http://image.tmdb.org/t/p/original/1rre3m7WsI2QavNZD4aUa8LzzcK.jpg</example>
+    ///     <example>https://image.tmdb.org/t/p/original/1rre3m7WsI2QavNZD4aUa8LzzcK.jpg</example>
+    /// A file is read whether or not the internet is reachable, a URL only when the caller did not ask for the fanart
+    /// download to be skipped.
     /// </remarks>
     protected async Task<byte[]> ParseSimpleImageAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
     {
@@ -770,23 +765,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         var imageFsra = nfoDirectoryFsra.GetResource(imageFileString);
         if (imageFsra != null)
           using (imageFsra)
-            using (var imageStream = await imageFsra.OpenReadAsync().ConfigureAwait(false))
-            {
-              var result = new byte[imageStream.Length];
-              await imageStream.ReadAsync(result, 0, (int)imageStream.Length).ConfigureAwait(false);
-              return result;
-            }
+            return await ReadPictureAsync(imageFsra).ConfigureAwait(false);
       }
       else
         _debugLogger.Error("[#{0}]: The nfo-file's parent directory's fsra could not be created", _miNumber);
 
       if (!_settings.SkipFanArtDownload)
       {
-        // Then check if we have a valid http URL
+        // Then check if we have a valid http(s) URL. Only http was accepted until the picture databases that write
+        // these nfo-files moved to https, which left every nfo-file whose artwork lies on the internet without a
+        // picture and every library built from them without artwork.
         Uri imageFileUri;
-        if (!Uri.TryCreate(imageFileString, UriKind.Absolute, out imageFileUri) || imageFileUri.Scheme != Uri.UriSchemeHttp)
+        if (!IsPictureUrl(imageFileString, out imageFileUri))
         {
-          _debugLogger.Warn("[#{0}]: The following element does neither contain an exsisting file name nor a valid http URL: {1}", _miNumber, element);
+          _debugLogger.Warn("[#{0}]: The following element does neither contain an exsisting file name nor a valid http(s) URL: {1}", _miNumber, element);
           return null;
         }
 
@@ -805,6 +797,226 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       }
       return null;
     }
+
+    #region Pictures
+
+    /// <summary>
+    /// Tells whether an nfo-file's picture element holds an address this reader is willing to fetch.
+    /// </summary>
+    /// <param name="value">The text of the element.</param>
+    /// <param name="uri">The address, when the answer is <c>true</c>.</param>
+    /// <returns><c>true</c> for an absolute http or https address; otherwise <c>false</c>.</returns>
+    /// <remarks>
+    /// <para>
+    /// Only those two schemes, because the nfo-file's author wrote them as a place to read a picture from and the
+    /// reader does exactly that: it asks the web server and stores what it gets. A <c>file:</c> address would be a
+    /// way for a downloaded nfo-file to make the importer read a path the user never shared, and the local file
+    /// beside the media is already read - by name, from the folder of the nfo-file - before any address is looked at.
+    /// </para>
+    /// <para>
+    /// https belongs on the list for the same reason MP2's importer once had a picture for every title and now has
+    /// none: the databases that write these files (TMDb through MediaElch, Kodi's NFO exporters) hand out https
+    /// addresses only, so a reader accepting http silently throws away all of their artwork.
+    /// </para>
+    /// </remarks>
+    public static bool IsPictureUrl(string value, out Uri uri)
+    {
+      uri = null;
+      if (string.IsNullOrWhiteSpace(value))
+        return false;
+
+      Uri parsed;
+      if (!Uri.TryCreate(value.Trim(), UriKind.Absolute, out parsed))
+        return false;
+
+      if (parsed.Scheme != Uri.UriSchemeHttp && parsed.Scheme != Uri.UriSchemeHttps)
+        return false;
+
+      uri = parsed;
+      return true;
+    }
+
+    /// <summary>
+    /// Creates an <see cref="IFileSystemResourceAccessor"/> pointing to the directory holding <paramref name="nfoFileFsra"/>.
+    /// </summary>
+    /// <param name="nfoFileFsra"><see cref="IFileSystemResourceAccessor"/> pointing to the nfo-file.</param>
+    /// <returns>The accessor to the directory, or <c>null</c> if it cannot be reached.</returns>
+    /// <remarks>
+    /// The caller owns the returned accessor and has to dispose it. Everything that is looked for next to an nfo-file -
+    /// a picture named by a <c>&lt;thumb&gt;</c> element, a picture lying there without being named - goes through the
+    /// resource provider instead of <see cref="File"/>, which is what keeps a share on another machine importable.
+    /// </remarks>
+    protected static IFileSystemResourceAccessor TryGetNfoDirectoryAccessor(IFileSystemResourceAccessor nfoFileFsra)
+    {
+      if (nfoFileFsra == null)
+        return null;
+
+      var directoryResourcePath = ResourcePathHelper.Combine(nfoFileFsra.CanonicalLocalResourcePath, @"../");
+      IResourceAccessor directoryRa;
+      if (!directoryResourcePath.TryCreateLocalResourceAccessor(out directoryRa))
+        return null;
+
+      var directoryFsra = directoryRa as IFileSystemResourceAccessor;
+      if (directoryFsra == null)
+        directoryRa.Dispose();
+      return directoryFsra;
+    }
+
+    /// <summary>
+    /// The file names a picture is conventionally stored under in the folder of a title, the one that wins first.
+    /// </summary>
+    /// <param name="nfoFileFsra"><see cref="IFileSystemResourceAccessor"/> pointing to the nfo-file that was read.</param>
+    /// <param name="suffixes">Suffixes used after the name of the nfo-file, e.g. <c>"thumb"</c> for
+    /// <c>Alien Earth - S01E01 - Nimmerland-thumb.jpg</c>. May be empty.</param>
+    /// <param name="plainNames">Names that say nothing about the media file, e.g. <c>"poster"</c>. May be empty.</param>
+    /// <returns>
+    /// The names to look for in the folder of the nfo-file: first the ones carrying the name of the title, because a
+    /// folder holding several titles can only tell its pictures apart by that name, then the plain ones. Each name is
+    /// offered as JPEG before PNG.
+    /// </returns>
+    /// <remarks>
+    /// These are the names the tools that write nfo-files (Kodi's and MediaElch's "save artwork into the movie folder")
+    /// write, and the names MP1's covers were kept under. They matter because an nfo-file written by a scraper that
+    /// keeps its artwork on the internet names only URLs, while the same tool saved a copy of that artwork next to the
+    /// media - a server behind a firewall, or one whose owner turned the internet off, should still draw its titles.
+    /// </remarks>
+    protected static IList<string> LocalPictureFileNames(IFileSystemResourceAccessor nfoFileFsra,
+        IEnumerable<string> suffixes, IEnumerable<string> plainNames)
+    {
+      var names = new List<string>();
+      var baseNames = new List<string>();
+
+      // The nfo-file and the media file it describes share their name, so the nfo-file's own name is what the
+      // pictures beside it are named after. A "movie.nfo" therefore asks for "movie-poster.jpg", which is a name
+      // the tools really use, and falls back to the plain names below.
+      var nfoName = nfoFileFsra != null ? nfoFileFsra.ResourceName : null;
+      if (!string.IsNullOrEmpty(nfoName))
+        baseNames.Add(Path.GetFileNameWithoutExtension(nfoName));
+
+      if (suffixes != null)
+        foreach (var suffix in suffixes)
+          foreach (var baseName in baseNames)
+            names.Add(baseName + "-" + suffix);
+
+      if (plainNames != null)
+        names.AddRange(plainNames);
+
+      var result = new List<string>();
+      foreach (var name in names)
+      {
+        result.Add(name + ".jpg");
+        result.Add(name + ".png");
+      }
+      return result;
+    }
+
+    /// <summary>
+    /// Reads the first picture that is lying in the folder of <paramref name="nfoFileFsra"/> under one of
+    /// <paramref name="fileNames"/>.
+    /// </summary>
+    /// <param name="nfoFileFsra"><see cref="IFileSystemResourceAccessor"/> pointing to the nfo-file.</param>
+    /// <param name="fileNames">The names to try, the one that wins first.</param>
+    /// <returns>The bytes of the first picture found, or <c>null</c> if the folder holds none of them.</returns>
+    protected async Task<byte[]> FindLocalPictureAsync(IFileSystemResourceAccessor nfoFileFsra,
+        IList<string> fileNames)
+    {
+      if (fileNames == null || fileNames.Count == 0)
+        return null;
+
+      var directoryFsra = TryGetNfoDirectoryAccessor(nfoFileFsra);
+      if (directoryFsra == null)
+      {
+        _debugLogger.Error("[#{0}]: The nfo-file's parent directory's fsra could not be created", _miNumber);
+        return null;
+      }
+
+      using (directoryFsra)
+        foreach (var fileName in fileNames)
+        {
+          var pictureFsra = directoryFsra.GetResource(fileName);
+          if (pictureFsra == null)
+            continue;
+
+          using (pictureFsra)
+          {
+            var picture = await ReadPictureAsync(pictureFsra).ConfigureAwait(false);
+            if (picture != null)
+            {
+              _debugLogger.Info("[#{0}]: Found the picture '{1}' next to the nfo-file", _miNumber, fileName);
+              return picture;
+            }
+          }
+        }
+      return null;
+    }
+
+    /// <summary>
+    /// Reads a picture file into a byte array.
+    /// </summary>
+    /// <param name="pictureFsra"><see cref="IFileSystemResourceAccessor"/> pointing to the picture file.</param>
+    /// <returns>
+    /// The bytes of the file, or <c>null</c> when there is no file at that path, when it could not be read to the end,
+    /// or when it is empty.
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// One <see cref="Stream.ReadAsync(byte[],int,int)"/> call is not enough - it is allowed to return fewer bytes than
+    /// were asked for - and a picture whose bytes stop in the middle is worse than no picture: the library holds
+    /// something that looks like artwork and every front end drawing it gets a decode failure. So the read is repeated
+    /// until the stream ends, and a short result is thrown away rather than stored.
+    /// </para>
+    /// <para>
+    /// An empty file is no picture either. The endpoint that serves pictures refuses to hand out zero bytes for
+    /// exactly that reason, and a title is better off with the placeholder it draws when there is nothing.
+    /// </para>
+    /// </remarks>
+    protected async Task<byte[]> ReadPictureAsync(IFileSystemResourceAccessor pictureFsra)
+    {
+      if (pictureFsra == null)
+        return null;
+      try
+      {
+        if (!pictureFsra.Exists || !pictureFsra.IsFile)
+          return null;
+
+        using (var pictureStream = await pictureFsra.OpenReadAsync().ConfigureAwait(false))
+        {
+          if (pictureStream == null)
+            // The local resource provider reports a file that vanished between Exists and the open as no stream at all
+            return null;
+
+          var length = checked((int) pictureStream.Length);
+          if (length == 0)
+            return null;
+
+          var result = new byte[length];
+          var read = 0;
+          while (read < length)
+          {
+            var chunk = await pictureStream.ReadAsync(result, read, length - read).ConfigureAwait(false);
+            if (chunk == 0)
+              break;
+            read += chunk;
+          }
+
+          if (read < length)
+          {
+            _debugLogger.Warn("[#{0}]: The picture '{1}' ended after {2} of {3} bytes and is not stored",
+                _miNumber, pictureFsra.ResourceName, read, length);
+            return null;
+          }
+          return result;
+        }
+      }
+      catch (Exception e)
+      {
+        _debugLogger.Warn("[#{0}]: The picture '{1}' could not be read", e, _miNumber,
+            pictureFsra.ResourceName);
+        return null;
+      }
+    }
+
+    #endregion
 
     /// <summary>
     /// Tries to parse one or more images from a single <see cref="XElement"/> and add them to an existing HashSet of byte[]

@@ -179,10 +179,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedElements.Add("tagline", new TryReadElementDelegate(TryReadTagline));
       _supportedElements.Add("trailer", new TryReadElementDelegate(TryReadTrailer));
 
-      if (includeFanart)
-        _supportedElements.Add("thumb", new TryReadElementAsyncDelegate(TryReadThumbAsync));
-      else
-        _supportedElements.Add("thumb", new TryReadElementDelegate(Ignore));
+      // The picture an nfo-file names for this title is read in every import, not only when the caller asked for the
+      // artwork: a shelf of titles without pictures is not a media centre, and this element is the one picture that
+      // belongs to the title itself. The gallery behind it (the <fanart> pictures, a dozen per title) is what the
+      // includeFanart flag is about, and it stays behind it.
+      _supportedElements.Add("thumb", new TryReadElementAsyncDelegate(TryReadThumbAsync));
 
       _supportedElements.Add("mpaa", new TryReadElementDelegate(TryReadMpaa));
       _supportedElements.Add("rating", new TryReadElementDelegate(TryReadRating));
@@ -234,8 +235,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedAttributes.Add(TryWriteEpisodeAspectTotalRating);
       _supportedAttributes.Add(TryWriteEpisodeAspectRatingCount);
 
-      //Handled by FanArt collector
-      //_supportedAttributes.Add(TryWriteThumbnailLargeAspectThumbnail);
+      // MP2 left the picture to the FanArt collector of the online movie/series extractors. That collector is not what
+      // fills a library built from nfo-files, so on a server that runs only this extractor the picture parsed from the
+      // nfo-file was dropped and every title was drawn with a placeholder. Store what we have.
+      _supportedAttributes.Add(TryWriteThumbnailLargeAspectThumbnail);
     }
 
     #endregion
@@ -1339,14 +1342,40 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    /// <remarks>
+    /// The picture is the one the episode's nfo-file named in its <c>&lt;thumb&gt;</c> element, or - when it named none -
+    /// the one <see cref="AttachLocalPictureAsync"/> found lying next to it. An empty picture is not written: the
+    /// endpoint serving pictures hands a placeholder for a title without one, and zero bytes would give a front end a
+    /// decode failure instead.
+    /// </remarks>
     private bool TryWriteThumbnailLargeAspectThumbnail(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
-      if (_stubs[0].Thumb != null)
+      var episode = _stubs.Count > 0 ? _stubs[0] : null;
+      if (episode != null && episode.Thumb != null && episode.Thumb.Length > 0)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, _stubs[0].Thumb);
+        MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, episode.Thumb);
         return true;
       }
       return false;
+    }
+
+    /// <summary>
+    /// Looks for the episode's picture in the folder of its nfo-file when the nfo-file named none.
+    /// </summary>
+    /// <param name="nfoFileFsra"><see cref="IFileSystemResourceAccessor"/> pointing to the episode nfo-file.</param>
+    /// <remarks>
+    /// Only <c>&lt;episode file name&gt;-thumb.jpg</c> (and its PNG form) is asked for. The series poster that usually
+    /// sits in the folder is not a picture of this episode, and putting it here would draw the same poster on every
+    /// episode of a series while the viewer is looking for the one frame that belongs to the episode they are about to
+    /// watch. Nothing is looked for when the nfo-file did name a picture, whatever the reason for it being there.
+    /// </remarks>
+    private async Task AttachLocalPictureAsync(IFileSystemResourceAccessor nfoFileFsra)
+    {
+      if (_forceQuickMode || _stubs.Count == 0 || _stubs[0].Thumb != null)
+        return;
+
+      _stubs[0].Thumb = await FindLocalPictureAsync(nfoFileFsra,
+          LocalPictureFileNames(nfoFileFsra, new[] { "thumb" }, null)).ConfigureAwait(false);
     }
 
     #endregion
@@ -1495,6 +1524,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _debugLogger.Info("[#{0}]: SeriesEpisodeStub object for episode nfo-file not found in cache; parsing nfo-file {1}", _miNumber, nfoFsra.CanonicalLocalResourcePath);
       if (await base.TryReadMetadataAsync(nfoFsra).ConfigureAwait(false))
       {
+        await AttachLocalPictureAsync(nfoFsra).ConfigureAwait(false);
         if (_settings.EnableDebugLogging && _settings.WriteStubObjectIntoDebugLog)
           LogStubObjects();
         return (_includeFanart, _stubs);

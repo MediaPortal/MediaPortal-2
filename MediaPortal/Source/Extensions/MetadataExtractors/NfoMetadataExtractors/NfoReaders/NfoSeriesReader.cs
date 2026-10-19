@@ -161,16 +161,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedElements.Add("genre", new TryReadElementDelegate(TryReadGenre));
       _supportedElements.Add("genres", new TryReadElementDelegate(TryReadGenres));
 
+      // The pictures an nfo-file names for this title are read in every import, not only when the caller asked for
+      // the artwork: a series without a poster is a grey rectangle in the shelf. The gallery of fanart pictures is
+      // what the includeFanart flag is about, and it stays behind it. What of the named pictures is actually stored
+      // is the poster, which TryWriteThumbnailLargeAspectThumbnail picks out.
+      _supportedElements.Add("thumb", new TryReadElementAsyncDelegate(TryReadThumbAsync));
       if (includeFanart)
-      {
-        _supportedElements.Add("thumb", new TryReadElementAsyncDelegate(TryReadThumbAsync));
         _supportedElements.Add("fanart", new TryReadElementAsyncDelegate(TryReadFanArtAsync));
-      }
       else
-      {
-        _supportedElements["thumb"] = new TryReadElementDelegate(Ignore);
-        _supportedElements["fanart"] = new TryReadElementDelegate(Ignore);
-      }
+        _supportedElements.Add("fanart", new TryReadElementDelegate(Ignore));
 
       _supportedElements.Add("mpaa", new TryReadElementDelegate(TryReadMpaa));
       _supportedElements.Add("rating", new TryReadElementDelegate(TryReadRating));
@@ -217,8 +216,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedAttributes.Add(TryWriteSeriesAspectCertification);
       _supportedAttributes.Add(TryWriteSeriesAspectNetworks);
 
-      //Handled by FanArt collector now
-      //_supportedAttributes.Add(TryWriteThumbnailLargeAspectThumbnail);
+      // MP2 left the picture to the FanArt collector of the online series extractor, which is not what fills a library
+      // built from nfo-files. Without this the poster parsed from tvshow.nfo was thrown away.
+      _supportedAttributes.Add(TryWriteThumbnailLargeAspectThumbnail);
     }
 
     #endregion
@@ -1031,12 +1031,57 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
     private bool TryWriteThumbnailLargeAspectThumbnail(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
-      if (_stubs[0].Thumbs != null && _stubs[0].Thumbs.Any())
+      var series = _stubs.Count > 0 ? _stubs[0] : null;
+      if (series == null || series.Thumbs == null)
+        return false;
+
+      // A tvshow.nfo names the poster, the posters of every season, the banners and a dozen fanart pictures, and they
+      // are collected in a HashSet, so which one comes out first is not a decision anybody made - taking the first one
+      // drew a random fanart as the picture of the series. The picture a series is drawn with is the poster the nfo-file
+      // marked as belonging to the whole series; if it has none, any picture is still better than none.
+      var picture = series.Thumbs
+          .Where(thumb => thumb.Aspect == SeriesThumbStub.ThumbAspect.Poster && !thumb.Season.HasValue)
+          .Concat(series.Thumbs)
+          .FirstOrDefault(thumb => thumb.Thumb != null && thumb.Thumb.Length > 0);
+      if (picture == null)
+        return false;
+
+      MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, picture.Thumb);
+      return true;
+    }
+
+    /// <summary>
+    /// Looks for the series poster in the folder of <c>tvshow.nfo</c> when that file named none.
+    /// </summary>
+    /// <param name="nfoFileFsra"><see cref="IFileSystemResourceAccessor"/> pointing to the series nfo-file.</param>
+    /// <remarks>
+    /// A poster found here is recorded as a poster, so it competes with the ones the nfo-file named on equal terms and
+    /// the <see cref="TryWriteThumbnailLargeAspectThumbnail"/> writer still decides what is drawn. Season posters and
+    /// banners are not looked for: they are not the picture a series is drawn with.
+    /// </remarks>
+    private async Task AttachLocalPictureAsync(IFileSystemResourceAccessor nfoFileFsra)
+    {
+      if (_forceQuickMode || _stubs.Count == 0)
+        return;
+
+      var series = _stubs[0];
+      if (series.Thumbs != null &&
+          series.Thumbs.Any(thumb => thumb.Aspect == SeriesThumbStub.ThumbAspect.Poster && !thumb.Season.HasValue &&
+              thumb.Thumb != null && thumb.Thumb.Length > 0))
+        return;
+
+      var picture = await FindLocalPictureAsync(nfoFileFsra, LocalPictureFileNames(nfoFileFsra,
+          new[] { "poster" }, new[] { "poster", "folder", "tvshow" })).ConfigureAwait(false);
+      if (picture == null)
+        return;
+
+      if (series.Thumbs == null)
+        series.Thumbs = new HashSet<SeriesThumbStub>();
+      series.Thumbs.Add(new SeriesThumbStub
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, _stubs[0].Thumbs.First().Thumb);
-        return true;
-      }
-      return false;
+        Thumb = picture,
+        Aspect = SeriesThumbStub.ThumbAspect.Poster
+      });
     }
 
     #endregion
@@ -1192,6 +1237,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _debugLogger.Info("[#{0}]: SeriesStub object for series nfo-file not found in cache; parsing nfo-file {1}", _miNumber, nfoFsra.CanonicalLocalResourcePath);
       if (await base.TryReadMetadataAsync(nfoFsra).ConfigureAwait(false))
       {
+        await AttachLocalPictureAsync(nfoFsra).ConfigureAwait(false);
         if (_settings.EnableDebugLogging && _settings.WriteStubObjectIntoDebugLog)
           LogStubObjects();
         return (_includeFanart, _stubs);

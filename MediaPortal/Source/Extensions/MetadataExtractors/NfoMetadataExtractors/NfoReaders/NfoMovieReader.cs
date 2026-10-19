@@ -285,9 +285,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedElements.Add("genres", new TryReadElementDelegate(TryReadGenres));
       _supportedElements.Add("language", new TryReadElementDelegate(TryReadLanguage));
       _supportedElements.Add("languages", new TryReadElementDelegate(TryReadLanguage)); // Synonym for <language>
+      // The cover an nfo-file names for this film is read in every import, not only when the caller asked for the
+      // artwork: a shelf of films without covers is not a media centre. The rest of the artwork (fanart, disc art,
+      // logos, clear art, banners) is what the includeFanart flag is about, and it stays behind it.
+      _supportedElements.Add("thumb", new TryReadElementAsyncDelegate(TryReadThumbAsync));
       if (includeFanart)
       {
-        _supportedElements.Add("thumb", new TryReadElementAsyncDelegate(TryReadThumbAsync));
         _supportedElements.Add("fanart", new TryReadElementAsyncDelegate(TryReadFanArtAsync));
         _supportedElements.Add("discart", new TryReadElementAsyncDelegate(TryReadDiscArtAsync));
         _supportedElements.Add("logo", new TryReadElementAsyncDelegate(TryReadLogoAsync));
@@ -298,7 +301,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       }
       else
       {
-        _supportedElements["thumb"] = new TryReadElementDelegate(Ignore);
         _supportedElements["fanart"] = new TryReadElementDelegate(Ignore);
         _supportedElements["discart"] = new TryReadElementDelegate(Ignore);
         _supportedElements["logo"] = new TryReadElementDelegate(Ignore);
@@ -354,8 +356,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedAttributes.Add(TryWriteVideoAspectWriters);
       _supportedAttributes.Add(TryWriteVideoAspectGenres);
 
-      //Handled by FanArt collector now
-      //_supportedAttributes.Add(TryWriteThumbnailLargeAspectThumbnail);
+      // MP2 left the picture to the FanArt collector of the online movie extractor, which is not what fills a library
+      // built from nfo-files. Without this the cover parsed from movie.nfo was thrown away.
+      _supportedAttributes.Add(TryWriteThumbnailLargeAspectThumbnail);
 
       if (!videoOnly)
       {
@@ -1883,12 +1886,35 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
     private bool TryWriteThumbnailLargeAspectThumbnail(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
-      if (_stubs[0].Thumb != null)
+      var movie = _stubs.Count > 0 ? _stubs[0] : null;
+      if (movie != null && movie.Thumb != null && movie.Thumb.Length > 0)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, _stubs[0].Thumb);
+        MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, movie.Thumb);
         return true;
       }
       return false;
+    }
+
+    /// <summary>
+    /// Looks for the film's cover in the folder of its nfo-file when that file named none.
+    /// </summary>
+    /// <param name="nfoFileFsra"><see cref="IFileSystemResourceAccessor"/> pointing to the movie nfo-file.</param>
+    /// <remarks>
+    /// <para>
+    /// The names are the ones the tools that write nfo-files put artwork under when they are told to keep it with the
+    /// film: <c>poster.jpg</c> and <c>cover.jpg</c> in a folder of its own, and the name of the film in front of that
+    /// when several films share a folder. A movie imported without an NFO file at all never reaches this reader, so
+    /// such a film keeps its placeholder - it is the file without a description, not the file without a picture, that
+    /// left the shelf empty.
+    /// </para>
+    /// </remarks>
+    private async Task AttachLocalPictureAsync(IFileSystemResourceAccessor nfoFileFsra)
+    {
+      if (_forceQuickMode || _stubs.Count == 0 || _stubs[0].Thumb != null)
+        return;
+
+      _stubs[0].Thumb = await FindLocalPictureAsync(nfoFileFsra, LocalPictureFileNames(nfoFileFsra,
+          new[] { "thumb", "poster", "cover" }, new[] { "poster", "cover", "folder" })).ConfigureAwait(false);
     }
 
     #endregion
@@ -1981,6 +2007,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _debugLogger.Info("[#{0}]: MovieStub object for movie nfo-file not found in cache; parsing nfo-file {1}", _miNumber, nfoFsra.CanonicalLocalResourcePath);
       if (await base.TryReadMetadataAsync(nfoFsra).ConfigureAwait(false))
       {
+        await AttachLocalPictureAsync(nfoFsra).ConfigureAwait(false);
         if (_settings.EnableDebugLogging && _settings.WriteStubObjectIntoDebugLog)
           LogStubObjects();
         return (_includeFanart, _stubs);
