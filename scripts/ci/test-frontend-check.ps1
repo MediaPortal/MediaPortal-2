@@ -14,9 +14,9 @@
     5. the same front end aimed at a port nobody listens on must exit 1 and say so, because a check that
        cannot fail is not a check;
     6. while the server is still up, Frontend.RenderProbe draws the real screens through Skia and writes
-       fifteen PNGs (default build\artifacts\frontend-render\: home, continue, browser, details, search,
-       seen, nowplaying, connect, pictures, browse, news, weather, party, and the playback screen twice more
-       drawn with the colours of the two rescued skins).
+       sixteen PNGs (default build\artifacts\frontend-render\: home, continue, browser, details, search,
+       seen, nowplaying, connect, pictures, browse, news, weather, party, settings, and the playback
+       screen twice more drawn with the colours of the two rescued skins).
        The probe fails this gate if a frame comes back flat, and if the pixels it was painted with are not
        the palette the frame asked for; the pictures themselves are for a person, and -SkipRender leaves
        them out.
@@ -292,7 +292,7 @@ try {
       if (-not $RenderDir) { $RenderDir = Join-Path (Join-Path $repoRoot 'build\artifacts') 'frontend-render' }
       New-Item -ItemType Directory -Path $RenderDir -Force | Out-Null
 
-      # Thirteen screens, fifteen frames. The home screen is drawn from a server that is really answering; the
+      # Fourteen screens, sixteen frames. The home screen is drawn from a server that is really answering; the
       # continue frame is the same screen of a household that has been watching things, drawn from a scripted
       # server, because the strip cannot be drawn from an empty database; the playback screen is drawn from a
       # scripted player, because a frame that is supposed to mean the same
@@ -346,7 +346,13 @@ try {
         # colour of its own and leaves the rest to the theme, so its two frames would say nothing the first one
         # did not already say.
         @{ Name = 'nowplaying-nereus'; Arguments = '--screen nowplaying --theme nereus' },
-        @{ Name = 'nowplaying-wmc-dark'; Arguments = '--screen nowplaying --theme wmc-dark' }
+        @{ Name = 'nowplaying-wmc-dark'; Arguments = '--screen nowplaying --theme wmc-dark' },
+        # The settings screen, wearing Nereus, is the frame that says the palettes are not a table in a binary
+        # but pixels on a television: every row paints its own accent as a swatch, and the probe counts the
+        # accents by name - eleven palettes, eleven accent colours looked for by hex, each needing a painted
+        # row. It is drawn with a theme other than its rows' colours on purpose: what a viewer picks on this
+        # screen must survive being looked at through somebody else's colours.
+        @{ Name = 'settings-nereus'; Arguments = '--screen settings --theme nereus' }
       )
       foreach ($frame in $frames) {
         $renderFile = Join-Path $RenderDir ($frame.Name + '.png')

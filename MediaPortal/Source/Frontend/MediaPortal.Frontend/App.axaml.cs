@@ -151,8 +151,15 @@ namespace MediaPortal.Frontend
       // The palette goes on before a single screen exists. Afterwards is too late: a screen that has already drawn
       // keeps the brushes it resolved, so half of it would stay in the old colours and the half that changed would
       // look like a bug in the new one. SelectedName is what makes MP2_THEME work for a device that was started with
-      // no command line at all.
-      string appliedTheme = FrontendTheme.Apply(this, FrontendTheme.SelectedName(_theme), out string? themeProblem);
+      // no command line at all, and what the settings screen saved is its third source: typed outranks exported
+      // outranks chosen outranks the factory, because the loudest voice about one run's colours is the one that
+      // named them for that run.
+      ThemeSettings savedTheme = ThemeSettings.Load(null, out string? savedThemeProblem);
+      if (savedThemeProblem != null)
+        Console.WriteLine("theme:    " + savedThemeProblem);
+
+      string appliedTheme = FrontendTheme.Apply(this, FrontendTheme.SelectedName(_theme, savedTheme.Theme),
+          out string? themeProblem);
       if (themeProblem != null)
         Console.WriteLine("theme:    " + themeProblem);
       else if (!string.Equals(appliedTheme, FrontendTheme.DEFAULT_NAME, StringComparison.Ordinal))
@@ -508,6 +515,15 @@ namespace MediaPortal.Frontend
 
         return new PartyWindow(_party,
             _nowPlaying == null ? null : new Func<Avalonia.Controls.Window>(NowPlayingScreen));
+      }
+
+      if (screenKey.Equals("themes", StringComparison.OrdinalIgnoreCase))
+      {
+        // The front end's own settings, behind MP2's "Settings" tile. A fresh view model per visit, unlike the
+        // party queue: the screen reports what is worn right now, and the honest way to know that is to ask the
+        // application again rather than to remember what the last visit left behind - somebody may have started
+        // this run with a --theme that overrode the saved choice.
+        return new ThemeWindow(this);
       }
 
       // A tile naming a screen nobody builds is a mismatch between the menu and this method, which is a bug in the

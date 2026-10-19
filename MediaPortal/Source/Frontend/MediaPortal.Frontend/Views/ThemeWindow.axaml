@@ -1,0 +1,88 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        x:Class="MediaPortal.Frontend.Views.ThemeWindow"
+        x:DataType="vm:ThemeViewModel"
+        Name="themes"
+        Width="1280" Height="720"
+        WindowState="Maximized"
+        Background="{DynamicResource ScreenBackgroundBrush}"
+        Title="MediaPortal 2 - Settings">
+
+  <!--
+    The front end's own settings: one question, which colours it wears. The list is the whole screen on purpose,
+    and eleven rows have to fit the screen - a viewer choosing a theme has to see the choices - which is what
+    sets the sizes here: one line per row of modest type, the description trimmed rather than wrapped, and two
+    miniature swatches naming the row's panel and accent. The bigger preview is the screen itself: picking a row
+    repaints this list in the colours it names, so what a viewer weighs is the theme in use, not a chip of it -
+    and the render gate counts the miniature swatches' pixels by name, which is how "every palette reaches the
+    television" is a checked claim instead of a hope. See ThemeViewModel for why there is no Apply button and
+    why the choice is saved without being asked for.
+  -->
+
+  <DockPanel Margin="48,22">
+
+    <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,12">
+      <TextBlock Text="Settings"
+                 FontSize="30"
+                 FontWeight="SemiBold" />
+      <TextBlock Text="{Binding Heading}"
+                 FontSize="16"
+                 Opacity="0.7"
+                 TextWrapping="Wrap"
+                 MaxWidth="1500"
+                 HorizontalAlignment="Left" />
+    </StackPanel>
+
+    <TextBlock DockPanel.Dock="Bottom"
+               Name="statusLine"
+               Text="{Binding Status}"
+               FontSize="18"
+               Opacity="0.85"
+               Margin="0,12,0,0"
+               TextWrapping="Wrap" />
+
+    <ListBox Name="themesList"
+             Focusable="True"
+             ItemsSource="{Binding Themes}"
+             SelectedItem="{Binding Selected, Mode=TwoWay}"
+             FontSize="18">
+      <ListBox.ItemTemplate>
+        <DataTemplate x:DataType="vm:ThemeChoice">
+          <StackPanel Orientation="Horizontal" Spacing="14" Margin="2,3">
+            <TextBlock Text="{Binding Name}"
+                       FontSize="20"
+                       MinWidth="220"
+                       VerticalAlignment="Center" />
+            <!-- The marker wears the accent it is announcing, so on every theme the word is drawn in that
+                 theme's own brightest colour - the screen admits which row it applied, including after a
+                 start-up where the command line outranked the saved choice. -->
+            <TextBlock Text="WORN"
+                       FontSize="16"
+                       FontWeight="Bold"
+                       Foreground="{DynamicResource AccentBrush}"
+                       MinWidth="70"
+                       VerticalAlignment="Center"
+                       IsVisible="{Binding IsCurrent}" />
+            <TextBlock Text="{Binding Description}"
+                       FontSize="15"
+                       Opacity="0.7"
+                       TextTrimming="CharacterEllipsis"
+                       VerticalAlignment="Center"
+                       Width="430" />
+            <!-- Two of the three colours a screen is made of, in the order they sit on one: a panel and an
+                 accent on it. Small on purpose - eleven rows have to fit one screenful - and exact, because
+                 the render gate counts these pixels by name to prove every palette reaches the television.
+                 The outline is what keeps a charcoal swatch from disappearing into a charcoal row. -->
+            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" VerticalAlignment="Center">
+              <Rectangle Width="64" Height="20" Fill="{Binding PanelBrush}" />
+            </Border>
+            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" VerticalAlignment="Center">
+              <Rectangle Width="64" Height="20" Fill="{Binding AccentBrush}" />
+            </Border>
+          </StackPanel>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+  </DockPanel>
+</Window>

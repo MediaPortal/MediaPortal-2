@@ -25,8 +25,12 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Headless.NUnit;
 using Avalonia.Media;
+using Avalonia.Styling;
 using NUnit.Framework;
+using MediaPortal.Frontend.Settings;
 using MediaPortal.Frontend.Theming;
+using MediaPortal.Frontend.ViewModels;
+using MediaPortal.Frontend.Views;
 
 namespace Tests.Frontend
 {
@@ -232,6 +236,224 @@ namespace Tests.Frontend
           "a typo is not a reason to repaint anything");
     }
 
+    [AvaloniaTest]
+    public void ASkinPaintsTheControlsNoScreenDrawsItself()
+    {
+      Application app = RequireApplication();
+      FrontendTheme.Apply(app, "nereus", out _);
+
+      Button button = new Button { Content = "start" };
+      ListBox list = new ListBox();
+      ListBoxItem row = new ListBoxItem { Content = "a song", IsSelected = true };
+      list.Items.Add(row);
+      TextBox entry = new TextBox();
+      Window window = new Window { Content = new StackPanel { Children = { button, list, entry } } };
+      window.Show();
+      for (int pump = 0; pump < 20; pump++)
+        Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+
+      Assert.That(((SolidColorBrush)button.Background).Color, Is.EqualTo(FrontendTheme.ColorOf("nereus", "PanelBrush")),
+          "a button is the one thing every screen has and no screen paints; Fluent leaves it on #33ffffff for "
+          + "everybody unless a skin says otherwise");
+      Assert.That(((SolidColorBrush)button.BorderBrush).Color, Is.EqualTo(FrontendTheme.ColorOf("nereus", "OutlineBrush")));
+      Assert.That(((SolidColorBrush)button.Foreground).Color, Is.EqualTo(FrontendTheme.ColorOf("nereus", "ButtonTextBrush")));
+      Assert.That(((SolidColorBrush)list.Background).Color, Is.EqualTo(FrontendTheme.ColorOf("nereus", "PanelBrush")));
+      Assert.That(((SolidColorBrush)row.Background).Color, Is.EqualTo(FrontendTheme.ColorOf("nereus", "AccentBrush")),
+          "a selected row wears the accent, because that is where the skin put its brightest colour");
+      Assert.That(((SolidColorBrush)entry.Background).Color, Is.EqualTo(FrontendTheme.ColorOf("nereus", "PanelBrush")));
+
+      window.Close();
+    }
+
+    [AvaloniaTest]
+    public void TheDefaultPaletteLeavesTheControlsToFluentAlone()
+    {
+      Application app = RequireApplication();
+      Button fluent = new Button { Content = "unchanged" };
+      Window window = new Window { Content = fluent };
+      window.Show();
+      for (int pump = 0; pump < 20; pump++)
+        Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+      Color untouched = ((SolidColorBrush)fluent.Background).Color;
+
+      FrontendTheme.Apply(app, "nereus", out _);
+      FrontendTheme.Apply(app, FrontendTheme.DEFAULT_NAME, out _);
+      for (int pump = 0; pump < 20; pump++)
+        Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+
+      Assert.That(untouched, Is.Not.EqualTo(FrontendTheme.ColorOf(FrontendTheme.DEFAULT_NAME, "PanelBrush")),
+          "the point of the test: what Fluent draws by its own rules is not the palette's panel colour, so "
+          + "getting it back proves the chrome came off rather than being painted over");
+      Assert.That(((SolidColorBrush)fluent.Background).Color, Is.EqualTo(untouched),
+          "back to the default palette means back to exactly the pixels this front end always had - the promise "
+          + "the palette table makes to everybody who never heard of Nereus");
+
+      window.Close();
+    }
+
+    [AvaloniaTest]
+    public void SwitchingOneSkinForAnotherRepaintsTheControlsWithoutStacking()
+    {
+      Application app = RequireApplication();
+      int stylesBefore = app.Styles.OfType<Styles>().Count();
+
+      Button button = new Button { Content = "again" };
+      Window window = new Window { Content = button };
+      window.Show();
+
+      FrontendTheme.Apply(app, "nereus", out _);
+      for (int pump = 0; pump < 20; pump++)
+        Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+      Assert.That(((SolidColorBrush)button.Background).Color, Is.EqualTo(FrontendTheme.ColorOf("nereus", "PanelBrush")));
+
+      FrontendTheme.Apply(app, "wmc", out _);
+      for (int pump = 0; pump < 20; pump++)
+        Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+      Assert.That(((SolidColorBrush)button.Background).Color, Is.EqualTo(FrontendTheme.ColorOf("wmc", "PanelBrush")),
+          "the second skin replaced the first on the button too, not just on the resources under it");
+      Assert.That(app.Styles.OfType<Styles>().Count(), Is.EqualTo(stylesBefore + 1),
+          "two skins added one set of chrome styles between them - stacking them would leave last evening's "
+          + "buttons under tonight's");
+
+      window.Close();
+    }
+
+    [Test]
+    public void TheSavedChoiceRidesBehindTheTypedOneAndTheEnvironment()
+    {
+      string saved = Environment.GetEnvironmentVariable(FrontendTheme.ENVIRONMENT_VARIABLE);
+      try
+      {
+        Environment.SetEnvironmentVariable(FrontendTheme.ENVIRONMENT_VARIABLE, "wmc");
+        Assert.That(FrontendTheme.SelectedName(null, "nereus"), Is.EqualTo("wmc"),
+            "the environment is a voice raised about this particular run; a choice made earlier on the couch "
+            + "does not shout it down");
+        Assert.That(FrontendTheme.SelectedName("nereus-red", "wmc-dark"), Is.EqualTo("nereus-red"),
+            "and whoever typed --theme outranks both");
+
+        Environment.SetEnvironmentVariable(FrontendTheme.ENVIRONMENT_VARIABLE, "");
+        Assert.That(FrontendTheme.SelectedName(null, "nereus-red"), Is.EqualTo("nereus-red"),
+            "with nothing said about this run, the choice the viewer made on the screen is what gets worn");
+        Assert.That(FrontendTheme.SelectedName("  nereus-RED ", ""), Is.EqualTo("nereus-red"),
+            "however it was spelled, a palette is answered as Names spells it");
+        Assert.That(FrontendTheme.SelectedName(null, "   "), Is.EqualTo(FrontendTheme.DEFAULT_NAME),
+            "a file that names nothing is nobody having chosen");
+        Assert.That(FrontendTheme.SelectedName(null, "nereus-pink"), Is.EqualTo("nereus-pink"),
+            "a name that is no palette travels through untouched, so that Apply can quote it in its sentence "
+            + "rather than quietly wearing the default");
+      }
+      finally
+      {
+        Environment.SetEnvironmentVariable(FrontendTheme.ENVIRONMENT_VARIABLE, saved);
+      }
+    }
+
+    [Test]
+    public void AThemeFileThatIsNotJsonIsSaidOutLoudAndChoosesNothing()
+    {
+      string file = Path.Combine(Path.GetTempPath(), "mp2-theme-" + Guid.NewGuid().ToString("N") + ".json");
+      File.WriteAllText(file, "this is not json {{{");
+      try
+      {
+        ThemeSettings saved = ThemeSettings.Load(file, out string? problem);
+        Assert.That(problem, Is.Not.Null.And.Contains(file),
+            "an unreadable settings file is a fact the application reports, not one it swallows");
+        Assert.That(saved.Theme, Is.Empty,
+            "and it chooses nothing on the viewer's behalf; nobody picked this");
+        Assert.That(FrontendTheme.SelectedName(null, saved.Theme), Is.EqualTo(FrontendTheme.DEFAULT_NAME),
+            "so the chain falls through to the factory colours");
+      }
+      finally
+      {
+        File.Delete(file);
+      }
+    }
+
+    [AvaloniaTest]
+    public void PickingAThemeOnTheSettingsScreenPaintsTheAppAndOutlivesTheScreen()
+    {
+      Application app = RequireApplication();
+      string file = Path.Combine(Path.GetTempPath(), "mp2-theme-" + Guid.NewGuid().ToString("N") + ".json");
+
+      try
+      {
+        ThemeViewModel settings = new ThemeViewModel(app, file);
+        Assert.That(settings.Themes.Select(choice => choice.Name), Is.EqualTo(FrontendTheme.Names),
+            "the screen offers exactly the palettes there are, in the order the theme list keeps them");
+        Assert.That(settings.Themes.Count(choice => choice.Description == "a theme"), Is.Zero,
+            "a row without a sentence is a name added to Names without growing DescriptionOf");
+        Assert.That(settings.Selected!.Name, Is.EqualTo(FrontendTheme.CurrentName(app)),
+            "the screen opens admitting what it is wearing, including after a start-up where --theme outranked "
+            + "the saved choice");
+        Assert.That(settings.Themes.Single(choice => choice.IsCurrent).Name, Is.EqualTo(FrontendTheme.CurrentName(app)));
+
+        settings.Selected = settings.Themes.First(choice => choice.Name == "wmc-turquoise");
+        Assert.That(FrontendTheme.CurrentName(app), Is.EqualTo("wmc-turquoise"),
+            "selecting is applying - there is no second button to press, and the screen itself repaints");
+        Assert.That(settings.Status, Does.StartWith("Wearing wmc-turquoise"));
+        Assert.That(settings.Themes.Single(choice => choice.IsCurrent).Name, Is.EqualTo("wmc-turquoise"),
+            "the marker moves with the theme, so the screen never claims two are worn");
+
+        // The restart the viewer believes in: a new application would ask SelectedName, and SelectedName asks
+        // this file. Here both halves are checked without pretending to restart the process.
+        ThemeSettings onDisk = ThemeSettings.Load(file, out string? readProblem);
+        Assert.That(readProblem, Is.Null, "a file this screen just wrote should read back cleanly");
+        Assert.That(onDisk.Theme, Is.EqualTo("wmc-turquoise"));
+        Assert.That(FrontendTheme.SelectedName(null, onDisk.Theme), Is.EqualTo("wmc-turquoise"),
+            "and it would be worn again at the next start");
+
+        ThemeViewModel secondVisit = new ThemeViewModel(app, file);
+        Assert.That(secondVisit.Selected!.Name, Is.EqualTo("wmc-turquoise"),
+            "backing out of the screen and coming back shows the choice, not where the viewer started");
+      }
+      finally
+      {
+        try
+        {
+          File.Delete(file);
+        }
+        catch (IOException)
+        {
+        }
+      }
+    }
+
+    [AvaloniaTest]
+    public void TheSettingsScreenOpensAsAListOfItsThemes()
+    {
+      Application app = RequireApplication();
+      string file = Path.Combine(Path.GetTempPath(), "mp2-theme-" + Guid.NewGuid().ToString("N") + ".json");
+
+      try
+      {
+        FrontendTheme.Apply(app, "nereus", out _);
+        ThemeWindow window = new ThemeWindow(app, file);
+        window.Show();
+        for (int pump = 0; pump < 20; pump++)
+          Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+
+        Assert.That(((SolidColorBrush) window.Background).Color,
+            Is.EqualTo(FrontendTheme.ColorOf("nereus", "ScreenBackgroundBrush")),
+            "the settings screen wears the theme it is offering, live - the honest preview is the screen itself");
+        ListBox? themesList = window.FindControl<ListBox>("themesList");
+        Assert.That(themesList, Is.Not.Null, "the list has to exist for anything on this screen to be pressable");
+        Assert.That(themesList!.Items.Count, Is.EqualTo(FrontendTheme.Names.Length),
+            "every palette is a row, and nothing else is");
+
+        window.Close();
+      }
+      finally
+      {
+        try
+        {
+          File.Delete(file);
+        }
+        catch (IOException)
+        {
+        }
+      }
+    }
+
     [Test]
     public void EveryColourTheScreensAskForIsAKeyEveryPaletteAnswers()
     {
@@ -270,6 +492,38 @@ namespace Tests.Frontend
     }
 
     [Test]
+    public void ANereusFamilyIsNereusInAnotherTintAndNothingElse()
+    {
+      // The families were a colour choice in the skin, not a different skin: a family palette may change only
+      // the three keys Nereus itself tinted with the family (the two panel shades and the accent) and has to
+      // leave every other key - including the orange of a complaint - exactly where the base palette puts it.
+      string[] tinted = { "AccentBrush", "PanelBrush", "PanelRaisedBrush" };
+
+      foreach (string family in new[]
+      {
+          "nereus-blue", "nereus-green", "nereus-orange", "nereus-purple", "nereus-red", "nereus-yellow"
+      })
+      {
+        foreach (string key in FrontendTheme.Keys)
+        {
+          Color mine = FrontendTheme.ColorOf(family, key);
+          Color baseColour = FrontendTheme.ColorOf("nereus", key);
+          if (tinted.Contains(key))
+            Assert.That(mine, Is.Not.EqualTo(baseColour), family + "." + key + " is still the base palette's colour");
+          else
+            Assert.That(mine, Is.EqualTo(baseColour), family + "." + key + " was retinted; the family is a "
+                + "colour choice, not a second skin");
+        }
+      }
+
+      // And the families are seven different accents, not one accent spelled seven ways.
+      int distinct = new[] { "nereus", "nereus-blue", "nereus-green", "nereus-orange", "nereus-purple",
+          "nereus-red", "nereus-yellow" }
+          .Select(name => FrontendTheme.ColorOf(name, "AccentBrush")).Distinct().Count();
+      Assert.That(distinct, Is.EqualTo(7), "seven families that answer with the same colour are one family");
+    }
+
+    [Test]
     public void EveryColourOfASkinPaletteIsInThatSkin()
     {
       // "Rescued from the Nereus and WMC skins" is a claim, and both skins are in this tree, so the claim can be
@@ -284,7 +538,13 @@ namespace Tests.Frontend
 
         HashSet<string> skinColours = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        foreach (string relative in SKIN_FILES[name])
+        // Nereus's accent families are the same skin in another tint: they state no colours of their own beyond
+        // the family shades, and those live in the same colour file as everything else the skin said.
+        string[] skinFiles = name.StartsWith("nereus", StringComparison.OrdinalIgnoreCase)
+            ? SKIN_FILES["nereus"]
+            : SKIN_FILES[name];
+
+        foreach (string relative in skinFiles)
         {
           string file = Path.Combine(MetadataPath("SkinsRoot"), relative);
           Assert.That(File.Exists(file), Is.True,

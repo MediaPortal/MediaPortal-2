@@ -62,16 +62,17 @@ namespace FrontendProbe
   public static class RenderProbe
   {
     private const string USAGE =
-        "Frontend.RenderProbe --out <file.png> [--screen <home|continue|nowplaying|connect|browser|details|search|seen|folders|pictures|browse|news|weather|party>] [--server <url>] [--aspect <name>] [--theme <name>] [--width <n>] [--height <n>]\n" +
+        "Frontend.RenderProbe --out <file.png> [--screen <home|continue|nowplaying|connect|browser|details|search|seen|folders|pictures|browse|news|weather|party|settings>] [--server <url>] [--aspect <name>] [--theme <name>] [--width <n>] [--height <n>]\n" +
         "  --out <file>     where to write the rendered frame (PNG); its directory is created\n" +
         "  --screen <name>  which screen to render (default home)\n" +
         "  --server <url>   render the populated screen by asking this server (otherwise MP2_SERVER,\n" +
         "                   otherwise the screen's own 'no server' state is rendered - a real state too)\n" +
         "  --aspect <name>  which aspect the library screen lists when a server was given (default MovieItem)\n" +
-        "  --theme <name>   draw the frame with the colours of one of the old skins: default, nereus, wmc,\n" +
-        "                   wmc-dark or wmc-turquoise. A name that is not one of those stops the run instead of\n" +
-        "                   quietly drawing the colours you always had, because a gate that asked for one theme\n" +
-        "                   and was given another would report a pass for a picture it never looked at\n" +
+        "  --theme <name>   draw the frame with the colours of one of the old skins: default, nereus and its\n" +
+        "                   six nereus-<family> tints, wmc, wmc-dark or wmc-turquoise. A name that is not one\n" +
+        "                   of those stops the run instead of quietly drawing the colours you always had,\n" +
+        "                   because a gate that asked for one theme and was given another would report a pass\n" +
+        "                   for a picture it never looked at\n" +
         "  --width/--height window size in device-independent pixels (default 1280x720, a 720p TV)";
 
     /// <summary>
@@ -115,7 +116,8 @@ namespace FrontendProbe
             break;
           case "--theme":
             if (i + 1 >= args.Length)
-              return Usage("--theme needs a palette name: default, nereus, wmc, wmc-dark, wmc-turquoise.");
+              return Usage("--theme needs a palette name: default, nereus, nereus-blue, ..., wmc, wmc-dark, "
+                  + "wmc-turquoise.");
             theme = args[++i];
             break;
           case "--width":
@@ -237,6 +239,10 @@ namespace FrontendProbe
       // And for the party screen: the scripted music shelf below answers the eight songs, and the shuffle runs
       // from a fixed seed so that the queue in the frame is the same queue on every machine that draws it.
       PartyViewModel? partyScreen = null;
+
+      // The settings screen needs no script - its whole content is the palette table, which is in the binary -
+      // but it needs a name to exist for the pixel check further down to know the frame it is looking at.
+      ThemeViewModel? settingsScreen = null;
 
       // Set when the library screen lists what a running server really holds. The frame is then somebody's own
       // shelf with the pictures the importer found on it, which is the one frame that says the whole road works.
@@ -365,20 +371,22 @@ namespace FrontendProbe
               + " tile(s), but the script offers two parts of the library a viewer can watch.");
           return 1;
         }
-        if (home.Menu.Count(entry => entry.Openable) != 8)
+        if (home.Menu.Count(entry => entry.Openable) != 9)
         {
           // The screen does not draw `Sections` any more, it draws the menu built from them, so this is the check
           // that belongs to the picture: the two parts the script offers have to be the two entries a viewer can
           // open, and the entries the script cannot fill have to be saying so rather than being missing. The other
-          // six openable entries are the folders screen, the pictures screen, the browse screen, the news,
-          // the weather and the party, all of which are openable whatever the server holds - one reads the
+          // seven openable entries are the folders screen, the pictures screen, the browse screen, the news,
+          // the weather, the party and the settings, all of which are openable whatever the server holds - one
+          // reads the
           // folders the library was built from, one walks the shares, the third asks the server to group whatever
-          // it turns out to hold, two ask the internet instead, and the party simply queues nothing until a
-          // shelf answers; none needs a title to have been imported.
+          // it turns out to hold, two ask the internet instead, the party simply queues nothing until a
+          // shelf answers, and the settings repaint the box without asking anybody; none needs a title to have
+          // been imported.
           Console.WriteLine("FAILED:   " + home.Menu.Count(entry => entry.Openable)
               + " openable menu entr(ies) of " + home.Menu.Count
-              + "; expected two plus the folders, pictures, browse, news, weather and party screens, because"
-              + " the script offers two parts of the library a viewer can watch.");
+              + "; expected two plus the folders, pictures, browse, news, weather, party and settings screens,"
+              + " because the script offers two parts of the library a viewer can watch.");
           return 1;
         }
         if ((home.ServerDescription ?? "").IndexOf("MediaPortal 2 Server", StringComparison.Ordinal) < 0)
@@ -646,10 +654,20 @@ namespace FrontendProbe
                 new HttpClient(new ScriptedTitles())), 20260205);
         window = new PartyWindow(partyScreen);
       }
+      else if (screenName.Equals("settings", StringComparison.Ordinal))
+      {
+        // The front end's own settings screen: every palette there is, each row wearing its own swatches. This
+        // gate must not save a theme into the real viewer's file, so the screen points at a temporary file of
+        // the same fixed-neighbourhood kind the weather frame uses - and the frame is about picking, so nothing
+        // is picked; it is drawn with whatever --theme asked for.
+        string themeSettingsFile = Path.Combine(Path.GetTempPath(), "mp2-render-theme.json");
+        settingsScreen = new ThemeViewModel(application, themeSettingsFile);
+        window = new ThemeWindow(settingsScreen);
+      }
       else
       {
         return Usage("unknown screen '" + screenName + "'; this probe renders home, continue, nowplaying, connect,"
-            + " browser, details, search, seen, folders, pictures, browse, news, weather or party.");
+            + " browser, details, search, seen, folders, pictures, browse, news, weather, party or settings.");
       }
 
       window.Width = width;
@@ -1123,6 +1141,22 @@ namespace FrontendProbe
         return 1;
       }
 
+      if (settingsScreen != null)
+      {
+        // The settings screen's claim is that every palette is on the television, not just in the table - and
+        // the screen itself proves it, because each row paints its own accent as a swatch. The frame is asked
+        // for all eleven accents by name; one that paints no pixels is a row that did not make it to the
+        // screen, which no count of distinct colours would ever notice.
+        string swatchReport;
+        string? swatchesMissing = CheckThemeSwatches(frame, out swatchReport);
+        Console.WriteLine("swatches: " + swatchReport);
+        if (swatchesMissing != null)
+        {
+          Console.WriteLine("FAILED:   " + swatchesMissing);
+          return 1;
+        }
+      }
+
       if (screenName == "pictures")
       {
         // The scripted photographs are flat colours for exactly this question, which is the one the pictures
@@ -1329,6 +1363,57 @@ namespace FrontendProbe
             + "reach the screens";
 
       return null;
+    }
+
+    /// <summary>
+    /// Whether every palette's accent turned into pixels on the settings screen. Each row of that screen paints
+    /// its own accent as a swatch, so a palette that exists in the table but not on the television is visible
+    /// here in a way no count of distinct colours could show.
+    /// </summary>
+    private static string? CheckThemeSwatches(WriteableBitmap frame, out string report)
+    {
+      string? unreadable = ReadFrame(frame, out byte[] pixels, out int rowBytes, out int width, out int height,
+          out int redOffset, out int blueOffset);
+      if (unreadable != null)
+      {
+        report = "the frame could not be read (" + unreadable + ")";
+        return "the frame could not be read to check the swatches: " + unreadable;
+      }
+
+      long least = long.MaxValue;
+      string thinnest = "";
+
+      foreach (string name in FrontendTheme.Names)
+      {
+        Color accent = FrontendTheme.ColorOf(name, "AccentBrush");
+        int[] rgb = { accent.R, accent.G, accent.B };
+        long painted = 0;
+        for (int y = 0; y < height; y++)
+        {
+          for (int x = 0; x < width; x++)
+          {
+            if (IsColour(pixels, rowBytes, redOffset, blueOffset, x, y, rgb, 4))
+              painted++;
+          }
+        }
+
+        if (painted < least)
+        {
+          least = painted;
+          thinnest = name;
+        }
+      }
+
+      // A miniature swatch is 64 by 20 pixels, so a row that was drawn carries about that many of its accent's
+      // pixels; three hundred is the difference between "that row is on the screen" and "one anti-aliased edge
+      // somewhere happened to hit this colour".
+      report = "all " + FrontendTheme.Names.Length + " palettes painted their accent; the thinnest (" + thinnest
+          + ") has " + least + " pixels";
+
+      return least < 300
+          ? "only " + least + " pixels of the '" + thinnest + "' accent are on the frame, so that row was not "
+            + "drawn - a swatch is 64x20"
+          : null;
     }
 
     /// <summary>

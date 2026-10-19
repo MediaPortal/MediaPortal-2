@@ -21,6 +21,7 @@ using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
+using Avalonia.Styling;
 
 namespace MediaPortal.Frontend.Theming
 {
@@ -43,7 +44,9 @@ namespace MediaPortal.Frontend.Theming
   /// value below was read out of one of those files and names the key it came from, so that a viewer who thinks a
   /// colour is wrong can look the same key up in the skin and see which of the two is wrong. Values a screen of
   /// this front end has no use for - the gradients, the button bevels, the scroll bars, the star ratings - stay
-  /// where they are instead of being invented a place to appear.
+  /// where they are instead of being invented a place to appear. Nereus also offered seven accent families, and
+  /// the six not chosen as the base palette exist as <c>nereus-blue</c> and friends, built by the static
+  /// constructor below from the skin's own Light, Medium and Dark shades of each family.
   /// </para>
   /// <para>
   /// <b>Two kinds of value are not verbatim in a skin, and both say so where they stand.</b> WMC had no colour for a
@@ -65,6 +68,14 @@ namespace MediaPortal.Frontend.Theming
   /// to say what they are drawing without editing anything. After that comes <see cref="DEFAULT_NAME"/>, which is
   /// what this front end has always looked like. There is no settings screen to pick it in yet because the server
   /// has no settings API to ask; when it has, the choice belongs there and this class need not change.
+  /// </para>
+  /// <para>
+  /// <b>Chrome.</b> Avalonia 12's Fluent theme computes its own button and list colours at build time and reads
+  /// no resource for them - measured, a button sits on <c>#33ffffff</c> whatever any palette says - so a palette
+  /// alone left the controls Fluent's. When a real skin is in charge, <see cref="FrontendChrome"/> joins the
+  /// application as author styles, which outrank the control theme, and paints buttons, lists, rows, text entry
+  /// and the progress line out of the same keys the screens use. The default palette never gets it: that
+  /// television keeps exactly the pixels it always had.
   /// </para>
   /// <para>
   /// <b>One thing the default palette loses.</b> The details panel of the browser used to be <c>#FF161F29</c> while
@@ -90,7 +101,8 @@ namespace MediaPortal.Frontend.Theming
     /// <summary>Every palette, in the order a settings screen would list them.</summary>
     public static readonly string[] Names =
     {
-        DEFAULT_NAME, "nereus", "wmc", "wmc-dark", "wmc-turquoise"
+        DEFAULT_NAME, "nereus", "nereus-blue", "nereus-green", "nereus-orange", "nereus-purple", "nereus-red",
+        "nereus-yellow", "wmc", "wmc-dark", "wmc-turquoise"
     };
 
     /// <summary>
@@ -209,6 +221,36 @@ namespace MediaPortal.Frontend.Theming
             }
         };
 
+    static FrontendTheme()
+    {
+      // Nereus offered seven accent families - its colour file lists a Light, a Medium and a Dark shade of each,
+      // and its own settings screen let a viewer pick one - and the rescue had pinned the palette to turquoise,
+      // the first family the file lists. Each family comes back as its own palette here rather than as a second
+      // kind of choice: a family changes the three keys the skin tinted with the accent (the panels take the
+      // Dark and Medium shades, the accent takes the Light one) and leaves everything else - including the
+      // orange of a complaint - exactly where the turquoise palette put it.
+      string[,] families =
+      {
+          { "nereus-blue", "#FF4472C4", "#FF2F5597", "#FF203864" },     // NereusColor{Light,Medium,Dark}_Blue
+          { "nereus-green", "#FF70AD47", "#FF548235", "#FF385723" },    // NereusColor{Light,Medium,Dark}_Green
+          { "nereus-orange", "#FFED7D31", "#FFC55A11", "#FF843C0C" },   // NereusColor{Light,Medium,Dark}_Orange
+          { "nereus-purple", "#FF8758CC", "#FF602FA1", "#FF3B1E66" },   // NereusColor{Light,Medium,Dark}_Purple
+          { "nereus-red", "#FFCC5350", "#FFA03830", "#FF68150C" },      // NereusColor{Light,Medium,Dark}_Red
+          { "nereus-yellow", "#FFD3AC1B", "#FFAE8C0E", "#FF7F6000" }    // NereusColor{Light,Medium,Dark}_Yellow
+      };
+
+      for (int at = 0; at < families.GetLength(0); at++)
+      {
+        Dictionary<string, string> variant = new Dictionary<string, string>(PALETTES["nereus"])
+        {
+            ["AccentBrush"] = families[at, 1],
+            ["PanelRaisedBrush"] = families[at, 2],
+            ["PanelBrush"] = families[at, 3]
+        };
+        PALETTES[families[at, 0]] = variant;
+      }
+    }
+
     /// <summary>
     /// Whether <paramref name="name"/> names a palette, ignoring case and surrounding spaces.
     /// </summary>
@@ -218,18 +260,30 @@ namespace MediaPortal.Frontend.Theming
     }
 
     /// <summary>
-    /// Which palette to draw with: what the command line said, else what the environment said, else the default.
+    /// Which palette to draw with: what the command line said, else what the environment said, else what the
+    /// viewer picked on the settings screen, else the default.
     /// </summary>
     /// <remarks>
+    /// <para>
+    /// The order is loud to quiet: a person who typed <c>--theme</c> or set <c>MP2_THEME</c> means it for this
+    /// run and outranks a choice made earlier on the couch, but the couch choice outranks the default, because
+    /// that choice was the viewer's own. <paramref name="savedName"/> is what the theme settings file holds;
+    /// null or empty means nobody ever picked.
+    /// </para>
+    /// <para>
     /// A name that is a palette is answered as <see cref="Names"/> spells it, so that whatever a person typed is
-    /// printed back the same way everywhere. A name that is not one is passed along untouched, because the sentence
-    /// about it has to quote what was actually said.
+    /// printed back the same way everywhere. A name that is not one is passed along untouched, because the
+    /// sentence about it has to quote what was actually said.
+    /// </para>
     /// </remarks>
-    public static string SelectedName(string? fromCommandLine)
+    public static string SelectedName(string? fromCommandLine, string? savedName = null)
     {
       string? wanted = !string.IsNullOrWhiteSpace(fromCommandLine)
           ? fromCommandLine
           : Environment.GetEnvironmentVariable(ENVIRONMENT_VARIABLE);
+
+      if (string.IsNullOrWhiteSpace(wanted))
+        wanted = savedName;
 
       if (string.IsNullOrWhiteSpace(wanted))
         return DEFAULT_NAME;
@@ -318,8 +372,46 @@ namespace MediaPortal.Frontend.Theming
       APPLIED.Add(app, brushes);
       app.Resources[CURRENT_KEY] = chosen;
 
+      ApplyChrome(app, chosen);
+
       problem = null;
       return chosen;
+    }
+
+    /// <summary>
+    /// The chrome styles each application was given, and for which palette, so that switching palettes rebuilds
+    /// them (their brushes are concrete) and dropping back to <see cref="DEFAULT_NAME"/> takes them off again.
+    /// </summary>
+    private static readonly ConditionalWeakTable<Application, Styles> CHROME =
+        new ConditionalWeakTable<Application, Styles>();
+
+    private static readonly ConditionalWeakTable<Application, string> CHROME_PALETTE =
+        new ConditionalWeakTable<Application, string>();
+
+    private static void ApplyChrome(Application app, string chosen)
+    {
+      if (CHROME.TryGetValue(app, out Styles? old))
+      {
+        CHROME_PALETTE.TryGetValue(app, out string? wasPalette);
+        if (chosen != DEFAULT_NAME && wasPalette == chosen)
+          return; // Same skin as last time; its chrome is already on.
+
+        app.Styles.Remove(old);
+        CHROME.Remove(app);
+        CHROME_PALETTE.Remove(app);
+      }
+
+      if (chosen == DEFAULT_NAME)
+      {
+        // The default palette is what this front end always looked like, chrome and all - Fluent's own buttons
+        // and lists stay exactly where they are.
+        return;
+      }
+
+      Styles chrome = FrontendChrome.Build(chosen);
+      app.Styles.Add(chrome);
+      CHROME.Add(app, chrome);
+      CHROME_PALETTE.Add(app, chosen);
     }
 
     /// <summary>

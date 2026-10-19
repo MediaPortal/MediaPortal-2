@@ -129,8 +129,10 @@ namespace MediaPortal.Frontend.ViewModels
     /// has to be a line the viewer can read from three metres away - the whole reason, in each case, is written out
     /// here where a reader can have it:
     /// <c>TV</c> and <c>Radio</c> because live television and radio came from the TV service, which was removed from
-    /// this tree (commit 029a262aa4) and nothing serves it since; <c>Settings</c> because the server keeps its
-    /// configuration behind a .NET Remoting interface the new API has not grown an equivalent of yet; <c>News</c>,
+    /// this tree (commit 029a262aa4) and nothing serves it since; <c>Settings</c> used to be on that list too, until
+    /// the front end grew a settings screen of its own - what the tile opens is the front end's look, since the
+    /// server's own configuration is still behind a .NET Remoting interface the new API has not grown an equivalent
+    /// of yet; <c>News</c>,
     /// <c>Weather</c> and <c>Party music player</c> used to be on that list too, until the front end grew their
     /// screens - the first two reading the same feeds and forecast service the old plugins read, the last one
     /// shuffling the server's own music shelf and playing it through the application's player; and
@@ -197,10 +199,13 @@ namespace MediaPortal.Frontend.ViewModels
             "the forecast", null, "weather", null),
         ("Home->PartyMusicConfig", "[PartyMusicPlayer.MenuItem]", "Party music player", Array.Empty<string>(),
             "the music shelf, shuffled", null, "party", null),
-        // The one part of MP2's configuration that has an HTTP API, and therefore the one part that could be edited
-        // from a television. Where the library comes from is already on this menu, as "Local media".
+        // MP2's configuration tile, and from the viewer's seat it is still the door marked Settings. What sits
+        // behind the door today is the front end's own settings - its look, chosen on the couch and worn from
+        // then on - because that is the configuration this front end can actually change. The server's own
+        // configuration is still behind the .NET Remoting interface the new API has not grown an equivalent of;
+        // when it does, that belongs behind this same tile, one level in.
         ("Home->ConfigurationMain", "[Configuration.Name]", "Settings", Array.Empty<string>(),
-            "the server's own configuration", "no settings API yet", null, null),
+            "its look, chosen right here", null, "themes", null),
         ("Home->UtilitiesMain", "[Utilities.MenuItem]", "Utilities", Array.Empty<string>(),
             "the little tools", "its tools went with the TV", null, null)
     };

@@ -3453,6 +3453,56 @@ rows against the catalogued fifteen, and no test had to be weakened for any of i
 the party.
 
 
+### bc. The chrome paints in the skins' colours, Nereus has its families back, and the settings screen picks them
+
+The theme entry's *What this is not* list was written as a to-do, and this entry is it done: the Fluent chrome is
+now painted from the palettes, Nereus offers the accent families its colour file lists, and a settings screen
+picks the theme from the couch. (It also corrects a miscount made there: the Nereus file lists seven families,
+not nine.)
+
+**Fluent's chrome cannot be recoloured from outside, so the mapping is made of styles.** Avalonia 12's Fluent
+theme is compiled C#: it names no `PART_` parts and reads no named resource keys - a scratch test measured a
+button at `#33ffffff`, a text box at `#66000000` with `#99ffffff` text, a list at `#ff2b2b2b` and a progress bar
+at `#ff0078d7` for every palette any application could invent. So `FrontendChrome.Build(palette)` says the
+colours itself: author `Style`s for the controls no screen paints - buttons (panel at rest, raised on hover,
+pressed, outline, button text), list and rows (accent under the selected row, as the skins put their brightest
+colour where the cursor is), text boxes, progress, check boxes and separators - and `FrontendTheme.ApplyChrome`
+adds them to the application for a real skin, removes them for the default one, and swaps the set when the skin
+changes. Author styles outrank the theme's control themes, which is the only reason this works without touching
+Fluent. The default palette never gets chrome: the pixels Fluent draws on its own are exactly the pixels this
+front end always shipped, which is a test, not a hope. Scroll bars, check-box boxes, sliders and flyouts were
+deliberately left to Fluent - half-mapped chrome reads as a bug in whichever half moved.
+
+**Nereus's seven families are palettes now.** Its `Colors.xaml` lists a Light, a Medium and a Dark shade of each
+of seven accent families, and its own settings screen let a viewer pick one; the rescue had pinned the palette
+to turquoise, the first family the file lists. The other six are their own palettes - `nereus-blue` and friends,
+built by a static constructor from the skin's own three shades - and a family may change only the three keys
+Nereus itself tinted (the accent and the two panel shades); the orange of a complaint stays orange. The
+provenance test reads their colours from the same skin file, a family test asserts the three-key rule and that
+seven families answer with seven accents, and `FrontendTheme.Names` now carries eleven palettes.
+
+**The Settings tile opens the front end's own settings, and the tile says so.** The `bb` entry's promise was
+that a `ScreenKey` slot "stays null only while there is nothing behind it" - there is now, and it is this
+screen. The old sentence stays true about the server: its configuration is still behind a .NET Remoting
+interface the HTTP API has not grown an equivalent of, and no server setting was invented here. What this front
+end can change is its own look, so the tile that MP2 called Settings opens `ThemeWindow`: one list, eleven rows,
+all fitting one screenful because a choice you cannot see is not a choice, each row naming itself and painting
+miniature panel-and-accent swatches. Selecting a row *is* the applying - the screen repaints itself in the
+theme it names - and the pick is saved the moment it is made to `theme.json` beside the server settings; a
+preview lost by pressing Back would be theatre. The startup chain is `--theme`, then `MP2_THEME`, then the
+saved pick, then the factory colours: whoever typed a theme for one run outranks a choice made on another day.
+
+**The pixels were checked, not hoped at.** The render gate draws sixteen frames now, and the new one is
+`settings-nereus`: the probe looks for each of the eleven palettes' accent colours by hex and requires every one
+of them to have a painted row - the first frame in this tree that proves "every palette reaches the television"
+rather than "one theme was applied". The two `nowplaying` frames gained their buttons' panel colours from the
+chrome mapping on the way and still pass, which is what swapping a chrome style set without stacking the old
+one had to survive. `TestTheme` is eighteen tests: the chrome paints a button, list, selected row and text box
+with palette colours, the default leaves Fluent's own pixels untouched, switching skins replaces one style set
+instead of adding a second, a pick applies and outlives its screen and its process, the precedence chain holds
+in both directions, and a `theme.json` that is not JSON is said out loud and chooses nothing.
+
+
 ## What cannot be verified without the user
 
 
