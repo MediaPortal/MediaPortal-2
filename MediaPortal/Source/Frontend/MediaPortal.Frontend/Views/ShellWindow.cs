@@ -274,15 +274,21 @@ namespace MediaPortal.Frontend.Views
       // clock and the day it always showed.
       bool showTime = true;
       bool showDate = true;
+      bool showTemperature = true;
+      bool showWeatherCondition = true;
       if (Settings.SkinSettingsBase.LoadFor(Theming.FrontendTheme.CurrentName(Avalonia.Application.Current!),
           null, out _)
           is Settings.NereusSkinSettings nereus)
       {
         showTime = nereus.ShowTime;
         showDate = nereus.ShowDate;
+        showTemperature = nereus.ShowTemperature;
+        showWeatherCondition = nereus.ShowWeatherCondition;
       }
       _chrome.ShowTime = showTime;
       _chrome.ShowDate = showDate;
+      _chrome.ShowTemperature = showTemperature;
+      _chrome.ShowWeatherCondition = showWeatherCondition;
 
       // The reference's master chrome sat on the screen's own background - the header was never a band of its
       // own colour - so the templates paint themselves with the theme's screen colour, live, through a
@@ -547,6 +553,11 @@ namespace MediaPortal.Frontend.Views
           ? Title.Substring("MediaPortal 2 - ".Length)
           : "MediaPortal";
 
+      // The reference read the weather on master_home and nowhere else, so the slot belongs to the same
+      // one-deep-or-less answer that decides the window's name: the home head line carries it, deeper
+      // screens do not.
+      _chrome.ShowWeatherSlot = _workflow.Stack.Count <= 1;
+
       RebuildTrail();
 
       Control? view = frame.View as Control;
@@ -580,6 +591,7 @@ namespace MediaPortal.Frontend.Views
     {
       _shown = true;
       _chrome.StartClock();
+      StartChromeWeather();
       Action? pending = _pendingActivation;
       _pendingActivation = null;
       if (pending != null)
@@ -624,6 +636,61 @@ namespace MediaPortal.Frontend.Views
         _trail.Children.Add(crumb);
       _trail.IsVisible = _workflow.Stack.Count > 1;
       _trail.Margin = new Avalonia.Thickness(16, 8, 16, 0);
+    }
+
+    // ---- the home head line's weather, the reference's master_home slot -----------------------------------
+
+    private System.Timers.Timer? _weatherTimer;
+    private bool _weatherStarted;
+
+    /// <summary>
+    /// Start the home head line's weather: the first watched place, read once now and then every half hour -
+    /// the reference's own <c>WEATHER_UPDATE_INTERVAL</c> - from the same client the weather screen uses, with
+    /// the same key and the same culture, so the head line and the screen can never disagree about what a
+    /// degree is. A viewer who watches no place gets no weather, which is the truth rather than a hole; a
+    /// service that refuses leaves the head line as it stands, because last hour's reading is still better
+    /// than a sentence about HTTP, and the weather screen is where a real complaint belongs.
+    /// </summary>
+    private void StartChromeWeather()
+    {
+      if (_weatherStarted)
+        return;
+      _weatherStarted = true;
+
+      Settings.WeatherPlacesSettings places = Settings.WeatherPlacesSettings.Load(null, out _);
+      if (places.Places.Count == 0)
+        return;
+
+      Settings.WeatherPlaceEntry first = places.Places[0];
+      Api.WeatherApiClient client = new Api.WeatherApiClient(
+          userApiKey: places.ApiKey,
+          cultureName: Settings.ClientSettings.Load(null, out _).Culture);
+      Api.WeatherCityBookmark city =
+          new Api.WeatherCityBookmark(first.Name, first.Detail, first.Lat, first.Lon);
+      System.Globalization.NumberFormatInfo numbers = Settings.ClientSettings.UiCulture().NumberFormat;
+
+      async System.Threading.Tasks.Task ReadAsync()
+      {
+        try
+        {
+          Api.WeatherAnswer answer = await client.ReadAsync(city);
+          if (answer.Now == null)
+            return;
+
+          string temperature = answer.Now.Temp.ToString("0", numbers) + "°" + (client.IsMetric ? "C" : "F");
+          _chrome.ReportWeather(temperature, answer.Now.Description ?? "");
+        }
+        catch (Exception)
+        {
+          // Silence is the head line's way with a weather service that will not answer.
+        }
+      }
+
+      _weatherTimer = new System.Timers.Timer(30 * 60 * 1000) { AutoReset = true };
+      _weatherTimer.Elapsed += (sender, e) => _ = ReadAsync();
+      _weatherTimer.Start();
+      Closed += delegate { _weatherTimer?.Stop(); };
+      _ = ReadAsync();
     }
   }
 }

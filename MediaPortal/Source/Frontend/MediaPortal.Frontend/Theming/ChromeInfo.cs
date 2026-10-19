@@ -184,6 +184,100 @@ namespace MediaPortal.Frontend.Theming
       OnPropertyChanged(nameof(HasServerNotice));
     }
 
+    // ---- the home head line's weather, the reference's master_home slot -----------------------------------
+
+    /// <summary>
+    /// The temperature the home head line shows - "8°C", the same spelling the weather screen uses. Empty
+    /// while no watched place has been read; the head line then says nothing about weather.
+    /// </summary>
+    [ObservableProperty]
+    private string _weatherTemperature = "";
+
+    /// <summary>The day's words - "light rain" - the condition half of the same slot.</summary>
+    [ObservableProperty]
+    private string _weatherWords = "";
+
+    /// <summary>
+    /// Whether the head line may show the temperature at all: the reference's <c>ShowTemperature</c>, one of
+    /// Nereus' own settings, which guarded exactly this label on its home master.
+    /// </summary>
+    [ObservableProperty]
+    private bool _showTemperature = true;
+
+    /// <summary>The reference's <c>ShowWeatherCondition</c>, the condition half's twin.</summary>
+    [ObservableProperty]
+    private bool _showWeatherCondition = true;
+
+    /// <summary>
+    /// Whether the screen on show is the one whose master carried the weather slot. The reference showed the
+    /// reading on <c>master_home</c> and nowhere else, so the slot is the home screen's, not every screen's.
+    /// </summary>
+    [ObservableProperty]
+    private bool _showWeatherSlot = true;
+
+    /// <summary>Temperature half of the weather slot: on the home head line, dialled on, and actually read.</summary>
+    public bool HasWeatherTemperature
+    {
+      get { return ShowWeatherSlot && ShowTemperature && WeatherTemperature.Length > 0; }
+    }
+
+    /// <summary>The condition half, under its own dial.</summary>
+    public bool HasWeatherWords
+    {
+      get { return ShowWeatherSlot && ShowWeatherCondition && WeatherWords.Length > 0; }
+    }
+
+    partial void OnWeatherTemperatureChanged(string value)
+    {
+      RaiseWeatherVisibility();
+    }
+
+    partial void OnWeatherWordsChanged(string value)
+    {
+      RaiseWeatherVisibility();
+    }
+
+    partial void OnShowTemperatureChanged(bool value)
+    {
+      RaiseWeatherVisibility();
+    }
+
+    partial void OnShowWeatherConditionChanged(bool value)
+    {
+      RaiseWeatherVisibility();
+    }
+
+    partial void OnShowWeatherSlotChanged(bool value)
+    {
+      RaiseWeatherVisibility();
+    }
+
+    private void RaiseWeatherVisibility()
+    {
+      OnPropertyChanged(nameof(HasWeatherTemperature));
+      OnPropertyChanged(nameof(HasWeatherWords));
+    }
+
+    /// <summary>
+    /// Put the reading where the head line shows it. The weather timer speaks on its own thread, so the words
+    /// cross to the window's thread the way the clock's and the server notice's do.
+    /// </summary>
+    public void ReportWeather(string temperature, string words)
+    {
+      if (_marshal == null)
+      {
+        WeatherTemperature = temperature;
+        WeatherWords = words;
+        return;
+      }
+
+      _marshal(() =>
+      {
+        WeatherTemperature = temperature;
+        WeatherWords = words;
+      });
+    }
+
     /// <summary>
     /// Tell the chrome what the server is busy with, or that it is not any more. The event stream speaks on
     /// its own thread, so the words cross to the window's thread the way the clock's do.

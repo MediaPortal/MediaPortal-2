@@ -726,6 +726,42 @@ namespace Tests.Frontend
           c.A, c.R, c.G, c.B);
     }
 
+    /// <summary>
+    /// The home head line's weather obeys the reference's three guards at once: the slot is the home
+    /// screen's (master_home read the weather and no other master did), the temperature and the words
+    /// answer their own dials (ShowTemperature, ShowWeatherCondition), and nothing at all shows before a
+    /// watched place has actually been read.
+    /// </summary>
+    [Test]
+    public void TheWeatherSlotShowsWhatItsDialsAllowAndNothingTheyDoNot()
+    {
+      ChromeInfo chrome = new ChromeInfo();
+      Assert.That(chrome.HasWeatherTemperature, Is.False, "no reading yet, so the head line says nothing");
+      Assert.That(chrome.HasWeatherWords, Is.False);
+
+      chrome.ReportWeather("8°C", "light rain");
+      Assert.That(chrome.HasWeatherTemperature, Is.True, "read, at home, dials open by default");
+      Assert.That(chrome.HasWeatherWords, Is.True);
+
+      chrome.ShowTemperature = false;
+      Assert.That(chrome.HasWeatherTemperature, Is.False, "the temperature dial off hides the number");
+      Assert.That(chrome.HasWeatherWords, Is.True, "and only the number - the words answer to their own dial");
+
+      chrome.ShowWeatherCondition = false;
+      Assert.That(chrome.HasWeatherWords, Is.False);
+
+      chrome.ShowTemperature = true;
+      chrome.ShowWeatherCondition = true;
+      chrome.ShowWeatherSlot = false;
+      Assert.That(chrome.HasWeatherTemperature, Is.False,
+          "one screen deeper than home and the slot is gone, whatever the dials say - it is master_home's");
+      Assert.That(chrome.HasWeatherWords, Is.False);
+
+      chrome.ShowWeatherSlot = true;
+      chrome.ReportWeather("", "");
+      Assert.That(chrome.HasWeatherTemperature, Is.False, "a walk back home with no reading says nothing");
+    }
+
     private static Color Resolved(Application app, string key)
     {
       Assert.That(app.TryFindResource(key, out object? found), Is.True,

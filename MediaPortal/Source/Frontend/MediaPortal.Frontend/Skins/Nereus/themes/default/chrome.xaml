@@ -33,6 +33,18 @@
         <TextBlock Text="{Binding Date}" HorizontalAlignment="Right"
                    IsVisible="{Binding ShowDate}"
                    Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource SmallerFontSize}"/>
+        <!-- The reference read the weather on master_home alone: the temperature under its dial
+             (ShowTemperature) and the day's words under theirs (ShowWeatherCondition), quiet and to the
+             right, only while the home screen is the screen and a watched place has been read. -->
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+          <TextBlock Text="{Binding WeatherTemperature}"
+                     IsVisible="{Binding HasWeatherTemperature}"
+                     Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource SmallerFontSize}"/>
+          <TextBlock Text="{Binding WeatherWords}"
+                     IsVisible="{Binding HasWeatherWords}"
+                     Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource SmallerFontSize}"
+                     TextTrimming="CharacterEllipsis" MaxWidth="320"/>
+        </StackPanel>
       </StackPanel>
     </Grid>
   </ControlTemplate>
