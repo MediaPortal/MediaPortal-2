@@ -30,6 +30,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MediaPortal.Backend.MediaLibrary;
@@ -835,7 +836,27 @@ namespace MediaPortal.Server.Api
       /// <summary>Year from the recording/import date, the same one the title list shows.</summary>
       public int? Year { get; set; }
 
+      /// <summary>
+      /// When the title first ran on television or in cinemas, when the library or a metadata file next to the
+      /// media names a date; null when nobody did. Distinct from <see cref="Year"/>, which is the import date's
+      /// year and an approximation of this.
+      /// </summary>
+      public DateTime? FirstAired { get; set; }
+
       public int? RuntimeMinutes { get; set; }
+
+      /// <summary>
+      /// The genres the title carries, from the metadata file that lies next to the media - the television show's
+      /// own file for a series and its episodes. Null when no such file names any.
+      /// </summary>
+      public List<string> Genres { get; set; }
+
+      /// <summary>
+      /// The rating a metadata file gives the title, on the hundred-point scale the sites rate with, divided by
+      /// ten. <see cref="Rating"/> when the library itself rated the title wins; this is the tool's number for a
+      /// library that never rated, and it keeps the decimal - "7.3" is what the tagging site said.
+      /// </summary>
+      public double? TotalRating { get; set; }
 
       /// <summary>
       /// What the title is about, in the library's own words: the comment the importer or the viewer left on the
@@ -899,11 +920,11 @@ namespace MediaPortal.Server.Api
     /// have to be told which media system the item came from - the search finds the item wherever it is filed.
     /// </para>
     /// <para>
-    /// <b>What is not in the answer, on purpose:</b> genres and people. MP2 does not store them on the title; the
-    /// importer files them as separate items linked by relationships (<c>GenreAspect</c>, <c>PersonAspect</c>), so
-    /// naming them here would mean a relationship query per title and an answer that looks complete while
-    /// reporting the ids of other items. The fields the title carries itself are what arrives, and a null means
-    /// the library has nothing - which is the common case for a film imported without an NFO file.
+    /// <b>What is not in the answer, on purpose:</b> people. MP2 does not store them on the title; the importer
+    /// files them as separate items linked by relationships (<c>PersonAspect</c>), so naming them here would mean
+    /// a relationship query per title and an answer that looks complete while reporting the ids of other items.
+    /// Genres are named when a metadata file next to the media holds them (see
+    /// <see cref="FillMissingDetailsFromFiles"/>); what the title's own aspects carry always wins.
     /// </para>
     /// </remarks>
     [HttpGet("items/{id}")]
@@ -936,7 +957,9 @@ namespace MediaPortal.Server.Api
         if (item == null)
           return NotFound(new ItemResult { Id = id, Error = "this server has no title with the id " + id });
 
-        return ToItem(item, profile.HasValue);
+        ItemResult result = ToItem(item, profile.HasValue);
+        FillMissingDetailsFromFiles(item, result);
+        return result;
       }
       catch (IllegalCallException ex)
       {
@@ -1006,7 +1029,12 @@ namespace MediaPortal.Server.Api
           result.LastPlayed = lastPlayed;
         DateTime recordingTime = media.GetAttributeValue<DateTime>(MediaAspect.ATTR_RECORDINGTIME);
         if (recordingTime != DateTime.MinValue)
+        {
           result.Year = recordingTime.Year;
+          // The reference draws this date as the episode's first aired date, and an importer that knew the air
+          // date stored it here; a file's import timestamp is not that, but it is what the library holds.
+          result.FirstAired = recordingTime;
+        }
       }
 
       // The caller's own position, from the user data the search attached to this item when the request named
@@ -1392,39 +1420,66 @@ namespace MediaPortal.Server.Api
           return anchors;
         }
 
-        Guid relation;
-        bool related = false;
-        SingleMediaItemAspect heldAspect;
-        if (MediaItemAspect.TryGetAspect(item.Aspects, SeriesAspect.Metadata, out heldAspect))
-        {
-          relation = SeriesAspect.ROLE_SERIES;
-          related = true;
-        }
-        else if (MediaItemAspect.TryGetAspect(item.Aspects, SeasonAspect.Metadata, out heldAspect))
-        {
-          relation = SeasonAspect.ROLE_SEASON;
-          related = true;
-        }
-        else
-          relation = Guid.Empty;
-
-        if (!related)
-          return anchors;
-
-        MediaItemQuery episodes = new MediaItemQuery(
-            new List<Guid> { EpisodeAspect.ASPECT_ID },
-            new List<Guid> { ProviderResourceAspect.ASPECT_ID },
-            new RelationshipFilter(EpisodeAspect.ROLE_EPISODE, relation, id));
-        episodes.Limit = 1;
-        IList<MediaItem> held = mediaLibrary.Search(episodes, false, null, false);
-        if (held != null && held.Count > 0)
-          anchors.Add(held[0]);
+        MediaItem episode = FirstEpisodeOf(mediaLibrary, item);
+        if (episode != null)
+          anchors.Add(episode);
       }
       catch (IllegalCallException)
       {
         anchors.Clear();
       }
       return anchors;
+    }
+
+    /// <summary>
+    /// One episode of a title that has no file of its own - a series or a season - or null when it holds none.
+    /// </summary>
+    /// <remarks>
+    /// The reference's detour (see <see cref="FanArtAnchors"/>): a series is a shelf of episodes and has no file,
+    /// so whatever lies next to its episodes' files is found by starting from one of them. Shared by the picture
+    /// search and the metadata search because both walk the same road the reference's providers walk.
+    /// </remarks>
+    private static MediaItem FirstEpisodeOf(IMediaLibrary mediaLibrary, MediaItem item)
+    {
+      Guid relation;
+      SingleMediaItemAspect heldAspect;
+      if (MediaItemAspect.TryGetAspect(item.Aspects, SeriesAspect.Metadata, out heldAspect))
+        relation = SeriesAspect.ROLE_SERIES;
+      else if (MediaItemAspect.TryGetAspect(item.Aspects, SeasonAspect.Metadata, out heldAspect))
+        relation = SeasonAspect.ROLE_SEASON;
+      else
+        return null;
+
+      MediaItemQuery episodes = new MediaItemQuery(
+          new List<Guid> { EpisodeAspect.ASPECT_ID },
+          new List<Guid> { ProviderResourceAspect.ASPECT_ID },
+          new RelationshipFilter(EpisodeAspect.ROLE_EPISODE, relation, item.MediaItemId));
+      episodes.Limit = 1;
+      IList<MediaItem> held = mediaLibrary.Search(episodes, false, null, false);
+      return held == null || held.Count == 0 ? null : held[0];
+    }
+
+    /// <summary>
+    /// The accessor for a path the server's own local providers reach, or null - which reads as "not there"
+    /// rather than throwing. A path whose provider is not registered at all, or belongs to another system, is as
+    /// unreadable here as a deleted file, and a shelf or a details answer must not fail because of it; the plain
+    /// <see cref="ResourcePath.TryCreateLocalResourceAccessor"/> throws exactly for that case.
+    /// </summary>
+    private static IResourceAccessor TryOpenLocalFile(ResourcePath path)
+    {
+      if (path == null || ServiceRegistration.Get<IMediaAccessor>(false) == null)
+        return null;
+      try
+      {
+        IResourceAccessor accessor;
+        if (!path.TryCreateLocalResourceAccessor(out accessor))
+          return null;
+        return accessor;
+      }
+      catch (IllegalCallException)
+      {
+        return null;
+      }
     }
 
     /// <summary>
@@ -1435,7 +1490,8 @@ namespace MediaPortal.Server.Api
     {
       try
       {
-        if (!directory.TryCreateLocalResourceAccessor(out IResourceAccessor accessor))
+        IResourceAccessor accessor = TryOpenLocalFile(directory);
+        if (accessor == null)
           return null;
 
         using (accessor)
@@ -1514,7 +1570,8 @@ namespace MediaPortal.Server.Api
     /// </summary>
     private static byte[] ReadPictureFile(ResourcePath path)
     {
-      if (!path.TryCreateLocalResourceAccessor(out IResourceAccessor accessor))
+      IResourceAccessor accessor = TryOpenLocalFile(path);
+      if (accessor == null)
         return null;
 
       try
@@ -1566,6 +1623,317 @@ namespace MediaPortal.Server.Api
         return "image/bmp";
       return "application/octet-stream";
     }
+
+    #region The words that lie next to the title
+
+    /// <summary>
+    /// The detail fields the library left empty, filled from the metadata files that lie next to the media.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <b>Why files, and why they never win.</b> A library imported from bare file names holds a title and a path
+    /// and nothing else, while the tagging tools that described it - tinyMediaManager and its like - wrote what
+    /// they found into <c>.nfo</c> files next to the media: one per episode or film, and one <c>tvshow.nfo</c>
+    /// for the whole show. Those bytes are the household's own data, and a details screen that ignores them tells
+    /// the viewer there is nothing to know about a show that was described to the last genre. The database stays
+    /// the authority all the same: every field an aspect already filled keeps its value, and the files only fill
+    /// the nulls - the same division of labor as for the pictures (see <see cref="ReadLocalFanArt"/>).
+    /// </para>
+    /// <para>
+    /// <b>Which file describes which title.</b> An episode is described by the file of its own name; a film by
+    /// its sibling of the same stem; a series or season by the show's file, which - having no file of its own -
+    /// is found through the same detour to one of its episodes that the pictures take
+    /// (<see cref="FirstEpisodeOf"/>). The show's file is looked for from the media file's folder up to two
+    /// levels above it, so a library with season folders and one without are both read.
+    /// </para>
+    /// </remarks>
+    private void FillMissingDetailsFromFiles(MediaItem item, ItemResult result)
+    {
+      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
+      if (mediaLibrary == null)
+        return;
+
+      MediaItem anchor = item;
+      if (anchor.GetResourceLocator() == null)
+      {
+        try
+        {
+          MediaItem episode = FirstEpisodeOf(mediaLibrary, item);
+          if (episode != null)
+            anchor = episode;
+        }
+        catch (IllegalCallException)
+        {
+          return;
+        }
+      }
+
+      IResourceLocator locator = anchor.GetResourceLocator();
+      if (locator == null)
+        return;
+
+      ResourcePath mediaFile = locator.NativeResourcePath;
+      TitleMetadata fromFile = ReadTitleMetadata(SiblingMetadataFile(mediaFile));
+      TitleMetadata fromShow = ReadTitleMetadata(ShowMetadataFileAbove(mediaFile));
+      if (fromFile == null && fromShow == null)
+        return;
+
+      // Whichever file describes the asked-about title itself is read first and its words win: an episode's plot
+      // is its own and the show's file only fills what the episode's leaves out, while for the show it is the
+      // other way round - its file speaks for it, and an episode's summary is not its plot.
+      SingleMediaItemAspect episodeAspect;
+      bool askedAboutEpisode = MediaItemAspect.TryGetAspect(item.Aspects, EpisodeAspect.Metadata,
+          out episodeAspect);
+      TitleMetadata first = askedAboutEpisode ? fromFile : fromShow;
+      TitleMetadata second = askedAboutEpisode ? fromShow : fromFile;
+
+      if (result.Overview == null && result.StoryPlot == null)
+        result.Overview = first != null && first.Plot != null ? first.Plot
+            : second == null ? null : second.Plot;
+      if (result.Tagline == null)
+        result.Tagline = first != null && first.Tagline != null ? first.Tagline
+            : second == null ? null : second.Tagline;
+      if (result.Certification == null)
+        result.Certification = first != null && first.Certification != null ? first.Certification
+            : second == null ? null : second.Certification;
+      if (result.RuntimeMinutes == null)
+        result.RuntimeMinutes = first != null && first.RuntimeMinutes.HasValue ? first.RuntimeMinutes
+            : second == null ? null : second.RuntimeMinutes;
+      if (result.Year == null)
+        result.Year = first != null && first.Year.HasValue ? first.Year
+            : second == null ? null : second.Year;
+      if (result.FirstAired == null)
+        result.FirstAired = first != null && first.FirstAired.HasValue ? first.FirstAired
+            : second == null ? null : second.FirstAired;
+      if (result.EpisodeName == null && askedAboutEpisode && fromFile != null)
+        result.EpisodeName = fromFile.EpisodeTitle;
+
+      // Genres come from the show's file when it has them, because an episode file names none and a film's own
+      // file is its own "show"; the order between the two files cannot make the wrong one win here.
+      if (result.Genres == null || result.Genres.Count == 0)
+      {
+        if (fromShow != null && fromShow.Genres.Count > 0)
+          result.Genres = fromShow.Genres;
+        else if (fromFile != null && fromFile.Genres.Count > 0)
+          result.Genres = fromFile.Genres;
+      }
+
+      // The library's own rating wins outright - it is the household's number, and the tools' is a crowd's - so
+      // the file's number is only asked for when the library has none, and it keeps its decimal.
+      if ((result.Rating == null || result.Rating.Value == 0) && result.TotalRating == null)
+        result.TotalRating = first != null && first.Rating.HasValue ? first.Rating
+            : second == null ? null : second.Rating;
+    }
+
+    /// <summary>
+    /// What the metadata files know about one title; every field null when the file did not name it.
+    /// </summary>
+    private sealed class TitleMetadata
+    {
+      public string Plot;
+      public string EpisodeTitle;
+      public string Tagline;
+      public string Certification;
+      public readonly List<string> Genres = new List<string>();
+      public int? RuntimeMinutes;
+      public double? Rating;
+      public DateTime? FirstAired;
+      public int? Year;
+    }
+
+    /// <summary>
+    /// The file of the same stem as the media file, with the extension of the tagging tools' text metadata.
+    /// </summary>
+    private static ResourcePath SiblingMetadataFile(ResourcePath mediaFile)
+    {
+      if (mediaFile == null)
+        return null;
+      try
+      {
+        ResourcePath directory = ResourcePathHelper.Combine(mediaFile, "../");
+        return ResourcePathHelper.Combine(directory,
+            ResourcePath.GetFileNameWithoutExtension(mediaFile) + ".nfo");
+      }
+      catch (ArgumentException)
+      {
+        return null;
+      }
+    }
+
+    /// <summary>
+    /// The television show's own file above the given media file, or null when no folder within two levels holds
+    /// one. Never throws: a folder that cannot be read holds no show file as far as this answer is concerned.
+    /// </summary>
+    private static ResourcePath ShowMetadataFileAbove(ResourcePath mediaFile)
+    {
+      if (mediaFile == null)
+        return null;
+
+      try
+      {
+        ResourcePath directory = ResourcePathHelper.Combine(mediaFile, "../");
+        for (int hop = 0; hop < 3 && directory != null; hop++)
+        {
+          ResourcePath candidate = ResourcePathHelper.Combine(directory, "tvshow.nfo");
+          if (MetadataFileReadable(candidate))
+            return candidate;
+          directory = ResourcePathHelper.Combine(directory, "../");
+        }
+      }
+      catch (ArgumentException)
+      {
+        // The walk climbed past the root of the provider; there is no folder above this one.
+      }
+      return null;
+    }
+
+    /// <summary>
+    /// Whether the given path is a readable local file. The accessor is opened and closed here; the answer is
+    /// only used to skip files that are not there.
+    /// </summary>
+    private static bool MetadataFileReadable(ResourcePath path)
+    {
+      IResourceAccessor accessor = TryOpenLocalFile(path);
+      if (accessor == null)
+        return false;
+      try
+      {
+        IFileSystemResourceAccessor file = accessor as IFileSystemResourceAccessor;
+        return file != null && file.IsFile && file.Exists;
+      }
+      finally
+      {
+        accessor.Dispose();
+      }
+    }
+
+    /// <summary>
+    /// The words of one metadata file, or null when it is not there, cannot be read, or is not a file a tagging
+    /// tool wrote.
+    /// </summary>
+    private static TitleMetadata ReadTitleMetadata(ResourcePath path)
+    {
+      IResourceAccessor accessor = TryOpenLocalFile(path);
+      if (accessor == null)
+        return null;
+      try
+      {
+        IFileSystemResourceAccessor file = accessor as IFileSystemResourceAccessor;
+        if (file == null || !file.IsFile || !file.Exists)
+          return null;
+
+        XDocument document;
+        using (Stream body = file.OpenRead())
+          document = XDocument.Load(body);
+        return ParseTitleMetadata(document);
+      }
+      catch (IOException)
+      {
+        return null;
+      }
+      catch (UnauthorizedAccessException)
+      {
+        return null;
+      }
+      catch (System.Xml.XmlException)
+      {
+        return null;
+      }
+      finally
+      {
+        accessor.Dispose();
+      }
+    }
+
+    /// <summary>
+    /// The fields this API speaks out of one Kodi-shape metadata file. The root's name says what kind of file it
+    /// is, and anything else than the three kinds the tagging tools write is not metadata for a title.
+    /// </summary>
+    private static TitleMetadata ParseTitleMetadata(XDocument document)
+    {
+      XElement root = document == null ? null : document.Root;
+      if (root == null)
+        return null;
+
+      string kind = root.Name.LocalName;
+      if (kind != "episodedetails" && kind != "tvshow" && kind != "movie")
+        return null;
+
+      TitleMetadata metadata = new TitleMetadata();
+      metadata.Plot = FirstText(root.Elements("plot").Select(element => element.Value))
+          ?? FirstText(root.Elements("outline").Select(element => element.Value));
+      metadata.EpisodeTitle = Text((string)root.Element("title"));
+      metadata.Tagline = Text((string)root.Element("tagline"));
+      metadata.Certification = Text((string)root.Element("certification"))
+          ?? Text((string)root.Element("mpaa"));
+      foreach (string genre in root.Elements("genre").Select(element => Text(element.Value))
+          .Where(words => words != null).Distinct())
+        metadata.Genres.Add(genre);
+
+      int number;
+      if (int.TryParse((string)root.Element("runtime"), NumberStyles.Integer, CultureInfo.InvariantCulture,
+          out number) && number > 0)
+        metadata.RuntimeMinutes = number;
+      if (int.TryParse((string)root.Element("year"), NumberStyles.Integer, CultureInfo.InvariantCulture,
+          out number) && number > 1800)
+        metadata.Year = number;
+
+      metadata.Rating = ReadMetadataRating(root);
+      metadata.FirstAired = ReadMetadataDate(kind == "episodedetails"
+          ? (string)root.Element("aired") ?? (string)root.Element("premiered")
+          : (string)root.Element("premiered") ?? (string)root.Element("aired"));
+      return metadata;
+    }
+
+    /// <summary>
+    /// The file's rating of the title, told in tenths like this API's own. A rating site's number is read from
+    /// the tagged {@code <ratings>} list when the file holds one (the default entry first), and from the plain
+    /// element when it does not; nothing, and zero, both mean the file did not rate the title.
+    /// </summary>
+    private static double? ReadMetadataRating(XElement root)
+    {
+      XElement source = null;
+      XElement ratings = root.Element("ratings");
+      if (ratings != null)
+      {
+        List<XElement> listed = ratings.Elements("rating").ToList();
+        XElement chosen = listed.FirstOrDefault(entry =>
+            string.Equals((string)entry.Attribute("default"), "true", StringComparison.OrdinalIgnoreCase))
+            ?? listed.FirstOrDefault();
+        if (chosen != null)
+          source = chosen.Element("value") ?? chosen;
+      }
+      if (source == null)
+        source = root.Element("rating");
+      if (source == null)
+        return null;
+
+      double value;
+      if (!double.TryParse(source.Value.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out value)
+          || value <= 0)
+        return null;
+      return value > 10 ? value / 10.0 : value;
+    }
+
+    /// <summary>
+    /// The file's date, in the one shape the tools write ("yyyy-MM-dd") and in anything a
+    /// <see cref="DateTime.TryParse(string, IFormatProvider, DateTimeStyles, out DateTime)"/> still recognises;
+    /// null when the field held no date at all.
+    /// </summary>
+    private static DateTime? ReadMetadataDate(string value)
+    {
+      if (string.IsNullOrWhiteSpace(value))
+        return null;
+      DateTime parsed;
+      if (DateTime.TryParseExact(value.Trim(), "yyyy-MM-dd", CultureInfo.InvariantCulture,
+          DateTimeStyles.None, out parsed))
+        return parsed;
+      if (DateTime.TryParse(value.Trim(), CultureInfo.InvariantCulture, DateTimeStyles.None, out parsed))
+        return parsed;
+      return null;
+    }
+
+    #endregion
 
     #region Streaming
 

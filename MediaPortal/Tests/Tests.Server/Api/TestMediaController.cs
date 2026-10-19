@@ -2800,5 +2800,296 @@ namespace Tests.Server.Api
     }
 
     #endregion
+
+    #region The words next to the title
+
+    /// <summary>
+    /// An episode as the importer left it, with the file a test has really written and the air date - or its
+    /// absence - the test decides on.
+    /// </summary>
+    private static MediaItem EpisodeOnDisk(Guid id, string filePath, DateTime recordingTime)
+    {
+      SingleMediaItemAspect media = CreateMediaAspect("Crimson Sky", "Crimson Sky", recordingTime);
+      SingleMediaItemAspect episode = new SingleMediaItemAspect(EpisodeAspect.Metadata);
+      episode.SetAttribute(EpisodeAspect.ATTR_SERIES_NAME, "Shōgun");
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>
+      {
+          { MediaAspect.ASPECT_ID, new List<MediaItemAspect> { media } },
+          { EpisodeAspect.ASPECT_ID, new List<MediaItemAspect> { episode } }
+      };
+      return new TestItem(id, aspects, CreateLocator(ResourcePath.BuildBaseProviderPath(
+          LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID,
+          "/" + filePath.Replace('\\', '/')).Serialize()));
+    }
+
+    /// <summary>
+    /// A series without a file of its own, asked for by the caller's profile of nothing.
+    /// </summary>
+    private static MediaItem ShowWithoutFile(Guid id, string title, DateTime recordingTime)
+    {
+      SingleMediaItemAspect media = CreateMediaAspect(title, title, recordingTime);
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>
+      {
+          { MediaAspect.ASPECT_ID, new List<MediaItemAspect> { media } },
+          { SeriesAspect.ASPECT_ID, new List<MediaItemAspect> { new SingleMediaItemAspect(SeriesAspect.Metadata) } }
+      };
+      return new TestItem(id, aspects, null);
+    }
+
+    private static void WriteText(string path, string text)
+    {
+      Directory.CreateDirectory(Path.GetDirectoryName(path));
+      File.WriteAllText(path, text, new UTF8Encoding(false));
+    }
+
+    /// <summary>One episode's own metadata file, in the shape tinyMediaManager writes it.</summary>
+    private static void WriteEpisodeNfo(string path, string title, string plot, string rating)
+    {
+      WriteText(path,
+          "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+          + "<episodedetails>\n"
+          + "  <title>" + title + "</title>\n"
+          + "  <showtitle>Prison Break</showtitle>\n"
+          + "  <season>4</season>\n"
+          + "  <episode>3</episode>\n"
+          + "  <rating>" + rating + "</rating>\n"
+          + "  <plot>" + plot + "</plot>\n"
+          + "  <runtime>45</runtime>\n"
+          + "  <mpaa/>\n"
+          + "  <premiered>2008-09-08</premiered>\n"
+          + "  <aired>2008-09-08</aired>\n"
+          + "  <studio>FOX</studio>\n"
+          + "</episodedetails>");
+    }
+
+    /// <summary>The show's own metadata file, with the genres and the crowd's rating the site gave it.</summary>
+    private static void WriteShowNfo(string path)
+    {
+      WriteText(path,
+          "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+          + "<tvshow>\n"
+          + "  <title>Prison Break</title>\n"
+          + "  <year>2005</year>\n"
+          + "  <ratings>\n"
+          + "    <rating default=\"true\" max=\"10\" name=\"themoviedb\">\n"
+          + "      <value>7.3</value>\n"
+          + "      <votes>989</votes>\n"
+          + "    </rating>\n"
+          + "  </ratings>\n"
+          + "  <plot>Due to a political conspiracy, an innocent man is sent to death row - die Grüne Stunde.</plot>\n"
+          + "  <certification>US:TV-14</certification>\n"
+          + "  <premiered>2005-08-29</premiered>\n"
+          + "  <genre>Action</genre>\n"
+          + "  <genre>Drama</genre>\n"
+          + "  <studio>FOX</studio>\n"
+          + "</tvshow>");
+    }
+
+    [Test]
+    public void TheEpisodeFileFillsTheWordsTheLibraryDoesNotHave()
+    {
+      string dir = OwnFolder();
+      try
+      {
+        string media = Path.Combine(dir, "Season 4", "Show - S04E03.mkv");
+        WriteText(media, "mkv");
+        WriteEpisodeNfo(Path.ChangeExtension(media, ".nfo"), "Shut Down",
+            "Michael attempts to track the cardholder.", "7.5");
+        GiveTheServerItsFileSystem();
+
+        Guid id = Guid.NewGuid();
+        ActionResult<MediaController.ItemResult> action;
+        MediaController.ItemResult result = GetItem(
+            CreateFanArtLibrary(new List<MediaItem> { EpisodeOnDisk(id, media, DateTime.MinValue) },
+                new List<MediaItem>(), out _), id, out action);
+
+        Assert.That(result.EpisodeName, Is.EqualTo("Shut Down"),
+            "the file knows the episode's name, which the bare import did not");
+        Assert.That(result.Overview, Is.EqualTo("Michael attempts to track the cardholder."));
+        Assert.That(result.RuntimeMinutes, Is.EqualTo(45));
+        Assert.That(result.FirstAired, Is.EqualTo(new DateTime(2008, 9, 8)),
+            "no library date exists, so the file's air date is the honest first aired date");
+        Assert.That(result.TotalRating, Is.EqualTo(7.5),
+            "the library never rated the episode, so the tagging tool's decimal is worth showing");
+      }
+      finally
+      {
+        Directory.Delete(dir, true);
+      }
+    }
+
+    [Test]
+    public void TheShowsOwnFileSpeaksForTheSeriesAndNamesItsGenres()
+    {
+      string dir = OwnFolder();
+      try
+      {
+        string media = Path.Combine(dir, "Season 4", "Show - S04E03.mkv");
+        WriteText(media, "mkv");
+        WriteEpisodeNfo(Path.ChangeExtension(media, ".nfo"), "Shut Down", "An episode of it.", "0.0");
+        WriteShowNfo(Path.Combine(dir, "tvshow.nfo"));
+        GiveTheServerItsFileSystem();
+
+        Guid seriesId = Guid.NewGuid();
+        MediaItem episode = EpisodeOnDisk(Guid.NewGuid(), media, DateTime.MinValue);
+        ActionResult<MediaController.ItemResult> action;
+        MediaController.ItemResult result = GetItem(
+            CreateFanArtLibrary(new List<MediaItem> { ShowWithoutFile(seriesId, "Prison Break", DateTime.MinValue) },
+                new List<MediaItem> { episode }, out _), seriesId, out action);
+
+        Assert.That(result.Overview, Does.StartWith("Due to a political conspiracy"),
+            "the show's own file, two folders above the episode, describes the show - not the episode's summary");
+        Assert.That(result.Overview, Does.Contain("Grüne Stunde"),
+            "the file's own encoding survives into the answer");
+        Assert.That(result.Genres, Is.EqualTo(new[] { "Action", "Drama" }),
+            "the genres the tagging tool filed are the genres the details screen will show");
+        Assert.That(result.TotalRating, Is.EqualTo(7.3),
+            "the ratings list's default entry is the one read, with its decimal kept");
+        Assert.That(result.FirstAired, Is.EqualTo(new DateTime(2005, 8, 29)),
+            "for a series the show's premiere is the first aired date, not one episode's air date");
+      }
+      finally
+      {
+        Directory.Delete(dir, true);
+      }
+    }
+
+    [Test]
+    public void TheEpisodeReadsItsShowsGenresThroughItsOwnFile()
+    {
+      string dir = OwnFolder();
+      try
+      {
+        string media = Path.Combine(dir, "Season 4", "Show - S04E03.mkv");
+        WriteText(media, "mkv");
+        WriteEpisodeNfo(Path.ChangeExtension(media, ".nfo"), "Shut Down", "An episode of it.", "6.2");
+        WriteShowNfo(Path.Combine(dir, "tvshow.nfo"));
+        GiveTheServerItsFileSystem();
+
+        Guid id = Guid.NewGuid();
+        ActionResult<MediaController.ItemResult> action;
+        MediaController.ItemResult result = GetItem(
+            CreateFanArtLibrary(new List<MediaItem> { EpisodeOnDisk(id, media, DateTime.MinValue) },
+                new List<MediaItem>(), out _), id, out action);
+
+        Assert.That(result.Overview, Is.EqualTo("An episode of it."),
+            "the episode's own plot wins over the show's");
+        Assert.That(result.FirstAired, Is.EqualTo(new DateTime(2008, 9, 8)),
+            "the episode's own air date wins over the show's premiere");
+        Assert.That(result.TotalRating, Is.EqualTo(6.2),
+            "the episode's own rating wins over the show's");
+        Assert.That(result.Genres, Is.EqualTo(new[] { "Action", "Drama" }),
+            "the episode file names no genres; the show's file does, and they are the same show's");
+        Assert.That(result.Certification, Is.EqualTo("US:TV-14"),
+            "the episode file holds an empty mpaa field; the show's fills the gap");
+      }
+      finally
+      {
+        Directory.Delete(dir, true);
+      }
+    }
+
+    [Test]
+    public void WhatTheLibraryKnowsIsNeverOverwrittenByAFile()
+    {
+      string dir = OwnFolder();
+      try
+      {
+        string media = Path.Combine(dir, "Season 4", "Show - S04E03.mkv");
+        WriteText(media, "mkv");
+        WriteEpisodeNfo(Path.ChangeExtension(media, ".nfo"), "Shut Down", "What the file claims.", "7.5");
+
+        SingleMediaItemAspect mediaAspect = CreateMediaAspect("Crimson Sky", "Crimson Sky",
+            new DateTime(2010, 6, 1));
+        mediaAspect.SetAttribute(MediaAspect.ATTR_COMMENT, "What the database holds.");
+        mediaAspect.SetAttribute(MediaAspect.ATTR_RATING, 8);
+        SingleMediaItemAspect episode = new SingleMediaItemAspect(EpisodeAspect.Metadata);
+        episode.SetAttribute(EpisodeAspect.ATTR_SEASON, 4);
+        episode.SetCollectionAttribute(EpisodeAspect.ATTR_EPISODE, new List<int> { 3 });
+        SingleMediaItemAspect movie = CreateMovieAspect(52);
+        IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>
+        {
+            { MediaAspect.ASPECT_ID, new List<MediaItemAspect> { mediaAspect } },
+            { EpisodeAspect.ASPECT_ID, new List<MediaItemAspect> { episode } },
+            { MovieAspect.ASPECT_ID, new List<MediaItemAspect> { movie } }
+        };
+        GiveTheServerItsFileSystem();
+
+        Guid id = Guid.NewGuid();
+        MediaItem item = new TestItem(id, aspects, CreateLocator(ResourcePath.BuildBaseProviderPath(
+            LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID,
+            "/" + media.Replace('\\', '/')).Serialize()));
+        ActionResult<MediaController.ItemResult> action;
+        MediaController.ItemResult result = GetItem(
+            CreateFanArtLibrary(new List<MediaItem> { item }, new List<MediaItem>(), out _), id, out action);
+
+        Assert.That(result.Overview, Is.EqualTo("What the database holds."),
+            "the household's own note outranks the tool's words");
+        Assert.That(result.RuntimeMinutes, Is.EqualTo(52), "the library's runtime is not replaced by the file's");
+        Assert.That(result.Rating, Is.EqualTo(8));
+        Assert.That(result.TotalRating, Is.Null,
+            "the library rated this title itself, and the crowd's number does not speak over that");
+        Assert.That(result.FirstAired, Is.EqualTo(new DateTime(2010, 6, 1)),
+            "the date the library holds is the first aired date, even when the file knows another");
+        Assert.That(result.EpisodeName, Is.EqualTo("Shut Down"),
+            "the name the library does not hold is still filled - filling is what this is for");
+      }
+      finally
+      {
+        Directory.Delete(dir, true);
+      }
+    }
+
+    [Test]
+    public void AFileThatIsNotThereIsAnsweredWithNullsAndNoComplaint()
+    {
+      string dir = OwnFolder();
+      try
+      {
+        string media = Path.Combine(dir, "Season 4", "Show - S04E03.mkv");
+        WriteText(media, "mkv");
+        GiveTheServerItsFileSystem();
+
+        Guid id = Guid.NewGuid();
+        ActionResult<MediaController.ItemResult> action;
+        MediaController.ItemResult result = GetItem(
+            CreateFanArtLibrary(new List<MediaItem> { EpisodeOnDisk(id, media, DateTime.MinValue) },
+                new List<MediaItem>(), out _), id, out action);
+
+        Assert.That(Status(action), Is.Null, "a title without metadata files is an ordinary title, not a failure");
+        Assert.That(result.Overview, Is.Null);
+        Assert.That(result.Genres, Is.Null);
+        Assert.That(result.FirstAired, Is.Null);
+        Assert.That(result.TotalRating, Is.Null);
+      }
+      finally
+      {
+        Directory.Delete(dir, true);
+      }
+    }
+
+    [Test]
+    public void APathNoProviderOnThisServerReachesCannotBringDownTheAnswer()
+    {
+      // The provider of RESOURCE_PATH is not registered here at all, and asking the filesystem machinery for it
+      // throws rather than saying no - the details answer must not learn that by failing on a real server whose
+      // titles come through a provider whose files cannot be read.
+      Guid id = Guid.NewGuid();
+      MediaItem item = new TestItem(id, new Dictionary<Guid, IList<MediaItemAspect>>
+      {
+          { MediaAspect.ASPECT_ID, new List<MediaItemAspect>
+              { CreateMediaAspect("Over The Stream", "Over The Stream", DateTime.MinValue) } }
+      }, CreateLocator(RESOURCE_PATH));
+
+      ActionResult<MediaController.ItemResult> action;
+      MediaController.ItemResult result = GetItem(
+          CreateFanArtLibrary(new List<MediaItem> { item }, new List<MediaItem>(), out _), id, out action);
+
+      Assert.That(result.Title, Is.EqualTo("Over The Stream"),
+          "the words the database holds still arrive; only the file's half of the answer is missing");
+      Assert.That(result.Genres, Is.Null);
+    }
+
+    #endregion
   }
 }

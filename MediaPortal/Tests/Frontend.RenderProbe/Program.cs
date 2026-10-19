@@ -1968,11 +1968,13 @@ namespace FrontendProbe
         if (path.Contains("api/media/items/", StringComparison.Ordinal))
         {
           MediaItemDetails one = new MediaItemDetails(
-              new Guid("00000000-0000-4000-8000-000000000001"), NAMES[0], NAMES[0], 2011, 88,
+              new Guid("00000000-0000-4000-8000-000000000001"), NAMES[0], NAMES[0], 2011,
+              new DateTime(2011, 3, 4), new string[] { "Drama", "Mystery" }, 88,
               "Two sisters inherit a house at the end of a road that stops at the sea, and spend the winter"
               + " finding out what the last owner left inside the walls. A quiet film about a house, the tide, and"
               + " the letters nobody ever posted.",
-              null, "Some doors are worth leaving shut.", "FSK 12", null, 8, null, null, null, null, 1,
+              null, "Some doors are worth leaving shut.", "FSK 12", null, 8, null,
+              null, null, null, null, 1,
               new DateTime(2025, 1, 12),
               "{D3525B2F-7322-430C-87E7-CDA8EBD6EDD2}://" + Path.Combine(folder, NAMES[0] + ".mkv"),
               false, null);

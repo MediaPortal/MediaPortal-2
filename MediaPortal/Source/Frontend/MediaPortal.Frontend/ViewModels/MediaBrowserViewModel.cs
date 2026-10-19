@@ -1391,6 +1391,22 @@ namespace MediaPortal.Frontend.ViewModels
       if (!string.IsNullOrWhiteSpace(details.Collection))
         parts.Add(details.Collection!.Trim());
 
+      // The reference puts the show's kinds of story and its first aired date between the name and the length,
+      // and so here: what a viewer weighs a film with comes in the order they weigh it - what kind, when it
+      // first ran, how long.
+      if (details.Genres != null && details.Genres.Count > 0)
+      {
+        List<string> kinds = new List<string>();
+        foreach (string genre in details.Genres)
+          if (!string.IsNullOrWhiteSpace(genre))
+            kinds.Add(genre.Trim());
+        if (kinds.Count > 0)
+          parts.Add(string.Join(", ", kinds));
+      }
+
+      if (details.FirstAired.HasValue)
+        parts.Add("first aired " + details.FirstAired.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+
       int? minutes = details.RuntimeMinutes ?? title.Title.RuntimeMinutes;
       if (minutes.HasValue && minutes.Value > 0)
         parts.Add(minutes.Value + " min");
@@ -1400,6 +1416,8 @@ namespace MediaPortal.Frontend.ViewModels
 
       if (details.Rating.HasValue && details.Rating.Value > 0)
         parts.Add("rated " + details.Rating.Value + "/10");
+      else if (details.TotalRating.HasValue && details.TotalRating.Value > 0)
+        parts.Add("rated " + details.TotalRating.Value.ToString("0.#", CultureInfo.InvariantCulture) + "/10");
 
       if (details.PlayCount.HasValue && details.PlayCount.Value > 0)
       {

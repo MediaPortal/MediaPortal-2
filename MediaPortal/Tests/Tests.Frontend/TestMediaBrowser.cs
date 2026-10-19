@@ -824,6 +824,33 @@ namespace Tests.Frontend
     }
 
     [AvaloniaTest]
+    public void TheWordsFromFileReadTheWayTheReferenceReadsThem()
+    {
+      // A server whose numbers for this title came from the metadata files next to the media - the genres, the
+      // first aired date and the crowd's rating are exactly the fields the reference's details screen draws.
+      string details =
+          "{\"id\":\"" + TITANIC + "\",\"title\":\"Alien Earth\",\"year\":2025,"
+          + "\"genres\":[\"Science-Fiction\",\"Drama\"],\"firstAired\":\"2025-08-12T00:00:00\","
+          + "\"runtimeMinutes\":52,\"totalRating\":7.3,"
+          + "\"overview\":\"A young woman and a band of soldiers face the planet's greatest threat.\"}";
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK, details);
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.Selected = new TitleViewModel(
+          new MediaTitle(new Guid(TITANIC), "Alien Earth", null, 2025, null, null, false));
+
+      browser.ToggleDetailsCommand.Execute(null);
+      WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
+
+      Assert.That(browser.DetailsLine, Does.Contain("Science-Fiction, Drama"),
+          "the kinds of story the metadata file names are read as one line, in its order");
+      Assert.That(browser.DetailsLine, Does.Contain("first aired 2025-08-12"),
+          "the date the show first ran, told the way the panel tells every date");
+      Assert.That(browser.DetailsLine, Does.Contain("rated 7.3/10"),
+          "the tagging tool's decimal is shown rather than rounded away");
+      Assert.That(browser.DetailsText, Does.StartWith("A young woman"));
+    }
+
+    [AvaloniaTest]
     public void ThePanelClosesAndReopensWithoutAskingTheServerAgain()
     {
       DetailsServer server = new DetailsServer(HttpStatusCode.OK, TITANIC_DETAILS);

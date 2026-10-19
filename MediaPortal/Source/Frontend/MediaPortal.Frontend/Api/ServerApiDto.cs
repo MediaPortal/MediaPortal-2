@@ -212,8 +212,9 @@ namespace MediaPortal.Frontend.Api
   /// and the plot on the Video aspect - and one title commonly has one and not the other.
   /// </para>
   /// <para>
-  /// There are no genres and no people here, and that is the server's decision, not an omission here: MP2 files
-  /// those as separate items linked by relationships, so naming them would mean a query per title.
+  /// There are no people here, and that is the server's decision, not an omission here: MP2 files them as
+  /// separate items linked by relationships, so naming them would mean a query per title. Genres and the first
+  /// aired date are here when the library or the metadata file next to the media names them.
   /// </para>
   /// </remarks>
   public record MediaItemDetails(
@@ -221,6 +222,8 @@ namespace MediaPortal.Frontend.Api
       [property: JsonPropertyName("title")] string? Title,
       [property: JsonPropertyName("sortTitle")] string? SortTitle,
       [property: JsonPropertyName("year")] int? Year,
+      [property: JsonPropertyName("firstAired")] DateTime? FirstAired,
+      [property: JsonPropertyName("genres")] IReadOnlyList<string>? Genres,
       [property: JsonPropertyName("runtimeMinutes")] int? RuntimeMinutes,
       [property: JsonPropertyName("overview")] string? Overview,
       [property: JsonPropertyName("storyPlot")] string? StoryPlot,
@@ -228,6 +231,7 @@ namespace MediaPortal.Frontend.Api
       [property: JsonPropertyName("certification")] string? Certification,
       [property: JsonPropertyName("collection")] string? Collection,
       [property: JsonPropertyName("rating")] int? Rating,
+      [property: JsonPropertyName("totalRating")] double? TotalRating,
       [property: JsonPropertyName("seriesName")] string? SeriesName,
       [property: JsonPropertyName("season")] int? Season,
       [property: JsonPropertyName("episode")] int? Episode,
