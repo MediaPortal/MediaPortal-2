@@ -2450,6 +2450,91 @@ jobs, not files - one job can be a hundred thousand files and the server has no 
 The suite stands at **862 tests, 0 failures**, with `Tests.Frontend` at **314** where the last section left it at 294:
 the twenty that came with this screen.
 
+### al. Titles get their pictures back
+
+Every thumbnail the front end asked for came back 404, for any title, on any server. That was not one bug but three
+underneath each other, all in the nfo readers, and each of them on its own was enough:
+
+1. NfoReaderBase.ParseSimpleImageAsync accepted Uri.UriSchemeHttp and nothing else. Every artwork CDN that has been
+   contacted since then answers on https, so every picture named by a modern nfo-file was thrown away with the
+   comment "unsupported scheme". It now takes a scheme through IsPictureUrl, which admits http and https and refuses
+   ftp:, file:, relative addresses and blanks - the refusal is still a refusal, it just stopped including the one
+   scheme the whole internet uses.
+2. All five readers had the writer for the aspect thumbnail (TryWriteThumbnailLargeAspectThumbnail) **commented out**,
+   with a note that the FanArt collector handles it. That collector lives in the *online* Movie/Series/Audio
+   extractors and writes a disk fanart cache; nothing in this port deploys it, and the layout's Plugins directory
+   holds NfoMetadataExtractors and SQLiteDatabase only. The writers are registered again, hardened against the
+   empty-array and count-0 cases they used to trust.
+3. The thumb element itself was registered only when the reader was constructed with includeFanart, and both deployed
+   extractors pass false. So on a machine with the fanart collector missing - every machine - pictures were not merely
+   unwritten, they were never parsed. The thumb element is now registered unconditionally in the episode, film and
+   series readers; fanart, discart, logo, clearart, banner and Landscape stay behind includeFanart, because those
+   *are* the collector's business.
+
+On top of the repair there is now one rule MP2 never had, because it is the rule the tools that write nfo-files
+actually assume: **a picture lying next to the media is used when the nfo-file names none.** An episode takes
+"<nfo basename>-thumb.jpg" (or .png), a film takes poster, cover or folder, a series takes poster, folder or tvshow -
+the name-carrying candidates first, .jpg before .png. A picture named by the nfo-file wins over one found by
+convention, a file that is empty or unreadable is *not* a picture, quick mode reads none, and the series poster is
+stored with Aspect = Poster so the shelf is not handed a season poster or a fanart by accident. An episode never picks
+up its series' poster: it looks only for a still named after itself.
+
+Tests.Server\NfoMetadataExtractor\TestNfoPictures.cs pins all of that down offline, thirteen tests against real
+temporary folders: named-by-nfo for episode, film and series, poster preferred over the other thumbs a series holds,
+an empty file is no picture, the sibling -thumb.jpg used, an episode refusing the series poster, poster.jpg found in a
+film's and a series' folder, a named picture winning over a sibling, nothing found meaning no picture, quick mode
+reading nothing, and IsPictureUrl on seven addresses.
+
+A live server says the same thing as the tests. build\artifacts\demo-pictures.ps1 deletes its own data directory,
+starts the headless server against it and imports three shares from scratch - four demo films whose nfo-files name no
+picture, two undescribed video files, and the eight real episodes of Alien Earth (2025):
+
+    served for episode 'Alien: Earth S01E04 - Beobachtung'
+      the nfo-file names: https://image.tmdb.org/t/p/w1280/hzE6VJ37veL4p54IicLcI5pDDSJ.jpg
+      image/jpeg of 101740 bytes; the picture the nfo-file names: True; the file lying beside the media: True
+    served for film 'Alien'
+      image/png of 892 bytes; the cover in its folder: True
+      MovieItem : 4 titles, a thumbnail was served for 1 of them
+      EpisodeItem : 8 titles, a thumbnail was served for 8 of them
+      SeriesItem : 1 titles, a thumbnail was served for 1 of them
+    titles with a picture served: 10, without: 3
+
+True there is a SHA-256 comparison, not a status code: the bytes GET api/media/items/{id}/thumbnail serves for the
+episode are the bytes of the https image its nfo-file names, and the bytes served for the film are the bytes of
+poster.png lying in its folder, which no metadata mentions. The three titles left without a picture are the three
+demo films whose folders hold no cover at all, and that is the answer this rule promises.
+
+**The frame is the end of the road.** Frontend.RenderProbe --screen browser used to refuse --server and list a
+scripted shelf, so the picture a person cares about - the poster to the left of a row - was never once drawn from a
+real library. Given --server it now asks that server which aspects it has, takes the one --aspect names (MovieItem by
+default) and lists it, then prints three lines and fails rather than rendering an empty or colourless shelf:
+
+    content:  4 title(s) under "Movies", status: 4 of 4 movies, sorted by title
+    posters:  1 of 4 title(s) on the frame carry a picture
+    heading:  "Movies" on the screen, "Movies" in the view model
+    pictures: the bytes the server sent are a picture on the screen (4096 px of rgb(212,64,168) at x 60..123, y 401..464)
+
+The demo cover is a *lossless square PNG of one flat colour* on purpose: a JPEG would be re-coloured by its own
+compression, so the frame can be searched for rgb(212,64,168) and find exactly the 64 by 64 picture square of the row
+that was given that file. A shelf of episode stills is photographs, so for any aspect but MovieItem the probe says so
+and leaves the count as its claim; --aspect EpisodeItem reports "8 of 8 title(s) on the frame carry a picture" and the
+frame shows eight different film stills. The heading: line was added because the live shelf had been titled with the
+aspect's storage name: a shelf is now titled with the catalogue's own word - Movies, Episodes - which is what its tile
+at home says too.
+
+**What this does not do.** The album and artist readers still have their thumb element and their writer switched off;
+they are the same repair, and this library has no music in it, so they stay on the backlog rather than be changed
+untested. MP2's online metadata extractors and their disk fanart cache are still not deployed - every picture here is
+stored in the media database and served from it, which is simple but means a re-import re-downloads. The scratch
+drivers run their servers with web authorization off *in the data directory they create*, because a headless database
+from scratch holds no user profile to sign in against; what a stranger is answered with when authorization is on is
+pinned down by the authorization tests, and the real login road belongs with p2-5-api-settings. Two undescribed video
+files still arrive with an empty title, and a title whose server has no picture still gets the placeholder box rather
+than a generated one - both unchanged, both still on the backlog.
+
+The suite stands at **875 tests, 0 failures** - Tests.Server at **374** where the last section left it at 361, the
+thirteen that came with these readers - and the front-end render gate still draws every scripted frame green,
+including the two scripted posters and the row whose stored bytes are not a picture.
 ## What cannot be verified without the user
 
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,
