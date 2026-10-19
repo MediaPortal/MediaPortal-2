@@ -58,6 +58,10 @@ public partial class ClientSettingsViewModel : ObservableObject
 
     Options.Add(new SkinSettingOption("Language", "The language of dates, numbers and weather words",
         LanguageText, AdvanceLanguage, Changed));
+
+    Options.Add(new SkinSettingOption("Screensaver",
+        "Minutes of nobody touching anything before the screen goes black",
+        ScreensaverText, AdvanceScreensaver, Changed));
   }
 
   public ObservableCollection<SkinSettingOption> Options { get; } = new ObservableCollection<SkinSettingOption>();
@@ -124,6 +128,32 @@ public partial class ClientSettingsViewModel : ObservableObject
         return label;
 
     return _settings.Culture;
+  }
+
+  /// <summary>The timeouts the screensaver row walks, minutes; zero is "never".</summary>
+  private static readonly int[] SCREENSAVER_MINUTES = { 0, 5, 10, 15, 30, 60 };
+
+  private string ScreensaverText()
+  {
+    return _settings.ScreensaverMinutes == 0
+        ? "Off"
+        : _settings.ScreensaverMinutes + " minutes";
+  }
+
+  private void AdvanceScreensaver()
+  {
+    for (int i = 0; i < SCREENSAVER_MINUTES.Length; i++)
+    {
+      if (_settings.ScreensaverMinutes == SCREENSAVER_MINUTES[i])
+      {
+        _settings.ScreensaverMinutes = SCREENSAVER_MINUTES[(i + 1) % SCREENSAVER_MINUTES.Length];
+        return;
+      }
+    }
+
+    // A file that answered with a number off this ladder - written by hand, or by a future build - walks
+    // back onto the ladder at its first rung rather than getting stuck showing an unwalkable answer.
+    _settings.ScreensaverMinutes = SCREENSAVER_MINUTES[0];
   }
 
   private void AdvanceLanguage()

@@ -110,6 +110,16 @@ public sealed class ClientSettings
   [JsonPropertyName("culture")]
   public string Culture { get; set; } = "";
 
+  /// <summary>
+  /// How many minutes of nobody touching anything it takes for the screen to go black; <c>0</c>, the shipped
+  /// answer, means the screen never does. The reference asked the operating system how long the keyboard had
+  /// been silent - a Windows call this front end cannot make - so it counts the presses and moves that come
+  /// through its own window instead, which is the same question asked portably. It defaults to off because a
+  /// front end that misjudges idleness puts a black screen over a room that is only listening.
+  /// </summary>
+  [JsonPropertyName("screensaverMinutes")]
+  public int ScreensaverMinutes { get; set; }
+
   private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
   {
     WriteIndented = true,
@@ -184,6 +194,9 @@ public sealed class ClientSettings
       read.StartScreen ??= START_HOME;
       read.LastShelf ??= "";
       read.Culture ??= "";
+      // A negative timeout would trip the screen the moment it is armed, and a number past a day is not an
+      // answer anybody meant; both are answered with "off", which is what nobody-configured means here.
+      read.ScreensaverMinutes = read.ScreensaverMinutes is > 0 and <= 24 * 60 ? read.ScreensaverMinutes : 0;
       return read;
     }
     catch (Exception ex)

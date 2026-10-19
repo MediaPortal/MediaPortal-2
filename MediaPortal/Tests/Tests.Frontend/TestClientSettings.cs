@@ -178,6 +178,55 @@ namespace Tests.Frontend
       }
     }
 
+    [Test]
+    public void TheScreensaverIsOffUntilAViewerAsksForItAndSurvivesTheFile()
+    {
+      Assert.That(ClientSettings.Load(_file, out _).ScreensaverMinutes, Is.Zero,
+          "a screen that goes black on its own is a screensaver nobody bought");
+
+      ClientSettings written = new ClientSettings();
+      written.ScreensaverMinutes = 15;
+      written.Save(_file, out _);
+      Assert.That(ClientSettings.Load(_file, out _).ScreensaverMinutes, Is.EqualTo(15));
+    }
+
+    [Test]
+    public void AScreensaverAnswerNobodyMeantIsAnsweredWithOff()
+    {
+      foreach (int nonsense in new[] { -3, 24 * 60 + 1 })
+      {
+        File.Delete(_file);
+        ClientSettings written = new ClientSettings();
+        written.ScreensaverMinutes = nonsense;
+        written.Save(_file, out _);
+        Assert.That(ClientSettings.Load(_file, out _).ScreensaverMinutes, Is.Zero,
+            "a negative wait blacks the screen the moment it is armed and a wait past a day is no answer; "
+            + "both are nobody-meant, and nobody-meant means off");
+      }
+    }
+
+    [Test]
+    public void TheScreensaverRowWalksTheLadderAndWritesEachRung()
+    {
+      ClientSettingsViewModel screen = new ClientSettingsViewModel(_file);
+      SkinSettingOption screensaver = OptionNamed(screen, "Screensaver");
+
+      Assert.That(screensaver.ValueText, Is.EqualTo("Off"));
+      screensaver.Press();
+      Assert.That(screensaver.ValueText, Is.EqualTo("5 minutes"));
+      screensaver.Press();
+      screensaver.Press();
+      screensaver.Press();
+      Assert.That(screensaver.ValueText, Is.EqualTo("30 minutes"));
+      screensaver.Press();
+      screensaver.Press();
+      Assert.That(screensaver.ValueText, Is.EqualTo("Off"), "the row is a round trip, not a one-way door");
+
+      screensaver.Press();
+      Assert.That(ClientSettings.Load(_file, out _).ScreensaverMinutes, Is.EqualTo(5),
+          "every stop on the row is written where it is reached");
+    }
+
     private static SkinSettingOption OptionNamed(ClientSettingsViewModel screen, string label)
     {
       foreach (SkinSettingOption option in screen.Options)

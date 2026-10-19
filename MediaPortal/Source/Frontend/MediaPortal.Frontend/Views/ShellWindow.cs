@@ -173,7 +173,19 @@ namespace MediaPortal.Frontend.Views
       Panel shell = new Panel();
       shell.Children.Add(layout);
       shell.Children.Add(_superlayer);
+
+      // The screensaver's black, above even the superlayer: a volume reading glowing over a screen that
+      // decided the room left is the opposite of what a screensaver is for. It only ever paints while the
+      // idle watch says the room is silent.
+      _screensaverLayer = new Avalonia.Controls.Border
+      {
+        Background = Avalonia.Media.Brushes.Black,
+        IsVisible = false
+      };
+      shell.Children.Add(_screensaverLayer);
       Content = shell;
+
+      WireScreensaver();
 
       // The back key of the remote and the Escape of the keyboard, heard after every screen has declined it.
       AddHandler(KeyDownEvent,
@@ -294,8 +306,82 @@ namespace MediaPortal.Frontend.Views
     {
       ApplyWindowMode();
 
+      // The screensaver's wait is the same kind of answer as the window's, read from the file the settings
+      // row just wrote; turning it off while the screen is black wakes the screen, which is what turning it
+      // off means.
+      _idle.WaitMinutes = Settings.ClientSettings.Load(null, out _).ScreensaverMinutes;
+      _idle.Touch();
+      ApplyScreensaver();
+
       // The head line's calendar speaks the language the same save named.
       _chrome.RefreshClock();
+    }
+
+    // The screensaver's three parts: the watch that counts the silence, the black layer, and the quiet
+    // poll that puts the layer on. The watch starts with the answer the file has, which is "off" until a
+    // viewer says otherwise.
+    private readonly Input.IdleWatch _idle =
+        new Input.IdleWatch(Settings.ClientSettings.Load(null, out _).ScreensaverMinutes);
+    private Avalonia.Controls.Border? _screensaverLayer;
+    private Avalonia.Threading.DispatcherTimer? _idleTimer;
+
+    /// <summary>
+    /// The three ends a screensaver needs: the presses and moves that keep the room awake - heard in the
+    /// tunnel before any screen sees them, and swallowed while the screen sleeps, so the waking press does
+    /// not also press whatever stood under the black - a poll every half minute while the window is open,
+    /// and the layer that shows the answer.
+    /// </summary>
+    private void WireScreensaver()
+    {
+      void Wake(RoutedEventArgs args)
+      {
+        bool wasAsleep = _idle.Asleep;
+        _idle.Touch();
+        if (!wasAsleep)
+          return;
+        args.Handled = true;
+        ApplyScreensaver();
+      }
+
+      AddHandler(KeyDownEvent,
+          delegate (object? sender, KeyEventArgs args) { Wake(args); },
+          RoutingStrategies.Tunnel, true);
+      AddHandler(PointerPressedEvent,
+          delegate (object? sender, PointerPressedEventArgs args) { Wake(args); },
+          RoutingStrategies.Tunnel, true);
+      AddHandler(PointerMovedEvent,
+          delegate (object? sender, PointerPressedEventArgs args) { Wake(args); },
+          RoutingStrategies.Tunnel, true);
+
+      Opened += delegate
+      {
+        if (_idleTimer == null)
+        {
+          _idleTimer = new Avalonia.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
+          _idleTimer.Tick += delegate
+          {
+            _idle.Poll();
+            ApplyScreensaver();
+          };
+        }
+        _idleTimer.Start();
+      };
+      Closed += delegate
+      {
+        if (_idleTimer != null)
+          _idleTimer.Stop();
+      };
+    }
+
+    /// <summary>Show or hide the black, following the watch; a screen going to sleep also puts the superlayers away.</summary>
+    private void ApplyScreensaver()
+    {
+      if (_screensaverLayer == null || _screensaverLayer.IsVisible == _idle.Asleep)
+        return;
+
+      _screensaverLayer.IsVisible = _idle.Asleep;
+      if (_idle.Asleep)
+        HideSuperlayer();
     }
 
     /// <summary>
