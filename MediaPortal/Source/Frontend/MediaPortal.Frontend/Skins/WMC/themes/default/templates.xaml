@@ -316,4 +316,55 @@
     </Panel>
   </DataTemplate>
 
+  <!--
+    The playback screen's bar, as this skin would have read it: WMC said everything on a band - the blue panel of
+    its tiles, its own accent as the band's edge, and the word set bold and large on top - rather than in Nereus'
+    quiet text on a dark ground. The corners are the skin's own DialogBorderCornerRadius, the very measurement its
+    superlayers round their slabs with, so the bar and its overlays are cut the same way. The progress line is the
+    reference's ProgressBarFillColor over its ProgressBarBorderColor, which this skin keeps as its accent and its
+    video outline.
+
+    Like the Nereus bar, this one reads the playback and never drives it: skin markup has nothing behind it to
+    catch a press, and the keys stay the screen's own row.
+  -->
+  <DataTemplate x:Key="NowPlayingOverlayTemplate" x:DataType="vm:NowPlayingViewModel">
+    <Border Background="{DynamicResource PanelBrush}"
+            BorderBrush="{DynamicResource AccentBrush}" BorderThickness="0,0,0,3"
+            CornerRadius="{DynamicResource DialogBorderCornerRadius}"
+            Padding="20,10,20,12" Margin="0,14,0,0"
+            IsVisible="{Binding HasMedia}">
+      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="20">
+        <StackPanel Spacing="4">
+          <TextBlock Text="{Binding Title}"
+                     FontSize="26" FontWeight="Bold"
+                     TextTrimming="CharacterEllipsis"
+                     Foreground="{DynamicResource TextBrush}"/>
+          <StackPanel Orientation="Horizontal" Spacing="14">
+            <TextBlock Text="{Binding PositionText}"
+                       FontSize="18" FontWeight="SemiBold"
+                       Foreground="{DynamicResource TextBrush}"
+                       VerticalAlignment="Center"/>
+            <ProgressBar Minimum="0" Maximum="1" Value="{Binding Progress}"
+                         Width="460" Height="6" VerticalAlignment="Center"
+                         Foreground="{DynamicResource AccentBrush}"
+                         Background="{DynamicResource VideoOutlineBrush}"/>
+          </StackPanel>
+        </StackPanel>
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+          <TextBlock Text="{Binding StateText}"
+                     FontSize="18" FontWeight="SemiBold"
+                     Foreground="{DynamicResource MutedTextBrush}"
+                     VerticalAlignment="Center"/>
+          <!-- The loudness on the band, WMC stating it as plainly as it states a count on a menu tile. -->
+          <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+            <TextBlock Text="Volume" FontSize="18"
+                       Foreground="{DynamicResource MutedTextBrush}"/>
+            <TextBlock Text="{Binding Volume}" FontSize="18" FontWeight="SemiBold"
+                       Foreground="{DynamicResource TextBrush}"/>
+          </StackPanel>
+        </StackPanel>
+      </Grid>
+    </Border>
+  </DataTemplate>
+
 </ResourceDictionary>

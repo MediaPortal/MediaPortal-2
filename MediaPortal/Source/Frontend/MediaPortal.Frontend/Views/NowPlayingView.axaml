@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
         xmlns:views="using:MediaPortal.Frontend.Views"
+        xmlns:theming="using:MediaPortal.Frontend.Theming"
         x:Class="MediaPortal.Frontend.Views.NowPlayingView"
         x:DataType="vm:NowPlayingViewModel"
         Name="nowPlaying"
@@ -69,6 +70,33 @@
                  TextWrapping="Wrap"
                  HorizontalAlignment="Left"/>
     </Border>
+
+    <!--
+      The bar the worn skin draws along the foot of the playback screen, above the one line that says what went
+      wrong, which is where the reference read out what played: its master screen's footer carried the title, a
+      progress line and the state of play along the bottom and took itself off while nothing played. Nereus drew
+      that reading on a flat dark slab with the line filled with the accent, WMC on a blue band with the word set
+      bold on it, and both drawings live in the skins' own files now.
+
+      The screen names the key and keeps its own answer to it, which is an invisible nothing, so a viewer wearing no
+      skin sees the rows this screen was written with and exactly those, and the day a skin answers the key that
+      skin's bar arrives below them without this file being touched again.
+
+      The keys a viewer presses stay in the rows above and are not the skin's to draw: markup read off a skin's disk
+      has no code behind it to catch a press, and a button on the television that answers nothing is worse than no
+      button at all.
+    -->
+    <ContentControl Name="skinOverlay"
+                    DockPanel.Dock="Bottom"
+                    Content="{Binding}"
+                    HorizontalContentAlignment="Stretch"
+                    theming:SkinTemplates.OverlayTemplate="NowPlayingOverlayTemplate">
+      <ContentControl.ContentTemplate>
+        <DataTemplate x:DataType="vm:NowPlayingViewModel">
+          <Panel IsVisible="False"/>
+        </DataTemplate>
+      </ContentControl.ContentTemplate>
+    </ContentControl>
 
     <Grid RowDefinitions="*,Auto,Auto,Auto">
 

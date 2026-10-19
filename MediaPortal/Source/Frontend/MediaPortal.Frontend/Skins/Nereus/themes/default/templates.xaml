@@ -308,4 +308,59 @@
     </StackPanel>
   </DataTemplate>
 
+  <!--
+    The playback screen's bar, which is where both of this skin's currently-playing screens put the reading of
+    what plays: the words over a flat dark ground at the bottom of the picture, the position under them, and the
+    line that says how far the film has got filled with the accent. The line is the reference's OSDProgressBarStyle
+    sentence for sentence - a quiet track with ProgressBarFillColor in it, which is this skin's AccentBrush - and
+    the three things in this order (what plays, how far, what state) are the order the master screen's footer drew
+    them in, hidden altogether while nothing played.
+
+    The bar reads the playback and does not drive it. A skin's markup is read off disk with nothing behind it to
+    catch a press, so the keys a viewer uses stay the screen's own row above; a control that looks pressable and
+    answers nothing is the one thing a television must never show.
+  -->
+  <DataTemplate x:Key="NowPlayingOverlayTemplate" x:DataType="vm:NowPlayingViewModel">
+    <Border Background="{DynamicResource PanelBrush}"
+            BorderBrush="{DynamicResource AccentBrush}" BorderThickness="0,2,0,0"
+            Padding="22,10,22,12" Margin="0,14,0,0"
+            IsVisible="{Binding HasMedia}">
+      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24">
+        <StackPanel Spacing="4">
+          <TextBlock Text="{Binding Title}"
+                     FontSize="{DynamicResource SmallFontSize}"
+                     TextTrimming="CharacterEllipsis"
+                     Foreground="{DynamicResource TextBrush}"/>
+          <StackPanel Orientation="Horizontal" Spacing="14">
+            <TextBlock Text="{Binding PositionText}"
+                       FontSize="{DynamicResource SmallerFontSize}"
+                       Foreground="{DynamicResource AccentBrush}"
+                       VerticalAlignment="Center"/>
+            <ProgressBar Minimum="0" Maximum="1" Value="{Binding Progress}"
+                         Width="520" Height="8" VerticalAlignment="Center"
+                         Foreground="{DynamicResource AccentBrush}"
+                         Background="{DynamicResource OutlineBrush}"/>
+          </StackPanel>
+        </StackPanel>
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="18" VerticalAlignment="Center">
+          <TextBlock Text="{Binding StateText}"
+                     FontSize="{DynamicResource SmallerFontSize}"
+                     Foreground="{DynamicResource MutedTextBrush}"
+                     VerticalAlignment="Center"/>
+          <!-- The loudness, in the words the screen itself uses for it. Said as two blocks rather than one
+               formatted line because a skin's file is read at run time and nothing here compiles a format string
+               to check it. -->
+          <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+            <TextBlock Text="Volume"
+                       FontSize="{DynamicResource SmallerFontSize}"
+                       Foreground="{DynamicResource MutedTextBrush}"/>
+            <TextBlock Text="{Binding Volume}"
+                       FontSize="{DynamicResource SmallerFontSize}"
+                       Foreground="{DynamicResource TextBrush}"/>
+          </StackPanel>
+        </StackPanel>
+      </Grid>
+    </Border>
+  </DataTemplate>
+
 </ResourceDictionary>

@@ -155,6 +155,31 @@ namespace Tests.Frontend
     }
 
     [AvaloniaTest]
+    public void BothShippedSkinsAnswerThePlaybackBar()
+    {
+      // The playback screen hands the bar under its picture to the skin, the same way its lists hand over their
+      // tiles, and both skins have to answer: a screen asking for a bar the worn skin does not draw would show
+      // the reading of the playback on one skin and not on the next, which is exactly the complaint the
+      // view-switcher once was. The palette alone answers nothing, so a viewer wearing no skin keeps the rows the
+      // screen was written with and sees no second bar beside them.
+      Application app = Application.Current!;
+
+      Assert.That(SkinEngine.Apply(app, "nereus", out string? nereusProblem), Is.True, nereusProblem ?? "applied");
+      Assert.That(Find(app, "NowPlayingOverlayTemplate"),
+          Is.InstanceOf<Avalonia.Controls.Templates.IDataTemplate>(),
+          "Nereus draws the playback bar the way its CurrentlyPlaying screens drew the reading of what plays");
+
+      Assert.That(SkinEngine.Apply(app, "wmc", out string? wmcProblem), Is.True, wmcProblem ?? "applied");
+      Assert.That(Find(app, "NowPlayingOverlayTemplate"),
+          Is.InstanceOf<Avalonia.Controls.Templates.IDataTemplate>(),
+          "and WMC wears its own answer to the same key, its band rather than Nereus' slab");
+
+      FrontendTheme.Apply(app, FrontendTheme.DEFAULT_NAME, out _);
+      Assert.That(Find(app, "NowPlayingOverlayTemplate"), Is.Null,
+          "the default theme keeps silent about the playback bar, and the screen draws what it was written with");
+    }
+
+    [AvaloniaTest]
     public void WearingADarkThemeReadsItsOwnColoursOverTheDefaults()
     {
       Application app = Application.Current!;
