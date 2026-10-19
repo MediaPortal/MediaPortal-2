@@ -112,6 +112,24 @@ namespace Tests.Frontend
     }
 
     [Test]
+    public void TheKenBurnsEffectIsOnBecauseTheReferenceShippedItOnAndSavesWhenTurnedOff()
+    {
+      Assert.That(PlaybackSettings.Load(_file, out _).KenBurnsEffect, Is.True,
+          "the reference shipped the moving pictures on, and so does this");
+
+      PlaybackSettingsViewModel screen = new PlaybackSettingsViewModel(_file);
+      SkinSettingOption row = null;
+      foreach (SkinSettingOption option in screen.Options)
+        if (option.Label == "Ken Burns effect")
+          row = option;
+      Assert.That(row, Is.Not.Null);
+
+      row.Press();
+      Assert.That(PlaybackSettings.Load(_file, out _).KenBurnsEffect, Is.False,
+          "a checkbox on a settings screen that does not save is a decoration");
+    }
+
+    [Test]
     public void ThePlayerKeysReadTheViewersReach()
     {
       PlaybackSettings settings = new PlaybackSettings { SkipStepSeconds = 90, VolumeStep = 2 };

@@ -82,6 +82,9 @@ namespace MediaPortal.Frontend.Views
           _pictures.NextCommand.Execute(null);
       };
       _pictures.PropertyChanged += OnPicturesChanged;
+      // A raised photograph the screen has already reached before it was listening - a fast viewer, a warm
+      // screen - gets its picture painted all the same.
+      RefreshViewingPicture();
       // The grid of a folder belongs to the library and wears its chrome; a raised photograph belongs to the
       // television and covers it - the window is remembered on the way in because on the way out there is no
       // tree left to ask, and the chrome has to come back whatever happens to this screen.
@@ -178,6 +181,8 @@ namespace MediaPortal.Frontend.Views
     public void OnScreenClosed()
     {
       _slideshow.Stop();
+      if (_kenBurnsTimer != null)
+        _kenBurnsTimer.Stop();
       _pictures.PropertyChanged -= OnPicturesChanged;
       _pictures.Dispose();
     }
@@ -199,6 +204,12 @@ namespace MediaPortal.Frontend.Views
     /// </summary>
     private void OnPicturesChanged(object? sender, PropertyChangedEventArgs args)
     {
+      if (args.PropertyName == nameof(PicturesViewModel.ViewingBytes))
+      {
+        RefreshViewingPicture();
+        return;
+      }
+
       if (args.PropertyName != nameof(PicturesViewModel.Slideshow)
           && args.PropertyName != nameof(PicturesViewModel.IsViewing))
         return;
@@ -211,7 +222,100 @@ namespace MediaPortal.Frontend.Views
       else
         _slideshow.Stop();
 
+      UpdateKenBurns();
       SetFullBleedForViewing();
+    }
+
+    // The raised photograph is painted through an image brush whose crop moves, because that is exactly how
+    // the reference ran its Ken Burns effect: the animation never touched the picture, it moved the window
+    // that was looked through. An ImageBrush's Viewbox is that window.
+    private KenBurnsAnimator? _kenBurns;
+    private Avalonia.Media.ImageBrush? _viewingBrush;
+    private DispatcherTimer? _kenBurnsTimer;
+    private Avalonia.Size _viewingPixels;
+
+    /// <summary>
+    /// Paint the photograph the view model is holding, or clear the surface when it holds none. Decoded
+    /// through the artwork converter, so the raised picture and the tile of the same file share one decode.
+    /// </summary>
+    private void RefreshViewingPicture()
+    {
+      byte[]? bytes = _pictures.ViewingBytes;
+      Avalonia.Media.Imaging.Bitmap? picture = bytes == null
+          ? null
+          : ArtworkConverter.Instance.Convert(bytes, typeof(Avalonia.Media.Imaging.Bitmap), null,
+              System.Globalization.CultureInfo.InvariantCulture) as Avalonia.Media.Imaging.Bitmap;
+
+      _viewingPixels = picture == null
+          ? default
+          : new Avalonia.Size(picture.PixelSize.Width, picture.PixelSize.Height);
+      _viewingBrush = picture == null
+          ? null
+          : new Avalonia.Media.ImageBrush(picture)
+          {
+            Stretch = Avalonia.Media.Stretch.Uniform,
+            ViewboxUnits = Avalonia.RelativeUnit.Relative,
+            Viewbox = new Avalonia.RelativeRect(0, 0, 1, 1)
+          };
+      viewingSurface.Fill = _viewingBrush;
+
+      // The reference started its animation per picture, and so here does the moving window: the new
+      // photograph hangs still for a moment and then begins to drift or deepen.
+      if (_viewingBrush != null)
+        _viewingBrush.Viewbox = new Avalonia.RelativeRect(0, 0, 1, 1);
+      if (_kenBurns != null)
+        _kenBurns.Initialize(DateTime.Now);
+      else
+        UpdateKenBurns(); // a slideshow that started before these bytes arrived arms itself now
+    }
+
+    /// <summary>
+    /// Arm or disarm the Ken Burns animation with the slideshow: it belongs to a slideshow that the viewer
+    /// asked for and to the viewer's own answer in playback.json, and the picture is shown still without
+    /// either - a paused slideshow shows the whole photograph, not a held frame of the drift.
+    /// </summary>
+    private void UpdateKenBurns()
+    {
+      bool running = _pictures.IsViewing && _pictures.Slideshow;
+
+      if (!running)
+      {
+        if (_kenBurnsTimer != null)
+          _kenBurnsTimer.Stop();
+        _kenBurns = null;
+        if (_viewingBrush != null)
+          _viewingBrush.Viewbox = new Avalonia.RelativeRect(0, 0, 1, 1);
+        return;
+      }
+
+      if (_kenBurns != null || _viewingPixels.Width < 2)
+        return;
+
+      if (!Settings.PlaybackSettings.Load(null, out _).KenBurnsEffect)
+        return;
+
+      _kenBurns = new KenBurnsAnimator { Duration = SlideshowPace().TotalSeconds };
+      _kenBurnsTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(80) };
+      _kenBurnsTimer.Tick += delegate { StepKenBurns(); };
+      _kenBurns.Initialize(DateTime.Now);
+      _kenBurnsTimer.Start();
+      StepKenBurns();
+    }
+
+    /// <summary>Move the window: one frame of the reference's animation, cropped straight onto the brush.</summary>
+    private void StepKenBurns()
+    {
+      if (_kenBurns == null || _viewingBrush == null)
+        return;
+
+      double width = viewingSurface.Bounds.Width;
+      double height = viewingSurface.Bounds.Height;
+      if (width < 2 || height < 2 || _viewingPixels.Width < 2)
+        return;
+
+      Avalonia.Rect crop = _kenBurns.RectAt(
+          DateTime.Now, _viewingPixels, new Avalonia.Size(width, height));
+      _viewingBrush.Viewbox = new Avalonia.RelativeRect(crop.X, crop.Y, crop.Width, crop.Height);
     }
 
     /// <summary>The window this screen is currently standing in, or null between visits.</summary>

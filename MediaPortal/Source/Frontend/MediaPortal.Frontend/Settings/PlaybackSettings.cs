@@ -119,6 +119,14 @@ public sealed class PlaybackSettings
   /// to a hundred as a number; a remote walks a ladder, and the file still takes any whole per cent.</summary>
   public static readonly int[] WATCHED_MARKS = { 50, 60, 70, 80, 90, 100 };
 
+  /// <summary>
+  /// Whether a slideshow moves the pictures it shows - the slow tenth-of-a-step zoom into a corner or the
+  /// drift between two points that the reference called the Ken Burns effect. The reference shipped it on
+  /// (<c>ImagePlayerSettings.UseKenBurns</c>, default true), and so does this.
+  /// </summary>
+  [JsonPropertyName("kenBurnsEffect")]
+  public bool KenBurnsEffect { get; set; } = true;
+
   /// <summary>The answers the skip row walks, in the reference's own spread of the same choice.</summary>
   public static readonly int[] SKIP_STEPS = { 5, 10, 30, 60, 120, 300 };
 

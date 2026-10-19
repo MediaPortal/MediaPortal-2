@@ -69,6 +69,10 @@ public partial class PlaybackSettingsViewModel : ObservableObject
     Options.Add(new SkinSettingOption("Watched at",
         "How much of a title must be played before it counts as watched",
         WatchedMarkText, AdvanceWatchedMark, Changed));
+
+    Options.Add(new SkinSettingOption("Ken Burns effect",
+        "Whether a slideshow slowly zooms and pans the pictures it shows",
+        () => _settings.KenBurnsEffect, v => _settings.KenBurnsEffect = v, Changed));
   }
 
   public ObservableCollection<SkinSettingOption> Options { get; } = new ObservableCollection<SkinSettingOption>();

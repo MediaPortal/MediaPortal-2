@@ -101,12 +101,10 @@
     <Panel Name="viewer"
            Background="{DynamicResource ScrimBrush}"
            IsVisible="{Binding IsViewing}">
-      <!-- No ConverterParameter here on purpose: the raised photograph is the one place the whole decoded picture
-           is wanted, and it is shown one at a time. The same bytes as the tile's, decoded a second time at full
-           size - the converter remembers the two separately. -->
-      <Image Source="{Binding ViewingBytes, Converter={StaticResource artwork}}"
-             Stretch="Uniform"
-             Margin="40,24,40,96" />
+      <!-- The raised photograph is painted by the screen rather than bound here: it wears an image brush whose
+           crop the Ken Burns animation moves (see KenBurnsAnimator), and the brush is built from the same
+           cached decode the artwork converter gives the tiles - the whole picture, decoded once. -->
+      <Rectangle Name="viewingSurface" Margin="40,24,40,96" />
       <StackPanel VerticalAlignment="Bottom" Spacing="4" Margin="48,0,48,24">
         <TextBlock Text="{Binding Caption}"
                    FontSize="20"
