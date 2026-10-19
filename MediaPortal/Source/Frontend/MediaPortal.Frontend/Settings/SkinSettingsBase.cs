@@ -66,20 +66,52 @@ public abstract class SkinSettingsBase
   public abstract string SkinName { get; }
 
   /// <summary>
-  /// Where one skin's settings live: <c>MP2_SKIN_SETTINGS_DIR</c> when said, <c>theme.json</c>'s folder
+  /// Who the settings files currently name: the signed-in user, or null while nobody has signed in. This is
+  /// the layer the plan promised above the per-skin file - the reference stored its skin settings per
+  /// MediaPortal user, so two viewers of one household could wear different colours of one skin. While
+  /// nobody signs in (the ordinary living room, and every server that asks nobody), the shared file stands
+  /// exactly where it always stood.
+  /// </summary>
+  public static string? FileOwner { get; set; }
+
+  /// <summary>
+  /// The folder the skin files share: <c>MP2_SKIN_SETTINGS_DIR</c> when said, <c>theme.json</c>'s folder
   /// otherwise - which itself follows the user's application data or <c>MP2_THEME_FILE</c>.
   /// </summary>
-  public static string FileFor(string skinName)
+  private static string SettingsFolder()
   {
     string? folder = Environment.GetEnvironmentVariable("MP2_SKIN_SETTINGS_DIR");
-    if (string.IsNullOrWhiteSpace(folder))
-    {
-      folder = Path.GetDirectoryName(ServerSettings.DefaultFilePath);
-      if (string.IsNullOrEmpty(folder))
-        folder = Path.GetTempPath();
-    }
+    if (!string.IsNullOrWhiteSpace(folder))
+      return folder;
 
-    return Path.Combine(folder, "skin-" + skinName.Trim().ToLowerInvariant() + ".json");
+    folder = Path.GetDirectoryName(ServerSettings.DefaultFilePath);
+    if (string.IsNullOrEmpty(folder))
+      folder = Path.GetTempPath();
+    return folder;
+  }
+
+  /// <summary>The shared file of one skin - the answer, and the file, from before anybody signed in.</summary>
+  public static string FileFor(string skinName)
+  {
+    return Path.Combine(SettingsFolder(), "skin-" + skinName.Trim().ToLowerInvariant() + ".json");
+  }
+
+  /// <summary>
+  /// The file one skin's answers live in right now: the signed-in user's own when there is one, the shared
+  /// file while there is not. A name is tidied for the filesystem the same way every other stored name here
+  /// is - what a person is called and what a file may be called are two questions.
+  /// </summary>
+  public static string FileForUser(string skinName)
+  {
+    string owner = FileOwner ?? "";
+    if (owner.Length == 0)
+      return FileFor(skinName);
+
+    foreach (char bad in Path.GetInvalidFileNameChars())
+      owner = owner.Replace(bad, '-');
+
+    return Path.Combine(SettingsFolder(),
+        "skin-" + skinName.Trim().ToLowerInvariant() + "-" + owner.Trim().ToLowerInvariant() + ".json");
   }
 
   /// <summary>
@@ -141,6 +173,22 @@ public abstract class SkinSettingsBase
   public bool EnableAgeCertificationLogos { get; set; } = true;
 
   /// <summary>
+  /// Which file a read consults for the current owner: their own file once they have one; the shared file
+  /// if it is still the only answer this machine has (a signed-in viewer inherits what the machine was
+  /// told, and their first save leaves their own file behind); and their own missing file - the shipped
+  /// defaults - when nobody ever answered anything.
+  /// </summary>
+  private static string ReadFileFor(string skinName)
+  {
+    string own = FileForUser(skinName);
+    if (string.IsNullOrEmpty(FileOwner) || File.Exists(own))
+      return own;
+
+    string shared = FileFor(skinName);
+    return File.Exists(shared) ? shared : own;
+  }
+
+  /// <summary>
   /// Reads one skin's file. A missing file is nobody having touched the settings - the shipped defaults
   /// answer without a complaint; a broken one says its sentence and still answers, because the front end
   /// draws rather than refusing to start over an unreadable file (the <see cref="ThemeSettings"/> bargain).
@@ -149,7 +197,7 @@ public abstract class SkinSettingsBase
   {
     problem = null;
     T settings = new T();
-    string file = path ?? FileFor(settings.SkinName);
+    string file = path ?? ReadFileFor(settings.SkinName);
 
     try
     {
@@ -184,7 +232,7 @@ public abstract class SkinSettingsBase
   /// </summary>
   public string Save(string? path, out bool saved)
   {
-    string file = path ?? FileFor(SkinName);
+    string file = path ?? FileForUser(SkinName);
     try
     {
       string? folder = Path.GetDirectoryName(file);

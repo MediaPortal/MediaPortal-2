@@ -286,6 +286,12 @@ namespace MediaPortal.Frontend
         {
           if (args.PropertyName == nameof(ViewModels.HomeViewModel.ServerActivity))
             _shell?.Chrome.ReportServerActivity(_home.ServerActivity);
+
+          // The skin's own answers belong to whoever is signed in, like they did in the reference: the
+          // signed-in name names the skin settings file from this moment on, and every screen that reads
+          // them again - which is every screen that reads them at all - reads that person's answers.
+          if (args.PropertyName == nameof(ViewModels.HomeViewModel.SignedInAs))
+            Settings.SkinSettingsBase.FileOwner = _home.SignedInAs;
         };
 
         desktop.MainWindow = _shell;

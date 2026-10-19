@@ -162,9 +162,13 @@ public partial class SkinSettingsViewModel : ObservableObject
     Heading = "Skin settings";
     Subtitle = _settings == null
         ? string.Format("'{0}' ships no settings of its own.", skinName)
-        : string.Format("What {0} lets you change on this machine. A checkbox switches, a button walks "
+        : string.Format("What {0} lets you change{1}. A checkbox switches, a button walks "
             + "through its answers; every change is saved at once and stays changed after the next start.",
-            TitleOf(skinName));
+            TitleOf(skinName),
+            string.IsNullOrEmpty(SkinSettingsBase.FileOwner)
+                ? " on this machine"
+                : string.Format(" for '{0}' - signed in, these answers belong to the person, like the reference had them",
+                    SkinSettingsBase.FileOwner));
 
     if (_settings != null)
       BuildRows();
