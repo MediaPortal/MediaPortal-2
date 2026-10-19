@@ -61,7 +61,7 @@ namespace FrontendProbe
   public static class RenderProbe
   {
     private const string USAGE =
-        "Frontend.RenderProbe --out <file.png> [--screen <home|continue|nowplaying|connect|browser|details|search|seen>] [--server <url>] [--width <n>] [--height <n>]\n" +
+        "Frontend.RenderProbe --out <file.png> [--screen <home|continue|nowplaying|connect|browser|details|search|seen|folders>] [--server <url>] [--width <n>] [--height <n>]\n" +
         "  --out <file>     where to write the rendered frame (PNG); its directory is created\n" +
         "  --screen <name>  which screen to render (default home)\n" +
         "  --server <url>   render the populated screen by asking this server (otherwise MP2_SERVER,\n" +
@@ -195,6 +195,7 @@ namespace FrontendProbe
       bool seenAsked = false;
       HomeViewModel? home = null;
       ConnectionViewModel? connection = null;
+      FoldersViewModel? foldersScreen = null;
       string playbackStatus = "";
       VideoFrameSink? frames = null;
       Func<long>? pictureFrames = null;
@@ -319,14 +320,15 @@ namespace FrontendProbe
               + " tile(s), but the script offers two parts of the library a viewer can watch.");
           return 1;
         }
-        if (home.Menu.Count(entry => entry.Openable) != 2)
+        if (home.Menu.Count(entry => entry.Openable) != 3)
         {
           // The screen does not draw `Sections` any more, it draws the menu built from them, so this is the check
           // that belongs to the picture: the two parts the script offers have to be the two entries a viewer can
-          // open, and the seven the script cannot fill have to be saying so rather than being missing.
+          // open, and the seven the script cannot fill have to be saying so rather than being missing. The third
+          // openable entry is the folders screen, which is openable whatever the server holds.
           Console.WriteLine("FAILED:   " + home.Menu.Count(entry => entry.Openable)
-              + " openable menu entr(ies) of " + home.Menu.Count + "; expected two, because the script offers two "
-              + "parts of the library a viewer can watch.");
+              + " openable menu entr(ies) of " + home.Menu.Count + "; expected two plus the folders screen, because"
+              + " the script offers two parts of the library a viewer can watch.");
           return 1;
         }
         if ((home.ServerDescription ?? "").IndexOf("MediaPortal 2 Server", StringComparison.Ordinal) < 0)
@@ -415,10 +417,24 @@ namespace FrontendProbe
         seenAsked = screenName.Equals("seen", StringComparison.Ordinal);
         window = new MediaBrowserWindow(browser, null);
       }
+      else if (screenName.Equals("folders", StringComparison.Ordinal))
+      {
+        // Unlike the scripted screens this one is only worth a frame against a server that is really running: what
+        // it shows is the folders somebody's own library was built from, and inventing three of them would picture
+        // a screen that has never answered a question. Without `--server` it renders the state a television falls
+        // back to when nothing answered, which is a picture of its own worth having.
+        FoldersViewModel folders = new FoldersViewModel(
+            online ? new ServerApiClient(new Uri(url!)) : null);
+        Console.WriteLine("content:  " + (online
+            ? "the folders " + url + " says its library was built from"
+            : "offline - the screen's own 'no server' state is what gets rendered"));
+        foldersScreen = folders;
+        window = new FoldersWindow(folders);
+      }
       else
       {
         return Usage("unknown screen '" + screenName + "'; this probe renders home, continue, nowplaying, connect,"
-            + " browser, details, search or seen.");
+            + " browser, details, search, seen or folders.");
       }
 
       window.Width = width;
@@ -466,6 +482,47 @@ namespace FrontendProbe
         {
           Console.WriteLine("FAILED:   a populated screen was asked for ('" + url + "'), but the server answered no"
               + " aspects. Status says: '" + home.Status + "'.");
+          return 4;
+        }
+      }
+
+      if (foldersScreen != null)
+      {
+        // The screen reads the server as it appears, so the probe waits for that read rather than starting one.
+        if (!PumpUntil(delegate { return !foldersScreen.IsBusy; }, TimeSpan.FromSeconds(30)))
+        {
+          Console.WriteLine("FAILED:   the folders screen never finished reading '" + url + "'.");
+          return 4;
+        }
+
+        Console.WriteLine("folders:  " + foldersScreen.Shares.Count + " folder(s), "
+            + foldersScreen.Categories.Count + " media type(s) on offer, queue: " + foldersScreen.Queue
+            + ", status: " + foldersScreen.Status);
+
+        // The sentence the view model holds is only worth anything if the line on the screen carries it, so the
+        // control is looked for by the name the screen gives it - the way the other screens' probes look for the
+        // box or the row they are about to press.
+        if (window is FoldersWindow foldersScreenWindow)
+        {
+          TextBlock? line = Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(foldersScreenWindow)
+              .OfType<TextBlock>().FirstOrDefault(text => text.Name == "statusLine");
+          Console.WriteLine("line:     " + (line == null
+              ? "the screen has no text block named \"statusLine\""
+              : "\"" + line.Text + "\" at " + line.Bounds + ", visible " + line.IsVisible
+                + ", drawn " + line.IsEffectivelyVisible));
+          if (line == null || string.IsNullOrWhiteSpace(line.Text))
+          {
+            Console.WriteLine("FAILED:   the line on the screen is empty while the view model holds a sentence.");
+            return 4;
+          }
+        }
+
+        // A frame of an empty folder list drawn against a server that was said to have folders is not evidence of
+        // anything, so it is refused rather than printed.
+        if (online && foldersScreen.Shares.Count == 0)
+        {
+          Console.WriteLine("FAILED:   '" + url + "' answered with no folders, so the frame would be the screen's"
+              + " empty state rather than the library behind it. Status says: '" + foldersScreen.Status + "'.");
           return 4;
         }
       }

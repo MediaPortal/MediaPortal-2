@@ -1724,12 +1724,17 @@ captures the frame, counts its pixels and writes a PNG:
         --out build\artifacts\frontend-render\home.png --server http://127.0.0.1:55555/MediaPortal/Server
 
 - `--out` is required, its directory is created, and the file must come back with a PNG signature.
-- `--screen home|browser|nowplaying|connect` picks the screen (default `home`). The playback screen is driven by a
-  *scripted* player rather than libVLC, and the title list by a *scripted* page of twelve films served in the exact
-  JSON `GET api/media/titles` answers with: a frame that is supposed to mean the same thing on Windows and in a
-  container cannot depend on which moment a decoder happened to reach, nor on whether whoever runs the gate has
-  imported anything. Both still go through the real parsing and the real bindings - the probe's job is the
-  drawing, not the decoding and not a shortcut into the view model.
+- `--screen home|continue|nowplaying|connect|browser|details|search|seen|folders` picks the screen (default `home`).
+  The playback screen is driven by a *scripted* player rather than libVLC, and the title list by a *scripted* page of
+  twelve films served in the exact JSON `GET api/media/titles` answers with: a frame that is supposed to mean the same
+  thing on Windows and in a container cannot depend on which moment a decoder happened to reach, nor on whether
+  whoever runs the gate has imported anything. Both still go through the real parsing and the real bindings - the
+  probe's job is the drawing, not the decoding and not a shortcut into the view model.
+- `folders` is the exception to that scripting, on purpose: the folders screen shows the folders *somebody's* library
+  was built from, so it is rendered against `--server` (or refused: exit 4 when a server that was asked answered with
+  no folders), and without a server it renders the screen's own "no server connected" state. It also prints a `line:`
+  row, which reads the `statusLine` text block out of the visual tree - a sentence the view model holds but the screen
+  does not show is not evidence of anything.
 - `--server` renders the populated screen; without it (and without `MP2_SERVER`) the screen's own "no server"
   state is rendered, which is a real state and gets measured too.
 - `--width`/`--height` default to 1280x720, and anything below 100x100 is refused as an argument error (exit 2).
