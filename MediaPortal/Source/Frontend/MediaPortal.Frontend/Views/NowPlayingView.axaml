@@ -53,6 +53,7 @@
     </Style>
   </UserControl.Styles>
 
+  <Panel>
   <DockPanel Margin="48,32">
 
     <StackPanel DockPanel.Dock="Top" Spacing="4">
@@ -162,13 +163,22 @@
                      VerticalAlignment="Center"/>
       </StackPanel>
 
+      <!--
+        The transport row, in the reference's order (PrimaryVideoOSD): rewind, play/pause, stop, forward, then
+        the title's information, then the volume pair (up first, as the reference stacks them), and the leave
+        buttons last. The buttons the reference also draws - previous and next track, player configuration,
+        DVD title and chapter pickers - wait for a front end that owns a playlist of its own or a dialog
+        behind the button; a button that leads nowhere is worse than a missing one. The captions say the
+        reach the viewer answered in the playback settings, not a hard-worn thirty.
+      -->
       <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="10" Margin="0,18,0,0">
-        <Button Name="pauseButton" Classes="transport" Content="{Binding TransportLabel}" Click="OnPause"/>
         <Button Name="backButton" Classes="transport" Content="-30 s" Click="OnBack"/>
-        <Button Name="forwardButton" Classes="transport" Content="+30 s" Click="OnForward"/>
+        <Button Name="pauseButton" Classes="transport" Content="{Binding TransportLabel}" Click="OnPause"/>
         <Button Name="stopButton" Classes="transport" Content="Stop" Click="OnStop"/>
-        <Button Name="volumeDownButton" Classes="transport" Content="Vol -" Click="OnVolumeDown"/>
+        <Button Name="forwardButton" Classes="transport" Content="+30 s" Click="OnForward"/>
+        <Button Name="infoButton" Classes="transport" Content="Info" Click="OnMediaInfo"/>
         <Button Name="volumeUpButton" Classes="transport" Content="Vol +" Click="OnVolumeUp"/>
+        <Button Name="volumeDownButton" Classes="transport" Content="Vol -" Click="OnVolumeDown"/>
         <Button Name="muteButton" Classes="transport" Content="Mute" Click="OnMute"/>
         <Button Name="closeButton" Classes="transport" Content="Close" Click="OnClose"/>
       </StackPanel>
@@ -188,4 +198,13 @@
       </StackPanel>
     </Grid>
   </DockPanel>
+
+    <!--
+      The reference's opening breath (AnimationL on its full-screen grid): the picture starts behind a black
+      overlay that fades away within half a second of the screen showing, so a film does not begin with a
+      hard cut from whatever screen came before. It replays every time this screen is shown, because the
+      reference's trigger fires on showing, not once per application.
+    -->
+    <Border Name="openFade" Background="Black" IsHitTestVisible="False"/>
+  </Panel>
 </UserControl>

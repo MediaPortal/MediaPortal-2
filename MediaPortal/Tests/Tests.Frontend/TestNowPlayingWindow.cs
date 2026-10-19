@@ -245,10 +245,12 @@ namespace Tests.Frontend
     }
 
     [AvaloniaTest]
-    public void TheLeftAndRightKeysSeekInsteadOfWalkingTheButtons()
+    public void TheLeftAndRightKeysClimbTheSkipLadderInsteadOfWalkingTheButtons()
     {
       // On the home screen the d-pad's left and right move between areas. Here the same keys belong to the
       // transport, and a viewer who presses right in the middle of a film must not watch the highlight move.
+      // What they do is the reference's escalating ladder: the press names its step and waits, and the film
+      // moves when the waiting runs out.
       var player = new FakePlayer();
       ShellWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
       screen.Play(Film("film.mkv"));
@@ -261,20 +263,27 @@ namespace Tests.Frontend
       Pump();
 
       Assert.That(PressKey(pause, Key.Right), Is.True, "the screen claimed the key");
-      Assert.That(player.TimeInMs, Is.EqualTo(60_000), "right moved the film forward, not the focus");
+      Assert.That(player.TimeInMs, Is.EqualTo(40_000), "the first press holds its step and waits - the ladder has not run out yet");
       Assert.That(pause.IsFocused, Is.True, "and the focus stayed where it was");
+      screen.SkipStepElapsed();
+      Assert.That(player.TimeInMs, Is.EqualTo(55_000), "the first rung of the reference ladder is fifteen seconds");
 
       Assert.That(PressKey(pause, Key.Left), Is.True, "the screen claimed the other key as well");
-      Assert.That(player.TimeInMs, Is.EqualTo(30_000), "left moved the film back");
+      screen.SkipStepElapsed();
+      Assert.That(player.TimeInMs, Is.EqualTo(40_000), "turning around at the bottom lands back where the run started");
 
-      // Up belongs to the ring, and the ring wraps: from the first button it lands on the last one. A row of
-      // buttons that could only be walked in one direction would leave a viewer stuck at the end of it. This
-      // media has no tracks to pick, so the sound and subtitle buttons are hidden - and a hidden button is not
-      // an area, which is why the wrap still lands on Close.
+      // Up belongs to the ring, and the ring walks the reference's row: rewind first, play/pause next. From the
+      // first button of the row it wraps to the last. A row of buttons that could only be walked in one
+      // direction would leave a viewer stuck at the end of it. This media has no tracks to pick, so the sound
+      // and subtitle buttons are hidden - and a hidden button is not an area, which is why the wrap still
+      // lands on Close.
       Assert.That(PressKey(pause, Key.Up), Is.True, "the ring used the key");
+      Assert.That(ButtonNamed(window, "backButton").IsFocused, Is.True,
+          "up from play walks to the rewind button, which the reference puts first");
+      Assert.That(PressKey(ButtonNamed(window, "backButton"), Key.Up), Is.True, "the ring used the key again");
       Assert.That(ButtonNamed(window, "closeButton").IsFocused, Is.True,
-          "and the focus wrapped to the last button of the row");
-      Assert.That(player.TimeInMs, Is.EqualTo(30_000), "while the film did not move at all");
+          "and from the first button of the row the focus wrapped to the last");
+      Assert.That(player.TimeInMs, Is.EqualTo(40_000), "while the film did not move at all");
     }
 
     [AvaloniaTest]
@@ -305,7 +314,7 @@ namespace Tests.Frontend
       Assert.That(ButtonNamed(window, "subtitleButton").IsFocused, Is.True, "the next area is the subtitle picker");
 
       Assert.That(PressKey(ButtonNamed(window, "subtitleButton"), Key.Down), Is.True);
-      Assert.That(ButtonNamed(window, "pauseButton").IsFocused, Is.True,
+      Assert.That(ButtonNamed(window, "backButton").IsFocused, Is.True,
           "and one further still wraps to the first button, so the pickers are part of the same loop");
     }
 

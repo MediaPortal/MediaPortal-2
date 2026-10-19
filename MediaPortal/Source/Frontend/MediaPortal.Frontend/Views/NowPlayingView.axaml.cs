@@ -122,8 +122,8 @@ namespace MediaPortal.Frontend.Views
 
       DpadNavigation.Attach(this, new List<Control>
           {
-            pauseButton, backButton, forwardButton, stopButton,
-            volumeDownButton, volumeUpButton, muteButton, closeButton,
+            backButton, pauseButton, stopButton, forwardButton, infoButton,
+            volumeUpButton, volumeDownButton, muteButton, closeButton,
             audioButton, subtitleButton
           });
 
@@ -280,6 +280,41 @@ namespace MediaPortal.Frontend.Views
     {
       _viewModel.Changed += OnPlaybackChanged;
       _ = _viewModel.ReadCoverAsync();
+
+      // The reach written on the two jump buttons is the viewer's answer, not a remembered thirty, and the
+      // screen greets every showing the way the reference greets it: out from behind a half-second of black.
+      long jumpSeconds = _viewModel.SkipStepMs / 1000;
+      backButton.Content = "-" + jumpSeconds + " s";
+      forwardButton.Content = "+" + jumpSeconds + " s";
+      RestartOpenFade();
+    }
+
+    /// <summary>
+    /// Replay the reference's opening fade: black over the picture, gone within half a second. Set back to
+    /// black and released on the next dispatcher beat, because a transition only runs between two renders.
+    /// </summary>
+    private void RestartOpenFade()
+    {
+      openFade.Opacity = 1;
+      if (openFade.Transitions == null)
+      {
+        openFade.Transitions = new Avalonia.Animation.Transitions
+        {
+          new Avalonia.Animation.DoubleTransition
+          {
+            Property = OpacityProperty,
+            Duration = TimeSpan.FromSeconds(0.5)
+          }
+        };
+      }
+      Dispatcher.UIThread.Post(delegate { openFade.Opacity = 0; }, DispatcherPriority.Loaded);
+    }
+
+    /// <summary>The reference's PlayingInfoButton, as a key and as a button: the title's reading, called over
+    /// the picture and sent back again.</summary>
+    private void OnMediaInfo(object? sender, RoutedEventArgs e)
+    {
+      ToggleMediaInfo();
     }
 
     private void OnStoppingPlayback()
