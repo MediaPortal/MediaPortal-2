@@ -392,5 +392,87 @@ namespace Tests.Frontend
     }
 
     #endregion
+
+    #region Changing a folder that is already there
+
+    [Test]
+    public void TheEditorShowsTheSelectedFolderAndSavesWhatItShows()
+    {
+      FoldersViewModel folders = Opened();
+      FolderShare films = folders.Shares.Single(row => row.Name == "Films");
+      folders.Selected = films;
+
+      Assert.That(folders.EditName, Is.EqualTo("Films"));
+      Assert.That(folders.EditPath, Is.EqualTo(_folder));
+      Assert.That(folders.EditWatcher, Is.True);
+      Assert.That(folders.EditCategories.Select(choice => choice.Name + (choice.IsOn ? "!" : "")),
+          Is.EqualTo(new[] { "Movie!", "Series", "Video" }),
+          "the folder's own category arrives ticked and the server's other offers unticked - the editor shows "
+          + "what this folder is filed as, not what could ever be ticked");
+
+      folders.EditName = "Films and friends";
+      folders.EditCategories.Single(choice => choice.Name == "Video").IsOn = true;
+      folders.SaveChangesAsync().GetAwaiter().GetResult();
+
+      Assert.That(_server.Updates.Count, Is.EqualTo(1));
+      SharesFakes.Update edit = _server.Updates[0];
+      Assert.That(edit.Id, Is.EqualTo(SharesFakes.LOCAL_SHARE));
+      Assert.That(edit.Name, Is.EqualTo("Films and friends"));
+      Assert.That(edit.Categories, Is.EqualTo(new[] { "Movie", "Video" }));
+      Assert.That(edit.Relocation,
+          Is.EqualTo(MediaPortal.Backend.MediaLibrary.RelocationMode.None),
+          "the path box held the folder's own path, which is not a move and must not relocate anything");
+      Assert.That(folders.Shares.Single(row => row.Id == SharesFakes.LOCAL_SHARE).Name,
+          Is.EqualTo("Films and friends"), "the list reads the edited folder back, not the old row");
+      Assert.That(folders.Status, Does.Contain("changed"));
+    }
+
+    [Test]
+    public void AMovedFolderRelocatesItsShareButAnUnrelatedOneIsNoOnesBusiness()
+    {
+      FoldersViewModel folders = Opened();
+      folders.Selected = folders.Shares.Single(row => row.Name == "Films");
+      folders.EditPath = _other;
+      folders.SaveChangesAsync().GetAwaiter().GetResult();
+
+      Assert.That(_server.Updates.Single().Relocation,
+          Is.EqualTo(MediaPortal.Backend.MediaLibrary.RelocationMode.Relocate),
+          "an edited path is read the way the screen says it is: the folder moved, and its items follow");
+      Assert.That(folders.Shares.Single(row => row.Id == SharesFakes.LOCAL_SHARE).Path, Is.EqualTo(_other));
+    }
+
+    [Test]
+    public void AFolderLeftWithoutASingleCategoryIsNotSent()
+    {
+      FoldersViewModel folders = Opened();
+      folders.Selected = folders.Shares.Single(row => row.Name == "Films");
+      foreach (CategoryChoice choice in folders.EditCategories)
+        choice.IsOn = false;
+
+      folders.SaveChangesAsync().GetAwaiter().GetResult();
+
+      Assert.That(_server.Updates, Is.Empty,
+          "a share without categories is imported by nobody - the server would take it, and the empty shelf "
+          + "would only explain itself weeks later");
+      Assert.That(folders.Status, Does.Contain("ticked"),
+          "and the screen says what to do instead");
+    }
+
+    [Test]
+    public void ARemoteFolderKeepsThePathItIsOn()
+    {
+      FoldersViewModel folders = Opened();
+      FolderShare remote = folders.Shares.Single(row => !row.Local);
+      folders.Selected = remote;
+      folders.EditPath = _other;
+
+      folders.SaveChangesAsync().GetAwaiter().GetResult();
+
+      Assert.That(_server.Updates, Is.Empty,
+          "this server cannot follow a folder it does not host, and it says no rather than storing a lie");
+      Assert.That(folders.Status, Does.Contain("another system"));
+    }
+
+    #endregion
   }
 }

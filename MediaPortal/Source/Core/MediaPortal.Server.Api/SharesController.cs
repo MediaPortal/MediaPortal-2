@@ -333,6 +333,132 @@ namespace MediaPortal.Server.Api
     }
 
     /// <summary>
+    /// What a caller asks to change about an existing share. Everything is optional; what is left out stays as
+    /// it is. A path is only for a folder that <em>moved</em> - to read a completely different folder, remove
+    /// the share and add the new one, which is also what re-imports it from scratch.
+    /// </summary>
+    public class ShareUpdateRequest
+    {
+      public string Name { get; set; }
+
+      public List<string> MediaCategories { get; set; }
+
+      public bool? UseShareWatcher { get; set; }
+
+      public string Path { get; set; }
+    }
+
+    /// <summary>
+    /// Changes a share: its name, the categories the importer assumes, whether its folder is watched, and - for
+    /// a folder that moved - the path it points at.
+    /// </summary>
+    /// <param name="id">The share id, as <c>GET api/media/shares</c> reported it.</param>
+    /// <remarks>
+    /// <para>
+    /// The categories are held to the same rule as when a share is added: a name this server cannot import is
+    /// refused with the list of names it can. Categories apply to the next import; what the library already
+    /// learned from the share keeps its faces until it is read again.
+    /// </para>
+    /// <para>
+    /// A new path relocates the share's media items to it (<see cref="IMediaLibrary.UpdateShare"/> with
+    /// relocation), which is right for a folder that moved and wrong for an unrelated one - hence the words in
+    /// <see cref="ShareUpdateRequest.Path"/>. A watcher that was switched on or off is picked up when the
+    /// library next reloads its shares, which in practice means the next server start; the answer reports the
+    /// wish, not the moment it takes hold.
+    /// </para>
+    /// </remarks>
+    [HttpPut("shares/{id}")]
+    public ActionResult<ShareResult> UpdateShare(Guid id, [FromBody] ShareUpdateRequest request)
+    {
+      if (request == null)
+        return BadRequest(new ErrorResponse { Error = "no changes were sent" });
+
+      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
+      ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>(false);
+      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>(false);
+      if (mediaLibrary == null || systemResolver == null || mediaAccessor == null)
+        return StatusCode(StatusCodes.Status503ServiceUnavailable);
+
+      Share share;
+      try
+      {
+        share = mediaLibrary.GetShare(id);
+        if (share == null)
+          return NotFound(new ErrorResponse { Error = "this server has no share with the id " + id });
+      }
+      catch (IllegalCallException ex)
+      {
+        return NotReady(ex);
+      }
+
+      string name = string.IsNullOrWhiteSpace(request.Name) ? share.Name : request.Name.Trim();
+
+      // Categories: what is not said stays; what is said is the full new list, spelled as the server spells them.
+      List<string> categories = share.MediaCategories?.ToList() ?? new List<string>();
+      if (request.MediaCategories != null)
+      {
+        string categoryError;
+        if (!TryResolveCategories(request.MediaCategories, out categories, out categoryError))
+          return BadRequest(new ErrorResponse { Error = categoryError });
+      }
+
+      bool watcher = request.UseShareWatcher ?? share.UseShareWatcher;
+
+      ResourcePath basePath = share.BaseResourcePath;
+      MediaPortal.Backend.MediaLibrary.RelocationMode relocation =
+          MediaPortal.Backend.MediaLibrary.RelocationMode.None;
+      if (!string.IsNullOrWhiteSpace(request.Path))
+      {
+        if (share.SystemId != systemResolver.LocalSystemId)
+          return new ObjectResult(new ErrorResponse
+          {
+            Error = "share '" + id + "' is on another system ('" + share.SystemId + "'), and only a local " +
+                "share's path can be followed to where its folder moved"
+          })
+          {
+            StatusCode = StatusCodes.Status409Conflict
+          };
+
+        string path;
+        try
+        {
+          path = System.IO.Path.GetFullPath(request.Path);
+        }
+        catch (Exception ex)
+        {
+          return BadRequest(new ErrorResponse
+          {
+            Error = "'" + request.Path + "' is not a path this server can use: " + ex.Message
+          });
+        }
+
+        if (!Directory.Exists(path))
+          return BadRequest(new ErrorResponse
+          {
+            Error = "the server cannot see a folder at '" + path + "'"
+          });
+
+        ResourcePath newPath = LocalFsResourceProviderBase.ToResourcePath(path);
+        if (!Equals(newPath, share.BaseResourcePath))
+        {
+          basePath = newPath;
+          relocation = MediaPortal.Backend.MediaLibrary.RelocationMode.Relocate;
+        }
+      }
+
+      try
+      {
+        mediaLibrary.UpdateShare(id, basePath, name, watcher, categories, relocation);
+        Share updated = mediaLibrary.GetShare(id);
+        return Ok(ToResult(updated ?? share, systemResolver.LocalSystemId));
+      }
+      catch (IllegalCallException ex)
+      {
+        return NotReady(ex);
+      }
+    }
+
+    /// <summary>
     /// Removes a share.
     /// </summary>
     /// <param name="id">The share id, as <c>GET api/media/shares</c> reported it.</param>

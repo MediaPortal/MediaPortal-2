@@ -35,7 +35,8 @@ namespace MediaPortal.Frontend.ViewModels;
 /// This is the screen without which a media centre is a database nobody can feed. Until the server's API grew a
 /// shares endpoint the only way to put a folder into MP2's library was the configuration tool's grid, a
 /// Windows-only editor, so a fresh install on any other platform could serve a library but never gain one.
-/// Everything here is what the HTTP API offers: list, register, forget, re-import, and the importer's queue.
+/// Everything here is what the HTTP API offers: list, register, change, forget, re-import, and the importer's
+/// queue.
 /// </para>
 /// <para>
 /// <b>A path is the server's, not the viewer's.</b> The front end is often on the television and the server in the
@@ -81,6 +82,7 @@ public partial class FoldersViewModel : ObservableObject, IDisposable
   [NotifyCanExecuteChangedFor(nameof(AddCommand))]
   [NotifyCanExecuteChangedFor(nameof(RemoveCommand))]
   [NotifyCanExecuteChangedFor(nameof(ReimportCommand))]
+  [NotifyCanExecuteChangedFor(nameof(SaveChangesCommand))]
   private bool _isBusy;
 
   [ObservableProperty]
@@ -149,6 +151,25 @@ public partial class FoldersViewModel : ObservableObject, IDisposable
   private bool CanRemove => _client != null && !IsBusy && Selected != null;
 
   private bool CanReimport => _client != null && !IsBusy && Selected != null;
+
+  private bool CanSave => _client != null && !IsBusy && Selected != null;
+
+  [ObservableProperty]
+  [NotifyCanExecuteChangedFor(nameof(SaveChangesCommand))]
+  private string _editName = string.Empty;
+
+  [ObservableProperty]
+  private string _editPath = string.Empty;
+
+  [ObservableProperty]
+  private bool _editWatcher = true;
+
+  /// <summary>
+  /// The tick boxes of the editor: the server's categories, the selected folder's own ones ticked. A category
+  /// the folder carries but the server no longer offers is listed too and stays ticked - a name from an older
+  /// server is the folder's own history, not this screen's to erase silently.
+  /// </summary>
+  public ObservableCollection<CategoryChoice> EditCategories { get; } = new ObservableCollection<CategoryChoice>();
 
   /// <summary>
   /// Reads the folders and the importer's queue again.
@@ -320,6 +341,100 @@ public partial class FoldersViewModel : ObservableObject, IDisposable
     catch (Exception ex)
     {
       Status = "Asking for that import failed: " + ex.Message;
+    }
+    finally
+    {
+      IsBusy = false;
+    }
+  }
+
+  /// <summary>
+  /// The editor follows the selection: name, path, watcher and the category boxes show the folder that is
+  /// picked, so what "change" saves is what the viewer was just looking at.
+  /// </summary>
+  partial void OnSelectedChanged(FolderShare? value)
+  {
+    EditName = value?.Name ?? string.Empty;
+    EditPath = value?.Path ?? string.Empty;
+
+    EditCategories.Clear();
+    if (value == null)
+    {
+      EditWatcher = true;
+      return;
+    }
+
+    EditWatcher = value.Share.UseShareWatcher;
+
+    string[] carried = value.Share.MediaCategories?.ToArray() ?? Array.Empty<string>();
+    foreach (CategoryChoice known in Categories)
+    {
+      CategoryChoice box = new CategoryChoice(known.Name,
+          carried.Contains(known.Name, StringComparer.OrdinalIgnoreCase));
+      EditCategories.Add(box);
+    }
+
+    foreach (string carriedName in carried)
+    {
+      if (!EditCategories.Any(box => string.Equals(box.Name, carriedName, StringComparison.OrdinalIgnoreCase)))
+        EditCategories.Add(new CategoryChoice(carriedName, true));
+    }
+  }
+
+  /// <summary>
+  /// Sends the editor's name, categories and watcher (and the path, if it was edited because the folder moved)
+  /// to the server.
+  /// </summary>
+  /// <remarks>
+  /// The path is only sent when it actually differs from the row's own - an unchanged path typed into the box
+  /// must not read as "this folder moved" and relocate the share's items to where they already are.
+  /// </remarks>
+  [RelayCommand(CanExecute = nameof(CanSave))]
+  public async Task SaveChangesAsync()
+  {
+    FolderShare? row = Selected;
+    if (_client == null || row == null)
+      return;
+
+    List<string> chosen = EditCategories.Where(box => box.IsOn)
+        .Select(box => box.Name)
+        .ToList();
+    if (chosen.Count == 0)
+    {
+      // A share without categories is read by nobody and imports nothing - the server would take it, and the
+      // empty shelf would only explain itself weeks later.
+      Status = "Leave at least one kind of media ticked - a folder without categories is imported by nobody.";
+      return;
+    }
+
+    string? movedPath = null;
+    if (!string.IsNullOrWhiteSpace(EditPath)
+        && !string.Equals(EditPath.Trim(), row.Path, StringComparison.Ordinal))
+      movedPath = EditPath.Trim();
+
+    try
+    {
+      IsBusy = true;
+      ShareInfo updated = await _client.UpdateShareAsync(row.Id, EditName, chosen, EditWatcher, movedPath);
+      Status = movedPath == null
+          ? string.Format("\"{0}\" is changed.", updated.Name ?? row.Name)
+          : string.Format("\"{0}\" now reads {1}. What moved into the old place stays until it is read again.",
+              updated.Name ?? EditName, movedPath);
+      Fill(await _client.GetSharesAsync());
+    }
+    catch (ServerApiException ex)
+    {
+      Status = ex.StatusCode switch
+      {
+        400 => "The server will not take those changes. " + ex.Message,
+        404 => "The server no longer knows that folder.",
+        409 => ex.Message,
+        _ => ex.Message
+      };
+    }
+    catch (Exception ex)
+    {
+      Status = "Changing that folder failed: " + ex.Message;
     }
     finally
     {

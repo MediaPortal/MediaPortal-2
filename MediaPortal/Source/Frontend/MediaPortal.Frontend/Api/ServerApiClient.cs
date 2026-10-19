@@ -607,6 +607,32 @@ namespace MediaPortal.Frontend.Api
     }
 
     /// <summary>
+    /// <c>PUT api/media/shares/{id}</c> - change a share that is already there: what it is called, which
+    /// categories the importer assumes, whether its folder is watched, and - for a folder that <em>moved</em> -
+    /// the path it points at.
+    /// </summary>
+    /// <remarks>
+    /// Every argument is optional; null says leave that one as it is. The categories, when given, are the full
+    /// new list, and an unknown spelling comes back as a <c>400</c> naming the spellings this server knows,
+    /// exactly as when a share is added. A path that names a different folder relocates the share's items to
+    /// it - right for a folder that moved, wrong for an unrelated one, which wants remove and add instead.
+    /// The answer is the share as the server now holds it.
+    /// </remarks>
+    public async Task<ShareInfo> UpdateShareAsync(Guid mediaShareId, string? name = null,
+        IEnumerable<string>? categories = null, bool? useShareWatcher = null, string? path = null,
+        CancellationToken cancellation = default)
+    {
+      List<string>? chosen = categories == null
+          ? null
+          : new List<string>(categories.Where(category => !string.IsNullOrWhiteSpace(category))
+              .Select(category => category.Trim()));
+
+      return await SendJsonAsync<ShareInfo>(HttpMethod.Put, "api/media/shares/" + mediaShareId.ToString("D"),
+          new SharePatch(string.IsNullOrWhiteSpace(name) ? null : name.Trim(), chosen, useShareWatcher,
+              string.IsNullOrWhiteSpace(path) ? null : path.Trim()), cancellation).ConfigureAwait(false);
+    }
+
+    /// <summary>
     /// <c>POST api/media/shares/{id}/import</c> - walk that folder again, now.
     /// </summary>
     /// <returns>The queue the job was added to.</returns>
@@ -983,6 +1009,9 @@ namespace MediaPortal.Frontend.Api
     /// </summary>
     private sealed record ShareRequest(string Path, string? Name, List<string>? MediaCategories,
         bool? UseShareWatcher);
+
+    private sealed record SharePatch(string? Name, List<string>? MediaCategories, bool? UseShareWatcher,
+        string? Path);
 
     public void Dispose()
     {

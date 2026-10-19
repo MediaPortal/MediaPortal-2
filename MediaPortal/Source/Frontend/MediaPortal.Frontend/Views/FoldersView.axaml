@@ -100,6 +100,51 @@
 
         <Separator Margin="0,6" Opacity="0.25" />
 
+        <TextBlock Text="Change the selected folder"
+                   FontSize="18"
+                   Opacity="0.7" />
+        <TextBox Name="editNameBox"
+                 Focusable="True"
+                 Text="{Binding EditName, Mode=TwoWay}"
+                 PlaceholderText="name of the folder"
+                 FontSize="18"
+                 Padding="10,8" />
+        <TextBox Name="editPathBox"
+                 Focusable="True"
+                 Text="{Binding EditPath, Mode=TwoWay}"
+                 FontSize="16"
+                 Padding="10,8" />
+        <!-- Repathing relocates what was imported; picking a different folder is not a path change. -->
+        <TextBlock Text="Only change the path when the folder moved there - another folder wants forgetting and adding."
+                   FontSize="14"
+                   Opacity="0.55"
+                   TextWrapping="Wrap" />
+        <CheckBox Name="editWatcherBox"
+                  IsChecked="{Binding EditWatcher, Mode=TwoWay}"
+                  Content="Watch the folder for changes"
+                  FontSize="18" />
+        <ItemsControl Name="editCategoriesList"
+                      ItemsSource="{Binding EditCategories}"
+                      MaxHeight="180">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:CategoryChoice">
+              <CheckBox IsChecked="{Binding IsOn, Mode=TwoWay}"
+                        Content="{Binding Name}"
+                        FontSize="18"
+                        Margin="0,2" />
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <Button Name="saveChangesButton"
+                Content="Save on the server"
+                Command="{Binding SaveChangesCommand}"
+                HorizontalAlignment="Left"
+                MinWidth="240"
+                Padding="24,10"
+                FontSize="20" />
+
+        <Separator Margin="0,6" Opacity="0.25" />
+
         <TextBlock Text="Add a folder the server can see"
                    FontSize="18"
                    Opacity="0.7" />

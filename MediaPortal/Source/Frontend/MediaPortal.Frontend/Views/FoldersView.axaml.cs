@@ -58,12 +58,16 @@ namespace MediaPortal.Frontend.Views
       _folders = folders;
       InitializeComponent();
 
-      // In the order they are drawn: the list, the three things to do with a row, the field, the media types that
-      // arrive later (see <see cref="RegisterCategoryBoxes"/>), and the button that finishes the job.
+      // In the order they are drawn: the list, the three things to do with a row, the editor for the selected
+      // row, the field for a new folder, the media types that arrive later (see
+      // <see cref="RegisterCategoryBoxes"/>), and the button that finishes the job.
       _ring.Add(foldersList);
       _ring.Add(reimportButton);
       _ring.Add(removeButton);
       _ring.Add(refreshButton);
+      _ring.Add(editNameBox);
+      _ring.Add(editPathBox);
+      _ring.Add(saveChangesButton);
       _ring.Add(folderPathBox);
       _ring.Add(addButton);
       DpadNavigation.Attach(this, _ring);

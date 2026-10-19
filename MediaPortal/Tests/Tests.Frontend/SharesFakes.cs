@@ -87,6 +87,20 @@ namespace Tests.Frontend
           });
       Library.Setup(get => get.RemoveShare(It.IsAny<Guid>()))
           .Callback<Guid>(id => Shares.Remove(id));
+      Library.Setup(get => get.UpdateShare(It.IsAny<Guid>(), It.IsAny<ResourcePath>(), It.IsAny<string>(),
+              It.IsAny<bool>(), It.IsAny<IEnumerable<string>>(),
+              It.IsAny<MediaPortal.Backend.MediaLibrary.RelocationMode>()))
+          .Returns<Guid, ResourcePath, string, bool, IEnumerable<string>,
+              MediaPortal.Backend.MediaLibrary.RelocationMode>(
+              (id, path, name, watcher, categories, relocation) =>
+              {
+                Updates.Add(new Update(id, name, categories.ToArray(), watcher, path, relocation));
+                if (!Shares.TryGetValue(id, out Share existing))
+                  return 0;
+
+                Shares[id] = new Share(id, existing.SystemId, path, name, watcher, categories);
+                return 0;
+              });
 
       Resolver = new Mock<ISystemResolver>(MockBehavior.Strict);
       Resolver.SetupGet(get => get.LocalSystemId).Returns(LOCAL_SYSTEM);
@@ -123,6 +137,13 @@ namespace Tests.Frontend
 
     /// <summary>What the server was asked to register, in the order it was asked.</summary>
     public List<Share> Registered { get; } = new List<Share>();
+
+    /// <summary>One edit the server was asked to make, as the fake library holds it.</summary>
+    internal sealed record Update(Guid Id, string Name, string[] Categories, bool Watcher,
+        ResourcePath BasePath, MediaPortal.Backend.MediaLibrary.RelocationMode Relocation);
+
+    /// <summary>What the edit call was asked to change, in the order it was asked.</summary>
+    public List<Update> Updates { get; } = new List<Update>();
 
     /// <summary>The paths the server scheduled an import for.</summary>
     public List<string> Scheduled { get; } = new List<string>();
