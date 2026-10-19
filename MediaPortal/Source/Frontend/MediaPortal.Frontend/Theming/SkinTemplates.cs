@@ -112,8 +112,15 @@ namespace MediaPortal.Frontend.Theming
             Subscription subscription = new Subscription(list);
             SUBSCRIPTIONS.Add(list, subscription);
             SkinEngine.Changed += subscription.OnSkinChanged;
-            subscription.ApplyNow();
 
+            // Applying waits for the list to be in the visual tree when it is not there yet: an attached
+            // property is set while the XAML is still being read - before the list's own ItemTemplate has
+            // been assigned - and applying a skin at that moment remembers "null" as the view's own tree and
+            // hands that null back the day the skin comes off, which is the television spelling out
+            // `MediaPortal.Frontend.ViewModels.MainMenuEntry` where a label should stand. A list that is
+            // already on screen (a code-behind naming its key, say) is whole already and is served at once.
+            if (list.IsAttachedToVisualTree())
+                subscription.ApplyNow();
             list.AttachedToVisualTree += delegate { subscription.ApplyNow(); };
             list.DetachedFromVisualTree += delegate { subscription.Detach(); };
         }
