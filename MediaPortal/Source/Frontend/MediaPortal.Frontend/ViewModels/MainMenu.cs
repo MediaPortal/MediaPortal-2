@@ -64,9 +64,10 @@ namespace MediaPortal.Frontend.ViewModels
       HashSet<string> claimed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
       foreach ((string action_, string labelKey, string label, string[] aspects_, string detail, string? missing,
-          string? screen) in ENTRIES)
+          string? screen, (string Sort, bool Descending)? sort) in ENTRIES)
       {
-        MainMenuEntry entry = new MainMenuEntry(action_, labelKey, label, aspects_, detail, missing, screen);
+        MainMenuEntry entry = new MainMenuEntry(action_, labelKey, label, aspects_, detail, missing, screen,
+            sort?.Sort, sort?.Descending ?? false);
         foreach (string aspectName in aspects_)
           claimed.Add(aspectName);
 
@@ -83,7 +84,7 @@ namespace MediaPortal.Frontend.ViewModels
                 string.Equals(heldAspect.Name, wanted, StringComparison.OrdinalIgnoreCase));
             if (match != null)
             {
-              entry.Section = new HomeSection(label, match);
+              entry.Section = new HomeSection(label, match, entry.Sort, entry.SortDescending);
               break;
             }
           }
@@ -126,8 +127,7 @@ namespace MediaPortal.Frontend.ViewModels
     /// MP2's own order between those two is whatever its unstable list sort produced. Films come first here because
     /// more people press them. The sixth field is what the tile says when there is nothing behind the entry, so it
     /// has to be a line the viewer can read from three metres away - the whole reason, in each case, is written out
-    /// here where a reader can have it: <c>Latest media</c> because the API can only sort by title, year,
-    /// last-played, track and episode, and the import date a "newest first" list would need is not one of them;
+    /// here where a reader can have it:
     /// <c>TV</c> and <c>Radio</c> because live television and radio came from the TV service, which was removed from
     /// this tree (commit 029a262aa4) and nothing serves it since; <c>Settings</c> because the server keeps its
     /// configuration behind a .NET Remoting interface the new API has not grown an equivalent of yet;
@@ -137,59 +137,71 @@ namespace MediaPortal.Frontend.ViewModels
     /// engine this front end replaced - their plugins are in this tree, their screens are not.
     /// </para>
     /// <para>
-    /// The last field names a screen of the front end rather than a part of the library. An entry with one is
+    /// The seventh field names a screen of the front end rather than a part of the library. An entry with one is
     /// openable whatever the server holds, because there is nothing on the server for it to depend on; the key is
     /// handed to the function the application was given, which makes the screen or says it cannot.
     /// </para>
+    /// <para>
+    /// The eighth field is the order the opened shelf is read in: the API's own word and whether it runs
+    /// newest-first, or null for the name order every shelf keeps by default. Only <c>Latest media</c> sets it.
+    /// The server can sort titles by the date the library first saw the file - the media library has stamped that
+    /// date on every title itself since before this port began - and it is the one fact that turns a shelf of
+    /// videos into "the newest titles first" instead of into "Videos" wearing a different label. The direction
+    /// travels with it because "latest" read oldest-first is the opposite list.
+    /// </para>
     /// </remarks>
     private static readonly (string Mp2Action, string LabelKey, string Label, string[] Aspects, string Action,
-        string? Missing, string? Screen)[] ENTRIES =
+        string? Missing, string? Screen, (string Sort, bool Descending)? Sort)[] ENTRIES =
     {
         // MP2's "local media" is the file view - the folders the library is built from, before the importer's
         // decisions have been applied to them. This front end has exactly that: the shares screen, which lists the
         // server's folders and what it made of each. "Folder by folder" came off this line to fit the tile.
         ("Home->BrowseLocalMedia", "[Media.LocalMediaMenuItem]", "Local media", Array.Empty<string>(),
-            "the server's folders", null, "folders"),
+            "the server's folders", null, "folders", null),
         ("Home->BrowseMedia", "[Media.BrowseMediaMenuItem]", "Browse media", Array.Empty<string>(),
-            "the titles grouped by genre, year, actor", "no grouping over HTTP yet", null),
+            "the titles grouped by genre, year, actor", "no grouping over HTTP yet", null, null),
         // "Audio" is the plugin's own word for the music library, and it covers both shapes the importer can leave
         // the collection in; the second line is here so that the narrower word does not read as a mistake.
         ("Home->Audio", "[Media.AudioMenuItem]", "Audio", new[] { "AlbumItem", "AudioItem" },
-            "each album, and its tracks on it", null, null),
+            "each album, and its tracks on it", null, null, null),
         // Not "the files nobody filed as films": the server's VideoItem is the aspect every film and every episode
         // also carries, so this shelf holds the whole video library (measured against a real one: four films, eight
         // episodes and the two unfiled clips). Saying so is worth more than a tidier sentence.
         ("Home->Videos", "[Media.VideosMenuItem]", "Videos", new[] { "VideoItem" },
-            "every video the server knows, films and episodes included", null, null),
+            "every video the server knows, films and episodes included", null, null, null),
         ("Home->Movies", "[Media.MoviesMenuItem]", "Movies", new[] { "MovieItem" },
-            "the films on this server", null, null),
+            "the films on this server", null, null, null),
         ("Home->Series", "[Media.SeriesMenuItem]", "Series", new[] { "SeriesItem" },
-            "each series, and its episodes inside it", null, null),
+            "each series, and its episodes inside it", null, null, null),
         // The folders, not the filed titles. A photograph rarely has anything for an importer's decision to attach
         // to - no title, no year, no episode number - so a pictures screen backed by ImageItem titles shows an
         // empty shelf over thousands of photographs, which is why MP2's own pictures screen walks the folders. If a
         // server does hold filed images, they are still on this screen: the leftover rule at the bottom of Build
         // gives them their own tile rather than dropping a part of somebody's library.
         ("Home->Images", "[Media.ImagesMenuItem]", "Images", Array.Empty<string>(),
-            "the pictures, folder by folder", null, "pictures"),
-        ("Home->Latest Media", "[Media.LatestMediaMenuItem]", "Latest media", Array.Empty<string>(),
-            "the newest titles first", "no import-date sort", null),
+            "the pictures, folder by folder", null, "pictures", null),
+        // MP2's own "latest media" screen listed everything anybody sits down to watch - films, episodes and the
+        // unfiled clips alike - in the order the library had learnt of them, which is exactly VideoItem read in the
+        // date-the-library-first-saw-it order. The sort is the whole of the entry: without the eighth field this
+        // tile would open the shelf "Videos" already names, alphabetically, and two labels would be one screen.
+        ("Home->Latest Media", "[Media.LatestMediaMenuItem]", "Latest media", new[] { "VideoItem" },
+            "the newest titles first", null, null, ("added", true)),
         ("Home->News", "[News.Title]", "News", Array.Empty<string>(),
-            "the headlines", "its screen is still old skin", null),
+            "the headlines", "its screen is still old skin", null, null),
         ("Home->SlimTvClient", "[SlimTvClient.Tv]", "TV", Array.Empty<string>(),
-            "live television and the programme guide", "no TV backend", null),
+            "live television and the programme guide", "no TV backend", null, null),
         ("Home->SlimTvClientRadio", "[SlimTvClient.Radio]", "Radio", Array.Empty<string>(),
-            "radio stations and their guide", "no radio backend", null),
+            "radio stations and their guide", "no radio backend", null, null),
         ("Home->Weather", "[Weather.Title]", "Weather", Array.Empty<string>(),
-            "the forecast", "its screen is still old skin", null),
+            "the forecast", "its screen is still old skin", null, null),
         ("Home->PartyMusicConfig", "[PartyMusicPlayer.MenuItem]", "Party music player", Array.Empty<string>(),
-            "the party playlists", "its screen is still old skin", null),
+            "the party playlists", "its screen is still old skin", null, null),
         // The one part of MP2's configuration that has an HTTP API, and therefore the one part that could be edited
         // from a television. Where the library comes from is already on this menu, as "Local media".
         ("Home->ConfigurationMain", "[Configuration.Name]", "Settings", Array.Empty<string>(),
-            "the server's own configuration", "no settings API yet", null),
+            "the server's own configuration", "no settings API yet", null, null),
         ("Home->UtilitiesMain", "[Utilities.MenuItem]", "Utilities", Array.Empty<string>(),
-            "the little tools", "its screen is still old skin", null)
+            "the little tools", "its screen is still old skin", null, null)
     };
   }
 }

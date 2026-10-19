@@ -200,25 +200,31 @@ namespace Tests.Frontend
 
     /// <summary>
     /// The library behind the in-process server: a movie aspect with the given titles, and the media aspect the
-    /// titles themselves live in.
+    /// titles themselves live on. Every query the server passes through on its way to this shelf is recorded in
+    /// the returned list, because "what did the screen actually ask for" is sometimes the only interesting answer.
     /// </summary>
     /// <remarks>
     /// The titles it hands out and the number it counts depend on the filter it was asked with - see
     /// <see cref="Described"/>. That is not decoration: a screen that filters by watched state cannot be told
     /// apart from one that does not by a shelf that answers every question with the same four titles.
     /// </remarks>
-    private static void RegisterLibrary(params MediaItem[] items)
+    private static List<MediaItemQuery> RegisterLibrary(params MediaItem[] items)
     {
+      var asked = new List<MediaItemQuery>();
       var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
       library.Setup(get => get.GetManagedMediaItemAspectMetadata()).Returns(ShelfAspects());
       library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, null, false))
           .Returns((MediaItemQuery query, bool onlyOnline, Guid? profile, bool virtualItems) =>
-              DescribedItems(items, query.Filter));
+          {
+            asked.Add(query);
+            return DescribedItems(items, query.Filter);
+          });
       library.Setup(get => get.CountMediaItems(It.IsAny<IEnumerable<Guid>>(), It.IsAny<IFilter>(), false,
               It.IsAny<bool>()))
           .Returns((IEnumerable<Guid> types, IFilter filter, bool onlyOnline, bool virtualItems) =>
               DescribedItems(items, filter).Count);
       InProcessApi.RegisterMediaLibrary(library.Object);
+      return asked;
     }
 
     /// <summary>
@@ -2457,6 +2463,47 @@ namespace Tests.Frontend
     }
 
     [Test]
+    public void LatestMediaOpensTheVideoShelfInTheOrderTheLibraryGotItsTitles()
+    {
+      List<MainMenuEntry> menu = MainMenu.Build(new[] { AspectCalled("VideoItem") }, true);
+
+      MainMenuEntry latest = EntryNamed(menu, "Latest media");
+      Assert.That(latest.Missing, Is.Null,
+          "the tile used to explain that the server could not sort by import date; it can - the media library has "
+          + "stamped the date it first saw each file onto every title since before this port existed - so the tile "
+          + "opens its shelf instead of apologising");
+      Assert.That(latest.Openable, Is.True,
+          "a server that holds videos holds the newest-first list too, so the tile opens it");
+      Assert.That(latest.Section!.Aspect.Name, Is.EqualTo("VideoItem"),
+          "MP2's own latest-media screen listed everything watchable - films, episodes, the clips nobody filed - "
+          + "which on this server's shelf is exactly VideoItem, read in the order it arrived");
+      Assert.That(latest.Section.Sort, Is.EqualTo("added"));
+      Assert.That(latest.Section.SortDescending, Is.True,
+          "\"the newest titles first\" read oldest-first is the opposite list, so the direction belongs to the "
+          + "promise the tile makes and not to whoever opens it");
+    }
+
+    [AvaloniaTest]
+    public void TheArrivalsShelfIsReadNewestFirstFromTheServer()
+    {
+      CatalogueServer server = new CatalogueServer();
+      using (var client = new ServerApiClient(SIGN_IN_URL, new HttpClient(server)))
+      {
+        HomeSection arrivals = new HomeSection("Latest media", ShelfCalled("VideoItem").Aspect, "added", true);
+        MediaBrowserViewModel latest = new MediaBrowserViewModel(client, arrivals);
+        latest.OpenCommand.Execute(null);
+        WaitUntil("the arrivals to arrive", delegate { return latest.Titles.Count == 1; });
+
+        Assert.That(server.LastUrl, Does.Contain("sort=added").And.Contain("order=desc"),
+            "the tile promises the newest titles first, and the only way to keep that promise about a shelf of "
+            + "three hundred films is to ask the server that holds the shelf to put it in that order - sorting "
+            + "whichever page arrived would sort a page, not a library");
+        Assert.That(latest.Status, Does.EndWith("sorted by added"),
+            "and the line under the list admits which order the server says it gave");
+      }
+    }
+
+    [Test]
     public void ThePartsOfTheSchemaNobodySitsDownToWatchStayOffTheMenu()
     {
       List<MainMenuEntry> menu = MainMenu.Build(
@@ -2534,9 +2581,10 @@ namespace Tests.Frontend
     }
 
     [AvaloniaTest]
-    public async Task ThePaneOfAShelfCarriesTheListsMP2sHomeHadAndSaysWhichTwoCannotBeFilled()
+    public async Task ThePaneOfAShelfCarriesTheListsMP2sHomeHadAndSaysWhichOneCannotBeFilled()
     {
-      RegisterLibrary(Title("Alien Earth", 2025, RESOURCE_SYSTEM_ID.ToString("B") + "://" + LOCAL_PATH));
+      List<MediaItemQuery> asked =
+          RegisterLibrary(Title("Alien Earth", 2025, RESOURCE_SYSTEM_ID.ToString("B") + "://" + LOCAL_PATH));
       InProcessApi server = StartServer();
 
       HomeViewModel home = HomeOn(server);
@@ -2546,22 +2594,32 @@ namespace Tests.Frontend
 
       Assert.That(PaneRows(home), Is.EqualTo(new[]
       {
-          "heading:Newest by year",
-          "title",
           "heading:Latest added",
-          "note:the server cannot sort by import date",
+          "title",
           "heading:Continue playing",
           "note:nothing here",
           "heading:Unplayed",
           "title",
           "heading:Favorites",
           "note:the server keeps no favourites over HTTP"
-      }), "the four lists Nereus' home content offered are the four headings a MediaPortal viewer expects, each "
-          + "one either filled from this server or saying in one line why it is not - and the stand-in list leads, "
-          + "because \"what arrived lately\" is the question MP2's own list answered");
+      }), "the four headings Nereus' home content offered are the four a MediaPortal viewer expects, each one "
+          + "either filled from this server or saying in one line why it is not - and the arrivals list leads, "
+          + "because \"what arrived lately\" is the question MP2's own first list answered");
 
       Assert.That(home.ContentRows.First(row => row.IsTitle).Title!.Line, Does.Contain("Alien Earth"),
           "the titles under the first heading are the server's own, not placeholders");
+
+      List<MediaItemQuery> arrivals = asked.Where(query => query.SortInformation.Count == 1
+              && ((AttributeSortInformation)query.SortInformation[0]).AttributeType
+                  == ImporterAspect.ATTR_DATEADDED)
+          .ToList();
+      Assert.That(arrivals, Has.Count.EqualTo(1),
+          "exactly one of the pane's questions was about when the titles entered the library - the list under the "
+          + "first heading - and it was the server that turned that word into the column, as its own test says");
+      Assert.That(((AttributeSortInformation)arrivals[0].SortInformation[0]).Direction,
+          Is.EqualTo(SortDirection.Descending),
+          "newest arrivals first, asked of the database rather than sorted from one page at the end");
+
       Assert.That(home.HasContent, Is.True);
     }
 

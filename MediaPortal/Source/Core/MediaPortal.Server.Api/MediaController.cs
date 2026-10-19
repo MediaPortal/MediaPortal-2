@@ -291,7 +291,10 @@ namespace MediaPortal.Server.Api
     /// Lists the titles carrying the given aspect.
     /// </summary>
     /// <param name="aspect">Aspect name as <c>GET api/library/aspects</c> reports it, e.g. <c>MovieItem</c>.</param>
-    /// <param name="sort"><c>title</c> (default), <c>year</c>, or <c>none</c> for whatever order the database returns.</param>
+    /// <param name="sort">
+    /// <c>title</c> (default), <c>year</c>, <c>added</c> for when the importer first saw the file,
+    /// <c>lastplayed</c>, <c>episode</c>, <c>track</c>, or <c>none</c> for whatever order the database returns.
+    /// </param>
     /// <param name="order"><c>asc</c> (default) or <c>desc</c>.</param>
     /// <param name="limit">Titles in the answer, capped at 2000.</param>
     /// <param name="offset">How many to skip, for a front end that fills its list as the viewer scrolls.</param>
@@ -1338,8 +1341,8 @@ namespace MediaPortal.Server.Api
     }
 
     /// <summary>
-    /// The sorts a title list has: by name, by year, by when it was last watched, by where a title sits in the one
-    /// that holds it, or by none at all.
+    /// The sorts a title list has: by name, by year, by when it arrived in the library, by when it was last
+    /// watched, by where a title sits in the one that holds it, or by none at all.
     /// </summary>
     /// <remarks>
     /// Anything else a caller sends is taken to mean "none" rather than refused. A front end that asks for a sort
@@ -1350,6 +1353,8 @@ namespace MediaPortal.Server.Api
     {
       if (string.Equals(sort, "year", StringComparison.OrdinalIgnoreCase))
         return "year";
+      if (string.Equals(sort, "added", StringComparison.OrdinalIgnoreCase))
+        return "added";
       if (string.Equals(sort, "lastplayed", StringComparison.OrdinalIgnoreCase))
         return "lastplayed";
       if (string.Equals(sort, "episode", StringComparison.OrdinalIgnoreCase))
@@ -1413,6 +1418,14 @@ namespace MediaPortal.Server.Api
           break;
         case "year":
           sorts.Add(new AttributeSortInformation(MediaAspect.ATTR_RECORDINGTIME, direction));
+          break;
+        case "added":
+          // The date the library first saw the file. This is not the recording time - that one answers "what year
+          // was this made", which is a fact about the film; DateAdded is a fact about this library, and it is the
+          // only column that answers "what arrived lately". The media library stamps it itself on every title the
+          // first time it stores it (MediaLibrary.AddOrUpdateMediaItem) and keeps it through every reimport, so
+          // unlike an importer's field it is here for anything the library knows, however it got in.
+          sorts.Add(new AttributeSortInformation(ImporterAspect.ATTR_DATEADDED, direction));
           break;
         case "lastplayed":
           // Newest viewing first, which is the order a "what was I watching" list wants. A title nobody ever

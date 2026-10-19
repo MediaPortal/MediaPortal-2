@@ -52,14 +52,33 @@ namespace MediaPortal.Frontend.ViewModels
         ("ImageItem", "Pictures")
     };
 
-    public HomeSection(string label, AspectViewModel aspect)
+    public HomeSection(string label, AspectViewModel aspect, string? sort = null, bool sortDescending = false)
     {
       Label = label;
       Aspect = aspect;
+      Sort = sort;
+      SortDescending = sortDescending;
     }
 
     /// <summary>What the tile says.</summary>
     public string Label { get; }
+
+    /// <summary>
+    /// The order the server should read this shelf in, in the API's own words, or null for the name order every
+    /// shelf uses by default.
+    /// </summary>
+    /// <remarks>
+    /// Only one menu entry uses this today: "Latest media" is a shelf of videos whose entire promise is the order,
+    /// and opening it alphabetically would make the tile a liar. Everything else opens by name, as it always did.
+    /// </remarks>
+    public string? Sort { get; }
+
+    /// <summary>
+    /// Whether <see cref="Sort"/> runs newest-first. "Latest media" is latest first by definition - the same order
+    /// read oldest-first would be the opposite list - so the direction belongs to the promise and not to whoever
+    /// opens the shelf.
+    /// </summary>
+    public bool SortDescending { get; }
 
     /// <summary>
     /// The single character shown large on the tile. The first letter of the label, rather than a symbol from an

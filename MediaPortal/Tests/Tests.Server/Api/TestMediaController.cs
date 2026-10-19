@@ -533,6 +533,25 @@ namespace Tests.Server.Api
     }
 
     [Test]
+    public void TheViewerCanSortByWhenTheLibraryFirstSawTheTitle()
+    {
+      List<MediaItemQuery> queries;
+      IMediaLibrary library = CreateLibrary(new List<MediaItem>(), 0, out queries, out _);
+
+      ActionResult<MediaController.TitlesResult> action;
+      MediaController.TitlesResult result = GetTitles(library, "MovieItem", "added", "desc", 0, 0, out action);
+
+      AttributeSortInformation sort = (AttributeSortInformation)queries[0].SortInformation[0];
+      Assert.That(sort.AttributeType, Is.SameAs(ImporterAspect.ATTR_DATEADDED),
+          "the date the library first saw the file - a fact about this library, not about the film, and the only "
+          + "column that answers 'what arrived lately'; the media library stamps it itself when it stores a title");
+      Assert.That(sort.Direction, Is.EqualTo(SortDirection.Descending),
+          "newest arrivals first, which is the only order a 'latest media' list wants");
+      Assert.That(result.Sort, Is.EqualTo("added descending"),
+          "and the echo distinguishes it from the year, which is a different question");
+    }
+
+    [Test]
     public void ASortThisServerDoesNotHaveFallsBackToTheNameOrder()
     {
       List<MediaItemQuery> queries;

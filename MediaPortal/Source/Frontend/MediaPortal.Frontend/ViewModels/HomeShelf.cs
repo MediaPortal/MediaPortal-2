@@ -100,11 +100,17 @@ namespace MediaPortal.Frontend.ViewModels
   /// plugin's own English words.
   /// </para>
   /// <para>
-  /// What each list can be asked for over HTTP is written next to it, including the two that cannot: the HTTP API
-  /// sorts by title, year, last-played, track and episode, so "latest added" - which is the day the importer first
-  /// saw the file - has no sort to ask for, and nothing on the server keeps favourites. A list with no way to fill
-  /// it stays on the pane as one line saying so, because four headings of which two quietly vanished would leave the
-  /// viewer wondering whether the library is empty or the front end is broken.
+  /// What each list can be asked for over HTTP is written next to it. Three of the four can: the HTTP API sorts by
+  /// title, year, the date the library first saw the file, last-played, track and episode, so "Latest added",
+  /// "Continue playing" and "Unplayed" are all questions this server can answer. "Favorites" is the one that cannot,
+  /// because nothing on the server keeps favourites, and it stays on the pane as one line saying so - a heading that
+  /// quietly vanished would leave the viewer wondering whether the library has no favourites or the front end has
+  /// lost the list.
+  /// </para>
+  /// <para>
+  /// The four headings are therefore Nereus' four, in his order, and the dates tell them apart from each other the
+  /// way MP2's own lists did: "Latest added" is a fact about this library (when did it learn of this file), while
+  /// the year behind "Unplayed" is a fact about the work itself.
   /// </para>
   /// </remarks>
   public sealed class HomeContentList
@@ -144,9 +150,9 @@ namespace MediaPortal.Frontend.ViewModels
     /// The lists for one menu entry, in the order the pane draws them.
     /// </summary>
     /// <remarks>
-    /// The stand-in for "latest added" comes first, because that is the question MP2's own list answered - "what
-    /// arrived lately" - and sorting by year answers the neighbouring question ("what is newest") well enough to be
-    /// worth offering while saying in its own heading that it is not the same thing.
+    /// "Latest added" leads because that is the question MP2's own first list answered - "what arrived lately" -
+    /// and since the server learned to sort by the date a title entered the library, it can be answered for real
+    /// rather than by the stand-in by year that used to stand where it.
     /// </remarks>
     public static IReadOnlyList<HomeContentList> For(MainMenuEntry entry)
     {
@@ -157,8 +163,7 @@ namespace MediaPortal.Frontend.ViewModels
 
       return new List<HomeContentList>
       {
-          new HomeContentList("Newest by year", "year", true, null, null),
-          new HomeContentList("Latest added", null, false, null, "the server cannot sort by import date"),
+          new HomeContentList("Latest added", "added", true, null, null),
           new HomeContentList("Continue playing", "lastplayed", true, "started", null),
           new HomeContentList("Unplayed", "year", true, "unwatched", null),
           new HomeContentList("Favorites", null, false, null, "the server keeps no favourites over HTTP")

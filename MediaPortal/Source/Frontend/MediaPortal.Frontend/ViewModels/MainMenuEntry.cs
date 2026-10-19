@@ -57,8 +57,20 @@ namespace MediaPortal.Frontend.ViewModels
     /// <param name="missing">
     /// Why this build cannot open the entry at all - a missing backend, not a missing title - or null when it can.
     /// </param>
+    /// <param name="screenKey">
+    /// The name of a screen this entry opens rather than a shelf, or null.
+    /// </param>
+    /// <param name="sort">
+    /// The order the opened shelf should be read in, in the API's own words, or null for the name order. "Latest
+    /// media" is the entry this exists for: its shelf is the videos, and only the arrival order makes it the
+    /// newest-first list the label promises.
+    /// </param>
+    /// <param name="sortDescending">
+    /// Whether that order runs newest-first, which belongs to the promise the label makes rather than to whoever
+    /// opens the shelf.
+    /// </param>
     internal MainMenuEntry(string? mp2Action, string? labelKey, string label, string[] aspects, string action,
-        string? missing, string? screenKey = null)
+        string? missing, string? screenKey = null, string? sort = null, bool sortDescending = false)
     {
       Mp2Action = mp2Action;
       LabelKey = labelKey;
@@ -67,6 +79,8 @@ namespace MediaPortal.Frontend.ViewModels
       Action = action;
       Missing = missing;
       ScreenKey = screenKey;
+      Sort = sort;
+      SortDescending = sortDescending;
     }
 
     /// <summary>
@@ -98,6 +112,15 @@ namespace MediaPortal.Frontend.ViewModels
 
     /// <summary>Why this build has nothing behind the entry, or null when it has the aspect.</summary>
     public string? Missing { get; }
+
+    /// <summary>
+    /// The order <see cref="Section"/> is opened in, in the API's own words, or null for the name order. See
+    /// <see cref="HomeSection.Sort"/> for the one entry that needs it.
+    /// </summary>
+    public string? Sort { get; }
+
+    /// <summary>Whether <see cref="Sort"/> runs newest-first. See <see cref="HomeSection.SortDescending"/>.</summary>
+    public bool SortDescending { get; }
 
     /// <summary>
     /// The name of the <i>screen</i> this entry opens rather than a shelf of titles - <c>"folders"</c> today - or

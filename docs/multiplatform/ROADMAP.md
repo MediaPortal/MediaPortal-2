@@ -3164,6 +3164,51 @@ build. The pane is rows of text walked by the remote, not Nereus' poster art - t
 when the rows learn to carry them - and highlighting an entry starts nothing; it only shows what would start.
 
 
+### av. The server learned the date a title entered the library, and one tile stopped apologising
+
+The home menu carried nine small print lines, and the first one to be looked at rather than believed was `no
+import-date sort` behind "Latest media". The claim was three layers wrong in the good direction: the media database
+does store an import date - `ImporterAspect` carries a `DateAdded` column, and `MediaLibrary.AddOrUpdateMediaItem`
+stamps it itself the first time it stores a title and keeps it through every reimport - the query engine already
+sorts by any aspect's inline attribute and joins the table for it with a left outer join whether or not the query
+asked for the aspect, and the only thing that had never existed was the *word*: `MediaController.ReadSort` knew
+title, year, lastplayed, episode, track and none, and everything else fell back to the name order. So `sort=added`
+became one case in `ReadSort` and one line in `BuildSorts`, and the endpoint's own docstring, which had been lying
+about its sorts for two phases, finally lists them. What the search of the storage layer also settled was the shape
+of the wrong answer that was nearly built: `MEDIA_ITEMS` holds only ids, aspect values live in tables generated from
+each aspect type's serialized metadata, and `AddMediaItemAspectStorage` *silently ignores* a changed spec for an
+aspect the database already knows - so "add a date to the media aspect" would have been a new, empty column nobody
+ever wrote. Finding the stamped date first is what kept a schema question out of a one-line feature.
+
+**The pane is Nereus' four headings now.** The content pane had carried five headings because one of the four could
+not be filled: "Newest by year" had been invented as the stand-in for "Latest added", and said in its own heading
+that it was a stand-in. With the real question answerable, the placeholder retired - the pane draws Nereus' own four
+lists in his order, three of them filled from the server and only "Favorites" still refusing, because nothing on
+the server keeps favourites and no lie about a date covers that gap. The pane's gold test was rewritten around the
+new shape and gained a sharper edge: the shelf mock now records the queries the server passes through, and the test
+asserts that *exactly one* of the pane's questions was about `ATTR_DATEADDED` and asked it *descending* - newest
+arrivals first, put in that order by the database, because sorting whichever page happened to arrive would sort a
+page rather than a library.
+
+**"Latest media" opens its shelf.** The tile no longer apologises: it claims the `VideoItem` shelf - MP2's own
+latest-media screen listed everything watchable, films, episodes and the clips nobody filed, which on this server
+is exactly that aspect - and carries the order with the claim. The direction travels with the word, from the menu
+table through the entry and the section down to the browser's request (`sort=added&order=desc`), because "the
+newest titles first" read oldest-first is the opposite list, and a promise about a shelf of three hundred films has
+to be kept by the server that holds the shelf, not by whoever displays the first page. A browser test pins the
+request; a menu test pins that the tile is openable and why it used not to be; the browser's read call, which had
+hardcoded ascending for every shelf since it existed, now asks for the direction its section carries.
+
+**What this is and is not.** This is the first of the nine small-print lines coming off, and the ROADMAP keeps the
+earlier sections as they were written - `au.` still describes the five-heading pane, because that is what it
+shipped with, and this section is the correction in sequence. The other eight lines were re-examined too and stay:
+the television service really is gone from this tree, the configuration really is still behind .NET Remoting, and
+the News, Weather, Party music and Utilities plugins are still old-skin screens - though the reconnaissance found
+their data collectors (an RSS reader, an OpenWeatherMap grabber, an M3U importer) living outside the skin code,
+which is a phase each. Tests.Server went from 414 to 415 and Tests.Frontend from 375 to 377 with these five; 983
+tests, all green, and the render gate's eleven frames including the reworked home pane all exit 0.
+
+
 ## What cannot be verified without the user
 
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,

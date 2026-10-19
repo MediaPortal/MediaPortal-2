@@ -500,7 +500,10 @@ namespace MediaPortal.Frontend.ViewModels
           ? section?.Aspect.Name ?? ""
           : MediaCatalog.ChildAspectFor(section?.Aspect.Name);
       Inside = parent == null ? null : parent.Title.Id;
-      SortOrder = parent == null ? "title" : MediaCatalog.ChildSortFor(section?.Aspect.Name);
+      // A shelf opens in the order its tile promised, and "Latest media" is the one tile whose promise is an order;
+      // every other top-level shelf - and the name order has always been it - reads by name.
+      SortOrder = parent == null ? section?.Sort ?? "title" : MediaCatalog.ChildSortFor(section?.Aspect.Name);
+      SortDescending = parent == null && (section?.SortDescending ?? false);
       DrillsIn = MediaCatalog.HoldsTitles(AspectName);
       Heading = parent == null ? section?.Label ?? "Titles" : parent.Name;
       _status = client == null ? "No server configured"
@@ -529,6 +532,9 @@ namespace MediaPortal.Frontend.ViewModels
 
     /// <summary>What this list is ordered by, in the server's own word.</summary>
     public string SortOrder { get; }
+
+    /// <summary>Whether <see cref="SortOrder"/> runs newest-first, which only a shelf opened by a tile can do.</summary>
+    public bool SortDescending { get; }
 
     /// <summary>The aspect the server is asked for, in its own spelling.</summary>
     public string AspectName { get; }
@@ -1042,7 +1048,7 @@ namespace MediaPortal.Frontend.ViewModels
       IsBusy = true;
       try
       {
-        MediaTitles answer = await _client.GetTitlesAsync(AspectName, SortOrder, false, PAGE_SIZE, offset,
+        MediaTitles answer = await _client.GetTitlesAsync(AspectName, SortOrder, SortDescending, PAGE_SIZE, offset,
             string.IsNullOrEmpty(ActiveSearch) ? null : ActiveSearch,
             string.IsNullOrEmpty(ActiveSeen) ? null : ActiveSeen, Inside, cancellation.Token);
 
