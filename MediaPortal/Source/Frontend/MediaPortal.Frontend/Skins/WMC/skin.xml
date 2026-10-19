@@ -10,7 +10,7 @@
 <Skin Name="wmc" Title="Windows Media Center" Author="Team MediaPortal" Version="2.0">
   <Description>Windows Media Center's look: blue panels on charcoal, white text, rounded edges.</Description>
 
-  <Theme Name="default" Directory="themes/default" Default="true">
+  <Theme Name="default" Directory="themes/default" Default="true" Background="background_home.png">
     <File Role="colors" Name="colors.xaml"/>
     <File Role="resources" Name="metrics.xaml"/>
     <File Role="resources" Name="chrome.xaml"/>
@@ -18,11 +18,11 @@
     <File Role="templates" Name="templates.xaml"/>
   </Theme>
 
-  <Theme Name="dark" Directory="themes/Dark-WMC">
+  <Theme Name="dark" Directory="themes/Dark-WMC" Background="background_home.png">
     <File Role="colors" Name="colors.xaml"/>
   </Theme>
 
-  <Theme Name="turquoise" Directory="themes/Turquoise-WMC">
+  <Theme Name="turquoise" Directory="themes/Turquoise-WMC" Background="background_home.png">
     <File Role="colors" Name="colors.xaml"/>
   </Theme>
 

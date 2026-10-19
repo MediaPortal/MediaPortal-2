@@ -274,5 +274,32 @@ namespace Tests.Frontend
 
       SkinEngine.Clear(app);
     }
-  }
+
+   /// <summary>
+   /// The shipped WMC stands on a picture of its own - the reference's blue home wash, taken from the old
+   /// skin folder and carried with the assembly. A manifest that names a file the assembly does not carry
+   /// would refuse the skin at wear time, so this is the test that the picture and the manifest agree.
+   /// Nereus is checked too, from the other side: it names no picture and must not answer with one.
+   /// </summary>
+   [AvaloniaTest]
+   public void TheShippedWmcStandsOnItsOwnPicture()
+   {
+     Application app = Application.Current!;
+     SkinEngine.SkinsFolder = null;
+
+     Assert.That(SkinEngine.Apply(app, "wmc", out string? problem), Is.True, problem ?? "");
+     Assert.That(app.Resources.TryGetResource("SkinBackgroundImage", null, out object? image), Is.True,
+         "the WMC that rides with the assembly names a background, and the file is there to read");
+     Assert.That(image, Is.InstanceOf<IImage>());
+
+     SkinEngine.Clear(app);
+     Assert.That(app.Resources.TryGetResource("SkinBackgroundImage", null, out _), Is.False);
+
+     Assert.That(SkinEngine.Apply(app, "nereus", out problem), Is.True, problem ?? "");
+     Assert.That(app.Resources.TryGetResource("SkinBackgroundImage", null, out _), Is.False,
+         "Nereus stands on black like it always did, and says so by naming no picture");
+
+     SkinEngine.Clear(app);
+   }
+ }
 }

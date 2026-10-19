@@ -1153,7 +1153,7 @@ namespace FrontendProbe
       // the whole screen has to be the one the theme says it is, or the theme never reached the television. After
       // the frame was written, on purpose - the thing needed to judge a complaint about colour is the frame.
       string paletteReport;
-      string? paletteWrong = CheckBackgroundColour(frame, appliedTheme, out paletteReport);
+      string? paletteWrong = CheckBackgroundColour(frame, window, appliedTheme, out paletteReport);
       Console.WriteLine("palette:  " + paletteReport);
       if (paletteWrong != null)
       {
@@ -1356,8 +1356,23 @@ namespace FrontendProbe
     /// than a patch somewhere. A palette applied to the application but never asked for by a screen fails the
     /// second half, which is the failure a green build would otherwise hide.
     /// </remarks>
-    private static string? CheckBackgroundColour(WriteableBitmap frame, string theme, out string report)
+    private static string? CheckBackgroundColour(WriteableBitmap frame, Window window, string theme, out string report)
     {
+      // A theme that names a picture stands on that picture, not on a colour, and the honest check about it is
+      // a different one: not "is the corner this colour" but "does the window paint with the skin's own file".
+      // The colour claim below only stands for themes that carry no picture - which is every theme but the WMC
+      // skins', since the reference painted WMC on its blue wash and Nereus on plain black.
+      WornSkin? standing = SkinEngine.Worn(Application.Current);
+      if (standing != null && !string.IsNullOrEmpty(standing.Theme.BackgroundFile))
+      {
+        bool painting = window.Background is Avalonia.Media.ImageBrush brush
+            && ReferenceEquals(brush.Source, standing.Background);
+        report = "'" + theme + "' stands on a picture of its own (" + standing.Theme.BackgroundFile
+            + "); the window " + (painting ? "paints with it" : "does NOT paint with it");
+        return painting ? null
+            : "the theme '" + theme + "' names a background picture but the window is not painting with it";
+      }
+
       Color wanted = FrontendTheme.ColorOf(theme, "ScreenBackgroundBrush");
 
       string? unreadable = ReadFrame(frame, out byte[] pixels, out int rowBytes, out int width, out int height,
