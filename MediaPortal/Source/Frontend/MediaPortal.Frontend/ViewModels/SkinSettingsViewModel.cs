@@ -27,33 +27,88 @@ using MediaPortal.Frontend.Theming;
 namespace MediaPortal.Frontend.ViewModels;
 
 /// <summary>
-/// One switch of the worn skin: what it is called, what it answers right now, what a press does to it,
-/// and the one sentence that tells a viewer what changing it would mean.
+/// One switch of the worn skin, and the control the viewer works it with: a checkbox for a switch with
+/// two answers, a button for everything that has a list of them. The row IS the control - a screen that
+/// only shows what a switch answers, and asks the viewer to guess how to change it, is a wall chart and
+/// not a settings screen.
 /// </summary>
 public sealed class SkinSettingOption : ObservableObject
 {
-  private readonly Func<string> _readValue;
-  private readonly Action _press;
+  private readonly Func<bool> _getFlag;
+  private readonly Action<bool> _setFlag;
+  private readonly Func<string> _getText;
+  private readonly Action _advance;
+  private readonly Action<SkinSettingOption> _changed;
 
-  public SkinSettingOption(string label, string description, Func<string> readValue, Action press)
+  /// <summary>A switch with two answers: the row wears a checkbox.</summary>
+  public SkinSettingOption(string label, string description, Func<bool> getFlag, Action<bool> setFlag,
+      Action<SkinSettingOption> changed)
   {
     Label = label;
     Description = description;
-    _readValue = readValue;
-    _press = press;
+    IsToggle = true;
+    _getFlag = getFlag;
+    _setFlag = setFlag;
+    _changed = changed;
+  }
+
+  /// <summary>A choice with a list of answers: the row wears a button that walks them.</summary>
+  public SkinSettingOption(string label, string description, Func<string> getText, Action advance,
+      Action<SkinSettingOption> changed)
+  {
+    Label = label;
+    Description = description;
+    IsToggle = false;
+    _getText = getText;
+    _advance = advance;
+    _changed = changed;
   }
 
   public string Label { get; }
   public string Description { get; }
 
-  /// <summary>How the switch answers right now: "On", "Poster", "0.85", "Turquoise".</summary>
-  public string ValueText => _readValue();
+  /// <summary>Whether the row works its answer with a checkbox (true) or with a button (false).</summary>
+  public bool IsToggle { get; }
 
-  /// <summary>What a press on this row does - toggles it, steps it, moves it to the next of its choices.</summary>
+  /// <summary>
+  /// What the checkbox shows and what working it does: writing it is the change, straight through to the
+  /// skin's own property and the save - the same way a configuration checkbox always worked.
+  /// </summary>
+  public bool IsChecked
+  {
+    get => _getFlag != null && _getFlag();
+    set
+    {
+      if (_getFlag == null || _getFlag() == value)
+        return;
+      _setFlag(value);
+      _changed(this);
+    }
+  }
+
+  /// <summary>The answer as words - what the checkbox means, and what the button shows.</summary>
+  public string ValueText => _getFlag != null ? (_getFlag() ? "On" : "Off") : _getText();
+
+  /// <summary>
+  /// One press of the row: a checkbox flips, a button moves to its next answer. This is what Enter and the
+  /// remote's OK do on the highlighted row; the mouse works the controls themselves.
+  /// </summary>
   public void Press()
   {
-    _press();
+    if (_getFlag != null)
+      IsChecked = !_getFlag();
+    else
+    {
+      _advance();
+      _changed(this);
+    }
+  }
+
+  /// <summary>Tells the screen the answer changed, however it changed.</summary>
+  public void Refresh()
+  {
     OnPropertyChanged(nameof(ValueText));
+    OnPropertyChanged(nameof(IsChecked));
   }
 }
 
@@ -67,13 +122,13 @@ public sealed class SkinSettingOption : ObservableObject
 /// <para>
 /// Not the skin picker, and not next to it in any list of skins' colours: this is the second question the
 /// settings ask. One row per switch, in the order the reference's own settings class filed them, named by
-/// what it does rather than by its property name. Navigating changes nothing - a press does, and a press
-/// saves at once, the way the rest of this front end's settings behave: the file beside <c>theme.json</c>
-/// in this viewer's own folder, one per skin, so Nereus's answers and WMC's never mix.
+/// what it does rather than by its property name - and every row carries the control that changes it,
+/// a checkbox or a button, which saves at once. The file beside <c>theme.json</c> in this viewer's own
+/// folder, one per skin, so Nereus's answers and WMC's never mix.
 /// </para>
 /// <para>
-/// The eight colour switches of Nereus are one row that walks through the eight families, because the
-/// reference's colour dialog wore exactly one at a time and a list of eight switches would let a viewer
+/// The eight colour switches of Nereus are one button that walks through the eight families, because the
+/// reference's colour dialog wore exactly one at a time and a list of eight checkboxes would let a viewer
 /// answer "red and green" to one question. Everything else presses the reference's own property, with the
 /// reference's spelling still behind the label for whoever opens the file.
 /// </para>
@@ -107,8 +162,9 @@ public partial class SkinSettingsViewModel : ObservableObject
     Heading = "Skin settings";
     Subtitle = _settings == null
         ? string.Format("'{0}' ships no settings of its own.", skinName)
-        : string.Format("What {0} lets you change on this machine. Pressing a row changes it and saves it "
-            + "at once; it stays changed after the next start.", TitleOf(skinName));
+        : string.Format("What {0} lets you change on this machine. A checkbox switches, a button walks "
+            + "through its answers; every change is saved at once and stays changed after the next start.",
+            TitleOf(skinName));
 
     if (_settings != null)
       BuildRows();
@@ -123,27 +179,32 @@ public partial class SkinSettingsViewModel : ObservableObject
   [ObservableProperty]
   private string _status = "";
 
-  /// <summary>
-  /// The row the highlight stands on. Moving the highlight changes nothing here - unlike the skin picker,
-  /// where every row is a whole choice, these rows are switches, and walking over a switch must not flip
-  /// it. A press (Enter, the remote's OK, a click) is the change.
-  /// </summary>
+  /// <summary>The row the highlight stands on; the arrow keys and the remote move it, Enter works it.</summary>
   [ObservableProperty]
   private SkinSettingOption? _selected;
 
-  /// <summary>Applies the highlighted row and saves the skin's whole file, then says both on the status line.</summary>
+  /// <summary>Works the highlighted row - Enter and the remote's OK. The mouse needs none of this.</summary>
   public void PressSelected()
   {
-    if (Selected == null || _settings == null)
+    Selected?.Press();
+  }
+
+  /// <summary>
+  /// What every row does after its answer changed: the skin's whole file is written, and the status line
+  /// says both the new answer and where it went. A settings screen whose saves are silent is a settings
+  /// screen whose saves are doubted.
+  /// </summary>
+  internal void Changed(SkinSettingOption option)
+  {
+    if (_settings == null)
       return;
 
-    Selected.Press();
-
+    option.Refresh();
     string says = _settings.Save(_settingsPath, out bool saved);
     Status = saved
-        ? string.Format("{0} is now {1}. {2}", Selected.Label, Selected.ValueText, says)
+        ? string.Format("{0} is now {1}. {2}", option.Label, option.ValueText, says)
         : string.Format("{0} is now {1} for this session; saving failed - {2}",
-            Selected.Label, Selected.ValueText, says);
+            option.Label, option.ValueText, says);
   }
 
   private void BuildRows()
@@ -228,7 +289,7 @@ public partial class SkinSettingsViewModel : ObservableObject
         () => n.UseRoundedDialogCorners, v => n.UseRoundedDialogCorners = v);
 
     Options.Add(new SkinSettingOption("Colour", "The skin's own accent, one of the eight families",
-        CurrentColourName, PressNextColour));
+        CurrentColourName, PressNextColour, Changed));
 
     Toggle("Help texts", "The one-line help at the bottom of a screen",
         () => n.EnableHelpTexts, v => n.EnableHelpTexts = v);
@@ -296,9 +357,7 @@ public partial class SkinSettingsViewModel : ObservableObject
 
   private void Toggle(string label, string description, Func<bool> get, Action<bool> set)
   {
-    Options.Add(new SkinSettingOption(label, description,
-        () => get() ? "On" : "Off",
-        () => set(!get())));
+    Options.Add(new SkinSettingOption(label, description, get, set, Changed));
   }
 
   private void Step(string label, string description, Func<double> get, Action<double> set,
@@ -312,7 +371,8 @@ public partial class SkinSettingsViewModel : ObservableObject
           if (next > max + 0.0001)
             next = min;
           set(Math.Round(next, 2));
-        }));
+        },
+        Changed));
   }
 
   private void Cycle<T>(string label, string description, Func<T> get, Action<T> set) where T : struct
@@ -324,7 +384,8 @@ public partial class SkinSettingsViewModel : ObservableObject
         {
           int at = Array.IndexOf(choices, get());
           set(choices[(at + 1) % choices.Length]);
-        }));
+        },
+        Changed));
   }
 
   private static string TitleOf(string skinName)

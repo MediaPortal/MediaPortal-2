@@ -104,10 +104,18 @@ namespace Tests.Frontend
       vm.Selected = Row(vm, "Fanart behind the media");
       vm.PressSelected();
       Assert.That(Row(vm, "Fanart behind the media").ValueText, Is.EqualTo("Off"));
+      Assert.That(Row(vm, "Fanart behind the media").IsChecked, Is.False,
+          "the row's own checkbox has to show the answer it just took");
       Assert.That(vm.Status, Does.Contain("Fanart behind the media is now Off"));
 
       NereusSkinSettings saved = NereusSkinSettings.Load(file, out _);
       Assert.That(saved.EnableFanart, Is.False, "the press has to reach the file, not just the screen");
+
+      // The checkbox path is the mouse's whole interaction: writing the checkbox IS the change and the save.
+      Row(vm, "Show time").IsChecked = false;
+      Assert.That(vm.Status, Does.Contain("Show time is now Off"));
+      saved = NereusSkinSettings.Load(file, out _);
+      Assert.That(saved.ShowTime, Is.False, "the checkbox has to reach the file on its own, no press needed");
 
       // The colour row is one question, so a press walks to the next family and takes the eight bools with it.
       vm.Selected = Row(vm, "Colour");

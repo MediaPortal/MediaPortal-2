@@ -8,12 +8,12 @@
         >
 
   <!--
-    The worn skin's own switches, one row each, in the order the reference's settings class filed them.
-    Unlike the skin picker this screen keeps navigation and change apart: walking the rows with the d-pad
-    shows what each switch would mean, and a press (Enter, the remote's OK, a click) changes and saves it
-    - the way the reference's configuration menu behaved, and because these rows are switches a viewer
-    must be able to look at without flipping. See SkinSettingsViewModel for why the colour of Nereus is
-    one row that walks eight families rather than eight rows.
+    The worn skin's own switches, one row each, in the order the reference's settings class filed them -
+    and every row carries the control that works it: a checkbox for a switch with two answers, a button
+    for everything with a list of them, which shows the current answer right on its face. A row you can
+    only look at is a wall chart, not a settings screen. Enter and the remote's OK work the highlighted
+    row exactly like its control: a checkbox flips, a button walks to its next answer. See
+    SkinSettingsViewModel for why the colour of Nereus is one button through eight families.
   -->
 
   <DockPanel Margin="48,14">
@@ -50,16 +50,24 @@
       </ListBox.Styles>
       <ListBox.ItemTemplate>
         <DataTemplate x:DataType="vm:SkinSettingOption">
-          <Grid ColumnDefinitions="380,150,*" Margin="2,1">
+          <Grid ColumnDefinitions="380,170,*" Margin="2,1">
             <TextBlock Text="{Binding Label}"
                        FontSize="16"
                        VerticalAlignment="Center" />
-            <TextBlock Grid.Column="1"
-                       Text="{Binding ValueText}"
-                       FontSize="16"
-                       FontWeight="SemiBold"
-                       Foreground="{DynamicResource AccentBrush}"
-                       VerticalAlignment="Center" />
+            <!-- The two faces of a row, and only one of them is ever up: the checkbox is the whole control
+                 for a switch, and the button - whose label is the current answer, in the accent - is the
+                 whole control for a choice. Both save at once; the status line says so under the list. -->
+            <CheckBox Grid.Column="1"
+                      IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                      IsVisible="{Binding IsToggle}"
+                      VerticalAlignment="Center"
+                      HorizontalAlignment="Left" />
+            <Button Grid.Column="1"
+                    Content="{Binding ValueText}"
+                    IsVisible="{Binding !IsToggle}"
+                    Click="OnChoiceClick"
+                    MinWidth="150"
+                    HorizontalAlignment="Left" />
             <TextBlock Grid.Column="2"
                        Text="{Binding Description}"
                        FontSize="13"
