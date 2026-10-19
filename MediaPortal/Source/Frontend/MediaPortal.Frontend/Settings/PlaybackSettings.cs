@@ -70,6 +70,24 @@ public sealed class PlaybackSettings
   [JsonPropertyName("skipStepSeconds")]
   public int SkipStepSeconds { get; set; } = 30;
 
+  /// <summary>
+  /// The ladder the left and right keys climb when they are pressed one after the other: comma-separated
+  /// seconds, exactly like the reference's <c>SkipStepList</c>, and the same answer it ships. A press held
+  /// in the same direction climbs one rung of this list, so four quick presses reach four minutes rather
+  /// than four times fifteen seconds. Editing this by hand is the intended way; the ladder ignores pieces
+  /// that are not positive whole numbers.
+  /// </summary>
+  [JsonPropertyName("skipStepList")]
+  public string SkipStepList { get; set; } = DEFAULT_SKIP_STEP_LIST;
+
+  /// <summary>
+  /// How long the player waits after a skip-step press before it commits the jump - the reference's
+  /// <c>SkipStepTimeout</c> and the same 1.5 seconds it ships. Long enough to press again and climb,
+  /// short enough that a single press feels like a single press.
+  /// </summary>
+  [JsonPropertyName("skipStepTimeoutSeconds")]
+  public double SkipStepTimeoutSeconds { get; set; } = 1.5;
+
   /// <summary>How much one press of the volume key adds or takes away.</summary>
   [JsonPropertyName("volumeStep")]
   public int VolumeStep { get; set; } = 5;
@@ -139,6 +157,9 @@ public sealed class PlaybackSettings
   /// <summary>The answers the skip row walks, in the reference's own spread of the same choice.</summary>
   public static readonly int[] SKIP_STEPS = { 5, 10, 30, 60, 120, 300 };
 
+  /// <summary>The reference's escalating skip ladder, verbatim.</summary>
+  public const string DEFAULT_SKIP_STEP_LIST = "15,30,60,180,300,600,900,1800,3600,7200";
+
   /// <summary>The answers the volume-step row walks.</summary>
   public static readonly int[] VOLUME_STEPS = { 1, 2, 5, 10, 20 };
 
@@ -204,6 +225,14 @@ public sealed class PlaybackSettings
       // moment anything is reported", which the reference allowed too; only nonsense outside it falls
       // back to the reference's own ninety.
       read.WatchedMarkPercentage = Clamp(read.WatchedMarkPercentage, 0, 100, 90);
+      // A wait under a fifth of a second would commit the jump before anybody could press again, and one
+      // over ten seconds would feel like the film had stopped listening; the reference's 1.5 answers both.
+      if (read.SkipStepTimeoutSeconds < 0.2 || read.SkipStepTimeoutSeconds > 10 ||
+          double.IsNaN(read.SkipStepTimeoutSeconds))
+      {
+        read.SkipStepTimeoutSeconds = 1.5;
+      }
+      read.SkipStepList = string.IsNullOrWhiteSpace(read.SkipStepList) ? DEFAULT_SKIP_STEP_LIST : read.SkipStepList;
       read.AudioLanguage ??= "";
       read.SubtitleLanguage ??= "";
       return read;

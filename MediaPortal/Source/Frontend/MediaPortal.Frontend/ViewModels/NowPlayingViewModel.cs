@@ -759,6 +759,94 @@ namespace MediaPortal.Frontend.ViewModels
       return true;
     }
 
+    private SkipStepLadder? _skipLadder;
+    private string? _skipLadderList;
+
+    /// <summary>
+    /// How long the screen waits after one skip-step press before committing the jump, in milliseconds -
+    /// the reference's <c>SkipStepTimeout</c> answer.
+    /// </summary>
+    public int SkipStepTimeoutMs
+    {
+      get { return (int)Math.Round((Preferences?.SkipStepTimeoutSeconds ?? 1.5) * 1000); }
+    }
+
+    /// <summary>The signed step the last skip-step press landed on, in seconds; see <see cref="SkipStepLadder"/>.</summary>
+    public int PendingSkipStepSeconds
+    {
+      get { return _skipLadder?.PendingStepSeconds ?? 0; }
+    }
+
+    /// <summary>One press of the forward skip-step key; see <see cref="SkipStepLadder.Press"/>.</summary>
+    public SkipStepAction SkipStepForward()
+    {
+      return PressSkipStep(1);
+    }
+
+    /// <summary>One press of the backward skip-step key; see <see cref="SkipStepLadder.Press"/>.</summary>
+    public SkipStepAction SkipStepBackward()
+    {
+      return PressSkipStep(-1);
+    }
+
+    /// <summary>
+    /// The pause between skip-step presses ran out: commit the jump the ladder was holding, or the jump to
+    /// the border a refused step was parked at. Nothing happens when no ladder is pending.
+    /// </summary>
+    public void SkipStepElapsed()
+    {
+      if (_skipLadder == null || _player == null)
+        return;
+
+      SkipStepAction action = _skipLadder.Elapsed();
+      if (action == SkipStepAction.Skip)
+        Skip(1000L * _lastSkipStepSeconds);
+      else if (action == SkipStepAction.ToStart)
+        Skip(-_player.TimeInMs);
+      else if (action == SkipStepAction.ToEnd)
+        Skip(_player.LengthInMs - _player.TimeInMs);
+    }
+
+    /// <summary>
+    /// Drop a pending skip-step jump without making it - what an instant skip does to the ladder, exactly
+    /// like the reference cancelling its skip timer when an instant skip arrives.
+    /// </summary>
+    public void CancelSkipStep()
+    {
+      _skipLadder?.Cancel();
+    }
+
+    private SkipStepAction PressSkipStep(int direction)
+    {
+      string list = Preferences?.SkipStepList ?? SkipStepLadder.DEFAULT_LIST;
+      if (_skipLadder == null || !string.Equals(list, _skipLadderList, StringComparison.Ordinal))
+      {
+        _skipLadder = new SkipStepLadder(list);
+        _skipLadderList = list;
+      }
+
+      SkipStepAction action = _skipLadder.Press(direction, CanSkipRelative);
+      _lastSkipStepSeconds = _skipLadder.PendingStepSeconds;
+      return action;
+    }
+
+    private int _lastSkipStepSeconds;
+
+    /// <summary>
+    /// Whether a jump of so many seconds stays inside the media - the same question the reference asks
+    /// before it lets the ladder climb, and the reason a refused step parks at the border instead.
+    /// </summary>
+    private bool CanSkipRelative(int seconds)
+    {
+      if (_player == null || !_hasMedia)
+        return false;
+      long length = _player.LengthInMs;
+      if (length <= 0)
+        return false;
+      long wanted = _player.TimeInMs + 1000L * seconds;
+      return wanted >= 0 && wanted <= length;
+    }
+
     /// <summary>Sets volume; values outside 0-100 are clamped, which is what a volume key should do.</summary>
     public bool SetVolume(int value)
     {

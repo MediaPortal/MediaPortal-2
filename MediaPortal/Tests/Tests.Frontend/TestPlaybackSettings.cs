@@ -93,6 +93,31 @@ namespace Tests.Frontend
     }
 
     [Test]
+    public void TheSkipLadderAndItsWaitAreTheOnesTheReferenceShips()
+    {
+      PlaybackSettings settings = PlaybackSettings.Load(_file, out _);
+      Assert.That(settings.SkipStepList, Is.EqualTo("15,30,60,180,300,600,900,1800,3600,7200"),
+          "the reference's escalating ladder, rung for rung");
+      Assert.That(settings.SkipStepTimeoutSeconds, Is.EqualTo(1.5),
+          "the reference waits a and a half seconds before it commits the jump");
+
+      settings.SkipStepList = "10,20,40";
+      settings.SkipStepTimeoutSeconds = 3;
+      settings.Save(_file, out bool saved);
+      Assert.That(saved, Is.True);
+
+      PlaybackSettings again = PlaybackSettings.Load(_file, out _);
+      Assert.That(again.SkipStepList, Is.EqualTo("10,20,40"));
+      Assert.That(again.SkipStepTimeoutSeconds, Is.EqualTo(3));
+
+      // A wait nobody could press against, and a list with nothing climbable in it, are not answers.
+      File.WriteAllText(_file, "{\"skipStepTimeoutSeconds\": 0.01, \"skipStepList\": \"  \"}");
+      PlaybackSettings edited = PlaybackSettings.Load(_file, out _);
+      Assert.That(edited.SkipStepTimeoutSeconds, Is.EqualTo(1.5));
+      Assert.That(edited.SkipStepList, Is.EqualTo(PlaybackSettings.DEFAULT_SKIP_STEP_LIST));
+    }
+
+    [Test]
     public void TheWatchedMarkRowWalksTheLadderAndWritesEachRung()
     {
       PlaybackSettingsViewModel screen = new PlaybackSettingsViewModel(_file);

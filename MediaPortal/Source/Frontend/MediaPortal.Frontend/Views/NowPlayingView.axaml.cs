@@ -21,6 +21,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Threading;
 using MediaPortal.Frontend.Input;
 using MediaPortal.Frontend.Player;
 using MediaPortal.Frontend.ViewModels;
@@ -39,9 +40,10 @@ namespace MediaPortal.Frontend.Views
   public partial class NowPlayingView : UserControl, IWorkflowScreen, Workflow.IFullScreenScreen
   {
     /// <summary>
-    /// How far the left and right keys of a remote jump: the viewer's answer, or the shipped thirty seconds
+    /// How far the transport buttons on the screen jump: the viewer's answer, or the shipped thirty seconds
     /// when nobody said otherwise. Long enough to be useful over an advertisement, short enough to press
-    /// twice by accident without losing the plot.
+    /// twice by accident without losing the plot. The remote's left and right keys do not use this - they
+    /// climb the escalating ladder the reference puts behind those keys, see <see cref="ShowSkipStep"/>.
     /// </summary>
     private long SkipLengthMs => _viewModel.SkipStepMs;
 
@@ -94,23 +96,27 @@ namespace MediaPortal.Frontend.Views
       // Left and right are the transport's seek keys on every remote, so the screen takes them before the ring
       // gets them: the d-pad only ever moves between the buttons when the button row is the only thing there,
       // and a viewer who presses right expects the film to move rather than the highlight. Up and down are left
-      // to the ring, which walks the row.
+      // to the ring, which walks the row. What happens on those presses is the reference's own answer for
+      // those keys: not a fixed jump but the escalating ladder, held presses climbing from rung to rung while
+      // the film waits, and the jump landing when the pressing stops.
       AddHandler(KeyDownEvent,
           delegate (object? sender, KeyEventArgs args)
           {
-            long jump = args.Key == Key.Left ? -SkipLengthMs : args.Key == Key.Right ? SkipLengthMs : 0;
-            if (jump == 0)
+            if (args.Key == Key.Left)
             {
-              if (args.Key == Key.I)
-              {
-                ToggleMediaInfo();
-                args.Handled = true;
-              }
-              return;
+              ShowSkipStep(_viewModel.SkipStepBackward());
+              args.Handled = true;
             }
-            _viewModel.Skip(jump);
-            Say("Superlayer_SkipStep", SkipWords(jump), 1200);
-            args.Handled = true;
+            else if (args.Key == Key.Right)
+            {
+              ShowSkipStep(_viewModel.SkipStepForward());
+              args.Handled = true;
+            }
+            else if (args.Key == Key.I)
+            {
+              ToggleMediaInfo();
+              args.Handled = true;
+            }
           },
           RoutingStrategies.Tunnel);
 
@@ -177,14 +183,58 @@ namespace MediaPortal.Frontend.Views
 
     private void OnBack(object? sender, RoutedEventArgs e)
     {
+      CancelSkipStep();
       _viewModel.Skip(-SkipLengthMs);
       Say("Superlayer_SkipStep", SkipWords(-SkipLengthMs), 1200);
     }
 
     private void OnForward(object? sender, RoutedEventArgs e)
     {
+      CancelSkipStep();
       _viewModel.Skip(SkipLengthMs);
       Say("Superlayer_SkipStep", SkipWords(SkipLengthMs), 1200);
+    }
+
+    private DispatcherTimer? _skipStepTimer;
+
+    /// <summary>
+    /// Show what this press of the ladder asks for and re-arm the wait: the jump is only made when the
+    /// pressing stops for the configured moment (the reference's <c>SkipStepTimeout</c>, 1.5 seconds by
+    /// default), so presses held one after the other climb the ladder and the film holds still until then.
+    /// A refused step at either border shows the border instead of a number, and the wait ends with the
+    /// film thrown to that border - "forward" pressed two minutes before the end means the end.
+    /// </summary>
+    private void ShowSkipStep(SkipStepAction action)
+    {
+      string words = action switch
+      {
+        SkipStepAction.Skip => SkipWords(1000L * _viewModel.PendingSkipStepSeconds),
+        SkipStepAction.Nothing => "no skip",
+        SkipStepAction.ToStart => "« start",
+        _ => "end »"
+      };
+      Say("Superlayer_SkipStep", words, _viewModel.SkipStepTimeoutMs + 300);
+
+      if (_skipStepTimer == null)
+      {
+        _skipStepTimer = new DispatcherTimer();
+        _skipStepTimer.Tick += delegate
+        {
+          _skipStepTimer!.Stop();
+          _viewModel.SkipStepElapsed();
+        };
+      }
+      _skipStepTimer.Interval = TimeSpan.FromMilliseconds(_viewModel.SkipStepTimeoutMs);
+      _skipStepTimer.Stop();
+      _skipStepTimer.Start();
+    }
+
+    /// <summary>Drop a waiting ladder jump - the instant buttons below do their jump now, so a held ladder
+    /// that is still waiting is dropped, exactly like the reference cancelling its skip timer.</summary>
+    private void CancelSkipStep()
+    {
+      _skipStepTimer?.Stop();
+      _viewModel.CancelSkipStep();
     }
 
     private void OnStop(object? sender, RoutedEventArgs e)
@@ -279,6 +329,7 @@ namespace MediaPortal.Frontend.Views
     /// </summary>
     public void OnScreenClosed()
     {
+      _skipStepTimer?.Stop();
       videoSurface.Dispose();
     }
 
