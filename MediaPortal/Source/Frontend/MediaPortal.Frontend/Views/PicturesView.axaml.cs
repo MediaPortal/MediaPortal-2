@@ -83,6 +83,20 @@ namespace MediaPortal.Frontend.Views
       };
       _pictures.PropertyChanged += OnPicturesChanged;
 
+      // The grid of a folder belongs to the library and wears its chrome; a raised photograph belongs to the
+      // television and covers it - the window is remembered on the way in because on the way out there is no
+      // tree left to ask, and the chrome has to come back whatever happens to this screen.
+      AttachedToVisualTree += delegate
+      {
+        _shell = TopLevel.GetTopLevel(this) as ShellWindow;
+        SetFullBleedForViewing();
+      };
+      DetachedFromVisualTree += delegate
+      {
+        _shell?.SetViewFullBleed(false);
+        _shell = null;
+      };
+
       AddHandler(KeyDownEvent,
           delegate (object? sender, KeyEventArgs args)
           {
@@ -186,6 +200,20 @@ namespace MediaPortal.Frontend.Views
       }
       else
         _slideshow.Stop();
+
+      SetFullBleedForViewing();
+    }
+
+    /// <summary>The window this screen is currently standing in, or null between visits.</summary>
+    private ShellWindow? _shell;
+
+    /// <summary>
+    /// Say to the window what the viewer is looking at: a folder full of photographs (chrome stays) or one
+    /// photograph filling the television (chrome goes, until it does not).
+    /// </summary>
+    private void SetFullBleedForViewing()
+    {
+      _shell?.SetViewFullBleed(_pictures.IsViewing);
     }
   }
 }

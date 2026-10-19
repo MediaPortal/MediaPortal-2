@@ -306,8 +306,29 @@ namespace MediaPortal.Frontend.Views
     private void UpdateChromeVisibility()
     {
       bool fullScreen = (_workflow.Current?.View as Control) is Workflow.IFullScreenScreen;
-      _header.IsVisible = _header.Template != null && !fullScreen;
-      _footer.IsVisible = _footer.Template != null && !fullScreen;
+      _header.IsVisible = _header.Template != null && !fullScreen && !_viewFullBleed;
+      _footer.IsVisible = _footer.Template != null && !fullScreen && !_viewFullBleed;
+    }
+
+    /// <summary>
+    /// Whether the screen on top has asked for the whole television for itself for a moment - a photograph
+    /// being looked at, a slideshow running - while its frame stays a normal screen of the workflow.
+    /// </summary>
+    private bool _viewFullBleed;
+
+    /// <summary>
+    /// Lets one screen say, without leaving its place in the workflow, that it is covering the television:
+    /// the chrome is stowed while <paramref name="fullBleed"/> holds and comes back the moment it does not.
+    /// The reference worked this way too - a raised photograph filled the set, and putting it back returned
+    /// the master - and a header across somebody's picture is the mistake both skins were built to avoid.
+    /// </summary>
+    public void SetViewFullBleed(bool fullBleed)
+    {
+      if (_viewFullBleed == fullBleed)
+        return;
+
+      _viewFullBleed = fullBleed;
+      UpdateChromeVisibility();
     }
 
     private static object? FindResource(string key)
