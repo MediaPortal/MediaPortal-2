@@ -19,6 +19,7 @@ using System;
 using System.IO;
 using NUnit.Framework;
 using MediaPortal.Frontend.Settings;
+using MediaPortal.Frontend.ViewModels;
 
 namespace Tests.Frontend
 {
@@ -241,6 +242,24 @@ namespace Tests.Frontend
       {
         File.Delete(file);
       }
+    }
+
+    /// <summary>
+    /// WMC's one and only switch: master_homemenu hung its entire HomeContentGrid on
+    /// <c>EnableHomeContent</c>, so switching it off leaves the menu standing alone - the way the reference
+    /// left it. Nereus never had such a switch, and a face without one keeps its content.
+    /// </summary>
+    [Test]
+    public void WmcsOneSwitchCommandsTheWholeContentColumn()
+    {
+      Assert.That(HomeViewModel.HomeContentShownFor(new WMCSkinSettings()), Is.True,
+          "the shipped answer shows the panels WMC was built on");
+      Assert.That(HomeViewModel.HomeContentShownFor(new WMCSkinSettings { EnableHomeContent = false }), Is.False,
+          "and switching them off hides all of them, not one panel less");
+      Assert.That(HomeViewModel.HomeContentShownFor(new NereusSkinSettings()), Is.True,
+          "Nereus has no such switch and keeps its content");
+      Assert.That(HomeViewModel.HomeContentShownFor(null), Is.True,
+          "a face that ships no settings is not an answer of off");
     }
   }
 }

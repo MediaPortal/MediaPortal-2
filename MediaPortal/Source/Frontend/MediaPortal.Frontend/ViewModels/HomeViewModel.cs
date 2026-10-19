@@ -163,6 +163,12 @@ namespace MediaPortal.Frontend.ViewModels
       _client = client;
       _status = client == null ? "No server configured" : "Not connected yet";
 
+      // The face on the machine can change while this screen sits open - the skin settings are one move
+      // away, and so is the skin screen - and the content column follows the new face at once. The reference
+      // hung that on a binding that never went stale; these two events are this port's moment of change.
+      FrontendTheme.Changed += delegate { OnPropertyChanged(nameof(HomeContentShown)); };
+      SkinEngine.Changed += delegate { OnPropertyChanged(nameof(HomeContentShown)); };
+
       // The menu before anything has been read. A viewer who turns a television on before the server has finished
       // starting up is looking at this state, and it has to say what a media centre is - and what is missing from
       // it - rather than offering nothing to press.
@@ -188,6 +194,29 @@ namespace MediaPortal.Frontend.ViewModels
         return SkinSettingsBase.LoadFor(FrontendTheme.CurrentName(app), null, out _)
             is not NereusSkinSettings nereus || nereus.EnableHelpTexts;
       }
+    }
+
+    /// <summary>
+    /// Whether the home may put content beside its menu at all. WMC was the skin built on those panels, and
+    /// its settings screen carried exactly one switch for them: with <c>EnableHomeContent</c> off,
+    /// master_homemenu hid the entire HomeContentGrid and left the menu standing on an empty set. Nereus
+    /// never shipped such a switch; a machine wearing a face without the switch keeps the content it always
+    /// had, because a switch that was never offered must not silently answer for it.
+    /// </summary>
+    public bool HomeContentShown
+    {
+      get
+      {
+        Application? app = Application.Current;
+        return HomeContentShownFor(app == null
+            ? null
+            : SkinSettingsBase.LoadFor(FrontendTheme.CurrentName(app), null, out _));
+      }
+    }
+
+    internal static bool HomeContentShownFor(SkinSettingsBase? worn)
+    {
+      return worn is not WMCSkinSettings wmc || wmc.EnableHomeContent;
     }
 
     /// <summary>

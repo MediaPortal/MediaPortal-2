@@ -186,7 +186,7 @@
       <!-- The content of the highlighted entry: its lists one after another, with their headings. This is the half
            of MP2's home screen the menu alone cannot say - not "here are three thousand films" but "these six are
            the newest, and this is the one you stopped half way through". -->
-      <DockPanel Grid.Column="1">
+      <DockPanel Grid.Column="1" IsVisible="{Binding HomeContentShown}">
 
         <!-- What somebody left half way is not a strip of its own here: the reference kept "where was I" inside
              the highlighted entry's own lists (MovieHomeContent's ContinuePlayMovies, SeriesHomeContent's
