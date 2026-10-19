@@ -374,9 +374,23 @@ namespace MediaPortal.Frontend.Theming
 
       ApplyChrome(app, chosen);
 
-      problem = null;
+      // The skin folder, if this name has one, dresses on top of the palette: colours the two share keep the
+      // palette's (the accent families are chosen as palettes), and everything only the skin files speak -
+      // the reference's own colour names, its measurements, its master templates, its control styles, its
+      // overlays - arrives with it. A name with no folder, 'default' above all, takes the skin back off.
+      SkinEngine.Apply(app, chosen, out string? skinProblem);
+
+      problem = skinProblem;
+      Changed?.Invoke(app, EventArgs.Empty);
       return chosen;
     }
+
+    /// <summary>
+    /// Raised after <see cref="Apply"/> has put a palette (and its skin) on the application, so that windows
+    /// which paint with the screen colour outside the merged dictionaries - the shell's own background, above
+    /// all - can follow the switch without being asked.
+    /// </summary>
+    public static event EventHandler? Changed;
 
     /// <summary>
     /// The chrome styles each application was given, and for which palette, so that switching palettes rebuilds

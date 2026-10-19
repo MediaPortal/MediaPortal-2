@@ -231,10 +231,37 @@ namespace MediaPortal.Frontend
               : BuildHomeScreen();
         }
 
+        // The footer of the master chrome says whatever the player is doing, on every screen - the reference
+        // kept its PlayerControl in the master rather than in the playback screen, so a film's title stayed
+        // readable from the home shelf and the volume was visible without opening the door it played behind.
+        if (_nowPlaying != null)
+        {
+          _nowPlaying.PropertyChanged += delegate { Dispatcher.UIThread.Post(FeedChromeFromPlayback); };
+          FeedChromeFromPlayback();
+        }
+
         desktop.MainWindow = _shell;
       }
 
       base.OnFrameworkInitializationCompleted();
+    }
+
+    /// <summary>The playback screen's model, or null while there is no player to speak of.</summary>
+    public ViewModels.NowPlayingViewModel? Playback
+    {
+      get { return _nowPlaying; }
+    }
+
+    /// <summary>Tell the window's chrome what the player is doing right now - see the wiring above.</summary>
+    private void FeedChromeFromPlayback()
+    {
+      if (_shell == null || _nowPlaying == null)
+        return;
+
+      if (_nowPlaying.HasMedia)
+        _shell.Chrome.ReportPlaying(_nowPlaying.Title, _nowPlaying.Progress, _nowPlaying.StateText);
+      else
+        _shell.Chrome.ReportStopped();
     }
 
     /// <summary>

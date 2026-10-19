@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Nereus superlayers: the overlays that briefly cover the screen to say one thing - the volume reading
+  while the volume keys are held, and the busy spinner while something loads. The reference drew these as
+  whole-screen layers of the master window; the window here keeps one host for them and swaps the template.
+
+  Both templates are ContentControl templates: whatever the window puts in Content is the sentence, and
+  nothing here binds against the chrome - TemplateBinding only.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- The volume: one big line of text, Nereus-sized, lower third of the screen like the reference. -->
+  <ControlTemplate x:Key="Superlayer_Volume" TargetType="ContentControl">
+    <Border Background="{DynamicResource Scrim}" IsHitTestVisible="False">
+      <TextBlock Text="{TemplateBinding Content}"
+                 Foreground="{DynamicResource Text}" FontSize="{DynamicResource DateTimeFontSize}"
+                 HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,120"/>
+    </Border>
+  </ControlTemplate>
+
+  <!-- Busy: the screen dims, the words are centred, and the accent line underneath is still moving. -->
+  <ControlTemplate x:Key="Superlayer_Busy" TargetType="ContentControl">
+    <Border Background="{DynamicResource Scrim}" IsHitTestVisible="False">
+      <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20">
+        <TextBlock Text="{TemplateBinding Content}"
+                   Foreground="{DynamicResource Text}" FontSize="{DynamicResource DateTimeFontSize}"
+                   HorizontalAlignment="Center"/>
+        <ProgressBar IsIndeterminate="True" Width="400" Height="3"
+                     Foreground="{DynamicResource Accent}" Background="{DynamicResource Outline}"/>
+      </StackPanel>
+    </Border>
+  </ControlTemplate>
+</ResourceDictionary>

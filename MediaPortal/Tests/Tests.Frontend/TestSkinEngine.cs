@@ -1,0 +1,268 @@
+/*
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+using System;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Headless.NUnit;
+using Avalonia.Media;
+using NUnit.Framework;
+using MediaPortal.Frontend.Theming;
+
+namespace Tests.Frontend
+{
+  /// <summary>
+  /// The skins that ship as loose XAML, and the engine that reads them.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// These tests are the difference between a skin that is a colour table in a C# file and a skin that is a
+  /// skin: the files under the front end's Skins folder have to be read as they are - manifest, colours,
+  /// measurements, master templates, control styles, overlays - and answer through the application exactly as
+  /// the reference SkinEngine answered from its folders of XAML. Everything asserted here is asked of the real
+  /// shipped files, not of copies, because a typo in a skin file is precisely the kind of wrong these tests
+  /// exist to catch.
+  /// </para>
+  /// <para>
+  /// The default palette is put back after every test, so no other fixture finds the application dressed in
+  /// Nereus; the one test that wears its own broken skin puts the engine's asset root back too.
+  /// </para>
+  /// </remarks>
+  [TestFixture]
+  public class TestSkinEngine
+  {
+    private string _previousAssetsRoot = "";
+
+    [SetUp]
+    public void RememberTheAssetRoot()
+    {
+      _previousAssetsRoot = SkinEngine.AssetsRoot;
+    }
+
+    [TearDown]
+    public void PutTheDefaultBack()
+    {
+      Application? app = Application.Current;
+      if (app != null)
+        FrontendTheme.Apply(app, FrontendTheme.DEFAULT_NAME, out _);
+
+      SkinEngine.AssetsRoot = _previousAssetsRoot;
+    }
+
+    [AvaloniaTest]
+    public void BothRescuedSkinsAreInstalled()
+    {
+      string[] names = SkinEngine.Installed().Select(skin => skin.Name).ToArray();
+
+      Assert.That(names, Does.Contain("nereus"));
+      Assert.That(names, Does.Contain("wmc"));
+    }
+
+    [Test]
+    public void TheSkinIndexAndTheSkinFoldersAgree()
+    {
+      // Avalonia cannot enumerate its asset folders, so index.txt is the list of what is installed - which
+      // makes it the one hand-written line in this system, and the one place a new skin folder could be
+      // added and forgotten. Read the shipped index and the source tree's folders and compare them here,
+      // where forgetting the second half of "copy a folder and list it" fails a test instead of a couch.
+      string skinsDirectory = Path.Combine(MetadataPath("FrontendSource"), "Skins");
+      string[] folders = Directory.GetDirectories(skinsDirectory)
+          .Where(directory => File.Exists(Path.Combine(directory, "skin.xml")))
+          .Select(directory => Path.GetFileName(directory))
+          .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
+          .ToArray();
+
+      string[] listed = File.ReadAllLines(Path.Combine(skinsDirectory, "index.txt"))
+          .Select(line => line.Trim())
+          .Where(line => line.Length > 0 && !line.StartsWith("#", StringComparison.Ordinal))
+          .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
+          .ToArray();
+
+      Assert.That(listed, Is.EquivalentTo(folders),
+          "Skins/index.txt and the skin folders under Skins/ have to name each other");
+    }
+
+    [AvaloniaTest]
+    public void AManifestSaysWhatItsSkinIs()
+    {
+      SkinManifest nereus = SkinEngine.Installed().First(skin => skin.Name == "nereus");
+
+      Assert.That(nereus.Title, Is.EqualTo("Nereus"));
+      Assert.That(nereus.Author, Is.EqualTo("Team MediaPortal"));
+      Assert.That(nereus.DefaultTheme.Name, Is.EqualTo("default"));
+      Assert.That(nereus.SuperlayersFile, Is.Not.Null.And.Not.Empty);
+    }
+
+    [AvaloniaTest]
+    public void WmcShipsItsThreeReferenceThemes()
+    {
+      SkinManifest wmc = SkinEngine.Installed().First(skin => skin.Name == "wmc");
+
+      Assert.That(wmc.ThemeByName("dark"), Is.Not.Null, "Dark-WMC was one of the three schemes WMC shipped");
+      Assert.That(wmc.ThemeByName("turquoise"), Is.Not.Null, "Turquoise-WMC was one of the three");
+      Assert.That(wmc.DefaultTheme.IsDefault, Is.True);
+    }
+
+    [AvaloniaTest]
+    public void WearingNereusAnswersWhatOnlyItsFilesAnswer()
+    {
+      Application app = Application.Current!;
+      Assert.That(SkinEngine.Apply(app, "nereus", out string? problem), Is.True, problem ?? "applied");
+
+      Assert.That(Find(app, "NereusColorLight_Torquoise"), Is.EqualTo(Color.Parse("#FF009592")),
+          "the reference's own colour name, from the skin's colour file");
+      Assert.That(Find(app, "HeaderFontSize"), Is.EqualTo(80.0), "the reference's measurement, from its Consts file");
+      Assert.That(Find(app, "ChromeHeaderTemplate"), Is.InstanceOf<Avalonia.Controls.Templates.IControlTemplate>(),
+          "the master template every screen is drawn inside");
+      Assert.That(Find(app, "Superlayer_Volume"), Is.InstanceOf<Avalonia.Controls.Templates.IControlTemplate>(),
+          "the overlay that floats above every screen");
+    }
+
+    [AvaloniaTest]
+    public void WearingADarkThemeReadsItsOwnColoursOverTheDefaults()
+    {
+      Application app = Application.Current!;
+      Assert.That(SkinEngine.Apply(app, "wmc-dark", out string? problem), Is.True, problem ?? "applied");
+
+      Assert.That(Find(app, "WindowHeaderColor"), Is.EqualTo(Color.Parse("#FF757575")),
+          "the dark scheme's own value, read over the default theme's file");
+      Assert.That(Find(app, "HeaderFontSize"), Is.EqualTo(80.0),
+          "the structure of the skin's default theme is still underneath");
+    }
+
+    [AvaloniaTest]
+    public void AThemeNameWearsItsSkin()
+    {
+      Application app = Application.Current!;
+      FrontendTheme.Apply(app, "wmc-turquoise", out _);
+
+      WornSkin? worn = SkinEngine.Worn(app);
+      Assert.That(worn, Is.Not.Null, "a palette name with a skin behind it wears that skin");
+      Assert.That(worn!.Manifest.Name, Is.EqualTo("wmc"));
+      Assert.That(worn.Theme.Name, Is.EqualTo("turquoise"));
+    }
+
+    [AvaloniaTest]
+    public void TheSkinsColourFilesAgreeWithThePaletteTable()
+    {
+      Application app = Application.Current!;
+      foreach (string name in new[] { "nereus", "wmc", "wmc-dark", "wmc-turquoise" })
+      {
+        Assert.That(SkinEngine.Apply(app, name, out string? problem), Is.True, problem ?? name + " applied");
+        WornSkin worn = SkinEngine.Worn(app)!;
+
+        foreach (string key in FrontendTheme.Keys)
+        {
+          Assert.That(worn.Resources.TryGetValue(key, out object? fromSkin), Is.True,
+              name + "." + key + " is answered by neither the skin file nor the engine");
+          Assert.That(((ISolidColorBrush)fromSkin!).Color, Is.EqualTo(FrontendTheme.ColorOf(name, key)),
+              string.Format("{0}.{1}: the skin file and the palette table say different colours, and one of them "
+                  + "is no longer the skin", name, key));
+        }
+      }
+    }
+
+    [AvaloniaTest]
+    public void ThePaletteKeepsTheFinalWordOnTheColoursItSpeaks()
+    {
+      // 'nereus-orange' is the skin's accent family spelled as a palette name: the skin's own colour file says
+      // turquoise, the palette says orange, and the palette wins - which is the whole layering of the engine.
+      Application app = Application.Current!;
+      FrontendTheme.Apply(app, "nereus-orange", out _);
+
+      Assert.That(app.TryFindResource("AccentBrush", out object? brush), Is.True);
+      Assert.That(((ISolidColorBrush)brush!).Color,
+          Is.EqualTo(FrontendTheme.ColorOf("nereus-orange", "AccentBrush")));
+      Assert.That(SkinEngine.Worn(app), Is.Not.Null, "the accent family still wears the Nereus skin around it");
+    }
+
+    [AvaloniaTest]
+    public void GoingBackToDefaultTakesTheSkinOff()
+    {
+      Application app = Application.Current!;
+      SkinEngine.Apply(app, "nereus", out _);
+      FrontendTheme.Apply(app, FrontendTheme.DEFAULT_NAME, out _);
+
+      Assert.That(SkinEngine.Worn(app), Is.Null);
+      Assert.That(app.TryFindResource("NereusColorLight_Torquoise", out _), Is.False,
+          "a key only the skin file speaks must go quiet with the skin");
+    }
+
+    [AvaloniaTest]
+    public void TheSkinXamlDressesTheButtons()
+    {
+      Application app = Application.Current!;
+      FrontendTheme.Apply(app, "nereus", out _);
+
+      Button button = new Button { Content = "Ok" };
+      Window window = new Window { Content = button, Width = 200, Height = 100 };
+      window.Show();
+      window.Measure(new Size(200, 100));
+      window.Arrange(new Rect(0, 0, 200, 100));
+
+      Assert.That(button.Background, Is.InstanceOf<ISolidColorBrush>());
+      Assert.That(((ISolidColorBrush)button.Background!).Color,
+          Is.EqualTo(FrontendTheme.ColorOf("nereus", "PanelBrush")),
+          "the resting button is painted by the skin's styles.xaml, from the skin's colours.xaml");
+
+      window.Close();
+    }
+
+    [AvaloniaTest]
+    public void ABrokenSkinIsSaidAndTheOldOneStaysOn()
+    {
+      // The tests carry their own skin under TestSkins/, so the broken one cannot be confused with a shipped
+      // skin: a manifest that lists a file which is not there.
+      SkinEngine.AssetsRoot = "avares://Tests.Frontend/TestSkins/";
+
+      Assert.That(SkinEngine.Installed().Select(skin => skin.Name), Does.Contain("broken"),
+          "the test skin has to be found by the same reading as a real one");
+
+      bool applied = SkinEngine.Apply(Application.Current!, "broken", out string? problem);
+
+      Assert.That(applied, Is.False, "a skin whose manifest names a file that is not there does not get worn");
+      Assert.That(problem, Is.Not.Null.And.Contains("broken"), "and the reason is said, not swallowed");
+    }
+
+    [AvaloniaTest]
+    public void ANameWithoutASkinFolderAsksForNone()
+    {
+      Assert.That(SkinEngine.IsSkin("nereus"), Is.True);
+      Assert.That(SkinEngine.IsSkin("nereus-yellow"), Is.True, "an accent family still names the Nereus folder");
+      Assert.That(SkinEngine.IsSkin(FrontendTheme.DEFAULT_NAME), Is.False);
+      Assert.That(SkinEngine.IsSkin("graveyard"), Is.False);
+    }
+
+    private static object? Find(Application app, string key)
+    {
+      return app.TryFindResource(key, out object? value) ? value : null;
+    }
+
+    private static string MetadataPath(string name)
+    {
+      AssemblyMetadataAttribute? value = typeof(TestSkinEngine).Assembly
+          .GetCustomAttributes<AssemblyMetadataAttribute>()
+          .FirstOrDefault(attribute => attribute.Key == name);
+
+      Assert.That(value, Is.Not.Null, "the tests are built without the " + name + " location");
+      return value!.Value!;
+    }
+  }
+}

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The WMC skin - Windows Media Center's look, as MediaPortal 2 rebuilt it.
+
+  Three themes, the three the reference shipped: its blue, Dark-WMC, and
+  Turquoise-WMC. The two alternates replace only the colour file; the
+  measurements, styles, master and overlays are one set, because in the
+  reference they were - the three schemes differed by colours alone.
+-->
+<Skin Name="wmc" Title="Windows Media Center" Author="Team MediaPortal" Version="2.0">
+  <Description>Windows Media Center's look: blue panels on charcoal, white text, rounded edges.</Description>
+
+  <Theme Name="default" Directory="themes/default" Default="true">
+    <File Role="colors" Name="colors.xaml"/>
+    <File Role="resources" Name="metrics.xaml"/>
+    <File Role="resources" Name="chrome.xaml"/>
+    <File Role="styles" Name="styles.xaml"/>
+  </Theme>
+
+  <Theme Name="dark" Directory="themes/Dark-WMC">
+    <File Role="colors" Name="colors.xaml"/>
+  </Theme>
+
+  <Theme Name="turquoise" Directory="themes/Turquoise-WMC">
+    <File Role="colors" Name="colors.xaml"/>
+  </Theme>
+
+  <Superlayers File="superlayers.xaml"/>
+</Skin>

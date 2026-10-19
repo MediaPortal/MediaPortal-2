@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A skin that only the tests carry, and only to prove what the engine says when it is broken:
+     the manifest lists a colours file that the folder does not hold. -->
+<Skin Name="broken" Title="Broken" Author="The Tests" Version="0">
+  <Theme Name="default" Directory="." Default="true">
+    <File Role="colors" Name="colors.xaml"/>
+  </Theme>
+</Skin>

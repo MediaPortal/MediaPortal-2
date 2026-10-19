@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  How Nereus dresses the controls no screen draws itself - the part of the
+  reference skin's styles directory (Buttons.xaml, MediaStyles.xaml) that
+  applies to the controls this front end uses.
+
+  They are written as XAML, in the skin, read at run time: a person who wants
+  a button that looks different opens this file and says so here, without
+  recompiling the front end. That is the whole argument for the skin folder
+  existing on disk instead of in code.
+
+  {DynamicResource ...} rather than {StaticResource ...}: a palette may be put
+  over the skin later - the accent families and WMC schemes are chosen at run
+  time - and an author style that resolved its colour when the skin loaded
+  would keep painting yesterday's accent.
+-->
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- Buttons: flat, square, the dark of the accent as resting colour. -->
+  <Style Selector="Button">
+    <Setter Property="Background" Value="{DynamicResource PanelBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource ButtonTextBrush}"/>
+    <!-- Nereus drew its buttons square; its colour file's ButtonControlRadiusX says 0. -->
+    <Setter Property="CornerRadius" Value="0"/>
+  </Style>
+  <Style Selector="Button:pointerover">
+    <Setter Property="Background" Value="{DynamicResource PanelRaisedBrush}"/>
+  </Style>
+  <Style Selector="Button:pressed">
+    <Setter Property="Background" Value="{DynamicResource PanelPressedBrush}"/>
+  </Style>
+
+  <!-- Lists stand on the panel; a selected row takes the accent and the screen's own black. -->
+  <Style Selector="ListBox">
+    <Setter Property="Background" Value="{DynamicResource PanelBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+  </Style>
+  <Style Selector="ListBoxItem">
+    <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+  </Style>
+  <Style Selector="ListBoxItem:pointerover">
+    <Setter Property="Background" Value="{DynamicResource PanelRaisedBrush}"/>
+  </Style>
+  <Style Selector="ListBoxItem:selected">
+    <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource ScreenBackgroundBrush}"/>
+  </Style>
+
+  <!-- Writing into the front end: the panel, the hairline, the text's own white. -->
+  <Style Selector="TextBox">
+    <Setter Property="Background" Value="{DynamicResource PanelBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+    <Setter Property="CaretBrush" Value="{DynamicResource TextBrush}"/>
+  </Style>
+
+  <Style Selector="ProgressBar">
+    <Setter Property="Background" Value="{DynamicResource PanelBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+  </Style>
+  <Style Selector="CheckBox">
+    <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+  </Style>
+  <Style Selector="Separator">
+    <Setter Property="Background" Value="{DynamicResource OutlineBrush}"/>
+  </Style>
+</Styles>

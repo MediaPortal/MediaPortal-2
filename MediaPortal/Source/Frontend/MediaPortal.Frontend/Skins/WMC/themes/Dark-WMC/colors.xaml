@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Dark-WMC: the same skin with the blue taken out, as the reference shipped
+  it as its own theme. Only colours differ - which is exactly why this file
+  is the only thing the theme directory holds.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- The fourteen, charcoal this time. -->
+  <SolidColorBrush x:Key="ScreenBackgroundBrush">#FF101010</SolidColorBrush>
+  <SolidColorBrush x:Key="PanelBrush">#F2647887</SolidColorBrush>
+  <SolidColorBrush x:Key="PanelRaisedBrush">#F22F4256</SolidColorBrush>
+  <SolidColorBrush x:Key="PanelPressedBrush">#FF757575</SolidColorBrush>
+  <SolidColorBrush x:Key="OutlineBrush">#8CFFFFFF</SolidColorBrush>
+  <SolidColorBrush x:Key="VideoOutlineBrush">#80000000</SolidColorBrush>
+  <SolidColorBrush x:Key="TextBrush">#FFFFFFFF</SolidColorBrush>
+  <SolidColorBrush x:Key="MutedTextBrush">#FFBBBBBB</SolidColorBrush>
+  <SolidColorBrush x:Key="DimTextBrush">#FF5C5C5C</SolidColorBrush>
+  <SolidColorBrush x:Key="ButtonTextBrush">#FFE0E0E0</SolidColorBrush>
+  <SolidColorBrush x:Key="AccentBrush">#FF757575</SolidColorBrush>
+  <SolidColorBrush x:Key="WarningBrush">#FFFFB74D</SolidColorBrush>
+  <SolidColorBrush x:Key="ScrimBrush">#66000000</SolidColorBrush>
+  <SolidColorBrush x:Key="VideoBrush">#FF000000</SolidColorBrush>
+
+  <!-- The same names, darkened. -->
+  <Color x:Key="BackgroundGradientDarkColor">#FF101010</Color>
+  <Color x:Key="TextColor">#FFFFFFFF</Color>
+  <Color x:Key="MediaItemBackgroundColor1">#F2647887</Color>
+  <Color x:Key="MediaItemBackgroundColor2">#F22F4256</Color>
+  <Color x:Key="WindowHeaderColor">#FF757575</Color>
+  <Color x:Key="DialogBorderColor">#8CFFFFFF</Color>
+  <Color x:Key="ProgressBarBorderColor">#80000000</Color>
+  <Color x:Key="ProgressBarFillColor">#FF757575</Color>
+  <Color x:Key="MediaItemUnwatchedColor">#FFBBBBBB</Color>
+  <Color x:Key="MediaItemOfflineColor">#FF5C5C5C</Color>
+  <Color x:Key="ButtonStrokeColor">#8CE0E0E0</Color>
+  <Color x:Key="SlideMenuUnfocusedColor">#66000000</Color>
+</ResourceDictionary>

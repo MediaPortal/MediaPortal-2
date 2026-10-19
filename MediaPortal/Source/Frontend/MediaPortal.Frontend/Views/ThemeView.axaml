@@ -18,14 +18,14 @@
     why the choice is saved without being asked for.
   -->
 
-  <DockPanel Margin="48,22">
+  <DockPanel Margin="48,14">
 
-    <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,12">
+    <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,8">
       <TextBlock Text="Settings"
-                 FontSize="30"
+                 FontSize="24"
                  FontWeight="SemiBold" />
       <TextBlock Text="{Binding Heading}"
-                 FontSize="16"
+                 FontSize="14"
                  Opacity="0.7"
                  TextWrapping="Wrap"
                  MaxWidth="1500"
@@ -35,35 +35,35 @@
     <TextBlock DockPanel.Dock="Bottom"
                Name="statusLine"
                Text="{Binding Status}"
-               FontSize="18"
+               FontSize="14"
                Opacity="0.85"
-               Margin="0,12,0,0"
+               Margin="0,8,0,0"
                TextWrapping="Wrap" />
 
     <ListBox Name="themesList"
              Focusable="True"
              ItemsSource="{Binding Themes}"
              SelectedItem="{Binding Selected, Mode=TwoWay}"
-             FontSize="18">
+             FontSize="15">
       <ListBox.ItemTemplate>
         <DataTemplate x:DataType="vm:ThemeChoice">
-          <StackPanel Orientation="Horizontal" Spacing="14" Margin="2,3">
+          <StackPanel Orientation="Horizontal" Spacing="14" Margin="2,1">
             <TextBlock Text="{Binding Name}"
-                       FontSize="20"
+                       FontSize="16"
                        MinWidth="220"
                        VerticalAlignment="Center" />
             <!-- The marker wears the accent it is announcing, so on every theme the word is drawn in that
                  theme's own brightest colour - the screen admits which row it applied, including after a
                  start-up where the command line outranked the saved choice. -->
             <TextBlock Text="WORN"
-                       FontSize="16"
+                       FontSize="13"
                        FontWeight="Bold"
                        Foreground="{DynamicResource AccentBrush}"
                        MinWidth="70"
                        VerticalAlignment="Center"
                        IsVisible="{Binding IsCurrent}" />
             <TextBlock Text="{Binding Description}"
-                       FontSize="15"
+                       FontSize="13"
                        Opacity="0.7"
                        TextTrimming="CharacterEllipsis"
                        VerticalAlignment="Center"

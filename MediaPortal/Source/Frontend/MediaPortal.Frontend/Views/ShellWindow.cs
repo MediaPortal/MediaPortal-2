@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
 using Avalonia.Input;
@@ -55,6 +56,15 @@ namespace MediaPortal.Frontend.Views
     private readonly Func<Workflow.WorkflowFrame, Control?>? _viewFactory;
     private readonly StackPanel _trail = new StackPanel();
     private readonly ContentControl _screenArea = new ContentControl();
+    private readonly Theming.ChromeInfo _chrome =
+        new Theming.ChromeInfo(action => Avalonia.Threading.Dispatcher.UIThread.Post(action));
+    private readonly ContentControl _header = new ContentControl();
+    private readonly ContentControl _footer = new ContentControl();
+    private readonly ContentControl _superlayer = new ContentControl();
+    private Avalonia.Threading.DispatcherTimer? _superlayerTimer;
+
+    /// <summary>The window's own colour before any theme speaks one - the front end's factory look.</summary>
+    private static readonly IBrush FactoryBackground = new SolidColorBrush(Color.FromRgb(0x10, 0x14, 0x18));
 
     /// <summary>
     /// The application's window: an empty workflow the caller fills, and the factory that builds a screen for a
@@ -105,6 +115,11 @@ namespace MediaPortal.Frontend.Views
       _workflow.Changed += ShowCurrentFrame;
       _workflow.Removed += CloseRemovedScreen;
       Opened += ScreenOpened;
+      Closed += delegate
+      {
+        Theming.SkinEngine.Changed -= WearSkinChrome;
+        Theming.FrontendTheme.Changed -= WearSkinChrome;
+      };
 
       Title = "MediaPortal 2";
       Width = 1280;
@@ -112,35 +127,88 @@ namespace MediaPortal.Frontend.Views
       WindowStartupLocation = WindowStartupLocation.CenterScreen;
       // A media centre runs on a television, and a television has no desktop next to the picture.
       WindowState = WindowState.Maximized;
-      Background = new SolidColorBrush(Color.FromRgb(0x10, 0x14, 0x18));
+      Background = FactoryBackground;
       Foreground = new SolidColorBrush(Color.FromRgb(0xE8, 0xEE, 0xF4));
 
       _trail.Orientation = Orientation.Horizontal;
       _trail.Focusable = false;
 
+      // The master chrome of the skin: a header over the screens and a footer under them, the way the
+      // reference's masters wrapped every screen. Both take their look - and only their look - from the skin's
+      // chrome file; while the palette wears no skin, the templates are not there and the rows stay away.
+      _header.Name = "ChromeHeader";
+      _header.Focusable = false;
+      _header.DataContext = _chrome;
+      _footer.Name = "ChromeFooter";
+      _footer.Focusable = false;
+      _footer.DataContext = _chrome;
+      _superlayer.Name = "ChromeSuperlayer";
+      _superlayer.Focusable = false;
+      _superlayer.IsVisible = false;
+      Theming.SkinEngine.Changed += WearSkinChrome;
+      Theming.FrontendTheme.Changed += WearSkinChrome;
+      WearSkinChrome(null, EventArgs.Empty);
+
       Grid layout = new Grid();
       layout.RowDefinitions.Add(new Avalonia.Controls.RowDefinition(GridLength.Auto));
+      layout.RowDefinitions.Add(new Avalonia.Controls.RowDefinition(GridLength.Auto));
       layout.RowDefinitions.Add(new Avalonia.Controls.RowDefinition(GridLength.Star));
-      Grid.SetRow(_trail, 0);
-      Grid.SetRow(_screenArea, 1);
+      layout.RowDefinitions.Add(new Avalonia.Controls.RowDefinition(GridLength.Auto));
+      Grid.SetRow(_header, 0);
+      Grid.SetRow(_trail, 1);
+      Grid.SetRow(_screenArea, 2);
+      Grid.SetRow(_footer, 3);
+      layout.Children.Add(_header);
       layout.Children.Add(_trail);
       layout.Children.Add(_screenArea);
-      Content = layout;
+      layout.Children.Add(_footer);
+
+      // The superlayer floats over all of it - header, trail, screen - exactly as the reference's volume and
+      // busy layers covered the whole master window.
+      Panel shell = new Panel();
+      shell.Children.Add(layout);
+      shell.Children.Add(_superlayer);
+      Content = shell;
 
       // The back key of the remote and the Escape of the keyboard, heard after every screen has declined it.
       AddHandler(KeyDownEvent,
           delegate (object? sender, KeyEventArgs args)
           {
+            if (args.Handled)
+            {
+              // A screen answered it about its own business; but the volume keys below belong to the room,
+              // not the screen, so fall through only for them.
+              if (!IsVolumeKey(args.Key))
+                return;
+            }
+
+            if (IsVolumeKey(args.Key))
+            {
+              ViewModels.NowPlayingViewModel? playback = (Application.Current as App)?.Playback;
+              if (playback == null)
+                return;
+
+              int step = args.Key == Key.VolumeUp || args.Key == Key.OemPlus ? 5 : -5;
+              playback.SetVolume(Math.Max(0, Math.Min(100, playback.Volume + step)));
+              if (ShowSuperlayer("Superlayer_Volume", "Volume " + playback.Volume + " %", 2000))
+                args.Handled = true;
+              return;
+            }
+
             if (args.Key != Key.Escape && args.Key != Key.Back)
               return;
-            if (args.Handled)
-              return; // A screen answered it about its own business; the way out has been taken.
             if (!_workflow.Pop())
               // At the root back means "leave the application", the same answer the home screen gave alone.
               Close();
             args.Handled = true;
           },
           RoutingStrategies.Bubble);
+    }
+
+    /// <summary>The television's volume keys, and the keyboard's stand-ins for a keyboard without them.</summary>
+    private static bool IsVolumeKey(Key key)
+    {
+      return key == Key.VolumeUp || key == Key.VolumeDown || key == Key.OemPlus || key == Key.OemMinus;
     }
 
     /// <summary>
@@ -152,6 +220,98 @@ namespace MediaPortal.Frontend.Views
       (frame.View as Workflow.IWorkflowScreen)?.OnScreenClosed();
     }
 
+    /// <summary>
+    /// What the skin's chrome shows about this window: the clock, the screen's name, and what is playing.
+    /// The application feeds it; the chrome.xaml templates of the worn skin read it.
+    /// </summary>
+    public Theming.ChromeInfo Chrome
+    {
+      get { return _chrome; }
+    }
+
+    /// <summary>
+    /// Put on - or take off - the header and footer the worn skin defines. The window listens to the skin
+    /// engine, so a theme switch on the couch swaps the chrome live, with no help from whoever switched.
+    /// </summary>
+    private void WearSkinChrome(object? sender, EventArgs args)
+    {
+      _header.Template = FindTemplate("ChromeHeaderTemplate");
+      _footer.Template = FindTemplate("ChromeFooterTemplate");
+
+      // The reference's master chrome sat on the screen's own background - the header was never a band of its
+      // own colour - so the templates paint themselves with the theme's screen colour, live, through a
+      // DynamicResource; the window's factory background only ever shows while no theme speaks one.
+      // The window itself follows suit: the chrome rows carry a margin, and a gap at the corner of the
+      // television that kept the factory's colour while the screen wore another would say the theme never
+      // arrived - which is precisely what the render gate looks for.
+      Background = FindResource("ScreenBackgroundBrush") as IBrush ?? FactoryBackground;
+      UpdateChromeVisibility();
+    }
+
+    /// <summary>
+    /// The chrome shows what the skin offers, except where the screen itself covers the television: a full
+    /// screen film wore no master chrome in either reference skin, and a header over the picture is exactly
+    /// the mistake they were built to avoid.
+    /// </summary>
+    private void UpdateChromeVisibility()
+    {
+      bool fullScreen = (_workflow.Current?.View as Control) is Workflow.IFullScreenScreen;
+      _header.IsVisible = _header.Template != null && !fullScreen;
+      _footer.IsVisible = _footer.Template != null && !fullScreen;
+    }
+
+    private static object? FindResource(string key)
+    {
+      Application? app = Application.Current;
+      if (app == null)
+        return null;
+      return app.TryFindResource(key, out object? found) ? found : null;
+    }
+
+    private static Avalonia.Controls.Templates.IControlTemplate? FindTemplate(string key)
+    {
+      return FindResource(key) as Avalonia.Controls.Templates.IControlTemplate;
+    }
+
+    /// <summary>
+    /// Lay one of the skin's superlayers over the whole window - the volume reading, the busy spinner - saying
+    /// <paramref name="text"/>. Answers whether the skin knows that layer at all; when <paramref name="autoHideMs"/>
+    /// is given the layer takes itself off afterwards, which is how the reference's volume bar forgot itself.
+    /// </summary>
+    public bool ShowSuperlayer(string templateKey, string text, int? autoHideMs = null)
+    {
+      Avalonia.Controls.Templates.IControlTemplate? template = FindTemplate(templateKey);
+      if (template == null)
+        return false;
+
+      _superlayer.Template = template;
+      _superlayer.Content = text;
+      _superlayer.IsVisible = true;
+
+      _superlayerTimer?.Stop();
+      _superlayerTimer = null;
+      if (autoHideMs.HasValue)
+      {
+        var timer = new Avalonia.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(autoHideMs.Value) };
+        timer.Tick += delegate
+        {
+          timer.Stop();
+          _superlayer.IsVisible = false;
+        };
+        _superlayerTimer = timer;
+        timer.Start();
+      }
+      return true;
+    }
+
+    /// <summary>Take the superlayer off - the busy spinner's end, or a fresh key beating the volume reading to it.</summary>
+    public void HideSuperlayer()
+    {
+      _superlayerTimer?.Stop();
+      _superlayerTimer = null;
+      _superlayer.IsVisible = false;
+    }
+
     private void ShowCurrentFrame()
     {
       Workflow.WorkflowFrame? frame = _workflow.Current;
@@ -161,10 +321,17 @@ namespace MediaPortal.Frontend.Views
       if (frame.View == null && _viewFactory != null)
         frame.View = _viewFactory(frame);
       _screenArea.Content = frame.View;
+      // A film is its own master screen - the chrome of the skin steps back while it is on (see IFullScreenScreen).
+      UpdateChromeVisibility();
       // Alone, the window is the application, whatever screen that is; one stop deeper, the stop is worth naming.
       Title = _workflow.Stack.Count <= 1 || string.IsNullOrEmpty(frame.Label)
           ? "MediaPortal 2"
           : "MediaPortal 2 - " + frame.Label;
+      // The header's words: the reference's master header named the screen it was showing, and at home it said
+      // the application's name - the same sentence the window title speaks, without its prefix.
+      _chrome.ScreenTitle = Title.StartsWith("MediaPortal 2 - ", StringComparison.Ordinal)
+          ? Title.Substring("MediaPortal 2 - ".Length)
+          : "MediaPortal";
 
       RebuildTrail();
 
@@ -198,6 +365,7 @@ namespace MediaPortal.Frontend.Views
     private void ScreenOpened(object? sender, EventArgs args)
     {
       _shown = true;
+      _chrome.StartClock();
       Action? pending = _pendingActivation;
       _pendingActivation = null;
       if (pending != null)

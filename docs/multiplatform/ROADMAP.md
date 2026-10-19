@@ -3580,6 +3580,24 @@ The front end is at 439 tests, the whole gate is green at 1053, and the sixteen 
 the shell.
 
 
+**The skins moved out of the binary and onto the viewer's disk.** A front end that carries its skins inside
+its own assembly cannot be re-skinned by the person sitting on the couch, which is the whole point of a skin.
+The engine now looks for a folder - `D:\MediaPortal\TIF\skins` unless `MP2_SKINS_DIR` says otherwise - and
+reads every skin that has a `skin.xml` under it, parsing `colors.xaml`, `chrome.xaml` and the rest with
+Avalonia's runtime XAML loader instead of the copy compiled into the executable. The embedded copy stays only
+as the fallback for a machine that has no folder. Three tests write a skin to a throwaway folder, wear it,
+edit the file in place, and watch the colours change on the next apply - which is exactly the workflow a
+skin author will live by - and the render gate draws its sixteen frames through the disk path, so "the
+reference XAML loads from disk" is a measured claim, not a hoped-for one.
+
+**And one colour the gate caught.** With the skin's header finally sitting over the screens, the settings
+list needed its eleven rows to fit beneath it, and the window's own factory colour was showing through the
+chrome's margin at the corner of the television - a black theme with a charcoal corner, which is the exact
+look that says the theme never arrived. The shell now takes the screen colour out of the worn theme and
+paints itself with it, following every switch; the theme list tightened to fit; and the corner of every
+frame is the palette's own colour again. The gate stands at 1075.
+
+
 ## What cannot be verified without the user
 
 

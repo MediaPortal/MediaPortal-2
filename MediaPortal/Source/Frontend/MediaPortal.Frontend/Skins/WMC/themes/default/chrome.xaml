@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  WMC master chrome: the header row and the footer row the reference wrapped around every screen.
+  Where Nereus puts its clock on the right, the WMC masters read the datetime from the left, in quieter
+  type - the reference's own arrangement; the footer again shows what is playing.
+
+  The chrome binds against ChromeInfo (x:DataType at the root): a typo in a binding name is a compile
+  error in this file rather than a blank header at run time.
+-->
+<ResourceDictionary xmlns:chrome="clr-namespace:MediaPortal.Frontend.Theming"
+                    xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    x:DataType="chrome:ChromeInfo">
+
+  <!-- The header: the clock first, as the WMC masters read it, then the screen's words. -->
+  <ControlTemplate x:Key="ChromeHeaderTemplate" TargetType="ContentControl">
+    <Grid ColumnDefinitions="Auto,*" Margin="10,0" Background="{DynamicResource ScreenBackgroundBrush}">
+      <TextBlock Grid.Column="0" Text="{Binding Clock}"
+                 Foreground="{DynamicResource Muted}" FontSize="{DynamicResource DateTimeFontSize}"
+                 VerticalAlignment="Center" Margin="0,0,20,0"/>
+      <TextBlock Grid.Column="1" Text="{Binding ScreenTitle}"
+                 Foreground="{DynamicResource Text}" FontSize="{DynamicResource HeaderFontSize}"
+                 VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+    </Grid>
+  </ControlTemplate>
+
+  <!-- The footer: what is playing, in the reference's three columns; hidden while nothing plays. -->
+  <ControlTemplate x:Key="ChromeFooterTemplate" TargetType="ContentControl">
+    <Grid ColumnDefinitions="Auto,*,Auto" Margin="10,0" Background="{DynamicResource ScreenBackgroundBrush}"
+          IsVisible="{Binding HasMedia}">
+      <TextBlock Grid.Column="0" Text="{Binding NowPlayingTitle}"
+                 Foreground="{DynamicResource Text}" FontSize="{DynamicResource SmallerFontSize}"
+                 VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="600"/>
+      <ProgressBar Grid.Column="1" Value="{Binding NowPlayingProgress}" Maximum="100"
+                   Foreground="{DynamicResource Accent}" Background="{DynamicResource Outline}"
+                   Height="2" Margin="20,0" VerticalAlignment="Center"/>
+      <TextBlock Grid.Column="2" Text="{Binding NowPlayingState}"
+                 Foreground="{DynamicResource Muted}" FontSize="{DynamicResource SmallerFontSize}"
+                 VerticalAlignment="Center"/>
+    </Grid>
+  </ControlTemplate>
+</ResourceDictionary>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  How WMC dresses the controls no screen draws itself - the part of the
+  reference skin's Buttons.xaml and MediaStyles.xaml that applies to the
+  controls this front end uses, written as XAML a person can edit.
+
+  WMC's grip differs from Nereus' in its edges: WMC rounded everything a
+  little (DialogBorderCornerRadius 2, player controls 4), and its selected
+  row took the header's solid blue rather than a bright accent.
+-->
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <Style Selector="Button">
+    <Setter Property="Background" Value="{DynamicResource PanelBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource ButtonTextBrush}"/>
+    <Setter Property="CornerRadius" Value="2"/>
+  </Style>
+  <Style Selector="Button:pointerover">
+    <Setter Property="Background" Value="{DynamicResource PanelRaisedBrush}"/>
+  </Style>
+  <Style Selector="Button:pressed">
+    <Setter Property="Background" Value="{DynamicResource PanelPressedBrush}"/>
+  </Style>
+
+  <Style Selector="ListBox">
+    <Setter Property="Background" Value="{DynamicResource PanelBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+  </Style>
+  <Style Selector="ListBoxItem">
+    <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+  </Style>
+  <Style Selector="ListBoxItem:pointerover">
+    <Setter Property="Background" Value="{DynamicResource PanelRaisedBrush}"/>
+  </Style>
+  <Style Selector="ListBoxItem:selected">
+    <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource ScreenBackgroundBrush}"/>
+  </Style>
+
+  <Style Selector="TextBox">
+    <Setter Property="Background" Value="{DynamicResource PanelBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+    <Setter Property="CaretBrush" Value="{DynamicResource TextBrush}"/>
+  </Style>
+
+  <Style Selector="ProgressBar">
+    <Setter Property="Background" Value="{DynamicResource PanelBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+  </Style>
+  <Style Selector="CheckBox">
+    <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+  </Style>
+  <Style Selector="Separator">
+    <Setter Property="Background" Value="{DynamicResource OutlineBrush}"/>
+  </Style>
+</Styles>

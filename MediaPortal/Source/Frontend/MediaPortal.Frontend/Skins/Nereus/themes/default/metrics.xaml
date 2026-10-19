@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Nereus' measurements, the role its reference Consts.xaml played.
+
+  The reference skin was drawn for a 1920x1080 television and these numbers
+  are what its Consts.xaml held, unchanged; chrome.xml divides them by the
+  same scale the reference header and footer used when it lays out the
+  master for the window this front end actually gets.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- The master: the reference header and footer were both 100 of 1080 lines high. -->
+  <x:Double x:Key="HeaderHeight">100</x:Double>
+  <x:Double x:Key="FooterHeight">100</x:Double>
+  <x:Double x:Key="MultiDetailsFooterHeight">210</x:Double>
+
+  <!-- Type, at the sizes the reference sized it. -->
+  <x:Double x:Key="HeaderFontSize">80</x:Double>
+  <x:Double x:Key="DateTimeFontSize">55</x:Double>
+  <x:Double x:Key="HugeFontSize">72</x:Double>
+  <x:Double x:Key="NormalFontSize">40</x:Double>
+  <x:Double x:Key="SmallFontSize">33</x:Double>
+  <x:Double x:Key="SmallerFontSize">27</x:Double>
+  <x:Double x:Key="InfoFontSize">20</x:Double>
+  <x:Double x:Key="TinyFontSize">13</x:Double>
+  <x:Double x:Key="DialogTitleFontSize">30</x:Double>
+  <x:Double x:Key="InfoTabFontSize">55</x:Double>
+
+  <!-- Edges. Nereus drew its buttons square; its dialogs were rounded a little. -->
+  <x:Double x:Key="ButtonControlRadiusX">0</x:Double>
+  <x:Double x:Key="DialogBorderCornerRadius">6</x:Double>
+  <x:Double x:Key="TextBoxBorderThickness">3</x:Double>
+  <x:Double x:Key="TextBoxCornerRadius">5</x:Double>
+  <x:Double x:Key="ProgressBarRadius">2</x:Double>
+  <x:Double x:Key="DefaultPlayerControlBorderThickness">1</x:Double>
+  <x:Double x:Key="DefaultPlayerControlCornerRadius">4</x:Double>
+  <x:Double x:Key="ScrollBarWidth">8</x:Double>
+  <x:Double x:Key="ScrollBarKnobWidth">8</x:Double>
+  <x:Double x:Key="DialogButtonMinWidth">300</x:Double>
+</ResourceDictionary>

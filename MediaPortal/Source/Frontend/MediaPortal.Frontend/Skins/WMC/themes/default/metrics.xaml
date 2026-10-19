@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  WMC's measurements, the role its reference Consts.xaml played; the numbers
+  are what that file held, for a 1920x1080 television. WMC's edges were a
+  little rounded where Nereus' were square - DialogBorderCornerRadius is 2
+  against Nereus' 6, its normal type is 45 against Nereus' 40, and its clock
+  read 30 rather than Nereus' 55.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- The master. -->
+  <x:Double x:Key="HeaderHeight">100</x:Double>
+  <x:Double x:Key="FooterHeight">100</x:Double>
+  <x:Double x:Key="MultiDetailsFooterHeight">210</x:Double>
+
+  <!-- Type. -->
+  <x:Double x:Key="HeaderFontSize">80</x:Double>
+  <x:Double x:Key="DateTimeFontSize">30</x:Double>
+  <x:Double x:Key="HugeFontSize">72</x:Double>
+  <x:Double x:Key="NormalFontSize">45</x:Double>
+  <x:Double x:Key="SmallFontSize">33</x:Double>
+  <x:Double x:Key="SmallerFontSize">27</x:Double>
+  <x:Double x:Key="TinyFontSize">13</x:Double>
+  <x:Double x:Key="DialogTitleFontSize">30</x:Double>
+  <x:Double x:Key="InfoTabFontSize">55</x:Double>
+
+  <!-- Edges. -->
+  <x:Double x:Key="DialogBorderCornerRadius">2</x:Double>
+  <x:Double x:Key="TextBoxBorderThickness">3</x:Double>
+  <x:Double x:Key="TextBoxCornerRadius">4</x:Double>
+  <x:Double x:Key="ProgressBarRadius">2</x:Double>
+  <x:Double x:Key="DefaultPlayerControlBorderThickness">1</x:Double>
+  <x:Double x:Key="DefaultPlayerControlCornerRadius">4</x:Double>
+  <x:Double x:Key="DialogButtonMinWidth">300</x:Double>
+</ResourceDictionary>

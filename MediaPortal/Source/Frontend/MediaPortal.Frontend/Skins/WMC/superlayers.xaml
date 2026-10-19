@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  WMC superlayers: the overlays that briefly cover the screen to say one thing - the volume reading while
+  the volume keys are held, and the busy spinner while something loads. WMC drew its volume as a small
+  centred slab rather than Nereus' big lower-third line; the two skins disagree on purpose.
+
+  Both templates are ContentControl templates: whatever the window puts in Content is the sentence, and
+  nothing here binds against the chrome - TemplateBinding only.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- The volume: a small slab in the middle, the way WMC interrupted the picture. -->
+  <ControlTemplate x:Key="Superlayer_Volume" TargetType="ContentControl">
+    <Border Background="{DynamicResource Scrim}" IsHitTestVisible="False">
+      <Border Background="{DynamicResource Panel}" CornerRadius="{DynamicResource DialogBorderCornerRadius}"
+              HorizontalAlignment="Center" VerticalAlignment="Center" Padding="30,15">
+        <TextBlock Text="{TemplateBinding Content}"
+                   Foreground="{DynamicResource Text}" FontSize="{DynamicResource NormalFontSize}"/>
+      </Border>
+    </Border>
+  </ControlTemplate>
+
+  <!-- Busy: the screen dims, the words are centred, and the accent line underneath is still moving. -->
+  <ControlTemplate x:Key="Superlayer_Busy" TargetType="ContentControl">
+    <Border Background="{DynamicResource Scrim}" IsHitTestVisible="False">
+      <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20">
+        <TextBlock Text="{TemplateBinding Content}"
+                   Foreground="{DynamicResource Text}" FontSize="{DynamicResource NormalFontSize}"
+                   HorizontalAlignment="Center"/>
+        <ProgressBar IsIndeterminate="True" Width="400" Height="3"
+                     Foreground="{DynamicResource Accent}" Background="{DynamicResource Outline}"/>
+      </StackPanel>
+    </Border>
+  </ControlTemplate>
+</ResourceDictionary>

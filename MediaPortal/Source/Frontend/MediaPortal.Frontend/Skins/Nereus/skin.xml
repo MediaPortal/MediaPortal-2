@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The Nereus skin, as the MP2 SkinEngine was given one.
+
+  A skin on disk is a manifest and XAML, never code: this file says which theme
+  directories exist and which files each theme reads, exactly the role the
+  reference skin's theme.xml played (Name, Version, Author, and the file list
+  its Style elements carried). The engine reads this before it reads any
+  colour, so a skin that is merely copied into the Skins folder is installed
+  without anything being recompiled.
+-->
+<Skin Name="nereus" Title="Nereus" Author="Team MediaPortal" Version="2.0">
+  <Description>Nereus as it shipped with MediaPortal 2: black behind, dark accent panels, white text.</Description>
+
+  <Theme Name="default" Directory="themes/default" Default="true">
+    <File Role="colors" Name="colors.xaml"/>
+    <File Role="resources" Name="metrics.xaml"/>
+    <File Role="resources" Name="chrome.xaml"/>
+    <File Role="styles" Name="styles.xaml"/>
+  </Theme>
+
+  <Superlayers File="superlayers.xaml"/>
+</Skin>

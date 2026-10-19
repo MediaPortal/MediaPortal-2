@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Turquoise-WMC: the third scheme the reference WMC shipped - the same skin
+  in teal and black. Colours only, again.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- The fourteen, teal this time. -->
+  <SolidColorBrush x:Key="ScreenBackgroundBrush">#FF101010</SolidColorBrush>
+  <SolidColorBrush x:Key="PanelBrush">#F2166B7A</SolidColorBrush>
+  <SolidColorBrush x:Key="PanelRaisedBrush">#F2053C45</SolidColorBrush>
+  <SolidColorBrush x:Key="PanelPressedBrush">#FF3D8795</SolidColorBrush>
+  <SolidColorBrush x:Key="OutlineBrush">#8CFFFFFF</SolidColorBrush>
+  <SolidColorBrush x:Key="VideoOutlineBrush">#80000000</SolidColorBrush>
+  <SolidColorBrush x:Key="TextBrush">#FFFFFFFF</SolidColorBrush>
+  <SolidColorBrush x:Key="MutedTextBrush">#FF3D8795</SolidColorBrush>
+  <SolidColorBrush x:Key="DimTextBrush">#FF33707B</SolidColorBrush>
+  <SolidColorBrush x:Key="ButtonTextBrush">#FFE0E0E0</SolidColorBrush>
+  <SolidColorBrush x:Key="AccentBrush">#FF3D8795</SolidColorBrush>
+  <SolidColorBrush x:Key="WarningBrush">#FFFFB74D</SolidColorBrush>
+  <SolidColorBrush x:Key="ScrimBrush">#66000000</SolidColorBrush>
+  <SolidColorBrush x:Key="VideoBrush">#FF000000</SolidColorBrush>
+
+  <!-- The same names, in teal. -->
+  <Color x:Key="BackgroundGradientDarkColor">#FF101010</Color>
+  <Color x:Key="TextColor">#FFFFFFFF</Color>
+  <Color x:Key="MediaItemBackgroundColor1">#F2166B7A</Color>
+  <Color x:Key="MediaItemBackgroundColor2">#F2053C45</Color>
+  <Color x:Key="WindowHeaderColor">#FF3D8795</Color>
+  <Color x:Key="DialogBorderColor">#8CFFFFFF</Color>
+  <Color x:Key="ProgressBarBorderColor">#80000000</Color>
+  <Color x:Key="ProgressBarFillColor">#FF3D8795</Color>
+  <Color x:Key="MediaItemUnwatchedColor">#FF3D8795</Color>
+  <Color x:Key="MediaItemOfflineColor">#FF33707B</Color>
+  <Color x:Key="ButtonStrokeColor">#8CE0E0E0</Color>
+  <Color x:Key="SlideMenuUnfocusedColor">#66000000</Color>
+</ResourceDictionary>

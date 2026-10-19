@@ -39,6 +39,15 @@
     <None Remove="RealMedia\**" />
   </ItemGroup>
 
+  <!--
+    One broken skin, shipped as loose XAML with the tests for the same reason the real skins ship with the
+    front end: the failure a person hand-editing a skin hits has to be tested against a real unreadable
+    skin, not a mock of one. TestSkinEngine points the engine at this folder for that test alone.
+  -->
+  <ItemGroup>
+    <AvaloniaResource Include="TestSkins\**\*" />
+  </ItemGroup>
+
   <ItemGroup>
     <!--
       Where the screens, the two rescued skins, and the old plugins whose workflow files the home menu is copied

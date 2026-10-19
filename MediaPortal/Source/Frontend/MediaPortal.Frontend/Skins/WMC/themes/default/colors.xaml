@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  WMC's colour file, in the place and shape its reference had.
+
+  Every value is the one the reference Colors.xaml held under the same name
+  (the values FrontendTheme's palette table was verified against, key by
+  key). The fourteen job-named brushes are what the screens paint with and
+  carry WMC's blue; the alternates' files replace these same fourteen with
+  the same named colours under a different scheme.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- What the screens paint with, under the job names. -->
+  <SolidColorBrush x:Key="ScreenBackgroundBrush">#FF101010</SolidColorBrush>   <!-- BackgroundGradientDarkColor -->
+  <SolidColorBrush x:Key="PanelBrush">#F2447DA7</SolidColorBrush>              <!-- MediaItemBackgroundColor1 -->
+  <SolidColorBrush x:Key="PanelRaisedBrush">#F2124273</SolidColorBrush>        <!-- MediaItemBackgroundColor2 -->
+  <SolidColorBrush x:Key="PanelPressedBrush">#FF4B76A0</SolidColorBrush>       <!-- WindowHeaderColor -->
+  <SolidColorBrush x:Key="OutlineBrush">#8CFFFFFF</SolidColorBrush>            <!-- DialogBorderColor -->
+  <SolidColorBrush x:Key="VideoOutlineBrush">#80000000</SolidColorBrush>       <!-- ProgressBarBorderColor -->
+  <SolidColorBrush x:Key="TextBrush">#FFFFFFFF</SolidColorBrush>               <!-- TextColor -->
+  <SolidColorBrush x:Key="MutedTextBrush">#FFA4BCD2</SolidColorBrush>          <!-- MediaItemUnwatchedColor -->
+  <SolidColorBrush x:Key="DimTextBrush">#FF475671</SolidColorBrush>            <!-- MediaItemOfflineColor -->
+  <SolidColorBrush x:Key="ButtonTextBrush">#FFE0E0E0</SolidColorBrush>         <!-- ButtonStrokeColor, without its alpha -->
+  <SolidColorBrush x:Key="AccentBrush">#FF4B76A0</SolidColorBrush>             <!-- ProgressBarFillColor -->
+  <SolidColorBrush x:Key="WarningBrush">#FFFFB74D</SolidColorBrush>            <!-- this front end's own amber; WMC had no colour for a complaint -->
+  <SolidColorBrush x:Key="ScrimBrush">#66000000</SolidColorBrush>              <!-- SlideMenuUnfocusedColor -->
+  <SolidColorBrush x:Key="VideoBrush">#FF000000</SolidColorBrush>
+
+  <!-- WMC's own names, as its reference colour file spelled them. -->
+  <Color x:Key="BackgroundGradientDarkColor">#FF101010</Color>
+  <Color x:Key="TextColor">#FFFFFFFF</Color>
+  <Color x:Key="MediaItemBackgroundColor1">#F2447DA7</Color>
+  <Color x:Key="MediaItemBackgroundColor2">#F2124273</Color>
+  <Color x:Key="WindowHeaderColor">#FF4B76A0</Color>
+  <Color x:Key="DialogBorderColor">#8CFFFFFF</Color>
+  <Color x:Key="ProgressBarBorderColor">#80000000</Color>
+  <Color x:Key="ProgressBarFillColor">#FF4B76A0</Color>
+  <Color x:Key="MediaItemUnwatchedColor">#FFA4BCD2</Color>
+  <Color x:Key="MediaItemOfflineColor">#FF475671</Color>
+  <Color x:Key="ButtonStrokeColor">#8CE0E0E0</Color>
+  <Color x:Key="SlideMenuUnfocusedColor">#66000000</Color>
+</ResourceDictionary>

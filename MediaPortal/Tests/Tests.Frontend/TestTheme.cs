@@ -311,9 +311,9 @@ namespace Tests.Frontend
         Avalonia.Threading.Dispatcher.UIThread.RunJobs();
       Assert.That(((SolidColorBrush)button.Background).Color, Is.EqualTo(FrontendTheme.ColorOf("wmc", "PanelBrush")),
           "the second skin replaced the first on the button too, not just on the resources under it");
-      Assert.That(app.Styles.OfType<Styles>().Count(), Is.EqualTo(stylesBefore + 1),
-          "two skins added one set of chrome styles between them - stacking them would leave last evening's "
-          + "buttons under tonight's");
+      Assert.That(app.Styles.OfType<Styles>().Count(), Is.EqualTo(stylesBefore + 2),
+          "two skins added one pair between them - the chrome's style set and the skin XAML's - and switching "
+          + "skins swapped both; stacking would leave last evening's buttons under tonight's");
 
       window.Close();
     }

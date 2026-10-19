@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Nereus master chrome: the header row and the footer row the reference wrapped around every screen.
+  The header is the screen's title growing into the space it is given, then the clock; the footer is the
+  three PlayerControl columns - title, progress, state - which hid themselves while nothing played.
+
+  The chrome binds against ChromeInfo (x:DataType at the root): a typo in a binding name is a compile
+  error in this file rather than a blank header at run time.
+-->
+<ResourceDictionary xmlns:chrome="clr-namespace:MediaPortal.Frontend.Theming"
+                    xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    x:DataType="chrome:ChromeInfo">
+
+  <!-- The header: the screen's words first, the clock - HH:mm, the reference's spelling - last. -->
+  <ControlTemplate x:Key="ChromeHeaderTemplate" TargetType="ContentControl">
+    <Grid ColumnDefinitions="*,Auto" Margin="10,0" Background="{DynamicResource ScreenBackgroundBrush}">
+      <TextBlock Grid.Column="0" Text="{Binding ScreenTitle}"
+                 Foreground="{DynamicResource Text}" FontSize="{DynamicResource HeaderFontSize}"
+                 VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+      <TextBlock Grid.Column="1" Text="{Binding Clock}"
+                 Foreground="{DynamicResource Text}" FontSize="{DynamicResource DateTimeFontSize}"
+                 VerticalAlignment="Center"/>
+    </Grid>
+  </ControlTemplate>
+
+  <!--
+    The footer: title, a progress line, and the state of play, in the reference's three columns. The whole
+    row takes itself off while nothing plays - the AutoVisibility of the reference's PlayerControl elements.
+  -->
+  <ControlTemplate x:Key="ChromeFooterTemplate" TargetType="ContentControl">
+    <Grid ColumnDefinitions="Auto,*,Auto" Margin="10,0" Background="{DynamicResource ScreenBackgroundBrush}"
+          IsVisible="{Binding HasMedia}">
+      <TextBlock Grid.Column="0" Text="{Binding NowPlayingTitle}"
+                 Foreground="{DynamicResource Text}" FontSize="{DynamicResource SmallerFontSize}"
+                 VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="600"/>
+      <ProgressBar Grid.Column="1" Value="{Binding NowPlayingProgress}" Maximum="100"
+                   Foreground="{DynamicResource Accent}" Background="{DynamicResource Outline}"
+                   Height="2" Margin="20,0" VerticalAlignment="Center"/>
+      <TextBlock Grid.Column="2" Text="{Binding NowPlayingState}"
+                 Foreground="{DynamicResource Muted}" FontSize="{DynamicResource SmallerFontSize}"
+                 VerticalAlignment="Center"/>
+    </Grid>
+  </ControlTemplate>
+</ResourceDictionary>

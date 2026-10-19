@@ -41,6 +41,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!--
+      Installed skins, as data. The Skins folder is this front end's answer to the reference Source\UI\Skins:
+      a manifest and directories of XAML that the SkinEngine reads at run time - loose markup, not compiled
+      views, exactly as the reference skin engine read them. The files ride along as AvaloniaResource because
+      that is Avalonia's own way to ship loose XAML: ResourceInclude and StyleInclude parse such files when
+      the screen is dressed, while the views in this project stay compiled. index.txt lists the skin folders
+      (Avalonia's asset system cannot enumerate a folder); a test says out loud when the listing and the
+      folders drift apart.
+    -->
+    <AvaloniaResource Include="Skins\**\*" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- The player. Part of this front end, not of the server - see the rule in the header above. -->
     <ProjectReference Include="..\MediaPortal.Frontend.Player\MediaPortal.Frontend.Player.csproj" />
   </ItemGroup>
@@ -50,6 +63,9 @@
     <PackageReference Include="Avalonia.Desktop" Version="12.1.4" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.4" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.4" />
+    <!-- The skin files are read off disk at run time, so they are parsed here rather than compiled in;
+         this package is Avalonia's own XAML compiler, used the way the reference skin engine used its one. -->
+    <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="12.1.4" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="10.0.13" />
   </ItemGroup>

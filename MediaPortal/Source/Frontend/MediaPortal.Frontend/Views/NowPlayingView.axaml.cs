@@ -36,7 +36,7 @@ namespace MediaPortal.Frontend.Views
   /// listening to music, which is what a media centre is expected to do, and the same playback shows up again
   /// the next time the screen is opened. The application therefore owns the view model and disposes it.
   /// </remarks>
-  public partial class NowPlayingView : UserControl, IWorkflowScreen
+  public partial class NowPlayingView : UserControl, IWorkflowScreen, Workflow.IFullScreenScreen
   {
     /// <summary>
     /// How far the left and right keys of a remote jump. Long enough to be useful over an advertisement, short
