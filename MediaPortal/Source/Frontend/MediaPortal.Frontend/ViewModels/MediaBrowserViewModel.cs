@@ -608,11 +608,21 @@ namespace MediaPortal.Frontend.ViewModels
       // default skin did: no background model, no picture.
       FanartShown = _skinSettings?.EnableFanart ?? false;
       FanartOverlay = _skinSettings?.FanartOverlayOpacity ?? 0.85;
-      _fanart = client == null ? null : new Artwork(id => client.GetFanArtAsync(id));
+      _fanart = client == null ? null : new Artwork(id => client.GetFanArtAsync(id, "FanArt"));
+      // What a tile wears is the picture of its own kind, and the reference asked for it kinded too: its banner
+      // grid bound FanArtType="Banner", its thumbnail grid FanArtType="Thumbnail", and neither ever drew a
+      // poster in the other's frame - without the kind's own picture they drew the skin's "no banner" layer.
+      // So a banner or thumbnail shelf reads that kind's bytes for its rows; a poster shelf keeps drawing the
+      // thumbnail blob MP2's importers store in the database, which is the poster.
+      _tileArtwork = client == null || !HasTiles || _tileKind == GridViewType.Poster
+          ? null
+          : new Artwork(id => client.GetFanArtAsync(id,
+              _tileKind == GridViewType.Banner ? "Banner" : "Thumbnail"));
     }
 
     private readonly SkinSettingsBase? _skinSettings;
     private readonly GridViewType _tileKind;
+    private readonly Artwork? _tileArtwork;
 
     /// <summary>
     /// What the worn skin keeps as settings, or <c>null</c> when the machine wears its own face (or the tests
@@ -1236,7 +1246,9 @@ namespace MediaPortal.Frontend.ViewModels
     /// </remarks>
     private async Task ReadArtworkAsync()
     {
-      Artwork? artwork = _artwork;
+      // The rows wear the kind the shelf's tiles were chosen for; only a shelf that draws no kinded tiles - a
+      // poster shelf, a machine without a skin - falls back to the database's thumbnail blob.
+      Artwork? artwork = _tileArtwork ?? _artwork;
       if (artwork == null)
         return;
 

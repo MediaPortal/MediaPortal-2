@@ -16,9 +16,11 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
@@ -231,8 +233,9 @@ namespace Tests.Frontend
     }
 
     /// <summary>
-    /// A server whose fanart endpoint answers one title with bytes and every other one with the honest 404 -
-    /// the shape the real controller gives a title the cache has no picture for.
+    /// A server whose typed fanart endpoint answers one title's backdrop with bytes and every other request
+    /// with the honest 404 - the shape the real controller gives a title the cache and the media folder have
+    /// no picture of that kind for.
     /// </summary>
     private sealed class OneFanartServer : HttpMessageHandler
     {
@@ -247,7 +250,7 @@ namespace Tests.Frontend
           CancellationToken cancellation)
       {
         string url = request.RequestUri!.ToString();
-        bool asked = url.EndsWith("/fanart", StringComparison.OrdinalIgnoreCase);
+        bool asked = url.EndsWith("/fanart/FanArt", StringComparison.OrdinalIgnoreCase);
         bool known = url.Contains(_withPicture.ToString("D"), StringComparison.OrdinalIgnoreCase);
         if (asked && known)
           return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
@@ -328,6 +331,152 @@ namespace Tests.Frontend
       // default skin drew: no background model, no picture.
       FrontendTheme.Apply(app, FrontendTheme.DEFAULT_NAME, out _);
       Assert.That(new MediaBrowserViewModel(client, MoviesSection(), null).FanartShown, Is.False);
+    }
+
+    /// <summary>
+    /// A shelf that answers the title list once, hands out one distinct byte pattern per picture kind, and
+    /// remembers which kinds it was asked for. The 404 for the thumbnail kind is what a library holding only
+    /// posters and banners really answers.
+    /// </summary>
+    private sealed class KindArtworkServer : HttpMessageHandler
+    {
+      private readonly Guid _title;
+      private readonly Guid _other;
+
+      public KindArtworkServer(Guid title, Guid other)
+      {
+        _title = title;
+        _other = other;
+      }
+
+      public List<string> Kinds { get; } = new List<string>();
+
+      protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+          CancellationToken cancellation)
+      {
+        string url = request.RequestUri!.ToString();
+        if (url.Contains("/titles?", StringComparison.OrdinalIgnoreCase))
+        {
+          string json = await Task.FromResult(
+              "{\"total\":2,\"offset\":0,\"limit\":60,\"returned\":2,\"sort\":\"title\",\"titles\":["
+              + "{\"id\":\"" + _other.ToString("D") + "\",\"title\":\"Other\",\"year\":2001},"
+              + "{\"id\":\"" + _title.ToString("D") + "\",\"title\":\"Harbour\",\"year\":2002}"
+              + "]}");
+          return new HttpResponseMessage(HttpStatusCode.OK)
+          {
+            Content = new StringContent(json, Encoding.UTF8, "application/json")
+          };
+        }
+
+        int typed = url.IndexOf("/fanart/", StringComparison.OrdinalIgnoreCase);
+        if (typed >= 0)
+        {
+          string kind = url.Substring(typed + "/fanart/".Length);
+          lock (Kinds)
+          {
+            Kinds.Add(kind);
+          }
+          if (url.Contains(_title.ToString("D"), StringComparison.OrdinalIgnoreCase))
+          {
+            if (string.Equals(kind, "Banner", StringComparison.OrdinalIgnoreCase))
+              return new HttpResponseMessage(HttpStatusCode.OK)
+              {
+                Content = new ByteArrayContent(new byte[] { 9, 8, 7, 6, 5 })
+              };
+            if (string.Equals(kind, "FanArt", StringComparison.OrdinalIgnoreCase))
+              return new HttpResponseMessage(HttpStatusCode.OK)
+              {
+                Content = new ByteArrayContent(new byte[] { 3, 3, 3 })
+              };
+          }
+          return new HttpResponseMessage(HttpStatusCode.NotFound);
+        }
+
+        if (url.EndsWith("/thumbnail", StringComparison.OrdinalIgnoreCase)
+            && url.Contains(_title.ToString("D"), StringComparison.OrdinalIgnoreCase))
+          return new HttpResponseMessage(HttpStatusCode.OK)
+          {
+            Content = new ByteArrayContent(new byte[] { 1, 1, 1, 1 })
+          };
+        return new HttpResponseMessage(HttpStatusCode.NotFound);
+      }
+    }
+
+    [AvaloniaTest]
+    public void ABannerShelfShowsBannersAndNotResizedPosters()
+    {
+      Application app = RequireApplication();
+      FrontendTheme.Apply(app, "nereus", out _);
+
+      string file = Path.Combine(_ownDir, "skin-nereus.json");
+      NereusSkinSettings settings = NereusSkinSettings.Load(file, out _);
+      settings.MovieGridViewType = GridViewType.Banner;
+      settings.Save(file, out _);
+
+      Guid title = Guid.NewGuid();
+      KindArtworkServer handler = new KindArtworkServer(title, Guid.NewGuid());
+      ServerApiClient client = new ServerApiClient(
+          new Uri("http://127.0.0.1:1/MediaPortal/Server/"), new HttpClient(handler));
+
+      MediaBrowserViewModel vm = new MediaBrowserViewModel(client, MoviesSection(), null);
+      Assert.That(MediaBrowserViewModel.TileKindFor("MovieItem", settings), Is.EqualTo(GridViewType.Banner));
+
+      vm.OpenCommand.Execute(null);
+      WaitUntil("the shelf to fill", delegate { return vm.Titles.Count == 2; });
+      TitleViewModel row = vm.Titles[1];
+      Assert.That(row.Title.Id, Is.EqualTo(title));
+
+      WaitUntil("the banner to reach the row", delegate { return row.Artwork != null; });
+      Assert.That(row.Artwork, Is.EqualTo(new byte[] { 9, 8, 7, 6, 5 }),
+          "the row wears the real banner the media folder holds");
+      lock (handler.Kinds)
+      {
+        Assert.That(handler.Kinds, Does.Contain("Banner"), "the banner shelf asks the server for banners");
+      }
+
+      // The strip behind the shelf is the backdrop kind, never the banner and never a poster.
+      vm.Selected = row;
+      WaitUntil("the backdrop kind to be asked for",
+          delegate { return vm.BackgroundArtwork != null; });
+      Assert.That(row.Artwork, Is.EqualTo(new byte[] { 9, 8, 7, 6, 5 }),
+          "the row kept its banner while the background changed");
+      lock (handler.Kinds)
+      {
+        Assert.That(handler.Kinds, Does.Contain("FanArt"), "the background is a real backdrop");
+      }
+
+      // And a film the folders have no banner for stays honest: no art on the tile, which draws the
+      // reference's placeholder layers - rather than a poster squeezed into the banner frame.
+      TitleViewModel other = vm.Titles[0];
+      Assert.That(other.HasNoArtwork, Is.True,
+          "a banner-less film wears the placeholder, not a resized poster");
+    }
+
+    [AvaloniaTest]
+    public void APosterShelfStillDrawsFromThePosterBlob()
+    {
+      Application app = RequireApplication();
+      FrontendTheme.Apply(app, "nereus", out _);
+
+      Guid title = Guid.NewGuid();
+      KindArtworkServer handler = new KindArtworkServer(title, Guid.NewGuid());
+      ServerApiClient client = new ServerApiClient(
+          new Uri("http://127.0.0.1:1/MediaPortal/Server/"), new HttpClient(handler));
+
+      // No settings file was written here, so films keep the reference's default shape: the poster.
+      MediaBrowserViewModel vm = new MediaBrowserViewModel(client, MoviesSection(), null);
+
+      vm.OpenCommand.Execute(null);
+      WaitUntil("the shelf to fill", delegate { return vm.Titles.Count == 2; });
+
+      WaitUntil("the poster to reach the row", delegate { return vm.Titles[1].Artwork != null; });
+      Assert.That(vm.Titles[1].Artwork, Is.EqualTo(new byte[] { 1, 1, 1, 1 }),
+          "the plain poster shelf still paints from the database's poster blob");
+      lock (handler.Kinds)
+      {
+        Assert.That(handler.Kinds, Has.None.EqualTo("Banner").And.None.EqualTo("Thumbnail"),
+            "a poster shelf asks for no kinded tile picture; only the background may ask for its backdrop");
+      }
     }
   }
 }

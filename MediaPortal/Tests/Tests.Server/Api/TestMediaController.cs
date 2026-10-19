@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
@@ -34,11 +35,14 @@ using Moq;
 using NUnit.Framework;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
+using MediaPortal.Common.FanArt;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Server.Api;
 using MediaPortal.Utilities.Exceptions;
@@ -92,6 +96,10 @@ namespace Tests.Server.Api
     {
       if (ServiceRegistration.IsRegistered<IMediaLibrary>())
         ServiceRegistration.Remove<IMediaLibrary>();
+      if (ServiceRegistration.IsRegistered<IFanArtCache>())
+        ServiceRegistration.Remove<IFanArtCache>();
+      if (ServiceRegistration.IsRegistered<IMediaAccessor>())
+        ServiceRegistration.Remove<IMediaAccessor>();
     }
 
     /// <summary>
@@ -2539,6 +2547,256 @@ namespace Tests.Server.Api
       Assert.That(queries, Is.Empty, "nothing is read for a question that was not finished");
       Assert.That(result.Error, Does.Contain("value"),
           "handing back the whole shelf under a heading that names one genre is the wrong answer that looks right");
+    }
+
+    #endregion
+
+    #region One named kind of picture
+
+    /// <summary>
+    /// Asks the typed fanart endpoint the way the framework would, with a response to write its caching hint on.
+    /// </summary>
+    private static IActionResult AskFanArt(Guid id, string type)
+    {
+      MediaController controller = new MediaController();
+      controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+      return controller.GetFanArtOfType(id, type);
+    }
+
+    private static int StatusOf(IActionResult result)
+    {
+      int? code = (result as IStatusCodeActionResult)?.StatusCode;
+      return code ?? 200;
+    }
+
+    /// <summary>
+    /// The picture's bytes when the answer was one, or null when it was an error.
+    /// </summary>
+    private static byte[] PictureOf(IActionResult result)
+    {
+      return (result as FileContentResult)?.FileContents;
+    }
+
+    private static string ErrorOf(IActionResult result)
+    {
+      return ((result as ObjectResult)?.Value as MediaController.ItemResult)?.Error;
+    }
+
+    /// <summary>A folder that belongs to one test and is deleted again by it.</summary>
+    private static string OwnFolder()
+    {
+      string dir = Path.Combine(Path.GetTempPath(), "mp2-fanart-" + Guid.NewGuid().ToString("N"));
+      Directory.CreateDirectory(dir);
+      return dir;
+    }
+
+    private static void WritePicture(string path, byte[] bytes)
+    {
+      Directory.CreateDirectory(Path.GetDirectoryName(path));
+      File.WriteAllBytes(path, bytes);
+    }
+
+    /// <summary>
+    /// Registers MP2's own local filesystem provider, so the endpoint's search next to the media reads real
+    /// folders the way it does on a running server.
+    /// </summary>
+    private static void GiveTheServerItsFileSystem()
+    {
+      var providers = new Dictionary<Guid, IResourceProvider>
+      {
+          { LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID, new LocalFsResourceProvider() }
+      };
+      var accessor = new Mock<IMediaAccessor>(MockBehavior.Strict);
+      accessor.SetupGet(get => get.LocalResourceProviders).Returns(providers);
+      ServiceRegistration.Set<IMediaAccessor>(accessor.Object);
+    }
+
+    /// <summary>
+    /// A library that answers the id lookup with the given titles and every relationship query with the given
+    /// episodes, so the series detour can be watched as it happens.
+    /// </summary>
+    private static IMediaLibrary CreateFanArtLibrary(IList<MediaItem> byId, IList<MediaItem> episodes,
+        out List<MediaItemQuery> queries)
+    {
+      var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+      List<MediaItemQuery> asked = new List<MediaItemQuery>();
+      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, null, false))
+          .Callback<MediaItemQuery, bool, Guid?, bool>((query, online, profile, virtualItems) => asked.Add(query))
+          .Returns<MediaItemQuery, bool, Guid?, bool>((query, online, profile, virtualItems) =>
+              query.Filter is RelationshipFilter ? episodes : byId);
+      queries = asked;
+      return library.Object;
+    }
+
+    /// <summary>One episode as the importer left it, with the media file a test has really written.</summary>
+    private static MediaItem CreateEpisode(Guid id, string filePath)
+    {
+      SingleMediaItemAspect media = CreateMediaAspect("Crimson Sky", "Crimson Sky", DateTime.Now);
+      SingleMediaItemAspect episode = new SingleMediaItemAspect(EpisodeAspect.Metadata);
+      episode.SetAttribute(EpisodeAspect.ATTR_SERIES_NAME, "Shōgun");
+      episode.SetAttribute(EpisodeAspect.ATTR_SEASON, 1);
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>
+      {
+          { MediaAspect.ASPECT_ID, new List<MediaItemAspect> { media } },
+          { EpisodeAspect.ASPECT_ID, new List<MediaItemAspect> { episode } }
+      };
+      // The local filesystem provider spells its paths "/C:/...", which is what Serialize() and the "../"
+      // walking in the endpoint both read.
+      return new TestItem(id, aspects, CreateLocator(ResourcePath.BuildBaseProviderPath(
+          LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID,
+          "/" + filePath.Replace('\\', '/')).Serialize()));
+    }
+
+    /// <summary>One series as the importer left it: a name and no file of its own.</summary>
+    private static MediaItem CreateSeries(Guid id)
+    {
+      SingleMediaItemAspect media = CreateMediaAspect("Shōgun", "Shōgun", DateTime.Now);
+      SingleMediaItemAspect series = new SingleMediaItemAspect(SeriesAspect.Metadata);
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>
+      {
+          { MediaAspect.ASPECT_ID, new List<MediaItemAspect> { media } },
+          { SeriesAspect.ASPECT_ID, new List<MediaItemAspect> { series } }
+      };
+      return new TestItem(id, aspects, null);
+    }
+
+    [Test]
+    public void AWordThatIsNoKindOfPictureIsRefused()
+    {
+      IActionResult result = AskFanArt(Guid.NewGuid(), "wallpaper");
+
+      Assert.That(StatusOf(result), Is.EqualTo(400));
+      Assert.That(ErrorOf(result), Does.Contain("not a kind of fanart"),
+          "the answer names the mistake rather than guessing a picture");
+    }
+
+    [Test]
+    public void TheCacheIsAskedForTheKindThatWasAskedFor()
+    {
+      string dir = OwnFolder();
+      try
+      {
+        string banner = Path.Combine(dir, "banner.jpg");
+        WritePicture(banner, new byte[] { 4, 5, 6 });
+
+        var cache = new Mock<IFanArtCache>();
+        Guid id = Guid.NewGuid();
+        cache.Setup(get => get.GetFanArtFiles(id, FanArtTypes.Banner)).Returns(new List<string> { banner });
+        ServiceRegistration.Set(cache.Object);
+
+        byte[] picture = PictureOf(AskFanArt(id, "banner"));
+        Assert.That(picture, Is.EqualTo(new byte[] { 4, 5, 6 }),
+            "the extracted banner the cache holds answers a banner request");
+        cache.Verify(get => get.GetFanArtFiles(id, FanArtTypes.Banner), Times.Once);
+        cache.Verify(get => get.GetFanArtFiles(id, FanArtTypes.Poster), Times.Never,
+            "a banner request never goes fishing in the posters");
+      }
+      finally
+      {
+        Directory.Delete(dir, true);
+      }
+    }
+
+    [Test]
+    public void APosterIsNeverAnAnswerToABanner()
+    {
+      string dir = OwnFolder();
+      try
+      {
+        string poster = Path.Combine(dir, "poster.jpg");
+        WritePicture(poster, new byte[] { 1, 2, 3 });
+
+        var cache = new Mock<IFanArtCache>();
+        Guid id = Guid.NewGuid();
+        cache.Setup(get => get.GetFanArtFiles(id, FanArtTypes.Poster)).Returns(new List<string> { poster });
+        ServiceRegistration.Set(cache.Object);
+
+        IActionResult result = AskFanArt(id, "Banner");
+        Assert.That(StatusOf(result), Is.EqualTo(404),
+            "a shelf with no banner draws the skin's placeholder, exactly like the reference");
+        Assert.That(PictureOf(result), Is.Null, "the poster lying about is not handed out as a banner");
+      }
+      finally
+      {
+        Directory.Delete(dir, true);
+      }
+    }
+
+    [Test]
+    public void ThePicturesNextToTheMediaAnswerWhatTheCacheLacks()
+    {
+      string dir = OwnFolder();
+      try
+      {
+        // The reference's own layout: the series' banner and backdrop two folders up from the episode file,
+        // and the episode's screenshot beside the episode itself.
+        string episode = Path.Combine(dir, "Shogun (2024)", "Season 01", "ep01.mkv");
+        Directory.CreateDirectory(Path.GetDirectoryName(episode));
+        File.WriteAllBytes(episode, new byte[] { 0 });
+        WritePicture(Path.Combine(dir, "Shogun (2024)", "banner.jpg"), new byte[] { 7, 7 });
+        WritePicture(Path.Combine(dir, "Shogun (2024)", "fanart.jpg"), new byte[] { 8, 8 });
+        WritePicture(Path.Combine(dir, "Shogun (2024)", "Season 01", "ep01-thumb.jpg"), new byte[] { 9, 9 });
+
+        Guid id = Guid.NewGuid();
+        GiveTheServerItsFileSystem();
+        ServiceRegistration.Set(CreateFanArtLibrary(new List<MediaItem> { CreateEpisode(id, episode) },
+            new List<MediaItem>(), out _));
+
+        Assert.That(PictureOf(AskFanArt(id, "Banner")), Is.EqualTo(new byte[] { 7, 7 }),
+            "the series' banner two folders above the episode file is the episode's banner, as the reference read it");
+        Assert.That(PictureOf(AskFanArt(id, "FanArt")), Is.EqualTo(new byte[] { 8, 8 }));
+        Assert.That(PictureOf(AskFanArt(id, "Thumbnail")), Is.EqualTo(new byte[] { 9, 9 }),
+            "the screenshot named after the episode is its thumbnail");
+      }
+      finally
+      {
+        Directory.Delete(dir, true);
+      }
+    }
+
+    [Test]
+    public void ASeriesBorrowsItsPictureFromOneOfItsEpisodes()
+    {
+      string dir = OwnFolder();
+      try
+      {
+        string episode = Path.Combine(dir, "Shogun (2024)", "Season 01", "ep01.mkv");
+        Directory.CreateDirectory(Path.GetDirectoryName(episode));
+        File.WriteAllBytes(episode, new byte[] { 0 });
+        WritePicture(Path.Combine(dir, "Shogun (2024)", "banner.jpg"), new byte[] { 7, 7 });
+
+        Guid seriesId = Guid.NewGuid();
+        Guid episodeId = Guid.NewGuid();
+        GiveTheServerItsFileSystem();
+        ServiceRegistration.Set(CreateFanArtLibrary(new List<MediaItem> { CreateSeries(seriesId) },
+            new List<MediaItem> { CreateEpisode(episodeId, episode) }, out List<MediaItemQuery> queries));
+
+        byte[] picture = PictureOf(AskFanArt(seriesId, "Banner"));
+        Assert.That(picture, Is.EqualTo(new byte[] { 7, 7 }),
+            "a series has no file of its own; the reference derived its folder from one episode, and so does this");
+
+        RelationshipFilter detour = queries.Select(query => query.Filter).OfType<RelationshipFilter>()
+            .Single();
+        Assert.That(detour.Role, Is.EqualTo(EpisodeAspect.ROLE_EPISODE));
+        Assert.That(detour.LinkedRole, Is.EqualTo(SeriesAspect.ROLE_SERIES));
+        Assert.That(detour.LinkedMediaItemId, Is.EqualTo(seriesId),
+            "the detour asks for one episode of this very series");
+      }
+      finally
+      {
+        Directory.Delete(dir, true);
+      }
+    }
+
+    [Test]
+    public void ATitleTheLibraryDoesNotKnowIsAnsweredHonestly()
+    {
+      ServiceRegistration.Set(CreateFanArtLibrary(new List<MediaItem>(), new List<MediaItem>(), out _));
+
+      IActionResult result = AskFanArt(Guid.NewGuid(), "FanArt");
+      Assert.That(StatusOf(result), Is.EqualTo(404));
+      Assert.That(ErrorOf(result), Does.Contain("no fanart"),
+          "the answer says there is no picture rather than inventing one");
     }
 
     #endregion

@@ -466,9 +466,16 @@ namespace MediaPortal.Frontend.Api
     /// own fanart cache, or null when the library has no picture for that title.
     /// </summary>
     /// <param name="mediaItemId">The id from <see cref="MediaTitle.Id"/>.</param>
-    public async Task<byte[]?> GetFanArtAsync(Guid mediaItemId, CancellationToken cancellation = default)
+    /// <param name="type">
+    /// The kind of picture asked for - <c>"Banner"</c>, <c>"FanArt"</c>, <c>"Thumbnail"</c> and the other kinds
+    /// the server names - or null for the server's own choice of poster-or-backdrop. The kinds matter because a
+    /// banner tile that drew a poster would stretch it, which is the lie the typed endpoint exists to prevent.
+    /// </param>
+    public async Task<byte[]?> GetFanArtAsync(Guid mediaItemId, string? type = null,
+        CancellationToken cancellation = default)
     {
-      Uri url = new Uri(BaseUrl, "api/media/items/" + mediaItemId.ToString("D") + "/fanart");
+      Uri url = new Uri(BaseUrl, "api/media/items/" + mediaItemId.ToString("D") + "/fanart"
+          + (string.IsNullOrEmpty(type) ? "" : "/" + Uri.EscapeDataString(type.Trim())));
       RawAnswer answer = await GetRawAsync(url, cancellation).ConfigureAwait(false);
       if (answer.Status == HttpStatusCode.NotFound)
         return null;
