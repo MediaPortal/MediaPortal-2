@@ -193,7 +193,15 @@ namespace MediaPortal.Frontend.Theming
 
             if (target.IsAttachedToVisualTree())
                 subscription.ApplyNow();
-            target.AttachedToVisualTree += delegate { subscription.ApplyNow(); };
+            // Re-attaching re-listens, because detaching stopped listening: a list that the viewer walked away
+            // from and back to would otherwise never hear the skin change again and would go on drawing the
+            // template of a skin whose pictures have already been freed - which is not a stale picture but a
+            // tile whose layout throws, and a home menu that shows neither art nor label.
+            target.AttachedToVisualTree += delegate
+            {
+                SkinEngine.Changed += subscription.OnSkinChanged;
+                subscription.ApplyNow();
+            };
             target.DetachedFromVisualTree += delegate { subscription.Detach(); };
         }
 
