@@ -22,6 +22,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Styling;
+using MediaPortal.Frontend.Settings;
 
 namespace MediaPortal.Frontend.Theming
 {
@@ -312,6 +313,7 @@ namespace MediaPortal.Frontend.Theming
 
       string chosen = CanonicalName(wanted);
       ResourceDictionary brushes = Build(chosen);
+      TintFromSkinSettings(chosen, brushes);
 
       // Replaced rather than merely added: switching twice must not leave the first palette underneath, where it
       // would still answer every key the second theme happened not to name. The interface hands the list of merged
@@ -336,6 +338,38 @@ namespace MediaPortal.Frontend.Theming
       problem = skinProblem;
       Changed?.Invoke(app, EventArgs.Empty);
       return chosen;
+    }
+
+    /// <summary>
+    /// Put the palette this application already wears on again - for the moment its own colors are
+    /// re-derived from something outside the palette table, which today means the worn skin's settings
+    /// answered a colour family differently. A settings screen writes a file; this is what carries the
+    /// file's answer to the television without waiting for the next start.
+    /// </summary>
+    public static void Reapply(Application app)
+    {
+      Apply(app, CurrentName(app), out _);
+    }
+
+    /// <summary>
+    /// Nereus' eight colour switches are the reference's colour choice, and they paint: its Colors.xaml
+    /// spells each of the eight families as a light, a medium and a dark colour, and this front end draws
+    /// its accent, its raised panels and its panels with those three. The palette is where the chosen
+    /// family is written, because the palette merges after the skin's own colours and keeps the final
+    /// word on the keys both speak - a tint written into the skin's dictionary would be overruled by it.
+    /// </summary>
+    private static void TintFromSkinSettings(string chosen, ResourceDictionary brushes)
+    {
+      if (!chosen.Equals(NereusSkinSettings.SKIN_NAME, System.StringComparison.OrdinalIgnoreCase))
+        return;
+
+      if (SkinSettingsBase.LoadFor(chosen, null, out _) is not NereusSkinSettings nereus)
+        return;
+
+      (string name, string light, string medium, string dark) = nereus.ChosenColour;
+      brushes["AccentBrush"] = new SolidColorBrush(ParseColor(chosen, "AccentBrush", light));
+      brushes["PanelRaisedBrush"] = new SolidColorBrush(ParseColor(chosen, "PanelRaisedBrush", medium));
+      brushes["PanelBrush"] = new SolidColorBrush(ParseColor(chosen, "PanelBrush", dark));
     }
 
     /// <summary>

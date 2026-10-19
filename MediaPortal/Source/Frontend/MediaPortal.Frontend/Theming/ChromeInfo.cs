@@ -97,6 +97,18 @@ namespace MediaPortal.Frontend.Theming
     private string _clock;
 
     /// <summary>
+    /// Whether the head line may show its clock at all - the reference's <c>ShowTime</c>, one of Nereus'
+    /// own settings. True while nobody wears a skin that has an opinion, because a header that hides its
+    /// clock without being asked is a broken clock to everyone else.
+    /// </summary>
+    [ObservableProperty]
+    private bool _showTime = true;
+
+    /// <summary>Whether the head line may show its date - the reference's <c>ShowDate</c>, next to its twin.</summary>
+    [ObservableProperty]
+    private bool _showDate = true;
+
+    /// <summary>
     /// The day the header's clock stands on - the reference showed the date under the time, and its skin
     /// settings made it the clock's own companion (ShowDate next to ShowTime), not a stranger's.
     /// </summary>

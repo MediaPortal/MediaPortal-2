@@ -22,8 +22,10 @@
                  VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
       <StackPanel Grid.Column="1" Orientation="Vertical" VerticalAlignment="Center" Margin="10,0">
         <TextBlock Text="{Binding Clock}" HorizontalAlignment="Right"
+                   IsVisible="{Binding ShowTime}"
                    Foreground="{DynamicResource Text}" FontSize="{DynamicResource DateTimeFontSize}"/>
         <TextBlock Text="{Binding Date}" HorizontalAlignment="Right"
+                   IsVisible="{Binding ShowDate}"
                    Foreground="{DynamicResource Muted}" FontSize="{DynamicResource SmallerFontSize}"/>
       </StackPanel>
     </Grid>

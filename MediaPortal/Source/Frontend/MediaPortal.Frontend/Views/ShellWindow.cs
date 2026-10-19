@@ -238,6 +238,20 @@ namespace MediaPortal.Frontend.Views
       _header.Template = FindTemplate("ChromeHeaderTemplate");
       _footer.Template = FindTemplate("ChromeFooterTemplate");
 
+      // What the head line is allowed to say is one of the worn skin's own settings - the reference's
+      // ShowTime and ShowDate - and only Nereus has an opinion about it; every other face keeps the
+      // clock and the day it always showed.
+      bool showTime = true;
+      bool showDate = true;
+      if (Settings.SkinSettingsBase.LoadFor(Theming.FrontendTheme.CurrentName(this), null, out _)
+          is Settings.NereusSkinSettings nereus)
+      {
+        showTime = nereus.ShowTime;
+        showDate = nereus.ShowDate;
+      }
+      _chrome.ShowTime = showTime;
+      _chrome.ShowDate = showDate;
+
       // The reference's master chrome sat on the screen's own background - the header was never a band of its
       // own colour - so the templates paint themselves with the theme's screen colour, live, through a
       // DynamicResource; the window's factory background only ever shows while no theme speaks one.

@@ -205,6 +205,13 @@ public partial class SkinSettingsViewModel : ObservableObject
         ? string.Format("{0} is now {1}. {2}", option.Label, option.ValueText, says)
         : string.Format("{0} is now {1} for this session; saving failed - {2}",
             option.Label, option.ValueText, says);
+
+    // The written file is not the end of it: the worn skin's colours and head line are derived from these
+    // values while the palette goes on, so the television follows the answer at once rather than after the
+    // next start - the colour family walks on, and a switched-off clock disappears from the head line now.
+    Application? app = Application.Current;
+    if (app != null)
+      FrontendTheme.Reapply(app);
   }
 
   private void BuildRows()

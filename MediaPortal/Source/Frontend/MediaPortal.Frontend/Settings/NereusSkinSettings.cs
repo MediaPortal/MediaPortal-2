@@ -132,6 +132,43 @@ public sealed class NereusSkinSettings : SkinSettingsBase
   [JsonPropertyName("useGrey")]
   public bool UseGrey { get; set; }
 
+  /// <summary>
+  /// The eight families the reference's Colors.xaml spells out, in its order: the family's name and the
+  /// light, medium and dark colours it names for it. The hex values are copied from
+  /// <c>NereusColorLight_*</c>, <c>NereusColorMedium_*</c> and <c>NereusColorDark_*</c> line for line.
+  /// </summary>
+  public static readonly (string Name, string Light, string Medium, string Dark)[] COLOUR_FAMILIES =
+  {
+    ("Turquoise", "#FF009592", "#FF175F5D", "#FF244043"),
+    ("Yellow", "#FFD3AC1B", "#FFAE8C0E", "#FF7F6000"),
+    ("Orange", "#FFED7D31", "#FFC55A11", "#FF843C0C"),
+    ("Red", "#FFCC5350", "#FFA03830", "#FF68150C"),
+    ("Purple", "#FF8758CC", "#FF602FA1", "#FF3B1E66"),
+    ("Green", "#FF70AD47", "#FF548235", "#FF385723"),
+    ("Blue", "#FF4472C4", "#FF2F5597", "#FF203864"),
+    ("Grey", "#FF9D9D9D", "#FF717171", "#FF474747")
+  };
+
+  /// <summary>
+  /// Which family the eight switches point at: the first family whose switch is on, and turquoise when
+  /// none is - the settings dialog keeps exactly one on, but a hand-edited file must not leave the skin
+  /// without a colour, and the reference defaulted to turquoise too.
+  /// </summary>
+  public (string Name, string Light, string Medium, string Dark) ChosenColour
+  {
+    get
+    {
+      if (UseYellow) return COLOUR_FAMILIES[1];
+      if (UseOrange) return COLOUR_FAMILIES[2];
+      if (UseRed) return COLOUR_FAMILIES[3];
+      if (UsePurple) return COLOUR_FAMILIES[4];
+      if (UseGreen) return COLOUR_FAMILIES[5];
+      if (UseBlue) return COLOUR_FAMILIES[6];
+      if (UseGrey) return COLOUR_FAMILIES[7];
+      return COLOUR_FAMILIES[0];
+    }
+  }
+
   [JsonPropertyName("enableHelpTexts")]
   public bool EnableHelpTexts { get; set; } = true;
 

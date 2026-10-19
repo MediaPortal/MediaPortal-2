@@ -203,6 +203,44 @@ namespace Tests.Frontend
     }
 
     [AvaloniaTest]
+    public void NereusColourSwitchesPaintThePaletteTheyBelongTo()
+    {
+      // The eight colour switches are the reference's colour question and Nereus' Colors.xaml answers it
+      // with a light, a medium and a dark colour per family. The skin code now reads that answer: the
+      // accent, the raised panels and the panels are the chosen family, not a painted-in turquoise.
+      string previousDir = Environment.GetEnvironmentVariable("MP2_SKIN_SETTINGS_DIR") ?? "";
+      Environment.SetEnvironmentVariable("MP2_SKIN_SETTINGS_DIR",
+          Path.Combine(Path.GetTempPath(), "mp2-tint-" + Guid.NewGuid().ToString("N")));
+      try
+      {
+        Application app = RequireApplication();
+
+        FrontendTheme.Apply(app, "nereus", out _);
+        Assert.That(Resolved(app, "AccentBrush"), Is.EqualTo(FrontendTheme.ColorOf("nereus", "AccentBrush")),
+            "a Nereus nobody has changed wears turquoise, the colour the reference shipped");
+
+        NereusSkinSettings chosen = new NereusSkinSettings();
+        chosen.UseTorquoise = false;
+        chosen.UseBlue = true;
+        chosen.Save(null, out _);
+
+        FrontendTheme.Reapply(app);
+        Assert.That(Resolved(app, "AccentBrush"), Is.EqualTo(Color.Parse("#FF4472C4")),
+            "the light blue of NereusColorLight_Blue is the accent once the switch says Blue");
+        Assert.That(Resolved(app, "PanelRaisedBrush"), Is.EqualTo(Color.Parse("#FF2F5597")));
+        Assert.That(Resolved(app, "PanelBrush"), Is.EqualTo(Color.Parse("#FF203864")));
+
+        FrontendTheme.Apply(app, "wmc", out _);
+        Assert.That(Resolved(app, "AccentBrush"), Is.EqualTo(FrontendTheme.ColorOf("wmc", "AccentBrush")),
+            "the tint belongs to Nereus' file and dyes no other face");
+      }
+      finally
+      {
+        Environment.SetEnvironmentVariable("MP2_SKIN_SETTINGS_DIR", previousDir.Length == 0 ? null : previousDir);
+      }
+    }
+
+    [AvaloniaTest]
     public void AThemeThatDoesNotExistIsSaidOutLoudAndChangesNothing()
     {
       Application app = RequireApplication();
