@@ -62,6 +62,16 @@ namespace MediaPortal.Frontend.Views
       _ring.Add(forecastList);
       DpadNavigation.Attach(this, _ring);
 
+      // A double-click on a search match means the Enter that adopts it, and on a watched place the Enter that
+      // walks to its forecast; see HomeWindow for the general reason.
+      MouseRemote.Attach(this, foundList, placesList);
+
+      Opened += delegate
+      {
+        // The places take the focus so the first Enter of the visit does something; see HomeWindow.
+        placesList.Focus();
+      };
+
       Closed += delegate
       {
         _weather.Dispose();
@@ -104,14 +114,14 @@ namespace MediaPortal.Frontend.Views
               if (foundList.Focus())
                 args.Handled = true;
             }
-            else if (foundList.IsFocused)
+            else if (foundList.IsKeyboardFocusWithin)
             {
               // Enter on a match is the wish to live under it: the place is kept, saved, and read.
               _weather.AddSelectedFoundCommand.Execute(null);
               if (placesList.Focus())
                 args.Handled = true;
             }
-            else if (placesList.IsFocused)
+            else if (placesList.IsKeyboardFocusWithin)
             {
               if (forecastList.Focus())
                 args.Handled = true;

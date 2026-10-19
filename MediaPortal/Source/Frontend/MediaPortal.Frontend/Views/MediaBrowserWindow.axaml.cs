@@ -64,6 +64,10 @@ namespace MediaPortal.Frontend.Views
         ring.Add(moreButton);
       DpadNavigation.Attach(this, ring);
 
+      // A double-click on a row means the Enter that plays it (or opens the series behind it); the search box
+      // keeps its Enter for the caret's sake and gets no second path. See HomeWindow for the general reason.
+      MouseRemote.Attach(this, titlesList);
+
       Opened += delegate
       {
         if (DataContext is MediaBrowserViewModel viewModel)
@@ -72,6 +76,9 @@ namespace MediaPortal.Frontend.Views
           viewModel.PlayRequested += OnPlayRequested;
           viewModel.ChildrenRequested += OnChildrenRequested;
         }
+
+        // The rows take the focus so the first Enter of the visit means "play this"; see HomeWindow.
+        titlesList.Focus();
       };
 
       Closed += delegate

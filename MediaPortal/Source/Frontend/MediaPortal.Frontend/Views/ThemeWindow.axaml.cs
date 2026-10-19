@@ -58,6 +58,10 @@ namespace MediaPortal.Frontend.Views
       _ring.Add(themesList);
       DpadNavigation.Attach(this, _ring);
 
+      // The list opens focused so the arrow keys and the screen's own colour logic agree from the first
+      // moment; a single click already picks a theme, so the mouse needs no second path here.
+      Opened += delegate { themesList.Focus(); };
+
       AddHandler(KeyDownEvent,
           delegate (object? sender, KeyEventArgs args)
           {

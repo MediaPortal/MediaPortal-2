@@ -100,6 +100,11 @@ namespace MediaPortal.Frontend.Views
         ring.Add(connectButton);
       DpadNavigation.Attach(this, ring);
 
+      // The same screen with a mouse on a desk: double-clicking a tile, a title or a watched row sends the
+      // Enter that a remote would have sent on that same list, and this window's own handler below - which
+      // already knows which lists open what and which rows merely explain something - decides the rest.
+      MouseRemote.Attach(this, menuList, unfinishedList, contentList);
+
       // A vertical list takes left and right for its own selection - Avalonia moves the highlight with every
       // arrow key, not just up and down - so a viewer standing on the menu and pressing Right would only walk
       // their highlight one entry further and the ring would never see the key. Claimed on the window while the
@@ -110,8 +115,8 @@ namespace MediaPortal.Frontend.Views
           {
             if (args.Key != Key.Left && args.Key != Key.Right)
               return;
-            if (!menuList.IsFocused && !contentList.IsFocused && !aspectsList.IsFocused
-                && !unfinishedList.IsFocused)
+            if (!menuList.IsKeyboardFocusWithin && !contentList.IsKeyboardFocusWithin
+                && !aspectsList.IsKeyboardFocusWithin && !unfinishedList.IsKeyboardFocusWithin)
               return;
 
             Control? next = DpadNavigation.NextReachableInRing(ring, args.Key);
@@ -128,6 +133,12 @@ namespace MediaPortal.Frontend.Views
         _home.ResumeRequested += OnResumeRequested;
         if (DataContext is HomeViewModel viewModel)
           viewModel.RefreshCommand.Execute(null);
+
+        // The menu takes the focus the moment the screen shows. Every action on this screen is Enter asking
+        // "who is focused", and on a machine with no mouse - a television, or a desktop where somebody only
+        // dares press keys - a screen that opens with nothing focused answers no key at all until an arrow
+        // happens to wake the ring up. The ring starts at the menu; so does the focus.
+        menuList.Focus();
       };
 
       // Same reason the library screen does it: the view model outlives this window, and a handler left on it
@@ -146,7 +157,7 @@ namespace MediaPortal.Frontend.Views
               Close();
             else if (args.Key == Key.Enter || args.Key == Key.Return)
             {
-              if (menuList.IsFocused && menuList.SelectedItem is MainMenuEntry entry)
+              if (menuList.IsKeyboardFocusWithin && menuList.SelectedItem is MainMenuEntry entry)
               {
                 // The view model decides whether this entry can be opened and says why not when it cannot; the
                 // screen only opens what comes back. A press on "TV" therefore gets the same sentence on screen
@@ -158,12 +169,14 @@ namespace MediaPortal.Frontend.Views
                   OpenScreen(entry.ScreenKey);
                 args.Handled = true;
               }
-              else if (unfinishedList.IsFocused && unfinishedList.SelectedItem is TitleViewModel unfinished)
+              else if (unfinishedList.IsKeyboardFocusWithin
+                  && unfinishedList.SelectedItem is TitleViewModel unfinished)
               {
                 _home.ResumeCommand.Execute(unfinished);
                 args.Handled = true;
               }
-              else if (contentList.IsFocused && contentList.SelectedItem is HomeRow row && row.Title != null)
+              else if (contentList.IsKeyboardFocusWithin && contentList.SelectedItem is HomeRow row
+                  && row.Title != null)
               {
                 // The same path the "left half way" rows use, so a title pressed in one of MP2's lists starts the
                 // same way it does anywhere else on this screen - through the view model, which tells the server

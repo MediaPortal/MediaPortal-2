@@ -73,6 +73,10 @@ namespace MediaPortal.Frontend.Views
         _folders.RefreshCommand.Execute(null);
         _folders.Categories.CollectionChanged += OnCategoriesChanged;
         RegisterCategoryBoxes();
+
+        // The list takes the focus so the first Enter lands on the actions beside the selected row;
+        // see HomeWindow for the general reason.
+        foldersList.Focus();
       };
 
       Closed += delegate
@@ -102,7 +106,7 @@ namespace MediaPortal.Frontend.Views
               _folders.AddCommand.Execute(null);
               args.Handled = true;
             }
-            else if (foldersList.IsFocused)
+            else if (foldersList.IsKeyboardFocusWithin)
             {
               // A folder is not opened, it is acted on, and the acting is across on the right. Walking there is
               // what the remote needs; taking the row's Enter away from it would leave the buttons unreachable

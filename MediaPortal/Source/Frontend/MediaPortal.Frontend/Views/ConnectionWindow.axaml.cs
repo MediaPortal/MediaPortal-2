@@ -103,7 +103,7 @@ namespace MediaPortal.Frontend.Views
       AddHandler(KeyDownEvent,
           delegate (object? sender, KeyEventArgs args)
           {
-            if (!serversList.IsFocused || (args.Key != Key.Left && args.Key != Key.Right))
+            if (!serversList.IsKeyboardFocusWithin || (args.Key != Key.Left && args.Key != Key.Right))
               return;
 
             Control? next = DpadNavigation.NextReachableInRing(_ring, args.Key);
@@ -145,6 +145,10 @@ namespace MediaPortal.Frontend.Views
             }
           },
           RoutingStrategies.Tunnel);
+
+      // A double-click on a found server means the Enter that takes it. Raised on the list rather than the
+      // window because that is where this screen's Enter handler lives - see HomeWindow for the general reason.
+      MouseRemote.Attach(serversList, serversList);
 
       // Back leaves the screen as it is. Choosing a server is not something a screen can be forced into, and the
       // address the viewer did not save is the one the front end keeps using.

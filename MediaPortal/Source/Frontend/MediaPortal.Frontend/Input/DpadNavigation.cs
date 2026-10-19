@@ -191,8 +191,11 @@ namespace MediaPortal.Frontend.Input
 
     private static int IndexOfFocused(IReadOnlyList<Control> ring)
     {
+      // Within, not on: after the arrow keys have walked a list, the focus sits on a row inside the list rather
+      // than on the list itself, and "on" would report that nothing has the focus at all - which would send the
+      // next Left or Right back to the start of the ring rather than out of the list it was pressed in.
       for (int i = 0; i < ring.Count; i++)
-        if (ring[i].IsFocused)
+        if (ring[i].IsKeyboardFocusWithin)
           return i;
       return -1;
     }

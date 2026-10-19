@@ -58,10 +58,18 @@ namespace MediaPortal.Frontend.Views
       _ring.Add(headlinesList);
       DpadNavigation.Attach(this, _ring);
 
+      // A double-click on a paper means the Enter that walks to its headlines; a double-click on a headline is
+      // nobody's action today, exactly as the key is not either, but the list is where the pointer lands.
+      MouseRemote.Attach(this, feedsList, headlinesList);
+
       Opened += delegate
       {
         // The same command the button-less screen would have; opening and pressing cannot drift apart.
         _news.RefreshCommand.Execute(null);
+
+        // The papers take the focus so the first Enter of the visit means "read this paper" rather than
+        // nothing at all; see HomeWindow for the general reason.
+        feedsList.Focus();
       };
 
       Closed += delegate
@@ -82,7 +90,7 @@ namespace MediaPortal.Frontend.Views
             if (args.Key != Key.Enter && args.Key != Key.Return)
               return;
 
-            if (feedsList.IsFocused)
+            if (feedsList.IsKeyboardFocusWithin)
             {
               // Enter on a paper is the wish to read it, which is the headlines column across.
               if (headlinesList.Focus())

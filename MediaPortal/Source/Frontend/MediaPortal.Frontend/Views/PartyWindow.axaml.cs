@@ -79,6 +79,13 @@ namespace MediaPortal.Frontend.Views
         _ring.Add(nowPlayingButton);
       DpadNavigation.Attach(this, _ring);
 
+      // A double-click on the queue means the Enter that plays that song; see HomeWindow for the general reason.
+      MouseRemote.Attach(this, queueList);
+
+      // And the screen opens with the start button under the thumb, because that is what the first press of a
+      // party evening is for; see HomeWindow for why opening focused matters at all.
+      Opened += delegate { startButton.Focus(); };
+
       AddHandler(KeyDownEvent,
           delegate (object? sender, KeyEventArgs args)
           {
@@ -97,7 +104,7 @@ namespace MediaPortal.Frontend.Views
               return;
             }
 
-            if ((args.Key == Key.Enter || args.Key == Key.Return) && queueList.IsFocused)
+            if ((args.Key == Key.Enter || args.Key == Key.Return) && queueList.IsKeyboardFocusWithin)
             {
               // Enter on a row is the wish to hear that song now; the queue reorders and the application plays.
               _party.PlaySelectedCommand.Execute(null);

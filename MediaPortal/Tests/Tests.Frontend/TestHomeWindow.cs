@@ -22,6 +22,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Headless;
 using Avalonia.Headless.NUnit;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -453,6 +454,163 @@ namespace Tests.Frontend
       button.RaiseEvent(new RoutedEventArgs(Button.ClickEvent, button));
       Pump();
       Assert.That(playbackScreen.IsVisible, Is.True, "the same screen is still the screen");
+    }
+
+    /// <summary>
+    /// The first thing a screen owes the keys pressed on it: something focused when it opens. Every action here
+    /// is Enter asking who holds the focus, so a screen that opens with nothing focused answers no key at all -
+    /// which is exactly how it felt on the machine, with a viewer pressing Enter against a screen that never
+    /// replied.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheScreenTakesTheFocusWhenItOpensSoTheFirstKeyLandsSomewhere()
+    {
+      HomeWindow window = ShowScreenThatReadsAServer(1, out _);
+
+      // The menu, or - because a list often hands its focus to the row it stands on - a row inside the menu.
+      // Either answer lets the first Enter find something; "nothing" is the one answer that must not happen.
+      object? focused = window.FocusManager.GetFocusedElement();
+      ListBox menu = ListBoxNamed(window, "menuList");
+      Assert.That(focused, Is.Not.Null, "the screen opened with nothing focused, so the first Enter went nowhere");
+      Assert.That(ReferenceEquals(focused, menu) || Inside(focused as Visual, menu), Is.True,
+          "and it is the menu that holds it, where MP2's home screen starts");
+    }
+
+    /// <summary>
+    /// The mouse on a desk: a double-click on a menu entry means the Enter a remote would have sent on that
+    /// list, so it opens the screen the entry names - through the same view model and factory a key press uses,
+    /// not a second path that could drift from it.
+    /// </summary>
+    [AvaloniaTest]
+    public void ADoubleClickOnAMenuEntryOpensTheScreenItNames()
+    {
+      string? asked = null;
+      var marker = new Window();
+      var home = new HomeViewModel();
+      var window = new HomeWindow(home, null, null, null,
+          delegate (string screenKey)
+          {
+            asked = screenKey;
+            return marker;
+          });
+      window.Show();
+      _windows.Add(window);
+      // The home screen rebuilds its menu when the refresh it starts on opening finishes - without a server that
+      // means every entry is a new object - so a test that grabs one too early holds a stale one. This waits for
+      // the same entry to answer twice in a row before it trusts what it is holding.
+      ListBox menu = ListBoxNamed(window, "menuList");
+      MainMenuEntry settings = MenuEntryAfterSettling(menu, "themes");
+
+      Assert.That(settings, Is.Not.Null, "the menu carries the settings entry the double-click is meant to open");
+
+      // The clicks are injected as raw mouse input on the row itself, at the point the row covers - the same
+      // two clicks a hand on the desk makes. Not a synthesised key: the point of this test is that the mouse
+      // reaches the screen at all, and an event raised by hand would skip the hit testing that has to agree.
+      DoubleClickOn(window, menu, settings);
+
+      Assert.That(asked, Is.EqualTo("themes"), "the double-click asked for the screen the entry names");
+      Assert.That(marker.IsVisible, Is.True, "and that screen is the one that appeared");
+      _windows.Add(marker);
+    }
+
+    /// <summary>
+    /// Double-clicks the row that shows <paramref name="item"/>, wherever on screen that row ended up: the two
+    /// clicks are sent where the viewer would aim, through the headless window's mouse, and the queue runs
+    /// between them so the first click finishes selecting the row before the second one becomes a double-click.
+    /// </summary>
+    private static void DoubleClickOn(Window window, ListBox list, object item)
+    {
+      list.ScrollIntoView(item);
+      Pump();
+      Control row = list.ContainerFromItem(item) as Control;
+      Assert.That(row, Is.Not.Null, "the row to click is on the screen");
+      Assert.That(row.Bounds.Width, Is.GreaterThan(0.0), "and it has a place on the screen to click");
+
+      Point? at = row.TranslatePoint(new Point(row.Bounds.Width / 2, row.Bounds.Height / 2), window);
+      Assert.That(at, Is.Not.Null);
+      window.MouseDown(at.Value, MouseButton.Left);
+      window.MouseUp(at.Value, MouseButton.Left);
+      Pump();
+      window.MouseDown(at.Value, MouseButton.Left);
+      window.MouseUp(at.Value, MouseButton.Left);
+      Pump();
+    }
+
+    /// <summary>
+    /// The menu entry for <paramref name="screenKey"/>, once the home screen has stopped rebuilding the menu.
+    /// Every rebuild makes every entry a new object, so a test that grabs one during the churn is holding a
+    /// stale row that is no longer on the screen; settled here means the same object answering twice in a row.
+    /// </summary>
+    private static MainMenuEntry MenuEntryAfterSettling(ListBox menu, string screenKey)
+    {
+      MainMenuEntry previous = null;
+      for (int attempt = 0; attempt < 40; attempt++)
+      {
+        Pump();
+        MainMenuEntry current = null;
+        foreach (object item in menu.Items)
+        {
+          MainMenuEntry entry = item as MainMenuEntry;
+          if (entry != null && entry.ScreenKey == screenKey)
+            current = entry;
+        }
+
+        if (previous != null && ReferenceEquals(previous, current))
+          return current;
+        previous = current;
+      }
+
+      Assert.That(previous, Is.Not.Null, "the menu carries no entry for the screen '" + screenKey + "'");
+      Assert.Fail("the menu kept rebuilding itself, so nothing could hold on to one of its entries");
+      return null;
+    }
+
+    /// <summary>
+    /// Walking the menu with the arrow keys must not cost the viewer the Enter: whichever element the list ends
+    /// up holding the focus on, the key presses what the walk selected. A viewer who can move the highlight but
+    /// not open it is no further than one who could do neither.
+    /// </summary>
+    [AvaloniaTest]
+    public void EnterStillOpensAfterTheArrowKeysHaveWalkedTheMenu()
+    {
+      string? asked = null;
+      var marker = new Window();
+      var home = new HomeViewModel();
+      var window = new HomeWindow(home, null, null, null,
+          delegate (string screenKey)
+          {
+            asked = screenKey;
+            return marker;
+          });
+      window.Show();
+      _windows.Add(window);
+      ListBox menu = ListBoxNamed(window, "menuList");
+      MainMenuEntry settings = MenuEntryAfterSettling(menu, "themes");
+
+      Assert.That(settings, Is.Not.Null);
+
+      // Walk with the arrow keys the way a viewer does - one key at a time, stopping where the menu stops - until
+      // the highlight stands on the settings entry. Not a direct selection: the point of this test is the state
+      // the walk leaves behind, which in Avalonia is a focused row inside the list rather than the list itself.
+      for (int step = 0; step < 15 && (menu.SelectedItem as MainMenuEntry)?.ScreenKey != "themes"; step++)
+        Press(window, menu, Key.Down);
+      Assert.That((menu.SelectedItem as MainMenuEntry)?.ScreenKey, Is.EqualTo("themes"),
+          "walking down with the arrow keys stops on the settings entry, as far as this test goes");
+
+      // The key is raised where Avalonia says the focus is - a real keyboard never aims at the window, it aims
+      // at whatever holds the focus, and the window's handler only ever sees it on its way past.
+      Control target = window.FocusManager.GetFocusedElement() as Control ?? menu;
+      target.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Enter,
+        Source = target
+      });
+      Pump();
+
+      Assert.That(asked, Is.EqualTo("themes"),
+          "the screen walked to was the screen the key was meant for, and it did not open");
+      _windows.Add(marker);
     }
 
     [AvaloniaTest]

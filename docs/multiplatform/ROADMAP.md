@@ -3503,6 +3503,47 @@ instead of adding a second, a pick applies and outlives its screen and its proce
 in both directions, and a `theme.json` that is not JSON is said out loud and chooses nothing.
 
 
+### bd. The screen answers the keys and the mouse, because a viewer sat down and found it did not
+
+**The report from the machine was blunt: nothing worked.** No tile answered a click, and Enter did nothing
+anywhere. Two causes were in front of that, both invisible to every test in the tree: a screen that never asks
+for focus, and an input device no test had ever pretended to be.
+
+**The first cause: no screen had ever taken the focus.** Every action in this front end lives behind an Enter
+handler that starts by asking which list holds the focus, and the answer on every screen was "none", because
+Avalonia gives the focus wherever somebody asks for it and nobody asked. Arrow keys seemed to work: with
+nothing focused the ring answers "go anywhere" by walking to its first area, which is exactly the accident
+that makes a screen look alive while its Enter is dead. Every screen now names its starting point the moment
+it shows - the menu on home, the feeds on news, the titles on the library, the shelves on browse, the start
+button on party - so the first key already lands somewhere.
+
+**The second cause: the focus does not stay where the screens assumed.** Once a list really holds the focus,
+Avalonia moves it to the row the highlight stands on, and every `list.IsFocused` test then reads false - the
+Enter raised after a walk was dropped on the floor, and the ring could not even be left, because a Left or
+Right pressed inside a list answered "nothing has the focus" and teleported to the ring's first area. The
+question every one of those branches really asks is "is the viewer standing on this list?", and the property
+that answers it is `IsKeyboardFocusWithin`: on it, or on a row inside it. `DpadNavigation` and every
+list-facing branch in the windows changed to it; only the checks about where the caret sits stayed as they
+were. A test walks to the settings entry with the arrow keys alone and presses Enter after: the picker opens,
+where the same walk once answered nothing.
+
+**A double-click is the remote's Enter.** The screens know what Enter means on each list - open a tile, play a
+title, choose a group - and they were never told what the mouse means, so a desk machine could select and
+nothing else. `MouseRemote` routes a double-click on a list through the same Enter to the same handler on the
+same window, so there is one behaviour, not two that can drift. A single click still only selects, because
+that is what a click has always meant on a desk, and the key is posted to the dispatcher rather than raised
+inside the click: the first click of a double-click is still busy selecting its row, and Enter asked about a
+half-selected row opens yesterday's. The folders and themes screens needed neither - buttons and rows act on
+a click there already - and the connection screen asks for the key on its list rather than its window, which
+is the one place the helper raises it accordingly.
+
+**Measured, not hoped.** Three new headless tests: the screen holds the focus the moment it opens; the real
+headless mouse double-clicks the settings entry and the named screen appears; after a walk with the arrow
+keys, the key after the walk opens what the walk selected - a viewer who can move the highlight but not open
+it is no further than one who can do neither. The front end is at 424 tests, the whole gate is green at 1038,
+and the sixteen render frames still draw.
+
+
 ## What cannot be verified without the user
 
 

@@ -69,6 +69,10 @@ namespace MediaPortal.Frontend.Views
       _ring.Add(upButton);
       DpadNavigation.Attach(this, _ring);
 
+      // A double-click on a tile means the Enter that walks into the folder or raises the photograph;
+      // see HomeWindow for the general reason.
+      MouseRemote.Attach(this, tilesList);
+
       _slideshow = new DispatcherTimer { Interval = PicturesViewModel.SLIDESHOW_TIME };
       _slideshow.Tick += delegate
       {
@@ -78,7 +82,13 @@ namespace MediaPortal.Frontend.Views
       };
       _pictures.PropertyChanged += OnPicturesChanged;
 
-      Opened += delegate { _pictures.RefreshCommand.Execute(null); };
+      Opened += delegate
+      {
+        _pictures.RefreshCommand.Execute(null);
+
+        // The tiles take the focus so the first Enter opens one; see HomeWindow for the general reason.
+        tilesList.Focus();
+      };
       Closed += delegate
       {
         _slideshow.Stop();

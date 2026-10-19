@@ -59,10 +59,18 @@ namespace MediaPortal.Frontend.Views
       _ring.Add(valuesList);
       DpadNavigation.Attach(this, _ring);
 
+      // Double-clicking walks a column across or opens the group under the pointer, exactly as Enter does;
+      // see HomeWindow for the general reason.
+      MouseRemote.Attach(this, shelvesList, categoriesList, valuesList);
+
       Opened += delegate
       {
         // The same command the arrow ring would reach by button; opening and pressing cannot drift apart.
         _browse.RefreshCommand.Execute(null);
+
+        // The shelves take the focus so the first Enter walks a column over rather than saying nothing;
+        // see HomeWindow for the general reason.
+        shelvesList.Focus();
       };
 
       if (openSection != null)
@@ -87,17 +95,17 @@ namespace MediaPortal.Frontend.Views
             if (args.Key != Key.Enter && args.Key != Key.Return)
               return;
 
-            if (shelvesList.IsFocused)
+            if (shelvesList.IsKeyboardFocusWithin)
             {
               if (categoriesList.Focus())
                 args.Handled = true;
             }
-            else if (categoriesList.IsFocused)
+            else if (categoriesList.IsKeyboardFocusWithin)
             {
               if (valuesList.Focus())
                 args.Handled = true;
             }
-            else if (valuesList.IsFocused)
+            else if (valuesList.IsKeyboardFocusWithin)
             {
               if (_browse.OpenCommand.CanExecute(null))
               {
