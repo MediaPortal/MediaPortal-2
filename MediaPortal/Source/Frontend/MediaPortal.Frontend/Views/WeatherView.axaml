@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        xmlns:theming="using:MediaPortal.Frontend.Theming"
         x:Class="MediaPortal.Frontend.Views.WeatherView"
         x:DataType="vm:WeatherViewModel"
         Name="weather"
@@ -97,6 +98,7 @@
       <ListBox Name="forecastList"
                Grid.Column="1"
                Focusable="True"
+               theming:SkinTemplates.TileTemplate="WeatherDayTemplate"
                ItemsSource="{Binding Days}"
                FontSize="20">
         <ListBox.ItemTemplate>

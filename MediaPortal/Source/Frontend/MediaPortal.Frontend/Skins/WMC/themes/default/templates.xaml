@@ -52,6 +52,94 @@
     </Border>
   </DataTemplate>
 
+  <!--
+    The component screens as WMC wore them: everything on a band. The headline sits large on the band with
+    its paper and hour on the band's right edge, a coming day names itself and its span on the edge, and a
+    song coming up in the party carries who sings it under its line. Where Nereus writes sentences under
+    words, WMC uses the whole width and puts the state on the edge - the same lists, a visibly different
+    screen.
+  -->
+  <DataTemplate x:Key="NewsHeadlineTemplate" x:DataType="vm:NewsHeadlineRow">
+    <Border Background="{DynamicResource PanelBrush}"
+            BorderBrush="{DynamicResource AccentBrush}"
+            BorderThickness="0,0,0,3"
+            CornerRadius="{DynamicResource DialogBorderCornerRadius}"
+            Padding="18,10,18,10"
+            Margin="0,4,10,6">
+      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="14">
+        <TextBlock Grid.Column="0"
+                   Text="{Binding Title}"
+                   FontSize="22"
+                   FontWeight="Bold"
+                   Foreground="{DynamicResource TextBrush}"
+                   TextTrimming="CharacterEllipsis"/>
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="14" VerticalAlignment="Bottom">
+          <TextBlock Text="{Binding FeedName}"
+                     FontSize="{DynamicResource SmallerFontSize}"
+                     Foreground="{DynamicResource MutedTextBrush}"/>
+          <TextBlock Text="{Binding DateText}"
+                     FontSize="{DynamicResource SmallerFontSize}"
+                     Foreground="{DynamicResource AccentBrush}"/>
+        </StackPanel>
+      </Grid>
+    </Border>
+  </DataTemplate>
+
+  <DataTemplate x:Key="WeatherDayTemplate" x:DataType="vm:WeatherDayRow">
+    <Border Background="{DynamicResource PanelBrush}"
+            BorderBrush="{DynamicResource AccentBrush}"
+            BorderThickness="0,0,0,3"
+            CornerRadius="{DynamicResource DialogBorderCornerRadius}"
+            Padding="18,10,18,10"
+            Margin="0,4,10,6">
+      <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+        <TextBlock Grid.Column="0"
+                   Text="{Binding DateText}"
+                   FontSize="22"
+                   FontWeight="Bold"
+                   Foreground="{DynamicResource TextBrush}"
+                   VerticalAlignment="Center"/>
+        <TextBlock Grid.Column="1"
+                   Text="{Binding Overview}"
+                   FontSize="{DynamicResource SmallerFontSize}"
+                   Foreground="{DynamicResource MutedTextBrush}"
+                   TextWrapping="Wrap"
+                   VerticalAlignment="Center"/>
+        <StackPanel Grid.Column="2" Spacing="2" VerticalAlignment="Bottom">
+          <TextBlock Text="{Binding Range}"
+                     FontSize="{DynamicResource SmallerFontSize}"
+                     Foreground="{DynamicResource AccentBrush}"
+                     HorizontalAlignment="Right"/>
+          <TextBlock Text="{Binding Rain}"
+                     FontSize="{DynamicResource SmallerFontSize}"
+                     Foreground="{DynamicResource MutedTextBrush}"
+                     HorizontalAlignment="Right"/>
+        </StackPanel>
+      </Grid>
+    </Border>
+  </DataTemplate>
+
+  <DataTemplate x:Key="PartyQueueTemplate" x:DataType="vm:TitleViewModel">
+    <Border Background="{DynamicResource PanelBrush}"
+            BorderBrush="{DynamicResource AccentBrush}"
+            BorderThickness="0,0,0,3"
+            CornerRadius="{DynamicResource DialogBorderCornerRadius}"
+            Padding="18,10,18,10"
+            Margin="0,4,10,6">
+      <StackPanel Spacing="2">
+        <TextBlock Text="{Binding Line}"
+                   FontSize="22"
+                   FontWeight="Bold"
+                   Foreground="{DynamicResource TextBrush}"
+                   TextTrimming="CharacterEllipsis"/>
+        <TextBlock Text="{Binding Detail}"
+                   FontSize="{DynamicResource SmallerFontSize}"
+                   Foreground="{DynamicResource MutedTextBrush}"
+                   TextTrimming="CharacterEllipsis"/>
+      </StackPanel>
+    </Border>
+  </DataTemplate>
+
   <DataTemplate x:Key="HomeMenuTileTemplate" x:DataType="vm:MainMenuEntry">
     <Border Background="{DynamicResource PanelBrush}"
             BorderBrush="{DynamicResource AccentBrush}"

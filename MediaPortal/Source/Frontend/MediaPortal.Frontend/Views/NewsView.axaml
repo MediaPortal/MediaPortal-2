@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        xmlns:theming="using:MediaPortal.Frontend.Theming"
         x:Class="MediaPortal.Frontend.Views.NewsView"
         x:DataType="vm:NewsViewModel"
         Name="news"
@@ -55,6 +56,7 @@
       <ListBox Name="headlinesList"
                Grid.Column="1"
                Focusable="True"
+               theming:SkinTemplates.TileTemplate="NewsHeadlineTemplate"
                ItemsSource="{Binding Headlines}"
                SelectedItem="{Binding SelectedHeadline, Mode=TwoWay}"
                FontSize="20">

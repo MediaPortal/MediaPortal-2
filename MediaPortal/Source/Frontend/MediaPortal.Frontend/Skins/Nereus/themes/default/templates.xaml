@@ -46,6 +46,63 @@
     </StackPanel>
   </DataTemplate>
 
+  <!--
+    The component screens in Nereus' reading: a headline is the thing and its paper and hour underneath,
+    a coming day is its date and its weather and its span, a song coming up in the party is its line with
+    who sings it under. One voice with the settings rows - the skin says the sizes and the colours, the
+    screen only says which question the row answers.
+  -->
+  <DataTemplate x:Key="NewsHeadlineTemplate" x:DataType="vm:NewsHeadlineRow">
+    <StackPanel Spacing="2" Margin="0,6,10,8">
+      <TextBlock Text="{Binding Title}"
+                 FontSize="{DynamicResource NormalFontSize}"
+                 Foreground="{DynamicResource TextBrush}"
+                 TextWrapping="Wrap"/>
+      <StackPanel Orientation="Horizontal" Spacing="14">
+        <TextBlock Text="{Binding FeedName}"
+                   FontSize="{DynamicResource SmallerFontSize}"
+                   Foreground="{DynamicResource AccentBrush}"
+                   Opacity="0.8"/>
+        <TextBlock Text="{Binding DateText}"
+                   FontSize="{DynamicResource SmallerFontSize}"
+                   Foreground="{DynamicResource MutedTextBrush}"/>
+      </StackPanel>
+    </StackPanel>
+  </DataTemplate>
+
+  <DataTemplate x:Key="WeatherDayTemplate" x:DataType="vm:WeatherDayRow">
+    <StackPanel Spacing="2" Margin="0,7,10,9">
+      <TextBlock Text="{Binding DateText}"
+                 FontSize="{DynamicResource NormalFontSize}"
+                 Foreground="{DynamicResource TextBrush}"/>
+      <TextBlock Text="{Binding Overview}"
+                 FontSize="{DynamicResource SmallerFontSize}"
+                 Foreground="{DynamicResource MutedTextBrush}"
+                 TextWrapping="Wrap"/>
+      <StackPanel Orientation="Horizontal" Spacing="16">
+        <TextBlock Text="{Binding Range}"
+                   FontSize="{DynamicResource SmallerFontSize}"
+                   Foreground="{DynamicResource AccentBrush}"/>
+        <TextBlock Text="{Binding Rain}"
+                   FontSize="{DynamicResource SmallerFontSize}"
+                   Foreground="{DynamicResource MutedTextBrush}"/>
+      </StackPanel>
+    </StackPanel>
+  </DataTemplate>
+
+  <DataTemplate x:Key="PartyQueueTemplate" x:DataType="vm:TitleViewModel">
+    <StackPanel Spacing="1" Margin="0,6,10,8">
+      <TextBlock Text="{Binding Line}"
+                 FontSize="{DynamicResource NormalFontSize}"
+                 Foreground="{DynamicResource TextBrush}"
+                 TextTrimming="CharacterEllipsis"/>
+      <TextBlock Text="{Binding Detail}"
+                 FontSize="{DynamicResource SmallerFontSize}"
+                 Foreground="{DynamicResource MutedTextBrush}"
+                 TextTrimming="CharacterEllipsis"/>
+    </StackPanel>
+  </DataTemplate>
+
   <DataTemplate x:Key="HomeMenuTileTemplate" x:DataType="vm:MainMenuEntry">
     <StackPanel Spacing="1" Margin="0,5,10,7">
       <StackPanel Orientation="Horizontal" Spacing="10">

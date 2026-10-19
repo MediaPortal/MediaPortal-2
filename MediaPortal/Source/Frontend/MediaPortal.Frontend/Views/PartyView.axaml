@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        xmlns:theming="using:MediaPortal.Frontend.Theming"
         x:Class="MediaPortal.Frontend.Views.PartyView"
         x:DataType="vm:PartyViewModel"
         Name="party"
@@ -65,6 +66,7 @@
 
         <ListBox Name="queueList"
                  Focusable="True"
+                 theming:SkinTemplates.TileTemplate="PartyQueueTemplate"
                  ItemsSource="{Binding Upcoming}"
                  SelectedItem="{Binding Selected, Mode=TwoWay}"
                  FontSize="20">
