@@ -219,6 +219,16 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
+    /// Whether a tile has to be pressed before anything moves - the same answer the content pane is steered
+    /// by, which the mouse also asks for: HomeMenuModel executed a clicked tile at once on a desktop (both
+    /// switches off) and made a touch viewer select first and press again to work the tile.
+    /// </summary>
+    public static bool WaitsForAPress
+    {
+      get { return !ContentFollowsHighlight; }
+    }
+
+    /// <summary>
     /// Whether the home may put content beside its menu at all. WMC was the skin built on those panels, and
     /// its settings screen carried exactly one switch for them: with <c>EnableHomeContent</c> off,
     /// master_homemenu hid the entire HomeContentGrid and left the menu standing on an empty set. Nereus

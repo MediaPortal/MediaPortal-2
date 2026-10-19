@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Threading;
 using MediaPortal.Frontend.Input;
 using MediaPortal.Frontend.ViewModels;
 using MediaPortal.Frontend.Workflow;
@@ -107,6 +108,33 @@ namespace MediaPortal.Frontend.Views
       // Enter that a remote would have sent on that same list, and this screen's own handler below - which
       // already knows which lists open what and which rows merely explain something - decides the rest.
       MouseRemote.Attach(this, menuList, contentList);
+
+      // Clicking a home tile: with both of Nereus' two switches off the reference executed the clicked tile
+      // outright - HomeMenuModel.SelectItem's "if touch display is not enabled just execute the item's
+      // command" - while with either on a click only selects and only pressing the tile already standing on
+      // works it, which is exactly the road the double-click already walks. So one click presses here when
+      // the worn face says nobody needs to stand on the tile first.
+      menuList.AddHandler(PointerPressedEvent,
+          delegate (object? sender, PointerPressedEventArgs args)
+          {
+            if (args.ClickCount != 1 || HomeViewModel.WaitsForAPress)
+              return;
+
+            // Posted for the same reason MouseRemote posts: the click has to finish selecting its tile
+            // before the Enter asks which tile it meant.
+            Dispatcher.UIThread.Post(delegate
+            {
+              if (!menuList.Focus())
+                return;
+              RaiseEvent(new KeyEventArgs
+              {
+                  RoutedEvent = KeyDownEvent,
+                  Key = Key.Enter,
+                  Source = menuList
+              });
+            });
+          },
+          RoutingStrategies.Tunnel);
 
       // The user buttons beside the sign-in boxes: names arrive from the server while the screen stands
       // there, so the row is rebuilt when they do. Pressing one says the name and steps into the password

@@ -67,6 +67,8 @@ namespace Tests.Frontend
       Assert.That(home.PaneEntry, Is.Null,
           "with the switch on, walking onto a tile does not fill the pane - only pressing does");
       Assert.That(home.ContentRows.Count, Is.EqualTo(0), "and the pane really stays empty");
+      Assert.That(HomeViewModel.WaitsForAPress, Is.True,
+          "and the same switch tells the mouse that a click first selects - touch behaviour");
 
       home.CommitEntry();
       Assert.That(home.PaneEntry, Is.SameAs(first), "the press fills it");
@@ -97,6 +99,8 @@ namespace Tests.Frontend
       home.SelectedEntry = first;
       Assert.That(home.PaneEntry, Is.SameAs(first), "with both switches off the pane follows the walk");
       Assert.That(home.ContentRows.Count, Is.GreaterThan(0), "and fills itself as it follows");
+      Assert.That(HomeViewModel.WaitsForAPress, Is.False,
+          "and the desktop answer holds for the mouse too: one click works the tile");
       Assert.That(NereusSkinSettings.Load(null, out _).LastSelectedHomeMenuActionId, Is.EqualTo(first.Mp2Action),
           "and every stop is the reference's selection, so every stop is remembered");
 
