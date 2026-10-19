@@ -1,4 +1,4 @@
-﻿# Multiplatform roadmap
+# Multiplatform roadmap
 
 The plan of record for turning MP2 into a Windows/Linux/Android media centre. It is deliberately
 short on vision and long on numbers, because every claim below is reproducible with a command in
@@ -3597,6 +3597,25 @@ look that says the theme never arrived. The shell now takes the screen colour ou
 paints itself with it, following every switch; the theme list tightened to fit; and the corner of every
 frame is the palette's own colour again. The gate stands at 1075.
 
+
+**The login stopped being a turnstile, and the settings became the place a household configures.** MP2's
+server has always carried a switch called "Web authorization"; in the reference it guarded the web pages,
+which is why nobody in a living room ever met it - the desktop front end did not speak HTTP at all. This
+front end speaks nothing else, so out of the zip it met a login box before it had seen a single film, which
+is the opposite of the reference's basic installation, where user management was something a household
+*enabled* on its server if it wanted profiles at all. The switch therefore now starts off, it stays the
+server's to turn on, and the home screen's sign-in boxes appear only when a server actually refuses an
+anonymous caller.
+
+**Settings opened as one question about colours; the reference kept a list of places.** The tile now opens
+the hub the reference had: the front end's own machine first - its appearance, its server address, its
+playback - and behind them the server with its media sources, where shares are added, removed and imported.
+The hub owns no answers: every section opens the screen that already did that work, including the connection
+screen, which the hub reaches through the workflow so the trail and the back key keep speaking about the
+same stop. Playback offers the volume and the mute of the running player - said honestly, because the
+reference's player configuration asked the player itself for renderers and audio devices, and this player
+does not answer to those yet; the section names that instead of drawing a form whose buttons would lie.
+Four tests cover the hub, and the gate stands at 1079.
 
 ## What cannot be verified without the user
 
