@@ -2935,7 +2935,7 @@ namespace Tests.Server.Api
         ActionResult<MediaController.ItemResult> action;
         MediaController.ItemResult result = GetItem(
             CreateFanArtLibrary(new List<MediaItem> { ShowWithoutFile(seriesId, "Prison Break", DateTime.MinValue) },
-                new List<MediaItem> { episode }, out _), seriesId, out action);
+                new List<MediaItem> { episode }, out List<MediaItemQuery> queries), seriesId, out action);
 
         Assert.That(result.Overview, Does.StartWith("Due to a political conspiracy"),
             "the show's own file, two folders above the episode, describes the show - not the episode's summary");
@@ -2947,6 +2947,13 @@ namespace Tests.Server.Api
             "the ratings list's default entry is the one read, with its decimal kept");
         Assert.That(result.FirstAired, Is.EqualTo(new DateTime(2005, 8, 29)),
             "for a series the show's premiere is the first aired date, not one episode's air date");
+
+        // On the live server the mock is not there to hand out aspects nobody asked for: if the query that fetches
+        // the series does not name the aspect that makes it one, the detour cannot see it and the whole search
+        // quietly never starts. This is the assertion that keeps that from coming back.
+        MediaItemQuery asked = queries.Find(what => what.Filter is MediaItemIdFilter);
+        Assert.That(asked.OptionalRequestedMIATypeIDs, Does.Contain(SeriesAspect.ASPECT_ID),
+            "the question for the title also asks for the aspect that makes it a series, or no file can be found");
       }
       finally
       {

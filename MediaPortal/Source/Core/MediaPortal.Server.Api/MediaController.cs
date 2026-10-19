@@ -946,7 +946,11 @@ namespace MediaPortal.Server.Api
           ProviderResourceAspect.ASPECT_ID,
           MovieAspect.ASPECT_ID,
           VideoAspect.ASPECT_ID,
-          EpisodeAspect.ASPECT_ID
+          EpisodeAspect.ASPECT_ID,
+          // Asked for here because the metadata search below detours from a series or a season to one of its
+          // episodes, and it can only know it is talking to one of those when the answer carries the aspect.
+          SeriesAspect.ASPECT_ID,
+          SeasonAspect.ASPECT_ID
         };
 
         MediaItemQuery query = new MediaItemQuery(necessary, optional, new MediaItemIdFilter(id));
