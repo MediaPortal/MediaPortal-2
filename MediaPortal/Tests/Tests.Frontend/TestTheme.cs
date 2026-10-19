@@ -304,6 +304,61 @@ namespace Tests.Frontend
       return found!;
     }
 
+    /// <summary>
+    /// Every <c>DynamicResource</c> name the front end and its skins ask for must be a name somebody answers.
+    /// A <c>DynamicResource</c> that finds nothing does not fall back and does not complain - it never paints,
+    /// and the screen shows an unset brush forever. This front end has already shipped this mistake twice:
+    /// the superlayers and then the chrome asked for bare <c>Text</c>, <c>Outline</c> and friends, which no
+    /// palette has ever carried. So the whole tree is re-read here - views, chrome, templates, overlays - and
+    /// every asked name is looked for in the places a resource can be born: an <c>x:Key</c> in any XAML file
+    /// of the front end, a key in the palette's own table, or a key the palette code writes into the merged
+    /// dictionary while tinting.
+    /// </summary>
+    [Test]
+    public void NoDynamicResourceAsksForANameNobodyAnswers()
+    {
+      string root = MetadataPath("FrontendSource");
+
+      Dictionary<string, List<string>> asked = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+      HashSet<string> defined = new HashSet<string>(StringComparer.Ordinal);
+      defined.UnionWith(FrontendTheme.Keys);
+
+      foreach (string file in Directory.EnumerateFiles(root, "*.*", SearchOption.AllDirectories)
+          .Where(f => f.EndsWith(".axaml", StringComparison.OrdinalIgnoreCase)
+                   || f.EndsWith(".xaml", StringComparison.OrdinalIgnoreCase)
+                   || f.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
+          .Where(f => !f.Contains("\\bin\\") && !f.Contains("\\obj\\")
+                   && !f.Contains("/bin/") && !f.Contains("/obj/"))
+          .OrderBy(f => f, StringComparer.Ordinal))
+      {
+        string text = File.ReadAllText(file);
+        string shown = file.Substring(root.Length).TrimStart('\\', '/');
+
+        foreach (Match m in Regex.Matches(text, @"DynamicResource\s+([A-Za-z0-9_]+)\s*\}"))
+        {
+          string key = m.Groups[1].Value;
+          if (!asked.TryGetValue(key, out List<string>? where))
+            asked[key] = where = new List<string>();
+          if (!where.Contains(shown))
+            where.Add(shown);
+        }
+
+        foreach (Match m in Regex.Matches(text, @"x:Key=""([A-Za-z0-9_]+)"""))
+          defined.Add(m.Groups[1].Value);
+        foreach (Match m in Regex.Matches(text, "brushes\\[\"([A-Za-z0-9_]+)\"\\]"))
+          defined.Add(m.Groups[1].Value);
+      }
+
+      List<string> dead = new List<string>();
+      foreach (KeyValuePair<string, List<string>> entry in asked.OrderBy(e => e.Key, StringComparer.Ordinal))
+        if (!defined.Contains(entry.Key))
+          dead.Add(entry.Key + " (asked by " + string.Join(", ", entry.Value) + ")");
+
+      Assert.That(dead, Is.Empty,
+          "a DynamicResource that answers nothing paints nothing, silently and forever - these names are "
+          + "asked for but defined nowhere: " + string.Join("; ", dead));
+    }
+
     [AvaloniaTest]
     public void AThemeThatDoesNotExistIsSaidOutLoudAndChangesNothing()
     {
