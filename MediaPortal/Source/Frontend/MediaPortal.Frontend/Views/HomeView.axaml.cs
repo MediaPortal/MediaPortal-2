@@ -146,6 +146,10 @@ namespace MediaPortal.Frontend.Views
 
             if (menuList.IsKeyboardFocusWithin && menuList.SelectedItem is MainMenuEntry entry)
             {
+              // Pressing a tile is the answer Nereus' switches wait for: it moves the content pane when the
+              // pane was told not to follow the walk, and it is the press the reference remembered.
+              _home.CommitEntry();
+
               HomeSection? section = _home.Open(entry);
               if (section != null)
                 OpenSection(section);

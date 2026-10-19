@@ -187,12 +187,34 @@ namespace MediaPortal.Frontend.ViewModels
     {
       get
       {
-        Application? app = Application.Current;
-        if (app == null)
-          return true;
+        return WornSkinSettingsOrNull() is not NereusSkinSettings nereus || nereus.EnableHelpTexts;
+      }
+    }
 
-        return SkinSettingsBase.LoadFor(FrontendTheme.CurrentName(app), null, out _)
-            is not NereusSkinSettings nereus || nereus.EnableHelpTexts;
+    /// <summary>The worn skin's own answers, or null while the machine wears a face that ships none.</summary>
+    private static SkinSettingsBase? WornSkinSettingsOrNull()
+    {
+      Application? app = Application.Current;
+      return app == null
+          ? null
+          : SkinSettingsBase.LoadFor(FrontendTheme.CurrentName(app), null, out _);
+    }
+
+    /// <summary>
+    /// Whether the pane beside the menu follows the walking highlight. Nereus kept two switches for when it
+    /// must not: <c>EnableMenuSelection</c> ("a menu item has to be selected before it works") and its
+    /// touch-screen twin <c>EnableTouchDisplay</c> both made the reference fill the pane only when the viewer
+    /// stood and pressed a tile - HomeMenuModel updated the content on the explicit selection and left the
+    /// pane alone while the highlight moved. With both switches off it followed the highlight, after a
+    /// moment's delay; this port follows it at once, because its lists fill themselves in as the answers
+    /// arrive and there is no waiting worth hiding behind.
+    /// </summary>
+    private static bool ContentFollowsHighlight
+    {
+      get
+      {
+        return WornSkinSettingsOrNull() is not NereusSkinSettings nereus
+            || (!nereus.EnableMenuSelection && !nereus.EnableTouchDisplay);
       }
     }
 
@@ -205,13 +227,7 @@ namespace MediaPortal.Frontend.ViewModels
     /// </summary>
     public bool HomeContentShown
     {
-      get
-      {
-        Application? app = Application.Current;
-        return HomeContentShownFor(app == null
-            ? null
-            : SkinSettingsBase.LoadFor(FrontendTheme.CurrentName(app), null, out _));
-      }
+      get { return HomeContentShownFor(WornSkinSettingsOrNull()); }
     }
 
     internal static bool HomeContentShownFor(SkinSettingsBase? worn)
@@ -317,7 +333,12 @@ namespace MediaPortal.Frontend.ViewModels
         }
       }
 
-      SelectedEntry = null;
+      // Nothing was selected and nothing survives the rebuild: the reference still did not start the menu at
+      // its top - it restored the last pressed action from the settings, so that home opens on the shelf the
+      // viewer last stood on rather than on whichever tile happens to be first.
+      SelectedEntry = RememberedEntry();
+      if (SelectedEntry != null && !ContentFollowsHighlight)
+        _ = ShowContentAsync(SelectedEntry);
       RaiseMenuRebuilt(connected);
     }
 
@@ -402,6 +423,7 @@ namespace MediaPortal.Frontend.ViewModels
     {
       int generation = ++_contentGeneration;
       ContentRows.Clear();
+      _paneEntry = entry;
 
       if (entry == null)
       {
@@ -522,13 +544,91 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
-    /// Walking the menu with a remote: every stop refills the pane.
+    /// Walking the menu with a remote: every stop refills the pane - unless Nereus is switched to wait for a
+    /// press (ContentFollowsHighlight), in which case the pane holds the last pressed tile's lists and only
+    /// <see cref="CommitEntry"/> moves it.
     /// </summary>
     partial void OnSelectedEntryChanged(MainMenuEntry? value)
     {
+      if (!ContentFollowsHighlight)
+        return;
+
+      RememberLastAction(value);
+
       // Deliberately not awaited: the key press that moved the selection must not wait on four HTTP requests, and
       // the pane is designed to fill itself in as they arrive.
       _ = ShowContentAsync(value);
+    }
+
+    // The tile the content pane is currently filled from. With the walk-to-select switches off this is whatever
+    // the highlight stands on; with them on it is the last tile that was actually pressed.
+    private MainMenuEntry? _paneEntry;
+
+    /// <summary>
+    /// The entry the content pane is being filled from: the highlighted one while the pane follows the walk,
+    /// the last pressed one while Nereus is switched to wait for a press.
+    /// </summary>
+    public MainMenuEntry? PaneEntry
+    {
+      get { return _paneEntry; }
+    }
+
+    /// <summary>
+    /// The viewer pressed OK on a menu tile. Two things follow, both the reference's: the pane (when it was
+    /// waiting for a press rather than following the walk) fills from the pressed tile, and the tile is
+    /// remembered - HomeMenuModel wrote the pressed action into <c>LastSelectedHomeMenuActionId</c> every time,
+    /// so the home screen a viewer returns to tomorrow opens on the shelf they last stood on.
+    /// </summary>
+    public void CommitEntry()
+    {
+      MainMenuEntry? entry = SelectedEntry;
+      if (entry == null)
+        return;
+
+      RememberLastAction(entry);
+
+      if (!ContentFollowsHighlight && !ReferenceEquals(entry, _paneEntry))
+        _ = ShowContentAsync(entry);
+    }
+
+    /// <summary>
+    /// Writes the pressed tile into the worn skin's settings - only when a skin that has the setting is worn,
+    /// and only when it is not already the remembered one, because a settings write per keystroke is a file
+    /// that never rests.
+    /// </summary>
+    private void RememberLastAction(MainMenuEntry? entry)
+    {
+      if (entry?.Mp2Action == null)
+        return;
+
+      if (WornSkinSettingsOrNull() is not NereusSkinSettings nereus)
+        return;
+
+      if (nereus.LastSelectedHomeMenuActionId == entry.Mp2Action)
+        return;
+
+      nereus.LastSelectedHomeMenuActionId = entry.Mp2Action;
+      nereus.Save(null, out _);
+    }
+
+    /// <summary>
+    /// The remembered pressed tile, as long as today's menu still has it: the reference restored the saved
+    /// action on startup and on every menu rebuild, and let the tile simply not come back when the menu had
+    /// changed under it.
+    /// </summary>
+    private MainMenuEntry? RememberedEntry()
+    {
+      if (WornSkinSettingsOrNull() is not NereusSkinSettings nereus
+          || string.IsNullOrEmpty(nereus.LastSelectedHomeMenuActionId))
+        return null;
+
+      foreach (MainMenuEntry entry in Menu)
+      {
+        if (entry.Mp2Action == nereus.LastSelectedHomeMenuActionId)
+          return entry;
+      }
+
+      return null;
     }
 
     // What somebody left half way is no strip of its own on this screen, and deliberately so. The reference
