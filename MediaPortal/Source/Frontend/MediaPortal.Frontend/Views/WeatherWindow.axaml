@@ -1,0 +1,138 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        x:Class="MediaPortal.Frontend.Views.WeatherWindow"
+        x:DataType="vm:WeatherViewModel"
+        Name="weather"
+        Width="1280" Height="720"
+        WindowState="Maximized"
+        Background="{DynamicResource ScreenBackgroundBrush}"
+        Title="MediaPortal 2 - Weather">
+
+  <!--
+    The weather, for the places the viewer watches. The column of places on the left with its search box under
+    it, the days coming in the middle, and the sky right now on the right where there is room for the big
+    number - because the first question at a weather screen is "what is it outside", and everything else is
+    tomorrow's business.
+  -->
+
+  <DockPanel Margin="48,36">
+
+    <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,20">
+      <TextBlock Text="Weather"
+                 FontSize="40"
+                 FontWeight="SemiBold" />
+      <TextBlock Text="OpenWeatherMap, in the units and language your culture asks for"
+                 FontSize="18"
+                 Opacity="0.7"
+                 TextWrapping="Wrap"
+                 MaxWidth="1500"
+                 HorizontalAlignment="Left" />
+    </StackPanel>
+
+    <TextBlock DockPanel.Dock="Bottom"
+               Name="statusLine"
+               Text="{Binding Status}"
+               FontSize="20"
+               Opacity="0.85"
+               Margin="0,18,0,0"
+               TextWrapping="Wrap" />
+
+    <Grid ColumnDefinitions="360,*,500" ColumnSpacing="30">
+
+      <StackPanel Spacing="14">
+        <ListBox Name="placesList"
+                 Focusable="True"
+                 Height="300"
+                 ItemsSource="{Binding Places}"
+                 SelectedItem="{Binding SelectedPlace, Mode=TwoWay}"
+                 FontSize="20">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:WeatherPlaceRow">
+              <StackPanel Spacing="2" Margin="4,8">
+                <TextBlock Text="{Binding Name}" FontSize="22" TextWrapping="Wrap" />
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                  <TextBlock Text="{Binding Detail}" FontSize="16" Opacity="0.6" />
+                  <TextBlock Text="{Binding Where}" FontSize="15" Opacity="0.4" />
+                </StackPanel>
+              </StackPanel>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+
+        <Button Name="removeButton"
+                Content="Remove this place"
+                FontSize="18"
+                Focusable="True"
+                HorizontalAlignment="Left"
+                Command="{Binding RemoveSelectedPlaceCommand}" />
+
+        <TextBox Name="searchBox"
+                 Watermark="Search for a place"
+                 FontSize="20"
+                 Focusable="True"
+                 Text="{Binding SearchText, Mode=TwoWay}" />
+
+        <!-- The matches only crowd the screen while there are any; the column of watched places should not
+             shrink every time somebody types three letters. -->
+        <ListBox Name="foundList"
+                 Focusable="True"
+                 MaxHeight="260"
+                 IsVisible="{Binding Found.Count}"
+                 ItemsSource="{Binding Found}"
+                 SelectedItem="{Binding SelectedFound, Mode=TwoWay}"
+                 FontSize="20">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:WeatherPlaceRow">
+              <StackPanel Spacing="2" Margin="4,8">
+                <TextBlock Text="{Binding Name}" FontSize="21" TextWrapping="Wrap" />
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                  <TextBlock Text="{Binding Detail}" FontSize="16" Opacity="0.6" />
+                  <TextBlock Text="{Binding Where}" FontSize="15" Opacity="0.4" />
+                </StackPanel>
+              </StackPanel>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </StackPanel>
+
+      <ListBox Name="forecastList"
+               Grid.Column="1"
+               Focusable="True"
+               ItemsSource="{Binding Days}"
+               FontSize="20">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="vm:WeatherDayRow">
+            <StackPanel Spacing="2" Margin="4,10">
+              <TextBlock Text="{Binding DateText}" FontSize="21" />
+              <TextBlock Text="{Binding Overview}" FontSize="18" Opacity="0.8" TextWrapping="Wrap" />
+              <StackPanel Orientation="Horizontal" Spacing="18">
+                <TextBlock Text="{Binding Range}" FontSize="18" Opacity="0.85" />
+                <TextBlock Text="{Binding Rain}" FontSize="16" Opacity="0.55" />
+              </StackPanel>
+            </StackPanel>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+
+      <StackPanel Grid.Column="2" Spacing="12">
+        <TextBlock Text="{Binding CurrentTitle}"
+                   FontSize="28"
+                   FontWeight="SemiBold"
+                   TextWrapping="Wrap" />
+        <TextBlock Text="{Binding CurrentLine}"
+                   FontSize="44"
+                   Margin="0,8,0,4"
+                   TextWrapping="Wrap" />
+        <TextBlock Text="{Binding CurrentDetail}"
+                   FontSize="20"
+                   Opacity="0.85"
+                   TextWrapping="Wrap" />
+        <TextBlock Text="Nothing is being watched - search for a place on the left"
+                   FontSize="18"
+                   Opacity="0.5"
+                   IsVisible="{Binding SelectedPlace, Converter={x:Static ObjectConverters.IsNull}}" />
+      </StackPanel>
+    </Grid>
+  </DockPanel>
+</Window>

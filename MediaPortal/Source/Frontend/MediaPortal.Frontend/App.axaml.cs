@@ -465,6 +465,17 @@ namespace MediaPortal.Frontend
         return new NewsWindow(new NewsViewModel(new NewsApiClient()));
       }
 
+      if (screenKey.Equals("weather", StringComparison.OrdinalIgnoreCase))
+      {
+        // The other screen that talks to the internet rather than the server, because the weather was never the
+        // server's data either. The viewer's own API key, if they saved one, rides on the client from the
+        // settings file; the product's shared keys are behind it. The view model reads the same file again for
+        // its places and its own complaint line, so a broken file is said by the screen that shows it.
+        WeatherPlacesSettings places = WeatherPlacesSettings.Load(null, out _);
+        return new WeatherWindow(new WeatherViewModel(
+            new WeatherApiClient(userApiKey: places.ApiKey)));
+      }
+
       // A tile naming a screen nobody builds is a mismatch between the menu and this method, which is a bug in the
       // front end rather than something the viewer can do anything about.
       throw new InvalidOperationException(

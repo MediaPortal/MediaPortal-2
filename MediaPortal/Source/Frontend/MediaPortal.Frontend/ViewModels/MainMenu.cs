@@ -131,9 +131,9 @@ namespace MediaPortal.Frontend.ViewModels
     /// <c>TV</c> and <c>Radio</c> because live television and radio came from the TV service, which was removed from
     /// this tree (commit 029a262aa4) and nothing serves it since; <c>Settings</c> because the server keeps its
     /// configuration behind a .NET Remoting interface the new API has not grown an equivalent of yet; <c>News</c>
-    /// used to be on that list too, until the front end grew its own news screen and started reading the same
-    /// feeds the old plugin read; <c>Weather</c>,
-    /// <c>Party music player</c> and <c>Utilities</c> because those three are still written against the old skin
+    /// and <c>Weather</c> used to be on that list too, until the front end grew their screens and started
+    /// reading the same feeds and the same forecast service the old plugins read; <c>Party music player</c> and
+    /// <c>Utilities</c> because those two are still written against the old skin
     /// engine this front end replaced - their plugins are in this tree, their screens are not.
     /// </para>
     /// <para>
@@ -193,7 +193,7 @@ namespace MediaPortal.Frontend.ViewModels
         ("Home->SlimTvClientRadio", "[SlimTvClient.Radio]", "Radio", Array.Empty<string>(),
             "radio stations and their guide", "no radio backend", null, null),
         ("Home->Weather", "[Weather.Title]", "Weather", Array.Empty<string>(),
-            "the forecast", "its screen is still old skin", null, null),
+            "the forecast", null, "weather", null),
         ("Home->PartyMusicConfig", "[PartyMusicPlayer.MenuItem]", "Party music player", Array.Empty<string>(),
             "the party playlists", "its screen is still old skin", null, null),
         // The one part of MP2's configuration that has an HTTP API, and therefore the one part that could be edited

@@ -3331,6 +3331,61 @@ configuration API the server does not have. No icons, no cache, no background re
 the feed's own words, not the whole article behind the link, because fetching every linked page to read a
 screenful is not a thing a television should do.
 
+### az. Weather: the same plugin's rules, the endpoints the plugin no longer has
+
+Weather is the second screen that talks to somebody else's machine, and the second that has no server endpoint to
+ask - the old plugin went straight to OpenWeatherMap with three built-in public API keys, chose Celsius or
+Fahrenheit by asking `RegionInfo` whether the viewer's country writes metric, asked for descriptions in the
+interface language, and spoke wind direction as compass points. All of that survives. What does not survive is
+the plugin's address book: its locations were stored as OpenWeatherMap *city ids*, typed in by hand from a
+website, and the endpoint that used them (`data/2.5/weather?q=...&mode=json`) no longer answers a city name with
+a list - live-probing the API showed one best-guess object where the plugin expected an array. The plugin's world
+quietly changed underneath it.
+
+**Places are coordinates now, found by search.** The screen gained what the plugin never had: a search box. The
+geocoder (`geo/1.0/direct`) is the endpoint that still answers names, and it answers with latitude, longitude,
+state and country - no city id at all. So a watched place is a coordinate pair plus the label the geocoder
+printed ("Berlin, Berlin, DE" against "Berlin, New Hampshire, US" is why the second line exists), kept in a
+little `weather.json` beside `frontend.json`, together with an optional API key of the viewer's own. The current
+read and the forecast take coordinates, which is both what the free endpoints want and a truer record of the
+place than a number one vendor invented.
+
+**Days are cut from the three-hourly answer, in the city's own calendar.** The plugin's sixteen-day forecast
+endpoint is gone from the free tier; what remains is `data/2.5/forecast`, forty slots of three hours, each with
+temperature extremes, a description, a probability of precipitation - and, usefully, the city's UTC offset. The
+aggregation the old endpoint did on the server is now done here: a slot belongs to the day it lands on *where
+the city is*, so the test fixture is Ürümqi at UTC+6 and its first forecast day starts at 00:30 local while UTC
+still calls it the day before. Each day takes its high as the maximum of its slots' maxima and its low as the
+minimum of their minima, its words from the slot that hits local noon (the middle of the day is what a daily
+forecast used to describe), and its rain chance as the largest probability inside it.
+
+**Refusals name themselves, and the keys step aside.** The three built-in keys are the plugin's own, still
+public, and used the plugin's way: a `401` or `429` means *this key* is spent, so the next key is tried before
+anybody is told the weather did not arrive - the test server counts the requests and asserts the step happened.
+Every other refusal travels up and is written into the status line, `"Berlin did not answer: 503 ... "`, while
+the other watched places keep their last weather on screen. A search that finds nothing says `"Nothing on earth
+answers to '...'"`; a read in flight makes the next selection cancel it, so a fast walker through the places
+column never ends up reading the wrong city. And the culture rules learned one hard lesson on the way:
+`RegionInfo` *throws* on a neutral culture like `en` - it is a language, not a region - so the client asks the
+culture's own `TextInfo` first and falls back to imperial rather than crashing on the viewer from nowhere.
+
+**What this is not yet.** No weather icons - the plugin drew a picture per condition, and this skin has no
+picture set for weather yet, so the forecast is in words. No background refresh, same bargain as News. Maps,
+sunrise, and hourly granularity did not come along; neither did the plugin's settings dialog, because the search
+box replaced the reason it existed.
+
+**Proof.** Seven new tests took the suite from 1008 to 1015, and none of them reaches the internet. A scripted
+OpenWeatherMap answers the geocoder, the current read, and the forecast in the real JSON shapes: a search finds
+two Berlins and keeping one writes the settings file, and a *new view model over the same file* - which is what
+a restart is - opens on it and reads it without another search; the first of two requests is refused and the
+test asserts both the retry *and* that it was with the next key; the Ürümqi fixture proves the local-day cut; a
+Vienna culture reads `8°C` and `NE 3,1 m/s` while a US culture reads the identical bytes as `8°F` and
+`3.1 mph`; a city that refuses is named while the other place keeps talking; and the compass wraps - the eighth
+direction after north is north. `Weather` is the fifth front-end-owned tile. The probe gained a `weather` frame
+drawn from a scripted internet - a city at UTC+2 with its slots around local noon - whose content check reads
+`8°C, few clouds` and `Saturday 3 January broken clouds 6°C / 1°C rain 20%`, so the picture and the assertions
+are the same words.
+
 
 ## What cannot be verified without the user
 

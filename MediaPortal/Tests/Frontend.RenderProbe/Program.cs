@@ -230,6 +230,10 @@ namespace FrontendProbe
       // before the picture is taken, and its scripted internet lives in this file rather than out there.
       NewsViewModel? newsScreen = null;
 
+      // The same for the weather screen: one saved place in a temporary settings file, and a scripted
+      // OpenWeatherMap answering the current sky and the days ahead.
+      WeatherViewModel? weatherScreen = null;
+
       // Set when the library screen lists what a running server really holds. The frame is then somebody's own
       // shelf with the pictures the importer found on it, which is the one frame that says the whole road works.
       MediaBrowserViewModel? browserScreen = null;
@@ -357,18 +361,18 @@ namespace FrontendProbe
               + " tile(s), but the script offers two parts of the library a viewer can watch.");
           return 1;
         }
-        if (home.Menu.Count(entry => entry.Openable) != 6)
+        if (home.Menu.Count(entry => entry.Openable) != 7)
         {
           // The screen does not draw `Sections` any more, it draws the menu built from them, so this is the check
           // that belongs to the picture: the two parts the script offers have to be the two entries a viewer can
           // open, and the seven the script cannot fill have to be saying so rather than being missing. The other
-          // four openable entries are the folders screen, the pictures screen, the browse screen and the news
-          // screen, all of which are openable whatever the server holds - one reads the folders the library was
-          // built from, one walks the shares, the third asks the server to group whatever it turns out to hold,
-          // and the fourth asks the internet instead; none needs a title to have been imported.
+          // five openable entries are the folders screen, the pictures screen, the browse screen, the news and
+          // the weather, all of which are openable whatever the server holds - one reads the folders the library
+          // was built from, one walks the shares, the third asks the server to group whatever it turns out to
+          // hold, and the last two ask the internet instead; none needs a title to have been imported.
           Console.WriteLine("FAILED:   " + home.Menu.Count(entry => entry.Openable)
               + " openable menu entr(ies) of " + home.Menu.Count
-              + "; expected two plus the folders, pictures, browse and news screens, because"
+              + "; expected two plus the folders, pictures, browse, news and weather screens, because"
               + " the script offers two parts of the library a viewer can watch.");
           return 1;
         }
@@ -610,10 +614,25 @@ namespace FrontendProbe
             new NewsApiClient(new HttpClient(new ScriptedNews())), "en");
         window = new NewsWindow(newsScreen);
       }
+      else if (screenName.Equals("weather", StringComparison.Ordinal))
+      {
+        // The weather screen, with OpenWeatherMap scripted. The frame has to mean the same thing on every
+        // machine that draws it and on every afternoon, and a real forecast changes by the hour - so the script
+        // answers with one fixed sky: eight degrees and few clouds now, two days coming, one of them rainy by
+        // morning and clear by its own noon, which is the midday-entry rule made visible. The place itself comes
+        // from a temporary settings file, because where the weather is watched is the viewer's saved decision
+        // and the screen's own first frame is the one it draws from saved places.
+        string weatherSettingsFile = Path.Combine(Path.GetTempPath(), "mp2-render-weather.json");
+        File.WriteAllText(weatherSettingsFile,
+            "{\"places\":[{\"name\":\"Berlin\",\"detail\":\"DE\",\"lat\":52.517,\"lon\":13.3889}]}");
+        weatherScreen = new WeatherViewModel(
+            new WeatherApiClient(new HttpClient(new ScriptedWeather())), weatherSettingsFile, "en-GB");
+        window = new WeatherWindow(weatherScreen);
+      }
       else
       {
         return Usage("unknown screen '" + screenName + "'; this probe renders home, continue, nowplaying, connect,"
-            + " browser, details, search, seen, folders, pictures, browse or news.");
+            + " browser, details, search, seen, folders, pictures, browse, news or weather.");
       }
 
       window.Width = width;
@@ -845,6 +864,46 @@ namespace FrontendProbe
       }
 
       Console.WriteLine("screen:   " + screenName);
+      if (weatherScreen != null)
+      {
+        // The saved place is selected by the view model itself, and the selection starts the read - this wait
+        // says both halves of that happened, and says it before the picture is taken.
+        if (!PumpUntil(delegate { return weatherScreen.Days.Count >= 2 && !weatherScreen.IsBusy; },
+            TimeSpan.FromSeconds(10)))
+        {
+          Console.WriteLine("FAILED:   the weather screen never showed the days it was served. Status: "
+              + weatherScreen.Status);
+          return 1;
+        }
+
+        Console.WriteLine("content:  " + weatherScreen.CurrentLine + " | " + weatherScreen.CurrentDetail + " | "
+            + string.Join(", ", weatherScreen.Days.Select(day => day.DateText + " " + day.Overview + " "
+                + day.Range + " " + day.Rain)) + ", status: " + weatherScreen.Status);
+        if (!weatherScreen.CurrentLine.Contains("8°C", StringComparison.Ordinal)
+            || !weatherScreen.CurrentDetail.Contains("NW", StringComparison.Ordinal)
+            && !weatherScreen.CurrentDetail.Contains("NE", StringComparison.Ordinal))
+        {
+          Console.WriteLine("FAILED:   the current panel does not carry the scripted sky - the script answers "
+              + "eight degrees and few clouds with a NE wind, and the frame has to say what the API said.");
+          return 1;
+        }
+
+        WeatherDayRow first = weatherScreen.Days[0];
+        WeatherDayRow second = weatherScreen.Days[1];
+        if (first.Overview != "broken clouds" || second.Overview != "light snow")
+        {
+          Console.WriteLine("FAILED:   a day's words are not its midday entry's; the script makes the first day "
+              + "rainy at ten and broken-cloud at two, and the day must read broken clouds.");
+          return 1;
+        }
+        if (first.Range != "6°C / 1°C" || second.Range != "4°C / -1°C")
+        {
+          Console.WriteLine("FAILED:   the days carry " + first.Range + " and " + second.Range
+              + "; the script's three-hour entries span 6.1 over 1.2 and 3.9 over -1.4 in the city's own "
+              + "local day - the aggregation is the frame's whole claim.");
+          return 1;
+        }
+      }
       if (newsScreen != null)
       {
         // The window started reading when it opened - that is the screen's own doing, not the probe's, and this
@@ -1679,6 +1738,53 @@ namespace FrontendProbe
         {
           RequestMessage = request,
           Content = new StringContent(body, Encoding.UTF8, "application/rss+xml")
+        });
+      }
+    }
+
+    /// <summary>
+    /// OpenWeatherMap as the weather frame needs it: one fixed sky now and four three-hourly entries spanning
+    /// two of the city's own local days - rainy at ten, broken clouds at two - so the frame pictures the
+    /// aggregation rule (a day is its midday's weather and its own extremes) rather than a live forecast that
+    /// would mean a different picture every afternoon.
+    /// </summary>
+    private sealed class ScriptedWeather : HttpMessageHandler
+    {
+      private const string CURRENT_JSON = "{\"coord\":{\"lon\":13.39,\"lat\":52.52},"
+          + "\"weather\":[{\"id\":801,\"main\":\"Clouds\",\"description\":\"few clouds\",\"icon\":\"02d\"}],"
+          + "\"main\":{\"temp\":8.04,\"feels_like\":6.1,\"temp_min\":6.5,\"temp_max\":8.98,\"pressure\":1032,"
+          + "\"humidity\":78},\"wind\":{\"speed\":3.09,\"deg\":60},\"name\":\"Berlin\"}";
+
+      private const string FORECAST_JSON = "{\"cod\":\"200\",\"cnt\":4,\"city\":{\"id\":2950159,"
+          + "\"name\":\"Berlin\",\"timezone\":7200},\"list\":["
+          + "{\"dt\":1767427200,\"main\":{\"temp\":4.5,\"feels_like\":2.0,\"temp_min\":1.2,\"temp_max\":5.4,"
+          + "\"pressure\":1030,\"humidity\":88},\"weather\":[{\"id\":500,\"main\":\"Rain\","
+          + "\"description\":\"light rain\",\"icon\":\"10d\"}],\"pop\":0.2,\"wind\":{\"speed\":2.0,\"deg\":200}},"
+          + "{\"dt\":1767434400,\"main\":{\"temp\":6.0,\"feels_like\":4.0,\"temp_min\":3.0,\"temp_max\":6.1,"
+          + "\"pressure\":1031,\"humidity\":70},\"weather\":[{\"id\":803,\"main\":\"Clouds\","
+          + "\"description\":\"broken clouds\",\"icon\":\"04d\"}],\"pop\":0.1,\"wind\":{\"speed\":2.5,\"deg\":240}},"
+          + "{\"dt\":1767513600,\"main\":{\"temp\":2.0,\"feels_like\":-1.0,\"temp_min\":-1.4,\"temp_max\":3.3,"
+          + "\"pressure\":1028,\"humidity\":92},\"weather\":[{\"id\":600,\"main\":\"Snow\","
+          + "\"description\":\"snow\",\"icon\":\"13d\"}],\"pop\":0.6,\"wind\":{\"speed\":4.0,\"deg\":320}},"
+          + "{\"dt\":1767520800,\"main\":{\"temp\":3.5,\"feels_like\":1.0,\"temp_min\":0.5,\"temp_max\":3.9,"
+          + "\"pressure\":1029,\"humidity\":80},\"weather\":[{\"id\":600,\"main\":\"Snow\","
+          + "\"description\":\"light snow\",\"icon\":\"13d\"}],\"pop\":0.4,\"wind\":{\"speed\":3.5,\"deg\":340}}"
+          + "]}";
+
+      protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+          CancellationToken cancellation)
+      {
+        string path = request.RequestUri!.AbsolutePath;
+        string? body = path.EndsWith("/weather", StringComparison.Ordinal) ? CURRENT_JSON
+            : path.EndsWith("/forecast", StringComparison.Ordinal) ? FORECAST_JSON
+            : null;
+        if (body == null)
+          return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound) { RequestMessage = request });
+
+        return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+        {
+          RequestMessage = request,
+          Content = new StringContent(body, Encoding.UTF8, "application/json")
         });
       }
     }

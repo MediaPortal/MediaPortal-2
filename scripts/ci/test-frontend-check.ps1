@@ -292,7 +292,7 @@ try {
       if (-not $RenderDir) { $RenderDir = Join-Path (Join-Path $repoRoot 'build\artifacts') 'frontend-render' }
       New-Item -ItemType Directory -Path $RenderDir -Force | Out-Null
 
-      # Eleven screens, thirteen frames. The home screen is drawn from a server that is really answering; the
+      # Twelve screens, fourteen frames. The home screen is drawn from a server that is really answering; the
       # continue frame is the same screen of a household that has been watching things, drawn from a scripted
       # server, because the strip cannot be drawn from an empty database; the playback screen is drawn from a
       # scripted player, because a frame that is supposed to mean the same
@@ -327,6 +327,11 @@ try {
         # frame must mean the same thing on every machine, and the state worth picturing is the honest ugly one:
         # three feeds asked, two answered, one came back with a 500 and says so in its own row.
         @{ Name = 'news-windows'; Arguments = '--screen news' },
+        # The weather screen is drawn from a scripted OpenWeatherMap - one fixed sky and four three-hourly
+        # entries spanning two local days - because a live forecast would mean a different picture every
+        # afternoon, and the claim in this frame is the aggregation: a day takes its midday's words and its own
+        # extremes, and the city's midnight divides its days, not the television's.
+        @{ Name = 'weather-windows'; Arguments = '--screen weather' },
         # The playback screen in the colours of the two skins MP2 shipped, because "the skins were rescued" is a
         # claim about pixels and because that screen carries most of what a palette says: the background, the panel
         # behind every transport button, the text on it, the outlines and the focus ring. The probe checks the frame
