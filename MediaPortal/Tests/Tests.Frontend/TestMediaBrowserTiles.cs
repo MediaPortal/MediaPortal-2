@@ -558,6 +558,82 @@ namespace Tests.Frontend
     }
 
     [AvaloniaTest]
+    public void TheMediaButtonStandsBesideTheViewButtonAndNeitherReplacesTheOther()
+    {
+      Application app = RequireApplication();
+      FrontendTheme.Apply(app, "nereus", out _);
+
+      MediaBrowserViewModel vm = new MediaBrowserViewModel(null, MoviesSection(), null);
+      Assert.That(vm.MediaLabel, Is.EqualTo("Media: Poster"),
+          "the poster is the picture of a shelf nobody ever asked");
+      Assert.That(vm.LayoutLabel, Is.EqualTo("View: Grid"),
+          "the view question stands right next to the picture question, asked as before");
+
+      // One round over the three pictures: each kind asks the skin for its own frame, and the view it is
+      // walked in is untouched by the answer.
+      vm.SwitchMedia();
+      Assert.That(vm.MediaLabel, Is.EqualTo("Media: Banner"));
+      Assert.That(vm.GridTemplateKey, Is.EqualTo("MediaTileBannerTemplate"));
+      Assert.That(vm.Layout, Is.EqualTo(BrowserLayout.Grid), "the view stayed where it was");
+
+      vm.SwitchMedia();
+      Assert.That(vm.MediaLabel, Is.EqualTo("Media: Thumbnail"));
+      Assert.That(vm.GridTemplateKey, Is.EqualTo("MediaTileThumbnailTemplate"));
+
+      vm.SwitchMedia();
+      Assert.That(vm.MediaLabel, Is.EqualTo("Media: Poster"));
+      Assert.That(vm.GridTemplateKey, Is.EqualTo("MediaTilePosterTemplate"));
+
+      // And the view button is likewise untouched by the picture button's doings.
+      vm.SwitchView();
+      Assert.That(vm.Layout, Is.EqualTo(BrowserLayout.Cover));
+      Assert.That(vm.MediaLabel, Is.EqualTo("Media: Poster"), "the picture stayed where it was");
+    }
+
+    [AvaloniaTest]
+    public void TheMediaButtonRepaintsWithTheKindsOwnBytesAndIsRememberedByScreen()
+    {
+      Application app = RequireApplication();
+      FrontendTheme.Apply(app, "nereus", out _);
+
+      Guid title = Guid.NewGuid();
+      KindArtworkServer handler = new KindArtworkServer(title, Guid.NewGuid());
+      ServerApiClient client = new ServerApiClient(
+          new Uri("http://127.0.0.1:1/MediaPortal/Server/"), new HttpClient(handler));
+
+      MediaBrowserViewModel vm = new MediaBrowserViewModel(client, MoviesSection(), null);
+      vm.OpenCommand.Execute(null);
+      WaitUntil("the shelf to fill", delegate { return vm.Titles.Count == 2; });
+      WaitUntil("the poster to reach the row", delegate { return vm.Titles[1].Artwork != null; });
+      Assert.That(vm.Titles[1].Artwork, Is.EqualTo(new byte[] { 1, 1, 1, 1 }));
+
+      // The button repaints the rows that are already there, and the banner is the server's own banner
+      // bytes - never a poster squeezed into the banner's frame, which is the complaint this answers.
+      vm.SwitchMedia();
+      WaitUntil("the banner to reach the row",
+          delegate { return vm.Titles[1].Artwork != null && vm.Titles[1].Artwork!.SequenceEqual(new byte[] { 9, 8, 7, 6, 5 }); });
+      lock (handler.Kinds)
+      {
+        Assert.That(handler.Kinds, Does.Contain("Banner"), "the press asks the server for the kind's own bytes");
+      }
+
+      vm.SwitchMedia();
+      Assert.That(vm.MediaKind, Is.EqualTo(GridViewType.Thumbnail));
+
+      // The screen remembers the answer its viewer gave it, and a second screen is a second answer.
+      MediaBrowserViewModel again = new MediaBrowserViewModel(null, MoviesSection(), null);
+      Assert.That(again.MediaKind, Is.EqualTo(GridViewType.Thumbnail),
+          "the films' screen keeps the picture its viewer picked");
+      HomeSection series = new HomeSection("Series",
+          new AspectViewModel(new FrontendAspect(Guid.Parse("22222222-2222-2222-2222-222222222222"),
+              "SeriesItem", false, false,
+              null, Array.Empty<MediaPortal.Frontend.Api.AspectAttribute>())));
+      MediaBrowserViewModel episodes = new MediaBrowserViewModel(null, series, null);
+      Assert.That(episodes.MediaKind, Is.EqualTo(GridViewType.Poster),
+          "nobody answered the picture question for the series' screen");
+    }
+
+    [AvaloniaTest]
     public void TheCoversCornersObeyTheCoversOwnSetting()
     {
       Application app = RequireApplication();

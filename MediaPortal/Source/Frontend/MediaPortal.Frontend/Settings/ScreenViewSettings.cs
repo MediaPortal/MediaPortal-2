@@ -75,10 +75,21 @@ public sealed class ScreenViewSettings
   public Dictionary<string, bool> Details { get; set; } =
       new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
 
+  /// <summary>Chosen tile picture per aspect name, spelled "Poster", "Banner" or "Thumbnail".</summary>
+  [JsonPropertyName("media")]
+  public Dictionary<string, string> Media { get; set; } =
+      new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
   /// <summary>Whether this screen was ever answered, which is the question the defaults hide behind.</summary>
   public bool HasLayout(string aspect)
   {
     return aspect != null && Layouts.ContainsKey(aspect);
+  }
+
+  /// <summary>Whether the viewer ever picked the tile picture on this screen.</summary>
+  public bool HasMedia(string aspect)
+  {
+    return aspect != null && Media.ContainsKey(aspect);
   }
 
   /// <summary>Whether the viewer ever answered the details question for this screen.</summary>
@@ -114,6 +125,7 @@ public sealed class ScreenViewSettings
 
       read.Layouts ??= new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
       read.Details ??= new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+      read.Media ??= new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
       return read;
     }
     catch (Exception ex)

@@ -83,7 +83,11 @@ namespace MediaPortal.Frontend.Views
       browser.PropertyChanged += delegate (object? sender,
           System.ComponentModel.PropertyChangedEventArgs args)
       {
-        if (args.PropertyName == nameof(MediaBrowserViewModel.Layout))
+        // The shape and the picture inside the shape both change which frame the list draws, so both dress
+        // the rows again.
+        if (args.PropertyName == nameof(MediaBrowserViewModel.Layout)
+            || args.PropertyName == nameof(MediaBrowserViewModel.MediaKind)
+            || args.PropertyName == nameof(MediaBrowserViewModel.GridTemplateKey))
           ApplyLayout();
       };
       // A skin put on or taken off while this screen is open changes which frames answer the tile keys, and
@@ -134,8 +138,15 @@ namespace MediaPortal.Frontend.Views
             else if (args.Key == Key.V && !searchBox.IsFocused)
             {
               // V for view: rows or the skin's tiles. What shape the tiles take is not this key's business - the
-              // skin's own settings say that - so the key only has the one question left for the viewer.
+              // Media button asks that - so the key only has the one question left for the viewer.
               viewModel.SwitchViewCommand.Execute(null);
+              args.Handled = true;
+            }
+            else if (args.Key == Key.M && !searchBox.IsFocused)
+            {
+              // M for media: the picture the tiles wear, poster to banner to thumbnail. The same question the
+              // button beside the view button asks, reachable from the sofa.
+              viewModel.SwitchMediaCommand.Execute(null);
               args.Handled = true;
             }
             else if (searchBox.IsFocused && (args.Key == Key.Enter || args.Key == Key.Return))

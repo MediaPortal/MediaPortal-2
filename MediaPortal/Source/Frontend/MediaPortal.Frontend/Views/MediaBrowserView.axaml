@@ -137,9 +137,9 @@
             Opacity="{Binding FanartOverlay}"
             IsVisible="{Binding HasBackgroundArtwork}" />
 
-  <DockPanel Margin="48,36">
+  <DockPanel Margin="44,20">
 
-    <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,12">
+    <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,6">
       <TextBlock Text="{Binding Heading}"
                  x:Name="shelfHeading"
                  FontSize="40"
@@ -155,26 +155,34 @@
       is not searching. It is always on screen rather than behind a key: a viewer who cannot see the box will never
       think to look for it. Escape in the box puts the whole shelf back, Enter asks the server.
     -->
-    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="14" Margin="0,0,0,16">
+    <!--
+      The row holds the search box, the watched filter and the three screen questions - view, media, details -
+      inside 1280 pixels: narrow enough to walk in one line on the sofa screen, because a second line would
+      push the fifth row of the shelf off the frame. It wraps anyway on narrower windows; nothing may vanish.
+    -->
+    <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,8">
       <TextBox Name="searchBox"
                Text="{Binding SearchText, Mode=TwoWay}"
-               PlaceholderText="Find a title by name"
-               Width="520"
+               PlaceholderText="Find a title"
+               Width="300"
                FontSize="22"
-               Padding="14,8" />
+               Padding="14,8"
+               Margin="0,0,10,4" />
       <Button Name="findButton"
               Content="Find"
               Command="{Binding FindCommand}"
-              MinWidth="150"
-              Padding="24,8"
-              FontSize="22" />
+              MinWidth="110"
+              Padding="20,8"
+              FontSize="22"
+              Margin="0,0,10,4" />
       <Button Name="clearButton"
               Content="Clear"
               Command="{Binding ClearSearchCommand}"
               IsVisible="{Binding HasSearch}"
-              MinWidth="150"
-              Padding="24,8"
-              FontSize="22" />
+              MinWidth="110"
+              Padding="20,8"
+              FontSize="22"
+              Margin="0,0,10,4" />
       <!--
         The watched filter, on the same row as the search because it is the same kind of question - which of my
         titles am I looking at - and a viewer who wants one usually wants to know the other. Its label says the
@@ -183,9 +191,10 @@
       <Button Name="seenButton"
               Content="{Binding SeenLabel}"
               Command="{Binding CycleSeenCommand}"
-              MinWidth="220"
-              Padding="24,8"
-              FontSize="22" />
+              MinWidth="170"
+              Padding="20,8"
+              FontSize="22"
+              Margin="0,0,10,4" />
       <!--
         The view of this screen - rows, tiles or covers - on every screen whatever it wears, because a view
         is the screen's promise and not one skin's privilege. The tile shape inside the grid is still the
@@ -195,9 +204,22 @@
       <Button Name="viewButton"
               Content="{Binding LayoutLabel}"
               Command="{Binding SwitchViewCommand}"
+              MinWidth="160"
+              Padding="20,8"
+              FontSize="22"
+              Margin="0,0,10,4" />
+      <!--
+        Which picture the tiles wear - poster, banner or thumbnail - asked next to the view it appears in
+        rather than buried in a skin's settings, and remembered for this screen alone. The button adds a
+        question, it never takes the view question away: view says the shape, media says the picture.
+      -->
+      <Button Name="mediaButton"
+              Content="{Binding MediaLabel}"
+              Command="{Binding SwitchMediaCommand}"
               MinWidth="180"
-              Padding="24,8"
-              FontSize="22" />
+              Padding="20,8"
+              FontSize="22"
+              Margin="0,0,10,4" />
       <!--
         Whether the selected title's details stand beside the shelf, asked here rather than buried in a
         skin's settings, and remembered for this screen alone: the films may wear their details while the
@@ -206,16 +228,17 @@
       <Button Name="detailsButton"
               Content="{Binding DetailsLabel}"
               Command="{Binding ToggleDetailsCommand}"
-              MinWidth="200"
-              Padding="24,8"
-              FontSize="22" />
-    </StackPanel>
+              MinWidth="170"
+              Padding="20,8"
+              FontSize="22"
+              Margin="0,0,10,4" />
+    </WrapPanel>
 
     <TextBlock DockPanel.Dock="Bottom"
                FontSize="14"
                Opacity="0.45"
                Margin="0,12,0,0"
-               Text="Arrows move · OK plays · F finds · W filters watched · V switches rows, tiles or covers · I shows or hides the details · Esc clears the search · Back returns" />
+               Text="Arrows move · OK plays · F finds · W filters watched · V switches rows, tiles or covers · M switches the tile picture · I shows or hides the details · Esc clears the search · Back returns" />
 
     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24">
 

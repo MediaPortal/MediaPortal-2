@@ -628,14 +628,17 @@ namespace MediaPortal.Frontend.ViewModels
       // A machine wearing its own face has nobody to answer for tiles and stays the list it was written as;
       // the View button, where tiles exist, puts that list one press away.
       _skinSettings = WornSkinSettings();
-      _tileKind = _skinSettings == null ? GridViewType.Poster : TileKindFor(AspectName, _skinSettings);
+      _screens = ScreenViewSettings.Load(null, out _);
+      // The picture a tile wears opens with this screen's own remembered answer first and the worn skin's
+      // setting behind it - the Media button puts the question on the screen itself, next to the View
+      // button, and a screen keeps the answer its viewer gave it there.
+      _tileKind = RememberedMedia() ?? (_skinSettings == null ? GridViewType.Poster : TileKindFor(AspectName, _skinSettings));
       HasTiles = SkinEngine.TryTileTemplate(TileKey(_tileKind)) != null;
       // The cover is the third view of the reference's view mode, and since the viewer asked for it on every
       // screen it is a view rather than a privilege of one skin: a skin that draws its own covers gets its
       // own, and every other screen gets this front end's cover frame. The remembered shape below is what
       // decides whether a shelf opens as rows, tiles or covers.
       HasCover = SkinEngine.TryTileTemplate(COVER_TEMPLATE_KEY) != null;
-      _screens = ScreenViewSettings.Load(null, out _);
       _layout = RememberedLayout() ?? (HasTiles ? BrowserLayout.Grid : BrowserLayout.List);
       // The details answer is the viewer's own for this screen first; where this screen was never asked,
       // the worn skin's setting speaks - which is the reference's <c>EnableMediaItemDetailsView</c>, whose
@@ -659,16 +662,36 @@ namespace MediaPortal.Frontend.ViewModels
       // grid bound FanArtType="Banner", its thumbnail grid FanArtType="Thumbnail", and neither ever drew a
       // poster in the other's frame - without the kind's own picture they drew the skin's "no banner" layer.
       // So a banner or thumbnail shelf reads that kind's bytes for its rows; a poster shelf keeps drawing the
-      // thumbnail blob MP2's importers store in the database, which is the poster.
-      _tileArtwork = client == null || !HasTiles || _tileKind == GridViewType.Poster
-          ? null
-          : new Artwork(id => client.GetFanArtAsync(id,
-              _tileKind == GridViewType.Banner ? "Banner" : "Thumbnail"));
+      // thumbnail blob MP2's importers store in the database, which is the poster. The pictures are made per
+      // kind on first use (TileArtworkFor) so that the Media button can walk between kinds without throwing
+      // either kind's already-read bytes away.
     }
 
     private readonly SkinSettingsBase? _skinSettings;
-    private readonly GridViewType _tileKind;
-    private readonly Artwork? _tileArtwork;
+    private GridViewType _tileKind;
+    private readonly Dictionary<GridViewType, Artwork?> _tileArtworks =
+        new Dictionary<GridViewType, Artwork?>();
+
+    /// <summary>
+    /// The source of this tile kind's own pictures, made once per kind and kept: a viewer who walks the
+    /// Media button round twice repaints from the bytes already read rather than asking the server again.
+    /// The poster kind has no source of its own - it is the database's thumbnail blob, which every shelf
+    /// already carries - and neither has a shelf with no server to ask.
+    /// </summary>
+    private Artwork? TileArtworkFor(GridViewType kind)
+    {
+      if (kind == GridViewType.Poster)
+        return null;
+
+      if (_tileArtworks.TryGetValue(kind, out Artwork? known))
+        return known;
+
+      Artwork? created = _client == null
+          ? null
+          : new Artwork(id => _client.GetFanArtAsync(id, kind == GridViewType.Banner ? "Banner" : "Thumbnail"));
+      _tileArtworks.Add(kind, created);
+      return created;
+    }
 
     /// <summary>
     /// What the worn skin keeps as settings, or <c>null</c> when the machine wears its own face (or the tests
@@ -691,6 +714,15 @@ namespace MediaPortal.Frontend.ViewModels
       return _screens.Layouts.TryGetValue(AspectName, out string? word)
           && Enum.TryParse<BrowserLayout>(word, true, out BrowserLayout shape)
           ? shape
+          : null;
+    }
+
+    /// <summary>The tile picture this screen's viewer last picked, or <c>null> when they never did.</summary>
+    private GridViewType? RememberedMedia()
+    {
+      return _screens.Media.TryGetValue(AspectName, out string? word)
+          && Enum.TryParse<GridViewType>(word, true, out GridViewType kind)
+          ? kind
           : null;
     }
 
@@ -925,7 +957,7 @@ namespace MediaPortal.Frontend.ViewModels
     /// </summary>
     private Artwork? ArtworkForLayout
     {
-      get { return Layout == BrowserLayout.Cover ? _artwork : _tileArtwork ?? _artwork; }
+      get { return Layout == BrowserLayout.Cover ? _artwork : TileArtworkFor(_tileKind) ?? _artwork; }
     }
 
     /// <summary>
@@ -949,6 +981,43 @@ namespace MediaPortal.Frontend.ViewModels
 
       _screens.Layouts[AspectName] = Layout.ToString();
       _screens.Save(null, out _);
+    }
+
+    /// <summary>
+    /// Which picture the tiles wear on this screen: the poster the database holds, the banner, or the
+    /// thumbnail. The button and nothing else changes it; the worn skin's grid setting is only the answer
+    /// for a screen whose viewer never pressed the button.
+    /// </summary>
+    public GridViewType MediaKind => _tileKind;
+
+    public string MediaLabel
+    {
+      get { return "Media: " + _tileKind; }
+    }
+
+    /// <summary>
+    /// One step round the pictures a tile can wear - poster, banner, thumbnail, and round again - asked on
+    /// the screen itself rather than behind a skin's settings page, and remembered for this screen alone.
+    /// The shelf repaints its rows with the kind's own bytes, from the cache that kind already has.
+    /// </summary>
+    [RelayCommand]
+    public void SwitchMedia()
+    {
+      _tileKind = _tileKind switch
+      {
+        GridViewType.Poster => GridViewType.Banner,
+        GridViewType.Banner => GridViewType.Thumbnail,
+        _ => GridViewType.Poster
+      };
+
+      _screens.Media[AspectName] = _tileKind.ToString();
+      _screens.Save(null, out _);
+
+      OnPropertyChanged(nameof(MediaLabel));
+      OnPropertyChanged(nameof(MediaKind));
+      // The grid asks the skin for a different frame per kind, so the screen has to dress its rows again.
+      OnPropertyChanged(nameof(GridTemplateKey));
+      _ = PaintRowsAsync(ArtworkForLayout);
     }
 
     /// <summary>The tile this list came from, or <c>null</c> in the designer.</summary>
