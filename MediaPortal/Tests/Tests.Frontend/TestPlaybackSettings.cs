@@ -60,6 +60,8 @@ namespace Tests.Frontend
       Assert.That(settings.SubtitlesEnabled, Is.True);
       Assert.That(settings.AudioLanguage, Is.Empty);
       Assert.That(settings.SlideshowSeconds, Is.EqualTo(7));
+      Assert.That(settings.WatchedMarkPercentage, Is.EqualTo(90),
+          "the reference counts ninety per cent as watched, and ships that answer");
     }
 
     [Test]
@@ -77,10 +79,36 @@ namespace Tests.Frontend
       Assert.That(again.InitialVolume, Is.EqualTo(40));
       Assert.That(again.AudioLanguage, Is.EqualTo("eng"));
 
-      File.WriteAllText(_file, "{\"skipStepSeconds\": 99999, \"initialVolume\": -9}");
+      File.WriteAllText(_file, "{\"skipStepSeconds\": 99999, \"initialVolume\": -9, \"watchedMarkPercentage\": 400}");
       PlaybackSettings edited = PlaybackSettings.Load(_file, out _);
       Assert.That(edited.SkipStepSeconds, Is.EqualTo(30), "a skip of a thousand hours is not an answer");
       Assert.That(edited.InitialVolume, Is.EqualTo(100), "negative sound does not exist");
+      Assert.That(edited.WatchedMarkPercentage, Is.EqualTo(90),
+          "four hundred per cent of a film is not a thing, and the reference's ninety stands");
+
+      // A whole per cent inside the stretch is an answer somebody can mean - including nought, which the
+      // reference's own number selector allowed.
+      File.WriteAllText(_file, "{\"watchedMarkPercentage\": 0}");
+      Assert.That(PlaybackSettings.Load(_file, out _).WatchedMarkPercentage, Is.Zero);
+    }
+
+    [Test]
+    public void TheWatchedMarkRowWalksTheLadderAndWritesEachRung()
+    {
+      PlaybackSettingsViewModel screen = new PlaybackSettingsViewModel(_file);
+      SkinSettingOption row = null;
+      foreach (SkinSettingOption option in screen.Options)
+        if (option.Label == "Watched at")
+          row = option;
+      Assert.That(row, Is.Not.Null, "the reference's watched-mark setting deserves its row");
+
+      Assert.That(row.ValueText, Is.EqualTo("90 %"));
+      row.Press();
+      Assert.That(row.ValueText, Is.EqualTo("100 %"));
+      row.Press();
+      Assert.That(row.ValueText, Is.EqualTo("50 %"), "the row is a round trip, not a one-way door");
+      Assert.That(PlaybackSettings.Load(_file, out _).WatchedMarkPercentage, Is.EqualTo(50),
+          "every stop on the row is written where it is reached");
     }
 
     [Test]

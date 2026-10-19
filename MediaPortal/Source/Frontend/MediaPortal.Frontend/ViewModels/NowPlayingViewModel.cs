@@ -914,10 +914,21 @@ namespace MediaPortal.Frontend.ViewModels
     /// 1 to 100. Zero means there is nothing worth saying: ninety seconds of a film somebody abandoned during the
     /// studio logos is not a fact about that film, and writing it down would make "never watched" unanswerable.
     /// </param>
+    /// <remarks>
+    /// The reference's rule for what leaves a mark lives here (<c>PlayerContextManager.NotifyPlayback</c>):
+    /// a viewing that reached the configured percentage counts as watched, and since the library door
+    /// understands "watched" as the hundred, the report is raised to it. The reference additionally wrote a
+    /// watched-but-not-last-part media as fifty so the next part would resume; this front end reports one
+    /// file at a time and has no "part" to ask, so only the first half of that rule applies.
+    /// </remarks>
     private void Report(Guid? mediaItemId, int percentage)
     {
       if (_reported || percentage < 1 || mediaItemId == null || mediaItemId == Guid.Empty)
         return;
+
+      int mark = Preferences?.WatchedMarkPercentage ?? DEFAULT_WATCHED_MARK;
+      if (percentage >= mark)
+        percentage = 100;
 
       EventHandler<PlaybackReportedEventArgs>? listeners = PlaybackReported;
       if (listeners == null)
@@ -927,14 +938,19 @@ namespace MediaPortal.Frontend.ViewModels
       listeners(this, new PlaybackReportedEventArgs(_mediaItemId.Value, percentage));
     }
 
+    /// <summary>The reference's own answer, used when this screen was handed no preferences at all.</summary>
+    private const int DEFAULT_WATCHED_MARK = 90;
+
     /// <summary>
     /// How far the viewer got, as a whole percentage rounded down, and never a hundred.
     /// </summary>
     /// <remarks>
-    /// Stopping at 99.5% of a file is a person who left, and a tick on the wrong film is a lie a viewer has to
-    /// notice in order to correct. Only the engine saying "that media ended" produces a hundred (see
-    /// <see cref="OnEndOfMedia"/>). A length of zero - live TV, a stream still being probed, anything a player
-    /// holds no position in - has no percentage to report and says so with a zero.
+    /// Stopping at 99.5% of a file is a person who left, and the measured number itself never reads a
+    /// hundred - only the engine saying "that media ended" produces one there (see
+    /// <see cref="OnEndOfMedia"/>). What the library is told is a different question: a measurement past the
+    /// watched mark travels as the hundred the library door understands (see <see cref="Report"/>). A length
+    /// of zero - live TV, a stream still being probed, anything a player holds no position in - has no
+    /// percentage to report and says so with a zero.
     /// </remarks>
     private int PercentageReached(long reachedMs)
     {

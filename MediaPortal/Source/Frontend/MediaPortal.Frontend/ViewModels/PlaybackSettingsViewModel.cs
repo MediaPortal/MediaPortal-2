@@ -65,6 +65,10 @@ public partial class PlaybackSettingsViewModel : ObservableObject
 
     Options.Add(new SkinSettingOption("Picture shows for", "How long one picture stands during a slideshow",
         SlideshowText, AdvanceSlideshow, Changed));
+
+    Options.Add(new SkinSettingOption("Watched at",
+        "How much of a title must be played before it counts as watched",
+        WatchedMarkText, AdvanceWatchedMark, Changed));
   }
 
   public ObservableCollection<SkinSettingOption> Options { get; } = new ObservableCollection<SkinSettingOption>();
@@ -152,6 +156,16 @@ public partial class PlaybackSettingsViewModel : ObservableObject
   private void AdvanceSlideshow()
   {
     _settings.SlideshowSeconds = Next(PlaybackSettings.SLIDESHOW_SECONDS, _settings.SlideshowSeconds);
+  }
+
+  private string WatchedMarkText()
+  {
+    return _settings.WatchedMarkPercentage + " %";
+  }
+
+  private void AdvanceWatchedMark()
+  {
+    _settings.WatchedMarkPercentage = Next(PlaybackSettings.WATCHED_MARKS, _settings.WatchedMarkPercentage);
   }
 
   /// <summary>What every row does after its answer changed: save, say it, let the screens follow.</summary>

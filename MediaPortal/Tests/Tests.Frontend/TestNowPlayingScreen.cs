@@ -610,11 +610,12 @@ namespace Tests.Frontend
     }
 
     [Test]
-    public void StoppingABarFromTheEndDoesNotClaimTheFilmWasFinished()
+    public void StoppingABarFromTheEndCountsAsWatchedBecauseTheReferenceSaysSo()
     {
-      // The position the engine reports can reach the length itself - a paused last frame, a seek to the end - and
-      // a percentage worked out from it would read as a hundred. Only the engine's own "that media ended" says a
-      // film was finished; everything a viewer stopped is a film they left.
+      // The position the engine reports can reach the length itself - a paused last frame, a seek to the end -
+      // and the measured percentage caps at ninety-nine rather than a hundred it did not earn. The reference's
+      // own rule then decides what the library hears: a viewing past the watched mark counts as watched, and
+      // watched travels as the hundred the library door understands (PlayerContextManager.NotifyPlayback).
       Listen();
       _screen.Play(SomeFile("film.mkv"), TITLE_ID);
       Pump();
@@ -625,8 +626,28 @@ namespace Tests.Frontend
       Pump();
 
       Assert.That(_reports, Has.Count.EqualTo(1));
+      Assert.That(_reports[0].Percentage, Is.EqualTo(100),
+          "past the reference's ninety, a stopped film is a watched film");
+    }
+
+    [Test]
+    public void TheWatchedMarkIsTheViewersOwnAnswer()
+    {
+      // The reference's setting (PlayerManagerSettings.WatchedPlayPercentage) walked nought to a hundred; a
+      // hundred there means "watched means finished", and then a stop at ninety-nine really is a film left.
+      _screen.Preferences = new MediaPortal.Frontend.Settings.PlaybackSettings { WatchedMarkPercentage = 100 };
+      Listen();
+      _screen.Play(SomeFile("film.mkv"), TITLE_ID);
+      Pump();
+      _player.RaisePosition(59_400, 60_000);
+      Pump();
+
+      _screen.Stop();
+      Pump();
+
+      Assert.That(_reports, Has.Count.EqualTo(1));
       Assert.That(_reports[0].Percentage, Is.EqualTo(99),
-          "a hundred is earned by finishing, not by a number reaching the end");
+          "asked to count only finished films, a bar ninety-nine per cent full is not one");
     }
 
     [Test]

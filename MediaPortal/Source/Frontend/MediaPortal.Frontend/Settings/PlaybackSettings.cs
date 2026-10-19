@@ -105,6 +105,20 @@ public sealed class PlaybackSettings
   [JsonPropertyName("slideshowSeconds")]
   public int SlideshowSeconds { get; set; } = 7;
 
+  /// <summary>
+  /// How much of a title has to be played before it counts as watched - the reference's "Watched play
+  /// percentage" (<c>PlayerManagerSettings.WatchedPlayPercentage</c>), and the reference's own answer of
+  /// ninety is the shipped one. The rule it serves is the reference's: <i>watched is a decision, not the
+  /// end of the file</i> - whoever reports a viewing turns it into the hundred the library door
+  /// understands once this much has been seen (see <see cref="ViewModels.NowPlayingViewModel"/>).
+  /// </summary>
+  [JsonPropertyName("watchedMarkPercentage")]
+  public int WatchedMarkPercentage { get; set; } = 90;
+
+  /// <summary>The answers the watched-mark row walks. The reference offered the whole stretch of nought
+  /// to a hundred as a number; a remote walks a ladder, and the file still takes any whole per cent.</summary>
+  public static readonly int[] WATCHED_MARKS = { 50, 60, 70, 80, 90, 100 };
+
   /// <summary>The answers the skip row walks, in the reference's own spread of the same choice.</summary>
   public static readonly int[] SKIP_STEPS = { 5, 10, 30, 60, 120, 300 };
 
@@ -169,6 +183,10 @@ public sealed class PlaybackSettings
       read.VolumeStep = Clamp(read.VolumeStep, 1, 50, 5);
       read.InitialVolume = Clamp(read.InitialVolume, 0, 100, 100);
       read.SlideshowSeconds = Clamp(read.SlideshowSeconds, 1, 600, 7);
+      // The whole per cent stretch 0..100 is an answer somebody can mean - nought means "watched the
+      // moment anything is reported", which the reference allowed too; only nonsense outside it falls
+      // back to the reference's own ninety.
+      read.WatchedMarkPercentage = Clamp(read.WatchedMarkPercentage, 0, 100, 90);
       read.AudioLanguage ??= "";
       read.SubtitleLanguage ??= "";
       return read;
