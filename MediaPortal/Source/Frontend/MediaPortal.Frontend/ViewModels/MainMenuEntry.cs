@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections.Generic;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace MediaPortal.Frontend.ViewModels
 {
@@ -34,7 +35,7 @@ namespace MediaPortal.Frontend.ViewModels
   /// only place that knows whether the server currently answers for that aspect.
   /// </para>
   /// </remarks>
-  public sealed class MainMenuEntry
+  public sealed partial class MainMenuEntry : ObservableObject
   {
     /// <param name="mp2Action">
     /// The name MP2's own workflow files give the contribution this entry is - <c>"Home->Movies"</c> - or null for an
@@ -217,5 +218,13 @@ namespace MediaPortal.Frontend.ViewModels
       entry.Section = section;
       return entry;
     }
+
+    /// <summary>
+    /// Whether this entry's shelf is what the machine is playing right now. Both rescued skins carried a picture
+    /// named exactly <c>IsPlaying</c> for this sentence; the home tile wears it while the aspect behind the entry
+    /// is the one a film, an album or a picture show is being read from.
+    /// </summary>
+    [ObservableProperty]
+    private bool _isPlaying;
   }
 }

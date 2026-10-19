@@ -212,6 +212,28 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
+    /// Whether two aspects are the one shelf the viewer walked in from: the same aspect, or one filed inside the
+    /// other - an episode sits in the series' shelf, a track in the album's, a film in the collection's. The home
+    /// tile that marks what is playing needs this, because a pressed episode is still the series' tile being used.
+    /// </summary>
+    public static bool SameShelf(string? aspectA, string? aspectB)
+    {
+      if (string.Equals(aspectA, aspectB, StringComparison.OrdinalIgnoreCase))
+        return true;
+
+      foreach ((string parent, string child, string _) in CONTAINERS)
+      {
+        if ((string.Equals(aspectA, parent, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(aspectB, child, StringComparison.OrdinalIgnoreCase))
+            || (string.Equals(aspectB, parent, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(aspectA, child, StringComparison.OrdinalIgnoreCase)))
+          return true;
+      }
+
+      return false;
+    }
+
+    /// <summary>
     /// How the titles inside this aspect are ordered: tracks by their number, episodes by season and number, films
     /// of a collection by name. <c>title</c> for anything else, which is what a whole shelf is ordered by.
     /// </summary>

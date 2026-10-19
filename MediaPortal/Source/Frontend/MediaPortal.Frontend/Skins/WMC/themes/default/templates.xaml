@@ -35,6 +35,19 @@
                  Height="30"
                  Stretch="Uniform"
                  HorizontalAlignment="Center"/>
+          <!-- The "this shelf is playing" mark, the very picture WMC carries under the name IsPlaying. It
+               sits to the right of the tile picture, where WMC put a band's state, and it appears with the
+               picture and not before it: a mark with nothing under it is the hole in the tile that a media
+               centre is judged by. -->
+          <Image Source="{Binding Label,
+                                  Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter=IsPlaying}"
+                 Height="14"
+                 Stretch="Uniform"
+                 HorizontalAlignment="Right"
+                 VerticalAlignment="Top"
+                 Margin="0,2,2,0"
+                 IsVisible="{Binding IsPlaying, Mode=OneWay}"/>
           <TextBlock Text="{Binding Badge}" FontSize="24" Opacity="0.85"
                      VerticalAlignment="Center"
                      Foreground="{DynamicResource TextBrush}"

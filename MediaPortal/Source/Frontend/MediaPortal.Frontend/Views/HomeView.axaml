@@ -138,6 +138,17 @@
                          Height="34"
                          Stretch="Uniform"
                          HorizontalAlignment="Center" />
+                  <!-- The "this shelf is playing" mark: the very picture both rescued skins carry under the
+                       name IsPlaying, worn by the tile whose shelf a film, an album or a show is read from.
+                       No skin, no picture, no claim - the tile says nothing it cannot show. -->
+                  <Image Source="{Binding Label, Converter={x:Static views:SkinImageConverter.Instance},
+                                         ConverterParameter=IsPlaying}"
+                         Height="14"
+                         Stretch="Uniform"
+                         HorizontalAlignment="Right"
+                         VerticalAlignment="Top"
+                         Margin="0,1,4,0"
+                         IsVisible="{Binding IsPlaying}" />
                   <TextBlock Text="{Binding Badge}"
                              FontSize="21"
                              TextAlignment="Center"

@@ -227,6 +227,10 @@ namespace MediaPortal.Frontend.ViewModels
       foreach (MainMenuEntry entry in MainMenu.Build(Aspects, connected))
         Menu.Add(entry);
 
+      // The playing mark is a fact about playback, not about this reading, and it has to survive the rebuild -
+      // a refresh landing in the middle of a film would otherwise take the mark off the tile without a word.
+      ApplyPlaying();
+
       if (wasSelected != null)
       {
         foreach (MainMenuEntry entry in Menu)
@@ -250,6 +254,36 @@ namespace MediaPortal.Frontend.ViewModels
     {
       if (connected)
         MenuRebuilt?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>
+    /// What the application last said is playing, in the server's aspect spelling, or null when nothing is.
+    /// Kept so a menu rebuilt under a running film repaints its mark from the truth rather than from amnesia.
+    /// </summary>
+    private string? _playingAspect;
+
+    /// <summary>
+    /// Marks the menu tile whose shelf is being watched and takes the mark off every other tile.
+    /// </summary>
+    /// <param name="aspect">
+    /// The aspect of what is playing, or null when nothing is. An episode marks the series' tile as much as the
+    /// series does - pressing an episode is using the series' shelf - while a mark that could only guess goes
+    /// off entirely, because a tile claiming the wrong thing is worse than one claiming nothing.
+    /// </param>
+    public void ShowPlaying(string? aspect)
+    {
+      _playingAspect = aspect;
+      ApplyPlaying();
+    }
+
+    private void ApplyPlaying()
+    {
+      foreach (MainMenuEntry entry in Menu)
+      {
+        string? playing = _playingAspect;
+        entry.IsPlaying = !string.IsNullOrEmpty(playing)
+            && entry.Aspects.Any(aspect => MediaCatalog.SameShelf(aspect, playing));
+      }
     }
 
     /// <summary>

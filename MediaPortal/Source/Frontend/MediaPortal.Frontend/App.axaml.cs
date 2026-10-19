@@ -236,7 +236,11 @@ namespace MediaPortal.Frontend
         // readable from the home shelf and the volume was visible without opening the door it played behind.
         if (_nowPlaying != null)
         {
-          _nowPlaying.PropertyChanged += delegate { Dispatcher.UIThread.Post(FeedChromeFromPlayback); };
+          _nowPlaying.PropertyChanged += delegate
+          {
+            Dispatcher.UIThread.Post(FeedChromeFromPlayback);
+            Dispatcher.UIThread.Post(FeedHomeFromPlayback);
+          };
           FeedChromeFromPlayback();
         }
 
@@ -262,6 +266,21 @@ namespace MediaPortal.Frontend
         _shell.Chrome.ReportPlaying(_nowPlaying.Title, _nowPlaying.Progress, _nowPlaying.StateText);
       else
         _shell.Chrome.ReportStopped();
+    }
+
+    /// <summary>
+    /// The aspect of whatever was last started from the library, in the server's spelling, or null when nobody
+    /// started anything from a shelf - a <c>--play</c> file names no shelf, and a tile would be guessing.
+    /// </summary>
+    private string? _playingAspect;
+
+    /// <summary>
+    /// Move the home screen's "this shelf is playing" mark along with the player: while media is loaded the tile
+    /// of its shelf wears the mark, and when the player falls silent no tile wears it.
+    /// </summary>
+    private void FeedHomeFromPlayback()
+    {
+      _home.ShowPlaying(_nowPlaying != null && _nowPlaying.HasMedia ? _playingAspect : null);
     }
 
     /// <summary>
@@ -849,8 +868,15 @@ namespace MediaPortal.Frontend
           : System.IO.Path.GetFileName(location.Value.EngineString);
 
       if (_nowPlaying.Play(location.Value, title.Title.Id, title.ResumePercent ?? 0))
+      {
+        // The shelf this title was pressed in is the shelf that is now playing - said to the home screen, whose
+        // tile for that shelf wears the mark until the player falls silent. A press from the home strip itself
+        // names no shelf, and a tile would be guessing, so the mark simply goes off.
+        _playingAspect = (sender as MediaBrowserViewModel)?.AspectName;
+        _home.ShowPlaying(_playingAspect);
         Console.WriteLine("play:     " + what + (streamed ? " - streamed from the server" : " from the library")
             + (title.ResumePercent.HasValue ? " - resumed at " + title.ResumePercent.Value + "%" : ""));
+      }
       else
         Console.WriteLine("play:     refused - " + _nowPlaying.StatusLine
             + (streamed ? " (a server that wants to know its caller cannot be handed to the player as an address)" : ""));
@@ -888,7 +914,12 @@ namespace MediaPortal.Frontend
           : System.IO.Path.GetFileName(location.Value.EngineString);
 
       if (_nowPlaying.Play(location.Value, title.Title.Id, title.ResumePercent ?? 0))
+      {
+        // The party reads the audio shelf, whatever the tile it was opened from was called.
+        _playingAspect = "AudioItem";
+        _home.ShowPlaying(_playingAspect);
         Console.WriteLine("play:     party - " + what + (streamed ? " - streamed from the server" : " from the library"));
+      }
       else
       {
         Console.WriteLine("play:     party refused - " + _nowPlaying.StatusLine);
