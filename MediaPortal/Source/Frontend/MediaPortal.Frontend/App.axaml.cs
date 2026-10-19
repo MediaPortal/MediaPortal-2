@@ -404,7 +404,27 @@ namespace MediaPortal.Frontend
       return new HomeWindow(_home,
           _nowPlaying == null ? null : new Func<Avalonia.Controls.Window>(NowPlayingScreen),
           _serverMayBeChanged ? delegate { return BuildConnectionScreen(desktop); } : null,
-          delegate (HomeSection section) { return BuildBrowserScreen(section); });
+          delegate (HomeSection section) { return BuildBrowserScreen(section); },
+          BuildNamedScreen);
+    }
+
+    /// <summary>
+    /// The screen a menu tile asks for by name.
+    /// </summary>
+    /// <remarks>
+    /// Built afresh every time, because the folders of a library are read when the screen opens - a viewer who
+    /// added a share with another tool in between has to see it, and a screen kept alive between visits would show
+    /// the answer from the last one.
+    /// </remarks>
+    private Avalonia.Controls.Window BuildNamedScreen(string screenKey)
+    {
+      if (screenKey.Equals("folders", StringComparison.OrdinalIgnoreCase))
+        return new FoldersWindow(new FoldersViewModel(_home.Client));
+
+      // A tile naming a screen nobody builds is a mismatch between the menu and this method, which is a bug in the
+      // front end rather than something the viewer can do anything about.
+      throw new InvalidOperationException(
+          "the home menu asked for a screen this build does not have: '" + screenKey + "'");
     }
 
     /// <summary>

@@ -240,4 +240,77 @@ namespace MediaPortal.Frontend.Api
       [property: JsonPropertyName("watched")] bool Watched,
       [property: JsonPropertyName("error")] string? Error,
       [property: JsonPropertyName("resume")] int? Resume = null);
+
+  /// <summary>
+  /// One folder the server builds its library from, from <c>GET api/media/shares</c>.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// <paramref name="Path"/> is the folder in the server's own filesystem notation and can be null: a share can
+  /// point somewhere that is not a local directory (another machine, another provider), and then
+  /// <paramref name="ResourcePath"/> is the only true thing that can be shown about it. A screen that printed the
+  /// empty string for those would print "this folder is nowhere".
+  /// </para>
+  /// <para>
+  /// <paramref name="Local"/> is not decoration. A share on another system cannot be imported by this server, and
+  /// a screen that offered a "re-import" button for it would be offering a button whose only answer is a refusal.
+  /// </para>
+  /// </remarks>
+  public record ShareInfo(
+      [property: JsonPropertyName("id")] Guid Id,
+      [property: JsonPropertyName("name")] string? Name,
+      [property: JsonPropertyName("path")] string? Path,
+      [property: JsonPropertyName("resourcePath")] string? ResourcePath,
+      [property: JsonPropertyName("systemId")] string? SystemId,
+      [property: JsonPropertyName("local")] bool Local,
+      [property: JsonPropertyName("mediaCategories")] IReadOnlyList<string>? MediaCategories,
+      [property: JsonPropertyName("useShareWatcher")] bool UseShareWatcher);
+
+  /// <summary>
+  /// The answer of <c>GET api/media/shares</c>: the folders, and the kinds of media a new one can be told about.
+  /// </summary>
+  /// <remarks>
+  /// The categories arrive with the shares on purpose. They are what the server's extractors registered
+  /// themselves under, so a screen that hard-coded "Movie, Series, Audio" would offer choices this particular
+  /// server may not be able to import - and a folder filed under a category nobody reads comes back empty.
+  /// </remarks>
+  public record SharesAnswer(
+      [property: JsonPropertyName("count")] int Count,
+      [property: JsonPropertyName("shares")] IReadOnlyList<ShareInfo>? Shares,
+      [property: JsonPropertyName("mediaCategories")] IReadOnlyList<string>? MediaCategories);
+
+  /// <summary>
+  /// One job the importer still holds, from <c>GET api/media/import</c>.
+  /// </summary>
+  public record ImportJob(
+      [property: JsonPropertyName("type")] string? Type,
+      [property: JsonPropertyName("path")] string? Path,
+      [property: JsonPropertyName("includeSubDirectories")] bool IncludeSubDirectories);
+
+  /// <summary>
+  /// The answer of <c>GET api/media/import</c>.
+  /// </summary>
+  /// <remarks>
+  /// <paramref name="Pending"/> counts jobs, not files - one job is one folder tree and can hold a hundred
+  /// thousand files - so a screen says "still importing" rather than a percentage it was never told.
+  /// <paramref name="Suspended"/> is the state in which the server holds its jobs and does not work on them; a
+  /// queue that never empties and is suspended is a different complaint from one that is merely long.
+  /// </remarks>
+  public record ImportStatus(
+      [property: JsonPropertyName("pending")] int Pending,
+      [property: JsonPropertyName("suspended")] bool Suspended,
+      [property: JsonPropertyName("jobs")] IReadOnlyList<ImportJob>? Jobs)
+  {
+    /// <summary>
+    /// What a status line says about the queue.
+    /// </summary>
+    public string Describe()
+    {
+      if (Suspended && Pending > 0)
+        return string.Format("{0} folder(s) waiting, and the importer is paused", Pending);
+      if (Pending > 0)
+        return string.Format("importing {0} folder(s)", Pending);
+      return Suspended ? "the importer is paused" : "nothing being imported";
+    }
+  }
 }

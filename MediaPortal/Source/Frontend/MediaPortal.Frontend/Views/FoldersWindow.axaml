@@ -1,0 +1,160 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        x:Class="MediaPortal.Frontend.Views.FoldersWindow"
+        x:DataType="vm:FoldersViewModel"
+        Name="folders"
+        Width="1280" Height="720"
+        WindowState="Maximized"
+        Background="#FF101418"
+        Title="MediaPortal 2 - Folders">
+
+  <!--
+    The library's source folders, from the television. Everything the media centre shows was read out of one of
+    these, and until the server grew a shares endpoint they could only be edited with a Windows configuration
+    tool - which is why a fresh install on any other platform could serve a library but never gain one.
+
+    The list is on the left and wide, because the path is the thing a viewer checks ("is that the right drive?"),
+    while the controls sit in a column on the right: they are used once per folder, the list is read every time.
+  -->
+
+  <DockPanel Margin="48,36">
+
+    <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,20">
+      <TextBlock Text="Folders"
+                 FontSize="40"
+                 FontWeight="SemiBold" />
+      <TextBlock Text="{Binding Heading}"
+                 FontSize="18"
+                 Opacity="0.7"
+                 TextWrapping="Wrap"
+                 MaxWidth="1500"
+                 HorizontalAlignment="Left" />
+    </StackPanel>
+
+    <TextBlock DockPanel.Dock="Bottom"
+               Name="statusLine"
+               Text="{Binding Status}"
+               FontSize="20"
+               Opacity="0.85"
+               Margin="0,18,0,0"
+               TextWrapping="Wrap" />
+
+    <Grid ColumnDefinitions="*,520" ColumnSpacing="40">
+
+      <ListBox Name="foldersList"
+               Focusable="True"
+               ItemsSource="{Binding Shares}"
+               SelectedItem="{Binding Selected, Mode=TwoWay}"
+               FontSize="20">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="vm:FolderShare">
+            <StackPanel Spacing="2" Margin="4,8">
+              <StackPanel Orientation="Horizontal" Spacing="14">
+                <TextBlock Text="{Binding Name}" FontSize="24" />
+                <!-- What the folder was filed as, which is the difference between a library and a pile of files. -->
+                <TextBlock Text="{Binding CategoriesText}"
+                           FontSize="18"
+                           Opacity="0.75"
+                           TextTrimming="CharacterEllipsis" />
+              </StackPanel>
+              <TextBlock Text="{Binding Path}"
+                         FontSize="16"
+                         Opacity="0.6"
+                         TextTrimming="CharacterEllipsis" />
+              <!-- The remove button's second press writes itself where the viewer is already looking. -->
+              <TextBlock Text="{Binding Confirmation}"
+                         FontSize="17"
+                         FontWeight="SemiBold"
+                         Foreground="#FFFFB74D"
+                         IsVisible="{Binding AskedToRemove}" />
+              <TextBlock Text="{Binding Detail}" FontSize="15" Opacity="0.5" />
+            </StackPanel>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+
+      <StackPanel Grid.Column="1" Spacing="14">
+
+        <TextBlock Text="What to do with the selected folder"
+                   FontSize="18"
+                   Opacity="0.7" />
+        <StackPanel Orientation="Horizontal" Spacing="12">
+          <Button Name="reimportButton"
+                  Content="Import again"
+                  Command="{Binding ReimportCommand}"
+                  MinWidth="190"
+                  Padding="18,10"
+                  FontSize="20" />
+          <Button Name="removeButton"
+                  Content="Forget folder"
+                  Command="{Binding RemoveCommand}"
+                  MinWidth="190"
+                  Padding="18,10"
+                  FontSize="20" />
+          <Button Name="refreshButton"
+                  Content="Refresh"
+                  Command="{Binding RefreshCommand}"
+                  MinWidth="140"
+                  Padding="18,10"
+                  FontSize="20" />
+        </StackPanel>
+
+        <Separator Margin="0,6" Opacity="0.25" />
+
+        <TextBlock Text="Add a folder the server can see"
+                   FontSize="18"
+                   Opacity="0.7" />
+        <!-- The path belongs to the server's filesystem, not to this machine's. Said on the screen because the
+             first instinct is to type what the television would call it. -->
+        <TextBlock Text="As the server spells it, for example D:\Films or /srv/films"
+                   FontSize="15"
+                   Opacity="0.55"
+                   TextWrapping="Wrap" />
+        <TextBox Name="folderPathBox"
+                 Focusable="True"
+                 Text="{Binding NewPath, Mode=TwoWay}"
+                 PlaceholderText="path of the folder"
+                 FontSize="22"
+                 Padding="12,10" />
+
+        <TextBlock Text="What kind of media is in it"
+                   FontSize="18"
+                   Opacity="0.7"
+                   Margin="0,4,0,0" />
+        <ItemsControl Name="categoriesList"
+                      ItemsSource="{Binding Categories}"
+                      MaxHeight="240">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:CategoryChoice">
+              <CheckBox IsChecked="{Binding IsOn, Mode=TwoWay}"
+                        Content="{Binding Name}"
+                        FontSize="20"
+                        Margin="0,2" />
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <Button Name="addButton"
+                Content="Add and import"
+                Command="{Binding AddCommand}"
+                HorizontalAlignment="Left"
+                MinWidth="240"
+                Padding="24,10"
+                FontSize="22" />
+
+        <!-- The queue rather than a progress bar: the server counts jobs, not files, and one job can be a
+             hundred thousand files. A percentage would be invented. -->
+        <TextBlock Text="{Binding Queue}"
+                   FontSize="17"
+                   Opacity="0.7"
+                   TextWrapping="Wrap" />
+
+        <TextBlock FontSize="13"
+                   Opacity="0.4"
+                   TextWrapping="Wrap"
+                   Text="Forgetting a folder also drops the titles it brought in, so it asks twice." />
+      </StackPanel>
+    </Grid>
+  </DockPanel>
+</Window>

@@ -47,12 +47,14 @@ namespace MediaPortal.Frontend.ViewModels
     /// <param name="missing">
     /// Why this build cannot open the entry at all - a missing backend, not a missing title - or null when it can.
     /// </param>
-    internal MainMenuEntry(string label, string[] aspects, string action, string? missing)
+    internal MainMenuEntry(string label, string[] aspects, string action, string? missing,
+        string? screenKey = null)
     {
       Label = label;
       Aspects = aspects;
       Action = action;
       Missing = missing;
+      ScreenKey = screenKey;
     }
 
     /// <summary>What the tile says, in the same words the rest of the front end uses for that part of the library.</summary>
@@ -74,6 +76,17 @@ namespace MediaPortal.Frontend.ViewModels
     public string? Missing { get; }
 
     /// <summary>
+    /// The name of the <i>screen</i> this entry opens rather than a shelf of titles - <c>"folders"</c> today - or
+    /// null when pressing opens titles or nothing.
+    /// </summary>
+    /// <remarks>
+    /// A screen, not a section, because what it shows is not a part of the library: the folders a library is built
+    /// from exist before any title does, and there is no aspect to list. The application decides what to build for
+    /// a key, which is why the key is a word rather than a factory in the entry itself.
+    /// </remarks>
+    public string? ScreenKey { get; }
+
+    /// <summary>
     /// Why the server this front end is talking to cannot fill the entry, when the build could. Set by the home
     /// screen, which is the only thing that knows whether a server answered and what it answered with.
     /// </summary>
@@ -92,14 +105,17 @@ namespace MediaPortal.Frontend.ViewModels
       {
         if (Section != null)
           return Section.CountText;
+        if (Missing == null && Unavailable == null && ScreenKey != null)
+          // A screen is not a shelf, so it has no count to show; what it is for is the useful small print.
+          return Action;
         return Missing ?? Unavailable ?? "not connected yet";
       }
     }
 
-    /// <summary>Whether pressing this entry opens a list of titles.</summary>
+    /// <summary>Whether pressing this entry opens something - titles or a screen.</summary>
     public bool Openable
     {
-      get { return Section != null; }
+      get { return Section != null || ScreenKey != null; }
     }
 
     /// <summary>The first letter, drawn large, for the same reason the tiles above it use it: no icon font.</summary>

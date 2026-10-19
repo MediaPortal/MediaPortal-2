@@ -2294,8 +2294,10 @@ namespace Tests.Frontend
       Assert.That(home.Menu, Is.Not.Empty,
           "a home screen that waits for a server before it offers anything to press is a dark rectangle with a "
           + "clock on it; the menu is what a media centre is, so it is on screen from the first frame");
-      Assert.That(home.Menu.Count(entry => entry.Openable), Is.Zero,
-          "and none of it can be opened, because there is nothing to open it from");
+      Assert.That(home.Menu.Count(entry => entry.Openable), Is.EqualTo(1),
+          "nothing but the folders screen can be opened, because there is no library to open and no server to ask "
+          + "about one. That one is openable on purpose: telling a viewer where the media should be is most useful "
+          + "of an empty media centre, and the screen says \"no server connected\" instead of an empty rectangle");
       Assert.That(EntryNamed(home.Menu, "Movies").Detail, Is.EqualTo("no server connected"),
           "the tile says that out loud rather than leaving the viewer to work it out from an empty list");
     }
@@ -2307,10 +2309,13 @@ namespace Tests.Frontend
 
       Assert.That(home.Menu.Select(entry => entry.Label), Is.EqualTo(new[]
       {
-          "Movies", "TV Series", "Music", "Videos", "Pictures", "Latest media", "TV", "Radio", "Settings"
+          "Movies", "TV Series", "Music", "Videos", "Pictures", "Latest media", "TV", "Radio", "Folders", "Settings"
       }), "the names and the order are the entries MP2's own plugins contribute to the home state - "
           + "media-actions.xml:5-56 for the six media ones, SlimTvClient-actions.xml:5 and :62 for television and "
-          + "radio, configuration-actions.xml:6 for settings - and not a set of words invented for this front end");
+          + "radio, configuration-actions.xml:6 for settings - and not a set of words invented for this front end. "
+          + "The one entry that is not MP2's own is Folders, which MP2 kept on a settings page and this front end "
+          + "puts last but one, in front of the settings it cannot open yet, because saying where the media lives "
+          + "is the first thing an empty media centre has to be asked");
     }
 
     [Test]
@@ -2369,7 +2374,8 @@ namespace Tests.Frontend
       Assert.That(EntryNamed(menu, "Episodes").Openable, Is.True,
           "episodes are not one of MP2's home entries - they are reached through their series - but a server that "
           + "holds them is not allowed to hide them either");
-      Assert.That(menu.Count(entry => entry.Openable), Is.EqualTo(2));
+      Assert.That(menu.Count(entry => entry.Openable), Is.EqualTo(3),
+          "the films, the episodes, and the screen that says where they came from");
       Assert.That(menu.IndexOf(EntryNamed(menu, "Movies")), Is.LessThan(menu.IndexOf(EntryNamed(menu, "Episodes"))),
           "MP2's own entries first, whatever the server adds after them");
     }
@@ -2380,8 +2386,10 @@ namespace Tests.Frontend
       List<MainMenuEntry> menu = MainMenu.Build(
           new[] { AspectCalled("PersonItem"), AspectCalled("GenreItem") }, true);
 
-      Assert.That(menu.Count(entry => entry.Openable), Is.Zero,
-          "an actor and a genre are how the library is organised inside, not a part of it to watch");
+      Assert.That(menu.Count(entry => entry.Openable), Is.EqualTo(1),
+          "an actor and a genre are how the library is organised inside, not a part of it to watch; the one screen "
+          + "that stays openable is the folders one, which is not about what the library holds but about where it "
+          + "comes from");
       Assert.That(menu.Select(entry => entry.Label), Does.Not.Contain("PersonItem"));
     }
 
@@ -2421,13 +2429,17 @@ namespace Tests.Frontend
 
       HomeViewModel home = new HomeViewModel(new ServerApiClient(server.BaseUrl));
       home.RefreshCommand.Execute(null);
-      WaitUntil("the menu to fill", delegate { return home.Menu.Any(entry => entry.Openable); });
+      // Waited for a section rather than for anything openable, because the folders screen is openable whatever
+      // the server does; what this test is about is the library, and the library arrives as sections.
+      WaitUntil("the menu to fill", delegate { return home.Menu.Any(entry => entry.Section != null); });
 
       home.UseServer(new ServerApiClient(new Uri("http://127.0.0.1:2/MediaPortal/Server/")));
 
-      Assert.That(home.Menu.Count(entry => entry.Openable), Is.Zero,
+      Assert.That(home.Menu.Count(entry => entry.Section != null), Is.Zero,
           "the films of the old server are not films of the new one, and a menu still offering them would be "
           + "offering titles that are not there");
+      Assert.That(home.Menu.Count(entry => entry.Openable), Is.EqualTo(1),
+          "only the screen that asks for folders survives a server that went away");
       Assert.That(EntryNamed(home.Menu, "Movies").Detail, Is.EqualTo("no server connected"));
     }
 

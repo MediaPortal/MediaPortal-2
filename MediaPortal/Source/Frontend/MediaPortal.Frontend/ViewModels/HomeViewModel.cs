@@ -142,7 +142,10 @@ namespace MediaPortal.Frontend.ViewModels
       HomeSection? section = entry.Section;
       if (section == null)
       {
-        Status = entry.Label + " - " + entry.Detail;
+        // A tile that opens a screen instead of a shelf has nothing for the status line to explain - the window
+        // opens the screen, and a screen with no folders on it says more than this line could.
+        if (entry.ScreenKey == null)
+          Status = entry.Label + " - " + entry.Detail;
         return null;
       }
 

@@ -33,6 +33,7 @@ namespace MediaPortal.Frontend.Views
     private readonly Func<Window>? _nowPlayingScreen;
     private readonly Func<Window>? _connectScreen;
     private readonly Func<HomeSection, Window>? _sectionScreen;
+    private readonly Func<string, Window>? _screenFactory;
     private readonly HomeViewModel _home;
 
     /// <summary>
@@ -54,14 +55,20 @@ namespace MediaPortal.Frontend.Views
     /// How to build the screen that picks the server, or <c>null</c> when the operator has taken that decision away
     /// by starting the front end with an address of its own.
     /// </param>
+    /// <param name="screenFactory">
+    /// How to build the screen a tile asks for by name - <c>"folders"</c> today - or <c>null</c> when this build has
+    /// no screens behind the menu at all. A name rather than a factory per tile, because the menu is assembled from
+    /// what the server reports and the application is the one that knows what it can build.
+    /// </param>
     public HomeWindow(HomeViewModel home, Func<Window>? nowPlayingScreen = null, Func<Window>? connectScreen = null,
-        Func<HomeSection, Window>? sectionScreen = null)
+        Func<HomeSection, Window>? sectionScreen = null, Func<string, Window>? screenFactory = null)
     {
       DataContext = home;
       _home = home;
       _nowPlayingScreen = nowPlayingScreen;
       _connectScreen = connectScreen;
       _sectionScreen = sectionScreen;
+      _screenFactory = screenFactory;
       InitializeComponent();
 
       // A button that opens nothing is worse than no button, so the playback button is only offered - and only
@@ -127,6 +134,8 @@ namespace MediaPortal.Frontend.Views
                 HomeSection? section = _home.Open(entry);
                 if (section != null)
                   OpenSection(section);
+                else if (entry.ScreenKey != null)
+                  OpenScreen(entry.ScreenKey);
                 args.Handled = true;
               }
               else if (unfinishedList.IsFocused && unfinishedList.SelectedItem is TitleViewModel unfinished)
@@ -148,6 +157,24 @@ namespace MediaPortal.Frontend.Views
         return;
 
       Window screen = _sectionScreen(section);
+      if (!screen.IsVisible)
+        screen.Show();
+      screen.Activate();
+    }
+
+    /// <summary>
+    /// Opens one of the screens the menu names, "folders" today.
+    /// </summary>
+    /// <remarks>
+    /// Opened over the home screen rather than instead of it, like every other screen here: pressing Back has to
+    /// leave the viewer where they were.
+    /// </remarks>
+    private void OpenScreen(string screenKey)
+    {
+      if (_screenFactory == null)
+        return;
+
+      Window screen = _screenFactory(screenKey);
       if (!screen.IsVisible)
         screen.Show();
       screen.Activate();

@@ -53,13 +53,15 @@ namespace MediaPortal.Frontend.ViewModels
       List<MainMenuEntry> menu = new List<MainMenuEntry>();
       HashSet<string> claimed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-      foreach ((string label, string[] aspects_, string action, string? missing) in ENTRIES)
+      foreach ((string label, string[] aspects_, string action, string? missing, string? screen) in ENTRIES)
       {
-        MainMenuEntry entry = new MainMenuEntry(label, aspects_, action, missing);
+        MainMenuEntry entry = new MainMenuEntry(label, aspects_, action, missing, screen);
         foreach (string aspectName in aspects_)
           claimed.Add(aspectName);
 
-        if (missing == null)
+        // A screen is openable whatever the server holds - a screen with nothing on it is still the answer to
+        // "where do I tell it where my films are?", which is asked most often of an empty media centre.
+        if (missing == null && screen == null)
         {
           // The preference is the outer loop on purpose: a server with both albums and tracks must lead with the
           // albums, and searching the server's list first would hand back whichever of the two it happens to
@@ -105,18 +107,27 @@ namespace MediaPortal.Frontend.ViewModels
     /// <c>Radio</c> because live television and radio came from the TV service, which was removed from this tree
     /// (commit 029a262aa4) and nothing serves it since; <c>Settings</c> because the server keeps its configuration
     /// behind a .NET Remoting interface the new API has not grown an equivalent of yet.
+    /// The fifth field names a screen of the front end rather than a part of the library. An entry with one is
+    /// openable whatever the server holds, because there is nothing on the server for it to depend on; the key is
+    /// handed to the function the application was given, which makes the screen or says it cannot.
     /// </remarks>
-    private static readonly (string Label, string[] Aspects, string Action, string? Missing)[] ENTRIES =
+    private static readonly (string Label, string[] Aspects, string Action, string? Missing, string? Screen)[] ENTRIES =
     {
-        ("Movies", new[] { "MovieItem" }, "the films on this server", null),
-        ("TV Series", new[] { "SeriesItem" }, "each series, and its episodes inside it", null),
-        ("Music", new[] { "AlbumItem", "AudioItem" }, "each album, and its tracks on it", null),
-        ("Videos", new[] { "VideoItem" }, "the video files nobody filed as films", null),
-        ("Pictures", new[] { "ImageItem" }, "the pictures, folder by folder", null),
-        ("Latest media", Array.Empty<string>(), "the newest titles first", "no import-date sort"),
-        ("TV", Array.Empty<string>(), "live television and the programme guide", "no TV backend"),
-        ("Radio", Array.Empty<string>(), "radio stations and their guide", "no radio backend"),
-        ("Settings", Array.Empty<string>(), "the server's own configuration", "no settings API yet")
+        ("Movies", new[] { "MovieItem" }, "the films on this server", null, null),
+        ("TV Series", new[] { "SeriesItem" }, "each series, and its episodes inside it", null, null),
+        ("Music", new[] { "AlbumItem", "AudioItem" }, "each album, and its tracks on it", null, null),
+        // Not "the files nobody filed as films": the server's VideoItem is the aspect every film and every episode
+        // also carries, so this shelf holds the whole video library (measured against a real one: four films, eight
+        // episodes and the two unfiled clips). Saying so is worth more than a tidier sentence.
+        ("Videos", new[] { "VideoItem" }, "every video the server knows, films and episodes included", null, null),
+        ("Pictures", new[] { "ImageItem" }, "the pictures, folder by folder", null, null),
+        ("Latest media", Array.Empty<string>(), "the newest titles first", "no import-date sort", null),
+        ("TV", Array.Empty<string>(), "live television and the programme guide", "no TV backend", null),
+        ("Radio", Array.Empty<string>(), "radio stations and their guide", "no radio backend", null),
+        // The one part of MP2's configuration that has an HTTP API, and therefore the one part that can be edited
+        // from a television. Where the media lives is also the first thing an empty media centre needs asked.
+        ("Folders", Array.Empty<string>(), "where the library comes from", null, "folders"),
+        ("Settings", Array.Empty<string>(), "the server's own configuration", "no settings API yet", null)
     };
   }
 }

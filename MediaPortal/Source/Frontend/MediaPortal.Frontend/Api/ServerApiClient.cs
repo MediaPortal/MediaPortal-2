@@ -17,6 +17,7 @@
 
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Collections.Generic;
 using System.Net.Http.Headers;
@@ -450,30 +451,203 @@ namespace MediaPortal.Frontend.Api
             "How far a viewer watched is a number from 0 to 100.");
       }
 
-      Uri url = new Uri(BaseUrl, "api/media/items/" + mediaItemId.ToString("D") + "/playback");
-      string json = "{\"percentage\":" + percentage.ToString(CultureInfo.InvariantCulture) + "}";
+      return await SendJsonAsync<MediaPlayback>(HttpMethod.Post,
+          "api/media/items/" + mediaItemId.ToString("D") + "/playback",
+          new Dictionary<string, object> { ["percentage"] = percentage }, cancellation)
+          .ConfigureAwait(false);
+    }
 
-      using (StringContent body = new StringContent(json, Encoding.UTF8, "application/json"))
-      using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url) { Content = body })
+    /// <summary>
+    /// <c>GET api/media/shares</c> - the folders the library is built from, and the media categories a new one
+    /// can be filed under.
+    /// </summary>
+    public async Task<SharesAnswer> GetSharesAsync(CancellationToken cancellation = default)
+    {
+      return await SendJsonAsync<SharesAnswer>(HttpMethod.Get, "api/media/shares", null, cancellation)
+          .ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// <c>POST api/media/shares</c> - point the server at a folder.
+    /// </summary>
+    /// <param name="path">
+    /// The folder, spelled the way the <b>server's</b> filesystem spells it. This client cannot check that: the
+    /// front end is often not on the same machine as the server, and a path that means nothing here may be the
+    /// right one there. What the server insists on comes back as a refusal with its reason attached.
+    /// </param>
+    /// <param name="categories">
+    /// The kinds of media the folder holds, as <see cref="SharesAnswer.MediaCategories"/> reported them, or null
+    /// for "whatever you can find". Naming them is worth doing: a folder filed under a category no extractor
+    /// reads is imported and stays empty.
+    /// </param>
+    /// <param name="name">What to call the share, or null for the folder's own name.</param>
+    /// <param name="useShareWatcher">
+    /// Whether the server should notice changes by itself, or null to leave the server's default.
+    /// </param>
+    /// <remarks>
+    /// Three answers here are decisions rather than failures and arrive as <see cref="ServerApiException"/> with
+    /// the server's sentence in <see cref="ServerApiException.Message"/>: <c>400</c> when the path is not one the
+    /// server can use or a category is unknown (the refusal lists the ones it knows), and <c>409</c> when the
+    /// folder is already shared - which names the share that owns it, so a screen can point at the existing row
+    /// instead of adding a second one.
+    /// </remarks>
+    public async Task<ShareInfo> AddShareAsync(string path, IEnumerable<string>? categories = null,
+        string? name = null, bool? useShareWatcher = null, CancellationToken cancellation = default)
+    {
+      if (string.IsNullOrWhiteSpace(path))
+        throw new ArgumentException("Which folder?", nameof(path));
+
+      List<string>? chosen = categories == null
+          ? null
+          : new List<string>(categories.Where(category => !string.IsNullOrWhiteSpace(category))
+              .Select(category => category.Trim()));
+      if (chosen != null && chosen.Count == 0)
+        chosen = null;
+
+      return await SendJsonAsync<ShareInfo>(HttpMethod.Post, "api/media/shares",
+          new ShareRequest(path.Trim(), name, chosen, useShareWatcher), cancellation).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// <c>DELETE api/media/shares/{id}</c> - stop watching a folder and drop the titles that came out of it.
+    /// </summary>
+    /// <remarks>
+    /// This is the one call of this client that answers <c>204</c> with no body, because there is nothing left to
+    /// describe. A <c>404</c> means the share is already gone - which for a screen that was about to delete it is
+    /// the state it wanted, though it is still worth saying so rather than pretending the button did something.
+    /// </remarks>
+    public async Task RemoveShareAsync(Guid mediaShareId, CancellationToken cancellation = default)
+    {
+      await SendAsync(HttpMethod.Delete, "api/media/shares/" + mediaShareId.ToString("D"), cancellation)
+          .ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// <c>POST api/media/shares/{id}/import</c> - walk that folder again, now.
+    /// </summary>
+    /// <returns>The queue the job was added to.</returns>
+    /// <remarks>
+    /// Answered with <c>202</c> and the queue rather than with the result, because importing a folder tree takes
+    /// as long as it takes; <see cref="GetImportStatusAsync"/> is how a screen finds out afterwards. Refused with
+    /// <c>409</c> for a share on another system or one without categories - both would queue a job that cannot
+    /// import anything.
+    /// </remarks>
+    public async Task<ImportStatus> ImportShareAsync(Guid mediaShareId, CancellationToken cancellation = default)
+    {
+      return await SendJsonAsync<ImportStatus>(HttpMethod.Post,
+          "api/media/shares/" + mediaShareId.ToString("D") + "/import", null, cancellation)
+          .ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// <c>GET api/media/import</c> - how much the importer still has to do.
+    /// </summary>
+    public async Task<ImportStatus> GetImportStatusAsync(CancellationToken cancellation = default)
+    {
+      return await SendJsonAsync<ImportStatus>(HttpMethod.Get, "api/media/import", null, cancellation)
+          .ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// The body of <see cref="AddShareAsync"/>.
+    /// </summary>
+    private sealed record ShareRequest(string Path, string? Name, List<string>? MediaCategories,
+        bool? UseShareWatcher);
+
+    public void Dispose()
+    {
+      if (_ownsHttpClient)
+        _http.Dispose();
+    }
+
+    private static string FirstNonEmpty(params string?[] values)
+    {
+      foreach (string? value in values)
+        if (!string.IsNullOrWhiteSpace(value))
+          return value.Trim();
+      return DefaultUrl;
+    }
+
+    /// <summary>
+    /// One request with a JSON answer, whatever the verb.
+    /// </summary>
+    /// <param name="method">The verb the endpoint answers.</param>
+    /// <param name="relativeUrl">Address below the server's base.</param>
+    /// <param name="body">The object to send as JSON, or null to send no body at all.</param>
+    /// <remarks>
+    /// The same rules as <see cref="GetJsonAsync"/>, and deliberately one code path rather than a second one
+    /// written per verb: what a refusal means ("409, and here is why") has to be reported in the same words
+    /// whether it came back from a GET or from a DELETE, or a screen ends up translating some of its answers
+    /// and guessing at the rest.
+    /// </remarks>
+    private async Task<T> SendJsonAsync<T>(HttpMethod method, string relativeUrl, object? body,
+        CancellationToken cancellation)
+    {
+      Uri url = new Uri(BaseUrl, relativeUrl);
+      string? text = await SendAsync(method, url, SerializeBody(body), cancellation).ConfigureAwait(false);
+
+      if (text == null)
+        throw new ServerApiException(url,
+            string.Format("The server answered {0} at {1} with nothing, where an answer was expected.",
+                (int) HttpStatusCode.NoContent, url));
+
+      T? parsed;
+      try
       {
+        parsed = JsonSerializer.Deserialize<T>(text, JSON_OPTIONS);
+      }
+      catch (JsonException ex)
+      {
+        throw new ServerApiException(url,
+            string.Format("The answer from {0} could not be read: {1}", url, ex.Message), ex);
+      }
+      if (parsed == null)
+        throw new ServerApiException(url,
+            string.Format("The server answered {0} at {1} with a body that was not JSON.",
+                (int) HttpStatusCode.OK, url));
+      return parsed;
+    }
+
+    /// <summary>
+    /// One request that answers with a status and nothing else - a deletion, which has no reason to describe
+    /// what is no longer there.
+    /// </summary>
+    private async Task SendAsync(HttpMethod method, string relativeUrl, CancellationToken cancellation)
+    {
+      Uri url = new Uri(BaseUrl, relativeUrl);
+      await SendAsync(method, url, null, cancellation).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// The body of a request as JSON, or null when the caller had nothing to say.
+    /// </summary>
+    private static string? SerializeBody(object? body)
+    {
+      return body == null ? null : JsonSerializer.Serialize(body, JSON_OPTIONS);
+    }
+
+    /// <summary>
+    /// One request out, the server's answer as text, and the failure turned into the one exception type.
+    /// </summary>
+    /// <returns>The body, or null when the server answered without one.</returns>
+    private async Task<string?> SendAsync(HttpMethod method, Uri url, string? json,
+        CancellationToken cancellation)
+    {
+      using (HttpRequestMessage request = new HttpRequestMessage(method, url))
+      {
+        if (json != null)
+          request.Content = new StringContent(json, Encoding.UTF8, "application/json");
         AddToken(request);
         try
         {
           using (HttpResponseMessage response = await _http.SendAsync(request,
               HttpCompletionOption.ResponseContentRead, cancellation).ConfigureAwait(false))
           {
-            string text = await response.Content.ReadAsStringAsync(cancellation).ConfigureAwait(false);
+            byte[] raw = await response.Content.ReadAsByteArrayAsync(cancellation).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
-              throw new ServerApiException(url, response.StatusCode, Summarize(text));
+              throw new ServerApiException(url, response.StatusCode, Summarize(Encoding.UTF8.GetString(raw)));
 
-            MediaPlayback? said = JsonSerializer.Deserialize<MediaPlayback>(text, JSON_OPTIONS);
-            if (said == null)
-            {
-              throw new ServerApiException(url,
-                  string.Format("The server answered {0} at {1} with a body that was not JSON.",
-                      (int) response.StatusCode, url));
-            }
-            return said;
+            return raw.Length == 0 ? null : Encoding.UTF8.GetString(raw);
           }
         }
         catch (ServerApiException)
@@ -492,26 +666,7 @@ namespace MediaPortal.Frontend.Api
           throw new ServerApiException(url,
               string.Format("{0} did not answer within {1}.", url, _http.Timeout), ex);
         }
-        catch (JsonException ex)
-        {
-          throw new ServerApiException(url,
-              string.Format("The answer from {0} could not be read: {1}", url, ex.Message), ex);
-        }
       }
-    }
-
-    public void Dispose()
-    {
-      if (_ownsHttpClient)
-        _http.Dispose();
-    }
-
-    private static string FirstNonEmpty(params string?[] values)
-    {
-      foreach (string? value in values)
-        if (!string.IsNullOrWhiteSpace(value))
-          return value.Trim();
-      return DefaultUrl;
     }
 
     /// <summary>
