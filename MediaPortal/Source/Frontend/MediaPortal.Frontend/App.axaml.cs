@@ -757,6 +757,21 @@ namespace MediaPortal.Frontend
     }
 
     /// <summary>
+    /// The sentence the status screen shows for what this application is wearing: the skin and theme the
+    /// engine has on, or the front end's own face when no skin is. The view model asks for a sentence and
+    /// never for the Avalonia application, because knowing the skin means asking the application, and that
+    /// question belongs here.
+    /// </summary>
+    private string DescribeWorn()
+    {
+      WornSkin? worn = SkinEngine.Worn(this);
+      string skin = worn == null
+          ? "the front end's own face"
+          : worn.Manifest.Name + " (" + worn.Theme.Name + ")";
+      return skin + ", palette " + FrontendTheme.CurrentName(this);
+    }
+
+    /// <summary>
     /// The settings list itself: which places the hub offers, and what each of them opens. The sections are
     /// built here because only the application has what their screens need - the theme picker changes colours
     /// in this application, the folders screen reads through the client the library was read with, and the
@@ -771,6 +786,16 @@ namespace MediaPortal.Frontend
       // tree: what this box is called, whether it fills the television, what it opens when it wakes.
       model.Add("This machine", "Frontend", "Name, full screen, wake-up screen and language of this box",
           delegate { return new ClientSettingsView(); });
+
+      // The reference's system state menu, filed into the hub: what both machines are made of, read from
+      // each running thing the moment the row opens. This is also the version line the plan owed to
+      // "About" - here it stands beside the server's own answer rather than in a window of its own.
+      model.Add("System status", "Frontend", "What this box and the server are made of, read while running",
+          delegate
+          {
+            SystemStatusViewModel status = new SystemStatusViewModel(() => _home.Client, DescribeWorn);
+            return new SystemStatusView { DataContext = status };
+          });
 
       model.Add("Appearance", "Frontend", "The colours and the skin this machine wears",
           delegate { return new ThemeView(new ThemeViewModel(this)); });

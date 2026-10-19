@@ -49,7 +49,7 @@ namespace MediaPortal.Frontend.Api
   /// </para>
   /// </remarks>
   public sealed class ServerApiClient : IDisposable, IServerSettingsApi, IMetadataSettingsApi, IUsersApi,
-      INetworkCredentialsApi
+      INetworkCredentialsApi, IServerInfoApi
   {
     /// <summary>
     /// Where the front end looks for a server when nothing else was said. The port is MP2's own and the prefix

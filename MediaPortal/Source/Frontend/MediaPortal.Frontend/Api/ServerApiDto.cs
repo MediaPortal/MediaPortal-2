@@ -19,6 +19,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Frontend.Api
 {
@@ -71,6 +73,16 @@ namespace MediaPortal.Frontend.Api
       return string.Format("{0} {1} - {2}, {3}/{4}",
           Name, Version, Framework, OperatingSystem, ProcessArchitecture);
     }
+  }
+
+  /// <summary>
+  /// What the front end asks of a server it can at least describe to itself. <see cref="ServerApiClient"/>
+  /// answers it; a test wears any other answer, so the status screen can be walked through with a server
+  /// that does or does not pick up.
+  /// </summary>
+  public interface IServerInfoApi
+  {
+    Task<ServerInfo> GetServerInfoAsync(CancellationToken cancellation = default);
   }
 
   /// <summary>

@@ -1,0 +1,67 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        x:Class="MediaPortal.Frontend.Views.SystemStatusView"
+        x:DataType="vm:SystemStatusViewModel"
+        Name="systemStatus"
+        Background="{DynamicResource ScreenBackgroundBrush}"
+        >
+
+  <!--
+    The reference's system state menu, as a section of the hub: the lines this box and the server behind it
+    are made of, each read from the running thing it names. Two columns because a status screen is read as
+    label-then-value, and the whole list is one press away from being true again.
+  -->
+
+  <DockPanel Margin="48,14">
+
+    <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,8">
+      <TextBlock Text="{Binding Heading}"
+                 FontSize="24"
+                 FontWeight="SemiBold" />
+      <TextBlock Text="{Binding Subtitle}"
+                 FontSize="14"
+                 Opacity="0.7"
+                 TextWrapping="Wrap"
+                 MaxWidth="1500"
+                 HorizontalAlignment="Left" />
+    </StackPanel>
+
+    <TextBlock DockPanel.Dock="Bottom"
+               Name="statusLine"
+               Text="{Binding Status}"
+               FontSize="14"
+               Opacity="0.85"
+               Margin="0,8,0,0"
+               TextWrapping="Wrap" />
+
+    <Button DockPanel.Dock="Bottom"
+            Name="reloadButton"
+            Content="Read it again"
+            Command="{Binding ReloadCommand}"
+            FontSize="16"
+            Focusable="True"
+            HorizontalAlignment="Left"
+            Margin="0,10,0,0" />
+
+    <ListBox Name="linesList"
+             Focusable="True"
+             ItemsSource="{Binding Lines}"
+             FontSize="18">
+      <ListBox.ItemTemplate>
+        <DataTemplate x:DataType="vm:SystemStatusViewModel+Line">
+          <Grid ColumnDefinitions="260,*" ColumnSpacing="16" Margin="2,5">
+            <TextBlock Grid.Column="0"
+                       Text="{Binding Label}"
+                       FontSize="17"
+                       Opacity="0.6" />
+            <TextBlock Grid.Column="1"
+                       Text="{Binding Value}"
+                       FontSize="18"
+                       TextWrapping="Wrap" />
+          </Grid>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+  </DockPanel>
+</UserControl>
