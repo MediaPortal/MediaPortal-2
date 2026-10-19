@@ -98,6 +98,10 @@ namespace MediaPortal.Frontend.Views
       DetachedFromVisualTree += delegate { SkinEngine.Changed -= OnSkinChanged; };
       ApplyLayout();
 
+      // The plot reads itself down the panel when the worn face says so - the reference's three scroll
+      // switches, obeyed. See PlotAutoScroll for what each answer means.
+      new PlotAutoScroll(plotScroller, browser);
+
       // A double-click on a row means the Enter that plays it (or opens the series behind it); the search box
       // keeps its Enter for the caret's sake and gets no second path. See HomeWindow for the general reason.
       MouseRemote.Attach(this, titlesList);

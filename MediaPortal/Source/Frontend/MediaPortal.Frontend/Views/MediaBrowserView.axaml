@@ -325,12 +325,21 @@
                      FontSize="17"
                      Opacity="0.72"
                      TextWrapping="Wrap" />
-          <TextBlock Name="detailsText"
-                     Text="{Binding DetailsText}"
-                     FontSize="18"
-                     LineHeight="26"
-                     MaxHeight="380"
-                     TextWrapping="Wrap" />
+          <!--
+            The plot, in the reference's own two answers: Nereus' switches let it read itself down the panel
+            (PlotAutoScroll - delay, speed, loop), and with the switches off or absent the panel shows a bar
+            and waits for the viewer's own wheel. What it never does is clip a story off mid-sentence.
+          -->
+          <ScrollViewer Name="plotScroller"
+                        MaxHeight="380"
+                        HorizontalScrollBarVisibility="Disabled"
+                        VerticalScrollBarVisibility="Auto">
+            <TextBlock Name="detailsText"
+                       Text="{Binding DetailsText}"
+                       FontSize="18"
+                       LineHeight="26"
+                       TextWrapping="Wrap" />
+          </ScrollViewer>
           <TextBlock Text="{Binding DetailsPath}"
                      FontSize="13"
                      Opacity="0.42"
