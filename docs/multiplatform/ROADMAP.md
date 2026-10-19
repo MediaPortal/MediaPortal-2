@@ -2909,6 +2909,64 @@ something that is neither a cancellation nor a complaint from the server still l
 it was already showing without saying why - the right fallback, but a silent one. Tests.Frontend went from 345 to
 351 with these six.
 
+### ar. The threads that used to be strangled
+
+`Thread.Abort` does not exist on .NET 10. This is not a Linux problem or an Android problem: the call answers with
+`PlatformNotSupportedException` on Windows too, on every .NET that is not the Windows Framework. Five calls in four
+files still reached for it, and all five are on a shutdown or a "the other side stopped answering" path, which is
+why years of running this code never showed it - a shutdown that throws after logging has been flushed looks
+exactly like a shutdown that simply took a moment longer.
+
+What replaces it is a bargain rather than a fix, and it is the same bargain every time: ask the thread to stop with
+a flag, a token, or a handle it waits on; wait as long as the caller can honestly block; then stop waiting and walk
+away. That is only survivable if the thread is a background thread, because a thread nobody is waiting for is
+otherwise a process that refuses to die. Where that means something new for the caller it is written into the code:
+
+- **The HTTP request queue** aborted its worker when a request had not finished within five seconds - a client that
+  stopped reading, a handler stuck inside a plugin. The worker is created `IsBackground = true` now and is left to
+  finish the request it is busy with.
+- **The skin engine's render loop** was aborted for the same five seconds. The loop already watched a stop flag, so
+  it was only ever the stuck driver call that needed the abort; the thread is a background thread and is left to
+  return from the call it is stuck in, and the window it drew into is gone either way.
+- **The clipboard** is the interesting one, because the thing that hangs is another program. `GetClipboardText` and
+  `SetClipboardText` waited 500 ms, then aborted the apartment thread they had started. They still wait 500 ms, and
+  then they say *no*. Saying no matters: the caller that cuts only deletes its text when the copy reports success,
+  and reporting success for a clipboard that never answered threw the text away without ever putting it anywhere.
+- **`ThreadingUtils.CallWithTimeout`** is gone rather than rewritten. It promised to return "whether the thread
+  stopped", which was never true - the abort it used was asynchronous, and a thread could refuse it - and it had no
+  callers left. What remains of the class is the one helper that starts an STA thread, and that thread is now a
+  background thread, because that is what makes walking away from it possible.
+- **The dead catches** went with it: `catch (ThreadAbortException)` in the thread pool, in the request queue, and in
+  the render loop, and the two `e.GetType() == typeof(ThreadAbortException)` rethrows in the scriptable metadata
+  extractor. None of them could ever be taken again, and a catch that cannot be taken teaches the next reader that
+  aborting is still on the menu.
+
+The one place that only *documented* an abort - `WindowsTaskWaitableTimer`, whose comment promised
+`Thread.Abort(object)` while the code underneath had long since switched to a cancellation token - keeps its code
+and loses the lie.
+
+Two tests keep this from rotting back, both in the portability canary. `ThreadingUtils.cs` is now linked into that
+project, so it compiles against a portable target framework with `CA1416` turned into an error - which is a
+stronger statement than "the Windows build still works", because it means the file has no Windows-only call site
+outside the guard it states. Three behaviour tests pin what the helper owes its callers: the action runs on another
+thread, and that thread is a background thread both outside and inside the action, and the single-threaded
+apartment is set where apartments exist and not claimed where they do not.
+
+`NoThreadAbortTests` then walks every `.cs` file under `Source` - about 3900 files, eight tenths of a second - for
+`ThreadAbortException`, `ResetAbort`, `Thread.Suspend` and a bare `.Abort()`, skipping comment lines so that the
+prose explaining why a call is gone does not read as a call. One file is on the allow list, with its reason next to
+it: `NetworkHelper.cs` calls `HttpWebRequest.Abort()`, which cancels a web request, is not a thread, and works
+everywhere. Removing that entry makes the test fail with the file, the line and the guidance printed, which is how
+the test was checked to bite at all. The canary went from 29 to 33 tests.
+
+Not done here: `HttpServer` is still a .NET Framework 4.8 project, so the request-queue edit is the one in this set
+that no build has compiled - it is small, and the source scan above at least proves no abort survives in it, but it
+joins the queue of projects waiting to be retargeted. An abandoned render thread can still be holding a DirectX
+device when the process gives up on it, and an abandoned request queue keeps one client connection open until the
+request finishes on its own; both are the price of the bargain rather than a new defect, and both are paid only in
+the case where the alternative was a crash. The clipboard's abandoned thread may still write into the clipboard
+after the caller has given up on it, which is the honest version of a thing that was already true.
+
 ## What cannot be verified without the user
 
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,

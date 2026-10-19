@@ -134,7 +134,9 @@ namespace MediaPortal.Common.Services.TaskScheduler
     }
 
     /// <summary>
-    /// Stop <see cref="_waitThread"/> if necessary. To do so <see cref="Thread.Abort(object)"/> is used.
+    /// Stop <see cref="_waitThread"/> if necessary. The thread is not aborted - which no .NET outside the
+    /// Windows Framework allows - but asked to stop through <see cref="_waitCancellationTokenSource"/>, whose
+    /// wait handle the thread waits on together with the timer, and then joined.
     /// <seealso cref="SecondsToWait"/>
     /// <seealso cref="Close"/>
     /// </summary>

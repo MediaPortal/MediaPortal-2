@@ -464,7 +464,11 @@ namespace MediaPortal.UI.SkinEngine.GUI
       if (SkinContext.RenderThread != null)
         throw new Exception("DirectX MainForm: Render thread already running");
       _renderThreadStopped = false;
-      SkinContext.RenderThread = new Thread(RenderLoop) { Name = "DX Render" };
+      // A background thread on purpose: StopRenderThread() waits for the loop to notice the flag, and when it
+      // does not notice - a DirectX call stuck in a driver - there is nothing else left to do with it, since
+      // outside the Windows .NET Framework a thread cannot be aborted. A thread that outlived its window must
+      // not be the reason the process stays alive.
+      SkinContext.RenderThread = new Thread(RenderLoop) { Name = "DX Render", IsBackground = true };
       SkinContext.RenderThread.Start();
     }
 
@@ -476,7 +480,10 @@ namespace MediaPortal.UI.SkinEngine.GUI
       ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Stopping render thread");
       if (!SkinContext.RenderThread.Join(5000))
       {
-        SkinContext.RenderThread.Abort();
+        // Left running, for the reason above. The flag is set, so it ends as soon as the call it is stuck in
+        // returns; the window it drew into is gone either way.
+        ServiceRegistration.Get<ILogger>().Warn("SkinEngine MainForm: render thread still running after five "
+            + "seconds; leaving it to finish by itself");
       }
       SkinContext.RenderThread = null;
     }
@@ -545,10 +552,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
             break;
         }
         ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Main render loop was stopped");
-      }
-      catch (ThreadAbortException)
-      {
-        ServiceRegistration.Get<ILogger>().Error("SkinEngine MainForm: Main render loop was aborted");
       }
       catch (Exception ex)
       {

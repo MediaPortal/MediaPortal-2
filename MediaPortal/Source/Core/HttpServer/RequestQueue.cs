@@ -84,7 +84,9 @@ namespace HttpServer
     {
       _canRun = true;
       if (_workerThread == null)
-        _workerThread = new Thread(QueueThread);
+        // A background thread, because Stop() may have to give up on it, and a thread nobody is waiting for
+        // must not be a reason for the process to stay alive.
+        _workerThread = new Thread(QueueThread) { IsBackground = true };
 
       if (!_workerThread.IsAlive)
         _workerThread.Start();
@@ -98,8 +100,11 @@ namespace HttpServer
       // Check added by Albert, Team MediaPortal
       if (_workerThread != null)
       {
-        if (!_workerThread.Join(5000))
-          _workerThread.Abort();
+        // Waiting five seconds was the old limit, after which the thread was aborted. Aborting is impossible on
+        // every .NET that is not the Windows Framework - it answers with PlatformNotSupportedException - so the
+        // thread is left to finish the request it is busy with. It is a background thread, so it cannot keep the
+        // process alive, and the dropped reference means a stopped queue is never started again behind its back.
+        _workerThread.Join(5000);
         _workerThread = null;
       }
     }
@@ -110,37 +115,34 @@ namespace HttpServer
     /// </summary>
     private void QueueThread()
     {
-      try
+      // No catch for ThreadAbortException any more: that exception only existed because Stop() could abort this
+      // thread, which no .NET outside the Windows Framework allows. Whatever the loop throws now goes wherever an
+      // unhandled exception from any other thread goes.
+      while (_canRun)
       {
-        while (_canRun)
-        {
-          _event.WaitOne(Timeout.Infinite, true);
-          if (!_canRun)
-            break;
+        _event.WaitOne(Timeout.Infinite, true);
+        if (!_canRun)
+          break;
 
-          if (CurrentRequestCount > MaxRequestCount)
+        if (CurrentRequestCount > MaxRequestCount)
+        {
+          _event.Reset();
+          continue;
+        }
+
+        QueueItem item;
+        lock (_queue)
+        {
+          if (_queue.Count == 0)
           {
             _event.Reset();
             continue;
           }
 
-          QueueItem item;
-          lock (_queue)
-          {
-            if (_queue.Count == 0)
-            {
-              _event.Reset();
-              continue;
-            }
-
-            item = _queue.Dequeue();
-          }
-
-          ThreadPool.QueueUserWorkItem(ProcessRequest, item);
+          item = _queue.Dequeue();
         }
-      }
-      catch (ThreadAbortException)
-      {
+
+        ThreadPool.QueueUserWorkItem(ProcessRequest, item);
       }
     }
 

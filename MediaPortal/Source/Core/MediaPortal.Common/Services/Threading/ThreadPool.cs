@@ -423,11 +423,6 @@ namespace MediaPortal.Common.Services.Threading
           CheckForIntervalBasedWork();
         }
       }
-      catch (ThreadAbortException)
-      {
-        ServiceRegistration.Get<ILogger>().Debug("ThreadPool.ProcessQueue(): Thread aborted");
-        Thread.ResetAbort();
-      }
       catch (Exception e)
       {
         ServiceRegistration.Get<ILogger>().Error("ThreadPool.ProcessQueue(): Error executing work", e);

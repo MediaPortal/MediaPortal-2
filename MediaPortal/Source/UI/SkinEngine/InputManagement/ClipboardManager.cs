@@ -66,13 +66,17 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     {
       string result = null;
       ManualResetEvent finishedEvent = new ManualResetEvent(false);
-      Thread thread = ThreadingUtils.RunSTAThreaded(() => GetClipboardText_STA(finishedEvent, ref result));
-      if (!finishedEvent.WaitOne(MAX_WAIT_MS))
-        thread.Abort();
+      ThreadingUtils.RunSTAThreaded(() => GetClipboardText_STA(finishedEvent, ref result));
 
+      // A clipboard held by another program does not answer, and there is no way to stop the thread waiting for
+      // it from here: outside the Windows .NET Framework, Thread.Abort throws. So this gives up on the answer
+      // rather than on the thread, which is left to finish whenever the clipboard lets go - and being a
+      // background thread, it cannot keep the process alive behind it.
+      bool answered = finishedEvent.WaitOne(MAX_WAIT_MS);
       finishedEvent.Close();
+
       text = result;
-      return !string.IsNullOrWhiteSpace(result);
+      return answered && !string.IsNullOrWhiteSpace(result);
     }
 
     /// <summary>
@@ -86,13 +90,15 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
         return false;
 
       ManualResetEvent finishedEvent = new ManualResetEvent(false);
-      Thread thread = ThreadingUtils.RunSTAThreaded(() => SetClipboardText_STA(finishedEvent, text));
+      ThreadingUtils.RunSTAThreaded(() => SetClipboardText_STA(finishedEvent, text));
 
-      if (!finishedEvent.WaitOne(MAX_WAIT_MS))
-        thread.Abort();
-
+      // The same bargain as reading: wait for a while, then stop waiting. Answering "no" matters here, because
+      // the caller that cuts only deletes its text when this said yes - saying yes to a clipboard that never
+      // answered would throw the text away without ever putting it anywhere. The text may still land in the
+      // clipboard later, when the program holding it lets go.
+      bool answered = finishedEvent.WaitOne(MAX_WAIT_MS);
       finishedEvent.Close();
-      return true;
+      return answered;
     }
 
     /// <summary>

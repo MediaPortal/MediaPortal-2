@@ -30,30 +30,20 @@ namespace MediaPortal.Utilities
   public static class ThreadingUtils
   {
     /// <summary>
-    /// CallWithTimeout executes an action and waits for the given number of milliseconds. If the action will not finish in time,
-    /// the thread executing the action gets aborted and a <see cref="TimeoutException"/> is raised.
-    /// The given <paramref name="action"/> should be prepared to handle a <see cref="ThreadAbortException"/> during its execution.
-    /// </summary>
-    /// <param name="action">Action to start.</param>
-    /// <param name="timeoutMs">Timeout in ms to wait for the action, until the action's thread is aborted via <see cref="Thread.Abort()"/>.</param>
-    /// <exception cref="TimeoutException">If the given <paramref name="action"/> runs longer than the given numer of <paramref name="timeoutMs"/>.</exception>
-    public static void CallWithTimeout(Action action, int timeoutMs)
-    {
-      var thread = new Thread(new ThreadStart(action));
-      thread.Start();
-      if (thread.Join(timeoutMs))
-        return;
-      thread.Abort();
-      throw new TimeoutException("Action timed out");
-    }
-
-    /// <summary>
     /// Starts a new thread using STA apartment state (<see cref="ApartmentState.STA"/>). This is required for accessing some windows features like the clipboard.
     /// </summary>
     /// <param name="threadStart">Thread to start.</param>
+    /// <remarks>
+    /// The thread is a background thread, which is what lets a caller that stopped waiting for it walk away: a
+    /// thread nobody is waiting for must not be a reason for a process to stay alive. It used to be possible to
+    /// stop such a thread from the outside with <c>Thread.Abort()</c>; on every .NET that is not Windows
+    /// Framework that call throws <see cref="PlatformNotSupportedException"/>, so the choice is between waiting
+    /// and leaving the thread to finish by itself. Callers that cannot wait forever - the clipboard, which
+    /// freezes when another program holds it - leave it.
+    /// </remarks>
     public static Thread RunSTAThreaded(ThreadStart threadStart)
     {
-      Thread newThread = new Thread(threadStart);
+      Thread newThread = new Thread(threadStart) { IsBackground = true };
       // Apartment state is a COM concept. SetApartmentState is only available on Windows, and the
       // only thing that has ever needed STA here is SkinEngine's ClipboardManager talking to the OLE
       // clipboard, which does not exist elsewhere. On other platforms the thread runs MTA, which is

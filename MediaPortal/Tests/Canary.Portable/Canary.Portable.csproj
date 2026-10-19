@@ -52,6 +52,7 @@
     <Compile Include="$(UtilitiesRoot)CollectionUtils.cs"><Link>Utilities\CollectionUtils.cs</Link></Compile>
     <Compile Include="$(UtilitiesRoot)ObjectUtils.cs"><Link>Utilities\ObjectUtils.cs</Link></Compile>
     <Compile Include="$(UtilitiesRoot)OrdinalStringComparer.cs"><Link>Utilities\OrdinalStringComparer.cs</Link></Compile>
+    <Compile Include="$(UtilitiesRoot)ThreadingUtils.cs"><Link>Utilities\ThreadingUtils.cs</Link></Compile>
     <Compile Include="$(UtilitiesRoot)SystemAPI\AutostartRegistry.cs"><Link>Utilities\SystemAPI\AutostartRegistry.cs</Link></Compile>
     <Compile Include="$(UtilitiesRoot)Conversion\Conversion.cs"><Link>Utilities\Conversion\Conversion.cs</Link></Compile>
     <Compile Include="$(UtilitiesRoot)DB\InstructionList.cs"><Link>Utilities\DB\InstructionList.cs</Link></Compile>
@@ -83,6 +84,15 @@
 
   <ItemGroup>
     <PackageReference Include="NamedPipeServerStream.NetFrameworkVersion" Version="1.1.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      Where the product sources live, handed to the tests as assembly metadata. NoThreadAbortTests walks that
+      tree, so the path has to come from the build rather than from the working directory the test host happens
+      to start in.
+    -->
+    <AssemblyMetadata Include="SourceRoot" Value="$(MSBuildThisFileDirectory)../../Source" />
   </ItemGroup>
 
 </Project>
