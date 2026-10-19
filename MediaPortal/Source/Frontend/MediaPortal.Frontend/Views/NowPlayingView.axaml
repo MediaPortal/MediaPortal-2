@@ -90,6 +90,25 @@
                      Foreground="{DynamicResource DimTextBrush}"
                      HorizontalAlignment="Center"
                      VerticalAlignment="Center"/>
+          <!-- What the library knows about this title, said over the picture at the corner where it does not
+               cover the story: the I key calls it and hides it again. It is read once per title and cleared
+               with the title, so an old film's plot never outlives its film. -->
+          <Border Name="mediaInfo"
+                  IsVisible="False"
+                  MaxWidth="860"
+                  Margin="16"
+                  Padding="16,12"
+                  Opacity="0.94"
+                  HorizontalAlignment="Left"
+                  VerticalAlignment="Bottom"
+                  Background="{DynamicResource PanelRaisedBrush}"
+                  BorderBrush="{DynamicResource OutlineBrush}"
+                  BorderThickness="1">
+            <TextBlock Text="{Binding MediaInfoText}"
+                       FontSize="18"
+                       TextWrapping="Wrap"
+                       Foreground="{DynamicResource TextBrush}"/>
+          </Border>
         </Panel>
       </Border>
 

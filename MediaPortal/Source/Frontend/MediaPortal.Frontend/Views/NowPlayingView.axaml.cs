@@ -98,7 +98,14 @@ namespace MediaPortal.Frontend.Views
           {
             long jump = args.Key == Key.Left ? -SkipLengthMs : args.Key == Key.Right ? SkipLengthMs : 0;
             if (jump == 0)
+            {
+              if (args.Key == Key.I)
+              {
+                ToggleMediaInfo();
+                args.Handled = true;
+              }
               return;
+            }
             _viewModel.Skip(jump);
             Say("Superlayer_SkipStep", SkipWords(jump), 1200);
             args.Handled = true;
@@ -191,6 +198,17 @@ namespace MediaPortal.Frontend.Views
     private void OnMute(object? sender, RoutedEventArgs e)
     {
       _viewModel.ToggleMute();
+    }
+
+    /// <summary>
+    /// Call the media info over the picture, or send it back. Showing it also asks the library once - the
+    /// reading is the view model's and survives this panel being closed and opened again.
+    /// </summary>
+    private void ToggleMediaInfo()
+    {
+      mediaInfo.IsVisible = !mediaInfo.IsVisible;
+      if (mediaInfo.IsVisible)
+        _ = _viewModel.ReadMediaInfoAsync();
     }
 
     /// <summary>

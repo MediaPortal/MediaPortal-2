@@ -179,6 +179,16 @@ namespace MediaPortal.Frontend
 
         if (_nowPlaying != null)
         {
+          // The media info asks the current server, whoever it is when the key is pressed - the reader reads
+          // the home screen's client at call time rather than holding on to one build's copy.
+          _nowPlaying.DetailsReader = delegate (Guid mediaItemId)
+          {
+            ServerApiClient? client = _home.Client;
+            if (client == null)
+              throw new InvalidOperationException("there is no server to ask");
+            return client.GetItemAsync(mediaItemId);
+          };
+
           // The player goes with it. Without this the engine and its threads stay behind when the last window
           // closes, which a viewer notices as a process that never goes away.
           desktop.Exit += delegate { _nowPlaying.Dispose(); };

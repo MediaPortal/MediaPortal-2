@@ -27,7 +27,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
+using MediaPortal.Frontend.Api;
 using MediaPortal.Frontend.Player;
 
 namespace MediaPortal.Frontend.ViewModels
@@ -372,6 +374,114 @@ namespace MediaPortal.Frontend.ViewModels
       get { return _mediaItemId; }
     }
 
+    /// <summary>
+    /// How to ask the library what it knows about a title, set by the application when there is a server to
+    /// ask. A machine that only plays files has no library to read, and the media info then says exactly that
+    /// rather than nothing - the reference's info screen was never silent on purpose, only on absence.
+    /// </summary>
+    public Func<Guid, Task<MediaItemDetails>>? DetailsReader { get; set; }
+
+    private MediaItemDetails? _mediaInfo;
+
+    /// <summary>Which title <see cref="_mediaInfo"/> was read for, so the same film is asked once.</summary>
+    private Guid? _mediaInfoFor;
+
+    /// <summary>
+    /// What the library says about the title being played, or null while nobody has asked or the file belongs
+    /// to no library.
+    /// </summary>
+    public MediaItemDetails? MediaInfo
+    {
+      get { return _mediaInfo; }
+      private set
+      {
+        _mediaInfo = value;
+        Raise();
+      }
+    }
+
+    /// <summary>
+    /// The whole of the media info as the screen reads it: the film's name and year, its series position if
+    /// it has one, its kinds, dates, length, rating, the file the player is really reading, and the longest
+    /// prose the library carries. Never empty, because an info panel that shows nothing looks broken rather
+    /// than informed.
+    /// </summary>
+    public string MediaInfoText
+    {
+      get
+      {
+        MediaItemDetails? details = _mediaInfo;
+        if (details == null)
+          return _mediaItemId == null
+              ? "this file belongs to no library"
+              : "the library has not answered yet";
+        if (details.Error != null)
+          return details.Error;
+
+        List<string> lines = new List<string>();
+
+        string head = details.Title ?? _title;
+        if (details.Year != null)
+          head += " (" + details.Year.Value + ")";
+        if (details.Season != null && details.Episode != null)
+          head += "  S" + details.Season.Value.ToString("00", CultureInfo.InvariantCulture)
+              + "E" + details.Episode.Value.ToString("00", CultureInfo.InvariantCulture);
+        else if (!string.IsNullOrEmpty(details.SeriesName))
+          head += "  " + details.SeriesName;
+        lines.Add(head);
+
+        if (details.Genres != null && details.Genres.Count > 0)
+          lines.Add(string.Join(", ", details.Genres));
+        if (details.FirstAired != null)
+          lines.Add("first aired "
+              + details.FirstAired.Value.ToString("d MMM yyyy", CultureInfo.InvariantCulture));
+        if (details.RuntimeMinutes != null)
+          lines.Add("runs " + Format(details.RuntimeMinutes.Value * 60_000L));
+        if (!string.IsNullOrEmpty(details.Certification))
+          lines.Add("rated " + details.Certification);
+        if (details.Rating != null)
+          lines.Add("your rating: " + details.Rating.Value + "/10");
+        else if (details.TotalRating != null)
+          lines.Add("rated " + details.TotalRating.Value.ToString("0.0", CultureInfo.InvariantCulture));
+        if (!string.IsNullOrEmpty(details.Path))
+          lines.Add(details.Path!);
+
+        string? story = details.Description;
+        if (!string.IsNullOrEmpty(story))
+          lines.Add(story!);
+
+        return string.Join(Environment.NewLine, lines);
+      }
+    }
+
+    /// <summary>
+    /// Asks the library once what it says about the title being played. A second call for the same title is
+    /// deliberately not a second read - the library does not rewrite a film's plot while it is watched - and
+    /// a file without a library id is not asked at all, because the question would have no subject.
+    /// </summary>
+    public async Task ReadMediaInfoAsync()
+    {
+      Guid? id = _mediaItemId;
+      if (id == null || DetailsReader == null || _mediaInfoFor == id)
+        return;
+
+      try
+      {
+        MediaItemDetails details = await DetailsReader(id.Value);
+        // The film may have moved on while the question was in flight, and an answer about the previous title
+        // does not belong on the next title's info panel.
+        if (_mediaItemId == id)
+          MediaInfo = details;
+        _mediaInfoFor = details.Error == null ? id : null;
+      }
+      catch (Exception)
+      {
+        // A refused read says "the library has not answered" on the panel and tries again next time; the
+        // viewer's film is nobody's business to interrupt over a failed question.
+        _mediaInfoFor = null;
+      }
+    }
+
     public bool Play(MediaLocation location)
     {
       return Play(location, (Guid?) null);
@@ -452,6 +562,9 @@ namespace MediaPortal.Frontend.ViewModels
       // viewer actually got.
       Report(previousId, previousPercentage);
       _mediaItemId = mediaItemId;
+      // What the library said about the previous title is not what it says about this one.
+      _mediaInfo = null;
+      _mediaInfoFor = null;
       _furthestMs = 0;
       _reported = false;
 
