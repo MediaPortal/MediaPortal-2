@@ -34,14 +34,15 @@ namespace MediaPortal.Frontend.Theming
   /// </summary>
   public sealed class WornSkin
   {
-    public WornSkin(SkinManifest manifest, SkinTheme theme, ResourceDictionary resources, Styles styles)
+    public WornSkin(SkinManifest manifest, SkinTheme theme, ResourceDictionary resources, Styles styles,
+        System.IDisposable? background = null)
     {
       Manifest = manifest;
       Theme = theme;
       Resources = resources;
       Styles = styles;
+      Background = background;
     }
-
 
     public SkinManifest Manifest { get; }
 
@@ -53,6 +54,13 @@ namespace MediaPortal.Frontend.Theming
 
     /// <summary>The skin's own control styles, read from its XAML.</summary>
     public Styles Styles { get; }
+
+    /// <summary>
+    /// The picture the worn theme stands on, or null while it stands on a colour. The engine owns it and
+    /// disposes it when the skin comes off - a skin put on and taken off a hundred times must not leave a
+    /// hundred pictures behind.
+    /// </summary>
+    public System.IDisposable? Background { get; }
   }
 
   /// <summary>
@@ -318,6 +326,7 @@ namespace MediaPortal.Frontend.Theming
 
       ResourceDictionary resources = new ResourceDictionary();
       Styles styles = new Styles();
+      System.IDisposable? background = null;
       try
       {
         Dress(manifest, manifest.DefaultTheme, resources, styles);
@@ -327,15 +336,25 @@ namespace MediaPortal.Frontend.Theming
         if (!string.IsNullOrEmpty(manifest.SuperlayersFile))
           resources.MergedDictionaries.Add(Read(JoinAsset(manifest.Directory, manifest.SuperlayersFile!), "overlays"));
 
+        // The picture this theme stands on, if it named one. It goes in under its own key rather than as a
+        // brush, because a window painting a picture behind the screens wants the picture, and a flat colour
+        // stays the answer for every theme too plain to carry one.
+        if (!string.IsNullOrEmpty(theme.BackgroundFile))
+        {
+          background = ReadImage(theme.AssetUri(theme.BackgroundFile));
+          resources["SkinBackgroundImage"] = background;
+        }
+
         FlattenTopLevel(resources);
       }
       catch (Exception e)
       {
+        background?.Dispose();
         problem = string.Format("The skin '{0}' could not be read: {1}", manifest.Title, e.Message);
         return false;
       }
 
-      Wear(app, new WornSkin(manifest, theme, resources, styles));
+      Wear(app, new WornSkin(manifest, theme, resources, styles, background));
       problem = null;
       return true;
     }
@@ -348,6 +367,7 @@ namespace MediaPortal.Frontend.Theming
 
       app.Resources.MergedDictionaries.Remove(worn.Resources);
       app.Styles.Remove(worn.Styles);
+      worn.Background?.Dispose();
       WORN.Remove(app);
       Changed?.Invoke(null, EventArgs.Empty);
     }
@@ -468,6 +488,39 @@ namespace MediaPortal.Frontend.Theming
             uriOrPath));
 
       return include;
+    }
+
+    /// <summary>
+    /// Read one of a theme's picture files - the background the theme stands on - from disk or from the
+    /// assembly. A file that is not a picture complains in the same sentence the rest of the skin is reported
+    /// in, and the skin stays off rather than half-worn.
+    /// </summary>
+    private static System.IDisposable ReadImage(string uriOrPath)
+    {
+      try
+      {
+        if (!uriOrPath.StartsWith("avares://", StringComparison.OrdinalIgnoreCase))
+        {
+          if (!File.Exists(uriOrPath))
+            throw new FileNotFoundException("the file is not there");
+          return new Avalonia.Media.Imaging.Bitmap(uriOrPath);
+        }
+
+        if (!AssetLoader.Exists(new Uri(uriOrPath)))
+          throw new FileNotFoundException("the file is not in the skin");
+
+        using Stream stream = AssetLoader.Open(new Uri(uriOrPath));
+        return new Avalonia.Media.Imaging.Bitmap(stream);
+      }
+      catch (InvalidDataException)
+      {
+        throw;
+      }
+      catch (Exception e)
+      {
+        throw new InvalidDataException(string.Format("the background file '{0}' could not be read as a picture: {1}",
+            uriOrPath, e.Message));
+      }
     }
 
     /// <summary>

@@ -45,12 +45,14 @@ namespace MediaPortal.Frontend.Theming
   /// </summary>
   public sealed class SkinTheme
   {
-    public SkinTheme(string name, string directory, IReadOnlyList<SkinThemeFile> files, bool isDefault)
+    public SkinTheme(string name, string directory, IReadOnlyList<SkinThemeFile> files, bool isDefault,
+        string backgroundFile = "")
     {
       Name = name;
       Directory = directory;
       Files = files;
       IsDefault = isDefault;
+      BackgroundFile = backgroundFile;
     }
 
     public string Name { get; }
@@ -61,6 +63,13 @@ namespace MediaPortal.Frontend.Theming
     public IReadOnlyList<SkinThemeFile> Files { get; }
 
     public bool IsDefault { get; }
+
+    /// <summary>
+    /// The picture file this theme stands on, named by the manifest's Background attribute, or empty when the
+    /// theme stands on a flat colour like it always did. Relative to the theme's directory, read from the same
+    /// place as the XAML files - off disk for a skin folder, out of the assembly for a shipped one.
+    /// </summary>
+    public string BackgroundFile { get; }
 
     /// <summary>The asset URI of one of this theme's files.</summary>
     public string AssetUri(string file)
@@ -247,7 +256,12 @@ namespace MediaPortal.Frontend.Theming
       }
 
       bool isDefault = string.Equals(Attribute(element, "Default"), "true", StringComparison.OrdinalIgnoreCase);
-      return new SkinTheme(name, CombineAsset(skinDirectory, directory), files, isDefault);
+
+      // An optional picture the theme stands on. The reference skins carried their own backgrounds - Nereus a
+      // dark fanart, WMC its blue wash - and a skin that may not carry a picture is only half a skin.
+      string background = Attribute(element, "Background");
+
+      return new SkinTheme(name, CombineAsset(skinDirectory, directory), files, isDefault, background);
     }
 
     /// <summary>Joins an asset prefix and a manifest-relative directory the way asset URIs are spelled.</summary>

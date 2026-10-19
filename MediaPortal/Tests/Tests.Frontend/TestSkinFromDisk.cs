@@ -22,6 +22,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Headless.NUnit;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using NUnit.Framework;
 using MediaPortal.Frontend.Theming;
 using MediaPortal.Frontend.ViewModels;
@@ -131,6 +132,54 @@ namespace Tests.Frontend
       Assert.That(app.Resources.TryGetResource("DiskBrush", null, out object? brush), Is.True);
       Assert.That(((SolidColorBrush)brush!).Color, Is.EqualTo(Color.Parse("#FF654321")),
           "the edited file, not the old one, is what the skin wears now");
+    }
+
+    /// <summary>
+    /// The picture a theme stands on. The reference skins carried their own backgrounds as files in the skin
+    /// folder, and a skin whose "background" is only ever a colour entry is a colour chart, not a skin - so a
+    /// manifest may name one, the engine reads it like every other skin file, and it comes off again together
+    /// with the skin.
+    /// </summary>
+    [AvaloniaTest]
+    public void AThemeThatNamesAPictureStandsOnIt()
+    {
+      Application app = Application.Current!;
+      SkinEngine.SkinsFolder = _root;
+      string skinFolder = Path.Combine(_root, "disktest");
+
+      // A three-pixel picture written by the test itself - the same kind of file a viewer drops into a skin
+      // folder, just a small one.
+      string picture = Path.Combine(skinFolder, "backdrop.png");
+      using (WriteableBitmap bitmap = new WriteableBitmap(new PixelSize(3, 3), new Vector(96, 96)))
+        bitmap.Save(picture);
+
+      File.WriteAllText(Path.Combine(skinFolder, "skin.xml"),
+          "<Skin Name=\"disktest\" Title=\"Disk Test\" Author=\"tests\" Version=\"1\">"
+          + "<Description>A skin with a picture behind it.</Description>"
+          + "<Theme Name=\"default\" Directory=\".\" Background=\"backdrop.png\">"
+          + "<File Role=\"colors\" Name=\"colors.xaml\"/>"
+          + "</Theme></Skin>");
+
+      Assert.That(SkinEngine.Apply(app, "disktest", out string? problem), Is.True, problem ?? "");
+      Assert.That(app.Resources.TryGetResource("SkinBackgroundImage", null, out object? image), Is.True,
+          "the named picture is answerable as soon as the skin is on");
+      Assert.That(image, Is.InstanceOf<IImage>());
+
+      SkinEngine.Clear(app);
+      Assert.That(app.Resources.TryGetResource("SkinBackgroundImage", null, out _), Is.False,
+          "and it leaves with the skin, not behind it");
+
+      // A name that points at no picture is said, and the skin stays off - a half-worn skin with a missing
+      // background would show a colour where somebody meant a photograph.
+      File.WriteAllText(Path.Combine(skinFolder, "skin.xml"),
+          "<Skin Name=\"disktest\" Title=\"Disk Test\" Author=\"tests\" Version=\"1\">"
+          + "<Description>The picture is gone.</Description>"
+          + "<Theme Name=\"default\" Directory=\".\" Background=\"gone.png\">"
+          + "<File Role=\"colors\" Name=\"colors.xaml\"/>"
+          + "</Theme></Skin>");
+
+      Assert.That(SkinEngine.Apply(app, "disktest", out problem), Is.False);
+      Assert.That(problem, Does.Contain("gone.png"));
     }
 
     [AvaloniaTest]

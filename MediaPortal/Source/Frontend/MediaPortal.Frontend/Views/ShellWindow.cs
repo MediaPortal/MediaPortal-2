@@ -244,7 +244,19 @@ namespace MediaPortal.Frontend.Views
       // The window itself follows suit: the chrome rows carry a margin, and a gap at the corner of the
       // television that kept the factory's colour while the screen wore another would say the theme never
       // arrived - which is precisely what the render gate looks for.
-      Background = FindResource("ScreenBackgroundBrush") as IBrush ?? FactoryBackground;
+      //
+      // A picture beats a colour here: the reference skins stood on their own backgrounds - WMC's blue wash,
+      // Nereus' dark fanart - and a theme that carries a picture is asked for one, so a theme may name a
+      // Background file in its manifest and the whole television then stands on it. Without one, the colour.
+      object? picture = FindResource("SkinBackgroundImage");
+      Background = picture is Avalonia.Media.IImageBrushSource src
+          ? new Avalonia.Media.ImageBrush(src)
+          {
+            Stretch = Avalonia.Media.Stretch.UniformToFill,
+            AlignmentX = Avalonia.Media.AlignmentX.Center,
+            AlignmentY = Avalonia.Media.AlignmentY.Center
+          }
+          : FindResource("ScreenBackgroundBrush") as IBrush ?? FactoryBackground;
       UpdateChromeVisibility();
     }
 
