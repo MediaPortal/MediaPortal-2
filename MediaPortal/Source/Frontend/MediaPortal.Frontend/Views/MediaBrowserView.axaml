@@ -15,6 +15,21 @@
     so that the viewer does not have to discover it by pressing OK.
   -->
 
+  <!--
+    The two layers the reference's FanArtBackground_Template painted, and in the same order: the selected
+    title's fanart stretched over the whole screen, and the skin's darkening over it at the opacity the skin's
+    own setting says - which is why the room stays readable while the mood of the shelf changes underneath.
+    Whether there is a fanart at all is the skin setting's answer, not this file's.
+  -->
+  <Panel>
+
+    <Image Source="{Binding BackgroundArtwork, Converter={StaticResource artwork}}"
+           Stretch="UniformToFill"
+           IsVisible="{Binding HasBackgroundArtwork}" />
+    <Border Background="Black"
+            Opacity="{Binding FanartOverlay}"
+            IsVisible="{Binding HasBackgroundArtwork}" />
+
   <DockPanel Margin="48,36">
 
     <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,12">
@@ -199,4 +214,6 @@
 
     </Grid>
   </DockPanel>
+
+  </Panel>
 </UserControl>

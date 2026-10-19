@@ -34,6 +34,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
+using MediaPortal.Common.FanArt;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -1169,7 +1170,33 @@ namespace MediaPortal.Server.Api
     }
 
     /// <summary>
+    /// The media item fanart the front end draws behind a browser shelf: the fanart cache's poster/fanart bundle
+    /// for one title, or nothing when the item has no fanart and the skin asks for it. The file lives in the server's
+    /// fanart cache, just like the thumbnail lives in the media item's own blob. A missing file is a normal state,
+    /// not a failure: the front end already draws the placeholder when the bytes are absent.
+    /// </summary>
+    [HttpGet("items/{id}/fanart")]
+    public IActionResult GetFanArt(Guid id)
+    {
+      IFanArtCache cache = ServiceRegistration.Get<IFanArtCache>(false);
+      if (cache == null)
+        return StatusCode(StatusCodes.Status503ServiceUnavailable);
+
+      IList<string> files = cache.GetFanArtFiles(id, FanArtTypes.Poster);
+      if (files == null || files.Count == 0)
+        files = cache.GetFanArtFiles(id, FanArtTypes.FanArt);
+      if (files == null || files.Count == 0)
+        return NotFound(new ItemResult { Id = id, Error = "this server has no fanart for the id " + id });
+
+      string path = files.First();
+      byte[] picture = System.IO.File.ReadAllBytes(path);
+      Response.Headers["Cache-Control"] = "private, max-age=" + THUMBNAIL_CACHE_SECONDS;
+      return File(picture, PictureMediaType(picture));
+    }
+
+    /// <summary>
     /// The media type of a picture from the bytes that begin it, or
+    /// <c>application/octet-stream</c> when none of them match.
     /// <c>application/octet-stream</c> when none of them match.
     /// </summary>
     /// <remarks>

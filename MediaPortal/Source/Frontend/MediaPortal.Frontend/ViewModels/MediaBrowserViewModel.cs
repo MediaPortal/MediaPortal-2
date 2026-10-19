@@ -591,6 +591,14 @@ namespace MediaPortal.Frontend.ViewModels
       // The grid corners obey the skin setting the reference gated them behind; the list's quiet tick is the
       // screen's own old promise and no skin setting ever spoke for it.
       _watchFlagsShown = _skinSettings?.EnableGridWatchedFlags ?? true;
+      // The fanart behind the shelf is the reference's FanArtBackground_Template read honestly: the picture
+      // follows the selected row, the whole layer stands or falls with EnableFanart, and the dimming layer on
+      // top of it wears FanartOverlayOpacity as its opacity - the two settings the skin-settings screen writes.
+      // A machine wearing its own face has no setting to read and no fanart, which is also what the reference's
+      // default skin did: no background model, no picture.
+      FanartShown = _skinSettings?.EnableFanart ?? false;
+      FanartOverlay = _skinSettings?.FanartOverlayOpacity ?? 0.85;
+      _fanart = client == null ? null : new Artwork(id => client.GetFanArtAsync(id));
     }
 
     private readonly SkinSettingsBase? _skinSettings;
@@ -654,6 +662,89 @@ namespace MediaPortal.Frontend.ViewModels
     /// <summary>Whether a tile may show its watched corner at all - the skin setting's answer.</summary>
     [ObservableProperty]
     private bool _watchFlagsShown = true;
+
+    /// <summary>
+    /// Whether the shelf wears the worn skin's fanart at all - the reference's <c>EnableFanart</c>, read once
+    /// when the shelf opens. The view binds the whole background layer to this one answer.
+    /// </summary>
+    public bool FanartShown { get; }
+
+    /// <summary>
+    /// How far the skin dims the fanart - the reference drew its dark backdrop over the picture with exactly
+    /// this opacity, and the skin-settings screen writes exactly this number.
+    /// </summary>
+    public double FanartOverlay { get; }
+
+    /// <summary>The fanart pictures of this shelf's titles, or null with no server to ask.</summary>
+    private readonly Artwork? _fanart;
+
+    /// <summary>
+    /// The bytes of the fanart behind the shelf: the selected title's picture from the server's own fanart
+    /// cache, the way the reference's background model followed the selection.
+    /// </summary>
+    [ObservableProperty]
+    private byte[]? _backgroundArtwork;
+
+    /// <summary>Whether there is a fanart to draw - the layer asks this rather than testing the bytes.</summary>
+    public bool HasBackgroundArtwork
+    {
+      get { return BackgroundArtwork != null; }
+    }
+
+    /// <summary>The title the last fanart read was for, so a fast walk through rows cannot race.</summary>
+    private Guid _fanartFor;
+
+    partial void OnBackgroundArtworkChanged(byte[]? value)
+    {
+      OnPropertyChanged(nameof(HasBackgroundArtwork));
+    }
+
+    /// <summary>
+    /// The fanart follows the selected row, which is the reference's rule to the letter: walking the shelf
+    /// changes the room's mood one row at a time. Off with the setting off, off without a server, and a
+    /// picture already remembered costs no second request - the walk back over a shelf asks nothing at all.
+    /// </summary>
+    partial void OnSelectedChanged(TitleViewModel? value)
+    {
+      Artwork? fanart = _fanart;
+      if (!FanartShown || fanart == null || value == null)
+      {
+        _fanartFor = Guid.Empty;
+        BackgroundArtwork = null;
+        return;
+      }
+
+      Guid id = value.Title.Id;
+      _fanartFor = id;
+      if (fanart.TryPeek(id, out byte[]? held))
+      {
+        BackgroundArtwork = held;
+        return;
+      }
+
+      BackgroundArtwork = null;
+      _ = ReadFanartAsync(fanart, id);
+    }
+
+    /// <summary>
+    /// One title's fanart, put behind the shelf when it arrives - unless the viewer has walked on, which the
+    /// remembered id says. A server without the picture, or without the fanart service at all, is answered
+    /// with no picture and no word: the plain screen behind is the right drawing for that.
+    /// </summary>
+    private async Task ReadFanartAsync(Artwork fanart, Guid id)
+    {
+      try
+      {
+        byte[]? picture = await fanart.LoadAsync(id);
+        if (_fanartFor == id)
+          BackgroundArtwork = picture;
+      }
+      catch (ServerApiException)
+      {
+        if (_fanartFor == id)
+          BackgroundArtwork = null;
+      }
+    }
 
     public string LayoutLabel
     {

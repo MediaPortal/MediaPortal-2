@@ -462,6 +462,22 @@ namespace MediaPortal.Frontend.Api
     }
 
     /// <summary>
+    /// The background fanart the skin may paint behind an item list: a poster or backdrop from the server's
+    /// own fanart cache, or null when the library has no picture for that title.
+    /// </summary>
+    /// <param name="mediaItemId">The id from <see cref="MediaTitle.Id"/>.</param>
+    public async Task<byte[]?> GetFanArtAsync(Guid mediaItemId, CancellationToken cancellation = default)
+    {
+      Uri url = new Uri(BaseUrl, "api/media/items/" + mediaItemId.ToString("D") + "/fanart");
+      RawAnswer answer = await GetRawAsync(url, cancellation).ConfigureAwait(false);
+      if (answer.Status == HttpStatusCode.NotFound)
+        return null;
+      if (!answer.Success)
+        throw new ServerApiException(url, answer.Status, Summarize(answer.Text()));
+      return answer.Body;
+    }
+
+    /// <summary>
     /// The address a player is given to watch one title from this server.
     /// </summary>
     /// <param name="mediaItemId">The id from <see cref="MediaTitle.Id"/>.</param>

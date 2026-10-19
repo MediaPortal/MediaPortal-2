@@ -17,8 +17,13 @@
 
 using System;
 using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Headless.NUnit;
+using Avalonia.Threading;
 using NUnit.Framework;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using FrontendAspect = MediaPortal.Frontend.Api.MediaAspect;
@@ -217,6 +222,106 @@ namespace Tests.Frontend
       Assert.That(untouched.HasNoArtwork, Is.False);
       untouched.ShowArtwork(null);
       Assert.That(untouched.HasNoArtwork, Is.True, "a server that says there is none is believed");
+    }
+
+    /// <summary>
+    /// A server whose fanart endpoint answers one title with bytes and every other one with the honest 404 -
+    /// the shape the real controller gives a title the cache has no picture for.
+    /// </summary>
+    private sealed class OneFanartServer : HttpMessageHandler
+    {
+      private readonly Guid _withPicture;
+
+      public OneFanartServer(Guid withPicture)
+      {
+        _withPicture = withPicture;
+      }
+
+      protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+          CancellationToken cancellation)
+      {
+        string url = request.RequestUri!.ToString();
+        bool asked = url.EndsWith("/fanart", StringComparison.OrdinalIgnoreCase);
+        bool known = url.Contains(_withPicture.ToString("D"), StringComparison.OrdinalIgnoreCase);
+        if (asked && known)
+          return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+          {
+            Content = new ByteArrayContent(new byte[] { 1, 2, 3, 4 })
+          });
+        return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
+      }
+    }
+
+    private static void WaitUntil(string because, Func<bool> condition)
+    {
+      DateTimeOffset deadline = DateTimeOffset.UtcNow + TimeSpan.FromSeconds(15);
+      while (DateTimeOffset.UtcNow < deadline)
+      {
+        Dispatcher.UIThread.RunJobs();
+        Thread.Sleep(5);
+        if (condition())
+          return;
+      }
+      Assert.Fail("Timed out after 15 seconds waiting for " + because);
+    }
+
+    [AvaloniaTest]
+    public void TheFanartFollowsTheSelectionWhenTheSkinWantsIt()
+    {
+      Application app = RequireApplication();
+      FrontendTheme.Apply(app, "nereus", out _);
+
+      Guid withPicture = Guid.NewGuid();
+      ServerApiClient client = new ServerApiClient(
+          new Uri("http://127.0.0.1:1/MediaPortal/Server/"), new HttpClient(new OneFanartServer(withPicture)));
+      MediaBrowserViewModel vm = new MediaBrowserViewModel(client, MoviesSection(), null);
+
+      Assert.That(vm.FanartShown, Is.True, "Nereus wants fanart behind the shelf by default");
+      Assert.That(vm.FanartOverlay, Is.EqualTo(0.85), "the reference's default dimming");
+
+      vm.Selected = new TitleViewModel(new MediaTitle(withPicture, "With Fanart", null, null, null, null, false));
+      WaitUntil("the fanart of the selected row to arrive", delegate { return vm.BackgroundArtwork != null; });
+      Assert.That(vm.HasBackgroundArtwork, Is.True);
+
+      // Walking to a row the cache has nothing for takes the room's mood away again, rather than leaving the
+      // previous title's picture behind it.
+      vm.Selected = new TitleViewModel(new MediaTitle(Guid.NewGuid(), "Without", null, null, null, null, false));
+      WaitUntil("the fanart to go away with the row that has none",
+          delegate { return vm.BackgroundArtwork == null; });
+
+      // And the walk back costs no second request - the same Artwork cache the rows use remembers the absence
+      // and the presence alike, so the answer is there before the row is even drawn.
+      vm.Selected = new TitleViewModel(new MediaTitle(withPicture, "With Fanart", null, null, null, null, false));
+      Assert.That(vm.BackgroundArtwork, Is.Not.Null, "the remembered picture answers at once");
+    }
+
+    [AvaloniaTest]
+    public void TheSettingOffKeepsTheScreenPlain()
+    {
+      Application app = RequireApplication();
+
+      string file = Path.Combine(_ownDir, "skin-nereus.json");
+      NereusSkinSettings settings = NereusSkinSettings.Load(file, out _);
+      settings.EnableFanart = false;
+      settings.Save(file, out _);
+
+      FrontendTheme.Apply(app, "nereus", out _);
+      Guid withPicture = Guid.NewGuid();
+      ServerApiClient client = new ServerApiClient(
+          new Uri("http://127.0.0.1:1/MediaPortal/Server/"), new HttpClient(new OneFanartServer(withPicture)));
+      MediaBrowserViewModel vm = new MediaBrowserViewModel(client, MoviesSection(), null);
+
+      Assert.That(vm.FanartShown, Is.False);
+      vm.Selected = new TitleViewModel(new MediaTitle(withPicture, "With Fanart", null, null, null, null, false));
+      Thread.Sleep(100);
+      Dispatcher.UIThread.RunJobs();
+      Assert.That(vm.BackgroundArtwork, Is.Null,
+          "a shelf whose skin says no fanart asks for none and draws none");
+
+      // The front end's own face has no setting to read and no fanart to show, which is what the reference's
+      // default skin drew: no background model, no picture.
+      FrontendTheme.Apply(app, FrontendTheme.DEFAULT_NAME, out _);
+      Assert.That(new MediaBrowserViewModel(client, MoviesSection(), null).FanartShown, Is.False);
     }
   }
 }
