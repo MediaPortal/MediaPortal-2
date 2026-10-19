@@ -2005,3 +2005,39 @@ What a `PASS` here does **not** mean: an nfo-imported title still has no picture
 as a stub for the fanart handler and leaves `ThumbnailLargeAspect` empty, and the fanart cache has no endpoint yet -
 and it has no duration or resolution, because no analyser that reads a container in managed code is deployed. The
 gate runs the win-x64 layout; what the extractor proves about Linux and Android is its unit tests, not this script.
+
+## A film over HTTP: `test-player-file.ps1 -Stream`
+
+`test-player-file.ps1` exists because the rest of the suite plays files the tests generated themselves, which
+covers the state machine and the clock and cannot cover HEVC, a duration in hours, or seeking across keyframes. It
+asks `ffprobe` what the container holds, compiles `Tests.Frontend/RealMedia` in with `-p:RealMediaTests=true`,
+insists that tests actually ran ("0 tests, exit 0" is a failure), and prints what the engine counted next to what
+the container states.
+
+`-Stream` plays the same file a second way. The server's API is started in the test process (`InProcessApi`), the
+file is registered as a title whose locator hands out MP2's real `LocalFsResourceAccessor`, and libVLC is handed
+what the front end would hand it - `ServerApiClient.GetStreamUri(id)`, i.e.
+`api/media/items/{id}/stream` - never a path. Both fixtures then run against one set of `ffprobe` numbers, which is
+the point: the file fixture is the baseline that says the film is playable at all, and the stream fixture is the
+thing being proved. The assertions worth knowing about are the range and duration ones, because they are what a
+Matroska forces - its cues sit after the clusters, so a server whose range answers are wrong gives a decoder sound
+with no picture:
+
+    range:    bytes 697945998-697950093/697950094 answered byte for byte
+    length:   1:01:07 over HTTP
+    seek:     asked 0:20:22, arrived at 0:20:22 over HTTP
+    pictures: 100 of 1920x804, decoded 242 audio 501
+
+`-Show` still works with it, and is how a person watches the file the assertions are running against.
+
+Two things this cannot prove, stated because the PASS line invites the wrong inference: the server is in the test
+process on a loopback port and the file is on the same disk, so nothing about a real network is measured; and a
+server with web authorization on cannot be streamed from by a player that holds no ticket, because
+`MediaPortalBearerHandler` reads the `Authorization` header and a URL handed to libVLC carries none.
+
+A trap worth remembering for every script here: **PowerShell variable names are not case sensitive**, so adding a
+`[switch]$Stream` to a script that already had `foreach ($stream in $probe.streams)` made the loop variable the
+parameter, and the run died with "cannot convert PSCustomObject to SwitchParameter" on a `foreach` line that had
+never bothered anybody until the switch existed. The loop is `$mediaStream` now. `trap { Write-Host $_.InvocationInfo.ScriptLineNumber }`
+copied into a scratch clone of a script is the fastest way to find where a `-File` run actually stopped, because the
+error PowerShell prints names the script, not the statement.

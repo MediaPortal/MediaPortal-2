@@ -26,12 +26,21 @@
 
   Pass -Show to play with a real video output instead of libVLC's dummy one - the picture appears in a window,
   which is the only way to answer "does it look right", a question no assertion can settle.
+
+  Pass -Stream and the same file is played a second way: the server's own API is started in the test process with
+  the file registered as a title reached through MP2's local filesystem resource provider, and the player is
+  handed the address the front end would hand it - api/media/items/{id}/stream. That is the only configuration in
+  which the streaming endpoint is measured by something that has to seek: a Matroska keeps its index after the
+  clusters, so a server whose range answers are wrong plays sound with no picture. The file fixture and the
+  stream fixture are then run against one set of numbers from ffprobe, so the two are comparable line for line.
 .PARAMETER File
   The media file to play. Defaults to MP2_TEST_MEDIA. Required either way; a missing file is an error, not a skip.
 .PARAMETER Seconds
   How long to watch while counting decoded frames. Default 6.
 .PARAMETER Show
   Play with a real video output rather than the dummy one. Needs a display.
+.PARAMETER Stream
+  Also play the file over the server's HTTP stream endpoint, in the same run.
 .PARAMETER DurationMs
   The container's duration in ms, for hosts without ffprobe. Without this and without ffprobe the length is
   printed but not compared.
@@ -41,6 +50,9 @@
   .\test-player-file.ps1 -File 'C:\Users\you\Videos\Alien Earth (2025)\Season 1\Alien Earth - S01E01 - Nimmerland.mkv'
 .EXAMPLE
   .\test-player-file.ps1 -File D:\media\tear_of_the_gods.mkv -Show -Seconds 20
+.EXAMPLE
+  .\test-player-file.ps1 -File D:\media\tear_of_the_gods.mkv -Stream
+  Plays it from disk and again from api/media/items/{id}/stream, and prints both sets of figures.
 #>
 [CmdletBinding()]
 param(
@@ -49,6 +61,8 @@ param(
   [int]$Seconds = 6,
 
   [switch]$Show,
+
+  [switch]$Stream,
 
   [long]$DurationMs = 0,
 
@@ -99,6 +113,9 @@ Write-Host ' THE PLAYER IN FRONT OF A REAL FILE' -ForegroundColor Cyan
 Write-Host '======================================================================' -ForegroundColor Cyan
 Write-Fact "file:  $resolved"
 Write-Fact ("size:  {0:N1} MB" -f ((Get-Item -LiteralPath $resolved).Length / 1MB))
+if ($Stream) {
+  Write-Fact 'stream:  the same file is also played through the server''s HTTP stream endpoint'
+}
 
 # ---- what the container itself says -------------------------------------------------------------------
 
@@ -120,16 +137,18 @@ if ($ffprobe) {
   }
 
   if ($probe) {
-    foreach ($stream in $probe.streams) {
+    # $mediaStream rather than $stream: PowerShell variable names are not case sensitive, so a loop variable
+    # called $stream is this script's -Stream switch, and assigning a stream to a [switch] fails.
+    foreach ($mediaStream in $probe.streams) {
       $extra = ''
-      if ($stream.codec_type -eq 'video') {
-        $extra = " $($stream.width)x$($stream.height) $($stream.r_frame_rate) fps"
+      if ($mediaStream.codec_type -eq 'video') {
+        $extra = " $($mediaStream.width)x$($mediaStream.height) $($mediaStream.r_frame_rate) fps"
         # ffprobe's width/height are the size the film is *shown* at; a decoder works in blocks and hands over
         # something taller. Only the container's number can tell a stretched picture from a correct one.
-        $displaySize = "$($stream.width)x$($stream.height)"
+        $displaySize = "$($mediaStream.width)x$($mediaStream.height)"
       }
-      Write-Fact ("{0,-9} {1,-12} {2}{3}" -f $stream.codec_type, $stream.codec_name,
-                  ($stream.tags.language), $extra)
+      Write-Fact ("{0,-9} {1,-12} {2}{3}" -f $mediaStream.codec_type, $mediaStream.codec_name,
+                  ($mediaStream.tags.language), $extra)
     }
 
     if ($probe.format.duration) {
@@ -186,9 +205,14 @@ if ($displaySize -ne '') { $env:MP2_TEST_MEDIA_VIDEO = $displaySize } else {
 $previousLanguage = $env:DOTNET_CLI_UI_LANGUAGE
 $env:DOTNET_CLI_UI_LANGUAGE = 'en'
 
+# With -Stream both fixtures run: the file one is the baseline that says the film is playable at all, and the
+# stream one is the thing being proved. Reading them in one run means one set of ffprobe numbers for both.
+$filter = 'FullyQualifiedName~TestRealMediaFile'
+if ($Stream) { $filter = 'FullyQualifiedName~TestRealMedia' }
+
 $log = Join-Path ([IO.Path]::GetTempPath()) ("mp2-player-file-" + [Guid]::NewGuid().ToString('N').Substring(0, 8))
 $output = & $dotnet test $testProjectFile --nologo -c $Configuration -p:RealMediaTests=true `
-    --filter 'FullyQualifiedName~TestRealMediaFile' --logger "console;verbosity=normal" 2>&1
+    --filter $filter --logger "console;verbosity=normal" 2>&1
 $testExit = $LASTEXITCODE
 $output | ForEach-Object { "$_" } | Out-File -FilePath $log -Encoding utf8
 
@@ -223,7 +247,7 @@ Write-Host '---- what the engine reported --------------------------------------
 # itself eight times, which is not information.
 $seenLabels = @{}
 $evidence = @($output | Where-Object {
-      "$_" -match '  media:|  engine:|  length:|  decoded:|  counters:|  audio:|  subtitle:|  seek:|  expected:|  pictures:' } |
+      "$_" -match '  media:|  engine:|  length:|  decoded:|  counters:|  audio:|  subtitle:|  seek:|  expected:|  pictures:|  stream:|  bytes:|  range:' } |
     ForEach-Object {
       $text = "$_".Trim()
       if ($text -match '^(engine|media|expected):') {
@@ -272,7 +296,11 @@ if ($failedCount -gt 0 -or $testExit -ne 0) {
   exit 1
 }
 
-Write-Host "==> $passed real-file test(s) passed against $([IO.Path]::GetFileName($resolved))" -ForegroundColor Green
+if ($Stream) {
+  Write-Host "==> $passed real playback test(s) passed, from disk and over the server's stream endpoint" -ForegroundColor Green
+} else {
+  Write-Host "==> $passed real-file test(s) passed against $([IO.Path]::GetFileName($resolved))" -ForegroundColor Green
+}
 if (-not $Show) {
   Write-Host '    run again with -Show to watch the same file: whether the picture looks right is a question' -ForegroundColor DarkGray
   Write-Host '    for a person, not for an assertion' -ForegroundColor DarkGray

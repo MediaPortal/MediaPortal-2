@@ -504,11 +504,26 @@ namespace MediaPortal.Frontend
         return;
       }
 
-      if (_nowPlaying.Play(MediaLocation.FromFile(title.LocalPath!), title.Title.Id, title.ResumePercent ?? 0))
-        Console.WriteLine("play:     " + System.IO.Path.GetFileName(title.LocalPath) + " from the library"
+      MediaLocation? location = title.PlaybackLocation;
+      if (location == null)
+      {
+        // Said here as well as on the screen's status line, because the screen most likely to be open when this
+        // happens is one the viewer pressed OK on, and a press that opens nothing looks like a lost keypress.
+        Console.WriteLine("play:     " + title.Name + " - " + title.UnplayableReason);
+        return;
+      }
+
+      bool streamed = !location.Value.IsFile;
+      string what = streamed
+          ? location.Value.Describe()
+          : System.IO.Path.GetFileName(location.Value.EngineString);
+
+      if (_nowPlaying.Play(location.Value, title.Title.Id, title.ResumePercent ?? 0))
+        Console.WriteLine("play:     " + what + (streamed ? " - streamed from the server" : " from the library")
             + (title.ResumePercent.HasValue ? " - resumed at " + title.ResumePercent.Value + "%" : ""));
       else
-        Console.WriteLine("play:     refused - " + _nowPlaying.StatusLine);
+        Console.WriteLine("play:     refused - " + _nowPlaying.StatusLine
+            + (streamed ? " (a server that wants to know its caller cannot be handed to the player as an address)" : ""));
     }
 
     /// <summary>

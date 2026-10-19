@@ -425,6 +425,30 @@ namespace MediaPortal.Frontend.Api
     }
 
     /// <summary>
+    /// The address a player is given to watch one title from this server.
+    /// </summary>
+    /// <param name="mediaItemId">The id from <see cref="MediaTitle.Id"/>.</param>
+    /// <remarks>
+    /// <para>
+    /// This builds an address and asks for nothing, which is why it is not a <c>Task</c> like everything else in
+    /// this class: the bytes are fetched by the player, over the course of a film, with seeks of its own. A client
+    /// that fetched them here would be a web server in the middle of its own living room.
+    /// </para>
+    /// <para>
+    /// <b>What it does not solve is the bearer token.</b> The player opens this address with its own HTTP stack,
+    /// which has never heard of the token this client signed in with, so on a server with web authorization on,
+    /// the answer to a stream is the same refusal every other endpoint gives an anonymous caller. That is a real
+    /// limit of handing a player an address, not of this address; the front end says so rather than pretending,
+    /// and the plain answer - a short-lived grant in the URL, or the token handed to the player as a header - is
+    /// a decision about the API's authorization, not something to smuggle into a playback screen.
+    /// </para>
+    /// </remarks>
+    public Uri GetStreamUri(Guid mediaItemId)
+    {
+      return new Uri(BaseUrl, "api/media/items/" + mediaItemId.ToString("D") + "/stream");
+    }
+
+    /// <summary>
     /// Tells the server how far a viewer got into a title, so that the library's "watched" figures say something
     /// about the viewer rather than about the file's import date.
     /// </summary>

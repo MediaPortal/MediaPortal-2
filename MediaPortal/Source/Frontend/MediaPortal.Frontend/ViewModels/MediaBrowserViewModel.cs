@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediaPortal.Frontend.Api;
+using MediaPortal.Frontend.Player;
 
 namespace MediaPortal.Frontend.ViewModels
 {
@@ -34,7 +35,9 @@ namespace MediaPortal.Frontend.ViewModels
   /// <remarks>
   /// The row decides here whether it can be watched, because the answer belongs to the row: a library of two
   /// hundred titles on a machine that can reach only half of them is not a screen that should let the viewer
-  /// press their way through the other half to find out.
+  /// press their way through the other half to find out. There are two ways to reach a title now - the file
+  /// itself, when this machine can open it, and the server's stream of it, when there is a server to ask - and
+  /// the row knows both, because it is the row that has to say why it cannot be watched when neither works.
   /// </remarks>
   public sealed class TitleViewModel : INotifyPropertyChanged
   {
@@ -49,7 +52,7 @@ namespace MediaPortal.Frontend.ViewModels
 
     private MediaTitle _title;
 
-    public TitleViewModel(MediaTitle title, bool holdsTitles = false)
+    public TitleViewModel(MediaTitle title, bool holdsTitles = false, ServerApiClient? stream = null)
     {
       _title = title;
       _holdsTitles = holdsTitles;
@@ -57,6 +60,26 @@ namespace MediaPortal.Frontend.ViewModels
         _unplayableReason = reason;
       else
         LocalPath = localPath;
+
+      // The server's address for the same title. Asked for whenever the server named something the endpoint could
+      // carry: paths this machine cannot open included, because whoever can open them is the server, and guessing
+      // at that from the client side is how a title that plays fine ends up marked unplayable.
+      //
+      // What keeps a reason is a title no stream can carry - nothing named at all, or a chain of providers with
+      // one file behind none of them. That is a hole in the library or a feature the endpoint does not have, and
+      // offering a stream for it would only move the disappointment from the row to a black screen.
+      if (stream != null)
+      {
+        if (MediaLibraryPath.CanBeStreamed(title.Path, out string? notStreamable))
+        {
+          StreamAddress = stream.GetStreamUri(title.Id);
+          _unplayableReason = null;
+        }
+        else
+        {
+          _unplayableReason = notStreamable;
+        }
+      }
     }
 
     /// <summary>
@@ -113,9 +136,38 @@ namespace MediaPortal.Frontend.ViewModels
     /// <summary>The file to open, when this machine can open it.</summary>
     public string? LocalPath { get; }
 
+    /// <summary>
+    /// Where to ask the server for this title's bytes, or null when there is no server to ask.
+    /// </summary>
+    /// <remarks>
+    /// An address rather than the bytes: a film is opened by the player, which seeks about in it, and a front end
+    /// that read the file into memory to hand it over would be a proxy server with a progress bar.
+    /// </remarks>
+    public Uri? StreamAddress { get; }
+
+    /// <summary>
+    /// What to hand the player: the file on this machine when there is one, the server's stream when there is not.
+    /// </summary>
+    /// <remarks>
+    /// The file wins when both exist, and not for speed alone. Playing the local file needs nothing of the API, so
+    /// a viewer watching on the machine that holds the library is not depending on a loopback port for the next
+    /// two hours, and a server restart mid-film does not reach them.
+    /// </remarks>
+    public MediaLocation? PlaybackLocation
+    {
+      get
+      {
+        if (LocalPath != null)
+          return MediaLocation.FromFile(LocalPath);
+        if (StreamAddress != null)
+          return MediaLocation.FromUrl(StreamAddress);
+        return null;
+      }
+    }
+
     public bool Playable
     {
-      get { return LocalPath != null; }
+      get { return LocalPath != null || StreamAddress != null; }
     }
 
     /// <summary>Why this title cannot be watched here, or <c>null</c> when it can.</summary>
@@ -998,7 +1050,7 @@ namespace MediaPortal.Frontend.ViewModels
           Titles.Clear();
 
         foreach (MediaTitle title in answer.Titles ?? Array.Empty<MediaTitle>())
-          Titles.Add(new TitleViewModel(title, DrillsIn));
+          Titles.Add(new TitleViewModel(title, DrillsIn, _client));
 
         Selected = Selected ?? (Titles.Count > 0 ? Titles[0] : null);
         CanLoadMore = answer.Remaining > 0;

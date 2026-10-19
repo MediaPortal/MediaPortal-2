@@ -35,8 +35,12 @@ namespace MediaPortal.Frontend.Api
   /// What is recognized here is deliberately narrow: a single segment whose path is a location this operating
   /// system can name. Everything else - a stacked provider, a database row, an entry inside an archive - comes
   /// back as "not playable from here" with the reason, rather than as a path the player would fail on later.
-  /// The answer to the rest is an HTTP endpoint on the server that streams the resource whatever it is, which is
-  /// the next piece of this port; until it exists, a client that cannot open the file says so in words.
+  /// </para>
+  /// <para>
+  /// A path this machine cannot open is no longer the end of the story: the server can send the bytes
+  /// (<c>GET api/media/items/{id}/stream</c>, built by <see cref="ServerApiClient.GetStreamUri"/>), and that is
+  /// what turns "this film is on the server" into a film. <see cref="CanBeStreamed"/> is the other half of the
+  /// same question, because the endpoint sends one file and not every title is one file.
   /// </para>
   /// </remarks>
   public static class MediaLibraryPath
@@ -89,6 +93,55 @@ namespace MediaPortal.Frontend.Api
       }
 
       localPath = path;
+      return true;
+    }
+
+    /// <summary>
+    /// Whether the server could send this title's bytes at all, which is not the same question as whether this
+    /// machine can open them.
+    /// </summary>
+    /// <param name="serializedPath">The <c>path</c> field of a title, as it arrived from the server.</param>
+    /// <param name="reason">Why no stream would help, only set when the answer is <c>false</c>.</param>
+    /// <remarks>
+    /// <para>
+    /// The stream endpoint sends the title's primary resource as one file, opened by the server's own resource
+    /// provider. That covers the case the endpoint exists for - the film is on the server's disk, or on a share
+    /// only the server was given - and it does not cover a title whose path is a <i>chain</i>: an entry inside an
+    /// archive, or a stream a virtual provider transforms on the way. There is no single file behind such a title
+    /// for the endpoint to send, and it says so with a refusal.
+    /// </para>
+    /// <para>
+    /// Asking here rather than letting the player find out is the difference between a row that says "cannot be
+    /// watched from here" before anything is pressed and a row that looks watchable, starts the player, and shows
+    /// a black screen while the server's refusal sits in a response body nobody reads. A path this machine cannot
+    /// open is on the other side of that line: it is exactly what streaming is for.
+    /// </para>
+    /// </remarks>
+    public static bool CanBeStreamed(string? serializedPath, out string? reason)
+    {
+      reason = null;
+
+      if (string.IsNullOrWhiteSpace(serializedPath))
+      {
+        reason = "the server did not name a file for this title";
+        return false;
+      }
+
+      string text = serializedPath.Trim();
+      if (text.IndexOf('>') >= 0)
+      {
+        reason = "this title is made of more than one resource, which no single stream can carry";
+        return false;
+      }
+
+      int separator = text.IndexOf("://", StringComparison.Ordinal);
+      string path = separator < 0 ? text : text.Substring(separator + 3);
+      if (string.IsNullOrWhiteSpace(path))
+      {
+        reason = "the server named a provider but no path within it";
+        return false;
+      }
+
       return true;
     }
 

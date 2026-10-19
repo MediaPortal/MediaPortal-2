@@ -609,7 +609,7 @@ namespace MediaPortal.Frontend.ViewModels
           .OrderByDescending(t => t.LastPlayed)
           .ThenBy(t => t.SortTitle ?? t.Title, StringComparer.OrdinalIgnoreCase)
           .Take(UNFINISHED_ROWS))
-        Unfinished.Add(new TitleViewModel(title));
+        Unfinished.Add(new TitleViewModel(title, false, _client));
 
       ReportUnfinished(silent);
     }

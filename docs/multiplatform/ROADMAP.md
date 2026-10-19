@@ -2535,6 +2535,94 @@ than a generated one - both unchanged, both still on the backlog.
 The suite stands at **875 tests, 0 failures** - Tests.Server at **374** where the last section left it at 361, the
 thirteen that came with these readers - and the front-end render gate still draws every scripted frame green,
 including the two scripted posters and the row whose stored bytes are not a picture.
+### am. The film comes out of the server: a title's file over HTTP
+
+A shelf you can read and a film you can watch are two different achievements, and the front end had only the first
+one away from the machine that holds the files. `GET api/media/titles` hands out a title's primary resource as the
+server's own serialized path - `{provider-id}://D:/films/Alien Earth - S01E01.mkv` - and `MediaLibraryPath` turns
+that into something to open if, and only if, this operating system can name it. A television in the living room
+whose files live in the cellar, a Linux client that was never given the Windows share, an Android box that cannot
+open a path at all: all three could list the library and nothing else, and every row they showed said "cannot be
+watched from here" - truthfully, and uselessly.
+
+**The endpoint is addressed by id, and that is the whole design.** `GET` and `HEAD api/media/items/{id}/stream`
+look the title up in the library, open its primary resource through the resource provider, and send the bytes. MP2
+already had an HTTP file server - `ResourceAccessModule`, mounted by `ResourceServer`'s constructor - but it is
+addressed by a serialized resource path in the URL, and its own source says why that is not enough:
+`IsAllowedToAccess` is a `TODO` that returns `true`. A path-addressed file server behind a media centre hands
+whatever the server's process may read to anybody who can name a path, including the paths that were never in
+anybody's library. An id-addressed one cannot: the largest set of files a caller can ask for is the set the
+importer registered, which is exactly what the titles endpoint already lists. The path never leaves the server.
+
+**Ranges are not a nicety here, they are the picture.** `FileStreamResult.EnableRangeProcessing` is on, so ASP.NET
+answers a `Range` header with `206` and its own `Content-Range`, refuses an impossible one with `416`, and
+advertises `Accept-Ranges: bytes` - and `HEAD` had to be mapped explicitly (`[HttpHead]`), because this pipeline
+does not answer `HEAD` from a `GET` route and answered `405` at the first player that asked how long the film is.
+A Matroska keeps its cues after the clusters and an MP4 keeps its index at the end, so a player that cannot seek
+gets sound and a black screen - which is precisely the failure this tree had already been shown once, from the
+other direction. The failures are split the way the sentences are: `404` for an id with no title or no file
+recorded, `410` for a file the server names and cannot open ("your library is right and your disk is not
+answering"), `503` while the library is still starting, and `403` from the bearer filter like everywhere else in
+the API. The media type comes from MP2's own `MimeTypeDetector` table rather than magic bytes, because the sniffing
+that table is paired with reads a local path. One lifetime problem came with it: ASP.NET disposes the response
+stream and nobody disposes the accessor, so `ResourceReadStream` - a pass-through that keeps seeking intact - owns
+the accessor and closes it with the response, and a test polls for exactly that close. Without it every watched
+film leaks a provider connection.
+
+**What the client does with the address.** `ServerApiClient.GetStreamUri` returns a `Uri`, not bytes and not a
+`Task`: a film is opened by the player, which seeks about in it, and a front end that buffered a film to hand it
+over would be a proxy server with a progress bar. `TitleViewModel` now carries both - `LocalPath` and
+`StreamAddress` - and `PlaybackLocation` is the one thing the player is handed: the file when this machine has the
+file, the address when it does not. The file wins where both exist, and not for speed alone - watching on the
+machine that holds the library then depends on no socket for the next two hours, and a server restart mid-film does
+not reach the viewer. `MediaLibraryPath.CanBeStreamed` is the new half of the decision, because the endpoint sends
+*one file*: a title whose path is a chain of providers (an entry in an archive, a stream a virtual provider
+transforms) has no single file behind it, so its row keeps saying it cannot be watched rather than offering an
+address the server will refuse and the player will fail on in silence.
+
+**Measured, twice.** Eighteen tests drive the endpoint over a loopback socket against `ResourceServer`'s real
+pipeline - `ConfigureApiServices` and `ConfigureApiPipeline`, not a hand-called controller - because the
+`206`/`Content-Range`/`416`/`Accept-Ranges` behaviour is the pipeline's doing and invisible any other way. They pin
+the whole file byte for byte, an exact ranged slice, an open-ended range, `416`'s `bytes */<size>`, `HEAD`, the
+`404` wordings, the three `410` cases, the `503`, and that the accessor is closed once the response is written.
+Then the real film, with `scripts\ci\test-player-file.ps1 -Stream`: the same 665.6 MB Matroska a person is
+watching is registered as a title reached through MP2's real `LocalFsResourceAccessor`, and libVLC is handed the
+address the front end would hand it - not a path.
+
+    stream:   http://127.0.0.1:63623/MediaPortal/Server/api/media/items/82372b08-.../stream
+    bytes:    first 4096 identical to the file, type video/x-matroska
+    range:    bytes 697945998-697950093/697950094 answered byte for byte
+    length:   1:01:07 over HTTP
+    seek:     asked 0:20:22, arrived at 0:20:22 over HTTP
+    pictures: 100 of 1920x804, decoded 242 audio 501
+    hardware  Using D3D11VA (Intel(R) HD Graphics 630) for hardware decoding
+
+The duration line is the range test a decoder performs by itself - a player only learns a streamed film's length
+after it has sought to read its index - and the picture line is the one that used to be missing. Fourteen real
+playback tests pass, half of them from disk and half over the endpoint, against the same `ffprobe` numbers.
+
+**What this does not do.** The player is pointed at a server in the test process on a loopback port reading a file
+on the same disk, so everything past the socket is proved and nothing about a real network is; the honest
+claim is about the endpoint, the range handling and libVLC's HTTP access module. A server with web authorization
+on still cannot be *streamed from* by a player that has no ticket: `MediaPortalBearerHandler` reads only the
+`Authorization` header, and a URL handed to libVLC carries no header - a token in the query string would put the
+ticket in every proxy log and browser history between here and there, so it is not done; what such a server
+answers is pinned by the `403` tests, and playing through an authorized server needs either the player to set a
+header or a short-lived single-purpose URL, which is its own decision. Multi-resource titles (archive entries,
+transformed streams) stay unplayable and now say why in the same words as before. The path-based
+`ResourceAccessModule` is still mounted and still answers anything, and that is reported to the owner rather than
+quietly changed under them. One range per request is all that is supported, which is all any player in this tree
+asks for.
+
+The suite stands at **896 tests, 0 failures** - Tests.Server at **392** where the last section left it at 374, the
+eighteen that came with the endpoint, and the front end at **317**, where four new tests decide what a row is
+allowed to promise and the one that used to promise "cannot be watched from here" for a title the server can
+stream is gone. Both gates are green: `test-frontend-check.ps1` reads a running server and refuses a dead one, and the
+render probe still draws every scripted frame. One PowerShell trap surfaced on the way and is worth remembering for
+every script in this repository: variable names are not case sensitive, so the `foreach ($stream in $probe.streams)`
+loop in `test-player-file.ps1` *is* the script's new `-Stream` switch, and assigning a media stream to a `[switch]`
+fails the run in a place that has nothing to do with the change.
+
 ## What cannot be verified without the user
 
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,

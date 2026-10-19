@@ -41,6 +41,7 @@ using FrontendAspect = MediaPortal.Frontend.Api.MediaAspect;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Frontend.Api;
+using MediaPortal.Frontend.Player;
 using MediaPortal.Frontend.ViewModels;
 using MediaPortal.Frontend.Views;
 
@@ -498,10 +499,12 @@ namespace Tests.Frontend
     }
 
     [AvaloniaTest]
-    public void ATitleThisMachineCannotOpenSaysSoOnItsRowAndRefusesToPlay()
+    public void ATitleWhoseFileIsOnAnotherMachineIsStreamedAndNotRefused()
     {
+      Guid elsewhereId = Guid.NewGuid();
       MediaItem reachable = Title("Reachable", 2025, RESOURCE_SYSTEM_ID.ToString("B") + "://" + LOCAL_PATH);
-      MediaItem elsewhere = Title("Elsewhere", 2025, RESOURCE_SYSTEM_ID.ToString("B") + "://Films/Movie.mkv");
+      MediaItem elsewhere = new ItemWithPath(elsewhereId, "Elsewhere", 2025,
+          RESOURCE_SYSTEM_ID.ToString("B") + "://Films/Movie.mkv");
       RegisterLibrary(reachable, elsewhere);
       InProcessApi server = StartServer();
 
@@ -511,19 +514,90 @@ namespace Tests.Frontend
       browser.OpenCommand.Execute(null);
       WaitUntil("the titles to arrive", delegate { return browser.Titles.Count == 2; });
 
-      TitleViewModel unplayable = browser.Titles.First(title => title.Name == "Elsewhere");
-      Assert.That(unplayable.Playable, Is.False);
-      Assert.That(unplayable.Detail, Is.EqualTo("not playable here"),
-          "the row says it before the viewer presses anything");
+      TitleViewModel streamed = browser.Titles.First(title => title.Name == "Elsewhere");
+      Assert.That(streamed.LocalPath, Is.Null, "the file is not on this machine, and the row does not claim it is");
+      Assert.That(streamed.StreamAddress, Is.Not.Null,
+          "but the server that named the file can also carry it, so the row is not a dead end");
+      Assert.That(streamed.StreamAddress!.ToString(), Does.StartWith(server.BaseUrl.ToString()),
+          "and the address is on the server the titles were read from");
+      Assert.That(streamed.StreamAddress,
+          Is.EqualTo(new Uri(server.BaseUrl, "api/media/items/" + elsewhereId.ToString("D") + "/stream")),
+          "it is the id of the title, not a path the viewer could guess at");
+      Assert.That(streamed.Playable, Is.True);
+      Assert.That(streamed.Detail, Is.Not.EqualTo("not playable here"),
+          "the row does not warn about something that works");
 
-      browser.Play(unplayable);
-      Assert.That(played, Is.Empty);
-      Assert.That(browser.Status, Does.Contain("cannot be watched from here"),
-          "and pressing OK says it again instead of doing nothing");
+      browser.Play(streamed);
+      Assert.That(played, Has.Count.EqualTo(1));
+      MediaLocation handed = played[0].PlaybackLocation!.Value;
+      Assert.That(handed.IsFile, Is.False,
+          "what the player is handed is the address, since the path would fail on this machine");
+      Assert.That(handed.EngineString, Does.EndWith("/stream"),
+          "and it is the stream address of the title, word for word");
 
       browser.Play(browser.Titles.First(title => title.Name == "Reachable"));
-      Assert.That(played, Has.Count.EqualTo(1));
-      Assert.That(Path.IsPathFullyQualified(played[0].LocalPath), Is.True);
+      Assert.That(played, Has.Count.EqualTo(2));
+      MediaLocation local = played[1].PlaybackLocation!.Value;
+      Assert.That(local.IsFile, Is.True,
+          "a file that is on this machine is opened directly; it is not detoured through the server's socket");
+      Assert.That(local.EngineString, Is.EqualTo(LOCAL_PATH));
+      Assert.That(played[1].StreamAddress, Is.Not.Null,
+          "the address is offered for every title, but the file wins where both exist");
+    }
+
+    [AvaloniaTest]
+    public void ATitleTheServerHasNoFileForStillSaysWhyItCannotBeWatched()
+    {
+      MediaItem silent = new Item(Guid.NewGuid(), "Silent", 2025);
+      RegisterLibrary(silent);
+      InProcessApi server = StartServer();
+
+      MediaBrowserViewModel browser = new MediaBrowserViewModel(new ServerApiClient(server.BaseUrl), MoviesSection);
+      var played = new List<TitleViewModel>();
+      browser.PlayRequested += delegate (object? sender, TitleViewModel title) { played.Add(title); };
+      browser.OpenCommand.Execute(null);
+      WaitUntil("the title to arrive", delegate { return browser.Titles.Count == 1; });
+
+      TitleViewModel nothing = browser.Titles[0];
+      Assert.That(nothing.StreamAddress, Is.Null, "a title without a file has no address either");
+      Assert.That(nothing.Playable, Is.False);
+      Assert.That(nothing.Detail, Is.EqualTo("not playable here"));
+
+      browser.Play(nothing);
+      Assert.That(played, Is.Empty);
+      Assert.That(browser.Status, Does.Contain("cannot be watched from here"));
+      Assert.That(browser.Status, Does.Contain("did not name a file"),
+          "the viewer is told the server knows of no file for the title, which is the truth and not a complaint "
+          + "about the player");
+    }
+
+    [Test]
+    public void ARowWithNoServerBehindItCannotStreamAndSaysThePathIsNotOpenable()
+    {
+      MediaTitle elsewhere = new MediaTitle(Guid.NewGuid(), "Elsewhere", null, 2025, null,
+          RESOURCE_SYSTEM_ID.ToString("B") + "://Films/Movie.mkv", false);
+
+      TitleViewModel alone = new TitleViewModel(elsewhere);
+
+      Assert.That(alone.StreamAddress, Is.Null);
+      Assert.That(alone.Playable, Is.False, "without a server there is nothing that could carry the file");
+      Assert.That(alone.UnplayableReason, Does.Contain("this machine can open"));
+    }
+
+    [Test]
+    public void ATitleThatIsNotOneFileIsNotOfferedAsAStreamEither()
+    {
+      MediaTitle insideAnArchive = new MediaTitle(Guid.NewGuid(), "Inside", null, 2025, null,
+          RESOURCE_SYSTEM_ID.ToString("B") + "://D:/films/films.zip>Films/Inside.mkv", false);
+      ServerApiClient client = new ServerApiClient(new Uri("http://127.0.0.1:1/MediaPortal/Server/"));
+
+      TitleViewModel row = new TitleViewModel(insideAnArchive, false, client);
+
+      Assert.That(row.StreamAddress, Is.Null,
+          "the endpoint sends the title's one file, and a title stacked out of several resources has no such file");
+      Assert.That(row.Playable, Is.False);
+      Assert.That(row.UnplayableReason, Does.Contain("more than one resource"),
+          "and the row says that before anything is pressed, instead of starting a player that can only fail");
     }
 
     [AvaloniaTest]
