@@ -318,5 +318,37 @@
     </Grid>
   </DockPanel>
 
+  <!--
+    The reference's foot, in the same two pieces it drew there: a gradient rising from the bottom edge so
+    that names stay readable over whatever fanart the shelf wears, and the shelf's two numbers - where the
+    highlight stands, and how many titles there are - at the right hand end. The gradient belongs to grid
+    and list and hides when the details stand open, exactly like the reference's band; the numbers answer
+    in every view, covers included, because a cover viewer wants to know how deep the shelf is too.
+    Neither catches a click - they are paint, not controls.
+  -->
+  <Border Height="100"
+          VerticalAlignment="Bottom"
+          IsHitTestVisible="False"
+          IsVisible="{Binding ShowsFloorGradient}">
+    <Border.Background>
+      <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+        <GradientStop Color="#00000000" Offset="0" />
+        <GradientStop Color="#E6000000" Offset="1" />
+      </LinearGradientBrush>
+    </Border.Background>
+  </Border>
+
+  <StackPanel Orientation="Horizontal"
+              HorizontalAlignment="Right"
+              VerticalAlignment="Bottom"
+              Margin="0,0,54,8"
+              Spacing="9"
+              IsHitTestVisible="False"
+              IsVisible="{Binding HasTitles}">
+    <TextBlock Text="{Binding SelectedNumber}" FontSize="18" VerticalAlignment="Center" Opacity="0.75" />
+    <TextBlock Text="|" FontSize="22" VerticalAlignment="Center" Opacity="0.45" />
+    <TextBlock Text="{Binding TotalNumber}" FontSize="18" VerticalAlignment="Center" Opacity="0.75" />
+  </StackPanel>
+
   </Panel>
 </UserControl>

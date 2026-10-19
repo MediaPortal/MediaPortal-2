@@ -617,6 +617,8 @@ namespace MediaPortal.Frontend.ViewModels
       GroupValue = parent == null ? section?.Value : null;
       DrillsIn = MediaCatalog.HoldsTitles(AspectName);
       Heading = parent == null ? section?.Label ?? "Titles" : parent.Name;
+      // The two numbers at the shelf's foot speak whenever the shelf itself changes shape beneath them.
+      Titles.CollectionChanged += (_, _) => RaiseShelfCounters();
       _status = client == null ? "No server configured"
           : section == null ? "No section chosen"
           : "Reading " + Heading;
@@ -794,6 +796,7 @@ namespace MediaPortal.Frontend.ViewModels
     partial void OnShowDetailsChanged(bool value)
     {
       OnPropertyChanged(nameof(DetailsLabel));
+      OnPropertyChanged(nameof(ShowsFloorGradient));
 
       if (value)
         _ = ShowDetailsForSelectedAsync();
@@ -870,6 +873,7 @@ namespace MediaPortal.Frontend.ViewModels
     /// </summary>
     partial void OnSelectedChanged(TitleViewModel? value)
     {
+      OnPropertyChanged(nameof(SelectedNumber));
       // A screen that wears details reads every title the selection walks onto - the reference's details view
       // followed the highlighted item exactly this way, and a panel that only answered on demand was the
       // "nothing but the title" the viewer rightly calls a missing feature.
@@ -935,6 +939,7 @@ namespace MediaPortal.Frontend.ViewModels
     {
       OnPropertyChanged(nameof(LayoutLabel));
       OnPropertyChanged(nameof(GridTemplateKey));
+      OnPropertyChanged(nameof(ShowsFloorGradient));
 
       // The corners belong to the layout the viewer just walked into, and the covers wear the poster rather
       // than the grid's kinded picture - so the rows the shelf already holds are repainted with what this
@@ -1063,6 +1068,35 @@ namespace MediaPortal.Frontend.ViewModels
     public string Heading { get; }
 
     public ObservableCollection<TitleViewModel> Titles { get; } = new ObservableCollection<TitleViewModel>();
+
+    /// <summary>
+    /// The shelf's own two numbers, as the reference's <c>MediaItemsList.inc</c> drew them bottom right:
+    /// where the highlight stands, and how many titles the server says this shelf holds in all - which is
+    /// more than are on screen until every page has been read, and exactly what the "|" between the two is
+    /// for. Zero stands for "nothing is highlighted", which a viewer reads as an empty shelf anyway.
+    /// </summary>
+    public int SelectedNumber => Selected == null ? 0 : Titles.IndexOf(Selected) + 1;
+
+    /// <summary>Every title the server counted for this shelf's filter, not merely the pages read so far.</summary>
+    public int TotalNumber { get; private set; }
+
+    /// <summary>Whether the shelf holds anything at all - which is when the two numbers have a right to speak.</summary>
+    public bool HasTitles => Titles.Count > 0;
+
+    /// <summary>
+    /// Whether the shelf draws the reference's floor gradient along its bottom edge: the dark band that
+    /// lifts the names off the fanart. The reference laid it under grid and list but never under covers,
+    /// and never while the details stood open beside the shelf - both of which this obeys.
+    /// </summary>
+    public bool ShowsFloorGradient => Layout != BrowserLayout.Cover && !ShowDetails && Titles.Count > 0;
+
+    private void RaiseShelfCounters()
+    {
+      OnPropertyChanged(nameof(HasTitles));
+      OnPropertyChanged(nameof(SelectedNumber));
+      OnPropertyChanged(nameof(TotalNumber));
+      OnPropertyChanged(nameof(ShowsFloorGradient));
+    }
 
     /// <summary>
     /// Raised when a viewer asked to watch a title and this view model decided it is watchable. The application
@@ -1613,6 +1647,10 @@ namespace MediaPortal.Frontend.ViewModels
 
         Selected = Selected ?? (Titles.Count > 0 ? Titles[0] : null);
         CanLoadMore = answer.Remaining > 0;
+        // The shelf's foot counts what the server counted, not merely what has been read so far - the same
+        // answer the status line's "12 of 244" is built from, so the two can never disagree.
+        TotalNumber = answer.Total;
+        RaiseShelfCounters();
 
         // The pictures come after the names rather than before them. A viewer reads a shelf by its titles, and a
         // list that waited for sixty downloads before drawing its first row would look like a front end that had

@@ -2240,6 +2240,41 @@ namespace Tests.Frontend
     }
 
     [AvaloniaTest]
+    public void TheFootOfTheShelfCountsWhatTheReferenceCounted()
+    {
+      // MediaItemsList.inc drew two numbers at the foot of every shelf - where the highlight stands, counted
+      // from one, and how many titles the server counted in all - and a dark band rising from the bottom edge
+      // under grid and list, but never under covers and never while the details stood open beside the shelf.
+      CatalogueServer server = new CatalogueServer();
+      MediaBrowserViewModel films = new MediaBrowserViewModel(
+          new ServerApiClient(SIGN_IN_URL, new HttpClient(server)), MoviesSection);
+
+      films.OpenCommand.Execute(null);
+      WaitUntil("the films to arrive", delegate { return films.Titles.Count == 1; });
+
+      Assert.That(films.HasTitles, Is.True);
+      Assert.That(films.SelectedNumber, Is.EqualTo(1),
+          "the shelf selects its first row as it fills, and the reference counted that row as one, not zero");
+      Assert.That(films.TotalNumber, Is.EqualTo(1), "the number behind the bar is the server's total");
+
+      films.ShowDetails = false;
+      Assert.That(films.ShowsFloorGradient, Is.True, "a list without details wears the floor gradient");
+
+      films.Layout = BrowserLayout.Cover;
+      Assert.That(films.ShowsFloorGradient, Is.False, "covers draw no floor beneath themselves");
+
+      films.Layout = BrowserLayout.Grid;
+      Assert.That(films.ShowsFloorGradient, Is.True, "and grid does, whatever view was walked through before");
+
+      films.ShowDetails = true;
+      Assert.That(films.ShowsFloorGradient, Is.False, "details standing open lift the floor away again");
+
+      films.ShowDetails = false;
+      films.Selected = null;
+      Assert.That(films.SelectedNumber, Is.EqualTo(0), "no highlight is counted as nothing, not as a row");
+    }
+
+    [AvaloniaTest]
     public void TheEpisodesOfASeriesAreAskedForInOrderOfSeasonAndEpisode()
     {
       CatalogueServer server = new CatalogueServer();
