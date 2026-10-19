@@ -43,6 +43,7 @@ using MediaPortal.Frontend.Settings;
 using MediaPortal.Frontend.Theming;
 using MediaPortal.Frontend.ViewModels;
 using MediaPortal.Frontend.Views;
+using MediaPortal.Frontend.Workflow;
 
 namespace FrontendProbe
 {
@@ -284,8 +285,9 @@ namespace FrontendProbe
         }
 
         playbackStatus = playback.StateText + ", " + playback.PositionText;
-        window = new NowPlayingWindow(playback, frames);
-        pictureFrames = () => ((NowPlayingWindow)window).FramesDrawn;
+        var playView = new NowPlayingView(playback, frames);
+        window = new ShellWindow(playView);
+        pictureFrames = () => playView.FramesDrawn;
       }
       else if (screenName.Equals("home", StringComparison.Ordinal))
       {
@@ -305,7 +307,7 @@ namespace FrontendProbe
             ? "populated from " + home.ServerUrl
             : "offline - the screen's own 'no server' state is what gets rendered"));
 
-        window = new HomeWindow(home);
+        window = new ShellWindow(new HomeView(home, new WorkflowManager()));
       }
       else if (screenName.Equals("continue", StringComparison.Ordinal))
       {
@@ -412,11 +414,10 @@ namespace FrontendProbe
         // The playback screen is handed over although the frame never opens it: the strip hides itself on a
         // machine that cannot start a film, and a picture of a list the viewer cannot act on would be the frame
         // that lies.
-        window = new HomeWindow(home, delegate
-        {
-          return new NowPlayingWindow(new NowPlayingViewModel(new ScriptedPlayer(),
-              action => Dispatcher.UIThread.Post(action)));
-        });
+        NowPlayingViewModel resumePlayback = new NowPlayingViewModel(new ScriptedPlayer(),
+            action => Dispatcher.UIThread.Post(action));
+        window = new ShellWindow(new HomeView(home, new WorkflowManager(),
+            () => new WorkflowFrame("nowplaying", "Now playing", resumePlayback)));
       }
       else if (screenName.Equals("connect", StringComparison.Ordinal))
       {
@@ -438,7 +439,7 @@ namespace FrontendProbe
             ? "the address saved in " + connection.SettingsFile
             : "no address saved - the empty field, the explanation and the two buttons that are not offered yet"));
 
-        window = new ConnectionWindow(connection);
+        window = new ShellWindow(new ConnectionView(connection));
       }
       else if (screenName.Equals("browser", StringComparison.Ordinal)
           || screenName.Equals("details", StringComparison.Ordinal)
@@ -519,7 +520,7 @@ namespace FrontendProbe
         detailsAsked = screenName.Equals("details", StringComparison.Ordinal);
         searchAsked = screenName.Equals("search", StringComparison.Ordinal);
         seenAsked = screenName.Equals("seen", StringComparison.Ordinal);
-        window = new MediaBrowserWindow(browser, null);
+        window = new ShellWindow(new MediaBrowserView(browser));
       }
       else if (screenName.Equals("folders", StringComparison.Ordinal))
       {
@@ -533,7 +534,7 @@ namespace FrontendProbe
             ? "the folders " + url + " says its library was built from"
             : "offline - the screen's own 'no server' state is what gets rendered"));
         foldersScreen = folders;
-        window = new FoldersWindow(folders);
+        window = new ShellWindow(new FoldersView(folders));
       }
       else if (screenName.Equals("pictures", StringComparison.Ordinal))
       {
@@ -570,7 +571,7 @@ namespace FrontendProbe
           return 1;
         }
 
-        window = new PicturesWindow(pictures);
+        window = new ShellWindow(new PicturesView(pictures));
       }
       else if (screenName.Equals("browse", StringComparison.Ordinal))
       {
@@ -612,7 +613,7 @@ namespace FrontendProbe
           return 1;
         }
 
-        window = new BrowseWindow(browse);
+        window = new ShellWindow(new BrowseView(browse));
       }
       else if (screenName.Equals("news", StringComparison.Ordinal))
       {
@@ -625,7 +626,7 @@ namespace FrontendProbe
         // worst one at the same time.
         newsScreen = new NewsViewModel(
             new NewsApiClient(new HttpClient(new ScriptedNews())), "en");
-        window = new NewsWindow(newsScreen);
+        window = new ShellWindow(new NewsView(newsScreen));
       }
       else if (screenName.Equals("weather", StringComparison.Ordinal))
       {
@@ -640,7 +641,7 @@ namespace FrontendProbe
             "{\"places\":[{\"name\":\"Berlin\",\"detail\":\"DE\",\"lat\":52.517,\"lon\":13.3889}]}");
         weatherScreen = new WeatherViewModel(
             new WeatherApiClient(new HttpClient(new ScriptedWeather())), weatherSettingsFile, "en-GB");
-        window = new WeatherWindow(weatherScreen);
+        window = new ShellWindow(new WeatherView(weatherScreen));
       }
       else if (screenName.Equals("party", StringComparison.Ordinal))
       {
@@ -652,7 +653,7 @@ namespace FrontendProbe
         partyScreen = new PartyViewModel(
             new ServerApiClient(new Uri("http://127.0.0.1:9/MediaPortal/Server"),
                 new HttpClient(new ScriptedTitles())), 20260205);
-        window = new PartyWindow(partyScreen);
+        window = new ShellWindow(new PartyView(partyScreen));
       }
       else if (screenName.Equals("settings", StringComparison.Ordinal))
       {
@@ -662,7 +663,7 @@ namespace FrontendProbe
         // is picked; it is drawn with whatever --theme asked for.
         string themeSettingsFile = Path.Combine(Path.GetTempPath(), "mp2-render-theme.json");
         settingsScreen = new ThemeViewModel(application, themeSettingsFile);
-        window = new ThemeWindow(settingsScreen);
+        window = new ShellWindow(new ThemeView(settingsScreen));
       }
       else
       {
@@ -735,7 +736,7 @@ namespace FrontendProbe
         // The sentence the view model holds is only worth anything if the line on the screen carries it, so the
         // control is looked for by the name the screen gives it - the way the other screens' probes look for the
         // box or the row they are about to press.
-        if (window is FoldersWindow foldersScreenWindow)
+        if ((window as ShellWindow)?.Screen is FoldersView foldersScreenWindow)
         {
           TextBlock? line = Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(foldersScreenWindow)
               .OfType<TextBlock>().FirstOrDefault(text => text.Name == "statusLine");
@@ -788,7 +789,7 @@ namespace FrontendProbe
         // What the top of the screen really reads, read off the control rather than from the view model, so that
         // the heading of a shelf somebody's library was built from is evidence about the screen and not about a
         // property that was handed to it.
-        if (window is MediaBrowserWindow browserWindow)
+        if ((window as ShellWindow)?.Screen is MediaBrowserView browserWindow)
         {
           TextBlock? headline = Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(browserWindow)
               .OfType<TextBlock>().FirstOrDefault(text => text.Name == "shelfHeading");
@@ -803,7 +804,7 @@ namespace FrontendProbe
         }
       }
 
-      if (detailsAsked && window is MediaBrowserWindow detailsScreen)
+      if (detailsAsked && (window as ShellWindow)?.Screen is MediaBrowserView detailsScreen)
       {
         // The key a viewer presses, raised the way the remote raises it, rather than the view model's command
         // called from here: the frame is then the proof that the key, the handler on the window and the panel
@@ -827,7 +828,7 @@ namespace FrontendProbe
         }
       }
 
-      if (searchAsked && window is MediaBrowserWindow searchScreen)
+      if (searchAsked && (window as ShellWindow)?.Screen is MediaBrowserView searchScreen)
       {
         // Typed into the box that is really on the screen and entered there, rather than handed to the view model:
         // the frame is then the proof that the box, the Enter key, the question sent to the server and the shorter
@@ -857,7 +858,7 @@ namespace FrontendProbe
         }
       }
 
-      if (seenAsked && window is MediaBrowserWindow seenScreen)
+      if (seenAsked && (window as ShellWindow)?.Screen is MediaBrowserView seenScreen)
       {
         // Two presses, because the frame wanted is the state that shows both halves of the feature at once: the
         // list filtered to what was watched, and the rows of that list carrying the mark that says so. The key is

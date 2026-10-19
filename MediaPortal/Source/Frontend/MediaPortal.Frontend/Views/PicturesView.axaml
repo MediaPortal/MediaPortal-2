@@ -1,13 +1,11 @@
-<Window xmlns="https://github.com/avaloniaui"
+<UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
-        x:Class="MediaPortal.Frontend.Views.PicturesWindow"
+        x:Class="MediaPortal.Frontend.Views.PicturesView"
         x:DataType="vm:PicturesViewModel"
         Name="pictures"
-        Width="1280" Height="720"
-        WindowState="Maximized"
         Background="{DynamicResource ScreenBackgroundBrush}"
-        Title="MediaPortal 2 - Pictures">
+        >
 
   <!--
     The photographs, folder by folder. Every other screen of this front end asks the library what it filed;
@@ -119,4 +117,4 @@
       </StackPanel>
     </Panel>
   </Panel>
-</Window>
+</UserControl>

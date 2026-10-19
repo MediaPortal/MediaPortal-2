@@ -31,6 +31,7 @@ using Avalonia.Interactivity;
 using Avalonia.Threading;
 using MediaPortal.Frontend.Input;
 using MediaPortal.Frontend.ViewModels;
+using MediaPortal.Frontend.Workflow;
 
 namespace MediaPortal.Frontend.Views
 {
@@ -45,7 +46,7 @@ namespace MediaPortal.Frontend.Views
   /// in the view model - it is a thing that happens on screen, and it stops when the screen closes without
   /// anybody having to remember to cancel it.
   /// </remarks>
-  public partial class PicturesWindow : Window
+  public partial class PicturesView : UserControl, IWorkflowScreen
   {
     private readonly PicturesViewModel _pictures;
     private readonly List<Control> _ring = new List<Control>();
@@ -54,12 +55,12 @@ namespace MediaPortal.Frontend.Views
     /// <summary>
     /// For the XAML loader and the designer: the screen a front end with no server shows.
     /// </summary>
-    public PicturesWindow()
+    public PicturesView()
         : this(new PicturesViewModel())
     {
     }
 
-    public PicturesWindow(PicturesViewModel pictures)
+    public PicturesView(PicturesViewModel pictures)
     {
       DataContext = pictures;
       _pictures = pictures;
@@ -81,20 +82,6 @@ namespace MediaPortal.Frontend.Views
           _pictures.NextCommand.Execute(null);
       };
       _pictures.PropertyChanged += OnPicturesChanged;
-
-      Opened += delegate
-      {
-        _pictures.RefreshCommand.Execute(null);
-
-        // The tiles take the focus so the first Enter opens one; see HomeWindow for the general reason.
-        tilesList.Focus();
-      };
-      Closed += delegate
-      {
-        _slideshow.Stop();
-        _pictures.PropertyChanged -= OnPicturesChanged;
-        _pictures.Dispose();
-      };
 
       AddHandler(KeyDownEvent,
           delegate (object? sender, KeyEventArgs args)
@@ -128,13 +115,14 @@ namespace MediaPortal.Frontend.Views
             if (args.Key == Key.Escape || args.Key == Key.Back)
             {
               // Pressing back in the middle of a folder means "out of this folder", not "away from pictures", so
-              // the key steps up and only the list of shares - the one place with nowhere up to go - lets it
-              // leave the screen. The button underneath the grid does the same thing for a viewer with a mouse.
+              // the key steps up and only the list of shares - the one place with nowhere up to go - hands the
+              // key to the shell behind, which leaves the screen. The button underneath the grid does the same
+              // thing for a viewer with a mouse.
               if (_pictures.CanGoUp)
+              {
                 _pictures.GoUpCommand.Execute(null);
-              else
-                Close();
-              args.Handled = true;
+                args.Handled = true;
+              }
               return;
             }
 
@@ -147,6 +135,38 @@ namespace MediaPortal.Frontend.Views
             }
           },
           RoutingStrategies.Tunnel);
+
+      // The folders are read the first time the screen appears; coming back from looking at a photograph finds
+      // the grid where the viewer left it.
+      _firstActivation = true;
+    }
+
+    private bool _firstActivation;
+
+    /// <summary>
+    /// Runs every time the workflow shows this screen: the first showing reads the folders, and every showing
+    /// gives the tiles the focus, so the first Enter opens one - see HomeView for the general reason.
+    /// </summary>
+    public void OnScreenActivated()
+    {
+      if (_firstActivation)
+      {
+        _firstActivation = false;
+        _pictures.RefreshCommand.Execute(null);
+      }
+
+      tilesList.Focus();
+    }
+
+    /// <summary>
+    /// Stops the slideshow and lets go of the view model: the screen owns the timer, and it stops when the
+    /// screen closes without anybody having to remember to cancel it.
+    /// </summary>
+    public void OnScreenClosed()
+    {
+      _slideshow.Stop();
+      _pictures.PropertyChanged -= OnPicturesChanged;
+      _pictures.Dispose();
     }
 
     /// <summary>

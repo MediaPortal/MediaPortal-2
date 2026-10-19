@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2026 Team MediaPortal
+#region Copyright (C) 2007-2026 Team MediaPortal
 
 /*
     Copyright (C) 2007-2026 Team MediaPortal
@@ -422,7 +422,7 @@ namespace Tests.Frontend
       using (var client = new ServerApiClient(new Uri(baseUrl)))
       using (var pictures = new PicturesViewModel(client))
       {
-        PicturesWindow window = Show(pictures);
+        ShellWindow window = Show(pictures);
         WaitFor(delegate { return pictures.Tiles.Count == 1; }, "the list of shares");
         _ = pictures.OpenAsync(pictures.Tiles[0]);
         WaitFor(delegate { return pictures.Tiles.Count == 2; }, "the folder to be read");
@@ -459,7 +459,7 @@ namespace Tests.Frontend
       using (var client = new ServerApiClient(new Uri(baseUrl)))
       using (var pictures = new PicturesViewModel(client))
       {
-        PicturesWindow window = Show(pictures);
+        ShellWindow window = Show(pictures);
         WaitFor(delegate { return pictures.Tiles.Count == 1; }, "the list of shares");
         _ = pictures.OpenAsync(pictures.Tiles[0]);
         WaitFor(delegate { return pictures.Tiles.Count == 2; }, "the folder to be read");
@@ -472,7 +472,7 @@ namespace Tests.Frontend
         // told apart from still standing where the test started.
         _scriptedListing = Listing(TRIP, "The trip", 0, 2, 0, false);
 
-        Assert.That(PressKey(window, Key.Enter), Is.True, "the screen has to claim the key");
+        Assert.That(PressKey(window.Screen!, Key.Enter), Is.True, "the screen has to claim the key");
         WaitFor(delegate { return pictures.Heading == "The trip"; }, "the folder to be read");
 
         Assert.That(pictures.Tiles.Count, Is.EqualTo(2), "the tiles on screen are the new folder's, not the old "
@@ -487,7 +487,7 @@ namespace Tests.Frontend
       using (var client = new ServerApiClient(new Uri(baseUrl)))
       using (var pictures = new PicturesViewModel(client))
       {
-        PicturesWindow window = Show(pictures);
+        ShellWindow window = Show(pictures);
         WaitFor(delegate { return pictures.Tiles.Count == 1; }, "the list of shares");
         _scriptedListing = Listing(TRIP, "2019", 0, 3, 0, false);
         _ = pictures.OpenAsync(pictures.Tiles[0]);
@@ -496,7 +496,7 @@ namespace Tests.Frontend
         pictures.Selected = pictures.Tiles[0];
         Pump();
 
-        PressKey(window, Key.Enter);
+        PressKey(window.Screen!, Key.Enter);
         WaitFor(delegate { return pictures.IsViewing; }, "the photograph to be raised");
 
         Assert.That(pictures.Viewing, Is.SameAs(pictures.Tiles[0]));
@@ -514,19 +514,19 @@ namespace Tests.Frontend
       using (var client = new ServerApiClient(new Uri(baseUrl)))
       using (var pictures = new PicturesViewModel(client))
       {
-        PicturesWindow window = Show(pictures);
+        ShellWindow window = Show(pictures);
         WaitFor(delegate { return pictures.Tiles.Count == 1; }, "the list of shares");
         _ = pictures.OpenAsync(pictures.Tiles[0]);
         WaitFor(delegate { return pictures.Heading == "2019"; }, "the folder to be read");
 
-        PressKey(window, Key.Back);
+        PressKey(window.Screen!, Key.Back);
         WaitFor(delegate { return pictures.Heading == "Pictures"; }, "to be back at the list of shares");
 
         Assert.That(window.IsVisible, Is.True,
             "pressing back in the middle of a folder means out of the folder, not away from pictures");
         Assert.That(pictures.CanGoUp, Is.False);
 
-        PressKey(window, Key.Back);
+        PressKey(window.Screen!, Key.Back);
         Pump();
         Assert.That(window.IsVisible, Is.False, "from the one place with nowhere up to go, the key leaves");
       }
@@ -557,13 +557,13 @@ namespace Tests.Frontend
       using (var client = new ServerApiClient(new Uri(baseUrl)))
       using (var pictures = new PicturesViewModel(client))
       {
-        PicturesWindow window = Show(pictures);
+        ShellWindow window = Show(pictures);
         WaitFor(delegate { return pictures.Tiles.Count == 1; }, "the list of shares");
 
         _ = pictures.OpenAsync(pictures.Tiles[0]);
         WaitFor(delegate { return pictures.CanGoUp; }, "the walk into the folder to have started");
 
-        PressKey(window, Key.Back);
+        PressKey(window.Screen!, Key.Back);
         WaitFor(delegate { return pictures.Heading == "Pictures"; }, "to be back at the list of shares");
 
         // Now let the folder turn up. It was asked for while the viewer was walking in, and it has nowhere to go.
@@ -584,7 +584,7 @@ namespace Tests.Frontend
       using (var client = new ServerApiClient(new Uri(baseUrl)))
       using (var pictures = new PicturesViewModel(client))
       {
-        PicturesWindow window = Show(pictures);
+        ShellWindow window = Show(pictures);
         WaitFor(delegate { return pictures.Tiles.Count == 1; }, "the list of shares");
         _scriptedListing = Listing(TRIP, "2019", 0, 3, 0, false);
         _ = pictures.OpenAsync(pictures.Tiles[0]);
@@ -592,16 +592,16 @@ namespace Tests.Frontend
 
         pictures.Selected = pictures.Tiles[0];
         Pump();
-        PressKey(window, Key.Enter);
+        PressKey(window.Screen!, Key.Enter);
         WaitFor(delegate { return pictures.IsViewing; }, "the photograph to be raised");
         int selectedBefore = pictures.Tiles.IndexOf(pictures.Selected);
 
-        PressKey(window, Key.Right);
+        PressKey(window.Screen!, Key.Right);
         Assert.That(pictures.Caption, Does.Contain("2 of 3"), "the key the viewer is holding moves the photograph");
         Assert.That(pictures.Tiles.IndexOf(pictures.Selected), Is.EqualTo(selectedBefore),
             "and does not move the cursor behind the photograph out of sight");
 
-        PressKey(window, Key.Escape);
+        PressKey(window.Screen!, Key.Escape);
         Assert.That(pictures.IsViewing, Is.False);
         Assert.That(window.IsVisible, Is.True, "putting one photograph down is not leaving the pictures");
       }
@@ -738,9 +738,9 @@ namespace Tests.Frontend
     /// <summary>
     /// Puts the screen on the (headless) display and takes responsibility for closing it again.
     /// </summary>
-    private PicturesWindow Show(PicturesViewModel pictures)
+    private ShellWindow Show(PicturesViewModel pictures)
     {
-      var window = new PicturesWindow(pictures);
+      var window = new ShellWindow(new PicturesView(pictures));
       window.Show();
       Pump();
       _windows.Add(window);

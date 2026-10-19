@@ -20,6 +20,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using MediaPortal.Frontend.Input;
 using MediaPortal.Frontend.ViewModels;
+using MediaPortal.Frontend.Workflow;
 using System;
 using System.Collections.Generic;
 
@@ -28,31 +29,39 @@ namespace MediaPortal.Frontend.Views
   /// <summary>
   /// The titles of one part of the library, and the way out of them into the player.
   /// </summary>
-  public partial class MediaBrowserWindow : Window
+  public partial class MediaBrowserView : UserControl, IWorkflowScreen
   {
-    private readonly Func<Window>? _nowPlayingScreen;
-    private readonly Func<TitleViewModel, Window>? _insideScreen;
+    private readonly WorkflowManager? _workflow;
+    private readonly Func<WorkflowFrame>? _nowPlayingScreen;
+    private readonly Func<TitleViewModel, WorkflowFrame>? _insideScreen;
+    private bool _firstActivation;
 
-    public MediaBrowserWindow()
+    public MediaBrowserView()
         : this(new MediaBrowserViewModel(), null)
     {
     }
 
     /// <param name="browser">The section to show.</param>
+    /// <param name="workflow">
+    /// The navigation this screen opens the playback and the titles-inside-a-title through, or <c>null</c> in
+    /// tests and the designer, where there is no workflow to push onto.
+    /// </param>
     /// <param name="nowPlayingScreen">
-    /// How to reach the playback screen, or <c>null</c> on a machine with no player. The application owns the
-    /// player, so the screen it shows is built there - a title opened from here and a title opened from the home
-    /// screen are the same film at the same position, not two players.
+    /// How to build the playback screen's frame, or <c>null</c> on a machine with no player. The application owns
+    /// the player, so the screen it shows is built there - a title opened from here and a title opened from the
+    /// home screen are the same film at the same position, not two players.
     /// </param>
     /// <param name="insideScreen">
-    /// How to reach the list of titles inside one title - the tracks of the album that was pressed - or
-    /// <c>null</c> on a server that has nothing of that kind. Pressing an album has to lead somewhere, and the
-    /// window it leads to belongs to the application for the same reason the playback screen does.
+    /// How to build the frame of the list of titles inside one title - the tracks of the album that was pressed -
+    /// or <c>null</c> on a server that has nothing of that kind. Pressing an album has to lead somewhere, and the
+    /// screen it leads to belongs to the application for the same reason the playback screen does.
     /// </param>
-    public MediaBrowserWindow(MediaBrowserViewModel browser, Func<Window>? nowPlayingScreen = null,
-        Func<TitleViewModel, Window>? insideScreen = null)
+    public MediaBrowserView(MediaBrowserViewModel browser, WorkflowManager? workflow = null,
+        Func<WorkflowFrame>? nowPlayingScreen = null,
+        Func<TitleViewModel, WorkflowFrame>? insideScreen = null)
     {
       DataContext = browser;
+      _workflow = workflow;
       _nowPlayingScreen = nowPlayingScreen;
       _insideScreen = insideScreen;
       InitializeComponent();
@@ -67,28 +76,6 @@ namespace MediaPortal.Frontend.Views
       // A double-click on a row means the Enter that plays it (or opens the series behind it); the search box
       // keeps its Enter for the caret's sake and gets no second path. See HomeWindow for the general reason.
       MouseRemote.Attach(this, titlesList);
-
-      Opened += delegate
-      {
-        if (DataContext is MediaBrowserViewModel viewModel)
-        {
-          viewModel.OpenCommand.Execute(null);
-          viewModel.PlayRequested += OnPlayRequested;
-          viewModel.ChildrenRequested += OnChildrenRequested;
-        }
-
-        // The rows take the focus so the first Enter of the visit means "play this"; see HomeWindow.
-        titlesList.Focus();
-      };
-
-      Closed += delegate
-      {
-        if (DataContext is MediaBrowserViewModel viewModel)
-        {
-          viewModel.PlayRequested -= OnPlayRequested;
-          viewModel.ChildrenRequested -= OnChildrenRequested;
-        }
-      };
 
       // OK on the remote is Enter here, and Avalonia hands it to the focused control before anyone else; the
       // list does nothing with it, so it is caught on the way in and turns into "play this", which is what a
@@ -158,8 +145,8 @@ namespace MediaPortal.Frontend.Views
                 args.Handled = true;
                 return;
               }
-              Close();
-              args.Handled = true;
+              // Nothing is open to undo, so the key is not this screen's: it reaches the shell behind it, which
+              // pops this screen off the workflow.
             }
             else if (args.Key == Key.Enter || args.Key == Key.Return || args.Key == Key.MediaPlayPause)
             {
@@ -168,37 +155,78 @@ namespace MediaPortal.Frontend.Views
             }
           },
           RoutingStrategies.Tunnel);
+
+      // The screen fills itself in the first time it appears; returning from the playback screen or from a list
+      // of titles inside a title finds everything where the viewer left it.
+      _firstActivation = true;
+    }
+
+    /// <summary>
+    /// Runs every time the workflow shows this screen.  The first showing asks the server for the titles and
+    /// starts watching the view model; every showing gives the rows the focus, so the first Enter of the visit
+    /// means "play this" - see HomeView for the general reason.
+    /// </summary>
+    public void OnScreenActivated()
+    {
+      if (_firstActivation)
+      {
+        _firstActivation = false;
+        if (DataContext is MediaBrowserViewModel viewModel)
+        {
+          viewModel.OpenCommand.Execute(null);
+          viewModel.PlayRequested += OnPlayRequested;
+          viewModel.ChildrenRequested += OnChildrenRequested;
+        }
+      }
+
+      titlesList.Focus();
+    }
+
+    /// <summary>
+    /// Stops the watching of the view model, which outlives this screen: a handler left on it would have a
+    /// screen that is gone opening a playback screen from an event nobody caused.
+    /// </summary>
+    public void OnScreenClosed()
+    {
+      if (DataContext is MediaBrowserViewModel viewModel)
+      {
+        viewModel.PlayRequested -= OnPlayRequested;
+        viewModel.ChildrenRequested -= OnChildrenRequested;
+      }
     }
 
     private void OnPlayRequested(object? sender, TitleViewModel title)
     {
-      if (_nowPlayingScreen == null)
+      if (_nowPlayingScreen == null || _workflow == null)
         return;
 
-      Window screen = _nowPlayingScreen();
-      if (!screen.IsVisible)
-        screen.Show();
-      screen.Activate();
+      WorkflowFrame? frame = _nowPlayingScreen();
+      if (frame == null)
+        return;
+
+      if (_workflow.Current != null && _workflow.Current.StateId == frame.StateId)
+        return;
+
+      _workflow.Push(frame);
     }
 
     /// <summary>
-    /// A row that holds other titles was pressed: the titles inside it are opened in their own window over this
-    /// one, and this one stays where it was.
+    /// A row that holds other titles was pressed: the titles inside it are pushed over this one in the
+    /// workflow, and this one stays where it was.
     /// </summary>
     /// <remarks>
     /// The album list is left open underneath rather than closed, because "back" on a remote has to arrive back on
     /// the shelf the viewer came from, and a shelf that was closed has to be read from the server again to be
-    /// seen. It is the same reason the playback screen is shown over a list instead of instead-of it.
+    /// seen. It is the same reason the playback screen is pushed over a list instead of instead-of it.
     /// </remarks>
     private void OnChildrenRequested(object? sender, TitleViewModel parent)
     {
-      if (_insideScreen == null)
+      if (_insideScreen == null || _workflow == null)
         return;
 
-      Window screen = _insideScreen(parent);
-      if (!screen.IsVisible)
-        screen.Show();
-      screen.Activate();
+      WorkflowFrame? frame = _insideScreen(parent);
+      if (frame != null)
+        _workflow.Push(frame);
     }
   }
 }

@@ -1,13 +1,11 @@
-<Window xmlns="https://github.com/avaloniaui"
+<UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
-        x:Class="MediaPortal.Frontend.Views.FoldersWindow"
+        x:Class="MediaPortal.Frontend.Views.FoldersView"
         x:DataType="vm:FoldersViewModel"
         Name="folders"
-        Width="1280" Height="720"
-        WindowState="Maximized"
         Background="{DynamicResource ScreenBackgroundBrush}"
-        Title="MediaPortal 2 - Folders">
+        >
 
   <!--
     The library's source folders, from the television. Everything the media centre shows was read out of one of
@@ -157,4 +155,4 @@
       </StackPanel>
     </Grid>
   </DockPanel>
-</Window>
+</UserControl>

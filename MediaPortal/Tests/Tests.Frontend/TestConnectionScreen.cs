@@ -214,9 +214,9 @@ namespace Tests.Frontend
       return Quietly(new ConnectionViewModel(null, SettingsFileCalled("settings")));
     }
 
-    private ConnectionWindow Show(ConnectionViewModel model)
+    private ShellWindow Show(ConnectionViewModel model)
     {
-      var window = new ConnectionWindow(model);
+      var window = new ShellWindow(new ConnectionView(model));
       window.Show();
       _windows.Add(window);
       Pump();
@@ -417,7 +417,7 @@ namespace Tests.Frontend
     {
       const string SAVED = "http://192.168.7.9:55555/MediaPortal/Server";
       var model = Quietly(new ConnectionViewModel(new ServerSettings { ServerUrl = SAVED }, SettingsFileCalled("xaml")));
-      ConnectionWindow window = Show(model);
+      ShellWindow window = Show(model);
 
       Assert.That(AddressField(window).Text, Is.EqualTo(SAVED),
           "the binding has to reach the field, not only exist next to it");
@@ -433,7 +433,7 @@ namespace Tests.Frontend
     public void WhatIsTypedInTheFieldIsWhatTheScreenTests()
     {
       ConnectionViewModel model = ScreenInFrontOfAServer(out Uri url);
-      ConnectionWindow window = Show(model);
+      ShellWindow window = Show(model);
 
       AddressField(window).Text = url.ToString();
       Pump();
@@ -460,7 +460,7 @@ namespace Tests.Frontend
     public void EnterInTheFieldAsksTheServer()
     {
       ConnectionViewModel model = ScreenInFrontOfAServer(out Uri url);
-      ConnectionWindow window = Show(model);
+      ShellWindow window = Show(model);
       AddressField(window).Text = url.ToString();
       Pump();
 
@@ -477,7 +477,7 @@ namespace Tests.Frontend
       // Nothing is typed yet, so neither the test nor the save can be done, and neither can be walked into. The
       // search and the close button are the areas that are there, and reaching close is the difference between "I
       // can leave this screen" and being trapped in a text field with a remote in hand.
-      ConnectionWindow window = Show(Quietly(new ConnectionViewModel(null, SettingsFileCalled("caret"))));
+      ShellWindow window = Show(Quietly(new ConnectionViewModel(null, SettingsFileCalled("caret"))));
       TextBox field = AddressField(window);
 
       PressKey(field, Key.Right);
@@ -500,7 +500,7 @@ namespace Tests.Frontend
     public void AnAddressMakesTheTestButtonPartOfTheRing()
     {
       ConnectionViewModel model = ScreenInFrontOfAServer(out Uri url);
-      ConnectionWindow window = Show(model);
+      ShellWindow window = Show(model);
       TextBox field = AddressField(window);
       field.Text = url.ToString();
       Pump();
@@ -527,7 +527,7 @@ namespace Tests.Frontend
     public void OnceTheServerAnsweredTheWayToSaveIsWalkableToo()
     {
       ConnectionViewModel model = ScreenInFrontOfAServer(out Uri url);
-      ConnectionWindow window = Show(model);
+      ShellWindow window = Show(model);
       AddressField(window).Text = url.ToString();
       Pump();
 
@@ -549,7 +549,7 @@ namespace Tests.Frontend
     {
       string file = SettingsFileCalled("back");
       var model = Quietly(new ConnectionViewModel(null, file));
-      ConnectionWindow window = Show(model);
+      ShellWindow window = Show(model);
       AddressField(window).Text = "http://somewhere.example/MediaPortal/Server";
       Pump();
 
@@ -564,7 +564,7 @@ namespace Tests.Frontend
     public void TheScreenSaysWhereItSavesTo()
     {
       string file = SettingsFileCalled("shown");
-      ConnectionWindow window = Show(Quietly(new ConnectionViewModel(null, file)));
+      ShellWindow window = Show(Quietly(new ConnectionViewModel(null, file)));
 
       Assert.That(ShownTexts(window).Any(text => text.Contains(file)), Is.True,
           "the file is named on the screen, so \"it did not stick after a reboot\" has somewhere to look");
@@ -607,7 +607,7 @@ namespace Tests.Frontend
       // The whole point of the screen: a viewer who has never typed an address and does not want to. Opening it asks
       // the network, and one key press later the library is being read from the server that answered.
       ConnectionViewModel model = ScreenSearchingAServer(out Uri url);
-      ConnectionWindow window = Show(model);
+      ShellWindow window = Show(model);
 
       WaitFor(model, "the screen to have searched by itself",
           delegate (ConnectionViewModel m) { return m.Servers.Count == 1; }, StatusOf);
@@ -631,7 +631,7 @@ namespace Tests.Frontend
       string? chosen = null;
       model.Saved += delegate (string address) { chosen = address; };
 
-      ConnectionWindow window = Show(model);
+      ShellWindow window = Show(model);
       WaitFor(model, "the search to have found the server",
           delegate (ConnectionViewModel m) { return m.Servers.Count == 1; }, StatusOf);
 
@@ -652,7 +652,7 @@ namespace Tests.Frontend
       // replaced the text under the caret the moment a laptop two rooms away woke up would lose their work.
       Uri url;
       ConnectionViewModel model = ScreenSearchingAServer(out url);
-      ConnectionWindow window = Show(model);
+      ShellWindow window = Show(model);
       TextBox field = AddressField(window);
       field.Text = "http://192.168.9.9:55555/MediaPortal/Server";
       Pump();
@@ -672,7 +672,7 @@ namespace Tests.Frontend
     {
       Uri ignored;
       ConnectionViewModel model = ScreenSearchingAServer(out ignored, false);
-      ConnectionWindow window = Show(model);
+      ShellWindow window = Show(model);
 
       WaitFor(model, "the search to be over",
           delegate (ConnectionViewModel m) { return !m.IsScanning; }, StatusOf);

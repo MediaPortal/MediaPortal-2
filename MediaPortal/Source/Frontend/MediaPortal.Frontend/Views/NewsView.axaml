@@ -1,13 +1,11 @@
-<Window xmlns="https://github.com/avaloniaui"
+<UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
-        x:Class="MediaPortal.Frontend.Views.NewsWindow"
+        x:Class="MediaPortal.Frontend.Views.NewsView"
         x:DataType="vm:NewsViewModel"
         Name="news"
-        Width="1280" Height="720"
-        WindowState="Maximized"
         Background="{DynamicResource ScreenBackgroundBrush}"
-        Title="MediaPortal 2 - News">
+        >
 
   <!--
     The news, from the feeds MediaPortal chooses for the viewer's language. Two lists and the story: the papers
@@ -96,4 +94,4 @@
       </StackPanel>
     </Grid>
   </DockPanel>
-</Window>
+</UserControl>

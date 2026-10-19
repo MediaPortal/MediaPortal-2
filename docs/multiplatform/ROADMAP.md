@@ -3543,6 +3543,42 @@ keys, the key after the walk opens what the walk selected - a viewer who can mov
 it is no further than one who can do neither. The front end is at 424 tests, the whole gate is green at 1038,
 and the sixteen render frames still draw.
 
+### One window, one workflow: the screens stop opening as windows (phase 2, multiplatform)
+
+The reference client never opened a new window when a tile was pressed. It had one window, a `WorkflowManager`
+holding the stops the viewer had walked through, a navigation bar naming them, and a back key that popped one
+stop rather than piling up windows. The multiplatform front end had grown eleven `Window` classes that each
+opened beside the old ones, so the viewer ended up on a desktop of screens with no way back but closing them -
+the opposite of what the reference did, and the reason the complaint about it was the right one.
+
+**The workflow came back first, because everything else hangs on it.** `WorkflowManager` keeps a stack of
+`WorkflowFrame`s - a state id, a label, the view model, and (once built) the view - with `Push`, `Pop`,
+`PopToState` and `ReplaceCurrent`, and it says which frame it removed and in which order, nearest first, the
+way the viewer walked past them backwards. `ShellWindow` is the one window: it hosts the current frame, names
+the window after the depth, and shows the trail of stops above the screen - each crumb a button that walks the
+workflow back to that stop. It hears the back key only after every screen has declined it, because a view with
+a details panel open, a search box typed into, or a photograph raised has to answer the key about its own
+business before the workflow moves. A frame's view is cached in the frame: stepping back from a title list
+finds the scroll, the search and the selection where the viewer left them, which is what the reference's
+screens did, and at the bottom of the stack the back key closes the application - one window, no orphaned
+process.
+
+**Every screen became a `UserControl` view.** Home, MediaBrowser, Browse, News, Weather, Pictures, Party,
+Folders, Theme, Connection and NowPlaying: eleven windows deleted, eleven views and the shell in their place,
+and `App.axaml.cs` now builds frames instead of windows - the view factory dispatches on the frame's state id,
+the playback frame is built fresh per showing while its view model keeps the film's position, and a second
+press of the same door is refused rather than opening a second copy. The activation moment the old screens
+heard as `Opened` is the shell's now: a frame pushed before the window opens is activated when it does, so
+the first key after opening lands somewhere again.
+
+**Measured, not hoped.** Fifteen tests for the workflow and the shell alone - the stack, the removal order,
+the crumbs, the back key declining, the title following the depth - and every screen test rewritten to host
+its view in the real shell rather than in a window of its own, keys raised on the screen itself the way the
+platform raises them on the focused control. One shell bug fell out of that rewrite and was fixed: the
+single-content constructor pushed its frame before anyone listened, so the screen never reached the window.
+The front end is at 439 tests, the whole gate is green at 1053, and the sixteen render frames draw through
+the shell.
+
 
 ## What cannot be verified without the user
 

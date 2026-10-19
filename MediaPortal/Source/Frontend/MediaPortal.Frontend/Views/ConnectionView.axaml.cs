@@ -22,6 +22,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using MediaPortal.Frontend.Input;
 using MediaPortal.Frontend.ViewModels;
+using MediaPortal.Frontend.Workflow;
 
 namespace MediaPortal.Frontend.Views
 {
@@ -36,21 +37,28 @@ namespace MediaPortal.Frontend.Views
   /// and Enter means "this one" - on the field it tests the typed address, on the list it takes the highlighted
   /// server. A viewer holding a remote should never have to know what a Tab key is.
   /// </remarks>
-  public partial class ConnectionWindow : Window
+  public partial class ConnectionView : UserControl, IWorkflowScreen
   {
+    private readonly WorkflowManager? _workflow;
     private readonly List<Control> _ring = new List<Control>();
 
     /// <summary>
     /// For the XAML loader and the designer. A screen over an empty address, which is what a first start shows.
     /// </summary>
-    public ConnectionWindow()
+    public ConnectionView()
         : this(new ConnectionViewModel(null))
     {
     }
 
-    public ConnectionWindow(ConnectionViewModel viewModel)
+    /// <param name="viewModel">The addresses to choose between.</param>
+    /// <param name="workflow">
+    /// The navigation this screen was opened through; its "Close" button pops this screen rather than closing a
+    /// window, because there is only one window now.  <c>null</c> in tests and the designer.
+    /// </param>
+    public ConnectionView(ConnectionViewModel viewModel, WorkflowManager? workflow = null)
     {
       DataContext = viewModel;
+      _workflow = workflow;
       InitializeComponent();
 
       // In the order they are on the screen. The list is first because it is what the viewer is meant to use; the
@@ -63,14 +71,6 @@ namespace MediaPortal.Frontend.Views
       _ring.Add(saveButton);
       _ring.Add(closeButton);
       DpadNavigation.Attach(this, _ring);
-
-      Opened += delegate
-      {
-        // The field takes the focus first, so that a viewer with a keyboard can start typing at once; if the search
-        // then turns up a server, the focus moves to the list below.
-        FocusFirstChoice(viewModel);
-        if (viewModel.AutoScan) viewModel.RescanCommand.Execute(null);
-      };
 
       // A server that turns up later should be the thing under the viewer's thumb, so the focus moves to the list as
       // soon as it has something in it - but only while the field is still empty, because somebody who has started
@@ -150,15 +150,23 @@ namespace MediaPortal.Frontend.Views
       // window because that is where this screen's Enter handler lives - see HomeWindow for the general reason.
       MouseRemote.Attach(serversList, serversList);
 
-      // Back leaves the screen as it is. Choosing a server is not something a screen can be forced into, and the
-      // address the viewer did not save is the one the front end keeps using.
-      AddHandler(KeyDownEvent,
-          delegate (object? sender, KeyEventArgs args)
-          {
-            if (args.Key == Key.Escape || args.Key == Key.Back)
-              Close();
-          },
-          RoutingStrategies.Tunnel);
+      // Back is the shell's key now: leaving without saving is exactly what popping this screen off the
+      // workflow does, and the trail or the back key does it without this screen having to own the key.
+    }
+
+    /// <summary>
+    /// Runs every time the workflow shows this screen: the search starts and the focus lands where the viewer
+    /// is most likely to need it.
+    /// </summary>
+    public void OnScreenActivated()
+    {
+      if (DataContext is not ConnectionViewModel viewModel)
+        return;
+
+      // The field takes the focus first, so that a viewer with a keyboard can start typing at once; if the search
+      // then turns up a server, the focus moves to the list below.
+      FocusFirstChoice(viewModel);
+      if (viewModel.AutoScan) viewModel.RescanCommand.Execute(null);
     }
 
     /// <summary>
@@ -173,7 +181,9 @@ namespace MediaPortal.Frontend.Views
 
     private void OnClose(object? sender, RoutedEventArgs e)
     {
-      Close();
+      // The button says "leave this screen as it is", which in one window means popping it; whatever pushed it
+      // stays untouched.
+      _workflow?.Pop();
     }
   }
 }

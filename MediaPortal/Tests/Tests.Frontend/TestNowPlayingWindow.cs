@@ -87,12 +87,12 @@ namespace Tests.Frontend
     /// application builds it - with the dispatcher as marshaller - so that a test which hands the player an
     /// event is testing the same route the product uses.
     /// </summary>
-    private NowPlayingWindow ShowPlayback(FakePlayer player, out NowPlayingViewModel screen)
+    private ShellWindow ShowPlayback(FakePlayer player, out NowPlayingViewModel screen)
     {
       screen = new NowPlayingViewModel(player, action => Dispatcher.UIThread.Post(action));
       _screens.Add(screen);
 
-      var window = new NowPlayingWindow(screen);
+      var window = new ShellWindow(new NowPlayingView(screen));
       window.Show();
       _windows.Add(window);
       Pump();
@@ -143,7 +143,7 @@ namespace Tests.Frontend
     public void TheScreenShowsWhatIsPlayingAndWhatThePlayerIsDoing()
     {
       var player = new FakePlayer();
-      NowPlayingWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
+      ShellWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
 
       Assert.That(VisibleTexts(window), Does.Contain("Nothing playing"),
           "a screen that has never played anything says so instead of showing a blank");
@@ -161,7 +161,7 @@ namespace Tests.Frontend
     public void TheBarAndTheClockFollowWhatTheEngineReported()
     {
       var player = new FakePlayer();
-      NowPlayingWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
+      ShellWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
       screen.Play(Film("film.mkv"));
       Pump();
 
@@ -181,7 +181,7 @@ namespace Tests.Frontend
       // uses: nothing on the screen may move while the engine's thread is the one running, and everything moves
       // once the screen's own queue has been worked through. The first half is the crash, not the second.
       var player = new FakePlayer();
-      NowPlayingWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
+      ShellWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
       screen.Play(Film("film.mkv"));
       Pump();
 
@@ -203,7 +203,7 @@ namespace Tests.Frontend
     public void TheTransportButtonsReachThePlayer()
     {
       var player = new FakePlayer();
-      NowPlayingWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
+      ShellWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
       screen.Play(Film("film.mkv"));
       Pump();
 
@@ -250,7 +250,7 @@ namespace Tests.Frontend
       // On the home screen the d-pad's left and right move between areas. Here the same keys belong to the
       // transport, and a viewer who presses right in the middle of a film must not watch the highlight move.
       var player = new FakePlayer();
-      NowPlayingWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
+      ShellWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
       screen.Play(Film("film.mkv"));
       Pump();
       player.RaisePosition(40_000, 60_000);
@@ -289,7 +289,7 @@ namespace Tests.Frontend
           new PlaybackTrack(TrackKind.Audio, 2, "Language (ger)", "ger")
       };
       player.CurrentAudioId = 1;
-      NowPlayingWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
+      ShellWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
       screen.Play(Film("film.mkv"));
       Pump();
 
@@ -315,7 +315,7 @@ namespace Tests.Frontend
       // The playback belongs to the application. A viewer who goes back to the library while music plays
       // expects it to carry on playing, so nothing in closing the window may touch the player.
       var player = new FakePlayer();
-      NowPlayingWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
+      ShellWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
       screen.Play(Film("film.mkv"));
       Pump();
       bool closed = false;
@@ -337,7 +337,7 @@ namespace Tests.Frontend
     {
       // The parameterless constructor is the one Avalonia itself uses (the designer, and any code path that
       // builds a window by type). It has no player, and what it must do with that is say so.
-      var window = new NowPlayingWindow();
+      var window = new ShellWindow(new NowPlayingView());
       window.Show();
       _windows.Add(window);
       Pump();

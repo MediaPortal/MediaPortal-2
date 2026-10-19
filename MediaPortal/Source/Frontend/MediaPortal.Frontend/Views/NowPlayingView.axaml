@@ -1,14 +1,12 @@
-<Window xmlns="https://github.com/avaloniaui"
+<UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
         xmlns:views="using:MediaPortal.Frontend.Views"
-        x:Class="MediaPortal.Frontend.Views.NowPlayingWindow"
+        x:Class="MediaPortal.Frontend.Views.NowPlayingView"
         x:DataType="vm:NowPlayingViewModel"
         Name="nowPlaying"
-        Width="1280" Height="720"
-        WindowState="Maximized"
         Background="{DynamicResource ScreenBackgroundBrush}"
-        Title="MediaPortal 2 - Now playing">
+        >
 
   <!--
     The playback screen, sized for a television like the home screen: the name of what is playing, the picture
@@ -17,7 +15,7 @@
     screen itself never asks what an engine is.
   -->
 
-  <Window.Styles>
+  <UserControl.Styles>
     <Style Selector="Button.transport">
       <Setter Property="Background" Value="{DynamicResource PanelRaisedBrush}"/>
       <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
@@ -52,7 +50,7 @@
       <Setter Property="VerticalAlignment" Value="Center"/>
       <Setter Property="Margin" Value="0,0,18,0"/>
     </Style>
-  </Window.Styles>
+  </UserControl.Styles>
 
   <DockPanel Margin="48,32">
 
@@ -132,4 +130,4 @@
       </StackPanel>
     </Grid>
   </DockPanel>
-</Window>
+</UserControl>

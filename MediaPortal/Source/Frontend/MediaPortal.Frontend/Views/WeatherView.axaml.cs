@@ -21,6 +21,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using MediaPortal.Frontend.Input;
 using MediaPortal.Frontend.ViewModels;
+using MediaPortal.Frontend.Workflow;
 
 namespace MediaPortal.Frontend.Views
 {
@@ -34,7 +35,7 @@ namespace MediaPortal.Frontend.Views
   /// back once expects their places list, not the home screen. Enter in the search box asks the geocoder, Enter
   /// on a match keeps it, and R reads the watched place again without leaving the keyboard.
   /// </remarks>
-  public partial class WeatherWindow : Window
+  public partial class WeatherView : UserControl, IWorkflowScreen
   {
     private readonly WeatherViewModel _weather;
     private readonly List<Control> _ring = new List<Control>();
@@ -42,12 +43,12 @@ namespace MediaPortal.Frontend.Views
     /// <summary>
     /// For the XAML loader and the designer: the screen a front end with nowhere to read from shows.
     /// </summary>
-    public WeatherWindow()
+    public WeatherView()
         : this(new WeatherViewModel())
     {
     }
 
-    public WeatherWindow(WeatherViewModel weather)
+    public WeatherView(WeatherViewModel weather)
     {
       DataContext = weather;
       _weather = weather;
@@ -65,17 +66,6 @@ namespace MediaPortal.Frontend.Views
       // A double-click on a search match means the Enter that adopts it, and on a watched place the Enter that
       // walks to its forecast; see HomeWindow for the general reason.
       MouseRemote.Attach(this, foundList, placesList);
-
-      Opened += delegate
-      {
-        // The places take the focus so the first Enter of the visit does something; see HomeWindow.
-        placesList.Focus();
-      };
-
-      Closed += delegate
-      {
-        _weather.Dispose();
-      };
 
       AddHandler(KeyDownEvent,
           delegate (object? sender, KeyEventArgs args)
@@ -97,11 +87,8 @@ namespace MediaPortal.Frontend.Views
                 _weather.SearchText = "";
                 placesList.Focus();
                 args.Handled = true;
-                return;
               }
-
-              Close();
-              args.Handled = true;
+              // With no search to undo the key is not this screen's; the shell behind it pops the screen.
               return;
             }
 
@@ -128,6 +115,24 @@ namespace MediaPortal.Frontend.Views
             }
           },
           RoutingStrategies.Tunnel);
+    }
+
+    /// <summary>
+    /// Runs every time the workflow shows this screen: the places take the focus so the first Enter of the visit
+    /// does something; see HomeView for the general reason.  The search box keeps its state on a return, so
+    /// activation only focuses.
+    /// </summary>
+    public void OnScreenActivated()
+    {
+      placesList.Focus();
+    }
+
+    /// <summary>
+    /// Stops the geocoder's pending work, which must not outlive the screen that started it.
+    /// </summary>
+    public void OnScreenClosed()
+    {
+      _weather.Dispose();
     }
   }
 }

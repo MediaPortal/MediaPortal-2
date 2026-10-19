@@ -147,7 +147,7 @@ namespace Tests.Frontend
     /// <summary>
     /// Opens the screen in front of a server that is really running. Nothing presses Refresh.
     /// </summary>
-    private FoldersWindow Opened(out FoldersViewModel folders)
+    private ShellWindow Opened(out FoldersViewModel folders)
     {
       InProcessApi server = InProcessApi.Start();
       _servers.Add(server);
@@ -156,7 +156,7 @@ namespace Tests.Frontend
 
       folders = new FoldersViewModel(client) { PollDelayMilliseconds = 20 };
       _models.Add(folders);
-      var window = new FoldersWindow(folders);
+      var window = new ShellWindow(new FoldersView(folders));
       _windows.Add(window);
       window.Show();
       Pump();
@@ -222,7 +222,7 @@ namespace Tests.Frontend
     [AvaloniaTest]
     public void TheScreenListsTheFoldersTheServerHolds()
     {
-      FoldersWindow window = Opened(out FoldersViewModel folders);
+      ShellWindow window = Opened(out FoldersViewModel folders);
       PumpUntil(folders, "the two folders to be on screen", delegate { return folders.Shares.Count == 2; });
 
       Assert.That(FolderList(window).Items.Count, Is.EqualTo(2),
@@ -238,7 +238,7 @@ namespace Tests.Frontend
     {
       // The whole point of the ring the screen builds once the categories have arrived: a tick box that cannot be
       // reached from the path field is a folder that cannot be added, because a television has no Tab key.
-      FoldersWindow window = Opened(out FoldersViewModel folders);
+      ShellWindow window = Opened(out FoldersViewModel folders);
       PumpUntil(folders, "the media types to arrive", delegate { return folders.Categories.Count == 3; });
 
       var path = (TextBox) Named(window, "folderPathBox");
@@ -259,7 +259,7 @@ namespace Tests.Frontend
       // What the field's Enter must not do is add nothing at all: the media types are unticked by default, so the
       // screen is expected to refuse and say why. Ticking one is part of the test, and it is done with the boxes
       // the screen made rather than with the view model behind them.
-      FoldersWindow window = Opened(out FoldersViewModel folders);
+      ShellWindow window = Opened(out FoldersViewModel folders);
       PumpUntil(folders, "the media types to arrive", delegate { return folders.Categories.Count == 3; });
 
       CheckBox movies = window.GetVisualDescendants().OfType<CheckBox>().Single(box => (string) box.Content == "Movie");
@@ -281,7 +281,7 @@ namespace Tests.Frontend
     [AvaloniaTest]
     public void TheBackKeyClosesTheScreen()
     {
-      FoldersWindow window = Opened(out FoldersViewModel folders);
+      ShellWindow window = Opened(out FoldersViewModel folders);
       PumpUntil(folders, "the folders to be on screen", delegate { return folders.Shares.Count == 2; });
 
       bool closed = false;

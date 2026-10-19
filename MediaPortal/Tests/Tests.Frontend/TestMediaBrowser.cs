@@ -43,6 +43,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Frontend.Api;
 using MediaPortal.Frontend.Player;
 using MediaPortal.Frontend.ViewModels;
+using MediaPortal.Frontend.Workflow;
 using MediaPortal.Frontend.Views;
 
 namespace Tests.Frontend
@@ -445,14 +446,23 @@ namespace Tests.Frontend
       InProcessApi server = StartServer();
 
       HomeViewModel home = new HomeViewModel(new ServerApiClient(server.BaseUrl));
-      var opened = new List<Window>();
-      HomeWindow window = new HomeWindow(home, null, null,
-          delegate (HomeSection section)
-          {
-            var screen = new MediaBrowserWindow(new MediaBrowserViewModel(home.Client, section));
-            opened.Add(screen);
-            return screen;
-          });
+      var opened = new List<MediaBrowserViewModel>();
+      var workflow = new WorkflowManager();
+      ShellWindow window = new ShellWindow(workflow, delegate (WorkflowFrame frame)
+      {
+        if (frame.StateId == "home")
+        {
+          return new HomeView(home, workflow, null, null,
+              delegate (HomeSection section)
+              {
+                var model = new MediaBrowserViewModel(home.Client, section);
+                opened.Add(model);
+                return new WorkflowFrame("titles", section.Label, model);
+              });
+        }
+        return new MediaBrowserView((MediaBrowserViewModel) frame.ViewModel);
+      });
+      workflow.Push(new WorkflowFrame("home", "Home", home));
       window.Show();
       home.RefreshCommand.Execute(null);
       WaitUntil("the tiles to appear", delegate { return home.Sections.Count > 0; });
@@ -464,7 +474,7 @@ namespace Tests.Frontend
 
       tiles.Focus();
       tiles.SelectedItem = EntryNamed(home.Menu, "Movies");
-      window.RaiseEvent(new KeyEventArgs
+      tiles.RaiseEvent(new KeyEventArgs
       {
         RoutedEvent = InputElement.KeyDownEvent,
         Key = Key.Enter,
@@ -473,10 +483,8 @@ namespace Tests.Frontend
       Pump();
 
       Assert.That(opened, Has.Count.EqualTo(1), "the tile opened a screen");
-      MediaBrowserWindow browser = (MediaBrowserWindow) opened[0];
-      Assert.That(browser.DataContext, Is.InstanceOf<MediaBrowserViewModel>());
-      Assert.That(((MediaBrowserViewModel) browser.DataContext).Heading, Is.EqualTo("Movies"));
-      browser.Close();
+      MediaBrowserViewModel browser = opened[0];
+      Assert.That(browser.Heading, Is.EqualTo("Movies"));
       window.Close();
     }
 
@@ -919,7 +927,7 @@ namespace Tests.Frontend
     {
       DetailsServer server = new DetailsServer(HttpStatusCode.OK, TITANIC_DETAILS);
       MediaBrowserViewModel browser = BrowserOn(server);
-      MediaBrowserWindow window = new MediaBrowserWindow(browser);
+      ShellWindow window = new ShellWindow(new MediaBrowserView(browser));
       window.Show();
       WaitUntil("the row to arrive", delegate { return browser.Titles.Count == 1; });
 
@@ -930,7 +938,7 @@ namespace Tests.Frontend
       Assert.That(panel.IsVisible, Is.False, "nothing is on screen until it is asked for");
 
       titles.Focus();
-      window.RaiseEvent(new KeyEventArgs
+      titles.RaiseEvent(new KeyEventArgs
       {
         RoutedEvent = InputElement.KeyDownEvent,
         Key = Key.I,
@@ -940,7 +948,7 @@ namespace Tests.Frontend
       Assert.That(browser.DetailsHeading, Is.EqualTo("Titanic (1997)"));
       Assert.That(titles.Items.Count, Is.EqualTo(1), "the list stayed where it was behind the panel");
 
-      window.RaiseEvent(new KeyEventArgs
+      titles.RaiseEvent(new KeyEventArgs
       {
         RoutedEvent = InputElement.KeyDownEvent,
         Key = Key.Escape,
@@ -951,7 +959,7 @@ namespace Tests.Frontend
       Assert.That(window.IsVisible, Is.True, "back put the panel away, not the screen");
       Assert.That(browser.Selected, Is.Not.Null, "and the viewer is still on the same row");
 
-      window.RaiseEvent(new KeyEventArgs
+      titles.RaiseEvent(new KeyEventArgs
       {
         RoutedEvent = InputElement.KeyDownEvent,
         Key = Key.Escape,
@@ -1309,7 +1317,7 @@ namespace Tests.Frontend
     {
       SearchServer server = new SearchServer();
       MediaBrowserViewModel browser = BrowserOn(server);
-      MediaBrowserWindow window = new MediaBrowserWindow(browser);
+      ShellWindow window = new ShellWindow(new MediaBrowserView(browser));
       window.Show();
       WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SHELF.Length; });
 
@@ -1319,7 +1327,7 @@ namespace Tests.Frontend
           .First(field => field.Name == "searchBox");
 
       titles.Focus();
-      window.RaiseEvent(new KeyEventArgs
+      titles.RaiseEvent(new KeyEventArgs
       {
         RoutedEvent = InputElement.KeyDownEvent,
         Key = Key.F,
@@ -1329,7 +1337,7 @@ namespace Tests.Frontend
       Assert.That(box.IsFocused, Is.True, "one key is all it takes to start typing a title");
 
       box.Text = "alien";
-      window.RaiseEvent(new KeyEventArgs
+      box.RaiseEvent(new KeyEventArgs
       {
         RoutedEvent = InputElement.KeyDownEvent,
         Key = Key.Enter,
@@ -1339,7 +1347,7 @@ namespace Tests.Frontend
       Assert.That(titles.IsFocused, Is.True,
           "Enter searched, so the arrows belong to the results again - not to the box they came from");
 
-      window.RaiseEvent(new KeyEventArgs
+      titles.RaiseEvent(new KeyEventArgs
       {
         RoutedEvent = InputElement.KeyDownEvent,
         Key = Key.Escape,
@@ -1630,7 +1638,7 @@ namespace Tests.Frontend
     {
       SeenServer server = new SeenServer();
       MediaBrowserViewModel browser = BrowserOn(server);
-      MediaBrowserWindow window = new MediaBrowserWindow(browser);
+      ShellWindow window = new ShellWindow(new MediaBrowserView(browser));
       window.Show();
       WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SEEN_SHELF.Length; });
 
@@ -1641,7 +1649,7 @@ namespace Tests.Frontend
       Assert.That(seen.Content, Is.EqualTo("All titles"));
 
       titles.Focus();
-      window.RaiseEvent(new KeyEventArgs
+      titles.RaiseEvent(new KeyEventArgs
       {
         RoutedEvent = InputElement.KeyDownEvent,
         Key = Key.W,
@@ -1651,7 +1659,7 @@ namespace Tests.Frontend
       Assert.That(seen.Content, Is.EqualTo("Unwatched only"),
           "the button on the screen says the state the list is in, so the filter is visible without asking");
 
-      window.RaiseEvent(new KeyEventArgs
+      titles.RaiseEvent(new KeyEventArgs
       {
         RoutedEvent = InputElement.KeyDownEvent,
         Key = Key.Escape,
@@ -1789,13 +1797,22 @@ namespace Tests.Frontend
       InProcessApi server = StartServer();
 
       HomeViewModel home = HomeOn(server);
-      Window playback = new Window();
-      var opened = new List<Window>();
-      var window = new HomeWindow(home, delegate
+      var playback = new ContentControl();
+      var opened = new List<ContentControl>();
+      var workflow = new WorkflowManager();
+      var window = new ShellWindow(workflow, delegate (WorkflowFrame frame)
       {
-        opened.Add(playback);
-        return playback;
+        if (frame.StateId == "home")
+        {
+          return new HomeView(home, workflow, delegate
+          {
+            opened.Add(playback);
+            return new WorkflowFrame("nowplaying", "Now playing", playback);
+          });
+        }
+        return frame.ViewModel as Control;
       });
+      workflow.Push(new WorkflowFrame("home", "Home", home));
       window.Show();
       Refreshed(home);
       Pump();
@@ -1806,7 +1823,7 @@ namespace Tests.Frontend
 
       strip.Focus();
       strip.SelectedIndex = 0;
-      window.RaiseEvent(new KeyEventArgs
+      strip.RaiseEvent(new KeyEventArgs
       {
         RoutedEvent = InputElement.KeyDownEvent,
         Key = Key.Enter,
@@ -1816,6 +1833,9 @@ namespace Tests.Frontend
 
       Assert.That(opened, Is.EqualTo(new[] { playback }),
           "OK on a row of the strip gets out of the way and shows the playback");
+      Assert.That(workflow.Current.StateId, Is.EqualTo("nowplaying"),
+          "and the shell is showing it, not a second window beside the old one");
+      window.Close();
     }
 
     #endregion

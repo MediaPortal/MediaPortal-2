@@ -1,13 +1,11 @@
-<Window xmlns="https://github.com/avaloniaui"
+<UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
-        x:Class="MediaPortal.Frontend.Views.WeatherWindow"
+        x:Class="MediaPortal.Frontend.Views.WeatherView"
         x:DataType="vm:WeatherViewModel"
         Name="weather"
-        Width="1280" Height="720"
-        WindowState="Maximized"
         Background="{DynamicResource ScreenBackgroundBrush}"
-        Title="MediaPortal 2 - Weather">
+        >
 
   <!--
     The weather, for the places the viewer watches. The column of places on the left with its search box under
@@ -135,4 +133,4 @@
       </StackPanel>
     </Grid>
   </DockPanel>
-</Window>
+</UserControl>

@@ -33,6 +33,7 @@ using MediaPortal.Frontend.Api;
 using MediaPortal.Frontend.Player;
 using MediaPortal.Frontend.ViewModels;
 using MediaPortal.Frontend.Views;
+using MediaPortal.Frontend.Workflow;
 
 namespace Tests.Frontend
 {
@@ -155,7 +156,7 @@ namespace Tests.Frontend
     /// Shows the real screen in front of a server that is really running. Nothing presses Refresh: the screen is
     /// expected to fill itself in when it appears, and the tests read the result of that.
     /// </summary>
-    private HomeWindow ShowScreenThatReadsAServer(int itemCount, out HomeViewModel home)
+    private ShellWindow ShowScreenThatReadsAServer(int itemCount, out HomeViewModel home)
     {
       List<IEnumerable<Guid>> ignored;
       InProcessApi.RegisterMediaLibrary(
@@ -170,9 +171,29 @@ namespace Tests.Frontend
       return Show(home);
     }
 
-    private HomeWindow Show(HomeViewModel home)
+    private ShellWindow Show(HomeViewModel home)
     {
-      var window = new HomeWindow(home);
+      return ShowScreen(home, null, null, null);
+    }
+
+    /// <summary>
+    /// The screen in the position the application puts it in: the bottom frame of the workflow, shown by the one
+    /// window a viewer meets.  The doors into the other screens are the ones the test names; the shell builds a
+    /// frame's view from the control the frame's model carries, so a test can watch what a key press opens.
+    /// </summary>
+    private ShellWindow ShowScreen(HomeViewModel home, Func<WorkflowFrame> nowPlayingScreen,
+        Func<HomeSection, WorkflowFrame> sectionScreen, Func<string, WorkflowFrame> screenFactory)
+    {
+      var workflow = new WorkflowManager();
+      var window = new ShellWindow(workflow, delegate (WorkflowFrame frame)
+      {
+        if (frame.StateId == "home")
+          return new HomeView(home, workflow, nowPlayingScreen, null, sectionScreen, screenFactory);
+        if (frame.StateId == "nowplaying")
+          return new NowPlayingView((NowPlayingViewModel)frame.ViewModel);
+        return frame.ViewModel as Control;
+      });
+      workflow.Push(new WorkflowFrame("home", "Home", home));
       window.Show();
       _homes.Add(home);
       _windows.Add(window);
@@ -257,7 +278,7 @@ namespace Tests.Frontend
     [AvaloniaTest]
     public void TheScreenFillsItselfInFromWhatTheServerSent()
     {
-      HomeWindow window = ShowScreenThatReadsAServer(17, out HomeViewModel home);
+      ShellWindow window = ShowScreenThatReadsAServer(17, out HomeViewModel home);
       WaitUntil(home, "two aspects to be on screen", delegate { return home.Aspects.Count == 2; });
 
       // The count of an aspect is its own request after the aspects arrived, so a screen that already lists both
@@ -290,7 +311,7 @@ namespace Tests.Frontend
       // content to the right, the server's aspect list on the far side, buttons underneath - the buttons are the
       // last area, so Right from a button wraps the ring and lands on the first one: the content pane, which is
       // where the viewer's eye is when they leave the button row.
-      HomeWindow window = ShowScreenThatReadsAServer(1, out HomeViewModel home);
+      ShellWindow window = ShowScreenThatReadsAServer(1, out HomeViewModel home);
       WaitUntil(home, "the screen to be done reading before its keys are pressed",
           delegate { return !home.IsBusy; });
 
@@ -327,13 +348,10 @@ namespace Tests.Frontend
       // so this front end does the same and the ring has to follow - menu, content, aspect list - rather than the
       // order the XAML happens to declare them in.
       // The screen is shown with a section screen so that the menu is part of the walk at all: without a way to
-      // open a section the menu is deliberately not focusable (see HomeWindow), because a menu that leads nowhere
+      // open a section the menu is deliberately not focusable (see HomeView), because a menu that leads nowhere
       // should not be where the arrow keys start.
       var home = new HomeViewModel(null);
-      var window = new HomeWindow(home, null, null, sectionScreen => null!, null);
-      window.Show();
-      _homes.Add(home);
-      _windows.Add(window);
+      var window = ShowScreen(home, null, delegate (HomeSection section) { return null!; }, null);
       Pump();
 
       ListBox menu = ListBoxNamed(window, "menuList");
@@ -382,7 +400,7 @@ namespace Tests.Frontend
     [AvaloniaTest]
     public void TheBackKeyClosesTheScreen()
     {
-      HomeWindow window = ShowScreenThatReadsAServer(1, out _);
+      ShellWindow window = ShowScreenThatReadsAServer(1, out _);
       bool closed = false;
       window.Closed += delegate { closed = true; };
 
@@ -405,19 +423,15 @@ namespace Tests.Frontend
     [AvaloniaTest]
     public void TheWayToThePlaybackScreenIsOfferedOnlyWhenThereIsAPlayer()
     {
-      HomeWindow withoutPlayer = Show(new HomeViewModel());
+      ShellWindow withoutPlayer = Show(new HomeViewModel());
       Assert.That(NowPlayingButton(withoutPlayer).IsVisible, Is.False,
           "a machine without a player is not offered a screen that could not play anything");
 
       var playback = new NowPlayingViewModel(new FakePlayer());
       _playbacks.Add(playback);
-      var playbackScreen = new NowPlayingWindow(playback);
-      _windows.Add(playbackScreen);
 
-      var withPlayer = new HomeWindow(new HomeViewModel(), delegate { return playbackScreen; });
-      withPlayer.Show();
-      _windows.Add(withPlayer);
-      Pump();
+      ShellWindow withPlayer = ShowScreen(new HomeViewModel(),
+          delegate { return new WorkflowFrame("nowplaying", "Now playing", playback); }, null, null);
 
       Assert.That(NowPlayingButton(withPlayer).IsVisible, Is.True, "with a player, the way there appears");
     }
@@ -431,29 +445,28 @@ namespace Tests.Frontend
       Assert.That(playback.Play(MediaLocation.FromUrl("http://mediaportal.example/the-film.mkv")),
           Is.True, playback.StatusLine);
 
-      var playbackScreen = new NowPlayingWindow(playback);
-      var home = new HomeWindow(new HomeViewModel(), delegate { return playbackScreen; });
-      home.Show();
-      _windows.Add(home);
-      _windows.Add(playbackScreen);
+      ShellWindow home = ShowScreen(new HomeViewModel(),
+          delegate { return new WorkflowFrame("nowplaying", "Now playing", playback); }, null, null);
       Pump();
 
       Button button = NowPlayingButton(home);
       button.RaiseEvent(new RoutedEventArgs(Button.ClickEvent, button));
       Pump();
 
-      Assert.That(playbackScreen.IsVisible, Is.True, "the button opened the playback screen");
-      Assert.That(playbackScreen.DataContext, Is.SameAs(playback),
+      Assert.That(home.Workflow.Current.StateId, Is.EqualTo("nowplaying"), "the button opened the playback screen");
+      Assert.That(home.Screen, Is.InstanceOf<NowPlayingView>(), "and what appeared is the playback screen");
+      Assert.That(home.Screen.DataContext, Is.SameAs(playback),
           "and what it shows is the application's playback, not a fresh screen that knows nothing about the film");
       Assert.That(
-          playbackScreen.GetVisualDescendants().OfType<TextBlock>().Select(text => text.Text ?? "")
+          home.Screen.GetVisualDescendants().OfType<TextBlock>().Select(text => text.Text ?? "")
               .Any(text => text.Contains("the-film.mkv")),
           Is.True, "including the name of what is playing");
 
-      // A second press must not stack a second screen or lose the playback.
+      // A second press must not stack a second copy of the screen over itself.
       button.RaiseEvent(new RoutedEventArgs(Button.ClickEvent, button));
       Pump();
-      Assert.That(playbackScreen.IsVisible, Is.True, "the same screen is still the screen");
+      Assert.That(home.Workflow.Stack.Count, Is.EqualTo(2),
+          "the home screen with the playback over it - not three deep");
     }
 
     /// <summary>
@@ -465,7 +478,7 @@ namespace Tests.Frontend
     [AvaloniaTest]
     public void TheScreenTakesTheFocusWhenItOpensSoTheFirstKeyLandsSomewhere()
     {
-      HomeWindow window = ShowScreenThatReadsAServer(1, out _);
+      ShellWindow window = ShowScreenThatReadsAServer(1, out _);
 
       // The menu, or - because a list often hands its focus to the row it stands on - a row inside the menu.
       // Either answer lets the first Enter find something; "nothing" is the one answer that must not happen.
@@ -485,19 +498,14 @@ namespace Tests.Frontend
     public void ADoubleClickOnAMenuEntryOpensTheScreenItNames()
     {
       string? asked = null;
-      var marker = new Window();
+      var marker = new ContentControl();
       var home = new HomeViewModel();
-      var window = new HomeWindow(home, null, null, null,
+      var window = ShowScreen(home, null, null,
           delegate (string screenKey)
           {
             asked = screenKey;
-            return marker;
+            return new WorkflowFrame("screen", screenKey, marker);
           });
-      window.Show();
-      _windows.Add(window);
-      // The home screen rebuilds its menu when the refresh it starts on opening finishes - without a server that
-      // means every entry is a new object - so a test that grabs one too early holds a stale one. This waits for
-      // the same entry to answer twice in a row before it trusts what it is holding.
       ListBox menu = ListBoxNamed(window, "menuList");
       MainMenuEntry settings = MenuEntryAfterSettling(menu, "themes");
 
@@ -509,8 +517,7 @@ namespace Tests.Frontend
       DoubleClickOn(window, menu, settings);
 
       Assert.That(asked, Is.EqualTo("themes"), "the double-click asked for the screen the entry names");
-      Assert.That(marker.IsVisible, Is.True, "and that screen is the one that appeared");
-      _windows.Add(marker);
+      Assert.That(ReferenceEquals(window.Screen, marker), Is.True, "and that screen is the one that appeared");
     }
 
     /// <summary>
@@ -574,16 +581,14 @@ namespace Tests.Frontend
     public void EnterStillOpensAfterTheArrowKeysHaveWalkedTheMenu()
     {
       string? asked = null;
-      var marker = new Window();
+      var marker = new ContentControl();
       var home = new HomeViewModel();
-      var window = new HomeWindow(home, null, null, null,
+      var window = ShowScreen(home, null, null,
           delegate (string screenKey)
           {
             asked = screenKey;
-            return marker;
+            return new WorkflowFrame("screen", screenKey, marker);
           });
-      window.Show();
-      _windows.Add(window);
       ListBox menu = ListBoxNamed(window, "menuList");
       MainMenuEntry settings = MenuEntryAfterSettling(menu, "themes");
 
@@ -609,14 +614,13 @@ namespace Tests.Frontend
       Pump();
 
       Assert.That(asked, Is.EqualTo("themes"),
-          "the screen walked to was the screen the key was meant for, and it did not open");
-      _windows.Add(marker);
+          "the screen walked to was the screen the key was meant for, and it opened exactly that one");
     }
 
     [AvaloniaTest]
     public void AScreenWithoutAServerSaysSoOnItsStatusLine()
     {
-      HomeWindow window = Show(new HomeViewModel());
+      ShellWindow window = Show(new HomeViewModel());
       Pump();
 
       Assert.That(VisibleTexts(window), Does.Contain("No server configured"));
@@ -634,7 +638,7 @@ namespace Tests.Frontend
       Uri dead = new Uri(string.Format("http://127.0.0.1:{0}/MediaPortal/Server/", InProcessApi.GetFreePort()));
       var client = new ServerApiClient(dead, null, TimeSpan.FromSeconds(2));
       _clients.Add(client);
-      HomeWindow window = Show(new HomeViewModel(client));
+      ShellWindow window = Show(new HomeViewModel(client));
 
       HomeViewModel home = _homes[0];
       WaitUntil(home, "the client to run out of patience", delegate { return !home.IsBusy; });

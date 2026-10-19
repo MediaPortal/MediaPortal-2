@@ -1,13 +1,11 @@
-<Window xmlns="https://github.com/avaloniaui"
+<UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
-        x:Class="MediaPortal.Frontend.Views.BrowseWindow"
+        x:Class="MediaPortal.Frontend.Views.BrowseView"
         x:DataType="vm:BrowseViewModel"
         Name="browse"
-        Width="1280" Height="720"
-        WindowState="Maximized"
         Background="{DynamicResource ScreenBackgroundBrush}"
-        Title="MediaPortal 2 - Browse">
+        >
 
   <!--
     The three questions the browse screen asks, in the three columns the viewer reads them in: which shelf,
@@ -79,4 +77,4 @@
       </ListBox>
     </Grid>
   </DockPanel>
-</Window>
+</UserControl>

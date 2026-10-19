@@ -21,6 +21,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using MediaPortal.Frontend.Input;
+using MediaPortal.Frontend.Workflow;
 using MediaPortal.Frontend.ViewModels;
 
 namespace MediaPortal.Frontend.Views
@@ -41,29 +42,36 @@ namespace MediaPortal.Frontend.Views
   /// same wish twice.
   /// </para>
   /// </remarks>
-  public partial class PartyWindow : Window
+  public partial class PartyView : UserControl, IWorkflowScreen
   {
     private readonly PartyViewModel _party;
-    private readonly Func<Window>? _nowPlayingScreen;
+    private readonly WorkflowManager? _workflow;
+    private readonly Func<WorkflowFrame>? _nowPlayingScreen;
     private readonly List<Control> _ring = new List<Control>();
 
     /// <summary>
     /// For the XAML loader and the designer: the screen a front end with no server shows.
     /// </summary>
-    public PartyWindow()
+    public PartyView()
         : this(new PartyViewModel())
     {
     }
 
+    /// <param name="workflow">
+    /// The navigation this screen opens the playback screen through, or <c>null</c> in tests and the designer,
+    /// where there is no workflow to push onto.
+    /// </param>
     /// <param name="nowPlayingScreen">
-    /// How to open the playback screen, or null on a machine without a player - the same absence that hides
-    /// the home screen's playback button hides this screen's, because a button that opens nothing is worse
+    /// How to build the playback screen's frame, or null on a machine without a player - the same absence that
+    /// hides the home screen's playback button hides this screen's, because a button that opens nothing is worse
     /// than no button.
     /// </param>
-    public PartyWindow(PartyViewModel party, Func<Window>? nowPlayingScreen = null)
+    public PartyView(PartyViewModel party, WorkflowManager? workflow = null,
+        Func<WorkflowFrame>? nowPlayingScreen = null)
     {
       DataContext = party;
       _party = party;
+      _workflow = workflow;
       _nowPlayingScreen = nowPlayingScreen;
       InitializeComponent();
 
@@ -84,7 +92,6 @@ namespace MediaPortal.Frontend.Views
 
       // And the screen opens with the start button under the thumb, because that is what the first press of a
       // party evening is for; see HomeWindow for why opening focused matters at all.
-      Opened += delegate { startButton.Focus(); };
 
       AddHandler(KeyDownEvent,
           delegate (object? sender, KeyEventArgs args)
@@ -93,13 +100,6 @@ namespace MediaPortal.Frontend.Views
             {
               // N for next: the one press a party exists for.
               _party.SkipCommand.Execute(null);
-              args.Handled = true;
-              return;
-            }
-
-            if (args.Key == Key.Escape || args.Key == Key.Back)
-            {
-              Close();
               args.Handled = true;
               return;
             }
@@ -115,18 +115,32 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
-    /// Opens the playback screen over this one - the application's own window, so the party's song and the
-    /// transport belong to the same playback the library started.
+    /// Opens the playback screen over this one - the application's own frame, so the party's song and the
+    /// transport belong to the same playback the library started, and a screen already standing on the
+    /// playback does not push a second copy of it.
     /// </summary>
     private void OnNowPlaying(object? sender, RoutedEventArgs e)
     {
-      if (_nowPlayingScreen == null)
+      if (_nowPlayingScreen == null || _workflow == null)
         return;
 
-      Window screen = _nowPlayingScreen();
-      if (!screen.IsVisible)
-        screen.Show();
-      screen.Activate();
+      WorkflowFrame? frame = _nowPlayingScreen();
+      if (frame == null)
+        return;
+
+      if (_workflow.Current != null && _workflow.Current.StateId == frame.StateId)
+        return;
+
+      _workflow.Push(frame);
     }
+    /// <summary>
+    /// Runs every time the workflow shows this screen: the first showing loads, every showing takes
+    /// the focus.  See IWorkflowScreen.
+    /// </summary>
+    public void OnScreenActivated()
+    {
+ startButton.Focus();
+    }
+
   }
 }

@@ -1,4 +1,4 @@
-﻿/*
+/*
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -16,8 +16,9 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
-
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Headless.NUnit;
 using Avalonia.Threading;
@@ -55,10 +56,23 @@ namespace Tests.Frontend
   public class TestVideoSurface
   {
     private VideoFrameSink? _sink;
+    private readonly List<Window> _windows = new List<Window>();
 
     [TearDown]
     public void TearDown()
     {
+      foreach (Window window in _windows)
+      {
+        try
+        {
+          window.Close();
+        }
+        catch (ObjectDisposedException)
+        {
+          // Already closed; nothing left to put down.
+        }
+      }
+      _windows.Clear();
       _sink?.Dispose();
       _sink = null;
       Dispatcher.UIThread.RunJobs();
@@ -81,10 +95,18 @@ namespace Tests.Frontend
       Dispatcher.UIThread.RunJobs();
     }
 
-    private static VideoSurface SurfaceOn(Window window)
+    private static VideoSurface SurfaceOn(Visual root)
     {
-      return window.GetVisualDescendants().OfType<VideoSurface>().SingleOrDefault()
-          ?? throw new AssertionException("the playback screen has no video surface on it");
+      VideoSurface? found = root.GetVisualDescendants().OfType<VideoSurface>().SingleOrDefault();
+      if (found == null)
+      {
+        string tree = string.Join(",", root.GetVisualDescendants()
+            .Take(200)
+            .Select(v => v.GetType().Name)
+            .ToArray());
+        throw new AssertionException("the playback screen has no video surface on it; tree was: " + tree);
+      }
+      return found;
     }
 
     /// <summary>
@@ -93,9 +115,9 @@ namespace Tests.Frontend
     /// and the frame counter that a gate later reads.
     /// </summary>
     /// <returns>How many pictures the surface drew just now.</returns>
-    private static int Draw(Window window)
+    private static int Draw(Visual root)
     {
-      VideoSurface surface = SurfaceOn(window);
+      VideoSurface surface = SurfaceOn(root);
       int drawn = 0;
       while (surface.DrawNow())
         drawn++;
@@ -116,23 +138,25 @@ namespace Tests.Frontend
       return pixels;
     }
 
-    private NowPlayingWindow Show(FakePlayer player, out NowPlayingViewModel screen, bool withVideo)
+    private NowPlayingView Show(FakePlayer player, out NowPlayingViewModel screen, bool withVideo)
     {
       screen = new NowPlayingViewModel(player, action => Dispatcher.UIThread.Post(action));
       _sink = withVideo ? new VideoFrameSink() : null;
       if (withVideo)
         Assert.That(screen.AttachVideo(_sink!), Is.True, "the screen refused the pictures");
 
-      NowPlayingWindow window = new NowPlayingWindow(screen, _sink);
+      NowPlayingView view = new NowPlayingView(screen, _sink);
+      ShellWindow window = new ShellWindow(view);
       window.Show();
+      _windows.Add(window);
       RunTheClockFor(TimeSpan.FromMilliseconds(120));
-      return window;
+      return view;
     }
     [AvaloniaTest]
     public void APictureFromThePlayerEndsUpOnTheScreen()
     {
       var player = new FakePlayer();
-      NowPlayingWindow window = Show(player, out NowPlayingViewModel screen, true);
+      NowPlayingView window = Show(player, out NowPlayingViewModel screen, true);
 
       Assert.That(window.FramesDrawn, Is.Zero, "a screen with nothing to show has drawn nothing");
       Assert.That(window.PictureSize, Is.Null);
@@ -154,7 +178,7 @@ namespace Tests.Frontend
     public void TheLinesTheDecoderRoundedUpAreNotTheSizeTheScreenTakes()
     {
       var player = new FakePlayer();
-      NowPlayingWindow window = Show(player, out NowPlayingViewModel screen, true);
+      NowPlayingView window = Show(player, out NowPlayingViewModel screen, true);
 
       // Eight lines of film in a buffer of twelve: what 1920x804 arriving in a 1920x832 buffer looks like at
       // kitchen-table scale. A screen that sizes itself by the buffer stretches the film by three percent, which
@@ -173,7 +197,7 @@ namespace Tests.Frontend
     public void AFrameThatArrivesLaterReplacesTheOneAlreadyOnScreen()
     {
       var player = new FakePlayer();
-      NowPlayingWindow window = Show(player, out NowPlayingViewModel screen, true);
+      NowPlayingView window = Show(player, out NowPlayingViewModel screen, true);
 
       Assert.That(_sink!.Push(Picture(8, 6), 8, 6, 32), Is.True);
       Draw(window);
@@ -196,7 +220,7 @@ namespace Tests.Frontend
     public void AScreenWithNoPicturesToDrawDoesNotClaimToHaveDrawnAny()
     {
       var player = new FakePlayer();
-      NowPlayingWindow window = Show(player, out NowPlayingViewModel screen, false);
+      NowPlayingView window = Show(player, out NowPlayingViewModel screen, false);
 
       Assert.That(player.Calls, Does.Not.Contain("AttachToFrames"),
           "a screen built without a sink did not ask the player for one");
@@ -214,7 +238,7 @@ namespace Tests.Frontend
     public void AScreenDoesNotRedrawAPictureItHasAlreadyDrawn()
     {
       var player = new FakePlayer();
-      NowPlayingWindow window = Show(player, out NowPlayingViewModel screen, true);
+      NowPlayingView window = Show(player, out NowPlayingViewModel screen, true);
 
       Assert.That(_sink!.Push(Picture(8, 6), 8, 6, 32), Is.True);
       Draw(window);

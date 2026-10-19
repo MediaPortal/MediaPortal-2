@@ -427,15 +427,16 @@ namespace Tests.Frontend
       try
       {
         FrontendTheme.Apply(app, "nereus", out _);
-        ThemeWindow window = new ThemeWindow(app, file);
+        ThemeView view = new ThemeView(app, file);
+        ShellWindow window = new ShellWindow(view);
         window.Show();
         for (int pump = 0; pump < 20; pump++)
           Avalonia.Threading.Dispatcher.UIThread.RunJobs();
 
-        Assert.That(((SolidColorBrush) window.Background).Color,
+        Assert.That(((SolidColorBrush) view.Background!).Color,
             Is.EqualTo(FrontendTheme.ColorOf("nereus", "ScreenBackgroundBrush")),
             "the settings screen wears the theme it is offering, live - the honest preview is the screen itself");
-        ListBox? themesList = window.FindControl<ListBox>("themesList");
+        ListBox? themesList = view.FindControl<ListBox>("themesList");
         Assert.That(themesList, Is.Not.Null, "the list has to exist for anything on this screen to be pressable");
         Assert.That(themesList!.Items.Count, Is.EqualTo(FrontendTheme.Names.Length),
             "every palette is a row, and nothing else is");

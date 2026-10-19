@@ -24,6 +24,7 @@ using Avalonia.Interactivity;
 using MediaPortal.Frontend.Input;
 using MediaPortal.Frontend.Player;
 using MediaPortal.Frontend.ViewModels;
+using MediaPortal.Frontend.Workflow;
 
 namespace MediaPortal.Frontend.Views
 {
@@ -35,7 +36,7 @@ namespace MediaPortal.Frontend.Views
   /// listening to music, which is what a media centre is expected to do, and the same playback shows up again
   /// the next time the screen is opened. The application therefore owns the view model and disposes it.
   /// </remarks>
-  public partial class NowPlayingWindow : Window
+  public partial class NowPlayingView : UserControl, IWorkflowScreen
   {
     /// <summary>
     /// How far the left and right keys of a remote jump. Long enough to be useful over an advertisement, short
@@ -49,16 +50,17 @@ namespace MediaPortal.Frontend.Views
     private const int VolumeStep = 5;
 
     private readonly NowPlayingViewModel _viewModel;
+    private readonly WorkflowManager? _workflow;
 
     /// <summary>
     /// For the XAML loader: a playback screen with no player behind it, which is what it says on screen.
     /// </summary>
-    public NowPlayingWindow()
+    public NowPlayingView()
         : this(new NowPlayingViewModel(null))
     {
     }
 
-    public NowPlayingWindow(NowPlayingViewModel viewModel)
+    public NowPlayingView(NowPlayingViewModel viewModel)
         : this(viewModel, null)
     {
     }
@@ -71,19 +73,23 @@ namespace MediaPortal.Frontend.Views
     /// no player or one that will not hand its pictures over, and the screen then shows its state text in the
     /// black frame rather than pretending there is a picture behind it.
     /// </param>
-    public NowPlayingWindow(NowPlayingViewModel viewModel, VideoFrameSink? frames)
+    /// <param name="workflow">
+    /// The navigation this screen was opened through, or <c>null</c> when the playback screen is all the window
+    /// holds - the <c>--play</c> start - where "close" means the window itself.
+    /// </param>
+    public NowPlayingView(NowPlayingViewModel viewModel, VideoFrameSink? frames, WorkflowManager? workflow = null)
     {
       _viewModel = viewModel;
+      _workflow = workflow;
       DataContext = viewModel;
       InitializeComponent();
 
-      // The surface belongs to this window and follows the frames, which belong to the player. Closing the window
+      // The surface belongs to this screen and follows the frames, which belong to the player. Leaving the screen
       // therefore stops the drawing and nothing else - the film carries on playing, and the next time this screen
       // opens it follows the same frames again.
       videoSurface.Follow(frames);
-      Closed += delegate { videoSurface.Dispose(); };
 
-      // Left and right are the transport's seek keys on every remote, so the window takes them before the ring
+      // Left and right are the transport's seek keys on every remote, so the screen takes them before the ring
       // gets them: the d-pad only ever moves between the buttons when the button row is the only thing there,
       // and a viewer who presses right expects the film to move rather than the highlight. Up and down are left
       // to the ring, which walks the row.
@@ -105,15 +111,9 @@ namespace MediaPortal.Frontend.Views
             audioButton, subtitleButton
           });
 
-      // Back closes the screen but changes nothing about the playback. Escape and Backspace are the two keys a
-      // remote's back button sends, depending on the platform.
-      AddHandler(KeyDownEvent,
-          delegate (object? sender, KeyEventArgs args)
-          {
-            if (args.Key == Key.Escape || args.Key == Key.Back)
-              Close();
-          },
-          RoutingStrategies.Tunnel);
+      // Back is the shell's key now: it pops this screen without changing anything about the playback, and when
+      // this screen is all the window holds the shell closes the window - the behaviour <c>--play</c> relies on.
+      // Escape and Backspace are the two keys a remote's back button sends, depending on the platform.
     }
 
     /// <summary>
@@ -198,9 +198,23 @@ namespace MediaPortal.Frontend.Views
       _viewModel.NextSubtitleTrack();
     }
 
+    /// <summary>
+    /// Stops the drawing of the frames.  The playback itself belongs to the application and carries on; the next
+    /// showing of this screen follows the same frames again.
+    /// </summary>
+    public void OnScreenClosed()
+    {
+      videoSurface.Dispose();
+    }
+
     private void OnClose(object? sender, RoutedEventArgs e)
     {
-      Close();
+      // Leaving the playback screen leaves the film running; when this screen is all the window holds there is
+      // nothing to pop, and the window itself goes.
+      if (_workflow != null && _workflow.Pop())
+        return;
+
+      (TopLevel.GetTopLevel(this) as Window)?.Close();
     }
   }
 }

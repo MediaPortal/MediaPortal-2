@@ -1,4 +1,4 @@
-﻿/*
+/*
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -21,6 +21,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using MediaPortal.Frontend.Input;
+using MediaPortal.Frontend.Workflow;
 using MediaPortal.Frontend.ViewModels;
 
 namespace MediaPortal.Frontend.Views
@@ -33,24 +34,24 @@ namespace MediaPortal.Frontend.Views
   /// - it repaints the screen itself along with everything behind it - so the d-pad ring is a single control and
   /// Back is the only other key the screen answers.
   /// </remarks>
-  public partial class ThemeWindow : Window
+  public partial class ThemeView : UserControl, IWorkflowScreen
   {
     private readonly List<Control> _ring = new List<Control>();
 
     /// <summary>
     /// For the XAML loader and the designer: the screen pointed at the running application.
     /// </summary>
-    public ThemeWindow()
+    public ThemeView()
         : this(Avalonia.Application.Current!)
     {
     }
 
-    public ThemeWindow(Application app, string? settingsPath = null)
+    public ThemeView(Application app, string? settingsPath = null)
         : this(new ThemeViewModel(app, settingsPath))
     {
     }
 
-    public ThemeWindow(ThemeViewModel themes)
+    public ThemeView(ThemeViewModel themes)
     {
       DataContext = themes;
       InitializeComponent();
@@ -59,19 +60,17 @@ namespace MediaPortal.Frontend.Views
       DpadNavigation.Attach(this, _ring);
 
       // The list opens focused so the arrow keys and the screen's own colour logic agree from the first
-      // moment; a single click already picks a theme, so the mouse needs no second path here.
-      Opened += delegate { themesList.Focus(); };
+      // moment; a single click already picks a theme, so the mouse needs no second path here.  Back is the
+      // shell's key now: this screen has no claim on it, and the workflow pops whatever opened this screen.
+    }
 
-      AddHandler(KeyDownEvent,
-          delegate (object? sender, KeyEventArgs args)
-          {
-            if (args.Key == Key.Escape || args.Key == Key.Back)
-            {
-              Close();
-              args.Handled = true;
-            }
-          },
-          RoutingStrategies.Tunnel);
+    /// <summary>
+    /// Runs every time the workflow shows this screen: the first showing loads, every showing takes
+    /// the focus.  See IWorkflowScreen.
+    /// </summary>
+    public void OnScreenActivated()
+    {
+ themesList.Focus();
     }
   }
 }

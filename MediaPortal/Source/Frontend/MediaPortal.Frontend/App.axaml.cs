@@ -48,8 +48,10 @@ namespace MediaPortal.Frontend
     private readonly bool _startAtConnectionScreen;
     private readonly string? _playFile;
     private readonly int _playSeconds;
+    private readonly Workflow.WorkflowManager _workflow = new Workflow.WorkflowManager();
     private NowPlayingViewModel? _nowPlaying;
-    private NowPlayingWindow? _playWindow;
+    private NowPlayingView? _playView;
+    private ShellWindow? _shell;
     private MediaBrowserViewModel? _lastBrowser;
     private PartyViewModel? _party;
     private PlaybackReporter? _reporter;
@@ -215,13 +217,21 @@ namespace MediaPortal.Frontend
         _home.WatchServerEvents(action => Dispatcher.UIThread.Post(action));
         desktop.Exit += delegate { _home.StopWatchingEvents(); };
 
+        // One window, always. What it shows - the library, the question about the server, or a file named on the
+        // command line - is the first frame of the workflow; every screen the viewer opens from there is a frame
+        // pushed over it, not another window standing beside it.
         if (_playFile != null && _nowPlaying != null)
-          desktop.MainWindow = BuildPlaybackScreen(desktop);        else
         {
-          desktop.MainWindow = _startAtConnectionScreen
-              ? BuildConnectionScreen(desktop)
-              : BuildHomeScreen(desktop);
+          _shell = BuildPlaybackScreen(desktop);
         }
+        else
+        {
+          _shell = _startAtConnectionScreen
+              ? BuildConnectionScreen()
+              : BuildHomeScreen();
+        }
+
+        desktop.MainWindow = _shell;
       }
 
       base.OnFrameworkInitializationCompleted();
@@ -235,10 +245,20 @@ namespace MediaPortal.Frontend
     /// nobody had to browse anything to get here. That is deliberate: a film watched through a side door would
     /// prove nothing about the door people actually use.
     /// </remarks>
-    private Window BuildPlaybackScreen(IClassicDesktopStyleApplicationLifetime desktop)
+    /// <summary>
+    /// The playback screen, opened straight onto a file named on the command line.
+    /// </summary>
+    /// <remarks>
+    /// This is the same screen the library opens, with the same transport under it; the only difference is that
+    /// nobody had to browse anything to get here. That is deliberate: a film watched through a side door would
+    /// prove nothing about the door people actually use. It is the whole workflow here - one frame - so Back
+    /// still means what it means everywhere else, and at the root of the stack it leaves the application.
+    /// </remarks>
+    private ShellWindow BuildPlaybackScreen(IClassicDesktopStyleApplicationLifetime desktop)
     {
-      NowPlayingWindow window = new NowPlayingWindow(_nowPlaying!, _frames);
-      _playWindow = window;
+      NowPlayingView view = new NowPlayingView(_nowPlaying!, _frames, _workflow);
+      _playView = view;
+      ShellWindow shell = new ShellWindow(view);
 
       if (!_nowPlaying!.Play(MediaLocation.FromFile(_playFile!)))
         Console.WriteLine("play:     refused - " + _nowPlaying.StatusLine);
@@ -279,12 +299,12 @@ namespace MediaPortal.Frontend
           clock.Stop();
           ReportPlayback();
           SaveShot();
-          desktop.Shutdown((_playWindow?.FramesDrawn ?? 0L) > 0 ? 0 : 1);
+          desktop.Shutdown((_playView?.FramesDrawn ?? 0L) > 0 ? 0 : 1);
         };
         clock.Start();
       }
 
-      return window;
+      return shell;
     }
 
     /// <summary>
@@ -295,9 +315,9 @@ namespace MediaPortal.Frontend
     /// </summary>
     private void ReportPlayback()
     {
-      long drawn = _playWindow?.FramesDrawn ?? 0L;
+      long drawn = _playView?.FramesDrawn ?? 0L;
       long delivered = _frames?.FramesArrived ?? 0L;
-      PixelSize? size = _playWindow?.PictureSize;
+      PixelSize? size = _playView?.PictureSize;
 
       // The buffer size is named too when it differs, because "1920x804" is the answer to "did I get the film?"
       // and "1920x832" is the answer to "did I get the film and the padding around it?", and the difference between
@@ -332,13 +352,13 @@ namespace MediaPortal.Frontend
     /// </remarks>
     private string DescribeLayout()
     {
-      if (_playWindow == null)
+      if (_shell == null || _playView == null)
         return "no playback window";
 
-      Rect screen = _playWindow.SurfaceBounds;
-      return "window " + (int)_playWindow.Bounds.Width + "x" + (int)_playWindow.Bounds.Height
-          + " at " + _playWindow.Position.X + "," + _playWindow.Position.Y
-          + " scaled " + _playWindow.RenderScaling.ToString("0.##", CultureInfo.InvariantCulture)
+      Rect screen = _playView.SurfaceBounds;
+      return "window " + (int)_shell.Bounds.Width + "x" + (int)_shell.Bounds.Height
+          + " at " + _shell.Position.X + "," + _shell.Position.Y
+          + " scaled " + _shell.RenderScaling.ToString("0.##", CultureInfo.InvariantCulture)
           + ", picture area " + (int)screen.Width + "x" + (int)screen.Height
           + " at " + (int)screen.X + "," + screen.Y
           + (screen.Width < 160 || screen.Height < 90 ? "  <-- too small to be watched" : "");
@@ -355,7 +375,7 @@ namespace MediaPortal.Frontend
     /// </remarks>
     private void SaveShot()
     {
-      if (_shotPath == null || _playWindow == null)
+      if (_shotPath == null || _playView == null)
         return;
 
       // What is saved is the picture the screen was handed, not a photograph of the monitor: a screen capture of
@@ -363,7 +383,7 @@ namespace MediaPortal.Frontend
       // runs, and a measurement of somebody's editor once looked exactly like a film. Together with the `layout:`
       // line - which says the area it was drawn into was a watchable size - this is the picture this program can
       // honestly be held to.
-      Console.WriteLine("shot:     " + _playWindow.SavePictureTo(_shotPath));
+      Console.WriteLine("shot:     " + _playView.SavePictureTo(_shotPath));
     }
 
     /// <summary>
@@ -429,48 +449,199 @@ namespace MediaPortal.Frontend
     }
 
     /// <summary>
-    /// The library screen, with the screens it can open built on demand. It fills itself in when it opens, so
-    /// nothing here asks the server.
+    /// The application's single window, opened with the library at the bottom of the workflow. The screens the
+    /// viewer opens from here are frames pushed over it, not windows shown beside it - the arrangement the old
+    /// client had and this front end is getting back. The library fills itself in when it opens, so nothing here
+    /// asks the server.
     /// </summary>
-    private Window BuildHomeScreen(IClassicDesktopStyleApplicationLifetime desktop)
+    private ShellWindow BuildHomeScreen()
     {
-      return new HomeWindow(_home,
-          _nowPlaying == null ? null : new Func<Avalonia.Controls.Window>(NowPlayingScreen),
-          _serverMayBeChanged ? delegate { return BuildConnectionScreen(desktop); } : null,
-          delegate (HomeSection section) { return BuildBrowserScreen(section); },
-          BuildNamedScreen);
+      _workflow.Push(HomeFrame());
+      return new ShellWindow(_workflow, BuildViewFor);
+    }
+
+    /// <summary>The bottom of every way through the front end: the library screen.</summary>
+    private Workflow.WorkflowFrame HomeFrame()
+    {
+      return new Workflow.WorkflowFrame("home", "Home", _home);
     }
 
     /// <summary>
-    /// The screen a menu tile asks for by name.
+    /// The screen that picks the server, as a frame.  What happens after an address has been chosen is the
+    /// application's business: while the screen is the root the library replaces it outright, and when the viewer
+    /// came from the library it pops back there and the library is asked again.  Closing it without saving changes
+    /// nothing, which is the whole reason there is a separate screen for it.
+    /// </summary>
+    private Workflow.WorkflowFrame ConnectionFrame()
+    {
+      ConnectionViewModel viewModel = new ConnectionViewModel(_settings, _settingsPath);
+      Workflow.WorkflowFrame frame = new Workflow.WorkflowFrame("connection", "Server", viewModel);
+
+      viewModel.Saved += delegate (string url)
+      {
+        // Confirmed to be a server before the view model allowed the save, so reading the text back cannot fail on
+        // anything a viewer could have got to this point.
+        _home.UseServer(new ServerApiClient(new Uri(url, UriKind.Absolute)));
+
+        if (_workflow.Stack.Count > 0 && ReferenceEquals(_workflow.Stack[0], frame))
+        {
+          // The front end had no server at all until this answer, so the library takes the window over.
+          _workflow.ReplaceCurrent(HomeFrame());
+        }
+        else
+        {
+          // The viewer came from the library and changed their mind there; back goes back there, asked again.
+          _workflow.Pop();
+          _home.RefreshCommand.Execute(null);
+        }
+      };
+
+      return frame;
+    }
+
+    /// <summary>
+    /// The playback screen's frame.  The view model belongs to the application, not to this frame: a viewer who
+    /// goes back to the library to fetch the next episode and returns has to find the same film at the same
+    /// position, and the rebuilt screen shows exactly that because it is built over the same model again.
+    /// </summary>
+    private Workflow.WorkflowFrame NowPlayingFrame()
+    {
+      return new Workflow.WorkflowFrame("nowplaying", "Now playing", _nowPlaying!);
+    }
+
+    /// <summary>
+    /// The control that shows one frame, built the first time the viewer reaches that stop.  Which screen a frame
+    /// means is decided here and nowhere else, so the workflow, the trail above the screen and the back key all
+    /// speak about the same thing.
+    /// </summary>
+    private Control? BuildViewFor(Workflow.WorkflowFrame frame)
+    {
+      string state = frame.StateId;
+
+      if (state == "home")
+      {
+        return new HomeView(_home, _workflow,
+            _nowPlaying == null ? null : new Func<Workflow.WorkflowFrame>(NowPlayingFrame),
+            _serverMayBeChanged ? new Func<Workflow.WorkflowFrame>(ConnectionFrame) : null,
+            delegate (HomeSection section) { return BrowserFrame(section); },
+            BuildNamedFrame);
+      }
+
+      if (state == "nowplaying")
+      {
+        _playView = new NowPlayingView((NowPlayingViewModel)frame.ViewModel, _frames, _workflow);
+        return _playView;
+      }
+
+      if (state == "connection")
+        return new ConnectionView((ConnectionViewModel)frame.ViewModel, _workflow);
+
+      if (state == "folders")
+        return new FoldersView((FoldersViewModel)frame.ViewModel);
+
+      if (state == "pictures")
+        return new PicturesView((PicturesViewModel)frame.ViewModel);
+
+      if (state == "news")
+        return new NewsView((NewsViewModel)frame.ViewModel);
+
+      if (state == "weather")
+        return new WeatherView((WeatherViewModel)frame.ViewModel);
+
+      if (state == "browse")
+      {
+        // The shelves on offer are the home screen's tiles, taken as they stand so that a library that gained a
+        // shelf since the menu was built has it here too; a browsed value opens the titles through the same door
+        // the tiles use, pushed as its own stop so Back lands the viewer on the column they picked from.
+        return new BrowseView((BrowseViewModel)frame.ViewModel, _workflow,
+            delegate (HomeSection section) { return BrowserFrame(section); });
+      }
+
+      if (state == "party")
+      {
+        return new PartyView((PartyViewModel)frame.ViewModel, _workflow,
+            _nowPlaying == null ? null : new Func<Workflow.WorkflowFrame>(NowPlayingFrame));
+      }
+
+      if (state == "settings")
+      {
+        // The front end's own settings, behind MP2's "Settings" tile.
+        return new ThemeView((ThemeViewModel)frame.ViewModel);
+      }
+
+      if (state == "titles")
+      {
+        MediaBrowserViewModel browser = (MediaBrowserViewModel)frame.ViewModel;
+
+        // The list of what-is-inside is built by the same frames, so a series opened from its tile and a
+        // collection opened out of a collection are the same screen with the same keys and the same way back.
+        Func<TitleViewModel, Workflow.WorkflowFrame>? inside = browser.Section == null
+            ? null
+            : delegate (TitleViewModel parent)
+            {
+              // Said on the console as well as shown, because a press that opens nothing looks exactly like a
+              // press that was never received when all that happens is a trail growing one crumb.
+              Console.WriteLine("inside:   " + parent.Name + " - the titles inside it, from "
+                  + browser.Section!.Label);
+              return TitlesFrame(new MediaBrowserViewModel(_home.Client, browser.Section, parent), parent.Name);
+            };
+
+        return new MediaBrowserView(browser, _workflow,
+            _nowPlaying == null ? null : new Func<Workflow.WorkflowFrame>(NowPlayingFrame), inside);
+      }
+
+      // A frame naming a screen nobody builds is a mismatch between the workflow and this method, which is a bug
+      // in the front end rather than something the viewer can do anything about.
+      throw new InvalidOperationException(
+          "the workflow reached a state this build cannot show: '" + state + "'");
+    }
+
+    /// <summary>
+    /// One tile of the home screen opened: its titles, read through the client the home screen is using.
+    /// </summary>
+    private Workflow.WorkflowFrame BrowserFrame(HomeSection section)
+    {
+      return TitlesFrame(new MediaBrowserViewModel(_home.Client, section), section.Label);
+    }
+
+    /// <summary>
+    /// A list of titles, named for the trail: the tile's own words for a shelf opened whole, the title's name for
+    /// the titles inside a title.
+    /// </summary>
+    private Workflow.WorkflowFrame TitlesFrame(MediaBrowserViewModel browser, string label)
+    {
+      browser.PlayRequested += OnTitleChosen;
+      _lastBrowser = browser;
+      return new Workflow.WorkflowFrame("titles", label, browser);
+    }
+
+    /// <summary>
+    /// The frame a menu tile asks for by name.
     /// </summary>
     /// <remarks>
     /// Built afresh every time, because the folders of a library are read when the screen opens - a viewer who
     /// added a share with another tool in between has to see it, and a screen kept alive between visits would show
     /// the answer from the last one.
     /// </remarks>
-    private Avalonia.Controls.Window BuildNamedScreen(string screenKey)
+    private Workflow.WorkflowFrame BuildNamedFrame(string screenKey)
     {
       if (screenKey.Equals("folders", StringComparison.OrdinalIgnoreCase))
-        return new FoldersWindow(new FoldersViewModel(_home.Client));
+        return new Workflow.WorkflowFrame("folders", "Folders", new FoldersViewModel(_home.Client));
 
       if (screenKey.Equals("pictures", StringComparison.OrdinalIgnoreCase))
-        return new PicturesWindow(new PicturesViewModel(_home.Client));
+        return new Workflow.WorkflowFrame("pictures", "Pictures", new PicturesViewModel(_home.Client));
 
       if (screenKey.Equals("browse", StringComparison.OrdinalIgnoreCase))
       {
-        // The shelves on offer are the home screen's tiles, taken as they stand so that a library that gained a
-        // shelf since the menu was built has it here too; the window opens the titles screen through the same
-        // door the tiles use, so a browsed list and an opened tile are the same screen.
-        return new BrowseWindow(new BrowseViewModel(_home.Client, HomeSection.For(_home.Aspects)),
-            delegate (HomeSection section) { return BuildBrowserScreen(section); });
+        return new Workflow.WorkflowFrame("browse", "Browse",
+            new BrowseViewModel(_home.Client, HomeSection.For(_home.Aspects)));
       }
 
       if (screenKey.Equals("news", StringComparison.OrdinalIgnoreCase))
       {
         // No server in sight: the news is not the server's data, and the old plugin read it from the television
         // too. What the screen needs is an address to ask, and the feeds answer it themselves.
-        return new NewsWindow(new NewsViewModel(new NewsApiClient()));
+        return new Workflow.WorkflowFrame("news", "News", new NewsViewModel(new NewsApiClient()));
       }
 
       if (screenKey.Equals("weather", StringComparison.OrdinalIgnoreCase))
@@ -480,50 +651,21 @@ namespace MediaPortal.Frontend
         // settings file; the product's shared keys are behind it. The view model reads the same file again for
         // its places and its own complaint line, so a broken file is said by the screen that shows it.
         WeatherPlacesSettings places = WeatherPlacesSettings.Load(null, out _);
-        return new WeatherWindow(new WeatherViewModel(
+        return new Workflow.WorkflowFrame("weather", "Weather", new WeatherViewModel(
             new WeatherApiClient(userApiKey: places.ApiKey)));
       }
 
       if (screenKey.Equals("party", StringComparison.OrdinalIgnoreCase))
       {
-        // One view model for the whole application, unlike every screen above: the queue belongs to the
-        // evening rather than to the window, the way the playback does. The screen asks, the application
-        // plays - and the application's own playback reports back into the screen, because a party cannot
-        // hear its own music without those two ears.
-        if (_party == null)
-        {
-          _party = new PartyViewModel(_home.Client);
-          _party.PlayRequested += OnPartySongChosen;
-
-          if (_nowPlaying != null)
-          {
-            NowPlayingViewModel playback = _nowPlaying;
-            playback.PlaybackReported += delegate (object? sender, PlaybackReportedEventArgs args)
-            {
-              // Only an ending reaches the queue. The report a replacement makes - "the viewer got to 37%
-              // of the song we just skipped" - is a fact for the library, not a reason to advance twice.
-              if (args.Percentage == 100)
-                _party.TrackFinished(args.MediaItemId);
-            };
-            playback.PropertyChanged += delegate
-            {
-              if (playback.StateText == "Failed")
-                _party.TrackRefused(playback.MediaItemId ?? Guid.Empty, playback.StatusLine);
-            };
-          }
-        }
-
-        return new PartyWindow(_party,
-            _nowPlaying == null ? null : new Func<Avalonia.Controls.Window>(NowPlayingScreen));
+        return new Workflow.WorkflowFrame("party", "Party", EnsureParty());
       }
 
       if (screenKey.Equals("themes", StringComparison.OrdinalIgnoreCase))
       {
-        // The front end's own settings, behind MP2's "Settings" tile. A fresh view model per visit, unlike the
-        // party queue: the screen reports what is worn right now, and the honest way to know that is to ask the
-        // application again rather than to remember what the last visit left behind - somebody may have started
-        // this run with a --theme that overrode the saved choice.
-        return new ThemeWindow(this);
+        // A fresh view model per visit, unlike the party queue: the screen reports what is worn right now, and
+        // the honest way to know that is to ask the application again rather than to remember what the last visit
+        // left behind - somebody may have started this run with a --theme that overrode the saved choice.
+        return new Workflow.WorkflowFrame("settings", "Settings", new ThemeViewModel(this));
       }
 
       // A tile naming a screen nobody builds is a mismatch between the menu and this method, which is a bug in the
@@ -533,64 +675,37 @@ namespace MediaPortal.Frontend
     }
 
     /// <summary>
-    /// The playback screen, the one the whole application has.
+    /// The one party queue of the whole application, unlike every screen above: the queue belongs to the evening
+    /// rather than to the screen, the way the playback does. The screen asks, the application plays - and the
+    /// application's own playback reports back into the screen, because a party cannot hear its own music without
+    /// those two ears.
     /// </summary>
-    /// <remarks>
-    /// Asked for by the home screen's button and by a title chosen in the library. If the screen is already open
-    /// it is raised rather than built again: a viewer who goes back to the library to fetch the next episode and
-    /// returns has to find the same film at the same position, and a second window over the same player would
-    /// show the same film twice, which is confusing at best and at worst looks like two films competing for the
-    /// decoder.
-    /// </remarks>
-    private Avalonia.Controls.Window NowPlayingScreen()
+    private PartyViewModel EnsureParty()
     {
-      NowPlayingWindow? open = _playWindow;
-      if (open != null && open.IsVisible)
-        return open;
+      if (_party == null)
+      {
+        _party = new PartyViewModel(_home.Client);
+        _party.PlayRequested += OnPartySongChosen;
 
-      _playWindow = new NowPlayingWindow(_nowPlaying!, _frames);
-      return _playWindow;
-    }
-
-    /// <summary>
-    /// One tile of the home screen opened: its titles, read through the client the home screen is using.
-    /// </summary>
-    private Avalonia.Controls.Window BuildBrowserScreen(HomeSection section)
-    {
-      return BuildTitlesScreen(new MediaBrowserViewModel(_home.Client, section), section);
-    }
-
-    /// <summary>
-    /// A list of titles, with the two ways out of it wired up: the player for a title that is one, and another list
-    /// for a title that holds others.
-    /// </summary>
-    /// <param name="browser">The list to show.</param>
-    /// <param name="section">
-    /// The tile it belongs to, which is what lets a title inside it be asked about: the tracks of an album are read
-    /// through the album's section, because that is where the child aspect comes from.
-    /// </param>
-    /// <remarks>
-    /// The list of what-is-inside is built by the same method, so a series opened from its tile and a collection
-    /// opened out of a collection are the same screen with the same keys and the same way back, and neither had to
-    /// be thought of separately.
-    /// </remarks>
-    private Avalonia.Controls.Window BuildTitlesScreen(MediaBrowserViewModel browser, HomeSection? section)
-    {
-      browser.PlayRequested += OnTitleChosen;
-      _lastBrowser = browser;
-
-      Func<TitleViewModel, Avalonia.Controls.Window>? inside = section == null
-          ? null
-          : delegate (TitleViewModel parent)
+        if (_nowPlaying != null)
+        {
+          NowPlayingViewModel playback = _nowPlaying;
+          playback.PlaybackReported += delegate (object? sender, PlaybackReportedEventArgs args)
           {
-            // Said on the console as well as shown, because a press that opens nothing looks exactly like a press
-            // that was never received when there is no window manager to show a window in.
-            Console.WriteLine("inside:   " + parent.Name + " - the titles inside it, from " + section.Label);
-            return BuildTitlesScreen(new MediaBrowserViewModel(_home.Client, section, parent), section);
+            // Only an ending reaches the queue. The report a replacement makes - "the viewer got to 37%
+            // of the song we just skipped" - is a fact for the library, not a reason to advance twice.
+            if (args.Percentage == 100)
+              _party.TrackFinished(args.MediaItemId);
           };
+          playback.PropertyChanged += delegate
+          {
+            if (playback.StateText == "Failed")
+              _party.TrackRefused(playback.MediaItemId ?? Guid.Empty, playback.StatusLine);
+          };
+        }
+      }
 
-      return new MediaBrowserWindow(browser,
-          _nowPlaying == null ? null : new Func<Avalonia.Controls.Window>(NowPlayingScreen), inside);
+      return _party;
     }
 
     /// <summary>
@@ -710,40 +825,14 @@ namespace MediaPortal.Frontend
     }
 
     /// <summary>
-    /// The "which server?" screen, wired so that saving an address on it moves the front end to that server.
+    /// The application's single window, opened with the "which server?" question at the bottom of the workflow:
+    /// what a first start shows, before there is a server to ask about a library.  Saving an answer hands the
+    /// window to the library - see <see cref="ConnectionFrame"/>.
     /// </summary>
-    /// <remarks>
-    /// The same screen does two jobs, and which one it was doing is read from the application's own state at the
-    /// moment the address is saved: while it is the main window the front end had no server at all, so choosing one
-    /// replaces it with the library; when it was opened from the library it is a change of mind, so the library stays
-    /// on screen and is asked again. Closing it without saving changes nothing, which is the whole reason there is a
-    /// separate screen for it.
-    /// </remarks>
-    private Window BuildConnectionScreen(IClassicDesktopStyleApplicationLifetime desktop)
+    private ShellWindow BuildConnectionScreen()
     {
-      ConnectionViewModel viewModel = new ConnectionViewModel(_settings, _settingsPath);
-      ConnectionWindow screen = new ConnectionWindow(viewModel);
-
-      viewModel.Saved += delegate (string url)
-      {
-        // Confirmed to be a server before the view model allowed the save, so reading the text back cannot fail on
-        // anything a viewer could have got to this point.
-        _home.UseServer(new ServerApiClient(new Uri(url, UriKind.Absolute)));
-
-        if (ReferenceEquals(desktop.MainWindow, screen))
-        {
-          desktop.MainWindow = BuildHomeScreen(desktop);
-          // Only now: closing it first would close the last window and shut the application down.
-          screen.Close();
-        }
-        else
-        {
-          // The library is already open, so nothing will ask the new server by itself.
-          _home.RefreshCommand.Execute(null);
-        }
-      };
-
-      return screen;
+      _workflow.Push(ConnectionFrame());
+      return new ShellWindow(_workflow, BuildViewFor);
     }
   }
 }

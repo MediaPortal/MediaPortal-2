@@ -1,13 +1,11 @@
-<Window xmlns="https://github.com/avaloniaui"
+<UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
-        x:Class="MediaPortal.Frontend.Views.PartyWindow"
+        x:Class="MediaPortal.Frontend.Views.PartyView"
         x:DataType="vm:PartyViewModel"
         Name="party"
-        Width="1280" Height="720"
-        WindowState="Maximized"
         Background="{DynamicResource ScreenBackgroundBrush}"
-        Title="MediaPortal 2 - Party music player">
+        >
 
   <!--
     The party, in the shape the plugin had: one button that starts the music and a list of what is coming, so
@@ -105,4 +103,4 @@
       </StackPanel>
     </Grid>
   </DockPanel>
-</Window>
+</UserControl>
