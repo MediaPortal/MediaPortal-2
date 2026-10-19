@@ -19,6 +19,23 @@
     </Border>
   </ControlTemplate>
 
+  <!--
+    The skip step: the reference's SkipStepOSD, a slab with rounded borders above the centre of the
+    picture, naming how far the film just jumped. The rounded corners follow UseRoundedDialogCorners in
+    the reference; that flag belongs to the dialog masters and is honoured when the dialogs come (B5),
+    so this slab keeps the palette's square corners until then.
+  -->
+  <ControlTemplate x:Key="Superlayer_SkipStep" TargetType="ContentControl">
+    <Border Background="{DynamicResource Scrim}" IsHitTestVisible="False">
+      <Border Background="{DynamicResource Panel}" BorderBrush="{DynamicResource Outline}" BorderThickness="2"
+              HorizontalAlignment="Center" VerticalAlignment="Center" Padding="34,16" Margin="0,0,0,140">
+        <TextBlock Text="{TemplateBinding Content}"
+                   Foreground="{DynamicResource Text}" FontSize="{DynamicResource DateTimeFontSize}"
+                   HorizontalAlignment="Center"/>
+      </Border>
+    </Border>
+  </ControlTemplate>
+
   <!-- Busy: the screen dims, the words are centred, and the accent line underneath is still moving. -->
   <ControlTemplate x:Key="Superlayer_Busy" TargetType="ContentControl">
     <Border Background="{DynamicResource Scrim}" IsHitTestVisible="False">

@@ -21,6 +21,20 @@
     </Border>
   </ControlTemplate>
 
+  <!--
+    The skip step: the same slab the volume uses, raised a little so the position line under the picture
+    stays readable while the jump is being named.
+  -->
+  <ControlTemplate x:Key="Superlayer_SkipStep" TargetType="ContentControl">
+    <Border Background="{DynamicResource Scrim}" IsHitTestVisible="False">
+      <Border Background="{DynamicResource Panel}" CornerRadius="{DynamicResource DialogBorderCornerRadius}"
+              HorizontalAlignment="Center" VerticalAlignment="Center" Padding="30,15" Margin="0,0,0,120">
+        <TextBlock Text="{TemplateBinding Content}"
+                   Foreground="{DynamicResource Text}" FontSize="{DynamicResource NormalFontSize}"/>
+      </Border>
+    </Border>
+  </ControlTemplate>
+
   <!-- Busy: the screen dims, the words are centred, and the accent line underneath is still moving. -->
   <ControlTemplate x:Key="Superlayer_Busy" TargetType="ContentControl">
     <Border Background="{DynamicResource Scrim}" IsHitTestVisible="False">

@@ -100,6 +100,7 @@ namespace MediaPortal.Frontend.Views
             if (jump == 0)
               return;
             _viewModel.Skip(jump);
+            Say("Superlayer_SkipStep", SkipWords(jump), 1200);
             args.Handled = true;
           },
           RoutingStrategies.Tunnel);
@@ -161,11 +162,13 @@ namespace MediaPortal.Frontend.Views
     private void OnBack(object? sender, RoutedEventArgs e)
     {
       _viewModel.Skip(-SkipLengthMs);
+      Say("Superlayer_SkipStep", SkipWords(-SkipLengthMs), 1200);
     }
 
     private void OnForward(object? sender, RoutedEventArgs e)
     {
       _viewModel.Skip(SkipLengthMs);
+      Say("Superlayer_SkipStep", SkipWords(SkipLengthMs), 1200);
     }
 
     private void OnStop(object? sender, RoutedEventArgs e)
@@ -176,16 +179,39 @@ namespace MediaPortal.Frontend.Views
     private void OnVolumeDown(object? sender, RoutedEventArgs e)
     {
       _viewModel.SetVolume(_viewModel.Volume - VolumeStep);
+      Say("Superlayer_Volume", "Volume " + _viewModel.Volume + " %", 2000);
     }
 
     private void OnVolumeUp(object? sender, RoutedEventArgs e)
     {
       _viewModel.SetVolume(_viewModel.Volume + VolumeStep);
+      Say("Superlayer_Volume", "Volume " + _viewModel.Volume + " %", 2000);
     }
 
     private void OnMute(object? sender, RoutedEventArgs e)
     {
       _viewModel.ToggleMute();
+    }
+
+    /// <summary>
+    /// What a jump is called on the screen: the arrow points where the film went, and the seconds say how far.
+    /// </summary>
+    private static string SkipWords(long jumpMs)
+    {
+      long seconds = Math.Abs(jumpMs) / 1000;
+      string distance = seconds + (seconds == 1 ? " second" : " seconds");
+      return jumpMs < 0 ? "« " + distance : distance + " »";
+    }
+
+    /// <summary>
+    /// Have the window's superlayer say one thing for a moment in the worn skin's look - the skip the film
+    /// just made, the volume the buttons just set. Without a skin the layers do not exist and this says
+    /// nothing, which is the same honesty the header and footer keep; the screen keeps no second copy of its
+    /// own, so there is nothing that could disagree with the skin.
+    /// </summary>
+    private void Say(string templateKey, string text, int autoHideMs)
+    {
+      (TopLevel.GetTopLevel(this) as ShellWindow)?.ShowSuperlayer(templateKey, text, autoHideMs);
     }
 
     private void OnNextAudioTrack(object? sender, RoutedEventArgs e)

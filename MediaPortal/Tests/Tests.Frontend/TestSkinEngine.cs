@@ -136,6 +136,25 @@ namespace Tests.Frontend
     }
 
     [AvaloniaTest]
+    public void BothShippedSkinsAnswerTheSkipStepLayer()
+    {
+      // The playback screen names the jump on the skin's own layer, for every skin and not just Nereus -
+      // a screen asking for a layer the worn skin does not have would say nothing on that skin, which is
+      // exactly the complaint the view-switcher once was.
+      Application app = Application.Current!;
+
+      Assert.That(SkinEngine.Apply(app, "nereus", out string? nereusProblem), Is.True, nereusProblem ?? "applied");
+      Assert.That(Find(app, "Superlayer_SkipStep"),
+          Is.InstanceOf<Avalonia.Controls.Templates.IControlTemplate>(),
+          "Nereus says the skip step on its slab, like the reference's SkipStepOSD superlayer");
+
+      Assert.That(SkinEngine.Apply(app, "wmc", out string? wmcProblem), Is.True, wmcProblem ?? "applied");
+      Assert.That(Find(app, "Superlayer_SkipStep"),
+          Is.InstanceOf<Avalonia.Controls.Templates.IControlTemplate>(),
+          "and WMC wears its own answer to the same key");
+    }
+
+    [AvaloniaTest]
     public void WearingADarkThemeReadsItsOwnColoursOverTheDefaults()
     {
       Application app = Application.Current!;
