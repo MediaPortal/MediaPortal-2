@@ -34,6 +34,7 @@ using Moq;
 using NUnit.Framework;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
+using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
@@ -2279,6 +2280,265 @@ namespace Tests.Server.Api
 
       Assert.That(((FileContentResult) result).ContentType, Is.EqualTo(mediaType),
           kind + " is what the database holds and the type a viewer's decoder is told");
+    }
+
+    #endregion
+
+    #region Counting a shelf by a category
+
+    /// <summary>
+    /// A library that answers the counting question with a standing set of groups and records the attribute, the
+    /// projection and the necessary aspects it was asked to count by.
+    /// </summary>
+    /// <remarks>
+    /// The groups are supplied as the database hands them over - a <see cref="HomogenousMap"/> of value to count,
+    /// keyed by whatever type the grouping produced - because the shape of that map and the trimming this endpoint
+    /// does to it is exactly where an invented fixture would hide a mistake.
+    /// </remarks>
+    private static IMediaLibrary CreateCountingLibrary(HomogenousMap counted,
+        out List<MediaItemAspectMetadata.AttributeSpecification> groupedBy,
+        out List<ProjectionFunction> projections, out List<IEnumerable<Guid>> necessary)
+    {
+      var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+      library.Setup(get => get.GetManagedMediaItemAspectMetadata()).Returns(new Dictionary<Guid, MediaItemAspectMetadata>
+      {
+          { MediaAspect.ASPECT_ID, MediaAspect.Metadata },
+          { MovieAspect.ASPECT_ID, MovieAspect.Metadata },
+          { GenreAspect.ASPECT_ID, GenreAspect.Metadata },
+          { VideoAspect.ASPECT_ID, VideoAspect.Metadata }
+      });
+
+      List<MediaItemAspectMetadata.AttributeSpecification> specs = new List<MediaItemAspectMetadata.AttributeSpecification>();
+      List<ProjectionFunction> proj = new List<ProjectionFunction>();
+      List<IEnumerable<Guid>> nec = new List<IEnumerable<Guid>>();
+      library.Setup(get => get.GetValueGroups(It.IsAny<MediaItemAspectMetadata.AttributeSpecification>(), null,
+              It.IsAny<ProjectionFunction>(), It.IsAny<IEnumerable<Guid>>(), null, false, false))
+          .Callback<MediaItemAspectMetadata.AttributeSpecification, IFilter, ProjectionFunction, IEnumerable<Guid>,
+              IFilter, bool, bool>((spec, sel, projection, necessaryIds, filter, online, virtualItems) =>
+          {
+            specs.Add(spec);
+            proj.Add(projection);
+            nec.Add(necessaryIds);
+          })
+          .Returns(counted);
+
+      groupedBy = specs;
+      projections = proj;
+      necessary = nec;
+      return library.Object;
+    }
+
+    private static MediaController.GroupsResult GetGroups(IMediaLibrary library, string aspect, string by,
+        out ActionResult<MediaController.GroupsResult> action)
+    {
+      ServiceRegistration.Set<IMediaLibrary>(library);
+      action = new MediaController().GetGroups(aspect, by);
+      return Body(action);
+    }
+
+    /// <summary>
+    /// Asks the list endpoint for the titles of one shelf that carry one picked value, the way a browse screen
+    /// does after it has counted the shelf and the viewer chose one group.
+    /// </summary>
+    private static MediaController.TitlesResult GetTitlesInGroup(IMediaLibrary library, string aspect, string by,
+        string value, out ActionResult<MediaController.TitlesResult> action)
+    {
+      ServiceRegistration.Set<IMediaLibrary>(library);
+      action = new MediaController().GetTitles(aspect, null, null, 0, 0, null, null, Guid.Empty, by, value);
+      return Body(action);
+    }
+
+    /// <summary>
+    /// A shelf library for the picked-value tests. It differs from <see cref="CreateLibrary"/> in one thing only:
+    /// the count is allowed to run through a filter, because the point of these tests is that it does - "how many
+    /// Action films" is counted through the Action condition, not over the whole shelf.
+    /// </summary>
+    private static IMediaLibrary CreateFilteredShelfLibrary(out List<MediaItemQuery> queries,
+        out List<IFilter> countedThrough)
+    {
+      var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+      library.Setup(get => get.GetManagedMediaItemAspectMetadata()).Returns(new Dictionary<Guid, MediaItemAspectMetadata>
+      {
+          { MediaAspect.ASPECT_ID, MediaAspect.Metadata },
+          { MovieAspect.ASPECT_ID, MovieAspect.Metadata },
+          { GenreAspect.ASPECT_ID, GenreAspect.Metadata },
+          { VideoAspect.ASPECT_ID, VideoAspect.Metadata }
+      });
+
+      List<MediaItemQuery> asked = new List<MediaItemQuery>();
+      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, null, false))
+          .Callback<MediaItemQuery, bool, Guid?, bool>((query, online, profile, virtualItems) => asked.Add(query))
+          .Returns(new List<MediaItem>());
+
+      List<IFilter> counted = new List<IFilter>();
+      library.Setup(get => get.CountMediaItems(It.IsAny<IEnumerable<Guid>>(), It.IsAny<IFilter>(), false, false))
+          .Callback<IEnumerable<Guid>, IFilter, bool, bool>(
+              (necessary, filter, online, virtualItems) => counted.Add(filter))
+          .Returns(0);
+
+      queries = asked;
+      countedThrough = counted;
+      return library.Object;
+    }
+
+    [Test]
+    public void TheCountRunsInTheDatabaseOverTheShelfAskedFor()
+    {
+      HomogenousMap counted = new HomogenousMap(typeof(string), typeof(int));
+      counted.Add("Drama", 5);
+      IMediaLibrary library = CreateCountingLibrary(counted, out List<MediaItemAspectMetadata.AttributeSpecification> groupedBy,
+          out List<ProjectionFunction> projections, out List<IEnumerable<Guid>> necessary);
+
+      ActionResult<MediaController.GroupsResult> action;
+      MediaController.GroupsResult result = GetGroups(library, "MovieItem", "genre", out action);
+
+      Assert.That(Status(action), Is.Null);
+      Assert.That(groupedBy, Has.Count.EqualTo(1), "counting a shelf is one question to the database");
+      Assert.That(groupedBy[0], Is.SameAs(GenreAspect.ATTR_GENRE),
+          "genres are grouped on the rows the importer wrote on the title itself, the same source the details "
+          + "screen reads, not on a made-up field");
+      Assert.That(necessary[0], Is.EquivalentTo(new[] { MovieAspect.ASPECT_ID, GenreAspect.ASPECT_ID }),
+          "both the shelf and the aspect holding the values have to take part: counting every title that carries a "
+          + "genre under a heading that says films would answer a question nobody asked");
+      Assert.That(result.Groups, Has.Count.EqualTo(1));
+      Assert.That(result.Groups[0].Value, Is.EqualTo("Drama"));
+      Assert.That(result.Groups[0].Count, Is.EqualTo(5),
+          "and the number is the one the database counted, because a page of titles is not a census");
+    }
+
+    [Test]
+    public void TheGroupsComeBiggestFirstAndThenByName()
+    {
+      HomogenousMap counted = new HomogenousMap(typeof(string), typeof(int));
+      counted.Add("Comedy", 3);
+      counted.Add("Documentary", 1);
+      counted.Add("Action", 9);
+      counted.Add("Drama", 3);
+      IMediaLibrary library = CreateCountingLibrary(counted, out _, out _, out _);
+
+      ActionResult<MediaController.GroupsResult> action;
+      MediaController.GroupsResult result = GetGroups(library, "MovieItem", "genre", out action);
+
+      Assert.That(result.Groups.Select(group => group.Value),
+          Is.EqualTo(new[] { "Action", "Comedy", "Drama", "Documentary" }),
+          "the categories a library actually lives in come to the top, and the rest stay in a name order a remote "
+          + "can walk down to find");
+    }
+
+    [Test]
+    public void TheEmptyGroupIsNotACategoryAndDoesNotGetARow()
+    {
+      // Some titles carry no genre at all; the database hands that over as a group keyed by nothing, which the
+      // map stores under its own marker for the absent. A browse screen with a blank entry among the genres is
+      // a category nobody came to the screen to look at.
+      HomogenousMap counted = new HomogenousMap(typeof(string), typeof(int));
+      counted.Add(null, 7);
+      counted.Add("Action", 2);
+      IMediaLibrary library = CreateCountingLibrary(counted, out _, out _, out _);
+
+      ActionResult<MediaController.GroupsResult> action;
+      MediaController.GroupsResult result = GetGroups(library, "MovieItem", "genre", out action);
+
+      Assert.That(result.Groups, Has.Count.EqualTo(1));
+      Assert.That(result.Groups[0].Value, Is.EqualTo("Action"),
+          "the untitled group is dropped: 'no genre written here' is not a genre to browse into");
+    }
+
+    [Test]
+    public void TheYearIsCountedByTakingTheYearFromTheDateInTheDatabase()
+    {
+      HomogenousMap counted = new HomogenousMap(typeof(int), typeof(int));
+      counted.Add(1998, 3);
+      IMediaLibrary library = CreateCountingLibrary(counted, out List<MediaItemAspectMetadata.AttributeSpecification> groupedBy,
+          out List<ProjectionFunction> projections, out _);
+
+      ActionResult<MediaController.GroupsResult> action;
+      MediaController.GroupsResult result = GetGroups(library, "MovieItem", "year", out action);
+
+      Assert.That(groupedBy[0], Is.SameAs(MediaAspect.ATTR_RECORDINGTIME),
+          "there is no year column anywhere in the library; the year is taken from the recording time, the same "
+          + "figure the year on a title row is taken from");
+      Assert.That(projections[0], Is.EqualTo(ProjectionFunction.DateToYear),
+          "and the year comes off inside the database, so the count is over every title and not over a page");
+      Assert.That(result.Groups[0].Value, Is.EqualTo("1998"), "the year arrives as words, like every other group");
+    }
+
+    [Test]
+    public void ACategoryNobodyHasIsRefusedRatherThanGuessedAt()
+    {
+      IMediaLibrary library = CreateCountingLibrary(new HomogenousMap(typeof(string), typeof(int)),
+          out _, out _, out _);
+
+      ActionResult<MediaController.GroupsResult> action;
+      MediaController.GroupsResult result = GetGroups(library, "MovieItem", "colour", out action);
+
+      Assert.That(Status(action), Is.EqualTo(400));
+      Assert.That(result.Error, Does.Contain("genre").And.Contain("year").And.Contain("actors"),
+          "the refusal names the categories there are, which is the difference between a mistake that teaches and "
+          + "one that just fails");
+    }
+
+    [Test]
+    public void TheTitlesOfOneGenreAreAskedForByTheGenreAndNothingElse()
+    {
+      List<MediaItemQuery> queries;
+      List<IFilter> countedThrough;
+      IMediaLibrary library = CreateFilteredShelfLibrary(out queries, out countedThrough);
+
+      ActionResult<MediaController.TitlesResult> action;
+      MediaController.TitlesResult result = GetTitlesInGroup(library, "MovieItem", "genre", "Action", out action);
+
+      Assert.That(Status(action), Is.Null);
+      RelationalFilter condition = (RelationalFilter) queries[0].Filter;
+      Assert.That(condition.AttributeType, Is.SameAs(GenreAspect.ATTR_GENRE),
+          "the same genre rows the count grouped on, so the titles that arrive match the heading they arrived under");
+      Assert.That(condition.Operator, Is.EqualTo(RelationalOperator.EQ));
+      Assert.That(condition.FilterValue, Is.EqualTo("Action"));
+      Assert.That(result.By, Is.EqualTo("genre"));
+      Assert.That(result.Value, Is.EqualTo("Action"),
+          "and the answer says whose films it is looking at, even before a single one arrives");
+      Assert.That(countedThrough, Has.Count.EqualTo(1));
+      Assert.That(countedThrough[0], Is.SameAs(queries[0].Filter),
+          "and the total is counted through the very same filter, so a screen reads '12 of 12 Action films' and "
+          + "not '12 of the whole shelf'");
+    }
+
+    [Test]
+    public void TheYearOfATitleIsAWholeYearAndNotAMoment()
+    {
+      List<MediaItemQuery> queries;
+      IMediaLibrary library = CreateFilteredShelfLibrary(out queries, out _);
+
+      ActionResult<MediaController.TitlesResult> action;
+      GetTitlesInGroup(library, "MovieItem", "year", "1998", out action);
+
+      BooleanCombinationFilter combined = (BooleanCombinationFilter) queries[0].Filter;
+      Assert.That(combined.Operator, Is.EqualTo(BooleanOperator.And));
+
+      RelationalFilter from = combined.Operands.OfType<RelationalFilter>()
+          .Single(entry => entry.Operator == RelationalOperator.GE);
+      RelationalFilter to = combined.Operands.OfType<RelationalFilter>()
+          .Single(entry => entry.Operator == RelationalOperator.LT);
+      Assert.That(from.AttributeType, Is.SameAs(MediaAspect.ATTR_RECORDINGTIME));
+      Assert.That(from.FilterValue, Is.EqualTo(new DateTime(1998, 1, 1)));
+      Assert.That(to.FilterValue, Is.EqualTo(new DateTime(1999, 1, 1)),
+          "the year is asked for as the twelve months it covers; equality against a made-up midnight would lose "
+          + "every film whose recording time carries an hour");
+    }
+
+    [Test]
+    public void ACategoryWithoutItsValueIsRefusedRatherThanAnsweredWithTheWholeShelf()
+    {
+      List<MediaItemQuery> queries;
+      IMediaLibrary library = CreateLibrary(new List<MediaItem>(), 0, out queries, out _);
+
+      ActionResult<MediaController.TitlesResult> action;
+      MediaController.TitlesResult result = GetTitlesInGroup(library, "MovieItem", "genre", null, out action);
+
+      Assert.That(Status(action), Is.EqualTo(400));
+      Assert.That(queries, Is.Empty, "nothing is read for a question that was not finished");
+      Assert.That(result.Error, Does.Contain("value"),
+          "handing back the whole shelf under a heading that names one genre is the wrong answer that looks right");
     }
 
     #endregion

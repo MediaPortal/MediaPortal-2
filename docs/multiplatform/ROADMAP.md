@@ -3209,6 +3209,41 @@ which is a phase each. Tests.Server went from 414 to 415 and Tests.Frontend from
 tests, all green, and the render gate's eleven frames including the reworked home pane all exit 0.
 
 
+### aw. The server learned to count its own shelves, so the browse screen will have something to show
+
+The "Browse media" tile apologised with `no grouping over HTTP yet`, and the apology had the usual defect of an
+honest-sounding one: the server has been able to count a shelf since before this port existed.
+`IMediaLibrary.GetValueGroups` hands a value-to-count map to anyone who asks, and the query engine compiles it into
+one `SELECT value, COUNT(*) ... GROUP BY value` inside the database - it is the machinery MP2's own old browse tree
+was built from. What was missing was again only the door: the method lived behind .NET Remoting, and the HTTP API
+had no word for it. `GET api/media/groups?aspect=MovieItem&by=genre` is that word now, answering the five
+categories MP2's browse tree actually had - genre, year, actors, directors, writers - chosen not by taste but by
+where the data lives: those are the attributes the importer writes on the title itself (genre rows on the
+`GenreAspect`, credit names as string collections on the `VideoAspect`), so counting them costs one grouped query
+rather than the relationship walk the separate person and genre *items* would need. That walk stays out of
+browsing, and says so in this paragraph rather than in a screenshot.
+
+Two details are the whole content of the endpoint. *A page is not a census*: the counting is done by the database
+because it is the only party that has ever seen the whole library, and the answer comes back biggest category first
+and then by name, so the genres a library lives in sit where a remote reaches them first. And *"no genre written
+here" is not a genre*: the database counts titles that carry nothing under the attribute as a group of their own,
+and the endpoint drops that row, because a blank entry among the genres is a category nobody came to the screen to
+browse. The year has no column anywhere - it is taken from the recording time by the database itself, through the
+`DateToYear` projection the library has always had, which is also why the answer to "which films are from 1998"
+could not be an equality: films are recorded at hours, and matching a made-up midnight of the first of January
+would lose all of them, so `by=year&value=1998` on the titles endpoint asks instead for the twelve months from
+that January up to the next one. An unknown category is refused with the list of the five, on both endpoints -
+silently ignoring the filter would hand the viewer the whole shelf under a heading that names one genre, which is
+the wrong answer that looks right, and this API's one rule is that a wrong answer says so.
+
+**What this is not yet.** The tile still apologises: the browse screen that will stand behind it is the next
+increment, and the gate's live-server step will get to count a real database when the front end asks over a real
+socket. Tests.Server went from 414 to 423 across the last two phases with these eight - one test pins that the
+count is one question to the database over both the shelf and the aspect holding the values, one that the total of
+a filtered list is counted through the very same filter so a screen can say "12 of 12 Action films" rather than
+"12 of the whole shelf", and none of them trusts the year to be anything but a span. 991 tests, all green.
+
+
 ## What cannot be verified without the user
 
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,

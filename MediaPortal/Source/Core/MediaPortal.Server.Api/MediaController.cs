@@ -34,6 +34,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
+using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
@@ -279,6 +280,19 @@ namespace MediaPortal.Server.Api
       /// </summary>
       public Guid? Inside { get; set; }
 
+      /// <summary>
+      /// The category the answer was narrowed to - <c>genre</c>, <c>year</c>, <c>actors</c>, <c>directors</c> or
+      /// <c>writers</c> - or null when it was not narrowed by one. Echoed because a genre list that came back empty
+      /// has to be able to say which genre it was asked for.
+      /// </summary>
+      public string By { get; set; }
+
+      /// <summary>
+      /// The value of <see cref="By"/> this answer holds only, or null when nothing was picked out. Echoed so that
+      /// a screen can show whose films it is looking at even before a single title arrives.
+      /// </summary>
+      public string Value { get; set; }
+
       public List<TitleResult> Titles { get; set; }
 
       /// <summary>
@@ -313,10 +327,22 @@ namespace MediaPortal.Server.Api
     /// <c>aspect=EpisodeItem</c>. What is asked for has to be something that title can hold, or the answer is a
     /// refusal rather than an empty list. Null or empty means the whole shelf, which is what it has always meant.
     /// </param>
+    /// <param name="by">
+    /// One of the categories of <c>GET api/media/groups</c> - <c>genre</c>, <c>year</c>, <c>actors</c>,
+    /// <c>directors</c>, <c>writers</c> - to keep only the titles carrying <paramref name="value"/> under it.
+    /// Together with the value it answers the second half of browsing: the groups say which genres there are,
+    /// this says which films are in one of them.
+    /// </param>
+    /// <param name="value">
+    /// The value to match: a genre, an actor's name as the importer wrote it, or - under <c>by=year</c> - a year,
+    /// which holds every title whose recording time falls inside that year rather than a title recorded at the
+    /// stroke of one.
+    /// </param>
     [HttpGet("titles")]
     public ActionResult<TitlesResult> GetTitles([FromQuery] string aspect, [FromQuery] string sort,
         [FromQuery] string order, [FromQuery] int limit, [FromQuery] int offset, [FromQuery] string search,
-        [FromQuery] string seen, [FromQuery] Guid inside = default(Guid))
+        [FromQuery] string seen, [FromQuery] Guid inside = default(Guid),
+        [FromQuery] string by = null, [FromQuery] string value = null)
     {
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
       if (mediaLibrary == null)
@@ -447,6 +473,70 @@ namespace MediaPortal.Server.Api
                 ? seenFilter
                 : BooleanCombinationFilter.CombineFilters(BooleanOperator.And, seenFilter, withinFilter);
 
+        // The browse screen's half of the bargain: <c>GET api/media/groups</c> says which genres, years and names a
+        // shelf holds, and a picked one of those comes back here as <c>by</c> plus <c>value</c> - "the films whose
+        // genre is Action", "the films recorded in 1998". Unlike an unknown sort, an unknown category is refused
+        // rather than ignored: silently dropping the filter would hand a viewer the whole shelf under a heading
+        // that names one genre, which is an answer that looks right and is wrong.
+        string category = string.IsNullOrWhiteSpace(by) ? null : by.Trim();
+        string picked = string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+        if (category != null && picked == null)
+          return BadRequest(new TitlesResult
+          {
+            Error = "'" + category + "' has to come with the value to pick out, e.g. ?by=genre&value=Action"
+          });
+
+        IFilter groupFilter = null;
+        string askedBy = null;
+        string askedValue = null;
+        if (category != null)
+        {
+          string known;
+          MediaItemAspectMetadata.AttributeSpecification spec;
+          if (!TryCategory(category, out known, out spec))
+            return BadRequest(new TitlesResult
+            {
+              By = category,
+              Error = "this endpoint can pick titles out by genre, year, actors, directors and writers; '" +
+                  category + "' is not one of them - see GET api/media/groups"
+            });
+          askedBy = known;
+          askedValue = picked;
+
+          if (!known.Equals("year", StringComparison.OrdinalIgnoreCase))
+          {
+            groupFilter = new RelationalFilter(spec, RelationalOperator.EQ, picked);
+          }
+          else
+          {
+            // A year is not a value that stands in the database - what stands there is a date and time - so the
+            // year is asked for as the twelve months it covers. Equality against a made-up midnight of the first
+            // of January would lose every film whose recording time carries an hour.
+            int year;
+            if (!int.TryParse(picked, NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out year)
+                || year < 1 || year > 9999)
+              return BadRequest(new TitlesResult
+              {
+                By = known,
+                Value = picked,
+                Error = "'" + picked + "' is not a year; the year has to be a number from 1 to 9999"
+              });
+            IFilter since = new RelationalFilter(MediaAspect.ATTR_RECORDINGTIME, RelationalOperator.GE,
+                new DateTime(year, 1, 1));
+            // The 9999th year has no January the first of the next one to stop at - no date after it fits the
+            // calendar this runs on - so its last year is bounded from that January onwards alone.
+            groupFilter = year == 9999
+                ? since
+                : BooleanCombinationFilter.CombineFilters(BooleanOperator.And, since,
+                    new RelationalFilter(MediaAspect.ATTR_RECORDINGTIME, RelationalOperator.LT,
+                        new DateTime(year + 1, 1, 1)));
+          }
+
+          asking = asking == null
+              ? groupFilter
+              : BooleanCombinationFilter.CombineFilters(BooleanOperator.And, asking, groupFilter);
+        }
+
         // MP2 already knows how to look for words in the library, and it is not "compare the title":
         // BuildSimpleTextSearchQuery asks the database whether any of the short text attributes of the aspects
         // being asked about carry the words, which is what typing "star trek" has to mean - a film is found under
@@ -494,6 +584,8 @@ namespace MediaPortal.Server.Api
           Search = finding,
           Seen = seeing,
           Inside = inside == Guid.Empty ? (Guid?)null : inside,
+          By = askedBy,
+          Value = askedValue,
           Titles = titles
         };
       }
@@ -501,6 +593,231 @@ namespace MediaPortal.Server.Api
       {
         return NotReady(ex);
       }
+    }
+
+    /// <summary>
+    /// One value a shelf can be counted under, and how many titles of the shelf carry it.
+    /// </summary>
+    public class GroupResult
+    {
+      /// <summary>The value in words: a genre, a year, a name as the importer wrote it.</summary>
+      public string Value { get; set; }
+
+      /// <summary>
+      /// How many titles of the asked-for aspect carry it - counted by the database, which is the only party
+      /// that has ever seen all of them.
+      /// </summary>
+      public int Count { get; set; }
+    }
+
+    /// <summary>
+    /// The answer of <c>GET api/media/groups</c>.
+    /// </summary>
+    public class GroupsResult
+    {
+      public string Aspect { get; set; }
+
+      public Guid? AspectId { get; set; }
+
+      /// <summary>
+      /// Which question was answered, echoed the way <c>sort</c> is echoed on a title list.
+      /// </summary>
+      public string By { get; set; }
+
+      public List<GroupResult> Groups { get; set; }
+
+      /// <summary>
+      /// Set when the answer is empty for a reason the caller can act on.
+      /// </summary>
+      public string Error { get; set; }
+    }
+
+    /// <summary>
+    /// Counts the titles of one aspect under each value of one attribute - the question a browse-by-category
+    /// screen asks.
+    /// </summary>
+    /// <param name="aspect">
+    /// The shelf to count, named exactly as <c>GET api/media/titles</c> names it. Titles that do not carry it are
+    /// not counted, so <c>aspect=MovieItem</c> counts genres as films have them and leaves the albums' out.
+    /// </param>
+    /// <param name="by">
+    /// <c>genre</c>, <c>year</c>, <c>actors</c>, <c>directors</c> or <c>writers</c> - the categories MP2's own
+    /// browse tree was built from. An unknown word is refused rather than guessed at: a browse screen that
+    /// silently counted the wrong thing would sort the library into categories nobody asked for, and the list of
+    /// what does work is in the refusal.
+    /// </param>
+    /// <remarks>
+    /// <para>
+    /// The counting happens in the database - <c>SELECT value, COUNT(*) ... GROUP BY value</c> - because a page
+    /// is not a census: reading the whole shelf into a front end to count ten names by hand is the same mistake
+    /// an unpaginated title list would be, and the database does not get tired. The answer is the groups, biggest
+    /// first and then by name, because a browse screen wants the categories the library actually lives in at the
+    /// top and needs the rest findable anyway.
+    /// </para>
+    /// <para>
+    /// The year counts each title under the year of its recording time - the same figure the <c>year</c> on a
+    /// title row is taken from - and a title without one belongs to no year and to no group; "unknown" would be a
+    /// category nobody came to the screen to browse. Genres and the names are what the importer wrote on the
+    /// title (<c>GenreAspect</c> rows and the credit lists on <c>VideoAspect</c>), which is the same source the
+    /// details of a title read from; a library imported from bare files without NFOs will answer with few groups,
+    /// truthfully.
+    /// </para>
+    /// </remarks>
+    [HttpGet("groups")]
+    public ActionResult<GroupsResult> GetGroups([FromQuery] string aspect, [FromQuery] string by)
+    {
+      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
+      if (mediaLibrary == null)
+        return StatusCode(StatusCodes.Status503ServiceUnavailable);
+
+      if (string.IsNullOrEmpty(aspect))
+        return BadRequest(new GroupsResult { Error = "an aspect has to be named, e.g. ?aspect=MovieItem" });
+
+      string known;
+      MediaItemAspectMetadata.AttributeSpecification spec;
+      ProjectionFunction projection;
+      if (!TryCategory(by, out known, out spec, out projection))
+        return BadRequest(new GroupsResult
+        {
+          By = by,
+          Error = "the library can be counted by genre, year, actors, directors and writers; '" + by +
+              "' is not one of them"
+        });
+
+      try
+      {
+        IDictionary<Guid, MediaItemAspectMetadata> metadata = mediaLibrary.GetManagedMediaItemAspectMetadata();
+        KeyValuePair<Guid, MediaItemAspectMetadata> match = metadata.FirstOrDefault(entry =>
+            entry.Value != null && string.Equals(entry.Value.Name, aspect, StringComparison.OrdinalIgnoreCase));
+        if (match.Value == null)
+          return NotFound(new GroupsResult
+          {
+            By = known,
+            Error = "this server has no aspect called '" + aspect + "'; it has " + string.Join(", ",
+                metadata.Where(entry => entry.Value != null)
+                    .Select(entry => entry.Value.Name)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)) +
+                " - see GET api/library/aspects"
+          });
+
+        Guid aspectId = match.Key;
+
+        // The aspect holding the values has to take part in the query or its column is not there to group on,
+        // and the shelf aspect has to take part too or the count would run over every title that carries the
+        // attribute - every film, episode and recording at once, under whichever heading was asked for.
+        List<Guid> necessary = new List<Guid> { aspectId };
+        Guid holding = spec.ParentMIAM != null ? spec.ParentMIAM.AspectId : Guid.Empty;
+        if (holding != Guid.Empty && !necessary.Contains(holding))
+          necessary.Add(holding);
+
+        HomogenousMap counted = mediaLibrary.GetValueGroups(spec, null, projection, necessary, null, false, false);
+        if (counted == null)
+          // Null is the library's way of saying it is in maintenance mode and counted nothing; an empty answer
+          // here would read as "no title carries a genre" rather than as "ask again later".
+          return StatusCode(StatusCodes.Status503ServiceUnavailable);
+
+        List<GroupResult> groups = new List<GroupResult>();
+        foreach (KeyValuePair<object, object> entry in counted)
+        {
+          // The database counts "nothing written here" as a group of its own; it is not a category a viewer
+          // came to the screen to browse, and it arrives here under HomogenousMap's own marker for the absent.
+          if (entry.Key == null || entry.Key.Equals(HomogenousMap.NULL) || entry.Value == null)
+            continue;
+          string named = Convert.ToString(entry.Key, CultureInfo.InvariantCulture);
+          if (string.IsNullOrWhiteSpace(named))
+            continue;
+          groups.Add(new GroupResult
+          {
+            Value = named,
+            Count = Convert.ToInt32(entry.Value, CultureInfo.InvariantCulture)
+          });
+        }
+
+        groups.Sort((a, b) => b.Count != a.Count
+            ? b.Count.CompareTo(a.Count)
+            : string.Compare(a.Value, b.Value, StringComparison.OrdinalIgnoreCase));
+
+        return new GroupsResult
+        {
+          Aspect = match.Value.Name,
+          AspectId = aspectId,
+          By = known,
+          Groups = groups
+        };
+      }
+      catch (IllegalCallException ex)
+      {
+        return NotReady(ex);
+      }
+    }
+
+    /// <summary>
+    /// One of the categories a shelf can be counted by, and one of the questions a picked value comes back to
+    /// <see cref="GetTitles"/> as.
+    /// </summary>
+    private class Category
+    {
+      public Category(string word, MediaItemAspectMetadata.AttributeSpecification attribute,
+          ProjectionFunction projection)
+      {
+        Word = word;
+        Attribute = attribute;
+        Projection = projection;
+      }
+
+      public string Word { get; private set; }
+
+      public MediaItemAspectMetadata.AttributeSpecification Attribute { get; private set; }
+
+      public ProjectionFunction Projection { get; private set; }
+    }
+
+    /// <summary>
+    /// The five categories MP2's own browse tree was built from, in the order a browse screen lists them.
+    /// </summary>
+    /// <remarks>
+    /// These are the attributes the importer writes <i>on the title itself</i> - genre rows on the
+    /// <c>GenreAspect</c> and the credit name lists on the <c>VideoAspect</c>, the same source the details screen
+    /// reads - so grouping them costs one query per question rather than the relationship walk the people and
+    /// genre <i>items</i> would need. The year is not a stored column anywhere; it is taken from the recording
+    /// time in the database itself, which is why it carries a projection and why the titles of one year are
+    /// later asked for as a span of dates rather than an equality.
+    /// </remarks>
+    private static readonly Category[] CATEGORIES =
+    {
+        new Category("genre", GenreAspect.ATTR_GENRE, ProjectionFunction.None),
+        new Category("year", MediaAspect.ATTR_RECORDINGTIME, ProjectionFunction.DateToYear),
+        new Category("actors", VideoAspect.ATTR_ACTORS, ProjectionFunction.None),
+        new Category("directors", VideoAspect.ATTR_DIRECTORS, ProjectionFunction.None),
+        new Category("writers", VideoAspect.ATTR_WRITERS, ProjectionFunction.None)
+    };
+
+    /// <summary>
+    /// Reads a category word into the attribute it names and how the database has to treat it. Null for a word
+    /// this endpoint does not know, which both endpoints turn into the same refusal.
+    /// </summary>
+    private static bool TryCategory(string by, out string word,
+        out MediaItemAspectMetadata.AttributeSpecification attribute, out ProjectionFunction projection)
+    {
+      Category found = CATEGORIES.FirstOrDefault(entry =>
+          string.Equals(entry.Word, by, StringComparison.OrdinalIgnoreCase));
+      word = found != null ? found.Word : null;
+      attribute = found != null ? found.Attribute : null;
+      projection = found != null ? found.Projection : ProjectionFunction.None;
+      return found != null;
+    }
+
+    /// <summary>
+    /// The two-answer form of <see cref="TryCategory(string, out string, out MediaItemAspectMetadata.AttributeSpecification, out ProjectionFunction)"/>,
+    /// for <see cref="GetTitles"/>, which asks the database for a filter rather than a projection and so has no
+    /// use for the third answer.
+    /// </summary>
+    private static bool TryCategory(string by, out string word,
+        out MediaItemAspectMetadata.AttributeSpecification attribute)
+    {
+      ProjectionFunction unused;
+      return TryCategory(by, out word, out attribute, out unused);
     }
 
     /// <summary>
