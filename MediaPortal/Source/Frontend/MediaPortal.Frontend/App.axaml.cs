@@ -476,7 +476,32 @@ namespace MediaPortal.Frontend
     private ShellWindow BuildHomeScreen()
     {
       _workflow.Push(HomeFrame());
+
+      // The wake-up answer "last shelf" opens its shelf the moment the menu first knows whether the
+      // library still holds it - a remembered label whose shelf is gone opens the home screen instead,
+      // which is the whole fallback, needing no word because the viewer never asked for that shelf today.
+      _home.MenuRebuilt += OpenRememberedShelfOnce;
+
       return new ShellWindow(_workflow, BuildViewFor);
+    }
+
+    private void OpenRememberedShelfOnce(object? sender, EventArgs args)
+    {
+      Settings.ClientSettings settings = Settings.ClientSettings.Load(null, out _);
+      if (settings.StartScreen != Settings.ClientSettings.START_LAST_SHELF
+          || settings.LastShelf.Length == 0
+          || _workflow.Stack.Count > 1)
+        return;
+
+      foreach (HomeSection section in _home.Sections)
+      {
+        if (string.Equals(section.Label, settings.LastShelf, StringComparison.OrdinalIgnoreCase))
+        {
+          _home.MenuRebuilt -= OpenRememberedShelfOnce;
+          _workflow.Push(BrowserFrame(section));
+          return;
+        }
+      }
     }
 
     /// <summary>The bottom of every way through the front end: the library screen.</summary>
@@ -621,6 +646,9 @@ namespace MediaPortal.Frontend
     /// </summary>
     private Workflow.WorkflowFrame BrowserFrame(HomeSection section)
     {
+      // The wake-up answer "last shelf" needs a memory, and every road to a shelf - tile, browse column,
+      // the wake-up itself - walks through this one door, which is where the remembering happens.
+      Settings.ClientSettings.RecordShelf(section.Label);
       return TitlesFrame(new MediaBrowserViewModel(_home.Client, section), section.Label);
     }
 
@@ -645,6 +673,11 @@ namespace MediaPortal.Frontend
     private SettingsViewModel SettingsModel()
     {
       SettingsViewModel model = new SettingsViewModel();
+
+      // The machine's own answers come first, the way the reference's client settings led its settings
+      // tree: what this box is called, whether it fills the television, what it opens when it wakes.
+      model.Add("This machine", "Frontend", "Name, full screen, wake-up screen and language of this box",
+          delegate { return new ClientSettingsView(); });
 
       model.Add("Appearance", "Frontend", "The colours and the skin this machine wears",
           delegate { return new ThemeView(new ThemeViewModel(this)); });
@@ -715,7 +748,8 @@ namespace MediaPortal.Frontend
         // its places and its own complaint line, so a broken file is said by the screen that shows it.
         WeatherPlacesSettings places = WeatherPlacesSettings.Load(null, out _);
         return new Workflow.WorkflowFrame("weather", "Weather", new WeatherViewModel(
-            new WeatherApiClient(userApiKey: places.ApiKey)));
+            new WeatherApiClient(userApiKey: places.ApiKey),
+            cultureName: Settings.ClientSettings.Load(null, out _).Culture));
       }
 
       if (screenKey.Equals("party", StringComparison.OrdinalIgnoreCase))

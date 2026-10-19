@@ -71,6 +71,16 @@ namespace MediaPortal.Frontend.Theming
     }
 
     /// <summary>
+    /// Say the time and the day again, this moment's words: the language row on the client settings screen
+    /// calls this after it saves, so a date that was English a keystroke ago is German on the next line of
+    /// the head line, without waiting for the timer or a restart.
+    /// </summary>
+    public void RefreshClock()
+    {
+      ReportClock();
+    }
+
+    /// <summary>
     /// Put the new time where the header reads it. The timer rings on its own thread, and a bound property
     /// may only be spoken to on the one the window lives on - so the words are posted there, which is how the
     /// player's events arrive too.
@@ -160,9 +170,14 @@ namespace MediaPortal.Frontend.Theming
       return now.ToString("HH:mm");
     }
 
+    /// <summary>
+    /// The day as this machine's calendar says it: the reference's client settings carried a language of
+    /// their own, and a head line that reads "Montag" on a German box and "Monday" on an English one is
+    /// that setting doing its one visible job.
+    /// </summary>
     private static string FormatDate(DateTime now)
     {
-      return now.ToString("dddd, dd.MM.yyyy");
+      return now.ToString("D", Settings.ClientSettings.UiCulture());
     }
   }
 }

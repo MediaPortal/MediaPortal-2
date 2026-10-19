@@ -1,0 +1,104 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        x:Class="MediaPortal.Frontend.Views.ClientSettingsView"
+        x:DataType="vm:ClientSettingsViewModel"
+        Name="clientSettings"
+        Background="{DynamicResource ScreenBackgroundBrush}"
+        >
+
+  <!--
+    This machine's own answers. The rows work exactly like the skin settings' rows work - a checkbox for a
+    two-answer switch, a button whose face shows the current answer for a choice, Enter and the remote's OK
+    working the highlighted row - with one row of its own above the list: the name, because a name is a
+    word and there is no button for a word until the skin's keyboard dialog arrives.
+  -->
+
+  <DockPanel Margin="48,14">
+
+    <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,8">
+      <TextBlock Text="{Binding Heading}"
+                 FontSize="24"
+                 FontWeight="SemiBold" />
+      <TextBlock Text="{Binding Subtitle}"
+                 FontSize="14"
+                 Opacity="0.7"
+                 TextWrapping="Wrap"
+                 MaxWidth="1500"
+                 HorizontalAlignment="Left" />
+    </StackPanel>
+
+    <!-- The name row: typed here, saved as it is typed, and said back in the status line below. -->
+    <Grid DockPanel.Dock="Top" ColumnDefinitions="380,320,*" Margin="2,6">
+      <TextBlock Text="Client name"
+                 FontSize="16"
+                 VerticalAlignment="Center" />
+      <TextBox Grid.Column="1"
+               Name="clientNameBox"
+               Text="{Binding ClientNameText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+               FontSize="16"
+               Padding="10,4" />
+      <TextBlock Grid.Column="2"
+                 Text="What this box calls itself; the operating system's own name until somebody says another"
+                 FontSize="13"
+                 Opacity="0.6"
+                 Margin="16,0,0,0"
+                 VerticalAlignment="Center"
+                 TextTrimming="CharacterEllipsis" />
+    </Grid>
+
+    <TextBlock DockPanel.Dock="Bottom"
+               Name="statusLine"
+               Text="{Binding Status}"
+               FontSize="14"
+               Opacity="0.85"
+               Margin="0,8,0,0"
+               TextWrapping="Wrap" />
+
+    <!-- The about-block foot: the reference's system status, in one quiet line until dialogs exist. -->
+    <TextBlock DockPanel.Dock="Bottom"
+               Text="{Binding SystemInfo}"
+               FontSize="13"
+               Opacity="0.55"
+               Margin="0,4,0,0"
+               TextWrapping="Wrap" />
+
+    <ListBox Name="settingsList"
+             Focusable="True"
+             ItemsSource="{Binding Options}"
+             SelectedItem="{Binding Selected, Mode=TwoWay}"
+             FontSize="15">
+      <ListBox.Styles>
+        <Style Selector="ListBoxItem">
+          <Setter Property="Padding" Value="12,2"/>
+        </Style>
+      </ListBox.Styles>
+      <ListBox.ItemTemplate>
+        <DataTemplate x:DataType="vm:SkinSettingOption">
+          <Grid ColumnDefinitions="380,170,*" Margin="2,1">
+            <TextBlock Text="{Binding Label}"
+                       FontSize="16"
+                       VerticalAlignment="Center" />
+            <CheckBox Grid.Column="1"
+                      IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                      IsVisible="{Binding IsToggle}"
+                      VerticalAlignment="Center"
+                      HorizontalAlignment="Left" />
+            <Button Grid.Column="1"
+                    Content="{Binding ValueText}"
+                    IsVisible="{Binding !IsToggle}"
+                    Click="OnChoiceClick"
+                    MinWidth="150"
+                    HorizontalAlignment="Left" />
+            <TextBlock Grid.Column="2"
+                       Text="{Binding Description}"
+                       FontSize="13"
+                       Opacity="0.6"
+                       TextTrimming="CharacterEllipsis"
+                       VerticalAlignment="Center" />
+          </Grid>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+  </DockPanel>
+</UserControl>

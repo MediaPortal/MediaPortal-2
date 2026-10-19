@@ -209,6 +209,13 @@ namespace MediaPortal.Frontend.ViewModels
     /// Rebuilds the menu from what the server holds. Called wherever <see cref="Sections"/> is refilled, so that a
     /// tile's number and a tile's aspect can never come from two different readings.
     /// </summary>
+    /// <summary>
+    /// Raised after a connected read has laid the menu out: the wake-up answer "last shelf" can only be
+    /// honoured once the library's shelves are known to hold (or not hold) the remembered one, and they
+    /// are known nowhere earlier than here.
+    /// </summary>
+    public event EventHandler? MenuRebuilt;
+
     private void RebuildMenu(bool connected)
     {
       // Which entry the viewer was standing on, remembered across the rebuild. A refresh that left the selection at
@@ -229,12 +236,20 @@ namespace MediaPortal.Frontend.ViewModels
             // Going through the property, so the pane is refilled from the fresh reading; a menu rebuilt behind a
             // viewer who is standing on "Movies" has to show the counts that arrived in this reading.
             SelectedEntry = entry;
+            RaiseMenuRebuilt(connected);
             return;
           }
         }
       }
 
       SelectedEntry = null;
+      RaiseMenuRebuilt(connected);
+    }
+
+    private void RaiseMenuRebuilt(bool connected)
+    {
+      if (connected)
+        MenuRebuilt?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>

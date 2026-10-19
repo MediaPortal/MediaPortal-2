@@ -110,6 +110,7 @@ namespace MediaPortal.Frontend.Views
 
     private void BuildChrome()
     {
+
       // The window learns about every move through the workflow, whoever pushes it - both constructors, and the
       // opening code that fills the stack after the window exists.
       _workflow.Changed += ShowCurrentFrame;
@@ -125,8 +126,12 @@ namespace MediaPortal.Frontend.Views
       Width = 1280;
       Height = 720;
       WindowStartupLocation = WindowStartupLocation.CenterScreen;
-      // A media centre runs on a television, and a television has no desktop next to the picture.
-      WindowState = WindowState.Maximized;
+      // A media centre runs on a television, and a television has no desktop next to the picture - unless
+      // this machine's own settings answered otherwise, which is exactly what its "full screen" row is.
+      // The window follows that answer live too: switching it is something a viewer wants to see happen.
+      ApplyWindowMode();
+      Settings.ClientSettings.Changed += OnClientSettingsChanged;
+      Closed += delegate { Settings.ClientSettings.Changed -= OnClientSettingsChanged; };
       Background = FactoryBackground;
       Foreground = new SolidColorBrush(Color.FromRgb(0xE8, 0xEE, 0xF4));
 
@@ -272,6 +277,25 @@ namespace MediaPortal.Frontend.Views
           }
           : FindResource("ScreenBackgroundBrush") as IBrush ?? FactoryBackground;
       UpdateChromeVisibility();
+    }
+
+    /// <summary>
+    /// Full screen fills the television; the answer off leaves the window maximised on the desktop. Read
+    /// from the file every time, because the file is where the settings screen wrote the answer.
+    /// </summary>
+    private void ApplyWindowMode()
+    {
+      WindowState = Settings.ClientSettings.Load(null, out _).FullScreen
+          ? WindowState.FullScreen
+          : WindowState.Maximized;
+    }
+
+    private void OnClientSettingsChanged(object? sender, EventArgs args)
+    {
+      ApplyWindowMode();
+
+      // The head line's calendar speaks the language the same save named.
+      _chrome.RefreshClock();
     }
 
     /// <summary>
