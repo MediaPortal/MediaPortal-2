@@ -20,6 +20,7 @@
 
     <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,12">
       <TextBlock Text="{Binding Heading}"
+                 x:Name="shelfHeading"
                  FontSize="40"
                  FontWeight="SemiBold" />
       <TextBlock Text="{Binding Status}"

@@ -61,11 +61,12 @@ namespace FrontendProbe
   public static class RenderProbe
   {
     private const string USAGE =
-        "Frontend.RenderProbe --out <file.png> [--screen <home|continue|nowplaying|connect|browser|details|search|seen|folders>] [--server <url>] [--width <n>] [--height <n>]\n" +
+        "Frontend.RenderProbe --out <file.png> [--screen <home|continue|nowplaying|connect|browser|details|search|seen|folders>] [--server <url>] [--aspect <name>] [--width <n>] [--height <n>]\n" +
         "  --out <file>     where to write the rendered frame (PNG); its directory is created\n" +
         "  --screen <name>  which screen to render (default home)\n" +
         "  --server <url>   render the populated screen by asking this server (otherwise MP2_SERVER,\n" +
         "                   otherwise the screen's own 'no server' state is rendered - a real state too)\n" +
+        "  --aspect <name>  which aspect the library screen lists when a server was given (default MovieItem)\n" +
         "  --width/--height window size in device-independent pixels (default 1280x720, a 720p TV)";
 
     /// <summary>
@@ -78,6 +79,7 @@ namespace FrontendProbe
       string? outPath = null;
       string? serverUrl = null;
       string screenName = "home";
+      string aspectName = "MovieItem";
       int width = 1280;
       int height = 720;
 
@@ -99,6 +101,11 @@ namespace FrontendProbe
             if (i + 1 >= args.Length)
               return Usage("--server needs a URL.");
             serverUrl = args[++i];
+            break;
+          case "--aspect":
+            if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[i + 1]))
+              return Usage("--aspect needs a name.");
+            aspectName = args[++i].Trim();
             break;
           case "--width":
             if (i + 1 >= args.Length || !int.TryParse(args[++i], out width))
@@ -196,6 +203,10 @@ namespace FrontendProbe
       HomeViewModel? home = null;
       ConnectionViewModel? connection = null;
       FoldersViewModel? foldersScreen = null;
+
+      // Set when the library screen lists what a running server really holds. The frame is then somebody's own
+      // shelf with the pictures the importer found on it, which is the one frame that says the whole road works.
+      MediaBrowserViewModel? browserScreen = null;
       string playbackStatus = "";
       VideoFrameSink? frames = null;
       Func<long>? pictureFrames = null;
@@ -387,26 +398,72 @@ namespace FrontendProbe
           || screenName.Equals("search", StringComparison.Ordinal)
           || screenName.Equals("seen", StringComparison.Ordinal))
       {
-        if (online)
-          Console.WriteLine("note:     --server belongs to the home screen; the title list is scripted instead");
+        // Only the plain library screen is asked of a running server. The three screens that press something - the
+        // info key, the search box, the watched key - stay scripted, because which title their frame would then
+        // depend on is whatever that shelf happens to hold first, and a frame like that cannot be compared with
+        // anything from one run to the next.
+        bool live = online && screenName.Equals("browser", StringComparison.Ordinal);
+        if (online && !live)
+          Console.WriteLine("note:     --server is taken at face value by the home screen, the folders screen and"
+              + " the library screen; the title list of this one is scripted instead");
 
-        // The library list with something in it. Scripted rather than asked of the gate's server, whose database
-        // is empty on purpose: whether a row of titles is laid out and legible from a sofa cannot depend on
-        // whether whoever runs the gate happens to have imported anything. The titles arrive in the server's own
-        // answer shape (see <see cref="ScriptedTitles"/>), so the frame covers the parsing and the bindings too.
-        HomeSection films = new HomeSection("Films",
-            new AspectViewModel(new MediaAspect(Guid.Empty, "MovieItem", true, false, null,
-                Array.Empty<AspectAttribute>())));
+        ServerApiClient client;
+        HomeSection section;
+        if (live)
+        {
+          // The aspect is asked of the server rather than assumed, so that the shelf is listed under the id the
+          // server itself gave it. Whoever runs the probe names which shelf; films are the default because that
+          // is the one a MediaPortal installation is usually opened for.
+          client = new ServerApiClient(new Uri(url!));
+          LibraryAspects? answered = null;
+          string? refusal = null;
+          client.GetLibraryAspectsAsync(CancellationToken.None).ContinueWith(
+              delegate (Task<LibraryAspects> task)
+              {
+                if (task.IsFaulted) refusal = task.Exception != null ? task.Exception.GetBaseException().Message : null;
+                else answered = task.Result;
+              }, TaskScheduler.Default);
+          if (!PumpUntil(delegate { return answered != null || refusal != null; }, TimeSpan.FromSeconds(15)))
+          {
+            Console.WriteLine("FAILED:   '" + url + "' did not name its aspects"
+                + (refusal == null ? " within 15 seconds." : ": " + refusal));
+            return 4;
+          }
 
-        MediaBrowserViewModel browser = new MediaBrowserViewModel(
-            new ServerApiClient(new Uri("http://127.0.0.1:1/MediaPortal/Server/"),
-                new HttpClient(new ScriptedTitles())), films);
+          MediaAspect? chosen = answered!.Aspects.FirstOrDefault(aspect =>
+              aspect.Name.Equals(aspectName, StringComparison.OrdinalIgnoreCase));
+          if (chosen == null)
+          {
+            Console.WriteLine("FAILED:   '" + url + "' has no aspect named '" + aspectName + "'; it offered '"
+                + string.Join("', '", answered.Aspects.Select(aspect => aspect.Name)) + "'.");
+            return 4;
+          }
+          // The word a viewer reads above the shelf is the catalogue's own, not the aspect id the server stores
+          // titles under - "Movies" rather than "MovieItem", which is what the home tile says too.
+          section = new HomeSection(HomeSection.LabelFor(chosen.Name), new AspectViewModel(chosen));
+        }
+        else
+        {
+          // The library list with something in it. Scripted rather than asked of the gate's server, whose database
+          // is empty on purpose: whether a row of titles is laid out and legible from a sofa cannot depend on
+          // whether whoever runs the gate happens to have imported anything. The titles arrive in the server's own
+          // answer shape (see <see cref="ScriptedTitles"/>), so the frame covers the parsing and the bindings too.
+          client = new ServerApiClient(new Uri("http://127.0.0.1:1/MediaPortal/Server/"),
+              new HttpClient(new ScriptedTitles()));
+          section = new HomeSection("Films",
+              new AspectViewModel(new MediaAspect(Guid.Empty, "MovieItem", true, false, null,
+                  Array.Empty<AspectAttribute>())));
+        }
+
+        MediaBrowserViewModel browser = new MediaBrowserViewModel(client, section);
         browser.OpenCommand.Execute(null);
         Pump(TimeSpan.FromMilliseconds(500));
+        if (live)
+          browserScreen = browser;
 
         Console.WriteLine("content:  " + browser.Titles.Count + " title(s) under \"" + browser.Heading
             + "\", status: " + browser.Status);
-        if (browser.Titles.Count == 0)
+        if (browser.Titles.Count == 0 && !live)
         {
           Console.WriteLine("FAILED:   the list came up empty, so the frame would show an empty screen and prove nothing.");
           return 1;
@@ -524,6 +581,49 @@ namespace FrontendProbe
           Console.WriteLine("FAILED:   '" + url + "' answered with no folders, so the frame would be the screen's"
               + " empty state rather than the library behind it. Status says: '" + foldersScreen.Status + "'.");
           return 4;
+        }
+      }
+
+      if (browserScreen != null)
+      {
+        // The screen reads the server as it opens, so the probe waits for that read rather than starting one of
+        // its own. A shelf of nothing drawn against a server that was said to hold titles is not evidence.
+        if (!PumpUntil(delegate { return browserScreen.Titles.Count > 0; }, TimeSpan.FromSeconds(30)))
+        {
+          Console.WriteLine("FAILED:   '" + url + "' answered no titles under '" + aspectName
+              + "'; status says: '" + browserScreen.Status + "'.");
+          return 4;
+        }
+
+        // The pictures follow the rows - they are read a page at a time, four at a time, and never block the list
+        // - so the frame waits for them as well. A row of titles not one of which has a poster is the artwork
+        // getting lost between the server and the screen, which is exactly what this frame is here to catch.
+        PumpUntil(delegate { return browserScreen.Titles.Any(row => row.Artwork != null); },
+            TimeSpan.FromSeconds(30));
+        int withPictures = browserScreen.Titles.Count(row => row.Artwork != null);
+        Console.WriteLine("posters:  " + withPictures + " of " + browserScreen.Titles.Count
+            + " title(s) on the frame carry a picture");
+        if (withPictures == 0)
+        {
+          Console.WriteLine("FAILED:   not one row was given a picture, so the frame would be a list of words.");
+          return 4;
+        }
+
+        // What the top of the screen really reads, read off the control rather than from the view model, so that
+        // the heading of a shelf somebody's library was built from is evidence about the screen and not about a
+        // property that was handed to it.
+        if (window is MediaBrowserWindow browserWindow)
+        {
+          TextBlock? headline = Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(browserWindow)
+              .OfType<TextBlock>().FirstOrDefault(text => text.Name == "shelfHeading");
+          Console.WriteLine("heading:  " + (headline == null
+              ? "the screen has no text block named \"shelfHeading\""
+              : "\"" + headline.Text + "\" on the screen, \"" + browserScreen.Heading + "\" in the view model"));
+          if (headline == null || string.IsNullOrWhiteSpace(headline.Text))
+          {
+            Console.WriteLine("FAILED:   the shelf has no heading on the screen.");
+            return 4;
+          }
         }
       }
 
@@ -744,20 +844,37 @@ namespace FrontendProbe
 
       if (screenName == "browser" || screenName == "details")
       {
-        // The scripted database stores a flat poster for two of the twelve films, nothing for nine, and bytes
-        // that are not a picture for one. Whether any of that reached the shelf is a question about the colour of
-        // particular pixels, and only a frame with the whole twelve rows on it can answer it in order - which is
-        // why the filtered frames (search results, the watched half) are not asked: their rows are wherever the
-        // filter left them.
-        //
-        // This runs after the frame was written on purpose. A poster the check cannot find is a complaint about
-        // colour, and the thing a person needs in order to judge it is the frame itself.
-        string? posters = CheckPosters(frame, screenName == "details", out string posterReport);
-        Console.WriteLine("pictures: " + posterReport);
-        if (posters != null)
+        // Only a cover of a colour this probe knows can be looked for in the pixels; a shelf of episode stills is
+        // full of photographs, and the most the probe can say about those by itself is how many rows were given
+        // bytes, which it printed before rendering. Whoever wants to see those pictures looks at the frame.
+        bool knownCover = aspectName.Equals("MovieItem", StringComparison.OrdinalIgnoreCase);
+        if (browserScreen != null && !knownCover)
         {
-          Console.WriteLine("FAILED:   " + posters);
-          return 1;
+          Console.WriteLine("pictures: the shelf was asked for '" + aspectName + "', whose pictures are photographs"
+              + " - how many rows carry one is the line above, and the frame is for a person to look at");
+        }
+        else
+        {
+          // The scripted database stores a flat poster for two of the twelve films, nothing for nine, and bytes
+          // that are not a picture for one. Whether any of that reached the shelf is a question about the colour of
+          // particular pixels, and only a frame with the whole twelve rows on it can answer it in order - which is
+          // why the filtered frames (search results, the watched half) are not asked: their rows are wherever the
+          // filter left them.
+          //
+          // This runs after the frame was written on purpose. A poster the check cannot find is a complaint about
+          // colour, and the thing a person needs in order to judge it is the frame itself.
+          string? posters;
+          string posterReport;
+          if (browserScreen != null)
+            posters = CheckLivePoster(frame, out posterReport);
+          else
+            posters = CheckPosters(frame, screenName == "details", out posterReport);
+          Console.WriteLine("pictures: " + posterReport);
+          if (posters != null)
+          {
+            Console.WriteLine("FAILED:   " + posters);
+            return 1;
+          }
         }
       }
 
@@ -1553,6 +1670,53 @@ namespace FrontendProbe
     /// panel sits beside the list rather than over it, and a frame where opening a panel emptied the list behind it
     /// is exactly the mistake this check used to be blind to.
     /// </remarks>
+    /// <summary>
+    /// Whether the shelf of a running server drew the picture that was stored for one of its titles, in the colour
+    /// that picture was made of.
+    /// </summary>
+    /// <remarks>
+    /// The scripted frame is judged by two posters and by the row in between whose stored bytes are not a picture.
+    /// A real library has whatever it happens to hold, so this asks the one question that survives: did the bytes
+    /// the server sent become a picture on a row? The cover the scratch driver puts into the film's folder is a
+    /// lossless PNG of flat rgb(212,64,168) - the colour the scripted poster uses for the same reason - so a patch
+    /// of that colour the size of a row's picture square can only be the decoded file.
+    /// </remarks>
+    private static string? CheckLivePoster(WriteableBitmap frame, out string report)
+    {
+      string? unreadable = ReadFrame(frame, out byte[] pixels, out int rowBytes, out int width, out int height,
+          out int redOffset, out int blueOffset);
+      if (unreadable != null)
+      {
+        report = "the frame could not be read";
+        return unreadable;
+      }
+
+      List<Patch> patches = FindPatches(pixels, rowBytes, width, height, redOffset, blueOffset, POSTER_PINK);
+      Patch? largest = null;
+      foreach (Patch candidate in patches)
+        if (largest == null || candidate.Pixels > largest.Pixels)
+          largest = candidate;
+
+      if (largest == null)
+      {
+        report = "no poster";
+        return "nothing on the frame is rgb(" + string.Join(",", POSTER_PINK)
+            + "), the colour of the cover lying in the film's folder; the bytes the server sent never became a"
+            + " picture on the screen";
+      }
+      if (largest.Pixels < 3000)
+      {
+        report = largest.ToString();
+        return "the patch of that colour on the frame is " + largest.Pixels
+            + " pixels, which is smaller than the picture square a row draws";
+      }
+
+      report = "the bytes the server sent are a picture on the screen (" + largest.Pixels + " px of rgb("
+          + string.Join(",", POSTER_PINK) + ") at x " + largest.Left + ".." + largest.Right + ", y "
+          + largest.Top + ".." + largest.Bottom + ")";
+      return null;
+    }
+
     private static string? CheckPosters(WriteableBitmap frame, bool detailsOpen, out string report)
     {
       string? shelf = CheckShelfPosters(frame, out string shelfReport);

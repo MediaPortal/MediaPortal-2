@@ -1725,11 +1725,20 @@ captures the frame, counts its pixels and writes a PNG:
 
 - `--out` is required, its directory is created, and the file must come back with a PNG signature.
 - `--screen home|continue|nowplaying|connect|browser|details|search|seen|folders` picks the screen (default `home`).
-  The playback screen is driven by a *scripted* player rather than libVLC, and the title list by a *scripted* page of
-  twelve films served in the exact JSON `GET api/media/titles` answers with: a frame that is supposed to mean the same
-  thing on Windows and in a container cannot depend on which moment a decoder happened to reach, nor on whether
-  whoever runs the gate has imported anything. Both still go through the real parsing and the real bindings - the
-  probe's job is the drawing, not the decoding and not a shortcut into the view model.
+  The playback screen is driven by a *scripted* player rather than libVLC, and the title list of `details`, `search`
+  and `seen` by a *scripted* page of twelve films served in the exact JSON `GET api/media/titles` answers with: a
+  frame that is supposed to mean the same thing on Windows and in a container cannot depend on which moment a decoder
+  happened to reach, nor on whether whoever runs the gate has imported anything. Both still go through the real
+  parsing and the real bindings - the probe's job is the drawing, not the decoding and not a shortcut into the view
+  model.
+- `browser` is the second exception to that scripting: given `--server` it lists a shelf of the running server's own
+  library, and `--aspect <name>` (default `MovieItem`) says which shelf. It then prints three lines of its own, and
+  fails with exit 4 rather than rendering an empty shelf: `posters:` counts the rows that were given bytes,
+  `heading:` reads the `shelfHeading` text block out of the visual tree and compares it with the view model, and
+  `pictures:` looks in the pixels for the flat rgb(212,64,168) cover that the scratch driver leaves in the demo
+  film's folder - so the claim is not "a row has a byte array" but "the bytes the server sent became a picture".
+  A shelf of episode stills is full of photographs, so for any aspect but `MovieItem` the colour check is skipped
+  and the count is what the probe can judge by itself; the frame is for a person.
 - `folders` is the exception to that scripting, on purpose: the folders screen shows the folders *somebody's* library
   was built from, so it is rendered against `--server` (or refused: exit 4 when a server that was asked answered with
   no folders), and without a server it renders the screen's own "no server connected" state. It also prints a `line:`
