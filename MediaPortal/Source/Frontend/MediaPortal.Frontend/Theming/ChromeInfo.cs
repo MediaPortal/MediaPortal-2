@@ -165,6 +165,40 @@ namespace MediaPortal.Frontend.Theming
       NowPlayingState = "";
     }
 
+    /// <summary>
+    /// What the server is doing down at the library while the viewer stands upstairs: the reference's
+    /// notification bar showed the importer at work in its master header and took it away again when the
+    /// import was through. Null or empty means the server has nothing to report and the chrome says nothing.
+    /// </summary>
+    [ObservableProperty]
+    private string? _serverNotice;
+
+    /// <summary>Whether the header has a notice to show at all.</summary>
+    public bool HasServerNotice
+    {
+      get { return !string.IsNullOrEmpty(ServerNotice); }
+    }
+
+    partial void OnServerNoticeChanged(string? value)
+    {
+      OnPropertyChanged(nameof(HasServerNotice));
+    }
+
+    /// <summary>
+    /// Tell the chrome what the server is busy with, or that it is not any more. The event stream speaks on
+    /// its own thread, so the words cross to the window's thread the way the clock's do.
+    /// </summary>
+    public void ReportServerActivity(string? notice)
+    {
+      if (_marshal == null)
+      {
+        ServerNotice = notice;
+        return;
+      }
+
+      _marshal(() => ServerNotice = notice);
+    }
+
     private static string FormatClock(DateTime now)
     {
       return now.ToString("HH:mm");

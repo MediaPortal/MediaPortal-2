@@ -16,6 +16,7 @@
 */
 
 using System;
+using System.ComponentModel;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
@@ -264,6 +265,15 @@ namespace MediaPortal.Frontend
           };
           FeedChromeFromPlayback();
         }
+
+        // The reference's notification bar heard the server through the master, not through the home screen:
+        // whatever the server does at the library is said in the header from every screen, and said away
+        // when the server falls silent.
+        _home.PropertyChanged += delegate (object? sender, PropertyChangedEventArgs args)
+        {
+          if (args.PropertyName == nameof(ViewModels.HomeViewModel.ServerActivity))
+            _shell?.Chrome.ReportServerActivity(_home.ServerActivity);
+        };
 
         desktop.MainWindow = _shell;
       }

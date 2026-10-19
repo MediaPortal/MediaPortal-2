@@ -13,16 +13,23 @@
                     x:DataType="chrome:ChromeInfo">
 
   <!-- The header: the clock over its date at the left, as the WMC masters read it, and the screen's words
-       right-aligned - HeaderTextPanel sat in the masters' last column, against the right margin. -->
+       right-aligned - HeaderTextPanel sat in the masters' last column, against the right margin. The
+       reference's notification slot sits between them: what the server is doing at the library, shown
+       while it happens and said away when it stops. -->
   <ControlTemplate x:Key="ChromeHeaderTemplate" TargetType="ContentControl">
-    <Grid ColumnDefinitions="Auto,*" Margin="10,0" Background="{DynamicResource ScreenBackgroundBrush}">
+    <Grid ColumnDefinitions="Auto,Auto,*" Margin="10,0" Background="{DynamicResource ScreenBackgroundBrush}">
       <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" Margin="0,0,20,0">
         <TextBlock Text="{Binding Clock}"
                    Foreground="{DynamicResource Muted}" FontSize="{DynamicResource DateTimeFontSize}"/>
         <TextBlock Text="{Binding Date}"
                    Foreground="{DynamicResource Muted}" FontSize="{DynamicResource SmallerFontSize}"/>
       </StackPanel>
-      <TextBlock Grid.Column="1" Text="{Binding ScreenTitle}"
+      <TextBlock Grid.Column="1" Text="{Binding ServerNotice}"
+                 IsVisible="{Binding HasServerNotice}"
+                 Foreground="{DynamicResource Muted}" FontSize="{DynamicResource SmallerFontSize}"
+                 VerticalAlignment="Center" Margin="0,0,24,0"
+                 TextTrimming="CharacterEllipsis" MaxWidth="420"/>
+      <TextBlock Grid.Column="2" Text="{Binding ScreenTitle}"
                  Foreground="{DynamicResource Text}" FontSize="{DynamicResource HeaderFontSize}"
                  VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
                  HorizontalAlignment="Right" Margin="0,0,40,0"/>
