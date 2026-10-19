@@ -800,6 +800,16 @@ namespace MediaPortal.Frontend
             return new UsersSettingsView { DataContext = users };
           });
 
+      // What the server says when a shared folder asks who is calling. The reference kept these in the
+      // server's own settings window for the same reason: shares are the server's business, not any one
+      // machine's - and the dictionary underneath always held one credential per path, not just the root.
+      model.Add("Network credentials", "Server", "What the server offers shared folders on the network",
+          delegate
+          {
+            NetworkCredentialsViewModel credentials = new NetworkCredentialsViewModel(() => _home.Client);
+            return new NetworkCredentialsView { DataContext = credentials };
+          });
+
       // The server's own settings, read over the API the moment the row is opened - there is
       // nothing local to show before that. The provider is a delegate rather than the client
       // itself because the viewer may point at a different server between visits.

@@ -48,7 +48,8 @@ namespace MediaPortal.Frontend.Api
   /// silently turn <c>api/serverinfo</c> into <c>/MediaPortal/api/serverinfo</c>.
   /// </para>
   /// </remarks>
-  public sealed class ServerApiClient : IDisposable, IServerSettingsApi, IMetadataSettingsApi, IUsersApi
+  public sealed class ServerApiClient : IDisposable, IServerSettingsApi, IMetadataSettingsApi, IUsersApi,
+      INetworkCredentialsApi
   {
     /// <summary>
     /// Where the front end looks for a server when nothing else was said. The port is MP2's own and the prefix
@@ -761,6 +762,43 @@ namespace MediaPortal.Frontend.Api
     {
       return await SendJsonAsync<UserAnswer>(HttpMethod.Delete, "api/users/" + profileId.ToString("N"), null,
           cancellation).ConfigureAwait(false);
+    }
+
+    #endregion
+
+    #region The network's share credentials
+
+    /// <summary>
+    /// <c>GET api/media/network-credentials</c> - the credentials the server would offer to network shares.
+    /// A server without the neighborhood plugin answers 503, which the screen says as "not on this server".
+    /// </summary>
+    public async Task<NetworkCredentialsAnswer> GetNetworkCredentialsAsync(
+        CancellationToken cancellation = default)
+    {
+      return await SendJsonAsync<NetworkCredentialsAnswer>(HttpMethod.Get, "api/media/network-credentials",
+          null, cancellation).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// <c>PUT api/media/network-credentials</c> - store one credential. The password travels plain over the
+    /// LAN and is encrypted by the provider on the way into its settings file; it never travels back.
+    /// </summary>
+    public async Task<NetworkCredentialsAnswer> StoreNetworkCredentialAsync(NetworkCredentialWish wish,
+        CancellationToken cancellation = default)
+    {
+      return await SendJsonAsync<NetworkCredentialsAnswer>(HttpMethod.Put, "api/media/network-credentials",
+          wish, cancellation).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// <c>DELETE api/media/network-credentials</c> - forget one path's credential, or all of them when the
+    /// path is empty. The whole dictionary comes back, as ever without any password.
+    /// </summary>
+    public async Task<NetworkCredentialsAnswer> RemoveNetworkCredentialAsync(string path,
+        CancellationToken cancellation = default)
+    {
+      return await SendJsonAsync<NetworkCredentialsAnswer>(HttpMethod.Delete, "api/media/network-credentials",
+          new { path = path ?? "" }, cancellation).ConfigureAwait(false);
     }
 
     #endregion
