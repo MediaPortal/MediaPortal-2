@@ -592,8 +592,9 @@ namespace MediaPortal.Frontend
 
       if (state == "settings")
       {
-        // The front end's own settings, behind MP2's "Settings" tile.
-        return new ThemeView((ThemeViewModel)frame.ViewModel);
+        // The front end's settings as the reference kept them: the list of places a household configures -
+        // its own machine and the server behind it - behind MP2's "Settings" tile.
+        return new SettingsView((SettingsViewModel)frame.ViewModel);
       }
 
       if (state == "titles")
@@ -643,6 +644,32 @@ namespace MediaPortal.Frontend
     }
 
     /// <summary>
+    /// The settings list itself: which places the hub offers, and what each of them opens. The sections are
+    /// built here because only the application has what their screens need - the theme picker changes colours
+    /// in this application, the folders screen reads through the client the library was read with, and the
+    /// server address belongs to the connection screen, which is pushed as the stop it already is rather than
+    /// rebuilt inside the hub.
+    /// </summary>
+    private SettingsViewModel SettingsModel()
+    {
+      SettingsViewModel model = new SettingsViewModel();
+
+      model.Add("Appearance", "Frontend", "The colours and the skin this machine wears",
+          delegate { return new ThemeView(new ThemeViewModel(this)); });
+
+      model.Add("Server address", "Frontend", "Which machine holds the library",
+          null, delegate { _workflow.Push(ConnectionFrame()); });
+
+      model.Add("Media sources", "Server", "The folders the library reads, and their imports",
+          delegate { return new FoldersView(new FoldersViewModel(_home.Client)); });
+
+      model.Add("Playback", "Frontend", "The sound of this machine",
+          delegate { return new PlaybackView(_nowPlaying); });
+
+      return model;
+    }
+
+    /// <summary>
     /// The frame a menu tile asks for by name.
     /// </summary>
     /// <remarks>
@@ -689,10 +716,10 @@ namespace MediaPortal.Frontend
 
       if (screenKey.Equals("themes", StringComparison.OrdinalIgnoreCase))
       {
-        // A fresh view model per visit, unlike the party queue: the screen reports what is worn right now, and
-        // the honest way to know that is to ask the application again rather than to remember what the last visit
-        // left behind - somebody may have started this run with a --theme that overrode the saved choice.
-        return new Workflow.WorkflowFrame("settings", "Settings", new ThemeViewModel(this));
+        // A fresh model per visit, unlike the party queue: the screens behind the sections read their state
+        // when they open - somebody may have started this run with a --theme that overrode the saved choice,
+        // or added a share with another tool in between.
+        return new Workflow.WorkflowFrame("settings", "Settings", SettingsModel());
       }
 
       // A tile naming a screen nobody builds is a mismatch between the menu and this method, which is a bug in the

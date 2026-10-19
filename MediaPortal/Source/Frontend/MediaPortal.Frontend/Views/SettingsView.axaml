@@ -1,0 +1,46 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        x:Class="MediaPortal.Frontend.Views.SettingsView"
+        x:DataType="vm:SettingsViewModel"
+        Background="{DynamicResource ScreenBackgroundBrush}"
+        >
+
+  <!--
+    The settings as the reference kept them: not one question, but the list of places a household configures -
+    the front end's own machine first, then the server behind it - and the screen each one opens on the right.
+    The hub owns no answers of its own: Appearance is the theme screen, Media sources is the folders screen,
+    and the server address hands the pick to the connection screen through the workflow, trail and back key
+    included. Sizes stay compact because the screens embedded here bring their own headings and rows.
+  -->
+
+  <Grid ColumnDefinitions="330,*" ColumnSpacing="24" Margin="40,20">
+
+    <DockPanel Grid.Column="0">
+      <TextBlock DockPanel.Dock="Top" Text="Settings" FontSize="26" FontWeight="SemiBold" Margin="0,0,0,10"/>
+      <ListBox Name="sectionList"
+               Focusable="True"
+               ItemsSource="{Binding Sections}"
+               SelectedItem="{Binding Selected, Mode=TwoWay}"
+               FontSize="18"
+               Background="Transparent"
+               BorderThickness="0">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="vm:SettingsSection">
+            <StackPanel Spacing="1" Margin="0,5,8,7">
+              <TextBlock Text="{Binding Name}" FontSize="19"/>
+              <TextBlock Text="{Binding Description}" FontSize="13" Opacity="0.65" TextWrapping="Wrap"/>
+              <TextBlock Text="{Binding Owner}" FontSize="11" Opacity="0.45"/>
+            </StackPanel>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </DockPanel>
+
+    <Grid Grid.Column="1" RowDefinitions="*,Auto">
+      <ContentControl Name="sectionView" Grid.Row="0" Content="{Binding CurrentView}"/>
+      <TextBlock Grid.Row="1" Name="statusLine" Text="{Binding Status}" FontSize="14" Opacity="0.8"
+                 TextWrapping="Wrap"/>
+    </Grid>
+  </Grid>
+</UserControl>

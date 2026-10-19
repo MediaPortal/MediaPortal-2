@@ -73,14 +73,13 @@
               Padding="20,7"
               FontSize="17" />
 
-      <!-- A server with MP2's own configuration keeps its titles from strangers, so the front end has to be able to
-           say who it is. The password is a box with dots rather than a PasswordBox because a PasswordBox cannot be
-           bound: a screen that cannot read what was typed cannot sign anybody in. What is typed is handed to the
-           server and forgotten straight afterwards. MP2 puts its profiles on the home screen too, as a face in the
-           corner; the boxes are this front end's plainer version of the same thing, and they are on the setup line
-           at the bottom rather than in the middle of the library. -->
+      <!-- A server whose owner turned on "Web authorization" keeps its titles from strangers, and only for such a
+           server do these boxes appear: the reference's basic installation asked nobody for a name and a password,
+           user management being a thing a household enables and fills in its settings. The password is a box with
+           dots rather than a PasswordBox because a PasswordBox cannot be bound: a screen that cannot read what was
+           typed cannot sign anybody in. What is typed is handed to the server and forgotten straight afterwards. -->
       <StackPanel Name="signInRow" Orientation="Horizontal" Spacing="10" Margin="18,0,0,0"
-                  IsVisible="{Binding SignedInAs, Converter={x:Static ObjectConverters.IsNull}}">
+                  IsVisible="{Binding SignInOffered}">
         <TextBox Name="signInName"
                  Text="{Binding SignInName}"
                  Watermark="User name"

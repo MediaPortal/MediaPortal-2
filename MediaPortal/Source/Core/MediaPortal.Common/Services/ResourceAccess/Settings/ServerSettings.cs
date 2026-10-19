@@ -74,7 +74,17 @@ namespace MediaPortal.Common.Services.ResourceAccess.Settings
       set { _limitIPEndpoints = value; }
     }
 
-    [Setting(SettingScope.Global, true)]
+    /// <summary>
+    /// Whether the HTTP API asks strangers for a token before it names any titles.
+    /// </summary>
+    /// <remarks>
+    /// The reference shipped this on, which suited a reference where no household program spoke HTTP - only the
+    /// web pages did. The multiplatform front end talks to nothing else, so an installation straight out of the
+    /// zip would meet a login box before it had seen a single film, while the reference's living rooms never
+    /// asked anybody who they were. The switch is the server's to make and stays on this class; it is simply
+    /// off until a household that shares its server with strangers turns it on.
+    /// </remarks>
+    [Setting(SettingScope.Global, false)]
     public bool WebAutorizationEnabled
     {
       get { return _webAutorizationEnabled; }

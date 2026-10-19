@@ -81,6 +81,30 @@ namespace MediaPortal.Frontend.ViewModels
     private string? _signedInAs;
 
     /// <summary>
+    /// Whether this server has refused the front end for not carrying a token. The reference's living rooms
+    /// asked nobody who they were - login is a switch a household turns on for its server, not a turnstile in
+    /// front of the library - so the sign-in boxes wait for the server to actually ask for them.
+    /// </summary>
+    [ObservableProperty]
+    private bool _serverRefusesStrangers;
+
+    /// <summary>
+    /// Whether the sign-in boxes have a place on the screen: only while the server asks for a token and nobody
+    /// has handed one over yet.
+    /// </summary>
+    public bool SignInOffered => ServerRefusesStrangers && SignedInAs == null;
+
+    partial void OnSignedInAsChanged(string? value)
+    {
+      OnPropertyChanged(nameof(SignInOffered));
+    }
+
+    partial void OnServerRefusesStrangersChanged(bool value)
+    {
+      OnPropertyChanged(nameof(SignInOffered));
+    }
+
+    /// <summary>
     /// For the XAML designer and for the tests that only check what the screen looks like before anything was
     /// read. A view model built this way says so in its status line instead of pretending to be connected.
     /// </summary>
@@ -310,11 +334,20 @@ namespace MediaPortal.Frontend.ViewModels
           writtenBefore += at - first;
           OnPropertyChanged(nameof(HasContent));
         }
+
+        // The list arrived without a token, so this server keeps its doors open to the room; whatever refusal
+        // this screen saw before belonged to another server or to the switch before someone turned it off.
+        ServerRefusesStrangers = false;
       }
       catch (ServerApiException ex)
       {
         if (generation != _contentGeneration)
           return;
+
+        // A refusal of the titles is the server asking who is calling; the sign-in boxes appear because of it,
+        // and the note below says so.
+        if (ex.StatusCode == 403)
+          ServerRefusesStrangers = true;
 
         // The headings are already up, so the line has to appear under the list that was asked for rather than at
         // the end of the pane; the loop stops, because every remaining list would be refused for the same reason.
@@ -508,6 +541,7 @@ namespace MediaPortal.Frontend.ViewModels
 
       _client = client;
       SignedInAs = null;
+      ServerRefusesStrangers = false;
       Aspects.Clear();
       Sections.Clear();
       RebuildMenu(false);
