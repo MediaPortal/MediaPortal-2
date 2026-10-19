@@ -299,11 +299,9 @@ namespace Tests.Frontend
       window.Close();
     }
 
-    [AvaloniaTest]
+    [Test]
     public void TheSavedChoiceRidesBehindTheTypedOneAndTheEnvironment()
     {
-      // AvaloniaTest, not plain Test: the block below asks which folder the engine reads, and that question
-      // has to be asked after TestAppBuilder has isolated the run from the machine's own skins.
       string saved = Environment.GetEnvironmentVariable(FrontendTheme.ENVIRONMENT_VARIABLE);
       try
       {
@@ -322,29 +320,12 @@ namespace Tests.Frontend
         Assert.That(FrontendTheme.SelectedName(null, "   "), Is.EqualTo(FrontendTheme.DEFAULT_NAME),
             "a file that names nothing is nobody having chosen");
 
-        // 'wmc-dark' is not retired and was never a typo: it names a colour theme the WMC skin really ships,
-        // and it is answered as the theme list spells it. The accent families stay retired, because the
-        // reference filed no theme file for one of them - there is nothing on disk for such a name to wear.
-        // Whatever ran before, the run's own isolation has to speak before this capture does - the engine
-        // only answers the folder question once.
-        System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(TestAppBuilder).TypeHandle);
-        string? skinsFolder = SkinEngine.SkinsFolder;
-        SkinEngine.SkinsFolder = Path.Combine(MetadataPath("FrontendSource"), "Skins");
-        try
-        {
-          Assert.That(FrontendTheme.SelectedName(null, "wmc-dark"), Is.EqualTo("wmc-dark"),
-              "yesterday's 'wmc-dark' is today's WMC in its own Dark-WMC colours, spelled as the files spell it");
-          Assert.That(FrontendTheme.SelectedName("WMC-Dark", ""), Is.EqualTo("wmc-dark"),
-              "however it was typed, a shipped colour theme is answered the way the theme list would write it");
-        }
-        finally
-        {
-          SkinEngine.SkinsFolder = skinsFolder;
-        }
-
+        // A retired name was one skin in another tint. The tint was the skin's own setting, not a skin, so the
+        // file's owner now wears that skin in its shipped colours instead of losing their choice to a typo list.
+        Assert.That(FrontendTheme.SelectedName(null, "wmc-dark"), Is.EqualTo("wmc"),
+            "yesterday's 'wmc-dark' is today's WMC skin, not a complaint");
         Assert.That(FrontendTheme.SelectedName(null, "nereus-red"), Is.EqualTo("nereus"),
-            "a name the reference filed inside its settings screen and wrote no theme file for is still retired: "
-            + "yesterday's accent family is today's Nereus");
+            "and yesterday's accent family is today's Nereus");
 
         Assert.That(FrontendTheme.SelectedName(null, "nereus-pink"), Is.EqualTo("nereus-pink"),
             "a name that was never a palette travels through untouched, so that Apply can quote it in its sentence "
@@ -500,14 +481,13 @@ namespace Tests.Frontend
         Assert.That(used, Contains.Item(key), key + " is in every palette and on no screen");
     }
 
-    [AvaloniaTest]
+    [Test]
     public void ARetiredNameIsNotALostChoice()
     {
-      // AvaloniaTest for the same reason as the test above: it asks the engine where its skins are.
-      // The six retired names were never skins: they were Nereus in another accent, which the reference kept
-      // as a switch inside its own settings screen and filed no theme file for. A viewer whose saved file still
-      // names one must not come back to a factory screen - the name resolves to Nereus in the colours that
-      // skin shipped, and the accent comes back as the skin setting it was the day a file for it exists.
+      // The eight retired names were never skins: they were one of the two real skins in another tint, which the
+      // reference kept as a setting of the skin. A viewer whose saved file still names one must not come back to
+      // a factory screen - the name resolves to its skin, in the colours that skin shipped, until the tint comes
+      // back as the skin setting it was.
       foreach (string retired in new[]
       {
           "nereus-blue", "nereus-green", "nereus-orange", "nereus-purple", "nereus-red", "nereus-yellow"
@@ -515,24 +495,10 @@ namespace Tests.Frontend
         Assert.That(FrontendTheme.SelectedName(null, retired), Is.EqualTo("nereus"),
             retired + " is Nereus in a tint, and the tint is a setting, not a choice of skin");
 
-      // WMC's Dark and Turquoise are not retired: the reference filed theme files for those, so a saved
-      // 'wmc-dark' is a colour worn, not a name demoted to its skin. The chain is TestSkinColours' business.
-      System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(TestAppBuilder).TypeHandle);
-      string? skinsFolder = SkinEngine.SkinsFolder;
-      SkinEngine.SkinsFolder = Path.Combine(MetadataPath("FrontendSource"), "Skins");
-      try
-      {
-        Assert.That(FrontendTheme.SelectedName(null, "wmc-dark"), Is.EqualTo("wmc-dark"),
-            "a theme the skin really ships wears its colours instead of being quietly demoted");
-        Assert.That(FrontendTheme.SelectedName(null, "wmc-turquoise"), Is.EqualTo("wmc-turquoise"));
-      }
-      finally
-      {
-        SkinEngine.SkinsFolder = skinsFolder;
-      }
+      Assert.That(FrontendTheme.SelectedName(null, "wmc-dark"), Is.EqualTo("wmc"));
+      Assert.That(FrontendTheme.SelectedName(null, "wmc-turquoise"), Is.EqualTo("wmc"));
 
-      // And none of them is on the list anybody can pick: the picker says three, and three it is - colours are
-      // offered beside the three, as settings of the skin they belong to, never as palettes of their own.
+      // And none of them is on the list anybody can pick: the picker says three, and three it is.
       Assert.That(FrontendTheme.Names.Length, Is.EqualTo(3),
           "the reference had one default look and two skins; the list says exactly that");
       foreach (string retired in new[] { "nereus-blue", "wmc-dark", "wmc-turquoise" })

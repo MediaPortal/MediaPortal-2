@@ -23,8 +23,7 @@ using System.Text.Json.Serialization;
 namespace MediaPortal.Frontend.Settings;
 
 /// <summary>
-/// The theme the viewer picked from the settings screen, and nothing else - a theme is one name, a skin or a
-/// skin and one of its colours, so 'wmc' and 'wmc-dark' are each one whole answer.
+/// The theme the viewer picked from the settings screen, and nothing else - a theme is one word.
 /// </summary>
 /// <remarks>
 /// <para>

@@ -151,14 +151,14 @@ namespace Tests.Frontend
     public void ARetiredNameWearsItsSkin()
     {
       Application app = Application.Current!;
-      FrontendTheme.Apply(app, FrontendTheme.SelectedName(null, "nereus-red"), out _);
+      FrontendTheme.Apply(app, FrontendTheme.SelectedName(null, "wmc-turquoise"), out _);
 
       WornSkin? worn = SkinEngine.Worn(app);
       Assert.That(worn, Is.Not.Null, "a retired name still names a real skin, and that skin is what gets worn");
-      Assert.That(worn!.Manifest.Name, Is.EqualTo("nereus"));
+      Assert.That(worn!.Manifest.Name, Is.EqualTo("wmc"));
       Assert.That(worn.Theme.Name, Is.EqualTo("default"),
-          "the accent was a switch inside the reference's settings screen and has no theme file of its own; "
-          + "until one exists, the skin wears what it shipped with");
+          "the tint was a setting of the skin, not one of its themes; until it returns as a setting, "
+          + "the skin wears what it shipped with");
     }
 
     [AvaloniaTest]
