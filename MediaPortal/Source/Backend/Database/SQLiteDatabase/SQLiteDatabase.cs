@@ -833,7 +833,13 @@ namespace MediaPortal.Database.SQLite
 
         foreach (var id in mediaItemIds)
         {
-          parameter.Value = id;
+          // Not "parameter.Value = id": this parameter was created as DbType.Binary because this provider
+          // stores a Guid as its 16 bytes, and assigning the Guid here would let the database driver pick a
+          // representation of its own - text - which no id elsewhere in the database is. The ids of a
+          // query result would then never compare equal to the ids of the rows they belong to, and every
+          // part of a query that reads through this table (all multiple aspects like the provider resource
+          // that carries a title's path, and the long texts such as a plot) would come back empty.
+          parameter.Value = SQLiteValues.ConvertParameter(typeof(Guid), id);
           cmd.ExecuteNonQuery();
         }
       }

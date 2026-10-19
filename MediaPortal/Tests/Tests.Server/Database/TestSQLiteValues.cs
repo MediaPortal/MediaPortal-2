@@ -233,6 +233,37 @@ namespace Tests.Server.Database
     }
 
     [Test]
+    public void TestIdsOfASavedResultSetAreFoundByTheRowsTheyBelongTo()
+    {
+      // The shape of SQLiteDatabase.SaveTemporaryIds: one parameter, created as a binary one, whose value
+      // is reassigned for every id of a query result, into the temporary id table GetTemporaryIdTable
+      // creates. The query engine then reads the parts of a media item that cannot come with the main
+      // select - the provider resource a title's path lives in, a plot, an actor - through
+      // "WHERE MEDIA_ITEM_ID IN (SELECT ID FROM temp.TTABLE…)". Assigning the Guid itself lets the driver
+      // bind text, and the whole result silently comes back without those parts.
+      var first = Guid.NewGuid();
+      var second = Guid.NewGuid();
+      InsertRow(first, "first", null, null);
+      InsertRow(second, "second", null, null);
+
+      Exec("CREATE TEMP TABLE ids(ID TEXT PRIMARY KEY) WITHOUT ROWID");
+      using (var command = _connection.CreateCommand())
+      {
+        command.CommandText = "INSERT INTO temp.ids(ID) VALUES(@MI_ID)";
+        var parameter = SQLiteValues.TryAddBinaryParameter(command, "@MI_ID", null, typeof(Guid));
+        command.Prepare();
+        foreach (var id in new[] { first, second })
+        {
+          parameter.Value = SQLiteValues.ConvertParameter(typeof(Guid), id);
+          command.ExecuteNonQuery();
+        }
+      }
+
+      Assert.That(Scalar("SELECT count(*) FROM t WHERE id IN (SELECT ID FROM temp.ids)"), Is.EqualTo(2L),
+          "the ids of a result set have to be the same bytes as the ids of the rows they were read from");
+    }
+
+    [Test]
     public void TestNullGuidAndNullBlobBecomeDBNull()
     {
       Assert.That(SQLiteValues.ConvertParameter(typeof(Guid), null), Is.EqualTo(DBNull.Value));
