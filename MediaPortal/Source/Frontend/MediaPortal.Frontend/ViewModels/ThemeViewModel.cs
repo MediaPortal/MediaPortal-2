@@ -60,6 +60,12 @@ public partial class ThemeChoice : ObservableObject
 /// choice is saved the moment it is made - a preview you lose by leaving is a preview, not a setting.
 /// </para>
 /// <para>
+/// A worn skin may ship more colours than the one it stands in by default, and the reference kept exactly that
+/// as a setting of the skin. So the screen asks its one question in two places: the list of skins, and - only
+/// while a skin that ships them is worn - a second list of that skin's own colour themes, applying the full
+/// 'skin-theme' name. WMC answers with Dark and Turquoise; Nereus shipped one theme file and so adds no rows.
+/// </para>
+/// <para>
 /// The saved name is read again at the next start by <see cref="FrontendTheme.SelectedName"/>, behind the
 /// command line and the environment: whoever typed <c>--theme</c> meant it for that run and outranks a choice
 /// made earlier on the couch, but the couch choice outranks the factory colours. Saving is best-effort and its
@@ -89,7 +95,8 @@ public partial class ThemeViewModel : ObservableObject
     string wearing = FrontendTheme.CurrentName(_app);
     Mark(wearing);
     _applying = true;
-    Selected = Find(wearing) ?? Themes[0];
+    Selected = Find(FrontendTheme.BasePaletteOf(wearing)) ?? Themes[0];
+    RefreshColours(wearing, true);
     _applying = false;
 
     Heading = "Which skin this machine wears. Picking a row changes it right here, and it stays worn after the next start.";
@@ -97,6 +104,16 @@ public partial class ThemeViewModel : ObservableObject
   }
 
   public ObservableCollection<ThemeChoice> Themes { get; } = new ObservableCollection<ThemeChoice>();
+
+  /// <summary>
+  /// The colours the worn skin ships besides its own default - empty for a skin that ships none, which is what
+  /// keeps the second section off the screen rather than showing a heading over nothing.
+  /// </summary>
+  public ObservableCollection<ThemeChoice> Colours { get; } = new ObservableCollection<ThemeChoice>();
+
+  public bool HasColours => Colours.Count > 0;
+
+  public string ColourHeading { get; private set; } = "";
 
   public string Heading { get; }
 
@@ -110,21 +127,46 @@ public partial class ThemeViewModel : ObservableObject
   [ObservableProperty]
   private ThemeChoice? _selected;
 
+  /// <summary>
+  /// The picked colour of the worn skin. Null while the skin stands in its own default colours, which is what
+  /// the absence of a marked colour row says.
+  /// </summary>
+  [ObservableProperty]
+  private ThemeChoice? _selectedColour;
+
   partial void OnSelectedChanged(ThemeChoice? value)
   {
     // The step-back below writes Selected too, and the list's own binding re-pushes the row it found as it
     // opens; neither is a choice. A row selected that already names what is worn asks for nothing - it must
     // not save, or merely opening the screen would promote this run's --theme over the viewer's saved pick.
     if (_applying || value == null
+        || string.Equals(value.Name, FrontendTheme.BasePaletteOf(FrontendTheme.CurrentName(_app)),
+            StringComparison.OrdinalIgnoreCase))
+      return;
+
+    ApplyAndSave(value.Name);
+  }
+
+  partial void OnSelectedColourChanged(ThemeChoice? value)
+  {
+    // Rebuilding the colour rows moves this property too, and no rebuild is a choice.
+    if (_applying || value == null
         || string.Equals(value.Name, FrontendTheme.CurrentName(_app), StringComparison.OrdinalIgnoreCase))
       return;
 
-    string applied = FrontendTheme.Apply(_app, value.Name, out string? problem);
+    ApplyAndSave(value.Name);
+  }
+
+  private void ApplyAndSave(string name)
+  {
+    string applied = FrontendTheme.Apply(_app, name, out string? problem);
     if (problem != null)
     {
       Status = problem;
       _applying = true;
-      Selected = Find(FrontendTheme.CurrentName(_app));
+      Selected = Find(FrontendTheme.BasePaletteOf(FrontendTheme.CurrentName(_app)));
+      RefreshColours(FrontendTheme.CurrentName(_app),
+          FrontendTheme.BasePaletteOf(FrontendTheme.CurrentName(_app)) != _colourBase);
       _applying = false;
       return;
     }
@@ -136,6 +178,66 @@ public partial class ThemeViewModel : ObservableObject
         : string.Format("Wearing {0} for this session; saving it failed - {1}", applied, says);
 
     Mark(applied);
+
+    // Wearing another skin changes which colours exist to choose from, so the second section is asked again
+    // whenever the skin under it changed; a apply that only picked another colour of the same skin leaves the
+    // rows standing and just moves the marker, because rebuilding the rows a viewer is standing in would pull
+    // the floor out from under the selection they just made.
+    _applying = true;
+    RefreshColours(applied, FrontendTheme.BasePaletteOf(applied) != _colourBase);
+    _applying = false;
+  }
+
+  private string _colourBase = "";
+
+  /// <summary>
+  /// Marks the colour row that names what is worn - none of them, while the skin stands in its own default
+  /// colours - and says so to the selection. Called with the full worn name, under the applying guard, because
+  /// a marker moving is not a viewer choosing.
+  /// </summary>
+  private void MarkColours(string current)
+  {
+    foreach (ThemeChoice colour in Colours)
+      colour.IsCurrent = string.Equals(colour.Name, current, StringComparison.OrdinalIgnoreCase);
+
+    SelectedColour = FindColour(current);
+  }
+
+  /// <summary>
+  /// Fills the colour rows with the themes the skin <paramref name="current"/> is drawn from ships, when
+  /// <paramref name="rebuild"/> says that skin changed under them, and marks what is worn either way. Called
+  /// with the full worn name, every time something was applied and once when the screen opens.
+  /// </summary>
+  private void RefreshColours(string current, bool rebuild)
+  {
+    string baseName = FrontendTheme.BasePaletteOf(current);
+
+    if (rebuild)
+    {
+      SkinManifest? manifest = SkinEngine.Find(baseName);
+
+      Colours.Clear();
+      if (manifest != null)
+      {
+        foreach (SkinTheme theme in manifest.Themes)
+        {
+          if (theme.IsDefault)
+            continue;
+
+          Colours.Add(new ThemeChoice(manifest.Name + "-" + theme.Name, ColourDescriptionOf(manifest, theme)));
+        }
+      }
+
+      ColourHeading = Colours.Count > 0
+          ? string.Format("The colours {0} ships. Picking one recolours the skin right here.", manifest!.Title)
+          : "";
+      _colourBase = baseName;
+
+      OnPropertyChanged(nameof(HasColours));
+      OnPropertyChanged(nameof(ColourHeading));
+    }
+
+    MarkColours(current);
   }
 
   private ThemeChoice? Find(string name)
@@ -146,10 +248,19 @@ public partial class ThemeViewModel : ObservableObject
     return null;
   }
 
+  private ThemeChoice? FindColour(string name)
+  {
+    foreach (ThemeChoice choice in Colours)
+      if (string.Equals(choice.Name, name, StringComparison.OrdinalIgnoreCase))
+        return choice;
+    return null;
+  }
+
   private void Mark(string current)
   {
+    string baseName = FrontendTheme.BasePaletteOf(current);
     foreach (ThemeChoice choice in Themes)
-      choice.IsCurrent = string.Equals(choice.Name, current, StringComparison.OrdinalIgnoreCase);
+      choice.IsCurrent = string.Equals(choice.Name, baseName, StringComparison.OrdinalIgnoreCase);
   }
 
   /// <summary>
@@ -167,5 +278,24 @@ public partial class ThemeViewModel : ObservableObject
       case "wmc": return "The Windows Media Center skin, worn from its own files, standing on its blue wash";
       default: return "a skin";
     }
+  }
+
+  /// <summary>
+  /// What a colour row promises, in terms of what it does to the skin it belongs to. The sentences name the
+  /// skin's own scheme back at the viewer, because a colour row is only ever that skin wearing one of its own
+  /// files differently - and a scheme nobody wrote a sentence for still says which file it is.
+  /// </summary>
+  private static string ColourDescriptionOf(SkinManifest manifest, SkinTheme theme)
+  {
+    if (string.Equals(manifest.Name, "wmc", StringComparison.OrdinalIgnoreCase))
+    {
+      switch (theme.Name.ToLowerInvariant())
+      {
+        case "dark": return "WMC without the blue: charcoal behind, grey wherever a panel is raised";
+        case "turquoise": return "The same WMC in teal on black";
+      }
+    }
+
+    return string.Format("{0} in its {1} colours, from {0}'s own files", manifest.Title, theme.Name);
   }
 }

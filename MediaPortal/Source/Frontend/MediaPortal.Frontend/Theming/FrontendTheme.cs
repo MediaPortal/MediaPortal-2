@@ -46,9 +46,13 @@ namespace MediaPortal.Frontend.Theming
   /// value below was read out of one of those files and names the key it came from, so that a viewer who thinks a
   /// colour is wrong can look the same key up in the skin and see which of the two is wrong. Values a screen of
   /// this front end has no use for - the gradients, the button bevels, the scroll bars, the star ratings - stay
-  /// where they are instead of being invented a place to appear. A skin's own colours - Nereus's seven accent
-  /// families, WMC's Dark and Turquoise schemes - are <em>settings of the skin</em>, not skins: they belong on
-  /// the skin's settings screen, which is being built, and not in this list.
+  /// where they are instead of being invented a place to appear. A skin's own colours - the schemes the
+  /// reference filed as themes beside a skin's default - are <em>settings of the skin</em>, not skins: they are
+  /// worn by naming them '<c>skin-theme</c>', so '<c>wmc-dark</c>' is the WMC skin in its Dark-WMC colours, and
+  /// what recolours the fourteen keys is the theme's own <c>colors.xaml</c>, read off the skin's folder rather
+  /// than copied into this file. That is what the settings screen's colour rows choose. Nereus's seven accent
+  /// families stay out of both lists: the reference kept them as switches inside its own settings screen and
+  /// filed no theme file for one of them, so there is nothing here to wear until a file exists.
   /// </para>
   /// <para>
   /// <b>Two kinds of value are not verbatim in a skin, and both say so where they stand.</b> WMC had no colour for a
@@ -185,25 +189,30 @@ namespace MediaPortal.Frontend.Theming
         };
 
     /// <summary>
-    /// Names that used to be on the list and are not skins, were never skins: they are one of the two skins in
-    /// another tint, which the reference kept as settings of the skin rather than as choices of its own. A viewer
-    /// whose saved file still says one of these wears that skin in its shipped colours - the tint itself comes back
-    /// as the setting it was, not as a name here.
+    /// Names that used to be on the list and are not skins, were never skins: they are Nereus in another accent,
+    /// which the reference kept as a switch inside its own settings screen and filed no theme file for. A viewer
+    /// whose saved file still says one of these wears Nereus in its shipped colours - the accent comes back as
+    /// the setting it was the day a theme file for it exists. WMC's Dark and Turquoise are not in here: the
+    /// reference filed theme files for those, and a theme with a file is worn by its own name.
     /// </summary>
     private static readonly Dictionary<string, string> RETIRED =
         new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             ["nereus-blue"] = "nereus", ["nereus-green"] = "nereus", ["nereus-orange"] = "nereus",
-            ["nereus-purple"] = "nereus", ["nereus-red"] = "nereus", ["nereus-yellow"] = "nereus",
-            ["wmc-dark"] = "wmc", ["wmc-turquoise"] = "wmc"
+            ["nereus-purple"] = "nereus", ["nereus-red"] = "nereus", ["nereus-yellow"] = "nereus"
         };
 
     /// <summary>
-    /// Whether <paramref name="name"/> names a palette, ignoring case and surrounding spaces.
+    /// Whether <paramref name="name"/> names a theme the front end can wear, ignoring case and surrounding
+    /// spaces: one of <see cref="Names"/>, or a colour a shipped skin really carries - 'wmc-dark' is true when
+    /// the WMC skin stands with its Dark-WMC folder, and false on a machine where that skin is not installed.
     /// </summary>
     public static bool IsKnown(string? name)
     {
-      return name != null && PALETTES.ContainsKey(name.Trim());
+      if (name == null)
+        return false;
+
+      return PALETTES.ContainsKey(name.Trim()) || Resolve(name, out _) != null;
     }
 
     /// <summary>
@@ -218,9 +227,9 @@ namespace MediaPortal.Frontend.Theming
     /// null or empty means nobody ever picked.
     /// </para>
     /// <para>
-    /// A name that is a palette is answered as <see cref="Names"/> spells it, so that whatever a person typed is
-    /// printed back the same way everywhere. A name that is not one is passed along untouched, because the
-    /// sentence about it has to quote what was actually said.
+    /// A name the front end can wear - a palette, or a colour one of them ships - is answered as the theme list
+    /// spells it, so that whatever a person typed is printed back the same way everywhere. A name it cannot wear
+    /// is passed along untouched, because the sentence about it has to quote what was actually said.
     /// </para>
     /// </remarks>
     public static string SelectedName(string? fromCommandLine, string? savedName = null)
@@ -252,7 +261,7 @@ namespace MediaPortal.Frontend.Theming
     /// <exception cref="InvalidOperationException">The palette does not answer every key.</exception>
     public static ResourceDictionary Build(string name)
     {
-      Dictionary<string, string> palette = PaletteFor(name);
+      Dictionary<string, string> palette = ResolvePalette(name);
 
       ResourceDictionary brushes = new ResourceDictionary();
       foreach (string key in Keys)
@@ -284,7 +293,7 @@ namespace MediaPortal.Frontend.Theming
     /// that is not a colour.</exception>
     public static Color ColorOf(string name, string key)
     {
-      if (!PaletteFor(name).TryGetValue(key, out string? argb))
+      if (!ResolvePalette(name).TryGetValue(key, out string? argb))
         throw new InvalidOperationException(string.Format("The theme '{0}' says nothing about {1}.", name, key));
 
       return ParseColor(name, key, argb);
@@ -328,7 +337,8 @@ namespace MediaPortal.Frontend.Theming
       ApplyChrome(app, chosen);
 
       // The skin folder, if this name has one, dresses on top of the palette: colours the two share keep the
-      // palette's (the accent families are chosen as palettes), and everything only the skin files speak -
+      // palette's - and when the name said a colour theme, the palette was just built from that theme's own
+      // colour file, so what wins is the theme either way - and everything only the skin files speak -
       // the reference's own colour names, its measurements, its master templates, its control styles, its
       // overlays - arrives with it. A name with no folder, 'default' above all, takes the skin back off.
       SkinEngine.Apply(app, chosen, out string? skinProblem);
@@ -394,14 +404,22 @@ namespace MediaPortal.Frontend.Theming
     /// </summary>
     public static string CanonicalName(string name)
     {
-      foreach (string known in Names)
-      {
-        if (string.Equals(known, name.Trim(), StringComparison.OrdinalIgnoreCase))
-          return known;
-      }
+      SkinTheme? theme = Resolve(name, out string? baseName);
+      if (baseName == null)
+        throw new ArgumentException(string.Format("'{0}' is not a theme. Themes: {1}.", name,
+            string.Join(", ", Names)), nameof(name));
 
-      throw new ArgumentException(string.Format("'{0}' is not a theme. Themes: {1}.", name,
-          string.Join(", ", Names)), nameof(name));
+      if (theme != null)
+        return baseName + "-" + theme.Name;
+
+      // The skin behind the name is real but what stands behind its dash is not a theme it ships. Names like
+      // that are nobody's theme, and saying so belongs here; the callers let them travel untouched so their
+      // sentence can quote them.
+      if (name.Trim().IndexOf('-') > 0)
+        throw new ArgumentException(string.Format("'{0}' is not a theme. Themes: {1}.", name,
+            string.Join(", ", Names)), nameof(name));
+
+      return baseName;
     }
 
     /// <summary>
@@ -425,13 +443,81 @@ namespace MediaPortal.Frontend.Theming
       }
     }
 
-    private static Dictionary<string, string> PaletteFor(string name)
+    /// <summary>
+    /// The palette a name is drawn from: the table's own when the name is one of <see cref="Names"/>, and the
+    /// base skin's colours recoloured by the theme's own colour files when the name reaches a theme a shipped
+    /// skin carries. A key the theme's files do not speak keeps the base skin's answer, so a palette always
+    /// answers all fourteen, whatever a theme forgot to say.
+    /// </summary>
+    /// <exception cref="ArgumentException">No such theme.</exception>
+    private static Dictionary<string, string> ResolvePalette(string name)
     {
-      if (name == null || !PALETTES.TryGetValue(name.Trim(), out Dictionary<string, string>? palette))
+      SkinTheme? theme = Resolve(name, out string? baseName);
+      if (baseName == null)
         throw new ArgumentException(string.Format("'{0}' is not a theme. Themes: {1}.", name,
             string.Join(", ", Names)), nameof(name));
 
-      return palette;
+      if (theme == null)
+        return PALETTES[baseName];
+
+      Dictionary<string, string> colours = new Dictionary<string, string>(PALETTES[baseName]);
+      foreach (KeyValuePair<string, string> spoken in SkinEngine.ReadThemeColours(theme))
+      {
+        // Only the fourteen keys are palette business; the reference's own colour names travel in the theme
+        // files too, and they arrive through the skin engine when the theme is worn, not through a palette.
+        if (colours.ContainsKey(spoken.Key))
+          colours[spoken.Key] = spoken.Value;
+      }
+
+      return colours;
+    }
+
+    /// <summary>
+    /// The palette a name draws its base colours from: itself when it is one of <see cref="Names"/>, the skin
+    /// before the dash when it is a colour theme. A name that is neither is answered as it came, because there
+    /// is nothing here to say about it.
+    /// </summary>
+    public static string BasePaletteOf(string name)
+    {
+      return PaletteNamed(name) ?? name;
+    }
+
+    /// <summary>
+    /// What a name splits into: the palette it draws from, and the theme it asks that skin to wear, so long as
+    /// the skin is installed and ships the theme. A plain palette answers with no theme; nothing answers a name
+    /// whose head is not a palette or whose tail is not one of that skin's themes.
+    /// </summary>
+    private static SkinTheme? Resolve(string? name, out string? baseName)
+    {
+      baseName = name == null ? null : PaletteNamed(name);
+      if (baseName == null)
+        return null;
+
+      string trimmed = name!.Trim();
+      int dash = trimmed.IndexOf('-');
+      if (dash <= 0)
+        return null;
+
+      return SkinEngine.ThemeNamed(baseName, trimmed.Substring(dash + 1));
+    }
+
+    /// <summary>
+    /// Which of <see cref="Names"/> a name names, whole or as the head before a dash - <c>'WMC-Dark'</c> names
+    /// <c>'wmc'</c> - or null when no palette does.
+    /// </summary>
+    private static string? PaletteNamed(string name)
+    {
+      string trimmed = name.Trim();
+      int dash = trimmed.IndexOf('-');
+      string head = dash > 0 ? trimmed.Substring(0, dash) : trimmed;
+
+      foreach (string known in Names)
+      {
+        if (string.Equals(known, head, StringComparison.OrdinalIgnoreCase))
+          return known;
+      }
+
+      return null;
     }
   }
 }

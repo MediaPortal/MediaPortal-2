@@ -626,6 +626,75 @@ namespace MediaPortal.Frontend.Theming
     }
 
     /// <summary>
+    /// The colours a theme's own colour files speak, as key to hex value, read without wearing anything.
+    /// The later file wins a key, as it does when the theme is worn, and a key nobody speaks is simply absent.
+    /// This is read as XML and not as XAML because the answer wanted is the text a colour is written in -
+    /// the same answer a viewer gets from opening the file - and because it has to be answerable without an
+    /// application to load XAML into, which is what lets the palette be asked what a theme would paint before
+    /// one has ever been put on.
+    /// </summary>
+    internal static Dictionary<string, string> ReadThemeColours(SkinTheme theme)
+    {
+      Dictionary<string, string> colours = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+      foreach (SkinThemeFile file in theme.Files)
+      {
+        if (!file.Role.Equals("colors", StringComparison.OrdinalIgnoreCase))
+          continue;
+
+        string uri = theme.AssetUri(file.Name);
+        System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+        try
+        {
+          if (uri.StartsWith("avares://", StringComparison.OrdinalIgnoreCase))
+          {
+            using Stream asset = AssetLoader.Open(new Uri(uri));
+            doc.Load(asset);
+          }
+          else
+          {
+            using Stream disk = File.OpenRead(uri);
+            doc.Load(disk);
+          }
+        }
+        catch (Exception e)
+        {
+          throw new InvalidDataException(string.Format("the colour file '{0}' could not be read: {1}",
+              uri, e.Message));
+        }
+
+        foreach (System.Xml.XmlNode node in doc.ChildNodes)
+        {
+          if (node.NodeType != System.Xml.XmlNodeType.Element)
+            continue;
+
+          foreach (System.Xml.XmlNode brush in node.ChildNodes)
+            CollectColour(brush, colours);
+        }
+      }
+
+      return colours;
+    }
+
+    private static void CollectColour(System.Xml.XmlNode node, Dictionary<string, string> colours)
+    {
+      if (node.NodeType != System.Xml.XmlNodeType.Element)
+        return;
+
+      if (node.Name == "SolidColorBrush" || node.Name == "Color")
+      {
+        string? key = node.Attributes?["x:Key"]?.Value ?? node.Attributes?["Key"]?.Value;
+        string text = node.InnerText.Trim();
+        if (!string.IsNullOrEmpty(key) && text.Length > 0)
+          colours[key!] = text;
+      }
+
+      // A theme too plain to nest speaks its keys at the top; a skin that ever groups them still answers.
+      foreach (System.Xml.XmlNode child in node.ChildNodes)
+        CollectColour(child, colours);
+    }
+
+    /// <summary>
     /// Read one of a theme's picture files - the background the theme stands on - from disk or from the
     /// assembly. A file that is not a picture complains in the same sentence the rest of the skin is reported
     /// in, and the skin stays off rather than half-worn.
@@ -712,6 +781,17 @@ namespace MediaPortal.Frontend.Theming
 
       skinName = name.Substring(0, dash);
       themeName = name.Substring(dash + 1);
+    }
+
+    /// <summary>
+    /// The theme a name like 'wmc-dark' points at: the theme 'dark' of the skin 'wmc', so long as that skin is
+    /// installed and really ships that theme. No theme comes back when the name says none, when the skin is not
+    /// there, or when it never shipped the theme asked for - which is how an accent family the reference filed
+    /// inside its settings screen stays unwearable until a theme file for one exists.
+    /// </summary>
+    public static SkinTheme? ThemeNamed(string skinName, string themeName)
+    {
+      return Find(skinName)?.ThemeByName(themeName);
     }
   }
 }

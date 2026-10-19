@@ -14,9 +14,10 @@
     5. the same front end aimed at a port nobody listens on must exit 1 and say so, because a check that
        cannot fail is not a check;
     6. while the server is still up, Frontend.RenderProbe draws the real screens through Skia and writes
-       sixteen PNGs (default build\artifacts\frontend-render\: home, continue, browser, details, search,
-       seen, nowplaying, connect, pictures, browse, news, weather, party, settings, and the playback
-       screen twice more drawn with the colours of the two rescued skins).
+       nineteen PNGs (default build\artifacts\frontend-render\: home, continue, browser, details, search,
+       seen, nowplaying, connect, pictures, browse, news, weather, party - and then the playback screen, the
+       home menu and the settings screen twice more each, wearing the two rescued skins and, for settings,
+       WMC's own dark colours).
        The probe fails this gate if a frame comes back flat, and if the pixels it was painted with are not
        the palette the frame asked for; the pictures themselves are for a person, and -SkipRender leaves
        them out.
@@ -356,7 +357,12 @@ try {
         # accents by name - the three the front end knows, each needing a painted
         # row. It is drawn with a skin other than its rows' colours on purpose: what a viewer picks on this
         # screen must survive being looked at through somebody else's colours.
-        @{ Name = 'settings-nereus'; Arguments = '--screen settings --theme nereus' }
+        @{ Name = 'settings-nereus'; Arguments = '--screen settings --theme nereus' },
+        # The settings screen wearing WMC in its dark colours, which is the frame for the second question the
+        # screen asks: a shipped colour theme is not only in the palette table but on the television - the
+        # screen stands on Dark-WMC's own background file, the colour rows sit under the skin rows, and the
+        # dark row's swatch paints Dark-WMC's grey rather than WMC's blue.
+        @{ Name = 'settings-wmc-dark'; Arguments = '--screen settings --theme wmc-dark' }
       )
       foreach ($frame in $frames) {
         $renderFile = Join-Path $RenderDir ($frame.Name + '.png')

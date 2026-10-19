@@ -40,6 +40,61 @@
                Margin="0,8,0,0"
                TextWrapping="Wrap" />
 
+    <!--
+      The skin's own colours, on the screen that wears the skin - which is where the reference kept them, as a
+      setting of the skin rather than a skin of its own. A second list because it answers a second question: the
+      one above picks which skin, this one picks what that skin is standing in. Same rows for the same reason -
+      the swatch is the answer - and off entirely for a skin that ships one colour file, so nobody is offered a
+      section of nothing.
+    -->
+    <StackPanel DockPanel.Dock="Bottom" Spacing="2" Margin="0,8,0,0"
+                IsVisible="{Binding HasColours}">
+      <TextBlock Text="{Binding ColourHeading}"
+                 FontSize="14"
+                 Opacity="0.7"
+                 TextTrimming="CharacterEllipsis" />
+      <ListBox Name="coloursList"
+               Focusable="True"
+               ItemsSource="{Binding Colours}"
+               SelectedItem="{Binding SelectedColour, Mode=TwoWay}"
+               FontSize="15">
+        <ListBox.Styles>
+          <Style Selector="ListBoxItem">
+            <Setter Property="Padding" Value="12,2"/>
+          </Style>
+        </ListBox.Styles>
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="vm:ThemeChoice">
+            <StackPanel Orientation="Horizontal" Spacing="14" Margin="2,1">
+              <TextBlock Text="{Binding Name}"
+                         FontSize="16"
+                         MinWidth="150"
+                         VerticalAlignment="Center" />
+              <TextBlock Text="WORN"
+                         FontSize="13"
+                         FontWeight="Bold"
+                         Foreground="{DynamicResource AccentBrush}"
+                         MinWidth="70"
+                         VerticalAlignment="Center"
+                         IsVisible="{Binding IsCurrent}" />
+              <TextBlock Text="{Binding Description}"
+                         FontSize="13"
+                         Opacity="0.7"
+                         TextTrimming="CharacterEllipsis"
+                         VerticalAlignment="Center"
+                         Width="250" />
+              <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" VerticalAlignment="Center">
+                <Rectangle Width="64" Height="20" Fill="{Binding PanelBrush}" />
+              </Border>
+              <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" VerticalAlignment="Center">
+                <Rectangle Width="64" Height="20" Fill="{Binding AccentBrush}" />
+              </Border>
+            </StackPanel>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </StackPanel>
+
     <ListBox Name="themesList"
              Focusable="True"
              ItemsSource="{Binding Themes}"

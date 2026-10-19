@@ -30,9 +30,10 @@ namespace MediaPortal.Frontend.Views
   /// The front end's settings screen: the themes, each wearing its own colours, the one it wears marked.
   /// </summary>
   /// <remarks>
-  /// There is exactly one control on this screen, on purpose: the list. Selecting a row is the whole interaction
-  /// - it repaints the screen itself along with everything behind it - so the d-pad ring is a single control and
-  /// Back is the only other key the screen answers.
+  /// There are two lists on this screen and they answer two questions: which skin, and - only when the worn skin
+  /// ships more colours than its default - which of that skin's own colour themes. Both work the same way:
+  /// selecting a row is the whole interaction, it repaints the screen itself along with everything behind it,
+  /// and Back is the only other key the screen answers.
   /// </remarks>
   public partial class ThemeView : UserControl, IWorkflowScreen
   {
@@ -57,6 +58,9 @@ namespace MediaPortal.Frontend.Views
       InitializeComponent();
 
       _ring.Add(themesList);
+      // The colour list joins the ring even when it is off: DpadNavigation walks over what it cannot see, so a
+      // skin that ships one colour leaves the ring exactly as wide as it was.
+      _ring.Add(coloursList);
       DpadNavigation.Attach(this, _ring);
 
       // The list opens focused so the arrow keys and the screen's own colour logic agree from the first
