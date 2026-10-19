@@ -21,6 +21,37 @@
     tile, never under it. The reference WMC home screen had no local-media tile, so that entry is this skin's
     one letter badge.
   -->
+  <!--
+    The settings list as WMC wore its configuration menu: a full-width band like the home tiles, the
+    section's name large and bold on it, the one sentence of what you can do here under it, and whose
+    machine it belongs to sitting on the band's right edge where WMC put a band's state - on the band,
+    never under it.
+  -->
+  <DataTemplate x:Key="SettingsRowTemplate" x:DataType="vm:SettingsSection">
+    <Border Background="{DynamicResource PanelBrush}"
+            BorderBrush="{DynamicResource AccentBrush}"
+            BorderThickness="0,0,0,3"
+            CornerRadius="{DynamicResource DialogBorderCornerRadius}"
+            Padding="18,10,18,10"
+            Margin="0,4,10,6">
+      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="14">
+        <StackPanel Grid.Column="0" Spacing="2">
+          <TextBlock Text="{Binding Name}" FontSize="24" FontWeight="Bold"
+                     Foreground="{DynamicResource TextBrush}"
+                     TextTrimming="CharacterEllipsis"/>
+          <TextBlock Text="{Binding Description}"
+                     FontSize="{DynamicResource SmallerFontSize}"
+                     Foreground="{DynamicResource MutedTextBrush}"
+                     TextWrapping="Wrap"/>
+        </StackPanel>
+        <TextBlock Grid.Column="1" Text="{Binding Owner}"
+                   FontSize="{DynamicResource SmallerFontSize}"
+                   Foreground="{DynamicResource AccentBrush}"
+                   VerticalAlignment="Bottom"/>
+      </Grid>
+    </Border>
+  </DataTemplate>
+
   <DataTemplate x:Key="HomeMenuTileTemplate" x:DataType="vm:MainMenuEntry">
     <Border Background="{DynamicResource PanelBrush}"
             BorderBrush="{DynamicResource AccentBrush}"

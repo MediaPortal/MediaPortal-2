@@ -24,6 +24,28 @@
     each tile by the bare Id, so that is the format this skin spells; an entry the skin has no picture for -
     one this front end added on top of MP2's menu - wears its letter badge instead.
   -->
+  <!--
+    The settings list, as Nereus wore its configuration menu: the section's own name in the reading size,
+    whose machine it belongs to said under it in the quiet colour, and the one sentence of what you can do
+    here under both. No pictures: the reference asked the skin for a SettingsMenu\<section>.jpg and this
+    tree has never carried one, and a row that invents a picture is a row with a hole in it.
+  -->
+  <DataTemplate x:Key="SettingsRowTemplate" x:DataType="vm:SettingsSection">
+    <StackPanel Spacing="1" Margin="0,6,10,8">
+      <TextBlock Text="{Binding Name}"
+                 FontSize="{DynamicResource NormalFontSize}"
+                 Foreground="{DynamicResource TextBrush}"/>
+      <TextBlock Text="{Binding Description}"
+                 FontSize="{DynamicResource SmallerFontSize}"
+                 Foreground="{DynamicResource MutedTextBrush}"
+                 TextWrapping="Wrap"/>
+      <TextBlock Text="{Binding Owner}"
+                 FontSize="{DynamicResource SmallerFontSize}"
+                 Foreground="{DynamicResource AccentBrush}"
+                 Opacity="0.8"/>
+    </StackPanel>
+  </DataTemplate>
+
   <DataTemplate x:Key="HomeMenuTileTemplate" x:DataType="vm:MainMenuEntry">
     <StackPanel Spacing="1" Margin="0,5,10,7">
       <StackPanel Orientation="Horizontal" Spacing="10">
