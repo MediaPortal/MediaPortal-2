@@ -19,20 +19,20 @@
   <ControlTemplate x:Key="ChromeHeaderTemplate" TargetType="ContentControl">
     <Grid ColumnDefinitions="*,Auto,Auto" Margin="10,0" Background="{DynamicResource ScreenBackgroundBrush}">
       <TextBlock Grid.Column="0" Text="{Binding ScreenTitle}"
-                 Foreground="{DynamicResource Text}" FontSize="{DynamicResource HeaderFontSize}"
+                 Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeaderFontSize}"
                  VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
       <TextBlock Grid.Column="1" Text="{Binding ServerNotice}"
                  IsVisible="{Binding HasServerNotice}"
-                 Foreground="{DynamicResource Muted}" FontSize="{DynamicResource SmallerFontSize}"
+                 Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource SmallerFontSize}"
                  VerticalAlignment="Center" Margin="0,0,24,0"
                  TextTrimming="CharacterEllipsis" MaxWidth="420"/>
       <StackPanel Grid.Column="2" Orientation="Vertical" VerticalAlignment="Center" Margin="10,0">
         <TextBlock Text="{Binding Clock}" HorizontalAlignment="Right"
                    IsVisible="{Binding ShowTime}"
-                   Foreground="{DynamicResource Text}" FontSize="{DynamicResource DateTimeFontSize}"/>
+                   Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource DateTimeFontSize}"/>
         <TextBlock Text="{Binding Date}" HorizontalAlignment="Right"
                    IsVisible="{Binding ShowDate}"
-                   Foreground="{DynamicResource Muted}" FontSize="{DynamicResource SmallerFontSize}"/>
+                   Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource SmallerFontSize}"/>
       </StackPanel>
     </Grid>
   </ControlTemplate>
@@ -45,13 +45,13 @@
     <Grid ColumnDefinitions="Auto,*,Auto" Margin="10,0" Background="{DynamicResource ScreenBackgroundBrush}"
           IsVisible="{Binding HasMedia}">
       <TextBlock Grid.Column="0" Text="{Binding NowPlayingTitle}"
-                 Foreground="{DynamicResource Text}" FontSize="{DynamicResource SmallerFontSize}"
+                 Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource SmallerFontSize}"
                  VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="600"/>
       <ProgressBar Grid.Column="1" Value="{Binding NowPlayingProgress}" Maximum="100"
-                   Foreground="{DynamicResource Accent}" Background="{DynamicResource Outline}"
+                   Foreground="{DynamicResource AccentBrush}" Background="{DynamicResource OutlineBrush}"
                    Height="2" Margin="20,0" VerticalAlignment="Center"/>
       <TextBlock Grid.Column="2" Text="{Binding NowPlayingState}"
-                 Foreground="{DynamicResource Muted}" FontSize="{DynamicResource SmallerFontSize}"
+                 Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource SmallerFontSize}"
                  VerticalAlignment="Center"/>
     </Grid>
   </ControlTemplate>
