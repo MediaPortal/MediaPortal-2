@@ -649,6 +649,12 @@ namespace MediaPortal.Frontend
       model.Add("Appearance", "Frontend", "The colours and the skin this machine wears",
           delegate { return new ThemeView(new ThemeViewModel(this)); });
 
+      // The skin's own area, as the reference filed it at /Appearance/SkinSettings: not part of choosing a
+      // skin, but the switches the skin that was chosen brings with it - Nereus's, WMC's, or none at all
+      // when the machine wears the front end's own face.
+      model.Add("Skin settings", "Skin", "What the worn skin itself lets you change",
+          delegate { return new SkinSettingsView(this); });
+
       model.Add("Server address", "Frontend", "Which machine holds the library",
           null, delegate { _workflow.Push(ConnectionFrame()); });
 
