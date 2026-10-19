@@ -351,6 +351,22 @@
           </StackPanel>
         </StackPanel>
         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+          <!--
+            The state of play, in this skin's own pictures of it: WMC's themes/default/styles/Buttons.xaml hangs
+            PlayerControl\PLAY.NOFOCUS.PNG and its PAUSE sibling at height 45 for its transport row, and the band
+            wears the same two files at a bar's height to say what the player is doing rather than to ask for a
+            press it cannot take. One of them is up while the film runs or waits; neither is up when it stopped,
+            finished or failed, and the word beside them is left to say that on its own. The bound word only gives
+            the converter something to answer with - the name is the parameter, as it is on this skin's tiles.
+          -->
+          <Image Source="{Binding Title, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='PlayerControl/PLAY.NOFOCUS'}"
+                 Height="26" Stretch="Uniform" VerticalAlignment="Center"
+                 IsVisible="{Binding IsPlaying, Mode=OneWay}"/>
+          <Image Source="{Binding Title, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='PlayerControl/PAUSE.NOFOCUS'}"
+                 Height="26" Stretch="Uniform" VerticalAlignment="Center"
+                 IsVisible="{Binding IsPaused, Mode=OneWay}"/>
           <TextBlock Text="{Binding StateText}"
                      FontSize="18" FontWeight="SemiBold"
                      Foreground="{DynamicResource MutedTextBrush}"

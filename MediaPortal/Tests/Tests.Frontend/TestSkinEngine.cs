@@ -180,6 +180,39 @@ namespace Tests.Frontend
     }
 
     [AvaloniaTest]
+    public void BothShippedSkinsCarryTheTransportPicturesThePlaybackBarWears()
+    {
+      // Both bars say the state of play with the skin's own two pictures, asked by the name this front end
+      // spells from the reference's transport buttons - PlayerControl/PLAY.NOFOCUS and its PAUSE sibling. A name
+      // a skin does not carry is not an error but a quiet hole on the television, so the two names are asked of
+      // the shipped folders here, the way the home tiles' pictures are.
+      Application app = Application.Current!;
+      string? previousFolder = SkinEngine.SkinsFolder;
+      SkinEngine.SkinsFolder = Path.Combine(MetadataPath("FrontendSource"), "Skins");
+      try
+      {
+        Assert.That(SkinEngine.Apply(app, "nereus", out string? nereusProblem), Is.True,
+            nereusProblem ?? "applied");
+        SkinImages nereus = SkinEngine.Worn(app)!.Images;
+        Assert.That(nereus.Has("PlayerControl/PLAY.NOFOCUS"), Is.True,
+            "Nereus has no play picture for its bar, which would then say nothing while a film ran");
+        Assert.That(nereus.Has("PlayerControl/PAUSE.NOFOCUS"), Is.True,
+            "and it has no pause picture either, so a paused film would wear nothing");
+        SkinEngine.Clear(app);
+
+        Assert.That(SkinEngine.Apply(app, "wmc", out string? wmcProblem), Is.True, wmcProblem ?? "applied");
+        SkinImages wmc = SkinEngine.Worn(app)!.Images;
+        Assert.That(wmc.Has("PlayerControl/PLAY.NOFOCUS"), Is.True,
+            "WMC's band asks for the same two words and its skin carries them under the same names");
+        Assert.That(wmc.Has("PlayerControl/PAUSE.NOFOCUS"), Is.True, "both spellings included");
+      }
+      finally
+      {
+        SkinEngine.SkinsFolder = previousFolder;
+      }
+    }
+
+    [AvaloniaTest]
     public void WearingADarkThemeReadsItsOwnColoursOverTheDefaults()
     {
       Application app = Application.Current!;

@@ -343,6 +343,26 @@
           </StackPanel>
         </StackPanel>
         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="18" VerticalAlignment="Center">
+          <!--
+            What the player is doing, in this skin's own picture of it. These are the transport pictures the
+            reference drew - themes/default/styles/Buttons.xaml hangs PlayerControl\PLAY.NOFOCUS.PNG and its
+            PAUSE sibling at height 80 - worn here at a bar's height rather than a button's, because a bar has
+            nobody behind it to catch a press and so says the state instead of asking for one. Only one of the
+            two is ever up: playing wears PLAY, a pause wears PAUSE, and a film that stopped, finished or failed
+            wears neither, which leaves the word beside it to say what the picture cannot.
+
+            The bound word only gives the converter something to answer with; the name the skin spells is the
+            parameter, exactly as the home tiles spell their IsPlaying mark. A skin without these pictures draws
+            an empty space rather than a hole.
+          -->
+          <Image Source="{Binding Title, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='PlayerControl/PLAY.NOFOCUS'}"
+                 Height="34" Stretch="Uniform" VerticalAlignment="Center"
+                 IsVisible="{Binding IsPlaying, Mode=OneWay}"/>
+          <Image Source="{Binding Title, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='PlayerControl/PAUSE.NOFOCUS'}"
+                 Height="34" Stretch="Uniform" VerticalAlignment="Center"
+                 IsVisible="{Binding IsPaused, Mode=OneWay}"/>
           <TextBlock Text="{Binding StateText}"
                      FontSize="{DynamicResource SmallerFontSize}"
                      Foreground="{DynamicResource MutedTextBrush}"
