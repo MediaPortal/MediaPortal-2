@@ -12,9 +12,9 @@
 
   <!-- The volume: one big line of text, Nereus-sized, lower third of the screen like the reference. -->
   <ControlTemplate x:Key="Superlayer_Volume" TargetType="ContentControl">
-    <Border Background="{DynamicResource Scrim}" IsHitTestVisible="False">
+    <Border Background="{DynamicResource ScrimBrush}" IsHitTestVisible="False">
       <TextBlock Text="{TemplateBinding Content}"
-                 Foreground="{DynamicResource Text}" FontSize="{DynamicResource DateTimeFontSize}"
+                 Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource DateTimeFontSize}"
                  HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,120"/>
     </Border>
   </ControlTemplate>
@@ -23,24 +23,33 @@
     The skip step: the reference's SkipStepOSD measured from its file - a 350x100 dialog panel held in
     the centre (pushed down a hundred and right-inset fifty, exactly as the reference places it), wrapped
     in the six glow rings the reference stacks at growing opacity, the last ring a quarter-lit outline.
-    The rings take the palette's light colour, which is what the reference's NereusColorLight is; the
-    rounding flag belongs to the dialog masters (B5), so the rings stay square until then. Normal font
-    size, like the reference label - this says a number, it does not shout it.
+    The rings and the panel are the dialog frame's three dials - the same white/focus/none expression, the
+    same transparency and the same rounding switch that master_dialog_bare reads and this file's dialog
+    frame reads; the reference bound all of them to the same settings, and so here. Normal font size, like
+    the reference label - this says a number, it does not shout it.
   -->
   <ControlTemplate x:Key="Superlayer_SkipStep" TargetType="ContentControl">
     <Border Background="Transparent" IsHitTestVisible="False">
-      <Border Width="350" Height="100" Background="{DynamicResource Panel}"
+      <Border Width="350" Height="100" Background="{DynamicResource DialogPanelBrush}"
+              CornerRadius="{DynamicResource DialogCornerRadius}"
               HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,100,50,0">
         <Panel>
-          <Border BorderBrush="{DynamicResource Outline}" BorderThickness="3" Opacity="0.04" Margin="-15"/>
-          <Border BorderBrush="{DynamicResource Outline}" BorderThickness="2" Opacity="0.06" Margin="-12"/>
-          <Border BorderBrush="{DynamicResource Outline}" BorderThickness="2" Opacity="0.08" Margin="-10"/>
-          <Border BorderBrush="{DynamicResource Outline}" BorderThickness="2" Opacity="0.10" Margin="-8"/>
-          <Border BorderBrush="{DynamicResource Outline}" BorderThickness="2" Opacity="0.13" Margin="-6"/>
-          <Border BorderBrush="{DynamicResource Outline}" BorderThickness="2" Opacity="0.18" Margin="-4"/>
-          <Border BorderBrush="{DynamicResource Outline}" BorderThickness="2" Opacity="0.25" Margin="-2"/>
+          <Border BorderBrush="{DynamicResource DialogBorderBrush}" BorderThickness="3" Opacity="0.04" Margin="-15"
+                  CornerRadius="{DynamicResource DialogCornerRadius}"/>
+          <Border BorderBrush="{DynamicResource DialogBorderBrush}" BorderThickness="2" Opacity="0.06" Margin="-12"
+                  CornerRadius="{DynamicResource DialogCornerRadius}"/>
+          <Border BorderBrush="{DynamicResource DialogBorderBrush}" BorderThickness="2" Opacity="0.08" Margin="-10"
+                  CornerRadius="{DynamicResource DialogCornerRadius}"/>
+          <Border BorderBrush="{DynamicResource DialogBorderBrush}" BorderThickness="2" Opacity="0.10" Margin="-8"
+                  CornerRadius="{DynamicResource DialogCornerRadius}"/>
+          <Border BorderBrush="{DynamicResource DialogBorderBrush}" BorderThickness="2" Opacity="0.13" Margin="-6"
+                  CornerRadius="{DynamicResource DialogCornerRadius}"/>
+          <Border BorderBrush="{DynamicResource DialogBorderBrush}" BorderThickness="2" Opacity="0.18" Margin="-4"
+                  CornerRadius="{DynamicResource DialogCornerRadius}"/>
+          <Border BorderBrush="{DynamicResource DialogBorderBrush}" BorderThickness="2" Opacity="0.25" Margin="-2"
+                  CornerRadius="{DynamicResource DialogCornerRadius}"/>
           <TextBlock Text="{TemplateBinding Content}" Margin="10,5"
-                     Foreground="{DynamicResource Text}" FontSize="{DynamicResource NormalFontSize}"
+                     Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource NormalFontSize}"
                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Panel>
       </Border>
@@ -49,13 +58,13 @@
 
   <!-- Busy: the screen dims, the words are centred, and the accent line underneath is still moving. -->
   <ControlTemplate x:Key="Superlayer_Busy" TargetType="ContentControl">
-    <Border Background="{DynamicResource Scrim}" IsHitTestVisible="False">
+    <Border Background="{DynamicResource ScrimBrush}" IsHitTestVisible="False">
       <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20">
         <TextBlock Text="{TemplateBinding Content}"
-                   Foreground="{DynamicResource Text}" FontSize="{DynamicResource DateTimeFontSize}"
+                   Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource DateTimeFontSize}"
                    HorizontalAlignment="Center"/>
         <ProgressBar IsIndeterminate="True" Width="400" Height="3"
-                     Foreground="{DynamicResource Accent}" Background="{DynamicResource Outline}"/>
+                     Foreground="{DynamicResource AccentBrush}" Background="{DynamicResource OutlineBrush}"/>
       </StackPanel>
     </Border>
   </ControlTemplate>

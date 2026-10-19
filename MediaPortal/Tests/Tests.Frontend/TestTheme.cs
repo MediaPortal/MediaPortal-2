@@ -240,6 +240,70 @@ namespace Tests.Frontend
       }
     }
 
+    /// <summary>
+    /// The reference's dialog master read three dials off the skin settings when it drew a dialog: the glow
+    /// round the panel (white, focus-coloured, or nothing), the panel's transparency, and whether the corners
+    /// are round. The dialogs have shipped, so those dials have to steer the shipped frame - through the three
+    /// palette keys the frame binds, DialogBorderBrush, DialogPanelBrush and DialogCornerRadius.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheDialogDialsPaintTheFrameTheReferenceHungOnThem()
+    {
+      string previousDir = Environment.GetEnvironmentVariable("MP2_SKIN_SETTINGS_DIR") ?? "";
+      Environment.SetEnvironmentVariable("MP2_SKIN_SETTINGS_DIR",
+          Path.Combine(Path.GetTempPath(), "mp2-dialog-" + Guid.NewGuid().ToString("N")));
+      try
+      {
+        Application app = RequireApplication();
+
+        FrontendTheme.Apply(app, "nereus", out _);
+        // The shipped defaults: focus colour dyes the frame, the panel stands at the reference's 0.85, and
+        // the corners are square because the rounding switch ships off.
+        Assert.That(((SolidColorBrush) DialogResource(app, "DialogBorderBrush")).Color,
+            Is.EqualTo(FrontendTheme.ColorOf("nereus", "AccentBrush")),
+            "UseFocusColor is on by default, and the reference frames its dialogs with the light accent then");
+        Assert.That(((SolidColorBrush) DialogResource(app, "DialogPanelBrush")).Color.A, Is.EqualTo((byte) 217),
+            "0.85 is the reference's DialogBackgroundOpacity, and transparency is on by default - 217/255 is that");
+        Assert.That(DialogResource(app, "DialogCornerRadius"), Is.EqualTo(new CornerRadius(0)),
+            "and Nereus ships its corners square");
+
+        NereusSkinSettings dials = new NereusSkinSettings();
+        dials.UseWhiteColor = true;
+        dials.UseRoundedDialogCorners = true;
+        dials.UseTransparency = false;
+        dials.Save(null, out _);
+
+        FrontendTheme.Reapply(app);
+        Assert.That(((SolidColorBrush) DialogResource(app, "DialogBorderBrush")).Color, Is.EqualTo(Colors.White),
+            "the white dial wins the frame, exactly as the reference's expression puts it first");
+        Assert.That(DialogResource(app, "DialogCornerRadius"), Is.EqualTo(new CornerRadius(6)),
+            "the rounding dial is the reference's DialogBorderCornerRadius, which Consts.xaml sets to six");
+        Assert.That(((SolidColorBrush) DialogResource(app, "DialogPanelBrush")).Color.A, Is.EqualTo((byte) 255),
+            "and turning transparency off makes the panel opaque");
+
+        dials = new NereusSkinSettings();
+        dials.UseFocusColor = false;
+        dials.Save(null, out _);
+
+        FrontendTheme.Reapply(app);
+        Assert.That(((SolidColorBrush) DialogResource(app, "DialogBorderBrush")).Color,
+            Is.EqualTo(Colors.Transparent),
+            "no white and no focus colour is the 'no colour' answer: the reference frame is Transparent then");
+      }
+      finally
+      {
+        Environment.SetEnvironmentVariable("MP2_SKIN_SETTINGS_DIR", previousDir.Length == 0 ? null : previousDir);
+      }
+    }
+
+    /// <summary>A dialog-frame resource on the worn palette, with a failure that names the key.</summary>
+    private static object DialogResource(Application app, string key)
+    {
+      Assert.That(app.TryFindResource(key, out object? found), Is.True,
+          "nothing on the application answers " + key + " - the dialog frame would stand there undressed");
+      return found!;
+    }
+
     [AvaloniaTest]
     public void AThemeThatDoesNotExistIsSaidOutLoudAndChangesNothing()
     {

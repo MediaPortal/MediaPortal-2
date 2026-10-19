@@ -475,17 +475,17 @@
 
   <!--
     The dialog frame: the slab a dialog stands on. The reference's dialog master (master_dialog_bare) laid a
-    dialog's contents on a panel with the skin's border, and Nereus kept its corners square - the rounding
-    there was gated on UseRoundedDialogCorners, which belongs to the dialog masters and is honoured when the
-    dialogs come, so this frame keeps the palette's square corners until the flag says otherwise, the same
-    promise this skin's Superlayer_SkipStep made about the same flag. The frame frames whatever a screen
-    opens, which is no view model's property bag, so this is the one template in the file that names no
-    view model: it is pinned to Object, and its single pathless binding only passes the dialog's own body
-    through.
+    dialog's contents on a panel whose glow was white, focus-coloured or absent and whose corners were round
+    only while the rounding switch said so - three dials on the skin settings screen, now written into the
+    palette by FrontendTheme.TintFromSkinSettings and read back here as DialogBorderBrush, DialogPanelBrush
+    and DialogCornerRadius. The frame frames whatever a screen opens, which is no view model's property bag,
+    so this is the one template in the file that names no view model: it is pinned to Object, and its single
+    pathless binding only passes the dialog's own body through.
   -->
   <DataTemplate x:Key="DialogFrameTemplate" x:DataType="x:Object">
-    <Border Background="{DynamicResource PanelBrush}"
-            BorderBrush="{DynamicResource OutlineBrush}"
+    <Border Background="{DynamicResource DialogPanelBrush}"
+            BorderBrush="{DynamicResource DialogBorderBrush}"
+            CornerRadius="{DynamicResource DialogCornerRadius}"
             BorderThickness="2"
             Padding="30,24"
             MaxWidth="760"

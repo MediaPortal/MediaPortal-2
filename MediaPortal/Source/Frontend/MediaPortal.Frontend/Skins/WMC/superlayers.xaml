@@ -12,11 +12,11 @@
 
   <!-- The volume: a small slab in the middle, the way WMC interrupted the picture. -->
   <ControlTemplate x:Key="Superlayer_Volume" TargetType="ContentControl">
-    <Border Background="{DynamicResource Scrim}" IsHitTestVisible="False">
-      <Border Background="{DynamicResource Panel}" CornerRadius="{DynamicResource DialogBorderCornerRadius}"
+    <Border Background="{DynamicResource ScrimBrush}" IsHitTestVisible="False">
+      <Border Background="{DynamicResource PanelBrush}" CornerRadius="{DynamicResource DialogBorderCornerRadius}"
               HorizontalAlignment="Center" VerticalAlignment="Center" Padding="30,15">
         <TextBlock Text="{TemplateBinding Content}"
-                   Foreground="{DynamicResource Text}" FontSize="{DynamicResource NormalFontSize}"/>
+                   Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource NormalFontSize}"/>
       </Border>
     </Border>
   </ControlTemplate>
@@ -46,7 +46,7 @@
           </LinearGradientBrush>
         </Border.Background>
         <TextBlock Text="{TemplateBinding Content}" Margin="5"
-                   Foreground="{DynamicResource Text}" FontSize="{DynamicResource NormalFontSize}"
+                   Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource NormalFontSize}"
                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
       </Border>
     </Border>
@@ -54,13 +54,13 @@
 
   <!-- Busy: the screen dims, the words are centred, and the accent line underneath is still moving. -->
   <ControlTemplate x:Key="Superlayer_Busy" TargetType="ContentControl">
-    <Border Background="{DynamicResource Scrim}" IsHitTestVisible="False">
+    <Border Background="{DynamicResource ScrimBrush}" IsHitTestVisible="False">
       <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20">
         <TextBlock Text="{TemplateBinding Content}"
-                   Foreground="{DynamicResource Text}" FontSize="{DynamicResource NormalFontSize}"
+                   Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource NormalFontSize}"
                    HorizontalAlignment="Center"/>
         <ProgressBar IsIndeterminate="True" Width="400" Height="3"
-                     Foreground="{DynamicResource Accent}" Background="{DynamicResource Outline}"/>
+                     Foreground="{DynamicResource AccentBrush}" Background="{DynamicResource OutlineBrush}"/>
       </StackPanel>
     </Border>
   </ControlTemplate>

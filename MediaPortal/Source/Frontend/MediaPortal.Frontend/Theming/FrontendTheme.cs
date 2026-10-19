@@ -370,6 +370,25 @@ namespace MediaPortal.Frontend.Theming
       brushes["AccentBrush"] = new SolidColorBrush(ParseColor(chosen, "AccentBrush", light));
       brushes["PanelRaisedBrush"] = new SolidColorBrush(ParseColor(chosen, "PanelRaisedBrush", medium));
       brushes["PanelBrush"] = new SolidColorBrush(ParseColor(chosen, "PanelBrush", dark));
+
+      // The dialog frame's three dials, which the reference's dialog master read straight off these settings:
+      // the glow round the panel is white when white is chosen, the light accent when the focus colour is, and
+      // nothing at all when the viewer said no colour; the panel itself stands at DialogBackgroundOpacity while
+      // transparency is on and opaque when it is off; and the corners are round only when the rounding switch
+      // says so - the reference's roundness is its DialogBorderCornerRadius, which Consts.xaml sets to six.
+      Color panelDark = ParseColor(chosen, "PanelBrush", dark);
+      byte panelAlpha = nereus.UseTransparency
+          ? (byte) Math.Round(Math.Clamp(nereus.DialogBackgroundOpacity, 0.05, 1.0) * 255.0)
+          : (byte) 255;
+      brushes["DialogPanelBrush"] = new SolidColorBrush(Color.FromArgb(panelAlpha, panelDark.R, panelDark.G, panelDark.B));
+
+      IBrush frame = nereus.UseWhiteColor
+          ? new SolidColorBrush(Colors.White)
+          : !nereus.UseNoColor && nereus.UseFocusColor
+              ? new SolidColorBrush(ParseColor(chosen, "AccentBrush", light))
+              : new SolidColorBrush(Colors.Transparent);
+      brushes["DialogBorderBrush"] = frame;
+      brushes["DialogCornerRadius"] = new CornerRadius(nereus.UseRoundedDialogCorners ? 6 : 0);
     }
 
     /// <summary>

@@ -41,6 +41,15 @@
   <Color x:Key="NereusGreyDark">#FF444444</Color>
   <Color x:Key="NereusGreyMedium">#FF666666</Color>
 
+  <!-- The dialog frame's three dials, as the shipped settings read: the panel at the reference's default
+       transparency (0.85 on the dark accent), the frame in the focus colour the default choice dyes, and the
+       corners square because the rounding switch ships off. The skin settings screen writes these three over
+       here whenever a viewer turns a dial - see FrontendTheme.TintFromSkinSettings, which says where each
+       value comes from. -->
+  <SolidColorBrush x:Key="DialogPanelBrush">#D9244043</SolidColorBrush>
+  <SolidColorBrush x:Key="DialogBorderBrush">#FF009592</SolidColorBrush>
+  <CornerRadius x:Key="DialogCornerRadius">0</CornerRadius>
+
   <!-- The seven accent families, each in its Light, Medium and Dark shade. -->
   <Color x:Key="NereusColorLight_Torquoise">#FF009592</Color>
   <Color x:Key="NereusColorMedium_Torquoise">#FF175F5D</Color>
