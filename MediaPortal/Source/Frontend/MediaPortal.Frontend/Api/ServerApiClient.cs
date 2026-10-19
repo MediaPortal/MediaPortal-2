@@ -48,7 +48,7 @@ namespace MediaPortal.Frontend.Api
   /// silently turn <c>api/serverinfo</c> into <c>/MediaPortal/api/serverinfo</c>.
   /// </para>
   /// </remarks>
-  public sealed class ServerApiClient : IDisposable, IServerSettingsApi
+  public sealed class ServerApiClient : IDisposable, IServerSettingsApi, IMetadataSettingsApi
   {
     /// <summary>
     /// Where the front end looks for a server when nothing else was said. The port is MP2's own and the prefix
@@ -671,6 +671,29 @@ namespace MediaPortal.Frontend.Api
     {
       return await SendJsonAsync<ServerSettingsAnswer>(HttpMethod.Put, "api/media/settings", update, cancellation)
           .ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// <c>GET api/media/settings/metadata</c> - what the extractors are configured to do, per kind of
+    /// media. A block whose extractor the server does not have comes back null, and a screen leaves the
+    /// row out rather than offering a switch nothing reads.
+    /// </summary>
+    public async Task<MetadataSettingsAnswer> GetMetadataSettingsAsync(CancellationToken cancellation = default)
+    {
+      return await SendJsonAsync<MetadataSettingsAnswer>(HttpMethod.Get, "api/media/settings/metadata", null,
+          cancellation).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// <c>PUT api/media/settings/metadata</c> - change what the extractors do. Unlike the plain settings
+    /// call this one is field-wise: only the fields that arrive are applied, and the answer is the whole
+    /// state after the change.
+    /// </summary>
+    public async Task<MetadataSettingsAnswer> PutMetadataSettingsAsync(MetadataSettingsWish wish,
+        CancellationToken cancellation = default)
+    {
+      return await SendJsonAsync<MetadataSettingsAnswer>(HttpMethod.Put, "api/media/settings/metadata", wish,
+          cancellation).ConfigureAwait(false);
     }
 
     #region The folders behind the library

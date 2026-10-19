@@ -1,0 +1,37 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+             x:Class="MediaPortal.Frontend.Views.MetadataSettingsView"
+             x:DataType="vm:MetadataSettingsViewModel">
+  <!--
+    What the server asks the internet when it builds the library. The rows are not written here: they are
+    built from the server's answer, because an extractor this server does not have has no switch worth
+    showing - and a screen that hides the block has nothing to lie about.
+  -->
+  <StackPanel Spacing="10" MaxWidth="680" HorizontalAlignment="Left">
+    <TextBlock Text="Metadata" FontSize="17" FontWeight="SemiBold"/>
+    <TextBlock Classes="hint" TextWrapping="Wrap"
+               Text="These are the server's extractor settings, stored on its machine. What changes here takes effect with the next import pass - the library as it stands keeps what it already learned."/>
+
+    <ItemsControl x:Name="rowsList" ItemsSource="{Binding Rows}" Spacing="6" Margin="0,6,0,0">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate x:DataType="vm:MetadataRow">
+          <Grid ColumnDefinitions="300,*">
+            <TextBlock Grid.Column="0" Text="{Binding Label}" Classes="settinglabel" TextWrapping="Wrap"/>
+            <CheckBox Grid.Column="1" IsChecked="{Binding IsOn}" IsVisible="{Binding IsToggle}"
+                      VerticalAlignment="Center"/>
+            <TextBox Grid.Column="1" Text="{Binding Text}" IsVisible="{Binding IsText}" Width="160"
+                     HorizontalAlignment="Left" Watermark="en-GB"/>
+          </Grid>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+
+    <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,10,0,0">
+      <Button x:Name="reloadButton" Content="Reload" Command="{Binding ReloadCommand}"/>
+      <Button x:Name="saveButton" Content="Save on the server" Command="{Binding SaveCommand}"/>
+    </StackPanel>
+
+    <TextBlock Text="{Binding Status}" Classes="hint" TextWrapping="Wrap"/>
+  </StackPanel>
+</UserControl>

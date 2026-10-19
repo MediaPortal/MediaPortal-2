@@ -86,4 +86,78 @@ namespace MediaPortal.Frontend.Api
         public bool ImporterEnabled { get; init; }
         public double ImporterStartTime { get; init; }
     }
+
+    /// <summary>
+    /// The metadata extractors' settings call pair, on its own interface for the same reason
+    /// <see cref="IServerSettingsApi"/> exists: a screen model can be handed a stub, and a server
+    /// build without the endpoint is discovered by this pair failing, not the older one's.
+    /// </summary>
+    public interface IMetadataSettingsApi
+    {
+        Task<MetadataSettingsAnswer> GetMetadataSettingsAsync(CancellationToken cancellation = default);
+
+        Task<MetadataSettingsAnswer> PutMetadataSettingsAsync(MetadataSettingsWish wish,
+            CancellationToken cancellation = default);
+    }
+
+    /// <summary>
+    /// The switches of one extractor, and of the online libraries. Every field is nullable: a null in
+    /// the answer means the server has no such switch to speak of - the extractor is not installed, or
+    /// this kind of media has no such flag - and a screen shows no row for it. A null in a wish means
+    /// "leave this one as it is".
+    /// </summary>
+    public sealed record MetadataFlags
+    {
+        public bool? SkipOnlineSearches { get; init; }
+        public bool? SkipFanArtDownload { get; init; }
+        public bool? OnlyLocalMedia { get; init; }
+        public bool? CacheOfflineFanArt { get; init; }
+        public bool? CacheLocalFanArt { get; init; }
+        public bool? CacheOfflineMovieFanArt { get; init; }
+        public bool? CacheLocalMovieFanArt { get; init; }
+        public bool? CacheOfflineSeriesFanArt { get; init; }
+        public bool? CacheLocalSeriesFanArt { get; init; }
+
+        // The online libraries' own fields; null everywhere else.
+        public bool? OnlyBasicFanArt { get; init; }
+        public bool? UseSecureWebCommunication { get; init; }
+        public bool? UseMovieAudioLanguageIfUnmatched { get; init; }
+        public bool? UseSeriesAudioLanguageIfUnmatched { get; init; }
+        public bool? UseMusicAudioLanguageIfUnmatched { get; init; }
+        public string? MovieLanguageCulture { get; init; }
+        public string? SeriesLanguageCulture { get; init; }
+        public string? MusicLanguageCulture { get; init; }
+        public string? SubtitleLanguageCulture { get; init; }
+    }
+
+    /// <summary>
+    /// What the extractors are configured to do, per kind of media. A block is null when the server
+    /// does not have that extractor at all.
+    /// </summary>
+    public sealed record MetadataSettingsAnswer
+    {
+        public MetadataFlags? Movie { get; init; }
+        public MetadataFlags? Series { get; init; }
+        public MetadataFlags? Audio { get; init; }
+        public MetadataFlags? Video { get; init; }
+        public MetadataFlags? Subtitle { get; init; }
+        public MetadataFlags? OnlineLibraries { get; init; }
+
+        /// <summary>
+        /// Always true: these settings are read while the extractors work, so a change speaks to the
+        /// next import pass rather than to the library as it stands.
+        /// </summary>
+        public bool NextImportPass { get; init; }
+    }
+
+    /// <summary>The change to send; every field left null stays as it is on the server.</summary>
+    public sealed record MetadataSettingsWish
+    {
+        public MetadataFlags? Movie { get; init; }
+        public MetadataFlags? Series { get; init; }
+        public MetadataFlags? Audio { get; init; }
+        public MetadataFlags? Video { get; init; }
+        public MetadataFlags? Subtitle { get; init; }
+        public MetadataFlags? OnlineLibraries { get; init; }
+    }
 }

@@ -702,6 +702,16 @@ namespace MediaPortal.Frontend
             return new ServerSettingsView { DataContext = serverSettings };
           });
 
+      // What the extractors fetch, per kind of media - also read the moment the row opens, and a server
+      // without the endpoint says so in the status line rather than offering an empty form.
+      model.Add("Metadata", "Server", "What the server fetches from the internet for the library",
+          delegate
+          {
+            MetadataSettingsViewModel metadata = new MetadataSettingsViewModel(() => _home.Client);
+            _ = metadata.ReloadAsync();
+            return new MetadataSettingsView { DataContext = metadata };
+          });
+
       model.Add("Media sources", "Server", "The folders the library reads, and their imports",
           delegate { return new FoldersView(new FoldersViewModel(_home.Client)); });
 
