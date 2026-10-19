@@ -93,32 +93,55 @@ namespace MediaPortal.Frontend.Views
       // opens it follows the same frames again.
       videoSurface.Follow(frames);
 
-      // Left and right are the transport's seek keys on every remote, so the screen takes them before the ring
-      // gets them: the d-pad only ever moves between the buttons when the button row is the only thing there,
-      // and a viewer who presses right expects the film to move rather than the highlight. Up and down are left
-      // to the ring, which walks the row. What happens on those presses is the reference's own answer for
-      // those keys: not a fixed jump but the escalating ladder, held presses climbing from rung to rung while
-      // the film waits, and the jump landing when the pressing stops.
+      // The remote's key map, ported from the reference's FullScreenContentVideoKeyBindings.inc and its
+      // IsOSDVisible conditions: with the on-screen buttons away, left and right climb the escalating skip
+      // ladder and up and down make one instant jump each - the film alone on the screen answers only skip
+      // keys. With the buttons shown, the same keys belong to the d-pad ring and the skip bindings are off,
+      // exactly as the reference switches them. Info (the keyboard's I, which is what its key map calls
+      // Info) calls the buttons or sends them away; back closes the buttons before it ever closes the
+      // screen. The reference shows its buttons automatically for a mouse; this asks its own window, the
+      // same portable question the screensaver watch asks.
       AddHandler(KeyDownEvent,
           delegate (object? sender, KeyEventArgs args)
           {
-            if (args.Key == Key.Left)
+            if (args.Key == Key.I)
+            {
+              ToggleOsd();
+              args.Handled = true;
+            }
+            else if ((args.Key == Key.Escape || args.Key == Key.Back) && _osdVisible)
+            {
+              CloseOsd();
+              args.Handled = true;
+            }
+            else if (!_osdVisible && args.Key == Key.Left)
             {
               ShowSkipStep(_viewModel.SkipStepBackward());
               args.Handled = true;
             }
-            else if (args.Key == Key.Right)
+            else if (!_osdVisible && args.Key == Key.Right)
             {
               ShowSkipStep(_viewModel.SkipStepForward());
               args.Handled = true;
             }
-            else if (args.Key == Key.I)
+            else if (!_osdVisible && (args.Key == Key.Up || args.Key == Key.Down))
             {
-              ToggleMediaInfo();
+              long jump = args.Key == Key.Up ? SkipLengthMs : -SkipLengthMs;
+              CancelSkipStep();
+              _viewModel.Skip(jump);
+              Say("Superlayer_SkipStep", SkipWords(jump), 1200);
               args.Handled = true;
             }
           },
           RoutingStrategies.Tunnel);
+
+      AddHandler(PointerMovedEvent,
+          delegate
+          {
+            if (!_osdVisible && !_osdOpenOnDemand && DateTime.UtcNow > _osdMouseSuppressedUntil)
+              SetOsdVisible(true);
+          },
+          handledEventsToo: true);
 
       DpadNavigation.Attach(this, new List<Control>
           {
@@ -134,9 +157,14 @@ namespace MediaPortal.Frontend.Views
       AttachedToVisualTree += delegate { OnFollowingPlayback(); };
       DetachedFromVisualTree += delegate { OnStoppingPlayback(); };
 
-      // Back is the shell's key now: it pops this screen without changing anything about the playback, and when
-      // this screen is all the window holds the shell closes the window - the behaviour <c>--play</c> relies on.
+      // Back is the shell's key once the on-screen display is away: it pops this screen without changing
+      // anything about the playback, and when this screen is all the window holds the shell closes the
+      // window - the behaviour <c>--play</c> relies on. While the display is up, back closes it first.
       // Escape and Backspace are the two keys a remote's back button sends, depending on the platform.
+
+      // And the reference's opening answer: the film begins alone. The display waits for the Info key, a
+      // key in its room, or the mouse arriving at all.
+      SetOsdVisible(false);
     }
 
     /// <summary>
@@ -196,6 +224,57 @@ namespace MediaPortal.Frontend.Views
     }
 
     private DispatcherTimer? _skipStepTimer;
+
+    private bool _osdVisible = true;
+    private bool _osdOpenOnDemand;
+    private DateTime _osdMouseSuppressedUntil = DateTime.MinValue;
+
+    /// <summary>
+    /// Whether the on-screen controls are showing. The reference starts its full screen without them - just
+    /// the film - and answers the Info key by putting them on and taking them away; a mouse in the room
+    /// brings them back on its own. This screen does the same: everything except the picture, the centred
+    /// state icon and the superlayers is the on-screen display, and with it away the skip keys own the
+    /// remote.
+    /// </summary>
+    public bool OsdVisible
+    {
+      get { return _osdVisible; }
+    }
+
+    /// <summary>The reference's ToggleOSD behind its Info key.</summary>
+    public void ToggleOsd()
+    {
+      SetOsdVisible(!_osdVisible);
+      _osdOpenOnDemand = _osdVisible;
+      if (!_osdVisible)
+        SuppressMouseOsd();
+    }
+
+    /// <summary>The reference's CloseOSD behind its back key: the buttons go first, the screen only after.</summary>
+    public void CloseOsd()
+    {
+      SetOsdVisible(false);
+      _osdOpenOnDemand = false;
+      SuppressMouseOsd();
+    }
+
+    public void SetOsdVisible(bool visible)
+    {
+      _osdVisible = visible;
+      titleArea.IsVisible = visible;
+      statusArea.IsVisible = visible;
+      skinOverlay.IsVisible = visible;
+      progressRow.IsVisible = visible;
+      transportRow.IsVisible = visible;
+      trackRow.IsVisible = visible;
+    }
+
+    /// <summary>The reference gives the mouse a one-second grace after a deliberate close before its
+    /// pointer movement may open the display again - the same hysteresis, same length.</summary>
+    private void SuppressMouseOsd()
+    {
+      _osdMouseSuppressedUntil = DateTime.UtcNow.AddSeconds(1);
+    }
 
     /// <summary>
     /// Show what this press of the ladder asks for and re-arm the wait: the jump is only made when the
@@ -336,7 +415,7 @@ namespace MediaPortal.Frontend.Views
       Dispatcher.UIThread.Post(delegate { openFade.Opacity = 0; }, DispatcherPriority.Loaded);
     }
 
-    /// <summary>The reference's PlayingInfoButton, as a key and as a button: the title's reading, called over
+    /// <summary>The reference's PlayingInfoButton, as a button: the title's reading, called over
     /// the picture and sent back again.</summary>
     private void OnMediaInfo(object? sender, RoutedEventArgs e)
     {

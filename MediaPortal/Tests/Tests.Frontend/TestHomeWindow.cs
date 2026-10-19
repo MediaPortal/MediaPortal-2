@@ -457,6 +457,8 @@ namespace Tests.Frontend
       Assert.That(home.Screen, Is.InstanceOf<NowPlayingView>(), "and what appeared is the playback screen");
       Assert.That(home.Screen.DataContext, Is.SameAs(playback),
           "and what it shows is the application's playback, not a fresh screen that knows nothing about the film");
+      (home.Screen as NowPlayingView)!.SetOsdVisible(true);
+      Pump();
       Assert.That(
           home.Screen.GetVisualDescendants().OfType<TextBlock>().Select(text => text.Text ?? "")
               .Any(text => text.Contains("the-film.mkv")),

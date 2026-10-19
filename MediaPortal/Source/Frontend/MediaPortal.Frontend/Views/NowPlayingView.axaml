@@ -56,7 +56,7 @@
   <Panel>
   <DockPanel Margin="48,32">
 
-    <StackPanel DockPanel.Dock="Top" Spacing="4">
+    <StackPanel Name="titleArea" DockPanel.Dock="Top" Spacing="4">
       <TextBlock Text="{Binding Title}"
                  FontSize="32"
                  TextTrimming="CharacterEllipsis"
@@ -64,7 +64,7 @@
       <TextBlock Text="{Binding StateText}" FontSize="16" Foreground="{DynamicResource MutedTextBrush}"/>
     </StackPanel>
 
-    <Border DockPanel.Dock="Bottom" Margin="0,12,0,0">
+    <Border Name="statusArea" DockPanel.Dock="Bottom" Margin="0,12,0,0">
       <TextBlock Text="{Binding StatusLine}"
                  FontSize="15"
                  Foreground="{DynamicResource MutedTextBrush}"
@@ -147,8 +147,9 @@
                      HorizontalAlignment="Center"
                      VerticalAlignment="Center"/>
           <!-- What the library knows about this title, said over the picture at the corner where it does not
-               cover the story: the I key calls it and hides it again. It is read once per title and cleared
-               with the title, so an old film's plot never outlives its film. -->
+               cover the story: the Info button in the transport row calls it and hides it again (the I key
+               got the reference's own job instead - it is the Info key, and that toggles the display).
+               It is read once per title and cleared with it, so an old film's plot never outlives its film. -->
           <Border Name="mediaInfo"
                   IsVisible="False"
                   MaxWidth="860"
@@ -168,7 +169,7 @@
         </Panel>
       </Border>
 
-      <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="16" Margin="0,18,0,0">
+      <StackPanel Name="progressRow" Grid.Row="1" Orientation="Horizontal" Spacing="16" Margin="0,18,0,0">
         <TextBlock Text="{Binding PositionText}" FontSize="22" VerticalAlignment="Center"/>
         <ProgressBar Name="progressBar"
                      Width="820"
@@ -187,7 +188,7 @@
         behind the button; a button that leads nowhere is worse than a missing one. The captions say the
         reach the viewer answered in the playback settings, not a hard-worn thirty.
       -->
-      <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="10" Margin="0,18,0,0">
+      <StackPanel Name="transportRow" Grid.Row="2" Orientation="Horizontal" Spacing="10" Margin="0,18,0,0">
         <Button Name="backButton" Classes="transport" Content="-30 s" Click="OnBack"/>
         <Button Name="pauseButton" Classes="transport" Content="{Binding TransportLabel}" Click="OnPause"/>
         <Button Name="stopButton" Classes="transport" Content="Stop" Click="OnStop"/>
@@ -205,12 +206,14 @@
         next track and the line beside it says what is now chosen, so the answer arrives without a dialog to
         close. The row disappears for a media with one track: a button that can only do one thing is noise.
       -->
-      <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="10" Margin="0,14,0,0"
+      <StackPanel Name="trackRow">
+      <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,14,0,0"
                   IsVisible="{Binding HasTrackChoice}">
         <Button Name="audioButton" Classes="track" Content="Sound" Click="OnNextAudioTrack"/>
         <TextBlock Text="{Binding AudioTrackLine}" Classes="trackLabel"/>
         <Button Name="subtitleButton" Classes="track" Content="Subtitles" Click="OnNextSubtitleTrack"/>
         <TextBlock Text="{Binding SubtitleTrackLine}" Classes="trackLabel"/>
+      </StackPanel>
       </StackPanel>
     </Grid>
   </DockPanel>

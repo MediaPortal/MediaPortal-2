@@ -123,6 +123,16 @@ namespace Tests.Frontend
     }
 
     /// <summary>
+    /// Call the on-screen controls over, the way a person does: the Info key. The playback screen opens
+    /// without them, like the reference's full screen, and tests that walk the buttons ask for them first.
+    /// </summary>
+    private static void OpenOsd(ShellWindow window)
+    {
+      Assert.That(PressKey(window, Key.I), Is.True, "the playback screen answers the Info key");
+      Pump();
+    }
+
+    /// <summary>
     /// Raises a key on the focused control the way Avalonia does, and reports whether anybody claimed it.
     /// </summary>
     private static bool PressKey(Control on, Key key)
@@ -144,6 +154,7 @@ namespace Tests.Frontend
     {
       var player = new FakePlayer();
       ShellWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
+      OpenOsd(window);
 
       Assert.That(VisibleTexts(window), Does.Contain("Nothing playing"),
           "a screen that has never played anything says so instead of showing a blank");
@@ -162,6 +173,7 @@ namespace Tests.Frontend
     {
       var player = new FakePlayer();
       ShellWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
+      OpenOsd(window);
       screen.Play(Film("film.mkv"));
       Pump();
 
@@ -258,25 +270,25 @@ namespace Tests.Frontend
       player.RaisePosition(40_000, 60_000);
       Pump();
 
-      Button pause = ButtonNamed(window, "pauseButton");
-      Assert.That(pause.Focus(), Is.True, "the pause button takes the focus, so the ring has somewhere to go");
-      Pump();
-
-      Assert.That(PressKey(pause, Key.Right), Is.True, "the screen claimed the key");
+      Assert.That(PressKey(window, Key.Right), Is.True, "the screen claimed the key");
       Assert.That(player.TimeInMs, Is.EqualTo(40_000), "the first press holds its step and waits - the ladder has not run out yet");
-      Assert.That(pause.IsFocused, Is.True, "and the focus stayed where it was");
       screen.SkipStepElapsed();
       Assert.That(player.TimeInMs, Is.EqualTo(55_000), "the first rung of the reference ladder is fifteen seconds");
 
-      Assert.That(PressKey(pause, Key.Left), Is.True, "the screen claimed the other key as well");
+      Assert.That(PressKey(window, Key.Left), Is.True, "the screen claimed the other key as well");
       screen.SkipStepElapsed();
       Assert.That(player.TimeInMs, Is.EqualTo(40_000), "turning around at the bottom lands back where the run started");
 
-      // Up belongs to the ring, and the ring walks the reference's row: rewind first, play/pause next. From the
-      // first button of the row it wraps to the last. A row of buttons that could only be walked in one
-      // direction would leave a viewer stuck at the end of it. This media has no tracks to pick, so the sound
-      // and subtitle buttons are hidden - and a hidden button is not an area, which is why the wrap still
-      // lands on Close.
+      // Up belongs to the ring once the buttons are on screen - and to the instant skip while they are away,
+      // exactly like the reference's IsOSDVisible conditions. The ring walks the reference's row: rewind
+      // first, play/pause next; from the first button of the row it wraps to the last. This media has no
+      // tracks to pick, so the sound and subtitle buttons are hidden - and a hidden button is not an area,
+      // which is why the wrap still lands on Close.
+      OpenOsd(window);
+      Button pause = ButtonNamed(window, "pauseButton");
+      Assert.That(pause.Focus(), Is.True, "with the display open, the pause button takes the focus");
+      Pump();
+
       Assert.That(PressKey(pause, Key.Up), Is.True, "the ring used the key");
       Assert.That(ButtonNamed(window, "backButton").IsFocused, Is.True,
           "up from play walks to the rewind button, which the reference puts first");
@@ -299,6 +311,7 @@ namespace Tests.Frontend
       };
       player.CurrentAudioId = 1;
       ShellWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
+      OpenOsd(window);
       screen.Play(Film("film.mkv"));
       Pump();
 
