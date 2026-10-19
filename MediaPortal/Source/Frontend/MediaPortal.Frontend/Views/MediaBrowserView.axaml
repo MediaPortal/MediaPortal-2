@@ -232,13 +232,27 @@
               Padding="20,8"
               FontSize="22"
               Margin="0,0,10,4" />
+      <!--
+        The selected title's menu, so that the mouse finds what the remote's Menu key opens. It stands with
+        the screen's other buttons but asks a different kind of question: those answer "how does this screen
+        look", this one answers "what about this title" - and today that is the one thing the server takes
+        word about, whether the title was watched.
+      -->
+      <Button Name="menuButton"
+              Content="Title menu"
+              Command="{Binding ShowMenuCommand}"
+              IsVisible="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}"
+              MinWidth="150"
+              Padding="20,8"
+              FontSize="22"
+              Margin="0,0,10,4" />
     </WrapPanel>
 
     <TextBlock DockPanel.Dock="Bottom"
                FontSize="14"
                Opacity="0.45"
                Margin="0,12,0,0"
-               Text="Arrows move · OK plays · F finds · W filters watched · V switches rows, tiles or covers · M switches the tile picture · I shows or hides the details · Esc clears the search · Back returns" />
+               Text="Arrows move · OK plays · F finds · W filters watched · V switches rows, tiles or covers · M switches the tile picture · I shows or hides the details · Menu opens the title menu · Esc clears the search · Back returns" />
 
     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24">
 
@@ -349,6 +363,53 @@
     <TextBlock Text="|" FontSize="22" VerticalAlignment="Center" Opacity="0.45" />
     <TextBlock Text="{Binding TotalNumber}" FontSize="18" VerticalAlignment="Center" Opacity="0.75" />
   </StackPanel>
+
+  <!--
+    The selected title's menu, standing over the shelf the way the reference's DialogEditMenu stood over the
+    list it was opened for: the shelf stays where it is, the menu speaks about one row, and Back puts it
+    away. What the menu asks is decided by what the server can actually answer - today exactly one thing,
+    whether a title was watched through - and where the library has no answer to give, the menu says so in
+    words instead of pressing a button that would do nothing. The markup is palette-only on purpose: the
+    worn skins' dialog frame is what makes this their style, and a screen that waits for its skin's
+    dressing never opens the dialog.
+  -->
+  <Border Background="{DynamicResource ScrimBrush}" IsVisible="{Binding MenuVisible}">
+    <Border Background="{DynamicResource PanelRaisedBrush}"
+            BorderBrush="{DynamicResource OutlineBrush}"
+            BorderThickness="2"
+            Padding="30,24"
+            MinWidth="480"
+            MaxWidth="760"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center">
+      <StackPanel Spacing="14">
+        <TextBlock Text="{Binding MenuTitle}"
+                   FontSize="28"
+                   FontWeight="SemiBold"
+                   TextWrapping="Wrap" />
+        <Button Name="menuMarkButton"
+                Content="Mark watched"
+                Command="{Binding MarkWatchedCommand}"
+                IsVisible="{Binding CanMarkWatched}"
+                MinWidth="240"
+                Padding="26,10"
+                FontSize="22"
+                HorizontalAlignment="Left" />
+        <TextBlock Text="{Binding MenuWords}"
+                   FontSize="18"
+                   Opacity="0.75"
+                   TextWrapping="Wrap"
+                   IsVisible="{Binding MenuWords, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+        <Button Name="menuBackButton"
+                Content="Back"
+                Command="{Binding CloseMenuCommand}"
+                MinWidth="140"
+                Padding="24,10"
+                FontSize="22"
+                HorizontalAlignment="Left" />
+      </StackPanel>
+    </Border>
+  </Border>
 
   </Panel>
 </UserControl>

@@ -111,7 +111,16 @@ namespace MediaPortal.Frontend.Views
             if (!(DataContext is MediaBrowserViewModel viewModel))
               return;
 
-            if (args.Key == Key.I || args.Key == Key.Apps)
+            if (args.Key == Key.ContextMenus || args.Key == Key.F16)
+            {
+              // The "Menu" key of a remote - F16 and ContextMenus are the two spellings that reach this code -
+              // opens the media list menu of the reference for the selected row. The Apps key would be the other
+              // natural spelling, but this screen already wears it for the details, and one key cannot answer
+              // two questions.
+              viewModel.ShowMenuCommand.Execute(null);
+              args.Handled = true;
+            }
+            else if (args.Key == Key.I || args.Key == Key.Apps)
             {
               // The "info" key of a remote, which is the Apps key in everything that reaches this code, plus the
               // letter for a keyboard. It reads about the selected title rather than playing it, which is the one
@@ -159,9 +168,17 @@ namespace MediaPortal.Frontend.Views
             }
             else if (args.Key == Key.Escape || args.Key == Key.Back)
             {
-              // Back means "away with the newest thing on the screen", which is the search when there is one,
-              // then the watched filter, then the details the screen was wearing. A viewer who pressed back
-              // three times expects to be back where they started, not outside the screen.
+              // Back means "away with the newest thing on the screen", which is the title's menu when one is
+              // standing open, then the search when there is one, then the watched filter, then the details
+              // the screen was wearing. A viewer who pressed back three times expects to be back where they
+              // started, not outside the screen.
+              if (viewModel.MenuVisible)
+              {
+                viewModel.CloseMenu();
+                titlesList.Focus();
+                args.Handled = true;
+                return;
+              }
               if (searchBox.IsFocused || viewModel.HasSearch)
               {
                 viewModel.ClearSearchCommand.Execute(null);
@@ -186,17 +203,48 @@ namespace MediaPortal.Frontend.Views
               // Nothing is open to undo, so the key is not this screen's: it reaches the shell behind it, which
               // pops this screen off the workflow.
             }
-            else if (args.Key == Key.Enter || args.Key == Key.Return || args.Key == Key.MediaPlayPause)
+            else if ((args.Key == Key.Enter || args.Key == Key.Return || args.Key == Key.MediaPlayPause)
+                && !viewModel.MenuVisible)
             {
+              // Enter is only "play the row" while nobody taller is wearing it: with the menu open the key
+              // belongs to the button the focus rests on, and a dialog whose own key plays a film behind it
+              // is the reason dialog boxes were invented.
               viewModel.PlayCommand.Execute(null);
               args.Handled = true;
             }
           },
           RoutingStrategies.Tunnel);
 
+      // The menu takes the focus when it comes up and hands it back to the shelf when it goes: a dialog the
+      // focus never reaches is a dialog the remote cannot answer, and a shelf that stays behind its own scrim
+      // is a shelf the viewer cannot walk while the dialog is up.
+      browser.PropertyChanged += delegate (object? sender,
+          System.ComponentModel.PropertyChangedEventArgs args)
+      {
+        if (args.PropertyName == nameof(MediaBrowserViewModel.MenuVisible))
+          FocusMenu(browser);
+      };
+
       // The screen fills itself in the first time it appears; returning from the playback screen or from a list
       // of titles inside a title finds everything where the viewer left it.
       _firstActivation = true;
+    }
+
+    /// <summary>
+    /// Puts the focus on the answer the menu was opened for - the mark when there is one to give, the way out
+    /// when there is nothing to give - and back on the rows when the menu goes away.
+    /// </summary>
+    private void FocusMenu(MediaBrowserViewModel browser)
+    {
+      if (browser.MenuVisible)
+      {
+        if (menuMarkButton.IsVisible)
+          menuMarkButton.Focus();
+        else
+          menuBackButton.Focus();
+      }
+      else
+        titlesList.Focus();
     }
 
     /// <summary>
@@ -215,6 +263,14 @@ namespace MediaPortal.Frontend.Views
           viewModel.PlayRequested += OnPlayRequested;
           viewModel.ChildrenRequested += OnChildrenRequested;
         }
+      }
+
+      // A shelf that comes back with its menu standing open gives the focus back to the menu: the viewer left
+      // with the dialog up, and they come back to the dialog, not to the rows behind it.
+      if (DataContext is MediaBrowserViewModel model && model.MenuVisible)
+      {
+        FocusMenu(model);
+        return;
       }
 
       titlesList.Focus();

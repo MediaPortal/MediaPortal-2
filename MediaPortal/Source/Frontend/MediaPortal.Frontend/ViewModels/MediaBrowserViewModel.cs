@@ -493,6 +493,15 @@ namespace MediaPortal.Frontend.ViewModels
     private TitleViewModel? _selected;
 
     /// <summary>
+    /// Whether the selected title's menu stands over the shelf. The reference opened its media list menu
+    /// (<c>DialogEditMenu</c> and its siblings) over the list rather than beside it, and this screen keeps
+    /// that shape: the shelf stays where it is, the menu names the row it was opened for, and Back puts
+    /// the menu away and the shelf's focus back.
+    /// </summary>
+    [ObservableProperty]
+    private bool _menuVisible;
+
+    /// <summary>
     /// Whether the details panel is on screen right now - which it is whenever the screen wears details and a
     /// title has been read about. The viewer's standing choice for the screen is <see cref="ShowDetails"/>;
     /// this is that choice meeting a list with nothing selected.
@@ -874,6 +883,10 @@ namespace MediaPortal.Frontend.ViewModels
     partial void OnSelectedChanged(TitleViewModel? value)
     {
       OnPropertyChanged(nameof(SelectedNumber));
+      // The menu names the row it was opened for and offers what that row can take, so it has to be told
+      // when the walk moves onto a different title - the reference's edit menu always spoke about the
+      // highlighted row, never about whatever was highlighted when the key was once pressed.
+      RaiseMenuState();
       // A screen that wears details reads every title the selection walks onto - the reference's details view
       // followed the highlighted item exactly this way, and a panel that only answered on demand was the
       // "nothing but the title" the viewer rightly calls a missing feature.
@@ -1321,6 +1334,132 @@ namespace MediaPortal.Frontend.ViewModels
 
       Selected = title;
       PlayRequested?.Invoke(this, title);
+    }
+
+    /// <summary>
+    /// Opens the selected title's menu over the shelf, the way the reference opened its media list menu
+    /// (<c>DialogEditMenu</c> and its siblings) over the list it was opened for. The pick is refused with a
+    /// word on the status line when nothing is selected, so a press never opens an empty dialog.
+    /// </summary>
+    [RelayCommand]
+    public void ShowMenu()
+    {
+      if (Selected == null)
+      {
+        Status = "Nothing selected";
+        return;
+      }
+
+      RaiseMenuState();
+      MenuVisible = true;
+    }
+
+    /// <summary>
+    /// Puts the menu away - the back key's answer while a menu is the newest thing on the screen, and the
+    /// last button in the menu itself.
+    /// </summary>
+    [RelayCommand]
+    public void CloseMenu()
+    {
+      MenuVisible = false;
+    }
+
+    /// <summary>
+    /// Tells the library that the selected title was watched to the end, and folds the server's answer into
+    /// the row.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This is the only mark this front end can make, and the reality of the API says so: the one write the
+    /// server has about watched state is the playback report, whose hundred means "finished" and whose
+    /// counts only ever move forward - <c>MediaLibrary.NotifyPlayback</c> adds a play and stamps the date,
+    /// and nothing subtracts a play or clears a date. So the menu offers exactly "mark watched" and no
+    /// invented sibling for the way back; a screen that hid the second button has nothing to lie about,
+    /// which is the rule this whole front end was written with.
+    /// </para>
+    /// <para>
+    /// The row is rewritten from the server's answer and not from the press - the same rule the end of a
+    /// real film follows through <see cref="ApplyPlayback"/> - so the tick says what the library believes.
+    /// </para>
+    /// </remarks>
+    [RelayCommand]
+    public async Task MarkWatchedAsync()
+    {
+      TitleViewModel? title = Selected;
+      ServerApiClient? client = _client;
+      if (title == null || client == null)
+      {
+        Status = "There is no server to tell about " + (title == null ? "a title" : title.Name);
+        return;
+      }
+
+      try
+      {
+        MediaPlayback after = await client.ReportPlaybackAsync(title.Title.Id, 100);
+        ApplyPlayback(after);
+        Status = after.Watched
+            ? title.Name + " is watched now as far as the library is concerned"
+            : title.Name + " - the server took the report but does not count it as finished";
+      }
+      catch (ServerApiException ex)
+      {
+        if (ex.StatusCode == 403)
+          Status = "The server wants to know who is reporting before it marks a title watched. Sign in on the server screen.";
+        else if (ex.NotReady)
+          Status = "The server is not ready yet: " + ex.Message;
+        else
+          Status = ex.Message;
+        return;
+      }
+      catch (Exception ex)
+      {
+        Status = "Telling the server failed: " + ex.Message;
+        return;
+      }
+
+      RaiseMenuState();
+      MenuVisible = false;
+    }
+
+    /// <summary>The title the menu was opened for, or nothing while no row is picked.</summary>
+    public string MenuTitle
+    {
+      get { return Selected == null ? "" : Selected.Name; }
+    }
+
+    /// <summary>
+    /// Whether the menu may offer the mark: a server has to be there to be told, and the library has to
+    /// have something to learn - a title it already counts as finished has nothing left the report can do
+    /// for it, short of padding the play count of a film nobody watched again.
+    /// </summary>
+    public bool CanMarkWatched
+    {
+      get { return _client != null && Selected != null && !Selected.Seen; }
+    }
+
+    /// <summary>
+    /// The words the menu says instead of offering a button: why there is nothing to press. Every case is
+    /// said, so the menu is never a frame with a hole where its purpose was.
+    /// </summary>
+    public string MenuWords
+    {
+      get
+      {
+        if (Selected == null)
+          return "Nothing is selected.";
+        if (Selected.Seen)
+          return "The library already says this title was watched through, and it has no way to be told otherwise.";
+        if (_client == null)
+          return "There is no server to tell.";
+        return "";
+      }
+    }
+
+    private void RaiseMenuState()
+    {
+      OnPropertyChanged(nameof(MenuTitle));
+      OnPropertyChanged(nameof(CanMarkWatched));
+      OnPropertyChanged(nameof(MenuWords));
     }
 
     /// <summary>
