@@ -230,7 +230,9 @@ namespace MediaPortal.Frontend.Views
 
       SkinTemplates.SetTileTemplate(titlesList, viewModel.GridTemplateKey);
 
-      if (viewModel.Layout == BrowserLayout.Grid)
+      // A grid and a cover shelf are laid the same way - one after the other, wrapping whole - and only the
+      // pictures inside differ, which is the skin's business, asked through the template key above.
+      if (viewModel.Layout != BrowserLayout.List)
         titlesList.ItemsPanel = TILE_WRAP_PANEL;
       else
         titlesList.ClearValue(ItemsControl.ItemsPanelProperty);

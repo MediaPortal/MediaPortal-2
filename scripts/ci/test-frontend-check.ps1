@@ -14,7 +14,7 @@
     5. the same front end aimed at a port nobody listens on must exit 1 and say so, because a check that
        cannot fail is not a check;
     6. while the server is still up, Frontend.RenderProbe draws the real screens through Skia and writes
-       nineteen PNGs (default build\artifacts\frontend-render\: home, continue, browser, details, search,
+       twenty PNGs (default build\artifacts\frontend-render\: home, continue, browser, cover, details, search,
        seen, nowplaying, connect, pictures, browse, news, weather, party - and then the playback screen,
        the home menu and the settings screen once more each, wearing the two rescued skins, and the shelf
        once more wearing the skin that draws its tiles).
@@ -293,7 +293,7 @@ try {
       if (-not $RenderDir) { $RenderDir = Join-Path (Join-Path $repoRoot 'build\artifacts') 'frontend-render' }
       New-Item -ItemType Directory -Path $RenderDir -Force | Out-Null
 
-      # Fourteen screens, nineteen frames. The home screen is drawn from a server that is really answering; the
+      # Fourteen screens, twenty frames. The home screen is drawn from a server that is really answering; the
       # continue frame is the same screen of a household that has been watching things, drawn from a scripted
       # server, because the strip cannot be drawn from an empty database; the playback screen is drawn from a
       # scripted player, because a frame that is supposed to mean the same
@@ -363,7 +363,11 @@ try {
         # across the screen - and the probe asks the on-screen list which template and which panel it is drawing
         # with while the picture is on. A shelf that quietly stayed a list under a skin that offers tiles, or put
         # the tiles in a plain strip, would pass every colour check and fail here.
-        @{ Name = 'browser-nereus'; Arguments = '--screen browser --theme nereus' }
+        @{ Name = 'browser-nereus'; Arguments = '--screen browser --theme nereus' },
+        # The same shelf walked into its cover view by the view key, which is the third shape the reference
+        # skin ships: the frame proves the key reaches the cover layout and that the layout really wears the
+        # skin's big cover template (260x410 frame, name under the picture) wrapped across the screen.
+        @{ Name = 'cover-nereus'; Arguments = '--screen cover --theme nereus' }
       )
       foreach ($frame in $frames) {
         $renderFile = Join-Path $RenderDir ($frame.Name + '.png')

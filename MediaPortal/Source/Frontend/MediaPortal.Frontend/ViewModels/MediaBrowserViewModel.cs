@@ -41,7 +41,13 @@ namespace MediaPortal.Frontend.ViewModels
     List,
 
     /// <summary>A grid of tiles, each drawn by the skin's <c>MediaTile…Template</c>.</summary>
-    Grid
+    Grid,
+
+    /// <summary>
+    /// The skin's covers: large posters with the name standing under them, which is the third view the
+    /// reference's view mode knew besides list and grid (<c>LayoutType.CoverLayout</c>).
+    /// </summary>
+    Cover
   }
   /// <summary>
   /// One row of the title list.
@@ -306,15 +312,22 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
-    /// Whether this row's tile may show a watched corner at all - the worn skin's grid setting, carried down
-    /// from the shelf onto the row. The template binds it on the row because the compiled skin XAML asks the
-    /// row for everything it paints; the shelf is where the answer comes from and says it once, when the row
-    /// is made.
+    /// Whether this row's tile may show a watched corner at all - the worn skin's setting for the layout the
+    /// shelf is standing in, carried down from the shelf onto the row. The template binds it on the row because
+    /// the compiled skin XAML asks the row for everything it paints; the shelf is where the answer comes from,
+    /// both when the row is made and when the viewer switches the shelf from grid to cover and back.
     /// </summary>
     public bool WatchFlagsShown
     {
       get { return _watchFlagsShown; }
-      internal set;
+      internal set
+      {
+        if (_watchFlagsShown == value)
+          return;
+
+        _watchFlagsShown = value;
+        Raise();
+      }
     }
 
     private bool _watchFlagsShown = true;
@@ -597,10 +610,14 @@ namespace MediaPortal.Frontend.ViewModels
       _skinSettings = WornSkinSettings();
       _tileKind = _skinSettings == null ? GridViewType.Poster : TileKindFor(AspectName, _skinSettings);
       HasTiles = SkinEngine.TryTileTemplate(TileKey(_tileKind)) != null;
+      // The cover is the third view of the reference's view mode, and a skin that does not draw one does not
+      // offer it: the viewer's cycle simply leaves that step out, rather than showing an empty frame.
+      HasCover = HasTiles && SkinEngine.TryTileTemplate(COVER_TEMPLATE_KEY) != null;
       _layout = HasTiles ? BrowserLayout.Grid : BrowserLayout.List;
-      // The grid corners obey the skin setting the reference gated them behind; the list's quiet tick is the
-      // screen's own old promise and no skin setting ever spoke for it.
-      _watchFlagsShown = _skinSettings?.EnableGridWatchedFlags ?? true;
+      // The corners obey the setting of the layout they appear in - the reference gated the grid's corners on
+      // extEnableGridWatchFlags and the cover's on extEnableCoverWatchFlags - and the list's quiet tick is the
+      // screen's own old promise, which the list's setting speaks for since the reference gave it one too.
+      _watchFlagsShown = WatchFlagsFor(_layout);
       // The fanart behind the shelf is the reference's FanArtBackground_Template read honestly: the picture
       // follows the selected row, the whole layer stands or falls with EnableFanart, and the dimming layer on
       // top of it wears FanartOverlayOpacity as its opacity - the two settings the skin-settings screen writes.
@@ -666,14 +683,43 @@ namespace MediaPortal.Frontend.ViewModels
       };
     }
 
+    /// <summary>The key a skin answers when it draws covers at all.</summary>
+    internal const string COVER_TEMPLATE_KEY = "MediaTileCoverTemplate";
+
     /// <summary>The template name the list on screen asks the skin for, whichever layout it stands in.</summary>
     public string GridTemplateKey
     {
-      get { return Layout == BrowserLayout.List ? "TitleRowTemplate" : TileKey(_tileKind); }
+      get
+      {
+        return Layout switch
+        {
+          BrowserLayout.Cover => COVER_TEMPLATE_KEY,
+          BrowserLayout.List => "TitleRowTemplate",
+          _ => TileKey(_tileKind)
+        };
+      }
     }
 
     /// <summary>Whether the worn skin draws tiles for this shelf at all; without them there is nothing to view.</summary>
     public bool HasTiles { get; }
+
+    /// <summary>Whether the worn skin draws covers; without them the viewer's cycle has no cover step.</summary>
+    public bool HasCover { get; }
+
+    /// <summary>The corners' answer for one layout, from the setting that governs exactly that layout.</summary>
+    private bool WatchFlagsFor(BrowserLayout layout)
+    {
+      SkinSettingsBase? settings = _skinSettings;
+      if (settings == null)
+        return true;
+
+      return layout switch
+      {
+        BrowserLayout.Cover => settings.EnableCoverWatchedFlags,
+        BrowserLayout.Grid => settings.EnableGridWatchedFlags,
+        _ => settings.EnableListWatchedFlags
+      };
+    }
 
     /// <summary>How the titles are drawn right now.</summary>
     [ObservableProperty]
@@ -768,18 +814,49 @@ namespace MediaPortal.Frontend.ViewModels
 
     public string LayoutLabel
     {
-      get { return Layout == BrowserLayout.Grid ? "View: Grid" : "View: List"; }
+      get
+      {
+        return Layout switch
+        {
+          BrowserLayout.Grid => "View: Grid",
+          BrowserLayout.Cover => "View: Cover",
+          _ => "View: List"
+        };
+      }
     }
 
     partial void OnLayoutChanged(BrowserLayout value)
     {
       OnPropertyChanged(nameof(LayoutLabel));
       OnPropertyChanged(nameof(GridTemplateKey));
+
+      // The corners belong to the layout the viewer just walked into, and the covers wear the poster rather
+      // than the grid's kinded picture - so the rows the shelf already holds are repainted with what this
+      // layout draws, from caches that make the second visit to a layout cost no request at all.
+      WatchFlagsShown = WatchFlagsFor(value);
+      foreach (TitleViewModel row in new List<TitleViewModel>(Titles))
+        row.WatchFlagsShown = WatchFlagsShown;
+      _ = PaintRowsAsync(ArtworkForLayout);
     }
 
     /// <summary>
-    /// Rows or tiles. The button and the <c>V</c> key; the grid sizes themselves are not pressed here - they
-    /// are the skin's settings, and a viewer changes them where settings are changed.
+    /// Bumped every time the shelf decides which pictures its rows wear. A repaint that finished after the
+    /// viewer switched layout again is thrown away rather than painted over the newer layout's pictures.
+    /// </summary>
+    private int _paintGeneration;
+
+    /// <summary>
+    /// Whose pictures the rows wear right now: a cover is a poster the reference sized generously, so the
+    /// cover view draws the database's poster blob even on a shelf whose grid wears banners or thumbnails.
+    /// </summary>
+    private Artwork? ArtworkForLayout
+    {
+      get { return Layout == BrowserLayout.Cover ? _artwork : _tileArtwork ?? _artwork; }
+    }
+
+    /// <summary>
+    /// Rows or tiles or covers. The button and the <c>V</c> key; the grid sizes themselves are not pressed
+    /// here - they are the skin's settings, and a viewer changes them where settings are changed.
     /// </summary>
     [RelayCommand]
     public void SwitchView()
@@ -787,7 +864,14 @@ namespace MediaPortal.Frontend.ViewModels
       if (!HasTiles)
         return;
 
-      Layout = Layout == BrowserLayout.List ? BrowserLayout.Grid : BrowserLayout.List;
+      // The reference's view mode walked list → grid → cover; a skin without covers skips that step, and the
+      // cycle closes back onto the rows it started from.
+      Layout = Layout switch
+      {
+        BrowserLayout.List => BrowserLayout.Grid,
+        BrowserLayout.Grid => HasCover ? BrowserLayout.Cover : BrowserLayout.List,
+        _ => BrowserLayout.List
+      };
     }
 
     /// <summary>The tile this list came from, or <c>null</c> in the designer.</summary>
@@ -1246,27 +1330,36 @@ namespace MediaPortal.Frontend.ViewModels
     /// </remarks>
     private async Task ReadArtworkAsync()
     {
-      // The rows wear the kind the shelf's tiles were chosen for; only a shelf that draws no kinded tiles - a
-      // poster shelf, a machine without a skin - falls back to the database's thumbnail blob.
-      Artwork? artwork = _tileArtwork ?? _artwork;
+      await PaintRowsAsync(ArtworkForLayout);
+    }
+
+    /// <summary>
+    /// Asks the given picture source for the picture of every row on the shelf, a few requests at a time.
+    /// </summary>
+    private async Task PaintRowsAsync(Artwork? artwork)
+    {
       if (artwork == null)
         return;
 
+      int generation = ++_paintGeneration;
       List<Task> asking = new List<Task>();
       foreach (TitleViewModel row in new List<TitleViewModel>(Titles))
-        asking.Add(PutArtworkOnAsync(artwork, row));
+        asking.Add(PutArtworkOnAsync(artwork, row, generation));
 
       await Task.WhenAll(asking);
     }
 
     /// <summary>
-    /// One row's picture, put on the row when it arrives.
+    /// One row's picture, put on the row when it arrives - unless the viewer has since switched the shelf to
+    /// wear another layout's pictures, in which case this answer belongs to a shape nobody is looking at.
     /// </summary>
-    private static async Task PutArtworkOnAsync(Artwork artwork, TitleViewModel row)
+    private async Task PutArtworkOnAsync(Artwork artwork, TitleViewModel row, int generation)
     {
       try
       {
-        row.ShowArtwork(await artwork.LoadAsync(row.Title.Id));
+        byte[]? picture = await artwork.LoadAsync(row.Title.Id);
+        if (generation == Volatile.Read(ref _paintGeneration))
+          row.ShowArtwork(picture);
       }
       catch (ServerApiException)
       {

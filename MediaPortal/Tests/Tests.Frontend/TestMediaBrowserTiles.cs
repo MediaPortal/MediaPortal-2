@@ -126,6 +126,12 @@ namespace Tests.Frontend
       Assert.That(vm.LayoutLabel, Is.EqualTo("View: Grid"));
 
       vm.SwitchView();
+      Assert.That(vm.Layout, Is.EqualTo(BrowserLayout.Cover),
+          "the reference's view mode had a third step besides rows and tiles, and Nereus draws it");
+      Assert.That(vm.GridTemplateKey, Is.EqualTo("MediaTileCoverTemplate"));
+      Assert.That(vm.LayoutLabel, Is.EqualTo("View: Cover"));
+
+      vm.SwitchView();
       Assert.That(vm.Layout, Is.EqualTo(BrowserLayout.List));
       Assert.That(vm.GridTemplateKey, Is.EqualTo("TitleRowTemplate"),
           "rows ask the skin for the row template, exactly as the shelf always did");
@@ -477,6 +483,78 @@ namespace Tests.Frontend
         Assert.That(handler.Kinds, Has.None.EqualTo("Banner").And.None.EqualTo("Thumbnail"),
             "a poster shelf asks for no kinded tile picture; only the background may ask for its backdrop");
       }
+    }
+
+    [AvaloniaTest]
+    public void ACoverWearsThePosterEvenWhenTheGridWearsBanners()
+    {
+      Application app = RequireApplication();
+      FrontendTheme.Apply(app, "nereus", out _);
+
+      string file = Path.Combine(_ownDir, "skin-nereus.json");
+      NereusSkinSettings settings = NereusSkinSettings.Load(file, out _);
+      settings.MovieGridViewType = GridViewType.Banner;
+      settings.Save(file, out _);
+
+      Guid title = Guid.NewGuid();
+      KindArtworkServer handler = new KindArtworkServer(title, Guid.NewGuid());
+      ServerApiClient client = new ServerApiClient(
+          new Uri("http://127.0.0.1:1/MediaPortal/Server/"), new HttpClient(handler));
+
+      MediaBrowserViewModel vm = new MediaBrowserViewModel(client, MoviesSection(), null);
+      vm.OpenCommand.Execute(null);
+      WaitUntil("the banner to reach the row", delegate { return vm.Titles[1].Artwork != null; });
+      Assert.That(vm.Titles[1].Artwork, Is.EqualTo(new byte[] { 9, 8, 7, 6, 5 }));
+
+      // The reference's cover item bound FanArtType="Poster" for films and for series alike - a cover is a
+      // poster, whichever shape the grid chose - so walking the shelf into its cover view repaints the rows
+      // with the poster blob, and back into the grid they put their banners on again.
+      vm.SwitchView();
+      Assert.That(vm.Layout, Is.EqualTo(BrowserLayout.Cover));
+      WaitUntil("the cover to wear the poster", delegate { return vm.Titles[1].Artwork!.SequenceEqual(new byte[] { 1, 1, 1, 1 }); });
+
+      vm.SwitchView();
+      Assert.That(vm.Layout, Is.EqualTo(BrowserLayout.List));
+
+      vm.SwitchView();
+      WaitUntil("the grid's banners to come back", delegate { return vm.Titles[1].Artwork!.SequenceEqual(new byte[] { 9, 8, 7, 6, 5 }); });
+    }
+
+    [AvaloniaTest]
+    public void TheCoversCornersObeyTheCoversOwnSetting()
+    {
+      Application app = RequireApplication();
+
+      string file = Path.Combine(_ownDir, "skin-nereus.json");
+      NereusSkinSettings settings = NereusSkinSettings.Load(file, out _);
+      settings.EnableGridWatchedFlags = true;
+      settings.EnableCoverWatchedFlags = false;
+      settings.Save(file, out _);
+
+      FrontendTheme.Apply(app, "nereus", out _);
+      KindArtworkServer handler = new KindArtworkServer(Guid.NewGuid(), Guid.NewGuid());
+      ServerApiClient client = new ServerApiClient(
+          new Uri("http://127.0.0.1:1/MediaPortal/Server/"), new HttpClient(handler));
+
+      MediaBrowserViewModel vm = new MediaBrowserViewModel(client, MoviesSection(), null);
+      vm.OpenCommand.Execute(null);
+      WaitUntil("the shelf to fill", delegate { return vm.Titles.Count == 2; });
+
+      Assert.That(vm.WatchFlagsShown, Is.True, "the grid's setting speaks for the grid's corners");
+      Assert.That(vm.Titles[0].WatchFlagsShown, Is.True);
+
+      vm.SwitchView();
+      Assert.That(vm.Layout, Is.EqualTo(BrowserLayout.Cover));
+      Assert.That(vm.WatchFlagsShown, Is.False,
+          "the reference gated the cover's corners on its own extEnableCoverWatchFlags, not the grid's");
+      Assert.That(vm.Titles[0].WatchFlagsShown, Is.False,
+          "and the rows already on screen hear about it, not just the rows read afterwards");
+
+      vm.SwitchView();
+      vm.SwitchView();
+      Assert.That(vm.Layout, Is.EqualTo(BrowserLayout.Grid));
+      Assert.That(vm.Titles[0].WatchFlagsShown, Is.True,
+          "back in the grid, the grid's own answer holds again");
     }
   }
 }

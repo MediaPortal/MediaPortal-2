@@ -66,7 +66,7 @@ namespace FrontendProbe
   public static class RenderProbe
   {
     private const string USAGE =
-        "Frontend.RenderProbe --out <file.png> [--screen <home|continue|nowplaying|connect|browser|details|search|seen|folders|pictures|browse|news|weather|party|settings>] [--server <url>] [--aspect <name>] [--theme <name>] [--width <n>] [--height <n>]\n" +
+        "Frontend.RenderProbe --out <file.png> [--screen <home|continue|nowplaying|connect|browser|cover|details|search|seen|folders|pictures|browse|news|weather|party|settings>] [--server <url>] [--aspect <name>] [--theme <name>] [--width <n>] [--height <n>]\n" +
         "  --out <file>     where to write the rendered frame (PNG); its directory is created\n" +
         "  --screen <name>  which screen to render (default home)\n" +
         "  --server <url>   render the populated screen by asking this server (otherwise MP2_SERVER,\n" +
@@ -235,6 +235,11 @@ namespace FrontendProbe
       // And the same for a list that has been filtered by watched state: the key is pressed on the window, twice,
       // so that the frame is the third of the three states with its rows carrying the mark the server gave them.
       bool seenAsked = false;
+
+      // And the same for a shelf walked into its cover view: the view key is pressed on the window until the
+      // shelf stands in covers, so the frame is the proof that the key, the layout and the skin's cover
+      // template hang together on screen.
+      bool coverAsked = false;
       HomeViewModel? home = null;
       ConnectionViewModel? connection = null;
       FoldersViewModel? foldersScreen = null;
@@ -504,6 +509,7 @@ namespace FrontendProbe
         window = new ShellWindow(new ConnectionView(connection));
       }
       else if (screenName.Equals("browser", StringComparison.Ordinal)
+          || screenName.Equals("cover", StringComparison.Ordinal)
           || screenName.Equals("details", StringComparison.Ordinal)
           || screenName.Equals("search", StringComparison.Ordinal)
           || screenName.Equals("seen", StringComparison.Ordinal))
@@ -583,6 +589,7 @@ namespace FrontendProbe
         detailsAsked = screenName.Equals("details", StringComparison.Ordinal);
         searchAsked = screenName.Equals("search", StringComparison.Ordinal);
         seenAsked = screenName.Equals("seen", StringComparison.Ordinal);
+        coverAsked = screenName.Equals("cover", StringComparison.Ordinal);
         window = new ShellWindow(new MediaBrowserView(browser));
       }
       else if (screenName.Equals("folders", StringComparison.Ordinal))
@@ -979,6 +986,33 @@ namespace FrontendProbe
         }
       }
 
+      if (coverAsked && (window as ShellWindow)?.Screen is MediaBrowserView coverScreen)
+      {
+        // The view key pressed on the window as a remote sends it, and pressed until the shelf stands in
+        // covers: the frame then shows the key, the layout and the skin's cover template working together,
+        // which no unit test of the view model alone could say.
+        MediaBrowserViewModel list = (MediaBrowserViewModel) coverScreen.DataContext!;
+        for (int press = 0; press < 3 && list.Layout != BrowserLayout.Cover; press++)
+        {
+          coverScreen.RaiseEvent(new KeyEventArgs
+          {
+            RoutedEvent = InputElement.KeyDownEvent,
+            Key = Key.V,
+            Source = coverScreen
+          });
+          Pump(TimeSpan.FromMilliseconds(250));
+        }
+        Pump(TimeSpan.FromMilliseconds(500));
+
+        Console.WriteLine("cover:    layout '" + list.LayoutLabel + "' over " + list.Titles.Count
+            + " scripted title(s) - " + list.Status);
+        if (list.Layout != BrowserLayout.Cover)
+        {
+          Console.WriteLine("FAILED:   the view key never brought the shelf to covers, so the frame would be the grid again.");
+          return 1;
+        }
+      }
+
       Console.WriteLine("screen:   " + screenName);
       if (weatherScreen != null)
       {
@@ -1294,13 +1328,13 @@ namespace FrontendProbe
         }
       }
 
-      if (screenName == "browser" || screenName == "details")
+      if (screenName == "browser" || screenName == "cover" || screenName == "details")
       {
         // Only a cover of a colour this probe knows can be looked for in the pixels; a shelf of episode stills is
         // full of photographs, and the most the probe can say about those by itself is how many rows were given
         // bytes, which it printed before rendering. Whoever wants to see those pictures looks at the frame.
         bool knownCover = aspectName.Equals("MovieItem", StringComparison.OrdinalIgnoreCase);
-        if (shelfScreen != null && shelfScreen.Layout == BrowserLayout.Grid)
+        if (shelfScreen != null && shelfScreen.Layout != BrowserLayout.List)
         {
           // Tiles lay the same films in a grid, and where a flat poster lands then is a question about the
           // grid's geometry rather than the list's rows - the shelf check above is what says the skin's tree is
@@ -1551,9 +1585,11 @@ namespace FrontendProbe
       }
 
       // Rows are the honest shape whenever the skin has no tile for this shelf or the viewer switched to rows;
-      // only a skin that does answer the tile key can be caught drawing the wrong thing.
+      // only a skin that does answer the tile key can be caught drawing the wrong thing. Grid and cover are the
+      // two tiled shapes: each wears its own key from the worn skin and is laid wrapped.
+      string layoutName = shelf.Layout == BrowserLayout.Cover ? "cover" : "grid";
       IDataTemplate? skin = SkinEngine.TryTileTemplate(shelf.GridTemplateKey);
-      if (shelf.Layout != BrowserLayout.Grid)
+      if (shelf.Layout == BrowserLayout.List)
       {
         report = skin == null
             ? "no skin speaks this shelf's tiles; its rows are the honest shape"
@@ -1563,8 +1599,8 @@ namespace FrontendProbe
 
       if (skin == null)
       {
-        report = "the shelf says it is a grid but no skin answers its tile key";
-        return "a grid frame was drawn while no skin offers the shelf a tile template";
+        report = string.Format("the shelf says it is {0} but no skin answers its tile key", layoutName);
+        return string.Format("a {0} frame was drawn while no skin offers the shelf a tile template", layoutName);
       }
 
       if (!ReferenceEquals(titles.ItemTemplate, skin))
@@ -1574,14 +1610,15 @@ namespace FrontendProbe
             shelf.GridTemplateKey);
       }
 
-      // Wrapped is the whole point of the grid: tiles laid left to right, not a single vertical strip.
+      // Wrapped is the whole point of a tiled shelf: tiles laid left to right, not a single vertical strip.
       if (!(titles.ItemsPanelRoot is WrapPanel))
       {
-        report = "the grid's panel is not a wrap panel";
-        return "the shelf wears a skin's tile but lays it in a list panel";
+        report = string.Format("the {0}'s panel is not a wrap panel", layoutName);
+        return string.Format("the shelf wears a skin's tile but lays it in a list panel ({0})", layoutName);
       }
 
-      report = string.Format("the skin's '{0}' draws the shelf, wrapped on a WrapPanel", shelf.GridTemplateKey);
+      report = string.Format("the skin's '{0}' draws the shelf as {1}, wrapped on a WrapPanel",
+          shelf.GridTemplateKey, layoutName);
       return null;
     }
 

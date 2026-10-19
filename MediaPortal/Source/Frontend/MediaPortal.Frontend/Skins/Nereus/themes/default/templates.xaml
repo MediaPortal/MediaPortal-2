@@ -241,4 +241,59 @@
     </Panel>
   </DataTemplate>
 
+  <!--
+    The cover, as Nereus hung it in its third view: the reference's CoverView item is the poster frame
+    Poster_large.png, the title's poster in a 260x410 field (MediaConsts POSTER_COVER_WIDTH/HEIGHT) and the
+    name standing under the picture rather than on a bar over it - a cover is read like a shelf of DVDs, where
+    the box art and the title beneath are two things. A cover without a picture wears the skin's video mark in
+    the frame, and the corners are the cover's own setting's answer, scaled to the cover's size.
+  -->
+  <DataTemplate x:Key="MediaTileCoverTemplate" x:DataType="vm:TitleViewModel">
+    <StackPanel Width="276" Margin="8,8,8,10">
+      <Panel Width="260" Height="410">
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='Poster_large.png'}"
+               Stretch="Fill"/>
+        <Image Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance},
+                                ConverterParameter='tile'}"
+               Stretch="UniformToFill" Margin="7"
+               IsVisible="{Binding HasArtwork}"/>
+        <!-- no picture: the skin's mark in the frame, which is all the reference drew here -->
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='video.png'}"
+               Stretch="Uniform" Width="110" Height="110" Opacity="0.6"
+               IsVisible="{Binding HasNoArtwork}"/>
+        <!-- watched corners, if the cover's setting allows corners at all -->
+        <Panel IsVisible="{Binding WatchFlagsShown}">
+          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='watched.png'}"
+                 Height="53" Stretch="Uniform" Opacity="0.9"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,5,0"
+                 IsVisible="{Binding IsWatched}"/>
+          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='partlywatched.png'}"
+                 Height="53" Stretch="Uniform" Opacity="0.9"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,5,0"
+                 IsVisible="{Binding IsPartlyWatched}"/>
+        </Panel>
+        <!-- a title without a file behind it: the reference's corner flag with its offline mark -->
+        <Panel IsVisible="{Binding IsOffline}">
+          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='flag.png'}"
+                 Height="144" Stretch="Uniform"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-5,-5,0"/>
+          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='offline.png'}"
+                 Height="56" Stretch="Uniform"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,11,11,0"/>
+        </Panel>
+      </Panel>
+      <!-- the name under the cover, on the ground the reference left it: no bar, just the words -->
+      <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextBrush}"
+                 FontSize="{DynamicResource SmallFontSize}" FontWeight="SemiBold"
+                 TextWrapping="Wrap" TextTrimming="CharacterEllipsis" MaxLines="2"
+                 TextAlignment="Center" Margin="0,6,0,0"/>
+    </StackPanel>
+  </DataTemplate>
+
 </ResourceDictionary>
