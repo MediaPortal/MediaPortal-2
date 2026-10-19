@@ -23,7 +23,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Avalonia;
 using MediaPortal.Frontend.Api;
+using MediaPortal.Frontend.Settings;
+using MediaPortal.Frontend.Theming;
 
 namespace MediaPortal.Frontend.ViewModels
 {
@@ -125,6 +128,25 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     public ObservableCollection<AspectViewModel> Aspects { get; } = new ObservableCollection<AspectViewModel>();
+
+    /// <summary>
+    /// Whether the home pane may say what pressing an entry does: the reference guarded that one label with
+    /// Nereus' <c>EnableHelpTexts</c> ("help texts for menues on the home screen") and with nothing else -
+    /// the continue-playing lists beside the menu are content and stay whatever the switch says. A machine
+    /// wearing a face without that switch keeps the help it always showed.
+    /// </summary>
+    private static bool HelpTextsShown
+    {
+      get
+      {
+        Application? app = Application.Current;
+        if (app == null)
+          return true;
+
+        return SkinSettingsBase.LoadFor(FrontendTheme.CurrentName(app), null, out _)
+            is not NereusSkinSettings nereus || nereus.EnableHelpTexts;
+      }
+    }
 
     /// <summary>
     /// The parts of this server a viewer can sit down and watch, in the order the tiles are arranged.
@@ -271,8 +293,11 @@ namespace MediaPortal.Frontend.ViewModels
       if (lists.Count == 0)
       {
         // An entry that opens a whole screen, or one nothing backs. Saying what pressing does is the useful thing;
-        // the pane would otherwise be an empty column next to a menu that is anything but empty.
-        ContentRows.Add(HomeRow.Note(entry.Openable ? "Press Enter: " + entry.Action : entry.Detail));
+        // the pane would otherwise be an empty column next to a menu that is anything but empty. It is also the
+        // reference's home help text, and Nereus lets its viewer switch help texts off - off is obeyed here and
+        // only here, because the lists beside the menu are content, not help.
+        if (HelpTextsShown)
+          ContentRows.Add(HomeRow.Note(entry.Openable ? "Press Enter: " + entry.Action : entry.Detail));
         OnPropertyChanged(nameof(HasContent));
         return;
       }

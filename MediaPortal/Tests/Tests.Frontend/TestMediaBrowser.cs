@@ -42,6 +42,8 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Frontend.Api;
 using MediaPortal.Frontend.Player;
+using MediaPortal.Frontend.Settings;
+using MediaPortal.Frontend.Theming;
 using MediaPortal.Frontend.ViewModels;
 using MediaPortal.Frontend.Workflow;
 using MediaPortal.Frontend.Views;
@@ -2615,6 +2617,43 @@ namespace Tests.Frontend
       Assert.That(PaneRows(home), Is.EqualTo(new[] { "note:Press Enter: the pictures, folder by folder" }),
           "an entry that opens a screen of its own has no lists to show, and the useful line is the one that says "
           + "what pressing it does - an empty column next to the menu reads as a broken front end");
+    }
+
+    [AvaloniaTest]
+    public async Task HelpTextsOffSilencesTheNoteAndKeepsTheLists()
+    {
+      // EnableHelpTexts is Nereus' switch over exactly one thing - "help texts for menues on the home
+      // screen", the reference's words - so off takes the explaining note away and leaves everything the
+      // lists themselves say standing where it stood.
+      string previousDir = Environment.GetEnvironmentVariable("MP2_SKIN_SETTINGS_DIR") ?? "";
+      Environment.SetEnvironmentVariable("MP2_SKIN_SETTINGS_DIR",
+          Path.Combine(Path.GetTempPath(), "mp2-help-" + Guid.NewGuid().ToString("N")));
+      string wasTheme = "";
+      try
+      {
+        Application app = Application.Current!;
+        wasTheme = FrontendTheme.CurrentName(app);
+
+        NereusSkinSettings off = new NereusSkinSettings();
+        off.EnableHelpTexts = false;
+        off.Save(null, out _);
+        FrontendTheme.Apply(app, "nereus", out _);
+
+        RegisterLibrary(Title("Alien Earth", 2025, RESOURCE_SYSTEM_ID.ToString("B") + "://" + LOCAL_PATH));
+        InProcessApi server = StartServer();
+        HomeViewModel home = HomeOn(server);
+        Refreshed(home);
+
+        await home.ShowContentAsync(EntryNamed(home.Menu, "Images"));
+        Assert.That(PaneRows(home), Is.Empty,
+            "the note is the help text the switch governs; the entry has no lists, so with help off the pane says nothing");
+      }
+      finally
+      {
+        if (wasTheme.Length > 0)
+          FrontendTheme.Apply(Application.Current!, wasTheme, out _);
+        Environment.SetEnvironmentVariable("MP2_SKIN_SETTINGS_DIR", previousDir.Length == 0 ? null : previousDir);
+      }
     }
 
     [AvaloniaTest]
