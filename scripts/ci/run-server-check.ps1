@@ -95,6 +95,15 @@ param(
   [string]$DotnetPath
 )
 
+# ---------------------------------------------------------------------------
+# Owner order (2026-10): this check is DISABLED permanently in this fork - it
+# belongs to the gate family that starts and stops a real server, and the
+# workflow here runs none of those. Exits 0 without touching anything.
+# To re-enable, delete this block.
+# ---------------------------------------------------------------------------
+Write-Host 'check:     DISABLED by owner order - nothing is started' -ForegroundColor Yellow
+exit 0
+
 $ErrorActionPreference = 'Stop'
 
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot (Join-Path '..' '..'))).Path

@@ -66,6 +66,16 @@ param(
   [string]$DotnetPath
 )
 
+# ---------------------------------------------------------------------------
+# Owner order (2026-10): this gate is DISABLED permanently in this fork. It
+# shuts down the live development server and takes port 55555 for itself, and
+# the workflow here runs no gates at all - not once, not "this one time". It
+# exits 0 without building, deploying, starting or rendering anything, so any
+# caller keeps working. To re-enable, delete this block.
+# ---------------------------------------------------------------------------
+Write-Host 'gate:      DISABLED by owner order - nothing is started' -ForegroundColor Yellow
+exit 0
+
 $ErrorActionPreference = 'Stop'
 
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
