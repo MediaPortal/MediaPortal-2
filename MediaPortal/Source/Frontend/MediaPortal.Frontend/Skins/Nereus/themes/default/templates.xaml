@@ -352,9 +352,9 @@
   <DataTemplate x:Key="HomeContentRowTemplate" x:DataType="vm:HomeRow">
     <Panel>
       <!-- a heading spans the wall: wider than any pane, so the wrap starts a new line after it -->
-      <StackPanel IsVisible="{Binding IsHeading}" Spacing="4" Width="4000" Margin="0,10,0,6">
+      <StackPanel IsVisible="{Binding IsHeading}" Spacing="4" Width="4000" Margin="0,16,0,10">
         <TextBlock Text="{Binding Text}"
-                   FontSize="{DynamicResource NormalFontSize}"
+                   FontSize="{DynamicResource HugeFontSize}"
                    FontWeight="SemiBold"
                    Foreground="{DynamicResource TextBrush}"/>
       </StackPanel>
@@ -365,39 +365,40 @@
                  TextTrimming="CharacterEllipsis"
                  IsVisible="{Binding IsNote}"
                  Foreground="{DynamicResource MutedTextBrush}"/>
-      <!-- the cover: the grid's poster tile, at the grid's size -->
-      <Panel Width="163" Height="250" Margin="6,4,6,12" IsVisible="{Binding IsTitle}">
+      <!-- the cover: the grid's poster tile, at twice the reference's 162.5x250 - the doubled size the
+           whole port uses, since this screen shows the reference's 720 lines at 1440 -->
+      <Panel Width="326" Height="500" Margin="10,6,10,20" IsVisible="{Binding IsTitle}">
         <Image Source="{Binding Title.Name, Converter={x:Static views:SkinImageConverter.Instance},
                                 ConverterParameter='Poster_small.png'}"
                Stretch="Fill"/>
         <Image Source="{Binding Title.Artwork, Converter={x:Static views:ArtworkConverter.Instance},
                                 ConverterParameter='tile'}"
-               Stretch="UniformToFill" Margin="3"
+               Stretch="UniformToFill" Margin="5"
                IsVisible="{Binding Title.HasArtwork}"/>
         <Panel IsVisible="{Binding Title.HasNoArtwork}">
           <Image Source="{Binding Title.Name, Converter={x:Static views:SkinImageConverter.Instance},
                                   ConverterParameter='media_item_background.jpg'}"
-                 Stretch="UniformToFill" Margin="3" Opacity="0.7"/>
+                 Stretch="UniformToFill" Margin="5" Opacity="0.7"/>
           <TextBlock Text="{Binding Title.Name}" Foreground="{DynamicResource TextBrush}"
                      FontSize="{DynamicResource SmallFontSize}" TextWrapping="Wrap"
                      TextTrimming="CharacterEllipsis" MaxLines="4" TextAlignment="Center"
-                     Margin="15,50,10,10" VerticalAlignment="Center"/>
+                     Margin="20,80,15,15" VerticalAlignment="Center"/>
         </Panel>
-        <Border Background="#80000000" Height="40" VerticalAlignment="Bottom" Margin="3"
+        <Border Background="#80000000" Height="70" VerticalAlignment="Bottom" Margin="4"
                 IsVisible="{Binding Title.HasArtwork}">
           <TextBlock Text="{Binding Title.Name}" Foreground="{DynamicResource TextBrush}"
                      FontSize="{DynamicResource SmallFontSize}" TextTrimming="CharacterEllipsis"
-                     TextAlignment="Center" VerticalAlignment="Center" Margin="5,0"/>
+                     TextAlignment="Center" VerticalAlignment="Center" Margin="8,0"/>
         </Border>
         <Image Source="{Binding Title.Name, Converter={x:Static views:SkinImageConverter.Instance},
                                 ConverterParameter='watched.png'}"
-               Height="30" Stretch="Uniform" Opacity="0.9"
-               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"
+               Height="60" Stretch="Uniform" Opacity="0.9"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,6,6,0"
                IsVisible="{Binding Title.IsWatched}"/>
         <Image Source="{Binding Title.Name, Converter={x:Static views:SkinImageConverter.Instance},
                                 ConverterParameter='partlywatched.png'}"
-               Height="30" Stretch="Uniform" Opacity="0.9"
-               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"
+               Height="60" Stretch="Uniform" Opacity="0.9"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,6,6,0"
                IsVisible="{Binding Title.IsPartlyWatched}"/>
       </Panel>
     </Panel>
