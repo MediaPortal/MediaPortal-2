@@ -7,7 +7,7 @@
         x:Class="MediaPortal.Frontend.Views.ConnectionView"
         x:DataType="vm:ConnectionViewModel"
         Name="connection"
-        Background="{DynamicResource ScreenBackgroundBrush}"
+        Background="Transparent"
         >
 
   <!--

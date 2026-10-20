@@ -5,7 +5,7 @@
         x:Class="MediaPortal.Frontend.Views.PlaybackSettingsView"
         x:DataType="vm:PlaybackSettingsViewModel"
         Name="playbackSettings"
-        Background="{DynamicResource ScreenBackgroundBrush}"
+        Background="Transparent"
         >
 
   <!--

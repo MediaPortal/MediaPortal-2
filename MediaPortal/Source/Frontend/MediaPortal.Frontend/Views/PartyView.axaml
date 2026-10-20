@@ -5,7 +5,7 @@
         x:Class="MediaPortal.Frontend.Views.PartyView"
         x:DataType="vm:PartyViewModel"
         Name="party"
-        Background="{DynamicResource ScreenBackgroundBrush}"
+        Background="Transparent"
         >
 
   <!--

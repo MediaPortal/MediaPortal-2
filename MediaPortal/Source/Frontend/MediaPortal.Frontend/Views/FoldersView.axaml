@@ -5,7 +5,7 @@
         x:Class="MediaPortal.Frontend.Views.FoldersView"
         x:DataType="vm:FoldersViewModel"
         Name="folders"
-        Background="{DynamicResource ScreenBackgroundBrush}"
+        Background="Transparent"
         >
 
   <!--

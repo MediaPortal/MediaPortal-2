@@ -5,7 +5,7 @@
         x:Class="MediaPortal.Frontend.Views.SkinSettingsView"
         x:DataType="vm:SkinSettingsViewModel"
         Name="skinSettings"
-        Background="{DynamicResource ScreenBackgroundBrush}"
+        Background="Transparent"
         >
 
   <!--

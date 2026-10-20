@@ -6,7 +6,7 @@
         x:Class="MediaPortal.Frontend.Views.WeatherView"
         x:DataType="vm:WeatherViewModel"
         Name="weather"
-        Background="{DynamicResource ScreenBackgroundBrush}"
+        Background="Transparent"
         >
 
   <!--

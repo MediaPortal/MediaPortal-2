@@ -5,7 +5,7 @@
         x:Class="MediaPortal.Frontend.Views.SystemStatusView"
         x:DataType="vm:SystemStatusViewModel"
         Name="systemStatus"
-        Background="{DynamicResource ScreenBackgroundBrush}"
+        Background="Transparent"
         >
 
   <!--

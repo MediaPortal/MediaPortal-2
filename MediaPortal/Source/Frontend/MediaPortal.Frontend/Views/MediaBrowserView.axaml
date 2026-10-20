@@ -6,7 +6,7 @@
         x:Class="MediaPortal.Frontend.Views.MediaBrowserView"
         x:DataType="vm:MediaBrowserViewModel"
         Name="browser"
-        Background="{DynamicResource ScreenBackgroundBrush}"
+        Background="Transparent"
         >
 
   <!--

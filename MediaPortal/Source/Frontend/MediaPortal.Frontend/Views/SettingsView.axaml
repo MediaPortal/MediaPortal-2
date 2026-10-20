@@ -4,7 +4,7 @@
         xmlns:theming="using:MediaPortal.Frontend.Theming"
         x:Class="MediaPortal.Frontend.Views.SettingsView"
         x:DataType="vm:SettingsViewModel"
-        Background="{DynamicResource ScreenBackgroundBrush}"
+        Background="Transparent"
         >
 
   <!--

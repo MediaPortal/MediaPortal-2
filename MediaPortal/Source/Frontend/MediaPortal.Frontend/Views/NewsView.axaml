@@ -5,7 +5,7 @@
         x:Class="MediaPortal.Frontend.Views.NewsView"
         x:DataType="vm:NewsViewModel"
         Name="news"
-        Background="{DynamicResource ScreenBackgroundBrush}"
+        Background="Transparent"
         >
 
   <!--

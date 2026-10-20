@@ -7,7 +7,7 @@
         x:Class="MediaPortal.Frontend.Views.UsersSettingsView"
         x:DataType="vm:UsersSettingsViewModel"
         Name="usersSettings"
-        Background="{DynamicResource ScreenBackgroundBrush}"
+        Background="Transparent"
         >
 
   <!--

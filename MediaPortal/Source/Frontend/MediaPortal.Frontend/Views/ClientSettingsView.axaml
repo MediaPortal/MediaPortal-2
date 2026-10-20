@@ -6,7 +6,7 @@
         x:Class="MediaPortal.Frontend.Views.ClientSettingsView"
         x:DataType="vm:ClientSettingsViewModel"
         Name="clientSettings"
-        Background="{DynamicResource ScreenBackgroundBrush}"
+        Background="Transparent"
         >
 
   <!--

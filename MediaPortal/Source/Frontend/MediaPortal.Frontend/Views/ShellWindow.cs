@@ -205,6 +205,14 @@ namespace MediaPortal.Frontend.Views
       AddHandler(KeyDownEvent,
           delegate (object? sender, KeyEventArgs args)
           {
+            // The witness key: what the application paints, saved where the operator can look at it.
+            if (args.Key == Key.F12)
+            {
+              LogScreenTo(ScreenshotService.NextTempPath());
+              args.Handled = true;
+              return;
+            }
+
             if (args.Handled)
             {
               // A screen answered it about its own business; but the volume keys below belong to the room,
@@ -310,6 +318,8 @@ namespace MediaPortal.Frontend.Views
           }
           : FindResource("ScreenBackgroundBrush") as IBrush ?? FactoryBackground;
       UpdateChromeVisibility();
+      Console.WriteLine("chrome:   header=" + (_header.Template != null) + " footer=" + (_footer.Template != null)
+          + " visible=" + _header.IsVisible + " state=" + WindowState + " background=" + Background?.GetType().Name);
     }
 
     /// <summary>
@@ -599,6 +609,34 @@ namespace MediaPortal.Frontend.Views
       _pendingActivation = null;
       if (pending != null)
         pending();
+      ArmAutoShot();
+    }
+
+    /// <summary>
+    /// Writes what the window paints to a file - the honest screenshot, see <see cref="ScreenshotService"/>.
+    /// </summary>
+    private void LogScreenTo(string path)
+    {
+      Visual root = (Content as Visual) ?? this;
+      Console.WriteLine("screenshot: " + ScreenshotService.Capture(root, path));
+    }
+
+    /// <summary>
+    /// When MP2_AUTOSHOT names a file, the window photographs itself a few seconds after opening, so a
+    /// machine nobody is sitting in front of can still say what its screen showed.
+    /// </summary>
+    private void ArmAutoShot()
+    {
+      string path = Environment.GetEnvironmentVariable("MP2_AUTOSHOT");
+      if (string.IsNullOrEmpty(path))
+        return;
+
+      Avalonia.Threading.DispatcherTimer.RunOnce(
+          delegate
+          {
+            LogScreenTo(path);
+          },
+          TimeSpan.FromSeconds(6));
     }
 
     private void RebuildTrail()

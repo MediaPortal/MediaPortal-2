@@ -6,7 +6,7 @@
         x:Class="MediaPortal.Frontend.Views.HomeView"
         x:DataType="vm:HomeViewModel"
         Name="home"
-        Background="{DynamicResource ScreenBackgroundBrush}"
+        Background="Transparent"
         >
 
   <!--

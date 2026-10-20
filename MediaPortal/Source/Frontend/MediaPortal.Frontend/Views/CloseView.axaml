@@ -5,7 +5,7 @@
         x:Class="MediaPortal.Frontend.Views.CloseView"
         x:DataType="vm:CloseViewModel"
         Name="closeScreen"
-        Background="{DynamicResource ScreenBackgroundBrush}"
+        Background="Transparent"
         >
 
   <!--

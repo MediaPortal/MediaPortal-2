@@ -168,6 +168,22 @@ namespace MediaPortal.Frontend
       else if (!string.Equals(appliedTheme, FrontendTheme.DEFAULT_NAME, StringComparison.Ordinal))
         Console.WriteLine("theme:    " + appliedTheme);
 
+      // The witness line for a machine nobody can see: which folder the skins came from, whether a skin is
+      // really worn on top of the palette, how many pictures it brought, and what the merged resources say
+      // the accent colour and a tile template are. Every skin mystery on a live television starts here.
+      Theming.WornSkin? wornNow = Theming.SkinEngine.Worn(this);
+      Console.WriteLine("skin:     folder=" + (Theming.SkinEngine.SkinsFolder ?? "<embedded>")
+          + " worn=" + (wornNow == null ? "<none>"
+              : wornNow.Manifest.Name + "/" + wornNow.Theme.Name + " images=" + wornNow.Images.Count));
+      if (wornNow != null)
+      {
+        object? accentNow = null;
+        Resources.TryGetResource("AccentBrush", null, out accentNow);
+        Console.WriteLine("skin:     accent=" + accentNow
+            + " tiletemplates=" + (Theming.SkinEngine.TryTileTemplate("HomeMenuTileTemplate") != null)
+            + " rowtemplates=" + (Theming.SkinEngine.TryTileTemplate("HomeContentRowTemplate") != null));
+      }
+
       if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
       {
         // The playback state belongs to the application and not to a window: closing the playback screen must
