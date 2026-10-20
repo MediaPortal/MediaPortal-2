@@ -342,31 +342,64 @@
     thin accent rule Nereus put under its section titles, the note quiet and indented, the title line
     with the detail greyed to its right exactly as the title rows do.
   -->
+  <!--
+    One row of the home pane, which in the reference is not a row at all but a wall: the pane's list wraps, a
+    heading takes a line of its own, and every title is a cover - the skin's own poster ground with the title's
+    picture on it, exactly the tile the media grid draws, so a film looks the same at home as it does in its
+    shelf. A title whose picture the server has none of wears the skin's ground and its name, like the grid's
+    tile does.
+  -->
   <DataTemplate x:Key="HomeContentRowTemplate" x:DataType="vm:HomeRow">
-    <Panel Margin="0,3">
-      <StackPanel IsVisible="{Binding IsHeading}" Spacing="3">
+    <Panel>
+      <!-- a heading spans the wall: wider than any pane, so the wrap starts a new line after it -->
+      <StackPanel IsVisible="{Binding IsHeading}" Spacing="4" Width="4000" Margin="0,10,0,6">
         <TextBlock Text="{Binding Text}"
-                   FontSize="{DynamicResource SmallerFontSize}"
+                   FontSize="{DynamicResource NormalFontSize}"
                    FontWeight="SemiBold"
                    Foreground="{DynamicResource TextBrush}"/>
-        <Border Height="2" Background="{DynamicResource AccentBrush}" Opacity="0.7" MaxWidth="220"
-                HorizontalAlignment="Left"/>
       </StackPanel>
       <TextBlock Text="{Binding Text}"
                  FontSize="{DynamicResource TinyFontSize}"
-                 Margin="12,1,0,3"
+                 Margin="12,4,0,6"
                  Opacity="0.55"
                  TextTrimming="CharacterEllipsis"
                  IsVisible="{Binding IsNote}"
                  Foreground="{DynamicResource MutedTextBrush}"/>
-      <Grid ColumnDefinitions="2.4*,1*" ColumnSpacing="14" MinWidth="380"
-            IsVisible="{Binding IsTitle}">
-        <TextBlock Grid.Column="0" Text="{Binding Title.Line}" TextTrimming="CharacterEllipsis"
-                   Foreground="{DynamicResource TextBrush}"/>
-        <TextBlock Grid.Column="1" Text="{Binding Title.Detail}" HorizontalAlignment="Right"
-                   Opacity="0.55" TextTrimming="CharacterEllipsis"
-                   Foreground="{DynamicResource MutedTextBrush}"/>
-      </Grid>
+      <!-- the cover: the grid's poster tile, at the grid's size -->
+      <Panel Width="163" Height="250" Margin="6,4,6,12" IsVisible="{Binding IsTitle}">
+        <Image Source="{Binding Title.Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='Poster_small.png'}"
+               Stretch="Fill"/>
+        <Image Source="{Binding Title.Artwork, Converter={x:Static views:ArtworkConverter.Instance},
+                                ConverterParameter='tile'}"
+               Stretch="UniformToFill" Margin="3"
+               IsVisible="{Binding Title.HasArtwork}"/>
+        <Panel IsVisible="{Binding Title.HasNoArtwork}">
+          <Image Source="{Binding Title.Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='media_item_background.jpg'}"
+                 Stretch="UniformToFill" Margin="3" Opacity="0.7"/>
+          <TextBlock Text="{Binding Title.Name}" Foreground="{DynamicResource TextBrush}"
+                     FontSize="{DynamicResource SmallFontSize}" TextWrapping="Wrap"
+                     TextTrimming="CharacterEllipsis" MaxLines="4" TextAlignment="Center"
+                     Margin="15,50,10,10" VerticalAlignment="Center"/>
+        </Panel>
+        <Border Background="#80000000" Height="40" VerticalAlignment="Bottom" Margin="3"
+                IsVisible="{Binding Title.HasArtwork}">
+          <TextBlock Text="{Binding Title.Name}" Foreground="{DynamicResource TextBrush}"
+                     FontSize="{DynamicResource SmallFontSize}" TextTrimming="CharacterEllipsis"
+                     TextAlignment="Center" VerticalAlignment="Center" Margin="5,0"/>
+        </Border>
+        <Image Source="{Binding Title.Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='watched.png'}"
+               Height="30" Stretch="Uniform" Opacity="0.9"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"
+               IsVisible="{Binding Title.IsWatched}"/>
+        <Image Source="{Binding Title.Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='partlywatched.png'}"
+               Height="30" Stretch="Uniform" Opacity="0.9"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"
+               IsVisible="{Binding Title.IsPartlyWatched}"/>
+      </Panel>
     </Panel>
   </DataTemplate>
 

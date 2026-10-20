@@ -29,6 +29,17 @@
 
   <Panel>
 
+    <!-- The chosen title's fanart, behind everything. Both rescued skins put the highlighted title's fanart
+         across the whole home screen (Nereus' "fanart_image" in master_homemenu.xaml, WMC's
+         FanArtImageBackground), dimmed by whatever the face paints over it - here by the gradients below, which
+         is why they can stay exactly as the reference wrote them. A face that switched fanart off, and the plain
+         arrangement that belongs to no face, never see this picture. -->
+    <Image Name="fanartBackground"
+           Source="{Binding BackgroundArtwork, Converter={x:Static views:ArtworkConverter.Instance}}"
+           Stretch="UniformToFill"
+           IsVisible="{Binding HasBackgroundArtwork}"
+           IsHitTestVisible="False"/>
+
     <DockPanel Name="homeLayout" Margin="48,30">
 
     <StackPanel Name="headerPane" DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,18"
@@ -206,6 +217,7 @@
         <ListBox Name="contentList"
                  Focusable="True"
                  ItemsSource="{Binding ContentRows}"
+                 SelectedItem="{Binding SelectedContent, Mode=TwoWay}"
                  FontSize="17"
                  Background="Transparent"
                  BorderThickness="0"
@@ -310,5 +322,20 @@
         </LinearGradientBrush>
       </Border.Background>
     </Border>
+
+    <!-- What the reference shows at the bottom left of its home screen about the title the walker is standing
+         on: its name, the year, how long it runs and how much of it was watched, in one line over the bottom
+         gradient. It rides on the same choice that puts the fanart up, so the line and the picture always speak
+         about one and the same title. -->
+    <TextBlock Name="contentInfoLine"
+               IsHitTestVisible="False"
+               Text="{Binding ContentInfo}"
+               FontSize="22"
+               Foreground="{DynamicResource TextBrush}"
+               HorizontalAlignment="Left"
+               VerticalAlignment="Bottom"
+               Margin="46,0,0,34"
+               IsVisible="{Binding HasContentInfo}"
+               TextTrimming="CharacterEllipsis"/>
   </Panel>
 </UserControl>

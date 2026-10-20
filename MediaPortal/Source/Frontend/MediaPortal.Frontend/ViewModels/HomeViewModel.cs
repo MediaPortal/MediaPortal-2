@@ -158,10 +158,29 @@ namespace MediaPortal.Frontend.ViewModels
     {
     }
 
+    /// <summary>
+    /// The posters of the titles in the content pane, and their fanart for the background.
+    /// </summary>
+    /// <remarks>
+    /// The reference's home pane is a wall of poster covers, not a list of names - <c>Nereus</c> drew the very
+    /// same pictures the media grid draws, through the same per-title picture fetch MP2 cached by media item id.
+    /// The two caches here are that mechanism: one asks for <c>Poster</c>, one for <c>FanArt</c>, and both ride
+    /// on the server's fanart endpoint, which falls back to the pictures lying next to the files. A title the
+    /// server has no poster for keeps its ground image, exactly as the grid's tile does.
+    /// </remarks>
+    private readonly Artwork? _posters;
+
+    private readonly Artwork? _fanart;
+
     public HomeViewModel(ServerApiClient? client)
     {
       _client = client;
       _status = client == null ? "No server configured" : "Not connected yet";
+      if (client != null)
+      {
+        _posters = new Artwork(id => client.GetFanArtAsync(id, "Poster"));
+        _fanart = new Artwork(id => client.GetFanArtAsync(id, "FanArt"));
+      }
 
       // The face on the machine can change while this screen sits open - the skin settings are one move
       // away, and so is the skin screen - and the content column follows the new face at once. The reference
@@ -330,6 +349,143 @@ namespace MediaPortal.Frontend.ViewModels
     /// </para>
     /// </remarks>
     public ObservableCollection<MainMenuEntry> Menu { get; } = new ObservableCollection<MainMenuEntry>();
+
+    /// <summary>
+    /// The row of the content pane the viewer is standing on.
+    /// </summary>
+    /// <remarks>
+    /// The reference's home screen always has one poster picked out, and everything else on the screen answers
+    /// to that choice: the line at the bottom left names its title, and the picture behind the whole screen is
+    /// its fanart. Binding the list's selection here is what lets those two follow the walk rather than the
+    /// last thing that was read.
+    /// </remarks>
+    public HomeRow? SelectedContent
+    {
+      get { return _selectedContent; }
+      set
+      {
+        if (ReferenceEquals(_selectedContent, value))
+          return;
+        _selectedContent = value;
+        OnPropertyChanged(nameof(SelectedContent));
+        OnPropertyChanged(nameof(ContentInfo));
+        OnPropertyChanged(nameof(HasContentInfo));
+        _ = ShowFanartAsync(value?.Title);
+      }
+    }
+
+    private HomeRow? _selectedContent;
+
+    /// <summary>
+    /// What the reference shows at the bottom left of the home screen about the chosen title: its name, the year,
+    /// how long it runs, and how much of it has been watched - the facts the row itself carries, since asking the
+    /// detail reader for a rating would put a second request behind every step of the walk.
+    /// </summary>
+    public string ContentInfo
+    {
+      get
+      {
+        TitleViewModel? title = _selectedContent?.Title;
+        if (title == null)
+          return string.Empty;
+
+        var parts = new List<string>();
+        if (title.Title.Year is int year)
+          parts.Add(year.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        if (title.Title.RuntimeMinutes is int minutes && minutes > 0)
+          parts.Add(minutes + " min");
+        if (title.ResumeText.Length > 0)
+          parts.Add(title.ResumeText);
+
+        return parts.Count == 0 ? title.Name : title.Name + "   ·   " + string.Join("   ·   ", parts);
+      }
+    }
+
+    public bool HasContentInfo
+    {
+      get { return _selectedContent?.Title != null; }
+    }
+
+    /// <summary>
+    /// The fanart of the chosen title, behind the whole home screen, or null when the screen has none to show.
+    /// </summary>
+    /// <remarks>
+    /// Both skins put the chosen title's fanart behind the home screen - Nereus full and dimmed by the top
+    /// gradient, WMC beneath its own background - and both offer a switch for it, which is obeyed here: a face
+    /// that says <c>EnableFanart = false</c> gets the plain background it asks for.
+    /// </remarks>
+    public byte[]? BackgroundArtwork
+    {
+      get { return _backgroundArtwork; }
+      private set
+      {
+        if (ReferenceEquals(_backgroundArtwork, value))
+          return;
+        _backgroundArtwork = value;
+        OnPropertyChanged(nameof(BackgroundArtwork));
+        OnPropertyChanged(nameof(HasBackgroundArtwork));
+      }
+    }
+
+    private byte[]? _backgroundArtwork;
+
+    public bool HasBackgroundArtwork
+    {
+      get { return _backgroundArtwork != null; }
+    }
+
+    private int _fanartGeneration;
+
+    /// <summary>
+    /// The chosen title's fanart, fetched and put behind the screen - unless the worn face or the plain layout
+    /// says it should not be there at all.
+    /// </summary>
+    private async Task ShowFanartAsync(TitleViewModel? title)
+    {
+      int generation = ++_fanartGeneration;
+
+      Artwork? fanart = _fanart;
+      SkinSettingsBase? worn = WornSkinSettingsOrNull();
+      if (title == null || fanart == null || IsPlainHome || worn?.EnableFanart == false)
+      {
+        BackgroundArtwork = null;
+        return;
+      }
+
+      try
+      {
+        byte[]? picture = await fanart.LoadAsync(title.Title.Id);
+        if (generation == Volatile.Read(ref _fanartGeneration))
+          BackgroundArtwork = picture;
+      }
+      catch (ServerApiException)
+      {
+        // A fanart the server will not hand over leaves the background as it was. The names beside the menu are
+        // the point of this pane; the picture behind them is a guest.
+      }
+    }
+
+    /// <summary>
+    /// One poster of the wall: fetched through the shared cache and shown on its row once it arrives, provided
+    /// the pane has not been rebuilt in the meantime.
+    /// </summary>
+    private async Task PutPosterAsync(TitleViewModel row, int generation)
+    {
+      Artwork? posters = _posters;
+      if (posters == null)
+        return;
+
+      try
+      {
+        byte[]? picture = await posters.LoadAsync(row.Title.Id);
+        if (generation == Volatile.Read(ref _contentGeneration))
+          row.ShowArtwork(picture);
+      }
+      catch (ServerApiException)
+      {
+        // The row keeps the skin's ground image, which is what a library without a picture looks like.
+      }
+    }
 
     /// <summary>
     /// The face on the machine changed: which content column may show and which folder the tiles wear their
@@ -504,6 +660,7 @@ namespace MediaPortal.Frontend.ViewModels
     {
       int generation = ++_contentGeneration;
       ContentRows.Clear();
+      SelectedContent = null;
       _paneEntry = entry;
 
       if (entry == null)
@@ -574,7 +731,14 @@ namespace MediaPortal.Frontend.ViewModels
           int at = rowPositions[i] + writtenBefore;
           int first = at;
           foreach (MediaTitle title in titles.Titles ?? Array.Empty<MediaTitle>())
-            ContentRows.Insert(at++, HomeRow.For(new TitleViewModel(title, false, _client)));
+          {
+            HomeRow row = HomeRow.For(new TitleViewModel(title, false, _client));
+            ContentRows.Insert(at++, row);
+            // The reference's pane is a wall of covers, and a cover arrives a moment after its name - the same
+            // two beats the media grid uses, so the picture rides on the very same cached fetch.
+            if (IsNereusHome && row.Title != null)
+              _ = PutPosterAsync(row.Title, generation);
+          }
 
           if (at == first)
             ContentRows.Insert(at++, HomeRow.Note("nothing here"));
@@ -586,6 +750,16 @@ namespace MediaPortal.Frontend.ViewModels
         // The list arrived without a token, so this server keeps its doors open to the room; whatever refusal
         // this screen saw before belonged to another server or to the switch before someone turned it off.
         ServerRefusesStrangers = false;
+
+        // The reference's home screen never stands on nothing: the walker is put on the first cover the moment
+        // the wall is up, which is also what picks the fanart behind the screen and the line at its bottom left.
+        if (SelectedContent == null)
+          foreach (HomeRow row in ContentRows)
+            if (row.IsTitle)
+            {
+              SelectedContent = row;
+              break;
+            }
       }
       catch (ServerApiException ex)
       {

@@ -277,6 +277,9 @@ namespace MediaPortal.Frontend.Views
           contentPane.MaxWidth = double.PositiveInfinity;
           contentPane.HorizontalAlignment = HorizontalAlignment.Stretch;
           contentPane.VerticalAlignment = VerticalAlignment.Stretch;
+          // The reference's pane is a wall: covers stand side by side and the row wraps, with a heading's
+          // over-wide label starting each new band. A vertical list of covers would be a shelf, not a wall.
+          contentList.ItemsPanel = new FuncTemplate<Panel?>(() => new WrapPanel());
           break;
 
         case "wmc":
@@ -292,6 +295,7 @@ namespace MediaPortal.Frontend.Views
           contentPane.MaxWidth = 1500;
           contentPane.HorizontalAlignment = HorizontalAlignment.Right;
           contentPane.VerticalAlignment = VerticalAlignment.Top;
+          contentList.ItemsPanel = PlainItemsPanel();
           break;
 
         default:
@@ -303,8 +307,26 @@ namespace MediaPortal.Frontend.Views
           contentPane.MaxWidth = double.PositiveInfinity;
           contentPane.HorizontalAlignment = HorizontalAlignment.Stretch;
           contentPane.VerticalAlignment = VerticalAlignment.Stretch;
+          contentList.ItemsPanel = PlainItemsPanel();
           break;
       }
+    }
+
+    /// <summary>
+    /// The pane's ordinary vertical arrangement, as a template.
+    /// </summary>
+    /// <remarks>
+    /// An items presenter reads its panel template when it is applied and asks no question about it - handing it
+    /// a null one after it has built itself once is how the screen used to die on its very first measure. So
+    /// leaving the poster wall hands the list the vertical panel it would have had anyway, by name, rather than
+    /// handing it nothing.
+    /// </remarks>
+    private static readonly ITemplate<Panel?> VerticalItemsPanel =
+        new FuncTemplate<Panel?>(() => new StackPanel());
+
+    private static ITemplate<Panel?> PlainItemsPanel()
+    {
+      return VerticalItemsPanel;
     }
 
     private void RebuildSignInNames()
