@@ -68,7 +68,7 @@
 
         <Grid Grid.Row="1" ColumnDefinitions="*,700,*">
           <StackPanel Name="crossLeft" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Right"
-                      VerticalAlignment="Top" Spacing="80" Margin="0,24,64,0"/>
+                      VerticalAlignment="Center" Spacing="80" Margin="0,0,64,0"/>
 
           <!-- The standing place: the name Huge behind the frame (what shows when the skin has no Focus
                art), the frame with the Focus art inside it, and the name again under the frame - which is
@@ -89,7 +89,7 @@
           </Panel>
 
           <StackPanel Name="crossRight" Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Left"
-                      VerticalAlignment="Top" Spacing="80" Margin="64,24,0,0"/>
+                      VerticalAlignment="Center" Spacing="80" Margin="64,0,0,0"/>
         </Grid>
 
         <StackPanel Name="crossBelow" Grid.Row="2" Orientation="Vertical" VerticalAlignment="Top"
