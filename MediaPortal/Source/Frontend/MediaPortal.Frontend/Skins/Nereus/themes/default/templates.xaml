@@ -213,6 +213,37 @@
   </DataTemplate>
 
   <!--
+    A row of the skin's own settings page, and of the other two settings pages that share its shape:
+    the label on the left, the answer in the middle - the checkbox for a switch, the button of the
+    current answer for a choice - and the explanation greyed on the right. The button carries the
+    option's own command, so a loose skin template needs no code behind it.
+  -->
+  <DataTemplate x:Key="SettingsOptionTemplate" x:DataType="vm:SkinSettingOption">
+    <Grid ColumnDefinitions="380,170,*" ColumnSpacing="10" Margin="2,3">
+      <TextBlock Text="{Binding Label}" FontSize="{DynamicResource SmallerFontSize}"
+                 VerticalAlignment="Center"
+                 Foreground="{DynamicResource TextBrush}"/>
+      <CheckBox Grid.Column="1"
+                IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                IsVisible="{Binding IsToggle}"
+                VerticalAlignment="Center"
+                HorizontalAlignment="Left"/>
+      <Button Grid.Column="1"
+              Content="{Binding ValueText}"
+              Command="{Binding PressCommand}"
+              IsVisible="{Binding !IsToggle}"
+              MinWidth="150"
+              HorizontalAlignment="Left"/>
+      <TextBlock Grid.Column="2" Text="{Binding Description}"
+                 FontSize="{DynamicResource TinyFontSize}"
+                 Opacity="0.6"
+                 TextTrimming="CharacterEllipsis"
+                 VerticalAlignment="Center"
+                 Foreground="{DynamicResource MutedTextBrush}"/>
+    </Grid>
+  </DataTemplate>
+
+  <!--
     A one-word row in the side lists Browse and the user picker walk: the label with the hairline rule
     under it, the way Nereus separated its sidebar entries.
   -->

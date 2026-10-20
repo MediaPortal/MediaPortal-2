@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        xmlns:theming="clr-namespace:MediaPortal.Frontend.Theming"
         x:Class="MediaPortal.Frontend.Views.SkinSettingsView"
         x:DataType="vm:SkinSettingsViewModel"
         Name="skinSettings"
@@ -38,7 +39,7 @@
                Margin="0,8,0,0"
                TextWrapping="Wrap" />
 
-    <ListBox Name="settingsList"
+    <ListBox Name="settingsList" theming:SkinTemplates.TileTemplate="SettingsOptionTemplate"
              Focusable="True"
              ItemsSource="{Binding Options}"
              SelectedItem="{Binding Selected, Mode=TwoWay}"

@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:views="using:MediaPortal.Frontend.Views"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        xmlns:theming="clr-namespace:MediaPortal.Frontend.Theming"
         x:Class="MediaPortal.Frontend.Views.ClientSettingsView"
         x:DataType="vm:ClientSettingsViewModel"
         Name="clientSettings"
@@ -65,7 +66,7 @@
                Margin="0,4,0,0"
                TextWrapping="Wrap" />
 
-    <ListBox Name="settingsList"
+    <ListBox Name="settingsList" theming:SkinTemplates.TileTemplate="SettingsOptionTemplate"
              Focusable="True"
              ItemsSource="{Binding Options}"
              SelectedItem="{Binding Selected, Mode=TwoWay}"

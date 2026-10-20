@@ -250,6 +250,37 @@
   </DataTemplate>
 
   <!--
+    A row of the skin's own settings page, and of the other two settings pages that share its shape:
+    WMC bands them like everything else - the label large on the left, the answer's control in the
+    middle, the explanation small and muted on the right. The button carries the option's own command,
+    so a loose skin template needs no code behind it.
+  -->
+  <DataTemplate x:Key="SettingsOptionTemplate" x:DataType="vm:SkinSettingOption">
+    <Border Background="{DynamicResource PanelBrush}" Padding="14,5" Margin="0,3,8,5">
+      <Grid ColumnDefinitions="380,170,*" ColumnSpacing="10">
+        <TextBlock Text="{Binding Label}" FontSize="17" FontWeight="Bold"
+                   VerticalAlignment="Center"
+                   Foreground="{DynamicResource TextBrush}"/>
+        <CheckBox Grid.Column="1"
+                  IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                  IsVisible="{Binding IsToggle}"
+                  VerticalAlignment="Center"
+                  HorizontalAlignment="Left"/>
+        <Button Grid.Column="1"
+                Content="{Binding ValueText}"
+                Command="{Binding PressCommand}"
+                IsVisible="{Binding !IsToggle}"
+                MinWidth="150"
+                HorizontalAlignment="Left"/>
+        <TextBlock Grid.Column="2" Text="{Binding Description}" FontSize="13"
+                   TextTrimming="CharacterEllipsis"
+                   VerticalAlignment="Center"
+                   Foreground="{DynamicResource MutedTextBrush}"/>
+      </Grid>
+    </Border>
+  </DataTemplate>
+
+  <!--
     A one-word row in the side lists Browse and the user picker walk: WMC makes every choice a band of
     panel blue, so these lists wear bands too - the label in the big white type, the accent edge below.
   -->

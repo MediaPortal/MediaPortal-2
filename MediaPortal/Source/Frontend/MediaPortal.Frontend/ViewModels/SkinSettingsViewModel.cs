@@ -16,6 +16,7 @@
 */
 
 using System;
+using System.Windows.Input;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -102,6 +103,26 @@ public sealed class SkinSettingOption : ObservableObject
       _advance();
       _changed(this);
     }
+  }
+
+  /// <summary>
+  /// The same press as a command, for a skin that draws the row as a button of its own: a loose template
+  /// has no code-behind to catch a Click, so it binds this instead.
+  /// </summary>
+  private ICommand? _pressCommand;
+  public ICommand PressCommand => _pressCommand ??= new PressOptionCommand(this);
+
+  private sealed class PressOptionCommand : ICommand
+  {
+    private readonly SkinSettingOption _option;
+
+    public PressOptionCommand(SkinSettingOption option) => _option = option;
+
+    public event EventHandler? CanExecuteChanged { add { } remove { } }
+
+    public bool CanExecute(object? parameter) => true;
+
+    public void Execute(object? parameter) => _option.Press();
   }
 
   /// <summary>Tells the screen the answer changed, however it changed.</summary>
