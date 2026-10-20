@@ -206,6 +206,38 @@
   </DataTemplate>
 
   <!--
+    A photograph in the pictures grid: the picture on its frame, and WMC gives it a band of panel blue
+    under it for the name - every choice in this skin sits on a band.
+  -->
+  <DataTemplate x:Key="PictureTileTemplate" x:DataType="vm:PictureTile">
+    <Panel Width="216" Margin="6,8">
+      <StackPanel Spacing="0">
+        <Panel Height="150">
+          <Border Background="{DynamicResource PanelRaisedBrush}"
+                  BorderBrush="{DynamicResource OutlineBrush}"
+                  BorderThickness="1"/>
+          <Image Source="{Binding Picture, Converter={x:Static views:ArtworkConverter.Instance},
+                                  ConverterParameter='tile'}"
+                 Stretch="Uniform"
+                 Margin="5"/>
+          <TextBlock Text="{Binding PictureNote}"
+                     IsVisible="{Binding HasNoPicture}"
+                     FontSize="13"
+                     Foreground="{DynamicResource MutedTextBrush}"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Bottom"
+                     Margin="0,0,0,8"/>
+        </Panel>
+        <Border Background="{DynamicResource PanelBrush}" Padding="10,5">
+          <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="Bold"
+                     TextTrimming="CharacterEllipsis"
+                     Foreground="{DynamicResource TextBrush}"/>
+        </Border>
+      </StackPanel>
+    </Panel>
+  </DataTemplate>
+
+  <!--
     The plainest row there is - an item that only has a Text - drawn as a band like every other WMC row,
     for the third Browse column.
   -->

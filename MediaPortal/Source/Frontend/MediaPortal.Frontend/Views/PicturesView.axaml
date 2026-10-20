@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:theming="clr-namespace:MediaPortal.Frontend.Theming"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
         x:Class="MediaPortal.Frontend.Views.PicturesView"
         x:DataType="vm:PicturesViewModel"
@@ -48,7 +49,7 @@
                    MaxWidth="900" />
       </StackPanel>
 
-      <ListBox Name="tilesList"
+      <ListBox Name="tilesList" theming:SkinTemplates.TileTemplate="PictureTileTemplate"
                Focusable="True"
                ItemsSource="{Binding Tiles}"
                SelectedItem="{Binding Selected, Mode=TwoWay}"

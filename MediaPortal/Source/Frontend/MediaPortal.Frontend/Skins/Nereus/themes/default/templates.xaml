@@ -168,6 +168,36 @@
   </DataTemplate>
 
   <!--
+    A photograph in the pictures grid. Nereus showed pictures as pictures: the photograph on a plain
+    ground with its name in quiet type under it, and when the bytes never came the ground keeps the
+    tile's place and says why.
+  -->
+  <DataTemplate x:Key="PictureTileTemplate" x:DataType="vm:PictureTile">
+    <StackPanel Width="216" Spacing="4" Margin="6,8">
+      <Panel Height="150">
+        <Border Background="{DynamicResource PanelBrush}"
+                BorderBrush="{DynamicResource OutlineBrush}"
+                BorderThickness="1"/>
+        <Image Source="{Binding Picture, Converter={x:Static views:ArtworkConverter.Instance},
+                                ConverterParameter='tile'}"
+               Stretch="Uniform"
+               Margin="5"/>
+        <TextBlock Text="{Binding PictureNote}"
+                   IsVisible="{Binding HasNoPicture}"
+                   FontSize="{DynamicResource TinyFontSize}"
+                   Opacity="0.45"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Bottom"
+                   Margin="0,0,0,8"
+                   Foreground="{DynamicResource MutedTextBrush}"/>
+      </Panel>
+      <TextBlock Text="{Binding Name}" FontSize="{DynamicResource TinyFontSize}"
+                 TextTrimming="CharacterEllipsis"
+                 Foreground="{DynamicResource TextBrush}"/>
+    </StackPanel>
+  </DataTemplate>
+
+  <!--
     The plainest row there is - an item that only has a Text - drawn with the same hairline rule as the
     label rows, for the third Browse column.
   -->
