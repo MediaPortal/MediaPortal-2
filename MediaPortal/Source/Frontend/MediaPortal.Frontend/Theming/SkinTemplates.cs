@@ -212,6 +212,7 @@ namespace MediaPortal.Frontend.Theming
         private abstract class TemplateSwap
         {
             private IDataTemplate? _viewTemplate;
+            private bool _captured;
             private bool _wearingSkin;
 
             /// <summary>The key this control asked the skin for, read when the skin changed.</summary>
@@ -228,8 +229,16 @@ namespace MediaPortal.Frontend.Theming
                     if (!_wearingSkin)
                     {
                         // The first swap is the one that has to remember what the view was written with;
-                        // skin over skin afterwards only replaces the skin's tree, never the view's.
-                        _viewTemplate = Current;
+                        // skin over skin afterwards only replaces the skin's tree, never the view's. The
+                        // remembering happens once - even when the view's own tree is nothing - because
+                        // handing back what was truly there is the deal; handing back an invented null
+                        // after a second skin is the television spelling out the entry's type name where
+                        // a label should stand.
+                        if (!_captured)
+                        {
+                            _viewTemplate = Current;
+                            _captured = true;
+                        }
                         _wearingSkin = true;
                     }
                     Current = skin;

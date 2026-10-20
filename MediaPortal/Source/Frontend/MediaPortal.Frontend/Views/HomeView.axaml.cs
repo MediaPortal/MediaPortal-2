@@ -18,10 +18,12 @@
 using System;
 using System.Collections.Generic;
 using Avalonia.Controls;
+using Avalonia.Controls.Templates;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using MediaPortal.Frontend.Input;
+using MediaPortal.Frontend.Theming;
 using MediaPortal.Frontend.ViewModels;
 using MediaPortal.Frontend.Workflow;
 
@@ -82,6 +84,22 @@ namespace MediaPortal.Frontend.Views
       _sectionScreen = sectionScreen;
       _screenFactory = screenFactory;
       InitializeComponent();
+
+      // The labels of the main menu survive any skin change, by fiat: the moment this view is built it owns
+      // its own tile tree, and any moment afterwards when no skin answers the home menu's key, the view's
+      // own tiles go back onto the list - whoever swapped them away and whatever its bookkeeping did. A
+      // home menu without labels after a skin switch is not a detail to argue about; it is the one thing
+      // this screen may never do.
+      IDataTemplate? ownHomeTiles = menuList.ItemTemplate;
+      SkinEngine.Changed += delegate
+      {
+        if (ownHomeTiles != null
+            && SkinEngine.TryTileTemplate("HomeMenuTileTemplate") == null
+            && !ReferenceEquals(menuList.ItemTemplate, ownHomeTiles))
+        {
+          menuList.ItemTemplate = ownHomeTiles;
+        }
+      };
 
       // A button that opens nothing is worse than no button, so the playback button is only offered - and only
       // walks with the d-pad - when the application can actually build the screen.
