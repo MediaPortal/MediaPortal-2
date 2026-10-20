@@ -143,7 +143,7 @@ namespace Tests.Frontend
       Assert.That(vm.Options.Any(o => o.Label == "Home content"), Is.True);
 
       foreach (string foreign in new[] { "Colour", "Header transparency", "Show time", "Help texts",
-              "Auto scrolling", "Grid details", "Touch display" })
+              "Auto scrolling", "Grid details", "Touch display", "Fanart blur" })
       {
         Assert.That(vm.Options.Any(o => o.Label == foreign), Is.False,
             "'" + foreign + "' is Nereus's switch; on WMC the screen would be lying");
@@ -188,6 +188,34 @@ namespace Tests.Frontend
         second.PressSelected();
         Assert.That(opacity.ValueText, Is.EqualTo(expected));
       }
+    }
+
+    /// <summary>
+    /// The blur row offers six answers - plain and five turns - wraps back to plain after its highest, and
+    /// leaves the turn it ended on in the skin's file like every other row does.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheBlurDialWalksItsTurnsAndWrapsBackToPlain()
+    {
+      Application app = RequireApplication();
+      FrontendTheme.Apply(app, "nereus", out _);
+      string file = FileIn(_ownDir, "nereus");
+
+      SkinSettingsViewModel vm = new SkinSettingsViewModel(app, file);
+      SkinSettingOption blur = Row(vm, "Fanart blur");
+
+      Assert.That(blur.ValueText, Is.EqualTo("0"),
+          "the screen greets a viewer who never touched the dial with the library's own picture");
+
+      foreach (string expected in new[] { "1", "2", "3", "4", "5", "0" })
+      {
+        vm.Selected = blur;
+        vm.PressSelected();
+        Assert.That(blur.ValueText, Is.EqualTo(expected), "the dial does not walk its six answers");
+      }
+
+      Assert.That(NereusSkinSettings.Load(file, out _).FanartBlur, Is.Zero,
+          "the wrap back to plain has to reach the file, not only the screen");
     }
   }
 }

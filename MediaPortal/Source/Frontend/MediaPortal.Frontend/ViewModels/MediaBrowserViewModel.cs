@@ -671,6 +671,7 @@ namespace MediaPortal.Frontend.ViewModels
       // default skin did: no background model, no picture.
       FanartShown = _skinSettings?.EnableFanart ?? false;
       FanartOverlay = _skinSettings?.FanartOverlayOpacity ?? 0.85;
+      FanartBlurRadius = BlurOf(_skinSettings);
       // A setting the viewer flips on the skin-settings screen while this shelf lives takes its effect on
       // the television at once - the screen is a remote control, not an application form.
       SkinSettingsBase.Saved += delegate { ReapplySkinSettings(); };
@@ -732,6 +733,7 @@ namespace MediaPortal.Frontend.ViewModels
       _skinSettings = WornSkinSettings();
       FanartShown = _skinSettings?.EnableFanart ?? false;
       FanartOverlay = _skinSettings?.FanartOverlayOpacity ?? 0.85;
+      FanartBlurRadius = BlurOf(_skinSettings);
       WatchFlagsShown = WatchFlagsFor(_layout);
       foreach (TitleViewModel row in Titles)
         row.WatchFlagsShown = WatchFlagsShown;
@@ -921,6 +923,19 @@ namespace MediaPortal.Frontend.ViewModels
     /// this opacity, and the skin-settings screen writes exactly this number.
     /// </summary>
     public double FanartOverlay { get; private set; }
+
+    /// <summary>
+    /// How far the fanart behind the shelf is thrown out of focus, in pixels. Nereus' own dial - the face
+    /// that wears a title's picture across the whole screen - and nought from every other face, which leaves
+    /// the picture as the library drew it.
+    /// </summary>
+    public double FanartBlurRadius { get; private set; }
+
+    /// <summary>The worn settings' blur, or nought when the face worn speaks none.</summary>
+    private static double BlurOf(SkinSettingsBase? settings)
+    {
+      return settings is NereusSkinSettings nereus ? nereus.FanartBlurRadius : 0;
+    }
 
     /// <summary>The fanart pictures of this shelf's titles, or null with no server to ask.</summary>
     private readonly Artwork? _fanart;

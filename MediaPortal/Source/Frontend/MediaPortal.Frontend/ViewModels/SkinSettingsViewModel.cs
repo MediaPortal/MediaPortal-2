@@ -279,6 +279,12 @@ public partial class SkinSettingsViewModel : ObservableObject
 
   private void NereusRows(NereusSkinSettings n)
   {
+    // The fanart group above is what both skins speak; how far that picture is thrown out of focus is this
+    // face's own dial, because this face is the one that wears it across the whole screen.
+    Step("Fanart blur", "How far the picture behind the media is thrown out of focus",
+        () => n.FanartBlur, v => n.FanartBlur = (int)Math.Round(v), 0,
+        NereusSkinSettings.FANART_BLUR_MAX, 1);
+
     Toggle("Grid details", "The details pane beside a grid",
         () => n.EnableGridDetails, v => n.EnableGridDetails = v);
     Toggle("Cover details", "The details beside the standing cover",

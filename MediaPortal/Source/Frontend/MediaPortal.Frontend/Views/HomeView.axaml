@@ -64,11 +64,15 @@
            screening around it - so they answer the background host with their own layers and this one steps
            aside. A face that switched fanart off, and the plain arrangement that belongs to no face, never
            see this picture. -->
-      <Image Source="{Binding BackgroundArtwork, Converter={x:Static views:ArtworkConverter.Instance}}"
-             Stretch="UniformToFill"
-             Effect="{Binding FanartBlurRadius, Converter={x:Static views:SkinBlurConverter.Instance}}"
-             Margin="-60"
-             IsVisible="{Binding HasBackgroundArtwork}"/>
+      <Image Stretch="UniformToFill"
+             IsVisible="{Binding HasBackgroundArtwork}">
+        <Image.Source>
+          <MultiBinding Converter="{x:Static views:SkinFanartConverter.Instance}">
+            <Binding Path="BackgroundArtwork"/>
+            <Binding Path="FanartBlurRadius"/>
+          </MultiBinding>
+        </Image.Source>
+      </Image>
     </Panel>
 
     <!-- WMC stands its home on a cross of names and pictures, and every line of that cross - its arms, its

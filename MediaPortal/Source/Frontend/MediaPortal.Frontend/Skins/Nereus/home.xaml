@@ -30,20 +30,23 @@
         and a screen with no fanart at all was always only ever the ground. Neither is hit-testable; neither
         is ever replaced by the platform's flat clear underneath.
 
-        The fanart also wears the skin setting's blur, and it stands sixty past the screen on every side for
-        that: a blurred picture fades into nothing along its own edge, and without the over-scan that fade
-        would show as a soft frame round the television. Sixty is past the blur's deepest forty pixels, and
-        UniformToFill crops the over-scan away, so the picture is no more crowded than it was.  -->
+        The fanart also wears the skin setting's blur, and it wears it in its own pixels rather than in a
+        request to the window: what arrives here is already out of focus, at a third of its size and stretched
+        back over the screen, with its edges carried out to the corners instead of faded.  -->
   <ControlTemplate x:Key="HomeBackgroundTemplate" TargetType="ContentControl" x:DataType="vm:HomeViewModel">
     <Panel IsHitTestVisible="False">
       <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter=Background.PNG}"
              Stretch="Fill"/>
-      <Image Source="{Binding BackgroundArtwork, Converter={x:Static views:ArtworkConverter.Instance}}"
-             Stretch="UniformToFill"
+      <Image Stretch="UniformToFill"
              Opacity="{Binding FanartOverlay}"
-             Effect="{Binding FanartBlurRadius, Converter={x:Static views:SkinBlurConverter.Instance}}"
-             Margin="-60"
-             IsVisible="{Binding HasBackgroundArtwork}"/>
+             IsVisible="{Binding HasBackgroundArtwork}">
+        <Image.Source>
+          <MultiBinding Converter="{x:Static views:SkinFanartConverter.Instance}">
+            <Binding Path="BackgroundArtwork"/>
+            <Binding Path="FanartBlurRadius"/>
+          </MultiBinding>
+        </Image.Source>
+      </Image>
     </Panel>
   </ControlTemplate>
 
