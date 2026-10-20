@@ -83,5 +83,59 @@ namespace Tests.Frontend
                 Environment.SetEnvironmentVariable("MP2_SKIN_SETTINGS_DIR", previousDir.Length == 0 ? null : previousDir);
             }
         }
+
+        /// <summary>
+        /// Nereus kept a details dial of its own for the grid and one for the cover, and its masters bound
+        /// the details pane to nothing else. A shelf that opens - or walks - into one of those layouts
+        /// takes its details answer from that layout's dial while the screen itself never answered; the
+        /// viewer's own answer on the screen outranks every dial and is the only thing remembered.
+        /// </summary>
+        [AvaloniaTest]
+        public void TheGridAndTheCoverKeepTheirOwnDetailsDial()
+        {
+            string wasTheme = FrontendTheme.CurrentName(Application.Current!);
+            string previousDir = Environment.GetEnvironmentVariable("MP2_SKIN_SETTINGS_DIR") ?? "";
+            string previousViews = Environment.GetEnvironmentVariable("MP2_SCREEN_VIEWS_FILE") ?? "";
+            string isolated = Path.Combine(Path.GetTempPath(), "mp2-details-dial-" + Guid.NewGuid().ToString("N"));
+            Environment.SetEnvironmentVariable("MP2_SKIN_SETTINGS_DIR", isolated);
+            Environment.SetEnvironmentVariable("MP2_SCREEN_VIEWS_FILE",
+                Path.Combine(isolated, "screens-" + Guid.NewGuid().ToString("N") + ".json"));
+            try
+            {
+                FrontendTheme.Apply(Application.Current!, "nereus", out _);
+
+                SkinSettingsBase opening = SkinSettingsBase.LoadFor("nereus", null, out _) ?? new NereusSkinSettings();
+                opening.EnableMediaItemDetailsView = true;
+                ((NereusSkinSettings)opening).EnableGridDetails = false;
+                opening.Save(null, out _);
+
+                // Nereus answers the tile keys, so a fresh shelf opens in the grid - and the grid's own
+                // dial says no details, whatever the general dial says.
+                MediaBrowserViewModel shelf = new MediaBrowserViewModel(null, (HomeSection?)null);
+                Assert.That(shelf.Layout, Is.EqualTo(BrowserLayout.Grid));
+                Assert.That(shelf.ShowDetails, Is.False, "the grid opens as its own dial draws it");
+
+                // Flipping the grid's dial reaches the live shelf, and the screen is not made to remember
+                // an answer it never gave.
+                SkinSettingsBase flipping = SkinSettingsBase.LoadFor("nereus", null, out _) ?? new NereusSkinSettings();
+                ((NereusSkinSettings)flipping).EnableGridDetails = true;
+                flipping.Save(null, out _);
+                Assert.That(shelf.ShowDetails, Is.True, "the dial reaches the live shelf");
+
+                // The viewer answers on the screen itself - and from then on no dial speaks for it.
+                shelf.ToggleDetails();
+                Assert.That(shelf.ShowDetails, Is.False);
+                SkinSettingsBase back = SkinSettingsBase.LoadFor("nereus", null, out _) ?? new NereusSkinSettings();
+                ((NereusSkinSettings)back).EnableGridDetails = true;
+                back.Save(null, out _);
+                Assert.That(shelf.ShowDetails, Is.False, "the screen's own answer outranks the dial");
+            }
+            finally
+            {
+                FrontendTheme.Apply(Application.Current!, wasTheme, out _);
+                Environment.SetEnvironmentVariable("MP2_SKIN_SETTINGS_DIR", previousDir.Length == 0 ? null : previousDir);
+                Environment.SetEnvironmentVariable("MP2_SCREEN_VIEWS_FILE", previousViews.Length == 0 ? null : previousViews);
+            }
+        }
     }
 }

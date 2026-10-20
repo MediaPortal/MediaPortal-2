@@ -169,6 +169,18 @@ public abstract class SkinSettingsBase
   [JsonPropertyName("enableMediaItemDetailsView")]
   public bool EnableMediaItemDetailsView { get; set; } = true;
 
+  /// <summary>
+  /// Whether a shelf opens with its details in this layout, for a skin that lets the layouts answer
+  /// separately. The one dial answers for all layouts here; a skin whose reference kept a dial of its own
+  /// for the grid and one for the cover overrides these two and keeps its own files unchanged.
+  /// </summary>
+  [JsonIgnore]
+  public virtual bool EnableGridDetailsView => EnableMediaItemDetailsView;
+
+  /// <summary>The cover layout's own details answer; see <see cref="EnableGridDetailsView"/>.</summary>
+  [JsonIgnore]
+  public virtual bool EnableCoverDetailsView => EnableMediaItemDetailsView;
+
   [JsonPropertyName("enableAgeCertificationLogos")]
   public bool EnableAgeCertificationLogos { get; set; } = true;
 

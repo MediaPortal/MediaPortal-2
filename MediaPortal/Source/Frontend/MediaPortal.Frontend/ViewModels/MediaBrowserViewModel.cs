@@ -655,11 +655,11 @@ namespace MediaPortal.Frontend.ViewModels
       HasCover = SkinEngine.TryTileTemplate(COVER_TEMPLATE_KEY) != null;
       _layout = RememberedLayout() ?? (HasTiles ? BrowserLayout.Grid : BrowserLayout.List);
       // The details answer is the viewer's own for this screen first; where this screen was never asked,
-      // the worn skin's setting speaks - which is the reference's <c>EnableMediaItemDetailsView</c>, whose
-      // meaning now lives on the media screen itself rather than only behind a skin's settings page.
+      // the worn skin's dial for exactly this layout speaks - the reference's EnableMediaItemDetailsView,
+      // with Nereus' own grid and cover dials layered over it the way its masters bound them.
       _showDetails = _screens.HasDetails(AspectName)
           ? _screens.Details[AspectName]
-          : _skinSettings?.EnableMediaItemDetailsView ?? true;
+          : DetailsDefaultFor(_layout);
       // The corners obey the setting of the layout they appear in - the reference gated the grid's corners on
       // extEnableGridWatchFlags and the cover's on extEnableCoverWatchFlags - and the list's quiet tick is the
       // screen's own old promise, which the list's setting speaks for since the reference gave it one too.
@@ -736,7 +736,7 @@ namespace MediaPortal.Frontend.ViewModels
       foreach (TitleViewModel row in Titles)
         row.WatchFlagsShown = WatchFlagsShown;
       if (!_screens.HasDetails(AspectName))
-        ShowDetails = _skinSettings?.EnableMediaItemDetailsView ?? true;
+        DetailsDefaultShown(DetailsDefaultFor(_layout));
       OnPropertyChanged(new System.ComponentModel.PropertyChangedEventArgs(null));
     }
 
@@ -837,8 +837,35 @@ namespace MediaPortal.Frontend.ViewModels
       else
         DetailsVisible = false;
 
+      // Only the viewer's own answer is written down. What a skin or a layout hands over as its default
+      // changes the shelf without speaking for the screen - the screen keeps its freedom to answer later.
+      if (_skinDefaultDetails)
+        return;
+
       _screens.Details[AspectName] = value;
       _screens.Save(null, out _);
+    }
+
+    private bool _skinDefaultDetails;
+
+    /// <summary>
+    /// Sets the details column from a skin's or a layout's answer rather than from the viewer's. It is
+    /// shown on the shelf and not remembered on the screen.
+    /// </summary>
+    private void DetailsDefaultShown(bool shown)
+    {
+      if (ShowDetails == shown)
+        return;
+
+      _skinDefaultDetails = true;
+      try
+      {
+        ShowDetails = shown;
+      }
+      finally
+      {
+        _skinDefaultDetails = false;
+      }
     }
 
     /// <summary>The corners' answer for one layout, from the setting that governs exactly that layout.</summary>
@@ -853,6 +880,25 @@ namespace MediaPortal.Frontend.ViewModels
         BrowserLayout.Cover => settings.EnableCoverWatchedFlags,
         BrowserLayout.Grid => settings.EnableGridWatchedFlags,
         _ => settings.EnableListWatchedFlags
+      };
+    }
+
+    /// <summary>
+    /// The details answer a screen wears when its viewer never gave one: the worn skin's dial for exactly
+    /// this layout - the reference's extEnableGridDetails and extEnableCoverDetails, which let Nereus keep
+    /// the grid and the cover as quiet as their masters drew them.
+    /// </summary>
+    private bool DetailsDefaultFor(BrowserLayout layout)
+    {
+      SkinSettingsBase? settings = _skinSettings;
+      if (settings == null)
+        return true;
+
+      return layout switch
+      {
+        BrowserLayout.Cover => settings.EnableCoverDetailsView,
+        BrowserLayout.Grid => settings.EnableGridDetailsView,
+        _ => settings.EnableMediaItemDetailsView
       };
     }
 
@@ -985,6 +1031,10 @@ namespace MediaPortal.Frontend.ViewModels
       WatchFlagsShown = WatchFlagsFor(value);
       foreach (TitleViewModel row in new List<TitleViewModel>(Titles))
         row.WatchFlagsShown = WatchFlagsShown;
+      // Walking into another layout also walks into that layout's details dial - but only while the screen
+      // itself never answered the details question; the viewer's own answer outranks every dial.
+      if (!_screens.HasDetails(AspectName))
+        DetailsDefaultShown(DetailsDefaultFor(value));
       _ = PaintRowsAsync(ArtworkForLayout);
     }
 

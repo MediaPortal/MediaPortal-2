@@ -63,6 +63,15 @@ public sealed class NereusSkinSettings : SkinSettingsBase
   [JsonPropertyName("enableCoverDetails")]
   public bool EnableCoverDetails { get; set; } = true;
 
+  // The two dormant dials now speak: a shelf that opens in the grid or the cover takes its details
+  // answer from these, exactly as the reference's grid and cover masters bound their details pane to
+  // extEnableGridDetails and extEnableCoverDetails.
+  [JsonIgnore]
+  public override bool EnableGridDetailsView => EnableGridDetails;
+
+  [JsonIgnore]
+  public override bool EnableCoverDetailsView => EnableCoverDetails;
+
   [JsonPropertyName("enableAutoScrolling")]
   public bool EnableAutoScrolling { get; set; } = true;
 
