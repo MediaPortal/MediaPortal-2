@@ -262,6 +262,49 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
+    /// Which home arrangement the worn face asks for: "nereus", "wmc", or "plain".
+    /// </summary>
+    /// <remarks>
+    /// The reference skins are not only pictures - each carries its own home screen of
+    /// <c>master_homemenu.xaml</c> and its own <c>HomeMenuModel</c>, and the two differ in where things
+    /// stand, not just in how a tile looks. Nereus slides a narrow tile rail beside a content grid that
+    /// fills the rest of the screen under two black gradients; WMC stands its menu well in from the edge
+    /// and hangs its content pane top-right, 1000x615 out of 1280x720. A face that ships no home of its
+    /// own gets the plain arrangement this port drew before any skin was worn. The view reads this and
+    /// moves its own areas around; the lists, the entries, and the keys that walk them stay the same.
+    /// </remarks>
+    public string HomeLayout
+    {
+      get { return HomeLayoutFor(WornSkinSettingsOrNull()); }
+    }
+
+    /// <summary>The arrangement the given worn settings ask for - the answer <see cref="HomeLayout"/> gives.</summary>
+    internal static string HomeLayoutFor(SkinSettingsBase? worn)
+    {
+      return worn is NereusSkinSettings
+          ? "nereus"
+          : worn is WMCSkinSettings ? "wmc" : "plain";
+    }
+
+    /// <summary>Nereus' arrangement: the tile rail at the edge, the content beside it, two black gradients.</summary>
+    public bool IsNereusHome
+    {
+      get { return HomeLayout == "nereus"; }
+    }
+
+    /// <summary>WMC's arrangement: the menu stood in from the edge, the content pane top-right.</summary>
+    public bool IsWmcHome
+    {
+      get { return HomeLayout == "wmc"; }
+    }
+
+    /// <summary>Neither rescued skin: the arrangement this port had before either face was worn.</summary>
+    public bool IsPlainHome
+    {
+      get { return HomeLayout == "plain"; }
+    }
+
+    /// <summary>
     /// The parts of this server a viewer can sit down and watch, in the order the tiles are arranged.
     /// </summary>
     /// <remarks>
@@ -295,6 +338,7 @@ namespace MediaPortal.Frontend.ViewModels
     private void RaiseFaceChanged()
     {
       OnPropertyChanged(nameof(HomeContentShown));
+      OnPropertyChanged(nameof(HomeLayout));
       foreach (MainMenuEntry entry in Menu)
         entry.RevealHomeTileFolder();
     }

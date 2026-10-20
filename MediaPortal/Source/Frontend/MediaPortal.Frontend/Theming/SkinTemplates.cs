@@ -224,6 +224,7 @@ namespace MediaPortal.Frontend.Theming
             public void ApplyNow()
             {
                 IDataTemplate? skin = SkinEngine.TryTileTemplate(Key);
+                Console.WriteLine("skin template: " + Key + (skin != null ? " -> skin" : " -> view"));
                 if (skin != null)
                 {
                     if (!_wearingSkin)

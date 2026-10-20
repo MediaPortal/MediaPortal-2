@@ -17,10 +17,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Layout;
 using Avalonia.Threading;
 using MediaPortal.Frontend.Input;
 using MediaPortal.Frontend.Theming;
@@ -110,6 +113,16 @@ namespace MediaPortal.Frontend.Views
           menuList.ItemTemplate = ownHomeTiles;
         }
       };
+
+      // The arrangement on screen is the worn face's own answer: each rescued skin ships its home screen
+      // with a layout of its own, and changing the face moves the same three areas somewhere else. The
+      // view model says which arrangement is worn and says again whenever the face changes.
+      home.PropertyChanged += delegate (object? sender, PropertyChangedEventArgs e)
+      {
+        if (e.PropertyName == nameof(HomeViewModel.HomeLayout))
+          ApplyHomeLayout();
+      };
+      ApplyHomeLayout();
 
       // A button that opens nothing is worse than no button, so the playback button is only offered - and only
       // walks with the d-pad - when the application can actually build the screen.
@@ -236,6 +249,64 @@ namespace MediaPortal.Frontend.Views
     /// one fills the name box and moves the highlight to the password. A picked name is still a name to
     /// prove - the buttons say WHO, the password box still asks whether.
     /// </summary>
+    /// <summary>
+    /// Moves the three areas of this screen into the arrangement the worn face asks for.
+    /// </summary>
+    /// <remarks>
+    /// A skin is not only its pictures: Nereus and WMC each ship their home screen of
+    /// <c>master_homemenu.xaml</c>, and the two arrange the very same things differently - Nereus with the
+    /// tile rail flush at the screen edge, the content filling everything beside it under two black
+    /// gradients (see the scrim overlays in the XAML), and WMC standing its menu well in from the edge
+    /// (margin 300,50 of its 1280x720 frame) with the content pane hung top-right, right-aligned and
+    /// capped at 1000x615. The reference's numbers are doubled for a 1440-high panel. The lists themselves,
+    /// their entries, and the ring the remote walks never change - only where the areas stand.
+    /// </remarks>
+    private void ApplyHomeLayout()
+    {
+      switch (_home.HomeLayout)
+      {
+        case "nereus":
+          // Nereus' MainLayoutPanel carries negative margins - its content goes edge to edge - and its
+          // HomeContentGrid starts 40 pixels in from the rail, at the top. The top of the screen belongs
+          // to the chrome and to the first gradient, so the areas start below the header band.
+          homeLayout.Margin = new Thickness(16, 110, 16, 10);
+          homeAreas.ColumnDefinitions = ColumnDefinitions.Parse("260,*,0");
+          homeAreas.ColumnSpacing = 24;
+          menuList.Margin = new Thickness(0);
+          contentPane.Margin = new Thickness(40, 0, 0, 0);
+          contentPane.MaxWidth = double.PositiveInfinity;
+          contentPane.HorizontalAlignment = HorizontalAlignment.Stretch;
+          contentPane.VerticalAlignment = VerticalAlignment.Stretch;
+          break;
+
+        case "wmc":
+          // WMC's menu stands a quarter of the frame in from the left, and its HomeContentGrid is
+          // right-aligned and top-aligned with a cap - the content is a panel beside the menu, not a
+          // flood of it. The negative top margin is the reference's own -150, doubled: the pane slips
+          // under the header band, which is where its title stands.
+          homeLayout.Margin = new Thickness(300, 100, 100, 20);
+          homeAreas.ColumnDefinitions = ColumnDefinitions.Parse("430,*,0");
+          homeAreas.ColumnSpacing = 30;
+          menuList.Margin = new Thickness(0, 60, 0, 0);
+          contentPane.Margin = new Thickness(0, -100, 100, 0);
+          contentPane.MaxWidth = 1500;
+          contentPane.HorizontalAlignment = HorizontalAlignment.Right;
+          contentPane.VerticalAlignment = VerticalAlignment.Top;
+          break;
+
+        default:
+          homeLayout.Margin = new Thickness(48, 30);
+          homeAreas.ColumnDefinitions = ColumnDefinitions.Parse("330,*,270");
+          homeAreas.ColumnSpacing = 34;
+          menuList.Margin = new Thickness(0);
+          contentPane.Margin = new Thickness(0);
+          contentPane.MaxWidth = double.PositiveInfinity;
+          contentPane.HorizontalAlignment = HorizontalAlignment.Stretch;
+          contentPane.VerticalAlignment = VerticalAlignment.Stretch;
+          break;
+      }
+    }
+
     private void RebuildSignInNames()
     {
       signInNames.Children.Clear();

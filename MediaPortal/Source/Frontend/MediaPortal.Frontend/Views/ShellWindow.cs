@@ -623,7 +623,9 @@ namespace MediaPortal.Frontend.Views
 
     /// <summary>
     /// When MP2_AUTOSHOT names a file, the window photographs itself a few seconds after opening, so a
-    /// machine nobody is sitting in front of can still say what its screen showed.
+    /// machine nobody is sitting in front of can still say what its screen showed. MP2_AUTOSHOT_DELAY
+    /// moves that moment: the home screen fills its content from the server, and a machine that needs a
+    /// slower first refresh photographs an empty screen at six seconds.
     /// </summary>
     private void ArmAutoShot()
     {
@@ -631,12 +633,17 @@ namespace MediaPortal.Frontend.Views
       if (string.IsNullOrEmpty(path))
         return;
 
+      int seconds = 6;
+      string delay = Environment.GetEnvironmentVariable("MP2_AUTOSHOT_DELAY");
+      if (!string.IsNullOrEmpty(delay) && int.TryParse(delay, out int asked) && asked > 0)
+        seconds = asked;
+
       Avalonia.Threading.DispatcherTimer.RunOnce(
           delegate
           {
             LogScreenTo(path);
           },
-          TimeSpan.FromSeconds(6));
+          TimeSpan.FromSeconds(seconds));
     }
 
     private void RebuildTrail()

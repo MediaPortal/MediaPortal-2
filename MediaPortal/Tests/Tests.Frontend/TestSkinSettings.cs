@@ -261,5 +261,22 @@ namespace Tests.Frontend
       Assert.That(HomeViewModel.HomeContentShownFor(null), Is.True,
           "a face that ships no settings is not an answer of off");
     }
+
+    /// <summary>
+    /// Each rescued skin ships a home screen of its own in the reference - Nereus with its tile rail at the
+    /// screen edge under two black gradients, WMC with its menu stood well in from the edge and its content
+    /// pane hung top-right - and the worn face decides which of those arrangements the home screen stands
+    /// its areas in. A face that ships no home of its own gets the plain arrangement.
+    /// </summary>
+    [Test]
+    public void EachWornFaceGetsTheHomeArrangementItsReferenceShips()
+    {
+      Assert.That(HomeViewModel.HomeLayoutFor(new NereusSkinSettings()), Is.EqualTo("nereus"),
+          "Nereus' master_homemenu puts the rail at the edge and floods the content beside it");
+      Assert.That(HomeViewModel.HomeLayoutFor(new WMCSkinSettings()), Is.EqualTo("wmc"),
+          "WMC's master_homemenu stands the menu in from the edge and caps the pane top-right");
+      Assert.That(HomeViewModel.HomeLayoutFor(null), Is.EqualTo("plain"),
+          "a face with no home of its own keeps the arrangement this port had before either skin");
+    }
   }
 }

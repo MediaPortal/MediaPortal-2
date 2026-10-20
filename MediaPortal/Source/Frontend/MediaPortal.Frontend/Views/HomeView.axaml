@@ -10,19 +10,29 @@
         >
 
   <!--
-    The home screen, arranged the way the old client arranged it: the main menu in a column on the left, and the
-    content of whichever entry is highlighted next to it. Nereus did exactly this in
-    screens/master_homemenu.xaml, where MainMenu is one list and the HomeContent lists of the highlighted entry fill
-    the rest of the screen; what the previous skin drew as poster grids is drawn here as rows, because the HTTP API
-    lists titles and does not send the artwork a poster needs.
+    The home screen, arranged the way the worn face arranges its own. Each rescued skin is not only pictures -
+    Nereus and WMC each ship a home screen of their own (screens/master_homemenu.xaml) and a home model of their
+    own (HomeMenuModel), and the two differ in where things stand, not just in how a tile looks:
 
-    Font sizes are large because the viewer is three metres away, and the areas are what the remote's keys move
-    between - see DpadNavigation, and HomeWindow's code-behind for the order the ring walks them in.
+      - Nereus stands the tile rail flush at the edge, lets the content grid fill everything beside it, and
+        draws two black gradients over the whole screen (master_homemenu.xaml, "Top/Bottom Gradient Overlay");
+      - WMC stands its menu well in from the edge (a margin of 300,50 in its 1280x720 frame) and hangs the
+        content pane top-right, right-aligned and capped (its HomeContentGrid, 1000x615 of 1280x720);
+      - a face that ships no home of its own gets the plain arrangement - menu, content, and the server's
+        aspect list in three columns, which is what this port drew before either face was worn.
+
+    The areas are the same three lists in every arrangement, so the remote's ring walks the same road; only
+    where they stand changes - see ApplyHomeLayout in the code-behind, which moves them when the face changes.
+
+    Font sizes are large because the viewer is three metres away.
   -->
 
-  <DockPanel Margin="48,30">
+  <Panel>
 
-    <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,18">
+    <DockPanel Name="homeLayout" Margin="48,30">
+
+    <StackPanel Name="headerPane" DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,18"
+                IsVisible="{Binding IsPlainHome}">
       <TextBlock Text="MediaPortal 2"
                  FontSize="34"
                  FontWeight="SemiBold" />
@@ -117,7 +127,7 @@
                  Text="{Binding SignedInAs, StringFormat='Signed in as {0}'}" />
     </StackPanel>
 
-    <Grid ColumnDefinitions="330,*,270" ColumnSpacing="34">
+    <Grid Name="homeAreas" ColumnDefinitions="330,*,270" ColumnSpacing="34">
 
       <!-- The main menu: MP2's own entries, in MP2's own order, each with either its count or the reason it cannot
            be opened here. See MainMenu for which plugin's workflow file contributes which line - the menu is not a
@@ -187,7 +197,7 @@
       <!-- The content of the highlighted entry: its lists one after another, with their headings. This is the half
            of MP2's home screen the menu alone cannot say - not "here are three thousand films" but "these six are
            the newest, and this is the one you stopped half way through". -->
-      <DockPanel Grid.Column="1" IsVisible="{Binding HomeContentShown}">
+      <DockPanel Name="contentPane" Grid.Column="1" IsVisible="{Binding HomeContentShown}">
 
         <!-- What somebody left half way is not a strip of its own here: the reference kept "where was I" inside
              the highlighted entry's own lists (MovieHomeContent's ContinuePlayMovies, SeriesHomeContent's
@@ -235,7 +245,7 @@
       <!-- What the database is made of, in the third column and out of the way: it is the answer to "why is there no
            number on that tile?", and MP2's home screen has no equivalent of it at all - it is this front end's way
            of letting a viewer see the server's own aspect names, which is what a bug report needs. -->
-      <DockPanel Grid.Column="2">
+      <DockPanel Name="aspectsPane" Grid.Column="2" IsVisible="{Binding IsPlainHome}">
         <TextBlock DockPanel.Dock="Top"
                    Text="On this server"
                    FontSize="15"
@@ -262,5 +272,43 @@
         </ListBox>
       </DockPanel>
     </Grid>
-  </DockPanel>
+    </DockPanel>
+
+    <!-- Nereus' two gradient overlays, the very stops of its master_homemenu.xaml ("Top Gradient Overlay"
+         and "Bottom Gradient Overlay"): the reference screens the content behind a screen of black fading
+         away from the top edge and again from the bottom, which is what carries its white clock and date
+         into a readable header over any fanart. They paint over the screen and never catch a key or a
+         click (IsHitTestVisible), and only Nereus wears them - WMC's home stands on its background picture
+         with no screening at all. -->
+    <Border Name="nereusScrimTop" IsHitTestVisible="False"
+            IsVisible="{Binding IsNereusHome}"
+            VerticalAlignment="Top" Height="620" HorizontalAlignment="Stretch">
+      <Border.Background>
+        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+          <GradientStop Color="#E6000000" Offset="0" />
+          <GradientStop Color="#78000000" Offset="0.3" />
+          <GradientStop Color="#46000000" Offset="0.45" />
+          <GradientStop Color="#21000000" Offset="0.6" />
+          <GradientStop Color="#0C000000" Offset="0.75" />
+          <GradientStop Color="#01000000" Offset="0.87" />
+          <GradientStop Color="#00000000" Offset="1" />
+        </LinearGradientBrush>
+      </Border.Background>
+    </Border>
+    <Border Name="nereusScrimBottom" IsHitTestVisible="False"
+            IsVisible="{Binding IsNereusHome}"
+            VerticalAlignment="Bottom" Height="220" HorizontalAlignment="Stretch">
+      <Border.Background>
+        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+          <GradientStop Color="#E6000000" Offset="1" />
+          <GradientStop Color="#78000000" Offset="0.87" />
+          <GradientStop Color="#46000000" Offset="0.75" />
+          <GradientStop Color="#21000000" Offset="0.6" />
+          <GradientStop Color="#0C000000" Offset="0.45" />
+          <GradientStop Color="#01000000" Offset="0.3" />
+          <GradientStop Color="#00000000" Offset="0" />
+        </LinearGradientBrush>
+      </Border.Background>
+    </Border>
+  </Panel>
 </UserControl>
