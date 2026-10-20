@@ -32,6 +32,16 @@
   <SolidColorBrush x:Key="ScrimBrush">#80000000</SolidColorBrush>              <!-- DialogScreenBackgroundColor -->
   <SolidColorBrush x:Key="VideoBrush">#FF000000</SolidColorBrush>
 
+  <!-- The fade a title stands on: black at ninety out of a hundred over the picture's own bottom edge, thinning
+       to nothing two thirds up, so the name reads without a plate being laid across the cover. One fade, two
+       places paint it - the strip under a cover on the wall and the band under a main menu tile - and they are
+       the same fade on purpose, so that a title reads the same whether it stands in the wall or in the rail. -->
+  <LinearGradientBrush x:Key="TitleFadeBrush" StartPoint="0%,100%" EndPoint="0%,0%">
+    <GradientStop Offset="0" Color="#E6000000"/>
+    <GradientStop Offset="0.55" Color="#99000000"/>
+    <GradientStop Offset="1" Color="#00000000"/>
+  </LinearGradientBrush>
+
   <!-- Nereus' own names, as its reference colour file spelled them. -->
   <Color x:Key="TextColor">#FFFFFFFF</Color>
   <Color x:Key="DialogBackgroundColor">#FF000000</Color>

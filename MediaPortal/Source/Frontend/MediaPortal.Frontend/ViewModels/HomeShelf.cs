@@ -209,6 +209,18 @@ namespace MediaPortal.Frontend.ViewModels
     /// </summary>
     private const double SHADOW_ROOM = 20;
 
+    /// <summary>
+    /// The line the first row of covers stands on, below the row the band's heading has for itself.
+    ///
+    /// <para>
+    /// Every kind of band starts its squares on this line - a mosaic of covers as well as a rail of shortcuts -
+    /// because the distance between a heading and what stands under it is one decision about the wall, not one
+    /// per band. When the rail started higher than the mosaic, the two headings lined up while their squares did
+    /// not, and the wall reads that as a heading sitting too close to its covers.
+    /// </para>
+    /// </summary>
+    private const double CONTENT_TOP = 52;
+
     private static readonly (int Column, int Row, int ColumnSpan, int RowSpan)[] POSTER_LAYOUT_1 =
     {
         (0, 0, 2, 2), (2, 0, 1, 1), (3, 0, 1, 1),
@@ -266,6 +278,7 @@ namespace MediaPortal.Frontend.ViewModels
 
     private readonly HashSet<(int Column, int Row)> _taken = new HashSet<(int, int)>();
     private double _right;
+    private double _bottom;
 
     /// <param name="covers">
     /// How many squares the band will hold, which is known before it is built: a band is read whole and only
@@ -300,7 +313,7 @@ namespace MediaPortal.Frontend.ViewModels
       };
 
       _cellWidth = (Width - _inset * 2) / _columns;
-      _cellHeight = (Height - 64) / _rows;
+      _cellHeight = (Height - CONTENT_TOP - _inset) / _rows;
       _designedMosaic = covers >= _layout.Length;
 
       // The big first cover is the face's own, but only while the covers beside it arrive too: a cover over two
@@ -325,7 +338,7 @@ namespace MediaPortal.Frontend.ViewModels
     /// shadow cut off by whoever draws the band - which is exactly what happened to the lowest shortcut, the one
     /// cover whose shadow had nothing left below it. The wall grows by this much; the covers do not.
     /// </summary>
-    public double BoxHeight => Height + SHADOW_ROOM;
+    public double BoxHeight => Math.Max(Height, _bottom) + SHADOW_ROOM;
 
     /// <summary>
     /// What the band really needs: the width its covers actually cover. A band the server answered with two
@@ -353,8 +366,15 @@ namespace MediaPortal.Frontend.ViewModels
 
     public void AddNote(HomeRow note)
     {
-      Tiles.Add(HomeContentTile.ForNote(note, 12, 56, Width - 24, 80));
+      AddSquareTo(HomeContentTile.ForNote(note, _inset, CONTENT_TOP + 5, Width - _inset * 2, 80));
       OccupiedWidth = Width;
+    }
+
+    /// <summary>The lowest point a square of this band reaches, which is what decides the band's box.</summary>
+    private void AddSquareTo(HomeContentTile tile)
+    {
+      _bottom = Math.Max(_bottom, tile.Y + tile.Height);
+      Tiles.Add(tile);
     }
 
     /// <summary>
@@ -368,8 +388,11 @@ namespace MediaPortal.Frontend.ViewModels
         double size = Layout == "shortcuts" ? 159 : 150;
         double rail = 8;
         int index = Tiles.Count;
+        // The first shortcut stands on the line the first cover of a mosaic stands on, and the ones under it
+        // follow ten apart - the same ten that stands between two covers sideways.
+        double top = CONTENT_TOP + 5 + index * (size + 10);
         _right = Math.Max(_right, rail + size);
-        Tiles.Add(create(rail, 42 + index * (size + 10), size, size));
+        AddSquareTo(create(rail, top, size, size));
         OccupiedWidth = Math.Min(Width, _right + _inset);
         return;
       }
@@ -399,12 +422,12 @@ namespace MediaPortal.Frontend.ViewModels
 
       // A square stands five off its cell on every side, which is the ten between two covers on the wall.
       double x = _inset + column * _cellWidth + 5;
-      double y = 52 + row * _cellHeight + 5;
+      double y = CONTENT_TOP + row * _cellHeight + 5;
       double width = _cellWidth * columnSpan - 10;
       double height = _cellHeight * rowSpan - 10;
       _right = Math.Max(_right, x + width);
 
-      Tiles.Add(create(x, y, width, height));
+      AddSquareTo(create(x, y, width, height));
       OccupiedWidth = _designedMosaic ? Width : Math.Min(Width, _right + _inset);
     }
 

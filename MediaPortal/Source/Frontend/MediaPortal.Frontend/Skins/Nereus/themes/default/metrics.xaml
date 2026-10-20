@@ -44,4 +44,12 @@
        1080 television fills a taller panel without hanging under it. The reference drew its content grid over
        880 of its 1080 lines, which is 0.81 of the screen; the number is kept round at eight tenths. -->
   <x:Double x:Key="HomeWallHeightRatio">0.8</x:Double>
+
+  <!-- The main menu's tiles, the same way: this face drew a tile of 170 standing in a column of 200, and both
+       numbers below are those grown by a fifth - 204 of the 1440 lines this front end is drawn on for the square
+       a tile wears, and 240 for the column it stands in - so the rail grows with the panel instead of staying
+       the size a 2010 television happened to be. Because both are read off the height, the rail keeps its
+       proportion on a tall panel and on a short one, and a tile stays the square it was drawn as. -->
+  <x:Double x:Key="HomeMenuTileHeightRatio">0.1417</x:Double>
+  <x:Double x:Key="HomeMenuRailWidthRatio">0.1667</x:Double>
 </ResourceDictionary>

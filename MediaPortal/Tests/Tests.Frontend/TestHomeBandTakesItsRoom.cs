@@ -32,7 +32,9 @@ namespace Tests.Frontend
   public class TestHomeBandTakesItsRoom
   {
     private const double DESIGN = 900;
-    private const double SHADOW = 20;    private static readonly string[] MOSAICS = { "poster1", "poster2", "poster3", "square1", "square2",
+    private const double SHADOW = 20;
+
+    private static readonly string[] MOSAICS = { "poster1", "poster2", "poster3", "square1", "square2",
         "thumbnail1", "thumbnail2" };
 
     private static HomeContentGroup Band(string layout, int covers, double width = DESIGN)
@@ -138,6 +140,38 @@ namespace Tests.Frontend
       Assert.That(lowest.Y + lowest.Height + SHADOW, Is.LessThanOrEqualTo(rail.BoxHeight),
           "the lowest shortcut's shadow falls inside the rail's box, so the wall does not cut it off: "
           + (lowest.Y + lowest.Height) + " plus its shadow against " + rail.BoxHeight);
+    }
+
+    /// <summary>
+    /// Every band starts its squares on the same line under its heading, and a box grows when the squares it
+    /// holds reach past the height the band was drawn in.
+    /// </summary>
+    [Test]
+    public void EveryBandStartsItsSquaresOnTheSameLine()
+    {
+      HomeContentGroup mosaic = Band("poster1", 6);
+      HomeContentGroup rail = new HomeContentGroup("Shortcuts", "shortcuts", 175, 5);
+      HomeContentGroup plugins = new HomeContentGroup("Plugins", "plugins", 1500, 5);
+      for (int i = 0; i < 5; i++)
+      {
+        rail.AddShortcut(new NereusHomeShortcut("Search " + (i + 1), "Search", null, null));
+        plugins.AddShortcut(new NereusHomeShortcut("Plugin " + (i + 1), "Plugin", null, null));
+      }
+
+      double line = mosaic.Tiles.Min(tile => tile.Y);
+      Assert.That(rail.Tiles[0].Y, Is.EqualTo(line),
+          $"the shortcut rail starts its first square at {rail.Tiles[0].Y} while a cover starts at {line}, so "
+          + "the heading stands closer to its squares than to the covers beside them");
+      Assert.That(plugins.Tiles[0].Y, Is.EqualTo(line),
+          $"the plugins band starts at {plugins.Tiles[0].Y} against the covers' {line}");
+
+      Assert.That(rail.BoxHeight, Is.GreaterThan(rail.Height),
+          "five shortcuts standing on the covers' line reach past the height the band was drawn in, and the "
+          + "box has to grow with them - otherwise the wall cuts the lowest shadow off again");
+      HomeContentTile deepest = rail.Tiles[rail.Tiles.Count - 1];
+      Assert.That(deepest.Y + deepest.Height + SHADOW, Is.LessThanOrEqualTo(rail.BoxHeight),
+          "and the box it grows to still leaves that shadow its room: " + (deepest.Y + deepest.Height)
+          + " plus its shadow against " + rail.BoxHeight);
     }
   }
 }

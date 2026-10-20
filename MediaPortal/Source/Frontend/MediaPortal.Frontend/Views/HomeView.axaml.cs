@@ -209,7 +209,7 @@ namespace MediaPortal.Frontend.Views
       // layout - so a panel that changes (a window dragged between televisions, a first measure of zero)
       // asks the worn face for its share again rather than keeping a transform computed on nothing. The shelf
       // arrives later still, from the server, and until it has there is no drawn height to scale from.
-      SizeChanged += delegate { ScaleNereusWall(); };
+      SizeChanged += delegate { ScaleNereusWall(); SizeNereusMenu(); };
       _home.ContentGroups.CollectionChanged +=
           delegate { ScaleNereusWall(); };
 
@@ -451,7 +451,8 @@ namespace MediaPortal.Frontend.Views
           // header row of 100 claims nothing here, because the header floats over the picture and the
           // wall is scaled to a share of the whole panel and stands centred in it - see ScaleNereusWall.
           homeLayout.Margin = new Thickness(0);
-          homeAreas.ColumnDefinitions = ColumnDefinitions.Parse("200,*,0");
+          homeAreas.ColumnDefinitions =
+              ColumnDefinitions.Parse(FormattableString.Invariant($"{Math.Round(_home.MenuRailWidth)},*,0"));
           homeAreas.ColumnSpacing = 0;
           menuList.Margin = new Thickness(0);
           // The reference lets its list stand overscanned (Height 1200 of 1080) so the item area always
@@ -538,7 +539,7 @@ namespace MediaPortal.Frontend.Views
       // content column (Grid.Column 1, fifty in), so the words begin beside the rail and never lie across
       // it. The other arrangements always had the line clear of their well-inset menus.
       contentInfoLine.Margin = nereusFace
-          ? new Thickness(240, 0, 0, 34)
+          ? new Thickness(_home.HomeContentLeft, 0, 0, 34)
           : new Thickness(46, 0, 0, 34);
 
       // And the header: over a Nereus home it floats, so the fanart of this screen reaches the very top
@@ -559,6 +560,7 @@ namespace MediaPortal.Frontend.Views
       menuList.Opacity = _home.HomeLayout == "wmc" ? 0 : 1;
       RebuildCross();
       ScaleNereusWall();
+      SizeNereusMenu();
     }
 
     /// <summary>
@@ -593,6 +595,55 @@ namespace MediaPortal.Frontend.Views
       double share = SkinEngine.WornNumber("HomeWallHeightRatio") ?? 0.8;
       double scale = Math.Clamp(share * panel / drawn, 0.35, 2.5);
       nereusContentWall.LayoutTransform = new Avalonia.Media.ScaleTransform(scale, scale);
+    }
+
+    /// <summary>
+    /// Sizes the main menu's rail to the panel it stands on, from the shares the worn face keeps in its metrics.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A menu tile is square, so one number sizes it, and the column behind it has to be as wide as the tiles the
+    /// rail carries - otherwise the ground the face paints under its menu stops short of the tiles it holds. Both
+    /// numbers are read off the panel's HEIGHT and not its width: the rail is bounded by the lines standing under
+    /// it, and a wide panel is not a tall one. <c>HomeMenuTileHeightRatio</c> and <c>HomeMenuRailWidthRatio</c>
+    /// are the face's own measurements, exactly like the wall's share; a face that writes neither keeps the sizes
+    /// it drew, which is what the plain arrangement and every face without a rail of its own show.
+    /// </para>
+    /// <para>
+    /// Growing the tiles grows the whole rail, and eight entries at some panel sizes then stand over the bottom
+    /// of the screen. The reference did the same on purpose - its list was 1200 lines of a 1080 television - and
+    /// the rail answers it the same way it always did: it walks to whatever is stood on, and its viewport fades
+    /// what leaves the screen instead of cutting it off.
+    /// </para>
+    /// </remarks>
+    private void SizeNereusMenu()
+    {
+      double tile = 0;
+      double rail = 0;
+      if (_home.HomeLayout == "nereus" && Bounds.Height > 0)
+      {
+        tile = (SkinEngine.WornNumber("HomeMenuTileHeightRatio") ?? 0) * Bounds.Height;
+        rail = (SkinEngine.WornNumber("HomeMenuRailWidthRatio") ?? 0) * Bounds.Height;
+      }
+
+      if (tile <= 0 || rail <= 0)
+      {
+        tile = HomeViewModel.MENU_TILE_DRAWN;
+        rail = HomeViewModel.MENU_RAIL_DRAWN;
+      }
+
+      double sized = Math.Clamp(tile, 40, 900);
+      double widened = Math.Clamp(rail, sized, 1000);
+      if (sized == _home.MenuTileSize && widened == _home.MenuRailWidth)
+        return;
+
+      _home.MenuTileSize = sized;
+      _home.MenuRailWidth = widened;
+      if (homeAreas.ColumnDefinitions.Count == 3)
+      {
+        homeAreas.ColumnDefinitions[0].Width =
+            new GridLength(Math.Round(widened), GridUnitType.Pixel);
+      }
     }
 
     /// <summary>

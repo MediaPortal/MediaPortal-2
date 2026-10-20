@@ -241,18 +241,29 @@
     <Setter Property="CornerRadius" Value="10"/>
   </Style>
 
+  <!-- A tile of the main menu wears the same ten of rounding as the covers on the wall, and the template clips
+       it to that corner: the tile paints its own square ground, its artwork and its label band over the whole
+       of itself, and without the clip every one of them ends in a right angle the round corner would only
+       cover up. Rounded here rather than drawn in the tile, because the corner is this face's, not the
+       screen's. -->
+  <Style Selector="Border.nereus-menu-tile">
+    <Setter Property="Background" Value="#222222"/>
+    <Setter Property="CornerRadius" Value="10"/>
+  </Style>
+
+  <!-- The band a main menu tile's name stands on: the same fade the strip under a cover on the wall paints,
+     black out of the tile's bottom edge into nothing, instead of the flat plate that hid the picture behind
+     it. The band stretches with the tile, so the fade always spans exactly the band. -->
+  <Style Selector="Rectangle.nereus-menu-band">
+    <Setter Property="Fill" Value="{DynamicResource TitleFadeBrush}"/>
+  </Style>
+
   <!-- The strip the tile's title stands on: Nereus paints no plate but fades black up out of the tile's own
      bottom edge into nothing, over exactly the height the strip has, so the picture stays whole and the name
      still reads. Both lines of a tile's name are centred, which is how the reference centres them. -->
   <Style Selector="Border.home-tile-caption">
     <Setter Property="MinHeight" Value="45"/>
-    <Setter Property="Background">
-      <LinearGradientBrush StartPoint="0%,100%" EndPoint="0%,0%">
-        <GradientStop Offset="0" Color="#E6000000"/>
-        <GradientStop Offset="0.55" Color="#99000000"/>
-        <GradientStop Offset="1" Color="#00000000"/>
-      </LinearGradientBrush>
-    </Setter>
+    <Setter Property="Background" Value="{DynamicResource TitleFadeBrush}"/>
   </Style>
   <Style Selector="TextBlock.home-tile-caption-title">
     <Setter Property="TextAlignment" Value="Center"/>

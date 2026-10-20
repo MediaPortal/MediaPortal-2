@@ -28,7 +28,12 @@
         is this skin's Background.png, the general background every Nereus picture stands on, and the fanart
         wears the skin setting's opacity as its OWN opacity - so a setting of nought leaves the ground bare,
         and a screen with no fanart at all was always only ever the ground. Neither is hit-testable; neither
-        is ever replaced by the platform's flat clear underneath.  -->
+        is ever replaced by the platform's flat clear underneath.
+
+        The fanart also wears the skin setting's blur, and it stands sixty past the screen on every side for
+        that: a blurred picture fades into nothing along its own edge, and without the over-scan that fade
+        would show as a soft frame round the television. Sixty is past the blur's deepest forty pixels, and
+        UniformToFill crops the over-scan away, so the picture is no more crowded than it was.  -->
   <ControlTemplate x:Key="HomeBackgroundTemplate" TargetType="ContentControl" x:DataType="vm:HomeViewModel">
     <Panel IsHitTestVisible="False">
       <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter=Background.PNG}"
@@ -36,6 +41,8 @@
       <Image Source="{Binding BackgroundArtwork, Converter={x:Static views:ArtworkConverter.Instance}}"
              Stretch="UniformToFill"
              Opacity="{Binding FanartOverlay}"
+             Effect="{Binding FanartBlurRadius, Converter={x:Static views:SkinBlurConverter.Instance}}"
+             Margin="-60"
              IsVisible="{Binding HasBackgroundArtwork}"/>
     </Panel>
   </ControlTemplate>
@@ -49,7 +56,9 @@
         it, in the general screen's first column, which is the same width.  -->
   <ControlTemplate x:Key="HomeMenuFaceTemplate" TargetType="ContentControl" x:DataType="vm:HomeViewModel">
     <Panel IsHitTestVisible="False">
-      <Grid Width="200" HorizontalAlignment="Left">
+      <!-- As wide as the rail the screen laid the tiles out in, so the ground always reaches exactly under them
+           however big the panel made them; the indicator rides its right edge by itself. -->
+      <Grid Width="{Binding MenuRailWidth}" HorizontalAlignment="Left">
         <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter=MenuGlow.png}"
                Stretch="Uniform"
                Margin="0,0,-38,0"/>
@@ -109,18 +118,26 @@
         </Border.Background>
       </Border>
 
+      <!--  Both of these begin where the content begins, which is behind the rail as this panel made it: the
+            reference drew them at the left edge of its content column (240 of its 1920), and only the rail's
+            width is the screen's to decide. The vertical offsets - thirty-four under the line, ten above the
+            buttons - are this face's and stay written here.  -->
       <TextBlock Text="{Binding ContentInfo}"
                  FontSize="22"
                  Foreground="{DynamicResource TextBrush}"
                  HorizontalAlignment="Left"
                  VerticalAlignment="Bottom"
-                 Margin="240,0,0,34"
+                 Margin="{Binding HomeContentLeft,
+                                  Converter={x:Static views:SkinInsetConverter.Instance},
+                                  ConverterParameter='0,0,0,34'}"
                  IsVisible="{Binding HasContentInfo}"
                  TextTrimming="CharacterEllipsis"/>
 
       <StackPanel Orientation="Horizontal"
                   Spacing="14"
-                  Margin="240,10,0,0"
+                  Margin="{Binding HomeContentLeft,
+                                   Converter={x:Static views:SkinInsetConverter.Instance},
+                                   ConverterParameter='0,10,0,0'}"
                   HorizontalAlignment="Left"
                   VerticalAlignment="Top"
                   IsHitTestVisible="True">

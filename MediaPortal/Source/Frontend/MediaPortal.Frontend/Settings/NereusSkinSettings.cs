@@ -116,6 +116,31 @@ public sealed class NereusSkinSettings : SkinSettingsBase
   [JsonPropertyName("useRoundedDialogCorners")]
   public bool UseRoundedDialogCorners { get; set; }
 
+  /// <summary>How many pixels of blur one turn of <see cref="FanartBlur"/> is worth.</summary>
+  public const double FANART_BLUR_STEP_PIXELS = 8;
+
+  /// <summary>The highest turn the dial offers, which is forty pixels of blur.</summary>
+  public const int FANART_BLUR_MAX = 5;
+
+  /// <summary>
+  /// How far the fanart behind the screens is thrown out of focus: the viewer's choice from nought - the
+  /// picture as the library drew it - to five, and five is forty pixels of blur.
+  /// </summary>
+  /// <remarks>
+  /// This dial is not the reference's; it shipped no blur at all. It stands here because Nereus is the face
+  /// that wears a title's fanart across the whole screen, and a picture that large competes with the text
+  /// standing on it: thrown out of focus it keeps the mood and gives up the competition. It belongs to the
+  /// fanart the base speaks (<c>enableFanart</c>, <c>fanartOverlayOpacity</c>) and is written as a choice of
+  /// steps rather than pixels, because nobody knows what forty pixels means from a sofa.
+  /// </remarks>
+  [JsonPropertyName("fanartBlur")]
+  public int FanartBlur { get; set; }
+
+  /// <summary>The same choice in the pixels the blur asks for, and never past the dial's highest turn.</summary>
+  [JsonIgnore]
+  public double FanartBlurRadius =>
+      Math.Clamp(FanartBlur, 0, FANART_BLUR_MAX) * FANART_BLUR_STEP_PIXELS;
+
   // The colour choice, exactly as the reference filed it: eight mutually exclusive bools, turquoise worn.
   [JsonPropertyName("useTorquoise")]
   public bool UseTorquoise { get; set; } = true;

@@ -203,6 +203,7 @@ namespace MediaPortal.Frontend.ViewModels
       SkinSettingsBase.Saved += delegate
       {
         OnPropertyChanged(nameof(FanartOverlay));
+        OnPropertyChanged(nameof(FanartBlurRadius));
       };
     }
 
@@ -327,6 +328,49 @@ namespace MediaPortal.Frontend.ViewModels
     public bool IsWmcHome
     {
       get { return HomeLayout == "wmc"; }
+    }
+
+    /// <summary>
+    /// How wide a main menu tile stands on this screen, and how wide the column it stands in is.
+    ///
+    /// <para>
+    /// A menu tile is square, so one number sizes it, and the column that carries the rail has to follow it or the
+    /// tiles hang out over the ground the skin paints behind them. Both default to the numbers the Nereus face drew
+    /// (<c>170</c> in a <c>200</c> column, at 720 lines), which is what a face that says nothing about its rail gets.
+    /// A face that does say sizes its rail by a share of the screen's height in its own metrics - the screen scales
+    /// that number when it is laid out, because only the screen knows how many lines it has.
+    /// </para>
+    /// </summary>
+    [ObservableProperty]
+    private double _menuTileSize = MENU_TILE_DRAWN;
+
+    /// <inheritdoc cref="MenuTileSize"/>
+    [ObservableProperty]
+    private double _menuRailWidth = MENU_RAIL_DRAWN;
+
+    /// <summary>The square Nereus drew its main menu tiles at, which is also their size when no metric says otherwise.</summary>
+    public const double MENU_TILE_DRAWN = 170;
+
+    /// <summary>The column Nereus drew its main menu rail in, beside the tiles' own margins.</summary>
+    public const double MENU_RAIL_DRAWN = 200;
+
+    /// <summary>The gap master_home.xaml leaves between the rail and everything standing beside it.</summary>
+    public const double CONTENT_GAP = 40;
+
+    /// <summary>
+    /// Where the content begins: the rail as this panel made it, and the gap the reference leaves beside it.
+    ///
+    /// <para>
+    /// The wall, the line of text under it and the buttons at the top edge all begin here, so a rail that grows
+    /// carries them along instead of leaving them under its tiles. A face writes this into its own markup with
+    /// <c>SkinInsetConverter</c>, which keeps the vertical offsets the face drew and moves only the left edge.
+    /// </para>
+    /// </summary>
+    public double HomeContentLeft => Math.Round(MenuRailWidth) + CONTENT_GAP;
+
+    partial void OnMenuRailWidthChanged(double value)
+    {
+      OnPropertyChanged(nameof(HomeContentLeft));
     }
 
     /// <summary>Neither rescued skin: the arrangement this port had before either face was worn.</summary>
@@ -463,6 +507,26 @@ namespace MediaPortal.Frontend.ViewModels
       get { return WornSkinSettingsOrNull()?.FanartOverlayOpacity ?? 0.85; }
     }
 
+    /// <summary>
+    /// How far the standing fanart is thrown out of focus, in pixels: Nereus' own dial, because Nereus is the
+    /// face that wears a title's picture across the whole screen. A face that speaks no blur leaves the
+    /// picture as the library drew it, which is what the plain arrangement and WMC have always shown.
+    /// </summary>
+    public double FanartBlurRadius
+    {
+      get { return FanartBlurFor(WornSkinSettingsOrNull()); }
+    }
+
+    /// <summary>
+    /// The blur the face worn asks for: only Nereus speaks it, because only Nereus wears a title's picture
+    /// across the whole screen, and every other face - including a machine wearing no face at all - leaves the
+    /// fanart as the library drew it.
+    /// </summary>
+    public static double FanartBlurFor(SkinSettingsBase? worn)
+    {
+      return worn is NereusSkinSettings nereus ? nereus.FanartBlurRadius : 0;
+    }
+
     private int _fanartGeneration;
 
     /// <summary>
@@ -536,6 +600,7 @@ namespace MediaPortal.Frontend.ViewModels
       OnPropertyChanged(nameof(IsWmcHome));
       OnPropertyChanged(nameof(IsPlainHome));
       OnPropertyChanged(nameof(FanartOverlay));
+      OnPropertyChanged(nameof(FanartBlurRadius));
       OnPropertyChanged(nameof(DisplayMenu));
       foreach (MainMenuEntry entry in Menu)
         entry.RevealHomeTileFolder();

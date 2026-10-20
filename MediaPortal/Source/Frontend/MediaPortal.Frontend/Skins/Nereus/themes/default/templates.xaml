@@ -115,94 +115,109 @@
     </StackPanel>
   </DataTemplate>
 
-  <!-- Nereus' home rail: 170px artwork with a 40px focus band in the 200px menu column. -->
+  <!--
+    Nereus' home rail: a square tile carrying its artwork over a band that says the entry's name.
+
+    The tile is cut to rounded corners - the same ten the covers on the wall wear - and clipped to them, so the
+    ground, the artwork, the band and the selection bar all end at the same curve instead of running into a right
+    angle the corner has to hide. How big the square stands is deliberately not written here: a menu tile has to
+    grow and shrink with the screen it is drawn on, so the screen reads this face's metric, works the size out of
+    the lines it actually has, and hands it to the tile. What stays in this file is the shape - the two rows are
+    shares of the square (artwork over band, 130 to 40 as the face drew them), so any size keeps the proportion.
+  -->
   <DataTemplate x:Key="HomeMenuTileTemplate"
                 x:CompileBindings="False"
                 x:DataType="vm:MainMenuEntry">
-    <Grid Width="170" Margin="6">
-      <Grid.RowDefinitions>
-        <RowDefinition Height="130"/>
-        <RowDefinition Height="40"/>
-      </Grid.RowDefinitions>
-      <Rectangle Grid.RowSpan="2"
-                 Fill="#222222"
-                 IsVisible="{Binding IsSquareHomeImage}"/>
-      <Image Grid.RowSpan="2"
-             Source="{Binding HomeImagePath,
-                              Converter={x:Static views:SkinImageConverter.Instance},
-                              ConverterParameter='{}{0}'}"
-             Stretch="Fill"
-             Opacity="0.8"
-             IsVisible="{Binding IsSquareHomeImage}"/>
-      <Image Grid.RowSpan="2"
-             Source="{Binding HomeImagePath,
-                              Converter={x:Static views:SkinImageConverter.Instance},
-                              ConverterParameter='{}{0}'}"
-             Width="150"
-             Height="150"
-             HorizontalAlignment="Center"
-             VerticalAlignment="Center"
-             Stretch="Fill"
-             Opacity="0.8"
-             IsVisible="{Binding IsCircleHomeImage}"/>
-      <TextBlock Grid.RowSpan="2"
-                 Text="{Binding Badge}"
-                 TextAlignment="Center"
-                 VerticalAlignment="Center"
-                 FontSize="48"
-                 Opacity="0.7"
-                 Foreground="{DynamicResource TextBrush}"
-                 IsVisible="{Binding HomeImagePath,
-                                     Converter={x:Static views:SkinImageMissingConverter.Instance},
-                                     ConverterParameter='{}{0}'}"/>
-      <Grid Grid.Row="1"
-            Name="nereusSelectionBand"
-            VerticalAlignment="Stretch"
-            IsHitTestVisible="False">
-        <Rectangle Fill="#66000000"/>
-        <TextBlock Text="{Binding Label}"
-                   FontSize="{DynamicResource SmallerFontSize}"
-                   FontWeight="Bold"
-                   Foreground="{DynamicResource TextBrush}"
+    <Border Classes="nereus-menu-tile"
+            ClipToBounds="True"
+            Width="{Binding $parent[ListBox].DataContext.MenuTileSize}"
+            Height="{Binding $parent[ListBox].DataContext.MenuTileSize}"
+            Margin="6">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="130*"/>
+          <RowDefinition Height="40*"/>
+        </Grid.RowDefinitions>
+        <Rectangle Grid.RowSpan="2"
+                   Fill="#222222"
+                   IsVisible="{Binding IsSquareHomeImage}"/>
+        <Image Grid.RowSpan="2"
+               Source="{Binding HomeImagePath,
+                                Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='{}{0}'}"
+               Stretch="Fill"
+               Opacity="0.8"
+               IsVisible="{Binding IsSquareHomeImage}"/>
+        <Image Grid.RowSpan="2"
+               Source="{Binding HomeImagePath,
+                                Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='{}{0}'}"
+               Width="150"
+               Height="150"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center"
+               Stretch="Fill"
+               Opacity="0.8"
+               IsVisible="{Binding IsCircleHomeImage}"/>
+        <TextBlock Grid.RowSpan="2"
+                   Text="{Binding Badge}"
                    TextAlignment="Center"
                    VerticalAlignment="Center"
-                   Margin="5,0"/>
+                   FontSize="48"
+                   Opacity="0.7"
+                   Foreground="{DynamicResource TextBrush}"
+                   IsVisible="{Binding HomeImagePath,
+                                       Converter={x:Static views:SkinImageMissingConverter.Instance},
+                                       ConverterParameter='{}{0}'}"/>
+        <Grid Grid.Row="1"
+              Name="nereusSelectionBand"
+              VerticalAlignment="Stretch"
+              IsHitTestVisible="False">
+          <Rectangle Classes="nereus-menu-band"/>
+          <TextBlock Text="{Binding Label}"
+                     FontSize="{DynamicResource SmallerFontSize}"
+                     FontWeight="Bold"
+                     Foreground="{DynamicResource TextBrush}"
+                     TextAlignment="Center"
+                     VerticalAlignment="Center"
+                     Margin="5,0"/>
+        </Grid>
+        <Image Grid.RowSpan="2"
+               Source="{Binding Label,
+                                Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter=IsPlaying}"
+               Height="24"
+               Stretch="Uniform"
+               HorizontalAlignment="Right"
+               VerticalAlignment="Top"
+               Margin="0,3,3,0"
+               IsVisible="{Binding IsPlaying}"/>
+        <Image Grid.RowSpan="2"
+               Source="{Binding Label,
+                                Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter=Horizontal_gradient.png}"
+               Width="15"
+               Stretch="Fill"
+               HorizontalAlignment="Left"
+               IsVisible="{Binding IsSquareSelected}"/>
+        <Rectangle Grid.RowSpan="2"
+                   Fill="White"
+                   Width="5"
+                   HorizontalAlignment="Left"
+                   IsVisible="{Binding IsSquareSelected}"/>
+        <Image Grid.RowSpan="2"
+               Source="{Binding Label,
+                                Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter=focus.png}"
+               Width="25"
+               Height="93"
+               HorizontalAlignment="Left"
+               VerticalAlignment="Center"
+               Margin="10,13,10,10"
+               Stretch="Fill"
+               IsVisible="{Binding IsCircleSelected}"/>
       </Grid>
-      <Image Grid.RowSpan="2"
-             Source="{Binding Label,
-                              Converter={x:Static views:SkinImageConverter.Instance},
-                              ConverterParameter=IsPlaying}"
-             Height="24"
-             Stretch="Uniform"
-             HorizontalAlignment="Right"
-             VerticalAlignment="Top"
-             Margin="0,3,3,0"
-             IsVisible="{Binding IsPlaying}"/>
-      <Image Grid.RowSpan="2"
-             Source="{Binding Label,
-                              Converter={x:Static views:SkinImageConverter.Instance},
-                              ConverterParameter=Horizontal_gradient.png}"
-             Width="15"
-             Stretch="Fill"
-             HorizontalAlignment="Left"
-             IsVisible="{Binding IsSquareSelected}"/>
-      <Rectangle Grid.RowSpan="2"
-                 Fill="White"
-                 Width="5"
-                 HorizontalAlignment="Left"
-                 IsVisible="{Binding IsSquareSelected}"/>
-      <Image Grid.RowSpan="2"
-             Source="{Binding Label,
-                              Converter={x:Static views:SkinImageConverter.Instance},
-                              ConverterParameter=focus.png}"
-             Width="25"
-             Height="93"
-             HorizontalAlignment="Left"
-             VerticalAlignment="Center"
-             Margin="10,13,10,10"
-             Stretch="Fill"
-             IsVisible="{Binding IsCircleSelected}"/>
-    </Grid>
+    </Border>
   </DataTemplate>
 
   <!--

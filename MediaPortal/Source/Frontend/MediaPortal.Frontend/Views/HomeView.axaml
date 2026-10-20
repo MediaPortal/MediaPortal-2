@@ -66,6 +66,8 @@
            see this picture. -->
       <Image Source="{Binding BackgroundArtwork, Converter={x:Static views:ArtworkConverter.Instance}}"
              Stretch="UniformToFill"
+             Effect="{Binding FanartBlurRadius, Converter={x:Static views:SkinBlurConverter.Instance}}"
+             Margin="-60"
              IsVisible="{Binding HasBackgroundArtwork}"/>
     </Panel>
 
@@ -323,7 +325,8 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
               <DataTemplate x:DataType="vm:HomeContentGroup">
-                <Grid Width="{Binding OccupiedWidth}" Height="{Binding BoxHeight}" Margin="0,0,24,0">
+                <Grid Width="{Binding OccupiedWidth}" Height="{Binding BoxHeight}" Margin="0,0,24,0"
+                      VerticalAlignment="Top">
                   <TextBlock Text="{Binding Heading}"
                              FontSize="21"
                              FontWeight="SemiBold"
