@@ -48,6 +48,9 @@ namespace MediaPortal.Frontend.Views
         ViewerPickerViewModel? model = DataContext as ViewerPickerViewModel;
         if (model != null && model.People.Count == 0)
           _ = model.LoadAsync();
+        // The question screen takes the keyboard the way every list screen does: a remote pressing a
+        // button should reach the names at once, not have to hunt for the list first.
+        peopleList.Focus();
       };
 
       peopleList.KeyDown += OnListKeyDown;
