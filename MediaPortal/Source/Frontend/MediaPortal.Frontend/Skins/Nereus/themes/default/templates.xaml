@@ -118,9 +118,9 @@
     <StackPanel Spacing="1" Margin="0,5,10,7">
       <StackPanel Orientation="Horizontal" Spacing="10">
         <Panel Width="36">
-          <Image Source="{Binding HomeImageId,
+          <Image Source="{Binding HomeImagePath,
                                   Converter={x:Static views:SkinImageConverter.Instance},
-                                  ConverterParameter='HomeMenu/{0}'}"
+                                  ConverterParameter='{}{0}'}"
                  Height="34"
                  Stretch="Uniform"
                  HorizontalAlignment="Center"/>
@@ -141,9 +141,9 @@
                      Opacity="0.7"
                      FontSize="{DynamicResource NormalFontSize}"
                      Foreground="{DynamicResource TextBrush}"
-                     IsVisible="{Binding HomeImageId,
+                     IsVisible="{Binding HomeImagePath,
                                          Converter={x:Static views:SkinImageMissingConverter.Instance},
-                                         ConverterParameter='HomeMenu/{0}'}"/>
+                                         ConverterParameter='{}{0}'}"/>
         </Panel>
         <TextBlock Text="{Binding Label}"
                    FontSize="{DynamicResource NormalFontSize}"

@@ -166,8 +166,8 @@ namespace MediaPortal.Frontend.ViewModels
       // The face on the machine can change while this screen sits open - the skin settings are one move
       // away, and so is the skin screen - and the content column follows the new face at once. The reference
       // hung that on a binding that never went stale; these two events are this port's moment of change.
-      FrontendTheme.Changed += delegate { OnPropertyChanged(nameof(HomeContentShown)); };
-      SkinEngine.Changed += delegate { OnPropertyChanged(nameof(HomeContentShown)); };
+      FrontendTheme.Changed += delegate { RaiseFaceChanged(); };
+      SkinEngine.Changed += delegate { RaiseFaceChanged(); };
 
       // The menu before anything has been read. A viewer who turns a television on before the server has finished
       // starting up is looking at this state, and it has to say what a media centre is - and what is missing from
@@ -215,6 +215,22 @@ namespace MediaPortal.Frontend.ViewModels
       {
         return WornSkinSettingsOrNull() is not NereusSkinSettings nereus
             || (!nereus.EnableMenuSelection && !nereus.EnableTouchDisplay);
+      }
+    }
+
+    /// <summary>
+    /// Which folder of the worn skin the home tiles ask their pictures from: Nereus keeps its home tiles
+    /// twice, square in <c>HomeMenu</c> and round in <c>HomeMenuRound</c>, and
+    /// <c>EnableCircleMenuImages</c> is the reference's one style over exactly that choice. Every other
+    /// face, and Nereus with the switch off, reads the square folder it has always read.
+    /// </summary>
+    public static string HomeTileFolder
+    {
+      get
+      {
+        return WornSkinSettingsOrNull() is NereusSkinSettings { EnableCircleMenuImages: true }
+            ? "HomeMenuRound"
+            : "HomeMenu";
       }
     }
 
@@ -271,6 +287,17 @@ namespace MediaPortal.Frontend.ViewModels
     /// </para>
     /// </remarks>
     public ObservableCollection<MainMenuEntry> Menu { get; } = new ObservableCollection<MainMenuEntry>();
+
+    /// <summary>
+    /// The face on the machine changed: which content column may show and which folder the tiles wear their
+    /// pictures from are both the worn face's answers, so every open question gets asked again.
+    /// </summary>
+    private void RaiseFaceChanged()
+    {
+      OnPropertyChanged(nameof(HomeContentShown));
+      foreach (MainMenuEntry entry in Menu)
+        entry.RevealHomeTileFolder();
+    }
 
     /// <summary>
     /// Pressing a menu entry: the part of the library to open, or null when this entry cannot be opened - in which

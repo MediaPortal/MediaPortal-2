@@ -138,13 +138,14 @@
           <DataTemplate x:DataType="vm:MainMenuEntry">
             <StackPanel Spacing="1" Margin="0,5,10,7">
               <StackPanel Orientation="Horizontal" Spacing="10">
-                <!-- The entry's own home picture, asked of the skin the application wears by the workflow
-                     action's Id - the same picture the old client's tiles were painted with. Where no skin is
-                     worn, or the skin has no such picture, the letter badge below is what the tile wears;
-                     see MainMenuEntry.HomeImageId and SkinImageConverter. -->
+                <!-- The entry's own home picture, asked for by the name the entry carries - the folder it
+                     lives in is the worn face's answer (Nereus keeps round tiles for its circle switch),
+                     which is why the format here is bare. Where no skin is worn, or the skin has no such
+                     picture, the letter badge below is what the tile wears; see MainMenuEntry.HomeImageId
+                     and SkinImageConverter. -->
                 <Panel Width="36">
-                  <Image Source="{Binding HomeImageId, Converter={x:Static views:SkinImageConverter.Instance},
-                                          ConverterParameter='HomeMenu/{0}'}"
+                  <Image Source="{Binding HomeImagePath, Converter={x:Static views:SkinImageConverter.Instance},
+                                          ConverterParameter='{}{0}'}"
                          Height="34"
                          Stretch="Uniform"
                          HorizontalAlignment="Center" />
@@ -163,8 +164,8 @@
                              FontSize="21"
                              TextAlignment="Center"
                              Opacity="0.7"
-                             IsVisible="{Binding HomeImageId, Converter={x:Static views:SkinImageMissingConverter.Instance},
-                                                 ConverterParameter='HomeMenu/{0}'}" />
+                             IsVisible="{Binding HomeImagePath, Converter={x:Static views:SkinImageMissingConverter.Instance},
+                                                 ConverterParameter='{}{0}'}" />
                 </Panel>
                 <TextBlock Text="{Binding Label}"
                            FontSize="21"

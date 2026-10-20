@@ -204,6 +204,27 @@ namespace MediaPortal.Frontend.ViewModels
     public string? HomeImageId { get; }
 
     /// <summary>
+    /// The tile's picture asked for by its full name in the skin: <c>HomeMenuRound/&lt;id&gt;</c> while Nereus
+    /// is switched to the round tiles (<c>EnableCircleMenuImages</c> - the reference drew its home tiles from
+    /// that second folder through the same style), and <c>HomeMenu/&lt;id&gt;</c> for every other answer and
+    /// every other face. WMC keeps asking with <see cref="HomeImageId"/> and its own format, since its focus
+    /// and no-focus spellings belong to the template.
+    /// </summary>
+    public string? HomeImagePath
+    {
+      get
+      {
+        return HomeImageId == null ? null : HomeViewModel.HomeTileFolder + "/" + HomeImageId;
+      }
+    }
+
+    /// <summary>Says the tile's picture may be asked for again - the skin's switches moved underneath it.</summary>
+    public void RevealHomeTileFolder()
+    {
+      OnPropertyChanged(nameof(HomeImagePath));
+    }
+
+    /// <summary>
     /// A menu entry for one part of a library that MP2's own menu has no line for - a custom aspect somebody's
     /// server reports, or a catalogue entry this list has not caught up with.
     /// </summary>
