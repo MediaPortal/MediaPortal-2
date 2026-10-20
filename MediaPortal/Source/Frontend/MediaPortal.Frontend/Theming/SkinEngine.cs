@@ -417,6 +417,25 @@ namespace MediaPortal.Frontend.Theming
     }
 
     /// <summary>
+    /// A number the worn skin's <c>metrics</c> file carries under <paramref name="key"/>, or null while no skin
+    /// is worn and the skin says nothing about it.
+    /// </summary>
+    /// <remarks>
+    /// A screen that scales something to a share of the panel asks for the share here rather than keeping a
+    /// second one of its own: the worn skin's measurements are its <c>metrics.xaml</c> (the role the reference's
+    /// <c>Consts.xaml</c> played), so the number travels with the skin and a face that wants the share
+    /// differently needs no code. A skin silent about the key leaves the asking screen's own default standing.
+    /// </remarks>
+    public static double? WornNumber(string key)
+    {
+      Application? app = Application.Current;
+      if (app == null || !WORN.TryGetValue(app, out WornSkin? worn))
+        return null;
+
+      return worn.Resources.TryGetResource(key, null, out object? value) ? value as double? : null;
+    }
+
+    /// <summary>
     /// A tile or row template the worn skin offers for a list to draw its items with instead of the view's own.
     /// </summary>
     /// <remarks>

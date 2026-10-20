@@ -205,6 +205,14 @@ namespace MediaPortal.Frontend.Views
       // hidden, and the row then held the menu column short of the bottom of the screen.
       ApplyHomeLayout();
 
+      // The wall is scaled to the panel it stands on, and a screen only knows its own size after its first
+      // layout - so a panel that changes (a window dragged between televisions, a first measure of zero)
+      // asks the worn face for its share again rather than keeping a transform computed on nothing. The shelf
+      // arrives later still, from the server, and until it has there is no drawn height to scale from.
+      SizeChanged += delegate { ScaleNereusWall(); };
+      _home.ContentGroups.CollectionChanged +=
+          delegate { ScaleNereusWall(); };
+
       // The ring is in the order the areas are arranged on the screen: the menu on the left, its content to the
       // right of it, the server's aspect list on the far side, and the buttons underneath. Left/right walk it;
       // each list keeps its own up/down over its items, because it handles those keys before they reach the ring.
@@ -439,8 +447,9 @@ namespace MediaPortal.Frontend.Views
           // so nothing of this layout may claim a strip of its own: the arrangement starts at the very
           // top of the screen, the menu rail runs the full height (master_homemenu.xaml spans its menu
           // column over the entire client), and the content column begins where the reference begins it -
-          // one header row (100) below the top edge and 40px to the right of the rail (master_home.xaml's
-          // ContentView RowDefinition of 100 and HomeContentGrid's Margin="40,0,0,0").
+          // 40px to the right of the rail (master_home.xaml's HomeContentGrid Margin="40,0,0,0"). Its
+          // header row of 100 claims nothing here, because the header floats over the picture and the
+          // wall is scaled to a share of the whole panel and stands centred in it - see ScaleNereusWall.
           homeLayout.Margin = new Thickness(0);
           homeAreas.ColumnDefinitions = ColumnDefinitions.Parse("200,*,0");
           homeAreas.ColumnSpacing = 0;
@@ -453,7 +462,7 @@ namespace MediaPortal.Frontend.Views
           menuList.Height = double.NaN;
           menuList.VerticalAlignment = VerticalAlignment.Stretch;
           menuList.HorizontalAlignment = HorizontalAlignment.Center;
-          contentPane.Margin = new Thickness(40, 100, 0, 0);
+          contentPane.Margin = new Thickness(40, 0, 0, 0);
           contentPane.MaxWidth = double.PositiveInfinity;
           contentPane.HorizontalAlignment = HorizontalAlignment.Stretch;
           contentPane.VerticalAlignment = VerticalAlignment.Stretch;
@@ -549,6 +558,41 @@ namespace MediaPortal.Frontend.Views
       // than an empty arm.
       menuList.Opacity = _home.HomeLayout == "wmc" ? 0 : 1;
       RebuildCross();
+      ScaleNereusWall();
+    }
+
+    /// <summary>
+    /// Grows or shrinks the home's content wall to the share of the panel the worn skin asks for, and lets it
+    /// stand centred there rather than hanging under a header row.
+    /// </summary>
+    /// <remarks>
+    /// The shelf is measured once, in the reference's own numbers - its content grid was 880 of the reference's
+    /// 1080 lines - and a panel that is taller cannot be filled by those numbers without the wall standing in
+    /// the upper half of the screen with a third of the television empty under it. So the wall carries one
+    /// transform instead of every tile being re-measured: headings, tiles, their gaps and their shadows keep
+    /// exactly the proportion the face drew them in, and the share of the height the wall should own is the
+    /// face's own number (<c>HomeWallHeightRatio</c>, eight tenths under Nereus) rather than a second one kept
+    /// here. A wall with nothing on it or a panel whose size is not known yet is left alone; the size arrives
+    /// with <see cref="Control.SizeChanged"/>, which asks for the same number again.
+    /// </remarks>
+    private void ScaleNereusWall()
+    {
+      if (_home.HomeLayout != "nereus")
+      {
+        nereusContentWall.LayoutTransform = null;
+        return;
+      }
+
+      double drawn = _home.ContentGroups.Count > 0
+          ? _home.ContentGroups.Max(delegate (HomeContentGroup group) { return group.Height; })
+          : 0;
+      double panel = Bounds.Height;
+      if (drawn <= 0 || panel <= 0)
+        return;
+
+      double share = SkinEngine.WornNumber("HomeWallHeightRatio") ?? 0.8;
+      double scale = Math.Clamp(share * panel / drawn, 0.35, 2.5);
+      nereusContentWall.LayoutTransform = new Avalonia.Media.ScaleTransform(scale, scale);
     }
 
     /// <summary>

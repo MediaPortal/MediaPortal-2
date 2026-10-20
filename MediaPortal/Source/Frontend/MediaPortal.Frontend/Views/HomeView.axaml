@@ -310,6 +310,11 @@
                       HorizontalScrollBarVisibility="Hidden"
                       VerticalScrollBarVisibility="Disabled"
                       IsVisible="False">
+          <!-- The wall is one thing that scales: the code-behind puts a LayoutTransform on this control so the
+               whole shelf - headings, tiles and their gaps - grows to the share of the panel the worn skin asks
+               for (HomeWallHeightRatio, 0.8 of the height under Nereus), and stands it centred in that panel
+               rather than hanging it under the header row the reference drew. -->
+          <LayoutTransformControl Name="nereusContentWall" VerticalAlignment="Center">
           <ItemsControl ItemsSource="{Binding ContentGroups}">
             <ItemsControl.ItemsPanel>
               <ItemsPanelTemplate>
@@ -391,6 +396,7 @@
               </DataTemplate>
             </ItemsControl.ItemTemplate>
           </ItemsControl>
+          </LayoutTransformControl>
         </ScrollViewer>
       </DockPanel>
 

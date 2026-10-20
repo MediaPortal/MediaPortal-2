@@ -38,4 +38,10 @@
   <x:Double x:Key="ScrollBarWidth">8</x:Double>
   <x:Double x:Key="ScrollBarKnobWidth">8</x:Double>
   <x:Double x:Key="DialogButtonMinWidth">300</x:Double>
+
+  <!-- The home's content wall - the shortcuts, the latest added, the continue watching - fills this share of
+       the panel's height and stands centred in what the rail leaves beside it, so the same wall that filled a
+       1080 television fills a taller panel without hanging under it. The reference drew its content grid over
+       880 of its 1080 lines, which is 0.81 of the screen; the number is kept round at eight tenths. -->
+  <x:Double x:Key="HomeWallHeightRatio">0.8</x:Double>
 </ResourceDictionary>
