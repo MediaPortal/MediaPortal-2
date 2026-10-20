@@ -270,8 +270,8 @@ namespace MediaPortal.Frontend.Views
           // HomeContentGrid starts 40 pixels in from the rail, at the top. The top of the screen belongs
           // to the chrome and to the first gradient, so the areas start below the header band.
           homeLayout.Margin = new Thickness(16, 110, 16, 10);
-          homeAreas.ColumnDefinitions = ColumnDefinitions.Parse("260,*,0");
-          homeAreas.ColumnSpacing = 24;
+          homeAreas.ColumnDefinitions = ColumnDefinitions.Parse("400,*,0");
+          homeAreas.ColumnSpacing = 30;
           menuList.Margin = new Thickness(0);
           contentPane.Margin = new Thickness(40, 0, 0, 0);
           contentPane.MaxWidth = double.PositiveInfinity;
