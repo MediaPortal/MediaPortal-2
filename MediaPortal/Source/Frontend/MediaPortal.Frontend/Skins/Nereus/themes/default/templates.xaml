@@ -120,12 +120,15 @@
        the skin rather than the skin - the shelf's name centred under the picture, the playing mark on
        its corner, and the letter badge only where a picture is missing. -->
   <DataTemplate x:Key="HomeMenuTileTemplate" x:DataType="vm:MainMenuEntry">
-    <StackPanel Spacing="4" Margin="0,6,10,12" Width="150">
-      <Panel Height="112" HorizontalAlignment="Center">
+    <!-- Nereus' home rail (master_homemenu's NereusHomeListView, a 200-wide rail in its 1280 frame filled
+         by tile art of 394x332) is big pictures with the word under them - the rail is where the eye
+         lives, not a list of small icons beside the content. -->
+    <StackPanel Spacing="4" Margin="0,6,14,14" Width="210">
+      <Panel Height="160" HorizontalAlignment="Center">
         <Image Source="{Binding HomeImagePath,
                                 Converter={x:Static views:SkinImageConverter.Instance},
                                 ConverterParameter='{}{0}'}"
-               Height="112"
+               Height="160"
                Stretch="Uniform"
                HorizontalAlignment="Center"/>
         <!-- The "this shelf is playing" mark, the very picture Nereus carries under the name IsPlaying.
@@ -134,7 +137,7 @@
         <Image Source="{Binding Label,
                                 Converter={x:Static views:SkinImageConverter.Instance},
                                 ConverterParameter=IsPlaying}"
-               Height="20"
+               Height="24"
                Stretch="Uniform"
                HorizontalAlignment="Right"
                VerticalAlignment="Top"
@@ -143,7 +146,7 @@
         <TextBlock Text="{Binding Badge}"
                    TextAlignment="Center"
                    VerticalAlignment="Center"
-                   FontSize="56"
+                   FontSize="72"
                    Opacity="0.7"
                    Foreground="{DynamicResource TextBrush}"
                    IsVisible="{Binding HomeImagePath,
@@ -154,7 +157,7 @@
                  FontSize="{DynamicResource NormalFontSize}"
                  TextAlignment="Center"
                  HorizontalAlignment="Center"
-                 MaxWidth="146"
+                 MaxWidth="206"
                  TextTrimming="CharacterEllipsis"
                  Foreground="{DynamicResource TextBrush}"/>
       <TextBlock Text="{Binding Detail}"
@@ -162,7 +165,7 @@
                  Opacity="0.5"
                  TextAlignment="Center"
                  HorizontalAlignment="Center"
-                 MaxWidth="146"
+                 MaxWidth="206"
                  TextTrimming="CharacterEllipsis"
                  Foreground="{DynamicResource TextBrush}"/>
     </StackPanel>

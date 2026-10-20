@@ -200,12 +200,18 @@ namespace Tests.Frontend
         Pump();
 
         Control bare = TileOf(window, local);
-        Image none = LargestPicture(bare);
-        Assert.That(none.Source, Is.Null,
-            "WMC has no local-media tile picture - the reference screen never had one - so the tile must come "
-            + "back holding nothing rather than half a file");
-        Assert.That(BadgeOf(bare, local).IsVisible, Is.True,
-            "and the letter badge is what fills the hole, so the tile never stands there with neither art nor letter");
+        // WMC has no local-media tile picture - the reference screen never had one - so the tile's own
+        // picture slot has to come back empty rather than half a file. The tile wears other pictures too
+        // (the reference's Focus.frame behind the stood-on tile, the "is playing" mark on its corner), so
+        // the claim is about the slot, not about the biggest picture on the tile.
+        Assert.That(bare.GetVisualDescendants().OfType<Image>().Any(image => image.Source == null), Is.True,
+            "a tile for an entry no skin drew has an empty picture slot, not a hole where a file should be");
+        // Where the old WMC tile filled the hole with a lone letter, the reference's home menu answered a
+        // missing picture with the entry's whole name - MyMainMenuItemDataTemplate is huge text, white when
+        // the walker stands on it - and so does this skin's tile: the framed place holds the word.
+        Assert.That(bare.GetVisualDescendants().OfType<TextBlock>()
+            .Any(t => t.Text == local.Label && t.IsVisible), Is.True,
+            "and the word is what fills the hole, so the tile never stands there with neither art nor letter");
         window.Close();
         SkinEngine.Clear(app);
       }
