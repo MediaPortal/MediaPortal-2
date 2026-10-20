@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!--
   WMC's measurements, the role its reference Consts.xaml played; the numbers
   are what that file held, for a 1920x1080 television. WMC's edges were a
@@ -26,10 +26,10 @@
   <x:Double x:Key="InfoTabFontSize">55</x:Double>
 
   <!-- Edges. -->
-  <x:Double x:Key="DialogBorderCornerRadius">2</x:Double>
+  <CornerRadius x:Key="DialogBorderCornerRadius">2</CornerRadius>
   <x:Double x:Key="TextBoxBorderThickness">3</x:Double>
-  <x:Double x:Key="TextBoxCornerRadius">4</x:Double>
-  <x:Double x:Key="ProgressBarRadius">2</x:Double>
+  <CornerRadius x:Key="TextBoxCornerRadius">4</CornerRadius>
+  <CornerRadius x:Key="ProgressBarRadius">2</CornerRadius>
   <x:Double x:Key="DefaultPlayerControlBorderThickness">1</x:Double>
   <x:Double x:Key="DefaultPlayerControlCornerRadius">4</x:Double>
   <x:Double x:Key="DialogButtonMinWidth">300</x:Double>
