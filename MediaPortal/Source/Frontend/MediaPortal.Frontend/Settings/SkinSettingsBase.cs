@@ -226,6 +226,14 @@ public abstract class SkinSettingsBase
   }
 
   /// <summary>
+  /// Fires whenever one skin's answers have been written to disk. Screens that opened under the old
+  /// answers reread themselves on it, so a switch the viewer flips takes its effect on the television
+  /// at once rather than "next time the screen opens" - the skin-settings screen is a remote control,
+  /// not an application form.
+  /// </summary>
+  public static event EventHandler? Saved;
+
+  /// <summary>
   /// Writes this skin's file. Best-effort with a sentence instead of an exception, like every save a
   /// screen's button performs; the runtime type is serialized, so a save through the base class still
   /// carries the concrete skin's own properties.
@@ -233,6 +241,7 @@ public abstract class SkinSettingsBase
   public string Save(string? path, out bool saved)
   {
     string file = path ?? FileForUser(SkinName);
+    string says;
     try
     {
       string? folder = Path.GetDirectoryName(file);
@@ -243,13 +252,28 @@ public abstract class SkinSettingsBase
       File.WriteAllText(temporary, JsonSerializer.Serialize(this, GetType(), JsonOptions));
       File.Move(temporary, file, true);
       saved = true;
-      return string.Format("Saved to {0}.", file);
+      says = string.Format("Saved to {0}.", file);
     }
     catch (Exception ex)
     {
       saved = false;
-      return string.Format("Could not be saved ({0}: {1}).", ex.GetType().Name, ex.Message);
+      says = string.Format("Could not be saved ({0}: {1}).", ex.GetType().Name, ex.Message);
     }
+
+    if (saved)
+    {
+      // The screens that reread themselves on this event belong to the television, not to the file: one
+      // that throws on its refresh must never make a written file be reported as unwritten.
+      try
+      {
+        Saved?.Invoke(this, EventArgs.Empty);
+      }
+      catch (Exception)
+      {
+      }
+    }
+
+    return says;
   }
 
   protected static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions

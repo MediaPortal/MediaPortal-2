@@ -218,7 +218,10 @@ namespace Tests.Frontend
 
       List<ListBoxItem> realized = menu.GetVisualDescendants().OfType<ListBoxItem>()
           .Where(c => c.DataContext is MainMenuEntry).ToList();
-      Assert.That(realized.Count, Is.GreaterThanOrEqualTo(3),
+      // The headless window is small and a skin's tile is tall - Nereus draws a 112-pixel picture over its
+      // label - so at show time only the rows that fit the viewport are realized. Two is what the small
+      // television shows; none at all would mean the list never drew.
+      Assert.That(realized.Count, Is.GreaterThanOrEqualTo(2),
           "a shown home screen realizes a handful of its tiles at once - none of them means the list did not "
           + "at all (items source count: " + (menu.Items?.Count ?? -1) + ", template: "
           + (menu.ItemTemplate?.GetType().Name ?? "null") + ")");

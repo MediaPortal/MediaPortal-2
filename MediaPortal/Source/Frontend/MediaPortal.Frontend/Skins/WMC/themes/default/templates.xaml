@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!--
   WMC screen templates: how this skin draws the items of the screens that ask.
 
@@ -151,52 +151,56 @@
   </DataTemplate>
 
   <DataTemplate x:Key="HomeMenuTileTemplate" x:DataType="vm:MainMenuEntry">
-    <Border Background="{DynamicResource PanelBrush}"
-            BorderBrush="{DynamicResource AccentBrush}"
-            BorderThickness="0,0,0,3"
-            Padding="18,10,18,10"
-            Margin="0,4,10,6">
-      <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
-        <Panel MinWidth="36">
-          <Image Source="{Binding HomeImageId,
-                                  Converter={x:Static views:SkinImageConverter.Instance},
-                                  ConverterParameter='HomeMenu/{0}Focus'}"
-                 Height="30"
-                 Stretch="Uniform"
-                 HorizontalAlignment="Center"/>
-          <!-- The "this shelf is playing" mark, the very picture WMC carries under the name IsPlaying. It
-               sits to the right of the tile picture, where WMC put a band's state, and it appears with the
-               picture and not before it: a mark with nothing under it is the hole in the tile that a media
-               centre is judged by. -->
-          <Image Source="{Binding Label,
-                                  Converter={x:Static views:SkinImageConverter.Instance},
-                                  ConverterParameter=IsPlaying}"
-                 Height="14"
-                 Stretch="Uniform"
-                 HorizontalAlignment="Right"
-                 VerticalAlignment="Top"
-                 Margin="0,2,2,0"
-                 IsVisible="{Binding IsPlaying, Mode=OneWay}"/>
-          <TextBlock Text="{Binding Badge}" FontSize="24" Opacity="0.85"
-                     VerticalAlignment="Center"
-                     Foreground="{DynamicResource TextBrush}"
-                     IsVisible="{Binding HomeImageId,
-                                         Converter={x:Static views:SkinImageMissingConverter.Instance},
-                                         ConverterParameter='HomeMenu/{0}Focus'}"/>
-        </Panel>
-        <TextBlock Grid.Column="1" Text="{Binding Label}"
-                   FontSize="26" FontWeight="Bold"
-                   VerticalAlignment="Center"
-                   TextTrimming="CharacterEllipsis"
-                   Foreground="{DynamicResource TextBrush}"/>
-        <TextBlock Grid.Column="2" Text="{Binding Detail}"
-                   FontSize="{DynamicResource SmallerFontSize}"
-                   Foreground="{DynamicResource AccentBrush}"
-                   VerticalAlignment="Bottom"
-                   Margin="12,0,0,3"
-                   TextTrimming="CharacterEllipsis"/>
-      </Grid>
-    </Border>
+    <StackPanel Spacing="2" Margin="0,4,12,10" HorizontalAlignment="Left">
+      <!-- WMC does not draw its selected tile with the same picture as the quiet ones: the skin carries
+           a picture of its own for each state - 350x197 for the focused tile, 162x91 for the rest - and
+           the tiles stand on the screen without a panel under them. The blue panel that stood here was
+           this port's own invention; the reference let the pictures speak for themselves. -->
+      <Panel HorizontalAlignment="Left">
+        <Image Source="{Binding HomeImageId,
+                                Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='HomeMenu/{0}Focus'}"
+               Width="210"
+               Stretch="Uniform"
+               HorizontalAlignment="Left"
+               IsVisible="{Binding $parent[ListBoxItem].IsSelected}"/>
+        <Image Source="{Binding HomeImageId,
+                                Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='HomeMenu/{0}NoFocus'}"
+               Width="110"
+               Stretch="Uniform"
+               HorizontalAlignment="Left"
+               IsVisible="{Binding !$parent[ListBoxItem].IsSelected}"/>
+        <!-- The "this shelf is playing" mark, the very picture WMC carries under the name IsPlaying. It
+             rides on the corner of whichever picture the tile wears, and it appears with the picture and
+             not before it: a mark with nothing under it is the hole in the tile that a media centre is
+             judged by. -->
+        <Image Source="{Binding Label,
+                                Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter=IsPlaying}"
+               Height="16"
+               Stretch="Uniform"
+               HorizontalAlignment="Right"
+               VerticalAlignment="Top"
+               Margin="0,2,2,0"
+               IsVisible="{Binding IsPlaying, Mode=OneWay}"/>
+        <TextBlock Text="{Binding Badge}" FontSize="48" Opacity="0.85"
+                   Foreground="{DynamicResource TextBrush}"
+                   IsVisible="{Binding HomeImageId,
+                                       Converter={x:Static views:SkinImageMissingConverter.Instance},
+                                       ConverterParameter='HomeMenu/{0}NoFocus'}"/>
+      </Panel>
+      <TextBlock Text="{Binding Label}"
+                 FontSize="22" FontWeight="SemiBold"
+                 TextTrimming="CharacterEllipsis"
+                 MaxWidth="210"
+                 Foreground="{DynamicResource TextBrush}"/>
+      <TextBlock Text="{Binding Detail}"
+                 FontSize="{DynamicResource SmallerFontSize}"
+                 Foreground="{DynamicResource AccentBrush}"
+                 TextTrimming="CharacterEllipsis"
+                 MaxWidth="210"/>
+    </StackPanel>
   </DataTemplate>
 
   <!--

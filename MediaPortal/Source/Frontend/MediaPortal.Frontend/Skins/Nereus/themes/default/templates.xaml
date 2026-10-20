@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!--
   Nereus screen templates: how this skin draws the items of the screens that ask.
 
@@ -114,46 +114,54 @@
     </StackPanel>
   </DataTemplate>
 
+  <!-- The home tile as Nereus draws it: the skin's own tile art standing whole - the reference's
+       home menu pictures are 400x400-pixel art, and shrunk to a 34-pixel button they are a summary of
+       the skin rather than the skin - the shelf's name centred under the picture, the playing mark on
+       its corner, and the letter badge only where a picture is missing. -->
   <DataTemplate x:Key="HomeMenuTileTemplate" x:DataType="vm:MainMenuEntry">
-    <StackPanel Spacing="1" Margin="0,5,10,7">
-      <StackPanel Orientation="Horizontal" Spacing="10">
-        <Panel Width="36">
-          <Image Source="{Binding HomeImagePath,
-                                  Converter={x:Static views:SkinImageConverter.Instance},
-                                  ConverterParameter='{}{0}'}"
-                 Height="34"
-                 Stretch="Uniform"
-                 HorizontalAlignment="Center"/>
-          <!-- The "this shelf is playing" mark, the very picture Nereus carries under the name IsPlaying.
-               It appears with the tile's picture and not before it: a mark with nothing under it is the
-               hole in the tile that a media centre is judged by. -->
-          <Image Source="{Binding Label,
-                                  Converter={x:Static views:SkinImageConverter.Instance},
-                                  ConverterParameter=IsPlaying}"
-                 Height="14"
-                 Stretch="Uniform"
-                 HorizontalAlignment="Right"
-                 VerticalAlignment="Top"
-                 Margin="0,2,2,0"
-                 IsVisible="{Binding IsPlaying, Mode=OneWay}"/>
-          <TextBlock Text="{Binding Badge}"
-                     TextAlignment="Center"
-                     Opacity="0.7"
-                     FontSize="{DynamicResource NormalFontSize}"
-                     Foreground="{DynamicResource TextBrush}"
-                     IsVisible="{Binding HomeImagePath,
-                                         Converter={x:Static views:SkinImageMissingConverter.Instance},
-                                         ConverterParameter='{}{0}'}"/>
-        </Panel>
-        <TextBlock Text="{Binding Label}"
-                   FontSize="{DynamicResource NormalFontSize}"
-                   TextTrimming="CharacterEllipsis"
-                   Foreground="{DynamicResource TextBrush}"/>
-      </StackPanel>
+    <StackPanel Spacing="4" Margin="0,6,10,12" Width="150">
+      <Panel Height="112" HorizontalAlignment="Center">
+        <Image Source="{Binding HomeImagePath,
+                                Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='{}{0}'}"
+               Height="112"
+               Stretch="Uniform"
+               HorizontalAlignment="Center"/>
+        <!-- The "this shelf is playing" mark, the very picture Nereus carries under the name IsPlaying.
+             It appears with the tile's picture and not before it: a mark with nothing under it is the
+             hole in the tile that a media centre is judged by. -->
+        <Image Source="{Binding Label,
+                                Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter=IsPlaying}"
+               Height="20"
+               Stretch="Uniform"
+               HorizontalAlignment="Right"
+               VerticalAlignment="Top"
+               Margin="0,2,2,0"
+               IsVisible="{Binding IsPlaying, Mode=OneWay}"/>
+        <TextBlock Text="{Binding Badge}"
+                   TextAlignment="Center"
+                   VerticalAlignment="Center"
+                   FontSize="56"
+                   Opacity="0.7"
+                   Foreground="{DynamicResource TextBrush}"
+                   IsVisible="{Binding HomeImagePath,
+                                       Converter={x:Static views:SkinImageMissingConverter.Instance},
+                                       ConverterParameter='{}{0}'}"/>
+      </Panel>
+      <TextBlock Text="{Binding Label}"
+                 FontSize="{DynamicResource NormalFontSize}"
+                 TextAlignment="Center"
+                 HorizontalAlignment="Center"
+                 MaxWidth="146"
+                 TextTrimming="CharacterEllipsis"
+                 Foreground="{DynamicResource TextBrush}"/>
       <TextBlock Text="{Binding Detail}"
                  FontSize="{DynamicResource SmallerFontSize}"
                  Opacity="0.5"
-                 Margin="46,0,0,0"
+                 TextAlignment="Center"
+                 HorizontalAlignment="Center"
+                 MaxWidth="146"
                  TextTrimming="CharacterEllipsis"
                  Foreground="{DynamicResource TextBrush}"/>
     </StackPanel>

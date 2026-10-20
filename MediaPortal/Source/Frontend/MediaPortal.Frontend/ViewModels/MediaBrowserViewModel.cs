@@ -671,6 +671,9 @@ namespace MediaPortal.Frontend.ViewModels
       // default skin did: no background model, no picture.
       FanartShown = _skinSettings?.EnableFanart ?? false;
       FanartOverlay = _skinSettings?.FanartOverlayOpacity ?? 0.85;
+      // A setting the viewer flips on the skin-settings screen while this shelf lives takes its effect on
+      // the television at once - the screen is a remote control, not an application form.
+      SkinSettingsBase.Saved += delegate { ReapplySkinSettings(); };
       _fanart = client == null ? null : new Artwork(id => client.GetFanArtAsync(id, "FanArt"));
       // What a tile wears is the picture of its own kind, and the reference asked for it kinded too: its banner
       // grid bound FanArtType="Banner", its thumbnail grid FanArtType="Thumbnail", and neither ever drew a
@@ -681,7 +684,7 @@ namespace MediaPortal.Frontend.ViewModels
       // either kind's already-read bytes away.
     }
 
-    private readonly SkinSettingsBase? _skinSettings;
+    private SkinSettingsBase? _skinSettings;
     private GridViewType _tileKind;
     private readonly Dictionary<GridViewType, Artwork?> _tileArtworks =
         new Dictionary<GridViewType, Artwork?>();
@@ -709,13 +712,32 @@ namespace MediaPortal.Frontend.ViewModels
 
     /// <summary>
     /// What the worn skin keeps as settings, or <c>null</c> when the machine wears its own face (or the tests
-    /// run it without an application). Read once when the shelf opens - a setting changed while the shelf is
-    /// on screen takes its shape the next time it opens, which is how the reference's screens did it too.
+    /// run it without an application). Read when the shelf opens and again every time the skin-settings
+    /// screen writes an answer, so the shelf follows the remote control rather than the last memory.
     /// </summary>
     private static SkinSettingsBase? WornSkinSettings()
     {
       Application? app = Application.Current;
       return app == null ? null : SkinSettingsBase.LoadFor(FrontendTheme.CurrentName(app), null, out _);
+    }
+
+    /// <summary>
+    /// Takes the answers the skin-settings screen just wrote onto this live shelf: the fanart and its
+    /// dimming, the watched corners of every row, and - while this screen has never been asked its own
+    /// answer - the details column too. A choice the viewer made on the media screen itself outranks the
+    /// skin's answer then and for good, which is what "stored by screen" promises.
+    /// </summary>
+    private void ReapplySkinSettings()
+    {
+      _skinSettings = WornSkinSettings();
+      FanartShown = _skinSettings?.EnableFanart ?? false;
+      FanartOverlay = _skinSettings?.FanartOverlayOpacity ?? 0.85;
+      WatchFlagsShown = WatchFlagsFor(_layout);
+      foreach (TitleViewModel row in Titles)
+        row.WatchFlagsShown = WatchFlagsShown;
+      if (!_screens.HasDetails(AspectName))
+        ShowDetails = _skinSettings?.EnableMediaItemDetailsView ?? true;
+      OnPropertyChanged(new System.ComponentModel.PropertyChangedEventArgs(null));
     }
 
     /// <summary>
@@ -843,16 +865,16 @@ namespace MediaPortal.Frontend.ViewModels
     private bool _watchFlagsShown = true;
 
     /// <summary>
-    /// Whether the shelf wears the worn skin's fanart at all - the reference's <c>EnableFanart</c>, read once
-    /// when the shelf opens. The view binds the whole background layer to this one answer.
+    /// Whether the shelf wears the worn skin's fanart at all - the reference's <c>EnableFanart</c>. The view
+    /// binds the whole background layer to this one answer, and the skin-settings screen rewrites it live.
     /// </summary>
-    public bool FanartShown { get; }
+    public bool FanartShown { get; private set; }
 
     /// <summary>
     /// How far the skin dims the fanart - the reference drew its dark backdrop over the picture with exactly
     /// this opacity, and the skin-settings screen writes exactly this number.
     /// </summary>
-    public double FanartOverlay { get; }
+    public double FanartOverlay { get; private set; }
 
     /// <summary>The fanart pictures of this shelf's titles, or null with no server to ask.</summary>
     private readonly Artwork? _fanart;
