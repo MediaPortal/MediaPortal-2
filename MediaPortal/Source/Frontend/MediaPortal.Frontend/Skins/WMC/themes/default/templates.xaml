@@ -190,16 +190,18 @@
                                        Converter={x:Static views:SkinImageMissingConverter.Instance},
                                        ConverterParameter='HomeMenu/{0}NoFocus'}"/>
       </Panel>
+      <!-- WMC's tile pictures carry their own title text - the reference's Focus and NoFocus art spells
+           "Film", "TV", "Musik" right into the picture - so the entry's own label only speaks when the
+           skin has no picture for this tile. A label under an art that already says the word is the word
+           twice. -->
       <TextBlock Text="{Binding Label}"
                  FontSize="22" FontWeight="SemiBold"
                  TextTrimming="CharacterEllipsis"
                  MaxWidth="210"
-                 Foreground="{DynamicResource TextBrush}"/>
-      <TextBlock Text="{Binding Detail}"
-                 FontSize="{DynamicResource SmallerFontSize}"
-                 Foreground="{DynamicResource AccentBrush}"
-                 TextTrimming="CharacterEllipsis"
-                 MaxWidth="210"/>
+                 Foreground="{DynamicResource TextBrush}"
+                 IsVisible="{Binding HomeImageId,
+                                     Converter={x:Static views:SkinImageMissingConverter.Instance},
+                                     ConverterParameter='HomeMenu/{0}NoFocus'}"/>
     </StackPanel>
   </DataTemplate>
 
