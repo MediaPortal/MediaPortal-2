@@ -115,61 +115,94 @@
     </StackPanel>
   </DataTemplate>
 
-  <!-- The home tile as Nereus draws it: the skin's own tile art standing whole - the reference's
-       home menu pictures are 400x400-pixel art, and shrunk to a 34-pixel button they are a summary of
-       the skin rather than the skin - the shelf's name centred under the picture, the playing mark on
-       its corner, and the letter badge only where a picture is missing. -->
-  <DataTemplate x:Key="HomeMenuTileTemplate" x:DataType="vm:MainMenuEntry">
-    <!-- Nereus' home rail (master_homemenu's NereusHomeListView, a 200-wide rail in its 1280 frame filled
-         by tile art of 394x332) is big pictures with the word under them - the rail is where the eye
-         lives, not a list of small icons beside the content. -->
-    <StackPanel Spacing="4" Margin="0,10,24,24" Width="376">
-      <Panel Height="320" HorizontalAlignment="Center">
-        <Image Source="{Binding HomeImagePath,
-                                Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='{}{0}'}"
-               Height="320"
-               Stretch="Uniform"
-               HorizontalAlignment="Center"/>
-        <!-- The "this shelf is playing" mark, the very picture Nereus carries under the name IsPlaying.
-             It appears with the tile's picture and not before it: a mark with nothing under it is the
-             hole in the tile that a media centre is judged by. -->
-        <Image Source="{Binding Label,
-                                Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter=IsPlaying}"
-               Height="48"
-               Stretch="Uniform"
-               HorizontalAlignment="Right"
-               VerticalAlignment="Top"
-               Margin="0,2,2,0"
-               IsVisible="{Binding IsPlaying, Mode=OneWay}"/>
-        <TextBlock Text="{Binding Badge}"
+  <!-- Nereus' home rail: 170px artwork with a 40px focus band in the 200px menu column. -->
+  <DataTemplate x:Key="HomeMenuTileTemplate"
+                x:CompileBindings="False"
+                x:DataType="vm:MainMenuEntry">
+    <Grid Width="170" Margin="6">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="130"/>
+        <RowDefinition Height="40"/>
+      </Grid.RowDefinitions>
+      <Rectangle Grid.RowSpan="2"
+                 Fill="#222222"
+                 IsVisible="{Binding IsSquareHomeImage}"/>
+      <Image Grid.RowSpan="2"
+             Source="{Binding HomeImagePath,
+                              Converter={x:Static views:SkinImageConverter.Instance},
+                              ConverterParameter='{}{0}'}"
+             Stretch="Fill"
+             Opacity="0.8"
+             IsVisible="{Binding IsSquareHomeImage}"/>
+      <Image Grid.RowSpan="2"
+             Source="{Binding HomeImagePath,
+                              Converter={x:Static views:SkinImageConverter.Instance},
+                              ConverterParameter='{}{0}'}"
+             Width="150"
+             Height="150"
+             HorizontalAlignment="Center"
+             VerticalAlignment="Center"
+             Stretch="Fill"
+             Opacity="0.8"
+             IsVisible="{Binding IsCircleHomeImage}"/>
+      <TextBlock Grid.RowSpan="2"
+                 Text="{Binding Badge}"
+                 TextAlignment="Center"
+                 VerticalAlignment="Center"
+                 FontSize="48"
+                 Opacity="0.7"
+                 Foreground="{DynamicResource TextBrush}"
+                 IsVisible="{Binding HomeImagePath,
+                                     Converter={x:Static views:SkinImageMissingConverter.Instance},
+                                     ConverterParameter='{}{0}'}"/>
+      <Grid Grid.Row="1"
+            Name="nereusSelectionBand"
+            VerticalAlignment="Stretch"
+            IsHitTestVisible="False">
+        <Rectangle Fill="#66000000"/>
+        <TextBlock Text="{Binding Label}"
+                   FontSize="{DynamicResource SmallerFontSize}"
+                   FontWeight="Bold"
+                   Foreground="{DynamicResource TextBrush}"
                    TextAlignment="Center"
                    VerticalAlignment="Center"
-                   FontSize="72"
-                   Opacity="0.7"
-                   Foreground="{DynamicResource TextBrush}"
-                   IsVisible="{Binding HomeImagePath,
-                                       Converter={x:Static views:SkinImageMissingConverter.Instance},
-                                       ConverterParameter='{}{0}'}"/>
-      </Panel>
-      <TextBlock Text="{Binding Label}"
-                 FontSize="{DynamicResource NormalFontSize}"
-                 TextAlignment="Center"
-                 HorizontalAlignment="Center"
-                 MaxWidth="372"
-                 TextWrapping="Wrap"
-                 TextTrimming="CharacterEllipsis"
-                 Foreground="{DynamicResource TextBrush}"/>
-      <TextBlock Text="{Binding Detail}"
-                 FontSize="{DynamicResource SmallerFontSize}"
-                 Opacity="0.5"
-                 TextAlignment="Center"
-                 HorizontalAlignment="Center"
-                 MaxWidth="206"
-                 TextTrimming="CharacterEllipsis"
-                 Foreground="{DynamicResource TextBrush}"/>
-    </StackPanel>
+                   Margin="5,0"/>
+      </Grid>
+      <Image Grid.RowSpan="2"
+             Source="{Binding Label,
+                              Converter={x:Static views:SkinImageConverter.Instance},
+                              ConverterParameter=IsPlaying}"
+             Height="24"
+             Stretch="Uniform"
+             HorizontalAlignment="Right"
+             VerticalAlignment="Top"
+             Margin="0,3,3,0"
+             IsVisible="{Binding IsPlaying}"/>
+      <Image Grid.RowSpan="2"
+             Source="{Binding Label,
+                              Converter={x:Static views:SkinImageConverter.Instance},
+                              ConverterParameter=Horizontal_gradient.png}"
+             Width="15"
+             Stretch="Fill"
+             HorizontalAlignment="Left"
+             IsVisible="{Binding IsSquareSelected}"/>
+      <Rectangle Grid.RowSpan="2"
+                 Fill="White"
+                 Width="5"
+                 HorizontalAlignment="Left"
+                 IsVisible="{Binding IsSquareSelected}"/>
+      <Image Grid.RowSpan="2"
+             Source="{Binding Label,
+                              Converter={x:Static views:SkinImageConverter.Instance},
+                              ConverterParameter=focus.png}"
+             Width="25"
+             Height="93"
+             HorizontalAlignment="Left"
+             VerticalAlignment="Center"
+             Margin="10,13,10,10"
+             Stretch="Fill"
+             IsVisible="{Binding IsCircleSelected}"/>
+    </Grid>
   </DataTemplate>
 
   <!--

@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Nereus' own home screen, as master_homemenu.xaml was written.
+
+  Everything the Nereus home shows that no other face shows lives between these tags: the ground the face
+  stands on, the fanart over it, the black column its menu rail is drawn on, the two gradients that screen
+  the screen, and the four corner buttons of master_home.xaml's WindowButtonsPanel. The general home screen
+  (Views/HomeView.axaml) keeps none of this; it hangs three bare hosts and asks this file what to paint on
+  them, by these keys:
+
+    HomeBackgroundTemplate  what the home stands on, behind everything - the skin's own Background.png with
+                            the standing title's fanart wearing the skin setting's opacity over it;
+    HomeMenuFaceTemplate    the face the menu rail is drawn on - the glow, the black, the indicator;
+    HomeOverlaysTemplate    what floats over the finished screen - the gradients, the line about the standing
+                            title, and the corner buttons.
+
+  A host with no template here is simply not painted, so a face needs no permission and no switch in C# to
+  say it is wearing something: writing the key IS the decision. Bindings speak to the home view model
+  (HomeViewModel) - the pictures come from the worn skin by name, exactly as the reference asked the skin
+  engine for them.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vm="clr-namespace:MediaPortal.Frontend.ViewModels"
+                    xmlns:views="clr-namespace:MediaPortal.Frontend.Views">
+
+  <!--  master_homemenu.xaml's first two children. The ground first and the fanart in front of it: the ground
+        is this skin's Background.png, the general background every Nereus picture stands on, and the fanart
+        wears the skin setting's opacity as its OWN opacity - so a setting of nought leaves the ground bare,
+        and a screen with no fanart at all was always only ever the ground. Neither is hit-testable; neither
+        is ever replaced by the platform's flat clear underneath.  -->
+  <ControlTemplate x:Key="HomeBackgroundTemplate" TargetType="ContentControl" x:DataType="vm:HomeViewModel">
+    <Panel IsHitTestVisible="False">
+      <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter=Background.PNG}"
+             Stretch="Fill"/>
+      <Image Source="{Binding BackgroundArtwork, Converter={x:Static views:ArtworkConverter.Instance}}"
+             Stretch="UniformToFill"
+             Opacity="{Binding FanartOverlay}"
+             IsVisible="{Binding HasBackgroundArtwork}"/>
+    </Panel>
+  </ControlTemplate>
+
+  <!--  The rail the menu walks on, at the very left edge and the full height of the television - the
+        reference's order (master_homemenu.xaml 356-359): the glow picture first, the black rectangle over it
+        at nine-tenths, and the indicator last so it pokes past the rail's right edge. A glow painted OVER the
+        black is what once made this column fade to grey through its middle on bright fanart; behind the black
+        it is what the reference meant - a barely visible light along the edge, with the column itself the
+        same black from the top row to the bottom. The width is the rail's own; the menu list stands on top of
+        it, in the general screen's first column, which is the same width.  -->
+  <ControlTemplate x:Key="HomeMenuFaceTemplate" TargetType="ContentControl" x:DataType="vm:HomeViewModel">
+    <Panel IsHitTestVisible="False">
+      <Grid Width="200" HorizontalAlignment="Left">
+        <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter=MenuGlow.png}"
+               Stretch="Uniform"
+               Margin="0,0,-38,0"/>
+        <Border Background="#E6000000"/>
+        <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter=LeftMenuIndicator.PNG}"
+               Width="25"
+               Height="45"
+               HorizontalAlignment="Right"
+               VerticalAlignment="Center"
+               Margin="0,0,-25,0"
+               Stretch="Fill"/>
+      </Grid>
+    </Panel>
+  </ControlTemplate>
+
+  <!--  What floats over the finished screen, in the reference's own order and numbers.
+
+        The two gradients are the very stops of master_homemenu.xaml's "Top Gradient Overlay" and "Bottom
+        Gradient Overlay": black screening the content away from the top edge and again from the bottom,
+        which is what carries Nereus' white clock and date into a readable header over any fanart. Their
+        endpoints are written in PERCENT on purpose - written as bare fractions ("0.5,0" to "0.5,1") Avalonia
+        reads them as absolute device-independent pixels, which makes a band 220 tall carry a gradient one
+        pixel long and leaves a hard one-pixel black stripe across the whole screen where the band begins.
+
+        The line about the standing title hangs in the content column, fifty in past the rail, so it never
+        lies across the menu (master_homemenu.xaml puts its MultiDetailsHome.inc there too).
+
+        The four corner buttons are master_home.xaml's WindowButtonsPanel, quiet until touched or stood on.
+        Each says the door it opens in its Tag and the general screen answers that word - this file says what
+        the buttons are and what they open, and writes no code.  -->
+  <ControlTemplate x:Key="HomeOverlaysTemplate" TargetType="ContentControl" x:DataType="vm:HomeViewModel">
+    <Panel IsHitTestVisible="False">
+      <Border VerticalAlignment="Top" Height="620" HorizontalAlignment="Stretch">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
+            <GradientStop Color="#E6000000" Offset="0" />
+            <GradientStop Color="#78000000" Offset="0.3" />
+            <GradientStop Color="#46000000" Offset="0.45" />
+            <GradientStop Color="#21000000" Offset="0.6" />
+            <GradientStop Color="#0C000000" Offset="0.75" />
+            <GradientStop Color="#01000000" Offset="0.87" />
+            <GradientStop Color="#00000000" Offset="1" />
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
+      <Border VerticalAlignment="Bottom" Height="220" HorizontalAlignment="Stretch">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="50%,100%" EndPoint="50%,0%">
+            <GradientStop Color="#E6000000" Offset="0" />
+            <GradientStop Color="#78000000" Offset="0.3" />
+            <GradientStop Color="#46000000" Offset="0.45" />
+            <GradientStop Color="#21000000" Offset="0.6" />
+            <GradientStop Color="#0C000000" Offset="0.75" />
+            <GradientStop Color="#01000000" Offset="0.87" />
+            <GradientStop Color="#00000000" Offset="1" />
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
+
+      <TextBlock Text="{Binding ContentInfo}"
+                 FontSize="22"
+                 Foreground="{DynamicResource TextBrush}"
+                 HorizontalAlignment="Left"
+                 VerticalAlignment="Bottom"
+                 Margin="240,0,0,34"
+                 IsVisible="{Binding HasContentInfo}"
+                 TextTrimming="CharacterEllipsis"/>
+
+      <StackPanel Orientation="Horizontal"
+                  Spacing="14"
+                  Margin="240,10,0,0"
+                  HorizontalAlignment="Left"
+                  VerticalAlignment="Top"
+                  IsHitTestVisible="True">
+        <Button Classes="nereus-corner-button" Tag="close">
+          <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter='NotificationMenu/power'}"
+                 Stretch="Uniform" Margin="10"/>
+        </Button>
+        <Button Classes="nereus-corner-button" Tag="viewer">
+          <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter='NotificationMenu/user'}"
+                 Stretch="Uniform" Margin="10"/>
+        </Button>
+        <Button Classes="nereus-corner-button" Tag="settings">
+          <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter='NotificationMenu/settings'}"
+                 Stretch="Uniform" Margin="10"/>
+        </Button>
+        <Button Classes="nereus-corner-button" Tag="browse">
+          <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter='NotificationMenu/Search_nofocus'}"
+                 Stretch="Uniform" Margin="10"/>
+        </Button>
+      </StackPanel>
+    </Panel>
+  </ControlTemplate>
+</ResourceDictionary>

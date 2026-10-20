@@ -684,5 +684,32 @@ namespace Tests.Frontend
       Assert.That(again, Is.SameAs(first), "asking for the same tile picture twice is one decode, not two");
       Assert.That(converter.Held, Is.EqualTo(1));
     }
+
+    [AvaloniaTest]
+    public void AnEvictedPictureIsLetGoAndNeverKilled()
+    {
+      // The crash this pins out: the home wall decodes a fanart, the next picture arriving evicts the oldest
+      // from the budget, and an Image control on screen is still painting with it - the bitmap the cache
+      // handed out and the bitmap the visual holds are one and the same object. Disposing the evicted one
+      // took the whole front end down with an ObjectDisposedException inside Image.Render.
+      //
+      // The budget is asked small here rather than the picture made large: the headless toolkit answers every
+      // picture with a one-pixel stub and saves nothing, so a nine-megapixel stand-in cannot be decoded in
+      // this fixture - while the eviction rule this guards does not care about sizes at all.
+      ArtworkConverter converter = new ArtworkConverter();
+      converter.HeldBudget = 1;
+
+      object? poster = converter.Convert(Picture(), typeof(Bitmap), null!,
+          System.Globalization.CultureInfo.InvariantCulture);
+      Assert.That(poster, Is.InstanceOf<Bitmap>(), "the first picture is held despite the whole budget");
+
+      converter.Convert(Picture(), typeof(Bitmap), null!, System.Globalization.CultureInfo.InvariantCulture);
+
+      Assert.That(converter.Held, Is.EqualTo(1),
+          "the second picture pushed the first out of the budget, oldest first, as the cache does");
+      Assert.DoesNotThrow(() => System.GC.KeepAlive(((Bitmap) poster!).PixelSize),
+          "the evicted picture is dropped, never disposed - whatever screen still paints with it has to be "
+          + "allowed to finish; the garbage collector reclaims it once nothing stands on it any more");
+    }
   }
 }

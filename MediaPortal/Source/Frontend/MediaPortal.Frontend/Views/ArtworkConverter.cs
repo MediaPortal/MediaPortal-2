@@ -38,9 +38,10 @@ namespace MediaPortal.Frontend.Views
   /// <para>
   /// <b>The decoded pictures are remembered and bounded.</b> A shelf binds sixty rows, a viewer scrolls away and
   /// back, and every one of those realisations would hand the same bytes to Skia again otherwise. Decoded pictures
-  /// are kept until the budget runs out, oldest first, and an evicted one is disposed - a bitmap is native memory,
-  /// and an application that runs a television for a week at a time cannot afford to wait for a garbage collector
-  /// to hand it back.
+  /// are kept until the budget runs out, oldest first, and an evicted one is dropped rather than disposed: the
+  /// picture on screen and the picture in the cache are one and the same object, and a cache that disposes what a
+  /// live Image is still painting takes the whole front end down with it. Avalonia's bitmap returns its memory
+  /// when the garbage collector finds nothing painting with it any more, which is the honest moment to let go.
   /// </para>
   /// <para>
   /// <b>A tile asks for a smaller picture than the photograph is.</b> A photograph from a camera is twelve
@@ -125,6 +126,20 @@ namespace MediaPortal.Frontend.Views
     private readonly List<Remembered> _held = new List<Remembered>();
 
     private long _pixels;
+
+    /// <summary>
+    /// How many pixels may be held at once. The production budget is <see cref="MAX_HELD_PIXELS"/>; the setter
+    /// exists because a headless test cannot decode a nine-megapixel picture to push the real budget over its
+    /// limit - its toolkit answers every picture with a one-pixel stub - so eviction is provoked there by
+    /// asking for a one-pixel budget instead.
+    /// </summary>
+    internal long HeldBudget
+    {
+      get { return _budget; }
+      set { _budget = value; }
+    }
+
+    private long _budget = MAX_HELD_PIXELS;
 
     /// <summary>How many pictures this converter holds decoded, which is what the tests look at.</summary>
     public int Held
@@ -226,20 +241,30 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
-    /// Remembers one decoded picture, making room for it by throwing away the oldest.
+    /// Remembers one decoded picture, making room for it by letting the oldest go.
     /// </summary>
+    /// <remarks>
+    /// The evicted picture is dropped, never disposed. The pictures this cache hands out are shared: an
+    /// <see cref="Avalonia.Controls.Image"/> on screen holds the very bitmap the cache gave it and keeps
+    /// painting it for as long as its binding stands, and a cache that disposes what another owner is
+    /// still rendering kills the compositor mid-frame (ObjectDisposedException on Ref&lt;IBitmapImpl&gt;
+    /// inside Image.Render - the crash this rule exists to prevent). Avalonia's Bitmap carries a
+    /// finalizer, so a dropped picture whose last visual has moved on gives its memory back to the
+    /// garbage collector by itself; the budget's job is to bound the references this cache holds, which
+    /// is exactly what dropping does, not to rush a picture out of the world from underneath its
+    /// viewers.
+    /// </remarks>
     private void Hold(byte[] bytes, int width, Bitmap picture)
     {
       Remembered entry = new Remembered(bytes, width, picture);
       _held.Add(entry);
       _pixels += entry.Pixels;
 
-      while (_pixels > MAX_HELD_PIXELS && _held.Count > 1)
+      while (_pixels > _budget && _held.Count > 1)
       {
         Remembered oldest = _held[0];
         _held.RemoveAt(0);
         _pixels -= oldest.Pixels;
-        oldest.Picture.Dispose();
       }
     }
   }

@@ -218,10 +218,50 @@ namespace MediaPortal.Frontend.ViewModels
       }
     }
 
+    public bool IsCircleHomeImage
+    {
+      get { return HomeImagePath?.StartsWith("HomeMenuRound/", StringComparison.Ordinal) == true; }
+    }
+
+    public bool IsSquareHomeImage
+    {
+      get { return !IsCircleHomeImage; }
+    }
+
+    private bool _isSelected;
+
+    public bool IsSelected
+    {
+      get { return _isSelected; }
+      internal set
+      {
+        if (_isSelected == value)
+          return;
+        _isSelected = value;
+        OnPropertyChanged(nameof(IsSelected));
+        OnPropertyChanged(nameof(IsSquareSelected));
+        OnPropertyChanged(nameof(IsCircleSelected));
+      }
+    }
+
+    public bool IsSquareSelected
+    {
+      get { return IsSelected && IsSquareHomeImage; }
+    }
+
+    public bool IsCircleSelected
+    {
+      get { return IsSelected && IsCircleHomeImage; }
+    }
+
     /// <summary>Says the tile's picture may be asked for again - the skin's switches moved underneath it.</summary>
     public void RevealHomeTileFolder()
     {
       OnPropertyChanged(nameof(HomeImagePath));
+      OnPropertyChanged(nameof(IsCircleHomeImage));
+      OnPropertyChanged(nameof(IsSquareHomeImage));
+      OnPropertyChanged(nameof(IsSquareSelected));
+      OnPropertyChanged(nameof(IsCircleSelected));
     }
 
     /// <summary>

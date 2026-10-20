@@ -56,4 +56,11 @@
   <Style Selector="Separator">
     <Setter Property="Background" Value="{DynamicResource OutlineBrush}"/>
   </Style>
+
+  <!-- The strip a home tile's title stands on. WMC lays its names on a quiet full plate, the way the shared
+       shelf always drew it; Nereus fades its names out of the tile's bottom edge instead. -->
+  <Style Selector="Border.home-tile-caption">
+    <Setter Property="MinHeight" Value="38"/>
+    <Setter Property="Background" Value="#CC000000"/>
+  </Style>
 </Styles>

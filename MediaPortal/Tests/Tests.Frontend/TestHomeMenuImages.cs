@@ -24,10 +24,13 @@ using System.Threading;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Headless.NUnit;
+using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using NUnit.Framework;
+using MediaPortal.Frontend.Api;
 using MediaPortal.Frontend.Theming;
 using MediaPortal.Frontend.ViewModels;
 using MediaPortal.Frontend.Views;
@@ -156,6 +159,56 @@ namespace Tests.Frontend
     }
 
     /// <summary>
+    /// The shortcut rail's pictures, asked for the way the model spells them - with the extension, as they
+    /// stand on disk. The catalog keeps names without it, so a lookup that demanded the spelling to match
+    /// byte for byte answered every shortcut with no picture at all: nine tiles of nothing but letters,
+    /// where the reference drew its MediaMenu art.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheShortcutPicturesAnswerToTheirSpellingOnDisk()
+    {
+      Application app = Application.Current!;
+      string previous = SkinEngine.SkinsFolder;
+      SkinEngine.SkinsFolder = Path.Combine(MetadataPath("FrontendSource"), "Skins");
+      try
+      {
+        Assert.That(SkinEngine.Apply(app, "nereus", out string? problem), Is.True, problem ?? "");
+        try
+        {
+          SkinImages nereus = SkinEngine.Worn(app)!.Images;
+          foreach (string spelled in new[]
+          {
+              "MediaMenu/genre.png", "MediaMenu/year.png", "MediaMenu/actor.png", "MediaMenu/album.png"
+          })
+          {
+            Assert.That(nereus.Has(spelled), Is.True,
+                "the shortcut rail asks the worn skin for '" + spelled + "' and the catalog turned it down");
+            Assert.That(nereus.Has(spelled.Substring(0, spelled.LastIndexOf('.'))), Is.True,
+                "and the extension-free spelling the catalog writes its keys in still answers too");
+            Assert.That(nereus.Load(spelled), Is.InstanceOf<Bitmap>(),
+                "'" + spelled + "' is on disk and has to read as a picture, not null");
+          }
+
+          CultureInfo culture = CultureInfo.InvariantCulture;
+          Assert.That(SkinImageConverter.Instance.Convert("MediaMenu/genre.png", typeof(object), "{0}", culture),
+              Is.InstanceOf<Bitmap>(),
+              "the shortcut template binds the disk spelling through the converter - the rail's icon, end to end");
+          Assert.That(SkinImageMissingConverter.Instance.Convert("MediaMenu/genre.png", typeof(bool), "{0}", culture),
+              Is.False,
+              "and with the icon answered, the tile keeps its letter badge away");
+        }
+        finally
+        {
+          SkinEngine.Clear(app);
+        }
+      }
+      finally
+      {
+        SkinEngine.SkinsFolder = previous;
+      }
+    }
+
+    /// <summary>
     /// The whole road at once: with the shipped Nereus worn, the home screen's realized tile for a real entry
     /// holds that entry's own picture from the skin - and with the shipped WMC worn, the one entry WMC has no
     /// picture for holds no picture and says so with its badge. A template whose converter, name format, or
@@ -222,6 +275,154 @@ namespace Tests.Frontend
           try { window.Close(); } catch (ObjectDisposedException) { }
         }
         SkinEngine.SkinsFolder = previous;
+      }
+    }
+
+    [AvaloniaTest]
+    public void RightFromTheNereusMenuFocusesItsFirstShortcut()
+    {
+      Application app = Application.Current!;
+      string? previousFolder = SkinEngine.SkinsFolder;
+      string previousTheme = FrontendTheme.CurrentName(app);
+      SkinEngine.SkinsFolder = Path.Combine(MetadataPath("FrontendSource"), "Skins");
+      ShellWindow? window = null;
+      try
+      {
+        Assert.That(FrontendTheme.Apply(app, "nereus", out string? themeProblem), Is.EqualTo("nereus"),
+            themeProblem ?? "");
+        Assert.That(SkinEngine.Apply(app, "nereus", out string? skinProblem), Is.True, skinProblem ?? "");
+
+        HomeViewModel home = new HomeViewModel();
+        Assert.That(home.IsNereusHome, Is.True, "the view model must read the applied Nereus skin layout");
+        MainMenuEntry movies = home.DisplayMenu.Single(entry =>
+            entry.HomeImageId == "80d2e2cc-baaa-4750-807b-f37714153751");
+        home.SelectedEntry = movies;
+        home.ShowContentAsync(movies).GetAwaiter().GetResult();
+
+        window = new ShellWindow(new HomeView(home, new WorkflowManager(),
+            sectionScreen: delegate (HomeSection section) { return null!; }));
+        window.Show();
+        Pump();
+
+        ScrollViewer content = window.GetVisualDescendants().OfType<ScrollViewer>()
+            .Single(viewer => viewer.Name == "nereusContentPane");
+        Button firstShortcut = content.GetVisualDescendants().OfType<Button>()
+            .First(button => button.Focusable);
+        Assert.That(firstShortcut.IsVisible && firstShortcut.IsEnabled, Is.True,
+            "the first shortcut must be an available target for remote focus");
+        HomeContentTile shortcutTile = (HomeContentTile)firstShortcut.Tag!;
+        Assert.That(shortcutTile.Shortcut?.Label, Is.EqualTo("Genre"),
+            "the first group is the Nereus shortcut rail, in the reference's order");
+
+        ListBox menu = window.GetVisualDescendants().OfType<ListBox>()
+            .Single(list => list.Name == "menuList");
+        Assert.That(menu.Focus(), Is.True, "the menu must accept focus before its outgoing navigation is tested");
+        Pump();
+        Assert.That(menu.IsKeyboardFocusWithin, Is.True, "the keyboard focus must actually be on the menu");
+        menu.RaiseEvent(new KeyEventArgs
+        {
+          RoutedEvent = InputElement.KeyDownEvent,
+          Key = Key.Right,
+          Source = menu
+        });
+        Pump();
+
+        Visual? focused = window.FocusManager.GetFocusedElement() as Visual;
+        Assert.That(firstShortcut.IsKeyboardFocusWithin, Is.True,
+            "Right leaves the vertical menu and reaches the first focusable home-content tile; focus is "
+            + (focused == null ? "nowhere" : focused.GetType().Name));
+      }
+      finally
+      {
+        if (window != null)
+          window.Close();
+        SkinEngine.Clear(app);
+        SkinEngine.SkinsFolder = previousFolder;
+        FrontendTheme.Apply(app, previousTheme, out _);
+      }
+    }
+
+    /// <summary>
+    /// The road on through the home content: Right walks out of the menu onto the shortcut column, and Right
+    /// again has to walk off that column into the titles beside it. A viewer who can reach the shortcuts but
+    /// not the media behind them is stuck in a rail of nine buttons, which is no home screen at all.
+    /// </summary>
+    [AvaloniaTest]
+    public void RightFromAShortcutTileReachesTheTitlesBesideIt()
+    {
+      Application app = Application.Current!;
+      string? previousFolder = SkinEngine.SkinsFolder;
+      string previousTheme = FrontendTheme.CurrentName(app);
+      SkinEngine.SkinsFolder = Path.Combine(MetadataPath("FrontendSource"), "Skins");
+      ShellWindow? window = null;
+      try
+      {
+        Assert.That(FrontendTheme.Apply(app, "nereus", out string? themeProblem), Is.EqualTo("nereus"),
+            themeProblem ?? "");
+        Assert.That(SkinEngine.Apply(app, "nereus", out string? skinProblem), Is.True, skinProblem ?? "");
+
+        HomeViewModel home = new HomeViewModel();
+        MainMenuEntry movies = home.DisplayMenu.Single(entry =>
+            entry.HomeImageId == "80d2e2cc-baaa-4750-807b-f37714153751");
+        home.SelectedEntry = movies;
+        home.ShowContentAsync(movies).GetAwaiter().GetResult();
+
+        // Without a server to ask, no list brought any titles and the pane would hold nothing but the
+        // shortcut rail - so the wall gets the titles the test walks onto, the same tiles the real screen
+        // builds when a shelf answers.
+        HomeContentGroup titles = new HomeContentGroup("Latest added", "poster1", 1500);
+        titles.AddTitle(new TitleViewModel(new MediaTitle(Guid.NewGuid(), "Alien", null, 1979, null, null, false)));
+        titles.AddTitle(new TitleViewModel(new MediaTitle(Guid.NewGuid(), "Blade Runner", null, 1982, null, null, false)));
+        home.ContentGroups.Add(titles);
+
+        window = new ShellWindow(new HomeView(home, new WorkflowManager(),
+            sectionScreen: delegate (HomeSection section) { return null!; }));
+        window.Show();
+        Pump();
+
+        ListBox menu = window.GetVisualDescendants().OfType<ListBox>().Single(list => list.Name == "menuList");
+        Assert.That(menu.Focus(), Is.True);
+        Pump();
+        menu.RaiseEvent(new KeyEventArgs
+        {
+          RoutedEvent = InputElement.KeyDownEvent,
+          Key = Key.Right,
+          Source = menu
+        });
+        Pump();
+
+        ScrollViewer content = window.GetVisualDescendants().OfType<ScrollViewer>()
+            .Single(viewer => viewer.Name == "nereusContentPane");
+        Button? onShortcut = content.GetVisualDescendants().OfType<Button>()
+            .FirstOrDefault(button => button.IsKeyboardFocusWithin);
+        Assert.That(onShortcut, Is.Not.Null, "Right from the menu stands on a tile of the pane");
+        Assert.That(((HomeContentTile) onShortcut!.Tag!).IsShortcut, Is.True,
+            "and the tile it stands on is a shortcut, the column the menu opens onto");
+
+        onShortcut.RaiseEvent(new KeyEventArgs
+        {
+          RoutedEvent = InputElement.KeyDownEvent,
+          Key = Key.Right,
+          Source = onShortcut
+        });
+        Pump();
+
+        Visual? walked = window.FocusManager.GetFocusedElement() as Visual;
+        Button? arrived = walked as Button;
+        HomeContentTile? stoodOn = arrived?.Tag as HomeContentTile;
+        Assert.That(stoodOn != null && !stoodOn.IsShortcut, Is.True,
+            "Right walks off the shortcut column into the titles beside it; the walk ended on "
+            + (stoodOn == null
+                ? (walked == null ? "nothing" : walked.GetType().Name)
+                : "the shortcut '" + stoodOn.Label + "'"));
+      }
+      finally
+      {
+        if (window != null)
+          window.Close();
+        SkinEngine.Clear(app);
+        SkinEngine.SkinsFolder = previousFolder;
+        FrontendTheme.Apply(app, previousTheme, out _);
       }
     }
 

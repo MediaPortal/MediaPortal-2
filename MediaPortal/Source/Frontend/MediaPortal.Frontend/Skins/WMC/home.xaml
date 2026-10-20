@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  WMC's own home screen, as its master_homemenu.xaml was written.
+
+  Two keys, the same two the general home screen asks every face about:
+
+    HomeBackgroundTemplate  the three layers this face stands on, in the reference's order - Background.png
+                            drawn opaque as the reference's BackgroundBrush, the standing title's fanart in
+                            front of it, and Background_Home.png stretched translucent over both, which is
+                            the one place the window's own copy of that picture (behind the screen, and so
+                            behind the fanart too) cannot be;
+    HomeMenuFaceTemplate    the cross WMC stands its home on.
+
+  The cross is two lists hung off one point (master_homemenu.xaml): MainMenu, the menu written in Huge text
+  that scrolls so the entry being stood on sits dead centre ("MyMainMenuListViewStyle"), and
+  SubItemsListViewHome, the same walked as pictures - art 260 wide in cells 310 wide, the stood-on one
+  wearing its Focus art inside Focus.Frame (373x210) at 1.3 times the size, its name under the frame. Where
+  this front end's home menu is one flat list rather than the reference's groups and subitems, both arms are
+  windows onto that one list: names above and below the standing place, pictures left and right, and the
+  standing entry itself in the middle wearing the frame. The numbers are the reference's own grown to this
+  panel.
+
+  The arms are EMPTY markup: the words and pictures a viewer walks past are filled by the code-behind's
+  RebuildCross, which reads WMC's own home model. The pane of lists stands to the right of the cross exactly
+  where the reference hangs its HomeContentGrid, and nothing here catches a click - the cross is the menu's
+  face, while the (invisible) menu list underneath stays its memory, its keyboard and its command.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vm="clr-namespace:MediaPortal.Frontend.ViewModels"
+                    xmlns:views="clr-namespace:MediaPortal.Frontend.Views">
+
+  <ControlTemplate x:Key="HomeBackgroundTemplate" TargetType="ContentControl" x:DataType="vm:HomeViewModel">
+    <Panel IsHitTestVisible="False">
+      <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter=Background.png}"
+             Stretch="UniformToFill"/>
+      <Image Source="{Binding BackgroundArtwork, Converter={x:Static views:ArtworkConverter.Instance}}"
+             Stretch="UniformToFill"
+             IsVisible="{Binding HasBackgroundArtwork}"/>
+      <!--  Measured: alpha 228 at the wash's centre against the base's 255 - translucent enough that the
+            fanart under it reads blue, which is exactly what the reference's wash does to its fanart.  -->
+      <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter=Background_Home.png}"
+             Stretch="Fill"
+             Opacity="0.9"/>
+    </Panel>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="HomeMenuFaceTemplate" TargetType="ContentControl" x:DataType="vm:HomeViewModel">
+    <Panel IsHitTestVisible="False">
+      <Grid Width="2634" HorizontalAlignment="Left">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="0.35*"/>
+        </Grid.RowDefinitions>
+
+        <!-- The names walked past, above the standing place, fading by distance like the reference's
+             dimming menu. Filled top to bottom from furthest to nearest. -->
+        <StackPanel Name="crossAbove" Grid.Row="0" Orientation="Vertical" VerticalAlignment="Bottom"
+                    HorizontalAlignment="Center" Spacing="26" Margin="0,0,0,26"/>
+
+        <Grid Grid.Row="1" ColumnDefinitions="*,700,*">
+          <StackPanel Name="crossLeft" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Right"
+                      VerticalAlignment="Center" Spacing="80" Margin="0,0,64,0"/>
+
+          <!-- The standing place: the name Huge behind the frame (what shows when the skin has no Focus
+               art), the frame with the Focus art inside it, and the name again under the frame - which is
+               where the reference's selected subitem says its own name. -->
+          <Panel Grid.Column="1">
+            <TextBlock Name="crossCenterLabel" FontSize="110" TextAlignment="Center"
+                       Foreground="{DynamicResource TextBrush}"
+                       HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,150,0,0"/>
+            <Panel Name="crossArt" Width="700" Height="394" HorizontalAlignment="Center" VerticalAlignment="Top">
+              <Image Name="crossFrame" Width="700" Height="394" Stretch="Fill"
+                     HorizontalAlignment="Center" VerticalAlignment="Center"/>
+              <Image Name="crossFocusArt" Width="545" Height="345" Stretch="Uniform"
+                     HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-16,0,0"/>
+            </Panel>
+            <TextBlock Name="crossName" FontSize="50" FontWeight="SemiBold" TextAlignment="Center"
+                       Foreground="{DynamicResource TextBrush}"
+                       HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,406,0,0"/>
+          </Panel>
+
+          <StackPanel Name="crossRight" Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Left"
+                      VerticalAlignment="Center" Spacing="80" Margin="64,0,0,0"/>
+        </Grid>
+
+        <StackPanel Name="crossBelow" Grid.Row="2" Orientation="Vertical" VerticalAlignment="Top"
+                    HorizontalAlignment="Center" Spacing="26" Margin="0,34,0,0"/>
+      </Grid>
+    </Panel>
+  </ControlTemplate>
+</ResourceDictionary>

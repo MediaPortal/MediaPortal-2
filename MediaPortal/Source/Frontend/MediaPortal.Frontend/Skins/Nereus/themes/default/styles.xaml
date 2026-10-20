@@ -48,6 +48,117 @@
     <Setter Property="Foreground" Value="{DynamicResource ScreenBackgroundBrush}"/>
   </Style>
 
+  <!-- The home rail uses its artwork and selection markers, not the generic selected-row panel. -->
+  <Style Selector="ListBox.nereus-home-menu">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Padding" Value="0"/>
+    <!-- The reference lights its own selection band and nothing else; the plain blue rectangle that the
+         platform draws around a focused list has no part in Nereus. The items lose theirs below, and the
+         list itself loses it here - which is where the frame stood, because the list is what holds the
+         focus before a tile takes it. -->
+    <Setter Property="FocusAdorner" Value="{x:Null}"/>
+  </Style>
+  <!-- Nereus draws no frame at all on the rail: the platform's own selection panel and focus rectangle are
+       switched off down to the item's template, so neither the selected tile nor the focused one can grow a
+       border no matter which pseudo-class it wears. The reference marks its place with the band inside the
+       tile and with nothing else. -->
+  <Style Selector="ListBox.nereus-home-menu ListBoxItem">
+    <Setter Property="FocusAdorner" Value="{x:Null}"/>
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="Margin" Value="0"/>
+    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+    <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <!-- Deliberately NOT named PART_ContentPresenter: the platform's item ControlTheme carries styles
+             aimed at that part name ("/template/ ContentPresenter#PART_ContentPresenter:selected" and
+             friends) and they would reach into this foreign template too, painting the accent brush over
+             the reference's own artwork. Under its own name the tile wears nothing but what the skin gives
+             it; the state styles below are only the extra guarantee. -->
+        <ContentPresenter Name="nereusTilePresenter"
+                          BorderThickness="0"
+                          Content="{TemplateBinding Content}"
+                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                          Padding="{TemplateBinding Padding}"
+                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}">
+          <!-- A plain Background="Transparent" loses to the platform's ListItemBackground{Selected,...}
+               theme resources, which reach the presenter through its own ControlTheme; the platform also
+               ignores the ListBox's SelectionMode="None" for the item pseudo-classes. Triggers outrank
+               theme values, so the tile stays the reference's own artwork in every state. -->
+          <ContentPresenter.Styles>
+            <Style Selector="ContentPresenter">
+              <Style Selector="^:pointerover">
+                <Setter Property="Background" Value="Transparent"/>
+              </Style>
+              <Style Selector="^:pressed">
+                <Setter Property="Background" Value="Transparent"/>
+              </Style>
+              <Style Selector="^:selected">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+              </Style>
+              <Style Selector="^:selected:pointerover">
+                <Setter Property="Background" Value="Transparent"/>
+              </Style>
+            </Style>
+          </ContentPresenter.Styles>
+        </ContentPresenter>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="ListBox.nereus-home-menu ListBoxItem:pointerover">
+    <Setter Property="Background" Value="Transparent"/>
+  </Style>
+  <Style Selector="ListBox.nereus-home-menu ListBoxItem:selected">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+  </Style>
+  <Style Selector="ListBox.nereus-home-menu ListBoxItem Grid#nereusSelectionBand">
+    <!-- The reference's selection band grows out of the bottom edge of its tile: ItemBandGrid turns on with
+         ScaleY 0 to 1 over 0.7 seconds on a BackEase of amplitude 0.6, and shrinks back over 0.35 seconds on
+         the way out. Scaling rather than fading, and springing rather than gliding - a band that merely
+         dimmed in would be a highlight, and the reference made a bounce. -->
+    <Setter Property="RenderTransformOrigin" Value="0.5,1"/>
+    <Setter Property="RenderTransform" Value="scaleY(0)"/>
+    <Setter Property="Transitions">
+      <Transitions>
+        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.35" Easing="CubicEaseOut"/>
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="ListBox.nereus-home-menu ListBoxItem:selected Grid#nereusSelectionBand">
+    <Setter Property="RenderTransform" Value="scaleY(1)"/>
+    <Setter Property="Transitions">
+      <Transitions>
+        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.7" Easing="BackEaseOut"/>
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="ListBox.nereus-home-menu ScrollViewer">
+    <!-- Two things the reference's VerticalMediaScrollViewerStyle did to the menu's viewport, and both were
+         missing here: it slides its content over 0.4 seconds rather than jumping (the AnimatedStackPanel
+         behind the reference's scrolling), and it fades the top and bottom twelve percent of the column
+         away with an OpacityMask, so items dissolve as they leave instead of being cut at the edge. -->
+    <Setter Property="Transitions">
+      <Transitions>
+        <VectorTransition Property="Offset" Duration="0:0:0.4" Easing="CubicEaseOut"/>
+      </Transitions>
+    </Setter>
+    <Setter Property="OpacityMask">
+      <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Offset="0" Color="#00000000"/>
+        <GradientStop Offset="0.12" Color="#FF000000"/>
+        <GradientStop Offset="0.88" Color="#FF000000"/>
+        <GradientStop Offset="1" Color="#00000000"/>
+      </LinearGradientBrush>
+    </Setter>
+  </Style>
+
   <!-- Writing into the front end: the panel, the hairline, the text's own white. -->
   <Style Selector="TextBox">
     <Setter Property="Background" Value="{DynamicResource PanelBrush}"/>
@@ -65,5 +176,88 @@
   </Style>
   <Style Selector="Separator">
     <Setter Property="Background" Value="{DynamicResource OutlineBrush}"/>
+  </Style>
+
+  <!-- The four corner buttons of master_home.xaml's WindowButtonsPanel, which this face's home.xaml hangs at
+       the top edge: eighty quiet squares, half lit until something stands on them - Buttons.xaml's own
+       numbers (Opacity 0.5, and 1 while focused or touched), grown to this screen. They are styled here
+       rather than in the screen because they are this face's buttons and no other face hangs them. -->
+  <Style Selector="Button.nereus-corner-button">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="Width" Value="66"/>
+    <Setter Property="Height" Value="66"/>
+    <Setter Property="Opacity" Value="0.5"/>
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.2"/>
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Button.nereus-corner-button:pointerover">
+    <Setter Property="Opacity" Value="1"/>
+  </Style>
+  <Style Selector="Button.nereus-corner-button:focus">
+    <Setter Property="Opacity" Value="1"/>
+  </Style>
+
+  <!-- The tiles of the home's content wall: the quiet dark they stand on, the edge one wears the moment
+       something stands on it, the rounding of their corners and the shadow they cast. The shelf itself is the
+       general screen's (it hosts the classes), what a tile looks like is this face's - which is why these
+       numbers live here and not in a view.
+
+       The shadow is the native BoxShadow of the tile's ground: a slight lean to the bottom right (3 right, 4
+       down) blurred a little wider than it leans, in a two-fifths black - enough to read as depth against the
+       bright fanart without smearing it. The ground carries it because a clipped edge clips its own shadow
+       away - the face inside is what clips the picture, and both are rounded to the same 10. -->
+  <Style Selector="Button.nereus-content-tile">
+    <Setter Property="Background" Value="#222222"/>
+    <Setter Property="BorderBrush" Value="#00000000"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="CornerRadius" Value="10"/>
+    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+    <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+    <Setter Property="Opacity" Value="0.86"/>
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.2"/>
+        <ThicknessTransition Property="BorderThickness" Duration="0:0:0.2"/>
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Button.nereus-content-tile:focus">
+    <Setter Property="Background" Value="#444444"/>
+    <Setter Property="BorderBrush" Value="#FFFFFFFF"/>
+    <Setter Property="BorderThickness" Value="4"/>
+    <Setter Property="Opacity" Value="1"/>
+  </Style>
+  <Style Selector="Border.home-tile-shadow">
+    <Setter Property="CornerRadius" Value="10"/>
+    <Setter Property="BoxShadow" Value="3 4 16 0 #66000000"/>
+  </Style>
+  <Style Selector="Border.home-tile-face">
+    <Setter Property="CornerRadius" Value="10"/>
+  </Style>
+
+  <!-- The strip the tile's title stands on: Nereus paints no plate but fades black up out of the tile's own
+     bottom edge into nothing, over exactly the height the strip has, so the picture stays whole and the name
+     still reads. Both lines of a tile's name are centred, which is how the reference centres them. -->
+  <Style Selector="Border.home-tile-caption">
+    <Setter Property="MinHeight" Value="45"/>
+    <Setter Property="Background">
+      <LinearGradientBrush StartPoint="0%,100%" EndPoint="0%,0%">
+        <GradientStop Offset="0" Color="#E6000000"/>
+        <GradientStop Offset="0.55" Color="#99000000"/>
+        <GradientStop Offset="1" Color="#00000000"/>
+      </LinearGradientBrush>
+    </Setter>
+  </Style>
+  <Style Selector="TextBlock.home-tile-caption-title">
+    <Setter Property="TextAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="TextBlock.home-tile-caption-detail">
+    <Setter Property="TextAlignment" Value="Center"/>
   </Style>
 </Styles>

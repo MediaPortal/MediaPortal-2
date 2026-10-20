@@ -131,8 +131,9 @@ namespace Tests.Frontend
 
       window.Workflow.Pop();
       Pump();
-      Assert.That(window.Chrome.ScreenTitle, Is.EqualTo("MediaPortal"),
-          "back at home the header says the application's name, as the reference masters did");
+      Assert.That(window.Chrome.ScreenTitle, Is.EqualTo(string.Empty),
+          "back at home the header says nothing - master_home.xaml docks an empty HeaderPanel, because at home "
+          + "the fanart is the head line and no word of the application's own belongs over it");
 
       window.Close();
     }

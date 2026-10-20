@@ -451,6 +451,39 @@ namespace MediaPortal.Frontend.Views
       UpdateChromeVisibility();
     }
 
+    /// <summary>
+    /// Whether the header is currently floating over the screen instead of standing above it.
+    /// </summary>
+    private bool _headerOverlay;
+
+    /// <summary>
+    /// Lets one screen take the header out of its row and float it over the top of the screen instead.
+    /// The reference's home did exactly this: its clock, date and weather sat at the very top of the
+    /// television (master_home.xaml's top-right Grid, WindowButtonsPanel at the left), painted over the
+    /// fanart that fills the whole screen - the header row of the DockPanel was empty precisely so the
+    /// picture reached the edge. A home that docks its header cuts that picture off one hundred pixels
+    /// short of the top, which is the difference this asks for.
+    /// </summary>
+    public void SetChromeHeaderOverlay(bool overlay)
+    {
+      if (_headerOverlay == overlay)
+        return;
+
+      _headerOverlay = overlay;
+
+      // The layout grid gives the header its own row above the screen; floating means sharing the screen's
+      // row from above. ZIndex because the grid paints its children in the order they were added, and the
+      // header was added before the screens it now has to stand on. Hit tests pass through it: a floating
+      // strip of clock that swallowed the clicks of the tiles under its top edge would be a header that
+      // stole from the screen it only decorates.
+      Avalonia.Controls.Grid.SetRow(_header, overlay ? 2 : 0);
+      _header.ZIndex = overlay ? 10 : 0;
+      _header.IsHitTestVisible = !overlay;
+      _header.VerticalAlignment = overlay
+          ? Avalonia.Layout.VerticalAlignment.Top
+          : Avalonia.Layout.VerticalAlignment.Stretch;
+    }
+
     private static object? FindResource(string key)
     {
       Application? app = Application.Current;
@@ -560,11 +593,11 @@ namespace MediaPortal.Frontend.Views
       Title = _workflow.Stack.Count <= 1 || string.IsNullOrEmpty(frame.Label)
           ? "MediaPortal 2"
           : "MediaPortal 2 - " + frame.Label;
-      // The header's words: the reference's master header named the screen it was showing, and at home it said
-      // the application's name - the same sentence the window title speaks, without its prefix.
-      _chrome.ScreenTitle = Title.StartsWith("MediaPortal 2 - ", StringComparison.Ordinal)
-          ? Title.Substring("MediaPortal 2 - ".Length)
-          : "MediaPortal";
+      // The header's words: the reference's master header named the screen it was showing - and at home it
+      // said nothing at all. Both rescued skins dock an empty HeaderPanel above their home (master_home.xaml,
+      // the Grid with only column definitions in it), because at home the fanart is the head line and no
+      // word of the application's own belongs over it. Deeper screens keep their names.
+      _chrome.ScreenTitle = _workflow.Stack.Count <= 1 ? string.Empty : frame.Label ?? string.Empty;
 
       // The reference read the weather on master_home and nowhere else, so the slot belongs to the same
       // one-deep-or-less answer that decides the window's name: the home head line carries it, deeper

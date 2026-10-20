@@ -9,6 +9,21 @@
         Background="Transparent"
         >
 
+  <UserControl.Styles>
+    <Style Selector="ScrollViewer#nereusContentPane">
+      <Setter Property="Transitions">
+        <Transitions>
+          <DoubleTransition Property="Opacity" Duration="0:0:0.35"/>
+          <VectorTransition Property="Offset" Duration="0:0:0.2"/>
+        </Transitions>
+      </Setter>
+    </Style>
+    <!-- What a tile of this face's content wall is dressed in - the quiet dark ground, the edge it wears when
+         something stands on it, the rounding of its corners and the shadow it casts - is said by the face
+         itself, in Skins/Nereus/themes/default/styles.xaml. The classes the tiles wear are named there:
+         'nereus-content-tile' for the press and 'home-tile-face' for the face it shows. -->
+  </UserControl.Styles>
+
   <!--
     The home screen, arranged the way the worn face arranges its own. Each rescued skin is not only pictures -
     Nereus and WMC each ship a home screen of their own (screens/master_homemenu.xaml) and a home model of their
@@ -29,91 +44,37 @@
 
   <Panel>
 
-    <!-- The chosen title's fanart, behind everything. Both rescued skins put the highlighted title's fanart
-         across the whole home screen (Nereus' "fanart_image" in master_homemenu.xaml, WMC's
-         FanArtImageBackground), dimmed by whatever the face paints over it - Nereus by the gradients below,
-         which is why they can stay exactly as the reference wrote them, and WMC by the two layers here.
-         A face that switched fanart off, and the plain arrangement that belongs to no face, never see this
-         picture. -->
     <!--
-      WMC wears three layers where the other faces wear one, and the reference's master_homemenu.xaml says
-      the order exactly: at the very back the face's own Background.png, drawn opaque as the reference's
-      BackgroundBrush; in front of it the standing title's fanart, in the right-hand eight-tenths of the
-      screen it shows all of; and over both, Background_Home.png - the same face stretched translucent
-      (measured: alpha 228 at its centre against the base's 255), which is what tints the fanart blue.
-      A base behind the fanart and a wash over it, one layer missing, is the difference between the
-      reference and a picture floating in fog. Both are this face's only: Nereus dims its fanart with
-      gradients of its own and never sees either.
+      What the worn face paints behind everything, and the face its menu wears. These two hosts carry nothing
+      of their own: each rescued skin answers the keys HomeBackgroundTemplate and HomeMenuFaceTemplate in
+      home.xaml under its own roof, and what the face hangs there is this screen's business no further than
+      the frame it stands in. A face that answers neither key leaves the fallback below standing, which is a
+      fanart over the window's own background and nothing else - the arrangement this port drew before either
+      face was rescued.
+
+      Neither host catches a click or a key: they are the picture the screen stands on, while everything the
+      viewer can walk on lives above them.
     -->
-    <Image Name="wmcHomeBase"
-           Stretch="UniformToFill"
-           IsVisible="False"
-           IsHitTestVisible="False"/>
-    <Image Name="fanartBackground"
-           Source="{Binding BackgroundArtwork, Converter={x:Static views:ArtworkConverter.Instance}}"
-           Stretch="UniformToFill"
-           IsVisible="{Binding HasBackgroundArtwork}"
-           IsHitTestVisible="False"/>
-    <Panel Name="wmcFanartWash" IsVisible="False" IsHitTestVisible="False">
-      <Image Name="wmcWashImage" Stretch="Fill"/>
+    <ContentControl Name="homeBackground" IsTabStop="False" Focusable="False" IsHitTestVisible="False"/>
+    <ContentControl Name="homeMenuFace" IsTabStop="False" Focusable="False" IsHitTestVisible="False"/>
+    <Panel Name="plainBackground" IsHitTestVisible="False">
+      <!-- The chosen title's fanart, behind everything, for a face that ships no home of its own. Both
+           rescued skins put the highlighted title's fanart across the whole home screen (Nereus'
+           "fanart_image" in master_homemenu.xaml, WMC's FanArtImageBackground) and paint their own ground and
+           screening around it - so they answer the background host with their own layers and this one steps
+           aside. A face that switched fanart off, and the plain arrangement that belongs to no face, never
+           see this picture. -->
+      <Image Source="{Binding BackgroundArtwork, Converter={x:Static views:ArtworkConverter.Instance}}"
+             Stretch="UniformToFill"
+             IsVisible="{Binding HasBackgroundArtwork}"/>
     </Panel>
 
-    <!--
-      The cross WMC stands its home on. master_homemenu.xaml hangs two lists off one point: MainMenu, the
-      menu written in Huge text that scrolls so the entry being stood on sits dead centre
-      ("MyMainMenuListViewStyle"), and SubItemsListViewHome, the same walked as pictures - art 260 wide in
-      cells 310 wide, the stood-on one wearing its Focus art inside Focus.Frame (373x210) at 1.3 times the
-      size, its name under the frame. Where this front end's home menu is one flat list rather than the
-      reference's groups and subitems, both arms are windows onto that one list: names above and below the
-      standing place, pictures left and right, and the standing entry itself in the middle wearing the
-      frame. The numbers are the reference's own grown to this panel. The pane of lists stands to the
-      right of the cross exactly where the reference hangs its HomeContentGrid, and this panel never
-      catches a click - it is the menu's face, while the (invisible) menu list underneath stays its memory,
-      its keyboard and its command. See RebuildCross in the code-behind, which fills the arms.
-    -->
-    <Panel Name="wmcCross" IsVisible="False" IsHitTestVisible="False">
-      <Grid Width="2634" HorizontalAlignment="Left">
-        <Grid.RowDefinitions>
-          <RowDefinition Height="*"/>
-          <RowDefinition Height="Auto"/>
-          <RowDefinition Height="0.35*"/>
-        </Grid.RowDefinitions>
-
-        <!-- The names walked past, above the standing place, fading by distance like the reference's
-             dimming menu. Filled top to bottom from furthest to nearest. -->
-        <StackPanel Name="crossAbove" Grid.Row="0" Orientation="Vertical" VerticalAlignment="Bottom"
-                    HorizontalAlignment="Center" Spacing="26" Margin="0,0,0,26"/>
-
-        <Grid Grid.Row="1" ColumnDefinitions="*,700,*">
-          <StackPanel Name="crossLeft" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Right"
-                      VerticalAlignment="Center" Spacing="80" Margin="0,0,64,0"/>
-
-          <!-- The standing place: the name Huge behind the frame (what shows when the skin has no Focus
-               art), the frame with the Focus art inside it, and the name again under the frame - which is
-               where the reference's selected subitem says its own name. -->
-          <Panel Grid.Column="1">
-            <TextBlock Name="crossCenterLabel" FontSize="110" TextAlignment="Center"
-                       Foreground="{DynamicResource TextBrush}"
-                       HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,150,0,0"/>
-            <Panel Name="crossArt" Width="700" Height="394" HorizontalAlignment="Center" VerticalAlignment="Top">
-              <Image Name="crossFrame" Width="700" Height="394" Stretch="Fill"
-                     HorizontalAlignment="Center" VerticalAlignment="Center"/>
-              <Image Name="crossFocusArt" Width="545" Height="345" Stretch="Uniform"
-                     HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-16,0,0"/>
-            </Panel>
-            <TextBlock Name="crossName" FontSize="50" FontWeight="SemiBold" TextAlignment="Center"
-                       Foreground="{DynamicResource TextBrush}"
-                       HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,406,0,0"/>
-          </Panel>
-
-          <StackPanel Name="crossRight" Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Left"
-                      VerticalAlignment="Center" Spacing="80" Margin="64,0,0,0"/>
-        </Grid>
-
-        <StackPanel Name="crossBelow" Grid.Row="2" Orientation="Vertical" VerticalAlignment="Top"
-                    HorizontalAlignment="Center" Spacing="26" Margin="0,34,0,0"/>
-      </Grid>
-    </Panel>
+    <!-- WMC stands its home on a cross of names and pictures, and every line of that cross - its arms, its
+         frame, the Huge word behind the standing place - is written in home.xaml under WMC's own roof. What
+         stands above is the host it is painted on. The pane of lists stands to the right of the cross exactly
+         where the reference hangs its HomeContentGrid, and the cross never catches a click: it is the menu's
+         face, while the (invisible) menu list underneath stays its memory, its keyboard and its command. See
+         RebuildCross in the code-behind, which fills the arms from WMC's own home model. -->
 
     <DockPanel Name="homeLayout" Margin="48,30">
 
@@ -149,7 +110,7 @@
          to show (see App), so a machine without libVLC does not get a button that leads to a screen that cannot
          play anything. MP2 keeps its equivalent of these off the home screen entirely - they are setup, not
          content - which is why they are small, at the bottom, and not what the eye lands on. -->
-    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="14" Margin="0,16,0,0">
+    <StackPanel Name="bottomRow" DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="14" Margin="0,16,0,0">
       <Button Name="refreshButton"
               Content="Refresh"
               Command="{Binding RefreshCommand}"
@@ -215,6 +176,9 @@
 
     <Grid Name="homeAreas" ColumnDefinitions="330,*,270" ColumnSpacing="34">
 
+      <!-- The black column this face's menu rail is drawn on is not drawn here: Nereus paints it in home.xaml
+           and it stands behind this grid, at the same width as the first column. -->
+
       <!-- The main menu: MP2's own entries, in MP2's own order, each with either its count or the reason it cannot
            be opened here. See MainMenu for which plugin's workflow file contributes which line - the menu is not a
            selection this front end made, it is the list the previous code assembled from the installed plugins, with
@@ -222,14 +186,17 @@
            Focusable is stated rather than trusted: measured on this very screen, a list reported itself not
            focusable, which left the remote's arrow keys unable to reach it at all. -->
       <ListBox Name="menuList"
+               Classes="nereus-home-menu"
                Focusable="True"
                theming:SkinTemplates.TileTemplate="HomeMenuTileTemplate"
-               ItemsSource="{Binding Menu}"
+               ItemsSource="{Binding DisplayMenu}"
                SelectedItem="{Binding SelectedEntry, Mode=TwoWay}"
                FontSize="21"
                Padding="0"
                Background="Transparent"
-               BorderThickness="0">
+               BorderThickness="0"
+               ScrollViewer.VerticalScrollBarVisibility="Hidden"
+               ScrollViewer.HorizontalScrollBarVisibility="Hidden">
         <ListBox.ItemTemplate>
           <DataTemplate x:DataType="vm:MainMenuEntry">
             <StackPanel Spacing="1" Margin="0,5,10,7">
@@ -313,6 +280,16 @@
                            Margin="12,1,0,3"
                            TextTrimming="CharacterEllipsis"
                            IsVisible="{Binding IsNote}" />
+                <StackPanel Margin="12,1,0,3" IsVisible="{Binding IsMenuEntry}">
+                  <TextBlock Text="{Binding MenuEntry.Label}"
+                             FontSize="17"
+                             FontWeight="SemiBold"
+                             TextTrimming="CharacterEllipsis" />
+                  <TextBlock Text="{Binding MenuEntry.Detail}"
+                             FontSize="13"
+                             Opacity="0.55"
+                             TextTrimming="CharacterEllipsis" />
+                </StackPanel>
                 <Grid ColumnDefinitions="2.2*,1*" ColumnSpacing="14" MinWidth="380"
                       IsVisible="{Binding IsTitle}">
                   <TextBlock Grid.Column="0"
@@ -327,6 +304,94 @@
             </DataTemplate>
           </ListBox.ItemTemplate>
         </ListBox>
+
+        <ScrollViewer Name="nereusContentPane"
+                      Focusable="True"
+                      HorizontalScrollBarVisibility="Hidden"
+                      VerticalScrollBarVisibility="Disabled"
+                      IsVisible="False">
+          <ItemsControl ItemsSource="{Binding ContentGroups}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <StackPanel Orientation="Horizontal"/>
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:HomeContentGroup">
+                <Grid Width="{Binding Width}" Height="{Binding Height}" Margin="0,0,24,0">
+                  <TextBlock Text="{Binding Heading}"
+                             FontSize="21"
+                             FontWeight="SemiBold"
+                             Margin="12,6,0,0"
+                             VerticalAlignment="Top"/>
+                  <ItemsControl ItemsSource="{Binding Tiles}" x:CompileBindings="False">
+                    <ItemsControl.Styles>
+                      <Style Selector="ContentPresenter">
+                        <Setter Property="Canvas.Left" Value="{Binding X}"/>
+                        <Setter Property="Canvas.Top" Value="{Binding Y}"/>
+                      </Style>
+                    </ItemsControl.Styles>
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <Canvas Width="{Binding Width}" Height="{Binding Height}"/>
+                      </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="vm:HomeContentTile">
+                        <!-- Two surfaces, because a shadow cannot live on a clipped edge: the outer one is the
+                             ground the tile stands on and casts its BoxShadow (which must fall outside its own
+                             edges, so it clips nothing), the inner one is the face the picture stands on and
+                             does the clipping. Both are dressed by the worn skin's styles, not here. -->
+                        <Border Classes="home-tile-shadow">
+                        <Button Classes="nereus-content-tile"
+                                Width="{Binding Width}"
+                                Height="{Binding Height}"
+                                Focusable="{Binding IsFocusable}"
+                                Tag="{Binding}"
+                                GotFocus="OnNereusTileGotFocus"
+                                Click="OnNereusTileClick">
+                          <Border Classes="home-tile-face" ClipToBounds="True">
+                          <Grid>
+                            <Image Source="{Binding Title.Artwork, Converter={x:Static views:ArtworkConverter.Instance}}"
+                                   Stretch="UniformToFill"
+                                   IsVisible="{Binding IsTitle}"/>
+                            <Image Source="{Binding ImagePath, Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter='{}{0}'}"
+                                   Stretch="Uniform"
+                                   Margin="8"
+                                   IsVisible="{Binding IsShortcut}"/>
+                            <Image Source="{Binding MenuEntry.HomeImagePath, Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter='{}{0}'}"
+                                   Stretch="UniformToFill"
+                                   IsVisible="{Binding IsMenuEntry}"/>
+                            <Border Classes="home-tile-caption"
+                                    VerticalAlignment="Bottom"
+                                    Padding="8,5">
+                              <StackPanel Spacing="2" VerticalAlignment="Center">
+                                <TextBlock Classes="home-tile-caption-title"
+                                           Text="{Binding Label}"
+                                           FontSize="15"
+                                           FontWeight="SemiBold"
+                                           TextTrimming="CharacterEllipsis"
+                                           MaxLines="2"/>
+                                <TextBlock Classes="home-tile-caption-detail"
+                                           Text="{Binding Detail}"
+                                           FontSize="12"
+                                           Opacity="0.65"
+                                           TextTrimming="CharacterEllipsis"
+                                           IsVisible="{Binding IsMenuEntry}"/>
+                              </StackPanel>
+                            </Border>
+                          </Grid>
+                          </Border>
+                        </Button>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
       </DockPanel>
 
       <!-- What the database is made of, in the third column and out of the way: it is the answer to "why is there no
@@ -361,56 +426,29 @@
     </Grid>
     </DockPanel>
 
-    <!-- Nereus' two gradient overlays, the very stops of its master_homemenu.xaml ("Top Gradient Overlay"
-         and "Bottom Gradient Overlay"): the reference screens the content behind a screen of black fading
-         away from the top edge and again from the bottom, which is what carries its white clock and date
-         into a readable header over any fanart. They paint over the screen and never catch a key or a
-         click (IsHitTestVisible), and only Nereus wears them - WMC's home stands on its background picture
-         with no screening at all. -->
-    <Border Name="nereusScrimTop" IsHitTestVisible="False"
-            IsVisible="{Binding IsNereusHome}"
-            VerticalAlignment="Top" Height="620" HorizontalAlignment="Stretch">
-      <Border.Background>
-        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-          <GradientStop Color="#E6000000" Offset="0" />
-          <GradientStop Color="#78000000" Offset="0.3" />
-          <GradientStop Color="#46000000" Offset="0.45" />
-          <GradientStop Color="#21000000" Offset="0.6" />
-          <GradientStop Color="#0C000000" Offset="0.75" />
-          <GradientStop Color="#01000000" Offset="0.87" />
-          <GradientStop Color="#00000000" Offset="1" />
-        </LinearGradientBrush>
-      </Border.Background>
-    </Border>
-    <Border Name="nereusScrimBottom" IsHitTestVisible="False"
-            IsVisible="{Binding IsNereusHome}"
-            VerticalAlignment="Bottom" Height="220" HorizontalAlignment="Stretch">
-      <Border.Background>
-        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-          <GradientStop Color="#E6000000" Offset="1" />
-          <GradientStop Color="#78000000" Offset="0.87" />
-          <GradientStop Color="#46000000" Offset="0.75" />
-          <GradientStop Color="#21000000" Offset="0.6" />
-          <GradientStop Color="#0C000000" Offset="0.45" />
-          <GradientStop Color="#01000000" Offset="0.3" />
-          <GradientStop Color="#00000000" Offset="0" />
-        </LinearGradientBrush>
-      </Border.Background>
-    </Border>
-
-    <!-- What the reference shows at the bottom left of its home screen about the title the walker is standing
-         on: its name, the year, how long it runs and how much of it was watched, in one line over the bottom
-         gradient. It rides on the same choice that puts the fanart up, so the line and the picture always speak
-         about one and the same title. -->
-    <TextBlock Name="contentInfoLine"
-               IsHitTestVisible="False"
-               Text="{Binding ContentInfo}"
-               FontSize="22"
-               Foreground="{DynamicResource TextBrush}"
-               HorizontalAlignment="Left"
-               VerticalAlignment="Bottom"
-               Margin="46,0,0,34"
-               IsVisible="{Binding HasContentInfo}"
-               TextTrimming="CharacterEllipsis"/>
+    <!--
+      What floats over the finished screen belongs to the face, not to this file: Nereus screens the screen
+      with the two gradients of its master_homemenu.xaml, hangs the line about the standing title beside its
+      rail, and stands the four corner buttons of master_home.xaml's WindowButtonsPanel at the top edge - all
+      of that is written in home.xaml under Nereus' own roof and painted on the host below. A face that ships
+      no home of its own keeps the general line below it, which this host's presence quietly steps aside.
+    -->
+    <ContentControl Name="homeOverlays" IsTabStop="False" Focusable="False"/>
+    <Panel Name="plainOverlays">
+      <!-- What the reference shows at the bottom left of its home screen about the title the walker is
+           standing on: its name, the year, how long it runs and how much of it was watched, in one line over
+           whatever the screen wears. It rides on the same choice that puts the fanart up, so the line and the
+           picture always speak about one and the same title. -->
+      <TextBlock Name="contentInfoLine"
+                 IsHitTestVisible="False"
+                 Text="{Binding ContentInfo}"
+                 FontSize="22"
+                 Foreground="{DynamicResource TextBrush}"
+                 HorizontalAlignment="Left"
+                 VerticalAlignment="Bottom"
+                 Margin="46,0,0,34"
+                 IsVisible="{Binding HasContentInfo}"
+                 TextTrimming="CharacterEllipsis"/>
+    </Panel>
   </Panel>
 </UserControl>

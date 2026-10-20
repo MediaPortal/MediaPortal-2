@@ -27,4 +27,8 @@
   </Theme>
 
   <Superlayers File="superlayers.xaml"/>
+
+  <!--  This face's own home screen: the ground it stands on and the cross its menu wears. Nothing of it lives
+        in the general home screen any more - the general screen only hosts what this file answers.  -->
+  <Home File="home.xaml"/>
 </Skin>

@@ -25,6 +25,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Avalonia;
 using MediaPortal.Frontend.Api;
+using MediaPortal.Frontend.Skins.Nereus;
 using MediaPortal.Frontend.Settings;
 using MediaPortal.Frontend.Theming;
 
@@ -49,6 +50,10 @@ namespace MediaPortal.Frontend.ViewModels
   {
     private ServerApiClient? _client;
     private CancellationTokenSource? _runningRefresh;
+    private CancellationTokenSource? _pendingContentSelection;
+    private CancellationTokenSource? _contentLoadCancellation;
+    private readonly NereusHomeMenuModel _nereusMenu = new NereusHomeMenuModel();
+    private const int CONTENT_SELECTION_DELAY_MS = 500;
 
     // One run at a time may touch Aspects. Cancelling the older run is not enough for that: a cancelled run
     // carries on until its next check, and until then it is clearing and adding to the same collection the newer
@@ -192,6 +197,13 @@ namespace MediaPortal.Frontend.ViewModels
       // starting up is looking at this state, and it has to say what a media centre is - and what is missing from
       // it - rather than offering nothing to press.
       RebuildMenu(false);
+
+      // The skin-settings screen is a remote control, not an application form: a viewer who turns the
+      // fanart dimmer while the home stands there sees the television answer at once.
+      SkinSettingsBase.Saved += delegate
+      {
+        OnPropertyChanged(nameof(FanartOverlay));
+      };
     }
 
     public ObservableCollection<AspectViewModel> Aspects { get; } = new ObservableCollection<AspectViewModel>();
@@ -350,6 +362,12 @@ namespace MediaPortal.Frontend.ViewModels
     /// </remarks>
     public ObservableCollection<MainMenuEntry> Menu { get; } = new ObservableCollection<MainMenuEntry>();
 
+    /// <summary>The worn skin's menu; Nereus projects its own configured list, while other skins use the shared list.</summary>
+    public IEnumerable<MainMenuEntry> DisplayMenu
+    {
+      get { return IsNereusHome ? _nereusMenu.MainMenuItems : Menu; }
+    }
+
     /// <summary>
     /// The row of the content pane the viewer is standing on.
     /// </summary>
@@ -434,6 +452,17 @@ namespace MediaPortal.Frontend.ViewModels
       get { return _backgroundArtwork != null; }
     }
 
+    /// <summary>
+    /// How strongly the standing title's fanart shows: the skin settings' number is worn as the picture's
+    /// own opacity - the slider on the skin-settings screen is the fanart's visibility, and the ground
+    /// behind it shows through what the number leaves away. A face that ships no settings wears Nereus'
+    /// own default; WMC's settings say 1.0, which is its way of wearing its fanart plain.
+    /// </summary>
+    public double FanartOverlay
+    {
+      get { return WornSkinSettingsOrNull()?.FanartOverlayOpacity ?? 0.85; }
+    }
+
     private int _fanartGeneration;
 
     /// <summary>
@@ -497,8 +526,17 @@ namespace MediaPortal.Frontend.ViewModels
     /// </summary>
     private void RaiseFaceChanged()
     {
+      RebuildNereusMenu();
+      if (IsNereusHome && !_nereusMenu.ContainsMainEntry(SelectedEntry))
+        SelectedEntry = RememberedEntry() ?? _nereusMenu.MainMenuItems.FirstOrDefault();
+
       OnPropertyChanged(nameof(HomeContentShown));
       OnPropertyChanged(nameof(HomeLayout));
+      OnPropertyChanged(nameof(IsNereusHome));
+      OnPropertyChanged(nameof(IsWmcHome));
+      OnPropertyChanged(nameof(IsPlainHome));
+      OnPropertyChanged(nameof(FanartOverlay));
+      OnPropertyChanged(nameof(DisplayMenu));
       foreach (MainMenuEntry entry in Menu)
         entry.RevealHomeTileFolder();
     }
@@ -519,6 +557,9 @@ namespace MediaPortal.Frontend.ViewModels
         Status = "Nothing selected";
         return null;
       }
+
+      if (_nereusMenu.IsOtherPluginsEntry(entry))
+        return null;
 
       HomeSection? section = entry.Section;
       if (section == null)
@@ -550,27 +591,28 @@ namespace MediaPortal.Frontend.ViewModels
       // the top of the menu would also refill the content pane with the wrong entry's lists, which is a long way
       // from what the viewer was looking at a second ago.
       string? wasSelected = SelectedEntry?.Mp2Action;
+      string? wasSelectedId = SelectedEntry?.HomeImageId;
 
       Menu.Clear();
       foreach (MainMenuEntry entry in MainMenu.Build(Aspects, connected))
         Menu.Add(entry);
+      RebuildNereusMenu();
 
       // The playing mark is a fact about playback, not about this reading, and it has to survive the rebuild -
       // a refresh landing in the middle of a film would otherwise take the mark off the tile without a word.
       ApplyPlaying();
 
-      if (wasSelected != null)
+      IEnumerable<MainMenuEntry> selectionCandidates = IsNereusHome ? _nereusMenu.MainMenuItems : Menu;
+      foreach (MainMenuEntry entry in selectionCandidates)
       {
-        foreach (MainMenuEntry entry in Menu)
+        if ((wasSelected != null && entry.Mp2Action == wasSelected)
+            || (wasSelectedId != null && string.Equals(entry.HomeImageId, wasSelectedId, StringComparison.OrdinalIgnoreCase)))
         {
-          if (entry.Mp2Action == wasSelected)
-          {
-            // Going through the property, so the pane is refilled from the fresh reading; a menu rebuilt behind a
-            // viewer who is standing on "Movies" has to show the counts that arrived in this reading.
-            SelectedEntry = entry;
-            RaiseMenuRebuilt(connected);
-            return;
-          }
+          // Going through the property, so the pane is refilled from the fresh reading; a menu rebuilt behind a
+          // viewer who is standing on "Movies" has to show the counts that arrived in this reading.
+          SelectedEntry = entry;
+          RaiseMenuRebuilt(connected);
+          return;
         }
       }
 
@@ -578,9 +620,19 @@ namespace MediaPortal.Frontend.ViewModels
       // its top - it restored the last pressed action from the settings, so that home opens on the shelf the
       // viewer last stood on rather than on whichever tile happens to be first.
       SelectedEntry = RememberedEntry();
+      if (SelectedEntry == null && IsNereusHome)
+        SelectedEntry = _nereusMenu.MainMenuItems.FirstOrDefault();
       if (SelectedEntry != null && !ContentFollowsHighlight)
         _ = ShowContentAsync(SelectedEntry);
+      OnPropertyChanged(nameof(DisplayMenu));
       RaiseMenuRebuilt(connected);
+    }
+
+    private void RebuildNereusMenu()
+    {
+      NereusSkinSettings? settings = WornSkinSettingsOrNull() as NereusSkinSettings;
+      _nereusMenu.Rebuild(Menu, settings?.HomeMenuActionIds ?? NereusSkinSettings.DefaultHomeMenuActionIds);
+      OnPropertyChanged(nameof(DisplayMenu));
     }
 
     private void RaiseMenuRebuilt(bool connected)
@@ -632,6 +684,10 @@ namespace MediaPortal.Frontend.ViewModels
     /// </remarks>
     public ObservableCollection<HomeRow> ContentRows { get; } = new ObservableCollection<HomeRow>();
 
+    /// <summary>The Nereus shortcut rail and horizontally arranged media mosaics.</summary>
+    public ObservableCollection<HomeContentGroup> ContentGroups { get; } =
+        new ObservableCollection<HomeContentGroup>();
+
     /// <summary>Whether the pane has anything to say, which is what keeps its heading off an empty screen.</summary>
     public bool HasContent
     {
@@ -650,9 +706,10 @@ namespace MediaPortal.Frontend.ViewModels
     /// </summary>
     /// <remarks>
     /// <para>
-    /// The headings go up before anything has been read, and the titles are appended under them as each answer
-    /// arrives. A pane that stayed blank until the last of four requests came back would look like an empty library
-    /// for as long as the slowest one took.
+    /// A list is only put on screen once it has items - the reference's rule (AbstractHomeContent shows a
+    /// home content wrapper only when it HasItems), which also means no heading, and no line of apology,
+    /// ever stands for an empty shelf. The lists are read one at a time in their own order, so the pane
+    /// still fills band by band while the answers come in.
     /// </para>
     /// <para>
     /// One list refusing leaves its own line and does not hide the others, which is the rule every other read on
@@ -662,8 +719,33 @@ namespace MediaPortal.Frontend.ViewModels
     /// </remarks>
     public async Task ShowContentAsync(MainMenuEntry? entry)
     {
-      int generation = ++_contentGeneration;
+      CancellationTokenSource? pending = Interlocked.Exchange(ref _pendingContentSelection, null);
+      pending?.Cancel();
+      await ShowContentAsync(entry, CancellationToken.None);
+    }
+
+    private async Task ShowContentAsync(MainMenuEntry? entry, CancellationToken cancellation)
+    {
+      CancellationTokenSource current = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
+      CancellationTokenSource? previous = Interlocked.Exchange(ref _contentLoadCancellation, current);
+      previous?.Cancel();
+      int generation = Interlocked.Increment(ref _contentGeneration);
+
+      try
+      {
+        await ShowContentCoreAsync(entry, generation, current.Token);
+      }
+      finally
+      {
+        Interlocked.CompareExchange(ref _contentLoadCancellation, null, current);
+        current.Dispose();
+      }
+    }
+
+    private async Task ShowContentCoreAsync(MainMenuEntry? entry, int generation, CancellationToken cancellation)
+    {
       ContentRows.Clear();
+      ContentGroups.Clear();
       SelectedContent = null;
       _paneEntry = entry;
 
@@ -673,7 +755,32 @@ namespace MediaPortal.Frontend.ViewModels
         return;
       }
 
-      IReadOnlyList<HomeContentList> lists = HomeContentList.For(entry);
+      if (_nereusMenu.IsOtherPluginsEntry(entry))
+      {
+        HomeContentGroup plugins = new HomeContentGroup("Other Plugins", "plugins", 1500);
+        foreach (MainMenuEntry otherEntry in _nereusMenu.OtherMenuItems)
+        {
+          ContentRows.Add(HomeRow.For(otherEntry));
+          plugins.AddMenuEntry(otherEntry);
+        }
+        if (plugins.Tiles.Count > 0)
+          ContentGroups.Add(plugins);
+        OnPropertyChanged(nameof(HasContent));
+        return;
+      }
+
+      IReadOnlyList<NereusHomeShortcut> shortcuts = _nereusMenu.ShortcutsFor(entry);
+      if (shortcuts.Count > 0)
+      {
+        HomeContentGroup shortcutGroup = new HomeContentGroup("Shortcuts", "shortcuts", 175);
+        foreach (NereusHomeShortcut shortcut in shortcuts)
+          shortcutGroup.AddShortcut(shortcut);
+        ContentGroups.Add(shortcutGroup);
+      }
+
+      string[] mediaListSettings = (WornSkinSettingsOrNull() as NereusSkinSettings)?.HomeMenuActionMediaLists
+          ?? Array.Empty<string>();
+      IReadOnlyList<HomeContentList> lists = HomeContentList.For(entry, mediaListSettings);
       if (lists.Count == 0)
       {
         // An entry that opens a whole screen, or one nothing backs. Saying what pressing does is the useful thing;
@@ -686,68 +793,67 @@ namespace MediaPortal.Frontend.ViewModels
         return;
       }
 
-      // The headings - and the lines saying which lists cannot be filled - go up before anything is read, each
-      // list remembering the row position its own titles will land at once an answer arrives. Without those
-      // positions, a title that arrives late would be appended after every later heading instead of under its
-      // own, and a pane whose newest films stand below the word "Favorites" is a pane that lies.
-      var rowPositions = new int[lists.Count];
-      int position = 0;
-      for (int i = 0; i < lists.Count; i++)
-      {
-        ContentRows.Add(HomeRow.Heading(lists[i].Heading));
-        position++;
-        if (lists[i].Missing != null)
-        {
-          ContentRows.Add(HomeRow.Note(lists[i].Missing));
-          position++;
-        }
-        rowPositions[i] = position;
-      }
-
-      OnPropertyChanged(nameof(HasContent));
+      // Which lists the pane shows, the reference answers in one line of its own (AbstractHomeContent.cs:
+      // "if (wrapper.HasItems)"). A list is handed to the home content - heading and all - only when it has
+      // items; a shelf with nothing on it was never shown, under any heading, with no line of explanation.
+      // That rules the whole pre-laid design out here: nothing may stand on screen for a list that will
+      // turn out empty, so every list is read first and only what arrived goes up. The lists are still read
+      // one at a time in their own order, so each band lands below the last one's and the pane still fills
+      // progressively - only the promises that would have stood before the answers are gone.
+      var groups = new HomeContentGroup[lists.Count];
 
       if (_client == null)
+      {
+        OnPropertyChanged(nameof(HasContent));
         return;
+      }
 
       HomeSection section = entry.Section!;
       int askedFor = -1;
 
-      // How many rows earlier lists have written. Everything is read in order and one list at a time, so when an
-      // answer arrives, every row to the left of the insertion point is already final - and the point a later
-      // list's titles have to land at has moved right by exactly this many rows.
-      int writtenBefore = 0;
-
+      // How many rows earlier lists have written. Everything is read in order and one list at a time, so a
+      // band only ever appends below the bands whose answers came before it - which is also the rule that
+      // keeps a late answer from ever standing above an earlier one.
       try
       {
         for (int i = 0; i < lists.Count; i++)
         {
           HomeContentList list = lists[i];
+          // A list this server cannot answer at all - the favourites over HTTP - has no items, and a list
+          // without items is not shown. Saying why it is empty would be the "nothing here" the reference
+          // never wrote.
           if (list.Missing != null)
             continue;
 
           askedFor = i;
           MediaTitles titles = await _client.GetTitlesAsync(section.Aspect.Name, list.Sort, list.Descending,
-              HomeContentList.CONTENT_LIST_LIMIT, 0, null, list.Seen, null);
+              HomeContentList.CONTENT_LIST_LIMIT, 0, null, list.Seen, null, cancellation: cancellation);
 
-          if (generation != _contentGeneration)
+          if (generation != Volatile.Read(ref _contentGeneration) || cancellation.IsCancellationRequested)
             return;
 
-          int at = rowPositions[i] + writtenBefore;
-          int first = at;
-          foreach (MediaTitle title in titles.Titles ?? Array.Empty<MediaTitle>())
+          IReadOnlyList<MediaTitle> arrived = titles.Titles ?? Array.Empty<MediaTitle>();
+          // HasItems, the reference's one test: an answer with nothing in it leaves no heading, no note and
+          // no group - as if the list had never been asked. "Last Added" for a shelf nobody has filled is
+          // an empty band, and an empty band is no band.
+          if (arrived.Count == 0)
+            continue;
+
+          HomeContentGroup group = new HomeContentGroup(list.Heading, list.Layout, list.Width);
+          groups[i] = group;
+          ContentGroups.Add(group);
+          ContentRows.Add(HomeRow.Heading(list.Heading));
+          foreach (MediaTitle title in arrived)
           {
             HomeRow row = HomeRow.For(new TitleViewModel(title, false, _client));
-            ContentRows.Insert(at++, row);
+            ContentRows.Add(row);
+            group.AddTitle(row.Title!);
             // The reference's pane is a wall of covers, and a cover arrives a moment after its name - the same
             // two beats the media grid uses, so the picture rides on the very same cached fetch.
             if (IsNereusHome && row.Title != null)
               _ = PutPosterAsync(row.Title, generation);
           }
 
-          if (at == first)
-            ContentRows.Insert(at++, HomeRow.Note("nothing here"));
-
-          writtenBefore += at - first;
           OnPropertyChanged(nameof(HasContent));
         }
 
@@ -767,7 +873,7 @@ namespace MediaPortal.Frontend.ViewModels
       }
       catch (ServerApiException ex)
       {
-        if (generation != _contentGeneration)
+        if (generation != Volatile.Read(ref _contentGeneration) || cancellation.IsCancellationRequested)
           return;
 
         // A refusal of the titles is the server asking who is calling; the sign-in boxes appear because of it,
@@ -775,19 +881,73 @@ namespace MediaPortal.Frontend.ViewModels
         if (ex.StatusCode == 403)
           ServerRefusesStrangers = true;
 
-        // The headings are already up, so the line has to appear under the list that was asked for rather than at
-        // the end of the pane; the loop stops, because every remaining list would be refused for the same reason.
-        ContentRows.Insert(askedFor < 0 ? ContentRows.Count : rowPositions[askedFor] + writtenBefore,
-            HomeRow.Note(DescribeContentFailure(ex, askedFor < 0 ? null : lists[askedFor])));
+        // The loop stops, because every remaining list would be refused for the same reason. The list that
+        // was asked for has no band standing yet - the read failed before anything of its was put up - so
+        // its name goes up with the line that explains the failure; a refusal the viewer cannot attribute
+        // to anything reads as a broken screen rather than as a server asking to be signed into.
+        HomeRow note = HomeRow.Note(DescribeContentFailure(ex, askedFor < 0 ? null : lists[askedFor]));
+        EnsureFailedBand(askedFor < 0 ? -1 : askedFor, lists, groups);
+        ContentRows.Add(note);
+        if (askedFor >= 0)
+          groups[askedFor].AddNote(note);
         OnPropertyChanged(nameof(HasContent));
+      }
+      catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
+      {
       }
       catch (Exception ex)
       {
-        if (generation != _contentGeneration)
+        if (generation != Volatile.Read(ref _contentGeneration) || cancellation.IsCancellationRequested)
           return;
 
-        ContentRows.Add(HomeRow.Note("reading failed: " + ex.Message));
+        HomeRow note = HomeRow.Note("reading failed: " + ex.Message);
+        EnsureFailedBand(askedFor < 0 ? -1 : askedFor, lists, groups);
+        ContentRows.Add(note);
+        if (askedFor >= 0)
+          groups[askedFor].AddNote(note);
         OnPropertyChanged(nameof(HasContent));
+      }
+    }
+
+    /// <summary>
+    /// Puts up the band of a list whose reading failed, so the line saying so stands under the list's own
+    /// name instead of loose at the bottom of the pane. A band already standing - one whose titles arrived -
+    /// keeps its titles and merely takes the line.
+    /// </summary>
+    private void EnsureFailedBand(int askedFor, IReadOnlyList<HomeContentList> lists, HomeContentGroup[] groups)
+    {
+      if (askedFor < 0 || groups[askedFor] != null)
+        return;
+
+      HomeContentList failed = lists[askedFor];
+      HomeContentGroup group = new HomeContentGroup(failed.Heading, failed.Layout, failed.Width);
+      groups[askedFor] = group;
+      ContentGroups.Add(group);
+      ContentRows.Add(HomeRow.Heading(failed.Heading));
+    }
+
+    private void QueueContentForSelection(MainMenuEntry? entry)
+    {
+      CancellationTokenSource next = new CancellationTokenSource();
+      CancellationTokenSource? previous = Interlocked.Exchange(ref _pendingContentSelection, next);
+      previous?.Cancel();
+      _ = ShowSelectedContentAfterDelayAsync(entry, next);
+    }
+
+    private async Task ShowSelectedContentAfterDelayAsync(MainMenuEntry? entry, CancellationTokenSource selection)
+    {
+      try
+      {
+        await Task.Delay(CONTENT_SELECTION_DELAY_MS, selection.Token);
+        await ShowContentAsync(entry, selection.Token);
+      }
+      catch (OperationCanceledException) when (selection.IsCancellationRequested)
+      {
+      }
+      finally
+      {
+        Interlocked.CompareExchange(ref _pendingContentSelection, null, selection);
+        selection.Dispose();
       }
     }
 
@@ -809,14 +969,18 @@ namespace MediaPortal.Frontend.ViewModels
     /// </summary>
     partial void OnSelectedEntryChanged(MainMenuEntry? value)
     {
+      foreach (MainMenuEntry entry in Menu.Concat(_nereusMenu.MainMenuItems))
+        entry.IsSelected = ReferenceEquals(entry, value);
+
       if (!ContentFollowsHighlight)
         return;
 
       RememberLastAction(value);
 
-      // Deliberately not awaited: the key press that moved the selection must not wait on four HTTP requests, and
-      // the pane is designed to fill itself in as they arrive.
-      _ = ShowContentAsync(value);
+      if (IsNereusHome)
+        QueueContentForSelection(value);
+      else
+        _ = ShowContentAsync(value);
     }
 
     // The tile the content pane is currently filled from. With the walk-to-select switches off this is whatever
@@ -857,16 +1021,17 @@ namespace MediaPortal.Frontend.ViewModels
     /// </summary>
     private void RememberLastAction(MainMenuEntry? entry)
     {
-      if (entry?.Mp2Action == null)
+      if (entry == null || !Guid.TryParse(entry.HomeImageId, out Guid actionId))
         return;
 
       if (WornSkinSettingsOrNull() is not NereusSkinSettings nereus)
         return;
 
-      if (nereus.LastSelectedHomeMenuActionId == entry.Mp2Action)
+      string actionIdText = actionId.ToString("D");
+      if (string.Equals(nereus.LastSelectedHomeMenuActionId, actionIdText, StringComparison.OrdinalIgnoreCase))
         return;
 
-      nereus.LastSelectedHomeMenuActionId = entry.Mp2Action;
+      nereus.LastSelectedHomeMenuActionId = actionIdText;
       nereus.Save(null, out _);
     }
 
@@ -881,8 +1046,14 @@ namespace MediaPortal.Frontend.ViewModels
           || string.IsNullOrEmpty(nereus.LastSelectedHomeMenuActionId))
         return null;
 
-      foreach (MainMenuEntry entry in Menu)
+      foreach (MainMenuEntry entry in _nereusMenu.MainMenuItems)
       {
+        if (Guid.TryParse(nereus.LastSelectedHomeMenuActionId, out Guid selectedActionId)
+            && Guid.TryParse(entry.HomeImageId, out Guid actionId)
+            && actionId == selectedActionId)
+          return entry;
+
+        // Earlier Avalonia builds wrote the workflow name into this setting instead of the action Guid.
         if (entry.Mp2Action == nereus.LastSelectedHomeMenuActionId)
           return entry;
       }

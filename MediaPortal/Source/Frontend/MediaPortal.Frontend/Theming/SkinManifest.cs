@@ -122,6 +122,12 @@ namespace MediaPortal.Frontend.Theming
     /// <summary>The overlays that float above every screen, or null when the skin has none.</summary>
     public string? SuperlayersFile { get; private set; }
 
+    /// <summary>
+    /// The skin's own home screen - the layers the home stands on, the face its menu wears and what floats
+    /// above it - or null when the skin ships no home of its own and the general arrangement stands alone.
+    /// </summary>
+    public string? HomeFile { get; private set; }
+
     public SkinTheme DefaultTheme
     {
       get
@@ -205,6 +211,10 @@ namespace MediaPortal.Frontend.Theming
 
           case "Superlayers":
             manifest.SuperlayersFile = Attribute(element, "File");
+            break;
+
+          case "Home":
+            manifest.HomeFile = Attribute(element, "File");
             break;
 
           default:

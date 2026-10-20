@@ -57,15 +57,22 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
-    /// The name a binding asks the worn skin for: the bound value written into the parameter's format. Null
-    /// when the binding gave no name, or the parameter is not a format <c>string.Format</c> can survive.
+    /// The name a binding asks the worn skin for: the bound value written into the parameter's format. A
+    /// parameter carrying no format placeholder is the whole name by itself - how a skin file that names its
+    /// own picture (<c>Background.PNG</c>) asks without binding anything. Null when neither side named
+    /// anything, or the parameter is not a format <c>string.Format</c> can survive.
     /// </summary>
     internal static string? ImageName(object? value, object? parameter)
     {
-      if (value is not string name || name.Length == 0)
-        return null;
-
       string format = parameter as string ?? "{0}";
+      if (value is not string name || name.Length == 0)
+      {
+        // Nothing bound and nothing to fill: a plain name in the parameter still stands on its own, while a
+        // format waiting for a name answers nothing - which is how a tile without an Id shows its letter
+        // badge instead of a hole.
+        return format.IndexOf('{') < 0 ? format : null;
+      }
+
       try
       {
         return string.Format(CultureInfo.InvariantCulture, format, name);

@@ -1004,13 +1004,24 @@ namespace MediaPortal.Frontend
         return new Workflow.WorkflowFrame("party", "Party", EnsureParty());
       }
 
-      if (screenKey.Equals("themes", StringComparison.OrdinalIgnoreCase))
+      if (screenKey.Equals("themes", StringComparison.OrdinalIgnoreCase)
+          || screenKey.Equals("settings", StringComparison.OrdinalIgnoreCase))
       {
         // A fresh model per visit, unlike the party queue: the screens behind the sections read their state
         // when they open - somebody may have started this run with a --theme that overrode the saved choice,
         // or added a share with another tool in between.
         return new Workflow.WorkflowFrame("settings", "Settings", SettingsModel());
       }
+
+      // The two corner buttons of the reference's master_home that name a screen rather than a section: the
+      // person who is watching, and the way out of the room. Both are the same frames the application opens
+      // on its own - the picker it raises at startup when the machine asks for a viewer, and the close
+      // screen behind its own exit - so the corner button costs no second copy of either.
+      if (screenKey.Equals("viewer", StringComparison.OrdinalIgnoreCase))
+        return ViewerFrame();
+
+      if (screenKey.Equals("close", StringComparison.OrdinalIgnoreCase))
+        return CloseFrame();
 
       // A tile naming a screen nobody builds is a mismatch between the menu and this method, which is a bug in the
       // front end rather than something the viewer can do anything about.

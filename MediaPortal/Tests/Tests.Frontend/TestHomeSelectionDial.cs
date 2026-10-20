@@ -17,6 +17,7 @@
 
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Headless.NUnit;
 using NUnit.Framework;
@@ -68,31 +69,32 @@ namespace Tests.Frontend
       MainMenuEntry first = NthEntryWithAnAction(home, 0);
       MainMenuEntry second = NthEntryWithAnAction(home, 1);
 
+      Assert.That(home.PaneEntry, Is.SameAs(home.SelectedEntry),
+          "the restored startup selection fills content immediately, as in the reference");
       home.SelectedEntry = first;
-      Assert.That(home.PaneEntry, Is.Null,
-          "with the switch on, walking onto a tile does not fill the pane - only pressing does");
-      Assert.That(home.ContentRows.Count, Is.EqualTo(0), "and the pane really stays empty");
+      Assert.That(home.PaneEntry, Is.SameAs(first),
+          "the initial restored tile already owns the content pane");
       Assert.That(HomeViewModel.WaitsForAPress, Is.True,
           "and the same switch tells the mouse that a click first selects - touch behaviour");
 
       home.CommitEntry();
-      Assert.That(home.PaneEntry, Is.SameAs(first), "the press fills it");
+      Assert.That(home.PaneEntry, Is.SameAs(first), "pressing the initial tile keeps its content");
 
       home.SelectedEntry = second;
       Assert.That(home.PaneEntry, Is.SameAs(first),
           "and walking away from the pressed tile leaves the pressed tile's lists where they are");
 
-      Assert.That(NereusSkinSettings.Load(null, out _).LastSelectedHomeMenuActionId, Is.EqualTo(first.Mp2Action),
+      Assert.That(NereusSkinSettings.Load(null, out _).LastSelectedHomeMenuActionId, Is.EqualTo(first.HomeImageId),
           "walking past does not count as having stood there - only the press is remembered");
 
       home.CommitEntry();
       Assert.That(home.PaneEntry, Is.SameAs(second), "the second press moves the pane");
-      Assert.That(NereusSkinSettings.Load(null, out _).LastSelectedHomeMenuActionId, Is.EqualTo(second.Mp2Action),
+      Assert.That(NereusSkinSettings.Load(null, out _).LastSelectedHomeMenuActionId, Is.EqualTo(second.HomeImageId),
           "and is the answer tomorrow's home starts from");
     }
 
     [AvaloniaTest]
-    public void ThePaneFollowsTheWalkAndRemembersEveryStopByDefault()
+    public async Task ThePaneFollowsTheWalkAndRemembersEveryStopByDefault()
     {
       Application app = RequireApplication();
       FrontendTheme.Apply(app, "nereus", out _);
@@ -102,20 +104,31 @@ namespace Tests.Frontend
       MainMenuEntry second = NthEntryWithAnAction(home, 1);
 
       home.SelectedEntry = first;
+      await WaitForPaneAsync(home, first);
       Assert.That(home.PaneEntry, Is.SameAs(first), "with both switches off the pane follows the walk");
       Assert.That(home.ContentRows.Count, Is.GreaterThan(0), "and fills itself as it follows");
       Assert.That(HomeViewModel.WaitsForAPress, Is.False,
           "and the desktop answer holds for the mouse too: one click works the tile");
-      Assert.That(NereusSkinSettings.Load(null, out _).LastSelectedHomeMenuActionId, Is.EqualTo(first.Mp2Action),
+      Assert.That(NereusSkinSettings.Load(null, out _).LastSelectedHomeMenuActionId, Is.EqualTo(first.HomeImageId),
           "and every stop is the reference's selection, so every stop is remembered");
 
       home.SelectedEntry = second;
+      await WaitForPaneAsync(home, second);
       Assert.That(home.PaneEntry, Is.SameAs(second), "and keeps following every stop of the walk");
-      Assert.That(NereusSkinSettings.Load(null, out _).LastSelectedHomeMenuActionId, Is.EqualTo(second.Mp2Action));
+      Assert.That(NereusSkinSettings.Load(null, out _).LastSelectedHomeMenuActionId, Is.EqualTo(second.HomeImageId));
+    }
+
+    private static async Task WaitForPaneAsync(HomeViewModel home, MainMenuEntry expected)
+    {
+      DateTime deadline = DateTime.UtcNow.AddSeconds(3);
+      while (!ReferenceEquals(home.PaneEntry, expected) && DateTime.UtcNow < deadline)
+        await Task.Delay(20);
+
+      Assert.That(home.PaneEntry, Is.SameAs(expected), "the debounced selection eventually loads its content");
     }
 
     [AvaloniaTest]
-    public void TomorrowsHomeOpensOnTheTileTheViewerLastPressed()
+    public async Task TomorrowsHomeOpensOnTheTileTheViewerLastPressed()
     {
       Application app = RequireApplication();
       FrontendTheme.Apply(app, "nereus", out _);
@@ -124,6 +137,7 @@ namespace Tests.Frontend
       MainMenuEntry pressed = NthEntryWithAnAction(today, 2);
       today.SelectedEntry = pressed;
       today.CommitEntry();
+      await WaitForPaneAsync(today, pressed);
       Assert.That(today.PaneEntry, Is.SameAs(pressed));
 
       // A fresh screen on the same machine - the way the menu stands when the viewer sits down again. The
@@ -179,7 +193,7 @@ namespace Tests.Frontend
     private static MainMenuEntry NthEntryWithAnAction(HomeViewModel home, int nth)
     {
       int seen = 0;
-      foreach (MainMenuEntry entry in home.Menu)
+      foreach (MainMenuEntry entry in home.DisplayMenu)
       {
         if (entry.Mp2Action == null)
           continue;

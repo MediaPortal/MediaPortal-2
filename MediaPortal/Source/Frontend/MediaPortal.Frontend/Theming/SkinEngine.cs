@@ -119,10 +119,31 @@ namespace MediaPortal.Frontend.Theming
     /// <summary>Every name a screen may ask for.</summary>
     public IEnumerable<string> Names => _locations.Keys.OrderBy(k => k, StringComparer.OrdinalIgnoreCase);
 
-    public bool Has(string name) => _locations.ContainsKey(name);
+    /// <summary>
+    /// The catalogued form of an asked-for name: the name without its trailing picture extension. The catalog
+    /// keeps every picture extension-free, but the reference screens - and this front end's own shortcut model -
+    /// sometimes spell a name as it stands on disk, 'genre.png' where the catalog says 'genre'. Both spellings
+    /// must answer, because a shortcut tile whose icon simply does not appear is the failure a viewer sees.
+    /// </summary>
+    private static string LookupName(string name)
+    {
+      int dot = name.LastIndexOf('.');
+      if (dot < 0 || dot < name.LastIndexOf('/'))
+        return name;
+
+      string extension = name.Substring(dot).ToLowerInvariant();
+      return extension switch
+      {
+        ".png" or ".jpg" or ".jpeg" or ".bmp" or ".gif" => name.Substring(0, dot),
+        _ => name
+      };
+    }
+
+    public bool Has(string name) => _locations.ContainsKey(LookupName(name));
 
     /// <summary>Where a picture lives - a disk path, or the avares URI of a shipped skin's file.</summary>
-    public bool TryGetLocation(string name, out string location) => _locations.TryGetValue(name, out location!);
+    public bool TryGetLocation(string name, out string location) =>
+        _locations.TryGetValue(LookupName(name), out location!);
 
     /// <summary>
     /// The picture a screen asked for, read the first time and kept until the skin comes off. Null when the
@@ -131,16 +152,17 @@ namespace MediaPortal.Frontend.Theming
     /// </summary>
     public Avalonia.Media.Imaging.Bitmap? Load(string name)
     {
-      if (_loaded.TryGetValue(name, out Avalonia.Media.Imaging.Bitmap? known))
+      string key = LookupName(name);
+      if (_loaded.TryGetValue(key, out Avalonia.Media.Imaging.Bitmap? known))
         return known;
-      if (!_locations.TryGetValue(name, out string? location))
+      if (!_locations.TryGetValue(key, out string? location))
         return null;
 
       try
       {
         Avalonia.Media.Imaging.Bitmap bitmap =
             (Avalonia.Media.Imaging.Bitmap) SkinEngine.ReadImage(location);
-        _loaded[name] = bitmap;
+        _loaded[key] = bitmap;
         return bitmap;
       }
       catch (Exception)
@@ -149,10 +171,16 @@ namespace MediaPortal.Frontend.Theming
       }
     }
 
+    /// <summary>
+    /// Lets go of the loaded pictures when the skin comes off. The pictures are not disposed: a screen that
+    /// was shown a picture holds the very bitmap this store handed it, and disposing what a live visual is
+    /// painting brings the front end down (ObjectDisposedException on Ref&lt;IBitmapImpl&gt; inside
+    /// Image.Render). Avalonia's bitmap carries a finalizer, so a picture whose last visual has moved on
+    /// returns its memory to the garbage collector by itself; clearing here bounds the references this
+    /// store keeps, which is its part, and no more.
+    /// </summary>
     public void Dispose()
     {
-      foreach (Avalonia.Media.Imaging.Bitmap bitmap in _loaded.Values)
-        bitmap.Dispose();
       _loaded.Clear();
     }
   }
@@ -367,6 +395,28 @@ namespace MediaPortal.Frontend.Theming
     }
 
     /// <summary>
+    /// A control template the worn skin carries under <paramref name="key"/> - what a screen hangs a host on so
+    /// the face decides how that part of the screen looks.
+    /// </summary>
+    /// <remarks>
+    /// This is how a home screen lets the skin own its content: the view writes bare hosts named
+    /// <c>HomeBackgroundTemplate</c>, <c>HomeMenuFaceTemplate</c> and <c>HomeOverlaysTemplate</c>, and the worn
+    /// skin's <c>home.xaml</c> answers any of those keys it cares about. A skin that answers none leaves the
+    /// general arrangement standing, and a skin that answers one overrides only that part.
+    /// </remarks>
+    /// <returns>The template, or null while no skin is worn or this skin is silent about the key.</returns>
+    public static Avalonia.Controls.Templates.IControlTemplate? WornTemplate(string key)
+    {
+      Application? app = Application.Current;
+      if (app == null || !WORN.TryGetValue(app, out WornSkin? worn))
+        return null;
+
+      return worn.Resources.TryGetResource(key, null, out object? value)
+          ? value as Avalonia.Controls.Templates.IControlTemplate
+          : null;
+    }
+
+    /// <summary>
     /// A tile or row template the worn skin offers for a list to draw its items with instead of the view's own.
     /// </summary>
     /// <remarks>
@@ -431,6 +481,12 @@ namespace MediaPortal.Frontend.Theming
         if (!string.IsNullOrEmpty(manifest.SuperlayersFile))
           resources.MergedDictionaries.Add(Read(JoinAsset(manifest.Directory, manifest.SuperlayersFile!), "overlays"));
 
+        // And the skin's own home: the same mechanism one level further in. Every face carries its home in
+        // <c>home.xaml</c> under its own roof and nowhere else - the general home screen only hosts what these
+        // templates answer, so a face that wants nothing of the general arrangement simply writes its own.
+        if (!string.IsNullOrEmpty(manifest.HomeFile))
+          resources.MergedDictionaries.Add(Read(JoinAsset(manifest.Directory, manifest.HomeFile!), "home"));
+
         // The picture this theme stands on, if it named one. It goes in under its own key rather than as a
         // brush, because a window painting a picture behind the screens wants the picture, and a flat colour
         // stays the answer for every theme too plain to carry one.
@@ -468,7 +524,9 @@ namespace MediaPortal.Frontend.Theming
 
       app.Resources.MergedDictionaries.Remove(worn.Resources);
       app.Styles.Remove(worn.Styles);
-      worn.Background?.Dispose();
+      // The background and the pictures are let go of rather than disposed - see SkinImageStore.Dispose:
+      // visuals on screen may still be painting with exactly these bitmaps until the new skin's templates
+      // replace them, and the garbage collector knows the honest moment better than this call does.
       worn.Images.Dispose();
       WORN.Remove(app);
       Changed?.Invoke(null, EventArgs.Empty);

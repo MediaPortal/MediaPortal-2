@@ -2627,15 +2627,11 @@ namespace Tests.Frontend
       {
           "heading:Latest added",
           "title",
-          "heading:Continue playing",
-          "note:nothing here",
           "heading:Unplayed",
-          "title",
-          "heading:Favorites",
-          "note:the server keeps no favourites over HTTP"
-      }), "the four headings Nereus' home content offered are the four a MediaPortal viewer expects, each one "
-          + "either filled from this server or saying in one line why it is not - and the arrivals list leads, "
-          + "because \"what arrived lately\" is the question MP2's own first list answered");
+          "title"
+      }), "a list is only shown when it has items - AbstractHomeContent's one test, if (wrapper.HasItems). The "
+          + "empty continue-playing shelf and the favourites the server cannot keep over HTTP therefore take "
+          + "themselves off entirely, headings included, and no line of apology stands where they were");
 
       Assert.That(home.ContentRows.First(row => row.IsTitle).Title!.Line, Does.Contain("Alien Earth"),
           "the titles under the first heading are the server's own, not placeholders");

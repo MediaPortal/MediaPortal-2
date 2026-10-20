@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
@@ -25,7 +26,9 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using MediaPortal.Frontend.Input;
+using MediaPortal.Frontend.Skins.Nereus;
 using MediaPortal.Frontend.Skins.WMC;
 using MediaPortal.Frontend.Theming;
 using MediaPortal.Frontend.ViewModels;
@@ -53,6 +56,13 @@ namespace MediaPortal.Frontend.Views
     /// its own model in its own way, and neither reading touches the other.
     /// </summary>
     private readonly WmcHomeMenuModel _wmc;
+
+    /// <summary>
+    /// The window this home is standing in, while it is standing in one. The plain test windows that host
+    /// this view in the test runs have no shell chrome at all, which is exactly the case where nothing is
+    /// asked of it - hence a nullable, not an assumption.
+    /// </summary>
+    private ShellWindow? _chromeShell;
 
     /// <summary>
     /// For the XAML loader and the designer: a screen with a view model that has no server, which is what it
@@ -98,6 +108,32 @@ namespace MediaPortal.Frontend.Views
       _screenFactory = screenFactory;
       InitializeComponent();
 
+      home.ContentGroups.CollectionChanged += delegate
+      {
+        if (!_home.IsNereusHome)
+          return;
+
+        if (home.ContentGroups.Count == 0)
+        {
+          // Nothing to show is nothing to leave standing: the reference's home content is a ContentControl
+          // whose content simply was not there when no list had items (AbstractHomeContent adds a list only
+          // when HasItems), so the whole area took itself off and the fanart showed through. An invisible
+          // pane also drops out of the remote's ring - DpadNavigation walks over what cannot take focus.
+          nereusContentPane.Opacity = 0;
+          nereusContentPane.IsVisible = false;
+          nereusContentPane.Offset = new Vector(0, nereusContentPane.Offset.Y);
+          return;
+        }
+
+        nereusContentPane.IsVisible = true;
+        nereusContentPane.Opacity = 0;
+        Dispatcher.UIThread.Post(delegate
+        {
+          if (home.ContentGroups.Count > 0)
+            nereusContentPane.Opacity = 1;
+        }, DispatcherPriority.Render);
+      };
+
       // The labels of the main menu survive any skin change, by fiat: the moment this view is built it owns
       // its own tile tree, and any moment afterwards when no skin answers the home menu's key, the view's
       // own tiles go back onto the list - whoever swapped them away and whatever its bookkeeping did. A
@@ -122,6 +158,18 @@ namespace MediaPortal.Frontend.Views
         {
           menuList.ItemTemplate = ownHomeTiles;
         }
+
+        // The window is only knowable once the view hangs in a tree, and the header's standing depends on
+        // the window: find it on the way in, lay the floating header to rest on the way out.
+        _chromeShell = this.GetVisualAncestors().OfType<ShellWindow>().FirstOrDefault();
+        _chromeShell?.SetChromeHeaderOverlay(_home.HomeLayout == "nereus");
+      };
+      DetachedFromVisualTree += delegate
+      {
+        // Walking into a deeper screen hands the header back: it was floating because this home asked it
+        // to, and a screen that plans its space under a header row would find its top cut off otherwise.
+        _chromeShell?.SetChromeHeaderOverlay(false);
+        _chromeShell = null;
       };
 
       // The arrangement on screen is the worn face's own answer: each rescued skin ships its home screen
@@ -132,7 +180,10 @@ namespace MediaPortal.Frontend.Views
         if (e.PropertyName == nameof(HomeViewModel.HomeLayout))
           ApplyHomeLayout();
         else if (e.PropertyName == nameof(HomeViewModel.SelectedEntry))
+        {
           RebuildCross();
+          ScrollSelectedMenuItem();
+        }
       };
       // The menu arriving, arriving again from a refresh, or keeping its place through a rebuild - the
       // cross arms show the menu, so every time the menu speaks, WMC's model lays itself out from it again
@@ -141,13 +192,18 @@ namespace MediaPortal.Frontend.Views
       {
         _wmc.Rebuild(_home.SelectedEntry);
         RebuildCross();
+        ScrollSelectedMenuItem();
       };
-      ApplyHomeLayout();
+      // The face's own home comes and goes with the face. Hang what its home.xaml answers on the three hosts
+      // now - a view built after a skin went on never sees the event that put the skin on - and again whenever
+      // the skin changes under a running front end.
+      SkinEngine.Changed += WearSkinHome;
+      WearSkinHome(null, EventArgs.Empty);
 
-      // A button that opens nothing is worse than no button, so the playback button is only offered - and only
-      // walks with the d-pad - when the application can actually build the screen.
-      nowPlayingButton.IsVisible = _nowPlayingScreen != null;
-      connectButton.IsVisible = _connectScreen != null;
+      // The bottom row's buttons belong to ApplyHomeLayout alone, and it is called just below: setting their
+      // visibility here as well re-showed the NowPlaying and server buttons that the Nereus case had just
+      // hidden, and the row then held the menu column short of the bottom of the screen.
+      ApplyHomeLayout();
 
       // The ring is in the order the areas are arranged on the screen: the menu on the left, its content to the
       // right of it, the server's aspect list on the far side, and the buttons underneath. Left/right walk it;
@@ -156,7 +212,7 @@ namespace MediaPortal.Frontend.Views
       var ring = new List<Control>();
       if (_sectionScreen != null)
         ring.Add(menuList);
-      ring.Add(contentList);
+      ring.Add(_home.IsNereusHome ? nereusContentPane : contentList);
       ring.Add(aspectsList);
       ring.Add(refreshButton);
       if (_nowPlayingScreen != null)
@@ -165,43 +221,97 @@ namespace MediaPortal.Frontend.Views
         ring.Add(connectButton);
       DpadNavigation.Attach(this, ring);
 
+      menuList.AddHandler(KeyDownEvent,
+          delegate (object? sender, KeyEventArgs args)
+          {
+            if (!_home.IsNereusHome || args.Key != Key.Right)
+              return;
+
+            if (GetFocusableNereusTiles().FirstOrDefault() is Button firstTile)
+            {
+              FocusNereusTile(firstTile);
+              args.Handled = true;
+            }
+          },
+          RoutingStrategies.Tunnel,
+          handledEventsToo: true);
+
+      nereusContentPane.AddHandler(KeyDownEvent,
+          delegate (object? sender, KeyEventArgs args)
+          {
+            if (!_home.IsNereusHome || args.Handled
+                || (args.Key != Key.Left && args.Key != Key.Right
+                    && args.Key != Key.Up && args.Key != Key.Down))
+              return;
+
+            Button[] tiles = GetFocusableNereusTiles();
+            Button? focusedTile = tiles.FirstOrDefault(tile => tile.IsKeyboardFocusWithin);
+            if (focusedTile == null)
+            {
+              if (args.Key == Key.Left)
+              {
+                menuList.Focus();
+                args.Handled = true;
+              }
+              else if (tiles.FirstOrDefault() is Button firstTile)
+              {
+                FocusNereusTile(firstTile);
+                args.Handled = true;
+              }
+              return;
+            }
+
+            Button? nextTile = FindDirectionalNereusTile(focusedTile, tiles, args.Key);
+            if (nextTile != null)
+            {
+              FocusNereusTile(nextTile);
+              args.Handled = true;
+            }
+            else if (args.Key == Key.Left)
+            {
+              menuList.Focus();
+              args.Handled = true;
+            }
+            else if (args.Key == Key.Right && refreshButton.IsVisible && refreshButton.Focus())
+            {
+              args.Handled = true;
+            }
+          },
+          RoutingStrategies.Tunnel,
+          handledEventsToo: true);
+
       // The same screen with a mouse on a desk: double-clicking a tile, a title or a watched row sends the
       // Enter that a remote would have sent on that same list, and this screen's own handler below - which
       // already knows which lists open what and which rows merely explain something - decides the rest.
       MouseRemote.Attach(this, menuList, contentList);
 
-      // Clicking a home tile: with both of Nereus' two switches off the reference executed the clicked tile
-      // outright - HomeMenuModel.SelectItem's "if touch display is not enabled just execute the item's
-      // command" - while with either on a click only selects and only pressing the tile already standing on
-      // works it, which is exactly the road the double-click already walks. So one click presses here when
-      // the worn face says nobody needs to stand on the tile first.
-      menuList.AddHandler(PointerPressedEvent,
-          delegate (object? sender, PointerPressedEventArgs args)
-          {
-            if (args.ClickCount != 1 || HomeViewModel.WaitsForAPress)
-              return;
-
-            // Posted for the same reason MouseRemote posts: the click has to finish selecting its tile
-            // before the Enter asks which tile it meant.
-            Dispatcher.UIThread.Post(delegate
-            {
-              if (!menuList.Focus())
-                return;
-              RaiseEvent(new KeyEventArgs
-              {
-                  RoutedEvent = KeyDownEvent,
-                  Key = Key.Enter,
-                  Source = menuList
-              });
-            });
-          },
-          RoutingStrategies.Tunnel);
+      // Clicking a home tile selects it and opens nothing: one click or one touch stands on a tile, and
+      // only the second click of a double-click (already routed through Enter by MouseRemote just above)
+      // walks through the door. That is Avalonia's own press behaviour, so there is deliberately no
+      // handler here any more - the one that used to post an Enter on a single click is what this removes.
+      // Keyboard and remote keep walking the old road: a tile stood on is opened by pressing it.
+      menuList.FocusAdorner = null; // no blue frame, from nowhere, ever.
 
       // The user buttons beside the sign-in boxes: names arrive from the server while the screen stands
       // there, so the row is rebuilt when they do. Pressing one says the name and steps into the password
       // box, which is what picking a name at a door means.
       _home.SignInNames.CollectionChanged += delegate { RebuildSignInNames(); };
       RebuildSignInNames();
+
+      // The four corner buttons of master_home.xaml's WindowButtonsPanel walk through the door this front end has
+      // for what the reference's dialog did: the power menu is this build's close screen, the person button asks
+      // who is watching, the cog is the settings list, and the search glass opens the shelves. They are the face's
+      // own markup - hung by its home.xaml, carrying no name this file may hold - and what they open they say in
+      // their Tag: "close", "viewer", "settings", "browse". The host answers every one of them here, and each is
+      // an ordinary stop on the workflow, so Back lands the viewer right back on the home they came from. A face
+      // that hangs no buttons never reaches this handler.
+      homeOverlays.AddHandler(Button.ClickEvent,
+          delegate (object? sender, RoutedEventArgs e)
+          {
+            if (e.Source is Button { Tag: string key } && key.Length > 0)
+              OpenScreen(key);
+          },
+          RoutingStrategies.Bubble);
 
       // On the cross, the four arrows are the cross itself, exactly as the reference's HomeMenuModel takes them:
       // up and down walk the <i>groups</i> - the main menus of the vertical arm - and left and right walk the
@@ -244,8 +354,13 @@ namespace MediaPortal.Frontend.Views
       AddHandler(KeyDownEvent,
           delegate (object? sender, KeyEventArgs args)
           {
-            if (args.Key != Key.Left && args.Key != Key.Right)
+            if (args.Handled || (args.Key != Key.Left && args.Key != Key.Right))
               return;
+            // Not the Nereus pane's: its tiles are walked by the geometric navigation on the pane itself,
+            // which answers every direction by where the tiles stand - including the Left back to the menu
+            // and the Right onto the first tile when the pane rather than a tile holds the focus. Handing
+            // this pane to the ring instead would jump the viewer out of the content wall on every Right
+            // and never let them walk from the shortcut column into the titles beside it.
             if (!menuList.IsKeyboardFocusWithin && !contentList.IsKeyboardFocusWithin
                 && !aspectsList.IsKeyboardFocusWithin)
               return;
@@ -271,18 +386,19 @@ namespace MediaPortal.Frontend.Views
               // Pressing a tile is the answer Nereus' switches wait for: it moves the content pane when the
               // pane was told not to follow the walk, and it is the press the reference remembered.
               _home.CommitEntry();
-
-              HomeSection? section = _home.Open(entry);
-              if (section != null)
-                OpenSection(section);
-              else if (entry.ScreenKey != null)
-                OpenScreen(entry.ScreenKey);
+              OpenEntry(entry);
               args.Handled = true;
             }
             else if (contentList.IsKeyboardFocusWithin && contentList.SelectedItem is HomeRow row
                 && row.Title != null)
             {
               _home.ResumeCommand.Execute(row.Title);
+              args.Handled = true;
+            }
+            else if (contentList.IsKeyboardFocusWithin && contentList.SelectedItem is HomeRow menuRow
+                && menuRow.MenuEntry is MainMenuEntry otherEntry)
+            {
+              OpenEntry(otherEntry);
               args.Handled = true;
             }
           },
@@ -319,20 +435,39 @@ namespace MediaPortal.Frontend.Views
       switch (_home.HomeLayout)
       {
         case "nereus":
-          // Nereus' MainLayoutPanel carries negative margins - its content goes edge to edge - and its
-          // HomeContentGrid starts 40 pixels in from the rail, at the top. The top of the screen belongs
-          // to the chrome and to the first gradient, so the areas start below the header band.
-          homeLayout.Margin = new Thickness(16, 110, 16, 10);
-          homeAreas.ColumnDefinitions = ColumnDefinitions.Parse("400,*,0");
-          homeAreas.ColumnSpacing = 30;
+          // The reference's picture fills the whole television and its header floats over that picture,
+          // so nothing of this layout may claim a strip of its own: the arrangement starts at the very
+          // top of the screen, the menu rail runs the full height (master_homemenu.xaml spans its menu
+          // column over the entire client), and the content column begins where the reference begins it -
+          // one header row (100) below the top edge and 40px to the right of the rail (master_home.xaml's
+          // ContentView RowDefinition of 100 and HomeContentGrid's Margin="40,0,0,0").
+          homeLayout.Margin = new Thickness(0);
+          homeAreas.ColumnDefinitions = ColumnDefinitions.Parse("200,*,0");
+          homeAreas.ColumnSpacing = 0;
           menuList.Margin = new Thickness(0);
-          contentPane.Margin = new Thickness(40, 0, 0, 0);
+          // The reference lets its list stand overscanned (Height 1200 of 1080) so the item area always
+          // fills the column top to bottom, half items bleeding into the viewport's fade at both edges.
+          // On this taller panel a fixed 1200 would leave the rail's bottom third empty while its top was
+          // full - the lopsided column the viewer sees as "compare the top with the bottom". Stretch makes
+          // the list own the whole column height on every screen, which is what the overscan really means.
+          menuList.Height = double.NaN;
+          menuList.VerticalAlignment = VerticalAlignment.Stretch;
+          menuList.HorizontalAlignment = HorizontalAlignment.Center;
+          contentPane.Margin = new Thickness(40, 100, 0, 0);
           contentPane.MaxWidth = double.PositiveInfinity;
           contentPane.HorizontalAlignment = HorizontalAlignment.Stretch;
           contentPane.VerticalAlignment = VerticalAlignment.Stretch;
           // The reference's pane is a wall: covers stand side by side and the row wraps, with a heading's
           // over-wide label starting each new band. A vertical list of covers would be a shelf, not a wall.
           contentList.ItemsPanel = new FuncTemplate<Panel?>(() => new WrapPanel());
+          contentList.IsVisible = false;
+          // A wall with nothing on it is not shown at all (AbstractHomeContent only ever handed the
+          // ContentControl a wrapper when the wrapper HadItems).
+          nereusContentPane.IsVisible = _home.ContentGroups.Count > 0;
+          // The buttons of this row are not the reference's: master_home.xaml shows a player's footer and
+          // the four corner buttons of power, user, settings and browse - no refresh, no now-playing, no
+          // server. A TV screen refreshes itself on its own terms; the viewer leaves and walks back in.
+          // (The row itself is emptied by the single rule at the bottom of this method.)
           break;
 
         case "wmc":
@@ -347,11 +482,16 @@ namespace MediaPortal.Frontend.Views
           homeAreas.ColumnDefinitions = ColumnDefinitions.Parse("0,*,0");
           homeAreas.ColumnSpacing = 0;
           menuList.Margin = new Thickness(0);
+          menuList.Height = double.NaN;
+          menuList.VerticalAlignment = VerticalAlignment.Stretch;
+          menuList.HorizontalAlignment = HorizontalAlignment.Stretch;
           contentPane.Margin = new Thickness(0, -100, 120, 0);
           contentPane.MaxWidth = 1900;
           contentPane.HorizontalAlignment = HorizontalAlignment.Right;
           contentPane.VerticalAlignment = VerticalAlignment.Top;
           contentList.ItemsPanel = PlainItemsPanel();
+          contentList.IsVisible = true;
+          nereusContentPane.IsVisible = false;
           break;
 
         default:
@@ -359,36 +499,134 @@ namespace MediaPortal.Frontend.Views
           homeAreas.ColumnDefinitions = ColumnDefinitions.Parse("330,*,270");
           homeAreas.ColumnSpacing = 34;
           menuList.Margin = new Thickness(0);
+          menuList.Height = double.NaN;
+          menuList.VerticalAlignment = VerticalAlignment.Stretch;
+          menuList.HorizontalAlignment = HorizontalAlignment.Stretch;
           contentPane.Margin = new Thickness(0);
           contentPane.MaxWidth = double.PositiveInfinity;
           contentPane.HorizontalAlignment = HorizontalAlignment.Stretch;
           contentPane.VerticalAlignment = VerticalAlignment.Stretch;
           contentList.ItemsPanel = PlainItemsPanel();
+          contentList.IsVisible = true;
+          nereusContentPane.IsVisible = false;
           break;
       }
 
-      // The cross is what a WMC home is made of and nothing else's; where no WMC is worn the arms step
-      // aside and the menu list puts its own face back on. RebuildCross runs on every arrangement
-      // because walking onto the cross, off it, or onto another entry all pass through here or through
-      // the view model's selection, and an arm showing yesterday's entry is worse than an empty arm.
-      bool wearsCross = _home.HomeLayout == "wmc";
-      menuList.Opacity = wearsCross ? 0 : 1;
-      wmcCross.IsVisible = wearsCross;
-      // The three layers the face wears, in the reference's order: Background.png opaque under the fanart -
-      // the reference's BackgroundBrush, the ground every WMC picture stands on - and Background_Home.png
-      // translucent over it, which is the one place the window's own copy of that picture (behind this
-      // screen, and so behind the fanart too) cannot be. Both only while WMC wears them: other faces dim
-      // their fanart with their own gradients, and a second copy of a background under them would only
-      // double what they paint. Asked from the worn face by name, so each WMC theme (default, Dark-WMC,
-      // Turquoise) puts its own pair of pictures into the same two slots, and the wash falls back to the
-      // theme's declared window background where a face carries no picture of that name.
-      wmcHomeBase.IsVisible = wearsCross;
-      wmcHomeBase.Source = wearsCross ? CrossArt("Background") : null;
-      wmcFanartWash.IsVisible = wearsCross;
-      wmcWashImage.Source = wearsCross
-          ? CrossArt("Background_Home") ?? this.FindResource("SkinBackgroundImage") as Avalonia.Media.IImage
-          : null;
+      // The bottom row is the skin's to decide. Only master_home.xaml is silent about these buttons, and its
+      // silent version of this screen has its own ways in (the corner buttons and the player's footer); under
+      // every other face the buttons are offered as they always were - a button that opens nothing being
+      // worse than no button, so each only while its screen can be built.
+      bool nereusFace = _home.HomeLayout == "nereus";
+      refreshButton.IsVisible = !nereusFace;
+      nowPlayingButton.IsVisible = !nereusFace && _nowPlayingScreen != null;
+      connectButton.IsVisible = !nereusFace && _connectScreen != null;
+      // And with the row emptied there must be no gap left where it was: the reference's menu column runs to
+      // the very bottom of the screen, so an empty row may not even reserve its margin.
+      bottomRow.Margin = nereusFace ? new Thickness(0) : new Thickness(0, 16, 0, 0);
+
+      // What the focused title whispers at the bottom of the screen starts where the content starts, not at
+      // the corner of the television: master_homemenu.xaml hangs its MultiDetailsHome.inc inside the
+      // content column (Grid.Column 1, fifty in), so the words begin beside the rail and never lie across
+      // it. The other arrangements always had the line clear of their well-inset menus.
+      contentInfoLine.Margin = nereusFace
+          ? new Thickness(240, 0, 0, 34)
+          : new Thickness(46, 0, 0, 34);
+
+      // And the header: over a Nereus home it floats, so the fanart of this screen reaches the very top
+      // of the television behind it, exactly as it does behind the empty HeaderPanel of master_home.xaml.
+      _chromeShell?.SetChromeHeaderOverlay(nereusFace);
+
+      // What a face paints for itself steps in front of what this screen offers as a fallback: a face that
+      // answers the home's background or overlay keys in its own home.xaml has said what it wants there, and
+      // the general fanart and the general line about the standing title have no business painting under it.
+      plainBackground.IsVisible = homeBackground.Template == null;
+      plainOverlays.IsVisible = homeOverlays.Template == null;
+
+      // The cross is what a WMC home is made of and nothing else's - and it is WMC's own markup, hanging on
+      // the menu-face host. Where no such face is worn the menu list puts its own face back on. RebuildCross
+      // runs on every arrangement because walking onto the cross, off it, or onto another entry all pass
+      // through here or through the view model's selection, and an arm showing yesterday's entry is worse
+      // than an empty arm.
+      menuList.Opacity = _home.HomeLayout == "wmc" ? 0 : 1;
       RebuildCross();
+    }
+
+    /// <summary>
+    /// Hangs the worn face's own home on the three hosts this screen offers: the layers it stands on, the face
+    /// its menu wears, and what it floats over the finished screen.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Nothing here knows what a Nereus or a WMC home looks like - that is written in <c>home.xaml</c> under
+    /// each face's own roof, in its own folder, and read by <see cref="SkinEngine"/> the way every other file
+    /// of a skin is. A face answers the keys it cares about and stays silent about the rest; a face that
+    /// answers none leaves the general arrangement standing, hosts empty and fallbacks painted.
+    /// </para>
+    /// <para>
+    /// This is the same road the window's chrome takes (<c>ShellWindow.WearSkinChrome</c>): a host whose
+    /// template comes from the worn skin, re-hung whenever the skin changes, so swapping a face on a running
+    /// front end repaints the home without a screen of C# being touched.
+    /// </para>
+    /// </remarks>
+    private void WearSkinHome(object? sender, EventArgs args)
+    {
+      homeBackground.Template = SkinEngine.WornTemplate("HomeBackgroundTemplate");
+      homeMenuFace.Template = SkinEngine.WornTemplate("HomeMenuFaceTemplate");
+      homeOverlays.Template = SkinEngine.WornTemplate("HomeOverlaysTemplate");
+
+      // A template that was just hung is not yet a visual tree, and the arms of a cross are filled from the
+      // tree - so build it now and, because a host only realises what it is given once it stands on screen,
+      // say so again when the layout has had its turn.
+      homeMenuFace.ApplyTemplate();
+      RebuildCross();
+      Dispatcher.UIThread.Post(delegate
+      {
+        homeMenuFace.ApplyTemplate();
+        RebuildCross();
+      }, DispatcherPriority.Loaded);
+
+      // The fallbacks step aside for whatever the face paints, and the general line about the standing title
+      // comes back when a face says nothing about overlays.
+      plainBackground.IsVisible = homeBackground.Template == null;
+      plainOverlays.IsVisible = homeOverlays.Template == null;
+    }
+
+    /// <summary>
+    /// One of the parts the worn face hung on a host, found by the name its own markup gave it - a cross arm,
+    /// the frame around the entry being stood on. Null while no face is worn, while the face's markup names
+    /// nothing of that kind, or before the host has built what it was given.
+    /// </summary>
+    /// <remarks>
+    /// Names rather than fields because a template built at run time belongs to no compiled view: the face
+    /// decides what its parts are called, and this screen only ever asks for them by the name the face chose.
+    /// </remarks>
+    private static T? FacePart<T>(ContentControl host, string name) where T : Control
+    {
+      return host.GetVisualDescendants().OfType<T>().FirstOrDefault(control => control.Name == name);
+    }
+
+    private void ScrollSelectedMenuItem()
+    {
+      MainMenuEntry? selected = _home.SelectedEntry;
+      if (!_home.IsNereusHome || selected == null)
+        return;
+
+      Dispatcher.UIThread.Post(delegate
+      {
+        ScrollViewer? scrollViewer = menuList.GetVisualDescendants().OfType<ScrollViewer>().FirstOrDefault();
+        Control? item = menuList.ContainerFromItem(selected) as Control;
+        if (scrollViewer == null || item == null)
+          return;
+
+        Point? itemTop = item.TranslatePoint(new Point(0, 0), scrollViewer);
+        if (itemTop == null)
+          return;
+
+        double maxOffset = Math.Max(0, scrollViewer.Extent.Height - scrollViewer.Viewport.Height);
+        double centeredOffset = scrollViewer.Offset.Y + itemTop.Value.Y
+            + item.Bounds.Height / 2 - scrollViewer.Viewport.Height / 2;
+        scrollViewer.Offset = new Vector(scrollViewer.Offset.X, Math.Clamp(centeredOffset, 0, maxOffset));
+      }, DispatcherPriority.Loaded);
     }
 
     /// <summary>
@@ -409,10 +647,23 @@ namespace MediaPortal.Frontend.Views
     /// </remarks>
     private void RebuildCross()
     {
-      crossAbove.Children.Clear();
-      crossBelow.Children.Clear();
-      crossLeft.Children.Clear();
-      crossRight.Children.Clear();
+      // The arms are the worn face's markup rather than this screen's: they hang on the menu-face host under
+      // the names WMC's own home.xaml gave them, and where no face hangs a cross there is nothing to fill.
+      StackPanel? above = FacePart<StackPanel>(homeMenuFace, "crossAbove");
+      StackPanel? below = FacePart<StackPanel>(homeMenuFace, "crossBelow");
+      StackPanel? left = FacePart<StackPanel>(homeMenuFace, "crossLeft");
+      StackPanel? right = FacePart<StackPanel>(homeMenuFace, "crossRight");
+      TextBlock? centerLabel = FacePart<TextBlock>(homeMenuFace, "crossCenterLabel");
+      TextBlock? stoodName = FacePart<TextBlock>(homeMenuFace, "crossName");
+      Image? frame = FacePart<Image>(homeMenuFace, "crossFrame");
+      Image? focusArt = FacePart<Image>(homeMenuFace, "crossFocusArt");
+      if (above == null || below == null || left == null || right == null)
+        return;
+
+      above.Children.Clear();
+      below.Children.Clear();
+      left.Children.Clear();
+      right.Children.Clear();
 
       if (_home.HomeLayout != "wmc")
         return;
@@ -440,10 +691,14 @@ namespace MediaPortal.Frontend.Views
 
       if (_wmc.SelectedGroup == null)
       {
-        crossCenterLabel.Text = "";
-        crossName.Text = "";
-        crossFrame.Source = null;
-        crossFocusArt.Source = null;
+        if (centerLabel != null)
+          centerLabel.Text = "";
+        if (stoodName != null)
+          stoodName.Text = "";
+        if (frame != null)
+          frame.Source = null;
+        if (focusArt != null)
+          focusArt.Source = null;
         return;
       }
 
@@ -457,25 +712,29 @@ namespace MediaPortal.Frontend.Views
 
       for (int d = 3; d >= 1; d--)
         if (standingGroup - d >= 0)
-          crossAbove.Children.Add(CrossLabel(groups[standingGroup - d].Label, dim, d));
+          above.Children.Add(CrossLabel(groups[standingGroup - d].Label, dim, d));
       for (int d = 1; d <= 3; d++)
         if (standingGroup + d < groups.Count)
-          crossBelow.Children.Add(CrossLabel(groups[standingGroup + d].Label, dim, d));
+          below.Children.Add(CrossLabel(groups[standingGroup + d].Label, dim, d));
 
       for (int d = 2; d >= 1; d--)
         if (standingSub - d >= 0)
-          crossLeft.Children.Add(CrossNeighbour(subItems[standingSub - d], dim));
+          left.Children.Add(CrossNeighbour(subItems[standingSub - d], dim));
       for (int d = 1; d <= 2; d++)
         if (standingSub + d < subItems.Count)
-          crossRight.Children.Add(CrossNeighbour(subItems[standingSub + d], dim));
+          right.Children.Add(CrossNeighbour(subItems[standingSub + d], dim));
 
       MainMenuEntry? stood = standingSub >= 0 ? subItems[standingSub] : null;
-      crossCenterLabel.Text = _wmc.SelectedGroup?.Label ?? "";
-      crossName.Text = stood?.Label ?? "";
-      crossFrame.Source = CrossArt("Focus.Frame");
-      crossFocusArt.Source = stood == null || string.IsNullOrEmpty(stood.HomeImageId)
-          ? null
-          : CrossArt($"HomeMenu/{stood.HomeImageId}Focus");
+      if (centerLabel != null)
+        centerLabel.Text = _wmc.SelectedGroup?.Label ?? "";
+      if (stoodName != null)
+        stoodName.Text = stood?.Label ?? "";
+      if (frame != null)
+        frame.Source = CrossArt("Focus.Frame");
+      if (focusArt != null)
+        focusArt.Source = stood == null || string.IsNullOrEmpty(stood.HomeImageId)
+            ? null
+            : CrossArt($"HomeMenu/{stood.HomeImageId}Focus");
     }
 
     /// <summary>
@@ -544,11 +803,27 @@ namespace MediaPortal.Frontend.Views
       return tile;
     }
 
-    /// <summary>A picture of the worn skin by name, or null - asked the same way a template's converter asks.</summary>
+    /// <summary>
+    /// A picture of the worn skin by name, or null - read the same way the engine reads it, but as the control's
+    /// <i>own</i> bitmap rather than the engine's cached one. The engine keeps its pictures only while the face
+    /// is worn and frees every one of them when it comes off; a frame the view painted with the shared bitmap
+    /// then stands in the visual tree over a released one, and the next render pass dies with an
+    /// ObjectDisposedException no dispatcher trick can arrive early enough to prevent. Re-reading the file costs
+    /// one small PNG and buys a bitmap nothing but this view ever releases.
+    /// </summary>
     private static Avalonia.Media.Imaging.Bitmap? CrossArt(string name)
     {
       WornSkin? worn = SkinImageConverter.WornPictures();
-      return worn == null ? null : worn.Images.Load(name);
+      if (worn == null || !worn.Images.TryGetLocation(name, out string? location) || location == null)
+        return null;
+      try
+      {
+        return (Avalonia.Media.Imaging.Bitmap) SkinEngine.ReadImage(location);
+      }
+      catch (Exception)
+      {
+        return null;
+      }
     }
 
     /// <summary>Where an item stands in a read-only list - these lists hold an armful, and a walk is all the search they need.</summary>
@@ -645,6 +920,140 @@ namespace MediaPortal.Frontend.Views
       WorkflowFrame? frame = _sectionScreen(section);
       if (frame != null)
         _workflow.Push(frame);
+    }
+
+    private void OpenEntry(MainMenuEntry entry)
+    {
+      HomeSection? section = _home.Open(entry);
+      if (section != null)
+        OpenSection(section);
+      else if (entry.ScreenKey != null)
+        OpenScreen(entry.ScreenKey);
+    }
+
+    private void OnNereusTileClick(object? sender, RoutedEventArgs args)
+    {
+      if (sender is not Button button || button.Tag is not HomeContentTile tile)
+        return;
+
+      if (tile.Title != null)
+      {
+        _home.ResumeCommand.Execute(tile.Title);
+        return;
+      }
+
+      if (tile.MenuEntry != null)
+      {
+        OpenEntry(tile.MenuEntry);
+        return;
+      }
+
+      if (tile.Shortcut is not NereusHomeShortcut shortcut)
+        return;
+
+      if (shortcut.BrowseBy != null && _home.SelectedEntry?.Section is HomeSection section)
+      {
+        BrowseCategory? category = BrowseViewModel.CATEGORIES.FirstOrDefault(candidate =>
+            string.Equals(candidate.Word, shortcut.BrowseBy, StringComparison.OrdinalIgnoreCase));
+        if (category != null)
+        {
+          BrowseViewModel browse = new BrowseViewModel(_home.Client, new[] { section })
+          {
+            SelectedCategory = category
+          };
+          _workflow.Push(new WorkflowFrame("browse", "Browse " + shortcut.Label, browse));
+          return;
+        }
+      }
+
+      if (shortcut.ScreenKey == "news" || shortcut.ScreenKey == "weather")
+      {
+        OpenScreen(shortcut.ScreenKey);
+        return;
+      }
+
+      _home.Status = "The " + shortcut.Label + " shortcut is not available in this build.";
+    }
+
+    private void OnNereusTileGotFocus(object? sender, RoutedEventArgs args)
+    {
+      if (sender is Button button && button.Tag is HomeContentTile tile && tile.Title != null)
+      {
+        _home.SelectedContent = _home.ContentRows.FirstOrDefault(row => ReferenceEquals(row.Title, tile.Title));
+      }
+    }
+
+    private Button[] GetFocusableNereusTiles()
+    {
+      return nereusContentPane.GetVisualDescendants()
+          .OfType<Button>()
+          .Where(button => button.Focusable && button.IsVisible && button.IsEnabled)
+          .ToArray();
+    }
+
+    private Button? FindDirectionalNereusTile(Button current, IEnumerable<Button> tiles, Key direction)
+    {
+      Point? currentCenter = current.TranslatePoint(
+          new Point(current.Bounds.Width / 2, current.Bounds.Height / 2), this);
+      if (currentCenter == null)
+        return null;
+
+      Button? nearest = null;
+      double bestScore = double.MaxValue;
+      foreach (Button candidate in tiles)
+      {
+        if (ReferenceEquals(candidate, current))
+          continue;
+
+        Point? candidateCenter = candidate.TranslatePoint(
+            new Point(candidate.Bounds.Width / 2, candidate.Bounds.Height / 2), this);
+        if (candidateCenter == null)
+          continue;
+
+        double dx = candidateCenter.Value.X - currentCenter.Value.X;
+        double dy = candidateCenter.Value.Y - currentCenter.Value.Y;
+        double primary;
+        double secondary;
+        switch (direction)
+        {
+          case Key.Left:
+            primary = -dx;
+            secondary = Math.Abs(dy);
+            break;
+          case Key.Right:
+            primary = dx;
+            secondary = Math.Abs(dy);
+            break;
+          case Key.Up:
+            primary = -dy;
+            secondary = Math.Abs(dx);
+            break;
+          case Key.Down:
+            primary = dy;
+            secondary = Math.Abs(dx);
+            break;
+          default:
+            return null;
+        }
+
+        if (primary <= 0)
+          continue;
+
+        double score = primary + secondary * 1.5;
+        if (score < bestScore)
+        {
+          nearest = candidate;
+          bestScore = score;
+        }
+      }
+
+      return nearest;
+    }
+
+    private void FocusNereusTile(Button tile)
+    {
+      if (tile.Focus())
+        tile.BringIntoView();
     }
 
     /// <summary>
