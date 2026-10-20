@@ -317,6 +317,9 @@ namespace MediaPortal.Frontend
         };
 
         desktop.MainWindow = _shell;
+
+        // The worn skin's own step and click sounds, heard through the one window every screen lives in.
+        Theming.SkinSounds.Attach(_shell);
       }
 
       base.OnFrameworkInitializationCompleted();
