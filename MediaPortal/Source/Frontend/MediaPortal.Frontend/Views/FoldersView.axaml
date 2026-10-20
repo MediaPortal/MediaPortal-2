@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        xmlns:theming="clr-namespace:MediaPortal.Frontend.Theming"
         x:Class="MediaPortal.Frontend.Views.FoldersView"
         x:DataType="vm:FoldersViewModel"
         Name="folders"
@@ -40,7 +41,7 @@
 
     <Grid ColumnDefinitions="*,520" ColumnSpacing="40">
 
-      <ListBox Name="foldersList"
+      <ListBox Name="foldersList" theming:SkinTemplates.TileTemplate="FolderRowTemplate"
                Focusable="True"
                ItemsSource="{Binding Shares}"
                SelectedItem="{Binding Selected, Mode=TwoWay}"

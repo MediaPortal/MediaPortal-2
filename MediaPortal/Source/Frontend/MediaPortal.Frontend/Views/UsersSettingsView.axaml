@@ -3,6 +3,7 @@
         xmlns:views="using:MediaPortal.Frontend.Views"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
         xmlns:api="using:MediaPortal.Frontend.Api"
+        xmlns:theming="clr-namespace:MediaPortal.Frontend.Theming"
         x:Class="MediaPortal.Frontend.Views.UsersSettingsView"
         x:DataType="vm:UsersSettingsViewModel"
         Name="usersSettings"
@@ -51,7 +52,7 @@
                 HorizontalAlignment="Left"
                 Margin="0,10,0,0" />
 
-        <ListBox Name="usersList"
+        <ListBox Name="usersList" theming:SkinTemplates.TileTemplate="LabelRowTemplate"
                  Focusable="True"
                  ItemsSource="{Binding Users}"
                  SelectedItem="{Binding Selected, Mode=TwoWay}"

@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        xmlns:theming="clr-namespace:MediaPortal.Frontend.Theming"
         x:Class="MediaPortal.Frontend.Views.BrowseView"
         x:DataType="vm:BrowseViewModel"
         Name="browse"
@@ -38,7 +39,7 @@
 
     <Grid ColumnDefinitions="*,260,*" ColumnSpacing="30">
 
-      <ListBox Name="shelvesList"
+      <ListBox Name="shelvesList" theming:SkinTemplates.TileTemplate="LabelRowTemplate"
                Focusable="True"
                ItemsSource="{Binding Shelves}"
                SelectedItem="{Binding SelectedShelf, Mode=TwoWay}"
@@ -50,7 +51,7 @@
         </ListBox.ItemTemplate>
       </ListBox>
 
-      <ListBox Name="categoriesList"
+      <ListBox Name="categoriesList" theming:SkinTemplates.TileTemplate="LabelRowTemplate"
                Grid.Column="1"
                Focusable="True"
                ItemsSource="{Binding Categories}"
@@ -63,7 +64,7 @@
         </ListBox.ItemTemplate>
       </ListBox>
 
-      <ListBox Name="valuesList"
+      <ListBox Name="valuesList" theming:SkinTemplates.TileTemplate="TextRowTemplate"
                Grid.Column="2"
                Focusable="True"
                ItemsSource="{Binding Values}"

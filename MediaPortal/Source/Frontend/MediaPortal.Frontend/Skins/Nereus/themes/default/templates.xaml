@@ -168,6 +168,54 @@
   </DataTemplate>
 
   <!--
+    The plainest row there is - an item that only has a Text - drawn with the same hairline rule as the
+    label rows, for the third Browse column.
+  -->
+  <DataTemplate x:Key="TextRowTemplate" x:CompileBindings="False">
+    <Panel>
+      <TextBlock Text="{Binding Text}" FontSize="{DynamicResource SmallerFontSize}"
+                 Margin="6,8"
+                 TextTrimming="CharacterEllipsis"
+                 Foreground="{DynamicResource TextBrush}"/>
+      <Border Height="1" Background="{DynamicResource AccentBrush}" Opacity="0.18"
+              VerticalAlignment="Bottom"/>
+    </Panel>
+  </DataTemplate>
+
+  <!--
+    A one-word row in the side lists Browse and the user picker walk: the label with the hairline rule
+    under it, the way Nereus separated its sidebar entries.
+  -->
+  <DataTemplate x:Key="LabelRowTemplate" x:CompileBindings="False">
+    <Panel>
+      <TextBlock Text="{Binding Label}" FontSize="{DynamicResource SmallerFontSize}"
+                 Margin="6,8"
+                 Foreground="{DynamicResource TextBrush}"/>
+      <Border Height="1" Background="{DynamicResource AccentBrush}" Opacity="0.18"
+              VerticalAlignment="Bottom"/>
+    </Panel>
+  </DataTemplate>
+
+  <!--
+    A share in the folders screen: the name in the loud white, and under it what the share holds and where
+    it lives on disk, both greyed the way Nereus greys everything that is not the headline.
+  -->
+  <DataTemplate x:Key="FolderRowTemplate" x:DataType="vm:FolderShare">
+    <StackPanel Spacing="2" Margin="4,9">
+      <TextBlock Text="{Binding Name}" FontSize="{DynamicResource SmallerFontSize}"
+                 FontWeight="SemiBold"
+                 Foreground="{DynamicResource TextBrush}"/>
+      <TextBlock Text="{Binding CategoriesText}" FontSize="{DynamicResource TinyFontSize}"
+                 Opacity="0.6"
+                 Foreground="{DynamicResource MutedTextBrush}"/>
+      <TextBlock Text="{Binding Path}" FontSize="{DynamicResource TinyFontSize}"
+                 Opacity="0.45"
+                 TextTrimming="CharacterEllipsis"
+                 Foreground="{DynamicResource MutedTextBrush}"/>
+    </StackPanel>
+  </DataTemplate>
+
+  <!--
     One row of the home content pane. The pane is a single walkable list of headings, notes and titles
     (see HomeRow), so this one template draws all three: the heading in the skin's loud white with the
     thin accent rule Nereus put under its section titles, the note quiet and indented, the title line

@@ -206,6 +206,54 @@
   </DataTemplate>
 
   <!--
+    The plainest row there is - an item that only has a Text - drawn as a band like every other WMC row,
+    for the third Browse column.
+  -->
+  <DataTemplate x:Key="TextRowTemplate" x:CompileBindings="False">
+    <Border Background="{DynamicResource PanelBrush}" Padding="14,7" Margin="0,3,8,5">
+      <TextBlock Text="{Binding Text}" FontSize="20"
+                 TextTrimming="CharacterEllipsis"
+                 Foreground="{DynamicResource TextBrush}"/>
+    </Border>
+  </DataTemplate>
+
+  <!--
+    A one-word row in the side lists Browse and the user picker walk: WMC makes every choice a band of
+    panel blue, so these lists wear bands too - the label in the big white type, the accent edge below.
+  -->
+  <DataTemplate x:Key="LabelRowTemplate" x:CompileBindings="False">
+    <Border Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource AccentBrush}"
+            BorderThickness="0,0,0,2" Padding="14,7" Margin="0,3,8,5">
+      <TextBlock Text="{Binding Label}" FontSize="21" FontWeight="Bold"
+                 TextTrimming="CharacterEllipsis"
+                 Foreground="{DynamicResource TextBrush}"/>
+    </Border>
+  </DataTemplate>
+
+  <!--
+    A share in the folders screen: one wide band like every WMC row - the name large on the left with
+    what it holds next to it, and the path along the bottom in small muted type.
+  -->
+  <DataTemplate x:Key="FolderRowTemplate" x:DataType="vm:FolderShare">
+    <Border Background="{DynamicResource PanelBrush}" Padding="14,7" Margin="0,3,8,5">
+      <StackPanel Spacing="2">
+        <Grid ColumnDefinitions="1.6*,1*" ColumnSpacing="12">
+          <TextBlock Grid.Column="0" Text="{Binding Name}" FontSize="21" FontWeight="Bold"
+                     TextTrimming="CharacterEllipsis"
+                     Foreground="{DynamicResource TextBrush}"/>
+          <TextBlock Grid.Column="1" Text="{Binding CategoriesText}" FontSize="14"
+                     HorizontalAlignment="Right"
+                     TextTrimming="CharacterEllipsis"
+                     Foreground="{DynamicResource MutedTextBrush}"/>
+        </Grid>
+        <TextBlock Text="{Binding Path}" FontSize="13"
+                   TextTrimming="CharacterEllipsis"
+                   Foreground="{DynamicResource MutedTextBrush}" Opacity="0.75"/>
+      </StackPanel>
+    </Border>
+  </DataTemplate>
+
+  <!--
     One row of the home content pane, in WMC's voice: rows are bands here too. A heading is a band of its
     own - the name in the big type with the accent edge along the bottom - and a title is the same band a
     shelf row wears, name left and state right. No thin grey subtitle anywhere; that is Nereus' voice.
