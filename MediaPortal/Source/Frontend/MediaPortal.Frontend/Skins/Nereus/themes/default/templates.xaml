@@ -14,6 +14,7 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:vm="clr-namespace:MediaPortal.Frontend.ViewModels"
+  xmlns:dis="using:MediaPortal.Frontend.Discovery"
                     xmlns:views="clr-namespace:MediaPortal.Frontend.Views">
 
   <!--
@@ -207,6 +208,41 @@
                  Margin="6,8"
                  TextTrimming="CharacterEllipsis"
                  Foreground="{DynamicResource TextBrush}"/>
+      <Border Height="1" Background="{DynamicResource AccentBrush}" Opacity="0.18"
+              VerticalAlignment="Bottom"/>
+    </Panel>
+  </DataTemplate>
+
+  <!--
+    A line of the system status screen: the word it asks on the left in the skin's quiet grey, the answer
+    on the right in loud white.
+  -->
+  <DataTemplate x:Key="StatusRowTemplate" x:DataType="vm:SystemStatusViewModel+Line">
+    <Grid ColumnDefinitions="260,*" ColumnSpacing="16" Margin="4,5">
+      <TextBlock Grid.Column="0" Text="{Binding Label}"
+                 FontSize="{DynamicResource TinyFontSize}"
+                 Opacity="0.6"
+                 Foreground="{DynamicResource MutedTextBrush}"/>
+      <TextBlock Grid.Column="1" Text="{Binding Value}"
+                 FontSize="{DynamicResource SmallerFontSize}"
+                 TextWrapping="Wrap"
+                 Foreground="{DynamicResource TextBrush}"/>
+    </Grid>
+  </DataTemplate>
+
+  <!--
+    A server the finder discovered: its name in the loud type, address and version in quiet type under it,
+    with Nereus' hairline rule so the pickable rows read as a list.
+  -->
+  <DataTemplate x:Key="ServerRowTemplate" x:DataType="dis:DetectedServer">
+    <Panel Margin="4,6">
+      <StackPanel Spacing="2">
+        <TextBlock Text="{Binding Name}" FontSize="{DynamicResource HugeFontSize}"
+                   Foreground="{DynamicResource TextBrush}"/>
+        <TextBlock Text="{Binding DetailLine}" FontSize="{DynamicResource TinyFontSize}"
+                   Opacity="0.6"
+                   Foreground="{DynamicResource MutedTextBrush}"/>
+      </StackPanel>
       <Border Height="1" Background="{DynamicResource AccentBrush}" Opacity="0.18"
               VerticalAlignment="Bottom"/>
     </Panel>

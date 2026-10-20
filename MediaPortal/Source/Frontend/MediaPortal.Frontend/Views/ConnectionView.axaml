@@ -3,6 +3,7 @@
         xmlns:views="using:MediaPortal.Frontend.Views"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
         xmlns:dis="using:MediaPortal.Frontend.Discovery"
+        xmlns:theming="clr-namespace:MediaPortal.Frontend.Theming"
         x:Class="MediaPortal.Frontend.Views.ConnectionView"
         x:DataType="vm:ConnectionViewModel"
         Name="connection"
@@ -42,7 +43,7 @@
                  FontSize="22"
                  Opacity="0.85" />
 
-      <ListBox Name="serversList"
+      <ListBox Name="serversList" theming:SkinTemplates.TileTemplate="ServerRowTemplate"
                Focusable="True"
                ItemsSource="{Binding Servers}"
                SelectedItem="{Binding SelectedServer, Mode=TwoWay}"

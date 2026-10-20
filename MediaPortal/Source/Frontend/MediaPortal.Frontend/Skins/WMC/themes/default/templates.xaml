@@ -11,6 +11,7 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:vm="clr-namespace:MediaPortal.Frontend.ViewModels"
+  xmlns:dis="using:MediaPortal.Frontend.Discovery"
                     xmlns:views="clr-namespace:MediaPortal.Frontend.Views">
 
   <!--
@@ -246,6 +247,38 @@
       <TextBlock Text="{Binding Text}" FontSize="20"
                  TextTrimming="CharacterEllipsis"
                  Foreground="{DynamicResource TextBrush}"/>
+    </Border>
+  </DataTemplate>
+
+  <!--
+    A line of the system status screen: the word it asks in muted small type, the answer in loud white
+    beside it, both inside a band of panel blue like every other WMC row.
+  -->
+  <DataTemplate x:Key="StatusRowTemplate" x:DataType="vm:SystemStatusViewModel+Line">
+    <Border Background="{DynamicResource PanelBrush}" Padding="14,5" Margin="0,3,8,5">
+      <Grid ColumnDefinitions="260,*" ColumnSpacing="16">
+        <TextBlock Grid.Column="0" Text="{Binding Label}" FontSize="15"
+                   Foreground="{DynamicResource MutedTextBrush}"/>
+        <TextBlock Grid.Column="1" Text="{Binding Value}" FontSize="18" FontWeight="Bold"
+                   TextWrapping="Wrap"
+                   Foreground="{DynamicResource TextBrush}"/>
+      </Grid>
+    </Border>
+  </DataTemplate>
+
+  <!--
+    A server the finder discovered: WMC gives it a band of panel blue - name in the big bold type,
+    address and version in muted type under it.
+  -->
+  <DataTemplate x:Key="ServerRowTemplate" x:DataType="dis:DetectedServer">
+    <Border Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource AccentBrush}"
+            BorderThickness="0,0,0,2" Padding="14,7" Margin="0,3,8,5">
+      <StackPanel Spacing="2">
+        <TextBlock Text="{Binding Name}" FontSize="24" FontWeight="Bold"
+                   Foreground="{DynamicResource TextBrush}"/>
+        <TextBlock Text="{Binding DetailLine}" FontSize="14"
+                   Foreground="{DynamicResource MutedTextBrush}"/>
+      </StackPanel>
     </Border>
   </DataTemplate>
 

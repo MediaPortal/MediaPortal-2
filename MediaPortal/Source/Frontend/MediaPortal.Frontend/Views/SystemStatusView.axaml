@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        xmlns:theming="clr-namespace:MediaPortal.Frontend.Theming"
         x:Class="MediaPortal.Frontend.Views.SystemStatusView"
         x:DataType="vm:SystemStatusViewModel"
         Name="systemStatus"
@@ -44,7 +45,7 @@
             HorizontalAlignment="Left"
             Margin="0,10,0,0" />
 
-    <ListBox Name="linesList"
+    <ListBox Name="linesList" theming:SkinTemplates.TileTemplate="StatusRowTemplate"
              Focusable="True"
              ItemsSource="{Binding Lines}"
              FontSize="18">
