@@ -365,13 +365,16 @@ namespace MediaPortal.Frontend.Views
       }
 
       AddHandler(KeyDownEvent,
-          delegate (object? sender, KeyEventArgs args) { Wake(args); },
+          delegate (object? sender, RoutedEventArgs args) { Wake(args); },
           RoutingStrategies.Tunnel, true);
       AddHandler(PointerPressedEvent,
-          delegate (object? sender, PointerPressedEventArgs args) { Wake(args); },
+          delegate (object? sender, RoutedEventArgs args) { Wake(args); },
           RoutingStrategies.Tunnel, true);
+      // The base argument type on purpose: the move route legitimately carries the plain PointerEventArgs,
+      // and a handler that demands a richer one is an ArgumentException on the first movement of the mouse -
+      // which is to say a dead application the moment someone touches the desk next to the remote.
       AddHandler(PointerMovedEvent,
-          delegate (object? sender, PointerPressedEventArgs args) { Wake(args); },
+          delegate (object? sender, RoutedEventArgs args) { Wake(args); },
           RoutingStrategies.Tunnel, true);
 
       Opened += delegate
