@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediaPortal.Frontend.Api;
+using MediaPortal.Frontend.Settings;
 
 namespace MediaPortal.Frontend.ViewModels
 {
@@ -70,6 +71,57 @@ namespace MediaPortal.Frontend.ViewModels
 
     /// <summary>Whether the highlight stands on somebody. The working rows appear with a picked user.</summary>
     public bool HasSelection => Selected != null;
+
+    /// <summary>
+    /// Whether the waking screen asks who is watching - the option the reference's login plugin kept under
+    /// these very users (Settings → Users was where a household turned its login screen on and off). It is
+    /// this box's answer and not the server's, because the question is asked in the living room and the
+    /// answer stays in the client's own file.
+    /// </summary>
+    public bool AskForViewer
+    {
+      get { return ClientSettings.Load(null, out _).AskForViewer; }
+      set
+      {
+        ClientSettings settings = ClientSettings.Load(null, out _);
+        settings.AskForViewer = value;
+        string says = settings.Save(null, out bool saved);
+        Status = saved
+            ? (value ? "The screen will ask who is watching." : "The screen will not ask who is watching.")
+            : says;
+        OnPropertyChanged();
+        OnPropertyChanged(nameof(WatchingSays));
+      }
+    }
+
+    /// <summary>The quiet sentence about today's answer: who the room watches as, or that nobody is asked.</summary>
+    public string WatchingSays
+    {
+      get
+      {
+        string remembered = ClientSettings.Load(null, out _).RememberedViewer;
+        return remembered.Length == 0
+            ? "Nobody is remembered right now - the room watches all together."
+            : string.Format("The room is watching as {0}.", remembered);
+      }
+    }
+
+    /// <summary>
+    /// Forgets the remembered answer and turns the asking back on, so the next start poses the question
+    /// again. The reference's households got back to the question the same way - by saying so under
+    /// Settings → Users, not by hunting through files.
+    /// </summary>
+    [RelayCommand]
+    public void AskAgainNextStart()
+    {
+      ClientSettings settings = ClientSettings.Load(null, out _);
+      settings.RememberedViewer = "";
+      settings.AskForViewer = true;
+      string says = settings.Save(null, out bool saved);
+      Status = saved ? "The next start will ask who is watching." : says;
+      OnPropertyChanged(nameof(WatchingSays));
+      OnPropertyChanged(nameof(AskForViewer));
+    }
 
     partial void OnSelectedChanged(UserInfo? value)
     {

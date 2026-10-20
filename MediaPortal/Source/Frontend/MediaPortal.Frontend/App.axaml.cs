@@ -597,6 +597,17 @@ namespace MediaPortal.Frontend
     {
       _workflow.Push(HomeFrame());
 
+      // Who is watching, answered before the first screen draws: a remembered name owns the skin's answers
+      // straight away - the reference's auto-login user, whose per-user settings were simply the settings
+      // with that name on the file - and a household that turned the asking on but has answered nothing yet
+      // finds the question standing over the library the moment the window opens. An off switch and a
+      // "ask again" press live under Settings → Users, where the reference kept the option too.
+      Settings.ClientSettings machine = Settings.ClientSettings.Load(null, out _);
+      if (machine.RememberedViewer.Length > 0)
+        Settings.SkinSettingsBase.FileOwner = machine.RememberedViewer;
+      else if (machine.AskForViewer)
+        _workflow.Push(ViewerFrame());
+
       // The wake-up answer "last shelf" opens its shelf the moment the menu first knows whether the
       // library still holds it - a remembered label whose shelf is gone opens the home screen instead,
       // which is the whole fallback, needing no word because the viewer never asked for that shelf today.
@@ -628,6 +639,34 @@ namespace MediaPortal.Frontend
     private Workflow.WorkflowFrame HomeFrame()
     {
       return new Workflow.WorkflowFrame("home", "Home", _home);
+    }
+
+    /// <summary>
+    /// The question of who is watching, as a frame pushed over the library - the reference pushed its
+    /// login screen over the master menu in exactly this way. The answer is the application's business:
+    /// the name picked owns the skin's answers from here (and the colours change with it), while "nobody
+    /// in particular" leaves them shared; either way the step aside is the same pop.
+    /// </summary>
+    private Workflow.WorkflowFrame ViewerFrame()
+    {
+      ViewerPickerViewModel viewModel = new ViewerPickerViewModel(() => _home.Client, ApplyViewer);
+      return new Workflow.WorkflowFrame("viewer", "Who is watching?", viewModel);
+    }
+
+    /// <summary>
+    /// The room's answer. A name makes that person the owner of the skin's own answers and the worn skin's
+    /// colours are read anew under their file, the same way a sign-in re-hangs the skin on the signed-in
+    /// name; "nobody" keeps the shared file. Either way the question steps aside, because the next start
+    /// reads the answer from the client settings rather than asking twice.
+    /// </summary>
+    private void ApplyViewer(string? name)
+    {
+      Settings.SkinSettingsBase.FileOwner = name ?? "";
+      if (name != null)
+        Theming.FrontendTheme.Reapply(Application.Current!);
+
+      if (_workflow.Stack.Count > 1)
+        _workflow.Pop();
     }
 
     /// <summary>
@@ -710,6 +749,9 @@ namespace MediaPortal.Frontend
 
       if (state == "connection")
         return new ConnectionView((ConnectionViewModel)frame.ViewModel, _workflow);
+
+      if (state == "viewer")
+        return new ViewerPickerView((ViewerPickerViewModel)frame.ViewModel);
 
       if (state == "close")
         return new CloseView((CloseViewModel)frame.ViewModel, _workflow);

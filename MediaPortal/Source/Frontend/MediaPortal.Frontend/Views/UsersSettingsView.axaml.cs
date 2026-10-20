@@ -44,6 +44,8 @@ namespace MediaPortal.Frontend.Views
       _ring.Add(saveButton);
       _ring.Add(removePasswordButton);
       _ring.Add(removeButton);
+      _ring.Add(askViewerBox);
+      _ring.Add(askAgainButton);
       _ring.Add(reloadButton);
       DpadNavigation.Attach(this, _ring);
 

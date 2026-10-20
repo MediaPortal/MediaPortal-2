@@ -127,6 +127,24 @@ public sealed class ClientSettings
   [JsonPropertyName("screensaverMinutes")]
   public int ScreensaverMinutes { get; set; }
 
+  /// <summary>
+  /// Whether the front end asks WHO is watching whenever the screen wakes - the reference's login screen,
+  /// which was an option a household turned on, not a turnstile. On, every start that has no remembered
+  /// answer asks for a name; off - the shipped answer - nobody is asked, because the reference's living
+  /// rooms didn't either.
+  /// </summary>
+  [JsonPropertyName("askForViewer")]
+  public bool AskForViewer { get; set; }
+
+  /// <summary>
+  /// The name the watching was answered with, remembered so the next start doesn't ask again - the
+  /// reference's auto-login user. Empty means ask; forgetting it is the answer to "ask again". Whoever
+  /// is remembered owns the skin's answers from then on: the skin settings file carries their name,
+  /// the way the reference's per-user settings did.
+  /// </summary>
+  [JsonPropertyName("rememberedViewer")]
+  public string RememberedViewer { get; set; } = "";
+
   private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
   {
     WriteIndented = true,
@@ -229,7 +247,20 @@ public sealed class ClientSettings
 
       File.WriteAllText(file, JsonSerializer.Serialize(this, JsonOptions));
       saved = true;
-      Changed?.Invoke(this, EventArgs.Empty);
+      // The screens that listen hear about it, but a listener that stumbles over its own business -
+      // a window mid-teardown, a reader with nothing to read - must never turn a save that happened
+      // into a save that "could not write".
+      foreach (EventHandler handler in Changed?.GetInvocationList() ?? Array.Empty<Delegate>())
+      {
+        try
+        {
+          ((EventHandler)handler)(this, EventArgs.Empty);
+        }
+        catch (Exception listenerProblem)
+        {
+          Console.WriteLine("client settings listener: " + listenerProblem.Message);
+        }
+      }
       return string.Format("Saved in {0}.", file);
     }
     catch (Exception ex)

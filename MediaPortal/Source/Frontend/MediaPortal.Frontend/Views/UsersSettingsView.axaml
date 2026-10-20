@@ -129,6 +129,31 @@
                   Focusable="True"
                   Padding="18,8" />
         </StackPanel>
+
+        <!--
+          Who is watching, which the reference kept under these very users: the switch that turns the
+          waking question on, today's answer beside it, and the press that forgets the answer so the
+          next start asks again. It lives here, on this box, and not in the server's store - the
+          question is asked in the living room.
+        -->
+        <StackPanel Spacing="6" Margin="0,16,0,0">
+          <CheckBox Name="askViewerBox"
+                    Content="Ask who is watching when the screen wakes"
+                    IsChecked="{Binding AskForViewer, Mode=TwoWay}"
+                    FontSize="16"
+                    Focusable="True" />
+          <TextBlock Text="{Binding WatchingSays}"
+                     FontSize="14"
+                     Opacity="0.6"
+                     TextWrapping="Wrap" />
+          <Button Name="askAgainButton"
+                  Content="Ask again next start"
+                  Command="{Binding AskAgainNextStartCommand}"
+                  FontSize="16"
+                  Focusable="True"
+                  HorizontalAlignment="Left"
+                  Padding="18,8" />
+        </StackPanel>
       </StackPanel>
     </Grid>
   </DockPanel>
