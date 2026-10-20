@@ -370,7 +370,7 @@ namespace Tests.Frontend
         // Without a server to ask, no list brought any titles and the pane would hold nothing but the
         // shortcut rail - so the wall gets the titles the test walks onto, the same tiles the real screen
         // builds when a shelf answers.
-        HomeContentGroup titles = new HomeContentGroup("Latest added", "poster1", 1500);
+        HomeContentGroup titles = new HomeContentGroup("Latest added", "poster1", 1500, 2);
         titles.AddTitle(new TitleViewModel(new MediaTitle(Guid.NewGuid(), "Alien", null, 1979, null, null, false)));
         titles.AddTitle(new TitleViewModel(new MediaTitle(Guid.NewGuid(), "Blade Runner", null, 1982, null, null, false)));
         home.ContentGroups.Add(titles);

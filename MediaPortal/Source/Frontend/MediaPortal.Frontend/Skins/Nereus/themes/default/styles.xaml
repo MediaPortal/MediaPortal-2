@@ -208,9 +208,9 @@
        numbers live here and not in a view.
 
        The shadow is the native BoxShadow of the tile's ground: a slight lean to the bottom right (3 right, 4
-       down) blurred a little wider than it leans, in a two-fifths black - enough to read as depth against the
-       bright fanart without smearing it. The ground carries it because a clipped edge clips its own shadow
-       away - the face inside is what clips the picture, and both are rounded to the same 10. -->
+       down) blurred a little wider than it leans, in a black a shade over two-fifths - enough to read as depth
+       against the bright fanart without smearing it. The ground carries it because a clipped edge clips its own
+       shadow away - the face inside is what clips the picture, and both are rounded to the same 10. -->
   <Style Selector="Button.nereus-content-tile">
     <Setter Property="Background" Value="#222222"/>
     <Setter Property="BorderBrush" Value="#00000000"/>
@@ -235,7 +235,7 @@
   </Style>
   <Style Selector="Border.home-tile-shadow">
     <Setter Property="CornerRadius" Value="10"/>
-    <Setter Property="BoxShadow" Value="3 4 16 0 #66000000"/>
+    <Setter Property="BoxShadow" Value="3 4 16 0 #70000000"/>
   </Style>
   <Style Selector="Border.home-tile-face">
     <Setter Property="CornerRadius" Value="10"/>

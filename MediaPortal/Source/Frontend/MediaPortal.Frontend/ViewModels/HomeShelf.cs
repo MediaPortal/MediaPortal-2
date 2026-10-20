@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using CommunityToolkit.Mvvm.ComponentModel;
 using MediaPortal.Frontend.Skins.Nereus;
 
 namespace MediaPortal.Frontend.ViewModels
@@ -142,6 +143,9 @@ namespace MediaPortal.Frontend.ViewModels
     public MainMenuEntry? MenuEntry { get; }
     public NereusHomeShortcut? Shortcut { get; }
     public HomeRow? Note { get; }
+
+    // Where the band puts the square. The band is planned for the covers it holds before it reaches the wall, so
+    // a square is placed once, stands still, and never moves under the viewer's eyes. See HomeContentGroup.
     public double X { get; }
     public double Y { get; }
     public double Width { get; }
@@ -176,9 +180,35 @@ namespace MediaPortal.Frontend.ViewModels
     }
   }
 
-  /// <summary>A reference-shaped group: a shortcut rail or one Nereus six-tile mosaic.</summary>
+  /// <summary>
+  /// A reference-shaped group: a shortcut rail or one Nereus mosaic of covers.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// The mosaic tables below are the reference's own, and they were drawn for a band the server filled - six
+  /// covers, each in the place the skin wrote for it, the first cover the big one. Asked to lay two covers out
+  /// from the same table they scatter across the band, because the table's next places are at its far side, and
+  /// the room the missing covers would have filled keeps standing. The wall next to the band reads that room as
+  /// a gap, and a gap is what a wall of covers may not have.
+  /// </para>
+  /// <para>
+  /// So a band is planned when it is built, from the number of covers it will hold - which is known then,
+  /// because a band is read whole before it is put on the wall. A band the server filled keeps the face's mosaic
+  /// exactly as drawn; a short band has its squares packed in reading order from the left instead, so no cell
+  /// stands empty while another one right of it is taken. Squares are placed once and stand still, and the band
+  /// is as wide as the covers it holds - <see cref="OccupiedWidth"/> says that to the wall. Vertically a band
+  /// always keeps the height the skin drew it in; only room sideways was ever the complaint.
+  /// </para>
+  /// </remarks>
   public sealed class HomeContentGroup
   {
+    /// <summary>
+    /// How far a cover's shadow reaches past the cover: the Nereus tile's shadow leans four pixels down and
+    /// blurs sixteen, so twenty below a cover is where it has faded out. Bands are drawn this much taller than
+    /// the height they lay their covers out in, so that the lowest cover's shadow is not cut off.
+    /// </summary>
+    private const double SHADOW_ROOM = 20;
+
     private static readonly (int Column, int Row, int ColumnSpan, int RowSpan)[] POSTER_LAYOUT_1 =
     {
         (0, 0, 2, 2), (2, 0, 1, 1), (3, 0, 1, 1),
@@ -224,8 +254,26 @@ namespace MediaPortal.Frontend.ViewModels
     private readonly int _columns;
     private readonly int _rows;
     private readonly (int Column, int Row, int ColumnSpan, int RowSpan)[] _layout;
+    private readonly double _inset = 12;
+    private readonly double _cellWidth;
+    private readonly double _cellHeight;
 
-    public HomeContentGroup(string heading, string layout, double width)
+    /// <summary>Whether the covers that arrived are the six the skin's mosaic table was drawn for.</summary>
+    private readonly bool _designedMosaic;
+
+    /// <summary>How many cells wide the band's first cover is when the band came back short.</summary>
+    private readonly int _firstCoverSpan = 1;
+
+    private readonly HashSet<(int Column, int Row)> _taken = new HashSet<(int, int)>();
+    private double _right;
+
+    /// <param name="covers">
+    /// How many squares the band will hold, which is known before it is built: a band is read whole and only
+    /// then put on the wall. The number decides whether the skin's mosaic table can be honoured - it was drawn
+    /// for a band that was filled - or whether the squares are packed from the left instead, so that the room
+    /// of the covers that did not arrive is not kept standing between this band and the next.
+    /// </param>
+    public HomeContentGroup(string heading, string layout, double width, int covers)
     {
       Heading = heading;
       Layout = layout;
@@ -237,26 +285,55 @@ namespace MediaPortal.Frontend.ViewModels
         _columns = 1;
         _rows = 5;
         _layout = Array.Empty<(int, int, int, int)>();
+        return;
       }
-      else
+
+      (_columns, _rows, _layout) = layout switch
       {
-        (_columns, _rows, _layout) = layout switch
-        {
-          "poster2" => (4, 3, POSTER_LAYOUT_2),
-          "poster3" => (4, 3, POSTER_LAYOUT_3),
-          "square1" => (3, 4, SQUARE_LAYOUT_1),
-          "square2" => (3, 4, SQUARE_LAYOUT_2),
-          "thumbnail1" => (3, 4, THUMBNAIL_LAYOUT_1),
-          "thumbnail2" => (3, 4, THUMBNAIL_LAYOUT_2),
-          _ => (4, 3, POSTER_LAYOUT_1)
-        };
-      }
+        "poster2" => (4, 3, POSTER_LAYOUT_2),
+        "poster3" => (4, 3, POSTER_LAYOUT_3),
+        "square1" => (3, 4, SQUARE_LAYOUT_1),
+        "square2" => (3, 4, SQUARE_LAYOUT_2),
+        "thumbnail1" => (3, 4, THUMBNAIL_LAYOUT_1),
+        "thumbnail2" => (3, 4, THUMBNAIL_LAYOUT_2),
+        _ => (4, 3, POSTER_LAYOUT_1)
+      };
+
+      _cellWidth = (Width - _inset * 2) / _columns;
+      _cellHeight = (Height - 64) / _rows;
+      _designedMosaic = covers >= _layout.Length;
+
+      // The big first cover is the face's own, but only while the covers beside it arrive too: a cover over two
+      // cells stands over 2 * columns - 4 cells in the row below it, and without those covers the cells it
+      // should stand over are the gap again, only bigger.
+      _firstCoverSpan = !_designedMosaic && covers > 1 && _columns >= 2 && _rows >= 2
+          && covers - 1 >= 2 * _columns - 4 ? 2 : 1;
     }
 
     public string Heading { get; }
     public string Layout { get; }
+
+    /// <summary>The width the face drew this band for, whether or not the server filled it.</summary>
     public double Width { get; }
+
+    /// <summary>The height the face drew this band for, whether or not the server filled it.</summary>
     public double Height { get; }
+
+    /// <summary>
+    /// The band's box: its height, plus the room the lowest covers' shadows fall into. A cover's shadow leans
+    /// four down and blurs sixteen, so a cover that stands at the bottom of the band's height would have its
+    /// shadow cut off by whoever draws the band - which is exactly what happened to the lowest shortcut, the one
+    /// cover whose shadow had nothing left below it. The wall grows by this much; the covers do not.
+    /// </summary>
+    public double BoxHeight => Height + SHADOW_ROOM;
+
+    /// <summary>
+    /// What the band really needs: the width its covers actually cover. A band the server answered with two
+    /// titles is not shown as a column of six with four places kept warm for titles that never came, because
+    /// the wall would then read that kept room as a gap between its bands.
+    /// </summary>
+    public double OccupiedWidth { get; private set; }
+
     public ObservableCollection<HomeContentTile> Tiles { get; } = new ObservableCollection<HomeContentTile>();
 
     public void AddTitle(TitleViewModel title)
@@ -277,28 +354,80 @@ namespace MediaPortal.Frontend.ViewModels
     public void AddNote(HomeRow note)
     {
       Tiles.Add(HomeContentTile.ForNote(note, 12, 56, Width - 24, 80));
+      OccupiedWidth = Width;
     }
 
+    /// <summary>
+    /// Puts one more square into the band, in the place the band's plan has for it, and stretches the band no
+    /// wider than that square. A square is placed once and never moves.
+    /// </summary>
     private void AddTile(Func<double, double, double, double, HomeContentTile> create)
     {
-      int index = Tiles.Count;
       if (Layout == "shortcuts" || Layout == "plugins")
       {
         double size = Layout == "shortcuts" ? 159 : 150;
-        Tiles.Add(create(8, 42 + index * (size + 8), size, size));
+        double rail = 8;
+        int index = Tiles.Count;
+        _right = Math.Max(_right, rail + size);
+        Tiles.Add(create(rail, 42 + index * (size + 10), size, size));
+        OccupiedWidth = Math.Min(Width, _right + _inset);
         return;
       }
 
-      int safeIndex = index % _layout.Length;
-      (int column, int row, int columnSpan, int rowSpan) = _layout[safeIndex];
-      double inset = 12;
-      double cellWidth = (Width - inset * 2) / _columns;
-      double cellHeight = (Height - 64) / _rows;
-      Tiles.Add(create(
-          inset + column * cellWidth + 4,
-          52 + row * cellHeight + 4,
-          cellWidth * columnSpan - 8,
-          cellHeight * rowSpan - 8));
+      int square = Tiles.Count;
+      int column;
+      int row;
+      int columnSpan;
+      int rowSpan;
+
+      if (_designedMosaic)
+      {
+        (column, row, columnSpan, rowSpan) = _layout[square % _layout.Length];
+      }
+      else
+      {
+        columnSpan = square == 0 ? _firstCoverSpan : 1;
+        rowSpan = columnSpan;
+        (column, row) = NextFreeCell(columnSpan);
+      }
+
+      for (int dx = 0; dx < columnSpan; dx++)
+      {
+        for (int dy = 0; dy < rowSpan; dy++)
+          _taken.Add((column + dx, row + dy));
+      }
+
+      // A square stands five off its cell on every side, which is the ten between two covers on the wall.
+      double x = _inset + column * _cellWidth + 5;
+      double y = 52 + row * _cellHeight + 5;
+      double width = _cellWidth * columnSpan - 10;
+      double height = _cellHeight * rowSpan - 10;
+      _right = Math.Max(_right, x + width);
+
+      Tiles.Add(create(x, y, width, height));
+      OccupiedWidth = _designedMosaic ? Width : Math.Min(Width, _right + _inset);
+    }
+
+    /// <summary>The first cell of the band's grid, in reading order, that a square of <paramref name="span"/>
+    /// cells wide and high still fits into. Reading order is what keeps a short band free of holes: a square is
+    /// never put into a cell while a cell left of it, or above it, stands empty.</summary>
+    private (int Column, int Row) NextFreeCell(int span)
+    {
+      for (int row = 0; ; row++)
+      {
+        for (int column = 0; column + span <= _columns; column++)
+        {
+          bool free = true;
+          for (int dx = 0; dx < span && free; dx++)
+          {
+            for (int dy = 0; dy < span && free; dy++)
+              free = !_taken.Contains((column + dx, row + dy));
+          }
+
+          if (free)
+            return (column, row);
+        }
+      }
     }
   }
 

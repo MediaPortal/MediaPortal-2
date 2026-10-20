@@ -757,7 +757,8 @@ namespace MediaPortal.Frontend.ViewModels
 
       if (_nereusMenu.IsOtherPluginsEntry(entry))
       {
-        HomeContentGroup plugins = new HomeContentGroup("Other Plugins", "plugins", 1500);
+        HomeContentGroup plugins = new HomeContentGroup("Other Plugins", "plugins", 1500,
+            _nereusMenu.OtherMenuItems.Count);
         foreach (MainMenuEntry otherEntry in _nereusMenu.OtherMenuItems)
         {
           ContentRows.Add(HomeRow.For(otherEntry));
@@ -772,7 +773,7 @@ namespace MediaPortal.Frontend.ViewModels
       IReadOnlyList<NereusHomeShortcut> shortcuts = _nereusMenu.ShortcutsFor(entry);
       if (shortcuts.Count > 0)
       {
-        HomeContentGroup shortcutGroup = new HomeContentGroup("Shortcuts", "shortcuts", 175);
+        HomeContentGroup shortcutGroup = new HomeContentGroup("Shortcuts", "shortcuts", 175, shortcuts.Count);
         foreach (NereusHomeShortcut shortcut in shortcuts)
           shortcutGroup.AddShortcut(shortcut);
         ContentGroups.Add(shortcutGroup);
@@ -839,9 +840,12 @@ namespace MediaPortal.Frontend.ViewModels
           if (arrived.Count == 0)
             continue;
 
-          HomeContentGroup group = new HomeContentGroup(list.Heading, list.Layout, list.Width);
+          // The band is planned for the covers that arrived - which is known before it is built, because nothing
+          // of it goes up before it has all been read - and put on the wall when it is whole. A band laid out for
+          // six and holding two would keep the room of four empty covers standing, and the wall next to it shows
+          // that room as a gap.
+          HomeContentGroup group = new HomeContentGroup(list.Heading, list.Layout, list.Width, arrived.Count);
           groups[i] = group;
-          ContentGroups.Add(group);
           ContentRows.Add(HomeRow.Heading(list.Heading));
           foreach (MediaTitle title in arrived)
           {
@@ -853,6 +857,12 @@ namespace MediaPortal.Frontend.ViewModels
             if (IsNereusHome && row.Title != null)
               _ = PutPosterAsync(row.Title, generation);
           }
+
+          // The band goes onto the wall when it has been read whole, not when its first cover turned up. While
+          // the covers were still coming in the band could not know how many it would hold, and a band laid out
+          // for six and holding two keeps the room of four empty covers standing - which the wall next to it
+          // shows as a gap. Read whole, it knows, and it takes no more room than it covers.
+          PublishBand(group);
 
           OnPropertyChanged(nameof(HasContent));
         }
@@ -889,7 +899,10 @@ namespace MediaPortal.Frontend.ViewModels
         EnsureFailedBand(askedFor < 0 ? -1 : askedFor, lists, groups);
         ContentRows.Add(note);
         if (askedFor >= 0)
+        {
           groups[askedFor].AddNote(note);
+          PublishBand(groups[askedFor]);
+        }
         OnPropertyChanged(nameof(HasContent));
       }
       catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
@@ -920,10 +933,19 @@ namespace MediaPortal.Frontend.ViewModels
         return;
 
       HomeContentList failed = lists[askedFor];
-      HomeContentGroup group = new HomeContentGroup(failed.Heading, failed.Layout, failed.Width);
+      HomeContentGroup group = new HomeContentGroup(failed.Heading, failed.Layout, failed.Width, 1);
       groups[askedFor] = group;
-      ContentGroups.Add(group);
       ContentRows.Add(HomeRow.Heading(failed.Heading));
+    }
+
+    /// <summary>
+    /// Puts a band on the wall, once. A band is published when it is known whole - after its titles, or after
+    /// the failure that ended it - and the failure can land on a band that never got published at all.
+    /// </summary>
+    private void PublishBand(HomeContentGroup group)
+    {
+      if (!ContentGroups.Contains(group))
+        ContentGroups.Add(group);
     }
 
     private void QueueContentForSelection(MainMenuEntry? entry)
