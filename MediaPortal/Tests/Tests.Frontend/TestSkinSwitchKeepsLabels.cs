@@ -208,8 +208,9 @@ namespace Tests.Frontend
     /// Every realized tile of the home menu holds a text that is its entry's label, and no text anywhere in the
     /// window is the entry's type name. The first half is the feature; the second half is the failure the
     /// viewer reported, caught at its source rather than inferred from the missing half. The virtualized list
-    /// realizes its first dozen rows on show, so the walk goes over the containers that exist rather than over
-    /// the whole menu - a dozen tiles is plenty to see a template that stopped drawing labels.
+    /// realizes only the tiles that fit the viewport - the grown rail tiles are tall, and a headless window's
+    /// menu can hold exactly one of them - so the walk goes over the containers that exist rather than over
+    /// the whole menu; the tiles standing there are plenty to see a template that stopped drawing labels.
     /// </summary>
     private static void AssertTilesSayTheirLabels(ShellWindow window, HomeViewModel home)
     {
@@ -218,11 +219,12 @@ namespace Tests.Frontend
 
       List<ListBoxItem> realized = menu.GetVisualDescendants().OfType<ListBoxItem>()
           .Where(c => c.DataContext is MainMenuEntry).ToList();
-      // The headless window is small and a skin's tile is tall - Nereus draws a 112-pixel picture over its
-      // label - so at show time only the rows that fit the viewport are realized. Two is what the small
-      // television shows; none at all would mean the list never drew.
-      Assert.That(realized.Count, Is.GreaterThanOrEqualTo(2),
-          "a shown home screen realizes a handful of its tiles at once - none of them means the list did not "
+      // The headless window shows its screen inside a 1280x720 head, and since the rail grew both the view's
+      // tiles and Nereus' are big pictures - Nereus' tile is taller than the headless menu's whole viewport -
+      // so the virtualizing list realizes only the tiles that fit, which can be exactly one. One labeled tile
+      // is still the proof this fixture is after: the list drew, and what it drew says the entry's name.
+      Assert.That(realized.Count, Is.GreaterThanOrEqualTo(1),
+          "a shown home screen realizes at least the tile it stands on - none of them means the list did not "
           + "at all (items source count: " + (menu.Items?.Count ?? -1) + ", template: "
           + (menu.ItemTemplate?.GetType().Name ?? "null") + ")");
 

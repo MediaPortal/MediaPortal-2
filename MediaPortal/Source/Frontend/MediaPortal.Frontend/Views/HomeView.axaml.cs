@@ -1,4 +1,4 @@
-/*
+﻿/*
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -121,7 +121,12 @@ namespace MediaPortal.Frontend.Views
       {
         if (e.PropertyName == nameof(HomeViewModel.HomeLayout))
           ApplyHomeLayout();
+        else if (e.PropertyName == nameof(HomeViewModel.SelectedEntry))
+          RebuildCross();
       };
+      // The menu arriving, arriving again from a refresh, or keeping its place through a rebuild - the
+      // cross arms show the menu, so every time the menu speaks, so do they.
+      _home.MenuRebuilt += delegate { RebuildCross(); };
       ApplyHomeLayout();
 
       // A button that opens nothing is worse than no button, so the playback button is only offered - and only
@@ -182,6 +187,32 @@ namespace MediaPortal.Frontend.Views
       // box, which is what picking a name at a door means.
       _home.SignInNames.CollectionChanged += delegate { RebuildSignInNames(); };
       RebuildSignInNames();
+
+      // On the cross, left and right are the horizontal arm - they step the standing place one entry
+      // further along the menu, the way the reference's arrow keys walk SubItemsListViewHome - and not a
+      // step onto the next list of the ring. Claimed before the ring handler below ever sees the key, and
+      // only while WMC is worn with the menu holding the keyboard: every other face and every other
+      // focused list keeps its ring. Up and down stay the invisible menu list's own keys, which is the
+      // same one list the arms are a picture of, so the two arms and the keyboard never disagree.
+      AddHandler(KeyDownEvent,
+          delegate (object? sender, KeyEventArgs args)
+          {
+            if (_home.HomeLayout != "wmc" || !menuList.IsKeyboardFocusWithin)
+              return;
+            if (args.Key != Key.Left && args.Key != Key.Right)
+              return;
+
+            int standing = _home.SelectedEntry == null ? -1 : _home.Menu.IndexOf(_home.SelectedEntry);
+            if (standing < 0)
+              return;
+            int stepped = args.Key == Key.Left ? standing - 1 : standing + 1;
+            if (stepped < 0 || stepped >= _home.Menu.Count)
+              return;
+
+            _home.SelectedEntry = _home.Menu[stepped];
+            args.Handled = true;
+          },
+          RoutingStrategies.Tunnel);
 
       // A vertical list takes left and right for its own selection - Avalonia moves the highlight with every
       // arrow key, not just up and down - so a viewer standing on the menu and pressing Right would only walk
@@ -283,16 +314,19 @@ namespace MediaPortal.Frontend.Views
           break;
 
         case "wmc":
-          // WMC's menu stands a quarter of the frame in from the left, and its HomeContentGrid is
-          // right-aligned and top-aligned with a cap - the content is a panel beside the menu, not a
-          // flood of it. The negative top margin is the reference's own -150, doubled: the pane slips
-          // under the header band, which is where its title stands.
-          homeLayout.Margin = new Thickness(300, 100, 100, 20);
-          homeAreas.ColumnDefinitions = ColumnDefinitions.Parse("430,*,0");
-          homeAreas.ColumnSpacing = 30;
-          menuList.Margin = new Thickness(0, 60, 0, 0);
-          contentPane.Margin = new Thickness(0, -100, 100, 0);
-          contentPane.MaxWidth = 1500;
+          // WMC stands its home on no columns at all: master_homemenu.xaml hangs a cross. The vertical arm
+          // is the menu written in Huge text, the horizontal arm the same menu walked as pictures, and both
+          // meet at the entry being stood on - which is what wmcCross above paints, filled by RebuildCross.
+          // The menu list itself turns invisible here but stays exactly where it is: it is still the thing
+          // the keyboard walks, still holds the selection, and still opens what Enter opens. The content
+          // pane hangs where the reference hangs its HomeContentGrid - right-aligned, capped (1000x615
+          // grown to this panel), slipping up under the header band with its own -150 doubled.
+          homeLayout.Margin = new Thickness(0, 100, 60, 20);
+          homeAreas.ColumnDefinitions = ColumnDefinitions.Parse("0,*,0");
+          homeAreas.ColumnSpacing = 0;
+          menuList.Margin = new Thickness(0);
+          contentPane.Margin = new Thickness(0, -100, 120, 0);
+          contentPane.MaxWidth = 1900;
           contentPane.HorizontalAlignment = HorizontalAlignment.Right;
           contentPane.VerticalAlignment = VerticalAlignment.Top;
           contentList.ItemsPanel = PlainItemsPanel();
@@ -310,6 +344,163 @@ namespace MediaPortal.Frontend.Views
           contentList.ItemsPanel = PlainItemsPanel();
           break;
       }
+
+      // The cross is what a WMC home is made of and nothing else's; where no WMC is worn the arms step
+      // aside and the menu list puts its own face back on. RebuildCross runs on every arrangement
+      // because walking onto the cross, off it, or onto another entry all pass through here or through
+      // the view model's selection, and an arm showing yesterday's entry is worse than an empty arm.
+      bool wearsCross = _home.HomeLayout == "wmc";
+      menuList.Opacity = wearsCross ? 0 : 1;
+      wmcCross.IsVisible = wearsCross;
+      RebuildCross();
+    }
+
+    /// <summary>
+    /// The cross's arms refilled from the entry being stood on: the names walked past above and below,
+    /// fading by distance the way the reference's dimmed menu does, the neighbours as their unfocused art
+    /// left and right, and the standing entry itself in the middle - Focus art in the Focus frame, its
+    /// name Huge behind the frame where the reference writes the selected group, and its name again under
+    /// the frame where the reference's selected subitem says itself. An entry the skin has no art for
+    /// still stands in the middle wearing its name; the reference's own selected state was only ever text.
+    /// </summary>
+    /// <remarks>
+    /// The reference keeps this centring by scrolling both of its lists until the selection sits at their
+    /// shared centre (<c>MyMainMenuListViewStyle</c> and <c>SubMenuListViewStyle> auto-centring scroll
+    /// viewers). With a window of a few arms' worth of entries there is nothing to scroll: the arms are
+    /// rebuilt whole on every step, which is also what the reference's model does in its two-hundred
+    /// millisecond animations - only at once, and so needing no timer to lose.
+    /// </remarks>
+    private void RebuildCross()
+    {
+      crossAbove.Children.Clear();
+      crossBelow.Children.Clear();
+      crossLeft.Children.Clear();
+      crossRight.Children.Clear();
+
+      if (_home.HomeLayout != "wmc")
+        return;
+
+      IList<MainMenuEntry> menu = _home.Menu;
+      int standing = _home.SelectedEntry == null ? -1 : menu.IndexOf(_home.SelectedEntry);
+      if (standing < 0 && menu.Count > 0)
+      {
+        // A cross without a standing place is not a cross. The reference's HomeMenuModel never had this
+        // moment - it restored its remembered action on every rebuild and always stood somewhere. This
+        // front end remembers only where a skin's settings can keep it, so where nothing was remembered
+        // (or the remembered one is gone from today's menu) the cross takes the first entry, the same
+        // place the menu's own highlight falls into when a viewer presses an arrow first. Setting the
+        // selection, rather than drawing from menu[0] here, is deliberate: the selection is the one
+        // answer the invisible list, the content pane and the arms all read from, and it refills the
+        // pane exactly like a key press would - which ends up calling this method again, now standing.
+        _home.SelectedEntry = menu[0];
+        return;
+      }
+
+      if (standing < 0)
+      {
+        crossCenterLabel.Text = "";
+        crossName.Text = "";
+        crossFrame.Source = null;
+        crossFocusArt.Source = null;
+        return;
+      }
+
+      var dim = this.FindResource("AccentBrush") as Avalonia.Media.IBrush;
+
+      for (int d = 3; d >= 1; d--)
+        if (standing - d >= 0)
+          crossAbove.Children.Add(CrossLabel(menu[standing - d].Label, dim, d));
+      for (int d = 1; d <= 3; d++)
+        if (standing + d < menu.Count)
+          crossBelow.Children.Add(CrossLabel(menu[standing + d].Label, dim, d));
+
+      for (int d = 2; d >= 1; d--)
+        if (standing - d >= 0)
+          crossLeft.Children.Add(CrossNeighbour(menu[standing - d], dim));
+      for (int d = 1; d <= 2; d++)
+        if (standing + d < menu.Count)
+          crossRight.Children.Add(CrossNeighbour(menu[standing + d], dim));
+
+      MainMenuEntry stood = menu[standing];
+      crossCenterLabel.Text = stood.Label;
+      crossName.Text = stood.Label;
+      crossFrame.Source = CrossArt("Focus.Frame");
+      crossFocusArt.Source = string.IsNullOrEmpty(stood.HomeImageId)
+          ? null
+          : CrossArt($"HomeMenu/{stood.HomeImageId}Focus");
+    }
+
+    /// <summary>
+    /// One name of the vertical arm, dimmed by how far it stands from the middle - the reference paints
+    /// every unselected entry in the skin's quiet blue (MenuTextBackground) and only the stood-on one in
+    /// white; the distance fade is this port's telling of which of the quiet ones the eye reads first.
+    /// </summary>
+    private static TextBlock CrossLabel(string? text, Avalonia.Media.IBrush? brush, int distance)
+    {
+      return new TextBlock
+      {
+        Text = text,
+        FontSize = 110,
+        Foreground = brush,
+        TextAlignment = Avalonia.Media.TextAlignment.Center,
+        Opacity = distance == 1 ? 0.9 : distance == 2 ? 0.55 : 0.3,
+      };
+    }
+
+    /// <summary>
+    /// One neighbour of the horizontal arm: the entry's NoFocus art with its name under it, which is the
+    /// reference's unfocused subitem to the picture - and where the skin carries no art for the entry,
+    /// its badge letter stands in the picture's place rather than a hole.
+    /// </summary>
+    private Control CrossNeighbour(MainMenuEntry entry, Avalonia.Media.IBrush? brush)
+    {
+      var tile = new StackPanel { Spacing = 6, Width = 490 };
+
+      Avalonia.Media.Imaging.Bitmap? art = string.IsNullOrEmpty(entry.HomeImageId)
+          ? null
+          : CrossArt($"HomeMenu/{entry.HomeImageId}NoFocus");
+      if (art != null)
+      {
+        tile.Children.Add(new Image
+        {
+          Source = art,
+          Width = 490,
+          Stretch = Avalonia.Media.Stretch.Uniform,
+          Opacity = 0.85,
+        });
+      }
+      else
+      {
+        tile.Children.Add(new TextBlock
+        {
+          Text = entry.Badge,
+          FontSize = 60,
+          Foreground = brush,
+          Opacity = 0.7,
+          HorizontalAlignment = HorizontalAlignment.Center,
+          Height = 170,
+          TextAlignment = Avalonia.Media.TextAlignment.Center,
+          VerticalAlignment = VerticalAlignment.Bottom,
+        });
+      }
+
+      tile.Children.Add(new TextBlock
+      {
+        Text = entry.Label,
+        FontSize = 34,
+        Foreground = brush,
+        Opacity = 0.75,
+        TextAlignment = Avalonia.Media.TextAlignment.Center,
+        TextTrimming = Avalonia.Media.TextTrimming.CharacterEllipsis,
+      });
+      return tile;
+    }
+
+    /// <summary>A picture of the worn skin by name, or null - asked the same way a template's converter asks.</summary>
+    private static Avalonia.Media.Imaging.Bitmap? CrossArt(string name)
+    {
+      WornSkin? worn = SkinImageConverter.WornPictures();
+      return worn == null ? null : worn.Images.Load(name);
     }
 
     /// <summary>
