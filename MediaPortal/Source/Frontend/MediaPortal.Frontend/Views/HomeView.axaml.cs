@@ -100,6 +100,16 @@ namespace MediaPortal.Frontend.Views
           menuList.ItemTemplate = ownHomeTiles;
         }
       };
+      // and on the way back onto screen, where a swap's hand-back happens without any event at all
+      AttachedToVisualTree += delegate
+      {
+        if (ownHomeTiles != null
+            && SkinEngine.TryTileTemplate("HomeMenuTileTemplate") == null
+            && !ReferenceEquals(menuList.ItemTemplate, ownHomeTiles))
+        {
+          menuList.ItemTemplate = ownHomeTiles;
+        }
+      };
 
       // A button that opens nothing is worse than no button, so the playback button is only offered - and only
       // walks with the d-pad - when the application can actually build the screen.
