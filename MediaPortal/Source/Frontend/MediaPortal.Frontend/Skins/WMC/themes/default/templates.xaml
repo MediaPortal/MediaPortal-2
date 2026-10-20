@@ -251,6 +251,25 @@
   </DataTemplate>
 
   <!--
+    A line of the metadata page: label on the left, the switch or the keyboard-ready field on the right,
+    the whole line on a band of panel blue like every other WMC row.
+  -->
+  <DataTemplate x:Key="MetadataRowTemplate" x:DataType="vm:MetadataRow">
+    <Border Background="{DynamicResource PanelBrush}" Padding="14,6" Margin="0,3,8,5">
+      <Grid ColumnDefinitions="300,*" ColumnSpacing="12">
+        <TextBlock Grid.Column="0" Text="{Binding Label}" TextWrapping="Wrap"
+                   FontSize="15" FontWeight="Bold"
+                   Foreground="{DynamicResource TextBrush}"/>
+        <CheckBox Grid.Column="1" IsChecked="{Binding IsOn}" IsVisible="{Binding IsToggle}"
+                  VerticalAlignment="Center"/>
+        <TextBox Grid.Column="1" Text="{Binding Text}" IsVisible="{Binding IsText}" Width="160"
+                 HorizontalAlignment="Left" Watermark="en-GB"
+                 views:VirtualKeyboardService.Trigger="EnterOrMenu"/>
+      </Grid>
+    </Border>
+  </DataTemplate>
+
+  <!--
     A line of the system status screen: the word it asks in muted small type, the answer in loud white
     beside it, both inside a band of panel blue like every other WMC row.
   -->

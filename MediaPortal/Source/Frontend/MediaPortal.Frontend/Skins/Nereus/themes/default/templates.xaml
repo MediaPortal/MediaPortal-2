@@ -214,6 +214,27 @@
   </DataTemplate>
 
   <!--
+    A line of the metadata page: the word it asks on the left in the skin's quiet grey, the control -
+    switch or keyboard-ready field - on the right. The hairline under it keeps the page reading as a list.
+  -->
+  <DataTemplate x:Key="MetadataRowTemplate" x:DataType="vm:MetadataRow">
+    <Panel>
+      <Grid ColumnDefinitions="300,*" ColumnSpacing="12" Margin="4,7">
+        <TextBlock Grid.Column="0" Text="{Binding Label}" TextWrapping="Wrap"
+                   FontSize="{DynamicResource TinyFontSize}"
+                   Foreground="{DynamicResource TextBrush}"/>
+        <CheckBox Grid.Column="1" IsChecked="{Binding IsOn}" IsVisible="{Binding IsToggle}"
+                  VerticalAlignment="Center"/>
+        <TextBox Grid.Column="1" Text="{Binding Text}" IsVisible="{Binding IsText}" Width="160"
+                 HorizontalAlignment="Left" Watermark="en-GB"
+                 views:VirtualKeyboardService.Trigger="EnterOrMenu"/>
+      </Grid>
+      <Border Height="1" Background="{DynamicResource AccentBrush}" Opacity="0.15"
+              VerticalAlignment="Bottom"/>
+    </Panel>
+  </DataTemplate>
+
+  <!--
     A line of the system status screen: the word it asks on the left in the skin's quiet grey, the answer
     on the right in loud white.
   -->

@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:views="using:MediaPortal.Frontend.Views"
              xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+             xmlns:theming="clr-namespace:MediaPortal.Frontend.Theming"
              x:Class="MediaPortal.Frontend.Views.MetadataSettingsView"
              x:DataType="vm:MetadataSettingsViewModel">
   <!--
@@ -14,7 +15,7 @@
     <TextBlock Classes="hint" TextWrapping="Wrap"
                Text="These are the server's extractor settings, stored on its machine. What changes here takes effect with the next import pass - the library as it stands keeps what it already learned."/>
 
-    <ItemsControl x:Name="rowsList" ItemsSource="{Binding Rows}" Margin="0,6,0,0">
+    <ItemsControl x:Name="rowsList" theming:SkinTemplates.TileTemplate="MetadataRowTemplate" ItemsSource="{Binding Rows}" Margin="0,6,0,0">
       <ItemsControl.ItemTemplate>
         <DataTemplate x:DataType="vm:MetadataRow">
           <Grid ColumnDefinitions="300,*">
