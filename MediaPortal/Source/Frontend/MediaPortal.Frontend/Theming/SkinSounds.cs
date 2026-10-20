@@ -48,6 +48,7 @@ namespace MediaPortal.Frontend.Theming
         private static WornSkin? _wornFor;
         private static DateTime _lastStep = DateTime.MinValue;
         private static bool _attached;
+        private static bool _muted;
 
         /// <summary>
         /// The one wiring: the shell window hears every selection and every press anywhere under it, and
@@ -59,9 +60,10 @@ namespace MediaPortal.Frontend.Theming
                 return;
             _attached = true;
 
-            if (string.Equals(Environment.GetEnvironmentVariable("MP2_SKIN_SOUNDS"), "0",
-                StringComparison.Ordinal))
-                return;
+            _muted = string.Equals(Environment.GetEnvironmentVariable("MP2_SKIN_SOUNDS"), "0",
+                StringComparison.Ordinal);
+            Settings.ClientSettings.Changed += delegate { ReadMute(); };
+            ReadMute();
 
             shell.AddHandler(ListBox.SelectionChangedEvent,
                 delegate (object? sender, SelectionChangedEventArgs e)
@@ -84,6 +86,8 @@ namespace MediaPortal.Frontend.Theming
         /// <summary>The step of a walk: the worn skin's navigate sound, at most sixty milliseconds apart.</summary>
         public static void Navigate()
         {
+            if (_muted)
+                return;
             DateTime now = DateTime.UtcNow;
             if (now - _lastStep < STEP_GAP)
                 return;
@@ -92,7 +96,33 @@ namespace MediaPortal.Frontend.Theming
         }
 
         /// <summary>The press: the worn skin's click sound.</summary>
-        public static void Click() => _click?.Play();
+        public static void Click()
+        {
+            if (_muted)
+                return;
+            _click?.Play();
+        }
+
+        /// <summary>
+        /// What this machine was told about its sounds: <c>MP2_SKIN_SOUNDS=0</c> outvites everything, and
+        /// otherwise the client setting says - read again whenever a settings page saved something.
+        /// </summary>
+        private static void ReadMute()
+        {
+            if (!string.Equals(Environment.GetEnvironmentVariable("MP2_SKIN_SOUNDS"), "0",
+                StringComparison.Ordinal))
+            {
+                try
+                {
+                    _muted = !Settings.ClientSettings.Load(null, out _).SkinSounds;
+                    return;
+                }
+                catch (Exception)
+                {
+                }
+            }
+            _muted = true;
+        }
 
         /// <summary>
         /// Make the cues answer to the skin the application is wearing now. The skin engine calls this at

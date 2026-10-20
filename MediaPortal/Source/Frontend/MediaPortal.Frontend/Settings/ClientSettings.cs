@@ -89,6 +89,13 @@ public sealed class ClientSettings
   [JsonPropertyName("fullScreen")]
   public bool FullScreen { get; set; } = true;
 
+  /// <summary>
+  /// Whether the worn skin's own sounds - the step of a walk through a list, the click of a press - are
+  /// heard at all. The reference's televisions clicked and stepped; a quiet household turns this off.
+  /// </summary>
+  [JsonPropertyName("skinSounds")]
+  public bool SkinSounds { get; set; } = true;
+
   /// <summary>Which screen the front end opens on: <see cref="START_HOME"/> or <see cref="START_LAST_SHELF"/>.</summary>
   [JsonPropertyName("startScreen")]
   public string StartScreen { get; set; } = START_HOME;

@@ -59,6 +59,10 @@ public partial class ClientSettingsViewModel : ObservableObject
     Options.Add(new SkinSettingOption("Language", "The language of dates, numbers and weather words",
         LanguageText, AdvanceLanguage, Changed));
 
+    Options.Add(new SkinSettingOption("Skin sounds",
+        "The worn skin's own step and click, heard on every move and press",
+        () => _settings.SkinSounds, v => _settings.SkinSounds = v, Changed));
+
     Options.Add(new SkinSettingOption("Screensaver",
         "Minutes of nobody touching anything before the screen goes black",
         ScreensaverText, AdvanceScreensaver, Changed));
