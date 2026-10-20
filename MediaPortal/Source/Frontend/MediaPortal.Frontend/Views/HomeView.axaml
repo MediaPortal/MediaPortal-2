@@ -31,22 +31,31 @@
 
     <!-- The chosen title's fanart, behind everything. Both rescued skins put the highlighted title's fanart
          across the whole home screen (Nereus' "fanart_image" in master_homemenu.xaml, WMC's
-         FanArtImageBackground), dimmed by whatever the face paints over it - here by the gradients below, which
-         is why they can stay exactly as the reference wrote them. A face that switched fanart off, and the
-         plain arrangement that belongs to no face, never see this picture.
-
-         WMC paints over it with its own face rather than with gradients: master_homemenu.xaml draws the fanart
-         and stretches Background_Home.png - the blue wash, translucent where the reference drew it - over the
-         whole screen, and only then stands the cross. So the face's background picture wears here, above the
-         fanart and below everything else, exactly between the two, which is the one place the window's own
-         copy of that picture (behind this screen) cannot be. -->
+         FanArtImageBackground), dimmed by whatever the face paints over it - Nereus by the gradients below,
+         which is why they can stay exactly as the reference wrote them, and WMC by the two layers here.
+         A face that switched fanart off, and the plain arrangement that belongs to no face, never see this
+         picture. -->
+    <!--
+      WMC wears three layers where the other faces wear one, and the reference's master_homemenu.xaml says
+      the order exactly: at the very back the face's own Background.png, drawn opaque as the reference's
+      BackgroundBrush; in front of it the standing title's fanart, in the right-hand eight-tenths of the
+      screen it shows all of; and over both, Background_Home.png - the same face stretched translucent
+      (measured: alpha 228 at its centre against the base's 255), which is what tints the fanart blue.
+      A base behind the fanart and a wash over it, one layer missing, is the difference between the
+      reference and a picture floating in fog. Both are this face's only: Nereus dims its fanart with
+      gradients of its own and never sees either.
+    -->
+    <Image Name="wmcHomeBase"
+           Stretch="UniformToFill"
+           IsVisible="False"
+           IsHitTestVisible="False"/>
     <Image Name="fanartBackground"
            Source="{Binding BackgroundArtwork, Converter={x:Static views:ArtworkConverter.Instance}}"
            Stretch="UniformToFill"
            IsVisible="{Binding HasBackgroundArtwork}"
            IsHitTestVisible="False"/>
     <Panel Name="wmcFanartWash" IsVisible="False" IsHitTestVisible="False">
-      <Image Name="wmcWashImage" Stretch="Fill" IsVisible="{Binding HasBackgroundArtwork}"/>
+      <Image Name="wmcWashImage" Stretch="Fill"/>
     </Panel>
 
     <!--
