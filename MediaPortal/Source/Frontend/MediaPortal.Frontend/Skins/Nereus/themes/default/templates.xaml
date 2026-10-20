@@ -168,6 +168,40 @@
   </DataTemplate>
 
   <!--
+    One row of the home content pane. The pane is a single walkable list of headings, notes and titles
+    (see HomeRow), so this one template draws all three: the heading in the skin's loud white with the
+    thin accent rule Nereus put under its section titles, the note quiet and indented, the title line
+    with the detail greyed to its right exactly as the title rows do.
+  -->
+  <DataTemplate x:Key="HomeContentRowTemplate" x:DataType="vm:HomeRow">
+    <Panel Margin="0,3">
+      <StackPanel IsVisible="{Binding IsHeading}" Spacing="3">
+        <TextBlock Text="{Binding Text}"
+                   FontSize="{DynamicResource SmallerFontSize}"
+                   FontWeight="SemiBold"
+                   Foreground="{DynamicResource TextBrush}"/>
+        <Border Height="2" Background="{DynamicResource AccentBrush}" Opacity="0.7" MaxWidth="220"
+                HorizontalAlignment="Left"/>
+      </StackPanel>
+      <TextBlock Text="{Binding Text}"
+                 FontSize="{DynamicResource TinyFontSize}"
+                 Margin="12,1,0,3"
+                 Opacity="0.55"
+                 TextTrimming="CharacterEllipsis"
+                 IsVisible="{Binding IsNote}"
+                 Foreground="{DynamicResource MutedTextBrush}"/>
+      <Grid ColumnDefinitions="2.4*,1*" ColumnSpacing="14" MinWidth="380"
+            IsVisible="{Binding IsTitle}">
+        <TextBlock Grid.Column="0" Text="{Binding Title.Line}" TextTrimming="CharacterEllipsis"
+                   Foreground="{DynamicResource TextBrush}"/>
+        <TextBlock Grid.Column="1" Text="{Binding Title.Detail}" HorizontalAlignment="Right"
+                   Opacity="0.55" TextTrimming="CharacterEllipsis"
+                   Foreground="{DynamicResource MutedTextBrush}"/>
+      </Grid>
+    </Panel>
+  </DataTemplate>
+
+  <!--
     A title's row in the shelf: the name, and what the library knows about it - length, year, where you left
     off - in the right column, greyed the way Nereus greys everything that is not the headline.
   -->

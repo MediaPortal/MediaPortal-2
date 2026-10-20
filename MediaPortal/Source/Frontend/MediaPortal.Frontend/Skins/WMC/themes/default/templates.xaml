@@ -206,6 +206,44 @@
   </DataTemplate>
 
   <!--
+    One row of the home content pane, in WMC's voice: rows are bands here too. A heading is a band of its
+    own - the name in the big type with the accent edge along the bottom - and a title is the same band a
+    shelf row wears, name left and state right. No thin grey subtitle anywhere; that is Nereus' voice.
+  -->
+  <DataTemplate x:Key="HomeContentRowTemplate" x:DataType="vm:HomeRow">
+    <Panel Margin="0,3,8,5">
+      <Border Background="{DynamicResource PanelRaisedBrush}"
+              BorderBrush="{DynamicResource AccentBrush}"
+              BorderThickness="0,0,0,2"
+              Padding="14,6"
+              IsVisible="{Binding IsHeading}">
+        <TextBlock Text="{Binding Text}" FontSize="22" FontWeight="Bold"
+                   TextTrimming="CharacterEllipsis"
+                   Foreground="{DynamicResource TextBrush}"/>
+      </Border>
+      <TextBlock Text="{Binding Text}"
+                 FontSize="14"
+                 Margin="16,1,0,3"
+                 Foreground="{DynamicResource MutedTextBrush}"
+                 TextTrimming="CharacterEllipsis"
+                 IsVisible="{Binding IsNote}"/>
+      <Border Background="{DynamicResource PanelBrush}"
+              Padding="14,7"
+              IsVisible="{Binding IsTitle}">
+        <Grid ColumnDefinitions="2.4*,1*" ColumnSpacing="14" MinWidth="380">
+          <TextBlock Grid.Column="0" Text="{Binding Title.Line}" FontSize="19"
+                     TextTrimming="CharacterEllipsis"
+                     Foreground="{DynamicResource TextBrush}"/>
+          <TextBlock Grid.Column="1" Text="{Binding Title.Detail}" FontSize="15"
+                     HorizontalAlignment="Right"
+                     TextTrimming="CharacterEllipsis"
+                     Foreground="{DynamicResource MutedTextBrush}"/>
+        </Grid>
+      </Border>
+    </Panel>
+  </DataTemplate>
+
+  <!--
     A title's row: WMC's list rows are rows of tiles too - the name large, the state on the right, the seen
     mark folded into the band. No thin grey subtitle anywhere; that is Nereus' voice, not this one.
   -->

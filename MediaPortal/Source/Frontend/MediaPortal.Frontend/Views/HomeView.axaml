@@ -198,7 +198,8 @@
                  ItemsSource="{Binding ContentRows}"
                  FontSize="17"
                  Background="Transparent"
-                 BorderThickness="0">
+                 BorderThickness="0"
+                 theming:SkinTemplates.TileTemplate="HomeContentRowTemplate">
           <ListBox.ItemTemplate>
             <!-- One template for three kinds of line, because the pane is a single walkable list - see HomeRow for
                  why headings and titles are rows of one list rather than four lists of their own. -->
