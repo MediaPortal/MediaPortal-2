@@ -191,16 +191,26 @@ namespace MediaPortal.Frontend.Views
       // On the cross, left and right are the horizontal arm - they step the standing place one entry
       // further along the menu, the way the reference's arrow keys walk SubItemsListViewHome - and not a
       // step onto the next list of the ring. Claimed before the ring handler below ever sees the key, and
-      // only while WMC is worn with the menu holding the keyboard: every other face and every other
-      // focused list keeps its ring. Up and down stay the invisible menu list's own keys, which is the
-      // same one list the arms are a picture of, so the two arms and the keyboard never disagree.
+      // claimed wherever the keyboard stands while WMC is worn - on the invisible menu, on a corner
+      // button, or on nowhere at all, since a screen that appeared without a focusable taker lands the
+      // viewer on some button instead and the arrows of its home still belong to the cross. Only the two
+      // lists beside the pane keep their ring (left walks back out of them), and a text box being typed
+      // in - the sign-in's boxes live on this screen too - keeps its cursor keys. Up and down stay the
+      // invisible menu list's own keys, which is the same one list the arms are a picture of, so the two
+      // arms and the keyboard never disagree.
       AddHandler(KeyDownEvent,
           delegate (object? sender, KeyEventArgs args)
           {
-            if (_home.HomeLayout != "wmc" || !menuList.IsKeyboardFocusWithin)
-              return;
             if (args.Key != Key.Left && args.Key != Key.Right)
               return;
+            if (_home.HomeLayout != "wmc"
+                || contentList.IsKeyboardFocusWithin || aspectsList.IsKeyboardFocusWithin
+                || args.Source is TextBox)
+              return;
+
+            // The cross owns the arrows, so the menu that wears it takes the keyboard back - it holds
+            // the selection the arms are drawn from, and up and down must be its keys from then on.
+            menuList.Focus();
 
             int standing = _home.SelectedEntry == null ? -1 : _home.Menu.IndexOf(_home.SelectedEntry);
             if (standing < 0)
@@ -352,6 +362,16 @@ namespace MediaPortal.Frontend.Views
       bool wearsCross = _home.HomeLayout == "wmc";
       menuList.Opacity = wearsCross ? 0 : 1;
       wmcCross.IsVisible = wearsCross;
+      // The face's own background picture, stretched over the fanart exactly as master_homemenu.xaml
+      // stretches Background_Home.png over FanArtImageBackground. The window already wears this same
+      // picture - but behind the screen, so behind the fanart too, which is the wrong way round for
+      // this face; here the wash sits between the fanart below and the cross above. It only wears
+      // while WMC does: other faces dim their fanart with their own gradients, and a second copy of
+      // the window's background under them would only double what they paint. Asked of the resources
+      // the same way the window asks (the key lives and dies with the theme that names a background),
+      // and re-asked whenever a new face arrives, since this method runs on every face change.
+      wmcFanartWash.IsVisible = wearsCross;
+      wmcWashImage.Source = this.FindResource("SkinBackgroundImage") as Avalonia.Media.IImage;
       RebuildCross();
     }
 
@@ -558,7 +578,12 @@ namespace MediaPortal.Frontend.Views
         if (DataContext is HomeViewModel viewModel)
           viewModel.RefreshCommand.Execute(null);
       }
+      // Asked before the screen is joined to the window, a focus request answers nothing at all - and on
+      // the way in here it usually is asked that early, while the menu list cannot take it yet. The posted
+      // second ask runs once the layout has settled, which is the moment the request starts to stick;
+      // asking twice costs nothing, since the menu owns this screen's keyboard either way.
       menuList.Focus();
+      Dispatcher.UIThread.Post(delegate { menuList.Focus(); }, DispatcherPriority.Loaded);
     }
 
     /// <summary>

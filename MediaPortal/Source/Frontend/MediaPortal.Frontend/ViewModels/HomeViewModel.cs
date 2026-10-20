@@ -455,7 +455,11 @@ namespace MediaPortal.Frontend.ViewModels
       try
       {
         byte[]? picture = await fanart.LoadAsync(title.Title.Id);
-        if (generation == Volatile.Read(ref _fanartGeneration))
+        // Only a picture that came replaces what stands there. The reference's background image simply
+        // kept its last source when a title carried no fanart, and so this one does: walking past a title
+        // without art should darken the screen back to bare background only once the next title proves it
+        // has no art either - which it cannot prove by answering nothing.
+        if (picture != null && generation == Volatile.Read(ref _fanartGeneration))
           BackgroundArtwork = picture;
       }
       catch (ServerApiException)

@@ -32,13 +32,22 @@
     <!-- The chosen title's fanart, behind everything. Both rescued skins put the highlighted title's fanart
          across the whole home screen (Nereus' "fanart_image" in master_homemenu.xaml, WMC's
          FanArtImageBackground), dimmed by whatever the face paints over it - here by the gradients below, which
-         is why they can stay exactly as the reference wrote them. A face that switched fanart off, and the plain
-         arrangement that belongs to no face, never see this picture. -->
+         is why they can stay exactly as the reference wrote them. A face that switched fanart off, and the
+         plain arrangement that belongs to no face, never see this picture.
+
+         WMC paints over it with its own face rather than with gradients: master_homemenu.xaml draws the fanart
+         and stretches Background_Home.png - the blue wash, translucent where the reference drew it - over the
+         whole screen, and only then stands the cross. So the face's background picture wears here, above the
+         fanart and below everything else, exactly between the two, which is the one place the window's own
+         copy of that picture (behind this screen) cannot be. -->
     <Image Name="fanartBackground"
            Source="{Binding BackgroundArtwork, Converter={x:Static views:ArtworkConverter.Instance}}"
            Stretch="UniformToFill"
            IsVisible="{Binding HasBackgroundArtwork}"
            IsHitTestVisible="False"/>
+    <Panel Name="wmcFanartWash" IsVisible="False" IsHitTestVisible="False">
+      <Image Name="wmcWashImage" Stretch="Fill" IsVisible="{Binding HasBackgroundArtwork}"/>
+    </Panel>
 
     <!--
       The cross WMC stands its home on. master_homemenu.xaml hangs two lists off one point: MainMenu, the
