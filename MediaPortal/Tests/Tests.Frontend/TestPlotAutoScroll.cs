@@ -16,6 +16,11 @@
 */
 
 using NUnit.Framework;
+using Avalonia.Controls;
+using Avalonia.Headless.NUnit;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using MediaPortal.Frontend.ViewModels;
 using MediaPortal.Frontend.Views;
 
 namespace Tests.Frontend
@@ -28,6 +33,25 @@ namespace Tests.Frontend
   [TestFixture]
   public class TestPlotAutoScroll
   {
+    /// <summary>
+    /// The first live run of the self-reading plot died the moment the viewer touched the wheel: the
+    /// handler that lets the viewer take over had been written demanding the wheel event's rich argument
+    /// type, and the routed event arrived carrying the plain pointer arguments - Avalonia turns that
+    /// mismatch into an exception on the dispatcher, which is to say a terminated application. The
+    /// handlers now take no arguments at all, and this raises the plot's real events over a live scroller.
+    /// </summary>
+    [Test]
+    [AvaloniaTest]
+    public void TheViewerTakingThePlotInHandNeitherThrowsNorStopsTheReading()
+    {
+      ScrollViewer scroller = new ScrollViewer();
+      new PlotAutoScroll(scroller, new MediaBrowserViewModel());
+
+      scroller.RaiseEvent(new PointerWheelEventArgs(
+          scroller, null!, null, default, 0, new PointerPointProperties(), KeyModifiers.None, new Avalonia.Vector(0, 1)));
+
+      Assert.That(scroller.IsVisible, Is.True);
+    }
     [Test]
     public void TheReadingWaitsOutItsDelayThenRunsAtItsSpeed()
     {

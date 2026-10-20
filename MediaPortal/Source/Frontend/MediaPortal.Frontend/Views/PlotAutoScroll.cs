@@ -72,13 +72,13 @@ namespace MediaPortal.Frontend.Views
 
       // The moment a viewer scrolls the plot themselves the automatic reading yields - a panel that pulls
       // the text back down while somebody is reading it is a panel that cannot be read. The next title
-      // gives the automatic reading another turn.
+      // gives the automatic reading another turn. Handled for any pointer event rather than only the wheel
+      // one: a routed handler whose delegate demands a more specific argument type than the event carries
+      // is an ArgumentException on the first scroll, which is to say a dead application.
+      _scroller.AddHandler(InputElement.PointerPressedEvent,
+          delegate { Yield(); }, RoutingStrategies.Tunnel);
       _scroller.AddHandler(InputElement.PointerWheelChangedEvent,
-          delegate (object? sender, PointerWheelEventArgs args)
-          {
-            _userTookOver = true;
-            _timer.Stop();
-          }, RoutingStrategies.Tunnel);
+          delegate { Yield(); }, RoutingStrategies.Tunnel);
 
       // A skin put on or taken off while the screen stands open changes whether the text should move at
       // all - the switches belong to the worn face.
@@ -91,6 +91,16 @@ namespace MediaPortal.Frontend.Views
     private void OnSkinChanged(object? sender, EventArgs args)
     {
       Restart();
+    }
+
+    /// <summary>The viewer's own pointer took the plot over: the clock stops until the next title.</summary>
+    private void Yield()
+    {
+      if (!_wanted)
+        return;
+
+      _userTookOver = true;
+      _timer.Stop();
     }
 
     private void Restart()
