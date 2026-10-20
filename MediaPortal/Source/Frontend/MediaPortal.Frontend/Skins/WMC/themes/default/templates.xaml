@@ -12,6 +12,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:vm="clr-namespace:MediaPortal.Frontend.ViewModels"
   xmlns:dis="using:MediaPortal.Frontend.Discovery"
+                    xmlns:conv="using:Avalonia.Data.Converters"
                     xmlns:views="clr-namespace:MediaPortal.Frontend.Views">
 
   <!--
@@ -152,30 +153,36 @@
   </DataTemplate>
 
   <DataTemplate x:Key="HomeMenuTileTemplate" x:DataType="vm:MainMenuEntry">
-    <StackPanel Spacing="2" Margin="0,4,12,10" HorizontalAlignment="Left">
-      <!-- WMC does not draw its selected tile with the same picture as the quiet ones: the skin carries
-           a picture of its own for each state - 350x197 for the focused tile, 162x91 for the rest - and
-           the tiles stand on the screen without a panel under them. The blue panel that stood here was
-           this port's own invention; the reference let the pictures speak for themselves. -->
-      <Panel HorizontalAlignment="Left">
+    <StackPanel Spacing="0" Margin="0,3,12,12" HorizontalAlignment="Left">
+      <!--
+        The reference's home menu (MyMainMenuItemDataTemplate) is huge text, not pictures: a quiet entry
+        wears the skin's dim blue (MenuTextBackground - which is this skin's accent, #4B76A0) and the entry
+        the viewer stands on turns white (MenuTextForeground). The picture art belongs to the reference's
+        SubItemsListViewHome row: entries that are real workflow actions show their Focus art inside the
+        Focus.frame, 260 wide within the 373x210 frame. Our entries are exactly those workflow actions, so
+        this tile does both at once: the quiet ones say their name, and the stood-on one wears the art and
+        the frame - which is what a walked WMC home looks like when it is walked.
+      -->
+      <TextBlock Text="{Binding Label}"
+                 FontSize="44"
+                 Foreground="{DynamicResource AccentBrush}"
+                 TextTrimming="CharacterEllipsis"
+                 IsVisible="{Binding !$parent[ListBoxItem].IsSelected}"/>
+      <Panel HorizontalAlignment="Left" Margin="0,-4,0,0"
+             IsVisible="{Binding $parent[ListBoxItem].IsSelected}">
+        <Image Source="{Binding Label,
+                                Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='Focus.Frame'}"
+               Width="360" Height="196" Stretch="Fill"
+               HorizontalAlignment="Left" VerticalAlignment="Center"/>
         <Image Source="{Binding HomeImageId,
                                 Converter={x:Static views:SkinImageConverter.Instance},
                                 ConverterParameter='HomeMenu/{0}Focus'}"
-               Width="210"
+               Width="260"
                Stretch="Uniform"
-               HorizontalAlignment="Left"
-               IsVisible="{Binding $parent[ListBoxItem].IsSelected}"/>
-        <Image Source="{Binding HomeImageId,
-                                Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='HomeMenu/{0}NoFocus'}"
-               Width="110"
-               Stretch="Uniform"
-               HorizontalAlignment="Left"
-               IsVisible="{Binding !$parent[ListBoxItem].IsSelected}"/>
+               HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <!-- The "this shelf is playing" mark, the very picture WMC carries under the name IsPlaying. It
-             rides on the corner of whichever picture the tile wears, and it appears with the picture and
-             not before it: a mark with nothing under it is the hole in the tile that a media centre is
-             judged by. -->
+             rides on the corner of the framed art, and it appears with the picture and not before it. -->
         <Image Source="{Binding Label,
                                 Converter={x:Static views:SkinImageConverter.Instance},
                                 ConverterParameter=IsPlaying}"
@@ -183,26 +190,24 @@
                Stretch="Uniform"
                HorizontalAlignment="Right"
                VerticalAlignment="Top"
-               Margin="0,2,2,0"
+               Margin="0,6,10,0"
                IsVisible="{Binding IsPlaying, Mode=OneWay}"/>
-        <TextBlock Text="{Binding Badge}" FontSize="48" Opacity="0.85"
+        <!-- Art the skin does not have cannot be hung: where no Focus picture exists, the entry's name
+             stands in white at the framed place, so a missing picture degrades to the reference's own
+             selected-state text rather than to a hole. -->
+        <TextBlock Text="{Binding Label}" FontSize="44"
                    Foreground="{DynamicResource TextBrush}"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
                    IsVisible="{Binding HomeImageId,
                                        Converter={x:Static views:SkinImageMissingConverter.Instance},
-                                       ConverterParameter='HomeMenu/{0}NoFocus'}"/>
+                                       ConverterParameter='HomeMenu/{0}Focus'}"/>
       </Panel>
-      <!-- WMC's tile pictures carry their own title text - the reference's Focus and NoFocus art spells
-           "Film", "TV", "Musik" right into the picture - so the entry's own label only speaks when the
-           skin has no picture for this tile. A label under an art that already says the word is the word
-           twice. -->
-      <TextBlock Text="{Binding Label}"
-                 FontSize="22" FontWeight="SemiBold"
+      <!-- What a tile that cannot open is missing: the reference's home never advertised counts, but an
+           entry the server cannot fill says why, rather than standing silent. -->
+      <TextBlock Text="{Binding Unavailable}"
+                 FontSize="14" Opacity="0.5" Margin="4,0,0,2"
                  TextTrimming="CharacterEllipsis"
-                 MaxWidth="210"
-                 Foreground="{DynamicResource TextBrush}"
-                 IsVisible="{Binding HomeImageId,
-                                     Converter={x:Static views:SkinImageMissingConverter.Instance},
-                                     ConverterParameter='HomeMenu/{0}NoFocus'}"/>
+                 IsVisible="{Binding Unavailable, Converter={x:Static conv:ObjectConverters.IsNotNull}}"/>
     </StackPanel>
   </DataTemplate>
 
