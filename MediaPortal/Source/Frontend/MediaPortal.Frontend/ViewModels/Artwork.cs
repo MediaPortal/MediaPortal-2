@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MediaPortal.Frontend.Caching;
 
 namespace MediaPortal.Frontend.ViewModels
 {
@@ -80,6 +81,15 @@ namespace MediaPortal.Frontend.ViewModels
 
     private readonly Func<Guid, Task<byte[]?>> _fetch;
 
+    /// <summary>
+    /// Where a picture is looked for before the server is asked, or <c>null</c> for a front end that only has
+    /// its own memory to remember with.
+    /// </summary>
+    private readonly IPictureStore? _store;
+
+    /// <summary>How many pictures this object remembers before it drops the oldest.</summary>
+    private readonly int _rememberedLimit;
+
     /// <summary>Pictures already answered for, by title. A null value means the server has none for it.</summary>
     private readonly Dictionary<Guid, byte[]?> _remembered = new Dictionary<Guid, byte[]?>();
 
@@ -89,7 +99,7 @@ namespace MediaPortal.Frontend.ViewModels
     /// <summary>Titles whose picture is on its way, so that a second question about one waits instead of asking.</summary>
     private readonly Dictionary<Guid, Task<byte[]?>> _onTheWay = new Dictionary<Guid, Task<byte[]?>>();
 
-    private readonly SemaphoreSlim _slots = new SemaphoreSlim(MAX_AT_ONCE);
+    private readonly SemaphoreSlim _slots;
 
     /// <summary>
     /// Guards the three tables above. It is never held across an await, and it is never taken while the fetch
@@ -102,10 +112,20 @@ namespace MediaPortal.Frontend.ViewModels
 
     /// <summary>
     /// @param fetch Where the bytes come from - for the front end, the server's picture endpoint.
+    /// @param store This machine's shelf for this kind of picture, asked before the server. <c>null</c> is a
+    /// front end that has only its own memory, which is what every test and every screen without a server gets.
+    /// @param remembered How many pictures to hold, or 0 for <see cref="MAX_REMEMBERED"/>. The media settings
+    /// answer this for a real machine, because two hundred backdrops are around 130 MB and a small box is
+    /// allowed to say fifty.
+    /// @param atOnce How many pictures may be on the wire at one moment, or 0 for <see cref="MAX_AT_ONCE"/>.
     /// </summary>
-    public Artwork(Func<Guid, Task<byte[]?>> fetch)
+    public Artwork(Func<Guid, Task<byte[]?>> fetch, IPictureStore? store = null, int remembered = 0,
+        int atOnce = 0)
     {
       _fetch = fetch ?? throw new ArgumentNullException(nameof(fetch));
+      _store = store;
+      _rememberedLimit = remembered > 0 ? remembered : MAX_REMEMBERED;
+      _slots = new SemaphoreSlim(atOnce > 0 ? atOnce : MAX_AT_ONCE);
     }
 
     /// <summary>How many titles this object holds an answer for, pictures and absences alike.</summary>
@@ -191,7 +211,7 @@ namespace MediaPortal.Frontend.ViewModels
     {
       try
       {
-        byte[]? picture = await FetchWithASlotAsync(id).ConfigureAwait(true);
+        byte[]? picture = await FetchedAsync(id).ConfigureAwait(true);
         Remember(id, picture);
         starter.TrySetResult(picture);
         return picture;
@@ -217,6 +237,19 @@ namespace MediaPortal.Frontend.ViewModels
       }
     }
 
+    /// <summary>
+    /// One picture: from this machine's shelf where it lies there, and from the server where it does not. A
+    /// shelf answer takes no request slot, because it is a file on this machine rather than a read on somebody
+    /// else's - which matters most for exactly the pictures that are biggest.
+    /// </summary>
+    private async Task<byte[]?> FetchedAsync(Guid id)
+    {
+      if (_store == null)
+        return await FetchWithASlotAsync(id).ConfigureAwait(true);
+
+      return await _store.LoadAsync(id, () => FetchWithASlotAsync(id)).ConfigureAwait(true);
+    }
+
     private async Task<byte[]?> FetchWithASlotAsync(Guid id)
     {
       await _slots.WaitAsync().ConfigureAwait(true);
@@ -239,7 +272,7 @@ namespace MediaPortal.Frontend.ViewModels
         _remembered[id] = picture;
         Touch(id);
 
-        while (_order.Count > MAX_REMEMBERED)
+        while (_order.Count > _rememberedLimit)
         {
           Guid oldest = _order[0];
           _order.RemoveAt(0);

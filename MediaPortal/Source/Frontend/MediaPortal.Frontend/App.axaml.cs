@@ -804,7 +804,8 @@ namespace MediaPortal.Frontend
               // press that was never received when all that happens is a trail growing one crumb.
               Console.WriteLine("inside:   " + parent.Name + " - the titles inside it, from "
                   + browser.Section!.Label);
-              return TitlesFrame(new MediaBrowserViewModel(_home.Client, browser.Section, parent), parent.Name);
+              return TitlesFrame(new MediaBrowserViewModel(_home.Client, browser.Section, parent,
+                  _home.Pictures), parent.Name);
             };
 
         return new MediaBrowserView(browser, _workflow,
@@ -825,7 +826,7 @@ namespace MediaPortal.Frontend
       // The wake-up answer "last shelf" needs a memory, and every road to a shelf - tile, browse column,
       // the wake-up itself - walks through this one door, which is where the remembering happens.
       Settings.ClientSettings.RecordShelf(section.Label);
-      return TitlesFrame(new MediaBrowserViewModel(_home.Client, section), section.Label);
+      return TitlesFrame(new MediaBrowserViewModel(_home.Client, section, null, _home.Pictures), section.Label);
     }
 
     /// <summary>
@@ -941,6 +942,17 @@ namespace MediaPortal.Frontend
 
       model.Add("Media sources", "Server", "The folders the library reads, and their imports",
           delegate { return new FoldersView(new FoldersViewModel(_home.Client)); });
+
+      // What this machine does with the pictures those folders produce. Filed beside the sources on purpose -
+      // one answers where the library comes from, the other what this box keeps of it - but owned by the front
+      // end, because one viewer's television has a disk to keep pictures on and another's has none, while both
+      // look at the same server.
+      model.Add("Media settings", "Frontend", "What this machine keeps of the library's pictures, and for how long",
+          delegate
+          {
+            MediaSettingsViewModel media = new MediaSettingsViewModel(_home.Pictures);
+            return new MediaSettingsView(media);
+          });
 
       model.Add("Playback", "Frontend", "The sound of this machine",
           delegate { return new PlaybackView(_nowPlaying); });

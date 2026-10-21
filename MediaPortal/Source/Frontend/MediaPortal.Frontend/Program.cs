@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Threading;
 using MediaPortal.Frontend.Api;
+using MediaPortal.Frontend.Caching;
 using MediaPortal.Frontend.Discovery;
 using MediaPortal.Frontend.Player;
 using MediaPortal.Frontend.Settings;
@@ -223,7 +224,16 @@ namespace MediaPortal.Frontend
         return 2;
       }
 
-      AppBuilder app = BuildAvaloniaApp(() => new App(new HomeViewModel(client), player, settings, null,
+      // The pictures of the library are the heaviest thing this front end moves over the network - a backdrop is
+      // the picture lying next to the media, not the 256 pixel thumbnail the database holds - so what a machine
+      // keeps of them is answered on the media settings screen. It is read here because this is where an answer
+      // can still be printed for a box nobody is looking at.
+      PictureCache pictures = new PictureCache();
+      Console.WriteLine("pictures: shelf=" + pictures.Folder + " kept=" + (pictures.Enabled ? "on" : "off")
+          + " room=" + pictures.Settings.CacheSizeMb + " MB in memory=" + pictures.RememberedPictures
+          + " at once=" + pictures.PicturesAtOnce);
+
+      AppBuilder app = BuildAvaloniaApp(() => new App(new HomeViewModel(client, pictures), player, settings, null,
           serverMayBeChanged, serverMayBeChanged && !settings.HasUsableUrl, playFile, playSeconds, shotPath,
           playStart, theme));
       return app.StartWithClassicDesktopLifetime(args);

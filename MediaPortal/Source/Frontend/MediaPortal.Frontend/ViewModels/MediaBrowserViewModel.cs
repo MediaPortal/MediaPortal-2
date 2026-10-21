@@ -26,6 +26,7 @@ using Avalonia;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediaPortal.Frontend.Api;
+using MediaPortal.Frontend.Caching;
 using MediaPortal.Frontend.Player;
 using MediaPortal.Frontend.Settings;
 using MediaPortal.Frontend.Theming;
@@ -478,6 +479,12 @@ namespace MediaPortal.Frontend.ViewModels
     public const int PAGE_SIZE = 60;
 
     private readonly ServerApiClient? _client;
+
+    /// <summary>
+    /// This machine's shelf for the pictures of the library, or <c>null</c> for a run that only has its memory.
+    /// Every holder of pictures this screen builds is asked of it first.
+    /// </summary>
+    private readonly PictureCache? _pictures;
     private CancellationTokenSource? _running;
 
     [ObservableProperty]
@@ -602,16 +609,24 @@ namespace MediaPortal.Frontend.ViewModels
     /// The album or series that was pressed, whose tracks or episodes are what this list is. Null for a whole
     /// shelf, which is what opening a tile gives.
     /// </param>
+    /// <param name="pictures">
+    /// This machine's shelf for the pictures of the library, which every holder on this screen asks before it
+    /// asks the server. <c>null</c> is a run that keeps pictures in memory only.
+    /// </param>
     /// <remarks>
     /// A list opened from a parent asks for a different aspect than the tile it came from - the tracks of an album
     /// are audio items, not album items - and asks for them in the order they are listened to rather than
     /// alphabetically, because an album whose third track is listed under "B" is not the thing the viewer sat down
     /// for. Both come from <see cref="MediaCatalog"/> rather than from a guess about the parent's name.
     /// </remarks>
-    public MediaBrowserViewModel(ServerApiClient? client, HomeSection? section, TitleViewModel? parent)
+    public MediaBrowserViewModel(ServerApiClient? client, HomeSection? section, TitleViewModel? parent,
+        PictureCache? pictures = null)
     {
       _client = client;
-      _artwork = client == null ? null : new Artwork(id => client.GetThumbnailAsync(id));
+      _pictures = pictures;
+      _artwork = client == null
+          ? null
+          : PicturesOf(client, "Thumbnail", id => client.GetThumbnailAsync(id));
       Section = section;
       Parent = parent;
       AspectName = parent == null
@@ -675,7 +690,9 @@ namespace MediaPortal.Frontend.ViewModels
       // A setting the viewer flips on the skin-settings screen while this shelf lives takes its effect on
       // the television at once - the screen is a remote control, not an application form.
       SkinSettingsBase.Saved += delegate { ReapplySkinSettings(); };
-      _fanart = client == null ? null : new Artwork(id => client.GetFanArtAsync(id, "FanArt"));
+      _fanart = client == null
+          ? null
+          : PicturesOf(client, "FanArt", id => client.GetFanArtAsync(id, "FanArt"));
       // What a tile wears is the picture of its own kind, and the reference asked for it kinded too: its banner
       // grid bound FanArtType="Banner", its thumbnail grid FanArtType="Thumbnail", and neither ever drew a
       // poster in the other's frame - without the kind's own picture they drew the skin's "no banner" layer.
@@ -704,11 +721,21 @@ namespace MediaPortal.Frontend.ViewModels
       if (_tileArtworks.TryGetValue(kind, out Artwork? known))
         return known;
 
+      string wanted = kind == GridViewType.Banner ? "Banner" : "Thumbnail";
       Artwork? created = _client == null
           ? null
-          : new Artwork(id => _client.GetFanArtAsync(id, kind == GridViewType.Banner ? "Banner" : "Thumbnail"));
+          : PicturesOf(_client, wanted, id => _client.GetFanArtAsync(id, wanted));
       _tileArtworks.Add(kind, created);
       return created;
+    }
+
+    /// <summary>
+    /// One holder of one kind of picture: asked of this server, and looked for on this machine's shelf first
+    /// when the machine keeps one. Without a shelf it is the memory-only holder this front end had before.
+    /// </summary>
+    private Artwork PicturesOf(ServerApiClient client, string kind, Func<Guid, Task<byte[]?>> ask)
+    {
+      return _pictures == null ? new Artwork(ask) : _pictures.ArtworkFor(kind, client.BaseUrl, ask);
     }
 
     /// <summary>

@@ -25,6 +25,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Avalonia;
 using MediaPortal.Frontend.Api;
+using MediaPortal.Frontend.Caching;
 using MediaPortal.Frontend.Skins.Nereus;
 using MediaPortal.Frontend.Settings;
 using MediaPortal.Frontend.Theming;
@@ -177,14 +178,21 @@ namespace MediaPortal.Frontend.ViewModels
 
     private readonly Artwork? _fanart;
 
-    public HomeViewModel(ServerApiClient? client)
+    /// <summary>
+    /// This machine's shelf for the pictures of the library, or <c>null</c> for a run that keeps them in memory
+    /// only. Handed on to every screen that draws titles, and read by the settings screen that changes it.
+    /// </summary>
+    public PictureCache? Pictures { get; }
+
+    public HomeViewModel(ServerApiClient? client, PictureCache? pictures = null)
     {
       _client = client;
+      Pictures = pictures;
       _status = client == null ? "No server configured" : "Not connected yet";
       if (client != null)
       {
-        _posters = new Artwork(id => client.GetFanArtAsync(id, "Poster"));
-        _fanart = new Artwork(id => client.GetFanArtAsync(id, "FanArt"));
+        _posters = PicturesOf(client, "Poster", id => client.GetFanArtAsync(id, "Poster"));
+        _fanart = PicturesOf(client, "FanArt", id => client.GetFanArtAsync(id, "FanArt"));
       }
 
       // The face on the machine can change while this screen sits open - the skin settings are one move
@@ -205,6 +213,15 @@ namespace MediaPortal.Frontend.ViewModels
         OnPropertyChanged(nameof(FanartOverlay));
         OnPropertyChanged(nameof(FanartBlurRadius));
       };
+    }
+
+    /// <summary>
+    /// One holder of one kind of picture: asked of this server, and looked for on this machine's shelf first
+    /// when the machine keeps one. Without a shelf it is the memory-only holder this front end had before.
+    /// </summary>
+    private Artwork PicturesOf(ServerApiClient client, string kind, Func<Guid, Task<byte[]?>> ask)
+    {
+      return Pictures == null ? new Artwork(ask) : Pictures.ArtworkFor(kind, client.BaseUrl, ask);
     }
 
     public ObservableCollection<AspectViewModel> Aspects { get; } = new ObservableCollection<AspectViewModel>();
