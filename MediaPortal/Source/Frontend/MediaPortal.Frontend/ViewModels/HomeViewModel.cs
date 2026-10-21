@@ -211,7 +211,11 @@ namespace MediaPortal.Frontend.ViewModels
       SkinSettingsBase.Saved += delegate
       {
         OnPropertyChanged(nameof(FanartOverlay));
-        OnPropertyChanged(nameof(FanartBlurRadius));
+
+        // And the blur is answered by the standing backdrop itself: the copy it wears was thrown out of focus
+        // at the turn before, so a new turn means making it again - away from the thread that draws, the way
+        // everything of that size is done here.
+        _ = WearBackgroundAsync(_backgroundRaw);
       };
     }
 
@@ -531,7 +535,9 @@ namespace MediaPortal.Frontend.ViewModels
     /// </summary>
     public double FanartBlurRadius
     {
-      get { return FanartBlurFor(WornSkinSettingsOrNull()); }
+      // Nought while the screen wears a copy that was already thrown out of focus: such a picture says so by
+      // itself, and blurring it a second time would buy nothing but another sixth of a second.
+      get { return _backgroundBaked ? 0 : FanartBlurFor(WornSkinSettingsOrNull()); }
     }
 
     /// <summary>
@@ -558,7 +564,7 @@ namespace MediaPortal.Frontend.ViewModels
       SkinSettingsBase? worn = WornSkinSettingsOrNull();
       if (title == null || fanart == null || IsPlainHome || worn?.EnableFanart == false)
       {
-        BackgroundArtwork = null;
+        _ = WearBackgroundAsync(null);
         return;
       }
 
@@ -570,13 +576,60 @@ namespace MediaPortal.Frontend.ViewModels
         // without art should darken the screen back to bare background only once the next title proves it
         // has no art either - which it cannot prove by answering nothing.
         if (picture != null && generation == Volatile.Read(ref _fanartGeneration))
-          BackgroundArtwork = picture;
+          _ = WearBackgroundAsync(picture);
       }
       catch (ServerApiException)
       {
         // A fanart the server will not hand over leaves the background as it was. The names beside the menu are
         // the point of this pane; the picture behind them is a guest.
       }
+    }
+
+    private byte[]? _backgroundRaw;
+    private bool _backgroundBaked;
+    private int _backgroundTurn;
+
+    /// <summary>
+    /// Putting a fetched backdrop on the screen, thrown out of focus by however far the worn face asks for -
+    /// which is arithmetic of about a sixth of a second, so it is done away from the thread that draws and the
+    /// screen keeps wearing what it wore until the copy is ready.
+    /// </summary>
+    /// <remarks>
+    /// Walking on while a copy is being made is answered by the turn the picture was worn for: the copy of a
+    /// backdrop the viewer has left behind is never put on the screen, however quickly it comes. A copy that is
+    /// already in <see cref="BackgroundBlur"/> answers at once, which is what makes walking back over a wall as
+    /// quick as walking over it the first time.
+    /// </remarks>
+    private async Task WearBackgroundAsync(byte[]? raw)
+    {
+      int turn = ++_backgroundTurn;
+      _backgroundRaw = raw;
+
+      double radius = FanartBlurFor(WornSkinSettingsOrNull());
+      if (raw == null || radius <= 0)
+      {
+        ShowBackground(raw, false);
+        return;
+      }
+
+      byte[]? blurred = await BackgroundBlur.BlurredAsync(raw, radius);
+
+      // The viewer walked on, or the face - and with it the question - changed in the meantime.
+      if (turn != Volatile.Read(ref _backgroundTurn))
+        return;
+
+      ShowBackground(blurred ?? raw, blurred != null);
+    }
+
+    /// <summary>
+    /// What the screen wears behind everything. Said together with how far it still has to be thrown out of
+    /// focus, because the two are one answer: a copy that comes already blurred is worn at nought.
+    /// </summary>
+    private void ShowBackground(byte[]? bytes, bool baked)
+    {
+      _backgroundBaked = baked;
+      BackgroundArtwork = bytes;
+      OnPropertyChanged(nameof(FanartBlurRadius));
     }
 
     /// <summary>
@@ -617,10 +670,13 @@ namespace MediaPortal.Frontend.ViewModels
       OnPropertyChanged(nameof(IsWmcHome));
       OnPropertyChanged(nameof(IsPlainHome));
       OnPropertyChanged(nameof(FanartOverlay));
-      OnPropertyChanged(nameof(FanartBlurRadius));
       OnPropertyChanged(nameof(DisplayMenu));
       foreach (MainMenuEntry entry in Menu)
         entry.RevealHomeTileFolder();
+
+      // Which face is worn decides whether the standing backdrop is out of focus at all, so it is worn again
+      // under the new face's answer.
+      _ = WearBackgroundAsync(_backgroundRaw);
     }
 
     /// <summary>

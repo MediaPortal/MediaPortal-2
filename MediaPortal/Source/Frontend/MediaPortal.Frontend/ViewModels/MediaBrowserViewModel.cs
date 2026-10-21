@@ -761,6 +761,7 @@ namespace MediaPortal.Frontend.ViewModels
       FanartShown = _skinSettings?.EnableFanart ?? false;
       FanartOverlay = _skinSettings?.FanartOverlayOpacity ?? 0.85;
       FanartBlurRadius = BlurOf(_skinSettings);
+      _ = WearFanartAsync(_backgroundRaw);
       WatchFlagsShown = WatchFlagsFor(_layout);
       foreach (TitleViewModel row in Titles)
         row.WatchFlagsShown = WatchFlagsShown;
@@ -954,9 +955,20 @@ namespace MediaPortal.Frontend.ViewModels
     /// <summary>
     /// How far the fanart behind the shelf is thrown out of focus, in pixels. Nereus' own dial - the face
     /// that wears a title's picture across the whole screen - and nought from every other face, which leaves
-    /// the picture as the library drew it.
+    /// the picture as the library drew it. Nought while the screen wears a copy that was already thrown out
+    /// of focus away from the drawing thread, since such a picture says so by itself.
     /// </summary>
-    public double FanartBlurRadius { get; private set; }
+    public double FanartBlurRadius
+    {
+      get { return _backgroundBaked ? 0 : _fanartBlur; }
+      private set
+      {
+        _fanartBlur = value;
+        OnPropertyChanged(nameof(FanartBlurRadius));
+      }
+    }
+
+    private double _fanartBlur;
 
     /// <summary>The worn settings' blur, or nought when the face worn speaks none.</summary>
     private static double BlurOf(SkinSettingsBase? settings)
@@ -1012,7 +1024,7 @@ namespace MediaPortal.Frontend.ViewModels
       if (!FanartShown || fanart == null || value == null)
       {
         _fanartFor = Guid.Empty;
-        BackgroundArtwork = null;
+        _ = WearFanartAsync(null);
         return;
       }
 
@@ -1020,11 +1032,11 @@ namespace MediaPortal.Frontend.ViewModels
       _fanartFor = id;
       if (fanart.TryPeek(id, out byte[]? held))
       {
-        BackgroundArtwork = held;
+        _ = WearFanartAsync(held);
         return;
       }
 
-      BackgroundArtwork = null;
+      _ = WearFanartAsync(null);
       _ = ReadFanartAsync(fanart, id);
     }
 
@@ -1039,13 +1051,61 @@ namespace MediaPortal.Frontend.ViewModels
       {
         byte[]? picture = await fanart.LoadAsync(id);
         if (_fanartFor == id)
-          BackgroundArtwork = picture;
+          _ = WearFanartAsync(picture);
       }
       catch (ServerApiException)
       {
         if (_fanartFor == id)
-          BackgroundArtwork = null;
+          _ = WearFanartAsync(null);
       }
+    }
+
+    private byte[]? _backgroundRaw;
+    private int _backgroundTurn;
+    private bool _backgroundBaked;
+
+    /// <summary>
+    /// Putting a fetched backdrop behind the shelf, thrown out of focus by however far the worn face asks
+    /// for. That arithmetic takes about a sixth of a second on a full-size picture, which is a fifth of a
+    /// step between rows, so it is done away from the thread that draws: the shelf keeps wearing what it
+    /// wore until the copy is ready.
+    /// </summary>
+    /// <remarks>
+    /// Walking on while a copy is being made is answered by the turn the picture was worn for, so the copy of
+    /// a backdrop the viewer has left behind never reaches the screen. A copy already in
+    /// <see cref="BackgroundBlur"/> answers at once, which is what makes the walk back over a shelf as quick
+    /// as the walk over it the first time.
+    /// </remarks>
+    private async Task WearFanartAsync(byte[]? raw)
+    {
+      int turn = ++_backgroundTurn;
+      _backgroundRaw = raw;
+
+      double radius = _fanartBlur;
+      if (raw == null || radius <= 0 || !FanartShown)
+      {
+        ShowBackground(raw, false);
+        return;
+      }
+
+      byte[]? blurred = await BackgroundBlur.BlurredAsync(raw, radius);
+
+      // The viewer walked on, or the face - and with it the question - changed in the meantime.
+      if (turn != Volatile.Read(ref _backgroundTurn))
+        return;
+
+      ShowBackground(blurred ?? raw, blurred != null);
+    }
+
+    /// <summary>
+    /// What stands behind the shelf, said together with how far it still has to be thrown out of focus - the
+    /// two are one answer, since a copy that comes already blurred is worn at nought.
+    /// </summary>
+    private void ShowBackground(byte[]? bytes, bool baked)
+    {
+      _backgroundBaked = baked;
+      BackgroundArtwork = bytes;
+      OnPropertyChanged(nameof(FanartBlurRadius));
     }
 
     public string LayoutLabel
