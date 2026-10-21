@@ -246,6 +246,13 @@ namespace MediaPortal.Frontend.ViewModels
     /// </summary>
     private const double CONTENT_TOP = 52;
 
+    /// <summary>
+    /// The room between two squares of a shortcut or plugin column, the same ten that lies between two covers
+    /// sideways. It is subtracted from the column's span before the squares are cut, so a rail of five ends on
+    /// the bottom line of the band instead of running past it.
+    /// </summary>
+    private const double RAIL_GAP = 10;
+
     private static readonly (int Column, int Row, int ColumnSpan, int RowSpan)[] POSTER_LAYOUT_1 =
     {
         (0, 0, 2, 2), (2, 0, 1, 1), (3, 0, 1, 1),
@@ -295,6 +302,16 @@ namespace MediaPortal.Frontend.ViewModels
     private readonly double _cellWidth;
     private readonly double _cellHeight;
 
+    /// <summary>
+    /// The square a shortcut or a plugin entry is cut at. Not a number kept for itself: a column of five at the
+    /// old 159 ended twelve lines below the band's own height and twenty-nine below the lowest cover of the
+    /// mosaic beside it, so the rail hung past the wall it belongs to - the one misalignment a viewer sees at a
+    /// glance, because the bottom line of the content is the line every band is read against. Cut instead from
+    /// the room the covers leave, the column stands on the same line as the first cover and finishes on the same
+    /// line as the last one, whatever the band's height says.
+    /// </summary>
+    private readonly double _railTileSize;
+
     /// <summary>Whether the covers that arrived are the six the skin's mosaic table was drawn for.</summary>
     private readonly bool _designedMosaic;
 
@@ -323,6 +340,19 @@ namespace MediaPortal.Frontend.ViewModels
         _columns = 1;
         _rows = 5;
         _layout = Array.Empty<(int, int, int, int)>();
+
+        // The room the mosaic's squares have for themselves: from the line their first row stands on down to the
+        // line the lowest cover of a full band ends on (a cover stands five off its cell, and the band keeps
+        // twelve of inset below the last one). Five shortcuts at the square this column used to insist on ran
+        // past both lines, so the rail hung below the wall; cut from this span instead, the column starts and
+        // finishes on the very lines the covers beside it use. A rail shorter than the span it was drawn for
+        // keeps its nominal square and stands at the top of the column - five tiles grown to fill a band built
+        // for two would be a column of plaques, not a rail of shortcuts.
+        double span = Height - _inset - 5 - (CONTENT_TOP + 5);
+        double nominal = layout == "shortcuts" ? 159 : 150;
+        _railTileSize = covers > 1
+            ? Math.Min(nominal, Math.Round((span - (covers - 1) * RAIL_GAP) / covers, 1))
+            : nominal;
         return;
       }
 
@@ -340,6 +370,7 @@ namespace MediaPortal.Frontend.ViewModels
       _cellWidth = (Width - _inset * 2) / _columns;
       _cellHeight = (Height - CONTENT_TOP - _inset) / _rows;
       _designedMosaic = covers >= _layout.Length;
+      _railTileSize = 0;
 
       // The big first cover is the face's own, but only while the covers beside it arrive too: a cover over two
       // cells stands over 2 * columns - 4 cells in the row below it, and without those covers the cells it
@@ -410,12 +441,13 @@ namespace MediaPortal.Frontend.ViewModels
     {
       if (Layout == "shortcuts" || Layout == "plugins")
       {
-        double size = Layout == "shortcuts" ? 159 : 150;
+        double size = _railTileSize;
         double rail = 8;
         int index = Tiles.Count;
         // The first shortcut stands on the line the first cover of a mosaic stands on, and the ones under it
-        // follow ten apart - the same ten that stands between two covers sideways.
-        double top = CONTENT_TOP + 5 + index * (size + 10);
+        // follow ten apart - the same ten that stands between two covers sideways. Sized off the band's own span
+        // (see _railTileSize), the last one of the column ends where the lowest cover beside it ends.
+        double top = CONTENT_TOP + 5 + index * (size + RAIL_GAP);
         _right = Math.Max(_right, rail + size);
         AddSquareTo(create(rail, top, size, size));
         OccupiedWidth = Math.Min(Width, _right + _inset);
