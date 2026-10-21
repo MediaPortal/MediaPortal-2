@@ -1272,7 +1272,7 @@ namespace MediaPortal.Server.Api
         byte[] picture = FirstReadablePicture(cached);
 
         if (picture == null)
-          picture = ReadLocalFanArt(id, fanArtType);
+          picture = LocalFanArtSearch.Worn.Picture(id, fanArtType);
 
         if (picture == null || picture.Length == 0)
         {
@@ -1296,13 +1296,43 @@ namespace MediaPortal.Server.Api
     }
 
     /// <summary>
+    /// Telling the server to learn where the pictures of its library lie, so that the first look at a wall costs
+    /// file opens and no searching. See <see cref="FanArtWarmingPass"/> for what such a pass does and what it costs.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The answer is the pass' state either way: <c>202</c> when this call started one, <c>200</c> when one was
+    /// already running - which is not a failure, because the work is queued either way and whoever asked last has
+    /// nothing to wait for. A pass that is asked for while the importer still has jobs waits for it, so a front
+    /// end may press this the moment the queue drains without racing the import.
+    /// </para>
+    /// <para>
+    /// Nothing here has to be pressed for the server to be quick: a picture asked for is answered and remembered
+    /// as always. The pass only moves that work to a moment when nobody is waiting for it.
+    /// </para>
+    /// </remarks>
+    [HttpPost("fanart/warming")]
+    public ActionResult<FanArtWarmingResult> WarmFanArt()
+    {
+      bool started = FanArtWarmingPass.Worn.StartAfterImport();
+      FanArtWarmingResult state = FanArtWarmingPass.Worn.Read();
+      return started ? Accepted(state) : (ActionResult<FanArtWarmingResult>) Ok(state);
+    }
+
+    /// <summary>
+    /// How the server is doing at learning where its pictures lie: whether a pass runs, how far it got, and how
+    /// many answers it is holding.
+    /// </summary>
+    [HttpGet("fanart/warming")]
+    public FanArtWarmingResult GetFanArtWarming()
+    {
+      return FanArtWarmingPass.Worn.Read();
+    }
+
+    /// <summary>
     /// The kinds of fanart this endpoint answers for, in the reference's words.
     /// </summary>
-    private static readonly string[] FANART_KINDS =
-    {
-        FanArtTypes.Poster, FanArtTypes.Banner, FanArtTypes.FanArt, FanArtTypes.Thumbnail,
-        FanArtTypes.Logo, FanArtTypes.ClearArt, FanArtTypes.DiscArt
-    };
+    private static readonly string[] FANART_KINDS = LocalFanArtSearch.KINDS;
 
     /// <summary>
     /// The requested kind as the cache names it, or null when the caller asked for something that is not a kind.
@@ -1335,271 +1365,6 @@ namespace MediaPortal.Server.Api
         }
       }
       return null;
-    }
-
-    /// <summary>
-    /// The picture of one kind that lies next to the title's own file, or null when nothing does.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// The walk is the reference's, read at its simplest: LocalSeriesFanartProvider derives the series folder
-    /// from the episode's path (one or two levels up, depending on whether there are season folders) and looks
-    /// for the named pictures there, and LocalFanartProvider looks in the media file's own folder. Walking
-    /// <em>up to</em> two levels above the file and taking the first folder that has the picture answers both
-    /// without needing to decide whether "Season 01" is a season folder: the episode's own folder is searched
-    /// first, so a picture that sits with the episode wins over one that sits with the series.
-    /// </para>
-    /// <para>
-    /// The names per kind are exactly <see cref="LocalFanartHelper"/>'s, because that is the vocabulary every
-    /// tool that tags a library - and every other MP2 installation - writes with: a banner is "banner", a
-    /// backdrop starts with "fanart" or "backdrop", a cover is "poster", "folder", "cover" or "keyart". An
-    /// episode's own screenshot is the file named after the episode plus "-thumb"/"-landscape", which is the
-    /// pattern LocalSeriesFanartProvider.AddEpisodeFanArt reads.
-    /// </para>
-    /// </remarks>
-    private byte[] ReadLocalFanArt(Guid id, string fanArtType)
-    {
-      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
-      if (mediaLibrary == null)
-        return null;
-
-      foreach (MediaItem anchor in FanArtAnchors(mediaLibrary, id))
-      {
-        IResourceLocator locator = anchor.GetResourceLocator();
-        if (locator == null)
-          continue;
-
-        ResourcePath directory = ResourcePathHelper.Combine(locator.NativeResourcePath, "../");
-        string episodeStem = ResourcePath.GetFileNameWithoutExtension(locator.NativeResourcePath)
-            .ToLowerInvariant();
-
-        for (int hop = 0; hop < 3 && directory != null; hop++)
-        {
-          byte[] picture = ReadFanArtInDirectory(directory, fanArtType, hop == 0 ? episodeStem : null);
-          if (picture != null)
-            return picture;
-          try
-          {
-            directory = ResourcePathHelper.Combine(directory, "../");
-          }
-          catch (ArgumentException)
-          {
-            // The walk climbed past the root of the provider; there is no folder above this one.
-            break;
-          }
-        }
-      }
-      return null;
-    }
-
-    /// <summary>
-    /// The titles whose folders may hold this title's fanart: the title itself, and - when it is a series or a
-    /// season, which have no file of their own - one episode of it.
-    /// </summary>
-    /// <remarks>
-    /// This is the reference's own detour, read from LocalSeriesFanartProvider: asked for a series' banner it
-    /// does not ask the series, it searches for one episode of the series and derives the series folder from
-    /// that episode's path. A series is a shelf of episodes and has no file; the pictures lie with its episodes,
-    /// so that is where the search has to start.
-    /// </remarks>
-    private static IList<MediaItem> FanArtAnchors(IMediaLibrary mediaLibrary, Guid id)
-    {
-      IList<MediaItem> anchors = new List<MediaItem>();
-      try
-      {
-        MediaItemQuery query = new MediaItemQuery(
-            new List<Guid> { MediaAspect.ASPECT_ID },
-            new List<Guid> { ProviderResourceAspect.ASPECT_ID, SeriesAspect.ASPECT_ID, SeasonAspect.ASPECT_ID },
-            new MediaItemIdFilter(id));
-        IList<MediaItem> items = mediaLibrary.Search(query, false, null, false);
-        MediaItem item = items == null ? null : items.FirstOrDefault();
-
-        if (item == null)
-          return anchors;
-        anchors.Add(item);
-
-        if (item.GetResourceLocator() != null)
-        {
-          // A title with its own file needs no detour.
-          return anchors;
-        }
-
-        MediaItem episode = FirstEpisodeOf(mediaLibrary, item);
-        if (episode != null)
-          anchors.Add(episode);
-      }
-      catch (IllegalCallException)
-      {
-        anchors.Clear();
-      }
-      return anchors;
-    }
-
-    /// <summary>
-    /// One episode of a title that has no file of its own - a series or a season - or null when it holds none.
-    /// </summary>
-    /// <remarks>
-    /// The reference's detour (see <see cref="FanArtAnchors"/>): a series is a shelf of episodes and has no file,
-    /// so whatever lies next to its episodes' files is found by starting from one of them. Shared by the picture
-    /// search and the metadata search because both walk the same road the reference's providers walk.
-    /// </remarks>
-    private static MediaItem FirstEpisodeOf(IMediaLibrary mediaLibrary, MediaItem item)
-    {
-      Guid relation;
-      SingleMediaItemAspect heldAspect;
-      if (MediaItemAspect.TryGetAspect(item.Aspects, SeriesAspect.Metadata, out heldAspect))
-        relation = SeriesAspect.ROLE_SERIES;
-      else if (MediaItemAspect.TryGetAspect(item.Aspects, SeasonAspect.Metadata, out heldAspect))
-        relation = SeasonAspect.ROLE_SEASON;
-      else
-        return null;
-
-      MediaItemQuery episodes = new MediaItemQuery(
-          new List<Guid> { EpisodeAspect.ASPECT_ID },
-          new List<Guid> { ProviderResourceAspect.ASPECT_ID },
-          new RelationshipFilter(EpisodeAspect.ROLE_EPISODE, relation, item.MediaItemId));
-      episodes.Limit = 1;
-      IList<MediaItem> held = mediaLibrary.Search(episodes, false, null, false);
-      return held == null || held.Count == 0 ? null : held[0];
-    }
-
-    /// <summary>
-    /// The accessor for a path the server's own local providers reach, or null - which reads as "not there"
-    /// rather than throwing. A path whose provider is not registered at all, or belongs to another system, is as
-    /// unreadable here as a deleted file, and a shelf or a details answer must not fail because of it; the plain
-    /// <see cref="ResourcePath.TryCreateLocalResourceAccessor"/> throws exactly for that case.
-    /// </summary>
-    private static IResourceAccessor TryOpenLocalFile(ResourcePath path)
-    {
-      if (path == null || ServiceRegistration.Get<IMediaAccessor>(false) == null)
-        return null;
-      try
-      {
-        IResourceAccessor accessor;
-        if (!path.TryCreateLocalResourceAccessor(out accessor))
-          return null;
-        return accessor;
-      }
-      catch (IllegalCallException)
-      {
-        return null;
-      }
-    }
-
-    /// <summary>
-    /// The picture of one kind inside one folder of the library, or null. Never throws: a folder that cannot be
-    /// read is a folder with no picture in it as far as a shelf is concerned.
-    /// </summary>
-    private static byte[] ReadFanArtInDirectory(ResourcePath directory, string fanArtType, string episodeStem)
-    {
-      try
-      {
-        IResourceAccessor accessor = TryOpenLocalFile(directory);
-        if (accessor == null)
-          return null;
-
-        using (accessor)
-        {
-          if (!(accessor is IFileSystemResourceAccessor folder) || folder.IsFile || !folder.Exists)
-            return null;
-
-          IList<ResourcePath> potential = LocalFanartHelper.GetPotentialFanArtFiles(folder);
-          IList<ResourcePath> matching = MatchFanArtFiles(potential, fanArtType, episodeStem);
-
-          // A backdrop may also be an ExtraFanArt entry below the folder, which is where the reference's
-          // providers keep the second and third backdrops of a title.
-          if (matching.Count == 0 && fanArtType == FanArtTypes.FanArt && folder.ResourceExists("ExtraFanArt/"))
-            using (IResourceAccessor extra = folder.GetResource("ExtraFanArt/"))
-            {
-              if (extra is IFileSystemResourceAccessor extraFolder)
-                matching = LocalFanartHelper.GetPotentialFanArtFiles(extraFolder);
-            }
-
-          foreach (ResourcePath candidate in matching)
-          {
-            byte[] bytes = ReadPictureFile(candidate);
-            if (bytes != null)
-              return bytes;
-          }
-          return null;
-        }
-      }
-      catch (IOException)
-      {
-        return null;
-      }
-      catch (UnauthorizedAccessException)
-      {
-        return null;
-      }
-    }
-
-    /// <summary>
-    /// The pictures of one kind among the images of one folder, in the reference's priority order: the exact
-    /// names it lists for the kind ("banner", "poster" ...), and for an episode's own screenshot the file named
-    /// after the episode with "-thumb" or "-landscape" behind it. A backdrop is matched the way the reference
-    /// matches it - by prefix - because "fanart-2.jpg" is a backdrop too.
-    /// </summary>
-    private static IList<ResourcePath> MatchFanArtFiles(IList<ResourcePath> potential, string fanArtType,
-        string episodeStem)
-    {
-      switch (fanArtType)
-      {
-        case FanArtTypes.Poster:
-          return LocalFanartHelper.FilterPotentialFanArtFilesByName(potential, LocalFanartHelper.POSTER_FILENAMES);
-        case FanArtTypes.Banner:
-          return LocalFanartHelper.FilterPotentialFanArtFilesByName(potential, LocalFanartHelper.BANNER_FILENAMES);
-        case FanArtTypes.Logo:
-          return LocalFanartHelper.FilterPotentialFanArtFilesByName(potential, LocalFanartHelper.LOGO_FILENAMES);
-        case FanArtTypes.ClearArt:
-          return LocalFanartHelper.FilterPotentialFanArtFilesByName(potential, LocalFanartHelper.CLEARART_FILENAMES);
-        case FanArtTypes.DiscArt:
-          return LocalFanartHelper.FilterPotentialFanArtFilesByName(potential, LocalFanartHelper.DISCART_FILENAMES);
-        case FanArtTypes.FanArt:
-          return LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potential, LocalFanartHelper.BACKDROP_FILENAMES);
-        case FanArtTypes.Thumbnail:
-          IList<ResourcePath> found =
-              LocalFanartHelper.FilterPotentialFanArtFilesByName(potential, LocalFanartHelper.THUMB_FILENAMES);
-          if (episodeStem != null && found.Count == 0)
-            found = LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potential,
-                LocalFanartHelper.THUMB_FILENAMES.Select(name => episodeStem + "-" + name).ToArray());
-          return found;
-        default:
-          return new List<ResourcePath>();
-      }
-    }
-
-    /// <summary>
-    /// The bytes of one picture file named by its resource path, or null when it cannot be read or is empty.
-    /// </summary>
-    private static byte[] ReadPictureFile(ResourcePath path)
-    {
-      IResourceAccessor accessor = TryOpenLocalFile(path);
-      if (accessor == null)
-        return null;
-
-      try
-      {
-        IFileSystemResourceAccessor file = accessor as IFileSystemResourceAccessor;
-        if (file == null || !file.Exists || !file.IsFile)
-          return null;
-
-        using (Stream body = file.OpenRead())
-        using (MemoryStream copy = new MemoryStream())
-        {
-          body.CopyTo(copy);
-          byte[] bytes = copy.ToArray();
-          return bytes.Length > 0 ? bytes : null;
-        }
-      }
-      catch (IOException)
-      {
-        return null;
-      }
-      finally
-      {
-        accessor.Dispose();
-      }
     }
 
     /// <summary>
@@ -1641,13 +1406,13 @@ namespace MediaPortal.Server.Api
     /// for the whole show. Those bytes are the household's own data, and a details screen that ignores them tells
     /// the viewer there is nothing to know about a show that was described to the last genre. The database stays
     /// the authority all the same: every field an aspect already filled keeps its value, and the files only fill
-    /// the nulls - the same division of labor as for the pictures (see <see cref="ReadLocalFanArt"/>).
+    /// the nulls - the same division of labor as for the pictures (see <see cref="LocalFanArtSearch"/>).
     /// </para>
     /// <para>
     /// <b>Which file describes which title.</b> An episode is described by the file of its own name; a film by
     /// its sibling of the same stem; a series or season by the show's file, which - having no file of its own -
     /// is found through the same detour to one of its episodes that the pictures take
-    /// (<see cref="FirstEpisodeOf"/>). The show's file is looked for from the media file's folder up to two
+    /// (<see cref="LocalFanArtSearch.FirstEpisodeOf"/>). The show's file is looked for from the media file's folder up to two
     /// levels above it, so a library with season folders and one without are both read.
     /// </para>
     /// </remarks>
@@ -1662,7 +1427,7 @@ namespace MediaPortal.Server.Api
       {
         try
         {
-          MediaItem episode = FirstEpisodeOf(mediaLibrary, item);
+          MediaItem episode = LocalFanArtSearch.FirstEpisodeOf(mediaLibrary, item);
           if (episode != null)
             anchor = episode;
         }
@@ -1797,7 +1562,7 @@ namespace MediaPortal.Server.Api
     /// </summary>
     private static bool MetadataFileReadable(ResourcePath path)
     {
-      IResourceAccessor accessor = TryOpenLocalFile(path);
+      IResourceAccessor accessor = LocalFanArtSearch.TryOpenLocalFile(path);
       if (accessor == null)
         return false;
       try
@@ -1817,7 +1582,7 @@ namespace MediaPortal.Server.Api
     /// </summary>
     private static TitleMetadata ReadTitleMetadata(ResourcePath path)
     {
-      IResourceAccessor accessor = TryOpenLocalFile(path);
+      IResourceAccessor accessor = LocalFanArtSearch.TryOpenLocalFile(path);
       if (accessor == null)
         return null;
       try

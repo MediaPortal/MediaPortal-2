@@ -660,6 +660,39 @@ namespace MediaPortal.Frontend.Api
     }
 
     /// <summary>
+    /// <c>GET api/media/fanart/warming</c> - how far the server is at learning where the pictures of its library lie.
+    /// </summary>
+    /// <remarks>
+    /// Readable on a server that has never been asked to do anything: the answer is then a pass that is not running
+    /// and has learned nothing, which is a state worth showing rather than an error - the pictures arrive either
+    /// way, the first ask for one only costs the server a walk through the folders it lies in.
+    /// </remarks>
+    public async Task<FanArtWarming> GetFanArtWarmingAsync(CancellationToken cancellation = default)
+    {
+      return await SendJsonAsync<FanArtWarming>(HttpMethod.Get, "api/media/fanart/warming", null, cancellation)
+          .ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// <c>POST api/media/fanart/warming</c> - telling the server to go over its library and remember where each
+    /// title's pictures lie, so that the first wall of titles costs file opens and no searching.
+    /// </summary>
+    /// <returns>The state of the pass, whether this call started it or found one already running.</returns>
+    /// <remarks>
+    /// <c>202</c> when this call started a pass and <c>200</c> when one was already running, and both arrive here as
+    /// the same state: the difference is only who pressed, and the work is queued either way. A pass that finds the
+    /// importer at work waits for it, so this can be pressed the moment an import queue drains without racing the
+    /// import - which is exactly what <see cref="ViewModels.FoldersViewModel"/> does after a folder was added.
+    /// Nothing here has to be pressed for pictures to arrive; the pass only moves the looking to a moment when
+    /// nobody is waiting for it.
+    /// </remarks>
+    public async Task<FanArtWarming> WarmFanArtAsync(CancellationToken cancellation = default)
+    {
+      return await SendJsonAsync<FanArtWarming>(HttpMethod.Post, "api/media/fanart/warming", null, cancellation)
+          .ConfigureAwait(false);
+    }
+
+    /// <summary>
     /// <c>GET api/media/settings</c> - how the server is configured: login requirement,
     /// listening address, and the importer's own schedule.
     /// </summary>

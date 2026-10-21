@@ -946,11 +946,12 @@ namespace MediaPortal.Frontend
       // What this machine does with the pictures those folders produce. Filed beside the sources on purpose -
       // one answers where the library comes from, the other what this box keeps of it - but owned by the front
       // end, because one viewer's television has a disk to keep pictures on and another's has none, while both
-      // look at the same server.
+      // look at the same server. The server is handed over for the one row that is its answer rather than this
+      // machine's: what it has learned about where its pictures lie.
       model.Add("Media settings", "Frontend", "What this machine keeps of the library's pictures, and for how long",
           delegate
           {
-            MediaSettingsViewModel media = new MediaSettingsViewModel(_home.Pictures);
+            MediaSettingsViewModel media = new MediaSettingsViewModel(_home.Pictures, null, _home.Client);
             return new MediaSettingsView(media);
           });
 

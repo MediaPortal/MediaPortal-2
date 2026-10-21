@@ -358,4 +358,49 @@ namespace MediaPortal.Frontend.Api
       return Suspended ? "the importer is paused" : "nothing being imported";
     }
   }
+
+  /// <summary>
+  /// The answer of <c>GET api/media/fanart/warming</c>: how far the server is at learning where the pictures of its
+  /// library lie, which is the work behind a picture that arrives without the server walking folders first.
+  /// </summary>
+  /// <remarks>
+  /// <paramref name="Titles"/> counts the titles a pass looked over and <paramref name="Skipped"/> the ones it had
+  /// nothing left to learn about, so a second pass over an unchanged library says "two titles, both already known"
+  /// rather than looking like nothing happened. <paramref name="Answers"/> is the number worth watching: every kind
+  /// of picture the server can now name for a title, found or definitely absent.
+  /// </remarks>
+  public record FanArtWarming(
+      [property: JsonPropertyName("running")] bool Running,
+      [property: JsonPropertyName("titles")] int Titles,
+      [property: JsonPropertyName("skipped")] int Skipped,
+      [property: JsonPropertyName("kindsFound")] int KindsFound,
+      [property: JsonPropertyName("answers")] int Answers,
+      [property: JsonPropertyName("waiting")] string? Waiting,
+      [property: JsonPropertyName("stopped")] string? Stopped,
+      [property: JsonPropertyName("started")] DateTimeOffset? Started,
+      [property: JsonPropertyName("ended")] DateTimeOffset? Ended)
+  {
+    /// <summary>
+    /// What a row says about it: what the server is doing now if it is doing anything, and what it has learned
+    /// otherwise. A server that has learned nothing yet is said plainly, because the pictures still arrive - the
+    /// first ask only costs the server a look through the folders.
+    /// </summary>
+    public string Describe()
+    {
+      if (Running)
+        return Waiting != null
+            ? "the server is waiting before it starts: " + Waiting
+            : "the server is going through its library - " + Titles + " title(s) so far";
+      if (Stopped != null)
+        return "the server stopped: " + Stopped;
+      if (Answers == 0)
+        return "nothing learned yet - the first ask for a picture costs the server a look through its folders";
+
+      // What the number means is the point: an answer stands for a picture the server can name without listing a
+      // folder, whether that answer is a file or "this title has none of that kind".
+      return "the server went over " + Titles + " title(s) and can now answer " + Answers
+          + " picture question(s) without searching"
+          + (Skipped == 0 ? "" : ", " + Skipped + " title(s) it already knew");
+    }
+  }
 }

@@ -519,6 +519,29 @@ public partial class FoldersViewModel : ObservableObject, IDisposable
   }
 
   /// <summary>
+  /// Telling the server to learn where the pictures of what was just imported lie.
+  /// </summary>
+  /// <remarks>
+  /// Quiet when the server will not say. The pictures arrive either way - an unlearned one costs the server a walk
+  /// through its folders the first time somebody asks - and a screen that has just told the viewer their folder is
+  /// imported should not make the server's memory the loud complaint on it. What the pass is doing is on the media
+  /// answers screen, where the pictures are configured.
+  /// </remarks>
+  private async Task WarmPicturesAsync(CancellationToken cancellation)
+  {
+    try
+    {
+      await _client!.WarmFanArtAsync(cancellation);
+    }
+    catch (ServerApiException)
+    {
+    }
+    catch (OperationCanceledException)
+    {
+    }
+  }
+
+  /// <summary>
   /// Follows the queue until it empties, so that "importing" on the screen means what it means on the server
   /// instead of being a word that never changes.
   /// </summary>
@@ -570,7 +593,16 @@ public partial class FoldersViewModel : ObservableObject, IDisposable
           // otherwise erase the sentence about the folder that was just added, which is the sentence the viewer
           // pressed the button for.
           if (_queueWasBusy)
+          {
             Status = "Import finished.";
+
+            // Whatever the import just filed brought pictures with it, in folders the server has never listed.
+            // Asking it to learn where they lie costs the viewer nothing at this moment - the pass waits for the
+            // importer, and that one is through - and the first wall of the new titles draws without stopping to
+            // search. The server starts the same pass by itself when a folder is added, so this is often only the
+            // second knock on the same door, which it answers with the pass it is already running.
+            await WarmPicturesAsync(cancellation.Token);
+          }
           return;
         }
         await Task.Delay(POLL_DELAY_MS, cancellation.Token);

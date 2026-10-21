@@ -329,6 +329,10 @@ namespace MediaPortal.Server.Api
         return NotReady(ex);
       }
 
+      // Registering scheduled the import of the folder, so this schedules the pass that learns the pictures the
+      // import is about to find. The pass waits for the importer's queue first, so asking here cannot race it.
+      FanArtWarmingPass.Worn.StartAfterImport();
+
       return StatusCode(StatusCodes.Status201Created, ToResult(share, systemResolver.LocalSystemId));
     }
 
@@ -549,6 +553,11 @@ namespace MediaPortal.Server.Api
       }
 
       importerWorker.ScheduleImport(share.BaseResourcePath, categories, true);
+
+      // And, as when a folder is first registered, the pass that learns the pictures the import will have found -
+      // after the import, because a folder that is half read has no pictures in it yet.
+      FanArtWarmingPass.Worn.StartAfterImport();
+
       return Accepted(ReadStatus(importerWorker));
     }
 

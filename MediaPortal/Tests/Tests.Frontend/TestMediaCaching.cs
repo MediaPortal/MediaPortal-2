@@ -545,8 +545,9 @@ namespace Tests.Frontend
 
       Assert.That(switches.Count, Is.EqualTo(1),
           "one switch with two answers, and it is the only switch to be seen on the screen");
-      Assert.That(answers.Count, Is.EqualTo(4),
-          "three questions with lists of answers and one doing, each showing its answer in a button");
+      Assert.That(answers.Count, Is.EqualTo(5),
+          "three questions with lists of answers, one doing and the server's own answer, each showing its "
+          + "answer in a button");
 
       Button? room = answers.FirstOrDefault(delegate (Button button)
       {
