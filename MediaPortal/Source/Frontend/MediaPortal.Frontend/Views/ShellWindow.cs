@@ -178,6 +178,20 @@ namespace MediaPortal.Frontend.Views
       // The superlayer floats over all of it - header, trail, screen - exactly as the reference's volume and
       // busy layers covered the whole master window.
       Panel shell = new Panel();
+
+      // The ground the pointer stands on, and it has to be there for a reason the picture cannot give. Avalonia
+      // asks the element under the pointer what the pointer should look like and hands the platform whatever that
+      // answer is - including "no answer", which the Windows backend answers with its own arrow, written into the
+      // window's class so that Windows goes on painting it. So the moment the element the pointer was standing on
+      // is taken away - which is every time the home content is read again, because the covers it stood on are
+      // built anew - the arrow is back on the television for a moment, whatever the window itself was told to
+      // wear. A ground that is always there and that always carries an answer of its own means there is never a
+      // moment without one: see WearPointerLook, which is what dresses it. See also the pointer's rest in
+      // WirePointerRest, which is what puts the arrow away in the first place.
+      shell.Background = Avalonia.Media.Brushes.Transparent;
+      _pointerGround = shell;
+      WearPointerLook(false);
+
       shell.Children.Add(layout);
       shell.Children.Add(_superlayer);
 
@@ -425,6 +439,10 @@ namespace MediaPortal.Frontend.Views
     // own - so whatever is written here is what a viewer sees, wherever the pointer happens to be standing.
     private readonly Input.PointerRest _pointerRest = new Input.PointerRest();
     private Avalonia.Input.Cursor? _pointerAway;
+    private Avalonia.Input.Cursor? _pointerShown;
+
+    // The one element under all the screens that the pointer can always be standing on. See WearPointerLook.
+    private Avalonia.Controls.Control? _pointerGround;
     private Avalonia.Threading.DispatcherTimer? _pointerBeat;
 
     // The word on the window that the skin reads: put on when the pointer goes out of sight and taken off when it
@@ -447,7 +465,17 @@ namespace MediaPortal.Frontend.Views
             // The plain argument type, as with the screensaver's wake: this route legitimately carries
             // PointerEventArgs, and a handler demanding a richer one is an exception on the first movement.
             if (_pointerRest.Move(args.GetPosition(this)))
+            {
               BringPointerBack();
+            }
+            else if (_pointerRest.Resting)
+            {
+              // A report that is not a hand still says that the mouse is being listened to, and it arrives about
+              // twice a second on its own - so the curtain is tightened on every one of them for free. That is
+              // what keeps a curtain that something showed through from staying shown: the next shiver of the
+              // mouse draws it again.
+              Input.PointerCurtain.Draw();
+            }
           },
           RoutingStrategies.Tunnel, true);
 
@@ -459,6 +487,15 @@ namespace MediaPortal.Frontend.Views
 
       AddHandler(PointerPressedEvent, Stir, RoutingStrategies.Tunnel, true);
       AddHandler(PointerWheelChangedEvent, Stir, RoutingStrategies.Tunnel, true);
+
+      // While the pointer rests, every layout pass tightens the curtain again. That is where the framework
+      // changes its mind about the pointer - in the middle of laying a home content out anew - and a fold that
+      // pass lifted is back before the pass is over rather than half a second later.
+      LayoutUpdated += delegate
+      {
+        if (_pointerRest.Resting)
+          Input.PointerCurtain.Draw();
+      };
 
       Opened += delegate
       {
@@ -485,18 +522,44 @@ namespace MediaPortal.Frontend.Views
           _pointerBeat.Stop();
           _pointerBeat = null;
         }
+
+        // A curtain outlives nobody. Left drawn, the count would keep the pointer off the television for whatever
+        // takes this thread's picture over next.
+        Input.PointerCurtain.Lift();
       };
     }
 
     /// <summary>
-    /// Takes the pointer away. The empty cursor is asked of the platform here rather than once in the
-    /// constructor, because a window that never shows - the plain ones the test runs host screens in - has no
-    /// platform to ask, and a pointer that was never on screen has nothing to put away.
+    /// Says what the pointer looks like, twice over, because the window alone cannot say it. The window is what
+    /// the pointer is standing on most of the time and is asked directly; the ground under all the screens is
+    /// what it is standing on the moment the element underneath is gone, and it is only asked if it carries an
+    /// answer of its own - a value inherited from the window does not reach the platform from here. Without both,
+    /// every home content rebuild - which tears the covers the pointer stood on down and builds new ones - let
+    /// the platform fall back to its own arrow for a moment, right in the middle of a resting pointer.
+    /// </summary>
+    private void WearPointerLook(bool resting)
+    {
+      _pointerAway ??= new Avalonia.Input.Cursor(Avalonia.Input.StandardCursorType.None);
+      _pointerShown ??= new Avalonia.Input.Cursor(Avalonia.Input.StandardCursorType.Arrow);
+
+      Cursor = resting ? _pointerAway : null;
+      if (_pointerGround != null)
+        _pointerGround.Cursor = resting ? _pointerAway : _pointerShown;
+    }
+
+    /// <summary>
+    /// Takes the pointer away: the look first (see WearPointerLook) and then the word to the skin. A pointer that
+    /// was never on screen has nothing to put away, which is why none of this is asked of the platform until the
+    /// quiet has actually elapsed.
     /// </summary>
     private void PutPointerAway()
     {
-      _pointerAway ??= new Avalonia.Input.Cursor(Avalonia.Input.StandardCursorType.None);
-      Cursor = _pointerAway;
+      WearPointerLook(true);
+
+      // And the curtain over it all. The look is the framework's promise about what the pointer would be painted
+      // as, which the framework can and does forget for a frame while a home content is read again; the curtain
+      // is the operating system's own answer to whether it is painted at all, and it does not forget.
+      Input.PointerCurtain.Draw();
 
       // Said to the skin as well as to the platform, and this is the part the platform cannot say for us: the
       // pointer is invisible but it is still standing where it stood, so the tile underneath it still believes
@@ -523,7 +586,11 @@ namespace MediaPortal.Frontend.Views
     /// <summary>Brings the pointer back to the window's normal look and starts the quiet again.</summary>
     private void BringPointerBack()
     {
-      Cursor = null;
+      WearPointerLook(false);
+
+      // Lifted before anything else is decided about the look: a pointer that is wanted and counting is the one
+      // mistake a viewer does not forgive.
+      Input.PointerCurtain.Lift();
 
       // Before the cursor is visible again, so that the first frame in which a viewer can see the pointer is
       // already the frame in which the tile under it is dressed for being stood on.
