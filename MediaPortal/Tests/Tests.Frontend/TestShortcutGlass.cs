@@ -94,7 +94,7 @@ namespace Tests.Frontend
           Assert.That(glyph.Fill, Is.Not.Null, label + "'s glyph is coloured by the tile, not by its file");
 
           HomeContentTile model = (HomeContentTile) tile.Tag!;
-          Border face = (Border) GlassChild(tile, "home-shortcut-face").Single();
+          Border face = (Border) GlassChild(tile, "home-tile-edge").Single();
 
           // The glyph stands centred on the glass with nothing around it - no plaque, no box, no view box. A tile
           // whose size the screen already decides needs no wrapper to keep its icon square.
@@ -243,7 +243,7 @@ namespace Tests.Frontend
       RunOnHome(MOVIES_ACTION, null, delegate (Window window, List<Button> glass, List<Button> plates)
       {
         Button tile = glass[0];
-        Border face = (Border) GlassChild(tile, "home-shortcut-face").Single();
+        Border face = (Border) GlassChild(tile, "home-tile-edge").Single();
         Border tint = (Border) GlassChild(tile, "home-shortcut-tint").Single();
         AcrylicSurface frost = (AcrylicSurface) GlassChild(tile, "home-shortcut-frost").Single();
         IconPath glyph = (IconPath) GlassChild(tile, "home-shortcut-glyph").Single();

@@ -213,8 +213,16 @@
        shadow away - the face inside is what clips the picture, and both are rounded to the same 10. -->
   <Style Selector="Button.nereus-content-tile">
     <Setter Property="Background" Value="#222222"/>
+    <!-- No border of the button's own, and no focus adorner either. The generic Button style above dresses every
+         button in the skin with the palette's OutlineBrush - a fifth-of-white line one pixel thick - and the
+         control's own theme answers focus with an adorner drawn OUTSIDE the button's bounds. Both of those are a
+         second and a third edge round this tile: a resting line the ring does not sit on, and a focus frame that
+         can never meet it because it is drawn a pixel further out. The one edge a cover wears is the ring laid
+         over its face (Border.home-tile-edge), at the tile's own corner and its own two of thickness; that is the
+         line that brightens when a viewer stands on the tile, and nothing else may draw an edge here. -->
     <Setter Property="BorderBrush" Value="#00000000"/>
     <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="FocusAdorner" Value="{x:Null}"/>
     <Setter Property="Padding" Value="0"/>
     <Setter Property="CornerRadius" Value="10"/>
     <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -223,14 +231,11 @@
     <Setter Property="Transitions">
       <Transitions>
         <DoubleTransition Property="Opacity" Duration="0:0:0.2"/>
-        <ThicknessTransition Property="BorderThickness" Duration="0:0:0.2"/>
       </Transitions>
     </Setter>
   </Style>
   <Style Selector="Button.nereus-content-tile:focus">
     <Setter Property="Background" Value="#444444"/>
-    <Setter Property="BorderBrush" Value="#FFFFFFFF"/>
-    <Setter Property="BorderThickness" Value="4"/>
     <Setter Property="Opacity" Value="1"/>
   </Style>
   <Style Selector="Border.home-tile-shadow">
@@ -239,6 +244,25 @@
   </Style>
   <Style Selector="Border.home-tile-face">
     <Setter Property="CornerRadius" Value="10"/>
+  </Style>
+
+  <!-- The picture a cover on the wall wears. Standing on the tile steps it a tenth nearer, for the same reason
+       the tiles of the main menu do: the tile itself does not change size, its artwork does, and a picture
+       growing out of its frame says "this one" without anybody drawing a frame round it. Half a second on a sine,
+       so the move is felt rather than watched, and the same curve carries it back when the viewer walks on. The
+       face clips the picture to the tile's own rounded square, so nothing of the growth spills past the edge, and
+       the name in its band stays where it was - only the picture moves. -->
+  <Style Selector="Image.home-tile-art">
+    <Setter Property="RenderTransformOrigin" Value="50%,50%"/>
+    <Setter Property="RenderTransform" Value="scale(1)"/>
+    <Setter Property="Transitions">
+      <Transitions>
+        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.5" Easing="SineEaseInOut"/>
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Button.nereus-content-tile:focus Image.home-tile-art, Button.nereus-content-tile:pointerover Image.home-tile-art">
+    <Setter Property="RenderTransform" Value="scale(1.1)"/>
   </Style>
 
   <!-- A tile of the main menu wears the same ten of rounding as the covers on the wall, and the template clips
@@ -361,18 +385,20 @@
        throw a shadow of its own, and it did, and a second shadow next to the skin's is how a shortcut came to sit
        on the wall in a darkness none of its neighbours had. One shadow, and it is the tile's, not the shader's. -->
 
-  <!-- The edge of the glass: thin, brightest where the light comes from, nearly gone before it turns away at the
-       bottom. It is laid OVER the edge of the glass rather than wrapped around it, at the glass's own corner. A
-       frame around the glass is a second edge: the glass cuts itself to one circle and the frame to another, two
-       of its own thickness apart, and the step a viewer sees where those two circles disagree is the artifact
-       that sat in every corner of these tiles until the frame stopped cutting and started covering.
+  <!-- The edge a tile wears, whether it is glass or a cover: thin, brightest where the light comes from, nearly
+       gone before it turns away at the bottom. It is laid OVER the edge of the tile rather than wrapped around
+       it, at the tile's own corner. A frame around a surface is a second edge: the surface cuts itself to one
+       circle and the frame to another, two of its own thickness apart, and the step a viewer sees where those
+       two circles disagree is the artifact that sat in every corner of these tiles until the frame stopped
+       cutting and started covering.
 
        At rest it is a ghost of itself - a fifth of the light it used to carry - because a ring that is bright
        while nothing stands on the tile is the thing everybody notices and nobody asked for. It comes up to full
-       light when a viewer stands on the tile, which is where an edge that says "this one" earns its place. Both
-       brushes are the same four stops down the same line, so the transition moves the light rather than cutting
-       from one ring to another. -->
-  <Style Selector="Border.home-shortcut-face">
+       light when a viewer stands on the tile, which is where an edge that says "this one" earns its place, and
+       it says it for the glasses and the covers alike: one edge, one set of numbers, so a rail of shortcuts and
+       the covers beside them answer being stood on in the same voice. Both brushes are the same four stops down
+       the same line, so the transition moves the light rather than cutting from one ring to another. -->
+  <Style Selector="Border.home-tile-edge">
     <Setter Property="CornerRadius" Value="10"/>
     <!-- Two of these, not three: at three the ring measured as a white outline drawn round the tile rather than
          as the edge of the tile catching the light, and the light it catches is above it, not under it. -->
@@ -512,7 +538,7 @@
        outline of the glyph draws itself round the icon while the icon lifts off the glass. The frost stays
        exactly as it was - it is the glass, not a state of it - and so do the corner, the tile's own size and
        the shadow it stands on, which belongs to the tile and not to standing on it. -->
-  <Style Selector="Button.nereus-shortcut-tile:focus Border.home-shortcut-face">
+  <Style Selector="Button.nereus-shortcut-tile:focus Border.home-tile-edge">
     <Setter Property="BorderBrush">
       <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
         <GradientStop Offset="0" Color="#FFFFFFFF"/>
@@ -522,7 +548,29 @@
       </LinearGradientBrush>
     </Setter>
   </Style>
-  <Style Selector="Button.nereus-shortcut-tile:pointerover Border.home-shortcut-face">
+  <Style Selector="Button.nereus-shortcut-tile:pointerover Border.home-tile-edge">
+    <Setter Property="BorderBrush">
+      <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Offset="0" Color="#FFFFFFFF"/>
+        <GradientStop Offset="0.35" Color="#B3FFFFFF"/>
+        <GradientStop Offset="0.72" Color="#66FFFFFF"/>
+        <GradientStop Offset="1" Color="#CCFFFFFF"/>
+      </LinearGradientBrush>
+    </Setter>
+  </Style>
+  <!-- The covers beside the glasses say it the same way, with the same four stops: the frame they used to answer
+       focus with was a flat four pixel white line of their own, and one voice for a whole rail is the point. -->
+  <Style Selector="Button.nereus-content-tile:focus Border.home-tile-edge">
+    <Setter Property="BorderBrush">
+      <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Offset="0" Color="#FFFFFFFF"/>
+        <GradientStop Offset="0.35" Color="#B3FFFFFF"/>
+        <GradientStop Offset="0.72" Color="#66FFFFFF"/>
+        <GradientStop Offset="1" Color="#CCFFFFFF"/>
+      </LinearGradientBrush>
+    </Setter>
+  </Style>
+  <Style Selector="Button.nereus-content-tile:pointerover Border.home-tile-edge">
     <Setter Property="BorderBrush">
       <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
         <GradientStop Offset="0" Color="#FFFFFFFF"/>

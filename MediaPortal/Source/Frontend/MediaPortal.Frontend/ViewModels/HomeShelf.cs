@@ -155,6 +155,17 @@ namespace MediaPortal.Frontend.ViewModels
     public bool IsShortcut => Shortcut != null;
     public bool IsNote => Note != null;
     public bool IsFocusable => !IsNote;
+
+    /// <summary>
+    /// Whether the tile has a picture of its own to stand on: a cover's artwork, or the image a menu entry
+    /// wears. A shortcut never has one (it is drawn, not photographed), and a cover whose fanart has not
+    /// arrived has none either - which is the one case the tile frosts itself for, since a plate carrying
+    /// nothing but a name would read as a hole in the wall rather than as a tile waiting for its picture.
+    /// </summary>
+    public bool HasPicture => Title != null ? Title.HasArtwork : MenuEntry?.HomeImagePath != null;
+
+    public bool HasNoPicture => !HasPicture;
+
     public string Label => Title?.Name ?? MenuEntry?.Label ?? Shortcut?.Label ?? Note?.Text ?? string.Empty;
     public string Detail => Title?.Detail ?? MenuEntry?.Detail ?? string.Empty;
 

@@ -376,12 +376,32 @@
                                 Tag="{Binding}"
                                 GotFocus="OnNereusTileGotFocus"
                                 Click="OnNereusTileClick">
+                          <Panel>
                           <Border Classes="home-tile-face" ClipToBounds="True">
                           <Grid>
-                            <Image Source="{Binding Title.Artwork, Converter={x:Static views:ArtworkConverter.Instance}}"
+                            <!-- The frost, and only where the tile has no picture of its own. A cover that has
+                                 its fanart stands on its dark plate exactly as it always did; one whose artwork
+                                 is missing or still arriving would otherwise be a bare black square with a word
+                                 on it, so it frosts the piece of wall behind it the way the glasses do. Out of
+                                 the frosting's backdrop for the same reason the shortcut tiles are: a wall of
+                                 these sampling each other drifts to a pale plate. -->
+                            <acrylic:AcrylicSurface Classes="home-tile-frost"
+                                                    IsVisible="{Binding HasNoPicture}"
+                                                    CornerRadius="10"
+                                                    BlurRadius="8"
+                                                    Vibrancy="1.15"
+                                                    SurfaceColor="#33030810"
+                                                    RefractionHeight="0"
+                                                    RefractionAmount="0"
+                                                    HighlightEnabled="False"
+                                                    ShadowEnabled="False"
+                                                    acrylic:AcrylicBackdrop.IsExcludedFromCapture="True"/>
+                            <Image Classes="home-tile-art"
+                                   Source="{Binding Title.Artwork, Converter={x:Static views:ArtworkConverter.Instance}}"
                                    Stretch="UniformToFill"
                                    IsVisible="{Binding IsTitle}"/>
-                            <Image Source="{Binding MenuEntry.HomeImagePath, Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter='{}{0}'}"
+                            <Image Classes="home-tile-art"
+                                   Source="{Binding MenuEntry.HomeImagePath, Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter='{}{0}'}"
                                    Stretch="UniformToFill"
                                    IsVisible="{Binding IsMenuEntry}"/>
                             <Border Classes="home-tile-caption"
@@ -404,6 +424,15 @@
                             </Border>
                           </Grid>
                           </Border>
+                          <!-- The frame, laid over the edge of the face and not around it: the same ring the
+                               shortcut glasses wear (one class, one set of numbers, brightened by the same
+                               rule), drawn after the face so the face's own clip cannot saw off its outer half.
+                               This tile used to answer focus with a hard four pixel white frame of its own; that
+                               frame is gone, and what a viewer sees now is the ghost edge coming up to full light
+                               on the tile they stand on. Out of the pointer's way, because the Button is what
+                               gets stood on. -->
+                          <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
+                          </Panel>
                         </Button>
                         </Border>
 
@@ -527,7 +556,7 @@
                                  decided where its edge is, at the very same ten. Laid over that edge the ring
                                  hides the seam of the cut instead of arguing with it, and it stays out of the
                                  pointer's way because the Button is what a viewer stands on. -->
-                            <Border Classes="home-shortcut-face" IsHitTestVisible="False"/>
+                            <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
                           </Panel>
                         </Button>
                         </Border>
