@@ -50,29 +50,21 @@
     </Panel>
   </ControlTemplate>
 
-  <!--  The rail the menu walks on, at the very left edge and the full height of the television - the
-        reference's order (master_homemenu.xaml 356-359): the glow picture first, the black rectangle over it
-        at nine-tenths, and the indicator last so it pokes past the rail's right edge. A glow painted OVER the
-        black is what once made this column fade to grey through its middle on bright fanart; behind the black
-        it is what the reference meant - a barely visible light along the edge, with the column itself the
-        same black from the top row to the bottom. The width is the rail's own; the menu list stands on top of
-        it, in the general screen's first column, which is the same width.  -->
+  <!--  The rail the menu walks on, at the very left edge and the full height of the television. The reference
+        carried a black rectangle here (master_homemenu.xaml 356-359, nine-tenths of black); the tiles stand on
+        the background picture itself for now and that rectangle, edge glow and all, waits in the line below.
+        The width is the rail's own; the menu list stands on top of it, in the general screen's first column,
+        which is the same width.  -->
   <ControlTemplate x:Key="HomeMenuFaceTemplate" TargetType="ContentControl" x:DataType="vm:HomeViewModel">
     <Panel IsHitTestVisible="False">
       <!-- As wide as the rail the screen laid the tiles out in, so the ground always reaches exactly under them
-           however big the panel made them; the indicator rides its right edge by itself. -->
-      <Grid Width="{Binding MenuRailWidth}" HorizontalAlignment="Left">
-        <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter=MenuGlow.png}"
-               Stretch="Uniform"
-               Margin="0,0,-38,0"/>
-        <Border Background="#E6000000"/>
-        <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter=LeftMenuIndicator.PNG}"
-               Width="25"
-               Height="45"
-               HorizontalAlignment="Right"
-               VerticalAlignment="Center"
-               Margin="0,0,-25,0"
-               Stretch="Fill"/>
+           however big the panel made them. Nothing clips here, which an edge glow needs: a shadow is drawn
+           outside the bounds of the thing that carries it. -->
+      <Grid Width="{Binding MenuRailWidth}" HorizontalAlignment="Left" ClipToBounds="False">
+        <!--  The glow IS the black rectangle's shadow: white falling off outward from the rectangle's own outer
+              edge, with nothing painted for it. The rail begins at x=0 and spans the height of the screen, so of
+              the shadow's four sides only the right one can ever be seen. -->
+        <!--<Border Background="#E6000000" BoxShadow="0 0 14 2 #FFFFFFFF"/>-->
       </Grid>
     </Panel>
   </ControlTemplate>
