@@ -159,11 +159,16 @@ namespace Tests.Frontend
     }
 
     /// <summary>
-    /// The shortcut rail's pictures, asked for the way the model spells them - with the extension, as they
-    /// stand on disk. The catalog keeps names without it, so a lookup that demanded the spelling to match
-    /// byte for byte answered every shortcut with no picture at all: nine tiles of nothing but letters,
-    /// where the reference drew its MediaMenu art.
+    /// The picture catalog answers a name whether or not the caller spells its extension: the catalog keys itself
+    /// extension-free, while callers - the reference's screens, and this front end's skin files - spell names as
+    /// they stand on disk, 'genre.png' where the catalog says 'genre'. Both spellings have to answer, because the
+    /// answer to a name the catalog turned down is a tile standing there without its picture.
     /// </summary>
+    /// <remarks>
+    /// The shortcut rail is no longer one of these callers: its icons are vectors and it asks the vector catalog
+    /// (see <c>TestSvgGeometry</c>). The rail's PNGs stay on disk, because a face that has not moved to vectors
+    /// paints with them, and the catalog is the same one either way.
+    /// </remarks>
     [AvaloniaTest]
     public void TheShortcutPicturesAnswerToTheirSpellingOnDisk()
     {
@@ -192,10 +197,11 @@ namespace Tests.Frontend
           CultureInfo culture = CultureInfo.InvariantCulture;
           Assert.That(SkinImageConverter.Instance.Convert("MediaMenu/genre.png", typeof(object), "{0}", culture),
               Is.InstanceOf<Bitmap>(),
-              "the shortcut template binds the disk spelling through the converter - the rail's icon, end to end");
+              "a template that binds the disk spelling through the converter is answered the same as one that "
+              + "spells the catalog's name");
           Assert.That(SkinImageMissingConverter.Instance.Convert("MediaMenu/genre.png", typeof(bool), "{0}", culture),
               Is.False,
-              "and with the icon answered, the tile keeps its letter badge away");
+              "and with the picture answered, the tile keeps its letter badge away");
         }
         finally
         {
@@ -307,7 +313,7 @@ namespace Tests.Frontend
         ScrollViewer content = window.GetVisualDescendants().OfType<ScrollViewer>()
             .Single(viewer => viewer.Name == "nereusContentPane");
         Button firstShortcut = content.GetVisualDescendants().OfType<Button>()
-            .First(button => button.Focusable);
+            .First(button => button.Focusable && button.IsEffectivelyVisible);
         Assert.That(firstShortcut.IsVisible && firstShortcut.IsEnabled, Is.True,
             "the first shortcut must be an available target for remote focus");
         HomeContentTile shortcutTile = (HomeContentTile)firstShortcut.Tag!;
@@ -488,7 +494,8 @@ namespace Tests.Frontend
     }
 
     /// <summary>The tile's letter badge: the text block wearing the entry's own first letter as its text.</summary>
-    private static TextBlock BadgeOf(Control tile, MainMenuEntry entry)    {
+    private static TextBlock BadgeOf(Control tile, MainMenuEntry entry)
+    {
       TextBlock badge = tile.GetVisualDescendants().OfType<TextBlock>()
           .FirstOrDefault(t => t.Text == entry.Badge);
       Assert.That(badge, Is.Not.Null, "the tile was written with a badge for the no-picture case");

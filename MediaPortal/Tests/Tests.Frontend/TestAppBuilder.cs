@@ -72,12 +72,15 @@ namespace Tests.Frontend
       Environment.SetEnvironmentVariable("MP2_THEME_FILE",
           Path.Combine(Path.GetTempPath(), "MediaPortal2-Tests-" + Guid.NewGuid().ToString("N") + "-theme.json"));
 
-      // The same isolation for the skins folder on disk: a test run must not read the skins the machine keeps
-      // at D:\Mediaportal\TIF\skins, because those files belong to whoever edits them, and a test whose result
-      // changes when a skin file is edited at lunchtime is not a test. The skin tests say which folder the
-      // engine reads - either a folder of their own on disk or the copy inside the assembly.
-      Environment.SetEnvironmentVariable("MP2_SKINS_DIR",
-          Path.Combine(Path.GetTempPath(), "MediaPortal2-Tests-" + Guid.NewGuid().ToString("N") + "-skins"));
+      // The same isolation for the skins folder on disk. A test run must never wear a skin folder somebody else
+      // keeps and edits - a test whose result moves when a style file is edited at lunchtime is not a test - so
+      // the variable that names such a folder is emptied here, which leaves the engine wearing the skins built
+      // into this build: exactly the files the screens were compiled against. The skin tests that want a folder
+      // of their own say so themselves, either by naming one on disk or by pointing the engine at the copy
+      // inside the assembly. It used to be pointed at a folder in the temporary directory that does not exist,
+      // which worked only because the engine answered a missing folder with a fallback - and that fallback, a
+      // folder hard-coded to one machine, was also what made the screen and the build wear different skins.
+      Environment.SetEnvironmentVariable("MP2_SKINS_DIR", "");
 
       // And the same isolation for the shapes the screens remembered: a test that turns a shelf into covers
       // must not leave the machine's real films opened as covers tomorrow, and a test must not start in a

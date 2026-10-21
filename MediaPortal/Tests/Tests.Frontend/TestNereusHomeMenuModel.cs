@@ -84,7 +84,7 @@ namespace Tests.Frontend
     }
 
     [Test]
-    public void MediaShortcutsKeepTheReferenceOrderAndSkinArtwork()
+    public void MediaShortcutsKeepTheReferenceOrderAndSkinIcons()
     {
       MainMenuEntry movies = FindEntry("80d2e2cc-baaa-4750-807b-f37714153751");
       MainMenuEntry audio = FindEntry("30715d73-4205-417f-80aa-e82f0834171f");
@@ -96,7 +96,9 @@ namespace Tests.Frontend
       CollectionAssert.AreEqual(
           new[] { "Genre", "Track", "Album", "Artist", "Year" },
           model.ShortcutsFor(audio).Select(shortcut => shortcut.Label));
-      Assert.That(model.ShortcutsFor(movies)[0].ImagePath, Is.EqualTo("MediaMenu/genre.png"));
+      // The icon is named, not filed: the model says which glyph, the skin says what it is made of - and it is
+      // made of vectors now, so no extension is written anywhere in the model.
+      Assert.That(model.ShortcutsFor(movies)[0].IconName, Is.EqualTo("MediaMenu/genre"));
     }
 
     [Test]

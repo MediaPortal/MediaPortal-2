@@ -34,10 +34,11 @@ using MediaPortal.Frontend.Workflow;
 namespace Tests.Frontend
 {
   /// <summary>
-  /// Skins read off disk: the folder the viewer keeps under D:\Mediaportal\TIF\skins is what the engine wears,
-  /// written and edited as plain files - the reference's bargain that a skin is installed by its folder
-  /// existing and changed by opening one of its files. These tests build a throwaway skin folder and say out
-  /// loud that the engine really reads it.
+  /// Skins read off disk: a machine that names a skins folder in <c>MP2_SKINS_DIR</c> wears the folders under it,
+  /// written and edited as plain files - the reference's bargain that a skin is installed by its folder existing
+  /// and changed by opening one of its files. These tests build a throwaway skin folder and say out loud that
+  /// the engine really reads it, and hold the rule that such a folder has to be <em>asked for</em>: with nothing
+  /// named, the skins built into this front end are what it wears.
   /// </summary>
   [TestFixture]
   public class TestSkinFromDisk
@@ -405,6 +406,135 @@ namespace Tests.Frontend
       string onePicture = wmc.Names.First(n => n.Contains('/'));
       Assert.That(wmc.Load(onePicture), Is.Not.Null, onePicture + " does not read as a picture");
       SkinEngine.Clear(app);
+    }
+
+    // Where the skin a build wears comes from, locked down. The engine used to answer with one machine's skins
+    // folder whenever nobody had named one, which left the front end standing in two skins at once: the compiled
+    // markup and every test dressed in the repository's files while the screen wore that folder, so a style
+    // change vanished on the television and stayed green in the tests - and nobody editing a style file had any
+    // way of finding out they were editing a copy nothing reads. Reading a folder off disk is a thing a machine
+    // asks for now, by naming it in MP2_SKINS_DIR.
+
+    [Test]
+    public void NobodyNamingAFolderWearsTheSkinFolderBesideThisBuild()
+    {
+      string beside = Path.Combine(Path.GetTempPath(), "mp2-skins-beside-" + Guid.NewGuid().ToString("N"));
+      Directory.CreateDirectory(beside);
+      try
+      {
+        Assert.That(SkinEngine.ResolveSkinsFolder(null, beside), Is.EqualTo(beside),
+            "with nothing said, the front end wears the skins its own build laid beside the executable - the "
+            + "same files the screens were compiled from, so an edit cannot go missing");
+        Assert.That(SkinEngine.SkinsFolderProblem, Is.Null,
+            "and nothing went wrong, so there is nothing to complain about");
+      }
+      finally
+      {
+        Directory.Delete(beside, true);
+      }
+    }
+
+    [Test]
+    public void ANameSetToNothingWearsNoFolderOnDiskAtAll()
+    {
+      // The distinction the tests live by. MP2_SKINS_DIR set to an empty value is an order - wear the markup
+      // compiled into the assembly, none off disk - and not "nobody said anything": a test binary carries a
+      // copy of the shipped skins beside itself, and handing that to a test wearing skins of its own out of
+      // its own resources would dress it in somebody else's clothes.
+      string beside = Path.Combine(Path.GetTempPath(), "mp2-skins-beside-" + Guid.NewGuid().ToString("N"));
+      Directory.CreateDirectory(beside);
+      try
+      {
+        Assert.That(SkinEngine.ResolveSkinsFolder("", beside), Is.Null,
+            "an empty name means no skin folder, even with a folder sitting beside the build");
+        Assert.That(SkinEngine.ResolveSkinsFolder("   ", beside), Is.Null,
+            "spaces are the same order as nothing");
+        Assert.That(SkinEngine.SkinsFolderProblem, Is.Null, "wearing no folder is not a problem to report");
+      }
+      finally
+      {
+        Directory.Delete(beside, true);
+      }
+    }
+
+    [Test]
+    public void ANamedFolderIsWornAheadOfTheOnesBesideTheBuild()
+    {
+      string beside = Path.Combine(Path.GetTempPath(), "mp2-skins-beside-" + Guid.NewGuid().ToString("N"));
+      string named = Path.Combine(Path.GetTempPath(), "mp2-skins-named-" + Guid.NewGuid().ToString("N"));
+      Directory.CreateDirectory(beside);
+      Directory.CreateDirectory(named);
+      try
+      {
+        Assert.That(SkinEngine.ResolveSkinsFolder(named, beside), Is.EqualTo(named),
+            "a machine that names a skins folder wears that folder - that is how an installed skin, or one "
+            + "somebody is editing by hand, is put on");
+        Assert.That(SkinEngine.SkinsFolderProblem, Is.Null, "a folder that is there is no problem");
+      }
+      finally
+      {
+        Directory.Delete(beside, true);
+        Directory.Delete(named, true);
+      }
+    }
+
+    [Test]
+    public void AFolderThatIsNotThereIsSaidRatherThanSilentlyIgnored()
+    {
+      string beside = Path.Combine(Path.GetTempPath(), "mp2-skins-beside-" + Guid.NewGuid().ToString("N"));
+      string missing = Path.Combine(Path.GetTempPath(), "mp2-skins-missing-" + Guid.NewGuid().ToString("N"));
+      Directory.CreateDirectory(beside);
+      try
+      {
+        Assert.That(SkinEngine.ResolveSkinsFolder(missing, beside), Is.EqualTo(beside),
+            "a name leading nowhere cannot be worn, but the front end still has to wear something");
+        Assert.That(SkinEngine.SkinsFolderProblem, Is.Not.Null.And.Contains(missing),
+            "and it says so, with the name in the sentence: 'the folder you named is missing' and 'nobody named "
+            + "one' look identical on the screen and are different answers to whoever edited a style file");
+      }
+      finally
+      {
+        Directory.Delete(beside, true);
+      }
+    }
+
+    [Test]
+    public void TheSkinsBesideTheExecutableAreAWholeSkinAndNotOnlyItsPictures()
+    {
+      // The reason a machine's path was ever hard-coded: the build used to leave only the pictures outside the
+      // assembly, so the folder beside the executable was half a skin and the whole one had to come from
+      // somewhere else - which is how a build came to wear a folder nobody had asked it to wear.
+      Assert.That(SkinEngine.BuiltInSkinsFolder, Is.EqualTo(Path.Combine(AppContext.BaseDirectory, "Skins")),
+          "the built-in answer is beside the running executable, never a folder somebody remembered");
+      Assert.That(Directory.Exists(SkinEngine.BuiltInSkinsFolder), Is.True,
+          "and there really is one there, because the build lays it out");
+      Assert.That(File.Exists(Path.Combine(SkinEngine.BuiltInSkinsFolder, "Nereus", "themes", "default",
+          "styles.xaml")), Is.True,
+          "the skin's markup rides beside the executable too - a folder with pictures but no styles is the half "
+          + "skin that made a hard-coded path look necessary");
+      Assert.That(Directory.EnumerateFiles(
+              Path.Combine(SkinEngine.BuiltInSkinsFolder, "Nereus", "images"), "*.png").Any(), Is.True,
+          "and so do its pictures, so wearing this folder is not a skin without any");
+    }
+
+    [Test]
+    public void NoMachinesFolderPathIsWrittenIntoTheSkinEngine()
+    {
+      // The gate that keeps the whole business from coming back. A folder path written into the engine's own
+      // source is a skin being chosen by the machine that compiled it, and it outranks the build silently.
+      string source = Path.Combine(MetadataPath("FrontendSource"), "Theming", "SkinEngine.cs");
+      Assert.That(File.Exists(source), Is.True,
+          "the engine's own file has to be readable for this to be checkable");
+
+      string[] offenders = File.ReadAllLines(source)
+          .Where(l => !l.TrimStart().StartsWith("//", StringComparison.Ordinal))
+          .Where(l => System.Text.RegularExpressions.Regex.IsMatch(l, "\"[A-Za-z]:[\\\\/]"))
+          .ToArray();
+
+      Assert.That(offenders, Is.Empty,
+          "the skin folder comes from MP2_SKINS_DIR or from nothing at all; a path baked in here puts the "
+          + "screen between this build's skin and somebody's folder ("
+          + string.Join(" | ", offenders.Select(l => l.Trim())) + ")");
     }
 
     /// <summary>

@@ -157,7 +157,21 @@ namespace MediaPortal.Frontend.ViewModels
     public bool IsFocusable => !IsNote;
     public string Label => Title?.Name ?? MenuEntry?.Label ?? Shortcut?.Label ?? Note?.Text ?? string.Empty;
     public string Detail => Title?.Detail ?? MenuEntry?.Detail ?? string.Empty;
-    public string? ImagePath => Shortcut?.ImagePath;
+
+    /// <summary>
+    /// The icon a shortcut tile wears, by the name the skin files it under. Only a shortcut has one: a cover is
+    /// its own picture and a menu entry carries its own, so the name is null for every tile but the icons'.
+    /// </summary>
+    public string? IconName => Shortcut?.IconName;
+
+    /// <summary>
+    /// The edge the shortcut's glyph is drawn at: thirty-two hundredths of the tile - the icon is still the
+    /// tile's subject and not a stamp on it, but it stands back a fifth from its old size because the name
+    /// under it shares the glass and the two together used to crowd the lower half of the tile. Taken from the
+    /// tile's own width - which already follows the screen height - so the icon grows and shrinks with the
+    /// square it stands in and needs no box around it to stay square.
+    /// </summary>
+    public double IconSize => System.Math.Round(Width * 0.32, 1);
 
     internal static HomeContentTile ForTitle(TitleViewModel title, double x, double y, double width, double height)
     {

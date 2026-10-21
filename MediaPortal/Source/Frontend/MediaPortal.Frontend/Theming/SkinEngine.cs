@@ -35,7 +35,7 @@ namespace MediaPortal.Frontend.Theming
   public sealed class WornSkin
   {
     public WornSkin(SkinManifest manifest, SkinTheme theme, ResourceDictionary resources, Styles styles,
-        System.IDisposable? background = null, SkinImages? images = null)
+        System.IDisposable? background = null, SkinImages? images = null, SkinVectors? vectors = null)
     {
       Manifest = manifest;
       Theme = theme;
@@ -43,6 +43,7 @@ namespace MediaPortal.Frontend.Theming
       Styles = styles;
       Background = background;
       Images = images ?? new SkinImages();
+      Vectors = vectors ?? new SkinVectors();
     }
 
     public SkinManifest Manifest { get; }
@@ -70,6 +71,14 @@ namespace MediaPortal.Frontend.Theming
     /// <c>ImageSource="Square_small.png"</c> out of the skin they were wearing.
     /// </summary>
     public SkinImages Images { get; }
+
+    /// <summary>
+    /// The icons the skin folder carries as vectors, by name, parsed the first time a screen asks. Pictures and
+    /// icons are catalogued apart rather than in one directory because they answer different questions: a
+    /// picture is a bitmap a tile paints, an icon is a shape a template colours, and a skin that carries both
+    /// spellings of a name means to be asked which of the two the screen wants.
+    /// </summary>
+    public SkinVectors Vectors { get; }
   }
 
   /// <summary>
@@ -186,6 +195,101 @@ namespace MediaPortal.Frontend.Theming
   }
 
   /// <summary>
+  /// The vector icons one worn skin carries, catalogued the way <see cref="SkinImages"/> catalogues its
+  /// pictures: its own images directory and its theme's images directory, listed by name and read off disk only
+  /// when a screen asks.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// The names are the same names - the file's path under an images directory, slashes kept, extension dropped
+  /// - so a shortcut model that says <c>MediaMenu/genre</c> says one thing to both catalogs, and the skin decides
+  /// whether it answers that name with a bitmap or with a shape. The two catalogs are kept apart on purpose:
+  /// where a skin carries both a <c>genre.png</c> and a <c>genre.svg</c>, a screen asking for the icon gets the
+  /// icon, because asking for a shape and settling for a picture is how an icon set quietly stops being an icon
+  /// set.
+  /// </para>
+  /// <para>
+  /// A name the skin carries but that will not parse is remembered as having nothing, the same way an unreadable
+  /// picture is: a tile that asks fifty times a second must not go back to the disk fifty times a second over
+  /// one mistyped file.
+  /// </para>
+  /// </remarks>
+  public sealed class SkinVectors
+  {
+    private readonly Dictionary<string, string> _locations =
+        new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, Avalonia.Media.Geometry?> _parsed =
+        new Dictionary<string, Avalonia.Media.Geometry?>(StringComparer.OrdinalIgnoreCase);
+
+    internal SkinVectors()
+    {
+    }
+
+    internal void Add(string key, string location, bool overwriteBare = false)
+    {
+      _locations[key] = location;
+      int slash = key.LastIndexOf('/');
+      if (slash >= 0)
+      {
+        string bare = key.Substring(slash + 1);
+        if (overwriteBare || !_locations.ContainsKey(bare))
+          _locations[bare] = location;
+      }
+    }
+
+    /// <summary>How many icons the skin carries.</summary>
+    public int Count => _locations.Count;
+
+    /// <summary>Every name a screen may ask for.</summary>
+    public IEnumerable<string> Names => _locations.Keys.OrderBy(k => k, StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// The catalogued form of an asked-for name: the name without a trailing <c>.svg</c>. A model that spells
+    /// the name as it stands on disk has to answer too, the same reason a picture catalog accepts it.
+    /// </summary>
+    private static string LookupName(string name)
+    {
+      int dot = name.LastIndexOf('.');
+      if (dot < 0 || dot < name.LastIndexOf('/'))
+        return name;
+
+      return name.Substring(dot).Equals(".svg", StringComparison.OrdinalIgnoreCase)
+          ? name.Substring(0, dot)
+          : name;
+    }
+
+    public bool Has(string name) => _locations.ContainsKey(LookupName(name));
+
+    /// <summary>Where an icon lives - a disk path, or the avares URI of a shipped skin's file.</summary>
+    public bool TryGetLocation(string name, out string location) =>
+        _locations.TryGetValue(LookupName(name), out location!);
+
+    /// <summary>
+    /// The shape a screen asked for, parsed the first time and kept. Null when the skin carries no icon of that
+    /// name or the file holds nothing paintable; a tile then draws its plaque without a glyph.
+    /// </summary>
+    public Avalonia.Media.Geometry? Load(string name)
+    {
+      string key = LookupName(name);
+      if (_parsed.TryGetValue(key, out Avalonia.Media.Geometry? known))
+        return known;
+      if (!_locations.TryGetValue(key, out string? location))
+        return null;
+
+      Avalonia.Media.Geometry? geometry = SvgGeometry.ReadFile(location);
+      _parsed[key] = geometry;
+      return geometry;
+    }
+
+    /// <summary>
+    /// Forgets the parsed shapes. A geometry is immutable once closed and is shared by every tile wearing it,
+    /// so unlike a bitmap it is safe to let go of whenever the skin comes off - the shapes on screen are simply
+    /// the ones this catalog no longer holds.
+    /// </summary>
+    public void Dispose() => _parsed.Clear();
+  }
+
+  /// <summary>
   /// The skins this front end reads from disk - installed by being copied, worn without recompiling.
   /// </summary>
   /// <remarks>
@@ -226,14 +330,22 @@ namespace MediaPortal.Frontend.Theming
   {
     /// <summary>
     /// Where installed skins live: the folder the viewer's machine keeps them in, one directory per skin, each
-    /// with a skin.xml at its top. Settable so a test can point at its own folder. It answers null when the
-    /// folder is not there - and then the front end falls back to <see cref="AssetsRoot"/>, the copy that
-    /// shipped inside the assembly, so a machine without the folder still wears its skins.
+    /// with a skin.xml at its top. Settable so a test can point at its own folder. It answers the folder this
+    /// build wrote beside its own executable unless the machine named another one in MP2_SKINS_DIR - and
+    /// nothing at all when MP2_SKINS_DIR is set to a blank value, which is how a process says "wear the markup
+    /// compiled into the assembly, none off disk"; the tests set it that way so that the copy of the shipped
+    /// skins lying beside the test binary is not pushed under a test wearing skins of its own.
     /// </summary>
     /// <remarks>
     /// The reference read its skin XML off disk exactly like this: a skin was installed by its folder existing,
     /// edited by opening a file, and read again the next time it was put on - no recompiling of the front end
-    /// anywhere near it. The default is that folder; the MP2_SKINS_DIR environment variable names another one.
+    /// anywhere near it. Wearing such a folder stays a thing a machine says out loud, by naming it in
+    /// MP2_SKINS_DIR; it is never a guess made in code. One machine's path written into this source instead had
+    /// the front end stand between two copies of every skin: the compiled markup and every test read the
+    /// repository's files while the screen read that folder, so a style change made in the repository was
+    /// invisible on the television and green in the tests at the same time, and no amount of editing the
+    /// repository could move a pixel. A skin worn without anybody having asked for it is a skin nobody can
+    /// debug, and the person editing the wrong copy has no way of knowing they are doing it.
     /// </remarks>
     public static string? SkinsFolder
     {
@@ -250,6 +362,7 @@ namespace MediaPortal.Frontend.Theming
       {
         skinsFolder = value;
         skinsFolderResolved = true;
+        SkinsFolderProblem = null;
       }
     }
 
@@ -257,15 +370,67 @@ namespace MediaPortal.Frontend.Theming
     private static bool skinsFolderResolved;
 
     /// <summary>
-    /// Where the skins folder is: MP2_SKINS_DIR when said, the viewer's own folder otherwise, and null when
-    /// neither exists - which is the only way the built-in copy below ever gets used.
+    /// The skins folder this build writes next to its own executable: the repository's <c>Skins</c> folder, laid
+    /// out file for file by the build (see the copy rule in the project file), markup and pictures together, so
+    /// the folder beside the executable is always the skin this build was made from.
+    /// </summary>
+    internal static string BuiltInSkinsFolder => Path.Combine(AppContext.BaseDirectory, "Skins");
+
+    /// <summary>
+    /// Where the skins folder is, out of what the machine said: the folder named in MP2_SKINS_DIR when it is
+    /// there, the folder this build put beside its own executable when nobody said anything, and nothing when
+    /// the name was set blank or neither folder is one.
     /// </summary>
     private static string? ResolveSkinsFolder()
     {
-      string? fromEnv = Environment.GetEnvironmentVariable("MP2_SKINS_DIR");
-      string folder = string.IsNullOrWhiteSpace(fromEnv) ? @"D:\Mediaportal\TIF\skins" : fromEnv;
-      return Directory.Exists(folder) ? folder : null;
+      return ResolveSkinsFolder(Environment.GetEnvironmentVariable("MP2_SKINS_DIR"), BuiltInSkinsFolder);
     }
+
+    /// <summary>
+    /// The same decision, on a name handed to it, so the rule can be stood in front of without editing the
+    /// environment of a whole process. A name that leads nowhere is <see cref="SkinsFolderProblem"/> rather
+    /// than a silent fallback: "nobody asked for a skin folder" and "the skin folder that was asked for is
+    /// missing" look identical on screen and are completely different answers to the person who just edited a
+    /// style file and cannot see it.
+    /// </summary>
+    internal static string? ResolveSkinsFolder(string? fromEnv, string? besideThisBuild)
+    {
+      string? builtIn = Directory.Exists(besideThisBuild) ? besideThisBuild : null;
+
+      // A name that is set but empty is an order, not a shrug: no skin folder at all, which leaves the markup
+      // compiled into the assembly. The tests need this distinction - they wear skins of their own out of their
+      // own resources, and the shipped skins the test binary happens to carry a copy of beside itself must not
+      // be pushed under them.
+      if (fromEnv != null && fromEnv.Trim().Length == 0)
+      {
+        SkinsFolderProblem = null;
+        return null;
+      }
+
+      if (!string.IsNullOrWhiteSpace(fromEnv))
+      {
+        if (Directory.Exists(fromEnv))
+        {
+          SkinsFolderProblem = null;
+          return fromEnv;
+        }
+
+        SkinsFolderProblem = "MP2_SKINS_DIR names \"" + fromEnv + "\", which is not a folder on this machine - "
+            + (builtIn != null
+                ? "the skins this build put beside its own executable are worn instead"
+                : "and this build carries no skins folder either, so only the markup inside the assembly is left");
+        return builtIn;
+      }
+
+      SkinsFolderProblem = null;
+      return builtIn;
+    }
+
+    /// <summary>
+    /// What the machine asked for and could not be had, as a sentence, or null when nothing went wrong. Printed
+    /// beside the rest of the skin's account when the front end says what it is wearing.
+    /// </summary>
+    public static string? SkinsFolderProblem { get; private set; }
 
     /// <summary>
     /// Where the skins this front end shipped with live: the Skins folder of this assembly's loose XAML assets.
@@ -491,6 +656,7 @@ namespace MediaPortal.Frontend.Theming
       Styles styles = new Styles();
       System.IDisposable? background = null;
       SkinImages? images = null;
+      SkinVectors? vectors = null;
       try
       {
         Dress(manifest, manifest.DefaultTheme, resources, styles);
@@ -519,6 +685,7 @@ namespace MediaPortal.Frontend.Theming
         // for 'Square_small' by name and gets the picture then, because loading four hundred and forty-five
         // bitmaps to show four of them is how a television runs out of memory before the first menu.
         images = ReadImages(manifest, theme);
+        vectors = ReadVectors(manifest, theme);
 
         FlattenTopLevel(resources);
       }
@@ -526,11 +693,12 @@ namespace MediaPortal.Frontend.Theming
       {
         background?.Dispose();
         images?.Dispose();
+        vectors?.Dispose();
         problem = string.Format("The skin '{0}' could not be read: {1}", manifest.Title, e.Message);
         return false;
       }
 
-      Wear(app, new WornSkin(manifest, theme, resources, styles, background, images));
+      Wear(app, new WornSkin(manifest, theme, resources, styles, background, images, vectors));
       problem = null;
       return true;
     }
@@ -547,6 +715,7 @@ namespace MediaPortal.Frontend.Theming
       // visuals on screen may still be painting with exactly these bitmaps until the new skin's templates
       // replace them, and the garbage collector knows the honest moment better than this call does.
       worn.Images.Dispose();
+      worn.Vectors.Dispose();
       WORN.Remove(app);
       Changed?.Invoke(null, EventArgs.Empty);
     }
@@ -680,6 +849,32 @@ namespace MediaPortal.Frontend.Theming
       AddImageDirectory(images, JoinAsset(manifest.Directory, "images"), false);
       AddImageDirectory(images, JoinAsset(theme.Directory, "images"), true);
       return images;
+    }
+
+    /// <summary>
+    /// List the icons a worn skin carries as vectors. The same two directories, listed the same way, because an
+    /// icon sits next to the picture it replaced - <c>MediaMenu/genre.svg</c> beside the <c>genre.png</c> some
+    /// other face still paints with.
+    /// </summary>
+    private static SkinVectors ReadVectors(SkinManifest manifest, SkinTheme theme)
+    {
+      SkinVectors vectors = new SkinVectors();
+      AddVectorDirectory(vectors, JoinAsset(manifest.Directory, "images"), false);
+      AddVectorDirectory(vectors, JoinAsset(theme.Directory, "images"), true);
+      return vectors;
+    }
+
+    private static void AddVectorDirectory(SkinVectors vectors, string directory, bool themeLevel)
+    {
+      if (directory.StartsWith("avares://", StringComparison.OrdinalIgnoreCase) || !Directory.Exists(directory))
+        return;
+
+      foreach (string file in Directory.EnumerateFiles(directory, "*.svg", SearchOption.AllDirectories)
+          .OrderBy(f => f.Length))
+      {
+        string key = file.Substring(directory.Length).TrimStart('\\', '/').Replace('\\', '/');
+        vectors.Add(key.Substring(0, key.Length - ".svg".Length), file, themeLevel);
+      }
     }
 
     private static void AddImageDirectory(SkinImages images, string directory, bool themeLevel)

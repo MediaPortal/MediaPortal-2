@@ -22,6 +22,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Threading;
+using Fluid.Avalonia.Acrylic;
 using MediaPortal.Frontend.Api;
 using MediaPortal.Frontend.Caching;
 using MediaPortal.Frontend.Discovery;
@@ -59,7 +60,15 @@ namespace MediaPortal.Frontend
             + ", nereus or wmc\n" +
         "                   (otherwise MP2_THEME, otherwise "
             + FrontendTheme.DEFAULT_NAME + ").\n" +
-        "                   An unknown name is said out loud and the colours you always had are used.";
+        "                   An unknown name is said out loud and the colours you always had are used.\n" +
+        "\n" +
+        "Which skin files are worn: the build lays its skins beside the executable and the front end wears that\n" +
+        "folder, so what is on disk beside it is always the skin this build was made from and an edit that was\n" +
+        "built is an edit that is seen. A machine that keeps its skins elsewhere says so with MP2_SKINS_DIR=\n" +
+        "<folder>; those files are then worn instead of the build's, and the start-up log says which of the two\n" +
+        "copies is on the screen. A named folder that is not there is said out loud rather than quietly skipped -\n" +
+        "'nobody named a folder' and 'the folder you named is missing' are different answers, and only one of\n" +
+        "them explains why an edit cannot be seen.";
 
 
     [STAThread]
@@ -273,6 +282,9 @@ namespace MediaPortal.Frontend
       return AppBuilder.Configure(appFactory)
           .UsePlatformDetect()
           .WithInterFont()
+          // The shortcut tiles frost the screen behind them through the acrylic shader (see HomeView); this puts
+          // the compositor and Skia settings the glass pipeline is tuned for in place before the first frame.
+          .UseAcrylicPerformanceDefaults()
           .LogToTrace();
     }
 

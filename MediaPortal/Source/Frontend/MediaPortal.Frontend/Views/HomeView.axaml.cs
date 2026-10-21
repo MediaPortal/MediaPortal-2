@@ -1,4 +1,4 @@
-﻿/*
+/*
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -1082,7 +1082,11 @@ namespace MediaPortal.Frontend.Views
     {
       return nereusContentPane.GetVisualDescendants()
           .OfType<Button>()
-          .Where(button => button.Focusable && button.IsVisible && button.IsEnabled)
+          // IsEffectivelyVisible rather than IsVisible: a tile's template carries the surface it is not wearing
+          // (a cover keeps its glass branch and a shortcut its cover branch) folded away, and the folded one is
+          // still 'visible' on itself while being hidden by its parent. Standing on it from the menu would aim at
+          // a button that cannot be stood on and leave the viewer where they were.
+          .Where(button => button.Focusable && button.IsEffectivelyVisible && button.IsEnabled)
           .ToArray();
     }
 

@@ -9,16 +9,22 @@ namespace MediaPortal.Frontend.Skins.Nereus
   /// <summary>A focusable shortcut shown before the selected Nereus shelf's media groups.</summary>
   public sealed class NereusHomeShortcut
   {
-    public NereusHomeShortcut(string label, string imagePath, string? browseBy = null, string? screenKey = null)
+    /// <param name="iconName">
+    /// The icon the shortcut is known by, spelled as the skin files it under an images directory: slashes kept,
+    /// extension dropped. The model says which glyph the shortcut is and leaves the face to say what it is made
+    /// of - the shortcuts are vectors now, so <c>MediaMenu/genre</c> is answered out of the skin's <c>.svg</c>
+    /// files, and a face that ever wants a bitmap again answers the same name out of its pictures.
+    /// </param>
+    public NereusHomeShortcut(string label, string iconName, string? browseBy = null, string? screenKey = null)
     {
       Label = label;
-      ImagePath = imagePath;
+      IconName = iconName;
       BrowseBy = browseBy;
       ScreenKey = screenKey;
     }
 
     public string Label { get; }
-    public string ImagePath { get; }
+    public string IconName { get; }
     public string? BrowseBy { get; }
     public string? ScreenKey { get; }
   }
@@ -35,70 +41,70 @@ namespace MediaPortal.Frontend.Skins.Nereus
         {
           [Guid.Parse("80d2e2cc-baaa-4750-807b-f37714153751")] = new[]
           {
-            new NereusHomeShortcut("Genre", "MediaMenu/genre.png", "genre"),
-            new NereusHomeShortcut("Year", "MediaMenu/year.png", "year"),
-            new NereusHomeShortcut("Age", "MediaMenu/age.png"),
-            new NereusHomeShortcut("Actor", "MediaMenu/actor.png", "actors"),
-            new NereusHomeShortcut("Search", "MediaMenu/search.png", screenKey: "search")
+            new NereusHomeShortcut("Genre", "MediaMenu/genre", "genre"),
+            new NereusHomeShortcut("Year", "MediaMenu/year", "year"),
+            new NereusHomeShortcut("Age", "MediaMenu/age"),
+            new NereusHomeShortcut("Actor", "MediaMenu/actor", "actors"),
+            new NereusHomeShortcut("Search", "MediaMenu/search", screenKey: "search")
           },
           [Guid.Parse("30f57cba-459c-4202-a587-09fff5098251")] = new[]
           {
-            new NereusHomeShortcut("Genre", "MediaMenu/genre.png", "genre"),
-            new NereusHomeShortcut("Year", "MediaMenu/year.png", "year"),
-            new NereusHomeShortcut("Age", "MediaMenu/age.png"),
-            new NereusHomeShortcut("Actor", "MediaMenu/actor.png", "actors"),
-            new NereusHomeShortcut("Search", "MediaMenu/search.png", screenKey: "search")
+            new NereusHomeShortcut("Genre", "MediaMenu/genre", "genre"),
+            new NereusHomeShortcut("Year", "MediaMenu/year", "year"),
+            new NereusHomeShortcut("Age", "MediaMenu/age"),
+            new NereusHomeShortcut("Actor", "MediaMenu/actor", "actors"),
+            new NereusHomeShortcut("Search", "MediaMenu/search", screenKey: "search")
           },
           [Guid.Parse("30715d73-4205-417f-80aa-e82f0834171f")] = new[]
           {
-            new NereusHomeShortcut("Genre", "MediaMenu/audiogenre.png", "genre"),
-            new NereusHomeShortcut("Track", "MediaMenu/track.png"),
-            new NereusHomeShortcut("Album", "MediaMenu/album.png"),
-            new NereusHomeShortcut("Artist", "MediaMenu/artist.png", "actors"),
-            new NereusHomeShortcut("Year", "MediaMenu/year.png", "year")
+            new NereusHomeShortcut("Genre", "MediaMenu/audiogenre", "genre"),
+            new NereusHomeShortcut("Track", "MediaMenu/track"),
+            new NereusHomeShortcut("Album", "MediaMenu/album"),
+            new NereusHomeShortcut("Artist", "MediaMenu/artist", "actors"),
+            new NereusHomeShortcut("Year", "MediaMenu/year", "year")
           },
           [Guid.Parse("55556593-9fe9-436c-a3b6-a971e10c9d44")] = new[]
           {
-            new NereusHomeShortcut("Year", "MediaMenu/year.png", "year"),
-            new NereusHomeShortcut("Location", "MediaMenu/place.png"),
-            new NereusHomeShortcut("System", "MediaMenu/system.png"),
-            new NereusHomeShortcut("Size", "MediaMenu/size.png"),
-            new NereusHomeShortcut("Search", "MediaMenu/search.png", screenKey: "search")
+            new NereusHomeShortcut("Year", "MediaMenu/year", "year"),
+            new NereusHomeShortcut("Location", "MediaMenu/place"),
+            new NereusHomeShortcut("System", "MediaMenu/system"),
+            new NereusHomeShortcut("Size", "MediaMenu/size"),
+            new NereusHomeShortcut("Search", "MediaMenu/search", screenKey: "search")
           },
           [Guid.Parse("a4df2df6-8d66-479a-9930-d7106525eb07")] = new[]
           {
-            new NereusHomeShortcut("Year", "MediaMenu/year.png", "year"),
-            new NereusHomeShortcut("Location", "MediaMenu/place.png"),
-            new NereusHomeShortcut("System", "MediaMenu/system.png"),
-            new NereusHomeShortcut("Size", "MediaMenu/size.png"),
-            new NereusHomeShortcut("Search", "MediaMenu/search.png", screenKey: "search")
+            new NereusHomeShortcut("Year", "MediaMenu/year", "year"),
+            new NereusHomeShortcut("Location", "MediaMenu/place"),
+            new NereusHomeShortcut("System", "MediaMenu/system"),
+            new NereusHomeShortcut("Size", "MediaMenu/size"),
+            new NereusHomeShortcut("Search", "MediaMenu/search", screenKey: "search")
           },
           [Guid.Parse("b4a9199f-6dd4-4bda-a077-de9c081f7703")] = new[]
           {
-            new NereusHomeShortcut("Live TV", "MediaMenu/LiveTV.png", screenKey: "tv"),
-            new NereusHomeShortcut("EPG", "MediaMenu/EPG.png", screenKey: "tv"),
-            new NereusHomeShortcut("Schedules", "MediaMenu/schedules.png", screenKey: "tv"),
-            new NereusHomeShortcut("Recordings", "MediaMenu/Recordings.png", screenKey: "tv"),
-            new NereusHomeShortcut("Search", "MediaMenu/SearchProgram.png", screenKey: "tv")
+            new NereusHomeShortcut("Live TV", "MediaMenu/LiveTV", screenKey: "tv"),
+            new NereusHomeShortcut("EPG", "MediaMenu/EPG", screenKey: "tv"),
+            new NereusHomeShortcut("Schedules", "MediaMenu/schedules", screenKey: "tv"),
+            new NereusHomeShortcut("Recordings", "MediaMenu/Recordings", screenKey: "tv"),
+            new NereusHomeShortcut("Search", "MediaMenu/SearchProgram", screenKey: "tv")
           },
           [Guid.Parse("e3bbc989-99db-40e9-a15f-ccb50b17a4c8")] = new[]
           {
-            new NereusHomeShortcut("Live radio", "MediaMenu/LiveRadio.png", screenKey: "radio"),
-            new NereusHomeShortcut("EPG", "MediaMenu/EPG.png", screenKey: "radio"),
-            new NereusHomeShortcut("Schedules", "MediaMenu/schedules.png", screenKey: "radio"),
-            new NereusHomeShortcut("Recordings", "MediaMenu/Recordings.png", screenKey: "radio"),
-            new NereusHomeShortcut("Search", "MediaMenu/SearchProgram.png", screenKey: "radio")
+            new NereusHomeShortcut("Live radio", "MediaMenu/LiveRadio", screenKey: "radio"),
+            new NereusHomeShortcut("EPG", "MediaMenu/EPG", screenKey: "radio"),
+            new NereusHomeShortcut("Schedules", "MediaMenu/schedules", screenKey: "radio"),
+            new NereusHomeShortcut("Recordings", "MediaMenu/Recordings", screenKey: "radio"),
+            new NereusHomeShortcut("Search", "MediaMenu/SearchProgram", screenKey: "radio")
           },
           [Guid.Parse("bb49a591-7705-408f-8177-45d633fdfad0")] = new[]
           {
-            new NereusHomeShortcut("Setup", "MediaMenu/setup.png", screenKey: "news"),
-            new NereusHomeShortcut("Refresh", "MediaMenu/7AEB11DE-BA40-40a2-933A-B00BBD151B08.png", screenKey: "news")
+            new NereusHomeShortcut("Setup", "MediaMenu/setup", screenKey: "news"),
+            new NereusHomeShortcut("Refresh", "MediaMenu/refresh", screenKey: "news")
           },
           [Guid.Parse("e34fdb62-1f3e-4aa9-8a61-d143e0af77b5")] = new[]
           {
-            new NereusHomeShortcut("Location", "MediaMenu/65A9A5F6-CA50-4459-8E49-0DC614B7A2E8.png", screenKey: "weather"),
-            new NereusHomeShortcut("Setup", "MediaMenu/setup.png", screenKey: "weather"),
-            new NereusHomeShortcut("Refresh", "MediaMenu/7AEB11DE-BA40-40a2-933A-B00BBD151B08.png", screenKey: "weather")
+            new NereusHomeShortcut("Location", "MediaMenu/location", screenKey: "weather"),
+            new NereusHomeShortcut("Setup", "MediaMenu/setup", screenKey: "weather"),
+            new NereusHomeShortcut("Refresh", "MediaMenu/refresh", screenKey: "weather")
           }
         };
 

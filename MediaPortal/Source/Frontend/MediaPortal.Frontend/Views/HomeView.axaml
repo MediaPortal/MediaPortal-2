@@ -3,6 +3,7 @@
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
         xmlns:theming="using:MediaPortal.Frontend.Theming"
         xmlns:views="using:MediaPortal.Frontend.Views"
+        xmlns:acrylic="using:Fluid.Avalonia.Acrylic"
         x:Class="MediaPortal.Frontend.Views.HomeView"
         x:DataType="vm:HomeViewModel"
         Name="home"
@@ -336,7 +337,14 @@
                              FontWeight="SemiBold"
                              Margin="12,6,0,0"
                              VerticalAlignment="Top"/>
-                  <ItemsControl ItemsSource="{Binding Tiles}" x:CompileBindings="False">
+                  <!-- Not clipped, and that is deliberate: this panel is exactly the size of the tiles it holds, so
+                       clipping it is a cut along the outside edge of every tile in the row. The shortcut's glass
+                       throws its shadow a dozen DIP past that edge, and the covers dress themselves with a shadow
+                       of their own; cut at the row's bounds, both of them ended in a straight line a finger's
+                       breadth from where the tile's rounding turns, which is the notch in the corner that no
+                       setting on the glass could reach because it was never the glass drawing it. Nothing here
+                       scrolls and nothing here overflows on purpose - only shadows do. -->
+                  <ItemsControl ItemsSource="{Binding Tiles}" x:CompileBindings="False" ClipToBounds="False">
                     <ItemsControl.Styles>
                       <Style Selector="ContentPresenter">
                         <Setter Property="Canvas.Left" Value="{Binding X}"/>
@@ -350,11 +358,17 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                       <DataTemplate x:DataType="vm:HomeContentTile">
+                        <!-- Two kinds of tile, written apart rather than sharing one Button with switches, because
+                             a cover and an icon want opposite things from the surface they stand on: a cover wants
+                             a plate and a picture filling it, an icon wants the room behind it and is dressed as
+                             glass. Apart, the shortcut's glass, its plaque and its morph are nowhere in a tile that
+                             is not one, and whoever changes the icons cannot move a cover's numbers by accident. -->
+                        <Panel>
                         <!-- Two surfaces, because a shadow cannot live on a clipped edge: the outer one is the
                              ground the tile stands on and casts its BoxShadow (which must fall outside its own
                              edges, so it clips nothing), the inner one is the face the picture stands on and
                              does the clipping. Both are dressed by the worn skin's styles, not here. -->
-                        <Border Classes="home-tile-shadow">
+                        <Border Classes="home-tile-shadow" IsVisible="{Binding !IsShortcut}">
                         <Button Classes="nereus-content-tile"
                                 Width="{Binding Width}"
                                 Height="{Binding Height}"
@@ -367,10 +381,6 @@
                             <Image Source="{Binding Title.Artwork, Converter={x:Static views:ArtworkConverter.Instance}}"
                                    Stretch="UniformToFill"
                                    IsVisible="{Binding IsTitle}"/>
-                            <Image Source="{Binding ImagePath, Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter='{}{0}'}"
-                                   Stretch="Uniform"
-                                   Margin="8"
-                                   IsVisible="{Binding IsShortcut}"/>
                             <Image Source="{Binding MenuEntry.HomeImagePath, Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter='{}{0}'}"
                                    Stretch="UniformToFill"
                                    IsVisible="{Binding IsMenuEntry}"/>
@@ -396,6 +406,132 @@
                           </Border>
                         </Button>
                         </Border>
+
+                        <!-- The shortcut, as glass. Glass is not a white rectangle with an icon on it: it lets the
+                             picture behind it through, frosted, it has body, and it has an edge that catches the
+                             light. So the tile frosts the screen itself behind it - the piece of the wall standing
+                             behind THIS tile - through a shader, with the veil of the glass over that frost and
+                             the glyph on top of the veil, standing centred on the tile with no box around it at
+                             all. The frame is a gradient rather than one flat line because a glass edge is bright
+                             where it catches the light and dark where it does not. Standing on the tile lifts its
+                             background lighter, brings the edge up from a ghost to full light and draws the
+                             outline of the glyph round the icon; nothing travels across the glass, nothing zooms,
+                             the corner stays the corner, and no band lies across the bottom of the frame. Every number of this - how deep the frost, how much veil,
+                             how bright the edge - lives either here on the frosting surface or in styles.xaml. -->
+                        <!-- Out of the frosting's backdrop, on purpose and for every one of them at once.
+
+                             The shader does not look at the screen; it asks for a snapshot of the visuals BEHIND
+                             the glass, and the library leaves each surface's own subtree out of that snapshot -
+                             each surface's OWN, no more. Five of these tiles stand side by side in a rail, so
+                             every one of them sampled its neighbours' finished glass, frosted it, and handed the
+                             result back to the neighbours to frost again on the next capture. Every round trip
+                             adds the tint's white and the vibrancy's lift, so a rail of these left standing a
+                             while drifts to a pale plate: not a rounding problem, not a clip problem, and not
+                             anything a fresh frame would show - which is why it looked fine in a screenshot
+                             taken straight after a start and wrong after that.
+
+                             Excluded, a tile frosts the wall and the artwork behind it and nothing else, which
+                             is what glass does, and the loop has no way to close. -->
+                        <!-- The same ground the covers stand on: the shared Border.home-tile-shadow, so a shortcut
+                             is laid on the wall by the one BoxShadow the skin knows and not by a second shadow of
+                             the glass's own invention. The border is transparent - it carries the shadow and
+                             nothing else - and the glass sits in it as the cover's face sits in its own. -->
+                        <Border Classes="home-tile-shadow" IsVisible="{Binding IsShortcut}">
+                        <Button Classes="nereus-shortcut-tile"
+                                acrylic:AcrylicBackdrop.IsExcludedFromCapture="True"
+                                IsVisible="{Binding IsShortcut}"
+                                Width="{Binding Width}"
+                                Height="{Binding Height}"
+                                Focusable="{Binding IsFocusable}"
+                                Tag="{Binding}"
+                                GotFocus="OnNereusTileGotFocus"
+                                Click="OnNereusTileClick">
+                          <Panel>
+                            <!-- ONE surface for the glass itself: the frosting and its rounding are drawn by this
+                                 one surface, and the frame is a ring laid over its edge afterwards. The shadow it
+                                 stands away from the wall on is deliberately NOT its own - the tile wears the
+                                 skin's shared Border.home-tile-shadow, wrapped round this Button above - because
+                                 every other tile on the wall is laid down by that one shadow, and a shortcut
+                                 casting a shadow of its own invention sat in a darkness none of its neighbours had.
+
+                                 It took three attempts to see why anything else fails. Two roundings cannot be
+                                 right: the face was rounded at ten while the surface, inset by the frame's own
+                                 three, was rounded at seven or eight, and where the two circles disagree a viewer
+                                 sees a step in the corner - which is the artifact that survived every clip I
+                                 moved around, because clipping was never the problem, the two circles were.
+
+                                 So the surface rounds at the tile's own ten and frosts within that path, and it
+                                 casts nothing of its own: ShadowEnabled is off. A shader shadow laid next to the
+                                 skin's BoxShadow is two shadows under one tile, and the shadow that belongs to a
+                                 tile is the one every cover on the wall already wears - round at the same ten, so
+                                 the two agree about where the edge is. Nothing here clips either: the shadow falls
+                                 outside the tile's bounds, and the ring on top is drawn at the same ten, so it
+                                 covers the seam of the edge rather than fighting it, and it is out of the way of
+                                 the pointer because the Button is what gets stood on.
+
+                                 Two things a photograph of the running screen taught about this surface, both of
+                                 them against the obvious setting:
+
+                                 The shadow was there and invisible, because it falls outside the surface's bounds
+                                 while the Button it stands in is 159x159 - exactly the tile - and clips, as does
+                                 the row of tiles around it. Every pixel of a shadow that lies outside the tile was
+                                 being sawn off by those two cuts, and no amount of deepening it could show
+                                 through - which is also where the notch in the tile's bottom corners came from, a
+                                 shadow ending in a straight line a finger's breadth before its rounding turns.
+                                 Neither clips any more (see the row above and the tile's style in styles.xaml),
+                                 and that - not any number written on the glass - is what lets the tile's shadow
+                                 reach past the tile.
+
+                                 The plate going white was the same kind of mistake on the other side of the glass.
+                                 TintColor is not a wash laid over the frost: the library puts it down once at full
+                                 alpha in the Hue blend mode and once more as a fill, so a near-white tint is a
+                                 full-strength wash over everything behind the pane. A veil meant to sit inside the
+                                 glass therefore goes through SurfaceColor - one ordinary fill at its own alpha,
+                                 dark here, so the glass is darker than the wall it covers and reads as smoke
+                                 rather than as card. -->
+                            <acrylic:AcrylicSurface Classes="home-shortcut-frost"
+                                                    CornerRadius="10"
+                                                    BlurRadius="8"
+                                                    Vibrancy="1.15"
+                                                    SurfaceColor="#33030810"
+                                                    RefractionHeight="0"
+                                                    RefractionAmount="0"
+                                                    HighlightEnabled="False"
+                                                    ShadowEnabled="False">
+                                <!-- The glass's own content, and nothing here is clipped: the veil, the glyph and
+                                     the name all stay inside the glass on their own, and the one thing that ever
+                                     needed ending at the tile's edge - a reflection travelling across it - is out
+                                     of the skin. -->
+                                <Panel>
+                                  <!-- The tint of the glass itself, over the frost it frosts. -->
+                                  <Border Classes="home-shortcut-tint"/>
+                                  <!-- The glyph stands on the glass, centred above the name, eight-tenths of
+                                       its old half-width - its own box, no box around it. It is a shape rather
+                                       than a picture, so the tile decides its colour and its state. -->
+                                  <Path Classes="home-shortcut-glyph"
+                                        Width="{Binding IconSize}"
+                                        Height="{Binding IconSize}"
+                                        Stretch="Uniform"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Data="{Binding IconName, Converter={x:Static views:SkinIconGeometryConverter.Instance}, ConverterParameter='{}{0}'}"/>
+                                  <!-- The name, on the glass and not on a band: a band is a rectangle, and a
+                                       rectangle inside a rounded frame lies across the frame's corners. -->
+                                  <TextBlock Classes="home-shortcut-caption"
+                                             Text="{Binding Label}"
+                                             TextTrimming="CharacterEllipsis"/>
+                                </Panel>
+                            </acrylic:AcrylicSurface>
+                            <!-- The frame, laid OVER the edge of the glass rather than around it: a ring, and
+                                 nothing else - no background, no clip - because the glass beneath it has already
+                                 decided where its edge is, at the very same ten. Laid over that edge the ring
+                                 hides the seam of the cut instead of arguing with it, and it stays out of the
+                                 pointer's way because the Button is what a viewer stands on. -->
+                            <Border Classes="home-shortcut-face" IsHitTestVisible="False"/>
+                          </Panel>
+                        </Button>
+                        </Border>
+                        </Panel>
                       </DataTemplate>
                     </ItemsControl.ItemTemplate>
                   </ItemsControl>

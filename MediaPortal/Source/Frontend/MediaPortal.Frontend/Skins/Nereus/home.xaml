@@ -86,6 +86,13 @@
         reads them as absolute device-independent pixels, which makes a band 220 tall carry a gradient one
         pixel long and leaves a hard one-pixel black stripe across the whole screen where the band begins.
 
+        The top band is a ninth of the picture tall, which is what the reference made it: in
+        master_homemenu.xaml it has no height of its own and fills the header row of the layout grid, and that
+        row is 100 of the skin's ~1080 line. Six times that - which an earlier reading of this file carried -
+        drowned the content column's headings in black and lay over the whole top bar; a ninth still darkens
+        the fanart behind the corner buttons and fades out before the first heading. The bottom band keeps the
+        depth this face has always had.
+
         The line about the standing title hangs in the content column, fifty in past the rail, so it never
         lies across the menu (master_homemenu.xaml puts its MultiDetailsHome.inc there too).
 
@@ -93,8 +100,13 @@
         Each says the door it opens in its Tag and the general screen answers that word - this file says what
         the buttons are and what they open, and writes no code.  -->
   <ControlTemplate x:Key="HomeOverlaysTemplate" TargetType="ContentControl" x:DataType="vm:HomeViewModel">
-    <Panel IsHitTestVisible="False">
-      <Border VerticalAlignment="Top" Height="620" HorizontalAlignment="Stretch">
+    <Panel>
+      <!--  The two bands and the standing line are paint; the buttons below are live. The dead panel that
+            screens the paint off from input ends before them, so that nothing which only paints can ever
+            stand between a pointer and a button - which is how the reference hangs it too, with
+            master_home.xaml's WindowButtonsPanel off the master grid rather than inside a dimmed layer.  -->
+      <Panel IsHitTestVisible="False">
+      <Border VerticalAlignment="Top" Height="130" HorizontalAlignment="Stretch">
         <Border.Background>
           <LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
             <GradientStop Color="#E6000000" Offset="0" />
@@ -136,6 +148,7 @@
                  IsVisible="{Binding HasContentInfo}"
                  TextTrimming="CharacterEllipsis"/>
 
+      </Panel>
       <StackPanel Orientation="Horizontal"
                   Spacing="14"
                   Margin="{Binding HomeContentLeft,

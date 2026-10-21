@@ -172,9 +172,27 @@ namespace MediaPortal.Frontend
       // really worn on top of the palette, how many pictures it brought, and what the merged resources say
       // the accent colour and a tile template are. Every skin mystery on a live television starts here.
       Theming.WornSkin? wornNow = Theming.SkinEngine.Worn(this);
-      Console.WriteLine("skin:     folder=" + (Theming.SkinEngine.SkinsFolder ?? "<embedded>")
+      Console.WriteLine("skin:     folder=" + (Theming.SkinEngine.SkinsFolder ?? "<built into this build>")
           + " worn=" + (wornNow == null ? "<none>"
-              : wornNow.Manifest.Name + "/" + wornNow.Theme.Name + " images=" + wornNow.Images.Count));
+              : wornNow.Manifest.Name + "/" + wornNow.Theme.Name + " images=" + wornNow.Images.Count
+                  // Vectors belong on this line as much as pictures do: a screen whose tiles stand there without
+                  // their icons is a screen whose vector catalog came back empty, and that is a fact the startup
+                  // log should say out loud rather than one a photograph has to be taken to find.
+                  + " vectors=" + wornNow.Vectors.Count));
+      // Which of the two copies of a skin the screen is wearing, said separately from which skin it is, because
+      // the two copies are the difference between an edit landing and an edit vanishing: a folder read off disk
+      // and the copy built into this assembly are different files, and the one not being worn is exactly where
+      // whoever is dressing a style file is typing. "<built into this build>" is the normal answer; a folder
+      // means somebody named it in MP2_SKINS_DIR and the front end is wearing files that are not in the build.
+      Console.WriteLine("skin:     markup=" + (Theming.SkinEngine.SkinsFolder == null
+              ? "inside this assembly only - there is no skins folder to read"
+              : string.Equals(Theming.SkinEngine.SkinsFolder, Theming.SkinEngine.BuiltInSkinsFolder,
+                    StringComparison.OrdinalIgnoreCase)
+                  ? "this build's own folder beside its executable, written from the source it was compiled from"
+                  : "off disk, from " + Theming.SkinEngine.SkinsFolder + " - named in MP2_SKINS_DIR, so NOT the "
+                    + "files this build was compiled from"));
+      if (Theming.SkinEngine.SkinsFolderProblem != null)
+        Console.WriteLine("skin:     " + Theming.SkinEngine.SkinsFolderProblem);
       if (wornNow != null)
       {
         object? accentNow = null;

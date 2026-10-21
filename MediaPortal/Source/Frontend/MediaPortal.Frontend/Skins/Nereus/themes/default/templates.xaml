@@ -141,14 +141,19 @@
         <Rectangle Grid.RowSpan="2"
                    Fill="#222222"
                    IsVisible="{Binding IsSquareHomeImage}"/>
+        <!-- The tile's picture, dressed by the face's styles: three quarters lit and at its own size while
+             nothing stands on the tile, full light and a tenth larger when something does. No
+             number is written here on purpose - a number written on the element itself outranks every style
+             and the tile would never brighten or grow. -->
         <Image Grid.RowSpan="2"
+               Classes="nereus-menu-art"
                Source="{Binding HomeImagePath,
                                 Converter={x:Static views:SkinImageConverter.Instance},
                                 ConverterParameter='{}{0}'}"
                Stretch="Fill"
-               Opacity="0.8"
                IsVisible="{Binding IsSquareHomeImage}"/>
         <Image Grid.RowSpan="2"
+               Classes="nereus-menu-art"
                Source="{Binding HomeImagePath,
                                 Converter={x:Static views:SkinImageConverter.Instance},
                                 ConverterParameter='{}{0}'}"
@@ -157,7 +162,6 @@
                HorizontalAlignment="Center"
                VerticalAlignment="Center"
                Stretch="Fill"
-               Opacity="0.8"
                IsVisible="{Binding IsCircleHomeImage}"/>
         <TextBlock Grid.RowSpan="2"
                    Text="{Binding Badge}"

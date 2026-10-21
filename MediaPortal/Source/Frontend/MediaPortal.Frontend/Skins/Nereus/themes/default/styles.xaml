@@ -251,6 +251,41 @@
     <Setter Property="CornerRadius" Value="10"/>
   </Style>
 
+  <!-- The picture a main menu tile wears, which the tile itself leaves undressed so that these numbers win:
+       three quarters of light while the tile waits, and the full picture the moment something stands on it.
+       Full light is the ceiling a picture has - opacity cannot pass 1, so "brighter than whole" is not a
+       thing glass or paint can do; the lift is the quarter the resting tile holds back. Standing on a tile
+       also steps the picture a tenth nearer, which is what the resting dimness was for: the same picture
+       simply glowing brighter would say little, growing out of its dimness says the tile was touched.
+       The growth is meant to be felt rather than watched, so it takes a half second on a sine - no jerk at
+       the start, nothing arriving all at once - while the light itself comes quicker, and a leaving tile
+       settles back on the same curve. The zoom is about the middle of the picture, not its top left corner,
+       and the tile clips the picture to its own rounded square, so the growth reads as the artwork filling
+       out of the frame rather than as the frame sliding. -->
+  <Style Selector="Image.nereus-menu-art">
+    <Setter Property="Opacity" Value="0.75"/>
+    <Setter Property="RenderTransformOrigin" Value="50%,50%"/>
+    <Setter Property="RenderTransform" Value="scale(1)"/>
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.3" Easing="CubicEaseOut"/>
+        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.5" Easing="SineEaseInOut"/>
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="ListBoxItem:selected Image.nereus-menu-art">
+    <Setter Property="Opacity" Value="1"/>
+    <Setter Property="RenderTransform" Value="scale(1.1)"/>
+  </Style>
+  <Style Selector="ListBoxItem:focus Image.nereus-menu-art">
+    <Setter Property="Opacity" Value="1"/>
+    <Setter Property="RenderTransform" Value="scale(1.1)"/>
+  </Style>
+  <Style Selector="ListBoxItem:pointerover Image.nereus-menu-art">
+    <Setter Property="Opacity" Value="1"/>
+    <Setter Property="RenderTransform" Value="scale(1.1)"/>
+  </Style>
+
   <!-- The band a main menu tile's name stands on: the same fade the strip under a cover on the wall paints,
      black out of the tile's bottom edge into nothing, instead of the flat plate that hid the picture behind
      it. The band stretches with the tile, so the fade always spans exactly the band. -->
@@ -270,5 +305,274 @@
   </Style>
   <Style Selector="TextBlock.home-tile-caption-detail">
     <Setter Property="TextAlignment" Value="Center"/>
+  </Style>
+
+  <!-- The shortcut tiles: glass, and only they are. A cover wants a plate to stand on, an icon wants the room
+       behind it - so the icons are cut out of the picture behind them rather than painted over a dark square.
+
+       Glass means three things and all three are here.
+
+       It lets the picture through, FROSTED. The tile holds the screen's own fanart and blurs it, and the piece it
+       holds is the piece standing behind THAT tile: the front end moves the frosting onto the wall behind it, so
+       a tile lower down the rail frosts the bottom of the poster and one at the top frosts its sky. The frosting
+       is a property of the glass and not a state - it is on wherever the glass lies, whether or not anything
+       stands on it, and it covers the tile completely: frosting that is half transparent lets the sharp picture
+       through and is no frosting at all, only a soft smudge over the wall.
+
+       It has body, which is the veil lying over the frost - light thrown back along the top edge, weight
+       gathering at the bottom where the name stands. Standing on a tile draws that veil together, and that is the
+       morph: the glass reads as thicker than the ones beside it. Nothing scales and nothing changes shape; the
+       corner stays the corner it has always had, because glass that changes its own shape is not glass.
+
+       And it has an edge that catches the light: the frame is a gradient, bright where the light comes from, thin
+       through the middle, bright again where the glass turns away. One flat line all the way round is what makes
+       a rounded rectangle look like a filled shape with a stroke on it rather than something with thickness.
+
+       What is left for the icon is the last thing a viewer's eye lands on, so it is the thing that moves: the
+       outline of the glyph draws itself round the filled icon, and the icon lifts a twelfth of its own size off
+       the glass.
+
+       Two arrangements matter. The Button is what casts the shadow and it clips nothing - a shadow that lived
+       inside a clipped edge would be clipped away with everything else - so the face inside it is the surface
+       that clips the frost, and the frosting overshoots the face by more than its own blur so that the edge
+       being clipped away is blurred glass rather than a soft transparent fringe. And the veil sits above the
+       frost rather than under it: white misted over a picture is what glass looks like, and white behind a
+       picture is nothing at all. -->
+  <Style Selector="Button.nereus-shortcut-tile">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="CornerRadius" Value="10"/>
+    <!-- The button the control's own theme hands it is clipped to its bounds, and this button's bounds ARE the
+         tile - 159 by 159 - while the glass standing in it throws its shadow outside those bounds. Clipped, the
+         shadow was drawn every frame and every pixel of it fell outside the cut: a photograph of the running
+         screen shows the tile sitting flat on the wall with no shadow at all, and no setting on the glass could
+         deepen its way back through the cut. So the button lets its own child lean over its edge. -->
+    <Setter Property="ClipToBounds" Value="False"/>
+    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+    <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+    <Setter Property="FocusAdorner" Value="{x:Null}"/>
+  </Style>
+
+  <!-- The shortcut casts the same shadow as every other tile on the wall, and it wears it the same way: the
+       HomeView wraps this tile in the shared Border.home-tile-shadow, the very class the covers stand in, so the
+       one BoxShadow the skin knows - three right, four down, sixteen of blur, a shade under half black - lies
+       under a shortcut exactly as it lies under a poster. The glass itself draws none: the frosting surface can
+       throw a shadow of its own, and it did, and a second shadow next to the skin's is how a shortcut came to sit
+       on the wall in a darkness none of its neighbours had. One shadow, and it is the tile's, not the shader's. -->
+
+  <!-- The edge of the glass: thin, brightest where the light comes from, nearly gone before it turns away at the
+       bottom. It is laid OVER the edge of the glass rather than wrapped around it, at the glass's own corner. A
+       frame around the glass is a second edge: the glass cuts itself to one circle and the frame to another, two
+       of its own thickness apart, and the step a viewer sees where those two circles disagree is the artifact
+       that sat in every corner of these tiles until the frame stopped cutting and started covering.
+
+       At rest it is a ghost of itself - a fifth of the light it used to carry - because a ring that is bright
+       while nothing stands on the tile is the thing everybody notices and nobody asked for. It comes up to full
+       light when a viewer stands on the tile, which is where an edge that says "this one" earns its place. Both
+       brushes are the same four stops down the same line, so the transition moves the light rather than cutting
+       from one ring to another. -->
+  <Style Selector="Border.home-shortcut-face">
+    <Setter Property="CornerRadius" Value="10"/>
+    <!-- Two of these, not three: at three the ring measured as a white outline drawn round the tile rather than
+         as the edge of the tile catching the light, and the light it catches is above it, not under it. -->
+    <Setter Property="BorderThickness" Value="2"/>
+    <Setter Property="BorderBrush">
+      <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Offset="0" Color="#21FFFFFF"/>
+        <GradientStop Offset="0.35" Color="#0DFFFFFF"/>
+        <GradientStop Offset="0.72" Color="#08FFFFFF"/>
+        <GradientStop Offset="1" Color="#16FFFFFF"/>
+      </LinearGradientBrush>
+    </Setter>
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="BorderBrush" Duration="0:0:0.3"/>
+      </Transitions>
+    </Setter>
+  </Style>
+
+  <!-- The frost is not styled here at all. It is the acrylic surface in HomeView itself - the shader frosts the
+       screen as it stands behind THIS tile, so there is no picture to hand it, no place to line it up with, and
+       no number a focus state could change: the frosting belongs to the glass and not to standing on it. What
+       the glass looks like - how deep the frost, how cool the tint, how the edge bends the picture - is written
+       on that surface, next to the tile it dresses. -->
+
+  <!-- The body of the glass, above the frost it frosts: the light the glass throws back at the top, and the
+       weight it gathers at the bottom, where the name stands. It is the veil that lets the frosted picture
+       THROUGH without letting the sharp one through, so it is no longer near-invisible - over a busy, high
+       contrast wall a thin veil leaves the hard edges of the poster reading straight through the glass and the
+       tile stops being glass at all. A gradient rather than a band, because a band is a rectangle and a
+       rectangle inside a rounded frame lies across the corners of it. -->
+  <Style Selector="Border.home-shortcut-tint">
+    <Setter Property="IsHitTestVisible" Value="False"/>
+    <!-- The veil wears the glass's own corner. It fills the whole of the glass, so a veil with square corners is
+         a square lying under a round pane: it shows in all four corners as a light spandrel, and no clip on
+         anything above it can be blamed for that. -->
+    <Setter Property="CornerRadius" Value="10"/>
+    <Setter Property="Opacity" Value="0.9"/>
+    <!-- Smoked, not cellared. The veil has to sit under the wall's own brightness or the tile is a pale plate
+         again, but it was pressed far past that: four-fifths black at the bottom made the glass darker than a
+         shadowed poster and the rail read as five holes cut in the picture. So the bottom keeps half its weight
+         rather than seven-tenths, and the light along the top is the top's own.
+         Standing on the tile LIGHTENS this - see the focus and pointerover rules at the bottom of the file.
+         Both brushes are four stops down the same line, so the veil's background travels between them instead of
+         cutting from one to the other. -->
+    <Setter Property="Background">
+      <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Offset="0" Color="#2EFFFFFF"/>
+        <GradientStop Offset="0.3" Color="#1F0A1018"/>
+        <GradientStop Offset="0.7" Color="#4D000000"/>
+        <GradientStop Offset="1" Color="#73000000"/>
+      </LinearGradientBrush>
+    </Setter>
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.3" Easing="CubicEaseOut"/>
+        <BrushTransition Property="Background" Duration="0:0:0.3" Easing="CubicEaseOut"/>
+      </Transitions>
+    </Setter>
+  </Style>
+
+  <!-- The glyph, on the glass and centred in what is left above its name, at sixty-eight hundredths of the
+       screen's own white: an icon at full white shouts over the name under it.
+
+       On top of the filled icon lies its own outline, transparent where the tile rests and lit to the screen's
+       white when something stands on it: the icon catches light along its edge. The icon lifts a twenty-fifth off
+       the glass while that happens, on a back ease, so it springs past its standing height and settles back -
+       and the tile under it stays exactly where it was. -->
+  <Style Selector="Path.home-shortcut-glyph">
+    <Setter Property="Fill" Value="{DynamicResource TextBrush}"/>
+    <!-- These glyphs are solid shapes, not line drawings, so the stroke is not what draws them - it is the rim
+         of light that lights up around one when a hand lands on its tile. Thin on purpose: half of it sits on
+         the fill and half grows outward, and an icon that swells by five pixels reads as a misprint. Parked
+         transparent at rest, because a transition needs something to come from. -->
+    <Setter Property="Stroke" Value="Transparent"/>
+    <!-- Twenty percent thinner again, on top of the thirty percent it already lost: 0.6 -> 0.42 -> 0.34. At
+         nought-six the rim of light that comes up round a focused icon read as a heavy outline drawn round the
+         shape rather than as light catching its edge, and a fifth under nought-four-two is still light on an
+         edge, not a line round a shape. -->
+    <Setter Property="StrokeThickness" Value="0.34"/>
+    <Setter Property="StrokeLineCap" Value="Round"/>
+    <Setter Property="StrokeJoin" Value="Round"/>
+    <!-- Seven-tenths at rest, the same as the name under it: a rail is read as a row, and the tile a viewer
+         stands on is the one that comes up to full white. -->
+    <Setter Property="Opacity" Value="0.7"/>
+    <Setter Property="IsHitTestVisible" Value="False"/>
+    <!-- The name stands under it on the same glass, so the icon does not stand in the middle of the tile but
+         in the middle of what is left above the name: a bottom margin twice the lift pulls the centred glyph
+         a fifth of the way up the tile - twenty-two pixels on a rail tile - without a wrapper around it. -->
+    <Setter Property="Margin" Value="0,0,0,44"/>
+    <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+    <Setter Property="RenderTransform" Value="scale(1)"/>
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.24"/>
+        <BrushTransition Property="Stroke" Duration="0:0:0.3"/>
+        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.42" Easing="BackEaseOut"/>
+      </Transitions>
+    </Setter>
+  </Style>
+
+  <!-- Nothing travels across this glass. There used to be a bar of light sent over the tile whenever focus
+       moved onto it, and it was wrong twice over: a highlight that sweeps the whole tile is an animation doing
+       something to the picture rather than the tile answering the hand that stood on it, and standing on tile
+       after tile as the rail walks itself put a reflection through every one of them, one after another, all
+       over the artwork. What a tile does when something stands on it is said in its edge, its background and
+       its glyph - see the rules at the bottom of the file - and nothing moves across the glass itself. -->
+
+  <!-- The name, on the glass rather than on a band of its own: centred along the bottom of the tile, and given a
+       shadow instead of a plate, so it reads over the frost without covering any of it.
+
+       At rest it stands at seven-tenths, the same as the icon above it: the five tiles of a rail are read as a
+       row, and the one a viewer stands on is the one that comes up to full white - name included. -->
+  <Style Selector="TextBlock.home-shortcut-caption">
+    <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+    <Setter Property="FontSize" Value="15"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+    <Setter Property="HorizontalAlignment" Value="Center"/>
+    <Setter Property="VerticalAlignment" Value="Bottom"/>
+    <Setter Property="Margin" Value="10,0,10,10"/>
+    <Setter Property="TextAlignment" Value="Center"/>
+    <Setter Property="IsHitTestVisible" Value="False"/>
+    <Setter Property="Opacity" Value="0.7"/>
+    <Setter Property="Effect">
+      <DropShadowEffect BlurRadius="7" Color="#CC000000" OffsetX="0" OffsetY="1"/>
+    </Setter>
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.24"/>
+      </Transitions>
+    </Setter>
+  </Style>
+
+  <!-- What standing on the glass does. Three things, all of them said by the tile itself and none of them a
+       movement across the picture behind it: the BACKGROUND COMES UP, so the glass under the pointer is
+       visibly the lighter one; the edge, which at rest is barely there, comes up to full light; and the
+       outline of the glyph draws itself round the icon while the icon lifts off the glass. The frost stays
+       exactly as it was - it is the glass, not a state of it - and so do the corner, the tile's own size and
+       the shadow it stands on, which belongs to the tile and not to standing on it. -->
+  <Style Selector="Button.nereus-shortcut-tile:focus Border.home-shortcut-face">
+    <Setter Property="BorderBrush">
+      <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Offset="0" Color="#FFFFFFFF"/>
+        <GradientStop Offset="0.35" Color="#B3FFFFFF"/>
+        <GradientStop Offset="0.72" Color="#66FFFFFF"/>
+        <GradientStop Offset="1" Color="#CCFFFFFF"/>
+      </LinearGradientBrush>
+    </Setter>
+  </Style>
+  <Style Selector="Button.nereus-shortcut-tile:pointerover Border.home-shortcut-face">
+    <Setter Property="BorderBrush">
+      <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Offset="0" Color="#FFFFFFFF"/>
+        <GradientStop Offset="0.35" Color="#B3FFFFFF"/>
+        <GradientStop Offset="0.72" Color="#66FFFFFF"/>
+        <GradientStop Offset="1" Color="#CCFFFFFF"/>
+      </LinearGradientBrush>
+    </Setter>
+  </Style>
+  <!-- The background of the glass LIGHTENS when something stands on it. The resting veil is dark at the bottom
+       because glass has weight and the name has to read on it; the lit veil trades that black for white, so a
+       viewer sees which tile is the one under them before they look at the name. Both brushes are four stops
+       down the same line, which is what lets the transition carry one into the other. -->
+  <Style Selector="Button.nereus-shortcut-tile:focus Border.home-shortcut-tint">
+    <Setter Property="Opacity" Value="1"/>
+    <Setter Property="Background">
+      <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Offset="0" Color="#66FFFFFF"/>
+        <GradientStop Offset="0.3" Color="#40FFFFFF"/>
+        <GradientStop Offset="0.7" Color="#33141C26"/>
+        <GradientStop Offset="1" Color="#4D0C1218"/>
+      </LinearGradientBrush>
+    </Setter>
+  </Style>
+  <Style Selector="Button.nereus-shortcut-tile:pointerover Border.home-shortcut-tint">
+    <Setter Property="Opacity" Value="1"/>
+    <Setter Property="Background">
+      <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Offset="0" Color="#66FFFFFF"/>
+        <GradientStop Offset="0.3" Color="#40FFFFFF"/>
+        <GradientStop Offset="0.7" Color="#33141C26"/>
+        <GradientStop Offset="1" Color="#4D0C1218"/>
+      </LinearGradientBrush>
+    </Setter>
+  </Style>
+  <Style Selector="Button.nereus-shortcut-tile:focus Path.home-shortcut-glyph">
+    <Setter Property="Opacity" Value="1"/>
+    <Setter Property="Stroke" Value="{DynamicResource TextBrush}"/>
+    <Setter Property="RenderTransform" Value="scale(1.06)"/>
+  </Style>
+  <Style Selector="Button.nereus-shortcut-tile:pointerover Path.home-shortcut-glyph">
+    <Setter Property="Opacity" Value="1"/>
+    <Setter Property="Stroke" Value="{DynamicResource TextBrush}"/>
+    <Setter Property="RenderTransform" Value="scale(1.06)"/>
+  </Style>
+  <!-- The name comes up with the icon, not after it: standing on the tile takes both to full white. -->
+  <Style Selector="Button.nereus-shortcut-tile:focus TextBlock.home-shortcut-caption">
+    <Setter Property="Opacity" Value="1"/>
+  </Style>
+  <Style Selector="Button.nereus-shortcut-tile:pointerover TextBlock.home-shortcut-caption">
+    <Setter Property="Opacity" Value="1"/>
   </Style>
 </Styles>

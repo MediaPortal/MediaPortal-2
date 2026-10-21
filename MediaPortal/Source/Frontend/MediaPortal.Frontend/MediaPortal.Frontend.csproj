@@ -59,11 +59,16 @@
       anyway. They ride to the output folder as loose files instead, so an installed front end is a skin
       folder the same way the reference's was. The theme's own background picture is the one image small
       enough to ride inside too - the shipped fallback wears it without any disk folder.
+      Everything does, not only the pictures: the folder the build writes next to the executable is the skin
+      the front end wears when nobody names another one (SkinEngine.ResolveSkinsFolder), so the files it reads
+      are always the ones this build was made from. Copying only the pictures left that folder half a skin -
+      markup inside the assembly, pictures outside - and was the reason a machine's own skin folder had to be
+      hard-coded to have a whole one to read, which is how a build came to wear somebody else's skin.
     -->
     <AvaloniaResource Include="Skins\**\*.png" Exclude="Skins\**\images\**\*.png" />
     <AvaloniaResource Include="Skins\**\fonts\**\*" />
     <AvaloniaResource Include="Skins\**\sounds\**\*" />
-    <None Update="Skins\**\images\**\*" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Skins\**\*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
@@ -80,6 +85,7 @@
          this package is Avalonia's own XAML compiler, used the way the reference skin engine used its one. -->
     <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="12.1.4" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="Fluid.Avalonia.Acrylic" Version="1.4.0" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="10.0.13" />
   </ItemGroup>
 
