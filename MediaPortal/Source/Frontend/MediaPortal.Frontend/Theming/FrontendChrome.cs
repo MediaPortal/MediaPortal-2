@@ -18,6 +18,7 @@
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Styling;
+using MediaPortal.Frontend.Views;
 
 namespace MediaPortal.Frontend.Theming
 {
@@ -67,7 +68,13 @@ namespace MediaPortal.Frontend.Theming
       Add(styles, new Style(r => r.OfType<Button>()),
           (Button.BackgroundProperty, panel), (Button.BorderBrushProperty, line),
           (Button.ForegroundProperty, buttonText));
-      Add(styles, new Style(r => r.OfType<Button>().Class(":pointerover")),
+      // The two hover styles carry the same condition the skins' hover rules carry: while the window says the
+      // pointer is out of sight, nothing may dress itself as stood on. See the comment at the top of the Nereus
+      // skin's styles file, which explains the class; the chrome is author style aimed at every button and row in
+      // the front end, so it has to hold its tongue here too or a hovered "Refresh" button would stay lit.
+      Add(styles, new Style(r => r.Is<Window>()
+              .Not(x => x.Class(ShellWindow.PointerRestingClass))
+              .Descendant().OfType<Button>().Class(":pointerover")),
           (Button.BackgroundProperty, raised));
       Add(styles, new Style(r => r.OfType<Button>().Class(":pressed")),
           (Button.BackgroundProperty, pressed));
@@ -76,7 +83,9 @@ namespace MediaPortal.Frontend.Theming
           (ListBox.BackgroundProperty, panel), (ListBox.BorderBrushProperty, line));
       Add(styles, new Style(r => r.OfType<ListBoxItem>()),
           (ListBoxItem.ForegroundProperty, text));
-      Add(styles, new Style(r => r.OfType<ListBoxItem>().Class(":pointerover")),
+      Add(styles, new Style(r => r.Is<Window>()
+              .Not(x => x.Class(ShellWindow.PointerRestingClass))
+              .Descendant().OfType<ListBoxItem>().Class(":pointerover")),
           (ListBoxItem.BackgroundProperty, raised));
       Add(styles, new Style(r => r.OfType<ListBoxItem>().Class(":selected")),
           (ListBoxItem.BackgroundProperty, accent), (ListBoxItem.ForegroundProperty, screen));

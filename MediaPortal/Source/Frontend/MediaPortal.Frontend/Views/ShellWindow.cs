@@ -200,6 +200,7 @@ namespace MediaPortal.Frontend.Views
       Content = shell;
 
       WireScreensaver();
+      WirePointerRest();
 
       // The back key of the remote and the Escape of the keyboard, heard after every screen has declined it.
       AddHandler(KeyDownEvent,
@@ -416,6 +417,126 @@ namespace MediaPortal.Frontend.Views
       _screensaverLayer.IsVisible = _idle.Asleep;
       if (_idle.Asleep)
         HideSuperlayer();
+    }
+
+    // The pointer's own rest: the watch that says when the mouse has been left alone long enough, the beat that
+    // asks it, and the one cursor this window wears when the answer is "away". The window is the only thing in the
+    // front end that says what the pointer looks like - no screen, no skin and no drawing asks for a cursor of its
+    // own - so whatever is written here is what a viewer sees, wherever the pointer happens to be standing.
+    private readonly Input.PointerRest _pointerRest = new Input.PointerRest();
+    private Avalonia.Input.Cursor? _pointerAway;
+    private Avalonia.Threading.DispatcherTimer? _pointerBeat;
+
+    // The word on the window that the skin reads: put on when the pointer goes out of sight and taken off when it
+    // comes back, so that every dressing answering ":pointerover" can fall silent with the pointer instead of
+    // going on claiming that a tile is stood on. Named here, written by the styles: see the comment at the top of
+    // the Nereus skin's styles file, which is where the arrangement is spelled out for whoever dresses a skin.
+    internal const string PointerRestingClass = "pointer-resting";
+    private bool _pointerStyling;
+
+    /// <summary>
+    /// Puts the mouse pointer out of sight after the quiet the watch asks for and brings it back on a movement that
+    /// can only be a hand. Heard in the tunnel, before any screen sees the pointer: the moves are what the watch
+    /// counts, and a press or a wheel is somebody who wants the pointer now rather than after its threshold.
+    /// </summary>
+    private void WirePointerRest()
+    {
+      AddHandler(PointerMovedEvent,
+          delegate (object? sender, PointerEventArgs args)
+          {
+            // The plain argument type, as with the screensaver's wake: this route legitimately carries
+            // PointerEventArgs, and a handler demanding a richer one is an exception on the first movement.
+            if (_pointerRest.Move(args.GetPosition(this)))
+              BringPointerBack();
+          },
+          RoutingStrategies.Tunnel, true);
+
+      void Stir(object? sender, RoutedEventArgs args)
+      {
+        if (_pointerRest.Stir())
+          BringPointerBack();
+      }
+
+      AddHandler(PointerPressedEvent, Stir, RoutingStrategies.Tunnel, true);
+      AddHandler(PointerWheelChangedEvent, Stir, RoutingStrategies.Tunnel, true);
+
+      Opened += delegate
+      {
+        if (_pointerBeat == null)
+        {
+          _pointerBeat = new Avalonia.Threading.DispatcherTimer
+          {
+            Interval = TimeSpan.FromMilliseconds(500)
+          };
+          _pointerBeat.Tick += delegate
+          {
+            if (_pointerRest.Poll())
+              PutPointerAway();
+          };
+        }
+        _pointerBeat.Start();
+      };
+      Closed += delegate
+      {
+        // Gone with the window: the next Opened builds its own beat, so nothing here can restart a beat of a
+        // window that is already closed.
+        if (_pointerBeat != null)
+        {
+          _pointerBeat.Stop();
+          _pointerBeat = null;
+        }
+      };
+    }
+
+    /// <summary>
+    /// Takes the pointer away. The empty cursor is asked of the platform here rather than once in the
+    /// constructor, because a window that never shows - the plain ones the test runs host screens in - has no
+    /// platform to ask, and a pointer that was never on screen has nothing to put away.
+    /// </summary>
+    private void PutPointerAway()
+    {
+      _pointerAway ??= new Avalonia.Input.Cursor(Avalonia.Input.StandardCursorType.None);
+      Cursor = _pointerAway;
+
+      // Said to the skin as well as to the platform, and this is the part the platform cannot say for us: the
+      // pointer is invisible but it is still standing where it stood, so the tile underneath it still believes
+      // it is being stood on and would go on wearing its lit edge with nobody there to see it. The class is how
+      // the window tells the dressing that the standing has stopped; see the comment at the top of the Nereus
+      // skin's styles file.
+      if (!_pointerStyling)
+      {
+        _pointerStyling = true;
+        Classes.Add(PointerRestingClass);
+      }
+
+      // Said out loud for the same reason the chrome and the skin are: a pointer that vanishes while nobody
+      // pressed anything looks like a bug unless the front end says that it was the front end.
+      Console.WriteLine("pointer:  out of sight after "
+          + (_pointerRest.QuietMs / 1000).ToString(System.Globalization.CultureInfo.InvariantCulture)
+          + "s of quiet");
+
+      // The beat has nothing left to count until the pointer is back; the moves do the rest of the work.
+      if (_pointerBeat != null)
+        _pointerBeat.Stop();
+    }
+
+    /// <summary>Brings the pointer back to the window's normal look and starts the quiet again.</summary>
+    private void BringPointerBack()
+    {
+      Cursor = null;
+
+      // Before the cursor is visible again, so that the first frame in which a viewer can see the pointer is
+      // already the frame in which the tile under it is dressed for being stood on.
+      if (_pointerStyling)
+      {
+        _pointerStyling = false;
+        Classes.Remove(PointerRestingClass);
+      }
+
+      Console.WriteLine("pointer:  back - it moved past its threshold, or somebody pressed something");
+
+      // The beat only exists while the window is open, and it is what notices the next quiet spell.
+      _pointerBeat?.Start();
     }
 
     /// <summary>

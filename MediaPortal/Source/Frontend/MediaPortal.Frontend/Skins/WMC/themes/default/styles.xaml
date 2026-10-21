@@ -17,7 +17,10 @@
     <Setter Property="Foreground" Value="{DynamicResource ButtonTextBrush}"/>
     <Setter Property="CornerRadius" Value="2"/>
   </Style>
-  <Style Selector="Button:pointerover">
+  <!-- Hovering dresses a control only while the pointer is about. The window wears "pointer-resting" while the
+       front end has put an invisible pointer away, and a row that stayed lit afterwards would claim to be stood
+       on by nobody; the arrangement is explained in the Nereus skin's styles file. -->
+  <Style Selector="Window:not(.pointer-resting) Button:pointerover">
     <Setter Property="Background" Value="{DynamicResource PanelRaisedBrush}"/>
   </Style>
   <Style Selector="Button:pressed">
@@ -31,7 +34,7 @@
   <Style Selector="ListBoxItem">
     <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
   </Style>
-  <Style Selector="ListBoxItem:pointerover">
+  <Style Selector="Window:not(.pointer-resting) ListBoxItem:pointerover">
     <Setter Property="Background" Value="{DynamicResource PanelRaisedBrush}"/>
   </Style>
   <Style Selector="ListBoxItem:selected">

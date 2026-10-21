@@ -17,6 +17,22 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
+  <!-- STANDING ON A TILE, AND WHEN NOBODY IS.
+       Every rule below that answers ":pointerover" says the same thing as its ":focus" twin - the lit edge, the
+       lightened glass, the picture stepped nearer - because a tile that is stood on is the tile the viewer means,
+       whether they reached it with the mouse or with the arrows. That is right while the pointer is about. It is
+       wrong the moment the pointer has been left alone: the front end puts an invisible pointer away after ten
+       seconds of quiet (Views/ShellWindow.cs), and a tile keeping its lit edge afterwards claims to be stood on
+       by nobody, quarrelling with the tile the keyboard actually holds.
+
+       So the window says where the pointer is. While it rests the window wears the class "pointer-resting", and
+       each rule that gives a dressing for hover is written under Window:not(.pointer-resting): the dressing goes
+       out of sight with the pointer, the ":focus" rules are untouched, and a viewer who never touches the mouse -
+       a window that never carries the class at all - sees exactly what this file has always said. The values stay
+       where they were; only the condition grew. The hover rules that paint "Transparent" are guards against the
+       platform's own selection panel, and they keep working in both states: they suppress a dressing rather than
+       give one. -->
+
   <!-- Buttons: flat, square, the dark of the accent as resting colour. -->
   <Style Selector="Button">
     <Setter Property="Background" Value="{DynamicResource PanelBrush}"/>
@@ -25,7 +41,7 @@
     <!-- Nereus drew its buttons square; its colour file's ButtonControlRadiusX says 0. -->
     <Setter Property="CornerRadius" Value="0"/>
   </Style>
-  <Style Selector="Button:pointerover">
+  <Style Selector="Window:not(.pointer-resting) Button:pointerover">
     <Setter Property="Background" Value="{DynamicResource PanelRaisedBrush}"/>
   </Style>
   <Style Selector="Button:pressed">
@@ -40,7 +56,7 @@
   <Style Selector="ListBoxItem">
     <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
   </Style>
-  <Style Selector="ListBoxItem:pointerover">
+  <Style Selector="Window:not(.pointer-resting) ListBoxItem:pointerover">
     <Setter Property="Background" Value="{DynamicResource PanelRaisedBrush}"/>
   </Style>
   <Style Selector="ListBoxItem:selected">
@@ -195,7 +211,7 @@
       </Transitions>
     </Setter>
   </Style>
-  <Style Selector="Button.nereus-corner-button:pointerover">
+  <Style Selector="Window:not(.pointer-resting) Button.nereus-corner-button:pointerover">
     <Setter Property="Opacity" Value="1"/>
   </Style>
   <Style Selector="Button.nereus-corner-button:focus">
@@ -261,7 +277,10 @@
       </Transitions>
     </Setter>
   </Style>
-  <Style Selector="Button.nereus-content-tile:focus Image.home-tile-art, Button.nereus-content-tile:pointerover Image.home-tile-art">
+  <Style Selector="Button.nereus-content-tile:focus Image.home-tile-art">
+    <Setter Property="RenderTransform" Value="scale(1.1)"/>
+  </Style>
+  <Style Selector="Window:not(.pointer-resting) Button.nereus-content-tile:pointerover Image.home-tile-art">
     <Setter Property="RenderTransform" Value="scale(1.1)"/>
   </Style>
 
@@ -305,7 +324,7 @@
     <Setter Property="Opacity" Value="1"/>
     <Setter Property="RenderTransform" Value="scale(1.1)"/>
   </Style>
-  <Style Selector="ListBoxItem:pointerover Image.nereus-menu-art">
+  <Style Selector="Window:not(.pointer-resting) ListBoxItem:pointerover Image.nereus-menu-art">
     <Setter Property="Opacity" Value="1"/>
     <Setter Property="RenderTransform" Value="scale(1.1)"/>
   </Style>
@@ -548,7 +567,7 @@
       </LinearGradientBrush>
     </Setter>
   </Style>
-  <Style Selector="Button.nereus-shortcut-tile:pointerover Border.home-tile-edge">
+  <Style Selector="Window:not(.pointer-resting) Button.nereus-shortcut-tile:pointerover Border.home-tile-edge">
     <Setter Property="BorderBrush">
       <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
         <GradientStop Offset="0" Color="#FFFFFFFF"/>
@@ -570,7 +589,7 @@
       </LinearGradientBrush>
     </Setter>
   </Style>
-  <Style Selector="Button.nereus-content-tile:pointerover Border.home-tile-edge">
+  <Style Selector="Window:not(.pointer-resting) Button.nereus-content-tile:pointerover Border.home-tile-edge">
     <Setter Property="BorderBrush">
       <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
         <GradientStop Offset="0" Color="#FFFFFFFF"/>
@@ -595,7 +614,7 @@
       </LinearGradientBrush>
     </Setter>
   </Style>
-  <Style Selector="Button.nereus-shortcut-tile:pointerover Border.home-shortcut-tint">
+  <Style Selector="Window:not(.pointer-resting) Button.nereus-shortcut-tile:pointerover Border.home-shortcut-tint">
     <Setter Property="Opacity" Value="1"/>
     <Setter Property="Background">
       <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
@@ -611,7 +630,7 @@
     <Setter Property="Stroke" Value="{DynamicResource TextBrush}"/>
     <Setter Property="RenderTransform" Value="scale(1.06)"/>
   </Style>
-  <Style Selector="Button.nereus-shortcut-tile:pointerover Path.home-shortcut-glyph">
+  <Style Selector="Window:not(.pointer-resting) Button.nereus-shortcut-tile:pointerover Path.home-shortcut-glyph">
     <Setter Property="Opacity" Value="1"/>
     <Setter Property="Stroke" Value="{DynamicResource TextBrush}"/>
     <Setter Property="RenderTransform" Value="scale(1.06)"/>
@@ -620,7 +639,7 @@
   <Style Selector="Button.nereus-shortcut-tile:focus TextBlock.home-shortcut-caption">
     <Setter Property="Opacity" Value="1"/>
   </Style>
-  <Style Selector="Button.nereus-shortcut-tile:pointerover TextBlock.home-shortcut-caption">
+  <Style Selector="Window:not(.pointer-resting) Button.nereus-shortcut-tile:pointerover TextBlock.home-shortcut-caption">
     <Setter Property="Opacity" Value="1"/>
   </Style>
 </Styles>
