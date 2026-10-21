@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
@@ -56,6 +57,20 @@ namespace MediaPortal.Frontend.Views
     /// its own model in its own way, and neither reading touches the other.
     /// </summary>
     private readonly WmcHomeMenuModel _wmc;
+
+    /// <summary>
+    /// How long the standing wall takes to leave the light when its entry changes. The way back up is longer and
+    /// lives with the wall's own curve in <c>HomeView.axaml</c> (0.45), because a picture arriving is worth more
+    /// watching than a picture leaving. These two are the only knobs the change of a home menu entry has: zero on
+    /// both is the hard cut this screen had before any of it.
+    /// </summary>
+    private const int WALL_SINK_MS = 180;
+
+    /// <summary>
+    /// The class that puts the shorter curve on the wall for the length of a change of entries. Its curve is the
+    /// one the styles block keeps under that name in <c>HomeView.axaml</c>, and its length is <see cref="WALL_SINK_MS"/>.
+    /// </summary>
+    private const string WALL_SINKING_CLASS = "wall-sinking";
 
     /// <summary>
     /// The window this home is standing in, while it is standing in one. The plain test windows that host
@@ -108,6 +123,13 @@ namespace MediaPortal.Frontend.Views
       _screenFactory = screenFactory;
       InitializeComponent();
 
+      // One wall on the screen, and the change of entries is this wall going out and its successor coming up. The
+      // model reads a wall where the screen cannot see it and then asks this view for the way between the two:
+      // SinkStandingWallAsync below, and RaiseWall where the finished wall arrives. The wall starts in the dark so
+      // that even the first wall of a session comes up on its curve rather than appearing.
+      nereusWallStanding.Opacity = 0;
+      _home.WallHandover = SinkStandingWallAsync;
+
       home.ContentGroups.CollectionChanged += delegate
       {
         if (!_home.IsNereusHome)
@@ -119,19 +141,14 @@ namespace MediaPortal.Frontend.Views
           // whose content simply was not there when no list had items (AbstractHomeContent adds a list only
           // when HasItems), so the whole area took itself off and the fanart showed through. An invisible
           // pane also drops out of the remote's ring - DpadNavigation walks over what cannot take focus.
-          nereusContentPane.Opacity = 0;
-          nereusContentPane.IsVisible = false;
-          nereusContentPane.Offset = new Vector(0, nereusContentPane.Offset.Y);
+          FoldWall();
           return;
         }
 
-        nereusContentPane.IsVisible = true;
-        nereusContentPane.Opacity = 0;
-        Dispatcher.UIThread.Post(delegate
-        {
-          if (home.ContentGroups.Count > 0)
-            nereusContentPane.Opacity = 1;
-        }, DispatcherPriority.Render);
+        // Bands went on the wall: it comes into the light. A wall that is already standing in it stays as it is,
+        // because writing the light something is already in starts no curve at all - so this is also the beat a
+        // refreshed wall takes without flickering.
+        RaiseWall();
       };
 
       // The labels of the main menu survive any skin change, by fiat: the moment this view is built it owns
@@ -561,6 +578,66 @@ namespace MediaPortal.Frontend.Views
       RebuildCross();
       ScaleNereusWall();
       SizeNereusMenu();
+    }
+
+    /// <summary>
+    /// The way one wall leaves and its successor arrives: this wall is walked down out of the light, the model puts
+    /// the next entry's wall - which it has read through before asking - on the dark screen, and the styles bring it
+    /// back up. See <see cref="HomeViewModel.WallHandover"/>.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Only one wall is ever on the screen, and that is what makes the change cheap. Two walls dissolving through
+    /// each other are the softer picture and the dearer one: every glass tile, every shadow and every cover is
+    /// drawn twice for as long as the two lie on each other, which on this screen was a switch that stumbled.
+    /// </para>
+    /// <para>
+    /// The wait below is the fade itself, not a pause added to it. The write starts the curve and going back to the
+    /// dispatcher lets it be drawn, so by the time this answer comes back the viewer has watched the wall go out
+    /// and its successor has a dark screen to come up on. A fade written and replaced in the same beat is never
+    /// drawn at all, which is the cut every attempt here before this one looked like.
+    /// </para>
+    /// </remarks>
+    private async Task SinkStandingWallAsync()
+    {
+      // Nothing standing, nothing to take down: an empty area, or the first wall of a session. Its successor comes
+      // up out of the fold on RaiseWall, and waiting for a fade with no picture to fade would only delay it.
+      if (!_home.IsNereusHome || !nereusContentPane.IsVisible || _home.ContentGroups.Count == 0)
+        return;
+
+      // The way down is the shorter curve the styles block keeps under this class name; it is put on for the walk
+      // down and taken off again on the way up, which leaves the wall wearing its rise curve at every other time.
+      nereusWallStanding.Classes.Add(WALL_SINKING_CLASS);
+      nereusWallStanding.Opacity = 0;
+
+      await Task.Delay(WALL_SINK_MS + 40);
+    }
+
+    /// <summary>
+    /// Brings the wall into the light on the styles' own curve, and with it the area it stands in - which is also
+    /// how the first wall of a session appears, since the fold and the view's own first beat leave it dark.
+    /// </summary>
+    private void RaiseWall()
+    {
+      // Visible first: a curve started behind an invisible pane is played out unseen and the wall then merely
+      // appears, which is the one thing this exchange exists to prevent. The shorter curve comes off before the
+      // light is written, so that the walk up is the wall's own and not the way down played backwards.
+      nereusContentPane.IsVisible = true;
+      nereusWallStanding.Classes.Remove(WALL_SINKING_CLASS);
+      nereusWallStanding.Opacity = 1;
+    }
+
+    /// <summary>
+    /// Takes the content area off the screen and leaves its wall in the dark it rises out of, so that whatever comes
+    /// after an empty entry comes up on its curve instead of appearing at full light. The pane's own opacity is
+    /// never written: it is the wall that fades, not the frame around it.
+    /// </summary>
+    private void FoldWall()
+    {
+      nereusContentPane.IsVisible = false;
+      nereusContentPane.Offset = new Vector(0, nereusContentPane.Offset.Y);
+      nereusWallStanding.Classes.Remove(WALL_SINKING_CLASS);
+      nereusWallStanding.Opacity = 0;
     }
 
     /// <summary>

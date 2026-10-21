@@ -880,18 +880,96 @@ namespace MediaPortal.Frontend.ViewModels
       }
     }
 
+    /// <summary>
+    /// What the view is asked to do between reading a wall and putting it up: take the wall the viewer is looking
+    /// at down out of its light, and answer once that has been on the screen long enough to be seen. The model
+    /// waits here, which is the whole point - a wall that goes up in the same beat the old one came down is a cut,
+    /// and so is a fade the screen never got round to drawing. A view that fades nothing (no Nereus home, or no
+    /// wall standing) answers at once, and the wall goes up immediately.
+    /// </summary>
+    public Func<Task>? WallHandover { get; set; }
+
+    /// <summary>
+    /// Reads one entry's wall and puts it up: once, whole, and in one beat.
+    /// </summary>
+    /// <remarks>
+    /// What used to happen - the pane emptied in the frame the switch was made, and every list going onto the wall
+    /// as its own answer arrived, each of them restarting the pane's fade - is the pulse every viewer sees when
+    /// they walk along the menu. Neither half of it is needed. A wall is read into <paramref name="wall"/> and
+    /// <paramref name="rows"/>, which nothing on screen is looking at, and goes up when the reading is through and
+    /// the view has taken the wall before it down, so what is watched is one picture fading out and its successor
+    /// fading up - never a wall being built, and never two walls on the screen at once.
+    /// </remarks>
     private async Task ShowContentCoreAsync(MainMenuEntry? entry, int generation, CancellationToken cancellation)
     {
+      var wall = new List<HomeContentGroup>();
+      var rows = new List<HomeRow>();
+      await ReadWallAsync(entry, generation, cancellation, wall, rows);
+
+      // Somebody walked on while this was being read. The wall it left standing belongs to the entry being looked
+      // at now, and this reading has nothing left to say about it.
+      if (generation != Volatile.Read(ref _contentGeneration) || cancellation.IsCancellationRequested)
+        return;
+
+      // The way down, which the reading cannot be waited for afterwards: the fade has to happen between two walls
+      // that are both known, and by now the one being put up is. Waiting here costs the length of the fade and
+      // nothing else - the server has already answered.
+      Func<Task>? handover = WallHandover;
+      if (handover != null)
+        await handover();
+
+      // And somebody can still have walked on during that fade, in which case the wall they left is not this one's
+      // business either.
+      if (generation != Volatile.Read(ref _contentGeneration) || cancellation.IsCancellationRequested)
+        return;
+
+      PutUpWall(wall, rows);
+
+      // The reference's home screen never stands on nothing: the walker is put on the first cover the moment the
+      // wall is up, which is also what picks the fanart behind the screen and the line at its bottom left.
+      if (SelectedContent == null)
+      {
+        foreach (HomeRow row in ContentRows)
+        {
+          if (!row.IsTitle)
+            continue;
+
+          SelectedContent = row;
+          break;
+        }
+      }
+
+      OnPropertyChanged(nameof(HasContent));
+    }
+
+    /// <summary>
+    /// Swaps the whole wall over in one beat, on the dark screen the view has just made: the bands go on complete
+    /// and with their rows for the pane the other faces read, so the wall the viewer sees coming up in the fade is
+    /// a finished wall rather than one being filled.
+    /// </summary>
+    private void PutUpWall(List<HomeContentGroup> wall, List<HomeRow> rows)
+    {
       ContentRows.Clear();
+      foreach (HomeRow row in rows)
+        ContentRows.Add(row);
+
       ContentGroups.Clear();
+      foreach (HomeContentGroup band in wall)
+        ContentGroups.Add(band);
+
       SelectedContent = null;
+    }
+
+    /// <summary>
+    /// Reads one entry's lists into the wall and rows handed in, and leaves them for <see cref="PutUpWall"/>.
+    /// </summary>
+    private async Task ReadWallAsync(MainMenuEntry? entry, int generation, CancellationToken cancellation,
+        List<HomeContentGroup> wall, List<HomeRow> rows)
+    {
       _paneEntry = entry;
 
       if (entry == null)
-      {
-        OnPropertyChanged(nameof(HasContent));
         return;
-      }
 
       if (_nereusMenu.IsOtherPluginsEntry(entry))
       {
@@ -899,12 +977,11 @@ namespace MediaPortal.Frontend.ViewModels
             _nereusMenu.OtherMenuItems.Count);
         foreach (MainMenuEntry otherEntry in _nereusMenu.OtherMenuItems)
         {
-          ContentRows.Add(HomeRow.For(otherEntry));
+          rows.Add(HomeRow.For(otherEntry));
           plugins.AddMenuEntry(otherEntry);
         }
         if (plugins.Tiles.Count > 0)
-          ContentGroups.Add(plugins);
-        OnPropertyChanged(nameof(HasContent));
+          wall.Add(plugins);
         return;
       }
 
@@ -914,7 +991,7 @@ namespace MediaPortal.Frontend.ViewModels
         HomeContentGroup shortcutGroup = new HomeContentGroup("Shortcuts", "shortcuts", 175, shortcuts.Count);
         foreach (NereusHomeShortcut shortcut in shortcuts)
           shortcutGroup.AddShortcut(shortcut);
-        ContentGroups.Add(shortcutGroup);
+        wall.Add(shortcutGroup);
       }
 
       string[] mediaListSettings = (WornSkinSettingsOrNull() as NereusSkinSettings)?.HomeMenuActionMediaLists
@@ -927,32 +1004,23 @@ namespace MediaPortal.Frontend.ViewModels
         // reference's home help text, and Nereus lets its viewer switch help texts off - off is obeyed here and
         // only here, because the lists beside the menu are content, not help.
         if (HelpTextsShown)
-          ContentRows.Add(HomeRow.Note(entry.Openable ? "Press Enter: " + entry.Action : entry.Detail));
-        OnPropertyChanged(nameof(HasContent));
+          rows.Add(HomeRow.Note(entry.Openable ? "Press Enter: " + entry.Action : entry.Detail));
         return;
       }
 
       // Which lists the pane shows, the reference answers in one line of its own (AbstractHomeContent.cs:
       // "if (wrapper.HasItems)"). A list is handed to the home content - heading and all - only when it has
       // items; a shelf with nothing on it was never shown, under any heading, with no line of explanation.
-      // That rules the whole pre-laid design out here: nothing may stand on screen for a list that will
-      // turn out empty, so every list is read first and only what arrived goes up. The lists are still read
-      // one at a time in their own order, so each band lands below the last one's and the pane still fills
-      // progressively - only the promises that would have stood before the answers are gone.
+      // That is why nothing can be promised a place before its answer has landed, and - since the wall may not be
+      // watched while it is being built - why the answers are gathered and put up together.
       var groups = new HomeContentGroup[lists.Count];
 
       if (_client == null)
-      {
-        OnPropertyChanged(nameof(HasContent));
         return;
-      }
 
       HomeSection section = entry.Section!;
       int askedFor = -1;
 
-      // How many rows earlier lists have written. Everything is read in order and one list at a time, so a
-      // band only ever appends below the bands whose answers came before it - which is also the rule that
-      // keeps a late answer from ever standing above an earlier one.
       try
       {
         for (int i = 0; i < lists.Count; i++)
@@ -979,16 +1047,15 @@ namespace MediaPortal.Frontend.ViewModels
             continue;
 
           // The band is planned for the covers that arrived - which is known before it is built, because nothing
-          // of it goes up before it has all been read - and put on the wall when it is whole. A band laid out for
-          // six and holding two would keep the room of four empty covers standing, and the wall next to it shows
-          // that room as a gap.
+          // of it can go up before it has all been read - and a band laid out for six and holding two would keep
+          // the room of four empty covers standing, which the wall next to it shows as a gap.
           HomeContentGroup group = new HomeContentGroup(list.Heading, list.Layout, list.Width, arrived.Count);
           groups[i] = group;
-          ContentRows.Add(HomeRow.Heading(list.Heading));
+          rows.Add(HomeRow.Heading(list.Heading));
           foreach (MediaTitle title in arrived)
           {
             HomeRow row = HomeRow.For(new TitleViewModel(title, false, _client));
-            ContentRows.Add(row);
+            rows.Add(row);
             group.AddTitle(row.Title!);
             // The reference's pane is a wall of covers, and a cover arrives a moment after its name - the same
             // two beats the media grid uses, so the picture rides on the very same cached fetch.
@@ -996,28 +1063,12 @@ namespace MediaPortal.Frontend.ViewModels
               _ = PutPosterAsync(row.Title, generation);
           }
 
-          // The band goes onto the wall when it has been read whole, not when its first cover turned up. While
-          // the covers were still coming in the band could not know how many it would hold, and a band laid out
-          // for six and holding two keeps the room of four empty covers standing - which the wall next to it
-          // shows as a gap. Read whole, it knows, and it takes no more room than it covers.
-          PublishBand(group);
-
-          OnPropertyChanged(nameof(HasContent));
+          AddBand(wall, group);
         }
 
         // The list arrived without a token, so this server keeps its doors open to the room; whatever refusal
         // this screen saw before belonged to another server or to the switch before someone turned it off.
         ServerRefusesStrangers = false;
-
-        // The reference's home screen never stands on nothing: the walker is put on the first cover the moment
-        // the wall is up, which is also what picks the fanart behind the screen and the line at its bottom left.
-        if (SelectedContent == null)
-          foreach (HomeRow row in ContentRows)
-            if (row.IsTitle)
-            {
-              SelectedContent = row;
-              break;
-            }
       }
       catch (ServerApiException ex)
       {
@@ -1034,14 +1085,13 @@ namespace MediaPortal.Frontend.ViewModels
         // its name goes up with the line that explains the failure; a refusal the viewer cannot attribute
         // to anything reads as a broken screen rather than as a server asking to be signed into.
         HomeRow note = HomeRow.Note(DescribeContentFailure(ex, askedFor < 0 ? null : lists[askedFor]));
-        EnsureFailedBand(askedFor < 0 ? -1 : askedFor, lists, groups);
-        ContentRows.Add(note);
+        EnsureFailedBand(askedFor < 0 ? -1 : askedFor, lists, groups, rows);
+        rows.Add(note);
         if (askedFor >= 0)
         {
           groups[askedFor].AddNote(note);
-          PublishBand(groups[askedFor]);
+          AddBand(wall, groups[askedFor]);
         }
-        OnPropertyChanged(nameof(HasContent));
       }
       catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
       {
@@ -1052,20 +1102,30 @@ namespace MediaPortal.Frontend.ViewModels
           return;
 
         HomeRow note = HomeRow.Note("reading failed: " + ex.Message);
-        EnsureFailedBand(askedFor < 0 ? -1 : askedFor, lists, groups);
-        ContentRows.Add(note);
+        EnsureFailedBand(askedFor < 0 ? -1 : askedFor, lists, groups, rows);
+        rows.Add(note);
         if (askedFor >= 0)
           groups[askedFor].AddNote(note);
-        OnPropertyChanged(nameof(HasContent));
       }
     }
 
     /// <summary>
-    /// Puts up the band of a list whose reading failed, so the line saying so stands under the list's own
-    /// name instead of loose at the bottom of the pane. A band already standing - one whose titles arrived -
-    /// keeps its titles and merely takes the line.
+    /// Gives a band its place on the wall being read, once. The failure of a list can land on a band that another
+    /// answer already claimed, and a band standing twice is a wall with the same shelf on it twice.
     /// </summary>
-    private void EnsureFailedBand(int askedFor, IReadOnlyList<HomeContentList> lists, HomeContentGroup[] groups)
+    private static void AddBand(List<HomeContentGroup> wall, HomeContentGroup group)
+    {
+      if (!wall.Contains(group))
+        wall.Add(group);
+    }
+
+    /// <summary>
+    /// Keeps the band of a list whose reading failed, so the line saying so stands under the list's own name
+    /// instead of loose at the bottom of the pane. A band already standing - one whose titles arrived - keeps its
+    /// titles and merely takes the line.
+    /// </summary>
+    private void EnsureFailedBand(int askedFor, IReadOnlyList<HomeContentList> lists, HomeContentGroup[] groups,
+        List<HomeRow> rows)
     {
       if (askedFor < 0 || groups[askedFor] != null)
         return;
@@ -1073,17 +1133,7 @@ namespace MediaPortal.Frontend.ViewModels
       HomeContentList failed = lists[askedFor];
       HomeContentGroup group = new HomeContentGroup(failed.Heading, failed.Layout, failed.Width, 1);
       groups[askedFor] = group;
-      ContentRows.Add(HomeRow.Heading(failed.Heading));
-    }
-
-    /// <summary>
-    /// Puts a band on the wall, once. A band is published when it is known whole - after its titles, or after
-    /// the failure that ended it - and the failure can land on a band that never got published at all.
-    /// </summary>
-    private void PublishBand(HomeContentGroup group)
-    {
-      if (!ContentGroups.Contains(group))
-        ContentGroups.Add(group);
+      rows.Add(HomeRow.Heading(failed.Heading));
     }
 
     private void QueueContentForSelection(MainMenuEntry? entry)

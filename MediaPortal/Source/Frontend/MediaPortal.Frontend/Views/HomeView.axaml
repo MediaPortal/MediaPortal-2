@@ -14,8 +14,29 @@
     <Style Selector="ScrollViewer#nereusContentPane">
       <Setter Property="Transitions">
         <Transitions>
-          <DoubleTransition Property="Opacity" Duration="0:0:0.35"/>
           <VectorTransition Property="Offset" Duration="0:0:0.2"/>
+        </Transitions>
+      </Setter>
+    </Style>
+    <!-- The curve a home content wall comes up on: one wall, one picture, and the reading of the next entry's
+         wall goes up complete behind this curve rather than band by band. The way down is put on in the code
+         behind (HomeView.WALL_SINK_MS), because it is a shorter walk than the way up and a styles block can only
+         say one length. Only the wall fades; the pane around it never changes its light. -->
+    <Style Selector="ItemsControl#nereusWallStanding">
+      <Setter Property="Transitions">
+        <Transitions>
+          <DoubleTransition Property="Opacity" Duration="0:0:0.45" Easing="CubicEaseOut"/>
+        </Transitions>
+      </Setter>
+    </Style>
+    <!-- The way down, put on the wall by the code behind for as long as a change of entries is being made, and
+         taken off again on the way up so that the curve above is the one the wall normally wears. The length here
+         and HomeView.WALL_SINK_MS are the same number written down twice because a fade has to be waited for at
+         least as long as it takes. -->
+    <Style Selector="ItemsControl#nereusWallStanding.wall-sinking">
+      <Setter Property="Transitions">
+        <Transitions>
+          <DoubleTransition Property="Opacity" Duration="0:0:0.18" Easing="CubicEaseOut"/>
         </Transitions>
       </Setter>
     </Style>
@@ -322,7 +343,11 @@
                for (HomeWallHeightRatio, 0.8 of the height under Nereus), and stands it centred in that panel
                rather than hanging it under the header row the reference drew. -->
           <LayoutTransformControl Name="nereusContentWall" VerticalAlignment="Center">
-          <ItemsControl ItemsSource="{Binding ContentGroups}">
+          <!-- One wall, and only ever one: the wall the viewer is looking at. What an entry's wall is replaced
+               with is read somewhere the screen cannot see and goes up whole (HomeViewModel.ReadWallAsync), after
+               this one has been walked down to dark - two walls on the screen at once would mean drawing every
+               glass tile, shadow and cover twice, which is exactly what makes a switch stumble. -->
+          <ItemsControl Name="nereusWallStanding" ItemsSource="{Binding ContentGroups}">
             <ItemsControl.ItemsPanel>
               <ItemsPanelTemplate>
                 <StackPanel Orientation="Horizontal"/>
