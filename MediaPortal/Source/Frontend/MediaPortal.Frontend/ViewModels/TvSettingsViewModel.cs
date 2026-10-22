@@ -23,6 +23,7 @@ namespace MediaPortal.Frontend.ViewModels
   public sealed class TvSettingsViewModel : INotifyPropertyChanged
   {
     private readonly Func<TvBackendSettings, TvHeadendApiClient> _buildClient;
+    private readonly Action<Action> _marshal;
     private TvBackendSettings _settings = new TvBackendSettings();
     private string _host = "";
     private string _port = "";
@@ -51,12 +52,22 @@ namespace MediaPortal.Frontend.ViewModels
     /// in the test file instead of one on the network; a screen whose "ask it" press could only ever ask the
     /// network could not be tested at all, and the sentence it says is the whole reason it exists.
     /// </summary>
-    public TvSettingsViewModel(Func<TvBackendSettings, TvHeadendApiClient>? clientFactory = null)
+    /// <param name="clientFactory">
+    /// How to build the backend to ask. A screen under test hands in a scripted one.
+    /// </param>
+    /// <param name="marshal">
+    /// How to get the answer onto the thread the screen lives on, or null to say it where it arrives. A backend
+    /// across the network answers on a thread of its own, and the line the screen says it on belongs to the thread
+    /// that built the screen - see <c>Views/ScreenThread.cs</c>.
+    /// </param>
+    public TvSettingsViewModel(Func<TvBackendSettings, TvHeadendApiClient>? clientFactory = null,
+        Action<Action>? marshal = null)
     {
       _buildClient = clientFactory ?? delegate (TvBackendSettings settings)
       {
         return DemoTvBackend.Open(settings);
       };
+      _marshal = marshal ?? delegate (Action action) { action(); };
     }
 
     /// <summary>
@@ -408,12 +419,20 @@ namespace MediaPortal.Frontend.ViewModels
       TvBackendSettings ask = Typed();
       if (!ask.IsConfigured)
       {
-        Status = "There is nothing to ask yet - first say which machine the television comes from.";
+        _marshal(delegate
+        {
+          Status = "There is nothing to ask yet - first say which machine the television comes from.";
+        });
         return;
       }
 
-      Checking = true;
-      Status = "Asking " + ask.Describe() + "...";
+      _marshal(delegate
+      {
+        Checking = true;
+        Status = "Asking " + ask.Describe() + "...";
+      });
+
+      string said;
       try
       {
         using (TvHeadendApiClient client = _buildClient(ask))
@@ -439,19 +458,19 @@ namespace MediaPortal.Frontend.ViewModels
 
           if (channels == 0)
           {
-            Status = bouquets.Count == 0
+            said = bouquets.Count == 0
                 ? string.Format("{0} answered, but knows no television channels and no bouquets of its own. "
                     + "It has to be set up with channels before a guide can show anything.", ask.Describe())
                 : string.Format("{0} answered and has {1} bouquet(s), but no television channels are in them.",
                     ask.Describe(), bouquets.Count);
             if (radio > 0)
-              Status += string.Format(" It does have {0} radio channel(s).", radio);
+              said += string.Format(" It does have {0} radio channel(s).", radio);
           }
           else
           {
-            Status = string.Format("{0} answered. {1} television channel(s) in {2} bouquet(s)",
+            said = string.Format("{0} answered. {1} television channel(s) in {2} bouquet(s)",
                 ask.Describe(), channels, bouquets.Count);
-            Status += radio == 0
+            said += radio == 0
                 ? ", and no radio."
                 : string.Format(", and {0} radio channel(s).", radio);
 
@@ -470,27 +489,32 @@ namespace MediaPortal.Frontend.ViewModels
               extra = " The programmes did not answer: " + ex.Message;
             }
 
-            Status += now != null
+            said += now != null
                 ? string.Format(" The first channel is showing \"{0}\".", now.Title)
                 : " The first channel has nothing in the programme table right now.";
             if (extra.Length > 0)
-              Status += extra;
+              said += extra;
           }
         }
       }
       catch (TvBackendException ex)
       {
-        Status = ex.Message + (ex.NeedsLogin
+        said = ex.Message + (ex.NeedsLogin
             ? " Fill the username and password below, then ask again." : "");
       }
       catch (Exception ex)
       {
-        Status = "Asking " + ask.Describe() + " went wrong: " + ex.Message;
+        said = "Asking " + ask.Describe() + " went wrong: " + ex.Message;
       }
-      finally
+
+      // The sentence and the button's state are the screen's, and an answer from the network arrives on a thread
+      // of its own; saying it where it arrived is how a screen being answered from the other side of the house
+      // threw "a different thread owns it" instead of telling the viewer what its backend said.
+      _marshal(delegate
       {
+        Status = said;
         Checking = false;
-      }
+      });
     }
 
     /// <summary>A press for the button on the screen: it says what it does when it finishes.</summary>

@@ -46,7 +46,9 @@ namespace MediaPortal.Frontend.Views
     /// </summary>
     public TvSettingsView(TvBackendSettings? settings)
     {
-      TvSettingsViewModel model = new TvSettingsViewModel();
+      // The screen hands its model the way onto this thread: what "ask it" brings back arrives on a thread of the
+      // network stack's own, and the sentence it is said in belongs to the screen.
+      TvSettingsViewModel model = new TvSettingsViewModel(null, ScreenThread.Run);
       _model = model;
       DataContext = model;
       InitializeComponent();

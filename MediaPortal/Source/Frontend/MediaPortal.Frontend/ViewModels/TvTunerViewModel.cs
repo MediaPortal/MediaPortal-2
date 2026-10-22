@@ -141,6 +141,7 @@ namespace MediaPortal.Frontend.ViewModels
     private readonly TvMediaType _kind;
     private readonly Func<TvBackendSettings> _settingsProvider;
     private readonly Func<TvBackendSettings, TvHeadendApiClient> _buildClient;
+    private readonly Action<Action> _marshal;
     private CancellationTokenSource? _inFlight;
     private int _generation;
     private bool _disposed;
@@ -151,8 +152,16 @@ namespace MediaPortal.Frontend.ViewModels
     private string _digits = "";
     private string _status = "";
 
+    /// <param name="kind">Whether this is the television screen or the radio one.</param>
+    /// <param name="settingsProvider">Where the backend's address and the zap timeout come from.</param>
+    /// <param name="clientFactory">How to build the backend to ask. A screen under test hands in a scripted one.</param>
+    /// <param name="marshal">
+    /// How to get an answer onto the thread the screen lives on, or null to apply it where it arrives. A backend
+    /// across the network answers on a thread of its own, and the channel list a screen is bound to belongs to the
+    /// thread that made it, so a screen with controls on it has to hand this over - see <c>Views/ScreenThread.cs</c>.
+    /// </param>
     public TvTunerViewModel(TvMediaType kind, Func<TvBackendSettings>? settingsProvider = null,
-        Func<TvBackendSettings, TvHeadendApiClient>? clientFactory = null)
+        Func<TvBackendSettings, TvHeadendApiClient>? clientFactory = null, Action<Action>? marshal = null)
     {
       _kind = kind;
       _settingsProvider = settingsProvider ?? delegate { return TvBackendSettings.Load(null, out _); };
@@ -160,6 +169,7 @@ namespace MediaPortal.Frontend.ViewModels
       {
         return DemoTvBackend.Open(settings);
       };
+      _marshal = marshal ?? delegate (Action action) { action(); };
     }
 
     /// <summary>
@@ -605,12 +615,15 @@ namespace MediaPortal.Frontend.ViewModels
       TvBackendSettings settings = _settingsProvider();
       if (!settings.IsConfigured)
       {
-        Channels.Clear();
-        WatchRows.Clear();
-        Groups.Clear();
-        Status = "No TV backend has been written down yet. Say where the "
-            + (_kind == TvMediaType.Radio ? "radio" : "television") + " comes from on the " + Heading
-            + " settings, then read this again.";
+        _marshal(delegate
+        {
+          Channels.Clear();
+          WatchRows.Clear();
+          Groups.Clear();
+          Status = "No TV backend has been written down yet. Say where the "
+              + (_kind == TvMediaType.Radio ? "radio" : "television") + " comes from on the " + Heading
+              + " settings, then read this again.";
+        });
         return;
       }
 
@@ -669,18 +682,37 @@ namespace MediaPortal.Frontend.ViewModels
             List<TvChannelGroup> ofThisKind = groups
                 .Where(g => !LooksWrongKind(g.Name) && !askWith.IsHiddenGroup(g.Name))
                 .ToList();
-            Groups.Clear();
-            foreach (TvChannelGroup group in ofThisKind)
-              Groups.Add(group);
 
-            if (Groups.Count == 0)
+            // Which bouquet to open on is decided from what the backend said rather than from what is on the
+            // screen, and decided here rather than when the screen hears about it: the channels of that bouquet are
+            // asked for next, and an answer from a machine in another room is still on its own thread at this
+            // moment, so waiting for the screen to have been told first would walk on with no bouquet at all.
+            TvChannelGroup? picked = ofThisKind.Count == 0
+                ? null
+                : ofThisKind[PreferredGroupIndex(ofThisKind)];
+            if (mine == _generation)
+              _selectedGroup = picked;
+
+            _marshal(delegate
             {
-              Status = askWith.Describe() + " answered but offered no channel groups.";
-              return;
-            }
+              if (mine != _generation)
+                return;
 
-            _selectedGroup = Groups[PreferredGroupIndex()];
-            Raise(nameof(SelectedGroup));
+              Groups.Clear();
+              foreach (TvChannelGroup group in ofThisKind)
+                Groups.Add(group);
+
+              if (picked == null)
+              {
+                Status = askWith.Describe() + " answered but offered no channel groups.";
+                return;
+              }
+
+              Raise(nameof(SelectedGroup));
+            });
+
+            if (mine != _generation || picked == null)
+              return;
           }
 
           IReadOnlyList<TvChannel> everyChannel = await client.GetChannelsAsync(token.Token)
@@ -688,22 +720,34 @@ namespace MediaPortal.Frontend.ViewModels
           if (mine != _generation)
             return;
 
-          Channels.Clear();
-          foreach (TvChannel channel in OfThisBouquet(everyChannel))
-            Channels.Add(channel);
+          // The list, the sentence about it, and the picture the viewer asked for when the settings say to give
+          // one all happen together, on the thread the screen is on: a viewer walking in halfway would otherwise
+          // find a bouquet with no channels in it, or a screen telling them about a channel it has not shown yet.
+          _marshal(delegate
+          {
+            if (mine != _generation)
+              return;
 
-          Status = Channels.Count.ToString(CultureInfo.InvariantCulture) + " channels in "
-              + (_selectedGroup == null ? Heading : "'" + _selectedGroup.Name + "'");
-          if (askWith.DemoData)
-            Status += " (" + DemoTvBackend.NOTICE + ")";
+            Channels.Clear();
+            foreach (TvChannel channel in OfThisBouquet(everyChannel))
+              Channels.Add(channel);
 
-          // "Automatically start TV" - the reference's <c>AutoStartTV</c>, which tuned the channel its navigation
-          // stood on the moment its television home opened with nothing else playing
-          // (<c>Models/SlimTvClientModel.cs:553-565</c>). That home is this screen here, so a viewer who pressed
-          // their way to Live TV gets a picture rather than a dark rectangle and an invitation to zap. Whoever
-          // already named a channel - out of a guide, say - wins: this only fires while the screen is still dark.
-          if (mine == _generation && Tuned == null && Channels.Count > 0 && askWith.AutoStartTV)
-            Tune(Channels[0]);
+            Status = Channels.Count.ToString(CultureInfo.InvariantCulture) + " channels in "
+                + (_selectedGroup == null ? Heading : "'" + _selectedGroup.Name + "'");
+            if (askWith.DemoData)
+              Status += " (" + DemoTvBackend.NOTICE + ")";
+
+            // "Automatically start TV" - the reference's <c>AutoStartTV</c>, which tuned the channel its navigation
+            // stood on the moment its television home opened with nothing else playing
+            // (<c>Models/SlimTvClientModel.cs:553-565</c>). That home is this screen here, so a viewer who pressed
+            // their way to Live TV gets a picture rather than a dark rectangle and an invitation to zap. Whoever
+            // already named a channel - out of a guide, say - wins: this only fires while the screen is still dark.
+            if (Tuned == null && Channels.Count > 0 && askWith.AutoStartTV)
+              Tune(Channels[0]);
+          });
+
+          if (mine != _generation)
+            return;
 
           await FillWatchRowsAsync(client, token.Token, mine).ConfigureAwait(false);
         }
@@ -714,7 +758,7 @@ namespace MediaPortal.Frontend.ViewModels
       catch (TvBackendException ex)
       {
         if (mine == _generation)
-          Status = ex.Message;
+          _marshal(delegate { Status = ex.Message; });
       }
       finally
       {
@@ -745,7 +789,7 @@ namespace MediaPortal.Frontend.ViewModels
       {
         // A zap list without programme data is still a zap list, and the rows say what the reference's rows said.
         if (mine == _generation)
-          Status = Status + " - and no programme data: " + ex.Message;
+          _marshal(delegate { Status = Status + " - and no programme data: " + ex.Message; });
         programs = new List<TvProgram>();
       }
 
@@ -755,15 +799,21 @@ namespace MediaPortal.Frontend.ViewModels
       ILookup<string, TvProgram> byChannel = programs.ToLookup(p => (p.ChannelId ?? "").Trim(),
           StringComparer.OrdinalIgnoreCase);
 
-      WatchRows.Clear();
-      foreach (TvChannel channel in Channels)
+      _marshal(delegate
       {
-        List<TvProgram> here = byChannel[channel.Id].Where(p => p.Stop > from).OrderBy(p => p.Start).ToList();
-        TvProgram? now = here.FirstOrDefault(p => p.IsOnAt(from));
-        TvProgram? next = here.FirstOrDefault(p => p.Start > from);
-        WatchRows.Add(new TvWatchRow(channel, now, next));
-      }
-      Raise(nameof(WatchRows));
+        if (mine != _generation)
+          return;
+
+        WatchRows.Clear();
+        foreach (TvChannel channel in Channels)
+        {
+          List<TvProgram> here = byChannel[channel.Id].Where(p => p.Stop > from).OrderBy(p => p.Start).ToList();
+          TvProgram? now = here.FirstOrDefault(p => p.IsOnAt(from));
+          TvProgram? next = here.FirstOrDefault(p => p.Start > from);
+          WatchRows.Add(new TvWatchRow(channel, now, next));
+        }
+        Raise(nameof(WatchRows));
+      });
     }
 
     /// <summary>Asks what the tuned channel is showing, which is what the strip under the picture says.</summary>
@@ -790,10 +840,16 @@ namespace MediaPortal.Frontend.ViewModels
           if (mine != _generation)
             return;
 
-          Running = on;
-          Status = on.HasAnything
-              ? ChannelSays + " - " + on.NowTitle
-              : ChannelSays + ", with no programme data about it";
+          _marshal(delegate
+          {
+            if (mine != _generation)
+              return;
+
+            Running = on;
+            Status = on.HasAnything
+                ? ChannelSays + " - " + on.NowTitle
+                : ChannelSays + ", with no programme data about it";
+          });
         }
       }
       catch (OperationCanceledException)
@@ -805,8 +861,11 @@ namespace MediaPortal.Frontend.ViewModels
         // saying what the reference's strip said when there was nothing to say, and says what was refused.
         if (mine == _generation)
         {
-          Running = new TvNowAndNext(null, null);
-          Status = ChannelSays + " - no programme data (" + ex.Message + ")";
+          _marshal(delegate
+          {
+            Running = new TvNowAndNext(null, null);
+            Status = ChannelSays + " - no programme data (" + ex.Message + ")";
+          });
         }
       }
     }
@@ -839,15 +898,15 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>Which bouquet to open on - the same rule the guide follows, for the same reason.</summary>
-    private int PreferredGroupIndex()
+    private int PreferredGroupIndex(List<TvChannelGroup> candidates)
     {
       if (_kind != TvMediaType.Radio)
         return 0;
 
       string[] hints = { "radio", "audio", "hören", "hoeren" };
-      for (int i = 0; i < Groups.Count; i++)
+      for (int i = 0; i < candidates.Count; i++)
       {
-        string said = (Groups[i].Name ?? "").ToLowerInvariant();
+        string said = (candidates[i].Name ?? "").ToLowerInvariant();
         if (hints.Any(h => said.Contains(h, StringComparison.Ordinal)))
           return i;
       }

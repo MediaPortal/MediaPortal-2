@@ -4351,6 +4351,61 @@ invented, a radio screen offering the four radio channels, the timers screen hav
 surviving the file and the settings screen's own "ask it" button reporting 12 television and 4 radio channels out of
 nobody. 187 television tests pass; the whole front end suite was run again after this part.
 
+### bs. The answer is applied where the screen lives: the television screens stop dying on their own answers
+
+The demo backend did what it was built to do and, in doing it, found a bug that no test could see: the guide drew
+its evening as a narrow band pressed against the channel headers, said nothing for the rest of the window, and put
+"the calling thread cannot access this object because a different thread owns it" where it normally counts
+programmes. Pressing Live TV or Live Radio was worse - it closed the front end.
+
+Both are one bug, and the demo found it by being slow in the way a real box is slow. Every television screen asks a
+machine in another room a question. `TvHeadendApiClient` awaits with `ConfigureAwait(false)`, so the code waiting
+for the answer wakes up on a thread of the .NET thread pool - and the television models then went on to fill the
+collections and say the sentences that a screen is bound to. Avalonia keeps those two threads apart: the rows
+belong to the thread that made the grid, and touching them from anywhere else throws. Where a model catches
+everything the throw became a status line and the rebuild was left half done, which is the collapsed evening; the
+tuner catches only the backend's own complaints, so the throw walked out of a fire-and-forget reload and ended the
+process.
+
+This was invisible to the suite because every scripted backend in it answers *while the question is still being
+asked*: a task that is already finished runs its waiter on the thread that asked, which in a screen test is the
+thread the screen lives on. The whole suite proved the one case that cannot go wrong. `TestTvScreenThreading`
+answers 40 ms later, from a timer, which is the case a television in another room always is.
+
+**The fix follows the pattern the front end already had.** `NowPlayingViewModel` has taken an `Action<Action>`
+"way onto the screen's thread" since it was written, and the application hands it
+`action => Dispatcher.UIThread.Post(action)`. The four television models now take the same parameter, and
+`Views/ScreenThread.cs` is the one implementation of it the screens hand over: if this is already the thread the
+screen lives on, do the work at once, else post it. A model built without one - which is every test of a model on
+its own - applies its answer where it arrives, exactly as before, so not one existing test had to learn about
+dispatchers and none of them got slower. `ConfigureAwait(false)` stayed where it is: an answer from the network
+should not be held up waiting for a screen.
+
+Two decisions in it are worth keeping:
+
+- **What is deferred and what is not.** The screen's own state goes through the handover - the rows, the hours, the
+  bouquets, the entries, the status lines, `IsLoading`, `Checking`, and the events that open and close the programme
+  dialog. What the *next question* depends on is decided immediately: which bouquet a guide or a tuner opens on is
+  now worked out from what the backend answered rather than from the screen's list of them, and the picked bouquet is
+  assigned on the spot, because waiting for the screen to have been told first would have the channels asked for
+  while the model still believes none is picked. That was the first test to fail, and it failed in the right direction.
+- **Nothing reaches for `Dispatcher.UIThread` inside a model.** The models stay free of Avalonia; only a view or the
+  application, which is standing on the screen's thread already, can name it. `ScreenThread.Run` runs work inline
+  when it is already there, so a screen is never left showing a question it has answered.
+
+The settings screen went the same way, where the bug was smaller but the same: what its "ask it" press found, and
+the button's own state afterwards, were both being said from the network's thread.
+
+6 new tests, and each of them says which of the two cases it is about: the guide, the tuner and the timers screen
+are stood on a real window, reloaded against a backend that answers from elsewhere, and then asked what they now
+say - the guide's grid full and its programmes standing in more than one column (the collapse is asserted against
+by name), the tuner's channels present and its reload throwing nothing at all, the timers counting their rows
+instead of reporting itself. The other three pin the arrangement itself: a guide handed a way onto the screen's
+thread that has not been walked yet has touched nothing, a model on its own still applies its answer where it
+arrives, and the settings sentence about a backend arrives through the handover and not before it. 193 television
+tests pass; the whole front end suite was run again after this part and still carries only its two known
+baseline failures.
+
 ## What cannot be verified without the user
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library
 import. These need hardware and judgement that are not in this environment, and they are batched into

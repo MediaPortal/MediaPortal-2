@@ -187,6 +187,7 @@ namespace MediaPortal.Frontend.ViewModels
 
     private readonly Func<TvBackendSettings> _settingsProvider;
     private readonly Func<TvBackendSettings, TvHeadendApiClient> _buildClient;
+    private readonly Action<Action> _marshal;
     private readonly TvMediaType _kind;
     private CancellationTokenSource? _inFlight;
     private int _generation;
@@ -213,8 +214,16 @@ namespace MediaPortal.Frontend.ViewModels
     /// Builds the guide. The settings and the client are handed over as functions because a guide left open
     /// while somebody changes the backend's address must not keep asking the machine it stopped talking to.
     /// </summary>
+    /// <param name="kind">Whether this is the television grid or the radio one.</param>
+    /// <param name="settingsProvider">Where the grid's shape and the backend's address come from.</param>
+    /// <param name="clientFactory">How to build the backend to ask. A grid under test hands in a scripted one.</param>
+    /// <param name="marshal">
+    /// How to get an answer onto the thread the screen lives on, or null to apply it where it arrives. A backend
+    /// across the network answers on a thread of its own, and the rows a screen is bound to belong to the thread
+    /// that made them, so a grid with controls on it has to hand this over - see <c>Views/ScreenThread.cs</c>.
+    /// </param>
     public TvGuideViewModel(TvMediaType kind, Func<TvBackendSettings>? settingsProvider = null,
-        Func<TvBackendSettings, TvHeadendApiClient>? clientFactory = null)
+        Func<TvBackendSettings, TvHeadendApiClient>? clientFactory = null, Action<Action>? marshal = null)
     {
       _kind = kind;
       _settingsProvider = settingsProvider ?? delegate { return TvBackendSettings.Load(null, out _); };
@@ -222,6 +231,7 @@ namespace MediaPortal.Frontend.ViewModels
       {
         return DemoTvBackend.Open(settings);
       };
+      _marshal = marshal ?? delegate (Action action) { action(); };
 
       // The shape of the grid comes from the settings before the first window is worked out, because the width of a
       // column is what a window's start is floored to.
@@ -545,12 +555,17 @@ namespace MediaPortal.Frontend.ViewModels
       TvBackendSettings settings = _settingsProvider();
       if (!settings.IsConfigured)
       {
-        Rows.Clear();
-        Hours.Clear();
-        Groups.Clear();
-        SelectedGroup = null;
-        Status = "No TV backend has been written down yet. Say where the television comes from on the "
-            + "television settings, then read this again.";
+        // Cleared through the same door an answer goes through, so that a reload started from anywhere but the
+        // screen's own thread cannot empty a grid somebody is looking at from the wrong thread.
+        _marshal(delegate
+        {
+          Rows.Clear();
+          Hours.Clear();
+          Groups.Clear();
+          SelectedGroup = null;
+          Status = "No TV backend has been written down yet. Say where the television comes from on the "
+              + "television settings, then read this again.";
+        });
         return;
       }
 
@@ -742,15 +757,17 @@ namespace MediaPortal.Frontend.ViewModels
 
       if (!askWith.IsConfigured)
       {
-        Status = "No TV backend has been written down yet.";
+        _marshal(delegate { Status = "No TV backend has been written down yet."; });
         return;
       }
 
       // The grid follows its viewer. A guide that is already open can be sitting on the screen while somebody
       // changes the settings screen, and the reference read its settings once per grid - never per programme - so
       // this is the same: the numbers are picked up when a guide is (re)built, and what is on the screen while it
-      // is being looked at does not change shape under the viewer's hand.
-      FollowSettings();
+      // is being looked at does not change shape under the viewer's hand. Handed over rather than done here,
+      // because this is also the first thing that happens after a recording plan has been asked for, and by then
+      // the work is on the thread the answer arrived on.
+      _marshal(FollowSettings);
 
       if (group == null)
       {
@@ -767,9 +784,12 @@ namespace MediaPortal.Frontend.ViewModels
           return;
       }
 
-      IsLoading = true;
-      Status = "Reading " + group.Name + "...";
-      BuildHours();
+      _marshal(delegate
+      {
+        IsLoading = true;
+        Status = "Reading " + group.Name + "...";
+        BuildHours();
+      });
 
       try
       {
@@ -795,16 +815,29 @@ namespace MediaPortal.Frontend.ViewModels
           if (mine != _generation)
             return;
 
-          string? rowsSaid = BuildRows(channels, programs);
-          Raise(nameof(Rows));
-          Status = programsMissing ?? rowsSaid
-              ?? string.Format("{0} channels, {1} programmes between {2}", Rows.Count, programs.Count, WindowText);
+          // The whole evening is put on the screen in one go and on the thread the screen lives on. Half an hour
+          // of waiting for an answer ends on a thread of the thread pool, and the rows a grid is bound to belong
+          // to the thread that built the grid: filling them where the answer arrived is how the guide threw
+          // "a different thread owns it" across its own status line and drew the evening collapsed against the
+          // headers. What is drawn and what the screen says about it also have to be the same moment, or the
+          // bottom line counts programmes the grid has not been given yet.
+          _marshal(delegate
+          {
+            if (mine != _generation)
+              return;
 
-          // A guide full of invented programmes has to say so. The channel names are made up well enough to pass
-          // for a real bouquet at a glance, and a viewer who later wonders why their television never shows
-          // "Aurora Krankenhaus" is a viewer who was never told.
-          if (askWith.DemoData && !string.IsNullOrEmpty(Status))
-            Status += " (" + DemoTvBackend.NOTICE + ")";
+            string? rowsSaid = BuildRows(channels, programs);
+            Raise(nameof(Rows));
+            Status = programsMissing ?? rowsSaid
+                ?? string.Format("{0} channels, {1} programmes between {2}", Rows.Count, programs.Count,
+                    WindowText);
+
+            // A guide full of invented programmes has to say so. The channel names are made up well enough to pass
+            // for a real bouquet at a glance, and a viewer who later wonders why their television never shows
+            // "Aurora Krankenhaus" is a viewer who was never told.
+            if (askWith.DemoData && !string.IsNullOrEmpty(Status))
+              Status += " (" + DemoTvBackend.NOTICE + ")";
+          });
         }
       }
       catch (OperationCanceledException)
@@ -814,17 +847,17 @@ namespace MediaPortal.Frontend.ViewModels
       catch (TvBackendException ex)
       {
         if (mine == _generation)
-          Status = ex.Message;
+          _marshal(delegate { Status = ex.Message; });
       }
       catch (Exception ex)
       {
         if (mine == _generation)
-          Status = "The programme guide went wrong: " + ex.Message;
+          _marshal(delegate { Status = "The programme guide went wrong: " + ex.Message; });
       }
       finally
       {
         if (mine == _generation)
-          IsLoading = false;
+          _marshal(delegate { IsLoading = false; });
         if (ReferenceEquals(_inFlight, token))
           token.Dispose();
       }
@@ -838,8 +871,11 @@ namespace MediaPortal.Frontend.ViewModels
     /// </summary>
     private async Task<bool> LoadGroupsAsync(TvBackendSettings settings, int mine, CancellationToken cancellation)
     {
-      IsLoading = true;
-      Status = "Asking " + settings.Describe() + " which channel groups it has...";
+      _marshal(delegate
+      {
+        IsLoading = true;
+        Status = "Asking " + settings.Describe() + " which channel groups it has...";
+      });
       try
       {
         using (TvHeadendApiClient client = _buildClient(settings))
@@ -852,27 +888,43 @@ namespace MediaPortal.Frontend.ViewModels
 
           List<TvChannelGroup> ofThisKind = groups.Where(g => !LooksWrongKind(g.Name) && !HiddenGroup(g.Name))
               .ToList();
-          Groups.Clear();
-          foreach (TvChannelGroup group in ofThisKind)
-            Groups.Add(group);
 
-          if (Groups.Count == 0)
+          // Which bouquet to open on is worked out from what the backend said rather than from what is on the
+          // screen, because this answer arrives on a thread of the thread pool and it is the screen's own list of
+          // bouquets that holds the answer.
+          TvChannelGroup? picked = ofThisKind.Count == 0
+              ? null
+              : ofThisKind[PreferredGroupIndex(ofThisKind)];
+          if (mine == _generation)
+            _selectedGroup = picked;
+
+          _marshal(delegate
           {
-            Rows.Clear();
-            Hours.Clear();
-            Status = string.Format("{0} answered but offered no channel groups, so there is no guide to read. "
-                + "The groups are made in the backend's own configuration.", settings.Describe());
-            return false;
-          }
+            if (mine != _generation)
+              return;
+
+            Groups.Clear();
+            foreach (TvChannelGroup group in ofThisKind)
+              Groups.Add(group);
+
+            if (picked == null)
+            {
+              Rows.Clear();
+              Hours.Clear();
+              Status = string.Format("{0} answered but offered no channel groups, so there is no guide to read. "
+                  + "The groups are made in the backend's own configuration.", settings.Describe());
+              return;
+            }
+
+            Raise(nameof(SelectedGroup));
+          });
 
           // The bouquet a guide opens on is the one whose own name says what the guide is for, when one of them
           // does. Whoever opens the radio guide wants the radio stations, not an empty grid made of whichever
           // television bouquet the backend happens to list first. The picker is assigned here rather than gone
           // through, because going through it would start the next question on its own and this one has to
           // answer with the finished grid.
-          _selectedGroup = Groups[PreferredGroupIndex()];
-          Raise(nameof(SelectedGroup));
-          return true;
+          return picked != null && mine == _generation;
         }
       }
       catch (OperationCanceledException)
@@ -882,13 +934,13 @@ namespace MediaPortal.Frontend.ViewModels
       catch (TvBackendException ex)
       {
         if (mine == _generation)
-          Status = ex.Message;
+          _marshal(delegate { Status = ex.Message; });
         return false;
       }
       finally
       {
         if (mine == _generation)
-          IsLoading = false;
+          _marshal(delegate { IsLoading = false; });
       }
     }
 
@@ -899,15 +951,15 @@ namespace MediaPortal.Frontend.ViewModels
     /// somebody their radio as an empty evening. Names are the only thing a backend says about a bouquet besides
     /// what is in it, and guessing wrong costs a viewer one press of the bouquet button.
     /// </summary>
-    private int PreferredGroupIndex()
+    private int PreferredGroupIndex(List<TvChannelGroup> candidates)
     {
       if (_kind != TvMediaType.Radio)
         return 0;
 
       string[] hints = { "radio", "audio", "hören", "hoeren" };
-      for (int i = 0; i < Groups.Count; i++)
+      for (int i = 0; i < candidates.Count; i++)
       {
-        string said = (Groups[i].Name ?? "").ToLowerInvariant();
+        string said = (candidates[i].Name ?? "").ToLowerInvariant();
         if (hints.Any(h => said.Contains(h, StringComparison.Ordinal)))
           return i;
       }
@@ -1180,22 +1232,26 @@ namespace MediaPortal.Frontend.ViewModels
       _actionsAbout = block;
       ProgramActions.Clear();
 
-      // Back on the screen's thread for what follows, the way the settings screens do it: the list and the events
-      // that open and close the dialog are what a screen is built of, and a question about tomorrow's evening is not
-      // something a screen wants answered from a pool thread.
-      foreach (TvProgramAction action in await ProgramActionsForAsync(block.Program, moment ?? DateTimeOffset.Now)
-          .ConfigureAwait(true))
-      {
-        ProgramActions.Add(action);
-      }
+      // The answers are collected off the screen's thread - a question about tomorrow's evening is nothing a
+      // screen wants to be held up for - and put up through the way onto the screen's thread, because the list and
+      // the events that open and close the dialog are what a screen is built of.
+      IReadOnlyList<TvProgramAction> answers = await ProgramActionsForAsync(block.Program,
+          moment ?? DateTimeOffset.Now).ConfigureAwait(false);
 
       if (_disposed)
         return;
 
-      Raise(nameof(ActionsAbout));
-      Raise(nameof(ActionsOpen));
-      Raise(nameof(ActionsWords));
-      ActionsRequested?.Invoke();
+      _marshal(delegate
+      {
+        ProgramActions.Clear();
+        foreach (TvProgramAction action in answers)
+          ProgramActions.Add(action);
+
+        Raise(nameof(ActionsAbout));
+        Raise(nameof(ActionsOpen));
+        Raise(nameof(ActionsWords));
+        ActionsRequested?.Invoke();
+      });
     }
 
     /// <summary>Takes the dialog away, which the screen answers by stepping off its own stop.</summary>
@@ -1379,10 +1435,13 @@ namespace MediaPortal.Frontend.ViewModels
 
       if (!_disposed)
       {
-        Status = said;
-        // The block the grid was redrawn under, so that the mark on it says what just happened.
-        _selectedBlock = FindAgain(about);
-        Raise(nameof(SelectedBlock));
+        _marshal(delegate
+        {
+          Status = said;
+          // The block the grid was redrawn under, so that the mark on it says what just happened.
+          _selectedBlock = FindAgain(about);
+          Raise(nameof(SelectedBlock));
+        });
       }
 
       return made;

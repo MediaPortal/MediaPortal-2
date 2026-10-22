@@ -157,6 +157,7 @@ namespace MediaPortal.Frontend.ViewModels
   {
     private readonly Func<TvBackendSettings> _settingsProvider;
     private readonly Func<TvBackendSettings, TvHeadendApiClient> _buildClient;
+    private readonly Action<Action> _marshal;
     private CancellationTokenSource? _inFlight;
     private int _generation;
     private bool _disposed;
@@ -178,14 +179,20 @@ namespace MediaPortal.Frontend.ViewModels
     /// tile for each, and the reference had one screen for each, so the two tiles open the same screen turned to
     /// the table each of them means.
     /// </param>
+    /// <param name="marshal">
+    /// How to get an answer onto the thread the screen lives on, or null to apply it where it arrives. A backend
+    /// across the network answers on a thread of its own, and the rows a screen is bound to belong to the thread
+    /// that made them, so a screen with controls on it has to hand this over - see <c>Views/ScreenThread.cs</c>.
+    /// </param>
     public TvSchedulesViewModel(bool finishedFirst = false, Func<TvBackendSettings>? settingsProvider = null,
-        Func<TvBackendSettings, TvHeadendApiClient>? clientFactory = null)
+        Func<TvBackendSettings, TvHeadendApiClient>? clientFactory = null, Action<Action>? marshal = null)
     {
       _settingsProvider = settingsProvider ?? delegate { return TvBackendSettings.Load(null, out _); };
       _buildClient = clientFactory ?? delegate (TvBackendSettings settings)
       {
         return DemoTvBackend.Open(settings);
       };
+      _marshal = marshal ?? delegate (Action action) { action(); };
 
       Tables.Add(new TvTableChoice("Planned", TvRecordingTable.Upcoming));
       Tables.Add(new TvTableChoice("Recorded", TvRecordingTable.Finished));
@@ -494,14 +501,20 @@ namespace MediaPortal.Frontend.ViewModels
 
       if (!settings.IsConfigured)
       {
-        Status = "No TV backend has been written down yet.";
-        Entries.Clear();
-        SelectedRow = null;
+        _marshal(delegate
+        {
+          Status = "No TV backend has been written down yet.";
+          Entries.Clear();
+          SelectedRow = null;
+        });
         return;
       }
 
-      IsLoading = true;
-      Status = "Reading " + table.Word.ToLowerInvariant() + " recordings...";
+      _marshal(delegate
+      {
+        IsLoading = true;
+        Status = "Reading " + table.Word.ToLowerInvariant() + " recordings...";
+      });
 
       try
       {
@@ -513,30 +526,38 @@ namespace MediaPortal.Frontend.ViewModels
           if (mine != _generation || _disposed)
             return;
 
-          TvScheduleRow? wasPicked = SelectedRow;
-          Entries.Clear();
-          foreach (TvRecording entry in found)
-            Entries.Add(new TvScheduleRow(entry));
-
-          // The same entry is stood on again if it is still there, which it usually is - a screen that jumped the
-          // selection back to the top every time it read the table over could not be read while a recording ended.
-          TvScheduleRow? again = null;
-          if (wasPicked != null)
+          // The table is filled on the thread the screen made it on, in one go: an answer from a box in another
+          // room arrives on a thread of the thread pool, and the rows belong to the screen's own thread.
+          _marshal(delegate
           {
-            foreach (TvScheduleRow candidate in Entries)
+            if (mine != _generation || _disposed)
+              return;
+
+            TvScheduleRow? wasPicked = SelectedRow;
+            Entries.Clear();
+            foreach (TvRecording entry in found)
+              Entries.Add(new TvScheduleRow(entry));
+
+            // The same entry is stood on again if it is still there, which it usually is - a screen that jumped the
+            // selection back to the top every time it read the table over could not be read while a recording ended.
+            TvScheduleRow? again = null;
+            if (wasPicked != null)
             {
-              if (candidate.Recording.Uuid == wasPicked.Recording.Uuid)
+              foreach (TvScheduleRow candidate in Entries)
               {
-                again = candidate;
-                break;
+                if (candidate.Recording.Uuid == wasPicked.Recording.Uuid)
+                {
+                  again = candidate;
+                  break;
+                }
               }
             }
-          }
 
-          SelectedRow = again ?? (Entries.Count > 0 ? Entries[0] : null);
-          Status = Entries.Count == 0
-              ? "Nothing is " + (table.Table == TvRecordingTable.Finished ? "recorded" : "planned") + " yet."
-              : Entries.Count + (Entries.Count == 1 ? " entry." : " entries.");
+            SelectedRow = again ?? (Entries.Count > 0 ? Entries[0] : null);
+            Status = Entries.Count == 0
+                ? "Nothing is " + (table.Table == TvRecordingTable.Finished ? "recorded" : "planned") + " yet."
+                : Entries.Count + (Entries.Count == 1 ? " entry." : " entries.");
+          });
         }
       }
       catch (OperationCanceledException)
@@ -546,19 +567,22 @@ namespace MediaPortal.Frontend.ViewModels
       catch (TvBackendException ex)
       {
         if (mine == _generation && !_disposed)
-          Status = "The backend would not answer: " + ex.Message;
+          _marshal(delegate { Status = "The backend would not answer: " + ex.Message; });
       }
       catch (Exception ex)
       {
         if (mine == _generation && !_disposed)
-          Status = "Reading the recordings went wrong: " + ex.Message;
+          _marshal(delegate { Status = "Reading the recordings went wrong: " + ex.Message; });
       }
       finally
       {
         if (mine == _generation && !_disposed)
         {
-          IsLoading = false;
-          Raise(nameof(Heading));
+          _marshal(delegate
+          {
+            IsLoading = false;
+            Raise(nameof(Heading));
+          });
         }
 
         token.Dispose();
@@ -625,7 +649,7 @@ namespace MediaPortal.Frontend.ViewModels
 
       // Said after the read, because the read has a line of its own and the viewer's question was not about it.
       if (!_disposed)
-        Status = said;
+        _marshal(delegate { Status = said; });
     }
 
     private void Cancel()

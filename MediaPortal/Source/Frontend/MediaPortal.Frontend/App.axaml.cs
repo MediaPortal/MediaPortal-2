@@ -792,7 +792,8 @@ namespace MediaPortal.Frontend
     /// </summary>
     private ViewModels.TvTunerViewModel StartTuner(Api.TvMediaType kind)
     {
-      ViewModels.TvTunerViewModel tuner = new ViewModels.TvTunerViewModel(kind);
+      ViewModels.TvTunerViewModel tuner = new ViewModels.TvTunerViewModel(kind, null, null,
+          Views.ScreenThread.Run);
 
       tuner.PlayRequested += delegate (Api.TvChannel channel, Player.MediaLocation location)
       {
@@ -1206,7 +1207,7 @@ namespace MediaPortal.Frontend
         TvMediaType kind = screenKey.Equals("radio", StringComparison.OrdinalIgnoreCase)
             ? TvMediaType.Radio
             : TvMediaType.Television;
-        TvGuideViewModel guide = new TvGuideViewModel(kind);
+        TvGuideViewModel guide = new TvGuideViewModel(kind, null, null, Views.ScreenThread.Run);
         guide.WatchRequested += delegate (TvChannel channel) { WatchChannel(kind, channel); };
         _ = guide.ReloadAsync();
         return new Workflow.WorkflowFrame(kind == TvMediaType.Radio ? "radioguide" : "tvguide",
@@ -1221,7 +1222,7 @@ namespace MediaPortal.Frontend
         // TVHeadend answers both out of one table, so both tiles open one screen turned to the table each of them
         // means; the difference a viewer sees is which of the three tables is named at the top.
         bool files = screenKey.Equals("recordings", StringComparison.OrdinalIgnoreCase);
-        TvSchedulesViewModel schedules = new TvSchedulesViewModel(finishedFirst: files);
+        TvSchedulesViewModel schedules = new TvSchedulesViewModel(finishedFirst: files, marshal: Views.ScreenThread.Run);
         _ = schedules.ReloadAsync();
         return new Workflow.WorkflowFrame(files ? "recordings" : "schedules",
             files ? "Recordings" : "Schedules", schedules);
