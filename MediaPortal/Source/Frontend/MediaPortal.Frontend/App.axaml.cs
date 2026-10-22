@@ -918,7 +918,12 @@ namespace MediaPortal.Frontend
       }
 
       if (state == "tvguide" || state == "radioguide")
-        return new TvGuideView((TvGuideViewModel)frame.ViewModel);
+        return new TvGuideView((TvGuideViewModel)frame.ViewModel, _workflow);
+
+      // The question a programme in either guide raises, wearing the skin's dialog frame. Its model is the guide's
+      // own, which is the one that knows what was pressed and what the backend said about it.
+      if (state == "programactions")
+        return new TvProgramActionsView((TvGuideViewModel)frame.ViewModel, _workflow);
 
       if (state == "schedules" || state == "recordings")
         return new TvSchedulesView((TvSchedulesViewModel)frame.ViewModel);

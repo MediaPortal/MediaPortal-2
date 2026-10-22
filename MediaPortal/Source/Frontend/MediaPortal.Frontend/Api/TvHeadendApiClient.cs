@@ -562,6 +562,67 @@ namespace MediaPortal.Frontend.Api
           + "&active=" + (renew ? "1" : "0") + "&all=1", cancellation);
     }
 
+    /// <summary>
+    /// One entry by its uuid, for the screens that know a programme rather than a table.
+    /// </summary>
+    /// <remarks>
+    /// A programme in the EPG says that something is planned for it and what the backend calls the state, but it
+    /// does not say whether the plan is a single programme or a series that keeps renewing - and the dialog the
+    /// guide puts up asks exactly that question ("Delete single program" or "Delete full series schedule"), so one
+    /// cheap question about the entry is asked here rather than reading a whole table to find one row. The answer's
+    /// shape is read three ways because the endpoint has been seen handing out the entry as the whole answer, under
+    /// <c>data</c>, and as the single row of a table-shaped answer.
+    /// </remarks>
+    /// <returns>The entry, or nothing when the backend no longer has it - which is what a plan somebody deleted
+    /// on another screen looks like, and a guide that still has the mark on the programme.</returns>
+    public async Task<TvRecording?> GetRecordingAsync(string uuid, CancellationToken cancellation = default)
+    {
+      using (JsonDocument answer = await GetJsonAsync(
+          "api/dvr/entry/get?uuid=" + Uri.EscapeDataString(uuid ?? ""), cancellation).ConfigureAwait(false))
+      {
+        JsonElement row = answer.RootElement;
+        if (row.TryGetProperty("data", out JsonElement data) && data.ValueKind == JsonValueKind.Object)
+          row = data;
+        else if (row.TryGetProperty("dlrEntries", out JsonElement rows) && rows.ValueKind == JsonValueKind.Array
+            && rows.GetArrayLength() > 0)
+          row = rows[0];
+
+        return ReadRecording(row);
+      }
+    }
+
+    /// <summary>
+    /// Call a recording off by its uuid, for the screens that only ever saw the uuid on a programme.
+    /// </summary>
+    public Task<TvBackendAnswer> RemoveRecordingAsync(string uuid, CancellationToken cancellation = default)
+    {
+      return AskForAnswerAsync("api/dvr/entry/delete?" + ByUuid(uuid), cancellation);
+    }
+
+    /// <summary>End the writing of one entry by its uuid and leave the entry standing.</summary>
+    public Task<TvBackendAnswer> StopRecordingAsync(string uuid, CancellationToken cancellation = default)
+    {
+      return AskForAnswerAsync("api/dvr/entry/cancel?" + ByUuid(uuid), cancellation);
+    }
+
+    /// <summary>Turn the keeping of a series on or off by uuid, for every episode the backend knows about.</summary>
+    public Task<TvBackendAnswer> SetSeriesRenewalAsync(string uuid, bool renew,
+        CancellationToken cancellation = default)
+    {
+      return AskForAnswerAsync("api/dvr/entry/autorenew?" + ByUuid(uuid)
+          + "&active=" + (renew ? "1" : "0") + "&all=1", cancellation);
+    }
+
+    /// <summary>Point at an entry by uuid alone, which is all a programme in the EPG ever says about it.</summary>
+    private static string ByUuid(string uuid)
+    {
+      if (string.IsNullOrWhiteSpace(uuid))
+        throw new ArgumentException("A recording with no uuid cannot be pointed at - the backend answers questions "
+            + "about entries by that id and by nothing else.", nameof(uuid));
+
+      return "uuid=" + Uri.EscapeDataString(uuid);
+    }
+
     /// <summary>The backend's address for one of its recording tables.</summary>
     private static string TablePath(TvRecordingTable table)
     {

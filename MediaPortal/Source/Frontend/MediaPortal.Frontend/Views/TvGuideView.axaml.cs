@@ -27,6 +27,7 @@ using Avalonia.Threading;
 using MediaPortal.Frontend.Api;
 using MediaPortal.Frontend.Input;
 using MediaPortal.Frontend.ViewModels;
+using MediaPortal.Frontend.Workflow;
 
 namespace MediaPortal.Frontend.Views
 {
@@ -69,6 +70,7 @@ namespace MediaPortal.Frontend.Views
     private static readonly IBrush NOW = new SolidColorBrush(Color.Parse("#E6FFFFFF"));
 
     private readonly TvGuideViewModel? _model;
+    private readonly WorkflowManager? _workflow;
     private readonly Dictionary<TvGuideBlock, Border> _boxes =
         new Dictionary<TvGuideBlock, Border>();
 
@@ -82,9 +84,19 @@ namespace MediaPortal.Frontend.Views
     {
     }
 
-    public TvGuideView(TvGuideViewModel model)
+    /// <summary>
+    /// Builds the guide over its model.
+    /// </summary>
+    /// <param name="workflow">
+    /// The trail the guide stands on, which it needs for one thing only: "Choose program action..." is a dialog the
+    /// guide itself raises over itself (<c>SlimTvGuideModelBase.ShowProgramActions</c> ended in
+    /// <c>ShowDialog</c>), so the guide pushes it and pops it again. A guide built without a trail - as every test
+    /// builds one - still asks its model the questions, it just has nowhere to put the dialog up.
+    /// </param>
+    public TvGuideView(TvGuideViewModel model, WorkflowManager? workflow = null)
     {
       _model = model;
+      _workflow = workflow;
       DataContext = model;
       InitializeComponent();
 
@@ -117,6 +129,17 @@ namespace MediaPortal.Frontend.Views
             break;
         }
       };
+
+      // The two halves of the question a programme can be asked. Both are the model's, because what the answers are
+      // depends on a question to the backend; both land back here, because putting a dialog on the trail is a
+      // screen's work. The dialog is only ever put up while the model still has it open - a viewer who was quick
+      // enough to walk off the guide while the entry was being read gets no dialog at all, which is right.
+      model.ActionsRequested += delegate
+      {
+        if (model.ActionsOpen && model.ActionsAbout != null)
+          _workflow?.Push(new WorkflowFrame("programactions", model.ActionsTitle, model));
+      };
+      model.ActionsClosed += delegate { _workflow?.Pop(); };
 
       _creep = new DispatcherTimer { Interval = TimeSpan.FromSeconds(10) };
       _creep.Tick += delegate { MoveNowLine(); };

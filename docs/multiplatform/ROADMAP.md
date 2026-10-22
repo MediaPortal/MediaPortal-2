@@ -4161,6 +4161,57 @@ screen with no written-down backend asks nobody nothing and says so out loud, an
 Two of them look at the drawn screen, and one renders it: the plans and the recordings as they come out of a
 scripted box, list and band and all.
 
+### bp. "Choose program action...": the question a programme in the guide can be asked
+
+Pressing twice on a programme used to do one of two things depending on whether it happened to be running. The
+reference did something else: it asked. `SlimTvGuideModelBase.ShowProgramActions` put up a dialog whose lines were
+worked out from the programme, from the clock, and from a question to the backend, and that dialog is here now -
+`TvProgramActionsView` over the guide's own model, wearing the skin's `DialogHeadedFrameTemplate` like every other
+dialog in this front end, pushed onto the trail the guide itself stands on so that the grid stays lit behind it and
+Back leaves the viewer on the block they pressed. The guide is therefore the first screen of the television pair that
+needs the workflow handed to it, and `App` builds the dialog for a `programactions` frame out of the same model,
+because a second copy of the model could only disagree with the first about which programme was pressed.
+
+What stands on the list is the reference's, in its order and in its words: a finished programme says so and is still
+offered its series (its comment read "if program is over already, there is nothing to do", and it went on adding
+recording options under that sentence, because a series is about the airing still to come); a running programme
+offers its channel first; and then the four-way choice - a writing to stop, a running programme to join, a plan to
+take away, a future programme to ask for - of which exactly one line appears, with "Record series" under it. Behind a
+renewing entry the choice is different in kind: "Delete single program" and "Delete full series schedule", and never a
+plain "Delete schedule", because a backend that is still renewing an event answers a delete by writing the entry
+straight back. That difference is why the dialog asks a question at all: an EPG event says a recording is attached to
+a programme (`dvrUuid`, `dvrState`) but never whether the plan renews, so `GetRecordingAsync(uuid)` asks about the one
+entry - which needed uuid-taking `delete`, `cancel` and `autorenew` on the client beside the row-taking ones, since a
+programme in a guide has never seen a table. A programme with no plan attached is the reference's own `None` answer
+and is asked about nothing; a plan whose entry cannot be read leaves the list as short as the reference's was when its
+status question failed, because offering "Delete schedule" on a guess throws away a household's plan.
+
+Getting to the channel is the answer that is not asked for: `ZapFromGuide`, on unless a viewer turns it off as the
+reference had it, still sends a second press on a running programme straight to that channel. With the switch off -
+and with any second press on a programme that is not running - the dialog is put up instead, and "Watch program now"
+is its first line rather than a shortcut. This part also fixes what the model used to do for a programme nobody had
+planned: it stopped after the channel, so the ordinary case of the whole dialog - somebody standing on something they
+want recorded - had no "Schedule recording" on it at all.
+
+Three answers are missing and are missing on purpose. "Watch recording from beginning" belongs to a player that can
+start a file at the beginning, and this front end reaches a television through a channel, so offering it would be a
+press that does nothing. "Choose recording schedule type" has nothing to choose between, since a TVHeadend keeps one
+kind of series (part bn). And the list of answers other plugins appended at the end was filled through
+`SlimTvExtensionBuilder`, which this front end has no equivalent of - there is nothing that could register an answer
+there.
+
+`TestTvProgramActions` asks 25 questions. Nine of them are the list itself, one per situation: over, running and
+unplanned, running and being written, ahead and planned once, ahead and unplanned, ahead behind a series, running
+behind a series, the entry being read by the uuid the programme carried, and a backend that will not say what the
+entry is. Six are what a press sends: `cancel` rather than `delete` for a writing, `autorenew` before `delete` for a
+series, `create?event_id=` with `autorenew=1` for a series of something unplanned and with `autorenew=0` for a single
+programme, `autorenew?active=1&all=1` for a series of something already planned, the backend's own sentence on a
+refusal, and the grid being read back after an answer. Four are how the dialog is reached - one press selects, a
+second press zaps while the viewer wants that, asks when they would rather be asked, and asks whatever the programme
+is doing when it is not running. The last two look at the drawn dialog: one line per answer with the programme named
+on the dialog itself, and the sentence about a finished programme drawn but unable to be stood on. 995 of 997 tests
+pass, the two failures being the two the front end already carried in.
+
 ## What cannot be verified without the user
 
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library

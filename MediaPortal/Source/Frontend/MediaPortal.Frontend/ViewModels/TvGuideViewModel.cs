@@ -177,6 +177,8 @@ namespace MediaPortal.Frontend.ViewModels
     private TvChannelGroup? _selectedGroup;
     private TvGuideRow? _selectedRow;
     private TvGuideBlock? _selectedBlock;
+    private TvGuideBlock? _actionsAbout;
+    private bool _zapFromGuide = true;
     private DateTimeOffset _start = Floor(DateTimeOffset.UtcNow);
     private string _status = "";
     private bool _isLoading;
@@ -516,8 +518,19 @@ namespace MediaPortal.Frontend.ViewModels
       bool alreadyStandingHere = ReferenceEquals(block, _selectedBlock);
       SelectedBlock = block;
 
-      if (alreadyStandingHere && block.IsRunning)
+      if (!alreadyStandingHere)
+        return;
+
+      if (block.IsRunning && ZapFromGuide)
+      {
         Watch(block);
+        return;
+      }
+
+      // The second press on anything else - and on a running programme too, once a viewer said they would rather
+      // be asked - is the reference's OK on a programme, which put its "Choose program action..." up rather than
+      // guessing at what was wanted.
+      _ = OpenProgramActionsAsync(block);
     }
 
     /// <summary>
@@ -957,6 +970,343 @@ namespace MediaPortal.Frontend.ViewModels
             + " min";
     }
 
+    #region What a viewer can ask about a programme
+
+    /// <summary>The answers a viewer can have for the programme the dialog is about.</summary>
+    public ObservableCollection<TvProgramAction> ProgramActions { get; } =
+        new ObservableCollection<TvProgramAction>();
+
+    /// <summary>
+    /// Whether standing on a running programme and pressing sends the viewer straight to it. The reference had this
+    /// on unless somebody turned it off (<c>Settings/SlimTvClientSettings.cs</c>, <c>ZapFromGuide</c>), and it stays
+    /// on here for the same reason: on the sofa, pressing the thing that is on now is how a person gets to it. With
+    /// the switch off, every second press asks the question the dialog answers.
+    /// </summary>
+    public bool ZapFromGuide
+    {
+      get { return _zapFromGuide; }
+      set
+      {
+        if (_zapFromGuide == value)
+          return;
+
+        _zapFromGuide = value;
+        Raise(nameof(ZapFromGuide));
+      }
+    }
+
+    /// <summary>The programme the dialog is about, or nothing while no dialog is open.</summary>
+    public TvGuideBlock? ActionsAbout
+    {
+      get { return _actionsAbout; }
+    }
+
+    /// <summary>The dialog's title, which is the reference's <c>[SlimTvClient.ChooseProgramAction]</c>.</summary>
+    public string ActionsTitle
+    {
+      get { return "Choose program action..."; }
+    }
+
+    /// <summary>
+    /// The line under the title, saying which programme the question is about - a dialog that only said "Choose
+    /// program action" over a grid of ninety blocks would leave a viewer looking for the block they pressed.
+    /// </summary>
+    public string ActionsWords
+    {
+      get
+      {
+        TvGuideBlock? about = _actionsAbout;
+        if (about == null)
+          return "";
+
+        TvGuideRow? row = RowOf(about);
+        string channel = row == null ? "" : "  " + row.Channel.Name;
+        return about.Title + "  " + about.StartText + channel;
+      }
+    }
+
+    /// <summary>Whether a dialog is standing open.</summary>
+    public bool ActionsOpen
+    {
+      get { return _actionsAbout != null; }
+    }
+
+    /// <summary>Said when the answers are ready and a dialog has to be put up.</summary>
+    public event Action? ActionsRequested;
+
+    /// <summary>Said when the answer was given and the dialog has to be taken away again.</summary>
+    public event Action? ActionsClosed;
+
+    /// <summary>
+    /// Puts the question up for one programme: what can be asked about it now, in the reference's order, and asked
+    /// of the backend first when the answer depends on a plan the programme only says exists.
+    /// </summary>
+    public async Task OpenProgramActionsAsync(TvGuideBlock? block, DateTimeOffset? moment = null)
+    {
+      if (block == null || _disposed)
+        return;
+
+      _actionsAbout = block;
+      ProgramActions.Clear();
+
+      // Back on the screen's thread for what follows, the way the settings screens do it: the list and the events
+      // that open and close the dialog are what a screen is built of, and a question about tomorrow's evening is not
+      // something a screen wants answered from a pool thread.
+      foreach (TvProgramAction action in await ProgramActionsForAsync(block.Program, moment ?? DateTimeOffset.Now)
+          .ConfigureAwait(true))
+      {
+        ProgramActions.Add(action);
+      }
+
+      if (_disposed)
+        return;
+
+      Raise(nameof(ActionsAbout));
+      Raise(nameof(ActionsOpen));
+      Raise(nameof(ActionsWords));
+      ActionsRequested?.Invoke();
+    }
+
+    /// <summary>Takes the dialog away, which the screen answers by stepping off its own stop.</summary>
+    public void CloseProgramActions()
+    {
+      if (_actionsAbout == null)
+        return;
+
+      _actionsAbout = null;
+      Raise(nameof(ActionsAbout));
+      Raise(nameof(ActionsOpen));
+      ActionsClosed?.Invoke();
+    }
+
+    /// <summary>
+    /// The answers a viewer can have for one programme, in the order the reference put them up and under the same
+    /// conditions (<c>TV/SlimTvClient/Models/SlimTvGuideModelBase.cs:126-167</c> and
+    /// <c>Models/SlimTvModelBase.cs:373-432</c>).
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Three of its answers are not here, and each is left out for a reason rather than by oversight. "Watch
+    /// recording from beginning" belongs to a player that can start a file at the beginning, and this front end
+    /// reaches a television through a channel, so offering it would be a press that does nothing. "Choose recording
+    /// schedule type" has nothing to choose between, since a TVHeadend keeps one kind of series (part bn). And the
+    /// extension list at the end of the reference's list was filled by other plugins through
+    /// <c>SlimTvExtensionBuilder</c>, which this front end has no equivalent of - there is nothing that could
+    /// register an answer here.
+    /// </para>
+    /// <para>
+    /// What a plan <i>is</i> cannot be read off a programme: the EPG says that something is planned and what the
+    /// backend calls the state, but not whether the plan renews as a series - and the reference's list turns on
+    /// exactly that (<c>SeriesScheduled</c>). So one question about the entry is asked here, which is the question
+    /// the reference asked through <c>GetRecordingStatusAsync</c> before building its list; a backend that will not
+    /// answer it leaves the list as short as the reference's was when its own status question failed.
+    /// </para>
+    /// </remarks>
+    public async Task<IReadOnlyList<TvProgramAction>> ProgramActionsForAsync(TvProgram program,
+        DateTimeOffset moment)
+    {
+      List<TvProgramAction> actions = new List<TvProgramAction>();
+      if (program == null)
+        return actions;
+
+      bool running = moment >= program.Start && moment <= program.Stop;
+
+      // The reference's first two lines, in its order and with its one comment kept in mind: "if program is over
+      // already, there is nothing to do" - which is said about watching, not about recording. The reference went on
+      // to add its recording options below the sentence, because a series is about the airing that is still to come
+      // and not about the one that just ended.
+      if (program.Stop < moment)
+        actions.Add(new TvProgramAction(TvProgramActionKind.SaidOnly, "Program already over"));
+      else if (running)
+        actions.Add(new TvProgramAction(TvProgramActionKind.Watch, "Watch program now"));
+
+      // What a plan is cannot be read off a programme, so the one question about the entry is asked - but only when
+      // the programme says a plan is there. A programme without a dvrUuid is the reference's own "None" answer,
+      // which it got without asking, and a box that was never named is the reference's own "no schedule control at
+      // all": in both cases the recording options below are not offered, and for the same reason it did not offer
+      // them - there is nothing that could answer.
+      TvRecording? entry = null;
+      bool statusWasRead = true;
+
+      if (program.IsRecorded && !string.IsNullOrWhiteSpace(program.ScheduleId))
+      {
+        TvBackendSettings settings = _settingsProvider();
+        if (!settings.IsConfigured)
+          statusWasRead = false;
+        else
+        {
+          try
+          {
+            using (TvHeadendApiClient client = _buildClient(settings))
+            {
+              entry = await client.GetRecordingAsync(program.ScheduleId!).ConfigureAwait(false);
+            }
+          }
+          catch (Exception)
+          {
+            statusWasRead = false;
+          }
+
+          statusWasRead = statusWasRead && entry != null;
+        }
+      }
+
+      if (!statusWasRead)
+        return actions;
+
+      bool recording = (entry != null && entry.IsRecording) || program.IsBeingRecorded;
+      bool ahead = program.Stop >= moment;
+
+      if (entry != null && entry.IsSeries)
+      {
+        if (recording || ahead)
+        {
+          actions.Add(recording
+              ? new TvProgramAction(TvProgramActionKind.StopRecording,
+                  "Stop current recording '" + program.Title + "'")
+              : new TvProgramAction(TvProgramActionKind.DeleteSingle, "Delete single program"));
+        }
+
+        actions.Add(new TvProgramAction(TvProgramActionKind.DeleteSeries, "Delete full series schedule"));
+        return actions;
+      }
+
+      // The reference's four-way choice, in its order: a writing that can be stopped, a running programme that can
+      // still be joined, a plan that can be taken away, and a future programme that can be asked for. It is a
+      // choice, not a list - one line comes out of it - and "Record series" stands under it whatever came out.
+      if (recording)
+        actions.Add(new TvProgramAction(TvProgramActionKind.StopRecording,
+            "Stop current recording '" + program.Title + "'"));
+      else if (running)
+        actions.Add(new TvProgramAction(TvProgramActionKind.RecordOnce,
+            "Record program '" + program.Title + "'"));
+      else if (entry != null && entry.IsWaiting)
+        actions.Add(new TvProgramAction(TvProgramActionKind.DeleteSingle, "Delete schedule"));
+      else if (ahead)
+        actions.Add(new TvProgramAction(TvProgramActionKind.RecordOnce, "Schedule recording"));
+
+      actions.Add(new TvProgramAction(TvProgramActionKind.RecordSeries, "Record series"));
+      return actions;
+    }
+
+    /// <summary>
+    /// Does what the viewer picked and closes the dialog over the answer. The programmes are read back afterwards
+    /// because a series touches more than the one block stood on - the reference re-drew the whole grid for exactly
+    /// that reason (<c>SlimTvGuideExtScheduleModel.CreateOrDeleteSchedule</c>).
+    /// </summary>
+    /// <returns>Whether the backend did it, so that a screen can say which of the two it just heard.</returns>
+    public async Task<bool> RunProgramActionAsync(TvProgramAction? action)
+    {
+      TvGuideBlock? about = ActionsAbout;
+      if (about == null || action == null || _disposed)
+        return false;
+
+      if (action.Kind == TvProgramActionKind.Watch)
+      {
+        CloseProgramActions();
+        return Watch(about);
+      }
+
+      if (action.Kind == TvProgramActionKind.SaidOnly)
+      {
+        CloseProgramActions();
+        return true;
+      }
+
+      TvProgram program = about.Program;
+      string uuid = program.ScheduleId ?? "";
+      string said;
+      bool made = false;
+
+      TvBackendSettings settings = _settingsProvider();
+      if (!settings.IsConfigured)
+      {
+        Status = "No TV backend has been written down yet.";
+        CloseProgramActions();
+        return false;
+      }
+
+      IsLoading = true;
+      try
+      {
+        using (TvHeadendApiClient client = _buildClient(settings))
+        {
+          TvBackendAnswer answer = await AskForActionAsync(client, action, program, uuid).ConfigureAwait(false);
+          made = answer.Succeeded;
+          said = made
+              ? WordsFor(action, program)
+              : "The backend would not do that: " + answer.Complaint;
+        }
+      }
+      catch (Exception ex)
+      {
+        said = "The backend would not answer: " + ex.Message;
+      }
+
+      CloseProgramActions();
+      await LoadProgramsAsync(settings).ConfigureAwait(false);
+
+      if (!_disposed)
+      {
+        Status = said;
+        // The block the grid was redrawn under, so that the mark on it says what just happened.
+        _selectedBlock = FindAgain(about);
+        Raise(nameof(SelectedBlock));
+      }
+
+      return made;
+    }
+
+    /// <summary>One question about the entry, or the making of one, asked of the box the guide is reading.</summary>
+    private static async Task<TvBackendAnswer> AskForActionAsync(TvHeadendApiClient client,
+        TvProgramAction action, TvProgram program, string uuid)
+    {
+      switch (action.Kind)
+      {
+        case TvProgramActionKind.StopRecording:
+          return await client.StopRecordingAsync(uuid).ConfigureAwait(false);
+
+        case TvProgramActionKind.DeleteSingle:
+          return await client.RemoveRecordingAsync(uuid).ConfigureAwait(false);
+
+        case TvProgramActionKind.DeleteSeries:
+          // The series first and the entry after, because a backend still renewing the event answers a delete by
+          // putting the entry back - the same order the schedules screen keeps for the same reason.
+          TvBackendAnswer series = await client.SetSeriesRenewalAsync(uuid, false).ConfigureAwait(false);
+          return series.Succeeded
+              ? await client.RemoveRecordingAsync(uuid).ConfigureAwait(false)
+              : series;
+
+        case TvProgramActionKind.RecordSeries:
+          return program.IsRecorded && !string.IsNullOrWhiteSpace(uuid)
+              ? await client.SetSeriesRenewalAsync(uuid, true).ConfigureAwait(false)
+              : await client.ScheduleRecordingAsync(program, true).ConfigureAwait(false);
+
+        default:
+          return await client.ScheduleRecordingAsync(program, false).ConfigureAwait(false);
+      }
+    }
+
+    /// <summary>What a done answer is called in the guide's own line.</summary>
+    private static string WordsFor(TvProgramAction action, TvProgram program)
+    {
+      switch (action.Kind)
+      {
+        case TvProgramActionKind.StopRecording:
+          return "The recording of '" + program.Title + "' is stopped.";
+        case TvProgramActionKind.DeleteSingle:
+          return "The plan for '" + program.Title + "' is gone.";
+        case TvProgramActionKind.DeleteSeries:
+          return "The series behind '" + program.Title + "' is gone, and this entry with it.";
+        case TvProgramActionKind.RecordSeries:
+          return "'" + program.Title + "' is kept as a series from now on.";
+        default:
+          return "'" + program.Title + "' will be recorded.";
+      }
+    }
+
+    #endregion
+
     private void Cancel()
     {
       CancellationTokenSource? old = _inFlight;
@@ -1011,5 +1361,66 @@ namespace MediaPortal.Frontend.ViewModels
 
     /// <summary>The hour as the viewer reads it.</summary>
     public string Text { get; }
+  }
+
+  /// <summary>
+  /// Which of the things a viewer can ask about a programme one answer in the dialog means.
+  /// </summary>
+  /// <remarks>
+  /// The reference put its answers on commands rather than on words, and two of its words meant the same thing from
+  /// two different places - "Stop current recording" whether a single programme or a series was being written - so
+  /// an answer here carries what it does and the sentence is built around that.
+  /// </remarks>
+  public enum TvProgramActionKind
+  {
+    /// <summary>Standing on a programme that is over: nothing can be asked, and the list says so.</summary>
+    SaidOnly,
+
+    /// <summary>Get to the channel this is on, which is the reference's "Watch program now".</summary>
+    Watch,
+
+    /// <summary>End the writing and leave the entry readable.</summary>
+    StopRecording,
+
+    /// <summary>Ask for this one programme, from its own event id.</summary>
+    RecordOnce,
+
+    /// <summary>Take this one entry away and leave a series behind it standing.</summary>
+    DeleteSingle,
+
+    /// <summary>Let go of the series and take the entry with it.</summary>
+    DeleteSeries,
+
+    /// <summary>Ask for this event every time the broadcaster lists it again.</summary>
+    RecordSeries
+  }
+
+  /// <summary>
+  /// One answer in the guide's "Choose program action..." dialog.
+  /// </summary>
+  public sealed class TvProgramAction
+  {
+    public TvProgramAction(TvProgramActionKind Kind, string Word)
+    {
+      this.Kind = Kind;
+      this.Word = Word;
+    }
+
+    /// <summary>What pressing it does.</summary>
+    public TvProgramActionKind Kind { get; }
+
+    /// <summary>The line on the list, which the reference wrote with the programme's own name in it.</summary>
+    public string Word { get; }
+
+    /// <summary>Whether a press has anything behind it - the one line of a finished programme never has.</summary>
+    public bool IsCommand
+    {
+      get { return Kind != TvProgramActionKind.SaidOnly; }
+    }
+
+    public override string ToString()
+    {
+      return Word;
+    }
   }
 }

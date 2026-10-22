@@ -1,0 +1,69 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        xmlns:views="clr-namespace:MediaPortal.Frontend.Views"
+        xmlns:theming="clr-namespace:MediaPortal.Frontend.Theming"
+        x:Class="MediaPortal.Frontend.Views.TvProgramActionsView"
+        x:DataType="vm:TvGuideViewModel"
+        Name="tvProgramActions"
+        Classes="nereus-dialog-screen"
+        >
+
+  <!--
+    "Choose program action..." - the reference's own dialog for a programme in the guide, moved over dialog for
+    dialog: the guide stays lit behind it, its header steps back, and Back closes it and leaves the viewer standing
+    on the block they pressed (Skin/default/screens/DialogExtSchedule.xaml over master_dialog_bare_transparent.xaml
+    in the Nereus skin). What is on the list is exactly what the reference put there, in its order, and the words are
+    its words with the programme's name in them; the answers this backend cannot give are missing rather than faked,
+    and part bp of the roadmap says which and why.
+
+    A press on a line is the answer. There is no OK button, because the reference had none either: the list was the
+    question and a line on it was the whole answer, and a dialog that asked a viewer to press a line and then press
+    something else would be two presses where the reference needed one.
+  -->
+
+  <ContentControl HorizontalAlignment="Center" VerticalAlignment="Center"
+                  theming:SkinTemplates.OverlayTemplate="DialogHeadedFrameTemplate">
+    <DockPanel MinWidth="620">
+
+      <!-- Which programme the question is about, so that the dialog never has to be read against the grid behind
+           it to know what a line would do. -->
+      <TextBlock DockPanel.Dock="Top"
+                 Classes="nereus-editor-sub"
+                 Name="aboutLine"
+                 Text="{Binding ActionsWords}"
+                 TextWrapping="Wrap"
+                 Margin="0,0,0,10"
+                 HorizontalAlignment="Left" />
+
+      <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,10,0,0" Spacing="10">
+        <Button Name="cancelButton"
+                Content="Never mind"
+                FontSize="14"
+                Padding="16,6"
+                Focusable="True" />
+        <TextBlock Name="statusLine"
+                   Classes="nereus-editor-status"
+                   Text="{Binding Status}"
+                   TextWrapping="Wrap"
+                   VerticalAlignment="Center"
+                   MaxWidth="420" />
+      </StackPanel>
+
+      <ListBox Name="actionList"
+               ItemsSource="{Binding ProgramActions}"
+               Background="Transparent"
+               Focusable="True">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="vm:TvProgramAction">
+            <TextBlock Text="{Binding Word}"
+                       FontSize="16"
+                       Padding="0,6"
+                       Opacity="1"
+                       IsEnabled="{Binding IsCommand}" />
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </DockPanel>
+  </ContentControl>
+</UserControl>
