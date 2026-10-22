@@ -152,7 +152,7 @@ namespace MediaPortal.Frontend.ViewModels
   /// said nothing, and a guide that quietly removes channels is a guide a viewer cannot trust.
   /// </para>
   /// </remarks>
-  public sealed class TvGuideViewModel : IDisposable
+  public sealed class TvGuideViewModel : IDisposable, System.ComponentModel.INotifyPropertyChanged
   {
     /// <summary>
     /// How many columns the grid is drawn with. The reference used seventy-five for two and a half hours; ninety
@@ -494,16 +494,79 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
-    /// The press on a programme. Here it only selects it, because what else it could do - watch it, ask the
-    /// backend to save it - belongs to the player and to the recording screens, which are the parts after this
-    /// one. The row and the block are remembered so that walking back to the grid finds the viewer where they
-    /// left it.
+    /// Asked of whoever owns the watching screen: this channel, now. The guide knows nothing about players - it
+    /// hands the channel over, and the application decides what playing it means - which is the same separation
+    /// the reference kept between its guide and its player, talking between them through the workflow instead of
+    /// holding on to one another.
+    /// </summary>
+    public event Action<TvChannel>? WatchRequested;
+
+    /// <summary>
+    /// The press on a programme. The first press selects it and puts its words along the bottom; pressing again
+    /// on a programme that is running at the moment sends the viewer to it. That second part is the reference's
+    /// <c>ZapFromGuide</c> switch, which was on unless somebody turned it off
+    /// (<c>Settings/SlimTvClientSettings.cs</c>): standing in a guide and pressing the thing that is on now is how
+    /// a person gets to the programme on the sofa without hunting for a channel number first.
     /// </summary>
     public void Press(TvGuideBlock block)
     {
       if (block == null)
         return;
+
+      bool alreadyStandingHere = ReferenceEquals(block, _selectedBlock);
       SelectedBlock = block;
+
+      if (alreadyStandingHere && block.IsRunning)
+        Watch(block);
+    }
+
+    /// <summary>
+    /// Sends the viewer to the channel a programme is on. Says so when the channel has no address rather than
+    /// doing nothing twice, which is the guide's own version of not leaving a viewer guessing.
+    /// </summary>
+    /// <returns>Whether a channel was handed over.</returns>
+    public bool Watch(TvGuideBlock? block)
+    {
+      if (block == null)
+        return false;
+
+      SelectedBlock = block;
+
+      TvGuideRow? row = RowOf(block);
+      if (row == null)
+      {
+        Status = "That programme is no longer on the grid.";
+        return false;
+      }
+
+      SelectedRow = row;
+      TvChannel channel = row.Channel;
+      if (channel.StreamUrl == null)
+      {
+        Status = channel.Name + " has no stream address on " + _settingsProvider().Describe()
+            + ", so there is nothing to watch.";
+        return false;
+      }
+
+      WatchRequested?.Invoke(channel);
+      return true;
+    }
+
+    /// <summary>
+    /// The row a block stands in. The blocks are built per row and the rows are kept, so this is only walking
+    /// back over what is already on the screen; a block that has been rebuilt away has no row and says so.
+    /// </summary>
+    private TvGuideRow? RowOf(TvGuideBlock block)
+    {
+      foreach (TvGuideRow row in Rows)
+      {
+        foreach (TvGuideBlock candidate in row.Blocks)
+        {
+          if (ReferenceEquals(candidate, block))
+            return row;
+        }
+      }
+      return null;
     }
 
     public void Dispose()
@@ -915,7 +978,16 @@ namespace MediaPortal.Frontend.ViewModels
       PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(name));
     }
 
-    /// <summary>Said when a window, a row or a bouquet changed, which is when a screen redraws.</summary>
+    /// <summary>
+    /// Said when a window, a row or a bouquet changed, which is when a screen redraws.
+    /// </summary>
+    /// <remarks>
+    /// The class carries <see cref="System.ComponentModel.INotifyPropertyChanged"/> for one plain reason: the
+    /// event on its own is enough for the code beside a model, which is how the grid redraws, but Avalonia's
+    /// bindings look for the interface and bind nothing without it - a guide without it would sit there telling
+    /// the viewer about the programme that was under the cursor when the screen opened, forever, and no test of
+    /// the model would ever notice.
+    /// </remarks>
     public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
   }
 

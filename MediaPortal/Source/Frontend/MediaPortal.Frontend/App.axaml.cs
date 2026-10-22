@@ -56,6 +56,16 @@ namespace MediaPortal.Frontend
     private ShellWindow? _shell;
     private MediaBrowserViewModel? _lastBrowser;
     private PartyViewModel? _party;
+
+    /// <summary>
+    /// The tuners that are on the screen, the television and the radio each with their own. They are kept here so
+    /// that the half somebody did not just touch can be told to step aside when the other one takes the picture:
+    /// the reference owned two players and stopped one to start the other
+    /// (<c>TV/SlimTvClient/TVHandler/SlimTvHandler.cs:213-221</c>), and with this front end's single player there
+    /// is nothing to stop - only a tuner left believing its channel is still on.
+    /// </summary>
+    private readonly List<ViewModels.TvTunerViewModel> _tuners =
+        new List<ViewModels.TvTunerViewModel>();
     private PlaybackReporter? _reporter;
     private readonly string? _shotPath;
     private readonly TimeSpan _playStart;
@@ -614,6 +624,17 @@ namespace MediaPortal.Frontend
     /// </summary>
     private ShellWindow BuildHomeScreen()
     {
+      // Leaving a watching screen stops its channel. The reference let it play on - the picture went away and the
+      // sound carried on behind the rest of the media centre, because nothing between its workflow states ever
+      // stopped the player (Models/SlimTvClientModel.cs:1023-1031 disposes the model and leaves the player
+      // alone). That is defensible on a box whose only job is being a television; a machine that is about to play
+      // somebody's records should not be argued with by a channel they walked away from.
+      _workflow.Removed += delegate (Workflow.WorkflowFrame frame)
+      {
+        if (frame.ViewModel is TvTunerViewModel tuner)
+          StopWatching(tuner);
+      };
+
       _workflow.Push(HomeFrame());
 
       // Who is watching, answered before the first screen draws: a remembered name owns the skin's answers
@@ -743,6 +764,106 @@ namespace MediaPortal.Frontend
     }
 
     /// <summary>
+    /// A watching screen, on whatever channel somebody pressed their way to - out of the guide, or out of the menu
+    /// with nothing chosen, in which case the screen opens on its bouquet and waits for a zap.
+    /// </summary>
+    /// <remarks>
+    /// The tuner is built here rather than kept by the application, which is the one place this front end departs
+    /// from how it treats the player. The player is kept because a film outlives the screen it was watched on; a
+    /// channel does not, because a channel is a thing a person walks away from and a television that carries on
+    /// making noise behind the records is a television somebody unplugs. So the tuner lives as long as its frame
+    /// does, and <see cref="Workflow.WorkflowManager.Removed"/> closes it when the frame goes.
+    /// </remarks>
+    private Workflow.WorkflowFrame WatchFrame(Api.TvMediaType kind, Api.TvChannel? channel)
+    {
+      ViewModels.TvTunerViewModel tuner = StartTuner(kind);
+      _ = tuner.ReloadAsync();
+      if (channel != null)
+        tuner.Tune(channel);
+
+      return new Workflow.WorkflowFrame(kind == Api.TvMediaType.Radio ? "radiowatch" : "tvwatch",
+          tuner.Heading + " live", tuner);
+    }
+
+    /// <summary>
+    /// A tuner that can ask for the picture. It is given no player, because it has no business owning one: it is
+    /// told what the backend says a channel is and says which channel it wants on the screen, and this class -
+    /// which owns the one player everything is played through - decides how.
+    /// </summary>
+    private ViewModels.TvTunerViewModel StartTuner(Api.TvMediaType kind)
+    {
+      ViewModels.TvTunerViewModel tuner = new ViewModels.TvTunerViewModel(kind);
+
+      tuner.PlayRequested += delegate (Api.TvChannel channel, Player.MediaLocation location)
+      {
+        // The other half of the set is no longer on the screen. The reference stopped its television player to
+        // start its radio player; here the player takes the new media and the old channel is simply gone, so all
+        // that is left is not leaving a second screen claiming to be showing something.
+        foreach (ViewModels.TvTunerViewModel other in _tuners)
+        {
+          if (!ReferenceEquals(other, tuner))
+            other.TakenOver();
+        }
+
+        NowPlayingViewModel? player = _nowPlaying;
+        if (player == null)
+        {
+          Console.WriteLine("tv:       " + channel.Name + " - this machine has no player");
+          tuner.ReportFailure("This machine has no player, so " + channel.Name + " cannot be watched.");
+          return;
+        }
+
+        // No media id travels with a live channel. What is being watched is not in the library, has no position
+        // to resume from, and must not be reported as watched - the server's "continue watching" shelf is made of
+        // things somebody chose from it, not of whatever the television happened to be showing.
+        if (player.Play(location))
+          Console.WriteLine("tv:       " + channel.Name + " - streamed from the backend");
+        else
+        {
+          Console.WriteLine("tv:       refused - " + player.StatusLine);
+          tuner.ReportFailure(player.StatusLine);
+        }
+      };
+
+      tuner.StopRequested += delegate
+      {
+        _nowPlaying?.Stop();
+      };
+
+      _tuners.Add(tuner);
+      return tuner;
+    }
+
+    /// <summary>
+    /// What a press on a programme that is running does: puts that channel on the screen, over the guide, so that
+    /// Back comes out where the viewer was standing.
+    /// </summary>
+    private void WatchChannel(Api.TvMediaType kind, Api.TvChannel channel)
+    {
+      Workflow.WorkflowFrame? on = _workflow.Current;
+      if (on != null && on.ViewModel is ViewModels.TvTunerViewModel watching
+          && watching.Kind == kind)
+      {
+        watching.Tune(channel);
+        return;
+      }
+
+      _workflow.Push(WatchFrame(kind, channel));
+    }
+
+    /// <summary>
+    /// A watching screen went away, so its channel does too. Said to the tuner rather than to the player, because
+    /// the tuner is the one that asked for the picture, and because the other half of the set - which may well
+    /// still be open on another frame - keeps its answer to itself.
+    /// </summary>
+    private void StopWatching(ViewModels.TvTunerViewModel tuner)
+    {
+      if (!_tuners.Remove(tuner))
+        return;
+      tuner.Dispose();
+    }
+
+    /// <summary>
     /// The control that shows one frame, built the first time the viewer reaches that stop.  Which screen a frame
     /// means is decided here and nowhere else, so the workflow, the trail above the screen and the back key all
     /// speak about the same thing.
@@ -798,6 +919,9 @@ namespace MediaPortal.Frontend
 
       if (state == "tvguide" || state == "radioguide")
         return new TvGuideView((TvGuideViewModel)frame.ViewModel);
+
+      if (state == "tvwatch" || state == "radiowatch")
+        return new TvWatchView((TvTunerViewModel)frame.ViewModel, _frames);
 
       if (state == "party")
       {
@@ -1075,9 +1199,23 @@ namespace MediaPortal.Frontend
             ? TvMediaType.Radio
             : TvMediaType.Television;
         TvGuideViewModel guide = new TvGuideViewModel(kind);
+        guide.WatchRequested += delegate (TvChannel channel) { WatchChannel(kind, channel); };
         _ = guide.ReloadAsync();
         return new Workflow.WorkflowFrame(kind == TvMediaType.Radio ? "radioguide" : "tvguide",
             guide.Heading, guide);
+      }
+
+      if (screenKey.Equals("tvwatch", StringComparison.OrdinalIgnoreCase)
+          || screenKey.Equals("radiowatch", StringComparison.OrdinalIgnoreCase))
+      {
+        // Straight to the picture, with nothing chosen. The reference had this as its television's own front
+        // screen - the player was showing a channel before anybody had looked at a grid - and its
+        // <c>AutoStartTV</c> switch opened it at start-up; here it is the screen a household can hang a menu tile
+        // on, and it opens on its bouquet so the first press of a channel button has something to walk.
+        TvMediaType kind = screenKey.Equals("radiowatch", StringComparison.OrdinalIgnoreCase)
+            ? TvMediaType.Radio
+            : TvMediaType.Television;
+        return WatchFrame(kind, null);
       }
 
       if (screenKey.Equals("party", StringComparison.OrdinalIgnoreCase))

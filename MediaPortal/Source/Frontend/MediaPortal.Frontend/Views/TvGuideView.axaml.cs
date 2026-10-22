@@ -93,6 +93,7 @@ namespace MediaPortal.Frontend.Views
       nowButton.Click += delegate { model.ScrollToNow(); };
       forwardButton.Click += delegate { model.ScrollForward(); };
       forwardDayButton.Click += delegate { model.ScrollForwardDay(); };
+      watchButton.Click += delegate { model.Watch(model.SelectedBlock); };
 
       // The picker would otherwise print a bouquet's whole record; its name is the only part anybody reads.
       groupPicker.ItemTemplate = new FuncDataTemplate<TvChannelGroup>(delegate (TvChannelGroup? group,
@@ -136,6 +137,7 @@ namespace MediaPortal.Frontend.Views
       ring.Add(nowButton);
       ring.Add(forwardButton);
       ring.Add(forwardDayButton);
+      ring.Add(watchButton);
       ring.Add(groupPicker);
       ring.Add(gridScroller);
       DpadNavigation.Attach(this, ring);

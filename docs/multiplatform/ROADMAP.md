@@ -3983,6 +3983,95 @@ through the attached properties the code-behind sets ninety times a row: one box
 column and across the span the model gave it, exactly one block wearing the frame, and the hours the model named
 being written on the ruler. `Tests.Frontend`: 913 of 915, the two failures the pre-existing icon ones.
 
+### bm. The picture, and what a number on a remote means
+
+The watching screen exists now: a channel, its programme data, and the digits somebody types on a remote.
+`ViewModels/TvTunerViewModel.cs` is the tuning half, `Views/TvWatchView.axaml` the surface, and the route in is a
+press on a programme that is running at the moment - which is the reference's `ZapFromGuide`, on unless somebody
+turned it off, and why a guide that knows how to reach the sofa is worth more than a list of what is on.
+
+What the reference does, and what was kept. Its watching surface is
+`Skin/Nereus/screens/FullScreenContentTv.xaml`: the picture filling the screen, `VideoBrush Stream="0"`, and a
+container two hundred and sixty pixels high along the bottom that slides up over it in three hundred and fifty
+milliseconds (`PrimarySlimTvOSDStyle` in `themes/default/styles/SlimTvStyles.xaml`) and holds the channel, the
+programme running, the one after it, and a progress bar eighteen pixels high with the time the programme ends at
+its right end - the start time is in the markup and commented out, because where a programme began is not a thing
+anybody asks for while watching one. The strip here is that shape and that proportion. The next programme is in
+`#009999` (`SlimTvColors.xaml:7`), the only accent the watching screens carry, and there is no literal "Now" or
+"Next" anywhere because the reference had none either - the two blocks are told apart by where they stand, and here
+the one word `next:` does the same work in one line instead of two columns. Radio is the same screen with the
+picture absent rather than black, which is what `FullScreenContentRadio.xaml` does when it replaces its video
+surface with a photograph and takes the picture's keys off the keyboard.
+
+The digits are the part that cannot be looked at, so they were read carefully. The reference showed the typed
+number and nothing else: `superlayers/ChannelZapOSD.xaml` is a box two hundred pixels wide with the digits in it,
+self-hiding - never a channel list, because a list answers "what is on?" and the person typing a number has already
+answered that. It waited `ZapTimeout`, two seconds by default (`Settings/SlimTvClientSettings.cs:47-49`, described
+in its own settings text as "Configures the delay until tuning starts."), and rearmed that wait with every digit
+(`Models/ChannelZapModel.cs:148`), because the alternative is a remote whose digits each tune a channel. Then the
+number was read as a **place in the bouquet**, one-based, whenever `ZapByChannelIndex` was on - which it is by
+default, because that is what the buttons mean to the person pressing them, not to the backend. A lone `0` was zap
+back (`ChannelZapModel.cs:167-170`) and a `0` after other digits was a nought, which is how 101 is spelled. All of
+that is here, with one exception worth naming: `ChannelZapModel.ZapTimerElapsed` clears `ChannelNumberOrIndex`
+*before* parsing it, so in the reference a digit zap never actually fired. That is a bug and it was not copied.
+
+The list over the picture is the reference's miniguide (`Skin/Nereus/screens/SlimTvClient-miniguide.xaml`), kept as
+it was drawn rather than as a screen of its own: it is opened as a dialog whose host is transparent, so the channel
+keeps playing behind it while its rows are walked; its rows are `EpgSlimRowHeight`, fifty pixels, filled `#2c2c2c`
+and `#757575` when they are the one on the screen; its columns are the channel's own number, logo and name, and
+what is running on it and after it. And a press on a row **watches** - recording was a different key on a different
+menu. Its rows are filled from one question about the whole bouquet rather than one per channel, which is the only
+way the list arrives at all: two hundred questions to a machine in another room is not a way to fill a screen.
+
+Four things were left behind on purpose. **Refusals are said out loud.** The reference said nothing in three
+different places - a channel with no stream (`SlimTVMPExtendedProvider.cs:246-247`), a tune the backend could not
+serve, and a number matching nothing (`ChannelZapModel.cs:141-181`) - and in all three the viewer was left on the
+black screen the zap had taken them to, holding a remote that seemed to have stopped working. This says which
+channel, which machine and how many channels there were to choose from. **Leaving the screen stops the channel**;
+the reference let the sound carry on behind the rest of the media centre, because nothing between its workflow
+states ever stopped the player (`SlimTvClientModel.cs:1023-1031` disposes the model and leaves it alone), which is
+a habit for a box whose only job is being a television. **The television and the radio are one player here**: the
+tuner owns nothing and asks through `PlayRequested` and `StopRequested`, so the reference's swap of two player
+objects (`TVHandler/SlimTvHandler.cs:213-221`) became the other tuner being told its channel has gone - and asking
+it for a stop would have stopped the picture that had just arrived, which is what a test now prevents. And a live
+channel carries **no media id and no report** to the library: the server's "continue watching" shelf is made of
+things somebody chose from it, not of whatever the television happened to be showing.
+
+One thing was found on the way that is worth reading twice, because it is invisible from every test that existed.
+`TvGuideViewModel` raised a plain `PropertyChanged` event without carrying `INotifyPropertyChanged`. The code
+beside the model subscribes to the event directly, so the grid redrew, the focused box was framed, and every model
+test and every drawn test passed - while Avalonia's bindings look for the interface, bind nothing without it, and
+say nothing at all. The guide's details band along the bottom therefore went on telling the viewer about the
+programme under the cursor when the screen opened, forever, and the new tuner would have done exactly the same with
+its digits and its programme line. Both now carry the interface, and there is a drawn test that walks the cursor to
+another programme and insists the words along the bottom changed with it - the only shape of test that can see this
+class of mistake, since the mistake is precisely that the model is right and the screen is not.
+
+Not done, and deliberately not attempted here. There is no timeshift, so live television cannot be paused or
+rewound; TVHeadend offers it (`api/multicast/...` and its timeshift endpoints) and the reference's whole watching
+experience was built on the timeshift file its provider handed back (`SlimTVMPExtendedProvider.cs:230-260`), so
+that is a real gap rather than a missing detail, and it belongs with the recording screens. There are no channel
+logos, so the miniguide row is number and name where the reference's reserved a hundred and fifty-five pixels for a
+picture. Nothing routes the keyboard's digits to the tuner yet - the model takes them and the screen shows them,
+but no key binding hands them over - and the reference's PiP, subtitle, audio-stream, aspect and record keys have
+no equivalents at all. Pause, skip, volume and mute are not bound on this screen either, which is the reference's
+own omission (`Skin/default/screens/FullscreenTvKeybindings.inc` has no mute and no volume among its watching keys).
+
+Tests: twenty-one in `TestTvPlayback`, with the backend scripted in the file and its programmes anchored to the
+running clock snapped to the minute, so the end-of-programme time the strip prints cannot move between the answer
+and the assertion. They pin the backend's own streaming address reaching the player untouched; an unwatchable
+channel (no stream URL *and* no number, the only combination that really has no address) saying so and asking for
+nothing; the same channel twice asking for nothing; zapping wrapping at both ends of the bouquet; going back being
+the channel before this one; the digits accumulating into one number and a number nothing matches saying how many
+there were; a finished number picking the channel at that place, counted from one; a lone zero going back and a
+zero after digits being a nought; Back taking the number off without choosing; the list over the picture arriving
+from exactly one question about the bouquet and a channel with no programme data getting the reference's own words;
+the strip following the running programme including its end time; a refused now-and-next leaving the picture alone
+and saying which of the two it could not do; a radio with no picture opening on the bouquet that says radio and
+being played by the same player. Three of them look at the drawn screen: the digits appearing in the middle of the
+picture and going away when taken, one row per channel with its two programmes and a press watching it and clearing
+the list, and the radio drawing no picture at all. `TestTvGuideScreen` grew a thirty-first for the bindings.
+
 ## What cannot be verified without the user
 
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library

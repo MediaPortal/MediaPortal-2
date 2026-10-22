@@ -63,7 +63,7 @@
          series in the middle, and the description taking whatever was left (screens/ProgramInfoSlim.inc). -->
     <Border DockPanel.Dock="Bottom" Background="#D9000000" CornerRadius="4" Padding="14,8" Margin="0,4,0,0"
             MinHeight="96">
-      <Grid ColumnDefinitions="210,250,*" ColumnSpacing="16">
+      <Grid ColumnDefinitions="210,250,*,Auto" ColumnSpacing="16">
         <StackPanel Spacing="2">
           <TextBlock Text="{Binding DetailsTimes}" FontSize="15" Opacity="0.8" />
           <TextBlock Text="{Binding DetailsGenre}" FontSize="13" Opacity="0.6"
@@ -78,6 +78,13 @@
         </StackPanel>
         <TextBlock Grid.Column="2" Text="{Binding DetailsWords}" FontSize="14" Opacity="0.8"
                    TextWrapping="Wrap" TextTrimming="CharacterEllipsis" MaxHeight="92" />
+
+        <!-- Getting to the programme, rather than only reading about it. The reference did this with a key on the
+             guide rather than a button - and its ZapFromGuide switch decided whether a press in the grid went
+             straight to the channel - so the way here is a press on the block itself, twice, and this for
+             somebody who would rather say it out loud. -->
+        <Button Name="watchButton" Grid.Column="3" Content="Watch" FontSize="14" Padding="14,6"
+                VerticalAlignment="Center" Focusable="True" IsEnabled="{Binding HasSelection}" />
       </Grid>
     </Border>
 

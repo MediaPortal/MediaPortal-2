@@ -1,0 +1,125 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        xmlns:views="using:MediaPortal.Frontend.Views"
+        x:Class="MediaPortal.Frontend.Views.TvWatchView"
+        x:DataType="vm:TvTunerViewModel"
+        Name="tvWatch"
+        Background="#FF000000"
+        >
+
+  <!--
+    Watching a channel. The reference's screen is Skin/Nereus/screens/FullScreenContentTv.xaml: the picture, a
+    two hundred and sixty pixel strip along the bottom that slides up over it, and nothing else on show until
+    somebody asks - the programme data is a guest at the picture, not a frame around it.
+
+    The strip is that shape here. Its programme lines are the reference's two blocks, the running one in the
+    colour of everything else on the screen and the one after it in the skin's only accent colour, #009999
+    (themes/default/styles/SlimTvColors.xaml:7), and its bar is the reference's eighteen pixel progress bar with
+    the time the programme ends at the right end (SlimTvStyles.xaml:339-356).
+
+    Radio gets the same strip and no picture. The reference does the same thing with a still photograph behind the
+    strip instead of a video surface (FullScreenContentRadio.xaml:21-35) and takes the picture's controls off the
+    keys; what is left is the channel and its two programmes, which is what a radio is.
+  -->
+
+  <Panel>
+
+    <!-- The picture. Absent rather than black for radio, because a black rectangle promising a picture that will
+         never come is worse than no rectangle at all. -->
+    <views:VideoSurface Name="videoSurface" IsVisible="{Binding HasPicture}" />
+
+    <!-- Radio's stand-in for the reference's photograph: the channel, said big, where the picture would be. -->
+    <StackPanel IsVisible="{Binding HasPicture, Converter={x:Static BoolConverters.Not}}"
+                VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
+      <TextBlock Text="{Binding ChannelSays}" FontSize="44" FontWeight="SemiBold"
+                 HorizontalAlignment="Center" />
+      <TextBlock Text="{Binding NowTitle}" FontSize="20" Opacity="0.75" HorizontalAlignment="Center"
+                 TextTrimming="CharacterEllipsis" MaxWidth="900" />
+    </StackPanel>
+
+    <!-- What somebody is typing. The reference showed the digits and nothing else - a two hundred pixel box in
+         the middle of the screen with the number in it, up for exactly as long as the zap timeout lasts
+         (Skin/Nereus/superlayers/ChannelZapOSD.xaml:11-13). A list of channels appears when somebody asks for it
+         below, not while a number is being typed, because the two questions are different. -->
+    <Border IsVisible="{Binding IsTypingANumber}" Background="#CC000000" CornerRadius="6"
+            Padding="28,10" MinWidth="200" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <TextBlock Text="{Binding Digits}" FontSize="64" FontWeight="Bold" HorizontalAlignment="Center" />
+    </Border>
+
+    <!-- The channels, over the picture. This is the reference's miniguide: the bouquet's channels one under the
+         other, fifty pixels each, the programme running on each and the one after it beside it, and the picture
+         going on behind it the whole time (SlimTvClient-miniguide.xaml, which is opened as a dialog over the
+         fullscreen screen rather than replacing it). Pressing a row watches that channel. -->
+    <Border Name="listPanel" IsVisible="False" Background="#E6000000" CornerRadius="6"
+            Margin="40,40,40,190" Padding="10">
+      <DockPanel>
+        <Grid DockPanel.Dock="Top" ColumnDefinitions="70,240,*,*" Margin="6,0,6,6">
+          <TextBlock Text="#" FontSize="13" Opacity="0.55" />
+          <TextBlock Grid.Column="1" Text="Channel" FontSize="13" Opacity="0.55" />
+          <TextBlock Grid.Column="2" Text="Now" FontSize="13" Opacity="0.55" />
+          <TextBlock Grid.Column="3" Text="Next" FontSize="13" Opacity="0.55" />
+        </Grid>
+
+        <TextBlock DockPanel.Dock="Top" Text="{Binding Status}" FontSize="13" Opacity="0.7"
+                   Margin="6,0,6,6" />
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+          <StackPanel Name="rowHost" Spacing="0" />
+        </ScrollViewer>
+      </DockPanel>
+    </Border>
+
+    <!-- The strip. Two hundred and sixty pixels in the reference, which was measured against a thousand and
+         eighty of height; this is the same share of the screen and grows with it. -->
+    <Border VerticalAlignment="Bottom" Background="#D9000000" Padding="18,10" MinHeight="150">
+      <Grid RowDefinitions="*,Auto">
+        <Grid ColumnDefinitions="260,*" ColumnSpacing="18">
+          <StackPanel Spacing="2" VerticalAlignment="Center">
+            <TextBlock Text="{Binding ChannelSays}" FontSize="24" FontWeight="SemiBold"
+                       TextTrimming="CharacterEllipsis" />
+            <TextBlock Text="{Binding Status}" FontSize="13" Opacity="0.6"
+                       TextTrimming="CharacterEllipsis" />
+          </StackPanel>
+
+          <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
+            <TextBlock Text="{Binding NowTitle}" FontSize="20" TextTrimming="CharacterEllipsis" />
+            <!-- The one after it, in the one colour this skin's watching surface uses. -->
+            <TextBlock Text="{Binding NextTitle}" FontSize="15" Foreground="#FF009999"
+                       TextTrimming="CharacterEllipsis"
+                       IsVisible="{Binding NextTitle, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+          </StackPanel>
+        </Grid>
+
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="12" Margin="0,8,0,0">
+          <!-- The running programme's bar, eighteen pixels like the reference's, with the time it ends at its
+               right end. No bar at all when the backend has said nothing about what is running: a bar without a
+               programme behind it is a lie about the evening. -->
+          <ProgressBar Minimum="0" Maximum="1" Value="{Binding Progress}" Height="18"
+                       IsVisible="{Binding HasProgramme}" VerticalAlignment="Center" />
+          <TextBlock Grid.Column="1" Text="{Binding EndsAt}" FontSize="14" Opacity="0.7"
+                     VerticalAlignment="Center" />
+        </Grid>
+      </Grid>
+    </Border>
+
+    <!-- The buttons. The reference binds most of these to keys on a remote rather than to pictures on the screen
+         (Skin/default/screens/FullscreenTvKeybindings.inc), and its only on-screen controls are the player's own
+         row of ninety pixels; a keyboard has neither the channel up and down keys of a remote nor its digits, so
+         they are all on show here. -->
+    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center"
+                VerticalAlignment="Bottom" Margin="0,0,0,166">
+      <Button Name="upButton" Content="&#9650;" ToolTip.Tip="Channel up" FontSize="14"
+              Padding="10,4" Focusable="True" />
+      <Button Name="downButton" Content="&#9660;" ToolTip.Tip="Channel down" FontSize="14"
+              Padding="10,4" Focusable="True" />
+      <Button Name="backChannelButton" Content="Back" ToolTip.Tip="The channel before this one"
+              FontSize="14" Padding="12,4" Focusable="True" />
+      <Button Name="listButton" Content="Channels" FontSize="14" Padding="12,4" Focusable="True" />
+      <ComboBox Name="groupPicker" ItemsSource="{Binding Groups}"
+                SelectedItem="{Binding SelectedGroup, Mode=TwoWay}"
+                FontSize="14" MinWidth="180" Focusable="True" />
+      <Button Name="stopButton" Content="Stop" FontSize="14" Padding="12,4" Focusable="True" />
+    </StackPanel>
+  </Panel>
+</UserControl>

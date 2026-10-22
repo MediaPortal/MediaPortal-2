@@ -738,6 +738,50 @@ namespace Tests.Frontend
       }
     }
 
+    /// <summary>
+    /// The words the details band along the bottom is saying. The band's own sentences are what is looked at here -
+    /// a title would also be found inside the block it belongs to, and the point of this test is the difference
+    /// between a screen that follows the cursor and one that stopped listening.
+    /// </summary>
+    private static List<string> BandOf(Window window)
+    {
+      return window.GetVisualDescendants().OfType<TextBlock>()
+          .Where(t => t.GetVisualAncestors().All(a => a.IsVisible))
+          .Select(t => t.Text ?? "")
+          .ToList();
+    }
+
+    /// <summary>
+    /// The screen's words about the programme under the cursor have to change when the cursor moves. A model that
+    /// raises a plain <c>PropertyChanged</c> event without carrying <c>INotifyPropertyChanged</c> is enough for
+    /// the code beside it - which is why the grid redrew, the box was framed, and every model test passed - while
+    /// Avalonia's bindings quietly attach to nothing and the screen goes on telling the viewer about the programme
+    /// that happened to be under the cursor when the screen opened. That is invisible from the model, so it is
+    /// measured here.
+    /// </summary>
+    [Test]
+    [AvaloniaTest]
+    public void TheBandAlongTheBottomChangesWhenTheViewerWalksToAnotherProgramme()
+    {
+      ScriptedGuide backend = new ScriptedGuide();
+      TvGuideViewModel guide = Opened(backend);
+      Window window = ShowOnScreen(guide);
+
+      guide.Press(Block(guide, "Das Erste", "Tagesschau"));
+      Pump();
+      List<string> first = BandOf(window);
+      Assert.That(first, Does.Contain("News from the country."),
+          "the words of the programme the viewer is standing on are said along the bottom");
+
+      guide.Press(Block(guide, "Das Erste", "Tatort"));
+      Pump();
+      List<string> then = BandOf(window);
+      Assert.That(then, Does.Contain("A murder in Hamburg."),
+          "and it changes when they walk to the next one");
+      Assert.That(then, Has.None.EqualTo("News from the country."),
+          "the old programme's words leave the screen with the old programme");
+    }
+
     #endregion
   }
 }
