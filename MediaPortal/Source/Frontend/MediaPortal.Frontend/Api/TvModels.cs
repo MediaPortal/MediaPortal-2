@@ -268,6 +268,207 @@ namespace MediaPortal.Frontend.Api
   }
 
   /// <summary>
+  /// Which of the backend's recording tables a question is asked of.
+  /// </summary>
+  /// <remarks>
+  /// The reference kept one list of <c>ISchedule</c> for everything still to come and read finished recordings
+  /// through the media library, so its two screens wanted exactly two answers; the backend here splits the same
+  /// material into its own tables and calls the third one "everything", which includes the two the screens ask
+  /// for plus the ones that went wrong.
+  /// </remarks>
+  public enum TvRecordingTable
+  {
+    /// <summary>What is planned and what is happening now.</summary>
+    Upcoming,
+
+    /// <summary>What has been recorded, whether it was watched or not.</summary>
+    Finished,
+
+    /// <summary>All of it, including the ones that failed.</summary>
+    Everything
+  }
+
+  /// <summary>
+  /// One recording the backend has been asked to make - a timer in TVHeadend's words, a <c>ISchedule</c> in the
+  /// reference's.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// One record covers the reference's two separate things: what is still to be recorded, which the reference
+  /// held as a schedule it could cancel, and what is already on disk, which the reference treated as a media
+  /// item it could play and delete. TVHeadend answers both out of the same table with the same fields, and the
+  /// only difference a screen can see is <see cref="State"/>.
+  /// </para>
+  /// <para>
+  /// <see cref="RenewsSeries"/> is this backend's answer to the reference's <c>SeriesScheduled</c>. The reference
+  /// had eight recording types (daily, weekly, every time on this channel, ...) and asked which of them a series
+  /// should be; a TVHeadend asks one question instead - keep renewing this event whenever the broadcaster lists
+  /// it again, or do not - so the eight become a yes or a no. Which one it is cannot be read off the entry on
+  /// every backend version, so a table that does not say has it recorded as <c>false</c> rather than guessed at.
+  /// </para>
+  /// <para>
+  /// <see cref="Uuid"/> is what every question about an entry is asked with. <see cref="EntryId"/> is the
+  /// backend's own row number, kept because some of its versions want that instead of the uuid and an update can
+  /// carry both without harm.
+  /// </para>
+  /// </remarks>
+  public sealed record TvRecording(string Uuid, string? EntryId, string? ChannelId, string ChannelName,
+      DateTimeOffset Start, DateTimeOffset Stop, string Title, string? Subtitle, string? Description,
+      string State, bool Enabled, bool Automatic, bool Duplicate, bool RenewsSeries, int Priority,
+      int RetentionDays, long Bytes, string? Directory, string? FilePath, string? Problem)
+  {
+    /// <summary>Whether this was asked for as a series, in the reference's words.</summary>
+    public bool IsSeries
+    {
+      get { return RenewsSeries; }
+    }
+
+    /// <summary>Whether the backend is writing this one at the moment.</summary>
+    public bool IsRecording
+    {
+      get { return ReadsState("recording", "rec"); }
+    }
+
+    /// <summary>Whether it is planned but has not begun.</summary>
+    public bool IsWaiting
+    {
+      get { return ReadsState("schedul", "pending", "ack"); }
+    }
+
+    /// <summary>Whether the backend considers it done.</summary>
+    public bool IsCompleted
+    {
+      get { return ReadsState("compl", "complete", "ok"); }
+    }
+
+    /// <summary>Whether it went wrong, which is the one state a screen has to say out loud.</summary>
+    public bool IsFailed
+    {
+      get { return ReadsState("fail", "error", "invalid", "conflict", "missed", "network"); }
+    }
+
+    /// <summary>Whether somebody called it off.</summary>
+    public bool IsCancelled
+    {
+      get { return ReadsState("cancel"); }
+    }
+
+    /// <summary>
+    /// Whether there is anything to play. A finished entry without a file is a recording the backend knows about
+    /// but cannot hand over, which happens when the disk it was written to is gone.
+    /// </summary>
+    public bool HasFile
+    {
+      get { return !string.IsNullOrWhiteSpace(FilePath); }
+    }
+
+    /// <summary>The day it begins, on the viewer's own clock.</summary>
+    public string DayLocal
+    {
+      get { return Start.LocalDateTime.ToString("dd", CultureInfo.InvariantCulture); }
+    }
+
+    /// <summary>The weekday and day it begins, spelled the way the viewer's culture spells it.</summary>
+    public string DayNameLocal
+    {
+      get { return Start.LocalDateTime.ToString("ddd d", CultureInfo.CurrentCulture); }
+    }
+
+    /// <summary>The hour and minute it begins, on the viewer's own clock.</summary>
+    public string StartLocal
+    {
+      get { return Start.LocalDateTime.ToString("t", CultureInfo.CurrentCulture); }
+    }
+
+    /// <summary>The hour and minute it ends.</summary>
+    public string StopLocal
+    {
+      get { return Stop.LocalDateTime.ToString("t", CultureInfo.CurrentCulture); }
+    }
+
+    /// <summary>Both ends of it, as one line - the reference's schedule list wrote this in a column of its own.</summary>
+    public string TimeRange
+    {
+      get { return StartLocal + " - " + StopLocal; }
+    }
+
+    /// <summary>How long it was asked for.</summary>
+    public TimeSpan Duration
+    {
+      get { return Stop - Start; }
+    }
+
+    /// <summary>The title with the episode behind it, which is what both the reference's rows and its band said.</summary>
+    public string Heading
+    {
+      get
+      {
+        string said = string.IsNullOrWhiteSpace(Title) ? "(no title)" : Title;
+        return string.IsNullOrWhiteSpace(Subtitle) ? said : said + " - " + Subtitle;
+      }
+    }
+
+    /// <summary>What the screen says about how big the file is, or nothing when there is no file.</summary>
+    public string Size
+    {
+      get
+      {
+        if (Bytes <= 0)
+          return "";
+        double megabytes = Bytes / (1024.0 * 1024.0);
+        return megabytes >= 1024
+            ? string.Format(CultureInfo.CurrentCulture, "{0:F1} GB", megabytes / 1024.0)
+            : string.Format(CultureInfo.CurrentCulture, "{0:F0} MB", megabytes);
+      }
+    }
+
+    /// <summary>
+    /// Whether the backend's word for this entry's state is one of these. Compared on prefixes and
+    /// case-insensitively on purpose: the entry table writes "Completed" where the guide's mark on a programme
+    /// says "compl", and a backend in another language may write neither.
+    /// </summary>
+    private bool ReadsState(params string[] beginnings)
+    {
+      foreach (string beginning in beginnings)
+      {
+        if (State.StartsWith(beginning, StringComparison.OrdinalIgnoreCase))
+          return true;
+      }
+      return false;
+    }
+  }
+
+  /// <summary>
+  /// What the backend said to something that was asked of it - a recording planned, an entry cancelled.
+  /// </summary>
+  /// <remarks>
+  /// The reference's schedule calls answered <c>AsyncResult</c> with a success flag and a failure object; the
+  /// screens here only ever want to put a sentence on the screen, so both halves arrive as one small answer.
+  /// A succeeded call carries the entry the backend made, which is how a screen can mark the programme it just
+  /// planned without asking the whole table again.
+  /// </remarks>
+  public sealed record TvBackendAnswer(bool Succeeded, string? Said, TvRecording? Entry)
+  {
+    /// <summary>A backend that said yes, and what it made.</summary>
+    public static TvBackendAnswer Made(TvRecording? entry)
+    {
+      return new TvBackendAnswer(true, null, entry);
+    }
+
+    /// <summary>A backend that said no, and the words it said it in.</summary>
+    public static TvBackendAnswer Refused(string words)
+    {
+      return new TvBackendAnswer(false, words, null);
+    }
+
+    /// <summary>The sentence a screen shows when this answer was a refusal.</summary>
+    public string Complaint
+    {
+      get { return string.IsNullOrWhiteSpace(Said) ? "the TV backend refused" : Said!; }
+    }
+  }
+
+  /// <summary>
   /// The colour a guide wears per genre, in the eight colours the reference chose.
   /// </summary>
   /// <remarks>

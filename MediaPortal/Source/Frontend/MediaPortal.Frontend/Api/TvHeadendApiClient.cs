@@ -118,15 +118,18 @@ namespace MediaPortal.Frontend.Api
   /// <para>
   /// What is asked, in the backend's own words: the channel list is <c>api/channel/grid</c> with the bouquets at
   /// <c>api/channeltag/list</c>, the programme data is <c>api/epg/events</c>, and the names of the programme
-  /// kinds come from <c>api/epg/content_type/list</c>. Recordings - which the schedule screens ask for, not these
-  /// - are <c>api/dvr/entry</c> and its <c>autorenew</c> sibling.
+  /// kinds come from <c>api/epg/content_type/list</c>. The recordings are <c>api/dvr/entry</c> and its tables
+  /// (<c>grid_upcoming</c>, <c>grid_finished</c>, <c>grid_all</c>) with <c>create</c>, <c>delete</c>,
+  /// <c>cancel</c> and the <c>autorenew</c> sibling for the questions a viewer asks about one of them.
   /// </para>
   /// <para>
   /// Two things about that interface are worth knowing while reading the methods. Times are seconds since 1970
   /// in UTC and are turned into offsets the moment they are read, because subtracting two of them is the only way
   /// a living room in Lisbon and a living room in Helsinki share one guide layout. And a table answers at most
   /// <c>limit</c> rows and says how many there really were in <c>total</c>, so every question here pages rather
-  /// than assuming its window is small - a fortnight of a forty-channel bouquet is not.
+  /// than assuming its window is small - a fortnight of a forty-channel bouquet is not. The recording tables page
+  /// the same way but call their rows <c>dlrEntries</c> and their count <c>totalCount</c>, which is a typo the
+  /// backend has carried for years and every client has to carry with it.
   /// </para>
   /// <para>
   /// Fields are read by name and forgiven when absent. The backend answers a great many fields per programme,
@@ -464,6 +467,280 @@ namespace MediaPortal.Frontend.Api
     }
 
     /// <summary>
+    /// The recordings one of the backend's recording tables knows about, oldest first when the table itself has no
+    /// opinion.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This is the question the reference's <c>GetSchedulesAsync</c> asked of its TV server and its media library
+    /// asked of the recordings folder, in one question instead of two: a TVHeadend keeps planned recordings and
+    /// finished ones in the same table and says which is which by the entry's state, so a screen that wants the
+    /// upcoming ones and a screen that wants the ones on disk are asking the same thing of different tables.
+    /// </para>
+    /// <para>
+    /// Nothing is filtered here on purpose. The tables already are the filter, and an entry that "should" have been
+    /// left out - a recording of a channel nobody watches, one that failed, one somebody else on the network
+    /// planned - is a fact about the household's box that its screens are better off showing than hiding.
+    /// </para>
+    /// </remarks>
+    public async Task<IReadOnlyList<TvRecording>> GetRecordingsAsync(TvRecordingTable table,
+        CancellationToken cancellation = default)
+    {
+      List<TvRecording> entries = await GetTableAsync("api/dvr/entry/" + TablePath(table), "", "dlrEntries",
+          "totalCount", ReadRecording, cancellation).ConfigureAwait(false);
+
+      entries.Sort(delegate (TvRecording a, TvRecording b)
+      {
+        int byStart = a.Start.CompareTo(b.Start);
+        return byStart != 0 ? byStart
+            : string.Compare(a.Title, b.Title, StringComparison.OrdinalIgnoreCase);
+      });
+      return entries;
+    }
+
+    /// <summary>
+    /// Ask for a programme to be recorded.
+    /// </summary>
+    /// <remarks>
+    /// The event's own id is the whole question: a TVHeadend knows the channel, the title and both ends of the
+    /// window from its EPG, and re-sending what the caller read out of that same EPG would only give the box two
+    /// answers to choose between. The reference asked the equivalent single question
+    /// (<c>CreateScheduleAsync(program, recordingType)</c>).
+    ///
+    /// <c>asSeries</c> is the reference's <c>SeriesScheduled</c> and is asked here as the backend's own
+    /// <c>autorenew</c>: keep making a timer for this event every time the broadcaster lists it again. The
+    /// reference offered eight kinds of series (daily, weekly, on this channel, ...); this backend offers one
+    /// switch, and duplicate detection is deliberately left off - a household that asked for a series wants the
+    /// repeats too unless it said otherwise somewhere else.
+    /// </remarks>
+    public Task<TvBackendAnswer> ScheduleRecordingAsync(TvProgram program, bool asSeries,
+        CancellationToken cancellation = default)
+    {
+      if (program == null)
+        throw new ArgumentNullException(nameof(program));
+
+      string query = "event_id=" + program.Id.ToString(CultureInfo.InvariantCulture)
+          + "&enabled=1"
+          + "&autorenew=" + (asSeries ? "1" : "0")
+          + "&dupdetect=0"
+          // Let the backend write the programme's own words into the recording's comment rather than leaving the
+          // entry with nothing but a title, which is what the reference's schedules carried into their band.
+          + "&autocomm=1";
+
+      return AskForAnswerAsync("api/dvr/entry/create?" + query, cancellation);
+    }
+
+    /// <summary>
+    /// Call a recording off. For one still to come this takes the timer away; for one in progress the backend
+    /// stops writing and keeps what it has.
+    /// </summary>
+    public Task<TvBackendAnswer> RemoveRecordingAsync(TvRecording recording, CancellationToken cancellation = default)
+    {
+      return AskForAnswerAsync("api/dvr/entry/delete?" + EntryWhose(recording), cancellation);
+    }
+
+    /// <summary>
+    /// Stop a recording that is happening without throwing the entry away, which is the reference's
+    /// "Stop current recording '{title}'" - its own wording asks for the recording to end, not for the plan to
+    /// vanish, and a viewer who stops a recording usually still wants the part that was already watched.
+    /// </summary>
+    public Task<TvBackendAnswer> StopRecordingAsync(TvRecording recording, CancellationToken cancellation = default)
+    {
+      return AskForAnswerAsync("api/dvr/entry/cancel?" + EntryWhose(recording), cancellation);
+    }
+
+    /// <summary>
+    /// Turn the series behaviour of an entry on or off, which is the reference's "Record series" and its
+    /// counterpart asked of an entry that already exists. <c>all</c> is sent because the backend's own screen
+    /// does the same: switching a series on is meant to cover every episode the box already knows about, not
+    /// only the one that happened to be selected.
+    /// </summary>
+    public Task<TvBackendAnswer> SetSeriesRenewalAsync(TvRecording recording, bool renew,
+        CancellationToken cancellation = default)
+    {
+      return AskForAnswerAsync("api/dvr/entry/autorenew?" + EntryWhose(recording)
+          + "&active=" + (renew ? "1" : "0") + "&all=1", cancellation);
+    }
+
+    /// <summary>The backend's address for one of its recording tables.</summary>
+    private static string TablePath(TvRecordingTable table)
+    {
+      switch (table)
+      {
+        case TvRecordingTable.Upcoming:
+          return "grid_upcoming";
+        case TvRecordingTable.Finished:
+          return "grid_finished";
+        default:
+          return "grid_all";
+      }
+    }
+
+    /// <summary>
+    /// How an entry is pointed at. The uuid is what every version of the backend takes; the row number is sent
+    /// with it because the update endpoint of some versions reads that one and ignores the other, and an address
+    /// carrying both is answered by all of them.
+    /// </summary>
+    private static string EntryWhose(TvRecording recording)
+    {
+      if (recording == null)
+        throw new ArgumentNullException(nameof(recording));
+      if (string.IsNullOrWhiteSpace(recording.Uuid))
+        throw new ArgumentException("A recording with no uuid cannot be pointed at - the backend answers questions "
+            + "about entries by that id and by nothing else.", nameof(recording));
+
+      string said = "uuid=" + Uri.EscapeDataString(recording.Uuid);
+      return string.IsNullOrWhiteSpace(recording.EntryId) ? said
+          : said + "&entryId=" + Uri.EscapeDataString(recording.EntryId!);
+    }
+
+    /// <summary>
+    /// Ask something to be done and read the backend's yes or no.
+    /// </summary>
+    /// <remarks>
+    /// A refusal arrives as an ordinary answer rather than as an exception, because a viewer who asks to record
+    /// something that is already being recorded has not met a fault - they have met an answer, and the screen has
+    /// to say it in its own status line and leave the guide standing behind it. What cannot be answered at all
+    /// (a box that is down, a name that is not allowed) still arrives as <see cref="TvBackendException"/>, so a
+    /// screen has exactly two things to think about and not three.
+    /// </remarks>
+    private async Task<TvBackendAnswer> AskForAnswerAsync(string pathAndQuery, CancellationToken cancellation)
+    {
+      using (JsonDocument answer = await GetJsonAsync(pathAndQuery, cancellation).ConfigureAwait(false))
+      {
+        JsonElement root = answer.RootElement;
+
+        bool allowed = true;
+        if (root.TryGetProperty("success", out JsonElement success))
+          allowed = success.ValueKind != JsonValueKind.False;
+
+        if (!allowed)
+          return TvBackendAnswer.Refused(RefusalsIn(root));
+
+        TvRecording? made = null;
+        if (root.TryGetProperty("data", out JsonElement data) && data.ValueKind == JsonValueKind.Object)
+          made = ReadRecording(data);
+
+        return TvBackendAnswer.Made(made);
+      }
+    }
+
+    /// <summary>
+    /// The words a refusal came with. The backend writes them as a list under <c>errors</c>, sometimes as plain
+    /// sentences and sometimes as objects whose <c>text</c> holds the sentence, and a screen that showed the first
+    /// shape where the second one arrived would show a blank complaint.
+    /// </summary>
+    private static string RefusalsIn(JsonElement root)
+    {
+      List<string> said = new List<string>();
+      if (root.TryGetProperty("errors", out JsonElement errors) && errors.ValueKind == JsonValueKind.Array)
+      {
+        foreach (JsonElement error in errors.EnumerateArray())
+        {
+          string? words = error.ValueKind == JsonValueKind.String
+              ? error.GetString()
+              : (error.TryGetProperty("text", out JsonElement text) ? text.GetString() : null);
+          if (!string.IsNullOrWhiteSpace(words))
+            said.Add(words!.Trim());
+        }
+      }
+
+      return said.Count == 0 ? "the TV backend said no, and did not say why" : string.Join("; ", said);
+    }
+
+    /// <summary>
+    /// One row of a recording table. Every field is read loosely because the tables have changed shape between
+    /// backend versions - a title that moved from <c>name</c> to <c>title</c>, a size that is a number on one
+    /// version and a formatted string on another - and a screen that lost an entry over one of those would be
+    /// worse than a screen that showed the entry without that detail.
+    /// </summary>
+    private static TvRecording? ReadRecording(JsonElement entry)
+    {
+      string uuid = Text(entry, "uuid") ?? "";
+      if (uuid.Length == 0)
+        return null;
+
+      // The channel's name lives in "name", its uuid in "channel" - the same naming the channel table uses, and
+      // the same naming that makes a screen mix them up if it is not paying attention.
+      string channelName = Text(entry, "name") ?? "";
+      string? channelId = Text(entry, "channel") ?? Text(entry, "channelUuid");
+      string title = Text(entry, "title") ?? channelName;
+
+      // Both ends of the window: the table gives seconds since 1970 in "start" and "stop", and an entry with
+      // neither is a row that cannot be placed on a screen, so the second one is asked for as a date/time pair
+      // before the row is given up on.
+      DateTimeOffset begins;
+      DateTimeOffset ends;
+      if (!TryInstant(entry, "start", out begins))
+      {
+        if (!TryRecordingDay(entry, "date", "timevalue", out begins))
+          return null;
+      }
+      if (!TryInstant(entry, "stop", out ends))
+        ends = begins;
+      if (ends < begins)
+        ends = begins;
+
+      return new TvRecording(uuid,
+          Text(entry, "entryId") ?? Whole(entry, "entryId")?.ToString(CultureInfo.InvariantCulture),
+          channelId, channelName, begins, ends, title,
+          Text(entry, "subtitle"), Text(entry, "description") ?? Text(entry, "comment"),
+          Text(entry, "state") ?? "",
+          Flagged(entry, "enabled"),
+          // "autoscheduled" is the backend saying it made this entry itself - because a series renewed it - rather
+          // than a person asking for it, which is what a screen marks as "automatic".
+          Flagged(entry, "autoscheduled"),
+          // A duplicate entry is the backend's own bookkeeping: the recording happens elsewhere, and this row only
+          // marks that it does. "passive" is the same statement in some backend versions' words.
+          Flagged(entry, "duplicate") || Flagged(entry, "passive"),
+          Flagged(entry, "autorenew"),
+          Whole(entry, "prio") ?? 0,
+          Whole(entry, "retention") ?? 0,
+          Wide(entry, "size") ?? 0L,
+          Text(entry, "dir") ?? Text(entry, "directory"),
+          Text(entry, "url") ?? Text(entry, "path"),
+          Text(entry, "disabledText") ?? Text(entry, "updateError"));
+    }
+
+    /// <summary>
+    /// A recording's beginning from the two halves some backends send instead of an instant: a day counted in
+    /// seconds since the epoch at midnight, and a time of day counted in seconds since that midnight.
+    /// </summary>
+    private static bool TryRecordingDay(JsonElement entry, string dayField, string timeField,
+        out DateTimeOffset when)
+    {
+      when = DateTimeOffset.MinValue;
+      long? day = Wide(entry, dayField);
+      if (!day.HasValue)
+        return false;
+
+      long? secondsIntoDay = Wide(entry, timeField) ?? Wide(entry, "time");
+      when = DateTimeOffset.FromUnixTimeSeconds(day.Value)
+          + TimeSpan.FromSeconds(secondsIntoDay ?? 0);
+      return true;
+    }
+
+    /// <summary>
+    /// Whether a field says yes. The backend answers these as real JSON booleans in some places and as 0 and 1 in
+    /// others, and reading only the first shape quietly turns a yes into a no.
+    /// </summary>
+    private static bool Flagged(JsonElement entry, string name)
+    {
+      if (!entry.TryGetProperty(name, out JsonElement value))
+        return false;
+
+      switch (value.ValueKind)
+      {
+        case JsonValueKind.True:
+          return true;
+        case JsonValueKind.False:
+          return false;
+        default:
+          return (Whole(entry, name) ?? 0) != 0;
+      }
+    }
+
+    /// <summary>
     /// What the backend calls its programme kinds, so a screen names them the way its own web interface does
     /// instead of inventing a list. The codes are the backend's own; where they are DVB's four-bit genre codes,
     /// the names behind them are written here too because a guide that colours a programme still needs a word
@@ -639,6 +916,18 @@ namespace MediaPortal.Frontend.Api
     private async Task<List<T>> GetTableAsync<T>(string path, string query, Func<JsonElement, T?> read,
         CancellationToken cancellation) where T : class
     {
+      return await GetTableAsync(path, query, "entries", "total", read, cancellation).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// The same, for the tables that do not call their rows "entries". One backend, two spellings: the channel,
+    /// service and programme tables answer with <c>entries</c> and <c>total</c>, while the recording tables answer
+    /// with <c>dlrEntries</c> - a transposition nobody has fixed since it was written - and <c>totalCount</c>.
+    /// A reader that only knew the first words would report a backend full of recordings as having none, quietly.
+    /// </summary>
+    private async Task<List<T>> GetTableAsync<T>(string path, string query, string rowsKey, string totalKey,
+        Func<JsonElement, T?> read, CancellationToken cancellation) where T : class
+    {
       List<T> all = new List<T>();
 
       for (int page = 0; page < MAX_PAGES; page++)
@@ -652,7 +941,7 @@ namespace MediaPortal.Frontend.Api
           JsonElement root = answer.RootElement;
           int rows = 0;
 
-          if (root.TryGetProperty("entries", out JsonElement entries)
+          if (root.TryGetProperty(rowsKey, out JsonElement entries)
               && entries.ValueKind == JsonValueKind.Array)
           {
             foreach (JsonElement entry in entries.EnumerateArray())
@@ -664,7 +953,7 @@ namespace MediaPortal.Frontend.Api
             }
           }
 
-          int total = Whole(root, "total") ?? rows;
+          int total = Whole(root, totalKey) ?? rows;
           if (rows == 0 || (page + 1) * PAGE_SIZE >= total)
             break;
         }

@@ -4085,6 +4085,43 @@ being played by the same player. Three of them look at the drawn screen: the dig
 picture and going away when taken, one row per channel with its two programmes and a press watching it and clearing
 the list, and the radio drawing no picture at all. `TestTvGuideScreen` grew a thirty-first for the bindings.
 
+### bn. The timers: what a viewer asks a TVHeadend to keep, in its own table and its own words
+
+The guide already marks a programme that is being recorded, because a TVHeadend says so unasked on the programme
+itself. What was missing is the other half: the screens that ask for a recording and the screens that show what has
+been asked. This is the layer underneath those - the questions themselves, and the answers in the backend's shape.
+
+The reference reached recordings through two doors and never confused them: `IScheduleControlAsync` for the plans it
+could cancel (`CreateScheduleAsync(program, recordingType)`, `RemoveScheduleForProgramAsync`, a
+`RecordingStatus` flag per programme) and the media library for the files that were already written, which is why it
+had a schedules screen and a recordings screen rather than one list. A TVHeadend keeps both in one table and marks
+the difference in the entry's state, so one `TvRecording` covers both screens - with the file's address, the size,
+the priority, the retention and the backend's own complaint (`disabledText`) about why an entry is not happening
+read loosely out of the row. Three tables answer the three questions a screen asks: `grid_upcoming`,
+`grid_finished` and `grid_all`. Four things are asked *about* an entry: `create`, `delete`, `cancel` - which is the
+reference's "Stop current recording", because it ends the writing and leaves the entry standing - and `autorenew`,
+which is the only series this backend knows.
+
+Two of the reference's answers have no equivalent here and are recorded rather than invented. Its eight recording
+types (`Once`, `Daily`, `Weekly`, `EveryTimeOnEveryChannel`, ...) collapse into the backend's one switch
+`autorenew=0|1`, so "Record series" means "keep renewing this event whenever the broadcaster lists it again" and
+"Delete full series schedule" means the same switch turned off; the reference's own picker "Choose recording
+schedule type" therefore has nothing to choose between and is not ported. `CreateScheduleByTimeAsync` - the manual
+schedule, with its padding, priority, directory and its own screen of a date and a time - is not ported either: it
+is answered here only against a channel's own uuid, which this client never reads (it keys everything off the EPG
+channel), and a television has no date editor to ask the question with. A recording is therefore planned from a
+programme, which is how the reference's dialog asked for it too. What a refusal looks like is also settled here: a
+box that says `success:false` answers an ordinary `TvBackendAnswer` with the backend's own sentences, because
+"already being recorded" is an answer and not a fault, while a box that does not answer at all is still the one
+kind of exception the screens already catch.
+
+`TestTvRecordings` asks 15 questions of a scripted box: which table each list is asked of and that a screen asks
+one table and not both, that a row without a uuid is no recording, that a day-and-hour row is still placed on a
+timeline, that `1` and `true` are both yes, which states are waiting, writing, done, failed or called off, that a
+plan is asked for by `event_id` rather than by a re-sent time, that a series carries `autorenew=1` with
+`dupdetect=0` and that switching a series on says `all=1`, that both spellings of a refusal arrive as sentences,
+and that an unreachable box is still exactly one kind of fault.
+
 ## What cannot be verified without the user
 
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library
