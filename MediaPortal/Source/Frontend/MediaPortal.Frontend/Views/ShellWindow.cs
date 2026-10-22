@@ -24,6 +24,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 
 namespace MediaPortal.Frontend.Views
 {
@@ -56,6 +57,55 @@ namespace MediaPortal.Frontend.Views
     private readonly Func<Workflow.WorkflowFrame, Control?>? _viewFactory;
     private readonly StackPanel _trail = new StackPanel();
     private readonly ContentControl _screenArea = new ContentControl();
+
+    /// <summary>
+    /// The layer a question is raised on: a frame whose view is an <see cref="Workflow.IDialogScreen"/> stands
+    /// here, over the screen it was asked from, which stays exactly where it was - lit, scrolled, selected. The
+    /// reference's dialogs were never masters of their own, and a dialog that replaced the screen behind it would
+    /// hide the very thing the viewer is being asked about.
+    /// </summary>
+    private readonly ContentControl _dialogLayer = new ContentControl();
+
+    /// <summary>
+    /// The screen behind a dialog, held where the shell can see it: the header, the trail, the screens and the
+    /// footer in their rows, which is the whole picture a question is asked over and therefore the whole picture
+    /// that has to go out of focus.
+    /// </summary>
+    private readonly Grid _layout = new Grid();
+
+    /// <summary>
+    /// The screen behind a dialog thrown out of focus: a photograph of <see cref="_layout"/>, taken at a small
+    /// fraction of its size when a question goes up and stretched back over the window for the length of it.
+    /// The live screen hides under that photograph, which is what the viewer wants - a question is asked over
+    /// the screen, not in front of a moving one. The panel behind the photograph is the window's own colour,
+    /// because a photograph of a visual only holds what that visual paints and a layout leaves its empty rows
+    /// unpainted.
+    /// </summary>
+    private readonly Border _backdrop = new Border
+    {
+      IsHitTestVisible = false,
+      IsVisible = false
+    };
+
+    /// <summary>
+    /// The photograph itself, and it is a shape filled with the bitmap as a brush rather than an image control:
+    /// an image control paints a bitmap at the picture's own pixels and leaves the rest of its bounds alone, so
+    /// a photograph taken a fifth as big as the screen lands as a small blurred square in the corner. A brush
+    /// belongs to the surface it fills and is stretched over all of it, which is the whole point of the picture.
+    /// </summary>
+    private readonly Rectangle _backdropPicture = new Rectangle
+    {
+      IsHitTestVisible = false
+    };
+
+    /// <summary>
+    /// The photograph currently worn by <see cref="_backdropPicture"/>, kept so that the next question can throw
+    /// the very same ground away or hand it back sharp, and so that the bitmap is freed rather than left behind.
+    /// </summary>
+    private Bitmap? _backdropShot;
+
+    /// <summary>The stop the current photograph was taken of, so a second dialog over the same ground reuses it.</summary>
+    private Workflow.WorkflowFrame? _backdropShotOf;
     private readonly Theming.ChromeInfo _chrome =
         new Theming.ChromeInfo(action => Avalonia.Threading.Dispatcher.UIThread.Post(action));
     private readonly ContentControl _header = new ContentControl();
@@ -112,7 +162,8 @@ namespace MediaPortal.Frontend.Views
     /// </summary>
     public Control? Screen
     {
-      get { return _screenArea.Content as Control; }
+      // What the viewer is standing on: the dialog while one is up, the screen otherwise.
+      get { return (_dialogLayer.IsVisible ? _dialogLayer.Content : _screenArea.Content) as Control; }
     }
 
     private void BuildChrome()
@@ -157,23 +208,26 @@ namespace MediaPortal.Frontend.Views
       _superlayer.Name = "ChromeSuperlayer";
       _superlayer.Focusable = false;
       _superlayer.IsVisible = false;
+      _screenArea.Name = "ChromeScreenArea";
+      _backdrop.Name = "ChromeBackdrop";
+      _backdrop.Child = _backdropPicture;
+      RenderOptions.SetBitmapInterpolationMode(_backdropPicture, BitmapInterpolationMode.HighQuality);
       Theming.SkinEngine.Changed += WearSkinChrome;
       Theming.FrontendTheme.Changed += WearSkinChrome;
       WearSkinChrome(null, EventArgs.Empty);
 
-      Grid layout = new Grid();
-      layout.RowDefinitions.Add(new Avalonia.Controls.RowDefinition(GridLength.Auto));
-      layout.RowDefinitions.Add(new Avalonia.Controls.RowDefinition(GridLength.Auto));
-      layout.RowDefinitions.Add(new Avalonia.Controls.RowDefinition(GridLength.Star));
-      layout.RowDefinitions.Add(new Avalonia.Controls.RowDefinition(GridLength.Auto));
+      _layout.RowDefinitions.Add(new Avalonia.Controls.RowDefinition(GridLength.Auto));
+      _layout.RowDefinitions.Add(new Avalonia.Controls.RowDefinition(GridLength.Auto));
+      _layout.RowDefinitions.Add(new Avalonia.Controls.RowDefinition(GridLength.Star));
+      _layout.RowDefinitions.Add(new Avalonia.Controls.RowDefinition(GridLength.Auto));
       Grid.SetRow(_header, 0);
       Grid.SetRow(_trail, 1);
       Grid.SetRow(_screenArea, 2);
       Grid.SetRow(_footer, 3);
-      layout.Children.Add(_header);
-      layout.Children.Add(_trail);
-      layout.Children.Add(_screenArea);
-      layout.Children.Add(_footer);
+      _layout.Children.Add(_header);
+      _layout.Children.Add(_trail);
+      _layout.Children.Add(_screenArea);
+      _layout.Children.Add(_footer);
 
       // The superlayer floats over all of it - header, trail, screen - exactly as the reference's volume and
       // busy layers covered the whole master window.
@@ -192,7 +246,17 @@ namespace MediaPortal.Frontend.Views
       _pointerGround = shell;
       WearPointerLook(false);
 
-      shell.Children.Add(layout);
+      shell.Children.Add(_layout);
+
+      // The out-of-focus photograph of that ground, over it and under the question: while a dialog is up the
+      // viewer sees the picture instead of the live screen, so nothing behind the letters moves about. See
+      // BlurScreenBehind for the one moment that picture is taken and for the skins that want no such thing.
+      shell.Children.Add(_backdrop);
+
+      // The dialog layer, over the master and under the superlayer: a volume reading belongs above a dialog as
+      // much as above a film, and a dialog belongs above the screen it is a question about.
+      _dialogLayer.IsVisible = false;
+      shell.Children.Add(_dialogLayer);
       shell.Children.Add(_superlayer);
 
       // The keyboard dialog over the screens - above the superlayer, under the screensaver's black: a field
@@ -212,6 +276,15 @@ namespace MediaPortal.Frontend.Views
       };
       shell.Children.Add(_screensaverLayer);
       Content = shell;
+
+      // The first question of a run can be asked before this window has ever been laid out, and a ground with no
+      // size yet cannot be photographed. The next layout pass knows better, and one pass after the question is a
+      // blink no viewer is waiting for.
+      LayoutUpdated += delegate
+      {
+        if (_backdropShot == null && _backdropShotOf != null)
+          PhotographGround();
+      };
 
       WireScreensaver();
       WirePointerRest();
@@ -614,8 +687,155 @@ namespace MediaPortal.Frontend.Views
     private void UpdateChromeVisibility()
     {
       bool fullScreen = (_workflow.Current?.View as Control) is Workflow.IFullScreenScreen;
-      _header.IsVisible = _header.Template != null && !fullScreen && !_viewFullBleed;
-      _footer.IsVisible = _footer.Template != null && !fullScreen && !_viewFullBleed;
+      // A dialog asks about the screen behind it; the master's header and footer are that screen's furniture and
+      // stand back for the question, the same way they stand back for a film.
+      bool dialog = (_workflow.Current?.View as Control) is Workflow.IDialogScreen;
+      _header.IsVisible = _header.Template != null && !fullScreen && !dialog && !_viewFullBleed;
+      _footer.IsVisible = _footer.Template != null && !fullScreen && !dialog && !_viewFullBleed;
+    }
+
+    /// <summary>
+    /// The screen a dialog stands over: the nearest stop below this one that is not itself a dialog, or null
+    /// when this stop is a screen rather than a dialog. A dialog opened from a dialog answers to the same screen
+    /// underneath, because the second is only the first asked more precisely - the reference's dialogs stacked
+    /// that way, over the master and never over each other's ground.
+    /// </summary>
+    private Workflow.WorkflowFrame? ScreenBehind(Workflow.WorkflowFrame frame)
+    {
+      if (!(frame.View is Workflow.IDialogScreen))
+        return null;
+
+      IReadOnlyList<Workflow.WorkflowFrame> stack = _workflow.Stack;
+      for (int i = stack.Count - 1; i >= 0; i--)
+      {
+        if (!ReferenceEquals(stack[i], frame))
+          continue;
+
+        for (int below = i - 1; below >= 0; below--)
+        {
+          if (!(stack[below].View is Workflow.IDialogScreen))
+            return stack[below];
+        }
+      }
+
+      return null; // a dialog the workflow has nothing under: it takes the television like any screen would
+    }
+
+    /// <summary>
+    /// Throws the screen a dialog is asked over out of focus, and hands it back sharp when the question is
+    /// answered.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The reference dimmed its master screen behind a dialog and left it sharp, which was enough over its still
+    /// pictures. Here the home behind a question keeps moving about - covers arrive, the rail lights up, a shelf
+    /// scrolls - and moving detail under the letters of a question is the one thing a dialog must not put up
+    /// with. A photograph of that ground says what the reference's black said (this is the front of the stage)
+    /// and still lets the viewer recognise where they were standing.
+    /// </para>
+    /// <para>
+    /// A photograph, and not the framework's own blur: the framework draws an effect into a layer of its own at
+    /// the size the visual had in dependent pixels and stretches that layer over the screen's real pixels, so on
+    /// a television at 145% the blurred home comes out magnified, blocky and out of step with itself, its edges
+    /// fading into the window's black where the layer runs out. A photograph cannot drift, because it is the
+    /// screen - taken at the size the ground is really drawn in, shrunk by the skin's number, and stretched back
+    /// over the very same ground, so every blurred pixel sits exactly where its sharp one sat. Shrunk and
+    /// softened, that is: see <see cref="SoftFocus"/>, without which the picture is a mosaic and not a blur.
+    /// </para>
+    /// <para>
+    /// Taking it once, as the question goes up, is also what a dialog wants: the ground behind a question has no
+    /// business being recomputed sixty times a second, and a viewer who is being asked something is not watching
+    /// the shelves behind them scroll. How far the ground is shrunk is the skin's business, read off its metrics
+    /// under <c>DialogBackdropBlur</c>; a skin that names no number - or names less than two - leaves the screen
+    /// behind exactly as sharp as it always was, which is what a skin drawing its dialogs over a still background
+    /// wants. A film behind a dialog is never photographed either: every one of its frames is new, so a picture
+    /// of it is stale before it is drawn, and a dialog asked over a film is a question about the film.
+    /// </para>
+    /// </remarks>
+    private void BlurScreenBehind(Workflow.WorkflowFrame? behind)
+    {
+      bool worthPhotographing = behind != null
+          && !(behind.View is Workflow.IFullScreenScreen)
+          && (Theming.SkinEngine.WornNumber("DialogBackdropBlur") ?? 0.0) >= 2.0;
+
+      if (!worthPhotographing)
+      {
+        _backdropShotOf = null;
+        PutBackdropAway();
+        return;
+      }
+
+      if (_backdropShot != null && ReferenceEquals(_backdropShotOf, behind))
+        return; // a second question over the same ground stands in front of the same thrown-away picture
+
+      _backdropShotOf = behind;
+      PhotographGround();
+    }
+
+    /// <summary>
+    /// Takes the photograph of the ground, if the ground has a size to take it at yet.
+    /// </summary>
+    private void PhotographGround()
+    {
+      double shrink = Theming.SkinEngine.WornNumber("DialogBackdropBlur") ?? 0.0;
+      Size ground = _layout.Bounds.Size;
+      if (shrink < 2.0 || ground.Width < 2.0 || ground.Height < 2.0)
+        return; // the layout pass below tries again as soon as the window knows how big it is
+
+      // Taken at the size the ground is really drawn in and shrunk by the skin's number, so the blur keeps the
+      // same character whether the television is told to draw one pixel or one and a half per dot.
+      double scaling = RenderScaling <= 0.0 ? 1.0 : RenderScaling;
+      PixelSize pixels = new PixelSize(
+          Math.Max(1, (int) Math.Round(ground.Width * scaling / shrink)),
+          Math.Max(1, (int) Math.Round(ground.Height * scaling / shrink)));
+      Vector dpi = new Vector(96.0 * scaling / shrink, 96.0 * scaling / shrink);
+
+      RenderTargetBitmap shot = new RenderTargetBitmap(pixels, dpi);
+      shot.Render(_layout);
+
+      // And then genuinely softened, which is the other half of a blur: a picture that is merely small is a
+      // mosaic, and every sharp edge of the home comes back as a square the eye counts. Three box passes over
+      // the small picture - half the skin's number of its own pixels wide, which is a couple of screen pixels
+      // either way of everything - take those steps out while they are still cheap, and what is stretched back
+      // is a soft focus rather than a coarse one.
+      Bitmap soft = SoftFocus.Of(shot, Math.Max(1, (int) Math.Round(shrink / 2.0)));
+      shot.Dispose();
+
+      PutBackdropAway();
+      _backdropShot = soft;
+      _backdrop.Background = Background;
+      _backdropPicture.Fill = new ImageBrush(soft) { Stretch = Stretch.Fill };
+      _backdrop.IsVisible = true;
+    }
+
+    /// <summary>
+    /// Hands the ground back: the photograph is put away, and with it the layer it was covering.
+    /// </summary>
+    private void PutBackdropAway()
+    {
+      _backdrop.IsVisible = false;
+      _backdropPicture.Fill = null;
+      if (_backdropShot != null)
+      {
+        _backdropShot.Dispose();
+        _backdropShot = null;
+      }
+    }
+
+    /// <summary>
+    /// How deep this stop sits in the way through the front end, counting from one for the home screen. The stack
+    /// is a read-only list, so the answer is a walk from the top rather than an index.
+    /// </summary>
+    private int DepthOf(Workflow.WorkflowFrame frame)
+    {
+      IReadOnlyList<Workflow.WorkflowFrame> stack = _workflow.Stack;
+      for (int i = stack.Count - 1; i >= 0; i--)
+      {
+        if (ReferenceEquals(stack[i], frame))
+          return i + 1;
+      }
+
+      return 0;
     }
 
     /// <summary>
@@ -774,23 +994,46 @@ namespace MediaPortal.Frontend.Views
 
       if (frame.View == null && _viewFactory != null)
         frame.View = _viewFactory(frame);
-      _screenArea.Content = frame.View;
+
+      // A dialog is raised over the screen it was asked from, which stays lit, scrolled and selected behind it;
+      // every other stop takes the screen area for itself and hands the dialog layer back.
+      Workflow.WorkflowFrame? behind = ScreenBehind(frame);
+      bool dialog = behind != null;
+      _dialogLayer.Content = dialog ? frame.View : null;
+      _dialogLayer.IsVisible = dialog;
+      if (!dialog)
+        _screenArea.Content = frame.View;
+      else if (behind!.View != null)
+        _screenArea.Content = behind.View;
+
+      // What the dialog is asked over is thrown out of focus for the length of the question. See
+      // BlurScreenBehind, which is where that photograph comes from, how far the skin says to shrink it, and why
+      // a film is left alone.
+      BlurScreenBehind(behind);
+
       // A film is its own master screen - the chrome of the skin steps back while it is on (see IFullScreenScreen).
       UpdateChromeVisibility();
+
+      // What the television is showing is the screen that stayed lit: a dialog is a question about that screen,
+      // not a new place the viewer walked to, so the window's name, the header's word and the weather all go on
+      // answering for it.
+      Workflow.WorkflowFrame shown = behind ?? frame;
+      int depth = DepthOf(shown);
+
       // Alone, the window is the application, whatever screen that is; one stop deeper, the stop is worth naming.
-      Title = _workflow.Stack.Count <= 1 || string.IsNullOrEmpty(frame.Label)
+      Title = depth <= 1 || string.IsNullOrEmpty(shown.Label)
           ? "MediaPortal 2"
-          : "MediaPortal 2 - " + frame.Label;
+          : "MediaPortal 2 - " + shown.Label;
       // The header's words: the reference's master header named the screen it was showing - and at home it
       // said nothing at all. Both rescued skins dock an empty HeaderPanel above their home (master_home.xaml,
       // the Grid with only column definitions in it), because at home the fanart is the head line and no
       // word of the application's own belongs over it. Deeper screens keep their names.
-      _chrome.ScreenTitle = _workflow.Stack.Count <= 1 ? string.Empty : frame.Label ?? string.Empty;
+      _chrome.ScreenTitle = depth <= 1 ? string.Empty : shown.Label ?? string.Empty;
 
       // The reference read the weather on master_home and nowhere else, so the slot belongs to the same
       // one-deep-or-less answer that decides the window's name: the home head line carries it, deeper
       // screens do not.
-      _chrome.ShowWeatherSlot = _workflow.Stack.Count <= 1;
+      _chrome.ShowWeatherSlot = depth <= 1;
 
       RebuildTrail();
 
@@ -903,7 +1146,9 @@ namespace MediaPortal.Frontend.Views
       _trail.Children.Clear();
       foreach (Control crumb in crumbs)
         _trail.Children.Add(crumb);
-      _trail.IsVisible = _workflow.Stack.Count > 1;
+      // A dialog is not a place the viewer walked to, so it earns no crumb; the trail stays as the screen
+      // behind it left it.
+      _trail.IsVisible = _workflow.Stack.Count > 1 && !(_workflow.Current?.View is Workflow.IDialogScreen);
       _trail.Margin = new Avalonia.Thickness(16, 8, 16, 0);
     }
 

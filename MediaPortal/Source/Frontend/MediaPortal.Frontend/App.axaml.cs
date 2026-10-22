@@ -29,6 +29,7 @@ using Avalonia.Threading;
 using MediaPortal.Frontend.Api;
 using MediaPortal.Frontend.Player;
 using MediaPortal.Frontend.Settings;
+using MediaPortal.Frontend.Skins.Nereus;
 using MediaPortal.Frontend.Theming;
 using MediaPortal.Frontend.ViewModels;
 using MediaPortal.Frontend.Views;
@@ -808,6 +809,17 @@ namespace MediaPortal.Frontend
         return new SettingsView((SettingsViewModel)frame.ViewModel);
       }
 
+      if (state == "menuedit" || state == "menuadd" || state == "menulists" || state == "menulistadd")
+      {
+        // The four stops of Nereus' own menu editor, all of them over one model: the tiles as they stand, the
+        // tiles that may be added, one tile's media lists, and the lists that tile may still take. One model,
+        // because the answer is one answer - the arrangement the viewer finally presses OK on - and a screen
+        // carrying its own copy of it could only disagree with the others.
+        NereusMenuEditViewModel editor = (NereusMenuEditViewModel)frame.ViewModel;
+        return new NereusMenuEditView(editor, MenuEditScreenFor(state), _workflow,
+            delegate (string key) { return new Workflow.WorkflowFrame(key, MenuEditHeading(key), editor); });
+      }
+
       if (state == "titles")
       {
         MediaBrowserViewModel browser = (MediaBrowserViewModel)frame.ViewModel;
@@ -1054,10 +1066,46 @@ namespace MediaPortal.Frontend
       if (screenKey.Equals("close", StringComparison.OrdinalIgnoreCase))
         return CloseFrame();
 
+      // Nereus' own home menu editor. The skin's screen rather than this application's: the tiles it can offer are
+      // the ones the home menu holds, the answer goes into Nereus' own file, and the home screen is told to lay its
+      // menu out again when the editor is closed with OK. The three stops behind this one - the tiles to add, one
+      // tile's lists, and the lists to add - are pushed by the editor itself, over this same model, so that the
+      // back key steps off one question at a time the way the reference's four dialogs did.
+      if (screenKey.Equals("menuedit", StringComparison.OrdinalIgnoreCase))
+      {
+        Guid? standing = Guid.TryParse(_home.SelectedEntry?.HomeImageId, out Guid standingId) ? standingId : null;
+        return new Workflow.WorkflowFrame("menuedit", "Edit menu",
+            new NereusMenuEditViewModel(_home.Menu, standing, _home.ApplyNereusMenuEdit));
+      }
+
       // A tile naming a screen nobody builds is a mismatch between the menu and this method, which is a bug in the
       // front end rather than something the viewer can do anything about.
       throw new InvalidOperationException(
           "the home menu asked for a screen this build does not have: '" + screenKey + "'");
+    }
+
+    /// <summary>Which of the editor's four stops a state names.</summary>
+    private static NereusMenuEditScreen MenuEditScreenFor(string state)
+    {
+      return state switch
+      {
+        "menuadd" => NereusMenuEditScreen.PickTiles,
+        "menulists" => NereusMenuEditScreen.Lists,
+        "menulistadd" => NereusMenuEditScreen.PickLists,
+        _ => NereusMenuEditScreen.Tiles
+      };
+    }
+
+    /// <summary>The four headings Nereus wrote over its four editor dialogs, in its own words.</summary>
+    private static string MenuEditHeading(string state)
+    {
+      return state switch
+      {
+        "menuadd" => "Add menu item",
+        "menulists" => "Edit home content",
+        "menulistadd" => "Add home content",
+        _ => "Edit menu"
+      };
     }
 
     /// <summary>

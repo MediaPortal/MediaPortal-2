@@ -5,7 +5,8 @@
   The reference skin was drawn for a 1920x1080 television and these numbers
   are what its Consts.xaml held, unchanged; chrome.xml divides them by the
   same scale the reference header and footer used when it lays out the
-  master for the window this front end actually gets.
+  master for the window this front end actually gets. Where a number below is
+  this face's own rather than the reference's, the comment above it says so.
 -->
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
@@ -30,6 +31,12 @@
   <!-- Edges. Nereus drew its buttons square; its dialogs were rounded a little. -->
   <x:Double x:Key="ButtonControlRadiusX">0</x:Double>
   <x:Double x:Key="DialogBorderCornerRadius">6</x:Double>
+
+  <!-- How round a dialog panel is, which is NOT the number above: the reference hung its volume bar, its skip
+       overlay and its channel zap on DialogBorderCornerRadius too, and at twenty five of those a twenty pixel
+       bar is a pill. Both dialog frames wear this number - the headed one and the plain one - so that a dialog
+       is the same shape whether or not it brings a heading, and it is a corner the eye reads across the room. -->
+  <CornerRadius x:Key="DialogFrameCornerRadius">25</CornerRadius>
   <x:Double x:Key="TextBoxBorderThickness">3</x:Double>
   <x:Double x:Key="TextBoxCornerRadius">5</x:Double>
   <x:Double x:Key="ProgressBarRadius">2</x:Double>
@@ -38,6 +45,17 @@
   <x:Double x:Key="ScrollBarWidth">8</x:Double>
   <x:Double x:Key="ScrollBarKnobWidth">8</x:Double>
   <x:Double x:Key="DialogButtonMinWidth">300</x:Double>
+
+  <!-- How far the screen behind a dialog is thrown out of focus: the shell photographs that screen at one
+       number-th of the size it is drawn in and stretches the photograph back over the window, so this number IS
+       the blur - five takes a wall of covers down to soft rectangles the viewer still recognises as where they
+       were standing, three leaves the covers as shapes with their colours intact, nine runs the whole home into
+       one wash the viewer cannot place. The reference dimmed its master screen behind a dialog and left it
+       sharp, which was enough over its still pictures; this home keeps moving behind the question, and detail
+       moving under the letters of a question is what the dialog is there to put an end to. Named here and worn
+       by the shell, softened on the way (see ShellWindow.BlurScreenBehind and SoftFocus), so that the ground comes back as a soft focus and not as a mosaic of the home's edges; a skin that names no number - or less than two - keeps
+       its dialogs over a sharp background, which is what a face drawn over a still picture wants. -->
+  <x:Double x:Key="DialogBackdropBlur">7</x:Double>
 
   <!-- The home's content wall - the shortcuts, the latest added, the continue watching - fills this share of
        the panel's height and stands centred in what the rail leaves beside it, so the same wall that filled a

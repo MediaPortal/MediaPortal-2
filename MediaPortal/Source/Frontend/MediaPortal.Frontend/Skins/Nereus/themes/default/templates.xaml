@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   Nereus screen templates: how this skin draws the items of the screens that ask.
 
@@ -14,7 +14,7 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:vm="clr-namespace:MediaPortal.Frontend.ViewModels"
-  xmlns:dis="using:MediaPortal.Frontend.Discovery"
+                    xmlns:dis="using:MediaPortal.Frontend.Discovery"
                     xmlns:views="clr-namespace:MediaPortal.Frontend.Views">
 
   <!--
@@ -774,23 +774,82 @@
   <!--
     The dialog frame: the slab a dialog stands on. The reference's dialog master (master_dialog_bare) laid a
     dialog's contents on a panel whose glow was white, focus-coloured or absent and whose corners were round
-    only while the rounding switch said so - three dials on the skin settings screen, now written into the
-    palette by FrontendTheme.TintFromSkinSettings and read back here as DialogBorderBrush, DialogPanelBrush
-    and DialogCornerRadius. The frame frames whatever a screen opens, which is no view model's property bag,
-    so this is the one template in the file that names no view model: it is pinned to Object, and its single
-    pathless binding only passes the dialog's own body through.
+    only while the rounding switch said so - three dials on the skin settings screen, written into the palette
+    by FrontendTheme.TintFromSkinSettings as DialogBorderBrush and DialogPanelBrush. This face dresses its
+    dialogs itself though: DialogGroundBrush for the panel and DialogFrameCornerRadius for its corners, so that
+    every dialog is the same dark grey at the same rounding and the tinted slab is left to the volume bar that
+    still reads it. The frame frames whatever a screen opens, which is no view model's property bag, so this is
+    the one template in the file that names no view model: it is pinned to Object, and its single pathless
+    binding only passes the dialog's own body through.
+
+    What the dialog stands IN FRONT of is no frame's business either: the shell throws the screen behind the
+    question out of focus for the length of it, off the DialogBackdropBlur this skin's metrics carry, and washes
+    it dark with DialogWashBrush. A dialog over a wall of readable detail asks the viewer to read two things at
+    once, and dimming alone does not settle that - a dimmed cover is still a readable cover. See
+    ShellWindow.BlurScreenBehind.
+
+    What the frames glow with is written as a BoxShadow on each of them - spelled out twice, because a shadow
+    keeps its colour inside its own value and no DynamicResource reaches in there: white falling off outward from
+    the panel's rounded edge, nothing of it spread, since spread pads a shadow out to the panel's shape before it
+    falls off and that is a mat rather than a glow. Both frames wear the same numbers, so a dialog is recognised
+    by its halo whether or not it brings a heading. Nothing here clips, which a shadow needs: it is drawn outside
+    the bounds of the thing that carries it.
   -->
   <DataTemplate x:Key="DialogFrameTemplate" x:DataType="x:Object">
-    <Border Background="{DynamicResource DialogPanelBrush}"
+    <Border Background="{DynamicResource DialogGroundBrush}"
             BorderBrush="{DynamicResource DialogBorderBrush}"
-            CornerRadius="{DynamicResource DialogCornerRadius}"
+            CornerRadius="{DynamicResource DialogFrameCornerRadius}"
             BorderThickness="2"
+            BoxShadow="0 0 120 0 #00FFFFFF, 0 0 26 0 #FFFFFFFF"
             Padding="30,24"
             MaxWidth="760"
             HorizontalAlignment="Center"
             VerticalAlignment="Center">
       <ContentPresenter Content="{Binding}"/>
     </Border>
+  </DataTemplate>
+
+  <!--
+    The dialog the reference actually drew (master_dialog_bare), for the screens that come with a heading of
+    their own - today the menu editor. The panel is the same dark grey as the frame above and rounded the same
+    way: opaque, because a dialog asks its question over a picture that is still moving about behind it and
+    whatever the home shows through the letters is one thing less the viewer can read. Its heading stands
+    centred at the top in white at the dialog title's size, on the same ground as the contents and with nothing
+    drawn between them.
+
+    There is no line around it. Not the reference's rings and not the glass edge the tiles wear: the only thing
+    between the panel and the blurred home behind is the glow described above, white falling off outward from the
+    panel's rounded edge with nothing painted for it - the same trick the rail and the tiles of this skin use.
+    Nothing here clips, which a shadow needs: it is drawn outside the bounds of the thing that carries it.
+    Standing over a home that is out of focus and washed dark at once, the halo is the brightest thing on the
+    television, which is what makes the panel read as lit rather than as pasted on.
+
+    The heading is read from the dialog's own body ({Binding Heading}), because the reference spelled it the
+    same way: the screen named its title and the master drew it. A body with no such property is not this
+    frame's business; DialogFrameTemplate above stays the frame for dialogs that bring no heading.
+  -->
+  <DataTemplate x:Key="DialogHeadedFrameTemplate" x:DataType="x:Object" x:CompileBindings="False">
+    <Panel Margin="50" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="900">
+      <Border Background="{DynamicResource DialogGroundBrush}"
+              CornerRadius="{DynamicResource DialogFrameCornerRadius}"
+              BoxShadow="0 0 120 0 #00FFFFFF, 0 0 26 0 #FFFFFFFF">
+        <DockPanel>
+          <!-- The head is the same grey as the rest of the panel and carries no line under it: one surface with
+               a word at its top, not a band laid over a body. The reference drew its band in the medium accent
+               with six pixels of the light accent beneath, which is a thing a dialog seen over a lit master
+               screen needs and a dialog standing on a blurred home does not. -->
+          <TextBlock DockPanel.Dock="Top"
+                     Text="{Binding $parent[ContentControl].DataContext.Heading}"
+                     FontSize="{DynamicResource DialogTitleFontSize}"
+                     FontWeight="Bold"
+                     Foreground="{DynamicResource TextBrush}"
+                     Margin="10,5"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Center"/>
+          <ContentPresenter Content="{Binding}" Margin="10"/>
+        </DockPanel>
+      </Border>
+    </Panel>
   </DataTemplate>
 
 </ResourceDictionary>

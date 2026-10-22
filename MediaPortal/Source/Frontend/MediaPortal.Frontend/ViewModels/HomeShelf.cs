@@ -548,9 +548,10 @@ namespace MediaPortal.Frontend.ViewModels
     /// </summary>
     public const int CONTENT_LIST_LIMIT = 6;
 
-    private HomeContentList(string heading, string? sort, bool descending, string? seen, string? missing,
-        string layout, double width)
+    private HomeContentList(string key, string heading, string? sort, bool descending, string? seen,
+        string? missing, string layout, double width)
     {
+      Key = key;
       Heading = heading;
       Sort = sort;
       Descending = descending;
@@ -559,6 +560,13 @@ namespace MediaPortal.Frontend.ViewModels
       Layout = layout;
       Width = width;
     }
+
+    /// <summary>
+    /// The word the settings file uses for this list, the same word MP2 wrote into
+    /// <c>NereusSkinSettings.HomeMenuActionMediaLists</c>. The pane never looks at it - the home menu editor offers a
+    /// list by its heading and stores it under this key.
+    /// </summary>
+    public string Key { get; }
 
     /// <summary>What the pane calls the list, in Nereus' words.</summary>
     public string Heading { get; }
@@ -651,6 +659,17 @@ namespace MediaPortal.Frontend.ViewModels
       return lists;
     }
 
+    /// <summary>
+    /// Every list one home menu action has, in the order the pane would draw them.
+    /// </summary>
+    /// <remarks>
+    /// This is what the reference editor read from <c>AbstractHomeContent.Lists</c> when it built its list of
+    /// possible entries (<c>MenuEditModel.GetAllMediaLists</c>): the tile's content decides what can be offered, the
+    /// viewer decides what is shown. Here the unconfigured set is exactly that catalogue, so asking for it is
+    /// asking for the tile's own lists with nothing configured away.
+    /// </remarks>
+    public static IReadOnlyList<HomeContentList> AvailableFor(Guid actionId) => ForAction(actionId);
+
     private static string[]? FindConfiguredKeys(Guid actionId, IEnumerable<string>? configuredMediaLists)
     {
       string[]? configuredKeys = null;
@@ -684,13 +703,13 @@ namespace MediaPortal.Frontend.ViewModels
         case "LatestGames":
           if (audio)
             layout = "square1";
-          return new HomeContentList("Latest added", "added", true, null, null, layout, width);
+          return new HomeContentList(key, "Latest added", "added", true, null, null, layout, width);
         case "ContinuePlayMovies":
         case "ContinuePlaySeries":
         case "ContinuePlayAlbum":
         case "ContinuePlayVideo":
           layout = audio ? "square2" : video ? "thumbnail2" : series ? "poster3" : "poster2";
-          return new HomeContentList("Continue playing", "lastplayed", true, "started", null,
+          return new HomeContentList(key, "Continue playing", "lastplayed", true, "started", null,
               layout, audio ? 650 : video ? 900 : 760);
         case "UnplayedMovies":
         case "UnplayedSeries":
@@ -699,7 +718,7 @@ namespace MediaPortal.Frontend.ViewModels
         case "UnplayedVideo":
         case "UnplayedGames":
           layout = audio ? "square2" : video || images ? "thumbnail2" : "poster2";
-          return new HomeContentList("Unplayed", "year", true, "unwatched", null,
+          return new HomeContentList(key, "Unplayed", "year", true, "unwatched", null,
               layout, audio ? 650 : video || images ? 900 : 760);
         case "FavoriteMovies":
         case "FavoriteSeries":
@@ -713,27 +732,27 @@ namespace MediaPortal.Frontend.ViewModels
         case "FavoriteOnlineVideoSites":
         case "TopPlayedWebradio":
           layout = audio ? "square1" : video || images ? "thumbnail1" : "poster1";
-          return new HomeContentList("Favorites", null, false, null, "the server keeps no favourites over HTTP",
+          return new HomeContentList(key, "Favorites", null, false, null, "the server keeps no favourites over HTTP",
               layout, audio ? 650 : video || images ? 900 : 760);
         case "LastPlayTV":
         case "LastPlayRadio":
         case "LastPlayedGames":
         case "LastPlayedWebradio":
-          return new HomeContentList("Latest played", null, false, null, "this list is not available over HTTP",
+          return new HomeContentList(key, "Latest played", null, false, null, "this list is not available over HTTP",
               "poster1", 760);
         case "LastLaunchApps":
         case "LastOnlineVideoSites":
-          return new HomeContentList("Latest launched", null, false, null, "this list is not available over HTTP",
+          return new HomeContentList(key, "Latest launched", null, false, null, "this list is not available over HTTP",
               "poster1", 760);
         case "CurrentTVPrograms":
         case "CurrentRadioPrograms":
-          return new HomeContentList("Current programs", null, false, null, "this list is not available over HTTP",
+          return new HomeContentList(key, "Current programs", null, false, null, "this list is not available over HTTP",
               "thumbnail1", 900);
         case "CurrentSchedules":
-          return new HomeContentList("Current schedules", null, false, null, "this list is not available over HTTP",
+          return new HomeContentList(key, "Current schedules", null, false, null, "this list is not available over HTTP",
               "thumbnail1", 900);
         case "TopLanguagesOnlineVideoSites":
-          return new HomeContentList("Top languages", null, false, null, "this list is not available over HTTP",
+          return new HomeContentList(key, "Top languages", null, false, null, "this list is not available over HTTP",
               "square1", 650);
         default:
           return null;

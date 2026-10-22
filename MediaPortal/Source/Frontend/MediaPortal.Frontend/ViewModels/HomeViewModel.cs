@@ -773,6 +773,38 @@ namespace MediaPortal.Frontend.ViewModels
       OnPropertyChanged(nameof(DisplayMenu));
     }
 
+    /// <summary>
+    /// Lays the home menu out again after Nereus' own menu editor wrote new answers: the tiles come out of the
+    /// file now, the tile the viewer was standing on keeps its place when it survived, and the wall beside it is
+    /// read again because the lists it pulls its previews from may have changed while it stood there.
+    /// </summary>
+    /// <remarks>
+    /// The reference needed no such call - its settings watcher saw the two arrays change and relaid the menu and
+    /// the content by itself. This port's watcher is this method, and the editor calls it once, after its one
+    /// write. Nothing here rebuilds the entries themselves: which tiles exist is the server's answer, and that did
+    /// not change while the viewer was moving tiles about.
+    /// </remarks>
+    public void ApplyNereusMenuEdit()
+    {
+      string? wasAction = SelectedEntry?.Mp2Action;
+      string? wasId = SelectedEntry?.HomeImageId;
+
+      RebuildNereusMenu();
+
+      MainMenuEntry? standing = _nereusMenu.MainMenuItems.FirstOrDefault(entry =>
+          (wasAction != null && entry.Mp2Action == wasAction)
+          || (wasId != null && string.Equals(entry.HomeImageId, wasId, StringComparison.OrdinalIgnoreCase)));
+      SelectedEntry = standing ?? _nereusMenu.MainMenuItems.FirstOrDefault();
+
+      // A tile that stayed the very same object tells the pane nothing - a property that did not change raises no
+      // change - while the lists it reads may have been reordered, thinned out or emptied a moment ago. So the
+      // wall is read again by hand, which is the whole point of a menu editor whose previews change under the eye.
+      if (SelectedEntry != null)
+        _ = ShowContentAsync(SelectedEntry);
+
+      RaiseMenuRebuilt(true);
+    }
+
     private void RaiseMenuRebuilt(bool connected)
     {
       if (connected)

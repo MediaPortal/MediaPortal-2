@@ -317,6 +317,58 @@ namespace MediaPortal.Frontend.Views
       // Keyboard and remote keep walking the old road: a tile stood on is opened by pressing it.
       menuList.FocusAdorner = null; // no blue frame, from nowhere, ever.
 
+      // Nereus' own home menu editor, opened the way the reference opened it: from the menu itself, with the
+      // context key. MP2 hung that on the menu list's <c>Context_Menu_Command</c>, which a remote's context key
+      // answers and a mouse's right button answers; on a screen with no keys at all, a finger that rests on a
+      // tile is the same intention. All three belong to Nereus alone - the other face's menu is not a rail of
+      // tiles the viewer can rearrange, it is invisible markup behind the cross.
+      menuList.AddHandler(PointerPressedEvent,
+          delegate (object? sender, PointerPressedEventArgs args)
+          {
+            if (!_home.IsNereusHome)
+              return;
+
+            if (args.Properties.IsRightButtonPressed)
+            {
+              OpenMenuEditor();
+              args.Handled = true;
+              return;
+            }
+
+            if (args.Pointer.Type != PointerType.Mouse)
+              BeginRestingPress(args.GetPosition(menuList));
+          },
+          RoutingStrategies.Tunnel);
+      menuList.AddHandler(PointerMovedEvent,
+          delegate (object? sender, PointerEventArgs args)
+          {
+            // A finger that travels is scrolling through the menu, not asking it for anything.
+            Point at = args.GetPosition(menuList);
+            if (_restingPress != null
+                && (Math.Abs(at.X - _restingAt.X) > 12 || Math.Abs(at.Y - _restingAt.Y) > 12))
+              StopRestingPress();
+          },
+          RoutingStrategies.Tunnel);
+      menuList.AddHandler(PointerReleasedEvent,
+          delegate { StopRestingPress(); }, RoutingStrategies.Tunnel);
+      menuList.AddHandler(PointerCaptureLostEvent,
+          delegate { StopRestingPress(); }, RoutingStrategies.Tunnel);
+
+      // The remote's context key, which is the key the reference's menu list answered. The virtual keyboard
+      // works the very same key over its text fields, so a key that arrives from a box being typed in is not a
+      // request to rearrange the menu behind it.
+      AddHandler(KeyDownEvent,
+          delegate (object? sender, KeyEventArgs args)
+          {
+            if (args.Source is TextBox
+                || !_home.IsNereusHome
+                || !Settings.KeyBindings.Current.Is(Settings.KeyAction.Menu, args.Key))
+              return;
+
+            OpenMenuEditor();
+            args.Handled = true;
+          });
+
       // The user buttons beside the sign-in boxes: names arrive from the server while the screen stands
       // there, so the row is rebuilt when they do. Pressing one says the name and steps into the password
       // box, which is what picking a name at a door means.
@@ -1230,6 +1282,48 @@ namespace MediaPortal.Frontend.Views
     {
       if (tile.Focus())
         tile.BringIntoView();
+    }
+
+    private DispatcherTimer? _restingPress;
+    private Point _restingAt;
+
+    /// <summary>
+    /// Avalonia has no long press, so this is one: the press is timed where it landed, a finger that leaves early
+    /// or strays off the tile cancels it, and only a finger that rests there the whole while says what the
+    /// reference's context key said.
+    /// </summary>
+    private void BeginRestingPress(Point at)
+    {
+      StopRestingPress();
+      _restingAt = at;
+
+      DispatcherTimer timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(650) };
+      timer.Tick += delegate
+      {
+        timer.Stop();
+        _restingPress = null;
+        OpenMenuEditor();
+      };
+      _restingPress = timer;
+      timer.Start();
+    }
+
+    private void StopRestingPress()
+    {
+      DispatcherTimer? timer = _restingPress;
+      _restingPress = null;
+      timer?.Stop();
+    }
+
+    /// <summary>
+    /// Asks for Nereus' own home menu editor, standing where the viewer stands: the reference passed the tile the
+    /// viewer was on to the editor as its starting point (<c>HomeMenuModel.BeginMenuEdit</c>), and the application
+    /// builds the same thing behind the <c>menuedit</c> screen key. An ordinary stop on the workflow, so Back
+    /// steps off it and the trail above the screen names it.
+    /// </summary>
+    private void OpenMenuEditor()
+    {
+      OpenScreen("menuedit");
     }
 
     /// <summary>

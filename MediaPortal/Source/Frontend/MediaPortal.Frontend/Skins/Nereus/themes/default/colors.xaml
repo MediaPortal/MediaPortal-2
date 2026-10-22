@@ -30,6 +30,20 @@
   <SolidColorBrush x:Key="AccentBrush">#FF009592</SolidColorBrush>             <!-- NereusColorLight_Torquoise -->
   <SolidColorBrush x:Key="WarningBrush">#FFED7D31</SolidColorBrush>            <!-- NereusColorLight_Orange -->
   <SolidColorBrush x:Key="ScrimBrush">#80000000</SolidColorBrush>              <!-- DialogScreenBackgroundColor -->
+
+  <!-- What a dialog is asked over, stepped back behind the question. The reference's wash was half black, which
+       was enough over a still picture that only dimmed; this home is thrown out of focus and keeps moving, and
+       a blurred home at half black still lights the room the panel stands in. Kept apart from the scrim above -
+       the loading and notification layers wear that over a SHARP screen, and how dark a dialog likes its ground
+       is no business of theirs. -->
+  <SolidColorBrush x:Key="DialogWashBrush">#A6000000</SolidColorBrush>
+
+  <!-- What a dialog panel itself is painted with: a very dark grey, and not black. On black the panel reads as a
+       hole cut out of the picture and its glow as the edge of that hole; on a grey that is only a little above
+       the washed ground behind it, the panel reads as an object standing in the room with light falling off it.
+       Deliberately apart from DialogPanelBrush, the tinted slab the reference hung its dialog master and its
+       volume bar on, which still follows the viewer's accent and transparency settings. -->
+  <SolidColorBrush x:Key="DialogGroundBrush">#FF1B1B1B</SolidColorBrush>
   <SolidColorBrush x:Key="VideoBrush">#FF000000</SolidColorBrush>
 
   <!-- The fade a title stands on: black at ninety out of a hundred over the picture's own bottom edge, thinning

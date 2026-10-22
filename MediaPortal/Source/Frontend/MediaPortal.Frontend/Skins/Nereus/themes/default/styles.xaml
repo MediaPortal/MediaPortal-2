@@ -13,9 +13,18 @@
   over the skin later - the accent families and WMC schemes are chosen at run
   time - and an author style that resolved its colour when the skin loaded
   would keep painting yesterday's accent.
+
+  x:CompileBindings="False" for the one kind of binding this file can hold: a
+  face asked for by name. The menu editor's buttons below bind their glyph
+  through the skin's icon converter, whose converter parameter IS the name and
+  which therefore binds nothing - while a compiled binding insists on knowing
+  the data type it starts from, which a style that dresses a button in a list
+  row, a header button and a dialog button all at once cannot have.
 -->
 <Styles xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="clr-namespace:MediaPortal.Frontend.Views"
+        x:CompileBindings="False">
 
   <!-- STANDING ON A TILE, AND WHEN NOBODY IS.
        Every rule below that answers ":pointerover" says the same thing as its ":focus" twin - the lit edge, the
@@ -641,5 +650,368 @@
   </Style>
   <Style Selector="Window:not(.pointer-resting) Button.nereus-shortcut-tile:pointerover TextBlock.home-shortcut-caption">
     <Setter Property="Opacity" Value="1"/>
+  </Style>
+
+  <!-- THE SKIN'S PRIMARY BUTTON (Button.nereus-primary).
+
+       The shortcut tile's design, at corners of fifty per cent: the same veil lying over the pane - light thrown
+       back along the top edge, weight gathering at the bottom - the same frame that catches light where the light
+       comes from and turns away at the bottom, and the same answer to being stood on: the veil trades its black
+       for white, the frame comes up to full light, the word comes to full white. One height for the whole skin,
+       fifty-six, which is what makes the corner twenty-eight and the corner therefore fifty per cent of the
+       button by construction: whoever puts a primary button somewhere writes the class and not the numbers.
+
+       Two things the tile does and this button leaves out, both for the same reason. It frosts nothing, because a
+       shortcut frosts the fanart standing behind it while a button in a dialog has the dialog's own black behind
+       it, and there is nothing to frost in black. And it casts no shadow, because the tile's shadow is a black
+       shadow thrown on a bright wall and a black shadow on a black ground is a shadow nobody sees. -->
+  <Style Selector="Button.nereus-primary">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Padding" Value="0"/>
+    <!-- The height is written here rather than left to the word inside, because a primary button that only knows
+         the height of its letters is a button a crowded dialog can squeeze into a sliver - which is exactly what
+         this file got wrong once, with an OK the viewer could only guess at. -->
+    <Setter Property="Height" Value="56"/>
+    <Setter Property="CornerRadius" Value="28"/>
+    <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+    <Setter Property="FontSize" Value="{DynamicResource SmallerFontSize}"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+    <Setter Property="ClipToBounds" Value="False"/>
+    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+    <Setter Property="FocusAdorner" Value="{x:Null}"/>
+    <Setter Property="Template">
+      <ControlTemplate TargetType="Button">
+        <Panel>
+          <Border Classes="nereus-primary-veil"/>
+          <Border Classes="nereus-primary-edge"/>
+          <!-- The word has to be handed over by name. A ContentPresenter standing in a template does not pick up
+               what the button was given; the platform's own templates say Content="{TemplateBinding Content}" and
+               an omitted one of those is a button that shows its glass, its edge and its height and no word at
+               all - which is precisely how this button came to look empty twice over. -->
+          <ContentPresenter Margin="20,0"
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            Padding="{TemplateBinding Padding}"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Center"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"/>
+        </Panel>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <!-- The veil, at rest: the glass's own four stops, light at the top and weight at the bottom, and the corner
+       the button has. Nothing about the button is dressed with a local value, so every one of these numbers is
+       something a state rule can out-rank. -->
+  <Style Selector="Button.nereus-primary /template/ Border.nereus-primary-veil">
+    <Setter Property="CornerRadius" Value="28"/>
+    <Setter Property="Opacity" Value="0.9"/>
+    <Setter Property="Background">
+      <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Offset="0" Color="#2EFFFFFF"/>
+        <GradientStop Offset="0.3" Color="#1F0A1018"/>
+        <GradientStop Offset="0.7" Color="#4D000000"/>
+        <GradientStop Offset="1" Color="#73000000"/>
+      </LinearGradientBrush>
+    </Setter>
+    <Setter Property="Transitions">
+      <Transitions>
+        <!-- The fade that matters is the one between the two veils, and it is the brush travelling; the ten per
+             cent of opacity a button carries at rest is nothing to animate, and an opacity that animates cannot
+             be read at the moment a state is asked for - which is what a test has to do to find out whether the
+             skin still answers being stood on. -->
+        <BrushTransition Property="Background" Duration="0:0:0.3" Easing="CubicEaseOut"/>
+      </Transitions>
+    </Setter>
+  </Style>
+  <!-- The edge at rest is a ghost of the light it carries, the same as the tile's: a frame that is bright while
+       nothing stands on the button is the thing everybody notices and nobody asked for. -->
+  <Style Selector="Button.nereus-primary /template/ Border.nereus-primary-edge">
+    <Setter Property="CornerRadius" Value="28"/>
+    <Setter Property="BorderThickness" Value="2"/>
+    <Setter Property="IsHitTestVisible" Value="False"/>
+    <Setter Property="BorderBrush">
+      <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Offset="0" Color="#21FFFFFF"/>
+        <GradientStop Offset="0.35" Color="#0DFFFFFF"/>
+        <GradientStop Offset="0.72" Color="#08FFFFFF"/>
+        <GradientStop Offset="1" Color="#16FFFFFF"/>
+      </LinearGradientBrush>
+    </Setter>
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="BorderBrush" Duration="0:0:0.3"/>
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Button.nereus-primary /template/ ContentPresenter">
+    <Setter Property="Opacity" Value="0.7"/>
+    <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+  </Style>
+  <!-- What standing on it does, in the tile's own words and with the tile's own stops. -->
+  <Style Selector="Button.nereus-primary:focus /template/ Border.nereus-primary-veil">
+    <Setter Property="Opacity" Value="1"/>
+    <Setter Property="Background">
+      <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Offset="0" Color="#66FFFFFF"/>
+        <GradientStop Offset="0.3" Color="#40FFFFFF"/>
+        <GradientStop Offset="0.7" Color="#33141C26"/>
+        <GradientStop Offset="1" Color="#4D0C1218"/>
+      </LinearGradientBrush>
+    </Setter>
+  </Style>
+  <Style Selector="Window:not(.pointer-resting) Button.nereus-primary:pointerover /template/ Border.nereus-primary-veil">
+    <Setter Property="Opacity" Value="1"/>
+    <Setter Property="Background">
+      <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Offset="0" Color="#66FFFFFF"/>
+        <GradientStop Offset="0.3" Color="#40FFFFFF"/>
+        <GradientStop Offset="0.7" Color="#33141C26"/>
+        <GradientStop Offset="1" Color="#4D0C1218"/>
+      </LinearGradientBrush>
+    </Setter>
+  </Style>
+  <Style Selector="Button.nereus-primary:focus /template/ Border.nereus-primary-edge">
+    <Setter Property="BorderBrush">
+      <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Offset="0" Color="#FFFFFFFF"/>
+        <GradientStop Offset="0.35" Color="#B3FFFFFF"/>
+        <GradientStop Offset="0.72" Color="#66FFFFFF"/>
+        <GradientStop Offset="1" Color="#CCFFFFFF"/>
+      </LinearGradientBrush>
+    </Setter>
+  </Style>
+  <Style Selector="Window:not(.pointer-resting) Button.nereus-primary:pointerover /template/ Border.nereus-primary-edge">
+    <Setter Property="BorderBrush">
+      <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Offset="0" Color="#FFFFFFFF"/>
+        <GradientStop Offset="0.35" Color="#B3FFFFFF"/>
+        <GradientStop Offset="0.72" Color="#66FFFFFF"/>
+        <GradientStop Offset="1" Color="#CCFFFFFF"/>
+      </LinearGradientBrush>
+    </Setter>
+  </Style>
+  <Style Selector="Button.nereus-primary:focus /template/ ContentPresenter">
+    <Setter Property="Opacity" Value="1"/>
+  </Style>
+  <Style Selector="Window:not(.pointer-resting) Button.nereus-primary:pointerover /template/ ContentPresenter">
+    <Setter Property="Opacity" Value="1"/>
+  </Style>
+
+  <!-- NEREUS' OWN HOME MENU EDITOR (Views/NereusMenuEditView.axaml).
+       The reference dressed these rows in its own styles directory - EditMenuStyles.xaml - and the numbers there
+       are the numbers here: the name of the line, then up and down at fifty-four by thirty-four, the bin at thirty
+       square and the gear at thirty-two, each in its own margin. The name stands at sixty per cent until one of
+       those four buttons is stood on, because the line being worked on belongs to its buttons and not to its
+       label, and a label shouting over the button the viewer is holding is the wrong way round.
+
+       The pictures are the skin's own, out of the player controls and the entry list: Up.small, Down.small,
+       remove and configure, each in a focused and an unfocused face like every other button of this face, and the
+       plus above the list. They are asked for by name, so a face that would rather draw these as shapes answers
+       the same names with shapes. -->
+  <Style Selector="Grid.nereus-editor-row">
+    <Setter Property="MinHeight" Value="42"/>
+  </Style>
+  <Style Selector="TextBlock.nereus-editor-name">
+    <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+    <Setter Property="Opacity" Value="0.6"/>
+  </Style>
+  <Style Selector="Grid.nereus-editor-row:focus-within TextBlock.nereus-editor-name">
+    <Setter Property="Opacity" Value="1"/>
+  </Style>
+
+  <!-- Neither list brings a ground of its own: the dialog's black IS the ground. What the control theme paints
+       behind a list otherwise - a translucent plate, which over this black reads as a coloured panel standing
+       inside a dialog that has already said where its surface is - is therefore switched off here, and so is
+       the horizontal bar that appears under a list the moment one row wants a pixel more width than the pane
+       gives it. Nothing in the editor is meant to slide sideways. -->
+  <Style Selector="ListBox.nereus-editor-rows, ListBox.nereus-editor-picks">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+  </Style>
+
+  <!--
+    The home content stop hides the gear out of its lines. The reference showed it there greyed and commandless -
+    DialogEditMediaListMenu.xaml defines MoveUp, MoveDown and Remove and no Config_Command, and MenuEditModel
+    builds every media list line with IsConfigButtonEnabled false - which is honest but reads as a broken button
+    standing on every row of a screen that has one job. Hiding it says the same thing more plainly: the gear
+    belongs to a tile of the menu, where it opens that tile's home content, and a line of home content has no
+    lists of its own to open. Everything else about the line - name, arrows, bin - stays as the reference drew it.
+  -->
+  <Style Selector="ListBox.nereus-editor-lists Button.nereus-editor-config">
+    <Setter Property="IsVisible" Value="False"/>
+  </Style>
+
+  <!-- The picking list is a plain menu of names, as the reference's pickers were: no buttons, and the name the
+       viewer is standing on is the only one at full white. -->
+  <Style Selector="TextBlock.nereus-editor-pick">
+    <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+    <Setter Property="Opacity" Value="0.75"/>
+  </Style>
+  <Style Selector="ListBox.nereus-editor-picks ListBoxItem:selected TextBlock.nereus-editor-pick">
+    <Setter Property="Opacity" Value="1"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+  </Style>
+  <Style Selector="ListBox.nereus-editor-picks ListBoxItem:selected">
+    <Setter Property="Background" Value="{DynamicResource PanelBrush}"/>
+  </Style>
+
+  <!-- The five buttons of the editor. Flat and borderless, because the face is the button; the face is what
+       steps from its quiet half-light to full white when something stands on it. -->
+  <Style Selector="Button.nereus-editor-up, Button.nereus-editor-down, Button.nereus-editor-remove,
+                   Button.nereus-editor-config, Button.nereus-editor-add">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+    <Setter Property="HorizontalAlignment" Value="Center"/>
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.15"/>
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Button.nereus-editor-up, Button.nereus-editor-down">
+    <Setter Property="Width" Value="44"/>
+    <Setter Property="Height" Value="30"/>
+    <Setter Property="Margin" Value="3,2"/>
+  </Style>
+  <Style Selector="Button.nereus-editor-remove">
+    <Setter Property="Width" Value="32"/>
+    <Setter Property="Height" Value="32"/>
+    <Setter Property="Margin" Value="3,2,13,2"/>
+  </Style>
+  <Style Selector="Button.nereus-editor-config">
+    <Setter Property="Width" Value="32"/>
+    <Setter Property="Height" Value="32"/>
+    <Setter Property="Margin" Value="13,2"/>
+  </Style>
+  <Style Selector="Button.nereus-editor-add">
+    <Setter Property="Width" Value="56"/>
+    <Setter Property="Height" Value="56"/>
+  </Style>
+  <!-- The five faces of the editor are shapes rather than pictures. The skin carries them as vectors under
+       images\Editor (the same arrangement the shortcuts were moved to), a button asks for one by name through
+       the skin's icon converter, and the shape then takes the screen's own white - so the same glyph can stand
+       half lit at rest, come to full white under a hand or the keyboard, and fall to a tenth for a button that
+       cannot be pressed, none of which a photograph of a glyph could ever do. Every face stands INSIDE its
+       button and every button inside the row: the reference let its faces overhang their buttons, which it
+       could do in rows sixty tall that drew no ground and clipped nothing, while a face here that reaches past
+       its row is cut off by that row and the viewer sees the middle of a bin where a bin should be. Templated
+       rather than merely dressed because a default button keeps its own plate of a background, and a grey plate
+       standing behind a glyph is the mistake this file has made before. -->
+  <Style Selector="Button.nereus-editor-glyph">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Padding" Value="0"/>
+  </Style>
+  <Style Selector="Button.nereus-editor-glyph /template/ Path.nereus-editor-face">
+    <Setter Property="Fill" Value="{DynamicResource TextBrush}"/>
+    <Setter Property="Stretch" Value="Uniform"/>
+    <Setter Property="Opacity" Value="0.5"/>
+  </Style>
+  <Style Selector="Button.nereus-editor-glyph:focus /template/ Path.nereus-editor-face">
+    <Setter Property="Opacity" Value="1"/>
+  </Style>
+  <Style Selector="Window:not(.pointer-resting) Button.nereus-editor-glyph:pointerover /template/ Path.nereus-editor-face">
+    <Setter Property="Opacity" Value="1"/>
+  </Style>
+  <!-- A button that cannot be pressed now - the first tile's up, the last tile's down, the gear of a tile that
+       opens no list - stands at a tenth lit, so the row keeps its shape while tiles are moved about in it. -->
+  <Style Selector="Button.nereus-editor-glyph:disabled /template/ Path.nereus-editor-face">
+    <Setter Property="Opacity" Value="0.1"/>
+  </Style>
+
+  <Style Selector="Button.nereus-editor-up">
+    <Setter Property="Template">
+      <ControlTemplate TargetType="Button">
+        <Panel Background="Transparent">
+          <Path Classes="nereus-editor-face" Width="36" Height="24"
+                Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance}, ConverterParameter=Editor/up}"/>
+        </Panel>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="Button.nereus-editor-down">
+    <Setter Property="Template">
+      <ControlTemplate TargetType="Button">
+        <Panel Background="Transparent">
+          <Path Classes="nereus-editor-face" Width="36" Height="24"
+                Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance}, ConverterParameter=Editor/down}"/>
+        </Panel>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="Button.nereus-editor-remove">
+    <Setter Property="Template">
+      <ControlTemplate TargetType="Button">
+        <Panel Background="Transparent">
+          <Path Classes="nereus-editor-face" Width="28" Height="28"
+                Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance}, ConverterParameter=Editor/remove}"/>
+        </Panel>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="Button.nereus-editor-config">
+    <Setter Property="Template">
+      <ControlTemplate TargetType="Button">
+        <Panel Background="Transparent">
+          <Path Classes="nereus-editor-face" Width="28" Height="28"
+                Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance}, ConverterParameter=Editor/configure}"/>
+        </Panel>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="Button.nereus-editor-add">
+    <Setter Property="Template">
+      <ControlTemplate TargetType="Button">
+        <Panel Background="Transparent">
+          <Path Classes="nereus-editor-face" Width="52" Height="52"
+                Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance}, ConverterParameter=Editor/add}"/>
+        </Panel>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+
+  <!-- OK is not dressed here. It is the skin's primary button (Button.nereus-primary above), which is the
+       shortcut tile's glass with its corners at fifty per cent - the reference dressed its dialog buttons as
+       pills too, and a pill is what this is, but a pill of the skin's own glass rather than of two flat whites
+       said to turn into the accent. -->
+
+  <!-- The letters of the editor, at the sizes this skin counts in: the name of a tile is SmallFontSize like
+       every other line of a reference menu, the tile under the lists and the two lines of small print are not.
+       The name stands at sixty per cent until one of its four buttons is stood on. -->
+  <Style Selector="TextBlock.nereus-editor-name">
+    <Setter Property="FontSize" Value="{DynamicResource SmallFontSize}"/>
+  </Style>
+  <Style Selector="TextBlock.nereus-editor-pick">
+    <Setter Property="FontSize" Value="{DynamicResource SmallFontSize}"/>
+  </Style>
+  <Style Selector="TextBlock.nereus-editor-sub">
+    <Setter Property="FontSize" Value="{DynamicResource SmallerFontSize}"/>
+    <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+    <Setter Property="Opacity" Value="0.7"/>
+  </Style>
+  <Style Selector="TextBlock.nereus-editor-hint">
+    <Setter Property="FontSize" Value="{DynamicResource TinyFontSize}"/>
+    <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+    <Setter Property="Opacity" Value="0.45"/>
+  </Style>
+  <Style Selector="TextBlock.nereus-editor-status">
+    <Setter Property="FontSize" Value="{DynamicResource TinyFontSize}"/>
+    <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+    <Setter Property="Opacity" Value="0.85"/>
+  </Style>
+
+  <!-- The home behind an open dialog stands back behind the reference's DialogScreenBackgroundColor, which this
+       face wears a little darker than the reference wrote it: the dialog is the only thing lit, and its panel is
+       the only thing brighter than what it covers. The shell throws that same home out of focus for the length of
+       the question - DialogBackdropBlur in the metrics - so what reaches the viewer is shape and colour rather
+       than detail, darkened enough that nothing behind the panel competes with the question. See
+       DialogWashBrush in the colours for why this is not the plain scrim. -->
+  <Style Selector="UserControl.nereus-dialog-screen">
+    <Setter Property="Background" Value="{DynamicResource DialogWashBrush}"/>
   </Style>
 </Styles>

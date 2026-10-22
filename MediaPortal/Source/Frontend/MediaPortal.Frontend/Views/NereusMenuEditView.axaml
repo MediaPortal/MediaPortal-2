@@ -1,0 +1,126 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:nereus="using:MediaPortal.Frontend.Skins.Nereus"
+        xmlns:views="clr-namespace:MediaPortal.Frontend.Views"
+        xmlns:theming="clr-namespace:MediaPortal.Frontend.Theming"
+        x:Class="MediaPortal.Frontend.Views.NereusMenuEditView"
+        x:DataType="nereus:NereusMenuEditViewModel"
+        Name="menuEditScreen"
+        Classes="nereus-dialog-screen"
+        >
+
+  <!--
+    Nereus' own home menu editor, moved over dialog for dialog: the tiles the viewer arranged (DialogEditMenu),
+    the tiles that are not on the menu yet (DialogAddMenuItem), the lists one tile reads its previews from
+    (DialogEditMediaListMenu) and the lists that tile is not showing (DialogAddMediaListMenuItem). Four stops of
+    one workflow, all standing on the same body - the reference gave the arranging dialogs the same row face
+    (EditMenuStyles: the name, then up, down, remove and configure) and the two picking dialogs a plain menu,
+    and that is what is here. Nothing is written until OK is pressed on the menu itself, which is how the
+    reference behaved: an editor that was played with and left produced no file at all.
+  -->
+  <ContentControl HorizontalAlignment="Center" VerticalAlignment="Center"
+                  theming:SkinTemplates.OverlayTemplate="DialogHeadedFrameTemplate">
+    <DockPanel MinWidth="640">
+
+      <!-- Which tile's lists are being arranged. The dialog's own head band carries the heading, so this line
+           only names the tile, and only on the two list screens. -->
+      <TextBlock DockPanel.Dock="Top"
+                 Classes="nereus-editor-sub"
+                 Name="subText"
+                 TextWrapping="Wrap"
+                 Margin="0,0,0,10"
+                 HorizontalAlignment="Left" />
+
+      <!-- The plus above the list, where the reference put it: it opens the picker, it is not a row of the list. -->
+      <Button Name="plusButton"
+              DockPanel.Dock="Top"
+              Classes="nereus-editor-add nereus-editor-glyph"
+              Click="OnAddPress"
+              HorizontalAlignment="Left"
+              Margin="0,0,0,6"
+              IsVisible="False" />
+
+      <TextBlock DockPanel.Dock="Bottom"
+                 Classes="nereus-editor-hint"
+                 Name="hintLine"
+                 TextWrapping="Wrap"
+                 Margin="0,8,0,0" />
+
+      <StackPanel DockPanel.Dock="Bottom" Margin="0,10,0,0">
+        <Button Name="okButton"
+                Classes="nereus-primary"
+                Content="OK"
+                Click="OnOkPress"
+                HorizontalAlignment="Stretch" />
+        <TextBlock Name="statusLine"
+                   Classes="nereus-editor-status"
+                   Text="{Binding Status}"
+                   TextWrapping="Wrap"
+                   Margin="0,6,0,0" />
+      </StackPanel>
+
+      <Grid>
+        <!--
+          The arranging face and the picking face, one of them up at a time. Two lists rather than one list
+          changing its face, because the two are different questions: the first is what the menu looks like, the
+          second is which tile to take.
+        -->
+        <ListBox Name="editList"
+                 Classes="nereus-editor-rows"
+                 Focusable="True"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                 MaxHeight="420">
+          <ListBox.Styles>
+            <Style Selector="ListBoxItem">
+              <Setter Property="Padding" Value="10,2"/>
+            </Style>
+          </ListBox.Styles>
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="nereus:NereusMenuEditRow">
+              <Grid Classes="nereus-editor-row" ColumnDefinitions="*,Auto,Auto,Auto,Auto">
+                <TextBlock Classes="nereus-editor-name"
+                           Text="{Binding Label}"
+                           VerticalAlignment="Center"
+                           TextTrimming="CharacterEllipsis" />
+                <Button Classes="nereus-editor-up nereus-editor-glyph"
+                        Grid.Column="1"
+                        Command="{Binding MoveUpCommand}"
+                        IsEnabled="{Binding IsUpEnabled}" />
+                <Button Classes="nereus-editor-down nereus-editor-glyph"
+                        Grid.Column="2"
+                        Command="{Binding MoveDownCommand}"
+                        IsEnabled="{Binding IsDownEnabled}" />
+                <Button Classes="nereus-editor-remove nereus-editor-glyph"
+                        Grid.Column="3"
+                        Command="{Binding RemoveCommand}" />
+                <Button Classes="nereus-editor-config nereus-editor-glyph"
+                        Grid.Column="4"
+                        Command="{Binding ConfigCommand}"
+                        IsEnabled="{Binding IsConfigEnabled}" />
+              </Grid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+
+        <ListBox Name="pickList"
+                 Classes="nereus-editor-picks"
+                 Focusable="True"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                 MaxHeight="420"
+                 IsVisible="False">
+          <ListBox.Styles>
+            <Style Selector="ListBoxItem">
+              <Setter Property="Padding" Value="10,4"/>
+            </Style>
+          </ListBox.Styles>
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="nereus:NereusMenuEditRow">
+              <TextBlock Classes="nereus-editor-pick"
+                         Text="{Binding Label}" />
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </Grid>
+    </DockPanel>
+  </ContentControl>
+</UserControl>
