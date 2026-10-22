@@ -3683,9 +3683,10 @@ a section knows exactly what it sent and what the server kept. The write refuses
 field - 400, one sentence, nothing stored - which is what a settings file wants anyway, since half a change is
 a settings file that no longer adds up.
 
-Two sections are in the catalogue today, and the honest reason there is nothing about plugins in it is that MP2
-currently stores no plugin options: a plugin that wanted to keep a setting would have to be given one, and the
-catalogue is where it would be named. `fanart` belongs to the media library and holds the seven counts that say
+Two sections were in the catalogue the day this was written. The reason nothing about plugins was in it then was
+given wrongly: MP2 does keep options that belong to parts of itself, six of them under the extractors' own
+headings, and `bi.` below counts the whole tree, corrects what is said here, and says which of those answers
+are asked elsewhere in this front end. `fanart` belongs to the media library and holds the seven counts that say
 how many pictures of each kind one title keeps. `logging` belongs to the server and holds one choice,
 `log_level`, which is stored at once but only takes effect when the server starts again - and the answer says so
 in `restartNeededFor`, so the television can admit it instead of letting a household believe the logging
@@ -3713,6 +3714,74 @@ Open: the catalogue is short, and a plugin's own settings only become editable h
 settings class and a catalogue entry naming it; `choice` carries bare names, so a field whose options the server
 would rather explain per option has nowhere to say it; the screen has been walked with a keyboard, never with a
 remote, which stays with everything else in the list below.
+
+### bi. Every settings question the reference asked, and where each of its answers lives now
+
+A screen that looks empty is often a screen whose questions were never counted, so the reference's settings
+were counted before anything was declared missing. Its tree is not written down in one place: every plugin says
+in its own `plugin.xml` which part of the tree it fills, with `<Register Location="/Configuration/Settings/...">`
+around `ConfigSection`, `ConfigGroup`, `ConfigSetting` and `CustomConfigSetting` entries, and the configuration
+program assembles those registrations into a tree (`Source/Core/ConfigurationManager/Builders/ConfigBuilder.cs`).
+Reading all eighteen of those files that carry settings gives sixty sections under nine root headings, and the
+useful fact about them is not their number but their *ownership*: some answers belong to the machine that stores
+the library and are therefore the server's, and some belong to the machine wearing the skin, which the reference
+kept on the same screen because it was always the same machine asking both.
+
+| Root | Who answered it in the reference | Where the answer is asked now |
+| --- | --- | --- |
+| General | the client's own machine: autostart, version, connectivity to a server, language, date and time formats | split: what the server binds and how it authenticates is in "Server settings" over the API; what the box looks like and which language it speaks is in "Client settings", kept beside the front end |
+| Appearance | the skin and the worn theme, plus background and screensaver | "Skin settings" and "Theme", both beside the front end; the skin dials the reference hung on each skin are the front end's `SkinSettingsBase` |
+| Shares | the server, through its importer | "Server settings" and the shares and credentials endpoints, over the API |
+| Media | mostly the server's extractors, partly the client's browsing | "Metadata" (extractors) and "Plugin settings" (artwork counts, logging, sidecar readers), both over the API; browsing choices are the screen's own |
+| Players | the machine that plays | "Playback settings", beside the front end |
+| TV | TV service and client | nowhere yet - the TV service layer is not back on the new server (see the open work below) |
+| Plugins | news, weather, TV providers | news feeds and weather places are kept beside the front end and are edited in their files, not on a screen |
+| Input devices | the keys, remotes and buttons of the machine in front of the television | the front end's own keyboard files; the reference's key-to-action tables have no equivalent screen here |
+
+The ninth heading, `ServerSettings`, is declared but stands empty: the server's own component registers it and
+then hangs every question it owns under `Media` and `Shares` instead, which is why the two tables below speak of
+those branches rather than of it.
+
+**The server's own branch** (`Backend/BackendComponents/ServerSettings.Client`) is the part that could move
+across as it was asked, because every one of its answers belongs to the machine with the library:
+
+| Section in the reference | Its questions | Where they are asked now |
+| --- | --- | --- |
+| `AudioMDESettings`, `VideoMDESettings`, `MovieMDESettings`, `SeriesMDESettings`, `ImageMDESettings`, `SubtitleMDESettings` | which source answers for each kind of title, whether it may look online, whether it may walk a share offline, what it filters, which languages it wishes | "Metadata", over `api/media/settings/metadata`; the detail questions (whether the people who acted, played a character, directed, or - for an album - the artists and albums are kept, and how many of each) joined it later |
+| `FanArtSettings` | exactly the seven `ServerFanArtMax*` counts | "Plugin settings" > "Artwork", seven numbers with the same 1-20 ground |
+| `LanguageSettings` | the server's own language and the languages it wishes for audio, films, series and subtitles | the four wished languages are fields of "Metadata"; the server's own language is not asked, because a headless server reads nobody's screen |
+| `ExtendedConfigureShares` and the `Shares` category | the shares, the credentials they need, when the importer runs | the shares, credentials and import-time fields of "Server settings" |
+| *(nothing at all)* | the readers of the `.nfo` files a tagging tool leaves beside a title | three sections in "Plugin settings" (`nfo_movie`, `nfo_series`, `nfo_audio`) |
+
+That last row is a correction, including of an earlier entry in this file, which said the reference offered
+configuration sections for the extractors themselves. It did not: the six `*MDESettings` sections belong to the
+server's own components, and the `.nfo` readers were only ever answerable by editing XML by hand. Asking those
+three readers what they keep is therefore going beyond the reference rather than catching up with it, and their
+fields were chosen to match what the extractor classes actually do with the answers.
+
+**The client's branch** is where most of what a viewer might call "missing" actually is, and the reason it is
+not on the server is not an oversight: the reference asked those questions of the machine wearing the skin, so
+bringing them across means answering them again in the front end, not adding another API endpoint.
+
+| Question in the reference | Where it stands |
+| --- | --- |
+| skin dials (fanart, opacity, watched flags, grid shapes, help texts, touch, dialogs, colours) | asked in "Skin settings", per skin and per viewer, as the front end's `SkinSettingsBase` files |
+| which language the box speaks | "Client settings", and it carries the weather's and the news' language with it |
+| date and time formats | open. The reference kept `TimeFormat`/`DateFormat` on the worn skin and its clock model read them. This front end formats the header's clock with a fixed pattern and its dates with the chosen language, so the second half of that question is answered by the language and the first half has nowhere to be said |
+| which country's age certificate a title shows | open, and it is more than a setting. The reference's client translated the stored certificate with a hard-coded table (`MediaPortal.Common.Certifications.CertificationMapper`) at display time. This server sends the certificate the importer stored, so the question needs the server to do that translating - it can, the table is in Common and needs nothing else - but nothing does it yet |
+| whether virtual folders are walked | not asked, on purpose. The reference's switch fed a `showVirtual` argument of its client's browse calls, and this server's media endpoints never ask for virtual items, so the switch would be a handle on a door that is not there |
+| the player's geometry, audio renderer, codecs, skip steps | "Playback settings" holds the ones that mean something without DirectShow; the codec tables are DirectShow's own and stay behind |
+| news feeds and their interval, weather places and their API key | kept in `newsfeeds.json` and `weather.json` beside the front end; no screen edits them yet |
+| keys, buttons and remote actions | the front end's own keys, in its keyboard files, not a settings tree |
+| TV: EPG rows and hours, genre colours, channel logos, recording notices, MPExtended | not back yet with the rest of the TV layer |
+
+Open, stated as work rather than as a gap: the two format fields and the certificate country above; three
+questions of the extractors' branch that "Metadata" does not offer yet - `OnlyLocalMedia` on the film extractor
+and on the series extractor, which is what the reference's "download metadata for every film of a collection"
+and "...every episode of a series" switches wrote, and the image extractor's geolocation lookup - all three
+belonging to extractors a headless server may not carry at all, which is the one thing to check before they are
+offered; screens for news feeds and weather places; and the whole TV branch, which needs its service layer on
+the server before a single one of its settings has anything to configure.
 
 ## What cannot be verified without the user
 
