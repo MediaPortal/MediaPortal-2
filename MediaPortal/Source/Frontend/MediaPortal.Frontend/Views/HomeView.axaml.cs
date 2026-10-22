@@ -1190,7 +1190,7 @@ namespace MediaPortal.Frontend.Views
         }
       }
 
-      if (shortcut.ScreenKey == "news" || shortcut.ScreenKey == "weather")
+      if (shortcut.ScreenKey != null && OPENABLE_SHORTCUT_SCREENS.Contains(shortcut.ScreenKey))
       {
         OpenScreen(shortcut.ScreenKey);
         return;
@@ -1198,6 +1198,20 @@ namespace MediaPortal.Frontend.Views
 
       _home.Status = "The " + shortcut.Label + " shortcut is not available in this build.";
     }
+
+    /// <summary>
+    /// The screens a shortcut on the arm of Nereus' cross may open.
+    /// </summary>
+    /// <remarks>
+    /// Named here rather than asked of the application, because the application answers a screen it cannot build
+    /// with an exception - a tile naming a screen nobody builds is a bug in the front end, not something a viewer
+    /// can be shown - and the tiles that have nothing behind them yet, the programme search among them, are a
+    /// viewer's ordinary question. Those keep the sentence that says so.
+    /// </remarks>
+    private static readonly HashSet<string> OPENABLE_SHORTCUT_SCREENS = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+      "news", "weather", "tv", "radio", "tvwatch", "radiowatch", "schedules", "recordings"
+    };
 
     private void OnNereusTileGotFocus(object? sender, RoutedEventArgs args)
     {

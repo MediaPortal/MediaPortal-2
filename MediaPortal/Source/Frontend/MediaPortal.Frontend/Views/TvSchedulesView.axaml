@@ -1,0 +1,129 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        x:Class="MediaPortal.Frontend.Views.TvSchedulesView"
+        x:DataType="vm:TvSchedulesViewModel"
+        Name="tvSchedules"
+        Background="Transparent"
+        >
+
+  <!--
+    What the household asked the television to keep. The reference laid this out as a list down the left with the
+    words about whichever entry is stood on in a band at the right, the series switch above those words, and no
+    header above the list at all (screens/SlimTvClient-schedulelist.xaml, whose rows were fifty pixels tall and
+    four columns wide). The same four columns are here: the channel, the name, the two ends of the time, and one
+    word saying whether a single programme or a whole series stands behind the row.
+
+    Two things the reference had beside this list are deliberately missing. Its "New schedule" opened a screen of
+    its own asking for a date, a time and a channel - which a television has no way of being typed into and which a
+    TVHeadend answers against a channel number a viewer cannot read off a remote - and its recordings screen played
+    the file out of the media library, which is not how this front end reaches a television. What can be asked of an
+    entry here is what the backend itself answers to.
+  -->
+
+  <DockPanel Margin="24,12">
+
+    <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="16" Margin="0,0,0,8">
+      <StackPanel Spacing="2" VerticalAlignment="Center">
+        <TextBlock Text="{Binding Heading}" FontSize="22" FontWeight="SemiBold" />
+        <TextBlock Text="What the television was asked to keep" FontSize="13" Opacity="0.6" />
+      </StackPanel>
+
+      <!-- Three tables rather than two screens. The reference had one screen for the plans and one for the files,
+           because the two came out of two different services there; a TVHeadend keeps them in one table and says
+           which is which on the entry, so the question is which table to read. -->
+      <ComboBox Grid.Column="1"
+                Name="tablePicker"
+                ItemsSource="{Binding Tables}"
+                SelectedItem="{Binding SelectedTable, Mode=TwoWay}"
+                FontSize="14" MinWidth="180" HorizontalAlignment="Left" VerticalAlignment="Center"
+                Focusable="True" />
+
+      <Button Grid.Column="2" Name="reloadButton" Content="Read again" FontSize="14" Padding="14,6"
+              VerticalAlignment="Center" Focusable="True" IsEnabled="{Binding CanAct}" />
+    </Grid>
+
+    <TextBlock DockPanel.Dock="Bottom"
+               Name="statusLine"
+               Text="{Binding Status}"
+               FontSize="13"
+               Opacity="0.85"
+               Margin="0,6,0,0"
+               TextWrapping="Wrap" />
+
+    <!-- The band at the right. Its width is the reference's proportion rather than its seven hundred and forty
+         pixels, which only fitted a screen of a thousand and eighty across. -->
+    <Border DockPanel.Dock="Right" Width="430" Background="#D9000000" CornerRadius="4" Padding="18,12"
+            Margin="14,0,0,0">
+      <StackPanel Spacing="10">
+
+        <CheckBox Name="seriesModeBox"
+                  IsChecked="{Binding SeriesMode, Mode=TwoWay}"
+                  Content="Manage series schedules"
+                  FontSize="14"
+                  Focusable="True" />
+
+        <StackPanel Spacing="6">
+          <TextBlock Text="{Binding DetailsHeading}" FontSize="19" FontWeight="SemiBold" TextWrapping="Wrap" />
+          <TextBlock Text="{Binding DetailsChannel}" FontSize="14" Opacity="0.75" />
+          <TextBlock Text="{Binding DetailsTime}" FontSize="14" Opacity="0.75" />
+          <TextBlock Text="{Binding DetailsSeries}" FontSize="13" Opacity="0.6" />
+          <TextBlock Text="{Binding DetailsSize}" FontSize="13" Opacity="0.6"
+                     IsVisible="{Binding DetailsSize, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+        </StackPanel>
+
+        <TextBlock Text="{Binding DetailsWords}" FontSize="14" Opacity="0.8" TextWrapping="Wrap" MaxHeight="260"
+                   TextTrimming="CharacterEllipsis" />
+
+        <TextBlock Name="problemLine"
+                   Text="{Binding DetailsProblem}"
+                   FontSize="14"
+                   Foreground="#FFE2554F"
+                   TextWrapping="Wrap"
+                   IsVisible="{Binding DetailsProblem, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+
+        <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,4,0,0">
+          <Button Name="stopButton" Content="Stop recording" FontSize="14" Padding="12,6" Focusable="True"
+                  IsEnabled="{Binding CanStop}" />
+          <Button Name="renewButton" Content="Renew series" FontSize="14" Padding="12,6" Focusable="True"
+                  IsEnabled="{Binding HasSelection}" />
+        </StackPanel>
+
+        <Button Name="deleteButton" Content="{Binding DeleteWord}" FontSize="14" Padding="12,6"
+                HorizontalAlignment="Left" Focusable="True" IsEnabled="{Binding HasSelection}" />
+      </StackPanel>
+    </Border>
+
+    <!-- The list. A row is selected by walking onto it, exactly as the reference's list did, and what is stood on
+         is what the band at the right talks about. -->
+    <ListBox Name="entryList"
+             ItemsSource="{Binding Entries}"
+             SelectedItem="{Binding SelectedRow, Mode=TwoWay}"
+             Background="Transparent"
+             Focusable="True">
+      <ListBox.ItemTemplate>
+        <DataTemplate x:DataType="vm:TvScheduleRow">
+          <Grid ColumnDefinitions="180,*,150,64" ColumnSpacing="12" Height="52">
+            <StackPanel Spacing="1" VerticalAlignment="Center">
+              <TextBlock Text="{Binding Channel}" FontSize="15" TextTrimming="CharacterEllipsis" />
+              <TextBlock Text="{Binding Day}" FontSize="12" Opacity="0.55" />
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
+              <TextBlock Text="{Binding Heading}" FontSize="15" TextTrimming="CharacterEllipsis" />
+              <TextBlock Text="{Binding State}" FontSize="12" Opacity="0.55" />
+            </StackPanel>
+
+            <TextBlock Grid.Column="2" Text="{Binding TimeRange}" FontSize="14" Opacity="0.8"
+                       VerticalAlignment="Center" />
+
+            <!-- The reference drew a picture here, two of them: one for a single programme and one for a series.
+                 This front end carries no recording pictures, so the difference is written. -->
+            <TextBlock Grid.Column="3" Text="{Binding SeriesMark}" FontSize="12" Opacity="0.7"
+                       VerticalAlignment="Center" HorizontalAlignment="Right" />
+          </Grid>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+  </DockPanel>
+</UserControl>

@@ -4122,6 +4122,45 @@ plan is asked for by `event_id` rather than by a re-sent time, that a series car
 `dupdetect=0` and that switching a series on says `all=1`, that both spellings of a refusal arrive as sentences,
 and that an unreachable box is still exactly one kind of fault.
 
+### bo. Schedules and recordings: the list of what the television was asked to keep, and the presses beside it
+
+The client could ask; now there is somewhere to ask it from. `TvSchedulesViewModel` and `TvSchedulesView` are the
+reference's schedules screen (`TV/SlimTvClient/Skin/Nereus/screens/SlimTvClient-schedulelist.xaml`) carried over:
+the entries down the left as rows of fifty pixels with no header above them - channel and day, name and what the
+backend is doing about it, the two ends of the time, and one word saying whether a single programme or a whole
+series stands behind the row - and the words about whichever one is stood on in a dark band at the right, with the
+series switch above them. The switch is the reference's `ScheduleSeriesMode` checkbox doing what it did there, where
+the same press meant one question with the switch off and another with it on; here the button says which of the two
+it is ("Delete" or "Delete series schedule"), because a switch a viewer can see but cannot feel should not be
+allowed to change what a press means silently.
+
+Four presses, and each is a question the backend really answers: stop the writing (`cancel`, which is the
+reference's "Stop current recording" - the recording ends and the entry stays readable), take an entry away
+(`delete`), let go of a series or take it up (`autorenew`), and read the table again. Every one of them ends with the
+table being read back, so that the screen never keeps its own idea of what is planned; and with the series switch on
+a delete lets go of the series *first*, because a backend still renewing an event answers a delete by putting the
+entry back. What the box said is what the line at the bottom says, in the box's own words - "Ein identischer Timer
+existiert bereits" and not "that did not work" - and a refusal, unlike a fault, does not stop the read back.
+
+Two things the reference had beside this list are missing on purpose and are named in part bn's entry rather than
+here again: its "New schedule" screen, and its way of *playing* a finished recording, which was the media library's
+job there and has no equivalent for a television here. The home menu has advertised "Schedules" and "Recordings" for
+many parts now and always answered them with "not available in this build"; both tiles lead somewhere now - the same
+screen turned to the table each of them means - and so do "Live TV" and "Live radio", which had been pointed at the
+guide because there was nothing else to point them at. The tiles whose screens do not exist yet, the programme
+search among them, keep the sentence that says so, which is why the screens a shortcut may open are still named in
+the home screen rather than asked of the application: the application answers a screen nobody builds with an
+exception, and that is right - a tile naming a screen is a bug in the front end, while a viewer asking for a
+programme search is an ordinary question.
+
+`TestTvSchedulesScreen` asks 18 questions: that the two tiles open on two different tables and call themselves
+different things, that the earliest beginning stands at the top, which states are named and which are passed
+through as the backend named them, where the backend's own complaint about a switched-off plan appears, that a
+screen with no written-down backend asks nobody nothing and says so out loud, and - the ones this screen exists for
+- that each press asks exactly the questions it should, in the right order, with the right switches in the query.
+Two of them look at the drawn screen, and one renders it: the plans and the recordings as they come out of a
+scripted box, list and band and all.
+
 ## What cannot be verified without the user
 
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library

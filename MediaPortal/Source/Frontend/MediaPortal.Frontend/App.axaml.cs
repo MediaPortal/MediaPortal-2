@@ -920,6 +920,9 @@ namespace MediaPortal.Frontend
       if (state == "tvguide" || state == "radioguide")
         return new TvGuideView((TvGuideViewModel)frame.ViewModel);
 
+      if (state == "schedules" || state == "recordings")
+        return new TvSchedulesView((TvSchedulesViewModel)frame.ViewModel);
+
       if (state == "tvwatch" || state == "radiowatch")
         return new TvWatchView((TvTunerViewModel)frame.ViewModel, _frames);
 
@@ -1203,6 +1206,20 @@ namespace MediaPortal.Frontend
         _ = guide.ReloadAsync();
         return new Workflow.WorkflowFrame(kind == TvMediaType.Radio ? "radioguide" : "tvguide",
             guide.Heading, guide);
+      }
+
+      if (screenKey.Equals("schedules", StringComparison.OrdinalIgnoreCase)
+          || screenKey.Equals("recordings", StringComparison.OrdinalIgnoreCase))
+      {
+        // The plans and the recordings, which the reference kept as two screens because they came out of two
+        // different services there - the schedules from the TV service, the recordings out of the media library. A
+        // TVHeadend answers both out of one table, so both tiles open one screen turned to the table each of them
+        // means; the difference a viewer sees is which of the three tables is named at the top.
+        bool files = screenKey.Equals("recordings", StringComparison.OrdinalIgnoreCase);
+        TvSchedulesViewModel schedules = new TvSchedulesViewModel(finishedFirst: files);
+        _ = schedules.ReloadAsync();
+        return new Workflow.WorkflowFrame(files ? "recordings" : "schedules",
+            files ? "Recordings" : "Schedules", schedules);
       }
 
       if (screenKey.Equals("tvwatch", StringComparison.OrdinalIgnoreCase)
