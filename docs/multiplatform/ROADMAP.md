@@ -3793,9 +3793,9 @@ Open, stated as work rather than as a gap: three questions of the extractors' br
 offer yet - `OnlyLocalMedia` on the film extractor and on the series extractor, which is what the reference's
 "download metadata for every film of a collection" and "...every episode of a series" switches wrote, and the
 image extractor's geolocation lookup - all three belonging to extractors a headless server may not carry at
-all, which is the one thing to check before they are offered; screens for news feeds and weather places; and the
-whole TV branch, which needs its service layer on the server before a single one of its settings has anything to
-configure. The three questions this section left open - the two formats, the certificate country and the virtual
+all, which is the one thing to check before they are offered; and screens for news feeds and weather places.
+The television branch that used to be in that list is in the sections below it, and is asked and obeyed now.
+The three questions this section left open - the two formats, the certificate country and the virtual
 folders - were closed by the section after it.
 
 ### bj. The three open settings closed: the country a mark comes from, the titles there are not, and how the clock spells itself
