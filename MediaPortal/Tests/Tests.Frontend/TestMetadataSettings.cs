@@ -159,5 +159,111 @@ namespace Tests.Frontend
       Assert.That(homeless.Status, Does.Contain("Server address"),
           "the way back is named, not just a complaint");
     }
+
+    [Test]
+    public void TheDetailFlagsAndTheCountsBecomeRowsAfterTheOlderSwitches()
+    {
+      StubApi api = new StubApi
+      {
+        ToAnswer = new MetadataSettingsAnswer
+        {
+          Movie = new MetadataFlags
+          {
+            SkipOnlineSearches = false,
+            IncludeActorDetails = false,
+            IncludeWriterDetails = true,
+            MaximumActorCount = 7,
+            MaximumCharacterCount = 0
+          },
+          Audio = new MetadataFlags { IncludeArtistDetails = true }
+        }
+      };
+
+      MetadataSettingsViewModel screen = ScreenOn(api);
+      screen.ReloadCommand.Execute(null);
+
+      Assert.That(screen.Rows.Select(row => row.Block + "." + row.Field), Is.EqualTo(new[]
+      {
+        "movie.SkipOnlineSearches", "movie.IncludeActorDetails", "movie.IncludeWriterDetails",
+        "movie.MaximumActorCount", "movie.MaximumCharacterCount", "audio.IncludeArtistDetails"
+      }), "the switches the screen has always shown, then whose details to fetch, then how many people to keep");
+
+      MetadataRow actors = screen.Rows.First(row => row.Field == "MaximumActorCount");
+      Assert.That(actors.Text, Is.EqualTo("7"));
+      Assert.That(actors.IsNumber, Is.True, "a count is a box the screen reads back as a number");
+      Assert.That(actors.IsToggle, Is.False, "and never a checkbox a viewer ticks by habit");
+      Assert.That(actors.Label, Does.Contain("between 0 and 100"),
+          "the range the server stores stands in the row's own words, where the number is typed");
+      Assert.That(actors.Label, Does.Contain("Movies"), "and says which kind of media it limits");
+
+      Assert.That(screen.Rows.First(row => row.Field == "MaximumCharacterCount").Text, Is.EqualTo("0"),
+          "a count stored as none is a row showing zero, not a row left out");
+      Assert.That(screen.Rows.First(row => row.Field == "IncludeActorDetails").IsOn, Is.False,
+          "a detail flag stored off is a box shown unticked");
+      Assert.That(screen.Rows.First(row => row.Field == "IncludeArtistDetails").Label,
+          Does.Contain("Music - fetch the artists' details"),
+          "the music block is asked for the people a record credits, not for a film's cast");
+    }
+
+    [Test]
+    public void ACountTheServerWouldRefuseNeverLeavesTheScreen()
+    {
+      StubApi api = new StubApi
+      {
+        ToAnswer = new MetadataSettingsAnswer
+        {
+          Movie = new MetadataFlags { MaximumActorCount = 7, MaximumCharacterCount = 5 }
+        }
+      };
+
+      MetadataSettingsViewModel screen = ScreenOn(api);
+      screen.ReloadCommand.Execute(null);
+
+      MetadataRow actors = screen.Rows.First(row => row.Field == "MaximumActorCount");
+      foreach (string refused in new[] { "101", "-1", "many", "" })
+      {
+        actors.Text = refused;
+        screen.SaveCommand.Execute(null);
+
+        Assert.That(api.Puts, Is.Zero,
+            "\"" + refused + "\" is no number the endpoint stores, so the screen keeps it to itself");
+        Assert.That(screen.Status, Does.Contain("Nothing was sent"),
+            "the viewer is told the form went nowhere, rather than reading a silent save");
+        Assert.That(screen.Status, Does.Contain("between 0 and 100"),
+            "and the sentence says what would have been accepted");
+      }
+
+      actors.Text = " 12 ";
+      screen.SaveCommand.Execute(null);
+
+      Assert.That(api.Puts, Is.EqualTo(1), "a number the endpoint stores is sent after all");
+      Assert.That(api.LastWish.Movie.MaximumActorCount, Is.EqualTo(12),
+          "the padding a text box collects is not part of the number");
+      Assert.That(api.LastWish.Movie.MaximumCharacterCount, Is.EqualTo(5),
+          "the count beside it goes back as it was read");
+      Assert.That(screen.Status, Does.Contain("next import pass"));
+    }
+
+    [Test]
+    public void ADetailFlagOrCountTheServerNeverNamedIsNotSent()
+    {
+      StubApi api = new StubApi
+      {
+        // A server whose movie extractor answers the switches the screen has always shown and nothing of the new
+        // ones - an older build, or an extractor whose settings class carries none of them.
+        ToAnswer = new MetadataSettingsAnswer { Movie = new MetadataFlags { SkipOnlineSearches = true } }
+      };
+
+      MetadataSettingsViewModel screen = ScreenOn(api);
+      screen.ReloadCommand.Execute(null);
+      screen.SaveCommand.Execute(null);
+
+      Assert.That(api.Puts, Is.EqualTo(1));
+      Assert.That(api.LastWish.Movie.IncludeActorDetails, Is.Null,
+          "a field the screen had no row for is not sent in any shape - null tells the server to leave it");
+      Assert.That(api.LastWish.Movie.MaximumActorCount, Is.Null,
+          "and a count nobody was shown is not invented with a default of its own");
+      Assert.That(api.LastWish.Series, Is.Null, "a block with no rows at all is not sent in any shape");
+    }
   }
 }

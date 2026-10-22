@@ -30,7 +30,8 @@ namespace MediaPortal.Server.Api
 {
   /// <summary>
   /// What the server asks the internet - and itself - when it builds the library: the metadata extractors'
-  /// online searches and fanart download, per kind of media, and the online libraries' languages.
+  /// online searches and fanart download, whose details of the people behind a title it fetches and how many of
+  /// them it keeps, per kind of media, and the online libraries' languages.
   /// </summary>
   /// <remarks>
   /// <para>
@@ -46,10 +47,11 @@ namespace MediaPortal.Server.Api
   /// <para>
   /// The fields mirror the extractor settings property for property, with two honesty rules. Only properties
   /// a living room plausibly changes are carried - whether to search online at all, whether to fetch artwork,
-  /// whether cached artwork copies are kept, and in which language the online libraries answer - not the
-  /// extractors' tuning like year-matching patterns, which the reference also kept out of its settings
-  /// window. And what takes effect when is said plainly: these are read when the extractors work, so a change
-  /// speaks to the next import pass, not to the library as it stands - the flag
+  /// whether cached artwork copies are kept, whose details of the people behind a title to fetch, how many
+  /// actors and characters to keep, and in which language the online libraries answer - not the extractors'
+  /// tuning like year-matching patterns, which the reference also kept out of its settings window. And what
+  /// takes effect when is said plainly: these are read when the extractors work, so a change speaks to the
+  /// next import pass, not to the library as it stands - the flag
   /// <see cref="MetadataSettingsResult.NextImportPass"/> says so once instead of every screen inventing it.
   /// </para>
   /// <para>
@@ -65,19 +67,37 @@ namespace MediaPortal.Server.Api
   {
     #region The map between the answer and the extractor settings
 
+    /// <summary>The three shapes a settings property this endpoint speaks can have.</summary>
+    private enum FieldKind
+    {
+      /// <summary>A switch: the wish is a yes or a no, and so is the answer.</summary>
+      Toggle,
+
+      /// <summary>A language name. An empty wish means leave the stored name alone.</summary>
+      Text,
+
+      /// <summary>
+      /// How many people of one kind the extractor keeps. A wish has to be a whole number inside
+      /// <see cref="MINIMUM_KEEP_COUNT"/> and <see cref="MAXIMUM_KEEP_COUNT"/>, which is more than the
+      /// settings class itself asks for and is said in the refusal.
+      /// </summary>
+      Count
+    }
+
     /// <summary>
     /// One field of the answer, and where it lives: which settings class holds it and which property of that
     /// class spells it. Resolved by reflection at request time, so this assembly never names an extractor.
     /// </summary>
     private readonly struct FieldMap
     {
-      internal FieldMap(string block, string typeName, string property, string field, bool text = false)
+      internal FieldMap(string block, string typeName, string property, string field,
+          FieldKind kind = FieldKind.Toggle)
       {
         Block = block;
         TypeName = typeName;
         Property = property;
         Field = field;
-        Text = text;
+        Kind = kind;
       }
 
       internal string Block { get; }
@@ -85,9 +105,25 @@ namespace MediaPortal.Server.Api
       internal string Property { get; }
       internal string Field { get; }
 
-      /// <summary>Whether the property is a language name rather than a switch.</summary>
-      internal bool Text { get; }
+      /// <summary>How the property is asked for and answered, so that a language or a number is not read as a switch.</summary>
+      internal FieldKind Kind { get; }
     }
+
+    /// <summary>
+    /// The fewest actors or characters a caller may ask an extractor to keep. The reference hands the stored
+    /// number straight to LINQ's <c>Take</c> when it trims a cast list, and <c>Take</c> throws on a negative
+    /// count, so zero - keep none of them - is the floor a running extractor can actually live with.
+    /// </summary>
+    private const int MINIMUM_KEEP_COUNT = 0;
+
+    /// <summary>
+    /// The most actors or characters a caller may ask an extractor to keep. The reference sets no ceiling of
+    /// its own and defaults to ten per movie and twenty per series, so this number is the endpoint's own,
+    /// stated rather than implied: generous beside those defaults, and low enough that one import pass cannot
+    /// have the internet describe a cast list nobody watches. The metadata screen says the same range on its
+    /// rows, because a wish refused after it was typed is a wish the viewer typed twice.
+    /// </summary>
+    private const int MAXIMUM_KEEP_COUNT = 100;
 
     private const string MOVIE_TYPE = "MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Settings.MovieMetadataExtractorSettings";
     private const string SERIES_TYPE = "MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Settings.SeriesMetadataExtractorSettings";
@@ -108,17 +144,36 @@ namespace MediaPortal.Server.Api
       new FieldMap("movie", MOVIE_TYPE, nameof(MovieFlags.OnlyLocalMedia), nameof(MovieFlags.OnlyLocalMedia)),
       new FieldMap("movie", MOVIE_TYPE, nameof(MovieFlags.CacheOfflineFanArt), nameof(MovieFlags.CacheOfflineFanArt)),
       new FieldMap("movie", MOVIE_TYPE, nameof(MovieFlags.CacheLocalFanArt), nameof(MovieFlags.CacheLocalFanArt)),
+      new FieldMap("movie", MOVIE_TYPE, nameof(MovieFlags.IncludeActorDetails), nameof(MovieFlags.IncludeActorDetails)),
+      new FieldMap("movie", MOVIE_TYPE, nameof(MovieFlags.IncludeCharacterDetails), nameof(MovieFlags.IncludeCharacterDetails)),
+      new FieldMap("movie", MOVIE_TYPE, nameof(MovieFlags.IncludeDirectorDetails), nameof(MovieFlags.IncludeDirectorDetails)),
+      new FieldMap("movie", MOVIE_TYPE, nameof(MovieFlags.IncludeWriterDetails), nameof(MovieFlags.IncludeWriterDetails)),
+      new FieldMap("movie", MOVIE_TYPE, nameof(MovieFlags.IncludeProductionCompanyDetails), nameof(MovieFlags.IncludeProductionCompanyDetails)),
+      new FieldMap("movie", MOVIE_TYPE, nameof(MovieFlags.MaximumActorCount), nameof(MovieFlags.MaximumActorCount), FieldKind.Count),
+      new FieldMap("movie", MOVIE_TYPE, nameof(MovieFlags.MaximumCharacterCount), nameof(MovieFlags.MaximumCharacterCount), FieldKind.Count),
 
       new FieldMap("series", SERIES_TYPE, nameof(MovieFlags.SkipOnlineSearches), nameof(MovieFlags.SkipOnlineSearches)),
       new FieldMap("series", SERIES_TYPE, nameof(MovieFlags.SkipFanArtDownload), nameof(MovieFlags.SkipFanArtDownload)),
       new FieldMap("series", SERIES_TYPE, nameof(MovieFlags.OnlyLocalMedia), nameof(MovieFlags.OnlyLocalMedia)),
       new FieldMap("series", SERIES_TYPE, nameof(MovieFlags.CacheOfflineFanArt), nameof(MovieFlags.CacheOfflineFanArt)),
       new FieldMap("series", SERIES_TYPE, nameof(MovieFlags.CacheLocalFanArt), nameof(MovieFlags.CacheLocalFanArt)),
+      new FieldMap("series", SERIES_TYPE, nameof(MovieFlags.IncludeActorDetails), nameof(MovieFlags.IncludeActorDetails)),
+      new FieldMap("series", SERIES_TYPE, nameof(MovieFlags.IncludeCharacterDetails), nameof(MovieFlags.IncludeCharacterDetails)),
+      new FieldMap("series", SERIES_TYPE, nameof(MovieFlags.IncludeDirectorDetails), nameof(MovieFlags.IncludeDirectorDetails)),
+      new FieldMap("series", SERIES_TYPE, nameof(MovieFlags.IncludeWriterDetails), nameof(MovieFlags.IncludeWriterDetails)),
+      new FieldMap("series", SERIES_TYPE, nameof(MovieFlags.IncludeTVNetworkDetails), nameof(MovieFlags.IncludeTVNetworkDetails)),
+      new FieldMap("series", SERIES_TYPE, nameof(MovieFlags.IncludeProductionCompanyDetails), nameof(MovieFlags.IncludeProductionCompanyDetails)),
+      new FieldMap("series", SERIES_TYPE, nameof(MovieFlags.MaximumActorCount), nameof(MovieFlags.MaximumActorCount), FieldKind.Count),
+      new FieldMap("series", SERIES_TYPE, nameof(MovieFlags.MaximumCharacterCount), nameof(MovieFlags.MaximumCharacterCount), FieldKind.Count),
 
       new FieldMap("audio", AUDIO_TYPE, nameof(MovieFlags.SkipOnlineSearches), nameof(MovieFlags.SkipOnlineSearches)),
       new FieldMap("audio", AUDIO_TYPE, nameof(MovieFlags.SkipFanArtDownload), nameof(MovieFlags.SkipFanArtDownload)),
       new FieldMap("audio", AUDIO_TYPE, nameof(MovieFlags.CacheOfflineFanArt), nameof(MovieFlags.CacheOfflineFanArt)),
       new FieldMap("audio", AUDIO_TYPE, nameof(MovieFlags.CacheLocalFanArt), nameof(MovieFlags.CacheLocalFanArt)),
+      new FieldMap("audio", AUDIO_TYPE, nameof(MovieFlags.IncludeArtistDetails), nameof(MovieFlags.IncludeArtistDetails)),
+      new FieldMap("audio", AUDIO_TYPE, nameof(MovieFlags.IncludeComposerDetails), nameof(MovieFlags.IncludeComposerDetails)),
+      new FieldMap("audio", AUDIO_TYPE, nameof(MovieFlags.IncludeMusicLabelDetails), nameof(MovieFlags.IncludeMusicLabelDetails)),
+      new FieldMap("audio", AUDIO_TYPE, nameof(MovieFlags.IncludeConductorDetails), nameof(MovieFlags.IncludeConductorDetails)),
 
       new FieldMap("video", VIDEO_TYPE, nameof(MovieFlags.CacheOfflineFanArt), nameof(MovieFlags.CacheOfflineFanArt)),
       new FieldMap("video", VIDEO_TYPE, nameof(MovieFlags.CacheLocalFanArt), nameof(MovieFlags.CacheLocalFanArt)),
@@ -134,10 +189,10 @@ namespace MediaPortal.Server.Api
       new FieldMap("online", ONLINE_TYPE, nameof(OnlineFlags.UseMovieAudioLanguageIfUnmatched), nameof(OnlineFlags.UseMovieAudioLanguageIfUnmatched)),
       new FieldMap("online", ONLINE_TYPE, nameof(OnlineFlags.UseSeriesAudioLanguageIfUnmatched), nameof(OnlineFlags.UseSeriesAudioLanguageIfUnmatched)),
       new FieldMap("online", ONLINE_TYPE, nameof(OnlineFlags.UseMusicAudioLanguageIfUnmatched), nameof(OnlineFlags.UseMusicAudioLanguageIfUnmatched)),
-      new FieldMap("online", ONLINE_TYPE, nameof(OnlineFlags.MovieLanguageCulture), nameof(OnlineFlags.MovieLanguageCulture), true),
-      new FieldMap("online", ONLINE_TYPE, nameof(OnlineFlags.SeriesLanguageCulture), nameof(OnlineFlags.SeriesLanguageCulture), true),
-      new FieldMap("online", ONLINE_TYPE, nameof(OnlineFlags.MusicLanguageCulture), nameof(OnlineFlags.MusicLanguageCulture), true),
-      new FieldMap("online", ONLINE_TYPE, nameof(OnlineFlags.SubtitleLanguageCulture), nameof(OnlineFlags.SubtitleLanguageCulture), true)
+      new FieldMap("online", ONLINE_TYPE, nameof(OnlineFlags.MovieLanguageCulture), nameof(OnlineFlags.MovieLanguageCulture), FieldKind.Text),
+      new FieldMap("online", ONLINE_TYPE, nameof(OnlineFlags.SeriesLanguageCulture), nameof(OnlineFlags.SeriesLanguageCulture), FieldKind.Text),
+      new FieldMap("online", ONLINE_TYPE, nameof(OnlineFlags.MusicLanguageCulture), nameof(OnlineFlags.MusicLanguageCulture), FieldKind.Text),
+      new FieldMap("online", ONLINE_TYPE, nameof(OnlineFlags.SubtitleLanguageCulture), nameof(OnlineFlags.SubtitleLanguageCulture), FieldKind.Text)
     };
 
     #endregion
@@ -145,9 +200,11 @@ namespace MediaPortal.Server.Api
     #region The shapes of the answer and the wish
 
     /// <summary>
-    /// The switches of one extractor. Every field is nullable in both directions: null in an answer means the
-    /// server has no such field to speak of (the extractor is not installed, or the block does not carry that
-    /// switch), and null in a request means "leave this one as it is".
+    /// The switches and the two counts of one extractor. Every field is nullable in both directions: null in an
+    /// answer means the server has no such field to speak of (the extractor is not installed, or the block does
+    /// not carry that switch), and null in a request means "leave this one as it is". A count arrives as a whole
+    /// number between <see cref="MINIMUM_KEEP_COUNT"/> and <see cref="MAXIMUM_KEEP_COUNT"/>; outside that range
+    /// the request is refused before anything is stored.
     /// </summary>
     public class MovieFlags
     {
@@ -160,6 +217,22 @@ namespace MediaPortal.Server.Api
       public bool? CacheLocalMovieFanArt { get; set; }
       public bool? CacheOfflineSeriesFanArt { get; set; }
       public bool? CacheLocalSeriesFanArt { get; set; }
+
+      // Whose details the extractor is asked for, and how many people of a kind it keeps. Null everywhere the
+      // extractor's own settings class has no such property, which is why the music block has no counts and the
+      // movie block no television network.
+      public bool? IncludeActorDetails { get; set; }
+      public bool? IncludeCharacterDetails { get; set; }
+      public bool? IncludeDirectorDetails { get; set; }
+      public bool? IncludeWriterDetails { get; set; }
+      public bool? IncludeTVNetworkDetails { get; set; }
+      public bool? IncludeProductionCompanyDetails { get; set; }
+      public bool? IncludeArtistDetails { get; set; }
+      public bool? IncludeComposerDetails { get; set; }
+      public bool? IncludeMusicLabelDetails { get; set; }
+      public bool? IncludeConductorDetails { get; set; }
+      public int? MaximumActorCount { get; set; }
+      public int? MaximumCharacterCount { get; set; }
     }
 
     /// <summary>
@@ -245,13 +318,19 @@ namespace MediaPortal.Server.Api
 
     /// <summary>
     /// Changes what the extractors are configured to do. What arrives is applied field by field - only the
-    /// fields that are present - and the answer is the whole state after the change.
+    /// fields that are present - and the answer is the whole state after the change. A count outside the range
+    /// this endpoint states is refused with a sentence, and the refusal applies nothing at all, not even the
+    /// fields that could have been stored.
     /// </summary>
     [HttpPut("settings/metadata")]
     public ActionResult<MetadataSettingsResult> PutMetadataSettings([FromBody] MetadataSettingsRequest request)
     {
       if (request == null)
         return BadRequest(new ErrorResponse { Error = "no settings were sent" });
+
+      string refusal = CountRefusal(request);
+      if (refusal != null)
+        return BadRequest(new ErrorResponse { Error = refusal });
 
       try
       {
@@ -317,11 +396,21 @@ namespace MediaPortal.Server.Api
           bool? wishFlag = null;
           bool wished = false;
           ReadWish(request, map, out wished, out wishFlag, out wishText);
+          int? wishCount = CountWish(request, map);
 
-          if (wished)
+          if (wishCount.HasValue)
           {
-            object wish = map.Text ? (object)(wishText ?? "").Trim() : wishFlag.Value;
-            if (map.Text)
+            // The range was settled when the request arrived, so a count that reached this point is one the
+            // extractor can be handed.
+            property.SetValue(settings, wishCount.Value);
+            stored = wishCount.Value;
+            changed = true;
+          }
+          else if (wished)
+          {
+            bool text = map.Kind == FieldKind.Text;
+            object wish = text ? (object)(wishText ?? "").Trim() : wishFlag.Value;
+            if (text)
             {
               // A language is stored only as a name that could be a name; an empty wish means leave it.
               if (string.IsNullOrEmpty((string)wish) || Equals(stored, wish))
@@ -336,12 +425,18 @@ namespace MediaPortal.Server.Api
             }
           }
 
-          if (map.Text)
+          // A block lives in one of the two dictionaries, never in both: the online libraries have a shape of
+          // their own, so asking the aspect dictionary for "online" would ask for a key it has never held.
+          if (map.Kind == FieldKind.Text)
+          {
             online["online"] ??= new OnlineFlags();
+            Apply(map, online["online"], null, stored);
+          }
           else
+          {
             aspects[map.Block] ??= new MovieFlags();
-
-          Apply(map, online["online"], aspects[map.Block], stored);
+            Apply(map, null, aspects[map.Block], stored);
+          }
         }
 
         if (changed)
@@ -359,7 +454,7 @@ namespace MediaPortal.Server.Api
       };
     }
 
-    /// <summary>What the request asks of one field, if anything.</summary>
+    /// <summary>What the request asks of one switch or one language, if anything. Counts are asked for by <see cref="CountWish"/>.</summary>
     private static void ReadWish(MetadataSettingsRequest request, FieldMap map,
         out bool wished, out bool? wishFlag, out string wishText)
     {
@@ -367,15 +462,11 @@ namespace MediaPortal.Server.Api
       wishFlag = null;
       wishText = null;
 
-      MovieFlags aspect = map.Block switch
-      {
-        "movie" => request.Movie,
-        "series" => request.Series,
-        "audio" => request.Audio,
-        "video" => request.Video,
-        "subtitle" => request.Subtitle,
-        _ => null
-      };
+      if (request == null)
+        // A read asks nothing of anybody, so there is no wish to read out of it.
+        return;
+
+      MovieFlags aspect = AspectOf(request, map.Block);
       OnlineFlags libraries = map.Block == "online" ? request.OnlineLibraries : null;
 
       if (libraries != null)
@@ -464,13 +555,113 @@ namespace MediaPortal.Server.Api
           wished = aspect.CacheLocalSeriesFanArt.HasValue;
           wishFlag = aspect.CacheLocalSeriesFanArt;
           break;
+        case nameof(MovieFlags.IncludeActorDetails):
+          wished = aspect.IncludeActorDetails.HasValue;
+          wishFlag = aspect.IncludeActorDetails;
+          break;
+        case nameof(MovieFlags.IncludeCharacterDetails):
+          wished = aspect.IncludeCharacterDetails.HasValue;
+          wishFlag = aspect.IncludeCharacterDetails;
+          break;
+        case nameof(MovieFlags.IncludeDirectorDetails):
+          wished = aspect.IncludeDirectorDetails.HasValue;
+          wishFlag = aspect.IncludeDirectorDetails;
+          break;
+        case nameof(MovieFlags.IncludeWriterDetails):
+          wished = aspect.IncludeWriterDetails.HasValue;
+          wishFlag = aspect.IncludeWriterDetails;
+          break;
+        case nameof(MovieFlags.IncludeTVNetworkDetails):
+          wished = aspect.IncludeTVNetworkDetails.HasValue;
+          wishFlag = aspect.IncludeTVNetworkDetails;
+          break;
+        case nameof(MovieFlags.IncludeProductionCompanyDetails):
+          wished = aspect.IncludeProductionCompanyDetails.HasValue;
+          wishFlag = aspect.IncludeProductionCompanyDetails;
+          break;
+        case nameof(MovieFlags.IncludeArtistDetails):
+          wished = aspect.IncludeArtistDetails.HasValue;
+          wishFlag = aspect.IncludeArtistDetails;
+          break;
+        case nameof(MovieFlags.IncludeComposerDetails):
+          wished = aspect.IncludeComposerDetails.HasValue;
+          wishFlag = aspect.IncludeComposerDetails;
+          break;
+        case nameof(MovieFlags.IncludeMusicLabelDetails):
+          wished = aspect.IncludeMusicLabelDetails.HasValue;
+          wishFlag = aspect.IncludeMusicLabelDetails;
+          break;
+        case nameof(MovieFlags.IncludeConductorDetails):
+          wished = aspect.IncludeConductorDetails.HasValue;
+          wishFlag = aspect.IncludeConductorDetails;
+          break;
       }
+    }
+
+    /// <summary>The part of the request a field of a block belongs to; null when the request sends none.</summary>
+    private static MovieFlags AspectOf(MetadataSettingsRequest request, string block)
+    {
+      return block switch
+      {
+        "movie" => request.Movie,
+        "series" => request.Series,
+        "audio" => request.Audio,
+        "video" => request.Video,
+        "subtitle" => request.Subtitle,
+        _ => null
+      };
+    }
+
+    /// <summary>
+    /// What the request asks of one of the two counts, or null when it asks nothing - which is also the answer
+    /// for a field that is not a count, so a caller can ask for any field the same way.
+    /// </summary>
+    private static int? CountWish(MetadataSettingsRequest request, FieldMap map)
+    {
+      if (request == null || map.Kind != FieldKind.Count)
+        return null;
+
+      MovieFlags aspect = AspectOf(request, map.Block);
+      if (aspect == null)
+        return null;
+
+      if (map.Field == nameof(MovieFlags.MaximumActorCount))
+        return aspect.MaximumActorCount;
+      return map.Field == nameof(MovieFlags.MaximumCharacterCount) ? aspect.MaximumCharacterCount : (int?)null;
+    }
+
+    /// <summary>
+    /// The sentence saying why a request asked for a count that cannot be stored, or null when every count it
+    /// asked for could be. Asked for the whole request at once and before anything is applied, because half a
+    /// wish stored is worse than none: the caller would read back a state nobody asked for, and would have no
+    /// way of telling which half moved.
+    /// </summary>
+    private static string CountRefusal(MetadataSettingsRequest request)
+    {
+      foreach (FieldMap map in FIELDS)
+      {
+        int? wish = CountWish(request, map);
+        if (!wish.HasValue || (wish.Value >= MINIMUM_KEEP_COUNT && wish.Value <= MAXIMUM_KEEP_COUNT))
+          continue;
+
+        return "The number of " + CountedItems(map.Field) + " the " + map.Block
+            + " extractor keeps has to be a whole number between " + MINIMUM_KEEP_COUNT + " and "
+            + MAXIMUM_KEEP_COUNT + ".";
+      }
+
+      return null;
+    }
+
+    /// <summary>What a count counts, in the words a refusal shows rather than the property's name.</summary>
+    private static string CountedItems(string field)
+    {
+      return field == nameof(MovieFlags.MaximumActorCount) ? "actors" : "characters";
     }
 
     /// <summary>Writes one read value into the answer block it belongs to.</summary>
     private static void Apply(FieldMap map, OnlineFlags libraries, MovieFlags aspect, object stored)
     {
-      if (map.Text)
+      if (map.Kind == FieldKind.Text)
       {
         string text = stored as string ?? "";
         switch (map.Field)
@@ -487,6 +678,26 @@ namespace MediaPortal.Server.Api
           case nameof(OnlineFlags.SubtitleLanguageCulture):
             libraries.SubtitleLanguageCulture = text;
             break;
+        }
+
+        return;
+      }
+
+      if (map.Kind == FieldKind.Count)
+      {
+        // A number the settings class holds as anything other than a whole number is left unanswered rather
+        // than guessed at - a screen with no row for it cannot store a number it was never shown.
+        if (stored is int number)
+        {
+          switch (map.Field)
+          {
+            case nameof(MovieFlags.MaximumActorCount):
+              aspect.MaximumActorCount = number;
+              break;
+            case nameof(MovieFlags.MaximumCharacterCount):
+              aspect.MaximumCharacterCount = number;
+              break;
+          }
         }
 
         return;
@@ -521,6 +732,36 @@ namespace MediaPortal.Server.Api
           break;
         case nameof(MovieFlags.CacheLocalSeriesFanArt):
           aspect.CacheLocalSeriesFanArt = flag;
+          break;
+        case nameof(MovieFlags.IncludeActorDetails):
+          aspect.IncludeActorDetails = flag;
+          break;
+        case nameof(MovieFlags.IncludeCharacterDetails):
+          aspect.IncludeCharacterDetails = flag;
+          break;
+        case nameof(MovieFlags.IncludeDirectorDetails):
+          aspect.IncludeDirectorDetails = flag;
+          break;
+        case nameof(MovieFlags.IncludeWriterDetails):
+          aspect.IncludeWriterDetails = flag;
+          break;
+        case nameof(MovieFlags.IncludeTVNetworkDetails):
+          aspect.IncludeTVNetworkDetails = flag;
+          break;
+        case nameof(MovieFlags.IncludeProductionCompanyDetails):
+          aspect.IncludeProductionCompanyDetails = flag;
+          break;
+        case nameof(MovieFlags.IncludeArtistDetails):
+          aspect.IncludeArtistDetails = flag;
+          break;
+        case nameof(MovieFlags.IncludeComposerDetails):
+          aspect.IncludeComposerDetails = flag;
+          break;
+        case nameof(MovieFlags.IncludeMusicLabelDetails):
+          aspect.IncludeMusicLabelDetails = flag;
+          break;
+        case nameof(MovieFlags.IncludeConductorDetails):
+          aspect.IncludeConductorDetails = flag;
           break;
       }
     }

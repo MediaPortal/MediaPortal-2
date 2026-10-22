@@ -23,7 +23,7 @@
             <CheckBox Grid.Column="1" IsChecked="{Binding IsOn}" IsVisible="{Binding IsToggle}"
                       VerticalAlignment="Center"/>
             <TextBox Grid.Column="1" Text="{Binding Text}" IsVisible="{Binding IsText}" Width="160"
-                     HorizontalAlignment="Left" Watermark="en-GB"
+                     HorizontalAlignment="Left" Watermark="{Binding Watermark}"
                      views:VirtualKeyboardService.Trigger="EnterOrMenu"/>
           </Grid>
         </DataTemplate>

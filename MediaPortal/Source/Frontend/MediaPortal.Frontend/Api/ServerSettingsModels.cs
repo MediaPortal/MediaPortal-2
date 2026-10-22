@@ -118,6 +118,23 @@ namespace MediaPortal.Frontend.Api
         public bool? CacheOfflineSeriesFanArt { get; init; }
         public bool? CacheLocalSeriesFanArt { get; init; }
 
+        // Whose details the extractor is asked for, and how many people of a kind it keeps. Null everywhere the
+        // server's extractor has no such property, which is why the music block has no counts and the movie
+        // block no television network. The range of a count is the endpoint's own - zero to a hundred - and the
+        // screen repeats it on the row, because a number refused by the server is a number typed twice.
+        public bool? IncludeActorDetails { get; init; }
+        public bool? IncludeCharacterDetails { get; init; }
+        public bool? IncludeDirectorDetails { get; init; }
+        public bool? IncludeWriterDetails { get; init; }
+        public bool? IncludeTVNetworkDetails { get; init; }
+        public bool? IncludeProductionCompanyDetails { get; init; }
+        public bool? IncludeArtistDetails { get; init; }
+        public bool? IncludeComposerDetails { get; init; }
+        public bool? IncludeMusicLabelDetails { get; init; }
+        public bool? IncludeConductorDetails { get; init; }
+        public int? MaximumActorCount { get; init; }
+        public int? MaximumCharacterCount { get; init; }
+
         // The online libraries' own fields; null everywhere else.
         public bool? OnlyBasicFanArt { get; init; }
         public bool? UseSecureWebCommunication { get; init; }
