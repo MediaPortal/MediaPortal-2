@@ -4406,6 +4406,71 @@ arrives, and the settings sentence about a backend arrives through the handover 
 tests pass; the whole front end suite was run again after this part and still carries only its two known
 baseline failures.
 
+### bt. The grid keeps a page of channels and the remote walks the rest: the guide became usable from a sofa
+
+Two things were wrong with the guide at once, and they hid each other. It drew every channel of a bouquet as a row,
+so a household with three hundred channels was carrying about twenty-seven thousand controls on a screen with room
+for eight rows, and it answered no key at all - the programme blocks are `Border`s with a `PointerPressed` handler,
+and `DpadNavigation` only rings the buttons along the top and the bouquet picker - so on a television it was a
+screen that could only be used with a mouse. A guide nobody can reach with the remote is not finished, and a guide
+that builds twenty-seven thousand controls is not fast either, so both went the same way they go in the reference:
+the grid holds a page, and the remote walks the bouquet.
+
+The reference's `EpgGrid` is the authority for every number here (`Source/UI/TV/SlimTvClient/Controls/EpgGrid.cs`).
+It kept `_channelViewOffset` beside `_numberOfRows = settings.EpgNumberOfRows` and drew only the rows between them
+(`:494-506`); it opened with the current channel brought into view at the edge it came from (`:461-476`);
+`IsViewPortAtTop`/`IsViewPortAtBottom` answered `offset == 0` and `offset >= Count - N`; PageUp and PageDown were
+`MoveUp`/`MoveDown(_numberOfRows)` (`:880-915`), Home and End were offset `0` and `max(Count - N, 0)`; a channel
+that walked off the page slid it to the edge the channel came in from rather than centring it
+(`SkipToChannelIndex`, `:998-1032`); Left and Right walked the programmes of a row and, when a row ran out, moved
+the window half an hour (`:965-986`); and the focus was put back by the *time* it had been standing at
+(`_focusTime`, `:1216-1240`) rather than at the beginning of whatever row it landed on.
+
+In the model, `_allRows` now stands behind the `Rows` the screen is bound to, and `Rows` is the page: `BuildRows`
+builds the whole bouquet, works out which channel the viewer was standing on, opens the page on it and copies only
+that page across. Around it is the walking - `RowCount`, `ViewOffset`, `CanScrollRowsUp`/`CanScrollRowsDown`,
+`CanMoveRowUp`/`CanMoveRowDown`, `ScrollRowsUp`/`ScrollRowsDown`, `PageRowsUp`/`PageRowsDown`, `FirstRow`,
+`LastRow`, `MoveRowUp`/`MoveRowDown` and `MoveProgramForward`/`MoveProgramBackward`. The page height is the
+`visible_rows` setting, which was already carried over as the reference's `EpgNumberOfRows` and had nothing to
+count it until now. The line along the bottom counts the bouquet and says what the screen shows of it - "16
+channels, 214 programmes between 20:00 and 23:00 - 9 of them on the screen, the rest walked with the arrows" -
+because a guide that says "9 channels" about a bouquet of sixteen is lying about somebody's television.
+
+The view answers the keys on the grid itself, as a *tunnel* handler registered before `DpadNavigation.Attach`, so
+that the grid keeps its arrows while it is stood on and nothing else gets a chance to scroll them away. Up and
+Down walk channels, Left and Right walk programmes, PageUp/PageDown go a screenful, Home/End go to the ends of the
+bouquet, and Enter is the same press a finger on the box is. Just as important is the case where the handler says
+nothing: when the model answers that it cannot move - Up at the first channel, End at the last - the key is left
+alone, the ring of buttons above the grid takes it, and that is how a viewer walking up out of a guide gets out of
+it instead of bouncing off the top row.
+
+Three decisions are worth keeping:
+
+- **The page slides at the edge instead of centring itself**, because a viewer walking down with the arrow is
+  watching the bottom of the screen, and a page that jumped to put the cursor in the middle loses the end of the
+  list they were walking towards. The last page is clamped to `RowCount - N`, so the bottom of a bouquet is a full
+  screen: the price is that a bouquet which does not divide evenly by the page shows a couple of channels twice,
+  which is what the reference paid too.
+- **Changing channels keeps the moment**, not the row's first programme: walking down to another channel stands on
+  the programme *covering the time the viewer was looking at*, which is what "what is on over there at half past
+  eight" means. A row with nothing at that moment takes the next thing it has said.
+- **A press with the pointer moves the cursor the remote walks.** Pressing a box used to select the programme
+  without moving the row cursor, so the next arrow answered from whatever row the guide had opened on rather than
+  from the one that had just been touched. Pointer and remote are one cursor, not two.
+
+7 new tests. Against the scripted backend with a screen one channel tall: a page is a screenful and not a row, the
+walk clamps at both ends, Home returns to the top; walking to the channel above lands on `Tatort`, which covers the
+time `Kaminkonzert` began at, and walking back lands where the viewer came from; walking past the bottom slides the
+page so the cursor is still on the screen, and the first channel says it cannot go further up; walking off the end
+of a row moves the window thirty minutes on and asks the backend again, while the left-hand end of a row walks the
+window back. Against the demo backend - the only fixture with more channels than fit, sixteen of them on a screen of
+three - the whole bouquet is walked page by page and the offsets come out `0, 3, 6, 9, 12, 13`: every channel
+appears, none is skipped, the only ones shown twice are the last page sliding back to a full screen, and End and
+Home stop at the ends. One headless test sends the keys themselves to the grid control and asserts both halves of
+the arrangement: the arrows the guide has use for are taken and reach the model, and a key it has none for is left
+on its way. The guide's test helpers can now be asked for a screen height, since what a grid does with a bouquet
+taller than the screen is half of what a grid is for.
+
 ## What cannot be verified without the user
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library
 import. These need hardware and judgement that are not in this environment, and they are batched into

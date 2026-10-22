@@ -26,6 +26,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Headless.NUnit;
+using Avalonia.Input;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using NUnit.Framework;
@@ -187,19 +188,25 @@ namespace Tests.Frontend
       }
     }
 
-    private static TvGuideViewModel GuideWith(ScriptedGuide backend, TvMediaType kind)
+    private static TvGuideViewModel GuideWith(ScriptedGuide backend, TvMediaType kind, int rows)
     {
       TvBackendSettings settings = new TvBackendSettings();
       settings.Host = "tvbox";
       settings.Port = 9981;
+      settings.VisibleRows = rows;
       return new TvGuideViewModel(kind, delegate { return settings; },
           delegate (TvBackendSettings s) { return new TvHeadendApiClient(s, new HttpClient(backend)); });
     }
 
-    /// <summary>Opens the guide, which means waiting until the grid is actually there.</summary>
-    private static TvGuideViewModel Opened(ScriptedGuide backend, TvMediaType kind = TvMediaType.Television)
+    /// <summary>
+    /// Opens the guide, which means waiting until the grid is actually there. How many channels fit on the screen
+    /// at once is asked for as well, because what the grid does with a bouquet taller than that is half of what it
+    /// is for, and a screen that is taller than any fixture in this file would never show it.
+    /// </summary>
+    private static TvGuideViewModel Opened(ScriptedGuide backend, TvMediaType kind = TvMediaType.Television,
+        int rows = TvBackendSettings.DEFAULT_VISIBLE_ROWS)
     {
-      TvGuideViewModel guide = GuideWith(backend, kind);
+      TvGuideViewModel guide = GuideWith(backend, kind, rows);
       guide.ReloadAsync().GetAwaiter().GetResult();
       return guide;
     }
@@ -780,6 +787,192 @@ namespace Tests.Frontend
           "and it changes when they walk to the next one");
       Assert.That(then, Has.None.EqualTo("News from the country."),
           "the old programme's words leave the screen with the old programme");
+    }
+
+    #endregion
+
+    #region Paging and walking the grid with a remote
+
+    /// <summary>
+    /// A television has more channels than a screen has room for, so the grid holds a page of them and the viewer
+    /// walks the rest. The reference's guide was the same shape (<c>EpgGrid.cs:494-506</c> drew
+    /// <c>EpgNumberOfRows</c> rows out of a list it kept an offset into), and the shape is not decoration: on a
+    /// real backend of three hundred channels a grid that drew all of them would be carrying twenty-seven thousand
+    /// controls for a screen with room for eight rows.
+    /// </summary>
+    [Test]
+    public void AScreenfulIsWhatTheGridShowsAndAPageWalksAScreenful()
+    {
+      ScriptedGuide backend = new ScriptedGuide();
+      using (TvGuideViewModel guide = Opened(backend, TvMediaType.Television, 1))
+      {
+        Assert.That(guide.RowCount, Is.EqualTo(2), "the bouquet has two channels");
+        Assert.That(guide.Rows.Count, Is.EqualTo(1), "and the grid shows the one that fits");
+        Assert.That(guide.Rows[0].Name, Is.EqualTo("Das Erste"));
+        Assert.That(guide.CanScrollRowsDown, Is.True, "with the other one below the bottom of the screen");
+
+        guide.PageRowsDown();
+        Assert.That(guide.ViewOffset, Is.EqualTo(1), "a page is a screenful of channels, not a row");
+        Assert.That(guide.Rows[0].Name, Is.EqualTo("ZDF"));
+        Assert.That(guide.CanScrollRowsDown, Is.False, "and the last channel is the last page");
+
+        guide.PageRowsDown();
+        Assert.That(guide.ViewOffset, Is.EqualTo(1), "walking past the last page does nothing rather than falling off");
+
+        guide.LastRow();
+        guide.FirstRow();
+        Assert.That(guide.ViewOffset, Is.EqualTo(0), "Home goes back to the top of the bouquet");
+        Assert.That(guide.Rows[0].Name, Is.EqualTo("Das Erste"));
+        Assert.That(guide.CanScrollRowsUp, Is.False);
+      }
+    }
+
+    /// <summary>
+    /// Walking down a guide is asking "what is on at half past eight over there", which is why the reference put
+    /// its focus back by the time it was standing at (<c>EpgGrid.cs:1216-1240</c>) rather than at the beginning of
+    /// whatever row it landed on.
+    /// </summary>
+    [Test]
+    public void WalkingToAnotherChannelStandsOnTheSameTimeThere()
+    {
+      ScriptedGuide backend = new ScriptedGuide();
+      using (TvGuideViewModel guide = Opened(backend))
+      {
+        guide.Press(Block(guide, "ZDF", "Kaminkonzert"));
+
+        guide.MoveRowUp();
+        Assert.That(guide.SelectedRow!.Name, Is.EqualTo("Das Erste"));
+        Assert.That(guide.SelectedBlock!.Title, Is.EqualTo("Tatort"),
+            "the walk lands on the programme covering the time the viewer was looking at, not on the first one listed");
+
+        guide.MoveRowDown();
+        Assert.That(guide.SelectedRow!.Name, Is.EqualTo("ZDF"));
+        Assert.That(guide.SelectedBlock!.Title, Is.EqualTo("Kaminkonzert"),
+            "and walking back lands where they came from");
+        Assert.That(guide.ViewOffset, Is.EqualTo(0), "nothing slid, because both channels fit on the screen");
+      }
+    }
+
+    [Test]
+    public void WalkingPastTheBottomOfTheScreenSlidesThePageAndKeepsTheCursorOnIt()
+    {
+      ScriptedGuide backend = new ScriptedGuide();
+      using (TvGuideViewModel guide = Opened(backend, TvMediaType.Television, 1))
+      {
+        guide.Press(Block(guide, "Das Erste", "Tatort"));
+
+        Assert.That(guide.CanMoveRowUp, Is.False,
+            "at the first channel the Up arrow belongs to whatever is above the grid, which is how a viewer walks out");
+
+        guide.MoveRowDown();
+        Assert.That(guide.SelectedRow!.Name, Is.EqualTo("ZDF"));
+        Assert.That(guide.ViewOffset, Is.EqualTo(1));
+        Assert.That(guide.Rows[0].Name, Is.EqualTo("ZDF"),
+            "the page slid along with the cursor instead of walking it off the screen");
+        Assert.That(guide.CanMoveRowDown, Is.False, "and the last channel of the bouquet says so");
+
+        guide.MoveRowUp();
+        Assert.That(guide.ViewOffset, Is.EqualTo(0), "walking back up slides it back");
+        Assert.That(guide.Rows[0].Name, Is.EqualTo("Das Erste"));
+      }
+    }
+
+    /// <summary>
+    /// A row of a guide is three hours long and there are two buttons for walking it, so at the end of a row the
+    /// reference moved the window half an hour on (<c>EpgGrid.cs:965-986</c>) rather than leaving the press dead.
+    /// </summary>
+    [Test]
+    public void WalkingOffTheEndOfAChannelWalksTheEveningHalfAnHourOn()
+    {
+      ScriptedGuide backend = new ScriptedGuide();
+      using (TvGuideViewModel guide = Opened(backend))
+      {
+        DateTimeOffset was = guide.Start;
+        int asked = backend.AskedQueries.Count(q => q.Contains("channelTag=", StringComparison.Ordinal));
+
+        guide.Press(Block(guide, "Das Erste", "Tatort"));
+        guide.MoveProgramForward();
+
+        Assert.That(guide.Start, Is.EqualTo(was.AddMinutes(30)),
+            "the row had nothing after the programme being stood on, so the window moved rather than the press dying");
+        Settle(guide);
+        Assert.That(backend.AskedQueries.Count(q => q.Contains("channelTag=", StringComparison.Ordinal)),
+            Is.GreaterThan(asked), "and the programmes of the new window were asked for");
+        Assert.That(guide.Rows.Count, Is.EqualTo(guide.RowCount), "and the grid refilled");
+
+        // The other button does not simply undo the walk: a row that has a programme left to the left of the
+        // cursor is walked along first, and only at its left-hand end does the window go back the way it came.
+        TvGuideRow walked = guide.Rows.First(r => r.Blocks.Count > 1);
+        guide.Press(walked.Blocks[0]);
+        guide.MoveProgramBackward();
+        Assert.That(guide.Start, Is.EqualTo(was), "at the left-hand end of a row the arrow walks the window back");
+        Settle(guide);
+      }
+    }
+
+    /// <summary>
+    /// Sends a key to a control the way a control being stood on receives it, and says whether the screen took it.
+    /// Whether the key was taken is half of what is measured here: a grid that claims every arrow leaves the viewer
+    /// shut inside it, with no way back out to the buttons above.
+    /// </summary>
+    private static bool PressKey(InputElement target, Key key)
+    {
+      KeyEventArgs args = new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = key,
+        Source = target
+      };
+      target.RaiseEvent(args);
+      return args.Handled;
+    }
+
+    /// <summary>
+    /// The keys arriving at the screen rather than at the model. The grid is a scroller, and a scroller answers
+    /// its own arrows by scrolling; the guide answers them by walking its channels and its evening, and takes the
+    /// keys off the scroller to do it. That is only proved by sending a key to the control the viewer would be
+    /// stood on.
+    /// </summary>
+    [Test]
+    [AvaloniaTest]
+    public void TheRemoteWalksTheGridThroughTheScreen()
+    {
+      ScriptedGuide backend = new ScriptedGuide();
+      using (TvGuideViewModel guide = Opened(backend, TvMediaType.Television, 1))
+      {
+        Window window = ShowOnScreen(guide);
+        ScrollViewer grid = window.GetVisualDescendants().OfType<ScrollViewer>()
+            .First(s => s.Name == "gridScroller");
+
+        // The first channel of the bouquet has nothing above it, so the grid hands the Up arrow on: whether the
+        // key was taken is not what is looked at here (the ring of buttons above the grid takes it, which is how a
+        // viewer walks out of a guide), but the grid must not have moved either.
+        PressKey(grid, Key.Up);
+        Assert.That(guide.SelectedRow!.Name, Is.EqualTo("Das Erste"));
+        Assert.That(guide.ViewOffset, Is.EqualTo(0));
+
+        Assert.That(PressKey(grid, Key.Down), Is.True);
+        Assert.That(guide.SelectedRow!.Name, Is.EqualTo("ZDF"));
+        Assert.That(guide.ViewOffset, Is.EqualTo(1), "and the page came along with the cursor");
+
+        PressKey(grid, Key.End);
+        Assert.That(guide.ViewOffset, Is.EqualTo(1), "there is nothing below the last channel of the bouquet");
+
+        Assert.That(PressKey(grid, Key.Right), Is.True);
+        Assert.That(guide.SelectedBlock!.Title, Is.EqualTo("Nachtspendung"),
+            "the next programme on the row being stood on");
+
+        Assert.That(PressKey(grid, Key.Home), Is.True);
+        Assert.That(guide.ViewOffset, Is.EqualTo(0));
+
+        Assert.That(PressKey(grid, Key.PageDown), Is.True);
+        Assert.That(guide.ViewOffset, Is.EqualTo(1));
+
+        Assert.That(PressKey(grid, Key.Enter), Is.True, "and the key that opens what can be done with a programme");
+        Pump();
+
+        Assert.That(PressKey(grid, Key.F5), Is.False, "a key the grid has no use for stays on its way");
+      }
     }
 
     #endregion

@@ -442,12 +442,113 @@ namespace Tests.Frontend
         await guide.ReloadAsync();
 
         Assert.That(guide.Groups, Is.Not.Empty);
-        Assert.That(guide.Rows.Count, Is.GreaterThanOrEqualTo(10),
+        Assert.That(guide.RowCount, Is.GreaterThanOrEqualTo(10),
             "the whole point is that the grid is no longer empty");
+        Assert.That(guide.Rows.Count, Is.GreaterThan(0).And.LessThanOrEqualTo(guide.VisibleRows),
+            "what the guide shows is a page of the bouquet, not all of it");
         Assert.That(guide.Rows.Sum(delegate (TvGuideRow row) { return row.Blocks.Count; }),
             Is.GreaterThan(10));
         Assert.That(guide.Status, Does.Contain("invented"),
             "a full guide made of made-up channels has to say so on the screen");
+      }
+    }
+
+    /// <summary>
+    /// The demo is the only fixture around with more channels than fit on a screen, so it is where the arithmetic of
+    /// paging is measured: a page has to be a screenful, the pages have to hand over to each other without skipping
+    /// a channel, and the last page has to stop at the bottom of the bouquet rather than run off it
+    /// (<c>EpgGrid.cs:494-506</c>, <c>IsViewPortAtTop</c> and <c>IsViewPortAtBottom</c>).
+    /// </summary>
+    [Test]
+    public async Task ABouquetTallerThanTheScreenIsWalkedThroughWithoutSkippingAChannel()
+    {
+      TvBackendSettings settings = DemoOn();
+      settings.VisibleRows = 3;
+
+      using (TvGuideViewModel guide = new TvGuideViewModel(TvMediaType.Television,
+          delegate { return settings; }))
+      {
+        await guide.ReloadAsync();
+
+        Assert.That(guide.RowCount, Is.GreaterThan(3), "the demo has more channels than a screen of three");
+        Assert.That(guide.Rows.Count, Is.EqualTo(3), "and the grid draws three of them, no more");
+
+        List<int> offsets = new List<int>();
+        List<string> seen = new List<string>();
+        for (guide.FirstRow(); ; guide.PageRowsDown())
+        {
+          offsets.Add(guide.ViewOffset);
+          seen.AddRange(guide.Rows.Select(delegate (TvGuideRow row) { return row.Name; }));
+          if (!guide.CanScrollRowsDown)
+            break;
+        }
+
+        List<int> wants = new List<int>();
+        for (int at = 0; at + 3 <= guide.RowCount; at += 3)
+          wants.Add(at);
+        if (wants[wants.Count - 1] != guide.RowCount - 3)
+          wants.Add(guide.RowCount - 3);
+
+        Assert.That(offsets, Is.EqualTo(wants),
+            "a page is a screenful of channels, and the last one stops at the bottom of the bouquet");
+        Assert.That(seen.Distinct().Count(), Is.EqualTo(guide.RowCount),
+            "page after page every channel of the bouquet passes the screen, and none is skipped");
+        Assert.That(seen.Count - guide.RowCount, Is.LessThan(3),
+            "the only channels shown twice are the last page sliding back to a full screen");
+
+        guide.LastRow();
+        Assert.That(guide.ViewOffset, Is.EqualTo(guide.RowCount - 3), "End stops at the last full screen");
+        Assert.That(guide.Rows.Select(delegate (TvGuideRow row) { return row.Name; }),
+            Is.EquivalentTo(seen.Skip(seen.Count - 3)), "and it is the last three channels of the bouquet");
+
+        guide.PageRowsUp();
+        Assert.That(guide.ViewOffset, Is.EqualTo(guide.RowCount - 6), "PageUp gives a screenful back");
+
+        guide.FirstRow();
+        Assert.That(guide.ViewOffset, Is.EqualTo(0));
+        Assert.That(guide.CanScrollRowsUp, Is.False, "and Home stops at the top of it");
+      }
+    }
+
+    /// <summary>
+    /// Walking down with the arrow has to bring the new channel in at the edge it came from, which is what the
+    /// reference's <c>SkipToChannelIndex</c> did (<c>EpgGrid.cs:998-1032</c>): a page that centred itself would
+    /// lose the end of the list the viewer is walking towards, and a page that did not move at all would walk the
+    /// cursor off the screen it is supposed to be looking at.
+    /// </summary>
+    [Test]
+    public async Task WalkingDownToAChannelBelowTheScreenBringsItInAtTheBottom()
+    {
+      TvBackendSettings settings = DemoOn();
+      settings.VisibleRows = 3;
+
+      using (TvGuideViewModel guide = new TvGuideViewModel(TvMediaType.Television,
+          delegate { return settings; }))
+      {
+        await guide.ReloadAsync();
+
+        // The last programme of the row, which is a future one: pressing a running programme would send the guide
+        // off to the tuner instead of leaving the cursor on it.
+        TvGuideBlock standing = guide.Rows[0].Blocks[guide.Rows[0].Blocks.Count - 1];
+        guide.Press(standing);
+        DateTimeOffset stoodAt = standing.Program.Start;
+        string from = guide.SelectedRow!.Name;
+
+        guide.MoveRowDown();
+        Assert.That(guide.ViewOffset, Is.EqualTo(0), "the second channel still fits on the screen, so nothing slides");
+
+        guide.MoveRowDown();
+        guide.MoveRowDown();
+
+        Assert.That(guide.SelectedRow!.Name, Is.Not.EqualTo(from));
+        Assert.That(guide.ViewOffset, Is.EqualTo(1), "the fourth channel came in below, so the page went up by one");
+        Assert.That(guide.Rows[guide.Rows.Count - 1].Name, Is.EqualTo(guide.SelectedRow.Name),
+            "and the cursor stands on the bottom row it arrived on, not off the screen");
+
+        Assert.That(guide.SelectedBlock, Is.Not.Null);
+        Assert.That(guide.SelectedBlock!.Program.Start, Is.LessThanOrEqualTo(stoodAt),
+            "the new channel is stood on at the time the viewer was looking at, not at its beginning");
+        Assert.That(guide.SelectedBlock.Program.Stop, Is.GreaterThan(stoodAt));
       }
     }
 

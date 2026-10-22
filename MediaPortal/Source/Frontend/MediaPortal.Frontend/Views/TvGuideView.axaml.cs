@@ -21,6 +21,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Threading;
@@ -186,6 +187,19 @@ namespace MediaPortal.Frontend.Views
       ring.Add(watchButton);
       ring.Add(groupPicker);
       ring.Add(gridScroller);
+
+      // The arrows on a television remote, answered the way the reference's grid answered them: Up and Down walk
+      // its channels, Left and Right its programmes, and where a row runs out the window moves rather than the
+      // press going dead (<c>EpgGrid.cs:858-1032</c>). A guide that only answers a mouse is a guide nobody uses
+      // from the sofa.
+      //
+      // Watched on the grid itself and on the way in, so that the grid keeps its keys while it has the focus and
+      // nothing else does: the buttons along the top and the bouquet picker are still walked by the ring, and the
+      // page-scrolling of the control underneath never gets the chance to eat a key the grid asked for. Answering
+      // "no" is part of it too - at the first channel of a bouquet the Up arrow belongs to whatever is above the
+      // grid, which is how a viewer walks out of a guide with a remote.
+      gridScroller.AddHandler(InputElement.KeyDownEvent, OnGridKey, RoutingStrategies.Tunnel, false);
+
       DpadNavigation.Attach(this, ring);
 
       // The rows are as tall as the room they have divided by the number of rows the viewer asked for, so a window
@@ -435,6 +449,85 @@ namespace MediaPortal.Frontend.Views
       };
 
       return box;
+    }
+
+    /// <summary>
+    /// One key press on the grid. Everything the arrows can ask of a guide is the model's - which channel is
+    /// stood on, which programme, where the page has to slide to - so this only decides whether the grid wants
+    /// the key at all, and says which of them it is.
+    /// </summary>
+    private void OnGridKey(object? sender, KeyEventArgs e)
+    {
+      if (_model == null)
+        return;
+
+      TvGuideRow? standing = _model.SelectedRow;
+
+      switch (e.Key)
+      {
+        case Key.Up:
+          if (!_model.CanMoveRowUp)
+            return;
+          _model.MoveRowUp();
+          break;
+
+        case Key.Down:
+          if (!_model.CanMoveRowDown)
+            return;
+          _model.MoveRowDown();
+          break;
+
+        case Key.Left:
+          if (standing == null || standing.Blocks.Count == 0)
+            return;
+          _model.MoveProgramBackward();
+          break;
+
+        case Key.Right:
+          if (standing == null || standing.Blocks.Count == 0)
+            return;
+          _model.MoveProgramForward();
+          break;
+
+        case Key.PageUp:
+          if (!_model.CanScrollRowsUp)
+            return;
+          _model.PageRowsUp();
+          break;
+
+        case Key.PageDown:
+          if (!_model.CanScrollRowsDown)
+            return;
+          _model.PageRowsDown();
+          break;
+
+        case Key.Home:
+          if (!_model.CanScrollRowsUp)
+            return;
+          _model.FirstRow();
+          break;
+
+        case Key.End:
+          if (!_model.CanScrollRowsDown)
+            return;
+          _model.LastRow();
+          break;
+
+        case Key.Enter:
+        case Key.Space:
+          TvGuideBlock? pressed = _model.SelectedBlock;
+          if (pressed == null)
+            return;
+          // The same press a finger on the box is: the first one says what the programme is, the second one goes
+          // to it or asks what can be done with it.
+          _model.Press(pressed);
+          break;
+
+        default:
+          return;
+      }
+
+      e.Handled = true;
     }
 
     /// <summary>Which row a block came from, which is what the details' channel line falls back to.</summary>

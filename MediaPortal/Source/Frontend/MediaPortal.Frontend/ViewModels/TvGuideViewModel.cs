@@ -189,6 +189,16 @@ namespace MediaPortal.Frontend.ViewModels
     private readonly Func<TvBackendSettings, TvHeadendApiClient> _buildClient;
     private readonly Action<Action> _marshal;
     private readonly TvMediaType _kind;
+
+    /// <summary>
+    /// Every channel of the bouquet, whether or not it is on the screen. The grid only ever holds the page the
+    /// viewer is standing on (<see cref="Rows"/>), because a real backend has three hundred channels and three
+    /// hundred rows of ninety columns is twenty-seven thousand controls on a screen that can show eight of them.
+    /// </summary>
+    private readonly List<TvGuideRow> _allRows = new List<TvGuideRow>();
+
+    private int _viewOffset;
+    private string _pickedChannel = "";
     private CancellationTokenSource? _inFlight;
     private int _generation;
     private bool _disposed;
@@ -559,7 +569,7 @@ namespace MediaPortal.Frontend.ViewModels
         // screen's own thread cannot empty a grid somebody is looking at from the wrong thread.
         _marshal(delegate
         {
-          Rows.Clear();
+          ClearRows();
           Hours.Clear();
           Groups.Clear();
           SelectedGroup = null;
@@ -637,6 +647,16 @@ namespace MediaPortal.Frontend.ViewModels
         return;
 
       bool alreadyStandingHere = ReferenceEquals(block, _selectedBlock);
+
+      // A press on a box moves the cursor the arrows walk as well. Without it the pointer and the remote disagree
+      // about which channel is being stood on, and the next arrow answers from the row the guide happened to open
+      // on rather than from the one the viewer just touched.
+      TvGuideRow? pressed = RowOf(block);
+      if (pressed != null && !ReferenceEquals(pressed, _selectedRow))
+        SelectedRow = pressed;
+      if (pressed != null)
+        _pickedChannel = pressed.Channel.Id ?? "";
+
       SelectedBlock = block;
 
       if (!alreadyStandingHere)
@@ -688,11 +708,13 @@ namespace MediaPortal.Frontend.ViewModels
 
     /// <summary>
     /// The row a block stands in. The blocks are built per row and the rows are kept, so this is only walking
-    /// back over what is already on the screen; a block that has been rebuilt away has no row and says so.
+    /// back over what is already built; it walks every channel of the bouquet rather than the page, because a
+    /// programme the viewer was told about stays on the same channel whether or not that channel is on the screen
+    /// at the moment. A block that has been rebuilt away has no row and says so.
     /// </summary>
     private TvGuideRow? RowOf(TvGuideBlock block)
     {
-      foreach (TvGuideRow row in Rows)
+      foreach (TvGuideRow row in _allRows)
       {
         foreach (TvGuideBlock candidate in row.Blocks)
         {
@@ -828,9 +850,17 @@ namespace MediaPortal.Frontend.ViewModels
 
             string? rowsSaid = BuildRows(channels, programs);
             Raise(nameof(Rows));
-            Status = programsMissing ?? rowsSaid
-                ?? string.Format("{0} channels, {1} programmes between {2}", Rows.Count, programs.Count,
-                    WindowText);
+
+            // Counted over the whole bouquet rather than over what is on the screen, because "8 channels" about a
+            // bouquet of eighty would be a lie about the television; and said with the page in it, because a
+            // viewer who sees eight rows and hears about eighty channels should know the other seventy-two are
+            // walked rather than missing.
+            Status = (programsMissing ?? rowsSaid
+                ?? string.Format("{0} channels, {1} programmes between {2}", _allRows.Count, programs.Count,
+                    WindowText))
+                + (_allRows.Count > Rows.Count
+                    ? string.Format(" - {0} of them on the screen, the rest walked with the arrows", Rows.Count)
+                    : "");
 
             // A guide full of invented programmes has to say so. The channel names are made up well enough to pass
             // for a real bouquet at a glance, and a viewer who later wonders why their television never shows
@@ -909,7 +939,7 @@ namespace MediaPortal.Frontend.ViewModels
 
             if (picked == null)
             {
-              Rows.Clear();
+              ClearRows();
               Hours.Clear();
               Status = string.Format("{0} answered but offered no channel groups, so there is no guide to read. "
                   + "The groups are made in the backend's own configuration.", settings.Describe());
@@ -1014,7 +1044,13 @@ namespace MediaPortal.Frontend.ViewModels
           StringComparer.OrdinalIgnoreCase);
 
       TvGuideBlock? previous = SelectedBlock;
-      Rows.Clear();
+
+      // Which channel the viewer was standing on, remembered by name rather than by row: the rows are about to be
+      // thrown away and built again, and a guide that jumped back to its first channel every time the window moved
+      // thirty minutes on could not be read while being walked.
+      string standingOn = _selectedRow == null ? _pickedChannel : _selectedRow.Channel.Id ?? "";
+
+      _allRows.Clear();
       foreach (TvChannel channel in ofThisBouquet)
       {
         TvGuideRow row = new TvGuideRow(channel);
@@ -1027,13 +1063,299 @@ namespace MediaPortal.Frontend.ViewModels
             row.Blocks.Add(block);
           }
         }
-        Rows.Add(row);
+        _allRows.Add(row);
       }
+      _pickedChannel = standingOn;
 
-      SelectedRow = Rows.Count == 0 ? null : Rows[0];
+      // The page is worked out of that, and only the page goes onto the screen.
+      _viewOffset = 0;
+      ShowPageIndex(IndexOfChannel(standingOn));
+      FillPage();
+
       SelectedBlock = FindAgain(previous) ?? FirstBlockStartingNow();
+      SelectedRow = SelectedBlock == null
+          ? (Rows.Count > 0 ? Rows[0] : null)
+          : RowOf(SelectedBlock);
       return rowsSaid;
     }
+
+    #region Walking the channels
+
+    /// <summary>
+    /// How many channels the bouquet has, which is more than the screen shows: the grid holds one page of them and
+    /// the viewer walks the rest. The reference's guide was the same shape - its <c>EpgGrid</c> drew
+    /// <c>EpgNumberOfRows</c> rows out of a list it kept an offset into
+    /// (<c>TV/SlimTvClient/Controls/EpgGrid.cs:494-506</c>) - and the shape is not decoration: a household with
+    /// three hundred channels would otherwise be carrying twenty-seven thousand controls on a screen that has room
+    /// for eight rows.
+    /// </summary>
+    public int RowCount
+    {
+      get { return _allRows.Count; }
+    }
+
+    /// <summary>
+    /// Which channel of the bouquet stands at the top of the grid. The reference called the same thing
+    /// <c>_channelViewOffset</c>.
+    /// </summary>
+    public int ViewOffset
+    {
+      get { return _viewOffset; }
+    }
+
+    /// <summary>The last page that has a full screen of channels under it, which is where End goes.</summary>
+    private int LastViewOffset
+    {
+      get { return Math.Max(_allRows.Count - Math.Max(1, _visibleRows), 0); }
+    }
+
+    /// <summary>Whether there is a channel above the top of the grid.</summary>
+    public bool CanScrollRowsUp
+    {
+      get { return _viewOffset > 0; }
+    }
+
+    /// <summary>Whether there is a channel below the bottom of the grid.</summary>
+    public bool CanScrollRowsDown
+    {
+      get { return _viewOffset < LastViewOffset; }
+    }
+
+    /// <summary>
+    /// Whether the arrow can walk to the channel above. Said rather than left to be guessed because the screen
+    /// has to know when to hand the key back: at the first channel of a bouquet the Up arrow belongs to whatever
+    /// is above the grid, which is how a viewer gets out of a guide with a remote
+    /// (<c>EpgGrid.cs:831-842</c> answered the same question for its scrolling).
+    /// </summary>
+    public bool CanMoveRowUp
+    {
+      get { return IndexOfRow(_selectedRow) > 0; }
+    }
+
+    /// <summary>Whether the arrow can walk to the channel below.</summary>
+    public bool CanMoveRowDown
+    {
+      get
+      {
+        int at = IndexOfRow(_selectedRow);
+        return at >= 0 && at < _allRows.Count - 1;
+      }
+    }
+
+    /// <summary>Walks the channels one row up, which is what the reference's wheel and repeat-key did.</summary>
+    public void ScrollRowsUp()
+    {
+      ScrollRowsBy(-1);
+    }
+
+    /// <summary>Walks the channels one row down.</summary>
+    public void ScrollRowsDown()
+    {
+      ScrollRowsBy(1);
+    }
+
+    /// <summary>A screenful of channels back, which is PageUp.</summary>
+    public void PageRowsUp()
+    {
+      ScrollRowsBy(-Math.Max(1, _visibleRows));
+    }
+
+    /// <summary>A screenful of channels on, which is PageDown.</summary>
+    public void PageRowsDown()
+    {
+      ScrollRowsBy(Math.Max(1, _visibleRows));
+    }
+
+    /// <summary>The first channel of the bouquet, which is Home.</summary>
+    public void FirstRow()
+    {
+      ScrollRowsTo(0);
+    }
+
+    /// <summary>The last screenful of the bouquet, which is End.</summary>
+    public void LastRow()
+    {
+      ScrollRowsTo(LastViewOffset);
+    }
+
+    /// <summary>
+    /// Walks to the channel under the one being stood on, and takes the moment along: the programme chosen in the
+    /// new row is the one covering the time the old one began at, because a viewer walking down a guide is asking
+    /// "what is on at half past eight over there", not "what is the first thing this backend happened to list".
+    /// That is the reference's own habit of restoring the focus by the time it was standing at
+    /// (<c>EpgGrid.cs:1216-1240</c>, <c>_focusTime</c>).
+    /// </summary>
+    public void MoveRowDown()
+    {
+      MoveRow(1);
+    }
+
+    /// <summary>Walks to the channel above.</summary>
+    public void MoveRowUp()
+    {
+      MoveRow(-1);
+    }
+
+    /// <summary>
+    /// The next programme on the row being stood on. At the right-hand end of a row there is no next one, and the
+    /// reference did not stop there: it moved the window half an hour on, which is the only way a guide of three
+    /// hours can be walked with two buttons (<c>EpgGrid.cs:965-986</c>).
+    /// </summary>
+    public void MoveProgramForward()
+    {
+      TvGuideRow? row = SelectedRow;
+      TvGuideBlock? here = SelectedBlock;
+      if (row == null || row.Blocks.Count == 0)
+        return;
+
+      int at = here == null ? -1 : row.Blocks.IndexOf(here);
+      if (at >= 0 && at < row.Blocks.Count - 1)
+      {
+        SelectedBlock = row.Blocks[at + 1];
+        return;
+      }
+
+      Move(MINUTES_PER_COLUMN * 15);
+    }
+
+    /// <summary>The programme before, and the window half an hour back when the row has none left.</summary>
+    public void MoveProgramBackward()
+    {
+      TvGuideRow? row = SelectedRow;
+      TvGuideBlock? here = SelectedBlock;
+      if (row == null || row.Blocks.Count == 0)
+        return;
+
+      int at = here == null ? -1 : row.Blocks.IndexOf(here);
+      if (at > 0)
+      {
+        SelectedBlock = row.Blocks[at - 1];
+        return;
+      }
+
+      Move(-(MINUTES_PER_COLUMN * 15));
+    }
+
+    private void ScrollRowsBy(int rows)
+    {
+      ScrollRowsTo(_viewOffset + rows);
+    }
+
+    private void ScrollRowsTo(int offset)
+    {
+      int to = Math.Max(0, Math.Min(offset, LastViewOffset));
+      if (to == _viewOffset)
+        return;
+
+      _viewOffset = to;
+      FillPage();
+    }
+
+    /// <summary>
+    /// Slides the page so that the channel at that index of the bouquet is on the screen, at the edge it came in
+    /// from: a channel above the top becomes the top row and one below the bottom becomes the bottom row, rather
+    /// than the page centring itself and the viewer losing the end of the list they were walking towards. The
+    /// reference did the same in <c>SkipToChannelIndex</c> (<c>EpgGrid.cs:998-1032</c>) and its initial offset
+    /// followed the same rule (<c>EpgGrid.cs:461-476</c>).
+    /// </summary>
+    private void ShowPageIndex(int index)
+    {
+      if (index < 0)
+        return;
+
+      if (index < _viewOffset)
+        _viewOffset = index;
+      else if (index >= _viewOffset + Math.Max(1, _visibleRows))
+        _viewOffset = index - Math.Max(1, _visibleRows) + 1;
+
+      _viewOffset = Math.Max(0, Math.Min(_viewOffset, LastViewOffset));
+    }
+
+    private void MoveRow(int step)
+    {
+      int at = IndexOfRow(_selectedRow);
+      if (at < 0)
+        at = _viewOffset;
+
+      int to = Math.Max(0, Math.Min(at + step, _allRows.Count - 1));
+      if (to == at && _selectedRow != null)
+        return;
+
+      TvGuideRow? into = _allRows[to];
+      DateTimeOffset standingAt = _selectedBlock == null ? DateTimeOffset.UtcNow : _selectedBlock.Program.Start;
+
+      SelectedRow = into;
+      SelectedBlock = StandingBlock(into, standingAt);
+      _pickedChannel = into.Channel.Id ?? "";
+      ShowPageIndex(to);
+      FillPage();
+    }
+
+    /// <summary>The programme a row is stood on at a given moment: the one covering it, or the first one said.</summary>
+    private static TvGuideBlock? StandingBlock(TvGuideRow row, DateTimeOffset moment)
+    {
+      TvGuideBlock? covering = row.Blocks.FirstOrDefault(b => b.Program.Start <= moment && b.Program.Stop > moment);
+      if (covering != null)
+        return covering;
+
+      return row.Blocks.FirstOrDefault(b => b.Program.Start >= moment) ?? row.Blocks.FirstOrDefault();
+    }
+
+    /// <summary>Puts the page onto the collection the screen is bound to.</summary>
+    private void FillPage()
+    {
+      int from = Math.Max(0, Math.Min(_viewOffset, LastViewOffset));
+      int taken = Math.Max(1, _visibleRows);
+
+      _viewOffset = from;
+      Rows.Clear();
+      for (int i = from; i < _allRows.Count && i < from + taken; i++)
+        Rows.Add(_allRows[i]);
+
+      Raise(nameof(Rows));
+      Raise(nameof(ViewOffset));
+      Raise(nameof(CanScrollRowsUp));
+      Raise(nameof(CanScrollRowsDown));
+      Raise(nameof(CanMoveRowUp));
+      Raise(nameof(CanMoveRowDown));
+    }
+
+    private int IndexOfRow(TvGuideRow? row)
+    {
+      return row == null ? -1 : _allRows.IndexOf(row);
+    }
+
+    private int IndexOfChannel(string channelId)
+    {
+      if (string.IsNullOrEmpty(channelId))
+        return -1;
+
+      for (int i = 0; i < _allRows.Count; i++)
+      {
+        if (string.Equals(_allRows[i].Channel.Id, channelId, StringComparison.Ordinal))
+          return i;
+      }
+      return -1;
+    }
+
+    /// <summary>
+    /// Empties both the grid and the list behind it, which is what a guide with nothing to show needs: the details
+    /// along the bottom belong to a programme the grid no longer has, so they go with it.
+    /// </summary>
+    private void ClearRows()
+    {
+      _allRows.Clear();
+      _viewOffset = 0;
+      _pickedChannel = "";
+      Rows.Clear();
+      SelectedRow = null;
+      SelectedBlock = null;
+      Raise(nameof(Rows));
+      Raise(nameof(CanScrollRowsUp));
+      Raise(nameof(CanScrollRowsDown));
+    }
+
+    #endregion
 
     /// <summary>
     /// Where a programme stands in the grid, or null when it is entirely outside the window. A programme that
