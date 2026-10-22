@@ -970,6 +970,13 @@ namespace MediaPortal.Frontend
             return new MetadataSettingsView { DataContext = metadata };
           });
 
+      // Where the television comes from. The reference had no such row because its TV service ran on the same
+      // box; here the channels, the programmes and the timers all belong to a TvHeadend elsewhere on the
+      // network, so its address is this machine's own answer - filed as one row of its own, the way the
+      // reference filed its TV settings under a TV branch of the settings tree.
+      model.Add("Television", "TV", "Which machine the channels, the guide and the recording timers come from",
+          delegate { return new TvSettingsView(); });
+
       // The settings a plugin or a server part keeps and a household used to edit in a window on the
       // server's own desktop. ONE row, not one row per section: which sections stand open is the server's
       // answer, read when the row opens, so a section somebody opens in the server's catalog appears on the

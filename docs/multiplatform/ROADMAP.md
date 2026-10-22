@@ -3849,9 +3849,75 @@ front end, `TestChromeFormats` for the head line, two rows and a typed box in th
 text row in the plugin settings screen. `Tests.Server`: 486 of 486. `Tests.Frontend`: 846 of 848, the two
 failures the pre-existing icon ones.
 
+### bk. Where the television comes from: the backend's address, and what is asked of it
+
+The TV layer had to start somewhere, and the first thing to learn about it was that the reference has no TV
+either. Under `Source/UI/TV` stand four projects - `SlimTvInterfaces`, `SlimTvClient`, `SlimTvNativeProvider`,
+`SlimTVMPExtendedProvider` - and every one of them is a client: `ITvHandler` handing out a
+`IChannelAndGroupInfo`, a `IProgramInfo`, a `IScheduleControl` and a `ITimeshiftControl`, the two providers
+reaching the actual tuners over UPnP or WCF. The service behind them was deleted deliberately, in `029a262aa4`
+("Remove the TV service layer (SlimTvService3/3.5 and friends)", 54 files and 6833 lines), because it was
+.NET-Framework-only. So there is no card code, no EPG store, no timer database and no XMLTV importer in this
+tree to port: the programmes, the timers and the recordings were always somebody else's job, and this front end
+has to name that somebody.
+
+That somebody is **TvHeadend over plain HTTP**, which the viewer chose: one daemon on any machine in the house,
+holding the cards, the programme data and the recordings, answering JSON on port 9981 without a client library,
+a generated proxy or a platform. What was built here is the asking half only - no screens yet:
+
+- `Settings/TvBackendSettings.cs` keeps the address in `tv.json` beside `frontend.json`, overridable with
+  `MP2_TV_FILE` for the gates exactly as the weather file is with `MP2_WEATHER_FILE`. Host, port (9981), the
+  name and password it may ask for, and how many days of guide to read ahead (fourteen, which is the reference's
+  own `EpgVisibleHours`-sibling `SingleChannelGuideDays`). An empty host is not an error but a box that has not
+  been told, `BaseUrl` refuses a port that is not a port, and `Describe()` says host and port and never the
+  password.
+- `Api/TvModels.cs` holds what a screen is drawn from: a bouquet, a channel (with its `Uri? StreamUrl` already
+  resolved), a programme with its instants, an episode, now-and-next, and `TvGenreColors` - the reference's
+  eight colours from `SlimTvGenreColorSettings` (`#7532a8` for a film, `#ed7d31` for a series, `#4f7a32`,
+  `#c89800`, `#4e93d2`, `#c03636`, `#00817e`), matched by word in either language because the same programme is
+  "Film" here and "Movie/Drama" there, with children before drama exactly as the reference painted it.
+- `Api/TvHeadendApiClient.cs` asks: `api/channeltag/list` for the bouquets, `api/channel/grid` for the channels
+  (with `api/service/grid` behind them, because a channel is only ever called radio through the DVB type bits of
+  the services behind it, falling back to the bouquet's and the channel's name when a backend will not say),
+  `api/epg/events` for the programmes and `api/epg/content_type/list` for what that backend calls its kinds.
+  Three things about that interface shaped the code: times are seconds since 1970 in UTC and become
+  `DateTimeOffset` on arrival, because a living room in Lisbon and one in Helsinki have to share one guide
+  layout; a table answers at most `limit` rows and says the real number in `total`, so every question pages
+  rather than assuming its window is small - a fortnight of a forty-channel bouquet is not; and a window is
+  asked for as an overlap (`start < to AND stop > from`, in the backend's `filter` JSON), because a programme
+  that began before the guide opens and ends inside it is on the screen the moment it opens.
+- `TvBackendException` keeps the three failures three, the way `ServerApiException` does: nobody answered, the
+  name was refused (`NeedsLogin`, which a screen turns into "fill the password in"), and something answered that
+  was not the answer a TV backend gives - which is what a wrong port landing on a router's web page looks like,
+  and is worth saying out loud instead of as a number.
+- The "Television" row in the settings hub opens `Views/TvSettingsView.axaml`, whose centre of gravity is the
+  press that asks: bouquets, channels, radio, and what the first channel is showing right now, or which of the
+  three failures happened. The reference needed no such screen because its TV service was the machine's own;
+  here a wrong port would otherwise fail as an empty guide somewhere else rather than as a mistake where it was
+  typed.
+
+Not done, and deliberately not attempted here: the guide, live television and radio, and the recording timers.
+`MainMenu`'s television and radio entries still carry their "no TV backend" small print, and `BuildNamedFrame`
+still does not answer `tv` or `radio` - pressing a Nereus TV shortcut is still the exception it was. Those are
+the next parts of the same plan.
+
+Tests: thirty-six in `TestTvBackend`, with the backend scripted inside the file. They pin the bouquets arriving
+in the backend's order with their services counted, the channels arriving in the order a viewer would say them,
+the two-slash `//stream/channelid/12` becoming a real address and an absent one being built from the number,
+radio coming from the service bits and - when the service grid stays silent - from the bouquet, the
+`Authorization` header travelling only when a name was written down, the window being asked for as an overlap in
+seconds since nineteen seventy, an empty page answering as an empty table, a table with more rows than it sent
+being walked to `start=2000`, the news bulletin arriving as the instants it is with its progress, its age rating
+and its recording in progress, the film without an end taking one from its length, now-and-next, the eight genre
+colours and the DVB genre nibble, and the three failures being three sentences. Nine more over the settings file
+(absent, round-tripped, hand-edited with nonsense in it, not JSON at all, `MP2_TV_FILE`, a description that
+never says the password) and seven over the screen (what the file holds arriving in the boxes, half-typed
+answers staying answers while a month of guide does not, and the press saying how many channels came back,
+which backend refused, and which one was never set up). `Tests.Frontend`: 882 of 884, the two failures the
+pre-existing icon ones.
+
 ## What cannot be verified without the user
 
-Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,
-DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library
+Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library
 import. These need hardware and judgement that are not in this environment, and they are batched into
 one hand-off checklist per phase rather than dribbled out.
