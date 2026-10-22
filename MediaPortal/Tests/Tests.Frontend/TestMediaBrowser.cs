@@ -2397,13 +2397,15 @@ namespace Tests.Frontend
       Assert.That(home.Menu, Is.Not.Empty,
           "a home screen that waits for a server before it offers anything to press is a dark rectangle with a "
           + "clock on it; the menu is what a media centre is, so it is on screen from the first frame");
-      Assert.That(home.Menu.Count(entry => entry.Openable), Is.EqualTo(7),
-          "nothing but the seven screens the front end owns - the folders the library comes from, the picture "
+      Assert.That(home.Menu.Count(entry => entry.Openable), Is.EqualTo(9),
+          "nothing but the nine screens the front end owns - the folders the library comes from, the picture "
           + "folders, the browse screen, which reads whatever the server turns out to hold, the news and "
           + "weather screens, which talk to the internet instead of the server, the party screen, which "
-          + "only queues until a server answers, and the settings screen, which needs nothing from anywhere "
-          + "because it only changes what this box looks like - can be opened, because there is "
-          + "no library to open and no server to ask about one. Those seven are openable on purpose: telling a "
+          + "only queues until a server answers, the settings screen, which needs nothing from anywhere "
+          + "because it only changes what this box looks like, and the television and radio guides, which ask a "
+          + "TV backend rather than this server and say so themselves when that has not been written down either "
+          + "- can be opened, because there is "
+          + "no library to open and no server to ask about one. Those nine are openable on purpose: telling a "
           + "viewer where the media should be is most useful of an empty media centre, and the screens say "
           + "\"no server connected\" instead of an empty rectangle");
       Assert.That(EntryNamed(home.Menu, "Movies").Detail, Is.EqualTo("no server connected"),
@@ -2443,14 +2445,31 @@ namespace Tests.Frontend
     public void AnEntryThisBuildHasNothingBehindSaysWhatIsMissing()
     {
       HomeViewModel home = new HomeViewModel();
-      MainMenuEntry television = EntryNamed(home.Menu, "TV");
+      MainMenuEntry utilities = EntryNamed(home.Menu, "Utilities");
 
-      Assert.That(television.Openable, Is.False);
-      Assert.That(television.Detail, Does.Contain("no TV backend"),
+      Assert.That(utilities.Openable, Is.False);
+      Assert.That(utilities.Detail, Does.Contain("its tools went with the TV"),
           "an entry that leads nowhere explains itself, because a silent one is read as a broken front end");
-      Assert.That(home.Open(television), Is.Null);
-      Assert.That(home.Status, Does.Contain("no TV backend"),
+      Assert.That(home.Open(utilities), Is.Null);
+      Assert.That(home.Status, Does.Contain("its tools went with the TV"),
           "and pressing it says the same sentence the tile already says, rather than nothing at all");
+    }
+
+    [Test]
+    public void TheTelevisionAndRadioTilesNameAScreenNowThatAGuideExists()
+    {
+      // Both tiles carried their apology - "no TV backend" - for as long as this front end existed, because what
+      // MP2 launched behind them was a TV service that had been deleted from this tree. A TvHeadend is the
+      // television of a multiplatform centre now, and its guide is behind both tiles, so neither says sorry.
+      HomeViewModel home = new HomeViewModel();
+
+      MainMenuEntry television = EntryNamed(home.Menu, "TV");
+      MainMenuEntry radio = EntryNamed(home.Menu, "Radio");
+
+      Assert.That(television.Missing, Is.Null);
+      Assert.That(radio.Missing, Is.Null);
+      Assert.That(television.Openable, Is.True);
+      Assert.That(radio.Openable, Is.True);
     }
 
     [Test]
@@ -2484,10 +2503,11 @@ namespace Tests.Frontend
           + "series, the shelf the drilldown table still leads from Series to EpisodeItem, the way Nereus reached "
           + "ContinuePlaySeries inside the series entry - so a server that holds them gains no tile of its own, "
           + "and the menu stays MP2's own entries in MP2's own order");
-      Assert.That(menu.Count(entry => entry.Openable), Is.EqualTo(8),
-          "the films, and the seven screens that are the front end's own rather than parts of the "
+      Assert.That(menu.Count(entry => entry.Openable), Is.EqualTo(10),
+          "the films, and the nine screens that are the front end's own rather than parts of the "
           + "library: the folders the media comes from, the picture folders, the browse screen, the news, "
-          + "the weather, the party, and the settings its own look");
+          + "the weather, the party, the settings its own look, and the two guides - which open whatever "
+          + "television the household has hooked up, so a server with nothing on it is no reason to lock them");
     }
 
     [AvaloniaTest]
@@ -2544,13 +2564,14 @@ namespace Tests.Frontend
       List<MainMenuEntry> menu = MainMenu.Build(
           new[] { AspectCalled("PersonItem"), AspectCalled("GenreItem") }, true);
 
-      Assert.That(menu.Count(entry => entry.Openable), Is.EqualTo(7),
-          "an actor and a genre are how the library is organised inside, not a part of it to watch; the seven "
+      Assert.That(menu.Count(entry => entry.Openable), Is.EqualTo(9),
+          "an actor and a genre are how the library is organised inside, not a part of it to watch; the nine "
           + "screens that stay openable are the folders one, the pictures one, the browse screen, the news, "
-          + "the weather, the party and the settings, and none of the seven is a shelf - the first two are about "
-          + "where the "
+          + "the weather, the party, the settings and the two guides, and none of the nine is a shelf - the first "
+          + "two are about where the "
           + "library's files are, the third asks the server to group whatever it holds, the next two ask the "
-          + "internet, the party waits for a shelf of its own politely, and the settings only repaint the box");
+          + "internet, the party waits for a shelf of its own politely, the settings only repaint the box, and "
+          + "the guides ask a different machine altogether");
       Assert.That(menu.Select(entry => entry.Label), Does.Not.Contain("PersonItem"));
     }
 
@@ -2599,9 +2620,10 @@ namespace Tests.Frontend
       Assert.That(home.Menu.Count(entry => entry.Section != null), Is.Zero,
           "the films of the old server are not films of the new one, and a menu still offering them would be "
           + "offering titles that are not there");
-      Assert.That(home.Menu.Count(entry => entry.Openable), Is.EqualTo(7),
-          "only the seven screens that need nothing from a library - the folders, the pictures, the browse "
-          + "screen, the news, the weather, the party and the settings - survive a server that went away");
+      Assert.That(home.Menu.Count(entry => entry.Openable), Is.EqualTo(9),
+          "only the nine screens that need nothing from a library - the folders, the pictures, the browse "
+          + "screen, the news, the weather, the party, the settings and the two guides - survive a server that "
+          + "went away, and the guides survive it because a television does not live in the library");
       Assert.That(EntryNamed(home.Menu, "Movies").Detail, Is.EqualTo("no server connected"));
     }
 

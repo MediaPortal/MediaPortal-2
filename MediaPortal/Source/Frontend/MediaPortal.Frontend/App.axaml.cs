@@ -796,6 +796,9 @@ namespace MediaPortal.Frontend
             delegate (HomeSection section) { return BrowserFrame(section); });
       }
 
+      if (state == "tvguide" || state == "radioguide")
+        return new TvGuideView((TvGuideViewModel)frame.ViewModel);
+
       if (state == "party")
       {
         return new PartyView((PartyViewModel)frame.ViewModel, _workflow,
@@ -1059,6 +1062,22 @@ namespace MediaPortal.Frontend
         return new Workflow.WorkflowFrame("weather", "Weather", new WeatherViewModel(
             new WeatherApiClient(userApiKey: places.ApiKey),
             cultureName: Settings.ClientSettings.Load(null, out _).Culture));
+      }
+
+      if (screenKey.Equals("tv", StringComparison.OrdinalIgnoreCase)
+          || screenKey.Equals("radio", StringComparison.OrdinalIgnoreCase))
+      {
+        // The guide, which is where both of the reference's two television tiles led as well: its TV client's
+        // home was a channel list and its guide was a grid, and both read one bouquet at a time from whatever
+        // backend the viewer had named. Radio is the same screen read over the stations, because a TvHeadend
+        // keeps one list of bouquets for both and only the channels inside them say which is which.
+        TvMediaType kind = screenKey.Equals("radio", StringComparison.OrdinalIgnoreCase)
+            ? TvMediaType.Radio
+            : TvMediaType.Television;
+        TvGuideViewModel guide = new TvGuideViewModel(kind);
+        _ = guide.ReloadAsync();
+        return new Workflow.WorkflowFrame(kind == TvMediaType.Radio ? "radioguide" : "tvguide",
+            guide.Heading, guide);
       }
 
       if (screenKey.Equals("party", StringComparison.OrdinalIgnoreCase))

@@ -3916,6 +3916,73 @@ answers staying answers while a month of guide does not, and the press saying ho
 which backend refused, and which one was never set up). `Tests.Frontend`: 882 of 884, the two failures the
 pre-existing icon ones.
 
+### bl. The guide, and what a column is worth
+
+The television and radio tiles open a programme guide now. Before writing any of it the reference was read
+properly - `Skin/Nereus/screens/SlimTvClient-fullguide.xaml` for the layout, `Controls/EpgGrid.cs` for the
+arithmetic, `SlimTvColors.xaml` and `SlimTvStyles.xaml` for what a block is filled with and how a focused one is
+framed - because the guide is the one screen whose wrongness nobody can point at: a bar a column too far left
+looks like a guide, it just tells lies about the evening.
+
+What the reference does, and what was kept. Its grid is seventy-five columns wide across the hours the viewer
+asked for (one to four, two by default), with a fixed header column of four hundred and fifty pixels holding the
+number, the logo and the name, a row height of one ninth of the screen, a block placed at the column its own
+beginning falls in and stretched across the columns its own length covers, a page scroll of thirty minutes when
+the viewer walks off the edge, a now-indicator recalculated every ten seconds, a two hundred and twenty pixel
+band of detail along the bottom over a `#D9000000` scrim, and a focused block wearing three pixels of white with
+three of black behind it. All of that is the shape of this screen too. Three things differ, each on purpose. The
+window here is ninety columns of two minutes - three hours, which is the reference's two widened to what a flat
+screen has room for, and fixed at two minutes a column so that the arithmetic has one unit instead of one that
+changes when a setting does. The grid is laid out in code rather than in a template, because "column thirty-seven
+across fifteen" is not something a `DataTemplate` can say, and the ruler, every row and the line at now are built
+on the same ninety star columns so that they agree at a thousand pixels wide and at three thousand. And the block
+chrome is this skin's: two pixels of white for the block being talked about, a dot in the corner for a recording
+rather than the reference's `record_single.png`, because this skin has no television pictures to draw yet.
+
+The questions the guide asks are deliberately small. One bouquet at a time rather than every channel at once - a
+fortnight of programmes for two hundred channels is not a question to ask a television over the living-room
+Wi-Fi. A window that walks by half a screen at a time, which is the reference's thirty-minute page widened to
+this window's size. The answer to a superseded question is thrown away, because the arrows can be held down and a
+guide that painted answers in the order they happened to arrive would end up showing a window the viewer left
+three presses ago. A channel whose programmes did not arrive keeps its row: a guide that quietly removes channels
+is a guide a viewer cannot trust. A bouquet that names no channels falls back to every channel of its own half of
+the set and says out loud that it had to guess, which is what a backend that never links its channels to its tags
+would otherwise look like - an empty evening.
+
+Neither guide offers the other half's bouquets, which is the only place names are read, and the radio guide opens
+on the bouquet whose name says radio; a radio guide that opens on the first bouquet in the list opens on a
+television bouquet and shows somebody their radio as an empty screen. `MainMenu`'s television and radio tiles
+lost their "no TV backend" small print and name screens now, `BuildNamedFrame` answers `tv` and `radio`, and the
+four menu tests that counted the screens openable without a library count nine and ten instead of seven and
+eight, with the guides' reason written into the sentence: a television does not live in the library.
+
+Not done, and deliberately not attempted here: the arrows walk the buttons and the scroller, not into the grid -
+there is no focus ring over the blocks yet, so a keyboard can only reach a programme by mouse. Pressing a
+programme selects it and says what it is; watching it and asking the backend to save it belong to the player and
+to the timers, which are the next two parts. There are no channel logos, so the header column is a hundred and
+ninety pixels where the reference's was four hundred and fifty. And the miniguide over live television, which is
+where the reference's `ZapFromGuide` lived, waits for the same reason.
+
+Tests: thirty in `TestTvGuideScreen`, with the backend scripted inside the file and its programmes anchored to
+the running clock. They pin the television guide opening on the backend's first bouquet and the radio guide on
+the one that says radio, the bouquets that name no kind staying in both lists because guessing about a name takes
+channels off somebody; a picked bouquet reading its own channels by their own numbers; the window being asked for
+as the window the grid is showing; a ninety-minute film standing in the column its beginning falls in and across
+forty-five columns; half an hour across fifteen; a programme already running when the window opens starting at the
+left edge and saying its beginning is missing; one that ended before the window not being drawn at all; one
+running past the right edge being cut at it; the hours on the ruler being full hours inside the window; the line
+at now vanishing over tomorrow; a step moving the window half a screen and asking again, and leaving the
+programme being talked about still being talked about; the bouquet buttons wrapping at both ends; the guide
+showing the window it last asked about whatever the earlier answers said; the details falling back from the long
+description to the summary to the broadcaster having said nothing; the series line arriving only when it was
+told; the blocks wearing their genre's colour out of the reference's eight; a refused backend being a sentence
+rather than an empty evening; a backend with channels but no programme data still showing its channels and naming
+the table that refused; the fallback for a backend that never groups, and the honest empty grid for a bouquet that
+really is empty. Four of them look at the drawn screen rather than at the model, because the two agree only
+through the attached properties the code-behind sets ninety times a row: one box per programme, each in the
+column and across the span the model gave it, exactly one block wearing the frame, and the hours the model named
+being written on the ruler. `Tests.Frontend`: 913 of 915, the two failures the pre-existing icon ones.
+
 ## What cannot be verified without the user
 
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library

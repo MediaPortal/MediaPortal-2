@@ -40,12 +40,13 @@ namespace MediaPortal.Frontend.ViewModels
   /// added to or renamed in this tree shows up as a failing test instead of as a menu that quietly stopped matching.
   /// </para>
   /// <para>
-  /// Three things are left out on purpose. <c>wmc-actions.xml</c> contributes six more home entries
+  /// Two things are left out on purpose. <c>wmc-actions.xml</c> contributes six more home entries
   /// (<c>SlimTvClient-&gt;Guide</c>, <c>-&gt;Schedules</c>, <c>-&gt;Recordings</c>, <c>-&gt;ProgramSearch</c> and the
   /// two radio equivalents): those are the television plugin's insides, which the rescued WMC skin promoted onto its
-  /// home screen, and they need the TV service this tree no longer has. And MP2 shows an entry only when the plugin
-  /// that contributes it is installed; this front end has no plugin installation to ask, so an entry that nothing
-  /// backs stays on screen and says so in its small print - a media centre that silently offers six tiles in
+  /// home screen, and this front end answers the two the viewer presses - the television's guide and the radio's -
+  /// while the recording lists behind the other four are still on the way. And MP2 shows an entry only when the
+  /// plugin that contributes it is installed; this front end has no plugin installation to ask, so an entry that
+  /// nothing backs stays on screen and says so in its small print - a media centre that silently offers six tiles in
   /// whatever state the last read happened to leave them in cannot tell "no television here" apart from "the read
   /// went wrong". And <c>Home-&gt;Latest Media</c> is not missing from this menu but from the tree: the media
   /// plugin's own contribution was deleted - its workflow action, its contributor model, its screen model, its
@@ -131,11 +132,9 @@ namespace MediaPortal.Frontend.ViewModels
     /// MP2's own order between those two is whatever its unstable list sort produced. Films come first here because
     /// more people press them. The sixth field is what the tile says when there is nothing behind the entry, so it
     /// has to be a line the viewer can read from three metres away - the whole reason, in each case, is written out
-    /// here where a reader can have it:
-    /// <c>TV</c> and <c>Radio</c> because live television and radio came from the TV service, which was removed from
-    /// this tree (commit 029a262aa4) and nothing serves it since; <c>Settings</c> used to be on that list too, until
-    /// the front end grew a settings screen of its own - what the tile opens is the front end's look, since the
-    /// server's own configuration is still behind a .NET Remoting interface the new API has not grown an equivalent
+    /// here where a reader can have it: <c>Settings</c> used to be on that list too, until the front end grew a
+    /// settings screen of its own - what the tile opens is the front end's look, since the server's own
+    /// configuration is still behind a .NET Remoting interface the new API has not grown an equivalent
     /// of yet; <c>News</c>,
     /// <c>Weather</c> and <c>Party music player</c> used to be on that list too, until the front end grew their
     /// screens - the first two reading the same feeds and forecast service the old plugins read, the last one
@@ -195,11 +194,16 @@ namespace MediaPortal.Frontend.ViewModels
             "the pictures, folder by folder", null, "pictures", "55556593-9fe9-436c-a3b6-a971e10c9d44"),
         ("Home->News", "[News.Title]", "News", Array.Empty<string>(),
             "the headlines", null, "news", "bb49a591-7705-408f-8177-45d633fdfad0"),
+        // The two tiles the television plugin contributed, and the only two that had nothing behind them for as
+        // long as this front end existed: what they launched was MP2's TV client, whose service was deleted from
+        // this tree in 029a262aa4 because it was .NET-Framework-only. They have something behind them again - the
+        // guide of a TvHeadend named on the television settings, which is where a multiplatform media centre's
+        // television comes from now - so the small print is gone and both name a screen.
         ("Home->SlimTvClient", "[SlimTvClient.Tv]", "TV", Array.Empty<string>(),
-            "live television and the programme guide", "no TV backend", null,
+            "the guide, hour by hour", null, "tv",
             "b4a9199f-6dd4-4bda-a077-de9c081f7703"),
         ("Home->SlimTvClientRadio", "[SlimTvClient.Radio]", "Radio", Array.Empty<string>(),
-            "radio stations and their guide", "no radio backend", null,
+            "the stations' guide", null, "radio",
             "e3bbc989-99db-40e9-a15f-ccb50b17a4c8"),
         ("Home->Weather", "[Weather.Title]", "Weather", Array.Empty<string>(),
             "the forecast", null, "weather", "e34fdb62-1f3e-4aa9-8a61-d143e0af77b5"),

@@ -1,0 +1,92 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        x:Class="MediaPortal.Frontend.Views.TvGuideView"
+        x:DataType="vm:TvGuideViewModel"
+        Name="tvGuide"
+        Background="Transparent"
+        >
+
+  <!--
+    The programme guide, laid out as the reference's own full guide is: the channels down the left, the hours
+    along the top, the programmes as blocks coloured by their kind, one line through the whole grid at the
+    moment it is now, and the words about whatever is picked along the bottom.
+
+    The grid is built in the code beside this file rather than out of templates here. It is ninety columns of two
+    minutes each and a programme has to stand in the column its own beginning falls in - which is exactly what
+    the reference's EpgGrid did with its seventy-five (Controls/EpgGrid.cs:61-99 and 610-641, where a block is
+    placed at round(minutes / perCellTime) and spans round(duration / perCellTime)). A template cannot say
+    "column thirty-seven", and a layout that guessed at pixels would stop agreeing with the ruler above it the
+    moment the window was a different width.
+  -->
+
+  <DockPanel Margin="24,12">
+
+    <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="16" Margin="0,0,0,6">
+      <StackPanel Spacing="2" VerticalAlignment="Center">
+        <TextBlock Text="{Binding Heading}" FontSize="22" FontWeight="SemiBold" />
+        <TextBlock Text="{Binding WindowText}" FontSize="14" Opacity="0.7" />
+      </StackPanel>
+
+      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center"
+                  VerticalAlignment="Center">
+        <Button Name="backDayButton" Content="&#171;&#171;" ToolTip.Tip="Twelve hours back"
+                FontSize="14" Padding="10,4" Focusable="True" />
+        <Button Name="backButton" Content="&#8592;" ToolTip.Tip="Half a screen back"
+                FontSize="14" Padding="10,4" Focusable="True" />
+        <Button Name="nowButton" Content="Now" FontSize="14" Padding="12,4" Focusable="True" />
+        <Button Name="forwardButton" Content="&#8594;" ToolTip.Tip="Half a screen on"
+                FontSize="14" Padding="10,4" Focusable="True" />
+        <Button Name="forwardDayButton" Content="&#187;&#187;" ToolTip.Tip="Twelve hours on"
+                FontSize="14" Padding="10,4" Focusable="True" />
+      </StackPanel>
+
+      <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+        <TextBlock Text="Channels" FontSize="14" Opacity="0.6" VerticalAlignment="Center" />
+        <ComboBox Name="groupPicker"
+                  ItemsSource="{Binding Groups}"
+                  SelectedItem="{Binding SelectedGroup, Mode=TwoWay}"
+                  FontSize="14" MinWidth="200" Focusable="True" />
+      </StackPanel>
+    </Grid>
+
+    <TextBlock DockPanel.Dock="Bottom"
+               Name="statusLine"
+               Text="{Binding Status}"
+               FontSize="13"
+               Opacity="0.85"
+               Margin="0,4,0,0"
+               TextWrapping="Wrap" />
+
+    <!-- What is picked, along the bottom. The reference gave this strip two hundred and twenty pixels of a
+         thousand-and-eighty and led it with the times, the kind and the channel at one side, the title and the
+         series in the middle, and the description taking whatever was left (screens/ProgramInfoSlim.inc). -->
+    <Border DockPanel.Dock="Bottom" Background="#D9000000" CornerRadius="4" Padding="14,8" Margin="0,4,0,0"
+            MinHeight="96">
+      <Grid ColumnDefinitions="210,250,*" ColumnSpacing="16">
+        <StackPanel Spacing="2">
+          <TextBlock Text="{Binding DetailsTimes}" FontSize="15" Opacity="0.8" />
+          <TextBlock Text="{Binding DetailsGenre}" FontSize="13" Opacity="0.6"
+                     TextTrimming="CharacterEllipsis" />
+          <TextBlock Text="{Binding DetailsChannel}" FontSize="13" Opacity="0.6"
+                     TextTrimming="CharacterEllipsis" />
+        </StackPanel>
+        <StackPanel Grid.Column="1" Spacing="2">
+          <TextBlock Text="{Binding DetailsTitle}" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" />
+          <TextBlock Text="{Binding DetailsSeries}" FontSize="13" Opacity="0.6"
+                     IsVisible="{Binding DetailsSeries, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+        </StackPanel>
+        <TextBlock Grid.Column="2" Text="{Binding DetailsWords}" FontSize="14" Opacity="0.8"
+                   TextWrapping="Wrap" TextTrimming="CharacterEllipsis" MaxHeight="92" />
+      </Grid>
+    </Border>
+
+    <!-- The grid's home: hours, then one row per channel, scrolled together as one. The hours scroll with the
+         rows rather than staying behind at the top because they belong to the blocks under them, and a header
+         that stayed while the blocks moved would lie about what o'clock a bar stands at. -->
+    <ScrollViewer Name="gridScroller" HorizontalScrollBarVisibility="Disabled"
+                  VerticalScrollBarVisibility="Auto" Focusable="True">
+      <StackPanel Name="gridHost" Spacing="0" />
+    </ScrollViewer>
+  </DockPanel>
+</UserControl>
