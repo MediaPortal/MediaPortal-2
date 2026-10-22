@@ -8,15 +8,19 @@
   error in this file rather than a blank header at run time.
 -->
 <ResourceDictionary xmlns:chrome="clr-namespace:MediaPortal.Frontend.Theming"
+                    xmlns:views="clr-namespace:MediaPortal.Frontend.Views"
                     xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     x:DataType="chrome:ChromeInfo">
 
-  <!-- The header: the screen's words first, then - in the reference's right column - the clock over the
-       date, HH:mm at the DateTime size and the day quieter and smaller beneath it, exactly as the master
-       screens stacked them. master_home.xaml's head line carries nothing between those two: what the
-       server is doing at the library is said on the screens that show it, not across every screen of the
-       skin, so this header has no notification slot - the reference's has none either. -->
+  <!-- The header: the screen's words first, then - in the reference's right column - master_home.xaml's
+       "Time Label" grid, which is three columns standing side by side and read from the right inwards: the
+       clock at the far right, the day's weather picture in the middle, and the two quiet lines (the day of
+       the week over the temperature) to the left of the picture, right aligned against it. The clock is
+       HeadlineTimeFontSize, not DateTimeFontSize: the reference drew its two lines at 21 of its 1080 lines
+       and its clock at 55, so the clock came as high as the two lines stacked, and this face draws those
+       lines at SmallerFontSize (27) - 27 grown by 55 over 21 is the 71 below. Nothing of the server's
+       business belongs here: master_home says what the library is doing on the screens that show it. -->
   <ControlTemplate x:Key="ChromeHeaderTemplate" TargetType="ContentControl">
     <!-- No background here. The reference's header row is transparent - master_home.xaml docks a HeaderPanel
          that carries no fill, so the fanart of the screen below reaches the very top edge behind the words,
@@ -27,26 +31,31 @@
       <TextBlock Grid.Column="0" Text="{Binding ScreenTitle}"
                  Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeaderFontSize}"
                  VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-      <StackPanel Grid.Column="1" Orientation="Vertical" VerticalAlignment="Center" Margin="10,0">
-        <TextBlock Text="{Binding Clock}" HorizontalAlignment="Right"
-                   IsVisible="{Binding ShowTime}"
-                   Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource DateTimeFontSize}"/>
-        <TextBlock Text="{Binding Date}" HorizontalAlignment="Right"
-                   IsVisible="{Binding ShowDate}"
-                   Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource SmallerFontSize}"/>
-        <!-- The reference read the weather on master_home alone: the temperature under its dial
-             (ShowTemperature) and the day's words under theirs (ShowWeatherCondition), quiet and to the
-             right, only while the home screen is the screen and a watched place has been read. -->
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-          <TextBlock Text="{Binding WeatherTemperature}"
+      <!-- master_home.xaml's "Time Label" grid: three Auto columns, the clock in the one furthest right, the
+           weather picture in the middle, and the two lines - the day over the temperature - in the one furthest
+           left, right aligned. Each part answers to the skin setting that guarded it in the reference:
+           ShowTime for the clock, ShowDate for the day, ShowTemperature for the number, and
+           ShowWeatherCondition for the picture, which is what the reference's condition dial did - the picture
+           says the condition, so no line of words repeats it. The weather half only stands on the screen whose
+           master carried the slot (ShowWeatherSlot), which is the home. -->
+      <Grid Grid.Column="1" ColumnDefinitions="Auto,Auto,Auto" VerticalAlignment="Center" Margin="10,0">
+        <StackPanel Grid.Column="0" Orientation="Vertical" HorizontalAlignment="Right" VerticalAlignment="Center">
+          <TextBlock Text="{Binding Date}" HorizontalAlignment="Right"
+                     IsVisible="{Binding ShowDate}"
+                     Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource SmallerFontSize}"/>
+          <TextBlock Text="{Binding WeatherTemperature}" HorizontalAlignment="Right"
                      IsVisible="{Binding HasWeatherTemperature}"
                      Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource SmallerFontSize}"/>
-          <TextBlock Text="{Binding WeatherWords}"
-                     IsVisible="{Binding HasWeatherWords}"
-                     Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource SmallerFontSize}"
-                     TextTrimming="CharacterEllipsis" MaxWidth="320"/>
         </StackPanel>
-      </StackPanel>
+        <Image Grid.Column="1" Width="85" Stretch="Uniform" Margin="10,0"
+               HorizontalAlignment="Center" VerticalAlignment="Center"
+               IsVisible="{Binding HasWeatherIcon}"
+               Source="{Binding WeatherIcon, Converter={x:Static views:SkinImageConverter.Instance},
+                                 ConverterParameter='Weather/128x128/{0}'}"/>
+        <TextBlock Grid.Column="2" Text="{Binding Clock}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                   IsVisible="{Binding ShowTime}"
+                   Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeadlineTimeFontSize}"/>
+      </Grid>
     </Grid>
   </ControlTemplate>
 

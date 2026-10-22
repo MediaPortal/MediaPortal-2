@@ -1192,7 +1192,7 @@ namespace MediaPortal.Frontend.Views
             return;
 
           string temperature = answer.Now.Temp.ToString("0", numbers) + "°" + (client.IsMetric ? "C" : "F");
-          _chrome.ReportWeather(temperature, answer.Now.Description ?? "");
+          _chrome.ReportWeather(temperature, answer.Now.Icon);
         }
         catch (Exception)
         {

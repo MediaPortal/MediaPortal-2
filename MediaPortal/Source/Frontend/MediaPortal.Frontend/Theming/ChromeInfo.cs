@@ -193,9 +193,14 @@ namespace MediaPortal.Frontend.Theming
     [ObservableProperty]
     private string _weatherTemperature = "";
 
-    /// <summary>The day's words - "light rain" - the condition half of the same slot.</summary>
+    /// <summary>
+    /// The day's weather as the worn skin's own picture: the name of the file the skin keeps under
+    /// <c>images/Weather/128x128</c> ("3" for sun, "na" for a state the reference's tables never knew), which
+    /// is what master_home.xaml stood in the middle of its head line in place of a sentence about the weather.
+    /// Empty while no watched place has been read.
+    /// </summary>
     [ObservableProperty]
-    private string _weatherWords = "";
+    private string _weatherIcon = "";
 
     /// <summary>
     /// Whether the head line may show the temperature at all: the reference's <c>ShowTemperature</c>, one of
@@ -204,7 +209,10 @@ namespace MediaPortal.Frontend.Theming
     [ObservableProperty]
     private bool _showTemperature = true;
 
-    /// <summary>The reference's <c>ShowWeatherCondition</c>, the condition half's twin.</summary>
+    /// <summary>
+    /// The reference's <c>ShowWeatherCondition</c>, the dial that guarded the weather picture in the middle of
+    /// its home head line - the picture, not a line of words, which is how the skin says what the sky is doing.
+    /// </summary>
     [ObservableProperty]
     private bool _showWeatherCondition = true;
 
@@ -221,10 +229,14 @@ namespace MediaPortal.Frontend.Theming
       get { return ShowWeatherSlot && ShowTemperature && WeatherTemperature.Length > 0; }
     }
 
-    /// <summary>The condition half, under its own dial.</summary>
-    public bool HasWeatherWords
+    /// <summary>
+    /// The picture half of the weather slot: on the screen whose master carried the slot, dialled on, and a
+    /// picture the skin actually carries. Under its own dial - <c>ShowWeatherCondition</c> guarded
+    /// <c>WeatherBigIcon</c> on the reference's home master.
+    /// </summary>
+    public bool HasWeatherIcon
     {
-      get { return ShowWeatherSlot && ShowWeatherCondition && WeatherWords.Length > 0; }
+      get { return ShowWeatherSlot && ShowWeatherCondition && WeatherIcon.Length > 0; }
     }
 
     partial void OnWeatherTemperatureChanged(string value)
@@ -232,7 +244,7 @@ namespace MediaPortal.Frontend.Theming
       RaiseWeatherVisibility();
     }
 
-    partial void OnWeatherWordsChanged(string value)
+    partial void OnWeatherIconChanged(string value)
     {
       RaiseWeatherVisibility();
     }
@@ -255,26 +267,28 @@ namespace MediaPortal.Frontend.Theming
     private void RaiseWeatherVisibility()
     {
       OnPropertyChanged(nameof(HasWeatherTemperature));
-      OnPropertyChanged(nameof(HasWeatherWords));
+      OnPropertyChanged(nameof(HasWeatherIcon));
     }
 
     /// <summary>
-    /// Put the reading where the head line shows it. The weather timer speaks on its own thread, so the words
-    /// cross to the window's thread the way the clock's and the server notice's do.
+    /// Put the reading where the head line shows it: the number in the left column's second line and the
+    /// skin's own picture of the sky in the middle column. The weather timer speaks on its own thread, so the
+    /// words cross to the window's thread the way the clock's and the server notice's do.
     /// </summary>
-    public void ReportWeather(string temperature, string words)
+    public void ReportWeather(string temperature, string? icon)
     {
+      string picture = icon ?? "";
       if (_marshal == null)
       {
         WeatherTemperature = temperature;
-        WeatherWords = words;
+        WeatherIcon = picture;
         return;
       }
 
       _marshal(() =>
       {
         WeatherTemperature = temperature;
-        WeatherWords = words;
+        WeatherIcon = picture;
       });
     }
 

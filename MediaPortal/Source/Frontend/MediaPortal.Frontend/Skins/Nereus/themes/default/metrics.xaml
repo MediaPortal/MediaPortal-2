@@ -28,6 +28,13 @@
   <x:Double x:Key="DialogTitleFontSize">30</x:Double>
   <x:Double x:Key="InfoTabFontSize">55</x:Double>
 
+  <!-- The home head line's clock. master_home.xaml drew its clock at DateTimeFontSize (55) and the two lines
+       beside it - the day of the week over the temperature - at 21, so the clock stood exactly as high as the
+       two lines stacked: 21 lines are 27.7 of their 1080 lines tall, and two of them are 55. This face draws
+       those two lines at SmallerFontSize, five of the reference's lines louder, so the clock grows by the same
+       step - 27 times 55 over 21 - and comes to as high as the two lines under it again. -->
+  <x:Double x:Key="HeadlineTimeFontSize">71</x:Double>
+
   <!-- Edges. Nereus drew its buttons square; its dialogs were rounded a little. -->
   <x:Double x:Key="ButtonControlRadiusX">0</x:Double>
   <x:Double x:Key="DialogBorderCornerRadius">6</x:Double>

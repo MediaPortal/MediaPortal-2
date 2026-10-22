@@ -3649,6 +3649,26 @@ nothing, because the browse screen lists them under the same word. What stayed i
 `ThePicturesHaveOneTileAndItWearsMP2sOwnWord` demands one tile, one word, and a tile that still opens folders rather
 than titles, and the four screen tests that walked out of a folder now wait for the heading the tile promises.
 
+### bg. The home head line stands in the reference's three columns, and its clock grew into their height
+
+A viewer asked for `master_home.xaml`'s head line rather than the stack this face had improvised under the clock, and
+pointed at the skin settings hanging off it, which is the correct way to ask about a reference skin. The reference's
+"Time Label" grid is three Auto columns read from the right inwards: the clock furthest right, the day's weather
+*picture* in the middle, and two quiet lines to the left of the picture, right-aligned against it - the day of the week
+over the temperature. This front end had four lines under a clock instead, and had put a sentence about the sky where
+the reference put a picture of it.
+
+The Nereus header now wears that grid. The picture is the worn skin's own - the file under its `images/Weather/128x128`
+folder, named by the same night-aware code that dresses the weather screen - so the head line's sun is the sun the
+screen shows, and `ShowWeatherCondition` guards it, which is precisely the element that dial guarded on the reference's
+master; no line of words repeats what the picture says. `ChromeInfo` carries the picture's name instead of the
+condition's words, and the shell hands it over with the temperature from the same reading. The clock is bigger: the
+reference drew its clock at `DateTimeFontSize` (55) over two lines of 21, so the clock came exactly as high as the two
+lines stacked, and since this face draws those lines at `SmallerFontSize` (27), the clock wears their proportion - 27
+times 55 over 21, which is the new `HeadlineTimeFontSize` of 71. The four dials still answer for their own part
+(`ShowTime`, `ShowDate`, `ShowTemperature`, `ShowWeatherCondition`), and the whole slot is still the home screen's
+alone, because reading the weather was `master_home`'s business and no other master's.
+
 ## What cannot be verified without the user
 
 
