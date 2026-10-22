@@ -28,11 +28,13 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.FanArt;
+using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Services.Logging;
 using MediaPortal.Common.Services.ResourceAccess;
@@ -42,6 +44,7 @@ using MediaPortal.Common.SystemResolver;
 using MediaPortal.Common.Threading;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Backend.MediaLibrary;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Server.Api;
 using Moq;
 using NUnit.Framework;
@@ -65,6 +68,7 @@ namespace Tests.Server.Api
     private string _baseUrl;
     private FanArtSettings _fanArt;
     private LogSettings _logging;
+    private NfoMovieMetadataExtractorSettings _nfoMovie;
 
     [TearDown]
     public void StopEverything()
@@ -91,6 +95,17 @@ namespace Tests.Server.Api
     {
       ServiceRegistration.Set<ILogger>(new DefaultLogger(new StringWriter(), LogLevel.All, false, true));
 
+      // The reader of the files a media manager leaves beside a title asks the localiser which language it speaks
+      // the moment its settings are built. On the running server that service is always there; in a test somebody
+      // has to say so, or the first settings object of that reader throws.
+      if (!ServiceRegistration.IsRegistered<ILocalization>())
+        ServiceRegistration.Set<ILocalization>(new NoLocalization());
+
+      // Two of the catalogue's sections name the .nfo reader's classes rather than referencing them, because the
+      // API assembly may not know the plugins, and a name is only found among assemblies this process has actually
+      // loaded. Saying it here is what the server's plugin system does there.
+      TheSidecarReaderIsLoaded();
+
       Mock<ISystemResolver> resolver = new Mock<ISystemResolver>();
       resolver.SetupGet(r => r.SystemType).Returns(SystemType.Server);
       ServiceRegistration.Set<ISystemResolver>(resolver.Object);
@@ -99,8 +114,15 @@ namespace Tests.Server.Api
 
       _fanArt = new FanArtSettings { MaxPosterFanArt = 1, MaxBackdropFanArt = 3 };
       _logging = new LogSettings { LogLevel = LogLevel.Information };
+      _nfoMovie = new NfoMovieMetadataExtractorSettings
+      {
+        IncludeActorDetails = true,
+        IncludeCharacterDetails = false,
+        MaximumActorCount = 12
+      };
       _store[typeof(FanArtSettings)] = _fanArt;
       _store[typeof(LogSettings)] = _logging;
+      _store[typeof(NfoMovieMetadataExtractorSettings)] = _nfoMovie;
 
       Mock<ISettingsManager> settingsManager = new Mock<ISettingsManager>();
       settingsManager.Setup(s => s.Load(It.IsAny<Type>()))
@@ -134,6 +156,20 @@ namespace Tests.Server.Api
       int port = ((IPEndPoint)listener.LocalEndpoint).Port;
       listener.Stop();
       return port;
+    }
+
+    /// <summary>
+    /// Hands the .nfo reader's assembly to the runtime, so that looking its classes up by name succeeds.
+    /// </summary>
+    /// <remarks>
+    /// The catalogue names those classes instead of referencing them - the API assembly stays ignorant of the
+    /// plugins it serves - and a name is only found among assemblies the process has actually taken. On the
+    /// server the plugin system does that taking; a test has to say it itself. Naming the assembly loads it
+    /// without building anything of it, which is all the lookup needs.
+    /// </remarks>
+    static void TheSidecarReaderIsLoaded()
+    {
+      Assembly.Load("NfoMetadataExtractors");
     }
 
     static async Task<(HttpStatusCode Code, string Body)> Get(string url)
@@ -230,6 +266,89 @@ namespace Tests.Server.Api
                 "a choice without names to offer is a field nobody can fill");
         }
       }
+    }
+
+    [Test]
+    public void EverySectionNamesASettingsClassThatCanActuallyBeFound()
+    {
+      // Most of the catalogue's rows name their class outright and the compiler checks them. The sections that
+      // belong to a plugin cannot be named that way, so nothing but this test stands between a renamed class
+      // and a section that quietly stops being offered - which is the sort of silent disappearance nobody
+      // notices from a sofa.
+      TheSidecarReaderIsLoaded();
+
+      foreach (PluginSettingsCatalog.Section section in PluginSettingsCatalog.Sections)
+      {
+        Assert.That(section.ResolveSettings(), Is.Not.Null,
+            "the section \"" + section.Key + "\" offers settings of a class that cannot be found ("
+            + section.SettingsTypeName + ")");
+      }
+    }
+
+    [Test]
+    public async Task TheSidecarReaderStandsInTheListWhereItRuns()
+    {
+      StartServer();
+
+      (HttpStatusCode code, string body) = await Get(_baseUrl + "/api/media/settings/sections");
+      Assert.That(code, Is.EqualTo(HttpStatusCode.OK), body);
+
+      List<string> keys = new List<string>();
+      foreach (JsonElement section in Read(body).GetProperty("sections").EnumerateArray())
+        keys.Add(section.GetProperty("key").GetString());
+
+      // The reader of the files a media manager leaves beside a title is the one extractor this server runs
+      // everywhere, so its settings are asked here and not only in XML by somebody with a shell.
+      Assert.That(keys, Does.Contain("nfo_movie"), "a film's sidecar file says who played in it");
+      Assert.That(keys, Does.Contain("nfo_series"), "a series' says the same");
+      Assert.That(keys, Does.Contain("nfo_audio"), "and an album's says who made it");
+    }
+
+    [Test]
+    public async Task ASidecarSectionAnswersWithTheDetailsItTakesAndHowManyItKeeps()
+    {
+      StartServer();
+
+      (HttpStatusCode code, string body) = await Get(_baseUrl + "/api/media/settings/sections/nfo_movie");
+      Assert.That(code, Is.EqualTo(HttpStatusCode.OK), body);
+
+      JsonElement section = Read(body);
+      Assert.That(FieldOf(section, "include_actors").GetProperty("kind").GetString(), Is.EqualTo("toggle"));
+      Assert.That(FieldOf(section, "include_actors").GetProperty("value").GetBoolean(), Is.True);
+      Assert.That(FieldOf(section, "include_characters").GetProperty("value").GetBoolean(), Is.False);
+
+      JsonElement actors = FieldOf(section, "max_actors");
+      Assert.That(actors.GetProperty("kind").GetString(), Is.EqualTo("number"));
+      Assert.That(actors.GetProperty("value").GetInt32(), Is.EqualTo(12),
+          "a plugin's own number reaches the screen the same way the library's does");
+      Assert.That(actors.GetProperty("max").GetInt32(), Is.EqualTo(100),
+          "the same ground the metadata endpoint settled on for the same question");
+    }
+
+    [Test]
+    public async Task ATurnedOffDetailOfTheSidecarReaderStaysOffInTheReader()
+    {
+      StartServer();
+
+      (HttpStatusCode code, string body) = await Put(_baseUrl + "/api/media/settings/sections/nfo_movie",
+          "{\"values\":{\"include_actors\":false}}");
+      Assert.That(code, Is.EqualTo(HttpStatusCode.OK), body);
+      Assert.That(_nfoMovie.IncludeActorDetails, Is.False,
+          "the reader is what asks for these settings, so the reader is where the answer has to be");
+      Assert.That(NamesOf(Read(body).GetProperty("restartNeededFor")), Is.Empty,
+          "the next title read comes out differently without the server coming back");
+    }
+
+    [Test]
+    public async Task TooManyActorsForTheSidecarReaderIsRefusedAndItsNumberStands()
+    {
+      StartServer();
+
+      (HttpStatusCode code, string body) = await Put(_baseUrl + "/api/media/settings/sections/nfo_movie",
+          "{\"values\":{\"max_actors\":5000}}");
+      Assert.That(code, Is.EqualTo(HttpStatusCode.BadRequest), body);
+      Assert.That(body, Does.Contain("between 0 and 100"));
+      Assert.That(_nfoMovie.MaximumActorCount, Is.EqualTo(12), "the reader keeps the number it had");
     }
 
     [Test]

@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using MediaPortal.Common.FanArt;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Services.Logging;
@@ -137,14 +138,33 @@ namespace MediaPortal.Server.Api
     /// </summary>
     public sealed class Section
     {
+      private Type _resolved;
+
+      /// <summary>A section whose settings class this assembly is allowed to name outright.</summary>
       public Section(string key, string title, string description, string owner, Type settingsType,
+          Field[] fields)
+          : this(key, title, description, owner, settingsType.FullName, fields)
+      {
+        SettingsType = settingsType;
+      }
+
+      /// <summary>
+      /// A section whose settings class belongs to a plugin.
+      /// </summary>
+      /// <remarks>
+      /// The API assembly names no plugin types, because the dependency would run from the core towards an
+      /// extension - the direction the reference spent years getting the other way round - so such a class is
+      /// written down by name and looked for among the assemblies the server has actually loaded. That is how
+      /// the metadata endpoint reaches the extractors' settings, for the same reason.
+      /// </remarks>
+      public Section(string key, string title, string description, string owner, string settingsTypeName,
           Field[] fields)
       {
         Key = key;
         Title = title;
         Description = description;
         Owner = owner;
-        SettingsType = settingsType;
+        SettingsTypeName = settingsTypeName;
         Fields = fields ?? Array.Empty<Field>();
       }
 
@@ -160,10 +180,49 @@ namespace MediaPortal.Server.Api
       /// <summary>Which part of the server the settings belong to, so a screen can say whose answer it is.</summary>
       public string Owner { get; }
 
-      /// <summary>The settings class <see cref="MediaPortal.Common.Settings.ISettingsManager"/> loads.</summary>
-      public Type SettingsType { get; }
+      /// <summary>The settings class by its full name, whether or not this assembly may name it.</summary>
+      public string SettingsTypeName { get; }
+
+      /// <summary>The class this assembly was allowed to name outright; <c>null</c> for a plugin's own.</summary>
+      private Type SettingsType { get; }
 
       public Field[] Fields { get; }
+
+      /// <summary>
+      /// The settings class <see cref="MediaPortal.Common.Settings.ISettingsManager"/> loads, or <c>null</c>
+      /// when the part that owns it is not running here.
+      /// </summary>
+      /// <remarks>
+      /// A name that cannot be found among the loaded assemblies is a plugin this server does not carry, not a
+      /// typo to chase - the same reading the metadata endpoint gives it. Which is also why a section nobody
+      /// runs is left out of the list rather than standing open onto a wall: a door the household cannot walk
+      /// through is not information, it is a dead end with a handle.
+      /// </remarks>
+      public Type ResolveSettings()
+      {
+        if (SettingsType != null)
+          return SettingsType;
+        if (_resolved != null)
+          return _resolved;
+
+        foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+        {
+          Type found = assembly.GetType(SettingsTypeName, false);
+          if (found != null)
+          {
+            _resolved = found;
+            return found;
+          }
+        }
+
+        return null;
+      }
+
+      /// <summary>Whether the part that owns these settings is running in this process.</summary>
+      public bool IsOnThisServer
+      {
+        get { return ResolveSettings() != null; }
+      }
 
       /// <summary>The field a screen sends back under its own key, or <c>null</c> when there is no such field.</summary>
       public Field FieldFor(string key)
@@ -219,7 +278,74 @@ namespace MediaPortal.Server.Api
                   nameof(LogLevel.All)
                 }, true)
           }),
+
+      // The reader of the .nfo files a media manager leaves beside a film. The reference never gave this
+      // extractor a configuration window at all - its settings were edited as XML, if at all - so these three
+      // sections go past the reference rather than catching up with it. They are here because the extractor is
+      // the one extractor this server can actually run everywhere (it is the only one that is not
+      // Windows-bound), and because the fields worth asking about are the same two questions the metadata
+      // screen already asks of the online scrapers: which details, and how many of them.
+      //
+      // What is left out of them, and why: the file name lists, the separator and ignore strings (a set of
+      // strings is not a question a remote can answer, and every one of them defaults to something that works),
+      // the IMDb id pattern (a regular expression typed on a television is a support ticket), the preferred
+      // certification country (it wants a list of countries this server does not own), and the two
+      // search-online/pictures switches (the metadata screen answers those for the household already, and a
+      // second switch for the same wish is how a household ends up with two answers).
+
+      new Section("nfo_movie", "What the .nfo reader takes for films",
+          "Beside a film there is often a small .nfo file written by another program. This is what the server "
+          + "reads out of it.",
+          "Media library", NFO_MOVIE_SETTINGS,
+          new Field[]
+          {
+            Toggle("include_actors", "IncludeActorDetails", "The actors",
+                "The people who played in it, as the file names them."),
+            Toggle("include_characters", "IncludeCharacterDetails", "The characters",
+                "Which actor played whom."),
+            Toggle("include_directors", "IncludeDirectorDetails", "The directors", ""),
+            Count("max_actors", "MaximumActorCount", "Actors kept",
+                "The rest are read and dropped."),
+            Count("max_characters", "MaximumCharacterCount", "Characters kept", ""),
+            DebugLogging("films"),
+            Toggle("write_nfo_into_log", "WriteRawNfoFileIntoDebugLog", "Write the file itself into the log",
+                "Only useful while something is being worked out, and only alongside the line above.")
+          }),
+
+      new Section("nfo_series", "What the .nfo reader takes for series",
+          "The same questions as for films, asked of the file beside a series.",
+          "Media library", NFO_SERIES_SETTINGS,
+          new Field[]
+          {
+            Toggle("include_actors", "IncludeActorDetails", "The actors", ""),
+            Toggle("include_characters", "IncludeCharacterDetails", "The characters", ""),
+            Count("max_actors", "MaximumActorCount", "Actors kept", ""),
+            Count("max_characters", "MaximumCharacterCount", "Characters kept", ""),
+            DebugLogging("series"),
+            Toggle("write_nfo_into_log", "WriteRawNfoFileIntoDebugLog", "Write the file itself into the log", "")
+          }),
+
+      new Section("nfo_audio", "What the .nfo reader takes for music",
+          "What a file beside an album or an artist can tell the library about it.",
+          "Media library", NFO_AUDIO_SETTINGS,
+          new Field[]
+          {
+            Toggle("include_artists", "IncludeArtistDetails", "The artist", ""),
+            Toggle("include_albums", "IncludeAlbumDetails", "The album", ""),
+            DebugLogging("music"),
+            Toggle("write_nfo_into_log", "WriteRawNfoFileIntoDebugLog", "Write the file itself into the log", "")
+          }),
     };
+
+    /// <summary>The reader of film .nfo files. Named, because this assembly may not reference the plugin.</summary>
+    private const string NFO_MOVIE_SETTINGS =
+        "MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings.NfoMovieMetadataExtractorSettings";
+
+    private const string NFO_SERIES_SETTINGS =
+        "MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings.NfoSeriesMetadataExtractorSettings";
+
+    private const string NFO_AUDIO_SETTINGS =
+        "MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings.NfoAudioMetadataExtractorSettings";
 
     /// <summary>The open section named <paramref name="key"/>, or <c>null</c> when nothing stands open under it.</summary>
     public static Section Find(string key)
@@ -238,6 +364,33 @@ namespace MediaPortal.Server.Api
       // anybody wants; twenty because a household that wants more backdrops than that is not sitting ten feet
       // away from a television, and this screen is for that household.
       return new Field(key, property, label, help, KIND_NUMBER, 1, 20, null, null, false);
+    }
+
+    /// <summary>
+    /// A count of how many of something to keep. Zero to a hundred, which is the ground the metadata endpoint
+    /// settled on for the same question: the reference hands the stored number to a LINQ <c>Take</c>, which
+    /// throws on a negative and is happy with none, and the ceiling is this API's own because the reference
+    /// states none.
+    /// </summary>
+    private static Field Count(string key, string property, string label, string help)
+    {
+      return new Field(key, property, label, help, KIND_NUMBER, 0, 100, null, null, false);
+    }
+
+    private static Field Toggle(string key, string property, string label, string help)
+    {
+      return new Field(key, property, label, help, KIND_TOGGLE, 0, 0, null, null, false);
+    }
+
+    /// <summary>
+    /// The reader's own logging switch. It belongs to the class all three readers share, so the same line
+    /// stands in every one of their sections - which is right rather than repetitive, because a household
+    /// working out why one kind of media comes out wrong wants to turn it on for that kind only.
+    /// </summary>
+    private static Field DebugLogging(string subject)
+    {
+      return Toggle("debug_logging", "EnableDebugLogging", "Log what the reader does",
+          "Off is what this runs with. For " + subject + " it writes what it reads into the server's log.");
     }
 
     private static Field Choice(string key, string property, string label, string help, Type enumType,

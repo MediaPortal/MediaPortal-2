@@ -166,6 +166,12 @@ namespace MediaPortal.Server.Api
       SectionsResult answer = new SectionsResult();
       foreach (PluginSettingsCatalog.Section section in PluginSettingsCatalog.Sections)
       {
+        // A section whose own part of the server is not running is left off the list. The household that
+        // switched the reader off does not get a door that opens onto a wall - and the day it is switched back
+        // on, the door is there again by itself, because nobody had to be told to add it.
+        if (!section.IsOnThisServer)
+          continue;
+
         answer.Sections.Add(new SectionSummary
         {
           Key = section.Key,
@@ -197,9 +203,13 @@ namespace MediaPortal.Server.Api
       if (settingsManager == null)
         return StatusCode(StatusCodes.Status503ServiceUnavailable);
 
+      Type settingsType = section.ResolveSettings();
+      if (settingsType == null)
+        return NotRunning(section);
+
       try
       {
-        return Ok(Of(section, settingsManager.Load(section.SettingsType), null));
+        return Ok(Of(section, settingsManager.Load(settingsType), null));
       }
       catch (IllegalCallException ex)
       {
@@ -249,10 +259,14 @@ namespace MediaPortal.Server.Api
       if (settingsManager == null)
         return StatusCode(StatusCodes.Status503ServiceUnavailable);
 
+      Type settingsType = section.ResolveSettings();
+      if (settingsType == null)
+        return NotRunning(section);
+
       object settings;
       try
       {
-        settings = settingsManager.Load(section.SettingsType);
+        settings = settingsManager.Load(settingsType);
       }
       catch (IllegalCallException ex)
       {
@@ -287,7 +301,7 @@ namespace MediaPortal.Server.Api
       {
         foreach (KeyValuePair<PluginSettingsCatalog.Field, object> change in changes)
         {
-          PropertyInfo property = section.SettingsType.GetProperty(change.Key.Property);
+          PropertyInfo property = settingsType.GetProperty(change.Key.Property);
           if (property == null || !property.CanWrite)
             // The table names a property the class no longer has. That is a stale row, not a caller's fault,
             // and it is said as its own error rather than saved as a value that goes nowhere.
@@ -389,6 +403,23 @@ namespace MediaPortal.Server.Api
       return Refuse("\"" + field.Key + "\" is of a kind this server does not know how to write.");
     }
 
+    /// <summary>
+    /// The answer for a section whose own part of the server is not running here. It is not a <c>404</c>,
+    /// because the section is open in the catalogue and the caller is not mistaken; it is this server saying it
+    /// cannot answer right now, which is what it means.
+    /// </summary>
+    private static ActionResult<SectionResult> NotRunning(PluginSettingsCatalog.Section section)
+    {
+      return new ObjectResult(new ErrorResponse
+      {
+        Error = "this server does not run the part that keeps \"" + section.Title
+            + "\", so there is nothing here to change"
+      })
+      {
+        StatusCode = StatusCodes.Status503ServiceUnavailable
+      };
+    }
+
     private static ActionResult<SectionResult> Refuse(string reason)
     {
       return new ObjectResult(new ErrorResponse { Error = reason })
@@ -414,7 +445,7 @@ namespace MediaPortal.Server.Api
 
       foreach (PluginSettingsCatalog.Field field in section.Fields)
       {
-        PropertyInfo property = section.SettingsType.GetProperty(field.Property);
+        PropertyInfo property = settings.GetType().GetProperty(field.Property);
         if (property == null)
           // A row of the table naming a property the class no longer has. Nothing on the caller's side can fix
           // that, and a blank field on a television is not something the person standing in front of it can
