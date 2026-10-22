@@ -24,11 +24,25 @@
         <TextBlock Text="{Binding Date}"
                    Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource SmallerFontSize}"/>
       </StackPanel>
-      <TextBlock Grid.Column="1" Text="{Binding ServerNotice}"
-                 IsVisible="{Binding HasServerNotice}"
-                 Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource SmallerFontSize}"
-                 VerticalAlignment="Center" Margin="0,0,24,0"
-                 TextTrimming="CharacterEllipsis" MaxWidth="420"/>
+      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="14" VerticalAlignment="Center" Margin="0,0,24,0">
+        <!-- A recording running is said with a mark the whole time it runs, and a recording that started or ended
+             with a sentence for a few seconds; both came from the reference's notification bar, which stood in the
+             header exactly here. -->
+        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center"
+                    IsVisible="{Binding IsRecording}">
+          <Border Width="10" Height="10" CornerRadius="5" Background="#D0402F" VerticalAlignment="Center"/>
+          <TextBlock Text="recording" Foreground="{DynamicResource MutedTextBrush}"
+                     FontSize="{DynamicResource SmallerFontSize}" VerticalAlignment="Center"/>
+        </StackPanel>
+        <TextBlock Text="{Binding RecordingNotice}" IsVisible="{Binding HasRecordingNotice}"
+                   Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource SmallerFontSize}"
+                   VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="420"/>
+        <TextBlock Text="{Binding ServerNotice}"
+                   IsVisible="{Binding HasServerNotice}"
+                   Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource SmallerFontSize}"
+                   VerticalAlignment="Center"
+                   TextTrimming="CharacterEllipsis" MaxWidth="420"/>
+      </StackPanel>
       <TextBlock Grid.Column="2" Text="{Binding ScreenTitle}"
                  Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeaderFontSize}"
                  VerticalAlignment="Center" TextTrimming="CharacterEllipsis"

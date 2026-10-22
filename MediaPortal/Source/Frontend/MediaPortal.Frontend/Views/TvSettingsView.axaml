@@ -117,7 +117,7 @@
       <!-- The guide's own shape, which is the reference's EpgNumberOfHours and EpgNumberOfRows. -->
       <TextBlock Text="The programme guide" FontSize="18" FontWeight="SemiBold" Margin="0,10,0,0" />
 
-      <Grid ColumnDefinitions="240,320" RowDefinitions="Auto,Auto,Auto">
+      <Grid ColumnDefinitions="240,320" RowDefinitions="Auto,Auto,Auto,Auto">
 
         <TextBlock Grid.Row="0" Grid.Column="0" Text="Hours in the guide" FontSize="16"
                    VerticalAlignment="Center" Margin="0,6"
@@ -157,6 +157,19 @@
                  Focusable="True"
                  Padding="10,4"
                  Margin="0,4" />
+
+        <TextBlock Grid.Row="3" Grid.Column="0" Text="Recording notice lasts" FontSize="16"
+                   VerticalAlignment="Center" Margin="0,6"
+                   ToolTip.Tip="Seconds the sentence about a recording that started or ended stands at the corner of the screen. Under a second says nothing at all." />
+        <TextBox Grid.Row="3" Grid.Column="1"
+                 Name="noticeBox"
+                 views:VirtualKeyboardService.Trigger="EnterOrMenu"
+                 Text="{Binding RecordingNoticeSeconds, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                 Watermark="5"
+                 FontSize="16"
+                 Focusable="True"
+                 Padding="10,4"
+                 Margin="0,4" />
       </Grid>
 
       <TextBlock Text="What the guide says" FontSize="18" FontWeight="SemiBold" Margin="0,10,0,0" />
@@ -167,6 +180,9 @@
                     IsChecked="{Binding ShowChannelNames, Mode=TwoWay}" />
           <CheckBox Name="numbersCheck" Content="Channel numbers in the guide" FontSize="16" Focusable="True"
                     IsChecked="{Binding ShowChannelNumbers, Mode=TwoWay}" />
+          <CheckBox Name="logosCheck" Content="Channel pictures in the guide" FontSize="16" Focusable="True"
+                    IsChecked="{Binding ShowChannelLogos, Mode=TwoWay}"
+                    ToolTip.Tip="The picture a channel's own TV machine keeps for it. Nothing is fetched from anywhere else." />
           <CheckBox Name="genreCheck" Content="Genre colors in the guide" FontSize="16" Focusable="True"
                     IsChecked="{Binding ShowGenreColors, Mode=TwoWay}" />
           <CheckBox Name="seriesCheck" Content="Series infos" FontSize="16" Focusable="True"
@@ -184,6 +200,11 @@
                     ToolTip.Tip="The tile called Live TV opens with a picture instead of waiting for a channel." />
           <CheckBox Name="hideAllCheck" Content='Hide "All Channels" group' FontSize="16" Focusable="True"
                     IsChecked="{Binding HideAllChannelsGroup, Mode=TwoWay}" />
+          <CheckBox Name="recStartCheck" Content="Say when a recording started" FontSize="16" Focusable="True"
+                    IsChecked="{Binding ShowRecordingStartedNotifications, Mode=TwoWay}"
+                    ToolTip.Tip="A sentence at the corner of the screen, from wherever the viewer happens to be standing." />
+          <CheckBox Name="recEndCheck" Content="Say when a recording ended" FontSize="16" Focusable="True"
+                    IsChecked="{Binding ShowRecordingEndedNotifications, Mode=TwoWay}" />
         </StackPanel>
       </Grid>
 

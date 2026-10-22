@@ -19,8 +19,9 @@
        the week over the temperature) to the left of the picture, right aligned against it. The clock is
        HeadlineTimeFontSize, not DateTimeFontSize: the reference drew its two lines at 21 of its 1080 lines
        and its clock at 55, so the clock came as high as the two lines stacked, and this face draws those
-       lines at SmallerFontSize (27) - 27 grown by 55 over 21 is the 71 below. Nothing of the server's
-       business belongs here: master_home says what the library is doing on the screens that show it. -->
+       lines at SmallerFontSize (27) - 27 grown by 55 over 21 is the 71 below. What the machines at home are
+       doing is said between the words and the time, in the space the reference's notification bar had inside its
+       screens - see the bar below. -->
   <ControlTemplate x:Key="ChromeHeaderTemplate" TargetType="ContentControl">
     <!-- No background here. The reference's header row is transparent - master_home.xaml docks a HeaderPanel
          that carries no fill, so the fanart of the screen below reaches the very top edge behind the words,
@@ -47,6 +48,31 @@
            asked for; shrunk it scales the cluster down as a whole, which keeps the reference's ratio of the two
            quiet lines to the clock intact instead of robbing one part of its height. The gutter to the screen
            title sits on the Viewbox rather than inside it, so it stays a full 10 when the rest is scaled down. -->
+      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="14" VerticalAlignment="Center"
+                  Margin="0,0,10,0">
+        <!--
+          What the machines at home are doing while the viewer stands here. The reference kept this in
+          <c>Nereus/screens/NotificationsBar.inc</c>, a bar of its own standing inside the screens, and it said
+          three things there: what the importer was doing at the library, a sentence the moment a recording started
+          or ended, and a mark the whole time a recording was running. This front end has one header above every
+          screen instead of a bar inside each of them, so all three are said in the one place a viewer is already
+          looking at - which is the whole point the bar had - between the screen's words and the time. The mark is
+          red because a recording is the one thing on this screen that is happening whether the viewer watches it or
+          not.
+        -->
+        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center"
+                    IsVisible="{Binding IsRecording}">
+          <Border Width="14" Height="14" CornerRadius="7" Background="#D0402F" VerticalAlignment="Center"/>
+          <TextBlock Text="recording" Foreground="{DynamicResource MutedTextBrush}"
+                     FontSize="{DynamicResource SmallerFontSize}" VerticalAlignment="Center"/>
+        </StackPanel>
+        <TextBlock Text="{Binding RecordingNotice}" IsVisible="{Binding HasRecordingNotice}"
+                   Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource SmallerFontSize}"
+                   VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="420"/>
+        <TextBlock Text="{Binding ServerNotice}" IsVisible="{Binding HasServerNotice}"
+                   Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource SmallerFontSize}"
+                   VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="420"/>
+      </StackPanel>
       <Viewbox DockPanel.Dock="Right" Stretch="Uniform" StretchDirection="DownOnly"
                VerticalAlignment="Center" Margin="10,0">
         <Grid ColumnDefinitions="Auto,Auto,Auto">

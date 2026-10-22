@@ -527,9 +527,13 @@ namespace Tests.Frontend
       {
         await guide.ReloadAsync();
 
-        // The last programme of the row, which is a future one: pressing a running programme would send the guide
-        // off to the tuner instead of leaving the cursor on it.
-        TvGuideBlock standing = guide.Rows[0].Blocks[guide.Rows[0].Blocks.Count - 1];
+        // A programme in the middle of the row, and a future one: pressing a running programme would send the guide
+        // off to the tuner instead of leaving the cursor on it, and the last programme of a row stands at the very
+        // edge of what the backend was asked for, where a shorter row's evening has legitimately run out.
+        List<TvGuideBlock> blocks = guide.Rows[0].Blocks;
+        TvGuideBlock standing = blocks[Math.Max(0, blocks.Count / 2)];
+        Assert.That(standing.Program.Start, Is.GreaterThan(DateTimeOffset.Now),
+            "the fixture stands the cursor on something still to come");
         guide.Press(standing);
         DateTimeOffset stoodAt = standing.Program.Start;
         string from = guide.SelectedRow!.Name;

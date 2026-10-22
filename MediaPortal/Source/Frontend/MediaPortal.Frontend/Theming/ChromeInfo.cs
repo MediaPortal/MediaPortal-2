@@ -194,6 +194,64 @@ namespace MediaPortal.Frontend.Theming
       OnPropertyChanged(nameof(HasServerNotice));
     }
 
+    /// <summary>
+    /// What the TV machine is doing about recordings, said at the corner of the screen: "Recording started: ..." and
+    /// "Recording ended: ...". The reference put these in the same bar as the importer's progress
+    /// (<c>Nereus/screens/NotificationsBar.inc</c>), out of the same reason - a household should hear about a
+    /// recording from where it is already looking rather than by opening a screen to ask. Null or empty means the
+    /// watcher has nothing to say, which is most of the time; whoever raised it takes it away again.
+    /// </summary>
+    [ObservableProperty]
+    private string? _recordingNotice;
+
+    /// <summary>Whether there is a recording notice to show.</summary>
+    public bool HasRecordingNotice
+    {
+      get { return !string.IsNullOrEmpty(RecordingNotice); }
+    }
+
+    partial void OnRecordingNoticeChanged(string? value)
+    {
+      OnPropertyChanged(nameof(HasRecordingNotice));
+    }
+
+    /// <summary>
+    /// Whether the TV machine is writing something to disk right now. The reference drew this as a standing mark in
+    /// its notification bar rather than as a sentence (<c>IsRecording</c> there), because unlike a notice it is not
+    /// news about a moment - it is true the whole time the recording runs, and a viewer who walks in halfway through
+    /// still has to be able to see it.
+    /// </summary>
+    [ObservableProperty]
+    private bool _isRecording;
+
+    /// <summary>
+    /// Says what the TV machine just did about a recording, or takes the sentence away when handed null. Handed over
+    /// on the watcher's thread and put on this one, because a corner of a window belongs to the thread that made the
+    /// window.
+    /// </summary>
+    public void ReportRecordingNotice(string? notice)
+    {
+      if (_marshal == null)
+      {
+        RecordingNotice = notice;
+        return;
+      }
+
+      _marshal(() => RecordingNotice = notice);
+    }
+
+    /// <summary>Says whether the TV machine is recording right now, from the watcher's thread.</summary>
+    public void ReportRecording(bool recording)
+    {
+      if (_marshal == null)
+      {
+        IsRecording = recording;
+        return;
+      }
+
+      _marshal(() => IsRecording = recording);
+    }
+
     // ---- the home head line's weather, the reference's master_home slot -----------------------------------
 
     /// <summary>

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediaPortal.Frontend.Api;
+using MediaPortal.Frontend.Caching;
 using MediaPortal.Frontend.Settings;
 
 namespace MediaPortal.Frontend.ViewModels
@@ -142,6 +143,20 @@ namespace MediaPortal.Frontend.ViewModels
     {
       get { return Channel.Name; }
     }
+
+    /// <summary>
+    /// The channel's picture, as its own TV machine drew it, or null while it has not arrived and for a channel the
+    /// machine has no picture for. Bytes rather than a picture, because a row holding a bitmap could not be built by
+    /// a test without a window; the screen decodes them, as every screen of this front end decodes what a machine
+    /// described in bytes.
+    /// </summary>
+    public byte[]? Logo { get; internal set; }
+
+    /// <summary>
+    /// Whether this row has a picture to wait for at all, which is the viewer having asked for pictures and the
+    /// machine having named one for this channel. A guide leaves room for a picture only beside rows that want one.
+    /// </summary>
+    public bool WantsLogo { get; internal set; }
   }
 
   /// <summary>
@@ -187,6 +202,7 @@ namespace MediaPortal.Frontend.ViewModels
 
     private readonly Func<TvBackendSettings> _settingsProvider;
     private readonly Func<TvBackendSettings, TvHeadendApiClient> _buildClient;
+    private readonly ChannelLogos? _logos;
     private readonly Action<Action> _marshal;
     private readonly TvMediaType _kind;
 
@@ -212,6 +228,7 @@ namespace MediaPortal.Frontend.ViewModels
     private int _visibleRows = TvBackendSettings.DEFAULT_VISIBLE_ROWS;
     private bool _showChannelNames = true;
     private bool _showChannelNumbers = true;
+    private bool _showChannelLogos = true;
     private bool _showGenreColors = true;
     private bool _showSeriesInfo = true;
     private bool _hideAllChannelsGroup;
@@ -232,8 +249,14 @@ namespace MediaPortal.Frontend.ViewModels
     /// across the network answers on a thread of its own, and the rows a screen is bound to belong to the thread
     /// that made them, so a grid with controls on it has to hand this over - see <c>Views/ScreenThread.cs</c>.
     /// </param>
+    /// <param name="logos">
+    /// Where the channel pictures come from, or null for a grid that is not going to draw any - which is what every
+    /// test does and what a screen without a picture shelf does too. A guide with them asks for the pictures of the
+    /// channels it is showing, never for the pictures of the three hundred it is not.
+    /// </param>
     public TvGuideViewModel(TvMediaType kind, Func<TvBackendSettings>? settingsProvider = null,
-        Func<TvBackendSettings, TvHeadendApiClient>? clientFactory = null, Action<Action>? marshal = null)
+        Func<TvBackendSettings, TvHeadendApiClient>? clientFactory = null, Action<Action>? marshal = null,
+        ChannelLogos? logos = null)
     {
       _kind = kind;
       _settingsProvider = settingsProvider ?? delegate { return TvBackendSettings.Load(null, out _); };
@@ -242,6 +265,7 @@ namespace MediaPortal.Frontend.ViewModels
         return DemoTvBackend.Open(settings);
       };
       _marshal = marshal ?? delegate (Action action) { action(); };
+      _logos = logos;
 
       // The shape of the grid comes from the settings before the first window is worked out, because the width of a
       // column is what a window's start is floored to.
@@ -277,6 +301,7 @@ namespace MediaPortal.Frontend.ViewModels
       _visibleRows = settings.VisibleRowsOr;
       _showChannelNames = settings.ShowChannelNames;
       _showChannelNumbers = settings.ShowChannelNumbers;
+      _showChannelLogos = settings.ShowChannelLogos;
       _showGenreColors = settings.ShowGenreColors;
       _showSeriesInfo = settings.ShowSeriesInfo;
       _hideAllChannelsGroup = settings.HideAllChannelsGroup;
@@ -311,6 +336,15 @@ namespace MediaPortal.Frontend.ViewModels
     public bool ShowChannelNames
     {
       get { return _showChannelNames; }
+    }
+
+    /// <summary>
+    /// Whether a row's head carries the channel's own picture. Only ever true for a guide that was handed somewhere
+    /// to get pictures from; a grid without one says so here so that a screen does not leave a column empty.
+    /// </summary>
+    public bool ShowChannelLogos
+    {
+      get { return _showChannelLogos && _logos != null; }
     }
 
     /// <summary>Whether a programme is coloured by what it is.</summary>
@@ -1054,6 +1088,7 @@ namespace MediaPortal.Frontend.ViewModels
       foreach (TvChannel channel in ofThisBouquet)
       {
         TvGuideRow row = new TvGuideRow(channel);
+        row.WantsLogo = ShowChannelLogos && channel.HasLogo;
         foreach (TvProgram program in byChannel[channel.Id].OrderBy(p => p.Start))
         {
           TvGuideBlock? block = Place(program);
@@ -1291,14 +1326,24 @@ namespace MediaPortal.Frontend.ViewModels
       FillPage();
     }
 
-    /// <summary>The programme a row is stood on at a given moment: the one covering it, or the first one said.</summary>
+    /// <summary>
+    /// The programme a row is stood on at a given moment: the one covering it, or the first one said after it. When
+    /// a row's evening ran out before the moment - which a real backend's few days of data almost never does, but a
+    /// window at the end of what a backend has listed easily can - the last one is the answer, because it is the
+    /// programme nearest the moment the viewer was standing at. The row's first programme is not: being sent back to
+    /// the beginning of an evening while walking between channels is the thing this whole lookup exists to avoid.
+    /// </summary>
     private static TvGuideBlock? StandingBlock(TvGuideRow row, DateTimeOffset moment)
     {
       TvGuideBlock? covering = row.Blocks.FirstOrDefault(b => b.Program.Start <= moment && b.Program.Stop > moment);
       if (covering != null)
         return covering;
 
-      return row.Blocks.FirstOrDefault(b => b.Program.Start >= moment) ?? row.Blocks.FirstOrDefault();
+      TvGuideBlock? after = row.Blocks.FirstOrDefault(b => b.Program.Start >= moment);
+      if (after != null)
+        return after;
+
+      return row.Blocks.LastOrDefault();
     }
 
     /// <summary>Puts the page onto the collection the screen is bound to.</summary>
@@ -1318,6 +1363,83 @@ namespace MediaPortal.Frontend.ViewModels
       Raise(nameof(CanScrollRowsDown));
       Raise(nameof(CanMoveRowUp));
       Raise(nameof(CanMoveRowDown));
+
+      // The pictures of what is on the screen, and of nothing else. Asked here rather than while the rows were
+      // built, because a real bouquet has three hundred channels and asking for three hundred pictures to show
+      // eight of them is a question nobody watching television needs to ask.
+      FetchLogosOfPage();
+    }
+
+    /// <summary>Raised when one row's picture has arrived, so that the screen refills that one image.</summary>
+    public event Action<TvGuideRow>? LogoReady;
+
+    /// <summary>
+    /// Asks for the pictures of the channels on the screen. A row whose picture is already in memory is answered
+    /// there and then, which is what walking back to a page the viewer looked at a minute ago does; only a picture
+    /// nobody has asked for yet goes onto the wire.
+    /// </summary>
+    private void FetchLogosOfPage()
+    {
+      ChannelLogos? pictures = _logos;
+      if (pictures == null || !_showChannelLogos || _disposed)
+        return;
+
+      foreach (TvGuideRow row in Rows)
+      {
+        if (!row.WantsLogo || row.Logo != null)
+          continue;
+
+        if (pictures.TryPeek(row.Channel, out byte[]? here) && here != null)
+        {
+          row.Logo = here;
+          continue;
+        }
+
+        AskLogoAsync(row, pictures);
+      }
+    }
+
+    /// <summary>
+    /// Fetches one row's picture and hands it to the screen when it arrives.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <c>async void</c> on purpose and safely: everything it waits for is inside its own <c>try</c>, so nothing an
+    /// answer can throw escapes into the thread that happened to complete it. A picture is the one thing on this
+    /// screen that is allowed to fail without saying anything - the guide said whatever the machine complained
+    /// about when it was asked for the evening, and repeating that at every row of the grid would be a guide nobody
+    /// can read.
+    /// </para>
+    /// <para>
+    /// A row whose picture arrived after the viewer had walked on to another page is thrown away, which is what the
+    /// generation count is for everywhere else in this model.
+    /// </para>
+    /// </remarks>
+    private async void AskLogoAsync(TvGuideRow row, ChannelLogos pictures)
+    {
+      int mine = _generation;
+      byte[]? picture;
+
+      try
+      {
+        picture = await pictures.PictureOfAsync(row.Channel).ConfigureAwait(false);
+      }
+      catch (Exception)
+      {
+        return;
+      }
+
+      if (picture == null || _disposed || mine != _generation)
+        return;
+
+      _marshal(delegate
+      {
+        if (_disposed || row.Logo != null)
+          return;
+
+        row.Logo = picture;
+        LogoReady?.Invoke(row);
+      });
     }
 
     private int IndexOfRow(TvGuideRow? row)

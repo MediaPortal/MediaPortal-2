@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -270,7 +271,7 @@ namespace MediaPortal.Frontend.Api
                 || name.Contains("radio", StringComparison.OrdinalIgnoreCase);
 
         return new TvChannel(number, name, epgId, ResolveStreamUrl(Text(entry, "streamurl"), number), groups,
-            isRadio ? TvMediaType.Radio : TvMediaType.Television);
+            isRadio ? TvMediaType.Radio : TvMediaType.Television, LogoPathOf(entry));
       }, cancellation).ConfigureAwait(false);
 
       channels.Sort(delegate (TvChannel a, TvChannel b)
@@ -279,6 +280,71 @@ namespace MediaPortal.Frontend.Api
         return byNumber != 0 ? byNumber : string.Compare(a.Name, b.Name, StringComparison.OrdinalIgnoreCase);
       });
       return channels;
+    }
+
+    /// <summary>
+    /// The channel's picture, as the backend keeps it, or <c>null</c> when this channel has none.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <b>Why a picture is allowed to go wrong quietly.</b> Every other question here throws
+    /// <see cref="TvBackendException"/> when the backend will not answer, because a guide that came back half
+    /// built has to say so. A picture is different: a screen is not emptier for not having one, and a household
+    /// whose backend carries no icons would otherwise be told about it on every row of every guide. So a channel
+    /// with no path, a backend nobody named, and a backend that answers "not there" or "not yours" all get
+    /// <c>null</c>, which is the answer "this channel has no picture".
+    /// </para>
+    /// <para>
+    /// What still throws is a machine that is not there at all, because that answer is about the network rather
+    /// than about the channel, and whoever is remembering answers must not file it as a channel without a picture
+    /// for the rest of the evening.
+    /// </para>
+    /// </remarks>
+    public async Task<byte[]?> GetChannelLogoAsync(TvChannel channel, CancellationToken cancellation = default)
+    {
+      if (channel == null || !channel.HasLogo || !IsConfigured)
+        return null;
+
+      try
+      {
+        return await GetBytesAsync(channel.LogoPath!, cancellation).ConfigureAwait(false);
+      }
+      catch (TvBackendException ex)
+      {
+        // "No such picture" and "not yours to look at" are answers about the picture. Anything else is about the
+        // machine, and travels.
+        if (ex.StatusCode == (int) HttpStatusCode.NotFound || ex.StatusCode == (int) HttpStatusCode.Forbidden
+            || ex.StatusCode == (int) HttpStatusCode.Unauthorized)
+          return null;
+        throw;
+      }
+    }
+
+    /// <summary>
+    /// The backend's address for one channel's picture, or <c>null</c> when it named none - or named something
+    /// that is not on the backend.
+    /// </summary>
+    /// <remarks>
+    /// Only <c>icon_public_url</c> is read, and only as a path. The other field the backend answers,
+    /// <c>icon</c>, is often a URL somewhere else on the internet or a file on the backend's own disk, and while
+    /// the backend is allowed to serve that through its cache, a front end that fetched it itself would be
+    /// telling machines all over the internet which channels a household watches, from a box whose only job is to
+    /// play television. A path reaching outside the address it came with is refused for the same reason.
+    /// </remarks>
+    internal static string? LogoPathOf(JsonElement entry)
+    {
+      string said = (Text(entry, "icon_public_url") ?? "").Trim();
+      if (said.Length == 0)
+        return null;
+
+      if (said.Contains("://", StringComparison.Ordinal) || said.Contains('\\', StringComparison.Ordinal)
+          || said.StartsWith("//", StringComparison.Ordinal) || said.Contains("..", StringComparison.Ordinal))
+        return null;
+
+      if (!said.StartsWith("/", StringComparison.Ordinal))
+        said = "/" + said;
+
+      return said.Length > 1 ? said : null;
     }
 
     /// <summary>
@@ -1021,6 +1087,86 @@ namespace MediaPortal.Frontend.Api
       }
 
       return all;
+    }
+
+    /// <summary>
+    /// How big a picture this client reads. A channel's icon is a few kilobytes and the largest one any of these
+    /// backends carries is well under a megabyte; an answer past this is not an icon but something that went wrong
+    /// upstream, and a guide that stops answering the remote because it is drawing a two-megabyte poster has been
+    /// ruined by a picture nobody asked to be large.
+    /// </summary>
+    private const int MAX_LOGO_BYTES = 1024 * 1024;
+
+    /// <summary>
+    /// Asks one address and hands back the bytes it answered with, or <c>null</c> when the answer is not a picture
+    /// worth drawing. The failures of the road are turned into <see cref="TvBackendException"/> exactly as
+    /// <see cref="GetJsonAsync"/> does, because a machine that is not there is a fact the screens have to hear.
+    /// </summary>
+    private async Task<byte[]?> GetBytesAsync(string path, CancellationToken cancellation)
+    {
+      Uri? baseAddress = BaseUrl;
+      if (baseAddress == null)
+        throw new InvalidOperationException(NotConfiguredSays);
+
+      Uri url = new Uri(baseAddress, path);
+
+      HttpResponseMessage response;
+      try
+      {
+        using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url))
+        {
+          AddLogin(request);
+          response = await _http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellation)
+              .ConfigureAwait(false);
+        }
+      }
+      catch (TaskCanceledException ex) when (!cancellation.IsCancellationRequested)
+      {
+        throw new TvBackendException(url, string.Format(
+            "nobody answered at {0} within {1} seconds", url.Host, (int) _http.Timeout.TotalSeconds), ex);
+      }
+      catch (HttpRequestException ex)
+      {
+        throw new TvBackendException(url, string.Format("could not reach {0} ({1})", url.Host, ex.Message), ex);
+      }
+
+      using (response)
+      {
+        if (!response.IsSuccessStatusCode)
+        {
+          string body = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+          throw new TvBackendException(url, response.StatusCode, body);
+        }
+
+        // A backend asked for a picture sometimes answers with a page - a login form, or a "you may not look"
+        // note - and a page is not a picture no matter what its headers say.
+        string? kind = response.Content.Headers.ContentType?.MediaType;
+        if (kind != null && !kind.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
+          return null;
+
+        long? announced = response.Content.Headers.ContentLength;
+        if (announced.HasValue && announced.Value > MAX_LOGO_BYTES)
+          return null;
+
+        using (Stream incoming = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
+        using (MemoryStream into = new MemoryStream())
+        {
+          byte[] chunk = new byte[8192];
+          while (into.Length <= MAX_LOGO_BYTES)
+          {
+            int read = await incoming.ReadAsync(chunk, 0, chunk.Length, cancellation).ConfigureAwait(false);
+            if (read <= 0)
+              break;
+            into.Write(chunk, 0, read);
+          }
+
+          if (into.Length > MAX_LOGO_BYTES)
+            return null;
+
+          byte[] bytes = into.ToArray();
+          return bytes.Length == 0 ? null : bytes;
+        }
+      }
     }
 
     /// <summary>

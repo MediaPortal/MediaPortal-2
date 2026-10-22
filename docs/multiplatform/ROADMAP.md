@@ -3786,7 +3786,8 @@ bringing them across means answering them again in the front end, not adding ano
 | the player's geometry, audio renderer, codecs, skip steps | "Playback settings" holds the ones that mean something without DirectShow; the codec tables are DirectShow's own and stay behind |
 | news feeds and their interval, weather places and their API key | kept in `newsfeeds.json` and `weather.json` beside the front end; no screen edits them yet |
 | keys, buttons and remote actions | the front end's own keys, in its keyboard files, not a settings tree |
-| TV: EPG rows and hours, genre colours, channel logos, recording notices, MPExtended | not back yet with the rest of the TV layer |
+| TV: rows, hours, zap-on-press, auto-start, genre colours, channel list, channel logos, recording notices, the picture address and the timeshift numbers | asked in "TV settings", the client's own page (`### bs.`, plus the two additions in `### bu.` and `### bv.`); only what the reference left unset is written down, and the answers are obeyed by the guide, the live screen and the recording watcher |
+| TV: what the reference's television section asked of the *server* | nothing at all. `TvServerSettings` was empty apart from a comment saying the reference had no server-side television settings, and that is still true with the client branch in place |
 
 Open, stated as work rather than as a gap: three questions of the extractors' branch that "Metadata" does not
 offer yet - `OnlyLocalMedia` on the film extractor and on the series extractor, which is what the reference's
@@ -4257,15 +4258,16 @@ Where each answer is obeyed is the part that matters, and it is the part a setti
 - **`auto_start_tv`** tunes the channel a watching screen is standing on when it opens with nothing on it, which is
   what `SlimTvClientModel.cs:553-565` did on entering its television home.
 
-Six things the reference asked about are deliberately not asked here. `EpgShowChannelLogos`, `ChannelLogoStyle` and
-`ChannelLogoAutoUpdate` are three of them: this client has never read a picture for a channel out of a backend - there
-is no logo in `Api/` at all - so a switch would be a promise with nothing behind it, and the hundred and sixty pixels
-the reference's header allowed a logo are simply not reserved. `ShowRecordingStartedNotifications`,
-`ShowRecordingEndedNotifications` and `RecordingNotificationDuration` are three more, and were already stated as
-deferred in part bo: nothing yet watches the backend's timers while a viewer is somewhere else. The eighth is
+Three things the reference asked about are deliberately not asked here. `ChannelLogoStyle` and `ChannelLogoAutoUpdate`
+are two of them: the reference kept a picture collection of its own, downloaded a theme of it from a logo site
+(`SlimTvLogoSettings.cs`: `RepositoryUrl = http://logomanager.team-mediaportal.com/`, `LogoTheme = "Flat-default"`,
+`EnableAutoUpdate`, `UpdateJobId`) and matched a channel to a picture by name. A TVHeadend answers every channel with
+the address of the icon it already has, so a second source of pictures would be a second machine to trust, to keep up
+to date, and to be connected to while watching television, for an answer the backend already gives. What is left
+behind is a theme chooser and an update job; `EpgShowChannelLogos` itself is asked, since part bu. The third is
 `EpgVisibleChannelInfo`, which the reference asked as one multiple-choice list of name, number and logo; a remote has
-no way of holding a list down, so the two that exist here are two switches. The per-genre colour pickers stay in the
-skin, which is where the eight colours already are.
+no way of holding a list down, so the three that exist here are three switches. The per-genre colour pickers stay in
+the skin, which is where the eight colours already are.
 
 Three answers differ from the reference on purpose, and each is a known difference rather than a drift.
 `EpgVisibleHours` defaults to three here and two there - the reference measured seventy-five columns and this guide
@@ -4470,6 +4472,136 @@ Home stop at the ends. One headless test sends the keys themselves to the grid c
 the arrangement: the arrows the guide has use for are taken and reach the model, and a key it has none for is left
 on its way. The guide's test helpers can now be asked for a screen height, since what a grid does with a bouquet
 taller than the screen is half of what a grid is for.
+
+### bu. The picture a channel is known by: what `icon_public_url` is, and where the header makes room for it
+
+Reference: `Settings/SlimTvClientSettings.cs:56-59` (`EpgShowChannelLogos`, on by default),
+`Models/SlimTvSettingsModel.cs:99-108` and `:384` (the same answer handed to the skin as `ShowChannelLogos`),
+`Skin/Nereus/screens/SlimTvClient-fullguide.xaml:22-31` (the header's width as a sum of the three switches),
+`Skin/Nereus/themes/default/styles/SlimTvStyles.xaml:1432-1478` (the picture, the name beside it and the name that
+stands in for a picture that is missing), `Settings/Configuration/EpgVisibleChannelInfoSetting.cs:47,57`,
+`Settings/Configuration/ChannelLogoStyle.cs`, `Settings/Configuration/ChannelLogoAutoUpdate.cs` and
+`SlimTvInterfaces/Settings/SlimTvLogoSettings.cs`; on TVHeadend's side, `src/api/imagecache.c` and the public-location
+building in `src/api/channels.c`.
+
+Asked, in the second pass over the television settings, whether the guide should show the picture a channel is known
+by. Four things had to be built before that question could be asked honestly, because until then there was no picture
+anywhere in `Api/`:
+
+- **`TvChannel.LogoPath`** is the address of the icon, and it is read only from `icon_public_url`. TVHeadend answers
+  channels with two fields: `icon` is the internal id of the icon, which is only useful together with the id of the
+  service it belongs to - TVHeadend builds the public location by looking that service up - and `icon_public_url` is
+  the finished location. Reading the wrong one fails silently: a request for a picture under an id nobody knows
+  answers with nothing.
+- **`TvHeadendApiClient.GetChannelLogoAsync`** answers the bytes, or `null` for "this channel has no picture". A
+  channel without an address asks nobody; a 404, a 401, a 403, an answer that is not a picture at all and an answer
+  bigger than a megabyte are all "no picture" and are remembered as such. A machine that cannot be reached is *not*
+  an answer - it throws, so a power cut is never remembered as "this station has no picture".
+- **`Caching/ChannelLogos`** is the front end's one façade over the existing `Artwork`/`PictureCache`, under its own
+  shelf kind so that a channel icon is never mistaken for a film's poster and never thrown away when a video opens.
+  Like `NewsPictures` it asks `TvBackendSettings` for the address afresh every time and rebuilds its client when the
+  address changes, so an image cache on another machine is not a reason to restart.
+- **The header's column.** The reference's guide column was a sum of the three switches
+  (`SlimTvClient-fullguide.xaml:24`: `(ShowChannelNumbers ? 90 : 0) + (ShowChannelLogos ? 160 : 0) +
+  (ShowChannelNames ? 200 : 0)`), and `TvGuideView.axaml.cs` kept those three numbers exactly. Where it differs is
+  *when* the picture's part of the sum is paid for: the reference asked the setting, this screen asks the page, so a
+  guide whose stations name no icon gives the room to programmes instead of drawing a hundred and sixty pixels of
+  nothing beside every row.
+
+Where a picture is fetched, what it does, and what it does not do:
+
+- The guide asks for a page's pictures when it fills the page, and only after it has peeked in the shelf - a picture
+  already held is placed with the page, not a moment later. `PictureCache` already keeps four loads moving at once
+  and remembers the last two hundred pictures, so nothing new was needed for "not one request per row"; a station
+  shared by several bouquets names the same address and is asked for once.
+- A picture arrives into a row that is already drawn: `LogoReady` names the channel and the refills that row's cell,
+  exactly as the view already handles lanes arriving late.
+- **A row whose picture is not there says its name where the picture would stand**, and keeps the place beside it
+  empty - the reference's arrangement down to the two labels: an image, a `ChannelLogoFallbackLabel` in the same
+  column, and a name whose own visibility asks the image whether it has anything to show
+  (`SlimTvStyles.xaml:1432-1478`). The reference let the standing-in name have the picture's own width when a name
+  was asked for as well, and the whole column when it was not; so does this screen.
+- **The picture is drawn at its own size.** The reference gave its image a box of a hundred and forty pixels inside
+  the column and `Stretch="Uniform"`, which scales a picture *up* to fill the box; here the picture is decoded at
+  twice the column's width and drawn one to one, so a provider's larger icon keeps its crispness while a small icon
+  is not blown up into a blur. TVHeadend's own image cache hands out the icons a station has, and those are small.
+- **The reference's pictures were not the backend's pictures.** Its image asked the FanArt store for a *banner*
+  named after the channel (`SlimTvStyles.xaml:1434`: `FanArtType="Banner"`, `FanArtName="{Binding ChannelLogoPath}"`,
+  with the type from `channel.GetFanArtMediaType()` at `Helpers/ProgramProperties.cs:298`), which is why the same
+  settings section also carried a logo site, a theme and an update job (`SlimTvLogoSettings.cs`:
+  `RepositoryUrl = http://logomanager.team-mediaportal.com/`, `LogoTheme`, `EnableAutoUpdate`). This client asks the
+  TV machine for the icon it already keeps instead, which is one machine to trust rather than two and needs no
+  matching of names - and it is why `ChannelLogoStyle` and `ChannelLogoAutoUpdate` were left behind, theme chooser
+  and update job with them. `EpgShowChannelLogos` is the whole question here.
+- The demo backend serves real pictures now - a 64 by 64 bitmap it builds itself per channel index, in eight colours -
+  and gives every fourth channel no address at all, so both halves of the setting and the standing-in name can be
+  seen without a TVHeadend. `HasLogo` is the guide's question, and its answer differs per station, which is what a
+  fixture needs.
+
+Tested by `TestTvChannelLogos`. A machine that is not there is proven to be no answer, three names for the same
+address are proven to be one request, an HTML answer is proven to be "no picture" rather than a broken picture, the
+header is proven to keep its hundred and sixty pixels only for a page that wants them, and a row whose station has
+no picture is proven to say its name once - in the picture's place, and not twice.
+
+### bv. A word when a recording starts or stops: the one watcher that has to run while the viewer is elsewhere
+
+Reference: `Notifications/SlimTvNotificationService.cs:97-102`, `:105-118`, `:120-146` and `:155-166`,
+`Models/SlimTvNotificationModel.cs:65-69`, `Notifications/SlimTvRecordingNotification.cs:61-95`,
+`Skin/default/superlayers/RecordingStartedNotification.xaml`,
+`Skin/default/screens/SlimTvClient-notification_recording.xaml:43-76`, `Language/strings_en.xml:131-137` and
+`:172-173`, and `Settings/SlimTvClientSettings.cs:106-121`.
+
+`ShowRecordingStartedNotifications`, `ShowRecordingEndedNotifications` and `RecordingNotificationDuration` were
+promised in the settings and deferred in part bo because nothing watched the timers. This part is that watcher - the
+only piece of the television layer that has to keep working while the viewer is nowhere near a television screen.
+
+- **`ViewModels/TvRecordingWatcher`** asks the backend for its upcoming timers every thirty seconds and compares the
+  ones the backend says are recording now with what it saw the last time; the reference compared the same two lists,
+  by the timer's id (`:155-166`: whatever is in the new state and was not in the old one started, whatever is in the
+  old one and not in the new one ended). The watcher lives in the front end's composition root, is started when the
+  window exists and is disposed when the application exits; no screen owns it and no screen can stop it.
+- **It is asked, rather than told - and that is the one structural difference.** The reference was pushed to: MP2's
+  television client watched `ServerStateMessaging` for a new `TvServerState` and diffed the old state against the new
+  one the moment one arrived (`:74-90`). Nothing behind TVHeadend's HTTP interface pushes to a client, so somebody
+  has to ask, and the asking is what a `LOOK_SECONDS` of thirty stands for. Half a minute is a choice rather than a
+  fifth question: no viewer notices the difference either way, and a question nobody can answer from a sofa is a bad
+  question.
+- **The first look never speaks.** It remembers what is already running and reports nothing, which is the reference's
+  rule in its own words - its first act was to read the current state so as to *"avoid showing notifications for
+  events that happened before the client was started"* (`:105-118`). A box that restarts should not claim to have
+  just started six recordings. The marker for "something is being recorded" does light on the first look.
+- **One sentence at a time, gone after a while.** `ShowNotification` handed the notification to a single model
+  property and opened a super layer with the duration (`SlimTvNotificationModel.cs:65-69`), so a second recording's
+  news replaced the first rather than queueing behind it. `RecordingNotificationDuration` is seconds there
+  (`Settings/SlimTvClientSettings.cs:118-121`, five of them by default) and seconds here, and the reference's guard -
+  nothing at all is shown when the duration is below one or both switches are off (`:126-128`) - is this watcher's
+  guard too.
+- **What the sentence says.** The reference's was a panel: a header taken from `SlimTvClient.RecordingStartedHeader`
+  or `SlimTvClient.RecordingEndedHeader` - "Recording started" and "Recording ended"
+  (`Language/strings_en.xml:172-173`) - over the programme name, the channel name and the timer's start and end, with
+  the channel's own picture beside it (`SlimTvClient-notification_recording.xaml:43-76`). A bar along the top of every
+  screen has room for one line, so this front end keeps the header and the two names that matter, "Recording started:
+  {programme} on {channel}", and leaves the times out.
+- **A machine that goes silent is not a pile of recordings that ended.** The reference never had to make the
+  distinction, because a state that never arrived was never diffed; here a look can fail halfway, and a failed look
+  leaves the remembered set alone rather than reporting everything on it as finished. A TVHeadend that is restarting
+  has not stopped anybody's recording.
+- The watcher re-reads its two switches and its duration *every* look, as the reference re-read them at every change
+  (`:123-125`), so the settings page takes effect without anybody being told; and while notifications are switched off
+  it keeps comparing, because otherwise switching them back on would report everything that had meanwhile started.
+- The bar itself is the skin's: `chrome.xaml` of both Nereus and WMC gained a notice area, and the Nereus header
+  comment claiming that nothing of the server's business belonged there was rewritten - the reference did carry
+  exactly such a bar, `Nereus/screens/NotificationsBar.inc`, which said what the importer was doing at the library,
+  said a sentence the moment a recording started or ended, and stood a mark up the whole time a recording ran
+  (`:39`: a button visible while the television state reports `IsRecording`). This front end has one header above
+  every screen rather than a bar inside each of them, so all three are said there instead.
+- **`ChromeInfo` owns no timers**: the watcher holds the one that withdraws the sentence and merely reports an empty
+  one, so a test can be told "a look found a start" and "the sentence was withdrawn" without waiting for anything.
+
+Tested by `TestTvRecordingNotices`, which hands the watcher its own "wake": the look of a test runs when the test says
+so, so nothing in the fixture waits thirty seconds for a timer to fire. It pins the silence of the first look, the
+silence of both switches and of a duration below one, the marker's independence from all three, the wording, the
+withdrawal, and the fact that a backend which merely went silent is not reported as a pile of finished recordings.
 
 ## What cannot be verified without the user
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library

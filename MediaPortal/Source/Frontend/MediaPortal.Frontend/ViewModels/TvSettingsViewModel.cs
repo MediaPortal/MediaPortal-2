@@ -33,14 +33,18 @@ namespace MediaPortal.Frontend.ViewModels
     private string _visibleHours = "";
     private string _visibleRows = "";
     private string _zapTimeout = "";
+    private string _recordingNoticeSeconds = "";
     private bool _showChannelNames = true;
     private bool _showChannelNumbers = true;
+    private bool _showChannelLogos = true;
     private bool _showGenreColors = true;
     private bool _showSeriesInfo = true;
     private bool _hideAllChannelsGroup;
     private bool _zapFromGuide = true;
     private bool _zapByChannelIndex = true;
     private bool _autoStartTV;
+    private bool _showRecordingStarted = true;
+    private bool _showRecordingEnded = true;
     private bool _demoData;
     private string _status = "";
     private bool _checking;
@@ -167,6 +171,48 @@ namespace MediaPortal.Frontend.ViewModels
     {
       get { return _showChannelNumbers; }
       set { _showChannelNumbers = value; Raise(); }
+    }
+
+    /// <summary>
+    /// Whether a channel's own picture is drawn beside its row, out of the pictures its TV machine keeps. The
+    /// reference's <c>EpgShowChannelLogos</c>; what it does not mean here is a collection of pictures of its own,
+    /// because a TVHeadend already has the ones it has.
+    /// </summary>
+    public bool ShowChannelLogos
+    {
+      get { return _showChannelLogos; }
+      set { _showChannelLogos = value; Raise(); }
+    }
+
+    /// <summary>
+    /// Whether the corner of the screen says so when a recording begins. The reference's
+    /// <c>ShowRecordingStartedNotifications</c>.
+    /// </summary>
+    public bool ShowRecordingStartedNotifications
+    {
+      get { return _showRecordingStarted; }
+      set { _showRecordingStarted = value; Raise(); }
+    }
+
+    /// <summary>
+    /// Whether the corner of the screen says so when a recording is through. The reference's
+    /// <c>ShowRecordingEndedNotifications</c>.
+    /// </summary>
+    public bool ShowRecordingEndedNotifications
+    {
+      get { return _showRecordingEnded; }
+      set { _showRecordingEnded = value; Raise(); }
+    }
+
+    /// <summary>
+    /// How long such a sentence stands on the screen, as typed. The reference's
+    /// <c>RecordingNotificationDuration</c>, which it counted in seconds and switched off below one; a recording
+    /// that is not going to be mentioned is a recording the mark in the header still says something about.
+    /// </summary>
+    public string RecordingNoticeSeconds
+    {
+      get { return _recordingNoticeSeconds; }
+      set { _recordingNoticeSeconds = value ?? ""; Raise(); }
     }
 
     /// <summary>
@@ -316,6 +362,24 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
+    /// How long a recording sentence was typed to stand, with the nonsense taken out. A number past a minute is
+    /// taken as nobody meaning it, exactly as the reference refused to draw one for over five seconds - a sentence
+    /// about a recording is not a poster.
+    /// </summary>
+    public double NoticeSecondsToShow
+    {
+      get
+      {
+        TvBackendSettings probe = new TvBackendSettings();
+        double seconds;
+        if (double.TryParse(AsNumber(_recordingNoticeSeconds), System.Globalization.NumberStyles.Float,
+            System.Globalization.CultureInfo.InvariantCulture, out seconds))
+          probe.RecordingNotificationSeconds = seconds;
+        return probe.RecordingNotificationSecondsOr;
+      }
+    }
+
+    /// <summary>
     /// What somebody typed in a number box, made into something a number can be read out of: the spaces taken off,
     /// and a comma let through as the nought-point it means, because the keyboard on this screen is the one on the
     /// remote in front of the television and a German household types 2,5 into a box that wants 2.5.
@@ -345,14 +409,18 @@ namespace MediaPortal.Frontend.ViewModels
       _visibleHours = Words(_settings.VisibleHoursOr);
       _visibleRows = _settings.VisibleRowsOr.ToString(System.Globalization.CultureInfo.InvariantCulture);
       _zapTimeout = Words(_settings.ZapTimeoutSecondsOr);
+      _recordingNoticeSeconds = Words(_settings.RecordingNotificationSecondsOr);
       _showChannelNames = _settings.ShowChannelNames;
       _showChannelNumbers = _settings.ShowChannelNumbers;
+      _showChannelLogos = _settings.ShowChannelLogos;
       _showGenreColors = _settings.ShowGenreColors;
       _showSeriesInfo = _settings.ShowSeriesInfo;
       _hideAllChannelsGroup = _settings.HideAllChannelsGroup;
       _zapFromGuide = _settings.ZapFromGuide;
       _zapByChannelIndex = _settings.ZapByChannelIndex;
       _autoStartTV = _settings.AutoStartTV;
+      _showRecordingStarted = _settings.ShowRecordingStartedNotifications;
+      _showRecordingEnded = _settings.ShowRecordingEndedNotifications;
       _demoData = _settings.DemoData;
       if (!string.IsNullOrWhiteSpace(problem))
         Status = problem;
@@ -380,14 +448,18 @@ namespace MediaPortal.Frontend.ViewModels
       typed.VisibleHours = HoursToShow;
       typed.VisibleRows = RowsToShow;
       typed.ZapTimeoutSeconds = ZapSecondsToShow;
+      typed.RecordingNotificationSeconds = NoticeSecondsToShow;
       typed.ShowChannelNames = _showChannelNames;
       typed.ShowChannelNumbers = _showChannelNumbers;
+      typed.ShowChannelLogos = _showChannelLogos;
       typed.ShowGenreColors = _showGenreColors;
       typed.ShowSeriesInfo = _showSeriesInfo;
       typed.HideAllChannelsGroup = _hideAllChannelsGroup;
       typed.ZapFromGuide = _zapFromGuide;
       typed.ZapByChannelIndex = _zapByChannelIndex;
       typed.AutoStartTV = _autoStartTV;
+      typed.ShowRecordingStartedNotifications = _showRecordingStarted;
+      typed.ShowRecordingEndedNotifications = _showRecordingEnded;
       typed.DemoData = _demoData;
       return typed;
     }

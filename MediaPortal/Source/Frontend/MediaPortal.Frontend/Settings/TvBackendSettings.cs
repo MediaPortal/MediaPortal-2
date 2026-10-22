@@ -61,15 +61,27 @@ namespace MediaPortal.Frontend.Settings
   /// and every TV screen says exactly that instead of failing.
   /// </para>
   /// <para>
-  /// The reference kept thirteen switches and numbers of its own in <c>SlimTvClientSettings</c>. Eleven are here:
-  /// the guide's window and its number of rows, which of a channel's two names are written at the head of a row,
-  /// whether a programme is coloured by its genre and carries its episode line, whether the "All Channels"
-  /// bouquet is hidden, and the three zapping answers plus the automatic start. The days of guide were ported
-  /// earlier and are <see cref="GuideDays"/>. Three are deliberately not here: the recording notifications and
-  /// their duration, because this front end has nothing that could announce a recording to a viewer who is doing
-  /// something else, and a switch that announces nothing would be a lie; and the channel logo, because this client
-  /// has never read a picture for a channel from a backend, so there is nothing for a switch to turn on. The
-  /// per-genre colours the reference lets a viewer pick are the skin's business here and are in
+  /// The reference kept thirteen switches and numbers of its own in <c>SlimTvClientSettings</c>, and twelve of them
+  /// are here: the guide's window and its number of rows, which of a channel's two names are written at the head of
+  /// a row and whether its picture is written there too, whether a programme is coloured by its genre and carries
+  /// its episode line, whether the "All Channels" bouquet is hidden, the three zapping answers, the automatic
+  /// start, and the recording notices with how long they stay. The days of guide were ported earlier and are
+  /// <see cref="GuideDays"/>.
+  /// </para>
+  /// <para>
+  /// Two answers about channel pictures are deliberately not here, and both are the TV server's business rather
+  /// than the guide's. <c>ChannelLogoStyle</c> picked which of the MP TV server's logo <i>themes</i> to wear - the
+  /// server kept packs of pictures fetched from <c>logomanager.team-mediaportal.com</c> and a channel's logo was a
+  /// file in whichever pack was chosen (<c>SlimTvInterfaces/Settings/SlimTvLogoSettings.cs</c>:
+  /// <c>RepositoryUrl</c>, <c>LogoTheme</c>). A TVHeadend keeps one picture per channel and no packs at all, so
+  /// there is no theme to choose and the switch would offer a list with one entry in it.
+  /// <c>ChannelLogoAutoUpdate</c> was that same server's job to re-download the pack from the repository
+  /// (<c>EnableAutoUpdate</c>, with <c>UpdateJobId</c>); here the backend caches and re-reads its own icons by
+  /// itself, and this front end remembers what it fetched the way it remembers every other picture
+  /// (<c>PictureCache</c>), so there is nothing left for the switch to decide.
+  /// </para>
+  /// <para>
+  /// The per-genre colours the reference lets a viewer pick are the skin's business here and are in
   /// <c>TvGenreColors</c>, not in a file a viewer edits over ssh.
   /// </para>
   /// <para>
@@ -115,6 +127,19 @@ namespace MediaPortal.Frontend.Settings
     /// reference's <c>ZapTimeout</c> and its two seconds.
     /// </summary>
     public const double DEFAULT_ZAP_TIMEOUT_SECONDS = 2;
+
+    /// <summary>
+    /// How long a recording notice stays on the screen, the reference's <c>RecordingNotificationDuration</c> and
+    /// its five seconds (<c>Settings/SlimTvClientSettings.cs:120</c>).
+    /// </summary>
+    public const double DEFAULT_RECORDING_NOTIFICATION_SECONDS = 5;
+
+    /// <summary>
+    /// The longest a notice is allowed to sit on top of whatever the viewer is doing, which is a minute: the
+    /// reference's own configuration box offered seconds, and a notice that outstays a programme being picked is
+    /// no longer a notice.
+    /// </summary>
+    public const double MAX_RECORDING_NOTIFICATION_SECONDS = 60;
 
     /// <summary>The window the guide will not draw past, in hours. Beyond it the hour labels overlap.</summary>
     public const double MAX_VISIBLE_HOURS = 12;
@@ -197,6 +222,27 @@ namespace MediaPortal.Frontend.Settings
     /// <summary>Whether a channel's number stands at the head of its row, before its name.</summary>
     [JsonPropertyName("show_channel_numbers")]
     public bool ShowChannelNumbers { get; set; } = true;
+
+    /// <summary>
+    /// Whether a channel's own picture stands at the head of its row, which is the reference's
+    /// <c>EpgShowChannelLogos</c> and on by default there too (<c>SlimTvClientSettings.cs:58</c>).
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The reference's picture came out of a logo pack its TV server kept; here it is the picture the backend has
+    /// for the channel - TVHeadend's own icon cache, addressed by the channel's <c>icon_public_url</c> - which a
+    /// channel only has when somebody pointed the backend at one.
+    /// </para>
+    /// <para>
+    /// The room is reserved as the reference reserved it: its Nereus header gave a picture a hundred and sixty
+    /// pixels of the row's head (<c>Skin/Nereus/screens/SlimTvClient-fullguide.xaml:22-30</c>). It reserves them
+    /// only for a grid that has pictures to put in them, though, because a guide whose every row starts with a
+    /// hundred and sixty pixels of nothing looks broken rather than sparing, and a household whose backend carries
+    /// no icons would see that on every channel they own.
+    /// </para>
+    /// </remarks>
+    [JsonPropertyName("show_channel_logos")]
+    public bool ShowChannelLogos { get; set; } = true;
 
     /// <summary>
     /// Whether a programme is coloured by what it is. The reference's own default was off, because its skin drew a
@@ -282,6 +328,42 @@ namespace MediaPortal.Frontend.Settings
     public bool AutoStartTV { get; set; }
 
     /// <summary>
+    /// Whether the viewer is told when a recording starts. The reference's
+    /// <c>ShowRecordingStartedNotifications</c>, on by default
+    /// (<c>Settings/SlimTvClientSettings.cs:108</c>), and said on the screen by its notification service
+    /// (<c>Notifications/SlimTvNotificationService.cs</c>), which watched the backend's state and compared one
+    /// state against the next.
+    /// </summary>
+    [JsonPropertyName("show_recording_started_notifications")]
+    public bool ShowRecordingStartedNotifications { get; set; } = true;
+
+    /// <summary>Whether the viewer is told when a recording has finished, the reference's other half.</summary>
+    [JsonPropertyName("show_recording_ended_notifications")]
+    public bool ShowRecordingEndedNotifications { get; set; } = true;
+
+    /// <summary>
+    /// How many seconds those notices stay up. The reference's <c>RecordingNotificationDuration</c> of five
+    /// seconds, and its rule that anything under a second means no notice at all - the reference read it exactly
+    /// that way (<c>SlimTvNotificationService.cs</c>: "if (settings.RecordingNotificationDuration &lt; 1 ... )
+    /// return;"), which is kept here as <see cref="RecordingNotificationSecondsOr"/>.
+    /// </summary>
+    [JsonPropertyName("recording_notification_seconds")]
+    public double RecordingNotificationSeconds { get; set; } = DEFAULT_RECORDING_NOTIFICATION_SECONDS;
+
+    /// <summary>
+    /// Whether a recording notice is wanted at all: either of the two switches left on and a length of at least a
+    /// second, which is the reference's own condition for showing one.
+    /// </summary>
+    public bool WantsRecordingNotices
+    {
+      get
+      {
+        return RecordingNotificationSecondsOr >= 1
+            && (ShowRecordingStartedNotifications || ShowRecordingEndedNotifications);
+      }
+    }
+
+    /// <summary>
     /// Whether the television comes from an address at all, or from channels and programmes this front end
     /// invents. Off is the ordinary state and the one a household wants; on, every television screen is filled
     /// with the demo bouquet described on <c>DemoTvBackend</c>, which is what a box with no TV backend yet - or a
@@ -332,6 +414,27 @@ namespace MediaPortal.Frontend.Settings
           return DEFAULT_ZAP_TIMEOUT_SECONDS;
         if (seconds < 0.5 || seconds > 30)
           return DEFAULT_ZAP_TIMEOUT_SECONDS;
+        return seconds;
+      }
+    }
+
+    /// <summary>
+    /// How long a recording notice stays up, with the nonsense taken out. Unlike the two numbers above, a length of
+    /// nought is an answer rather than nonsense: it is how the reference turned notices off from the keyboard
+    /// without touching the two switches, and <see cref="WantsRecordingNotices"/> honours it. Anything the length of
+    /// more than a minute, and anything that is not a number, is a mistake, and the default is what a mistake gets.
+    /// </summary>
+    public double RecordingNotificationSecondsOr
+    {
+      get
+      {
+        double seconds = RecordingNotificationSeconds;
+        if (double.IsNaN(seconds) || double.IsInfinity(seconds))
+          return DEFAULT_RECORDING_NOTIFICATION_SECONDS;
+        if (seconds < 0)
+          return 0;
+        if (seconds > MAX_RECORDING_NOTIFICATION_SECONDS)
+          return DEFAULT_RECORDING_NOTIFICATION_SECONDS;
         return seconds;
       }
     }
@@ -437,6 +540,7 @@ namespace MediaPortal.Frontend.Settings
         read.VisibleHours = read.VisibleHoursOr;
         read.VisibleRows = read.VisibleRowsOr;
         read.ZapTimeoutSeconds = read.ZapTimeoutSecondsOr;
+        read.RecordingNotificationSeconds = read.RecordingNotificationSecondsOr;
         read.Host ??= "";
         read.Username ??= "";
         read.Password ??= "";

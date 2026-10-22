@@ -58,6 +58,31 @@ namespace MediaPortal.Frontend
     private PartyViewModel? _party;
 
     /// <summary>
+    /// The channel pictures, asked for once for this run and shared by every guide afterwards. Shared because the
+    /// pictures of the same channels are wanted by the television guide, the radio guide and the channel lists, and
+    /// a machine that is asked for the same icon three times is a machine that was asked twice too often.
+    /// </summary>
+    private Caching.ChannelLogos? _logos;
+
+    /// <summary>
+    /// The thing that watches the TV machine for recordings starting and ending. Lives as long as the window does,
+    /// because a notice about a recording is only any good if the front end was awake when the recording happened.
+    /// </summary>
+    private ViewModels.TvRecordingWatcher? _recordings;
+
+    /// <summary>
+    /// The channel pictures a guide is to be built over, on the shelf this front end keeps its pictures on - which
+    /// is the media settings' answer, and no shelf at all on a box whose viewer switched the remembering off.
+    /// </summary>
+    private Caching.ChannelLogos ChannelPictures()
+    {
+      if (_logos == null)
+        _logos = new Caching.ChannelLogos(null, null, _home.Pictures);
+
+      return _logos;
+    }
+
+    /// <summary>
     /// The tuners that are on the screen, the television and the radio each with their own. They are kept here so
     /// that the half somebody did not just touch can be told to step aside when the other one takes the picture:
     /// the reference owned two players and stopped one to start the other
@@ -362,6 +387,27 @@ namespace MediaPortal.Frontend
         };
 
         desktop.MainWindow = _shell;
+
+        // What the television machine does about recordings is said in the same header, from every screen: the
+        // reference kept its "Recording started" and its recording mark in the master's notification bar, not behind
+        // a television screen that has to be opened first. The watcher starts here rather than when a guide is
+        // opened, because a recording that begins while nobody is looking at a guide is precisely the one a notice
+        // is for; it asks the backend what it is recording and says whatever changed since it last asked.
+        _recordings = new ViewModels.TvRecordingWatcher(marshal: action => Dispatcher.UIThread.Post(action));
+        _recordings.NoticeChanged += delegate (string? notice)
+        {
+          _shell?.Chrome.ReportRecordingNotice(notice);
+        };
+        _recordings.RecordingChanged += delegate (bool recording)
+        {
+          _shell?.Chrome.ReportRecording(recording);
+        };
+        _recordings.Start();
+        desktop.Exit += delegate
+        {
+          _recordings.Dispose();
+          _recordings = null;
+        };
 
         // The worn skin's own step and click sounds, heard through the one window every screen lives in.
         Theming.SkinSounds.Attach(_shell);
@@ -1207,7 +1253,8 @@ namespace MediaPortal.Frontend
         TvMediaType kind = screenKey.Equals("radio", StringComparison.OrdinalIgnoreCase)
             ? TvMediaType.Radio
             : TvMediaType.Television;
-        TvGuideViewModel guide = new TvGuideViewModel(kind, null, null, Views.ScreenThread.Run);
+        TvGuideViewModel guide = new TvGuideViewModel(kind, null, null, Views.ScreenThread.Run,
+            ChannelPictures());
         guide.WatchRequested += delegate (TvChannel channel) { WatchChannel(kind, channel); };
         _ = guide.ReloadAsync();
         return new Workflow.WorkflowFrame(kind == TvMediaType.Radio ? "radioguide" : "tvguide",

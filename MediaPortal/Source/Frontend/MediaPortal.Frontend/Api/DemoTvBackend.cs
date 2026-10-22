@@ -820,12 +820,113 @@ namespace MediaPortal.Frontend.Api
         string path = url.AbsolutePath;
         string query = url.Query;
 
+        // A channel's picture is the one answer here that is not JSON, because a picture is not JSON.
+        if (path.Contains("/imagecache/", StringComparison.Ordinal))
+        {
+          return new HttpResponseMessage(HttpStatusCode.OK)
+          {
+            RequestMessage = request,
+            Content = new ByteArrayContent(LogoBytes(LogoIndexOf(path)))
+            {
+              Headers = { ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/bmp") }
+            }
+          };
+        }
+
         string body = BodyFor(path, query);
         return new HttpResponseMessage(HttpStatusCode.OK)
         {
           RequestMessage = request,
           Content = new StringContent(body, Encoding.UTF8, "application/json")
         };
+      }
+
+      /// <summary>Which invented picture one icon address is asking for.</summary>
+      private static int LogoIndexOf(string path)
+      {
+        int at = path.LastIndexOf('/');
+        string said = at >= 0 ? path.Substring(at + 1) : path;
+        int.TryParse(said, NumberStyles.Integer, CultureInfo.InvariantCulture, out int which);
+        return which;
+      }
+
+      /// <summary>
+      /// The colours the invented pictures are drawn in. Eight, chosen to be told apart at the size a guide row
+      /// shows them, and none of them the grey the guide itself is made of.
+      /// </summary>
+      private static readonly int[,] LOGO_COLOURS =
+      {
+        { 0x2E, 0x6F, 0xB0 }, { 0xB0, 0x4A, 0x3A }, { 0x3F, 0x8F, 0x5F }, { 0x8A, 0x63, 0xA8 },
+        { 0xC1, 0x8A, 0x2E }, { 0x37, 0x9D, 0xA8 }, { 0xA8, 0x5A, 0x7B }, { 0x6B, 0x7A, 0x8C }
+      };
+
+      /// <summary>
+      /// One invented channel picture, as the bytes of a bitmap: a square of one of the palette's colours, a
+      /// lighter wedge across it so that it is visibly a picture rather than a block of paint, and a dark edge so
+      /// that its own size can be seen on a dark screen.
+      /// </summary>
+      /// <remarks>
+      /// A bitmap rather than the common PNG because a bitmap needs no compression to be written: the demo is a
+      /// backend, and a backend that pulled in an imaging library to make up the logos it invented would be
+      /// carrying a dependency for nobody's television. Twenty-four-bit BMP is the one picture format whose whole
+      /// file is arithmetic - two headers and the pixels, bottom row first, each line padded to four bytes.
+      /// </remarks>
+      private static byte[] LogoBytes(int which)
+      {
+        const int SIDE = 64;
+        const int BYTES = 54 + SIDE * SIDE * 3;
+        int colour = which < 0 ? 0 : which % LOGO_COLOURS.GetLength(0) ;
+
+        byte[] file = new byte[BYTES];
+        file[0] = (byte) 'B';
+        file[1] = (byte) 'M';
+        WriteInt(file, 2, BYTES);
+        WriteInt(file, 10, 54);
+        WriteInt(file, 14, 40);
+        WriteInt(file, 18, SIDE);
+        WriteInt(file, 22, SIDE);
+        file[26] = 1;
+        file[28] = 24;
+        WriteInt(file, 34, SIDE * SIDE * 3);
+
+        int red = LOGO_COLOURS[colour, 0];
+        int green = LOGO_COLOURS[colour, 1];
+        int blue = LOGO_COLOURS[colour, 2];
+
+        for (int y = 0; y < SIDE; y++)
+        {
+          for (int x = 0; x < SIDE; x++)
+          {
+            // The wedge is the part a viewer reads as a picture; the edge is where the picture ends.
+            bool edge = x < 3 || y < 3 || x >= SIDE - 3 || y >= SIDE - 3;
+            bool wedge = (x + y) % 24 < 12;
+
+            int r = edge ? 24 : (wedge ? Light(red) : red);
+            int g = edge ? 24 : (wedge ? Light(green) : green);
+            int b = edge ? 24 : (wedge ? Light(blue) : blue);
+
+            // Bottom row first, and blue-green-red, which is what a bitmap is rather than what is convenient.
+            int at = 54 + (SIDE - 1 - y) * SIDE * 3 + x * 3;
+            file[at] = (byte) b;
+            file[at + 1] = (byte) g;
+            file[at + 2] = (byte) r;
+          }
+        }
+
+        return file;
+      }
+
+      private static int Light(int part)
+      {
+        return 255 - (255 - part) / 3;
+      }
+
+      private static void WriteInt(byte[] into, int at, int value)
+      {
+        into[at] = (byte) (value & 0xFF);
+        into[at + 1] = (byte) ((value >> 8) & 0xFF);
+        into[at + 2] = (byte) ((value >> 16) & 0xFF);
+        into[at + 3] = (byte) ((value >> 24) & 0xFF);
       }
 
       /// <summary>The answer to one address. Every question the client asks has one; everything else is empty.</summary>
@@ -906,7 +1007,19 @@ namespace MediaPortal.Frontend.Api
             body.Append('"').Append(channel.Tags[t]).Append('"');
           }
 
-          body.Append("],\"services\":[\"").Append(channel.ServiceId).Append("\"]}");
+          body.Append("],\"services\":[\"").Append(channel.ServiceId).Append("\"]");
+
+          // Most of the invented channels carry a picture and a couple do not, because a guide that only ever met
+          // channels with icons has never had to draw a row without one, and the household whose real backend
+          // carries no icons at all is the commoner case of the two.
+          if (i % 5 != 3)
+          {
+            body.Append(",\"icon_public_url\":\"/imagecache/")
+                .Append(i.ToString(CultureInfo.InvariantCulture))
+                .Append('"');
+          }
+
+          body.Append('}');
         }
 
         return body.Append("]}").ToString();

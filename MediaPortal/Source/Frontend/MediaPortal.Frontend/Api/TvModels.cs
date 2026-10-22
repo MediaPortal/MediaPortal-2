@@ -76,10 +76,24 @@ namespace MediaPortal.Frontend.Api
   /// backend cannot show - the reference called the same difference a channel you can only look up in the
   /// guide.
   /// </para>
+  /// <para>
+  /// <see cref="LogoPath"/> is where the backend keeps its own picture of this channel, in the backend's own
+  /// words: TVHeadend answers an <c>icon_public_url</c> pointing into its icon cache, and the picture is asked
+  /// for at that address on the same machine. Nothing here is ever an address somebody else owns - the backend's
+  /// <c>icon</c> field often is one (a repository on the internet, a file on the backend's disk), and a front end
+  /// that went and fetched that would be telling machines all over the internet which channels a household
+  /// watches, on a box whose job is to play television. A channel the backend has no picture for has null, and a
+  /// guide draws its row without one.
+  /// </para>
   /// </remarks>
   public sealed record TvChannel(int Number, string Name, string Id, Uri? StreamUrl,
-      IReadOnlyList<string> GroupIds, TvMediaType MediaType)
+      IReadOnlyList<string> GroupIds, TvMediaType MediaType, string? LogoPath = null)
   {
+    /// <summary>Whether the backend pointed at a picture for this channel.</summary>
+    public bool HasLogo
+    {
+      get { return !string.IsNullOrEmpty(LogoPath); }
+    }
     /// <summary>Whether this channel can be watched or listened to right now.</summary>
     public bool IsWatchable
     {

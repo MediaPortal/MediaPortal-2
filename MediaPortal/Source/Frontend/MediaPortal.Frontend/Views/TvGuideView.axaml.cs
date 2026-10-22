@@ -17,6 +17,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
@@ -24,6 +26,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using MediaPortal.Frontend.Api;
 using MediaPortal.Frontend.Input;
@@ -63,6 +66,21 @@ namespace MediaPortal.Frontend.Views
     /// <summary>What the column of a channel's name is worth, from the same sum in the reference.</summary>
     private const double NAME_WIDTH = 200;
 
+    /// <summary>
+    /// What the column of a channel's own picture is worth, which is the hundred and sixty pixels the reference
+    /// measured for it (<c>Skin/Nereus/screens/SlimTvClient-fullguide.xaml:22-30</c>: "ninety for a number, a
+    /// hundred and sixty for a logo, two hundred for a name").
+    /// </summary>
+    private const double LOGO_WIDTH = 160;
+
+    /// <summary>
+    /// How wide a channel picture is decoded for. The column is a hundred and sixty pixels and a television driven
+    /// at two hundred per cent wants twice that many of the real ones, so this is the width a sharp picture on the
+    /// sofa arrives at - and decoding is only ever downwards, so the small icon a backend actually has is drawn as
+    /// itself rather than blown up into a blur.
+    /// </summary>
+    private const int LOGO_DECODE_WIDTH = 320;
+
     /// <summary>How tall the strip of hours along the top is.</summary>
     private const double RULER_HEIGHT = 20;
 
@@ -73,9 +91,11 @@ namespace MediaPortal.Frontend.Views
     private const double FALLBACK_ROW_HEIGHT = 42;
 
     /// <summary>
-    /// How wide the column of channels is, from the two switches the viewer left on. The reference's own sum was
-    /// "ninety pixels for a number, a hundred and sixty for a logo, two hundred for a name", and this front end has
-    /// no channel logos to reserve a hundred and sixty pixels for yet - a thing its settings still owe it.
+    /// How wide the column of channels is, from the switches the viewer left on. The reference's own sum was
+    /// "ninety pixels for a number, a hundred and sixty for a logo, two hundred for a name"; the difference here is
+    /// that the logo's pixels are only reserved when a channel on the screen actually has a picture. A household
+    /// whose TV machine carries no icons gets two hundred pixels of names rather than two hundred of name and a
+    /// hundred and sixty of nothing, which is a column of emptiness the reference drew at every guide it ever showed.
     /// </summary>
     private double _headerWidth = NUMBER_WIDTH + NAME_WIDTH;
 
@@ -97,6 +117,21 @@ namespace MediaPortal.Frontend.Views
     private readonly WorkflowManager? _workflow;
     private readonly Dictionary<TvGuideBlock, Border> _boxes =
         new Dictionary<TvGuideBlock, Border>();
+
+    /// <summary>
+    /// The three things one row's column of channels is made of, while that row is on the screen: the picture, the
+    /// name that stands in for a picture that is not there, and the name that stands beside a picture that is. A
+    /// picture arrives after the row was laid out - that is the whole point of asking for it while the evening was
+    /// being read - and the row is not redrawn for it, so all three have to be findable by their row.
+    /// </summary>
+    private sealed class LogoCell
+    {
+      public Image Picture = new Image();
+      public TextBlock InsteadOfPicture = new TextBlock();
+      public TextBlock? BesidePicture;
+    }
+
+    private readonly Dictionary<TvGuideRow, LogoCell> _logos = new Dictionary<TvGuideRow, LogoCell>();
 
     private Border? _standingOut;
     private Border? _nowBar;
@@ -165,6 +200,16 @@ namespace MediaPortal.Frontend.Views
       };
       model.ActionsClosed += delegate { _workflow?.Pop(); };
 
+      // A channel's picture arrives when it arrives, and the row it belongs to is on the screen by then. The row is
+      // not built again - a grid that relaid itself every time an icon came in would jump about under the viewer's
+      // hand - so the one cell that was waiting for that row is filled, and the name the cell was showing in the
+      // picture's place steps aside for it.
+      model.LogoReady += delegate (TvGuideRow row)
+      {
+        if (_logos.TryGetValue(row, out LogoCell? cell))
+          ShowPicture(cell, row.Logo);
+      };
+
       _creep = new DispatcherTimer { Interval = TimeSpan.FromSeconds(10) };
       _creep.Tick += delegate { MoveNowLine(); };
       _creep.Start();
@@ -225,7 +270,16 @@ namespace MediaPortal.Frontend.Views
       TvGuideViewModel? model = _model;
 
       double header = (model == null || model.ShowChannelNumbers ? NUMBER_WIDTH : 0)
-          + (model == null || model.ShowChannelNames ? NAME_WIDTH : 0);
+          + (model == null || model.ShowChannelNames ? NAME_WIDTH : 0)
+
+          // Room for a picture only where a picture is going to be drawn. A page whose channels the TV machine has
+          // no icons for keeps the width it has for its names instead.
+          + (model != null && model.ShowChannelLogos && model.Rows.Any(delegate (TvGuideRow row)
+          {
+            return row.WantsLogo;
+          })
+              ? LOGO_WIDTH
+              : 0);
 
       // The hours take their strip off the top of what the scroller shows, and the rows share the rest.
       double room = gridScroller.Bounds.Height - RULER_HEIGHT;
@@ -253,6 +307,7 @@ namespace MediaPortal.Frontend.Views
 
       gridHost.Children.Clear();
       _boxes.Clear();
+      _logos.Clear();
       _standingOut = null;
       _nowBar = null;
 
@@ -336,16 +391,60 @@ namespace MediaPortal.Frontend.Views
           TextAlignment = TextAlignment.Right
         });
       }
-      if (names)
+      // A row whose station names a picture shows that picture, and until it is there - it may still be on its way,
+      // or the TV machine may simply have none - it shows the channel's name in the picture's place instead and keeps
+      // the place beside it empty. That is the reference's arrangement exactly
+      // (<c>Skin/Nereus/themes/default/styles/SlimTvStyles.xaml:1432-1478</c>: an image, a name labelled
+      // <c>ChannelLogoFallbackLabel</c> in the same column, and a name whose own visibility asks the image whether
+      // it has anything to show). A column of channels whose pictures nobody has is therefore never a column of
+      // holes; it is a column of names that happens to be as wide as a column of pictures.
+      TextBlock? name = names
+          ? new TextBlock
+          {
+            Text = row.Name,
+            FontSize = 14,
+            TextTrimming = TextTrimming.CharacterEllipsis,
+            VerticalAlignment = VerticalAlignment.Center
+          }
+          : null;
+
+      if (row.WantsLogo)
       {
-        head.Children.Add(new TextBlock
+        // The picture stands where the reference had it, between the number and the name, and keeps its own shape:
+        // a station's icon that was drawn round is not stretched into an oval to fill a column.
+        LogoCell cell = new LogoCell
         {
-          Text = row.Name,
-          FontSize = 14,
-          TextTrimming = TextTrimming.CharacterEllipsis,
-          VerticalAlignment = VerticalAlignment.Center
-        });
+          Picture = new Image
+          {
+            MaxWidth = LOGO_WIDTH - 24,
+            MaxHeight = Math.Max(16, _rowHeight - 12),
+            Stretch = Stretch.Uniform,
+            VerticalAlignment = VerticalAlignment.Center
+          },
+          // The name that stands in for a picture. The reference let it have a hundred and forty pixels when a name
+          // was asked for as well - the width of the picture's own box - and four hundred when it was not, which is
+          // the whole column; a name here is not clipped to a picture's width when there is no picture at all and so
+          // no picture's width to fill.
+          InsteadOfPicture = new TextBlock
+          {
+            Text = row.Name,
+            FontSize = 14,
+            TextTrimming = TextTrimming.CharacterEllipsis,
+            MaxWidth = names ? LOGO_WIDTH - 24 : double.PositiveInfinity,
+            VerticalAlignment = VerticalAlignment.Center
+          },
+          BesidePicture = name
+        };
+        _logos[row] = cell;
+        ShowPicture(cell, row.Logo);
+        head.Children.Add(cell.Picture);
+        head.Children.Add(cell.InsteadOfPicture);
+        if (cell.BesidePicture != null)
+          head.Children.Add(cell.BesidePicture);
+        name = null; // The cell owns it now, and has already placed it or not.
       }
+      if (name != null)
+        head.Children.Add(name);
       Grid.SetColumn(head, 0);
       line.Children.Add(head);
 
@@ -621,6 +720,35 @@ namespace MediaPortal.Frontend.Views
         box.BorderBrush = Brushes.White;
         box.BorderThickness = new Thickness(2);
       }
+    }
+
+    /// <summary>
+    /// Places a row's channel picture, or - when there is none to place, because it has not arrived or because this
+    /// station has none - puts the channel's name in its place instead. One of the two is ever visible, never both
+    /// and never neither, which is what the reference's two bindings around one image added up to.
+    /// </summary>
+    private static void ShowPicture(LogoCell cell, byte[]? bytes)
+    {
+      bool have = bytes != null && bytes.Length > 0;
+      cell.Picture.Source = PictureOf(bytes);
+      cell.Picture.IsVisible = have;
+      cell.InsteadOfPicture.IsVisible = !have;
+      if (cell.BesidePicture != null)
+        cell.BesidePicture.IsVisible = have;
+    }
+
+    /// <summary>
+    /// The picture these bytes hold, decoded for the size a guide row shows it at, or null when they hold no
+    /// picture. Decoded by the same converter every other screen of this front end uses, so that a picture a viewer
+    /// walks back to is not handed to the decoder a second time.
+    /// </summary>
+    private static Bitmap? PictureOf(byte[]? bytes)
+    {
+      if (bytes == null || bytes.Length == 0)
+        return null;
+
+      return ArtworkConverter.Instance.Convert(bytes, typeof(Bitmap), LOGO_DECODE_WIDTH,
+          CultureInfo.InvariantCulture) as Bitmap;
     }
 
     private static IBrush Paint(string hex)
