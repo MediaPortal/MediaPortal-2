@@ -27,36 +27,51 @@
          which is the whole reason the time and date read as painted onto the picture rather than sitting on
          a bar above it. The window already paints the same dark ground behind everything, so a transparent
          header is safe where no screen stands under it. -->
-    <Grid ColumnDefinitions="*,Auto" Margin="10,0" Background="Transparent">
-      <TextBlock Grid.Column="0" Text="{Binding ScreenTitle}"
-                 Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeaderFontSize}"
-                 VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+    <!-- DockPanel and not a two column Grid, and the reason is a measurement: a Grid asks an Auto column what it
+         wants and gives it that whether or not the window has it, so on a narrow window - a small window on the
+         desktop, a television that stands further away than the head line was drawn for - the clock ran past the
+         right edge and the last digit of it was cut off by the window's clip. A docked child is asked against
+         what is left over instead, which is the question the head line actually needs answering. The head line
+         docks first and the screen title fills what remains, so a title gives way to the time rather than the
+         other way round: the reference's masters always kept the clock and trimmed the words. -->
+    <DockPanel Margin="10,0" Background="Transparent">
       <!-- master_home.xaml's "Time Label" grid: three Auto columns, the clock in the one furthest right, the
            weather picture in the middle, and the two lines - the day over the temperature - in the one furthest
            left, right aligned. Each part answers to the skin setting that guarded it in the reference:
            ShowTime for the clock, ShowDate for the day, ShowTemperature for the number, and
            ShowWeatherCondition for the picture, which is what the reference's condition dial did - the picture
            says the condition, so no line of words repeats it. The weather half only stands on the screen whose
-           master carried the slot (ShowWeatherSlot), which is the home. -->
-      <Grid Grid.Column="1" ColumnDefinitions="Auto,Auto,Auto" VerticalAlignment="Center" Margin="10,0">
-        <StackPanel Grid.Column="0" Orientation="Vertical" HorizontalAlignment="Right" VerticalAlignment="Center">
-          <TextBlock Text="{Binding Date}" HorizontalAlignment="Right"
-                     IsVisible="{Binding ShowDate}"
-                     Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource SmallerFontSize}"/>
-          <TextBlock Text="{Binding WeatherTemperature}" HorizontalAlignment="Right"
-                     IsVisible="{Binding HasWeatherTemperature}"
-                     Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource SmallerFontSize}"/>
-        </StackPanel>
-        <Image Grid.Column="1" Width="85" Stretch="Uniform" Margin="10,0"
-               HorizontalAlignment="Center" VerticalAlignment="Center"
-               IsVisible="{Binding HasWeatherIcon}"
-               Source="{Binding WeatherIcon, Converter={x:Static views:SkinImageConverter.Instance},
-                                 ConverterParameter='Weather/128x128/{0}'}"/>
-        <TextBlock Grid.Column="2" Text="{Binding Clock}" HorizontalAlignment="Right" VerticalAlignment="Center"
-                   IsVisible="{Binding ShowTime}"
-                   Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeadlineTimeFontSize}"/>
-      </Grid>
-    </Grid>
+           master carried the slot (ShowWeatherSlot), which is the home.
+           The Viewbox around that grid is what keeps the whole of it on the screen. Grown it does nothing at all
+           (StretchDirection="DownOnly"), so on a wide screen every part measures and draws at the size the skin
+           asked for; shrunk it scales the cluster down as a whole, which keeps the reference's ratio of the two
+           quiet lines to the clock intact instead of robbing one part of its height. The gutter to the screen
+           title sits on the Viewbox rather than inside it, so it stays a full 10 when the rest is scaled down. -->
+      <Viewbox DockPanel.Dock="Right" Stretch="Uniform" StretchDirection="DownOnly"
+               VerticalAlignment="Center" Margin="10,0">
+        <Grid ColumnDefinitions="Auto,Auto,Auto">
+          <StackPanel Grid.Column="0" Orientation="Vertical" HorizontalAlignment="Right" VerticalAlignment="Center">
+            <TextBlock Text="{Binding Date}" HorizontalAlignment="Right"
+                       IsVisible="{Binding ShowDate}"
+                       Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource SmallerFontSize}"/>
+            <TextBlock Text="{Binding WeatherTemperature}" HorizontalAlignment="Right"
+                       IsVisible="{Binding HasWeatherTemperature}"
+                       Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource SmallerFontSize}"/>
+          </StackPanel>
+          <Image Grid.Column="1" Width="85" Stretch="Uniform" Margin="10,0"
+                 HorizontalAlignment="Center" VerticalAlignment="Center"
+                 IsVisible="{Binding HasWeatherIcon}"
+                 Source="{Binding WeatherIcon, Converter={x:Static views:SkinImageConverter.Instance},
+                                   ConverterParameter='Weather/128x128/{0}'}"/>
+          <TextBlock Grid.Column="2" Text="{Binding Clock}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                     IsVisible="{Binding ShowTime}"
+                     Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeadlineTimeFontSize}"/>
+        </Grid>
+      </Viewbox>
+      <TextBlock Text="{Binding ScreenTitle}"
+                 Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeaderFontSize}"
+                 VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+    </DockPanel>
   </ControlTemplate>
 
   <!--

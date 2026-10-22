@@ -3669,6 +3669,19 @@ times 55 over 21, which is the new `HeadlineTimeFontSize` of 71. The four dials 
 (`ShowTime`, `ShowDate`, `ShowTemperature`, `ShowWeatherCondition`), and the whole slot is still the home screen's
 alone, because reading the weather was `master_home`'s business and no other master's.
 
+That head line was grown into its height by the change above, and it was too tall for the room it had: a viewer found
+the clock cut off at the top right. The reason is a measurement rather than a drawing. The three columns want 667 of
+the 1280 lines - the clock alone asks for 173 of them - and a `Grid` asks an Auto column what it wants and hands it
+that whether or not the window has it; what the window does not have it pushes past its right edge, where the header's
+clip cuts the last digit off. A wide television never noticed, which is why the gate passed and the couch did not. The
+header is a `DockPanel` now, with the head line docked first and the screen's words filling what is left - a docked
+child is asked against what remains, which is the question the head line actually needs answered - and the cluster
+stands inside a `Viewbox` that only ever scales down (`StretchDirection="DownOnly"`), so a screen with room draws
+every part at the size the skin asked for, and a narrow one scales the row as a whole instead of robbing the clock of
+its last digit or the title of its words. `TestChromeHeader` draws the head line at both widths and reads where the
+clock is *painted* - `TranslatePoint` and not `Bounds`, because inside a scaled row the bounds are the wish and the
+transform is the drawing.
+
 ### bh. Settings the server keeps can be edited from a television, over the API that already carries the pictures
 
 A household that has no keyboard in the living room still has settings it wants to move: how many fanart
