@@ -31,7 +31,6 @@
     <Page Remove="Skin\WMCSkin\screens\FullscreenContentDVD.xaml" />
     <Page Remove="Skin\WMCSkin\screens\FullscreenContentImage.xaml" />
     <Page Remove="Skin\WMCSkin\screens\FullScreenContentVideo.xaml" />
-    <Page Remove="Skin\WMCSkin\screens\LatestMedia.xaml" />
     <Page Remove="Skin\WMCSkin\screens\master_bare.xaml" />
     <Page Remove="Skin\WMCSkin\screens\master_bare_info.xaml" />
     <Page Remove="Skin\WMCSkin\screens\master_configuration_menu.xaml" />
@@ -283,7 +282,6 @@
     <Content Include="Skin\WMCSkin\screens\FullscreenContentDVD.xaml" />
     <Content Include="Skin\WMCSkin\screens\FullscreenContentImage.xaml" />
     <Content Include="Skin\WMCSkin\screens\FullScreenContentVideo.xaml" />
-    <Content Include="Skin\WMCSkin\screens\LatestMedia.xaml" />
     <Content Include="Skin\WMCSkin\screens\master_bare.xaml" />
     <Content Include="Skin\WMCSkin\screens\master_bare_info.xaml" />
     <Content Include="Skin\WMCSkin\screens\master_configuration_menu.xaml" />

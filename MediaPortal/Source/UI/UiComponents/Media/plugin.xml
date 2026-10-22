@@ -70,9 +70,6 @@
 
     <Model Id="8573DBD8-A257-426a-9875-9DB155D32D47" Name="ExtendedVideoSkip" ClassName="MediaPortal.UiComponents.Media.Models.ExtendedVideoSkip" />
 
-    <Model Id="E1752E49-67FE-4D94-8544-1134CC3DCD87" Name="LatestMediaModelContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.LatestMediaAction" />
-    <Model Id="11193401-D85D-4D50-9825-E9EB34D87062" Name="LatestMediaModel" ClassName="MediaPortal.UiComponents.Media.Models.LatestMediaModel" />
-  
     <Model Id="6121E6CC-EB66-4ABC-8AA0-D952B64C0414" Name="MediaListModel" ClassName="MediaPortal.UiComponents.Media.Models.MediaListModel" />
 
     <Model Id="692FA8C3-41A5-43DD-8C12-C857C9C75E72" Name="MediaItemMatchModel" ClassName="MediaPortal.UiComponents.Media.Models.MediaItemMatchModel" />
@@ -116,12 +113,6 @@
         Name="ImagesNavigation-Root"
         DisplayLabel="[Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel]"
         WorkflowModel="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/> <!-- Workflow model = Media model -->
-
-    <WorkflowState Id="60CD1874-1752-4486-9DF1-82B7BDF635A6"
-        Name="LatestMedia"
-        MainScreen="LatestMedia"
-        DisplayLabel="[Media.LatestMediaWorkflowNavigationContextDisplayLabel]"
-        WorkflowModel="11193401-D85D-4D50-9825-E9EB34D87062"/> <!-- Workflow model = Latest Media model -->
 
     <WorkflowState Id="F1F120B0-9DB3-419F-AAF6-704E7B0FFA63"
         Name="ShowPlayableList"

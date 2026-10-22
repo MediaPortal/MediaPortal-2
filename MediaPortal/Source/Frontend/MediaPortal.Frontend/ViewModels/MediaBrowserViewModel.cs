@@ -633,10 +633,10 @@ namespace MediaPortal.Frontend.ViewModels
           ? section?.Aspect.Name ?? ""
           : MediaCatalog.ChildAspectFor(section?.Aspect.Name);
       Inside = parent == null ? null : parent.Title.Id;
-      // A shelf opens in the order its tile promised, and "Latest media" is the one tile whose promise is an order;
-      // every other top-level shelf - and the name order has always been it - reads by name.
-      SortOrder = parent == null ? section?.Sort ?? "title" : MediaCatalog.ChildSortFor(section?.Aspect.Name);
-      SortDescending = parent == null && (section?.SortDescending ?? false);
+      // Every shelf opens by name, which is the order it has always had; a shelf read inside a title takes the
+      // order its kind carries, the tracks of an album by their number. The one tile that used to promise another
+      // order - MP2's "Latest media" - is gone, so nothing arrives with one.
+      SortOrder = parent == null ? "title" : MediaCatalog.ChildSortFor(section?.Aspect.Name);
       // The browse screen's picked value travels the same way the picked order did: with the section. A list
       // opened out of one title is the titles inside it, and the genre of the shelf they were browsed under does
       // not follow them down - the tracks of an Action album are nobody's Action genre.
@@ -1236,9 +1236,6 @@ namespace MediaPortal.Frontend.ViewModels
 
     /// <summary>What this list is ordered by, in the server's own word.</summary>
     public string SortOrder { get; }
-
-    /// <summary>Whether <see cref="SortOrder"/> runs newest-first, which only a shelf opened by a tile can do.</summary>
-    public bool SortDescending { get; }
 
     /// <summary>
     /// The category this list was browsed in - <c>genre</c>, <c>year</c>, <c>actors</c>, <c>directors</c> or
@@ -1976,7 +1973,8 @@ namespace MediaPortal.Frontend.ViewModels
       IsBusy = true;
       try
       {
-        MediaTitles answer = await _client.GetTitlesAsync(AspectName, SortOrder, SortDescending, PAGE_SIZE, offset,
+        // Nothing asks for newest-first here any more: that order came with the "Latest media" tile alone.
+        MediaTitles answer = await _client.GetTitlesAsync(AspectName, SortOrder, false, PAGE_SIZE, offset,
             string.IsNullOrEmpty(ActiveSearch) ? null : ActiveSearch,
             string.IsNullOrEmpty(ActiveSeen) ? null : ActiveSeen, Inside, GroupBy, GroupValue, cancellation.Token);
 

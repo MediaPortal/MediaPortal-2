@@ -289,7 +289,7 @@ namespace Tests.Frontend
       BrowseServer server = new BrowseServer();
       MediaBrowserViewModel browser = new MediaBrowserViewModel(
           new ServerApiClient(SIGN_IN_URL, new HttpClient(server)),
-          new HomeSection(MOVIES.Label, MOVIES.Aspect, MOVIES.Sort, MOVIES.SortDescending, "genre", "Drama"));
+          new HomeSection(MOVIES.Label, MOVIES.Aspect, "genre", "Drama"));
       browser.OpenCommand.Execute(null);
       WaitUntil("the filtered titles to arrive", delegate { return browser.Titles.Count == 2; });
 

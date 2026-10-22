@@ -28,7 +28,7 @@ namespace Tests.Frontend
       MainMenuEntry audio = FindEntry("30715d73-4205-417f-80aa-e82f0834171f");
       MainMenuEntry movies = FindEntry("80d2e2cc-baaa-4750-807b-f37714153751");
       MainMenuEntry settings = FindEntry("f6255762-c52a-4231-9e67-14c28735216e");
-      MainMenuEntry latestMedia = FindEntry("7d68c459-ee9b-4eaa-ae2c-c2c365139aee");
+      MainMenuEntry videos = FindEntry("a4df2df6-8d66-479a-9930-d7106525eb07");
       var model = new NereusHomeMenuModel();
 
       model.Rebuild(MainMenu.Build(Array.Empty<AspectViewModel>(), connected: false), new[]
@@ -41,7 +41,7 @@ namespace Tests.Frontend
           new[] { movies.HomeImageId, audio.HomeImageId },
           model.MainMenuItems.Take(2).Select(entry => entry.HomeImageId));
       Assert.That(model.IsOtherPluginsEntry(model.MainMenuItems[2]), Is.True);
-      CollectionAssert.Contains(model.OtherMenuItems.Select(entry => entry.HomeImageId), latestMedia.HomeImageId);
+      CollectionAssert.Contains(model.OtherMenuItems.Select(entry => entry.HomeImageId), videos.HomeImageId);
       CollectionAssert.Contains(model.OtherMenuItems.Select(entry => entry.HomeImageId), settings.HomeImageId);
     }
 

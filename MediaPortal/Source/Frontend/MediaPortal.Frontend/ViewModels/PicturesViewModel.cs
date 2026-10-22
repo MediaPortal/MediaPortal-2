@@ -104,8 +104,10 @@ public partial class PicturesViewModel : ObservableObject, IDisposable
   /// <summary>The tiles on screen: subfolders first, then the pictures.</summary>
   public ObservableCollection<PictureTile> Tiles { get; } = new ObservableCollection<PictureTile>();
 
+  // The tile's own word, so that the screen the "Images" tile opens is not headed by a second name for the same
+  // media; "pictures" stays the prose word, the way a tile called Movies says "12 films" under it.
   [ObservableProperty]
-  private string _heading = "Pictures";
+  private string _heading = "Images";
 
   [ObservableProperty]
   private string _status = "Not read yet.";
@@ -307,7 +309,7 @@ public partial class PicturesViewModel : ObservableObject, IDisposable
     {
       if (_current == null)
       {
-        Heading = "Pictures";
+        Heading = "Images";
         Where = "the folders the server was told about";
         return;
       }

@@ -328,7 +328,7 @@ namespace Tests.Frontend
         Assert.That(pictures.Tiles.Count, Is.EqualTo(2), "one subfolder and one picture");
 
         pictures.GoUpCommand.Execute(null);
-        WaitFor(delegate { return pictures.Heading == "Pictures"; }, "the list of shares to come back");
+        WaitFor(delegate { return pictures.Heading == "Images"; }, "the list of shares to come back");
 
         Assert.That(pictures.CanGoUp, Is.False);
       }
@@ -520,7 +520,7 @@ namespace Tests.Frontend
         WaitFor(delegate { return pictures.Heading == "2019"; }, "the folder to be read");
 
         PressKey(window.Screen!, Key.Back);
-        WaitFor(delegate { return pictures.Heading == "Pictures"; }, "to be back at the list of shares");
+        WaitFor(delegate { return pictures.Heading == "Images"; }, "to be back at the list of shares");
 
         Assert.That(window.IsVisible, Is.True,
             "pressing back in the middle of a folder means out of the folder, not away from pictures");
@@ -564,13 +564,13 @@ namespace Tests.Frontend
         WaitFor(delegate { return pictures.CanGoUp; }, "the walk into the folder to have started");
 
         PressKey(window.Screen!, Key.Back);
-        WaitFor(delegate { return pictures.Heading == "Pictures"; }, "to be back at the list of shares");
+        WaitFor(delegate { return pictures.Heading == "Images"; }, "to be back at the list of shares");
 
         // Now let the folder turn up. It was asked for while the viewer was walking in, and it has nowhere to go.
         Thread.Sleep(2500);
         Pump();
 
-        Assert.That(pictures.Heading, Is.EqualTo("Pictures"),
+        Assert.That(pictures.Heading, Is.EqualTo("Images"),
             "the folder the viewer walked out of must not be put back over the list of shares");
         Assert.That(pictures.Tiles.Count, Is.EqualTo(1), "and its tiles must not be on the screen either");
         Assert.That(window.IsVisible, Is.True);

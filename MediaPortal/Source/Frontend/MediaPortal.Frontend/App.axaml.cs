@@ -1012,7 +1012,7 @@ namespace MediaPortal.Frontend
         return new Workflow.WorkflowFrame("folders", "Folders", new FoldersViewModel(_home.Client));
 
       if (screenKey.Equals("pictures", StringComparison.OrdinalIgnoreCase))
-        return new Workflow.WorkflowFrame("pictures", "Pictures", new PicturesViewModel(_home.Client));
+        return new Workflow.WorkflowFrame("pictures", "Images", new PicturesViewModel(_home.Client));
 
       if (screenKey.Equals("browse", StringComparison.OrdinalIgnoreCase))
       {

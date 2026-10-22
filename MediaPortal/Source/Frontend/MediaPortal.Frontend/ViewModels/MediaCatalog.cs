@@ -48,16 +48,16 @@ namespace MediaPortal.Frontend.ViewModels
         ("VideoItem", "Videos"),
         ("AudioItem", "Music"),
         ("AlbumItem", "Albums"),
-        ("ImageItem", "Pictures")
+        // MP2's word, not a second word for the same thing. The media plugin's home tile for photographs is
+        // "Images" (Media.ImagesMenuItem), and a shelf calling the same photographs "Pictures" next to that tile
+        // reads as a second plugin for a media type a viewer only has one of.
+        ("ImageItem", "Images")
     };
 
-    public HomeSection(string label, AspectViewModel aspect, string? sort = null, bool sortDescending = false,
-        string? by = null, string? value = null)
+    public HomeSection(string label, AspectViewModel aspect, string? by = null, string? value = null)
     {
       Label = label;
       Aspect = aspect;
-      Sort = sort;
-      SortDescending = sortDescending;
       By = by;
       Value = value;
     }
@@ -79,23 +79,6 @@ namespace MediaPortal.Frontend.ViewModels
 
     /// <summary>The value the shelf was narrowed to, or null. Only means anything with <see cref="By"/>.</summary>
     public string? Value { get; }
-
-    /// <summary>
-    /// The order the server should read this shelf in, in the API's own words, or null for the name order every
-    /// shelf uses by default.
-    /// </summary>
-    /// <remarks>
-    /// Only one menu entry uses this today: "Latest media" is a shelf of videos whose entire promise is the order,
-    /// and opening it alphabetically would make the tile a liar. Everything else opens by name, as it always did.
-    /// </remarks>
-    public string? Sort { get; }
-
-    /// <summary>
-    /// Whether <see cref="Sort"/> runs newest-first. "Latest media" is latest first by definition - the same order
-    /// read oldest-first would be the opposite list - so the direction belongs to the promise and not to whoever
-    /// opens the shelf.
-    /// </summary>
-    public bool SortDescending { get; }
 
     /// <summary>
     /// The single character shown large on the tile. The first letter of the label, rather than a symbol from an

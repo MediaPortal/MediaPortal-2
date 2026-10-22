@@ -81,7 +81,7 @@ namespace Tests.Frontend
           "the video group is its shelves; the online shelf has no action here and leaves no gap");
       CollectionAssert.AreEqual(new[] { "News", "Weather" }, Labels(Group(model, "News")),
           "the weather stands under the news, as the reference puts it");
-      CollectionAssert.AreEqual(new[] { "Local media", "Latest media", "Utilities" }, Labels(Group(model, "Others")),
+      CollectionAssert.AreEqual(new[] { "Local media", "Utilities" }, Labels(Group(model, "Others")),
           "the actions DefaultGroups never claimed are the others group, in the menu's own order");
     }
 

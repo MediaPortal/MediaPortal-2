@@ -2417,10 +2417,10 @@ namespace Tests.Frontend
 
       Assert.That(home.Menu.Select(entry => entry.Label), Is.EqualTo(new[]
       {
-          "Local media", "Browse media", "Audio", "Videos", "Movies", "Series", "Images", "Latest media",
+          "Local media", "Browse media", "Audio", "Videos", "Movies", "Series", "Images",
           "News", "TV", "Radio", "Weather", "Party music player", "Settings", "Utilities"
       }), "the names and the order are the entries MP2's own plugins contribute to the home state - "
-          + "media-actions.xml for the eight media ones, SlimTvClient-actions.xml for television and radio, and "
+          + "media-actions.xml for the seven media ones, SlimTvClient-actions.xml for television and radio, and "
           + "the news, weather, party, settings and utilities plugins' own files for the rest - and not a set of "
           + "words invented for this front end. TestHomeMenuContributions reads those files on every run and says "
           + "which line of this table no longer matches what the previous code assembles");
@@ -2490,45 +2490,52 @@ namespace Tests.Frontend
           + "the weather, the party, and the settings its own look");
     }
 
-    [Test]
-    public void LatestMediaOpensTheVideoShelfInTheOrderTheLibraryGotItsTitles()
+    [AvaloniaTest]
+    public void TheVideoShelfIsOfferedOnceAndOpensByName()
     {
       List<MainMenuEntry> menu = MainMenu.Build(new[] { AspectCalled("VideoItem") }, true);
 
-      MainMenuEntry latest = EntryNamed(menu, "Latest media");
-      Assert.That(latest.Missing, Is.Null,
-          "the tile used to explain that the server could not sort by import date; it can - the media library has "
-          + "stamped the date it first saw each file onto every title since before this port existed - so the tile "
-          + "opens its shelf instead of apologising");
-      Assert.That(latest.Openable, Is.True,
-          "a server that holds videos holds the newest-first list too, so the tile opens it");
-      Assert.That(latest.Section!.Aspect.Name, Is.EqualTo("VideoItem"),
-          "MP2's own latest-media screen listed everything watchable - films, episodes, the clips nobody filed - "
-          + "which on this server's shelf is exactly VideoItem, read in the order it arrived");
-      Assert.That(latest.Section.Sort, Is.EqualTo("added"));
-      Assert.That(latest.Section.SortDescending, Is.True,
-          "\"the newest titles first\" read oldest-first is the opposite list, so the direction belongs to the "
-          + "promise the tile makes and not to whoever opens it");
-    }
+      Assert.That(menu.Count(entry => entry.Section != null && entry.Section.Aspect.Name == "VideoItem"),
+          Is.EqualTo(1),
+          "the videos have one door. MP2 offered a second one - the \"Latest media\" tile, which was the same "
+          + "VideoItem shelf wearing an arrival order - and that tile, its order and everything behind it were "
+          + "removed, so no second label opens this shelf any more");
 
-    [AvaloniaTest]
-    public void TheArrivalsShelfIsReadNewestFirstFromTheServer()
-    {
       CatalogueServer server = new CatalogueServer();
       using (var client = new ServerApiClient(SIGN_IN_URL, new HttpClient(server)))
       {
-        HomeSection arrivals = new HomeSection("Latest media", ShelfCalled("VideoItem").Aspect, "added", true);
-        MediaBrowserViewModel latest = new MediaBrowserViewModel(client, arrivals);
-        latest.OpenCommand.Execute(null);
-        WaitUntil("the arrivals to arrive", delegate { return latest.Titles.Count == 1; });
+        MediaBrowserViewModel videos = new MediaBrowserViewModel(client, EntryNamed(menu, "Videos").Section);
+        videos.OpenCommand.Execute(null);
+        WaitUntil("the videos to arrive", delegate { return videos.Titles.Count == 1; });
 
-        Assert.That(server.LastUrl, Does.Contain("sort=added").And.Contain("order=desc"),
-            "the tile promises the newest titles first, and the only way to keep that promise about a shelf of "
-            + "three hundred films is to ask the server that holds the shelf to put it in that order - sorting "
-            + "whichever page arrived would sort a page, not a library");
-        Assert.That(latest.Status, Does.EndWith("sorted by added"),
-            "and the line under the list admits which order the server says it gave");
+        Assert.That(server.LastUrl, Does.Contain("sort=title").And.Not.Contain("order=desc"),
+            "a shelf opens by name, which is the order it has always had; the newest-first order was asked for by "
+            + "the removed tile alone, and nothing asks for it now");
+        Assert.That(videos.Status, Does.EndWith("sorted by title"),
+            "and the line under the list says which order the server gave");
       }
+    }
+
+    [Test]
+    public void ThePicturesHaveOneTileAndItWearsMP2sOwnWord()
+    {
+      List<MainMenuEntry> menu = MainMenu.Build(new[] { AspectCalled("ImageItem") }, true);
+
+      Assert.That(menu.Count(entry => entry.Label == "Images"), Is.EqualTo(1),
+          "photographs have one door. This front end had invented a second word for them - the shelf label "
+          + "\"Pictures\" - and because the Images tile claims no shelf of its own, a server that had filed image "
+          + "titles was handed a second tile beside MP2's one, which every viewer read as a second plugin");
+      Assert.That(menu.Select(entry => entry.Label), Does.Not.Contain("Pictures"),
+          "and the invented word is gone from the menu rather than hidden behind the same tile");
+
+      MainMenuEntry images = EntryNamed(menu, "Images");
+      Assert.That(images.Openable, Is.True, "the tile opens whatever the server has or has not filed");
+      Assert.That(images.ScreenKey, Is.EqualTo("pictures"));
+      Assert.That(images.Section, Is.Null,
+          "and claiming the aspect does not turn the tile into a shelf of titles, which is the empty shelf over "
+          + "thousands of photographs that the folders were put in its place for");
+      Assert.That(HomeSection.LabelFor("ImageItem"), Is.EqualTo("Images"),
+          "the browse screen's shelf for filed photographs wears the tile's word, so one media has one word");
     }
 
     [Test]

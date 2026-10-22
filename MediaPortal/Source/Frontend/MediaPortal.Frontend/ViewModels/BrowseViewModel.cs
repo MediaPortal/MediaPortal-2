@@ -309,11 +309,10 @@ namespace MediaPortal.Frontend.ViewModels
       if (shelf == null || category == null || value == null)
         return;
 
-      // The section that opens is the shelf's own - same label, same order its tile promised - wearing the picked
-      // grouping, so the titles screen says "Movies under Action" rather than silently showing a different list
-      // under the same heading as the tile.
-      ValueChosen?.Invoke(this, new HomeSection(shelf.Label, shelf.Aspect, shelf.Sort, shelf.SortDescending,
-          category.Word, value.Value));
+      // The section that opens is the shelf's own - same label, same aspect - wearing the picked grouping, so the
+      // titles screen says "Movies under Action" rather than silently showing a different list under the same
+      // heading as the tile.
+      ValueChosen?.Invoke(this, new HomeSection(shelf.Label, shelf.Aspect, category.Word, value.Value));
     }
   }
 }

@@ -3617,6 +3617,38 @@ reference's player configuration asked the player itself for renderers and audio
 does not answer to those yet; the section names that instead of drawing a form whose buttons would lie.
 Four tests cover the hub, and the gate stands at 1079.
 
+### be. The videos have one door again: MP2's second tile for them left the tree
+
+A viewer asked for one door to the videos rather than two, so `Home->Latest Media` is gone from this tree
+rather than merely hidden from the menu. Out went the media plugin's workflow action, its contributor
+model, its screen model, the three screens it opened - default, Nereus and WMC - the workflow state that
+named them, its two language strings, the three style blocks that dressed only that screen, and the eight
+tile pictures the shipped and the rescued skins carried for it. Out went the order that had been built for
+it alone: `HomeSection.Sort`, `MainMenuEntry.Sort` and the shelf that opened in the order its tile had
+promised, so a shelf opens by name now, which is the order it always had.
+
+`TestHomeMenuContributions` stayed green without an exception, which is the point: the contribution is
+missing from the plugins' own `media-actions.xml` and from their `strings_en.xml`, not only from the table
+that copies them. What stayed is the other kind of "latest" - the media plugin's `Latest*` list providers
+feed the home wall's "Latest added" bands, and the server still sorts titles by the date it first saw the
+file, because every one of those bands is read newest-first on every home screen.
+
+### bf. Photographs have one word again: the second name this front end invented went away
+
+A viewer counted tiles and found two of them for one kind of media, which was right to look like a bug. MP2 has one
+word for photographs - `Media.ImagesMenuItem`, "Images" - and this front end had quietly grown a second one:
+`MediaCatalog` labelled the `ImageItem` aspect "Pictures", the pictures screen headed itself "Pictures", and because
+the Images tile claims no shelf of its own, the leftover rule handed any server that had filed image titles a *second*
+tile reading "Pictures" right next to MP2's "Images". One medium, two words, three places.
+
+Both words are now MP2's. The catalogue, the screen's heading and the workflow frame's title all say "Images", the
+`Home->Images` row claims `ImageItem` - which keeps the leftover rule off it without turning the tile into a shelf of
+titles, since the tile still opens the folder walk a household's photographs actually need - and the filed titles lose
+nothing, because the browse screen lists them under the same word. What stayed is prose: the status line still says
+"12 pictures" under a tile called Images, exactly as a tile called Movies says "12 films", and only that.
+`ThePicturesHaveOneTileAndItWearsMP2sOwnWord` demands one tile, one word, and a tile that still opens folders rather
+than titles, and the four screen tests that walked out of a folder now wait for the heading the tile promises.
+
 ## What cannot be verified without the user
 
 
