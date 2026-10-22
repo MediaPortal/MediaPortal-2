@@ -970,6 +970,18 @@ namespace MediaPortal.Frontend
             return new MetadataSettingsView { DataContext = metadata };
           });
 
+      // The settings a plugin or a server part keeps and a household used to edit in a window on the
+      // server's own desktop. ONE row, not one row per section: which sections stand open is the server's
+      // answer, read when the row opens, so a section somebody opens in the server's catalog appears on the
+      // television by itself. A copy of that table here would only ever be the table as it used to be.
+      model.Add("Plugin settings", "Server", "What the server lets a television change in what it keeps",
+          delegate
+          {
+            PluginSettingsViewModel pluginSettings = new PluginSettingsViewModel(() => _home.Client);
+            _ = pluginSettings.ReloadAsync();
+            return new PluginSettingsView { DataContext = pluginSettings };
+          });
+
       model.Add("Media sources", "Server", "The folders the library reads, and their imports",
           delegate { return new FoldersView(new FoldersViewModel(_home.Client)); });
 

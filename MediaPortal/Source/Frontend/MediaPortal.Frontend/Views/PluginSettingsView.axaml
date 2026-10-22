@@ -1,0 +1,124 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="using:MediaPortal.Frontend.Views"
+             xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+             xmlns:api="using:MediaPortal.Frontend.Api"
+             x:Class="MediaPortal.Frontend.Views.PluginSettingsView"
+             x:DataType="vm:PluginSettingsViewModel">
+  <!--
+    What the server lets a television change, and the editing of it. The rows are not written here: the list
+    is whatever the server said it offers, and the editor is built from the fields that section listed - so
+    the day somebody opens another section in the server, it stands on this screen without this file being
+    touched. Both halves are one screen, because opening a section is not a place a viewer has to find their
+    way back from; Back puts the list back and reads it again.
+  -->
+  <StackPanel Spacing="10" MaxWidth="620" HorizontalAlignment="Left">
+    <TextBlock Text="{Binding Title}" FontSize="17" FontWeight="SemiBold"/>
+    <TextBlock Classes="hint" TextWrapping="Wrap"
+               Text="These are settings the server keeps for its own parts and plugins, stored on its machine. What a server is willing to be told is the server's answer, so this list is read from there and never kept here."/>
+
+    <!-- The list. A row is a press, because a section is opened and not read from a distance. -->
+    <StackPanel Spacing="10" IsVisible="{Binding !HasSection}">
+      <ItemsControl ItemsSource="{Binding Sections}" Margin="0,6,0,0">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="api:SettingSectionSummary">
+            <Button Click="OnOpenPress" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                    Margin="0,2" Padding="12,8">
+              <Grid ColumnDefinitions="*,Auto" ColumnSpacing="14">
+                <StackPanel Spacing="1">
+                  <TextBlock Text="{Binding Title}" FontSize="16"/>
+                  <TextBlock Classes="hint" TextWrapping="Wrap" Text="{Binding Description}"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
+                  <TextBlock Classes="hint" Text="{Binding Owner}"/>
+                  <TextBlock Classes="hint" Text="{Binding FieldCount, StringFormat='{}{0} field(s)'}"/>
+                </StackPanel>
+              </Grid>
+            </Button>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+
+      <!-- The two empties are said apart: nothing offered, and nothing read because nothing answered. -->
+      <TextBlock Classes="hint" TextWrapping="Wrap" IsVisible="{Binding !HasSections}"
+                 Text="Nothing stands open here. The line below says whether the server opened no settings at all or could not be reached."/>
+
+      <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,4,0,0">
+        <Button Content="Read the list again" Command="{Binding ReloadCommand}" IsEnabled="{Binding !IsBusy}"/>
+      </StackPanel>
+
+      <TextBlock Text="{Binding Status}" Classes="hint" TextWrapping="Wrap"/>
+    </StackPanel>
+
+    <!-- The editor. Same shape as every other settings row here: label left, control right. -->
+    <StackPanel Spacing="10" IsVisible="{Binding HasSection}">
+      <TextBlock Classes="hint" TextWrapping="Wrap" Text="{Binding Section.Description}"/>
+      <TextBlock Classes="hint" Text="{Binding Section.Owner}"/>
+
+      <ItemsControl ItemsSource="{Binding Section.Fields}" Margin="0,6,0,0">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="vm:SettingFieldViewModel">
+            <StackPanel Spacing="2">
+              <Grid ColumnDefinitions="220,*" Margin="0,6,0,0">
+                <TextBlock Grid.Column="0" Text="{Binding Label}" Classes="settinglabel" TextWrapping="Wrap"/>
+
+                <StackPanel Grid.Column="1" Spacing="4">
+                  <CheckBox IsChecked="{Binding Toggle}" IsVisible="{Binding IsToggle}"
+                            Content="On" VerticalAlignment="Center"/>
+
+                  <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding IsNumber}">
+                    <TextBox Width="90" Text="{Binding NumberText}"
+                             views:VirtualKeyboardService.Trigger="EnterOrMenu"/>
+                    <TextBlock Classes="hint" VerticalAlignment="Center" Text="{Binding RangeHint}"/>
+                  </StackPanel>
+
+                  <!-- The names a choice offers, as presses in a row: one gesture per answer, which is what a
+                       remote has. The mark says which name the server holds, in the accent it is announcing. -->
+                  <ItemsControl ItemsSource="{Binding Options}" IsVisible="{Binding IsChoice}">
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" Spacing="8"/>
+                      </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="vm:SettingOptionViewModel">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                          <Button Content="{Binding Name}" Command="{Binding PickCommand}" Padding="12,6"/>
+                          <TextBlock Text="NOW" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"
+                                     Foreground="{DynamicResource AccentBrush}" IsVisible="{Binding IsOn}"/>
+                        </StackPanel>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+
+                  <!-- A kind this screen has no control for draws nothing, and says that rather than drawing
+                       a box around a value it does not understand. -->
+                  <TextBlock Classes="hint" TextWrapping="Wrap" IsVisible="{Binding IsUndrawable}"
+                             Text="The server calls this a kind of value this screen cannot draw, so nothing is shown and nothing is sent."/>
+
+                  <TextBlock Classes="hint" TextWrapping="Wrap" FontSize="12" Text="{Binding Error}"
+                             IsVisible="{Binding Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                </StackPanel>
+              </Grid>
+
+              <TextBlock Classes="hint" TextWrapping="Wrap" Text="{Binding Help}"
+                         IsVisible="{Binding Help, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+              <!-- The restart note stands under the row it is about, not only in the line at the bottom. -->
+              <TextBlock Classes="hint" Text="{Binding RestartNote}" IsVisible="{Binding RestartNeeded}"/>
+            </StackPanel>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+
+      <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,10,0,0">
+        <Button Content="Reload" Command="{Binding Section.ReloadCommand}"/>
+        <Button Content="Save on the server" Command="{Binding Section.SaveCommand}"/>
+        <Button Content="Back to the list" Command="{Binding BackCommand}"/>
+      </StackPanel>
+
+      <!-- One sentence about what the last read or save did. When a stored field is still waiting for the
+           server to start again, that sentence is this line, and the row it waits for says so under itself. -->
+      <TextBlock Text="{Binding Section.Status}" Classes="hint" TextWrapping="Wrap"/>
+    </StackPanel>
+  </StackPanel>
+</UserControl>

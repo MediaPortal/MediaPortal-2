@@ -49,7 +49,7 @@ namespace MediaPortal.Frontend.Api
   /// </para>
   /// </remarks>
   public sealed class ServerApiClient : IDisposable, IServerSettingsApi, IMetadataSettingsApi, IUsersApi,
-      INetworkCredentialsApi, IServerInfoApi
+      INetworkCredentialsApi, IServerInfoApi, IPluginSettingsApi
   {
     /// <summary>
     /// Where the front end looks for a server when nothing else was said. The port is MP2's own and the prefix
@@ -754,6 +754,59 @@ namespace MediaPortal.Frontend.Api
     {
       return await SendJsonAsync<MetadataSettingsAnswer>(HttpMethod.Put, "api/media/settings/metadata", wish,
           cancellation).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// <c>GET api/media/settings/sections</c> - which settings the server lets a screen change, without
+    /// opening any of them.
+    /// </summary>
+    /// <remarks>
+    /// The list is the server's, not something the client keeps a copy of: what a plugin can be told is
+    /// known by the machine running the plugin. A new section appears on the television by itself.
+    /// </remarks>
+    public async Task<SettingSectionsAnswer> GetSettingSectionsAsync(CancellationToken cancellation = default)
+    {
+      return await SendJsonAsync<SettingSectionsAnswer>(HttpMethod.Get, "api/media/settings/sections", null,
+          cancellation).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// <c>GET api/media/settings/sections/{key}</c> - one screen's fields and the values the server holds
+    /// for them now.
+    /// </summary>
+    /// <remarks>
+    /// Refused with <c>404</c> for a key the server does not list. A screen that was open while the server
+    /// changed underneath it can be re-read by calling this again, which is also how the values another
+    /// person just saved come back.
+    /// </remarks>
+    public async Task<SettingSectionState> GetSettingSectionAsync(string key,
+      CancellationToken cancellation = default)
+    {
+      return await SendJsonAsync<SettingSectionState>(HttpMethod.Get,
+          "api/media/settings/sections/" + Uri.EscapeDataString(key), null, cancellation).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// <c>PUT api/media/settings/sections/{key}</c> - change the values on one screen and have the server
+    /// store them.
+    /// </summary>
+    /// <param name="key">
+    /// The screen, as it came from <see cref="GetSettingSectionsAsync"/>.
+    /// </param>
+    /// <param name="wish">
+    /// The fields to change. Only those are touched; a field named there that the section does not have,
+    /// or carrying a value the field cannot hold, stops the whole change.
+    /// </param>
+    /// <returns>
+    /// What the server now holds, including <see cref="SettingSectionState.RestartNeededFor"/>: the fields
+    /// it has stored but will only act on when it starts again.
+    /// </returns>
+    public async Task<SettingSectionState> PutSettingSectionAsync(string key, SettingSectionWish wish,
+      CancellationToken cancellation = default)
+    {
+      return await SendJsonAsync<SettingSectionState>(HttpMethod.Put,
+          "api/media/settings/sections/" + Uri.EscapeDataString(key), wish, cancellation)
+          .ConfigureAwait(false);
     }
 
     #region The household's users

@@ -3669,6 +3669,51 @@ times 55 over 21, which is the new `HeadlineTimeFontSize` of 71. The four dials 
 (`ShowTime`, `ShowDate`, `ShowTemperature`, `ShowWeatherCondition`), and the whole slot is still the home screen's
 alone, because reading the weather was `master_home`'s business and no other master's.
 
+### bh. Settings the server keeps can be edited from a television, over the API that already carries the pictures
+
+A household that has no keyboard in the living room still has settings it wants to move: how many fanart
+pictures of each kind the library keeps, how much the server writes down. Until now both answers lived on the
+server's machine and could only be changed there, because MP2 keeps them through `ISettingsManager` and only
+the server ever holds that. The API assembly now publishes a small catalogue of the numbers and switches it is
+willing to be told about - `PluginSettingsCatalog.cs` beside the controller that serves them - and answers
+three calls over it: the list of sections, one section read, one section written. A section is a title, an
+owner, and fields; a field is one of three kinds, `toggle`, `number` or `choice`, and those three words are the
+whole contract between the two halves. `GET` and `PUT` answer in the same shape, so a television that has read
+a section knows exactly what it sent and what the server kept. The write refuses a whole change over one bad
+field - 400, one sentence, nothing stored - which is what a settings file wants anyway, since half a change is
+a settings file that no longer adds up.
+
+Two sections are in the catalogue today, and the honest reason there is nothing about plugins in it is that MP2
+currently stores no plugin options: a plugin that wanted to keep a setting would have to be given one, and the
+catalogue is where it would be named. `fanart` belongs to the media library and holds the seven counts that say
+how many pictures of each kind one title keeps. `logging` belongs to the server and holds one choice,
+`log_level`, which is stored at once but only takes effect when the server starts again - and the answer says so
+in `restartNeededFor`, so the television can admit it instead of letting a household believe the logging
+changed.
+
+The screen half is one hub row, "Plugin settings", owned by "Server", next to the other server-owned rows, and
+one view holding both halves of the work: the list of sections the server offered, each row pressing open into
+an editor that stands up in the same screen. The client keeps no copy of that table - not the sections, not
+their words, not their fields - so a section somebody adds to the catalogue appears on the television by
+itself, and the day a third server build offers a kind of field this screen has never been shown, the screen
+says that out loud rather than crashing or drawing a box around a value it does not understand. Each kind wears
+the control that kind asks for: a switch, a number box with the range it refused outside of written beside it
+and the on-screen keyboard a remote needs, and for a choice one press per name in a horizontal palette, which is
+what a remote has. Rows are only sent when they differ from what the server answered, so a save cannot overwrite
+what another television saved in between, and after a save the screen adopts the values the server returned
+rather than the ones that were typed - the server may well have clamped one. A row that cannot say what it holds
+(a number that is not whole, or stands outside its range) is refused where it was typed and stops the whole
+write before the wire, and a failed call is quoted in the status line with the form left as the viewer left it,
+because a settings screen that shows an empty form after a failure is worse than one that says it heard nothing.
+`ASectionThatWasLeftAloneSendsNothingAtAll`, `AChangedNumberSendsThatFieldAndOnlyThatField`,
+`ANumberOutsideItsRangeIsRefusedByItsRowAndNeverLeavesTheScreen` and `AKindThisScreenCannotDrawIsSaidAndNeverSent`
+hold those four promises.
+
+Open: the catalogue is short, and a plugin's own settings only become editable here the day a plugin is given a
+settings class and a catalogue entry naming it; `choice` carries bare names, so a field whose options the server
+would rather explain per option has nowhere to say it; the screen has been walked with a keyboard, never with a
+remote, which stays with everything else in the list below.
+
 ## What cannot be verified without the user
 
 
