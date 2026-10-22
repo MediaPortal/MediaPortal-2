@@ -83,6 +83,12 @@ namespace Tests.Frontend
       }
     }
 
+    /// <summary>
+    /// Every cover that arrived stands on the band, inside the room the band takes - until the band is full. A
+    /// mosaic has exactly as many places as the face drew squares, and a cover beyond the last of them is left off
+    /// rather than put on top of another one, which is the same answer the reference gives: its grids are built out
+    /// of a fixed number of controls.
+    /// </summary>
     [Test]
     public void NoCoverStandsBeyondTheRoomItsBandTakes()
     {
@@ -91,7 +97,26 @@ namespace Tests.Frontend
         for (int covers = 1; covers <= 8; covers++)
         {
           HomeContentGroup band = Band(layout, covers);
-          Assert.That(band.Tiles.Count, Is.EqualTo(covers), "every cover that arrived stands on the band");
+          Assert.That(band.Tiles.Count, Is.LessThanOrEqualTo(6),
+              $"the {layout} table the skin drew has six places, and a band stands in no more of them than that");
+          Assert.That(band.Tiles.Count, Is.EqualTo(Math.Min(covers, 6)),
+              $"every cover that arrived in the {layout} band stands on it, and no place is kept empty beside it");
+
+          for (int a = 0; a < band.Tiles.Count; a++)
+          {
+            for (int b = a + 1; b < band.Tiles.Count; b++)
+            {
+              HomeContentTile first = band.Tiles[a];
+              HomeContentTile second = band.Tiles[b];
+              bool apart = first.X + first.Width <= second.X + 0.5
+                  || second.X + second.Width <= first.X + 0.5
+                  || first.Y + first.Height <= second.Y + 0.5
+                  || second.Y + second.Height <= first.Y + 0.5;
+              Assert.That(apart, Is.True,
+                  $"the {(a + 1)}th and {(b + 1)}th covers of the {layout} band stand over each other, which is "
+                  + "what filling a table beyond its places does");
+            }
+          }
 
           foreach (HomeContentTile tile in band.Tiles)
           {
@@ -119,27 +144,109 @@ namespace Tests.Frontend
         + "beside it: both covers are one cell wide");
     }
 
+    /// <summary>
+    /// The rail of icons takes only the column it stands in, while the band of leftover plugins takes the whole
+    /// width the face drew it in. The reference lays those plugins out in a mosaic of its own - a band of 1500 of
+    /// its 1920 lines - and not in a column, because a band that shrank to the squares it happens to fill would
+    /// leave the rest of the wall standing as a gap beside it.
+    /// </summary>
     [Test]
-    public void ShortcutRailAndPluginsBandTakeOnlyTheirColumn()
+    public void ShortcutRailTakesItsColumnAndPluginsBandItsWholeMosaic()
     {
       HomeContentGroup rail = new HomeContentGroup("Shortcuts", "shortcuts", 175, 5);
-      HomeContentGroup plugins = new HomeContentGroup("Plugins", "plugins", 1500, 5);
       for (int i = 0; i < 5; i++)
-      {
         rail.AddShortcut(new NereusHomeShortcut("Search " + (i + 1), "Search", null, null));
-        plugins.AddShortcut(new NereusHomeShortcut("Plugin " + (i + 1), "Plugin", null, null));
-      }
 
-      Assert.That(rail.OccupiedWidth, Is.EqualTo(175), "the shortcut rail keeps the column the skin drew");
-      Assert.That(plugins.OccupiedWidth, Is.LessThan(plugins.Width / 2),
-          $"a plugins band drawn across the whole screen still takes only the column its entries stand in: it "
-          + $"occupies {plugins.OccupiedWidth} of {plugins.Width}");
+      HomeContentGroup plugins = PluginsBand(HomeContentGroup.PLUGINS_BAND_SLOTS);
+
+      Assert.That(rail.OccupiedWidth, Is.LessThanOrEqualTo(175).And.GreaterThan(150),
+          $"the shortcut rail keeps the column the skin drew and fills it: it takes {rail.OccupiedWidth} of 175, "
+          + "and a rail that took far less than its column would leave a gap beside the wall");
+      Assert.That(rail.Tiles.Max(tile => tile.X + tile.Width), Is.LessThanOrEqualTo(175),
+          "and no shortcut reaches past the column it was given");
       Assert.That(rail.Height, Is.EqualTo(880), "and every band keeps the height the skin drew it in");
+      Assert.That(plugins.OccupiedWidth, Is.EqualTo(1500),
+          $"the plugins band stands in the width the reference drew it in, not in the column its squares happen "
+          + $"to fill: it takes {plugins.OccupiedWidth} of {plugins.Width}");
 
       HomeContentTile lowest = rail.Tiles[rail.Tiles.Count - 1];
       Assert.That(lowest.Y + lowest.Height + SHADOW, Is.LessThanOrEqualTo(rail.BoxHeight),
           "the lowest shortcut's shadow falls inside the rail's box, so the wall does not cut it off: "
           + (lowest.Y + lowest.Height) + " plus its shadow against " + rail.BoxHeight);
+    }
+
+    /// <summary>
+    /// The reference's "Others" grid is seven columns by four rows, the first, sixth and thirteenth square twice as
+    /// wide and high as the rest, tiled without a hole. The squares are the size that measure gives - about two
+    /// hundred lines across - and not the slivers a single column cut to the band's height leaves behind: at the
+    /// old column this band shrank its squares to fifty eight lines once a dozen plugins were left over.
+    /// </summary>
+    [Test]
+    public void PluginsBandStandsInTheMosaicTheReferenceDrew()
+    {
+      HomeContentGroup plugins = PluginsBand(HomeContentGroup.PLUGINS_BAND_SLOTS);
+
+      Assert.That(plugins.Tiles.Count, Is.EqualTo(HomeContentGroup.PLUGINS_BAND_SLOTS),
+          "every leftover plugin the band has a place for stands on it");
+
+      double small = plugins.Tiles[1].Width;
+      Assert.That(small, Is.GreaterThanOrEqualTo(180),
+          $"a plugin's square in a band 1500 wide across seven columns is about two hundred lines across, not "
+          + $"{small}");
+
+      foreach (int place in new[] { 0, 5, 12 })
+      {
+        // Two cells wide, less the five a square keeps on each side - which is ten lines more than two small
+        // squares side by side, because the gap that lies between those two belongs to the big one's own cell pair.
+        Assert.That(plugins.Tiles[place].Width, Is.EqualTo(small * 2 + 10).Within(1),
+            $"the {(place + 1)}th square of the reference's grid stands over two cells, against the small one's "
+            + $"{small}: the band put {plugins.Tiles[place].Width} there");
+        Assert.That(plugins.Tiles[place].Height, Is.GreaterThan(plugins.Tiles[1].Height),
+            "and it is taller than a small square too, so it is a big square and not a wide one");
+      }
+
+      for (int a = 0; a < plugins.Tiles.Count; a++)
+      {
+        for (int b = a + 1; b < plugins.Tiles.Count; b++)
+        {
+          HomeContentTile first = plugins.Tiles[a];
+          HomeContentTile second = plugins.Tiles[b];
+          bool apart = first.X + first.Width <= second.X + 0.5
+              || second.X + second.Width <= first.X + 0.5
+              || first.Y + first.Height <= second.Y + 0.5
+              || second.Y + second.Height <= first.Y + 0.5;
+          Assert.That(apart, Is.True,
+              $"the {(a + 1)}th and {(b + 1)}th squares of the band stand over each other, which is what filling a "
+              + "table beyond its places does");
+        }
+      }
+
+      foreach (HomeContentTile tile in plugins.Tiles)
+      {
+        Assert.That(tile.X + tile.Width, Is.LessThanOrEqualTo(plugins.OccupiedWidth),
+            $"the square at {tile.X},{tile.Y} stays inside the width the band takes");
+        Assert.That(tile.Y + tile.Height + SHADOW, Is.LessThanOrEqualTo(plugins.BoxHeight),
+            $"and its shadow still falls inside the band's box: {tile.Y + tile.Height} +{SHADOW} of "
+            + plugins.BoxHeight);
+      }
+    }
+
+    /// <summary>
+    /// A mosaic has as many places as the face drew squares, and a plugin beyond the last of them is not shown -
+    /// which is the reference's own answer, since its grid is built out of nineteen controls and its converter
+    /// hands that grid the whole list to fill them. The place a leftover wants is made in the menu editor.
+    /// </summary>
+    [Test]
+    public void PluginsBeyondTheirPlacesAreLeftOffTheWall()
+    {
+      HomeContentGroup plugins = new HomeContentGroup("Others", HomeContentGroup.PLUGINS_LAYOUT, 1500,
+          HomeContentGroup.PLUGINS_BAND_SLOTS);
+      for (int i = 0; i < HomeContentGroup.PLUGINS_BAND_SLOTS + 6; i++)
+        plugins.AddMenuEntry(Plugin(i));
+
+      Assert.That(plugins.Tiles.Count, Is.EqualTo(HomeContentGroup.PLUGINS_BAND_SLOTS),
+          $"a twentieth leftover plugin has no square to stand on and is not drawn over the first one: the band "
+          + $"holds {plugins.Tiles.Count} of 25");
     }
 
     /// <summary>
@@ -151,12 +258,10 @@ namespace Tests.Frontend
     {
       HomeContentGroup mosaic = Band("poster1", 6);
       HomeContentGroup rail = new HomeContentGroup("Shortcuts", "shortcuts", 175, 5);
-      HomeContentGroup plugins = new HomeContentGroup("Plugins", "plugins", 1500, 5);
       for (int i = 0; i < 5; i++)
-      {
         rail.AddShortcut(new NereusHomeShortcut("Search " + (i + 1), "Search", null, null));
-        plugins.AddShortcut(new NereusHomeShortcut("Plugin " + (i + 1), "Plugin", null, null));
-      }
+
+      HomeContentGroup plugins = PluginsBand(HomeContentGroup.PLUGINS_BAND_SLOTS);
 
       double line = mosaic.Tiles.Min(tile => tile.Y);
       Assert.That(rail.Tiles[0].Y, Is.EqualTo(line),
@@ -172,6 +277,20 @@ namespace Tests.Frontend
       Assert.That(deepest.Y + deepest.Height + SHADOW, Is.LessThanOrEqualTo(rail.BoxHeight),
           "and the box it grows to still leaves that shadow its room: " + (deepest.Y + deepest.Height)
           + " plus its shadow against " + rail.BoxHeight);
+    }
+
+    private static HomeContentGroup PluginsBand(int plugins)
+    {
+      HomeContentGroup band = new HomeContentGroup("Others", HomeContentGroup.PLUGINS_LAYOUT, 1500, plugins);
+      for (int i = 0; i < plugins; i++)
+        band.AddMenuEntry(Plugin(i));
+      return band;
+    }
+
+    private static MainMenuEntry Plugin(int number)
+    {
+      return new MainMenuEntry(null, null, "Plugin " + (number + 1), Array.Empty<string>(), "opens the plugin",
+          null, homeImageId: Guid.NewGuid().ToString("D"));
     }
   }
 }

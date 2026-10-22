@@ -63,6 +63,20 @@
        880 of its 1080 lines, which is 0.81 of the screen; the number is kept round at eight tenths. -->
   <x:Double x:Key="HomeWallHeightRatio">0.8</x:Double>
 
+  <!-- The head over a band of the content wall. The reference draws one label for every band - "Latest added",
+       "Continue watching", "Others" - in its bold face at SmallerFontSize, which Consts.xaml sets to twenty-seven
+       of its 1080 lines, standing left-aligned over the band's own margin. One number for every band, because the
+       distance from a head to what stands under it is one decision about the wall. -->
+  <x:Double x:Key="HomeBandHeadingFontSize">27</x:Double>
+
+  <!-- A leftover plugin's plaque, measured off the reference's OtherPluginsControlTemplate: the band its name
+       stands on is forty lines of the 1080 high, the name is SmallerFontSize again (the same twenty-seven that
+       heads a band), and it rests at six tenths of light, coming to full light only under a viewer - which is the
+       whole of what the reference does when a plugin's square is stood on. -->
+  <x:Double x:Key="PluginTileBandHeight">40</x:Double>
+  <x:Double x:Key="PluginTileNameFontSize">27</x:Double>
+  <x:Double x:Key="PluginTileNameRestingOpacity">0.6</x:Double>
+
   <!-- The main menu's tiles, the same way: this face drew a tile of 170 standing in a column of 200, and both
        numbers below are those grown by a fifth - 204 of the 1440 lines this front end is drawn on for the square
        a tile wears, and 240 for the column it stands in - so the rail grows with the panel instead of staying

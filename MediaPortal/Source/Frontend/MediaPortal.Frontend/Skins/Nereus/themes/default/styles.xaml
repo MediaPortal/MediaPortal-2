@@ -347,7 +347,7 @@
 
   <!-- The strip the tile's title stands on: Nereus paints no plate but fades black up out of the tile's own
      bottom edge into nothing, over exactly the height the strip has, so the picture stays whole and the name
-     still reads. Both lines of a tile's name are centred, which is how the reference centres them. -->
+     still reads. The name is centred, which is how the reference centres it. -->
   <Style Selector="Border.home-tile-caption">
     <Setter Property="MinHeight" Value="45"/>
     <Setter Property="Background" Value="{DynamicResource TitleFadeBrush}"/>
@@ -355,8 +355,85 @@
   <Style Selector="TextBlock.home-tile-caption-title">
     <Setter Property="TextAlignment" Value="Center"/>
   </Style>
-  <Style Selector="TextBlock.home-tile-caption-detail">
+  <!-- The head over a band of the wall. One label per band, in the face's bold at the size the reference set for
+       it (SmallerFontSize), left-aligned over the band's own margin - the size is the skin's number, not the
+       screen's, so a face that draws its heads bigger moves one value and every band follows. -->
+  <Style Selector="TextBlock.home-band-heading">
+    <Setter Property="FontSize" Value="{DynamicResource HomeBandHeadingFontSize}"/>
+    <Setter Property="FontWeight" Value="Bold"/>
+    <Setter Property="Margin" Value="12,4,0,0"/>
+    <Setter Property="VerticalAlignment" Value="Top"/>
+  </Style>
+
+  <!-- A leftover plugin's plaque, dressed the way the reference dresses it and not like a cover.
+
+       A cover stands on a dark plate with a photograph on it, so its picture is cropped to the plate and the
+       name fades up out of the tile's own bottom edge. A plugin's plaque is the other way round: its ground IS
+       the face's colour - the middle of the three the viewer's chosen colour family is spelled in, which is the
+       same brush the reference called NereusColorMedium - and the plugin's picture is stretched over that ground
+       rather than cropped to it, because the picture is an emblem and not a photograph: cutting the wing off a
+       logo is worse than a little slack at its sides.
+
+       Under the name the reference lays a flat plate of black at four tenths, forty lines of its 1080 high, and
+       nothing else: no second line explaining the plugin (nineteen squares cannot hold a sentence), no frost
+       behind it (a plaque has a ground of its own), and no picture stepping nearer when a viewer stands on it.
+       What does answer being stood on is the name, from six tenths of light to full light - and the shared edge
+       every other tile on the wall wears, because one edge for a whole wall is the point. -->
+  <Style Selector="Button.nereus-plugin-tile">
+    <Setter Property="Background" Value="{DynamicResource PanelRaisedBrush}"/>
+    <Setter Property="BorderBrush" Value="#00000000"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="FocusAdorner" Value="{x:Null}"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="CornerRadius" Value="10"/>
+    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+    <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+  </Style>
+  <Style Selector="Border.plugin-tile-face">
+    <Setter Property="CornerRadius" Value="10"/>
+  </Style>
+  <Style Selector="Border.plugin-tile-band">
+    <Setter Property="MinHeight" Value="{DynamicResource PluginTileBandHeight}"/>
+    <Setter Property="Background" Value="{DynamicResource PluginTileBandBrush}"/>
+    <Setter Property="Padding" Value="6,2"/>
+  </Style>
+  <Style Selector="TextBlock.plugin-tile-name">
+    <Setter Property="FontSize" Value="{DynamicResource PluginTileNameFontSize}"/>
+    <Setter Property="FontWeight" Value="Bold"/>
     <Setter Property="TextAlignment" Value="Center"/>
+    <Setter Property="Opacity" Value="{DynamicResource PluginTileNameRestingOpacity}"/>
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.2"/>
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Button.nereus-plugin-tile:focus TextBlock.plugin-tile-name">
+    <Setter Property="Opacity" Value="1"/>
+  </Style>
+  <Style Selector="Window:not(.pointer-resting) Button.nereus-plugin-tile:pointerover TextBlock.plugin-tile-name">
+    <Setter Property="Opacity" Value="1"/>
+  </Style>
+  <!-- The plaque's edge speaks with the same four stops as the glasses' and the covers', for the same reason. -->
+  <Style Selector="Button.nereus-plugin-tile:focus Border.home-tile-edge">
+    <Setter Property="BorderBrush">
+      <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Offset="0" Color="#FFFFFFFF"/>
+        <GradientStop Offset="0.35" Color="#B3FFFFFF"/>
+        <GradientStop Offset="0.72" Color="#66FFFFFF"/>
+        <GradientStop Offset="1" Color="#CCFFFFFF"/>
+      </LinearGradientBrush>
+    </Setter>
+  </Style>
+  <Style Selector="Window:not(.pointer-resting) Button.nereus-plugin-tile:pointerover Border.home-tile-edge">
+    <Setter Property="BorderBrush">
+      <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Offset="0" Color="#FFFFFFFF"/>
+        <GradientStop Offset="0.35" Color="#B3FFFFFF"/>
+        <GradientStop Offset="0.72" Color="#66FFFFFF"/>
+        <GradientStop Offset="1" Color="#CCFFFFFF"/>
+      </LinearGradientBrush>
+    </Setter>
   </Style>
 
   <!-- The shortcut tiles: glass, and only they are. A cover wants a plate to stand on, an icon wants the room

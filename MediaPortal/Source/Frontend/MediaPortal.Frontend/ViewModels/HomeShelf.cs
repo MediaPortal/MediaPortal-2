@@ -151,18 +151,32 @@ namespace MediaPortal.Frontend.ViewModels
     public double Width { get; }
     public double Height { get; }
     public bool IsTitle => Title != null;
-    public bool IsMenuEntry => MenuEntry != null;
+
+    /// <summary>
+    /// Whether this square is one of the leftover plugins. It is the only thing a menu entry is ever put on the
+    /// wall for - the entries beside the main menu have their own tiles, and the menu editor moves entries
+    /// between them - so "a menu entry's square" and "a plugin plaque" are the same square, and the plaque is
+    /// what the reference dresses it in: the plugin's own picture stretched over a coloured ground, its name in
+    /// a dark band, nothing else.
+    /// </summary>
+    public bool IsPlugin => MenuEntry != null;
+
+    /// <summary>A cover, or the one line of explanation a band falls back to. Everything the wall draws that is
+    /// neither an icon of glass nor a plugin plaque.</summary>
+    public bool IsCover => !IsShortcut && !IsPlugin;
+
     public bool IsShortcut => Shortcut != null;
     public bool IsNote => Note != null;
     public bool IsFocusable => !IsNote;
 
     /// <summary>
-    /// Whether the tile has a picture of its own to stand on: a cover's artwork, or the image a menu entry
-    /// wears. A shortcut never has one (it is drawn, not photographed), and a cover whose fanart has not
-    /// arrived has none either - which is the one case the tile frosts itself for, since a plate carrying
-    /// nothing but a name would read as a hole in the wall rather than as a tile waiting for its picture.
+    /// Whether the square has a picture of its own to stand on: a cover's artwork. A shortcut never has one (it
+    /// is drawn, not photographed), a plugin plaque carries its picture over a ground of the face's own colour
+    /// and needs no frost behind it, and a cover whose fanart has not arrived has none either - which is the one
+    /// case the tile frosts itself for, since a plate carrying nothing but a name would read as a hole in the
+    /// wall rather than as a tile waiting for its picture.
     /// </summary>
-    public bool HasPicture => Title != null ? Title.HasArtwork : MenuEntry?.HomeImagePath != null;
+    public bool HasPicture => Title != null && Title.HasArtwork;
 
     public bool HasNoPicture => !HasPicture;
 
@@ -283,6 +297,33 @@ namespace MediaPortal.Frontend.ViewModels
         (0, 2, 2, 2), (2, 2, 1, 1), (2, 3, 1, 1)
     };
 
+    /// <summary>
+    /// The mosaic the reference lays its "Others" band out in: nineteen places in seven columns and four rows,
+    /// the first, sixth and thirteenth square twice as wide and high as the rest, in the order the reference
+    /// names them - which is not reading order, and stays as it is because the order is the road the remote's
+    /// ring walks. Tiled without a hole: every one of the twenty-eight cells is covered exactly once.
+    /// </summary>
+    private static readonly (int Column, int Row, int ColumnSpan, int RowSpan)[] SQUARE_LAYOUT_5 =
+    {
+        (0, 0, 2, 2), (2, 0, 1, 1), (2, 1, 1, 1),
+        (0, 2, 1, 1), (0, 3, 1, 1), (1, 2, 2, 2),
+        (3, 0, 1, 1), (3, 1, 1, 1), (3, 2, 1, 1), (3, 3, 1, 1),
+        (4, 0, 1, 1), (5, 0, 1, 1), (4, 1, 2, 2),
+        (4, 3, 1, 1), (5, 3, 1, 1),
+        (6, 0, 1, 1), (6, 1, 1, 1), (6, 2, 1, 1), (6, 3, 1, 1)
+    };
+
+    /// <summary>
+    /// How many plugins the "Others" band has places for, which is what the reference's own grid answers: its
+    /// <c>SquareTileLayout5Template> is built out of nineteen controls and <c>ListToGridConverter> hands the whole
+    /// list to that one grid, so a twentieth leftover plugin has no square to stand on and is not shown. The
+    /// place a leftover wants is made in the menu editor, where it is assigned to a menu entry.
+    /// </summary>
+    public const int PLUGINS_BAND_SLOTS = 19;
+
+    /// <summary>The name of that mosaic's table, which is what the band of leftover plugins is built with.</summary>
+    public const string PLUGINS_LAYOUT = "square5";
+
     private static readonly (int Column, int Row, int ColumnSpan, int RowSpan)[] THUMBNAIL_LAYOUT_1 =
     {
         (0, 0, 2, 2), (2, 0, 1, 1), (2, 1, 1, 1),
@@ -303,7 +344,7 @@ namespace MediaPortal.Frontend.ViewModels
     private readonly double _cellHeight;
 
     /// <summary>
-    /// The square a shortcut or a plugin entry is cut at. Not a number kept for itself: a column of five at the
+    /// The square a shortcut is cut at. Not a number kept for itself: a column of five at the
     /// old 159 ended twelve lines below the band's own height and twenty-nine below the lowest cover of the
     /// mosaic beside it, so the rail hung past the wall it belongs to - the one misalignment a viewer sees at a
     /// glance, because the bottom line of the content is the line every band is read against. Cut instead from
@@ -335,7 +376,7 @@ namespace MediaPortal.Frontend.ViewModels
       Width = width;
       Height = 880;
 
-      if (layout == "shortcuts" || layout == "plugins")
+      if (layout == "shortcuts")
       {
         _columns = 1;
         _rows = 5;
@@ -349,10 +390,9 @@ namespace MediaPortal.Frontend.ViewModels
         // keeps its nominal square and stands at the top of the column - five tiles grown to fill a band built
         // for two would be a column of plaques, not a rail of shortcuts.
         double span = Height - _inset - 5 - (CONTENT_TOP + 5);
-        double nominal = layout == "shortcuts" ? 159 : 150;
         _railTileSize = covers > 1
-            ? Math.Min(nominal, Math.Round((span - (covers - 1) * RAIL_GAP) / covers, 1))
-            : nominal;
+            ? Math.Min(159.0, Math.Round((span - (covers - 1) * RAIL_GAP) / covers, 1))
+            : 159.0;
         return;
       }
 
@@ -362,6 +402,7 @@ namespace MediaPortal.Frontend.ViewModels
         "poster3" => (4, 3, POSTER_LAYOUT_3),
         "square1" => (3, 4, SQUARE_LAYOUT_1),
         "square2" => (3, 4, SQUARE_LAYOUT_2),
+        "square5" => (7, 4, SQUARE_LAYOUT_5),
         "thumbnail1" => (3, 4, THUMBNAIL_LAYOUT_1),
         "thumbnail2" => (3, 4, THUMBNAIL_LAYOUT_2),
         _ => (4, 3, POSTER_LAYOUT_1)
@@ -439,7 +480,7 @@ namespace MediaPortal.Frontend.ViewModels
     /// </summary>
     private void AddTile(Func<double, double, double, double, HomeContentTile> create)
     {
-      if (Layout == "shortcuts" || Layout == "plugins")
+      if (Layout == "shortcuts")
       {
         double size = _railTileSize;
         double rail = 8;
@@ -462,7 +503,14 @@ namespace MediaPortal.Frontend.ViewModels
 
       if (_designedMosaic)
       {
-        (column, row, columnSpan, rowSpan) = _layout[square % _layout.Length];
+        // A mosaic has exactly as many places as the face drew squares, and a square beyond the last place has
+        // nowhere to stand but on top of another one. The reference answers the same way: its grid is built out of
+        // a fixed number of controls and one of its home contents hands that grid the whole list to fill them, so
+        // what does not fit is not shown. Left out, then - never wrapped round onto the first cell.
+        if (square >= _layout.Length)
+          return;
+
+        (column, row, columnSpan, rowSpan) = _layout[square];
       }
       else
       {

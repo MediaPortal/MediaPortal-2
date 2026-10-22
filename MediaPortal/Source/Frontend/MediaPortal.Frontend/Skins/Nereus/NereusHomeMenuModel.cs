@@ -109,7 +109,7 @@ namespace MediaPortal.Frontend.Skins.Nereus
         };
 
     private readonly MainMenuEntry _otherPluginsEntry = new MainMenuEntry(
-        null, null, "Other Plugins", Array.Empty<string>(), "other available actions", null,
+        null, null, HomeViewModel.OTHER_PLUGINS_HEADING, Array.Empty<string>(), "All other plugins.", null,
         homeImageId: OTHER_PLUGINS_ACTION_ID.ToString("D"));
 
     public ObservableCollection<MainMenuEntry> MainMenuItems { get; } =

@@ -379,6 +379,13 @@ namespace MediaPortal.Frontend.ViewModels
     public const double CONTENT_GAP = 40;
 
     /// <summary>
+    /// What the band of leftover plugins, and the last tile of the main menu that opens it, are called. The
+    /// reference keeps the name in one string - <c>Nereus.Home.OtherPlugins</c> - and spells it "Others" in both
+    /// places, so the tile in the rail and the head over the mosaic say the same word.
+    /// </summary>
+    public const string OTHER_PLUGINS_HEADING = "Others";
+
+    /// <summary>
     /// Where the content begins: the rail as this panel made it, and the gap the reference leaves beside it.
     ///
     /// <para>
@@ -1003,14 +1010,23 @@ namespace MediaPortal.Frontend.ViewModels
       if (entry == null)
         return;
 
+      // The leftover plugins get the band the reference gives them: one band of the face's widest measure, laid
+      // out in the mosaic its SquareTileLayout5Template draws - nineteen places, the first, sixth and thirteenth
+      // square twice as big as the rest - and nineteen is also the ceiling, because the reference hands the whole
+      // list to that one grid and a twentieth leftover plugin simply has no square to stand on. The list beside
+      // the menu still names every one of them (a list scrolls, a mosaic cannot), and the place a leftover wants
+      // is made in the menu editor, where it is assigned to a menu entry.
       if (_nereusMenu.IsOtherPluginsEntry(entry))
       {
-        HomeContentGroup plugins = new HomeContentGroup("Other Plugins", "plugins", 1500,
-            _nereusMenu.OtherMenuItems.Count);
-        foreach (MainMenuEntry otherEntry in _nereusMenu.OtherMenuItems)
+        int places = Math.Min(HomeContentGroup.PLUGINS_BAND_SLOTS, _nereusMenu.OtherMenuItems.Count);
+        HomeContentGroup plugins = new HomeContentGroup(OTHER_PLUGINS_HEADING, HomeContentGroup.PLUGINS_LAYOUT,
+            1500, places);
+        for (int i = 0; i < _nereusMenu.OtherMenuItems.Count; i++)
         {
+          MainMenuEntry otherEntry = _nereusMenu.OtherMenuItems[i];
           rows.Add(HomeRow.For(otherEntry));
-          plugins.AddMenuEntry(otherEntry);
+          if (i < places)
+            plugins.AddMenuEntry(otherEntry);
         }
         if (plugins.Tiles.Count > 0)
           wall.Add(plugins);
