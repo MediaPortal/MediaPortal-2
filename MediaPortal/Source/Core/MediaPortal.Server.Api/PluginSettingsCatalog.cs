@@ -25,6 +25,8 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using MediaPortal.Backend.MediaLibrary;
+using MediaPortal.Common.Certifications;
 using MediaPortal.Common.FanArt;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Services.Logging;
@@ -76,6 +78,13 @@ namespace MediaPortal.Server.Api
     public const string KIND_CHOICE = "choice";
 
     /// <summary>
+    /// A field that is a word typed in. Empty is an answer of its own ("nothing in particular"), which is why
+    /// this exists next to <see cref="KIND_CHOICE"/>: a list long enough to need typing is too long to offer as
+    /// buttons, and a list with an empty entry among its names cannot be offered as buttons at all.
+    /// </summary>
+    public const string KIND_TEXT = "text";
+
+    /// <summary>
     /// One field of one settings class, as a screen needs it: which property it is, what to call it, what to
     /// say under it, and what it accepts.
     /// </summary>
@@ -108,7 +117,8 @@ namespace MediaPortal.Server.Api
       /// <summary>The words a screen puts under it. Empty when the label says everything.</summary>
       public string Help { get; }
 
-      /// <summary>One of <see cref="KIND_TOGGLE"/>, <see cref="KIND_NUMBER"/>, <see cref="KIND_CHOICE"/>.</summary>
+      /// <summary>One of <see cref="KIND_TOGGLE"/>, <see cref="KIND_NUMBER"/>, <see cref="KIND_CHOICE"/>,
+      /// <see cref="KIND_TEXT"/>.</summary>
       public string Kind { get; }
 
       /// <summary>Lowest accepted value. Only a number answers this question.</summary>
@@ -260,6 +270,41 @@ namespace MediaPortal.Server.Api
             Number("max_logos", "MaxLogoFanArt", "Logos", "")
           }),
 
+      new Section("virtual_media", "Whether the titles there are not are shown too",
+          "The library sometimes learns of a film, an episode or an album that stands on no share. This says "
+          + "whether those belong on the shelves.",
+          "Media library", typeof(VirtualMediaSettings),
+          new Field[]
+          {
+            // The reference asked these per signed-in person, beside its browsing choices. Kept as Global here,
+            // because a browse is answered before anybody is known; the wording on the screen says what the
+            // switch does rather than promising a per-person answer it cannot give.
+            Toggle("show_virtual_movies", "ShowVirtualMovieMedia", "Films and collections",
+                "A collection shows every film that belongs to it, even the ones nobody has. Off is what this "
+                + "runs with, because a cover that turns out to be a promise is a shelf one stops trusting."),
+            Toggle("show_virtual_series", "ShowVirtualSeriesMedia", "Series, seasons and episodes",
+                "A series shows the episodes it is missing too, so a show one is in the middle of collecting "
+                + "stands complete. The ones without a file cannot be played."),
+            Toggle("show_virtual_audio", "ShowVirtualAudioMedia", "Albums and recordings",
+                "An album shows every recording that belongs to it, even the ones nobody has.")
+          }),
+
+      new Section("certifications", "In which country's words an age certificate is shown",
+          "A title is imported with the mark of the country that rated it. This names the country whose mark a "
+          + "screen should speak instead.",
+          "Media library", typeof(MediaCertificationSettings),
+          new Field[]
+          {
+            // Two letters typed in rather than a list of the thirty-one countries the table knows: the list is
+            // too long for the row a choice is built out of, and its first entry - "as imported", which is what
+            // everything runs with - is an empty string, which no button can be labelled with.
+            Country("movie_country", "DisplayMovieCertificationCountry", "Films",
+                "Two letters, like \"DE\" or \"US\". Empty - which is what this runs with - keeps the mark the "
+                + "title was imported with, and so does a mark the server does not know."),
+            Country("series_country", "DisplaySeriesCertificationCountry", "Series",
+                "Two letters, like \"DE\" or \"US\". Empty keeps the imported mark.")
+          }),
+
       new Section("logging", "How much the server writes down",
           "The one switch that makes a support question answerable: what the server leaves in its log.",
           "Server", typeof(LogSettings),
@@ -380,6 +425,17 @@ namespace MediaPortal.Server.Api
     private static Field Toggle(string key, string property, string label, string help)
     {
       return new Field(key, property, label, help, KIND_TOGGLE, 0, 0, null, null, false);
+    }
+
+    /// <summary>
+    /// A country named by its two letters. Offered as a word to type rather than a list to pick from, because
+    /// the certificate table knows thirty-one countries - more than a row of buttons carries usefully - and
+    /// because the first answer, "the country the title came from", is no name at all and so has nothing to
+    /// label a button with.
+    /// </summary>
+    private static Field Country(string key, string property, string label, string help)
+    {
+      return new Field(key, property, label, help, KIND_TEXT, 0, 0, null, null, false);
     }
 
     /// <summary>

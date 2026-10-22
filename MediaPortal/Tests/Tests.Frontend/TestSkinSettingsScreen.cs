@@ -131,16 +131,19 @@ namespace Tests.Frontend
     }
 
     [AvaloniaTest]
-    public void WmcShowsExactlyItsElevenSwitches()
+    public void WmcShowsExactlyItsThirteenRows()
     {
       Application app = RequireApplication();
       FrontendTheme.Apply(app, "wmc", out _);
 
       SkinSettingsViewModel vm = new SkinSettingsViewModel(app, FileIn(_ownDir, "wmc"));
 
-      Assert.That(vm.Options.Count, Is.EqualTo(11),
-          "WMC's settings class holds eleven switches; the screen may show neither more nor fewer");
+      Assert.That(vm.Options.Count, Is.EqualTo(13),
+          "WMC's settings class holds its eleven switches plus the two formats the reference's skin base "
+          + "spoke; the screen may show neither more nor fewer");
       Assert.That(vm.Options.Any(o => o.Label == "Home content"), Is.True);
+      Assert.That(Row(vm, "Time format").IsText, Is.True, "a format is typed, as its row always was");
+      Assert.That(Row(vm, "Date format").Words, Is.EqualTo("D"));
 
       foreach (string foreign in new[] { "Colour", "Header transparency", "Show time", "Help texts",
               "Auto scrolling", "Grid details", "Touch display", "Fanart blur" })
@@ -162,6 +165,48 @@ namespace Tests.Frontend
       Assert.That(vm.Subtitle, Does.Contain("own face"));
       Assert.That(File.Exists(Path.Combine(_ownDir, "skin-default.json")), Is.False,
           "a screen with nothing to say writes nothing");
+    }
+
+    /// <summary>
+    /// The two format rows are the only ones on this screen that are written rather than worked: typing into
+    /// one is the change and the save, and pressing the row - which is what a remote does to a highlighted
+    /// row - has to leave it alone rather than walk a sentence somewhere.
+    /// </summary>
+    [AvaloniaTest]
+    public void AFormatIsTypedIntoTheSkinAndNothingElseHappensToIt()
+    {
+      Application app = RequireApplication();
+      FrontendTheme.Apply(app, "nereus", out _);
+      string file = FileIn(_ownDir, "nereus");
+
+      SkinSettingsViewModel vm = new SkinSettingsViewModel(app, file);
+      SkinSettingOption clock = Row(vm, "Time format");
+
+      Assert.That(clock.Words, Is.EqualTo("t"), "the screen opens on the reference's own format");
+      Assert.That(clock.IsText, Is.True);
+      Assert.That(clock.IsToggle, Is.False);
+      Assert.That(clock.ShowsButton, Is.False, "a typed row wears a box, not a button walking nowhere");
+
+      vm.Selected = clock;
+      vm.PressSelected();
+      Assert.That(clock.Words, Is.EqualTo("t"), "pressing a written row cannot advance it anywhere");
+      Assert.That(vm.Status, Is.Empty.Or.EqualTo(""), "and says nothing about a change it did not make");
+
+      clock.Words = "  HH:mm  ";
+      Assert.That(vm.Status, Does.Contain("Time format is now HH:mm"));
+
+      NereusSkinSettings saved = NereusSkinSettings.Load(file, out _);
+      Assert.That(saved.TimeFormat, Is.EqualTo("HH:mm"),
+          "the spaces around what somebody typed are not part of the answer");
+      Assert.That(saved.DateFormat, Is.EqualTo("D"), "the day was not sent and stands as it was");
+
+      // A format the machine cannot write with is the viewer's own mistake to make; the head line falls back
+      // rather than going blank, and the screen keeps what was written so it can be seen and corrected.
+      clock.Words = "%";
+      saved = NereusSkinSettings.Load(file, out _);
+      Assert.That(saved.TimeFormat, Is.EqualTo("%"), "the screen stores what was typed");
+      Assert.That(SkinSettingsBase.Written(saved.TimeFormat, SkinSettingsBase.DEFAULT_TIME_FORMAT),
+          Is.EqualTo("t"), "but the clock reads its own words through the fallback");
     }
 
     [AvaloniaTest]

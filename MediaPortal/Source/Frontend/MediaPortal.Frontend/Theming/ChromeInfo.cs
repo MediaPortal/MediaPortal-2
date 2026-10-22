@@ -43,9 +43,19 @@ namespace MediaPortal.Frontend.Theming
     private System.Timers.Timer? _clockTimer;
     private Action<Action>? _marshal;
 
+    /// <summary>
+    /// How the header writes the time, in the worn skin's words. Declared before the two properties it writes
+    /// because a field's first answer is made in the order the fields stand, and the clock and the day are
+    /// dressed with these.
+    /// </summary>
+    private string _timeFormat = Settings.SkinSettingsBase.DEFAULT_TIME_FORMAT;
+
+    /// <summary>How the header writes the day. See <see cref="_timeFormat"/>.</summary>
+    private string _dateFormat = Settings.SkinSettingsBase.DEFAULT_DATE_FORMAT;
+
     public ChromeInfo()
     {
-      _clock = FormatClock(DateTime.Now);
+      _clock = FormatClock(DateTime.Now, _timeFormat);
     }
 
     public ChromeInfo(Action<Action>? marshal)
@@ -87,8 +97,8 @@ namespace MediaPortal.Frontend.Theming
     /// </summary>
     private void ReportClock()
     {
-      string now = FormatClock(DateTime.Now);
-      string today = FormatDate(DateTime.Now);
+      string now = FormatClock(DateTime.Now, _timeFormat);
+      string today = FormatDate(DateTime.Now, _dateFormat);
       if (_marshal == null)
       {
         Clock = now;
@@ -123,7 +133,7 @@ namespace MediaPortal.Frontend.Theming
     /// settings made it the clock's own companion (ShowDate next to ShowTime), not a stranger's.
     /// </summary>
     [ObservableProperty]
-    private string _date = FormatDate(DateTime.Now);
+    private string _date = FormatDate(DateTime.Now, Settings.SkinSettingsBase.DEFAULT_DATE_FORMAT);
 
     /// <summary>The name of the screen the window is on; the header shows it where the reference masters showed their title.</summary>
     [ObservableProperty]
@@ -307,9 +317,30 @@ namespace MediaPortal.Frontend.Theming
       _marshal(() => ServerNotice = notice);
     }
 
-    private static string FormatClock(DateTime now)
+    /// <summary>
+    /// Put on the two formats the worn skin was written with, and say the time and the day again at once.
+    /// </summary>
+    /// <param name="timeFormat">The skin's <c>TimeFormat</c>; empty or unusable falls back to "t".</param>
+    /// <param name="dateFormat">The skin's <c>DateFormat</c>; empty or unusable falls back to "D".</param>
+    /// <remarks>
+    /// The reference did the same thing with a shout across the skin - both of its format rows sent
+    /// <c>SkinMessaging.DateTimeFormatChanged</c> after saving, and the header's clock listened - because a
+    /// person who has just typed a new format is standing in front of the old one. This front end has no
+    /// message bus, so the screen that saves the answer hands the formats to the only thing that reads them.
+    /// </remarks>
+    public void WearFormats(string? timeFormat, string? dateFormat)
     {
-      return now.ToString("HH:mm");
+      _timeFormat = Settings.SkinSettingsBase.Written(timeFormat, Settings.SkinSettingsBase.DEFAULT_TIME_FORMAT);
+      _dateFormat = Settings.SkinSettingsBase.Written(dateFormat, Settings.SkinSettingsBase.DEFAULT_DATE_FORMAT);
+      ReportClock();
+    }
+
+    private static string FormatClock(DateTime now, string format)
+    {
+      // The language the interface reads in, because the reference's clock was written by the culture its
+      // localisation had, and "t" means "14:30" in one language and "2:30 PM" in another - which is the whole
+      // point of a skin that hands the format over to whoever wears it.
+      return now.ToString(format, Settings.ClientSettings.UiCulture());
     }
 
     /// <summary>
@@ -317,9 +348,9 @@ namespace MediaPortal.Frontend.Theming
     /// their own, and a head line that reads "Montag" on a German box and "Monday" on an English one is
     /// that setting doing its one visible job.
     /// </summary>
-    private static string FormatDate(DateTime now)
+    private static string FormatDate(DateTime now, string format)
     {
-      return now.ToString("D", Settings.ClientSettings.UiCulture());
+      return now.ToString(format, Settings.ClientSettings.UiCulture());
     }
   }
 }

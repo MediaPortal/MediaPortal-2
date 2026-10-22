@@ -39,6 +39,7 @@ public sealed class SkinSettingOption : ObservableObject
   private readonly Action<bool> _setFlag;
   private readonly Func<string> _getText;
   private readonly Action _advance;
+  private readonly Action<string> _setWords;
   private readonly Action<SkinSettingOption> _changed;
 
   /// <summary>A switch with two answers: the row wears a checkbox.</summary>
@@ -65,11 +66,48 @@ public sealed class SkinSettingOption : ObservableObject
     _changed = changed;
   }
 
+  /// <summary>
+  /// An answer one types: the row wears a box. The reference had exactly this for its two date and time
+  /// formats - a line to write a format into, in its configuration program - and a format has no list of
+  /// answers to walk through, because it is not a choice but a sentence.
+  /// </summary>
+  /// <summary>
+  /// A row whose answer is written rather than picked: the box, the skin's property, and the save behind it.
+  /// </summary>
+  /// <remarks>
+  /// Built through a name rather than a fourth constructor, because a row made of "a sentence and a way of
+  /// working it" is indistinguishable from one made of "a sentence and a next answer" wherever an anonymous
+  /// method is handed over - and the two rows do different things with the press.
+  /// </remarks>
+  public static SkinSettingOption Written(string label, string description, Func<string> getText,
+      Action<string> setWords, Action<SkinSettingOption> changed)
+  {
+    return new SkinSettingOption(label, description, getText, setWords, changed);
+  }
+
+  private SkinSettingOption(string label, string description, Func<string> getText, Action<string> setWords,
+      Action<SkinSettingOption> changed)
+  {
+    Label = label;
+    Description = description;
+    IsToggle = false;
+    IsText = true;
+    _getText = getText;
+    _setWords = setWords;
+    _changed = changed;
+  }
+
   public string Label { get; }
   public string Description { get; }
 
   /// <summary>Whether the row works its answer with a checkbox (true) or with a button (false).</summary>
   public bool IsToggle { get; }
+
+  /// <summary>Whether the row's answer is written rather than picked.</summary>
+  public bool IsText { get; }
+
+  /// <summary>Whether the row wears the button that walks a list; a typed row wears a box instead.</summary>
+  public bool ShowsButton => !IsToggle && !IsText;
 
   /// <summary>
   /// What the checkbox shows and what working it does: writing it is the change, straight through to the
@@ -87,6 +125,24 @@ public sealed class SkinSettingOption : ObservableObject
     }
   }
 
+  /// <summary>
+  /// What the box holds and what the skin stores, in one movement: a typed answer is saved as it is written,
+  /// exactly as a checkbox is. The reference's configuration tool kept the same bargain - its format line
+  /// wrote the settings class the moment it was accepted.
+  /// </summary>
+  public string Words
+  {
+    get => _getText();
+    set
+    {
+      string text = (value ?? "").Trim();
+      if (string.Equals(_getText(), text, StringComparison.Ordinal))
+        return;
+      _setWords(text);
+      _changed(this);
+    }
+  }
+
   /// <summary>The answer as words - what the checkbox means, and what the button shows.</summary>
   public string ValueText => _getFlag != null ? (_getFlag() ? "On" : "Off") : _getText();
 
@@ -98,11 +154,12 @@ public sealed class SkinSettingOption : ObservableObject
   {
     if (_getFlag != null)
       IsChecked = !_getFlag();
-    else
+    else if (_advance != null)
     {
       _advance();
       _changed(this);
     }
+    // A typed row has nothing to press to. It is stood on, typed into, and saved as it is typed.
   }
 
   /// <summary>
@@ -130,6 +187,7 @@ public sealed class SkinSettingOption : ObservableObject
   {
     OnPropertyChanged(nameof(ValueText));
     OnPropertyChanged(nameof(IsChecked));
+    OnPropertyChanged(nameof(Words));
   }
 }
 
@@ -267,6 +325,17 @@ public partial class SkinSettingsViewModel : ObservableObject
     Toggle("Age certification logos", "The certificate mark on items that carry one",
         () => s.EnableAgeCertificationLogos, v => s.EnableAgeCertificationLogos = v);
 
+    // The two formats the reference kept in its skin base settings, in the same place it kept them - both
+    // skins speak them, so they belong above the skins' own rows. Typed rather than picked, as its
+    // configuration program had them: a format is a sentence, not a choice out of a list.
+    Words("Time format", "How the clock is written, in the format letters: \"t\" is the short time of the "
+        + "language you read in, \"HH:mm\" is that in twenty-four hours. A format the machine cannot write "
+        + "is left as the one you had.",
+        () => s.TimeFormat, v => s.TimeFormat = v);
+    Words("Date format", "How the day is written: \"D\" spells it out in full, \"d\" is short, \"dd.MM.yyyy\" "
+        + "is one of many you can write.",
+        () => s.DateFormat, v => s.DateFormat = v);
+
     if (s is WMCSkinSettings wmc)
     {
       Toggle("Home content", "The panels the WMC home menu stands on",
@@ -396,6 +465,12 @@ public partial class SkinSettingsViewModel : ObservableObject
   private void Toggle(string label, string description, Func<bool> get, Action<bool> set)
   {
     Options.Add(new SkinSettingOption(label, description, get, set, Changed));
+  }
+
+  /// <summary>An answer one types, for the settings whose value is a format rather than a choice.</summary>
+  private void Words(string label, string description, Func<string> get, Action<string> set)
+  {
+    Options.Add(SkinSettingOption.Written(label, description, get, set, Changed));
   }
 
   private void Step(string label, string description, Func<double> get, Action<double> set,

@@ -126,6 +126,18 @@ namespace Tests.Frontend
       };
     }
 
+    private static SettingFieldState TextField(string key, string label, string? value)
+    {
+      return new SettingFieldState
+      {
+        Key = key,
+        Label = label,
+        Help = "Two letters the library's importer writes for the country a rating comes from.",
+        Kind = SettingSectionViewModelKinds.Text,
+        Value = value == null ? default : Json(value)
+      };
+    }
+
     private static SettingFieldState ChoiceField(string key, string label, string value, bool restart = false,
         params string[] options)
     {
@@ -229,7 +241,8 @@ namespace Tests.Frontend
         SectionAnswer = State(
             ToggleField("keep_thumbs", "Keep the small ones", true),
             NumberField("max_banners", "Banners", 4),
-            ChoiceField("log_level", "Log level", "Warning", false, "None", "Warning", "Debug"))
+            ChoiceField("log_level", "Log level", "Warning", false, "None", "Warning", "Debug"),
+            TextField("display_movie_certification_country", "Movies", "DE"))
       };
 
       PluginSettingsViewModel screen = await ScreenOn(api);
@@ -238,9 +251,12 @@ namespace Tests.Frontend
       Assert.That(section.Fields[0].IsToggle, Is.True);
       Assert.That(section.Fields[1].IsNumber, Is.True);
       Assert.That(section.Fields[2].IsChoice, Is.True);
+      Assert.That(section.Fields[3].IsText, Is.True,
+          "a country the library cannot be asked to pick from a list is written into a box");
       foreach (SettingFieldViewModel field in section.Fields)
       {
-        Assert.That(new[] { field.IsToggle, field.IsNumber, field.IsChoice }.Count(on => on), Is.EqualTo(1),
+        Assert.That(new[] { field.IsToggle, field.IsNumber, field.IsChoice, field.IsText }.Count(on => on),
+            Is.EqualTo(1),
             "{0} wears exactly one control - a row that drew two would ask the viewer which one is meant",
             field.Label);
         Assert.That(field.IsUndrawable, Is.False);
@@ -339,6 +355,41 @@ namespace Tests.Frontend
 
       Assert.That(api.Sent!.Values.Keys, Is.EqualTo(new[] { "keep_thumbs" }));
       Assert.That(api.Sent.Values["keep_thumbs"], Is.EqualTo(true));
+    }
+
+    /// <summary>
+    /// The country rows are the screen's only free text, so they are where the box has to behave: what comes
+    /// back is the word without the spaces somebody typed around it, and a box somebody emptied on purpose is
+    /// an answer of its own - the ratings fall back to the importer's - not a row that was left alone.
+    /// </summary>
+    [Test]
+    public async Task AWordGoesBackAsAWordAndAnEmptiedBoxGoesBackToo()
+    {
+      FakeSectionsApi api = new FakeSectionsApi
+      {
+        ListAnswer = new SettingSectionsAnswer { Sections = new[] { Summary("certifications", "Certificates") } },
+        SectionAnswer = State("certifications",
+            TextField("display_movie_certification_country", "Movies", "DE"),
+            TextField("display_series_certification_country", "Series", "DE"))
+      };
+
+      PluginSettingsViewModel screen = await ScreenOn(api);
+      SettingSectionViewModel section = screen.Section!;
+
+      section.Fields[0].Words = "  US  ";
+      await section.SaveAsync();
+
+      Assert.That(api.Sent!.Values.Keys, Is.EqualTo(new[] { "display_movie_certification_country" }));
+      Assert.That(api.Sent.Values["display_movie_certification_country"], Is.EqualTo("US"),
+          "what the server wanted was a country, so the spaces around it are not sent along");
+
+      api.Sent = null;
+      section.Fields[1].Words = "";
+      await section.SaveAsync();
+
+      Assert.That(api.Sent!.Values.Keys, Is.EqualTo(new[] { "display_series_certification_country" }),
+          "a box emptied on purpose is a change, not a row that was left alone");
+      Assert.That(api.Sent.Values["display_series_certification_country"], Is.EqualTo(""));
     }
 
     [Test]

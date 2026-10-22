@@ -372,9 +372,10 @@ namespace MediaPortal.Frontend.Views
       bool showDate = true;
       bool showTemperature = true;
       bool showWeatherCondition = true;
-      if (Settings.SkinSettingsBase.LoadFor(Theming.FrontendTheme.CurrentName(Avalonia.Application.Current!),
-          null, out _)
-          is Settings.NereusSkinSettings nereus)
+      Settings.SkinSettingsBase? worn =
+          Settings.SkinSettingsBase.LoadFor(Theming.FrontendTheme.CurrentName(Avalonia.Application.Current!),
+              null, out _);
+      if (worn is Settings.NereusSkinSettings nereus)
       {
         showTime = nereus.ShowTime;
         showDate = nereus.ShowDate;
@@ -385,6 +386,11 @@ namespace MediaPortal.Frontend.Views
       _chrome.ShowDate = showDate;
       _chrome.ShowTemperature = showTemperature;
       _chrome.ShowWeatherCondition = showWeatherCondition;
+
+      // How the clock and the day are spelled belongs to the skin too - the reference kept both formats in
+      // its skin settings, not in the application's - so this is where they cross over, and the head line is
+      // said again in them straight away. A skin that speaks no formats leaves the reference's standing.
+      _chrome.WearFormats(worn?.TimeFormat, worn?.DateFormat);
 
       // The reference's master chrome sat on the screen's own background - the header was never a band of its
       // own colour - so the templates paint themselves with the theme's screen colour, live, through a

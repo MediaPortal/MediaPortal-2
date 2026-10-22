@@ -185,6 +185,63 @@ public abstract class SkinSettingsBase
   public bool EnableAgeCertificationLogos { get; set; } = true;
 
   /// <summary>
+  /// How the clock is written, in the .NET format the reference's skin settings used: a single standard
+  /// letter, or a custom pattern of one's own. "t" - the short time of the language one reads in, "14:30"
+  /// here and "2:30 PM" there - is what both reference skins shipped and what this answers with.
+  /// </summary>
+  /// <remarks>
+  /// A pattern the machine cannot make sense of is not a reason to show nothing: <see cref="Written"/>
+  /// falls back to this default, and a household that typed nonsense gets the clock it had before rather
+  /// than a blank where the time should be.
+  /// </remarks>
+  [JsonPropertyName("timeFormat")]
+  public string TimeFormat { get; set; } = DEFAULT_TIME_FORMAT;
+
+  /// <summary>How the date is written. "D" - the long date of the language one reads in - is the reference's.</summary>
+  [JsonPropertyName("dateFormat")]
+  public string DateFormat { get; set; } = DEFAULT_DATE_FORMAT;
+
+  /// <summary>The answer both reference skins shipped for <see cref="TimeFormat"/>.</summary>
+  public const string DEFAULT_TIME_FORMAT = "t";
+
+  /// <summary>The answer both reference skins shipped for <see cref="DateFormat"/>.</summary>
+  public const string DEFAULT_DATE_FORMAT = "D";
+
+  /// <summary>
+  /// The format to write with: what was stored, when the machine can write with it.
+  /// </summary>
+  /// <param name="stored">The stored format, which a person typed.</param>
+  /// <param name="fallback">What to write with when it cannot be used.</param>
+  /// <remarks>
+  /// Asked of a date rather than of words, because a format that throws in one language is a format that
+  /// works in another: "dddd" names a weekday in English and is meaningless in a language whose month names
+  /// a digit cannot stand in. So the question is asked every time, of the culture that is answering, and an
+  /// empty answer is treated as the same mistake rather than as the wish to see nothing.
+  /// </remarks>
+  public static string Written(string? stored, string fallback)
+  {
+    string format = (stored ?? "").Trim();
+    if (format.Length == 0)
+      return fallback;
+
+    try
+    {
+      DateTime.Now.ToString(format, System.Globalization.CultureInfo.CurrentCulture);
+      return format;
+    }
+    catch (FormatException)
+    {
+      return fallback;
+    }
+    catch (System.Security.SecurityException)
+    {
+      // A format that reaches for something the process may not look at. Not a thing a skin dial does, and
+      // said rather than assumed, because the alternative is the clock stopping over it.
+      return fallback;
+    }
+  }
+
+  /// <summary>
   /// Which file a read consults for the current owner: their own file once they have one; the shared file
   /// if it is still the only answer this machine has (a signed-in viewer inherits what the machine was
   /// told, and their first save leaves their own file behind); and their own missing file - the shipped

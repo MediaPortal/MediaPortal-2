@@ -72,6 +72,13 @@
                     <TextBlock Classes="hint" VerticalAlignment="Center" Text="{Binding RangeHint}"/>
                   </StackPanel>
 
+                  <!-- A word typed in, for the answers that are words. Empty is one of them, which is why the
+                       row carries no note about a range and nothing that would have to be cleared first. -->
+                  <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding IsText}">
+                    <TextBox Width="200" Text="{Binding Words}"
+                             views:VirtualKeyboardService.Trigger="EnterOrMenu"/>
+                  </StackPanel>
+
                   <!-- The names a choice offers, as presses in a row: one gesture per answer, which is what a
                        remote has. The mark says which name the server holds, in the accent it is announcing. -->
                   <ItemsControl ItemsSource="{Binding Options}" IsVisible="{Binding IsChoice}">

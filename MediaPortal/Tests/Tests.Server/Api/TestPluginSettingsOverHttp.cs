@@ -33,6 +33,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using MediaPortal.Common;
+using MediaPortal.Common.Certifications;
 using MediaPortal.Common.FanArt;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
@@ -69,6 +70,8 @@ namespace Tests.Server.Api
     private FanArtSettings _fanArt;
     private LogSettings _logging;
     private NfoMovieMetadataExtractorSettings _nfoMovie;
+    private VirtualMediaSettings _invented;
+    private MediaCertificationSettings _certificates;
 
     [TearDown]
     public void StopEverything()
@@ -123,6 +126,14 @@ namespace Tests.Server.Api
       _store[typeof(FanArtSettings)] = _fanArt;
       _store[typeof(LogSettings)] = _logging;
       _store[typeof(NfoMovieMetadataExtractorSettings)] = _nfoMovie;
+
+      // The two answers the library itself reads: what the shelves may hold, and in which country's words an
+      // age certificate is spoken. Both are the object the media endpoints load, so a save here can be proved
+      // to have reached the class that answers a browse.
+      _invented = new VirtualMediaSettings();
+      _certificates = new MediaCertificationSettings();
+      _store[typeof(VirtualMediaSettings)] = _invented;
+      _store[typeof(MediaCertificationSettings)] = _certificates;
 
       Mock<ISettingsManager> settingsManager = new Mock<ISettingsManager>();
       settingsManager.Setup(s => s.Load(It.IsAny<Type>()))
@@ -258,7 +269,7 @@ namespace Tests.Server.Api
           string name = field.GetProperty("key").GetString();
           Assert.That(field.GetProperty("value").ValueKind, Is.Not.EqualTo(JsonValueKind.Null),
               "the section \"" + key + "\" opened the field \"" + name + "\" but has no value for it");
-          Assert.That(new string[] { "toggle", "number", "choice" },
+          Assert.That(new string[] { "toggle", "number", "choice", "text" },
               Does.Contain(field.GetProperty("kind").GetString()),
               "the field \"" + name + "\" wears a kind no screen knows how to draw");
           if (field.GetProperty("kind").GetString() == "choice")
@@ -477,6 +488,104 @@ namespace Tests.Server.Api
       (HttpStatusCode putCode, string putBody) =
           await Put(_baseUrl + "/api/media/settings/sections/database", "{\"values\":{\"path\":\"x\"}}");
       Assert.That(putCode, Is.EqualTo(HttpStatusCode.NotFound), putBody);
+    }
+
+    [Test]
+    public async Task TheQuestionsAboutWhatTheShelvesHoldAreAskedHereToo()
+    {
+      StartServer();
+
+      (HttpStatusCode code, string body) = await Get(_baseUrl + "/api/media/settings/sections");
+      Assert.That(code, Is.EqualTo(HttpStatusCode.OK), body);
+
+      List<string> keys = new List<string>();
+      foreach (JsonElement section in Read(body).GetProperty("sections").EnumerateArray())
+        keys.Add(section.GetProperty("key").GetString());
+
+      // Two questions the reference asked on the machine wearing its skin, asked here because it is this
+      // server that reads the answers out of its own library.
+      Assert.That(keys, Does.Contain("virtual_media"),
+          "whether the titles there are not belong on the shelves is a household's question");
+      Assert.That(keys, Does.Contain("certifications"),
+          "and in which country's words an age certificate is spoken is another");
+    }
+
+    [Test]
+    public async Task TheCertificateRowsAreWordsAndAnEmptyOneIsAnAnswerOfItsOwn()
+    {
+      StartServer();
+
+      (HttpStatusCode code, string body) = await Get(_baseUrl + "/api/media/settings/sections/certifications");
+      Assert.That(code, Is.EqualTo(HttpStatusCode.OK), body);
+
+      JsonElement section = Read(body);
+      // A country typed in rather than picked from the thirty-one the table knows, because the first answer -
+      // "as it was imported", which is what everything runs with - is no name at all.
+      foreach (string key in new[] { "movie_country", "series_country" })
+      {
+        JsonElement field = FieldOf(section, key);
+        Assert.That(field.GetProperty("kind").GetString(), Is.EqualTo("text"),
+            "a country's two letters are typed, and the reference's own row was a line to write into");
+        Assert.That(field.GetProperty("value").GetString(), Is.Empty,
+            "nothing named is what the reference shipped: the mark the title came in with is shown");
+      }
+    }
+
+    [Test]
+    public async Task ACountryTypedWithSpacesIsStoredWithoutThem()
+    {
+      StartServer();
+
+      (HttpStatusCode code, string body) = await Put(_baseUrl + "/api/media/settings/sections/certifications",
+          "{\"values\":{\"movie_country\":\"  DE  \"}}");
+      Assert.That(code, Is.EqualTo(HttpStatusCode.OK), body);
+
+      Assert.That(_certificates.DisplayMovieCertificationCountry, Is.EqualTo("DE"),
+          "a space left at the end of the box is not part of a country");
+      Assert.That(FieldOf(Read(body), "movie_country").GetProperty("value").GetString(), Is.EqualTo("DE"));
+      Assert.That(FieldOf(Read(body), "series_country").GetProperty("value").GetString(), Is.Empty,
+          "the other half of the answer was not sent and stands untouched");
+      Assert.That(NamesOf(Read(body).GetProperty("restartNeededFor")), Is.Empty,
+          "the next title read is spelled in the new country already");
+    }
+
+    [Test]
+    public async Task ACountryWrittenAsSomethingOtherThanAWordIsRefused()
+    {
+      StartServer();
+      _certificates.DisplayMovieCertificationCountry = "GB";
+
+      (HttpStatusCode code, string body) = await Put(_baseUrl + "/api/media/settings/sections/certifications",
+          "{\"values\":{\"movie_country\":7}}");
+      Assert.That(code, Is.EqualTo(HttpStatusCode.BadRequest), body);
+      Assert.That(body, Does.Contain("wants a word"));
+      Assert.That(_certificates.DisplayMovieCertificationCountry, Is.EqualTo("GB"),
+          "a refused request changed nothing, as every refused request does");
+    }
+
+    [Test]
+    public async Task TheInventedTitlesAreOffUntilTheHouseholdTurnsThemOn()
+    {
+      StartServer();
+
+      (HttpStatusCode code, string body) = await Get(_baseUrl + "/api/media/settings/sections/virtual_media");
+      Assert.That(code, Is.EqualTo(HttpStatusCode.OK), body);
+
+      JsonElement section = Read(body);
+      foreach (string key in new[] { "show_virtual_movies", "show_virtual_series", "show_virtual_audio" })
+        Assert.That(FieldOf(section, key).GetProperty("value").GetBoolean(), Is.False,
+            "\"" + key + "\" is off where nobody answered, as it was in the reference");
+
+      (HttpStatusCode putCode, string putBody) =
+          await Put(_baseUrl + "/api/media/settings/sections/virtual_media",
+              "{\"values\":{\"show_virtual_series\":true}}");
+      Assert.That(putCode, Is.EqualTo(HttpStatusCode.OK), putBody);
+
+      Assert.That(_invented.ShowVirtualSeriesMedia, Is.True,
+          "the library reads this very class when it answers a browse, so this is where the wish has to land");
+      Assert.That(_invented.ShowVirtualMovieMedia, Is.False, "and the films were not asked about");
+      Assert.That(NamesOf(Read(putBody).GetProperty("restartNeededFor")), Is.Empty,
+          "the next shelf read counts with it");
     }
 
     [Test]

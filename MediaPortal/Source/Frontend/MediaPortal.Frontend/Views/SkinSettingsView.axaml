@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        xmlns:views="clr-namespace:MediaPortal.Frontend.Views"
         xmlns:theming="clr-namespace:MediaPortal.Frontend.Theming"
         x:Class="MediaPortal.Frontend.Views.SkinSettingsView"
         x:DataType="vm:SkinSettingsViewModel"
@@ -55,17 +56,24 @@
             <TextBlock Text="{Binding Label}"
                        FontSize="16"
                        VerticalAlignment="Center" />
-            <!-- The two faces of a row, and only one of them is ever up: the checkbox is the whole control
-                 for a switch, and the button - whose label is the current answer, in the accent - is the
-                 whole control for a choice. Both save at once; the status line says so under the list. -->
+            <!-- The three faces of a row, and only one of them is ever up: the checkbox is the whole control
+                 for a switch, the button - whose label is the current answer, in the accent - for a choice,
+                 and the box for an answer one writes. All three save at once; the status line says so under
+                 the list. -->
             <CheckBox Grid.Column="1"
                       IsChecked="{Binding IsChecked, Mode=TwoWay}"
                       IsVisible="{Binding IsToggle}"
                       VerticalAlignment="Center"
                       HorizontalAlignment="Left" />
+            <TextBox Grid.Column="1"
+                     Text="{Binding Words, Mode=TwoWay}"
+                     IsVisible="{Binding IsText}"
+                     Width="170"
+                     HorizontalAlignment="Left"
+                     views:VirtualKeyboardService.Trigger="EnterOrMenu" />
             <Button Grid.Column="1"
                     Content="{Binding ValueText}"
-                    IsVisible="{Binding !IsToggle}"
+                    IsVisible="{Binding ShowsButton}"
                     Click="OnChoiceClick"
                     MinWidth="150"
                     HorizontalAlignment="Left" />

@@ -68,6 +68,13 @@ public static class SettingSectionViewModelKinds
     public const string Toggle = "toggle";
     public const string Number = "number";
     public const string Choice = "choice";
+
+    /// <summary>
+    /// A word the viewer types, for the answers that are words rather than numbers - a country's two letters,
+    /// for instance. Empty is one of its answers, which is exactly why it is not a choice: nothing labels a
+    /// button that stands for "nothing in particular".
+    /// </summary>
+    public const string Text = "text";
 }
 
 /// <summary>One screen's worth of settings: what it is called and the values it holds.</summary>

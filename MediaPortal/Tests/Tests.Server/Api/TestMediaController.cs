@@ -35,6 +35,7 @@ using Moq;
 using NUnit.Framework;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
+using MediaPortal.Common.Certifications;
 using MediaPortal.Common.FanArt;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
@@ -43,6 +44,7 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
+using MediaPortal.Common.Settings;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Server.Api;
 using MediaPortal.Utilities.Exceptions;
@@ -634,6 +636,291 @@ namespace Tests.Server.Api
     #endregion
 
     #region What one title holds
+
+    /// <summary>
+    /// Stands one answer for the household's own switches in front of the server, for the length of a test.
+    /// </summary>
+    /// <remarks>
+    /// The media endpoints read these switches through the settings manager, which a media test has no reason
+    /// to have registered - and which is exactly why the ordinary tests of this fixture prove the ordinary
+    /// answer: no manager, so no wish, so the library is asked the way it has always been asked.
+    /// </remarks>
+    private static void TheHouseholdWishes<Answer>(Answer answer) where Answer : class
+    {
+      Mock<ISettingsManager> manager = new Mock<ISettingsManager>();
+      manager.Setup(load => load.Load<Answer>()).Returns(answer);
+      // Asked by its type rather than by its generic name is the same answer; anything else the server asks
+      // for comes back as a class of its own, which is what "nobody ever answered that" looks like.
+      manager.Setup(load => load.Load(It.IsAny<Type>()))
+          .Returns<Type>(type => type == typeof(Answer) ? answer : Activator.CreateInstance(type));
+      ServiceRegistration.Set<ISettingsManager>(manager.Object);
+    }
+
+    /// <summary>Takes the household's wish back away, so the next test starts from "nobody answered".</summary>
+    private static void NobodyWishesAnything()
+    {
+      if (ServiceRegistration.IsRegistered<ISettingsManager>())
+        ServiceRegistration.Remove<ISettingsManager>();
+    }
+
+    [Test]
+    public void TheFilmsWithoutFilesComeIntoALibraryWhenTheHouseholdAskedForThem()
+    {
+      TheHouseholdWishes(new VirtualMediaSettings { ShowVirtualMovieMedia = true });
+      try
+      {
+        List<bool> searched = new List<bool>();
+        List<bool> counted = new List<bool>();
+        var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+        library.Setup(get => get.GetManagedMediaItemAspectMetadata()).Returns(new Dictionary<Guid, MediaItemAspectMetadata>
+        {
+            { MediaAspect.ASPECT_ID, MediaAspect.Metadata },
+            { MovieAspect.ASPECT_ID, MovieAspect.Metadata }
+        });
+
+        // Only the question the switch is supposed to change is answered with an "any": everything else about
+        // the call is pinned, so an endpoint that turned the switch into some other argument fails here.
+        library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, null, true))
+            .Callback<MediaItemQuery, bool, Guid?, bool>((query, online, profile, virtualItems) =>
+                searched.Add(virtualItems))
+            .Returns(new List<MediaItem>());
+        library.Setup(get => get.CountMediaItems(It.IsAny<IEnumerable<Guid>>(), null, false, true))
+            .Callback<IEnumerable<Guid>, IFilter, bool, bool>((necessary, filter, online, virtualItems) =>
+                counted.Add(virtualItems))
+            .Returns(0);
+
+        ServiceRegistration.Set<IMediaLibrary>(library.Object);
+        ActionResult<MediaController.TitlesResult> action =
+            new MediaController().GetTitles("MovieItem", null, null, 0, 0, null, null);
+
+        Assert.That(Status(action), Is.Null, "the shelf was answered");
+        Assert.That(searched, Is.Not.Empty.And.All.EqualTo(true),
+            "a browse about films carries the films switch to the library");
+        Assert.That(counted, Is.Not.Empty.And.All.EqualTo(true),
+            "and the count of that shelf cannot disagree with the shelf itself");
+      }
+      finally
+      {
+        NobodyWishesAnything();
+      }
+    }
+
+    [Test]
+    public void AQuestionAboutOneKindOfMediaCarriesThatKindsAnswerAndNoOther()
+    {
+      // The series switch is the one that is on. A browse about films has to be answered without the invented
+      // films, because a household that wants its missing episodes has not asked for missing films - and the
+      // strict library here has no answer at all for a search carrying the films' answer.
+      TheHouseholdWishes(new VirtualMediaSettings { ShowVirtualSeriesMedia = true });
+      try
+      {
+        List<bool> searched = new List<bool>();
+        var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+        library.Setup(get => get.GetManagedMediaItemAspectMetadata()).Returns(new Dictionary<Guid, MediaItemAspectMetadata>
+        {
+            { MediaAspect.ASPECT_ID, MediaAspect.Metadata },
+            { MovieAspect.ASPECT_ID, MovieAspect.Metadata },
+            { EpisodeAspect.ASPECT_ID, EpisodeAspect.Metadata }
+        });
+        library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, null, false))
+            .Callback<MediaItemQuery, bool, Guid?, bool>((query, online, profile, virtualItems) =>
+                searched.Add(virtualItems))
+            .Returns(new List<MediaItem>());
+        library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, null, true))
+            .Callback<MediaItemQuery, bool, Guid?, bool>((query, online, profile, virtualItems) =>
+                searched.Add(virtualItems))
+            .Returns(new List<MediaItem>());
+        library.Setup(get => get.CountMediaItems(It.IsAny<IEnumerable<Guid>>(), null, false, false)).Returns(0);
+        library.Setup(get => get.CountMediaItems(It.IsAny<IEnumerable<Guid>>(), null, false, true)).Returns(0);
+
+        ServiceRegistration.Set<IMediaLibrary>(library.Object);
+        ActionResult<MediaController.TitlesResult> films =
+            new MediaController().GetTitles("MovieItem", null, null, 0, 0, null, null);
+        Assert.That(Status(films), Is.Null, "the films were answered");
+
+        ActionResult<MediaController.TitlesResult> episodes =
+            new MediaController().GetTitles("EpisodeItem", null, null, 0, 0, null, null);
+        Assert.That(Status(episodes), Is.Null, "the episodes were answered");
+
+        Assert.That(searched, Has.Count.EqualTo(2));
+        Assert.That(searched[0], Is.False,
+            "the films were asked about, and the films switch - which nobody turned on - decides about them");
+        Assert.That(searched[1], Is.True,
+            "the episodes were asked about, and that is the switch the household did turn on");
+      }
+      finally
+      {
+        NobodyWishesAnything();
+      }
+    }
+
+    [Test]
+    public void AnInventedTitleIsOpenFromTheShelfItWasShownOn()
+    {
+      // A browse that let an invented film onto the shelf has to let the same title be read by its id, or the
+      // viewer gets a cover that refuses to open. The lookup by id cannot know the kind before it has the
+      // title, so it asks whether invented titles are welcome anywhere here.
+      TheHouseholdWishes(new VirtualMediaSettings { ShowVirtualSeriesMedia = true });
+      try
+      {
+        Guid id = Guid.NewGuid();
+        MediaItem item = CreateDetailedItem(id, "The Missing One", "", "", "Alien Earth", 2, 7, "The Missing One");
+
+        var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+        // Answered only for a lookup that lets invented titles in. Nothing in this fixture sets that switch
+        // except this test, so the setup itself is the assertion.
+        library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, null, true))
+            .Returns(new List<MediaItem> { item });
+
+        ActionResult<MediaController.ItemResult> action;
+        MediaController.ItemResult result = GetItem(library.Object, id, out action);
+
+        Assert.That(Status(action), Is.Null, "the title the shelf showed is the title the details answer");
+        Assert.That(result.Title, Is.EqualTo("The Missing One"));
+      }
+      finally
+      {
+        NobodyWishesAnything();
+      }
+    }
+
+    [Test]
+    public void TheCertificateOfAFilmIsSpelledInTheCountryTheHouseholdNamed()
+    {
+      MediaCertificationSettings countries = new MediaCertificationSettings
+      {
+        DisplayMovieCertificationCountry = "DE"
+      };
+      TheHouseholdWishes(countries);
+      try
+      {
+        Guid id = Guid.NewGuid();
+        MediaItem item = CreateCertifiedItem(id, "Alien Earth", "R");
+
+        ActionResult<MediaController.ItemResult> action;
+        MediaController.ItemResult result = GetItem(
+            CreateLibrary(new List<MediaItem> { item }, 1, out _, out _), id, out action);
+
+        Assert.That(result.Certification, Is.EqualTo("FSK 18"),
+            "\"R\" asks for seventeen years, and the German mark that asks for at least as many is FSK 18");
+      }
+      finally
+      {
+        NobodyWishesAnything();
+      }
+    }
+
+    [Test]
+    public void TheCertificateOfASeriesIsSpelledInTheCountryTheHouseholdNamed()
+    {
+      MediaCertificationSettings countries = new MediaCertificationSettings
+      {
+        DisplaySeriesCertificationCountry = "DE"
+      };
+      TheHouseholdWishes(countries);
+      try
+      {
+        Guid id = Guid.NewGuid();
+        MediaItem item = CreateCertifiedItem(id, "Alien Earth", "TV-14");
+
+        ActionResult<MediaController.ItemResult> action;
+        MediaController.ItemResult result = GetItem(
+            CreateLibrary(new List<MediaItem> { item }, 1, out _, out _), id, out action);
+
+        Assert.That(result.Certification, Is.EqualTo("FSK 16"),
+            "a show's mark is read off the show and turned into the country's own words the same way");
+      }
+      finally
+      {
+        NobodyWishesAnything();
+      }
+    }
+
+    [Test]
+    public void ACertificateNobodyCanAnswerForIsLeftAsTheImporterWroteIt()
+    {
+      // The household named a country the table holds no marks for. There is nothing to compare the stored one
+      // with, and inventing an age for a title the importer rated elsewhere is the one thing a certificate
+      // must not do - so the words the library holds are shown rather than no words, or a wrong one.
+      MediaCertificationSettings countries = new MediaCertificationSettings
+      {
+        DisplayMovieCertificationCountry = "ZZ"
+      };
+      TheHouseholdWishes(countries);
+      try
+      {
+        Guid id = Guid.NewGuid();
+        MediaItem item = CreateCertifiedItem(id, "Alien Earth", "PG-13");
+
+        ActionResult<MediaController.ItemResult> action;
+        MediaController.ItemResult result = GetItem(
+            CreateLibrary(new List<MediaItem> { item }, 1, out _, out _), id, out action);
+
+        Assert.That(result.Certification, Is.EqualTo("PG-13"),
+            "the mark the title came in with, because no mark anywhere else says the same");
+      }
+      finally
+      {
+        NobodyWishesAnything();
+      }
+    }
+
+    [Test]
+    public void ACertificateOfTheCountryTheHouseholdNamedStandsUntouched()
+    {
+      MediaCertificationSettings countries = new MediaCertificationSettings
+      {
+        DisplayMovieCertificationCountry = "DE"
+      };
+      TheHouseholdWishes(countries);
+      try
+      {
+        Guid id = Guid.NewGuid();
+        MediaItem item = CreateCertifiedItem(id, "Alien Earth", "FSK 12");
+
+        ActionResult<MediaController.ItemResult> action;
+        MediaController.ItemResult result = GetItem(
+            CreateLibrary(new List<MediaItem> { item }, 1, out _, out _), id, out action);
+
+        Assert.That(result.Certification, Is.EqualTo("FSK 12"),
+            "a mark already in the asked-for country is not walked through the table and back");
+      }
+      finally
+      {
+        NobodyWishesAnything();
+      }
+    }
+
+    /// <summary>
+    /// A title carrying one certificate and nothing else of the kind, so that a test can say which of the two
+    /// the endpoint read: a film carries it on the <see cref="MovieAspect"/>, a show on
+    /// <see cref="SeriesAspect"/>.
+    /// </summary>
+    private static MediaItem CreateCertifiedItem(Guid id, string title, string certification)
+    {
+      SingleMediaItemAspect media = CreateMediaAspect(title, title, new DateTime(2025, 4, 27, 20, 15, 0));
+
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>
+      {
+          { MediaAspect.ASPECT_ID, new List<MediaItemAspect> { media } }
+      };
+
+      if (certification.StartsWith("TV", StringComparison.Ordinal))
+      {
+        SingleMediaItemAspect series = new SingleMediaItemAspect(SeriesAspect.Metadata);
+        series.SetAttribute(SeriesAspect.ATTR_SERIES_NAME, title);
+        series.SetAttribute(SeriesAspect.ATTR_CERTIFICATION, certification);
+        aspects[SeriesAspect.ASPECT_ID] = new List<MediaItemAspect> { series };
+      }
+      else
+      {
+        SingleMediaItemAspect movie = CreateMovieAspect(52);
+        movie.SetAttribute(MovieAspect.ATTR_CERTIFICATION, certification);
+        aspects[MovieAspect.ASPECT_ID] = new List<MediaItemAspect> { movie };
+      }
+
+      return new TestItem(id, aspects, CreateLocator(RESOURCE_PATH));
+    }
 
     [Test]
     public void OneTitleAnswersWithWhatTheLibraryKnowsAboutIt()

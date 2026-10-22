@@ -35,6 +35,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
+using MediaPortal.Common.Certifications;
 using MediaPortal.Common.FanArt;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
@@ -43,6 +44,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
+using MediaPortal.Common.Settings;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Utilities.Exceptions;
 
@@ -118,6 +120,30 @@ namespace MediaPortal.Server.Api
         if (sid == null || !Guid.TryParse(sid, out profileId) || profileId == Guid.Empty)
           return null;
         return profileId;
+      }
+    }
+
+    /// <summary>
+    /// Whether the titles the library invented - a film of a collection nobody has, an episode of a series whose
+    /// rest is still missing - belong in the answers this endpoint gives.
+    /// </summary>
+    /// <remarks>
+    /// Read from the settings on every request rather than remembered, because the answer is a thing a household
+    /// changes from a television and expects the next shelf to know about. A server without a settings manager at
+    /// all - a test, a tool - is a server where nobody ever answered the question, which is what a fresh
+    /// <see cref="VirtualMediaSettings"/> says by itself.
+    /// </remarks>
+    private static VirtualMediaSettings VirtualTitles
+    {
+      get
+      {
+        ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>(false);
+        if (settingsManager == null)
+          return new VirtualMediaSettings();
+
+        // A manager that answers nothing for a class nobody registered is a server with no wish about invented
+        // titles, which is the same answer as the switches in their default: none of them.
+        return settingsManager.Load<VirtualMediaSettings>() ?? new VirtualMediaSettings();
       }
     }
 
@@ -565,14 +591,21 @@ namespace MediaPortal.Server.Api
         // name, and then the answer is the household's: watched means "somebody finished it", and there is no
         // resume position to report because nobody's was asked for.
         Guid? profile = CallerProfile;
-        IList<MediaItem> items = mediaLibrary.Search(query, false, profile, false);
+
+        // Whether the titles the library invented take part is the household's answer, not this endpoint's
+        // opinion, and it is asked of the aspects this browse is about - the same reading the reference used for
+        // the same switch. Off, which is what every installation runs with, this is the same call it always was.
+        bool invented = VirtualTitles.ShowsVirtualFor(new[] { aspectId });
+        IList<MediaItem> items = mediaLibrary.Search(query, false, profile, invented);
 
         List<TitleResult> titles = items.Select(item => ToTitle(item, profile.HasValue)).ToList();
 
         // "how many are there" is asked through the same filter the list was read through, or a front end that
         // reached the bottom of a search would keep offering more of a list that has no more in it - and would say
-        // "12 of 4 000" about a search that found twelve titles out of four thousand.
-        int total = mediaLibrary.CountMediaItems(new[] { aspectId }, query.Filter, false, false);
+        // "12 of 4 000" about a search that found twelve titles out of four thousand. The same answer about
+        // invented titles goes in, because a count of a different shelf than the one being listed is worse than
+        // no count at all.
+        int total = mediaLibrary.CountMediaItems(new[] { aspectId }, query.Filter, false, invented);
 
         return new TitlesResult
         {
@@ -713,7 +746,8 @@ namespace MediaPortal.Server.Api
         if (holding != Guid.Empty && !necessary.Contains(holding))
           necessary.Add(holding);
 
-        HomogenousMap counted = mediaLibrary.GetValueGroups(spec, null, projection, necessary, null, false, false);
+        HomogenousMap counted = mediaLibrary.GetValueGroups(spec, null, projection, necessary, null, false,
+            VirtualTitles.ShowsVirtualFor(necessary));
         if (counted == null)
           // Null is the library's way of saying it is in maintenance mode and counted nothing; an empty answer
           // here would read as "no title carries a genre" rather than as "ask again later".
@@ -955,7 +989,11 @@ namespace MediaPortal.Server.Api
 
         MediaItemQuery query = new MediaItemQuery(necessary, optional, new MediaItemIdFilter(id));
         Guid? profile = CallerProfile;
-        IList<MediaItem> items = mediaLibrary.Search(query, false, profile, false);
+
+        // Looked up by its id, so this is not a browse that could be about one kind of media or another: the
+        // title is already chosen, and a household that lets the library's invented titles onto its shelves
+        // expects to be able to stand in front of one. Refusing to read it here would show it and then deny it.
+        IList<MediaItem> items = mediaLibrary.Search(query, false, profile, VirtualTitles.LetsVirtualTitlesIn);
         MediaItem item = items == null ? null : items.FirstOrDefault();
 
         if (item == null)
@@ -963,6 +1001,10 @@ namespace MediaPortal.Server.Api
 
         ItemResult result = ToItem(item, profile.HasValue);
         FillMissingDetailsFromFiles(item, result);
+
+        // Translated last, because the file beside a title can be the only place its certificate is written down,
+        // and a household that asked for its own country's mark should get it whichever of the two sources spoke.
+        result.Certification = ShownCertification(item, result.Certification);
         return result;
       }
       catch (IllegalCallException ex)
@@ -1065,6 +1107,14 @@ namespace MediaPortal.Server.Api
       SingleMediaItemAspect video;
       if (MediaItemAspect.TryGetAspect(item.Aspects, VideoAspect.Metadata, out video))
         result.StoryPlot = Text(video.GetAttributeValue<string>(VideoAspect.ATTR_STORYPLOT));
+
+      // A show keeps its certificate on the show and not on the episode, and an importer that knew the one
+      // usually knew the other. Asked for after the film's, because a title is either a film or an episode and
+      // never both, and a certificate that is already there needs no second opinion.
+      SingleMediaItemAspect series;
+      if (result.Certification == null
+          && MediaItemAspect.TryGetAspect(item.Aspects, SeriesAspect.Metadata, out series))
+        result.Certification = Text(series.GetAttributeValue<string>(SeriesAspect.ATTR_CERTIFICATION));
 
       SingleMediaItemAspect episode;
       if (MediaItemAspect.TryGetAspect(item.Aspects, EpisodeAspect.Metadata, out episode))
@@ -1170,7 +1220,10 @@ namespace MediaPortal.Server.Api
       {
         List<Guid> necessary = new List<Guid> { ThumbnailLargeAspect.ASPECT_ID };
         MediaItemQuery query = new MediaItemQuery(necessary, null, new MediaItemIdFilter(id));
-        IList<MediaItem> items = mediaLibrary.Search(query, false, null, false);
+
+        // The picture of a title somebody is looking at is asked for by that title's id, whatever the title
+        // turned out to be - see the details endpoint for why an invented title is looked up like any other.
+        IList<MediaItem> items = mediaLibrary.Search(query, false, null, VirtualTitles.LetsVirtualTitlesIn);
         MediaItem item = items == null ? null : items.FirstOrDefault();
 
         byte[] picture = null;
@@ -1416,6 +1469,36 @@ namespace MediaPortal.Server.Api
     /// levels above it, so a library with season folders and one without are both read.
     /// </para>
     /// </remarks>
+    /// <summary>
+    /// The age certificate this household is told about, out of the one the library holds.
+    /// </summary>
+    /// <param name="item">The title, whose aspects say whether it is a film or something of a series.</param>
+    /// <param name="stored">The certificate as the importer or a file beside the title wrote it.</param>
+    /// <remarks>
+    /// A title is usually imported with the mark of the country that rated it, so a film bought in America says
+    /// "PG-13" here and a household in Germany reads a sign from a system it does not use. Which country's mark
+    /// to name is asked of <see cref="MediaCertificationSettings"/> - empty, which is what everything runs with,
+    /// leaves the imported word standing, and so does a mark the table does not know: the alternative is a screen
+    /// guessing how old somebody has to be, which is the one thing a certificate should not do.
+    /// </remarks>
+    private static string ShownCertification(MediaItem item, string stored)
+    {
+      if (string.IsNullOrEmpty(stored) || item == null || item.Aspects == null)
+        return stored;
+
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>(false);
+      if (settingsManager == null)
+        return stored;
+
+      MediaCertificationSettings settings = settingsManager.Load<MediaCertificationSettings>();
+      if (settings == null)
+        return stored;
+
+      return item.Aspects.ContainsKey(MovieAspect.ASPECT_ID)
+          ? settings.WordsForMovie(stored)
+          : settings.WordsForSeries(stored);
+    }
+
     private void FillMissingDetailsFromFiles(MediaItem item, ItemResult result)
     {
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
@@ -1800,8 +1883,10 @@ namespace MediaPortal.Server.Api
 
         // Nobody's read: the profile parameter attaches one person's position in a title, and a position has no
         // bearing on the bytes. It also means two people watching the same film cost the database the same
-        // amount of work.
-        IList<MediaItem> items = mediaLibrary.Search(query, false, null, false);
+        // amount of work. The title is named by its id, so the same reading as the details endpoint applies: a
+        // household that let this title onto a shelf is a household that means to play it, and whether it turns
+        // out to have bytes to play is answered further down, not by refusing to look.
+        IList<MediaItem> items = mediaLibrary.Search(query, false, null, VirtualTitles.LetsVirtualTitlesIn);
         MediaItem item = items == null ? null : items.FirstOrDefault();
 
         if (item == null)
@@ -2123,7 +2208,11 @@ namespace MediaPortal.Server.Api
     {
       MediaItemQuery query = new MediaItemQuery(
           new List<Guid> { MediaAspect.ASPECT_ID }, null, new MediaItemIdFilter(id));
-      IList<MediaItem> items = mediaLibrary.Search(query, false, profile, false);
+
+      // Every endpoint that opens a title comes through here, so this is where "the household asked for the
+      // library's invented titles too" has to be obeyed; see the details endpoint for why an invented title is
+      // then read like any other one.
+      IList<MediaItem> items = mediaLibrary.Search(query, false, profile, VirtualTitles.LetsVirtualTitlesIn);
       return items == null ? null : items.FirstOrDefault();
     }
 
@@ -2307,7 +2396,9 @@ namespace MediaPortal.Server.Api
       MediaItemQuery query = new MediaItemQuery(new List<Guid> { MediaAspect.ASPECT_ID }, optional,
           new MediaItemIdFilter(id));
       query.Limit = 1;
-      IList<MediaItem> found = mediaLibrary.Search(query, false, null, false);
+      // Looked up by its id again, so the same reading as every other lookup by id: a household that lets
+      // invented titles in is not asked to name which one it means first.
+      IList<MediaItem> found = mediaLibrary.Search(query, false, null, VirtualTitles.LetsVirtualTitlesIn);
       return found != null && found.Count > 0 ? found[0] : null;
     }
 

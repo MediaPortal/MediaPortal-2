@@ -3767,24 +3767,89 @@ bringing them across means answering them again in the front end, not adding ano
 | --- | --- |
 | skin dials (fanart, opacity, watched flags, grid shapes, help texts, touch, dialogs, colours) | asked in "Skin settings", per skin and per viewer, as the front end's `SkinSettingsBase` files |
 | which language the box speaks | "Client settings", and it carries the weather's and the news' language with it |
-| date and time formats | open. The reference kept `TimeFormat`/`DateFormat` on the worn skin and its clock model read them. This front end formats the header's clock with a fixed pattern and its dates with the chosen language, so the second half of that question is answered by the language and the first half has nowhere to be said |
-| which country's age certificate a title shows | open, and it is more than a setting. The reference's client translated the stored certificate with a hard-coded table (`MediaPortal.Common.Certifications.CertificationMapper`) at display time. This server sends the certificate the importer stored, so the question needs the server to do that translating - it can, the table is in Common and needs nothing else - but nothing does it yet |
-| whether virtual folders are walked | not asked, on purpose. The reference's switch fed a `showVirtual` argument of its client's browse calls, and this server's media endpoints never ask for virtual items, so the switch would be a handle on a door that is not there |
+| date and time formats | asked in "Skin settings" as two boxes, per skin and per viewer, as the reference kept them on the worn skin; the header spells itself from them again the moment one is saved (see `### bj.`) |
+| which country's age certificate a title shows | asked in the server's "Certificates" section, and the server translates with the reference's table when it hands a title out (`### bj.`) |
+| whether virtual folders are walked | asked in the server's "Virtual folders" section, three switches, one per kind of media. The reference had one switch for all of them, and this server already asked every media call whether it should include virtual items - it never asked anybody, and the answer was always no (see `### bj.`) |
 | the player's geometry, audio renderer, codecs, skip steps | "Playback settings" holds the ones that mean something without DirectShow; the codec tables are DirectShow's own and stay behind |
 | news feeds and their interval, weather places and their API key | kept in `newsfeeds.json` and `weather.json` beside the front end; no screen edits them yet |
 | keys, buttons and remote actions | the front end's own keys, in its keyboard files, not a settings tree |
 | TV: EPG rows and hours, genre colours, channel logos, recording notices, MPExtended | not back yet with the rest of the TV layer |
 
-Open, stated as work rather than as a gap: the two format fields and the certificate country above; three
-questions of the extractors' branch that "Metadata" does not offer yet - `OnlyLocalMedia` on the film extractor
-and on the series extractor, which is what the reference's "download metadata for every film of a collection"
-and "...every episode of a series" switches wrote, and the image extractor's geolocation lookup - all three
-belonging to extractors a headless server may not carry at all, which is the one thing to check before they are
-offered; screens for news feeds and weather places; and the whole TV branch, which needs its service layer on
-the server before a single one of its settings has anything to configure.
+Open, stated as work rather than as a gap: three questions of the extractors' branch that "Metadata" does not
+offer yet - `OnlyLocalMedia` on the film extractor and on the series extractor, which is what the reference's
+"download metadata for every film of a collection" and "...every episode of a series" switches wrote, and the
+image extractor's geolocation lookup - all three belonging to extractors a headless server may not carry at
+all, which is the one thing to check before they are offered; screens for news feeds and weather places; and the
+whole TV branch, which needs its service layer on the server before a single one of its settings has anything to
+configure. The three questions this section left open - the two formats, the certificate country and the virtual
+folders - were closed by the section after it.
+
+### bj. The three open settings closed: the country a mark comes from, the titles there are not, and how the clock spells itself
+
+Three rows of the table above were written as "open", and one of them was written wrong as well, so it is
+corrected before it is closed. It claimed that this server's media endpoints never ask for virtual items and
+that the reference's switch would therefore be "a handle on a door that is not there". The door has been there
+since the library's own interface was ported: `IMediaLibrary` takes an `includeVirtual` argument on the search,
+the count, the item fetch and the value-group queries, and a virtual title is one the library learned about from
+a sidecar or a collection while no file of it stands on any share - an invented title, which is what the
+reference's word "virtual" means here. What was missing was not the door but the question: every one of the
+media controller's eight calls answered `false`, on its own behalf, for everybody, forever.
+
+**The country a mark comes from.** The reference kept two strings on the media plugin's settings
+(`UiComponents/Media/Settings/MediaCertificationSettings.cs`, per viewer, empty by default) and asked them in a
+group called "Certification countries" whose entries are "Movie certification system country" and "Series
+certification system country", each opening a list of the countries the table knows whose first entry is
+"Original (as imported)". Nothing was ever stored differently: the importer's mark stays in the title's aspect,
+and the client rewrote it at display time (`Helpers/CertificationHelper.cs`) with the table in
+`MediaPortal.Common.Certifications.CertificationMapper`, blanking the label when the table had nothing to answer
+with. Here the translating is the server's, because its screens are other programs that are sent words; the
+settings class therefore moved next to the table it uses (`MediaPortal.Common/Certifications/`), and its answer
+is asked of `GetItem`, which is where one title is described to one screen. Two choices were made against the
+reference and are worth their reason:
+- *Global rather than per viewer.* The reference could ask a signed-in person; a headless server answers a
+  browse before anybody is known, and a per-viewer certificate country would mean the media API carrying who is
+  asking. Until it does, the whole household reads the same country.
+- *An untranslatable mark is kept rather than blanked.* The reference dropped the label when its table could not
+  answer, so a household that chose "DE" and owned a film rated in a country the table does not know got no
+  certificate at all. Here the importer's own words stand: a card showing a foreign mark is a smaller lie than a
+  card showing nothing, and the reference's forgiving reading of the stored words ("Rated PG for rude humor" is
+  a `PG` to it, because it begins with a mark it holds) is kept exactly as it was.
+
+**The titles there are not.** The reference's three switches live on the media plugin's `ViewSettings` (per
+viewer, all off by default: `ShowVirtualSeriesMedia`, `ShowVirtualMovieMedia`, `ShowVirtualAudioMedia`), are
+edited as one multiple-choice list ("Show all known media items", with one entry per kind), and are read through
+`VirtualMediaHelper.ShowVirtualMedia(necessaryMIATypeIds)` by every browse, every filter criterion and the plain
+text search. The helper looks at what a query *asks for* - audio aspects, then series aspects, then films - and
+that is the shape this port keeps, because a browse is always about one family at a time.
+`MediaPortal.Backend/MediaLibrary/VirtualMediaSettings.cs` holds the same three answers, Global for the same
+reason as above, and answers two questions: `ShowsVirtualFor(aspectIds)` for the list, count and value-group
+calls, which know what kind they are about, and `LetsVirtualTitlesIn` - the three of them OR-ed - for the five
+lookups by id, which are handed an id and no kind. That second question is the one a viewer notices: switching
+on invented films should not be the only way to open the page of an invented film one already has a link to.
+
+**How the clock spells itself.** The reference kept `TimeFormat` (default `"t"`) and `DateFormat` (default
+`"D"`) on `SkinBaseSettings` - on the worn skin, per viewer - and its configuration entries were plain text
+boxes that, after saving, sent the `DateTimeFormatChanged` skin message so the running header rewrote itself.
+All three parts of that are here: the two fields are on the front end's `SkinSettingsBase`, so both skins carry
+them and either viewer may answer them differently; "Skin settings" shows them as the typed boxes the reference
+showed, which is why the row needed a fourth kind in the settings API besides the switch, the number and the
+choice; and the shout across the skin is `ChromeInfo.WearFormats`, said when a skin is put on and again when a
+format is saved. One visible consequence: the head line now reads `t` rather than the `HH:mm` this front end had
+decided for everybody, so an English box says "2:30 PM" and a German one says "14:30" - which is what both
+reference skins did, and what the language chosen in "Client settings" has always promised. A format the
+calendar cannot read, including a box somebody has only begun to type into, falls back to the shipped answer
+instead of blanking the head line.
+
+Tests: seven in the media controller's own fixture (invented films arriving and staying away, the three
+switches minding their own kind, a lookup by id following its kind, `R` becoming `FSK 18` and `TV-14` becoming
+`FSK 16` for a German household, a country holding no marks leaving the words alone, the same country changing
+nothing) and five over HTTP (the two new sections being listed, an unset country answering as empty text, a
+stored country landing trimmed, a number offered for a word being refused, the switches going off to on); on the
+front end, `TestChromeFormats` for the head line, two rows and a typed box in the skin settings screens, and a
+text row in the plugin settings screen. `Tests.Server`: 486 of 486. `Tests.Frontend`: 846 of 848, the two
+failures the pre-existing icon ones.
 
 ## What cannot be verified without the user
-
 
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,
 DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library

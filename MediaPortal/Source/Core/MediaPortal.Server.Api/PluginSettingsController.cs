@@ -400,6 +400,17 @@ namespace MediaPortal.Server.Api
         return null;
       }
 
+      if (field.Kind == PluginSettingsCatalog.KIND_TEXT)
+      {
+        if (sent.ValueKind != JsonValueKind.String)
+          return Refuse("\"" + field.Key + "\" wants a word.");
+
+        // Trimmed, because the one answer an empty field means is "nothing in particular", and a household
+        // should not have to know that a space left at the end of it turns it into an answer of its own.
+        value = (sent.GetString() ?? string.Empty).Trim();
+        return null;
+      }
+
       return Refuse("\"" + field.Key + "\" is of a kind this server does not know how to write.");
     }
 
@@ -467,7 +478,12 @@ namespace MediaPortal.Server.Api
           // and because a name survives a class that inserts a value in the middle of its enum.
           Value = field.Kind == PluginSettingsCatalog.KIND_CHOICE && value != null
               ? value.ToString()
-              : value
+              : field.Kind == PluginSettingsCatalog.KIND_TEXT
+                  // Nobody ever answered the question, which for a word is the same answer as the empty box a
+                  // screen shows: the settings manager applies its defaults before handing a class out, and a
+                  // string it never touched is the one thing that cannot be drawn as a box holding something.
+                  ? (value?.ToString() ?? string.Empty)
+                  : value
         };
         if (field.Options.Length > 0)
           result.Options.AddRange(field.Options);

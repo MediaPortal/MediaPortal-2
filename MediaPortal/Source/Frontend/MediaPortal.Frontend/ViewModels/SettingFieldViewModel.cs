@@ -95,6 +95,7 @@ namespace MediaPortal.Frontend.ViewModels
     private bool _toggle;
     private string _numberText = "";
     private string _chosen = "";
+    private string _words = "";
     private string _error = "";
 
     public SettingFieldViewModel(SettingFieldState state)
@@ -110,6 +111,7 @@ namespace MediaPortal.Frontend.ViewModels
       IsToggle = state.Kind == SettingSectionViewModelKinds.Toggle;
       IsNumber = state.Kind == SettingSectionViewModelKinds.Number;
       IsChoice = state.Kind == SettingSectionViewModelKinds.Choice;
+      IsText = state.Kind == SettingSectionViewModelKinds.Text;
 
       if (IsChoice)
       {
@@ -145,11 +147,14 @@ namespace MediaPortal.Frontend.ViewModels
     /// <summary>Whether the editor is a row of presses.</summary>
     public bool IsChoice { get; }
 
+    /// <summary>Whether the editor is a box one types a word into.</summary>
+    public bool IsText { get; }
+
     /// <summary>
     /// Whether this screen has no control for the kind the server named. Such a row draws nothing, changes
     /// nothing and sends nothing; the section says the sentence out loud.
     /// </summary>
-    public bool IsUndrawable => !IsToggle && !IsNumber && !IsChoice;
+    public bool IsUndrawable => !IsToggle && !IsNumber && !IsChoice && !IsText;
 
     /// <summary>Whether the server would have to start again for a new value here to take effect.</summary>
     public bool RestartNeeded { get; private set; }
@@ -208,9 +213,22 @@ namespace MediaPortal.Frontend.ViewModels
       }
     }
 
-    /// <summary>Why this row will not send what it holds. Empty when the row is worth sending.</summary>
-    public string Error
+    /// <summary>
+    /// What stands in the box for a word, as typed. An empty box is an answer and not an unfinished one - it is
+    /// how a household says it has no wish about the question - so nothing here insists on contents.
+    /// </summary>
+    public string Words
     {
+      get => _words;
+      set
+      {
+        if (SetProperty(ref _words, value ?? ""))
+          OnPropertyChanged(nameof(IsChanged));
+      }
+    }
+
+    /// <summary>Why this row will not send what it holds. Empty when the row is worth sending.</summary>
+    public string Error    {
       get => _error;
       private set => SetProperty(ref _error, value);
     }
@@ -233,6 +251,11 @@ namespace MediaPortal.Frontend.ViewModels
           return !int.TryParse(_numberText.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture,
               out int number) || number != (int)_serverValue;
 
+        if (IsText)
+          // Compared with the spaces taken off, because the box holds what was typed and the server keeps the
+          // answer without them; a viewer who typed "DE" and meant "DE" did not change anything.
+          return !string.Equals(_words.Trim(), (string?)_serverValue, StringComparison.Ordinal);
+
         return !string.Equals(_chosen, (string?)_serverValue, StringComparison.Ordinal);
       }
     }
@@ -253,6 +276,8 @@ namespace MediaPortal.Frontend.ViewModels
             : "";
       else if (IsChoice)
         _chosen = _serverValue as string ?? "";
+      else if (IsText)
+        _words = _serverValue as string ?? "";
 
       foreach (SettingOptionViewModel option in Options)
         option.Show(option.Name == _chosen);
@@ -261,6 +286,7 @@ namespace MediaPortal.Frontend.ViewModels
       OnPropertyChanged(nameof(Toggle));
       OnPropertyChanged(nameof(NumberText));
       OnPropertyChanged(nameof(Chosen));
+      OnPropertyChanged(nameof(Words));
       OnPropertyChanged(nameof(IsChanged));
     }
 
@@ -313,6 +339,15 @@ namespace MediaPortal.Frontend.ViewModels
         return true;
       }
 
+      if (IsText)
+      {
+        // Sent with the spaces taken off, and empty when it is empty, because that is one of the answers the
+        // word admits and the server reads it the same way.
+        Error = "";
+        value = _words.Trim();
+        return true;
+      }
+
       Error = string.Format(CultureInfo.InvariantCulture,
           "This screen cannot draw a value of the kind \"{0}\".", Kind);
       value = "";
@@ -332,6 +367,9 @@ namespace MediaPortal.Frontend.ViewModels
           return value.TryGetInt32(out int number) ? number : (object?)null;
 
         if (answer.Kind == SettingSectionViewModelKinds.Choice)
+          return value.ValueKind == JsonValueKind.String ? value.GetString() : null;
+
+        if (answer.Kind == SettingSectionViewModelKinds.Text)
           return value.ValueKind == JsonValueKind.String ? value.GetString() : null;
       }
       catch (InvalidOperationException)

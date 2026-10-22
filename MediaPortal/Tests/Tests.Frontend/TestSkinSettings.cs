@@ -81,6 +81,9 @@ namespace Tests.Frontend
           "this front end wears its details by default; the reference's off-by-default belonged to a skin "
           + "where details replaced playing, not to a panel beside the shelf");
       Assert.That(s.EnableAgeCertificationLogos, Is.True);
+      Assert.That(s.TimeFormat, Is.EqualTo("t"),
+          "the reference's skin base shipped the short time of the language one reads in");
+      Assert.That(s.DateFormat, Is.EqualTo("D"), "and the long date beside it");
       Assert.That(s.EnableAutoScrolling, Is.True);
       Assert.That(s.AutoScrollSpeed, Is.EqualTo(20));
       Assert.That(s.AutoScrollDelay, Is.EqualTo(2));
@@ -140,6 +143,8 @@ namespace Tests.Frontend
       Assert.That(s.EnableHomeContent, Is.True);
       Assert.That(s.EnableMediaItemDetailsView, Is.True, "worn by default on every skin, as above");
       Assert.That(s.EnableAgeCertificationLogos, Is.True);
+      Assert.That(s.TimeFormat, Is.EqualTo("t"), "both skins speak the reference base's two formats");
+      Assert.That(s.DateFormat, Is.EqualTo("D"));
 
       // The absence is a fact: Nereus's colour and header switches must not appear on WMC just because a
       // base class made them convenient.
@@ -174,6 +179,49 @@ namespace Tests.Frontend
         Assert.That(back.MovieGridViewType, Is.EqualTo(GridViewType.Banner));
         Assert.That(back.HomeMenuActionIds.Length, Is.EqualTo(1));
         Assert.That(back.EnableHelpTexts, Is.True, "what was never touched keeps its shipped answer");
+      }
+      finally
+      {
+        File.Delete(file);
+      }
+    }
+
+    [Test]
+    public void AFormatTheMachineCannotWriteIsNoAnswerAtAll()
+    {
+      // A format is a sentence somebody types, and a sentence the calendar cannot read is not a reason for a
+      // head line to go blank. The fallback is asked of the machine every time, because the same letters can
+      // mean a weekday in one language and nothing in another.
+      Assert.That(SkinSettingsBase.Written("t", "D"), Is.EqualTo("t"));
+      Assert.That(SkinSettingsBase.Written("  HH:mm  ", "t"), Is.EqualTo("HH:mm"),
+          "the spaces a person leaves around what they typed are not part of the format");
+      Assert.That(SkinSettingsBase.Written("", "t"), Is.EqualTo("t"), "an empty box is the shipped answer");
+      Assert.That(SkinSettingsBase.Written(null, "t"), Is.EqualTo("t"), "and so is nothing at all");
+      Assert.That(SkinSettingsBase.Written("%", "t"), Is.EqualTo("t"),
+          "a lone percent sign is a format exception waiting to happen, and the clock keeps writing");
+    }
+
+    [Test]
+    public void TheTwoFormatsTravelThroughTheSkinFileLikeEveryOtherAnswer()
+    {
+      string file = Path.Combine(Path.GetTempPath(), "mp2-skin-settings-" + Guid.NewGuid().ToString("N") + ".json");
+
+      try
+      {
+        NereusSkinSettings first = new NereusSkinSettings();
+        first.TimeFormat = "HH:mm";
+        first.DateFormat = "dd.MM.yyyy";
+        Assert.That(first.Save(file, out bool saved), Does.Contain("Saved"));
+        Assert.That(saved, Is.True);
+
+        NereusSkinSettings back = NereusSkinSettings.Load(file, out _);
+        Assert.That(back.TimeFormat, Is.EqualTo("HH:mm"),
+            "a format is one of the skin's answers, so it belongs in the skin's file");
+        Assert.That(back.DateFormat, Is.EqualTo("dd.MM.yyyy"));
+
+        NereusSkinSettings untouched = new NereusSkinSettings();
+        Assert.That(untouched.TimeFormat, Is.EqualTo("t"),
+            "and a skin that never wrote one still greets its viewer with the reference's own");
       }
       finally
       {
