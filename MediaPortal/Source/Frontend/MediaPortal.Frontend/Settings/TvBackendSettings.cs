@@ -72,6 +72,12 @@ namespace MediaPortal.Frontend.Settings
   /// per-genre colours the reference lets a viewer pick are the skin's business here and are in
   /// <c>TvGenreColors</c>, not in a file a viewer edits over ssh.
   /// </para>
+  /// <para>
+  /// One answer has no reference counterpart at all: <see cref="DemoData"/>. The reference could only ever show
+  /// a television that existed, so it never needed an invented one. Everything else about this file - the empty
+  /// host, the eleven answers, the address - behaves the same whether the television is real or demo, because
+  /// the demo is a backend behind the same questions rather than a screen of its own.
+  /// </para>
   /// </remarks>
   public sealed class TvBackendSettings
   {
@@ -79,6 +85,13 @@ namespace MediaPortal.Frontend.Settings
 
     /// <summary>The port TVHeadend listens on when it was installed without anyone changing it.</summary>
     public const int DEFAULT_PORT = 9981;
+
+    /// <summary>
+    /// The address used while <see cref="DemoData"/> is on and no machine was named. <c>.invalid</c> is reserved
+    /// for exactly this by RFC 2606, so the name can never belong to anybody's real machine: the demo answers
+    /// these questions itself, and an address that could not be reached even by mistake is the honest one.
+    /// </summary>
+    private static readonly Uri DEMO_URL = new Uri("http://tvbackend.invalid/");
 
     /// <summary>
     /// How far ahead the single-channel guide reaches, which is the reference's own answer and the horizon most
@@ -269,6 +282,20 @@ namespace MediaPortal.Frontend.Settings
     public bool AutoStartTV { get; set; }
 
     /// <summary>
+    /// Whether the television comes from an address at all, or from channels and programmes this front end
+    /// invents. Off is the ordinary state and the one a household wants; on, every television screen is filled
+    /// with the demo bouquet described on <c>DemoTvBackend</c>, which is what a box with no TV backend yet - or a
+    /// shop counter, or a screen recording of this skin - shows instead of an empty grid.
+    /// </summary>
+    /// <remarks>
+    /// Not a reference setting: the reference could only ever talk to a real backend, because MP2's own TV service
+    /// was on the same machine. This is the one switch with no counterpart, and it exists because "the guide is
+    /// empty and there is no way to see what it would look like full" is the complaint the empty grid invites.
+    /// </remarks>
+    [JsonPropertyName("demo_data")]
+    public bool DemoData { get; set; }
+
+    /// <summary>
     /// How many hours the guide shows, with the nonsense taken out: a window has to be at least half an hour wide
     /// and no wider than a working day, because past that the hour labels overlap and a guide stops being a guide.
     /// </summary>
@@ -313,9 +340,14 @@ namespace MediaPortal.Frontend.Settings
     /// Whether anybody has said where the television comes from. Every TV screen asks this before it asks
     /// anything of the backend, so that a box without a backend says so rather than complaining about a timeout.
     /// </summary>
+    /// <remarks>
+    /// <see cref="DemoData"/> counts as an answer, because with it there is something to ask: the invented
+    /// backend of <c>DemoTvBackend</c> answers every question the same way a real one does. Every screen therefore
+    /// needs no idea that a demo exists.
+    /// </remarks>
     public bool IsConfigured
     {
-      get { return !string.IsNullOrWhiteSpace(Host); }
+      get { return DemoData || !string.IsNullOrWhiteSpace(Host); }
     }
 
     /// <summary>
@@ -328,7 +360,7 @@ namespace MediaPortal.Frontend.Settings
       {
         string host = (Host ?? "").Trim();
         if (host.Length == 0)
-          return null;
+          return DemoData ? DEMO_URL : null;
 
         // A named port has to be a number somebody meant. A box holding "998a" is a typing mistake, and the
         // screen that offered the box is the one that has to hear about it - so no address comes back.
@@ -356,6 +388,9 @@ namespace MediaPortal.Frontend.Settings
     /// </summary>
     public string Describe()
     {
+      if (DemoData)
+        return "the demo television, which this front end makes up itself";
+
       string host = (Host ?? "").Trim();
       if (host.Length == 0)
         return "no TV backend named";

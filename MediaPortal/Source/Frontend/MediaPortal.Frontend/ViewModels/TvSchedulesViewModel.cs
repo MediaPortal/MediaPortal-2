@@ -184,7 +184,7 @@ namespace MediaPortal.Frontend.ViewModels
       _settingsProvider = settingsProvider ?? delegate { return TvBackendSettings.Load(null, out _); };
       _buildClient = clientFactory ?? delegate (TvBackendSettings settings)
       {
-        return new TvHeadendApiClient(settings);
+        return DemoTvBackend.Open(settings);
       };
 
       Tables.Add(new TvTableChoice("Planned", TvRecordingTable.Upcoming));

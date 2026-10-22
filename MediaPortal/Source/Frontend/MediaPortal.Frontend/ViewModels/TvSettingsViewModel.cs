@@ -40,6 +40,7 @@ namespace MediaPortal.Frontend.ViewModels
     private bool _zapFromGuide = true;
     private bool _zapByChannelIndex = true;
     private bool _autoStartTV;
+    private bool _demoData;
     private string _status = "";
     private bool _checking;
 
@@ -54,7 +55,7 @@ namespace MediaPortal.Frontend.ViewModels
     {
       _buildClient = clientFactory ?? delegate (TvBackendSettings settings)
       {
-        return new TvHeadendApiClient(settings);
+        return DemoTvBackend.Open(settings);
       };
     }
 
@@ -69,7 +70,9 @@ namespace MediaPortal.Frontend.ViewModels
         return "The programmes, the tuners and the recording timers all belong to a TvHeadend somewhere on the "
             + "network. This says which one, and asks it whether it is there. Underneath the address are the "
             + "answers the guide and the zap buttons ask with: how much of the evening to show, how many channels "
-            + "to show at once, and which of the two a number typed on a remote means.";
+            + "to show at once, and which of the two a number typed on a remote means. At the bottom of the "
+            + "address sits one switch with no counterpart in the reference: demo data, which lets every television "
+            + "screen be looked at with no TV backend anywhere.";
       }
     }
 
@@ -212,6 +215,17 @@ namespace MediaPortal.Frontend.ViewModels
       set { _autoStartTV = value; Raise(); }
     }
 
+    /// <summary>
+    /// Whether the television is to come from the invented backend instead of from a machine. Said plainly on the
+    /// screen - "Demo data" with a sentence about what it is - because the one thing this switch must not do is
+    /// leave somebody wondering later why their guide is full of channels that do not exist.
+    /// </summary>
+    public bool DemoData
+    {
+      get { return _demoData; }
+      set { _demoData = value; Raise(); }
+    }
+
     /// <summary>What the last press brought back, in words.</summary>
     public string Status
     {
@@ -328,8 +342,12 @@ namespace MediaPortal.Frontend.ViewModels
       _zapFromGuide = _settings.ZapFromGuide;
       _zapByChannelIndex = _settings.ZapByChannelIndex;
       _autoStartTV = _settings.AutoStartTV;
+      _demoData = _settings.DemoData;
       if (!string.IsNullOrWhiteSpace(problem))
         Status = problem;
+      else if (_settings.DemoData)
+        Status = "Written down as demo data, so the television screens show channels and programmes this front "
+            + "end invents. Turn the switch off and write a machine in to watch real television.";
       else if (_settings.IsConfigured)
         Status = "Written down to ask " + _settings.Describe() + ", which has not been asked yet.";
       else
@@ -359,6 +377,7 @@ namespace MediaPortal.Frontend.ViewModels
       typed.ZapFromGuide = _zapFromGuide;
       typed.ZapByChannelIndex = _zapByChannelIndex;
       typed.AutoStartTV = _autoStartTV;
+      typed.DemoData = _demoData;
       return typed;
     }
 

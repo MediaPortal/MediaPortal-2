@@ -60,6 +60,7 @@ namespace MediaPortal.Frontend.Views
       _ring.Add(userBox);
       _ring.Add(passwordBox);
       _ring.Add(daysBox);
+      _ring.Add(demoCheck);
       _ring.Add(hoursBox);
       _ring.Add(rowsBox);
       _ring.Add(zapBox);

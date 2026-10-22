@@ -158,7 +158,7 @@ namespace MediaPortal.Frontend.ViewModels
       _settingsProvider = settingsProvider ?? delegate { return TvBackendSettings.Load(null, out _); };
       _buildClient = clientFactory ?? delegate (TvBackendSettings settings)
       {
-        return new TvHeadendApiClient(settings);
+        return DemoTvBackend.Open(settings);
       };
     }
 
@@ -694,6 +694,8 @@ namespace MediaPortal.Frontend.ViewModels
 
           Status = Channels.Count.ToString(CultureInfo.InvariantCulture) + " channels in "
               + (_selectedGroup == null ? Heading : "'" + _selectedGroup.Name + "'");
+          if (askWith.DemoData)
+            Status += " (" + DemoTvBackend.NOTICE + ")";
 
           // "Automatically start TV" - the reference's <c>AutoStartTV</c>, which tuned the channel its navigation
           // stood on the moment its television home opened with nothing else playing

@@ -220,7 +220,7 @@ namespace MediaPortal.Frontend.ViewModels
       _settingsProvider = settingsProvider ?? delegate { return TvBackendSettings.Load(null, out _); };
       _buildClient = clientFactory ?? delegate (TvBackendSettings settings)
       {
-        return new TvHeadendApiClient(settings);
+        return DemoTvBackend.Open(settings);
       };
 
       // The shape of the grid comes from the settings before the first window is worked out, because the width of a
@@ -799,6 +799,12 @@ namespace MediaPortal.Frontend.ViewModels
           Raise(nameof(Rows));
           Status = programsMissing ?? rowsSaid
               ?? string.Format("{0} channels, {1} programmes between {2}", Rows.Count, programs.Count, WindowText);
+
+          // A guide full of invented programmes has to say so. The channel names are made up well enough to pass
+          // for a real bouquet at a glance, and a viewer who later wonders why their television never shows
+          // "Aurora Krankenhaus" is a viewer who was never told.
+          if (askWith.DemoData && !string.IsNullOrEmpty(Status))
+            Status += " (" + DemoTvBackend.NOTICE + ")";
         }
       }
       catch (OperationCanceledException)

@@ -102,6 +102,18 @@
                  Margin="0,4" />
       </Grid>
 
+      <!-- The one switch the reference had no reason to have: an invented backend instead of a machine, so that
+           the guide can be looked at by a box with no TVHeadend in the house. -->
+      <CheckBox Name="demoCheck" Content="Demo data instead of a real TV backend" FontSize="16" Focusable="True"
+                IsChecked="{Binding DemoData, Mode=TwoWay}"
+                ToolTip.Tip="Fills the guide, the channel lists and the timers with channels and programmes this front end makes up." />
+      <TextBlock Text="With this on there is no machine to ask: the channels, the programmes and the timers are invented, and the guide is never empty. There is no picture, because nothing stands behind a demo stream address."
+                 FontSize="13"
+                 Opacity="0.75"
+                 TextWrapping="Wrap"
+                 MaxWidth="900"
+                 Margin="0,0,0,4" />
+
       <!-- The guide's own shape, which is the reference's EpgNumberOfHours and EpgNumberOfRows. -->
       <TextBlock Text="The programme guide" FontSize="18" FontWeight="SemiBold" Margin="0,10,0,0" />
 

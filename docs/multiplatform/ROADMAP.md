@@ -4294,6 +4294,63 @@ allowed to show and rows that are as tall as the room they have divided by the r
 tests passed at the end of this part: two are the failures the front end already carried in, and the third is a
 music-shuffle test that failed in the middle of a three-minute run and passed when asked again on its own.
 
+### br. A television that is not there: the demo backend under the client
+
+An empty guide is the right answer to "where does the television come from" when nobody wrote an address down, and it
+is also the answer that shows a viewer nothing about what the screen would do if there were something to show. So the
+front end can now invent a television: one switch on the television settings, `demo_data` in `tv.json`, and every
+television screen is filled with channels, programmes and recording timers that exist nowhere.
+
+It sits *under* the API client and not beside it. `DemoTvBackend` is a message handler that answers TVHeadend's own
+JSON at TVHeadend's own addresses - `api/channeltag/list`, `api/channel/grid`, `api/service/grid`,
+`api/epg/content_type/list`, `api/epg/events` and the `api/dvr/entry/…` tables and their four write endpoints - and
+`DemoTvBackend.Open(settings)` is the one place that decides whether the client is pointed at that handler or at a
+machine. Which means a demo guide is built by the same query building, the same paging, the same reading of a
+hexadecimal content type and the same screens as a real one, and it is also why the demo is worth having as a fixture:
+a guide that draws wrongly in demo mode draws wrongly in the client, not in the box. The four screens hand the client
+over through their own factories, so all four now default to that one decision.
+
+Sixteen channels, four bouquets, twelve to watch and four to listen to, and no real broadcaster's name anywhere - a
+demo carrying somebody's programme titles would be quoting a programme schedule at a screen that is only there to be
+looked at. The programmes are generated out of the clock rather than stored: every channel has a day of slots summing
+to forty-eight half hours, the day repeats for ever, and a question walks the window it was asked for - starting eight
+half hours early, half hour by half hour rather than leaping programme to programme, which is exactly how a programme
+that began two hours ago and is still running gets stepped over. So the demo is full at three in the afternoon in
+October and at four in the morning in March, the window, bouquet, channel and title questions are all honoured, and a
+programme's id is reversible - channel and starting half hour - which is what lets `api/dvr/entry/create` be asked
+with nothing but an event id and still make a timer for the right evening. A guide painted from it uses all eight of
+the skin's genre colours, and the bouquets include one called "Alle Kanäle", so the setting that hides that bouquet
+can be seen doing it.
+
+Recording timers are the one thing the demo remembers, because a viewer who asks for something to be recorded has to
+see it on the timers screen afterwards. They live in memory for the length of a run and start seeded with two finished
+recordings, one running right now and one still to come, all four built out of the same generator as the programmes so
+their titles are the titles the guide shows at those times. `ResetRecordings()` puts them back.
+
+What it deliberately does not do: a **picture**. A demo channel carries a stream address like every other channel, and
+pointing a player at it finds nothing, because this front end is not going to ship a video file or point a box at
+somebody else's server to make a demo look finished; while demo data is on, that address is
+`http://tvbackend.invalid/…`, a name RFC 2606 reserves so it cannot belong to a real machine. Live TV in demo mode
+therefore stops with the player's own complaint, and the settings screen says so under the switch. Two more things
+follow from the switch and are worth knowing rather than discovering: while it is on, an address that is written down
+is *not* asked (the screens cannot talk to two televisions at once), and every status line that counts programmes adds
+"demo data, invented by this front end", because made-up channel names pass for real ones at a glance.
+
+The switch has no counterpart in the reference, which could only ever show a television that existed. `IsConfigured`
+therefore counts demo data as an answer, so not one screen needed to learn that a demo exists.
+
+22 new tests, and every one of them asks the demo through `TvHeadendApiClient` rather than at its innards, because
+that is the claim: bouquets and channels arriving in the backend's own shapes with the radio half recognised through
+the service bits, a window being full whichever hour it is asked for and nothing outside it answered, a programme
+beginning before the window still drawn at its left edge, a channel question never answering another channel, a title
+search answering its title, no programme answered twice in a day (which is what paging would show), all eight genre
+colours present, an episode carrying its episode line and a film not carrying one, a recording asked from the guide
+appearing on the timers and coming back marked in the guide, the same programme refused when asked for twice, a timer
+being renewed with the backend's own `active` spelling and called off afterwards, the guide filling and saying it is
+invented, a radio screen offering the four radio channels, the timers screen having something to draw, and the switch
+surviving the file and the settings screen's own "ask it" button reporting 12 television and 4 radio channels out of
+nobody. 187 television tests pass; the whole front end suite was run again after this part.
+
 ## What cannot be verified without the user
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library
 import. These need hardware and judgement that are not in this environment, and they are batched into
