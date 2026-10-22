@@ -23,13 +23,15 @@ namespace MediaPortal.Frontend.ViewModels
   public sealed class TvGuideBlock
   {
     public TvGuideBlock(TvProgram program, int column, int columnSpan, bool startsBeforeWindow,
-        bool endsAfterWindow)
+        bool endsAfterWindow, bool genreColors = true, bool seriesInfo = true)
     {
       Program = program;
       Column = column;
       ColumnSpan = columnSpan;
       StartsBeforeWindow = startsBeforeWindow;
       EndsAfterWindow = endsAfterWindow;
+      GenreColors = genreColors;
+      SeriesInfo = seriesInfo;
     }
 
     /// <summary>The programme itself, for the details along the bottom and for pressing on.</summary>
@@ -47,10 +49,19 @@ namespace MediaPortal.Frontend.ViewModels
     /// <summary>Whether it runs past the end of the window, which is said on its right edge.</summary>
     public bool EndsAfterWindow { get; }
 
-    /// <summary>What the block is filled with, which is its genre's colour.</summary>
+    /// <summary>Whether the viewer wants programmes coloured by what they are.</summary>
+    public bool GenreColors { get; }
+
+    /// <summary>Whether the viewer wants a programme to carry its episode line.</summary>
+    public bool SeriesInfo { get; }
+
+    /// <summary>
+    /// What the block is filled with: its genre's colour, or the one colour the guide uses when a viewer said they
+    /// would rather not have genres painted at all (<c>EpgShowGenreColors</c>).
+    /// </summary>
     public string Fill
     {
-      get { return TvGenreColors.ForGenre(Program.PrimaryGenre); }
+      get { return GenreColors ? TvGenreColors.ForGenre(Program.PrimaryGenre) : TvGenreColors.FLAT; }
     }
 
     /// <summary>The words inside the block: the title, and the series line under it when the backend said one.</summary>
@@ -68,6 +79,9 @@ namespace MediaPortal.Frontend.ViewModels
     {
       get
       {
+        if (!SeriesInfo)
+          return "";
+
         TvEpisode? episode = Program.Episode;
         return episode == null || !episode.IsKnown ? "" : episode.Describe();
       }
@@ -161,10 +175,14 @@ namespace MediaPortal.Frontend.ViewModels
     /// </summary>
     public const int COLUMNS = 90;
 
-    /// <summary>The minutes one column stands for.</summary>
+    /// <summary>
+    /// The minutes one column stands for by default, which is what three hours across ninety columns comes to. A
+    /// viewer changing the hours changes this with it (<see cref="ColumnMinutes"/>), exactly as the reference's grid
+    /// divided its hours by its own seventy-five columns.
+    /// </summary>
     public const int MINUTES_PER_COLUMN = 2;
 
-    /// <summary>How wide the window is, in minutes: three hours.</summary>
+    /// <summary>How wide the window is by default, in minutes: three hours.</summary>
     public const int WINDOW_MINUTES = COLUMNS * MINUTES_PER_COLUMN;
 
     private readonly Func<TvBackendSettings> _settingsProvider;
@@ -179,7 +197,14 @@ namespace MediaPortal.Frontend.ViewModels
     private TvGuideBlock? _selectedBlock;
     private TvGuideBlock? _actionsAbout;
     private bool _zapFromGuide = true;
-    private DateTimeOffset _start = Floor(DateTimeOffset.UtcNow);
+    private double _columnMinutes = MINUTES_PER_COLUMN;
+    private int _visibleRows = TvBackendSettings.DEFAULT_VISIBLE_ROWS;
+    private bool _showChannelNames = true;
+    private bool _showChannelNumbers = true;
+    private bool _showGenreColors = true;
+    private bool _showSeriesInfo = true;
+    private bool _hideAllChannelsGroup;
+    private DateTimeOffset _start = DateTimeOffset.UtcNow;
     private string _status = "";
     private bool _isLoading;
     private Task _inFlightLoad = Task.CompletedTask;
@@ -197,6 +222,87 @@ namespace MediaPortal.Frontend.ViewModels
       {
         return new TvHeadendApiClient(settings);
       };
+
+      // The shape of the grid comes from the settings before the first window is worked out, because the width of a
+      // column is what a window's start is floored to.
+      FollowSettings();
+      _start = Floor(_start);
+    }
+
+    /// <summary>
+    /// Takes the answers that decide what the grid looks like out of the settings: how wide a column is, how many
+    /// rows the screen has room for, what stands at the head of a row, and which of the two names a programme
+    /// carries. Read again on every reload, so a viewer who changes the settings and walks back to the guide sees
+    /// the guide they asked for without a restart - the reference read them once when its grid was built and needed
+    /// a plugin reload for a change to show, which is the part of its behaviour worth diverging from.
+    /// </summary>
+    private void FollowSettings()
+    {
+      TvBackendSettings settings;
+      try
+      {
+        settings = _settingsProvider();
+      }
+      catch (Exception)
+      {
+        // A settings file nobody can read is not a reason to draw no grid. The defaults are the shape the guide
+        // had before anybody wrote anything down.
+        return;
+      }
+
+      if (settings == null)
+        return;
+
+      _columnMinutes = settings.VisibleHoursOr * 60.0 / COLUMNS;
+      _visibleRows = settings.VisibleRowsOr;
+      _showChannelNames = settings.ShowChannelNames;
+      _showChannelNumbers = settings.ShowChannelNumbers;
+      _showGenreColors = settings.ShowGenreColors;
+      _showSeriesInfo = settings.ShowSeriesInfo;
+      _hideAllChannelsGroup = settings.HideAllChannelsGroup;
+      _zapFromGuide = settings.ZapFromGuide;
+    }
+
+    /// <summary>The minutes one column of this guide's grid stands for, once the viewer's hours are divided up.</summary>
+    public double ColumnMinutes
+    {
+      get { return _columnMinutes; }
+    }
+
+    /// <summary>How wide the window this guide draws is, in minutes: its own columns times their own width.</summary>
+    public double WindowMinutes
+    {
+      get { return COLUMNS * _columnMinutes; }
+    }
+
+    /// <summary>How many channels the screen keeps room for at once.</summary>
+    public int VisibleRows
+    {
+      get { return _visibleRows; }
+    }
+
+    /// <summary>Whether a row's head carries the channel's number.</summary>
+    public bool ShowChannelNumbers
+    {
+      get { return _showChannelNumbers; }
+    }
+
+    /// <summary>Whether a row's head carries the channel's name.</summary>
+    public bool ShowChannelNames
+    {
+      get { return _showChannelNames; }
+    }
+
+    /// <summary>Whether a programme is coloured by what it is.</summary>
+    public bool ShowGenreColors
+    {
+      get { return _showGenreColors; }
+    }
+
+    /// <summary>Whether a programme carries its "S07 E03" line.</summary>
+    public bool ShowSeriesInfo
+    {
+      get { return _showSeriesInfo; }
     }
 
     /// <summary>Rows of the grid, one per channel of the bouquet that is picked.</summary>
@@ -236,7 +342,7 @@ namespace MediaPortal.Frontend.ViewModels
     /// <summary>The moment the window ends.</summary>
     public DateTimeOffset End
     {
-      get { return _start.AddMinutes(WINDOW_MINUTES); }
+      get { return _start.AddMinutes(WindowMinutes); }
     }
 
     /// <summary>The words above the grid: the stretch this window covers, on the viewer's own clock.</summary>
@@ -245,7 +351,7 @@ namespace MediaPortal.Frontend.ViewModels
       get
       {
         return _start.LocalDateTime.ToString("t", CultureInfo.CurrentCulture) + " - "
-            + _start.AddMinutes(WINDOW_MINUTES).LocalDateTime.ToString("t", CultureInfo.CurrentCulture)
+            + End.LocalDateTime.ToString("t", CultureInfo.CurrentCulture)
             + ", " + _start.LocalDateTime.ToString("ddd d MMMM", CultureInfo.CurrentCulture);
       }
     }
@@ -259,7 +365,7 @@ namespace MediaPortal.Frontend.ViewModels
         if (now < _start || now >= End)
           return -1;
         return (int) Math.Min(COLUMNS - 1,
-            (long) Math.Round((now - _start).TotalMinutes / MINUTES_PER_COLUMN, MidpointRounding.AwayFromZero));
+            (long) Math.Round((now - _start).TotalMinutes / _columnMinutes, MidpointRounding.AwayFromZero));
       }
     }
 
@@ -455,13 +561,13 @@ namespace MediaPortal.Frontend.ViewModels
     /// <summary>Moves the window half a screen back and reads it again.</summary>
     public void ScrollBackward()
     {
-      Move(-WINDOW_MINUTES / 2);
+      Move(-(int) Math.Round(WindowMinutes / 2));
     }
 
     /// <summary>Moves the window half a screen on.</summary>
     public void ScrollForward()
     {
-      Move(WINDOW_MINUTES / 2);
+      Move((int) Math.Round(WindowMinutes / 2));
     }
 
     /// <summary>Jumps a day back, which is how a viewer finds last Saturday's film.</summary>
@@ -640,6 +746,12 @@ namespace MediaPortal.Frontend.ViewModels
         return;
       }
 
+      // The grid follows its viewer. A guide that is already open can be sitting on the screen while somebody
+      // changes the settings screen, and the reference read its settings once per grid - never per programme - so
+      // this is the same: the numbers are picked up when a guide is (re)built, and what is on the screen while it
+      // is being looked at does not change shape under the viewer's hand.
+      FollowSettings();
+
       if (group == null)
       {
         // Nobody has picked a bouquet yet, which is how a guide opens. The bouquet is picked and its programmes
@@ -732,7 +844,8 @@ namespace MediaPortal.Frontend.ViewModels
           if (mine != _generation)
             return false;
 
-          List<TvChannelGroup> ofThisKind = groups.Where(g => !LooksWrongKind(g.Name)).ToList();
+          List<TvChannelGroup> ofThisKind = groups.Where(g => !LooksWrongKind(g.Name) && !HiddenGroup(g.Name))
+              .ToList();
           Groups.Clear();
           foreach (TvChannelGroup group in ofThisKind)
             Groups.Add(group);
@@ -881,14 +994,14 @@ namespace MediaPortal.Frontend.ViewModels
       DateTimeOffset shown = before ? Start : program.Start;
       DateTimeOffset until = after ? End : program.Stop;
 
-      int column = (int) Math.Round((shown - Start).TotalMinutes / MINUTES_PER_COLUMN,
+      int column = (int) Math.Round((shown - Start).TotalMinutes / _columnMinutes,
           MidpointRounding.AwayFromZero);
-      int span = (int) Math.Round((until - shown).TotalMinutes / MINUTES_PER_COLUMN, MidpointRounding.AwayFromZero);
+      int span = (int) Math.Round((until - shown).TotalMinutes / _columnMinutes, MidpointRounding.AwayFromZero);
 
       column = Math.Max(0, Math.Min(COLUMNS - 1, column));
       span = Math.Max(1, Math.Min(COLUMNS - column, span));
 
-      return new TvGuideBlock(program, column, span, before, after);
+      return new TvGuideBlock(program, column, span, before, after, _showGenreColors, _showSeriesInfo);
     }
 
     /// <summary>Finds the same programme again after a scroll, so the details do not jump away.</summary>
@@ -941,7 +1054,7 @@ namespace MediaPortal.Frontend.ViewModels
 
       for (DateTimeOffset hour = first; hour < End; hour = hour.AddHours(1))
       {
-        int column = (int) Math.Round((hour - _start).TotalMinutes / MINUTES_PER_COLUMN,
+        int column = (int) Math.Round((hour - _start).TotalMinutes / _columnMinutes,
             MidpointRounding.AwayFromZero);
         if (column < 0 || column >= COLUMNS)
           continue;
@@ -950,11 +1063,30 @@ namespace MediaPortal.Frontend.ViewModels
       }
     }
 
-    private static DateTimeOffset Floor(DateTimeOffset moment)
+    /// <summary>
+    /// Which bouquets a viewer said they never want to be offered - the same rule the tuner follows, for the same
+    /// reason, and read once per grid like everything else the guide takes from the settings.
+    /// </summary>
+    private bool HiddenGroup(string? name)
     {
-      long minutes = (long) Math.Floor((moment - DateTimeOffset.FromUnixTimeSeconds(0)).TotalMinutes);
-      long floored = minutes - (((minutes % MINUTES_PER_COLUMN) + MINUTES_PER_COLUMN) % MINUTES_PER_COLUMN);
-      return DateTimeOffset.FromUnixTimeSeconds(0).AddMinutes(floored);
+      return _hideAllChannelsGroup && TvBackendSettings.IsAllChannelsGroup(name);
+    }
+
+    /// <summary>
+    /// The moment a window opens when it is moved onto the grid: the column edge at or before the moment asked
+    /// for, so that a programme beginning on a column line always stands on a column line and never across two.
+    /// The count is kept from the epoch, which is what the columns are counted from too.
+    /// </summary>
+    private DateTimeOffset Floor(DateTimeOffset moment)
+    {
+      double columnSeconds = _columnMinutes * 60.0;
+      long step = columnSeconds >= 1
+          ? Math.Max(1, (long) Math.Round(columnSeconds))
+          : 1;
+
+      long seconds = (long) Math.Floor((moment - DateTimeOffset.FromUnixTimeSeconds(0)).TotalSeconds);
+      long floored = seconds - (((seconds % step) + step) % step);
+      return DateTimeOffset.FromUnixTimeSeconds(0).AddSeconds(floored);
     }
 
     private static string DescribeDuration(TimeSpan duration)
@@ -980,19 +1112,12 @@ namespace MediaPortal.Frontend.ViewModels
     /// Whether standing on a running programme and pressing sends the viewer straight to it. The reference had this
     /// on unless somebody turned it off (<c>Settings/SlimTvClientSettings.cs</c>, <c>ZapFromGuide</c>), and it stays
     /// on here for the same reason: on the sofa, pressing the thing that is on now is how a person gets to it. With
-    /// the switch off, every second press asks the question the dialog answers.
+    /// the switch off, every second press asks the question the dialog answers. It comes from the viewer's own
+    /// settings, which the guide picks up whenever it builds a grid.
     /// </summary>
     public bool ZapFromGuide
     {
       get { return _zapFromGuide; }
-      set
-      {
-        if (_zapFromGuide == value)
-          return;
-
-        _zapFromGuide = value;
-        Raise(nameof(ZapFromGuide));
-      }
     }
 
     /// <summary>The programme the dialog is about, or nothing while no dialog is open.</summary>

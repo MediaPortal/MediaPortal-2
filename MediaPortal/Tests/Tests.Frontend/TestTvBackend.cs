@@ -767,6 +767,113 @@ namespace Tests.Frontend
       Assert.That(TvBackendSettings.Load(null, out problem).Host, Is.EqualTo("fromenvironment"));
     }
 
+    [Test]
+    public void EveryAnswerAboutTheGuideAndTheZappingSurvivesBeingWrittenAndReadAgain()
+    {
+      TvBackendSettings written = new TvBackendSettings();
+      written.Host = "tvbox";
+      written.VisibleHours = 6.5;
+      written.VisibleRows = 14;
+      written.ZapTimeoutSeconds = 4.5;
+      written.ShowChannelNames = false;
+      written.ShowChannelNumbers = false;
+      written.ShowGenreColors = false;
+      written.ShowSeriesInfo = false;
+      written.HideAllChannelsGroup = true;
+      written.ZapFromGuide = false;
+      written.ZapByChannelIndex = false;
+      written.AutoStartTV = true;
+
+      bool saved;
+      string says = written.Save(FileNamed("guide.json"), out saved);
+      Assert.That(saved, Is.True, says);
+
+      string? problem;
+      TvBackendSettings read = TvBackendSettings.Load(FileNamed("guide.json"), out problem);
+      Assert.That(problem, Is.Null);
+      Assert.That(read.VisibleHours, Is.EqualTo(6.5));
+      Assert.That(read.VisibleRows, Is.EqualTo(14));
+      Assert.That(read.ZapTimeoutSeconds, Is.EqualTo(4.5));
+      Assert.That(read.ShowChannelNames, Is.False);
+      Assert.That(read.ShowChannelNumbers, Is.False);
+      Assert.That(read.ShowGenreColors, Is.False);
+      Assert.That(read.ShowSeriesInfo, Is.False);
+      Assert.That(read.HideAllChannelsGroup, Is.True);
+      Assert.That(read.ZapFromGuide, Is.False);
+      Assert.That(read.ZapByChannelIndex, Is.False);
+      Assert.That(read.AutoStartTV, Is.True);
+    }
+
+    [Test]
+    public void TheDefaultsAreTheOnesTheReferenceShipped()
+    {
+      TvBackendSettings plain = new TvBackendSettings();
+
+      Assert.That(plain.ShowChannelNames, Is.True);
+      Assert.That(plain.ShowChannelNumbers, Is.True);
+      Assert.That(plain.ShowSeriesInfo, Is.True, "the reference showed a programme's episode unless told not to");
+      Assert.That(plain.HideAllChannelsGroup, Is.False);
+      Assert.That(plain.ZapFromGuide, Is.True);
+      Assert.That(plain.ZapByChannelIndex, Is.True,
+          "a number on a remote means a place in the list to the person holding it");
+      Assert.That(plain.AutoStartTV, Is.False,
+          "the reference would not start a picture on its own, and neither does this");
+      Assert.That(plain.VisibleRows, Is.EqualTo(9), "EpgNumberOfRows defaulted to nine");
+      Assert.That(plain.ZapTimeoutSeconds, Is.EqualTo(2), "ZapTimeout defaulted to two seconds");
+
+      // The two this front end answers differently, on purpose, so that a difference is at least a known one.
+      Assert.That(plain.VisibleHours, Is.EqualTo(3),
+          "the reference's two hours were measured across seventy-five columns; this guide has ninety and started "
+          + "at three, which the switch can turn back");
+      Assert.That(plain.ShowGenreColors, Is.True,
+          "the reference defaulted to off because its skin drew a colour strip of its own beside every block; "
+          + "here the fill is the only place a genre is written");
+    }
+
+    [Test]
+    public void AFileThatNamesImpossibleNumbersIsCorrectedRatherThanRefused()
+    {
+      string file = FileNamed("impossible.json");
+      File.WriteAllText(file, "{ \"host\": \"tvbox\", \"visible_hours\": 99, \"visible_rows\": 0,"
+          + " \"zap_timeout_seconds\": 900 }");
+
+      string? problem;
+      TvBackendSettings read = TvBackendSettings.Load(file, out problem);
+      Assert.That(problem, Is.Null, "a number out of range is a typo, not a broken file");
+      Assert.That(read.VisibleHours, Is.EqualTo(TvBackendSettings.DEFAULT_VISIBLE_HOURS),
+          "a guide a day wide is not a guide, and the hour labels would lie on top of each other");
+      Assert.That(read.VisibleRows, Is.EqualTo(TvBackendSettings.DEFAULT_VISIBLE_ROWS));
+      Assert.That(read.ZapTimeoutSeconds, Is.EqualTo(TvBackendSettings.DEFAULT_ZAP_TIMEOUT_SECONDS),
+          "half a minute of waiting after a digit is a television that appears to have stopped");
+
+      File.WriteAllText(FileNamed("tiny.json"),
+          "{ \"host\": \"tvbox\", \"visible_hours\": 0.5, \"visible_rows\": 40, \"zap_timeout_seconds\": 0.5 }");
+      TvBackendSettings edge = TvBackendSettings.Load(FileNamed("tiny.json"), out problem);
+      Assert.That(problem, Is.Null);
+      Assert.That(edge.VisibleHours, Is.EqualTo(0.5), "half an hour is narrow but it is still a window");
+      Assert.That(edge.VisibleRows, Is.EqualTo(40), "forty rows is a screenful of very thin channels");
+      Assert.That(edge.ZapTimeoutSeconds, Is.EqualTo(0.5));
+    }
+
+    [Test]
+    public void TheBouquetTheViewerCanAskToBeRiddenIsKnownByItsNameAlone()
+    {
+      TvBackendSettings hiding = new TvBackendSettings();
+      Assert.That(hiding.IsHiddenGroup("All Channels"), Is.False,
+          "off is off: the reference hid nothing until its switch was turned");
+
+      hiding.HideAllChannelsGroup = true;
+      Assert.That(hiding.IsHiddenGroup("All Channels"), Is.True);
+      Assert.That(hiding.IsHiddenGroup("  all channels  "), Is.True,
+          "the reference compared the name exactly; a bouquet somebody typed a name into deserves the same answer "
+          + "however they spaced or capitalised it");
+      Assert.That(hiding.IsHiddenGroup("Alle Kanäle"), Is.True);
+      Assert.That(hiding.IsHiddenGroup("Family"), Is.False);
+      Assert.That(hiding.IsHiddenGroup("All Channels Extra"), Is.False,
+          "a bouquet that merely starts with those words is a bouquet of its own");
+      Assert.That(hiding.IsHiddenGroup(null), Is.False);
+    }
+
     #endregion
 
     #region The screen that asks
@@ -808,6 +915,70 @@ namespace Tests.Frontend
       Assert.That(screen.DaysAhead, Is.EqualTo(31));
       screen.GuideDays = "32";
       Assert.That(screen.DaysAhead, Is.EqualTo(14), "nobody keeps a month of guide on a television");
+    }
+
+    [Test]
+    public void TheScreenCarriesTheGuidesOwnNumbersAndItsSwitches()
+    {
+      TvBackendSettings stored = new TvBackendSettings();
+      stored.Host = "tvbox";
+      stored.VisibleHours = 4.5;
+      stored.VisibleRows = 12;
+      stored.ZapTimeoutSeconds = 3;
+      stored.ShowGenreColors = false;
+      stored.HideAllChannelsGroup = true;
+      stored.AutoStartTV = true;
+
+      TvSettingsViewModel screen = new TvSettingsViewModel();
+      screen.Show(stored, null);
+
+      Assert.That(screen.VisibleHours, Is.EqualTo("4.5"));
+      Assert.That(screen.VisibleRows, Is.EqualTo("12"));
+      Assert.That(screen.ZapTimeout, Is.EqualTo("3"), "three seconds is written as 3, not as 3,0");
+      Assert.That(screen.ShowGenreColors, Is.False);
+      Assert.That(screen.HideAllChannelsGroup, Is.True);
+      Assert.That(screen.AutoStartTV, Is.True);
+      Assert.That(screen.ShowChannelNames, Is.True, "everything the file did not mention keeps its default");
+
+      TvBackendSettings back = screen.Typed();
+      Assert.That(back.VisibleHours, Is.EqualTo(4.5));
+      Assert.That(back.VisibleRows, Is.EqualTo(12));
+      Assert.That(back.ZapTimeoutSeconds, Is.EqualTo(3));
+      Assert.That(back.ShowGenreColors, Is.False);
+      Assert.That(back.HideAllChannelsGroup, Is.True);
+      Assert.That(back.AutoStartTV, Is.True);
+    }
+
+    [Test]
+    public void HalfTypedNumbersFallBackAndACommaIsTakenForThePointItMeans()
+    {
+      TvSettingsViewModel screen = new TvSettingsViewModel();
+      screen.Show(new TvBackendSettings(), null);
+
+      screen.VisibleHours = "two";
+      Assert.That(screen.HoursToShow, Is.EqualTo(TvBackendSettings.DEFAULT_VISIBLE_HOURS),
+          "a box that does not hold a number yet is not an answer, and the rest of the screen still works");
+
+      screen.VisibleHours = "2.";
+      Assert.That(screen.HoursToShow, Is.EqualTo(2),
+          "a number that stops after the point is still the number that was typed");
+
+      screen.VisibleHours = "2,5";
+      Assert.That(screen.HoursToShow, Is.EqualTo(2.5),
+          "the keyboard in front of a television is the one on the remote, and a household that writes 2,5 means "
+          + "two and a half hours");
+
+      screen.VisibleRows = "nonsense";
+      Assert.That(screen.RowsToShow, Is.EqualTo(TvBackendSettings.DEFAULT_VISIBLE_ROWS));
+      screen.VisibleRows = "500";
+      Assert.That(screen.RowsToShow, Is.EqualTo(TvBackendSettings.DEFAULT_VISIBLE_ROWS),
+          "five hundred channels on one screen is a grid of nothing");
+
+      screen.ZapTimeout = "abc";
+      Assert.That(screen.ZapSecondsToShow, Is.EqualTo(TvBackendSettings.DEFAULT_ZAP_TIMEOUT_SECONDS));
+
+      Assert.That(screen.Typed().VisibleRows, Is.EqualTo(TvBackendSettings.DEFAULT_VISIBLE_ROWS),
+          "what goes into the file is the corrected answer, not the typo");
     }
 
     [Test]

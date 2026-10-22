@@ -216,9 +216,9 @@ namespace Tests.Frontend
     /// Opens a guide over the scripted backend and waits until the grid is really there, because a dialog about a
     /// programme can only be put up over a grid that has programmes on it.
     /// </summary>
-    private static TvGuideViewModel Opened(ScriptedActions backend)
+    private static TvGuideViewModel Opened(ScriptedActions backend, TvBackendSettings? with = null)
     {
-      TvBackendSettings settings = new TvBackendSettings();
+      TvBackendSettings settings = with ?? new TvBackendSettings();
       settings.Host = "tvbox";
       settings.Port = 9981;
 
@@ -675,8 +675,9 @@ namespace Tests.Frontend
     [Test]
     public void PressingASecondTimeOnAProgrammeThatIsRunningAsksOnceTheViewerWouldRatherBeAsked()
     {
-      TvGuideViewModel guide = Opened(new ScriptedActions());
-      guide.ZapFromGuide = false;
+      TvBackendSettings switched = new TvBackendSettings();
+      switched.ZapFromGuide = false;
+      TvGuideViewModel guide = Opened(new ScriptedActions(), switched);
 
       List<TvChannel> handed = new List<TvChannel>();
       guide.WatchRequested += handed.Add;

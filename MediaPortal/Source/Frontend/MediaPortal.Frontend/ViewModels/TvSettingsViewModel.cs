@@ -29,6 +29,17 @@ namespace MediaPortal.Frontend.ViewModels
     private string _username = "";
     private string _password = "";
     private string _guideDays = "";
+    private string _visibleHours = "";
+    private string _visibleRows = "";
+    private string _zapTimeout = "";
+    private bool _showChannelNames = true;
+    private bool _showChannelNumbers = true;
+    private bool _showGenreColors = true;
+    private bool _showSeriesInfo = true;
+    private bool _hideAllChannelsGroup;
+    private bool _zapFromGuide = true;
+    private bool _zapByChannelIndex = true;
+    private bool _autoStartTV;
     private string _status = "";
     private bool _checking;
 
@@ -56,7 +67,9 @@ namespace MediaPortal.Frontend.ViewModels
       get
       {
         return "The programmes, the tuners and the recording timers all belong to a TvHeadend somewhere on the "
-            + "network. This says which one, and asks it whether it is there.";
+            + "network. This says which one, and asks it whether it is there. Underneath the address are the "
+            + "answers the guide and the zap buttons ask with: how much of the evening to show, how many channels "
+            + "to show at once, and which of the two a number typed on a remote means.";
       }
     }
 
@@ -95,6 +108,110 @@ namespace MediaPortal.Frontend.ViewModels
       set { _guideDays = value ?? ""; Raise(); }
     }
 
+    /// <summary>
+    /// How many hours the guide is to show at once, as typed. The reference's <c>EpgNumberOfHours</c>, which its
+    /// settings screen described as "Number of hours in EPG" and which its grid divided by its own seventy-five
+    /// columns (<c>Controls/EpgGrid.cs:96-99</c>); this guide divides by its ninety, for the same reason that
+    /// grid did - the columns are what a block is measured in.
+    /// </summary>
+    public string VisibleHours
+    {
+      get { return _visibleHours; }
+      set { _visibleHours = value ?? ""; Raise(); }
+    }
+
+    /// <summary>
+    /// How many channels the guide is to show at once, as typed. The reference's <c>EpgNumberOfRows</c>, and the
+    /// number its grid divided its own height by (<c>EpgGrid.cs:428</c>), so asking for fewer rows makes the rows
+    /// that are left taller rather than leaving the bottom of the screen empty.
+    /// </summary>
+    public string VisibleRows
+    {
+      get { return _visibleRows; }
+      set { _visibleRows = value ?? ""; Raise(); }
+    }
+
+    /// <summary>
+    /// How long somebody gets to finish typing a channel number, as typed. The reference's <c>ZapTimeout</c>:
+    /// "Configures the delay until tuning starts."
+    /// </summary>
+    public string ZapTimeout
+    {
+      get { return _zapTimeout; }
+      set { _zapTimeout = value ?? ""; Raise(); }
+    }
+
+    /// <summary>Whether a channel's name is written beside its row. The reference's <c>EpgShowChannelNames</c>.</summary>
+    public bool ShowChannelNames
+    {
+      get { return _showChannelNames; }
+      set { _showChannelNames = value; Raise(); }
+    }
+
+    /// <summary>Whether a channel's number is written beside its row. The reference's <c>EpgShowChannelNumbers</c>.</summary>
+    public bool ShowChannelNumbers
+    {
+      get { return _showChannelNumbers; }
+      set { _showChannelNumbers = value; Raise(); }
+    }
+
+    /// <summary>
+    /// Whether programmes are coloured by what they are. The reference's <c>ShowEpgGenreColors</c>, which it
+    /// defaulted to off; here it is on, because a guide whose blocks are all one colour says nothing about the
+    /// evening and the skin carries the eight colours anyway.
+    /// </summary>
+    public bool ShowGenreColors
+    {
+      get { return _showGenreColors; }
+      set { _showGenreColors = value; Raise(); }
+    }
+
+    /// <summary>Whether a programme says which episode it is. The reference's <c>ShowSeriesInfo</c>.</summary>
+    public bool ShowSeriesInfo
+    {
+      get { return _showSeriesInfo; }
+      set { _showSeriesInfo = value; Raise(); }
+    }
+
+    /// <summary>
+    /// Whether the bouquet called "All Channels" is left out of what a viewer is offered. The reference's
+    /// <c>HideAllChannelsGroup</c>.
+    /// </summary>
+    public bool HideAllChannelsGroup
+    {
+      get { return _hideAllChannelsGroup; }
+      set { _hideAllChannelsGroup = value; Raise(); }
+    }
+
+    /// <summary>
+    /// Whether standing on a running programme and pressing sends the viewer to it. The reference's
+    /// <c>ZapFromGuide</c>, worded there as "If enabled, OK on currently running programs tunes the channel".
+    /// </summary>
+    public bool ZapFromGuide
+    {
+      get { return _zapFromGuide; }
+      set { _zapFromGuide = value; Raise(); }
+    }
+
+    /// <summary>
+    /// Whether a typed number is a place in the bouquet or the number printed on a channel. The reference's
+    /// <c>ZapByChannelIndex</c>.
+    /// </summary>
+    public bool ZapByChannelIndex
+    {
+      get { return _zapByChannelIndex; }
+      set { _zapByChannelIndex = value; Raise(); }
+    }
+
+    /// <summary>
+    /// Whether pressing the tile called "Live TV" starts a picture. The reference's <c>AutoStartTV</c>.
+    /// </summary>
+    public bool AutoStartTV
+    {
+      get { return _autoStartTV; }
+      set { _autoStartTV = value; Raise(); }
+    }
+
     /// <summary>What the last press brought back, in words.</summary>
     public string Status
     {
@@ -130,6 +247,60 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
+    /// How wide the guide's window is as typed, with the nonsense taken out by the same rule the file uses - which
+    /// is why a half-typed "2." does not stop the rest of the screen from working.
+    /// </summary>
+    public double HoursToShow
+    {
+      get
+      {
+        TvBackendSettings probe = new TvBackendSettings();
+        double hours;
+        if (double.TryParse(AsNumber(_visibleHours), System.Globalization.NumberStyles.Float,
+            System.Globalization.CultureInfo.InvariantCulture, out hours))
+          probe.VisibleHours = hours;
+        return probe.VisibleHoursOr;
+      }
+    }
+
+    /// <summary>How many channels fit on the guide as typed, with the nonsense taken out.</summary>
+    public int RowsToShow
+    {
+      get
+      {
+        TvBackendSettings probe = new TvBackendSettings();
+        int rows;
+        if (int.TryParse(AsNumber(_visibleRows), out rows))
+          probe.VisibleRows = rows;
+        return probe.VisibleRowsOr;
+      }
+    }
+
+    /// <summary>How long a typed channel number is waited over, as typed, with the nonsense taken out.</summary>
+    public double ZapSecondsToShow
+    {
+      get
+      {
+        TvBackendSettings probe = new TvBackendSettings();
+        double seconds;
+        if (double.TryParse(AsNumber(_zapTimeout), System.Globalization.NumberStyles.Float,
+            System.Globalization.CultureInfo.InvariantCulture, out seconds))
+          probe.ZapTimeoutSeconds = seconds;
+        return probe.ZapTimeoutSecondsOr;
+      }
+    }
+
+    /// <summary>
+    /// What somebody typed in a number box, made into something a number can be read out of: the spaces taken off,
+    /// and a comma let through as the nought-point it means, because the keyboard on this screen is the one on the
+    /// remote in front of the television and a German household types 2,5 into a box that wants 2.5.
+    /// </summary>
+    private static string AsNumber(string typed)
+    {
+      return (typed ?? "").Trim().Replace(',', '.');
+    }
+
+    /// <summary>
     /// Puts the answers from the file - or from whatever was loaded - into the fields, and says whether the
     /// file had anything to complain about.
     /// </summary>
@@ -146,6 +317,17 @@ namespace MediaPortal.Frontend.ViewModels
       _username = _settings.Username;
       _password = _settings.Password;
       _guideDays = _settings.GuideDays.ToString(System.Globalization.CultureInfo.InvariantCulture);
+      _visibleHours = Words(_settings.VisibleHoursOr);
+      _visibleRows = _settings.VisibleRowsOr.ToString(System.Globalization.CultureInfo.InvariantCulture);
+      _zapTimeout = Words(_settings.ZapTimeoutSecondsOr);
+      _showChannelNames = _settings.ShowChannelNames;
+      _showChannelNumbers = _settings.ShowChannelNumbers;
+      _showGenreColors = _settings.ShowGenreColors;
+      _showSeriesInfo = _settings.ShowSeriesInfo;
+      _hideAllChannelsGroup = _settings.HideAllChannelsGroup;
+      _zapFromGuide = _settings.ZapFromGuide;
+      _zapByChannelIndex = _settings.ZapByChannelIndex;
+      _autoStartTV = _settings.AutoStartTV;
       if (!string.IsNullOrWhiteSpace(problem))
         Status = problem;
       else if (_settings.IsConfigured)
@@ -166,7 +348,27 @@ namespace MediaPortal.Frontend.ViewModels
       typed.Username = _username.Trim();
       typed.Password = _password;
       typed.GuideDays = DaysAhead;
+      typed.VisibleHours = HoursToShow;
+      typed.VisibleRows = RowsToShow;
+      typed.ZapTimeoutSeconds = ZapSecondsToShow;
+      typed.ShowChannelNames = _showChannelNames;
+      typed.ShowChannelNumbers = _showChannelNumbers;
+      typed.ShowGenreColors = _showGenreColors;
+      typed.ShowSeriesInfo = _showSeriesInfo;
+      typed.HideAllChannelsGroup = _hideAllChannelsGroup;
+      typed.ZapFromGuide = _zapFromGuide;
+      typed.ZapByChannelIndex = _zapByChannelIndex;
+      typed.AutoStartTV = _autoStartTV;
       return typed;
+    }
+
+    /// <summary>
+    /// A number written the way the box shows it: two hours as "2" rather than "2", and two and a half as "2.5"
+    /// rather than "2,5" or "2.5000000000000001".
+    /// </summary>
+    private static string Words(double value)
+    {
+      return value.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
     }
 
     /// <summary>Writes the answers down, and says which file they went into.</summary>

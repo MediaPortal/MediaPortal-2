@@ -26,6 +26,7 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using MediaPortal.Frontend.Api;
 using MediaPortal.Frontend.Input;
+using MediaPortal.Frontend.Settings;
 using MediaPortal.Frontend.ViewModels;
 using MediaPortal.Frontend.Workflow;
 
@@ -53,15 +54,37 @@ namespace MediaPortal.Frontend.Views
   public partial class TvGuideView : UserControl
   {
     /// <summary>
-    /// How wide the column of channel names is. The reference computed its own header from the switches the
-    /// viewer had thrown - ninety pixels for a number, a hundred and sixty for a logo, two hundred for a name
-    /// (<c>SlimTvClient-fullguide.xaml:24-29</c>) - and this front end has no channel logos to reserve a hundred
-    /// and sixty pixels for, which is a thing the settings part still owes it.
+    /// What the column of a channel's number is worth, which is what the reference allowed it
+    /// (<c>Skin/Nereus/screens/SlimTvClient-fullguide.xaml:22-30</c>).
     /// </summary>
-    private const double HEADER_WIDTH = 190;
+    private const double NUMBER_WIDTH = 90;
 
-    /// <summary>How tall one channel's row is.</summary>
-    private const double ROW_HEIGHT = 42;
+    /// <summary>What the column of a channel's name is worth, from the same sum in the reference.</summary>
+    private const double NAME_WIDTH = 200;
+
+    /// <summary>How tall the strip of hours along the top is.</summary>
+    private const double RULER_HEIGHT = 20;
+
+    /// <summary>
+    /// What a row is worth before the screen has been measured, which is only ever in a test or the designer - a
+    /// guide on a real screen always works its rows out of the room it has been given.
+    /// </summary>
+    private const double FALLBACK_ROW_HEIGHT = 42;
+
+    /// <summary>
+    /// How wide the column of channels is, from the two switches the viewer left on. The reference's own sum was
+    /// "ninety pixels for a number, a hundred and sixty for a logo, two hundred for a name", and this front end has
+    /// no channel logos to reserve a hundred and sixty pixels for yet - a thing its settings still owe it.
+    /// </summary>
+    private double _headerWidth = NUMBER_WIDTH + NAME_WIDTH;
+
+    /// <summary>
+    /// How tall one channel's row is, out of the room this screen has and the number of rows the viewer asked to
+    /// see at once. The reference divided its own height by the same setting (<c>EpgGrid.cs:428</c>:
+    /// "ActualHeight / _numberOfRows"), so asking for six rows rather than eighteen makes the six taller rather
+    /// than leaving six rows at the top of a screen nobody can read from the sofa.
+    /// </summary>
+    private double _rowHeight = FALLBACK_ROW_HEIGHT;
 
     /// <summary>The strip a channel's programmes are drawn on, behind the blocks.</summary>
     private static readonly IBrush TRACK = new SolidColorBrush(Color.Parse("#14FFFFFF"));
@@ -165,7 +188,43 @@ namespace MediaPortal.Frontend.Views
       ring.Add(gridScroller);
       DpadNavigation.Attach(this, ring);
 
+      // The rows are as tall as the room they have divided by the number of rows the viewer asked for, so a window
+      // that is resized - or a guide that is opened on a screen for the first time, whose room is not known until
+      // it has been laid out - has to be measured and laid out again.
+      gridScroller.SizeChanged += delegate
+      {
+        if (MeasureRowsAndHeader())
+          Rebuild();
+      };
+
+      MeasureRowsAndHeader();
       Rebuild();
+    }
+
+    /// <summary>
+    /// Works out what the column of channels and one row are worth, from the viewer's settings and the room this
+    /// screen has been given. Returns whether anything about them changed, because the answer is only interesting
+    /// to whoever is about to lay the grid out again.
+    /// </summary>
+    private bool MeasureRowsAndHeader()
+    {
+      TvGuideViewModel? model = _model;
+
+      double header = (model == null || model.ShowChannelNumbers ? NUMBER_WIDTH : 0)
+          + (model == null || model.ShowChannelNames ? NAME_WIDTH : 0);
+
+      // The hours take their strip off the top of what the scroller shows, and the rows share the rest.
+      double room = gridScroller.Bounds.Height - RULER_HEIGHT;
+      int rows = model == null ? TvBackendSettings.DEFAULT_VISIBLE_ROWS : model.VisibleRows;
+      double height = room > 40 ? Math.Floor(room / Math.Max(1, rows)) : FALLBACK_ROW_HEIGHT;
+      height = Math.Min(160, Math.Max(20, height));
+
+      if (Math.Abs(header - _headerWidth) < 0.5 && Math.Abs(height - _rowHeight) < 0.5)
+        return false;
+
+      _headerWidth = header;
+      _rowHeight = height;
+      return true;
     }
 
     /// <summary>Lays the whole grid out again: the ruler, one row per channel, and the line at now over all.</summary>
@@ -173,6 +232,10 @@ namespace MediaPortal.Frontend.Views
     {
       if (_model == null)
         return;
+
+      // The settings may have moved since the last time this was drawn, and the screen may have been measured
+      // since too; either way the grid is about to be built, so it is built out of what is true now.
+      MeasureRowsAndHeader();
 
       gridHost.Children.Clear();
       _boxes.Clear();
@@ -202,8 +265,8 @@ namespace MediaPortal.Frontend.Views
     /// </summary>
     private Control BuildRuler()
     {
-      Grid ruler = new Grid { Height = 20 };
-      ruler.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(HEADER_WIDTH)));
+      Grid ruler = new Grid { Height = RULER_HEIGHT };
+      ruler.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(_headerWidth)));
       for (int column = 0; column < TvGuideViewModel.COLUMNS; column++)
         ruler.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(1, GridUnitType.Star)));
 
@@ -229,8 +292,8 @@ namespace MediaPortal.Frontend.Views
     /// <summary>One channel: its number and name at the left, its programmes across ninety columns.</summary>
     private Control BuildRow(TvGuideRow row)
     {
-      Grid line = new Grid { Height = ROW_HEIGHT };
-      line.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(HEADER_WIDTH)));
+      Grid line = new Grid { Height = _rowHeight };
+      line.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(_headerWidth)));
       for (int column = 0; column < TvGuideViewModel.COLUMNS; column++)
         line.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(1, GridUnitType.Star)));
 
@@ -241,21 +304,34 @@ namespace MediaPortal.Frontend.Views
         Margin = new Thickness(0, 0, 8, 0),
         VerticalAlignment = VerticalAlignment.Center
       };
-      head.Children.Add(new TextBlock
+
+      // Which of the two the viewer wants is a setting, and the reference measured its header by exactly the same
+      // question (Skin/Nereus/screens/SlimTvClient-fullguide.xaml:22-30); what is not asked for is not drawn, so
+      // the name alone gets the whole of a narrower column rather than being squeezed by something invisible.
+      bool numbers = _model == null || _model.ShowChannelNumbers;
+      bool names = _model == null || _model.ShowChannelNames;
+
+      if (numbers)
       {
-        Text = row.Number,
-        FontSize = 13,
-        Opacity = 0.4,
-        MinWidth = 26,
-        TextAlignment = TextAlignment.Right
-      });
-      head.Children.Add(new TextBlock
+        head.Children.Add(new TextBlock
+        {
+          Text = row.Number,
+          FontSize = 13,
+          Opacity = 0.4,
+          MinWidth = 26,
+          TextAlignment = TextAlignment.Right
+        });
+      }
+      if (names)
       {
-        Text = row.Name,
-        FontSize = 14,
-        TextTrimming = TextTrimming.CharacterEllipsis,
-        VerticalAlignment = VerticalAlignment.Center
-      });
+        head.Children.Add(new TextBlock
+        {
+          Text = row.Name,
+          FontSize = 14,
+          TextTrimming = TextTrimming.CharacterEllipsis,
+          VerticalAlignment = VerticalAlignment.Center
+        });
+      }
       Grid.SetColumn(head, 0);
       line.Children.Add(head);
 
@@ -400,7 +476,7 @@ namespace MediaPortal.Frontend.Views
 
       Grid overlay = new Grid
       {
-        Margin = new Thickness(HEADER_WIDTH, 0, 0, 0),
+        Margin = new Thickness(_headerWidth, 0, 0, 0),
         IsHitTestVisible = false
       };
       overlay.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Auto));

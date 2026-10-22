@@ -518,6 +518,14 @@ namespace MediaPortal.Frontend.Api
     public const string OTHER = "#4a4a52";
 
     /// <summary>
+    /// What every programme is coloured when a viewer said they do not want genre colours. The reference used one
+    /// blue for everything in that case (<c>EpgShowGenreColors</c> off left every block on the skin's own plain
+    /// fill); this is the same idea, a blue that is the skin's rather than a genre's, so that the blocks still say
+    /// "programme" and nothing else.
+    /// </summary>
+    public const string FLAT = "#2f5c8f";
+
+    /// <summary>
     /// The colour for one genre's name, in the language the backend happened to answer in.
     /// </summary>
     public static string ForGenre(string? genreName)

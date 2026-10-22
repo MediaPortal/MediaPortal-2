@@ -4212,8 +4212,89 @@ is doing when it is not running. The last two look at the drawn dialog: one line
 on the dialog itself, and the sentence about a finished programme drawn but unable to be stood on. 995 of 997 tests
 pass, the two failures being the two the front end already carried in.
 
-## What cannot be verified without the user
+### bq. The television settings the reference kept, and the screens that now obey them
 
+`SlimTvClientSettings` held sixteen settings, thirteen of them about the guide, the zapping and what a channel row
+says about itself. Part bk ported the address and the days of guide; this part ports the eleven that are about
+television as a thing you watch rather than a thing you connect to, and puts each of them where the reference read it.
+
+The file grew `visible_hours`, `visible_rows`, `zap_timeout_seconds`, `show_channel_names`, `show_channel_numbers`,
+`show_genre_colors`, `show_series_info`, `hide_all_channels_group`, `zap_from_guide`, `zap_by_channel_index` and
+`auto_start_tv`. The settings screen grew three boxes and eight switches beside the address, worded as the reference
+worded them - "Zap from the guide", "Zap by channel index", `Hide "All Channels" group`, "Automatically start TV" - in
+the order its own `plugin.xml:218-300` asked them, because that order was thought about: the switches first, then the
+two numbers, then the zapping.
+
+Where each answer is obeyed is the part that matters, and it is the part a settings file on its own cannot show:
+
+- **The hours** divide the grid's columns, exactly as the reference divided its `EpgVisibleHours * 60` by its own
+  seventy-five columns (`Controls/EpgGrid.cs:96-99`). This guide has ninety columns, so three hours is two minutes a
+  column and six hours is four, and every programme's column, every hour label and the width of the window come out of
+  the one number. Before this part the ninety and the two were both written into the code.
+- **The rows** divide the room the grid has been given, which is the reference's own sum: `ActualHeight /
+  _numberOfRows` (`EpgGrid.cs:428`). Asking for three rows is asking for three tall rows, not for three rows at the
+  top of a screen. The width of a channel row's header is the reference's other sum on the same screen,
+  `(numbers ? 90 : 0) + (logos ? 160 : 0) + (names ? 200 : 0)`
+  (`Skin/Nereus/screens/SlimTvClient-fullguide.xaml:22-30`), less the hundred and sixty it allowed for a picture this
+  client has never learned to fetch.
+- **The episode line** goes away when `show_series_info` is off, on the block and in the strip along the bottom, which
+  is the reference's `ShowSeriesInfo` at `ProgramListItem.cs:112`.
+- **The genre colours** go to one colour when `show_genre_colors` is off. The reference filled everything with its
+  skin's plain blue in that case; here the flat fill is a blue of the skin's own (`TvGenreColors.FLAT`) rather than a
+  ninth genre.
+- **The bouquet** named "All Channels" is dropped by name and nothing else, as `Helpers/ChannelContext.cs:218-231`
+  dropped it - from the guide and from the watching screen alike, through one rule on the settings object so the two
+  cannot drift apart.
+- **The typed number** means a place in the bouquet while `zap_by_channel_index` is on, which the reference implemented
+  by renumbering the bouquet one to n before the lookup (`ChannelContext.cs:190-194`), and the number printed on the
+  channel when it is off, which is the other branch of `ChannelZapModel.cs:173-181`. The two are now both real:
+  before this part only the first existed.
+- **The timeout** is read from the file each time somebody types a digit, so a viewer who changes it gets it the next
+  time rather than the one that was current when the screen opened. `TvTunerViewModel.ZAP_TIMEOUT_SECONDS` stayed, but
+  shrank to what it is: the two seconds the reference defaulted to, which is what answers when the file cannot be read.
+- **`zap_from_guide`** is now the settings' answer rather than something a screen could overwrite, so the guide's
+  second press asks or zaps according to what was written down.
+- **`auto_start_tv`** tunes the channel a watching screen is standing on when it opens with nothing on it, which is
+  what `SlimTvClientModel.cs:553-565` did on entering its television home.
+
+Six things the reference asked about are deliberately not asked here. `EpgShowChannelLogos`, `ChannelLogoStyle` and
+`ChannelLogoAutoUpdate` are three of them: this client has never read a picture for a channel out of a backend - there
+is no logo in `Api/` at all - so a switch would be a promise with nothing behind it, and the hundred and sixty pixels
+the reference's header allowed a logo are simply not reserved. `ShowRecordingStartedNotifications`,
+`ShowRecordingEndedNotifications` and `RecordingNotificationDuration` are three more, and were already stated as
+deferred in part bo: nothing yet watches the backend's timers while a viewer is somewhere else. The eighth is
+`EpgVisibleChannelInfo`, which the reference asked as one multiple-choice list of name, number and logo; a remote has
+no way of holding a list down, so the two that exist here are two switches. The per-genre colour pickers stay in the
+skin, which is where the eight colours already are.
+
+Three answers differ from the reference on purpose, and each is a known difference rather than a drift.
+`EpgVisibleHours` defaults to three here and two there - the reference measured seventy-five columns and this guide
+measures ninety, and three hours is what this grid drew before the number could be changed; the switch can turn it
+back. `ShowEpgGenreColors` defaults on here and off there, because the reference's skin drew a colour strip of its own
+beside every block while here the block's fill is the only place a genre is written down. And a number out of range is
+brought back inside - half an hour to twelve for the window, one row to forty, half a second to thirty for the timeout
+- where the reference clamped nothing at all and a `visible_hours` of 99 would have drawn a guide whose hour labels sat
+on top of each other.
+
+One difference is worth naming because it is the largest. The reference built exactly `_numberOfRows` rows and *paged*
+the channel list: its grid held nine rows, and PageUp and PageDown moved the offset by nine (`EpgGrid.cs:505`, `905-915`).
+Here every channel of the bouquet is in the grid and the grid scrolls, with the rows sized by the same division. The
+setting therefore changes how big a channel is here and how many channels fit on one screen there.
+
+19 new tests. Six of them are the file again: every answer surviving a write and a read, the defaults being the
+reference's, a hand-written file with 99 hours and nought rows in it being corrected rather than refused, the bouquet
+being recognised by its name in either language and in no matter what capitalisation, and the settings screen carrying
+the numbers back out of the file and putting the corrected ones back in. Thirteen are the screens obeying them: a guide
+six hours wide putting a film in column forty-five and spanning fifteen, the same guide dropping the episode line and
+painting everything flat when told to, dropping a bouquet and still opening on one it has, picking up an answer that
+changed while it stood on the screen, reading a typed 2 as the second channel or a typed 12 as the printed one, waiting
+four and a half seconds because somebody wrote four and a half, starting a picture only when it was told to and never
+overruling a channel somebody arrived with, and - drawn on a screen - a header that is only as wide as what it is
+allowed to show and rows that are as tall as the room they have divided by the rows that were asked for. 1013 of 1016
+tests passed at the end of this part: two are the failures the front end already carried in, and the third is a
+music-shuffle test that failed in the middle of a three-minute run and passed when asked again on its own.
+
+## What cannot be verified without the user
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library
 import. These need hardware and judgement that are not in this environment, and they are batched into
 one hand-off checklist per phase rather than dribbled out.

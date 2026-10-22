@@ -127,10 +127,11 @@ namespace MediaPortal.Frontend.ViewModels
   public sealed class TvTunerViewModel : IDisposable, System.ComponentModel.INotifyPropertyChanged
   {
     /// <summary>
-    /// How long somebody gets to finish typing a channel number. The reference's <c>ZapTimeout</c> defaulted to
-    /// two seconds (<c>Settings/SlimTvClientSettings.cs:47-49</c>), described in its own settings text as
-    /// "Configures the delay until tuning starts." - long enough for two or three digits on a remote, short
-    /// enough not to feel stuck.
+    /// What the timeout is when nothing else can be said for it - a settings file that cannot be read, or a tuner
+    /// asked before it has any. The number a viewer leaves in the settings is what the screen uses
+    /// (<see cref="ZapTimeoutSeconds"/>); this is the reference's own default underneath it
+    /// (<c>Settings/SlimTvClientSettings.cs:47-49</c>), described in its own settings text as "Configures the delay
+    /// until tuning starts." - long enough for two or three digits on a remote, short enough not to feel stuck.
     /// </summary>
     public const double ZAP_TIMEOUT_SECONDS = 2;
 
@@ -179,6 +180,46 @@ namespace MediaPortal.Frontend.ViewModels
 
     /// <summary>The bouquets the backend offered.</summary>
     public ObservableCollection<TvChannelGroup> Groups { get; } = new ObservableCollection<TvChannelGroup>();
+
+    /// <summary>
+    /// How long somebody gets to finish typing a channel number, which is the reference's <c>ZapTimeout</c>
+    /// ("Configures the delay until tuning starts.", <c>Settings/SlimTvClientSettings.cs:47-49</c>). A tuner that
+    /// has been taken off the screen still answers questions in a test, so a settings file that cannot be read
+    /// leaves the two seconds the reference defaulted to rather than throwing at whoever pressed a digit.
+    /// </summary>
+    public double ZapTimeoutSeconds
+    {
+      get
+      {
+        try
+        {
+          return _settingsProvider().ZapTimeoutSecondsOr;
+        }
+        catch (Exception)
+        {
+          return ZAP_TIMEOUT_SECONDS;
+        }
+      }
+    }
+
+    /// <summary>
+    /// Whether a typed number is a place in the bouquet or the number printed on a channel. On unless somebody said
+    /// otherwise (<c>ZapByChannelIndex</c>, <c>Settings/SlimTvClientSettings.cs:96-97</c>).
+    /// </summary>
+    public bool ZapByChannelIndex
+    {
+      get
+      {
+        try
+        {
+          return _settingsProvider().ZapByChannelIndex;
+        }
+        catch (Exception)
+        {
+          return true;
+        }
+      }
+    }
 
     /// <summary>Whether this is the television or the radio half.</summary>
     public TvMediaType Kind
@@ -455,10 +496,12 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
-    /// What the digits mean now that nobody is typing any more. The reference counted them as a position in the
-    /// bouquet rather than as the number printed on a channel, and made it one-based, because that is what the
-    /// buttons on a remote mean to the person pressing them (<c>ZapByChannelIndex</c>, default true, and
-    /// <c>ChannelZapModel.cs:141-181</c>).
+    /// What the digits mean now that nobody is typing any more. Counted as a position in the bouquet, one-based,
+    /// when the viewer left <c>ZapByChannelIndex</c> on - which is its default, because that is what the buttons on
+    /// a remote mean to the person pressing them (<c>ChannelContext.cs:190-194</c> renumbered the channels 1..n for
+    /// exactly this). With the switch off the reference looked the digits up as the number printed on a channel
+    /// instead (<c>ChannelZapModel.cs:173-181</c>), which is what a viewer who types 281 because that is what the
+    /// station's own website says wants.
     /// </summary>
     /// <returns>Whether a channel was found for them.</returns>
     public bool CommitDigits()
@@ -472,23 +515,37 @@ namespace MediaPortal.Frontend.ViewModels
       if (typed == "0")
         return ZapBack();
 
-      if (!int.TryParse(typed, NumberStyles.None, CultureInfo.InvariantCulture, out int position))
+      if (!int.TryParse(typed, NumberStyles.None, CultureInfo.InvariantCulture, out int typedNumber))
       {
         Status = "'" + typed + "' is not a channel number.";
         return false;
       }
 
-      // The reference said nothing at all when a number matched nothing, which is the second place it left its
-      // viewer guessing. Saying it costs nothing and answers the question they are about to ask.
-      if (position < 1 || position > Channels.Count)
+      if (ZapByChannelIndex)
       {
-        Status = "There is no channel number " + typed + " in "
-            + (_selectedGroup == null ? Heading : "'" + _selectedGroup.Name + "'") + ", which has "
-            + Channels.Count.ToString(CultureInfo.InvariantCulture) + " of them.";
+        // The reference said nothing at all when a number matched nothing, which is the second place it left its
+        // viewer guessing. Saying it costs nothing and answers the question they are about to ask.
+        if (typedNumber < 1 || typedNumber > Channels.Count)
+        {
+          Status = "There is no channel number " + typed + " in "
+              + (_selectedGroup == null ? Heading : "'" + _selectedGroup.Name + "'") + ", which has "
+              + Channels.Count.ToString(CultureInfo.InvariantCulture) + " of them.";
+          return false;
+        }
+
+        return Tune(Channels[typedNumber - 1]);
+      }
+
+      TvChannel? matching = Channels.FirstOrDefault(c => c.Number == typedNumber);
+      if (matching == null)
+      {
+        Status = "No channel in "
+            + (_selectedGroup == null ? Heading : "'" + _selectedGroup.Name + "'")
+            + " is called " + typed + ".";
         return false;
       }
 
-      return Tune(Channels[position - 1]);
+      return Tune(matching);
     }
 
     /// <summary>Takes the typed number off the screen without tuning anything, which is what Back does.</summary>
@@ -609,7 +666,9 @@ namespace MediaPortal.Frontend.ViewModels
             if (mine != _generation)
               return;
 
-            List<TvChannelGroup> ofThisKind = groups.Where(g => !LooksWrongKind(g.Name)).ToList();
+            List<TvChannelGroup> ofThisKind = groups
+                .Where(g => !LooksWrongKind(g.Name) && !askWith.IsHiddenGroup(g.Name))
+                .ToList();
             Groups.Clear();
             foreach (TvChannelGroup group in ofThisKind)
               Groups.Add(group);
@@ -635,6 +694,14 @@ namespace MediaPortal.Frontend.ViewModels
 
           Status = Channels.Count.ToString(CultureInfo.InvariantCulture) + " channels in "
               + (_selectedGroup == null ? Heading : "'" + _selectedGroup.Name + "'");
+
+          // "Automatically start TV" - the reference's <c>AutoStartTV</c>, which tuned the channel its navigation
+          // stood on the moment its television home opened with nothing else playing
+          // (<c>Models/SlimTvClientModel.cs:553-565</c>). That home is this screen here, so a viewer who pressed
+          // their way to Live TV gets a picture rather than a dark rectangle and an invitation to zap. Whoever
+          // already named a channel - out of a guide, say - wins: this only fires while the screen is still dark.
+          if (mine == _generation && Tuned == null && Channels.Count > 0 && askWith.AutoStartTV)
+            Tune(Channels[0]);
 
           await FillWatchRowsAsync(client, token.Token, mine).ConfigureAwait(false);
         }

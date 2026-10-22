@@ -60,6 +60,18 @@ namespace MediaPortal.Frontend.Settings
   /// An empty host is not a broken answer; it is a box that has not been told where its television comes from,
   /// and every TV screen says exactly that instead of failing.
   /// </para>
+  /// <para>
+  /// The reference kept thirteen switches and numbers of its own in <c>SlimTvClientSettings</c>. Eleven are here:
+  /// the guide's window and its number of rows, which of a channel's two names are written at the head of a row,
+  /// whether a programme is coloured by its genre and carries its episode line, whether the "All Channels"
+  /// bouquet is hidden, and the three zapping answers plus the automatic start. The days of guide were ported
+  /// earlier and are <see cref="GuideDays"/>. Three are deliberately not here: the recording notifications and
+  /// their duration, because this front end has nothing that could announce a recording to a viewer who is doing
+  /// something else, and a switch that announces nothing would be a lie; and the channel logo, because this client
+  /// has never read a picture for a channel from a backend, so there is nothing for a switch to turn on. The
+  /// per-genre colours the reference lets a viewer pick are the skin's business here and are in
+  /// <c>TvGenreColors</c>, not in a file a viewer edits over ssh.
+  /// </para>
   /// </remarks>
   public sealed class TvBackendSettings
   {
@@ -73,6 +85,29 @@ namespace MediaPortal.Frontend.Settings
     /// backends actually hold programme data for.
     /// </summary>
     public const int DEFAULT_GUIDE_DAYS = 14;
+
+    /// <summary>
+    /// How much of the day the programme guide shows at once. The reference's own default was two hours
+    /// (<c>SlimTvClientSettings.EpgVisibleHours</c>) across seventy-five columns; this front end draws ninety
+    /// columns and started at three, which is what a 16:9 screen has room for without the hour labels crowding
+    /// each other. The switch is the reference's and can be turned back to two.
+    /// </summary>
+    public const double DEFAULT_VISIBLE_HOURS = 3;
+
+    /// <summary>How many channels the guide keeps on the screen at once, the reference's <c>EpgNumberOfRows</c>.</summary>
+    public const int DEFAULT_VISIBLE_ROWS = 9;
+
+    /// <summary>
+    /// How long a viewer is left alone after typing a digit before the number is taken as a channel, which is the
+    /// reference's <c>ZapTimeout</c> and its two seconds.
+    /// </summary>
+    public const double DEFAULT_ZAP_TIMEOUT_SECONDS = 2;
+
+    /// <summary>The window the guide will not draw past, in hours. Beyond it the hour labels overlap.</summary>
+    public const double MAX_VISIBLE_HOURS = 12;
+
+    /// <summary>The narrowest window worth drawing: half an hour, which is one long programme.</summary>
+    public const double MIN_VISIBLE_HOURS = 0.5;
 
     /// <summary>
     /// Where the answers are saved. Overridable with <c>MP2_TV_FILE</c> for the same reason the weather file is
@@ -121,6 +156,158 @@ namespace MediaPortal.Frontend.Settings
     /// </summary>
     [JsonPropertyName("guide_days")]
     public int GuideDays { get; set; } = DEFAULT_GUIDE_DAYS;
+
+    /// <summary>
+    /// How many hours of the day the programme guide shows at once. The reference read the same number straight
+    /// into its grid's arithmetic - seventy-five columns over that many hours, so the width of a column is what is
+    /// left after dividing (<c>Controls/EpgGrid.cs:96-100</c>) - and this front end does the same with ninety.
+    /// </summary>
+    [JsonPropertyName("visible_hours")]
+    public double VisibleHours { get; set; } = DEFAULT_VISIBLE_HOURS;
+
+    /// <summary>
+    /// How many channels the guide keeps on the screen at once. The reference let its grid have exactly this many
+    /// rows and scrolled the rest; here the rows share the height the screen has left, so the number says how many
+    /// are visible together and how big each one has to be.
+    /// </summary>
+    [JsonPropertyName("visible_rows")]
+    public int VisibleRows { get; set; } = DEFAULT_VISIBLE_ROWS;
+
+    /// <summary>
+    /// Whether a channel's name stands at the head of its row. The reference asked this together with the number
+    /// and the logo in one "visible channel information" item (<c>EpgVisibleChannelInfoSetting</c>) and computed
+    /// the header's width from what was left on.
+    /// </summary>
+    [JsonPropertyName("show_channel_names")]
+    public bool ShowChannelNames { get; set; } = true;
+
+    /// <summary>Whether a channel's number stands at the head of its row, before its name.</summary>
+    [JsonPropertyName("show_channel_numbers")]
+    public bool ShowChannelNumbers { get; set; } = true;
+
+    /// <summary>
+    /// Whether a programme is coloured by what it is. The reference's own default was off, because its skin drew a
+    /// coloured bar of its own beside every block and the fill was a plain blue; here the fill is the only place a
+    /// genre is written, so it is on unless a viewer says otherwise.
+    /// </summary>
+    [JsonPropertyName("show_genre_colors")]
+    public bool ShowGenreColors { get; set; } = true;
+
+    /// <summary>
+    /// Whether the "S07 E03" line is written into a programme. The reference hid it from the details of a
+    /// programme and from its list items alike when this was off
+    /// (<c>Helpers/ProgramListItem.cs:112</c>).
+    /// </summary>
+    [JsonPropertyName("show_series_info")]
+    public bool ShowSeriesInfo { get; set; } = true;
+
+    /// <summary>
+    /// Whether the bouquet the reference's TV server called "All Channels" is left out of the picker. TVHeadend has
+    /// no inbuilt bouquet of that name, so this only ever hides one a viewer named that way - which is exactly what
+    /// the reference's own filter did, comparing names and nothing else
+    /// (<c>Helpers/ChannelContext.cs:218-231</c>).
+    /// </summary>
+    [JsonPropertyName("hide_all_channels_group")]
+    public bool HideAllChannelsGroup { get; set; }
+
+    /// <summary>
+    /// Whether this viewer wants that bouquet left out of what they are offered.
+    /// </summary>
+    public bool IsHiddenGroup(string? name)
+    {
+      return HideAllChannelsGroup && IsAllChannelsGroup(name);
+    }
+
+    /// <summary>
+    /// Whether a bouquet is named the one the reference's <c>HideAllChannelsGroup</c> switch threw away. The
+    /// reference compared the name against "All Channels" and nothing else (<c>Helpers/ChannelContext.cs:218-231</c>);
+    /// a TVHeadend bouquet is named by whoever made it, so this also takes the German spelling and does not care
+    /// how it was capitalised, which is the only place it is more generous than the reference was.
+    /// </summary>
+    public static bool IsAllChannelsGroup(string? name)
+    {
+      string said = (name ?? "").Trim();
+      return said.Equals("All Channels", StringComparison.OrdinalIgnoreCase)
+          || said.Equals("Alle Kanale", StringComparison.OrdinalIgnoreCase)
+          || said.Equals("Alle Kanäle", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Whether standing on a running programme and pressing sends the viewer to it. The reference's
+    /// <c>ZapFromGuide</c>, on by default and worded there as "If enabled, OK on currently running programs tunes
+    /// the channel" - which is what the guide's second press does.
+    /// </summary>
+    [JsonPropertyName("zap_from_guide")]
+    public bool ZapFromGuide { get; set; } = true;
+
+    /// <summary>
+    /// How long a viewer is left alone after the last digit before the number they typed is taken as a channel.
+    /// The reference's <c>ZapTimeout</c>: "Configures the delay until tuning starts".
+    /// </summary>
+    [JsonPropertyName("zap_timeout_seconds")]
+    public double ZapTimeoutSeconds { get; set; } = DEFAULT_ZAP_TIMEOUT_SECONDS;
+
+    /// <summary>
+    /// Whether a typed number is a position in the bouquet or the number printed on a channel. The reference's
+    /// <c>ZapByChannelIndex</c>, which it implemented by renumbering the bouquet's channels one to n before the
+    /// lookup (<c>Helpers/ChannelContext.cs:190-194</c>) - so on this screen it decides which of the two the
+    /// digits are read as.
+    /// </summary>
+    [JsonPropertyName("zap_by_channel_index")]
+    public bool ZapByChannelIndex { get; set; } = true;
+
+    /// <summary>
+    /// Whether the watching screen starts a picture as it opens. The reference's <c>AutoStartTV</c>, which tuned the
+    /// channel its navigation stood on the moment its television home opened with nothing else playing
+    /// (<c>Models/SlimTvClientModel.cs:553-565</c>) and which it defaulted to <b>off</b>. That default is kept: the
+    /// reference's home state was a place a viewer fell into by walking sideways and its own manual said so, and a
+    /// box that starts making noise before anybody has chosen anything is a box nobody wants in a bedroom. The
+    /// screen this applies to is the one the tile called "Live TV" opens, and only while nothing has been chosen -
+    /// somebody who came out of a guide with a channel in hand is already being shown that channel.
+    /// </summary>
+    [JsonPropertyName("auto_start_tv")]
+    public bool AutoStartTV { get; set; }
+
+    /// <summary>
+    /// How many hours the guide shows, with the nonsense taken out: a window has to be at least half an hour wide
+    /// and no wider than a working day, because past that the hour labels overlap and a guide stops being a guide.
+    /// </summary>
+    public double VisibleHoursOr
+    {
+      get
+      {
+        double hours = VisibleHours;
+        if (double.IsNaN(hours) || double.IsInfinity(hours))
+          return DEFAULT_VISIBLE_HOURS;
+        if (hours < MIN_VISIBLE_HOURS || hours > MAX_VISIBLE_HOURS)
+          return DEFAULT_VISIBLE_HOURS;
+        return hours;
+      }
+    }
+
+    /// <summary>How many channels fit on the screen at once, with the nonsense taken out.</summary>
+    public int VisibleRowsOr
+    {
+      get
+      {
+        int rows = VisibleRows;
+        return rows < 1 || rows > 40 ? DEFAULT_VISIBLE_ROWS : rows;
+      }
+    }
+
+    /// <summary>How long a viewer gets to finish typing a channel number, with the nonsense taken out.</summary>
+    public double ZapTimeoutSecondsOr
+    {
+      get
+      {
+        double seconds = ZapTimeoutSeconds;
+        if (double.IsNaN(seconds) || double.IsInfinity(seconds))
+          return DEFAULT_ZAP_TIMEOUT_SECONDS;
+        if (seconds < 0.5 || seconds > 30)
+          return DEFAULT_ZAP_TIMEOUT_SECONDS;
+        return seconds;
+      }
+    }
 
     /// <summary>
     /// Whether anybody has said where the television comes from. Every TV screen asks this before it asks
@@ -207,6 +394,14 @@ namespace MediaPortal.Frontend.Settings
           read.Port = DEFAULT_PORT;
         if (read.GuideDays < 1)
           read.GuideDays = DEFAULT_GUIDE_DAYS;
+
+        // The same rule for the shape of the screens: a hand-written file with forty hours in it is a mistake, and
+        // the defaults are the answer to a field that cannot mean anything. Normalised here rather than at every
+        // place that draws a grid, so that a screen asking for a window and a screen asking for a screenshot of the
+        // same window cannot disagree.
+        read.VisibleHours = read.VisibleHoursOr;
+        read.VisibleRows = read.VisibleRowsOr;
+        read.ZapTimeoutSeconds = read.ZapTimeoutSecondsOr;
         read.Host ??= "";
         read.Username ??= "";
         read.Password ??= "";

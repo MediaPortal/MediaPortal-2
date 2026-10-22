@@ -24,9 +24,10 @@ using MediaPortal.Frontend.ViewModels;
 namespace MediaPortal.Frontend.Views
 {
   /// <summary>
-  /// The television backend's address as a screen: five boxes, two presses, and the answer underneath. The
-  /// answers are read from the file as the screen opens - not when the hub opens - so a hand-edited
-  /// <c>tv.json</c> that was changed while the hub stood there is still what one sees.
+  /// The television backend's address as a screen, and next to it the twelve answers the guide and the zap buttons
+  /// ask with: five boxes for where the set-top box is, three boxes and eight switches for what to do with it, two
+  /// presses, and the answer underneath. The answers are read from the file as the screen opens - not when the hub
+  /// opens - so a hand-edited <c>tv.json</c> that was changed while the hub stood there is still what one sees.
   /// </summary>
   public partial class TvSettingsView : UserControl
   {
@@ -59,6 +60,17 @@ namespace MediaPortal.Frontend.Views
       _ring.Add(userBox);
       _ring.Add(passwordBox);
       _ring.Add(daysBox);
+      _ring.Add(hoursBox);
+      _ring.Add(rowsBox);
+      _ring.Add(zapBox);
+      _ring.Add(namesCheck);
+      _ring.Add(numbersCheck);
+      _ring.Add(genreCheck);
+      _ring.Add(seriesCheck);
+      _ring.Add(zapGuideCheck);
+      _ring.Add(zapIndexCheck);
+      _ring.Add(autoStartCheck);
+      _ring.Add(hideAllCheck);
       _ring.Add(checkButton);
       _ring.Add(saveButton);
       DpadNavigation.Attach(this, _ring);

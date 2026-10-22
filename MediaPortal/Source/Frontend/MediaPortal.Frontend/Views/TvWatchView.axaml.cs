@@ -99,9 +99,9 @@ namespace MediaPortal.Frontend.Views
         return new TextBlock { Text = group == null ? "" : group.Name, FontSize = 14 };
       });
 
-      // Every digit starts the reference's two seconds again. Typing 1, 4, 8 in a row is one channel; typing 1,
-      // waiting three seconds, typing 4 is two channels.
-      _zapTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(TvTunerViewModel.ZAP_TIMEOUT_SECONDS) };
+      // Every digit starts the reference's two seconds - or whatever the viewer's settings say - again. Typing 1,
+      // 4, 8 in a row is one channel; typing 1, waiting three seconds, typing 4 is two channels.
+      _zapTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(model.ZapTimeoutSeconds) };
       _zapTimer.Tick += delegate
       {
         if (_zapTimer != null)
@@ -124,7 +124,12 @@ namespace MediaPortal.Frontend.Views
           {
             _zapTimer.Stop();
             if (model.IsTypingANumber)
+            {
+              // Read again every time, so that a viewer who changes the timeout in the settings gets the new one
+              // the next time they type rather than the one that was current when this screen opened.
+              _zapTimer.Interval = TimeSpan.FromSeconds(model.ZapTimeoutSeconds);
               _zapTimer.Start();
+            }
           }
           return;
         }
