@@ -21,6 +21,7 @@ using System.Reflection;
 using System.Threading;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Presenters;
 using Avalonia.Headless.NUnit;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
@@ -173,6 +174,156 @@ namespace Tests.Frontend
 
         Assert.That(opened, Is.EqualTo(new[] { "settings" }),
             "pressing the skin's settings button has to ask for the settings screen by the name its Tag carries");
+      }
+      finally
+      {
+        if (window != null)
+        {
+          try { window.Close(); } catch (ObjectDisposedException) { }
+        }
+        SkinEngine.SkinsFolder = previous;
+      }
+    }
+
+    /// <summary>
+    /// The four ways out of the home are shapes out of the skin's own vectors rather than pictures off its shelf,
+    /// which is what lets them wear the palette's colour, stay sharp when the screen is scaled, and need no lit twin
+    /// of a file for the moment something stands on them. They also stand on one line, at the size the head line's
+    /// pictures use - and that last part is the guarantee a corner button loses the moment its markup hands the
+    /// shape a box instead of a ceiling, because a shape stretched uniformly into a box of a told size keeps to the
+    /// top of that box.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheSkinsCornerButtonsDrawShapesAndNotPictures()
+    {
+      Application app = Application.Current!;
+      string previous = SkinEngine.SkinsFolder;
+      SkinEngine.SkinsFolder = Path.Combine(MetadataPath("FrontendSource"), "Skins");
+      ShellWindow? window = null;
+      try
+      {
+        FrontendTheme.Apply(app, "nereus", out string? themeProblem);
+        Assert.That(SkinEngine.Apply(app, "nereus", out string? skinProblem), Is.True, skinProblem ?? "");
+
+        HomeViewModel home = new HomeViewModel();
+        WorkflowManager workflow = new WorkflowManager();
+        HomeView view = new HomeView(home, workflow,
+            sectionScreen: delegate (HomeSection section)
+            {
+              return null!;
+            },
+            screenFactory: delegate (string screenKey)
+            {
+              return null!;
+            });
+        window = new ShellWindow(workflow, delegate (WorkflowFrame frame)
+        {
+          return frame.StateId == "home" ? view : frame.ViewModel as Control;
+        });
+        workflow.Push(new WorkflowFrame("home", "Home", home));
+        window.Show();
+        Pump();
+
+        ContentControl overlays = window.GetVisualDescendants().OfType<ContentControl>()
+            .Single(host => host.Name == "homeOverlays");
+        Button[] corner = overlays.GetVisualDescendants().OfType<Button>().ToArray();
+        Assert.That(corner, Has.Length.EqualTo(4), "this face hangs four ways out of the home");
+
+        double? middle = null;
+        foreach (Button button in corner)
+        {
+          string door = button.Tag as string ?? "corner";
+
+          Assert.That(button.GetVisualDescendants().OfType<Image>(), Is.Empty,
+              "the " + door + " button carries a picture again; these four are drawn out of the skin's vectors, "
+              + "which is what lets them take the palette's colour and drop their lit twin file");
+
+          Avalonia.Controls.Shapes.Path[] drawn = button.GetVisualDescendants()
+              .OfType<Avalonia.Controls.Shapes.Path>()
+              .Where(shape => shape.Data != null && shape.IsEffectivelyVisible)
+              .ToArray();
+          Assert.That(drawn, Has.Length.EqualTo(1),
+              "the " + door + " button draws no shape, so the worn skin answered no vector for it and the corner of "
+              + "the home stands empty");
+
+          Avalonia.Controls.Shapes.Path mark = drawn[0];
+          Assert.That(mark.Bounds.Width, Is.LessThanOrEqualTo(47),
+              "and it is drawn at the head line's size rather than bigger than it");
+          Assert.That(mark.Bounds.Height, Is.LessThanOrEqualTo(47),
+              "and no taller than the head line's pictures either");
+
+          double plate = mark.Bounds.Width / mark.Bounds.Height;
+          double art = mark.Data!.Bounds.Width / mark.Data!.Bounds.Height;
+          Assert.That(plate, Is.EqualTo(art).Within(0.05 * art),
+              "the " + door + " mark was stretched into a plate it does not fill, so it is standing off the line "
+              + "the four of them are meant to share");
+
+          if (middle == null)
+            middle = mark.Bounds.Center.Y;
+          else
+            Assert.That(mark.Bounds.Center.Y, Is.EqualTo(middle.Value).Within(1.0),
+                "a person, a gear, a magnifier and a power ring are cut differently and still have to come to rest "
+                + "on one line");
+        }
+
+        WornSkin worn = SkinEngine.Worn(app)!;
+        foreach (string name in new[] { "NotificationMenu/power", "NotificationMenu/user",
+            "NotificationMenu/settings", "NotificationMenu/search" })
+        {
+          Assert.That(worn.Vectors.Has(name), Is.True,
+              "the worn skin carries no vector called " + name + ", so a corner of the home has nothing to draw");
+        }
+      }
+      finally
+      {
+        if (window != null)
+        {
+          try { window.Close(); } catch (ObjectDisposedException) { }
+        }
+        SkinEngine.SkinsFolder = previous;
+      }
+    }
+
+    /// <summary>
+    /// What one of the four lights up as when something stands on it: a disc, not a square.
+    /// </summary>
+    /// <remarks>
+    /// The palette paints a stood-on button's light in the button's own corner, and the face writes its buttons
+    /// square. On these four that square shows as a box lying behind a round mark - which is what the viewer
+    /// complained about - so the corner belongs to the button, and the template that paints the light has to
+    /// carry it. The second half of this is the part that could go wrong quietly: a setter on the control is
+    /// nothing until the thing drawing the light reads it.
+    /// </remarks>
+    [AvaloniaTest]
+    public void ACornerButtonLightsUpAsADiscAndNotASquare()
+    {
+      Application app = Application.Current!;
+      string previous = SkinEngine.SkinsFolder;
+      SkinEngine.SkinsFolder = Path.Combine(MetadataPath("FrontendSource"), "Skins");
+      Window? window = null;
+      try
+      {
+        FrontendTheme.Apply(app, "nereus", out string? themeProblem);
+        Assert.That(SkinEngine.Apply(app, "nereus", out string? skinProblem), Is.True, skinProblem ?? "");
+
+        Button power = new Button();
+        power.Classes.Add("nereus-corner-button");
+        window = new Window { Content = power, Width = 200, Height = 200 };
+        window.Show();
+        Pump();
+
+        Assert.That(power.Bounds.Height, Is.GreaterThanOrEqualTo(50), "the plate stood at its sixty-six");
+        Assert.That(power.CornerRadius.TopLeft, Is.EqualTo(power.Bounds.Height / 2),
+            "a corner button is lit as a disc: half its own width, so the light has no corner standing out beside "
+            + "a round mark");
+
+        ContentPresenter? plate = power.GetVisualDescendants().OfType<ContentPresenter>().FirstOrDefault();
+        Assert.That(plate, Is.Not.Null, "the button's template paints the light");
+        Assert.That(plate!.CornerRadius.TopLeft, Is.EqualTo(power.CornerRadius.TopLeft),
+            "and the element that paints it carries the disc's corner rather than the square the face writes "
+            + "everywhere else");
+
+        window.Close();
       }
       finally
       {

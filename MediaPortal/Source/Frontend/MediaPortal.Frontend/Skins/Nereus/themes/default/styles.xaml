@@ -213,6 +213,11 @@
     <Setter Property="Padding" Value="0"/>
     <Setter Property="Width" Value="66"/>
     <Setter Property="Height" Value="66"/>
+    <!-- The light a stood-on button takes is painted in the button's own corner, and this face writes its buttons
+         square - its colour file's ButtonControlRadiusX says 0. Behind a round mark (a power ring, a person's
+         head, a gear, a magnifier's bowl) a square of light reads as a box laid under the glyph, so these four
+         carry half their own width and the light comes up as a disc. -->
+    <Setter Property="CornerRadius" Value="33"/>
     <Setter Property="Opacity" Value="0.5"/>
     <Setter Property="Transitions">
       <Transitions>

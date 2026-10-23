@@ -4746,6 +4746,57 @@ part and are red after it: `AShortcutWithoutItsVectorYetDrawsItsGlassWithoutAGly
 cursor on a demo programme whose neighbour on the next channel ends exactly at that minute, so whether it passes depends
 on the hour it is run at.
 
+### bz. The four ways out of the home, drawn as shapes rather than as pictures
+
+Reference: `themes/default/styles/Buttons.xaml:1788-1819` (the viewer), `:1821-1846` (the settings), `:1892-1917`
+(`BrowseMediaButtonStyle`, the search - which is why this port's button is tagged `browse`) and `:1919-1944` (the
+power) - four `NotificationMenu\*.png` squares of eighty with ten of margin, half lit until something stood on them,
+each with a `*_focus.png` twin for the moment it was stood on.
+
+The port hung the same four doors in `Skins/Nereus/home.xaml`, but out of the picture catalog: an `Image` per button
+pointing at `NotificationMenu/power`, `/user`, `/settings` and `/Search_nofocus`, with the `_focus` pair dropped
+because this face answers focus with the button's own opacity (`styles.xaml`'s `Button.nereus-corner-button`). Those
+pictures were the last bit of the home that was painted rather than drawn, so they are vectors now -
+`Skins/Nereus/images/NotificationMenu/{power,user,settings,search}.svg` - and the buttons draw them with
+`SkinIconGeometryConverter` like every other shape in the skin.
+
+- **Which shapes, and of which weight.** The four files the user handed over for this row: `power_settings_new`,
+  `person`, `settings` and `search`, all four Material's *filled weight 600* cut at fifty points, filed under the
+  corner's own names. They are filed a second time rather than shared with the media menu's shelf - the way the
+  reference kept `User.png` and `actor.png` apart even though both are a person - precisely because the cut differs:
+  `MediaMenu/actor`, `/setup` and `/search` stay the light cut they were, because a tile two hundred points wide can
+  afford one. **A heavy cut belongs to a small mark and nowhere else.** That is measurable rather than a matter of
+  taste; sampling each shape over its own box says how much of the box the ink covers:
+
+  | mark | light cut | the cut this row wears |
+  | --- | --- | --- |
+  | power | 48.6 % (weight 200) | the weight 600 filled ring |
+  | person | 94.1 % over a 14.0×13.0 box | 94.2 % over a 16.7×17.0 box |
+  | gear | 85.3 % over a 17.2×18.0 box | 53.1 % over a 20.4×20.7 box |
+  | magnifier | 73.5 % over a 16.2×16.2 box | 56.5 % over an 18.2×18.2 box |
+
+  What the table shows is that the light cuts draw their mark *inside* a smaller square: at the same plate the
+  weight 600 files fill more of it, which is what the eye reads as "the row stopped being thin" once the skin is
+  scaled onto a television.
+- **How big.** The head line's pictures, forty-six inside the sixty-six plate, which is also what the reference's
+  eighty square with ten of margin was: three quarters of the plate, centred. A ceiling rather than a box, for the
+  reason `by.` learned the hard way - a shape stretched uniformly into a box of a told size keeps to the top of that
+  box, and a person, a gear, a magnifier and a ring are cut to different heights.
+- **What it lights up as.** The palette paints a stood-on button's light in the button's own corner, and this face
+  writes its buttons square (`ButtonControlRadiusX` says 0), so hovering one of the four laid a *square* of light
+  behind a round mark. The class now carries half its own width - `CornerRadius 33` - and the light comes up as a
+  disc. The reference needed no such rule: it swapped in a `*_focus.png` that was drawn with its own background.
+- **What went away.** `power.png`, `power_focus.png`, `user.png`, `user_focus.png`, `settings.png`,
+  `settings_focus.png`, `Search_nofocus.png` and `Search_focus.png`. Nothing else in the front end asked for them, and
+  a shape cannot use a lit twin anyway: the colour comes from `TextBrush` and the lighting from the button.
+
+Tested by `TestSkinHomeFiles.TheSkinsCornerButtonsDrawShapesAndNotPictures`: every corner button carries no `Image`
+and exactly one shape, no shape is bigger than the head line's, each shape's box hugs its own geometry, and all four
+come to rest on one line - plus that the worn skin really carries the four names, because a corner whose vector is
+missing draws nothing at all. And by `TestSkinHomeFiles.ACornerButtonLightsUpAsADiscAndNotASquare`: the button
+carries half its own width as corner, and the element inside its template that paints the light carries the same
+corner - a setter nobody reads would keep the square.
+
 ## What cannot be verified without the user
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library
 import. These need hardware and judgement that are not in this environment, and they are batched into

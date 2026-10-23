@@ -141,6 +141,25 @@
                  TextTrimming="CharacterEllipsis"/>
 
       </Panel>
+      <!--
+        The four ways out of the home, which the reference hung in its WindowButtonsPanel as eighty quiet squares
+        (Buttons.xaml:1798 the viewer, :1831 the settings, :1902 the search and :1929 the power, each a
+        NotificationMenu picture with ten of margin and half its light until something stood on it). They are drawn
+        out of the skin's vectors now rather than out of its pictures, for the same three reasons every other shape
+        here was: a shape takes the palette's colour instead of carrying its own, it stays sharp when the screen is
+        scaled, and the lit state needs no second file - the button's own opacity, half until touched
+        (styles.xaml's Button.nereus-corner-button), is what the reference's *_focus.png pair was for. The four
+        marks measure at the notification bar's size, forty-six in the sixty-six plate, and are handed a ceiling
+        rather than a box so that all four come to rest on one line however they are cut.
+
+        The four files under NotificationMenu/ are the heavy cut of their glyph - Material's filled weight 600 -
+        rather than the light cut the media menu's tiles are drawn with, which is also why they are filed a second
+        time under the corner's own names: this row is scaled with the screen, and a thin cut stops reading at all
+        at that size, while the same glyph drawn big somewhere else keeps the light one. A heavy cut belongs to a
+        small mark and nowhere else. And because the palette paints a stood-on button's light in the button's own
+        square corner, the class rounds that corner to a disc - styles.xaml's Button.nereus-corner-button - so the
+        light under a round mark is round too.
+      -->
       <StackPanel Orientation="Horizontal"
                   Spacing="14"
                   Margin="{Binding HomeContentLeft,
@@ -150,20 +169,24 @@
                   VerticalAlignment="Top"
                   IsHitTestVisible="True">
         <Button Classes="nereus-corner-button" Tag="close">
-          <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter='NotificationMenu/power'}"
-                 Stretch="Uniform" Margin="10"/>
+          <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance}, ConverterParameter='NotificationMenu/power'}"
+                Fill="{DynamicResource TextBrush}" MaxWidth="46" MaxHeight="46" Stretch="Uniform"
+                HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Button>
         <Button Classes="nereus-corner-button" Tag="viewer">
-          <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter='NotificationMenu/user'}"
-                 Stretch="Uniform" Margin="10"/>
+          <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance}, ConverterParameter='NotificationMenu/user'}"
+                Fill="{DynamicResource TextBrush}" MaxWidth="46" MaxHeight="46" Stretch="Uniform"
+                HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Button>
         <Button Classes="nereus-corner-button" Tag="settings">
-          <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter='NotificationMenu/settings'}"
-                 Stretch="Uniform" Margin="10"/>
+          <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance}, ConverterParameter='NotificationMenu/settings'}"
+                Fill="{DynamicResource TextBrush}" MaxWidth="46" MaxHeight="46" Stretch="Uniform"
+                HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Button>
         <Button Classes="nereus-corner-button" Tag="browse">
-          <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter='NotificationMenu/Search_nofocus'}"
-                 Stretch="Uniform" Margin="10"/>
+          <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance}, ConverterParameter='NotificationMenu/search'}"
+                Fill="{DynamicResource TextBrush}" MaxWidth="46" MaxHeight="46" Stretch="Uniform"
+                HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Button>
       </StackPanel>
     </Panel>
