@@ -804,6 +804,35 @@ namespace Tests.Frontend
       Assert.That(read.AutoStartTV, Is.True);
     }
 
+    /// <summary>
+    /// What a household finds when they open <c>tv.json</c> in an editor: the answers, and nothing but the answers.
+    /// The answers that are worked out of others - the four clamped numbers, the address, the two "is any of this
+    /// wanted" ones - were written into the file as well, where they sat looking like lines one could edit while
+    /// nothing read them.
+    /// </summary>
+    [Test]
+    public void TheFileHoldsTheAnswersAndNotTheThingsWorkedOutOfThem()
+    {
+      TvBackendSettings written = new TvBackendSettings();
+      written.Host = "tvbox";
+      written.VisibleHours = 6.5;
+      written.VisibleRows = 14;
+
+      bool saved;
+      string says = written.Save(FileNamed("plain.json"), out saved);
+      Assert.That(saved, Is.True, says);
+
+      string text = File.ReadAllText(FileNamed("plain.json"));
+      Assert.That(text, Does.Contain("\"host\"").And.Contain("\"visible_hours\""),
+          "the answers themselves are missing: " + text);
+      foreach (string computed in new[] { "VisibleHoursOr", "VisibleRowsOr", "ZapTimeoutSecondsOr",
+          "RecordingNotificationSecondsOr", "IsConfigured", "BaseUrl", "WantsRecordingNotices" })
+      {
+        Assert.That(text, Does.Not.Contain(computed),
+            "the file carries " + computed + ", which nothing reads and somebody could edit in vain");
+      }
+    }
+
     [Test]
     public void TheDefaultsAreTheOnesTheReferenceShipped()
     {

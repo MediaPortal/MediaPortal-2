@@ -4603,6 +4603,73 @@ so, so nothing in the fixture waits thirty seconds for a timer to fire. It pins 
 silence of both switches and of a duration below one, the marker's independence from all three, the wording, the
 withdrawal, and the fact that a backend which merely went silent is not reported as a pile of finished recordings.
 
+### bw. The evening that was drawn a ninetieth of its width
+
+Reported by the user with a picture: the guide's hour ruler was right, the channel names were right, and every
+programme of the evening was standing in a narrow band immediately right of the channel's name - which also read as
+"there is nothing after the present time", because an evening three hours wide had been squeezed into forty pixels.
+Nothing about the model was wrong.
+
+- **The row is one grid**: a fixed header column as wide as the header needs, then `TvGuideViewModel.COLUMNS` (ninety)
+  star columns for the evening. The channel header sits in column nought and the programme track in column one, and a
+  grid child that is *placed* in a column without being told to *span* occupies that one column. The track therefore
+  got a ninetieth of the row, and the ninety columns of its own inner grid - which is where the blocks are placed, by
+  the attached properties the code-behind sets - were ninety divisions of that band. The ruler above is a separate
+  grid, which is why it stayed honest and why the picture looked like a time bug rather than a layout bug.
+- **One line fixes it**: `Grid.SetColumnSpan(track, TvGuideViewModel.COLUMNS)` where the row is built
+  (`Views/TvGuideView.axaml.cs`, `BuildRow`).
+- **Why eighty-odd guide tests let it through**: they asserted the attached properties on the boxes, and those said
+  the truth - column 40 of 90, width 3 columns - inside a container that was itself the wrong width. The new test
+  looks at `Grid.GetColumnSpan` of the *track* and at the rendered `Bounds.Width` of the widest block of a page, so a
+  grid that is placed correctly and drawn narrow cannot pass again.
+- **The reference could not have this bug**, which is worth writing down rather than quietly copying: its guide was
+  one control owning one table (`Skin/Nereus/plugins/SlimTvClient/Controls/EpgGrid.cs` - header widths at `:101-102`,
+  the column arithmetic at `:429`), so a row's programme area was by construction never narrower than the hours above
+  it. Splitting the row into a header and a track is this front end's own doing - it is what lets the header carry a
+  number, a picture and a name in one place (see `bu.`) - and the split is exactly what introduced a span to forget.
+
+Tested by `TestTvGuideScreen.TheEveningOfARowIsDrawnAcrossAllNinetyColumnsOfItsTrack`, and confirmed on the user's own
+screen: the guide is now full, evening included.
+
+### bx. A settings screen that contradicted the machine
+
+Reported by the user: switching the demo data on worked - the guide, the channel lists and the timers filled with
+invented channels - but opening the television settings again showed the switch off. The file on disk was right the
+whole time (`demo_data: true` in `%APPDATA%\MediaPortal\tv.json`), so this was never about saving.
+
+- **The screen read its answers after binding its controls.** `Views/TvSettingsView.axaml.cs` set the `DataContext`,
+  called `InitializeComponent()` - which is where every `IsChecked` and `Text` binding is made against whatever the
+  model held then, which was the defaults - and only afterwards read the file into the model's fields.
+- **And the model's "everything changed" notice was a hand-written list.** `TvSettingsViewModel` ended its read with
+  a loop over five names: `Host`, `Port`, `Username`, `Password`, `GuideDays`, `Status`, `CanCheck`. Every one of the
+  twelve switches and three of the four number boxes was missing, so not one of them was ever told to look again.
+  The demo switch is merely the one a viewer cannot miss.
+- **Both halves are fixed.** The notice now counts the answers out of the class itself (every public instance
+  property), because a list of names can only ever be as complete as the person who last added an answer remembered,
+  and this class has gained answers three times in as many parts; and the screen reads the file *before* building its
+  controls, so a box is built with the answer it will show instead of opening empty and correcting itself a moment
+  later.
+- **Why only this screen had it**: the other settings screens are handed their model *after* construction -
+  `new MetadataSettingsView { DataContext = metadata }` in `App.axaml.cs:1150-1172` - and a `DataContext` changing
+  makes every binding read its source again. Setting the `DataContext` first and filling the model afterwards is what
+  loses the answers, and this was the only view doing it.
+- **The file itself was tidied by the same look.** `tv.json` had been written with the computed answers in it too -
+  `VisibleHoursOr`, `ZapTimeoutSecondsOr`, `IsConfigured`, `BaseUrl` - because `System.Text.Json` writes every
+  readable property, and a hand-editable file full of lines that nothing reads is a file somebody edits in the
+  belief that they changed something. They are `[JsonIgnore]`d now, as the other settings classes already did; the
+  answers the screens actually read (`demo_data` included) had always been written correctly, which is why the file
+  was never where this bug lived.
+- Nothing here corresponds in the reference: its television settings were edited in the TV service's own configuration
+  window on the server's desktop, not in a skin screen, which is why `bv.`'s and `bu.`'s questions had no citation for
+  the screens themselves either.
+
+Tested by `TestTvSettingsScreen`, which asks the controls rather than the model - the model had been right all along,
+and the old tests asked the model. It checks all twelve switches and seven boxes against what was written down, checks
+that reading the file again while the screen stands there moves every one of them, and checks that a notice from the
+model does not push an answer back out of a box somebody is typing in. Reverting both halves brings the original
+complaint back verbatim out of the first test: *"the switch named demoCheck shows False although True was written
+down"*. `TestTvBackend.TheFileHoldsTheAnswersAndNotTheThingsWorkedOutOfThem` pins the file's contents.
+
 ## What cannot be verified without the user
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library
 import. These need hardware and judgement that are not in this environment, and they are batched into

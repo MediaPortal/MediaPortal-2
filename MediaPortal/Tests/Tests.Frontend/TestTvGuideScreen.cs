@@ -684,6 +684,50 @@ namespace Tests.Frontend
       }
     }
 
+    /// <summary>
+    /// Every column of an evening belongs to the row's track. A row is a grid of the header's column plus the ninety
+    /// columns of the window, and the track holding the programmes has to be laid across all ninety of them: a track
+    /// placed in a column without a span is a ninetieth of the room, and every programme of every row is then drawn
+    /// inside that narrow band beside the channel's name while the hour ruler above - which stands in a grid of its
+    /// own, and was therefore always right - goes on looking correct. That is the difference between a screen whose
+    /// numbers are right and one whose picture is right, and here the numbers had been right all along, which is why
+    /// what is looked at is how wide the box came out and not which column it was told to stand in.
+    /// </summary>
+    [Test]
+    [AvaloniaTest]
+    public void TheEveningOfARowIsDrawnAcrossAllNinetyColumnsOfItsTrack()
+    {
+      ScriptedGuide backend = new ScriptedGuide();
+      TvGuideViewModel guide = Opened(backend);
+      Window window = ShowOnScreen(guide);
+
+      List<Border> drawn = DrawnBoxes(window);
+      TvGuideBlock widest = guide.Rows.SelectMany(delegate (TvGuideRow row)
+      {
+        return row.Blocks;
+      })
+          .OrderByDescending(delegate (TvGuideBlock block)
+          {
+            return block.ColumnSpan;
+          })
+          .First();
+      Border box = drawn.First(b => ReferenceEquals(b.Tag, widest));
+
+      // The box's own grid, then the track that holds that grid, then the row all of that stands in.
+      Panel? cells = box.Parent as Panel;
+      Border? bar = cells?.Parent as Border;
+      Assert.That(bar, Is.Not.Null, "a programme box is drawn inside a track inside a row");
+      Assert.That(Grid.GetColumn(bar!), Is.EqualTo(1), "the evening starts after the column of channels");
+      Assert.That(Grid.GetColumnSpan(bar!), Is.EqualTo(TvGuideViewModel.COLUMNS),
+          "and reaches across all ninety of its columns rather than the one it was placed in");
+
+      // What that is worth in pixels. Three hours are ninety columns of a window a thousand pixels wide across the
+      // programmes, so a programme over half of them is hundreds of pixels wide; squeezed into its column alone it
+      // is eleven.
+      Assert.That(box.Bounds.Width, Is.GreaterThan(150),
+          "the widest programme of the page is drawn as wide as it is long: " + box.Bounds);
+    }
+
     [Test]
     [AvaloniaTest]
     public void TheBoxBeingTalkedAboutIsTheOneWearingTheWhiteFrame()

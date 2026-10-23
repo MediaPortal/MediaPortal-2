@@ -467,7 +467,14 @@ namespace MediaPortal.Frontend.Views
       }
 
       track.Child = cells;
+
+      // The row's grid is the header's column plus the ninety columns of the evening, and the track belongs across
+      // all ninety of them. Without the span the Border lands in column one alone - a ninetieth of the room, right
+      // behind the channel's name - and every programme of every row is drawn inside that narrow band while the hour
+      // ruler above, which is a grid of its own, stays perfectly in place. That is the picture a viewer wrote in
+      // about: "there is nothing after the present time", because after a dozen pixels of track there isn't.
       Grid.SetColumn(track, 1);
+      Grid.SetColumnSpan(track, TvGuideViewModel.COLUMNS);
       line.Children.Add(track);
       return line;
     }

@@ -51,11 +51,15 @@ namespace MediaPortal.Frontend.Views
       TvSettingsViewModel model = new TvSettingsViewModel(null, ScreenThread.Run);
       _model = model;
       DataContext = model;
-      InitializeComponent();
 
+      // Read before the controls are built, so that a box is built with the answer it is going to show rather than
+      // with an empty box that has to be corrected afterwards. The correction would work - the model says so out
+      // loud - but a screen that opens wrong and fixes itself a moment later is a screen a viewer catches lying.
       string? problem = null;
       TvBackendSettings shown = settings ?? TvBackendSettings.Load(null, out problem);
       model.Show(shown, problem);
+
+      InitializeComponent();
 
       _ring.Add(hostBox);
       _ring.Add(portBox);

@@ -432,7 +432,7 @@ namespace MediaPortal.Frontend.ViewModels
       else
         Status = "No television backend has been written down yet, so the television and radio screens have "
             + "nothing to show.";
-      RaiseAll();
+      RaiseEverything();
     }
 
     /// <summary>The answers as typed, before anyone presses save - so a check can ask the same thing.</summary>
@@ -606,11 +606,21 @@ namespace MediaPortal.Frontend.ViewModels
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 
-    private void RaiseAll()
+    /// <summary>
+    /// Says that every answer may have changed, so that everything bound to one looks again.
+    /// </summary>
+    /// <remarks>
+    /// The answers are counted out of the class itself and not written down here. The list this method used to carry
+    /// named five of its twenty answers by hand, and an answer missing from the list left its control showing what
+    /// it had been built with: the switch for the demo data was one of them, so a household could turn it on, watch
+    /// the guide fill itself with invented channels, open these settings again and be shown a switch that had
+    /// stayed off. A list can only ever be as complete as the person who last added an answer remembered it.
+    /// </remarks>
+    public void RaiseEverything()
     {
-      foreach (string name in new[] { nameof(Host), nameof(Port), nameof(Username), nameof(Password),
-          nameof(GuideDays), nameof(Status), nameof(CanCheck) })
-        Raise(name);
+      foreach (System.Reflection.PropertyInfo property in GetType()
+          .GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance))
+        Raise(property.Name);
     }
 
     /// <summary>A press that does one thing and can always be pressed.</summary>

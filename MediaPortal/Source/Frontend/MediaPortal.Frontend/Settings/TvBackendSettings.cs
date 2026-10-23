@@ -354,6 +354,7 @@ namespace MediaPortal.Frontend.Settings
     /// Whether a recording notice is wanted at all: either of the two switches left on and a length of at least a
     /// second, which is the reference's own condition for showing one.
     /// </summary>
+    [JsonIgnore]
     public bool WantsRecordingNotices
     {
       get
@@ -381,6 +382,13 @@ namespace MediaPortal.Frontend.Settings
     /// How many hours the guide shows, with the nonsense taken out: a window has to be at least half an hour wide
     /// and no wider than a working day, because past that the hour labels overlap and a guide stops being a guide.
     /// </summary>
+    /// <remarks>
+    /// The computed answers - the four "...Or" ones, and the three that read an address or a wish out of them - are
+    /// kept out of the file on purpose, like the other settings classes do: they are worked out of the answers above
+    /// them, and a hand-editable file full of lines that nothing reads is a file somebody edits in the belief that
+    /// they changed something.
+    /// </remarks>
+    [JsonIgnore]
     public double VisibleHoursOr
     {
       get
@@ -395,6 +403,7 @@ namespace MediaPortal.Frontend.Settings
     }
 
     /// <summary>How many channels fit on the screen at once, with the nonsense taken out.</summary>
+    [JsonIgnore]
     public int VisibleRowsOr
     {
       get
@@ -405,6 +414,7 @@ namespace MediaPortal.Frontend.Settings
     }
 
     /// <summary>How long a viewer gets to finish typing a channel number, with the nonsense taken out.</summary>
+    [JsonIgnore]
     public double ZapTimeoutSecondsOr
     {
       get
@@ -424,6 +434,7 @@ namespace MediaPortal.Frontend.Settings
     /// without touching the two switches, and <see cref="WantsRecordingNotices"/> honours it. Anything the length of
     /// more than a minute, and anything that is not a number, is a mistake, and the default is what a mistake gets.
     /// </summary>
+    [JsonIgnore]
     public double RecordingNotificationSecondsOr
     {
       get
@@ -448,6 +459,7 @@ namespace MediaPortal.Frontend.Settings
     /// backend of <c>DemoTvBackend</c> answers every question the same way a real one does. Every screen therefore
     /// needs no idea that a demo exists.
     /// </remarks>
+    [JsonIgnore]
     public bool IsConfigured
     {
       get { return DemoData || !string.IsNullOrWhiteSpace(Host); }
@@ -457,6 +469,7 @@ namespace MediaPortal.Frontend.Settings
     /// The address every question is asked at, or <c>null</c> when no host was named. Never throws, because the
     /// screens would rather ask <see cref="IsConfigured"/> and explain than catch.
     /// </summary>
+    [JsonIgnore]
     public Uri? BaseUrl
     {
       get
