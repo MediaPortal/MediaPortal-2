@@ -28,6 +28,7 @@ using MediaPortal.Common.Messaging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.Messaging;
 using MediaPortal.Frontend.Api;
+using MediaPortal.Frontend.Theming;
 using MediaPortal.Frontend.ViewModels;
 using MediaPortal.Server.Api;
 using Microsoft.AspNetCore.Builder;
@@ -312,8 +313,16 @@ namespace Tests.Frontend
         Assert.That(home.ServerActivity, Is.EqualTo("Listening to the server"),
             "and the line about what the server is doing stays truthful through a refresh");
 
+        // The same news, in the shape the head line draws a picture from. The sentence and the state are said by one
+        // call in the model, so a test that only ever read the sentence could not notice a state that had been left
+        // behind - which is exactly the kind of thing that ends up as a picture of "connected" over a dead stream.
+        Assert.That(home.ServerState, Is.EqualTo(ServerActivityState.Connected));
+        Assert.That(home.ServerFilingPercent, Is.Null, "nothing is being filed, so no number is invented");
+
         home.StopWatchingEvents();
         Assert.That(home.IsWatchingEvents, Is.False);
+        Assert.That(home.ServerState, Is.EqualTo(ServerActivityState.NotListening),
+            "and when the screen stops listening it stops saying that it is connected");
       }
     }
 

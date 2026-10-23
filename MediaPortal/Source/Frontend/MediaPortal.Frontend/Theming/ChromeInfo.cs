@@ -16,7 +16,9 @@
 */
 
 using System;
+using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
+using MediaPortal.Frontend.Notifications;
 
 namespace MediaPortal.Frontend.Theming
 {
@@ -56,6 +58,7 @@ namespace MediaPortal.Frontend.Theming
     public ChromeInfo()
     {
       _clock = FormatClock(DateTime.Now, _timeFormat);
+      _openNotifications = new OpenNotifications(this);
     }
 
     public ChromeInfo(Action<Action>? marshal)
@@ -97,6 +100,11 @@ namespace MediaPortal.Frontend.Theming
     /// </summary>
     private void ReportClock()
     {
+      // The header's clock is also this front end's heartbeat, so it is what makes a notification whose reason has
+      // gone away stop being counted; the reference kept a timer of its own for that
+      // (INotificationService.CheckForTimeouts), and a second timer here would only be a second thing to forget.
+      _queue?.CheckTimeouts();
+
       string now = FormatClock(DateTime.Now, _timeFormat);
       string today = FormatDate(DateTime.Now, _dateFormat);
       if (_marshal == null)
@@ -176,14 +184,14 @@ namespace MediaPortal.Frontend.Theming
     }
 
     /// <summary>
-    /// What the server is doing down at the library while the viewer stands upstairs: the reference's
-    /// notification bar showed the importer at work in its master header and took it away again when the
-    /// import was through. Null or empty means the server has nothing to report and the chrome says nothing.
+    /// The long sentence about what the server is doing down at the library, kept for the head line's tooltip. The bar
+    /// itself says nothing in words: its importer was a turning circle with "43%" under it, its recording a blinking
+    /// picture, and no sentence anywhere (<c>Skin/Nereus/screens/NotificationsBar.inc:19-39</c>).
     /// </summary>
     [ObservableProperty]
     private string? _serverNotice;
 
-    /// <summary>Whether the header has a notice to show at all.</summary>
+    /// <summary>Whether there is a sentence to show at all.</summary>
     public bool HasServerNotice
     {
       get { return !string.IsNullOrEmpty(ServerNotice); }
@@ -192,6 +200,80 @@ namespace MediaPortal.Frontend.Theming
     partial void OnServerNoticeChanged(string? value)
     {
       OnPropertyChanged(nameof(HasServerNotice));
+    }
+
+    /// <summary>
+    /// What the front end's deal with the server is at this moment, which is what the head line's glyph is chosen
+    /// from. Starts at "nothing is being listened to", so that a screen shown before anyone asked for anything draws
+    /// no claim about a server.
+    /// </summary>
+    [ObservableProperty]
+    private ServerActivityState _activity = ServerActivityState.NotListening;
+
+    /// <summary>
+    /// How far the server has got with its library, when it said: the reference printed exactly this number next to
+    /// its turning circle. Null while nothing is being filed, or when the server only said that it had started.
+    /// </summary>
+    [ObservableProperty]
+    private int? _filingPercent;
+
+    /// <summary>Whether the head line has a server glyph to draw at all.</summary>
+    public bool HasActivity
+    {
+      get { return Activity != ServerActivityState.NotListening; }
+    }
+
+    /// <summary>
+    /// The percentage to stand under the glyph while the server is filing, or the empty string - which is all the
+    /// worn skin ever wrote under its importer's picture (<c>NotificationsBar.inc:29-31</c>). The three connection
+    /// states get nothing here: the reference's bar was pictures and no words, and a household that sees the
+    /// disconnected glyph reads the glyph.
+    /// </summary>
+    public string ActivityPercent
+    {
+      get
+      {
+        if (Activity != ServerActivityState.Filing)
+          return "";
+
+        int? percent = FilingPercent;
+        return percent.HasValue ? percent.Value + "%" : "";
+      }
+    }
+
+    /// <summary>The worn skin's glyph standing for the state.</summary>
+    public string ActivityIcon
+    {
+      get { return ServerActivity.Glyph(Activity); }
+    }
+
+    /// <summary>
+    /// The word a state is read with by anything that wants words - a tooltip or a screen of its own. The head line's
+    /// bar does not ask: the reference's bar was pictures only.
+    /// </summary>
+    public string ActivityWords
+    {
+      get { return ServerActivity.Words(Activity); }
+    }
+
+    /// <summary>Whether the server is filing its library, which is the only state whose circle is worth turning.</summary>
+    public bool IsFiling
+    {
+      get { return Activity == ServerActivityState.Filing; }
+    }
+
+    partial void OnActivityChanged(ServerActivityState value)
+    {
+      OnPropertyChanged(nameof(HasActivity));
+      OnPropertyChanged(nameof(ActivityIcon));
+      OnPropertyChanged(nameof(ActivityPercent));
+      OnPropertyChanged(nameof(ActivityWords));
+      OnPropertyChanged(nameof(IsFiling));
+    }
+
+    partial void OnFilingPercentChanged(int? value)
+    {
+      OnPropertyChanged(nameof(ActivityPercent));
     }
 
     /// <summary>
@@ -225,6 +307,79 @@ namespace MediaPortal.Frontend.Theming
     private bool _isRecording;
 
     /// <summary>
+    /// Whether the recording mark is showing this instant, which is the whole of its blinking.
+    /// </summary>
+    /// <remarks>
+    /// The reference blinked its recording picture with a storyboard of its own
+    /// (<c>Skin/Nereus/themes/default/styles/Buttons.xaml:1717</c>). A skin file in this front end is loose markup
+    /// that is parsed when the screen is dressed, and an animation is one of the things such markup cannot carry - so
+    /// the blink belongs to the model, which also means it can be asked about instead of being photographed.
+    /// </remarks>
+    [ObservableProperty]
+    private bool _recordingMarkVisible = true;
+
+    private System.Timers.Timer? _blinkTimer;
+
+    /// <summary>
+    /// How long the mark stays on one side of a blink. The reference's mark blinked rather faster than a heartbeat and
+    /// never stopped being readable; 700 ms on a side is a mark that is noticed without being a strobe light.
+    /// </summary>
+    private static readonly TimeSpan BLINK_HALF = TimeSpan.FromMilliseconds(700);
+
+    /// <summary>
+    /// Turns the blink on with the recording and off with it, so that a mark which is not saying "recording" stands
+    /// still and a recording that ended leaves nothing pulsing in the head line.
+    /// </summary>
+    partial void OnIsRecordingChanged(bool value)
+    {
+      if (value)
+        StartRecordingBlink();
+      else
+        StopRecordingBlink();
+    }
+
+    /// <summary>
+    /// Flips the mark to the other side of its blink, which is what the timer does and what a test asks about.
+    /// </summary>
+    public void BlinkRecordingMark()
+    {
+      RecordingMarkVisible = !RecordingMarkVisible;
+    }
+
+    /// <summary>Start the mark blinking, once per recording and not once per notice about it.</summary>
+    private void StartRecordingBlink()
+    {
+      if (_blinkTimer != null)
+        return;
+
+      RecordingMarkVisible = true;
+      _blinkTimer = new System.Timers.Timer(BLINK_HALF.TotalMilliseconds) { AutoReset = true };
+      _blinkTimer.Elapsed += delegate
+      {
+        // The timer rings on its own thread, and a bound property may only be spoken to on the one the window lives on.
+        if (_marshal == null)
+          BlinkRecordingMark();
+        else
+          _marshal(BlinkRecordingMark);
+      };
+      _blinkTimer.Start();
+    }
+
+    /// <summary>Stop the blink and leave the mark showing, so that the next recording starts visibly.</summary>
+    private void StopRecordingBlink()
+    {
+      System.Timers.Timer? timer = _blinkTimer;
+      _blinkTimer = null;
+      if (timer != null)
+      {
+        timer.Stop();
+        timer.Dispose();
+      }
+
+      RecordingMarkVisible = true;
+    }
+
+    /// <summary>
     /// Says what the TV machine just did about a recording, or takes the sentence away when handed null. Handed over
     /// on the watcher's thread and put on this one, because a corner of a window belongs to the thread that made the
     /// window.
@@ -250,6 +405,167 @@ namespace MediaPortal.Frontend.Theming
       }
 
       _marshal(() => IsRecording = recording);
+    }
+
+    // ---- the things the household has been told and has not read yet --------------------------------------
+
+    /// <summary>
+    /// What is waiting to be read. Null until <see cref="AttachNotifications"/> has been called, which is how a skin
+    /// or a test that never heard of the queue keeps working: the hint is simply never there.
+    /// </summary>
+    private NotificationQueue? _queue;
+
+    private int _notificationCount;
+    private string _notificationIcon = "";
+    private bool _hintsHidden;
+
+    /// <summary>
+    /// Said when somebody presses the hint in the head line, which means "read them to me". Whoever set this up - the
+    /// application - opens the dialog; the head line does not know that a dialog exists, any more than the reference's
+    /// notification button knew how <c>WatchSystemNotifications.xaml</c> was built.
+    /// </summary>
+    public event Action? NotificationsRequested;
+
+    /// <summary>Bound to the hint.</summary>
+    public ICommand OpenNotificationsCommand
+    {
+      get { return _openNotifications; }
+    }
+
+    private readonly OpenNotifications _openNotifications;
+
+    /// <summary>
+    /// Tells the head line's button that its answer to "could I be pressed right now" has moved, which the command
+    /// itself has no way of noticing.
+    /// </summary>
+    internal void RaiseOpenNotificationsCanExecute()
+    {
+      _openNotifications.RaiseCanExecuteChanged();
+    }
+
+    /// <summary>
+    /// Tells the head line where the queue is, so that it can count it, pick the loudest glyph of what is in it, and
+    /// be taken away again when the last one has been read. The reference's bar did all three
+    /// (<c>Source/UI/UiComponents/SkinBase/Models/NotificationsModel.cs:114-135</c>).
+    /// </summary>
+    public void AttachNotifications(NotificationQueue queue)
+    {
+      if (queue == null)
+        throw new ArgumentNullException(nameof(queue));
+
+      _queue = queue;
+      queue.Changed += delegate
+      {
+        // The queue speaks on whatever thread handed a notification in, which is nowhere near this window's.
+        if (_marshal == null)
+          RefreshNotifications();
+        else
+          _marshal(RefreshNotifications);
+      };
+      RefreshNotifications();
+    }
+
+    /// <summary>
+    /// Takes the hint away while the dialog that reads the queue is open, and puts it back afterwards. The reference
+    /// did exactly this: its model hid the hint the moment a notification was on the screen
+    /// (<c>NotificationsModel.cs:104-112</c>), because a count of what is still waiting next to the one being read is
+    /// the same number said twice.
+    /// </summary>
+    public void HideNotificationHint(bool hidden)
+    {
+      if (_hintsHidden == hidden)
+        return;
+
+      _hintsHidden = hidden;
+      RefreshNotifications();
+    }
+
+    /// <summary>How many are waiting to be read, which is the number the hint carries.</summary>
+    public int NotificationCount
+    {
+      get { return _notificationCount; }
+    }
+
+    /// <summary>Whether the head line has a hint to draw.</summary>
+    public bool HasNotifications
+    {
+      get { return _notificationCount > 0; }
+    }
+
+    /// <summary>
+    /// The count the hint carries, written the way the reference wrote it: as a number in brackets standing under the
+    /// picture, and only once there is more than one thing waiting - one notification is a picture that says it all,
+    /// and "(1)" under it only repeats the obvious
+    /// (<c>Buttons.xaml:2023-2029</c> with <c>NotificationsModel.cs:109-112</c>).
+    /// </summary>
+    public string NotificationCountWords
+    {
+      get { return _notificationCount > 1 ? "(" + _notificationCount + ")" : ""; }
+    }
+
+    /// <summary>
+    /// The glyph standing for the loudest thing waiting - an error outranks a warning, and a warning outranks a
+    /// piece of information - so that a hint never quietly shows an information "i" while an error waits underneath.
+    /// </summary>
+    public string NotificationIcon
+    {
+      get { return _notificationIcon; }
+    }
+
+    /// <summary>Whether pressing the hint would open something.</summary>
+    public bool CanOpenNotifications
+    {
+      get { return HasNotifications; }
+    }
+
+    /// <summary>Re-reads the queue and tells the head line whatever moved.</summary>
+    private void RefreshNotifications()
+    {
+      NotificationQueue? queue = _queue;
+      int count = queue == null || _hintsHidden ? 0 : queue.Count;
+      NotificationType? loudest = queue == null ? null : queue.LoudestType;
+
+      _notificationCount = count;
+      _notificationIcon = loudest.HasValue ? UiNotification.IconFor(loudest.Value) : "";
+
+      OnPropertyChanged(nameof(NotificationCount));
+      OnPropertyChanged(nameof(HasNotifications));
+      OnPropertyChanged(nameof(NotificationCountWords));
+      OnPropertyChanged(nameof(NotificationIcon));
+      OnPropertyChanged(nameof(CanOpenNotifications));
+      RaiseOpenNotificationsCanExecute();
+    }
+
+    /// <summary>
+    /// The head line's hint, which is a button rather than a picture because the reference's was one too: pressing it
+    /// opened the screen that reads the queue (<c>Skin/Nereus/screens/NotificationsBar.inc:15-17</c> with
+    /// <c>Buttons.xaml:1978</c>).
+    /// </summary>
+    private sealed class OpenNotifications : ICommand
+    {
+      private readonly ChromeInfo _chrome;
+
+      public OpenNotifications(ChromeInfo chrome)
+      {
+        _chrome = chrome;
+      }
+
+      public event EventHandler? CanExecuteChanged;
+
+      internal void RaiseCanExecuteChanged()
+      {
+        CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+      }
+
+      public bool CanExecute(object? parameter)
+      {
+        return _chrome.CanOpenNotifications;
+      }
+
+      public void Execute(object? parameter)
+      {
+        _chrome.NotificationsRequested?.Invoke();
+      }
     }
 
     // ---- the home head line's weather, the reference's master_home slot -----------------------------------
@@ -361,18 +677,45 @@ namespace MediaPortal.Frontend.Theming
     }
 
     /// <summary>
-    /// Tell the chrome what the server is busy with, or that it is not any more. The event stream speaks on
-    /// its own thread, so the words cross to the window's thread the way the clock's do.
+    /// Tell the head line what the front end's deal with the server is at this moment: the state picks the glyph, the
+    /// sentence is what the glyph cannot say on its own, and the percentage - when the server volunteered one - is put
+    /// in place of the word, because that is where the reference printed its importer's "43%".
     /// </summary>
-    public void ReportServerActivity(string? notice)
+    /// <param name="state">Which of the server states to draw.</param>
+    /// <param name="detail">The long sentence, shown when the household asks the head line about it; null or empty for
+    /// none, which is what "nothing is being listened to" is handed.</param>
+    /// <param name="percent">How far the filing has got, or null when nothing is being filed or the server only said
+    /// that it had started.</param>
+    /// <remarks>
+    /// The event stream speaks on its own thread, so all three cross to the window's thread the way the clock's do.
+    /// </remarks>
+    public void ReportServerActivity(ServerActivityState state, string? detail, int? percent = null)
     {
+      string? sentence = string.IsNullOrEmpty(detail) ? null : detail;
+
       if (_marshal == null)
       {
-        ServerNotice = notice;
+        ServerNotice = sentence;
+        FilingPercent = percent;
+        Activity = state;
         return;
       }
 
-      _marshal(() => ServerNotice = notice);
+      _marshal(() =>
+      {
+        ServerNotice = sentence;
+        FilingPercent = percent;
+        Activity = state;
+      });
+    }
+
+    /// <summary>
+    /// The old one-line call, kept for whoever has no state to offer and only a sentence: the sentence is remembered
+    /// for the tooltip and the head line carries on drawing whatever state it was already drawing.
+    /// </summary>
+    public void ReportServerActivity(string? notice)
+    {
+      ReportServerActivity(Activity, notice, null);
     }
 
     /// <summary>

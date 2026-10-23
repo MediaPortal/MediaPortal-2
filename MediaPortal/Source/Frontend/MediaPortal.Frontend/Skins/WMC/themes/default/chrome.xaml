@@ -8,14 +8,15 @@
   error in this file rather than a blank header at run time.
 -->
 <ResourceDictionary xmlns:chrome="clr-namespace:MediaPortal.Frontend.Theming"
+                    xmlns:views="clr-namespace:MediaPortal.Frontend.Views"
                     xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     x:DataType="chrome:ChromeInfo">
 
   <!-- The header: the clock over its date at the left, as the WMC masters read it, and the screen's words
        right-aligned - HeaderTextPanel sat in the masters' last column, against the right margin. The
-       reference's notification slot sits between them: what the server is doing at the library, shown
-       while it happens and said away when it stops. -->
+       reference's notification slot sits between them, and is filled the way the reference filled its bar: with
+       a picture and as few words as it could get away with. -->
   <ControlTemplate x:Key="ChromeHeaderTemplate" TargetType="ContentControl">
     <Grid ColumnDefinitions="Auto,Auto,*" Margin="10,0" Background="{DynamicResource ScreenBackgroundBrush}">
       <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" Margin="0,0,20,0">
@@ -24,24 +25,48 @@
         <TextBlock Text="{Binding Date}"
                    Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource SmallerFontSize}"/>
       </StackPanel>
-      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="14" VerticalAlignment="Center" Margin="0,0,24,0">
-        <!-- A recording running is said with a mark the whole time it runs, and a recording that started or ended
-             with a sentence for a few seconds; both came from the reference's notification bar, which stood in the
-             header exactly here. -->
-        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center"
-                    IsVisible="{Binding IsRecording}">
-          <Border Width="10" Height="10" CornerRadius="5" Background="#D0402F" VerticalAlignment="Center"/>
-          <TextBlock Text="recording" Foreground="{DynamicResource MutedTextBrush}"
-                     FontSize="{DynamicResource SmallerFontSize}" VerticalAlignment="Center"/>
-        </StackPanel>
-        <TextBlock Text="{Binding RecordingNotice}" IsVisible="{Binding HasRecordingNotice}"
-                   Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource SmallerFontSize}"
-                   VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="420"/>
-        <TextBlock Text="{Binding ServerNotice}"
-                   IsVisible="{Binding HasServerNotice}"
-                   Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource SmallerFontSize}"
-                   VerticalAlignment="Center"
-                   TextTrimming="CharacterEllipsis" MaxWidth="420"/>
+      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" Margin="0,0,24,0">
+        <!-- What is waiting to be read: the picture of the loudest thing waiting, and "(2)" under it as soon as a
+             second one joins - the reference's own badge (Buttons.xaml:2023-2029). Pressing it reads them one at
+             a time. -->
+        <Button Command="{Binding OpenNotificationsCommand}" IsVisible="{Binding HasNotifications}"
+                ToolTip.Tip="Things the household has been told and has not read"
+                Width="52" Height="52" Background="Transparent" BorderThickness="0" Padding="0">
+          <DockPanel>
+            <!-- The plate keeps the strip under its picture for the count, empty or not, so that all three
+                 pictures of the bar come to rest on the same line. -->
+            <TextBlock DockPanel.Dock="Bottom" Height="18" TextAlignment="Center"
+                       Text="{Binding NotificationCountWords}" Foreground="{DynamicResource TextBrush}"
+                       FontSize="{DynamicResource TinyFontSize}"/>
+            <Path Data="{Binding NotificationIcon, Converter={x:Static views:SkinIconGeometryConverter.Instance}}"
+                  Fill="{DynamicResource TextBrush}" MaxWidth="34" MaxHeight="34" Stretch="Uniform" Opacity="0.75"
+                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </DockPanel>
+        </Button>
+        <!-- The deal with the server, as a picture and nothing else: connected while its news arrives on its own,
+             disconnected when it has stopped, the importer's circle with its percentage while it is at work. The
+             sentence the state came with is on the tooltip. -->
+        <Panel IsVisible="{Binding HasActivity}" Width="52" Height="52" ToolTip.Tip="{Binding ServerNotice}">
+          <DockPanel>
+            <TextBlock DockPanel.Dock="Bottom" Height="18" TextAlignment="Center"
+                       Text="{Binding ActivityPercent}" Foreground="{DynamicResource TextBrush}"
+                       FontSize="{DynamicResource TinyFontSize}"/>
+            <Path Data="{Binding ActivityIcon, Converter={x:Static views:SkinIconGeometryConverter.Instance}}"
+                  Fill="{DynamicResource TextBrush}" MaxWidth="34" MaxHeight="34" Stretch="Uniform" Opacity="0.75"
+                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </DockPanel>
+        </Panel>
+        <!-- A recording is a blinking picture the whole time it runs, in red, with its sentence on the tooltip. -->
+        <Panel IsVisible="{Binding IsRecording}" Width="52" Height="52" ToolTip.Tip="{Binding RecordingNotice}">
+          <DockPanel>
+            <Panel DockPanel.Dock="Bottom" Height="18"/>
+            <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                  ConverterParameter=Notification/recording}"
+                  Fill="#D0402F" MaxWidth="34" MaxHeight="34" Stretch="Uniform"
+                  HorizontalAlignment="Center" VerticalAlignment="Center"
+                  IsVisible="{Binding RecordingMarkVisible}"/>
+          </DockPanel>
+        </Panel>
       </StackPanel>
       <TextBlock Grid.Column="2" Text="{Binding ScreenTitle}"
                  Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeaderFontSize}"

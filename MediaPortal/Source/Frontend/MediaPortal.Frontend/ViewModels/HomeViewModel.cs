@@ -1672,6 +1672,46 @@ namespace MediaPortal.Frontend.ViewModels
       OnPropertyChanged(nameof(HasServerActivity));
     }
 
+    /// <summary>
+    /// Which of the server states the head line should draw. The sentence above is what a person reads; this is the
+    /// one thing the glyph stands for, and the two are said together by <see cref="SayActivity"/> so that they cannot
+    /// disagree.
+    /// </summary>
+    [ObservableProperty]
+    private Theming.ServerActivityState _serverState = Theming.ServerActivityState.NotListening;
+
+    /// <summary>
+    /// How far the server has got with its library, when a frame said one: the reference printed this number next to
+    /// its importer's turning circle, and the head line does the same.
+    /// </summary>
+    [ObservableProperty]
+    private int? _serverFilingPercent;
+
+    /// <summary>
+    /// The queue that news the head line has no room for is filed in: dropped frames, and a server that would not let
+    /// this screen listen without signing in first. The reference kept such things in a queue rather than in a line of
+    /// text, and so does this - the application hands its queue in, and the head line's hint counts it. Left out, this
+    /// screen still says everything it can about the server and simply has nowhere to put the rest, which is what a
+    /// test without a household wants.
+    /// </summary>
+    private Notifications.NotificationQueue? _notices;
+
+    /// <summary>Says where the notifications this screen hears about belong.</summary>
+    public void AttachNotifications(Notifications.NotificationQueue queue)
+    {
+      _notices = queue;
+    }
+
+    /// <summary>
+    /// Says what the server is doing, once, in all the ways the head line wants to hear it.
+    /// </summary>
+    private void SayActivity(Theming.ServerActivityState state, string? sentence, int? percent = null)
+    {
+      ServerState = state;
+      ServerFilingPercent = percent;
+      ServerActivity = sentence;
+    }
+
     private Action<Action> _screenThread = delegate (Action action) { action(); };
     private CancellationTokenSource? _watchCancellation;
     private int _refreshArmed;
@@ -1703,7 +1743,7 @@ namespace MediaPortal.Frontend.ViewModels
 
       CancellationTokenSource cancellation = new CancellationTokenSource();
       _watchCancellation = cancellation;
-      ServerActivity = "Connecting to the server";
+      SayActivity(Theming.ServerActivityState.Connecting, "Connecting to the server");
 
       // Deliberately not awaited and not stored: the watch is the lifetime of the screen, the only thing that ends
       // it is UseServer or the process, and every way it can fail is reported through ServerActivity rather than
@@ -1724,7 +1764,7 @@ namespace MediaPortal.Frontend.ViewModels
     {
       CancellationTokenSource? source = _watchCancellation;
       _watchCancellation = null;
-      ServerActivity = null;
+      SayActivity(Theming.ServerActivityState.NotListening, null);
       source?.Cancel();
     }
 
@@ -1741,7 +1781,14 @@ namespace MediaPortal.Frontend.ViewModels
         // is the difference between a screen that quietly stops updating and one that says what to do about it.
         _screenThread(delegate
         {
-          ServerActivity = "The server would not let this screen listen. Sign in to see changes as they happen.";
+          SayActivity(Theming.ServerActivityState.Disconnected,
+              "The server would not let this screen listen. Sign in to see changes as they happen.");
+          // Refused at the door is the one thing a viewer has to do something about, so it is filed where it waits to
+          // be read rather than only flashed along the head line: the reference handed exactly this to a queue as
+          // "somebody has to act" (CommonNotificationService and its UserInteractionRequired type).
+          _notices?.Enqueue(Notifications.NotificationType.UserInteractionRequired,
+              "The server would not let this screen listen",
+              "Sign in, and the library on screen starts changing on its own again.", "server");
         });
       }
       catch (OperationCanceledException)
@@ -1750,7 +1797,13 @@ namespace MediaPortal.Frontend.ViewModels
       }
       catch (Exception ex)
       {
-        _screenThread(delegate { ServerActivity = "Stopped listening: " + ex.Message; });
+        // Stopped listening is the other half of "lost the server": the stream ended for a reason it could not
+        // recover from, so the head line says "disconnected" and this sentence - which of the two it was - rides on
+        // the tooltip, because it is the one a person needs when they go looking for the cause.
+        _screenThread(delegate
+        {
+          SayActivity(Theming.ServerActivityState.Disconnected, "Stopped listening: " + ex.Message);
+        });
       }
       finally
       {
@@ -1780,34 +1833,60 @@ namespace MediaPortal.Frontend.ViewModels
     {
       _screenThread(delegate
       {
+        // The two words the head line draws, "connected" and "disconnected", hang on exactly this frame; the
+        // sentence says what the glyph cannot, which is how long until the next try.
         if (connection.IsConnected)
-          ServerActivity = "Listening to the server";
+          SayActivity(Theming.ServerActivityState.Connected, "Listening to the server");
         else
-          ServerActivity = "Lost the server. Trying again in " +
-              (int)Math.Round(connection.RetryAfter.TotalSeconds) + " seconds.";
+          SayActivity(Theming.ServerActivityState.Disconnected, "Lost the server. Trying again in " +
+              (int)Math.Round(connection.RetryAfter.TotalSeconds) + " seconds.");
       });
     }
 
     /// <summary>
-    /// What a frame means on screen: a line about what the server is doing, and - when the frame says the titles
-    /// may have changed - one refresh, after the burst around it has finished.
+    /// What a frame means on screen: what the server is doing, and - when the frame says the titles may have
+    /// changed - one refresh, after the burst around it has finished.
     /// </summary>
     private void ApplyEvent(MediaEvent mediaEvent)
     {
       if (mediaEvent.Kind == MediaEvent.KIND_PROGRESS && mediaEvent.Jobs.Count > 0)
-        ServerActivity = DescribeJob(mediaEvent.Jobs[0]);
+      {
+        MediaImportJob job = mediaEvent.Jobs[0];
+        SayActivity(Theming.ServerActivityState.Filing, DescribeJob(job), PercentFiled(job));
+      }
       else if (mediaEvent.Kind == MediaEvent.KIND_IMPORT)
       {
         if (mediaEvent.State == "started" || mediaEvent.State == "scheduled")
-          ServerActivity = "The server is filing its library";
+          SayActivity(Theming.ServerActivityState.Filing, "The server is filing its library");
         else if (mediaEvent.State == "completed" || mediaEvent.State == "canceled")
-          ServerActivity = "Listening to the server";
+          SayActivity(Theming.ServerActivityState.Connected, "Listening to the server");
       }
       else if (mediaEvent.Kind == MediaEvent.KIND_GAP && mediaEvent.Dropped > 0)
-        ServerActivity = "The server had " + mediaEvent.Dropped + " changes to report at once";
+      {
+        // A frame the server threw away because this screen was not reading fast enough is not something a head line
+        // can show and nothing the viewer should have missed: the library is read again from the start below, so all
+        // that is left to say is that it happened. The reference kept such news in its queue rather than in a
+        // sentence, and so this goes there - where it waits, unread, until somebody looks.
+        _notices?.Enqueue(Notifications.NotificationType.Info,
+            "The server was quicker than this screen",
+            "It had " + mediaEvent.Dropped + " changes to report at once, so the library has been read again.");
+      }
 
       if (mediaEvent.ShouldRefresh)
         ArmRefresh();
+    }
+
+    /// <summary>
+    /// How far a filing job has got, as the whole percentage the reference printed next to its importer's circle, or
+    /// null when the job has not said how many there are to file - "of 0" is not a percentage.
+    /// </summary>
+    private static int? PercentFiled(MediaImportJob job)
+    {
+      if (job.Identified <= 0)
+        return null;
+
+      int percent = (int)(job.Completed * 100L / job.Identified);
+      return percent < 0 ? 0 : (percent > 100 ? 100 : percent);
     }
 
     private static string DescribeJob(MediaImportJob job)

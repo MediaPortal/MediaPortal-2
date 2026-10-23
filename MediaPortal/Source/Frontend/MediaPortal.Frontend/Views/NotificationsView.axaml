@@ -1,0 +1,70 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        xmlns:views="clr-namespace:MediaPortal.Frontend.Views"
+        xmlns:theming="clr-namespace:MediaPortal.Frontend.Theming"
+        x:Class="MediaPortal.Frontend.Views.NotificationsView"
+        x:DataType="vm:NotificationsViewModel"
+        Name="notificationsView"
+        Classes="nereus-dialog-screen"
+        >
+
+  <!--
+    "Notifications" - the reference's own dialog for the things the household has been told and has not read, moved
+    over dialog for dialog (Skin/Nereus/screens/WatchSystemNotifications.xaml over its master_dialog screens). What
+    it shows is what the reference showed: the picture belonging to this notification, its title, its text, and how
+    many more are waiting behind it. The reference's one button took the notification out of the queue and showed the
+    next, and a second button appeared only when a screen knew how to deal with the thing - which is exactly the pair
+    below.
+
+    It is a dialog and not a screen: the shelf or the guide the viewer was standing on stays lit behind it, because a
+    notification is a word spoken to somebody who is doing something, not a place to go to.
+  -->
+
+  <ContentControl HorizontalAlignment="Center" VerticalAlignment="Center"
+                  theming:SkinTemplates.OverlayTemplate="DialogHeadedFrameTemplate">
+    <StackPanel MinWidth="620" MaxWidth="760" Spacing="12">
+
+      <!-- The picture and the words beside it, as the reference laid them out: the picture said what kind of thing
+           this was before a single word had been read. -->
+      <StackPanel Orientation="Horizontal" Spacing="16">
+        <Path Data="{Binding Icon, Converter={x:Static views:SkinIconGeometryConverter.Instance}}"
+              Fill="{DynamicResource TextBrush}" Width="56" Height="56" Stretch="Uniform"
+              VerticalAlignment="Top"/>
+        <StackPanel Spacing="6" MaxWidth="640">
+          <TextBlock Text="{Binding Title}"
+                     Foreground="{DynamicResource TextBrush}" FontSize="22" TextWrapping="Wrap"/>
+          <TextBlock Text="{Binding Text}"
+                     Classes="nereus-editor-sub"
+                     TextWrapping="Wrap"/>
+          <TextBlock Text="{Binding MoreWords}" IsVisible="{Binding HasMore}"
+                     Foreground="{DynamicResource MutedTextBrush}" FontSize="14" TextWrapping="Wrap"/>
+        </StackPanel>
+      </StackPanel>
+
+      <StackPanel Orientation="Horizontal" Margin="0,10,0,0" Spacing="10">
+        <!-- The reference's OK: this one has been read, show the next. -->
+        <Button Name="okButton"
+                Content="OK"
+                FontSize="14"
+                Padding="16,6"
+                Focusable="True" />
+        <!-- Its second button, which was there exactly as often as a notification knew a screen that could deal with
+             it, and which went there instead of merely acknowledging. -->
+        <Button Name="handleButton"
+                Content="Go and deal with it"
+                IsVisible="{Binding CanHandle}"
+                FontSize="14"
+                Padding="16,6"
+                Focusable="True" />
+        <!-- And the way out for somebody who has understood the arrangement and wants the box gone, which the
+             reference let its viewer do by walking away. -->
+        <Button Name="noMoreButton"
+                Content="Nothing more, thanks"
+                FontSize="14"
+                Padding="16,6"
+                Focusable="True" />
+      </StackPanel>
+    </StackPanel>
+  </ContentControl>
+</UserControl>

@@ -16,13 +16,18 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Shapes;
 using Avalonia.Headless.NUnit;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
+using MediaPortal.Frontend.Notifications;
 using MediaPortal.Frontend.Theming;
 using MediaPortal.Frontend.Views;
 using NUnit.Framework;
@@ -42,6 +47,40 @@ namespace Tests.Frontend
   {
     /// <summary>A window wide enough that nothing in the head line has to give way.</summary>
     private const double WIDE = 1280;
+
+    private string _skinsFolderBefore = "";
+
+    [SetUp]
+    public void RememberTheSkinsFolder()
+    {
+      _skinsFolderBefore = SkinEngine.SkinsFolder;
+    }
+
+    [TearDown]
+    public void PutTheSkinsFolderBack()
+    {
+      SkinEngine.SkinsFolder = _skinsFolderBefore;
+    }
+
+    /// <summary>
+    /// Let the worn skin read its pictures from the folder this front end was built from. A skin's markup rides inside
+    /// the assembly, but the icons it carries are loose files, and the folder a test run lives in does not hold a whole
+    /// skin - so a glyph asked for during a test would be answered by nothing at all, which is a fact about the test
+    /// run and not about the skin (the same trick the editor's glyph test uses).
+    /// </summary>
+    private static void WearTheShippedSkinPictures()
+    {
+      AssemblyMetadataAttribute? value = typeof(TestChromeHeader).Assembly
+          .GetCustomAttributes<AssemblyMetadataAttribute>()
+          .FirstOrDefault(a => string.Equals(a.Key, "FrontendSource", StringComparison.Ordinal));
+
+      Assert.That(value?.Value, Is.Not.Null.And.Not.Empty,
+          "the test project has to hand FrontendSource over for the skin's pictures to be checkable");
+
+      string folder = System.IO.Path.Combine(value!.Value!, "Skins");
+      Assert.That(System.IO.Directory.Exists(folder), Is.True, "there is no skins folder at " + folder);
+      SkinEngine.SkinsFolder = folder;
+    }
 
     /// <summary>
     /// A window narrower than the head line asks for - the clock, the day over the temperature, the weather
@@ -91,30 +130,239 @@ namespace Tests.Frontend
     }
 
     /// <summary>
-    /// Where the clock is drawn, in the window's own coordinates. The head line is scaled as a whole when it has
-    /// to be, so a control inside it keeps the size it asked for while the picture of it on the screen is
+    /// The complaints these tests exist for. The front end first wrote its sentence about the server into the corner
+    /// above the clock, which is the one corner of the worn skin's head line that belongs to the time; it then wrote
+    /// the state as a word next to a picture, in a bar that stood at the left end of the line and so lay across the
+    /// home's menu, which this very line floats over. The reference said all of it in pictures - its importer was a
+    /// circle with a percentage under it (Buttons.xaml:1740 with NotificationsBar.inc:29-31), its recording a blinking
+    /// picture with nothing beside it (Buttons.xaml:1717) - in the master's own top row
+    /// (master_home.xaml:184, master_bare.xaml:109), with the clock still the furthest thing right.
+    /// </summary>
+    [AvaloniaTest]
+    public void WhatTheServerIsDoingIsSaidInPicturesAndNeverInWords()
+    {
+      WearTheShippedSkinPictures();
+      WithHeader(WIDE, out ShellWindow window, out TextBlock clock, out double width);
+      try
+      {
+        window.Chrome.ReportServerActivity(ServerActivityState.Disconnected,
+            "Lost the server. Trying again in 5 seconds.");
+        Pump(6);
+
+        foreach (string word in new[] { "disconnected", "connected", "connecting", "Lost the server. Trying again in 5 seconds." })
+          Assert.That(SaidOnTheScreen(window, word), Is.Null,
+              "the bar says a state with its picture, and the sentence waits on the tooltip; the line drew: "
+              + OnTheScreen(window));
+
+        List<Avalonia.Controls.Shapes.Path> drawn = GlyphsOnTheScreen(window);
+        Assert.That(drawn, Is.Not.Empty, "the state is drawn, though - as a picture out of the worn skin");
+        foreach (Avalonia.Controls.Shapes.Path glyph in drawn)
+        {
+          Assert.That(RightEdgeOnTheScreen(window, glyph), Is.LessThanOrEqualTo(LeftEdgeOnTheScreen(window, clock)),
+              "and every one of them stands left of the time, which keeps the corner furthest right");
+          Assert.That(LeftEdgeOnTheScreen(window, glyph), Is.GreaterThan(width / 5),
+              "and at the right end of the line rather than its left, where a screen's own words - and at home the "
+              + "menu this line floats over - have to be left alone");
+        }
+      }
+      finally
+      {
+        Close(window);
+      }
+    }
+
+    /// <summary>
+    /// The hint, on the screen: the picture of the loudest thing waiting and, once a second thing joins, the number of
+    /// them in brackets under it. This is the reference's notification button (Buttons.xaml:1983-2029), whose picture
+    /// was the picture of the loudest notification and whose badge counted the rest.
+    /// </summary>
+    [AvaloniaTest]
+    public void AThingWaitingToBeReadStandsInTheHeadLineLeftOfTheClock()
+    {
+      WearTheShippedSkinPictures();
+      WithHeader(WIDE, out ShellWindow window, out TextBlock clock, out double width);
+      try
+      {
+        NotificationQueue queue = new NotificationQueue();
+        window.Chrome.AttachNotifications(queue);
+        queue.Enqueue(NotificationType.Info, "the server was quicker", "it dropped two frames");
+        queue.Enqueue(NotificationType.Error, "the television stopped", "the card fell out");
+        Pump(6);
+
+        TextBlock? counted = SaidOnTheScreen(window, "(2)");
+        Assert.That(counted, Is.Not.Null, "the hint counts what is waiting, in brackets; the line drew: "
+            + OnTheScreen(window));
+        Assert.That(RightEdgeOnTheScreen(window, counted!), Is.LessThan(LeftEdgeOnTheScreen(window, clock)),
+            "and it does so left of the clock, which keeps the corner the reference gave the time");
+
+        queue.Dequeue();
+        Pump(6);
+        Assert.That(SaidOnTheScreen(window, "(1)"), Is.Null,
+            "one notification is a picture that says it all - the reference counted only from the second one "
+            + "(NotificationsModel.cs:109-112)");
+
+        List<Avalonia.Controls.Shapes.Path> drawn = GlyphsOnTheScreen(window);
+        Assert.That(drawn, Is.Not.Empty,
+            "and the hint stands on a picture out of the skin's own vectors, not beside an empty space");
+      }
+      finally
+      {
+        Close(window);
+      }
+    }
+
+    /// <summary>
+    /// The pictures of the bar stand on one line. They are cut from different shapes - the connected mark is a wide
+    /// link, half as high as it is wide, the recording a full circle - so a mark that keeps to the top of the plate it
+    /// was given makes the row walk downhill, which is what this catches: every picture has to come to rest with its
+    /// own middle on the middle of the line, however it is shaped.
+    /// </summary>
+    [AvaloniaTest]
+    public void ThePicturesOfTheBarStandOnOneLine()
+    {
+      WearTheShippedSkinPictures();
+      WithHeader(WIDE, out ShellWindow window, out TextBlock clock, out double width);
+      try
+      {
+        NotificationQueue queue = new NotificationQueue();
+        window.Chrome.AttachNotifications(queue);
+        queue.Enqueue(NotificationType.Info, "the server was quicker", "it dropped two frames");
+        window.Chrome.ReportServerActivity(ServerActivityState.Filing, "Filing the library", 40);
+        window.Chrome.ReportRecording(true);
+        window.Chrome.ReportRecordingNotice("The nightly film is being written down");
+        Pump(6);
+
+        List<Avalonia.Controls.Shapes.Path> drawn = GlyphsOnTheScreen(window);
+        Assert.That(drawn.Count, Is.GreaterThanOrEqualTo(3),
+            "the hint, what the server is doing and the recording are all standing on the line; the line drew: "
+            + OnTheScreen(window));
+
+        double middle = HeightOnTheScreen(window, drawn[0]);
+        foreach (Avalonia.Controls.Shapes.Path glyph in drawn)
+        {
+          Assert.That(HeightOnTheScreen(window, glyph), Is.EqualTo(middle).Within(1.0),
+              "a wide link, a percentage circle and a round recording mark have to sit on one line, not one at the "
+              + "top of its plate and the next at the bottom of its own");
+
+          // And the middle of the box has to be the middle of the drawing: a shape stretched into a box of a told
+          // size keeps to the top of that box, so a box wider than its art - which a mark cut from a wide link is
+          // the moment somebody hands it a square - shows a mark that sits above the line it is supposed to be on.
+          double plate = glyph.Bounds.Width / glyph.Bounds.Height;
+          double art = glyph.Data!.Bounds.Width / glyph.Data!.Bounds.Height;
+          Assert.That(plate, Is.EqualTo(art).Within(0.05 * art),
+              "the picture of " + (glyph.Data!.Bounds.Width > glyph.Data!.Bounds.Height
+                  ? "a wide mark" : "a tall mark") + " was stretched into a plate that does not hug it, so it is not "
+                  + "standing where its plate says it is");
+        }
+      }
+      finally
+      {
+        Close(window);
+      }
+    }
+
+    /// <summary>
+    /// The pictures the head line is drawing right now - a shape with a geometry behind it that has not been asked to
+    /// hide. A glyph whose name the skin does not carry loads no geometry, so an empty list here means the bar drew
+    /// nothing at all.
+    /// </summary>
+    private static List<Avalonia.Controls.Shapes.Path> GlyphsOnTheScreen(ShellWindow window)
+    {
+      return window.GetVisualDescendants().OfType<Avalonia.Controls.Shapes.Path>()
+          .Where(p => p.Data != null && p.IsEffectivelyVisible && p.Bounds.Width > 20).ToList();
+    }
+
+    [Test]
+    public void TheWordsAndPicturesForTheServerStatesAreTheOnesTheHouseholdRecognises()
+    {
+      Assert.That(ServerActivity.Glyph(ServerActivityState.Connected), Is.EqualTo("Notification/connected"),
+          "listening to the server is said as connected");
+      Assert.That(ServerActivity.Glyph(ServerActivityState.Disconnected), Is.EqualTo("Notification/disconnected"),
+          "and losing it, or being refused at the door, as disconnected");
+      Assert.That(ServerActivity.Words(ServerActivityState.NotListening), Is.EqualTo(""));
+      Assert.That(ServerActivity.Glyph(ServerActivityState.NotListening), Is.EqualTo(""));
+    }
+
+    /// <summary>
+    /// A head line that draws a picture the worn skin does not carry would draw nothing, and the state would go
+    /// uncommunicated in exactly the moment it matters. So the names are asked of the skin they are drawn from.
+    /// </summary>
+    [AvaloniaTest]
+    public void ThePicturesTheHeadLineDrawsAreCarriedByTheWornSkin()
+    {
+      Application app = Application.Current!;
+      WearTheShippedSkinPictures();
+      Assert.That(SkinEngine.Apply(app, "nereus", out string? problem), Is.True, problem ?? "applied");
+      try
+      {
+        WornSkin worn = SkinEngine.Worn(app)!;
+        List<string> wanted = new List<string>
+        {
+          ServerActivity.Glyph(ServerActivityState.Connected),
+          ServerActivity.Glyph(ServerActivityState.Disconnected),
+          ServerActivity.Glyph(ServerActivityState.Filing),
+          ServerActivity.Glyph(ServerActivityState.Connecting),
+          "Notification/recording"
+        };
+        foreach (NotificationType type in Enum.GetValues(typeof(NotificationType)))
+          wanted.Add(UiNotification.IconFor(type));
+
+        foreach (string glyph in wanted)
+        {
+          Assert.That(glyph, Is.Not.Empty, "a state the head line knows nothing about is not a state");
+          Assert.That(worn.Vectors.Has(glyph), Is.True, "the worn skin carries no picture called " + glyph);
+          Assert.That(worn.Vectors.Load(glyph), Is.Not.Null,
+              "the worn skin has " + glyph + " but it does not read as a shape");
+        }
+      }
+      finally
+      {
+        SkinEngine.Clear(app);
+      }
+    }
+
+    /// <summary>The words a head line is saying, for a failure message that has to be read by a person.</summary>
+    private static string OnTheScreen(ShellWindow window)
+    {
+      return string.Join(" | ", window.GetVisualDescendants().OfType<TextBlock>().Select(t => "'" + t.Text + "'"));
+    }
+
+    /// <summary>Finds a word the head line is drawing, by what it says.</summary>
+    private static TextBlock? SaidOnTheScreen(ShellWindow window, string words)
+    {
+      return window.GetVisualDescendants().OfType<TextBlock>().FirstOrDefault(t => t.Text == words);
+    }
+
+    /// <summary>
+    /// Where the clock is drawn, in the window's own coordinates. The head line is scaled as a whole when it has    /// to be, so a control inside it keeps the size it asked for while the picture of it on the screen is
     /// smaller; a test that read <c>Bounds</c> would be reading the wish and not the drawing, which is exactly
     /// the difference between a clock that fits and one whose last digit is off the television.
     /// </summary>
-    private static double LeftEdgeOnTheScreen(ShellWindow window, TextBlock clock)
+    private static double LeftEdgeOnTheScreen(ShellWindow window, Control thing)
     {
-      return Where(window, clock, new Point(0, 0)).X;
+      return Where(window, thing, new Point(0, 0)).X;
     }
 
-    private static double RightEdgeOnTheScreen(ShellWindow window, TextBlock clock)
+    private static double RightEdgeOnTheScreen(ShellWindow window, Control thing)
     {
-      return Where(window, clock, new Point(clock.Bounds.Width, 0)).X;
+      return Where(window, thing, new Point(thing.Bounds.Width, 0)).X;
     }
 
-    private static double WidthOnTheScreen(ShellWindow window, TextBlock clock)
+    private static double WidthOnTheScreen(ShellWindow window, Control thing)
     {
-      return RightEdgeOnTheScreen(window, clock) - LeftEdgeOnTheScreen(window, clock);
+      return RightEdgeOnTheScreen(window, thing) - LeftEdgeOnTheScreen(window, thing);
     }
 
-    private static Point Where(ShellWindow window, TextBlock clock, Point inside)
+    /// <summary>The height a thing is standing at on the screen, taken through its own middle.</summary>
+    private static double HeightOnTheScreen(ShellWindow window, Control thing)
     {
-      Point? onScreen = clock.TranslatePoint(inside, window);
-      Assert.That(onScreen, Is.Not.Null, "the clock is not on the screen at all");
+      return Where(window, thing, new Point(thing.Bounds.Width / 2, thing.Bounds.Height / 2)).Y;
+    }
+
+    private static Point Where(ShellWindow window, Control thing, Point inside)
+    {
+      Point? onScreen = thing.TranslatePoint(inside, window);
+      Assert.That(onScreen, Is.Not.Null, "the thing is not on the screen at all");
       return onScreen!.Value;
     }
 

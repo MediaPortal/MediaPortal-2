@@ -4670,6 +4670,82 @@ model does not push an answer back out of a box somebody is typing in. Reverting
 complaint back verbatim out of the first test: *"the switch named demoCheck shows False although True was written
 down"*. `TestTvBackend.TheFileHoldsTheAnswersAndNotTheThingsWorkedOutOfThem` pins the file's contents.
 
+### by. The notices in the header's line, and what the server says about itself
+
+Reference: `screens/NotificationsBar.inc:15-16`, `:19-33` and `:35-39`, `screens/master_home.xaml:184` and `:189`,
+`themes/default/styles/Buttons.xaml:1717-1739` (the recording glyph, blinking) and `:1740` (the importing glyph),
+`themes/default/styles/OtherControlsOverrides.xaml:2089` (the hint), `screens/WatchSystemNotifications.xaml`,
+`Models/NotificationsModel.cs:104-135`, `General/Consts.cs:117-120`, and
+`Source/Core/MediaPortal.UI/Presentation/UiNotifications/INotificationService.cs`.
+
+The complaint was that a sentence about the server stood to the right of the clock, date and weather. In the reference
+no notice ever stood there: `master_home.xaml:189` puts the bar in the top line *before* the clock, and
+`NotificationsBar.inc` is a horizontal stack of the hint, the importing glyph with its percentage, and the recording
+glyph. Nothing in it is a word of sentence: the hint is an eighty square picture that gains a `(2)` under it as soon as
+a second notice joins (`Buttons.xaml:1983-2029` with `NotificationsModel.cs:109-112`), the importer a circle with
+`{0}%` under it (`NotificationsBar.inc:29-31`), and the recording a blinking picture with nothing at all beside it
+(`Buttons.xaml:1717-1731`). It is ported that way - pictures, `(N)` and `%`, and the long sentences moved onto the
+glyphs' tooltips - and extended for the two states the reference never had a glyph for.
+
+- **Where the cluster stands.** Each master of the reference hung the bar into its own top row immediately after that
+  master's corner buttons (`master_home.xaml:184`, `master_bare.xaml:109`), which is the end of the row away from the
+  clock. Here the header *floats* over the home screen (`ShellWindow.SetChromeHeaderOverlay`), so a cluster docked at
+  the left end of that floating line lies across the menu entries it is drawn over - which is exactly what it did
+  before. The cluster is now docked right, after the clock's `Viewbox` in markup so that it lands left of the time,
+  and its pictures are 46 in a 66 plate, the size the home's own corner buttons use (`styles.xaml:206-230`).
+- **The pictures stand on one line.** A `Path` stretched uniformly into a plate of a *told* size keeps to the top of
+  that plate, so the connected mark - a wide link, half as high as it is wide - hung at the top edge while the
+  recording's full circle filled its plate right through, and the row walked downhill. Given a ceiling
+  (`MaxWidth`/`MaxHeight`) instead of a box, a mark measures at its own shape and the plate centres it.
+  `TestChromeHeader.ThePicturesOfTheBarStandOnOneLine` checks both halves: the middles agree, and no plate is out of
+  proportion with the art inside it, which is the only way a test can tell a centred mark from one stuck at the top.
+
+- **The queue** is `Notifications/NotificationQueue`: the head is the notice to read next, an urgent one is inserted at
+  the head rather than queued behind the world's business, offering a notice that is already waiting moves it instead
+  of doubling it, and expiry is checked by the header's existing fifteen-second clock rather than by a timer of its
+  own. `Changed` and `Arrived` are raised outside the lock, because a listener takes the queue's lock to look at it.
+  The shape is the reference's: `NotificationsModel.cs:104-113` read a count, peeked at the next one, and popped it in
+  a screen of its own.
+- **The hint hides itself while it is being read.** `NotificationsModel.cs:104` shows the hint only while the
+  watch-notifications state is *not* already on the navigation stack; `ChromeInfo.HideNotificationHint` does the same,
+  driven from the workflow's `Changed` in `App.axaml.cs`.
+- **Four types, four glyphs, three pictures.** The reference chose its picture from the notification's type
+  (`NotificationsModel.cs:119-134`) out of the four names in `General/Consts.cs:117-120`. Here they are vectors in
+  `Skins/Nereus/images/Notification/` and `Skins/WMC/images/Notification/`, and `UiNotification.IconFor` maps error to
+  the error glyph, warning to the warning glyph, and everything else - `UserInteractionRequired` included - to the
+  info glyph, because the reference's fourth glyph only ever existed as a bitmap and a wrong-but-sharp picture in the
+  header line beats a hole in it.
+- **Two states the reference could not have**, because its client never spoke about the connection in the header:
+  `Theming/ServerActivityState.cs` answers `connected`, `disconnected`, `connecting`, and the importing word with the
+  percentage in its place. The percentage standing where a word would is the reference's own idea - the importing
+  cluster prints `{0}%` (`NotificationsBar.inc:29-31`) - applied to a job that is filing rather than to a library.
+  A dropped connection files a notification too (`HomeViewModel`'s sign-in refusal, at the server's own screen), so
+  the word in the line and the thing waiting to be read say the same thing.
+- **The blink is on the model's word, not on the picture.** The reference blinked the recording image with a
+  storyboard started inside its own button template (`Buttons.xaml:1722-1731`). Avalonia 12.1.4 has no animation
+  attached property reachable from loose skin markup - `<Path.Animations>` is AVLN2000 and a `Setter Property="Opacity"`
+  inside a loose key frame is AVLN2200 - and because skin `.xaml` is XAML-*compiled* at build, markup that does not
+  compile takes the whole skin down with it. `ChromeInfo.RecordingMarkVisible` therefore flips on a seven-hundred
+  millisecond timer and the picture only asks whether it may show.
+- **Still deferred**: the reference's recording card in the bottom right corner
+  (`Skin/default/screens/SlimTvClient-notification_recording.xaml`, promised under `bv.`). `ShellWindow.ShowSuperlayer`
+  and `HideSuperlayer` share one layer with the volume and busy displays, so a card that hides after a while would
+  switch the volume bar off with it; the recording's sentence stays in the header cluster until that layer is split.
+
+Tested by `TestNotifications` (order, urgency, a notice offered twice, expiry, removal, the loudest type waiting, the
+header's state turning into glyph and word with `30%` standing in for a word, the hint counting and hiding itself while
+the dialog stands open, a notification's command running, the bar carrying pictures while its sentences stay behind
+them on the tooltips, and the dialog reading one notice at a time, handling one, being dismissed, and saying when it has
+run out of things to say), the new cases in `TestChromeHeader` - among them that every picture of the bar stands left of
+the clock and on one line with the others, that no word of a server sentence is drawn on the line at all, and that the
+pictures the line draws come out of the skin the front end ships - and two new cases in `TestMediaEventStream`, which
+ask for `Connected` while the stream runs and `NotListening` once it has been stopped. Three tests were red before this
+part and are red after it: `AShortcutWithoutItsVectorYetDrawsItsGlassWithoutAGlyph` and
+`TheIconsTheSkinCarriesAreShapesAndNotPictures` want loose skin pictures resolvable in a test run, and
+`WalkingDownToAChannelBelowTheScreenBringsItInAtTheBottom` fails identically at this commit's parent - it stands the
+cursor on a demo programme whose neighbour on the next channel ends exactly at that minute, so whether it passes depends
+on the hour it is run at.
+
 ## What cannot be verified without the user
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library
 import. These need hardware and judgement that are not in this environment, and they are batched into

@@ -19,9 +19,9 @@
        the week over the temperature) to the left of the picture, right aligned against it. The clock is
        HeadlineTimeFontSize, not DateTimeFontSize: the reference drew its two lines at 21 of its 1080 lines
        and its clock at 55, so the clock came as high as the two lines stacked, and this face draws those
-       lines at SmallerFontSize (27) - 27 grown by 55 over 21 is the 71 below. What the machines at home are
-       doing is said between the words and the time, in the space the reference's notification bar had inside its
-       screens - see the bar below. -->
+       lines at SmallerFontSize (27) - 27 grown by 55 over 21 is the 71 below. What the machines at home are doing is
+       said at this same end of the line, in pictures and left of the clock: the reference's right corner carried the
+       clock, the day and the weather and nothing else (master_home.xaml:189) - see the bar below. -->
   <ControlTemplate x:Key="ChromeHeaderTemplate" TargetType="ContentControl">
     <!-- No background here. The reference's header row is transparent - master_home.xaml docks a HeaderPanel
          that carries no fill, so the fanart of the screen below reaches the very top edge behind the words,
@@ -48,31 +48,6 @@
            asked for; shrunk it scales the cluster down as a whole, which keeps the reference's ratio of the two
            quiet lines to the clock intact instead of robbing one part of its height. The gutter to the screen
            title sits on the Viewbox rather than inside it, so it stays a full 10 when the rest is scaled down. -->
-      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="14" VerticalAlignment="Center"
-                  Margin="0,0,10,0">
-        <!--
-          What the machines at home are doing while the viewer stands here. The reference kept this in
-          <c>Nereus/screens/NotificationsBar.inc</c>, a bar of its own standing inside the screens, and it said
-          three things there: what the importer was doing at the library, a sentence the moment a recording started
-          or ended, and a mark the whole time a recording was running. This front end has one header above every
-          screen instead of a bar inside each of them, so all three are said in the one place a viewer is already
-          looking at - which is the whole point the bar had - between the screen's words and the time. The mark is
-          red because a recording is the one thing on this screen that is happening whether the viewer watches it or
-          not.
-        -->
-        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center"
-                    IsVisible="{Binding IsRecording}">
-          <Border Width="14" Height="14" CornerRadius="7" Background="#D0402F" VerticalAlignment="Center"/>
-          <TextBlock Text="recording" Foreground="{DynamicResource MutedTextBrush}"
-                     FontSize="{DynamicResource SmallerFontSize}" VerticalAlignment="Center"/>
-        </StackPanel>
-        <TextBlock Text="{Binding RecordingNotice}" IsVisible="{Binding HasRecordingNotice}"
-                   Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource SmallerFontSize}"
-                   VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="420"/>
-        <TextBlock Text="{Binding ServerNotice}" IsVisible="{Binding HasServerNotice}"
-                   Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource SmallerFontSize}"
-                   VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="420"/>
-      </StackPanel>
       <Viewbox DockPanel.Dock="Right" Stretch="Uniform" StretchDirection="DownOnly"
                VerticalAlignment="Center" Margin="10,0">
         <Grid ColumnDefinitions="Auto,Auto,Auto">
@@ -94,6 +69,83 @@
                      Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeadlineTimeFontSize}"/>
         </Grid>
       </Viewbox>
+      <!--
+        What the machines at home are doing while the viewer stands here, said the way the reference said it: as
+        pictures, with no sentence and no word beside them. Its bar (NotificationsBar.inc, hung into every master's
+        top row - master_home.xaml:184, master_bare.xaml:109) carried three: the hint, which was an eighty square
+        holding the picture of the loudest thing waiting and "(2)" under it as soon as a second one joined
+        (Buttons.xaml:1983-2029), the importer, which was a turning circle with nothing but its percentage under it
+        (Buttons.xaml:1740 with NotificationsBar.inc:29-31), and the recording, which was a blinking picture and
+        nothing at all beside it (Buttons.xaml:1717-1731). So there is no "recording" here, no "connected" and no
+        "disconnected": the glyph is the whole saying, and the long sentence that came with a state - how long until
+        the next try, which directory is being filed, what the TV machine just wrote down - waits on that glyph's
+        tooltip, where it can be read without taking room off the line.
+
+        It stands at the right end of the line, and to the LEFT of the clock: the corner furthest right belongs to the
+        time, the day and the weather and nothing else (master_home.xaml:189), while the left end belongs to the screen
+        - which at home is the menu this very line floats over, so a mark put there lies across the menu entries.
+
+        Every picture is handed a ceiling rather than a box to fill. A shape stretched uniformly into a box of a told
+        size keeps to the top of that box, so the wide link of a connected mark - which is half as tall as it is wide -
+        would hang at the top edge of its plate while the full circle of a recording filled its plate right through,
+        and the row of pictures would walk downhill. Given a ceiling, a mark measures at its own shape and the plate it
+        stands on centres it, which is what puts every one of them on the same line.
+      -->
+      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center"
+                  Margin="0,0,14,0">
+        <!-- The hint, and the number of what waits under it. -->
+        <Button Command="{Binding OpenNotificationsCommand}" IsVisible="{Binding HasNotifications}"
+                ToolTip.Tip="Things the household has been told and has not read"
+                Width="66" Height="66" Background="Transparent" BorderThickness="0" Padding="0">
+          <DockPanel>
+            <!--
+              Every plate keeps the same strip at its bottom for the number that belongs under its picture, whether
+              that number is being said or not. That is what lets the reference's stacking - the picture, and the
+              "(2)" or the "40%" underneath it (Buttons.xaml:2023-2029, NotificationsBar.inc:29-31) - stand next to a
+              picture with nothing under it without the three of them coming to rest on different lines.
+            -->
+            <TextBlock DockPanel.Dock="Bottom" Height="18" TextAlignment="Center"
+                       Text="{Binding NotificationCountWords}" Foreground="{DynamicResource TextBrush}"
+                       FontSize="{DynamicResource TinyFontSize}"/>
+            <Path Data="{Binding NotificationIcon, Converter={x:Static views:SkinIconGeometryConverter.Instance}}"
+                  Fill="{DynamicResource TextBrush}" MaxWidth="46" MaxHeight="46" Stretch="Uniform" Opacity="0.75"
+                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </DockPanel>
+        </Button>
+        <!--
+          What the deal with the server is: connected while its news arrives on its own, disconnected when it has
+          stopped or been refused at the door, the importer's circle - and the one number worth the ink - while it is
+          at work in the library.
+        -->
+        <Panel IsVisible="{Binding HasActivity}" Width="66" Height="66" ToolTip.Tip="{Binding ServerNotice}">
+          <DockPanel>
+            <TextBlock DockPanel.Dock="Bottom" Height="18" TextAlignment="Center"
+                       Text="{Binding ActivityPercent}" Foreground="{DynamicResource TextBrush}"
+                       FontSize="{DynamicResource TinyFontSize}"/>
+            <Path Data="{Binding ActivityIcon, Converter={x:Static views:SkinIconGeometryConverter.Instance}}"
+                  Fill="{DynamicResource TextBrush}" MaxWidth="46" MaxHeight="46" Stretch="Uniform" Opacity="0.75"
+                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </DockPanel>
+        </Panel>
+        <!--
+          A recording, blinking the way the reference's recording picture blinked (Buttons.xaml:1722-1731), for as long
+          as it runs rather than only at the moment it began - and blinked by the head line's model, because an
+          animation is one of the things loose skin markup cannot carry. Red because a recording is the one thing on
+          this screen that happens whether the viewer watches it or not; its sentence is what the tooltip says.
+        -->
+        <Panel IsVisible="{Binding IsRecording}" Width="66" Height="66" ToolTip.Tip="{Binding RecordingNotice}">
+          <DockPanel>
+            <!-- The recording has no number under it, and keeps the strip anyway: taking it away would lift its
+                 mark nine units above the two pictures it stands beside. -->
+            <Panel DockPanel.Dock="Bottom" Height="18"/>
+            <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                  ConverterParameter=Notification/recording}"
+                  Fill="#D0402F" MaxWidth="46" MaxHeight="46" Stretch="Uniform"
+                  HorizontalAlignment="Center" VerticalAlignment="Center"
+                  IsVisible="{Binding RecordingMarkVisible}"/>
+          </DockPanel>
+        </Panel>
+      </StackPanel>
       <TextBlock Text="{Binding ScreenTitle}"
                  Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeaderFontSize}"
                  VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>

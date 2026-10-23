@@ -71,6 +71,14 @@ namespace MediaPortal.Frontend
     private ViewModels.TvRecordingWatcher? _recordings;
 
     /// <summary>
+    /// The things the household has been told and has not read: the importer's news, a server that would not let this
+    /// front end listen, a frame that was dropped. The head line's hint counts it and the dialog reads it, which is
+    /// the arrangement the reference's notification bar had (<c>Skin/Nereus/screens/NotificationsBar.inc</c> and
+    /// <c>screens/WatchSystemNotifications.xaml</c>).
+    /// </summary>
+    private readonly Notifications.NotificationQueue _notifications = new Notifications.NotificationQueue();
+
+    /// <summary>
     /// The channel pictures a guide is to be built over, on the shelf this front end keeps its pictures on - which
     /// is the media settings' answer, and no shelf at all on a box whose viewer switched the remembering off.
     /// </summary>
@@ -376,14 +384,34 @@ namespace MediaPortal.Frontend
         // when the server falls silent.
         _home.PropertyChanged += delegate (object? sender, PropertyChangedEventArgs args)
         {
-          if (args.PropertyName == nameof(ViewModels.HomeViewModel.ServerActivity))
-            _shell?.Chrome.ReportServerActivity(_home.ServerActivity);
+          if (args.PropertyName == nameof(ViewModels.HomeViewModel.ServerActivity)
+              || args.PropertyName == nameof(ViewModels.HomeViewModel.ServerState)
+              || args.PropertyName == nameof(ViewModels.HomeViewModel.ServerFilingPercent))
+          {
+            // The state is what the head line draws a picture of, the sentence is what the picture cannot say, and
+            // the percentage goes where the reference printed its importer's number. All three come from one call in
+            // the model, so they cannot disagree about what the server is doing.
+            _shell?.Chrome.ReportServerActivity(_home.ServerState, _home.ServerActivity, _home.ServerFilingPercent);
+          }
 
           // The skin's own answers belong to whoever is signed in, like they did in the reference: the
           // signed-in name names the skin settings file from this moment on, and every screen that reads
           // them again - which is every screen that reads them at all - reads that person's answers.
           if (args.PropertyName == nameof(ViewModels.HomeViewModel.SignedInAs))
             Settings.SkinSettingsBase.FileOwner = _home.SignedInAs;
+        };
+
+        // The queue of what has not been read yet, hooked to both ends it has: the screen that hears things worth
+        // filing hands it over, and the head line counts it. Between them is the hint the reference's bar carried,
+        // and pressing that reads the queue one at a time - which is what its notification button did.
+        _home.AttachNotifications(_notifications);
+        _shell.Chrome.AttachNotifications(_notifications);
+        _shell.Chrome.NotificationsRequested += OpenNotifications;
+        _workflow.Changed += delegate
+        {
+          // While the queue is being read out, the hint that counts it is the same number said twice; the reference
+          // hid it exactly then (SkinBase/Models/NotificationsModel.cs:104-112).
+          _shell?.Chrome.HideNotificationHint(_workflow.Current?.StateId == "notifications");
         };
 
         desktop.MainWindow = _shell;
@@ -733,6 +761,33 @@ namespace MediaPortal.Frontend
     /// the name picked owns the skin's answers from here (and the colours change with it), while "nobody
     /// in particular" leaves them shared; either way the step aside is the same pop.
     /// </summary>
+    /// <summary>
+    /// Reads the queue out loud: raises the dialog over whatever screen the viewer was standing on, one notification
+    /// at a time. Called by the head line's hint, which is the only way into it - the reference's bar's button was
+    /// the only way into its dialog too.
+    /// </summary>
+    private void OpenNotifications()
+    {
+      if (_notifications.Count == 0)
+        return;
+
+      ViewModels.NotificationsViewModel model = new ViewModels.NotificationsViewModel(_notifications);
+      model.HandleRequested += OpenNotifiedScreen;
+      _workflow.Push(new Workflow.WorkflowFrame("notifications", "Notifications", model));
+    }
+
+    /// <summary>
+    /// Goes to the screen a notification was about, which is what the reference's second button did: acknowledging a
+    /// thing and going to deal with it are different answers, and the household should be allowed either.
+    /// </summary>
+    private void OpenNotifiedScreen(string screen)
+    {
+      // Only the screens the front end can name from here are answered. Asking for a screen this application does not
+      // know is not an error - the notification has been read either way - so an unknown name is simply left alone.
+      if (screen == "server")
+        _workflow.Push(ConnectionFrame());
+    }
+
     private Workflow.WorkflowFrame ViewerFrame()
     {
       ViewerPickerViewModel viewModel = new ViewerPickerViewModel(() => _home.Client, ApplyViewer);
@@ -971,6 +1026,11 @@ namespace MediaPortal.Frontend
       // own, which is the one that knows what was pressed and what the backend said about it.
       if (state == "programactions")
         return new TvProgramActionsView((TvGuideViewModel)frame.ViewModel, _workflow);
+
+      // The queue read out loud, wearing the skin's dialog frame: the shelf or the guide stays lit behind it, because
+      // a notification is a word spoken to somebody who is doing something (WatchSystemNotifications.xaml).
+      if (state == "notifications")
+        return new NotificationsView((NotificationsViewModel)frame.ViewModel, _workflow);
 
       if (state == "schedules" || state == "recordings")
         return new TvSchedulesView((TvSchedulesViewModel)frame.ViewModel);
