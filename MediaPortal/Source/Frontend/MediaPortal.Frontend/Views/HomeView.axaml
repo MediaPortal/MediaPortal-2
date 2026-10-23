@@ -463,11 +463,12 @@
                                    IsVisible="{Binding IsTitle}"/>
                             <Border Classes="home-tile-caption"
                                     VerticalAlignment="Bottom"
-                                    Padding="8,5">
+                                    Padding="8,5,8,10">
                               <TextBlock Classes="home-tile-caption-title"
                                          Text="{Binding Label}"
                                          FontSize="15"
                                          FontWeight="SemiBold"
+                                         VerticalAlignment="Bottom"
                                          TextTrimming="CharacterEllipsis"
                                          MaxLines="2"/>
                             </Border>
