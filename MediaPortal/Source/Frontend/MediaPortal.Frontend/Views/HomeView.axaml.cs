@@ -1358,12 +1358,17 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
-    /// A row of the "left half way" strip was pressed. The application is the one that starts the film - it owns
-    /// the player - so this screen only gets out of the way and shows the playback, the same screen the
-    /// "Now playing" button shows.
+    /// A row of the "left half way" strip or of the content wall was pressed. The application is the one that
+    /// starts the film - it owns the player - so this screen only gets out of the way and shows the playback,
+    /// the same screen the "Now playing" button shows. A title that holds others is the one exception: the
+    /// application opens what stands inside it instead of playing, and a player screen pushed beside an
+    /// album that just opened is a screen about a film that was never started.
     /// </summary>
     private void OnResumeRequested(object? sender, TitleViewModel title)
     {
+      if (title.HoldsTitles)
+        return;
+
       PushNowPlaying();
     }
 

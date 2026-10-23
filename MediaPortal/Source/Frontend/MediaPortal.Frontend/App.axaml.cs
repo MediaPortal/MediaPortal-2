@@ -325,11 +325,12 @@ namespace MediaPortal.Frontend
             });
           };
 
-          // A title picked on the home screen's "left half way" strip is played by exactly the same code as a
-          // title picked in the library - same player, same media id handed to the reporter, so finishing it
-          // updates the same library the strip read from.
-          _home.ResumeRequested += OnTitleChosen;
-          desktop.Exit += delegate { _home.ResumeRequested -= OnTitleChosen; };
+          // A title picked on the home screen's "left half way" strip or its content wall is played by exactly
+          // the same code as a title picked in the library - same player, same media id handed to the reporter,
+          // so finishing it updates the same library the strip read from - except for the titles that hold
+          // others, which are opened there just as they are opened in the shelf.
+          _home.ResumeRequested += OnHomeTitlePressed;
+          desktop.Exit += delegate { _home.ResumeRequested -= OnHomeTitlePressed; };
 
           // Ask for the pictures now, before anything is open: an engine decides how it will deliver them when a
           // media starts, so a sink offered afterwards is a question asked after the answer. Refusing is not a
@@ -1447,6 +1448,26 @@ namespace MediaPortal.Frontend
       }
 
       return _party;
+    }
+
+    /// <summary>
+    /// A title pressed on the home screen - the content wall or the "left half way" strip. What stands inside
+    /// it opens, the same frame the shelf opens when its viewer presses OK on an album: the reference's wall
+    /// was built of albums, seasons and collections, and a wall that answers "the server did not name a file"
+    /// to a press on an album is a wall that does not know its own library. Everything else plays.
+    /// </summary>
+    private void OnHomeTitlePressed(object? sender, TitleViewModel title)
+    {
+      if (title.HoldsTitles && sender is HomeViewModel home
+          && home.Client != null && home.SelectedEntry?.Section is HomeSection section)
+      {
+        Console.WriteLine("inside:   " + title.Name + " - the titles inside it, from " + section.Label);
+        _workflow.Push(TitlesFrame(
+            new MediaBrowserViewModel(home.Client, section, title, home.Pictures), title.Name));
+        return;
+      }
+
+      OnTitleChosen(sender, title);
     }
 
     /// <summary>

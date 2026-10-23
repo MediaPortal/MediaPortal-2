@@ -71,6 +71,16 @@ namespace MediaPortal.Frontend.ViewModels
     /// </summary>
     private readonly bool _holdsTitles;
 
+    /// <summary>
+    /// Whether pressing this row opens what stands inside it rather than playing it. Whoever reads a list
+    /// knows the aspect it was read through and says it here; whoever presses a row - the shelf, the home
+    /// wall, the watched strip - asks this instead of guessing from a title that has no file either way.
+    /// </summary>
+    public bool HoldsTitles
+    {
+      get { return _holdsTitles; }
+    }
+
     private MediaTitle _title;
 
     public TitleViewModel(MediaTitle title, bool holdsTitles = false, ServerApiClient? stream = null)
@@ -662,7 +672,7 @@ namespace MediaPortal.Frontend.ViewModels
       // setting behind it - the Media button puts the question on the screen itself, next to the View
       // button, and a screen keeps the answer its viewer gave it there.
       _tileKind = RememberedMedia() ?? (_skinSettings == null ? GridViewType.Poster : TileKindFor(AspectName, _skinSettings));
-      HasTiles = SkinEngine.TryTileTemplate(TileKey(_tileKind)) != null;
+      HasTiles = MusicTemplateKey != null || SkinEngine.TryTileTemplate(TileKey(_tileKind)) != null;
       // The cover is the third view of the reference's view mode, and since the viewer asked for it on every
       // screen it is a view rather than a privilege of one skin: a skin that draws its own covers gets its
       // own, and every other screen gets this front end's cover frame. The remembered shape below is what
@@ -826,17 +836,67 @@ namespace MediaPortal.Frontend.ViewModels
     /// <summary>The key a skin answers when it draws covers at all.</summary>
     internal const string COVER_TEMPLATE_KEY = "MediaTileCoverTemplate";
 
+    /// <summary>The frame a skin draws for an album's square.</summary>
+    internal const string ALBUM_TEMPLATE_KEY = "MediaTileAlbumTemplate";
+
+    /// <summary>The frame a skin draws for a track's square.</summary>
+    internal const string TRACK_TEMPLATE_KEY = "MediaTileTrackTemplate";
+
+    /// <summary>
+    /// Whether this shelf holds music, which is settled by the aspect and by nothing else: the reference drew
+    /// its audio tiles as squares - <c>AUDIO_GRID_WIDTH</c> x <c>AUDIO_GRID_HEIGHT</c>, 205x195 - for every
+    /// view mode and every skin setting, while its grid-type setting names films, series and seasons only.
+    /// Music therefore never asks the poster question.
+    /// </summary>
+    private bool IsMusic
+        => string.Equals(AspectName, "AlbumItem", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(AspectName, "AudioItem", StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// The square frame the worn skin draws for this shelf's music, or <c>null</c> when it draws none - in
+    /// which case the shelf wears whatever frame the layout asks for, as every other skin's media does.
+    /// </summary>
+    private string? MusicTemplateKey
+    {
+      get
+      {
+        if (!IsMusic)
+          return null;
+
+        string key = string.Equals(AspectName, "AlbumItem", StringComparison.OrdinalIgnoreCase)
+            ? ALBUM_TEMPLATE_KEY
+            : TRACK_TEMPLATE_KEY;
+        return SkinEngine.TryTileTemplate(key) != null ? key : null;
+      }
+    }
+
+    /// <summary>
+    /// Whether the viewer may pick the picture a tile wears. Music says no: its tile has one picture, the
+    /// album's cover, and a button that offers three shapes to a shelf that answers one is a button that lies.
+    /// </summary>
+    public bool CanChooseMedia
+    {
+      get { return !IsMusic; }
+    }
+
     /// <summary>The template name the list on screen asks the skin for, whichever layout it stands in.</summary>
     public string GridTemplateKey
     {
       get
       {
-        return Layout switch
-        {
-          BrowserLayout.Cover => COVER_TEMPLATE_KEY,
-          BrowserLayout.List => "TitleRowTemplate",
-          _ => TileKey(_tileKind)
-        };
+        // The rows come first, for music too: the reference drew its audio LIST as text - the title, its year,
+        // its rating, its track count - and kept the squares for the grid and the cover view alone
+        // (ListViewAudioItemTemplate against GridViewAudioItemTemplate). A list of squares is what the viewer
+        // here rightly called "the cover as a list" - the reference's real list says the names.
+        if (Layout == BrowserLayout.List)
+          return "TitleRowTemplate";
+
+        // The music square outranks every other frame the layout could ask for: the reference's audio cover
+        // view is as square as its audio grid, so walking a music shelf from tiles into covers never makes
+        // its covers grow a film case around them.
+        return MusicTemplateKey ?? (Layout == BrowserLayout.Cover
+            ? COVER_TEMPLATE_KEY
+            : TileKey(_tileKind));
       }
     }
 
@@ -1147,12 +1207,43 @@ namespace MediaPortal.Frontend.ViewModels
     private int _paintGeneration;
 
     /// <summary>
-    /// Whose pictures the rows wear right now: a cover is a poster the reference sized generously, so the
-    /// cover view draws the database's poster blob even on a shelf whose grid wears banners or thumbnails.
+    /// Whose pictures the rows wear right now. Music first and on its own terms: a shelf of albums or tracks
+    /// wears the album's cover, which is what the import stored and what the server hands a track out of its
+    /// album - the database's thumbnail blob is no use here because MP2's audio importer deliberately leaves
+    /// it empty and keeps the picture that came out of a file in the fanart cache. Otherwise a cover is a
+    /// poster the reference sized generously, so the cover view draws the database's poster blob even on a
+    /// shelf whose grid wears banners or thumbnails.
     /// </summary>
     private Artwork? ArtworkForLayout
     {
-      get { return Layout == BrowserLayout.Cover ? _artwork : TileArtworkFor(_tileKind) ?? _artwork; }
+      get
+      {
+        // Music in the layouts that stand squares wears the album's cover; its rows stay the reference's
+        // rows - names and counts, no picture - because the reference's audio list never wore one either.
+        if (IsMusic)
+          return Layout == BrowserLayout.List ? _artwork : CoverArtwork ?? _artwork;
+
+        return Layout == BrowserLayout.Cover ? _artwork : TileArtworkFor(_tileKind) ?? _artwork;
+      }
+    }
+
+    private Artwork? _coverArtwork;
+
+    /// <summary>
+    /// The music shelves' pictures, made once on first asking and kept after that: the cover, asked of the
+    /// server by name rather than read out of the database.
+    /// </summary>
+    private Artwork? CoverArtwork
+    {
+      get
+      {
+        if (_coverArtwork != null || _client == null)
+          return _coverArtwork;
+
+        ServerApiClient client = _client;
+        _coverArtwork = PicturesOf(client, "Cover", id => client.GetFanArtAsync(id, "Cover"));
+        return _coverArtwork;
+      }
     }
 
     /// <summary>
@@ -1187,7 +1278,8 @@ namespace MediaPortal.Frontend.ViewModels
 
     public string MediaLabel
     {
-      get { return "Media: " + _tileKind; }
+      // Music answers one picture, so its screen says which one instead of offering a choice it cannot keep.
+      get { return IsMusic ? "Media: cover" : "Media: " + _tileKind; }
     }
 
     /// <summary>
@@ -1198,6 +1290,12 @@ namespace MediaPortal.Frontend.ViewModels
     [RelayCommand]
     public void SwitchMedia()
     {
+      // Music is not in the rotation. Its square wears the album's cover in every skin and every layout, and
+      // a banner shelf of albums would be a wall of "no banner" placeholders - which is why the button is not
+      // on the screen at all. See CanChooseMedia.
+      if (IsMusic)
+        return;
+
       _tileKind = _tileKind switch
       {
         GridViewType.Poster => GridViewType.Banner,

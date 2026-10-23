@@ -1102,7 +1102,11 @@ namespace MediaPortal.Frontend.ViewModels
           rows.Add(HomeRow.Heading(list.Heading));
           foreach (MediaTitle title in arrived)
           {
-            HomeRow row = HomeRow.For(new TitleViewModel(title, false, _client));
+            // The wall reads through the entry's aspect, so it is the wall that knows whether a pressed
+            // square is a thing to play or a thing to open - an album holds tracks, and the reference's
+            // wall opened the album rather than asking it for a file it never has.
+            HomeRow row = HomeRow.For(new TitleViewModel(title,
+                MediaCatalog.HoldsTitles(section.Aspect.Name), _client));
             rows.Add(row);
             group.AddTitle(row.Title!);
             // The reference's pane is a wall of covers, and a cover arrives a moment after its name - the same

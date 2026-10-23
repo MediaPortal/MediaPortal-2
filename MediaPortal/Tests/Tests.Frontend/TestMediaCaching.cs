@@ -202,6 +202,58 @@ namespace Tests.Frontend
     }
 
     [Test]
+    public async Task AKeptAbsenceAsksAgainOnceItHasAged()
+    {
+      PictureCache shelf = Shelf();
+      IPictureStore posters = shelf.Store("Poster", FIRST_SERVER);
+      Guid title = Guid.NewGuid();
+
+      Func<Task<byte[]?>> none = delegate { return Task.FromResult<byte[]?>(null); };
+      await posters.LoadAsync(title, none);
+      await shelf.FlushAsync();
+
+      // Laying the absence back past its age, the way a day of standing unused does it.
+      foreach (string kept in Directory.GetFiles(_shelf, "*.none", SearchOption.AllDirectories))
+        File.SetLastWriteTimeUtc(kept, DateTime.UtcNow.AddDays(-2));
+
+      // The server has gained the picture since the absence was proven - a tag extractor ran, a fanart was
+      // filled in by hand - and a shelf that never asked again would hide it for the life of the disk.
+      int asked = 0;
+      byte[]? nowThere = await posters.LoadAsync(title, delegate
+      {
+        asked++;
+        return Task.FromResult<byte[]?>(new byte[] { 5, 6 });
+      });
+
+      Assert.That(asked, Is.EqualTo(1), "an absence past its age is a question again, not an answer");
+      Assert.That(nowThere, Is.EqualTo(new byte[] { 5, 6 }));
+
+      // And a second aged absence still answers for its day: the renewed stamp keeps the question from being
+      // asked on every tile again.
+      PictureCache again = Shelf();
+      IPictureStore banners = again.Store("Banner", FIRST_SERVER);
+      Guid other = Guid.NewGuid();
+      int askedTwice = 0;
+      Func<Task<byte[]?>> askedOnce = delegate
+      {
+        askedTwice++;
+        return Task.FromResult<byte[]?>(null);
+      };
+
+      await banners.LoadAsync(other, askedOnce);
+      await again.FlushAsync();
+      foreach (string kept in Directory.GetFiles(_shelf, "*.none", SearchOption.AllDirectories))
+        File.SetLastWriteTimeUtc(kept, DateTime.UtcNow.AddDays(-2));
+      Assert.That(await banners.LoadAsync(other, askedOnce), Is.Null);
+      await again.FlushAsync();
+      Assert.That(askedTwice, Is.EqualTo(2), "the stale answer was answered, so its stamp is renewed");
+
+      PictureCache third = Shelf();
+      Assert.That(await third.Store("Banner", FIRST_SERVER).LoadAsync(other, askedOnce), Is.Null);
+      Assert.That(askedTwice, Is.EqualTo(2), "and the fresh answer is kept like the old one was");
+    }
+
+    [Test]
     public async Task AKnownAnswerOfOneServerIsNotHandedOutForAnother()
     {
       PictureCache shelf = Shelf();

@@ -406,7 +406,8 @@ namespace MediaPortal.Server.Api
       {
         MediaItemQuery query = new MediaItemQuery(
             new List<Guid> { MediaAspect.ASPECT_ID },
-            new List<Guid> { ProviderResourceAspect.ASPECT_ID, SeriesAspect.ASPECT_ID, SeasonAspect.ASPECT_ID },
+            new List<Guid> { ProviderResourceAspect.ASPECT_ID, SeriesAspect.ASPECT_ID, SeasonAspect.ASPECT_ID,
+                AudioAlbumAspect.ASPECT_ID },
             new MediaItemIdFilter(id));
         IList<MediaItem> items = mediaLibrary.Search(query, false, null, false);
         MediaItem item = items == null ? null : items.FirstOrDefault();
@@ -423,7 +424,16 @@ namespace MediaPortal.Server.Api
 
         MediaItem episode = FirstEpisodeOf(mediaLibrary, item);
         if (episode != null)
+        {
           anchors.Add(episode);
+          return anchors;
+        }
+
+        // An album is the same shape of shelf: it holds tracks and has no file of its own, and the music
+        // fanart lies above the album folder - the artists' own folder - so the walk starts from a track.
+        MediaItem track = FirstTrackOf(mediaLibrary, item);
+        if (track != null)
+          anchors.Add(track);
       }
       catch (IllegalCallException)
       {
@@ -457,6 +467,30 @@ namespace MediaPortal.Server.Api
           new RelationshipFilter(EpisodeAspect.ROLE_EPISODE, relation, item.MediaItemId));
       episodes.Limit = 1;
       IList<MediaItem> held = mediaLibrary.Search(episodes, false, null, false);
+      return held == null || held.Count == 0 ? null : held[0];
+    }
+
+    /// <summary>
+    /// One track of a title that has no file of its own - an album - or null when it holds none.
+    /// </summary>
+    /// <remarks>
+    /// The music shape of the detour <see cref="FirstEpisodeOf"/> is the films' one: the reference's
+    /// LocalArtistFanartProvider answered an album's fanart by climbing from its tracks' folders to the
+    /// artist's, where the backdrop lies. A disc whose tracks sit in "CD 01" needs those two extra hops,
+    /// which the walk's three folders cover from the track itself.
+    /// </remarks>
+    internal static MediaItem FirstTrackOf(IMediaLibrary mediaLibrary, MediaItem item)
+    {
+      SingleMediaItemAspect heldAspect;
+      if (!MediaItemAspect.TryGetAspect(item.Aspects, AudioAlbumAspect.Metadata, out heldAspect))
+        return null;
+
+      MediaItemQuery tracks = new MediaItemQuery(
+          new List<Guid> { AudioAspect.ASPECT_ID },
+          new List<Guid> { ProviderResourceAspect.ASPECT_ID },
+          new RelationshipFilter(AudioAspect.ROLE_TRACK, AudioAlbumAspect.ROLE_ALBUM, item.MediaItemId));
+      tracks.Limit = 1;
+      IList<MediaItem> held = mediaLibrary.Search(tracks, false, null, false);
       return held == null || held.Count == 0 ? null : held[0];
     }
 

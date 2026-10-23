@@ -80,6 +80,14 @@ namespace MediaPortal.Frontend.Caching
     /// <summary>The file behind one title's absence, so that "none" is remembered like a picture is.</summary>
     private const string ABSENT_SUFFIX = ".none";
 
+    /// <summary>
+    /// How long one kept answer "the server has none" stays an answer. A picture can arrive after the proof of
+    /// its absence was written - a tag extractor run later, a fanart filled in by hand - and a wall whose
+    /// posters were proven missing yesterday has to ask again today, because an absence remembered forever is
+    /// a poster thrown away forever. One day, which is also how old the <see cref="Touched"/> stamp may get.
+    /// </summary>
+    private static readonly TimeSpan ABSENT_MAX_AGE = TimeSpan.FromDays(1);
+
     private readonly string? _settingsPath;
     private MediaSettings _settings;
     private string _root;
@@ -355,7 +363,15 @@ namespace MediaPortal.Frontend.Caching
         if (!File.Exists(file))
         {
           string absent = file + ABSENT_SUFFIX;
-          return File.Exists(absent) ? Array.Empty<byte>() : null;
+          if (!File.Exists(absent))
+            return null;
+
+          // Past its age the absence is no longer an answer but a question: the server may have gained the
+          // picture since it was proven missing, and one re-ask is cheap next to a poster hidden for good.
+          if (DateTime.UtcNow - File.GetLastWriteTimeUtc(absent) >= ABSENT_MAX_AGE)
+            return null;
+
+          return Array.Empty<byte>();
         }
 
         byte[] bytes = await File.ReadAllBytesAsync(file).ConfigureAwait(false);
@@ -389,9 +405,12 @@ namespace MediaPortal.Frontend.Caching
 
           if (picture == null)
           {
-            // Nothing to keep but the answer, which is worth keeping: see the class remarks.
+            // Nothing to keep but the answer, which is worth keeping: see the class remarks. An answer that
+            // went stale got let through as a question by the read above, and this is its answer - so the
+            // stamp is renewed, or every tile would ask the same question again for ever.
             string absent = file + ABSENT_SUFFIX;
-            if (!File.Exists(absent))
+            if (!File.Exists(absent)
+                || DateTime.UtcNow - File.GetLastWriteTimeUtc(absent) >= ABSENT_MAX_AGE)
             {
               await File.WriteAllBytesAsync(temporary, Array.Empty<byte>()).ConfigureAwait(false);
               Move(temporary, absent);

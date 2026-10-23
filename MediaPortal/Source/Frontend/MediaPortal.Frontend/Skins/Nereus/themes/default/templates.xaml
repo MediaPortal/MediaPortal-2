@@ -697,6 +697,121 @@
   </DataTemplate>
 
   <!--
+    The music tiles, as Nereus drew them for audio - GridViewAlbumItemTemplate and GridViewAudioItemTemplate.
+    Two things the film tiles are not, and the reference is uncompromising about both. The frame is its
+    MediaConsts' AUDIO_GRID_WIDTH x AUDIO_GRID_HEIGHT, 205x195, a square under Square_small.png, and not the
+    poster's 163x250: a thousand album covers are square and none of them is a film case. And a music tile
+    whose picture is missing wears the skin's OWN COLOUR with the music mark in it - never a film still, never
+    video.png - with the name standing in for the art. An album's square wears audio.png, a track's the media
+    menu's track mark, which is the pair the reference filed for the two shelves.
+
+    The picture itself is asked for as a cover, because that is what music calls its front picture and what the
+    import stores: once per album, under the album's id. A track is answered with its album's cover by the
+    server - the reference leaves a track's square empty because its importer stores nothing per track, and a
+    shelf of a thousand identical empty squares is not what the files say; here the tile wears what the wall
+    next to it wears. A picture is never stretched into the square, and a name is never painted over a picture
+    that exists, which is also what the reference's audio grid does not do.
+  -->
+  <DataTemplate x:Key="MediaTileAlbumTemplate" x:DataType="vm:TitleViewModel">
+    <Panel Width="205" Height="195" Margin="8,8,8,14">
+      <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                              ConverterParameter='Square_small.png'}"
+             Stretch="Fill" Margin="-5"/>
+      <Image Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance},
+                              ConverterParameter='tile'}"
+             Stretch="UniformToFill" Margin="3"
+             IsVisible="{Binding HasArtwork}"/>
+      <!-- no cover: the skin's own colour, its music mark, the name -->
+      <Panel IsVisible="{Binding HasNoArtwork}">
+        <Border Classes="nereus-music-ground" Margin="3"/>
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='audio.png'}"
+               Stretch="Uniform" Width="70" Height="70" Opacity="0.6"
+               HorizontalAlignment="Left" VerticalAlignment="Top"/>
+        <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextBrush}"
+                   FontSize="{DynamicResource SmallFontSize}" TextWrapping="Wrap"
+                   TextTrimming="CharacterEllipsis" MaxLines="4"
+                   Margin="15,50,10,10" VerticalAlignment="Center"/>
+      </Panel>
+      <!-- watched corners, if the grid's setting allows corners at all -->
+      <Panel IsVisible="{Binding WatchFlagsShown}">
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='watched.png'}"
+               Height="33" Stretch="Uniform" Opacity="0.9"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"
+               IsVisible="{Binding IsWatched}"/>
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='partlywatched.png'}"
+               Height="33" Stretch="Uniform" Opacity="0.9"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"
+               IsVisible="{Binding IsPartlyWatched}"/>
+      </Panel>
+      <!-- a title without a file behind it: the reference's corner flag with its offline mark -->
+      <Panel IsVisible="{Binding IsOffline}">
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='flag.png'}"
+               Height="90" Stretch="Uniform"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0"/>
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='offline.png'}"
+               Height="35" Stretch="Uniform"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,7,7,0"/>
+      </Panel>
+    </Panel>
+  </DataTemplate>
+
+  <!--
+    A track's square: the same 205x195 frame as an album's, the album's cover in it where the server has one,
+    and the reference's own fallback where it has none - the skin's colour, the media menu's track mark at the
+    mark's reference size of 35, and the track's number and name over it.
+  -->
+  <DataTemplate x:Key="MediaTileTrackTemplate" x:DataType="vm:TitleViewModel">
+    <Panel Width="205" Height="195" Margin="8,8,8,14">
+      <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                              ConverterParameter='Square_small.png'}"
+             Stretch="Fill" Margin="-5"/>
+      <Image Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance},
+                              ConverterParameter='tile'}"
+             Stretch="UniformToFill" Margin="3"
+             IsVisible="{Binding HasArtwork}"/>
+      <Panel IsVisible="{Binding HasNoArtwork}">
+        <Border Classes="nereus-music-ground" Margin="3"/>
+        <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                             ConverterParameter='MediaMenu/track'}"
+              Fill="{DynamicResource TextBrush}" Width="35" Height="35" Opacity="0.5"
+              Stretch="Uniform"
+              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"/>
+        <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextBrush}"
+                   FontSize="{DynamicResource SmallFontSize}" TextWrapping="Wrap"
+                   TextTrimming="CharacterEllipsis" MaxLines="4"
+                   Margin="15,50,10,10" VerticalAlignment="Center"/>
+      </Panel>
+      <Panel IsVisible="{Binding WatchFlagsShown}">
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='watched.png'}"
+               Height="33" Stretch="Uniform" Opacity="0.9"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"
+               IsVisible="{Binding IsWatched}"/>
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='partlywatched.png'}"
+               Height="33" Stretch="Uniform" Opacity="0.9"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"
+               IsVisible="{Binding IsPartlyWatched}"/>
+      </Panel>
+      <Panel IsVisible="{Binding IsOffline}">
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='flag.png'}"
+               Height="90" Stretch="Uniform"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0"/>
+        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='offline.png'}"
+               Height="35" Stretch="Uniform"
+               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,7,7,0"/>
+      </Panel>
+    </Panel>
+  </DataTemplate>
+
+  <!--
     The playback screen's bar, which is where both of this skin's currently-playing screens put the reading of
     what plays: the words over a flat dark ground at the bottom of the picture, the position under them, and the
     line that says how far the film has got filled with the accent. The line is the reference's OSDProgressBarStyle

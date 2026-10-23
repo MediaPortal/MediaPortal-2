@@ -73,6 +73,24 @@
     <Setter Property="Foreground" Value="{DynamicResource ScreenBackgroundBrush}"/>
   </Style>
 
+  <!--
+    The ground of a music tile that has no cover. The reference painted the skin's own colour behind the music
+    mark - the medium of the skin's family at rest, the light of it stood on - because an album whose art was
+    never found is not a film, and a film still laid under it says the wrong thing about the shelf.
+  -->
+  <Style Selector="Border.nereus-music-ground">
+    <Setter Property="Background" Value="{DynamicResource PanelRaisedBrush}"/>
+  </Style>
+  <Style Selector="ListBoxItem:selected Border.nereus-music-ground">
+    <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+  </Style>
+  <Style Selector="ListBoxItem:focus Border.nereus-music-ground">
+    <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+  </Style>
+  <Style Selector="Window:not(.pointer-resting) ListBoxItem:pointerover Border.nereus-music-ground">
+    <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+  </Style>
+
   <!-- The home rail uses its artwork and selection markers, not the generic selected-row panel. -->
   <Style Selector="ListBox.nereus-home-menu">
     <Setter Property="Background" Value="Transparent"/>

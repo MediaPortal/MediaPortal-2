@@ -4978,6 +4978,46 @@ What is still not portable, and now precisely bounded: a `movie.nfo`'s `<thumb>`
 kept as a stub and warned about rather than stored; and fanart from the network (artist pictures, TMDB backdrops) has
 no portable source wired up at all. Both are one handler each away, and neither is music.
 
+### cd. The music shelf reads like the reference, opens like it, and stands on the pictures it really has
+
+Four things the viewer found on the live music shelf, all four traceable to a difference between "the port answers"
+and "the reference answered":
+
+**The list layout was a strip of covers.** The squares themselves were right - the viewer confirmed them - but the
+List view of a music shelf drew the same squares stacked vertically: "the cover as a list". The cause was one line's
+hierarchy: `GridTemplateKey` asked the music question before the layout question, so a music shelf got its square in
+every layout. The reference separates the two views cleanly - `ListViewAudioItemTemplate` / `ListViewAlbumItemTemplate`
+(MediaStyles.xaml 3391/3678) are text rows: title, year, rating, duration or track count, and a thumbnail that is
+bound to the database blob the audio importer never fills (zero width at the default size), while the squares belong
+to the grid and the cover view - and so the port now answers `TitleRowTemplate` first whenever the layout is List,
+music or not, and `ArtworkForLayout` stops fetching covers while the shelf stands in rows.
+
+**A press on an album asked it for a file.** The home content wall builds its rows with `new TitleViewModel(...)`,
+which hardcoded `holdsTitles: false` - so `OnNereusTileClick` routed every tile to `ResumeCommand` and an album
+answered "the server did not name a file for this title". The reference's wall opened albums (MoveInside), never
+played them. The row now carries the truth (`MediaCatalog.HoldsTitles(section.Aspect.Name)` at the one place that
+knows the aspect), `TitleViewModel.HoldsTitles` says it out loud, and the application's home handler
+(`App.OnHomeTitlePressed`) opens a holding title exactly as the shelf's OK does - pushing the titles-inside frame -
+and plays everything else. `HomeView.OnResumeRequested` keeps the other half: a holding title does not get the
+player screen pushed beside the album page it just opened, which is what it had been doing.
+
+**The picture cache kept "no picture" forever.** While the viewer's library was being tagged, the wall asked for
+posters the server did not yet have, and the front end wrote an absence marker per title - a good idea, until the
+tag extractor produced the pictures two hours later and the wall still stood bare, because an absence never expired.
+An absence is now an answer for a day (`PictureCache.ABSENT_MAX_AGE`, and the stamp is renewed only by a re-ask that
+still answers "none"), which is the same courtesy the folder walk already paid to new pictures;
+`AKeptAbsenceAsksAgainOnceItHasAged` keeps it.
+
+**"FanArt" for an album answered 404 while the artist's backdrop lay two folders up.** The reference's
+`LocalArtistFanartProvider` answers an album's or a track's FanArt by climbing from the tracks' folders to the
+artist's folder and reading `fanart.jpg` (and `ExtraFanArt/`) there. The portable folder walk
+(`LocalFanArtSearch.FanArtAnchors`) knew that detour for a series and a season - anchor on their first episode - but
+not for music, so albums, which have no file of their own, never started a walk at all. `FirstTrackOf` is the music
+shape of the same move: relationship `Track→Album`, first track, three hops up - track folder, album folder, artist
+folder - and it is exactly the two hops plus the disc-folder hop the reference counts. Proven byte-identical on the
+live library: the two albums that answered 404 now answer with their artists' `fanart.jpg`, 232 238 and 868 044
+bytes, the same bytes as the files on disc; `Tests.Server` fanart 53 of 53.
+
 ## What cannot be verified without the user
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library
 import. These need hardware and judgement that are not in this environment, and they are batched into

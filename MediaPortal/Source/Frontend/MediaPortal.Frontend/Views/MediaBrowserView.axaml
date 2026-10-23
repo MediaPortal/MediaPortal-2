@@ -223,6 +223,7 @@
       <Button Name="mediaButton"
               Content="{Binding MediaLabel}"
               Command="{Binding SwitchMediaCommand}"
+              IsVisible="{Binding CanChooseMedia}"
               MinWidth="180"
               Padding="20,8"
               FontSize="22"
