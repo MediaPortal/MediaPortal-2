@@ -37,16 +37,18 @@
     <Panel IsHitTestVisible="False">
       <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter=Background.PNG}"
              Stretch="Fill"/>
-      <Image Stretch="UniformToFill"
+      <!-- The wait and the dissolve of the reference's ImageSourceWrapper (Delay 0.5, dissolve 0.5):
+           walking the rail does not flicker the screen, and a title that settles in is weathered in. -->
+      <views:DissolveImage Stretch="UniformToFill"
              Opacity="{Binding FanartOverlay}"
              IsVisible="{Binding HasBackgroundArtwork}">
-        <Image.Source>
+        <views:DissolveImage.Source>
           <MultiBinding Converter="{x:Static views:SkinFanartConverter.Instance}">
             <Binding Path="BackgroundArtwork"/>
             <Binding Path="FanartBlurRadius"/>
           </MultiBinding>
-        </Image.Source>
-      </Image>
+        </views:DissolveImage.Source>
+      </views:DissolveImage>
     </Panel>
   </ControlTemplate>
 

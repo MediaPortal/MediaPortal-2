@@ -130,15 +130,15 @@
   -->
   <Panel>
 
-    <Image Stretch="UniformToFill"
+    <views:DissolveImage Stretch="UniformToFill"
            IsVisible="{Binding HasBackgroundArtwork}">
-      <Image.Source>
+      <views:DissolveImage.Source>
         <MultiBinding Converter="{x:Static views:SkinFanartConverter.Instance}">
           <Binding Path="BackgroundArtwork"/>
           <Binding Path="FanartBlurRadius"/>
         </MultiBinding>
-      </Image.Source>
-    </Image>
+      </views:DissolveImage.Source>
+    </views:DissolveImage>
     <Border Background="Black"
             Opacity="{Binding FanartOverlay}"
             IsVisible="{Binding HasBackgroundArtwork}" />

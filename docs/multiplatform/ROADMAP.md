@@ -5018,6 +5018,25 @@ folder - and it is exactly the two hops plus the disc-folder hop the reference c
 live library: the two albums that answered 404 now answer with their artists' `fanart.jpg`, 232 238 and 868 044
 bytes, the same bytes as the files on disc; `Tests.Server` fanart 53 of 53.
 
+### ce. The background changes like weather now, not like a slideshow
+
+The fanart behind the home menu and the media browser used to be replaced in one sudden frame whenever focus moved
+to a title with a different backdrop. The reference never cut: its `ImageSourceWrapper` carried
+`Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"` on every fanart picture -
+a picture was only adopted once the question had stopped changing for half a second (so walking a rail flickers
+nothing), and it then grew in *over* the old one rather than through a dark window between the two.
+
+`Views/DissolveImage.cs` is that control: two stacked images, a one-shot wait that every new source restarts, and a
+crossfade that moves both layers in the same breath - the coming picture's opacity up while the standing picture's
+goes down - handing over only when the fade has finished, so an interrupted fade can never leave the background
+stuck on a half-faded third picture. The three hosts (the skin's `HomeBackgroundTemplate`, the plain home
+background, the media browser's background) swapped their `Image` for it with their bindings untouched.
+
+The timings are the reference's delay with a livelier dissolve: 0.5 s of settled-wait, 0.125 s of crossfade, tuned
+by feel against the user's own screen ("doppelt so schnell" asked twice). One honest note from building it: the
+first draft's per-step branch was written backwards - it faded the old picture out and then handed the new one in
+one frame, which is exactly the stutter the user rejected before it was caught.
+
 ## What cannot be verified without the user
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library
 import. These need hardware and judgement that are not in this environment, and they are batched into
