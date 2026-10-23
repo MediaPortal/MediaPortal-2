@@ -4844,6 +4844,62 @@ menu editor holds it on its list of lines - the control it asked for, not the on
 dialog that says nothing about its keys still holds it. Both new tests were seen to fail with the fixes taken out -
 the first with the keyboard left in the screen behind, the second with nobody holding it at all.
 
+### cb. One skin, one colour - including the parts the skin does not draw
+
+Reported by the viewer: the colour a dialog's list, the settings rows and the guide paint the row they are standing
+on was blue, whatever colour the skin wore.
+
+The skin was not lying about its own colour. `NereusSkinSettings` holds the reference's colour choice as eight
+mutually exclusive switches (`useTorquoise` … `useGrey`, turquoise worn), `ChosenColour` reads them back as the
+reference's `Colors.xaml` spells a family - a light, a medium and a dark - and `FrontendTheme.TintFromSkinSettings`
+has long since been writing those three onto `AccentBrush`, `PanelRaisedBrush` and `PanelBrush`. The skin settings
+screen has the row that walks the eight families, and pressing it re-dresses the running front end.
+
+What was wrong is that **a selected row is not drawn by the skin**. A list row, a ticked box and a slider belong to
+the theme the controls arrive in, and that theme colours all of them from one question - `SystemAccentColor` and the
+six steps of it, `SystemAccentColorLight1..3` and `SystemAccentColorDark1..3` - which it ships as its own blue
+`#FF0078D7`. Nothing in this front end ever answered that question, so:
+
+- the skin's own rule `ListBoxItem:selected { Background = AccentBrush }` only moved the *property on the item*; the
+  theme paints its selection deeper in, on the item's template presenter, and its rule is aimed at
+  `/template/ ContentPresenter#PART_ContentPresenter`, which outranks a setter on the control. Measured with a
+  thrown-away probe: the property said `#ff009592`, the screen was painted `#ff0078d7`.
+- the guide, a dialog's list and the settings rows are all the same control, so all three kept the stock blue while
+  the tiles, the edges and the head line round them wore turquoise. One question, two answers.
+
+The reference could not have this bug: it had no theme under its controls, and its own masters asked its own colour
+file for a selected row - the family the eight switches pick is therefore the only accent there is.
+
+`FrontendTheme.AccentFromTheSkinsOwnColour` answers the theme's question from the skin now, after the palette and the
+skin's tint have both been written: the seven colours are the accent the face ended up wearing and the theme's own
+ramp around it - hue and saturation held, lightness moved a tenth of the scale at a time, thrice up and thrice down.
+Only the colours are written; every brush the theme builds from them follows, so nothing here names a brush and a
+control from some later version of the theme asks the same seven questions. It is said of the palette rather than of
+Nereus, so the front end's own face and WMC wear their own accents too, and because it hangs on `AccentBrush` the
+"Skin colour" row on the skin settings screen moves the standing row of every list in the front end as it walks the
+eight families. The row is named for what it answers now, "Skin colour" rather than "Colour".
+
+The answer is stamped onto the application itself, not merely into a dictionary merged into it, and it is said again
+every time the application changes its light-or-dark answer (`StampTheAccentOnTheApplication` and
+`HoldTheAccentThroughAFaceChange`, both at the end of `Apply`). Both follow from the ranking: the theme asks the
+operating system for its accent and writes what it gets onto the application directly, so anything written lower down
+- in a nested dictionary - loses the question to whatever colour the machine's desktop happens to wear. Writing once
+at startup is not enough either, because the theme answers again on every face change. The order inside `Apply` is
+therefore: build the palette → the eight switches → the platform's accent → chrome → skin engine → stamp.
+
+Tested by `TestTheRowAListStandsOnWearsTheSkinsColour`, which reads the brush *inside* the item's template rather than
+the property a style was given - that is what the eye sees: the standing row is the skin's accent and not the
+platform's blue; the seven accent resources are the accent and six honest steps of it (lighter above, darker below,
+never a different hue); the application itself answers its accent with the skin's colour and says it again after a
+face change, even when the theme wrote its blue in between; all three faces paint their standing row with the accent
+each names; and pressing the real "Skin colour" row on the real screen, into a real file of the test's own, repaints
+the standing row yellow without a restart. All five were seen to fail with the new call taken out - every one of them
+painted `#ff0078d7`.
+
+While measuring this it became visible that `NereusSkinSettings.ChosenColour` was being written into
+`skin-nereus.json` as `"ChosenColour": {}` - the tuple is an answer read off the eight switches, and an answer that
+can be read back in as an input does not belong in the file. It is `[JsonIgnore]` now.
+
 ## What cannot be verified without the user
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library
 import. These need hardware and judgement that are not in this environment, and they are batched into

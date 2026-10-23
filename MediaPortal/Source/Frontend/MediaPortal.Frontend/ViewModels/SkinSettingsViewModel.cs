@@ -395,7 +395,7 @@ public partial class SkinSettingsViewModel : ObservableObject
     Toggle("Rounded dialog corners", "Round instead of square corners",
         () => n.UseRoundedDialogCorners, v => n.UseRoundedDialogCorners = v);
 
-    Options.Add(new SkinSettingOption("Colour", "The skin's own accent, one of the eight families",
+    Options.Add(new SkinSettingOption("Skin colour", "The colour this skin is drawn in, one of the eight families the reference shipped",
         CurrentColourName, PressNextColour, Changed));
 
     Toggle("Help texts", "The one-line help at the bottom of a screen",

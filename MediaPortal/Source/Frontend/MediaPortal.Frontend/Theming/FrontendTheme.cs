@@ -314,6 +314,7 @@ namespace MediaPortal.Frontend.Theming
       string chosen = CanonicalName(wanted);
       ResourceDictionary brushes = Build(chosen);
       TintFromSkinSettings(chosen, brushes);
+      AccentFromTheSkinsOwnColour(brushes);
 
       // Replaced rather than merely added: switching twice must not leave the first palette underneath, where it
       // would still answer every key the second theme happened not to name. The interface hands the list of merged
@@ -334,6 +335,14 @@ namespace MediaPortal.Frontend.Theming
       // the reference's own colour names, its measurements, its master templates, its control styles, its
       // overlays - arrives with it. A name with no folder, 'default' above all, takes the skin back off.
       SkinEngine.Apply(app, chosen, out string? skinProblem);
+
+      // And the accent the controls the platform brings colour themselves from goes on last, written straight on
+      // the application rather than left in a merged dictionary. The reason is precedence: a key the application
+      // answers itself outranks every dictionary merged into it, and the theme the controls arrive in answers
+      // that question from the operating system - on a Windows television box, from the desktop's accent colour.
+      // Left in a dictionary alone the skin's colour loses to whatever colour the machine's wallpaper chose,
+      // which is exactly the "blue that is not the skin's colour" a viewer sees on a selected row.
+      StampTheAccentOnTheApplication(app, brushes);
 
       problem = skinProblem;
       Changed?.Invoke(app, EventArgs.Empty);
@@ -389,6 +398,140 @@ namespace MediaPortal.Frontend.Theming
               : new SolidColorBrush(Colors.Transparent);
       brushes["DialogBorderBrush"] = frame;
       brushes["DialogCornerRadius"] = new CornerRadius(nereus.UseRoundedDialogCorners ? 6 : 0);
+    }
+
+    /// <summary>
+    /// The accent colours the theme the controls come with paints with, written from the accent the skin ended
+    /// up wearing: the accent itself and the three lighter and three darker steps the theme walks.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A row a list is standing on, a box that is ticked and the bar of a slider are drawn by no file in a skin;
+    /// they are drawn by the theme the controls arrive in, and that theme asks one question for all of them -
+    /// what is <c>SystemAccentColor</c>, and what are its six steps. Left alone it answers with its own stock
+    /// blue, so the guide, a dialog's list and the settings rows went on painting themselves blue over against
+    /// a skin whose every other part wore turquoise - one question, two answers, which is what a viewer calls a
+    /// bug. The reference never had the problem: it drew its own rows, and its rows asked its own colour file.
+    /// </para>
+    /// <para>
+    /// The steps are the theme's scheme rather than an invention: the accent's hue and saturation held fast, its
+    /// lightness moved a tenth of the way at a time, thrice up and thrice down. Only the colours are written -
+    /// every brush the theme builds out of them follows on its own, so nothing here has to name a brush, and a
+    /// control arriving in some later version of the theme asks the same seven questions.
+    /// </para>
+    /// </remarks>
+    private static void AccentFromTheSkinsOwnColour(ResourceDictionary brushes)
+    {
+      if (brushes["AccentBrush"] is not ISolidColorBrush accent)
+        return;
+
+      // An accent with alpha in it would make every selected row see the picture behind it, which is not what a
+      // selection means; the theme's own accent has always been a solid colour.
+      Color ground = accent.Color;
+      Color worn = Color.FromRgb(ground.R, ground.G, ground.B);
+
+      brushes["SystemAccentColor"] = worn;
+      brushes["SystemAccentColorLight1"] = ShiftLightness(worn, 0.1);
+      brushes["SystemAccentColorLight2"] = ShiftLightness(worn, 0.2);
+      brushes["SystemAccentColorLight3"] = ShiftLightness(worn, 0.3);
+      brushes["SystemAccentColorDark1"] = ShiftLightness(worn, -0.1);
+      brushes["SystemAccentColorDark2"] = ShiftLightness(worn, -0.2);
+      brushes["SystemAccentColorDark3"] = ShiftLightness(worn, -0.3);
+    }
+
+    /// <summary>
+    /// The seven colours the theme the controls arrive in colours its selections, ticks and sliders with. The
+    /// theme ships them as its own blue and asks nothing else, so these seven are the whole of the question.
+    /// </summary>
+    private static readonly string[] ACCENT_KEYS =
+    {
+        "SystemAccentColor", "SystemAccentColorLight1", "SystemAccentColorLight2", "SystemAccentColorLight3",
+        "SystemAccentColorDark1", "SystemAccentColorDark2", "SystemAccentColorDark3"
+    };
+
+    /// <summary>
+    /// Which applications have been told to hold their accent, and with what palette, so that a later write by
+    /// the theme the controls come with is answered rather than obeyed.
+    /// </summary>
+    private static readonly ConditionalWeakTable<Application, ResourceDictionary> STAMPED =
+        new ConditionalWeakTable<Application, ResourceDictionary>();
+
+    /// <summary>
+    /// Writes the palette's seven accent colours straight onto the application, where nothing merged underneath
+    /// can outrank them - and says them again whenever the application's light-or-dark answer changes, because
+    /// the theme the controls come with writes its own accent at exactly those moments.
+    /// </summary>
+    private static void StampTheAccentOnTheApplication(Application app, ResourceDictionary brushes)
+    {
+      foreach (string key in ACCENT_KEYS)
+      {
+        if (brushes.TryGetResource(key, null, out object? value) && value is Color colour)
+          app.Resources[key] = colour;
+      }
+
+      bool firstTime = !STAMPED.TryGetValue(app, out _);
+      STAMPED.AddOrUpdate(app, brushes);
+
+      if (firstTime)
+        app.ActualThemeVariantChanged += HoldTheAccentThroughAFaceChange;
+    }
+
+    private static void HoldTheAccentThroughAFaceChange(object? sender, EventArgs e)
+    {
+      if (sender is Application app && STAMPED.TryGetValue(app, out ResourceDictionary? brushes))
+        StampTheAccentOnTheApplication(app, brushes);
+    }
+
+    /// <summary>
+    /// The same colour with its lightness moved along by a fraction of the whole scale - negative goes darker.
+    /// Hue and saturation are held, because the point of a step is the same colour stronger or weaker, not a
+    /// different one.
+    /// </summary>
+    private static Color ShiftLightness(Color colour, double steps)
+    {
+      double r = colour.R / 255.0, g = colour.G / 255.0, b = colour.B / 255.0;
+      double highest = Math.Max(r, Math.Max(g, b));
+      double lowest = Math.Min(r, Math.Min(g, b));
+      double lightness = (highest + lowest) / 2.0;
+      double span = highest - lowest;
+
+      if (span <= 0.0)
+        return Color.FromRgb(ChannelToByte(lightness), ChannelToByte(lightness), ChannelToByte(lightness));
+
+      double saturation = lightness > 0.5 ? span / (2.0 - highest - lowest) : span / (highest + lowest);
+      double hue = highest == r
+          ? ((g - b) / span + (g < b ? 6.0 : 0.0))
+          : highest == g
+              ? (b - r) / span + 2.0
+              : (r - g) / span + 4.0;
+      hue /= 6.0;
+
+      double to = Math.Clamp(lightness + steps, 0.0, 1.0);
+      (double r2, double g2, double b2) = HueToRgb(hue + 1.0 / 3.0, hue, hue - 1.0 / 3.0, saturation, to);
+      return Color.FromRgb(ChannelToByte(r2), ChannelToByte(g2), ChannelToByte(b2));
+    }
+
+    private static (double, double, double) HueToRgb(double t1, double t2, double t3, double saturation,
+        double lightness)
+    {
+      double q = lightness < 0.5 ? lightness * (1.0 + saturation) : lightness + saturation - lightness * saturation;
+      double p = 2.0 * lightness - q;
+      return (Band(p, q, t1), Band(p, q, t2), Band(p, q, t3));
+    }
+
+    private static double Band(double p, double q, double t)
+    {
+      if (t < 0.0) t += 1.0;
+      if (t > 1.0) t -= 1.0;
+      if (t < 1.0 / 6.0) return p + (q - p) * 6.0 * t;
+      if (t < 1.0 / 2.0) return q;
+      if (t < 2.0 / 3.0) return p + (q - p) * (2.0 / 3.0 - t) * 6.0;
+      return p;
+    }
+
+    private static byte ChannelToByte(double channel)
+    {
+      return (byte) Math.Round(Math.Clamp(channel, 0.0, 1.0) * 255.0);
     }
 
     /// <summary>

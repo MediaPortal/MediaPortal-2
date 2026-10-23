@@ -188,6 +188,11 @@ public sealed class NereusSkinSettings : SkinSettingsBase
   /// none is - the settings dialog keeps exactly one on, but a hand-edited file must not leave the skin
   /// without a colour, and the reference defaulted to turquoise too.
   /// </summary>
+  /// <remarks>
+  /// Not written to the settings file: it is an answer read off the eight switches, and leaving a copy of
+  /// it in the file would let a stale answer be read back in as if it were one.
+  /// </remarks>
+  [JsonIgnore]
   public (string Name, string Light, string Medium, string Dark) ChosenColour
   {
     get

@@ -99,7 +99,7 @@ namespace Tests.Frontend
       Assert.That(vm.SkinName, Is.EqualTo("nereus"));
       Assert.That(Row(vm, "Fanart behind the media").ValueText, Is.EqualTo("On"),
           "the screen opens on the reference's default, not on a blank");
-      Assert.That(Row(vm, "Colour").ValueText, Is.EqualTo("Turquoise"));
+      Assert.That(Row(vm, "Skin colour").ValueText, Is.EqualTo("Turquoise"));
 
       vm.Selected = Row(vm, "Fanart behind the media");
       vm.PressSelected();
@@ -118,9 +118,9 @@ namespace Tests.Frontend
       Assert.That(saved.ShowTime, Is.False, "the checkbox has to reach the file on its own, no press needed");
 
       // The colour row is one question, so a press walks to the next family and takes the eight bools with it.
-      vm.Selected = Row(vm, "Colour");
+      vm.Selected = Row(vm, "Skin colour");
       vm.PressSelected();
-      Assert.That(Row(vm, "Colour").ValueText, Is.EqualTo("Yellow"));
+      Assert.That(Row(vm, "Skin colour").ValueText, Is.EqualTo("Yellow"));
 
       saved = NereusSkinSettings.Load(file, out _);
       Assert.That(saved.UseYellow, Is.True);
@@ -145,7 +145,7 @@ namespace Tests.Frontend
       Assert.That(Row(vm, "Time format").IsText, Is.True, "a format is typed, as its row always was");
       Assert.That(Row(vm, "Date format").Words, Is.EqualTo("D"));
 
-      foreach (string foreign in new[] { "Colour", "Header transparency", "Show time", "Help texts",
+      foreach (string foreign in new[] { "Skin colour", "Header transparency", "Show time", "Help texts",
               "Auto scrolling", "Grid details", "Touch display", "Fanart blur" })
       {
         Assert.That(vm.Options.Any(o => o.Label == foreign), Is.False,
