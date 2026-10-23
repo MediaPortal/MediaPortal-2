@@ -1,0 +1,521 @@
+/*
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+*/
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Headless.NUnit;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Threading;
+using Avalonia.VisualTree;
+using NUnit.Framework;
+using MediaPortal.Frontend.Api;
+using MediaPortal.Frontend.Theming;
+using MediaPortal.Frontend.ViewModels;
+using MediaPortal.Frontend.Views;
+using MediaPortal.Frontend.Workflow;
+
+namespace Tests.Frontend
+{
+  /// <summary>
+  /// Walking the Nereus home with a keyboard or a remote: an arrow goes where it points, the menu rail is a
+  /// place a viewer can stand on, and a band remembers where its viewer last stood.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// These are measurements on a shown screen rather than unit tests of a helper, because every part of the
+  /// claim lives somewhere else: the wall's scale, the shortcut column's size, the mosaic's mixed squares, the
+  /// rail's virtualized entries and the key handler's idea of what is focusable. The first version of this
+  /// screen scored candidates by the distance between their <i>centres</i>, which is invisible in a wall of
+  /// equal squares and wrong in a wall of unequal ones - the shortcut squares are a third of the size of the
+  /// covers beside them, so their centres came out nearer, and up from the top row of covers left the wall for
+  /// a shortcut. The reference measures rects (<c>FrameworkElement.FindNextFocusElement</c>), and that is what
+  /// <see cref="Input.SkinFocusWalk"/> ports.
+  /// </para>
+  /// <para>
+  /// The wall these tests walk is the one the music entry actually builds - the shortcut column, a
+  /// <c>square1</c> band whose six covers are three different sizes, and a <c>square2</c> band beside it - so
+  /// the squares above, below and beside the one a test stands on are the sizes a viewer sees.
+  /// </para>
+  /// </remarks>
+  [TestFixture]
+  public class TestNereusWallNavigation
+  {
+    private const string AUDIO_ACTION = "30715d73-4205-417f-80aa-e82f0834171f";
+
+    /// <summary>
+    /// Up from the top row of covers leaves the wall for the row of buttons the face hangs above it - the power,
+    /// the person, the cog and the search glass - which is the one thing that really does lie above the wall.
+    /// Under the old centre measure this key stepped sideways onto a shortcut whose middle sat a few lines
+    /// higher, and the row stayed a picture a mouse alone could touch.
+    /// </summary>
+    [AvaloniaTest]
+    public void UpFromTheTopRowOfCoversLeavesTheWallForTheRowOfButtonsAboveIt()
+    {
+      OnWall(delegate (Wall wall)
+      {
+        Button top = wall.Covers
+            .OrderBy(button => wall.Abs(button).Y)
+            .ThenBy(button => wall.Abs(button).X)
+            .First();
+        wall.Stand(top);
+        wall.Press(Key.Up);
+
+        Control? stood = wall.Focused;
+        Assert.That(wall.TopRow, Contains.Item(stood),
+            "the arrow that had no cover above it stood on one of the buttons at the head of the screen; it came "
+            + "back with '" + wall.NameOf(stood) + "'");
+        Assert.That(wall.Abs(stood!).Bottom, Is.LessThanOrEqualTo(wall.Abs(top).Top + 1),
+            "and the button it picked lies above the cover, not merely nearer its middle");
+      });
+    }
+
+    /// <summary>
+    /// The way the row is actually reached from where a viewer stands: up from the highest shortcut. Nothing of
+    /// the wall is above that square, and the row is - so the key leaves the wall for it.
+    /// </summary>
+    [AvaloniaTest]
+    public void UpFromTheHighestShortcutStandsOnTheRowOfButtons()
+    {
+      OnWall(delegate (Wall wall)
+      {
+        Button highest = wall.Shortcuts.OrderBy(button => wall.Abs(button).Y).First();
+        wall.Stand(highest);
+        wall.Press(Key.Up);
+
+        Control? stood = wall.Focused;
+        Assert.That(wall.TopRow, Contains.Item(stood),
+            "up from the highest shortcut reached the row of buttons over the screen; it came back with '"
+            + wall.NameOf(stood) + "'");
+        Assert.That(wall.Abs(stood!).Bottom, Is.LessThanOrEqualTo(wall.Abs(highest).Top + 1),
+            "the button stood on is above the shortcut the viewer came from");
+      });
+    }
+
+    /// <summary>
+    /// The row is reached from the head of the menu too, because that is where it stands: beside the first
+    /// entry. From every other entry the menu's Right key still returns the viewer to the square they last stood
+    /// on, which is the courtesy the reference's RestoreFocusItem was for.
+    /// </summary>
+    [AvaloniaTest]
+    public void RightFromTheHeadOfTheMenuReachesTheRowOfButtons()
+    {
+      OnWall(delegate (Wall wall)
+      {
+        Control? head = wall.RailEntry(0);
+        Assert.That(head, Is.Not.Null, "the menu had no first entry to stand on");
+        Assert.That(wall.Abs(wall.TopRow[0]).Top, Is.LessThan(wall.Abs(head!).Bottom),
+            "the row does stand beside the head of the menu, or this test asks for the wrong key");
+
+        wall.Stand(head!);
+        Assert.That(head!.IsFocused || head.IsKeyboardFocusWithin,
+            "standing on the head of the menu leaves the focus on it");
+        wall.Press(Key.Right);
+
+        Assert.That(wall.TopRow, Contains.Item(wall.Focused),
+            "right from the head of the menu walked onto the row beside it; it came back with '"
+            + wall.NameOf(wall.Focused) + "', with the head at " + wall.Abs(head!) + " and the row at "
+            + string.Join(", ", wall.TopRow.Select(button => wall.NameOf(button) + " " + wall.Abs(button))));
+      });
+    }
+
+    /// <summary>
+    /// Once on the row the arrows keep their word: right and left walk along it and down goes back onto the
+    /// wall, so a remote never leaves the viewer standing at the top of the screen with no way down.
+    /// </summary>
+    [AvaloniaTest]
+    public void AlongTheRowOfButtonsTheArrowsWalkItAndGoBackDownToTheWall()
+    {
+      OnWall(delegate (Wall wall)
+      {
+        Assert.That(wall.TopRow.Length, Is.GreaterThan(1),
+            "the row has to hold more than one button for walking it to mean anything");
+        Button first = wall.TopRow[0];
+
+        wall.Stand(first);
+        wall.Press(Key.Right);
+        Assert.That(wall.Focused, Is.SameAs(wall.TopRow[1]),
+            "right walked to the button beside it; it came back with '" + wall.NameOf(wall.Focused) + "'");
+
+        wall.Press(Key.Left);
+        Assert.That(wall.Focused, Is.SameAs(first),
+            "and left walked back; it came back with '" + wall.NameOf(wall.Focused) + "'");
+
+        wall.Press(Key.Down);
+        Control? down = wall.Focused;
+        Assert.That(down is Button square && square.Tag is HomeContentTile,
+            "down went back onto the wall; it came back with '" + wall.NameOf(down) + "'");
+      });
+    }
+
+    /// <summary>
+    /// Up inside the mosaic goes to the cover above the one the viewer stands on - the cover whose bottom edge
+    /// the viewer would touch by going up - and not to any of the shortcuts down the left of the screen.
+    /// </summary>
+    [AvaloniaTest]
+    public void UpInsideTheMosaicGoesToTheCoverAboveAndNotToAShortcutBesideIt()
+    {
+      OnWall(delegate (Wall wall)
+      {
+        // The mosaic's first table stands a small cover over another small cover in its third column; that pair
+        // is what the test walks, since it is the one pair whose answer cannot be argued about.
+        Button lower = wall.Covers.First(cover => wall.NameOf(cover) == "Album 3");
+        Button above = wall.Covers.First(cover => wall.NameOf(cover) == "Album 2");
+        Assert.That(wall.Abs(above).Bottom, Is.LessThanOrEqualTo(wall.Abs(lower).Top + 1),
+            "the wall really does hold a cover over this one, or the test says nothing");
+        Assert.That(wall.Abs(above).Left, Is.GreaterThanOrEqualTo(wall.Abs(lower).Left - 1),
+            "and over it in the same column");
+
+        wall.Stand(lower);
+        wall.Press(Key.Up);
+
+        Assert.That(wall.Focused, Is.SameAs(above),
+            "up went to the cover above, where the arrow points; it came back with "
+            + wall.NameOf(wall.Focused));
+      });
+    }
+
+    /// <summary>
+    /// Down inside the mosaic is the same measurement the other way: the cover under the standing one, which in
+    /// the reference's table is a big square under a small one - unequal sizes being exactly where a centre
+    /// measure goes wrong, since the big square's centre sits further down and further left than the small
+    /// one's edge is up.
+    /// </summary>
+    [AvaloniaTest]
+    public void DownInsideTheMosaicGoesToTheSquareUnderIt()
+    {
+      OnWall(delegate (Wall wall)
+      {
+        Button small = wall.Covers.First(cover => wall.NameOf(cover) == "Album 3");
+        Button big = wall.Covers.First(cover => wall.NameOf(cover) == "Album 6");
+        Assert.That(wall.Abs(big).Top, Is.GreaterThanOrEqualTo(wall.Abs(small).Bottom - 1));
+        Assert.That(wall.Abs(big).Height, Is.GreaterThan(wall.Abs(small).Height),
+            "a square twice as deep as the one above it is what makes this worth testing");
+        Assert.That(wall.Abs(big).X + wall.Abs(big).Width / 2,
+            Is.LessThan(wall.Abs(small).X + wall.Abs(small).Width / 2),
+            "and its centre stands to the left of the small one's, which is what a centre measure trips over");
+
+        wall.Stand(small);
+        wall.Press(Key.Down);
+
+        Assert.That(wall.Focused, Is.SameAs(big),
+            "down went to the square under it; it came back with " + wall.NameOf(wall.Focused));
+      });
+    }
+
+    /// <summary>
+    /// Left across the wall reaches the menu rail, and reaches it on an entry: the rail is not a decoration a
+    /// keyboard cannot stand on. From the rail, Right returns the viewer to the square they came from rather
+    /// than to the top of the wall.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheMenuRailIsReachedOnAnEntryAndGivesTheWayBack()
+    {
+      OnWall(delegate (Wall wall)
+      {
+        // The covers' own left edge: from anywhere else in the mosaic the next thing to the left is another
+        // cover, which is right, and the menu would never be asked about.
+        Button cover = wall.Leftmost.First();
+        wall.Stand(cover);
+        wall.Press(Key.Left); // into the shortcut column, which is the next thing to the left
+        Assert.That(wall.NameOf(wall.Focused), Does.StartWith("shortcut "),
+            "left from the covers steps onto the shortcuts beside them, not past them; it came back with "
+            + wall.NameOf(wall.Focused));
+
+        wall.Press(Key.Left);
+        Control? entry = wall.Focused;
+        Assert.That(entry, Is.InstanceOf<ListBoxItem>(),
+            "and another left stands on the menu itself, on an entry of it - it came back with "
+            + wall.NameOf(entry));
+        Assert.That(entry!.IsFocused, Is.True);
+
+        wall.Press(Key.Right);
+        Assert.That(wall.NameOf(wall.Focused), Does.StartWith("shortcut "),
+            "and right goes back onto the wall rather than further along the menu; it came back with "
+            + wall.NameOf(wall.Focused));
+      });
+    }
+
+    /// <summary>
+    /// The band a viewer leaves remembers the square they last stood on, which is the reference's
+    /// <c>RestoreFocus</c>: walking the shortcuts down to its third square, stepping across to the covers and
+    /// back from a row where that square is not the one the geometry points at has to land on the square that
+    /// was stood on before.
+    /// </summary>
+    [AvaloniaTest]
+    public void ABandRemembersTheSquareThatWasLastStoodOn()
+    {
+      OnWall(delegate (Wall wall)
+      {
+        Button first = wall.Shortcuts
+            .OrderBy(button => wall.Abs(button).Y)
+            .ThenBy(button => wall.Abs(button).X)
+            .First();
+        Assert.That(wall.NameOf(first), Is.EqualTo("shortcut Genre"),
+            "the music rail starts at its genre, which is where a viewer arriving from the menu lands");
+
+        wall.Stand(first);
+        wall.Press(Key.Down);
+        wall.Press(Key.Down);
+        Assert.That(wall.NameOf(wall.Focused), Is.EqualTo("shortcut Album"),
+            "two downs walk the column to its third square; it came back with " + wall.NameOf(wall.Focused));
+
+        // A cover high up on the wall's left edge, where the shortcut the measurement would pick is not the one
+        // that was stood on. If they agreed, this test would prove nothing.
+        Button high = wall.Leftmost.First();
+        Button alongside = wall.Shortcuts
+            .OrderByDescending(shortcut => Math.Min(wall.Abs(shortcut).Bottom, wall.Abs(high).Bottom)
+                - Math.Max(wall.Abs(shortcut).Top, wall.Abs(high).Top))
+            .First();
+        Assert.That(wall.NameOf(alongside), Is.Not.EqualTo("shortcut Album"),
+            "the square beside that cover is " + wall.NameOf(alongside) + ", so the answer below can only "
+            + "come from the band remembering");
+
+        wall.Stand(high);
+        wall.Press(Key.Left);
+        Assert.That(wall.NameOf(wall.Focused), Is.EqualTo("shortcut Album"),
+            "coming back to the shortcuts stands on the square that was last stood on, because that is the "
+            + "whole point of remembering; it came back with " + wall.NameOf(wall.Focused));
+      });
+    }
+
+    /// <summary>
+    /// The square the menu hands back on Right is the one the viewer was standing on - the reference's
+    /// <c>NereusHomeListView.RestoreFocusItem</c>, which existed so that a viewer returning to the menu did not
+    /// have to walk the wall from its beginning.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheMenuSendsTheViewerBackToTheSquareTheyCameFrom()
+    {
+      OnWall(delegate (Wall wall)
+      {
+        Button cover = wall.Leftmost.First();
+        wall.Stand(cover);
+        wall.Press(Key.Left);
+        Control? shortcut = wall.Focused;
+        wall.Press(Key.Left);
+        Assert.That(wall.Focused, Is.InstanceOf<ListBoxItem>(), "the viewer is on the menu");
+
+        wall.Press(Key.Right);
+        Assert.That(wall.Focused, Is.SameAs(shortcut),
+            "right from the menu goes back onto the wall where the viewer left it, not to its first square; it "
+            + "came back with " + wall.NameOf(wall.Focused));
+      });
+    }
+
+    /// <summary>
+    /// The shown music home: the shortcut column the entry asks for, a <c>square1</c> band of six covers in
+    /// three sizes and a <c>square2</c> band beside it, on a television-sized window wearing the worn skin.
+    /// </summary>
+    private static void OnWall(Action<Wall> assert)
+    {
+      Application app = Application.Current!;
+      string? previousFolder = SkinEngine.SkinsFolder;
+      string previousTheme = FrontendTheme.CurrentName(app);
+      SkinEngine.SkinsFolder = Path.Combine(MetadataPath("FrontendSource"), "Skins");
+      ShellWindow? window = null;
+      try
+      {
+        Assert.That(FrontendTheme.Apply(app, "nereus", out string? themeProblem), Is.EqualTo("nereus"),
+            themeProblem ?? "");
+        Assert.That(SkinEngine.Apply(app, "nereus", out string? skinProblem), Is.True, skinProblem ?? "");
+
+        HomeViewModel home = new HomeViewModel();
+        MainMenuEntry entry = home.DisplayMenu.Single(item => item.HomeImageId == AUDIO_ACTION);
+        home.SelectedEntry = entry;
+        home.ShowContentAsync(entry).GetAwaiter().GetResult();
+
+        // The bands the server would answer with, as the wall itself lays them out: six covers in the mosaic
+        // the reference's first square table draws, then four in the second one.
+        HomeContentGroup latest = new HomeContentGroup("Latest added", "square1", 760, 6);
+        for (int index = 1; index <= 6; index++)
+          latest.AddTitle(NewTitle("Album " + index));
+        home.ContentGroups.Add(latest);
+
+        HomeContentGroup unplayed = new HomeContentGroup("Unplayed", "square2", 650, 4);
+        for (int index = 7; index <= 10; index++)
+          unplayed.AddTitle(NewTitle("Album " + index));
+        home.ContentGroups.Add(unplayed);
+
+        window = new ShellWindow(new HomeView(home, new WorkflowManager(),
+            sectionScreen: delegate (HomeSection section) { return null!; }));
+        window.Width = 1920;
+        window.Height = 1080;
+        window.Show();
+        Pump();
+
+        ScrollViewer wallPane = window.GetVisualDescendants().OfType<ScrollViewer>()
+            .Single(viewer => viewer.Name == "nereusContentPane");
+        ListBox rail = window.GetVisualDescendants().OfType<ListBox>().Single(list => list.Name == "menuList");
+
+        Button[] squares = wallPane.GetVisualDescendants().OfType<Button>()
+            .Where(button => button.Focusable && button.IsEffectivelyVisible && button.IsEnabled)
+            .ToArray();
+        Assert.That(squares, Is.Not.Empty, "the wall showed no tile at all");
+
+        // The face's own row of buttons above the wall. It carries no names, only the Tag its press reads,
+        // and the screen reaches it the same way a remote does - by measurement, not by a lookup.
+        ContentControl overlays = window.GetVisualDescendants().OfType<ContentControl>()
+            .Single(face => face.Name == "homeOverlays");
+        Button[] topRow = overlays.GetVisualDescendants().OfType<Button>()
+            .Where(button => button.Tag is string mark && mark.Length > 0
+                && button.Focusable && button.IsEffectivelyVisible && button.IsEnabled)
+            .OrderBy(button => button.Bounds.X)
+            .ToArray();
+        Assert.That(topRow, Is.Not.Empty, "the face hung no button at the top of the screen");
+
+        Window screen = window;
+        assert(new Wall(screen, squares
+            .Where(button => !((HomeContentTile) button.Tag!).IsShortcut).ToArray(),
+            squares.Where(button => ((HomeContentTile) button.Tag!).IsShortcut).ToArray(), rail, topRow));
+      }
+      finally
+      {
+        window?.Close();
+        SkinEngine.SkinsFolder = previousFolder;
+        FrontendTheme.Apply(app, previousTheme, out string? _);
+      }
+    }
+
+    private static TitleViewModel NewTitle(string name)
+    {
+      return new TitleViewModel(new MediaTitle(Guid.NewGuid(), name, null, 2020, null, null, false));
+    }
+
+    /// <summary>
+    /// The shown screen as the three things a test needs: where every square stands in the window's own
+    /// coordinates, which square the arrow keys were pressed from, and where the focus ended up.
+    /// </summary>
+    private sealed class Wall
+    {
+      private readonly Window _screen;
+      private readonly ListBox _rail;
+
+      public Wall(Window screen, Button[] covers, Button[] shortcuts, ListBox rail, Button[] topRow)
+      {
+        _screen = screen;
+        _rail = rail;
+        Covers = covers;
+        Shortcuts = shortcuts;
+        TopRow = topRow;
+      }
+
+      public Button[] Covers { get; }
+      public Button[] Shortcuts { get; }
+
+      /// <summary>
+      /// The row of buttons the face hangs at the top of the screen - power, person, cog and search glass - in
+      /// the order they stand there, which is the order an arrow walks them.
+      /// </summary>
+      public Button[] TopRow { get; }
+
+      /// <summary>An entry of the menu rail, by the place it has in the menu.</summary>
+      public Control? RailEntry(int index)
+      {
+        _rail.ScrollIntoView(index);
+        Pump();
+        return _rail.ContainerFromIndex(index) as Control;
+      }
+
+      /// <summary>
+      /// The covers standing on the wall's left edge, top first - the only ones from which a leftward arrow has
+      /// nothing between it and the shortcuts.
+      /// </summary>
+      public Button[] Leftmost
+      {
+        get
+        {
+          Button[] byColumn = Covers
+              .OrderBy(button => Abs(button).X)
+              .ThenBy(button => Abs(button).Y)
+              .ToArray();
+          double left = Abs(byColumn[0]).X;
+          return byColumn.Where(button => Abs(button).X < left + 1).ToArray();
+        }
+      }
+
+      /// <summary>A square's place on the screen, in the screen's coordinates, the wall's scale included.</summary>
+      public Rect Abs(Control control)
+      {
+        Point? topLeft = control.TranslatePoint(new Point(), _screen);
+        Point? bottomRight = control.TranslatePoint(
+            new Point(control.Bounds.Width, control.Bounds.Height), _screen);
+        return topLeft == null || bottomRight == null
+            ? default
+            : new Rect(topLeft.Value, bottomRight.Value);
+      }
+
+      public void Stand(Control control)
+      {
+        Assert.That(control.Focus(), Is.True, NameOf(control) + " would not take the focus");
+        Pump();
+      }
+
+      public void Press(Key key)
+      {
+        Control stood = Focused ?? _rail;
+        stood.RaiseEvent(new KeyEventArgs
+        {
+          RoutedEvent = InputElement.KeyDownEvent,
+          Key = key,
+          Route = RoutingStrategies.Tunnel,
+          Source = stood,
+        });
+        Pump();
+      }
+
+      public Control? Focused =>
+          _screen.GetVisualDescendants().OfType<Control>().FirstOrDefault(control => control.IsFocused);
+
+      public string NameOf(Control? control)
+      {
+        if (control == null)
+          return "nothing at all";
+        if (control is Button button && button.Tag is HomeContentTile tile)
+          return (tile.IsShortcut ? "shortcut " : "") + tile.Label;
+        if (control is Button withTag && withTag.Tag is string key)
+          return "button " + key;
+        if (control is ListBoxItem)
+          return "menu entry";
+        return control.GetType().Name + " '" + control.Name + "'";
+      }
+    }
+
+    private static void Pump()
+    {
+      for (int round = 0; round < 10; round++)
+      {
+        Dispatcher.UIThread.RunJobs();
+        Thread.Sleep(10);
+      }
+      Dispatcher.UIThread.RunJobs();
+    }
+
+    private static string MetadataPath(string name)
+    {
+      AssemblyMetadataAttribute? value = typeof(TestNereusWallNavigation).Assembly
+          .GetCustomAttributes<AssemblyMetadataAttribute>()
+          .FirstOrDefault(a => string.Equals(a.Key, name, StringComparison.Ordinal));
+      Assert.That(value?.Value, Is.Not.Null.And.Not.Empty,
+          "the test project has to hand " + name + " over for this to be checkable");
+      return Path.GetFullPath(value!.Value!);
+    }
+  }
+}

@@ -5245,6 +5245,65 @@ a test of the gate's one rule, the head line carries no person again on either s
 test each for carrying everybody, for one's own face meaning stay, and for a picked face walking its picture
 along to the question.
 
+### cl. The wall walks the way the reference measures: rects, not centres - and the menu is a place to stand
+
+Three complaints about the home screen's keyboard, and the first one was asked as a question: *why* does up from a
+tile on the Nereus wall land on a shortcut instead of on the tile above? The answer, measured on a shown screen
+rather than guessed at, was that the hand-written walk scored every candidate by the distance between its
+**centre** and the current one's, with a fixed one-and-a-half times penalty for standing sideways - and the wall is
+built of squares of three different sizes. The shortcut glass is a third of the size of the covers beside it, so a
+shortcut's centre sits nearer the middle of the screen than the centre of the cover a row above; from the top row of
+covers nothing at all has a centre higher than the shortcut column's, so the first shortcut won every up key, and a
+cover twice as deep as the one above it lost its own down key for the same reason. Measuring the same way twice also
+explained the second complaint: nothing in the wall ever *was* above a cover, so the walk found nothing, and the one
+favour it was written with was a Left key that focused `menuList` - the bare list, which takes the focus, shows no
+frame, and answers no arrow. A menu you cannot stand on is a menu you cannot reach.
+
+The reference has both answers already, and both were ported rather than invented:
+
+- `FrameworkElement.FindNextFocusElement` with its four `Located…` predicates (SkinEngine FrameworkElement.cs
+  1032-1215) is now `Input/SkinFocusWalk.cs`. A candidate lies in the direction asked for when a line from the
+  middle of the edge the viewer moves away from to the middle of the candidate's facing edge points that way within
+  eighty-four degrees, or when the two rects merely touch there; the winner is the one whose near edge is best lined
+  up along the crossed axis, and between equals the one whose *borders* are nearest (`BorderDistance`, never the
+  distance between middles). A square standing beside the one you are on is not above it, however near its centre
+  comes, and that is the whole of the fix.
+- The walk's candidates are the wall's squares, **the menu rail's entries and the row of buttons the face hangs at
+  the head of the screen** - one screen and one walk as MP2 answers its arrows - so left from the wall's left edge
+  steps onto the shortcuts and once more onto an entry of the menu, while up from the top row leaves the wall for
+  the power, the person, the cog and the search glass, which is the only thing that really does stand above it.
+  Where focus lands is a `ListBoxItem`, not the list: the rail steps its viewer onto the entry it is showing (the
+  wall's own, or its first), and the menu's Right key hands them back the square they came from, which is what the
+  reference's `NereusHomeListView.RestoreFocusItem` was written for - with one exception, the head of the menu,
+  where the row of buttons is the thing standing beside the viewer.
+- `ItemsControl.RestoreFocus` (SkinEngine ItemsControl.cs 562-620) is the memory: a list a viewer has walked offers
+  them the item they last stood on when the focus re-enters it, and only when that item really does lie in the
+  direction they asked for - the remembered element is offered to the walk as a candidate, never bolted on after it.
+  Ported per *band* (`HomeContentTile.Group`, set by `AddSquareTo`), because this wall holds several bands where
+  MP2's home had several lists: genre, then age three squares down, then across to the series and back lands on age.
+  The memory lives with the shown wall, so a viewer who changes section and returns starts at the geometry again.
+
+`TestNereusWallNavigation` walks the wall the music entry actually builds - the shortcut column, a `square1` band of
+six covers in three sizes, a `square2` band beside it - on a 1920×1080 screen wearing the skin, and it is written as
+measurements on that shown screen on purpose: the wall's scale, the rail's virtualized entries and the mixed squares
+are exactly the things a unit test of the helper would have missed. It asserts up and down inside a mixed mosaic go
+to the squares above and below (including the big square under a small one, whose centre is deliberately further
+left), left from the wall's left edge reaches the menu and the menu gives the way back, and a band hands back the
+square that was last stood on - with a preceding assertion that the square the geometry would have picked is a
+different one, so the test cannot pass by accident.
+
+The row of buttons was the second round of the same complaint, and it was worth the round: the first fix made the
+*menu* reachable and the household answered that "the top menu items can still not be reached", meaning the four
+buttons of `master_home.xaml`'s `WindowButtonsPanel` - power, person, settings, search - which `home.xaml` hangs at
+the head of the wall and which nothing but a mouse had ever touched. They carry no name for a view to hold, only
+their `Tag`, so they join the walk as what measurement finds rather than as a special case for one key, and once the
+viewer stands on one, the same measurement walks along the row and back down onto the wall. A key with nothing in
+its direction is still nobody's: it is left unclaimed, so the ring behind it gets its turn.
+
+The frontend suite stands at 1173 of 1175 with the two known baseline failures (the shortcut glass without its
+vector, and the skin's glyphs as shapes); the guide's own walk test passed again this time, which it had been
+failing on layout timing alone.
+
 ## What cannot be verified without the user
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library
 import. These need hardware and judgement that are not in this environment, and they are batched into

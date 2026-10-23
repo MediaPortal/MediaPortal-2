@@ -144,6 +144,15 @@ namespace MediaPortal.Frontend.ViewModels
     public NereusHomeShortcut? Shortcut { get; }
     public HomeRow? Note { get; }
 
+    /// <summary>
+    /// The band this square stands in, which is the answer to "where does a viewer come back to when they leave
+    /// this band and return to it". The reference keeps that per list - <c>ItemsControl.RestoreFocus</c> remembers
+    /// the item that last had the focus and offers it again when the focus re-enters the list - and this wall is
+    /// one wall of several bands rather than one list apiece, so the memory hangs on the band here. Set by the
+    /// band itself as it lays the square out; nobody else.
+    /// </summary>
+    public HomeContentGroup? Group { get; internal set; }
+
     // Where the band puts the square. The band is planned for the covers it holds before it reaches the wall, so
     // a square is placed once, stands still, and never moves under the viewer's eyes. See HomeContentGroup.
     public double X { get; }
@@ -470,6 +479,7 @@ namespace MediaPortal.Frontend.ViewModels
     /// <summary>The lowest point a square of this band reaches, which is what decides the band's box.</summary>
     private void AddSquareTo(HomeContentTile tile)
     {
+      tile.Group = this;
       _bottom = Math.Max(_bottom, tile.Y + tile.Height);
       Tiles.Add(tile);
     }

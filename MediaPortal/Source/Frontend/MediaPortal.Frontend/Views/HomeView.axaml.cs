@@ -261,13 +261,51 @@ namespace MediaPortal.Frontend.Views
             if (!_home.IsNereusHome || args.Key != Key.Right)
               return;
 
-            if (GetFocusableNereusTiles().FirstOrDefault() is Button firstTile)
-            {
-              FocusNereusTile(firstTile);
-              args.Handled = true;
-            }
+            // The reference's own courtesy on the way back: the menu's Right key does not start the viewer at
+            // the top of the wall again, it returns them to the square they last stood on. That is what
+            // NereusHomeListView's RestoreFocusItem was for, seen from the other side. The one place it does not
+            // apply is the head of the menu, where the row of buttons - the power, the person, the cog and the
+            // search glass - is the thing that actually stands beside the viewer.
+            Visual? pressed = args.Source as Visual;
+            while (pressed != null && pressed != menuList && !(pressed is ListBoxItem))
+              pressed = pressed.GetVisualParent();
+            ListBoxItem? stoodOn = pressed as ListBoxItem;
+            Control? goingTo = BesideTheRow(stoodOn)
+                ?? (Control?) LastWallStand()
+                ?? GetFocusableNereusTiles().FirstOrDefault();
+            if (goingTo == null)
+              return;
+
+            if (goingTo is Button tile)
+              FocusNereusTile(tile);
+            else if (!goingTo.Focus())
+              return;
+            else
+              goingTo.BringIntoView();
+
+            args.Handled = true;
           },
           RoutingStrategies.Tunnel,
+          handledEventsToo: true);
+
+      // A list that is merely focused is not a list that is stood on: with the ring or the wall handing the rail
+      // the focus, the viewer sees no frame and an arrow key that does nothing. Step onto an entry instead -
+      // the one the wall is showing, or the first - which is the same thing the reference's list does when its
+      // items are realized and its selection stands somewhere. Stepped after the focus call has returned, not
+      // inside it: a control that hands the focus on while it is being given it reports the giving as a failure,
+      // and whatever asked for the move (the ring among them) reads that as nothing having happened.
+      menuList.AddHandler(GotFocusEvent,
+          delegate (object? sender, FocusChangedEventArgs args)
+          {
+            if (!_home.IsNereusHome || !ReferenceEquals(args.Source, menuList))
+              return;
+
+            Dispatcher.UIThread.Post(delegate
+            {
+              if (menuList.IsFocused)
+                StandOnMenuEntry();
+            });
+          },
           handledEventsToo: true);
 
       nereusContentPane.AddHandler(KeyDownEvent,
@@ -282,10 +320,10 @@ namespace MediaPortal.Frontend.Views
             Button? focusedTile = tiles.FirstOrDefault(tile => tile.IsKeyboardFocusWithin);
             if (focusedTile == null)
             {
-              if (args.Key == Key.Left)
+              if (args.Key == Key.Left || args.Key == Key.Up)
               {
-                menuList.Focus();
-                args.Handled = true;
+                if (StandOnMenuEntry())
+                  args.Handled = true;
               }
               else if (tiles.FirstOrDefault() is Button firstTile)
               {
@@ -295,15 +333,18 @@ namespace MediaPortal.Frontend.Views
               return;
             }
 
-            Button? nextTile = FindDirectionalNereusTile(focusedTile, tiles, args.Key);
-            if (nextTile != null)
+            _wallStand = focusedTile;
+            Control? nextTile = NextOnWall(focusedTile, tiles, args.Key);
+            if (nextTile is Button tile)
             {
-              FocusNereusTile(nextTile);
+              FocusNereusTile(tile);
               args.Handled = true;
             }
-            else if (args.Key == Key.Left)
+            else if (nextTile is Control entry && entry.Focus())
             {
-              menuList.Focus();
+              // The menu rail lies in that direction, and it is reached the way every other control on the
+              // screen is: by the same measurement, not by a special case for the Left key.
+              entry.BringIntoView();
               args.Handled = true;
             }
             else if (args.Key == Key.Right && refreshButton.IsVisible && refreshButton.Focus())
@@ -408,6 +449,44 @@ namespace MediaPortal.Frontend.Views
             }
           },
           RoutingStrategies.Bubble);
+
+      // Standing on that row with a remote is the same thing as standing on it with a mouse, so the row takes
+      // part in the one measurement the screen makes for every arrow: it is a candidate of the walk while the
+      // viewer is on the wall - which is what makes up from the topmost shortcut and right from the topmost
+      // menu entry land on the button that really lies that way - and while the viewer stands on one of the
+      // buttons themselves, the same measurement walks them along the row or back down onto the wall. A key
+      // with nothing in its direction is left alone, so a face that hangs no row, or a direction that points
+      // off the television, costs the viewer nothing.
+      homeOverlays.AddHandler(KeyDownEvent,
+          delegate (object? sender, KeyEventArgs args)
+          {
+            if (!_home.IsNereusHome || args.Handled
+                || (args.Key != Key.Left && args.Key != Key.Right
+                    && args.Key != Key.Up && args.Key != Key.Down))
+              return;
+
+            // The button the key was pressed on, rather than a search for whatever holds the focus: the key
+            // arrived through this button, and that is the same thing the viewer is standing on.
+            Button? stoodOn = args.Source as Button;
+            if (stoodOn == null || !(stoodOn.Tag is string name) || name.Length == 0
+                || !TopMenuRow().Any(button => ReferenceEquals(button, stoodOn)))
+              return;
+
+            Control? goingTo = NextStanding(stoodOn, args.Key);
+            if (goingTo == null || ReferenceEquals(goingTo, stoodOn))
+              return;
+
+            if (goingTo is Button square && square.Tag is HomeContentTile)
+              FocusNereusTile(square);
+            else if (goingTo.Focus())
+              goingTo.BringIntoView();
+            else
+              return;
+
+            args.Handled = true;
+          },
+          RoutingStrategies.Tunnel,
+          handledEventsToo: true);
 
       // On the cross, the four arrows are the cross itself, exactly as the reference's HomeMenuModel takes them:
       // up and down walk the <i>groups</i> - the main menus of the vertical arm - and left and right walk the
@@ -1268,7 +1347,14 @@ namespace MediaPortal.Frontend.Views
 
     private void OnNereusTileGotFocus(object? sender, RoutedEventArgs args)
     {
-      if (sender is Button button && button.Tag is HomeContentTile tile && tile.Title != null)
+      if (sender is not Button button || button.Tag is not HomeContentTile tile)
+        return;
+
+      _wallStand = button;
+      if (tile.Group != null)
+        _lastTileInGroup[tile.Group] = button;
+
+      if (tile.Title != null)
       {
         _home.SelectedContent = _home.ContentRows.FirstOrDefault(row => ReferenceEquals(row.Title, tile.Title));
       }
@@ -1286,64 +1372,160 @@ namespace MediaPortal.Frontend.Views
           .ToArray();
     }
 
-    private Button? FindDirectionalNereusTile(Button current, IEnumerable<Button> tiles, Key direction)
+    /// <summary>
+    /// Where an arrow key goes from a square of the wall: the reference's own measurement over everything the
+    /// viewer could land on, which is the wall's squares and the menu rail's entries together - one screen, one
+    /// walk, the way MP2 answers its arrows rather than one rule for the wall and a favour for the menu.
+    /// </summary>
+    /// <remarks>
+    /// Measuring rects instead of centres is the whole of the fix. The shortcut squares are a third of the size
+    /// of the covers beside them, so their centres sit nearer the middle of the screen than the centres of the
+    /// covers a row above or below: pressing up from the top row of covers used to leave the wall for a shortcut,
+    /// and down from the bottom row did the same. Under the reference's test a square standing beside the one
+    /// the viewer is on is not above it, however near its centre comes.
+    /// </remarks>
+    private Control? NextOnWall(Button from, Button[] tiles, Key direction)
     {
-      Point? currentCenter = current.TranslatePoint(
-          new Point(current.Bounds.Width / 2, current.Bounds.Height / 2), this);
-      if (currentCenter == null)
+      Rect here = ScreenRect(from);
+      if (here.Width <= 0 || here.Height <= 0)
         return null;
 
-      Button? nearest = null;
-      double bestScore = double.MaxValue;
-      foreach (Button candidate in tiles)
-      {
-        if (ReferenceEquals(candidate, current))
-          continue;
+      Control? next = NextStanding(from, direction, tiles);
 
-        Point? candidateCenter = candidate.TranslatePoint(
-            new Point(candidate.Bounds.Width / 2, candidate.Bounds.Height / 2), this);
-        if (candidateCenter == null)
-          continue;
+      // The reference's <c>RestoreFocus</c>: a list a viewer has already walked hands back the item they last
+      // stood on when the focus re-enters it, and only when that item really does lie in the direction they
+      // asked for - the remembered element is offered to the walk as a candidate, never bolted on afterwards.
+      // Here the "list" is a band of the wall, because this wall holds several bands where MP2's home had
+      // several lists: leaving the shortcuts for the covers and coming back lands on the shortcut that was
+      // stood on before, not on the first one.
+      if (next is Button square && square.Tag is HomeContentTile tile && tile.Group != null
+          && !ReferenceEquals(tile.Group, GroupOf(from))
+          && _lastTileInGroup.TryGetValue(tile.Group, out Button? remembered)
+          && remembered != null
+          && !ReferenceEquals(remembered, next)
+          && tiles.Contains(remembered)
+          && SkinFocusWalk.LiesIn(direction, ScreenRect(remembered), here, out _))
+        return remembered;
 
-        double dx = candidateCenter.Value.X - currentCenter.Value.X;
-        double dy = candidateCenter.Value.Y - currentCenter.Value.Y;
-        double primary;
-        double secondary;
-        switch (direction)
-        {
-          case Key.Left:
-            primary = -dx;
-            secondary = Math.Abs(dy);
-            break;
-          case Key.Right:
-            primary = dx;
-            secondary = Math.Abs(dy);
-            break;
-          case Key.Up:
-            primary = -dy;
-            secondary = Math.Abs(dx);
-            break;
-          case Key.Down:
-            primary = dy;
-            secondary = Math.Abs(dx);
-            break;
-          default:
-            return null;
-        }
-
-        if (primary <= 0)
-          continue;
-
-        double score = primary + secondary * 1.5;
-        if (score < bestScore)
-        {
-          nearest = candidate;
-          bestScore = score;
-        }
-      }
-
-      return nearest;
+      return next;
     }
+
+    /// <summary>
+    /// What the given arrow points at from wherever the viewer stands, measured over the whole screen at once:
+    /// the wall's squares, the menu rail's entries and the face's row of corner buttons are candidates of one
+    /// and the same walk, as they are in the reference, which measures every focusable element of the screen
+    /// together rather than one list against the next.
+    /// </summary>
+    private Control? NextStanding(Control from, Key direction, Button[]? tiles = null)
+    {
+      Rect here = ScreenRect(from);
+      if (here.Width <= 0 || here.Height <= 0)
+        return null;
+
+      List<Control> candidates = new List<Control>(tiles ?? GetFocusableNereusTiles());
+      candidates.AddRange(MenuRailEntries());
+      candidates.AddRange(TopMenuRow());
+      return SkinFocusWalk.Next(candidates, ScreenRect, here, direction);
+    }
+
+    /// <summary>
+    /// The row of buttons the worn face hangs at the top of the screen - the power, the person, the cog and the
+    /// search glass - as what they are to a remote: places a viewer stands on. They carry no name, only their
+    /// Tag, which is also how the press reads them.
+    /// </summary>
+    private IEnumerable<Button> TopMenuRow()
+    {
+      if (!homeOverlays.IsEffectivelyVisible)
+        yield break;
+
+      foreach (Button button in homeOverlays.GetVisualDescendants().OfType<Button>())
+        if (button.Tag is string key && key.Length > 0 && button.Focusable
+            && button.IsEffectivelyVisible && button.IsEnabled)
+          yield return button;
+    }
+
+    /// <summary>
+    /// The button of the top row that stands beside the entry the viewer is on, when one does: the row hangs at
+    /// the head of the screen, so only the head of the menu has it beside it, and every lower entry keeps its
+    /// Right key for the way back to the wall.
+    /// </summary>
+    private Button? BesideTheRow(ListBoxItem? entry)
+    {
+      if (entry == null)
+        return null;
+
+      Rect here = ScreenRect(entry);
+      if (here.Width <= 0 || here.Height <= 0)
+        return null;
+
+      return TopMenuRow()
+          .Where(button =>
+          {
+            Rect standing = ScreenRect(button);
+            return standing.Width > 0 && standing.Right > here.Right
+                && standing.Top < here.Bottom && standing.Bottom > here.Top;
+          })
+          .OrderBy(button => ScreenRect(button).X)
+          .FirstOrDefault();
+    }
+
+    /// <summary>The band a square of the wall stands in, or <c>null</c> for a control that is not one.</summary>
+    private static HomeContentGroup? GroupOf(Control? control)
+    {
+      return control is Button button && button.Tag is HomeContentTile tile ? tile.Group : null;
+    }
+
+    /// <summary>A square's bounds in this screen's own coordinates, the wall's scale and all.</summary>
+    private Rect ScreenRect(Control control)
+    {
+      Point? topLeft = control.TranslatePoint(new Point(), this);
+      Point? bottomRight = control.TranslatePoint(
+          new Point(control.Bounds.Width, control.Bounds.Height), this);
+      if (topLeft == null || bottomRight == null)
+        return default;
+      return new Rect(topLeft.Value, bottomRight.Value);
+    }
+
+    /// <summary>The menu rail's entries, as what the reference treats them as: controls on the same screen.</summary>
+    private IEnumerable<ListBoxItem> MenuRailEntries()
+    {
+      if (!menuList.IsVisible)
+        yield break;
+
+      foreach (ListBoxItem entry in menuList.GetVisualDescendants().OfType<ListBoxItem>())
+        if (entry.Focusable && entry.IsEffectivelyVisible && entry.IsEnabled)
+          yield return entry;
+    }
+
+    /// <summary>
+    /// Puts the focus onto an entry of the menu rail rather than onto the bare list, which shows the viewer a
+    /// frame they can see and gives the arrow keys something to move. The remembered entry is the one the rail
+    /// is already showing; a rail that never chose anything starts at its first.
+    /// </summary>
+    private bool StandOnMenuEntry()
+    {
+      if (!menuList.IsVisible || menuList.Items.Count == 0)
+        return false;
+
+      // Not `SelectedIndex = 0` when nothing is selected: the rail's selection is the standing entry, and
+      // stepping onto the menu by accident would else switch the whole wall. The frame goes where the arrow
+      // points; only pressing changes what the screen is showing.
+      int index = menuList.SelectedIndex >= 0 ? menuList.SelectedIndex : 0;
+      menuList.ScrollIntoView(index);
+
+      return (menuList.ContainerFromIndex(index) as Control)?.Focus() ?? menuList.Focus();
+    }
+
+    /// <summary>The square the viewer last stood on, as long as it is still on the wall.</summary>
+    private Button? LastWallStand()
+    {
+      Button? stood = _wallStand;
+      return stood != null && nereusContentPane.GetVisualDescendants().Contains(stood) ? stood : null;
+    }
+
+    private Button? _wallStand;
+    private readonly Dictionary<HomeContentGroup, Button> _lastTileInGroup =
+        new Dictionary<HomeContentGroup, Button>();
 
     private void FocusNereusTile(Button tile)
     {
