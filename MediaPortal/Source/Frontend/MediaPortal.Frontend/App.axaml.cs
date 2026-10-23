@@ -1132,8 +1132,8 @@ namespace MediaPortal.Frontend
     /// The settings list itself: which places the hub offers, and what each of them opens. The sections are
     /// built here because only the application has what their screens need - the theme picker changes colours
     /// in this application, the folders screen reads through the client the library was read with, and the
-    /// server address belongs to the connection screen, which is pushed as the stop it already is rather than
-    /// rebuilt inside the hub.
+    /// server address screen is the connection screen itself, lent to the hub's pane rather than rebuilt
+    /// inside it.
     /// </summary>
     private SettingsViewModel SettingsModel()
     {
@@ -1170,7 +1170,23 @@ namespace MediaPortal.Frontend
           delegate { return new PlaybackSettingsView(); });
 
       model.Add("Server address", "Frontend", "Which machine holds the library",
-          null, delegate { _workflow.Push(ConnectionFrame()); });
+          delegate
+          {
+            // The very screen the start answers with, lent to the hub's right pane like every other section.
+            // What a save does stays the application's business - swap the client and ask the library again -
+            // but the hub keeps its trail and its back key here; nothing is pushed.
+            ConnectionViewModel viewModel = new ConnectionViewModel(_settings, _settingsPath);
+            viewModel.Saved += delegate (string url)
+            {
+              _home.UseServer(new ServerApiClient(new Uri(url, UriKind.Absolute)));
+              _home.RefreshCommand.Execute(null);
+            };
+            ConnectionView view = new ConnectionView(viewModel);
+            // The workflow is what usually tells a screen it is being looked at; in the pane that moment is the
+            // attach, and the screen starts its search and lays its focus in the same words.
+            view.AttachedToVisualTree += delegate { view.OnScreenActivated(); };
+            return view;
+          });
 
       // Who may sign in, read from the server's own user store the moment the row opens - the reference
       // filed this as "Settings -> Benutzer" for exactly the same reason: the names live on the server,
@@ -1252,8 +1268,8 @@ namespace MediaPortal.Frontend
 
       // The way out. The reference front ends kept leaving the application in dialogSystemState, a dialog
       // every viewer found because a television without a mouse still has to be left somehow; the settings
-      // hub is where this one advertises it, and it pushes the screen rather than embedding it, exactly as
-      // the server address row does - the trail and the back key belong to the close screen, not to the hub.
+      // hub is where this one advertises it, and it pushes the screen rather than embedding it - the trail
+      // and the back key belong to the close screen, not to the hub.
       model.Add("Close", "Frontend", "Leave the application, whatever is playing",
           null, delegate { _workflow.Push(CloseFrame()); });
 

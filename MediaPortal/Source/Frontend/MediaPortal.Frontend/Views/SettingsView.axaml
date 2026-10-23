@@ -11,8 +11,8 @@
     The settings as the reference kept them: not one question, but the list of places a household configures -
     the front end's own machine first, then the server behind it - and the screen each one opens on the right.
     The hub owns no answers of its own: Appearance is the theme screen, Media sources is the folders screen,
-    and the server address hands the pick to the connection screen through the workflow, trail and back key
-    included. Sizes stay compact because the screens embedded here bring their own headings and rows.
+    and the server address is the connection screen itself, standing in the right pane like all the others.
+    Sizes stay compact because the screens embedded here bring their own headings and rows.
   -->
 
   <Grid ColumnDefinitions="330,*" ColumnSpacing="24" Margin="40,20">

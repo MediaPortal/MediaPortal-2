@@ -11,9 +11,9 @@ namespace MediaPortal.Frontend.ViewModels
   /// </summary>
   /// <remarks>
   /// A section either shows a screen of its own inside the settings window or hands the pick to someone else.
-  /// The server address is the section that navigates: changing it is the connection screen's job, complete
-  /// with its own probes and its save - the settings hub lends it the same workflow the home screen's
-  /// "Server" button uses, rather than rebuilding half of that screen a second time.
+  /// What still hands the pick away is leaving the application: the trail and the back key belong to the close
+  /// screen, not to the hub. The server address used to be carried away the same way, to the connection
+  /// screen; it stands inside the hub now like every other section.
   /// </remarks>
   public sealed class SettingsSection
   {
@@ -38,7 +38,7 @@ namespace MediaPortal.Frontend.ViewModels
     /// <summary>The screen this section opens inside the hub, or <c>null</c> when <see cref="Open"/> does the work.</summary>
     public Func<Control?>? Build { get; }
 
-    /// <summary>What the pick does when it is not an embedded screen - pushes the connection frame, today.</summary>
+    /// <summary>What the pick does when it is not an embedded screen - pushes the close screen, today.</summary>
     public Action? Open { get; }
   }
 

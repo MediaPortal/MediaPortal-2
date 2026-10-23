@@ -61,6 +61,11 @@ namespace MediaPortal.Frontend.Views
       _workflow = workflow;
       InitializeComponent();
 
+      // In the settings hub no workflow pushed this screen: the hub's own trail and back key do the leaving,
+      // and a button that would pop nothing should not stand on the pane.
+      if (workflow == null)
+        closeButton.IsVisible = false;
+
       // In the order they are on the screen. The list is first because it is what the viewer is meant to use; the
       // field is in the ring too, so a viewer who has to type an address can walk back into it and correct one
       // character without reaching for a mouse.
