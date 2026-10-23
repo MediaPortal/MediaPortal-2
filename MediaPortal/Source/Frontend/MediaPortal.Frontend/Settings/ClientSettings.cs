@@ -145,6 +145,16 @@ public sealed class ClientSettings
   [JsonPropertyName("rememberedViewer")]
   public string RememberedViewer { get; set; } = "";
 
+  /// <summary>
+  /// Whether the remembered person's door carries four numbers. The wake cannot ask an unreachable server
+  /// about this - and a PIN the server cannot check is a door welded shut, while walking a numbered person
+  /// in unchecked would be no door at all. So the machine remembers what it last knew: with this set, an
+  /// unreachable server keeps the question up and says why nothing can be answered; without it, the PIN-less
+  /// person's fast way in stays. Written whenever the name is written and the server was there to be asked.
+  /// </summary>
+  [JsonPropertyName("rememberedViewerHasPin")]
+  public bool RememberedViewerHasPin { get; set; }
+
   private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
   {
     WriteIndented = true,

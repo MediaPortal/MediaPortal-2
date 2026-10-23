@@ -85,6 +85,21 @@ namespace MediaPortal.Server.Api
       /// <summary>The hour of day the scheduled import pass starts, 0-24, fractions allowed.</summary>
       public double ImporterStartTime { get; set; }
 
+      /// <summary>Whether the household has to say who is watching. Off means nobody is asked.</summary>
+      public bool EnableUserLogin { get; set; }
+
+      /// <summary>Whether the screen that asks is shown when a person is expected.</summary>
+      public bool EnableUserLoginScreen { get; set; }
+
+      /// <summary>The person signed in without being asked, or empty for nobody.</summary>
+      public string AutoLoginUser { get; set; }
+
+      /// <summary>Whether an untouched television gives its user back to the household.</summary>
+      public bool AutoLogoutEnabled { get; set; }
+
+      /// <summary>How many minutes of nothing it takes.</summary>
+      public int AutoLogoutIdleTimeoutInMin { get; set; }
+
       /// <summary>The settings whose change the server only picks up after a restart.</summary>
       public List<string> RestartNeededFor { get; set; }
     }
@@ -117,6 +132,18 @@ namespace MediaPortal.Server.Api
       public bool? ImporterEnabled { get; set; }
 
       public double? ImporterStartTime { get; set; }
+
+      public bool? EnableUserLogin { get; set; }
+
+      public bool? EnableUserLoginScreen { get; set; }
+
+      /// <summary>The person to sign in without asking. Empty means nobody; anything that is not a name the
+      /// store has is refused, because a half-typed id would leave the house asking nobody.</summary>
+      public string AutoLoginUser { get; set; }
+
+      public bool? AutoLogoutEnabled { get; set; }
+
+      public int? AutoLogoutIdleTimeoutInMin { get; set; }
     }
 
     /// <summary>
@@ -132,7 +159,7 @@ namespace MediaPortal.Server.Api
           return StatusCode(StatusCodes.Status503ServiceUnavailable);
 
         return Ok(Of(settingsManager.Load<ServerSettings>(), settingsManager.Load<ImporterWorkerSettings>(),
-            new List<string>()));
+            ReadLoginSettings(settingsManager), new List<string>()));
       }
       catch (IllegalCallException ex)
       {
@@ -160,6 +187,13 @@ namespace MediaPortal.Server.Api
         return BadRequest(new ErrorResponse { Error = "the port has to be between 1 and 65535" });
       if (request.ImporterStartTime is double hour && (hour < 0 || hour >= 24))
         return BadRequest(new ErrorResponse { Error = "the importer's start hour has to be between 0 and 24" });
+      // A timeout the household cannot wait out is a typo too, and a name that does not belong to anybody
+      // would be saved as a person nobody can ever become.
+      if (request.AutoLogoutIdleTimeoutInMin is int minutes && (minutes < 1 || minutes > 24 * 60))
+        return BadRequest(new ErrorResponse { Error = "the idle timeout has to be between 1 and 1440 minutes" });
+      Guid autoLoginUser = Guid.Empty;
+      if (!string.IsNullOrWhiteSpace(request.AutoLoginUser) && !Guid.TryParse(request.AutoLoginUser, out autoLoginUser))
+        return BadRequest(new ErrorResponse { Error = "the auto-login user has to be the id of a user" });
 
       try
       {
@@ -229,7 +263,40 @@ namespace MediaPortal.Server.Api
         if (importerChanged)
           settingsManager.Save(importer);
 
-        return Ok(Of(server, importer, restartNeededFor));
+        // The login policy travels with the household, not with the television, so it is kept here where every
+        // client reads it. A name the store has forgotten is dropped rather than kept, because the reference's
+        // own rule is that an unknown auto-login name is nobody.
+        UserLoginSettings login = ReadLoginSettings(settingsManager);
+        bool loginChanged = false;
+        if (request.EnableUserLogin.HasValue && login.EnableUserLogin != request.EnableUserLogin.Value)
+        {
+          login.EnableUserLogin = request.EnableUserLogin.Value;
+          loginChanged = true;
+        }
+        if (request.EnableUserLoginScreen.HasValue && login.EnableUserLoginScreen != request.EnableUserLoginScreen.Value)
+        {
+          login.EnableUserLoginScreen = request.EnableUserLoginScreen.Value;
+          loginChanged = true;
+        }
+        if (request.AutoLoginUser != null && login.AutoLoginUser != autoLoginUser)
+        {
+          login.AutoLoginUser = autoLoginUser;
+          loginChanged = true;
+        }
+        if (request.AutoLogoutEnabled.HasValue && login.AutoLogoutEnabled != request.AutoLogoutEnabled.Value)
+        {
+          login.AutoLogoutEnabled = request.AutoLogoutEnabled.Value;
+          loginChanged = true;
+        }
+        if (request.AutoLogoutIdleTimeoutInMin is int wantedMinutes && login.AutoLogoutIdleTimeoutInMin != wantedMinutes)
+        {
+          login.AutoLogoutIdleTimeoutInMin = wantedMinutes;
+          loginChanged = true;
+        }
+        if (loginChanged)
+          settingsManager.Save(login);
+
+        return Ok(Of(server, importer, login, restartNeededFor));
       }
       catch (IllegalCallException ex)
       {
@@ -240,8 +307,19 @@ namespace MediaPortal.Server.Api
       }
     }
 
+    /// <summary>
+    /// The household's five rules. A settings manager that has never heard of them - a stand-in that only
+    /// knows the two settings this controller was written for, or a store older than the rules themselves -
+    /// is answered with what a household that never set its rules holds, rather than taking the whole
+    /// settings answer down with it: every other field of this endpoint is worth more than a stack trace.
+    /// </summary>
+    private static UserLoginSettings ReadLoginSettings(ISettingsManager settingsManager)
+    {
+      return settingsManager.Load<UserLoginSettings>() ?? new UserLoginSettings();
+    }
+
     private static ServerSettingsResult Of(ServerSettings server, ImporterWorkerSettings importer,
-        List<string> restartNeededFor)
+        UserLoginSettings login, List<string> restartNeededFor)
     {
       return new ServerSettingsResult
       {
@@ -253,6 +331,11 @@ namespace MediaPortal.Server.Api
         IpAddressBindings = server.IPAddressBindings ?? string.Empty,
         ImporterEnabled = importer.EnableAutoRefresh,
         ImporterStartTime = importer.ImporterStartTime,
+        EnableUserLogin = login.EnableUserLogin,
+        EnableUserLoginScreen = login.EnableUserLoginScreen,
+        AutoLoginUser = login.AutoLoginUser.ToString(),
+        AutoLogoutEnabled = login.AutoLogoutEnabled,
+        AutoLogoutIdleTimeoutInMin = login.AutoLogoutIdleTimeoutInMin,
         RestartNeededFor = restartNeededFor
       };
     }

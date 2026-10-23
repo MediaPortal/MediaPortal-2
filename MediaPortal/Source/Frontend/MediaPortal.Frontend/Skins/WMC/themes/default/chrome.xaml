@@ -18,7 +18,7 @@
        reference's notification slot sits between them, and is filled the way the reference filled its bar: with
        a picture and as few words as it could get away with. -->
   <ControlTemplate x:Key="ChromeHeaderTemplate" TargetType="ContentControl">
-    <Grid ColumnDefinitions="Auto,Auto,*" Margin="10,0" Background="{DynamicResource ScreenBackgroundBrush}">
+    <Grid ColumnDefinitions="Auto,Auto,*,Auto" Margin="10,0" Background="{DynamicResource ScreenBackgroundBrush}">
       <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" Margin="0,0,20,0">
         <TextBlock Text="{Binding Clock}"
                    Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource DateTimeFontSize}"/>
@@ -68,6 +68,8 @@
           </DockPanel>
         </Panel>
       </StackPanel>
+      <!-- Who is watching stays out of this head line, as it was in the reference's WMC masters. The door
+           to the household is the home screen's own, the way Nereus hangs it in its corner row. -->
       <TextBlock Grid.Column="2" Text="{Binding ScreenTitle}"
                  Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeaderFontSize}"
                  VerticalAlignment="Center" TextTrimming="CharacterEllipsis"

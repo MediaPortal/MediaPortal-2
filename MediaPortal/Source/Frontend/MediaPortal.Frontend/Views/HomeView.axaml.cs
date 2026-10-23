@@ -48,6 +48,14 @@ namespace MediaPortal.Frontend.Views
     private readonly Func<WorkflowFrame>? _connectScreen;
     private readonly Func<HomeSection, WorkflowFrame>? _sectionScreen;
     private readonly Func<string, WorkflowFrame>? _screenFactory;
+
+    /// <summary>
+    /// Whether the person watching may reach the screen a corner button names - the application's viewer
+    /// state answered for one key. Null on a machine where nothing is kept from anybody. The buttons read it
+    /// for their face, and the press reads it again, so a name that was hidden a moment ago cannot be opened
+    /// by a highlight that walked onto it a moment before.
+    /// </summary>
+    private readonly Func<string, bool>? _opensScreen;
     private readonly HomeViewModel _home;
 
     /// <summary>
@@ -111,7 +119,7 @@ namespace MediaPortal.Frontend.Views
     /// </param>
     public HomeView(HomeViewModel home, WorkflowManager workflow, Func<WorkflowFrame>? nowPlayingScreen = null,
         Func<WorkflowFrame>? connectScreen = null, Func<HomeSection, WorkflowFrame>? sectionScreen = null,
-        Func<string, WorkflowFrame>? screenFactory = null)
+        Func<string, WorkflowFrame>? screenFactory = null, Func<string, bool>? screenGate = null)
     {
       DataContext = home;
       _home = home;
@@ -121,6 +129,7 @@ namespace MediaPortal.Frontend.Views
       _connectScreen = connectScreen;
       _sectionScreen = sectionScreen;
       _screenFactory = screenFactory;
+      _opensScreen = screenGate;
       InitializeComponent();
 
       // One wall on the screen, and the change of entries is this wall going out and its successor coming up. The
@@ -386,7 +395,17 @@ namespace MediaPortal.Frontend.Views
           delegate (object? sender, RoutedEventArgs e)
           {
             if (e.Source is Button { Tag: string key } && key.Length > 0)
+            {
+              // A door the person watching is not allowed through does not open - which is also how the
+              // reference answered it, by never hanging the handle there at all. The buttons already hide
+              // themselves (ApplyScreenGates); this is the same rule read a second time at the press, so a
+              // highlight that walked onto a still-visible button from before the last switch cannot get
+              // further than the key it stands on.
+              if (_opensScreen != null && !_opensScreen(key))
+                return;
+
               OpenScreen(key);
+            }
           },
           RoutingStrategies.Bubble);
 
@@ -813,6 +832,40 @@ namespace MediaPortal.Frontend.Views
       // comes back when a face says nothing about overlays.
       plainBackground.IsVisible = homeBackground.Template == null;
       plainOverlays.IsVisible = homeOverlays.Template == null;
+      ApplyScreenGates();
+      Dispatcher.UIThread.Post(ApplyScreenGates, DispatcherPriority.Loaded);
+    }
+
+    /// <summary>
+    /// Takes the corner buttons of the worn face away from the screens the person watching may not reach -
+    /// which is the reference's own answer to a restricted user's settings entry: it was never offered, not
+    /// refused. A face that hangs no buttons has nothing to take away, and a house without restrictions
+    /// leaves every button where it stands.
+    /// </summary>
+    private void ApplyScreenGates()
+    {
+      if (_opensScreen == null)
+        return;
+
+      homeOverlays.ApplyTemplate();
+      // The buttons sit under the panel the face's markup roots its overlays in, so the walk has to go down
+      // rather than only one level - a face is free to lay its corner out however it likes.
+      foreach (Avalonia.Controls.Button button in homeOverlays.GetVisualDescendants()
+          .OfType<Avalonia.Controls.Button>())
+      {
+        if (button.Tag is string key)
+          button.IsVisible = _opensScreen(key);
+      }
+    }
+
+    /// <summary>
+    /// Says the gates over again - which is what the application does the moment the person watching moves,
+    /// so the home the child walks into hides the cog without a word and the home the grown-up switches to
+    /// has it back.
+    /// </summary>
+    public void ReapplyScreenGates()
+    {
+      ApplyScreenGates();
     }
 
     /// <summary>

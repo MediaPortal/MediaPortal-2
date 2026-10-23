@@ -134,6 +134,19 @@ namespace Tests.Frontend
                     ? new ServerSettingsAnswer { UseIPv6 = true, RestartNeededFor = new List<string> { "use_ipv6" } }
                     : new ServerSettingsAnswer { UseIPv6 = false });
             }
+
+            public Task<LoginPolicyAnswer> GetLoginPolicyAsync(CancellationToken cancellation = default)
+            {
+                Assert.Fail("this row only ever puts server settings");
+                return Task.FromResult(new LoginPolicyAnswer());
+            }
+
+            public Task<LoginPolicyAnswer> PutLoginPolicyAsync(LoginPolicyWish wish,
+                CancellationToken cancellation = default)
+            {
+                Assert.Fail("this row only ever puts server settings");
+                return Task.FromResult(new LoginPolicyAnswer());
+            }
         }
     }
 }

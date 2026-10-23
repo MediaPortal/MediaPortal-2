@@ -186,5 +186,24 @@ namespace MediaPortal.Frontend.Workflow
         Removed?.Invoke(gone);
       }
     }
+
+    /// <summary>
+    /// Starts the way through again from one bottom stop - what signing out means: the whole trail the
+    /// signed-in person walked is closed for good, every closed stop hears <see cref="Removed"/> so the
+    /// channel it was watching stops with it, and the new bottom is the only place the viewer can stand.
+    /// A trail that merely went out of sight would let the back key walk a signed-out television back into
+    /// somebody else's half-open screens.
+    /// </summary>
+    public void Reset(WorkflowFrame root)
+    {
+      if (root == null)
+        throw new ArgumentNullException(nameof(root));
+      List<WorkflowFrame> closed = new List<WorkflowFrame>(_stack);
+      _stack.Clear();
+      _stack.Add(root);
+      Changed?.Invoke();
+      foreach (WorkflowFrame gone in closed)
+        Removed?.Invoke(gone);
+    }
   }
 }

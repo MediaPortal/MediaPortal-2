@@ -69,30 +69,69 @@
 
       <StackPanel Grid.Column="1" Spacing="10" VerticalAlignment="Top">
 
-        <Grid ColumnDefinitions="200,320" RowDefinitions="Auto,Auto" Margin="0,4,0,4">
-          <TextBlock Grid.Row="0" Grid.Column="0" Text="Name" FontSize="16" VerticalAlignment="Center" Margin="0,6" />
-          <TextBox Grid.Row="0" Grid.Column="1"
-                   Name="nameBox"
-                   views:VirtualKeyboardService.Trigger="EnterOrMenu"
-                   Text="{Binding NameText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                   FontSize="16"
-                   Focusable="True"
-                   Padding="10,4"
-                   Margin="0,4" />
-          <TextBlock Grid.Row="1" Grid.Column="0" Text="New PIN (4 digits)" FontSize="16" VerticalAlignment="Center" Margin="0,6" />
-          <TextBox Grid.Row="1" Grid.Column="1"
-                   Name="passwordBox"
-                   views:VirtualKeyboardService.Trigger="EnterOrMenu"
-                   Text="{Binding PasswordText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                   FontSize="16"
-                   Focusable="True"
-                   PasswordChar="•"
-                   RevealPassword="True"
-                   MaxLength="4"
-                   PlaceholderText="0000 - or empty for no PIN"
-                   Padding="10,4"
-                   Margin="0,4" />
-        </Grid>
+        <StackPanel Orientation="Horizontal" Spacing="16">
+          <!-- The user's face, as the reference's editor showed it: a frame here, a file dialog behind the
+               press, the initial of the name whenever no picture was ever chosen. -->
+          <Panel Width="96" Height="96" VerticalAlignment="Top">
+            <Border Width="96" Height="96" CornerRadius="48"
+                    Background="#22FFFFFF"
+                    IsVisible="{Binding !HasPicture}">
+              <TextBlock Text="{Binding NameText, FallbackValue='?'}"
+                         FontSize="40" FontWeight="SemiBold"
+                         HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <Border Width="96" Height="96" CornerRadius="48" ClipToBounds="True">
+              <Image Source="{Binding PicturePreview}" Stretch="UniformToFill" />
+            </Border>
+          </Panel>
+
+          <Grid ColumnDefinitions="200,320" RowDefinitions="Auto,Auto,Auto" Margin="0,4,0,4">
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Name" FontSize="16" VerticalAlignment="Center" Margin="0,6" />
+            <TextBox Grid.Row="0" Grid.Column="1"
+                     Name="nameBox"
+                     views:VirtualKeyboardService.Trigger="EnterOrMenu"
+                     Text="{Binding NameText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     FontSize="16"
+                     Focusable="True"
+                     Padding="10,4"
+                     Margin="0,4" />
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="New PIN (4 digits)" FontSize="16" VerticalAlignment="Center" Margin="0,6" />
+            <TextBox Grid.Row="1" Grid.Column="1"
+                     Name="passwordBox"
+                     views:VirtualKeyboardService.Trigger="EnterOrMenu"
+                     Text="{Binding PasswordText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     FontSize="16"
+                     Focusable="True"
+                     PasswordChar="•"
+                     RevealPassword="True"
+                     MaxLength="4"
+                     PlaceholderText="0000 - or empty for no PIN"
+                     Padding="10,4"
+                     Margin="0,4" />
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="Kind" FontSize="16" VerticalAlignment="Center" Margin="0,6" />
+            <ComboBox Grid.Row="2" Grid.Column="1"
+                      Name="kindBox"
+                      ItemsSource="{Binding Kinds}"
+                      SelectedItem="{Binding KindPick, Mode=TwoWay}"
+                      ItemTemplate="{x:Null}"
+                      FontSize="16"
+                      Focusable="True"
+                      HorizontalAlignment="Left"
+                      MinWidth="260"
+                      Margin="0,4">
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="api:ProfileTemplateInfo">
+                  <TextBlock Text="{Binding Name}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+          </Grid>
+
+          <TextBlock Text="{Binding KindSays}"
+                     FontSize="14"
+                     Opacity="0.6"
+                     TextWrapping="Wrap" />
+        </StackPanel>
 
         <TextBlock Text="{Binding SelectionSays}"
                    FontSize="14"
@@ -130,20 +169,199 @@
                   FontSize="16"
                   Focusable="True"
                   Padding="18,8" />
+          <Button Name="pickPictureButton"
+                  Content="Choose a picture..."
+                  Click="OnPickPicture"
+                  IsEnabled="{Binding HasSelection}"
+                  FontSize="16"
+                  Focusable="True"
+                  Padding="18,8" />
+          <Button Name="removePictureButton"
+                  Content="Take the picture away"
+                  Command="{Binding RemovePictureCommand}"
+                  IsEnabled="{Binding HasPicture}"
+                  FontSize="16"
+                  Focusable="True"
+                  Padding="18,8" />
+        </StackPanel>
+
+        <TextBlock Text="{Binding PictureSays}"
+                   FontSize="14"
+                   Opacity="0.6"
+                   TextWrapping="Wrap" />
+
+        <!--
+          What this user may watch. The reference kept these on the same window as the name and the PIN, and
+          it filtered the library by them rather than locking titles behind a prompt: a title a child may not
+          see is simply not in the library that child is shown. The two small switches are the reference's
+          own two exceptions - a rating that only stands with a parent present, and titles no one rated.
+        -->
+        <StackPanel Spacing="6" Margin="0,10,0,0">
+          <CheckBox Name="restrictAgesBox"
+                    Content="Only show what a viewer this old may see"
+                    IsChecked="{Binding RestrictAgesChecked, Mode=TwoWay}"
+                    IsEnabled="{Binding HasSelection}"
+                    FontSize="16"
+                    Focusable="True" />
+          <StackPanel Orientation="Horizontal" Spacing="12" Margin="24,0,0,0">
+            <TextBlock Text="Age" FontSize="16" VerticalAlignment="Center" />
+            <TextBox Name="ageBox"
+                     views:VirtualKeyboardService.Trigger="EnterOrMenu"
+                     Text="{Binding AgeText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     Width="80"
+                     FontSize="16"
+                     Focusable="True"
+                     PlaceholderText="e.g. 12"
+                     Padding="10,4" />
+            <CheckBox Name="parentGuidedBox"
+                      Content="also what needs a parent present"
+                      IsChecked="{Binding ParentGuidedChecked, Mode=TwoWay}"
+                      IsEnabled="{Binding HasSelection}"
+                      FontSize="16"
+                      Focusable="True" />
+            <CheckBox Name="unratedBox"
+                      Content="also titles with no rating"
+                      IsChecked="{Binding UnratedChecked, Mode=TwoWay}"
+                      IsEnabled="{Binding HasSelection}"
+                      FontSize="16"
+                      Focusable="True" />
+          </StackPanel>
+        </StackPanel>
+
+        <!-- The parts of the television a user can be kept out of, under the names the reference registered
+             them by. A box left free is a part this user does not reach once the switch is on. -->
+        <StackPanel Spacing="6" Margin="0,10,0,0">
+          <CheckBox Name="restrictGroupsBox"
+                    Content="Keep this user out of the parts not ticked below"
+                    IsChecked="{Binding RestrictGroupsChecked, Mode=TwoWay}"
+                    IsEnabled="{Binding HasSelection}"
+                    FontSize="16"
+                    Focusable="True" />
+          <ItemsControl Name="groupRows"
+                        ItemsSource="{Binding GroupRows}"
+                        Margin="24,0,0,0"
+                        IsVisible="{Binding HasSelection}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:RestrictionRow">
+                <CheckBox Content="{Binding Says}"
+                          IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                          FontSize="15"
+                          Focusable="True"
+                          Margin="0,2" />
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+
+        <!-- The server's own folders, one box each. Ticked means the user may open it once the switch above
+             the boxes is on; unticked means its titles never arrive in their lists. -->
+        <StackPanel Spacing="6" Margin="0,10,0,0" IsVisible="{Binding HasSelection}">
+          <CheckBox Name="restrictSharesBox"
+                    Content="Only let this user into the folders ticked below"
+                    IsChecked="{Binding RestrictSharesChecked, Mode=TwoWay}"
+                    FontSize="16"
+                    Focusable="True" />
+          <ItemsControl Name="shareRows"
+                        ItemsSource="{Binding ShareRows}"
+                        Margin="24,0,0,0"
+                        MaxHeight="180">
+            <ItemsControl.Styles>
+              <Style Selector="ItemsControl">
+                <Setter Property="Template">
+                  <ControlTemplate>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                      <ItemsPresenter />
+                    </ScrollViewer>
+                  </ControlTemplate>
+                </Setter>
+              </Style>
+            </ItemsControl.Styles>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:RestrictionRow">
+                <CheckBox Content="{Binding Says}"
+                          IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                          FontSize="15"
+                          Focusable="True"
+                          Margin="0,2" />
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
         </StackPanel>
 
         <!--
-          Who is watching, which the reference kept under these very users: the switch that turns the
-          waking question on, today's answer beside it, and the press that forgets the answer so the
-          next start asks again. It lives here, on this box, and not in the server's store - the
-          question is asked in the living room.
+          The house rules - the reference's five Global login settings, on the server where the reference
+          kept them, edited here under these very users. A second television in the house is then asked by
+          the same questions and let in by the same door, which is exactly what "Global" was for.
         -->
         <StackPanel Spacing="6" Margin="0,16,0,0">
-          <CheckBox Name="askViewerBox"
-                    Content="Ask who is watching when the screen wakes"
-                    IsChecked="{Binding AskForViewer, Mode=TwoWay}"
+          <TextBlock Text="House rules (kept on the server)"
+                     FontSize="16"
+                     FontWeight="SemiBold" />
+          <CheckBox Name="askLoginBox"
+                    Content="Ask who is watching when a television wakes"
+                    IsChecked="{Binding AskLoginChecked, Mode=TwoWay}"
+                    IsEnabled="{Binding HasPolicy}"
                     FontSize="16"
                     Focusable="True" />
+          <CheckBox Name="showLoginScreenBox"
+                    Content="Show the question when a person is expected"
+                    IsChecked="{Binding ShowLoginScreenChecked, Mode=TwoWay}"
+                    IsEnabled="{Binding HasPolicy}"
+                    FontSize="16"
+                    Focusable="True" />
+          <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,2,0,0">
+            <TextBlock Text="Walks in without being asked:" FontSize="16" VerticalAlignment="Center" />
+            <ComboBox Name="autoLoginBox"
+                      ItemsSource="{Binding LoginCandidates}"
+                      SelectedItem="{Binding AutoLoginPick, Mode=TwoWay}"
+                      IsEnabled="{Binding HasPolicy}"
+                      MinWidth="220"
+                      FontSize="16"
+                      Focusable="True">
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="api:UserInfo">
+                  <TextBlock Text="{Binding Name}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,2,0,0">
+            <CheckBox Name="autoLogoutBox"
+                      Content="Sign out after"
+                      IsChecked="{Binding AutoLogoutChecked, Mode=TwoWay}"
+                      IsEnabled="{Binding HasPolicy}"
+                      FontSize="16"
+                      Focusable="True" />
+            <TextBox Name="timeoutBox"
+                     views:VirtualKeyboardService.Trigger="EnterOrMenu"
+                     Text="{Binding TimeoutText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     Width="80"
+                     FontSize="16"
+                     Focusable="True"
+                     Padding="10,4" />
+            <TextBlock Text="minutes of nothing" FontSize="16" VerticalAlignment="Center" />
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" Spacing="14">
+            <Button Name="savePolicyButton"
+                    Content="Save the house rules"
+                    Command="{Binding SavePolicyCommand}"
+                    IsEnabled="{Binding HasPolicy}"
+                    FontSize="16"
+                    Focusable="True"
+                    Padding="18,8" />
+          </StackPanel>
+          <TextBlock Text="{Binding PolicySays}"
+                     FontSize="14"
+                     Opacity="0.6"
+                     TextWrapping="Wrap" />
+        </StackPanel>
+
+        <!-- Whom this television remembers, which belongs to the box in front of the screen and not to the
+             server: the wake asks whom it last let in, and this press sends it back to the question. -->
+        <StackPanel Spacing="6" Margin="0,16,0,0">
+          <TextBlock Text="This television"
+                     FontSize="16"
+                     FontWeight="SemiBold" />
           <TextBlock Text="{Binding WatchingSays}"
                      FontSize="14"
                      Opacity="0.6"

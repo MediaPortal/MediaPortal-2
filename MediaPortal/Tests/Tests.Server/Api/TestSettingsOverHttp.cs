@@ -56,6 +56,7 @@ namespace Tests.Server.Api
     private string _baseUrl;
     private ServerSettings _server;
     private ImporterWorkerSettings _importer;
+    private UserLoginSettings _login;
 
     [TearDown]
     public void StopEverything()
@@ -86,12 +87,15 @@ namespace Tests.Server.Api
       // instance, so a test can ask whether a PUT actually reached the settings or only the answer.
       _server = new ServerSettings { WebAutorizationEnabled = authorize, HttpServerPort = 55555 };
       _importer = new ImporterWorkerSettings { EnableAutoRefresh = true, ImporterStartTime = 2.0 };
+      _login = new UserLoginSettings();
 
       Mock<ISettingsManager> settingsManager = new Mock<ISettingsManager>();
       settingsManager.Setup(s => s.Load<ServerSettings>()).Returns(() => _server);
       settingsManager.Setup(s => s.Load<ImporterWorkerSettings>()).Returns(() => _importer);
+      settingsManager.Setup(s => s.Load<UserLoginSettings>()).Returns(() => _login);
       settingsManager.Setup(s => s.Save(It.IsAny<ServerSettings>())).Callback<object>(o => _server = (ServerSettings)o);
       settingsManager.Setup(s => s.Save(It.IsAny<ImporterWorkerSettings>())).Callback<object>(o => _importer = (ImporterWorkerSettings)o);
+      settingsManager.Setup(s => s.Save(It.IsAny<UserLoginSettings>())).Callback<object>(o => _login = (UserLoginSettings)o);
       ServiceRegistration.Set<ISettingsManager>(settingsManager.Object);
 
       ServiceRegistration.Set<IThreadPool>(new Mock<IThreadPool>().Object);
@@ -149,6 +153,12 @@ namespace Tests.Server.Api
       Assert.That(read.HttpServerPort, Is.EqualTo(55555));
       Assert.That(read.ImporterEnabled, Is.True);
       Assert.That(read.ImporterStartTime, Is.EqualTo(2.0));
+      Assert.That(read.EnableUserLogin, Is.True,
+          "a household that has given its people names and numbers is asked about them from the first start");
+      Assert.That(read.EnableUserLoginScreen, Is.True);
+      Assert.That(read.AutoLoginUser, Is.EqualTo(Guid.Empty.ToString()), "and nobody is walked in yet");
+      Assert.That(read.AutoLogoutEnabled, Is.False);
+      Assert.That(read.AutoLogoutIdleTimeoutInMin, Is.EqualTo(30));
       Assert.That(read.RestartNeededFor, Is.Empty,
           "reading changes nothing, so nothing awaits a restart");
     }
@@ -199,6 +209,52 @@ namespace Tests.Server.Api
       Assert.That(_server.WebAutorizationEnabled, Is.True, "and the settings themselves hold it");
       Assert.That(_importer.ImporterStartTime, Is.EqualTo(3.5));
       Assert.That(_importer.EnableAutoRefresh, Is.False);
+    }
+
+    [Test]
+    public async Task TheHouseholdsRulesLandInTheSettingsNotOnlyInTheAnswer()
+    {
+      StartServer();
+
+      Guid ralf = Guid.NewGuid();
+      (HttpStatusCode code, string body) = await Put(_baseUrl + "/api/media/settings",
+          "{\"enableUserLogin\":true,\"enableUserLoginScreen\":false,\"autoLoginUser\":\"" + ralf +
+          "\",\"autoLogoutEnabled\":true,\"autoLogoutIdleTimeoutInMin\":15}");
+      Assert.That(code, Is.EqualTo(HttpStatusCode.OK), body);
+
+      SettingsController.ServerSettingsResult read =
+          JsonSerializer.Deserialize<SettingsController.ServerSettingsResult>(body, Json);
+      Assert.That(read.EnableUserLoginScreen, Is.False);
+      Assert.That(read.AutoLoginUser, Is.EqualTo(ralf.ToString()));
+      Assert.That(read.AutoLogoutEnabled, Is.True);
+      Assert.That(read.AutoLogoutIdleTimeoutInMin, Is.EqualTo(15));
+
+      Assert.That(_login.EnableUserLoginScreen, Is.False,
+          "the rules belong to the household, so they are kept and not only echoed back");
+      Assert.That(_login.AutoLoginUser, Is.EqualTo(ralf));
+      Assert.That(_login.AutoLogoutIdleTimeoutInMin, Is.EqualTo(15));
+
+      (code, body) = await Get(_baseUrl + "/api/media/settings");
+      read = JsonSerializer.Deserialize<SettingsController.ServerSettingsResult>(body, Json);
+      Assert.That(read.AutoLogoutIdleTimeoutInMin, Is.EqualTo(15),
+          "and the next television in the house reads the same household");
+      Assert.That(read.RestartNeededFor, Is.Empty, "no rule of the household waits for a reboot");
+    }
+
+    [Test]
+    public async Task ARuleNobodyCouldMeanIsRefusedWholesale()
+    {
+      StartServer();
+
+      (HttpStatusCode code, string body) = await Put(_baseUrl + "/api/media/settings",
+          "{\"autoLogoutIdleTimeoutInMin\":0}");
+      Assert.That(code, Is.EqualTo(HttpStatusCode.BadRequest), body);
+      Assert.That(_login.AutoLogoutIdleTimeoutInMin, Is.EqualTo(30), "and the half hour stayed");
+
+      // A half-typed id would be saved as a person nobody can ever become, so it never reaches the store.
+      (code, body) = await Put(_baseUrl + "/api/media/settings", "{\"autoLoginUser\":\"half-typed\"}");
+      Assert.That(code, Is.EqualTo(HttpStatusCode.BadRequest), body);
+      Assert.That(_login.AutoLoginUser, Is.EqualTo(Guid.Empty), "and nobody was expected because of a typo");
     }
 
     [Test]

@@ -183,8 +183,82 @@ namespace Tests.Frontend
     }
 
     [Test]
-    public async Task TheServersOwnOpinionAboutANameIsQuotedNotInvented()
+    public async Task AChildIsAddedAsAChildWithTheChildsRules()
     {
+      FakeUsersApi api = new FakeUsersApi();
+      UsersSettingsViewModel model = new UsersSettingsViewModel(() => api);
+      model.NameText = "Kim";
+
+      // The reference's kind picker: picking a kind lays its preset under the boxes, editable from there.
+      model.KindPick = ProfileTemplates.Child;
+      Assert.That(model.RestrictAgesChecked, Is.True);
+      Assert.That(model.AgeText, Is.EqualTo("5"));
+      Assert.That(model.RestrictGroupsChecked, Is.True);
+      Assert.That(model.KindSays, Does.Contain("Five years"));
+
+      await model.AddAsync();
+
+      Assert.That(api.Created!.TemplateId, Is.EqualTo(ProfileTemplates.Child.TemplateId.ToString("D")),
+          "the picked kind travels with the user, under the reference's own template id");
+      Assert.That(api.Created!.Restrictions!.RestrictAges, Is.True);
+      Assert.That(api.Created!.Restrictions!.AllowedAge, Is.EqualTo(5));
+    }
+
+    [Test]
+    public async Task AKindStandsBesideThePersonWithoutRewritingTheirRules()
+    {
+      Guid id = Guid.NewGuid();
+      FakeUsersApi api = new FakeUsersApi
+      {
+        ListAnswer = new UsersAnswer
+        {
+          Users = new[]
+          {
+            new UserInfo
+            {
+              ProfileId = id, Name = "Kim", RestrictAges = true, AllowedAge = 9,
+              TemplateId = ProfileTemplates.Child.TemplateId.ToString("D")
+            }
+          }
+        }
+      };
+      UsersSettingsViewModel model = new UsersSettingsViewModel(() => api);
+      await model.LoadAsync();
+
+      Assert.That(model.Users[0].Label, Does.Not.Contain("(admin)"), "a child is not the grown-up");
+      Assert.That(model.Users[0].TemplateName, Is.EqualTo("Child"),
+          "the kind the reference stored on the profile, said in the household's words");
+
+      model.Selected = model.Users[0];
+      Assert.That(model.KindPick, Is.SameAs(ProfileTemplates.Child));
+      Assert.That(model.AgeText, Is.EqualTo("9"),
+          "the kind names what somebody is; the person's own raised ceiling is what the boxes say");
+      Assert.That(model.SelectionSays, Does.Contain("added as a Child"));
+    }
+
+    [Test]
+    public void TheAdministratorIsDerivedAndSaid()
+    {
+      UserInfo grown = new UserInfo { ProfileId = Guid.NewGuid(), Name = "Grown", IsAdmin = true };
+      Assert.That(grown.Label, Does.Contain("(admin)"));
+
+      UserInfo teen = new UserInfo
+      {
+        ProfileId = Guid.NewGuid(), Name = "Tim", TemplateId = ProfileTemplates.Teenager.TemplateId.ToString("D")
+      };
+      Assert.That(teen.TemplateName, Is.EqualTo("Teenager"));
+      Assert.That(teen.Label, Does.Not.Contain("(admin)"));
+
+      Assert.That(ProfileTemplates.Find("no guide at all"), Is.Null,
+          "a stored kind nobody knows here is no kind, said as nothing rather than guessed");
+      Assert.That(ProfileTemplates.Find(null), Is.Null);
+      Assert.That(ProfileTemplates.Catalog.Select(t => t.Name),
+          Is.EqualTo(new[] { "Admin", "Teenager", "Child" }),
+          "the reference's three, in its order");
+    }
+
+    [Test]
+    public async Task TheServersOwnOpinionAboutANameIsQuotedNotInvented()    {
       FakeUsersApi api = new FakeUsersApi
       {
         WriteAnswer = new UserAnswer { Error = "There is already a user called 'Father'." }

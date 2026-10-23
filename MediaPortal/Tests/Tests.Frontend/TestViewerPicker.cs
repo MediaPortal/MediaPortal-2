@@ -170,25 +170,28 @@ namespace Tests.Frontend
     }
 
     [Test]
-    public void TheAskingSwitchLivesWithTheUsersAndTheAnswerCanBeForgotten()
+    public void TheAskingSwitchLeftForTheServerAndTheAnswerCanBeForgotten()
     {
+      // The switch that decides whether the front end asks lives with the other house rules on the server
+      // now, so the users screen has no asking checkbox of its own left to flip. What it keeps is the
+      // local half: the remembered answer, which is this machine's business.
       UsersSettingsViewModel screen = new UsersSettingsViewModel(() => null);
 
-      Assert.That(screen.AskForViewer, Is.False, "off is the shipped answer, like the reference's login plugin");
-      screen.AskForViewer = true;
-      Assert.That(ClientSettings.Load(null, out _).AskForViewer, Is.True,
-          "the switch is written where it is flipped, like every other row on this screen");
+      Assert.That(screen.HasPolicy, Is.False, "no server means no house rules to show, and no rules invented");
+      ClientSettings remembered = ClientSettings.Load(null, out _);
+      remembered.RememberedViewer = "";
+      remembered.Save(null, out _);
       Assert.That(screen.WatchingSays, Does.Contain("all together"));
 
-      ViewerPickerViewModel picker = new ViewerPickerViewModel(() => null, delegate { });
-      picker.Pick("Ralf");
+      remembered = ClientSettings.Load(null, out _);
+      remembered.RememberedViewer = "Ralf";
+      remembered.Save(null, out _);
       Assert.That(screen.WatchingSays, Does.Contain("Ralf"),
-          "the users screen sees the answer the picker left behind");
+          "the users screen sees the answer the wake left behind");
 
       screen.AskAgainNextStart();
       Assert.That(ClientSettings.Load(null, out _).RememberedViewer, Is.Empty);
-      Assert.That(ClientSettings.Load(null, out _).AskForViewer, Is.True,
-          "asking again is one press, and it is here rather than in a file somebody has to find");
+      Assert.That(screen.WatchingSays, Does.Contain("all together"));
     }
 
     [Test]

@@ -158,6 +158,7 @@ namespace MediaPortal.Frontend.ViewModels
     private readonly Func<TvBackendSettings> _settingsProvider;
     private readonly Func<TvBackendSettings, TvHeadendApiClient> _buildClient;
     private readonly Action<Action> _marshal;
+    private readonly Func<bool> _mayDelete;
     private CancellationTokenSource? _inFlight;
     private int _generation;
     private bool _disposed;
@@ -184,8 +185,14 @@ namespace MediaPortal.Frontend.ViewModels
     /// across the network answers on a thread of its own, and the rows a screen is bound to belong to the thread
     /// that made them, so a screen with controls on it has to hand this over - see <c>Views/ScreenThread.cs</c>.
     /// </param>
+    /// <param name="mayDelete">
+    /// Whether the person watching may throw a recording away - the reference's
+    /// <c>SlimTvClient.DeleteRecording</c> group, answered by the application's viewer state. The press says
+    /// what it thinks when the answer is no, and the button stands the answer out in its own words.
+    /// </param>
     public TvSchedulesViewModel(bool finishedFirst = false, Func<TvBackendSettings>? settingsProvider = null,
-        Func<TvBackendSettings, TvHeadendApiClient>? clientFactory = null, Action<Action>? marshal = null)
+        Func<TvBackendSettings, TvHeadendApiClient>? clientFactory = null, Action<Action>? marshal = null,
+        Func<bool>? mayDelete = null)
     {
       _settingsProvider = settingsProvider ?? delegate { return TvBackendSettings.Load(null, out _); };
       _buildClient = clientFactory ?? delegate (TvBackendSettings settings)
@@ -193,6 +200,7 @@ namespace MediaPortal.Frontend.ViewModels
         return DemoTvBackend.Open(settings);
       };
       _marshal = marshal ?? delegate (Action action) { action(); };
+      _mayDelete = mayDelete ?? delegate { return true; };
 
       Tables.Add(new TvTableChoice("Planned", TvRecordingTable.Upcoming));
       Tables.Add(new TvTableChoice("Recorded", TvRecordingTable.Finished));
@@ -424,12 +432,28 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
+    /// Whether the delete press would do anything for the person watching. The button reads it; the model
+    /// checks it again when it is answered, because a screen that only hides a thing it also has to refuse
+    /// has one rule and not two.
+    /// </summary>
+    public bool MayDelete
+    {
+      get { return _mayDelete(); }
+    }
+
+    /// <summary>
     /// Takes the entry away, or the series and the entry both when the series switch is on. The file a finished
     /// recording wrote is the backend's to keep or lose, which is what a TVHeadend does with it when its own
     /// retention says so; nothing here deletes from a disk it cannot see.
     /// </summary>
     public Task DeleteAsync()
     {
+      if (!_mayDelete())
+      {
+        Status = "You are not allowed to throw recordings away.";
+        return Task.CompletedTask;
+      }
+
       TvScheduleRow? row = SelectedRow;
       if (row == null)
       {

@@ -325,6 +325,17 @@ namespace MediaPortal.Frontend.Api
       [property: JsonPropertyName("mediaCategories")] IReadOnlyList<string>? MediaCategories);
 
   /// <summary>
+  /// The folders the library is built from, on their own interface for the same reason the other API pairs
+  /// are cut out: the Users editor offers a child's share allowlist as the server's own folders, and a test
+  /// should be able to hand it a list without a server. <see cref="ServerApiClient"/> answers it.
+  /// </summary>
+  public interface ISharesApi
+  {
+    System.Threading.Tasks.Task<SharesAnswer> GetSharesAsync(
+        System.Threading.CancellationToken cancellation = default);
+  }
+
+  /// <summary>
   /// One job the importer still holds, from <c>GET api/media/import</c>.
   /// </summary>
   public record ImportJob(

@@ -16,24 +16,23 @@
 */
 
 using System;
-using System.Globalization;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Data.Converters;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.Controls.Shapes;
 using Avalonia.Threading;
-using MediaPortal.Frontend.Api;
 using MediaPortal.Frontend.ViewModels;
 
 namespace MediaPortal.Frontend.Views
 {
   /// <summary>
   /// The wake screen. The model decides what is asked; this file is the clock and the thumbs: it turns the
-  /// wake ring, breathes the halo, draws four characters of the model's PIN into the four boxes with the
-  /// next one lit, shakes the card when the numbers were wrong, and takes keys - digits from anywhere,
-  /// Backspace to take one back, the back key refused, Enter on a picked name taken.
+  /// wake ring for its one turn and lets it go, breathes the halo, stands one dot in each box a number has
+  /// reached with the next one lit - never the number itself - shakes the card when the numbers were wrong,
+  /// and takes the keys: digits from anywhere, Backspace or Delete to take one back, the arrows and Tab
+  /// between the boxes and the picture, and the back key refused.
   /// </summary>
   /// <remarks>
   /// The animation runs on a dispatcher timer that counts milliseconds, the way <see cref="DissolveImage"/>
@@ -51,10 +50,20 @@ namespace MediaPortal.Frontend.Views
 
     private DispatcherTimer? _clock;
     private DispatcherTimer? _shake;
+    private DispatcherTimer? _fade;
     private DateTime _clockFrom;
     private int _shakeStep;
+    private int _fadeStep;
+    private bool _ringDone;
     private bool _started;
     private StartupViewModel? _model;
+
+    /// <summary>
+    /// One turn of the ring: 360° at the wake's 150° a second. The animation is shown for exactly this much
+    /// of the screen's clock and then leaves, so it is a greeting rather than a screensaver - but it is
+    /// always shown, whatever the server reads happen to take.
+    /// </summary>
+    private const double PASS_SECONDS = 2.4;
 
     public StartupView()
     {
@@ -67,24 +76,24 @@ namespace MediaPortal.Frontend.Views
       halo.RenderTransform = _haloBreath;
       pinCard.RenderTransform = _nudge;
 
-      // Enter on a picked name takes it, like the server list on the connection screen; a double tap is the
+      // Enter on a picked face takes it, like the server list on the connection screen; a double tap is the
       // same answer for the pointer.
       othersList.AddHandler(KeyDownEvent,
           delegate (object? sender, KeyEventArgs args)
           {
             if (args.Key != Key.Enter && args.Key != Key.Return)
               return;
-            if (_model != null && othersList.SelectedItem is UserInfo picked)
+            if (_model != null && othersList.SelectedItem is StartupViewModel.HouseholdFace picked)
             {
               args.Handled = true;
-              _model.PickOther(picked);
+              _model.PickFace(picked);
             }
           },
           RoutingStrategies.Tunnel);
       othersList.DoubleTapped += delegate
       {
-        if (_model != null && othersList.SelectedItem is UserInfo picked)
-          _model.PickOther(picked);
+        if (_model != null && othersList.SelectedItem is StartupViewModel.HouseholdFace picked)
+          _model.PickFace(picked);
       };
 
       // The keys of the wake. They are claimed on the way in, before the focused control hears them: this
@@ -127,9 +136,14 @@ namespace MediaPortal.Frontend.Views
       _clock = null;
       _shake?.Stop();
       _shake = null;
+      _fade?.Stop();
+      _fade = null;
     }
 
-    /// <summary>One heartbeat of the wake: the ring at a steady turn, the halo breathing a sine under it.</summary>
+    /// <summary>
+    /// One heartbeat of the wake: the ring at a steady turn, the halo breathing a sine under it - and, once
+    /// the machine has finished reading and its turn is behind it, the ring's way out.
+    /// </summary>
     private void Tick()
     {
       double seconds = (DateTime.UtcNow - _clockFrom).TotalSeconds;
@@ -137,20 +151,56 @@ namespace MediaPortal.Frontend.Views
       double breath = 1.0 + 0.07 * Math.Sin(seconds * 2.4);
       _haloBreath.ScaleX = breath;
       _haloBreath.ScaleY = breath;
+
+      // The turn belongs to the wake, not to the reading: while the model still holds the wallpaper to
+      // itself the ring carries on, because then it is the whole screen. The moment there is something else
+      // to look at - the question, the household - the ring gets its one turn of the screen's clock and
+      // steps out, so the animation is never cut by a fast server and never wears out a slow reader.
+      if (!_ringDone && _model != null && !_model.Busy && seconds >= PASS_SECONDS)
+        FadeRingOut();
+    }
+
+    /// <summary>The ring's way out: a third of a second of fading, then the panel is collapsed for good.</summary>
+    private void FadeRingOut()
+    {
+      _ringDone = true;
+      _fadeStep = 0;
+      _fade = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(40) };
+      _fade.Tick += delegate
+      {
+        _fadeStep++;
+        wakeRing.Opacity = Math.Max(0.0, 1.0 - _fadeStep / 8.0);
+        if (_fadeStep < 8)
+          return;
+
+        wakeRing.IsVisible = false;
+        _fade?.Stop();
+        _fade = null;
+      };
+      _fade.Start();
     }
 
     private void OnModelChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
       if (e.PropertyName == nameof(StartupViewModel.Pin))
         PaintBoxes();
-      else if (e.PropertyName == nameof(StartupViewModel.NeedsPin)
-          || e.PropertyName == nameof(StartupViewModel.Switching))
+      else if (e.PropertyName == nameof(StartupViewModel.Switching))
+      {
+        // The overlay is a list, so the keyboard goes to the list: its arrows walk the names and Enter takes
+        // the one stood on. The question and the picture take the focus back when it steps aside.
+        if (_model != null && _model.Switching)
+          othersList.Focus();
+        else
+          Focus();
+      }
+      else if (e.PropertyName == nameof(StartupViewModel.NeedsPin))
         Focus();
     }
 
     /// <summary>
-    /// The four boxes: the typed numbers stand in theirs, the next empty one is the one the orange border
-    /// waits on, and behind them the filled ones keep a softer ring. One rule, drawn from the model's string.
+    /// The four boxes: one plain dot stands in each box a number has reached, the next empty one is the one
+    /// the orange border waits on, and behind them the filled ones keep a softer ring. The number itself is
+    /// never painted - a living room reads what a television shows. One rule, drawn from the model's string.
     /// </summary>
     private void PaintBoxes()
     {
@@ -158,11 +208,11 @@ namespace MediaPortal.Frontend.Views
         return;
 
       Border[] boxes = { box0, box1, box2, box3 };
-      TextBlock[] digits = { digit0, digit1, digit2, digit3 };
+      Ellipse[] dots = { dot0, dot1, dot2, dot3 };
       string pin = _model.Pin;
       for (int i = 0; i < boxes.Length; i++)
       {
-        digits[i].Text = i < pin.Length ? pin[i].ToString() : "";
+        dots[i].IsVisible = i < pin.Length;
         boxes[i].Classes.Remove("next");
         boxes[i].Classes.Remove("filled");
         if (i < pin.Length)
@@ -197,9 +247,11 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
-    /// Every key this screen owns. Digits go to the boxes from wherever they are typed; Backspace takes the
-    /// newest one back; the back key is refused outright - while the overlay stands it closes the overlay,
-    /// because there the back key at least has an honest meaning.
+    /// Every key this screen owns. Digits go to the boxes from wherever they are typed - including from the
+    /// picture's focus, so walking over there costs nothing typed; Backspace and Delete take the newest one
+    /// back; the arrows and Tab walk the two stops this screen has, the four boxes and the round picture;
+    /// and the back key is refused outright - while the overlay stands it closes the overlay, because there
+    /// the back key at least has an honest meaning.
     /// </summary>
     private void OnStartupKey(object? sender, KeyEventArgs args)
     {
@@ -211,11 +263,43 @@ namespace MediaPortal.Frontend.Views
           || args.Key == Key.Back)
       {
         args.Handled = true;
-        if (args.Key == Key.Back && _model.NeedsPin)
+        if ((args.Key == Key.Back || args.Key == Key.Delete) && _model.NeedsPin)
           _model.Backspace();
         else if (_model.Switching)
           _model.StayAsWas();
         return;
+      }
+
+      if (args.Key == Key.Delete && _model.NeedsPin)
+      {
+        // The key a household calls "delete" undoes the last number, which is what it does everywhere else.
+        args.Handled = true;
+        _model.Backspace();
+        return;
+      }
+
+      // The wake has two places to stand on: the four boxes and the round picture beside them. The boxes are
+      // no control that could hold the focus itself - the screen carries the PIN - so the walk between the
+      // two is written here rather than left to the focus manager, which would find one stop and no other.
+      // The overlay keeps its own arrows: the list underneath walks them.
+      if (_model.NeedsPin && !_model.Switching)
+      {
+        bool? toPicture = args.Key switch
+        {
+          Key.Left or Key.Up => true,
+          Key.Right or Key.Down => false,
+          Key.Tab => !userPicture.IsFocused,
+          _ => null
+        };
+        if (toPicture != null)
+        {
+          args.Handled = true;
+          if (toPicture.Value)
+            userPicture.Focus();
+          else
+            Focus();
+          return;
+        }
       }
 
       string? digit = DigitOf(args.Key);
@@ -234,24 +318,6 @@ namespace MediaPortal.Frontend.Views
       if (key >= Key.NumPad0 && key <= Key.NumPad9)
         return ((char)('0' + (key - Key.NumPad0))).ToString();
       return null;
-    }
-  }
-
-  /// <summary>
-  /// The one word a row of "who then?" adds beside a name: whether that person will ask for four numbers.
-  /// </summary>
-  public sealed class PinOrFreeConverter : IValueConverter
-  {
-    public static readonly PinOrFreeConverter Instance = new PinOrFreeConverter();
-
-    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-      return value is true ? "asks for a PIN" : "walks right in";
-    }
-
-    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-      throw new NotSupportedException();
     }
   }
 }

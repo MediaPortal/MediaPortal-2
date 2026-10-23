@@ -16,6 +16,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
@@ -64,20 +65,44 @@ namespace MediaPortal.Frontend.ViewModels
     public delegate Task<bool> PinChecker(string name, string pin);
 
     private readonly Func<IUsersApi?> _usersProvider;
+    private readonly Func<IServerSettingsApi?>? _policyProvider;
+    private readonly Theming.ViewerState? _viewerState;
     private readonly PinChecker _check;
-    private readonly Action<string?> _finished;
     private readonly TimeSpan _splashWait;
+
+    /// <summary>
+    /// The one answer, said once - to whoever the application happens to have hung on it. The wake at the
+    /// root wants a name to walk into the library under; the same screen opened for switching wants to pop
+    /// back over the library with that name, or to let the television go altogether.
+    /// </summary>
+    public event Action<string?>? Finished;
+
+    /// <summary>Every person the server named, the remembered one and the others - the switcher's whole house.</summary>
+    private readonly List<UserInfo> _seen = new List<UserInfo>();
+    private UserInfo? _rememberedPerson;
     private bool _answered;
     private CancellationTokenSource? _waitCts;
 
-    public StartupViewModel(Func<IUsersApi?> usersProvider, PinChecker check, Action<string?> finished,
-        TimeSpan? splashWait = null)
+    public StartupViewModel(Func<IUsersApi?> usersProvider, PinChecker check, Action<string?>? finished = null,
+        TimeSpan? splashWait = null, Func<IServerSettingsApi?>? policyProvider = null,
+        Theming.ViewerState? viewerState = null)
     {
       _usersProvider = usersProvider;
+      _policyProvider = policyProvider;
+      _viewerState = viewerState;
       _check = check;
-      _finished = finished;
+      if (finished != null)
+        Finished += finished;
       _splashWait = splashWait ?? TimeSpan.FromSeconds(4);
     }
+
+    /// <summary>
+    /// Whether this wake was opened by the home's person button instead of by the machine starting. It is
+    /// the same page and shows the same thing - the person standing there and their four numbers - and
+    /// only its answer differs: it steps back over the library the way it came, and it offers the press
+    /// that lets the television go. A switch with nothing to ask lays the household out instead.
+    /// </summary>
+    public bool ForSwitching { get; set; }
 
     /// <summary>The four numbers typed so far. The screen draws it as its boxes; the model only knows digits.</summary>
     public const int PIN_LENGTH = 4;
@@ -85,7 +110,43 @@ namespace MediaPortal.Frontend.ViewModels
     /// <summary>The people the server keeps - read at open, machine profiles left out as always.</summary>
     public ObservableCollection<UserInfo> Others { get; } = new ObservableCollection<UserInfo>();
 
-    /// <summary>The animation phase: reading, or the no-PIN wake holding the wallpaper for its seconds.</summary>
+    /// <summary>
+    /// One face on the switch dialog: the person, the name they are called, and the picture the household
+    /// gave them. The dialog shows nothing beside these, so nothing else lives here.
+    /// </summary>
+    public sealed class HouseholdFace
+    {
+      public HouseholdFace(UserInfo person)
+      {
+        Person = person;
+        Name = person.Name;
+        Picture = Theming.UserPicture.FromBase64(person.Image);
+      }
+
+      public UserInfo Person { get; }
+      public string Name { get; }
+      public Avalonia.Media.Imaging.Bitmap? Picture { get; }
+      public bool HasPicture { get { return Picture != null; } }
+
+      /// <summary>What a face wears until somebody brings a picture of their own.</summary>
+      public string Initials
+      {
+        get { return Name.Length == 0 ? "?" : Name.Substring(0, 1).ToUpperInvariant(); }
+      }
+    }
+
+    /// <summary>
+    /// The whole household as the switch dialog shows it - every face the server keeps, in the order it keeps
+    /// them, the one standing there included, since a wall of the household that left somebody out would be
+    /// a wall one could not answer by staying.
+    /// </summary>
+    public ObservableCollection<HouseholdFace> Household { get; } = new ObservableCollection<HouseholdFace>();
+
+    /// <summary>
+    /// The reading phase: the wake speaks its words itself, and - when nobody has to be asked - holds the
+    /// wallpaper for its seconds. The ring keeps turning after this says false, beside the question; only
+    /// the words move into the card.
+    /// </summary>
     [ObservableProperty]
     private bool _busy = true;
 
@@ -115,6 +176,51 @@ namespace MediaPortal.Frontend.ViewModels
 
     /// <summary>Whether another person is standing by - the switch button has no reason without one.</summary>
     public bool HasOthers => Others.Count > 0;
+
+    /// <summary>
+    /// The person standing at the question, or null when the door has only a name behind it - the server
+    /// could not be reached, so nobody could be read. The face and the picture both come off this.
+    /// </summary>
+    public UserInfo? AskedPerson { get; private set; }
+
+    private Avalonia.Media.Imaging.Bitmap? _personPicture;
+    private UserInfo? _pictureFor;
+
+    /// <summary>
+    /// The asked person's own picture, decoded once per person rather than once per glance. The household put
+    /// it there through the users screen, and the door is where a household looks for it, so the round
+    /// container wears it; the initial below is only what a container wears until somebody brings one.
+    /// </summary>
+    public Avalonia.Media.Imaging.Bitmap? PersonPicture
+    {
+      get
+      {
+        if (!ReferenceEquals(_pictureFor, AskedPerson))
+        {
+          _personPicture = Theming.UserPicture.FromBase64(AskedPerson?.Image);
+          _pictureFor = AskedPerson;
+        }
+        return _personPicture;
+      }
+    }
+
+    /// <summary>Whether the round container wears a picture; without one it wears the name's initial.</summary>
+    public bool HasPersonPicture
+    {
+      get { return PersonPicture != null; }
+    }
+
+    /// <summary>
+    /// Puts a person at the question: their name, and their picture when the server carries one. Every road
+    /// to the question comes through here, so a face is never forgotten on one of them.
+    /// </summary>
+    private void AskPerson(UserInfo? who, string name)
+    {
+      AskedPerson = who;
+      PersonName = name;
+      OnPropertyChanged(nameof(PersonPicture));
+      OnPropertyChanged(nameof(HasPersonPicture));
+    }
 
     /// <summary>The letter the round container wears until a person brings a picture of their own.</summary>
     public string Initials
@@ -147,11 +253,80 @@ namespace MediaPortal.Frontend.ViewModels
     /// </summary>
     public async Task StartAsync()
     {
-      string remembered = ClientSettings.Load(null, out _).RememberedViewer;
+      ClientSettings machine = ClientSettings.Load(null, out _);
+      string remembered = machine.RememberedViewer;
+      bool rememberedNumbered = machine.RememberedViewerHasPin;
+      LoginPolicyAnswer? policy = await ReadPolicyAsync();
       (UserInfo? person, bool serverSpoke) = await ReadPersonAsync(remembered);
 
       if (_answered)
         return;
+
+      // Whatever the server just said about the remembered person is what this machine knows about them;
+      // it is written down now so the next start - possibly against a silent server - still knows whether
+      // this door carries numbers.
+      if (serverSpoke && person != null && person.HasPassword != rememberedNumbered)
+      {
+        machine.RememberedViewerHasPin = person.HasPassword;
+        machine.Save(null, out _);
+      }
+
+      // Opened by the home's person button rather than by the machine starting. This is the start page,
+      // not a page of its own: the person sitting there is shown exactly as the wake shows them - their
+      // face and their four numbers - and the household is the one press of the round picture away that
+      // it always was. Only where there is nothing to ask does it open on the household straight away,
+      // because a picture with no question behind it and no way to anybody else would be a dead end.
+      if (ForSwitching)
+      {
+        Busy = false;
+        UserInfo? sitting = _viewerState?.Viewer ?? person;
+        if (sitting != null && sitting.HasPassword)
+        {
+          AskPerson(sitting, sitting.Name);
+          Status = "";
+          NeedsPin = true;
+        }
+        else
+        {
+          Switching = true;
+        }
+        return;
+      }
+
+      // The house rules, from the server that keeps them for every television:
+      // No login - nobody is asked, and the household watches together, exactly as it did before the
+      // household had names. The rules about a person are rules about the signed-in one; with no login
+      // there is no signed-in one, and the server sees an open request and answers with the whole library.
+      if (policy != null && !policy.EnableUserLogin)
+      {
+        await WaitThenFinishAsync(null);
+        return;
+      }
+
+      // The person the house expects walks in without being asked - but only a person whose door carries
+      // no number. A PIN nobody typed is a PIN nobody checked, and letting a person with numbers through
+      // unexamined would also let their restrictions stand unenforced at the server, which is the part
+      // that actually protects somebody. So an expected person with numbers still gets the question.
+      if (policy != null && Guid.TryParse(policy.AutoLoginUser, out Guid autoId) && autoId != Guid.Empty)
+      {
+        UserInfo? expected = _seen.FirstOrDefault(one => one.ProfileId == autoId);
+        if (expected != null && !expected.HasPassword)
+        {
+          await WalkInAsync(expected);
+          return;
+        }
+      }
+
+      // A question switched off is not a question - with the screen off and no expected person, the
+      // television is the household's and the wake keeps its seconds, nothing more. Walking even a PIN-less
+      // remembered person in behind a switched-off interview would invent a viewer the house refused to ask
+      // about; the reference left such a television with no current user at all, and so does this.
+      bool asks = policy == null || policy.EnableUserLoginScreen;
+      if (!asks)
+      {
+        await WaitThenFinishAsync(null);
+        return;
+      }
 
       // The question is asked whenever somebody standing behind four numbers deserves it: the remembered
       // person when they need numbers - and when nobody is remembered yet, or the remembered name walked
@@ -165,8 +340,23 @@ namespace MediaPortal.Frontend.ViewModels
               : null;
       if (asked != null)
       {
-        PersonName = asked.Name;
+        AskPerson(asked, asked.Name);
         Status = "";
+        Busy = false;
+        NeedsPin = true;
+        return;
+      }
+
+      // A door with numbers stays locked while the locksmith is away. Walking a numbered person in
+      // unchecked is no lock at all - and this machine remembers whether the person it waits for carries
+      // numbers, so the question stands up against a silent server and every answer honestly reports that
+      // nothing can be checked. The PIN-less person's fast way in is untouched: there is nothing to check
+      // about them either way.
+      if (!serverSpoke && remembered.Length > 0 && rememberedNumbered)
+      {
+        AskPerson(null, remembered);
+        Status = "The server could not be reached - " + remembered +
+            " cannot be checked in right now.";
         Busy = false;
         NeedsPin = true;
         return;
@@ -177,8 +367,69 @@ namespace MediaPortal.Frontend.ViewModels
       // complaint about the missing server; a read that only found the person deleted walks nobody in.
       // Nothing is said on the walk of a house that asks nothing - the wallpaper and the ring are the
       // whole screen then, exactly as the viewer asked for.
+      if (person != null && !person.HasPassword && serverSpoke)
+      {
+        await WalkInAsync(person);
+        return;
+      }
+
       string? opens = person?.Name ?? (!serverSpoke && remembered.Length > 0 ? remembered : null);
       await WaitThenFinishAsync(opens);
+    }
+
+    /// <summary>
+    /// Reads the house rules beside the people they govern. A server that will not say them is answered
+    /// with null, which every rule above reads as "as you were": an unreachable server welds no door shut
+    /// and unlocks nothing either - it simply leaves the wake with the question it would have asked anyway.
+    /// </summary>
+    private async Task<LoginPolicyAnswer?> ReadPolicyAsync()
+    {
+      IServerSettingsApi? api;
+      try
+      {
+        api = _policyProvider?.Invoke();
+      }
+      catch (Exception)
+      {
+        return null;
+      }
+      if (api == null)
+        return null;
+
+      try
+      {
+        LoginPolicyAnswer policy = await api.GetLoginPolicyAsync(CancellationToken.None);
+        if (_viewerState != null)
+          _viewerState.Policy = policy;
+        return policy;
+      }
+      catch (Exception)
+      {
+        return null;
+      }
+    }
+
+    /// <summary>
+     /// The walk of a person whose door has no number: the client still says their name to the sign-in,
+     /// because the sign-in is what tells the server <i>who is asking</i> - and their shelf of half-watched
+     /// titles, and the age ceiling the server quietly keeps out of their lists, both hang on that answer.
+     /// A refusal is swallowed: a server that will not hand a token to its own PIN-less person is a server
+     /// that will complain about itself when the library is asked.
+     /// </summary>
+    private async Task WalkInAsync(UserInfo who)
+    {
+      try
+      {
+        await _check(who.Name, "");
+      }
+      catch (Exception)
+      {
+        // See above - the walk does not stop over a token this server would not give.
+      }
+      if (_answered)
+        return;
+      Remember(who.Name, who.HasPassword);
+      await WaitThenFinishAsync(who.Name);
     }
 
     /// <summary>One more digit. The fourth one is not a digit like the others - it is the answer.</summary>
@@ -225,12 +476,12 @@ namespace MediaPortal.Frontend.ViewModels
         Pin = "";
         if (right)
         {
-          Remember(who);
+          Remember(who, true);
           Answer(who);
           return;
         }
 
-        Status = string.Format("{0}, that was not the PIN. Try again.", who);
+        Status = "Wrong PIN, try again.";
         PinRejected?.Invoke();
     }
 
@@ -238,7 +489,11 @@ namespace MediaPortal.Frontend.ViewModels
     [RelayCommand]
     public void SwitchUser()
     {
-      if (Others.Count == 0)
+      // The overlay carries more than the other names: on a switch it also holds "stay as before" and the
+      // press that lets the television go. So a household of one still opens it when the switch asked for
+      // it - a person button that led to a sentence instead of a way out would be a dead end - while a
+      // wake that has nobody else to offer and nobody signed in says so plainly.
+      if (Others.Count == 0 && !ForSwitching)
       {
         Status = "This server keeps no other person.";
         return;
@@ -249,7 +504,30 @@ namespace MediaPortal.Frontend.ViewModels
     [RelayCommand]
     public void StayAsWas()
     {
+      // Opened for the switch, "stay" is an answer: the room keeps who it has and the screen steps aside.
+      // Opened by the wake itself, it only closes the someone-else overlay and the question waits behind.
+      // Either way the wall of faces goes away - a question that has been answered and keeps laying its faces
+      // out would still be asking.
       Switching = false;
+      if (ForSwitching)
+        Answer(_viewerState?.Viewer?.Name ?? _rememberedPerson?.Name);
+    }
+
+    /// <summary>
+    /// Set when the room pressed "let this television go" on the switch: the frame's answer is not a new
+    /// person but nobody, and the application takes the whole trail of the signed-in person away with it.
+    /// </summary>
+    public bool SignedOut { get; private set; }
+
+    /// <summary>The sign-out, asked from the switch overlay. The wake takes the window back as its root.</summary>
+    [RelayCommand]
+    public void SignOut()
+    {
+      if (!ForSwitching || _answered)
+        return;
+      SignedOut = true;
+      Switching = false;
+      Answer(null);
     }
 
     /// <summary>The other person that was picked. With numbers they get asked; without, they simply arrive.</summary>
@@ -264,7 +542,7 @@ namespace MediaPortal.Frontend.ViewModels
 
       if (who.HasPassword)
       {
-        PersonName = who.Name;
+        AskPerson(who, who.Name);
         Pin = "";
         Status = "";
         Busy = false;
@@ -272,8 +550,28 @@ namespace MediaPortal.Frontend.ViewModels
         return;
       }
 
-      Remember(who.Name);
+      Remember(who.Name, who.HasPassword);
       Answer(who.Name);
+    }
+
+    /// <summary>
+    /// A face pressed on the switch dialog. The person already sitting there is not a change of seats: their
+    /// own face on the wall is the answer "stay as before", not a request to be asked for four numbers again.
+    /// </summary>
+    [RelayCommand]
+    public void PickFace(HouseholdFace? face)
+    {
+      if (face == null)
+        return;
+
+      if (ForSwitching && _viewerState?.Viewer != null
+          && string.Equals(_viewerState.Viewer.Name, face.Name, StringComparison.OrdinalIgnoreCase))
+      {
+        StayAsWas();
+        return;
+      }
+
+      PickOther(face.Person);
     }
 
     /// <summary>The remembered name, and the list of the others beside them. The second answer says
@@ -300,16 +598,22 @@ namespace MediaPortal.Frontend.ViewModels
         UsersAnswer answer = await api.GetUsersAsync(CancellationToken.None);
         serverSpoke = true;
         Others.Clear();
+        _seen.Clear();
         UserInfo? person = null;
         foreach (UserInfo user in answer.Users ?? Array.Empty<UserInfo>())
         {
           if (user.Kind == "Client")
             continue;
+          _seen.Add(user);
           if (string.Equals(user.Name, remembered, StringComparison.OrdinalIgnoreCase))
             person = user;
           else
             Others.Add(user);
         }
+        _rememberedPerson = person;
+        Household.Clear();
+        foreach (UserInfo user in _seen)
+          Household.Add(new HouseholdFace(user));
         OnOthersFilled();
         return (person, true);
       }
@@ -337,11 +641,16 @@ namespace MediaPortal.Frontend.ViewModels
         Answer(name);
     }
 
-    /// <summary>Writes who the room is watching for, so the next start asks the right person.</summary>
-    private static void Remember(string name)
+    /// <summary>
+    /// Writes who the room is watching for - and whether that person's door carries numbers, which the next
+    /// start cannot ask a silent server about. So the next start asks the right person and locks the right
+    /// way, with the server there or not.
+    /// </summary>
+    private static void Remember(string name, bool hasPin)
     {
       ClientSettings settings = ClientSettings.Load(null, out _);
       settings.RememberedViewer = name;
+      settings.RememberedViewerHasPin = hasPin;
       settings.Save(null, out _);
       Settings.SkinSettingsBase.FileOwner = name;
     }
@@ -352,7 +661,20 @@ namespace MediaPortal.Frontend.ViewModels
       if (_answered)
         return;
       _answered = true;
-      _finished(name ?? "");
+
+      // The application's half of the answer is the file that owns the skin's answers; this half is the
+      // standing fact of who is watching - their name for the head line's picture, their restrictions for
+      // every screen that obeys them, and the token's owner for every question asked of the server.
+      if (_viewerState != null)
+      {
+        UserInfo? person = name == null
+            ? null
+            : _seen.FirstOrDefault(one => string.Equals(one.Name, name, StringComparison.OrdinalIgnoreCase));
+        if (name == null || person != null)
+          _viewerState.SetViewer(person);
+      }
+
+      Finished?.Invoke(name ?? "");
     }
 
     /// <summary>Raised by whoever filled <see cref="Others"/>, since the collection cannot raise it itself.</summary>

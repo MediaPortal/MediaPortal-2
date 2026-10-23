@@ -146,6 +146,13 @@
           </DockPanel>
         </Panel>
       </StackPanel>
+      <!--
+        Who is watching is NOT said here. The reference said it through its UserButton in the master's top
+        row, and this skin already carries that button where the reference hung it - the person glyph in
+        home.xaml's corner row of four, which opens the same wake the machine starts on. A second picture
+        in the head line would be a second door to the same room, and an empty one whenever nobody was in
+        the chair - the artifact the household noticed and named.
+      -->
       <TextBlock Text="{Binding ScreenTitle}"
                  Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeaderFontSize}"
                  VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>

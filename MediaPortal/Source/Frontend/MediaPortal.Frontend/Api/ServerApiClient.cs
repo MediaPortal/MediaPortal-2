@@ -49,7 +49,7 @@ namespace MediaPortal.Frontend.Api
   /// </para>
   /// </remarks>
   public sealed class ServerApiClient : IDisposable, IServerSettingsApi, IMetadataSettingsApi, IUsersApi,
-      INetworkCredentialsApi, IServerInfoApi, IPluginSettingsApi
+      INetworkCredentialsApi, IServerInfoApi, IPluginSettingsApi, ISharesApi
   {
     /// <summary>
     /// Where the front end looks for a server when nothing else was said. The port is MP2's own and the prefix
@@ -734,6 +734,41 @@ namespace MediaPortal.Frontend.Api
     }
 
     /// <summary>
+    /// <c>GET api/media/settings</c>, read for its login half: whether the household is asked who is watching,
+    /// who walks in without being asked, and how long a television may sit untouched. The same answer carries
+    /// the server's own plumbing; this lifts out only the five fields the Users screen owns.
+    /// </summary>
+    public async Task<LoginPolicyAnswer> GetLoginPolicyAsync(CancellationToken cancellation = default)
+    {
+      ServerSettingsAnswer all = await GetServerSettingsAsync(cancellation).ConfigureAwait(false);
+      return PolicyOf(all);
+    }
+
+    /// <summary>
+    /// <c>PUT api/media/settings</c>, sent with only the login fields. The server keeps every field a message
+    /// leaves out, so this cannot step on the importer's schedule or the listening address on its way past.
+    /// </summary>
+    public async Task<LoginPolicyAnswer> PutLoginPolicyAsync(LoginPolicyWish wish,
+        CancellationToken cancellation = default)
+    {
+      ServerSettingsAnswer all = await SendJsonAsync<ServerSettingsAnswer>(HttpMethod.Put, "api/media/settings",
+          wish, cancellation).ConfigureAwait(false);
+      return PolicyOf(all);
+    }
+
+    private static LoginPolicyAnswer PolicyOf(ServerSettingsAnswer all)
+    {
+      return new LoginPolicyAnswer
+      {
+        EnableUserLogin = all.EnableUserLogin,
+        EnableUserLoginScreen = all.EnableUserLoginScreen,
+        AutoLoginUser = all.AutoLoginUser ?? "",
+        AutoLogoutEnabled = all.AutoLogoutEnabled,
+        AutoLogoutIdleTimeoutInMin = all.AutoLogoutIdleTimeoutInMin
+      };
+    }
+
+    /// <summary>
     /// <c>GET api/media/settings/metadata</c> - what the extractors are configured to do, per kind of
     /// media. A block whose extractor the server does not have comes back null, and a screen leaves the
     /// row out rather than offering a switch nothing reads.
@@ -819,6 +854,16 @@ namespace MediaPortal.Frontend.Api
     {
       return await SendJsonAsync<UsersAnswer>(HttpMethod.Get, "api/users", null, cancellation)
           .ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// <c>GET api/users/templates</c> - the kinds a new person may be added as. A server too old to answer
+    /// leaves the screen with its own copy of the three, which are the reference's own.
+    /// </summary>
+    public async Task<ProfileTemplatesAnswer> GetProfileTemplatesAsync(CancellationToken cancellation = default)
+    {
+      return await SendJsonAsync<ProfileTemplatesAnswer>(HttpMethod.Get, "api/users/templates", null,
+          cancellation).ConfigureAwait(false);
     }
 
     /// <summary>

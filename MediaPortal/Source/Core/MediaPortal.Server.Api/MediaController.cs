@@ -35,6 +35,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
+using MediaPortal.Common.Async;
 using MediaPortal.Common.Certifications;
 using MediaPortal.Common.FanArt;
 using MediaPortal.Common.General;
@@ -121,6 +122,62 @@ namespace MediaPortal.Server.Api
           return null;
         return profileId;
       }
+    }
+
+    /// <summary>
+    /// The condition the signed-in caller's own restrictions put on the titles they may be shown, or null when
+    /// nothing restricts them - nobody signed in, a grown-up, or a store that has no opinion.
+    /// </summary>
+    /// <remarks>
+    /// This is the reference's own design, which is worth stating because it surprises people: restricted
+    /// titles are not greyed out and not locked behind a password prompt - they are <i>not fetched</i>. The
+    /// reference builds the very same <see cref="UserProfile.GetUserFilter"/> condition into every media
+    /// query its screens run (<c>UserHelper.cs:75</c>, <c>BaseMediaListProvider.cs:102</c>), so a child's
+    /// television never learns the forbidden title exists, and there is nothing on screen to unlock. The age
+    /// ceiling, the parental-guided and unrated exceptions, and the share allowlist all speak through that one
+    /// condition, straight from the user store.
+    /// <para>
+    /// It reads the profile from the store per request rather than caching it: the answer changes the moment a
+    /// parent edits the child's page in Settings, and one lookup by primary key per list request is what a
+    /// local network is for.
+    /// </para>
+    /// </remarks>
+    /// <param name="necessaryMias">The aspects the query cannot do without, which decide whether the age
+    /// condition is asked of films, of series, or through the episodes' link to their series - exactly the
+    /// three branches the reference's own filter distinguishes.</param>
+    private IFilter CallerRestrictionFilter(ICollection<Guid> necessaryMias)
+    {
+      Guid? profileId = CallerProfile;
+      if (profileId == null)
+        return null;
+
+      IUserProfileDataManagement store = ServiceRegistration.Get<IUserProfileDataManagement>(false);
+      if (store == null)
+        return null;
+
+      UserProfile profile;
+      try
+      {
+        AsyncResult<UserProfile> found = store.GetProfileAsync(profileId.Value).Result;
+        if (found == null || !found.Success)
+          return null;
+        profile = found.Result;
+      }
+      catch (Exception)
+      {
+        // A store that cannot answer is not a reason to show the whole library to a restricted user, but it is
+        // also not a reason to blame the media library for - the restriction silently not applying is the same
+        // state an unrestricted household is in, and the store will complain about itself.
+        return null;
+      }
+
+      if (profile == null)
+        return null;
+      bool restrictsAges = profile.RestrictAges && profile.AllowedAge.HasValue;
+      if (!restrictsAges && !profile.RestrictShares)
+        return null;
+
+      return profile.GetUserFilter(necessaryMias);
     }
 
     /// <summary>
@@ -565,6 +622,17 @@ namespace MediaPortal.Server.Api
               : BooleanCombinationFilter.CombineFilters(BooleanOperator.And, asking, groupFilter);
         }
 
+        // What the signed-in person is allowed to be shown at all. A grown-up or an anonymous request changes
+        // nothing here; a child's session adds the store's own condition - the certification ceiling with its
+        // parental-guided and unrated exceptions, and the share allowlist - to every other question asked, so
+        // the forbidden titles are not filtered out of an answer but never looked up. The count below travels
+        // through the same query, so "12 of 4 000" says how many of the twelve a child may actually see.
+        IFilter allowed = CallerRestrictionFilter(necessary);
+        if (allowed != null)
+          asking = asking == null
+              ? allowed
+              : BooleanCombinationFilter.CombineFilters(BooleanOperator.And, asking, allowed);
+
         // MP2 already knows how to look for words in the library, and it is not "compare the title":
         // BuildSimpleTextSearchQuery asks the database whether any of the short text attributes of the aspects
         // being asked about carry the words, which is what typing "star trek" has to mean - a film is found under
@@ -746,7 +814,11 @@ namespace MediaPortal.Server.Api
         if (holding != Guid.Empty && !necessary.Contains(holding))
           necessary.Add(holding);
 
-        HomogenousMap counted = mediaLibrary.GetValueGroups(spec, null, projection, necessary, null, false,
+        // The same ceiling the title list obeys: a shelf counted for a child does not list a genre whose only
+        // films start at eighteen, because the list under that heading would be empty and an empty shelf reads
+        // as a hole in the library rather than as a rule of the house.
+        IFilter allowed = CallerRestrictionFilter(necessary);
+        HomogenousMap counted = mediaLibrary.GetValueGroups(spec, allowed, projection, necessary, null, false,
             VirtualTitles.ShowsVirtualFor(necessary));
         if (counted == null)
           // Null is the library's way of saying it is in maintenance mode and counted nothing; an empty answer

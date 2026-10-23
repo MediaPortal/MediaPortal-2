@@ -90,7 +90,8 @@
         </StackPanel>
 
         <Button Name="deleteButton" Content="{Binding DeleteWord}" FontSize="14" Padding="12,6"
-                HorizontalAlignment="Left" Focusable="True" IsEnabled="{Binding HasSelection}" />
+                HorizontalAlignment="Left" Focusable="True" IsEnabled="{Binding HasSelection}"
+                IsVisible="{Binding MayDelete}" />
       </StackPanel>
     </Border>
 

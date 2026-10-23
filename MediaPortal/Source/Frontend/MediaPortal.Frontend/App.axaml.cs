@@ -99,6 +99,27 @@ namespace MediaPortal.Frontend
     /// </summary>
     private readonly List<ViewModels.TvTunerViewModel> _tuners =
         new List<ViewModels.TvTunerViewModel>();
+
+    /// <summary>
+    /// Who is watching, and what the house allows them - the one place the wake screen, the head line's
+    /// user picture, the users screen and the idle timer all read the same answer from. The reference kept
+    /// this in <c>IUserManagement.CurrentUser</c>; here it is the front end's own observable.
+    /// </summary>
+    private readonly Theming.ViewerState _viewer = new Theming.ViewerState();
+
+    /// <summary>The frame the head line's picture opens when the room wants another person.</summary>
+    private Workflow.WorkflowFrame? _switchFrame;
+
+    /// <summary>
+    /// The home screen as built, while it stands - which is who the corner buttons of the worn face have to
+    /// be asked about again when the person watching moves.
+    /// </summary>
+    private Views.HomeView? _homeView;
+
+    /// <summary>The idle watch of the auto-logout - see <see cref="CheckIdle"/>.</summary>
+    private Avalonia.Threading.DispatcherTimer? _idleTimer;
+    private DateTime _lastViewerActivity = DateTime.Now;
+
     private PlaybackReporter? _reporter;
     private readonly string? _shotPath;
     private readonly TimeSpan _playStart;
@@ -408,6 +429,21 @@ namespace MediaPortal.Frontend
         _home.AttachNotifications(_notifications);
         _shell.Chrome.AttachNotifications(_notifications);
         _shell.Chrome.NotificationsRequested += OpenNotifications;
+
+        // The idle watch, so a living room that got up takes its person back to the door. The door itself
+        // is the home's own corner button - the person glyph the reference hung in master_home's top row -
+        // which BuildNamedFrame opens as a switch and the screen gate below hides whenever login is off.
+        _viewer.ViewerChanged += delegate
+        {
+          // Every list the server filled was filled through this person's eyes; a new pair of eyes asks
+          // again. And the home's corner buttons are hung or taken down for whoever is standing there now -
+          // the reference's restricted user never saw the cog, and the grown-up who switches in finds it
+          // back without a restart.
+          _ = _home.RefreshAsync();
+          _homeView?.ReapplyScreenGates();
+        };
+        StartIdleWatch();
+        desktop.Exit += delegate { _idleTimer?.Stop(); };
         _workflow.Changed += delegate
         {
           // While the queue is being read out, the hint that counts it is the same number said twice; the reference
@@ -789,12 +825,6 @@ namespace MediaPortal.Frontend
         _workflow.Push(ConnectionFrame());
     }
 
-    private Workflow.WorkflowFrame ViewerFrame()
-    {
-      ViewerPickerViewModel viewModel = new ViewerPickerViewModel(() => _home.Client, ApplyViewer);
-      return new Workflow.WorkflowFrame("viewer", "Who is watching?", viewModel);
-    }
-
     /// <summary>
     /// The wake of the front end: the wallpaper, the last person, and their four numbers when the server
     /// knows any. It is the root on a start that has a server, and its answer replaces it with the library
@@ -802,7 +832,7 @@ namespace MediaPortal.Frontend
     /// the server's own sign-in - the PIN is the person's entry in the store that has always answered that
     /// endpoint, so every television in the house asks the same question and gets the same answer.
     /// </summary>
-    private Workflow.WorkflowFrame StartupFrame()
+    private Workflow.WorkflowFrame StartupFrame(bool switching = false)
     {
       StartupViewModel viewModel = new StartupViewModel(
           () => _home.Client,
@@ -822,8 +852,130 @@ namespace MediaPortal.Frontend
               return false;
             }
           },
-          FinishStartup);
-      return new Workflow.WorkflowFrame("startup", "Welcome", viewModel);
+          null,
+          null,
+          () => _home.Client,
+          _viewer);
+      viewModel.ForSwitching = switching;
+      // The wake's answer replaces the wake; the switch's answer pops back over the library, and only
+      // the sign-out reaches past both - which is why they are separate continuations of one screen.
+      viewModel.Finished += switching ? FinishSwitch : FinishStartup;
+      Workflow.WorkflowFrame frame = new Workflow.WorkflowFrame("startup", "Welcome", viewModel);
+      if (switching)
+        _switchFrame = frame;
+      return frame;
+    }
+
+    /// <summary>
+    /// The switch answered. A name means the television changes owners the way a sign-in always did - the
+    /// name owns the skin's answers, the colours are read anew, and the library re-reads its shelves under
+    /// the new person's eyes, which is what the reference's <c>ChangeUserContext</c> and its
+    /// <c>UserChanged</c> message did together. Nobody means the room stayed put; and letting the
+    /// television go closes the whole trail, because a signed-out machine that still remembers the way back
+    /// into somebody's screens is not signed out.
+    /// </summary>
+    private void FinishSwitch(string name)
+    {
+      StartupViewModel? vm = (_switchFrame?.ViewModel as StartupViewModel)
+          ?? (_workflow.Current?.ViewModel as StartupViewModel);
+      bool signedOut = vm?.SignedOut == true;
+      _switchFrame = null;
+
+      if (signedOut)
+      {
+        SignOut();
+        return;
+      }
+
+      if (_workflow.Stack.Count > 1)
+        _workflow.Pop();
+      if (name.Length == 0)
+        return;
+
+      // The person owns the skin's answers from this moment on; the screens themselves already heard the
+      // move from the viewer state and re-read their shelves, so this half is only about the colours.
+      Settings.SkinSettingsBase.FileOwner = name;
+      Theming.FrontendTheme.Reapply(Application.Current!);
+    }
+
+    /// <summary>
+    /// Letting the television go: the person steps down, the shared file owns the skin's answers again,
+    /// and the workflow starts from the wake - which asks the next person straight away, because a house
+    /// that wants names at the door does not stand open behind one. The remembered name stays written
+    /// down; signing out today is not a statement about tomorrow.
+    /// </summary>
+    private void SignOut()
+    {
+      _switchFrame = null;
+      _viewer.SetViewer(null);
+      Settings.SkinSettingsBase.FileOwner = "";
+      Theming.FrontendTheme.Reapply(Application.Current!);
+      _workflow.Reset(StartupFrame());
+    }
+
+    /// <summary>
+    /// The idle watch, which is the reference's auto-logout: a two-second poll of the input manager's
+    /// last-key-and-mouse time there, a fifteen-second look at this window's own input here. A television
+    /// that has not been touched for the household's minutes gives itself back to the door - but never in
+    /// the middle of something: the reference refused to idle while its player was at work
+    /// (<c>LoginModel.cs</c> idle check with the player guard), and so a paused film keeps the room's owner
+    /// in their chair.
+    /// </summary>
+    private void StartIdleWatch()
+    {
+      ShellWindow window = _shell!;
+      void Note(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+      {
+        _lastViewerActivity = DateTime.Now;
+      }
+
+      // Tunnel and answered-or-not, because "the room is here" is also true of a key the current screen
+      // swallowed and of a mouse that only moved across the guide.
+      window.AddHandler(Avalonia.Input.InputElement.KeyDownEvent, Note,
+          Avalonia.Interactivity.RoutingStrategies.Tunnel, true);
+      window.AddHandler(Avalonia.Input.InputElement.PointerPressedEvent, Note,
+          Avalonia.Interactivity.RoutingStrategies.Tunnel, true);
+      window.AddHandler(Avalonia.Input.InputElement.PointerMovedEvent, Note,
+          Avalonia.Interactivity.RoutingStrategies.Tunnel, true);
+
+      _idleTimer = new Avalonia.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(15) };
+      _idleTimer.Tick += delegate { CheckIdle(); };
+      _idleTimer.Start();
+    }
+
+    /// <summary>
+    /// One look at the idle watch: off the hook while no login is on, nobody is signed in, or the house
+    /// wants no logout; otherwise the timeout is the server's, and the television being busy buys itself
+    /// fresh minutes rather than arguing about them.
+    /// </summary>
+    private void CheckIdle()
+    {
+      Api.LoginPolicyAnswer policy = _viewer.Policy;
+      if (!policy.AutoLogoutEnabled || _viewer.Viewer == null)
+        return;
+
+      if (TelevisionIsBusy())
+      {
+        _lastViewerActivity = DateTime.Now;
+        return;
+      }
+
+      int minutes = policy.AutoLogoutIdleTimeoutInMin > 0 ? policy.AutoLogoutIdleTimeoutInMin : 30;
+      if (DateTime.Now - _lastViewerActivity >= TimeSpan.FromMinutes(minutes))
+        SignOut();
+    }
+
+    /// <summary>Whether something is being watched right now - a picture playing, or a channel open.</summary>
+    private bool TelevisionIsBusy()
+    {
+      if (_nowPlaying != null && _nowPlaying.HasMedia)
+        return true;
+      foreach (Workflow.WorkflowFrame frame in _workflow.Stack)
+      {
+        if (frame.ViewModel is ViewModels.TvTunerViewModel)
+          return true;
+      }
+      return false;
     }
 
     /// <summary>
@@ -840,22 +992,6 @@ namespace MediaPortal.Frontend
         Theming.FrontendTheme.Reapply(Application.Current!);
 
       _workflow.ReplaceCurrent(HomeFrame());
-    }
-
-    /// <summary>
-    /// The room's answer. A name makes that person the owner of the skin's own answers and the worn skin's
-    /// colours are read anew under their file, the same way a sign-in re-hangs the skin on the signed-in
-    /// name; "nobody" keeps the shared file. Either way the question steps aside, because the next start
-    /// reads the answer from the client settings rather than asking twice.
-    /// </summary>
-    private void ApplyViewer(string? name)
-    {
-      Settings.SkinSettingsBase.FileOwner = name ?? "";
-      if (name != null)
-        Theming.FrontendTheme.Reapply(Application.Current!);
-
-      if (_workflow.Stack.Count > 1)
-        _workflow.Pop();
     }
 
     /// <summary>
@@ -1024,11 +1160,20 @@ namespace MediaPortal.Frontend
 
       if (state == "home")
       {
-        return new HomeView(_home, _workflow,
+        HomeView homeView = new HomeView(_home, _workflow,
             _nowPlaying == null ? null : new Func<Workflow.WorkflowFrame>(NowPlayingFrame),
             _serverMayBeChanged ? new Func<Workflow.WorkflowFrame>(ConnectionFrame) : null,
             delegate (HomeSection section) { return BrowserFrame(section); },
-            BuildNamedFrame);
+            BuildNamedFrame,
+            // The cog and its kin hide behind the person's restrictions, exactly as the reference's
+            // gated elements did. The person button answers to one rule instead, the reference's own
+            // visibility for its UserButton: it is there in a house that asks who is watching, and it
+            // is not there in one that does not - there is nobody to switch to when nobody is asked.
+            key => key.Equals("viewer", StringComparison.OrdinalIgnoreCase)
+                ? _viewer.Policy.EnableUserLogin
+                : _viewer.Allows(GateGroupFor(key)));
+        _homeView = homeView;
+        return homeView;
       }
 
       if (state == "nowplaying")
@@ -1240,13 +1385,19 @@ namespace MediaPortal.Frontend
 
       // Who may sign in, read from the server's own user store the moment the row opens - the reference
       // filed this as "Settings -> Benutzer" for exactly the same reason: the names live on the server,
-      // not on any one machine.
-      model.Add("Users", "Server", "Who can sign in on the server, and what they must say",
-          delegate
-          {
-            UsersSettingsViewModel users = new UsersSettingsViewModel(() => _home.Client);
-            return new UsersSettingsView { DataContext = users };
-          });
+      // not on any one machine. Behind the reference's own "Settings.UserProfile" group: the section that
+      // hands out PINs and restrictions hides from the people who were handed them, which is the whole
+      // point of a key that only one person in the house has.
+      if (_viewer.Allows(Theming.RestrictionGroups.SettingsUserProfile))
+      {
+        model.Add("Users", "Server", "Who can sign in on the server, and what they must say",
+            delegate
+            {
+              UsersSettingsViewModel users = new UsersSettingsViewModel(
+                  () => _home.Client, () => _home.Client, _viewer);
+              return new UsersSettingsView { DataContext = users };
+            });
+      }
 
       // What the server says when a shared folder asks who is calling. The reference kept these in the
       // server's own settings window for the same reason: shares are the server's business, not any one
@@ -1327,6 +1478,21 @@ namespace MediaPortal.Frontend
     }
 
     /// <summary>
+    /// The restriction group a named screen hides behind, or the empty word for a screen everybody may
+    /// reach. The reference registered these per workflow state and per settings entry
+    /// (<c>WorkflowResourcesLoader.cs:209</c>); here it is the handful of corners this home screen can
+    /// point at, and everything that names no group stays everybody's - exactly the reference's rule for an
+    /// element that carries no attribute.
+    /// </summary>
+    private static string GateGroupFor(string screenKey)
+    {
+      if (screenKey.Equals("settings", StringComparison.OrdinalIgnoreCase)
+          || screenKey.Equals("themes", StringComparison.OrdinalIgnoreCase))
+        return Theming.RestrictionGroups.Settings;
+      return "";
+    }
+
+    /// <summary>
     /// The frame a menu tile asks for by name.
     /// </summary>
     /// <remarks>
@@ -1334,7 +1500,7 @@ namespace MediaPortal.Frontend
     /// added a share with another tool in between has to see it, and a screen kept alive between visits would show
     /// the answer from the last one.
     /// </remarks>
-    private Workflow.WorkflowFrame BuildNamedFrame(string screenKey)
+    private Workflow.WorkflowFrame? BuildNamedFrame(string screenKey)
     {
       if (screenKey.Equals("folders", StringComparison.OrdinalIgnoreCase))
         return new Workflow.WorkflowFrame("folders", "Folders", new FoldersViewModel(_home.Client));
@@ -1396,7 +1562,8 @@ namespace MediaPortal.Frontend
         // TVHeadend answers both out of one table, so both tiles open one screen turned to the table each of them
         // means; the difference a viewer sees is which of the three tables is named at the top.
         bool files = screenKey.Equals("recordings", StringComparison.OrdinalIgnoreCase);
-        TvSchedulesViewModel schedules = new TvSchedulesViewModel(finishedFirst: files, marshal: Views.ScreenThread.Run);
+        TvSchedulesViewModel schedules = new TvSchedulesViewModel(finishedFirst: files, marshal: Views.ScreenThread.Run,
+            mayDelete: () => _viewer.Allows(Theming.RestrictionGroups.DeleteRecording));
         _ = schedules.ReloadAsync();
         return new Workflow.WorkflowFrame(files ? "recordings" : "schedules",
             files ? "Recordings" : "Schedules", schedules);
@@ -1423,18 +1590,34 @@ namespace MediaPortal.Frontend
       if (screenKey.Equals("themes", StringComparison.OrdinalIgnoreCase)
           || screenKey.Equals("settings", StringComparison.OrdinalIgnoreCase))
       {
+        // The reference hung the whole configuration tree behind one group, "Settings", and a person whose
+        // list does not carry it never sees the door at all. The corner button reads that from the home
+        // model; a tile that was pointed at "settings" by grown-up hands gets answered with nothing rather
+        // than with the machine room - a press that opens nothing is the same answer the hidden button gives.
+        if (!_viewer.Allows(Theming.RestrictionGroups.Settings))
+          return null;
+
         // A fresh model per visit, unlike the party queue: the screens behind the sections read their state
         // when they open - somebody may have started this run with a --theme that overrode the saved choice,
         // or added a share with another tool in between.
         return new Workflow.WorkflowFrame("settings", "Settings", SettingsModel());
       }
 
-      // The two corner buttons of the reference's master_home that name a screen rather than a section: the
-      // person who is watching, and the way out of the room. Both are the same frames the application opens
-      // on its own - the picker it raises at startup when the machine asks for a viewer, and the close
-      // screen behind its own exit - so the corner button costs no second copy of either.
+      // The person button of the reference's master_home - its UserButton, which raised the login screen -
+      // is this corner. It opens the very wake the machine starts on, this time as a switch: the household
+      // laid out, a tap to change seats, and the door to step out of the room. It never stacks on itself -
+      // the reference never raised its login screen twice - so a press while the switch stands answers
+      // nothing. The old asking picker is gone: the switch lays out the same names, asks the PIN the
+      // server asks, and works whether or not login is on.
       if (screenKey.Equals("viewer", StringComparison.OrdinalIgnoreCase))
-        return ViewerFrame();
+      {
+        foreach (Workflow.WorkflowFrame standing in _workflow.Stack)
+        {
+          if (standing.StateId == "startup")
+            return null;
+        }
+        return StartupFrame(true);
+      }
 
       if (screenKey.Equals("close", StringComparison.OrdinalIgnoreCase))
         return CloseFrame();

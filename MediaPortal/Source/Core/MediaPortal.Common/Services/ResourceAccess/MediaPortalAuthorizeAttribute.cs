@@ -66,6 +66,13 @@ namespace MediaPortal.Common.Services.ResourceAccess
 
     public void OnAuthorization(AuthorizationFilterContext context)
     {
+      // A route that says it may be read without a name means it: the wake screen has to list the household
+      // and show its pictures before anybody has said anything, and a picture of a person is not a secret
+      // from the person whose television it is.
+      foreach (object metadata in context.ActionDescriptor.EndpointMetadata)
+        if (metadata is Microsoft.AspNetCore.Authorization.AllowAnonymousAttribute)
+          return;
+
       var authenticated = context.HttpContext.User?.Identity?.IsAuthenticated ?? false;
 
       if (!_webAutorizationEnabled.HasValue)

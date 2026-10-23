@@ -5082,6 +5082,169 @@ startup's "asks for a PIN"/"walks right in" wording everywhere. TestStartup keep
 honest note: its first run poisoned a later fixture by leaving the answered name as the skin settings' file
 owner - the teardown owns that back now.
 
+### ci. The whole household: server-kept house rules, restrictions that bite, and a chip to switch
+
+The wake screen was half the reference's login plugin. This is the rest of it - the parts that live on the
+server, the parts that hide things, and the parts that give the television back.
+
+**The server keeps the rules.** `UserLoginSettings.cs` carries the reference's five `UserSettings` fields
+(`EnableUserLogin`, `EnableUserLoginScreen`, `AutoLoginUser`, `AutoLogoutEnabled`,
+`AutoLogoutIdleTimeoutInMin`) as Global settings, and `api/media/settings` gained them as five nullable fields
+that a PUT only touches when present - so the server-settings screen cannot clobber the house rules and vice
+versa. `UsersController` grew the whole user picture: the reference's restriction keys (age ceiling with its
+parental-guided and unrated exceptions, restriction groups, allowed shares) are written and read with exactly
+`UserConfigModel.SaveUser`'s semantics - the inverted "AllowAll" spellings included - through
+`WriteRestrictionsAsync`, pictures travel as base64 with the reference's own 128×128 cap
+(`Theming/UserPicture.cs`), `LastLogin` rides along read-only (the server stamps it at sign-in, not the
+client), and the user list is `[AllowAnonymous]` because the wake has to read names before anybody has a
+token. The identity chain was already there: sign-in answers a bearer token carrying the profile id, and
+`MediaController.CallerRestrictionFilter` now runs that caller's `GetUserFilter` - the reference's DB-level
+`UserProfile.GetUserFilter`, certification range with its two exceptions plus the share filter - into every
+title list, count and group the front end reads. A child's shelf is filtered where the titles are *read*, not
+where they are painted: a hidden thing that cannot be searched, counted or guessed by id cannot leak.
+
+**The rules are defaults that ask.** The reference shipped `EnableUserLogin` off; this server ships it on,
+because a household that has just been given names and PINs should be asked from its first start, not
+silently not - the door locks itself when you hang the lock. A house that wants the open door turns it off
+once, under Settings → Users, where the `House rules` section reads and writes all five fields as the
+server's own answer rather than this machine's opinion.
+
+**The client obeys.** `Theming/ViewerState.cs` is the front end's `IUserManagement`: the current person, the
+last-known policy, and the reference's `CheckUserAccess` as `Allows`. The wake reads the policy first: login
+off walks the household in unasked; an expected `AutoLoginUser` walks right in - but still signs in with the
+empty password, because the sign-in is what tells the server *who is asking*, and a walk-in who stays
+anonymous would quietly keep the parent's whole library; a question switched off asks nobody and signs nobody
+in; an unreachable server changes nothing at all. The head line carries the watcher as a coin - their picture
+or their initial, pressed to open the same wake screen as a *switch* over the library, with "let this
+television go" under it; a sign-out calls the workflow's new `Reset`, which closes the whole trail (and stops
+the channel that played in it) rather than leaving a back key into a signed-out person's screens. The idle
+watch is the reference's auto-logout: fifteen-second looks at the window's own input, the server's minutes,
+and never in the middle of something - a paused film keeps its owner in the chair. Restrictions hide rather
+than grey: the settings cog lifts off the home screen for a person whose list does not carry
+`Settings` (`HomeView.ApplyScreenGates` reads the same gate the press reads, and `BuildNamedFrame` answers a
+key nobody may use with nothing), the "Users" section hides behind `Settings.UserProfile`, and the
+delete-recording button hides behind `SlimTvClient.DeleteRecording` - with the model refusing again at the
+press, because one rule belongs in one place. The catalog offers only groups something here actually obeys;
+the reference's `Media.DeleteMediaItem` stayed out until there is a delete press to hide.
+
+`TestUserRules` keeps seventeen of these promises - the `CheckUserAccess` truth table, the four policy shapes
+of the wake, the switch and its sign-out, the chip, the refused timeout, and the walk-in who still says their
+name at the door.
+
+### cj. Who is the grown-up: the derived administrator, the three kinds, and a door that stays locked
+
+**The role is not stored, it is read off the restrictions.** The reference never ticks "administrator"
+anywhere; its token endpoint (`MediaPortalCredentials`) works it out at sign-in - a real person, not a
+machine's profile, who restricts neither shares nor ages and does not use restriction groups. That one rule
+is now the API's: every `api/users` entry carries `isAdmin`, computed by the same sentence, and
+`Tests.Server/Api/TestUsersOverHttp` says it in three directions - the grown-up with a PIN is the
+administrator (a PIN is not a restriction), a thirteen-year-old ceiling is not, and a client profile is never
+a person at all.
+
+**The three kinds are the reference's, ids included.** `GET api/users/templates` states Admin, Teenager and
+Child with the restrictions the Login plugin ships them with and the `TemplateId`s from
+`UserTemplateSettings`, so a household that grew from the reference editor finds its kinds already named.
+A created or updated user can carry one (`templateId`), stored under the reference's own
+`UserDataKeysKnown.KEY_TEMPLATE_ID` - `UserProfile.TemplateId` reads it back - and the users screen has a
+`Kind` picker that lays the kind's preset under the age and group boxes and then keeps out of their way:
+the kind says what somebody *is*, the boxes say what the household enforces, and naming a grown-up as a
+Child does not quietly impose five years on them.
+
+**One household, one administrator at the very least.** The reference guards nothing here: its own editor can
+delete every grown-up in the house, and its editor is the only way back in. This server refuses that - the
+last unrestricted person cannot be deleted and cannot be restricted into nobody (`400` with the reason, from
+`DeleteUser` and from `UpdateUser`, checked against the whole store). The floor holds the way up as well as
+the way down: in a store that has already lost its administrator - which this server can meet, because the
+reference could produce it - every change stays possible, so a wrong tick can always be undone from the
+screen that made it. `TestUsersOverHttp` walks all four cases.
+
+**A silent server locks a numbered door rather than opening it.** Walking the remembered person in when the
+server cannot be reached was the fast way in for a PIN-less household, and for a household with a PIN it was
+a PIN that simply stopped being asked. The client now remembers the one thing it cannot ask a silent server
+- `rememberedViewerHasPin`, learned from the server on every start where the server speaks and written by
+every successful sign-in - and with it set the wake keeps its question up: the name, the four boxes, and the
+honest sentence that nothing can be checked right now. A PIN typed against a silent server is refused with
+that sentence rather than let through.
+
+`TestUsersOverHttp` (eight tests over the real HTTP pipeline) and seven more in `TestUserRules` and
+`TestUsersSettings` keep these promises; the live server was proven with a throwaway teenager that came back
+thirteen-years-old with its kind attached, a refused deletion of the house's only grown-up, and that
+teenager's clean removal afterwards.
+
+### ck. The one user button: the head line's coin is gone, the corner's person is the door
+
+The household got a second door where the reference had one. The head line had grown a round coin wearing
+the watcher's picture, while the home screen's corner row - ported from `master_home.xaml`'s
+`WindowButtonsPanel` - had carried the reference's own `UserButton` (the `NotificationMenu/user` glyph) all
+along. The coin was wrong twice: it was a duplicate, and it stood in the head line even while nobody was in
+the chair - an empty circle with no initial and nothing behind it, the artifact the household named.
+
+It is gone from both skins' `chrome.xaml`, and with it the whole chip block of `ChromeInfo` - the picture,
+the initial, the command, the viewer-state listener. The corner's person button is now the door the
+reference's was: `BuildNamedFrame("viewer")` answers with the very wake the machine starts on, guarded
+against stacking on itself. Its visibility is the reference's rule for
+that button read through the screen gate - a house that asks nobody (`EnableUserLogin` off) does not hang
+the handle.
+
+It is not a page of its own. The reference's `UserButton` navigated to its login screen, and this door
+navigates to the very page the machine starts on: the person standing there, their face, their four boxes.
+The household is reached the one way it is reached at the start - a press of the round picture - and only a
+switch with nobody to ask (a person who wears no numbers) opens on the household directly, because a face
+with no question and no way to anybody else is a dead end. The press that lets the television go lives
+behind that picture, so the picture opens even in a house of one. `ApplyViewer` and `ViewerFrame` went with
+the chip.
+
+The question stands at the head of the wallpaper now rather than at its foot, on the same ninety-six it
+carried below, and the wake's ring keeps its centre.
+
+Two things about the question itself were wrong. It printed the numbers - a PIN standing on a television in
+a living room is a secret the whole room reads - so each box now holds a plain centred dot and nothing
+else, which is all the person typing needs back: the count. And the screen had one focusable thing in it,
+the round picture, with no road to it: every arrow was left to the focus manager, which found the boxes
+unfocusable and the walk therefore nowhere. The wake now says its own two stops out loud - Left and Up step
+from the boxes to the picture, Right and Down back, Tab toggles, Enter opens what the picture opens - and
+the picture lights its ring when the keyboard stands on it, the way the reference's `User_focus.png` pair
+did. Delete joins Backspace in taking the newest number back, and the household overlay takes the focus to
+its list the moment it opens, so the names walk and Enter takes one.
+
+Two more things were missing, and both were about faces. The round container at the question wore the
+name's initial even though the server carries a picture for the person - the users screen shows it, so a
+household that gave somebody a face could not see it anywhere it mattered. Every road to the question now
+runs through one funnel that takes the *person* and not only their name, so the container decodes that
+person's picture and wears it, falling back to the initial only when the server carries none; the one road
+that cannot know a face is the offline door, where the server is silent and a picture cannot be read from
+nothing.
+
+The household's own dialog was built out of a border the view wrote for itself, with names in a list, a
+sentence about who asks for numbers, and two buttons under it. It wears the skin's dialog frame now -
+`theming:SkinTemplates.OverlayTemplate="DialogFrameTemplate"`, the same frame the close screen and the
+notification shelf ask the worn skin for - and it holds nothing but faces: a round picture cut to a circle,
+the name under it, and nothing else. It is the *whole* household rather than the others, so a household can
+be answered by staying, and pressing one's own face is exactly that answer rather than being asked for
+one's own numbers a second time. With the buttons gone, the back key is what closes the wall; it answers
+"stay as before", which is also why `StayAsWas` now steps the wall aside on both roads - a question that has
+been answered and still lays its faces out would still be asking. Sign-out stays the model's command and lost
+its button; if the room wants a press for it, the close screen is where it belongs.
+
+The wake's ring had one more flaw, and it was a timing one: the panel that carries it was bound to the
+model's reading phase, so the moment the two server reads answered - a heartbeat on a living-room network -
+the animation was swallowed and the question stood alone on a suddenly still wallpaper. Nobody had seen the
+wake at all. The binding is gone, and the ring's life is the screen's own clock instead: one turn of 360° at
+the wake's 150° a second, two and a half seconds that no server can shorten, and then a third of a second of
+fading and the ring is gone for good - the animation is a greeting, not a screensaver, and the four boxes do
+not need company for as long as somebody stands reading a name. While the wake still holds the wallpaper to
+itself (the no-PIN case, the model's four seconds) the turn simply carries on, because then it is the whole
+show. Only the wake's *words* stay bound to the reading phase, because the card under the face says
+everything the model has to say once the question opens. The refused PIN says
+"Wrong PIN, try again." now rather than addressing the person by name in a sentence, and the line under the
+name pointing at the picture ("press the picture - or the left arrow - for somebody else") is gone; the
+picture is discoverable on its own, and a hint under every question is noise.
+
+The frontend suite stands at 1163 of 1166 with only the three known baseline failures; the chip test became
+a test of the gate's one rule, the head line carries no person again on either skin, and the wall gained a
+test each for carrying everybody, for one's own face meaning stay, and for a picked face walking its picture
+along to the question.
+
 ## What cannot be verified without the user
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library
 import. These need hardware and judgement that are not in this environment, and they are batched into

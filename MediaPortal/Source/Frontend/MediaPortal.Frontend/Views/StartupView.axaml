@@ -1,7 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MediaPortal.Frontend.ViewModels"
-             xmlns:views="using:MediaPortal.Frontend.Views"
+             xmlns:theming="using:MediaPortal.Frontend.Theming"
              x:Class="MediaPortal.Frontend.Views.StartupView"
              x:DataType="vm:StartupViewModel"
              Name="startup"
@@ -9,12 +9,14 @@
 
   <!--
     The start of the front end. The household's wallpaper fills the window scaled to fit - nothing is cut,
-    the dark around it belongs to the picture - and one of three things stands on it: the wake animation
-    while the machine reads and the last person needs no numbers, the round face with four boxes when they
-    do, and the list of the other people when somebody is not who the machine remembered.
+    the dark around it belongs to the picture - and the wake's ring plays its one turn over it while the
+    machine reads. What stands on the picture after that is one of three things: the wake's own words while
+    it waits, the round face with four boxes when a PIN is asked, and the wall of the household's faces when
+    somebody is not who the machine remembered.
 
-    There is no way past this screen by key: the back key is swallowed while it stands, because the point
-    of the question is that it is answered.
+    There is no way past the question by key: the back key is swallowed while it stands, because the point
+    of the question is that it is answered. Only the wall of faces answers the back key, and it answers it
+    by leaving the room as it was.
   -->
 
   <UserControl.Styles>
@@ -28,6 +30,19 @@
     </Style>
     <Style Selector="Border.pinBox.filled">
       <Setter Property="BorderBrush" Value="#66FFB066"/>
+    </Style>
+    <!-- Two places to stand on, and each says so. The picture wears the room's orange when the keyboard
+         stands on it - the same light the reference's User_focus.png pair was for - which is how a viewer
+         walking out of the numbers knows they left them. -->
+    <Style Selector="Button.wakeFace">
+      <Setter Property="Focusable" Value="True"/>
+      <Setter Property="Background" Value="#D80E1319"/>
+      <Setter Property="BorderBrush" Value="#55E2621B"/>
+      <Setter Property="BorderThickness" Value="3"/>
+    </Style>
+    <Style Selector="Button.wakeFace:focus">
+      <Setter Property="BorderBrush" Value="#FFFFB066"/>
+      <Setter Property="BorderThickness" Value="4"/>
     </Style>
   </UserControl.Styles>
 
@@ -43,8 +58,15 @@
 
     <!-- The wake: a ring of the portal's own orange turning over the halo that breathes under it. No bar.
          The code-behind turns the ring and breathes the halo on a timer, the same way the fanart dissolve
-         counts its steps - numbers the screen can be trusted with rather than guessed by a transition. -->
-    <Panel IsVisible="{Binding Busy}" HorizontalAlignment="Center" VerticalAlignment="Center">
+         counts its steps - numbers the screen can be trusted with rather than guessed by a transition.
+
+         It is shown once: one turn of the ring, and then it fades out and is gone for the rest of the
+         screen's life - the four boxes do not need company for as long as somebody stands reading a name.
+         Its life is the screen's own clock rather than the model's reading phase, because the reads answer
+         in a heartbeat on a living-room network and an animation that dies with them is an animation nobody
+         sees. While the wake still holds the wallpaper to itself - the no-PIN case, the model's seconds -
+         the turn simply carries on, because then it is the whole show. -->
+    <Panel Name="wakeRing" HorizontalAlignment="Center" VerticalAlignment="Center">
       <StackPanel Spacing="26" HorizontalAlignment="Center">
         <Panel Width="170" Height="170" HorizontalAlignment="Center">
           <Ellipse Name="halo" Width="150" Height="150"
@@ -81,7 +103,10 @@
           <Ellipse Width="12" Height="12" Fill="#FFFFC08A"
                    HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,14,0,0"/>
         </Panel>
+        <!-- The words the wake says while it reads. Once the question stands, the card under the face says
+             everything the model has to say - two lines of the same sentence would be two lines. -->
         <TextBlock Text="{Binding Status}"
+                   IsVisible="{Binding Busy}"
                    FontSize="24"
                    Foreground="#F2FFFFFF"
                    HorizontalAlignment="Center"
@@ -91,51 +116,59 @@
       </StackPanel>
     </Panel>
 
-    <!-- The question, stood at the foot of the picture: the person in a round container that is itself the
-         way to somebody else, their four boxes beside the face. No pad of numbers - a keyboard or a remote
-         types them, the fourth one being the answer. -->
-    <Panel IsVisible="{Binding NeedsPin}" HorizontalAlignment="Center" VerticalAlignment="Bottom">
-      <StackPanel Name="pinCard" HorizontalAlignment="Center" Margin="0,0,0,96">
+    <!-- The question, stood at the HEAD of the picture - the same margin it carried at the foot, ninety-six
+         of it, only measured from the top now: the person in a round container that is itself the way to
+         somebody else, their four boxes beside the face. No pad of numbers - a keyboard or a remote types
+         them, the fourth one being the answer. -->
+    <Panel IsVisible="{Binding NeedsPin}" HorizontalAlignment="Center" VerticalAlignment="Top">
+      <StackPanel Name="pinCard" HorizontalAlignment="Center" Margin="0,96,0,0">
         <StackPanel Orientation="Horizontal" Spacing="34" HorizontalAlignment="Center">
           <StackPanel Spacing="12" VerticalAlignment="Center">
-            <Button Command="{Binding SwitchUserCommand}" Padding="0"
+            <Button Name="userPicture" Classes="wakeFace" Command="{Binding SwitchUserCommand}" Padding="0"
                     ToolTip.Tip="Somebody else?"
                     Width="140" Height="140" CornerRadius="70"
-                    Background="#D80E1319" HorizontalAlignment="Center"
-                    BorderBrush="#55E2621B" BorderThickness="3">
-              <TextBlock Text="{Binding Initials}"
-                         FontSize="60" FontWeight="SemiBold"
-                         Foreground="#FFFFB066"
-                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    HorizontalAlignment="Center">
+              <!-- The person's own picture, cut to the round container: the household put it on the profile
+                   through the users screen, and the door is where it goes looking for it. The initial is what
+                   a container wears until somebody brings a picture, not what it wears instead of one. -->
+              <Border Width="134" Height="134" CornerRadius="67" ClipToBounds="True">
+                <Panel>
+                  <Image Source="{Binding PersonPicture}" Stretch="UniformToFill"
+                         IsVisible="{Binding HasPersonPicture}"/>
+                  <TextBlock Text="{Binding Initials}"
+                             FontSize="60" FontWeight="SemiBold"
+                             Foreground="#FFFFB066"
+                             HorizontalAlignment="Center" VerticalAlignment="Center"
+                             IsVisible="{Binding !HasPersonPicture}"/>
+                </Panel>
+              </Border>
             </Button>
             <TextBlock Text="{Binding PersonName}"
                        FontSize="26" FontWeight="SemiBold"
                        Foreground="#F2FFFFFF"
                        HorizontalAlignment="Center"/>
-            <TextBlock Text="press the picture for somebody else"
-                       IsVisible="{Binding HasOthers}"
-                       FontSize="14"
-                       Foreground="#80FFFFFF"
-                       HorizontalAlignment="Center"/>
           </StackPanel>
 
           <StackPanel Spacing="16" VerticalAlignment="Center">
             <StackPanel Orientation="Horizontal" Spacing="14" HorizontalAlignment="Center">
+              <!-- One dot per number typed, dead centre in its box. The number itself is never painted: a
+                   number that stands on a television in the living room is a secret the whole room can read,
+                   and the only thing the person typing needs back is the count of what they have typed. -->
               <Border Name="box0" Classes="pinBox" Width="72" Height="92" CornerRadius="16">
-                <TextBlock Name="digit0" FontSize="46" HorizontalAlignment="Center"
-                           VerticalAlignment="Center" Foreground="#F2FFFFFF"/>
+                <Ellipse Name="dot0" Width="22" Height="22" Fill="#F2FFFFFF" IsVisible="False"
+                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
               </Border>
               <Border Name="box1" Classes="pinBox" Width="72" Height="92" CornerRadius="16">
-                <TextBlock Name="digit1" FontSize="46" HorizontalAlignment="Center"
-                           VerticalAlignment="Center" Foreground="#F2FFFFFF"/>
+                <Ellipse Name="dot1" Width="22" Height="22" Fill="#F2FFFFFF" IsVisible="False"
+                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
               </Border>
               <Border Name="box2" Classes="pinBox" Width="72" Height="92" CornerRadius="16">
-                <TextBlock Name="digit2" FontSize="46" HorizontalAlignment="Center"
-                           VerticalAlignment="Center" Foreground="#F2FFFFFF"/>
+                <Ellipse Name="dot2" Width="22" Height="22" Fill="#F2FFFFFF" IsVisible="False"
+                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
               </Border>
               <Border Name="box3" Classes="pinBox" Width="72" Height="92" CornerRadius="16">
-                <TextBlock Name="digit3" FontSize="46" HorizontalAlignment="Center"
-                           VerticalAlignment="Center" Foreground="#F2FFFFFF"/>
+                <Ellipse Name="dot3" Width="22" Height="22" Fill="#F2FFFFFF" IsVisible="False"
+                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
               </Border>
             </StackPanel>
             <TextBlock Text="{Binding Status}"
@@ -152,31 +185,50 @@
 
     <!-- The others. Standing on a name picks it - a PIN person takes the boxes, a person without one
          simply arrives; the row answers like the server list on the connection screen answers. -->
+    <!-- The household, opened by a press on the round picture. It stands on the worn skin's own dialog frame
+         - the same frame the close screen and the notification shelf wear - and it holds nothing but faces:
+         a round picture, the name under it, and nothing else. A press on a face is the whole answer, and the
+         back key leaves the room exactly as it was. -->
     <Panel Background="#A0000000" IsVisible="{Binding Switching}">
-      <Border Background="#E610151C" CornerRadius="18" Padding="26"
-              Width="460" MinHeight="300"
-              HorizontalAlignment="Center" VerticalAlignment="Center">
-        <DockPanel>
-          <TextBlock DockPanel.Dock="Top" Text="Who then?"
-                     FontSize="26" FontWeight="SemiBold" Margin="0,0,0,14"/>
-          <Button DockPanel.Dock="Bottom" Content="Stay as before"
-                  Command="{Binding StayAsWasCommand}"
-                  HorizontalAlignment="Center" Margin="0,16,0,0" Padding="20,8"/>
-          <ListBox Name="othersList"
-                   ItemsSource="{Binding Others}"
-                   MaxHeight="340" FontSize="22">
-            <ListBox.ItemTemplate>
-              <DataTemplate>
-                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16" Margin="2,7">
-                  <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
-                  <TextBlock Grid.Column="1" VerticalAlignment="Center" Opacity="0.6" FontSize="15"
-                             Text="{Binding HasPassword, Converter={x:Static views:PinOrFreeConverter.Instance}}"/>
-                </Grid>
-              </DataTemplate>
-            </ListBox.ItemTemplate>
-          </ListBox>
-        </DockPanel>
-      </Border>
+      <ContentControl HorizontalAlignment="Center" VerticalAlignment="Center"
+                      theming:SkinTemplates.OverlayTemplate="DialogFrameTemplate">
+        <ListBox Name="othersList"
+                 ItemsSource="{Binding Household}"
+                 Background="Transparent" BorderThickness="0"
+                 MinWidth="560" MaxWidth="900" MaxHeight="620">
+          <ListBox.ItemsPanel>
+            <ItemsPanelTemplate>
+              <WrapPanel Orientation="Horizontal" />
+            </ItemsPanelTemplate>
+          </ListBox.ItemsPanel>
+          <ListBox.Styles>
+            <Style Selector="ListBoxItem">
+              <Setter Property="Padding" Value="16,12"/>
+            </Style>
+          </ListBox.Styles>
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <StackPanel Spacing="12" Width="176">
+                <Border Width="140" Height="140" CornerRadius="70" ClipToBounds="True"
+                        HorizontalAlignment="Center">
+                  <Panel>
+                    <Image Source="{Binding Picture}" Stretch="UniformToFill"
+                           IsVisible="{Binding HasPicture}"/>
+                    <TextBlock Text="{Binding Initials}"
+                               FontSize="56" FontWeight="SemiBold"
+                               Foreground="#FFFFB066"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                               IsVisible="{Binding !HasPicture}"/>
+                  </Panel>
+                </Border>
+                <TextBlock Text="{Binding Name}"
+                           FontSize="22" TextTrimming="CharacterEllipsis"
+                           TextAlignment="Center" HorizontalAlignment="Center"/>
+              </StackPanel>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </ContentControl>
     </Panel>
   </Panel>
 </UserControl>

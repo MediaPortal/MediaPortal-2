@@ -21,6 +21,50 @@ namespace MediaPortal.Frontend.Api
 
         Task<ServerSettingsAnswer> PutServerSettingsAsync(ServerSettingsUpdate update,
             CancellationToken cancellation = default);
+
+        Task<LoginPolicyAnswer> GetLoginPolicyAsync(CancellationToken cancellation = default);
+
+        Task<LoginPolicyAnswer> PutLoginPolicyAsync(LoginPolicyWish wish,
+            CancellationToken cancellation = default);
+    }
+
+    /// <summary>
+    /// The household's login policy as the server keeps it: whether anybody is asked who is watching, who is
+    /// signed in without being asked, and whether an untouched television gives its user back. The five fields
+    /// ride on the server's own settings answer - the reference kept them Global for exactly this reason, so
+    /// every television in the house is governed by the same rules.
+    /// </summary>
+    public sealed class LoginPolicyAnswer
+    {
+        /// <summary>On, like the server's own default: a house with names asks who is watching.</summary>
+        public bool EnableUserLogin { get; init; } = true;
+        public bool EnableUserLoginScreen { get; init; } = true;
+
+        /// <summary>The person signed in without being asked. Empty for nobody.</summary>
+        public string AutoLoginUser { get; init; } = "";
+
+        public bool AutoLogoutEnabled { get; init; }
+        public int AutoLogoutIdleTimeoutInMin { get; init; } = 30;
+
+        /// <summary>The server's reason when it refused, in words a screen can show. Null when nothing refused.</summary>
+        public string? Error { get; init; }
+    }
+
+    /// <summary>
+    /// The change to send with <see cref="IServerSettingsApi.PutLoginPolicyAsync"/>. Every field is optional;
+    /// what is null stays as the server has it, so a screen that owns only the login rows cannot undo the
+    /// importer's schedule by forgetting it.
+    /// </summary>
+    public sealed class LoginPolicyWish
+    {
+        public bool? EnableUserLogin { get; init; }
+        public bool? EnableUserLoginScreen { get; init; }
+
+        /// <summary>The person to sign in without asking. The empty string means nobody.</summary>
+        public string? AutoLoginUser { get; init; }
+
+        public bool? AutoLogoutEnabled { get; init; }
+        public int? AutoLogoutIdleTimeoutInMin { get; init; }
     }
 
     /// <summary>
@@ -60,6 +104,21 @@ namespace MediaPortal.Frontend.Api
         /// stores a fraction (0.5 is half an hour); a screen rounds to whatever it can ask for.
         /// </summary>
         public double ImporterStartTime { get; init; }
+
+        /// <summary>Whether the household has to say who is watching. Off means nobody is asked.</summary>
+        public bool EnableUserLogin { get; init; }
+
+        /// <summary>Whether the screen that asks is shown when a person is expected.</summary>
+        public bool EnableUserLoginScreen { get; init; }
+
+        /// <summary>The person signed in without being asked. Empty for nobody.</summary>
+        public string AutoLoginUser { get; init; } = "";
+
+        /// <summary>Whether an untouched television gives its user back to the household.</summary>
+        public bool AutoLogoutEnabled { get; init; }
+
+        /// <summary>How many minutes of nothing it takes.</summary>
+        public int AutoLogoutIdleTimeoutInMin { get; init; } = 30;
 
         /// <summary>
         /// Which of the changed fields the server said it needs a restart for. Only ever

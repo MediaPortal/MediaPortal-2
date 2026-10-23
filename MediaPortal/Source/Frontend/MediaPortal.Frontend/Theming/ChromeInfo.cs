@@ -18,6 +18,7 @@
 using System;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
+using MediaPortal.Frontend.Api;
 using MediaPortal.Frontend.Notifications;
 
 namespace MediaPortal.Frontend.Theming
@@ -567,6 +568,10 @@ namespace MediaPortal.Frontend.Theming
         _chrome.NotificationsRequested?.Invoke();
       }
     }
+
+    // Who is watching has no place in the head line. The reference said it through the UserButton of the
+    // master's top row, and this front end says it through the very same door: the person glyph in the
+    // home screen's corner row, which opens the wake as a switch. Nothing here binds to a person.
 
     // ---- the home head line's weather, the reference's master_home slot -----------------------------------
 
