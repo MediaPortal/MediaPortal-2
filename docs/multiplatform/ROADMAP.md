@@ -4797,6 +4797,53 @@ missing draws nothing at all. And by `TestSkinHomeFiles.ACornerButtonLightsUpAsA
 carries half its own width as corner, and the element inside its template that paints the light carries the same
 corner - a setter nobody reads would keep the square.
 
+### ca. A question raised over a screen has to hold the keyboard
+
+Reported by the viewer: a dialog came up and the arrows did nothing - the keyboard was still in the screen behind.
+
+The reference never had that failure, because its screen took the keyboard as its own business. At the end of
+`Screen.Prepare()` - after it had laid the screen out, repeatedly, until measure and arrange stopped disagreeing - it
+did two things (`ScreenManagement/Screen.cs:464-495`):
+
+```csharp
+HandleScheduledFocus();
+if (!_root.IsKeyboardFocusWithin)
+  _root.TrySetFocus(true);
+```
+
+- `HandleScheduledFocus()` (`:509-528`, fed by `ScheduleSetFocus(element, priority)`, `:990`) is the reference's
+  answer to the fact that **a focus asked for before the layout is asked of a control that cannot answer it**. Lists
+  hold nothing until they are laid out, a dialog's buttons arrive with the frame's template, and a `Focus()` said too
+  early is simply lost - so the reference queued the request with a priority, applied it after the layout, and kept
+  asking until it took or the request grew too old (`MAX_SET_FOCUS_AGE`).
+- `if (!_root.IsKeyboardFocusWithin) _root.TrySetFocus(true)` is the net under that: a screen that does not hold the
+  keyboard within itself takes it with its own root. A screen - dialog or not - never leaves the keyboard outside.
+
+This front end had neither half. `ShellWindow` asked each screen once, at the moment the stop was handed over
+(`IWorkflowScreen.OnScreenActivated`), and:
+
+- `NotificationsView` asked in its **constructor**, which is earlier still - the control was not joined to a window
+  at all, so the ask could not even be lost, it never happened. The dialog stood over the shelf with the keyboard
+  still in the shelf: the arrows walked a screen the viewer could only see blurred.
+- `NereusMenuEditView` asked at the right moment and at the wrong one: it asks its list, whose rows are not realized
+  before layout - so its own rule "no rows, so stand on OK" answered, and the editor of a menu started with the
+  keyboard on its way out.
+- `TvProgramActionsView` had already learned this on its own and asked twice; it was the only dialog that worked.
+
+Now the reference's two halves are here too. Every dialog that cares asks twice - `Ask()` now and the same `Ask()`
+posted at `DispatcherPriority.Loaded`, which is the same rule as the reference's schedule: re-decide after the layout,
+because what the dialog could stand on has changed by then (`NotificationsView.OnScreenActivated`,
+`NereusMenuEditView.OnScreenActivated`). And `ShellWindow.HoldTheKeyboardForTheDialog` is the net: once a dialog is
+the top of the stack, the window looks at the next layout pass and, if the keyboard is not standing somewhere inside
+that dialog, hands it to the first control of the dialog that can take it. A dialog written tomorrow without a word
+about its keys is therefore a dialog that can still be answered.
+
+Tested by `TestTheDialogTakesTheKeyboard`: the notification dialog holds the keyboard when it goes up, its arrows walk
+its own buttons and never the screen behind, and the keyboard goes back to that screen when the dialog is done; the
+menu editor holds it on its list of lines - the control it asked for, not the one the net would have reached; and a
+dialog that says nothing about its keys still holds it. Both new tests were seen to fail with the fixes taken out -
+the first with the keyboard left in the screen behind, the second with nobody holding it at all.
+
 ## What cannot be verified without the user
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library
 import. These need hardware and judgement that are not in this environment, and they are batched into

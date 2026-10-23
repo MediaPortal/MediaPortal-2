@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Threading;
 using MediaPortal.Frontend.Input;
 using MediaPortal.Frontend.ViewModels;
 using MediaPortal.Frontend.Workflow;
@@ -91,10 +92,35 @@ namespace MediaPortal.Frontend.Views
       DpadNavigation.Attach(this, _ring);
 
       if (model != null)
-      {
         model.Finished += delegate { Close(); };
-        okButton.Focus();
+    }
+
+    /// <summary>
+    /// Where the dialog's keys start: the first of its buttons that can take them.
+    /// </summary>
+    /// <remarks>
+    /// A focus asked for in the constructor is asked of a control that is not joined to a window yet, and that
+    /// answers nothing - which left this dialog standing over the screen behind it with the keyboard still in that
+    /// screen's hand: the arrows walked a shelf the viewer could only see blurred, and Enter pressed a tile nobody
+    /// meant. So the ask belongs to activation, and it is asked again once the layout has settled, because the
+    /// buttons come out of the skin's dialog frame, which arrives a pass after the call.
+    /// </remarks>
+    public void OnScreenActivated()
+    {
+      void Ask()
+      {
+        foreach (Control button in _ring)
+        {
+          if (button.IsVisible && button.Focus())
+            return;
+        }
       }
+
+      // Asked twice for two different reasons. The first ask is the one that usually works and costs nothing; the
+      // second runs once the layout has settled, which is when the frame's template - and with it the buttons - has
+      // really arrived, and when a button has an IsVisible the dialog can trust.
+      Ask();
+      Dispatcher.UIThread.Post(Ask, DispatcherPriority.Loaded);
     }
 
     /// <summary>

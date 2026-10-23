@@ -90,49 +90,65 @@ namespace MediaPortal.Frontend.Views
       AddHandler(KeyDownEvent, OnKeyDown);
     }
 
-    /// <summary>Where the focus starts on each of the four stops.</summary>
+    /// <summary>
+    /// Where the focus starts on each of the four stops, asked twice: once here and once when the layout has
+    /// settled.
+    /// </summary>
+    /// <remarks>
+    /// The lists are empty at the moment the shell hands the stop over - their rows arrive with the layout, not with
+    /// the <c>ItemsSource</c> assignment - and an empty list is exactly the answer that sends this dialog's keys to
+    /// the OK button instead of to the rows. A dialog whose whole point is moving a line then starts with the
+    /// keyboard standing on its way out, which is what the viewer met: the arrows moved nothing they meant. Asking
+    /// again once the frame has been laid out is the same ask, and every branch of it is written to be asked twice.
+    /// </remarks>
     public void OnScreenActivated()
     {
-      if (_editor == null)
-        return;
-
-      NereusMenuEditModel model = _editor.Model;
-      if (_screen == NereusMenuEditScreen.Tiles && model.StartActionId.HasValue)
+      void Ask()
       {
-        // The reference opened its dialog on the tile the viewer was standing on, so that nobody had to walk to
-        // the tile they meant. Coming back from a sub-screen, the selection the viewer left is kept instead.
-        NereusMenuEditRow? start = model.Rows.FirstOrDefault(row => row.ActionId == model.StartActionId);
-        if (start != null && editList.SelectedItem == null)
+        if (_editor == null)
+          return;
+
+        NereusMenuEditModel model = _editor.Model;
+        if (_screen == NereusMenuEditScreen.Tiles && model.StartActionId.HasValue)
         {
-          editList.SelectedItem = start;
-          editList.ScrollIntoView(start);
+          // The reference opened its dialog on the tile the viewer was standing on, so that nobody had to walk to
+          // the tile they meant. Coming back from a sub-screen, the selection the viewer left is kept instead.
+          NereusMenuEditRow? start = model.Rows.FirstOrDefault(row => row.ActionId == model.StartActionId);
+          if (start != null && editList.SelectedItem == null)
+          {
+            editList.SelectedItem = start;
+            editList.ScrollIntoView(start);
+          }
         }
-      }
 
-      if (_screen == NereusMenuEditScreen.PickTiles || _screen == NereusMenuEditScreen.PickLists)
-      {
-        if (!pickList.Items.OfType<object>().Any())
+        if (_screen == NereusMenuEditScreen.PickTiles || _screen == NereusMenuEditScreen.PickLists)
         {
-          // Nothing left to add: there is nothing to stand on, so the screen says so by being where it is.
+          if (!pickList.Items.OfType<object>().Any())
+          {
+            // Nothing left to add: there is nothing to stand on, so the screen says so by being where it is.
+            return;
+          }
+
+          if (pickList.SelectedItem == null)
+            pickList.SelectedIndex = 0;
+          pickList.Focus();
           return;
         }
 
-        if (pickList.SelectedItem == null)
-          pickList.SelectedIndex = 0;
-        pickList.Focus();
-        return;
+        if (editList.Items.OfType<object>().Any())
+        {
+          if (editList.SelectedItem == null)
+            editList.SelectedIndex = 0;
+          editList.Focus();
+        }
+        else if (okButton.IsVisible)
+        {
+          okButton.Focus();
+        }
       }
 
-      if (editList.Items.OfType<object>().Any())
-      {
-        if (editList.SelectedItem == null)
-          editList.SelectedIndex = 0;
-        editList.Focus();
-      }
-      else if (okButton.IsVisible)
-      {
-        okButton.Focus();
-      }
+      Ask();
+      Avalonia.Threading.Dispatcher.UIThread.Post(Ask, Avalonia.Threading.DispatcherPriority.Loaded);
     }
 
     private void Arrange()

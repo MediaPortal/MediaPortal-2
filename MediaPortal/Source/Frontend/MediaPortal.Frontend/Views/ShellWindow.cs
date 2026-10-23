@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
@@ -25,6 +26,7 @@ using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.VisualTree;
 
 namespace MediaPortal.Frontend.Views
 {
@@ -1059,12 +1061,74 @@ namespace MediaPortal.Frontend.Views
           screen.OnScreenActivated();
         else
           (opened.View as Control)?.Focus();
+        if (dialog && view != null)
+          HoldTheKeyboardForTheDialog(view);
       };
 
       if (_shown)
         activate();
       else
         _pendingActivation = activate;
+    }
+
+    /// <summary>
+    /// Makes sure that a question raised over a screen also holds the keyboard it is asked with.
+    /// </summary>
+    /// <remarks>
+    /// A dialog carrying no focus is not merely unfocused - it is a lie about the screen behind it: every arrow the
+    /// viewer presses walks the screen that only stands behind the question as a picture, and every Enter presses a
+    /// button nobody meant. Where a dialog's keys start is the dialog's own decision, made in
+    /// <see cref="Workflow.IWorkflowScreen.OnScreenActivated"/>; this is the net under that decision, so a dialog
+    /// written without one is a dialog that can still be answered. It is asked twice - once now and once when the
+    /// layout has settled - because a focus request aimed at a control that is not joined to a window yet answers
+    /// nothing at all, and a dialog's buttons arrive out of the skin's template, which is a pass later than the call.
+    /// </remarks>
+    private void HoldTheKeyboardForTheDialog(Control dialogView)
+    {
+      void Ask()
+      {
+        if (!_dialogLayer.IsVisible || !ReferenceEquals(_dialogLayer.Content, dialogView))
+          return; // the viewer walked on while the layout was settling; the newest stop decides from here
+        if (this.FocusManager.GetFocusedElement() is Visual held && StandsInside(held, dialogView))
+          return; // the dialog already answers for its own keys, which is all this was for
+        Control? first = FirstControlTakingFocus(dialogView);
+        first?.Focus();
+      }
+
+      Ask();
+      Avalonia.Threading.Dispatcher.UIThread.Post(Ask, Avalonia.Threading.DispatcherPriority.Loaded);
+    }
+
+    /// <summary>Whether <paramref name="element"/> is the dialog itself or stands somewhere inside it.</summary>
+    private static bool StandsInside(Visual element, Control dialogView)
+    {
+      for (Visual? at = element; at != null; at = at.GetVisualParent())
+      {
+        if (ReferenceEquals(at, dialogView))
+          return true;
+      }
+
+      return false;
+    }
+
+    /// <summary>
+    /// The first control of a dialog that can take the focus, in the order the dialog draws them. A face that
+    /// dresses its dialog can hand the keyboard to whichever control it drew first, which is the honest guess for
+    /// a dialog that never said anything about its keys.
+    /// </summary>
+    private static Control? FirstControlTakingFocus(Control root)
+    {
+      if (root.Focusable && root.IsVisible && root.IsEnabled)
+        return root;
+
+      foreach (Control child in root.GetVisualChildren().OfType<Control>())
+      {
+        Control? found = FirstControlTakingFocus(child);
+        if (found != null)
+          return found;
+      }
+
+      return null;
     }
 
     private bool _shown;
