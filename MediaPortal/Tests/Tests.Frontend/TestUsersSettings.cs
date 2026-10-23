@@ -104,7 +104,7 @@ namespace Tests.Frontend
 
       Assert.That(model.Users.Select(u => u.Name), Is.EqualTo(new[] { "Mother", "Kids", "Living room box" }));
       Assert.That(model.Users[0].Label, Does.Contain("(you)"), "the screen says which entry you are");
-      Assert.That(model.Users[1].Label, Does.Contain("(no password)"), "and which one walks in passwordless");
+      Assert.That(model.Users[1].Label, Does.Contain("(no PIN)"), "and which one walks in without numbers");
       Assert.That(model.Users[2].Label, Does.Contain("(machine)"), "and which entry is no person at all");
       Assert.That(model.Status, Does.Contain("3 user(s)"));
     }
@@ -144,7 +144,23 @@ namespace Tests.Frontend
     }
 
     [Test]
-    public async Task AddingSendsTheTypedNameAndPasswordAndReloads()
+    public async Task AddingSendsTheTypedNameAndPinAndReloads()
+    {
+      FakeUsersApi api = new FakeUsersApi();
+      UsersSettingsViewModel model = new UsersSettingsViewModel(() => api);
+      model.NameText = "Father";
+      model.PasswordText = "4913";
+
+      await model.AddAsync();
+
+      Assert.That(api.Created!.Name, Is.EqualTo("Father"));
+      Assert.That(api.Created!.Password, Is.EqualTo("4913"), "the server hashes it, not this screen");
+      Assert.That(api.Calls, Is.EqualTo(new[] { "create", "get" }), "the list is read back after the write");
+      Assert.That(model.Status, Does.Contain("'Father' was added"));
+    }
+
+    [Test]
+    public async Task APinIsFourDigitsOrNothingAtAll()
     {
       FakeUsersApi api = new FakeUsersApi();
       UsersSettingsViewModel model = new UsersSettingsViewModel(() => api);
@@ -152,11 +168,18 @@ namespace Tests.Frontend
       model.PasswordText = "kitchen-table";
 
       await model.AddAsync();
+      Assert.That(model.Status, Does.Contain("four digits"),
+          "the wake screen asks four numbers in four boxes - a longer secret could never be said there");
+      Assert.That(api.Calls, Does.Not.Contain("create"), "and nothing went over the wire");
 
-      Assert.That(api.Created!.Name, Is.EqualTo("Father"));
-      Assert.That(api.Created!.Password, Is.EqualTo("kitchen-table"), "the server hashes it, not this screen");
-      Assert.That(api.Calls, Is.EqualTo(new[] { "create", "get" }), "the list is read back after the write");
-      Assert.That(model.Status, Does.Contain("'Father' was added"));
+      model.PasswordText = "12x4";
+      await model.AddAsync();
+      Assert.That(model.Status, Does.Contain("digits, 0 to 9"));
+      Assert.That(api.Calls, Does.Not.Contain("create"));
+
+      model.PasswordText = "";
+      await model.AddAsync();
+      Assert.That(api.Calls, Does.Contain("create"), "no PIN at all stays a whole answer");
     }
 
     [Test]
@@ -208,7 +231,7 @@ namespace Tests.Frontend
 
       await model.RemovePasswordAsync();
       Assert.That(api.Updated!.Password, Is.Empty, "empty here is the answer itself, not an untouched box");
-      Assert.That(model.Status, Does.Contain("without a password now"));
+      Assert.That(model.Status, Does.Contain("without a PIN now"));
     }
 
     [Test]

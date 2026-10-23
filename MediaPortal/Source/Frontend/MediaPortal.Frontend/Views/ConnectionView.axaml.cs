@@ -55,15 +55,17 @@ namespace MediaPortal.Frontend.Views
     /// The navigation this screen was opened through; its "Close" button pops this screen rather than closing a
     /// window, because there is only one window now.  <c>null</c> in tests and the designer.
     /// </param>
-    public ConnectionView(ConnectionViewModel viewModel, WorkflowManager? workflow = null)
+    /// <param name="offersClose">
+    /// <c>false</c> when the screen stands embedded in the settings hub's pane: the hub's own trail and back key do
+    /// the leaving there, and a button that would pop nothing should not stand on the pane.
+    /// </param>
+    public ConnectionView(ConnectionViewModel viewModel, WorkflowManager? workflow = null, bool offersClose = true)
     {
       DataContext = viewModel;
       _workflow = workflow;
       InitializeComponent();
 
-      // In the settings hub no workflow pushed this screen: the hub's own trail and back key do the leaving,
-      // and a button that would pop nothing should not stand on the pane.
-      if (workflow == null)
+      if (!offersClose)
         closeButton.IsVisible = false;
 
       // In the order they are on the screen. The list is first because it is what the viewer is meant to use; the

@@ -95,6 +95,31 @@ namespace Tests.Frontend
     }
 
     [AvaloniaTest]
+    public void TheWakeStandsWithoutTheHeadersClockAndWeather()
+    {
+      Application app = Application.Current!;
+      FrontendTheme.Apply(app, "nereus", out _);
+
+      ShellWindow window = new ShellWindow(new WorkflowManager(),
+          frame => frame.StateId == "startup" ? new StartupView() : (Control)new Label { Content = frame.Label });
+      window.Show();
+      window.Workflow.Push(new WorkflowFrame("startup", "Wake", new object()));
+      Pump();
+
+      Assert.That(Part(window, "ChromeHeader")!.IsVisible, Is.False,
+          "the wake wants the whole television - no clock, day or weather picture over the wallpaper "
+          + "before somebody has arrived");
+      Assert.That(Part(window, "ChromeFooter")!.IsVisible, Is.False);
+
+      window.Workflow.ReplaceCurrent(new WorkflowFrame("home", "Home", new Label()));
+      Pump();
+      Assert.That(Part(window, "ChromeHeader")!.IsVisible, Is.True,
+          "and the chrome comes back the moment the wake hands over to the home menu");
+
+      window.Close();
+    }
+
+    [AvaloniaTest]
     public void SwitchingSkinsOnTheCouchSwapsTheWindowsChrome()
     {
       Application app = Application.Current!;

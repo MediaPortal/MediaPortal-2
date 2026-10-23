@@ -53,9 +53,10 @@ namespace MediaPortal.Frontend.ViewModels
     public string Heading => "Users";
 
     public string Subtitle =>
-        "Who may sign in on the server. The names, the passwords and the removals are the server's own "
-        + "store - the same one that answers when somebody signs in - and every change is written there "
-        + "the moment it is made.";
+        "Who may sign in on the server. The names, the four-number PINs and the removals are the server's "
+        + "own store - the same one that answers when somebody signs in - and every change is written "
+        + "there the moment it is made. The start of this machine asks the remembered person for their "
+        + "PIN; a person without one walks right in.";
 
     [ObservableProperty]
     private string _status = "";
@@ -141,7 +142,7 @@ namespace MediaPortal.Frontend.ViewModels
         string says = Selected.Name;
         says += Selected.IsYou ? " - this is who you are signed in as" : "";
         says += Selected.Kind == "Client" ? " - a machine's profile, not a person's" : "";
-        says += Selected.HasPassword ? " - has a password" : " - signs in without a password";
+        says += Selected.HasPassword ? " - has a PIN" : " - walks in without a PIN";
         return says;
       }
     }
@@ -195,6 +196,13 @@ namespace MediaPortal.Frontend.ViewModels
       if (client == null)
       {
         Status = "No server address yet.";
+        return;
+      }
+
+      string? pinProblem = PinProblem(PasswordText);
+      if (pinProblem != null)
+      {
+        Status = pinProblem;
         return;
       }
 
@@ -252,6 +260,13 @@ namespace MediaPortal.Frontend.ViewModels
         return;
       }
 
+      string? pinProblem = PinProblem(PasswordText);
+      if (pinProblem != null)
+      {
+        Status = pinProblem;
+        return;
+      }
+
       try
       {
         UserAnswer answer = await client.UpdateUserAsync(who.ProfileId, new UpdateUserWish
@@ -274,7 +289,7 @@ namespace MediaPortal.Frontend.ViewModels
       }
     }
 
-    /// <summary>Takes the typed-away password off the picked user. The box is not the answer here; this press is.</summary>
+    /// <summary>Takes the typed-away PIN off the picked user. The box is not the answer here; this press is.</summary>
     [RelayCommand]
     public async Task RemovePasswordAsync()
     {
@@ -298,7 +313,7 @@ namespace MediaPortal.Frontend.ViewModels
         await LoadAsync();
         Status = answer.Error != null
             ? "The server would not change '" + who.Name + "': " + answer.Error
-            : string.Format("'{0}' signs in without a password now.", who.Name);
+            : string.Format("'{0}' walks in without a PIN now.", who.Name);
       }
       catch (ServerApiException e)
       {
@@ -365,6 +380,23 @@ namespace MediaPortal.Frontend.ViewModels
         }
 
       Selected = null;
+    }
+
+    /// <summary>
+    /// What a typed PIN has to be: four digits, or nothing at all for a person who needs none. The server
+    /// would take any string - it is the wake screen that asks four numbers in four boxes, and a person
+    /// saved beside that rule would be a person that screen can never open.
+    /// </summary>
+    private static string? PinProblem(string typed)
+    {
+      if (typed.Length == 0)
+        return null;
+      if (typed.Length != 4)
+        return "A PIN is four digits - or nothing, for a person who needs none.";
+      foreach (char c in typed)
+        if (c < '0' || c > '9')
+          return "A PIN is digits, 0 to 9.";
+      return null;
     }
   }
 }

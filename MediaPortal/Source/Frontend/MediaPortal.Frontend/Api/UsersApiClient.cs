@@ -48,7 +48,7 @@ namespace MediaPortal.Frontend.Api
         if (Kind == "Client")
           line += "  (machine)";
         else if (!HasPassword)
-          line += "  (no password)";
+          line += "  (no PIN)";
         return line;
       }
     }

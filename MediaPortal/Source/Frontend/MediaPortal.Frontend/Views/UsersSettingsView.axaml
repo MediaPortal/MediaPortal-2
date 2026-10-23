@@ -12,10 +12,10 @@
 
   <!--
     Who may sign in on the server. The list of names on the left the way the reference's user window led
-    with them, and the editor on the right: the name, a password box that starts empty every time (a
-    stored password never travels to this side), and four presses with one meaning each - add, save, take
-    the password off, remove. Every press writes to the server right there and the status line says what
-    came back.
+    with them, and the editor on the right: the name, a PIN box that starts empty every time (a stored
+    PIN never travels to this side), and four presses with one meaning each - add, save, take the PIN
+    off, remove. A PIN is four digits or nothing; the wake screen asks exactly those four numbers. Every
+    press writes to the server right there and the status line says what came back.
   -->
 
   <DockPanel Margin="48,14">
@@ -79,7 +79,7 @@
                    Focusable="True"
                    Padding="10,4"
                    Margin="0,4" />
-          <TextBlock Grid.Row="1" Grid.Column="0" Text="New password" FontSize="16" VerticalAlignment="Center" Margin="0,6" />
+          <TextBlock Grid.Row="1" Grid.Column="0" Text="New PIN (4 digits)" FontSize="16" VerticalAlignment="Center" Margin="0,6" />
           <TextBox Grid.Row="1" Grid.Column="1"
                    Name="passwordBox"
                    views:VirtualKeyboardService.Trigger="EnterOrMenu"
@@ -88,6 +88,8 @@
                    Focusable="True"
                    PasswordChar="•"
                    RevealPassword="True"
+                   MaxLength="4"
+                   PlaceholderText="0000 - or empty for no PIN"
                    Padding="10,4"
                    Margin="0,4" />
         </Grid>
@@ -115,7 +117,7 @@
 
         <StackPanel Orientation="Horizontal" Spacing="14">
           <Button Name="removePasswordButton"
-                  Content="Take the password off"
+                  Content="Take the PIN off"
                   Command="{Binding RemovePasswordCommand}"
                   IsEnabled="{Binding HasSelection}"
                   FontSize="16"

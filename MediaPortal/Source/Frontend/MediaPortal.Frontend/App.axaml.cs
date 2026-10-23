@@ -710,18 +710,18 @@ namespace MediaPortal.Frontend
           StopWatching(tuner);
       };
 
-      _workflow.Push(HomeFrame());
-
-      // Who is watching, answered before the first screen draws: a remembered name owns the skin's answers
-      // straight away - the reference's auto-login user, whose per-user settings were simply the settings
-      // with that name on the file - and a household that turned the asking on but has answered nothing yet
-      // finds the question standing over the library the moment the window opens. An off switch and a
-      // "ask again" press live under Settings → Users, where the reference kept the option too.
+      // Who is watching, and with what four numbers: the wake screen wears the wallpaper, reads the
+      // server's people, and either wakes after its four seconds of animation or stops and asks the
+      // remembered person for their PIN. It stands at the root of the workflow - where the connection
+      // screen stands on a first start - because a question one back key past is decoration, and the
+      // trail has no crumb to click when there is nothing under it. Answering it hands the window to
+      // the library; the remembered name owns the skin's answers, exactly as the "who is watching"
+      // pick always left them.
       Settings.ClientSettings machine = Settings.ClientSettings.Load(null, out _);
       if (machine.RememberedViewer.Length > 0)
         Settings.SkinSettingsBase.FileOwner = machine.RememberedViewer;
-      else if (machine.AskForViewer)
-        _workflow.Push(ViewerFrame());
+
+      _workflow.Push(StartupFrame());
 
       // The wake-up answer "last shelf" opens its shelf the moment the menu first knows whether the
       // library still holds it - a remembered label whose shelf is gone opens the home screen instead,
@@ -793,6 +793,53 @@ namespace MediaPortal.Frontend
     {
       ViewerPickerViewModel viewModel = new ViewerPickerViewModel(() => _home.Client, ApplyViewer);
       return new Workflow.WorkflowFrame("viewer", "Who is watching?", viewModel);
+    }
+
+    /// <summary>
+    /// The wake of the front end: the wallpaper, the last person, and their four numbers when the server
+    /// knows any. It is the root on a start that has a server, and its answer replaces it with the library
+    /// the same way the connection screen's answer does on a start that has none. Checking the numbers is
+    /// the server's own sign-in - the PIN is the person's entry in the store that has always answered that
+    /// endpoint, so every television in the house asks the same question and gets the same answer.
+    /// </summary>
+    private Workflow.WorkflowFrame StartupFrame()
+    {
+      StartupViewModel viewModel = new StartupViewModel(
+          () => _home.Client,
+          async delegate (string name, string pin)
+          {
+            ServerApiClient? client = _home.Client;
+            if (client == null)
+              return false;
+            try
+            {
+              await client.SignInAsync(name, pin, System.Threading.CancellationToken.None);
+              return true;
+            }
+            catch (Api.ServerApiException)
+            {
+              // A refused sign-in is one answer with two words: these are not those four numbers.
+              return false;
+            }
+          },
+          FinishStartup);
+      return new Workflow.WorkflowFrame("startup", "Welcome", viewModel);
+    }
+
+    /// <summary>
+    /// The wake answered. The name - or the empty word for "nobody" - owns the skin's answers from here,
+    /// and the library takes the window the way it does after the connection screen: replaced, not pushed,
+    /// because the wake is not a place anybody goes back to with the back key.
+    /// </summary>
+    private void FinishStartup(string? name)
+    {
+      if (string.IsNullOrEmpty(name))
+        name = Settings.ClientSettings.Load(null, out _).RememberedViewer;
+      Settings.SkinSettingsBase.FileOwner = name ?? "";
+      if (!string.IsNullOrEmpty(name))
+        Theming.FrontendTheme.Reapply(Application.Current!);
+
+      _workflow.ReplaceCurrent(HomeFrame());
     }
 
     /// <summary>
@@ -992,6 +1039,9 @@ namespace MediaPortal.Frontend
 
       if (state == "connection")
         return new ConnectionView((ConnectionViewModel)frame.ViewModel, _workflow);
+
+      if (state == "startup")
+        return new StartupView { DataContext = frame.ViewModel };
 
       if (state == "viewer")
         return new ViewerPickerView((ViewerPickerViewModel)frame.ViewModel);

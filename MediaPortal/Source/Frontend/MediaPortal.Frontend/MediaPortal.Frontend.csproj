@@ -69,6 +69,12 @@
     <AvaloniaResource Include="Skins\**\fonts\**\*" />
     <AvaloniaResource Include="Skins\**\sounds\**\*" />
     <None Update="Skins\**\*" CopyToOutputDirectory="PreserveNewest" />
+    <!--
+      The welcome picture a start opens with - the household's wallpaper behind the PIN question. It rides
+      inside the assembly on purpose: the start shows it before any skin folder is even asked about, so it
+      cannot live in one.
+    -->
+    <AvaloniaResource Include="Assets\startup-wallpaper.png" />
   </ItemGroup>
 
   <ItemGroup>

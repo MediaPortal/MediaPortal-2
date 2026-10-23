@@ -5037,6 +5037,51 @@ by feel against the user's own screen ("doppelt so schnell" asked twice). One ho
 first draft's per-step branch was written backwards - it faded the old picture out and then handed the new one in
 one frame, which is exactly the stutter the user rejected before it was caught.
 
+### cf. The tile's name stands at its foot now, like the shortcut's does
+
+The user pointed at a screenshot: the caption under a home-content cover sat too high on the tile while the
+shortcut tiles' captions stood neatly at the bottom. The wall in Nereus mode is the inline `HomeContentTile`
+template in `Views/HomeView.axaml`, and its caption band (`Border.home-tile-caption`) let its text slide to the
+top of its own height. The text now sits on the band's bottom edge with the same 10 DIP foot the shortcut
+captions have (`Padding="8,5,8,10"`, `VerticalAlignment="Bottom"`), so one rule - a name stands 10 DIP above
+the tile's foot - holds across the whole wall.
+
+### cg. The server address moved into the settings hub's right pane
+
+The "Server address" row pushed a full-screen page while every other row opens its content in the hub's right
+pane. The row now builds the very same `ConnectionView` embedded in that pane - it starts its search and lays
+its focus on attach, and saving swaps the client's server and re-reads the library without any navigation,
+trail and back key untouched. A view constructed for the pane hides its own "Close" button through an explicit
+`offersClose: false` rather than by noticing it has no workflow, because the standalone screen, the tests and
+the designer all stand without a workflow and must keep offering the way out.
+
+### ch. The front end wakes up and asks who is watching
+
+The client now opens on the 2026 wallpaper (scaled to fit, `Assets/startup-wallpaper.png`) instead of straight
+into the home menu, and the question it asks is the one the reference's login plugin asked - only with a PIN.
+`ViewModels/StartupViewModel.cs` is the state machine: read the server's people, ignore its machines, and find
+the remembered name among them. Nobody needs numbers - the animation holds its four seconds and the library
+opens. The remembered person has four numbers - a round avatar with their initial beside four small rounded
+boxes, focus stepping forward with every digit, Del undoing the last one, and the fourth digit alone being the
+answer, which is checked against the server's own store (the PIN is the user's password there, hashed by the
+server, and `SignInAsync` is the door). A wrong one shakes the card, empties it and asks again; nothing opens
+past it, and nobody is ever locked out after N tries.  Pressing the round picture lays the house list over the
+wallpaper and the picked person either walks right in or gets asked. `Views/StartupView.axaml` draws all of it -
+the wake's animation is a rotating conic-gradient ring with a breathing halo on the same deterministic timer the
+dissolve uses.  No on-screen number pad: the keyboard and the remote write the PIN, which is what a television
+is driven with; the card sits at the bottom of the screen with a hand's width of margin rather than floating in
+the middle, and the greeting line the first draft printed is gone - the picture and the boxes say it already.
+
+Two promises worth their weight: the wake is the workflow's *root*, so the back key and the trail cannot walk
+around it - the view eats Back and Escape; and it claims the whole television to itself (`IFullScreenScreen`,
+the film's own contract), so no clock, day or weather picture stands over the wallpaper before somebody has
+actually arrived. A third: a server that cannot be reached does not weld its door shut -
+the remembered person is let through after the wait with the complaint said out loud, because a PIN nobody can
+check is not a lock. Settings → Users is the PIN's other half: four digits or nothing typed at all, and the
+startup's "asks for a PIN"/"walks right in" wording everywhere. TestStartup keeps ten of these promises; an
+honest note: its first run poisoned a later fixture by leaving the answered name as the skin settings' file
+owner - the teardown owns that back now.
+
 ## What cannot be verified without the user
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library
 import. These need hardware and judgement that are not in this environment, and they are batched into

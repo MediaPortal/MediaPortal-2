@@ -1,0 +1,182 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+             xmlns:views="using:MediaPortal.Frontend.Views"
+             x:Class="MediaPortal.Frontend.Views.StartupView"
+             x:DataType="vm:StartupViewModel"
+             Name="startup"
+             Background="Black">
+
+  <!--
+    The start of the front end. The household's wallpaper fills the window scaled to fit - nothing is cut,
+    the dark around it belongs to the picture - and one of three things stands on it: the wake animation
+    while the machine reads and the last person needs no numbers, the round face with four boxes when they
+    do, and the list of the other people when somebody is not who the machine remembered.
+
+    There is no way past this screen by key: the back key is swallowed while it stands, because the point
+    of the question is that it is answered.
+  -->
+
+  <UserControl.Styles>
+    <Style Selector="Border.pinBox">
+      <Setter Property="Background" Value="#D80E1319"/>
+      <Setter Property="BorderBrush" Value="#33FFFFFF"/>
+      <Setter Property="BorderThickness" Value="2"/>
+    </Style>
+    <Style Selector="Border.pinBox.next">
+      <Setter Property="BorderBrush" Value="#E6E2621B"/>
+    </Style>
+    <Style Selector="Border.pinBox.filled">
+      <Setter Property="BorderBrush" Value="#66FFB066"/>
+    </Style>
+  </UserControl.Styles>
+
+  <Panel>
+
+    <!-- The wallpaper, scaled to fit. -->
+    <Image Source="avares://MediaPortal.Frontend/Assets/startup-wallpaper.png"
+           Stretch="Uniform"/>
+
+    <!-- The veil the content stands on: a wash over the whole picture at a fourth, so the picture keeps its
+         glow and a name is still readable over an explosion. -->
+    <Border Background="#40000000" IsHitTestVisible="False"/>
+
+    <!-- The wake: a ring of the portal's own orange turning over the halo that breathes under it. No bar.
+         The code-behind turns the ring and breathes the halo on a timer, the same way the fanart dissolve
+         counts its steps - numbers the screen can be trusted with rather than guessed by a transition. -->
+    <Panel IsVisible="{Binding Busy}" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <StackPanel Spacing="26" HorizontalAlignment="Center">
+        <Panel Width="170" Height="170" HorizontalAlignment="Center">
+          <Ellipse Name="halo" Width="150" Height="150"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   RenderTransformOrigin="0.5,0.5">
+            <Ellipse.RenderTransform>
+              <ScaleTransform ScaleX="1" ScaleY="1"/>
+            </Ellipse.RenderTransform>
+            <Ellipse.Fill>
+              <RadialGradientBrush>
+                <GradientStop Offset="0" Color="#00000000"/>
+                <GradientStop Offset="0.70" Color="#00000000"/>
+                <GradientStop Offset="0.94" Color="#55FF8A3C"/>
+                <GradientStop Offset="1" Color="#00000000"/>
+              </RadialGradientBrush>
+            </Ellipse.Fill>
+          </Ellipse>
+          <Border Name="ring" Width="110" Height="110" CornerRadius="55"
+                  BorderThickness="5"
+                  RenderTransformOrigin="0.5,0.5">
+            <Border.RenderTransform>
+              <RotateTransform Angle="0"/>
+            </Border.RenderTransform>
+            <Border.BorderBrush>
+              <ConicGradientBrush>
+                <GradientStop Offset="0" Color="#FFE2621B"/>
+                <GradientStop Offset="0.25" Color="#80E2621B"/>
+                <GradientStop Offset="0.55" Color="#00E2621B"/>
+                <GradientStop Offset="0.85" Color="#66E2621B"/>
+                <GradientStop Offset="1" Color="#FFE2621B"/>
+              </ConicGradientBrush>
+            </Border.BorderBrush>
+          </Border>
+          <Ellipse Width="12" Height="12" Fill="#FFFFC08A"
+                   HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,14,0,0"/>
+        </Panel>
+        <TextBlock Text="{Binding Status}"
+                   FontSize="24"
+                   Foreground="#F2FFFFFF"
+                   HorizontalAlignment="Center"
+                   TextAlignment="Center"
+                   TextWrapping="Wrap"
+                   MaxWidth="900"/>
+      </StackPanel>
+    </Panel>
+
+    <!-- The question, stood at the foot of the picture: the person in a round container that is itself the
+         way to somebody else, their four boxes beside the face. No pad of numbers - a keyboard or a remote
+         types them, the fourth one being the answer. -->
+    <Panel IsVisible="{Binding NeedsPin}" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+      <StackPanel Name="pinCard" HorizontalAlignment="Center" Margin="0,0,0,96">
+        <StackPanel Orientation="Horizontal" Spacing="34" HorizontalAlignment="Center">
+          <StackPanel Spacing="12" VerticalAlignment="Center">
+            <Button Command="{Binding SwitchUserCommand}" Padding="0"
+                    ToolTip.Tip="Somebody else?"
+                    Width="140" Height="140" CornerRadius="70"
+                    Background="#D80E1319" HorizontalAlignment="Center"
+                    BorderBrush="#55E2621B" BorderThickness="3">
+              <TextBlock Text="{Binding Initials}"
+                         FontSize="60" FontWeight="SemiBold"
+                         Foreground="#FFFFB066"
+                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Button>
+            <TextBlock Text="{Binding PersonName}"
+                       FontSize="26" FontWeight="SemiBold"
+                       Foreground="#F2FFFFFF"
+                       HorizontalAlignment="Center"/>
+            <TextBlock Text="press the picture for somebody else"
+                       IsVisible="{Binding HasOthers}"
+                       FontSize="14"
+                       Foreground="#80FFFFFF"
+                       HorizontalAlignment="Center"/>
+          </StackPanel>
+
+          <StackPanel Spacing="16" VerticalAlignment="Center">
+            <StackPanel Orientation="Horizontal" Spacing="14" HorizontalAlignment="Center">
+              <Border Name="box0" Classes="pinBox" Width="72" Height="92" CornerRadius="16">
+                <TextBlock Name="digit0" FontSize="46" HorizontalAlignment="Center"
+                           VerticalAlignment="Center" Foreground="#F2FFFFFF"/>
+              </Border>
+              <Border Name="box1" Classes="pinBox" Width="72" Height="92" CornerRadius="16">
+                <TextBlock Name="digit1" FontSize="46" HorizontalAlignment="Center"
+                           VerticalAlignment="Center" Foreground="#F2FFFFFF"/>
+              </Border>
+              <Border Name="box2" Classes="pinBox" Width="72" Height="92" CornerRadius="16">
+                <TextBlock Name="digit2" FontSize="46" HorizontalAlignment="Center"
+                           VerticalAlignment="Center" Foreground="#F2FFFFFF"/>
+              </Border>
+              <Border Name="box3" Classes="pinBox" Width="72" Height="92" CornerRadius="16">
+                <TextBlock Name="digit3" FontSize="46" HorizontalAlignment="Center"
+                           VerticalAlignment="Center" Foreground="#F2FFFFFF"/>
+              </Border>
+            </StackPanel>
+            <TextBlock Text="{Binding Status}"
+                       FontSize="19"
+                       Foreground="#C8FFFFFF"
+                       TextWrapping="Wrap"
+                       MaxWidth="460"
+                       HorizontalAlignment="Center"
+                       TextAlignment="Center"/>
+          </StackPanel>
+        </StackPanel>
+      </StackPanel>
+    </Panel>
+
+    <!-- The others. Standing on a name picks it - a PIN person takes the boxes, a person without one
+         simply arrives; the row answers like the server list on the connection screen answers. -->
+    <Panel Background="#A0000000" IsVisible="{Binding Switching}">
+      <Border Background="#E610151C" CornerRadius="18" Padding="26"
+              Width="460" MinHeight="300"
+              HorizontalAlignment="Center" VerticalAlignment="Center">
+        <DockPanel>
+          <TextBlock DockPanel.Dock="Top" Text="Who then?"
+                     FontSize="26" FontWeight="SemiBold" Margin="0,0,0,14"/>
+          <Button DockPanel.Dock="Bottom" Content="Stay as before"
+                  Command="{Binding StayAsWasCommand}"
+                  HorizontalAlignment="Center" Margin="0,16,0,0" Padding="20,8"/>
+          <ListBox Name="othersList"
+                   ItemsSource="{Binding Others}"
+                   MaxHeight="340" FontSize="22">
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16" Margin="2,7">
+                  <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                  <TextBlock Grid.Column="1" VerticalAlignment="Center" Opacity="0.6" FontSize="15"
+                             Text="{Binding HasPassword, Converter={x:Static views:PinOrFreeConverter.Instance}}"/>
+                </Grid>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </DockPanel>
+      </Border>
+    </Panel>
+  </Panel>
+</UserControl>
