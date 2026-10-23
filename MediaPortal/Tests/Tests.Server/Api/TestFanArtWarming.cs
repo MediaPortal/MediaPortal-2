@@ -28,6 +28,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Moq;
@@ -152,7 +153,7 @@ namespace Tests.Server.Api
     /// <summary>
     /// A title as the importer left it, three levels below this test's folder: Films/&lt;title&gt;/&lt;title&gt;.mkv.
     /// </summary>
-    private Title GiveATitle(string name)
+    private Title GiveATitle(string name, params SingleMediaItemAspectMetadata[] moreAspects)
     {
       string folder = Path.Combine(_folder, "Films", name);
       Directory.CreateDirectory(folder);
@@ -160,7 +161,7 @@ namespace Tests.Server.Api
       File.WriteAllBytes(file, new byte[] { 0 });
 
       Title title = new Title { Id = Guid.NewGuid(), Folder = folder };
-      _items.Add(new LocatedItem(title.Id, name, file));
+      _items.Add(new LocatedItem(title.Id, name, file, moreAspects));
       return title;
     }
 
@@ -172,8 +173,8 @@ namespace Tests.Server.Api
     {
       private readonly IResourceLocator _locator;
 
-      internal LocatedItem(Guid id, string name, string filePath)
-          : base(id, Aspects(name))
+      internal LocatedItem(Guid id, string name, string filePath, params SingleMediaItemAspectMetadata[] moreAspects)
+          : base(id, Aspects(name, moreAspects))
       {
         // The local filesystem provider spells its paths "/C:/...", which is what the "../" walking reads.
         var stub = new Mock<IResourceLocator>();
@@ -189,19 +190,28 @@ namespace Tests.Server.Api
         return _locator;
       }
 
-      private static IDictionary<Guid, IList<MediaItemAspect>> Aspects(string name)
+      private static IDictionary<Guid, IList<MediaItemAspect>> Aspects(string name,
+          IEnumerable<SingleMediaItemAspectMetadata> moreAspects)
       {
         SingleMediaItemAspect media = new SingleMediaItemAspect(MediaAspect.Metadata);
         media.SetAttribute(MediaAspect.ATTR_TITLE, name);
         media.SetAttribute(MediaAspect.ATTR_SORT_TITLE, name);
         media.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, DateTime.Now);
 
-        // The path the title is at is what the walk needs, and this fixture hands it over through the locator,
-        // the way a resolved item carries it - the aspect the importer stores it in is not read here.
-        return new Dictionary<Guid, IList<MediaItemAspect>>
+        var aspects = new Dictionary<Guid, IList<MediaItemAspect>>
         {
             { MediaAspect.ASPECT_ID, new List<MediaItemAspect> { media } }
         };
+
+        // The aspects a picture handler serves have to be on the title for the handler to be asked about it,
+        // which is the question some of the tests below are about.
+        foreach (SingleMediaItemAspectMetadata metadata in moreAspects ?? new SingleMediaItemAspectMetadata[0])
+          if (metadata != null && !aspects.ContainsKey(metadata.AspectId))
+            aspects[metadata.AspectId] = new List<MediaItemAspect> { new SingleMediaItemAspect(metadata) };
+
+        // The path the title is at is what the walk needs, and this fixture hands it over through the locator,
+        // the way a resolved item carries it - the aspect the importer stores it in is not read here.
+        return aspects;
       }
     }
 
@@ -210,6 +220,45 @@ namespace Tests.Server.Api
     /// sent. That list is what most of the tests below measure.
     /// </summary>
     private void GiveTheServerItsLibrary()
+    {
+      GiveTheServerItsLibrary(new Dictionary<Guid, IMediaFanArtHandler>());
+    }
+
+    /// <summary>
+    /// A handler list for the one handler a test is watching.
+    /// </summary>
+    private static IDictionary<Guid, IMediaFanArtHandler> Handlers(IMediaFanArtHandler handler)
+    {
+      return new Dictionary<Guid, IMediaFanArtHandler> { { handler.Metadata.FanArtHandlerId, handler } };
+    }
+
+    /// <summary>
+    /// A picture handler that writes down the titles it was asked about. It stores nothing, because what these
+    /// tests are about is the asking; what a handler makes of a title is the handler's own tests.
+    /// </summary>
+    private sealed class RecordingFanArtHandler : BaseFanArtHandler
+    {
+      internal readonly List<Guid> Asked = new List<Guid>();
+
+      internal RecordingFanArtHandler(MediaItemAspectMetadata served)
+          : base(new FanArtHandlerMetadata(Guid.NewGuid(), "Recording FanArt handler"),
+              new[] { served.AspectId })
+      {
+      }
+
+      public override Task CollectFanArtAsync(Guid mediaItemId,
+          IDictionary<Guid, IList<MediaItemAspect>> aspects)
+      {
+        Asked.Add(mediaItemId);
+        return Task.FromResult(true);
+      }
+    }
+
+    /// <summary>
+    /// The library and the filesystem the server would search, with the handlers the plugins registered for
+    /// getting pictures. That list is what most of the tests below measure, together with the queries.
+    /// </summary>
+    private void GiveTheServerItsLibrary(IDictionary<Guid, IMediaFanArtHandler> handlers)
     {
       var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
       library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, It.IsAny<Guid?>(), It.IsAny<bool>()))
@@ -223,6 +272,7 @@ namespace Tests.Server.Api
       };
       var accessor = new Mock<IMediaAccessor>(MockBehavior.Strict);
       accessor.SetupGet(get => get.LocalResourceProviders).Returns(providers);
+      accessor.SetupGet(get => get.LocalFanArtHandlers).Returns(handlers);
       ServiceRegistration.Set<IMediaAccessor>(accessor.Object);
     }
 
@@ -417,6 +467,49 @@ namespace Tests.Server.Api
       Assert.That(said.KindsFound, Is.EqualTo(0), "so a pass over an unchanged library learns nothing new");
       Assert.That(_queries.Count - asked, Is.EqualTo(1),
           "what it does cost is the one lookup that walks the titles, and no folder listings");
+    }
+
+    [Test]
+    public void AHandlerThatServesATitleIsAskedAboutItDuringAPass()
+    {
+      Title track = GiveATitle("Test Track", AudioAspect.Metadata);
+      RecordingFanArtHandler handler = new RecordingFanArtHandler(AudioAspect.Metadata);
+      GiveTheServerItsLibrary(Handlers(handler));
+
+      StartAPassAndReadItsEnd();
+
+      Assert.That(handler.Asked, Is.EquivalentTo(new[] { track.Id }),
+          "a title is handed to the handler that declared one of its aspects, because only the handler knows "
+          + "that a track carries its cover inside itself");
+    }
+
+    [Test]
+    public void AHandlerIsNotAskedAboutTitlesItHasNothingToSayAbout()
+    {
+      GiveATitle("House of the Dragon");
+      RecordingFanArtHandler handler = new RecordingFanArtHandler(AudioAspect.Metadata);
+      GiveTheServerItsLibrary(Handlers(handler));
+
+      StartAPassAndReadItsEnd();
+
+      Assert.That(handler.Asked, Is.Empty,
+          "a film is not asked of the handler that serves audio, and the pass does not pretend otherwise");
+    }
+
+    [Test]
+    public void TheWalkOfTheLibraryCarriesWhatThePictureHandlersNeed()
+    {
+      GiveATitle("Test Track", AudioAspect.Metadata);
+      RecordingFanArtHandler handler = new RecordingFanArtHandler(AudioAspect.Metadata);
+      GiveTheServerItsLibrary(Handlers(handler));
+
+      StartAPassAndReadItsEnd();
+
+      MediaItemQuery walked = _queries.Single(query => query.Filter == null);
+      Assert.That(walked.OptionalRequestedMIATypeIDs, Contains.Item(AudioAspect.ASPECT_ID),
+          "a handler is chosen by the aspects a title carries, so the walk has to fetch the aspects handlers serve");
+      Assert.That(walked.OptionalRequestedMIATypeIDs, Contains.Item(RelationshipAspect.ASPECT_ID),
+          "and it has to fetch the relationships, because the album a track's cover lies with is named by one");
     }
 
     [Test]

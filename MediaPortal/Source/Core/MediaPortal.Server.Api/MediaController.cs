@@ -1271,6 +1271,8 @@ namespace MediaPortal.Server.Api
       if (files == null || files.Count == 0)
         files = cache.GetFanArtFiles(id, FanArtTypes.FanArt);
       if (files == null || files.Count == 0)
+        files = AlbumFanArtFiles(id, FanArtTypes.Poster, FanArtTypes.Cover, FanArtTypes.FanArt);
+      if (files == null || files.Count == 0)
         return NotFound(new ItemResult { Id = id, Error = "this server has no fanart for the id " + id });
 
       string path = files.First();
@@ -1287,9 +1289,10 @@ namespace MediaPortal.Server.Api
     /// <param name="id">The media item id, as <c>GET api/media/titles</c> reported it.</param>
     /// <param name="type">
     /// The kind asked for, in the reference's own words: <c>Poster</c>, <c>Banner</c>, <c>FanArt</c>,
-    /// <c>Thumbnail</c>, <c>Logo</c>, <c>ClearArt</c> or <c>DiscArt</c>, whichever case the caller likes.
-    /// Anything else is answered with 400 rather than a guess, because a tile that silently drew a poster when
-    /// somebody asked for a banner is the exact lie this endpoint exists to stop.
+    /// <c>Thumbnail</c>, <c>Logo</c>, <c>ClearArt</c>, <c>DiscArt</c> or <c>Cover</c> - the last being what
+    /// music calls its front picture - whichever case the caller likes. Anything else is answered with 400
+    /// rather than a guess, because a tile that silently drew a poster when somebody asked for a banner is the
+    /// exact lie this endpoint exists to stop.
     /// </param>
     /// <remarks>
     /// <para>
@@ -1324,8 +1327,24 @@ namespace MediaPortal.Server.Api
         IList<string> cached = cache?.GetFanArtFiles(id, fanArtType);
         byte[] picture = FirstReadablePicture(cached);
 
+        // A track wears its album's cover, and the import stored that cover once, under the album's id. Only the
+        // two names for a front picture make the detour: a track asked for a banner stays a 404, because
+        // stretching an album's square into a banner frame is the lie this endpoint was added to prevent.
+        //
+        // It is asked before the folder is walked, and that order is the whole point: the track lives in the
+        // album's folder, so walking it would answer a track with whatever <c>folder.jpg</c> happens to lie there
+        // while the album itself answers with the picture its files carry. Two tiles of one album would then wear
+        // two different pictures. The cache is where the chosen picture lies, for an album as for its tracks.
+        if (picture == null &&
+            (fanArtType == FanArtTypes.Cover || fanArtType == FanArtTypes.Poster))
+          picture = FirstReadablePicture(AlbumFanArtFiles(id, fanArtType, FanArtTypes.Cover));
+
+        // Music calls its front picture a cover, but the files a library holds it in are called
+        // "folder.jpg" and "cover.jpg", which are the names the reference lists for a poster - which is also
+        // why the reference renames a poster to a cover as soon as it knows the item is an album.
+        string folderKind = fanArtType == FanArtTypes.Cover ? FanArtTypes.Poster : fanArtType;
         if (picture == null)
-          picture = LocalFanArtSearch.Worn.Picture(id, fanArtType);
+          picture = LocalFanArtSearch.Worn.Picture(id, folderKind);
 
         if (picture == null || picture.Length == 0)
         {
@@ -1385,7 +1404,77 @@ namespace MediaPortal.Server.Api
     /// <summary>
     /// The kinds of fanart this endpoint answers for, in the reference's words.
     /// </summary>
-    private static readonly string[] FANART_KINDS = LocalFanArtSearch.KINDS;
+    /// <remarks>
+    /// The seven the reference's folder search names are the ones a film shelf asks for. The eighth is
+    /// <see cref="FanArtTypes.Cover"/>, which is what music calls the same front picture: the reference keeps
+    /// an album's art under that name, so a caller that asks a shelf of albums for their covers is answered -
+    /// from the cache, because a cover is something an album's files were read for rather than something a
+    /// folder happens to be called.
+    /// </remarks>
+    private static readonly string[] FANART_KINDS = LocalFanArtSearch.KINDS
+        .Concat(new[] { FanArtTypes.Cover }).ToArray();
+
+    /// <summary>
+    /// What the album behind a track keeps, which is where a track's own cover lies.
+    /// </summary>
+    /// <param name="id">The media item asked about, which may be a track of an album.</param>
+    /// <param name="kinds">The kinds to try, in the order the caller would rather have them.</param>
+    /// <returns>
+    /// The files the cache holds for the track's album, or nothing when the id is not a track, its album is not
+    /// known, or the album has nothing of those kinds.
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// A thousand tracks share forty-odd covers, so the import writes each one once, under the album - which is
+    /// what the reference does too. A shelf of tracks asked tile by tile would then be answered with
+    /// placeholders although every file in it carries its art, so the question is followed along the
+    /// <c>Track-&gt;Album</c> relationship the import wrote and answered from where the picture actually lies.
+    /// </para>
+    /// <para>
+    /// The relationship is asked for as an aspect rather than assumed, because a track that was merged into an
+    /// album by a later import has it while a track that is its own release has nothing to follow.
+    /// </para>
+    /// </remarks>
+    private static IList<string> AlbumFanArtFiles(Guid id, params string[] kinds)
+    {
+      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
+      IFanArtCache cache = ServiceRegistration.Get<IFanArtCache>(false);
+      if (mediaLibrary == null || cache == null)
+        return new List<string>();
+
+      try
+      {
+        // The audio aspect is asked for alongside the link because it is what says this id is a track at all;
+        // without asking, the answer would never carry it and every title would look like one that has no album.
+        MediaItemQuery query = new MediaItemQuery(
+            new List<Guid> { MediaAspect.ASPECT_ID },
+            new List<Guid> { AudioAspect.ASPECT_ID, RelationshipAspect.ASPECT_ID },
+            new MediaItemIdFilter(id));
+        IList<MediaItem> items = mediaLibrary.Search(query, false, null, VirtualTitles.LetsVirtualTitlesIn);
+        MediaItem item = items == null ? null : items.FirstOrDefault();
+        if (item == null || !item.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
+          return new List<string>();
+
+        if (!RelationshipExtractorUtils.TryGetLinkedId(AudioAlbumAspect.ROLE_ALBUM, item.Aspects,
+                out Guid albumId))
+          return new List<string>();
+
+        foreach (string kind in kinds)
+        {
+          IList<string> files = cache.GetFanArtFiles(albumId, kind);
+          if (files != null && files.Count > 0)
+            return files;
+        }
+      }
+      catch (IllegalCallException ex)
+      {
+        ILogger logger = ServiceRegistration.Get<ILogger>(false);
+        if (logger != null)
+          logger.Info("MediaController: the media library refused to say what album a track belongs to: {0}",
+              ex.Message);
+      }
+      return new List<string>();
+    }
 
     /// <summary>
     /// The requested kind as the cache names it, or null when the caller asked for something that is not a kind.

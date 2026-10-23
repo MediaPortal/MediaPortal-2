@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Library</OutputType>
+    <RootNamespace>MediaPortal.Extensions.MetadataExtractors.AudioTagMetadataExtractor</RootNamespace>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <!--
+      The plugin loader searches the plugin's own folder, so the tag library this plugin is written
+      against has to reach the build output for build.targets to copy it next to the plugin. Without
+      it the plugin loads and then fails on the first tagged file it touches.
+    -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="plugin.xml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj" />
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <!--
+      TagLibSharp is the managed audio tag reader this plugin is built on. Upstream, tags are read by
+      MediaPortal.TagLib, which is only published to MediaPortal's own feed and only carries
+      net40/net461/net462/net47 assemblies, and stream data comes from BASS.NET - both out of reach
+      for a server that has to run on Linux and Android. TagLibSharp comes from nuget.org and its
+      netstandard2.0 assembly runs everywhere the server runs.
+    -->
+    <PackageReference Include="TagLibSharp">
+      <Version>2.3.0</Version>
+    </PackageReference>
+  </ItemGroup>
+  <Import Project="build.targets" />
+</Project>

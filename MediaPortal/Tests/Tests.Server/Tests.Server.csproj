@@ -17,6 +17,23 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="NfoMetadataExtractor\TestData\MovieNfo\movie.nfo" />
+    <!--
+      Two three-second mp3 files generated with ffmpeg from silence: one with a full ID3v2.3 tag (title,
+      artist, album_artist, album, track, date, genre, composer) and one without any tag. The audio tag
+      extractor's whole job is to read what a tag says and to fall back to the file name when there is
+      none, so it cannot be tested against a file of zero bytes - and a tag written by hand into a byte
+      array is not a tag a real reader is guaranteed to accept.
+    -->
+    <EmbeddedResource Include="AudioTagMetadataExtractor\TestData\tagged.mp3" />
+    <EmbeddedResource Include="AudioTagMetadataExtractor\TestData\untagged.mp3" />
+    <!--
+      The same file again with a picture pasted into its tag, which is what the fanart handler is for. One carries
+      a JPEG under the front-cover type, the picture an album ripper writes; the other a PNG under the "other"
+      type, which is what taggers that do not know the front-cover type fall back to. Both are read back by the
+      handler and by TagLib itself, so their format has to survive the copy into the cache.
+    -->
+    <EmbeddedResource Include="AudioTagMetadataExtractor\TestData\cover.mp3" />
+    <EmbeddedResource Include="AudioTagMetadataExtractor\TestData\othercover.mp3" />
   </ItemGroup>
   <ItemGroup>
     <!-- The server's shipped log configuration, verified against the log4net version we reference by
@@ -46,6 +63,7 @@
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj" />
     <ProjectReference Include="..\..\Source\Core\UPnP\UPnP.csproj" />
     <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\AudioMetadataExtractor\AudioMetadataExtractor.csproj" />
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\AudioTagMetadataExtractor\AudioTagMetadataExtractor.csproj" />
     <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\GenreProvider\GenreProvider.csproj" />
     <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\MatroskaLib\MatroskaLib.csproj" />
     <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\MovieMetadataExtractor\MovieMetadataExtractor.csproj" />

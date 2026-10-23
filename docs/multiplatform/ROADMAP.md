@@ -4900,6 +4900,84 @@ While measuring this it became visible that `NereusSkinSettings.ChosenColour` wa
 `skin-nereus.json` as `"ChosenColour": {}` - the tuple is an answer read off the eight switches, and an answer that
 can be read back in as an input does not belong in the file. It is `[JsonIgnore]` now.
 
+### cc. The picture inside an mp3 reaches the shelf it is played from
+
+Asked for by the viewer, after the music import had started answering titles: *make sure the album and track cover
+are also extracted and stored in the fanart cache.* The titles were there, their art was not - a music wall of
+placeholders although almost every file in the library carries its own front picture.
+
+The reference had an answer for this and it could not simply be copied, because **fanart handlers were a client
+affair**. Nothing in the whole reference asked an `IMediaFanArtHandler` a question except
+`Source/UI/FanArt/FanArtService/FanArtDataflow/FanArtActionBlock.cs` - a block in the running client's picture
+pipeline. A headless server has no such pipeline, so on the portable side the handlers were registered, loaded and
+never once spoken to. Three pieces were therefore needed, of which only one is about mp3 tags:
+
+The plugin all of this hangs on is new on this side of the tree, and its first job was not pictures at all. Upstream,
+the aspect that describes a music file is assigned by the Windows `AudioMetadataExtractor`, which reads tags through
+`MediaPortal.TagLib` - published only to MediaPortal's own feed, and only as .NET Framework assemblies - and probes
+streams with BASS.NET. Neither reaches Linux or Android, so before this a portable server had no extractor that
+claimed an mp3 at all: the importer walked a music share, nobody said "audio", and the shelf stayed empty - and the
+NFO audio extractor stayed quiet beside it, because it only reads the `.nfo` of a resource an earlier extractor has
+already called audio. `AudioTagMetadataExtractor` is the portable answer: TagLibSharp from nuget.org (its
+netstandard2.0 assembly runs wherever the server runs), the `AudioAspect` and `AudioAlbumAspect` built out of the tags
+the way the reference builds them, and the relationship extractors that turn a folder of files into an album shelf.
+Three things hang off that one plugin:
+
+- **The handler** (`FanArtHandlers/AudioTagFanArtHandler.cs` in the AudioTagMetadataExtractor plugin, registered at
+  `/Media/FanArtHandlers`). It says of a title whether it has anything to say - the id must be an album, or a track
+  that knows its album - and then looks for the album's front picture in the two places a portable server can look:
+  the picture TagLibSharp finds in the file's tag, and failing that the `cover.jpg`/`folder.jpg` the album's folder
+  holds, walking one level up when the track lies in a `CD1`-style disc folder. One picture per album, stored under
+  the **album's** id, as both `Cover` and `Poster`, because music calls its front picture a cover while every file
+  name and every other screen calls the same thing a poster.
+- **The asking** (`FanArtWarmingPass.cs`). `POST api/media/fanart/warming` waits for the importer to drain, then
+  walks the library page by page - everything optional, a `MediaItemQuery(null, …)` in the client block's own idiom -
+  and puts each title in front of the picture handlers. `GET` of the same address reads the pass' state, so a front
+  end can press it and then watch. It remembers what it has already looked at, so a second pass over an unchanged
+  library costs one database lookup per page and opens no file.
+- **The answer** (`MediaController.GetFanArtOfType`). `Cover` joined the kinds an endpoint accepts, and a track asked
+  for a front picture is followed along its `Track→Album` relationship, because a thousand tracks share forty-odd
+  covers and the import writes each one once. Order of the asking: the cache for the id itself, then the album the
+  id belongs to, then - and only then - the folders around the file.
+
+One cover per album rather than one per track is the viewer's choice, and the measurement that made it obvious: in a
+sample of the library's files, 400 of 400 carried a picture, 169 KB on average - stored per track that is ~172 MB of
+duplicated art for one shelf, stored per album it is a few megabyte.
+
+Two things about the portable platform had to be worked around, and both are worth remembering:
+
+- `BaseFanArtHandler.TrySaveFileImage` goes through `IImageTransformer`, which is GDI+ and therefore Windows-only.
+  On `net10.0` it fails quietly - which is exactly how the NFO handler's `<thumb>` shows up in the live log, as a
+  WARN and no poster. The handler therefore writes the bytes it read itself, naming the file `File.<title>` with the
+  extension sniffed from the magic numbers, which is what `FanArtCache.GetFanArtFiles` lists again.
+- Asking for the relationship as an *optional* aspect is not the same as being answered one. The detour guarded on
+  `item.Aspects.ContainsKey(AudioAspect.ASPECT_ID)` while its query asked only for `MediaAspect` and
+  `RelationshipAspect`, so the answer never carried the aspect and every title looked like one with no album. The
+  content gate caught this as a plain 404 for the track; `TestATrackWearsTheCoverItsAlbumHolds` now asserts the
+  aspect is asked for, rather than only that the picture comes back (`ATrackWearsTheCoverItsAlbumHolds`).
+
+The ordering of the three questions above was found the same way, on the live library: an album answered its chosen
+71703-byte picture while a track of the same album answered 31514 bytes, because the folder walk ran first and found
+the `folder.jpg` lying in the album's folder. Two tiles of one album wearing two pictures is the sort of thing no
+test notices and everybody sees, so the album is asked before the folders are walked, and
+`TestTheAlbumsChosenCoverOutranksThePictureInTheFolder` writes both pictures into one folder to keep it that way.
+
+Proved at every level available. `TestAudioTagFanArtHandler` (14 tests) reads real tag pictures out of real fixtures
+through MP2's own local filesystem provider and mirrors the real cache layout on disc, including the disc-folder
+walk, the "not a front cover but still a picture" case, the album's folder standing in for a file with no tag, and
+the second track of an album not opening the files again. `TestFanArtWarming` (3 tests) covers the pass walking a
+library and waiting for the importer. `TestMediaController` (3 tests) covers the endpoint: the detour, the ranking
+of the chosen picture over the folder's, and a release of its own still being answered from its own folder.
+`Tests.Server` is 527 of 527. `scripts/ci/test-server-import.ps1` gained section 8c, which asks a *running server*
+for the album cover, expects the 373-byte JPEG that sits in the fixture's tag, expects the track to be answered with
+the same bytes, and then looks in the data folder to see the file is really in the cache rather than read out of the
+user's mp3 on every request. And on the viewer's own library: 43 albums, 42 with a cover, 84 files and 14.38 MB
+stored, and all 42 albums answering their tracks with byte-identical pictures - zero mismatches.
+
+What is still not portable, and now precisely bounded: a `movie.nfo`'s `<thumb>` needs `IImageTransformer`, so it is
+kept as a stub and warned about rather than stored; and fanart from the network (artist pictures, TMDB backdrops) has
+no portable source wired up at all. Both are one handler each away, and neither is music.
+
 ## What cannot be verified without the user
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library
 import. These need hardware and judgement that are not in this environment, and they are batched into

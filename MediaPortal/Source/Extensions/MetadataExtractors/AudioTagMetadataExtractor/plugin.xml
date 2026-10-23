@@ -1,0 +1,58 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="AudioTagMetadataExtractor"
+    PluginId="{0678AA7A-6A5F-4509-A0B7-D7522D32EF7D}"
+    Author = "MediaPortal Team"
+    Copyright="GPL"
+    Description="Audio metadata extractor reading tags from the audio files themselves, and the album and artist relationships that come out of those tags">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2025-01-01 01:00:00 GMT+01:00"
+    CurrentAPI="2"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="AudioTagMetadataExtractor.dll"/>
+    <!--
+      TagLibSharp travels with this plugin. It is the tag reader, and the plugin loader only looks in
+      this plugin's own folder for assemblies that are not part of the server.
+    -->
+    <Assembly FileName="TagLibSharp.dll"/>
+  </Runtime>
+
+  <Register Location="/Media/MetadataExtractors">
+    <!--
+      Nothing else in a portable server layout assigns the AudioAspect, and until something does, an
+      audio share is walked and nothing is imported: the nfo audio extractor only touches a resource
+      that an earlier extractor has already called audio. Upstream that mark comes from the Windows
+      AudioMetadataExtractor, which needs MediaPortal.TagLib and BASS.NET. This one reads the same
+      tags with a managed library that runs on every platform the server runs on.
+    -->
+    <Instance
+        Id="AudioTagMetadataExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.AudioTagMetadataExtractor.AudioTagMetadataExtractor"/>
+  </Register>
+
+  <Register Location="/Media/RelationshipExtractors">
+    <Instance
+        Id="AudioTagRelationshipExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.AudioTagMetadataExtractor.AudioTagRelationshipExtractor"/>
+  </Register>
+
+  <Register Location="/Media/FanArtHandlers">
+    <!--
+      The cover an album carries in its own files, stored in the server's fanart cache. Nothing else in a
+      portable server reads the picture frames of an audio file: upstream that is the Windows audio
+      extractor's job, and the nfo plugin's audio handler only knows the cover an album's .nfo file points
+      at. Without this, a music shelf is drawn from placeholders however much art the files hold.
+    -->
+    <Instance
+        Id="AudioTagFanArtHandler"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.AudioTagMetadataExtractor.AudioTagFanArtHandler"/>
+  </Register>
+</Plugin>

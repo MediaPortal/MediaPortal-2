@@ -2934,6 +2934,33 @@ namespace Tests.Server.Api
           "/" + filePath.Replace('\\', '/')).Serialize()));
     }
 
+    /// <summary>
+    /// One track as the music importer left it: the file its tags were read from, and - when the release is part
+    /// of an album - the link saying which one.
+    /// </summary>
+    private static MediaItem CreateTrack(Guid id, Guid? albumId, string filePath)
+    {
+      SingleMediaItemAspect media = CreateMediaAspect("01 Song", "01 Song", DateTime.Now);
+      SingleMediaItemAspect audio = new SingleMediaItemAspect(AudioAspect.Metadata);
+      audio.SetAttribute(AudioAspect.ATTR_TRACK, 1);
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>
+      {
+          { MediaAspect.ASPECT_ID, new List<MediaItemAspect> { media } },
+          { AudioAspect.ASPECT_ID, new List<MediaItemAspect> { audio } }
+      };
+      if (albumId.HasValue)
+      {
+        MultipleMediaItemAspect link = new MultipleMediaItemAspect(RelationshipAspect.Metadata);
+        link.SetAttribute(RelationshipAspect.ATTR_ROLE, AudioAspect.ROLE_TRACK);
+        link.SetAttribute(RelationshipAspect.ATTR_LINKED_ROLE, AudioAlbumAspect.ROLE_ALBUM);
+        link.SetAttribute(RelationshipAspect.ATTR_LINKED_ID, albumId.Value);
+        aspects[RelationshipAspect.ASPECT_ID] = new List<MediaItemAspect> { link };
+      }
+      return new TestItem(id, aspects, CreateLocator(ResourcePath.BuildBaseProviderPath(
+          LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID,
+          "/" + filePath.Replace('\\', '/')).Serialize()));
+    }
+
     /// <summary>One series as the importer left it: a name and no file of its own.</summary>
     private static MediaItem CreateSeries(Guid id)
     {
@@ -3034,6 +3061,107 @@ namespace Tests.Server.Api
         Assert.That(PictureOf(AskFanArt(id, "FanArt")), Is.EqualTo(new byte[] { 8, 8 }));
         Assert.That(PictureOf(AskFanArt(id, "Thumbnail")), Is.EqualTo(new byte[] { 9, 9 }),
             "the screenshot named after the episode is its thumbnail");
+      }
+      finally
+      {
+        Directory.Delete(dir, true);
+      }
+    }
+
+    [Test]
+    public void ATrackWearsTheCoverItsAlbumHolds()
+    {
+      string dir = OwnFolder();
+      try
+      {
+        // A thousand tracks share forty-odd covers, so the import stores each one once, under the album. Asked
+        // track by tile, the shelf would otherwise be placeholders although every file carries its art.
+        string albumCover = Path.Combine(dir, "chosen.jpg");
+        WritePicture(albumCover, new byte[] { 11, 12, 13 });
+
+        Guid trackId = Guid.NewGuid();
+        Guid albumId = Guid.NewGuid();
+        var cache = new Mock<IFanArtCache>();
+        cache.Setup(get => get.GetFanArtFiles(albumId, FanArtTypes.Cover))
+            .Returns(new List<string> { albumCover });
+        ServiceRegistration.Set(cache.Object);
+
+        ServiceRegistration.Set(CreateFanArtLibrary(
+            new List<MediaItem> { CreateTrack(trackId, albumId, Path.Combine(dir, "01 Song.mp3")) },
+            new List<MediaItem>(), out List<MediaItemQuery> queries));
+
+        Assert.That(PictureOf(AskFanArt(trackId, "Cover")), Is.EqualTo(new byte[] { 11, 12, 13 }),
+            "a track asked for a cover is answered with the album's, which is where the picture lies");
+
+        MediaItemQuery detour = queries.Single();
+        Assert.That(detour.OptionalRequestedMIATypeIDs, Does.Contain(AudioAspect.ASPECT_ID),
+            "the question asks for the aspect that says this id is a track at all; ask without it and no title "
+            + "ever looks like one that has an album");
+      }
+      finally
+      {
+        Directory.Delete(dir, true);
+      }
+    }
+
+    [Test]
+    public void TheAlbumsChosenCoverOutranksThePictureInTheFolder()
+    {
+      string dir = OwnFolder();
+      try
+      {
+        // The track lies in the album's folder, so walking that folder answers a track with whatever
+        // folder.jpg happens to lie there - while the album itself answers with the picture the import chose.
+        // Two tiles of one album must not wear two pictures, so the chosen one is asked for first.
+        string track = Path.Combine(dir, "Fixture Album", "01 Song.mp3");
+        Directory.CreateDirectory(Path.GetDirectoryName(track));
+        File.WriteAllBytes(track, new byte[] { 0 });
+        WritePicture(Path.Combine(dir, "Fixture Album", "cover.jpg"), new byte[] { 21, 22 });
+
+        string chosen = Path.Combine(dir, "chosen.jpg");
+        WritePicture(chosen, new byte[] { 11, 12, 13 });
+
+        Guid trackId = Guid.NewGuid();
+        Guid albumId = Guid.NewGuid();
+        var cache = new Mock<IFanArtCache>();
+        cache.Setup(get => get.GetFanArtFiles(albumId, FanArtTypes.Cover))
+            .Returns(new List<string> { chosen });
+        ServiceRegistration.Set(cache.Object);
+
+        GiveTheServerItsFileSystem();
+        ServiceRegistration.Set(CreateFanArtLibrary(
+            new List<MediaItem> { CreateTrack(trackId, albumId, track) }, new List<MediaItem>(), out _));
+
+        Assert.That(PictureOf(AskFanArt(trackId, "Cover")), Is.EqualTo(new byte[] { 11, 12, 13 }),
+            "the picture the album wears is the picture its tracks wear");
+      }
+      finally
+      {
+        Directory.Delete(dir, true);
+      }
+    }
+
+    [Test]
+    public void ATrackOfAnAlbumNobodyKnowsIsStillAnsweredFromItsOwnFolder()
+    {
+      string dir = OwnFolder();
+      try
+      {
+        // A track that is its own release has no link to follow; that is not a reason to withhold the cover
+        // lying next to it.
+        string track = Path.Combine(dir, "Own Release", "01 Song.mp3");
+        Directory.CreateDirectory(Path.GetDirectoryName(track));
+        File.WriteAllBytes(track, new byte[] { 0 });
+        WritePicture(Path.Combine(dir, "Own Release", "cover.jpg"), new byte[] { 31, 32 });
+
+        Guid trackId = Guid.NewGuid();
+        ServiceRegistration.Set(new Mock<IFanArtCache>().Object);
+        GiveTheServerItsFileSystem();
+        ServiceRegistration.Set(CreateFanArtLibrary(
+            new List<MediaItem> { CreateTrack(trackId, null, track) }, new List<MediaItem>(), out _));
+
+        Assert.That(PictureOf(AskFanArt(trackId, "Cover")), Is.EqualTo(new byte[] { 31, 32 }),
+            "with no album to ask, the folder the track lies in answers");
       }
       finally
       {

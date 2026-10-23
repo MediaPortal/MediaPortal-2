@@ -33,6 +33,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Server.Api
 {
@@ -261,12 +262,13 @@ namespace MediaPortal.Server.Api
       }
 
       IImporterWorker importer = ServiceRegistration.Get<IImporterWorker>(false);
+      IList<IMediaFanArtHandler> handlers = PictureHandlers();
       HashSet<Guid> seen = new HashSet<Guid>();
       uint offset = 0;
 
       while (true)
       {
-        IList<MediaItem> page = AskPage(library, offset);
+        IList<MediaItem> page = AskPage(library, offset, handlers);
         List<MediaItem> fresh = page.Where(title => seen.Add(title.MediaItemId)).ToList();
 
         // A whole page of titles this pass already looked at means the order tied over itself, which is as good
@@ -281,6 +283,10 @@ namespace MediaPortal.Server.Api
             Stopped("the importer wanted the disc back");
             return;
           }
+
+          // The handlers come first: a picture they can take out of a title's own files is a picture the
+          // folders alone would never have named.
+          CollectPictures(handlers, title);
 
           if (LocalFanArtSearch.Worn.Learned(title.MediaItemId))
           {
@@ -300,14 +306,90 @@ namespace MediaPortal.Server.Api
     }
 
     /// <summary>
+    /// Asking the plugins' picture handlers about one title, so that whatever they can get at is in the cache
+    /// before anybody asks for it.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This is the reference's own step, read from the client's <c>FanArtActionBlock</c>: a title is handed to
+    /// every handler that declared one of its aspects, and the handler decides what a picture of that title is
+    /// and where it comes from. On the reference a window had to open a title's pictures for that to happen;
+    /// here there is no window, so the pass that already walks the library does the asking - which is also the
+    /// only moment a headless server has, being a server nobody is looking at.
+    /// </para>
+    /// <para>
+    /// A handler is asked once per title per pass and answers nothing when it has already stored the picture,
+    /// so the cost of asking again is one look at a folder. What a handler throws is its own affair: a title
+    /// whose handler failed is a title whose pictures are answered by the folders instead, and the pass has
+    /// another thousand titles to get through.
+    /// </para>
+    /// </remarks>
+    private static void CollectPictures(IEnumerable<IMediaFanArtHandler> handlers, MediaItem title)
+    {
+      foreach (IMediaFanArtHandler handler in handlers.Where(handler =>
+          handler.FanArtAspects.Any(aspect => title.Aspects.ContainsKey(aspect))))
+      {
+        try
+        {
+          handler.CollectFanArtAsync(title.MediaItemId, title.Aspects).GetAwaiter().GetResult();
+        }
+        catch (Exception ex)
+        {
+          ILogger logger = ServiceRegistration.Get<ILogger>(false);
+          if (logger != null)
+            logger.Warn("FanArtWarmingPass: the picture handler '{0}' could not finish for the media item {1}",
+                ex, handler.Metadata.Name, title.MediaItemId);
+        }
+      }
+    }
+
+    /// <summary>
+    /// The picture handlers the plugins registered, asked for once per pass.
+    /// </summary>
+    /// <remarks>
+    /// The handlers are the media accessor's, which is where MP2 keeps them and where the client's fanart
+    /// service takes them from. A server that was started without a media accessor, or whose plugins failed to
+    /// load, has no handlers to ask and warms the folders alone - which is what it did before there were any.
+    /// </remarks>
+    private static IList<IMediaFanArtHandler> PictureHandlers()
+    {
+      try
+      {
+        IMediaAccessor accessor = ServiceRegistration.Get<IMediaAccessor>(false);
+        return accessor == null
+            ? new List<IMediaFanArtHandler>()
+            : new List<IMediaFanArtHandler>(accessor.LocalFanArtHandlers.Values);
+      }
+      catch (Exception ex)
+      {
+        ILogger logger = ServiceRegistration.Get<ILogger>(false);
+        if (logger != null)
+          logger.Warn("FanArtWarmingPass: no picture handlers to ask, because the media accessor would not say: {0}",
+              ex.Message);
+        return new List<IMediaFanArtHandler>();
+      }
+    }
+
+    /// <summary>
     /// One page of titles: every item the library holds that is a title with a file or folder of its own, in the
     /// database's own order of the name it sorts by, which is stable enough for walking a library in pages.
     /// </summary>
-    private static IList<MediaItem> AskPage(IMediaLibrary library, uint offset)
+    /// <remarks>
+    /// The aspects asked for beside the file are the ones the handlers declared, plus the relationship aspect:
+    /// a handler is asked about a title in the aspects it serves, and the album a track's cover belongs to is
+    /// named by a relationship rather than by an attribute of the track itself.
+    /// </remarks>
+    private static IList<MediaItem> AskPage(IMediaLibrary library, uint offset,
+        IEnumerable<IMediaFanArtHandler> handlers)
     {
+      List<Guid> supplementary = new List<Guid> { ProviderResourceAspect.ASPECT_ID, RelationshipAspect.ASPECT_ID };
+      foreach (Guid served in handlers.SelectMany(handler => handler.FanArtAspects).Distinct())
+        if (!supplementary.Contains(served))
+          supplementary.Add(served);
+
       MediaItemQuery query = new MediaItemQuery(
           new List<Guid> { MediaAspect.ASPECT_ID },
-          new List<Guid> { ProviderResourceAspect.ASPECT_ID },
+          supplementary,
           null);
       query.SetSortInformation(new List<ISortInformation>
       {

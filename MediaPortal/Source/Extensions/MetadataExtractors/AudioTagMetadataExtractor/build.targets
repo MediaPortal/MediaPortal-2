@@ -1,0 +1,29 @@
+<Project>
+
+  <Target Name="CopyToOutput" AfterTargets="Build" Condition="'$(IsCrossTargetingBuild)' != 'true' AND '$(MP2IsSolutionBuild)' == 'true'">
+
+    <PropertyGroup>
+      <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
+      <PluginFiles Include="$(ProjectDir)plugin.xml" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
+      <PluginFiles Include="$(TargetDir)$(ProjectName).pdb" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <References Include="$(TargetDir)TagLibSharp.dll" />
+    </ItemGroup>
+
+    <Warning Condition="!Exists('$(TargetDir)TagLibSharp.dll')"
+             Text="TagLibSharp.dll is not in $(TargetDir) - this plugin cannot read a single audio tag without it." />
+
+    <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
+    <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
+  </Target>
+
+</Project>

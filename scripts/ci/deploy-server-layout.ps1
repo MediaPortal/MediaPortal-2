@@ -266,6 +266,41 @@ if (-not (Test-Path $nfoJson)) {
 Copy-Item $nfoJson $nfoDest -Force
 
 # ---------------------------------------------------------------------------
+# 2c. The metadata extractor that reads the tags inside audio files
+# ---------------------------------------------------------------------------
+
+# A share of music needs the same kind of help a share of films needed the NFO extractor for, and it
+# was missing for the same reason: the extractor that assigns the AudioAspect upstream is the Windows
+# AudioMetadataExtractor, which is written against MediaPortal.TagLib (MediaPortal's own feed, .NET
+# Framework assemblies only) and probes streams with BASS.NET. Without an extractor that assigns that
+# aspect, the importer walks a music share, no extractor claims a single file, and the library ends up
+# with zero tracks - and the NFO audio extractor stays quiet too, because it only reads the .nfo of a
+# resource an earlier extractor has already called audio.
+$audioName = 'AudioTagMetadataExtractor'
+$audio = Publish-PluginProject -Name $audioName -Project ([IO.Path]::Combine('Extensions', 'MetadataExtractors', 'AudioTagMetadataExtractor', 'AudioTagMetadataExtractor.csproj'))
+$audioTargetDir = $audio.TargetDir
+$audioDest = [IO.Path]::Combine($OutputDir, 'Plugins', $audioName)
+New-Item -ItemType Directory -Path $audioDest -Force | Out-Null
+
+Write-Step "deploying $audioName from $audioTargetDir"
+
+Copy-Item ([IO.Path]::Combine($audioTargetDir, "$audioName.dll")) $audioDest -Force
+Copy-Item ([IO.Path]::Combine($audio.ProjectDir, 'plugin.xml')) $audioDest -Force
+if ($Configuration -eq 'Debug') {
+  $audioPdb = [IO.Path]::Combine($audioTargetDir, "$audioName.pdb")
+  if (Test-Path $audioPdb) { Copy-Item $audioPdb $audioDest -Force }
+}
+
+# TagLibSharp is the tag reader, and plugin.xml asks the loader to load it from this folder. A plugin's
+# assemblies are searched for in the plugin's own folder, so it has to be copied here even though the
+# tag library has nothing to do with the server itself.
+$audioTagLib = [IO.Path]::Combine($audioTargetDir, 'TagLibSharp.dll')
+if (-not (Test-Path $audioTagLib)) {
+  throw "TagLibSharp.dll was not copied to $audioTargetDir - the audio tag extractor cannot read a single tag without it"
+}
+Copy-Item $audioTagLib $audioDest -Force
+
+# ---------------------------------------------------------------------------
 # 3. Report
 # ---------------------------------------------------------------------------
 
