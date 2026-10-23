@@ -22,7 +22,9 @@ using System.Threading;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
+using Avalonia.Headless;
 using Avalonia.Headless.NUnit;
+using Avalonia.Media;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
@@ -322,6 +324,20 @@ namespace Tests.Frontend
         Assert.That(plate!.CornerRadius.TopLeft, Is.EqualTo(power.CornerRadius.TopLeft),
             "and the element that paints it carries the disc's corner rather than the square the face writes "
             + "everywhere else");
+
+        //  And the light has to actually come up on that disc. A corner nothing paints with would pass the two
+        //  assertions above while the viewer still saw a square, so the pointer is laid on the button and the
+        //  palette's raised colour is asked for where it is painted.
+        IBrush resting = plate.Background;
+        Point middle = power.TranslatePoint(new Point(power.Bounds.Width / 2, power.Bounds.Height / 2), window)
+            ?? new Point(power.Bounds.Center.X, power.Bounds.Center.Y);
+        window.MouseMove(middle);
+        Pump();
+
+        Assert.That(power.IsPointerOver, Is.True, "the pointer was laid on the button");
+        Assert.That(plate.Background, Is.Not.SameAs(resting),
+            "and a button that is stood on takes the palette's light in the plate that paints it");
+        Assert.That(plate.Background, Is.Not.Null, "the plate is painted at all");
 
         window.Close();
       }
