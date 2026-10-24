@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -375,6 +376,113 @@ namespace Tests.Frontend
           "a server that will not talk is not a lock - the wake holds its seconds and lets the person through,");
       Assert.That(wake.Status, Does.Contain("unreachable"),
           "and says out loud why it could not check the PIN");
+    }
+
+    [Test]
+    public async Task TheLibraryIsReadUnderTheWakesAnimation()
+    {
+      // The animation exists so that the machine has something to do while it is on the screen: the library is
+      // asked for here, inside the wake's seconds, so that the home screen arrives with its answers instead of
+      // filling itself in under the viewer's eyes.
+      FakeWakeServer server = new FakeWakeServer();
+      server.People = new[] { Person("Petra"), Person("Wohnzimmer", kind: "Client") };
+      List<string> order = new List<string>();
+      StartupViewModel wake = new StartupViewModel(
+          () => server,
+          server.Check,
+          delegate (string? name) { order.Add("opened"); },
+          TimeSpan.FromMilliseconds(300));
+      wake.WarmLibraryRequested += delegate { order.Add("read"); };
+
+      await wake.StartAsync();
+
+      Assert.That(order, Is.EqualTo(new[] { "read", "opened" }),
+          "the reading is asked for while the animation still has seconds left, and the wake opens after it");
+    }
+
+    [Test]
+    public async Task AWakeGivenItsNumbersReadsTheLibraryOnceBeforeItOpens()
+    {
+      // A typed PIN leaves no animation to read under, but the answer is known the moment the server accepts the
+      // four numbers, and the reading starts there rather than when the library screen is built. Once only,
+      // because a second run behind the first would cancel it and throw its answers away with the menu.
+      Remember("Sabine");
+      FakeWakeServer server = new FakeWakeServer();
+      server.People = new[] { Person("Sabine", pin: true) };
+      List<string> order = new List<string>();
+      StartupViewModel wake = new StartupViewModel(
+          () => server,
+          server.Check,
+          delegate (string? name) { order.Add("opened"); },
+          TimeSpan.FromMilliseconds(30));
+      wake.WarmLibraryRequested += delegate { order.Add("read"); };
+
+      await wake.StartAsync();
+      Assert.That(order, Is.Empty, "a wake that is still waiting for numbers has read nothing for anybody");
+
+      wake.Press("1");
+      wake.Press("2");
+      wake.Press("3");
+      wake.Press("4");
+
+      Assert.That(order, Is.EqualTo(new[] { "read", "opened" }),
+          "the accepted PIN sends the reading out before the wake opens");
+      Assert.That(order.FindAll(delegate (string one) { return one == "read"; }).Count, Is.EqualTo(1),
+          "and it sends exactly one reading");
+    }
+
+    [Test]
+    public async Task AWakeWhoseShelfFillsLateHoldsItsScreenForIt()
+    {
+      // The ring's turn is what the wake waits for, not what it waits until: a library still reading when the
+      // turn is done holds the screen, because opening on a half-built wall is the thing the wait exists to stop.
+      FakeWakeServer server = new FakeWakeServer();
+      server.People = new[] { Person("Petra") };
+      List<string?> answers = new List<string?>();
+      TaskCompletionSource shelf = new TaskCompletionSource();
+      StartupViewModel wake = new StartupViewModel(
+          () => server, server.Check, answers.Add, TimeSpan.FromMilliseconds(20), null, null,
+          () => shelf.Task, TimeSpan.FromSeconds(30));
+
+      Task running = wake.StartAsync();
+      await Task.Delay(120);
+      Assert.That(answers, Is.Empty, "its turn is behind it, but the shelves are not full yet");
+
+      shelf.SetResult();
+      await running;
+      Assert.That(answers, Is.EquivalentTo(new string?[] { "" }),
+          "the shelf being full is what opens the wake, not its own seconds running out");
+    }
+
+    [Test]
+    public async Task AWakeIsNotWeldedShutByAShelfThatStaysEmpty()
+    {
+      // A server that will not answer is a complaint on the library screen, not a television parked on its wake
+      // forever. Past its patience the wake answers whatever the shelves look like.
+      FakeWakeServer server = new FakeWakeServer();
+      server.People = new[] { Person("Petra") };
+      List<string?> answers = new List<string?>();
+      StartupViewModel wake = new StartupViewModel(
+          () => server, server.Check, answers.Add, TimeSpan.FromMilliseconds(20), null, null,
+          delegate { return new TaskCompletionSource().Task; }, TimeSpan.FromMilliseconds(120));
+
+      Task running = wake.StartAsync();
+      Task finished = await Task.WhenAny(running, Task.Delay(TimeSpan.FromSeconds(5)));
+
+      Assert.That(finished, Is.SameAs(running), "the wake answered rather than waiting on a silent server");
+      Assert.That(answers, Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public void TheWakesOwnSecondsAreTheRingsTurn()
+    {
+      // The second every viewer counts: the wake's wait used to be four seconds of its own, so the ring faded
+      // out and the wallpaper stood there another second and a half for nothing. Its floor is the animation now
+      // - the turn and the way out - and the reading is what may lengthen it, never a number on a stopwatch.
+      Assert.That(StartupViewModel.WAKE_SECONDS,
+          Is.EqualTo(TimeSpan.FromSeconds(StartupViewModel.PASS_SECONDS + StartupViewModel.EXIT_SECONDS)));
+      Assert.That(StartupViewModel.WAKE_SECONDS, Is.LessThan(TimeSpan.FromSeconds(3)),
+          "a wake that outlasts its own animation is waiting for nothing");
     }
 }
 }

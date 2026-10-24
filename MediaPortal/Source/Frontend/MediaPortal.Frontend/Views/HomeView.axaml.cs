@@ -121,7 +121,7 @@ namespace MediaPortal.Frontend.Views
         Func<WorkflowFrame>? connectScreen = null, Func<HomeSection, WorkflowFrame>? sectionScreen = null,
         Func<string, WorkflowFrame>? screenFactory = null, Func<string, bool>? screenGate = null)
     {
-      DataContext = home;
+        DataContext = home;
       _home = home;
       _wmc = new WmcHomeMenuModel(() => _home.Menu, () => _home.SelectedEntry, entry => _home.SelectedEntry = entry);
       _workflow = workflow ?? throw new ArgumentNullException(nameof(workflow));
@@ -219,6 +219,7 @@ namespace MediaPortal.Frontend.Views
         _wmc.Rebuild(_home.SelectedEntry);
         RebuildCross();
         ScrollSelectedMenuItem();
+        TakeTheMenuBackIfTheRebuildThrewItOut();
       };
       // The face's own home comes and goes with the face. Hang what its home.xaml answers on the three hosts
       // now - a view built after a skin went on never sees the event that put the skin on - and again whenever
@@ -1245,14 +1246,40 @@ namespace MediaPortal.Frontend.Views
       {
         _firstActivation = false;
         _home.ResumeRequested += OnResumeRequested;
-        if (DataContext is HomeViewModel viewModel)
+        // The wake reads the library under its animation, so a screen opened under an answer that was read for
+        // the person standing here has nothing left to ask - and asking would throw those answers out again
+        // along with the menu containers the rebuild takes away.
+        if (DataContext is HomeViewModel viewModel
+            && !viewModel.IsBusy && !viewModel.ReadUnderThisViewer)
           viewModel.RefreshCommand.Execute(null);
       }
       // Asked before the screen is joined to the window, a focus request answers nothing at all - and on
       // the way in here it usually is asked that early, while the menu list cannot take it yet. The posted
       // second ask runs once the layout has settled, which is the moment the request starts to stick;
       // asking twice costs nothing, since the menu owns this screen's keyboard either way.
+      // Asked before the screen is joined to the window, a focus request answers nothing at all - and on
+      // the way in here it usually is asked that early, while the menu list cannot take it yet. The posted
+      // second ask runs once the layout has settled, which is the moment the request starts to stick;
+      // asking twice costs nothing, since the menu owns this screen's keyboard either way.
       menuList.Focus();
+      Dispatcher.UIThread.Post(delegate { menuList.Focus(); }, DispatcherPriority.Loaded);
+    }
+
+    /// <summary>
+    /// A reading of the server empties the menu and fills it again, and the container that stood under the
+    /// focus goes with the list it stood in. Avalonia answers that by handing the focus to the window itself,
+    /// which is what a viewer feels as the one key press that does nothing: their arrow is spent walking back
+    /// into the window instead of along the menu. So the screen takes its menu back whenever a reading left
+    /// nothing but the window standing on the screen.
+    /// </summary>
+    private void TakeTheMenuBackIfTheRebuildThrewItOut()
+    {
+      Window? window = TopLevel.GetTopLevel(this) as Window;
+      if (window == null)
+        return;
+      object? standing = window.FocusManager.GetFocusedElement();
+      if (standing != null && !ReferenceEquals(standing, window))
+        return; // Somebody stands on a thing of their own; the menu is not owed the keys away from that.
       Dispatcher.UIThread.Post(delegate { menuList.Focus(); }, DispatcherPriority.Loaded);
     }
 

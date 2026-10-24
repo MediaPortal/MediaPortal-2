@@ -648,5 +648,93 @@ namespace Tests.Frontend
       Assert.That(home.Status, Does.Contain(dead.ToString()), "and it says which server it could not reach");
       Assert.That(AspectList(window).Items.Count, Is.Zero);
     }
+
+    [AvaloniaTest]
+    public void TheMenuStandsBackOnItsOwnAfterTheServerHasReadAgain()
+    {
+      // The keys of the home belong to the menu, and the viewer expects the first arrow they press to walk it.
+      // A reading of the server empties the menu and fills it again, and the row that stood under the focus goes
+      // with the list it stood in; Avalonia answers that by handing the focus to the window, which the viewer
+      // feels as a key press that does nothing - their arrow is spent walking back into the window.
+      ShellWindow window = ShowScreenThatReadsAServer(3, out HomeViewModel home);
+      WaitUntil(home, "the first reading to be through",
+          delegate { return home.Aspects.Count > 0 && !home.IsBusy; });
+
+      ListBox menu = ListBoxNamed(window, "menuList");
+      ListBoxItem? row = menu.GetVisualDescendants().OfType<ListBoxItem>()
+          .FirstOrDefault(delegate (ListBoxItem one) { return one.Focusable; });
+      Assert.That(row, Is.Not.Null, "the menu's rows are built, so there is a row to stand on");
+      row!.Focus();
+      Pump();
+      Pump();
+      Visual? standing = window.FocusManager.GetFocusedElement() as Visual;
+      Assert.That(ReferenceEquals(standing, row), Is.True,
+          "the focus stands on a row of the menu (focus was on: "
+          + (standing == null ? "nobody" : standing.GetType().Name) + ")");
+
+      home.RefreshCommand.Execute(null);
+      WaitUntil(home, "the second reading to be through", delegate { return !home.IsBusy; });
+      Pump();
+      Pump();
+      Pump();
+
+      Visual? after = window.FocusManager.GetFocusedElement() as Visual;
+      Assert.That(Inside(after, menu), Is.True,
+          "a reading that rebuilt the menu left the keys with the window rather than back on the menu "
+          + "(focus was on: " + (after == null ? "nobody" : after.GetType().Name) + ")");
+    }
+
+    [AvaloniaTest]
+    public void AScreenOpenedUnderAReadingAlreadyMadeForThisViewerKeepsItsAnswers()
+    {
+      // The wake reads the library under its animation so that the home screen arrives with its answers. Asking
+      // the server a second time when the screen appears would cancel that reading and throw the answers it
+      // already brought out of the menu and the wall - so the screen only asks when nothing has been read for
+      // the person standing here.
+      List<IEnumerable<Guid>> counted = new List<IEnumerable<Guid>>();
+      InProcessApi.RegisterMediaLibrary(
+          InProcessApi.CreateLibrary(InProcessApi.CreateAspects(), 4, out counted).Object);
+      InProcessApi server = InProcessApi.Start();
+      _servers.Add(server);
+      ServerApiClient client = new ServerApiClient(server.BaseUrl);
+      _clients.Add(client);
+      HomeViewModel home = new HomeViewModel(client);
+
+      home.RefreshCommand.Execute(null);
+      WaitUntil(home, "the reading asked under the animation to be through",
+          delegate { return home.SelectedAspect != null && home.SelectedAspect.Count.HasValue && !home.IsBusy; });
+      int askedUnderTheAnimation = counted.Count;
+      Assert.That(askedUnderTheAnimation, Is.GreaterThan(0), "the reading really went to the server");
+
+      ShellWindow window = Show(home);
+      WaitUntil(home, "the screen to settle", delegate { return !home.IsBusy; });
+      Pump();
+
+      Assert.That(counted.Count, Is.EqualTo(askedUnderTheAnimation),
+          "the screen opened under a reading made for this very viewer did not ask the server again");
+      Assert.That(VisibleTexts(window), Does.Contain("4"),
+          "and what the wake read is on the screen the moment it takes the window");
+
+      // The same screen under a name nobody has read under asks, because what a person is shown hangs on who was
+      // asking: a reading made for the household at large is no reading for somebody with a ceiling on their lists.
+      MediaPortal.Frontend.Settings.SkinSettingsBase.FileOwner = "Heinz";
+      try
+      {
+        HomeViewModel forHeinz = new HomeViewModel(client);
+        Show(forHeinz);
+        WaitUntil(forHeinz, "the reading for the new name to arrive",
+            delegate
+            {
+              return forHeinz.SelectedAspect != null && forHeinz.SelectedAspect.Count.HasValue
+                  && !forHeinz.IsBusy;
+            });
+        Assert.That(counted.Count, Is.GreaterThan(askedUnderTheAnimation),
+            "a screen opened under eyes nobody had read under did go and read");
+      }
+      finally
+      {
+        MediaPortal.Frontend.Settings.SkinSettingsBase.FileOwner = null;
+      }
+    }
   }
 }

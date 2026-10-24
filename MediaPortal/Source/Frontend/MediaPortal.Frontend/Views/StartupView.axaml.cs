@@ -60,11 +60,15 @@ namespace MediaPortal.Frontend.Views
     private readonly Workflow.WorkflowManager? _workflow;
 
     /// <summary>
-    /// One turn of the ring: 360° at the wake's 150° a second. The animation is shown for exactly this much
-    /// of the screen's clock and then leaves, so it is a greeting rather than a screensaver - but it is
-    /// always shown, whatever the server reads happen to take.
+    /// One turn of the ring, and the third of a second its way out takes. Both numbers belong to the model,
+    /// because the wait behind this screen and the ring on it have to count one and the same turn of one and
+    /// the same clock: the library takes the window in the beat after the ring has left it, never in the middle
+    /// of it. The fade is counted in steps of <see cref="FADE_MILLISECONDS"/> because that is what the timer
+    /// below is set to.
     /// </summary>
-    private const double PASS_SECONDS = 2.4;
+    private const double PASS_SECONDS = StartupViewModel.PASS_SECONDS;
+    private const int FADE_MILLISECONDS = 40;
+    private const int FADE_STEPS = (int)(StartupViewModel.EXIT_SECONDS * 1000.0 / FADE_MILLISECONDS);
 
     public StartupView()
     {
@@ -158,12 +162,12 @@ namespace MediaPortal.Frontend.Views
     {
       _ringDone = true;
       _fadeStep = 0;
-      _fade = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(40) };
+      _fade = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(FADE_MILLISECONDS) };
       _fade.Tick += delegate
       {
         _fadeStep++;
-        wakeRing.Opacity = Math.Max(0.0, 1.0 - _fadeStep / 8.0);
-        if (_fadeStep < 8)
+        wakeRing.Opacity = Math.Max(0.0, 1.0 - _fadeStep / (double)FADE_STEPS);
+        if (_fadeStep < FADE_STEPS)
           return;
 
         wakeRing.IsVisible = false;

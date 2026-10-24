@@ -54,7 +54,10 @@ namespace MediaPortal.Frontend.ViewModels
   /// <b>What the wait is for.</b> A start that must wait for the server has to show something while it waits,
   /// and showing the wallpaper alone reads as a hung program once more than a heartbeat passes. So every
   /// unanswered second of this screen wears the animation - the read of the user list included - and the no-PIN
-  /// case stays on it for the full <see cref="SplashWait"/> so the wake feels like a wake rather than a flash.
+  /// case stays on it for the animation's own turn, <see cref="WAKE_SECONDS"/>, and no longer: the ring is what
+  /// the reading costs the viewer, and a wake that kept its wallpaper up a second past its own turn would only
+  /// be a second lost. The one thing that can hold it past the turn is a library that has not answered yet, and
+  /// even that only up to <see cref="ReadPatience"/> - a server that will not speak must not weld the wake shut.
   /// The timer is a field rather than <c>Task.Delay</c> so a test can ask for a wait of milliseconds and the
   /// application can keep the one its household asked for.
   /// </para>
@@ -64,11 +67,46 @@ namespace MediaPortal.Frontend.ViewModels
     /// <summary>Asks the server whether these four numbers belong to this name. True means signed in.</summary>
     public delegate Task<bool> PinChecker(string name, string pin);
 
+    /// <summary>
+    /// One turn of the ring, in the screen's own seconds: 360° at the wake's 150° a second. The number lives
+    /// here because the wait below and the ring on the screen have to mean one and the same turn of one and
+    /// the same clock - a wake that held its wallpaper up past the ring's way out would only be waiting for
+    /// nothing, which is exactly the second every viewer counts.
+    /// </summary>
+    public const double PASS_SECONDS = 2.4;
+
+    /// <summary>The ring's way out: the third of a second it fades for before the panel is collapsed.</summary>
+    public const double EXIT_SECONDS = 0.32;
+
+    /// <summary>
+    /// How long the wake wears its animation: the ring's turn and its way out, so that the library takes the
+    /// window in the beat after the ring has left it. Nothing in this is padding - what the seconds are paying
+    /// for is the reading of the library, which the wake itself asks for (see
+    /// <see cref="WarmLibraryRequested"/>) - and a wait this length is a floor, not a schedule: a reading still
+    /// out when the turn is done holds the wake to itself, up to <see cref="ReadPatience"/>.
+    /// </summary>
+    public static readonly TimeSpan WAKE_SECONDS = TimeSpan.FromSeconds(PASS_SECONDS + EXIT_SECONDS);
+
+    /// <summary>
+    /// How much longer than its own turn the wake waits for a library that has not answered, and no longer.
+    /// Past this the answer is given whatever the shelves look like: a library screen that complains about its
+    /// server is a worse-looking screen than a wake that never steps aside.
+    /// </summary>
+    public static readonly TimeSpan ReadPatience = TimeSpan.FromSeconds(8);
+
     private readonly Func<IUsersApi?> _usersProvider;
     private readonly Func<IServerSettingsApi?>? _policyProvider;
     private readonly Theming.ViewerState? _viewerState;
     private readonly PinChecker _check;
     private readonly TimeSpan _splashWait;
+    private readonly TimeSpan _readPatience;
+
+    /// <summary>
+    /// Where the application keeps the answer to "has the library finished reading under the eyes this wake is
+    /// about to hand the television to". Null means nobody owes this wake a reading - a test, or a wake opened
+    /// for switching over a library that stands already - and then the wake's turn is simply its own.
+    /// </summary>
+    private readonly Func<Task>? _libraryReady;
 
     /// <summary>
     /// The one answer, said once - to whoever the application happens to have hung on it. The wake at the
@@ -76,6 +114,26 @@ namespace MediaPortal.Frontend.ViewModels
     /// back over the library with that name, or to let the television go altogether.
     /// </summary>
     public event Action<string?>? Finished;
+
+    /// <summary>
+    /// Asked the moment the house knows who is watching, while the wake still holds its seconds: the
+    /// application reads the library here, so that the animation is what the reading costs the viewer
+    /// instead of a home screen that stands half-built while it fills itself in. Raised once, and only
+    /// where there is a wait left to read under - a question that was answered by a typed PIN has no
+    /// animation in front of it any more.
+    /// </summary>
+    public event Action? WarmLibraryRequested;
+
+    private bool _warmAsked;
+
+    /// <summary>The ask, said once however many ways lead to the same answer.</summary>
+    private void AskForTheLibrary()
+    {
+      if (_warmAsked)
+        return;
+      _warmAsked = true;
+      WarmLibraryRequested?.Invoke();
+    }
 
     /// <summary>Every person the server named, the remembered one and the others - the switcher's whole house.</summary>
     private readonly List<UserInfo> _seen = new List<UserInfo>();
@@ -85,15 +143,17 @@ namespace MediaPortal.Frontend.ViewModels
 
     public StartupViewModel(Func<IUsersApi?> usersProvider, PinChecker check, Action<string?>? finished = null,
         TimeSpan? splashWait = null, Func<IServerSettingsApi?>? policyProvider = null,
-        Theming.ViewerState? viewerState = null)
+        Theming.ViewerState? viewerState = null, Func<Task>? libraryReady = null, TimeSpan? readPatience = null)
     {
       _usersProvider = usersProvider;
       _policyProvider = policyProvider;
       _viewerState = viewerState;
       _check = check;
+      _libraryReady = libraryReady;
+      _readPatience = readPatience ?? ReadPatience;
       if (finished != null)
         Finished += finished;
-      _splashWait = splashWait ?? TimeSpan.FromSeconds(4);
+      _splashWait = splashWait ?? WAKE_SECONDS;
     }
 
     /// <summary>
@@ -483,6 +543,9 @@ namespace MediaPortal.Frontend.ViewModels
         if (right)
         {
           Remember(who, true);
+          // No animation is left to read under after a typed PIN, but the read still starts here rather than
+          // when the library screen is built: the answer is known, and the ask costs nothing the viewer waits for.
+          AskForTheLibrary();
           Answer(who);
           return;
         }
@@ -633,10 +696,32 @@ namespace MediaPortal.Frontend.ViewModels
     /// <summary>The wake without a question: the animation, its seconds, then the library.</summary>
     private async Task WaitThenFinishAsync(string? name)
     {
+      // The seconds this waits are the animation's, and a library read fits inside them - asked here, after
+      // whoever is watching has been signed in and before the wait, so every answer the read gives is already
+      // on the shelf when the home screen takes the window.
+      AskForTheLibrary();
       CancellationTokenSource cts = _waitCts = new CancellationTokenSource();
       try
       {
-        await Task.Delay(_splashWait, cts.Token);
+        // The ring's turn is a floor - the wake never steps out in the middle of its own animation - but it is
+        // not a schedule. What those seconds were holding the wallpaper up for was the reading; once the ring
+        // has left the screen and the shelves are full there is nothing left here to wait for, and every extra
+        // tenth is one the viewer counts. So a reading that outlasts the turn is waited for, and only up to its
+        // patience: a silent server earns a complaint on the library screen, not a television welded to its wake.
+        Task turn = Task.Delay(_splashWait, cts.Token);
+        Task shelf = Task.CompletedTask;
+        try
+        {
+          shelf = _libraryReady == null ? Task.CompletedTask : _libraryReady();
+        }
+        catch (Exception)
+        {
+          // A wake that cannot ask when the shelf is full answers on its own turn instead of not at all.
+        }
+
+        if (!shelf.IsCompleted)
+          shelf = Task.WhenAny(shelf, Task.Delay(_readPatience));
+        await Task.WhenAll(turn, shelf);
       }
       catch (TaskCanceledException)
       {

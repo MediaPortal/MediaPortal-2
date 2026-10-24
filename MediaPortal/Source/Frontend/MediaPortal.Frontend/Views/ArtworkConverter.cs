@@ -73,13 +73,15 @@ namespace MediaPortal.Frontend.Views
     /// How many decoded pixels may be held at once.
     /// </summary>
     /// <remarks>
-    /// Eight million, which is about 32 MB once a picture is in memory as pixels. That is a hundred and twenty
-    /// MP2-sized thumbnails (256 across, which is what the server's database holds) or thirty full-cover scans,
-    /// and it is deliberately less than a shelf of two hundred titles: whoever walks back through a library
-    /// decodes a few pictures again, and a media centre that fills the memory of a television stick is worse than
-    /// one that decodes a poster twice.
+    /// Sixteen million, which is about 64 MB once a picture is in memory as pixels. Sized by what a wall of covers
+    /// actually needs: a cover decoded at <see cref="WALL_DECODE_WIDTH"/> is six hundred and fourteen thousand
+    /// pixels, so this holds twenty-six of them - a wall and a bit - while a tile decoded at
+    /// <see cref="TILE_DECODE_WIDTH"/> is two hundred and eighty thousand, which is fifty-seven of those. It used
+    /// to be eight million, measured against whole scans; a whole scan cannot enter this cache anymore at all (see
+    /// <see cref="Hold"/>), so the number is spent on tiles from here. A media centre that fills the memory of a
+    /// television stick is worse than one that decodes a poster twice, which is what bounds it.
     /// </remarks>
-    public const long MAX_HELD_PIXELS = 8L * 1024 * 1024;
+    public const long MAX_HELD_PIXELS = 16L * 1024 * 1024;
 
     /// <summary>
     /// How wide a picture that is only ever drawn inside a tile is decoded.
@@ -99,6 +101,25 @@ namespace MediaPortal.Frontend.Views
     /// The converter parameter a template passes to ask for a tile-sized decode.
     /// </summary>
     public const string TILE_PARAMETER = "tile";
+
+    /// <summary>
+    /// How wide a cover of the standing wall is decoded.
+    /// </summary>
+    /// <remarks>
+    /// Six hundred and forty device pixels, which is what the wall's own arithmetic asks for: the wall is drawn on
+    /// an eight hundred and eighty line band whose first cover takes a two by two place, so that cover stands
+    /// four hundred and thirty-eight design pixels across - five hundred and seventy-three on the screen this
+    /// port is measured on - and the skin's focus morph steps a tenth nearer. A <see cref="TILE_DECODE_WIDTH"/>
+    /// decode would have stretched the big cover's picture by a third to fill it, which on a television is the
+    /// blur nobody asked for. Nineteen covers at this width are eleven megapixels, so one wall fits the budget
+    /// above and a viewer walking between two walls decodes a couple of covers again at most.
+    /// </remarks>
+    public const int WALL_DECODE_WIDTH = 640;
+
+    /// <summary>
+    /// The converter parameter a template passes to ask for a wall-cover-sized decode.
+    /// </summary>
+    public const string WALL_PARAMETER = "wall";
 
     /// <summary>
     /// One remembered picture: the bytes it came from, the width it was decoded for, and the picture.
@@ -182,7 +203,11 @@ namespace MediaPortal.Frontend.Views
     public static int DecodeWidthFor(object? parameter)
     {
       if (parameter is string text)
-        return string.Equals(text, TILE_PARAMETER, StringComparison.OrdinalIgnoreCase) ? TILE_DECODE_WIDTH : 0;
+      {
+        if (string.Equals(text, TILE_PARAMETER, StringComparison.OrdinalIgnoreCase))
+          return TILE_DECODE_WIDTH;
+        return string.Equals(text, WALL_PARAMETER, StringComparison.OrdinalIgnoreCase) ? WALL_DECODE_WIDTH : 0;
+      }
 
       return parameter is int requested && requested > 0 ? requested : 0;
     }
@@ -256,6 +281,13 @@ namespace MediaPortal.Frontend.Views
     /// </remarks>
     private void Hold(byte[] bytes, int width, Bitmap picture)
     {
+      // A picture larger than the whole budget is handed out but not remembered: it would throw every cover of
+      // the standing wall out of the cache on its way in and be thrown out itself by the next picture asked for,
+      // so remembering it buys nothing and costs the lot. Whatever needs such a picture again keeps its own copy;
+      // the home backdrop does, in SkinFanartConverter.
+      if ((long)picture.PixelSize.Width * picture.PixelSize.Height > _budget)
+        return;
+
       Remembered entry = new Remembered(bytes, width, picture);
       _held.Add(entry);
       _pixels += entry.Pixels;

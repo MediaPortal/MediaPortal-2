@@ -213,5 +213,54 @@ namespace Tests.Frontend
       aspect.Count = 0;
       Assert.That(aspect.CountText, Is.EqualTo("0"), "a real zero is not the same as not knowing");
     }
+
+    [Test]
+    public async Task TheWakeIsToldWhenTheWallStands()
+    {
+      // The wake holds its ring until this is said, so the home screen takes the window with its wall already
+      // up. It is said by the wall going up rather than by the read returning, which is the difference between
+      // opening on a library and opening on an empty pane for a beat.
+      List<IEnumerable<Guid>> counted;
+      HomeViewModel home = ConnectedOut(3, out counted);
+      TaskCompletionSource stood = new TaskCompletionSource();
+      home.LibraryReady += delegate { stood.TrySetResult(); };
+
+      await home.RefreshAsync();
+      Task finished = await Task.WhenAny(stood.Task, Task.Delay(TimeSpan.FromSeconds(5)));
+
+      Assert.That(finished, Is.SameAs(stood.Task),
+          "the read says the word once its wall stands, which is what lets the wake step aside");
+    }
+
+    [Test]
+    public async Task AReadThatEndedInAComplaintStillSaysSo()
+    {
+      // A server that will not answer has to be reported to the wake as surely as one that answers: the wake
+      // waits for the shelf, and it would spend eight seconds finding out that nothing is on its way.
+      Uri dead = new Uri(string.Format("http://127.0.0.1:{0}/MediaPortal/Server/", InProcessApi.GetFreePort()));
+      var client = new ServerApiClient(dead, null, TimeSpan.FromSeconds(2));
+      _toDispose.Add(client);
+      HomeViewModel home = new HomeViewModel(client);
+      TaskCompletionSource said = new TaskCompletionSource();
+      home.LibraryReady += delegate { said.TrySetResult(); };
+
+      await home.RefreshAsync();
+
+      Assert.That(said.Task.IsCompleted, Is.True,
+          "a failed read releases the wake too - there is nothing left standing for it to wait for");
+    }
+
+    [Test]
+    public async Task AScreenWithNothingToReadSaysNothingIsComing()
+    {
+      HomeViewModel home = new HomeViewModel();
+      TaskCompletionSource said = new TaskCompletionSource();
+      home.LibraryReady += delegate { said.TrySetResult(); };
+
+      await home.RefreshAsync();
+
+      Assert.That(said.Task.IsCompleted, Is.True,
+          "without a server there is no reading to wait for, and saying so is what keeps the wake from waiting");
+    }
   }
 }

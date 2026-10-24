@@ -979,6 +979,9 @@ namespace MediaPortal.Frontend.ViewModels
       }
 
       OnPropertyChanged(nameof(HasContent));
+
+      // The wall the viewer came for is up, which is the answer the wake waits for before it steps aside.
+      LibraryReady?.Invoke();
     }
 
     /// <summary>
@@ -1524,6 +1527,35 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
+    /// Whether the shelves standing here were read under the eyes of the person the room is watching as now,
+    /// which is what lets a library screen opened under a wake that read the server already keep its answers
+    /// instead of asking for them a second time. A read whose owner has moved since is no read at all: what a
+    /// person is shown, and what is kept out of their lists, both hang on who was asking - so this answers no
+    /// as soon as the name the read was made under is not the name standing here.
+    /// </summary>
+    public bool ReadUnderThisViewer
+    {
+      get
+      {
+        // Nobody signed in is an empty name, not an unknown one: a reading made for an open house is a reading
+        // made for the whole household, and it is good for every one of them until a name moves in.
+        return _readUnderOwner != null
+            && string.Equals(_readUnderOwner, Settings.SkinSettingsBase.FileOwner ?? "", StringComparison.Ordinal);
+      }
+    }
+
+    private string? _readUnderOwner;
+
+    /// <summary>
+    /// Said once the shelves this screen shows are full: the menu's numbers are in, and the wall of the entry it
+    /// opens on is read and standing. The wake listens to this - it asks for the reading under its animation and
+    /// then holds its ring until that reading answers, which is the only way the library takes the window in the
+    /// beat after the ring has left it instead of a second and a half later. A read that ended in a complaint
+    /// says it too: after a refusal there is nothing left to wait for either.
+    /// </summary>
+    public event Action? LibraryReady;
+
+    /// <summary>
     /// Reads the server again: what it is, which aspects it has, and then how many items each aspect holds.
     /// </summary>
     [RelayCommand]
@@ -1532,6 +1564,8 @@ namespace MediaPortal.Frontend.ViewModels
       if (_client == null)
       {
         Status = "No server configured";
+        // Nothing is on its way, so nobody standing at the wake should wait for something that will not come.
+        LibraryReady?.Invoke();
         return;
       }
 
@@ -1571,6 +1605,12 @@ namespace MediaPortal.Frontend.ViewModels
           return;
 
         Status = "Reading " + _client.BaseUrl;
+
+        // The eyes this reading is being made under, written down before the first question goes out: the
+        // screen opened under it, and the household's change of eyes, both ask this before they send a read
+        // of their own after it. A run a newer press replaced says nothing about anybody - the newer one
+        // answers for itself.
+        _readUnderOwner = Settings.SkinSettingsBase.FileOwner ?? "";
 
         // Gone before the new numbers arrive. Rows of the previous server sitting under the name of the current
         // one would be the one thing on this screen that lies on its own.
@@ -1644,6 +1684,13 @@ namespace MediaPortal.Frontend.ViewModels
           IsBusy = false;
         }
         cancellation.Dispose();
+
+        // The wake's signal, for every read that never reaches a wall: a server that refused, a menu with
+        // nothing in it - after either there is nothing left to wait for, and the wake should not sit out its
+        // patience finding that out. Where a wall IS being read the wall itself says the word, a few tens of
+        // milliseconds later, so that the home screen is never opened on a wall still on its way in.
+        if (_contentLoadCancellation == null)
+          LibraryReady?.Invoke();
       }
     }
 

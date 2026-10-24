@@ -31,7 +31,7 @@
         -->
         <Panel Width="64" Height="64">
           <Border Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" />
-          <Image Source="{Binding Artwork, Converter={StaticResource artwork}}"
+          <Image Source="{Binding Artwork, Converter={StaticResource artwork}, ConverterParameter=tile}"
                  Stretch="Uniform"
                  Width="64"
                  Height="64" />
@@ -70,7 +70,7 @@
         <StackPanel Spacing="7">
           <Panel Width="208" Height="300">
             <Border Background="{DynamicResource ScreenBackgroundBrush}" />
-            <Image Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance}}" Stretch="Uniform" />
+            <Image Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance}, ConverterParameter=tile}" Stretch="Uniform" />
           </Panel>
           <TextBlock Text="{Binding SeenMark}"
                      IsVisible="{Binding WatchFlagsShown}"
@@ -98,7 +98,7 @@
         <StackPanel Spacing="9">
           <Panel Width="272" Height="392">
             <Border Background="{DynamicResource ScreenBackgroundBrush}" />
-            <Image Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance}}" Stretch="Uniform" />
+            <Image Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance}, ConverterParameter=tile}" Stretch="Uniform" />
           </Panel>
           <TextBlock Text="{Binding SeenMark}"
                      IsVisible="{Binding WatchFlagsShown}"

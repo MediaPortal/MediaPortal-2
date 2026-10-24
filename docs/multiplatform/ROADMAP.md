@@ -5769,6 +5769,136 @@ y 1124 where the dialog ends at 973, so 151 px of air lie between them. The knob
 571-791, knob at 753-786); the filling runs from the foot upwards in the skin's accent colour
 (R0 G149 B146). `1205/1205` frontend tests and `24/24` window tests green.
 
+### cx. The animation reads the library, and the first key walks the menu
+
+Two complaints about the way in: the first key press after the machine woke did nothing, and the home
+screen stood half-built for a moment after the animation had ended. Both were measured on a shown
+screen rather than guessed at, and both came from the same corner.
+
+The hitch was the reading itself. The library was only asked for by `HomeView.OnScreenActivated`, which
+is the moment the animation is already over: the read took 941 ms to the menu and the sections and the
+wall 273 ms more, all of it under the viewer's eyes. So the wake says the word instead -
+`StartupViewModel.WarmLibraryRequested`, raised by `AskForTheLibrary()` from `WaitThenFinishAsync()`
+(whose wait is the animation's own seconds) and from `CheckAsync()` once the four numbers were accepted -
+and `App.WarmLibraryOnce()` reads the library there. Nothing asks twice: the home screen keeps its
+answers when `HomeViewModel.ReadUnderThisViewer` says the shelves were already read under the person
+standing here (or are being read under them now), and so does the household's change of eyes, which
+until now fired a read of its own behind the wake's - that one measured 1788 ms and cancelled the
+reading that had already brought the answers. Measured on the shown screen: the read starts while the
+ring turns, the menu and sections stand 297 ms later and its wall 49 ms after that, all of it before
+the home is activated; the first heading of the wall appears 5 ms after the wake steps out, where it
+had been 1214 ms after it before.
+
+The dead key was the focus. The wake holds the focus, and the read the screen asked for emptied the
+menu and filled it again - the row standing under the focus went with the list it stood in, Avalonia
+answered by putting the focus on the window, and the next arrow was spent walking back into the window
+instead of along the menu. Live, before the fix: focus on `ShellWindow` when the keys were pressed, the
+first one landing on the first row and only the second moving anywhere. So the screen takes its menu
+back whenever a reading left nothing but the window standing on the screen
+(`HomeView.TakeTheMenuBackIfTheRebuildThrewItOut`, asked on the `MenuRebuilt` the read raises), and a
+row stays stood on. Live, after: a row holds the focus when the home appears (y 434) and the first
+arrow moves it (y 611, then on along the rail as the wall follows each entry).
+
+Four tests keep both: `TestStartup.TheLibraryIsReadUnderTheWakesAnimation` and
+`.AWakeGivenItsNumbersReadsTheLibraryOnceBeforeItOpens` on the reading's moment and its being asked
+once, `TestHomeWindow.AScreenOpenedUnderAReadingAlreadyMadeForThisViewerKeepsItsAnswers` on the screen
+not asking a second time (and asking when the name did change), and
+`.TheMenuStandsBackOnItsOwnAfterTheServerHasReadAgain` on the focus - which was checked to fail with
+the new call taken back out, the focus then standing on nobody. Frontend suite 1209 tests green.
+
+### cy. The wake keeps the animation's seconds and nobody hangs the skin twice
+
+The complaint after `cx.` was honest: the animation felt longer and the wait after it was exactly as long as it
+had been. Measured on the shown screen, both halves were true, and neither was the reading's fault.
+
+The animation felt longer because two readings were being made at a start. The machine reads its library as soon
+as it has a server, and the wake - which by then had decided who was watching but had not said it out loud -
+asked for another one under that person's name; the second cancelled the first and the ring paid for both, 557 ms
+of a beat lost in one run. So the wake's ask is the only ask now: `App` listens for `WarmLibraryRequested` and
+reads on the spot, but not before the eyes have been checked, and a reading that stands was made under other eyes
+is read again rather than stepped out on, because what a restricted person may be shown is not what the whole
+household may be shown. Measured: one reading, 246 ms, its answers standing half a second into the ring's turn.
+
+The wait after the animation was two numbers nobody had looked at. The wake's own seconds were four while the
+ring's turn is two and a half, so the wallpaper stood alone for a second and a half for nothing; and the answer
+hung the skin anew - `FrontendTheme.Reapply`, 586 ms of it - over a name that was already the name standing
+there, because the machine opens on the person it remembers and that is almost every start. So the wake's floor
+is the animation's now, `StartupViewModel.WAKE_SECONDS`, the ring's turn and its way out, shared with the screen
+that draws the ring rather than counted twice; and a name that has not moved in leaves the skin where it hangs.
+What may lengthen the wake past its turn is the library still reading, and only up to `ReadPatience`, after which
+a silent server is a complaint on the library screen instead of a television parked on its wake. Measured: the
+ring stood 2.68 s and the library took the window 206 ms later with its wall already up, where the answer had
+taken 777 to 855 ms to reach the screen and a further read of the shelves was filling itself in after that.
+
+Six tests keep this: `TestStartup.AWakeWhoseShelfFillsLateHoldsItsScreenForIt`,
+`.AWakeIsNotWeldedShutByAShelfThatStaysEmpty` and `.TheWakesOwnSecondsAreTheRingsTurn` on the wake's wait,
+`TestHomeViewModel.TheWakeIsToldWhenTheWallStands`, `.AReadThatEndedInAComplaintStillSaysSo` and
+`.AScreenWithNothingToReadSaysNothingIsComing` on the word the wake listens for - which is said by the wall
+going up, not by the read returning, so the home screen is never opened on a wall still on its way in.
+
+### cz. Covers are decoded the width they are drawn at, and a backdrop is asked for once
+
+Walking from Videos to Series and back was measured with a sixteen millisecond beat watcher over the dispatcher,
+a wall hand-over stamped with what each of its three parts cost, and every picture decode timed - all of it read
+out through the log lines the run wrote, then removed again. The baseline over ten hand-overs on a 3440x1440
+window and the real household server: 154 decodes and 3506 ms of them in one two second beat, worst gap between
+two beats 210 to 510 ms against an idle mean gap of 24 ms, which is the Windows timer's quantum and not a stall.
+
+Three numbers explained that, in order of what they cost:
+
+- **A cover was decoded at the size the library holds it.** A poster from the fanart cache is a 2000x3000 scan,
+  twenty-four megabytes of pixels once decoded, seventy to ninety milliseconds of the thread that draws - and a
+  wall realises seventeen to nineteen covers in one beat, so every step along the rail decoded a wall again. The
+  decoded pictures could not hide either: one whole scan is larger than the artwork cache's entire budget, so
+  each cover pushed the previous wall's covers out. The templates say what they need now - `ConverterParameter=wall`
+  on the wall's covers, six hundred and forty pixels because the two by two at a band's head is drawn five hundred
+  and seventy-three across and the focus morph steps a tenth nearer, and `ConverterParameter=tile` on the pictures
+  screen's rows and tiles - which leaves nineteen decodes and 476 ms for a whole run of ten hand-overs, and none
+  at all once both walls have been seen.
+- **The backdrop was asked for again on every hand-over, and could not be remembered.** A screen wears one picture
+  behind everything, but the binding is re-evaluated every time a wall is handed over, and each of those asked for
+  the 3812x2144 scan to be pulled out of the file anew: 76 to 93 ms per hand-over, twice over when a viewer
+  alternates. Asking for it at a smaller width was tried and measured *slower* (a JPEG decoder hands out halves
+  and quarters for free and resamples anything else by hand - 106 ms at two and a half thousand pixels instead of
+  80 at the full scan), so the answer is the picture instead: `SkinFanartConverter` keeps the one backdrop it has
+  decoded, and `ArtworkConverter.Hold` no longer remembers a picture too large for the whole budget, because such
+  an entry threw every cover of the standing wall out on its way in and was thrown out itself by the next picture
+  asked for. That second half was the reason the covers kept needing their seventy milliseconds back.
+- **A blurred backdrop was blurred out of a whole scan.** Skia will hand out a quarter of a picture by itself, and
+  the sheet a blur works on is a third of the drawn size anyway, so the quarter is the nearest step above it: the
+  blur's own pixels are unchanged and a quarter of the scan is read out. This one is off the drawing thread
+  already, so it is work saved rather than a hitch, and it belongs to whoever turns the fanart blur dial up.
+
+The budget the cache works off went from eight to sixteen megapixels once the poison was out, sized by what a wall
+needs rather than by whole scans: a wall cover is six hundred and fourteen thousand pixels decoded, so twenty-six
+of them are held, which is a wall and a bit.
+
+What this leaves, measured and not yet touched: the wall's own fade waits two hundred and twenty milliseconds
+before the new wall is put up (`fade 219 to 234 ms` in every hand-over of every run, and nine to fifty when the
+wait was switched off by an environment variable for the measurement), the half second of settling before the
+reading even starts, and the two hundred and eighty to three hundred ninety-seven millisecond gap that a wall's
+realisation still costs while `RaiseWall` fires three or four times per hand-over because the bands are put on one
+by one. Once both walls are warm the beats between hand-overs sit at 23 ms mean and 43 to 130 ms worst, which is
+the timer again; the hitch that is left is the hand-over itself.
+
+Two tests keep the first of these: `TestCoversDecodeAtTheirTileSize.EveryCoverADrawersLaysOutNamesTheWidthItNeeds`
+reads the templates - home, pictures screen, and both skins' - and names any cover asked for without a width,
+because nothing at run time would notice, and `.TheWallCoversAskForTheWidthTheWallDrawsThemAt` pins the wall to
+its own number.
+
+The clean suite afterwards brought four screens up failing - `TestMediaBrowserTiles.ABannerShelfShowsBannersAndNot
+ResizedPosters`, `.ACoverWearsThePosterEvenWhenTheGridWearsBanners`, `.TheWatchedCornersObeyTheGridSetting` and
+`TestTheRowAListStandsOnWearsTheSkinsColour.TheColourRowMovesTheRowAListStandsOn` - and they failed alone, in a
+group, and with this phase's changes stashed away, which put the blame on `cx.` rather than here. The cause was
+the name being read before the palette: on a development machine `client.json` holds whoever the house watched as
+last, and a name redirects the skin settings to that person's own file, so a test that had just written
+`skin-nereus.json` in a folder of its own was read out of `skin-nereus-gerrit.json` instead - a stranger's
+answers, and a screen accused of being wrong. Every fixture already isolates the files it saves; the
+application's own start was the one reader outside that rule, and it reads while the application object is made,
+before any fixture of a test's own has had its word. So the isolation is said once for a whole run, in
+`Tests.Frontend.IsolatedMachineSettings`, which points `MP2_CLIENT_FILE` at an empty file of the run's own unless
+a caller named one - and the four screens read what they wrote again. The suite whole: 1217 tests, none failing.
+
 ## What cannot be verified without the user
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library
 import. These need hardware and judgement that are not in this environment, and they are batched into

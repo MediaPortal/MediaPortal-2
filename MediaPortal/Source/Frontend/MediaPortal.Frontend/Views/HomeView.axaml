@@ -457,8 +457,15 @@
                                                     HighlightEnabled="False"
                                                     ShadowEnabled="False"
                                                     acrylic:AcrylicBackdrop.IsExcludedFromCapture="True"/>
+                            <!-- The cover, decoded the width the wall draws it at. A poster out of the fanart cache
+                                 is a 2000x3000 scan, and a wall realises its seventeen to nineteen covers in one
+                                 beat: decoded whole, that is a twenty-four megabyte allocation per cover on the
+                                 thread that draws, and the picture cache cannot hold a wall of them, so every step
+                                 along the menu decoded the whole wall again. Six hundred and forty pixels is the
+                                 widest place a cover has on a band - the two by two at its head - with the room the
+                                 focus morph steps into; see ArtworkConverter.WALL_DECODE_WIDTH for the arithmetic. -->
                             <Image Classes="home-tile-art"
-                                   Source="{Binding Title.Artwork, Converter={x:Static views:ArtworkConverter.Instance}}"
+                                   Source="{Binding Title.Artwork, Converter={x:Static views:ArtworkConverter.Instance}, ConverterParameter=wall}"
                                    Stretch="UniformToFill"
                                    IsVisible="{Binding IsTitle}"/>
                             <Border Classes="home-tile-caption"

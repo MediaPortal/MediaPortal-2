@@ -216,6 +216,16 @@ namespace MediaPortal.Frontend
 
     public override void OnFrameworkInitializationCompleted()
     {
+      // The person this machine watches as belongs on the skin before the palette goes on: a name owns the
+      // skin's answers - its accent, its pictures, the corner buttons that person is shown - and they are read
+      // out of that name's own file. Hanging the skin first under nobody and again under the name half a
+      // second later costs a second of nothing and lets the first screens draw themselves in colours that are
+      // not the room's. The wake still writes this name when it walks somebody in; what it cannot do is make
+      // the screens already drawn forget the colours they resolved.
+      string watchingAtHome = Settings.ClientSettings.Load(null, out _).RememberedViewer;
+      if (watchingAtHome.Length > 0)
+        Settings.SkinSettingsBase.FileOwner = watchingAtHome;
+
       // The palette goes on before a single screen exists. Afterwards is too late: a screen that has already drawn
       // keeps the brushes it resolved, so half of it would stay in the old colours and the half that changed would
       // look like a bug in the new one. SelectedName is what makes MP2_THEME work for a device that was started with
@@ -439,7 +449,11 @@ namespace MediaPortal.Frontend
           // again. And the home's corner buttons are hung or taken down for whoever is standing there now -
           // the reference's restricted user never saw the cog, and the grown-up who switches in finds it
           // back without a restart.
-          _ = _home.RefreshAsync();
+          // Only eyes nobody has read under yet send a read of their own: the wake asks for the library under
+          // its animation, and a second run behind that one would cancel it and throw the answers it already
+          // brought out of the menu and the wall with it.
+          if (!_home.ReadUnderThisViewer)
+            _ = _home.RefreshAsync();
           _homeView?.ReapplyScreenGates();
         };
         StartIdleWatch();
@@ -856,6 +870,41 @@ namespace MediaPortal.Frontend
     /// </summary>
     private Workflow.WorkflowFrame StartupFrame(bool switching = false)
     {
+      // What the wake waits for beyond the ring's own turn: the shelves standing under the eyes it is about to
+      // hand the television to. The wake asks for the reading itself (WarmLibraryRequested below) and holds its
+      // animation until that reading answers, so the library takes the window in the beat after the ring has
+      // left it rather than a second and a half after. The ask opens the gate: a reading that finished before
+      // the wake knew who watches was made under other eyes, and what those eyes were shown is not this
+      // wake's answer - a person with restrictions is not served a wall read for the whole house.
+      TaskCompletionSource shelf = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+      bool asked = false;
+      void LibraryStood()
+      {
+        if (!asked || _home.IsBusy)
+          return;
+        if (!_home.ReadUnderThisViewer)
+        {
+          _ = _home.RefreshAsync();
+          return;
+        }
+
+        _home.LibraryReady -= LibraryStood;
+        shelf.TrySetResult();
+      }
+      void AsksForTheShelf()
+      {
+        asked = true;
+        if (_home.IsBusy)
+          return;
+        if (_home.ReadUnderThisViewer)
+        {
+          LibraryStood();
+          return;
+        }
+
+        _ = _home.RefreshAsync();
+      }
+      _home.LibraryReady += LibraryStood;
       StartupViewModel viewModel = new StartupViewModel(
           () => _home.Client,
           async delegate (string name, string pin)
@@ -877,8 +926,12 @@ namespace MediaPortal.Frontend
           null,
           null,
           () => _home.Client,
-          _viewer);
+          _viewer,
+          () => shelf.Task);
       viewModel.ForSwitching = switching;
+      // The reading of the library belongs to the animation, not to the home screen: the wake says the word
+      // as soon as it knows who is watching, and the answer arrives while the ring is still turning.
+      viewModel.WarmLibraryRequested += AsksForTheShelf;
       // The wake's answer replaces the wake; the switch's answer pops back over the library, and only
       // the sign-out reaches past both - which is why they are separate continuations of one screen.
       viewModel.Finished += switching ? FinishSwitch : FinishStartup;
@@ -1009,8 +1062,16 @@ namespace MediaPortal.Frontend
     {
       if (string.IsNullOrEmpty(name))
         name = Settings.ClientSettings.Load(null, out _).RememberedViewer;
+
+      // The skin's answers belong to the name the room watches as: its colours, its pictures, the corner
+      // buttons that person is shown. So a name moving in means hanging the skin anew - half a second of it,
+      // measured on the shown screen. A name that was already standing there is another matter: the machine
+      // opens on the person it remembers, which is the way almost every start goes, and re-hanging the skin
+      // over the same name throws a second of nothing away for no answer at all.
+      string standing = Settings.SkinSettingsBase.FileOwner ?? "";
       Settings.SkinSettingsBase.FileOwner = name ?? "";
-      if (!string.IsNullOrEmpty(name))
+      if (!string.IsNullOrEmpty(name)
+          && !string.Equals(standing, name, StringComparison.Ordinal))
         Theming.FrontendTheme.Reapply(Application.Current!);
 
       _workflow.ReplaceCurrent(HomeFrame());
