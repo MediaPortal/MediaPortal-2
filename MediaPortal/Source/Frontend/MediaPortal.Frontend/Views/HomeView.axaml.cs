@@ -410,6 +410,25 @@ namespace MediaPortal.Frontend.Views
               BeginRestingPress(args.GetPosition(menuList));
           },
           RoutingStrategies.Tunnel);
+
+      // A tile picked with the mouse is the reference's explicitly chosen tile and is answered at once; the settling
+      // stays on the walk, where it was always meant to keep the pane from being refilled for every tile passed
+      // over. Bubble, because Avalonia selects on the press: by the time this arrives the picked tile is the
+      // selected one, which is the tile the model has to answer for.
+      menuList.AddHandler(PointerPressedEvent,
+          delegate (object? sender, PointerPressedEventArgs args)
+          {
+            if (!_home.IsNereusHome
+                || args.Pointer.Type != PointerType.Mouse
+                || !args.Properties.IsLeftButtonPressed)
+              return;
+
+            _home.ChooseEntryNow();
+          },
+          // Handled events too: the tile's own ListBoxItem marks the press handled once it has selected itself,
+          // and a bubble that stops there never reaches the rail.
+          RoutingStrategies.Bubble,
+          handledEventsToo: true);
       menuList.AddHandler(PointerMovedEvent,
           delegate (object? sender, PointerEventArgs args)
           {

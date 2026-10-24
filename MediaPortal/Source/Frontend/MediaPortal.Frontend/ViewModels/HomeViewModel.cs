@@ -54,6 +54,13 @@ namespace MediaPortal.Frontend.ViewModels
     private CancellationTokenSource? _pendingContentSelection;
     private CancellationTokenSource? _contentLoadCancellation;
     private readonly NereusHomeMenuModel _nereusMenu = new NereusHomeMenuModel();
+
+    /// <summary>
+    /// How long the highlight has to stand on one tile before its wall is put up - the reference's own
+    /// <c>HomeMenuModel.UPDATE_DELAY_MS</c>, which is what stopped its pane from being refilled for every tile a
+    /// walker passed over. The reading is not held up by this (see <see cref="QueueContentForSelection"/>); only
+    /// the wall going up is.
+    /// </summary>
     private const int CONTENT_SELECTION_DELAY_MS = 500;
 
     // One run at a time may touch Aspects. Cancelling the older run is not enough for that: a cancelled run
@@ -901,16 +908,38 @@ namespace MediaPortal.Frontend.ViewModels
       await ShowContentAsync(entry, CancellationToken.None);
     }
 
-    private async Task ShowContentAsync(MainMenuEntry? entry, CancellationToken cancellation)
+    private Task ShowContentAsync(MainMenuEntry? entry, CancellationToken cancellation)
+      => ShowContentAsync(entry, cancellation, TimeSpan.Zero);
+
+    /// <summary>
+    /// Reads one entry's wall and puts it up, holding the wall back for <paramref name="settling"/> first.
+    /// </summary>
+    /// <remarks>
+    /// The reading is asked for in the beat the tile was stepped onto, before anything is waited for. The reference
+    /// waited before it read at all (<c>HomeMenuModel.EnqueueUpdate</c>), which suited a skin that would otherwise
+    /// refill its pane for every tile a walker passed over; nothing is hidden by reading here, because the answer
+    /// is only put on the screen when the settling has run. What that leaves out of the wait is the reading itself,
+    /// which on a local server is a few tens of milliseconds per shelf.
+    /// </remarks>
+    private async Task ShowContentAsync(MainMenuEntry? entry, CancellationToken cancellation, TimeSpan settling)
     {
       CancellationTokenSource current = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
       CancellationTokenSource? previous = Interlocked.Exchange(ref _contentLoadCancellation, current);
       previous?.Cancel();
       int generation = Interlocked.Increment(ref _contentGeneration);
 
+      // Read into collections nothing on screen is looking at, so that the settling and the reading run side by
+      // side and the wall can go up whole in the first beat after the settling.
+      var wall = new List<HomeContentGroup>();
+      var rows = new List<HomeRow>();
+      Task reading = ReadWallAsync(entry, generation, current.Token, wall, rows);
+
       try
       {
-        await ShowContentCoreAsync(entry, generation, current.Token);
+        if (settling > TimeSpan.Zero)
+          await Task.Delay(settling, current.Token);
+
+        await ShowContentCoreAsync(entry, generation, current.Token, reading, wall, rows);
       }
       finally
       {
@@ -953,11 +982,11 @@ namespace MediaPortal.Frontend.ViewModels
     /// the view has taken the wall before it down, so what is watched is one picture fading out and its successor
     /// fading up - never a wall being built, and never two walls on the screen at once.
     /// </remarks>
-    private async Task ShowContentCoreAsync(MainMenuEntry? entry, int generation, CancellationToken cancellation)
+    private async Task ShowContentCoreAsync(MainMenuEntry? entry, int generation, CancellationToken cancellation,
+        Task reading, List<HomeContentGroup> wall, List<HomeRow> rows)
     {
-      var wall = new List<HomeContentGroup>();
-      var rows = new List<HomeRow>();
-      await ReadWallAsync(entry, generation, cancellation, wall, rows);
+      // Asked for before the settling started, so this usually waits on an answer that arrived long ago.
+      await reading;
 
       // Somebody walked on while this was being read. The wall it left standing belongs to the entry being looked
       // at now, and this reading has nothing left to say about it.
@@ -976,6 +1005,7 @@ namespace MediaPortal.Frontend.ViewModels
       if (generation != Volatile.Read(ref _contentGeneration) || cancellation.IsCancellationRequested)
         return;
 
+      _paneEntry = entry;
       PutUpWall(wall, rows);
 
       // The reference's home screen never stands on nothing: the walker is put on the first cover the moment the
@@ -1022,8 +1052,6 @@ namespace MediaPortal.Frontend.ViewModels
     private async Task ReadWallAsync(MainMenuEntry? entry, int generation, CancellationToken cancellation,
         List<HomeContentGroup> wall, List<HomeRow> rows)
     {
-      _paneEntry = entry;
-
       if (entry == null)
         return;
 
@@ -1221,8 +1249,7 @@ namespace MediaPortal.Frontend.ViewModels
     {
       try
       {
-        await Task.Delay(CONTENT_SELECTION_DELAY_MS, selection.Token);
-        await ShowContentAsync(entry, selection.Token);
+        await ShowContentAsync(entry, selection.Token, TimeSpan.FromMilliseconds(CONTENT_SELECTION_DELAY_MS));
       }
       catch (OperationCanceledException) when (selection.IsCancellationRequested)
       {
@@ -1295,6 +1322,32 @@ namespace MediaPortal.Frontend.ViewModels
 
       if (!ContentFollowsHighlight && !ReferenceEquals(entry, _paneEntry))
         _ = ShowContentAsync(entry);
+    }
+
+    /// <summary>
+    /// The viewer picked a tile with the mouse: its wall is put up now, without the settling.
+    /// </summary>
+    /// <remarks>
+    /// The reference answered an explicitly chosen tile at once and a tile the highlight had merely moved over
+    /// after its settling (<c>HomeMenuModel.OnSelectedItemChanged</c>: "If touch display is enabled then the item
+    /// was explicitly selected with a click so update the content immediately"). It needed a setting to tell the
+    /// two apart because its menu could not see how it had been moved; a pointer on this rail can be told from a
+    /// walker, and a pointer cannot overshoot - a tile under a cursor is the tile the viewer meant. So the mouse
+    /// is the reference's explicit case, and the settling stays where it always belonged: on the walk.
+    /// The standing wall is not cut in half by this - <see cref="WallHandover"/> waits for the fade the step has
+    /// already started, exactly as it does when the settling runs to its end.
+    /// </remarks>
+    public void ChooseEntryNow()
+    {
+      MainMenuEntry? entry = SelectedEntry;
+      if (entry == null || ReferenceEquals(entry, _paneEntry))
+        return;
+
+      // The settling this pick interrupted was waiting for the same answer; waiting for it as well would put the
+      // wall up a moment after the viewer stopped waiting for it.
+      CancellationTokenSource? pending = Interlocked.Exchange(ref _pendingContentSelection, null);
+      pending?.Cancel();
+      _ = ShowContentAsync(entry);
     }
 
     /// <summary>

@@ -5974,6 +5974,46 @@ application holds it for a moment, which Windows calls "used by another process"
 over that way in the middle of this round's suite without having anything to do with a wall. The clean-up waits the
 handle out. Suite whole: 1218 tests, none failing.
 
+### dc. What a switch is actually waiting for, and the reference's answer that was missing
+
+The guess that a wall's pictures are made too late was tested and is dead, and it died in one run each. Putting the
+light a beat behind the content writes - which is what "build the pictures while the old wall is still leaving"
+means - was measured twice: the beat posted at `DispatcherPriority.Render` runs in the *same* millisecond as the
+content write, because Avalonia's layout pass is not queued between them, and an `UpdateLayout()` written into the
+dark beat costs **0 ms, eight times out of eight**. There is nothing to build early. The 100-430 ms beats stay exactly
+where they were, on the side of the light. Shadows on the wall's twenty-four covers were the next suspect and are no
+suspect at all: `home-tile-shadow` is used by the templates and styled **nowhere** in the source tree, so no cover
+has ever cast one.
+
+So the phases were stamped instead of guessed, and that is what showed where a switch's time really goes. Eight
+hand-overs, every one of them from the step: **500 ms until the settling has run, 31-47 ms of reading, 0 ms of waiting
+for the way down** (which `da.` bought), 31-47 ms for the wall going up. Sum 531-594 ms. Neither the TV server (its
+three shelves answer in well under half a tenth of that) nor the picture of a wall is the wait; the wait is the
+settling, and the settling is the reference's own number - `HomeMenuModel.UPDATE_DELAY_MS = 500`, which kept its pane
+from being refilled for every tile a walker passed over.
+
+Two things came out of that, both the reference's and both missing here. The first is that the reference does not wait
+before it *reads*, only before it *answers*: `EnqueueUpdate` was fair for a skin refilling from disk on its UI thread
+and would only have been a wasted question here. The reading is now asked for in the beat the tile was stepped onto,
+into collections nothing on screen is looking at, and the settling and the reading run side by side; the reveal awaits
+whatever the settling did not cover. Measured: 515-594 ms, and the answer is in hand before the settling ends.
+
+The second is the branch that was simply not ported. `HomeMenuModel.OnSelectedItemChanged` answers an *explicitly
+chosen* entry at once (`UpdateContent`) and only a tile the highlight had moved onto after the settling
+(`EnqueueUpdate`) - and it needed the `EnableTouchDisplay`/`EnableMenuSelection` switch to tell the two apart, because
+its menu could not see how it had been moved. This port delayed every selection. A rail that knows its pointer does
+not need a setting: `HomeView` now hands a mouse press on a tile to `HomeViewModel.ChooseEntryNow()`, which cancels the
+settling the pick interrupted and answers - the standing wall's way down still being waited for by `WallHandover`, so
+nothing is cut in half. Registered with `handledEventsToo`, because the tile's own `ListBoxItem` marks the press
+handled once it has selected itself. Measured with real injected mouse clicks on the shown screen, wall text read back
+over UIA: **a picked tile stands 234-265 ms after the click** against 515-594 ms for a walked one, which is the way
+down and the reveal and nothing else. A pick of the tile that is already standing answers nothing.
+
+`_paneEntry` moved with it: it used to be written when the reading started, which with reading ahead of the settling
+would have named a wall the screen was not showing yet; it is written when the wall goes up.
+
+Suite whole: 1219 tests, none failing.
+
 ## What cannot be verified without the user
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library
 import. These need hardware and judgement that are not in this environment, and they are batched into

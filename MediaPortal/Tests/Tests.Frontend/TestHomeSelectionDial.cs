@@ -172,6 +172,51 @@ namespace Tests.Frontend
       await WaitForPaneAsync(home, second!);
     }
 
+    /// <summary>
+    /// A tile picked with the mouse is the reference's explicitly chosen tile, which it answered at once
+    /// (HomeMenuModel.OnSelectedItemChanged); only the walk that might still be moving waits for its settling.
+    /// Measured on the shown screen: a walked switch stands 515-594 ms after the step, a picked one 234-265 ms
+    /// after the click, which is the way down and nothing else.
+    /// </summary>
+    [AvaloniaTest]
+    public async Task APickedTileAnswersBeforeTheSettlingHasRun()
+    {
+      Application app = RequireApplication();
+      FrontendTheme.Apply(app, "nereus", out _);
+
+      HomeViewModel home = new HomeViewModel();
+      Assert.That(HomeViewModel.WaitsForAPress, Is.False,
+          "the pane has to follow the walk, or there is no settling for a pick to cut short");
+
+      MainMenuEntry? picked = null;
+      foreach (MainMenuEntry entry in home.DisplayMenu)
+      {
+        if (entry.Mp2Action == null || ReferenceEquals(entry, home.SelectedEntry))
+          continue;
+        picked = entry;
+        break;
+      }
+
+      Assert.That(picked, Is.Not.Null, "the menu has to offer a tile the screen is not standing on");
+
+      home.SelectedEntry = picked;
+      home.ChooseEntryNow();
+
+      // Well inside the settling a walk would wait out, so this can only be the pick having answered.
+      DateTime deadline = DateTime.UtcNow.AddMilliseconds(250);
+      while (!ReferenceEquals(home.PaneEntry, picked) && DateTime.UtcNow < deadline)
+        await Task.Delay(10);
+
+      Assert.That(home.PaneEntry, Is.SameAs(picked),
+          "a picked tile is answered at once, not when the settling happens to run out");
+
+      // The settling that was interrupted must not have the last word: it was cancelled, and a wall that arrived
+      // after the answer the viewer took would be a wall they never asked for.
+      await Task.Delay(700);
+      Assert.That(home.PaneEntry, Is.SameAs(picked), "and the cancelled settling does not answer a second time");
+      await WaitForPaneAsync(home, picked!);
+    }
+
     private static async Task WaitForPaneAsync(HomeViewModel home, MainMenuEntry expected)
     {
       DateTime deadline = DateTime.UtcNow.AddSeconds(3);
