@@ -84,6 +84,30 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
     public bool SkipFanArtDownload { get; set; }
 
     /// <summary>
+    /// If <c>true</c>, the pictures lying beside a title on a drive plugged into this machine are copied into
+    /// the fan art cache.
+    /// </summary>
+    /// <remarks>
+    /// The reference asks this of every one of its extractors, together with <see cref="CacheOfflineFanArt"/>.
+    /// The two decide whether the folder a file sits in is walked at all, so a household whose films live on a
+    /// disk in the box - where the walk costs a copy of every picture - can leave it off and have its pictures
+    /// read where they lie. Off is what the reference runs with.
+    /// </remarks>
+    [Setting(SettingScope.Global, false)]
+    public bool CacheLocalFanArt { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, the pictures lying beside a title on a network share are copied into the fan art cache,
+    /// which is what lets a browse answer while that share is asleep.
+    /// </summary>
+    /// <remarks>
+    /// Named after the reference's own setting, which spells the network share "offline" - the share a title is
+    /// cached against is one that might not be there later. On is what the reference runs with.
+    /// </remarks>
+    [Setting(SettingScope.Global, true)]
+    public bool CacheOfflineFanArt { get; set; }
+
+    /// <summary>
     /// Indicates whether a very detailed Nfo[...]MetadataExtractorDebug.log is created.
     /// </summary>
 #if DEBUG

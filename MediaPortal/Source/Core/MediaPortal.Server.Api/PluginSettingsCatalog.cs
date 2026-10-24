@@ -331,12 +331,18 @@ namespace MediaPortal.Server.Api
       // Windows-bound), and because the fields worth asking about are the same two questions the metadata
       // screen already asks of the online scrapers: which details, and how many of them.
       //
+      // The two pictures switches at the bottom of each of them are the reference's own, from the window it
+      // gives every extractor ("Cache FanArt on a local share", "Cache FanArt on a network share"). They are
+      // worth having here for a reason that only shows up when the numbers above are already in place: they are
+      // the switches that decide whether the pictures a media manager filed next to a title are looked at at
+      // all. The four extractors that ran that walk in the reference are built for Windows, so a portable
+      // server without these switches had no path from a film's <c>clearlogo.png</c> to its library.
+      //
       // What is left out of them, and why: the file name lists, the separator and ignore strings (a set of
       // strings is not a question a remote can answer, and every one of them defaults to something that works),
       // the IMDb id pattern (a regular expression typed on a television is a support ticket), the preferred
-      // certification country (it wants a list of countries this server does not own), and the two
-      // search-online/pictures switches (the metadata screen answers those for the household already, and a
-      // second switch for the same wish is how a household ends up with two answers).
+      // certification country (it wants a list of countries this server does not own), and the switch for
+      // searching online (this server has no online scraper, so it would be a question with one answer).
 
       new Section("nfo_movie", "What the .nfo reader takes for films",
           "Beside a film there is often a small .nfo file written by another program. This is what the server "
@@ -352,6 +358,8 @@ namespace MediaPortal.Server.Api
             Count("max_actors", "MaximumActorCount", "Actors kept",
                 "The rest are read and dropped."),
             Count("max_characters", "MaximumCharacterCount", "Characters kept", ""),
+            CacheLocalPictures(),
+            CacheNetworkPictures(),
             DebugLogging("films"),
             Toggle("write_nfo_into_log", "WriteRawNfoFileIntoDebugLog", "Write the file itself into the log",
                 "Only useful while something is being worked out, and only alongside the line above.")
@@ -366,12 +374,15 @@ namespace MediaPortal.Server.Api
             Toggle("include_characters", "IncludeCharacterDetails", "The characters", ""),
             Count("max_actors", "MaximumActorCount", "Actors kept", ""),
             Count("max_characters", "MaximumCharacterCount", "Characters kept", ""),
+            CacheLocalPictures(),
+            CacheNetworkPictures(),
             DebugLogging("series"),
             Toggle("write_nfo_into_log", "WriteRawNfoFileIntoDebugLog", "Write the file itself into the log", "")
           }),
 
       new Section("nfo_audio", "What the .nfo reader takes for music",
-          "What a file beside an album or an artist can tell the library about it.",
+          "What a file beside an album or an artist can tell the library about it. The pictures lying in a "
+          + "music folder are the tag reader's work, so its own section asks about them.",
           "Media library", NFO_AUDIO_SETTINGS,
           new Field[]
           {
@@ -379,6 +390,19 @@ namespace MediaPortal.Server.Api
             Toggle("include_albums", "IncludeAlbumDetails", "The album", ""),
             DebugLogging("music"),
             Toggle("write_nfo_into_log", "WriteRawNfoFileIntoDebugLog", "Write the file itself into the log", "")
+          }),
+
+      // The reader that opens the tags of the music files. In the reference the two questions below belong to
+      // its music extractor; here the music extractor it would name is built for Windows and cannot be loaded,
+      // and the reader that walks an album's folder everywhere else is this one.
+      new Section("audio_tags", "What the music reader keeps from the folders",
+          "Beside the recording, an album's folder often holds its cover, the picture of the disc and the "
+          + "title's logo. This says when those are copied into the server's own folder.",
+          "Media library", AUDIO_TAGS_SETTINGS,
+          new Field[]
+          {
+            CacheLocalPictures(),
+            CacheNetworkPictures()
           }),
     };
 
@@ -391,6 +415,10 @@ namespace MediaPortal.Server.Api
 
     private const string NFO_AUDIO_SETTINGS =
         "MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings.NfoAudioMetadataExtractorSettings";
+
+    /// <summary>The reader of the tags of music files, which is also the one that walks a music folder.</summary>
+    private const string AUDIO_TAGS_SETTINGS =
+        "MediaPortal.Extensions.MetadataExtractors.AudioTagMetadataExtractor.Settings.AudioTagMetadataExtractorSettings";
 
     /// <summary>The open section named <paramref name="key"/>, or <c>null</c> when nothing stands open under it.</summary>
     public static Section Find(string key)
@@ -447,6 +475,34 @@ namespace MediaPortal.Server.Api
     {
       return Toggle("debug_logging", "EnableDebugLogging", "Log what the reader does",
           "Off is what this runs with. For " + subject + " it writes what it reads into the server's log.");
+    }
+
+    /// <summary>
+    /// The switch that asks whether the pictures lying next to a title on a disk in this machine are copied.
+    /// </summary>
+    /// <remarks>
+    /// One builder for three sections, because the question is the same question and a household answers it
+    /// differently for each kind of shelf: films that live on a disk in the box gain nothing from a second copy
+    /// of every picture, while a shelf on a machine that is switched off at night loses its pictures without
+    /// one. A change is seen by the next title the importer walks, not by the ones already walked.
+    /// </remarks>
+    private static Field CacheLocalPictures()
+    {
+      return Toggle("cache_local_fanart", "CacheLocalFanArt",
+          "Copies of the pictures lying beside the files on a disk in this machine",
+          "Off is what this runs with, because the pictures are read where they lie and a copy of all of them "
+          + "only fills the disk the films are already on.");
+    }
+
+    /// <summary>
+    /// The switch that asks whether the pictures lying next to a title on a network share are copied.
+    /// </summary>
+    private static Field CacheNetworkPictures()
+    {
+      return Toggle("cache_network_fanart", "CacheOfflineFanArt",
+          "Copies of the pictures lying beside the files on a share that might be asleep",
+          "On is what this runs with: a shelf on another machine keeps its pictures after that machine is "
+          + "switched off, which is what the copy is for.");
     }
 
     private static Field Choice(string key, string property, string label, string help, Type enumType,

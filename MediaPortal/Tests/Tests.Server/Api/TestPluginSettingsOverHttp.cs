@@ -45,6 +45,7 @@ using MediaPortal.Common.SystemResolver;
 using MediaPortal.Common.Threading;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Backend.MediaLibrary;
+using MediaPortal.Extensions.MetadataExtractors.AudioTagMetadataExtractor.Settings;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Server.Api;
 using Moq;
@@ -108,6 +109,10 @@ namespace Tests.Server.Api
       // API assembly may not know the plugins, and a name is only found among assemblies this process has actually
       // loaded. Saying it here is what the server's plugin system does there.
       TheSidecarReaderIsLoaded();
+
+      // The reader of the tags of the music files is the one that walks an album's folder, so the switches that
+      // say whether it may are named in the catalogue the same way - and are found the same way.
+      Assembly.Load("AudioTagMetadataExtractor");
 
       Mock<ISystemResolver> resolver = new Mock<ISystemResolver>();
       resolver.SetupGet(r => r.SystemType).Returns(SystemType.Server);
@@ -244,6 +249,64 @@ namespace Tests.Server.Api
 
       Assert.That(keys, Does.Contain("fanart"), "how many pictures a title keeps is a household's question");
       Assert.That(keys, Does.Contain("logging"), "the log level is what a support question needs first");
+    }
+
+    [Test]
+    public async Task ThePicturesLyingBesideTheFilesCanBeAskedForPerReader()
+    {
+      StartServer();
+
+      // The two switches decide whether the pictures a media manager filed next to a title are looked at at all.
+      // The reference gives them to every extractor of its own ("Cache FanArt on a local share", "Cache FanArt
+      // on a network share"), and here they stand beside the answers of the reader that walks the folders: the
+      // .nfo reader for films and series, the tag reader for music. Missing them is how a shelf of 1136 films
+      // ended up with 937 clear logos that never once reached the library.
+      foreach (string section in new[] { "nfo_movie", "nfo_series", "audio_tags" })
+      {
+        (HttpStatusCode code, string body) = await Get(_baseUrl + "/api/media/settings/sections/" + section);
+        Assert.That(code, Is.EqualTo(HttpStatusCode.OK), section + ": " + body);
+
+        List<string> fields = new List<string>();
+        foreach (JsonElement field in Read(body).GetProperty("fields").EnumerateArray())
+          fields.Add(field.GetProperty("key").GetString());
+
+        Assert.That(fields, Does.Contain("cache_local_fanart"),
+            "the section \"" + section + "\" offers no switch for the pictures on a disk in this machine");
+        Assert.That(fields, Does.Contain("cache_network_fanart"),
+            "the section \"" + section + "\" offers no switch for the pictures on a share that might be asleep");
+      }
+    }
+
+    [Test]
+    public void ThePicturesOfANetworkShareAreCopiedUntilSomebodySaysOtherwise()
+    {
+      // The defaults are the reference's, and they are worth pinning where the server reads them - the attribute
+      // beside the property is what the settings manager hands a settings object that was never stored, so it is
+      // what a household gets before it has touched anything. The two are not one question turned around: a
+      // share on another machine is copied by default, a disk in this machine is not, and a library of a few
+      // terabytes should not acquire a second copy of every picture by accident.
+      AssertPictureSwitchDefault<NfoMovieMetadataExtractorSettings>("CacheLocalFanArt", false);
+      AssertPictureSwitchDefault<NfoMovieMetadataExtractorSettings>("CacheOfflineFanArt", true);
+      AssertPictureSwitchDefault<NfoSeriesMetadataExtractorSettings>("CacheLocalFanArt", false);
+      AssertPictureSwitchDefault<NfoSeriesMetadataExtractorSettings>("CacheOfflineFanArt", true);
+      AssertPictureSwitchDefault<AudioTagMetadataExtractorSettings>("CacheLocalFanArt", false);
+      AssertPictureSwitchDefault<AudioTagMetadataExtractorSettings>("CacheOfflineFanArt", true);
+    }
+
+    /// <summary>
+    /// The value the settings manager gives the switch <paramref name="property"/> of
+    /// <typeparamref name="TSettings"/> when nothing was ever stored for it.
+    /// </summary>
+    static void AssertPictureSwitchDefault<TSettings>(string property, bool expected)
+    {
+      PropertyInfo info = typeof(TSettings).GetProperty(property);
+      Assert.That(info, Is.Not.Null, typeof(TSettings).Name + " no longer carries \"" + property + "\"");
+
+      SettingAttribute attribute = info.GetCustomAttribute<SettingAttribute>();
+      Assert.That(attribute, Is.Not.Null,
+          typeof(TSettings).Name + "." + property + " has no default to be handed out with");
+      Assert.That(attribute.DefaultValue, Is.EqualTo(expected),
+          typeof(TSettings).Name + "." + property + " changed what a household gets before it has said anything");
     }
 
     [Test]

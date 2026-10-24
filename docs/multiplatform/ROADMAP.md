@@ -6100,6 +6100,89 @@ codec answers, a GIF is not filed under a name that lies about it but becomes a 
 a byte pair too short to carry a signature is not claimed to be a photograph. 177 tests of the fan art and API
 fixtures, none failing; headless host and API build clean.
 
+### df. The switches that decide whether a picture beside a file is looked at
+
+The user asked for the settings next, and was right to: the reference asks about pictures in two places, and the
+port had carried one of them. `ServerSettings.Client\Settings\Configuration\FanArt\` holds seven pages - "Maximum
+number of posters/banners/backdrops/thumbs/clear arts/disc arts/logos" - and those seven have stood in this API as
+the `fanart` section since the section table was written; measured on the running server they answer 1/1/3/1/1/1/1,
+which is `FanArtSettings` and therefore what `FanArtCache` caps a title at. The second group had never been
+carried: every extractor of the reference has its own window with **"Cache FanArt on a local share"** and **"Cache
+FanArt on a network share"** (`ServerMovieMDEBrowseOffline.cs`, `ServerAudioMDEBrowseOffline.cs`, and the series and
+video ones alike), and `MovieFanArtHandler.cs:122` shows what they are for -
+
+```csharp
+shouldCacheLocal = ShouldCacheLocalFanArt(locator.NativeResourcePath,
+    MovieMetadataExtractor.CacheLocalFanArt, MovieMetadataExtractor.CacheOfflineFanArt);
+...
+if (shouldCacheLocal) await ExtractMovieFolderFanArt(...);   // ExtractAllFanArtImages + SaveFolderImagesToCache
+```
+
+- they are not a fine-tuning of an import that happens anyway, they are the import. Which is the reason nobody
+noticed their absence: **the walk they gate was never ported at all.** All four extractors that ran it - film,
+series, video, music - target `net10.0-windows` (TagLib, BassLibraries, OpenCvLib), so the portable server loads
+none of them, and its deployed handlers stored only the bytes an NFO file pointed at. A media manager that had
+filed `clearlogo.png`, `clearart.png` or `disc.png` beside a film saw nothing of it reach the library. Counted in
+this library's folders before the change: 937 clear logos, 904 logos, 777 disc pictures, 708 clear arts among the
+films. Counted in `<data>\FanArt` before the change: Logo 0, ClearArt 0, DiscArt 0, Banner 0.
+
+`BaseFanArtHandler.SaveFolderPicturesAsync` is the walk now, in the common core rather than in a plugin because the
+portable server needs it from two plugins: the folder of a media file, its pictures sorted by the names the
+reference lists per kind, its `ExtraFanArt/` folded into the backdrops, and the file's own name allowed to carry
+pictures (`the-matrix-clearart.png`) when the caller names it. It is called from the film reader per film, from the
+series reader for the show and the season - with the reference's question to the folders themselves about whether
+the folder above an episode is a season's or already the show's, because media managers file both ways - and from
+the music reader, which already walked an album's folder but stopped at the cover. It stops there no longer: the
+disc, the logo and the banner of a release are stored too, because "what is a picture used for" is a question a
+household answers later and throwing pictures away during the import is the one answer that cannot be taken back.
+Albums keep the reference's rename of a poster to a cover, and are filed under both names as before.
+
+The switches are per reader, as the reference has them: `CacheLocalFanArt`/`CacheOfflineFanArt` in
+`NfoMetadataExtractorSettingsBase` (so the film and series sections each carry a pair) and in a new
+`AudioTagMetadataExtractorSettings`, whose section `audio_tags` appears beside the other readers'. Both names and
+both defaults come from the reference - including its word "offline" for a network share, kept because that is the
+reason a copy exists: the share might not be there later. Local off, network on. `ShouldCacheLocalFanArt`, which
+the portable core always had and nothing portable ever called, is what answers them.
+
+Underneath that, a crash inherited from the reference: `FilterPotentialFanArtFilesByNameOrPrefix` ranked every
+match by the index of the name or prefix it matched and fed that rank to `Dictionary.Add`, so a folder holding
+`clearart.png` *and* `the-physician-clearart.png` threw "An item with the same key has already been added" - and
+that shape, a plain name next to a name built from the media file, is what TinyMediaManager leaves behind. Entry
+`de.` worked around the helper in `LocalFanArtSearch`; the helper is what was wrong, and it now keeps a list of
+rank-and-path with names outranking prefixes, so both pictures are two pictures of one kind and the cache's own cap
+is what decides how many of them a title keeps. The test for it says so where it would otherwise be invisible:
+before, that folder lost *every* picture of the title, because the throw was caught one level up and the whole walk
+given up.
+
+Measured on the running server, which is the only proof that counts here: `GET …/settings/sections` grew
+`audio_tags`, and the two switches answered `cache_local_fanart False`, `cache_network_fanart True` - the
+attribute defaults, handed out by the settings manager as designed. This library's shares are local, so
+`PUT …/sections/{nfo_movie,nfo_series,audio_tags}` with `{"values":{"cache_local_fanart":true}}` answered True
+three times, and the warming pass was started. Eighteen minutes into it, with the pass still running:
+
+| kind | before | 18 min in |
+|---|---|---|
+| Logo | 0 | 618 |
+| DiscArt | 0 | 492 |
+| ClearArt | 0 | 455 |
+| Banner | 0 | 537 |
+| Thumbnail | 78 | 581 |
+| FanArt | 988 | 1716 |
+
+and the files themselves are honest: `Logo/Folder.logo.png`, `ClearArt/Folder.clearart.png` and
+`DiscArt/Folder.disc.png` begin `89 50 4E 47`, which is the PNG signature and the alpha channel still being there -
+folder pictures are copied as bytes, which is what entry `de.` established for pictures arriving as bytes and what
+the transparent clear arts of this library need.
+
+Left open, where somebody will find them: the reference also reads a **central artist folder** for a musician's own
+art (`AudioFanArtHandler` walks `<artist>/<name>/` folders reached through an NFO directory), and this reader does
+not; season-prefixed names (`specials-clearart.png`) are not read, only the plain names, said in the method's own
+remarks; and the `.actors` folders beside films and episodes are still not walked, although `SavePersonFolderImages`
+has stood in the core ready for it. 556 tests, none failing - `TestFolderPictureImport` is new with seven (one
+picture per kind by name, pictures named after the file, the extra backdrop folder, an empty folder, an unreadable
+folder, and the rank collision above), `TestPluginSettingsOverHttp` grew the two that pin the switches being
+offered per reader and their defaults being the reference's.
+
 ## What cannot be verified without the user
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library
 import. These need hardware and judgement that are not in this environment, and they are batched into

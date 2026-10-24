@@ -27,10 +27,13 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.Settings;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extractors;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
 using MediaPortal.Common;
@@ -45,6 +48,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private static readonly NfoMovieExtractor MOVIE_EXTRACTOR = new NfoMovieExtractor();
 
     /// <summary>
+    /// Folder within a film's folder that holds further backdrops, as the media managers name it.
+    /// </summary>
+    private const string EXTRA_FANART_FOLDER = "ExtraFanArt/";
+
+    /// <summary>
     /// GUID string for the nfo movie FanArt handler.
     /// </summary>
     public const string FANARTHANDLER_ID_STR = "183DD0B4-C742-46E4-A771-E606165A1CC8";
@@ -53,6 +61,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// Movie FanArt handler GUID.
     /// </summary>
     public static Guid FANARTHANDLER_ID = new Guid(FANARTHANDLER_ID_STR);
+
+    #endregion
+
+    #region Members
+
+    /// <summary>
+    /// The film reader's settings, read once and kept up to date while the server runs.
+    /// </summary>
+    private SettingsChangeWatcher<NfoMovieMetadataExtractorSettings> _settingsWatcher;
 
     #endregion
 
@@ -84,6 +101,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         //Check if loading nfo is needed
         if ((actors?.All(a => IsInCache(a.Item1)) ?? true) && IsInCache(mediaItemId))
           return; //Everything was already saved
+
+        // The pictures a media manager left next to the film come first, and whether they are copied at all is
+        // the two questions the reference asks of every extractor: is the film on a local disk, and did the
+        // household say it wants those copied. A shelf of films without a single .nfo file is common enough
+        // that the walk must not hang off the file being there.
+        if (CachesFolderPictures(mediaItemLocator))
+        {
+          ResourcePath filmDirectory = ResourcePathHelper.Combine(mediaItemLocator.NativeResourcePath, "../");
+          await SaveFolderPicturesAsync(mediaItemLocator.NativeSystemId, filmDirectory, mediaItemId,
+              GetTitle(aspects, mediaItemLocator),
+              ResourcePathHelper.GetFileNameWithoutExtension(mediaItemLocator.NativeResourcePath.ToString())
+                  .ToLowerInvariant(), EXTRA_FANART_FOLDER).ConfigureAwait(false);
+        }
 
         NfoMovieReader movieNfoReader = await MOVIE_EXTRACTOR.TryGetNfoMovieReaderAsync(mediaItemAccessor, true).ConfigureAwait(false);
         if (movieNfoReader != null)
@@ -141,6 +171,58 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           RelationshipExtractorUtils.TryGetMappedLinkedIds(PersonAspect.ROLE_ACTOR, aspects, actorNames.ToList(), out actors);
       }
       return actors;
+    }
+
+    /// <summary>
+    /// Whether the pictures lying next to a film are to be copied into the cache.
+    /// </summary>
+    /// <param name="mediaItemLocator">Where the film stands.</param>
+    /// <returns><c>true</c> when the share the film stands on is one the household has asked to be copied.</returns>
+    /// <remarks>
+    /// This is the question the reference asks before it walks a folder, answered by the two switches the film
+    /// reader carries: one for a disk plugged into this machine, one for a share that might be asleep later.
+    /// </remarks>
+    protected bool CachesFolderPictures(IResourceLocator mediaItemLocator)
+    {
+      NfoMovieMetadataExtractorSettings settings = GetSettings();
+      return ShouldCacheLocalFanArt(mediaItemLocator.NativeResourcePath, settings.CacheLocalFanArt,
+          settings.CacheOfflineFanArt);
+    }
+
+    /// <summary>
+    /// The film reader's settings, watched, so that a switch thrown on the settings screen is seen by the next
+    /// title the importer reaches rather than waiting for the server to come back.
+    /// </summary>
+    protected NfoMovieMetadataExtractorSettings GetSettings()
+    {
+      SettingsChangeWatcher<NfoMovieMetadataExtractorSettings> watcher = _settingsWatcher;
+      if (watcher == null)
+      {
+        watcher = new SettingsChangeWatcher<NfoMovieMetadataExtractorSettings>();
+        SettingsChangeWatcher<NfoMovieMetadataExtractorSettings> existing =
+            Interlocked.CompareExchange(ref _settingsWatcher, watcher, null);
+        if (existing != null)
+        {
+          watcher.Dispose();
+          watcher = existing;
+        }
+      }
+      return watcher.Settings;
+    }
+
+    /// <summary>
+    /// The name written beside the pictures, which is what the film is called rather than what its file is
+    /// called. The cache puts this into the folder's index and the screens show it back.
+    /// </summary>
+    protected static string GetTitle(IDictionary<Guid, IList<MediaItemAspect>> aspects, IResourceLocator locator)
+    {
+      if (MediaItemAspect.TryGetAspect(aspects, MediaAspect.Metadata, out SingleMediaItemAspect media))
+      {
+        string title = media.GetAttributeValue<string>(MediaAspect.ATTR_TITLE);
+        if (!string.IsNullOrEmpty(title))
+          return title;
+      }
+      return ResourcePathHelper.GetFileNameWithoutExtension(locator.NativeResourcePath.ToString());
     }
 
     protected async Task<bool> TrySaveFanArt(IFanArtCache fanArtCache, string fanArtType, string fanArtName, HashSet<byte[]> fanArtData, Guid mediaItemId, string mediaName)

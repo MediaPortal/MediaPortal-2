@@ -37,6 +37,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.Extensions.MetadataExtractors.AudioTagMetadataExtractor;
+using MediaPortal.Extensions.MetadataExtractors.AudioTagMetadataExtractor.Settings;
 using Moq;
 using NUnit.Framework;
 
@@ -98,7 +99,7 @@ namespace Tests.Server.AudioTagMetadataExtractor
           .Returns(new MediaPortal.Common.General.SystemName(IPAddress.Loopback.ToString()));
       ServiceRegistration.Set<ISystemResolver>(resolver.Object);
 
-      _handler = new AudioTagFanArtHandler();
+      _handler = new AlbumArtHandlerWithTheSwitchesOn();
       _albumId = Guid.NewGuid();
     }
 
@@ -304,7 +305,7 @@ namespace Tests.Server.AudioTagMetadataExtractor
       int afterFirst = _cache.Writes.Count;
 
       // A fresh handler is the next warming pass; the cache is what tells it that this album is done.
-      _handler = new AudioTagFanArtHandler();
+      _handler = new AlbumArtHandlerWithTheSwitchesOn();
       await Collect(Guid.NewGuid(), GivenATrack("cover.mp3", "track01.mp3", "Fixture Album", _albumId));
 
       Assert.That(_cache.Writes, Has.Count.EqualTo(afterFirst),
@@ -432,6 +433,26 @@ namespace Tests.Server.AudioTagMetadataExtractor
     #endregion
 
     #region Stand-ins
+
+    /// <summary>
+    /// The music reader's handler with one question answered by hand: whether the pictures lying in an album's
+    /// folder are to be copied.
+    /// </summary>
+    /// <remarks>
+    /// Reading that answer means watching the settings service, which means the message broker, the system state
+    /// and a settings store standing behind it - a whole server for a test that is about which file of a folder
+    /// becomes an album's cover. So the test says what a household would have said (both switches on) and the
+    /// switches themselves are answered where they are read, which
+    /// <see cref="Tests.Server.Api.TestPluginSettingsOverHttp"/> pins. The gate its own question - local share
+    /// against network share - is still walked here, because only the answer is handed over.
+    /// </remarks>
+    private sealed class AlbumArtHandlerWithTheSwitchesOn : AudioTagFanArtHandler
+    {
+      protected override AudioTagMetadataExtractorSettings GetSettings()
+      {
+        return new AudioTagMetadataExtractorSettings { CacheLocalFanArt = true, CacheOfflineFanArt = true };
+      }
+    }
 
     /// <summary>
     /// A fanart cache that keeps its pictures in a folder of this test, in the layout the real cache uses. It

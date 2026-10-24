@@ -29,11 +29,14 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
+using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Services.Imaging;
+using MediaPortal.Extensions.MetadataExtractors.AudioTagMetadataExtractor.Settings;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using TagLib;
 
@@ -103,6 +106,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioTagMetadataExtractor
     /// </remarks>
     private static readonly string[] COVER_TYPES = { FanArtTypes.Cover, FanArtTypes.Poster };
 
+    /// <summary>
+    /// The music reader's settings, read once and kept up to date while the server runs.
+    /// </summary>
+    private SettingsChangeWatcher<AudioTagMetadataExtractorSettings> _settingsWatcher;
+
     #endregion
 
     #region Construction
@@ -114,14 +122,56 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioTagMetadataExtractor
 
     #endregion
 
+    #region Protected methods
+
+    /// <summary>
+    /// Whether the pictures lying in an album's folder are to be copied into the cache.
+    /// </summary>
+    /// <param name="locator">Where one of the album's tracks stands.</param>
+    /// <returns><c>true</c> when the share the track stands on is one the household has asked to be copied.</returns>
+    /// <remarks>
+    /// The same question the reference asks before it walks a folder, answered by the two switches the music
+    /// reader carries: one for a disk plugged into this machine, one for a share that might be asleep later.
+    /// </remarks>
+    protected bool CachesFolderPictures(IResourceLocator locator)
+    {
+      AudioTagMetadataExtractorSettings settings = GetSettings();
+      return ShouldCacheLocalFanArt(locator.NativeResourcePath, settings.CacheLocalFanArt,
+          settings.CacheOfflineFanArt);
+    }
+
+    /// <summary>
+    /// The music reader's settings, watched, so that a switch thrown on the settings screen is seen by the next
+    /// album the importer reaches rather than waiting for the server to come back.
+    /// </summary>
+    protected virtual AudioTagMetadataExtractorSettings GetSettings()
+    {
+      SettingsChangeWatcher<AudioTagMetadataExtractorSettings> watcher = _settingsWatcher;
+      if (watcher == null)
+      {
+        watcher = new SettingsChangeWatcher<AudioTagMetadataExtractorSettings>();
+        SettingsChangeWatcher<AudioTagMetadataExtractorSettings> existing =
+            Interlocked.CompareExchange(ref _settingsWatcher, watcher, null);
+        if (existing != null)
+        {
+          watcher.Dispose();
+          watcher = existing;
+        }
+      }
+      return watcher.Settings;
+    }
+
+    #endregion
+
     #region IMediaFanArtHandler implementation
 
     /// <summary>
-    /// Storing the cover of the album the given track belongs to, unless it is stored already.
+    /// Storing what the album the given track carries and what lies in its folder, unless it is stored already.
     /// </summary>
     /// <param name="mediaItemId">Id of the track the library is asking about.</param>
     /// <param name="aspects">The track's aspects, including the relationship that names its album.</param>
-    /// <returns>A <see cref="Task"/> that completes when the album's cover is in the cache or is known not to exist.</returns>
+    /// <returns>A <see cref="Task"/> that completes when the album's pictures are in the cache or are known not to
+    /// exist.</returns>
     public override async Task CollectFanArtAsync(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
       if (!aspects.ContainsKey(AudioAspect.ASPECT_ID))
@@ -146,8 +196,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioTagMetadataExtractor
         return;
 
       IFanArtCache fanArtCache = ServiceRegistration.Get<IFanArtCache>();
-      if (fanArtCache.GetFanArtFiles(albumMediaItemId, FanArtTypes.Cover).Count > 0)
-        return;
 
       TrackInfo trackInfo = new TrackInfo();
       trackInfo.FromMetadata(aspects);
@@ -156,9 +204,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioTagMetadataExtractor
 
       // The reference's order: what the file carries, and only if it carries nothing, what the folder it lies in
       // carries.
-      await ExtractTagCover(locator, fanArtCache, albumMediaItemId, albumTitle).ConfigureAwait(false);
-      if (fanArtCache.GetFanArtFiles(albumMediaItemId, FanArtTypes.Cover).Count == 0)
-        await ExtractAlbumFolderCover(locator, fanArtCache, albumMediaItemId, albumTitle).ConfigureAwait(false);
+      bool hasCover = fanArtCache.GetFanArtFiles(albumMediaItemId, FanArtTypes.Cover).Count > 0;
+      if (!hasCover)
+      {
+        await ExtractTagCover(locator, fanArtCache, albumMediaItemId, albumTitle).ConfigureAwait(false);
+        hasCover = fanArtCache.GetFanArtFiles(albumMediaItemId, FanArtTypes.Cover).Count > 0;
+      }
+
+      // Whatever else the folder holds - the disc of the release, the title's logo without a background, the
+      // wide banner - is stored whether the cover came out of the file or not, and whether or not a screen
+      // happens to show those today. What a household does with a picture it keeps is its own question; this
+      // server's job is to have it there when the question is asked.
+      if (CachesFolderPictures(locator))
+        await ExtractAlbumFolderCover(locator, fanArtCache, albumMediaItemId, albumTitle, hasCover)
+            .ConfigureAwait(false);
     }
 
     /// <summary>
@@ -217,16 +276,25 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioTagMetadataExtractor
     /// <param name="fanArtCache">The cache the pictures go into.</param>
     /// <param name="albumMediaItemId">Id of the album the pictures belong to.</param>
     /// <param name="albumTitle">The album's name, which is what the cache writes beside the pictures.</param>
+    /// <param name="coverAlreadyStored"><c>true</c> when the front picture is already in the cache - from the
+    /// tag of a file, or from an earlier run - in which case the walk stores everything the folder holds except
+    /// another front picture.</param>
     /// <returns>A <see cref="Task"/> that completes when the folder has been walked.</returns>
     /// <remarks>
     /// The walk is the reference's: the folder the file lies in, unless that folder is one disc of a set - a
     /// folder called <c>CD1</c> holds a disc, while the album's art lies one level up - and whatever it holds
     /// under the names the reference lists for each kind. A poster of an album is called a cover, because that is
-    /// what the reference renames it to once it knows the item is an album. Only the two names a cover is asked
-    /// for by are written; the banner and logo a film shelf wants have nothing to do with music.
+    /// what the reference renames it to once it knows the item is an album, and it is filed under both names so
+    /// that a shelf written for films finds it too.
+    /// <para>
+    /// Every kind the folder names is stored, not only the front picture: a media manager leaves
+    /// <c>disc.png</c>, <c>clearlogo.png</c> and <c>clearart.png</c> in half of the album folders on the shelves
+    /// this was measured on, and whether a household wants a screen to show them is a question it answers for
+    /// itself later. Throwing them away during the import is the one answer that cannot be taken back.
+    /// </para>
     /// </remarks>
     protected virtual async Task ExtractAlbumFolderCover(IResourceLocator locator, IFanArtCache fanArtCache,
-        Guid albumMediaItemId, string albumTitle)
+        Guid albumMediaItemId, string albumTitle, bool coverAlreadyStored = false)
     {
       ResourcePath albumDirectory = ResourcePathHelper.Combine(locator.NativeResourcePath, "../");
       if (IsDiscFolder(albumTitle, albumDirectory.FileName))
@@ -262,7 +330,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioTagMetadataExtractor
 
         foreach (KeyValuePair<string, List<ResourcePath>> typePaths in paths)
         {
-          if (!COVER_TYPES.Contains(typePaths.Key) || typePaths.Value.Count == 0)
+          if (typePaths.Value.Count == 0)
+            continue;
+          if (coverAlreadyStored && COVER_TYPES.Contains(typePaths.Key))
             continue;
           await fanArtCache.TrySaveFanArt(albumMediaItemId, albumTitle, typePaths.Key, typePaths.Value,
               (saveDirectory, path) => TrySaveFolderImage(locator.NativeSystemId, path, saveDirectory))

@@ -145,20 +145,29 @@ namespace MediaPortal.Common.FanArt
     public static List<ResourcePath> FilterPotentialFanArtFilesByNameOrPrefix(IEnumerable<ResourcePath> potentialFanArtFiles,
       IEnumerable<string> filenames, IEnumerable<string> prefixes = null)
     {
-      var result = new Dictionary<int, ResourcePath>();
+      var result = new List<KeyValuePair<int, ResourcePath>>();
       var fileNameList = new List<string>(filenames ?? new string[0]);
       var prefixList = new List<string>(prefixes ?? new string[0]);
 
-      //We want to check for matches by priority not alphabetically, so we add to dictionary where lowest key is highest priority
+      //We want to check for matches by priority not alphabetically, so every match carries the index of the name
+      //or prefix it matched by. A picture matched by a name outranks one matched by a prefix, which is why the
+      //prefixes start counting where the names leave off - the two lists share one ranking now, so a shelf that
+      //holds a "fanart.jpg" next to a "the-matrix-fanart.jpg" is two backdrops rather than a complaint, which
+      //is what the dictionary this used to build turned it into: its key was the rank, and two pictures of the
+      //same rank are the commonest thing a media manager leaves behind.
       foreach (var potentialFanArtFile in potentialFanArtFiles)
       {
         var potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant();
         int fileIndex = fileNameList.IndexOf(potentialFanArtFileNameWithoutExtension);
-        int prefixIndex = prefixList.FindIndex(p => potentialFanArtFileNameWithoutExtension.StartsWith(p));
         if (fileIndex >= 0)
-          result.Add(fileIndex, potentialFanArtFile);
-        else if (prefixIndex >= 0)
-          result.Add(prefixIndex, potentialFanArtFile);
+        {
+          result.Add(new KeyValuePair<int, ResourcePath>(fileIndex, potentialFanArtFile));
+          continue;
+        }
+
+        int prefixIndex = prefixList.FindIndex(p => potentialFanArtFileNameWithoutExtension.StartsWith(p));
+        if (prefixIndex >= 0)
+          result.Add(new KeyValuePair<int, ResourcePath>(fileNameList.Count + prefixIndex, potentialFanArtFile));
       }
       return result.OrderBy(p => p.Key).Select(p => p.Value).ToList();
     }

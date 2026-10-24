@@ -226,6 +226,73 @@ namespace MediaPortal.Common.FanArt
     }
 
     /// <summary>
+    /// Stores every picture lying in the folder of a media file, each under the kind its name asks for.
+    /// </summary>
+    /// <param name="nativeSystemId">System the folder stands on.</param>
+    /// <param name="directory">Folder to walk. A folder that cannot be read is no error, just nothing found.</param>
+    /// <param name="mediaItemId">Item the pictures belong to.</param>
+    /// <param name="title">Name written beside the pictures.</param>
+    /// <param name="mediaFileName">The media file's name without extension, or <c>null</c>. Given, pictures
+    /// named after that file - <c>the-matrix-clearart.png</c> - are taken for its art as well.</param>
+    /// <param name="extraBackdropFolderName">Name of a folder within the folder holding further backdrops, or
+    /// <c>null</c>. The reference reads <c>ExtraFanArt/</c> for film and series shelves.</param>
+    /// <returns>How many pictures the names asked for, before the cache decided how many of a kind to keep.</returns>
+    /// <remarks>
+    /// <para>
+    /// This is the step the reference calls <c>Extract*FolderFanArt</c>. It is here in the common core rather
+    /// than in a plugin because the four extractors that ran it in the reference - film, series, video and
+    /// music - are all built for Windows, so a server that is not Windows never looked at the pictures lying
+    /// beside a title at all. A media manager filing <c>clearlogo.png</c> next to a film then had nothing reach
+    /// the library, however correct the name was.
+    /// </para>
+    /// <para>
+    /// Whether the walk happens is nobody's business here: the caller asks <see cref="ShouldCacheLocalFanArt"/>
+    /// first, which is the question the reference asks, and which a household answers differently for a drive
+    /// plugged into the box and a share on another one.
+    /// </para>
+    /// </remarks>
+    protected async Task<int> SaveFolderPicturesAsync(string nativeSystemId, ResourcePath directory,
+        Guid mediaItemId, string title, string mediaFileName = null, string extraBackdropFolderName = null)
+    {
+      FanArtPathCollection paths = new FanArtPathCollection();
+      try
+      {
+        using (IResourceAccessor accessor = new ResourceLocator(nativeSystemId, directory).CreateAccessor())
+        {
+          if (!(accessor is IFileSystemResourceAccessor folder) || folder.IsFile || !folder.Exists)
+            return 0;
+
+          ICollection<ResourcePath> potential = LocalFanartHelper.GetPotentialFanArtFiles(folder);
+          if (mediaFileName == null)
+            ExtractAllFanArtImages(potential, paths);
+          else
+            ExtractAllFanArtImages(potential, paths, mediaFileName);
+
+          if (extraBackdropFolderName != null && folder.ResourceExists(extraBackdropFolderName))
+            using (IResourceAccessor extra = folder.GetResource(extraBackdropFolderName))
+              if (extra is IFileSystemResourceAccessor extraFolder)
+                paths.AddRange(FanArtTypes.FanArt, LocalFanartHelper.GetPotentialFanArtFiles(extraFolder));
+        }
+      }
+      catch (Exception ex)
+      {
+        Logger.Warn("{0}: Could not read the pictures in '{1}'", ex, _metadata.Name, directory);
+        return 0;
+      }
+
+      int found = 0;
+      foreach (KeyValuePair<string, List<ResourcePath>> typePaths in paths)
+      {
+        if (typePaths.Value.Count == 0)
+          continue;
+        found += typePaths.Value.Count;
+        await SaveFolderImagesToCache(nativeSystemId, typePaths.Value, typePaths.Key, mediaItemId, title)
+            .ConfigureAwait(false);
+      }
+      return found;
+    }
+
+    /// <summary>
     /// Gets all actor folder images and caches them in the <see cref="IFanArtCache"/> service.
     /// </summary>
     /// <param name="mediaItemLocator"><see cref="IResourceLocator>"/> that points to the file.</param>

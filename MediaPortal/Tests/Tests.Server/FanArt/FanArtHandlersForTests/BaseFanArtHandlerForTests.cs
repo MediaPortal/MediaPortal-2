@@ -57,6 +57,13 @@ namespace Tests.Server.FanArt.FanArtHandlersForTests
       return TrySaveFileImage(imageData, saveDirectory, filename, prefix);
     }
 
+    public Task<int> TestSaveFolderPictures(string nativeSystemId, ResourcePath directory, Guid mediaItemId,
+        string title, string mediaFileName = null, string extraBackdropFolderName = null)
+    {
+      return SaveFolderPicturesAsync(nativeSystemId, directory, mediaItemId, title, mediaFileName,
+          extraBackdropFolderName);
+    }
+
     public override Task CollectFanArtAsync(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
       throw new NotImplementedException();
