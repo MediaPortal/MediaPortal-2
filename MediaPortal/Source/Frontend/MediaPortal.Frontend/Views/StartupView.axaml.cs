@@ -57,6 +57,7 @@ namespace MediaPortal.Frontend.Views
     private bool _ringDone;
     private bool _started;
     private StartupViewModel? _model;
+    private readonly Workflow.WorkflowManager? _workflow;
 
     /// <summary>
     /// One turn of the ring: 360° at the wake's 150° a second. The animation is shown for exactly this much
@@ -76,29 +77,21 @@ namespace MediaPortal.Frontend.Views
       halo.RenderTransform = _haloBreath;
       pinCard.RenderTransform = _nudge;
 
-      // Enter on a picked face takes it, like the server list on the connection screen; a double tap is the
-      // same answer for the pointer.
-      othersList.AddHandler(KeyDownEvent,
-          delegate (object? sender, KeyEventArgs args)
-          {
-            if (args.Key != Key.Enter && args.Key != Key.Return)
-              return;
-            if (_model != null && othersList.SelectedItem is StartupViewModel.HouseholdFace picked)
-            {
-              args.Handled = true;
-              _model.PickFace(picked);
-            }
-          },
-          RoutingStrategies.Tunnel);
-      othersList.DoubleTapped += delegate
-      {
-        if (_model != null && othersList.SelectedItem is StartupViewModel.HouseholdFace picked)
-          _model.PickFace(picked);
-      };
-
       // The keys of the wake. They are claimed on the way in, before the focused control hears them: this
       // screen is not a text field, digits belong to the four boxes and the back key belongs to nobody.
       AddHandler(KeyDownEvent, OnStartupKey, RoutingStrategies.Tunnel);
+    }
+
+    /// <summary>
+    /// The wake as the application runs it: the model that decides what is asked, and the workflow the wall of
+    /// faces is raised on. Without a workflow - a wake built for a test, or for the designer - the screen still
+    /// shows the question and the boxes; only the household has nowhere to be asked.
+    /// </summary>
+    public StartupView(StartupViewModel model, Workflow.WorkflowManager? workflow)
+        : this()
+    {
+      _workflow = workflow;
+      DataContext = model;
     }
 
     protected override void OnDataContextChanged(EventArgs e)
@@ -186,15 +179,51 @@ namespace MediaPortal.Frontend.Views
         PaintBoxes();
       else if (e.PropertyName == nameof(StartupViewModel.Switching))
       {
-        // The overlay is a list, so the keyboard goes to the list: its arrows walk the names and Enter takes
-        // the one stood on. The question and the picture take the focus back when it steps aside.
-        if (_model != null && _model.Switching)
-          othersList.Focus();
+        // The household is a dialog the shell raises OVER this screen rather than a panel standing on it, which
+        // is what puts the wake behind it out of focus and lets the frame's glow fall off into a dark room
+        // instead of into the wake's own ring. So the model saying "faces" means this screen asks the question,
+        // and its saying "no faces" means the question is answered and the keys come home.
+        if (_model == null)
+          return;
+
+        if (_model.Switching)
+          AskHousehold();
         else
+        {
+          PutHouseholdAway();
           Focus();
+        }
       }
       else if (e.PropertyName == nameof(StartupViewModel.NeedsPin))
         Focus();
+    }
+
+    /// <summary>
+    /// Raises the wall of faces as the dialog it is. Asked on the next pass of the dispatcher, because the model
+    /// can decide to open the wall while this screen is still being attached to the window, and a workflow asked
+    /// to move over a screen that does not know its own size yet is asked at a ground it cannot photograph.
+    /// </summary>
+    private void AskHousehold()
+    {
+      Workflow.WorkflowManager? workflow = _workflow;
+      if (workflow == null)
+        return;
+
+      Dispatcher.UIThread.Post(delegate
+      {
+        if (_model == null || !_model.Switching || workflow.Current?.StateId == "household")
+          return;
+        workflow.Push(new Workflow.WorkflowFrame("household", _model.Heading, _model));
+      }, DispatcherPriority.Loaded);
+    }
+
+    /// <summary>Takes the wall away if it is still up. Pops only its own stop, so a wake that answered by
+    /// sending the viewer somewhere else never pops somebody else's screen.</summary>
+    private void PutHouseholdAway()
+    {
+      Workflow.WorkflowFrame? current = _workflow?.Current;
+      if (current != null && current.StateId == "household")
+        _workflow?.Pop();
     }
 
     /// <summary>

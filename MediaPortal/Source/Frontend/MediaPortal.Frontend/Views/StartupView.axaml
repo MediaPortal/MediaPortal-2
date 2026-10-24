@@ -1,7 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MediaPortal.Frontend.ViewModels"
-             xmlns:theming="using:MediaPortal.Frontend.Theming"
              x:Class="MediaPortal.Frontend.Views.StartupView"
              x:DataType="vm:StartupViewModel"
              Name="startup"
@@ -11,8 +10,10 @@
     The start of the front end. The household's wallpaper fills the window scaled to fit - nothing is cut,
     the dark around it belongs to the picture - and the wake's ring plays its one turn over it while the
     machine reads. What stands on the picture after that is one of three things: the wake's own words while
-    it waits, the round face with four boxes when a PIN is asked, and the wall of the household's faces when
-    somebody is not who the machine remembered.
+    it waits, and the round face with four boxes when a PIN is asked. The third thing a viewer can put over
+    it is not standing on it at all: the wall of the household's faces is a dialog of its own
+    (UserPickerView), which the shell raises over this screen, throws this screen out of focus for the
+    length of it, and takes away again - the wake is the ground the question is asked over, not the question.
 
     There is no way past the question by key: the back key is swallowed while it stands, because the point
     of the question is that it is answered. Only the wall of faces answers the back key, and it answers it
@@ -182,53 +183,7 @@
         </StackPanel>
       </StackPanel>
     </Panel>
-
-    <!-- The others. Standing on a name picks it - a PIN person takes the boxes, a person without one
-         simply arrives; the row answers like the server list on the connection screen answers. -->
-    <!-- The household, opened by a press on the round picture. It stands on the worn skin's own dialog frame
-         - the same frame the close screen and the notification shelf wear - and it holds nothing but faces:
-         a round picture, the name under it, and nothing else. A press on a face is the whole answer, and the
-         back key leaves the room exactly as it was. -->
-    <Panel Background="#A0000000" IsVisible="{Binding Switching}">
-      <ContentControl HorizontalAlignment="Center" VerticalAlignment="Center"
-                      theming:SkinTemplates.OverlayTemplate="DialogFrameTemplate">
-        <ListBox Name="othersList"
-                 ItemsSource="{Binding Household}"
-                 Background="Transparent" BorderThickness="0"
-                 MinWidth="560" MaxWidth="900" MaxHeight="620">
-          <ListBox.ItemsPanel>
-            <ItemsPanelTemplate>
-              <WrapPanel Orientation="Horizontal" />
-            </ItemsPanelTemplate>
-          </ListBox.ItemsPanel>
-          <ListBox.Styles>
-            <Style Selector="ListBoxItem">
-              <Setter Property="Padding" Value="16,12"/>
-            </Style>
-          </ListBox.Styles>
-          <ListBox.ItemTemplate>
-            <DataTemplate>
-              <StackPanel Spacing="12" Width="176">
-                <Border Width="140" Height="140" CornerRadius="70" ClipToBounds="True"
-                        HorizontalAlignment="Center">
-                  <Panel>
-                    <Image Source="{Binding Picture}" Stretch="UniformToFill"
-                           IsVisible="{Binding HasPicture}"/>
-                    <TextBlock Text="{Binding Initials}"
-                               FontSize="56" FontWeight="SemiBold"
-                               Foreground="#FFFFB066"
-                               HorizontalAlignment="Center" VerticalAlignment="Center"
-                               IsVisible="{Binding !HasPicture}"/>
-                  </Panel>
-                </Border>
-                <TextBlock Text="{Binding Name}"
-                           FontSize="22" TextTrimming="CharacterEllipsis"
-                           TextAlignment="Center" HorizontalAlignment="Center"/>
-              </StackPanel>
-            </DataTemplate>
-          </ListBox.ItemTemplate>
-        </ListBox>
-      </ContentControl>
-    </Panel>
   </Panel>
 </UserControl>
+
+

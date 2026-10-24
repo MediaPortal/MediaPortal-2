@@ -421,5 +421,44 @@ namespace Tests.Frontend
       Assert.That(sink.TryCopyLatest(new byte[64 * 9], 64, 16, 9), Is.False,
           "the sink is still disposed, so a screen gets nothing out of it either way");
     }
+
+    [Test]
+    public void TheFormatAskedOfTheEngineIsTheFormatTheBuffersAre()
+    {
+      // The mistake this guards is invisible in every counter the front end keeps: agree a pixel format with the
+      // engine that its converter cannot deliver at the pitch it was given, and it writes the format it already
+      // had into the buffers instead. The picture is then the film's luma plane read as pixels - grey, with
+      // vertical stripes - while the frame counters climb. So the tag asked for and the width of a pixel in these
+      // buffers are one fact, said in two places, and they have to agree.
+      Assert.That(LibVlcPlayer.WantedChroma, Has.Length.EqualTo(4),
+          "a pixel format tag is four characters, and anything shorter leaves part of the engine's own tag in place");
+      Assert.That(LibVlcPlayer.WantedChroma, Does.EndWith("32"),
+          "the engine is asked for a 32-bit format, because that is what one of these pixels is");
+      Assert.That(new VideoFrameSink().BytesPerPixelValue, Is.EqualTo(4),
+          "and if the buffers ever stop being four bytes a pixel, the format asked for has to change with them");
+    }
+
+    [Test]
+    public void AProbeTellsAGreyPictureFromAColourOne()
+    {
+      VideoFrameSink grey = new VideoFrameSink();
+      Push(grey, 32, 16, 128);
+      grey.SourceFormat = "'I420' offered at 32x16";
+      string greySaid = grey.Probe();
+      Assert.That(greySaid, Does.Contain("32x16"), "the sentence is supposed to name the picture it measured");
+      Assert.That(greySaid, Does.Contain("'I420'"), "and say what the engine claimed it was");
+      Assert.That(greySaid, Does.Contain("|R-B|=0"),
+          "rows of one grey each have no distance between red and blue, which is what this line is for");
+
+      VideoFrameSink colour = new VideoFrameSink();
+      byte[] pixels = new byte[128 * 16];
+      for (int at = 0; at + 3 < pixels.Length; at += 4)
+      {
+        WritePixel(pixels, at, 220, 30, 20);  // every pixel the same saturated blue
+      }
+      Push(colour, 32, 16, 128, pixels);
+      Assert.That(colour.Probe(), Does.Contain("|R-B|").And.Not.Contain("|R-B|=0"),
+          "a blue picture has to come out of the probe as a colour picture, or the probe is worth nothing");
+    }
   }
 }

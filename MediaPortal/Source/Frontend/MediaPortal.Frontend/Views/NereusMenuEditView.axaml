@@ -20,7 +20,9 @@
   -->
   <ContentControl HorizontalAlignment="Center" VerticalAlignment="Center"
                   theming:SkinTemplates.OverlayTemplate="DialogHeadedFrameTemplate">
-    <DockPanel MinWidth="640">
+    <!-- The body of a dialog keeps the screen's data: the frame shows a body under its own data, so a plain
+         {Binding} here would ask the body for the editor's words and find none. -->
+    <DockPanel MinWidth="640" DataContext="{Binding $parent[UserControl].DataContext}">
 
       <!-- Which tile's lists are being arranged. The dialog's own head band carries the heading, so this line
            only names the tile, and only on the two list screens. -->

@@ -1110,8 +1110,23 @@
        the only thing brighter than what it covers. The shell throws that same home out of focus for the length of
        the question - DialogBackdropBlur in the metrics - so what reaches the viewer is shape and colour rather
        than detail, darkened enough that nothing behind the panel competes with the question. See
-       DialogWashBrush in the colours for why this is not the plain scrim. -->
-  <Style Selector="UserControl.nereus-dialog-screen">
+       DialogWashBrush in the colours for why this is not the plain scrim.
+
+       :is(UserControl) and not UserControl, because a dialog screen is never a UserControl off the shelf: it is
+       a view of the front end, a type written below UserControl, and a plain type name in a selector means that
+       type exactly. Written the short way this rule dressed no dialog at all - the wall of faces, the menu
+       editor and the notification shelf each stood over a home that went on washed by nothing - and only a bare
+       UserControl, which no screen ever is, ever got its ground. -->
+  <Style Selector=":is(UserControl).nereus-dialog-screen">
     <Setter Property="Background" Value="{DynamicResource DialogWashBrush}"/>
+  </Style>
+
+  <!-- And the same for what holds the frame: every dialog screen of the front end hands its body to the frame
+       template through one ContentControl filling it, and such a control is measured to the frame it hosts - to
+       the frame's own bounds, not to the halo drawn outside them. Left to clip there, the glow is cut to a
+       rectangle at the panel's edge, which is precisely the difference between a dialog that reads as lit and one
+       that reads as pasted on; the frames say so themselves ("Nothing here clips, which a shadow needs"). -->
+  <Style Selector=":is(UserControl).nereus-dialog-screen > ContentControl">
+    <Setter Property="ClipToBounds" Value="False"/>
   </Style>
 </Styles>

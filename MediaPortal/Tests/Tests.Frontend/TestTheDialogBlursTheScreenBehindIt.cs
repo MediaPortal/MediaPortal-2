@@ -131,6 +131,8 @@ namespace Tests.Frontend
           built = new DialogMarker();
         else if (frame.StateId.StartsWith("film", StringComparison.Ordinal))
           built = new FilmMarker();
+        else if (frame.StateId.StartsWith("still", StringComparison.Ordinal))
+          built = new StillMarker();
         else
           built = new ScreenMarker();
 
@@ -435,6 +437,33 @@ namespace Tests.Frontend
           "the worn skin does ask for a thrown-away ground behind its dialogs");
       Assert.That(BackdropLayer(window).IsVisible, Is.False,
           "and a film is still left as it is, because a dialog over a film is a question about that film");
+      window.Close();
+    }
+
+    /// <summary>
+    /// A screen that wants the whole window but shows a still picture is thrown out of focus behind a question
+    /// like any other ground. Filling the television is not the same wish as moving: the wake at the door wears
+    /// no chrome and stands still, so its photograph is honest, and the dialog of faces asked over it is the one
+    /// case the household looks at every day.
+    /// </summary>
+    [AvaloniaTest]
+    public void AScreenThatFillsTheWindowButStandsStillIsThrownOutOfFocus()
+    {
+      WearTheShippedSkin();
+
+      ShellWindow window = new ShellWindow(new WorkflowManager(), BuildScreen);
+      window.Show();
+      Pump();
+
+      window.Workflow.Push(new WorkflowFrame("still", "Still", new Label()));
+      Assert.That(window.GetVisualDescendants().OfType<StillMarker>().Any(), Is.True,
+          "the ground was built as a screen that wants the whole window and moves nowhere");
+      window.Workflow.Push(new WorkflowFrame("ask", "Ask", new Label()));
+      Pump();
+
+      Assert.That(BackdropLayer(window).IsVisible, Is.True,
+          "a full window that stands still is photographed like any other ground");
+      Assert.That(PhotographOn(window), Is.Not.Null);
 
       window.Close();
     }
@@ -444,8 +473,15 @@ namespace Tests.Frontend
     {
     }
 
-    /// <summary>The marker a film answers with: a screen that wants the whole television to itself.</summary>
-    private sealed class FilmMarker : ContentControl, IFullScreenScreen
+    /// <summary>The marker a film answers with: a screen whose picture is moving image, so a photograph of it
+    /// would be stale before it is drawn. It wants the whole television as well, which is a separate wish.</summary>
+    private sealed class FilmMarker : ContentControl, IFullScreenScreen, IFilmScreen
+    {
+    }
+
+    /// <summary>The marker a screen that fills the window but stands still answers with: the wake at the door
+    /// wears this pair, and its picture is worth taking.</summary>
+    private sealed class StillMarker : ContentControl, IFullScreenScreen
     {
     }
 

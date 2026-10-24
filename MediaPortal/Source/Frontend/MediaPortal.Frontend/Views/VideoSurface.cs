@@ -1,4 +1,4 @@
-/*
+﻿/*
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -64,6 +64,13 @@ namespace MediaPortal.Frontend.Views
     /// should still show each picture as soon as it exists; the copy is skipped entirely when nothing new arrived.
     /// </summary>
     private static readonly TimeSpan PullInterval = TimeSpan.FromMilliseconds(16);
+
+    /// <summary>
+    /// Whether to describe the newest picture in the log every hundredth frame; asked for with MP2_FRAMEPROBE=1.
+    /// </summary>
+    private static readonly bool ProbeWanted =
+        string.Equals(Environment.GetEnvironmentVariable("MP2_FRAMEPROBE"), "1",
+                      StringComparison.Ordinal);
 
     private readonly DispatcherTimer _pull;
 
@@ -270,6 +277,12 @@ namespace MediaPortal.Frontend.Views
       _lastPulled = arrived;
       LastFailure = null;
       FramesDrawn++;
+      if (ProbeWanted && (FramesDrawn == 1 || FramesDrawn % 100 == 0))
+      {
+        // MP2_FRAMEPROBE=1 asks the question a screenshot answers slowly: are the bytes that go to the compositor
+        // a colour picture or a grey one, and were they agreed as the format they were offered in.
+        Console.WriteLine("frame[" + FramesDrawn + "]: " + sink.Probe());
+      }
       return true;
     }
 

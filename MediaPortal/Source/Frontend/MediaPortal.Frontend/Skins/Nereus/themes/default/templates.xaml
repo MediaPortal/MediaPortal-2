@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!--
   Nereus screen templates: how this skin draws the items of the screens that ask.
 
@@ -811,6 +811,7 @@
     </Panel>
   </DataTemplate>
 
+
   <!--
     The playback screen's bar, which is where both of this skin's currently-playing screens put the reading of
     what plays: the words over a flat dark ground at the bottom of the picture, the position under them, and the
@@ -852,7 +853,7 @@
             PAUSE sibling at height 80 - worn here at a bar's height rather than a button's, because a bar has
             nobody behind it to catch a press and so says the state instead of asking for one. Only one of the
             two is ever up: playing wears PLAY, a pause wears PAUSE, and a film that stopped, finished or failed
-            wears neither, which leaves the word beside it to say what the picture cannot.
+            wears neither, which leaves the wordrame per second. beside it to say what the picture cannot.
 
             The bound word only gives the converter something to answer with; the name the skin spells is the
             parameter, exactly as the home tiles spell their IsPlaying mark. A skin without these pictures draws

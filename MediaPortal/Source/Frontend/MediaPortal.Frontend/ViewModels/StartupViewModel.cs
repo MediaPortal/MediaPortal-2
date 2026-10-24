@@ -143,6 +143,12 @@ namespace MediaPortal.Frontend.ViewModels
     public ObservableCollection<HouseholdFace> Household { get; } = new ObservableCollection<HouseholdFace>();
 
     /// <summary>
+    /// The word the wall of faces is asked under. The skin's dialog frame reads its heading off the dialog's own
+    /// body, so the wall names its question here and the shell's trail says the very same word.
+    /// </summary>
+    public string Heading { get { return "Select User"; } }
+
+    /// <summary>
     /// The reading phase: the wake speaks its words itself, and - when nobody has to be asked - holds the
     /// wallpaper for its seconds. The ring keeps turning after this says false, beside the question; only
     /// the words move into the card.

@@ -113,6 +113,15 @@ namespace Tests.Frontend
       return kind == TrackKind.Audio ? CurrentAudioId : CurrentSubtitleId;
     }
 
+    /// <summary>What the fake reports for <see cref="IVideoPlayer.Chapters"/>. Settable so a media can have chapters.</summary>
+    public IReadOnlyList<PlaybackChapter> Chapters { get; set; } = Array.Empty<PlaybackChapter>();
+
+    /// <summary>
+    /// What the fake reports for <see cref="IVideoPlayer.Quality"/>. Null - the default - is a media whose parser
+    /// never answered, which is what most files really are on this engine.
+    /// </summary>
+    public PlaybackQuality? Quality { get; set; }
+
     public bool AttachTo(nint videoTarget)
     {
       Calls.Add("AttachTo:" + videoTarget);

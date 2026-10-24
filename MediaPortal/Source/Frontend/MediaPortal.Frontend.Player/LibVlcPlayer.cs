@@ -77,6 +77,14 @@ namespace MediaPortal.Frontend.Player
     private int _volume = 100;
     private bool _muted;
 
+    // What the parser said about the video track, once it says anything. Null is the answer of a media whose
+    // container never answered, and it is not a failure to report.
+    private PlaybackQuality? _quality;
+
+    // How many chapters were reported to the log for the media that is open now, so that the number is said
+    // once per answer rather than once per poll of a getter the screen keeps asking.
+    private int _chapterCountSaid = -1;
+
     // Where the pictures go, if anywhere: a window handle or a sink, never both. Volatile because the engine's
     // video thread reads it in the frame callbacks while a screen's thread writes it in AttachTo.
     private volatile VideoFrameSink? _frameSink;
@@ -128,6 +136,22 @@ namespace MediaPortal.Frontend.Player
     public string EngineDescription { get; }
 
     /// <summary>
+    /// The pixel format this class agrees to libVLC's pictures in: four bytes a pixel, blue first, one byte spare.
+    /// It is the format <see cref="VideoFrameSink"/> allocates and a screen's surface wants, and it is said once,
+    /// here, because a picture agreed in one shape and delivered in another is a film drawn in grey. See
+    /// <see cref="OnVideoFormat"/> for why it is not "RV24".
+    /// </summary>
+    internal const string WantedChroma = "RV32";
+
+    /// <summary>
+    /// True when MP2_FRAMEPROBE=1 asked for the picture to be described, which also repeats the engine's own log
+    /// on the console: the sentence "a filter to adapt decoder X to display Y is needed" is the only place libVLC
+    /// says what it meant by a format, and a grey film is otherwise only evidence that something is wrong.
+    /// </summary>
+    private static readonly bool ProbeWanted =
+        string.Equals(Environment.GetEnvironmentVariable("MP2_FRAMEPROBE"), "1", StringComparison.Ordinal);
+
+    /// <summary>
     /// Build a player, or say in one sentence why there is none.
     /// </summary>
     /// <param name="player">The player, or null when <paramref name="reason"/> explains the refusal.</param>
@@ -156,6 +180,13 @@ namespace MediaPortal.Frontend.Player
           arguments.Add(extra);
 
         LibVLC libVlc = new LibVLC(arguments.ToArray());
+        if (ProbeWanted)
+        {
+          libVlc.Log += delegate(object? sender, LogEventArgs e)
+          {
+            Console.WriteLine("vlc: " + e.Message);
+          };
+        }
         MediaPlayer mediaPlayer = new MediaPlayer(libVlc);
         player = new LibVlcPlayer(libVlc, mediaPlayer, libVlc.Version);
         return true;
@@ -318,6 +349,8 @@ namespace MediaPortal.Frontend.Player
         // position the last one ended at.
         _lastPositionTimeMs = -1;
         _lastPositionLengthMs = -1;
+        _quality = null;
+        _chapterCountSaid = -1;
       }
 
       try
@@ -333,6 +366,7 @@ namespace MediaPortal.Frontend.Player
           // an answer, and a call that answered false must not leave the state at whatever the last media left.
           return Fail($"libVLC would not accept {location.Describe()}.");
         }
+        ReadQuality(media, location.IsFile);
         return true;
       }
       catch (VLCException ex)
@@ -530,6 +564,134 @@ namespace MediaPortal.Frontend.Player
       }
     }
 
+    public IReadOnlyList<PlaybackChapter> Chapters
+    {
+      get
+      {
+        ChapterDescription[]? descriptions;
+        try
+        {
+          descriptions = _player.FullChapterDescriptions(0);
+        }
+        catch (VLCException)
+        {
+          return Array.Empty<PlaybackChapter>();
+        }
+
+        if (descriptions == null)
+          return Array.Empty<PlaybackChapter>();
+
+        List<PlaybackChapter> chapters = new List<PlaybackChapter>(descriptions.Length);
+        foreach (ChapterDescription description in descriptions)
+        {
+          // A chapter the engine cannot place is not a chapter a line can mark.
+          if (description.TimeOffset < 0)
+            continue;
+          chapters.Add(new PlaybackChapter(description.TimeOffset,
+            string.IsNullOrWhiteSpace(description.Name) ? null : description.Name.Trim()));
+        }
+
+        // Said out loud once per answer, because it is the difference between a line with marks on it and a
+        // line without, and a viewer asking why a film has no chapters deserves an answer in the log rather
+        // than a guess. The getter is asked again while the parser catches up, so it says itself only when the
+        // answer changed.
+        if (_chapterCountSaid != chapters.Count)
+        {
+          _chapterCountSaid = chapters.Count;
+          Console.WriteLine("vlc: the media carries " + chapters.Count + " chapter(s)");
+        }
+        return chapters;
+      }
+    }
+
+    public PlaybackQuality? Quality
+    {
+      get
+      {
+        lock (_gate)
+        {
+          return _quality;
+        }
+      }
+    }
+
+    /// <summary>
+    /// Asks the engine's parser what the video track is, on a thread of the engine's own rather than the one that
+    /// opened the media.
+    /// </summary>
+    /// <remarks>
+    /// A container's track list is a second read of the same file while it plays, which for a network share is work
+    /// nobody should pay for before the first picture. Nothing is claimed that the container does not state: a media
+    /// whose parser stays silent leaves <see cref="Quality"/> null, and a screen then says nothing about a picture
+    /// it was never told the size of.
+    /// </remarks>
+    private void ReadQuality(Media media, bool fromNetwork)
+    {
+      System.Threading.ThreadPool.QueueUserWorkItem(delegate
+      {
+        try
+        {
+          // A media that is playing has usually had its tracks read for itself already, which is the cheap answer.
+          // The parser is only asked when that came back empty, and it is asked the question that matches where
+          // the media is: a local file whose parse is asked of the network is skipped without being read.
+          if (media.ParsedStatus != MediaParsedStatus.Done)
+          {
+            media.Parse(fromNetwork ? MediaParseOptions.ParseNetwork : MediaParseOptions.ParseLocal, 5000)
+                 .GetAwaiter()
+                 .GetResult();
+          }
+
+          MediaTrack[]? tracks = media.Tracks;
+          if (tracks == null)
+            return;
+
+          foreach (MediaTrack track in tracks)
+          {
+            if (track.TrackType != TrackType.Video)
+              continue;
+
+            VideoTrack video = track.Data.Video;
+            if (video.Width == 0 || video.Height == 0)
+              return;
+
+            PlaybackQuality quality = new PlaybackQuality((int)video.Width, (int)video.Height,
+                Fourcc(track.OriginalFourcc), track.Bitrate);
+            lock (_gate)
+            {
+              // Only while this is still the media the player holds; a late answer about the last film would
+              // otherwise decorate the one that replaced it.
+              if (!ReferenceEquals(_media, media))
+                return;
+              _quality = quality;
+            }
+
+            // The other half of what the two chips beside the name of the film are made of. A file whose
+            // container says nothing about its picture gets no line here and no chip on screen.
+            Console.WriteLine("vlc: the container says its picture is " + quality.Width + "x" + quality.Height
+                + (quality.CodecFourcc == null ? "" : " coded '" + quality.CodecFourcc + "'"));
+            return;
+          }
+        }
+        catch (VLCException)
+        {
+          // The parser's silence is an answer: nothing is said about the picture.
+        }
+        catch (ObjectDisposedException)
+        {
+          // The media was released while its tracks were being read, which is what stopping does.
+        }
+      });
+    }
+
+    /// <summary>The four characters a container writes a codec with, out of the number libVLC hands over.</summary>
+    private static string Fourcc(uint fourcc)
+    {
+      char[] chars = new char[4];
+      for (int i = 0; i < 4; i++)
+        chars[i] = (char)((fourcc >> (8 * i)) & 0xFF);
+      return new string(chars).Trim('\0', ' ');
+    }
+
     public bool AttachTo(nint videoTarget)
     {
       if (_frameSink != null)
@@ -661,9 +823,23 @@ namespace MediaPortal.Frontend.Player
     /// libVLC's format callback: agree a pixel format and a size, and say how many buffers it may write at once.
     /// </summary>
     /// <remarks>
-    /// "RV24" is four bytes a pixel with blue first on every platform this runs on, which is the byte order a
-    /// screen's BGRA surface wants; agreeing on that here is what keeps a picture from coming out with its red
-    /// and blue swapped, the most reliable way to make a film look like a fever dream.
+    /// <para>
+    /// <see cref="WantedChroma"/> ("RV32") is four bytes a pixel, blue first, with one byte spare: exactly what
+    /// <see cref="VideoFrameSink"/> allocates and what a screen's BGRA surface is. Agreeing a format is not a
+    /// formality - it is the difference between a film and a rumour of one, because libVLC answers a format it
+    /// cannot produce by writing the one it already had into the memory it was given.
+    /// </para>
+    /// <para>
+    /// "RV24" was asked for here first, and it looked fine: three bytes a pixel in buffers four bytes wide, and
+    /// the stride handed over was the stride of those buffers. What came back was the decoder's own "I420" - the
+    /// hardware decoder needs a converter for either, the converter chain for a 24-bit target at a 32-bit pitch
+    /// quietly did nothing, and the picture in the buffers was a luma plane with two chroma planes behind it.
+    /// Read as pixels that is a film with no colour at all and its own bottom edge smeared into vertical stripes
+    /// across the middle, which is what a viewer describes as "grey, and bad quality" while every counter in the
+    /// front end happily counts hundreds of frames. Measured: a colour frame sampled by
+    /// <see cref="VideoFrameSink.Probe"/> has red and blue tens of levels apart; the picture this mistake
+    /// delivered had them four apart, and B, G and R equal to each other, which is what grey is.
+    /// </para>
     /// </remarks>
     private uint OnVideoFormat(ref IntPtr opaque, IntPtr chroma, ref uint width, ref uint height,
                                ref uint pitches, ref uint lines)
@@ -676,7 +852,11 @@ namespace MediaPortal.Frontend.Player
       if (sink.Allocate((int)width, (int)height, out int stride) == 0)
         return 0;
 
-      WriteFourCC(chroma, 'R', 'V', '2', '4');
+      // What it wanted is worth knowing when a picture looks wrong, so it is remembered before being overruled.
+      sink.SourceFormat = "'" + ReadFourCC(chroma) + "' offered at " + width + "x" + height
+          + ", taken as '" + WantedChroma + "' at stride " + stride;
+
+      WriteFourCC(chroma, WantedChroma);
       pitches = (uint)stride;
       lines = height;
 
@@ -830,12 +1010,35 @@ namespace MediaPortal.Frontend.Player
       sink?.Finish(index);
     }
 
-    private static void WriteFourCC(IntPtr where, char first, char second, char third, char fourth)
+    /// <summary>
+    /// Writes a pixel-format tag - four characters - where libVLC asked to be told one.
+    /// </summary>
+    /// <remarks>
+    /// A tag shorter than four characters would leave the tail of whatever libVLC wrote there standing, which is
+    /// how a format nobody asked for comes back; it is refused rather than padded.
+    /// </remarks>
+    private static void WriteFourCC(IntPtr where, string fourcc)
     {
-      Marshal.WriteByte(where, 0, (byte)first);
-      Marshal.WriteByte(where, 1, (byte)second);
-      Marshal.WriteByte(where, 2, (byte)third);
-      Marshal.WriteByte(where, 3, (byte)fourth);
+      if (fourcc == null || fourcc.Length != 4)
+        throw new ArgumentException("A pixel format tag is four characters, not '" + fourcc + "'.",
+                                    nameof(fourcc));
+
+      for (int at = 0; at < 4; at++)
+        Marshal.WriteByte(where, at, (byte)fourcc[at]);
+    }
+
+    /// <summary>
+    /// Read the four characters of a pixel-format tag libVLC wrote, ignoring any of them that are not letters.
+    /// </summary>
+    private static string ReadFourCC(IntPtr where)
+    {
+      char[] four = new char[4];
+      for (int at = 0; at < 4; at++)
+      {
+        byte b = Marshal.ReadByte(where, at);
+        four[at] = b >= 32 && b < 127 ? (char)b : '?';
+      }
+      return new string(four);
     }
 
     public PlayerStatistics Statistics

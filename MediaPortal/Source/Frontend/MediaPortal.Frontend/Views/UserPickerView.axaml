@@ -1,0 +1,133 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        xmlns:theming="clr-namespace:MediaPortal.Frontend.Theming"
+        x:Class="MediaPortal.Frontend.Views.UserPickerView"
+        x:DataType="vm:StartupViewModel"
+        Name="userPickerView"
+        Classes="nereus-dialog-screen"
+        >
+
+  <!--
+    The household: every face the server keeps, asked of the door. It is a dialog of the same making as the
+    notification shelf and the menu editor - it wears the worn skin's own dialog frame and the dialog ground
+    that washes the screen behind it, and the shell throws that screen out of focus for the length of the
+    question - because who is watching is a question about the wake, not a place the viewer walked to. Laid
+    out inside the wake as a panel it was a picture pasted over a still-sharp screen: the wake's own ring
+    lit the room around the panel, so the frame's white glow read as neither white nor whole, and nothing
+    behind the faces was blurred. See ShellWindow.BlurScreenBehind and UserControl.nereus-dialog-screen.
+
+    It holds nothing but faces: a round picture, the name under it, and nothing else. The person standing
+    there is on the wall too, since a wall one could not answer by staying is no wall; pressing their own
+    face is the answer "stay as before".
+  -->
+
+  <ContentControl HorizontalAlignment="Center" VerticalAlignment="Center" ClipToBounds="False"
+                  theming:SkinTemplates.OverlayTemplate="DialogHeadedFrameTemplate">
+    <!-- The body of a dialog keeps the screen's data: the frame shows a body under its own data, so a plain
+         {Binding} here would ask the body for the household and find none. Every name below still binds to
+         its own face, which is the item's data rather than the screen's. -->
+    <ListBox Name="othersList"
+             DataContext="{Binding $parent[UserControl].DataContext}"
+             ItemsSource="{Binding Household}"
+             Background="Transparent" BorderThickness="0"
+             MinWidth="560" MaxWidth="900" MaxHeight="620">
+      <ListBox.ItemsPanel>
+        <ItemsPanelTemplate>
+          <WrapPanel Orientation="Horizontal" />
+        </ItemsPanelTemplate>
+      </ListBox.ItemsPanel>
+      <ListBox.Styles>
+        <!--
+          A face carries nothing but itself, so the row's furniture stays out entirely: no block of any colour
+          behind a face and no square platform frame around it, neither of which the skin's dialog of pictures
+          ever wore. Setting Background on the item is not enough for that - the platform paints its selection
+          and focus ground on the ContentPresenter INSIDE the item's own template, under the part name its
+          ControlTheme aims at, and those styles outrank anything said out here. So the row is given a template
+          of its own whose presenter carries another name, exactly like the home rail's tiles do: nothing can
+          reach it, and a face stands on the dialog's ground in every state.
+
+          What a face stood on does take is the light around its circle - the very light the wake's own picture
+          wears one screen above, since that is the frame a person is picked with on the start screen.
+        -->
+        <Style Selector="ListBoxItem">
+          <Setter Property="Padding" Value="16,12"/>
+          <Setter Property="FocusAdorner" Value="{x:Null}"/>
+          <Setter Property="Background" Value="Transparent"/>
+          <Setter Property="BorderBrush" Value="Transparent"/>
+          <Setter Property="BorderThickness" Value="0"/>
+          <Setter Property="Foreground" Value="#C2FFFFFF"/>
+          <Setter Property="HorizontalContentAlignment" Value="Center"/>
+          <Setter Property="Template">
+            <ControlTemplate>
+              <ContentPresenter Name="householdFacePresenter"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Content="{TemplateBinding Content}"
+                                ContentTemplate="{TemplateBinding ContentTemplate}"
+                                Padding="{TemplateBinding Padding}"
+                                HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+            </ControlTemplate>
+          </Setter>
+        </Style>
+        <Style Selector="ListBoxItem Border.faceCircle">
+          <Setter Property="BorderBrush" Value="#55E2621B"/>
+          <Setter Property="BorderThickness" Value="3"/>
+        </Style>
+        <!-- The name is white, and stays white. Left to itself it inherits the list row's foreground, which the
+             skin turns into the screen's own black the moment a row is selected - black letters on the dialog's
+             dark grey ground, which is no letter at all. So its colour is said here rather than inherited, with
+             the stood-on name at full white and the resting ones a little way back from it. -->
+        <Style Selector="ListBoxItem TextBlock.faceName">
+          <Setter Property="Foreground" Value="#C2FFFFFF"/>
+        </Style>
+        <Style Selector="ListBoxItem:selected TextBlock.faceName">
+          <Setter Property="Foreground" Value="#FFFFFFFF"/>
+        </Style>
+        <Style Selector="ListBoxItem:focus TextBlock.faceName">
+          <Setter Property="Foreground" Value="#FFFFFFFF"/>
+        </Style>
+        <Style Selector="Window:not(.pointer-resting) ListBoxItem:pointerover TextBlock.faceName">
+          <Setter Property="Foreground" Value="#FFFFFFFF"/>
+        </Style>
+        <Style Selector="ListBoxItem:selected Border.faceCircle">
+          <Setter Property="BorderBrush" Value="#FFFFB066"/>
+          <Setter Property="BorderThickness" Value="4"/>
+        </Style>
+        <Style Selector="ListBoxItem:focus Border.faceCircle">
+          <Setter Property="BorderBrush" Value="#FFFFB066"/>
+          <Setter Property="BorderThickness" Value="4"/>
+        </Style>
+        <Style Selector="Window:not(.pointer-resting) ListBoxItem:pointerover Border.faceCircle">
+          <Setter Property="BorderBrush" Value="#FFFFB066"/>
+          <Setter Property="BorderThickness" Value="4"/>
+        </Style>
+      </ListBox.Styles>
+      <ListBox.ItemTemplate>
+        <DataTemplate x:DataType="vm:StartupViewModel+HouseholdFace">
+          <StackPanel Spacing="12" Width="176">
+            <Border Classes="faceCircle" Width="140" Height="140" CornerRadius="70"
+                    Background="#D80E1319"
+                    HorizontalAlignment="Center">
+              <Border Width="130" Height="130" CornerRadius="65" ClipToBounds="True">
+                <Panel>
+                  <Image Source="{Binding Picture}" Stretch="UniformToFill"
+                         IsVisible="{Binding HasPicture}"/>
+                  <TextBlock Text="{Binding Initials}"
+                             FontSize="56" FontWeight="SemiBold"
+                             Foreground="#FFFFB066"
+                             HorizontalAlignment="Center" VerticalAlignment="Center"
+                             IsVisible="{Binding !HasPicture}"/>
+                </Panel>
+              </Border>
+            </Border>
+            <TextBlock Text="{Binding Name}" Classes="faceName"
+                       FontSize="22" TextTrimming="CharacterEllipsis"
+                       TextAlignment="Center" HorizontalAlignment="Center"/>
+          </StackPanel>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+  </ContentControl>
+</UserControl>

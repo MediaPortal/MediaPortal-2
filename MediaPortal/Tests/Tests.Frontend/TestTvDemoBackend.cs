@@ -556,6 +556,44 @@ namespace Tests.Frontend
       }
     }
 
+    /// <summary>
+    /// The column stays under the cursor while the channels move past it, which is what a grid is: a viewer who
+    /// pressed something at half past eight and walks down to another channel expects to be looking at half past
+    /// eight there, not at wherever that channel's current programme happens to begin. The drift this exists for
+    /// came from re-anchoring on the programme the cursor stood on, so a channel of two-hour films pulled the
+    /// cursor back an hour per step.
+    /// </summary>
+    [Test]
+    public async Task WalkingBetweenChannelsKeepsTheTimeTheViewerStoodAt()
+    {
+      TvBackendSettings settings = DemoOn();
+
+      using (TvGuideViewModel guide = new TvGuideViewModel(TvMediaType.Television,
+          delegate { return settings; }))
+      {
+        await guide.ReloadAsync();
+
+        List<TvGuideBlock> blocks = guide.Rows[0].Blocks;
+        TvGuideBlock standing = blocks[Math.Max(0, blocks.Count / 2)];
+        Assert.That(standing.Program.Start, Is.GreaterThan(DateTimeOffset.Now),
+            "the fixture stands the cursor on something still to come");
+        guide.Press(standing);
+        DateTimeOffset stoodAt = standing.Program.Start;
+
+        for (int step = 1; step < guide.Rows.Count; step++)
+        {
+          guide.MoveRowDown();
+          Assert.That(guide.SelectedBlock, Is.Not.Null, "every demo channel has an evening to stand on");
+          TvProgram at = guide.SelectedBlock!.Program;
+          Assert.That(at.Start, Is.LessThanOrEqualTo(stoodAt),
+              "step " + step + ": " + guide.SelectedRow!.Name + " is stood on at the time the viewer chose");
+          Assert.That(at.Stop, Is.GreaterThan(stoodAt),
+              "step " + step + ": and the programme under the cursor still covers that time, rather than the "
+              + "cursor having slid back to the beginning of a longer film on the way");
+        }
+      }
+    }
+
     [Test]
     public async Task TheWatchingScreenListsTheDemoChannels()
     {

@@ -429,6 +429,21 @@ namespace MediaPortal.Frontend.Views
           : WindowState.Maximized;
     }
 
+    /// <summary>
+    /// Switches between the television and the desktop, which is what the playback screen's full-screen mark
+    /// presses. The saved answer moves with the window, because a viewer who leaves the front end standing over
+    /// the whole television means it - and the settings row reads the same file back.
+    /// </summary>
+    /// <returns>True when the window now fills the television.</returns>
+    public bool ToggleFullScreen()
+    {
+      Settings.ClientSettings settings = Settings.ClientSettings.Load(null, out _);
+      settings.FullScreen = !settings.FullScreen;
+      settings.Save(null, out _);
+      ApplyWindowMode();
+      return settings.FullScreen;
+    }
+
     private void OnClientSettingsChanged(object? sender, EventArgs args)
     {
       ApplyWindowMode();
@@ -756,14 +771,17 @@ namespace MediaPortal.Frontend.Views
     /// the shelves behind them scroll. How far the ground is shrunk is the skin's business, read off its metrics
     /// under <c>DialogBackdropBlur</c>; a skin that names no number - or names less than two - leaves the screen
     /// behind exactly as sharp as it always was, which is what a skin drawing its dialogs over a still background
-    /// wants. A film behind a dialog is never photographed either: every one of its frames is new, so a picture
-    /// of it is stale before it is drawn, and a dialog asked over a film is a question about the film.
+    /// wants. A film behind a dialog is never photographed either: see <see cref="Workflow.IFilmScreen"/>, which
+    /// is the screens whose every frame is new - a picture of one is stale before it is drawn, and a dialog asked
+    /// over a film is a question about the film. Wanting the window's chrome away is not the same request
+    /// (<see cref="Workflow.IFullScreenScreen"/>): the wake at the door fills the window and stands still, so its
+    /// picture is worth taking, and a dialog asked over it is thrown out of focus like any other ground.
     /// </para>
     /// </remarks>
     private void BlurScreenBehind(Workflow.WorkflowFrame? behind)
     {
       bool worthPhotographing = behind != null
-          && !(behind.View is Workflow.IFullScreenScreen)
+          && !(behind.View is Workflow.IFilmScreen)
           && (Theming.SkinEngine.WornNumber("DialogBackdropBlur") ?? 0.0) >= 2.0;
 
       if (!worthPhotographing)
@@ -1217,8 +1235,12 @@ namespace MediaPortal.Frontend.Views
       foreach (Control crumb in crumbs)
         _trail.Children.Add(crumb);
       // A dialog is not a place the viewer walked to, so it earns no crumb; the trail stays as the screen
-      // behind it left it.
-      _trail.IsVisible = _workflow.Stack.Count > 1 && !(_workflow.Current?.View is Workflow.IDialogScreen);
+      // behind it left it. A full screen film wears no trail either, for the reference's reason: both skins
+      // took the master's furniture away the moment the picture owned the television, and a strip of crumbs
+      // along the top of a film is a strip of the film that is not there.
+      _trail.IsVisible = _workflow.Stack.Count > 1
+          && !(_workflow.Current?.View is Workflow.IDialogScreen)
+          && !(_workflow.Current?.View is Workflow.IFullScreenScreen);
       _trail.Margin = new Avalonia.Thickness(16, 8, 16, 0);
     }
 

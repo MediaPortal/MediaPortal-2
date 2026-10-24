@@ -2475,6 +2475,20 @@ namespace FrontendProbe
       }
 
       /// <summary>
+      /// Three chapters, so that the probe proves the position line draws marks where an engine says chapters
+      /// begin rather than only that it can draw an empty row of them.
+      /// </summary>
+      public IReadOnlyList<PlaybackChapter> Chapters { get; } = new List<PlaybackChapter>
+      {
+        new PlaybackChapter(0, "Opening"),
+        new PlaybackChapter(1_800_000, "The Chase"),
+        new PlaybackChapter(4_200_000, "Home Again")
+      }.AsReadOnly();
+
+      /// <summary>A 4K Dolby Vision picture, which is the case the tags beside the name are written for.</summary>
+      public PlaybackQuality? Quality { get; } = new PlaybackQuality(3840, 2160, "dvhe");
+
+      /// <summary>
       /// Three sound tracks and two subtitles, one of them with no language on it, which is what a real file
       /// usually looks like. The playback screen's frame is meant to prove the picker draws what an engine says,
       /// including the case where an engine says nothing but a name - an empty list would prove only that an

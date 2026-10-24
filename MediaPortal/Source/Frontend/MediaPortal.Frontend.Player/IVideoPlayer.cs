@@ -121,6 +121,27 @@ namespace MediaPortal.Frontend.Player
     int CurrentTrackId(TrackKind kind);
 
     /// <summary>
+    /// The chapters the media carries, in the order they stand, each at the position its own container states.
+    /// </summary>
+    /// <remarks>
+    /// Empty is the common answer: a file made of one continuous picture carries no chapters at all, and a screen
+    /// then draws no chapter marks rather than inventing them. Asked, not announced - a container's chapter table
+    /// is usually read while the media starts, so the answer is often empty on the first ask and full a moment
+    /// later, which is why a screen that wants it asks again when the length arrives.
+    /// </remarks>
+    IReadOnlyList<PlaybackChapter> Chapters { get; }
+
+    /// <summary>
+    /// What the engine's parser said about the video track: how big the picture is and what codes it. Null while
+    /// the parser has not answered, which for a stream it may never do.
+    /// </summary>
+    /// <remarks>
+    /// Null is not a failure to report and nothing may be inferred from it: a screen says nothing about a medium
+    /// it was not told about.
+    /// </remarks>
+    PlaybackQuality? Quality { get; }
+
+    /// <summary>
     /// The native window the engine may draw into: an HWND on Windows, 0 for none. 0 is a supported answer, not
     /// a degraded one - it is how a background transcode or a headless test runs.
     /// </summary>

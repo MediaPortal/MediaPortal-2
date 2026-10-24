@@ -72,6 +72,15 @@ namespace Tests.Frontend
       }
     }
 
+    /// <summary>A stand-in for the screens that want the window's chrome to their own picture: a film.</summary>
+    private sealed class FullScreenStub : ScreenStub, IFullScreenScreen
+    {
+      public FullScreenStub(string text)
+          : base(text)
+      {
+      }
+    }
+
     private sealed class ActivatingScreen : ScreenStub, IWorkflowScreen
     {
       public int Activations;
@@ -269,7 +278,19 @@ namespace Tests.Frontend
       Pump();
       Assert.That(trail.IsVisible, Is.True);
       List<Button> crumbs = trail.GetVisualDescendants().OfType<Button>().ToList();
-      Assert.That(crumbs.Select(crumb => crumb.Content), Is.EqualTo(new[] { "Home", "Filmbibliothek" }));    }
+      Assert.That(crumbs.Select(crumb => crumb.Content), Is.EqualTo(new[] { "Home", "Filmbibliothek" }));
+
+      // A film earns no crumbs either, and not because there is no way back: both reference skins took the
+      // master's furniture away the moment the picture owned the television, and the strip of the way back
+      // across the top of a playing film is exactly what a viewer reported as wrong.
+      workflow.Push(Frame("nowplaying", "Silo S03E01", new FullScreenStub("film screen")));
+      Pump();
+      Assert.That(trail.IsVisible, Is.False, "a full screen film wears no trail");
+
+      workflow.PopToState("browser");
+      Pump();
+      Assert.That(trail.IsVisible, Is.True, "and the trail comes back with the screen it belongs to");
+    }
 
     [AvaloniaTest]
     public void ClickingACrumbReturnsTheViewerToStraightThere()

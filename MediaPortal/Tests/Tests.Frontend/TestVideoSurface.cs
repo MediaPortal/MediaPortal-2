@@ -1,4 +1,4 @@
-/*
+﻿/*
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -21,6 +21,7 @@ using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Headless.NUnit;
+using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 

@@ -25,6 +25,7 @@ using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using NUnit.Framework;
 using MediaPortal.Frontend.Theming;
+using MediaPortal.Frontend.ViewModels;
 
 namespace Tests.Frontend
 {
@@ -278,12 +279,30 @@ namespace Tests.Frontend
                 "a glyph is parsed once and kept, not parsed again for every tile that wears it");
           }
 
-          Assert.That(worn.Vectors.Load("MediaMenu/track"), Is.Null,
-              "the music rail's icon is not there yet, and nothing is invented for it");
-          Assert.That(worn.Images.Load("MediaMenu/track"), Is.InstanceOf<Bitmap>(),
-              "the PNG is still on disk - so a shortcut whose vector is missing draws its glass without a glyph "
-              + "rather than borrowing the picture back");
-          Assert.That(worn.Vectors.Load("MediaMenu/nothing-written-here"), Is.Null);
+          // The music rail's own three names, which are the ones the batch that finished the icon set added last.
+          // The picture that used to be each icon is still on disk beside its vector and stays out of the way: a
+          // shortcut takes a shape, because a shape is what can wear the colour and the focus state of its tile.
+          foreach (string icon in new[] { "MediaMenu/track", "MediaMenu/album", "MediaMenu/audiogenre" })
+          {
+            Assert.That(worn.Vectors.Load(icon), Is.InstanceOf<Geometry>(),
+                "'" + icon + "' is what the music rail asks for, and the shortcut model is only as good as the "
+                + "drawing behind the name");
+            Assert.That(worn.Images.Load(icon), Is.InstanceOf<Bitmap>(),
+                "the PNG that used to be the icon is still lying beside the vector - and a shortcut that wants a "
+                + "vector is still answered by the vector");
+          }
+
+          // Every mark the foot of the playback screen can draw. The screen picks one of these per button and
+          // per moment, so a name missing from the skin is a button a viewer sees without a picture - and on a
+          // black film, without a hint of what it does either.
+          foreach (string icon in NowPlayingViewModel.FootMarkIcons)
+          {
+            Assert.That(worn.Vectors.Load(icon), Is.InstanceOf<Geometry>(),
+                "the playback screen asks for '" + icon + "' and the worn skin carries no shape of that name");
+          }
+
+          Assert.That(worn.Vectors.Load("MediaMenu/nothing-written-here"), Is.Null,
+              "and a name nobody wrote stays unanswered instead of being filled with a guess");
         }
         finally
         {
@@ -316,6 +335,83 @@ namespace Tests.Frontend
             icon + " reaches out of the square to the right");
         Assert.That(bounds.Bottom, Is.LessThanOrEqualTo(SvgGeometry.GLYPH_BOX + 0.5),
             icon + " reaches out of the square downwards");
+      }
+
+      // The playback marks come from the same icon family, drawn on the same canvas that runs from -960 upwards
+      // and lands entirely above its control when the reader only believes it fitted. A mark drawn off its plate
+      // is not a wrong picture but no picture, along the foot of a film where that is the only hint there is.
+      string marks = Path.Combine(MetadataPath("FrontendSource"), "Skins", "nereus", "images", "PlayerControl");
+      foreach (string key in NowPlayingViewModel.FootMarkIcons)
+      {
+        string icon = key.Substring(NowPlayingViewModel.ICONS.Length);
+        Geometry? shape = SvgGeometry.ReadFile(Path.Combine(marks, icon + ".svg"));
+        Assert.That(shape, Is.Not.Null, "'" + icon + "' is on disk and did not read as a shape");
+        Rect bounds = shape!.Bounds;
+        Assert.That(bounds.X, Is.GreaterThanOrEqualTo(-0.5), icon + " stands left of the square");
+        Assert.That(bounds.Y, Is.GreaterThanOrEqualTo(-0.5), icon + " stands above the square");
+        Assert.That(bounds.Right, Is.LessThanOrEqualTo(SvgGeometry.GLYPH_BOX + 0.5),
+            icon + " reaches out of the square to the right");
+        Assert.That(bounds.Bottom, Is.LessThanOrEqualTo(SvgGeometry.GLYPH_BOX + 0.5),
+            icon + " reaches out of the square downwards");
+      }
+    }
+
+    /// <summary>
+    /// Where the shipped glyphs stand: the box a control sizes a glyph by is a square standing on the middle of
+    /// what the file drew, so that a mark sits in the middle of its plaque rather than in the top of it.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A control that stretches a shape scales it by the widest side of the shape's box and lays that box into
+    /// the space it was given from the top left - there is no centring in the toolkit's scale at all. A mark
+    /// drawn across a canvas has a box wider than it is tall, so all of the room a plaque had to spare gathered
+    /// beneath the mark: the two skip marks of the playback foot rode seven pixels above the middle of their
+    /// plaque, and every bound the files reported read as perfectly centred while they did it.
+    /// </para>
+    /// <para>
+    /// Watched over every icon the skin carries rather than over the two that were complained about, because the
+    /// defect shows on a triangle and hides on a square - and watched for its size too, since a box square enough
+    /// to stand straight is one stride away from a glyph drawn smaller than the file sized it.
+    /// </para>
+    /// </remarks>
+    [AvaloniaTest]
+    public void TheShippedGlyphsStandInTheMiddleOfTheBoxTheyAreFittedBy()
+    {
+      string images = Path.Combine(MetadataPath("FrontendSource"), "Skins", "nereus", "images");
+      List<string> files = new List<string>(Directory.GetFiles(Path.Combine(images, "MediaMenu"), "*.svg"));
+      files.AddRange(Directory.GetFiles(Path.Combine(images, "PlayerControl"), "*.svg"));
+      Assert.That(files.Count, Is.GreaterThan(20), "the skin carries icons in both folders");
+
+      foreach (string file in files)
+      {
+        string name = Path.GetFileName(file);
+        Geometry? shape = SvgGeometry.ReadFile(file);
+        Assert.That(shape, Is.Not.Null, name + " is on disk and did not read as a shape");
+
+        string text = File.ReadAllText(file);
+        IReadOnlyList<SvgGeometry.SvgPath> paths = SvgGeometry.PathsIn(text);
+        SvgGeometry.Fitting(SvgGeometry.BoxOf(text, paths), out double scale, out double offsetX,
+            out double offsetY);
+        SvgGeometry.Extent painted = SvgGeometry.PaintedBoxOf(paths, scale, offsetX, offsetY);
+        if (painted.Width <= 0 || painted.Height <= 0)
+          continue;
+
+        Rect bounds = shape!.Bounds;
+        double middleX = bounds.X + bounds.Width / 2;
+        double middleY = bounds.Y + bounds.Height / 2;
+
+        // Three tenths of the square. On a plaque seventy pixels wide that is less than a pixel of screen, and
+        // what stands against it here was eleven.
+        Assert.That(Math.Abs(middleX - painted.MidX), Is.LessThan(0.3), name + " hangs left or right of its ink");
+        Assert.That(Math.Abs(middleY - painted.MidY), Is.LessThan(0.3), name + " hangs above or below its ink");
+        Assert.That(bounds.Width, Is.EqualTo(bounds.Height).Within(0.05),
+            name + " is fitted by a box that is not square, so the room it does not fill gathers at its bottom");
+
+        // And the glyph is not resized to buy that centring: the box it is fitted by keeps the widest measure the
+        // file's own points already had.
+        SvgGeometry.Extent named = SvgGeometry.NamedBoxOf(paths, scale, offsetX, offsetY);
+        Assert.That(bounds.Width, Is.EqualTo(Math.Max(named.Width, named.Height)).Within(0.05),
+            name + " was drawn other than the size the file sized it");
       }
     }
 

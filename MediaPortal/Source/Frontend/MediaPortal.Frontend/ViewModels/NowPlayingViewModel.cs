@@ -71,8 +71,11 @@ namespace MediaPortal.Frontend.ViewModels
     private bool _disposed;
 
     private string _title;
+    private string _fileName;
     private string _stateText;
     private string _positionText;
+    private string _positionLabel = "--:--";
+    private string _durationLabel = "--:--";
     private string _statusLine;
     private double _progress;
     private bool _isPlaying;
@@ -84,8 +87,24 @@ namespace MediaPortal.Frontend.ViewModels
     private List<PlaybackTrack> _audioTracks = new List<PlaybackTrack>();
     private List<PlaybackTrack> _subtitleTracks = new List<PlaybackTrack>();
     private int _realSubtitleCount;
+
+    /// <summary>
+    /// Whether the tracks are worth asking about once more, which is true only when the first ask - the moment the
+    /// engine reached "Playing" - came back with nothing at all. An input that is still being opened over a
+    /// network announces its elementary streams a second or two late, and a screen that asked exactly once would
+    /// then spend the whole film without a subtitle switch on a film that has one.
+    /// </summary>
+    private bool _tracksWorthAskingAgain;
     private int _audioCurrent = -1;
     private int _subtitleCurrent = -1;
+
+    // What the engine said about the media's chapters and the size and codec of its picture. Both arrive late and
+    // both are often never said at all, so they are asked for a few times and then left alone: a film made of one
+    // continuous picture has no chapter table, and a stream's container often names no codec.
+    private readonly List<PlaybackChapter> _chapters = new List<PlaybackChapter>();
+    private PlaybackQuality? _quality;
+    private int _chaptersAsksLeft;
+    private int _chaptersTicks;
 
     /// <summary>
     /// The library title the current media came from, or null for a file that was opened without one. Only with an
@@ -129,6 +148,7 @@ namespace MediaPortal.Frontend.ViewModels
       _player = player;
       _marshal = marshal ?? delegate (Action action) { action(); };
       _title = "Nothing playing";
+      _fileName = "Nothing playing";
       _stateText = "Idle";
       _positionText = "--:-- / --:--";
       _statusLine = player == null
@@ -171,6 +191,22 @@ namespace MediaPortal.Frontend.ViewModels
       get { return _title; }
     }
 
+    /// <summary>
+    /// What the file or the stream is called, whatever the viewer called the film by. Shown under the title on
+    /// the display, because a film reached over the network is not the file it was cut from, and the person who
+    /// wonders which of the three "movie.mkv" copies is playing can read it here.
+    /// </summary>
+    public string FileName
+    {
+      get { return _fileName; }
+    }
+
+    /// <summary>Whether a line about the file says anything the title line did not already say.</summary>
+    public bool ShowsFileName
+    {
+      get { return _hasMedia && !string.Equals(_fileName, _title, StringComparison.Ordinal); }
+    }
+
     /// <summary>"Playing", "Paused", "Starting", "Finished", "Stopped", "Failed" - the word a screen shows.</summary>
     public string StateText
     {
@@ -181,6 +217,21 @@ namespace MediaPortal.Frontend.ViewModels
     public string PositionText
     {
       get { return _positionText; }
+    }
+
+    /// <summary>
+    /// Where in the film the viewer stands, on its own: "0:12". The display puts this at one end of the position
+    /// line and <see cref="DurationLabel"/> at the other, which is what a position line with two numbers on it is.
+    /// </summary>
+    public string PositionLabel
+    {
+      get { return _positionLabel; }
+    }
+
+    /// <summary>Where the film ends, or "--:--" while the engine has not said - a live stream has no end to name.</summary>
+    public string DurationLabel
+    {
+      get { return _durationLabel; }
     }
 
     /// <summary>
@@ -219,6 +270,15 @@ namespace MediaPortal.Frontend.ViewModels
       get { return _volume; }
     }
 
+    /// <summary>
+    /// The number that stands beside the volume slider. What the viewer set, which is not what the engine reads
+    /// back - see <see cref="LibVlcPlayer"/>, whose native getter is one command behind on a real audio output.
+    /// </summary>
+    public string VolumeLabel
+    {
+      get { return _volume + " %"; }
+    }
+
     public bool Muted
     {
       get { return _muted; }
@@ -253,10 +313,45 @@ namespace MediaPortal.Frontend.ViewModels
       get { return _subtitleTracks; }
     }
 
-    /// <summary>True when there is something to pick, which is when a screen shows the track buttons at all.</summary>
+    /// <summary>
+    /// True when there is more than one sound to choose from. One sound is not a choice, and a button that can
+    /// only do one thing is noise.
+    /// </summary>
+    public bool HasAudioChoice
+    {
+      get { return _audioTracks.Count > 1; }
+    }
+
+    /// <summary>
+    /// True when subtitles could be switched on or off, which needs exactly one subtitle track, not two: the
+    /// choice a viewer reaches for on a film with a single forced subtitle is "this, or nothing", and asking for
+    /// a second track before showing the button was asking for a film to hide the only way back to no subtitles.
+    /// </summary>
+    public bool HasSubtitleChoice
+    {
+      get { return _realSubtitleCount >= 1; }
+    }
+
+    /// <summary>True when either of the two has something to pick, which is when a screen shows the row at all.</summary>
     public bool HasTrackChoice
     {
-      get { return _audioTracks.Count > 1 || _realSubtitleCount > 1; }
+      get { return HasAudioChoice || HasSubtitleChoice; }
+    }
+
+    /// <summary>
+    /// Which sound the film is on, as the engine names it, or -1 when it said nothing. The list of sounds marks
+    /// its row by this rather than by what a screen last pressed, because a media picks a sound of its own when
+    /// it starts and a screen that remembered its own last press would light the wrong row.
+    /// </summary>
+    public int CurrentAudioTrackId
+    {
+      get { return _audioCurrent; }
+    }
+
+    /// <summary>The subtitle the film is on, or -1 for "none of them". See <see cref="CurrentAudioTrackId"/>.</summary>
+    public int CurrentSubtitleTrackId
+    {
+      get { return _subtitleCurrent; }
     }
 
     /// <summary>e.g. "Sound: eng - English (Original)". The line a screen shows beside the buttons.</summary>
@@ -269,6 +364,263 @@ namespace MediaPortal.Frontend.ViewModels
     public string SubtitleTrackLine
     {
       get { return "Subtitles: " + Describe(_subtitleTracks, _subtitleCurrent); }
+    }
+
+    /// <summary>
+    /// The name the subtitle button wears: the track's own name, or "off" while nothing is shown. The button
+    /// carries the name rather than a chevron alone because a viewer wants to read what is on right now without
+    /// opening the list for it, and "OFF" is a word that says as much as a struck-through picture.
+    /// </summary>
+    public string SubtitleTrackName
+    {
+      get { return SubtitlesShown ? TrackName(_subtitleTracks, _subtitleCurrent) : "OFF"; }
+    }
+
+    /// <summary>The name the sound button wears, in the same voice as <see cref="SubtitleTrackName"/>.</summary>
+    public string AudioTrackName
+    {
+      get { return TrackName(_audioTracks, _audioCurrent); }
+    }
+
+    /// <summary>
+    /// What a track calls itself, at the length a button has room for: what the media wrote beside the stream
+    /// when it wrote anything, the two letters of its language next, and the engine's whole line only when the
+    /// media said neither.
+    /// </summary>
+    private static string TrackName(List<PlaybackTrack> tracks, int current)
+    {
+      foreach (PlaybackTrack track in tracks)
+      {
+        if (track.Id != current)
+          continue;
+
+        if (!string.IsNullOrEmpty(track.Description))
+          return track.Description!;
+        if (!string.IsNullOrEmpty(track.Language))
+          return track.Language!.ToUpperInvariant();
+        return track.Label;
+      }
+
+      return current < 0 ? "none" : "not known";
+    }
+
+    // ---- what the playback screen's buttons look like ----------------------------------------------
+    //
+    // The buttons are drawn, not lettered: a row of words along the foot of a film covers the film, while the
+    // marks on a remote say the same thing in a quarter of the room. Which mark belongs to which button is the
+    // worn skin's answer - the names are the reference's own <c>PlayerControl</c> icons, and a skin that carries
+    // none of them draws its buttons without a glyph rather than borrowing a letter off the keyboard.
+
+    /// <summary>The icon folder the playback marks live in, in every skin that carries them.</summary>
+    public const string ICONS = "PlayerControl/";
+
+    /// <summary>
+    /// Every mark the foot of the playback screen can draw, by the name the skin knows it under. A screen that
+    /// asks for a picture by name is only as good as the drawing behind the name, so this is the list the skin
+    /// tests walk: a key with no vector behind it is an empty plate on screen, and nothing else would notice.
+    /// </summary>
+    public static IReadOnlyList<string> FootMarkIcons { get; } = new[]
+    {
+        ICONS + "play", ICONS + "pause", ICONS + "fast_rewind", ICONS + "fast_forward", ICONS + "stop",
+        ICONS + "eject", ICONS + "volume_up", ICONS + "volume_down",
+        ICONS + "volume_mute", ICONS + "volume_off", ICONS + "subtitles", ICONS + "subtitles_off",
+        ICONS + "fullscreen"
+    };
+
+    /// <summary>The mark for the transport button: the film asks to be paused while it runs and played while it waits.</summary>
+    public string TransportGlyph
+    {
+      get { return ICONS + (_isPlaying ? "pause" : "play"); }
+    }
+
+    /// <summary>
+    /// How far one press of the on-screen skip buttons reaches, in milliseconds: the viewer's own instant skip,
+    /// so the button beside the film and the key on the remote move the film to the same place.
+    /// </summary>
+    public long SkipButtonMs
+    {
+      get { return InstantSkipMs(1); }
+    }
+
+    /// <summary>
+    /// The mark for the skip-back button: the two back-pointing triangles the skin carries for rewinding. The
+    /// numbered round-arrow glyphs are on disk beside them, but they are the wrong picture here - this button
+    /// jumps once by the viewer's own distance rather than winding a running tape back - and their figure is a
+    /// smudge at the size a television reads. The distance belongs to the settings and to the mark's name.
+    /// </summary>
+    public string SkipBackGlyph
+    {
+      get { return ICONS + "fast_rewind"; }
+    }
+
+    /// <summary>The mark for the skip-forward button; see <see cref="SkipBackGlyph"/>.</summary>
+    public string SkipForwardGlyph
+    {
+      get { return ICONS + "fast_forward"; }
+    }
+
+    /// <summary>What one skip press is worth, in the viewer's own words: "10 s", or "20 %" of this title.</summary>
+    public string SkipCaption
+    {
+      get { return InstantSkipCaption; }
+    }
+
+    /// <summary>
+    /// What the back mark is called, in the words the players use: "Rewind 20 %". It is the mark's name rather
+    /// than a word painted beside it or over it - a television's screen has no hover, and a box that appears on
+    /// top of a button hides the button.
+    /// </summary>
+    public string SkipBackCaption
+    {
+      get { return "Rewind " + InstantSkipCaption; }
+    }
+
+    /// <summary>What the forward mark is called; see <see cref="SkipBackCaption"/>.</summary>
+    public string SkipForwardCaption
+    {
+      get { return "Forward " + InstantSkipCaption; }
+    }
+
+    /// <summary>
+    /// The name under the loudspeaker mark, which carries the level as well: a television's OSD has no tooltip
+    /// to hover for the number, and a viewer who turned the volume up from across the room wants to see that it
+    /// worked without pressing anything else.
+    /// </summary>
+    public string VolumeCaption
+    {
+      get { return _muted || _volume <= 0 ? "Muted" : "Volume " + _volume; }
+    }
+
+    /// <summary>The name under the subtitle mark, said in full so the mark's own picture is not the only answer.</summary>
+    public string SubtitleCaption
+    {
+      get { return SubtitlesShown ? "Subtitles on" : "Subtitles off"; }
+    }
+
+    /// <summary>Whether subtitles are on right now, which is the whole content of the subtitle button's mark.</summary>
+    public bool SubtitlesShown
+    {
+      get { return _subtitleCurrent >= 0; }
+    }
+
+    /// <summary>The mark for the subtitle button: the caption box, struck through while nothing is shown.</summary>
+    public string SubtitlesGlyph
+    {
+      get { return ICONS + (SubtitlesShown ? "subtitles" : "subtitles_off"); }
+    }
+
+    /// <summary>
+    /// The mark for the mute button, which says how loud it is rather than what pressing it does: struck through
+    /// when muted or silent, a bare speaker at a whisper, one wave at half, three at full. A viewer reading the
+    /// picture's volume wants the state, and the button underneath it is the same one either way.
+    /// </summary>
+    public string VolumeGlyph
+    {
+      get
+      {
+        if (_muted || _volume <= 0)
+          return ICONS + "volume_off";
+        if (_volume < 34)
+          return ICONS + "volume_mute";
+        return _volume < 67 ? ICONS + "volume_down" : ICONS + "volume_up";
+      }
+    }
+
+    /// <summary>What the mute button's name is at this moment: it offers the opposite of the state it shows.</summary>
+    public string MuteCaption
+    {
+      get { return _muted ? "Unmute" : "Mute"; }
+    }
+
+    /// <summary>The sound's short name for the chip beside its button: "GER", or the track's own name in brief.</summary>
+    public string AudioChip
+    {
+      get { return ShortName(_audioTracks, _audioCurrent); }
+    }
+
+    /// <summary>The subtitle's short name, or "OFF" while nothing is shown - which is what the chip is for.</summary>
+    public string SubtitleChip
+    {
+      get { return SubtitlesShown ? ShortName(_subtitleTracks, _subtitleCurrent) : "OFF"; }
+    }
+
+    /// <summary>
+    /// The two letters a track is called by, capitalised, because a chip beside a film has room for three
+    /// characters; the track's own name in brief when the container carried no language, and nothing when it
+    /// carried neither.
+    /// </summary>
+    private static string ShortName(IReadOnlyList<PlaybackTrack> tracks, int current)
+    {
+      foreach (PlaybackTrack track in tracks)
+      {
+        if (track.Id != current)
+          continue;
+
+        if (!string.IsNullOrEmpty(track.Language))
+          return track.Language!.ToUpperInvariant();
+
+        return string.IsNullOrEmpty(track.Description)
+            ? ""
+            : track.Description!.Length <= 4 ? track.Description.ToUpperInvariant() : "";
+      }
+
+      return "";
+    }
+
+    // ---- what the buttons may do ---------------------------------------------------------------------
+
+    /// <summary>
+    /// Whether anything is loaded that the transport could move. Every button that reaches the film answers to
+    /// this, because a mark on the television that answers nothing is worse than the space where it would stand.
+    /// </summary>
+    public bool CanTransport
+    {
+      get { return _player != null && _hasMedia; }
+    }
+
+    /// <summary>Whether the position bar can be pressed at all, which needs a media with a known length.</summary>
+    public bool CanSeek
+    {
+      get { return CanTransport && _player!.LengthInMs > 0; }
+    }
+
+    /// <summary>How far into the media the film stands, in milliseconds; 0 while the engine says nothing.</summary>
+    public long PositionMs
+    {
+      get { return _player?.TimeInMs ?? 0; }
+    }
+
+    /// <summary>How long the media is, in milliseconds; 0 for a live stream and for nothing loaded.</summary>
+    public long LengthMs
+    {
+      get { return _player?.LengthInMs ?? 0; }
+    }
+
+    /// <summary>
+    /// Whether there is a library title behind the film to say something about. A file opened by path has no
+    /// record to read, so its screen offers no information button rather than one that opens an empty panel.
+    /// </summary>
+    public bool CanInform
+    {
+      get { return _mediaItemId != null; }
+    }
+
+    /// <summary>
+    /// Moves the film to the given share of its own length, which is what pressing the position bar asks for.
+    /// Refuses when there is no length to take a share of, rather than jumping somewhere nobody pointed at.
+    /// </summary>
+    public bool SeekToFraction(double fraction)
+    {
+      if (!CanSeek)
+        return Refuse("this stream has no position to move in.");
+
+      double wanted = fraction;
+      if (wanted < 0)
+        wanted = 0;
+      if (wanted > 1)
+        wanted = 1;
+
+      return Skip((long)(wanted * _player!.LengthInMs) - _player.TimeInMs);
     }
 
     /// <summary>
@@ -328,6 +680,7 @@ namespace MediaPortal.Frontend.ViewModels
       _audioCurrent = _player.CurrentTrackId(TrackKind.Audio);
       _subtitleCurrent = _player.CurrentTrackId(TrackKind.Subtitle);
       ApplyTrackPreferences(subtitles);
+      _tracksWorthAskingAgain = _audioTracks.Count == 0 && _realSubtitleCount == 0;
       Raise();
     }
 
@@ -388,6 +741,332 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     private bool _trackPreferencesDone;
+
+    /// <summary>
+    /// Asks the engine what chapters the media carries and what its picture is coded with. Called beside
+    /// <see cref="ReadTracks"/> when a media starts and again from the position events, because a container's
+    /// chapter table and its codec are usually read while the media opens rather than before it.
+    /// </summary>
+    public void ReadChapters()
+    {
+      if (_disposed || _player == null || !_hasMedia)
+      {
+        if (_chapters.Count == 0 && _quality == null)
+          return;
+        _chapters.Clear();
+        _quality = null;
+        Raise();
+        return;
+      }
+
+      List<PlaybackChapter> found = new List<PlaybackChapter>(_player.Chapters);
+      PlaybackQuality? quality = _player.Quality;
+
+      bool chaptersMoved = found.Count != _chapters.Count;
+      if (!chaptersMoved)
+      {
+        for (int i = 0; i < found.Count; i++)
+        {
+          if (found[i].PositionMs != _chapters[i].PositionMs)
+          {
+            chaptersMoved = true;
+            break;
+          }
+        }
+      }
+
+      bool qualityChanged = (quality == null) != (_quality == null)
+          || (quality != null
+              && (quality.Width != _quality!.Width || quality.Height != _quality.Height
+                  || !string.Equals(quality.CodecFourcc, _quality.CodecFourcc, StringComparison.OrdinalIgnoreCase)));
+
+      if (!chaptersMoved && !qualityChanged)
+        return;
+
+      _chapters.Clear();
+      _chapters.AddRange(found);
+      _quality = quality;
+      Raise();
+    }
+
+    /// <summary>
+    /// The same question again, at most every tenth position event and only until something has been heard or a
+    /// dozen answers have gone by.
+    /// </summary>
+    /// <remarks>
+    /// Position events come several a second, and the common media has neither chapters nor a named codec, so an
+    /// unthrottled question here is a thousand questions a minute about two things the file will never say. Ticked
+    /// rather than timed, because the events are the clock this model is kept on and a test can hand them out.
+    /// </remarks>
+    private void AskAgainAboutTheMedia()
+    {
+      if (_chaptersAsksLeft <= 0)
+        return;
+      if (++_chaptersTicks < 10)
+        return;
+
+      _chaptersTicks = 0;
+      _chaptersAsksLeft--;
+      ReadChapters();
+      if (_chapters.Count > 0 || _quality != null)
+        _chaptersAsksLeft = 0;
+    }
+
+    /// <summary>Whether the media names chapters at all. A film that names none draws no marks.</summary>
+    public bool HasChapters
+    {
+      get { return _chapters.Count > 0 && LengthMs > 0; }
+    }
+
+    /// <summary>
+    /// The chapter marks as places along the position line, each a share of its width. Which pixel a share of the
+    /// line is belongs to the line, which knows how wide it got and is asked again when that changes.
+    /// </summary>
+    public IReadOnlyList<ChapterMark> ChapterMarks
+    {
+      get
+      {
+        long length = LengthMs;
+        if (_chapters.Count == 0 || length <= 0)
+          return Array.Empty<ChapterMark>();
+
+        List<ChapterMark> marks = new List<ChapterMark>(_chapters.Count);
+        foreach (PlaybackChapter chapter in _chapters)
+        {
+          // The first chapter begins the line and a chapter at the end of it stands off the line; neither is a
+          // mark a viewer could see.
+          if (chapter.PositionMs <= 0 || chapter.PositionMs >= length)
+            continue;
+          marks.Add(new ChapterMark((double)chapter.PositionMs / length, chapter.Name));
+        }
+        return marks;
+      }
+    }
+
+    /// <summary>
+    /// Which chapter the film stands in, or -1 when nothing can be said - no chapters, or no length to place them
+    /// against. Worked out from the engine's own position every time it is asked.
+    /// </summary>
+    public int CurrentChapterIndex
+    {
+      get
+      {
+        long length = LengthMs;
+        if (_chapters.Count == 0 || length <= 0)
+          return -1;
+
+        long position = PositionMs;
+        int found = -1;
+        for (int i = 0; i < _chapters.Count; i++)
+        {
+          if (_chapters[i].PositionMs > position)
+            break;
+          found = i;
+        }
+        return found;
+      }
+    }
+
+    /// <summary>Where in the chapters the viewer stands, in words: "The Chase (2/5)". Empty when there is nothing to say.</summary>
+    public string ChapterCaption
+    {
+      get
+      {
+        int index = CurrentChapterIndex;
+        if (index < 0)
+          return string.Empty;
+
+        string name = _chapters[index].Name ?? string.Empty;
+        return name.Length == 0
+            ? "Chapter " + (index + 1) + " of " + _chapters.Count
+            : name + " (" + (index + 1) + "/" + _chapters.Count + ")";
+      }
+    }
+
+    /// <summary>How near a chapter's start counts as standing at its start. Two seconds, which is what every player uses.</summary>
+    private const long ChapterRestartGraceMs = 2000;
+
+    /// <summary>Whether the chapter mark backwards would move anything: an earlier chapter, or this one's own start.</summary>
+    public bool CanChapterBack
+    {
+      get
+      {
+        int index = CurrentChapterIndex;
+        return index >= 0
+            && (index > 0 || PositionMs - _chapters[index].PositionMs > ChapterRestartGraceMs);
+      }
+    }
+
+    /// <summary>Whether a chapter begins further along the film than where it stands now.</summary>
+    public bool CanChapterForward
+    {
+      get
+      {
+        long length = LengthMs;
+        if (_chapters.Count == 0 || length <= 0)
+          return false;
+
+        foreach (PlaybackChapter chapter in _chapters)
+        {
+          if (chapter.PositionMs > PositionMs + ChapterRestartGraceMs && chapter.PositionMs < length)
+            return true;
+        }
+        return false;
+      }
+    }
+
+    /// <summary>
+    /// Back to the start of this chapter, or to the one before when the viewer is barely past this one's start,
+    /// which is what a chapter key has always meant - otherwise the chapter one is in could never be reached again.
+    /// </summary>
+    public bool PreviousChapter()
+    {
+      int index = CurrentChapterIndex;
+      if (index < 0)
+        return Refuse("this media has no chapters.");
+
+      long target = index > 0 && PositionMs - _chapters[index].PositionMs <= ChapterRestartGraceMs
+          ? _chapters[index - 1].PositionMs
+          : _chapters[index].PositionMs;
+      return JumpToChapter(target);
+    }
+
+    /// <summary>To the start of the next chapter. False, with the reason on the status line, when there is no next.</summary>
+    public bool NextChapter()
+    {
+      long length = LengthMs;
+      if (_chapters.Count == 0 || length <= 0)
+        return Refuse("this media has no chapters.");
+
+      foreach (PlaybackChapter chapter in _chapters)
+      {
+        if (chapter.PositionMs > PositionMs + ChapterRestartGraceMs && chapter.PositionMs < length)
+          return JumpToChapter(chapter.PositionMs);
+      }
+      return Refuse("this is the last chapter.");
+    }
+
+    /// <summary>Moves the film to an exact position, which is what the start of a chapter is.</summary>
+    private bool JumpToChapter(long positionMs)
+    {
+      if (!CanSeek)
+        return Refuse("this stream has no position to move in.");
+
+      return Skip(positionMs - _player!.TimeInMs);
+    }
+
+    /// <summary>
+    /// The size of the picture the surface has been drawing, which the screen reports when a frame arrives: a
+    /// second way of learning how big a film is, for the case the container never said. A decoded picture cannot
+    /// be a different size from the film it is a picture of.
+    /// </summary>
+    public void ReportPictureSize(int width, int height)
+    {
+      if (width <= 0 || height <= 0 || (width == _pictureWidth && height == _pictureHeight))
+        return;
+
+      _pictureWidth = width;
+      _pictureHeight = height;
+      Raise();
+    }
+
+    private int _pictureWidth;
+    private int _pictureHeight;
+
+    /// <summary>
+    /// How big the picture is, in the one word a viewer reads it in: "4K", "1080p". Empty when neither the
+    /// container nor a decoded frame has said, which is a normal answer rather than a gap to fill with a guess.
+    /// </summary>
+    public string ResolutionTag
+    {
+      get
+      {
+        int width = _quality != null && _quality.HasSize ? _quality.Width : _pictureWidth;
+        int height = _quality != null && _quality.HasSize ? _quality.Height : _pictureHeight;
+        if (width <= 0 || height <= 0)
+          return string.Empty;
+        if (height >= 2000 || width >= 3840)
+          return "4K";
+        if (height >= 1300)
+          return "1440p";
+        if (height >= 1000)
+          return "1080p";
+        if (height >= 700)
+          return "720p";
+        if (height >= 400)
+          return "480p";
+        return height + "p";
+      }
+    }
+
+    /// <summary>
+    /// What codes the picture, in the word the trade uses for it. Empty when the container did not name its codec:
+    /// nothing here is inferred from the size of a picture, because a big picture is not proof of anything.
+    /// </summary>
+    public string CodecTag
+    {
+      get
+      {
+        PlaybackQuality? quality = _quality;
+        if (quality == null || string.IsNullOrEmpty(quality.CodecFourcc))
+          return string.Empty;
+        if (quality.IsDolbyVision)
+          return "Dolby Vision";
+        if (quality.IsHevc)
+          return "HEVC";
+
+        string fourcc = quality.CodecFourcc!.ToLowerInvariant();
+        if (fourcc == "avc1" || fourcc == "avc3" || fourcc == "h264")
+          return "AVC";
+        if (fourcc == "av01")
+          return "AV1";
+        if (fourcc == "mpg2")
+          return "MPEG-2";
+        if (fourcc == "mp4v" || fourcc == "mpg4")
+          return "MPEG-4";
+        return string.Empty;
+      }
+    }
+
+    /// <summary>Whether anything stands beside the name of the film.</summary>
+    public bool ShowsTags
+    {
+      get { return ResolutionTag.Length > 0 || CodecTag.Length > 0; }
+    }
+
+    /// <summary>Every tag in one line, for a tooltip: "4K · Dolby Vision".</summary>
+    public string QualityCaption
+    {
+      get
+      {
+        List<string> parts = new List<string>();
+        if (ResolutionTag.Length > 0)
+          parts.Add(ResolutionTag);
+        if (CodecTag.Length > 0)
+          parts.Add(CodecTag);
+        return string.Join(" · ", parts);
+      }
+    }
+
+    /// <summary>
+    /// One chapter as the position line needs it: how far along the line it stands, and what the container called
+    /// it. Nothing draws the name out here - a mark is four pixels wide - but the tooltip and the remote's caption
+    /// read it, and a mark that could not say which chapter it marked would be decoration.
+    /// </summary>
+    public sealed class ChapterMark
+    {
+      public ChapterMark(double fraction, string? name)
+      {
+        Fraction = fraction;
+        Name = name;
+      }
+
+      /// <summary>How far along the position line this mark stands, from 0 to 1.</summary>
+      public double Fraction { get; }
+
+      /// <summary>What the container named this chapter, or null when it named none.</summary>
+      public string? Name { get; }
+    }
 
     /// <summary>Switches to the next audio track, wrapping around. False when the engine refused.</summary>
     public bool NextAudioTrack()
@@ -669,6 +1348,19 @@ namespace MediaPortal.Frontend.ViewModels
     /// </remarks>
     public bool Play(MediaLocation location, Guid? mediaItemId, int resumePercent)
     {
+      return Play(location, mediaItemId, resumePercent, null);
+    }
+
+    /// <summary>
+    /// As <see cref="Play(MediaLocation, Guid?, int)"/>, with the name the viewer chose the media by.
+    /// </summary>
+    /// <param name="presentedAs">
+    /// What the library calls this title, when somebody picked it out of the library: "Big Buck Bunny". A screen
+    /// that showed the address instead would show a stream url, which is how a machine reaches the film and not
+    /// what a person calls it. Null - a file opened by hand - falls back to the file's own name.
+    /// </param>
+    public bool Play(MediaLocation location, Guid? mediaItemId, int resumePercent, string? presentedAs)
+    {
       if (_disposed)
         return Refuse("this screen is closed.");
       if (_player == null)
@@ -678,6 +1370,7 @@ namespace MediaPortal.Frontend.ViewModels
       // still running, and a listener that woke up on "Playing" next to the previous media's name would be seeing
       // the same one-frame lie as a progress bar holding the last media's position.
       string previousTitle = _title;
+      string previousFileName = _fileName;
       bool previousHasMedia = _hasMedia;
       Guid? previousId = _mediaItemId;
 
@@ -686,7 +1379,10 @@ namespace MediaPortal.Frontend.ViewModels
       // has no answer.
       int previousPercentage = PercentageReached(_furthestMs);
 
-      _title = ShortName(location);
+      // The name the viewer picked the film by, and beneath it the file it is actually made of. A stream has no
+      // file this machine can name, so it says nothing rather than repeating the address the player dials.
+      _title = string.IsNullOrWhiteSpace(presentedAs) ? ShortName(location) : presentedAs!;
+      _fileName = location.IsFile ? ShortName(location) : _title;
       _hasMedia = true;
 
       // The old media's tracks are not this media's tracks. Emptied before the engine is asked, so that a
@@ -726,6 +1422,12 @@ namespace MediaPortal.Frontend.ViewModels
       _coverFor = null;
       _furthestMs = 0;
       _reported = false;
+      // The chapters and what codes the picture belong to the media that is over; the new one names its own,
+      // and the question starts again from the beginning rather than showing the last film's marks.
+      _chapters.Clear();
+      _quality = null;
+      _chaptersAsksLeft = 12;
+      _chaptersTicks = 0;
 
       Raise();
       return true;
@@ -951,7 +1653,10 @@ namespace MediaPortal.Frontend.ViewModels
         // A media names its own tracks when it starts, and an engine that was not told them yet reports none, so
         // the moment to ask is when it reached "Playing" - not on the position events, which come several a second.
         if (args.NewState == PlayerState.Playing)
+        {
           ReadTracks();
+          ReadChapters();
+        }
       });
     }
 
@@ -983,11 +1688,23 @@ namespace MediaPortal.Frontend.ViewModels
 
         if (args.TimeInMs > _furthestMs)
           _furthestMs = args.TimeInMs;
-        _positionText = Format(args.TimeInMs) + " / " +
-                        (args.LengthInMs > 0 ? Format(args.LengthInMs) : "--:--");
+        _positionLabel = Format(args.TimeInMs);
+        _durationLabel = args.LengthInMs > 0 ? Format(args.LengthInMs) : "--:--";
+        _positionText = _positionLabel + " / " + _durationLabel;
         double fraction = args.Fraction;
         _progress = fraction < 0 ? 0 : fraction;
         Raise();
+
+        // Asked again here, and only once, when the first ask heard nothing: a length is the sign that the input
+        // is really open, which is the moment an engine that was still reading a stream's header can answer for
+        // its tracks. Once per media rather than once per tick, because the events come several a second and a
+        // list nobody is looking at is not worth a thousand questions a minute.
+        if (_tracksWorthAskingAgain && args.LengthInMs > 0)
+        {
+          _tracksWorthAskingAgain = false;
+          ReadTracks();
+        }
+        AskAgainAboutTheMedia();
       });
     }
 
@@ -1129,6 +1846,7 @@ namespace MediaPortal.Frontend.ViewModels
       _realSubtitleCount = 0;
       _audioCurrent = -1;
       _subtitleCurrent = -1;
+      _tracksWorthAskingAgain = false;
     }
 
     private void Raise()

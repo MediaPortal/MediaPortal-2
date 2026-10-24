@@ -18,8 +18,11 @@
   -->
   <ContentControl HorizontalAlignment="Center" VerticalAlignment="Center"
                   theming:SkinTemplates.OverlayTemplate="DialogFrameTemplate">
+    <!-- The body of a dialog keeps the screen's data: a control the frame shows is shown under the frame's own
+         data, so a plain {Binding} here would ask the body for the screen's words and find none. -->
     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="18" MaxWidth="760"
-                Margin="48,36">
+                Margin="48,36"
+                DataContext="{Binding $parent[UserControl].DataContext}">
       <TextBlock Text="Close MediaPortal"
                  FontSize="40"
                  FontWeight="SemiBold"

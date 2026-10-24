@@ -23,7 +23,10 @@
 
   <ContentControl HorizontalAlignment="Center" VerticalAlignment="Center"
                   theming:SkinTemplates.OverlayTemplate="DialogHeadedFrameTemplate">
-    <StackPanel MinWidth="620" MaxWidth="760" Spacing="12">
+    <!-- The body of a dialog keeps the screen's data: the frame shows a body under its own data, so a plain
+         {Binding} here would ask the body for the notification's words and find none. -->
+    <StackPanel MinWidth="620" MaxWidth="760" Spacing="12"
+                DataContext="{Binding $parent[UserControl].DataContext}">
 
       <!-- The picture and the words beside it, as the reference laid them out: the picture said what kind of thing
            this was before a single word had been read. -->

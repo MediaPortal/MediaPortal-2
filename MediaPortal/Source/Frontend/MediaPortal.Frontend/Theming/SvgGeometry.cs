@@ -120,6 +120,13 @@ namespace MediaPortal.Frontend.Theming
       if (scale <= 0 || double.IsInfinity(scale) || double.IsNaN(scale))
         return null;
 
+      // Two boxes are measured before anything is drawn. One is the box of every point the file names, the
+      // control points of its curves included, and that is the box a control sizes a glyph by and lays into its
+      // space from the top left. The other is how far the drawing actually paints. A box that is not a square
+      // standing on that drawing leaves the glyph high in its plaque, so the two are needed to square it.
+      Extent named = NamedBoxOf(paths, scale, offsetX, offsetY);
+      Extent painted = PaintedBoxOf(paths, scale, offsetX, offsetY);
+
       StreamGeometry geometry = new StreamGeometry();
       using (StreamGeometryContext context = geometry.Open())
       {
@@ -145,6 +152,8 @@ namespace MediaPortal.Frontend.Theming
         }
 
         sink.Finish();
+
+        SquaredAboutItsMiddle(context, named, painted);
       }
 
       return geometry;
@@ -615,7 +624,195 @@ namespace MediaPortal.Frontend.Theming
       }
     }
 
-    /// <summary>A drawing's extent, for the one file in a hundred that declares no box of its own.</summary>
+    /// <summary>
+    /// The box a control sizes a glyph by: every point a file names, the control points of its curves included.
+    /// </summary>
+    /// <remarks>
+    /// An arc is counted at its ends only, which keeps this box inside the box the renderer reports rather than
+    /// outside it - a box wider than the renderer's would size the glyph down without drawing a pixel more of it.
+    /// </remarks>
+    internal static Extent NamedBoxOf(IEnumerable<SvgPath> paths, double scale, double offsetX, double offsetY)
+    {
+      Extent box = new Extent();
+
+      BoundsSink sink = new BoundsSink((x, y) => box.Add(new Point(x * scale + offsetX, y * scale + offsetY)));
+
+      foreach (SvgPath path in paths)
+      {
+        try
+        {
+          Walk(path.Data, sink);
+        }
+        catch (FormatException)
+        {
+          // Measured over what could be read, which is what is drawn.
+        }
+      }
+
+      return box;
+    }
+
+    /// <summary>
+    /// How far a drawing actually paints.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A curve is further out than its ends only where its slope turns flat, so a quadratic is watched at the one
+    /// moment its slope is zero and a cubic at the two moments its slope's quadratic is zero. That is the
+    /// drawing's own extent rather than a guess at it. An arc is measured by the toolkit, whose arc already knows
+    /// how far it swings.
+    /// </para>
+    /// <para>
+    /// Measuring this is not pedantry: the two flat triangles of the skip marks paint ten units below the box
+    /// their own control points make, and a control that centres by that box hangs the glyph in the top of the
+    /// plaque. Nothing else notices.
+    /// </para>
+    /// </remarks>
+    internal static Extent PaintedBoxOf(IEnumerable<SvgPath> paths, double scale, double offsetX, double offsetY)
+    {
+      Extent box = new Extent();
+
+      InkSink sink = new InkSink(scale, offsetX, offsetY, rect => box.Add(rect));
+
+      foreach (SvgPath path in paths)
+      {
+        try
+        {
+          Walk(path.Data, sink);
+        }
+        catch (FormatException)
+        {
+          // Measured over what could be read, which is what is drawn.
+        }
+      }
+
+      return box;
+    }
+
+    /// <summary>
+    /// Squares a shape's box and stands that square on the middle of what was painted.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A control that stretches a shape scales it by the widest side of its box and lays the box into the space
+    /// from the top left - the toolkit adds no centring to the scale at all. A box wider than it is tall, which
+    /// any mark drawn across a canvas is, therefore keeps every pixel of room the control had to spare beneath
+    /// it: the skip marks of the playback foot rode seven pixels above the middle of their plaque that way while
+    /// every bound in the file read as centred, and the loudspeaker sat two pixels above its mark's own middle.
+    /// </para>
+    /// <para>
+    /// The box is made a square of the side its widest measure already was, standing on the middle of the
+    /// drawing. The scale a control works out of it is the same one as before, so no glyph is drawn a pixel
+    /// larger or smaller; what changes is that the spare room is shared above and below the mark instead of
+    /// gathering all of it underneath. And were a toolkit ever to centre the box rather than top-left it, a
+    /// square standing on the middle of its drawing is stood in the middle either way.
+    /// </para>
+    /// <para>
+    /// The square is written as two marks, one at each of two opposite corners. A mark is a line a thousandth of
+    /// a unit long pointing inwards: it counts as a point of the shape and so widens the box the shape is fitted
+    /// by, while no pixel of it can land on a screen at any size a plaque is ever drawn. The glyph itself is not
+    /// moved - a glyph moved would move its box with it and change nothing - only the box is made honest.
+    /// </para>
+    /// </remarks>
+    private static void SquaredAboutItsMiddle(StreamGeometryContext context, Extent named, Extent painted)
+    {
+      const double tolerance = 0.02;
+      if (named.IsEmpty || painted.IsEmpty)
+        return;
+
+      if (painted.Width <= 0 || painted.Height <= 0)
+        return;
+
+      // A measurement that falls outside the box of named points is a misreading rather than an off-centre
+      // glyph, and a misreading is left alone.
+      if (painted.Left < named.Left - tolerance || painted.Right > named.Right + tolerance
+          || painted.Top < named.Top - tolerance || painted.Bottom > named.Bottom + tolerance)
+        return;
+
+      double side = Math.Max(named.Width, named.Height);
+      double middleX = painted.MidX;
+      double middleY = painted.MidY;
+
+      if (Math.Abs(named.Width - side) < tolerance && Math.Abs(named.Height - side) < tolerance
+          && Math.Abs(named.MidX - middleX) < tolerance && Math.Abs(named.MidY - middleY) < tolerance)
+        return;
+
+      Mark(context, middleX - side / 2, middleY - side / 2, 1, 1);
+      Mark(context, middleX + side / 2, middleY + side / 2, -1, -1);
+    }
+
+    /// <summary>
+    /// A point that widens a shape's box without painting a pixel of itself. The line it is drawn as points
+    /// <paramref name="inwardsX"/> and <paramref name="inwardsY"/> so that the mark reaches its corner without
+    /// leaning a thousandth of a unit past it.
+    /// </summary>
+    private static void Mark(StreamGeometryContext context, double x, double y, double inwardsX, double inwardsY)
+    {
+      context.BeginFigure(new Point(x, y));
+      context.LineTo(new Point(x + 0.001 * inwardsX, y + 0.001 * inwardsY));
+      context.EndFigure(false);
+    }
+
+    /// <summary>
+    /// A box that grows to hold whatever is measured into it, and is asked for its own middle.
+    /// </summary>
+    /// <remarks>
+    /// A point is a box with no size and is kept, because a drawing that only touches a place still reached it.
+    /// </remarks>
+    internal struct Extent
+    {
+      private double _left;
+      private double _top;
+      private double _right;
+      private double _bottom;
+      private bool _seen;
+
+      internal bool IsEmpty => !_seen;
+      internal double Left => _left;
+      internal double Top => _top;
+      internal double Right => _right;
+      internal double Bottom => _bottom;
+      internal double Width => _right - _left;
+      internal double Height => _bottom - _top;
+      internal double MidX => (_left + _right) / 2;
+      internal double MidY => (_top + _bottom) / 2;
+
+      internal void Add(Rect rect)
+      {
+        if (rect.Width <= 0 && rect.Height <= 0)
+          Grow(rect.X, rect.Y, rect.X, rect.Y);
+        else
+          Grow(rect.Left, rect.Top, rect.Right, rect.Bottom);
+      }
+
+      internal void Add(Point point) => Grow(point.X, point.Y, point.X, point.Y);
+
+      private void Grow(double left, double top, double right, double bottom)
+      {
+        if (!_seen)
+        {
+          _left = left;
+          _top = top;
+          _right = right;
+          _bottom = bottom;
+          _seen = true;
+          return;
+        }
+
+        if (left < _left)
+          _left = left;
+        if (top < _top)
+          _top = top;
+        if (right > _right)
+          _right = right;
+        if (bottom > _bottom)
+          _bottom = bottom;
+      }
+    }
+
+    /// <summary>
+    /// The box of named points, handed every point a drawing names in turn.
+    /// </summary>
     private sealed class BoundsSink : IPathSink
     {
       private readonly Action<double, double> _mark;
@@ -648,6 +845,194 @@ namespace MediaPortal.Frontend.Theming
 
       public void Close()
       {
+      }
+    }
+
+    /// <summary>
+    /// The extent a drawing paints, watched one command at a time.
+    /// </summary>
+    /// <remarks>
+    /// A curve leaves the box of its ends only where its slope turns flat, so each curve is measured at those
+    /// moments rather than sampled at a stride: a quadratic has one such moment per axis and a cubic has two, and
+    /// what is marked is the point of the curve at that moment, which is ink by definition and can therefore
+    /// never claim more room than the glyph paints.
+    /// </remarks>
+    private sealed class InkSink : IPathSink
+    {
+      private readonly double _scale;
+      private readonly double _offsetX;
+      private readonly double _offsetY;
+      private readonly Action<Rect> _mark;
+
+      private Point _at;
+      private Point _start;
+      private bool _open;
+
+      internal InkSink(double scale, double offsetX, double offsetY, Action<Rect> mark)
+      {
+        _scale = scale;
+        _offsetX = offsetX;
+        _offsetY = offsetY;
+        _mark = mark;
+      }
+
+      private Point At(double x, double y) => new Point(x * _scale + _offsetX, y * _scale + _offsetY);
+
+      public void Move(double x, double y)
+      {
+        _at = _start = At(x, y);
+        _open = true;
+        _mark(new Rect(_at.X, _at.Y, 0, 0));
+      }
+
+      public void Line(double x, double y)
+      {
+        Point to = At(x, y);
+        if (!_open)
+          _start = to;
+
+        _mark(RectBetween(_at, to));
+        _at = to;
+        _open = true;
+      }
+
+      public void Quadratic(double cx, double cy, double x, double y)
+      {
+        Point from = _at;
+        Point control = At(cx, cy);
+        Point to = At(x, y);
+        if (!_open)
+          _start = to;
+
+        _mark(RectBetween(from, to));
+        double denominator = from.X - 2 * control.X + to.X;
+        if (Math.Abs(denominator) > 1e-9)
+          FlatPoint(Math.Abs((from.X - control.X) / denominator), t => QuadraticAt(t, from, control, to));
+
+        denominator = from.Y - 2 * control.Y + to.Y;
+        if (Math.Abs(denominator) > 1e-9)
+          FlatPoint(Math.Abs((from.Y - control.Y) / denominator), t => QuadraticAt(t, from, control, to));
+
+        _at = to;
+        _open = true;
+      }
+
+      public void Cubic(double c1x, double c1y, double c2x, double c2y, double x, double y)
+      {
+        Point from = _at;
+        Point first = At(c1x, c1y);
+        Point second = At(c2x, c2y);
+        Point to = At(x, y);
+        if (!_open)
+          _start = to;
+
+        _mark(RectBetween(from, to));
+        foreach (double t in CubicTurns(from.X, first.X, second.X, to.X))
+          FlatPoint(t, u => CubicAt(u, from, first, second, to));
+        foreach (double t in CubicTurns(from.Y, first.Y, second.Y, to.Y))
+          FlatPoint(t, u => CubicAt(u, from, first, second, to));
+
+        _at = to;
+        _open = true;
+      }
+
+      public void Arc(double rx, double ry, double rotation, bool large, bool sweep, double x, double y)
+      {
+        Point to = At(x, y);
+        if (!_open)
+        {
+          // An arc with nothing to run from starts where it lands, which is all that can be said of it here.
+          _start = to;
+          _mark(new Rect(to.X, to.Y, 0, 0));
+          _at = to;
+          _open = true;
+          return;
+        }
+
+        // The swing is handed to the toolkit's own arc, which knows where it reaches, rather than worked out a
+        // second time from the file's endpoint recipe.
+        StreamGeometry piece = new StreamGeometry();
+        using (StreamGeometryContext context = piece.Open())
+        {
+          context.BeginFigure(_at);
+          context.PreciseArcTo(to, new Size(rx * _scale, ry * _scale), rotation, large,
+              sweep ? SweepDirection.Clockwise : SweepDirection.CounterClockwise);
+          context.EndFigure(false);
+        }
+
+        // The two ends are ink whichever way the arc went, and are counted even when the toolkit answered the
+        // swing with nothing at all.
+        _mark(RectBetween(_at, to));
+        if (piece.Bounds.Width > 0 || piece.Bounds.Height > 0)
+          _mark(piece.Bounds);
+
+        _at = to;
+        _open = true;
+      }
+
+      public void Close()
+      {
+        if (_open)
+          _mark(RectBetween(_at, _start));
+        _at = _start;
+        _open = false;
+      }
+
+      /// <summary>Marks the curve's own point at a moment that is a moment and not the end of the curve.</summary>
+      private void FlatPoint(double t, Func<double, Point> at)
+      {
+        if (t <= 0 || t >= 1)
+          return;
+
+        Point point = at(t);
+        _mark(new Rect(point.X, point.Y, 0, 0));
+      }
+
+      private static Rect RectBetween(Point a, Point b)
+      {
+        return new Rect(Math.Min(a.X, b.X), Math.Min(a.Y, b.Y), Math.Abs(a.X - b.X), Math.Abs(a.Y - b.Y));
+      }
+
+      private static Point QuadraticAt(double t, Point from, Point control, Point to)
+      {
+        double left = (1 - t) * (1 - t);
+        double middle = 2 * (1 - t) * t;
+        double right = t * t;
+        return new Point(left * from.X + middle * control.X + right * to.X,
+            left * from.Y + middle * control.Y + right * to.Y);
+      }
+
+      private static Point CubicAt(double t, Point from, Point first, Point second, Point to)
+      {
+        double left = (1 - t) * (1 - t) * (1 - t);
+        double next = 3 * (1 - t) * (1 - t) * t;
+        double prior = 3 * (1 - t) * t * t;
+        double right = t * t * t;
+        return new Point(left * from.X + next * first.X + prior * second.X + right * to.X,
+            left * from.Y + next * first.Y + prior * second.Y + right * to.Y);
+      }
+
+      /// <summary>The moments one axis of a cubic turns flat, which are the roots of its slope's quadratic.</summary>
+      private static IEnumerable<double> CubicTurns(double from, double first, double second, double to)
+      {
+        double a = -from + 3 * first - 3 * second + to;
+        double b = 2 * from - 4 * first + 2 * second;
+        double c = -from + first;
+
+        if (Math.Abs(a) < 1e-9)
+        {
+          if (Math.Abs(b) > 1e-9)
+            yield return -c / b;
+          yield break;
+        }
+
+        double discriminant = b * b - 4 * a * c;
+        if (discriminant < 0)
+          yield break;
+
+        double root = Math.Sqrt(discriminant);
+        yield return (-b - root) / (2 * a);
+        yield return (-b + root) / (2 * a);
       }
     }
 

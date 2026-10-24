@@ -222,6 +222,15 @@ namespace MediaPortal.Frontend.ViewModels
     private TvChannelGroup? _selectedGroup;
     private TvGuideRow? _selectedRow;
     private TvGuideBlock? _selectedBlock;
+
+    /// <summary>
+    /// The instant the viewer's cursor stands at, as they chose it: by pressing a programme or by walking along
+    /// their channel. Walking between channels keeps it, which is the grid's column staying under the cursor
+    /// while the channels move past it; the beginning of the programme the cursor happens to be on is not the
+    /// same thing, because a channel of long programmes would drag the cursor backwards an hour per step.
+    /// Null while nobody chose a time, which is when the guide stands on the programme's own beginning.
+    /// </summary>
+    private DateTimeOffset? _cursorMoment;
     private TvGuideBlock? _actionsAbout;
     private bool _zapFromGuide = true;
     private double _columnMinutes = MINUTES_PER_COLUMN;
@@ -692,6 +701,7 @@ namespace MediaPortal.Frontend.ViewModels
         _pickedChannel = pressed.Channel.Id ?? "";
 
       SelectedBlock = block;
+      _cursorMoment = block.Program.Start;
 
       if (!alreadyStandingHere)
         return;
@@ -1247,6 +1257,7 @@ namespace MediaPortal.Frontend.ViewModels
       if (at >= 0 && at < row.Blocks.Count - 1)
       {
         SelectedBlock = row.Blocks[at + 1];
+        _cursorMoment = SelectedBlock?.Program.Start;
         return;
       }
 
@@ -1265,6 +1276,7 @@ namespace MediaPortal.Frontend.ViewModels
       if (at > 0)
       {
         SelectedBlock = row.Blocks[at - 1];
+        _cursorMoment = SelectedBlock?.Program.Start;
         return;
       }
 
@@ -1317,7 +1329,12 @@ namespace MediaPortal.Frontend.ViewModels
         return;
 
       TvGuideRow? into = _allRows[to];
-      DateTimeOffset standingAt = _selectedBlock == null ? DateTimeOffset.UtcNow : _selectedBlock.Program.Start;
+      // The instant the viewer is standing at, which is the one they chose - by pressing a programme or by
+      // walking along a channel - and not the beginning of whatever programme the cursor happens to be on.
+      // Re-anchoring to that beginning was the drift: a channel whose evening is made of two-hour films pulls
+      // the cursor back to the film's start, and three steps down the list land the viewer an hour away from
+      // the time they were looking at, on a programme that was never under the cursor.
+      DateTimeOffset standingAt = _cursorMoment ?? _selectedBlock?.Program.Start ?? DateTimeOffset.UtcNow;
 
       SelectedRow = into;
       SelectedBlock = StandingBlock(into, standingAt);
@@ -1472,6 +1489,7 @@ namespace MediaPortal.Frontend.ViewModels
       Rows.Clear();
       SelectedRow = null;
       SelectedBlock = null;
+      _cursorMoment = null;
       Raise(nameof(Rows));
       Raise(nameof(CanScrollRowsUp));
       Raise(nameof(CanScrollRowsDown));

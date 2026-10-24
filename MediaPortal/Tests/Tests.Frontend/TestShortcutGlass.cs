@@ -341,12 +341,13 @@ namespace Tests.Frontend
     }
 
     /// <summary>
-    /// A shortcut whose vector the skin does not carry yet draws its glass without a glyph - and does not go
-    /// borrowing the PNG that still lies beside it. The icons are being delivered one batch at a time, and a
-    /// half-dressed rail has to look like a rail, not like a hole.
+    /// Every shortcut on the music rail wears a drawn glyph now that the icon set is finished, and none of them
+    /// goes borrowing the PNG that still lies beside its vector. The second half is the guard that keeps mattering:
+    /// the icons are vectors so that they can take the colour and the state of the tile they sit on, and a rail
+    /// that quietly fell back to pictures would look right at rest and wrong the moment something stood on it.
     /// </summary>
     [AvaloniaTest]
-    public void AShortcutWithoutItsVectorYetDrawsItsGlassWithoutAGlyph()
+    public void TheShortcutsOnTheMusicRailWearTheirGlyphsAndBorrowNoPicture()
     {
       RunOnHome(AUDIO_ACTION, null, delegate (Window window, List<Button> glass, List<Button> plates)
       {
@@ -367,11 +368,13 @@ namespace Tests.Frontend
         Assert.That(worn["Artist"], Is.True,
             "and so is the artist, which arrived as the thin-weight person (weight two hundred) so its line "
             + "can be weighed against the normal-weight one the Actor tile beside it wears");
-        Assert.That(worn["Genre"], Is.False,
-            "while the music rail asks for its own genre picture, which has not been written yet");
-        Assert.That(worn["Track"], Is.False, "and the track and album icons have not been written yet, "
-            + "and are left unworn rather than filled with the picture that lies beside them");
-        Assert.That(worn["Album"], Is.False);
+        Assert.That(worn["Genre"], Is.True,
+            "the music rail asks for its own genre picture (MediaMenu/audiogenre) rather than wearing the videos "
+            + "rail's, and that drawing exists too - the batch that finished the set did not stop at the names "
+            + "the videos rail uses");
+        Assert.That(worn["Track"], Is.True, "and the track and album icons are worn as shapes rather than left "
+            + "to the picture that lies beside them");
+        Assert.That(worn["Album"], Is.True);
       });
     }
 

@@ -24,7 +24,9 @@
 
   <ContentControl HorizontalAlignment="Center" VerticalAlignment="Center"
                   theming:SkinTemplates.OverlayTemplate="DialogHeadedFrameTemplate">
-    <DockPanel MinWidth="620">
+    <!-- The body of a dialog keeps the screen's data: the frame shows a body under its own data, so a plain
+         {Binding} here would ask the body for the programme's words and find none. -->
+    <DockPanel MinWidth="620" DataContext="{Binding $parent[UserControl].DataContext}">
 
       <!-- Which programme the question is about, so that the dialog never has to be read against the grid behind
            it to know what a line would do. -->

@@ -195,31 +195,38 @@ namespace MediaPortal.Frontend
 
       // --play is checked here, where an answer can still be a sentence on a terminal, rather than in a window
       // that opens to say the same thing. A file that is not there and a machine with no engine are the two ways
-      // this request fails, and both are the caller's mistake to fix.
+      // this request fails, and both are the caller's mistake to fix. A stream address skips the file questions,
+      // because the only thing that can be said about it from a terminal is that it is an address.
       if (playFile != null)
       {
-        string fullPath;
-        try
+        bool isStream = Uri.TryCreate(playFile, UriKind.Absolute, out Uri? playUri)
+            && (playUri.Scheme == Uri.UriSchemeHttp || playUri.Scheme == Uri.UriSchemeHttps
+                || playUri.Scheme == "rtsp" || playUri.Scheme == "udp");
+        if (!isStream)
         {
-          fullPath = System.IO.Path.GetFullPath(playFile);
-        }
-        catch (Exception ex)
-        {
-          Console.WriteLine("play:     that is not a usable path - " + ex.Message);
-          return 2;
-        }
+          string fullPath;
+          try
+          {
+            fullPath = System.IO.Path.GetFullPath(playFile);
+          }
+          catch (Exception ex)
+          {
+            Console.WriteLine("play:     that is not a usable path - " + ex.Message);
+            return 2;
+          }
 
-        if (!System.IO.File.Exists(fullPath))
-        {
-          Console.WriteLine("play:     there is no file at " + fullPath);
-          return 2;
+          if (!System.IO.File.Exists(fullPath))
+          {
+            Console.WriteLine("play:     there is no file at " + fullPath);
+            return 2;
+          }
+          playFile = fullPath;
         }
         if (!havePlayer)
         {
           Console.WriteLine("play:     this machine has no player to play it with - " + playerReason);
           return 2;
         }
-        playFile = fullPath;
       }
 
       // --start is turned into a position here, where a bad one can still be a sentence on a terminal rather

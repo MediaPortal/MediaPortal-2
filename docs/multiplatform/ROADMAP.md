@@ -5304,6 +5304,471 @@ The frontend suite stands at 1173 of 1175 with the two known baseline failures (
 vector, and the skin's glyphs as shapes); the guide's own walk test passed again this time, which it had been
 failing on layout timing alone.
 
+### cm. A dialog is shown with the data of the screen that opened it - the household wall, and what it was hiding
+
+The household wall opened by a press on the wake's round picture came up as a slab: a bordered band near the
+middle of the screen, no faces in it, and a glow that looked broken because it was drawn around nothing. The
+answer was not in the dialog's markup but in what a skin's dialog frame *is*: `DialogFrameTemplate` is a template
+drawn over the dialog's own control, and the `ContentPresenter` inside it takes that control as its content - and a
+control a `ContentPresenter` takes as its content is drawn under the *presenter's* data, which is the body itself.
+Inside the frame, then, `{Binding}` is the dialog's body and not the screen, so `ItemsSource="{Binding Household}"`
+asked the `ListBox` for a household, found none, and the frame measured its own padding and stopped there. A
+measurement of the shown wake said the whole story: the frame's `Border` stood 624×52 with its ground `#1b1b1b`,
+its outline `#009592`, its corners at 25 and its `BoxShadow` spelled `0 0 120 Transparent, 0 0 26 White` - frame,
+outline and glow all intact - around a body of zero height, on a machine that had really read three people.
+
+The rule was already written into the skin and had simply never been carried to the bodies: the heading of
+`DialogHeadedFrameTemplate` is read off `$parent[ContentControl].DataContext` rather than from the body for exactly
+this reason. Two attempts to fix it in the frame itself were measured and reverted: setting `DataContext` on the
+frame's `ContentPresenter` also re-homes its `Content="{Binding}"`, so the body is never hosted at all (the frame
+drew the view model instead of the list), and a `DataContext` setter in a style for `ContentPresenter > Control`
+never reaches the hosted body. The skin's files are therefore untouched. Each dialog body hands its screen's data
+back to itself instead - the wall of faces, the way out, the notification dialog, the television's question about a
+programme and the menu editor - which also means the words those last four have always carried are now actually
+standing in them: they were empty panels, not merely spare ones.
+
+The wall itself was brought round to what was asked: a face is a round picture and its name, nothing else. So the
+furniture a list normally drags in stays out - the accent block a selected row wears and the platform's square focus
+frame are both neutralised - and a face the keyboard stands on lights its circle with the very light the wake's own
+picture wears one row above, from `#55E2621B` at three to `#FFFFB066` at four. The ring at rest is handed to the
+circle by a style rather than by a local value, because a local value outranks every style and the light could never
+have won against one. The wall also opens with its first face stood on, since a list that opens with nothing stood on
+answers no `Enter`, and a face whose picture the household uploaded now shows that picture where an initial used to
+stand.
+
+`TestTheHouseholdDialogShowsItsFaces` measures the wake shown at 1920×1080 in the skin with three people read: every
+face stands with its name under it, one wears its picture and one its initial, the frame has grown to the height of
+its body and still wears the 120 of glow, and the stood-on face is lit while no orange block or square frame stands
+about it. `TestTheDialogFrameKeepsTheScreensData` says the same rule for a dialog written the ordinary way, by
+standing the way out's words inside the glowing frame that carries them. The frontend suite stands at 1176 of 1179;
+the three failures are the two known baseline ones plus the guide's walk test, which fails on a programme boundary
+at this hour of the day and fails identically with these changes stashed away.
+
+### cn. The wall of faces is a dialog the shell raises, and what two skin rules had never reached
+
+Asked again and again over a build the user could see, the wall came up wrong in a way no measurement of the dialog's
+own markup could show: its glow was cut off and did not read white, and the home behind it stood on sharp. Both
+halves came back to where the dialog stands rather than to what it contains.
+
+It had been laid out *inside* the wake, as a dark panel over the wake's own markup. A panel standing on a screen is
+drawn with it, so nothing the shell does to a screen behind a dialog - throwing it out of focus and washing it - can
+ever reach it, and the halo of a frame drawn there falls into the ring of light the wake itself throws across the
+room: neither white nor whole, exactly as reported. The wall therefore became a dialog of the same making as the
+notification shelf and the menu editor: `UserPickerView` is a view of its own, an `IDialogScreen` that wears the
+worn skin's `DialogHeadedFrameTemplate` over the `nereus-dialog-screen` ground, and the wake *asks* it - the model
+saying "faces" makes `StartupView` push a `household` frame onto the workflow, and the answer pops it again before the
+pick is carried back, because picking a person can finish the wake and rebuild the stack the question stood in. The
+word the wall is asked under lives on the model as `Heading`, which is where the headed frame reads it from and where
+the trail's crumb reads the same string from, so a question is named once. Inside it there is nothing but circles and
+names, as asked.
+
+Two rules the skin had carried for a long time had simply never fired, and both hit every dialog rather than this one:
+
+- `UserControl.nereus-dialog-screen` dressed no dialog in anything. A plain type name in a selector means *that type
+  exactly*, and a dialog screen is never a `UserControl` off the shelf but a view written below it - so the wall, the
+  menu editor, the programme question and the notification shelf had each stood over a home that was washed by
+  nothing. Written as `:is(UserControl).nereus-dialog-screen` the rule reaches the views, and the wash measured
+  `#a6000000` over a backdrop holding a real photograph of the screen behind. A bare `Window` selector, by contrast,
+  was measured to reach `ShellWindow` just fine, so the hover family written that way needed nothing.
+- Each dialog view hands its body to the frame template through a `ContentControl` filling the view, and such a
+  control is measured to the frame it hosts: the frame's own bounds, not the halo drawn outside them. Clip that and
+  the glow is cut to a rectangle at the panel's edge - the frames spell out that nothing in them may clip for
+  precisely this reason. The skin now sets `ClipToBounds` false for that control, once, for all five dialogs, and a
+  measurement walks every surface between the frame and the window to confirm that each of them that cuts leaves the
+  glow its 120.
+
+The blur had a third cause of its own. The shell photographs the ground behind a dialog for every screen except the
+ones that are *moving image*, and it had decided "moving image" by asking whether the screen filled the window -
+which the wake does, with its wallpaper. So the exemption became what it always meant: a marker of its own,
+`IFilmScreen`, worn by the player; a screen that fills the window but stands still is a ground and gets thrown out of
+focus like any other, which is the only way the wall of faces can stand over a home it cannot be confused with.
+
+Measured: `TestTheHouseholdDialogShowsItsFaces` now drives a real `WorkflowManager` and a real `ShellWindow` through
+the application's own view factory, and besides the faces, names, pictures and initials it asserts that the wake
+behind the wall has been thrown out of focus and washed, and that nothing between the frame and the window cuts its
+halo. `TestTheDialogBlursTheScreenBehindIt` says which screens are photographed: a film still stands sharp, a
+full-bleed screen that stands still does not.
+
+### co. The film plays over the whole screen, and its grey turned out to be a format the engine never agreed to
+
+The playback screen was measured against the reference and found to be wearing a whole window of things the
+reference does not have: a navigation bar (home, title, "now playing") above the picture, the title again in a header,
+a framed panel saying "Playing" with the poster inside it in the middle of the screen, a second progress bar, and a
+line at the bottom still saying "Nothing playing" while a film was running. `NowPlayingView` was rebuilt: the video
+area is the screen, `VideoSurface` fills it edge to edge, and everything else - the transport row, the position, the
+track switches - is an overlay that stands over the picture and hides itself, which is how the reference behaves. The
+shell's own trail is hidden for a screen marked `IFilmScreen`, because a film is not a place in the menu.
+
+The grey was not the source, and it took a measurement rather than an eye to say so. The format callback the engine
+calls before the first frame is a *question*, and the frontend had been answering `RV24` while allocating four bytes a
+pixel. `libVLC` answered the call with its own chroma - `I420`, planar - and nobody looked again. Reading a
+luma-plus-chroma buffer as if it were blue-green-red pixels is exactly the report: no colour (the first third of the
+buffer is one grey channel) and vertical stripes (the chroma planes read as pixels). Asking for `RV32`, which is what
+the sink's buffers already are, fixed it; the hardware decoder is happy to convert to 32-bit and had simply never been
+asked to. With `RV24` the log shows libVLC building a `d3d11_filters` + `Swscale` chain and then removing it, and the
+frame counters stay healthy throughout, which is why the logs had looked fine for so long.
+
+Colour was then weighed rather than admired: `MP2_FRAMEPROBE=1` prints the mean blue, green, red and the mean `|R-B|`
+of every hundredth frame (grey scores ~0, this film's SMPTE-bars reference scored 85), and the drawn frame was
+compared with the same timestamp from `ffmpeg` through `signalstats` - chroma averages within 0.4 of each other, twice,
+once against the real film and once against a synthetic bars clip whose bars carry known chroma. `--play` now reports
+the negotiation itself in every run (`['I420' offered at 1920x832, taken as 'RV32' at stride 7680]`), so the question
+and the answer are in the same line forever.
+
+Two follow-up questions were answered with numbers rather than reassurance. The picture does not lose anything: the
+buffer is 1920x832 and the picture 1918x802, which is the container's own display size - codec padding, which by
+convention sits at the bottom and right - and `VideoSurface` stretches uniformly, so it cannot crop; a 2.39:1 film on
+a 3440x1440 screen (2.392:1) legitimately has no bars. And the track row had vanished on this very episode: it carries
+one sound and one subtitle, and the rule "there is a choice" read *more than one of either*, which took the subtitle
+switch - including the way to turn subtitles off - away from the most common kind of release. The rule is now split
+into `HasAudioChoice` and `HasSubtitleChoice`, each gating its own pair of controls, and an input that announces its
+streams late is asked once more when the media first reports a length. Measured live over the server's own stream: the
+OSD offers `Subtitles: no subtitles` and no sound button, exactly as the two tracks deserve.
+
+Two tests were found guarding an icon set that a later batch had already finished - the music rail's genre, track and
+album vectors exist on disk now, so asserting they do not was only asserting the past. They assert the finished set
+and, unchanged, that no shortcut ever borrows the PNG lying beside its vector.
+
+### cp. The foot of a film wears marks, and only the ones that do something
+
+The playback display was a row of words - "Pause", "Audio: 1 of 2", "Subtitles: Off" - which is a form a keyboard
+screen wears and a television does not: the words are wider than the remote's buttons, they cover the film they
+describe, and half of them describe things the film cannot do. The foot is drawn now, on the model of the players
+everybody knows (the web player's row of round marks under the picture, the television player's mark that names
+itself when the cursor reaches it), out of the reference's own `images/PlayerControl`. Eighteen vectors came over:
+play, pause, the two jumps in both sizes, stop, eject, the four volumes, subtitles and its struck-through twin,
+full screen and information. Three were left behind on purpose - `skip_next`, `skip_previous` and `repeat` - because
+this front end owns no playlist and no repeat, and an arrow promising the next title is a worse answer than the
+space where the arrow would stand.
+
+What a mark may say is the same question as whether it may stand at all. The transport pair flips (it offers to
+pause while the film runs and to play while it waits); the speaker says how loud it is rather than what pressing it
+does, because that is what a picture of a loudspeaker is for (struck through at mute or silence, a bare cone at a
+whisper, one wave at half, three at full); the jumps wear the shape of the viewer's own instant skip - a ten when
+the saved answer reaches 20 s or less, a thirty otherwise - and say their real worth in the caption, which matters
+because the saved answer is a percentage and twelve seconds of an hour is not twelve seconds of a short film; and
+the sound pill wears the *language* rather than an icon, because for a sound the language is the whole answer. At
+rest a mark is a glyph on a dark plate; under the cursor the plate turns to light, the glyph turns dark, and the
+mark's name appears underneath. Holding a jump or a volume mark repeats it, the way holding a remote does.
+Pressing anywhere on the position line moves the film there, which is refused for a stream that never reported a
+length, and the full screen mark flips the saved window mode through the shell rather than the window's own.
+
+Nothing unusable is drawn, which is the rule the whole batch hangs on: `CanTransport` for the transport and the
+volume, `HasAudioChoice` and `HasSubtitleChoice` each for their own switch, `CanInform` for the information mark -
+a file opened by path has no library record to read, so it gets no information mark rather than one that opens an
+empty panel - and with nothing loaded the foot keeps only the two marks that always mean something, the way out and
+the way to the whole television. A hidden mark is also not a stop in the remote's ring, so a film with one sound
+walks from the volume marks to the subtitle switch with nothing in between, tested at both ends.
+
+The shipped skin answers `NowPlayingOverlayTemplate` with a strip of its own - title, position, one bar, the state,
+the volume - and the view's reading steps back for it. It took a run at a real film to notice that the view had
+been asking the wrong question: it asked the skin's *registry* whether the template exists, which is answered
+before the control holding the template has been served, so its own name-and-position-and-bar stayed up next to the
+skin's strip. Two progress lines for one film is the exact thing the skin's bar exists to prevent, and neither the
+tests (no skin worn) nor the eye on a static picture said so. `SkinTemplates` now answers for the control it serves
+(`WearsSkinOverlay`), and the live UI tree of a playing film lists one `ProgressBar`. Measured over the server's own
+stream at 02:03: the tree lists `'Skip back'`, `'Pause'`, `'Skip forward'`, `'Volume down'`, `'Mute'`,
+`'Volume up'`, `'Subtitles: Forced - [Deutsch]'`, `'Full screen'`, `'Stop'`, `'Close'` - no sound pill, because this
+stream announced one sound - and a click on `'Skip forward'` moved `0:22` to `10:19` of `49:41`, which is the saved
+fifth of the title and not a fixed half minute.
+
+Two things the suite surfaced on the way, both real. The rebuilt screen had quietly stopped asking for four palette
+keys, and the rule "a key every palette carries is asked for by some screen" caught it one key per run: a pressed
+mark now wears the palette's `PanelPressedBrush` (which is the colour every other button on every other screen
+answers a press with), its glyph the palette's `ButtonTextBrush`, the position line's trough `VideoOutlineBrush` -
+which is what the reference's own WMC templates use that key for - and the picture's backdrop `VideoBrush`. And the
+guide's cursor drifted: walking between channels re-anchored on the *beginning of whatever programme the cursor was
+standing on*, so on a channel whose evening is made of two-hour films three steps down the list landed the viewer an
+hour away from the time they had been looking at, on a programme that had never been under the cursor. The grid
+keeps the instant the viewer chose - by pressing a programme or by walking along a channel - and vertical movement
+moves the channels past it, which is the reference's time column doing what a column does.
+
+### cq. The foot was measured rather than guessed at, and the two jump marks got their faces back
+
+The row built in `cp.` was still the screen's own invention, and it read like one: the marks did not stand on one
+line, the lower area kept the strip it had always had, and pause was one grey glyph among eleven. So the row was
+measured before it was drawn again. The web player was opened at window size and at full screen and its own boxes
+were read off the running page: the foot is 56 px of chrome glued to the bottom edge with 3 px of padding, the
+position line is full width and 6 px, sits *above* the buttons (its `y` is 1234 against the buttons' 1248) and
+grows to 12 under the pointer, its knob is 12x12, the transport is the first thing on the left at 40x40 followed by
+the volume area and then the clock in 14 px type, and none of those numbers grows when the player is put on a
+2531x1296 screen. The television player's design guidance says the same two things about a room: focus should
+"gently highlight and expand" a thing, and a word must stay legible from across the room. Scaled to this
+front end's 3440x1440 target that is a plate of 88 in a column 112 wide, a title of 34, a clock of 26, a caption of
+19, and a position line of 16 the moment the pointer arrives.
+
+The band is now: a scrim that is transparent 76 px above the foot and near-black at the screen's edge; the film's
+name, a state pill and the clock on one line; one position line stretched the whole width with the playhead as a
+knob; and under it a row of mark columns, each carrying its name whether or not anything stands at it, because a
+name a viewer has to arrive at with a mouse to see is no answer on a television. A mark at rest is a glyph over
+nothing; reached for, its plate turns to light and the whole column grows 7 %, which is the "gently highlight and
+expand" the guidance asks for. Transport keeps the same measure as every other plate - a bigger circle would push
+its own name out of the line the names stand on - and is the one plate already lit at rest, because it is the mark
+everybody looks for first.
+
+That also settled the question `cp.` left open. The shipped skin does answer `NowPlayingOverlayTemplate`, and the
+answer is a slab of its own - title, position, bar, volume - which is what the band was already drawing; wearing
+the skin's strip is what made the lower area look untouched and the film read twice. So the playback screen stopped
+asking the skin for it and `WearsSkinOverlay` went away again; the key stays answered in both skins, because a
+skin that offers a template should not be broken by a screen that stopped using it, and one film has one position
+line, tested.
+
+Two real bugs came out of measuring rather than looking. The screen still ran the old habit of writing the instant
+skip's worth *onto* the two jump buttons (`backButton.Content = "-20 %"`), which replaced each of their plates,
+glyphs and names with a bare word - that is the whole of why those two marks looked broken, and no screenshot of
+the row as a whole had made it obvious. The reach is said in the caption the view model already writes ("Rewind
+20 %"), so the writing stopped. And the test that found it had been asking the *window* for a button named
+`backButton`, which is also the television guide's name for its half-screen scroll; a name lookup now starts from
+the playback screen, which is the screen under test.
+
+The name of the film was wrong too, and everywhere: the band read whatever `ShortName` made of the location, which
+for a streamed library title is the whole address of the server's stream endpoint. `Play` takes the name the viewer
+picked the title by, `Title` says that, and `FileName` says which file it is made of - read underneath, and only
+when it is a file this machine can actually name and it differs from the title, so a stream invents nothing and a
+file opened by hand is not named twice.
+
+Measured live again over the server's own stream: the ten marks the stream deserves are all `112x115` at `y=1299`
+- one line, by measurement rather than by eye - their captions at `y=1391`, one `ProgressBar` in the tree, the
+clock above the marks, a click on `'Skip forward'` moving `0:26` to `10:23` of `49:41`, and the picture's own
+channel spread averaging 6.5 with peaks at 82, which is a film in colour rather than the grey one this batch began
+with.
+
+The mockup that arrived with this round asks for four more things - chapter marks, a preview thumbnail for the
+chapter a viewer is standing over, the `4K / HDR / Dolby Vision` chips, and picture-in-picture. Three of them were
+left undrawn there because nothing honest had ever reached the front end to draw them from, and `cr.` is the batch
+that went and asked the engine for the two of those it could get. The third - the HDR chip - still has nothing
+behind it, and picture-in-picture is still no feature of this player. The file name line and the circular transport
+from the same mockup were real and were drawn.
+
+### cr. The panel that lies over the film stopped being a container and became a band of shade
+
+The playback panel went through three backdrops in this batch and kept the cheapest. The mockup asked for the
+controls to sit on frosted glass, and the first attempt painted that frosting by hand: the surface averaged the
+picture it was holding down to ninety-odd points, blended them towards the glass's own blue and handed the result
+back as a brush. On screen it was right - the light of the film came through the panel, and nothing in it stayed
+sharp enough to read - and on the television it cost the film its frames, because sampling a moving picture in
+managed code and re-uploading a brush is work a machine that is also decoding the film cannot spare. The
+compositor's own acrylic was the second attempt, the same surface the glasses of the start screen stand on, and
+it too was taken out again: it cannot be seen through the screenshot path this batch verifies with, and it is a
+shader running full-screen behind a panel that only appears for four seconds at a time.
+
+What stands there now is a band of shade (osdArea in "NowPlayingView.xaml"): black at four fifths over the bottom
+edge of the screen, thinning to nothing as it climbs, with the buttons standing on the film rather than in a box.
+Two colours and a line, and the film keeps its whole picture. Measured live over the server's own stream: the
+transport at `y=1186`, the two picker circles at `58x58`, the sound line at `1597,1342,260x40`, and the band doing
+exactly what a band of shade should - the film above it reaching `212` in its brightest channel while the same
+content under it is held down to `87`, so the words stay readable over a bright scene without the picture
+disappearing behind a plate.
+
+The volume line gained its own bug and its own fix. It answers a press anywhere along it, but the control it lives
+in is a button, and a button takes the press for its own click and marks it done with: the first live click landed
+in the middle of the line and left the sound at `100 %`. The line now asks for the routed press with the handled
+flag honoured ("NowPlayingView.xaml.cs", the `AddHandler` beside `volumeRow.SizeChanged`), which is also why the
+markup no longer carries `PointerPressed`. Measured live after that: the same click at the middle of the line
+leaving `50 %` beside it, and one test ("TheLineOfTheSoundAnswersTheHandWhereverItPoints") raising a press that is
+already marked done with, so the difference cannot quietly come back.
+
+What the batch learned about Avalonia 12 on the way, since each of these cost a build:
+
+- `ImageBrush` has no `ImageSource`; its picture is `Source`, of type `IImageBrushSource`.
+- `RoutingStrategies` knows `Bubble` and not `Bubbled`.
+- `AcrylicSurface` renders nothing through `RenderTargetBitmap.Render`, which is every screenshot this project
+  takes - so a control that frosts by shader cannot be verified by the tool that verifies everything else here.
+- A `Button` with no content and a transparent background reports an empty rectangle to UI Automation, which left
+  the harness no place to aim a click; the painted track, its filled part and the knob are therefore the button's
+  own content, and the rectangle came back as `260x40`.
+- An `Image` stretched to fill asks for the whole room it is offered, so a frosted picture laid *inside* the
+  bottom-anchored panel pushed the panel to the top of the screen; a background brush takes no room and follows
+  the corners of the plate it belongs to.
+
+Left undrawn from the mockup, unchanged from the last entry: the chapter thumbnails, the `HDR` chip and
+picture-in-picture, none of which has anything honest behind it in this player yet.
+
+### cs. The row over the film was measured in millimetres, and the light it gives was wrong twice over
+
+Nine complaints came back from the panel, all of them about size, shape or a control that was not there: the two
+jumps forward and back had gone missing again, every mark was to be thirty per cent larger, the two pickers were
+to say *which* subtitle and *which* sound they stand on, the volume was to be moved out of the row (its left and
+right keys were the same two keys the row's own navigation uses, so a viewer stepping along the row moved the
+loudness instead), the position line was to be thicker, focussable and pressable anywhere along it, the chapter
+marks were missing, and one focus effect for mouse and keyboard was wanted rather than two.
+
+The row is now seven marks - back, back-ten, play, forward-ten, forward - standing 70, 70, **99**, 70, 70 px, the
+two chapter jumps among them and dimmed when there is nothing to jump to: a row that changes its length between
+two chapters is a row nobody can aim at. Under them the position line is one button 40 px high whose painted bar
+is 12 px, with the times 104 px wide at either end and the chapter marks 22 px standing on it; along the bottom
+the two pickers read "Subtitles: Forced - [Deutsch]" and "Sound: Titel 1 - [Deutsch]" and are 311 and 301 px wide
+against the 70 px of an icon, with a chevron 49 px high. Measured live over the server's own stream: a press at
+three quarters along the line moved the film from 0:20 to **37:19** of 49:41, and the loudspeaker opens a dialog
+of its own - "How loud", quieter, a 358 px line, louder, mute - where a press at two fifths left the mark reading
+"Volume 40". The chapter marks are there and dark because the file has none: "vlc: the media carries 0
+chapter(s)". A file with chapters lights them, which is what the panel's own tests draw.
+
+Two of the nine were bugs nobody could see from the markup. A `Button` does not stretch into the star-sized room
+it is given: the film's position line and the line of the sound both came back `align=Left`, so the line the
+viewer is asked to press along measured its own knob - 200 px and 22 px in a 3440 px window. Both styles carry
+`HorizontalAlignment=Stretch` now, and the test that failed is kept as `TheLineOfTheFilmIsStoodOnAndMovedByTheHand`
+with `bar.Bounds.Width > 600` in it. And the light was wrong, twice over, both times invisibly to every test:
+
+- **The theme dresses the inside of a button, not the button.** Avalonia's Fluent button styles set
+  `Background` on `/template/ ContentPresenter#PART_ContentPresenter`, which is drawn *over* the button's own
+  background and carries the theme's own small corner. So the glass drawn here was covered: the buttons measured
+  70x70 with a radius of 35 and were seen as grey tiles with a corner of 4 - at rest, and again under a pointer,
+  and the ring's blue only showed because the theme paints nothing for `:focus`. Every class of button on this
+  screen now hands its own dress down to that presenter with `{TemplateBinding}`, which follows the button
+  through its states; `TheInsideOfTheMarkWearsWhatTheMarkWears` fails the moment that mirror is taken out.
+- **The worn skin outranks a shorter selector.** `Skins/Nereus/themes/default/styles.xaml` dresses *every* button
+  of the program under a pointer with `Window:not(.pointer-resting) Button:pointerover`, and that selector counts
+  more than `Button.glass:pointerover`, so the raised panel of the skin was painted over the glass. The pointer's
+  half of each of this screen's five lit states is written the same way the skin writes it - gated on the window
+  wearing `pointer-resting`, and long enough to win - which also means a button the invisible pointer was left on
+  stops claiming somebody stands at it, exactly as the skin's own rows do. `Button.glass:focus` stays ungated,
+  because a ring has to stay lit when the hand is put away.
+
+Proving the last one took the harness apart: UI Automation reports the panel's names and rectangles while the
+panel is hidden (`osdArea` is switched with `IsVisible`, and the peers stay), so four photographs in a row can be
+of the film with a tester convinced it is the panel. What settled it was an ASCII map of the mark's own 70x70
+rect read off a real desktop screenshot - rest gives a circle and a glyph, the pointer moving over it gives 2 271
+blue pixels and 482 pixels of the ring's own `#8EC5FF`, and the ring standing on the same mark gives 3 715 and 680
+- the same light, measured. (The tooltip the mouse calls up covers the mark's left half, which is why the
+pointer's counts are the smaller pair.)
+
+What this batch learned about Avalonia 12, since each cost a build:
+
+- `StyledElement.PseudoClasses` is protected, so no test can put a control into `:pointerover`; the states can
+  only be compared as written (twins) and on the real screen.
+- `TemplatedControl.BorderBrush` is an `IBrush`, not a `IPen`.
+- Controls inside a container that has never been shown are absent from `GetVisualDescendants()`, so the volume
+  dialog has to be opened before its line can be asserted on.
+- A headless window's default width leaves a dialog's line a hand's breadth; the two volume tests size their
+  window like a television first.
+- `Avalonia.Headless` 12.1.4 has no synthetic mouse at all, which is why hover is measured on the desktop and not
+  in a test.
+
+Left undrawn, unchanged: the chapter thumbnails, the `HDR` chip and picture-in-picture.
+
+### ct. Only what works is drawn, and the ring went white
+
+Asked after the measurement pass above, with the real stream running: no tooltips, no frame round the position
+line, no blue in the frames, no frame round the name of the film, no chapter buttons that do nothing, and the
+wrong marks on the two jumps.
+
+- **Tooltips are gone** - all eighteen of them, off the whole playback screen. They were not a nicety: measured on
+  the desktop, one rose about a second after the pointer arrived and covered the left half of the mark it
+  explained, which is the half a viewer is aiming at. What a mark is called stands in `AutomationProperties.Name`
+  now, where a reader and a remote read it without anything being covered, and the two jumps carry their distance
+  there ("Rewind 30 s") instead of in a grey box. `NoMarkOfThePanelCarriesAWordOverIt` walks every control of the
+  screen and refuses any `ToolTip.Tip`.
+- **The frames are white.** Every lit edge on this screen was `#FF8EC5FF`, the platform's focus blue, worn over a
+  skin whose accent is teal; it is `#FFFFFFFF`, and the resting hairline `#665E788C` - a blue-grey - became
+  `#40FFFFFF`. Measured off the real screen: a focused pill with 3698 neutral pixels against 10 blue-tinted ones,
+  a focused circle 945 against 0, mean brightness 251 to 253.
+- **The name of the film is a name.** It lit and grew a frame like the marks beside it while being no mark of the
+  row; it is `Focusable=False`, and every rule that dressed it is deleted. A press of it still says what the
+  library knows, for the one hand that presses names. `TheNameOfTheFilmIsNotStoodOn`.
+- **The position line draws no frame.** It is the widest control on the screen, so a box round it is a frame over
+  the film rather than a mark on a control; the knob of the playhead grows instead, 22 -> 34 px, the same number
+  under a pointer as under the ring. Measured on the desktop: 22x22 px at rest, 34x34 px with the ring standing on
+  the line, and 872 white pixels in the whole band of the line - the knob alone, no frame anywhere. The line of
+  the sound does the same in its dialog. `TheLineOfTheFilmGrowsItsKnobRatherThanAFrame`.
+- **The chapter jumps are drawn when there is somewhere to jump** - `CanChapterBack` and `CanChapterForward`
+  answer their visibility instead of leaving them standing dimmed. A control that answers nothing is worse than
+  the space it would stand in, which is how the marks on the line and the two pickers of tracks already work; on
+  a file with no chapters nothing called "chapter" is left in the tree at all.
+- **The two jumps wear the skin's rewind and forward** (`fast_rewind`, `fast_forward`: the two triangles) and not
+  `replay_10` / `forward_10`. The numbered round arrows were the wrong picture - the button jumps once by the
+  viewer's own distance rather than winding a running tape back - and their figure is a smudge at the size a
+  television reads. `FootMarkIcons` went with them, so the vector catalog and the "lands inside the square" test
+  vouch for the marks that are drawn; `NearestSkipMark`, which picked between 10 and 30, is gone with them.
+
+22 tests in the playback screen's own file (three of them new) and 1202 in the frontend's suite, all green.
+
+### cu. Marks stand in the middle, lines wear the skin's colour, and chapters are drawn
+
+Asked after the entry above, on the desktop with a file that carries chapters: the two jumps' marks sat off
+centre in their plates, the filled part of the position line was still blue, the playhead jumped when the ring
+came to it, and four chapters' marks were missing from a line that should have shown them.
+
+- **The toolkit's `Stretch=Uniform` centres nothing.** `Shape.CalculateSizeAndTransform` is
+  `translate(-bounds.Position) . scale(min(sx, sy))` - there is no centring term, so a glyph whose box is wider
+  than tall piles every spare pixel of its plate *under* the figure. That is what the measurement said:
+  `fast_rewind` 7 px too high ((34 - 19.9)/2), `volume_up` 2 px ((34 - 30.9)/2), `pause` 2.5 px left
+  ((44 - 40.6)/2), and the four square glyphs exactly 0 px - the signature of a top-left alignment, not of a
+  misdrawn path. The reader now squares a glyph's box about the middle of its ink (`SquaredAboutItsMiddle`, two
+  inward sub-pixel marks, size untouched), which is right under either convention. Measured off the real screen
+  afterwards: rewind 0/0, forward 0/0, pause -0.5/-0.5, volume 0/0, settings 0/0, chapter jumps 0/0.
+  `TheShippedGlyphsStandInTheMiddleOfTheBoxTheyAreFittedBy` refuses any shipped glyph whose box's middle is not
+  its ink's middle, or whose box is not square, or whose side is not `max(w, h)`.
+- **Both lines fill with the skin's accent.** The position line's filled part took the platform's blue through
+  the progress template; it is `AccentBrush` now, like the knob and the frames. Measured in the band of the
+  line: 1758 pixels of `0,144,144` and no blue-tinted ones left.
+- **The playhead grows and stays where it stands.** Resting 908-923 px of the screen, lit 901-930 px, so it
+  grows 22 -> 34 px with both centres at 915.5 px: an eased `TransformOperationsTransition` on a knob whose
+  growth is symmetric, which is what "no jump" means. `TheLineOfTheFilmGrowsItsKnobRatherThanAFrame` reads the
+  scale rather than trusting a single pump.
+- **A film without chapters has none, and a film with them had them drawn wrongly.** The file played so far is
+  Matroska with no `Chapters` element (0 by `ffprobe`, 0 by the engine's own log), so there is nothing to draw
+  and - since the last entry - not even the two chapter buttons. That part was the honest answer. It was not the
+  whole answer: on a file with 5 chapters the marks appeared as a stack at the *start* of the line. They were a
+  list's containers, and the toolkit takes containers back when the film turns over; the `Canvas.Left` a mark
+  had been given went back with them, and the log caught the marks being placed correctly (571, 1191, 1811,
+  2479) and found again at nought several passes later. The marks are children of the canvas itself now, which
+  nobody hands back. Measured live: 764, 1385, 2005, 2673 px against 763, 1384, 2004, 2673 expected, and the
+  same four numbers 18 s and a chapter later.
+
+15 geometry tests, 22 in the playback screen's own file (one new, which closes the panel and calls it back over
+the marks) and 1203 in the frontend's suite, all green.
+
+### cv. No knob is cut any more, and the sound's dialog reads as a player
+
+Asked after the entry above, with the sound's dialog open on the desktop: its knob was sliced off at both ends of
+its line, and the dialog still carried a heading and a worded Mute button where a player would show a mark.
+
+- **The toolkit cuts a control's picture at the control's own bounds.** Both line controls paint nothing, so
+  that never showed - until the knob of a line grew from 22 to 34 px: six pixels at either side of the growth
+  fell outside the control whenever the knob stood at the end of its line, and a whole knob was drawn as half a
+  knob. Measured off the real screen before: 28 px of a 34 px knob at 100 %. The knob's own placement is clamped
+  to the line (`left = at - knob/2`, clamped to `[0, width - knob]`), so the growth had nowhere to go. Each line
+  control now holds its line ten pixels in from its bounds (`Padding="10,0"`), and because a press is measured
+  against the panel rather than the control, the press, the painted line and the numbers all moved to the same
+  shortened line. Measured after: **34 px wide and 34 px high at 100 %, and the same 34x34 at 0 %** - a whole
+  circle at either end. The corner radius the two controls carried is deleted with it: rounding on a control
+  that draws nothing does one thing only, which is cut.
+  `TheGrowthOfAKnobStaysInsideTheLineItStandsOn` stands the knob at both ends of both lines and refuses any
+  growth outside the control - it was checked by taking the padding back out, which fails it.
+- **The mute is a mark, and it stands before the quieter mark** - `PlayerControl/volume_off`, the struck
+  loudspeaker the reference draws for the same button. A word among round marks is the one thing on the row that
+  cannot be read from a sofa, and it was the last word left in the dialog. `MuteCaption` still says "Mute"/
+  "Unmute" where a reader and a remote read it.
+- **The heading is gone and the number stands over the line it counts**, in that line's own column rather than
+  in a row of its own - which is the difference between centred over the line and centred over the dialog:
+  measured centre of the number 1770 px, centre of the line 1770 px.
+
+23 tests in the playback screen's own file (one new) and 1204 in the frontend's suite, all green.
+
+### cw. The sound's dialog stands upright at the right hand side, above the band
+
+Wanted: the contents upright (the percent on top, then the louder button, then the line turned
+by 90 degrees, then the quieter button, then the mute button at the foot), and the dialog at the
+right with a margin, held to the bottom but well above the on screen display. - The line is now a
+56 x 220 field with `Padding="0,10"`: the run fills from the foot (`Height` instead of `Width`),
+the knob hangs from the run by its own lower edge (`Margin.Bottom`), and the percent sits in the
+middle of the field above the line. The mute button is a 70 x 70 area that grabs the circle right
+at its edge, like the buttons in the foot do. The buttons wear the `upright` style, because a
+standing line has no edge one could turn towards "louder". - The line is aimed by its height now
+(`1 - Y / height`); the road from the line to the quieter button and the reading "three quarters
+down means 25 percent" are both written down. - The dialog sticks to the bottom right
+(`HorizontalAlignment="Right"`, `VerticalAlignment="Bottom"`, `Margin="48,0,48,24"`) and
+`PlaceVolumeDialog()` lifts it by the kept height of the display plus 24 px; the display reports
+that height over `SizeChanged`, because it only learns the button heights from the skin's
+measurements later. - Measured live (screen 3440 x 1440): the line is 56 x 220 at x 3302, and
+from the top come the percent (y 450-477), the louder button (489-559), the line (571-791), the
+quieter button (803-873) and the mute button (885-955); the display's buttons only start at
+y 1124 where the dialog ends at 973, so 151 px of air lie between them. The knob measures
+34 x 34 px at the foot as well as at the head and therefore stays whole inside the field (field
+571-791, knob at 753-786); the filling runs from the foot upwards in the skin's accent colour
+(R0 G149 B146). `1205/1205` frontend tests and `24/24` window tests green.
+
 ## What cannot be verified without the user
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library
 import. These need hardware and judgement that are not in this environment, and they are batched into

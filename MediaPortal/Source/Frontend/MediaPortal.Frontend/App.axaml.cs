@@ -539,10 +539,21 @@ namespace MediaPortal.Frontend
       _playView = view;
       ShellWindow shell = new ShellWindow(view);
 
-      if (!_nowPlaying!.Play(MediaLocation.FromFile(_playFile!)))
+      // A file on this machine or a stream off a server, which is the same question the library asks when a
+      // viewer presses a title: --play is the harness for watching either one, and the stream is the case a
+      // person cannot reproduce with a file at all.
+      MediaLocation played = Uri.TryCreate(_playFile!, UriKind.Absolute, out Uri? asUri)
+          && (asUri.Scheme == Uri.UriSchemeHttp || asUri.Scheme == Uri.UriSchemeHttps
+              || asUri.Scheme == "rtsp" || asUri.Scheme == "udp")
+          ? MediaLocation.FromUrl(asUri)
+          : MediaLocation.FromFile(_playFile!);
+
+      if (!_nowPlaying!.Play(played))
         Console.WriteLine("play:     refused - " + _nowPlaying.StatusLine);
       else
-        Console.WriteLine("play:     " + System.IO.Path.GetFileName(_playFile));
+        Console.WriteLine("play:     " + (played.IsFile
+            ? System.IO.Path.GetFileName(_playFile)
+            : played.Describe()));
 
       // A --start is asked for a moment after playing rather than immediately, because the position only exists
       // once the player has read the file - setting it the instant Play returns is the same as asking for the
@@ -692,7 +703,11 @@ namespace MediaPortal.Frontend
       if (!sink.TryCopyLatest(pixels, width * 4, width, height))
         return "no picture to look at";
 
-      return DescribePixels(pixels, width * 4, width, height);
+      // The format the engine offered is named beside the pixels because the two have to be read together: bytes
+      // that are a colour picture in one format are a grey one in another, and a sentence about luminance cannot
+      // say which of the two happened.
+      string agreed = string.IsNullOrEmpty(sink.SourceFormat) ? "" : " [" + sink.SourceFormat + "]";
+      return DescribePixels(pixels, width * 4, width, height) + agreed;
     }
 
     /// <summary>
@@ -703,6 +718,7 @@ namespace MediaPortal.Frontend
     {
       HashSet<int> colours = new HashSet<int>();
       long luminance = 0;
+      long spread = 0;
       long sampled = 0;
       for (int y = 0; y < height; y += 4)
       {
@@ -714,6 +730,7 @@ namespace MediaPortal.Frontend
           // The rounding of luma coefficients a video engineer would use, because the question is "is there
           // something to see", not "what does colour science say".
           luminance += (long)(red * 299 + green * 587 + blue * 114) / 1000;
+          spread += Math.Abs(red - blue);
           colours.Add((red >> 3 << 10) | (green >> 3 << 5) | (blue >> 3));
           sampled++;
         }
@@ -722,9 +739,14 @@ namespace MediaPortal.Frontend
       if (sampled == 0)
         return "no picture to look at";
 
+      // The distance between red and blue is on this line because "distinct colours" alone is not enough to tell a
+      // grey picture from a film: a picture with no colour at all still has several hundred distinct greys, and a
+      // person reading "475 distinct colours" and a mean luminance of 26 out of 255 has no way of noticing that
+      // what arrived was a luma plane wearing three bytes of somebody else's pixels.
       return "mean luminance " + (luminance / sampled)
           + ", " + colours.Count.ToString("N0", CultureInfo.InvariantCulture)
-          + " distinct colour(s) in " + sampled.ToString("N0", CultureInfo.InvariantCulture) + " sampled pixels";
+          + " distinct colour(s), red and blue " + (spread / sampled) + " level(s) apart, in "
+          + sampled.ToString("N0", CultureInfo.InvariantCulture) + " sampled pixels";
     }
 
     /// <summary>
@@ -1182,11 +1204,23 @@ namespace MediaPortal.Frontend
         return _playView;
       }
 
+      // The playback answers, raised over the film by the gear in its display. The settings' own list is a
+      // bigger place a viewer walks to; what the panel opens is the one screen of answers about playing, and
+      // Back brings the film back.
+      if (state == "playbacksettings")
+        return new PlaybackSettingsView();
+
       if (state == "connection")
         return new ConnectionView((ConnectionViewModel)frame.ViewModel, _workflow);
 
+      // The wake, and the workflow it raises the household's wall of faces on. The wall is a dialog rather than
+      // a panel on the wake, so the wake needs the way to ask for it.
       if (state == "startup")
-        return new StartupView { DataContext = frame.ViewModel };
+        return new StartupView((StartupViewModel)frame.ViewModel, _workflow);
+
+      // The wall itself, over the wake that asked: every face of the household on the skin's dialog frame.
+      if (state == "household")
+        return new UserPickerView((StartupViewModel)frame.ViewModel, _workflow);
 
       if (state == "viewer")
         return new ViewerPickerView((ViewerPickerViewModel)frame.ViewModel);
@@ -1749,7 +1783,7 @@ namespace MediaPortal.Frontend
           ? location.Value.Describe()
           : System.IO.Path.GetFileName(location.Value.EngineString);
 
-      if (_nowPlaying.Play(location.Value, title.Title.Id, title.ResumePercent ?? 0))
+      if (_nowPlaying.Play(location.Value, title.Title.Id, title.ResumePercent ?? 0, title.Name))
       {
         // The shelf this title was pressed in is the shelf that is now playing - said to the home screen, whose
         // tile for that shelf wears the mark until the player falls silent. A press from the home strip itself
@@ -1795,7 +1829,7 @@ namespace MediaPortal.Frontend
           ? location.Value.Describe()
           : System.IO.Path.GetFileName(location.Value.EngineString);
 
-      if (_nowPlaying.Play(location.Value, title.Title.Id, title.ResumePercent ?? 0))
+      if (_nowPlaying.Play(location.Value, title.Title.Id, title.ResumePercent ?? 0, title.Name))
       {
         // The party reads the audio shelf, whatever the tile it was opened from was called.
         _playingAspect = "AudioItem";

@@ -1,4 +1,4 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
         xmlns:views="using:MediaPortal.Frontend.Views"
@@ -6,217 +6,718 @@
         x:Class="MediaPortal.Frontend.Views.NowPlayingView"
         x:DataType="vm:NowPlayingViewModel"
         Name="nowPlaying"
-        Background="{DynamicResource ScreenBackgroundBrush}"
+        Background="Black"
         >
 
   <!--
-    The playback screen, sized for a television like the home screen: the name of what is playing, the picture
-    area, the position, and a row of transport buttons that a remote can reach with the d-pad. Everything on it
-    is bound to NowPlayingViewModel, which is the only thing between this screen and the player library - the
-    screen itself never asks what an engine is.
+    The playback screen: the film alone on the television, which is what both reference skins did with it.
+    Nothing of the screen's own stands over the picture while it plays - no name above it, no frame around it,
+    no poster behind it, no second progress line under it - because every one of those is a piece of the
+    furniture that used to sit between a viewer and the film. What a remote reaches for waits along the foot,
+    away until the Info key, a press of a key in its room, or the mouse arriving calls it.
   -->
 
   <UserControl.Styles>
-    <Style Selector="Button.transport">
-      <Setter Property="Background" Value="{DynamicResource PanelRaisedBrush}"/>
-      <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
-      <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
-      <Setter Property="BorderThickness" Value="2"/>
-      <Setter Property="Padding" Value="18,10"/>
-      <Setter Property="FontSize" Value="20"/>
-      <Setter Property="Focusable" Value="True"/>
-      <Setter Property="MinWidth" Value="130"/>
+    <!--
+      The buttons of the display a viewer calls over a film. One shape throughout, on one ground: a control
+      whose ground is a little lighter than the panel it stands on, with a hairline of a frame and its corners
+      taken off. A row of bare glyphs over a moving picture reads as a smudge and a row of grey discs reads as
+      furniture; a row of same-shaped plates reads as buttons, which is what they are.
+
+      A button says where the viewer stands on it by lighting its ground and putting a ring of white round
+      itself - one ring for a pointer and for a keyboard or a remote alike, and no word beside it: a tooltip is
+      a grey box that lands on top of the button it explains, which on a screen read from across a room is
+      worse than no word at all. Pressing dims it, which is the answer a hand expects.
+    -->
+    <Style Selector="Button.glass">
+      <Setter Property="Background" Value="#182E4050"/>
+      <Setter Property="BorderBrush" Value="#40FFFFFF"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <!-- Round, because a control this size that is not a circle reads as a tile: half of the 70 the buttons
+        measure is a circle, and the two that carry a word keep the same radius, which makes them the ends of a
+        capsule rather than corners on a box. -->
+      <Setter Property="CornerRadius" Value="35"/>
+      <Setter Property="Padding" Value="20,15"/>
+      <Setter Property="Margin" Value="6,0"/>
+      <Setter Property="MinWidth" Value="70"/>
+      <Setter Property="MinHeight" Value="70"/>
+      <Setter Property="FontSize" Value="29"/>
+      <!-- One focus effect for a hand and for a remote: the ring this style draws when a key stands at the
+           button is the whole of what a mouse gets too, so the theme's own dotted rectangle - which only ever
+           appears for a keyboard - is off. -->
+      <Setter Property="FocusAdorner" Value="{x:Null}"/>
+      <Setter Property="Foreground" Value="{DynamicResource ButtonTextBrush}"/>
       <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Transitions">
+        <Transitions>
+          <BrushTransition Property="Background" Duration="0:0:0.12"/>
+          <BrushTransition Property="BorderBrush" Duration="0:0:0.12"/>
+          <DoubleTransition Property="Opacity" Duration="0:0:0.12"/>
+        </Transitions>
+      </Setter>
     </Style>
-    <Style Selector="Button.transport:focus /template/ ContentPresenter">
-      <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+    <!-- WHAT THE BUTTON WEARS IS WHAT ITS INSIDE WEARS.
+         The theme's own button rules dress the ContentPresenter inside the template rather than the button, so
+         the grey square it paints at rest and the lighter grey it paints under a pointer lie ON TOP of the glass
+         drawn here: the buttons measured 70x70 with a radius of 35 and showed up as grey tiles with a small
+         corner. Every class of button on this screen therefore hands its own dress down to that presenter, which
+         follows the button through its states because a template binding is live. -->
+    <Style Selector="Button.glass /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{TemplateBinding Background}"/>
+      <Setter Property="BorderBrush" Value="{TemplateBinding BorderBrush}"/>
+      <Setter Property="BorderThickness" Value="{TemplateBinding BorderThickness}"/>
+      <Setter Property="CornerRadius" Value="{TemplateBinding CornerRadius}"/>
+    </Style>
+    <Style Selector="Button.seek /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{TemplateBinding Background}"/>
+      <Setter Property="BorderBrush" Value="{TemplateBinding BorderBrush}"/>
+      <Setter Property="BorderThickness" Value="{TemplateBinding BorderThickness}"/>
+      <Setter Property="CornerRadius" Value="{TemplateBinding CornerRadius}"/>
+    </Style>
+    <Style Selector="Button.hit /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{TemplateBinding Background}"/>
+      <Setter Property="BorderBrush" Value="{TemplateBinding BorderBrush}"/>
+      <Setter Property="BorderThickness" Value="{TemplateBinding BorderThickness}"/>
+      <Setter Property="CornerRadius" Value="{TemplateBinding CornerRadius}"/>
+    </Style>
+    <Style Selector="Button.choice /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{TemplateBinding Background}"/>
+      <Setter Property="BorderBrush" Value="{TemplateBinding BorderBrush}"/>
+      <Setter Property="BorderThickness" Value="{TemplateBinding BorderThickness}"/>
+      <Setter Property="CornerRadius" Value="{TemplateBinding CornerRadius}"/>
+    </Style>
+    <!-- One light for a mouse and one ring for a keyboard would be two answers to the same question, so there is
+         one: whatever stands at a button - a pointer over it or a remote on it - lights its ground and puts a
+         ring of white round it. The pointer's half is written twice over on purpose: the worn skin
+         dresses every button of the whole program a raised panel under a pointer ("Window:not(.pointer-resting)
+         Button:pointerover"), and that rule outranks a shorter one, so this says the same thing in the same
+         words - and stands only while the pointer is about, exactly as the skin's does, so a button the invisible
+         pointer was left on does not go on claiming somebody is standing at it. -->
+    <Style Selector="Window:not(.pointer-resting) Button.glass:pointerover">
+      <Setter Property="Background" Value="#46658BAA"/>
+      <Setter Property="BorderBrush" Value="#FFFFFFFF"/>
       <Setter Property="BorderThickness" Value="3"/>
     </Style>
-    <Style Selector="Button.track">
+    <Style Selector="Button.glass:focus">
+      <Setter Property="Background" Value="#46658BAA"/>
+      <Setter Property="BorderBrush" Value="#FFFFFFFF"/>
+      <Setter Property="BorderThickness" Value="3"/>
+    </Style>
+    <Style Selector="Button.glass:pressed">
       <Setter Property="Background" Value="{DynamicResource PanelPressedBrush}"/>
-      <Setter Property="Foreground" Value="{DynamicResource ButtonTextBrush}"/>
-      <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
-      <Setter Property="BorderThickness" Value="1"/>
-      <Setter Property="Padding" Value="12,6"/>
-      <Setter Property="FontSize" Value="16"/>
-      <Setter Property="Focusable" Value="True"/>
+      <Setter Property="Opacity" Value="0.75"/>
     </Style>
-    <Style Selector="Button.track:focus /template/ ContentPresenter">
-      <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-      <Setter Property="BorderThickness" Value="2"/>
-    </Style>
-    <Style Selector="TextBlock.trackLabel">
-      <Setter Property="FontSize" Value="16"/>
-      <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+    <Style Selector="Button.glass Path">
+      <Setter Property="Fill" Value="{DynamicResource ButtonTextBrush}"/>
+      <Setter Property="Width" Value="34"/>
+      <Setter Property="Height" Value="34"/>
+      <Setter Property="Stretch" Value="Uniform"/>
       <Setter Property="VerticalAlignment" Value="Center"/>
-      <Setter Property="Margin" Value="0,0,18,0"/>
+      <Setter Property="IsHitTestVisible" Value="False"/>
+    </Style>
+    <Style Selector="Button.glass TextBlock">
+      <Setter Property="VerticalAlignment" Value="Center"/>
+      <Setter Property="IsHitTestVisible" Value="False"/>
+    </Style>
+
+    <!-- A button that carries nothing but its picture: the transport's neighbours, the loudspeaker and the two
+         switches of the machine. Square rather than wide, so the row of them reads as one height. -->
+    <Style Selector="Button.glass.icon">
+      <Setter Property="Width" Value="70"/>
+      <Setter Property="Height" Value="70"/>
+      <Setter Property="Padding" Value="0"/>
+    </Style>
+
+    <!-- The mark that says "this opens a list", which has to be read from a sofa: at the button's own height
+         rather than as a footnote beside the picture. -->
+    <Style Selector="Button.glass TextBlock.chevron">
+      <Setter Property="FontSize" Value="40"/>
+      <Setter Property="Opacity" Value="0.8"/>
+      <Setter Property="FontWeight" Value="Normal"/>
+    </Style>
+
+    <!-- Play, in the middle of everything: the biggest thing in the panel and the only control whose ground is
+         already lit when nothing stands at it, because it is the one a viewer looks for first. -->
+    <Style Selector="Button.glass.transport">
+      <Setter Property="Width" Value="99"/>
+      <Setter Property="Height" Value="99"/>
+      <Setter Property="CornerRadius" Value="50"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="FontSize" Value="36"/>
+      <Setter Property="Background" Value="#42618CB8"/>
+      <Setter Property="Margin" Value="12,0"/>
+    </Style>
+    <Style Selector="Button.glass.transport Path">
+      <Setter Property="Width" Value="44"/>
+      <Setter Property="Height" Value="44"/>
+    </Style>
+
+    <!-- The name of the film. It is a name, not a mark in the row: the ring never stands on it, so it draws no
+         frame and takes no cursor - a label that grows a box when something walks past it claims to be a button
+         and is not one. A press of it still says what the library knows about the title, for the one hand that
+         presses names. -->
+    <Style Selector="Button.title">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="6,4"/>
+      <Setter Property="CornerRadius" Value="12"/>
+      <Setter Property="Focusable" Value="False"/>
+      <Setter Property="HorizontalAlignment" Value="Left"/>
+      <Setter Property="HorizontalContentAlignment" Value="Left"/>
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border Name="PART_Border" Background="{TemplateBinding Background}"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}"
+                  CornerRadius="{TemplateBinding CornerRadius}"
+                  Padding="{TemplateBinding Padding}">
+            <ContentPresenter Content="{TemplateBinding Content}"
+                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+
+    <!-- The position line as a control: the whole row is its surface, so a press anywhere along it lands on the
+       film at that point and a keyboard or a remote can stand on the line itself. It is drawn by nothing at rest
+       and by nothing under a hand either - a frame round a line that already spans the screen is a second frame
+       over the film - and says where the viewer stands on it by growing the knob of the playhead, below. -->
+    <Style Selector="Button.seek">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <!-- Nothing of its own is rounded here, so a corner radius would do one thing only: cut the knob of the
+           playhead where it grows over either end of the line. The toolkit rounds what a control's content
+           presenter is given, and it cuts by that rounding. -->
+      <Setter Property="CornerRadius" Value="0"/>
+      <!-- The knob of the playhead grows six pixels past its rest at either end of the line and the control is
+           cut at its own bounds, so the line is held ten pixels in from those bounds - the same room the line
+           of the sound is given, for the same reason. -->
+      <Setter Property="Padding" Value="10,0"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="FocusAdorner" Value="{x:Null}"/>
+      <!-- The line of the film is as wide as the room between the two numbers beside it, not as wide as the knob
+           painted on it: without this the button keeps to its content's measure and the film's line is a hand's
+           breadth in the middle of the screen. -->
+      <Setter Property="HorizontalAlignment" Value="Stretch"/>
+    </Style>
+    <!-- The two that open a list: the subtitles and the sound, each carrying the track it stands on. A capsule
+         rather than a circle, because the name of a track is a word and a word needs room; the picture at its
+         head and the mark at its tail say what the word belongs to. -->
+    <Style Selector="Button.glass.pick">
+      <Setter Property="MinWidth" Value="230"/>
+      <Setter Property="Height" Value="70"/>
+      <Setter Property="Padding" Value="22,0"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="FontSize" Value="21"/>
+      <Setter Property="CornerRadius" Value="35"/>
+      <Setter Property="HorizontalContentAlignment" Value="Left"/>
+    </Style>
+    <Style Selector="Window:not(.pointer-resting) Button.glass.pick:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#46658BAA"/>
+      <Setter Property="BorderBrush" Value="#FFFFFFFF"/>
+      <Setter Property="BorderThickness" Value="3"/>
+    </Style>
+    <Style Selector="Button.glass.pick:focus /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#46658BAA"/>
+      <Setter Property="BorderBrush" Value="#FFFFFFFF"/>
+      <Setter Property="BorderThickness" Value="3"/>
+    </Style>
+
+    <!-- The line the hand presses on to set the sound. It is a control - not a painted panel - so that a remote
+         can stand on it and answer its keys, but it is drawn by nothing: the grey line, its coloured part, and
+         the white knob above it are all painted underneath and around it, and are out of the way of the
+         pointer. Nothing is drawn round it when it is stood on either - the knob below is what grows, and a
+         band of its own would be a frame round a line that already shows where it is. -->
+    <Style Selector="Button.hit">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="10,0"/>
+      <!-- Ten pixels of room at either end, which is not a margin of taste: the control is cut at its own
+           bounds, and the knob of the line grows six pixels past its rest at both ends - a knob standing at
+           the end of its line was therefore clipped while it grew. Inside the padding the growth stays inside
+           the control, and the painted line, the press and the numbers all keep to the same shortened line. -->
+      <Setter Property="MinHeight" Value="0"/>
+      <!-- Rounded by nothing, and therefore not rounded at all: the rounding is also the knife that cuts the
+           knob of the line where it grows over either end of it. -->
+      <Setter Property="CornerRadius" Value="0"/>
+      <Setter Property="HorizontalAlignment" Value="Stretch"/>
+    </Style>
+
+    <!-- The numbers at either end of the position line, and the percentage beside the line of the sound. White,
+         and big enough to read off a television from the other side of the room. -->
+    <Style Selector="TextBlock.time">
+      <Setter Property="Foreground" Value="#FFFFFFFF"/>
+      <Setter Property="FontSize" Value="22"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- What the medium is, beside the name of the film. Said only when the file said it: an invented "HDR"
+         next to a file nobody checked is a lie about a film somebody is watching. -->
+    <Style Selector="Border.tag">
+      <Setter Property="Background" Value="#3D63809B"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Padding" Value="11,5"/>
+      <Setter Property="Margin" Value="0,0,8,0"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="Border.tag TextBlock">
+      <Setter Property="Foreground" Value="#FFF2F7FC"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- Where a chapter begins, on the position line. Every mark is the same and says nothing: the line they
+         stand on is where they differ, and a label per chapter would be a row of words over the film. -->
+    <Style Selector="Border.tick">
+      <Setter Property="Width" Value="5"/>
+      <Setter Property="Height" Value="22"/>
+      <Setter Property="CornerRadius" Value="2"/>
+      <Setter Property="Background" Value="#DCE8F8"/>
+    </Style>
+
+    <!-- The position line itself: the film's own blue, six pixels of it, with the playhead standing on it.
+         Nothing in it answers a pointer - the row's button does that for the whole line, so that one film has
+         one thing a press can land on. -->
+    <Style Selector="ProgressBar.track">
+      <Setter Property="VerticalAlignment" Value="Center"/>
+      <Setter Property="IsHitTestVisible" Value="False"/>
+    </Style>
+    <Style Selector="Border.knob">
+      <Setter Property="Width" Value="22"/>
+      <Setter Property="Height" Value="22"/>
+      <Setter Property="CornerRadius" Value="999"/>
+      <Setter Property="Background" Value="#FFFFFFFF"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+      <Setter Property="HorizontalAlignment" Value="Left"/>
+      <Setter Property="IsHitTestVisible" Value="False"/>
+      <!-- Grown by scaling its own picture about its own middle rather than by becoming wider: the playhead's
+           place is worked out as "so far along, less half its width", and a knob that changes its width takes
+           that arithmetic with it - the middle jumps aside for a moment and the knob hops. A scale leaves the
+           measure alone, so the same place stays the same place while the knob grows around it. -->
+      <Setter Property="RenderTransformOrigin" Value="50%,50%"/>
+      <Setter Property="RenderTransform" Value="scale(1)"/>
+      <Setter Property="Transitions">
+        <Transitions>
+          <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.12"/>
+        </Transitions>
+      </Setter>
+    </Style>
+    <!-- The line of the sound stands upright, so its knob hangs from the bottom of that line and is stood in the
+         middle of its width: a sound is read as a height that grows upward, which is also the way the two marks
+         beside it are asked - the upper one lifts the sound, the lower one lowers it. -->
+    <Style Selector="Border.knob.upright">
+      <Setter Property="HorizontalAlignment" Value="Center"/>
+      <Setter Property="VerticalAlignment" Value="Bottom"/>
+    </Style>
+    <!-- Where a viewer stands on a line is said by the knob of it growing, not by a frame round the line: the
+         line of a film already reaches from one number of its length to the other, so a box drawn round it is a
+         frame over the picture rather than a mark on the control. Written once for the pointer and once for the
+         ring, because the pointer's half has to carry the window's gate - and the knob is the same size either
+         way, which is what makes it one effect rather than two. -->
+    <Style Selector="Window:not(.pointer-resting) Button.seek:pointerover Border.knob">
+      <Setter Property="RenderTransform" Value="scale(1.55)"/>
+    </Style>
+    <Style Selector="Button.seek:focus Border.knob">
+      <Setter Property="RenderTransform" Value="scale(1.55)"/>
+    </Style>
+    <Style Selector="Window:not(.pointer-resting) Button.hit:pointerover Border.knob">
+      <Setter Property="RenderTransform" Value="scale(1.55)"/>
+    </Style>
+    <Style Selector="Button.hit:focus Border.knob">
+      <Setter Property="RenderTransform" Value="scale(1.55)"/>
+    </Style>
+
+    <!-- A row of the list a viewer picks a subtitle or a sound from. Named like the button it is and wearing
+         the panel's shape, but left aligned and as wide as the list: a picker is read down the page, not
+         across it. The row the film is on is lit, because a list that cannot say what is currently chosen
+         leaves a viewer guessing. -->
+    <Style Selector="Button.choice">
+      <Setter Property="Background" Value="#182E4050"/>
+      <Setter Property="BorderBrush" Value="#40FFFFFF"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="16"/>
+      <Setter Property="Padding" Value="18,12"/>
+      <Setter Property="MinHeight" Value="52"/>
+      <Setter Property="FontSize" Value="20"/>
+      <Setter Property="Foreground" Value="{DynamicResource ButtonTextBrush}"/>
+      <Setter Property="HorizontalContentAlignment" Value="Left"/>
+      <Setter Property="HorizontalAlignment" Value="Stretch"/>
+      <Setter Property="Cursor" Value="Hand"/>
+    </Style>
+    <!-- One box for both hands: the pointer and the ring are answered by the same setters, so a row that lights
+         up under the mouse lights up identically when the d-pad walks onto it. The pointer's half carries the
+         window's own "the pointer is about" gate, which is what lets it outrank the worn skin's rule that dresses
+         every button of the program under a pointer. -->
+    <Style Selector="Window:not(.pointer-resting) Button.choice:pointerover">
+      <Setter Property="Background" Value="#46658BAA"/>
+      <Setter Property="BorderBrush" Value="#FFFFFFFF"/>
+      <Setter Property="BorderThickness" Value="3"/>
+    </Style>
+    <Style Selector="Button.choice:focus">
+      <Setter Property="Background" Value="#46658BAA"/>
+      <Setter Property="BorderBrush" Value="#FFFFFFFF"/>
+      <Setter Property="BorderThickness" Value="3"/>
+    </Style>
+    <Style Selector="Button.choice.current">
+      <Setter Property="Background" Value="#42618CB8"/>
+      <Setter Property="BorderBrush" Value="#80FFFFFF"/>
     </Style>
   </UserControl.Styles>
 
   <Panel>
-  <DockPanel Margin="48,32">
 
-    <StackPanel Name="titleArea" DockPanel.Dock="Top" Spacing="4">
-      <TextBlock Text="{Binding Title}"
-                 FontSize="32"
-                 TextTrimming="CharacterEllipsis"
-                 HorizontalAlignment="Left"/>
-      <TextBlock Text="{Binding StateText}" FontSize="16" Foreground="{DynamicResource MutedTextBrush}"/>
-    </StackPanel>
+    <!--
+      The picture, over the whole screen: a film wears the television and the bars above and below it are black,
+      which is the one thing both reference skins agreed on about a playing film. VideoSurface draws the frames
+      the player hands over and stays empty when there are none - an empty black screen that tells the viewer
+      what the player is doing is the truth, and a fake preview would not be. There is no poster behind it: a
+      picture of a film next to the film it pictures covers half of it, which is what this frame used to do.
+    -->
+    <Panel Name="videoArea" Background="{DynamicResource VideoBrush}">
+      <views:VideoSurface Name="videoSurface"/>
 
-    <Border Name="statusArea" DockPanel.Dock="Bottom" Margin="0,12,0,0">
-      <TextBlock Text="{Binding StatusLine}"
-                 FontSize="15"
-                 Foreground="{DynamicResource MutedTextBrush}"
-                 TextWrapping="Wrap"
-                 HorizontalAlignment="Left"/>
+      <!--
+        The reference's player-state overlay: a big centred icon at seventy per cent strength saying the
+        picture is waiting for something. The reference shows it while its player is rate-seeking; this
+        engine seeks by jumping, so the icon answers the escalating skip ladder instead - the moment a
+        viewer is actually in, on this front end - fast-forward while the run is pointing forwards,
+        fast-rewind while it points back, gone the moment the jump lands or is cancelled. The pictures
+        are the skins' own fastforward.png / fastrewind.png; a skin without them draws nothing, which is
+        the same silence the reference keeps on a missing texture. (The reference's pause icon in this
+        overlay binds "pause.png", a picture neither shipped skin carries - only the PlayerControl button
+        states - so it is not ported: not a decision to skip, just nothing to draw.)
+      -->
+      <Image Name="stateIcon" Width="250" Opacity="0.7" IsVisible="False"
+             IsHitTestVisible="False"
+             HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+      <!--
+        What the player is doing, said in the middle of the black - and only while the screen is black: the
+        first seconds of a file are empty anyway and a viewer wants to know whether "Starting" means starting,
+        but the moment a picture is on the screen the picture is the answer and the word over it is a caption
+        on a film. (The word is still on the foot bar for anybody reading the state of play.)
+      -->
+      <TextBlock Name="stateText"
+                 Text="{Binding StateText}"
+                 FontSize="22"
+                 Foreground="{DynamicResource DimTextBrush}"
+                 IsVisible="{Binding !HasMedia}"
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Center"/>
+
+      <!-- What the library knows about this title, said over the picture at the side where it does not cover
+           the film or the row of buttons along its foot: the Info button in the transport row calls it and
+           hides it again (the I key got the reference's own job instead - it is the Info key, and that
+           toggles the display). It is read once per title and cleared with it, so an old film's plot never
+           outlives its film. -->
+      <Border Name="mediaInfo"
+              IsVisible="False"
+              MaxWidth="860"
+              Margin="40,0,0,0"
+              Padding="16,12"
+              Opacity="0.94"
+              HorizontalAlignment="Left"
+              VerticalAlignment="Center"
+              Background="{DynamicResource PanelRaisedBrush}"
+              BorderBrush="{DynamicResource OutlineBrush}"
+              BorderThickness="1">
+        <TextBlock Text="{Binding MediaInfoText}"
+                   FontSize="18"
+                   TextWrapping="Wrap"
+                   Foreground="{DynamicResource TextBrush}"/>
+      </Border>
+    </Panel>
+
+    <!--
+      The display a viewer calls over a film: one glass panel along the foot of the picture, three rows tall,
+      with the film itself still the whole screen behind it. The rows are the ones every viewer already knows -
+      the film's name with the transport in the middle of it, the position line with its two numbers either side
+      of it, and the choices along the bottom - and the panel is the only thing this screen puts over a picture
+      that is playing.
+
+      Nothing else is on the screen. No title line above the film, no second position line, no poster in the
+      middle of the film it pictures, no status word over a film that is plainly playing, and not the worn skin's
+      own strip either: the shipped Nereus skin still answers NowPlayingOverlayTemplate with a slab of its own -
+      title, position, its own bar, the volume - and a screen that wore it ended up drawing its reading twice.
+
+      Only what works is drawn, which is the whole design rule here. The chapter marks are for a file that names
+      chapters and the two chapter buttons for a film one can still move between them in; "Subtitles" appears
+      when the media has a subtitle to show and "Audio" when it has a second sound; the tags beside the name are
+      there when the container said how big the picture is and what codes it, and are simply absent when it did
+      not. A control that answers nothing is worse than the space it would stand in.
+
+      The way out of this panel is the same key that gets a viewer out of anything else: Back closes the panel
+      first and leaves the film running, and closes the screen when the panel is already away. Stopping is the
+      remote's Stop key, and what the library knows about the title is behind its name.
+    -->
+    <!--
+      The panel, and it stands in no container of its own. What separates its buttons from the film is a band of
+      shade rising out of the bottom edge of the screen: black at four fifths over the foot of the picture,
+      thinner as it climbs until at its top the film is untouched. This is the shade every player a viewer knows
+      puts under its controls - the words and the glyphs stay readable over a bright scene, and the film keeps
+      the whole screen. A pane of frosted glass was tried in this place twice and both ways cost the film its
+      frames, once by sampling the picture in managed code and once with the compositor's own blur, which is a
+      price no band of shade asks: a gradient is two colours and a line.
+    -->
+    <Panel Name="osdArea" VerticalAlignment="Bottom" IsVisible="False">
+      <Panel.Background>
+        <LinearGradientBrush StartPoint="0%,100%" EndPoint="0%,0%">
+          <GradientStop Offset="0" Color="#CC000000"/>
+          <GradientStop Offset="1" Color="#00000000"/>
+        </LinearGradientBrush>
+      </Panel.Background>
+      <StackPanel Margin="62,120,62,40" Spacing="0">
+
+        <!--
+          Row one: what is playing, on the left, and the transport in the middle of the television where the
+          hand reaches for it. The name is the file's own name including its extension, because a viewer holding
+          a folder of files reads that; the library's title stays where a library name is the only name there is.
+          A press of the name says what the library knows about the film, but the name is never stood on: it is a
+          name, not a mark in the row, and a label that grows a frame when something walks past it lies about
+          being a button.
+        -->
+        <Grid Height="110" ColumnDefinitions="*,Auto,*">
+          <Button Grid.Column="0" Name="infoButton" Classes="title" Click="OnMediaInfo"
+                  IsEnabled="{Binding CanInform}"
+                  AutomationProperties.Name="What the library knows about this title"
+                  HorizontalAlignment="Left" VerticalAlignment="Center">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
+              <StackPanel Grid.Column="0" Orientation="Vertical" Spacing="2" VerticalAlignment="Center">
+                <TextBlock Text="{Binding Title}" FontSize="23" FontWeight="SemiBold"
+                           Foreground="#FFFFFFFF" TextTrimming="CharacterEllipsis"/>
+                <!-- The file the film is made of, in the smaller voice under the name the viewer chose. It
+                     stands there only when the two differ, because a file picked up by its own name needs no
+                     second line saying the same thing. -->
+                <TextBlock Text="{Binding FileName}" FontSize="15" Foreground="#B3FFFFFF"
+                           IsVisible="{Binding ShowsFileName}" TextTrimming="CharacterEllipsis"/>
+              </StackPanel>
+              <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" IsVisible="{Binding ShowsTags}" VerticalAlignment="Center">
+                <Border Classes="tag" IsVisible="{Binding ResolutionTag,
+                                Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                  <TextBlock Text="{Binding ResolutionTag}"/>
+                </Border>
+                <Border Classes="tag" IsVisible="{Binding CodecTag,
+                                Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                  <TextBlock Text="{Binding CodecTag}"/>
+                </Border>
+              </StackPanel>
+            </Grid>
+          </Button>
+
+          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+            <!--
+              A chapter jump is drawn when the film has a chapter to jump to that way, and not drawn when it has
+              none: this panel shows only what works, and a mark that has never done anything is a promise the
+              file never made. The row's length therefore belongs to the film - the jumps stand there exactly as
+              often as there is somewhere to jump, which is the same answer the marks on the line and the two
+              pickers of tracks already give.
+            -->
+            <Button Classes="glass icon" Name="chapterBackButton" Click="OnChapterBack"
+                    IsVisible="{Binding CanChapterBack}"
+                    AutomationProperties.Name="Previous chapter">
+              <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                      ConverterParameter='PlayerControl/previous'}"/>
+            </Button>
+            <Button Classes="glass icon" Name="backButton" Click="OnBack"
+                    IsVisible="{Binding CanTransport}"
+                    AutomationProperties.Name="{Binding SkipBackCaption}">
+              <Path Data="{Binding SkipBackGlyph,
+                          Converter={x:Static views:SkinIconGeometryConverter.Instance}}"/>
+            </Button>
+            <Button Classes="glass transport" Name="pauseButton" Click="OnPause"
+                    IsVisible="{Binding CanTransport}"
+                    AutomationProperties.Name="{Binding TransportLabel}">
+              <Path Data="{Binding TransportGlyph,
+                          Converter={x:Static views:SkinIconGeometryConverter.Instance}}"/>
+            </Button>
+            <Button Classes="glass icon" Name="forwardButton" Click="OnForward"
+                    IsVisible="{Binding CanTransport}"
+                    AutomationProperties.Name="{Binding SkipForwardCaption}">
+              <Path Data="{Binding SkipForwardGlyph,
+                          Converter={x:Static views:SkinIconGeometryConverter.Instance}}"/>
+            </Button>
+            <Button Classes="glass icon" Name="chapterForwardButton" Click="OnChapterForward"
+                    IsVisible="{Binding CanChapterForward}"
+                    AutomationProperties.Name="Next chapter">
+              <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                      ConverterParameter='PlayerControl/next'}"/>
+            </Button>
+          </StackPanel>
+        </Grid>
+
+        <!--
+          Row two: the position line, and only one of it. Its two numbers stand at either end of it rather than
+          in a caption, because that is where a viewer reads them against the line. The marks on the line are
+          where the file says its chapters begin - the file's own positions, spaced along the line by their own
+          share of it, so they keep their places when the window changes width.
+
+          The line is the only thing in this panel a press can land on besides a button: the bar, its fill and
+          the marks are all out of the way of the pointer, and the transparent surface over them answers for the
+          whole row. Pressing it puts the film there; holding and dragging moves the film along as the hand
+          moves. A remote reaches the line as a control of its own and walks it with left and right.
+        -->
+        <Grid Height="64" ColumnDefinitions="Auto,*,Auto">
+          <TextBlock Name="positionLabel" Grid.Column="0" Classes="time" MinWidth="104" Margin="6,0,20,0"
+                     VerticalAlignment="Center" Text="{Binding PositionLabel}"
+                     AutomationProperties.Name="Where the viewer stands in the film"/>
+          <!--
+            The line and the control it is pressed on are one and the same rectangle: the track, its filled part,
+            the chapter marks and the playhead are this button's own content, so a pointer, a screen reader and
+            an automation tool all find the same area to stand on, and the line is not a decoration with an
+            invisible strip of something else laid over it. Nothing of the look changed by this - the button is
+            drawn by nothing at rest.
+          -->
+          <Button Name="seekBar" Grid.Column="1" Classes="seek" IsVisible="{Binding CanSeek}"
+                  AutomationProperties.Name="Position in the film">
+            <Panel Name="progressRow" Height="40">
+              <Border Height="12" CornerRadius="6" VerticalAlignment="Center" Opacity="0.6"
+                      Background="{DynamicResource VideoOutlineBrush}" IsHitTestVisible="False"/>
+              <ProgressBar Name="progressBar" Classes="track" Minimum="0" Maximum="1"
+                           Value="{Binding Progress}" MinHeight="12" CornerRadius="6"
+                           Background="Transparent" Foreground="{DynamicResource AccentBrush}"/>
+              <!-- The chapter marks. Not a list bound to the chapters: the toolkit takes an ItemsControl's
+                   containers back whenever the film turns over, and the Canvas.Left a mark had been given went
+                   back with them, so every mark of a chaptered film ended up standing at the start of the
+                   line. The screen lays these out itself and keeps them, which the film needs. -->
+              <Canvas Name="chapterMarks" Height="22" VerticalAlignment="Center" IsHitTestVisible="False"/>
+              <Border Name="scrubKnob" Classes="knob"/>
+            </Panel>
+          </Button>
+          <TextBlock Name="durationLabel" Grid.Column="2" Classes="time" MinWidth="104" Margin="20,0,6,0"
+                     VerticalAlignment="Center" TextAlignment="Right" Text="{Binding DurationLabel}"
+                     AutomationProperties.Name="How long the film is"/>
+        </Grid>
+
+        <!--
+          Row three: the two that open a list on the left, and the three switches of the machine on the right -
+          the sound, the television, the settings. Nothing stands in the middle: the row belongs to its ends, and
+          the film behind the middle of it is the thing a viewer is watching. The two on the left say which track
+          they are on in their own body, because a viewer choosing between subtitles wants to read what is
+          currently chosen without opening anything first.
+        -->
+        <Grid Height="92" ColumnDefinitions="Auto,Auto,*,Auto" Margin="0,16,0,0">
+          <Button Classes="glass pick" Name="subtitleButton" Click="OnSubtitles"
+                  IsVisible="{Binding HasMedia}"
+                  AutomationProperties.Name="{Binding SubtitleTrackLine}">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+              <Path Data="{Binding SubtitlesGlyph,
+                          Converter={x:Static views:SkinIconGeometryConverter.Instance}}"/>
+              <TextBlock Text="{Binding SubtitleTrackName}" TextTrimming="CharacterEllipsis" MaxWidth="240"/>
+              <TextBlock Classes="chevron" Text="&#8250;"/>
+            </StackPanel>
+          </Button>
+          <Button Grid.Column="1" Classes="glass pick" Name="audioButton" Click="OnAudio"
+                  IsVisible="{Binding HasMedia}"
+                  AutomationProperties.Name="{Binding AudioTrackLine}">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+              <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                      ConverterParameter='MediaMenu/track'}"/>
+              <TextBlock Text="{Binding AudioTrackName}" TextTrimming="CharacterEllipsis" MaxWidth="240"/>
+              <TextBlock Classes="chevron" Text="&#8250;"/>
+            </StackPanel>
+          </Button>
+
+          <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+            <Button Classes="glass icon" Name="volumeButton" Click="OnVolume"
+                    AutomationProperties.Name="{Binding VolumeCaption}">
+              <Path Data="{Binding VolumeGlyph,
+                          Converter={x:Static views:SkinIconGeometryConverter.Instance}}"/>
+            </Button>
+            <Button Classes="glass icon" Name="fullscreenButton" Click="OnFullScreen"
+                    AutomationProperties.Name="Full screen">
+              <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                      ConverterParameter='PlayerControl/fullscreen'}"/>
+            </Button>
+            <Button Classes="glass icon" Name="settingsButton" Click="OnSettings"
+                    AutomationProperties.Name="Playback settings">
+              <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                      ConverterParameter='NotificationMenu/settings'}"/>
+            </Button>
+          </StackPanel>
+        </Grid>
+      </StackPanel>
+    </Panel>
+
+    <!--
+      The sound, in a dialog of its own rather than as a line along the foot of the film. A line of sound laid
+      among the buttons steals the keys a viewer needs to walk to and from those buttons: standing on the line,
+      left and right mean the volume, and standing beside it they mean the next button, which is one key saying
+      two things depending on where nobody is looking. Asked for by the loudspeaker mark and shut by the back key
+      like the two lists beside it, the level has room for its own line here - pressed, dragged, or stepped with
+      the keys.
+      Upright, and read from the top down: the number of it, the mark that lifts the sound, the line a hand
+      slides along, the mark that lowers it, and the mark that silences the film last of all. The sound grows
+      upward, which is how a viewer thinks of it, and the line is turned the same way rather than being a
+      horizontal line stood on its end.
+      It stands at the right hand side of the screen and above the row of buttons rather than over them: over the
+      buttons it would hide the very things a viewer is watching the film by, and at the right it is out of the
+      picture's middle. How far above the buttons it has to stand is the height the buttons take, which only the
+      layout knows - see PlaceVolumeDialog.
+    -->
+    <Border Name="volumeDialog" IsVisible="False" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+            Margin="48,0,48,24" Padding="20,18" CornerRadius="24"
+            Background="#F2101A24" BorderBrush="#80FFFFFF" BorderThickness="1">
+      <StackPanel Spacing="12">
+        <TextBlock Name="volumePercent" Classes="time" Text="{Binding VolumeLabel}" TextAlignment="Center"
+                   HorizontalAlignment="Center" AutomationProperties.Name="How loud the film is"/>
+        <Button Name="volumeUpButton" Classes="glass icon" Click="OnVolumeUp" HorizontalAlignment="Center"
+                AutomationProperties.Name="Louder">
+          <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                  ConverterParameter='PlayerControl/volume_up'}"/>
+        </Button>
+        <!-- The line of the sound, and the control it is pressed on, are again the same rectangle: the painted
+             parts are the button's content, so a pointer and a reader find the area rather than nothing. Ten
+             pixels of room at its head and foot, because the control is cut at its own bounds and the knob
+             grows six pixels past its rest at either end. -->
+        <Button Name="volumeControl" Classes="hit" Width="56" Height="220" Padding="0,10"
+                HorizontalAlignment="Center" AutomationProperties.Name="Volume"
+                KeyDown="OnVolumeKey">
+          <Panel Name="volumeRow" Width="56">
+            <Border Width="12" CornerRadius="6" HorizontalAlignment="Center" Opacity="0.6"
+                    Background="{DynamicResource VideoOutlineBrush}" IsHitTestVisible="False"/>
+            <Border Name="volumePlayed" Width="12" CornerRadius="6" HorizontalAlignment="Center"
+                    VerticalAlignment="Bottom" Background="{DynamicResource AccentBrush}" IsHitTestVisible="False"/>
+            <Border Name="volumeKnob" Classes="knob upright" IsHitTestVisible="False"/>
+          </Panel>
+        </Button>
+        <Button Name="volumeDownButton" Classes="glass icon" Click="OnVolumeDown" HorizontalAlignment="Center"
+                AutomationProperties.Name="Quieter">
+          <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                  ConverterParameter='PlayerControl/volume_down'}"/>
+        </Button>
+        <Button Name="muteButton" Classes="glass icon" Click="OnMute" HorizontalAlignment="Center"
+                AutomationProperties.Name="{Binding MuteCaption}">
+          <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                  ConverterParameter='PlayerControl/volume_off'}"/>
+        </Button>
+      </StackPanel>
     </Border>
 
     <!--
-      The bar the worn skin draws along the foot of the playback screen, above the one line that says what went
-      wrong, which is where the reference read out what played: its master screen's footer carried the title, a
-      progress line and the state of play along the bottom and took itself off while nothing played. Nereus drew
-      that reading on a flat dark slab with the line filled with the accent, WMC on a blue band with the word set
-      bold on it, and both drawings live in the skins' own files now.
-
-      The screen names the key and keeps its own answer to it, which is an invisible nothing, so a viewer wearing no
-      skin sees the rows this screen was written with and exactly those, and the day a skin answers the key that
-      skin's bar arrives below them without this file being touched again.
-
-      The keys a viewer presses stay in the rows above and are not the skin's to draw: markup read off a skin's disk
-      has no code behind it to catch a press, and a button on the television that answers nothing is worse than no
-      button at all.
+      The list a viewer picks a subtitle or a sound from, raised over the middle of the film by the two buttons
+      that point onward. It is the panel's own dialog rather than a screen of the navigation: choosing a
+      subtitle is a word about the film that is playing, not a place a viewer walked to, and Back goes back to
+      the film rather than out of a screen. The row the film is already on is marked as it, because a list that
+      does not say what is currently chosen leaves the viewer guessing - which is the whole complaint about the
+      subtitle menus it replaces.
     -->
-    <ContentControl Name="skinOverlay"
-                    DockPanel.Dock="Bottom"
-                    Content="{Binding}"
-                    HorizontalContentAlignment="Stretch"
-                    theming:SkinTemplates.OverlayTemplate="NowPlayingOverlayTemplate">
-      <ContentControl.ContentTemplate>
-        <DataTemplate x:DataType="vm:NowPlayingViewModel">
-          <Panel IsVisible="False"/>
-        </DataTemplate>
-      </ContentControl.ContentTemplate>
-    </ContentControl>
-
-    <Grid RowDefinitions="*,Auto,Auto,Auto">
-
-      <!--
-        The picture. VideoSurface draws the frames the player hands over and stays empty when there are none - an
-        empty black frame that tells the viewer what the player is doing is the truth, and a fake preview would
-        not be. The state text sits on top of it, because the first seconds of a file are black anyway and a
-        viewer wants to know whether "Starting" means starting.
-      -->
-      <Border Grid.Row="0"
-              Name="videoArea"
-              Background="{DynamicResource VideoBrush}"
-              BorderBrush="{DynamicResource VideoOutlineBrush}"
-              BorderThickness="1">
-        <Panel>
-          <!--
-            The playing title's own picture, behind the frames on purpose: a film covers it by playing, and a
-            song - which hands over no frames at all - wears it, which is the picture the reference's audio
-            screen showed large next to the transport. Asked of the library once per title, cleared with it.
-          -->
-          <Image Source="{Binding Cover, Converter={x:Static views:ArtworkConverter.Instance},
-                                  ConverterParameter=600}"
-                 Stretch="Uniform"
-                 HorizontalAlignment="Center"
-                 VerticalAlignment="Center"
-                 Margin="0,0,0,0"/>
-          <views:VideoSurface Name="videoSurface"/>
-
-          <!--
-            The reference's player-state overlay: a big centred icon at seventy per cent strength saying the
-            picture is waiting for something. The reference shows it while its player is rate-seeking; this
-            engine seeks by jumping, so the icon answers the escalating skip ladder instead - the moment a
-            viewer is actually in, on this front end - fast-forward while the run is pointing forwards,
-            fast-rewind while it points back, gone the moment the jump lands or is cancelled. The pictures
-            are the skins' own fastforward.png / fastrewind.png; a skin without them draws nothing, which is
-            the same silence the reference keeps on a missing texture. (The reference's pause icon in this
-            overlay binds "pause.png", a picture neither shipped skin carries - only the PlayerControl button
-            states - so it is not ported: not a decision to skip, just nothing to draw.)
-          -->
-          <Image Name="stateIcon" Width="250" Opacity="0.7" IsVisible="False"
-                 IsHitTestVisible="False"
-                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
-
-          <TextBlock Text="{Binding StateText}"
-                     FontSize="22"
-                     Foreground="{DynamicResource DimTextBrush}"
-                     HorizontalAlignment="Center"
-                     VerticalAlignment="Center"/>
-          <!-- What the library knows about this title, said over the picture at the corner where it does not
-               cover the story: the Info button in the transport row calls it and hides it again (the I key
-               got the reference's own job instead - it is the Info key, and that toggles the display).
-               It is read once per title and cleared with it, so an old film's plot never outlives its film. -->
-          <Border Name="mediaInfo"
-                  IsVisible="False"
-                  MaxWidth="860"
-                  Margin="16"
-                  Padding="16,12"
-                  Opacity="0.94"
-                  HorizontalAlignment="Left"
-                  VerticalAlignment="Bottom"
-                  Background="{DynamicResource PanelRaisedBrush}"
-                  BorderBrush="{DynamicResource OutlineBrush}"
-                  BorderThickness="1">
-            <TextBlock Text="{Binding MediaInfoText}"
-                       FontSize="18"
-                       TextWrapping="Wrap"
-                       Foreground="{DynamicResource TextBrush}"/>
-          </Border>
-        </Panel>
-      </Border>
-
-      <StackPanel Name="progressRow" Grid.Row="1" Orientation="Horizontal" Spacing="16" Margin="0,18,0,0">
-        <TextBlock Text="{Binding PositionText}" FontSize="22" VerticalAlignment="Center"/>
-        <ProgressBar Name="progressBar"
-                     Width="820"
-                     MinHeight="14"
-                     Minimum="0"
-                     Maximum="1"
-                     Value="{Binding Progress}"
-                     VerticalAlignment="Center"/>
+    <Border Name="trackDialog" IsVisible="False" HorizontalAlignment="Center" VerticalAlignment="Center"
+            MinWidth="520" MaxWidth="760" MaxHeight="620" Padding="24,20" CornerRadius="24"
+            Background="#F2101A24" BorderBrush="#80FFFFFF" BorderThickness="1">
+      <StackPanel Spacing="14">
+        <TextBlock Name="trackDialogTitle" FontSize="26" FontWeight="SemiBold" Foreground="#FFFFFFFF"/>
+        <ScrollViewer Name="trackDialogScroll" MaxHeight="440">
+          <StackPanel Name="trackDialogRows" Spacing="8"/>
+        </ScrollViewer>
+        <TextBlock Name="trackDialogHint" FontSize="16" Foreground="#A6FFFFFF"
+                   Text="Back closes this list. The film keeps playing while it is open."/>
       </StackPanel>
-
-      <!--
-        The transport row, in the reference's order (PrimaryVideoOSD): rewind, play/pause, stop, forward, then
-        the title's information, then the volume pair (up first, as the reference stacks them), and the leave
-        buttons last. The buttons the reference also draws - previous and next track, player configuration,
-        DVD title and chapter pickers - wait for a front end that owns a playlist of its own or a dialog
-        behind the button; a button that leads nowhere is worse than a missing one. The captions say the
-        reach the viewer answered in the playback settings, not a hard-worn thirty.
-      -->
-      <StackPanel Name="transportRow" Grid.Row="2" Orientation="Horizontal" Spacing="10" Margin="0,18,0,0">
-        <Button Name="backButton" Classes="transport" Content="-30 s" Click="OnBack"/>
-        <Button Name="pauseButton" Classes="transport" Content="{Binding TransportLabel}" Click="OnPause"/>
-        <Button Name="stopButton" Classes="transport" Content="Stop" Click="OnStop"/>
-        <Button Name="forwardButton" Classes="transport" Content="+30 s" Click="OnForward"/>
-        <Button Name="infoButton" Classes="transport" Content="Info" Click="OnMediaInfo"/>
-        <Button Name="volumeUpButton" Classes="transport" Content="Vol +" Click="OnVolumeUp"/>
-        <Button Name="volumeDownButton" Classes="transport" Content="Vol -" Click="OnVolumeDown"/>
-        <Button Name="muteButton" Classes="transport" Content="Mute" Click="OnMute"/>
-        <Button Name="closeButton" Classes="transport" Content="Close" Click="OnClose"/>
-      </StackPanel>
-
-      <!--
-        Sound and subtitles, on their own row because a viewer reaches for them once per film and then never
-        again - which is exactly the wrong shape for a row of eight transport keys. Each button moves to the
-        next track and the line beside it says what is now chosen, so the answer arrives without a dialog to
-        close. The row disappears for a media with one track: a button that can only do one thing is noise.
-      -->
-      <StackPanel Name="trackRow">
-      <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,14,0,0"
-                  IsVisible="{Binding HasTrackChoice}">
-        <Button Name="audioButton" Classes="track" Content="Sound" Click="OnNextAudioTrack"/>
-        <TextBlock Text="{Binding AudioTrackLine}" Classes="trackLabel"/>
-        <Button Name="subtitleButton" Classes="track" Content="Subtitles" Click="OnNextSubtitleTrack"/>
-        <TextBlock Text="{Binding SubtitleTrackLine}" Classes="trackLabel"/>
-      </StackPanel>
-      </StackPanel>
-    </Grid>
-  </DockPanel>
+    </Border>
 
     <!--
       The reference's opening breath (AnimationL on its full-screen grid): the picture starts behind a black
@@ -227,3 +728,5 @@
     <Border Name="openFade" Background="Black" IsHitTestVisible="False"/>
   </Panel>
 </UserControl>
+
+

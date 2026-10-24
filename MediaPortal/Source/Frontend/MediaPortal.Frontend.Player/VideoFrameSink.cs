@@ -161,6 +161,67 @@ namespace MediaPortal.Frontend.Player
     }
 
     /// <summary>
+    /// How the engine described the picture before this front end asked for its own format, as a sentence. Set by
+    /// the engine that fills the sink; only ever read to talk about a picture. See <see cref="Probe"/>.
+    /// </summary>
+    public string SourceFormat { get; set; } = "";
+
+    /// <summary>
+    /// What the newest picture is made of: the size that was agreed, the distance between its rows, the format the
+    /// engine offered, and how far apart its red and blue channels are.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A picture whose red and blue have been read as one plane, or whose rows were copied at the wrong distance,
+    /// is not a matter of opinion: the mean difference between the red and the blue channel of a colour film is
+    /// large and of a grey one it is nothing, and a few thousand sampled pixels are cheap enough to ask that
+    /// question while a film plays. It settles "the surface is wrong" against "the engine sent grey" from a log
+    /// line instead of from a photograph, which is the difference between fixing a copy and fixing a decoder.
+    /// </para>
+    /// </remarks>
+    public string Probe()
+    {
+      int index = Volatile.Read(ref _newest);
+      int width = Volatile.Read(ref _pictureWidth);
+      int height = Volatile.Read(ref _pictureHeight);
+      int stride = Volatile.Read(ref _stride);
+      byte[]? buffer = index >= 0 && index < _pixels.Length ? _pixels[index] : null;
+      if (buffer == null || width <= 0 || height <= 0 || stride <= 0)
+      {
+        return "no picture yet" + (string.IsNullOrEmpty(SourceFormat) ? "" : " (" + SourceFormat + ")");
+      }
+
+      long blue = 0, green = 0, red = 0, spread = 0;
+      int samples = 0;
+      for (int y = 0; y < height; y += 16)
+      {
+        int row = y * stride;
+        if (row + width * BytesPerPixel > buffer.Length)
+        {
+          break;
+        }
+        for (int x = 0; x + BytesPerPixel <= width * BytesPerPixel; x += 64)
+        {
+          int at = row + x;
+          byte b = buffer[at], g = buffer[at + 1], r = buffer[at + 2];
+          blue += b;
+          green += g;
+          red += r;
+          spread += Math.Abs(r - b);
+          samples++;
+        }
+      }
+
+      return string.Format(
+        System.Globalization.CultureInfo.InvariantCulture,
+        "picture={0}x{1} buffer={2}x{3} stride={4} frames={5} format=[{6}] samples={7} B={8} G={9} R={10} |R-B|={11}",
+        width, height, Volatile.Read(ref _width), Volatile.Read(ref _height), stride,
+        Interlocked.Read(ref _frames), SourceFormat, samples,
+        samples == 0 ? 0 : blue / samples, samples == 0 ? 0 : green / samples,
+        samples == 0 ? 0 : red / samples, samples == 0 ? 0 : spread / samples);
+    }
+
+    /// <summary>
     /// Tell the sink that the picture inside the buffers is smaller than the buffers, and where it therefore stops.
     /// </summary>
     /// <returns>

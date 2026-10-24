@@ -145,6 +145,38 @@ namespace Tests.Frontend
     }
 
     [Test]
+    public void ATitlePickedOutOfTheLibraryIsNamedByWhatTheViewerCalledIt()
+    {
+      // The address the player dials is how a machine reaches the film; "Big Buck Bunny" is what a person calls
+      // it, and the display is read by a person. The file keeps its own line beneath, because three files in the
+      // library are called "movie.mkv" and one of them is the one playing.
+      Assert.That(_screen.Play(SomeFile("big_buck_bunny_4k.mkv"), Guid.NewGuid(), 0, "Big Buck Bunny"),
+          Is.True, _screen.StatusLine);
+      Pump();
+
+      Assert.That(_screen.Title, Is.EqualTo("Big Buck Bunny"),
+          "the band is named by the title, not by the path or the stream address");
+      Assert.That(_screen.FileName, Is.EqualTo("big_buck_bunny_4k.mkv"),
+          "and the file it is made of is read underneath");
+      Assert.That(_screen.ShowsFileName, Is.True);
+
+      // A file opened by hand has no other name, and repeating it under itself would be noise.
+      Assert.That(_screen.Play(SomeFile("holiday.mp4")), Is.True, _screen.StatusLine);
+      Pump();
+      Assert.That(_screen.Title, Is.EqualTo("holiday.mp4"));
+      Assert.That(_screen.ShowsFileName, Is.False, "a film named by its file says that name once");
+
+      // And a stream has no file on this machine to name, so nothing is invented for the second line.
+      Assert.That(_screen.Play(MediaLocation.FromUrl(
+              "http://192.168.178.31:55555/MediaPortal/Server/api/media/items/1/stream"),
+          Guid.NewGuid(), 0, "Tatort"),
+          Is.True, _screen.StatusLine);
+      Pump();
+      Assert.That(_screen.Title, Is.EqualTo("Tatort"));
+      Assert.That(_screen.ShowsFileName, Is.False, "a streamed film is not a file this machine can point at");
+    }
+
+    [Test]
     public void ARefusalKeepsTheEnginesOwnSentence()
     {
       _player.AcceptsOpen = false;
@@ -368,6 +400,60 @@ namespace Tests.Frontend
       Assert.That(_screen.NextSubtitleTrack(), Is.True);
       Pump();
       Assert.That(_player.CurrentSubtitleId, Is.EqualTo(1), "and the next press is back on the only subtitle");
+    }
+
+    [Test]
+    public void ASoleSubtitleTrackIsStillASwitchEvenWhenThereIsOnlyOneSound()
+    {
+      // The film a German release ships: one dubbed sound track and one forced subtitle. Nothing to choose
+      // audibly, but the subtitle has to be switchable or the viewer is stuck with it for the whole film - which
+      // is why the subtitle switch is asked for on its own terms and not behind "more than one of everything".
+      _player.Audio = new PlaybackTrack[] { new PlaybackTrack(TrackKind.Audio, 1, "Language (ger)", "ger") };
+      _player.CurrentAudioId = 1;
+      _player.Subtitles = new PlaybackTrack[] { new PlaybackTrack(TrackKind.Subtitle, 1, "Language (ger)", "ger") };
+
+      _screen.Play(SomeFile("film.mkv"));
+      Pump();
+
+      Assert.That(_screen.HasAudioChoice, Is.False, "one sound track is not a choice");
+      Assert.That(_screen.HasSubtitleChoice, Is.True, "one subtitle track is a choice: that track, or none");
+      Assert.That(_screen.HasTrackChoice, Is.True);
+
+      Assert.That(_screen.NextSubtitleTrack(), Is.True);
+      Pump();
+      Assert.That(_player.CurrentSubtitleId, Is.EqualTo(1), "so the first press puts the subtitle on");
+      Assert.That(_screen.SubtitleTrackLine, Is.EqualTo("Subtitles: ger - Language (ger)"));
+    }
+
+    [Test]
+    public void TracksTheEngineTookItsTimeAboutAreAskedForOnceMore()
+    {
+      // An input that is still being opened over a network reaches "Playing" before it has read its own header,
+      // so the first question about its elementary streams is answered with nothing. A screen that stops there
+      // spends the whole film without a subtitle switch on a film that has one, so the question is put again -
+      // once, when the media first says how long it is, which is the sign that the input really opened.
+      _screen.Play(SomeFile("stream"));
+      Pump();
+      Assert.That(_screen.HasTrackChoice, Is.False, "nothing was known when the engine said it was playing");
+
+      _player.Audio = new PlaybackTrack[]
+      {
+          new PlaybackTrack(TrackKind.Audio, 1, "Language (eng)", "eng"),
+          new PlaybackTrack(TrackKind.Audio, 2, "Language (ger)", "ger")
+      };
+      _player.CurrentAudioId = 2;
+      _player.RaisePosition(3_000, 60_000);
+      Pump();
+
+      Assert.That(_screen.HasTrackChoice, Is.True, "and the second ask found them");
+      Assert.That(_screen.AudioTrackLine, Does.Contain("ger"));
+
+      _player.RaisePosition(4_000, 60_000);
+      _player.RaisePosition(5_000, 60_000);
+      Pump();
+      Assert.That(_player.Calls, Has.Exactly(2).EqualTo("Tracks:Audio"),
+          "twice for a media at most - the position events come several a second, and a list nobody is looking "
+          + "at is not worth a thousand questions a minute");
     }
 
     [Test]
