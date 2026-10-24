@@ -6053,6 +6053,53 @@ wall stands finished 325 ms after the click with every cover drawn and its shado
 run-time check - it only costs, exactly like a cover decoded at its scan's full size, which is what that fixture
 already exists to catch. Suite whole: 1220 tests, none failing.
 
+### de. The importer lost every picture it was given, twice
+
+The wall came up with holes and the user named the films behind them: *Lilo & Stitch*, *Minions & Monster*, *The End
+of Oak Street*. Their folders are on `\\HTPC-SERVER\Video\Movies` and do hold artwork; what they hold is
+`Minions & Monster (2026) 1080p AAC-poster.jpg` and `…-fanart.jpg`, which is what TinyMediaManager writes, and no
+plain `poster.jpg`. The reference matches a picture by its name **or** by the prefix `<media file>-<name>`, and for a
+poster or thumbnail takes a file named exactly like the media item as well (`LocalFanartProvider.cs:105-151`); the
+port had carried that rule for thumbnails only, so every other kind was searched for under names that TMM never
+writes. `LocalFanArtSearch.MatchFiles` now walks the same three passes the reference walks - the plain names, the
+names built from the media file, and for a backdrop whatever merely starts with `fanart`/`backdrop` - and does it
+without `LocalFanartHelper.FilterPotentialFanArtFilesByNameOrPrefix`, because that helper feeds priority indices to
+`Dictionary.Add` and throws on two pictures answering one prefix, and `fanart.jpg` beside `fanart-2.jpg` is one
+film's two backdrops. Four folders of this library are of that shape, which is what the reported holes were.
+
+Underneath that, the server log said the second loss 887 times over 459 distinct titles: `NFO Movie FanArt handler:
+Error saving file image … ServiceNotFoundException: Could not find the … IImageTransformer service`. It was worth
+measuring before touching, because it looked like a warning and is in fact the whole library: `<data>\FanArt` holds
+408 media item folders and **no image in any of them**, only the `.mpcache` count files that make a listing look
+populated. `TrySaveFileImage` decoded whatever an NFO referenced and re-encoded it to JPEG through the seam, asked
+for the seam with `ServiceRegistration.Get<IImageTransformer>()`, and threw where none was registered - and the
+headless host cannot register one, since `MediaPortal.Common.Windows`, which implements it, targets
+`net10.0-windows`. Every picture that was found was therefore thrown away at the moment it was found, and every
+picture on screen came from the search beside the media file instead.
+
+Now a picture whose bytes already are JPEG or PNG is written as it is, under the extension those bytes are, judged
+by the magic that begins them; only a format the fan art cache has no name for still asks the codec, and asks with
+`Get<T>(false)`, so a host without one warns once per picture instead of dying 887 times with a stack trace. Naming
+a file after its content is safe because nothing downstream trusts the name: `FanArtCache.GetFanArtFiles` lists
+`.jpg`, `.png` and `.tbn` alike, and the API answers a picture with a media type read from the bytes - which is
+precisely how `AudioTagFanArtHandler` has filed covers out of audio tags all along. It is also the only one of the
+four weighed ways that keeps a transparent PNG transparent: a codec would have flattened its alpha onto a background
+and re-compressed it, which is what the reference does on Windows today.
+
+Left on the table, and stated where they will be found rather than here: multi-targeting the headless host onto
+`net10.0-windows` for the GDI+ codec would be the first multi-target in this repo, would move every launcher path
+and CI row, would change nothing on Linux, and would lose the transparency that is the reason those PNGs exist. A
+portable codec dependency would additionally buy the shrinking of database thumbnails (`BaseInfo` → `TryResize`),
+which stays missing on this host either way - both places say so now, `IImageTransformer` and the headless launcher's
+own header. Eleven `.none` markers were taken out of the frontend's picture cache, the ones this had written for
+those titles, so the wall asks again.
+
+`TestMediaController` grew three tests for the naming passes and `TestFanArtFileImages` is new with seven for the
+storing: a transparent PNG keeps its bytes and is named `.png`, a JPEG is not re-encoded on its way in even where a
+codec answers, a GIF is not filed under a name that lies about it but becomes a JPEG where a codec was promised, and
+a byte pair too short to carry a signature is not claimed to be a photograph. 177 tests of the fan art and API
+fixtures, none failing; headless host and API build clean.
+
 ## What cannot be verified without the user
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library
 import. These need hardware and judgement that are not in this environment, and they are batched into

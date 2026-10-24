@@ -52,6 +52,11 @@ namespace Tests.Server.FanArt.FanArtHandlersForTests
       return paths;
     }
 
+    public Task<bool> TestSaveFileImage(byte[] imageData, string saveDirectory, string filename, string prefix = null)
+    {
+      return TrySaveFileImage(imageData, saveDirectory, filename, prefix);
+    }
+
     public override Task CollectFanArtAsync(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
       throw new NotImplementedException();

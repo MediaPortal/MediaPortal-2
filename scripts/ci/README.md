@@ -662,9 +662,11 @@ platform services it installs:
 Two rules follow from that shape, and both are easy to break by accident:
 
 * **Every host must fill every seam it can reach.** The defaults are chosen so a headless host still
-  works; an unregistered `IImageTransformer` is not fatal but costs thumbnails and only shows up as a
-  warning. A new host must register one, and the Linux host must register a portable one - that is
-  the point of the seam.
+  works; an unregistered `IImageTransformer` is not fatal but costs thumbnails and any fanart whose
+  bytes are neither JPEG nor PNG - those two the fan art handler has stored unchanged since 2026-10,
+  so a library imported on a codec-less host keeps its posters, fanarts and transparent logos. It only
+  shows up as a warning. A new host must register one, and the Linux host must register a portable
+  one - that is the point of the seam.
 * **Do not "simplify" a seam by giving the core a default that names a Windows type.** The whole
   value of `IImageTransformer` is that `MediaPortal.Common` no longer mentions `System.Drawing`;
   `MediaPortal.Common` now measures 0 WinForms *and* 0 GDI+ references.

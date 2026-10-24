@@ -60,7 +60,10 @@ namespace MediaPortal.Server.Headless
   /// state; the core's other fallbacks (no mounting, current-user impersonation, no image
   /// transformer) are installed by <see cref="ApplicationCore.RegisterCoreServices"/> and stay. On
   /// Windows, <c>MP2-Server</c> upgrades all of them. That asymmetry is the value of this file: the
-  /// fallbacks stop being code nobody runs.
+  /// fallbacks stop being code nobody runs. The one fallback that must not quietly eat a user's data
+  /// is the transformer, and it no longer does: importing artwork stores a JPEG or PNG as it is
+  /// (<c>BaseFanArtHandler.TrySaveFileImage</c>), so what this host loses is the shrinking of
+  /// database thumbnails and the formats neither JPEG nor PNG.
   /// </para>
   /// <para>
   /// It is also the only executable the Linux container can run, which is what makes it the gate for

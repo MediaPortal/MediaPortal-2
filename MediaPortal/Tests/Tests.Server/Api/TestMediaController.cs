@@ -2961,6 +2961,19 @@ namespace Tests.Server.Api
           "/" + filePath.Replace('\\', '/')).Serialize()));
     }
 
+    /// <summary>One film as a tagging tool left it: a file of its own, with the pictures named after it.</summary>
+    private static MediaItem CreateFilm(Guid id, string filePath)
+    {
+      SingleMediaItemAspect media = CreateMediaAspect("Minions & Monster", "Minions & Monster", DateTime.Now);
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>
+      {
+          { MediaAspect.ASPECT_ID, new List<MediaItemAspect> { media } }
+      };
+      return new TestItem(id, aspects, CreateLocator(ResourcePath.BuildBaseProviderPath(
+          LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID,
+          "/" + filePath.Replace('\\', '/')).Serialize()));
+    }
+
     /// <summary>One series as the importer left it: a name and no file of its own.</summary>
     private static MediaItem CreateSeries(Guid id)
     {
@@ -3061,6 +3074,105 @@ namespace Tests.Server.Api
         Assert.That(PictureOf(AskFanArt(id, "FanArt")), Is.EqualTo(new byte[] { 8, 8 }));
         Assert.That(PictureOf(AskFanArt(id, "Thumbnail")), Is.EqualTo(new byte[] { 9, 9 }),
             "the screenshot named after the episode is its thumbnail");
+      }
+      finally
+      {
+        Directory.Delete(dir, true);
+      }
+    }
+
+    [Test]
+    public void ThePicturesNamedAfterTheFilmAnswerWhatAPlainNameLeavesOut()
+    {
+      string dir = OwnFolder();
+      try
+      {
+        // A tagging tool that files one folder per film often puts the film's own file name in front of every
+        // picture, so nothing in the folder is called just "poster" or "fanart". The reference reads those as
+        // the film's pictures - "<file>-poster.jpg" is its poster - and a shelf that missed them stood there
+        // empty over a library that had been tagged.
+        string film = Path.Combine(dir, "Minions & Monster (2026)", "Minions & Monster (2026) 1080p.mkv");
+        Directory.CreateDirectory(Path.GetDirectoryName(film));
+        File.WriteAllBytes(film, new byte[] { 0 });
+        WritePicture(Path.Combine(dir, "Minions & Monster (2026)",
+            "Minions & Monster (2026) 1080p-poster.jpg"), new byte[] { 21, 21 });
+        WritePicture(Path.Combine(dir, "Minions & Monster (2026)",
+            "Minions & Monster (2026) 1080p-fanart.jpg"), new byte[] { 22, 22 });
+        WritePicture(Path.Combine(dir, "Minions & Monster (2026)",
+            "Minions & Monster (2026) 1080p-banner.jpg"), new byte[] { 23, 23 });
+
+        Guid id = Guid.NewGuid();
+        GiveTheServerItsFileSystem();
+        ServiceRegistration.Set(CreateFanArtLibrary(new List<MediaItem> { CreateFilm(id, film) },
+            new List<MediaItem>(), out _));
+
+        Assert.That(PictureOf(AskFanArt(id, "Poster")), Is.EqualTo(new byte[] { 21, 21 }),
+            "the poster named after the film is the film's poster, as the reference read it");
+        Assert.That(PictureOf(AskFanArt(id, "FanArt")), Is.EqualTo(new byte[] { 22, 22 }),
+            "the backdrop named after the film is the film's backdrop");
+        Assert.That(PictureOf(AskFanArt(id, "Banner")), Is.EqualTo(new byte[] { 23, 23 }),
+            "and the same rule holds for every other kind, not only for the screenshot it already knew");
+      }
+      finally
+      {
+        Directory.Delete(dir, true);
+      }
+    }
+
+    [Test]
+    public void ThePlainNameOfAPictureStillOutranksTheFilmNamedOne()
+    {
+      string dir = OwnFolder();
+      try
+      {
+        string film = Path.Combine(dir, "Lilo & Stitch (2025)", "Lilo & Stitch (2025) 1080p.mkv");
+        Directory.CreateDirectory(Path.GetDirectoryName(film));
+        File.WriteAllBytes(film, new byte[] { 0 });
+        WritePicture(Path.Combine(dir, "Lilo & Stitch (2025)", "poster.jpg"), new byte[] { 24, 24 });
+        WritePicture(Path.Combine(dir, "Lilo & Stitch (2025)", "Lilo & Stitch (2025) 1080p-poster.jpg"),
+            new byte[] { 25, 25 });
+        WritePicture(Path.Combine(dir, "Lilo & Stitch (2025)", "fanart.jpg"), new byte[] { 26, 26 });
+        WritePicture(Path.Combine(dir, "Lilo & Stitch (2025)", "Lilo & Stitch (2025) 1080p-fanart.jpg"),
+            new byte[] { 27, 27 });
+
+        Guid id = Guid.NewGuid();
+        GiveTheServerItsFileSystem();
+        ServiceRegistration.Set(CreateFanArtLibrary(new List<MediaItem> { CreateFilm(id, film) },
+            new List<MediaItem>(), out _));
+
+        Assert.That(PictureOf(AskFanArt(id, "Poster")), Is.EqualTo(new byte[] { 24, 24 }),
+            "a picture called poster is the poster; the film-named one is the fallback the reference puts second");
+        Assert.That(PictureOf(AskFanArt(id, "FanArt")), Is.EqualTo(new byte[] { 26, 26 }));
+      }
+      finally
+      {
+        Directory.Delete(dir, true);
+      }
+    }
+
+    [Test]
+    public void TwoBackdropsOfOneNameAreAnsweredAndNotThrown()
+    {
+      string dir = OwnFolder();
+      try
+      {
+        // Three backdrops per film is what the server is configured to keep, and a tagging tool numbers them.
+        // The reference's filter sorts candidates by a priority number it hands to Dictionary.Add, so two
+        // pictures answering one prefix are two files for one number - an exception, and a shelf left without
+        // a backdrop over a folder that has three.
+        string film = Path.Combine(dir, "Jurassic World (2015)", "Jurassic World (2015) 720p.mkv");
+        Directory.CreateDirectory(Path.GetDirectoryName(film));
+        File.WriteAllBytes(film, new byte[] { 0 });
+        WritePicture(Path.Combine(dir, "Jurassic World (2015)", "fanart.jpg"), new byte[] { 28, 28 });
+        WritePicture(Path.Combine(dir, "Jurassic World (2015)", "fanart-2.jpg"), new byte[] { 29, 29 });
+
+        Guid id = Guid.NewGuid();
+        GiveTheServerItsFileSystem();
+        ServiceRegistration.Set(CreateFanArtLibrary(new List<MediaItem> { CreateFilm(id, film) },
+            new List<MediaItem>(), out _));
+
+        Assert.That(PictureOf(AskFanArt(id, "FanArt")), Is.EqualTo(new byte[] { 28, 28 }),
+            "the numbered second backdrop does not stop the first one from being handed out");
       }
       finally
       {

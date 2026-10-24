@@ -33,12 +33,17 @@ namespace MediaPortal.Common.Services.Imaging
   /// <remarks>
   /// <para>
   /// Two places in the portable core need to look inside an image: <c>BaseInfo</c> shrinks the
-  /// thumbnail it is about to store in the database, and the fan art handlers re-encode downloaded
-  /// artwork to the JPEG file name they already committed to. Both used to call
+  /// thumbnail it is about to store in the database, and the fan art handlers convert artwork whose
+  /// bytes are neither JPEG nor PNG, the two formats the fan art cache names. Both used to call
   /// <c>System.Drawing</c> directly, which cannot work outside Windows: on .NET 6 and later
   /// <c>System.Drawing.Common</c> throws <c>PlatformNotSupportedException</c> for every imaging type
   /// off Windows (measured - see scripts/ci/README.md), so this interface is the seam that lets the
   /// core ask for it without naming the technology.
+  /// </para>
+  /// <para>
+  /// Artwork that already is a JPEG or a PNG does not come through here at all any more; it is stored
+  /// unchanged, under the extension its bytes are. Asking a codec to re-encode it cost the alpha
+  /// channel of every transparent logo and, on a host with no codec, the picture itself.
   /// </para>
   /// <para>
   /// Deliberately distinct from <see cref="IThumbnailGenerator"/>: that service answers "give me a

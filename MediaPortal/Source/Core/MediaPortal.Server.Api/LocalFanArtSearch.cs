@@ -269,13 +269,20 @@ namespace MediaPortal.Server.Api
         if (locator == null)
           continue;
 
-        ResourcePath directory = ResourcePathHelper.Combine(locator.NativeResourcePath, "../");
-        string episodeStem = ResourcePath.GetFileNameWithoutExtension(locator.NativeResourcePath)
-            .ToLowerInvariant();
+        ResourcePath mediaFile = locator.NativeResourcePath;
+        ResourcePath directory = ResourcePathHelper.Combine(mediaFile, "../");
+
+        // The film's own file name is half of the reference's naming rule: a tagging tool that keeps one
+        // folder per film files its pictures as "<file>-poster.jpg" and "<file>-fanart.jpg", and the reference
+        // reads those as the film's poster and backdrop. Whether the item is itself a picture belongs to the
+        // same question, because a picture would otherwise be its own thumbnail.
+        string mediaStem = ResourcePath.GetFileNameWithoutExtension(mediaFile).ToLowerInvariant();
+        bool wearsItsOwnName = !LocalFanartHelper.EXTENSIONS.Contains(
+            ResourcePathHelper.GetExtension(mediaFile.ToString()).ToLowerInvariant());
 
         for (int hop = 0; hop < 3 && directory != null; hop++)
         {
-          ListPicturesIn(directory, hop == 0 ? episodeStem : null, found);
+          ListPicturesIn(directory, hop == 0 ? mediaStem : null, wearsItsOwnName, found);
 
           try
           {
@@ -296,7 +303,8 @@ namespace MediaPortal.Server.Api
     /// <summary>
     /// Filing what one folder holds, for every kind that no folder below it answered yet.
     /// </summary>
-    private static void ListPicturesIn(ResourcePath directory, string episodeStem, Dictionary<string, string> found)
+    private static void ListPicturesIn(ResourcePath directory, string mediaStem, bool wearsItsOwnName,
+        Dictionary<string, string> found)
     {
       IResourceAccessor accessor = TryOpenLocalFile(directory);
       if (accessor == null)
@@ -315,7 +323,7 @@ namespace MediaPortal.Server.Api
           if (found.ContainsKey(kind))
             continue;
 
-          IList<ResourcePath> matching = MatchFiles(potential, kind, episodeStem);
+          IList<ResourcePath> matching = MatchFiles(potential, kind, mediaStem, wearsItsOwnName);
 
           // A backdrop may also lie below an "ExtraFanArt" folder, which is where the reference's providers keep
           // the second and third backdrops of a title.
@@ -326,7 +334,8 @@ namespace MediaPortal.Server.Api
               IFileSystemResourceAccessor extraFolder = extra as IFileSystemResourceAccessor;
               if (extraFolder != null)
               {
-                matching = MatchFiles(LocalFanartHelper.GetPotentialFanArtFiles(extraFolder), kind, episodeStem);
+                matching = MatchFiles(LocalFanartHelper.GetPotentialFanArtFiles(extraFolder), kind, mediaStem,
+                    wearsItsOwnName);
               }
             }
           }
@@ -357,37 +366,91 @@ namespace MediaPortal.Server.Api
 
     /// <summary>
     /// The pictures of one kind among the images of one folder, in the reference's priority order: the exact
-    /// names it lists for the kind ("banner", "poster" ...), and for an episode's own screenshot the file named
-    /// after the episode with "-thumb" or "-landscape" behind it. A backdrop is matched the way the reference
-    /// matches it - by prefix - because "fanart-2.jpg" is a backdrop too.
+    /// names it lists for the kind ("banner", "poster" ...), then the same names behind the media file's own
+    /// name, because a tagging tool that files one folder per film calls its pictures
+    /// "<file>-poster.jpg" and "<file>-fanart.jpg" - and for a backdrop finally whatever merely starts with
+    /// "fanart" or "backdrop", since "fanart-2.jpg" is a backdrop of the same title.
     /// </summary>
+    /// <remarks>
+    /// The reference asks its <c>LocalFanartHelper</c> once per kind with both the names and the name-behind-
+    /// the-media-file as prefixes, and that helper sorts by a priority number it hands to
+    /// <c>Dictionary.Add</c>. Two pictures answering one prefix ("fanart.jpg" and "fanart-2.jpg", which a
+    /// library with three backdrops per film writes) are two files for one number, and <c>Add</c> answers that
+    /// with an exception that would reach the viewer as a failed picture. So the walking is done here, file by
+    /// file, in the same order: the same answers, the same priority, no exception.
+    /// </remarks>
     private static IList<ResourcePath> MatchFiles(IList<ResourcePath> potential, string fanArtType,
-        string episodeStem)
+        string mediaStem, bool wearsItsOwnName)
+    {
+      string[] names = NamesFor(fanArtType);
+      if (names == null)
+        return new List<ResourcePath>();
+
+      List<ResourcePath> found = new List<ResourcePath>();
+      AddMatching(found, potential, name => names.Contains(name));
+
+      if (mediaStem != null)
+      {
+        AddMatching(found, potential,
+            name => names.Any(one => name.StartsWith(mediaStem + "-" + one, StringComparison.Ordinal)));
+      }
+
+      if (fanArtType == FanArtTypes.FanArt)
+        AddMatching(found, potential, name => names.Any(one => name.StartsWith(one, StringComparison.Ordinal)));
+
+      // A picture carrying the title's own file name is its poster and its screenshot too - but only while the
+      // title is not itself a picture, which would make every picture its own thumbnail.
+      if (mediaStem != null && wearsItsOwnName &&
+          (fanArtType == FanArtTypes.Poster || fanArtType == FanArtTypes.Thumbnail))
+        AddMatching(found, potential, name => name == mediaStem);
+
+      return found;
+    }
+
+    /// <summary>
+    /// The names the reference lists for one kind of picture, or <c>null</c> for a kind no folder answers for.
+    /// </summary>
+    private static string[] NamesFor(string fanArtType)
     {
       switch (fanArtType)
       {
         case FanArtTypes.Poster:
-          return LocalFanartHelper.FilterPotentialFanArtFilesByName(potential, LocalFanartHelper.POSTER_FILENAMES);
+          return LocalFanartHelper.POSTER_FILENAMES;
         case FanArtTypes.Banner:
-          return LocalFanartHelper.FilterPotentialFanArtFilesByName(potential, LocalFanartHelper.BANNER_FILENAMES);
+          return LocalFanartHelper.BANNER_FILENAMES;
         case FanArtTypes.Logo:
-          return LocalFanartHelper.FilterPotentialFanArtFilesByName(potential, LocalFanartHelper.LOGO_FILENAMES);
+          return LocalFanartHelper.LOGO_FILENAMES;
         case FanArtTypes.ClearArt:
-          return LocalFanartHelper.FilterPotentialFanArtFilesByName(potential, LocalFanartHelper.CLEARART_FILENAMES);
+          return LocalFanartHelper.CLEARART_FILENAMES;
         case FanArtTypes.DiscArt:
-          return LocalFanartHelper.FilterPotentialFanArtFilesByName(potential, LocalFanartHelper.DISCART_FILENAMES);
+          return LocalFanartHelper.DISCART_FILENAMES;
         case FanArtTypes.FanArt:
-          return LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potential, LocalFanartHelper.BACKDROP_FILENAMES);
+          return LocalFanartHelper.BACKDROP_FILENAMES;
         case FanArtTypes.Thumbnail:
-          IList<ResourcePath> found =
-              LocalFanartHelper.FilterPotentialFanArtFilesByName(potential, LocalFanartHelper.THUMB_FILENAMES);
-          if (episodeStem != null && found.Count == 0)
-            found = LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potential,
-                LocalFanartHelper.THUMB_FILENAMES.Select(name => episodeStem + "-" + name).ToArray());
-          return found;
+          return LocalFanartHelper.THUMB_FILENAMES;
         default:
-          return new List<ResourcePath>();
+          return null;
       }
+    }
+
+    /// <summary>
+    /// Adding the pictures whose name answers <paramref name="matches"/>, in the order the folder listed them
+    /// and skipping the ones an earlier round already claimed.
+    /// </summary>
+    private static void AddMatching(List<ResourcePath> found, IEnumerable<ResourcePath> potential,
+        Func<string, bool> matches)
+    {
+      foreach (ResourcePath candidate in potential)
+      {
+        if (matches(NameOf(candidate)) && !found.Contains(candidate))
+          found.Add(candidate);
+      }
+    }
+
+    /// <summary>The name of one picture without its extension, spelled the way the reference spells names.</summary>
+    private static string NameOf(ResourcePath path)
+    {
+      return ResourcePathHelper.GetFileNameWithoutExtension(path.ToString()).ToLowerInvariant();
     }
     /// <summary>
     /// The titles whose folders may hold this title's fanart: the title itself, and - when it is a series or a
