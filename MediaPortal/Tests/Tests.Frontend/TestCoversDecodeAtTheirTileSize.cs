@@ -92,6 +92,29 @@ namespace Tests.Frontend
           + " band's head would be stretched instead of drawn");
     }
 
+    /// <summary>
+    /// And nothing frosts inside a cover. Measured over eight switches at 3440x1440, one frosting surface behind
+    /// a cover whose poster had not arrived yet cost 51 frames slower than 40 ms and 5140 ms of their time; with
+    /// it gone the same switches leave 25 such frames and 2855 ms, and a cover's plate is what the reference
+    /// showed anyway - Nereus shipped no blur at all. A frosting surface costs nothing at run time that anyone
+    /// can see, it only costs, so this is said to the templates.
+    /// </summary>
+    [Test]
+    public void NothingFrostsInsideACover()
+    {
+      string file = File.ReadAllText(Path.Combine(MetadataPath("FrontendSource"), "Views", "HomeView.axaml"));
+
+      Assert.That(file, Does.Not.Contain("home-tile-frost"),
+          "a cover standing without its picture frosts the wall behind it again; that frosting is rendered in"
+          + " software once per surface per frame, and a wall arrives with a couple of dozen covers whose posters"
+          + " have all not landed yet");
+
+      // The shortcut glass is a different matter and stays: a handful of tiles that do not move, measured as
+      // nothing (32 frames against 33 with it off), unlike a wall of them behind arriving pictures.
+      Assert.That(Regex.Matches(file, "<acrylic:AcrylicSurface").Count, Is.EqualTo(1),
+          "HomeView grew frosting surfaces beyond the shortcut glass it was measured with");
+    }
+
     /// <summary>A binding shortened to what fits on a complaint line.</summary>
     private static string Shorten(string text)
     {

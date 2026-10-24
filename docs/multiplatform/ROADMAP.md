@@ -5981,9 +5981,9 @@ light a beat behind the content writes - which is what "build the pictures while
 means - was measured twice: the beat posted at `DispatcherPriority.Render` runs in the *same* millisecond as the
 content write, because Avalonia's layout pass is not queued between them, and an `UpdateLayout()` written into the
 dark beat costs **0 ms, eight times out of eight**. There is nothing to build early. The 100-430 ms beats stay exactly
-where they were, on the side of the light. Shadows on the wall's twenty-four covers were the next suspect and are no
-suspect at all: `home-tile-shadow` is used by the templates and styled **nowhere** in the source tree, so no cover
-has ever cast one.
+where they were, on the side of the light. Suspects were next and are no suspects at all: `home-tile-shadow` was believed unstyled because it was looked for in
+`*.axaml` files only, while the Nereus face styles it in `Skins/Nereus/themes/default/styles.xaml` - a BoxShadow of
+three right, four down and sixteen of blur under every tile's ground, `dd.` measures what it costs.
 
 So the phases were stamped instead of guessed, and that is what showed where a switch's time really goes. Eight
 hand-overs, every one of them from the step: **500 ms until the settling has run, 31-47 ms of reading, 0 ms of waiting
@@ -6013,6 +6013,45 @@ down and the reveal and nothing else. A pick of the tile that is already standin
 would have named a wall the screen was not showing yet; it is written when the wall goes up.
 
 Suite whole: 1219 tests, none failing.
+
+### dd. The wall frosted itself, in software, twenty times per frame
+
+`dc.` ended pointing at rendering and stopped there, and the thing it should have named was in the file the user
+tagged: `Skins/Nereus/themes/default/styles.xaml`. Searching for the shadow in `*.axaml` only had hidden it - the
+Nereus face styles its tiles in `.xaml`, which is why a whole round of guessing went into shadows that were there all
+along (measured later: taking every BoxShadow away moves the slow frames from 72 to 51 and their time from 5971 ms to
+5140 ms, so they cost, but they are not the story). The story is `Fluid.Avalonia.Acrylic`, and its own README says it
+in its first line: "A cross-platform, **software-rendered** acrylic / frosted-glass backdrop ... one SkiaSharp shader",
+sampling the app's own rendered content "continuously and by default".
+
+Two of its surfaces sit in the home. One is the shortcut glass - a handful of tiles that do not move. The other is
+inside every cover and is shown by `IsVisible="{Binding HasNoPicture}"`, put there so that a cover whose poster has
+not arrived would not be a bare black square. A wall arrives with seventeen to twenty-four covers and none of their
+posters yet, so for the whole of the way up every one of those covers captured the screen behind it and blurred it on
+the CPU, per frame. That is the 40-70 ms frame during a fade, and it is what `dc.` could not account for after the
+churn, the decodes and the layout had all been measured innocent - and a layout pass measuring 0 ms was always the
+clue that the cost was never in the building of a wall but in the drawing of it.
+
+Eight switches at 3440x1440, frames slower than 40 ms counted with a 16 ms dispatcher beat:
+
+| | frames &ge;40 ms | their summed time | &ge;150 ms |
+|---|---|---|---|
+| as it stood (shadows on, both frostings on) | 72 | 5971 ms | 4 |
+| shadows away, both frostings on | 51 | 5140 ms | 5 |
+| shadows away, cover frosting away, glass kept | 32 | 3265 ms | 4 |
+| shadows away, both frostings away | 33 | 3096 ms | 2 |
+| **as it stands now (shadows on, cover frosting away)** | **25** | **2855 ms** | 3 |
+
+Read across the middle three rows: the cover frosting is the whole cost and the shortcut glass is nothing - 32 frames
+with the glass kept against 33 with it off. Which decided it: the glass stays, the cover frosting goes, and a cover
+whose poster is on its way stands on the tile's own `#222222` plate until the poster arrives. That plate is also the
+more faithful picture, because the frosting was never the reference's - `NereusSkinSettings.FanartBlur` says so in
+its own words, "This dial is not the reference's; it shipped no blur at all". Live check with the change in: a clicked
+wall stands finished 325 ms after the click with every cover drawn and its shadow under it, and no pale plate anywhere.
+
+`TestCoversDecodeAtTheirTileSize` grew the guard, because a frosting surface that is not there is invisible to every
+run-time check - it only costs, exactly like a cover decoded at its scan's full size, which is what that fixture
+already exists to catch. Suite whole: 1220 tests, none failing.
 
 ## What cannot be verified without the user
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library

@@ -440,23 +440,20 @@
                           <Panel>
                           <Border Classes="home-tile-face" ClipToBounds="True">
                           <Grid>
-                            <!-- The frost, and only where the tile has no picture of its own. A cover that has
-                                 its fanart stands on its dark plate exactly as it always did; one whose artwork
-                                 is missing or still arriving would otherwise be a bare black square with a word
-                                 on it, so it frosts the piece of wall behind it the way the glasses do. Out of
-                                 the frosting's backdrop for the same reason the shortcut tiles are: a wall of
-                                 these sampling each other drifts to a pale plate. -->
-                            <acrylic:AcrylicSurface Classes="home-tile-frost"
-                                                    IsVisible="{Binding HasNoPicture}"
-                                                    CornerRadius="10"
-                                                    BlurRadius="8"
-                                                    Vibrancy="1.15"
-                                                    SurfaceColor="#33030810"
-                                                    RefractionHeight="0"
-                                                    RefractionAmount="0"
-                                                    HighlightEnabled="False"
-                                                    ShadowEnabled="False"
-                                                    acrylic:AcrylicBackdrop.IsExcludedFromCapture="True"/>
+                            <!-- Nothing frosts here. A cover whose artwork is missing or still arriving used to frost
+                                 the piece of wall behind it the way the shortcut glasses do, and that was the single
+                                 most expensive thing on the home screen: the frosting samples the backdrop and blurs
+                                 it in software, once per surface per frame, and a wall arrives with seventeen to
+                                 twenty-four covers whose posters have all not landed yet - so every frame of the way
+                                 up cost one blurred backdrop per cover standing without a picture. Measured over
+                                 eight switches at 3440x1440, taking this one surface away cut the frames slower than
+                                 40 ms from 51 to 32 and their summed time from 5140 ms to 3265 ms, which is all of
+                                 the frosting's cost - the shortcut glasses beside it measure as nothing (32 against
+                                 33), which is why they keep their glass and this does not. What a cover without a
+                                 picture stands on is the tile's own dark plate, the same #222222 the faces have
+                                 always had, for the moment its poster is on its way. The reference never frosted
+                                 anything here - Nereus shipped no blur at all (NereusSkinSettings.FanartBlur says
+                                 so where the dial is explained) - so the plate is the worn skin's own picture too. -->
                             <!-- The cover, decoded the width the wall draws it at. A poster out of the fanart cache
                                  is a 2000x3000 scan, and a wall realises its seventeen to nineteen covers in one
                                  beat: decoded whole, that is a twenty-four megabyte allocation per cover on the
