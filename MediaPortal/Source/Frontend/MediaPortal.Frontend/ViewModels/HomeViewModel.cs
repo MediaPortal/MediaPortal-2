@@ -929,6 +929,20 @@ namespace MediaPortal.Frontend.ViewModels
     public Func<Task>? WallHandover { get; set; }
 
     /// <summary>
+    /// What the view is asked to do the moment a rail tile is stepped onto, while the settling has not run and
+    /// nothing has been read yet: start the wall that stands there on its way down.
+    /// </summary>
+    /// <remarks>
+    /// The step is the moment the viewer decided something, and a screen that answers a step a full settling later
+    /// looks thoughtless however short the settling is. So the way down belongs to the step and the reading happens
+    /// while the wall is already going out, which takes the fade's length out of the wait instead of adding it to
+    /// the end. <see cref="WallHandover"/> then answers as soon as the curve has been played - usually before the
+    /// reading has come back at all. A view that fades nothing leaves this unsaid, and a wall that is already down
+    /// is not put down twice.
+    /// </remarks>
+    public Action? WallLeaving { get; set; }
+
+    /// <summary>
     /// Reads one entry's wall and puts it up: once, whole, and in one beat.
     /// </summary>
     /// <remarks>
@@ -1193,6 +1207,10 @@ namespace MediaPortal.Frontend.ViewModels
 
     private void QueueContentForSelection(MainMenuEntry? entry)
     {
+      // The standing wall starts leaving with the step, not with the answer that comes after the settling and the
+      // reading. Nothing here waits for it: the curve is written and the screen plays it out on its own.
+      WallLeaving?.Invoke();
+
       CancellationTokenSource next = new CancellationTokenSource();
       CancellationTokenSource? previous = Interlocked.Exchange(ref _pendingContentSelection, next);
       previous?.Cancel();

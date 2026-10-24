@@ -5899,6 +5899,44 @@ before any fixture of a test's own has had its word. So the isolation is said on
 `Tests.Frontend.IsolatedMachineSettings`, which points `MP2_CLIENT_FILE` at an empty file of the run's own unless
 a caller named one - and the four screens read what they wrote again. The suite whole: 1217 tests, none failing.
 
+### da. The way down belongs to the step, and a wall is not taken down twice
+
+`cz.` left the hand-over's own two hundred and twenty milliseconds in front of every answer, and left them there
+honestly: a wall that goes up in the beat its predecessor came down is a cut, so the view is asked to take the
+standing wall down and to answer once that has been on the screen long enough to have been watched. What nobody
+had looked at was *when* it is asked. The step is swallowed by half a second of settling first, and only after
+that does the reading begin and, at its end, the fade. So through the first five hundred and thirty-five
+milliseconds of every switch the screen kept showing a wall that had no business standing there, and its
+successor arrived two hundred and twenty milliseconds later still.
+
+The step says so now. `QueueContentForSelection` asks the view for the way down (`HomeViewModel.WallLeaving`)
+before it starts the settling, and `HomeView.BeginWallSink` writes the curve the hand-over used to write - once,
+because a wall already on its way down is not put down twice, and with a stopwatch, because whoever picks the
+curve up afterwards wants to know how much of it the screen has not shown yet. `SinkStandingWallAsync` waits for
+that remainder, which - the way down being two hundred and twenty milliseconds and the settling five hundred - is
+nothing at all. Two cases still pay the curve in full and on the answer's own clock: a step onto the tile whose
+wall is already worn, which is a re-read and not a hand-over, and a wall arriving behind an empty area, where
+there is nothing to fade and waiting for a fade would only hold the newcomer back. `RaiseWall` ends the
+accounting, so the next step starts a fresh way down.
+
+Measured on the shown screen - 3440x1440, the real server, eight walks between Videos and Series, one build with
+these two changes stashed away and the next build with them back in, nothing else moved. From the step to the
+answer being read: 530 to 570 ms before, 518 to 558 ms after, which is the settling and the reading and is rightly
+untouched by any of this. The fade that the answer waits for: 219 to 241 ms before, nothing after - by the time a
+successor has been read its predecessor has been going out for five hundred and thirty milliseconds, twice the
+curve's length. From the step to its wall standing: **769 to 840 ms before, 540 to 582 ms after**. And `capwin`
+catches the difference where no number does: 205 ms after a step the wall is caught mid-fade, its covers sunk and
+ghosted, where the same moment before showed it standing untouched and fully lit.
+
+What is left of a switch is the settling itself (`CONTENT_SELECTION_DELAY_MS`, the half second that keeps a held
+key from reading five walls on the way past) and the two hundred eighty to three hundred ninety-seven millisecond
+gap a wall's realisation costs while `RaiseWall` fires three or four times per hand-over because the bands are put
+on one at a time. Both are said here rather than quietly left out.
+
+One screen keeps the arrangement honest: `TestHomeSelectionDial.TheStepOntoANewTileSendsTheStandingWallDown`
+counts the asks, and fails as soon as a step waits for its settling again. The suite whole: 1218 tests, none
+failing.
+
 ## What cannot be verified without the user
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library
 import. These need hardware and judgement that are not in this environment, and they are batched into

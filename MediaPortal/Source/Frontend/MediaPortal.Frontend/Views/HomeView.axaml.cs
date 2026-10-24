@@ -75,6 +75,19 @@ namespace MediaPortal.Frontend.Views
     private const int WALL_SINK_MS = 180;
 
     /// <summary>
+    /// The beat the screen is given on top of the curve's own length, because a curve is played out by the screen
+    /// rather than by the clock and the last frame wants to have been drawn before its successor is written.
+    /// </summary>
+    private const int WALL_SINK_ROOM_MS = 40;
+
+    /// <summary>
+    /// Whether the standing wall has been sent down and not yet brought back, and since when. The first decides
+    /// who pays for the curve (see <see cref="SinkStandingWallAsync"/>), the second how much of it is left.
+    /// </summary>
+    private bool _wallSinking;
+    private readonly System.Diagnostics.Stopwatch _wallSink = new System.Diagnostics.Stopwatch();
+
+    /// <summary>
     /// The class that puts the shorter curve on the wall for the length of a change of entries. Its curve is the
     /// one the styles block keeps under that name in <c>HomeView.axaml</c>, and its length is <see cref="WALL_SINK_MS"/>.
     /// </summary>
@@ -138,6 +151,7 @@ namespace MediaPortal.Frontend.Views
       // that even the first wall of a session comes up on its curve rather than appearing.
       nereusWallStanding.Opacity = 0;
       _home.WallHandover = SinkStandingWallAsync;
+      _home.WallLeaving = BeginWallSink;
 
       home.ContentGroups.CollectionChanged += delegate
       {
@@ -743,14 +757,46 @@ namespace MediaPortal.Frontend.Views
     /// drawn twice for as long as the two lie on each other, which on this screen was a switch that stumbled.
     /// </para>
     /// <para>
-    /// The wait below is the fade itself, not a pause added to it. The write starts the curve and going back to the
-    /// dispatcher lets it be drawn, so by the time this answer comes back the viewer has watched the wall go out
-    /// and its successor has a dark screen to come up on. A fade written and replaced in the same beat is never
-    /// drawn at all, which is the cut every attempt here before this one looked like.
+    /// The wait below is the fade itself, not a pause added to it. A fade written and replaced in the same beat is
+    /// never drawn at all, which is the cut every attempt here before this one looked like. It used to be paid
+    /// twice over: the step sent its answer off half a second later and only then started the curve, so the viewer
+    /// watched a wall standing, then a fade, then its successor. Now the step itself sends the wall down (see
+    /// <see cref="BeginWallSink"/>) and this answer waits only for whatever the screen has not shown yet - which,
+    /// the way down being shorter than the settling, is nothing. The way down and the reading of a successor run
+    /// through the same half second, and the wall that leaves is already gone when its successor is written.
     /// </para>
     /// </remarks>
     private async Task SinkStandingWallAsync()
     {
+      // Normally nothing happens here but the waiting: the step onto the next rail tile already sent this wall on
+      // its way (BeginWallSink), and the reading of its successor ran while the curve was playing. What is paid is
+      // what the screen has not shown yet, never the whole curve again.
+      if (!_wallSinking)
+      {
+        // Nobody asked the wall down, which means the wall standing here is this entry's own - a re-read of the
+        // entry that is already worn, or a wall arriving behind an empty area. Then the way down is this answer's
+        // business and its whole length, because a successor put up in the same beat is a cut.
+        BeginWallSink();
+        if (!_wallSinking)
+          return;
+      }
+
+      long left = WALL_SINK_MS + WALL_SINK_ROOM_MS - _wallSink.ElapsedMilliseconds;
+      if (left > 0)
+        await Task.Delay((int)left);
+    }
+
+    /// <summary>
+    /// Starts the standing wall on its way down and remembers when, so that whoever picks it up afterwards waits
+    /// for the rest of the curve rather than the whole of it.
+    /// </summary>
+    private void BeginWallSink()
+    {
+      // Already on its way down: a step further along the rail cannot take the same wall down twice, and the
+      // clock of the first step is the one that stands.
+      if (_wallSinking)
+        return;
+
       // Nothing standing, nothing to take down: an empty area, or the first wall of a session. Its successor comes
       // up out of the fold on RaiseWall, and waiting for a fade with no picture to fade would only delay it.
       if (!_home.IsNereusHome || !nereusContentPane.IsVisible || _home.ContentGroups.Count == 0)
@@ -758,10 +804,10 @@ namespace MediaPortal.Frontend.Views
 
       // The way down is the shorter curve the styles block keeps under this class name; it is put on for the walk
       // down and taken off again on the way up, which leaves the wall wearing its rise curve at every other time.
+      _wallSinking = true;
+      _wallSink.Restart();
       nereusWallStanding.Classes.Add(WALL_SINKING_CLASS);
       nereusWallStanding.Opacity = 0;
-
-      await Task.Delay(WALL_SINK_MS + 40);
     }
 
     /// <summary>
@@ -776,6 +822,9 @@ namespace MediaPortal.Frontend.Views
       nereusContentPane.IsVisible = true;
       nereusWallStanding.Classes.Remove(WALL_SINKING_CLASS);
       nereusWallStanding.Opacity = 1;
+
+      // Standing in the light again, so the next step down is a new way down and not the tail of the old one.
+      _wallSinking = false;
     }
 
     /// <summary>

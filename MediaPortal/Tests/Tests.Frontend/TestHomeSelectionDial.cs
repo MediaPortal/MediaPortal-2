@@ -118,6 +118,60 @@ namespace Tests.Frontend
       Assert.That(NereusSkinSettings.Load(null, out _).LastSelectedHomeMenuActionId, Is.EqualTo(second.HomeImageId));
     }
 
+    /// <summary>
+    /// The way a wall goes down belongs to the step onto the next tile, not to the answer that comes after the
+    /// settling: measured on the shown screen, a wall that was only taken down by that answer stood untouched for
+    /// a full settling after the viewer had decided, and its successor arrived 220 ms later still.
+    /// </summary>
+    [AvaloniaTest]
+    public async Task TheStepOntoANewTileSendsTheStandingWallDown()
+    {
+      Application app = RequireApplication();
+      FrontendTheme.Apply(app, "nereus", out _);
+
+      HomeViewModel home = new HomeViewModel();
+      Assert.That(home.IsNereusHome, Is.True,
+          "the wall and its way down are Nereus' arrangement, so this screen has to be wearing Nereus");
+      Assert.That(HomeViewModel.WaitsForAPress, Is.False,
+          "and the pane has to follow the walk, or a step onto a tile is not yet a step for the wall");
+
+      // Two tiles the screen is not standing on already: a home remembers where its viewer last pressed, and
+      // stepping onto the tile it woke up on is not a step - nothing changes and no wall has any reason to move.
+      MainMenuEntry? first = null;
+      MainMenuEntry? second = null;
+      foreach (MainMenuEntry entry in home.DisplayMenu)
+      {
+        if (entry.Mp2Action == null || ReferenceEquals(entry, home.SelectedEntry))
+          continue;
+        if (first == null)
+          first = entry;
+        else
+        {
+          second = entry;
+          break;
+        }
+      }
+
+      Assert.That(first, Is.Not.Null, "the menu has to offer two tiles besides the one it stands on");
+      Assert.That(second, Is.Not.Null, "the menu has to offer two tiles besides the one it stands on");
+
+      int sent = 0;
+      home.WallLeaving = () => sent++;
+
+      home.SelectedEntry = first;
+      Assert.That(sent, Is.EqualTo(1), "the step asks for the way down itself, before the settling has run");
+      Assert.That(home.PaneEntry, Is.Not.SameAs(first),
+          "and that is before anything of the successor has been read, which is the point of asking so early");
+
+      home.SelectedEntry = second;
+      Assert.That(sent, Is.EqualTo(2),
+          "a step whose predecessor is cancelled still sends its wall down - the viewer saw this step too");
+
+      // And the reading is seen through to its end before the screen is left, so that the next screen does not
+      // inherit a half-finished wall of this one.
+      await WaitForPaneAsync(home, second!);
+    }
+
     private static async Task WaitForPaneAsync(HomeViewModel home, MainMenuEntry expected)
     {
       DateTime deadline = DateTime.UtcNow.AddSeconds(3);
