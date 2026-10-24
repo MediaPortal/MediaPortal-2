@@ -5919,7 +5919,8 @@ wall is already worn, which is a re-read and not a hand-over, and a wall arrivin
 there is nothing to fade and waiting for a fade would only hold the newcomer back. `RaiseWall` ends the
 accounting, so the next step starts a fresh way down.
 
-Measured on the shown screen - 3440x1440, the real server, eight walks between Videos and Series, one build with
+Measured on the shown screen - 3440x1440, the real server, eight walks along the rail over two of the library's
+real shelves, one build with
 these two changes stashed away and the next build with them back in, nothing else moved. From the step to the
 answer being read: 530 to 570 ms before, 518 to 558 ms after, which is the settling and the reading and is rightly
 untouched by any of this. The fade that the answer waits for: 219 to 241 ms before, nothing after - by the time a
@@ -5936,6 +5937,42 @@ on one at a time. Both are said here rather than quietly left out.
 One screen keeps the arrangement honest: `TestHomeSelectionDial.TheStepOntoANewTileSendsTheStandingWallDown`
 counts the asks, and fails as soon as a step waits for its settling again. The suite whole: 1218 tests, none
 failing.
+
+### db. A wall is answered once, and a shelf whose number stood is not measured again
+
+A wall goes on band by band and `ContentGroups` is an observable collection, so every band was a notification of its
+own, and the view answered each one on the spot. Measured over eight hand-overs: eight folds, twenty-eight raises and
+twenty-nine transform writes, where eight walls were being put up. The fold is the `Clear` that opens a swap, which
+leaves the count at nothing for one notification; the raises follow on one band, then on two, then on three, and only
+then on the finished wall - so the screen was shown a wall being built, which is the one thing `PutUpWall`'s own
+comment forbids, and the pane went out and came back four times in the beat that was meant to change it once.
+
+The answer runs at the end of the beat that did the swapping now: `PutFinishedWallInLight`, posted once per arrival
+by the one subscription the wall has left, so what it looks at is the wall the viewer is meant to see - one fold or
+one raise, and one measurement. `ScaleNereusWall` additionally remembers the number it wrote and leaves the transform
+alone when a shelf arrives on the number it already carries, because a fresh `ScaleTransform` is a fresh answer to the
+screen and sends the whole shelf through the screen's measurement - and over those eight hand-overs the number never
+moved (1,309 the whole time). Same machine, same library, same eight hand-overs: eight raises, one transform write, no
+fold at all.
+
+What this did not buy is said here because it was the reason for asking: the hitch did not leave with the churn. The
+busy window a wall's arrival costs - the dispatcher's beats of 40 ms and over in the 800 ms after a wall goes up - sat
+at 352 ms mean and 446 ms worst before, and sits at 337 ms mean and 398 ms worst after. Three layout passes less are
+not three layout passes' worth of that time, so what is left is the realising of a wall at all - four lists of covers
+with their bindings, their shadows and their pictures - and it lands in the beat its successor steps into the light.
+The next question is therefore not how often a wall is answered but when its pictures are made: making them while the
+old wall is still leaving, rather than in the beat the new one arrives, is where the rest of the wait lives.
+
+Live: the home stands finished where the wake steps aside, and steps along the rail alternate two of the library's
+real shelves correctly - with every tile looked up again before it is stepped onto, since a UIA element held over from
+before a wall change points at whatever tile its recycled container carries now. That is also how two earlier runs
+named a tile they were not standing on, and it is worth knowing before reading any measured "Videos to Series" above
+this line: what those runs walked was two real shelves, whichever two the recycled containers were holding.
+
+One clean-up came along too: `TestUserRules` deletes the run's own client file, and a save still on its way out of the
+application holds it for a moment, which Windows calls "used by another process" - two screens of that fixture fell
+over that way in the middle of this round's suite without having anything to do with a wall. The clean-up waits the
+handle out. Suite whole: 1218 tests, none failing.
 
 ## What cannot be verified without the user
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library

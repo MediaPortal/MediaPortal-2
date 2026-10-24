@@ -88,6 +88,18 @@ namespace MediaPortal.Frontend.Views
     private readonly System.Diagnostics.Stopwatch _wallSink = new System.Diagnostics.Stopwatch();
 
     /// <summary>
+    /// Whether the beat that answers a wall's arrival has been asked for already. A wall is put on band by band, so
+    /// without this one answer every band folds, raises and measures the wall afresh.
+    /// </summary>
+    private bool _wallArrivalQueued;
+
+    /// <summary>
+    /// The number the wall's transform carries, so that a shelf arriving on the same number re-lays nothing out.
+    /// Zero means no transform stands.
+    /// </summary>
+    private double _wallScale;
+
+    /// <summary>
     /// The class that puts the shorter curve on the wall for the length of a change of entries. Its curve is the
     /// one the styles block keeps under that name in <c>HomeView.axaml</c>, and its length is <see cref="WALL_SINK_MS"/>.
     /// </summary>
@@ -155,23 +167,17 @@ namespace MediaPortal.Frontend.Views
 
       home.ContentGroups.CollectionChanged += delegate
       {
-        if (!_home.IsNereusHome)
+        // A wall is put on band by band, and every band is a notification of its own. Answered on the spot, one
+        // change of entries folded the pane away, raised it on one band, raised it again on two and again on three,
+        // and asked for the wall's measurement four times over - a wall watched being built, which is the one thing
+        // this exchange exists to prevent, and three layout passes of a tree that is only finished at the last
+        // band. So the beat is asked for once and runs when the swapping is through: what it looks at then is the
+        // wall the viewer is meant to see, and it answers it once.
+        if (_wallArrivalQueued)
           return;
 
-        if (home.ContentGroups.Count == 0)
-        {
-          // Nothing to show is nothing to leave standing: the reference's home content is a ContentControl
-          // whose content simply was not there when no list had items (AbstractHomeContent adds a list only
-          // when HasItems), so the whole area took itself off and the fanart showed through. An invisible
-          // pane also drops out of the remote's ring - DpadNavigation walks over what cannot take focus.
-          FoldWall();
-          return;
-        }
-
-        // Bands went on the wall: it comes into the light. A wall that is already standing in it stays as it is,
-        // because writing the light something is already in starts no curve at all - so this is also the beat a
-        // refreshed wall takes without flickering.
-        RaiseWall();
+        _wallArrivalQueued = true;
+        Dispatcher.UIThread.Post(PutFinishedWallInLight);
       };
 
       // The labels of the main menu survive any skin change, by fiat: the moment this view is built it owns
@@ -249,10 +255,10 @@ namespace MediaPortal.Frontend.Views
       // The wall is scaled to the panel it stands on, and a screen only knows its own size after its first
       // layout - so a panel that changes (a window dragged between televisions, a first measure of zero)
       // asks the worn face for its share again rather than keeping a transform computed on nothing. The shelf
-      // arrives later still, from the server, and until it has there is no drawn height to scale from.
+      // arrives later still, from the server, and until it has there is no drawn height to scale from. The shelf's
+      // own arrival is answered where a wall's arrival is answered - in PutFinishedWallInLight, once for a wall
+      // rather than once for every band of it.
       SizeChanged += delegate { ScaleNereusWall(); SizeNereusMenu(); };
-      _home.ContentGroups.CollectionChanged +=
-          delegate { ScaleNereusWall(); };
 
       // The ring is in the order the areas are arranged on the screen: the menu on the left, its content to the
       // right of it, the server's aspect list on the far side, and the buttons underneath. Left/right walk it;
@@ -811,6 +817,40 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
+    /// The beat a wall's arrival is answered in: measured once for the whole shelf, then folded away or brought
+    /// into the light. The model swaps a wall band by band and every band is a notification, so this runs at the end
+    /// of the beat that did the swapping and looks at the wall the viewer is meant to see rather than at however
+    /// many walls were standing on the way to it.
+    /// </summary>
+    private void PutFinishedWallInLight()
+    {
+      _wallArrivalQueued = false;
+
+      // The share of the panel the wall owns is asked for once a wall, not once a band: writing the transform is
+      // what tells the screen to measure the whole shelf again, and a band that left the number where it was has
+      // no business sending the wall through that.
+      ScaleNereusWall();
+
+      if (!_home.IsNereusHome)
+        return;
+
+      if (_home.ContentGroups.Count == 0)
+      {
+        // Nothing to show is nothing to leave standing: the reference's home content is a ContentControl whose
+        // content simply was not there when no list had items (AbstractHomeContent adds a list only when HasItems),
+        // so the whole area took itself off and the fanart showed through. An invisible pane also drops out of the
+        // remote's ring - DpadNavigation walks over what cannot take focus.
+        FoldWall();
+        return;
+      }
+
+      // Bands went on the wall: it comes into the light. A wall that is already standing in it stays as it is,
+      // because writing the light something is already in starts no curve at all - so this is also the beat a
+      // refreshed wall takes without flickering.
+      RaiseWall();
+    }
+
+    /// <summary>
     /// Brings the wall into the light on the styles' own curve, and with it the area it stands in - which is also
     /// how the first wall of a session appears, since the fold and the view's own first beat leave it dark.
     /// </summary>
@@ -858,6 +898,7 @@ namespace MediaPortal.Frontend.Views
     {
       if (_home.HomeLayout != "nereus")
       {
+        _wallScale = 0;
         nereusContentWall.LayoutTransform = null;
         return;
       }
@@ -871,6 +912,14 @@ namespace MediaPortal.Frontend.Views
 
       double share = SkinEngine.WornNumber("HomeWallHeightRatio") ?? 0.8;
       double scale = Math.Clamp(share * panel / drawn, 0.35, 2.5);
+
+      // The number standing is remembered because a new transform object is a new answer to the screen: writing
+      // one sends the whole shelf through a measure and an arrange, and every band of a wall being put on writes
+      // the same number. Half a thousandth of a scale is nothing a television can show.
+      if (_wallScale > 0 && Math.Abs(scale - _wallScale) < 0.0005)
+        return;
+
+      _wallScale = scale;
       nereusContentWall.LayoutTransform = new Avalonia.Media.ScaleTransform(scale, scale);
     }
 

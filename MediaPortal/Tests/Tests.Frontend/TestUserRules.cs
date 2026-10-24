@@ -55,8 +55,24 @@ namespace Tests.Frontend
     {
       Environment.SetEnvironmentVariable("MP2_CLIENT_FILE", _previousClientFile.Length == 0 ? null : _previousClientFile);
       SkinSettingsBase.FileOwner = null;
-      if (File.Exists(_file))
-        File.Delete(_file);
+      if (!File.Exists(_file))
+        return;
+
+      // A save that was still on its way out of the application holds the file for a moment after the screen that
+      // asked for it is through, and Windows calls that "used by another process". The run has no more use for the
+      // file either way, so the clean-up waits out the handle rather than reporting a failure of the screen.
+      for (int attempt = 0; attempt < 50; attempt++)
+      {
+        try
+        {
+          File.Delete(_file);
+          return;
+        }
+        catch (IOException)
+        {
+          Thread.Sleep(20);
+        }
+      }
     }
 
     private static UserInfo Person(string name, bool pin = false)
