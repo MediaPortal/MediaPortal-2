@@ -15,7 +15,7 @@ namespace MediaPortal.Frontend.Views
   /// <summary>
   /// Which of the editor's four stops a <see cref="NereusMenuEditView"/> is showing. The reference opened four
   /// dialogs; here they are four stops of one workflow, so that the back key steps off one level at a time and
-  /// the trail above the screen names where the viewer is.
+  /// the header over the screen names where the viewer is.
   /// </summary>
   public enum NereusMenuEditScreen
   {

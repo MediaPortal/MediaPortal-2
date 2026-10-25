@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        xmlns:views="using:MediaPortal.Frontend.Views"
         xmlns:theming="using:MediaPortal.Frontend.Theming"
         x:Class="MediaPortal.Frontend.Views.SettingsView"
         x:DataType="vm:SettingsViewModel"
@@ -9,40 +10,125 @@
 
   <!--
     The settings as the reference kept them: not one question, but the list of places a household configures -
-    the front end's own machine first, then the server behind it - and the screen each one opens on the right.
-    The hub owns no answers of its own: Appearance is the theme screen, Media sources is the folders screen,
-    and the server address is the connection screen itself, standing in the right pane like all the others.
-    Sizes stay compact because the screens embedded here bring their own headings and rows.
+    the front end's own machine first, then the server behind it - and a place with pages underneath opening
+    those pages first rather than thirty rows at once.
+
+    <b>Two shapes, one screen.</b> The reference put a single list on the screen and switched its <i>style</i>
+    on one question: while nothing was open the list wore SettingsMenuListViewStyle, a wall of plates that
+    wraps (master_configuration_menu.xaml:143-147, styles/OtherControlsOverrides.xaml:1079), and the moment a
+    leaf was picked it wore MainMenuListViewStyle, the narrow list, with the leaf's own screen beside it in a
+    480-wide left panel (:125-130). Both shapes are here, in the same order of thinking: a wall of plates with
+    nothing open, a narrowed list with a screen beside it once something is open. Which one stands is the
+    view-model's ShowingContents, this front end's answer to the reference's Show_Contents.
+
+    The plates carry the section's picture where the worn skin has one: the reference asked the skin for
+    SettingsMenu\&lt;path&gt;.jpg and MP2 ships those pictures with its default skin images
+    (Source\UI\UiComponents\SkinBase\Skin\default\images\SettingsMenu), which is what the pictures in
+    Skins\&lt;skin&gt;\images\SettingsMenu here are. A section this front end has on top of MP2's tree names a
+    picture nobody carries and stands bare.
+
+    <b>No heading of its own.</b> The shell's header already names the screen the viewer is on, so this screen
+    never says the word "Settings" a second time under it; where the viewer stands in the tree rides on the
+    Back button as its tool tip instead, which is where the question "where does this take me" gets asked.
   -->
 
-  <Grid ColumnDefinitions="330,*" ColumnSpacing="24" Margin="40,20">
+  <Grid RowDefinitions="Auto,*" RowSpacing="8" Margin="40,20">
 
-    <DockPanel Grid.Column="0">
-      <TextBlock DockPanel.Dock="Top" Text="Settings" FontSize="26" FontWeight="SemiBold" Margin="0,0,0,10"/>
-      <ListBox Name="sectionList"
+    <!-- The way back, alone on the right. The reference let the back key out of its configuration screen
+         altogether; this hub stops at the first level, where the shell takes the key on. -->
+    <Button Grid.Row="0" Name="backButton" Classes="nereus-text-action" Content="Back"
+            HorizontalAlignment="Right"
+            ToolTip.Tip="{Binding Location}"
+            IsVisible="{Binding CanGoBack}" Click="OnBackClick"/>
+
+    <Panel Grid.Row="1">
+
+      <!-- The wall. A WrapPanel of plates, the reference's ItemsPanel spelled the same way; the plates
+           themselves belong to the worn skin, which dresses them as its own SettingsMenuItemDataTemplate
+           dresses the reference's (OtherControlsOverrides.xaml:632). -->
+      <ListBox Name="wallList"
+               Classes="settings-tile-wall"
+               IsVisible="{Binding IsWall}"
                Focusable="True"
                ItemsSource="{Binding Sections}"
                SelectedItem="{Binding Selected, Mode=TwoWay}"
-               theming:SkinTemplates.TileTemplate="SettingsRowTemplate"
-               FontSize="18"
+               theming:SkinTemplates.TileTemplate="SettingsTileTemplate"
                Background="Transparent"
                BorderThickness="0">
+        <ListBox.ItemsPanel>
+          <ItemsPanelTemplate>
+            <WrapPanel Orientation="Horizontal"/>
+          </ItemsPanelTemplate>
+        </ListBox.ItemsPanel>
         <ListBox.ItemTemplate>
           <DataTemplate x:DataType="vm:SettingsSection">
-            <StackPanel Spacing="1" Margin="0,5,8,7">
-              <TextBlock Text="{Binding Name}" FontSize="19"/>
-              <TextBlock Text="{Binding Description}" FontSize="13" Opacity="0.65" TextWrapping="Wrap"/>
-              <TextBlock Text="{Binding Owner}" FontSize="11" Opacity="0.45"/>
-            </StackPanel>
+            <!-- The plate a screen with no skin worn still stands: #222222, the section's picture over it at
+                 eight tenths, the band of black at a half along its bottom edge, and the icon and the name
+                 inside that band - the reference's own numbers, unscaled, because no skin is asking for its
+                 own here. -->
+            <Border Width="355" Background="#222222" Margin="8">
+              <Panel>
+                <Image Source="{Binding Picture,
+                                        Converter={x:Static views:SkinImageConverter.Instance},
+                                        ConverterParameter='SettingsMenu/{0}'}"
+                       Stretch="Fill"
+                       Opacity="0.8"/>
+                <Grid Height="65" VerticalAlignment="Bottom" ColumnDefinitions="77,*">
+                  <Border Grid.ColumnSpan="2" Background="#80000000"/>
+                  <Image Source="{Binding Icon,
+                                          Converter={x:Static views:SkinImageConverter.Instance},
+                                          ConverterParameter='SettingsMenu/Icon_{0}'}"
+                         Stretch="Uniform"
+                         Margin="7"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center"
+                         Opacity="0.6"/>
+                  <TextBlock Classes="settings-tile-name" Grid.Column="1"
+                             Text="{Binding Name}"
+                             VerticalAlignment="Center"
+                             Margin="0,-5,5,1"
+                             TextTrimming="CharacterEllipsis"
+                             MaxLines="1"/>
+                </Grid>
+              </Panel>
+            </Border>
           </DataTemplate>
         </ListBox.ItemTemplate>
       </ListBox>
-    </DockPanel>
 
-    <Grid Grid.Column="1" RowDefinitions="*,Auto">
-      <ContentControl Name="sectionView" Grid.Row="0" Content="{Binding CurrentView}"/>
-      <TextBlock Grid.Row="1" Name="statusLine" Text="{Binding Status}" FontSize="14" Opacity="0.8"
-                 TextWrapping="Wrap"/>
-    </Grid>
+      <!-- The narrowed list beside the open screen, which is the shape this hub had before it had walls. -->
+      <Grid ColumnDefinitions="330,*" ColumnSpacing="24" IsVisible="{Binding ShowingContents}">
+
+        <ListBox Name="sectionList" Grid.Column="0"
+                 Focusable="True"
+                 ItemsSource="{Binding Sections}"
+                 SelectedItem="{Binding Selected, Mode=TwoWay}"
+                 theming:SkinTemplates.TileTemplate="SettingsRowTemplate"
+                 FontSize="18"
+                 Background="Transparent"
+                 BorderThickness="0">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:SettingsSection">
+              <StackPanel Spacing="1" Margin="0,5,8,7">
+                <TextBlock Text="{Binding Name}" FontSize="19"/>
+                <TextBlock Text="{Binding Description}" FontSize="13" Opacity="0.65" TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding Owner}" FontSize="11" Opacity="0.45"/>
+              </StackPanel>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+
+        <Grid Grid.Column="1" RowDefinitions="*,Auto">
+          <ContentControl Name="sectionView" Grid.Row="0" Content="{Binding CurrentView}"/>
+          <TextBlock Grid.Row="1" Name="statusLine" Text="{Binding Status}" FontSize="14" Opacity="0.8"
+                     TextWrapping="Wrap"/>
+        </Grid>
+      </Grid>
+
+      <!-- A wall has nothing beside it, so what the hub has to say - "Media opens 9 page(s)", or why a folder
+           could not be opened - stands under the wall too rather than only beside an open screen. -->
+      <TextBlock Name="wallStatus" VerticalAlignment="Bottom" Text="{Binding Status}" FontSize="14" Opacity="0.8"
+                 IsVisible="{Binding IsWall}" TextWrapping="Wrap"/>
+    </Panel>
   </Grid>
 </UserControl>

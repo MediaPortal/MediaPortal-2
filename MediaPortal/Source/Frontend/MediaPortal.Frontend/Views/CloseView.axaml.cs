@@ -32,7 +32,7 @@ namespace MediaPortal.Frontend.Views
   /// <para>
   /// It is a screen of the workflow and not a window: the reference learned the hard way that dialogs which
   /// are windows get back buttons that close the wrong thing. This one is pushed like any other stop, so the
-  /// trail names it and the back key steps off it, and the two buttons say the two answers the dialog ever
+  /// header names it and the back key steps off it, and the two buttons say the two answers the dialog ever
   /// had - leave, or go back the way you came.
   /// </para>
   /// <para>

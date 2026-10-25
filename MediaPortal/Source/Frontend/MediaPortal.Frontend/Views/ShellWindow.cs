@@ -31,7 +31,8 @@ using Avalonia.VisualTree;
 namespace MediaPortal.Frontend.Views
 {
   /// <summary>
-  /// The one window of the front end: the workflow's stack shown as a screen, with the trail of stops above it.
+  /// The one window of the front end: the workflow's stack shown as a screen, with the back key that walks it
+  /// down again.
   /// </summary>
   /// <remarks>
   /// <para>
@@ -42,10 +43,12 @@ namespace MediaPortal.Frontend.Views
   /// screen the viewer came from, still scrolled where they left it, every time.
   /// </para>
   /// <para>
-  /// Above the screen sits the breadcrumb trail, one clickable label per open stop, for the same reason the old
-  /// skin engine drew its <c>WorkflowNavigationBar</c>: a viewer who knows where they want to go should not have
-  /// to press back once per stop to get there. It stays out of the way while the stack is one deep - at home no
-  /// one needs to be told they are at home.
+  /// The window wears no navigation bar. An earlier version drew the reference's
+  /// <c>WorkflowNavigationBar</c> - one clickable label per open stop - above every screen, and a household
+  /// that looked at the screen it was already on was shown a sentence about it twice: once by the skin's
+  /// header, once by the strip of crumbs under it. The header's word says where the viewer is, and Escape,
+  /// the back key and the screens' own Back buttons are the way out; a screen that needs to be left from
+  /// further away hands the walk to the workflow itself, which is what <c>PopToState</c> is for.
   /// </para>
   /// <para>
   /// The back key arrives as a bubbling event rather than the tunnel the screens use for their own keys: a screen
@@ -57,7 +60,6 @@ namespace MediaPortal.Frontend.Views
   {
     private readonly Workflow.WorkflowManager _workflow;
     private readonly Func<Workflow.WorkflowFrame, Control?>? _viewFactory;
-    private readonly StackPanel _trail = new StackPanel();
     private readonly ContentControl _screenArea = new ContentControl();
 
     /// <summary>
@@ -69,7 +71,7 @@ namespace MediaPortal.Frontend.Views
     private readonly ContentControl _dialogLayer = new ContentControl();
 
     /// <summary>
-    /// The screen behind a dialog, held where the shell can see it: the header, the trail, the screens and the
+    /// The screen behind a dialog, held where the shell can see it: the header, the screens and the
     /// footer in their rows, which is the whole picture a question is asked over and therefore the whole picture
     /// that has to go out of focus.
     /// </summary>
@@ -110,6 +112,17 @@ namespace MediaPortal.Frontend.Views
     private Workflow.WorkflowFrame? _backdropShotOf;
     private readonly Theming.ChromeInfo _chrome =
         new Theming.ChromeInfo(action => Avalonia.Threading.Dispatcher.UIThread.Post(action));
+    /// <summary>
+    /// The rows of the layout grid, named because a floating header has to be told which row to share and a
+    /// number written at both places is one number that has already been forgotten once: when the breadcrumb
+    /// row went out of the grid, the row the header floats into was still called two, and the clock, weather
+    /// and notifications of an overlaying screen were put at the bottom of the window - where the footer had
+    /// always stood alone.
+    /// </summary>
+    private const int ROW_HEADER = 0;
+    private const int ROW_SCREEN = 1;
+    private const int ROW_FOOTER = 2;
+
     private readonly ContentControl _header = new ContentControl();
     private readonly ContentControl _footer = new ContentControl();
     private readonly ContentControl _superlayer = new ContentControl();
@@ -195,9 +208,6 @@ namespace MediaPortal.Frontend.Views
       Background = FactoryBackground;
       Foreground = new SolidColorBrush(Color.FromRgb(0xE8, 0xEE, 0xF4));
 
-      _trail.Orientation = Orientation.Horizontal;
-      _trail.Focusable = false;
-
       // The master chrome of the skin: a header over the screens and a footer under them, the way the
       // reference's masters wrapped every screen. Both take their look - and only their look - from the skin's
       // chrome file; while the palette wears no skin, the templates are not there and the rows stay away.
@@ -218,20 +228,19 @@ namespace MediaPortal.Frontend.Views
       Theming.FrontendTheme.Changed += WearSkinChrome;
       WearSkinChrome(null, EventArgs.Empty);
 
-      _layout.RowDefinitions.Add(new Avalonia.Controls.RowDefinition(GridLength.Auto));
+      // Three rows, because the window says where the viewer is once and not twice: the skin's header, the
+      // screen, the skin's footer. Where a fourth row for a breadcrumb strip used to be, the screen is taller.
       _layout.RowDefinitions.Add(new Avalonia.Controls.RowDefinition(GridLength.Auto));
       _layout.RowDefinitions.Add(new Avalonia.Controls.RowDefinition(GridLength.Star));
       _layout.RowDefinitions.Add(new Avalonia.Controls.RowDefinition(GridLength.Auto));
-      Grid.SetRow(_header, 0);
-      Grid.SetRow(_trail, 1);
-      Grid.SetRow(_screenArea, 2);
-      Grid.SetRow(_footer, 3);
+      Grid.SetRow(_header, ROW_HEADER);
+      Grid.SetRow(_screenArea, ROW_SCREEN);
+      Grid.SetRow(_footer, ROW_FOOTER);
       _layout.Children.Add(_header);
-      _layout.Children.Add(_trail);
       _layout.Children.Add(_screenArea);
       _layout.Children.Add(_footer);
 
-      // The superlayer floats over all of it - header, trail, screen - exactly as the reference's volume and
+      // The superlayer floats over all of it - header, screen, footer - exactly as the reference's volume and
       // busy layers covered the whole master window.
       Panel shell = new Panel();
 
@@ -910,7 +919,7 @@ namespace MediaPortal.Frontend.Views
       // header was added before the screens it now has to stand on. Hit tests pass through it: a floating
       // strip of clock that swallowed the clicks of the tiles under its top edge would be a header that
       // stole from the screen it only decorates.
-      Avalonia.Controls.Grid.SetRow(_header, overlay ? 2 : 0);
+      Avalonia.Controls.Grid.SetRow(_header, overlay ? ROW_SCREEN : ROW_HEADER);
       _header.ZIndex = overlay ? 10 : 0;
       _header.IsHitTestVisible = !overlay;
       _header.VerticalAlignment = overlay
@@ -1061,8 +1070,6 @@ namespace MediaPortal.Frontend.Views
       // screens do not.
       _chrome.ShowWeatherSlot = depth <= 1;
 
-      RebuildTrail();
-
       Control? view = frame.View as Control;
       if (view != null && view.IsVisible == false)
         return; // A factory that refused the stop leaves nothing to activate; the frame stays as it is.
@@ -1196,52 +1203,6 @@ namespace MediaPortal.Frontend.Views
             LogScreenTo(path);
           },
           TimeSpan.FromSeconds(seconds));
-    }
-
-    private void RebuildTrail()
-    {
-      List<Control> crumbs = new List<Control>();
-      for (int i = 0; i < _workflow.Stack.Count; i++)
-      {
-        Workflow.WorkflowFrame frame = _workflow.Stack[i];
-        if (i > 0)
-        {
-          TextBlock arrow = new TextBlock();
-          arrow.Text = "›";
-          arrow.FontSize = 15;
-          arrow.Margin = new Avalonia.Thickness(6, 0, 6, 0);
-          arrow.VerticalAlignment = VerticalAlignment.Center;
-          object? dim;
-          if (this.TryFindResource("DimTextBrush", out dim) && dim is IBrush dimBrush)
-            arrow.Foreground = dimBrush; // Resolved when the trail is built, which happens on every move.
-          crumbs.Add(arrow);
-        }
-
-        bool isLast = i == _workflow.Stack.Count - 1;
-        Button crumb = new Button();
-        crumb.Content = frame.Label;
-        crumb.FontSize = 15;
-        crumb.Padding = new Avalonia.Thickness(8, 2, 8, 2);
-        crumb.Focusable = false; // A breadcrumb you can walk to with the arrows is one more thing to walk past;
-                                  // the keyboard has the back key for the same trip.
-        crumb.IsTabStop = false;
-        crumb.Opacity = isLast ? 1.0 : 0.65;
-        Workflow.WorkflowFrame clickedFrame = frame;
-        crumb.Click += delegate { _workflow.PopToState(clickedFrame.StateId); };
-        crumbs.Add(crumb);
-      }
-
-      _trail.Children.Clear();
-      foreach (Control crumb in crumbs)
-        _trail.Children.Add(crumb);
-      // A dialog is not a place the viewer walked to, so it earns no crumb; the trail stays as the screen
-      // behind it left it. A full screen film wears no trail either, for the reference's reason: both skins
-      // took the master's furniture away the moment the picture owned the television, and a strip of crumbs
-      // along the top of a film is a strip of the film that is not there.
-      _trail.IsVisible = _workflow.Stack.Count > 1
-          && !(_workflow.Current?.View is Workflow.IDialogScreen)
-          && !(_workflow.Current?.View is Workflow.IFullScreenScreen);
-      _trail.Margin = new Avalonia.Thickness(16, 8, 16, 0);
     }
 
     // ---- the home head line's weather, the reference's master_home slot -----------------------------------

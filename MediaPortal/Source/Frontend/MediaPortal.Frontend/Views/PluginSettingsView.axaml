@@ -14,11 +14,11 @@
   -->
   <StackPanel Spacing="10" MaxWidth="620" HorizontalAlignment="Left">
     <TextBlock Text="{Binding Title}" FontSize="17" FontWeight="SemiBold"/>
-    <TextBlock Classes="hint" TextWrapping="Wrap"
-               Text="These are settings the server keeps for its own parts and plugins, stored on its machine. What a server is willing to be told is the server's answer, so this list is read from there and never kept here."/>
+    <TextBlock Classes="hint" TextWrapping="Wrap" Text="{Binding Intro}"/>
 
-    <!-- The list. A row is a press, because a section is opened and not read from a distance. -->
-    <StackPanel Spacing="10" IsVisible="{Binding !HasSection}">
+    <!-- The list. A row is a press, because a section is opened and not read from a distance. A page opened
+         through one door of the media wall has no list of its own - the wall outside is the list. -->
+    <StackPanel Spacing="10" IsVisible="{Binding ShowsList}">
       <ItemsControl ItemsSource="{Binding Sections}" Margin="0,6,0,0">
         <ItemsControl.ItemTemplate>
           <DataTemplate x:DataType="api:SettingSectionSummary">
@@ -120,7 +120,7 @@
       <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,10,0,0">
         <Button Content="Reload" Command="{Binding Section.ReloadCommand}"/>
         <Button Content="Save on the server" Command="{Binding Section.SaveCommand}"/>
-        <Button Content="Back to the list" Command="{Binding BackCommand}"/>
+        <Button Content="Back to the list" Command="{Binding BackCommand}" IsVisible="{Binding HasList}"/>
       </StackPanel>
 
       <!-- One sentence about what the last read or save did. When a stored field is still waiting for the

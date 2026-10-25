@@ -66,4 +66,87 @@
     <Setter Property="MinHeight" Value="38"/>
     <Setter Property="Background" Value="#CC000000"/>
   </Style>
+
+  <!--
+    The settings wall. The wall's plates dress themselves - ground, underline, name - so the list behind them
+    wears nothing at all: no panel, no outline, no platform selection rectangle, which under this skin would be
+    a blue slab with a plate floating on it. The item's own template is replaced rather than merely restyled,
+    because the platform paints its selection through the item template's content presenter and a theme value
+    outranks a plain setter; under a presenter of this skin's own naming the plate keeps its own ground in every
+    state, and the answer to being stood on is the plate's underline growing from three lines to six.
+  -->
+  <Style Selector="ListBox.settings-tile-wall">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="FocusAdorner" Value="{x:Null}"/>
+  </Style>
+  <Style Selector="ListBox.settings-tile-wall ListBoxItem">
+    <Setter Property="FocusAdorner" Value="{x:Null}"/>
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="Margin" Value="0"/>
+    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+    <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <ContentPresenter Name="wmcTilePresenter"
+                          BorderThickness="0"
+                          Content="{TemplateBinding Content}"
+                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                          Padding="{TemplateBinding Padding}"
+                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}">
+          <ContentPresenter.Styles>
+            <Style Selector="ContentPresenter">
+              <Style Selector="^:pointerover">
+                <Setter Property="Background" Value="Transparent"/>
+              </Style>
+              <Style Selector="^:pressed">
+                <Setter Property="Background" Value="Transparent"/>
+              </Style>
+              <Style Selector="^:selected">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+              </Style>
+              <Style Selector="^:selected:pointerover">
+                <Setter Property="Background" Value="Transparent"/>
+              </Style>
+            </Style>
+          </ContentPresenter.Styles>
+        </ContentPresenter>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="ListBox.settings-tile-wall ListBoxItem:pointerover">
+    <Setter Property="Background" Value="Transparent"/>
+  </Style>
+  <Style Selector="ListBox.settings-tile-wall ListBoxItem:selected">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+  </Style>
+  <Style Selector="ListBox.settings-tile-wall ListBoxItem:selected Border.wmc-tile-face">
+    <Setter Property="BorderThickness" Value="0,0,0,6"/>
+  </Style>
+  <Style Selector="ListBox.settings-tile-wall ListBoxItem:focus Border.wmc-tile-face">
+    <Setter Property="BorderThickness" Value="0,0,0,6"/>
+  </Style>
+  <!-- The name and the icon come to full light under a viewer as well, which is what the reference's
+       SettingsItemContainerStyle does to ItemLabel and IconImage (WMC's OtherControlsOverrides.xaml:637).
+       WMC's underline is the loud half of the answer; this is the quiet half, and the plate itself does not
+       move, scale or change colour. -->
+  <Style Selector="ListBox.settings-tile-wall ListBoxItem:focus TextBlock.wmc-tile-name">
+    <Setter Property="Opacity" Value="1"/>
+  </Style>
+  <Style Selector="ListBox.settings-tile-wall ListBoxItem:focus Image.wmc-tile-icon">
+    <Setter Property="Opacity" Value="1"/>
+  </Style>
+  <Style Selector="Window:not(.pointer-resting) ListBox.settings-tile-wall ListBoxItem:pointerover TextBlock.wmc-tile-name">
+    <Setter Property="Opacity" Value="1"/>
+  </Style>
+  <Style Selector="Window:not(.pointer-resting) ListBox.settings-tile-wall ListBoxItem:pointerover Image.wmc-tile-icon">
+    <Setter Property="Opacity" Value="1"/>
+  </Style>
 </Styles>

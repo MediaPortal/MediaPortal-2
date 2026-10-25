@@ -6241,3 +6241,41 @@ because on a mixed screen a row that says only "The actors" is a row about nothi
 
 1228 frontend and 557 server tests green, among them a heading that is pressed and sends nothing.
 
+### di. The wall of doors, and the bar that fell to the bottom of the screen
+
+The media's nine sections sat in one long list, and the user's answer to that was not a wish but an instruction:
+"schaue dir die strukturierung in der referenz an und vergleiche. Dort ist schön über eine Tile-Wand gelöst" -
+and when asked whether the front end should copy that, one word: "ja". So the hub was rebuilt as what the
+reference actually is: not a list of settings, but **a wall of doors**. Eight of them, the reference's own eight
+branches - Appearance, General, Media, Players, Plugins, Shares, Television, Users - and a ninth plate for the way
+out. Every door hands over the pages of its branch, some written here (`AddFolder(..., () => PagesOfMyArea())`),
+some read from the server (`MediaSettingsPages.PagesAsync`, `PluginSettingsPages.PagesAsync`), and the wall shows
+the pages of the door that was opened exactly the way it showed the doors.
+
+The plates wear the reference's pictures now, and that was worth the copying: the reference keeps its
+`images/SettingsMenu/` art beside the skin, ninety-six files named by the tree path of the question they stand for
+- `Players_Image.jpg`, `Media_FanArtSettings.jpg`, `General_System_Diagnostics.jpg` - with the little band icon as
+`Icon_<tree-path>.png`. Two of those icons do not exist in the reference at all (`Icon_Shares_SharesOverview.png`,
+`Icon_General_System_Diagnostics.png`), and there the reference itself points the icon at the parent's picture, so
+the port does too. `TestSettingsHubPictures` walks the whole model and fails on any name the shipped skins cannot
+draw; it found exactly that one missing `Shares_SharesOverview.jpg`, which is why it is in both skins now.
+
+Three things the user named in the same breath went with it: **the bar of crumbs is gone everywhere** (the window
+lays three rows now - header, screen, footer - and no strip of clickable stop labels; jumping back to an open stop
+survived as the workflow's own answer), **the second "Settings" under the header is gone** (the header already says
+it), and **the sub-pages are not a media-only idea any more** - every branch hands over its own pages, and the
+Players branch, which has always been one long page, was split into the three the reference names for it:
+playback, pictures and titles (`PlaybackSettingsViewModel.GROUP_PLAYERS/GROUP_PICTURES/GROUP_TITLES`), which
+divide one list between them without ever writing to two files.
+
+The wall then taught a lesson about numbering. `ShellWindow` lets a screen ask the header to float over it, so that
+the home's fanart may reach the very top of the television, and that floating was put in "row 2" - correct while
+the window laid four rows, and the bottom of the window once the crumb row was gone. The clock, the weather and
+the notifications dropped under the screen and the user asked, quite rightly, why anybody had moved them: "Nobody
+asked for that." The rows are named now (`ROW_HEADER`, `ROW_SCREEN`, `ROW_FOOTER`), the floating header shares the
+**screen's** row and is aligned to its top, and a test presses both states and asserts the header never sits in the
+footer's row. Measured on the television: the bar is back at the top, the doors stand with their pictures, and the
+media door's pages carry the importer, fanart and certification art with them.
+
+1238 frontend tests green - among them the wall's eight doors, every plate's picture, and a header that stays at
+the top of the screen it decorates.

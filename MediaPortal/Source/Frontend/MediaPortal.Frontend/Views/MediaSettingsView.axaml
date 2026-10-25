@@ -50,37 +50,28 @@
       </ListBox.Styles>
       <ListBox.ItemTemplate>
         <DataTemplate x:DataType="vm:SkinSettingOption">
-          <Panel Margin="2,1">
-            <!--  A server answers its settings in sections, and on a screen that shows several of them the
-                  section has to be named or its rows read as strangers.  -->
+          <Grid ColumnDefinitions="420,190,*" Margin="2,1">
             <TextBlock Text="{Binding Label}"
-                       FontSize="19"
-                       FontWeight="SemiBold"
-                       Margin="0,12,0,2"
-                       IsVisible="{Binding IsHeader}" />
-            <Grid ColumnDefinitions="420,190,*" IsVisible="{Binding !IsHeader}">
-              <TextBlock Text="{Binding Label}"
-                         FontSize="16"
-                         VerticalAlignment="Center" />
-              <CheckBox Grid.Column="1"
-                        IsChecked="{Binding IsChecked, Mode=TwoWay}"
-                        IsVisible="{Binding IsToggle}"
-                        VerticalAlignment="Center"
-                        HorizontalAlignment="Left" />
-              <Button Grid.Column="1"
-                      Content="{Binding ValueText}"
-                      IsVisible="{Binding !IsToggle}"
-                      Click="OnChoiceClick"
-                      MinWidth="170"
+                       FontSize="16"
+                       VerticalAlignment="Center" />
+            <CheckBox Grid.Column="1"
+                      IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                      IsVisible="{Binding IsToggle}"
+                      VerticalAlignment="Center"
                       HorizontalAlignment="Left" />
-              <TextBlock Grid.Column="2"
-                         Text="{Binding Description}"
-                         FontSize="13"
-                         Opacity="0.6"
-                         TextTrimming="CharacterEllipsis"
-                         VerticalAlignment="Center" />
-            </Grid>
-          </Panel>
+            <Button Grid.Column="1"
+                    Content="{Binding ValueText}"
+                    IsVisible="{Binding !IsToggle}"
+                    Click="OnChoiceClick"
+                    MinWidth="170"
+                    HorizontalAlignment="Left" />
+            <TextBlock Grid.Column="2"
+                       Text="{Binding Description}"
+                       FontSize="13"
+                       Opacity="0.6"
+                       TextTrimming="CharacterEllipsis"
+                       VerticalAlignment="Center" />
+          </Grid>
         </DataTemplate>
       </ListBox.ItemTemplate>
     </ListBox>

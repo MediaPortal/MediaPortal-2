@@ -36,16 +36,17 @@ using MediaPortal.Frontend.ViewModels;
 namespace Tests.Frontend
 {
   /// <summary>
-  /// The media settings screen against a server that answers what it does with the library's pictures. The
-  /// reference filed those answers under one node of its configuration tree, <c>/Configuration/Settings/Media</c>,
-  /// beside the media itself and never under a plugin node, so this screen is where a household answers them -
-  /// and the plugin settings screen, which asks for the other area, no longer shows them.
+  /// The media door of the settings hub against a server that answers what it does with the library's pictures.
+  /// The reference filed those answers under <c>/Configuration/Settings/Media</c> as eight pages of their own
+  /// (ServerSettings.Client/plugin.xml:93), so what a household meets here is a door that opens a wall of
+  /// pages: the machine's own answers behind one plate, one page per section of the server's behind the rest.
   /// </summary>
   /// <remarks>
-  /// What these tests hold is the screen's side of that: it asks the server for its area, draws one row per
-  /// field in the place the server's rows have, sends back only the answer that was worked, and wears what the
-  /// server says instead of what it hoped. Whether the server stores the answer is
-  /// <c>Tests.Server.TestPluginSettingsOverHttp</c>'s business.
+  /// What these tests hold is the assembling of that wall and what a page behind a door is: the server's media
+  /// sections and their order, no plugin section among them, a page that opens its one section without listing
+  /// anything, and a machine page that asks the server about nothing at all. The editing of one field of one
+  /// section - what a change sends, what a refusal does - is <c>TestPluginSettingsScreen</c>'s business, and
+  /// one page's worth of it is proved here so that a page wired to the wrong section cannot pass.
   /// </remarks>
   [TestFixture]
   public class TestMediaSettingsPictures
@@ -85,6 +86,9 @@ namespace Tests.Frontend
       /// <summary>The areas each list call asked for.</summary>
       public readonly List<string?> Areas = new List<string?>();
 
+      /// <summary>The sections each read-by-name call asked for, in the order they were asked.</summary>
+      public readonly List<string> Keys = new List<string>();
+
       public readonly List<KeyValuePair<string, SettingSectionWish>> Saves =
           new List<KeyValuePair<string, SettingSectionWish>>();
 
@@ -118,6 +122,7 @@ namespace Tests.Frontend
       public Task<SettingSectionState> GetSettingSectionAsync(string key,
           CancellationToken cancellation = default)
       {
+        Keys.Add(key);
         return Task.FromResult(Sections.First(s => s.Key == key));
       }
 
@@ -131,14 +136,14 @@ namespace Tests.Frontend
 
         // The real server answers a change with the whole section as it now stands, so the fake stores what it
         // was sent first - otherwise it would answer with the value from before the change, and a test could
-        // not tell "the screen wears the server's answer" apart from "the screen forgot what it did".
+        // not tell "the page wears the server's answer" apart from "the page forgot what it did".
         int at = Sections.FindIndex(s => s.Key == key);
         SettingSectionState stored = Sections[at];
         List<SettingFieldState> fields = stored.Fields.ToList();
         foreach (KeyValuePair<string, object> sent in wish.Values)
         {
           int field = fields.FindIndex(f => f.Key == sent.Key);
-          Assert.That(field, Is.GreaterThanOrEqualTo(0), "the screen sent a field the section does not have");
+          Assert.That(field, Is.GreaterThanOrEqualTo(0), "the page sent a field the section does not have");
           fields[field] = fields[field] with { Value = JsonSerializer.SerializeToElement(sent.Value) };
         }
 
@@ -178,7 +183,8 @@ namespace Tests.Frontend
       };
     }
 
-    private static SettingSectionState Section(string key, string title, params SettingFieldState[] fields)
+    private static SettingSectionState Section(string key, string title, string area,
+        params SettingFieldState[] fields)
     {
       return new SettingSectionState
       {
@@ -186,194 +192,226 @@ namespace Tests.Frontend
         Title = title,
         Description = "What the server does with its pictures.",
         Owner = "Media library",
-        Area = SettingSectionAreas.Media,
+        Area = area,
         Fields = fields
       };
     }
 
-    /// <summary>The screen with a server of the test's making, with its server rows read.</summary>
-    private static async Task<MediaSettingsViewModel> Opened(FakePicturesApi? api, string file)
+    /// <summary>The machine's own page, which is the first plate of the wall whatever the server says.</summary>
+    private static SettingsSection MachinePage()
     {
-      MediaSettingsViewModel screen = new MediaSettingsViewModel(null, file, null, api);
-      await screen.ServerAnswersRead;
-      return screen;
+      // The build is spelled out as a screen's build rather than left to be read off a bare null: a door and a
+      // page differ only by which delegate the section was handed, and a test that handed the wrong one would be
+      // testing a door it never meant to open.
+      return new SettingsSection("Kept pictures", "Frontend", "what this box keeps",
+          (Func<Avalonia.Controls.Control?>)delegate { return null; });
     }
 
     [Test]
-    public async Task TheScreenAsksTheServerForItsOwnPictures()
+    public async Task TheDoorOpensTheMachineAndEverySectionOfTheServersMediaHalf()
     {
       FakePicturesApi api = new FakePicturesApi();
-      api.Sections.Add(Section("fanart", "How many pictures of each kind one title keeps",
+      api.Sections.Add(Section("fanart", "The picture store", SettingSectionAreas.Media,
           Number("max_backdrops", "Backdrops kept per title", 3, 1, 20)));
-      api.Sections.Add(Section("pictures_movie", "Pictures lying beside the films",
-          Toggle("cache_local_fanart", "Copies of the pictures lying beside a film on a disk in this machine",
-              false)));
+      api.Sections.Add(Section("pictures_movie", "Pictures lying beside the films", SettingSectionAreas.Media,
+          Toggle("cache_local_fanart", "Copies of the pictures lying beside a film", false)));
+      api.Sections.Add(Section("logging", "What the server writes down", SettingSectionAreas.Plugin,
+          Toggle("log_readers", "Write a film's file itself into the log", false)));
 
-      MediaSettingsViewModel screen = await Opened(api, _file);
+      IReadOnlyList<SettingsSection> pages =
+          await MediaSettingsPages.PagesAsync(() => api, MachinePage());
 
       Assert.That(api.Areas, Is.EqualTo(new[] { SettingSectionAreas.Media }),
-          "the media settings screen asks for the media half of the server's answers and nothing else");
-
-      // The machine's own five rows first, then every section of the server under a heading of its own, then the
-      // row that sends the server over its library - so a viewer walking the screen reads this box, then the
-      // server's answers grouped as the server groups them, then the doing.
-      Assert.That(screen.Options[5].IsHeader, Is.True, "a server's section is named before its rows are asked");
-      Assert.That(screen.Options[5].Label, Is.EqualTo("How many pictures of each kind one title keeps"));
-      Assert.That(screen.Options[6].Label, Is.EqualTo("Backdrops kept per title"));
-      Assert.That(screen.Options[7].Label, Is.EqualTo("Pictures lying beside the films"));
-      Assert.That(screen.Options[8].Label,
-          Is.EqualTo("Copies of the pictures lying beside a film on a disk in this machine"));
-      Assert.That(screen.Options[8].IsToggle, Is.True, "a switch with two answers wears a checkbox");
-      Assert.That(screen.Options[9].Label, Is.EqualTo("On the server: pictures it has ready"),
-          "the server's rows go above the row that presses the server, not after it");
+          "the door asks for the media half of the server's answers and nothing else");
+      Assert.That(pages.Select(p => p.Name),
+          Is.EqualTo(new[] { "Kept pictures", "The picture store", "Pictures lying beside the films" }),
+          "this machine first, then the server's pages in the server's own order - a wall is a wall because "
+          + "one plate stands beside another, and the order the server lists them in is the order it means");
+      Assert.That(pages.Select(p => p.Owner), Is.EqualTo(new[] { "Frontend", "Server", "Server" }),
+          "a plate says whose answer its page holds");
+      Assert.That(pages[0].IsFolder, Is.False, "the pages a door opens are pages, not doors");
+      Assert.That(pages[1].IsFolder, Is.False);
     }
 
     [Test]
-    public async Task WorkingAServerRowSendsThatOneAnswerAndSaysTheServerHasIt()
-    {
-      FakePicturesApi api = new FakePicturesApi();
-      api.Sections.Add(Section("pictures_movie", "Pictures lying beside the films",
-          Toggle("cache_local_fanart", "Copies of the pictures lying beside a film", false),
-          Toggle("cache_network_fanart", "Copies of the pictures beside a film on a sleeping share", true)));
-
-      MediaSettingsViewModel screen = await Opened(api, _file);
-      SkinSettingOption local = Row(screen, "Copies of the pictures lying beside a film");
-      SkinSettingOption network = Row(screen, "Copies of the pictures beside a film on a sleeping share");
-
-      Assert.That(local.IsChecked, Is.False);
-      Assert.That(network.IsChecked, Is.True, "the server's answer is shown as the server holds it");
-
-      local.Press();
-
-      Assert.That(api.Saves.Count, Is.EqualTo(1), "one answered row is one call");
-      Assert.That(api.Saves[0].Key, Is.EqualTo("pictures_movie"));
-      Assert.That(api.Saves[0].Value.Values.Keys, Is.EqualTo(new[] { "cache_local_fanart" }),
-          "and it carries only the answer that was worked");
-      Assert.That((bool)api.Saves[0].Value.Values["cache_local_fanart"], Is.True);
-      Assert.That(screen.Status, Does.Contain("on the server"),
-          "the status line says whose answer this now is");
-      Assert.That(local.IsChecked, Is.True, "the row wears the answer the server was sent");
-    }
-
-    [Test]
-    public async Task ARowThatWasRefusedGoesBackToWhatTheServerHolds()
-    {
-      FakePicturesApi api = new FakePicturesApi();
-      api.Sections.Add(Section("pictures_movie", "Pictures lying beside the films",
-          Toggle("cache_local_fanart", "Copies of the pictures lying beside a film", false)));
-
-      MediaSettingsViewModel screen = await Opened(api, _file);
-      SkinSettingOption row = Row(screen, "Copies of the pictures lying beside a film");
-
-      api.ThrowOnPut = new ServerApiException(NO_SERVER, "the server does not take that");
-      row.Press();
-
-      Assert.That(screen.Status, Does.Contain("would not take"),
-          "a refused answer is said, not swallowed");
-      Assert.That(row.IsChecked, Is.False,
-          "and the face goes back to what the server says rather than sitting there looking stored");
-    }
-
-    [Test]
-    public async Task ANumberRowWalksTheBoundsTheServerGaveIt()
-    {
-      FakePicturesApi api = new FakePicturesApi();
-      api.Sections.Add(Section("fanart", "How many pictures of each kind one title keeps",
-          Number("max_backdrops", "Backdrops kept per title", 2, 1, 3)));
-
-      MediaSettingsViewModel screen = await Opened(api, _file);
-      SkinSettingOption backdrops = Row(screen, "Backdrops kept per title");
-
-      Assert.That(backdrops.ValueText, Is.EqualTo("2"));
-      backdrops.Press();
-      Assert.That(backdrops.ValueText, Is.EqualTo("3"));
-      backdrops.Press();
-      Assert.That(backdrops.ValueText, Is.EqualTo("1"), "past the ceiling the row starts again at the floor");
-      Assert.That(api.Saves.Count, Is.EqualTo(2), "and every step is an answer the server is sent");
-      Assert.That((int)api.Saves[1].Value.Values["max_backdrops"], Is.EqualTo(1));
-    }
-
-    [Test]
-    public async Task ARestartAnswerSaysSo()
-    {
-      FakePicturesApi api = new FakePicturesApi();
-      api.Sections.Add(new SettingSectionState
-      {
-        Key = "fanart",
-        Title = "How many pictures of each kind one title keeps",
-        Owner = "Media library",
-        Area = SettingSectionAreas.Media,
-        Fields = new[] { Number("max_backdrops", "Backdrops kept per title", 3, 1, 20) },
-        RestartNeededFor = new[] { "max_backdrops" }
-      });
-
-      MediaSettingsViewModel screen = await Opened(api, _file);
-      Row(screen, "Backdrops kept per title").Press();
-
-      Assert.That(screen.Status, Does.Contain("when it next starts"),
-          "a stored answer the server will only act on later says so, because otherwise the viewer assumes "
-          + "it lies");
-    }
-
-    [Test]
-    public async Task AServerThatWillNotTalkAboutItsPicturesLeavesTheScreenWorking()
+    public async Task AServerThatWouldNotSayAnythingLeavesTheMachineItsOnePlate()
     {
       FakePicturesApi api = new FakePicturesApi
       {
         ThrowOnList = new ServerApiException(NO_SERVER, "this server does not offer its settings")
       };
 
-      MediaSettingsViewModel screen = await Opened(api, _file);
+      Exception? thrown = null;
+      try
+      {
+        await MediaSettingsPages.PagesAsync(() => api, MachinePage());
+      }
+      catch (Exception ex)
+      {
+        thrown = ex;
+      }
 
-      Assert.That(screen.Status, Does.Contain("would not say"));
-      Assert.That(screen.Options.Count, Is.EqualTo(6), "the machine's own rows are still there and still true");
-      Assert.That(screen.Options[0].Label, Is.EqualTo("Keep pictures on this machine"));
-    }
-
-    /// <summary>
-    /// The row a screen wears for one named answer. Looked up by name rather than by place, because a heading is
-    /// a row of the same list - a test that counted places would be counting the names of sections and would
-    /// fail every time the server was asked about one more thing.
-    /// </summary>
-    private static SkinSettingOption Row(MediaSettingsViewModel screen, string label)
-    {
-      return screen.Options.Single(option => option.Label == label);
+      // The wall is not assembled from a half answer, and the hub is the place that says why a door did not
+      // open - a wall of one plate taken for "the server has nothing" would be a lie about the server.
+      Assert.That(thrown, Is.InstanceOf<ServerApiException>());
     }
 
     [Test]
-    public async Task AHeadingNamesTheSectionAndAnswersNothing()
+    public async Task WithoutAServerTheDoorOpensOnlyThisMachine()
+    {
+      IReadOnlyList<SettingsSection> pages = await MediaSettingsPages.PagesAsync(
+          delegate { return null; }, MachinePage());
+
+      Assert.That(pages.Select(p => p.Name), Is.EqualTo(new[] { "Kept pictures" }),
+          "a box with no server has its own answers and no other answers");
+    }
+
+    [Test]
+    public void APageBehindADoorOpensItsOneSectionAndHasNoListOfItsOwn()
     {
       FakePicturesApi api = new FakePicturesApi();
-      api.Sections.Add(Section("fanart", "How many pictures of each kind one title keeps",
-          Number("max_backdrops", "Backdrops kept per title", 3, 1, 20)));
+      api.Sections.Add(Section("pictures_movie", "Pictures lying beside the films", SettingSectionAreas.Media,
+          Toggle("cache_local_fanart", "Copies of the pictures lying beside a film", false)));
 
-      MediaSettingsViewModel screen = await Opened(api, _file);
-      SkinSettingOption heading = Row(screen, "How many pictures of each kind one title keeps");
+      SettingSectionSummary summary = new SettingSectionSummary
+      {
+        Key = "pictures_movie",
+        Title = "Pictures lying beside the films",
+        Description = "What the server does with its pictures.",
+        Owner = "Media library",
+        Area = SettingSectionAreas.Media,
+        FieldCount = 1
+      };
 
-      Assert.That(heading.IsHeader, Is.True);
-      Assert.That(heading.IsToggle, Is.False, "a heading wears no checkbox");
-      Assert.That(heading.ShowsButton, Is.False, "and no button either");
-      Assert.That(heading.ValueText, Is.Empty, "there is nothing on its face to read");
+      PluginSettingsViewModel page = new PluginSettingsViewModel(() => api, summary);
+      Assert.That(page.HasList, Is.False,
+          "the wall outside a door already listed the sections; a page offering a list of one is a page asking "
+          + "the viewer to choose what they have just chosen");
 
-      heading.Press();
+      page.ReloadAsync().Wait();
 
-      Assert.That(api.Saves, Is.Empty, "pressing a heading sends nothing to the server");
-      Assert.That(screen.Status, Is.Empty, "and it says nothing about having done something");
-
-      // Read again - which is what opening the screen a second time does - and the section is still named once.
-      await screen.ReadServerAnswersAsync();
-
-      Assert.That(screen.Options.Count(o => o.Label == "How many pictures of each kind one title keeps"),
-          Is.EqualTo(1), "a screen read twice does not fill up with headings");
+      Assert.That(api.Areas, Is.Empty, "a page behind a door never asks what the server offers");
+      Assert.That(api.Keys, Is.EqualTo(new[] { "pictures_movie" }), "it reads its own section and nothing else");
+      Assert.That(page.HasSection, Is.True);
+      Assert.That(page.ShowsList, Is.False);
+      Assert.That(page.Title, Is.EqualTo("Pictures lying beside the films"),
+          "and it is called what its section is called");
+      Assert.That(page.Intro, Does.Contain("Pictures lying beside the films"));
+      Assert.That(page.Section!.Fields.Select(f => f.Label),
+          Is.EqualTo(new[] { "Copies of the pictures lying beside a film" }));
     }
 
     [Test]
-    public void WithoutAServerTheScreenAsksNobody()
+    public async Task APageReadsItsSectionAgainEveryTimeTheDoorOpens()
     {
-      MediaSettingsViewModel screen = new MediaSettingsViewModel(null, _file, null, null);
+      FakePicturesApi api = new FakePicturesApi();
+      api.Sections.Add(Section("fanart", "The picture store", SettingSectionAreas.Media,
+          Number("max_backdrops", "Backdrops kept per title", 3, 1, 20)));
 
-      Assert.That(screen.Options.Count, Is.EqualTo(6), "the five answers of this box and the doing");
+      SettingSectionSummary summary = new SettingSectionSummary
+      {
+        Key = "fanart",
+        Title = "The picture store",
+        Owner = "Media library",
+        Area = SettingSectionAreas.Media,
+        FieldCount = 1
+      };
+
+      PluginSettingsViewModel page = new PluginSettingsViewModel(() => api, summary);
+      await page.ReloadAsync();
+      await page.ReloadAsync();
+
+      Assert.That(api.Keys, Is.EqualTo(new[] { "fanart", "fanart" }),
+          "the answer is the server's, and another television may have answered differently while the page "
+          + "was closed");
+    }
+
+    [Test]
+    public async Task APageOpensTheServerItWasGivenRatherThanTheOneItHopesFor()
+    {
+      FakePicturesApi api = new FakePicturesApi();
+      api.Sections.Add(Section("fanart", "The picture store", SettingSectionAreas.Media,
+          Number("max_backdrops", "Backdrops kept per title", 3, 1, 20)));
+
+      SettingSectionSummary summary = new SettingSectionSummary
+      {
+        Key = "fanart",
+        Title = "The picture store",
+        Owner = "Media library",
+        Area = SettingSectionAreas.Media,
+        FieldCount = 1
+      };
+
+      bool asked = false;
+      PluginSettingsViewModel page = new PluginSettingsViewModel(
+          delegate
+          {
+            asked = true;
+            return api;
+          }, summary);
+
+      await page.ReloadAsync();
+
+      Assert.That(asked, Is.True,
+          "the page asks where the server is every time, because the door may have been opened against a "
+          + "different server than the last time");
+    }
+
+    [Test]
+    public async Task WorkingAnAnswerOnAMediaPageSendsThatOneFieldToItsSection()
+    {
+      FakePicturesApi api = new FakePicturesApi();
+      api.Sections.Add(Section("pictures_movie", "Pictures lying beside the films", SettingSectionAreas.Media,
+          Toggle("cache_local_fanart", "Copies of the pictures lying beside a film", false),
+          Toggle("cache_network_fanart", "Copies of the pictures beside a film on a sleeping share", true)));
+
+      SettingSectionSummary summary = new SettingSectionSummary
+      {
+        Key = "pictures_movie",
+        Title = "Pictures lying beside the films",
+        Owner = "Media library",
+        Area = SettingSectionAreas.Media,
+        FieldCount = 2
+      };
+
+      PluginSettingsViewModel page = new PluginSettingsViewModel(() => api, summary);
+      await page.ReloadAsync();
+
+      SettingSectionViewModel section = page.Section!;
+      Assert.That(section.Fields[0].Toggle, Is.False);
+      Assert.That(section.Fields[1].Toggle, Is.True, "the server's answer is shown as the server holds it");
+
+      section.Fields[0].Toggle = true;
+      await section.SaveAsync();
+
+      Assert.That(api.Saves.Count, Is.EqualTo(1), "one answered field is one call");
+      Assert.That(api.Saves[0].Key, Is.EqualTo("pictures_movie"), "into the section it belongs to");
+      Assert.That(api.Saves[0].Value.Values.Keys, Is.EqualTo(new[] { "cache_local_fanart" }),
+          "carrying only the answer that was worked");
+      Assert.That(section.Status, Is.EqualTo("Saved on the server."));
+    }
+
+    [Test]
+    public void TheMachinePageAsksTheServerAboutNothing()
+    {
+      FakePicturesApi api = new FakePicturesApi();
+      api.Sections.Add(Section("fanart", "The picture store", SettingSectionAreas.Media,
+          Number("max_backdrops", "Backdrops kept per title", 3, 1, 20)));
+
+      // Given a server and asking it nothing: the server's answers have their own pages now, and a machine page
+      // that also drew them would be the long list the wall replaced.
+      MediaSettingsViewModel screen = new MediaSettingsViewModel(null, _file, null);
+
+      Assert.That(api.Areas, Is.Empty);
+      Assert.That(api.Keys, Is.Empty);
+      Assert.That(api.Saves, Is.Empty);
+
+      Assert.That(screen.Options.Count, Is.EqualTo(6),
+          "this machine's five answers, and the one doing that sends the server over its library");
+      Assert.That(screen.Options[0].Label, Is.EqualTo("Keep pictures on this machine"));
       Assert.That(screen.Options[5].Label, Is.EqualTo("On the server: pictures it has ready"));
+      Assert.That(screen.Heading, Does.Contain("this machine"),
+          "and the page says whose answers it holds, because it stands beside the server's pages now");
     }
   }
 }

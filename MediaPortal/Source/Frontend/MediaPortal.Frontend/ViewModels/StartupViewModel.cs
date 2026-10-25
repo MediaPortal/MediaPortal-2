@@ -204,7 +204,7 @@ namespace MediaPortal.Frontend.ViewModels
 
     /// <summary>
     /// The word the wall of faces is asked under. The skin's dialog frame reads its heading off the dialog's own
-    /// body, so the wall names its question here and the shell's trail says the very same word.
+    /// body, so the wall names its question here and the shell's header says the very same word.
     /// </summary>
     public string Heading { get { return "Select User"; } }
 

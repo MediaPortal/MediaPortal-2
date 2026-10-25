@@ -55,6 +55,57 @@
   </DataTemplate>
 
   <!--
+    The settings WALL as WMC wore it: its own configuration plate (WMC's OtherControlsOverrides.xaml:583) - a
+    square of three hundred twenty-five lines, two hundred sixty of picture over a band of sixty five, the
+    section's picture (SettingsMenu\<path>.jpg) stretched over the whole plate at eight tenths on the skin's
+    dark ground, the band black at a half, and inside it the section's icon
+    (SettingsMenu\Icon_<path>.png) in the band's first column of seventy seven with the name beside it at six
+    tenths of light. The corners are rounded off, which is the one thing WMC did differently, and what says a
+    plate is stood on is WMC's own answer rather than Nereus' light: the accent underline grows.
+  -->
+  <DataTemplate x:Key="SettingsTileTemplate" x:DataType="vm:SettingsSection">
+    <Border Classes="wmc-tile-face"
+            Width="390"
+            Height="390"
+            Background="{DynamicResource PanelBrush}"
+            BorderBrush="{DynamicResource AccentBrush}"
+            BorderThickness="0,0,0,3"
+            CornerRadius="{DynamicResource DialogBorderCornerRadius}"
+            Margin="6">
+      <Panel ClipToBounds="True">
+        <!-- The section's picture over the whole plate, band included, as the reference spanned both rows. -->
+        <Image Source="{Binding Picture,
+                                Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter='SettingsMenu/{0}'}"
+               Stretch="Fill"
+               Opacity="0.8"/>
+        <Panel Height="78" VerticalAlignment="Bottom">
+          <Border Background="#80000000"/>
+          <Grid ColumnDefinitions="92,*">
+            <Image Source="{Binding Icon,
+                                    Converter={x:Static views:SkinImageConverter.Instance},
+                                    ConverterParameter='SettingsMenu/Icon_{0}'}"
+                   Stretch="Uniform"
+                   Margin="8"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Opacity="0.6"
+                   Classes="wmc-tile-icon"/>
+            <TextBlock Classes="wmc-tile-name" Grid.Column="1" Text="{Binding Name}"
+                       FontSize="{DynamicResource SmallerFontSize}"
+                       Foreground="{DynamicResource TextBrush}"
+                       Opacity="0.6"
+                       VerticalAlignment="Center"
+                       TextTrimming="CharacterEllipsis"
+                       MaxLines="1"
+                       Margin="0,-6,6,1"/>
+          </Grid>
+        </Panel>
+      </Panel>
+    </Border>
+  </DataTemplate>
+
+  <!--
     The component screens as WMC wore them: everything on a band. The headline sits large on the band with
     its paper and hour on the band's right edge, a coming day names itself and its span on the edge, and a
     song coming up in the party carries who sings it under its line. Where Nereus writes sentences under

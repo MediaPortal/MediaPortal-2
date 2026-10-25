@@ -786,7 +786,7 @@ namespace MediaPortal.Frontend
       // server's people, and either wakes after its four seconds of animation or stops and asks the
       // remembered person for their PIN. It stands at the root of the workflow - where the connection
       // screen stands on a first start - because a question one back key past is decoration, and the
-      // trail has no crumb to click when there is nothing under it. Answering it hands the window to
+      // the way back has nothing to walk over when there is nothing under it. Answering it hands the window to
       // the library; the remembered name owns the skin's answers, exactly as the "who is watching"
       // pick always left them.
       Settings.ClientSettings machine = Settings.ClientSettings.Load(null, out _);
@@ -1112,7 +1112,7 @@ namespace MediaPortal.Frontend
 
     /// <summary>
     /// The screen that leaves the application, as a frame - this front end's <c>dialogSystemState</c>. It is a
-    /// stop of the workflow and not a window, so the trail names it and the back key steps off it like any
+    /// stop of the workflow and not a window, so the header names it and the back key steps off it like any
     /// other screen, and it says what leaving really does while something is playing before it lets anybody
     /// press the button that does it.
     /// </summary>
@@ -1234,7 +1234,7 @@ namespace MediaPortal.Frontend
 
     /// <summary>
     /// The control that shows one frame, built the first time the viewer reaches that stop.  Which screen a frame
-    /// means is decided here and nowhere else, so the workflow, the trail above the screen and the back key all
+    /// means is decided here and nowhere else, so the workflow, the header over the screen and the back key all
     /// speak about the same thing.
     /// </summary>
     private Control? BuildViewFor(Workflow.WorkflowFrame frame)
@@ -1364,7 +1364,7 @@ namespace MediaPortal.Frontend
             : delegate (TitleViewModel parent)
             {
               // Said on the console as well as shown, because a press that opens nothing looks exactly like a
-              // press that was never received when all that happens is a trail growing one crumb.
+              // press that was never received when all that happens is the stack growing one stop.
               Console.WriteLine("inside:   " + parent.Name + " - the titles inside it, from "
                   + browser.Section!.Label);
               return TitlesFrame(new MediaBrowserViewModel(_home.Client, browser.Section, parent,
@@ -1393,7 +1393,7 @@ namespace MediaPortal.Frontend
     }
 
     /// <summary>
-    /// A list of titles, named for the trail: the tile's own words for a shelf opened whole, the title's name for
+    /// A list of titles, named for the header: the tile's own words for a shelf opened whole, the title's name for
     /// the titles inside a title.
     /// </summary>
     private Workflow.WorkflowFrame TitlesFrame(MediaBrowserViewModel browser, string label)
@@ -1419,157 +1419,285 @@ namespace MediaPortal.Frontend
     }
 
     /// <summary>
-    /// The settings list itself: which places the hub offers, and what each of them opens. The sections are
-    /// built here because only the application has what their screens need - the theme picker changes colours
-    /// in this application, the folders screen reads through the client the library was read with, and the
-    /// server address screen is the connection screen itself, lent to the hub's pane rather than rebuilt
-    /// inside it.
+    /// The settings wall itself: which branches the hub offers, and the pages that stand behind each of them.
+    /// The plates are built here because only the application has what their screens need - the theme picker
+    /// changes colours in this application, the folders screen reads through the client the library was read
+    /// with, and the server address page is the connection screen itself, lent to the hub's pane rather than
+    /// rebuilt inside it.
     /// </summary>
-    private SettingsViewModel SettingsModel()
+    /// <remarks>
+    /// Internal rather than private so that a test can walk the wall it builds: the plates name their pictures
+    /// the reference spelled them, and a name that no shipped skin carries is a bare plate on the television -
+    /// the one mistake of this kind a test can catch without a person looking at a screen.
+    /// </remarks>
+    internal SettingsViewModel SettingsModel()
     {
       SettingsViewModel model = new SettingsViewModel();
 
-      // The machine's own answers come first, the way the reference's client settings led its settings
-      // tree: what this box is called, whether it fills the television, what it opens when it wakes.
-      model.Add("This machine", "Frontend", "Name, full screen, wake-up screen and language of this box",
-          delegate { return new ClientSettingsView(); });
-
-      // The reference's system state menu, filed into the hub: what both machines are made of, read from
-      // each running thing the moment the row opens. This is also the version line the plan owed to
-      // "About" - here it stands beside the server's own answer rather than in a window of its own.
-      model.Add("System status", "Frontend", "What this box and the server are made of, read while running",
+      // <b>The wall, not the list.</b> What stands on the first level is one plate per branch of the
+      // reference's configuration tree - Appearance, General, Media, Players, Plugins, Shares, Television,
+      // Users - and every one of them is a <b>door</b>: picked, it shows the wall of its pages, and a page is
+      // what used to be a row of this list. The reference walked a household from plate to plate before it let
+      // anybody read a field (ServerSettings.Client/plugin.xml:93 hung eight pages under /Configuration/
+      // Settings/Media alone, and the pictures MP2 ships for the settings menu are carved after exactly those
+      // paths: Appearance_General, General_System_Diagnostics, Media_FanArtSettings, Players_Image,
+      // Shares_SharesConfiguration, TV_EPGGenreColors), and a screen of thirty rows beside it is the same
+      // questions asked all at once, which is what this hub did before it had walls.
+      //
+      // <b>Which branches, and why not all of them.</b> A branch stands here when this front end can answer
+      // for it. What the reference had and this machine has nothing to say about is left off the wall rather
+      // than stood on it empty - InputDevices, whose buttons and remotes the skin reads and no screen of this
+      // front end edits, is the one branch missing. Where the reference's branch had pages this front end has
+      // no screen for, the door holds the pages it does have: Players asks the player its three questions
+      // rather than the reference's five.
+      //
+      // The branch the reference drew as Appearance: which skin and which colours this machine wears, and the
+      // switches the skin it chose brings with it. The second is not part of choosing a skin - the reference
+      // filed it as its own node, /Appearance/SkinSettings, for the same reason.
+      model.AddFolder("Appearance", "Frontend",
+          "The skin and the colours this machine wears, and what the skin it chose lets you change",
           delegate
           {
-            SystemStatusViewModel status = new SystemStatusViewModel(() => _home.Client, DescribeWorn);
-            return new SystemStatusView { DataContext = status };
-          });
+            return SettingsViewModel.PagesHere(
+                new SettingsSection("Skin and colours", "Frontend",
+                    "Which skin and which palette this machine wears",
+                    delegate { return new ThemeView(new ThemeViewModel(this)); },
+                    "Appearance_General"),
+                new SettingsSection("Skin settings", "Skin",
+                    "What the worn skin itself lets you change",
+                    delegate { return new SkinSettingsView(this); },
+                    "Appearance_SkinSettings"));
+          },
+          "Appearance");
 
-      model.Add("Appearance", "Frontend", "The colours and the skin this machine wears",
-          delegate { return new ThemeView(new ThemeViewModel(this)); });
-
-      // The skin's own area, as the reference filed it at /Appearance/SkinSettings: not part of choosing a
-      // skin, but the switches the skin that was chosen brings with it - Nereus's, WMC's, or none at all
-      // when the machine wears the front end's own face.
-      model.Add("Skin settings", "Skin", "What the worn skin itself lets you change",
-          delegate { return new SkinSettingsView(this); });
-
-      // What the viewer tells the player before it plays - the reference's playback settings, kept to the
-      // answers this player can honour. The screen saves each row at once; the player picks the answers
-      // up through the shared _nowPlaying, which is given the same file at startup.
-      model.Add("Playback settings", "Frontend", "Skip length, start volume, languages and slideshow",
-          delegate { return new PlaybackSettingsView(); });
-
-      model.Add("Server address", "Frontend", "Which machine holds the library",
+      // /General: the machine's own answers, the server it talks to, the server's own answers, and what both
+      // are made of - the reference's Regional, Connectivity and System nodes, with the running state filed
+      // under System exactly where its General_System_Diagnostics picture sits.
+      model.AddFolder("General", "Frontend",
+          "This machine's name and manners, which server it talks to, and what both are made of",
           delegate
           {
-            // The very screen the start answers with, lent to the hub's right pane like every other section.
-            // What a save does stays the application's business - swap the client and ask the library again -
-            // but the hub keeps its trail and its back key here; nothing is pushed.
-            ConnectionViewModel viewModel = new ConnectionViewModel(_settings, _settingsPath);
-            viewModel.Saved += delegate (string url)
-            {
-              _home.UseServer(new ServerApiClient(new Uri(url, UriKind.Absolute)));
-              _home.RefreshCommand.Execute(null);
-            };
-            ConnectionView view = new ConnectionView(viewModel);
-            // The workflow is what usually tells a screen it is being looked at; in the pane that moment is the
-            // attach, and the screen starts its search and lays its focus in the same words.
-            view.AttachedToVisualTree += delegate { view.OnScreenActivated(); };
-            return view;
-          });
+            return SettingsViewModel.PagesHere(
+                new SettingsSection("This machine", "Frontend",
+                    "Name, full screen, wake-up screen and language of this box",
+                    delegate { return new ClientSettingsView(); },
+                    "General_Regional"),
+                new SettingsSection("Server address", "Frontend",
+                    "Which machine holds the library",
+                    ServerAddressPage,
+                    "General_Connectivity"),
+                new SettingsSection("Server settings", "Server",
+                    "Login, importer schedule and port on the server",
+                    delegate
+                    {
+                      // Read over the API the moment the page opens - there is nothing local to show before
+                      // that. The provider is a delegate rather than the client itself because the viewer may
+                      // point at a different server between visits.
+                      ServerSettingsViewModel serverSettings = new ServerSettingsViewModel(() => _home.Client);
+                      _ = serverSettings.ReloadAsync();
+                      return new ServerSettingsView { DataContext = serverSettings };
+                    },
+                    "General_System"),
+                new SettingsSection("System status", "Frontend",
+                    "What this box and the server are made of, read while running",
+                    delegate
+                    {
+                      // The reference's system state menu, filed under the branch its diagnostics picture
+                      // stands on: what both machines are made of, read from each running thing the moment the
+                      // page opens. This is also the version line the plan owed to "About" - here it stands
+                      // beside the server's own answer rather than in a window of its own.
+                      SystemStatusViewModel status = new SystemStatusViewModel(() => _home.Client, DescribeWorn);
+                      return new SystemStatusView { DataContext = status };
+                    },
+                    "General_System_Diagnostics", "General_System"));
+          },
+          "General");
 
-      // Who may sign in, read from the server's own user store the moment the row opens - the reference
-      // filed this as "Settings -> Benutzer" for exactly the same reason: the names live on the server,
-      // not on any one machine. Behind the reference's own "Settings.UserProfile" group: the section that
-      // hands out PINs and restrictions hides from the people who were handed them, which is the whole
-      // point of a key that only one person in the house has.
+      // /Media: what this box keeps of the library's pictures, what the server asks the internet for, and what
+      // its readers read. The pages behind it are asked for when the door opens - the server's sections, every
+      // one of them, so that a section somebody opens in the server's catalog stands on the television by
+      // itself. One door, because a household came here for the library's answers, whoever keeps them.
+      model.AddFolder("Media", "Frontend",
+          "What this machine keeps of the library's pictures, and what the server is told about the library",
+          async delegate
+          {
+            SettingsSection machine = new SettingsSection("Kept pictures", "Frontend",
+                "What this box keeps of the library's pictures on its own disk, and for how long",
+                delegate
+                {
+                  MediaSettingsViewModel media = new MediaSettingsViewModel(_home.Pictures, null, _home.Client);
+                  return new MediaSettingsView(media);
+                },
+                "Media_ImageMDESettings");
+
+            SettingsSection fetch = new SettingsSection("What the server fetches from the internet", "Server",
+                "Which pieces of information the server asks the internet for when it imports a title",
+                delegate
+                {
+                  MetadataSettingsViewModel metadata = new MetadataSettingsViewModel(() => _home.Client);
+                  _ = metadata.ReloadAsync();
+                  return new MetadataSettingsView { DataContext = metadata };
+                },
+                "Media_LanguageSettings");
+
+            // The machine's own page leads, then what the server fetches, then the server's readers and
+            // picture store in the order the server lists them.
+            IReadOnlyList<SettingsSection> wall =
+                await MediaSettingsPages.PagesAsync(() => _home.Client, machine).ConfigureAwait(false);
+
+            var pages = new List<SettingsSection>(wall);
+            pages.Insert(Math.Min(1, pages.Count), fetch);
+            return pages;
+          },
+          "Media");
+
+      // /Players: the reference's own division of the same player - the film and music answers on one plate,
+      // the picture answers on another, the watched-and-finished manners on a third - and the player's own
+      // screen on a plate of its own, because a household that only wants the sound down should be able to
+      // walk straight to it.
+      model.AddFolder("Players", "Frontend",
+          "What this machine tells its player, and the screen that plays what was chosen",
+          delegate
+          {
+            return SettingsViewModel.PagesHere(
+                new SettingsSection("Films and music", "Frontend",
+                    "Skip length, start volume, volume steps, languages and subtitles",
+                    delegate
+                    {
+                      // The screen saves each row at once; the player picks the answers up through the shared
+                      // _nowPlaying, which is given the same file at startup.
+                      return new PlaybackSettingsView(
+                          new PlaybackSettingsViewModel(null, PlaybackSettingsViewModel.GROUP_PLAYERS));
+                    },
+                    "Players_VideoPlayer"),
+                new SettingsSection("Pictures", "Frontend",
+                    "How long one picture stands, and whether a slideshow slowly moves across it",
+                    delegate
+                    {
+                      return new PlaybackSettingsView(
+                          new PlaybackSettingsViewModel(null, PlaybackSettingsViewModel.GROUP_PICTURES));
+                    },
+                    "Players_Image"),
+                new SettingsSection("Watched and finished", "Frontend",
+                    "How much of a title counts as watched, and whether the player steps aside when it ends",
+                    delegate
+                    {
+                      return new PlaybackSettingsView(
+                          new PlaybackSettingsViewModel(null, PlaybackSettingsViewModel.GROUP_TITLES));
+                    },
+                    "Players_General"),
+                new SettingsSection("The sound of this machine", "Frontend",
+                    "The screen that plays what is chosen, with its volume, its position and its controls",
+                    delegate { return new PlaybackView(_nowPlaying); },
+                    "Players_AudioPlayer"));
+          },
+          "Players");
+
+      // /Plugins: one plate per settings class the server's parts keep, read from the server every time the
+      // door opens. This is the reference's Plugins branch plate for plugin - Plugins_Weather beside
+      // Plugins_Trakt - and it is why the plugin screen no longer lists the sections in one column of its own:
+      // the wall outside already did that.
+      model.AddFolder("Plugins", "Server",
+          "What the server lets a television change in what its parts keep",
+          () => PluginSettingsPages.PagesAsync(() => _home.Client),
+          "Plugins");
+
+      // /Shares: the folders the library reads, and what the server answers when a shared folder asks who is
+      // calling. The reference filed both under Shares - Shares_SharesConfiguration beside
+      // Shares_SharesOverview - for the same reason this front end does: a share is the server's business and
+      // no one machine's, and the dictionary underneath always held one credential per path, not just the root.
+      model.AddFolder("Shares", "Server",
+          "The folders the library reads, and what the server offers shared folders on the network",
+          delegate
+          {
+            return SettingsViewModel.PagesHere(
+                new SettingsSection("Media sources", "Server",
+                    "The folders the library reads, and their imports",
+                    delegate { return new FoldersView(new FoldersViewModel(_home.Client)); },
+                    "Shares_SharesConfiguration", "Shares"),
+                new SettingsSection("Network credentials", "Server",
+                    "What the server answers when a shared folder asks who is calling",
+                    delegate
+                    {
+                      NetworkCredentialsViewModel credentials = new NetworkCredentialsViewModel(() => _home.Client);
+                      return new NetworkCredentialsView { DataContext = credentials };
+                    },
+                    // The reference drew this plate with its own picture but gave it no icon of its own - it
+                    // lent the branch's icon, which is what the plate's band carries here.
+                    "Shares_SharesOverview", "Shares"));
+          },
+          "Shares");
+
+      // /TV: where the television comes from. The reference had no such page on this side of the network
+      // because its TV service ran on the same box; here the channels, the programmes and the timers all
+      // belong to a TvHeadend elsewhere, so the branch holds the one question this machine answers about it.
+      model.AddFolder("Television", "Frontend",
+          "Which machine the channels, the guide and the recording timers come from",
+          delegate
+          {
+            return SettingsViewModel.PagesHere(
+                new SettingsSection("Where the channels come from", "TV",
+                    "The address of the television backend, and what it is asked for",
+                    delegate { return new TvSettingsView(); },
+                    "TV"));
+          },
+          "TV");
+
+      // /Users: who may sign in, read from the server's own user store the moment the page opens. The names
+      // live on the server, not on any one machine, which is why the reference filed this as
+      // "Settings -> Benutzer" - and behind its own "Settings.UserProfile" gate, because the section that
+      // hands out PINs and restrictions hides from the people who were handed them. That is the whole point of
+      // a key that only one person in the house has.
       if (_viewer.Allows(Theming.RestrictionGroups.SettingsUserProfile))
       {
-        model.Add("Users", "Server", "Who can sign in on the server, and what they must say",
+        model.AddFolder("Users", "Server",
+            "Who can sign in on the server, and what they must say",
             delegate
             {
-              UsersSettingsViewModel users = new UsersSettingsViewModel(
-                  () => _home.Client, () => _home.Client, _viewer);
-              return new UsersSettingsView { DataContext = users };
-            });
+              return SettingsViewModel.PagesHere(
+                  new SettingsSection("Who signs in", "Server",
+                      "The names on the server, the numbers they must know, and what each may reach",
+                      delegate
+                      {
+                        UsersSettingsViewModel users = new UsersSettingsViewModel(
+                            () => _home.Client, () => _home.Client, _viewer);
+                        return new UsersSettingsView { DataContext = users };
+                      },
+                      "Users"));
+            },
+            "Users");
       }
 
-      // What the server says when a shared folder asks who is calling. The reference kept these in the
-      // server's own settings window for the same reason: shares are the server's business, not any one
-      // machine's - and the dictionary underneath always held one credential per path, not just the root.
-      model.Add("Network credentials", "Server", "What the server offers shared folders on the network",
-          delegate
-          {
-            NetworkCredentialsViewModel credentials = new NetworkCredentialsViewModel(() => _home.Client);
-            return new NetworkCredentialsView { DataContext = credentials };
-          });
-
-      // The server's own settings, read over the API the moment the row is opened - there is
-      // nothing local to show before that. The provider is a delegate rather than the client
-      // itself because the viewer may point at a different server between visits.
-      model.Add("Server settings", "Server", "Login, importer schedule and port on the server",
-          delegate
-          {
-            ServerSettingsViewModel serverSettings = new ServerSettingsViewModel(() => _home.Client);
-            _ = serverSettings.ReloadAsync();
-            return new ServerSettingsView { DataContext = serverSettings };
-          });
-
-      // What the extractors fetch, per kind of media - also read the moment the row opens, and a server
-      // without the endpoint says so in the status line rather than offering an empty form.
-      model.Add("Metadata", "Server", "What the server fetches from the internet for the library",
-          delegate
-          {
-            MetadataSettingsViewModel metadata = new MetadataSettingsViewModel(() => _home.Client);
-            _ = metadata.ReloadAsync();
-            return new MetadataSettingsView { DataContext = metadata };
-          });
-
-      // Where the television comes from. The reference had no such row because its TV service ran on the same
-      // box; here the channels, the programmes and the timers all belong to a TvHeadend elsewhere on the
-      // network, so its address is this machine's own answer - filed as one row of its own, the way the
-      // reference filed its TV settings under a TV branch of the settings tree.
-      model.Add("Television", "TV", "Which machine the channels, the guide and the recording timers come from",
-          delegate { return new TvSettingsView(); });
-
-      // The settings a plugin or a server part keeps and a household used to edit in a window on the
-      // server's own desktop. ONE row, not one row per section: which sections stand open is the server's
-      // answer, read when the row opens, so a section somebody opens in the server's catalog appears on the
-      // television by itself. A copy of that table here would only ever be the table as it used to be.
-      model.Add("Plugin settings", "Server", "What the server lets a television change in what it keeps",
-          delegate
-          {
-            PluginSettingsViewModel pluginSettings = new PluginSettingsViewModel(() => _home.Client);
-            _ = pluginSettings.ReloadAsync();
-            return new PluginSettingsView { DataContext = pluginSettings };
-          });
-
-      model.Add("Media sources", "Server", "The folders the library reads, and their imports",
-          delegate { return new FoldersView(new FoldersViewModel(_home.Client)); });
-
-      // What this machine does with the pictures those folders produce. Filed beside the sources on purpose -
-      // one answers where the library comes from, the other what this box keeps of it - but owned by the front
-      // end, because one viewer's television has a disk to keep pictures on and another's has none, while both
-      // look at the same server. The server is handed over for the one row that is its answer rather than this
-      // machine's: what it has learned about where its pictures lie.
-      model.Add("Media settings", "Frontend", "What this machine keeps of the library's pictures, and for how long",
-          delegate
-          {
-            MediaSettingsViewModel media = new MediaSettingsViewModel(_home.Pictures, null, _home.Client);
-            return new MediaSettingsView(media);
-          });
-
-      model.Add("Playback", "Frontend", "The sound of this machine",
-          delegate { return new PlaybackView(_nowPlaying); });
-
-      // The way out. The reference front ends kept leaving the application in dialogSystemState, a dialog
-      // every viewer found because a television without a mouse still has to be left somehow; the settings
-      // hub is where this one advertises it, and it pushes the screen rather than embedding it - the trail
-      // and the back key belong to the close screen, not to the hub.
+      // The way out, the one plate that is a leaf: it opens no page of settings but the close screen itself.
+      // The reference front ends kept leaving the application in dialogSystemState, a dialog every viewer found
+      // because a television without a mouse still has to be left somehow; the settings hub is where this one
+      // advertises it, and it pushes the screen rather than embedding it - the header and the back key belong
+      // to the close screen, not to the hub.
       model.Add("Close", "Frontend", "Leave the application, whatever is playing",
-          null, delegate { _workflow.Push(CloseFrame()); });
+          null, open: delegate { _workflow.Push(CloseFrame()); });
 
       return model;
+    }
+
+    /// <summary>
+    /// The connection screen, lent to the settings hub's pane like every other page: the very screen the start
+    /// answers with, so a household changes the server's address in one place and not in two copies of a form.
+    /// What a save does stays the application's business - swap the client and ask the library again - but the
+    /// hub keeps its wall and its back key here; nothing is pushed.
+    /// </summary>
+    private Control? ServerAddressPage()
+    {
+      ConnectionViewModel viewModel = new ConnectionViewModel(_settings, _settingsPath);
+      viewModel.Saved += delegate (string url)
+      {
+        _home.UseServer(new ServerApiClient(new Uri(url, UriKind.Absolute)));
+        _home.RefreshCommand.Execute(null);
+      };
+      ConnectionView view = new ConnectionView(viewModel);
+      // The workflow is what usually tells a screen it is being looked at; in the pane that moment is the
+      // attach, and the screen starts its search and lays its focus in the same words.
+      view.AttachedToVisualTree += delegate { view.OnScreenActivated(); };
+      return view;
     }
 
     /// <summary>

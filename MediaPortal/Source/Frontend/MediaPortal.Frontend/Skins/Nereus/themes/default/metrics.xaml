@@ -84,6 +84,28 @@
   <x:Double x:Key="PluginTileNameFontSize">27</x:Double>
   <x:Double x:Key="PluginTileNameRestingOpacity">0.6</x:Double>
 
+  <!-- The settings wall's plates, measured off the reference's SettingsMenuItemDataTemplate
+       (OtherControlsOverrides.xaml:632) and grown by a fifth the way every number in this skin is: the reference
+       drew a plate three hundred fifty-five square - a picture area of two hundred ninety over a band of sixty
+       five, with the name standing seventy six lines in from the plate's left edge, on a band of black at a
+       half. The plate is a square and the band is the only thing inside it with a height of its own, so the
+       picture area is what the plate's height minus the band leaves.
+
+       The band's left seventy seven lines belong to the section's icon (the Image in row 1 column 0, Margin 7,
+       drawn at six tenths of light until something stands on it), which is why the name begins at seventy six:
+       the two are one row, not a name with a gap in front of it. -->
+  <x:Double x:Key="SettingsTilePlateWidth">426</x:Double>
+  <x:Double x:Key="SettingsTilePlateHeight">426</x:Double>
+  <x:Double x:Key="SettingsTileBandHeight">78</x:Double>
+  <x:Double x:Key="SettingsTileNameRestingOpacity">0.6</x:Double>
+  <x:Double x:Key="SettingsTileIconRestingOpacity">0.6</x:Double>
+  <x:Double x:Key="SettingsTileArtOpacity">0.8</x:Double>
+  <Thickness x:Key="SettingsTileMargin">10</Thickness>
+  <Thickness x:Key="SettingsTileNameMargin">0,-6,6,1</Thickness>
+  <Thickness x:Key="SettingsTileIconMargin">8</Thickness>
+  <SolidColorBrush x:Key="SettingsTilePlateBrush">#222222</SolidColorBrush>
+  <SolidColorBrush x:Key="SettingsTileBandBrush">#80000000</SolidColorBrush>
+
   <!-- The main menu's tiles, the same way: this face drew a tile of 170 standing in a column of 200, and both
        numbers below are those grown by a fifth - 204 of the 1440 lines this front end is drawn on for the square
        a tile wears, and 240 for the column it stands in - so the rail grows with the panel instead of staying

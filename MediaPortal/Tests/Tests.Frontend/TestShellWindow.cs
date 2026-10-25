@@ -1,4 +1,4 @@
-﻿/*
+/*
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -267,33 +267,7 @@ namespace Tests.Frontend
     }
 
     [AvaloniaTest]
-    public void ATrailIsDrawnOnlyWhenThereIsAWayBack()
-    {
-      WorkflowManager workflow;
-      ShellWindow shell = ShowShell(out workflow, Frame("home", "Home", new ScreenStub("home screen")));
-      StackPanel trail = shell.GetVisualDescendants().OfType<StackPanel>().First();
-      Assert.That(trail.IsVisible, Is.False, "at home nobody needs to be told they are at home");
-
-      workflow.Push(Frame("browser", "Filmbibliothek", new ScreenStub("browser screen")));
-      Pump();
-      Assert.That(trail.IsVisible, Is.True);
-      List<Button> crumbs = trail.GetVisualDescendants().OfType<Button>().ToList();
-      Assert.That(crumbs.Select(crumb => crumb.Content), Is.EqualTo(new[] { "Home", "Filmbibliothek" }));
-
-      // A film earns no crumbs either, and not because there is no way back: both reference skins took the
-      // master's furniture away the moment the picture owned the television, and the strip of the way back
-      // across the top of a playing film is exactly what a viewer reported as wrong.
-      workflow.Push(Frame("nowplaying", "Silo S03E01", new FullScreenStub("film screen")));
-      Pump();
-      Assert.That(trail.IsVisible, Is.False, "a full screen film wears no trail");
-
-      workflow.PopToState("browser");
-      Pump();
-      Assert.That(trail.IsVisible, Is.True, "and the trail comes back with the screen it belongs to");
-    }
-
-    [AvaloniaTest]
-    public void ClickingACrumbReturnsTheViewerToStraightThere()
+    public void TheShellWearsNoBarOfCrumbsAndTheWayBackIsStillTheStack()
     {
       WorkflowManager workflow;
       ShellWindow shell = ShowShell(out workflow, Frame("home", "Home", new ScreenStub("home screen")));
@@ -301,12 +275,45 @@ namespace Tests.Frontend
       workflow.Push(Frame("browse", "Genres", new ScreenStub("browse screen")));
       Pump();
 
-      StackPanel trail = shell.GetVisualDescendants().OfType<StackPanel>().First();
-      Button homeCrumb = trail.GetVisualDescendants().OfType<Button>().First(b => (b.Content as string) == "Home");
-      homeCrumb.RaiseEvent(new RoutedEventArgs(Button.ClickEvent, homeCrumb));
+      // However deep the viewer walked, no strip of clickable stop labels is drawn over the screen: the header
+      // names the screen it is showing, and that is the whole of what the window says about where the viewer
+      // stands. What used to live in that strip - jumping straight back to one open stop - stayed, but as the
+      // workflow\'s own answer, which the back key and the screens reach for.
+      ContentControl screenArea = shell.GetVisualDescendants()
+          .OfType<ContentControl>().Single(c => c.Name == "ChromeScreenArea");
+      Grid layout = screenArea.Parent as Grid;
+      Assert.That(layout, Is.Not.Null, "the screen stands in the shell\'s own rows");
+      Assert.That(layout.Children.Count, Is.EqualTo(3),
+          "the window lays three rows - the skin\'s header, the screen, the skin\'s footer - and no row for a "
+          + "navigation bar, so the screen is taller by what the strip of crumbs used to take");
+      Assert.That(Grid.GetRow(screenArea), Is.EqualTo(1), "and the screen is the middle row, under the header");
+
+      // And when a screen asks the header to float over it - the home, whose fanart is meant to reach the very
+      // top of the television - the header floats over the SCREEN, not over whichever row the numbering happens
+      // to point at. It once was put in the row below the screen, which dropped the clock, the weather and the
+      // notifications to the bottom of the window, and the rows shifting by one is exactly how that happened.
+      ContentControl header = shell.GetVisualDescendants()
+          .OfType<ContentControl>().Single(c => c.Name == "ChromeHeader");
+      ContentControl footer = shell.GetVisualDescendants()
+          .OfType<ContentControl>().Single(c => c.Name == "ChromeFooter");
+
+      shell.SetChromeHeaderOverlay(true);
+      Assert.That(Grid.GetRow(header), Is.EqualTo(Grid.GetRow(screenArea)),
+          "a floating header shares the screen's row, which is the only row whose top edge is the top of the "
+          + "picture it decorates");
+      Assert.That(header.VerticalAlignment, Is.EqualTo(Avalonia.Layout.VerticalAlignment.Top),
+          "and it stands at that row's top, not in the middle of it");
+      Assert.That(Grid.GetRow(header), Is.Not.EqualTo(Grid.GetRow(footer)),
+          "the header never moves down into the footer's row");
+
+      shell.SetChromeHeaderOverlay(false);
+      Assert.That(Grid.GetRow(header), Is.EqualTo(0), "and a screen that stops asking gives the row back");
+
+      workflow.PopToState("home");
       Pump();
 
-      Assert.That(workflow.Stack.Count, Is.EqualTo(1), "the whole way in closed at once - the viewer asked for home, not for one step");
+      Assert.That(workflow.Stack.Count, Is.EqualTo(1),
+          "the whole way in closes at once when somebody asks to be back at an open stop");
       Assert.That((ShownScreen(shell) as ScreenStub).Text, Is.EqualTo("home screen"));
     }
   }

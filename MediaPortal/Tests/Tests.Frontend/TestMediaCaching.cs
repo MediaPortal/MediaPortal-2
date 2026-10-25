@@ -454,7 +454,7 @@ namespace Tests.Frontend
     {
       MediaSettingsViewModel screen = new MediaSettingsViewModel(null, _file);
 
-      Assert.That(screen.Heading, Is.EqualTo("Media settings"));
+      Assert.That(screen.Heading, Is.EqualTo("Kept pictures on this machine"), "the page says whose answers it holds, because it stands beside the server's pages now");
       Assert.That(screen.Options[0].Label, Is.EqualTo("Keep pictures on this machine"));
       Assert.That(screen.Options[0].IsToggle, Is.True, "a switch with two answers wears a checkbox");
       Assert.That(screen.Options[1].Label, Is.EqualTo("Room the kept pictures may take"));

@@ -1712,7 +1712,7 @@ namespace MediaPortal.Frontend.Views
     /// Asks for Nereus' own home menu editor, standing where the viewer stands: the reference passed the tile the
     /// viewer was on to the editor as its starting point (<c>HomeMenuModel.BeginMenuEdit</c>), and the application
     /// builds the same thing behind the <c>menuedit</c> screen key. An ordinary stop on the workflow, so Back
-    /// steps off it and the trail above the screen names it.
+    /// steps off it and the header over the screen names it.
     /// </summary>
     private void OpenMenuEditor()
     {
@@ -1724,7 +1724,7 @@ namespace MediaPortal.Frontend.Views
     /// </summary>
     /// <remarks>
     /// Pushed onto the workflow rather than shown beside this screen: pressing Back has to leave the viewer
-    /// where they were, and the trail above the screen shows exactly how deep that is.
+    /// where they were, and the header over the screen says what they are standing on.
     /// </remarks>
     private void OpenScreen(string screenKey)
     {

@@ -59,13 +59,34 @@ namespace MediaPortal.Frontend.ViewModels
   public sealed partial class PluginSettingsViewModel : ObservableObject
   {
     private readonly Func<IPluginSettingsApi?> _clientProvider;
+
+    /// <summary>
+    /// The one section this screen is the editor of, or <c>null</c> for the screen that lists everything the
+    /// server offers. A media page in the settings wall is the second kind: the wall already <i>is</i> the list,
+    /// so the page opened through one door shows that door's fields and nothing else - the reference's
+    /// configuration screen did exactly that, one page per node of the tree, with the wall of pages beside it
+    /// rather than a list inside the page.
+    /// </summary>
+    private readonly SettingSectionSummary? _only;
+
     private string _status = "";
     private bool _isBusy;
     private SettingSectionViewModel? _section;
 
     public PluginSettingsViewModel(Func<IPluginSettingsApi?> clientProvider)
+        : this(clientProvider, null)
+    {
+    }
+
+    /// <param name="clientProvider">Where the server is reached, asked again every read.</param>
+    /// <param name="only">
+    /// The one section to open, for a screen that stands behind a door of its own. Left out, the screen is the
+    /// list of everything the server offers in the plugin area.
+    /// </param>
+    public PluginSettingsViewModel(Func<IPluginSettingsApi?> clientProvider, SettingSectionSummary? only)
     {
       _clientProvider = clientProvider ?? throw new ArgumentNullException(nameof(clientProvider));
+      _only = only;
     }
 
     /// <summary>
@@ -79,6 +100,28 @@ namespace MediaPortal.Frontend.ViewModels
     /// server with nothing open are different sentences, and the view says the one that is true.
     /// </summary>
     public bool HasSections => Sections.Count > 0;
+
+    /// <summary>
+    /// Whether this screen has a list of its own at all. Behind a door of the media wall it has none - the wall
+    /// is the list - and a page that offered a list of one was a page asking the viewer to choose what they have
+    /// already chosen.
+    /// </summary>
+    public bool HasList => _only == null;
+
+    /// <summary>Whether the list half of the view stands up: a list, and nothing open in front of it.</summary>
+    public bool ShowsList => HasList && Section == null;
+
+    /// <summary>
+    /// What the screen says about itself above everything else. A page behind a door speaks of its own section,
+    /// not of the server's plugins; the wall it stands in already said where it came from.
+    /// </summary>
+    public string Intro => _only == null
+        ? "These are settings the server keeps for its own parts and plugins, stored on its machine. What a "
+          + "server is willing to be told is the server's answer, so this list is read from there and never "
+          + "kept here."
+        : "This page holds what the server keeps about \"" + _only.Title + "\", stored on its machine and read "
+          + "from there when the page opens. It stands among this household's media settings because the "
+          + "answers are about the library; the keeping is the server's.";
 
     /// <summary>What the last call did, or why it could not.</summary>
     public string Status
@@ -107,6 +150,7 @@ namespace MediaPortal.Frontend.ViewModels
         {
           OnPropertyChanged(nameof(HasSection));
           OnPropertyChanged(nameof(Title));
+          OnPropertyChanged(nameof(ShowsList));
         }
       }
     }
@@ -115,7 +159,7 @@ namespace MediaPortal.Frontend.ViewModels
     public bool HasSection => Section != null;
 
     /// <summary>What the list is called, and what the editor is called while one is open.</summary>
-    public string Title => Section == null ? "Plugin settings" : Section.Title;
+    public string Title => Section?.Title ?? _only?.Title ?? "Plugin settings";
 
     /// <summary>Read the list of sections. Called when the row opens, and by ReloadCommand.</summary>
     [RelayCommand]
@@ -125,6 +169,15 @@ namespace MediaPortal.Frontend.ViewModels
       if (client == null)
       {
         Status = "No server address yet - set one under \"Server address\" first.";
+        return;
+      }
+
+      if (_only != null)
+      {
+        // Behind a door of its own there is nothing to list; opening the page is opening the section. Read again
+        // every time, because the answer is the server's and another television may have answered differently
+        // while this page was closed.
+        await OpenAsync(_only).ConfigureAwait(true);
         return;
       }
 
@@ -220,6 +273,14 @@ namespace MediaPortal.Frontend.ViewModels
     [RelayCommand]
     public async Task BackAsync()
     {
+      if (_only != null)
+      {
+        // There is no list to put back - the wall outside this page is the way back, and the hub works that
+        // key. What the screen can do is read its one section again.
+        await OpenAsync(_only).ConfigureAwait(true);
+        return;
+      }
+
       Section = null;
       await ReloadAsync();
     }

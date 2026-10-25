@@ -32,7 +32,7 @@ namespace MediaPortal.Frontend.Views
   /// <para>
   /// The reference raised this as a dialog and never as a screen (<c>SlimTvGuideModelBase.ShowProgramActions</c>
   /// ended in <c>SlimTvExtScheduleModel.ShowDialog</c>), so it is one here too: the guide stays lit behind it, the
-  /// header and the trail step back, and Back lands the viewer on the block they were standing on. The list carries
+  /// header steps back, and Back lands the viewer on the block they were standing on. The list carries
   /// the answers the model worked out - which is the whole point of the split, since three of the reference's
   /// answers depended on a question it asked the backend first and a dialog that guessed would have been worse than
   /// no dialog at all.

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   Nereus screen templates: how this skin draws the items of the screens that ask.
 
@@ -26,10 +26,10 @@
     one this front end added on top of MP2's menu - wears its letter badge instead.
   -->
   <!--
-    The settings list, as Nereus wore its configuration menu: the section's own name in the reading size,
-    whose machine it belongs to said under it in the quiet colour, and the one sentence of what you can do
-    here under both. No pictures: the reference asked the skin for a SettingsMenu\<section>.jpg and this
-    tree has never carried one, and a row that invents a picture is a row with a hole in it.
+    The settings list, as Nereus wore its configuration menu once a plate was picked: the section's own name in
+    the reading size, whose machine it belongs to said under it in the quiet colour, and the one sentence of what
+    you can do here under both. This is the reference's MainMenuListViewStyle side of the same list - the narrow
+    column beside an open screen - and a narrow row carries no plate art, only words.
   -->
   <DataTemplate x:Key="SettingsRowTemplate" x:DataType="vm:SettingsSection">
     <StackPanel Spacing="1" Margin="0,6,10,8">
@@ -45,6 +45,48 @@
                  Foreground="{DynamicResource AccentBrush}"
                  Opacity="0.8"/>
     </StackPanel>
+  </DataTemplate>
+
+  <!--
+    The settings WALL, which is what the reference showed before anything was open and what it showed again
+    whenever a folder of pages was opened: a wrap of plates, each one the section's picture under its name
+    (OtherControlsOverrides.xaml:632, dressed by SettingsItemContainerStyle at :978). The plate is #222222 with
+    the section's own picture (SettingsMenu\<path>.jpg) stretched over it at eight tenths, a band of black at a
+    half along its bottom edge, the section's icon (SettingsMenu\Icon_<path>.png) in the band's left seventy
+    seven lines and the name standing beside it at six tenths of light, coming to full light under a viewer.
+    A section whose picture the worn skin does not carry stands bare, which is what the reference's converter
+    answered with too. Being a door rather than a screen changes nothing about a plate: the reference's Media
+    node wore the same square as its leaves.
+  -->
+  <DataTemplate x:Key="SettingsTileTemplate" x:DataType="vm:SettingsSection">
+    <Panel Margin="{DynamicResource SettingsTileMargin}">
+      <Border Classes="settings-tile-plate">
+        <Panel>
+          <!-- The section's picture, over the whole plate - the reference's Image spanned both rows, so the
+               band is drawn over the picture rather than beside it. -->
+          <Image Classes="settings-tile-art"
+                 Source="{Binding Picture,
+                                  Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='SettingsMenu/{0}'}"/>
+          <!-- The band and its icon and name, as one unit at the plate's bottom edge: the reference laid the
+               plate in two rows (290 of picture, 65 of band) and stood the icon in the lower one's first
+               column, the name in the second. -->
+          <Panel Height="{DynamicResource SettingsTileBandHeight}" VerticalAlignment="Bottom">
+            <Border Classes="settings-tile-band"/>
+            <Grid ColumnDefinitions="92,*"> <!-- the band is two columns: the icon's seventy seven reference lines, ninety two here, and whatever is left for the name; ColumnDefinitions is a plain CLR property, so it is spelled here rather than pulled from the metrics -->
+              <Image Classes="settings-tile-icon"
+                     Source="{Binding Icon,
+                                      Converter={x:Static views:SkinImageConverter.Instance},
+                                      ConverterParameter='SettingsMenu/Icon_{0}'}"/>
+              <TextBlock Classes="settings-tile-name" Grid.Column="1" Text="{Binding Name}"/>
+            </Grid>
+          </Panel>
+        </Panel>
+      </Border>
+      <!-- The edge a stood-on tile grows, which is the reference's ButtonBaseControlStyle overlay: nothing
+           about the plate changes, the edge is what says where the viewer is. -->
+      <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
+    </Panel>
   </DataTemplate>
 
   <!--

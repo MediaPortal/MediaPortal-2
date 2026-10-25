@@ -33,66 +33,118 @@ namespace MediaPortal.Frontend.ViewModels;
 /// language rows are preferences, not commands - they pick a track only when a media labels one with that
 /// language, which <see cref="NowPlayingViewModel.ApplyTrackPreferences"/> does when a media's tracks have
 /// become known.
+///
+/// <para>
+/// <b>One screen, or the three pages the reference had.</b> Asked for no group, this is the whole list it always
+/// was. Named a group, it is the page of that group only, which is how the reference filed the same answers:
+/// its Players branch stood over <c>Players_VideoPlayer</c>, <c>Players_AudioPlayer</c> and
+/// <c>Players_Image</c> (one plate each, ServerSettings.Client/plugin.xml), and a household read the film
+/// answers without scrolling past a slideshow. Same settings file, same rows, same saving - a page is the list
+/// with its attention narrowed, not a second copy of the answers.
+/// </para>
 /// </remarks>
 public partial class PlaybackSettingsViewModel : ObservableObject
 {
+  /// <summary>The group of answers one page shows: the player of films and music.</summary>
+  public const string GROUP_PLAYERS = "players";
+
+  /// <summary>The group of answers one page shows: what this machine does with pictures.</summary>
+  public const string GROUP_PICTURES = "pictures";
+
+  /// <summary>The group of answers one page shows: when a title counts as watched, and how a player leaves.</summary>
+  public const string GROUP_TITLES = "titles";
+
+  private readonly string? _group;
   private readonly PlaybackSettings _settings;
   private readonly string? _settingsPath;
 
-  public PlaybackSettingsViewModel(string? settingsPath = null)
+  public PlaybackSettingsViewModel(string? settingsPath = null, string? group = null)
   {
     _settingsPath = settingsPath;
+    _group = group;
     _settings = PlaybackSettings.Load(settingsPath, out string? problem);
     Status = problem ?? "";
 
-    Options.Add(new SkinSettingOption("Instant skip",
-        "How far one instant jump reaches - a share of the title, or seconds when those are preferred",
-        InstantSkipText, AdvanceInstantSkip, Changed));
+    // Whether a row of this screen belongs to the page that was asked for. Nobody named a group, so every row
+    // stands, which is the screen as it was before it had pages.
+    bool Shows(string kind) => _group == null || _group == kind;
 
-    Options.Add(new SkinSettingOption("Instant skip in seconds",
-        "Whether the instant jump counts seconds instead of per cent of the title",
-        () => _settings.PreferInstantSkipSeconds, v => _settings.PreferInstantSkipSeconds = v, Changed));
+    if (Shows(GROUP_PLAYERS))
+    {
+      Options.Add(new SkinSettingOption("Instant skip",
+          "How far one instant jump reaches - a share of the title, or seconds when those are preferred",
+          InstantSkipText, AdvanceInstantSkip, Changed));
 
-    Options.Add(new SkinSettingOption("Volume step", "How much one press of the volume key moves",
-        VolumeStepText, AdvanceVolumeStep, Changed));
+      Options.Add(new SkinSettingOption("Instant skip in seconds",
+          "Whether the instant jump counts seconds instead of per cent of the title",
+          () => _settings.PreferInstantSkipSeconds, v => _settings.PreferInstantSkipSeconds = v, Changed));
 
-    Options.Add(new SkinSettingOption("Start volume", "Where the sound begins when this machine starts a media",
-        StartVolumeText, AdvanceStartVolume, Changed));
+      Options.Add(new SkinSettingOption("Volume step", "How much one press of the volume key moves",
+          VolumeStepText, AdvanceVolumeStep, Changed));
 
-    Options.Add(new SkinSettingOption("Subtitles on", "Whether subtitles may come on by themselves",
-        () => _settings.SubtitlesEnabled, v => _settings.SubtitlesEnabled = v, Changed));
+      Options.Add(new SkinSettingOption("Start volume", "Where the sound begins when this machine starts a media",
+          StartVolumeText, AdvanceStartVolume, Changed));
 
-    Options.Add(new SkinSettingOption("Audio language", "Which language to pick when a media offers several",
-        AudioLanguageText, AdvanceAudioLanguage, Changed));
+      Options.Add(new SkinSettingOption("Subtitles on", "Whether subtitles may come on by themselves",
+          () => _settings.SubtitlesEnabled, v => _settings.SubtitlesEnabled = v, Changed));
 
-    Options.Add(new SkinSettingOption("Subtitle language", "Which subtitle language to pick when there are several",
-        SubtitleLanguageText, AdvanceSubtitleLanguage, Changed));
+      Options.Add(new SkinSettingOption("Audio language", "Which language to pick when a media offers several",
+          AudioLanguageText, AdvanceAudioLanguage, Changed));
 
-    Options.Add(new SkinSettingOption("Picture shows for", "How long one picture stands during a slideshow",
-        SlideshowText, AdvanceSlideshow, Changed));
+      Options.Add(new SkinSettingOption("Subtitle language", "Which subtitle language to pick when there are several",
+          SubtitleLanguageText, AdvanceSubtitleLanguage, Changed));
+    }
 
-    Options.Add(new SkinSettingOption("Watched at",
-        "How much of a title must be played before it counts as watched",
-        WatchedMarkText, AdvanceWatchedMark, Changed));
+    if (Shows(GROUP_PICTURES))
+    {
+      Options.Add(new SkinSettingOption("Picture shows for", "How long one picture stands during a slideshow",
+          SlideshowText, AdvanceSlideshow, Changed));
 
-    Options.Add(new SkinSettingOption("Ken Burns effect",
-        "Whether a slideshow slowly zooms and pans the pictures it shows",
-        () => _settings.KenBurnsEffect, v => _settings.KenBurnsEffect = v, Changed));
+      Options.Add(new SkinSettingOption("Ken Burns effect",
+          "Whether a slideshow slowly zooms and pans the pictures it shows",
+          () => _settings.KenBurnsEffect, v => _settings.KenBurnsEffect = v, Changed));
+    }
 
-    Options.Add(new SkinSettingOption("Close when finished",
-        "Whether the playback screen steps aside by itself when the film ends",
-        () => _settings.ClosePlayerWhenFinished, v => _settings.ClosePlayerWhenFinished = v, Changed));
+    if (Shows(GROUP_TITLES))
+    {
+      Options.Add(new SkinSettingOption("Watched at",
+          "How much of a title must be played before it counts as watched",
+          WatchedMarkText, AdvanceWatchedMark, Changed));
+
+      Options.Add(new SkinSettingOption("Close when finished",
+          "Whether the playback screen steps aside by itself when the film ends",
+          () => _settings.ClosePlayerWhenFinished, v => _settings.ClosePlayerWhenFinished = v, Changed));
+    }
   }
 
   public ObservableCollection<SkinSettingOption> Options { get; } = new ObservableCollection<SkinSettingOption>();
 
-  public string Heading => "Playback";
+  public string Heading => _group switch
+  {
+    GROUP_PLAYERS => "Films and music",
+    GROUP_PICTURES => "Pictures",
+    GROUP_TITLES => "Watched and finished",
+    _ => "Playback"
+  };
 
-  public string Subtitle =>
-      "What the player on this box was told - how far it skips, how loud it starts, how big its volume "
-      + "steps are, which language to reach for, and how patient its slideshow is. Everything is saved at "
-      + "once and belongs to this machine; the DirectShow answers of the old reference have no equivalent "
-      + "behind this player and are not offered.";
+  public string Subtitle => _group switch
+  {
+    GROUP_PLAYERS =>
+        "What this box tells the player of a film, an episode or a song: how far it skips, how loud it starts, "
+        + "how big its volume steps are, which language to reach for. Everything is saved at once and belongs to "
+        + "this machine.",
+    GROUP_PICTURES =>
+        "What this box does with a picture on the screen: how long one stands, and whether a slideshow slowly "
+        + "zooms and pans it. Everything is saved at once and belongs to this machine.",
+    GROUP_TITLES =>
+        "When a title counts as watched, and whether the playback screen steps aside by itself when the last "
+        + "minute of it is over. Everything is saved at once and belongs to this machine.",
+    _ =>
+        "What the player on this box was told - how far it skips, how loud it starts, how big its volume "
+        + "steps are, which language to reach for, and how patient its slideshow is. Everything is saved at "
+        + "once and belongs to this machine; the DirectShow answers of the old reference have no equivalent "
+        + "behind this player and are not offered."
+  };
 
   [ObservableProperty]
   private string _status;

@@ -91,8 +91,10 @@
     <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
   </Style>
 
-  <!-- The home rail uses its artwork and selection markers, not the generic selected-row panel. -->
-  <Style Selector="ListBox.nereus-home-menu">
+  <!-- The home rail uses its artwork and selection markers, not the generic selected-row panel. The settings
+       wall wears the same treatment: its tiles dress themselves too, and a platform selection rectangle under a
+       plate that is already a plate of its own is a blue box with a tile floating in it. -->
+  <Style Selector="ListBox.nereus-home-menu, ListBox.settings-tile-wall">
     <Setter Property="Background" Value="Transparent"/>
     <Setter Property="BorderThickness" Value="0"/>
     <Setter Property="Padding" Value="0"/>
@@ -106,7 +108,7 @@
        switched off down to the item's template, so neither the selected tile nor the focused one can grow a
        border no matter which pseudo-class it wears. The reference marks its place with the band inside the
        tile and with nothing else. -->
-  <Style Selector="ListBox.nereus-home-menu ListBoxItem">
+  <Style Selector="ListBox.nereus-home-menu ListBoxItem, ListBox.settings-tile-wall ListBoxItem">
     <Setter Property="FocusAdorner" Value="{x:Null}"/>
     <Setter Property="Background" Value="Transparent"/>
     <Setter Property="BorderBrush" Value="Transparent"/>
@@ -200,6 +202,71 @@
         <GradientStop Offset="1" Color="#00000000"/>
       </LinearGradientBrush>
     </Setter>
+  </Style>
+
+  <!--
+    The wall of settings plates, which is the reference's SettingsMenuItemDataTemplate
+    (themes/default/styles/OtherControlsOverrides.xaml:632) dressed in this skin's own numbers. The reference's
+    plate is three hundred fifty-five square: a picture area two hundred ninety lines high over a band of sixty
+    five, the plate itself #222222, the band black at a half, and the name standing at the left of the band
+    seventy six lines in at six tenths of light.
+
+    Three layers make the plate, in the reference's order: the #222222 square, the section's own picture
+    (SettingsMenu\<path>.jpg) stretched over the whole of it at eight tenths, and the band with its icon
+    (SettingsMenu\Icon_<path>.png) and its name. Those pictures are the reference's own - they ship with MP2's
+    default skin images (Source\UI\UiComponents\SkinBase\Skin\default\images\SettingsMenu) and are named after
+    the section's place in the configuration tree, so a plate here asks for the same name and gets the same
+    picture. A section the reference never drew a plate for - one this front end added on top of MP2's tree -
+    asks for a name the skin does not carry and stands as a bare #222222 square, which is what the reference's
+    own converter answered with.
+    (The square_large.png the reference also painted under all this is covered by the #222222 rectangle it put
+    over it, so it is not painted here: it changes nothing there and would change nothing here.)
+
+    What changes under a viewer is the name's and the icon's light, from six tenths to full, exactly as the
+    reference's SettingsItemContainerStyle answers focus (:978-996). No scale, no colour, no frame: the wall is
+    the same plate stood in a different light.
+  -->
+  <Style Selector="Border.settings-tile-plate">
+    <Setter Property="Width" Value="{DynamicResource SettingsTilePlateWidth}"/>
+    <Setter Property="Height" Value="{DynamicResource SettingsTilePlateHeight}"/>
+    <Setter Property="Background" Value="{DynamicResource SettingsTilePlateBrush}"/>
+  </Style>
+  <Style Selector="Image.settings-tile-art">
+    <Setter Property="Opacity" Value="{DynamicResource SettingsTileArtOpacity}"/>
+    <Setter Property="Stretch" Value="Fill"/>
+  </Style>
+  <Style Selector="Border.settings-tile-band">
+    <Setter Property="Height" Value="{DynamicResource SettingsTileBandHeight}"/>
+    <Setter Property="Background" Value="{DynamicResource SettingsTileBandBrush}"/>
+  </Style>
+  <Style Selector="Image.settings-tile-icon">
+    <Setter Property="Margin" Value="{DynamicResource SettingsTileIconMargin}"/>
+    <Setter Property="Stretch" Value="Uniform"/>
+    <Setter Property="HorizontalAlignment" Value="Center"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+    <Setter Property="Opacity" Value="{DynamicResource SettingsTileIconRestingOpacity}"/>
+  </Style>
+  <Style Selector="TextBlock.settings-tile-name">
+    <Setter Property="Margin" Value="{DynamicResource SettingsTileNameMargin}"/>
+    <Setter Property="FontSize" Value="{DynamicResource SmallerFontSize}"/>
+    <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+    <Setter Property="Opacity" Value="{DynamicResource SettingsTileNameRestingOpacity}"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+    <Setter Property="HorizontalAlignment" Value="Left"/>
+    <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    <Setter Property="MaxLines" Value="1"/>
+  </Style>
+  <Style Selector="ListBox.settings-tile-wall ListBoxItem:focus TextBlock.settings-tile-name">
+    <Setter Property="Opacity" Value="1"/>
+  </Style>
+  <Style Selector="ListBox.settings-tile-wall ListBoxItem:focus Image.settings-tile-icon">
+    <Setter Property="Opacity" Value="1"/>
+  </Style>
+  <Style Selector="Window:not(.pointer-resting) ListBox.settings-tile-wall ListBoxItem:pointerover TextBlock.settings-tile-name">
+    <Setter Property="Opacity" Value="1"/>
+  </Style>
+  <Style Selector="Window:not(.pointer-resting) ListBox.settings-tile-wall ListBoxItem:pointerover Image.settings-tile-icon">
+    <Setter Property="Opacity" Value="1"/>
   </Style>
 
   <!-- Writing into the front end: the panel, the hairline, the text's own white. -->
