@@ -6326,3 +6326,40 @@ eleven pages with the reference's words on them, and the TV page standing up dir
 1247 frontend tests and 557 server tests green - among them the eight doors under the reference's names, every
 plate's picture, the door that opens its only page, and a level change that may not reach into the press that
 caused it.
+
+### dk. The wall a session opens on was read, standing - and never brought into the light
+
+**"Es gibt einen neuen Home Content bug nach deinen vorherigen Änderungen. Nach dem initialien Laden ist er nicht
+befüllt, erst nach einer ersten Navigation."** The report was exact, and so was the reason, which had been waiting
+in the open since the wake learned to read the library before it left the screen.
+
+Traced by letting the home say what it decides, on a real start against a real server:
+
+```
+13:45:09.307  PutUpWall bands=1 zeilen=1   (note: "no server connected")
+13:45:10.343  PutUpWall bands=4 zeilen=17  ("Latest added", "Continue playing", "Unplayed")
+13:45:12.241  HomeView gebaut
+```
+
+The wall was there - four bands, seventeen rows, read and put up complete - **one and a half seconds before the home
+screen existed**. That is the wake's own design and a good one: it asks for the reading under its animation, holds
+its ring until the library answers (`HomeViewModel.LibraryReady`), and hands the window over with the wall already
+standing so that the home never opens on a wall still on its way in. What the design left out is how the light gets
+written. `HomeView` leaves its wall in the dark - `nereusWallStanding.Opacity = 0` in its constructor - precisely so
+that even the first wall of a session comes up on its curve instead of appearing, and the one thing that ever asks
+for the beat a wall arrives in is `ContentGroups.CollectionChanged`. A view that does not exist yet cannot subscribe
+to that. So the finished wall stayed at zero opacity with the fanart showing through it, and the first step along the
+menu - which reads a *second* wall, into a view that was subscribed by then - brought that one into the light and
+looked, to whoever was watching, like a screen that filled itself only after a navigation.
+
+The constructor now asks for the same beat a wall's arrival is answered in when it is built over a wall that is
+already standing: the standing wall is scaled to its panel and brought up, or folded away if it turns out to hold
+nothing. The reading, the wake and the curve are untouched, and a wall that arrives later is answered exactly as it
+always was.
+
+Measured on the desktop, with nobody touching a key: the home's UIA tree after the initial load went from **14
+elements** (the menu rail and its buttons, nothing beside them) to **54**, carrying `Shortcuts`, `Latest added`,
+`Continue playing` and `Unplayed` with their covers. `Tests.Frontend/TestTheHomeOpensOnItsWall.cs` builds the wake's
+order - the wall is standing before the screen is built - and asks whether that wall is in the light and its squares
+stood on; switch the constructor's call off and both of its tests fail, switch it on and they pass. **1249 frontend
+tests green.**

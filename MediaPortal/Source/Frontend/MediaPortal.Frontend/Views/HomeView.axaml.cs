@@ -260,6 +260,16 @@ namespace MediaPortal.Frontend.Views
       // rather than once for every band of it.
       SizeChanged += delegate { ScaleNereusWall(); SizeNereusMenu(); };
 
+      // A wall that was already standing when this view was built comes into the light here. The wake reads the
+      // library and the opening wall behind its ring and only then hands the window over, so on the way in the
+      // model is regularly finished reading while this view does not exist yet - and the light a wall arrives in
+      // is written by its arrival, which nothing heard. Left at that, the home opened on a wall standing in the
+      // dark it rises out of, empty until the first step along the menu sent a second wall in. Asking the beat a
+      // wall's arrival is answered in is the whole fix: it scales the standing wall and brings it, or folds it
+      // away when it turned out to hold nothing.
+      if (_home.ContentGroups.Count > 0)
+        PutFinishedWallInLight();
+
       // The ring is in the order the areas are arranged on the screen: the menu on the left, its content to the
       // right of it, the server's aspect list on the far side, and the buttons underneath. Left/right walk it;
       // each list keeps its own up/down over its items, because it handles those keys before they reach the ring.
