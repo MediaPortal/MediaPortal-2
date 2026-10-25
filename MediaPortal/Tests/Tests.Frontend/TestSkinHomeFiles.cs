@@ -418,6 +418,88 @@ namespace Tests.Frontend
       }
     }
 
+    /// <summary>
+    /// What a main menu tile's picture does about the viewer standing on it and about being the entry the screen
+    /// is showing: the light comes up for both, the growth for the standing alone. A tile that is merely the
+    /// standing one used to stay a tenth grown while the viewer was away out on the wall, so two tiles on the
+    /// screen were grown at once and neither said where the viewer was.
+    /// </summary>
+    [AvaloniaTest]
+    public void AMenuTileGrowsOnlyWhileSomethingStandsOnIt()
+    {
+      Application app = Application.Current!;
+      string previous = SkinEngine.SkinsFolder;
+      SkinEngine.SkinsFolder = Path.Combine(MetadataPath("FrontendSource"), "Skins");
+      Window? window = null;
+      try
+      {
+        FrontendTheme.Apply(app, "nereus", out string? themeProblem);
+        Assert.That(SkinEngine.Apply(app, "nereus", out string? skinProblem), Is.True, skinProblem ?? "");
+
+        ListBox rail = new ListBox();
+        rail.Classes.Add("nereus-home-menu");
+        ListBoxItem standing = new ListBoxItem { Content = new Image() };
+        ListBoxItem other = new ListBoxItem { Content = new Image() };
+        ((Image) standing.Content).Classes.Add("nereus-menu-art");
+        ((Image) other.Content).Classes.Add("nereus-menu-art");
+        rail.Items.Add(standing);
+        rail.Items.Add(other);
+        window = new Window { Content = rail, Width = 320, Height = 420 };
+        window.Show();
+        Pump();
+
+        Image art = (Image) standing.Content;
+        Assert.That(art.Opacity, Is.EqualTo(0.75).Within(0.01),
+            "a tile that waits wears three quarters of its picture");
+        Assert.That(Growth(art), Is.EqualTo(1.0).Within(0.01), "and keeps it in its frame");
+
+        // The entry the screen is about: the light comes up, the picture stays where it is.
+        rail.SelectedIndex = 0;
+        Pump();
+        Pump();
+        Assert.That(art.Opacity, Is.EqualTo(1.0).Within(0.01),
+            "the standing entry wears the full light wherever the viewer is, because the screen is about it");
+        Assert.That(Growth(art), Is.EqualTo(1.0).Within(0.01),
+            "and standing on the screen is not standing on the tile: the picture does not step nearer until "
+            + "someone is on it; it stands at " + Growth(art).ToString("0.000"));
+
+        // Now the viewer does stand on it, and the growth the dimness was kept for arrives.
+        Assert.That(standing.Focus(), Is.True, "the viewer steps onto the entry");
+        for (int round = 0; round < 8; round++)
+          Pump();
+        Assert.That(Growth(art), Is.GreaterThan(1.06),
+            "standing on the tile steps its picture a tenth nearer; it came to "
+            + Growth(art).ToString("0.000"));
+
+        // And the way back is the point of the whole thing: the viewer steps off, the tile is still the entry
+        // the screen is about, and the picture goes home to its frame.
+        Assert.That(other.Focus(), Is.True, "the viewer steps off onto the entry below");
+        for (int round = 0; round < 8; round++)
+          Pump();
+        Assert.That(rail.SelectedIndex, Is.EqualTo(0),
+            "the first tile is still the entry the screen is showing, so what settles back has to be the "
+            + "growth and not the selection");
+        Assert.That(Growth(art), Is.LessThan(1.02),
+            "and the picture settles back into its frame as soon as nobody stands on it; it came to "
+            + Growth(art).ToString("0.000"));
+        window.Close();
+      }
+      finally
+      {
+        if (window != null)
+        {
+          try { window.Close(); } catch (ObjectDisposedException) { }
+        }
+        SkinEngine.SkinsFolder = previous;
+      }
+    }
+
+    /// <summary>How far a control's picture has grown out of its frame, read off its transform.</summary>
+    private static double Growth(Control control)
+    {
+      return control.RenderTransform is ITransform growth ? growth.Value.M11 : 1.0;
+    }
+
     /// <summary>Runs the dispatcher long enough for a screen to build and settle.</summary>
     private static void Pump()
     {

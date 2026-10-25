@@ -429,7 +429,13 @@
        the start, nothing arriving all at once - while the light itself comes quicker, and a leaving tile
        settles back on the same curve. The zoom is about the middle of the picture, not its top left corner,
        and the tile clips the picture to its own rounded square, so the growth reads as the artwork filling
-       out of the frame rather than as the frame sliding. -->
+       out of the frame rather than as the frame sliding.
+       Standing on a tile is meant strictly here, which is the difference between the two rules below: the
+       entry whose wall the screen is showing wears the full light wherever the viewer is, because the screen
+       is about that entry, but the picture steps nearer only while something is actually on it - the focus or
+       the pointer. A tile that was merely the standing one used to stay a tenth grown while the viewer was
+       away out on the wall, and a picture that stays grown when nobody is standing on it is a frame nobody
+       can find. -->
   <Style Selector="Image.nereus-menu-art">
     <Setter Property="Opacity" Value="0.75"/>
     <Setter Property="RenderTransformOrigin" Value="50%,50%"/>
@@ -443,7 +449,6 @@
   </Style>
   <Style Selector="ListBoxItem:selected Image.nereus-menu-art">
     <Setter Property="Opacity" Value="1"/>
-    <Setter Property="RenderTransform" Value="scale(1.1)"/>
   </Style>
   <Style Selector="ListBoxItem:focus Image.nereus-menu-art">
     <Setter Property="Opacity" Value="1"/>
