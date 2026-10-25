@@ -744,7 +744,7 @@ namespace FrontendProbe
         SettingsViewModel sections = new SettingsViewModel();
         sections.Add("Appearance", "Frontend", "The colours and the skin this machine wears",
             () => new ThemeView(settingsScreen));
-        sections.Add("Server address", "Frontend", "Which machine holds the library", null, delegate { });
+        sections.Add("Server address", "Frontend", "Which machine holds the library", null, open: delegate { });
         sections.Add("Server settings", "Server", "Login, importer schedule and port on the server",
             () =>
             {

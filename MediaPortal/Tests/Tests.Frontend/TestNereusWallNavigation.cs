@@ -221,6 +221,49 @@ namespace Tests.Frontend
     }
 
     /// <summary>
+    /// The last row is the end of the wall, and the end of the wall is the end of the way down. What stands under
+    /// the wall is a tile of the menu - another place, one the viewer reaches with Left and not with an arrow that
+    /// pointed at media - so that key used to hand the viewer out of the content they were reading. It answers
+    /// where it was pressed instead: the whole content pane leans toward the edge that was asked for and comes
+    /// back, and the square it leaned from is still the square the viewer stands on.
+    /// </summary>
+    [AvaloniaTest]
+    public void DownPastTheBottomOfTheWallLeansTheContentAndKeepsTheSquare()
+    {
+      OnWall(delegate (Wall wall)
+      {
+        // The lowest square of the whole wall, covers and shortcuts together, so that nothing of the wall can
+        // lie under the one this test stands on.
+        Button bottom = wall.Covers.Concat(wall.Shortcuts)
+            .OrderByDescending(square => wall.Abs(square).Bottom)
+            .First();
+        wall.Stand(bottom);
+        bool answered = wall.Press(Key.Down);
+
+        Assert.That(answered, Is.True,
+            "down past the last row was answered by this screen instead of being left to the focus navigation "
+            + "every control falls back on");
+        Assert.That(wall.Focused, Is.SameAs(bottom),
+            "and the viewer is still standing on the square they asked from; it came back with "
+            + wall.NameOf(wall.Focused));
+
+        // How far the lean travels is the screen's own beating, and a headless dispatcher never counts beats -
+        // no timer of any kind ticks in it. What a test can hold the screen to is the first line of the answer:
+        // the pane was put out of its place toward the edge that was asked for, which is the difference between
+        // a refusal that says something and one that only declines to move.
+        Assert.That(wall.ContentLean, Is.GreaterThan(6.0),
+            "the whole content leaned toward the edge that was asked for; it leaned "
+            + wall.ContentLean.ToString("0.0") + " lines");
+
+        // And the wall is not a trap: the way out of it is still the one that was always there.
+        wall.Press(Key.Left);
+        Assert.That(wall.Focused, Is.Not.SameAs(bottom),
+            "the arrow that does lead somewhere still leads, after a refusal; it came back with "
+            + wall.NameOf(wall.Focused));
+      });
+    }
+
+    /// <summary>
     /// Left across the wall reaches the menu rail, and reaches it on an entry: the rail is not a decoration a
     /// keyboard cannot stand on. From the rail, Right returns the viewer to the square they came from rather
     /// than to the top of the wall.
@@ -382,7 +425,7 @@ namespace Tests.Frontend
         Assert.That(topRow, Is.Not.Empty, "the face hung no button at the top of the screen");
 
         Window screen = window;
-        assert(new Wall(screen, squares
+        assert(new Wall(screen, wallPane, squares
             .Where(button => !((HomeContentTile) button.Tag!).IsShortcut).ToArray(),
             squares.Where(button => ((HomeContentTile) button.Tag!).IsShortcut).ToArray(), rail, topRow));
       }
@@ -407,14 +450,31 @@ namespace Tests.Frontend
     {
       private readonly Window _screen;
       private readonly ListBox _rail;
+      private readonly ScrollViewer _pane;
 
-      public Wall(Window screen, Button[] covers, Button[] shortcuts, ListBox rail, Button[] topRow)
+      public Wall(Window screen, ScrollViewer pane, Button[] covers, Button[] shortcuts, ListBox rail,
+          Button[] topRow)
       {
         _screen = screen;
+        _pane = pane;
         _rail = rail;
         Covers = covers;
         Shortcuts = shortcuts;
         TopRow = topRow;
+      }
+
+      /// <summary>
+      /// How far the content pane leans toward the bottom edge right now, read off the transform it carries.
+      /// Zero is the place the face gave it.
+      /// </summary>
+      public double ContentLean
+      {
+        get
+        {
+          // The pane's transform is a translation and the screen reports it as a matrix, whose offset along Y
+          // is what a viewer sees move; anything else it might be asked to carry leans nothing.
+          return _pane.RenderTransform is Avalonia.Media.ITransform shift ? shift.Value.M32 : 0;
+        }
       }
 
       public Button[] Covers { get; }
@@ -468,17 +528,24 @@ namespace Tests.Frontend
         Pump();
       }
 
-      public void Press(Key key)
+      /// <summary>
+      /// Presses an arrow on whatever the screen is stood on and reports whether the screen answered it. A key
+      /// nobody handled travels on to Avalonia's own focus navigation, which is the difference between an answer
+      /// and a shrug.
+      /// </summary>
+      public bool Press(Key key)
       {
         Control stood = Focused ?? _rail;
-        stood.RaiseEvent(new KeyEventArgs
+        KeyEventArgs args = new KeyEventArgs
         {
           RoutedEvent = InputElement.KeyDownEvent,
           Key = key,
           Route = RoutingStrategies.Tunnel,
           Source = stood,
-        });
+        };
+        stood.RaiseEvent(args);
         Pump();
+        return args.Handled;
       }
 
       public Control? Focused =>

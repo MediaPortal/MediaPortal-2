@@ -100,6 +100,26 @@ namespace MediaPortal.Frontend.Views
     private double _wallScale;
 
     /// <summary>
+    /// The shape of a refusal, as shares of <see cref="WALL_LEAN_DOWN"/>: the content pane is thrown toward the
+    /// edge that was asked for in two beats, reaches its furthest, and is walked back in five so that the last
+    /// beat is a settling rather than a snap. The numbers are the shape, and how long a beat is stands in
+    /// <see cref="WALL_LEAN_STEP_MS"/>.
+    /// </summary>
+    private static readonly double[] WALL_LEAN_SHAPE = { 0.62, 1.0, 0.82, 0.6, 0.42, 0.26, 0.12 };
+
+    /// <summary>How far the whole content pane leans when an arrow asks the wall for a row below its last one.</summary>
+    private const double WALL_LEAN_DOWN = 16.0;
+    private const int WALL_LEAN_STEP_MS = 30;
+
+    /// <summary>
+    /// The lean itself, standing on the content pane for as long as the screen does, with only its number moving
+    /// - the way the wake screen nudges its PIN card. While it is moving this is not null, which is also how a
+    /// held-down key is kept from leaning the wall afresh on every repeat.
+    /// </summary>
+    private readonly Avalonia.Media.TranslateTransform _wallLean = new Avalonia.Media.TranslateTransform();
+    private DispatcherTimer? _wallLeaning;
+
+    /// <summary>
     /// The class that puts the shorter curve on the wall for the length of a change of entries. Its curve is the
     /// one the styles block keeps under that name in <c>HomeView.axaml</c>, and its length is <see cref="WALL_SINK_MS"/>.
     /// </summary>
@@ -339,6 +359,11 @@ namespace MediaPortal.Frontend.Views
           },
           handledEventsToo: true);
 
+      // The lean that answers an arrow past the end of the wall rides one transform that stays on the pane, so
+      // that a refusal moves a number instead of asking the compositor for a new layer. This is also the only
+      // transform the pane ever carries: the wall's own size rides the LayoutTransformControl inside it.
+      nereusContentPane.RenderTransform = _wallLean;
+
       nereusContentPane.AddHandler(KeyDownEvent,
           delegate (object? sender, KeyEventArgs args)
           {
@@ -369,6 +394,15 @@ namespace MediaPortal.Frontend.Views
             if (nextTile is Button tile)
             {
               FocusNereusTile(tile);
+              args.Handled = true;
+            }
+            else if (args.Key == Key.Down)
+            {
+              // Nothing of the wall lies under this square. What does lie below the wall is a tile of the menu -
+              // another place, one the viewer reaches with Left, and not the thing the arrow pointed at - so the
+              // key is answered where it was pressed instead: the wall leans off its own end and the viewer keeps
+              // the square they were standing on.
+              LeanWallOffTheBottom();
               args.Handled = true;
             }
             else if (nextTile is Control entry && entry.Focus())
@@ -919,6 +953,56 @@ namespace MediaPortal.Frontend.Views
       nereusContentPane.Offset = new Vector(0, nereusContentPane.Offset.Y);
       nereusWallStanding.Classes.Remove(WALL_SINKING_CLASS);
       nereusWallStanding.Opacity = 0;
+    }
+
+    /// <summary>
+    /// Answers the arrow that pointed past the bottom of the wall with the wall itself: the whole content pane
+    /// leans toward the edge that was asked for and finds its way back. Nobody loses the square they stand on and
+    /// nothing steps out of the wall, because the answer to that key is "there is nothing below this" and not a
+    /// step to somewhere else.
+    /// </summary>
+    /// <remarks>
+    /// A transform on the pane rather than its scroll offset, which is what the pane's other curve moves: the
+    /// content wall never scrolls vertically (<c>VerticalScrollBarVisibility="Disabled"</c>), so an offset there
+    /// would be clamped to nothing. Moving the pane moves its clip with it, which makes the lean the wall
+    /// pressing against the edge of its own area instead of being cut by it, and leaves every glass tile, shadow
+    /// and cover where the face put them.
+    /// </remarks>
+    private void LeanWallOffTheBottom()
+    {
+      // Already leaning: a key held down repeats, and a wall that leans afresh on every repeat is a shiver
+      // rather than an answer.
+      if (_wallLeaning != null)
+        return;
+
+      int step = 0;
+      DispatcherTimer leaning = new DispatcherTimer
+      {
+        Interval = TimeSpan.FromMilliseconds(WALL_LEAN_STEP_MS)
+      };
+      _wallLeaning = leaning;
+      leaning.Tick += delegate { StepOverTheLean(); };
+
+      // The answer begins on the beat the key was pressed and not one beat later, so the first line of the lean
+      // is written here and the timer carries it the rest of the way.
+      StepOverTheLean();
+      leaning.Start();
+
+      // Thrown toward the edge that was asked for in the shape WALL_LEAN_SHAPE says: out in two beats, back in
+      // five, so the last beat is a settling and not a snap.
+      void StepOverTheLean()
+      {
+        if (step < WALL_LEAN_SHAPE.Length)
+        {
+          _wallLean.Y = WALL_LEAN_DOWN * WALL_LEAN_SHAPE[step];
+          step++;
+          return;
+        }
+
+        _wallLean.Y = 0;
+        leaning.Stop();
+        _wallLeaning = null;
+      }
     }
 
     /// <summary>
