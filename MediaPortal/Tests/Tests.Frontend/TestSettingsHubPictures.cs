@@ -44,9 +44,15 @@ namespace Tests.Frontend
     /// <summary>The two skins this front end ships, and therefore the two that have to answer a plate's picture.</summary>
     private static readonly string[] SHIPPED_SKINS = { "Nereus", "WMC" };
 
-    /// <summary>The reference's eight branches, in the order its <c>/Configuration/Settings</c> lists them.</summary>
+    /// <summary>
+    /// The reference's branches, in the order its <c>Sort</c> put them: General (A100), Media library (B100),
+    /// Media sources (C100), Appearance (D100), Players (E100), TV (F100), Plugins (G100), and the users the
+    /// reference shipped its own <c>Users.jpg</c> for. Two branches it also had are left off this wall:
+    /// InputDevices, which no screen of this front end edits, and its top-level "Server settings", whose
+    /// answers are reached through the server's API and so stand as a page under General rather than twice.
+    /// </summary>
     private static readonly string[] BRANCHES =
-        { "Appearance", "General", "Media", "Players", "Plugins", "Shares", "Television", "Users" };
+        { "General", "Media library", "Media sources", "Appearance", "Players", "TV", "Plugins", "Users" };
 
     /// <summary>Where the front end's source - and with it its <c>Skins</c> folder - sits.</summary>
     private static string SkinsRoot()

@@ -92,7 +92,9 @@ public partial class ThemeViewModel : ObservableObject
     Selected = Find(wearing) ?? Themes[0];
     _applying = false;
 
-    Heading = "Which skin this machine wears. Picking a row changes it right here, and it stays worn after the next start.";
+    // The reference's own word for the node this screen is (/Appearance/Skin, `[Settings.Appearance.Skin]`),
+    // with its one sentence of help under it rather than a paragraph.
+    Heading = "Skin";
     Status = "Wearing " + wearing + ".";
   }
 

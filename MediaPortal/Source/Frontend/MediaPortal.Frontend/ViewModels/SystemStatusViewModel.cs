@@ -56,7 +56,7 @@ namespace MediaPortal.Frontend.ViewModels
 
     public ObservableCollection<Line> Lines { get; } = new ObservableCollection<Line>();
 
-    public string Heading => "System status";
+    public string Heading => "System";
 
     public string Subtitle =>
         "What this box and the server behind it are made of - read from each running thing as it stands, "

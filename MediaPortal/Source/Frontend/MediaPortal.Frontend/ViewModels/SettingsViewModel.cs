@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace MediaPortal.Frontend.ViewModels
@@ -167,7 +168,26 @@ namespace MediaPortal.Frontend.ViewModels
     /// their own, so a level is spelled with the same list and the hub can be walked without a second kind of
     /// entry.
     /// </summary>
-    public ObservableCollection<SettingsSection> Sections { get; } = new ObservableCollection<SettingsSection>();
+    /// <remarks>
+    /// <b>A new list for a new level.</b> Walking into a door hands over a fresh collection rather than emptying
+    /// the one on screen and refilling it. A list on screen is not only its items: the control holding it has
+    /// containers out of the old level and - worse - a <i>number</i>, the place it last pressed, and Avalonia's
+    /// selection model keeps that number across a cleared source. The next press then walks back to a number the
+    /// level it is showing never had, and the answer is not a wrong selection but
+    /// <c>ArgumentOutOfRangeException</c> inside <c>SelectedItems</c>, unhandled, which took the whole client
+    /// down when a viewer walked from nine doors onto a door's seven pages. Replacing the collection leaves the
+    /// old level's containers and numbers with the old level; <see cref="LevelChanged"/> is what tells the lists
+    /// so.
+    /// </remarks>
+    public ObservableCollection<SettingsSection> Sections { get; private set; } =
+        new ObservableCollection<SettingsSection>();
+
+    /// <summary>
+    /// Raised when the level on screen is another collection than it was, which is the one moment a list has a
+    /// number of its own to forget. The view listens, because the number is a control's business, not the
+    /// hub's.
+    /// </summary>
+    public event Action? LevelChanged;
 
     [ObservableProperty]
     private SettingsSection? _selected;
@@ -248,7 +268,22 @@ namespace MediaPortal.Frontend.ViewModels
       if (value == null)
         return;
 
-      _ = OpenAsync(value);
+      // The pick is answered a step later, not on the spot. A press arrives while the list is still inside its
+      // own selection work (SelectingItemsControl.UpdateSelectionFromEvent -> SelectionModel.CommitOperation),
+      // and answering it can hand over another level - a door's pages - which replaces the very collection the
+      // list is enumerating to finish its press. Avalonia's answer to that is an ArgumentOutOfRangeException
+      // out of SelectedItems on the UI thread, which closed the client the moment the "Media library" door was
+      // pressed - a door that answers at once, because two of its pages are this front end's own. Posting the
+      // pick lets the list finish pressing before the hub changes what it is standing on.
+      //
+      // A headless window does not feel the difference - only the real backend enumerates a selection while
+      // the press is still being committed - so the crash was measured on the television and only there can its
+      // absence be measured again. What the tests of this hub hold is what the step later has to keep: the
+      // door's pages on screen, the old level's numbers forgotten, and the way back where it was.
+      Dispatcher.UIThread.Post(delegate
+      {
+        _ = OpenAsync(value);
+      }, DispatcherPriority.Input);
     }
 
     /// <summary>
@@ -267,7 +302,9 @@ namespace MediaPortal.Frontend.ViewModels
         // Somebody else's screen, in the workflow proper - the trail and the back key belong to it, not to the
         // hub. The hub keeps showing the section it showed before, because that is where the back key will
         // land the viewer again.
-        Status = section.Name + ": " + section.Description;
+        Status = string.IsNullOrEmpty(section.Description)
+            ? section.Name
+            : section.Name + ": " + section.Description;
         section.Open();
         return;
       }
@@ -295,6 +332,15 @@ namespace MediaPortal.Frontend.ViewModels
     /// of the pages is what the viewer sees. Nothing is open, because a door has no screen of its own - that
     /// is the whole reason it is a door.
     /// </summary>
+    /// <remarks>
+    /// <b>The one page is opened, not stood in front of.</b> A door that holds exactly one page shows no wall:
+    /// the page is opened and the door is walked through in the same press. That is the reference's
+    /// <c>SkipForSingleItem</c> saying what a screen with a single item on it is worth
+    /// (<c>AbstractScreenData.cs:94</c>, worked by <c>MediaNavigationModel.cs:470</c>, which hands the
+    /// workflow the single item's own command through <c>KEY_NAVIGATION_SKIP_ACTION</c> instead of showing the
+    /// screen) - a wall of one plate asks the viewer to count to one. The skipped level is never entered, so
+    /// the back key lands on the level the door stood on, which is where the viewer came from.
+    /// </remarks>
     /// <param name="token">The pick this answer belongs to; anything newer on screen outranks it.</param>
     private async Task OpenFolderAsync(SettingsSection folder, int token)
     {
@@ -318,6 +364,14 @@ namespace MediaPortal.Frontend.ViewModels
       if (token != _openToken)
         return; // something newer was picked while this was on its way
 
+      if (pages.Count == 1)
+      {
+        // The door has one page, so the door is not a level: what the page is - another door, a screen, or a
+        // hand-over - decides what happens, and this level stays on screen behind it.
+        await OpenAsync(pages[0]).ConfigureAwait(true);
+        return;
+      }
+
       _trail.Add((folder, _level));
       ShowLevel(pages);
       Status = pages.Count == 0
@@ -328,7 +382,8 @@ namespace MediaPortal.Frontend.ViewModels
     /// <summary>
     /// Putting a level's entries on the screen. The old selection goes first, because the list is bound to it
     /// twice over and a level whose first entry is still "selected" would open a screen of the level the viewer
-    /// just left.
+    /// just left - and the entries come as a collection of their own, for what <see cref="Sections"/> says about
+    /// the numbers a list keeps.
     /// </summary>
     private void ShowLevel(IReadOnlyList<SettingsSection> level)
     {
@@ -336,11 +391,10 @@ namespace MediaPortal.Frontend.ViewModels
       CurrentView = null;
       ShowingContents = false;
 
-      Sections.Clear();
-      foreach (SettingsSection section in level)
-        Sections.Add(section);
-
+      Sections = new ObservableCollection<SettingsSection>(level);
+      OnPropertyChanged(nameof(Sections)); // the lists bind to the property, not to the collection it held
       _level = level;
+      LevelChanged?.Invoke();
 
       var path = new System.Text.StringBuilder("Settings");
       foreach (var step in _trail)

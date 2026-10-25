@@ -70,7 +70,12 @@ public partial class ClientSettingsViewModel : ObservableObject
 
   public ObservableCollection<SkinSettingOption> Options { get; } = new ObservableCollection<SkinSettingOption>();
 
-  public string Heading => "This machine";
+  /// <summary>
+  /// The reference's word for this node: its <c>/Configuration/Settings/Appearance/General</c>
+  /// (<c>Text="[Settings.General]"</c>, SkinEngine/plugin.xml:88) is the screen that holds Fullscreen,
+  /// StartupScreen and the rest of what this box was told about itself.
+  /// </summary>
+  public string Heading => "General";
 
   public string Subtitle =>
       "What the front end on this box was told about itself - its name, its window, its wake-up and its "

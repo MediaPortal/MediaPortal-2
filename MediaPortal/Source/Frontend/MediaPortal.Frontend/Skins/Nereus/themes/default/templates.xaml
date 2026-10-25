@@ -32,6 +32,9 @@
     column beside an open screen - and a narrow row carries no plate art, only words.
   -->
   <DataTemplate x:Key="SettingsRowTemplate" x:DataType="vm:SettingsSection">
+    <!-- The reference's narrowed list said the section's name and, when it had one, the help line the node
+         carried - nothing else. Whose answer a section is (this front end's own or the server's) is a fact of
+         building the hub, not a line a household reads, so no owner stands under the name. -->
     <StackPanel Spacing="1" Margin="0,6,10,8">
       <TextBlock Text="{Binding Name}"
                  FontSize="{DynamicResource NormalFontSize}"
@@ -40,10 +43,6 @@
                  FontSize="{DynamicResource SmallerFontSize}"
                  Foreground="{DynamicResource MutedTextBrush}"
                  TextWrapping="Wrap"/>
-      <TextBlock Text="{Binding Owner}"
-                 FontSize="{DynamicResource SmallerFontSize}"
-                 Foreground="{DynamicResource AccentBrush}"
-                 Opacity="0.8"/>
     </StackPanel>
   </DataTemplate>
 

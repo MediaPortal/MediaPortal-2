@@ -229,7 +229,7 @@ public partial class SkinSettingsViewModel : ObservableObject
     if (skinName == FrontendTheme.DEFAULT_NAME)
     {
       SkinName = "";
-      Heading = "Skin settings";
+      Heading = "Skin Settings";
       Subtitle = "This machine wears the front end's own face, which ships no switches of its own.";
       return;
     }
@@ -238,7 +238,7 @@ public partial class SkinSettingsViewModel : ObservableObject
     _settings = SkinSettingsBase.LoadFor(skinName, settingsPath, out string? problem);
     Status = problem ?? "";
 
-    Heading = "Skin settings";
+    Heading = "Skin Settings";
     Subtitle = _settings == null
         ? string.Format("'{0}' ships no settings of its own.", skinName)
         : string.Format("What {0} lets you change{1}. A checkbox switches, a button walks "

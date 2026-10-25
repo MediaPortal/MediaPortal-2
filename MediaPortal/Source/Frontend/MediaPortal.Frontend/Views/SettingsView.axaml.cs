@@ -42,9 +42,32 @@ namespace MediaPortal.Frontend.Views
       _ring.Add(backButton);
       DpadNavigation.Attach(this, _ring);
 
+      // Both lists show the level and only one of them is ever looked at, and a press leaves a number behind in
+      // whichever held it - the number of the plate last pressed, which the control walks back to on the next
+      // press. A number belonging to a level that is no longer on screen is not a wrong selection but an
+      // ArgumentException out of Avalonia's selection model, unhandled, and that is what closed the client. So
+      // both lists are made to forget theirs the moment the hub hands over another level.
+      sections.LevelChanged += delegate { ForgetPlaces(); };
+
       // Nothing opens itself on arrival. The reference's configuration screen showed a wall of plates until a
       // plate was picked, and a wall is not an empty screen - opening the first section instead would be the
       // hub deciding what a viewer came for.
+    }
+
+    /// <summary>
+    /// Dropping the places the two lists remember: the selected one, and the anchor a single-select list walks
+    /// back to when the next plate is pressed.
+    /// </summary>
+    private void ForgetPlaces()
+    {
+      Forget(wallList);
+      Forget(sectionList);
+    }
+
+    private static void Forget(ListBox list)
+    {
+      list.SelectedIndex = -1;
+      list.Selection.AnchorIndex = -1;
     }
 
     /// <summary>Runs every time the workflow shows this screen. See IWorkflowScreen.</summary>

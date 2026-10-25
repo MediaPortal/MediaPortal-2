@@ -157,7 +157,14 @@ public partial class MediaSettingsViewModel : ObservableObject
 
   public ObservableCollection<SkinSettingOption> Options { get; } = new ObservableCollection<SkinSettingOption>();
 
-  public string Heading => "Kept pictures on this machine";
+  /// <summary>
+  /// The shelf this box keeps of the library's pictures. The reference had no node for it - its pictures
+  /// never travelled over a network - so the name is built out of the reference's own words for the same
+  /// pictures: <c>[Settings.ServerSettings.FanArtSettings]</c> "FanArt settings"
+  /// (ServerSettings.Client/plugin.xml:246) and its "Cache FanArt for offline browsing"
+  /// (ServerSettings.Client/plugin.xml:246's own settings, <c>MDEBrowseOfflineLocal</c>).
+  /// </summary>
+  public string Heading => "FanArt cache";
 
   public string Subtitle
   {

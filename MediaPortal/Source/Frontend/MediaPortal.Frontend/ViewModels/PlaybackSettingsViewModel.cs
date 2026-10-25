@@ -119,31 +119,34 @@ public partial class PlaybackSettingsViewModel : ObservableObject
 
   public ObservableCollection<SkinSettingOption> Options { get; } = new ObservableCollection<SkinSettingOption>();
 
+  /// <summary>
+  /// The node the reference filed these answers under, so that the screen is called what its plate is
+  /// called: <c>[Settings.General]</c> under <c>/Players</c> for what counts as watched
+  /// (Media/plugin.xml:385), <c>[Settings.Players.VideoPlayer]</c> for the video player's skip, volume and
+  /// languages (VideoPlayer/plugin.xml:56) and <c>[Settings.Players.Image]</c> "Image Player" for the
+  /// slideshow (ImagePlayer/plugin.xml:46).
+  /// </summary>
   public string Heading => _group switch
   {
-    GROUP_PLAYERS => "Films and music",
-    GROUP_PICTURES => "Pictures",
-    GROUP_TITLES => "Watched and finished",
-    _ => "Playback"
+    GROUP_PLAYERS => "Video Player",
+    GROUP_PICTURES => "Image Player",
+    GROUP_TITLES => "General",
+    _ => "Players"
   };
 
   public string Subtitle => _group switch
   {
     GROUP_PLAYERS =>
-        "What this box tells the player of a film, an episode or a song: how far it skips, how loud it starts, "
-        + "how big its volume steps are, which language to reach for. Everything is saved at once and belongs to "
-        + "this machine.",
+        "How far the player skips, how loud it starts, how big its volume steps are and which language it "
+        + "reaches for. Saved at once; belongs to this machine.",
     GROUP_PICTURES =>
-        "What this box does with a picture on the screen: how long one stands, and whether a slideshow slowly "
-        + "zooms and pans it. Everything is saved at once and belongs to this machine.",
+        "How long one picture stands and whether a slideshow slowly zooms and pans it. Saved at once; belongs "
+        + "to this machine.",
     GROUP_TITLES =>
-        "When a title counts as watched, and whether the playback screen steps aside by itself when the last "
-        + "minute of it is over. Everything is saved at once and belongs to this machine.",
+        "When a title counts as watched, and whether the playback screen steps aside when it ends. Saved at "
+        + "once; belongs to this machine.",
     _ =>
-        "What the player on this box was told - how far it skips, how loud it starts, how big its volume "
-        + "steps are, which language to reach for, and how patient its slideshow is. Everything is saved at "
-        + "once and belongs to this machine; the DirectShow answers of the old reference have no equivalent "
-        + "behind this player and are not offered."
+        "What the player on this box was told. Saved at once; belongs to this machine."
   };
 
   [ObservableProperty]

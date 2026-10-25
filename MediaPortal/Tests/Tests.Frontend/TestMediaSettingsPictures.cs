@@ -410,8 +410,9 @@ namespace Tests.Frontend
           "this machine's five answers, and the one doing that sends the server over its library");
       Assert.That(screen.Options[0].Label, Is.EqualTo("Keep pictures on this machine"));
       Assert.That(screen.Options[5].Label, Is.EqualTo("On the server: pictures it has ready"));
-      Assert.That(screen.Heading, Does.Contain("this machine"),
-          "and the page says whose answers it holds, because it stands beside the server's pages now");
+      Assert.That(screen.Heading, Is.EqualTo("FanArt cache"),
+          "and the page carries the reference's own word for the keeping of pictures, because it stands beside "
+          + "the server's pages now");
     }
   }
 }

@@ -6279,3 +6279,50 @@ media door's pages carry the importer, fanart and certification art with them.
 
 1238 frontend tests green - among them the wall's eight doors, every plate's picture, and a header that stays at
 the top of the screen it decorates.
+
+### dj. The reference's own words, the door with one page, and the press that killed the client
+
+Two things were wrong with the wall of doors, and the user named both: **"you invented several category
+lables. 'Sound of the of this machine' etc. This is far too long for a title!"** and **"The reference has also a
+condition, if only one subsetting existing it is shown directly rather with a single tile screen."** The second
+one is a rule; the first one was the honest admission that half the labels on the wall had been written here
+rather than read there.
+
+**The words were then read.** A script walked every `plugin.xml` under `MediaPortal/Source`, kept what is
+registered at `/Configuration/Settings`, ordered each level by its own `Sort` attribute and resolved every
+`[Key]` through the component's `Language/strings_en.xml` (the attribute is `name=`, and only English
+ships in the source - German lives in `Tools/Transifex/Cache_MP2`). Two hundred lines came out, and they say
+what the wall says now: **General (A100), Media library (B100), Media sources (C100), Appearance (D100),
+Players (E100), TV (F100), Plugins (G100)**, Users, and the way out. Behind them the reference's own plates -
+General holds *System*, *Connectivity* and the server's questions; Appearance holds *General*, *Skin*, *Skin
+Settings*; Players holds *General*, *Audio Player*, *Video Player*, *Image Player*; Media sources holds *Media
+sources configuration* with the reference's help line "Configure all media sources" and *Network credentials*
+with its own. Nothing invented, and no title longer than the reference's own. The server's half went the same
+way: `PluginSettingsCatalog` now answers *FanArt settings*, *Certification countries*, *Movie import
+settings*, *Pictures beside the films* and the seven numbers as "Maximum number of backdrops/posters/banners/â€¦"
+- the reference's strings from `ServerSettings.Client/Language/strings_en.xml:58` - and the sentences that
+used to sit under them were cut to one line. The two rows a list shows also lost a line that had never belonged
+to it: the little "Frontend"/"Server" owner label, which is a fact of building this hub and not something a
+household reads.
+
+**A door with one page is walked through, not stood in front of.** That is the reference's
+`AbstractScreenData.SkipForSingleItem` (`:94`), worked by `MediaNavigationModel.cs:470`, which hands the
+workflow the single item's own command instead of showing a screen with one thing on it. `TV` and `Users`
+are such doors here, and pressing one opens its page in the same press - the wall behind it is the level the
+door stood on, the skipped level never enters the trail, so the back key lands where the viewer pressed and the
+path never claims a place they never walked into. A chain of one-page doors (the reference's own
+`/Appearance/Skin` is one) is walked to its leaf rather than stopping at the first.
+
+**Then the client died on a plate.** Windows wrote what it saw: `ArgumentOutOfRangeException` out of
+`SelectedItems.GetEnumerator()`, reached from `ListBoxItem.OnPointerPressed` - the press was still being
+committed, the selection model still enumerating what it had selected, when answering that pick replaced the
+very collection under it. The "Media library" door is the one that answers at once, which is why it was the one
+that died. A pick is answered a dispatcher step later now (`DispatcherPriority.Input`), which lets the list
+finish pressing before the hub changes what it is standing on. Measured on the television with the front end's
+own crash log (`Settings/CrashLog.cs`, `%APPDATA%\MediaPortal\frontend-crash.log` - the thing that made
+this measurable at all): the wall of nine plates, the Appearance door's three pages, the Media library door's
+eleven pages with the reference's words on them, and the TV page standing up directly under one press.
+
+1247 frontend tests and 557 server tests green - among them the eight doors under the reference's names, every
+plate's picture, the door that opens its only page, and a level change that may not reach into the press that
+caused it.

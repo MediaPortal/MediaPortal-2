@@ -59,9 +59,14 @@ namespace Tests.Frontend
     }
 
     /// <summary>
-    /// A hub of two levels: the top one an appearance screen and a door, the door standing over one page of
+    /// A hub of two levels: the top one an appearance screen and a door, the door standing over two pages of
     /// its own. <c>asked</c> counts how often the door was asked for its pages.
     /// </summary>
+    /// <remarks>
+    /// Two pages rather than one, because a door with a single page is not a level at all - see
+    /// <see cref="ADoorWithOnePageIsWalkedThroughAndThatPageOpens"/> - and what is being walked here is the
+    /// wall of plates a door stands in front of.
+    /// </remarks>
     private static SettingsViewModel TwoLevels(int[] asked)
     {
       SettingsViewModel model = new SettingsViewModel();
@@ -73,7 +78,31 @@ namespace Tests.Frontend
         IReadOnlyList<SettingsSection> pages = new List<SettingsSection>
         {
           new SettingsSection("Pictures", "Server", "how many a title keeps",
-              delegate { return new Label { Name = "pictures", Content = "pictures" }; })
+              delegate { return new Label { Name = "pictures", Content = "pictures" }; }),
+          new SettingsSection("Fanart", "Server", "which pictures a title keeps",
+              delegate { return new Label { Name = "fanart", Content = "fanart" }; })
+        };
+        return Task.FromResult(pages);
+      });
+      return model;
+    }
+
+    /// <summary>
+    /// The same hub, but the door holds exactly one page - the shape that is walked through rather than stood
+    /// in front of. <c>asked</c> counts the times it was asked for its pages.
+    /// </summary>
+    private static SettingsViewModel OnePageDoor(int[] asked)
+    {
+      SettingsViewModel model = new SettingsViewModel();
+      model.Add("Appearance", "Frontend", "colours",
+          delegate { return new Label { Name = "appearance", Content = "colours" }; });
+      model.AddFolder("TV", "TV", "where the channels come from", delegate
+      {
+        asked[0]++;
+        IReadOnlyList<SettingsSection> pages = new List<SettingsSection>
+        {
+          new SettingsSection("TV", "TV", "the television backend",
+              delegate { return new Label { Name = "tv", Content = "tv" }; })
         };
         return Task.FromResult(pages);
       });
@@ -208,13 +237,13 @@ namespace Tests.Frontend
       Pump();
 
       Assert.That(asked[0], Is.EqualTo(1), "the door asked whose pages it has when it was picked");
-      Assert.That(model.Sections.Select(s => s.Name), Is.EqualTo(new[] { "Pictures" }),
+      Assert.That(model.Sections.Select(s => s.Name), Is.EqualTo(new[] { "Pictures", "Fanart" }),
           "and the pages are what the viewer now stands in front of");
       Assert.That(model.Location, Is.EqualTo("Settings › Media"),
           "the heading says where they are, the way the reference printed its path above the list");
       Assert.That(model.IsWall, Is.True, "a door has no screen of its own, so its level is a wall again");
-      Assert.That(model.Status, Does.Contain("1 page(s)"), "and the wall says what it opened");
-      Assert.That(Plates(window), Is.EqualTo(new[] { "Pictures" }));
+      Assert.That(model.Status, Does.Contain("2 page(s)"), "and the wall says what it opened");
+      Assert.That(Plates(window), Is.EqualTo(new[] { "Pictures", "Fanart" }));
 
       window.Close();
     }
@@ -258,7 +287,7 @@ namespace Tests.Frontend
 
       Assert.That(model.GoBack(), Is.True, "an open screen folds away first");
       Assert.That(model.IsWall, Is.True);
-      Assert.That(model.Sections.Select(s => s.Name), Is.EqualTo(new[] { "Pictures" }),
+      Assert.That(model.Sections.Select(s => s.Name), Is.EqualTo(new[] { "Pictures", "Fanart" }),
           "and what stands where the screen was is the wall of the door it came from");
 
       Assert.That(model.GoBack(), Is.True, "the wall of a door goes up one level next");
@@ -268,6 +297,82 @@ namespace Tests.Frontend
 
       Assert.That(model.GoBack(), Is.False,
           "and at the first level the hub has nowhere left to go, which is the shell's cue to leave");
+
+      window.Close();
+    }
+
+    /// <summary>
+    /// The reference's rule for a screen with one item on it: the screen is skipped and the item's own action
+    /// runs instead (<c>AbstractScreenData.SkipForSingleItem</c>, worked at
+    /// <c>MediaNavigationModel.cs:470</c>), because a wall of a single plate asks a viewer to count to one.
+    /// </summary>
+    [AvaloniaTest]
+    public void ADoorWithOnePageIsWalkedThroughAndThatPageOpens()
+    {
+      int[] asked = new int[1];
+      SettingsViewModel model = OnePageDoor(asked);
+      ShellWindow window = new ShellWindow(new SettingsView(model));
+      window.Show();
+      Pump();
+
+      model.Selected = model.Sections[1];
+      Pump();
+
+      Assert.That(asked[0], Is.EqualTo(1), "the door was asked, as every door is");
+      Assert.That(model.CurrentView, Is.Not.Null, "and the page underneath it opened on the same press");
+      Assert.That(((Label)model.CurrentView!).Name, Is.EqualTo("tv"), "the page, not the door");
+      Assert.That(model.IsWall, Is.False, "which means the hub is showing a screen, not a wall of one plate");
+      Assert.That(Plates(window), Is.EquivalentTo(new[] { "Appearance", "TV" }),
+          "what stands behind the opened screen is the wall of doors the viewer pressed in, never a wall of one");
+      Assert.That(model.Sections.Select(s => s.Name), Is.EqualTo(new[] { "Appearance", "TV" }),
+          "the level behind the screen is the level the door stood on, not a level of one");
+      Assert.That(model.Location, Is.EqualTo("Settings"),
+          "and the path says so too - the skipped door is not a place anybody walked into");
+
+      Assert.That(model.GoBack(), Is.True, "the back key folds the screen away");
+      Assert.That(model.IsWall, Is.True, "and the viewer stands again before the doors they came from");
+      Assert.That(model.GoBack(), Is.False, "because the skipped door never added a level to walk back out of");
+
+      window.Close();
+    }
+
+    [AvaloniaTest]
+    public void AChainOfDoorsWithOnePageEachIsWalkedThroughToItsLeaf()
+    {
+      // The reference's own shape in a few places - /Appearance/Skin holds one group, SkinAndTheme, and that
+      // group holds the settings - and a rule that stops at the first door would leave a wall of one plate
+      // two steps in.
+      SettingsViewModel model = new SettingsViewModel();
+      model.AddFolder("Appearance", "Frontend", "colours", delegate
+      {
+        IReadOnlyList<SettingsSection> skin = new List<SettingsSection>
+        {
+          new SettingsSection("Skin", "Frontend", "which skin", delegate
+          {
+            IReadOnlyList<SettingsSection> theme = new List<SettingsSection>
+            {
+              new SettingsSection("Skin and theme", "Frontend", "the worn skin and its colours",
+                  delegate { return new Label { Name = "theme", Content = "theme" }; })
+            };
+            return Task.FromResult(theme);
+          })
+        };
+        return Task.FromResult(skin);
+      });
+
+      ShellWindow window = new ShellWindow(new SettingsView(model));
+      window.Show();
+      Pump();
+
+      model.Selected = model.Sections[0];
+      Pump();
+
+      Assert.That(((Label)model.CurrentView!).Name, Is.EqualTo("theme"),
+          "both single doors were walked through and the leaf is what stands on the screen");
+      Assert.That(model.Location, Is.EqualTo("Settings"), "neither of them became a level of one plate");
+
+      Assert.That(model.GoBack(), Is.True);
+      Assert.That(model.GoBack(), Is.False, "one back key is all it takes to be out of all of it again");
 
       window.Close();
     }

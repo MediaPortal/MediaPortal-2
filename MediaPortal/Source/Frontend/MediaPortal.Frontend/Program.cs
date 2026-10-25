@@ -249,6 +249,23 @@ namespace MediaPortal.Frontend
           + " room=" + pictures.Settings.CacheSizeMb + " MB in memory=" + pictures.RememberedPictures
           + " at once=" + pictures.PicturesAtOnce);
 
+      // A client on a television that dies says nothing. Windows writes the exception into its own application
+      // log, which is a place nobody looks and a thing nobody in front of a black screen reads - so the last
+      // words are kept next to the front end's own settings too, where the question "prüfe die logs" has its
+      // answer without anybody having to know the event log exists. The process still ends, but it ends saying
+      // what it was, which is the whole difference between a bug report and a shrug.
+      AppDomain.CurrentDomain.UnhandledException += delegate(object? sender, UnhandledExceptionEventArgs args)
+      {
+        string words = CrashLog.Write(args.ExceptionObject, args.IsTerminating);
+        Console.Error.WriteLine("crash:    " + words.Replace('\n', ' ').Replace('\r', ' '));
+      };
+      TaskScheduler.UnobservedTaskException += delegate(object? sender, UnobservedTaskExceptionEventArgs args)
+      {
+        // A task nobody waited for still belongs to somebody, and its death is worth the same line - the
+        // difference being only that the process goes on standing here.
+        CrashLog.Write(args.Exception, false);
+      };
+
       AppBuilder app = BuildAvaloniaApp(() => new App(new HomeViewModel(client, pictures), player, settings, null,
           serverMayBeChanged, serverMayBeChanged && !settings.HasUsableUrl, playFile, playSeconds, shotPath,
           playStart, theme));

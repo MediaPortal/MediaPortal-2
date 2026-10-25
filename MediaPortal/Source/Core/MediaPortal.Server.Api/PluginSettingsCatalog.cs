@@ -283,33 +283,41 @@ namespace MediaPortal.Server.Api
     /// </summary>
     public static IReadOnlyList<Section> Sections { get; } = new List<Section>
     {
-      new Section("fanart", "How many pictures of each kind one title keeps",
-          "The library fetches pictures for a title and keeps the first few of every kind. This is that number.",
+      // <b>The words on these screens are the reference's.</b> Its own language files name the node
+      // ("FanArt settings", <c>[Settings.ServerSettings.FanArtSettings]</c>) and every one of its seven
+      // numbers ("Maximum number of posters" and the rest, ServerSettings.Client/Language/strings_en.xml:58),
+      // with its own sentence of help under each. Nothing here invents a label: a row says what the
+      // reference's row said, in the order the reference filed them (plugin.xml:246).
+      new Section("fanart", "FanArt settings",
+          "How many pictures of each kind one title keeps.",
           "Media library", typeof(FanArtSettings),
           new Field[]
           {
-            // Named as a whole sentence rather than as one word, because these rows stand in the household's
-            // media settings beside answers of their own - a bare "Posters" on a mixed screen says nothing
-            // about who is keeping them.
-            Number("max_posters", "MaxPosterFanArt", "Posters kept per title",
-                "The poster is the picture a tile wears."),
-            Number("max_banners", "MaxBannerFanArt", "Banners kept per title",
-                "The wide strip with the title's name on it."),
-            Number("max_backdrops", "MaxBackdropFanArt", "Backdrops kept per title",
-                "The picture behind a title's own screen. The reference kept three."),
-            Number("max_thumbs", "MaxThumbFanArt", "Thumbnails kept per title",
-                "The small picture a tile carries inside it."),
-            Number("max_clear_art", "MaxClearArt", "Clear art kept per title",
-                "The title's logo without a background, which is why it is stored as a png."),
-            Number("max_disc_art", "MaxDiscArt", "Disc art kept per title",
-                "The picture of the disc or cover art of the release."),
-            Number("max_logos", "MaxLogoFanArt", "Logos kept per title",
-                "The title's name drawn as a picture.")
+            Number("max_backdrops", "MaxBackdropFanArt", "Maximum number of backdrops",
+                "The maximum number of backdrops to have available. A higher number of backdrops will require "
+                + "more disk space."),
+            Number("max_posters", "MaxPosterFanArt", "Maximum number of posters",
+                "The maximum number of posters to have available. A higher number of posters will require more "
+                + "disk space."),
+            Number("max_banners", "MaxBannerFanArt", "Maximum number of banners",
+                "The maximum number of banners to have available. A higher number of banners will require more "
+                + "disk space."),
+            Number("max_thumbs", "MaxThumbFanArt", "Maximum number of thumbnails",
+                "The maximum number of thumbnails to have available. A higher number of thumbnails will require "
+                + "more disk space."),
+            Number("max_clear_art", "MaxClearArt", "Maximum number of ClearArt images",
+                "The maximum number of ClearArt images to have available. A higher number of ClearArt images "
+                + "will require more disk space."),
+            Number("max_disc_art", "MaxDiscArt", "Maximum number of DiscArt images",
+                "The maximum number of DiscArt images to have available. A higher number of DiscArt images will "
+                + "require more disk space."),
+            Number("max_logos", "MaxLogoFanArt", "Maximum number of logos",
+                "The maximum number of logos to have available. A higher number of logos will require more disk "
+                + "space.")
           }, AREA_MEDIA),
 
-      new Section("virtual_media", "Whether the titles there are not are shown too",
-          "The library sometimes learns of a film, an episode or an album that stands on no share. This says "
-          + "whether those belong on the shelves.",
+      new Section("virtual_media", "General",
+          "Whether the titles there are not are shown too.",
           "Media library", typeof(VirtualMediaSettings),
           new Field[]
           {
@@ -326,9 +334,8 @@ namespace MediaPortal.Server.Api
                 "An album shows every recording that belongs to it, even the ones nobody has.")
           }, AREA_MEDIA),
 
-      new Section("certifications", "In which country's words an age certificate is shown",
-          "A title is imported with the mark of the country that rated it. This names the country whose mark a "
-          + "screen should speak instead.",
+      new Section("certifications", "Certification countries",
+          "In which country's words an age certificate is shown.",
           "Media library", typeof(MediaCertificationSettings),
           new Field[]
           {
@@ -342,8 +349,8 @@ namespace MediaPortal.Server.Api
                 "Two letters, like \"DE\" or \"US\". Empty keeps the imported mark.")
           }, AREA_MEDIA),
 
-      new Section("logging", "How much the server writes down",
-          "The one switch that makes a support question answerable: what the server leaves in its log.",
+      new Section("logging", "Logs",
+          "How much the server writes down.",
           "Server", typeof(LogSettings),
           new Field[]
           {
@@ -375,9 +382,8 @@ namespace MediaPortal.Server.Api
       // certification country (it wants a list of countries this server does not own), and the switch for
       // searching online (this server has no online scraper, so it would be a question with one answer).
 
-      new Section("nfo_movie", "What the .nfo reader takes for films",
-          "Beside a film there is often a small .nfo file written by another program. This is what the server "
-          + "reads out of it.",
+      new Section("nfo_movie", "Movie import settings",
+          "What the reader of the .nfo file beside a film takes out of it.",
           "Media library", NFO_MOVIE_SETTINGS,
           new Field[]
           {
@@ -395,7 +401,7 @@ namespace MediaPortal.Server.Api
                 "Only useful while something is being worked out, and only alongside the line above.")
           }, AREA_MEDIA),
 
-      new Section("nfo_series", "What the .nfo reader takes for series",
+      new Section("nfo_series", "Series import settings",
           "The same questions as for films, asked of the file beside a series.",
           "Media library", NFO_SERIES_SETTINGS,
           new Field[]
@@ -409,9 +415,8 @@ namespace MediaPortal.Server.Api
                 "Write an episode's file itself into the log", "")
           }, AREA_MEDIA),
 
-      new Section("nfo_audio", "What the .nfo reader takes for music",
-          "What a file beside an album or an artist can tell the library about it. The pictures lying in a "
-          + "music folder are asked about beside it, under the albums.",
+      new Section("nfo_audio", "Audio import settings",
+          "What a file beside an album or an artist can tell the library about it.",
           "Media library", NFO_AUDIO_SETTINGS,
           new Field[]
           {
@@ -430,9 +435,8 @@ namespace MediaPortal.Server.Api
       // server has from a film's clearlogo.png to its library, since the four extractors that ran it in the
       // reference are built for Windows.
 
-      new Section("pictures_movie", "Pictures lying beside the films",
-          "Beside a film there is often its poster, its banner, its logo, its clear art and its disc art, kept "
-          + "up to date by another program. This says when the server copies those into its own folder.",
+      new Section("pictures_movie", "Pictures beside the films",
+          "When the server copies the pictures a media manager filed beside a film into its own folder.",
           "Media library", NFO_MOVIE_SETTINGS,
           new Field[]
           {
@@ -440,10 +444,8 @@ namespace MediaPortal.Server.Api
             CacheNetworkPictures("a film")
           }, AREA_MEDIA),
 
-      new Section("pictures_series", "Pictures lying beside the series",
-          "Beside an episode and beside the show's own folder there are often the same pictures, and a show "
-          + "filed one folder up still belongs to them. This says when the server copies those into its own "
-          + "folder.",
+      new Section("pictures_series", "Pictures beside the series",
+          "When the server copies the pictures a media manager filed beside an episode into its own folder.",
           "Media library", NFO_SERIES_SETTINGS,
           new Field[]
           {
@@ -454,9 +456,8 @@ namespace MediaPortal.Server.Api
       // In the reference the two questions below belong to its music extractor; here the music extractor it
       // would name is built for Windows and cannot be loaded, and the reader that walks an album's folder
       // everywhere else is the tag reader.
-      new Section("pictures_music", "Pictures lying beside the albums",
-          "Beside the recording, an album's folder often holds its cover, the picture of the disc and the "
-          + "title's logo. This says when those are copied into the server's own folder.",
+      new Section("pictures_music", "Pictures beside the albums",
+          "When the server copies the pictures a media manager filed beside an album into its own folder.",
           "Media library", AUDIO_TAGS_SETTINGS,
           new Field[]
           {
