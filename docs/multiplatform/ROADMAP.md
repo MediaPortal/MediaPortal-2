@@ -6187,3 +6187,32 @@ offered per reader and their defaults being the reference's.
 Stated once so it does not have to be repeated per phase: audio passthrough and HDR on real hardware,DVB/TvHeadend against real multiplexes, the feel of remote navigation, visual taste, and a 40 TB library
 import. These need hardware and judgement that are not in this environment, and they are batched into
 one hand-off checklist per phase rather than dribbled out.
+
+### dg. Which screen answers a picture question
+
+The switches arrived, and the user looked for them, found them under *Plugin settings* and said the true thing about
+that: **"these are not plugin settings, they belong to media settings."** The reference agrees in its own file.
+`ServerSettings.Client\plugin.xml` registers `Location="/Configuration/Settings/Media"` (:93) and hangs every
+picture answer off that one node - `/Media/FanArtSettings` (:246) for the seven maxima, `/Media/MovieMDESettings`
+(:170), `/Media/SeriesMDESettings` (:199), `/Media/AudioMDESettings` (:137) and `/Media/VideoMDESettings` (:161) for
+the "Cache FanArt on a local / on a network share" pair (`ServerMovieMDEBrowseOffline.cs` :187) - and nothing about a
+picture anywhere under a plugin node. So what the port had been missing was not a setting but the reference's **tree
+node**: which of the two screens a question belongs to.
+
+A section of `PluginSettingsCatalog` now carries that as a second fact, `Section.Area`, with `SectionsOf(area)` and
+`GET api/media/settings/sections?area=...`; both answers say which area a section is in. Only the grouping moved,
+never the storage: the two switches of a reader still live in that reader's own settings class, which is what the
+reference does, so two sections may name one class and a `PUT` still writes only the fields it was sent. `fanart` is
+a media section, the pair is out of `nfo_movie` (nine fields, now seven) and `nfo_series` (eight, now six), and
+`audio_tags` became `pictures_music` beside new `pictures_movie` and `pictures_series` - worded per kind, "Copies of
+the pictures lying beside a film / an episode / an album on a disk in this machine", because a household reads a
+screen, not a settings class. Renaming a section is not renaming a stored answer: the values are keyed by class name,
+and the `cache_local_fanart = true` the film and series readers had been given was still there afterwards.
+
+Both screens ask for their own half - the plugin screen for `plugin`, the media screen for `media` - and the media
+screen draws every answer it gets as a row that saves itself when it is answered, below the rows that belong to this
+machine. Measured on the running pair: the plugin screen lists six sections (3/2/1/7/6/4 fields) with no picture
+question among them, the media screen carries the seven maxima and the six switches, and pressing "Banners kept per
+title" on the television moved `max_banners` from 1 to 2 on the server and back. 1227 frontend and 557 server tests
+green.
+

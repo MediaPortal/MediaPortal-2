@@ -12,7 +12,13 @@ namespace MediaPortal.Frontend.Api;
 /// </summary>
 public interface IPluginSettingsApi
 {
-    Task<SettingSectionsAnswer> GetSettingSectionsAsync(CancellationToken cancellation = default);
+    /// <param name="area">
+    /// <c>"media"</c> for the answers about the library's own pictures, <c>"plugin"</c> for what a plugin can
+    /// be told, <c>null</c> for both. The reference kept the two apart in its configuration tree, so a screen
+    /// asks for the half it shows.
+    /// </param>
+    Task<SettingSectionsAnswer> GetSettingSectionsAsync(string? area = null,
+        CancellationToken cancellation = default);
 
     Task<SettingSectionState> GetSettingSectionAsync(string key, CancellationToken cancellation = default);
 
@@ -77,6 +83,16 @@ public static class SettingSectionViewModelKinds
     public const string Text = "text";
 }
 
+/// <summary>The two halves of the server's settings, as the reference split them in its configuration tree.</summary>
+public static class SettingSectionAreas
+{
+    /// <summary>What the library's media itself answers: its pictures and where they come from.</summary>
+    public const string Media = "media";
+
+    /// <summary>What a plugin answers: what a reader reads, what the server logs.</summary>
+    public const string Plugin = "plugin";
+}
+
 /// <summary>One screen's worth of settings: what it is called and the values it holds.</summary>
 public sealed record SettingSectionState
 {
@@ -84,6 +100,9 @@ public sealed record SettingSectionState
     public string Title { get; init; } = string.Empty;
     public string Description { get; init; } = string.Empty;
     public string Owner { get; init; } = string.Empty;
+
+    /// <summary>Which screen this section belongs to, as <see cref="SettingSectionAreas"/>.</summary>
+    public string Area { get; init; } = string.Empty;
     public IReadOnlyList<SettingFieldState> Fields { get; init; } = Array.Empty<SettingFieldState>();
 
     /// <summary>Which of the fields the server would only act on after a restart.</summary>
@@ -97,6 +116,9 @@ public sealed record SettingSectionSummary
     public string Title { get; init; } = string.Empty;
     public string Description { get; init; } = string.Empty;
     public string Owner { get; init; } = string.Empty;
+
+    /// <summary>Which screen this section belongs to, as <see cref="SettingSectionAreas"/>.</summary>
+    public string Area { get; init; } = string.Empty;
     public int FieldCount { get; init; }
 }
 

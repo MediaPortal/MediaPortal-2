@@ -37,6 +37,14 @@ namespace MediaPortal.Frontend.ViewModels
   /// The front end has no idea what a media library can be told, and is not supposed to.
   /// </para>
   /// <para>
+  /// <b>Why the library's own pictures are not here.</b> The screen asks for the <c>plugin</c> area only.
+  /// The reference hung the answers about a title's pictures - how many of each kind it keeps, and whether
+  /// the ones lying next to the files are copied - under its <c>/Configuration/Settings/Media</c> node,
+  /// beside the media itself and never under a plugin node, so those rows are asked for by area and shown
+  /// where a household looks for pictures: the media settings screen. Nothing is duplicated for that; the
+  /// server keeps one answer per question and says which screen it belongs to.
+  /// </para>
+  /// <para>
   /// <b>One screen, two halves.</b> The list and the editor share a screen, so opening a section does not
   /// push a frame onto a trail the viewer then has to unwind; the editor is the same screen with a section
   /// in it, and Back puts the list back. That is also why Back reads the summaries again - a count shown
@@ -123,7 +131,7 @@ namespace MediaPortal.Frontend.ViewModels
       IsBusy = true;
       try
       {
-        SettingSectionsAnswer answer = await client.GetSettingSectionsAsync();
+        SettingSectionsAnswer answer = await client.GetSettingSectionsAsync(SettingSectionAreas.Plugin);
         Sections.Clear();
         foreach (SettingSectionSummary summary in answer.Sections)
           Sections.Add(summary);

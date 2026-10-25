@@ -252,19 +252,21 @@ namespace Tests.Server.Api
     }
 
     [Test]
-    public async Task ThePicturesLyingBesideTheFilesCanBeAskedForPerReader()
+    public async Task ThePicturesLyingBesideTheFilesAreAnsweredPerReader()
     {
       StartServer();
 
       // The two switches decide whether the pictures a media manager filed next to a title are looked at at all.
       // The reference gives them to every extractor of its own ("Cache FanArt on a local share", "Cache FanArt
-      // on a network share"), and here they stand beside the answers of the reader that walks the folders: the
-      // .nfo reader for films and series, the tag reader for music. Missing them is how a shelf of 1136 films
-      // ended up with 937 clear logos that never once reached the library.
-      foreach (string section in new[] { "nfo_movie", "nfo_series", "audio_tags" })
+      // on a network share"), so they stay one section per reader - that is the settings class that stores them
+      // - and they hang in the media area, which is the node the reference filed them under. Missing them is how
+      // a shelf of 1136 films ended up with 937 clear logos that never once reached the library.
+      foreach (string section in new[] { "pictures_movie", "pictures_series", "pictures_music" })
       {
         (HttpStatusCode code, string body) = await Get(_baseUrl + "/api/media/settings/sections/" + section);
         Assert.That(code, Is.EqualTo(HttpStatusCode.OK), section + ": " + body);
+        Assert.That(Read(body).GetProperty("area").GetString(), Is.EqualTo("media"),
+            section + ": the pictures a shelf holds are an answer about the media, not about a plugin");
 
         List<string> fields = new List<string>();
         foreach (JsonElement field in Read(body).GetProperty("fields").EnumerateArray())
@@ -275,6 +277,49 @@ namespace Tests.Server.Api
         Assert.That(fields, Does.Contain("cache_network_fanart"),
             "the section \"" + section + "\" offers no switch for the pictures on a share that might be asleep");
       }
+    }
+
+    [Test]
+    public async Task TheAreaSaysWhichOfTheTwoScreensAnswersASection()
+    {
+      StartServer();
+
+      // The reference's configuration tree had one Media node holding both "how many of each kind does a title
+      // keep" and every extractor's "cache the pictures on a share", and no plugin node holding either. The two
+      // areas are that split, so a screen asks for the half it shows instead of sorting the server's answer -
+      // and a section cannot end up on two screens because it is asked for by the wrong one.
+      (HttpStatusCode mediaCode, string media) = await Get(_baseUrl + "/api/media/settings/sections?area=media");
+      Assert.That(mediaCode, Is.EqualTo(HttpStatusCode.OK), media);
+      Assert.That(KeysOf(media), Is.EqualTo(new[]
+          { "fanart", "pictures_movie", "pictures_series", "pictures_music" }),
+          "the library's own pictures, in the order a screen lists them");
+
+      (HttpStatusCode pluginCode, string plugin) = await Get(_baseUrl + "/api/media/settings/sections?area=plugin");
+      Assert.That(pluginCode, Is.EqualTo(HttpStatusCode.OK), plugin);
+      List<string> pluginKeys = KeysOf(plugin);
+      Assert.That(pluginKeys, Does.Contain("logging"), "what the server writes down stays a plugin's answer");
+      Assert.That(pluginKeys, Does.Contain("nfo_movie"), "what a reader reads out of a file stays its own");
+      foreach (string left in pluginKeys)
+      {
+        Assert.That(left, Does.Not.StartWith("pictures"), left + " is not an answer of a plugin");
+        Assert.That(left, Is.Not.EqualTo("fanart"), left + " belongs to the media settings screen");
+      }
+
+      // An area the server does not know is a question it has no rows for, not a mistake to punish: an older
+      // screen asking for the whole table still gets it.
+      (HttpStatusCode allCode, string all) = await Get(_baseUrl + "/api/media/settings/sections");
+      Assert.That(allCode, Is.EqualTo(HttpStatusCode.OK), all);
+      Assert.That(KeysOf(all).Count, Is.GreaterThan(KeysOf(media).Count + KeysOf(plugin).Count - 1),
+          "a call naming no area sees both halves");
+    }
+
+    /// <summary>The keys of the sections one list answer offers, in the order it offers them.</summary>
+    static List<string> KeysOf(string body)
+    {
+      List<string> keys = new List<string>();
+      foreach (JsonElement section in Read(body).GetProperty("sections").EnumerateArray())
+        keys.Add(section.GetProperty("key").GetString());
+      return keys;
     }
 
     [Test]

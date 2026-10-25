@@ -49,13 +49,19 @@ namespace Tests.Frontend
       public SettingSectionWish? Sent;
       public string SentKey = "";
       public List<string> Calls { get; } = new List<string>();
+
+      /// <summary>Which half of the server's settings each list call asked for.</summary>
+      public List<string?> Areas { get; } = new List<string?>();
+
       public Exception? ThrowOnList;
       public Exception? ThrowOnGet;
       public Exception? ThrowOnPut;
 
-      public Task<SettingSectionsAnswer> GetSettingSectionsAsync(CancellationToken cancellation = default)
+      public Task<SettingSectionsAnswer> GetSettingSectionsAsync(string? area = null,
+          CancellationToken cancellation = default)
       {
-        Calls.Add("sections");
+        Calls.Add("sections" + (area == null ? "" : ":" + area));
+        Areas.Add(area);
         if (ThrowOnList != null)
           throw ThrowOnList;
         return Task.FromResult(ListAnswer);
@@ -201,7 +207,10 @@ namespace Tests.Frontend
           "the list is the server's, in the server's order, with nothing added to it");
       Assert.That(screen.HasSections, Is.True);
       Assert.That(screen.HasSection, Is.False, "listing is not editing - no editor stands up by itself");
-      Assert.That(api.Calls, Is.EqualTo(new[] { "sections" }), "one call reads the whole list");
+      Assert.That(api.Calls, Is.EqualTo(new[] { "sections:plugin" }),
+          "one call reads the whole list, and it asks for the plugin half of it - the library's own pictures "
+          + "are answered on the media settings screen, as they were filed under one node in the reference");
+      Assert.That(api.Areas, Is.EqualTo(new[] { SettingSectionAreas.Plugin }));
     }
 
     [Test]
@@ -580,12 +589,12 @@ namespace Tests.Frontend
       };
 
       PluginSettingsViewModel screen = await ScreenOn(api);
-      Assert.That(api.Calls, Is.EqualTo(new[] { "sections", "get:fanart" }));
+      Assert.That(api.Calls, Is.EqualTo(new[] { "sections:plugin", "get:fanart" }));
 
       await screen.BackAsync();
 
       Assert.That(screen.HasSection, Is.False, "Back puts the list back");
-      Assert.That(api.Calls, Is.EqualTo(new[] { "sections", "get:fanart", "sections" }),
+      Assert.That(api.Calls, Is.EqualTo(new[] { "sections:plugin", "get:fanart", "sections:plugin" }),
           "and reads the summaries again, so a count beside a section is the server's count now");
       Assert.That(screen.IsBusy, Is.False, "and the screen is done talking when it lands");
     }

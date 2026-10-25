@@ -68,6 +68,22 @@ namespace MediaPortal.Server.Api
   /// </remarks>
   public static class PluginSettingsCatalog
   {
+    /// <summary>
+    /// A section a household reaches through its plugins: what a reader reads out of a file, how much the
+    /// server writes down.
+    /// </summary>
+    public const string AREA_PLUGIN = "plugin";
+
+    /// <summary>
+    /// A section about the media of the library - its pictures and their sources. The reference hung these
+    /// under <c>/Configuration/Settings/Media</c> in its configuration tree: the ServerSettings plugin shipped
+    /// them as its own <c>plugin.xml</c> nodes <c>Media/FanArtSettings</c>, <c>Media/MovieMDESettings</c>,
+    /// <c>Media/SeriesMDESettings</c> and <c>Media/AudioMDESettings</c> (ServerSettings.Client/plugin.xml:93,
+    /// :137, :170, :199, :246), never under a plugin node. A screen that asks for one area therefore does not
+    /// show the other.
+    /// </summary>
+    public const string AREA_MEDIA = "media";
+
     /// <summary>A field that is on or off.</summary>
     public const string KIND_TOGGLE = "toggle";
 
@@ -152,8 +168,8 @@ namespace MediaPortal.Server.Api
 
       /// <summary>A section whose settings class this assembly is allowed to name outright.</summary>
       public Section(string key, string title, string description, string owner, Type settingsType,
-          Field[] fields)
-          : this(key, title, description, owner, settingsType.FullName, fields)
+          Field[] fields, string area = AREA_PLUGIN)
+          : this(key, title, description, owner, settingsType.FullName, fields, area)
       {
         SettingsType = settingsType;
       }
@@ -168,7 +184,7 @@ namespace MediaPortal.Server.Api
       /// the metadata endpoint reaches the extractors' settings, for the same reason.
       /// </remarks>
       public Section(string key, string title, string description, string owner, string settingsTypeName,
-          Field[] fields)
+          Field[] fields, string area = AREA_PLUGIN)
       {
         Key = key;
         Title = title;
@@ -176,6 +192,7 @@ namespace MediaPortal.Server.Api
         Owner = owner;
         SettingsTypeName = settingsTypeName;
         Fields = fields ?? Array.Empty<Field>();
+        Area = string.IsNullOrEmpty(area) ? AREA_PLUGIN : area;
       }
 
       /// <summary>The name in the URL. Lower case.</summary>
@@ -189,6 +206,15 @@ namespace MediaPortal.Server.Api
 
       /// <summary>Which part of the server the settings belong to, so a screen can say whose answer it is.</summary>
       public string Owner { get; }
+
+      /// <summary>
+      /// Which screen of the household's a section belongs to: <see cref="AREA_MEDIA"/> for the answers about
+      /// the library's media itself, <see cref="AREA_PLUGIN"/> for the answers of a plugin. Storage does not
+      /// follow this - the pictures a film reader copies are still stored in that reader's own settings class,
+      /// exactly as in the reference - only the way the answers are grouped for the person in front of the
+      /// screen, which in the reference was the tree node they were filed under.
+      /// </summary>
+      public string Area { get; }
 
       /// <summary>The settings class by its full name, whether or not this assembly may name it.</summary>
       public string SettingsTypeName { get; }
@@ -256,19 +282,24 @@ namespace MediaPortal.Server.Api
           "Media library", typeof(FanArtSettings),
           new Field[]
           {
-            Number("max_posters", "MaxPosterFanArt", "Posters",
+            // Named as a whole sentence rather than as one word, because these rows stand in the household's
+            // media settings beside answers of their own - a bare "Posters" on a mixed screen says nothing
+            // about who is keeping them.
+            Number("max_posters", "MaxPosterFanArt", "Posters kept per title",
                 "The poster is the picture a tile wears."),
-            Number("max_banners", "MaxBannerFanArt", "Banners",
+            Number("max_banners", "MaxBannerFanArt", "Banners kept per title",
                 "The wide strip with the title's name on it."),
-            Number("max_backdrops", "MaxBackdropFanArt", "Backdrops",
+            Number("max_backdrops", "MaxBackdropFanArt", "Backdrops kept per title",
                 "The picture behind a title's own screen. The reference kept three."),
-            Number("max_thumbs", "MaxThumbFanArt", "Thumbnails", ""),
-            Number("max_clear_art", "MaxClearArt", "Clear art",
-                "The title's logo without a background."),
-            Number("max_disc_art", "MaxDiscArt", "Disc art",
+            Number("max_thumbs", "MaxThumbFanArt", "Thumbnails kept per title",
+                "The small picture a tile carries inside it."),
+            Number("max_clear_art", "MaxClearArt", "Clear art kept per title",
+                "The title's logo without a background, which is why it is stored as a png."),
+            Number("max_disc_art", "MaxDiscArt", "Disc art kept per title",
                 "The picture of the disc or cover art of the release."),
-            Number("max_logos", "MaxLogoFanArt", "Logos", "")
-          }),
+            Number("max_logos", "MaxLogoFanArt", "Logos kept per title",
+                "The title's name drawn as a picture.")
+          }, AREA_MEDIA),
 
       new Section("virtual_media", "Whether the titles there are not are shown too",
           "The library sometimes learns of a film, an episode or an album that stands on no share. This says "
@@ -325,18 +356,11 @@ namespace MediaPortal.Server.Api
           }),
 
       // The reader of the .nfo files a media manager leaves beside a film. The reference never gave this
-      // extractor a configuration window at all - its settings were edited as XML, if at all - so these three
+      // extractor a configuration window at all - its settings were edited as XML, if at all - so these two
       // sections go past the reference rather than catching up with it. They are here because the extractor is
       // the one extractor this server can actually run everywhere (it is the only one that is not
       // Windows-bound), and because the fields worth asking about are the same two questions the metadata
       // screen already asks of the online scrapers: which details, and how many of them.
-      //
-      // The two pictures switches at the bottom of each of them are the reference's own, from the window it
-      // gives every extractor ("Cache FanArt on a local share", "Cache FanArt on a network share"). They are
-      // worth having here for a reason that only shows up when the numbers above are already in place: they are
-      // the switches that decide whether the pictures a media manager filed next to a title are looked at at
-      // all. The four extractors that ran that walk in the reference are built for Windows, so a portable
-      // server without these switches had no path from a film's <c>clearlogo.png</c> to its library.
       //
       // What is left out of them, and why: the file name lists, the separator and ignore strings (a set of
       // strings is not a question a remote can answer, and every one of them defaults to something that works),
@@ -358,8 +382,6 @@ namespace MediaPortal.Server.Api
             Count("max_actors", "MaximumActorCount", "Actors kept",
                 "The rest are read and dropped."),
             Count("max_characters", "MaximumCharacterCount", "Characters kept", ""),
-            CacheLocalPictures(),
-            CacheNetworkPictures(),
             DebugLogging("films"),
             Toggle("write_nfo_into_log", "WriteRawNfoFileIntoDebugLog", "Write the file itself into the log",
                 "Only useful while something is being worked out, and only alongside the line above.")
@@ -374,8 +396,6 @@ namespace MediaPortal.Server.Api
             Toggle("include_characters", "IncludeCharacterDetails", "The characters", ""),
             Count("max_actors", "MaximumActorCount", "Actors kept", ""),
             Count("max_characters", "MaximumCharacterCount", "Characters kept", ""),
-            CacheLocalPictures(),
-            CacheNetworkPictures(),
             DebugLogging("series"),
             Toggle("write_nfo_into_log", "WriteRawNfoFileIntoDebugLog", "Write the file itself into the log", "")
           }),
@@ -392,18 +412,47 @@ namespace MediaPortal.Server.Api
             Toggle("write_nfo_into_log", "WriteRawNfoFileIntoDebugLog", "Write the file itself into the log", "")
           }),
 
-      // The reader that opens the tags of the music files. In the reference the two questions below belong to
-      // its music extractor; here the music extractor it would name is built for Windows and cannot be loaded,
-      // and the reader that walks an album's folder everywhere else is this one.
-      new Section("audio_tags", "What the music reader keeps from the folders",
+      // The three questions about the pictures a media manager filed next to the files themselves, one section
+      // per reader because that is where the reference stored them - each reader's own settings class - and one
+      // area for all three because that is where the reference showed them: its configuration tree hangs every
+      // extractor's "Cache FanArt on a local share" under /Configuration/Settings/Media, beside the FanArt
+      // counts, and never under a plugin node. The walk these switches let run is the only path a portable
+      // server has from a film's clearlogo.png to its library, since the four extractors that ran it in the
+      // reference are built for Windows.
+
+      new Section("pictures_movie", "Pictures lying beside the films",
+          "Beside a film there is often its poster, its banner, its logo, its clear art and its disc art, kept "
+          + "up to date by another program. This says when the server copies those into its own folder.",
+          "Media library", NFO_MOVIE_SETTINGS,
+          new Field[]
+          {
+            CacheLocalPictures("a film", "the films"),
+            CacheNetworkPictures("a film")
+          }, AREA_MEDIA),
+
+      new Section("pictures_series", "Pictures lying beside the series",
+          "Beside an episode and beside the show's own folder there are often the same pictures, and a show "
+          + "filed one folder up still belongs to them. This says when the server copies those into its own "
+          + "folder.",
+          "Media library", NFO_SERIES_SETTINGS,
+          new Field[]
+          {
+            CacheLocalPictures("an episode", "the series"),
+            CacheNetworkPictures("an episode")
+          }, AREA_MEDIA),
+
+      // In the reference the two questions below belong to its music extractor; here the music extractor it
+      // would name is built for Windows and cannot be loaded, and the reader that walks an album's folder
+      // everywhere else is the tag reader.
+      new Section("pictures_music", "Pictures lying beside the albums",
           "Beside the recording, an album's folder often holds its cover, the picture of the disc and the "
           + "title's logo. This says when those are copied into the server's own folder.",
           "Media library", AUDIO_TAGS_SETTINGS,
           new Field[]
           {
-            CacheLocalPictures(),
-            CacheNetworkPictures()
-          }),
+            CacheLocalPictures("an album", "the albums"),
+            CacheNetworkPictures("an album")
+          }, AREA_MEDIA),
     };
 
     /// <summary>The reader of film .nfo files. Named, because this assembly may not reference the plugin.</summary>
@@ -429,6 +478,24 @@ namespace MediaPortal.Server.Api
           return section;
       }
       return null;
+    }
+
+    /// <summary>
+    /// The open sections of one area, in the order a list shows them. An area nobody names is every section,
+    /// which is what a caller that shows everything asks for.
+    /// </summary>
+    public static IReadOnlyList<Section> SectionsOf(string area)
+    {
+      if (string.IsNullOrEmpty(area))
+        return Sections;
+
+      List<Section> found = new List<Section>();
+      foreach (Section section in Sections)
+      {
+        if (string.Equals(section.Area, area, StringComparison.Ordinal))
+          found.Add(section);
+      }
+      return found;
     }
 
     private static Field Number(string key, string property, string label, string help)
@@ -481,26 +548,30 @@ namespace MediaPortal.Server.Api
     /// The switch that asks whether the pictures lying next to a title on a disk in this machine are copied.
     /// </summary>
     /// <remarks>
-    /// One builder for three sections, because the question is the same question and a household answers it
-    /// differently for each kind of shelf: films that live on a disk in the box gain nothing from a second copy
-    /// of every picture, while a shelf on a machine that is switched off at night loses its pictures without
-    /// one. A change is seen by the next title the importer walks, not by the ones already walked.
+    /// One builder for the three media sections, because the question is the same question and a household
+    /// answers it differently for each kind of shelf: films that live on a disk in the box gain nothing from a
+    /// second copy of every picture, while a shelf on a machine that is switched off at night loses its
+    /// pictures without one. The media kind goes into the words because three rows asking the same sentence in
+    /// a row cannot be told apart on a screen that shows no section heading. A change is seen by the next title
+    /// the importer walks, not by the ones already walked.
     /// </remarks>
-    private static Field CacheLocalPictures()
+    /// <param name="beside">What the pictures lie beside, as "a film".</param>
+    /// <param name="shelf">What the shelf holds, as "the films" - the disk the copy would fill.</param>
+    private static Field CacheLocalPictures(string beside, string shelf)
     {
       return Toggle("cache_local_fanart", "CacheLocalFanArt",
-          "Copies of the pictures lying beside the files on a disk in this machine",
+          "Copies of the pictures lying beside " + beside + " on a disk in this machine",
           "Off is what this runs with, because the pictures are read where they lie and a copy of all of them "
-          + "only fills the disk the films are already on.");
+          + "only fills the disk " + shelf + " are already on.");
     }
 
     /// <summary>
     /// The switch that asks whether the pictures lying next to a title on a network share are copied.
     /// </summary>
-    private static Field CacheNetworkPictures()
+    private static Field CacheNetworkPictures(string beside)
     {
       return Toggle("cache_network_fanart", "CacheOfflineFanArt",
-          "Copies of the pictures lying beside the files on a share that might be asleep",
+          "Copies of the pictures lying beside " + beside + " on a share that might be asleep",
           "On is what this runs with: a shelf on another machine keeps its pictures after that machine is "
           + "switched off, which is what the copy is for.");
     }

@@ -799,10 +799,20 @@ namespace MediaPortal.Frontend.Api
     /// The list is the server's, not something the client keeps a copy of: what a plugin can be told is
     /// known by the machine running the plugin. A new section appears on the television by itself.
     /// </remarks>
-    public async Task<SettingSectionsAnswer> GetSettingSectionsAsync(CancellationToken cancellation = default)
+    /// <param name="area">
+    /// One of <see cref="SettingSectionAreas"/>, or <c>null</c> for every section the server opens. Asking for
+    /// one area is how a screen shows the answers the reference filed under one node of its configuration tree
+    /// and nothing else.
+    /// </param>
+    public async Task<SettingSectionsAnswer> GetSettingSectionsAsync(string? area = null,
+        CancellationToken cancellation = default)
     {
-      return await SendJsonAsync<SettingSectionsAnswer>(HttpMethod.Get, "api/media/settings/sections", null,
-          cancellation).ConfigureAwait(false);
+      string path = "api/media/settings/sections";
+      if (!string.IsNullOrEmpty(area))
+        path += "?area=" + Uri.EscapeDataString(area);
+
+      return await SendJsonAsync<SettingSectionsAnswer>(HttpMethod.Get, path, null, cancellation)
+          .ConfigureAwait(false);
     }
 
     /// <summary>

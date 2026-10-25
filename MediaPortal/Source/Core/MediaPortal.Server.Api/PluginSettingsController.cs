@@ -112,6 +112,9 @@ namespace MediaPortal.Server.Api
 
       public string Owner { get; set; }
 
+      /// <summary>Which screen this section belongs to: "media" or "plugin".</summary>
+      public string Area { get; set; }
+
       public List<FieldResult> Fields { get; set; } = new List<FieldResult>();
 
       /// <summary>
@@ -131,6 +134,9 @@ namespace MediaPortal.Server.Api
       public string Description { get; set; }
 
       public string Owner { get; set; }
+
+      /// <summary>Which screen this section belongs to: "media" or "plugin".</summary>
+      public string Area { get; set; }
 
       public int FieldCount { get; set; }
     }
@@ -159,12 +165,20 @@ namespace MediaPortal.Server.Api
     /// <summary>
     /// The sections a household may open, in the order the server lists them.
     /// </summary>
+    /// <param name="area">
+    /// <c>media</c> for the answers about the library's own pictures, <c>plugin</c> for the answers of a plugin,
+    /// nothing for both. The reference kept these apart in its configuration tree - the picture answers hang
+    /// under its <c>/Configuration/Settings/Media</c> node and were never reached as plugin settings - so a
+    /// screen asks for the one it is and does not have to sort the answer itself. An area the server does not
+    /// know answers with an empty list rather than a complaint: a screen written for a newer server asks a
+    /// question this one has no rows for, which is not the caller's mistake.
+    /// </param>
     [HttpGet("settings/sections")]
     [ProducesResponseType(typeof(SectionsResult), StatusCodes.Status200OK)]
-    public ActionResult<SectionsResult> GetSections()
+    public ActionResult<SectionsResult> GetSections(string area = null)
     {
       SectionsResult answer = new SectionsResult();
-      foreach (PluginSettingsCatalog.Section section in PluginSettingsCatalog.Sections)
+      foreach (PluginSettingsCatalog.Section section in PluginSettingsCatalog.SectionsOf(area))
       {
         // A section whose own part of the server is not running is left off the list. The household that
         // switched the reader off does not get a door that opens onto a wall - and the day it is switched back
@@ -178,6 +192,7 @@ namespace MediaPortal.Server.Api
           Title = section.Title,
           Description = section.Description,
           Owner = section.Owner,
+          Area = section.Area,
           FieldCount = section.Fields.Length
         });
       }
@@ -451,7 +466,8 @@ namespace MediaPortal.Server.Api
         Key = section.Key,
         Title = section.Title,
         Description = section.Description,
-        Owner = section.Owner
+        Owner = section.Owner,
+        Area = section.Area
       };
 
       foreach (PluginSettingsCatalog.Field field in section.Fields)
