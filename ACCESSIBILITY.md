@@ -6,15 +6,23 @@
 
 <table>
 <tr>
-<td align="center"><a href="../ReadMe.md"><img src="https://img.shields.io/badge/%F0%9F%93%BA_General-495057?style=for-the-badge" alt="General"></a></td>
-<td align="center"><a href="Architecture.md"><img src="https://img.shields.io/badge/%F0%9F%8F%9B_Architecture-495057?style=for-the-badge" alt="Architecture"></a></td>
-<td align="center"><a href="Manual.md"><img src="https://img.shields.io/badge/%F0%9F%93%96_Manual-Active-0b7285?style=for-the-badge" alt="Manual"></a></td>
+<td align="center"><a href="ReadMe.md"><img src="https://img.shields.io/badge/%F0%9F%93%BA_General-495057" alt="General"></a></td>
+<td align="center"><a href="SECURITY.md"><img src="https://img.shields.io/badge/%F0%9F%8F%9B_Architecture-495057" alt="Architecture"></a></td>
+<td align="center"><a href="ACCESSIBILITY.md"><img src="https://img.shields.io/badge/%F0%9F%93%96_Manual-Active-0b7285" alt="Manual"></a></td>
 </tr>
 </table>
 
-*Without images: [General](../ReadMe.md) · [Architecture](Architecture.md) · **Manual***
+*Without images: [General](ReadMe.md) · [Architecture](SECURITY.md) · **Manual***
 
 </div>
+
+> **What this file is.** The **Manual** chapter, living in `ACCESSIBILITY.md` so that it joins the row
+> of pages above the file list. That row shows six pages and no more - README, Contributing, Code of
+> conduct, the licence, Security and Accessibility - and GitHub writes the label itself, so nothing a
+> repository names its own file can appear there. `SUPPORT.md`, which is the obvious place for a
+> manual, is read by GitHub when someone opens an issue but is not one of the six: four repositories
+> that carry it in their root show no tab for it. Accessibility is the one free slot left, so the
+> manual takes it.
 
 ---
 

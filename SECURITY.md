@@ -6,15 +6,22 @@
 
 <table>
 <tr>
-<td align="center"><a href="../ReadMe.md"><img src="https://img.shields.io/badge/%F0%9F%93%BA_General-495057?style=for-the-badge" alt="General"></a></td>
-<td align="center"><a href="Architecture.md"><img src="https://img.shields.io/badge/%F0%9F%8F%9B_Architecture-Active-0b7285?style=for-the-badge" alt="Architecture"></a></td>
-<td align="center"><a href="Manual.md"><img src="https://img.shields.io/badge/%F0%9F%93%96_Manual-495057?style=for-the-badge" alt="Manual"></a></td>
+<td align="center"><a href="ReadMe.md"><img src="https://img.shields.io/badge/%F0%9F%93%BA_General-495057" alt="General"></a></td>
+<td align="center"><a href="SECURITY.md"><img src="https://img.shields.io/badge/%F0%9F%8F%9B_Architecture-Active-0b7285" alt="Architecture"></a></td>
+<td align="center"><a href="ACCESSIBILITY.md"><img src="https://img.shields.io/badge/%F0%9F%93%96_Manual-495057" alt="Manual"></a></td>
 </tr>
 </table>
 
-*Without images: [General](../ReadMe.md) · **Architecture** · [Manual](Manual.md)*
+*Without images: [General](ReadMe.md) · **Architecture** · [Manual](ACCESSIBILITY.md)*
 
 </div>
+
+> **What this file is.** The **Architecture** chapter, living in `SECURITY.md` so that it joins the
+> row of pages above the file list. GitHub puts exactly six files in that row - README, Contributing,
+> Code of conduct, the licence, Security and Accessibility - and renames none of them, so a chapter
+> of a repository can only reach that row by taking one of those six names. The words inside are the
+> architecture of this tree, nothing else. A real vulnerability is still reported through the private
+> *Report a vulnerability* form on the Security page rather than as an issue.
 
 ---
 
@@ -196,7 +203,7 @@ stateDiagram-v2
 `I` opens what a title is, `F` moves to a search field, `W` rounds through the watched states, `V`
 changes the view, `M` is the media key, `F16` is the menu key; the arrows and `Enter` belong to the
 screen that has them. The full list, and how to rebind any of it, is in the
-[Manual](Manual.md#the-keys).
+[Manual](ACCESSIBILITY.md#the-keys).
 
 ## The skin engine
 
@@ -305,12 +312,12 @@ reason it exists.
 
 | Document | What it settles |
 |---|---|
-| [`docs/multiplatform/Multiplatform-Assessment-and-Plan.md`](multiplatform/Multiplatform-Assessment-and-Plan.md) | the census of the tree and the order the porting happens in |
-| [`docs/multiplatform/SkinEngine-Multiplatform-Proposal.md`](multiplatform/SkinEngine-Multiplatform-Proposal.md) | how the MPF skins could be worn without WPF |
-| [`docs/multiplatform/P2-New-Frontend-on-Ported-Backend-Plan.md`](multiplatform/P2-New-Frontend-on-Ported-Backend-Plan.md) | the front end as a client of the ported backend |
-| [`docs/multiplatform/New-Media-Center-Feasibility-and-Blueprint.md`](multiplatform/New-Media-Center-Feasibility-and-Blueprint.md) | what a new media centre would need, and what this one already has |
-| [`docs/multiplatform/ROADMAP.md`](multiplatform/ROADMAP.md) | the phases in order, each with its proof |
-| [`scripts/ci/README.md`](../scripts/ci/README.md) | every gate, in the detail |
+| [`docs/multiplatform/Multiplatform-Assessment-and-Plan.md`](docs/multiplatform/Multiplatform-Assessment-and-Plan.md) | the census of the tree and the order the porting happens in |
+| [`docs/multiplatform/SkinEngine-Multiplatform-Proposal.md`](docs/multiplatform/SkinEngine-Multiplatform-Proposal.md) | how the MPF skins could be worn without WPF |
+| [`docs/multiplatform/P2-New-Frontend-on-Ported-Backend-Plan.md`](docs/multiplatform/P2-New-Frontend-on-Ported-Backend-Plan.md) | the front end as a client of the ported backend |
+| [`docs/multiplatform/New-Media-Center-Feasibility-and-Blueprint.md`](docs/multiplatform/New-Media-Center-Feasibility-and-Blueprint.md) | what a new media centre would need, and what this one already has |
+| [`docs/multiplatform/ROADMAP.md`](docs/multiplatform/ROADMAP.md) | the phases in order, each with its proof |
+| [`scripts/ci/README.md`](scripts/ci/README.md) | every gate, in the detail |
 
-Frames rendered headlessly by `Frontend.RenderProbe`, as the gates write them:
-[`docs/multiplatform/screenshots/`](multiplatform/screenshots/).
+Frames rendered headlessly by `Frontend.RenderProbe`, as the gates write them, are in
+`docs/multiplatform/screenshots/`.

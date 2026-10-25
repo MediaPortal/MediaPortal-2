@@ -7,21 +7,26 @@
 **A media centre for the whole household: one server that answers over HTTP, one 10-foot screen
 that wears a skin, and a television that comes from TVHeadend instead of a Windows service.**
 
-[![.NET 10](https://img.shields.io/badge/.NET-10.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
-![Platform](https://img.shields.io/badge/platform-x64%20%C2%B7%20Windows%20%7C%20Linux-6c757d?style=for-the-badge)
-![Licence](https://img.shields.io/badge/licence-GPL--3.0-3ea45c?style=for-the-badge)
-![Front-end tests](https://img.shields.io/badge/front--end%20tests-1250%20passing-2f9e44?style=for-the-badge)
+[![.NET 10](https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
+![Platform](https://img.shields.io/badge/platform-x64%20%C2%B7%20Windows%20%7C%20Linux-6c757d)
+![Licence](https://img.shields.io/badge/licence-GPL--3.0-3ea45c)
+![Front-end tests](https://img.shields.io/badge/front--end%20tests-1250%20passing-2f9e44)
 
 <table>
 <tr>
-<td align="center"><a href="ReadMe.md"><img src="https://img.shields.io/badge/%F0%9F%93%BA_General-Active-0b7285?style=for-the-badge" alt="General"></a></td>
-<td align="center"><a href="docs/Architecture.md"><img src="https://img.shields.io/badge/%F0%9F%8F%9B_Architecture-495057?style=for-the-badge" alt="Architecture"></a></td>
-<td align="center"><a href="docs/Manual.md"><img src="https://img.shields.io/badge/%F0%9F%93%96_Manual-495057?style=for-the-badge" alt="Manual"></a></td>
+<td align="center"><a href="ReadMe.md"><img src="https://img.shields.io/badge/%F0%9F%93%BA_General-Active-0b7285" alt="General"></a></td>
+<td align="center"><a href="SECURITY.md"><img src="https://img.shields.io/badge/%F0%9F%8F%9B_Architecture-495057" alt="Architecture"></a></td>
+<td align="center"><a href="ACCESSIBILITY.md"><img src="https://img.shields.io/badge/%F0%9F%93%96_Manual-495057" alt="Manual"></a></td>
 </tr>
 </table>
 
-*GitHub renders no real tabs, so the badge row above is the tab bar. Same three pages without images:
-**General** · [Architecture](docs/Architecture.md) · [Manual](docs/Manual.md)*
+*Every chapter of this documentation is also one of GitHub's own tabs above the file list: **README**
+is this page, **Security** is [Architecture](SECURITY.md), **Accessibility** is the
+[Manual](ACCESSIBILITY.md), and **GPL-3.0 license** is the [licence](Licence.md). That row shows six
+pages at most - README, Contributing, Code of conduct, the licence, Security and Accessibility - and
+GitHub writes the labels itself, so a chapter borrows the nearest free name rather than staying out of
+the row. `SUPPORT.md`, which is where a manual would sensibly go, is not one of the six: GitHub reads
+it when somebody opens an issue and shows no tab for it.*
 
 </div>
 
@@ -47,7 +52,7 @@ Three decisions carry that:
 
 Nothing above the HTTP seam references a MediaPortal assembly, and that rule is held by the build
 rather than by convention - see
-[Architecture](docs/Architecture.md#the-rule-that-holds-the-rest-up).
+[Architecture](SECURITY.md#the-rule-that-holds-the-rest-up).
 
 ## Where it stands
 
@@ -114,7 +119,7 @@ dotnet .\build\artifacts\server-layout\MP2-Server-Headless.dll --data .\build\ar
 
 While the server runs, `http://127.0.0.1:55555/MediaPortal/Server/health` answers.
 Step by step - with a keyboard reference, a screen index and a troubleshooting table - is the
-[Manual](docs/Manual.md). How the pieces fit is [Architecture](docs/Architecture.md).
+[Manual](ACCESSIBILITY.md). How the pieces fit is [Architecture](SECURITY.md).
 
 ## Where things live
 
@@ -130,9 +135,9 @@ Step by step - with a keyboard reference, a screen index and a troubleshooting t
 
 ## Read on
 
-- **[Architecture](docs/Architecture.md)** - the processes, the HTTP seam, the skin engine, the
+- **[Architecture](SECURITY.md)** - the processes, the HTTP seam, the skin engine, the
   portability spine, and the gates that keep them that way.
-- **[Manual](docs/Manual.md)** - build it, run it, point it at a server, bind a remote, and set up
+- **[Manual](ACCESSIBILITY.md)** - build it, run it, point it at a server, bind a remote, and set up
   TVHeadend, weather and news.
 - **[`scripts/ci/README.md`](scripts/ci/README.md)** - the long story of every gate: what it
   measures, what it was calibrated on, and what it fails on.
@@ -142,9 +147,9 @@ Step by step - with a keyboard reference, a screen index and a troubleshooting t
 ## Licence and credit
 
 MediaPortal 2 is **GPL-3.0** (or, at your option, any later version), as each source file's header
-states. Two pieces inside it carry their own terms: the vendored `LiquidGlassAvaloniaUI` control is
-**MIT**, and the player's managed libVLC binding (`LibVLCSharp`) is **MPL-2.0**; libVLC itself is
-not vendored and is found at run time.
+states; the text itself is in [`Licence.md`](Licence.md). Two pieces inside it carry their own terms:
+the vendored `LiquidGlassAvaloniaUI` control is **MIT**, and the player's managed libVLC binding
+(`LibVLCSharp`) is **MPL-2.0**; libVLC itself is not vendored and is found at run time.
 
 The original MediaPortal 2 was built by [Team MediaPortal](https://www.team-mediaportal.com/) -
 [upstream repository](https://github.com/MediaPortal/MediaPortal-2),
