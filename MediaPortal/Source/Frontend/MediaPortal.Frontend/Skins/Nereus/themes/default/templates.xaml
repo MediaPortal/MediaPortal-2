@@ -176,6 +176,10 @@
          square moves: the tile keeps its own rounding and its own clip, and it centres itself in whatever
          place the rail gives it, so the shadow may lean past the edge without the tile ever shifting. -->
     <Border Classes="home-tile-shadow" Margin="6" HorizontalAlignment="Center">
+    <!-- The panel is what gives the edge its rectangle: the shadow border sizes itself to the tile, the panel
+         fills that same rectangle, and so the ring laid over it below stands on the tile's own outline without
+         a single number being repeated here. -->
+    <Panel>
     <Border Classes="nereus-menu-tile"
             ClipToBounds="True"
             Width="{Binding $parent[ListBox].DataContext.MenuTileSize}"
@@ -269,6 +273,15 @@
                IsVisible="{Binding IsCircleSelected}"/>
       </Grid>
     </Border>
+    <!-- The resting edge, the same ghost ring a cover on the wall and a shortcut beside it wear at rest. Only the
+         resting ring: the rail's tile keeps the light the base style gives it and grows nothing when something
+         stands on it, because the band, the artwork and the bar inside the tile are already the rail's answer to
+         a viewer. The ring lies OVER the tile rather than being painted on the tile's own border, which is what
+         the covers do and why: the tile clips itself to its ten, so a ring drawn by the clipped border and a ring
+         laid over it would be cut to two different circles and show a step in every corner. Out of the pointer's
+         way, because the item is what gets stood on. -->
+    <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
+    </Panel>
     </Border>
   </DataTemplate>
 

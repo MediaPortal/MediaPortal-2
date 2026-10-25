@@ -104,10 +104,13 @@
          focus before a tile takes it. -->
     <Setter Property="FocusAdorner" Value="{x:Null}"/>
   </Style>
-  <!-- Nereus draws no frame at all on the rail: the platform's own selection panel and focus rectangle are
-       switched off down to the item's template, so neither the selected tile nor the focused one can grow a
-       border no matter which pseudo-class it wears. The reference marks its place with the band inside the
-       tile and with nothing else. -->
+  <!-- Nothing of the PLATFORM's is left on the rail: its selection panel and focus rectangle are switched off
+       down to the item's template, so neither the selected tile nor the focused one can grow a border of the
+       toolkit's own no matter which pseudo-class it wears. What the rail does wear is the skin's resting edge -
+       Border.home-tile-edge, laid over the tile by the tile's own template, the ghost ring the whole wall wears
+       while nothing stands on a tile. It stays a ring at rest here and is NOT lit by standing on the tile: the
+       rail already answers a viewer with its band, its artwork and its bar, and a ring brightening over them was
+       not asked for. Being lit under a viewer remains the covers' and the shortcuts' answer, not the rail's. -->
   <Style Selector="ListBox.nereus-home-menu ListBoxItem, ListBox.settings-tile-wall ListBoxItem">
     <Setter Property="FocusAdorner" Value="{x:Null}"/>
     <Setter Property="Background" Value="Transparent"/>
