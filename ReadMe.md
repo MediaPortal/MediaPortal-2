@@ -1,8 +1,6 @@
 <div align="center">
 
-[![MediaPortal 2026](docs/images/banner.png)](ReadMe.md)
-
-# MediaPortal 2
+![MediaPortal 2026](docs/images/banner.png)
 
 **A media centre for the whole household: one server that answers over HTTP, one 10-foot screen
 that wears a skin, and a television that comes from TVHeadend instead of a Windows service.**
