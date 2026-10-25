@@ -97,8 +97,29 @@ public sealed class SkinSettingOption : ObservableObject
     _changed = changed;
   }
 
+  /// <summary>
+  /// A row that is not an answer: the name of the group the rows underneath it belong to. A screen that asks a
+  /// server for its answers gets them as sections, and a section's rows only read as a group when the group is
+  /// named - "The actors of a film" beside "The actors of an episode" needs the heading more than anything else
+  /// on the screen.
+  /// </summary>
+  public static SkinSettingOption Headed(string title)
+  {
+    return new SkinSettingOption(title, "");
+  }
+
+  private SkinSettingOption(string label, string description)
+  {
+    Label = label;
+    Description = description;
+    IsHeader = true;
+  }
+
   public string Label { get; }
   public string Description { get; }
+
+  /// <summary>Whether the row names a group instead of wearing an answer.</summary>
+  public bool IsHeader { get; }
 
   /// <summary>Whether the row works its answer with a checkbox (true) or with a button (false).</summary>
   public bool IsToggle { get; }
@@ -107,7 +128,7 @@ public sealed class SkinSettingOption : ObservableObject
   public bool IsText { get; }
 
   /// <summary>Whether the row wears the button that walks a list; a typed row wears a box instead.</summary>
-  public bool ShowsButton => !IsToggle && !IsText;
+  public bool ShowsButton => !IsToggle && !IsText && !IsHeader;
 
   /// <summary>
   /// What the checkbox shows and what working it does: writing it is the change, straight through to the
@@ -144,7 +165,7 @@ public sealed class SkinSettingOption : ObservableObject
   }
 
   /// <summary>The answer as words - what the checkbox means, and what the button shows.</summary>
-  public string ValueText => _getFlag != null ? (_getFlag() ? "On" : "Off") : _getText();
+  public string ValueText => _getFlag != null ? (_getFlag() ? "On" : "Off") : _getText?.Invoke() ?? "";
 
   /// <summary>
   /// One press of the row: a checkbox flips, a button moves to its next answer. This is what Enter and the
@@ -152,6 +173,9 @@ public sealed class SkinSettingOption : ObservableObject
   /// </summary>
   public void Press()
   {
+    if (IsHeader)
+      return;
+
     if (_getFlag != null)
       IsChecked = !_getFlag();
     else if (_advance != null)

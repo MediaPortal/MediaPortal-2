@@ -6216,3 +6216,28 @@ question among them, the media screen carries the seven maxima and the six switc
 title" on the television moved `max_banners` from 1 to 2 on the server and back. 1227 frontend and 557 server tests
 green.
 
+### dh. The whole library moved, not only its pictures
+
+The user looked at the plugin screen after the areas had been introduced, saw six sections, and said the sixth
+time what was still true: the media's settings were still standing under *Plugin settings*. They were right and the
+first move had been half a move. `ServerSettings.Client\plugin.xml` knows **two** nodes under its settings root -
+`Shares` (:82) and `Media` (:93) - and the `Media` node's own registration lists eight children, not four:
+`AudioMDESettings` (A500), `VideoMDESettings` (A501), `MovieMDESettings` (A502), `SeriesMDESettings` (A503),
+`ImageMDESettings` (A504), `SubtitleMDESettings` (A505), `FanArtSettings` (A506), `LanguageSettings` (A507). A
+reader's page was therefore as much a media page as the picture counts were; only the log level is a server part's
+own business.
+
+So `virtual_media`, `certifications`, `nfo_movie`, `nfo_series` and `nfo_audio` are media sections too, and the
+plugin screen is down to what the reference would have left it: one section, `logging`, "The server offers 1
+section(s) to edit." measured on the running server. Storage again unmoved - a section's `Area` is a fact about
+which screen asks, not about which class stores.
+
+The media screen, showing nine sections' rows in one list, also needed the reference's one piece of page structure
+that a list has no place for: the page's **name**. `SkinSettingOption.Headed` is a row that wears a heading and
+answers nothing - no checkbox, no button, nothing on its face, `Press` doing nothing at all - and the media screen
+puts one above every section it reads, once however often the screen is read again. That is also why the reader
+fields answer to their kind now ("The actors of a film" / "The actors of an episode", "Age certificate of films"),
+because on a mixed screen a row that says only "The actors" is a row about nothing.
+
+1228 frontend and 557 server tests green, among them a heading that is pressed and sends nothing.
+

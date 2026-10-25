@@ -214,13 +214,17 @@ namespace Tests.Frontend
       Assert.That(api.Areas, Is.EqualTo(new[] { SettingSectionAreas.Media }),
           "the media settings screen asks for the media half of the server's answers and nothing else");
 
-      // The machine's own five rows first, then the server's, then the row that sends the server over its
-      // library - so a viewer walking the screen reads this box, then the server, then the doing.
-      Assert.That(screen.Options[5].Label, Is.EqualTo("Backdrops kept per title"));
-      Assert.That(screen.Options[6].Label,
+      // The machine's own five rows first, then every section of the server under a heading of its own, then the
+      // row that sends the server over its library - so a viewer walking the screen reads this box, then the
+      // server's answers grouped as the server groups them, then the doing.
+      Assert.That(screen.Options[5].IsHeader, Is.True, "a server's section is named before its rows are asked");
+      Assert.That(screen.Options[5].Label, Is.EqualTo("How many pictures of each kind one title keeps"));
+      Assert.That(screen.Options[6].Label, Is.EqualTo("Backdrops kept per title"));
+      Assert.That(screen.Options[7].Label, Is.EqualTo("Pictures lying beside the films"));
+      Assert.That(screen.Options[8].Label,
           Is.EqualTo("Copies of the pictures lying beside a film on a disk in this machine"));
-      Assert.That(screen.Options[6].IsToggle, Is.True, "a switch with two answers wears a checkbox");
-      Assert.That(screen.Options[7].Label, Is.EqualTo("On the server: pictures it has ready"),
+      Assert.That(screen.Options[8].IsToggle, Is.True, "a switch with two answers wears a checkbox");
+      Assert.That(screen.Options[9].Label, Is.EqualTo("On the server: pictures it has ready"),
           "the server's rows go above the row that presses the server, not after it");
     }
 
@@ -233,8 +237,8 @@ namespace Tests.Frontend
           Toggle("cache_network_fanart", "Copies of the pictures beside a film on a sleeping share", true)));
 
       MediaSettingsViewModel screen = await Opened(api, _file);
-      SkinSettingOption local = screen.Options[5];
-      SkinSettingOption network = screen.Options[6];
+      SkinSettingOption local = Row(screen, "Copies of the pictures lying beside a film");
+      SkinSettingOption network = Row(screen, "Copies of the pictures beside a film on a sleeping share");
 
       Assert.That(local.IsChecked, Is.False);
       Assert.That(network.IsChecked, Is.True, "the server's answer is shown as the server holds it");
@@ -259,7 +263,7 @@ namespace Tests.Frontend
           Toggle("cache_local_fanart", "Copies of the pictures lying beside a film", false)));
 
       MediaSettingsViewModel screen = await Opened(api, _file);
-      SkinSettingOption row = screen.Options[5];
+      SkinSettingOption row = Row(screen, "Copies of the pictures lying beside a film");
 
       api.ThrowOnPut = new ServerApiException(NO_SERVER, "the server does not take that");
       row.Press();
@@ -278,7 +282,7 @@ namespace Tests.Frontend
           Number("max_backdrops", "Backdrops kept per title", 2, 1, 3)));
 
       MediaSettingsViewModel screen = await Opened(api, _file);
-      SkinSettingOption backdrops = screen.Options[5];
+      SkinSettingOption backdrops = Row(screen, "Backdrops kept per title");
 
       Assert.That(backdrops.ValueText, Is.EqualTo("2"));
       backdrops.Press();
@@ -304,7 +308,7 @@ namespace Tests.Frontend
       });
 
       MediaSettingsViewModel screen = await Opened(api, _file);
-      screen.Options[5].Press();
+      Row(screen, "Backdrops kept per title").Press();
 
       Assert.That(screen.Status, Does.Contain("when it next starts"),
           "a stored answer the server will only act on later says so, because otherwise the viewer assumes "
@@ -324,6 +328,43 @@ namespace Tests.Frontend
       Assert.That(screen.Status, Does.Contain("would not say"));
       Assert.That(screen.Options.Count, Is.EqualTo(6), "the machine's own rows are still there and still true");
       Assert.That(screen.Options[0].Label, Is.EqualTo("Keep pictures on this machine"));
+    }
+
+    /// <summary>
+    /// The row a screen wears for one named answer. Looked up by name rather than by place, because a heading is
+    /// a row of the same list - a test that counted places would be counting the names of sections and would
+    /// fail every time the server was asked about one more thing.
+    /// </summary>
+    private static SkinSettingOption Row(MediaSettingsViewModel screen, string label)
+    {
+      return screen.Options.Single(option => option.Label == label);
+    }
+
+    [Test]
+    public async Task AHeadingNamesTheSectionAndAnswersNothing()
+    {
+      FakePicturesApi api = new FakePicturesApi();
+      api.Sections.Add(Section("fanart", "How many pictures of each kind one title keeps",
+          Number("max_backdrops", "Backdrops kept per title", 3, 1, 20)));
+
+      MediaSettingsViewModel screen = await Opened(api, _file);
+      SkinSettingOption heading = Row(screen, "How many pictures of each kind one title keeps");
+
+      Assert.That(heading.IsHeader, Is.True);
+      Assert.That(heading.IsToggle, Is.False, "a heading wears no checkbox");
+      Assert.That(heading.ShowsButton, Is.False, "and no button either");
+      Assert.That(heading.ValueText, Is.Empty, "there is nothing on its face to read");
+
+      heading.Press();
+
+      Assert.That(api.Saves, Is.Empty, "pressing a heading sends nothing to the server");
+      Assert.That(screen.Status, Is.Empty, "and it says nothing about having done something");
+
+      // Read again - which is what opening the screen a second time does - and the section is still named once.
+      await screen.ReadServerAnswersAsync();
+
+      Assert.That(screen.Options.Count(o => o.Label == "How many pictures of each kind one title keeps"),
+          Is.EqualTo(1), "a screen read twice does not fill up with headings");
     }
 
     [Test]

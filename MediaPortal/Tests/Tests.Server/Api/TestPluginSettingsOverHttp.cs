@@ -284,26 +284,25 @@ namespace Tests.Server.Api
     {
       StartServer();
 
-      // The reference's configuration tree had one Media node holding both "how many of each kind does a title
-      // keep" and every extractor's "cache the pictures on a share", and no plugin node holding either. The two
-      // areas are that split, so a screen asks for the half it shows instead of sorting the server's answer -
-      // and a section cannot end up on two screens because it is asked for by the wrong one.
+      // The reference's configuration tree knew two nodes below its settings root: Shares and Media. Everything
+      // about the library - every reader's page, the picture counts, the languages - was registered as a child of
+      // that Media node (ServerSettings.Client/plugin.xml:93 lists them all), so none of it was ever a plugin's
+      // page. The two areas are that split, so a screen asks for the half it shows instead of sorting the
+      // server's answer - and a section cannot end up on two screens because it is asked for by the wrong one.
       (HttpStatusCode mediaCode, string media) = await Get(_baseUrl + "/api/media/settings/sections?area=media");
       Assert.That(mediaCode, Is.EqualTo(HttpStatusCode.OK), media);
       Assert.That(KeysOf(media), Is.EqualTo(new[]
-          { "fanart", "pictures_movie", "pictures_series", "pictures_music" }),
-          "the library's own pictures, in the order a screen lists them");
+          {
+            "fanart", "virtual_media", "certifications",
+            "nfo_movie", "nfo_series", "nfo_audio",
+            "pictures_movie", "pictures_series", "pictures_music"
+          }),
+          "everything the household decides about its library, in the order a screen lists it");
 
       (HttpStatusCode pluginCode, string plugin) = await Get(_baseUrl + "/api/media/settings/sections?area=plugin");
       Assert.That(pluginCode, Is.EqualTo(HttpStatusCode.OK), plugin);
-      List<string> pluginKeys = KeysOf(plugin);
-      Assert.That(pluginKeys, Does.Contain("logging"), "what the server writes down stays a plugin's answer");
-      Assert.That(pluginKeys, Does.Contain("nfo_movie"), "what a reader reads out of a file stays its own");
-      foreach (string left in pluginKeys)
-      {
-        Assert.That(left, Does.Not.StartWith("pictures"), left + " is not an answer of a plugin");
-        Assert.That(left, Is.Not.EqualTo("fanart"), left + " belongs to the media settings screen");
-      }
+      Assert.That(KeysOf(plugin), Is.EqualTo(new[] { "logging" }),
+          "what a server part keeps about itself - its log - is the only answer left for the plugin screen");
 
       // An area the server does not know is a question it has no rows for, not a mistake to punish: an older
       // screen asking for the whole table still gets it.

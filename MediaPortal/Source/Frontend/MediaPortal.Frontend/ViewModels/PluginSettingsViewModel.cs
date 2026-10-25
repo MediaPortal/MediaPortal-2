@@ -134,7 +134,14 @@ namespace MediaPortal.Frontend.ViewModels
         SettingSectionsAnswer answer = await client.GetSettingSectionsAsync(SettingSectionAreas.Plugin);
         Sections.Clear();
         foreach (SettingSectionSummary summary in answer.Sections)
+        {
+          // Asked by area, and filtered again here: a picture question belongs to the media screen, and an
+          // older server that answers every area at once must not push one onto this screen. A section naming
+          // no area at all is from a server that never grouped anything, and stays where it was.
+          if (summary.Area == SettingSectionAreas.Media)
+            continue;
           Sections.Add(summary);
+        }
 
         Status = Sections.Count == 0
             ? "The server has opened no settings for editing over its API."

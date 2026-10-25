@@ -109,6 +109,12 @@ public partial class MediaSettingsViewModel : ObservableObject
   private readonly Dictionary<string, ServerAnswer> _serverAnswers =
       new Dictionary<string, ServerAnswer>(StringComparer.Ordinal);
 
+  /// <summary>
+  /// Which of the server's sections already have their name on the screen. A section is named once, because the
+  /// screen is read again every time it opens and a heading added twice is a screen filling up with nothing.
+  /// </summary>
+  private readonly HashSet<string> _serverHeaders = new HashSet<string>(StringComparer.Ordinal);
+
   /// <summary>Where the server's rows go: after this machine's answers, before the row that presses the server.</summary>
   private int _serverRowsAt;
 
@@ -449,6 +455,7 @@ public partial class MediaSettingsViewModel : ObservableObject
       foreach (SettingSectionSummary summary in sections.Sections)
       {
         SettingSectionState state = await settings.GetSettingSectionAsync(summary.Key).ConfigureAwait(true);
+        AddServerHeader(summary.Key, summary.Title);
         foreach (SettingFieldState field in state.Fields)
           AddServerAnswer(state.Key, field);
       }
@@ -463,6 +470,19 @@ public partial class MediaSettingsViewModel : ObservableObject
     {
       Status = "The server's picture answers could not be read: " + ex.Message;
     }
+  }
+
+  /// <summary>
+  /// The name of one of the server's sections, as a row of its own. The server answers its settings in sections
+  /// - what the film reader takes, what the series reader takes, how many pictures a title keeps - and on a
+  /// screen that shows all of them at once a row like "The actors of a film" only reads next to the heading that
+  /// says whose reader it is.
+  /// </summary>
+  private void AddServerHeader(string sectionKey, string title)
+  {
+    if (!_serverHeaders.Add(sectionKey))
+      return;
+    Options.Insert(_serverRowsAt++, SkinSettingOption.Headed(title));
   }
 
   /// <summary>

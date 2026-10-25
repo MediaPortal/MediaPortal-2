@@ -69,18 +69,24 @@ namespace MediaPortal.Server.Api
   public static class PluginSettingsCatalog
   {
     /// <summary>
-    /// A section a household reaches through its plugins: what a reader reads out of a file, how much the
-    /// server writes down.
+    /// A section that is a server part's own business and nothing to do with the library's contents: how much
+    /// the server writes down. This is what is left of the "plugin settings" a household used to edit in a
+    /// window on the server's desktop once everything about the media itself went to <see cref="AREA_MEDIA"/>.
     /// </summary>
     public const string AREA_PLUGIN = "plugin";
 
     /// <summary>
-    /// A section about the media of the library - its pictures and their sources. The reference hung these
-    /// under <c>/Configuration/Settings/Media</c> in its configuration tree: the ServerSettings plugin shipped
-    /// them as its own <c>plugin.xml</c> nodes <c>Media/FanArtSettings</c>, <c>Media/MovieMDESettings</c>,
-    /// <c>Media/SeriesMDESettings</c> and <c>Media/AudioMDESettings</c> (ServerSettings.Client/plugin.xml:93,
-    /// :137, :170, :199, :246), never under a plugin node. A screen that asks for one area therefore does not
-    /// show the other.
+    /// A section about the media of the library: its pictures and their sources, what a reader reads out of a
+    /// file beside a title, which titles belong on the shelves and in which country's words an age certificate
+    /// speaks. The reference hung all of these under <c>/Configuration/Settings/Media</c> - its ServerSettings
+    /// plugin shipped them as its own <c>plugin.xml</c> nodes <c>Media/AudioMDESettings</c> (:137),
+    /// <c>Media/VideoMDESettings</c> (:161), <c>Media/MovieMDESettings</c> (:170),
+    /// <c>Media/SeriesMDESettings</c> (:199), <c>Media/ImageMDESettings</c> (:228),
+    /// <c>Media/SubtitleMDESettings</c> (:237), <c>Media/FanArtSettings</c> (:246) and
+    /// <c>Media/LanguageSettings</c> (:285), all of them registered as children of the <c>Media</c> node itself
+    /// (:93) - and its whole configuration tree knew only two nodes besides that one, the settings root and
+    /// <c>Shares</c>. A reader's page was therefore never a plugin's page, and a screen that asks for one area
+    /// does not show the other.
     /// </summary>
     public const string AREA_MEDIA = "media";
 
@@ -318,7 +324,7 @@ namespace MediaPortal.Server.Api
                 + "stands complete. The ones without a file cannot be played."),
             Toggle("show_virtual_audio", "ShowVirtualAudioMedia", "Albums and recordings",
                 "An album shows every recording that belongs to it, even the ones nobody has.")
-          }),
+          }, AREA_MEDIA),
 
       new Section("certifications", "In which country's words an age certificate is shown",
           "A title is imported with the mark of the country that rated it. This names the country whose mark a "
@@ -329,12 +335,12 @@ namespace MediaPortal.Server.Api
             // Two letters typed in rather than a list of the thirty-one countries the table knows: the list is
             // too long for the row a choice is built out of, and its first entry - "as imported", which is what
             // everything runs with - is an empty string, which no button can be labelled with.
-            Country("movie_country", "DisplayMovieCertificationCountry", "Films",
+            Country("movie_country", "DisplayMovieCertificationCountry", "Age certificate of films",
                 "Two letters, like \"DE\" or \"US\". Empty - which is what this runs with - keeps the mark the "
                 + "title was imported with, and so does a mark the server does not know."),
-            Country("series_country", "DisplaySeriesCertificationCountry", "Series",
+            Country("series_country", "DisplaySeriesCertificationCountry", "Age certificate of series",
                 "Two letters, like \"DE\" or \"US\". Empty keeps the imported mark.")
-          }),
+          }, AREA_MEDIA),
 
       new Section("logging", "How much the server writes down",
           "The one switch that makes a support question answerable: what the server leaves in its log.",
@@ -355,12 +361,13 @@ namespace MediaPortal.Server.Api
                 }, true)
           }),
 
-      // The reader of the .nfo files a media manager leaves beside a film. The reference never gave this
-      // extractor a configuration window at all - its settings were edited as XML, if at all - so these two
-      // sections go past the reference rather than catching up with it. They are here because the extractor is
-      // the one extractor this server can actually run everywhere (it is the only one that is not
-      // Windows-bound), and because the fields worth asking about are the same two questions the metadata
-      // screen already asks of the online scrapers: which details, and how many of them.
+      // The reader of the .nfo files a media manager leaves beside a film. The reference gave this extractor a
+      // page of its own - /Configuration/Settings/Media/MovieMDESettings (plugin.xml:170), beside FanArtSettings -
+      // so the section is a media one, and its rows stand in the household's media settings. What it never had
+      // was a window full of these particular questions: its settings were edited as XML, if at all. They are
+      // here because the extractor is the one extractor this server can actually run everywhere (it is the only
+      // one that is not Windows-bound), and because the fields worth asking about are the same two questions the
+      // metadata screen already asks of the online scrapers: which details, and how many of them.
       //
       // What is left out of them, and why: the file name lists, the separator and ignore strings (a set of
       // strings is not a question a remote can answer, and every one of them defaults to something that works),
@@ -374,43 +381,46 @@ namespace MediaPortal.Server.Api
           "Media library", NFO_MOVIE_SETTINGS,
           new Field[]
           {
-            Toggle("include_actors", "IncludeActorDetails", "The actors",
+            Toggle("include_actors", "IncludeActorDetails", "The actors of a film",
                 "The people who played in it, as the file names them."),
-            Toggle("include_characters", "IncludeCharacterDetails", "The characters",
+            Toggle("include_characters", "IncludeCharacterDetails", "The characters of a film",
                 "Which actor played whom."),
-            Toggle("include_directors", "IncludeDirectorDetails", "The directors", ""),
-            Count("max_actors", "MaximumActorCount", "Actors kept",
+            Toggle("include_directors", "IncludeDirectorDetails", "The directors of a film", ""),
+            Count("max_actors", "MaximumActorCount", "Actors kept per film",
                 "The rest are read and dropped."),
-            Count("max_characters", "MaximumCharacterCount", "Characters kept", ""),
+            Count("max_characters", "MaximumCharacterCount", "Characters kept per film", ""),
             DebugLogging("films"),
-            Toggle("write_nfo_into_log", "WriteRawNfoFileIntoDebugLog", "Write the file itself into the log",
+            Toggle("write_nfo_into_log", "WriteRawNfoFileIntoDebugLog",
+                "Write a film's file itself into the log",
                 "Only useful while something is being worked out, and only alongside the line above.")
-          }),
+          }, AREA_MEDIA),
 
       new Section("nfo_series", "What the .nfo reader takes for series",
           "The same questions as for films, asked of the file beside a series.",
           "Media library", NFO_SERIES_SETTINGS,
           new Field[]
           {
-            Toggle("include_actors", "IncludeActorDetails", "The actors", ""),
-            Toggle("include_characters", "IncludeCharacterDetails", "The characters", ""),
-            Count("max_actors", "MaximumActorCount", "Actors kept", ""),
-            Count("max_characters", "MaximumCharacterCount", "Characters kept", ""),
+            Toggle("include_actors", "IncludeActorDetails", "The actors of an episode", ""),
+            Toggle("include_characters", "IncludeCharacterDetails", "The characters of an episode", ""),
+            Count("max_actors", "MaximumActorCount", "Actors kept per episode", ""),
+            Count("max_characters", "MaximumCharacterCount", "Characters kept per episode", ""),
             DebugLogging("series"),
-            Toggle("write_nfo_into_log", "WriteRawNfoFileIntoDebugLog", "Write the file itself into the log", "")
-          }),
+            Toggle("write_nfo_into_log", "WriteRawNfoFileIntoDebugLog",
+                "Write an episode's file itself into the log", "")
+          }, AREA_MEDIA),
 
       new Section("nfo_audio", "What the .nfo reader takes for music",
           "What a file beside an album or an artist can tell the library about it. The pictures lying in a "
-          + "music folder are the tag reader's work, so its own section asks about them.",
+          + "music folder are asked about beside it, under the albums.",
           "Media library", NFO_AUDIO_SETTINGS,
           new Field[]
           {
-            Toggle("include_artists", "IncludeArtistDetails", "The artist", ""),
-            Toggle("include_albums", "IncludeAlbumDetails", "The album", ""),
+            Toggle("include_artists", "IncludeArtistDetails", "The artist of a recording", ""),
+            Toggle("include_albums", "IncludeAlbumDetails", "The album a recording belongs to", ""),
             DebugLogging("music"),
-            Toggle("write_nfo_into_log", "WriteRawNfoFileIntoDebugLog", "Write the file itself into the log", "")
-          }),
+            Toggle("write_nfo_into_log", "WriteRawNfoFileIntoDebugLog",
+                "Write an album's file itself into the log", "")
+          }, AREA_MEDIA),
 
       // The three questions about the pictures a media manager filed next to the files themselves, one section
       // per reader because that is where the reference stored them - each reader's own settings class - and one
