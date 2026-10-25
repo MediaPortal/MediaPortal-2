@@ -100,24 +100,33 @@ namespace MediaPortal.Frontend.Views
     private double _wallScale;
 
     /// <summary>
-    /// The shape of a refusal, as shares of <see cref="WALL_LEAN_DOWN"/>: the content pane is thrown toward the
-    /// edge that was asked for in two beats, reaches its furthest, and is walked back in five so that the last
-    /// beat is a settling rather than a snap. The numbers are the shape, and how long a beat is stands in
-    /// <see cref="WALL_LEAN_STEP_MS"/>.
+    /// The shape of a refusal, as shares of the distance the thing stood on is thrown: out toward the edge in two
+    /// beats, back in five, so that the last beat is a settling and not a snap. The numbers are the shape; a beat
+    /// is <see cref="LEAN_STEP_MS"/> long.
     /// </summary>
-    private static readonly double[] WALL_LEAN_SHAPE = { 0.62, 1.0, 0.82, 0.6, 0.42, 0.26, 0.12 };
-
-    /// <summary>How far the whole content pane leans when an arrow asks the wall for a row below its last one.</summary>
-    private const double WALL_LEAN_DOWN = 16.0;
-    private const int WALL_LEAN_STEP_MS = 30;
+    private static readonly double[] LEAN_SHAPE = { 0.62, 1.0, 0.82, 0.6, 0.42, 0.26, 0.12 };
+    private const int LEAN_STEP_MS = 30;
 
     /// <summary>
-    /// The lean itself, standing on the content pane for as long as the screen does, with only its number moving
-    /// - the way the wake screen nudges its PIN card. While it is moving this is not null, which is also how a
-    /// held-down key is kept from leaning the wall afresh on every repeat.
+    /// How far the content pane is thrown when an arrow asks the wall for a row below its last one - down the
+    /// television, so a positive number - and how far the corner row when an arrow asks above the head of the
+    /// screen - up, so a negative one.
     /// </summary>
-    private readonly Avalonia.Media.TranslateTransform _wallLean = new Avalonia.Media.TranslateTransform();
-    private DispatcherTimer? _wallLeaning;
+    private const double WALL_LEAN_DOWN = 16.0;
+    private const double CORNER_LEAN_UP = -10.0;
+
+    /// <summary>
+    /// The two refusals this screen knows, one per edge, kept apart so that a wall mid-lean does not silence the
+    /// corner row and the other way round.
+    /// </summary>
+    private readonly LeanAtTheEnd _wallRefusal = new LeanAtTheEnd();
+    private readonly LeanAtTheEnd _cornerRefusal = new LeanAtTheEnd();
+
+    /// <summary>
+    /// The name the worn face gives the row of corner buttons in its own markup, which is the thing that leans
+    /// when an arrow asks for one more row above it.
+    /// </summary>
+    private const string TOP_MENU_ROW = "topMenuRow";
 
     /// <summary>
     /// The class that puts the shorter curve on the wall for the length of a change of entries. Its curve is the
@@ -359,11 +368,6 @@ namespace MediaPortal.Frontend.Views
           },
           handledEventsToo: true);
 
-      // The lean that answers an arrow past the end of the wall rides one transform that stays on the pane, so
-      // that a refusal moves a number instead of asking the compositor for a new layer. This is also the only
-      // transform the pane ever carries: the wall's own size rides the LayoutTransformControl inside it.
-      nereusContentPane.RenderTransform = _wallLean;
-
       nereusContentPane.AddHandler(KeyDownEvent,
           delegate (object? sender, KeyEventArgs args)
           {
@@ -555,6 +559,18 @@ namespace MediaPortal.Frontend.Views
             if (stoodOn == null || !(stoodOn.Tag is string name) || name.Length == 0
                 || !TopMenuRow().Any(button => ReferenceEquals(button, stoodOn)))
               return;
+
+            // Up from the head of the screen pointed off the television. What the measurement answers with is a
+            // menu entry standing somewhere above and to the side, and standing the viewer on that used to drag
+            // the rail up under their feet - a step to another place, taken by a key that meant "one row higher".
+            // The row answers for itself instead: it leans up out of its place and settles back, and the viewer
+            // stays on the button they were standing on.
+            if (args.Key == Key.Up)
+            {
+              LeanCornerRowOffTheTop();
+              args.Handled = true;
+              return;
+            }
 
             Control? goingTo = NextStanding(stoodOn, args.Key);
             if (goingTo == null || ReferenceEquals(goingTo, stoodOn))
@@ -970,38 +986,73 @@ namespace MediaPortal.Frontend.Views
     /// </remarks>
     private void LeanWallOffTheBottom()
     {
-      // Already leaning: a key held down repeats, and a wall that leans afresh on every repeat is a shiver
-      // rather than an answer.
-      if (_wallLeaning != null)
-        return;
+      _wallRefusal.Lean(nereusContentPane, WALL_LEAN_DOWN);
+    }
 
-      int step = 0;
-      DispatcherTimer leaning = new DispatcherTimer
+    /// <summary>
+    /// The same answer at the other edge of the screen: an arrow that pointed above the row of corner buttons
+    /// pointed off the television, so the row leans up out of its place and back rather than taking the viewer
+    /// somewhere - which, before, it did by dragging the menu rail up an entry.
+    /// </summary>
+    private void LeanCornerRowOffTheTop()
+    {
+      Control? row = FacePart<StackPanel>(homeOverlays, TOP_MENU_ROW);
+      if (row != null)
+        _cornerRefusal.Lean(row, CORNER_LEAN_UP);
+    }
+
+    /// <summary>
+    /// The gesture that answers an arrow which asked for one more place than the screen has: the thing the viewer
+    /// stands on is thrown toward that edge and settles back on its own, while the focus stays exactly where it
+    /// was. One of these per edge, because each owns its transform and its beat.
+    /// </summary>
+    /// <remarks>
+    /// The transform is put on once and its number moved afterwards, which is how the wake screen has nudged its
+    /// PIN card from the beginning: a fresh transform per refusal asks the compositor for a layer over a gesture
+    /// that lasts a quarter of a second. The beats are the dispatcher's timers, the same clock that shake runs
+    /// on, and the first line of the lean is written on the beat the key arrived - the answer begins when the
+    /// viewer pressed, not one beat later.
+    /// </remarks>
+    private sealed class LeanAtTheEnd
+    {
+      private readonly Avalonia.Media.TranslateTransform _lean = new Avalonia.Media.TranslateTransform();
+      private DispatcherTimer? _beating;
+
+      /// <summary>
+      /// Throws <paramref name="thing"/> by <paramref name="howFar"/> lines down the television (a negative
+      /// number throws it up) and lets it settle back. A thing already leaning leans no further: a key held down
+      /// repeats, and a fresh throw on every repeat is a shiver rather than an answer.
+      /// </summary>
+      public void Lean(Control thing, double howFar)
       {
-        Interval = TimeSpan.FromMilliseconds(WALL_LEAN_STEP_MS)
-      };
-      _wallLeaning = leaning;
-      leaning.Tick += delegate { StepOverTheLean(); };
-
-      // The answer begins on the beat the key was pressed and not one beat later, so the first line of the lean
-      // is written here and the timer carries it the rest of the way.
-      StepOverTheLean();
-      leaning.Start();
-
-      // Thrown toward the edge that was asked for in the shape WALL_LEAN_SHAPE says: out in two beats, back in
-      // five, so the last beat is a settling and not a snap.
-      void StepOverTheLean()
-      {
-        if (step < WALL_LEAN_SHAPE.Length)
-        {
-          _wallLean.Y = WALL_LEAN_DOWN * WALL_LEAN_SHAPE[step];
-          step++;
+        if (_beating != null)
           return;
-        }
 
-        _wallLean.Y = 0;
-        leaning.Stop();
-        _wallLeaning = null;
+        thing.RenderTransform = _lean;
+
+        int step = 0;
+        DispatcherTimer beating = new DispatcherTimer
+        {
+          Interval = TimeSpan.FromMilliseconds(LEAN_STEP_MS)
+        };
+        _beating = beating;
+        beating.Tick += delegate { Step(); };
+        Step();
+        beating.Start();
+
+        void Step()
+        {
+          if (step < LEAN_SHAPE.Length)
+          {
+            _lean.Y = howFar * LEAN_SHAPE[step];
+            step++;
+            return;
+          }
+
+          _lean.Y = 0;
+          beating.Stop();
+          _beating = null;
+        }
       }
     }
 

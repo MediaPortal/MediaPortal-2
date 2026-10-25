@@ -351,6 +351,73 @@ namespace Tests.Frontend
       }
     }
 
+    /// <summary>
+    /// What standing on one of the four does to the mark it carries: the glyph is lit with a small glow, and the
+    /// plate under it is left as quiet as it was. Two things could go quietly wrong about this. A setter aimed
+    /// through a button at the shape inside it only fires if the style really reaches into the button's content,
+    /// and an effect whose colour it could not resolve still exists afterwards - it simply draws in black, which
+    /// over this face's pictures is the same as drawing no light at all.
+    /// </summary>
+    [AvaloniaTest]
+    public void StandingOnACornerButtonLightsItsMarkAndNotItsPlate()
+    {
+      Application app = Application.Current!;
+      string previous = SkinEngine.SkinsFolder;
+      SkinEngine.SkinsFolder = Path.Combine(MetadataPath("FrontendSource"), "Skins");
+      Window? window = null;
+      try
+      {
+        FrontendTheme.Apply(app, "nereus", out string? themeProblem);
+        Assert.That(SkinEngine.Apply(app, "nereus", out string? skinProblem), Is.True, skinProblem ?? "");
+
+        Button power = new Button();
+        power.Classes.Add("nereus-corner-button");
+        power.Content = new Avalonia.Controls.Shapes.Path
+        {
+          Data = Geometry.Parse("M 0 0 L 20 10 L 0 20 Z"),
+          Fill = Brushes.White
+        };
+        window = new Window { Content = power, Width = 200, Height = 200 };
+        window.Show();
+        Pump();
+
+        Avalonia.Controls.Shapes.Path mark = power.GetVisualDescendants()
+            .OfType<Avalonia.Controls.Shapes.Path>().First();
+        ContentPresenter? plate = power.GetVisualDescendants().OfType<ContentPresenter>().FirstOrDefault();
+
+        Assert.That(mark.Effect, Is.Null,
+            "at rest a corner mark carries no glow - four quiet marks over the picture behind them is what the "
+            + "face shows until something stands on one");
+        IEffect? restingPlate = plate?.Effect;
+
+        power.Focus();
+        Pump();
+        Assert.That(power.IsFocused, Is.True, "something stands on the button");
+
+        DropShadowEffect? glow = mark.Effect as DropShadowEffect;
+        Assert.That(glow, Is.Not.Null,
+            "standing on the button lit a glow, and lit it on the mark itself rather than on the button that "
+            + "carries it");
+        Assert.That(glow!.BlurRadius, Is.GreaterThan(0),
+            "the glow is light spread out rather than a hard copy of the mark standing behind it");
+        Assert.That(glow.Color, Is.Not.EqualTo(Colors.Black),
+            "and the glow wears the family's own accent: an effect whose colour could not be resolved is still "
+            + "there afterwards, but draws in black, which over this face's pictures would be no light at all");
+
+        Assert.That(plate?.Effect, Is.SameAs(restingPlate),
+            "the plate the mark stands on carries no glow of its own, so the mark alone answers the key");
+        window.Close();
+      }
+      finally
+      {
+        if (window != null)
+        {
+          try { window.Close(); } catch (ObjectDisposedException) { }
+        }
+        SkinEngine.SkinsFolder = previous;
+      }
+    }
+
     /// <summary>Runs the dispatcher long enough for a screen to build and settle.</summary>
     private static void Pump()
     {

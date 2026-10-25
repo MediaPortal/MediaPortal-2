@@ -162,7 +162,8 @@
         square corner, the class rounds that corner to a disc - styles.xaml's Button.nereus-corner-button - so the
         light under a round mark is round too.
       -->
-      <StackPanel Orientation="Horizontal"
+      <StackPanel Name="topMenuRow"
+                  Orientation="Horizontal"
                   Spacing="14"
                   Margin="{Binding HomeContentLeft,
                                    Converter={x:Static views:SkinInsetConverter.Instance},

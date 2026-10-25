@@ -264,6 +264,50 @@ namespace Tests.Frontend
     }
 
     /// <summary>
+    /// The row of corner buttons is the head of the screen, and there is no row above the head of the screen.
+    /// What the geometric walk answers an upward arrow with there is a tile of the menu standing somewhere above
+    /// and to the side, and standing the viewer on that scrolled the rail up under their feet - a step to
+    /// another place, taken by a key that meant "one row higher". The row answers for itself now, as the wall
+    /// does at its foot: it leans up out of its place and settles back, and the button stays the button.
+    /// </summary>
+    [AvaloniaTest]
+    public void UpFromTheRowOfCornerButtonsLeansTheRowAndKeepsTheButton()
+    {
+      OnWall(delegate (Wall wall)
+      {
+        Assert.That(wall.TopRow.Length, Is.GreaterThan(1),
+            "the face hung a row of corner buttons to walk; it hung " + wall.TopRow.Length + " of them");
+
+        // A button in the middle of the row rather than at either end, so that this is about the top edge of the
+        // screen and not about an edge of the row, which another test already walks.
+        Button stood = wall.TopRow[1];
+        wall.Stand(stood);
+        bool answered = wall.Press(Key.Up);
+
+        Assert.That(answered, Is.True,
+            "up from the head of the screen was answered by this screen instead of being left to the walk, which "
+            + "knows a menu tile that stands higher than these buttons");
+        Assert.That(wall.Focused, Is.SameAs(stood),
+            "and the viewer is still standing on the button they asked from; it came back with "
+            + wall.NameOf(wall.Focused));
+        Assert.That(wall.Focused, Is.Not.SameAs(wall.RailEntry(0)),
+            "the menu rail did not take the focus, which is the scroll the viewer complained about");
+
+        // As at the foot of the wall, a headless dispatcher never counts the beats of the return; the first line
+        // of the answer is what a test can hold the screen to. A tenth of the screen's height is the row's own
+        // travel, and the first step is the largest of its six.
+        Assert.That(wall.TopRowLean, Is.LessThan(-6.0),
+            "the row leaned off the top edge; it leaned " + wall.TopRowLean.ToString("0.0") + " lines");
+
+        // And the row is not a trap either: along it, an arrow still walks the four buttons.
+        wall.Press(Key.Right);
+        Assert.That(wall.Focused, Is.SameAs(wall.TopRow[2]),
+            "the arrow that does lead somewhere still leads, after a refusal; it came back with "
+            + wall.NameOf(wall.Focused));
+      });
+    }
+
+    /// <summary>
     /// Left across the wall reaches the menu rail, and reaches it on an entry: the rail is not a decoration a
     /// keyboard cannot stand on. From the rail, Right returns the viewer to the square they came from rather
     /// than to the top of the wall.
@@ -479,6 +523,21 @@ namespace Tests.Frontend
 
       public Button[] Covers { get; }
       public Button[] Shortcuts { get; }
+
+      /// <summary>
+      /// How far the row of corner buttons leans out of its place right now. Zero is the place the face gave it,
+      /// and a row pushed off the top edge of the screen leans toward a negative amount.
+      /// </summary>
+      public double TopRowLean
+      {
+        get
+        {
+          // The row is the panel the four buttons stand on, and it is the whole of what leans: the screen reports
+          // a translation as a matrix, whose offset along Y is what a viewer sees move.
+          Control? row = TopRow.Length > 0 ? TopRow[0].Parent as Control : null;
+          return row?.RenderTransform is Avalonia.Media.ITransform shift ? shift.Value.M32 : 0;
+        }
+      }
 
       /// <summary>
       /// The row of buttons the face hangs at the top of the screen - power, person, cog and search glass - in

@@ -330,6 +330,18 @@
   <Style Selector="Button.nereus-corner-button:focus">
     <Setter Property="Opacity" Value="1"/>
   </Style>
+  <!-- Standing on one of the four lights its mark as well: a small glow drawn round the glyph, and round nothing
+       else. The plate the mark stands on stays as quiet as it was - lit, the whole sixty-six square would answer
+       the key instead of the mark the viewer is looking for, and these four sit over fanart bright enough to
+       swallow a plate. The colour is the family's own accent, which the theme writes as a colour beside the
+       brush precisely so that an effect - which cannot hold a brush - can ask for it, and lightened two tenths
+       so it reads as light and not as a coloured sticker. -->
+  <Style Selector="Button.nereus-corner-button:focus Path">
+    <Setter Property="Effect">
+      <DropShadowEffect BlurRadius="10" Color="{DynamicResource SystemAccentColorLight2}"
+                        OffsetX="0" OffsetY="0" Opacity="0.85"/>
+    </Setter>
+  </Style>
 
   <!-- The tiles of the home's content wall: the quiet dark they stand on, the edge one wears the moment
        something stands on it, the rounding of their corners and the shadow they cast. The shelf itself is the
