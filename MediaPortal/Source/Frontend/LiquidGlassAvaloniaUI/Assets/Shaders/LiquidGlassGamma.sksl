@@ -1,0 +1,14 @@
+// Liquid Glass Gamma Adjustment Shader
+// Adapted for SKRuntimeEffect.
+
+uniform shader content;
+uniform float power;
+
+half4 main(float2 coord) {
+    half4 color = content.eval(coord);
+    float p = max(power, 0.000001);
+    color.r = pow(color.r, p);
+    color.g = pow(color.g, p);
+    color.b = pow(color.b, p);
+    return color;
+}

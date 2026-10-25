@@ -1,0 +1,18 @@
+// Backdrop transform stage (zoom + offset)
+// Used for magnifier-style sampling.
+
+uniform shader content;
+
+uniform float2 size;
+uniform float zoom;      // 0+ (1 = identity)
+uniform float2 offset;   // DIPs, applied in the same coordinate space as `coord`
+
+half4 main(float2 coord) {
+    float z = max(zoom, 1e-3);
+    float2 center = size * 0.5;
+
+    // Inverse transform: sample from a smaller region to magnify (z > 1),
+    // and subtract offset so positive offset moves the drawn backdrop right/down.
+    float2 sampleCoord = center + (coord - center - offset) / z;
+    return content.eval(sampleCoord);
+}

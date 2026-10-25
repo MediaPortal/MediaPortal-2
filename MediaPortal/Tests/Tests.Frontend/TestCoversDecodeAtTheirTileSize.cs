@@ -110,9 +110,10 @@ namespace Tests.Frontend
           + " have all not landed yet");
 
       // The shortcut glass is a different matter and stays: a handful of tiles that do not move, measured as
-      // nothing (32 frames against 33 with it off), unlike a wall of them behind arriving pictures.
-      Assert.That(Regex.Matches(file, "<acrylic:AcrylicSurface").Count, Is.EqualTo(1),
-          "HomeView grew frosting surfaces beyond the shortcut glass it was measured with");
+      // nothing beside the same wall wearing no glass at all, unlike a wall of them behind arriving pictures.
+      // One lens per tile, and only the shortcuts wear it - the count is what says so.
+      Assert.That(Regex.Matches(file, "<lg:LiquidGlassSurface").Count, Is.EqualTo(1),
+          "HomeView grew glass surfaces beyond the one shortcut rail it was measured with");
     }
 
     /// <summary>A binding shortened to what fits on a complaint line.</summary>

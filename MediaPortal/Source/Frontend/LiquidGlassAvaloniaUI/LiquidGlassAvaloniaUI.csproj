@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Liquid glass, vendored.
+
+    Not our code. This is KaranocaVe's LiquidGlassAvaloniaUI, MIT-licensed (see LICENSE.txt in this folder),
+    taken from https://github.com/KaranocaVe/LiquidGlassAvaloniaUI at commit
+    cde864d6efebc5b32484eb055900308ef4f65754 and copied in whole. It is a third assembly and the sources here
+    are kept as upstream wrote them, so that a later sync with the repository is a diff rather than a merge
+    across a port. Anything this tree changes in them is listed in VENDORED.md next to them.
+
+    Why vendoring rather than a PackageReference: the package was never published - `dotnet package search
+    LiquidGlassAvaloniaUI` answers with an unrelated `liquidglass.avalonia`, and the upstream repository ships
+    demo and tests only, no nupkg. The alternative would have been to transcribe its shader pipeline into the
+    front end's own assembly, and that is the one part of this nobody should hand-copy: 1000 lines of SkSL in
+    six .sksl files plus the refraction arithmetic that feeds them.
+
+    Two differences from upstream's own project file, both forced by this tree:
+      - net10.0 instead of net8.0, and Avalonia 12.1.4 instead of 12.0.1, so that one Avalonia and one SkiaSharp
+        are loaded in the process. A glass that reaches for a second SkiaSharp beside the one Avalonia.Skia came
+        with is a glass that throws at its first frame.
+      - AllowUnsafeBlocks, which the render-thread lock in LiquidGlassBackdropProvider compiles against and
+        which therefore has to be set here rather than by whoever consumes this assembly.
+    Everything else, including the assembly and namespace names, is upstream's - the shaders are loaded as
+    avares://LiquidGlassAvaloniaUI/Assets/Shaders/... and that URI is built from the assembly name.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>LiquidGlassAvaloniaUI</RootNamespace>
+    <AssemblyName>LiquidGlassAvaloniaUI</AssemblyName>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Skia" Version="12.1.4" />
+    <!--
+      Pinned to the version Avalonia.Skia 12.1.4 already resolves, and stated so that a bump of Avalonia has to
+      be looked at here as well: the refraction is written against Skia's runtime effects API, and a SkiaSharp
+      that drifts away from the one Avalonia draws with fails at the first glass drawn, not at build time.
+    -->
+    <PackageReference Include="SkiaSharp" Version="3.119.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+
+</Project>

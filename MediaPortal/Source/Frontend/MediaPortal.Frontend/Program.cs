@@ -22,7 +22,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Threading;
-using Fluid.Avalonia.Acrylic;
+using LiquidGlassAvaloniaUI;
 using MediaPortal.Frontend.Api;
 using MediaPortal.Frontend.Caching;
 using MediaPortal.Frontend.Discovery;
@@ -306,9 +306,9 @@ namespace MediaPortal.Frontend
       return AppBuilder.Configure(appFactory)
           .UsePlatformDetect()
           .WithInterFont()
-          // The shortcut tiles frost the screen behind them through the acrylic shader (see HomeView); this puts
-          // the compositor and Skia settings the glass pipeline is tuned for in place before the first frame.
-          .UseAcrylicPerformanceDefaults()
+          // The shortcut tiles lens the screen behind them through the liquid glass shader (see HomeView); this
+          // puts the compositor and Skia settings the glass pipeline is tuned for in place before the first frame.
+          .UseLiquidGlassPerformanceDefaults()
           .LogToTrace();
     }
 

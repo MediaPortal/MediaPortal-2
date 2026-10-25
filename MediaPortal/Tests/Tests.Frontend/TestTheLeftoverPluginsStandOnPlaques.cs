@@ -24,7 +24,7 @@ using Avalonia.Headless.NUnit;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
-using Fluid.Avalonia.Acrylic;
+using LiquidGlassAvaloniaUI;
 using NUnit.Framework;
 using MediaPortal.Frontend.Api;
 using MediaPortal.Frontend.Theming;
@@ -38,8 +38,8 @@ namespace Tests.Frontend
   /// A plugin that was not given a place in the main menu is not shown as a little cover: the reference dresses
   /// it as a plaque. Its ground is the middle colour of the family the viewer chose, its own picture is stretched
   /// over that ground rather than cropped to it, and its name stands centred in a flat band of black at the
-  /// bottom of the square - no second line explaining the plugin, no frost behind it, and no picture stepping
-  /// nearer when a viewer stands on it.
+  /// bottom of the square - no second line explaining the plugin, no glass in front of it, and no picture
+  /// stepping nearer when a viewer stands on it.
   /// </summary>
   /// <remarks>
   /// <para>
@@ -92,7 +92,7 @@ namespace Tests.Frontend
 
     /// <summary>
     /// On the shown home screen a plugin's square is dressed as a plaque and not as a cover: it stands on the
-    /// middle colour of the chosen family, it wears no frost and no second line, and its name carries the size
+    /// middle colour of the chosen family, it wears no glass and no second line, and its name carries the size
     /// the skin says.
     /// </summary>
     [AvaloniaTest]
@@ -127,10 +127,10 @@ namespace Tests.Frontend
               "a plugin's square carries more than its name, and the reference shows nothing beside the name - "
               + "nineteen squares cannot hold a sentence");
 
-          // The two dressings that belong to a cover and to no plaque: the frost behind a picture that has not
-          // arrived, and the fade a cover's title stands on.
-          Assert.That(plaque.GetVisualDescendants().OfType<AcrylicSurface>().Any(), Is.False,
-              "a plaque frosts nothing: it has a ground of the face's own colour, so a frost behind it would "
+          // The two dressings that belong to a cover and to no plaque: the glass a shortcut wears, and the fade a
+          // cover's title stands on.
+          Assert.That(plaque.GetVisualDescendants().OfType<LiquidGlassSurface>().Any(), Is.False,
+              "a plaque wears no glass: it has a ground of the face's own colour, so a lens behind it would "
               + "sample the wall through a colour that was never meant to be see-through");
           Assert.That(plaque.GetVisualDescendants().OfType<Border>()
               .Any(face => face.Classes.Contains("home-tile-caption")), Is.False,

@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
@@ -189,6 +190,10 @@ namespace MediaPortal.Frontend.Views
       _workflow.Changed += ShowCurrentFrame;
       _workflow.Removed += CloseRemovedScreen;
       Opened += ScreenOpened;
+      // What the frames cost, when somebody asks for it. See ArmFrameLog; nobody pays for this when the
+      // variable is not set, which is every run that was started by hand or by a viewer.
+      Opened += delegate { ArmFrameLog(); };
+      Closed += delegate { WriteFrameLog(); };
       Closed += delegate
       {
         Theming.SkinEngine.Changed -= WearSkinChrome;
@@ -1178,6 +1183,72 @@ namespace MediaPortal.Frontend.Views
     {
       Visual root = (Content as Visual) ?? this;
       Console.WriteLine("screenshot: " + ScreenshotService.Capture(root, path));
+    }
+
+    // ---- what the frames cost, when somebody asks ---------------------------------------------------------
+
+    /// <summary>How many frames go unwritten before the log file is rewritten. A frame is two digits.</summary>
+    private const int FRAMES_PER_LOG_WRITE = 50;
+
+    private Stopwatch? _frameWatch;
+    private List<long>? _frameGaps;
+    private long _lastFrameMs;
+
+    /// <summary>
+    /// When MP2_FRAMELOG names a file, the window writes one number per composition frame to it from then on:
+    /// the milliseconds that went by since the frame before.
+    /// </summary>
+    /// <remarks>
+    /// This is the instrument behind the numbers the shortcut glasses and the cover plates are argued about
+    /// ("the frames slower than 40 ms went from 51 to 32"), because a screenshot cannot say what a frame cost
+    /// and a viewer standing in front of the television is the only other witness there is. The frames are
+    /// counted off the compositor's own animation callback, which is the same beat the glass captures its
+    /// backdrop on - so a backdrop that takes a sixth of a second to draw shows up as a gap of a sixth of a
+    /// second here, which is the thing being asked.
+    /// <para>
+    /// Asking keeps the window being asked for frames, which a screen left alone would not do; both glasses are
+    /// measured under that, so what is compared stays the glasses rather than the instrument. The file is
+    /// rewritten every fiftieth frame rather than flushed per frame, so a run that is stopped by killing the
+    /// process still leaves everything but its last second behind.
+    /// </para>
+    /// </remarks>
+    private void ArmFrameLog()
+    {
+      if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("MP2_FRAMELOG")))
+        return;
+
+      _frameWatch = Stopwatch.StartNew();
+      _frameGaps = new List<long>();
+      RequestAnimationFrame(LogOneFrame);
+    }
+
+    /// <summary>One frame's gap, and the ask for the next one, because the ask is good for exactly one frame.</summary>
+    private void LogOneFrame(TimeSpan frameTime)
+    {
+      long now = _frameWatch!.ElapsedMilliseconds;
+      _frameGaps!.Add(now - _lastFrameMs);
+      _lastFrameMs = now;
+      if (_frameGaps.Count % FRAMES_PER_LOG_WRITE == 0)
+        WriteFrameLog();
+      RequestAnimationFrame(LogOneFrame);
+    }
+
+    /// <summary>The whole ledger as it stands, written out. Empty when nobody asked (see ArmFrameLog).</summary>
+    private void WriteFrameLog()
+    {
+      string path = Environment.GetEnvironmentVariable("MP2_FRAMELOG");
+      List<long>? gaps = _frameGaps;
+      if (string.IsNullOrEmpty(path) || gaps == null)
+        return;
+
+      try
+      {
+        System.IO.File.WriteAllText(path, string.Join(Environment.NewLine, gaps) + Environment.NewLine);
+      }
+      catch (System.IO.IOException)
+      {
+        // A log nobody can write is not a reason to stop drawing the screen.
+      }
     }
 
     /// <summary>

@@ -1,0 +1,53 @@
+// Liquid Glass Highlight Shader
+// Adapted for SKRuntimeEffect.
+
+uniform float2 size;
+uniform float4 cornerRadii; // [topLeft, topRight, bottomRight, bottomLeft]
+uniform float4 color;       // RGBA (0..1)
+uniform float angle;        // radians
+uniform float falloff;      // >= 0
+
+float radiusAt(float2 centeredCoord, float4 radii) {
+    if (centeredCoord.x >= 0.0) {
+        if (centeredCoord.y < 0.0) return radii.y;
+        else return radii.z;
+    } else {
+        if (centeredCoord.y < 0.0) return radii.x;
+        else return radii.w;
+    }
+}
+
+float sdRoundedRect(float2 coord, float2 halfSize, float radius) {
+    float2 cornerCoord = abs(coord) - (halfSize - float2(radius));
+    float outside = length(max(cornerCoord, 0.0)) - radius;
+    float inside = min(max(cornerCoord.x, cornerCoord.y), 0.0);
+    return outside + inside;
+}
+
+float2 gradSdRoundedRect(float2 coord, float2 halfSize, float radius) {
+    float2 cornerCoord = abs(coord) - (halfSize - float2(radius));
+    if (cornerCoord.x >= 0.0 || cornerCoord.y >= 0.0) {
+        return sign(coord) * normalize(max(cornerCoord, 0.0));
+    } else {
+        float gradX = step(cornerCoord.y, cornerCoord.x);
+        return sign(coord) * float2(gradX, 1.0 - gradX);
+    }
+}
+
+half4 main(float2 coord) {
+    float2 halfSize = size * 0.5;
+    float2 centeredCoord = coord - halfSize;
+    float radius = radiusAt(centeredCoord, cornerRadii);
+
+    // Compute the "surface normal" using SDF gradient.
+    float gradRadius = min(radius * 1.5, min(halfSize.x, halfSize.y));
+    float2 grad = gradSdRoundedRect(centeredCoord, halfSize, gradRadius);
+    float2 normal = float2(cos(angle), sin(angle));
+
+    float d = dot(grad, normal);
+    float intensity = pow(abs(d), max(falloff, 0.0));
+    // Skia expects premultiplied output colors.
+    half a = half(color.a * intensity);
+    half3 rgb = half3(color.rgb) * a;
+    return half4(rgb, a);
+}

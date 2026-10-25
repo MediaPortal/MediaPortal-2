@@ -1,9 +1,9 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
         xmlns:theming="using:MediaPortal.Frontend.Theming"
         xmlns:views="using:MediaPortal.Frontend.Views"
-        xmlns:acrylic="using:Fluid.Avalonia.Acrylic"
+        xmlns:lg="using:LiquidGlassAvaloniaUI"
         x:Class="MediaPortal.Frontend.Views.HomeView"
         x:DataType="vm:HomeViewModel"
         Name="home"
@@ -441,15 +441,17 @@
                           <Border Classes="home-tile-face" ClipToBounds="True">
                           <Grid>
                             <!-- Nothing frosts here. A cover whose artwork is missing or still arriving used to frost
-                                 the piece of wall behind it the way the shortcut glasses do, and that was the single
-                                 most expensive thing on the home screen: the frosting samples the backdrop and blurs
+                                 the piece of wall behind it the way the shortcut glass does, and that was the single
+                                 most expensive thing on the home screen: the glass samples the backdrop and blurs
                                  it in software, once per surface per frame, and a wall arrives with seventeen to
                                  twenty-four covers whose posters have all not landed yet - so every frame of the way
                                  up cost one blurred backdrop per cover standing without a picture. Measured over
                                  eight switches at 3440x1440, taking this one surface away cut the frames slower than
                                  40 ms from 51 to 32 and their summed time from 5140 ms to 3265 ms, which is all of
-                                 the frosting's cost - the shortcut glasses beside it measure as nothing (32 against
-                                 33), which is why they keep their glass and this does not. What a cover without a
+                                 the frosting's cost - the shortcut glass beside it measures as nothing, and it
+                                 measured as nothing wearing liquid glass too (the same median frame time and the
+                                 same p95 over eight switches), which is why it keeps its glass and this does not.
+                                 What a cover without a
                                  picture stands on is the tile's own dark plate, the same #222222 the faces have
                                  always had, for the moment its poster is on its way. The reference never frosted
                                  anything here - Nereus shipped no blur at all (NereusSkinSettings.FanartBlur says
@@ -479,7 +481,7 @@
                           </Grid>
                           </Border>
                           <!-- The frame, laid over the edge of the face and not around it: the same ring the
-                               shortcut glasses wear (one class, one set of numbers, brightened by the same
+                               shortcut glass wears (one class, one set of numbers, brightened by the same
                                rule), drawn after the face so the face's own clip cannot saw off its outer half.
                                This tile used to answer focus with a hard four pixel white frame of its own; that
                                frame is gone, and what a viewer sees now is the ghost edge coming up to full light
@@ -491,37 +493,38 @@
                         </Border>
 
                         <!-- The shortcut, as glass. Glass is not a white rectangle with an icon on it: it lets the
-                             picture behind it through, frosted, it has body, and it has an edge that catches the
-                             light. So the tile frosts the screen itself behind it - the piece of the wall standing
-                             behind THIS tile - through a shader, with the veil of the glass over that frost and
+                             picture behind it through, out of focus and bent where its rim curves into the wall,
+                             it has body, and it has an edge that catches the light. So the tile lenses the screen
+                             itself behind it - the piece of the wall standing behind THIS tile - through a shader,
+                             with the veil of the glass over that lens and
                              the glyph on top of the veil, standing centred on the tile with no box around it at
                              all. The frame is a gradient rather than one flat line because a glass edge is bright
                              where it catches the light and dark where it does not. Standing on the tile lifts its
                              background lighter, brings the edge up from a ghost to full light and draws the
                              outline of the glyph round the icon; nothing travels across the glass, nothing zooms,
-                             the corner stays the corner, and no band lies across the bottom of the frame. Every number of this - how deep the frost, how much veil,
-                             how bright the edge - lives either here on the frosting surface or in styles.xaml. -->
-                        <!-- Out of the frosting's backdrop, on purpose and for every one of them at once.
+                             the corner stays the corner, and no band lies across the bottom of the frame. Every number of this - how deep the blur, how much veil,
+                             how bright the edge - lives either here on the glass surface or in styles.xaml. -->
+                        <!-- Out of the glass's own backdrop, on purpose and for every one of them at once.
 
-                             The shader does not look at the screen; it asks for a snapshot of the visuals BEHIND
-                             the glass, and the library leaves each surface's own subtree out of that snapshot -
-                             each surface's OWN, no more. Five of these tiles stand side by side in a rail, so
-                             every one of them sampled its neighbours' finished glass, frosted it, and handed the
-                             result back to the neighbours to frost again on the next capture. Every round trip
-                             adds the tint's white and the vibrancy's lift, so a rail of these left standing a
-                             while drifts to a pale plate: not a rounding problem, not a clip problem, and not
-                             anything a fresh frame would show - which is why it looked fine in a screenshot
-                             taken straight after a start and wrong after that.
+                             A liquid glass surface is handed no framebuffer to sample: the library walks this
+                             window's own visual tree and draws it once into a bitmap, and it leaves each
+                             surface's own subtree out of that walk - each surface's OWN, no more. Five of these
+                             tiles stand side by side in a rail, so every one of them lensed its neighbours'
+                             finished glass, bent that again, and handed the result back to the neighbours for the
+                             next capture. Every round trip adds the tint's white and the vibrancy's lift, so a
+                             rail of these left standing a while drifts to a pale plate: not a rounding problem,
+                             not a clip problem, and not anything a fresh frame would show - which is why it looked
+                             fine in a screenshot taken straight after a start and wrong after that.
 
-                             Excluded, a tile frosts the wall and the artwork behind it and nothing else, which
-                             is what glass does, and the loop has no way to close. -->
+                             Excluded, a tile bends the wall and the artwork behind it and nothing else, which is
+                             what glass does, and the loop has no way to close. -->
                         <!-- The same ground the covers stand on: the shared Border.home-tile-shadow, so a shortcut
                              is laid on the wall by the one BoxShadow the skin knows and not by a second shadow of
                              the glass's own invention. The border is transparent - it carries the shadow and
                              nothing else - and the glass sits in it as the cover's face sits in its own. -->
                         <Border Classes="home-tile-shadow" IsVisible="{Binding IsShortcut}">
                         <Button Classes="nereus-shortcut-tile"
-                                acrylic:AcrylicBackdrop.IsExcludedFromCapture="True"
+                                lg:LiquidGlassBackdrop.IsExcludedFromCapture="True"
                                 IsVisible="{Binding IsShortcut}"
                                 Width="{Binding Width}"
                                 Height="{Binding Height}"
@@ -530,7 +533,7 @@
                                 GotFocus="OnNereusTileGotFocus"
                                 Click="OnNereusTileClick">
                           <Panel>
-                            <!-- ONE surface for the glass itself: the frosting and its rounding are drawn by this
+                            <!-- ONE surface for the glass itself: the lens and its rounding are drawn by this
                                  one surface, and the frame is a ring laid over its edge afterwards. The shadow it
                                  stands away from the wall on is deliberately NOT its own - the tile wears the
                                  skin's shared Border.home-tile-shadow, wrapped round this Button above - because
@@ -543,14 +546,15 @@
                                  sees a step in the corner - which is the artifact that survived every clip I
                                  moved around, because clipping was never the problem, the two circles were.
 
-                                 So the surface rounds at the tile's own ten and frosts within that path, and it
+                                 So the surface rounds at the tile's own ten and bends within that path, and it
                                  casts nothing of its own: ShadowEnabled is off. A shader shadow laid next to the
                                  skin's BoxShadow is two shadows under one tile, and the shadow that belongs to a
                                  tile is the one every cover on the wall already wears - round at the same ten, so
-                                 the two agree about where the edge is. Nothing here clips either: the shadow falls
-                                 outside the tile's bounds, and the ring on top is drawn at the same ten, so it
-                                 covers the seam of the edge rather than fighting it, and it is out of the way of
-                                 the pointer because the Button is what gets stood on.
+                                 the two agree about where the edge is. Nothing outside the glass clips either: the
+                                 shadow falls outside the tile's bounds, and the ring on top is drawn at the same
+                                 ten, so it covers the seam of the edge rather than fighting it, and it is out of
+                                 the way of the pointer because the Button is what gets stood on. The glass itself
+                                 does clip, and the reason is written below where the surface stands.
 
                                  Two things a photograph of the running screen taught about this surface, both of
                                  them against the obvious setting:
@@ -572,39 +576,73 @@
                                  glass therefore goes through SurfaceColor - one ordinary fill at its own alpha,
                                  dark here, so the glass is darker than the wall it covers and reads as smoke
                                  rather than as card. -->
-                            <acrylic:AcrylicSurface Classes="home-shortcut-frost"
-                                                    CornerRadius="10"
-                                                    BlurRadius="8"
-                                                    Vibrancy="1.15"
-                                                    SurfaceColor="#33030810"
-                                                    RefractionHeight="0"
-                                                    RefractionAmount="0"
-                                                    HighlightEnabled="False"
-                                                    ShadowEnabled="False">
-                                <!-- The glass's own content, and nothing here is clipped: the veil, the glyph and
-                                     the name all stay inside the glass on their own, and the one thing that ever
-                                     needed ending at the tile's edge - a reflection travelling across it - is out
-                                     of the skin. -->
-                                <Panel>
-                                  <!-- The tint of the glass itself, over the frost it frosts. -->
-                                  <Border Classes="home-shortcut-tint"/>
-                                  <!-- The glyph stands on the glass, centred above the name, eight-tenths of
-                                       its old half-width - its own box, no box around it. It is a shape rather
-                                       than a picture, so the tile decides its colour and its state. -->
-                                  <Path Classes="home-shortcut-glyph"
-                                        Width="{Binding IconSize}"
-                                        Height="{Binding IconSize}"
-                                        Stretch="Uniform"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        Data="{Binding IconName, Converter={x:Static views:SkinIconGeometryConverter.Instance}, ConverterParameter='{}{0}'}"/>
-                                  <!-- The name, on the glass and not on a band: a band is a rectangle, and a
-                                       rectangle inside a rounded frame lies across the frame's corners. -->
-                                  <TextBlock Classes="home-shortcut-caption"
-                                             Text="{Binding Label}"
-                                             TextTrimming="CharacterEllipsis"/>
-                                </Panel>
-                            </acrylic:AcrylicSurface>
+                            <!-- ONE glass, and it is liquid glass. The tile knew one other glass until now - the
+                                 frost, a strip of the screen behind it taken away out of focus and lifted - and
+                                 that frost is gone: what bends the wall here bends it as a lens does, taking the
+                                 backdrop out of focus, curving it where the rim of the tile curves into the wall,
+                                 pulling that bend apart into its colours by a hair's breadth and letting a light
+                                 run along the rim. None of that is a blur, so it was never a dial of the frost
+                                 turned further, and a tile wearing both at once is frosted AND lensed, which is
+                                 not a glass anyone chose.
+
+                                 What the lens costs is a second drawing of this window, described two comments up.
+                                 Measured over eight menu switches at 3440x1440 against the frost it replaced, the
+                                 median frame time and the p95 came out the same, and the slow frames came out the
+                                 same; that is why there is no switch in front of it and why the frost left rather
+                                 than staying behind a setting.
+
+                                 The face of the tile - veil, glyph, name - stands OUT of the glass, as its
+                                 sibling in this Panel and painted after it, so that the order stays what it
+                                 always was: glass, veil, glyph, name, and the ring over the seam. -->
+                            <!-- Round at the tile's own ten, the same veil and the same lift the tile always had,
+                                 and the library's own answer to what a lens of this size wants for its bend and
+                                 its dispersion, opened up until the lens is actually seen. The light along the rim
+                                 is fainter than the library draws it, because at its own opacity that light reads
+                                 as a frame laid over the tile rather than as glass. The shadow stays off for the
+                                 reason three paragraphs up - the tile is laid on the wall by the skin's one
+                                 BoxShadow, and a second shadow under the same tile is a tile sitting in a darkness
+                                 none of its neighbours have.
+
+                                 ClipToBounds is put back on by hand. The library turns it off in the surface's
+                                 statics, because a glass that casts its own shadow has to let that shadow
+                                 leave the control, and this tile does not cast its own - so the one reason
+                                 that margin exists is taken away here, and the margin is what was left
+                                 painting: five tiles standing twelve pixels apart came out of the first live
+                                 run as one plate, ring and gap together under one pane. Clipped, the lens
+                                 still samples outside its edge (that is what a lens does) and paints inside
+                                 it, which is all the rail has room for. The width and the position are
+                                 asserted in Tests.Frontend, because a plate is exactly as wide as the
+                                 shortcut row and a screenshot of it looks tidy at a glance. -->
+                            <lg:LiquidGlassSurface Classes="home-shortcut-liquid"
+                                                   ClipToBounds="True"
+                                                   CornerRadius="10"
+                                                   BlurRadius="10"
+                                                   Vibrancy="1.15"
+                                                   SurfaceColor="#33030810"
+                                                   RefractionHeight="20"
+                                                   RefractionAmount="45"
+                                                   DepthEffect="True"
+                                                   ChromaticAberration="True"
+                                                   HighlightWidth="0.5"
+                                                   HighlightOpacity="0.2"
+                                                   ShadowEnabled="False"/>
+                            <!-- The tint of the glass itself, laid over the lens. -->
+                            <Border Classes="home-shortcut-tint"/>
+                            <!-- The glyph stands on the glass, centred above the name, eight-tenths of
+                                 its old half-width - its own box, no box around it. It is a shape rather
+                                 than a picture, so the tile decides its colour and its state. -->
+                            <Path Classes="home-shortcut-glyph"
+                                  Width="{Binding IconSize}"
+                                  Height="{Binding IconSize}"
+                                  Stretch="Uniform"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"
+                                  Data="{Binding IconName, Converter={x:Static views:SkinIconGeometryConverter.Instance}, ConverterParameter='{}{0}'}"/>
+                            <!-- The name, on the glass and not on a band: a band is a rectangle, and a
+                                 rectangle inside a rounded frame lies across the frame's corners. -->
+                            <TextBlock Classes="home-shortcut-caption"
+                                       Text="{Binding Label}"
+                                       TextTrimming="CharacterEllipsis"/>
                             <!-- The frame, laid OVER the edge of the glass rather than around it: a ring, and
                                  nothing else - no background, no clip - because the glass beneath it has already
                                  decided where its edge is, at the very same ten. Laid over that edge the ring

@@ -169,11 +169,17 @@
   <DataTemplate x:Key="HomeMenuTileTemplate"
                 x:CompileBindings="False"
                 x:DataType="vm:MainMenuEntry">
+    <!-- The tile is laid on the wall by the same ground a cover or a shortcut is laid on: the shared
+         Border.home-tile-shadow, whose shadow the skin writes once for the whole wall. The margin stands on
+         THIS border and not on the tile, so that the shadow's rect is the tile's own rect - a shadow starting
+         six DIP off the tile's edge would read as a grey halo floating beside it. Nothing else about the
+         square moves: the tile keeps its own rounding and its own clip, and it centres itself in whatever
+         place the rail gives it, so the shadow may lean past the edge without the tile ever shifting. -->
+    <Border Classes="home-tile-shadow" Margin="6" HorizontalAlignment="Center">
     <Border Classes="nereus-menu-tile"
             ClipToBounds="True"
             Width="{Binding $parent[ListBox].DataContext.MenuTileSize}"
-            Height="{Binding $parent[ListBox].DataContext.MenuTileSize}"
-            Margin="6">
+            Height="{Binding $parent[ListBox].DataContext.MenuTileSize}">
       <Grid>
         <Grid.RowDefinitions>
           <RowDefinition Height="130*"/>
@@ -262,6 +268,7 @@
                Stretch="Fill"
                IsVisible="{Binding IsCircleSelected}"/>
       </Grid>
+    </Border>
     </Border>
   </DataTemplate>
 

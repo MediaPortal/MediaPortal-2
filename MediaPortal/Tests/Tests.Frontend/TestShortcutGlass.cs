@@ -24,7 +24,7 @@ using Avalonia.Headless.NUnit;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
-using Fluid.Avalonia.Acrylic;
+using LiquidGlassAvaloniaUI;
 using NUnit.Framework;
 using MediaPortal.Frontend.Api;
 using MediaPortal.Frontend.Theming;
@@ -39,9 +39,9 @@ namespace Tests.Frontend
   /// The home's shortcut tiles as glass: the icon a tile wears is the skin's own vector, the covers beside it are
   /// untouched, and standing on the glass morphs it - the veil drawing together, the edge brightening, the
   /// outline of the glyph coming round the icon - and only the glass. Nothing travels across the glass: the
-  /// standing-on lifts its background lighter and brings up an edge that at rest is barely there. The frosting
-  /// itself is not a state: it is on wherever the glass lies, and it frosts the screen as it actually stands
-  /// behind each individual tile, which is what the acrylic surface sampling the backdrop guarantees.
+  /// standing-on lifts its background lighter and brings up an edge that at rest is barely there. The lensing
+  /// itself is not a state: it is on wherever the glass lies, and it bends the screen as it actually stands
+  /// behind each individual tile, which is what a surface that samples this window's own visuals guarantees.
   /// </summary>
   /// <remarks>
   /// <para>
@@ -107,10 +107,16 @@ namespace Tests.Frontend
               label + "'s icon is lifted off the dead centre so it stands above its name, not over it");
           Assert.That(tile.GetVisualDescendants().OfType<Viewbox>(), Is.Empty,
               label + "'s icon hangs on the glass, not in a box of its own");
-          Assert.That(glyph.GetVisualAncestors().Contains(GlassChild(tile, "home-shortcut-frost").Single()),
-              Is.True,
-              label + "'s glyph hangs inside the glass itself - the frame only lies over the glass's edge, so it "
-              + "is not the glass and the glyph does not belong to it");
+          // The glyph stands beside the glass, not inside it: written into a surface it would have to be written
+          // once per surface, and a glyph written twice is two glyphs that drift apart the next time one is
+          // edited. The frame only lies over the glass's edge, so it is not the glass either and the glyph is no
+          // more its child than the veil is.
+          Assert.That(glyph.GetVisualParent(),
+              Is.SameAs(GlassChild(tile, "home-shortcut-liquid").Single().GetVisualParent()),
+              label + "'s glyph is a sibling of the glass in the tile's own Panel, painted after it");
+          Assert.That(glyph.GetVisualAncestors().Contains(GlassChild(tile, "home-shortcut-liquid").Single()),
+              Is.False,
+              label + "'s glyph hangs inside the glass, which owns its colour and cuts it to its own path");
           Assert.That(GlassChild(tile, "home-shortcut-plaque"), Is.Empty,
               label + " wears its glyph on the glass; there is no plate under it");
 
@@ -127,7 +133,7 @@ namespace Tests.Frontend
           // The surfaces the glass is made of, so that a template that dropped one of them says which.
           Assert.That(GlassChild(tile, "home-shortcut-ground"), Is.Empty,
               label + " wears no second ground of its own behind the glass");
-          AcrylicSurface frost = (AcrylicSurface) GlassChild(tile, "home-shortcut-frost").Single();
+          LiquidGlassSurface lens = (LiquidGlassSurface) GlassChild(tile, "home-shortcut-liquid").Single();
           // The shadow belongs to the tile and is the one the skin knows: the same Border.home-tile-shadow the
           // covers stand wrapped in, styled once in styles.xaml for the whole wall. The glass casting its own was
           // a second shadow under one tile - a darkness none of the shortcuts' neighbours had, and the reason the
@@ -139,15 +145,16 @@ namespace Tests.Frontend
               + "glass's own making");
           Assert.That(standing.BoxShadow, Is.Not.Null,
               "and the worn skin really has dressed that Border with its shadow");
-          Assert.That(frost.ShadowEnabled, Is.False,
+          Assert.That(lens.ShadowEnabled, Is.False,
               "while the glass itself casts nothing, so exactly one shadow falls under a shortcut");
 
-          // The one guard here that is about the shader rather than about the shape of the tile. The library leaves
-          // a surface's OWN subtree out of the snapshot it frosts, and no more than that, so a rail of these tiles
-          // samples each other's finished glass unless every one of them is put out of the capture by hand. Frosting
-          // a neighbour's frost and being frosted by it in turn is a loop that closes on white.
-          Assert.That(AcrylicBackdrop.GetIsExcludedFromCapture(tile), Is.True,
-              label + " stands out of the frosting's own backdrop - its neighbours are glass too, and glass "
+          // The one guard here that is about the shader rather than about the shape of the tile. A liquid glass
+          // surface is drawn from a walk of this window's own visuals, and that walk leaves a surface's OWN
+          // subtree out and no more than that, so a rail of these tiles samples each other's finished glass
+          // unless every one of them is put out of the capture by hand. Lensing a neighbour's lens and being
+          // lensed by it in turn is a loop that closes on white.
+          Assert.That(LiquidGlassBackdrop.GetIsExcludedFromCapture(tile), Is.True,
+              label + " stands out of the glass's own backdrop - its neighbours are glass too, and glass "
               + "sampling glass is a rumour each one repeats until it is a shout");
 
           // Measured rather than guessed: a photograph of the running screen showed the tile with no shadow at all
@@ -156,19 +163,19 @@ namespace Tests.Frontend
           // threw every pixel of it away. Deepening the shadow cannot survive that; not clipping can.
           Assert.That(tile.ClipToBounds, Is.False,
               label + " gives its glass room to lean over its edge, because that is where its shadow falls");
-          Assert.That(GlassChild(tile, "home-shortcut-frost-deep"), Is.Empty,
-              label + "'s frosting belongs to the glass and is not a second state of it");
+          Assert.That(GlassChild(tile, "home-shortcut-liquid-deep"), Is.Empty,
+              label + "'s lensing belongs to the glass and is not a second state of it");
           Assert.That(GlassChild(tile, "home-shortcut-tint"), Has.Length.EqualTo(1),
               label + " has the veil the glass itself throws back");
           Assert.That(GlassChild(tile, "home-shortcut-sheen"), Is.Empty,
               label + " has nothing travelling across its glass - a reflection swept over the tile is an "
               + "animation doing something to the picture rather than the tile answering the hand on it");
 
-          // And the glass holds no bitmap at all: the icon is a shape, and the frosting is a shader that frosts
-          // the screen itself, so there is no picture for the tile to carry any more.
+          // And the glass holds no bitmap at all: the icon is a shape, and the glass is a shader that bends the
+          // screen itself, so there is no picture for the tile to carry any more.
           Image[] pictures = tile.GetVisualDescendants().OfType<Image>().ToArray();
           Assert.That(pictures, Is.Empty,
-              label + "'s glass carries no picture of its own - the frosting samples the wall where it stands");
+              label + "'s glass carries no picture of its own - the lens samples the wall where it stands");
 
           // And the plate the cover wears is there too, put away: the same template writes both, and the tile's
           // own kind is what decides which of the two a viewer sees.
@@ -234,8 +241,8 @@ namespace Tests.Frontend
     /// <summary>
     /// Standing on the glass morphs it: its background comes UP, the edge that at rest is barely there comes up to
     /// full light, and the outline of the glyph draws itself round the icon while the icon lifts off the glass.
-    /// Nothing travels across the glass, the frost stays as it was, the corner stays the corner and nothing grows
-    /// - and nothing of the sort happens to a cover standing beside the glass.
+    /// Nothing travels across the glass, the lensing stays as it was, the corner stays the corner and nothing
+    /// grows - and nothing of the sort happens to a cover standing beside the glass.
     /// </summary>
     [AvaloniaTest]
     public void StandingOnTheGlassMorphsIt()
@@ -245,13 +252,13 @@ namespace Tests.Frontend
         Button tile = glass[0];
         Border face = (Border) GlassChild(tile, "home-tile-edge").Single();
         Border tint = (Border) GlassChild(tile, "home-shortcut-tint").Single();
-        AcrylicSurface frost = (AcrylicSurface) GlassChild(tile, "home-shortcut-frost").Single();
+        LiquidGlassSurface lens = (LiquidGlassSurface) GlassChild(tile, "home-shortcut-liquid").Single();
         IconPath glyph = (IconPath) GlassChild(tile, "home-shortcut-glyph").Single();
 
         Assert.That(tile.CornerRadius.TopLeft, Is.EqualTo(10), "the glass rests at ten of corner");
         Assert.That(face.CornerRadius.TopLeft, Is.EqualTo(10), "and so does the frame inside it");
-        Assert.That(frost.BlurRadius, Is.GreaterThan(0),
-            "the glass frosts the screen behind it wherever it lies - not a tint, and not a state either");
+        Assert.That(lens.BlurRadius, Is.GreaterThan(0),
+            "the glass takes the screen behind it out of focus wherever it lies - not a tint, and not a state either");
         // One edge, and one circle. The frame is a ring laid OVER the glass at the glass's own corner rather than
         // a frame wrapped around it: two circles three of thickness apart are the step that used to sit in every
         // corner of these tiles, and no clip moved since ever removed it because the step was never a clip.
@@ -259,25 +266,26 @@ namespace Tests.Frontend
         // round each tile instead of an edge catching the light, which is the difference between glass and a card
         // with a border on it.
         Assert.That(face.BorderThickness.Left, Is.EqualTo(2), "the frame is a thin edge, not a border");
-        Assert.That(frost.CornerRadius.TopLeft, Is.EqualTo(face.CornerRadius.TopLeft),
+        Assert.That(lens.CornerRadius.TopLeft, Is.EqualTo(face.CornerRadius.TopLeft),
             "and the glass rounds itself to the frame's corner, so a corner is cut once and not twice");
-        Assert.That(face.GetVisualParent(), Is.SameAs(frost.GetVisualParent()),
+        Assert.That(face.GetVisualParent(), Is.SameAs(lens.GetVisualParent()),
             "and the frame lies beside the glass, over its edge, rather than around it");
-        Assert.That(frost.ClipToBounds, Is.False,
-            "and nothing cuts the tile short: the shadow the tile stands on falls outside its own bounds, and a"
-            + " clip there is what sawed it off, which is what a missing drop shadow is");
-        Assert.That(frost.ShadowEnabled, Is.False,
+        Assert.That(lens.ClipToBounds, Is.True,
+            "and the lens is cut to its own tile: a lens paints past its edge by design, and five of these "
+            + "twelve pixels apart came out of a live run as one plate over the whole rail. The shadow the tile"
+            + " stands on is not the lens's business - it falls from the skin's own shadow Border, outside.");
+        Assert.That(lens.ShadowEnabled, Is.False,
             "and the glass casts no shadow of its own - a shortcut is laid on the wall by the skin's one shadow"
             + " Border, the very one every cover on the wall wears, not by a second one of the shader's making");
-        Assert.That(frost.Opacity, Is.EqualTo(1),
-            "and the frost covers the glass outright - a half transparent frost is a smudge over the sharp wall");
+        Assert.That(lens.Opacity, Is.EqualTo(1),
+            "and the glass covers the tile outright - a half transparent glass is a smudge over the sharp wall");
         Assert.That(tint.Opacity, Is.LessThanOrEqualTo(0.9),
             "and the glass lies there with its veil loose - it is the standing-on that pulls it down to full");
         Assert.That(glyph.Opacity, Is.LessThan(1), "and its glyph is lit a little under full");
         Assert.That(Lit(glyph.Stroke), Is.False,
             "and the rim of light the glyph wears is parked out of sight at rest");
         Assert.That(glyph.Stroke, Is.Not.Null, "and there is an outline to light at all");
-        ITransform? restingFrostTransform = frost.RenderTransform;
+        ITransform? restingLensTransform = lens.RenderTransform;
         ITransform? restingGlyphTransform = glyph.RenderTransform;
         ITransform? restingTransform = tile.RenderTransform;
         double restingVeil = VeilLightness(tint.Background);
@@ -304,11 +312,11 @@ namespace Tests.Frontend
             + " what tells them where they are before they have read a single name");
         Assert.That(BrightestEdge(face.BorderBrush), Is.GreaterThanOrEqualTo(0xB0),
             "and the edge that was a ghost at rest is up to full light, so the lit tile is ringed in light");
-        Assert.That(frost.BlurRadius, Is.GreaterThan(0),
-            "and still frosted - standing on glass does not wipe its frosting away");
-        Assert.That(frost.Opacity, Is.EqualTo(1), "and still covering the glass outright");
-        Assert.That(frost.RenderTransform, Is.SameAs(restingFrostTransform),
-            "and standing on the glass does not move the frosting either");
+        Assert.That(lens.BlurRadius, Is.GreaterThan(0),
+            "and still out of focus behind it - standing on glass does not wipe its lensing away");
+        Assert.That(lens.Opacity, Is.EqualTo(1), "and still covering the tile outright");
+        Assert.That(lens.RenderTransform, Is.SameAs(restingLensTransform),
+            "and standing on the glass does not move the lensing either");
         Assert.That(tile.CornerRadius.TopLeft, Is.EqualTo(10),
             "and the corner is the same corner it rested at - glass does not change its own shape");
         Assert.That(face.CornerRadius.TopLeft, Is.EqualTo(10), "and neither does the frame inside it");
@@ -359,8 +367,7 @@ namespace Tests.Frontend
           Assert.That(glyph, Is.Not.Null, label + " is glass, and glass is written with a glyph on it");
           worn[label] = glyph!.Data != null;
           Image[] pictures = tile.GetVisualDescendants().OfType<Image>().ToArray();
-          Assert.That(pictures.All(picture => picture.Classes.Contains("home-shortcut-frost")), Is.True,
-              label + " did not go borrowing a picture for its icon");
+          Assert.That(pictures, Is.Empty, label + " did not go borrowing a picture for its icon");
         }
 
         Assert.That(worn["Year"], Is.True,

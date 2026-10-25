@@ -115,6 +115,17 @@
     <Setter Property="BorderThickness" Value="0"/>
     <Setter Property="Padding" Value="0"/>
     <Setter Property="Margin" Value="0"/>
+    <!-- Every tile's shadow is drawn by the border round the tile, and that border stands twelve points
+         clear of its neighbour: the shadow, which reaches twenty points, therefore has nowhere to go but
+         outside the item's own rectangle. An item is a TemplatedControl, and TemplatedControl hands its
+         ClipToBounds default over as TRUE, so the rectangle was the end of the shadow - a straight edge
+         six points under a tile, which is the middle of the gap and read as a shadow cut off mid-fade.
+         (Only below, because the item is as wide as the widened rail but only a tile tall.) The wall's own
+         ItemsControl puts its clip off for the very same reason, and the shortcut rail needs no such
+         setting because it has no item container at all: its tiles stand on the wall's canvas directly,
+         which is why this never bothered them. The rail itself keeps its clip one level up, in its
+         ScrollContentPresenter, so nothing escapes the rail at its ends. -->
+    <Setter Property="ClipToBounds" Value="False"/>
     <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
     <Setter Property="VerticalContentAlignment" Value="Stretch"/>
     <Setter Property="Template">
@@ -613,10 +624,10 @@
     </Setter>
   </Style>
 
-  <!-- The frost is not styled here at all. It is the acrylic surface in HomeView itself - the shader frosts the
-       screen as it stands behind THIS tile, so there is no picture to hand it, no place to line it up with, and
-       no number a focus state could change: the frosting belongs to the glass and not to standing on it. What
-       the glass looks like - how deep the frost, how cool the tint, how the edge bends the picture - is written
+  <!-- The glass is not styled here at all. It is the liquid glass surface in HomeView itself - the shader bends
+       the screen as it stands behind THIS tile, so there is no picture to hand it, no place to line it up with,
+       and no number a focus state could change: the lensing belongs to the glass and not to standing on it. What
+       the glass looks like - how deep the blur, how cool the tint, how the edge bends the picture - is written
        on that surface, next to the tile it dresses. -->
 
   <!-- The body of the glass, above the frost it frosts: the light the glass throws back at the top, and the

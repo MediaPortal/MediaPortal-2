@@ -1,0 +1,16 @@
+// Liquid Glass Interactive Highlight Shader
+// Radial highlight used for interactive press feedback.
+
+uniform float2 size;
+uniform float4 color;   // RGBA (0..1)
+uniform float radius;
+uniform float2 position;
+
+half4 main(float2 coord) {
+    float dist = distance(coord, position);
+    float intensity = smoothstep(radius, radius * 0.5, dist);
+    // Skia expects premultiplied output colors.
+    half a = half(color.a * intensity);
+    half3 rgb = half3(color.rgb) * a;
+    return half4(rgb, a);
+}

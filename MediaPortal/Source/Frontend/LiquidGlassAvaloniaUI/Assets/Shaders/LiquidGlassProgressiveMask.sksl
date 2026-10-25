@@ -1,0 +1,36 @@
+// Progressive alpha-mask + tint stage
+// Adapted for SKRuntimeEffect and premultiplied output.
+
+uniform shader content;
+
+uniform float2 size;
+uniform float start;          // 0..1 (fraction of height where blur starts fading)
+uniform float end;            // 0..1 (fraction of height where blur fades to transparent)
+uniform float4 tint;          // RGBA (0..1, unpremultiplied)
+uniform float tintIntensity;  // 0..1
+
+float smoothstepSafe(float edge0, float edge1, float x) {
+    float denom = edge1 - edge0;
+    if (abs(denom) < 1e-6) {
+        return step(edge0, x);
+    }
+    float t = clamp((x - edge0) / denom, 0.0, 1.0);
+    return t * t * (3.0 - 2.0 * t);
+}
+
+half4 main(float2 coord) {
+    float edge0 = size.y * end;
+    float edge1 = size.y * start;
+
+    // Keep the top region fully visible and fade towards the bottom.
+    float alpha = smoothstepSafe(edge0, edge1, coord.y);
+
+    half4 base = content.eval(coord) * half(alpha);
+
+    half tintA = half(tint.a) * half(alpha);
+    half3 tintRgb = half3(tint.rgb) * tintA;
+    half4 tintPremul = half4(tintRgb, tintA);
+
+    half t = half(clamp(tintIntensity, 0.0, 1.0));
+    return base * (half(1.0) - t) + tintPremul * t;
+}

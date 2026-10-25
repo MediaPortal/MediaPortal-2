@@ -639,6 +639,12 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
+    /// How far the shadow a tile lies on reaches past that tile's own edge: the skin writes it as an offset of
+    /// three and four with a blur of sixteen, and the blur fades out a little further still than its own number.
+    /// </summary>
+    private const double MENU_SHADOW_ROOM = 24;
+
+    /// <summary>
     /// The row of name buttons, rebuilt whenever the server's list arrives: one button per person, pressing
     /// one fills the name box and moves the highlight to the password. A picked name is still a name to
     /// prove - the buttons say WHO, the password box still asks whether.
@@ -671,7 +677,13 @@ namespace MediaPortal.Frontend.Views
           homeAreas.ColumnDefinitions =
               ColumnDefinitions.Parse(FormattableString.Invariant($"{Math.Round(_home.MenuRailWidth)},*,0"));
           homeAreas.ColumnSpacing = 0;
-          menuList.Margin = new Thickness(0);
+          // The list is the one thing on this screen that cuts: its viewport is exactly as wide as the tiles it
+          // holds, while the shadow the tiles lie on leans past their edge - measured on the running screen,
+          // that was a straight line along the right side of every tile in the rail. The margin hands the
+          // viewport the shadow's reach on both sides and Stretch makes the list own that widened place instead
+          // of shrinking back to its content; the tiles themselves do not move, because a tile centres itself
+          // in the wider item.
+          menuList.Margin = new Thickness(-MENU_SHADOW_ROOM, 0, -MENU_SHADOW_ROOM, 0);
           // The reference lets its list stand overscanned (Height 1200 of 1080) so the item area always
           // fills the column top to bottom, half items bleeding into the viewport's fade at both edges.
           // On this taller panel a fixed 1200 would leave the rail's bottom third empty while its top was
@@ -679,7 +691,7 @@ namespace MediaPortal.Frontend.Views
           // the list own the whole column height on every screen, which is what the overscan really means.
           menuList.Height = double.NaN;
           menuList.VerticalAlignment = VerticalAlignment.Stretch;
-          menuList.HorizontalAlignment = HorizontalAlignment.Center;
+          menuList.HorizontalAlignment = HorizontalAlignment.Stretch;
           contentPane.Margin = new Thickness(40, 0, 0, 0);
           contentPane.MaxWidth = double.PositiveInfinity;
           contentPane.HorizontalAlignment = HorizontalAlignment.Stretch;
