@@ -12,17 +12,9 @@ that wears a skin, and a television that comes from TVHeadend instead of a Windo
 ![Licence](https://img.shields.io/badge/licence-GPL--3.0-3ea45c)
 ![Front-end tests](https://img.shields.io/badge/front--end%20tests-1250%20passing-2f9e44)
 
-<table>
-<tr>
-<td align="center"><a href="ReadMe.md"><img src="https://img.shields.io/badge/%F0%9F%93%BA_General-Active-0b7285" alt="General"></a></td>
-<td align="center"><a href="SECURITY.md"><img src="https://img.shields.io/badge/%F0%9F%8F%9B_Architecture-495057" alt="Architecture"></a></td>
-<td align="center"><a href="ACCESSIBILITY.md"><img src="https://img.shields.io/badge/%F0%9F%93%96_Manual-495057" alt="Manual"></a></td>
-</tr>
-</table>
-
 *Every chapter of this documentation is also one of GitHub's own tabs above the file list: **README**
 is this page, **Security** is [Architecture](SECURITY.md), **Accessibility** is the
-[Manual](ACCESSIBILITY.md), and **GPL-3.0 license** is the [licence](Licence.md). That row shows six
+[Manual](ACCESSIBILITY.md), and **License** is the [licence](Licence.md). That row shows six
 pages at most - README, Contributing, Code of conduct, the licence, Security and Accessibility - and
 GitHub writes the labels itself, so a chapter borrows the nearest free name rather than staying out of
 the row. `SUPPORT.md`, which is where a manual would sensibly go, is not one of the six: GitHub reads

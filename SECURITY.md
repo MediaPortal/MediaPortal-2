@@ -4,16 +4,6 @@
 
 **Two processes, one HTTP seam, and a rule that keeps them apart.**
 
-<table>
-<tr>
-<td align="center"><a href="ReadMe.md"><img src="https://img.shields.io/badge/%F0%9F%93%BA_General-495057" alt="General"></a></td>
-<td align="center"><a href="SECURITY.md"><img src="https://img.shields.io/badge/%F0%9F%8F%9B_Architecture-Active-0b7285" alt="Architecture"></a></td>
-<td align="center"><a href="ACCESSIBILITY.md"><img src="https://img.shields.io/badge/%F0%9F%93%96_Manual-495057" alt="Manual"></a></td>
-</tr>
-</table>
-
-*Without images: [General](ReadMe.md) · **Architecture** · [Manual](ACCESSIBILITY.md)*
-
 </div>
 
 > **What this file is.** The **Architecture** chapter, living in `SECURITY.md` so that it joins the

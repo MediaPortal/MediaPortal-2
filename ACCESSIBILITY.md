@@ -4,16 +4,6 @@
 
 **Build it, run it, and set it up for the household.**
 
-<table>
-<tr>
-<td align="center"><a href="ReadMe.md"><img src="https://img.shields.io/badge/%F0%9F%93%BA_General-495057" alt="General"></a></td>
-<td align="center"><a href="SECURITY.md"><img src="https://img.shields.io/badge/%F0%9F%8F%9B_Architecture-495057" alt="Architecture"></a></td>
-<td align="center"><a href="ACCESSIBILITY.md"><img src="https://img.shields.io/badge/%F0%9F%93%96_Manual-Active-0b7285" alt="Manual"></a></td>
-</tr>
-</table>
-
-*Without images: [General](ReadMe.md) · [Architecture](SECURITY.md) · **Manual***
-
 </div>
 
 > **What this file is.** The **Manual** chapter, living in `ACCESSIBILITY.md` so that it joins the row
