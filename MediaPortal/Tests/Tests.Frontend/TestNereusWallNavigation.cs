@@ -384,6 +384,100 @@ namespace Tests.Frontend
     }
 
     /// <summary>
+    /// The menu is one place with one standing entry, so an arrow that walks off the wall into it lands on that
+    /// entry - the one whose wall the viewer is looking at, which is the one they last stood on - and not on
+    /// whichever entry happens to hang beside the square they pressed from. The measurement decides whether the
+    /// arrow leads into the menu at all; it does not get to choose which entry of the menu, because a menu does
+    /// not have one entry per height, it has one entry per menu item.
+    /// </summary>
+    [AvaloniaTest]
+    public void EnteringTheMenuLandsOnTheStandingEntryAndNotBesideTheSquare()
+    {
+      OnWall(delegate (Wall wall)
+      {
+        int standing = wall.StandingEntry;
+        Assert.That(standing, Is.GreaterThanOrEqualTo(0),
+            "the menu stands on an entry from the moment a wall is showing, since the wall is its content");
+
+        // A shortcut the rail can be reached from, and whose nearest entry is not the standing one. If the two
+        // agreed for every shortcut, this test would pass while proving nothing, so it says so out loud.
+        Button? fromShortcut = wall.Shortcuts
+            .Where(shortcut => wall.NearestEntryIndexTo(shortcut) >= 0
+                && wall.NearestEntryIndexTo(shortcut) != standing)
+            .OrderBy(shortcut => wall.Abs(shortcut).Y)
+            .FirstOrDefault();
+        Assert.That(fromShortcut, Is.Not.Null,
+            "the standing entry stands beside every shortcut of the wall, so nothing here could tell the "
+            + "standing entry from the entry the geometry would have picked");
+
+        Button from = fromShortcut!;
+        int beside = wall.NearestEntryIndexTo(from);
+        wall.Stand(from);
+        wall.Press(Key.Left);
+
+        Assert.That(wall.Focused, Is.InstanceOf<ListBoxItem>(),
+            "left out of the shortcut column stands the viewer on the menu; it came back with "
+            + wall.NameOf(wall.Focused));
+        Assert.That(wall.Focused, Is.SameAs(wall.RailEntry(standing)),
+            "and on the entry the menu is standing on rather than on the one beside the square they pressed "
+            + "from - the square was " + wall.NameOf(from) + ", the entry beside it is number " + beside
+            + " (" + wall.NameOf(wall.RailEntry(beside)!) + "), the menu stands on number " + standing
+            + ", and the key came back with " + wall.NameOf(wall.Focused));
+      });
+    }
+
+    /// <summary>
+    /// The menu hands back the entry the viewer was last stood on, which is the reference's
+    /// <c>RestoreFocus</c> for the menu: a viewer who walked the menu, went out to a wall and comes back does not
+    /// start again from wherever the wall happens to point at.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheMenuRemembersTheEntryThatWasLastStoodOn()
+    {
+      OnWall(delegate (Wall wall)
+      {
+        int standing = wall.StandingEntry;
+
+        // Onto the menu, and along it to another entry. Walking the menu with the arrows selects as it goes,
+        // which is what makes the walked entry the standing one - the same thing the reference's list does.
+        Button cover = wall.Leftmost.First();
+        wall.Stand(cover);
+        wall.Press(Key.Left);
+        wall.Press(Key.Left);
+        Assert.That(wall.Focused, Is.InstanceOf<ListBoxItem>(),
+            "two lefts out of the covers stand the viewer on the menu; it came back with "
+            + wall.NameOf(wall.Focused));
+
+        wall.Press(Key.Down);
+        Control? walked = wall.Focused;
+        Assert.That(walked, Is.InstanceOf<ListBoxItem>(),
+            "an arrow along the menu moves along its entries; it came back with " + wall.NameOf(walked));
+        Assert.That(wall.StandingEntry, Is.Not.EqualTo(standing),
+            "and walking the menu stands it on the entry walked to, since this face's menu fills its content as "
+            + "the highlight moves; it is still standing on " + wall.StandingEntry.ToString());
+
+        // Back out onto the wall and in again, from a square the geometry aims somewhere else.
+        wall.Press(Key.Right);
+        Assert.That(wall.NameOf(wall.Focused), Does.StartWith("shortcut "),
+            "right goes back onto the wall; it came back with " + wall.NameOf(wall.Focused));
+        Control? cameBackTo = wall.Focused;
+
+        // The walk would answer from this square with the entry beside it, which is not the one that was stood
+        // on - if it were, the assertion below would pass while proving nothing.
+        int beside = wall.NearestEntryIndexTo(cameBackTo);
+        Assert.That(beside, Is.Not.EqualTo(wall.IndexInRail(walked)),
+            "the entry beside " + wall.NameOf(cameBackTo) + " is the one that was last stood on, so this square "
+            + "cannot tell the memory from the measurement");
+
+        wall.Press(Key.Left);
+        Assert.That(wall.Focused, Is.SameAs(walked),
+            "and coming back into the menu from " + wall.NameOf(cameBackTo) + " stands the viewer on the entry "
+            + "they last stood on, which is " + wall.NameOf(walked) + ", not on the entry beside that square; it "
+            + "came back with " + wall.NameOf(wall.Focused));
+      });
+    }
+
+    /// <summary>
     /// The square the menu hands back on Right is the one the viewer was standing on - the reference's
     /// <c>NereusHomeListView.RestoreFocusItem</c>, which existed so that a viewer returning to the menu did not
     /// have to walk the wall from its beginning.
@@ -545,6 +639,37 @@ namespace Tests.Frontend
       /// </summary>
       public Button[] TopRow { get; }
 
+      /// <summary>The entry the rail is standing on: the one whose wall the screen is showing.</summary>
+      public int StandingEntry => _rail.SelectedIndex;
+
+      /// <summary>The entries of the rail that are realized right now, as the walk sees them.</summary>
+      public Control[] Entries()
+      {
+        return _rail.GetVisualDescendants().OfType<ListBoxItem>()
+            .Where(item => item.Focusable && item.IsEffectivelyVisible && item.IsEnabled)
+            .ToArray();
+      }
+
+      /// <summary>The place an entry of the rail has in the menu, or -1 for a control that is not one.</summary>
+      public int IndexInRail(Control? entry)
+      {
+        return entry is ListBoxItem item ? _rail.IndexFromContainer(item) : -1;
+      }
+
+      /// <summary>
+      /// The place in the menu of the realized entry whose middle stands nearest the middle of the given
+      /// control - which is roughly what the walk answers an arrow into the rail with, before the rail is asked
+      /// which entry it would rather hand back.
+      /// </summary>
+      public int NearestEntryIndexTo(Control from)
+      {
+        Rect here = Abs(from);
+        Control? near = Entries()
+            .OrderBy(entry => Math.Abs(Abs(entry).Center.Y - here.Center.Y))
+            .FirstOrDefault();
+        return near == null ? -1 : _rail.IndexFromContainer(near);
+      }
+
       /// <summary>An entry of the menu rail, by the place it has in the menu.</summary>
       public Control? RailEntry(int index)
       {
@@ -618,6 +743,8 @@ namespace Tests.Frontend
           return (tile.IsShortcut ? "shortcut " : "") + tile.Label;
         if (control is Button withTag && withTag.Tag is string key)
           return "button " + key;
+        if (control is ListBoxItem item && item.DataContext is MainMenuEntry entry)
+          return "menu entry " + entry.Label;
         if (control is ListBoxItem)
           return "menu entry";
         return control.GetType().Name + " '" + control.Name + "'";

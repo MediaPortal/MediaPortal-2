@@ -368,6 +368,18 @@ namespace MediaPortal.Frontend.Views
           },
           handledEventsToo: true);
 
+      // The rail's own memory, for the walk to hand back: which entry the viewer was last stood on. The entry is
+      // remembered rather than the container, because a list realizes and throws away its containers as it is
+      // scrolled, and because the menu rebuilds them whenever the menu itself changes.
+      menuList.AddHandler(GotFocusEvent,
+          delegate (object? sender, FocusChangedEventArgs args)
+          {
+            if (args.Source is ListBoxItem item && item.DataContext is MainMenuEntry entry)
+              _lastRailStand = entry;
+          },
+          RoutingStrategies.Bubble,
+          handledEventsToo: true);
+
       nereusContentPane.AddHandler(KeyDownEvent,
           delegate (object? sender, KeyEventArgs args)
           {
@@ -1708,7 +1720,62 @@ namespace MediaPortal.Frontend.Views
           && SkinFocusWalk.LiesIn(direction, ScreenRect(remembered), here, out _))
         return remembered;
 
+      // The menu is one place with one standing entry, not a column of squares to be picked by height. The
+      // measurement still answers whether the arrow leads into the menu at all - only the entry it names is
+      // asked again, and asked of the rail: the entry the viewer last stood on is what the menu hands back, and
+      // before they ever stood on it, that is the entry whose wall they are looking at. Landing on whichever
+      // entry happens to hang beside the square the key came from threw both away, and scrolled the rail to it.
+      if (next is ListBoxItem)
+      {
+        ListBoxItem? standing = StandingRailEntry(direction, here);
+        if (standing != null)
+          return standing;
+      }
+
       return next;
+    }
+
+    /// <summary>
+    /// The entry of the menu rail that an arrow walking into the rail stands on: the one the viewer last stood
+    /// on, or while they never have, the entry the rail is showing. <c>null</c> when neither can be had - the
+    /// menu changed under the viewer, or the rail will not realize that entry - in which case the answer the
+    /// measurement gave stands, which is at least an entry of the menu.
+    /// </summary>
+    /// <remarks>
+    /// The entry is brought into view before its place is measured, because an entry the rail has scrolled away
+    /// has no place to compare: reaching the menu scrolls its list anyway, so this asks for nothing the answer
+    /// would not have done a moment later. The direction is still asked about, so that an arrow which the walk
+    /// sent into the menu does not get answered by an entry that stands back where the viewer came from.
+    /// </remarks>
+    private ListBoxItem? StandingRailEntry(Key direction, Rect from)
+    {
+      int index = -1;
+      if (_lastRailStand != null)
+      {
+        for (int at = 0; at < menuList.Items.Count; at++)
+        {
+          if (ReferenceEquals(menuList.Items[at], _lastRailStand))
+          {
+            index = at;
+            break;
+          }
+        }
+      }
+
+      if (index < 0)
+        index = menuList.SelectedIndex;
+      if (index < 0 || index >= menuList.Items.Count)
+        return null;
+
+      menuList.ScrollIntoView(index);
+      if (menuList.ContainerFromIndex(index) is not ListBoxItem entry)
+        return null;
+
+      Rect standing = ScreenRect(entry);
+      return standing.Width > 0 && standing.Height > 0
+          && SkinFocusWalk.LiesIn(direction, standing, from, out _)
+          ? entry
+          : null;
     }
 
     /// <summary>
@@ -1827,6 +1894,13 @@ namespace MediaPortal.Frontend.Views
     private Button? _wallStand;
     private readonly Dictionary<HomeContentGroup, Button> _lastTileInGroup =
         new Dictionary<HomeContentGroup, Button>();
+
+    /// <summary>
+    /// The entry of the menu rail the viewer last stood on. Kept as the menu entry rather than as the container
+    /// that was stood on, because the rail throws its containers away whenever the menu is rebuilt and a viewer
+    /// returning to the menu means the entry, not the piece of chrome that happened to show it.
+    /// </summary>
+    private MainMenuEntry? _lastRailStand;
 
     private void FocusNereusTile(Button tile)
     {
