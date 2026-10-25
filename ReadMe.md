@@ -1,35 +1,153 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/r1epbqfpf72b5o3v?svg=true)](https://ci.appveyor.com/project/MediaPortal/mediaportal-2)
- ![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/MediaPortal/MediaPortal-2?include_prereleases) ![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/downloads-pre/Mediaportal/Mediaportal-2/latest/total?label=release@downloads)
+<div align="center">
 
-## Welcome to MediaPortal 2
+[![MediaPortal 2026](docs/images/banner.png)](ReadMe.md)
 
-The main goal of __MediaPortal 2__ is to provide __the__ best mediacenter software available when it comes to usability, flexibility and extensibility.
+# MediaPortal 2
 
-Some of features are:
- * Watch, schedule and record live __TV__ through a TV provider. __Note:__ during the multiplatform
-   work the internal TV service layer (TVE3 / TVE3.5) and the TVMosaic provider were removed; the
-   client-side TV contract (`SlimTv.Interfaces`, `SlimTv.Client`) is still in the tree, so a provider
-   can be plugged in again. See `scripts/ci/README.md`, "The TV service layer is gone".
- * Play all your __videos__, __movies__, __series__, DVDs and __Blu-ray__ discs.
- * Listen to __music__ and __radio__.
- * Enjoy __pictures__, home videos or create a slideshow.
- * All your media is enriched by a huge amount of __metadata__ like thumbnails, __covers__, __posters__, logos, __fanarts__, etc..., which are read from your files or retrieved from the websevices like [Fanart.tv](http://fanart.tv/), [TheMovieDB.com](http://www.themoviedb.org/) or [TheTVDB](http://thetvdb.com/).
- * Watch videos from hundreds of [online video platforms](http://onlinevideos.nocrosshair.de/) using OnlineVideos.
- * Stream media, radio and TV to any HTPC / PC or even mobile devices connected to your network locally or over the web.
- * User Management for your family: Configure users (eg. kids) and restrict age dependend content and settings
- * Use a __remote to control__ your HTPC from your couch.
- * Check the __weather__, __news__, RSS feeds, and more.
+**A media centre for the whole household: one server that answers over HTTP, one 10-foot screen
+that wears a skin, and a television that comes from TVHeadend instead of a Windows service.**
 
-All in the comfort of your living room, on your big screen LCD or Plasma TV or projector.
-And these are only the basics.
+[![.NET 10](https://img.shields.io/badge/.NET-10.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
+![Platform](https://img.shields.io/badge/platform-x64%20%C2%B7%20Windows%20%7C%20Linux-6c757d?style=for-the-badge)
+![Licence](https://img.shields.io/badge/licence-GPL--3.0-3ea45c?style=for-the-badge)
+![Front-end tests](https://img.shields.io/badge/front--end%20tests-1250%20passing-2f9e44?style=for-the-badge)
 
-:grey_exclamation: = not all of the features are fully implemented, yet
+<table>
+<tr>
+<td align="center"><a href="ReadMe.md"><img src="https://img.shields.io/badge/%F0%9F%93%BA_General-Active-0b7285?style=for-the-badge" alt="General"></a></td>
+<td align="center"><a href="docs/Architecture.md"><img src="https://img.shields.io/badge/%F0%9F%8F%9B_Architecture-495057?style=for-the-badge" alt="Architecture"></a></td>
+<td align="center"><a href="docs/Manual.md"><img src="https://img.shields.io/badge/%F0%9F%93%96_Manual-495057?style=for-the-badge" alt="Manual"></a></td>
+</tr>
+</table>
 
+*GitHub renders no real tabs, so the badge row above is the tab bar. Same three pages without images:
+**General** · [Architecture](docs/Architecture.md) · [Manual](docs/Manual.md)*
 
-## Links & Resources
+</div>
 
- * [Hompage](https://www.team-mediaportal.com/)
- * [Getting Started](https://www.team-mediaportal.com/wiki/display/MediaPortal2)
- * [Support Forum](https://forum.team-mediaportal.com/categories/mediaportal-2.528/)
- * [Contribute](https://www.team-mediaportal.com/wiki/display/MediaPortal2/Contribute)
- * [Issue Tracker](https://issues.team-mediaportal.com/browse/MP2) (includes changelog & roadmap)
+---
+
+## What this tree is
+
+MediaPortal 2 began as a Windows media centre: one process on one TV, DirectShow for pictures,
+MP2's own TV service for live television, WPF for the interface. This branch turns it into
+something that runs anywhere without throwing the library, the metadata or the skins away.
+
+Three decisions carry that:
+
+- **The server was made portable and headless.** It is a `net10.0` console host that answers a
+  documented HTTP/JSON API on one port, keeps its library in SQLite, and runs on Windows and on
+  Linux in a container. There is no window, no tray icon and no configuration tool on a server.
+- **The screen was rewritten in Avalonia.** `MediaPortal.Frontend` is a `net10.0` assembly - never
+  `net10.0-windows`, with `CA1416` as an error - that talks to the server over HTTP and to nothing
+  else. It draws the old MPF skins from their own XAML files on disk.
+- **Live television stopped being MediaPortal's job.** The TV service layer (TVE 3/3.5, TvMosaic,
+  and the x86 pin that came with it) is deleted. The front end speaks
+  [TVHeadend's JSON API](https://tvheadend.org/) directly: channels, grid, timers, recordings.
+
+Nothing above the HTTP seam references a MediaPortal assembly, and that rule is held by the build
+rather than by convention - see
+[Architecture](docs/Architecture.md#the-rule-that-holds-the-rest-up).
+
+## Where it stands
+
+Measured, not remembered. The wide numbers come from the roadmap's status table
+([`docs/multiplatform/ROADMAP.md`](docs/multiplatform/ROADMAP.md), *Where the tree stands*); the
+front-end test count was counted on this branch.
+
+| | |
+|---|---|
+| Portable core assemblies | **4 of 90** - the rest are still `*-windows`, and each one is a porting task of its own |
+| Platform-not-supported warnings (`CA1416`) | **0** in every gated solution |
+| Front-end unit tests | **1250 passing**, with no display and no hardware needed |
+| Server | builds, starts and answers HTTP on **Windows and Linux** |
+| Skins the front end can wear | **default**, **Nereus**, **WMC** |
+| Screens in the front end | 34, from the wake screen to the DVR list |
+| Old skins left in the tree | only **Nereus** and **WMC**, on purpose |
+
+## What works today
+
+**The server** - a SQLite library whose metadata comes from the files and from NFO, thumbnails and
+fanart served as pictures, HTTP streaming of the media itself, playback reports and watched states,
+user profiles with a PIN and an age ceiling, shares and folders an import can walk, a long-lived
+media-events channel a screen listens to, settings for the server and for its plugins, tokens from
+an OAuth-style password grant, and UPnP/SSDP announcements so a television can find it.
+
+**The screen** - a wall of covers that grows as it is walked, the main menu as tiles, a programme
+guide with a real grid, live TV and radio, a player with a skip ladder and subtitles, a picture
+slideshow with Ken Burns, weather and news, a party mode that shuffles the music, a wake screen
+that asks who is watching, an on-screen keyboard, and a key-binding file so a real remote can be
+fitted without recompiling anything.
+
+**The player** - libVLC, found at run time on whichever machine it is installed on. It replaced
+DirectShow, which was the last thing keeping the front end on Windows.
+
+## What is gone, and why
+
+| Gone | Why |
+|---|---|
+| MP2's TV service (TVE 3/3.5, TvMosaic, `Gentle`) | live TV now comes from TVHeadend, which exists everywhere; 54 files and 6833 lines went, and the x86 pin with them |
+| DirectShow and `EVRPresenter` | libVLC plays what DirectShow did, and does it portably |
+| BlueVision, Titanium Extended, and the Graveyard skins | only Nereus and WMC are worth reading after the Avalonia rewrite |
+| `.NET Framework 4.8` targets and `x86` | the tree is `.NET 10` and x64; `architecture.ps1` fails a build that reintroduces either |
+| The Windows configuration tool | every setting it held now has a screen, a file, or an endpoint |
+
+What did **not** go: the library and its metadata, the shares, the user model, the media events,
+the picture caching, and the two skins that carry the look of the old front end.
+
+## Try it in three commands
+
+From the repository root, on Windows, with the .NET 10 SDK installed:
+
+```powershell
+# 1 - publish the server into a runnable layout and start it on port 55555
+.\scripts\ci\deploy-server-layout.ps1
+dotnet .\build\artifacts\server-layout\MP2-Server-Headless.dll --data .\build\artifacts\mp2-live\data
+
+# 2 - build the front end
+.\scripts\ci\build.ps1 -Solution Frontend
+
+# 3 - put it on the screen, wearing the Nereus skin
+.\MediaPortal\Source\Frontend\MediaPortal.Frontend\bin\Debug\net10.0\MediaPortal.Frontend.exe `
+  --server http://127.0.0.1:55555/MediaPortal/Server --theme nereus
+```
+
+While the server runs, `http://127.0.0.1:55555/MediaPortal/Server/health` answers.
+Step by step - with a keyboard reference, a screen index and a troubleshooting table - is the
+[Manual](docs/Manual.md). How the pieces fit is [Architecture](docs/Architecture.md).
+
+## Where things live
+
+| | |
+|---|---|
+| `MediaPortal/Source/MP2-Server.sln` | the portable server: core, backend, plugins, `Server.Api`, the headless host |
+| `MediaPortal/Source/MP2-Frontend.sln` | the Avalonia front end, its player, its tests, and the five core assemblies it borrows |
+| `MediaPortal/Source/MP2-Client.sln` | the old WinForms client - it still builds, and it is not the way forward |
+| `.../MediaPortal.Frontend/Skins/Nereus` | the ported reference skin, as XAML on disk |
+| `MediaPortal/Source/Main/MediaPortal.Server.Headless` | the console host that runs the server |
+| `scripts/ci/` | every build, gate and test the tree is checked with; `scripts/ci/README.md` is their manual |
+| `docs/multiplatform/` | the assessment, the proposals, the roadmap, and rendered frames of the screens |
+
+## Read on
+
+- **[Architecture](docs/Architecture.md)** - the processes, the HTTP seam, the skin engine, the
+  portability spine, and the gates that keep them that way.
+- **[Manual](docs/Manual.md)** - build it, run it, point it at a server, bind a remote, and set up
+  TVHeadend, weather and news.
+- **[`scripts/ci/README.md`](scripts/ci/README.md)** - the long story of every gate: what it
+  measures, what it was calibrated on, and what it fails on.
+- **[`docs/multiplatform/ROADMAP.md`](docs/multiplatform/ROADMAP.md)** - the phases, in order, each
+  with what it proved.
+
+## Licence and credit
+
+MediaPortal 2 is **GPL-3.0** (or, at your option, any later version), as each source file's header
+states. Two pieces inside it carry their own terms: the vendored `LiquidGlassAvaloniaUI` control is
+**MIT**, and the player's managed libVLC binding (`LibVLCSharp`) is **MPL-2.0**; libVLC itself is
+not vendored and is found at run time.
+
+The original MediaPortal 2 was built by [Team MediaPortal](https://www.team-mediaportal.com/) -
+[upstream repository](https://github.com/MediaPortal/MediaPortal-2),
+[support forum](https://forum.team-mediaportal.com/categories/mediaportal-2.528/). The old wiki and
+the Redmine tracker are closed; the roadmap this branch follows lives in `docs/multiplatform/`
+instead.
