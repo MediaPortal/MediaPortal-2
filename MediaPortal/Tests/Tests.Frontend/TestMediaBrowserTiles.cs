@@ -1,4 +1,4 @@
-/*
+﻿/*
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -411,6 +411,13 @@ namespace Tests.Frontend
 
       public List<string> Kinds { get; } = new List<string>();
 
+      /// <summary>
+      /// Whether the server was asked for a picture of the title it has nothing for. A test that wants to say
+      /// "this row was asked about and stayed empty" waits for this, because an empty row that was never asked
+      /// about looks exactly the same.
+      /// </summary>
+      internal bool AskedAboutTheTitleItHasNothingFor { get; private set; }
+
       protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
           CancellationToken cancellation)
       {
@@ -436,6 +443,10 @@ namespace Tests.Frontend
           {
             Kinds.Add(kind);
           }
+
+          if (url.Contains(_other.ToString("D"), StringComparison.OrdinalIgnoreCase))
+            AskedAboutTheTitleItHasNothingFor = true;
+
           if (url.Contains(_title.ToString("D"), StringComparison.OrdinalIgnoreCase))
           {
             if (string.Equals(kind, "Banner", StringComparison.OrdinalIgnoreCase))
@@ -486,6 +497,7 @@ namespace Tests.Frontend
       TitleViewModel row = vm.Titles[1];
       Assert.That(row.Title.Id, Is.EqualTo(title));
 
+      TestBrowserArtwork.DrawRows(vm, row);
       WaitUntil("the banner to reach the row", delegate { return row.Artwork != null; });
       Assert.That(row.Artwork, Is.EqualTo(new byte[] { 9, 8, 7, 6, 5 }),
           "the row wears the real banner the media folder holds");
@@ -508,6 +520,9 @@ namespace Tests.Frontend
       // And a film the folders have no banner for stays honest: no art on the tile, which draws the
       // reference's placeholder layers - rather than a poster squeezed into the banner frame.
       TitleViewModel other = vm.Titles[0];
+      TestBrowserArtwork.DrawRows(vm, other);
+      WaitUntil("the banner-less film to have been asked about",
+          delegate { return handler.AskedAboutTheTitleItHasNothingFor; });
       Assert.That(other.HasNoArtwork, Is.True,
           "a banner-less film wears the placeholder, not a resized poster");
     }
@@ -529,6 +544,7 @@ namespace Tests.Frontend
       vm.OpenCommand.Execute(null);
       WaitUntil("the shelf to fill", delegate { return vm.Titles.Count == 2; });
 
+      TestBrowserArtwork.DrawRows(vm, vm.Titles[1]);
       WaitUntil("the poster to reach the row", delegate { return vm.Titles[1].Artwork != null; });
       Assert.That(vm.Titles[1].Artwork, Is.EqualTo(new byte[] { 1, 1, 1, 1 }),
           "the plain poster shelf still paints from the database's poster blob");
@@ -557,20 +573,26 @@ namespace Tests.Frontend
 
       MediaBrowserViewModel vm = new MediaBrowserViewModel(client, MoviesSection(), null);
       vm.OpenCommand.Execute(null);
+      WaitUntil("the shelf to fill", delegate { return vm.Titles.Count == 2; });
+      TestBrowserArtwork.DrawRows(vm, vm.Titles[1]);
       WaitUntil("the banner to reach the row", delegate { return vm.Titles[1].Artwork != null; });
       Assert.That(vm.Titles[1].Artwork, Is.EqualTo(new byte[] { 9, 8, 7, 6, 5 }));
 
       // The reference's cover item bound FanArtType="Poster" for films and for series alike - a cover is a
       // poster, whichever shape the grid chose - so walking the shelf into its cover view repaints the rows
-      // with the poster blob, and back into the grid they put their banners on again.
+      // with the poster blob, and back into the grid they put their banners on again. The screen does that
+      // repainting, because it is the screen that knows which rows it has standing in front of it.
       vm.SwitchView();
       Assert.That(vm.Layout, Is.EqualTo(BrowserLayout.Cover));
+      TestBrowserArtwork.DrawRows(vm, vm.Titles[1]);
       WaitUntil("the cover to wear the poster", delegate { return vm.Titles[1].Artwork!.SequenceEqual(new byte[] { 1, 1, 1, 1 }); });
 
       vm.SwitchView();
       Assert.That(vm.Layout, Is.EqualTo(BrowserLayout.List));
+      TestBrowserArtwork.DrawRows(vm, vm.Titles[1]);
 
       vm.SwitchView();
+      TestBrowserArtwork.DrawRows(vm, vm.Titles[1]);
       WaitUntil("the grid's banners to come back", delegate { return vm.Titles[1].Artwork!.SequenceEqual(new byte[] { 9, 8, 7, 6, 5 }); });
     }
 
@@ -621,12 +643,15 @@ namespace Tests.Frontend
       MediaBrowserViewModel vm = new MediaBrowserViewModel(client, MoviesSection(), null);
       vm.OpenCommand.Execute(null);
       WaitUntil("the shelf to fill", delegate { return vm.Titles.Count == 2; });
+      TestBrowserArtwork.DrawRows(vm, vm.Titles[1]);
       WaitUntil("the poster to reach the row", delegate { return vm.Titles[1].Artwork != null; });
       Assert.That(vm.Titles[1].Artwork, Is.EqualTo(new byte[] { 1, 1, 1, 1 }));
 
       // The button repaints the rows that are already there, and the banner is the server's own banner
-      // bytes - never a poster squeezed into the banner's frame, which is the complaint this answers.
+      // bytes - never a poster squeezed into the banner's frame, which is the complaint this answers. The
+      // screen asks for those bytes again, because it is the screen that knows which rows to be seen.
       vm.SwitchMedia();
+      TestBrowserArtwork.DrawRows(vm, vm.Titles[1]);
       WaitUntil("the banner to reach the row",
           delegate { return vm.Titles[1].Artwork != null && vm.Titles[1].Artwork!.SequenceEqual(new byte[] { 9, 8, 7, 6, 5 }); });
       lock (handler.Kinds)

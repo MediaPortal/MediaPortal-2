@@ -435,6 +435,20 @@ namespace Tests.Frontend
       }
     }
 
+    /// <summary>
+    /// Says what a screen says when it lays rows out: that they are on screen, and may have their picture.
+    /// </summary>
+    /// <remarks>
+    /// A test holds a view model and no television, so nobody lays anything out. Naming the rows here is the
+    /// honest way of playing the screen's part - the shelf asks no row for a picture on its own, which is what
+    /// keeps a library of a thousand titles from fetching a thousand posters nobody looks at.
+    /// </remarks>
+    public static void DrawRows(MediaBrowserViewModel shelf, params TitleViewModel[] rows)
+    {
+      foreach (TitleViewModel row in rows)
+        shelf.PaintRow(row);
+    }
+
     private static void Pump()
     {
       Avalonia.Threading.Dispatcher.UIThread.RunJobs();
@@ -461,6 +475,8 @@ namespace Tests.Frontend
       {
         MediaBrowserViewModel films = new MediaBrowserViewModel(client, Shelf("MovieItem"));
         films.OpenCommand.Execute(null);
+        // The three rows the television would be showing. The shelf itself asks no row for a picture.
+        DrawRows(films, films.Titles[0], films.Titles[1], films.Titles[2]);
         WaitUntil("every picture the server has to arrive",
             delegate { return films.Titles[0].Artwork != null && films.Titles[2].Artwork != null; });
 
@@ -520,6 +536,8 @@ namespace Tests.Frontend
         MediaBrowserViewModel films = new MediaBrowserViewModel(client, Shelf("MovieItem"));
         films.OpenCommand.Execute(null);
         WaitUntil("the list to be read", delegate { return films.Titles.Count == 3; });
+        // Drawn, so that the rows really do ask - and really do get told there is no picture.
+        DrawRows(films, films.Titles[0], films.Titles[1], films.Titles[2]);
         Pump();
 
         Assert.That(films.Titles.All(row => row.Artwork == null), Is.True);

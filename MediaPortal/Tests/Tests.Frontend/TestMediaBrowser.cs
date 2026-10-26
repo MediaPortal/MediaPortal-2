@@ -511,7 +511,7 @@ namespace Tests.Frontend
       Assert.That(browser.Status, Does.Contain("of 2"), "and the screen says how much there is");
       Assert.That(browser.Selected, Is.SameAs(browser.Titles[0]),
           "a list with nothing selected is a list whose OK key does nothing");
-      Assert.That(browser.CanLoadMore, Is.False);
+      Assert.That(browser.HasMore, Is.False);
     }
 
     [AvaloniaTest]
@@ -647,7 +647,7 @@ namespace Tests.Frontend
     }
 
     [AvaloniaTest]
-    public void MoreAsksForWhatComesAfterWhatIsOnScreen()
+    public void AShelfThatWasGivenWholeIsNotReadOnInto()
     {
       MediaItem[] items = new MediaItem[7];
       for (int i = 0; i < items.Length; i++)
@@ -660,8 +660,278 @@ namespace Tests.Frontend
       WaitUntil("the titles to arrive", delegate { return browser.Titles.Count == 7; });
 
       Assert.That(browser.Titles.Count, Is.EqualTo(7), "the mock answers every page with everything it holds,");
-      Assert.That(browser.CanLoadMore, Is.False,
-          "so there is nothing left to ask for; the paging itself is the server endpoint's own test");
+      Assert.That(browser.HasMore, Is.False,
+          "so there is nothing left to read; the paging itself is the server endpoint's own test");
+    }
+
+    /// <summary>
+    /// The shelf on the screen is the shelf the server has - not the first screenful of it - and nobody had to
+    /// scroll, press or wait for that to happen.
+    /// </summary>
+    [AvaloniaTest]
+    public void AShelfReadsItselfWholeWithoutAnyoneAsking()
+    {
+      LongShelf server = new LongShelf();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.OpenCommand.Execute(null);
+
+      WaitUntil("the whole shelf", delegate { return browser.Titles.Count == 130; });
+
+      Assert.That(browser.Titles.Count, Is.EqualTo(130),
+          "one hundred and thirty films were asked for and one hundred and thirty arrived, without a press");
+      Assert.That(browser.HasMore, Is.False, "and the shelf knows it is whole");
+      Assert.That(browser.Status, Is.EqualTo("130 of 130 movies, sorted by title"),
+          "the count under the list speaks about the shelf, not about a page of it");
+      Assert.That(server.TimesAsked, Is.EqualTo(2),
+          "a screenful first so that names appear, then the rest in one question - two questions about a shelf "
+          + "rather than three, because every question makes the server sort the shelf again");
+    }
+
+    /// <summary>
+    /// The two questions a shelf costs, in the order they are asked, and what the answer must not do to the viewer
+    /// standing in the middle of what was already there.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheOpeningScreenfulIsAskedFirstAndTheRestInOneBlowBehindIt()
+    {
+      LongShelf server = new LongShelf();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.OpenCommand.Execute(null);
+      WaitUntil("the opening screenful",
+          delegate { return browser.Titles.Count == MediaBrowserViewModel.OPENING_PAGE; });
+
+      Assert.That(server.FirstQuestion, Does.Contain("limit=" + MediaBrowserViewModel.OPENING_PAGE),
+          "the question that is answered first is the small one, because a television should have names on it "
+          + "inside a sixth of a second");
+
+      TitleViewModel standing = browser.Titles[3];
+      browser.Selected = standing;
+
+      WaitUntil("the rest of the shelf", delegate { return browser.Titles.Count == 130; });
+
+      Assert.That(server.LastQuestion, Does.Contain("offset=" + MediaBrowserViewModel.OPENING_PAGE)
+              .And.Contain("limit=" + MediaBrowserViewModel.REST_IN_ONE_ASK),
+          "the second question carries on where the first stopped and asks for as much as the server will hand "
+          + "over, which for eleven hundred films is everything that is left");
+      Assert.That(browser.Selected, Is.SameAs(standing),
+          "a shelf filling in under a viewer who is reading somewhere above it does not move them");
+      Assert.That(browser.Status, Does.Contain("of 130"), "and the count still speaks about the whole shelf");
+    }
+
+    [AvaloniaTest]
+    public void ARowTheScreenNeverDrewAskedForNoPicture()
+    {
+      LongShelf server = new LongShelf();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.OpenCommand.Execute(null);
+      WaitUntil("the whole shelf", delegate { return browser.Titles.Count == 130; });
+
+      TitleViewModel last = browser.Titles[browser.Titles.Count - 1];
+      Assert.That(last.HasArtwork, Is.False,
+          "a hundred and thirty rows are in memory and a television shows a dozen; nobody has laid this row out, "
+          + "so nobody has asked what its poster looks like");
+      Assert.That(server.PicturesAsked, Is.LessThan(10),
+          "reading a shelf whole costs no picture per row - a shelf is not a hundred and thirty downloads wearing "
+          + "a list");
+
+      // The screen drew it, so the row asks. This is the call MediaBrowserView makes for the rows it can see.
+      browser.PaintRow(last);
+      WaitUntil("the row's picture", delegate { return last.HasArtwork; });
+
+      Assert.That(last.HasArtwork, Is.True);
+    }
+
+    /// <summary>
+    /// What a standing television asks of a shelf that is a thousand tiles long: the pictures of the tiles it can
+    /// see, and nothing else.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Eleven hundred tiles that each fetched a poster would be eleven hundred downloads wearing the shelf, which
+    /// is exactly the thing that makes a big library stop feeling instant. The band the screen asks for is what it
+    /// shows plus a screenful in each direction, so that scrolling arrives at pictures rather than at grey.
+    /// </para>
+    /// <para>
+    /// The tile panel virtualises now, so the two facts that used to be far apart sit next to each other: only the
+    /// rows the screen could be looking at are built at all, and of those rows the screen asks for the pictures it
+    /// can see. Both are asserted below, together with the reading of the titles themselves: the whole shelf is
+    /// already in the list when the viewer starts scrolling, so scrolling never waits.
+    /// </para>
+    /// </remarks>
+    [AvaloniaTest]
+    public void ATiledShelfAsksForNoPictureTheViewerCannotSee()
+    {
+      LongShelf server = new LongShelf { Total = 600 };
+      MediaBrowserViewModel browser = BrowserOn(server);
+      ShellWindow window = new ShellWindow(new MediaBrowserView(browser));
+      window.Show();
+      WaitUntil("the whole shelf", delegate { return browser.Titles.Count == 600 && !browser.IsBusy; });
+
+      for (int press = 0; press < 3 && browser.Layout != BrowserLayout.Grid; press++)
+        browser.SwitchViewCommand.Execute(null);
+      Assert.That(browser.Layout, Is.EqualTo(BrowserLayout.Grid), "the screen stands in tiles");
+
+      WaitUntil("the tiles the screen shows to wear their pictures", delegate { return server.PicturesAsked > 0; });
+      for (int pause = 0; pause < 20; pause++)
+        Pump();
+
+      ListBox rows = window.GetVisualDescendants().OfType<ListBox>().First(list => list.Name == "titlesList");
+      int standing = rows.GetRealizedContainers().Count();
+      Assert.That(standing, Is.LessThan(150),
+          "six hundred titles were read, but only the rows the screen could be looking at were built: "
+          + standing + " of 600");
+      Assert.That(server.PicturesAsked, Is.LessThanOrEqualTo(standing),
+          "of the tiles that stand the screen asks for the pictures it can see, and for no others: "
+          + server.PicturesAsked + " asked for, " + standing + " standing");
+      Assert.That(standing, Is.GreaterThan(0), "the tiles the viewer looks at are there");
+      Assert.That(server.PicturesAsked, Is.LessThan(200),
+          "a band of a few screenfuls around the eye, not a poster per tile of a shelf nobody will scroll to");
+
+      ScrollViewer scroller = rows.GetVisualDescendants().OfType<ScrollViewer>().First();
+      Assert.That(scroller.Extent.Height, Is.GreaterThan(scroller.Viewport.Height),
+          "six hundred tiles do not fit on this screen, so there is a bottom to scroll to");
+
+      int before = server.PicturesAsked;
+      scroller.Offset = new Vector(0, scroller.Extent.Height);
+      WaitUntil("the tiles at the bottom to ask for their pictures",
+          delegate { return server.PicturesAsked > before; });
+      WaitUntil("the last tile of the shelf to stand", delegate
+      {
+        return rows.GetRealizedContainers().OfType<Control>()
+            .Any(tile => ReferenceEquals(tile.DataContext, browser.Titles[599]));
+      });
+
+      Assert.That(rows.GetRealizedContainers().Count(), Is.LessThan(150),
+          "and rolling to the bottom of a six hundred tile shelf did not build it: "
+          + rows.GetRealizedContainers().Count() + " tiles stand at the end of it");
+      Assert.That(browser.Titles.Count, Is.EqualTo(600),
+          "and the shelf did not need that scroll to be finished: it was whole before anybody moved");
+    }
+
+    [AvaloniaTest]
+    public void AShelfThatGoesOnForeverIsStoppedAndSaysSo()
+    {
+      LongShelf server = new LongShelf();
+      server.Total = 4 * MediaBrowserViewModel.MAX_ROWS;
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.OpenCommand.Execute(null);
+
+      WaitUntil("the ceiling", delegate { return !browser.HasMore; });
+
+      Assert.That(browser.Titles.Count,
+          Is.GreaterThanOrEqualTo(MediaBrowserViewModel.MAX_ROWS)
+              .And.LessThan(MediaBrowserViewModel.MAX_ROWS + MediaBrowserViewModel.REST_IN_ONE_ASK),
+          "the ceiling, with at most the question that walked over it - the reading stops on an answer boundary");
+      Assert.That(browser.HasMore, Is.False);
+      Assert.That(server.TimesAsked, Is.LessThanOrEqualTo(5),
+          "twenty thousand rows are a screenful and a few big questions, not a hundred and forty - every question "
+          + "makes the server sort the shelf again");
+      Assert.That(browser.Status, Does.Contain("first 5000"),
+          "a shelf that stopped short of the server's count says so instead of standing there looking finished");
+    }
+
+    /// <summary>
+    /// A shelf that hands over the rows it was asked for and counts what it holds - the shape a real server's
+    /// answer has, and the only way a front end learns that a shelf is longer than one page.
+    /// </summary>
+    private class LongShelf : HttpMessageHandler
+    {
+      /// <summary>How many titles this shelf holds in all.</summary>
+      internal int Total { get; set; } = 130;
+
+      /// <summary>How many times the shelf was asked for titles.</summary>
+      internal int TimesAsked { get; private set; }
+
+      /// <summary>
+      /// How many pictures were asked for, which is the number a shelf of a hundred and thirty films must not
+      /// reach while nobody has scrolled it.
+      /// </summary>
+      internal int PicturesAsked { get; private set; }
+
+      /// <summary>The last question about titles, so that a test can say what was asked for.</summary>
+      internal string LastQuestion { get; private set; } = "";
+
+      /// <summary>The very first question, which is the one that decides how fast names reach the screen.</summary>
+      internal string FirstQuestion { get; private set; } = "";
+
+      protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+          CancellationToken cancellation)
+      {
+        if (IsPictureRequest(request))
+        {
+          PicturesAsked++;
+          return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+          {
+            RequestMessage = request,
+            Content = new ByteArrayContent(new byte[] { 1, 2, 3, 4 })
+          });
+        }
+
+        // A backdrop the shelf has none of, answered the way a server answers that.
+        if (request.RequestUri!.AbsolutePath.Contains("/fanart", StringComparison.Ordinal))
+          return Task.FromResult(NoPicture(request));
+
+        // What the screen reads about one title is not a question about the shelf, but it is answered - a screen
+        // that got a 404 for it would write that 404 into the status line the test is reading.
+        if (request.RequestUri.AbsolutePath.Contains("/items/", StringComparison.Ordinal))
+        {
+          string path = request.RequestUri.AbsolutePath;
+          string id = path.Substring(path.LastIndexOf('/') + 1);
+          return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+          {
+            RequestMessage = request,
+            Content = new StringContent("{\"id\":\"" + id + "\",\"title\":\"Title\",\"year\":2000}",
+                Encoding.UTF8, "application/json")
+          });
+        }
+
+        string query = request.RequestUri.Query;
+        int askedFor = int.Parse(Of(query, "limit") ?? "60");
+        int from = int.Parse(Of(query, "offset") ?? "0");
+        TimesAsked++;
+        LastQuestion = request.RequestUri.PathAndQuery;
+        if (TimesAsked == 1)
+          FirstQuestion = request.RequestUri.PathAndQuery;
+
+        int rows = Math.Max(0, Math.Min(askedFor, Total - from));
+        StringBuilder body = new StringBuilder();
+        body.Append("{\"total\":").Append(Total)
+            .Append(",\"offset\":").Append(from).Append(",\"limit\":").Append(askedFor)
+            .Append(",\"returned\":").Append(rows).Append(",\"sort\":\"title\"")
+            .Append(",\"titles\":[");
+        for (int i = 0; i < rows; i++)
+        {
+          if (i > 0)
+            body.Append(',');
+          body.Append("{\"id\":\"").Append(new Guid(from + i + 1, 0, 0, new byte[] { 128, 0, 0, 0, 0, 0, 0, 1 }))
+              .Append("\",\"title\":\"Title ").Append((from + i).ToString("D4")).Append("\",\"year\":2000}");
+        }
+        body.Append("]}");
+
+        return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+        {
+          RequestMessage = request,
+          Content = new StringContent(body.ToString(), Encoding.UTF8, "application/json")
+        });
+      }
+
+      /// <summary>One name out of a query string, or <c>null</c> when the question did not carry it.</summary>
+      private static string? Of(string query, string name)
+      {
+        foreach (string pair in query.TrimStart('?').Split('&'))
+        {
+          int equals = pair.IndexOf('=');
+          if (equals > 0 && pair.Substring(0, equals) == name)
+            return Uri.UnescapeDataString(pair.Substring(equals + 1));
+        }
+        return null;
+      }
+    }
+
+    private static MediaBrowserViewModel BrowserOn(LongShelf server)
+    {
+      return new MediaBrowserViewModel(
+          new ServerApiClient(SIGN_IN_URL, new HttpClient(server)), MoviesSection);
     }
 
     #region What one title says about itself
@@ -1239,6 +1509,12 @@ namespace Tests.Frontend
 
       internal int TimesAsked { get; private set; }
 
+      /// <summary>
+      /// Whether the shelf says a whole page is still behind what it hands over. Off by default, because a shelf
+      /// that was given whole must not be read on into; tests about reading on turn it on.
+      /// </summary>
+      internal bool AnotherPage { get; set; }
+
       protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
           CancellationToken cancellation)
       {
@@ -1262,7 +1538,7 @@ namespace Tests.Frontend
         }
 
         StringBuilder body = new StringBuilder();
-        body.Append("{\"total\":").Append(matching.Count)
+        body.Append("{\"total\":").Append(matching.Count + (AnotherPage ? 60 : 0))
             .Append(",\"offset\":0,\"limit\":60,\"returned\":").Append(matching.Count)
             .Append(",\"sort\":\"title\"");
         if (Question != null)
@@ -1406,15 +1682,19 @@ namespace Tests.Frontend
       browser.OpenCommand.Execute(null);
       WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SHELF.Length; });
 
+      // The server says another page is behind this one. Nothing has to be pressed for it - there is no "more"
+      // row to press any more - so the walk to the bottom of what is on screen is what asks, and the words that
+      // got this list are the words the next page is asked with.
+      server.AnotherPage = true;
       browser.SearchText = "a";
       browser.FindCommand.Execute(null);
       WaitUntil("the matches to arrive", delegate { return browser.Titles.Count == SHELF.Length; });
 
-      browser.LoadMoreCommand.Execute(null);
+      browser.Selected = browser.Titles[browser.Titles.Count - 1];
       WaitUntil("the second page", delegate { return server.TimesAsked == 3; });
 
       Assert.That(server.LastUrl, Does.Contain("search=a"),
-          "More walks through the matches; a second page of the whole shelf would be a different list");
+          "the shelf reads on through the matches; a second page of the whole shelf would be a different list");
       Assert.That(server.LastUrl, Does.Contain("offset="));
     }
 
@@ -1520,6 +1800,12 @@ namespace Tests.Frontend
 
       internal int TimesAsked { get; private set; }
 
+      /// <summary>
+      /// Whether the shelf says a whole page is still behind what it hands over. See the search shelf's own
+      /// version of this for why a test needs to say so.
+      /// </summary>
+      internal bool AnotherPage { get; set; }
+
       protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
           CancellationToken cancellation)
       {
@@ -1546,7 +1832,7 @@ namespace Tests.Frontend
         }
 
         StringBuilder body = new StringBuilder();
-        body.Append("{\"total\":").Append(matching.Count)
+        body.Append("{\"total\":").Append(matching.Count + (AnotherPage ? 60 : 0))
             .Append(",\"offset\":0,\"limit\":60,\"returned\":").Append(matching.Count)
             .Append(",\"sort\":\"title\"");
         if (Filter != null)
@@ -1733,15 +2019,22 @@ namespace Tests.Frontend
       browser.OpenCommand.Execute(null);
       WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SEEN_SHELF.Length; });
 
+      // The filtered shelf is two rows long, the server says it goes on, and the walk of the selection onto it
+      // is enough to ask for what comes next. The next page has to carry the filter: without it the shelf would
+      // append the watched titles the viewer had just asked not to see.
+      server.AnotherPage = true;
       browser.CycleSeenCommand.Execute(null);
       WaitUntil("the unwatched titles", delegate { return browser.Titles.Count == 2; });
+      Assert.That(browser.HasMore, Is.True, "the server says the filtered shelf goes on");
 
-      browser.LoadMoreCommand.Execute(null);
-      WaitUntil("the second page", delegate { return server.TimesAsked == 3; });
+      // The filtered shelf is two rows long, the server says it goes on, and the shelf finishes itself - which is
+      // the whole point: the next part has to carry the filter, because without it the shelf would append the
+      // watched titles the viewer had just asked not to see.
+      WaitUntil("the filtered shelf to go on reading", delegate { return server.TimesAsked >= 2; });
 
       Assert.That(server.LastUrl, Does.Contain("seen=unwatched"),
-          "More walks through the filtered shelf; an unfiltered second page would append titles the viewer "
-          + "had asked not to see");
+          "the shelf reads on through the filtered titles; an unfiltered second page would append titles the "
+          + "viewer had asked not to see");
     }
 
     [AvaloniaTest]

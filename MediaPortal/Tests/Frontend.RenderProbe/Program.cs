@@ -894,6 +894,16 @@ namespace FrontendProbe
             Console.WriteLine("FAILED:   the shelf has no heading on the screen.");
             return 4;
           }
+
+          // A panel that virtualises keeps "the shelf was read" and "the shelf was built" apart, and a frame is
+          // only honest when it prints both: every title the server has, a screenful of tiles standing under it.
+          VirtualizingTilePanel? tiles = Avalonia.VisualTree.VisualExtensions
+              .GetVisualDescendants(browserWindow).OfType<VirtualizingTilePanel>().FirstOrDefault();
+          Console.WriteLine("tiles:    " + (tiles == null
+              ? "the shelf is not standing on a tile panel"
+              : tiles.StandingCount + " of " + browserScreen.Titles.Count + " title(s) stand, "
+                + tiles.Columns + " column(s), " + tiles.ContainersBuilt + " container(s) built, "
+                + tiles.ContainersReused + " taken back out of the pool"));
         }
       }
 
@@ -1629,14 +1639,19 @@ namespace FrontendProbe
             shelf.GridTemplateKey);
       }
 
-      // Wrapped is the whole point of a tiled shelf: tiles laid left to right, not a single vertical strip.
-      if (!(titles.ItemsPanelRoot is WrapPanel))
+      // Wrapped is the whole point of a tiled shelf: tiles laid left to right, not a single vertical strip. The
+      // tile panel lays them where the wrap panel laid them - the tests measure that - and what a frame can see
+      // is that the shelf stands on it at all: a shelf that fell back to wrapping lays its eleven hundred tiles
+      // out whole, which every other number this probe prints would only show as a still picture.
+      if (!(titles.ItemsPanelRoot is VirtualizingTilePanel))
       {
-        report = string.Format("the {0}'s panel is not a wrap panel", layoutName);
-        return string.Format("the shelf wears a skin's tile but lays it in a list panel ({0})", layoutName);
+        report = string.Format("the {0}'s panel is '{1}', not the tile panel", layoutName,
+            titles.ItemsPanelRoot?.GetType().Name ?? "nothing");
+        return string.Format("the shelf wears a skin's tile but does not stand on the tile panel ({0})",
+            layoutName);
       }
 
-      report = string.Format("the skin's '{0}' draws the shelf as {1}, wrapped on a WrapPanel",
+      report = string.Format("the skin's '{0}' draws the shelf as {1}, wrapped on the virtualising tile panel",
           shelf.GridTemplateKey, layoutName);
       return null;
     }

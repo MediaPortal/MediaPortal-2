@@ -57,6 +57,9 @@ namespace MediaPortal.Frontend.ViewModels
     /// <summary>How many pages of the shelf one party reads; enough for an evening and no more.</summary>
     private const int READ_PAGES = 5;
 
+    /// <summary>Titles one of those pages brings.</summary>
+    private const int PAGE = 60;
+
     /// <summary>
     /// Refusals in a row after which the party stops by itself. A song that will not open is an evening saved
     /// by walking on; several in a row say the shelf or the player is the problem, and that is a fact a
@@ -404,7 +407,7 @@ namespace MediaPortal.Frontend.ViewModels
         for (int page = 0; page < READ_PAGES; page++)
         {
           MediaTitles answer = await _client!.GetTitlesAsync("AudioItem", null, false,
-              MediaBrowserViewModel.PAGE_SIZE, page * MediaBrowserViewModel.PAGE_SIZE,
+              PAGE, page * PAGE,
               null, null, null, null, null, null, cancellation.Token);
 
           if (answer.Error != null)

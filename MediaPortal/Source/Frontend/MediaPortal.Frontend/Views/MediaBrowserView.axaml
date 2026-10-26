@@ -117,8 +117,10 @@
 
   <!--
     One section of the library, as a television shows it: a long list, one row per title, big enough to read
-    from a sofa, walked with the four arrow keys. OK plays the selected row, "More" at the end of the list asks
-    for the next page, and Back goes home. The row itself says when a title cannot be watched from this machine,
+    from a sofa, walked with the four arrow keys. OK plays the selected row - or opens the series, album or season
+    behind it, since those are questions rather than things to watch - and Back goes home. Nothing beside the list
+    asks to be pressed to see the rest of a shelf: the list reads on when the viewer comes near its end, which is
+    why there is no "more" row here either. The row itself says when a title cannot be watched from this machine,
     so that the viewer does not have to discover it by pressing OK.
   -->
 
@@ -271,26 +273,9 @@
                ItemTemplate="{StaticResource BuiltinRowsTemplate}"
                FontSize="24" />
 
-      <StackPanel Grid.Column="1" Spacing="16" VerticalAlignment="Top">
-        <Button Name="playButton"
-                Content="Play"
-                Command="{Binding PlayCommand}"
-                IsVisible="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}"
-                MinWidth="180"
-                Padding="28,10"
-                FontSize="22" />
-        <Button Name="moreButton"
-                Content="More"
-                Command="{Binding LoadMoreCommand}"
-                IsVisible="{Binding CanLoadMore}"
-                MinWidth="180"
-                Padding="28,10"
-                FontSize="22" />
-      </StackPanel>
-
       <!--
-        What the server knows about the selected title, over the button column: the list stays where it is, so
-        closing the panel returns to the same row. Nothing in it takes the focus, because a details panel you have
+        What the server knows about the selected title, in the column beside the list: the list stays where it is,
+        so closing the panel returns to the same row. Nothing in it takes the focus, because a details panel you have
         to navigate to is a screen inside a screen, and the remote has one set of arrows.
       -->
       <Border Name="detailsPanel"

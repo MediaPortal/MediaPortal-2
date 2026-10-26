@@ -261,6 +261,16 @@ namespace MediaPortal.Frontend.ViewModels
     private byte[]? _artwork;
 
     /// <summary>
+    /// Which of the shelf's picture sources last answered this row, or <c>null</c> while none has.
+    /// </summary>
+    /// <remarks>
+    /// A screen that repaints what it already shows - and it does that on every scroll, because that is how it
+    /// notices rows coming into view - would otherwise ask the server for the same poster over and over. The shelf
+    /// clears this the moment it decides to wear another kind of picture, which is the only moment the answer
+    /// stops being current.
+    /// </remarks>
+    internal Artwork? PaintedFrom { get; set; }
+    /// <summary>
     /// Puts the server's answer about this title's picture on the row.
     /// </summary>
     /// <param name="picture">The bytes, or null when this server has no picture for the title.</param>
@@ -524,9 +534,19 @@ namespace MediaPortal.Frontend.ViewModels
   /// </summary>
   /// <remarks>
   /// <para>
-  /// Pages are read one at a time and never all at once. A library of 40 000 items is a real household, and a
-  /// screen that fetched it to show twenty would be waiting minutes for a list nobody scrolls through in one
-  /// evening; "more" is a row on the screen because the viewer is the one who decides whether to ask again.
+  /// Pages are read one at a time and the shelf keeps reading them without being asked. A library of 40 000 items
+  /// is a real household, and a screen that fetched it to show twenty would be waiting minutes for a list nobody
+  /// scrolls through in one evening; but a viewer who does scroll to the bottom should find the next page already
+  /// there rather than a button to press, so the screen says when the viewer is near the end and
+  /// <see cref="KeepReadingAsync"/> answers. <see cref="MAX_ROWS"/> is where the reading stops, which is the
+  /// length the reference itself stops a shelf at.
+  /// </para>
+  /// <para>
+  /// The rows are all kept once read, because a row of the list is a title's name and a few numbers rather than
+  /// something the screen has to draw - which is how MP2's own panel treats the whole shelf it holds in memory.
+  /// The pictures are the exception, and the reason the reading is page by page: a row asks for its own picture
+  /// when the screen draws it (<see cref="PaintRow"/>) rather than the shelf fetching one per title it happens
+  /// to know about.
   /// </para>
   /// <para>
   /// Like the home screen, this view model knows nothing about Avalonia, so the whole of it is testable against
@@ -536,10 +556,50 @@ namespace MediaPortal.Frontend.ViewModels
   public partial class MediaBrowserViewModel : ObservableObject
   {
     /// <summary>
-    /// Titles per request. A television shows around ten rows, and reading ahead of what fits on the screen twice
-    /// over keeps the remote from waiting on the network without fetching a whole season.
+    /// Titles the opening question brings.
     /// </summary>
-    public const int PAGE_SIZE = 60;
+    /// <remarks>
+    /// Measured against a shelf of eleven hundred films on the local network: the first hundred and twenty names are
+    /// on the screen in about a sixth of a second, the whole shelf takes about a second and a half. The screen is
+    /// therefore drawn from the opening answer and completed from the ones behind it - which is quicker on the eye
+    /// than the reference's single query and lands on the same end state, a shelf that is whole before anybody has
+    /// read a row of it.
+    /// </remarks>
+    public const int OPENING_PAGE = 120;
+
+    /// <summary>
+    /// Titles a question after the opening one brings: as much as the server will hand over in a single answer.
+    /// </summary>
+    /// <remarks>
+    /// <c>MediaController.MAX_LIMIT</c> is 2000, and asking for the rest in one blow rather than in slices of sixty
+    /// is the difference between two questions about a shelf and twenty - every one of which makes the server sort
+    /// the whole shelf again on its way out. The reference asks once and gets everything
+    /// (<c>MediaLibraryQueryViewSpecification</c> hands its query no limit at all); this is the same question, with
+    /// the ceiling the server sets for itself and without a front end that has to wait for the largest answer
+    /// before it is allowed to draw a title.
+    /// </remarks>
+    public const int REST_IN_ONE_ASK = 2000;
+
+    /// <summary>
+    /// How long the shelf waits between two questions while it finishes itself.
+    /// </summary>
+    /// <remarks>
+    /// One frame or two, so that the names already in hand reach the television before the next batch is asked
+    /// for. This is not throttling the server - a shelf of eleven hundred films is two questions - it is the screen
+    /// being allowed to draw between them.
+    /// </remarks>
+    private const int DRAW_BETWEEN_ASKS_MILLISECONDS = 40;
+
+    /// <summary>
+    /// The most rows a shelf gathers, however big the library behind it.
+    /// </summary>
+    /// <remarks>
+    /// The number the reference stops at: <c>Consts.MAX_NUM_ITEMS_VISIBLE</c> is 5000, past which MP2 splits the
+    /// shelf into letters or says that there are too many items. A viewer with forty thousand songs is better
+    /// served by the search box and the filters than by a list that has to scroll for an hour - so the reading
+    /// stops here and the status line says that it did.
+    /// </remarks>
+    public const int MAX_ROWS = 5000;
 
     private readonly ServerApiClient? _client;
 
@@ -550,14 +610,25 @@ namespace MediaPortal.Frontend.ViewModels
     private readonly PictureCache? _pictures;
     private CancellationTokenSource? _running;
 
+    /// <summary>
+    /// Which shelf the reads belong to. Bumped by every read that starts from the top - an opening, a search, a
+    /// filter, a different shelf - which is how a run of <see cref="ReadTheRestAsync"/> learns that the shelf it
+    /// was finishing has been replaced under it.
+    /// </summary>
+    private long _generation;
+
     [ObservableProperty]
     private string _status;
 
     [ObservableProperty]
     private bool _isBusy;
 
+    /// <summary>
+    /// Whether the server still has rows of this shelf that have not been read. Not a promise that they will be
+    /// read - <see cref="MAX_ROWS"/> can stop the shelf first - but the answer to "is there more".
+    /// </summary>
     [ObservableProperty]
-    private bool _canLoadMore;
+    private bool _hasMore;
 
     [ObservableProperty]
     private TitleViewModel? _selected;
@@ -1274,7 +1345,9 @@ namespace MediaPortal.Frontend.ViewModels
       // itself never answered the details question; the viewer's own answer outranks every dial.
       if (!_screens.HasDetails(AspectName))
         DetailsDefaultShown(DetailsDefaultFor(value));
-      _ = PaintRowsAsync(ArtworkForLayout);
+      // The rows the viewer is looking at are painted again by the screen, which is the one that knows which rows
+      // those are; the generation bump throws away the pictures this layout was waiting for.
+      PictureSourceChanged();
     }
 
     /// <summary>
@@ -1393,7 +1466,7 @@ namespace MediaPortal.Frontend.ViewModels
       OnPropertyChanged(nameof(MediaKind));
       // The grid asks the skin for a different frame per kind, so the screen has to dress its rows again.
       OnPropertyChanged(nameof(GridTemplateKey));
-      _ = PaintRowsAsync(ArtworkForLayout);
+      PictureSourceChanged();
     }
 
     /// <summary>The tile this list came from, or <c>null</c> in the designer.</summary>
@@ -1521,18 +1594,101 @@ namespace MediaPortal.Frontend.ViewModels
     {
       Titles.Clear();
       Selected = null;
-      CanLoadMore = false;
+      HasMore = false;
       await ReadAsync(0);
     }
 
     /// <summary>
-    /// Reads the page after the ones already on screen.
+    /// Reads the next page because the bottom of the shelf is in sight.
     /// </summary>
-    [RelayCommand]
-    public async Task LoadMoreAsync()
+    /// <remarks>
+    /// <para>
+    /// There is no "more" row to press and no button beside the list. The reference has neither - it reads the whole
+    /// shelf in one blow and lets the panel virtualise it - and a viewer who has scrolled to the bottom of what is
+    /// on the screen is not asking a question that needs answering, they are telling the screen to go on.
+    /// </para>
+    /// <para>
+    /// Normally nothing has to wait for a scroll at all, because the shelf finishes reading itself the moment it was
+    /// opened (<see cref="ReadTheRestAsync"/>). This is the answer for the two cases that can leave a shelf short:
+    /// a viewer standing at the bottom of one that stopped at <see cref="MAX_ROWS"/>'s page boundary, and a test
+    /// that walks a selection without owning a television.
+    /// </para>
+    /// <para>
+    /// A page already on its way is waited for rather than cancelled: the screen says "the bottom is in sight" from
+    /// every scroll event and the selection says it from every step of the walk, so one page being read is
+    /// accompanied by the demand for it several times over.
+    /// </para>
+    /// </remarks>
+    public async Task KeepReadingAsync()
     {
-        await ReadAsync(Titles.Count);
+      if (!HasMore || Titles.Count >= MAX_ROWS || _running != null)
+        return;
+
+      await ReadAsync(Titles.Count);
     }
+
+    /// <summary>
+    /// Reads the rest of the shelf, without being asked, so that the shelf on the screen is the shelf the server
+    /// has rather than the first screenful of it.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This is the difference the viewer sees: a shelf whose count only grows while scrolling is a shelf that makes
+    /// the reader stop and wait twice - once for the page and once for the scrolling they were doing anyway. The
+    /// reference reads its shelf whole and shows it whole; one question of a screenful is answered first so that
+    /// names appear at once, and what the server still has comes in behind it, in asks as big as the server allows.
+    /// </para>
+    /// <para>
+    /// A shelf being finished is a background errand and dies quietly: <paramref name="generation"/> names the
+    /// shelf this run belongs to, and a search, a filter or a different shelf started while a question was on its
+    /// way bumps that number, which ends this run at its next pause. That is also why the run never cancels
+    /// anything itself - the newer read cancels what it supersedes, and two readers of one shelf would only race
+    /// each other over the same offset.
+    /// </para>
+    /// <para>
+    /// Two ways this stops besides running out of shelf: the ceiling, and an answer that brought nothing while
+    /// promising more - a shelf that argues with itself is not worth an endless question.
+    /// </para>
+    /// <para>
+    /// Two runs of this over one shelf would ask the same offset twice and append the same titles twice, so the
+    /// claim below keeps one run per shelf - and lets a newer shelf take the claim from the run that is about to
+    /// notice it is gone anyway.
+    /// </para>
+    /// </remarks>
+    private async Task ReadTheRestAsync(long generation)
+    {
+      long held = Interlocked.Read(ref _finishing);
+      if (held == generation)
+        return;
+
+      // Either nobody is finishing anything (-1) or the shelf being finished is an older one, which is by now on
+      // its way out on its own.
+      Interlocked.Exchange(ref _finishing, generation);
+      try
+      {
+        // A moment for the screen to draw what it has before the next question goes out.
+        await Task.Delay(DRAW_BETWEEN_ASKS_MILLISECONDS);
+
+        while (generation == Volatile.Read(ref _generation) && HasMore && Titles.Count < MAX_ROWS)
+        {
+          int read = Titles.Count;
+          await ReadAsync(read);
+
+          if (Titles.Count == read)
+            break;
+
+          await Task.Delay(DRAW_BETWEEN_ASKS_MILLISECONDS);
+        }
+      }
+      finally
+      {
+        // Left alone if a newer shelf claimed it in the meantime; that run clears its own claim.
+        Interlocked.CompareExchange(ref _finishing, -1, generation);
+      }
+    }
+
+    /// <summary>The generation whose shelf is being finished, or -1 while nothing is.</summary>
+    private long _finishing = -1;
 
     /// <summary>
     /// Whether a search is on this list, which is what the "Clear" button appears and disappears for.
@@ -1679,7 +1835,7 @@ namespace MediaPortal.Frontend.ViewModels
       DetailsVisible = false;
       Selected = null;
       Titles.Clear();
-      CanLoadMore = false;
+      HasMore = false;
     }
 
     /// <summary>
@@ -2043,33 +2199,46 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
-    /// Asks the server for the picture of every row that was just read, a few requests at a time.
+    /// Puts the shelf's current picture on one row, asking the server for it when it is not already remembered.
     /// </summary>
+    /// <param name="row">A row the screen has just laid out.</param>
     /// <remarks>
-    /// The whole page is asked for rather than only the rows on screen, because the rows on screen are not
-    /// something a view model knows - the screen decides that as it lays them out - and because the page is
-    /// already bounded (<see cref="PAGE_SIZE"/>), so the most this can queue is one page of small reads. Whoever
-    /// scrolls a row into view a second later finds its poster there rather than watching it arrive.
+    /// <para>
+    /// Asked for per row by the screen rather than looped over by the shelf, because only the screen knows which
+    /// rows it drew: a shelf of eleven hundred films holds eleven hundred rows in memory and shows a dozen on the
+    /// television, and a poster fetched for a row nobody can see is work nobody benefits from. The reference hangs
+    /// its pictures the same way round - <c>FanArtImageSource</c> is composed into a container as that container is
+    /// realised, and the texture is allocated asynchronously afterwards - and whether a big library scrolls or
+    /// stalls comes down to exactly this.
+    /// </para>
+    /// <para>
+    /// Nothing is cancelled when a row scrolls away, because the answer is what the picture caches are for: a
+    /// request already on its way is joined rather than repeated, and walking back over a shelf asks for nothing.
+    /// A row that already wears a picture from the source the shelf is using now is answered on the spot, which is
+    /// what keeps the screen's repeated passes over its visible rows free.
+    /// </para>
     /// </remarks>
-    private async Task ReadArtworkAsync()
+    public void PaintRow(TitleViewModel row)
     {
-      await PaintRowsAsync(ArtworkForLayout);
+      Artwork? artwork = ArtworkForLayout;
+      if (artwork == null || ReferenceEquals(row.PaintedFrom, artwork))
+        return;
+
+      row.PaintedFrom = artwork;
+      _ = PutArtworkOnAsync(artwork, row, Volatile.Read(ref _paintGeneration));
     }
 
     /// <summary>
-    /// Asks the given picture source for the picture of every row on the shelf, a few requests at a time.
+    /// Says that the rows of this shelf now wear another kind of picture, so that answers still on their way are
+    /// thrown away and the screen paints the rows it has drawn again.
     /// </summary>
-    private async Task PaintRowsAsync(Artwork? artwork)
+    private void PictureSourceChanged()
     {
-      if (artwork == null)
-        return;
+      Interlocked.Increment(ref _paintGeneration);
 
-      int generation = ++_paintGeneration;
-      List<Task> asking = new List<Task>();
-      foreach (TitleViewModel row in new List<TitleViewModel>(Titles))
-        asking.Add(PutArtworkOnAsync(artwork, row, generation));
-
-      await Task.WhenAll(asking);
+      // Every row's answer is now an answer about the wrong kind of picture, so none of them counts as painted.
+      foreach (TitleViewModel row in Titles)
+        row.PaintedFrom = null;
     }
 
     /// <summary>
@@ -2204,11 +2373,19 @@ namespace MediaPortal.Frontend.ViewModels
       _running = cancellation;
       previous?.Cancel();
 
+      // A read from the top is a new shelf, whatever made it happen - the tile that was pressed, a word typed into
+      // the find box, the watched key. Every run that was finishing an older shelf notices at its next pause.
+      if (offset == 0)
+        Interlocked.Increment(ref _generation);
+
       IsBusy = true;
       try
       {
-        // Nothing asks for newest-first here any more: that order came with the "Latest media" tile alone.
-        MediaTitles answer = await _client.GetTitlesAsync(AspectName, SortOrder, false, PAGE_SIZE, offset,
+        // Nothing asks for newest-first here any more: that order came with the "Latest media" tile alone. The
+        // opening question is a screenful and every question after it is as much as the server will hand over, so
+        // that a shelf of eleven hundred films costs two questions rather than twenty.
+        MediaTitles answer = await _client.GetTitlesAsync(AspectName, SortOrder, false,
+            offset == 0 ? OPENING_PAGE : REST_IN_ONE_ASK, offset,
             string.IsNullOrEmpty(ActiveSearch) ? null : ActiveSearch,
             string.IsNullOrEmpty(ActiveSeen) ? null : ActiveSeen, Inside, GroupBy, GroupValue, SeasonFilter,
             cancellation.Token);
@@ -2232,19 +2409,26 @@ namespace MediaPortal.Frontend.ViewModels
           Titles.Add(row);
         }
 
+        // Whether the shelf has anything left, settled before the selection is placed: a walk landing on the
+        // first of these rows is the viewer saying they are near the end, and the answer to "is there more" has
+        // to be the fresh one by then. The ceiling is applied here rather than in the reading itself so that the
+        // foot of the shelf, the status line and the walk all agree with one another - and so that a shelf which
+        // stopped early can say so below instead of scrolling quietly forever.
+        HasMore = answer.Remaining > 0 && Titles.Count < MAX_ROWS;
+
         Selected = Selected ?? (Titles.Count > 0 ? Titles[0] : null);
-        CanLoadMore = answer.Remaining > 0;
         // The shelf's foot counts what the server counted, not merely what has been read so far - the same
         // answer the status line's "12 of 244" is built from, so the two can never disagree.
         TotalNumber = answer.Total;
         RaiseShelfCounters();
 
-        // The pictures come after the names rather than before them. A viewer reads a shelf by its titles, and a
-        // list that waited for sixty downloads before drawing its first row would look like a front end that had
-        // stopped. Not awaited, and not cancelled when a newer page arrives: a picture that is already on its way
-        // is remembered, so the shelf it was read for can be scrolled back to without asking again.
-        _ = ReadArtworkAsync();
-
+        // The pictures come after the names rather than before them, and only for the rows the screen drew. A
+        // viewer reads a shelf by its titles, and a list that waited for sixty downloads before drawing its first
+        // row would look like a front end that had stopped. The screen asks for a row's picture as it lays the row
+        // out (PaintRow), which is how the reference does it too - the picture is composed into the container when
+        // the container is realised - and it is the reason a shelf of eleven hundred films costs no more bandwidth
+        // than a shelf of eleven.
+        //
         // The filter in front of the count rather than behind it, because the number is the answer and the filter
         // is the reason the answer is that small: "12 of 40 unwatched films" reads as one statement, while
         // "12 of 40 films, unwatched" reads as two and can be misread as a description of the twelve.
@@ -2288,6 +2472,13 @@ namespace MediaPortal.Frontend.ViewModels
               answer.Total == 1 ? "title in" : "titles in", Heading.ToLowerInvariant(),
               answer.Total == 1 ? "matches" : "match", ActiveSearch);
         }
+        // A shelf that stopped short of the server's count says so, rather than letting "5000 of 41 000 films"
+        // stand there as though the list were finished. What stopped it is the useful part: a viewer with a shelf
+        // that tall is looking for the search box or a filter, and both are already on this screen.
+        if (answer.Remaining > 0 && Titles.Count >= MAX_ROWS)
+          Status = "The first " + MAX_ROWS + " of " + answer.Total + " " + seeing + about
+              + ". Find or filter the shelf to narrow it down.";
+
         if (!string.IsNullOrEmpty(answer.Error))
           Status = answer.Error;
       }
@@ -2320,6 +2511,13 @@ namespace MediaPortal.Frontend.ViewModels
         {
           _running = null;
           IsBusy = false;
+
+          // Whatever this answer said, the shelf is not finished until the server says it is. Started here rather
+          // than in the successful branch because a shelf with rows on it and a question that went wrong is still a
+          // shelf somebody is going on reading - and because an answer that brought nothing new stops the run
+          // below rather than starting an endless question.
+          if (HasMore)
+            _ = ReadTheRestAsync(Volatile.Read(ref _generation));
         }
         cancellation.Dispose();
       }

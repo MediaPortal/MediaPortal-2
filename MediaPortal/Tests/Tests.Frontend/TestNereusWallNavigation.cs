@@ -1136,16 +1136,21 @@ namespace Tests.Frontend
       /// Pumps the screen until the wall has come to rest. A wall scrolled to a section glides there over several
       /// frames, and how many a machine gives it is not fixed: a test that measures after a guessed number of
       /// pumps reads the wall mid-glide, which once showed up as a last section standing 183 lines past the edge
-      /// of the screen in one run and standing correctly in the next. So a test asks for rest rather than guessing.
+      /// of the screen in one run and standing correctly in the next. So a test asks for rest rather than guessing
+      /// - and reads the offset across a pair of beats, because a single beat landing between two frames of a
+      /// glide reports two equal readings while the wall is still moving.
       /// </summary>
       public void Settle()
       {
-        double restedOn = double.NaN;
-        for (int beat = 0; beat < 30 && Math.Abs(_pane.Offset.X - restedOn) > 0.01; beat++)
+        for (int beat = 0; beat < 120; beat++)
         {
-          restedOn = _pane.Offset.X;
+          double before = _pane.Offset.X;
           Pump();
+          Pump();
+          if (Math.Abs(_pane.Offset.X - before) <= 0.01)
+            break;
         }
+
         Pump();
       }
 

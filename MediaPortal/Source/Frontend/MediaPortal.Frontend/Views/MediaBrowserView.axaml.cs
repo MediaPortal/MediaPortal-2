@@ -15,17 +15,21 @@
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
+using Avalonia.Threading;
+using Avalonia.VisualTree;
 using MediaPortal.Frontend.Input;
 using MediaPortal.Frontend.Theming;
 using MediaPortal.Frontend.ViewModels;
 using MediaPortal.Frontend.Workflow;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Frontend.Views
 {
@@ -69,12 +73,10 @@ namespace MediaPortal.Frontend.Views
       _insideScreen = insideScreen;
       InitializeComponent();
 
-      playButton.IsVisible = browser.Selected != null;
-
-      var ring = new List<Control> { titlesList };
-      if (browser.CanLoadMore)
-        ring.Add(moreButton);
-      DpadNavigation.Attach(this, ring);
+      // The arrow ring is the shelf and nothing else. The two buttons that used to stand beside it are gone: "Play"
+      // was the Enter that the list already answers, and "More" asked for what the shelf now reads on its own as
+      // the viewer comes near its end. The details panel beside the list takes no focus by design.
+      DpadNavigation.Attach(this, new List<Control> { titlesList });
 
       // Rows or tiles: the view owns the panel because a panel is a thing the view draws, while the pictures
       // inside it belong to the skin - so switching means setting the wrap panel and handing the skin a
@@ -88,7 +90,10 @@ namespace MediaPortal.Frontend.Views
         if (args.PropertyName == nameof(MediaBrowserViewModel.Layout)
             || args.PropertyName == nameof(MediaBrowserViewModel.MediaKind)
             || args.PropertyName == nameof(MediaBrowserViewModel.GridTemplateKey))
+        {
           ApplyLayout();
+          ScheduleRowPainting();
+        }
       };
       // A skin put on or taken off while this screen is open changes which frames answer the tile keys, and
       // the view - not the skin's attachment - is the one that decides what the list draws. The deal lasts
@@ -105,6 +110,32 @@ namespace MediaPortal.Frontend.Views
       // A double-click on a row means the Enter that plays it (or opens the series behind it); the search box
       // keeps its Enter for the caret's sake and gets no second path. See HomeWindow for the general reason.
       MouseRemote.Attach(this, titlesList);
+
+      // A row the screen has laid out is a row that could be painted, but only the ones inside the viewport - plus
+      // a screenful in each direction, so that scrolling arrives at pictures rather than at grey - are worth asking
+      // the server for. The reference hangs its pictures the same way round: FanArtImageSource is composed into a
+      // container as that container is realised, and the texture is allocated afterwards. It matters in the tile
+      // and cover views too, whose panel keeps a band of rows standing around the screen and re-dresses a
+      // container as it moves from one title to the next: eleven hundred tiles that all asked for a poster would
+      // be eleven hundred downloads wearing the shelf, whether they stand or not.
+      titlesList.ContainerPrepared += delegate { ScheduleRowPainting(); };
+
+      // Two things are done when the list is scrolled: the rows that came into sight are offered their pictures,
+      // and a viewer who has come to the bottom of what is on the screen is answered with the next part of the
+      // shelf. The second is a safety net rather than the plan - a shelf reads itself whole as soon as it is opened
+      // - but it is what recovers a reading that a server interrupted.
+      titlesList.AddHandler(ScrollViewer.ScrollChangedEvent, delegate
+      {
+        ScheduleRowPainting();
+
+        ScrollViewer? scroller = ListScroller();
+        if (scroller == null)
+          return;
+
+        double short_of_bottom = scroller.Extent.Height - (scroller.Offset.Y + scroller.Viewport.Height);
+        if (short_of_bottom <= scroller.Viewport.Height)
+          _ = browser.KeepReadingAsync();
+      });
 
       // OK on the remote is Enter here, and Avalonia hands it to the focused control before anyone else; the
       // list does nothing with it, so it is caught on the way in and turns into "play this", which is what a
@@ -314,15 +345,97 @@ namespace MediaPortal.Frontend.Views
       // A grid and a cover shelf are laid the same way - one after the other, wrapping whole - and only the
       // pictures inside differ.
       if (viewModel.Layout != BrowserLayout.List)
-        titlesList.ItemsPanel = TILE_WRAP_PANEL;
+        titlesList.ItemsPanel = TILE_PANEL;
       else
         titlesList.ClearValue(ItemsControl.ItemsPanelProperty);
+
+      // A panel swapped under a standing list is laid out again, and with it the scroller it is read through.
+      _scroller = null;
+    }
+
+    /// <summary>
+    /// Asks for the pictures of the rows the screen can see, once the layout pass that laid them out is over.
+    /// </summary>
+    /// <remarks>
+    /// Posted rather than done where it is noticed, because a row is noticed as prepared before anything was
+    /// measured: at that moment a container's bounds say nothing about whether it is inside the viewport. The
+    /// screen paints a batch of rows at most per pass, however many rows the panel prepared on the way.
+    /// </remarks>
+    private void ScheduleRowPainting()
+    {
+      if (_paintScheduled)
+        return;
+
+      _paintScheduled = true;
+      Dispatcher.UIThread.Post(delegate
+      {
+        _paintScheduled = false;
+        PaintRowsTheScreenCanSee();
+      }, DispatcherPriority.Loaded);
+    }
+
+    private bool _paintScheduled;
+
+    /// <summary>
+    /// Asks the shelf for the picture of every row it has laid out where the television can see it.
+    /// </summary>
+    /// <remarks>
+    /// Needed because a frame can be swapped under rows that stay standing: the panel change realises its
+    /// containers again, and a template change leaves the containers where they are and only what is drawn inside
+    /// them changes. Both are answered by the same pass over what is on the screen - see
+    /// <see cref="MediaBrowserViewModel.PaintRow"/> for why the picture belongs to the screen rather than to the
+    /// list, and <see cref="StandsOnTheScreen"/> for what "on the screen" means here.
+    /// </remarks>
+    private void PaintRowsTheScreenCanSee()
+    {
+      if (!(DataContext is MediaBrowserViewModel viewModel))
+        return;
+
+      // A screenful above and below the visible band, because a poster that arrives while the viewer is still a
+      // screen away is a poster that is there when they arrive, and one that arrives after they do is grey.
+      Rect visible = titlesList.Bounds;
+      Rect inSight = new Rect(visible.X, visible.Y - visible.Height, visible.Width, visible.Height * 3);
+
+      foreach (Control? container in titlesList.GetRealizedContainers())
+      {
+        if (container?.DataContext is TitleViewModel row && StandsOnTheScreen(container, inSight))
+          viewModel.PaintRow(row);
+      }
+    }
+
+    /// <summary>
+    /// Whether a laid out row stands inside the band of the list that is drawn on the television.
+    /// </summary>
+    private bool StandsOnTheScreen(Control container, Rect inSight)
+    {
+      Point? corner = container.TranslatePoint(new Point(0, 0), titlesList);
+      if (!corner.HasValue)
+        return false;
+      return inSight.Intersects(new Rect(corner.Value, container.Bounds.Size));
     }
 
     private void OnSkinChanged(object? sender, EventArgs e)
     {
       ApplyLayout();
     }
+
+    /// <summary>
+    /// The scroller the list is read through, which lives inside the list's own template rather than beside it.
+    /// </summary>
+    /// <remarks>
+    /// Looked for rather than handed over, because <see cref="ItemsControl"/> keeps its <see cref="ScrollViewer"/>
+    /// to itself; the same hunt is what the home screen does for its menu. Found once and kept - and asked for
+    /// again should the screen ever be retemplated, which is what a skin being put on does.
+    /// </remarks>
+    private ScrollViewer? ListScroller()
+    {
+      if (_scroller == null)
+        _scroller = titlesList.GetVisualDescendants().OfType<ScrollViewer>().FirstOrDefault();
+
+      return _scroller;
+    }
+
+    private ScrollViewer? _scroller;
 
     /// <summary>The frame this file draws for a shape the worn skin does not answer.</summary>
     private IDataTemplate BuiltinTemplate(BrowserLayout layout)
@@ -344,9 +457,13 @@ namespace MediaPortal.Frontend.Views
 
     private readonly Dictionary<string, IDataTemplate> _builtin = new Dictionary<string, IDataTemplate>();
 
-    /// <summary>The tiles' panel: laid left to right and wrapping whole, which is what a grid is at heart.</summary>
-    private static readonly FuncTemplate<Panel?> TILE_WRAP_PANEL =
-        new FuncTemplate<Panel?>(() => new WrapPanel { Orientation = Orientation.Horizontal });
+    /// <summary>
+    /// The tiles' panel: laid left to right and wrapping whole, which is what a grid is at heart, but with only
+    /// the rows standing that the screen could be drawing - see <see cref="VirtualizingTilePanel"/> for why a
+    /// wrap panel laying out a whole film library is not the same thing.
+    /// </summary>
+    private static readonly FuncTemplate<Panel?> TILE_PANEL =
+        new FuncTemplate<Panel?>(() => new VirtualizingTilePanel());
 
     private void OnPlayRequested(object? sender, TitleViewModel title)
     {
