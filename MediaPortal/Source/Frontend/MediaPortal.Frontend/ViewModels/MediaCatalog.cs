@@ -163,16 +163,17 @@ namespace MediaPortal.Frontend.ViewModels
     /// the order those titles are watched or listened to in.
     /// </summary>
     /// <remarks>
-    /// A series leads straight to its episodes rather than to its seasons, which is what MP2 offers too: the
-    /// episodes of a whole series sorted by season and number are one list a viewer walks with the arrow keys, and a
-    /// screen they have to press through twice per series is a screen in the way of the thing they came to do. A
-    /// season is still accepted as a parent by the server, because which of the two an importer files episodes
-    /// under depends on where the metadata came from.
+    /// A series opens on its seasons and a season on its episodes, which is the shape MP2 gives the same library:
+    /// its TV screens walk series → seasons → episodes, the database links a season to its series by
+    /// <c>ROLE_SEASON</c> to <c>ROLE_SERIES</c> (SeasonSeriesRelationshipExtractor.cs:58,68), and the skin keeps a
+    /// grid type for seasons beside the two for films and series precisely because a season is a screen a viewer
+    /// stands on rather than a step walked through. A season is still accepted as a parent of episodes by the
+    /// server, because which of the two an importer filled in depends on where the metadata came from.
     /// </remarks>
     private static readonly (string Aspect, string ChildAspect, string ChildSort)[] CONTAINERS =
     {
         ("AlbumItem", "AudioItem", "track"),
-        ("SeriesItem", "EpisodeItem", "episode"),
+        ("SeriesItem", "SeasonItem", "season"),
         ("SeasonItem", "EpisodeItem", "episode"),
         ("MovieCollectionItem", "MovieItem", "title")
     };
@@ -196,24 +197,49 @@ namespace MediaPortal.Frontend.ViewModels
 
     /// <summary>
     /// Whether two aspects are the one shelf the viewer walked in from: the same aspect, or one filed inside the
-    /// other - an episode sits in the series' shelf, a track in the album's, a film in the collection's. The home
-    /// tile that marks what is playing needs this, because a pressed episode is still the series' tile being used.
+    /// other - an episode sits in the season's shelf and that in the series', a track in the album's, a film in the
+    /// collection's. The home tile that marks what is playing needs this, because a pressed episode is still the
+    /// series' tile being used, however many screens deep the viewer pressed to reach it.
     /// </summary>
     public static bool SameShelf(string? aspectA, string? aspectB)
     {
       if (string.Equals(aspectA, aspectB, StringComparison.OrdinalIgnoreCase))
         return true;
 
-      foreach ((string parent, string child, string _) in CONTAINERS)
+      return LiesInside(aspectA, aspectB) || LiesInside(aspectB, aspectA);
+    }
+
+    /// <summary>
+    /// Whether <paramref name="inner"/> is what a shelf of <paramref name="outer"/> titles holds, at any depth:
+    /// the walks go series → seasons → episodes, and a two-step shelf is the same shelf as a one-step one.
+    /// </summary>
+    private static bool LiesInside(string? outer, string? inner)
+    {
+      if (string.IsNullOrEmpty(outer) || string.IsNullOrEmpty(inner))
+        return false;
+
+      string? at = outer;
+      for (int level = 0; level < 8; level++)
       {
-        if ((string.Equals(aspectA, parent, StringComparison.OrdinalIgnoreCase)
-                && string.Equals(aspectB, child, StringComparison.OrdinalIgnoreCase))
-            || (string.Equals(aspectB, parent, StringComparison.OrdinalIgnoreCase)
-                && string.Equals(aspectA, child, StringComparison.OrdinalIgnoreCase)))
+        (string Aspect, string ChildAspect, string ChildSort)? container = FindContainer(at);
+        if (container == null)
+          return false;
+
+        if (string.Equals(container.Value.ChildAspect, inner, StringComparison.OrdinalIgnoreCase))
           return true;
+
+        at = container.Value.ChildAspect;
       }
 
+      // Eight shelves deep is not a shelf a television has; a walk still running by then is a table someone wrote
+      // a cycle into, and the answer to that is "not the same shelf" rather than a hung front end.
       return false;
+    }
+
+    /// <summary>Whether this aspect is a season: one season of one series, which holds episodes.</summary>
+    public static bool IsSeason(string? aspectName)
+    {
+      return string.Equals(aspectName, "SeasonItem", StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>

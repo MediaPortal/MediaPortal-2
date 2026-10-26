@@ -271,8 +271,8 @@ namespace MediaPortal.Server.Api
       public int? Resume { get; set; }
 
       /// <summary>
-      /// For an episode: the season number the library holds. Null for anything that is not an episode, and for an
-      /// episode whose season was never written.
+      /// For an episode: the season number the library holds. For a season: the season it is. Null for anything
+      /// else, and for a title whose season was never written.
       /// </summary>
       /// <remarks>
       /// A season of nought is MP2's own spelling for specials, but it is also what an episode with nothing
@@ -287,6 +287,21 @@ namespace MediaPortal.Server.Api
       /// is named here, because that is the one a row has room for; the item carries all of them.
       /// </summary>
       public int? Episode { get; set; }
+
+      /// <summary>
+      /// For a season: how many episodes the library counts inside it, or null when it counted none. The shelf's
+      /// answer to "what is this season", the way an album's row answers with its track count.
+      /// </summary>
+      public int? Episodes { get; set; }
+
+      /// <summary>
+      /// For a season that the library does not hold as a title of its own - one counted off the season numbers its
+      /// episodes carry - the series that shelf of episodes has to be asked in, so that the two parts a counted
+      /// season really has (this id's owner is nothing but a key to the list) can be sent back together:
+      /// <c>?inside=&lt;ParentId&gt;&amp;aspect=EpisodeItem&amp;season=&lt;Season&gt;</c>. Null for every title the
+      /// library holds, which is almost all of them.
+      /// </summary>
+      public Guid? ParentId { get; set; }
 
       /// <summary>
       /// For a track: its number on the album, or null when the album it came from numbered nothing.
@@ -392,7 +407,8 @@ namespace MediaPortal.Server.Api
     /// <param name="aspect">Aspect name as <c>GET api/library/aspects</c> reports it, e.g. <c>MovieItem</c>.</param>
     /// <param name="sort">
     /// <c>title</c> (default), <c>year</c>, <c>added</c> for when the importer first saw the file,
-    /// <c>lastplayed</c>, <c>episode</c>, <c>track</c>, or <c>none</c> for whatever order the database returns.
+    /// <c>lastplayed</c>, <c>season</c>, <c>episode</c>, <c>track</c>, or <c>none</c> for whatever order the
+    /// database returns.
     /// </param>
     /// <param name="order"><c>asc</c> (default) or <c>desc</c>.</param>
     /// <param name="limit">Titles in the answer, capped at 2000.</param>
@@ -408,9 +424,10 @@ namespace MediaPortal.Server.Api
     /// </param>
     /// <param name="inside">
     /// The id of a title that holds other titles - an album, a series, a season, a film collection - to list the
-    /// titles inside it: the tracks of an album with <c>aspect=AudioItem</c>, the episodes of a series with
-    /// <c>aspect=EpisodeItem</c>. What is asked for has to be something that title can hold, or the answer is a
-    /// refusal rather than an empty list. Null or empty means the whole shelf, which is what it has always meant.
+    /// titles inside it: the tracks of an album with <c>aspect=AudioItem</c>, the seasons of a series with
+    /// <c>aspect=SeasonItem</c>, the episodes of a series or of one season with <c>aspect=EpisodeItem</c>. What is
+    /// asked for has to be something that title can hold, or the answer is a refusal rather than an empty list.
+    /// Null or empty means the whole shelf, which is what it has always meant.
     /// </param>
     /// <param name="by">
     /// One of the categories of <c>GET api/media/groups</c> - <c>genre</c>, <c>year</c>, <c>actors</c>,
@@ -423,11 +440,18 @@ namespace MediaPortal.Server.Api
     /// which holds every title whose recording time falls inside that year rather than a title recorded at the
     /// stroke of one.
     /// </param>
+    /// <param name="season">
+    /// A season number to narrow a shelf of episodes to: <c>?inside=&lt;series&gt;&amp;aspect=EpisodeItem&amp;season=3</c>
+    /// answers that series' third season. A library built folder by folder holds a season as its own title, and then a
+    /// season's id opens its shelf by itself; a library that only holds the episodes does not, so the shelf of its
+    /// seasons is counted off those episodes instead and this parameter is how one of those counted seasons is
+    /// opened. It is only taken on a shelf of episodes asked for inside a series.
+    /// </param>
     [HttpGet("titles")]
     public ActionResult<TitlesResult> GetTitles([FromQuery] string aspect, [FromQuery] string sort,
         [FromQuery] string order, [FromQuery] int limit, [FromQuery] int offset, [FromQuery] string search,
         [FromQuery] string seen, [FromQuery] Guid inside = default(Guid),
-        [FromQuery] string by = null, [FromQuery] string value = null)
+        [FromQuery] string by = null, [FromQuery] string value = null, [FromQuery] int? season = null)
     {
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
       if (mediaLibrary == null)
@@ -528,6 +552,7 @@ namespace MediaPortal.Server.Api
         // films, and you have asked me the wrong question" - the second is a bug in whoever asked, and saying it
         // loudly is kinder than agreeing.
         IFilter withinFilter = null;
+        string insideName = null;
         if (inside != Guid.Empty)
         {
           MediaItem parent = FindParentTitle(mediaLibrary, metadata, inside);
@@ -537,6 +562,12 @@ namespace MediaPortal.Server.Api
               Aspect = match.Value.Name,
               Error = "this server has no title with the id '" + inside.ToString("D") + "' to list titles inside"
             });
+
+          // Held on to because a season counted off episode numbers has no title of its own to show: its row wears
+          // the series' name with the number on the end, which is the spelling the reference uses for a season.
+          SingleMediaItemAspect parentMedia;
+          if (MediaItemAspect.TryGetAspect(parent.Aspects, MediaAspect.Metadata, out parentMedia))
+            insideName = parentMedia.GetAttributeValue<string>(MediaAspect.ATTR_TITLE);
 
           Guid role;
           Guid linkedRole;
@@ -549,6 +580,25 @@ namespace MediaPortal.Server.Api
             });
 
           withinFilter = new RelationshipFilter(role, linkedRole, inside);
+
+          // A season that the library holds as its own title opens its shelf with its own id. A season it does not
+          // hold has only two parts to be asked with - the series it belongs to and the number its episodes carry -
+          // so a caller that was handed a counted season comes back with both, and this narrows the series'
+          // episodes down to the ones wearing that number.
+          if (season.HasValue)
+          {
+            if (aspectId != EpisodeAspect.ASPECT_ID)
+              return BadRequest(new TitlesResult
+              {
+                Aspect = match.Value.Name,
+                Inside = inside,
+                Error = "only episodes can be narrowed to one season; 'season=" +
+                    season.Value.ToString(CultureInfo.InvariantCulture) + "' was asked for '" + match.Value.Name + "' titles"
+              });
+
+            withinFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, withinFilter,
+                new RelationalFilter(EpisodeAspect.ATTR_SEASON, RelationalOperator.EQ, season.Value));
+          }
         }
 
         // Both questions at once if both were asked: the tracks of this album that nobody has finished, say.
@@ -668,12 +718,33 @@ namespace MediaPortal.Server.Api
 
         List<TitleResult> titles = items.Select(item => ToTitle(item, profile.HasValue)).ToList();
 
+        // A season shelf that came back with nothing in it is asked one more question before it is called empty,
+        // because the commonest reason a series has no season titles is that its library was pointed straight at the
+        // episode files: every one of those episodes knows its season number, and no title wears it (see
+        // CountSeasonsOfSeries). Counting the numbers gives the same shelf in the same order, and each row says which
+        // series and which number its own shelf has to be asked with, because a counted season has no id that means
+        // anything outside this list.
+        List<KeyValuePair<int, int>> counted = null;
+        if (titles.Count == 0 && !season.HasValue && aspectId == SeasonAspect.ASPECT_ID && inside != Guid.Empty)
+        {
+          counted = CountSeasonsOfSeries(mediaLibrary, inside);
+          if (counted.Count == 0)
+            counted = null;
+          else
+            titles = counted.Skip(skip).Take(take)
+                .Select(group => CountedSeasonTitle(inside, insideName, group.Key, group.Value)).ToList();
+        }
+
         // "how many are there" is asked through the same filter the list was read through, or a front end that
         // reached the bottom of a search would keep offering more of a list that has no more in it - and would say
         // "12 of 4 000" about a search that found twelve titles out of four thousand. The same answer about
         // invented titles goes in, because a count of a different shelf than the one being listed is worse than
         // no count at all.
-        int total = mediaLibrary.CountMediaItems(new[] { aspectId }, query.Filter, false, invented);
+        // A counted shelf is as long as the counting made it; the library's own count of the asked aspect would
+        // answer "how many episodes", which is not the question the shelf asked.
+        int total = counted != null
+            ? counted.Count
+            : mediaLibrary.CountMediaItems(new[] { aspectId }, query.Filter, false, invented);
 
         return new TitlesResult
         {
@@ -991,6 +1062,9 @@ namespace MediaPortal.Server.Api
 
       public int? Episode { get; set; }
 
+      /// <summary>For a season: how many episodes the library counts inside it. Null for the rest.</summary>
+      public int? Episodes { get; set; }
+
       /// <summary>The episode's own name, which for a series is usually not the title of the file.</summary>
       public string EpisodeName { get; set; }
 
@@ -1019,6 +1093,12 @@ namespace MediaPortal.Server.Api
     /// Everything this server knows about one title, by its id.
     /// </summary>
     /// <param name="id">The media item id, as <c>GET api/media/titles</c> reported it.</param>
+    /// <param name="season">
+    /// A season number to ask about one season of that title rather than the title itself, for the seasons a library
+    /// holds as nothing but a number written on its episodes: the shelf of them hands out rows that say which series
+    /// to ask and which number to ask it with (<see cref="TitleResult.ParentId"/>). A title that is a season of its
+    /// own is answered as itself either way, because its id already says which season is meant.
+    /// </param>
     /// <remarks>
     /// <para>
     /// The id is enough: a media item id is a Guid the database gave to one item, so unlike
@@ -1034,7 +1114,7 @@ namespace MediaPortal.Server.Api
     /// </para>
     /// </remarks>
     [HttpGet("items/{id}")]
-    public ActionResult<ItemResult> GetItem(Guid id)
+    public ActionResult<ItemResult> GetItem(Guid id, [FromQuery] int? season = null)
     {
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
       if (mediaLibrary == null)
@@ -1070,6 +1150,16 @@ namespace MediaPortal.Server.Api
 
         if (item == null)
           return NotFound(new ItemResult { Id = id, Error = "this server has no title with the id " + id });
+
+        // One season of a series asked by number, which is how the seasons a library holds as nothing but a number
+        // written on its episodes are asked about at all. Answered in the same shape as a season the library holds -
+        // which series, which number, how much inside - from the episodes it does hold.
+        if (season.HasValue)
+        {
+          ActionResult<ItemResult> counted = CountedSeasonItem(mediaLibrary, item, season.Value);
+          if (counted != null)
+            return counted;
+        }
 
         ItemResult result = ToItem(item, profile.HasValue);
         FillMissingDetailsFromFiles(item, result);
@@ -1206,6 +1296,28 @@ namespace MediaPortal.Server.Api
           if (ordered.Count > 0)
             result.Episode = ordered[0];
         }
+      }
+
+      // A season keeps its own prose, its own number and the number of episodes it holds, and none of them are on
+      // the media aspect: MP2 writes them onto the season aspect (SeasonInfo.SetMetadata:239-243), which is also
+      // what the reference's season panels bound (MediaItemCoverSeasonDetails.inc through SeasonAspectWrapper).
+      // The description goes into the answer's "overview", which is the field a screen reads as the title's prose.
+      SingleMediaItemAspect seasonAspect;
+      if (MediaItemAspect.TryGetAspect(item.Aspects, SeasonAspect.Metadata, out seasonAspect))
+      {
+        result.SeriesName = result.SeriesName
+            ?? Text(seasonAspect.GetAttributeValue<string>(SeasonAspect.ATTR_SERIES_NAME));
+
+        int season = seasonAspect.GetAttributeValue<int>(SeasonAspect.ATTR_SEASON);
+        if (season > 0)
+          result.Season = season;
+
+        int episodes = seasonAspect.GetAttributeValue<int>(SeasonAspect.ATTR_NUM_EPISODES);
+        if (episodes > 0)
+          result.Episodes = episodes;
+
+        if (result.Overview == null)
+          result.Overview = Text(seasonAspect.GetAttributeValue<string>(SeasonAspect.ATTR_DESCRIPTION));
       }
 
       result.Stub = item.IsStub;
@@ -1366,6 +1478,14 @@ namespace MediaPortal.Server.Api
     /// rather than a guess, because a tile that silently drew a poster when somebody asked for a banner is the
     /// exact lie this endpoint exists to stop.
     /// </param>
+    /// <param name="season">
+    /// A season number to ask for the picture one season of this title wears, which is how the pictures of the seasons
+    /// a library holds as nothing but a number on its episodes are reached: the files beside the media are named after
+    /// that number (<c>season01-poster.jpg</c>, <c>season-specials-poster.jpg</c>,
+    /// <c>season-all-banner.jpg</c>), and the number also picks the episode the folders are walked from, so that a
+    /// library filed one folder per season starts inside it. The library's own stored pictures are not consulted for
+    /// such a question - they belong to the title the id names, not to one season of it.
+    /// </param>
     /// <remarks>
     /// <para>
     /// <b>Where the bytes come from - in the reference's order.</b> First the fanart cache, which is where MP2's
@@ -1383,7 +1503,7 @@ namespace MediaPortal.Server.Api
     /// </para>
     /// </remarks>
     [HttpGet("items/{id}/fanart/{type}")]
-    public IActionResult GetFanArtOfType(Guid id, string type)
+    public IActionResult GetFanArtOfType(Guid id, string type, [FromQuery] int? season = null)
     {
       string fanArtType = KnownFanArtType(type);
       if (fanArtType == null)
@@ -1395,8 +1515,12 @@ namespace MediaPortal.Server.Api
 
       try
       {
+        // A season asked by number names no title that anything could have filed pictures under, so the two lookups
+        // that read the library's own pictures are skipped for it: whatever they hold belongs to the series the id
+        // names, and answering season three with the series' poster is the mistake the number was named to avoid.
+        // The walk through the folders is the one that knows season-numbered file names.
         IFanArtCache cache = ServiceRegistration.Get<IFanArtCache>(false);
-        IList<string> cached = cache?.GetFanArtFiles(id, fanArtType);
+        IList<string> cached = season.HasValue ? null : cache?.GetFanArtFiles(id, fanArtType);
         byte[] picture = FirstReadablePicture(cached);
 
         // A track wears its album's cover, and the import stored that cover once, under the album's id. Only the
@@ -1407,7 +1531,7 @@ namespace MediaPortal.Server.Api
         // album's folder, so walking it would answer a track with whatever <c>folder.jpg</c> happens to lie there
         // while the album itself answers with the picture its files carry. Two tiles of one album would then wear
         // two different pictures. The cache is where the chosen picture lies, for an album as for its tracks.
-        if (picture == null &&
+        if (picture == null && !season.HasValue &&
             (fanArtType == FanArtTypes.Cover || fanArtType == FanArtTypes.Poster))
           picture = FirstReadablePicture(AlbumFanArtFiles(id, fanArtType, FanArtTypes.Cover));
 
@@ -1416,7 +1540,7 @@ namespace MediaPortal.Server.Api
         // why the reference renames a poster to a cover as soon as it knows the item is an album.
         string folderKind = fanArtType == FanArtTypes.Cover ? FanArtTypes.Poster : fanArtType;
         if (picture == null)
-          picture = LocalFanArtSearch.Worn.Picture(id, folderKind);
+          picture = LocalFanArtSearch.Worn.Picture(id, folderKind, season);
 
         if (picture == null || picture.Length == 0)
         {
@@ -2435,6 +2559,8 @@ namespace MediaPortal.Server.Api
         return "added";
       if (string.Equals(sort, "lastplayed", StringComparison.OrdinalIgnoreCase))
         return "lastplayed";
+      if (string.Equals(sort, "season", StringComparison.OrdinalIgnoreCase))
+        return "season";
       if (string.Equals(sort, "episode", StringComparison.OrdinalIgnoreCase))
         return "episode";
       if (string.Equals(sort, "track", StringComparison.OrdinalIgnoreCase))
@@ -2484,6 +2610,10 @@ namespace MediaPortal.Server.Api
     /// <para>
     /// The empty list means "in whatever order the database fancies", which is what <c>sort=none</c> promises.
     /// </para>
+    /// <para>
+    /// A shelf of seasons sorts by <c>SeasonAspect.ATTR_SEASON</c>, one column: the number is the whole of the
+    /// order, and the title an importer wrote above it is a name, not a place in a series.
+    /// </para>
     /// </remarks>
     private static List<ISortInformation> BuildSorts(string sortBy, string order)
     {
@@ -2510,6 +2640,12 @@ namespace MediaPortal.Server.Api
           // opened has nothing in that column; where it lands among them is the database's idea of sorting
           // nothing, not this endpoint's, and that is why a continue-watching list asks for watched titles.
           sorts.Add(new AttributeSortInformation(MediaAspect.ATTR_LASTPLAYED, direction));
+          break;
+        case "season":
+          // A shelf of seasons is watched in the order they were made, and MP2's own seasons screen sorts them
+          // the same way it sorts everything else - by the number the aspect carries, not by the title the
+          // importer wrote ("Bones (2005) S02" sorts under B and would put season ten between one and two).
+          sorts.Add(new AttributeSortInformation(SeasonAspect.ATTR_SEASON, direction));
           break;
         case "episode":
           sorts.Add(new AttributeSortInformation(EpisodeAspect.ATTR_SEASON, direction));
@@ -2564,6 +2700,175 @@ namespace MediaPortal.Server.Api
     }
 
     /// <summary>
+    /// The seasons a series' episodes carry, for the library that holds the episodes and no season titles: the
+    /// season numbers in order, each with how many episodes wear it.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// MP2 writes a season title when the importer hands one over - <c>EpisodeSeasonRelationshipExtractor</c> looks
+    /// for a <see cref="SeasonAspect"/> among the aspects extracted for an episode and links the two when it finds
+    /// one - so a library that was pointed straight at its episode files, tagged with the tools that name a season's
+    /// pictures after it (<c>season01-poster.jpg</c>), numbers every episode and holds no season at all. The link
+    /// between series and seasons then answers nothing, although the answer is written on every episode.
+    /// </para>
+    /// <para>
+    /// So the numbers are counted, which gives the same shelf in the same order. Nought stays a shelf of its own,
+    /// because that is MP2's spelling of the specials and the pictures answer to <c>season-specials-*</c>
+    /// (<see cref="LocalFanartHelper.GetAdditionalSeasonPrefixes"/>); an importer that numbered nothing at all
+    /// therefore leaves one season nought holding everything, which is a shelf, rather than no shelf at all.
+    /// </para>
+    /// </remarks>
+    private static List<KeyValuePair<int, int>> CountSeasonsOfSeries(IMediaLibrary mediaLibrary, Guid seriesId)
+    {
+      MediaItemQuery episodes = new MediaItemQuery(
+          new List<Guid> { EpisodeAspect.ASPECT_ID },
+          new List<Guid> { ProviderResourceAspect.ASPECT_ID },
+          new RelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES, seriesId));
+
+      Dictionary<int, int> counted = new Dictionary<int, int>();
+      IList<MediaItem> held = mediaLibrary.Search(episodes, false, null, false);
+      if (held == null)
+        return new List<KeyValuePair<int, int>>();
+
+      foreach (MediaItem episode in held)
+      {
+        SingleMediaItemAspect numbered;
+        int number = MediaItemAspect.TryGetAspect(episode.Aspects, EpisodeAspect.Metadata, out numbered)
+            ? numbered.GetAttributeValue<int>(EpisodeAspect.ATTR_SEASON)
+            : 0;
+        counted[number] = counted.ContainsKey(number) ? counted[number] + 1 : 1;
+      }
+
+      return counted.OrderBy(pair => pair.Key).ToList();
+    }
+
+    /// <summary>
+    /// The row for one of those counted seasons, in the shape a season row has anyway - number, how much is inside,
+    /// and the series it was counted from.
+    /// </summary>
+    private static TitleResult CountedSeasonTitle(Guid seriesId, string seriesName, int number, int episodes)
+    {
+      return new TitleResult
+      {
+        Id = CountedSeasonId(seriesId, number),
+        // The reference spells a season's title as the series' name with the number on the end
+        // (SeasonInfo.cs:54 <c>SEASON_FORMAT_STR = "{0} S{1:00}"</c>, applied by ToString():506), so a caller that
+        // reads the answer raw reads what MP2's own screens say. The screen in this front end says "Season 1" in the
+        // viewer's words instead.
+        Title = SeasonTitle(seriesName, number),
+        Season = number,
+        Episodes = episodes,
+        ParentId = seriesId
+      };
+    }
+
+    /// <summary>
+    /// What a season of a series is called where the library did not name it: <c>"Bones (2005) S01"</c>.
+    /// </summary>
+    private static string SeasonTitle(string seriesName, int number)
+    {
+      return (seriesName ?? string.Empty) + " S" + number.ToString("D2", CultureInfo.InvariantCulture);
+    }
+
+    /// <summary>
+    /// Answering "what is season N of this title" out of the episodes, for the seasons a library holds as nothing but
+    /// a number written on them; <c>null</c> when the title asked about is a season of its own, in which case its id
+    /// already said which season was meant and the number adds nothing to ask.
+    /// </summary>
+    /// <remarks>
+    /// The answer is deliberately as plain as the question: a counted season has no plot, no rating and no date of
+    /// its own, because the library was never told any - what it has is the series the season belongs to, the number,
+    /// and how many episodes wear it, which is also all the reference's season screen has to show when nothing was
+    /// tagged beside the media.
+    /// </remarks>
+    private ActionResult<ItemResult> CountedSeasonItem(IMediaLibrary mediaLibrary, MediaItem item, int number)
+    {
+      SingleMediaItemAspect aspect;
+      if (MediaItemAspect.TryGetAspect(item.Aspects, SeasonAspect.Metadata, out aspect))
+        return null;
+
+      if (!MediaItemAspect.TryGetAspect(item.Aspects, SeriesAspect.Metadata, out aspect))
+        return BadRequest(new ItemResult
+        {
+          Id = item.MediaItemId,
+          Season = number,
+          Error = "the title " + item.MediaItemId.ToString("D") + " is not a series, so it has no seasons to count"
+        });
+
+      Guid id = item.MediaItemId;
+      List<KeyValuePair<int, int>> counted = CountSeasonsOfSeries(mediaLibrary, id);
+      KeyValuePair<int, int> group = counted.FirstOrDefault(pair => pair.Key == number);
+      if (group.Value == 0)
+        return NotFound(new ItemResult
+        {
+          Id = id,
+          Season = number,
+          Error = "the series " + id.ToString("D") + " holds no season " + number.ToString(CultureInfo.InvariantCulture)
+        });
+
+      SingleMediaItemAspect media;
+      string seriesName = MediaItemAspect.TryGetAspect(item.Aspects, MediaAspect.Metadata, out media)
+          ? media.GetAttributeValue<string>(MediaAspect.ATTR_TITLE)
+          : null;
+
+      // Spelled the way the library would spell a season it holds: the series' name with the number on the end.
+      string title = SeasonTitle(seriesName, number);
+      return new ItemResult
+      {
+        Id = CountedSeasonId(id, number),
+        Title = title,
+        SortTitle = title,
+        SeriesName = seriesName,
+        Season = number,
+        Episodes = group.Value
+      };
+    }
+
+    /// <summary>
+    /// A key for one counted season: the same for the same series and number in every request and every run, so that
+    /// a list can tell its rows apart and the second page agrees with the first about which row is which.
+    /// </summary>
+    /// <remarks>
+    /// It is not a title the library holds and is never answered as one; nothing outside the list it was made for is
+    /// asked with it, because the shelf inside a counted season is opened with the series' id and the season number -
+    /// the two parts of it that really exist (<see cref="TitleResult.ParentId"/>). Mixed the FNV-1a way, which is
+    /// four lines of arithmetic and needs no library: what matters here is only that the same two inputs make the
+    /// same key and that two different seasons of one series do not make the same one.
+    /// </remarks>
+    private static Guid CountedSeasonId(Guid seriesId, int number)
+    {
+      const long OFFSET = 1469598103934665603L;
+      const long PRIME = 1099511628211L;
+
+      unchecked
+      {
+        byte[] key = new byte[16];
+
+        long forwards = OFFSET;
+        foreach (byte part in seriesId.ToByteArray())
+          forwards = (forwards ^ part) * PRIME;
+        for (int shift = 0; shift < 32; shift += 8)
+          forwards = (forwards ^ ((number >> shift) & 0xFF)) * PRIME;
+
+        // The other half is the same mixing with the two inputs taken the other way round, so that the seasons of
+        // one series cannot end up with keys that differ only in their last byte.
+        long backwards = OFFSET;
+        for (int shift = 24; shift >= 0; shift -= 8)
+          backwards = (backwards ^ ((number >> shift) & 0xFF)) * PRIME;
+        foreach (byte part in seriesId.ToByteArray())
+          backwards = (backwards ^ part) * PRIME;
+
+        for (int i = 0; i < 8; i++)
+        {
+          key[i] = (byte)(forwards >> (i * 8));
+          key[8 + i] = (byte)(backwards >> (i * 8));
+        }
+
+        return new Guid(key);
+      }
+    }
+
+    /// <summary>
     /// Which pair of roles links a title to the titles of the kind being asked about, if the parent holds them at
     /// all.
     /// </summary>
@@ -2579,8 +2884,9 @@ namespace MediaPortal.Server.Api
     /// The pairs are MP2's own, taken from the screens that walk these relationships for a living: an album's
     /// tracks are reached by <c>ROLE_TRACK</c> to <c>ROLE_ALBUM</c> (LocalAlbumFanartProvider.cs:79), a series'
     /// and a season's episodes by <c>ROLE_EPISODE</c> to <c>ROLE_SERIES</c> and <c>ROLE_SEASON</c>
-    /// (LocalSeriesFanartProvider.cs:77,81), a collection's films by <c>ROLE_MOVIE</c> to
-    /// <c>ROLE_MOVIE_COLLECTION</c> (LocalMovieCollectionFanartProvider.cs:75).
+    /// (LocalSeriesFanartProvider.cs:77,81), a season on its series by <c>ROLE_SEASON</c> to
+    /// <c>ROLE_SERIES</c> (SeasonSeriesRelationshipExtractor.cs:58,68), and a collection's films by
+    /// <c>ROLE_MOVIE</c> to <c>ROLE_MOVIE_COLLECTION</c> (LocalMovieCollectionFanartProvider.cs:75).
     /// <para>
     /// A season is accepted where its series is not, and the other way round: MP2 files both, and which one a
     /// given importer filled in depends on where the metadata came from. Asking after a series and finding a
@@ -2616,6 +2922,16 @@ namespace MediaPortal.Server.Api
           return true;
         }
         return false;
+      }
+
+      if (childAspectId == SeasonAspect.ASPECT_ID && has.Contains(SeriesAspect.ASPECT_ID))
+      {
+        // The season-to-series link is MP2's own (SeasonSeriesRelationshipExtractor.cs:58,68): a season hangs on
+        // its series by ROLE_SEASON against ROLE_SERIES, which is a different pair of roles from the one its
+        // episodes hang on it by. A viewer standing on a series and pressing into it is standing above that link.
+        role = SeasonAspect.ROLE_SEASON;
+        linkedRole = SeriesAspect.ROLE_SERIES;
+        return true;
       }
 
       if (childAspectId == AudioAspect.ASPECT_ID && has.Contains(AudioAlbumAspect.ASPECT_ID))
@@ -2697,6 +3013,23 @@ namespace MediaPortal.Server.Api
           if (ordered.Count > 0)
             result.Episode = ordered[0];
         }
+      }
+
+      // A season names the season it is and how many episodes the library counts inside it, which are the two
+      // facts the reference wrote above a season's poster (MediaItemCoverSeasonDetails.inc:53,63). MP2's own title
+      // for a season is "<series> S<nn>" (SeasonInfo.SEASON_FORMAT_STR) - a name that repeats the series the
+      // viewer is already standing in - so the number is what a row of seasons is really about, and it travels
+      // on its own rather than being parsed back out of a sentence.
+      SingleMediaItemAspect seasonAspect;
+      if (MediaItemAspect.TryGetAspect(item.Aspects, SeasonAspect.Metadata, out seasonAspect))
+      {
+        int season = seasonAspect.GetAttributeValue<int>(SeasonAspect.ATTR_SEASON);
+        if (season > 0)
+          result.Season = season;
+
+        int episodes = seasonAspect.GetAttributeValue<int>(SeasonAspect.ATTR_NUM_EPISODES);
+        if (episodes > 0)
+          result.Episodes = episodes;
       }
 
       SingleMediaItemAspect album;

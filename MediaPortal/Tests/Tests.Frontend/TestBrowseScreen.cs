@@ -158,7 +158,7 @@ namespace Tests.Frontend
         Task.Run(delegate
         {
           return client.GetTitlesAsync("MovieItem", null, false, 60, 0, null, null, null, "genre", null,
-              CancellationToken.None);
+              null, cancellation: CancellationToken.None);
         }).GetAwaiter().GetResult();
 
         Assert.That(server.LastTitlesUrl, Does.Not.Contain("by="),
@@ -170,7 +170,7 @@ namespace Tests.Frontend
         Task.Run(delegate
         {
           return client.GetTitlesAsync("MovieItem", null, false, 60, 0, null, null, null, "genre",
-              "Science Fiction", CancellationToken.None);
+              "Science Fiction", null, cancellation: CancellationToken.None);
         }).GetAwaiter().GetResult();
 
         Assert.That(server.LastTitlesUrl, Does.Contain("by=genre&value=Science%20Fiction"),

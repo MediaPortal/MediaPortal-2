@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -132,6 +133,9 @@ namespace Tests.Server.Api
     private static readonly byte[] BACKDROP = { 1, 2, 3 };
     private static readonly byte[] OTHER_BACKDROP = { 4, 5, 6, 7, 8 };
     private static readonly byte[] POSTER = { 9, 9 };
+    private static readonly byte[] SERIES_POSTER = { 10, 10 };
+    private static readonly byte[] SEASON_POSTER = { 11, 11 };
+    private static readonly byte[] FOLDER_POSTER = { 12, 12 };
 
     private List<MediaItem> _items;
 
@@ -166,6 +170,111 @@ namespace Tests.Server.Api
     }
 
     /// <summary>
+    /// An episode filed the way a household that keeps one folder per season files it:
+    /// Series/&lt;series&gt;/Season NN/&lt;episode&gt;.mkv. The number goes on the episode's aspect because that is where the
+    /// importer writes it, and it is the number the season's picture names carry.
+    /// </summary>
+    /// <remarks>
+    /// The episode is added to the library before the season a test will ask about (
+    /// <see cref="GiveASeasonWithoutAFile"/>), because the fixture answers a relationship query with the titles it
+    /// holds in order and the picture search takes the first episode it is given.
+    /// </remarks>
+    private Title GiveAnEpisodeInASeasonFolder(string seriesName, int seasonNumber, string episodeName)
+    {
+      string folder = Path.Combine(_folder, "Series", seriesName,
+          "Season " + seasonNumber.ToString("00", CultureInfo.InvariantCulture));
+      return GiveAnEpisodeIn(folder, seriesName, seasonNumber, episodeName);
+    }
+
+    /// <summary>
+    /// An episode filed the way a household that does not keep season folders files it: the episode's own folder
+    /// directly inside the series' one, which makes that folder both the episode's folder and the series' folder.
+    /// </summary>
+    private Title GiveAnEpisodeInASeriesFolder(string seriesName, int seasonNumber, string episodeName)
+    {
+      return GiveAnEpisodeIn(Path.Combine(_folder, "Series", seriesName), seriesName, seasonNumber, episodeName);
+    }
+
+    private Title GiveAnEpisodeIn(string folder, string seriesName, int seasonNumber, string episodeName)
+    {
+      Directory.CreateDirectory(folder);
+      string file = Path.Combine(folder, episodeName + ".mkv");
+      File.WriteAllBytes(file, new byte[] { 0 });
+
+      SingleMediaItemAspect episode = new SingleMediaItemAspect(EpisodeAspect.Metadata);
+      episode.SetAttribute(EpisodeAspect.ATTR_SERIES_NAME, seriesName);
+      episode.SetAttribute(EpisodeAspect.ATTR_SEASON, seasonNumber);
+      episode.SetCollectionAttribute(EpisodeAspect.ATTR_EPISODE, new[] { 1 });
+
+      Title title = new Title { Id = Guid.NewGuid(), Folder = folder };
+      _items.Add(LocatedItem.Numbered(title.Id, episodeName, file, episode));
+      return title;
+    }
+
+    /// <summary>
+    /// The season above the episodes a test filed: a title with a number and no file of its own, which is exactly
+    /// what MP2's importer leaves behind and exactly what makes the picture search take its detour through one of
+    /// the episodes.
+    /// </summary>
+    /// <returns>The id the title is asked about by.</returns>
+    private Guid GiveASeasonWithoutAFile(string name, int seasonNumber)
+    {
+      SingleMediaItemAspect media = new SingleMediaItemAspect(MediaAspect.Metadata);
+      media.SetAttribute(MediaAspect.ATTR_TITLE, name);
+      media.SetAttribute(MediaAspect.ATTR_SORT_TITLE, name);
+
+      SingleMediaItemAspect season = new SingleMediaItemAspect(SeasonAspect.Metadata);
+      season.SetAttribute(SeasonAspect.ATTR_SERIES_NAME, name);
+      season.SetAttribute(SeasonAspect.ATTR_SEASON, seasonNumber);
+
+      Guid id = Guid.NewGuid();
+      _items.Add(new FilelessItem(id, new Dictionary<Guid, IList<MediaItemAspect>>
+      {
+          { MediaAspect.ASPECT_ID, new List<MediaItemAspect> { media } },
+          { SeasonAspect.ASPECT_ID, new List<MediaItemAspect> { season } }
+      }));
+      return id;
+    }
+
+    /// <summary>
+    /// The series above a shelf of episodes: a title with a name and no file of its own. This is what the picture
+    /// search is pointed at when a season exists in the library as nothing but a number written on its episodes -
+    /// there is no season title to ask, so the series is asked and the number comes along with the question.
+    /// </summary>
+    /// <returns>The id the series is asked about by.</returns>
+    private Guid GiveASeriesWithoutAFile(string name)
+    {
+      SingleMediaItemAspect media = new SingleMediaItemAspect(MediaAspect.Metadata);
+      media.SetAttribute(MediaAspect.ATTR_TITLE, name);
+      media.SetAttribute(MediaAspect.ATTR_SORT_TITLE, name);
+
+      Guid id = Guid.NewGuid();
+      _items.Add(new FilelessItem(id, new Dictionary<Guid, IList<MediaItemAspect>>
+      {
+          { MediaAspect.ASPECT_ID, new List<MediaItemAspect> { media } },
+          { SeriesAspect.ASPECT_ID, new List<MediaItemAspect> { new SingleMediaItemAspect(SeriesAspect.Metadata) } }
+      }));
+      return id;
+    }
+
+    /// <summary>
+    /// A title the library holds without a file: a series, a season, an album. Their pictures lie with the things
+    /// inside them, which is why the search climbs from an episode rather than from the title itself.
+    /// </summary>
+    private sealed class FilelessItem : MediaItem
+    {
+      internal FilelessItem(Guid id, IDictionary<Guid, IList<MediaItemAspect>> aspects)
+          : base(id, aspects)
+      {
+      }
+
+      public override IResourceLocator GetResourceLocator()
+      {
+        return null;
+      }
+    }
+
+    /// <summary>
     /// A title whose file is whatever the test wrote, resolved by overriding the lookup rather than by running the
     /// system manager a live server would need - the same stand-in <see cref="TestMediaController"/> uses.
     /// </summary>
@@ -174,7 +283,25 @@ namespace Tests.Server.Api
       private readonly IResourceLocator _locator;
 
       internal LocatedItem(Guid id, string name, string filePath, params SingleMediaItemAspectMetadata[] moreAspects)
-          : base(id, Aspects(name, moreAspects))
+          : this(id, name, filePath, (moreAspects ?? new SingleMediaItemAspectMetadata[0])
+              .Where(metadata => metadata != null)
+              .Select(metadata => new SingleMediaItemAspect(metadata)))
+      {
+      }
+
+      /// <summary>
+      /// A title whose aspects the test wrote out itself. The other constructor can only say <i>which</i> aspects
+      /// a title carries, and some titles are their values: a season is the number standing on its season aspect,
+      /// and an empty aspect cannot make one.
+      /// </summary>
+      internal static LocatedItem Numbered(Guid id, string name, string filePath,
+          params SingleMediaItemAspect[] filled)
+      {
+        return new LocatedItem(id, name, filePath, (IEnumerable<SingleMediaItemAspect>) filled);
+      }
+
+      private LocatedItem(Guid id, string name, string filePath, IEnumerable<SingleMediaItemAspect> filled)
+          : base(id, Aspects(name, filled))
       {
         // The local filesystem provider spells its paths "/C:/...", which is what the "../" walking reads.
         var stub = new Mock<IResourceLocator>();
@@ -191,7 +318,7 @@ namespace Tests.Server.Api
       }
 
       private static IDictionary<Guid, IList<MediaItemAspect>> Aspects(string name,
-          IEnumerable<SingleMediaItemAspectMetadata> moreAspects)
+          IEnumerable<SingleMediaItemAspect> moreAspects)
       {
         SingleMediaItemAspect media = new SingleMediaItemAspect(MediaAspect.Metadata);
         media.SetAttribute(MediaAspect.ATTR_TITLE, name);
@@ -205,9 +332,9 @@ namespace Tests.Server.Api
 
         // The aspects a picture handler serves have to be on the title for the handler to be asked about it,
         // which is the question some of the tests below are about.
-        foreach (SingleMediaItemAspectMetadata metadata in moreAspects ?? new SingleMediaItemAspectMetadata[0])
-          if (metadata != null && !aspects.ContainsKey(metadata.AspectId))
-            aspects[metadata.AspectId] = new List<MediaItemAspect> { new SingleMediaItemAspect(metadata) };
+        foreach (SingleMediaItemAspect aspect in moreAspects ?? new SingleMediaItemAspect[0])
+          if (aspect != null && !aspects.ContainsKey(aspect.Metadata.AspectId))
+            aspects[aspect.Metadata.AspectId] = new List<MediaItemAspect> { aspect };
 
         // The path the title is at is what the walk needs, and this fixture hands it over through the locator,
         // the way a resolved item carries it - the aspect the importer stores it in is not read here.
@@ -287,9 +414,58 @@ namespace Tests.Server.Api
           ? _items
           : _items.Where(item => byId.MediaItemIds.Contains(item.MediaItemId));
 
+      // The one condition a picture search puts on top of "which titles lie under which" is a season number, and the
+      // fake has to honour it. A test that asks for season two and is handed season one's episode to start from would
+      // find its answer two folders up in the series' folder and pass without ever having looked inside the season it
+      // was meant to be looking inside.
+      int? numbered = SeasonAskedFor(query.Filter);
+      if (numbered.HasValue)
+        matching = matching.Where(item => NumberOf(item) == numbered.Value);
+
       int skip = (int) (query.Offset ?? 0);
       int take = query.Limit.HasValue && query.Limit.Value > 0 ? (int) query.Limit.Value : int.MaxValue;
       return matching.Skip(skip).Take(take).ToList();
+    }
+
+    /// <summary>
+    /// The season number a query narrows its titles to, or <c>null</c> when it names none. The picture search adds
+    /// exactly one such condition, beside the link that says whose episodes these are.
+    /// </summary>
+    private static int? SeasonAskedFor(IFilter filter)
+    {
+      RelationalFilter condition = ConditionOn(filter, EpisodeAspect.ATTR_SEASON);
+      return condition != null && condition.Operator == RelationalOperator.EQ
+          ? condition.FilterValue as int?
+          : (int?) null;
+    }
+
+    private static RelationalFilter ConditionOn(IFilter filter,
+        MediaItemAspectMetadata.AttributeSpecification attribute)
+    {
+      RelationalFilter one = filter as RelationalFilter;
+      if (one != null)
+        return ReferenceEquals(one.AttributeType, attribute) ? one : null;
+
+      BooleanCombinationFilter combination = filter as BooleanCombinationFilter;
+      if (combination == null)
+        return null;
+
+      foreach (IFilter operand in combination.Operands)
+      {
+        RelationalFilter found = ConditionOn(operand, attribute);
+        if (found != null)
+          return found;
+      }
+      return null;
+    }
+
+    /// <summary>The season number one of this library's episodes wears, or <c>-1</c> for a title that is none.</summary>
+    private static int NumberOf(MediaItem item)
+    {
+      SingleMediaItemAspect episode;
+      return MediaItemAspect.TryGetAspect(item.Aspects, EpisodeAspect.Metadata, out episode)
+          ? episode.GetAttributeValue<int>(EpisodeAspect.ATTR_SEASON)
+          : -1;
     }
 
     /// <summary>
@@ -418,6 +594,180 @@ namespace Tests.Server.Api
       Assert.That(LocalFanArtSearch.Worn.Picture(one.Id, FanArtTypes.Poster), Is.Null);
       Assert.That(_queries.Count, Is.GreaterThan(asked),
           "what was given up is looked for again rather than answered with nothing");
+    }
+
+    #endregion
+
+    #region The names a season's pictures carry
+
+    [Test]
+    public void ASeasonStandingInItsOwnFolderIsAskedAboutByItsOwnNumber()
+    {
+      Title episode = GiveAnEpisodeInASeasonFolder("Bones", 3, "The Salt in the Water");
+      File.WriteAllBytes(Path.Combine(episode.Folder, "season03-poster.jpg"), SEASON_POSTER);
+      // The series' own poster two folders up, which is the picture a season must never be handed out as its own:
+      // it shows the whole show, and a shelf of seasons where every row wears the same poster says nothing about
+      // which season is which.
+      File.WriteAllBytes(Path.Combine(_folder, "Series", "Bones", "poster.jpg"), SERIES_POSTER);
+      GiveTheServerItsLibrary();
+
+      Guid season = GiveASeasonWithoutAFile("Bones", 3);
+
+      // The season has no file, so the walk starts at one of its episodes: the first folder it reaches is the
+      // season's own ("Season 03"), and that folder's numbered picture is the season's poster.
+      Assert.That(LocalFanArtSearch.Worn.Picture(season, FanArtTypes.Poster), Is.EqualTo(SEASON_POSTER),
+          "fanart.tv and the tagging tools that read it file a whole series in one place by naming a season's "
+          + "pictures after its number - season03-poster.jpg (LocalSeriesFanartProvider.cs:119-136 through "
+          + "LocalFanartHelper.GetAdditionalSeasonPrefixes) - and a season that was never asked about by its "
+          + "number has one poster for every season in the house");
+
+      // A tagging tool that writes the plain name inside the season's own folder means the season, and the
+      // reference reads the plain names of that folder before the numbered ones.
+      File.WriteAllBytes(Path.Combine(episode.Folder, "poster.jpg"), FOLDER_POSTER);
+      LocalFanArtSearch.Worn.ForgetEverything();
+      Assert.That(LocalFanArtSearch.Worn.Picture(season, FanArtTypes.Poster), Is.EqualTo(FOLDER_POSTER),
+          "a plain poster standing in the season's own folder is the season's, and outranks the numbered one");
+    }
+
+    [Test]
+    public void ASeasonOfAFileLibraryThatKeepsNoSeasonFoldersIsNotGivenTheSeriesPoster()
+    {
+      // The other layout the reference distinguishes: no "Season NN" folders at all, so the folder an episode
+      // lies in is the series' folder and its plain "poster.jpg" belongs to the whole show. The reference
+      // searches nothing but the numbered names there, and so does this.
+      Title episode = GiveAnEpisodeInASeriesFolder("Bones", 2, "The Titan on the Ice");
+      File.WriteAllBytes(Path.Combine(episode.Folder, "poster.jpg"), SERIES_POSTER);
+      File.WriteAllBytes(Path.Combine(episode.Folder, "season02-poster.jpg"), SEASON_POSTER);
+      GiveTheServerItsLibrary();
+
+      Guid season = GiveASeasonWithoutAFile("Bones", 2);
+
+      Assert.That(LocalFanArtSearch.Worn.Picture(season, FanArtTypes.Poster), Is.EqualTo(SEASON_POSTER),
+          "the numbered picture is the season's, whatever else lies in the folder");
+
+      LocalFanArtSearch.Worn.ForgetEverything();
+      Assert.That(LocalFanArtSearch.Worn.Picture(episode.Id, FanArtTypes.Poster), Is.EqualTo(SERIES_POSTER),
+          "and the episode still wears the show's poster, which is what an episode without a season folder has "
+          + "always worn - distinguishing the two is not a trade that costs the episode its picture");
+    }
+
+    [Test]
+    public void TheSpecialsAreAskedAboutAsTheirOwnSeason()
+    {
+      // MP2 spells the specials season nought (SeasonInfo), and the reference answers that number with
+      // "season-specials" rather than "season-all" (LocalFanartHelper.GetAdditionalSeasonPrefixes:245), because
+      // the picture that belongs to every season is not the picture of the extras.
+      Title episode = GiveAnEpisodeInASeasonFolder("Bones", 0, "The Dark in the Light");
+      File.WriteAllBytes(Path.Combine(episode.Folder, "season-specials-poster.jpg"), SEASON_POSTER);
+      GiveTheServerItsLibrary();
+
+      Guid specials = GiveASeasonWithoutAFile("Bones", 0);
+
+      Assert.That(LocalFanArtSearch.Worn.Picture(specials, FanArtTypes.Poster), Is.EqualTo(SEASON_POSTER),
+          "a season zero is the specials, and it is the one season whose pictures are not numbered with its own "
+          + "number");
+    }
+
+    [Test]
+    public void APictureForEverySeasonIsThePictureOfEverySeason()
+    {
+      // "season-all-*" is what a tagger writes when it has one picture for the whole show's seasons; the
+      // reference takes it for whichever season has nothing numbered of its own
+      // (LocalFanartHelper.GetAdditionalSeasonPrefixes:245).
+      Title episode = GiveAnEpisodeInASeasonFolder("Bones", 4, "The Brain in the Jar");
+      File.WriteAllBytes(Path.Combine(episode.Folder, "season-all-poster.jpg"), SEASON_POSTER);
+      GiveTheServerItsLibrary();
+
+      Guid fourth = GiveASeasonWithoutAFile("Bones", 4);
+      Assert.That(LocalFanArtSearch.Worn.Picture(fourth, FanArtTypes.Poster), Is.EqualTo(SEASON_POSTER));
+
+      LocalFanArtSearch.Worn.ForgetEverything();
+      Guid fifth = GiveASeasonWithoutAFile("Bones", 5);
+      Assert.That(LocalFanArtSearch.Worn.Picture(fifth, FanArtTypes.Poster), Is.EqualTo(SEASON_POSTER),
+          "a season with nothing numbered of its own wears the show's shared season picture rather than nothing");
+    }
+
+    [Test]
+    public void ASeasonTheLibraryOnlyCountsIsAskedOfItsSeriesByNumber()
+    {
+      // What a tagger that reads fanart.tv writes, and what the household's own library looks like: every season's
+      // pictures in the series' folder, named after the season, lying next to the show's plain "poster.jpg".
+      Title first = GiveAnEpisodeInASeasonFolder("Prison Break", 1, "Buried");
+      GiveAnEpisodeInASeasonFolder("Prison Break", 2, "Reconvene");
+      Guid series = GiveASeriesWithoutAFile("Prison Break");
+
+      string seriesFolder = Path.Combine(_folder, "Series", "Prison Break");
+      File.WriteAllBytes(Path.Combine(seriesFolder, "poster.jpg"), SERIES_POSTER);
+      File.WriteAllBytes(Path.Combine(seriesFolder, "season01-poster.jpg"), POSTER);
+      File.WriteAllBytes(Path.Combine(seriesFolder, "season02-poster.jpg"), SEASON_POSTER);
+      GiveTheServerItsLibrary();
+
+      Assert.That(LocalFanArtSearch.Worn.Picture(series, FanArtTypes.Poster, 2), Is.EqualTo(SEASON_POSTER),
+          "a season the library holds as nothing but a number on its episodes is asked about by that number, of the "
+          + "series' own id - and the plain poster lying in the same folder as the numbered one is not the answer, "
+          + "because it shows the whole show and would paint every row of a shelf of seasons the same");
+
+      Assert.That(LocalFanArtSearch.Worn.Picture(series, FanArtTypes.Poster), Is.EqualTo(SERIES_POSTER),
+          "the series itself still wears its own poster; asking it without a number is the question it always was");
+
+      Assert.That(LocalFanArtSearch.Worn.Picture(first.Id, FanArtTypes.Poster), Is.EqualTo(SERIES_POSTER),
+          "and an episode of that series wears it too, which a season's own numbering must not reach back and take "
+          + "away from it");
+    }
+
+    [Test]
+    public void ASeasonAskedByNumberStartsItsWalkInThatSeasonsFolder()
+    {
+      // The two seasons are numbered the only way the fixture can tell them apart to the search: each season's own
+      // folder carries that season's numbered picture, which is where a library with one folder per season keeps them.
+      GiveAnEpisodeInASeasonFolder("Prison Break", 1, "Buried").Write("season01-poster.jpg", POSTER);
+      GiveAnEpisodeInASeasonFolder("Prison Break", 2, "Reconvene").Write("season02-poster.jpg", SEASON_POSTER);
+      Guid series = GiveASeriesWithoutAFile("Prison Break");
+      GiveTheServerItsLibrary();
+
+      Assert.That(LocalFanArtSearch.Worn.Picture(series, FanArtTypes.Poster, 2), Is.EqualTo(SEASON_POSTER),
+          "the walk starts from an episode of the season that was asked for; taken from whichever episode the "
+          + "library happens to hold first, every season of the series would be answered from season one's folder "
+          + "and every row of the shelf would wear season one's poster");
+    }
+
+    [Test]
+    public void TheSpecialsOfACountedSeriesAnswerToTheirOwnName()
+    {
+      GiveAnEpisodeInASeasonFolder("Prison Break", 0, "The Road to Paradise");
+      GiveAnEpisodeInASeasonFolder("Prison Break", 1, "Buried");
+      Guid series = GiveASeriesWithoutAFile("Prison Break");
+
+      string seriesFolder = Path.Combine(_folder, "Series", "Prison Break");
+      File.WriteAllBytes(Path.Combine(seriesFolder, "season-specials-poster.jpg"), SEASON_POSTER);
+      File.WriteAllBytes(Path.Combine(seriesFolder, "season01-poster.jpg"), POSTER);
+      GiveTheServerItsLibrary();
+
+      Assert.That(LocalFanArtSearch.Worn.Picture(series, FanArtTypes.Poster, 0), Is.EqualTo(SEASON_POSTER),
+          "nought is asked about as the specials, which is MP2's spelling of it and the name the taggers write - "
+          + "a season nought looked up as season00-* finds nothing anywhere, because nothing is named that");
+      Assert.That(LocalFanArtSearch.Worn.Picture(series, FanArtTypes.Poster, 1), Is.EqualTo(POSTER),
+          "and the number does not blur: the season beside the specials is still asked about by its own number");
+    }
+
+    [Test]
+    public void ACountedSeasonOfALibraryWithoutSeasonFoldersIsFoundBesideTheShow()
+    {
+      // The other layout, counted rather than held: the episode lies directly in the series' folder, so that folder
+      // is the series' own and its plain names belong to the show.
+      GiveAnEpisodeInASeriesFolder("Prison Break", 2, "Reconvene");
+      Guid series = GiveASeriesWithoutAFile("Prison Break");
+
+      string seriesFolder = Path.Combine(_folder, "Series", "Prison Break");
+      File.WriteAllBytes(Path.Combine(seriesFolder, "poster.jpg"), SERIES_POSTER);
+      File.WriteAllBytes(Path.Combine(seriesFolder, "season02-poster.jpg"), SEASON_POSTER);
+      GiveTheServerItsLibrary();
+
+      Assert.That(LocalFanArtSearch.Worn.Picture(series, FanArtTypes.Poster, 2), Is.EqualTo(SEASON_POSTER),
+          "asked by number in a flat library, the season is answered by the numbered picture lying with the media, "
+          + "which is the only picture in that folder that means one season");
+      Assert.That(LocalFanArtSearch.Worn.Picture(series, FanArtTypes.Poster), Is.EqualTo(SERIES_POSTER),
+          "the show's own poster stays the show's");
     }
 
     #endregion

@@ -258,6 +258,28 @@ namespace Tests.Server.Api
     }
 
     /// <summary>
+    /// Asks the list endpoint for one season of a series by number. This is how the shelf inside a season the
+    /// library only counts is opened: the series' id and the number, because there is no id of that season's own to
+    /// look inside of.
+    /// </summary>
+    private static MediaController.TitlesResult GetTitlesOfSeason(IMediaLibrary library, string aspect,
+        Guid series, int season, out ActionResult<MediaController.TitlesResult> action)
+    {
+      ServiceRegistration.Set<IMediaLibrary>(library);
+      action = new MediaController().GetTitles(aspect, null, null, 0, 0, null, null, series, null, null, season);
+      return Body(action);
+    }
+
+    /// <summary>The details endpoint asked the same way: one season of the title the id names.</summary>
+    private static MediaController.ItemResult GetItemOfSeason(IMediaLibrary library, Guid series, int season,
+        out ActionResult<MediaController.ItemResult> action)
+    {
+      ServiceRegistration.Set<IMediaLibrary>(library);
+      action = new MediaController().GetItem(series, season);
+      return Body(action);
+    }
+
+    /// <summary>
     /// An item with everything a details screen reads on it, each attribute written out separately because a test
     /// that filled them from a loop could not say which one the endpoint had mixed up.
     /// </summary>
@@ -2086,6 +2108,408 @@ namespace Tests.Server.Api
       RelationshipFilter ofSeason = (RelationshipFilter) seasonAsked[1].Filter;
       Assert.That(ofSeason.LinkedRole, Is.EqualTo(SeasonAspect.ROLE_SEASON),
           "an importer that filed the episodes under their season is not a library the front end cannot browse");
+    }
+
+    /// <summary>
+    /// One season as MP2's series importer leaves it (<c>SeasonInfo.SetMetadata:239-243</c>): the media aspect
+    /// carrying the name the importer built - <c>"&lt;series&gt; (&lt;year&gt;) S&lt;nn&gt;"</c>, which is a name
+    /// written for a list of every season in the house - and the season aspect carrying the number, the series,
+    /// how many episodes were counted and the prose. None of those four are on the media aspect.
+    /// </summary>
+    private static MediaItem CreateSeasonItem(Guid id, string title, string seriesName, int season, int episodes,
+        string description)
+    {
+      SingleMediaItemAspect seasonAspect = new SingleMediaItemAspect(SeasonAspect.Metadata);
+      if (seriesName != null)
+        seasonAspect.SetAttribute(SeasonAspect.ATTR_SERIES_NAME, seriesName);
+      if (season > 0)
+        seasonAspect.SetAttribute(SeasonAspect.ATTR_SEASON, season);
+      if (episodes > 0)
+        seasonAspect.SetAttribute(SeasonAspect.ATTR_NUM_EPISODES, episodes);
+      if (description != null)
+        seasonAspect.SetAttribute(SeasonAspect.ATTR_DESCRIPTION, description);
+
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>
+      {
+          { MediaAspect.ASPECT_ID, new List<MediaItemAspect> { CreateMediaAspect(title, title, new DateTime(2007, 9, 13)) } },
+          { SeasonAspect.ASPECT_ID, new List<MediaItemAspect> { seasonAspect } }
+      };
+      return new TestItem(id, aspects, null, false);
+    }
+
+    [Test]
+    public void TheSeasonsOfASeriesAreFoundThroughTheSeasonRole()
+    {
+      List<MediaItemQuery> asked;
+      List<IFilter> counted;
+      IMediaLibrary library = ContainingLibrary(
+          CreateParentItem(SERIES_ID, "Alien Earth", SeriesAspect.Metadata),
+          new List<MediaItem>(), 0, out asked, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      MediaController.TitlesResult result =
+          GetTitlesInside(library, "SeasonItem", null, null, SERIES_ID, out action);
+
+      Assert.That(Status(action), Is.Null,
+          "a season is a title MP2 files in its own right - it has its own aspect, its own role and its own "
+          + "relationship extractor - so a viewer standing on a series and pressing into it is asking a question "
+          + "this server has an answer to, not one no library can hold");
+      Assert.That(asked[1].Filter, Is.InstanceOf<RelationshipFilter>());
+      RelationshipFilter link = (RelationshipFilter) asked[1].Filter;
+      Assert.That(link.Role, Is.EqualTo(SeasonAspect.ROLE_SEASON));
+      Assert.That(link.LinkedRole, Is.EqualTo(SeriesAspect.ROLE_SERIES),
+          "the pair of roles MP2's own extractor writes the season-to-series link with "
+          + "(SeasonSeriesRelationshipExtractor.cs:58,68), which is a different pair of roles from the one that "
+          + "same series' episodes hang on the season by - asking for one when the other was meant would list "
+          + "episodes under a heading that says seasons");
+      Assert.That(link.LinkedMediaItemId, Is.EqualTo(SERIES_ID));
+      Assert.That(result.Inside, Is.EqualTo(SERIES_ID));
+    }
+
+    [Test]
+    public void AShelfOfSeasonsIsSortedByTheNumberTheImporterWrote()
+    {
+      List<MediaItemQuery> asked;
+      List<IFilter> counted;
+      IMediaLibrary library = ContainingLibrary(null, new List<MediaItem>(), 0, out asked, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      MediaController.TitlesResult result = GetTitles(library, "SeasonItem", "season", null, 0, 0, out action);
+
+      AttributeSortInformation sort = (AttributeSortInformation) asked[0].SortInformation[0];
+      Assert.That(sort.AttributeType, Is.SameAs(SeasonAspect.ATTR_SEASON),
+          "a season is watched in the order it was made, and the number the importer wrote is the only column "
+          + "that says so: the name MP2 builds for a season begins with the series, so sorting seasons by name "
+          + "would leave the viewer reading one series' whole shelf to find season three and would put season ten "
+          + "between one and two");
+      Assert.That(sort.Direction, Is.EqualTo(SortDirection.Ascending));
+      Assert.That(result.Sort, Is.EqualTo("season"));
+    }
+
+    [Test]
+    public void ASeasonRowCarriesItsNumberAndHowManyEpisodesItHolds()
+    {
+      MediaItem season = CreateSeasonItem(Guid.NewGuid(), "Bones (2005) S03", "Bones", 3, 15,
+          "The team adjusts to running the lab without its lead.");
+      ActionResult<MediaController.TitlesResult> action;
+      MediaController.TitlesResult result = GetTitles(
+          ContainingLibrary(null, new List<MediaItem> { season }, 1, out _, out _),
+          "SeasonItem", null, null, 0, 0, out action);
+
+      Assert.That(result.Titles, Has.Count.EqualTo(1));
+      MediaController.TitleResult row = result.Titles[0];
+      Assert.That(row.Season, Is.EqualTo(3),
+          "the number is on the season aspect rather than in the name, and a screen that read it out of the name "
+          + "would be parsing a string the importer is free to rewrite");
+      Assert.That(row.Episodes, Is.EqualTo(15),
+          "how much is inside is the one thing a season has to say about itself, which is what an album's row "
+          + "answers with its tracks (SeasonAspect.NUM_EPISODES, the same figure the reference's season panel drew)");
+
+      MediaItem unnumbered = CreateSeasonItem(Guid.NewGuid(), "Alien Earth", "Alien Earth", 0, 0, null);
+      MediaController.TitleResult blank = GetTitles(
+          ContainingLibrary(null, new List<MediaItem> { unnumbered }, 1, out _, out _),
+          "SeasonItem", null, null, 0, 0, out action).Titles[0];
+      Assert.That(blank.Season, Is.Null,
+          "a season the importer never numbered is answered as nothing rather than as season nought, which a "
+          + "screen would draw as a season that does not exist");
+      Assert.That(blank.Episodes, Is.Null);
+    }
+
+    [Test]
+    public void ASeasonAnswersWithItsSeriesItsNumberAndItsEpisodes()
+    {
+      Guid id = Guid.NewGuid();
+      MediaItem season = CreateSeasonItem(id, "Bones (2005) S03", "Bones", 3, 15,
+          "The team adjusts to running the lab without its lead.");
+
+      ActionResult<MediaController.ItemResult> action;
+      MediaController.ItemResult result = GetItem(
+          CreateLibrary(new List<MediaItem> { season }, 1, out _, out _), id, out action);
+
+      Assert.That(result.SeriesName, Is.EqualTo("Bones"),
+          "a season belongs to a series, and the series' name is on the season aspect - the episode aspect it "
+          + "would normally come from is not on this item at all");
+      Assert.That(result.Season, Is.EqualTo(3));
+      Assert.That(result.Episodes, Is.EqualTo(15));
+      Assert.That(result.Episode, Is.Null, "a season is not an episode and has no number inside itself");
+      Assert.That(result.Overview, Is.EqualTo("The team adjusts to running the lab without its lead."),
+          "what the reference's season panel showed as its description is on the season aspect "
+          + "(SeasonAspect.ATTR_DESCRIPTION), and a details screen with nothing to say about a season is the "
+          + "screen the viewer came to the season for");
+    }
+
+    /// <summary>
+    /// A series and its episodes and no season titles at all, which is what a library looks like when it was
+    /// pointed straight at the episode files: whatever tagged them wrote a season number onto every episode and
+    /// never made a title of it, so the link that a shelf of seasons is read through exists and answers nothing.
+    /// </summary>
+    /// <remarks>
+    /// The two questions are answered apart, and that separation is the point of the fixture rather than an
+    /// accident of it: a shelf asked through the season aspect comes back empty - which is the situation these
+    /// tests are about - while the episodes the counting falls back on come back through their own aspect. One
+    /// list for both would make "no seasons" and "no episodes" the same state, and a test built on it could not
+    /// tell a server that counted the episodes from one that simply had nothing to say.
+    /// </remarks>
+    private static IMediaLibrary EpisodesOnlyLibrary(string seriesName, IList<MediaItem> episodes,
+        out Guid series, out List<MediaItemQuery> asked)
+    {
+      Guid id = Guid.NewGuid();
+      List<MediaItemQuery> questions = new List<MediaItemQuery>();
+      MediaItem parent = CreateParentItem(id, seriesName, SeriesAspect.Metadata);
+
+      var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+      library.Setup(get => get.GetManagedMediaItemAspectMetadata()).Returns(
+          new Dictionary<Guid, MediaItemAspectMetadata>
+          {
+              { MediaAspect.ASPECT_ID, MediaAspect.Metadata },
+              { EpisodeAspect.ASPECT_ID, EpisodeAspect.Metadata },
+              { SeriesAspect.ASPECT_ID, SeriesAspect.Metadata },
+              { SeasonAspect.ASPECT_ID, SeasonAspect.Metadata }
+          });
+      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, null, false))
+          .Callback<MediaItemQuery, bool, Guid?, bool>(
+              (query, online, profile, virtualItems) => questions.Add(query))
+          .Returns<MediaItemQuery, bool, Guid?, bool>((query, online, profile, virtualItems) =>
+              query.Filter is MediaItemIdFilter
+                  ? new List<MediaItem> { parent }
+                  : query.NecessaryRequestedMIATypeIDs.Contains(SeasonAspect.ASPECT_ID)
+                      ? new List<MediaItem>()
+                      : new List<MediaItem>(episodes));
+      library.Setup(get => get.CountMediaItems(It.IsAny<IEnumerable<Guid>>(), It.IsAny<IFilter>(), false, false))
+          .Returns<IEnumerable<Guid>, IFilter, bool, bool>((necessary, filter, online, virtualItems) =>
+              necessary.Contains(SeasonAspect.ASPECT_ID) ? 0 : episodes.Count);
+
+      series = id;
+      asked = questions;
+      return library.Object;
+    }
+
+    /// <summary>Four episodes of one series as an outside tool leaves them: seasons one, two and five.</summary>
+    private static IList<MediaItem> CountedEpisodes()
+    {
+      return new List<MediaItem>
+      {
+          CreateEpisodeItem(Guid.NewGuid(), "Buried", 1, 1),
+          CreateEpisodeItem(Guid.NewGuid(), "Confrontation", 1, 2),
+          CreateEpisodeItem(Guid.NewGuid(), "Reconvene", 2, 1),
+          CreateEpisodeItem(Guid.NewGuid(), "Finale", 5, 1)
+      };
+    }
+
+    [Test]
+    public void TheSeasonsOfASeriesAreCountedOffItsEpisodesWhenNoSeasonTitleExists()
+    {
+      Guid series;
+      List<MediaItemQuery> asked;
+      IMediaLibrary library = EpisodesOnlyLibrary("Prison Break (2005)", CountedEpisodes(), out series, out asked);
+
+      ActionResult<MediaController.TitlesResult> action;
+      MediaController.TitlesResult result =
+          GetTitlesInside(library, "SeasonItem", "season", null, series, out action);
+
+      Assert.That(Status(action), Is.Null,
+          "a viewer standing on a series and pressing into it is asking a question with an answer, even in the "
+          + "commonest library where that answer is not a title of its own anywhere");
+      Assert.That(result.Titles, Has.Count.EqualTo(3),
+          "three different season numbers were worn by the four episodes, so three rows are what the shelf holds");
+      Assert.That(result.Total, Is.EqualTo(3),
+          "the count is of the shelf that was made, not of the episodes the counting read");
+
+      Assert.That(result.Titles[0].Season, Is.EqualTo(1));
+      Assert.That(result.Titles[0].Episodes, Is.EqualTo(2),
+          "a counted season says how much is inside it the way a season the library holds does, because that is "
+          + "the line the reference's season row showed under the number");
+      Assert.That(result.Titles[0].Title, Is.EqualTo("Prison Break (2005) S01"),
+          "named as the reference names a season (SeasonInfo.cs:54 SEASON_FORMAT_STR = \"{0} S{1:00}\"), since a "
+          + "counted row is shown to a caller that has no other name to read");
+
+      Assert.That(result.Titles[1].Season, Is.EqualTo(2));
+      Assert.That(result.Titles[1].Episodes, Is.EqualTo(1));
+
+      Assert.That(result.Titles[2].Season, Is.EqualTo(5),
+          "a series whose library holds seasons one, two and five shows three rows: seasons are counted, not "
+          + "numbered up to the highest, and a season nobody tagged is not invented");
+      Assert.That(result.Titles[2].Title, Is.EqualTo("Prison Break (2005) S05"));
+
+      RelationshipFilter link = (RelationshipFilter) asked[asked.Count - 1].Filter;
+      Assert.That(link.Role, Is.EqualTo(EpisodeAspect.ROLE_EPISODE));
+      Assert.That(link.LinkedRole, Is.EqualTo(SeriesAspect.ROLE_SERIES),
+          "the counting reads the series' episodes through the pair of roles the importer filed them with "
+          + "(EpisodeSeasonRelationshipExtractor.cs:41 writes the episode-to-series link), which is the only road "
+          + "from a series to its episode numbers in a library like this");
+    }
+
+    [Test]
+    public void ACountedSeasonSaysWhichSeriesToOpenItInAndStaysTheSameRowTheNextTime()
+    {
+      Guid series;
+      List<MediaItemQuery> asked;
+      IMediaLibrary library = EpisodesOnlyLibrary("Prison Break (2005)", CountedEpisodes(), out series, out asked);
+
+      ActionResult<MediaController.TitlesResult> action;
+      MediaController.TitlesResult first =
+          GetTitlesInside(library, "SeasonItem", "season", null, series, out action);
+      MediaController.TitlesResult again =
+          GetTitlesInside(library, "SeasonItem", "season", null, series, out action);
+
+      Assert.That(first.Titles[0].ParentId, Is.EqualTo(series),
+          "a counted season has no identity of its own, so its row carries the two parts that do exist - the "
+          + "series and the number - and says which of them is where the shelf inside it has to be asked from");
+      Assert.That(first.Titles[0].Season, Is.EqualTo(1));
+      Assert.That(again.Titles[0].ParentId, Is.EqualTo(series));
+
+      Assert.That(again.Titles[0].Id, Is.EqualTo(first.Titles[0].Id),
+          "the key of a counted season is made from its series and number rather than invented afresh per request, "
+          + "because the screen holds on to it between reads: it is what its rows are told apart by, what a picture "
+          + "is cached under and what the row the viewer left the screen on is found again by");
+      Assert.That(again.Titles[1].Id, Is.EqualTo(first.Titles[1].Id));
+
+      Assert.That(first.Titles[0].Id, Is.Not.EqualTo(first.Titles[1].Id),
+          "two seasons of one series cannot be handed the same key, or a screen would paint one row's picture on "
+          + "the other and select the wrong one");
+      Assert.That(first.Titles[0].Id, Is.Not.EqualTo(series),
+          "and a counted season is not passed off as its own series, which would have the shelf inside a series "
+          + "open the series itself");
+    }
+
+    [Test]
+    public void TheSeasonNoughtOfASeriesIsTheSpecialsAndKeepsItsOwnRow()
+    {
+      Guid series;
+      List<MediaItemQuery> asked;
+      IMediaLibrary library = EpisodesOnlyLibrary("Prison Break (2005)", new List<MediaItem>
+      {
+          CreateEpisodeItem(Guid.NewGuid(), "The Road to Paradise", 0, 1),
+          CreateEpisodeItem(Guid.NewGuid(), "J-Two", 0, 2),
+          CreateEpisodeItem(Guid.NewGuid(), "Buried", 1, 1)
+      }, out series, out asked);
+
+      ActionResult<MediaController.TitlesResult> action;
+      MediaController.TitlesResult result =
+          GetTitlesInside(library, "SeasonItem", "season", null, series, out action);
+
+      Assert.That(result.Titles, Has.Count.EqualTo(2));
+      Assert.That(result.Titles[0].Season, Is.EqualTo(0),
+          "nought is MP2's spelling of the specials - it is the number an importer that named nothing writes and "
+          + "the number whose pictures are tagged season-specials-* (LocalFanArtHelper.GetAdditionalSeasonPrefixes), "
+          + "so it stays a row of its own and sorts in front of season one");
+      Assert.That(result.Titles[0].Episodes, Is.EqualTo(2));
+      Assert.That(result.Titles[0].Title, Is.EqualTo("Prison Break (2005) S00"));
+      Assert.That(result.Titles[1].Season, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void OpeningACountedSeasonNarrowsTheSeriesEpisodesToThatNumber()
+    {
+      Guid series;
+      List<MediaItemQuery> asked;
+      IMediaLibrary library = EpisodesOnlyLibrary("Prison Break (2005)", CountedEpisodes(), out series, out asked);
+
+      ActionResult<MediaController.TitlesResult> action;
+      GetTitlesOfSeason(library, "EpisodeItem", series, 2, out action);
+
+      Assert.That(Status(action), Is.Null,
+          "the row of a counted season is opened by the screen exactly as any other row is, with the two parts it "
+          + "was given: the series' id and the number");
+      BooleanCombinationFilter both = (BooleanCombinationFilter) asked[1].Filter;
+      RelationalFilter numbered = both.Operands.OfType<RelationalFilter>().Single();
+      Assert.That(numbered.AttributeType, Is.SameAs(EpisodeAspect.ATTR_SEASON),
+          "the number the row was built from is asked back as the attribute the episodes carry it in, which is the "
+          + "only place it is written in a library like this");
+      Assert.That(numbered.Operator, Is.EqualTo(RelationalOperator.EQ));
+      Assert.That(numbered.FilterValue, Is.EqualTo(2));
+
+      RelationshipFilter link = both.Operands.OfType<RelationshipFilter>().Single();
+      Assert.That(link.Role, Is.EqualTo(EpisodeAspect.ROLE_EPISODE));
+      Assert.That(link.LinkedRole, Is.EqualTo(SeriesAspect.ROLE_SERIES));
+      Assert.That(link.LinkedMediaItemId, Is.EqualTo(series),
+          "the narrowing is added to the question of which episodes belong to the series, not asked beside it - "
+          + "without the link a season of one series could be answered with another series' season two");
+    }
+
+    [Test]
+    public void OnlyEpisodesCanBeNarrowedToOneSeason()
+    {
+      Guid series;
+      List<MediaItemQuery> asked;
+      IMediaLibrary library = EpisodesOnlyLibrary("Prison Break (2005)", CountedEpisodes(), out series, out asked);
+
+      ActionResult<MediaController.TitlesResult> action;
+      MediaController.TitlesResult result = GetTitlesOfSeason(library, "SeasonItem", series, 2, out action);
+
+      Assert.That(Status(action), Is.EqualTo(StatusCodes.Status400BadRequest),
+          "a season number means nothing for a shelf that is itself a shelf of seasons - the caller mixed the two "
+          + "up, and an empty list here would read as a series with nothing in it");
+      Assert.That(result.Error, Does.Contain("season"));
+    }
+
+    [Test]
+    public void ACountedSeasonAnswersItsDetailsFromTheEpisodesItHolds()
+    {
+      Guid series;
+      List<MediaItemQuery> asked;
+      IMediaLibrary library = EpisodesOnlyLibrary("Prison Break (2005)", CountedEpisodes(), out series, out asked);
+
+      ActionResult<MediaController.ItemResult> action;
+      MediaController.ItemResult result = GetItemOfSeason(library, series, 2, out action);
+
+      Assert.That(Status(action), Is.Null);
+      Assert.That(result.Season, Is.EqualTo(2));
+      Assert.That(result.Episodes, Is.EqualTo(1),
+          "the panel about a counted season says what the counting knows and nothing else: the series, the number, "
+          + "and how many episodes wear it");
+      Assert.That(result.SeriesName, Is.EqualTo("Prison Break (2005)"));
+      Assert.That(result.Title, Is.EqualTo("Prison Break (2005) S02"));
+      Assert.That(result.Id, Is.Not.EqualTo(series),
+          "the details of a season are not the details of its series, and answering them as such would have a "
+          + "season panel open the whole library under one series' name");
+    }
+
+    [Test]
+    public void ASeasonTheSeriesDoesNotHoldIsAnsweredAsMissing()
+    {
+      Guid series;
+      List<MediaItemQuery> asked;
+      IMediaLibrary library = EpisodesOnlyLibrary("Prison Break (2005)", CountedEpisodes(), out series, out asked);
+
+      ActionResult<MediaController.ItemResult> action;
+      MediaController.ItemResult result = GetItemOfSeason(library, series, 7, out action);
+
+      Assert.That(Status(action), Is.EqualTo(StatusCodes.Status404NotFound),
+          "a number no episode of the series wears is not a title this server can describe");
+      Assert.That(result.Error, Does.Contain("7"));
+    }
+
+    [Test]
+    public void ASeasonTheLibraryHoldsAnswersToItsOwnIdEvenWhenANumberComesAlong()
+    {
+      Guid id = Guid.NewGuid();
+      MediaItem season = CreateSeasonItem(id, "Bones (2005) S03", "Bones", 3, 15, null);
+
+      ActionResult<MediaController.ItemResult> action;
+      MediaController.ItemResult result = GetItemOfSeason(
+          CreateLibrary(new List<MediaItem> { season }, 1, out _, out _), id, 3, out action);
+
+      Assert.That(Status(action), Is.Null);
+      Assert.That(result.Episodes, Is.EqualTo(15),
+          "a season the library holds as a title is described from what was tagged on it, and the number a caller "
+          + "carried along is not counted over that - the counting is only there for libraries that have nothing else");
+    }
+
+    [Test]
+    public void OnlyASeriesHasSeasonsToCount()
+    {
+      Guid film = Guid.NewGuid();
+      MediaItem movie = CreateParentItem(film, "Titanic", MovieAspect.Metadata);
+
+      ActionResult<MediaController.ItemResult> action;
+      MediaController.ItemResult result = GetItemOfSeason(
+          CreateLibrary(new List<MediaItem> { movie }, 1, out _, out _), film, 1, out action);
+
+      Assert.That(Status(action), Is.EqualTo(StatusCodes.Status400BadRequest),
+          "asking which is film one of a film is a question about a title that cannot hold seasons, and saying so "
+          + "is kinder than answering with a season row that leads nowhere");
+      Assert.That(result.Error, Does.Contain("series"));
     }
 
     [Test]

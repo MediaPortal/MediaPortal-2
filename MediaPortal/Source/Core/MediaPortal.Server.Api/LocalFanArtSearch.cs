@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using MediaPortal.Backend.MediaLibrary;
@@ -167,12 +168,28 @@ namespace MediaPortal.Server.Api
     /// </summary>
     public byte[] Picture(Guid id, string fanArtType)
     {
+      return Picture(id, fanArtType, null);
+    }
+
+    /// <summary>
+    /// The picture one season of a title wears, asked by number.
+    /// </summary>
+    /// <remarks>
+    /// This is the shape of question a library answers when it holds a series' episodes but no season titles: a
+    /// counted season has no id of its own (<c>MediaController.CountSeasonsOfSeries</c>), so it is asked with the
+    /// series' id and the number its episodes carry. The number is what the file names beside the media spell
+    /// (<c>season01-poster.jpg</c>, <c>season-specials-banner.jpg</c>) and, for the same reason, the episode the walk
+    /// starts from - so that a library filed one folder per season starts the walk inside that folder rather than in
+    /// the series' one, where the plain names belong to the series.
+    /// </remarks>
+    public byte[] Picture(Guid id, string fanArtType, int? season)
+    {
       IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>(false);
       if (library == null)
         return null;
 
       string remembered;
-      Known known = Recall(id, fanArtType, out remembered);
+      Known known = Recall(id, fanArtType, season, out remembered);
       if (known == Known.NothingHere)
         return null;
 
@@ -183,10 +200,10 @@ namespace MediaPortal.Server.Api
           return bytes;
 
         // The file the memory named is gone or unreadable after all, which is worth one search - not a lie.
-        Forget(id, fanArtType);
+        Forget(id, fanArtType, season);
       }
 
-      return ReadPicture(Search(library, id, fanArtType));
+      return ReadPicture(Search(library, id, fanArtType, season));
     }
 
     /// <summary>
@@ -200,7 +217,7 @@ namespace MediaPortal.Server.Api
       if (library == null)
         return 0;
 
-      return Sweep(library, id).Count;
+      return Sweep(library, id, null).Count;
     }
 
     /// <summary>
@@ -221,7 +238,7 @@ namespace MediaPortal.Server.Api
     {
       lock (this)
       {
-        return KINDS.All(kind => _answers.ContainsKey(Key(id, kind)));
+        return KINDS.All(kind => _answers.ContainsKey(Key(id, kind, null)));
       }
     }
 
@@ -241,9 +258,9 @@ namespace MediaPortal.Server.Api
     /// Searching one kind of one title, filing all seven kinds on the way, and answering with the file that was
     /// found for the kind asked for - or null.
     /// </summary>
-    private string Search(IMediaLibrary library, Guid id, string fanArtType)
+    private string Search(IMediaLibrary library, Guid id, string fanArtType, int? season)
     {
-      Dictionary<string, string> found = Sweep(library, id);
+      Dictionary<string, string> found = Sweep(library, id, season);
       string file;
       return found.TryGetValue(fanArtType, out file) ? file : null;
     }
@@ -259,11 +276,22 @@ namespace MediaPortal.Server.Api
     /// first folder that has a picture of a kind wins, which is the reference's priority: whatever lies with the
     /// episode itself outranks whatever lies with the series.
     /// </remarks>
-    private Dictionary<string, string> Sweep(IMediaLibrary library, Guid id)
+    private Dictionary<string, string> Sweep(IMediaLibrary library, Guid id, int? askedSeason)
     {
       Dictionary<string, string> found = new Dictionary<string, string>();
 
-      foreach (MediaItem anchor in FanArtAnchors(library, id))
+      IList<MediaItem> anchors = FanArtAnchors(library, id, askedSeason);
+
+      // A season is asked about by its own number, because a season's pictures are named after that number: the
+      // reference's provider took the "season01-poster.jpg" and "season-all-poster.jpg" family
+      // (LocalSeriesFanartProvider.cs:119-136 through LocalFanartHelper.GetAdditionalSeasonPrefixes), and a
+      // library tagged that way has one poster per season lying in the same folders as everything else. A season the
+      // library holds as nothing but a number on its episodes brings that number with it instead of wearing it, and
+      // every other title leaves this null, which leaves the walk exactly as it was.
+      int? seasonNumber = askedSeason ?? SeasonNumberOf(anchors);
+      string[] seasonNames = seasonNumber == null ? null : LocalFanartHelper.GetAdditionalSeasonPrefixes(seasonNumber);
+
+      foreach (MediaItem anchor in anchors)
       {
         IResourceLocator locator = anchor.GetResourceLocator();
         if (locator == null)
@@ -282,7 +310,27 @@ namespace MediaPortal.Server.Api
 
         for (int hop = 0; hop < 3 && directory != null; hop++)
         {
-          ListPicturesIn(directory, hop == 0 ? mediaStem : null, wearsItsOwnName, found);
+          // A season's own folder is the one standing above an episode and below a folder that keeps one folder
+          // per season; that is the reference's test for the two layouts (GetSeriesFolderFromEpisodePath:248-259).
+          // Only there may the plain names ("poster.jpg", "fanart.jpg") say anything about the season: in every
+          // other folder of a series they belong to the whole show.
+          //
+          // That is not a corner of the two layouts but the common case of one of them. A series whose season
+          // pictures were downloaded by a tagger keeps "poster.jpg" and "season01-poster.jpg" side by side in the
+          // series' folder, and inside one folder the plain name is asked before the numbered one - so a season
+          // that found nothing in its own folder and was answered with the plain name above would wear the whole
+          // show's poster, which is the shelf of seasons where every row looks the same and says nothing about
+          // which season is which. The reference refuses the plain names for the same reason; it only asks which
+          // folder it is standing in from above instead of from below.
+          bool seasonOwnsThisFolder = seasonNumber != null && StandsInSeasonFolder(directory, seasonNumber);
+          bool plainNames = seasonNumber == null || seasonOwnsThisFolder;
+
+          // An episode's own file name is not a season's name either: "<episode>-poster.jpg" is one episode's
+          // poster, and the reference never read it for the season around it - which is the same refusal the plain
+          // names get one line above, told here by withholding the name.
+          ListPicturesIn(directory, plainNames,
+              plainNames && hop == 0 && seasonNumber == null ? mediaStem : null, wearsItsOwnName,
+              seasonNames, found);
 
           try
           {
@@ -296,15 +344,112 @@ namespace MediaPortal.Server.Api
         }
       }
 
-      Remember(id, found);
+      Remember(id, seasonNumber, found);
       return found;
+    }
+
+    /// <summary>
+    /// The season number a title is asking about, or null when the title is not a season.
+    /// </summary>
+    /// <remarks>
+    /// Read off the title's own season aspect, which is where MP2 writes it (SeasonInfo.SetMetadata:241). The
+    /// episode the fanart search detoured through is asked next: an importer that numbered the episodes and left
+    /// the season's own column empty is a library that exists, and the number is the same fact either way. A
+    /// season numbered nought stays nought, which is MP2's spelling for the specials - and the reference's prefix
+    /// list answers that number with <c>season-specials</c>
+    /// (LocalFanartHelper.GetAdditionalSeasonPrefixes:240-247).
+    /// </remarks>
+    private static int? SeasonNumberOf(IList<MediaItem> anchors)
+    {
+      MediaItem title = anchors.Count > 0 ? anchors[0] : null;
+      SingleMediaItemAspect season;
+      if (title == null || !MediaItemAspect.TryGetAspect(title.Aspects, SeasonAspect.Metadata, out season))
+        return null;
+
+      if (season.GetAttributeValue<int>(SeasonAspect.ATTR_SEASON) > 0)
+        return season.GetAttributeValue<int>(SeasonAspect.ATTR_SEASON);
+
+      for (int i = 1; i < anchors.Count; i++)
+      {
+        SingleMediaItemAspect episode;
+        if (MediaItemAspect.TryGetAspect(anchors[i].Aspects, EpisodeAspect.Metadata, out episode)
+            && episode.GetAttributeValue<int>(EpisodeAspect.ATTR_SEASON) > 0)
+          return episode.GetAttributeValue<int>(EpisodeAspect.ATTR_SEASON);
+      }
+
+      return 0;
+    }
+
+    /// <summary>
+    /// Whether the folder an episode was found in is the season's own folder rather than the series' one - which
+    /// is the question that decides whether a plain "poster.jpg" up there belongs to the season or to the show.
+    /// </summary>
+    /// <remarks>
+    /// The reference asks the other folder instead (GetSeriesFolderFromEpisodePath:248-259 asks whether the folder
+    /// above the episode holds season folders), and that question is answered wrongly by its own helper when the
+    /// library keeps fewer than four series side by side: <c>IsSeriesFolder</c> says yes to a folder whose
+    /// children are all unparseable, so a flat library is taken for a nested one and the series' poster is handed
+    /// out as the season's. Asking the season's own folder is the same fact read from the right end: either its
+    /// name carries the season number ("Season 02", "Staffel 02" - MP2's GetSeasonFromFolder:229-236) or the
+    /// folders beside it carry numbers, which is what a library with one folder per season looks like from inside.
+    /// </remarks>
+    private static bool StandsInSeasonFolder(ResourcePath directory, int? seasonNumber)
+    {
+      try
+      {
+        using (IResourceAccessor self = TryOpenLocalFile(directory))
+        {
+          IFileSystemResourceAccessor folder = self as IFileSystemResourceAccessor;
+          if (folder != null && folder.Exists)
+          {
+            int own = LocalFanartHelper.GetSeasonFromFolder(folder);
+            if (own >= 0)
+              return seasonNumber == null || own == seasonNumber.Value;
+          }
+        }
+
+        using (IResourceAccessor above = TryOpenLocalFile(ResourcePathHelper.Combine(directory, "../")))
+        {
+          IFileSystemResourceAccessor parent = above as IFileSystemResourceAccessor;
+          if (parent == null || !parent.Exists)
+            return false;
+
+          // Read the way the reference reads them (IsSeriesFolder:203-216 asks the same children), and left undisposed
+          // the same way: they are names on their way to a number, not files anybody holds open.
+          foreach (IFileSystemResourceAccessor child in parent.GetChildDirectories().ToList())
+          {
+            if (LocalFanartHelper.GetSeasonFromFolder(child) >= 0)
+              return true;
+          }
+        }
+      }
+      catch (ArgumentException)
+      {
+        // The climb left the provider's root; nothing above this folder can be looked at.
+      }
+      catch (IOException)
+      {
+      }
+      catch (UnauthorizedAccessException)
+      {
+      }
+
+      return false;
     }
 
     /// <summary>
     /// Filing what one folder holds, for every kind that no folder below it answered yet.
     /// </summary>
-    private static void ListPicturesIn(ResourcePath directory, string mediaStem, bool wearsItsOwnName,
-        Dictionary<string, string> found)
+    /// <param name="plainNames">
+    /// Whether this folder's plain names ("poster.jpg", "fanart-2.jpg") speak for the title being asked about.
+    /// They do not for a season standing in a folder that is not its own, which is where a library that keeps no
+    /// season folders files its episodes: there, the folder's poster is the show's.
+    /// </param>
+    /// <param name="seasonPrefixes">
+    /// The numbered names a season is asked about by, or <c>null</c> for a title that is not a season.
+    /// </param>
+    private static void ListPicturesIn(ResourcePath directory, bool plainNames, string mediaStem,
+        bool wearsItsOwnName, string[] seasonPrefixes, Dictionary<string, string> found)
     {
       IResourceAccessor accessor = TryOpenLocalFile(directory);
       if (accessor == null)
@@ -323,7 +468,8 @@ namespace MediaPortal.Server.Api
           if (found.ContainsKey(kind))
             continue;
 
-          IList<ResourcePath> matching = MatchFiles(potential, kind, mediaStem, wearsItsOwnName);
+          IList<ResourcePath> matching = MatchFiles(potential, kind, plainNames, mediaStem, wearsItsOwnName,
+              seasonPrefixes);
 
           // A backdrop may also lie below an "ExtraFanArt" folder, which is where the reference's providers keep
           // the second and third backdrops of a title.
@@ -334,8 +480,8 @@ namespace MediaPortal.Server.Api
               IFileSystemResourceAccessor extraFolder = extra as IFileSystemResourceAccessor;
               if (extraFolder != null)
               {
-                matching = MatchFiles(LocalFanartHelper.GetPotentialFanArtFiles(extraFolder), kind, mediaStem,
-                    wearsItsOwnName);
+                matching = MatchFiles(LocalFanartHelper.GetPotentialFanArtFiles(extraFolder), kind, plainNames,
+                    mediaStem, wearsItsOwnName, seasonPrefixes);
               }
             }
           }
@@ -379,15 +525,20 @@ namespace MediaPortal.Server.Api
     /// with an exception that would reach the viewer as a failed picture. So the walking is done here, file by
     /// file, in the same order: the same answers, the same priority, no exception.
     /// </remarks>
-    private static IList<ResourcePath> MatchFiles(IList<ResourcePath> potential, string fanArtType,
-        string mediaStem, bool wearsItsOwnName)
+    private static IList<ResourcePath> MatchFiles(IList<ResourcePath> potential, string fanArtType, bool plainNames,
+        string mediaStem, bool wearsItsOwnName, string[] seasonPrefixes)
     {
       string[] names = NamesFor(fanArtType);
       if (names == null)
         return new List<ResourcePath>();
 
       List<ResourcePath> found = new List<ResourcePath>();
-      AddMatching(found, potential, name => names.Contains(name));
+
+      // The plain names are the folder's own answer - "poster.jpg" means this folder's poster - and a season asked
+      // about in a folder that is not its own (a library without season folders, where the episode's folder is the
+      // series' folder) is not what that answer means. Whoever calls decides, and says so here.
+      if (plainNames)
+        AddMatching(found, potential, name => names.Contains(name));
 
       if (mediaStem != null)
       {
@@ -395,7 +546,21 @@ namespace MediaPortal.Server.Api
             name => names.Any(one => name.StartsWith(mediaStem + "-" + one, StringComparison.Ordinal)));
       }
 
-      if (fanArtType == FanArtTypes.FanArt)
+      // A season's own pictures carry its number in front of the kind, which is how fanart.tv and the tagging
+      // tools that read it file a whole series in one folder: "season01-poster.jpg", "season01-fanart.jpg", and
+      // "season-all-*" or "season-specials-*" for the pictures that belong to no single season. The reference
+      // adds these after the plain names of the same folder (LocalSeriesFanartProvider.cs:119-136), so a season
+      // folder holding both spells its poster the plain way first - and in a folder whose plain names belong to
+      // the show, they are the only ones there are.
+      if (seasonPrefixes != null)
+      {
+        AddMatching(found, potential,
+            name => names.Any(one => seasonPrefixes.Any(prefix =>
+                name.StartsWith(prefix + "-" + one, StringComparison.Ordinal))));
+      }
+
+      // "fanart-2.jpg" is a backdrop of the same title, which is a plain-name rule and stands or falls with them.
+      if (plainNames && fanArtType == FanArtTypes.FanArt)
         AddMatching(found, potential, name => names.Any(one => name.StartsWith(one, StringComparison.Ordinal)));
 
       // A picture carrying the title's own file name is its poster and its screenshot too - but only while the
@@ -462,7 +627,7 @@ namespace MediaPortal.Server.Api
     /// that episode's path. A series is a shelf of episodes and has no file; the pictures lie with its episodes,
     /// so that is where the search has to start.
     /// </remarks>
-    private static IList<MediaItem> FanArtAnchors(IMediaLibrary mediaLibrary, Guid id)
+    private static IList<MediaItem> FanArtAnchors(IMediaLibrary mediaLibrary, Guid id, int? askedSeason)
     {
       IList<MediaItem> anchors = new List<MediaItem>();
       try
@@ -485,7 +650,10 @@ namespace MediaPortal.Server.Api
           return anchors;
         }
 
-        MediaItem episode = FirstEpisodeOf(mediaLibrary, item);
+        // Of the episodes this title has none of its own, one season asked for is picked by that season, so that a
+        // library filed "Series/Season 3/file.mkv" starts its walk inside the season's folder rather than in the
+        // series' - which is the difference between finding "season03-poster.jpg" beside the media and not.
+        MediaItem episode = FirstEpisodeOf(mediaLibrary, item, askedSeason);
         if (episode != null)
         {
           anchors.Add(episode);
@@ -515,6 +683,18 @@ namespace MediaPortal.Server.Api
     /// </remarks>
     internal static MediaItem FirstEpisodeOf(IMediaLibrary mediaLibrary, MediaItem item)
     {
+      return FirstEpisodeOf(mediaLibrary, item, null);
+    }
+
+    /// <summary>
+    /// The same, with one season picked out by number: a series asked about its third season has to be started from
+    /// an episode <i>of that season</i>, because in a library filed <c>Series/Season 3/file.mkv</c> the season's own
+    /// folder is the one holding its pictures. When none of the episodes carries the number - an importer that
+    /// numbered nothing, a shelf counted from another library's tags - any episode will do: the folders above it are
+    /// the same folders, and only the names the walk looks for change.
+    /// </summary>
+    internal static MediaItem FirstEpisodeOf(IMediaLibrary mediaLibrary, MediaItem item, int? season)
+    {
       Guid relation;
       SingleMediaItemAspect heldAspect;
       if (MediaItemAspect.TryGetAspect(item.Aspects, SeriesAspect.Metadata, out heldAspect))
@@ -524,13 +704,21 @@ namespace MediaPortal.Server.Api
       else
         return null;
 
+      IFilter within = new RelationshipFilter(EpisodeAspect.ROLE_EPISODE, relation, item.MediaItemId);
+      if (season.HasValue)
+        within = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, within,
+            new RelationalFilter(EpisodeAspect.ATTR_SEASON, RelationalOperator.EQ, season.Value));
+
       MediaItemQuery episodes = new MediaItemQuery(
           new List<Guid> { EpisodeAspect.ASPECT_ID },
           new List<Guid> { ProviderResourceAspect.ASPECT_ID },
-          new RelationshipFilter(EpisodeAspect.ROLE_EPISODE, relation, item.MediaItemId));
+          within);
       episodes.Limit = 1;
       IList<MediaItem> held = mediaLibrary.Search(episodes, false, null, false);
-      return held == null || held.Count == 0 ? null : held[0];
+      if (held != null && held.Count > 0)
+        return held[0];
+
+      return season.HasValue ? FirstEpisodeOf(mediaLibrary, item) : null;
     }
 
     /// <summary>
@@ -693,7 +881,7 @@ namespace MediaPortal.Server.Api
     /// the answer a wall needs most, and kinds it did have are filed with what their file looked like at the
     /// time, so that a later question can tell whether the answer still stands.
     /// </summary>
-    private void Remember(Guid id, Dictionary<string, string> found)
+    private void Remember(Guid id, int? season, Dictionary<string, string> found)
     {
       lock (this)
       {
@@ -704,7 +892,7 @@ namespace MediaPortal.Server.Api
 
           Answer answer = new Answer
           {
-            Key = Key(id, kind),
+            Key = Key(id, kind, season),
             File = file,
             SaidAt = DateTimeOffset.UtcNow,
             Asked = ++_asked
@@ -756,14 +944,14 @@ namespace MediaPortal.Server.Api
     /// What the memory says about one kind of one title, and - when it says there is a picture - which file that
     /// is. An answer whose file went away or changed is given up here, so that the caller searches again.
     /// </summary>
-    private Known Recall(Guid id, string kind, out string file)
+    private Known Recall(Guid id, string kind, int? season, out string file)
     {
       lock (this)
       {
         file = null;
 
         Answer answer;
-        if (!_answers.TryGetValue(Key(id, kind), out answer))
+        if (!_answers.TryGetValue(Key(id, kind, season), out answer))
           return Known.NotRemembered;
 
         answer.Asked = ++_asked;
@@ -791,17 +979,23 @@ namespace MediaPortal.Server.Api
     }
 
     /// <summary>Dropping one answer, because the file it named turned out to be unreadable after all.</summary>
-    private void Forget(Guid id, string kind)
+    private void Forget(Guid id, string kind, int? season)
     {
       lock (this)
       {
-        _answers.Remove(Key(id, kind));
+        _answers.Remove(Key(id, kind, season));
       }
     }
 
-    private static string Key(Guid id, string kind)
+    /// <summary>
+    /// The memory's name for one kind of one title, with the season number along when the question was about one
+    /// season of it: the series asked for season three and the same series asked for itself have two different right
+    /// answers, and a memory that filed them under one name would hand whichever came first to both.
+    /// </summary>
+    private static string Key(Guid id, string kind, int? season)
     {
-      return id.ToString("N") + "@" + kind;
+      return id.ToString("N") + "@" + kind
+          + (season.HasValue ? "#season" + season.Value.ToString(CultureInfo.InvariantCulture) : "");
     }
 
     /// <summary>

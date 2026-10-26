@@ -81,12 +81,45 @@ namespace MediaPortal.Frontend.ViewModels
       get { return _holdsTitles; }
     }
 
+    /// <summary>
+    /// The aspect the list this row stands in was read through: <c>SeriesItem</c> for a row of the series shelf,
+    /// <c>SeasonItem</c> for a row of one series' seasons. Whoever reads a list knows it and says it here, because
+    /// the row itself cannot always say what it is - a season and an episode both come back carrying a season
+    /// number, and only the shelf they were listed under knows which of the two this row is.
+    /// </summary>
+    public string? ReadThrough { get; }
+
+    /// <summary>
+    /// The title this row's own answers have to be asked of: its details, its pictures, and the shelf inside it.
+    /// </summary>
+    /// <remarks>
+    /// For every title the library holds this is the row's own id, which is what it has always been. One kind of row
+    /// is different: a season the library holds as nothing but a number written on its episodes has no title of its
+    /// own, and the shelf that counted it hands out a key to the list plus the name of the series the counting was
+    /// done in (<see cref="MediaTitle.ParentId"/>) - so everything about that row is asked of the series, under
+    /// <see cref="AskSeason"/>.
+    /// </remarks>
+    public Guid AskId
+    {
+      get { return _title.ParentId ?? _title.Id; }
+    }
+
+    /// <summary>
+    /// The season number to ask <see cref="AskId"/> with, or null when the row is a title the library holds.
+    /// </summary>
+    public int? AskSeason
+    {
+      get { return _title.ParentId.HasValue ? _title.Season : null; }
+    }
+
     private MediaTitle _title;
 
-    public TitleViewModel(MediaTitle title, bool holdsTitles = false, ServerApiClient? stream = null)
+    public TitleViewModel(MediaTitle title, bool holdsTitles = false, ServerApiClient? stream = null,
+        string? readThrough = null)
     {
       _title = title;
       _holdsTitles = holdsTitles;
+      ReadThrough = readThrough;
       if (!MediaLibraryPath.TryAsLocalFile(title.Path, out string localPath, out string? reason))
         _unplayableReason = reason;
       else
@@ -242,7 +275,18 @@ namespace MediaPortal.Frontend.ViewModels
     /// </summary>
     public string Name
     {
-      get { return string.IsNullOrWhiteSpace(Title.Title) ? "Untitled" : Title.Title!.Trim(); }
+      get
+      {
+        // MP2 names a season after the series it belongs to - "<series> S03" (SeasonInfo.SEASON_FORMAT_STR:54),
+        // which is a name written for a list holding every season the house has. A viewer standing inside one
+        // series has the series' name in the heading already, so the reference's season screens say the one thing
+        // that is new: its word for a season and the number (MediaItemCoverSeasonDetails.inc:52-58, with
+        // SeasonInfo.SHORT_FORMAT_STR as the short spelling). The row says the same here.
+        if (MediaCatalog.IsSeason(ReadThrough) && Title.Season.HasValue)
+          return "Season " + Title.Season.Value.ToString(CultureInfo.InvariantCulture);
+
+        return string.IsNullOrWhiteSpace(Title.Title) ? "Untitled" : Title.Title!.Trim();
+      }
     }
 
     /// <summary>The name a viewer scans for, with the article moved to the back - what the server sorted by.</summary>
@@ -415,6 +459,11 @@ namespace MediaPortal.Frontend.ViewModels
         if (Title.Track.HasValue)
           return Title.Track.Value.ToString(CultureInfo.InvariantCulture) + ".";
 
+        // A season's number is its name rather than an address inside something, and the row already says it;
+        // writing "S03" in front of "Season 3" would be the same number twice on one line.
+        if (MediaCatalog.IsSeason(ReadThrough))
+          return "";
+
         if (!Title.Season.HasValue && !Title.Episode.HasValue)
           return "";
 
@@ -440,10 +489,14 @@ namespace MediaPortal.Frontend.ViewModels
     {
       get
       {
+        // A title that holds others is counted, not timed - and counted in the things inside it, which are tracks
+        // on an album and episodes in a season.
         if (_holdsTitles)
-          return Title.TrackCount.HasValue
-              ? Title.TrackCount.Value + " tracks"
-              : "";
+        {
+          if (Title.TrackCount.HasValue)
+            return Title.TrackCount.Value + " tracks";
+          return Title.Episodes.HasValue ? Title.Episodes.Value + " episodes" : "";
+        }
 
         if (!Playable)
           return "not playable here";
@@ -639,14 +692,23 @@ namespace MediaPortal.Frontend.ViewModels
           : PicturesOf(client, "Thumbnail", id => client.GetThumbnailAsync(id));
       Section = section;
       Parent = parent;
+
+      // The shelf a pressed title came out of, which is what decides what its contents are: a series' rows are
+      // seasons and a season's rows are episodes, so a screen that asked its parent's tile would read a series'
+      // seasons twice and never reach the episodes. A row read by a screen that never said which shelf it read
+      // still falls back on the tile it was opened from.
+      string cameFrom = parent?.ReadThrough ?? section?.Aspect.Name ?? "";
       AspectName = parent == null
           ? section?.Aspect.Name ?? ""
-          : MediaCatalog.ChildAspectFor(section?.Aspect.Name);
-      Inside = parent == null ? null : parent.Title.Id;
+          : MediaCatalog.ChildAspectFor(cameFrom);
+      Inside = parent == null ? null : parent.AskId;
+      // The one shelf that cannot be opened by an id alone: a season the library only counted off its episodes has
+      // no title to look inside of, so its shelf is the series' episodes narrowed to that number.
+      SeasonFilter = parent?.AskSeason;
       // Every shelf opens by name, which is the order it has always had; a shelf read inside a title takes the
       // order its kind carries, the tracks of an album by their number. The one tile that used to promise another
       // order - MP2's "Latest media" - is gone, so nothing arrives with one.
-      SortOrder = parent == null ? "title" : MediaCatalog.ChildSortFor(section?.Aspect.Name);
+      SortOrder = parent == null ? "title" : MediaCatalog.ChildSortFor(cameFrom);
       // The browse screen's picked value travels the same way the picked order did: with the section. A list
       // opened out of one title is the titles inside it, and the genre of the shelf they were browsed under does
       // not follow them down - the tracks of an Action album are nobody's Action genre.
@@ -702,7 +764,11 @@ namespace MediaPortal.Frontend.ViewModels
       SkinSettingsBase.Saved += delegate { ReapplySkinSettings(); };
       _fanart = client == null
           ? null
-          : PicturesOf(client, "FanArt", id => client.GetFanArtAsync(id, "FanArt"));
+          : PicturesOf(client, "FanArt", id =>
+              {
+                (Guid asked, int? season) = AskOf(id);
+                return client.GetFanArtAsync(asked, "FanArt", season);
+              });
       // What a tile wears is the picture of its own kind, and the reference asked for it kinded too: its banner
       // grid bound FanArtType="Banner", its thumbnail grid FanArtType="Thumbnail", and neither ever drew a
       // poster in the other's frame - without the kind's own picture they drew the skin's "no banner" layer.
@@ -721,20 +787,31 @@ namespace MediaPortal.Frontend.ViewModels
     /// The source of this tile kind's own pictures, made once per kind and kept: a viewer who walks the
     /// Media button round twice repaints from the bytes already read rather than asking the server again.
     /// The poster kind has no source of its own - it is the database's thumbnail blob, which every shelf
-    /// already carries - and neither has a shelf with no server to ask.
+    /// already carries - and neither has a shelf with no server to ask. One shelf is the exception, and it is
+    /// said below.
     /// </summary>
     private Artwork? TileArtworkFor(GridViewType kind)
     {
-      if (kind == GridViewType.Poster)
+      // A season has no thumbnail blob, because nothing ever wrote one for a title that is a shelf of episodes
+      // rather than a file somebody thumbnailed - least of all for a season the library only counts off those
+      // episodes. Its front picture is the one beside the media with the season's number written into its name
+      // ("season01-poster.jpg"), so a season shelf asks its posters of the server by name and number instead.
+      if (kind == GridViewType.Poster && !MediaCatalog.IsSeason(AspectName))
         return null;
 
       if (_tileArtworks.TryGetValue(kind, out Artwork? known))
         return known;
 
-      string wanted = kind == GridViewType.Banner ? "Banner" : "Thumbnail";
+      string wanted = kind == GridViewType.Banner
+          ? "Banner"
+          : kind == GridViewType.Poster ? "Poster" : "Thumbnail";
       Artwork? created = _client == null
           ? null
-          : PicturesOf(_client, wanted, id => _client.GetFanArtAsync(id, wanted));
+          : PicturesOf(_client, wanted, id =>
+              {
+                (Guid asked, int? season) = AskOf(id);
+                return _client.GetFanArtAsync(asked, wanted, season);
+              });
       _tileArtworks.Add(kind, created);
       return created;
     }
@@ -1223,7 +1300,13 @@ namespace MediaPortal.Frontend.ViewModels
         if (IsMusic)
           return Layout == BrowserLayout.List ? _artwork : CoverArtwork ?? _artwork;
 
-        return Layout == BrowserLayout.Cover ? _artwork : TileArtworkFor(_tileKind) ?? _artwork;
+        // A season's cover is the poster it wears on its tiles, which is not in the database - see TileArtworkFor.
+        if (Layout == BrowserLayout.Cover)
+          return MediaCatalog.IsSeason(AspectName)
+              ? TileArtworkFor(GridViewType.Poster) ?? _artwork
+              : _artwork;
+
+        return TileArtworkFor(_tileKind) ?? _artwork;
       }
     }
 
@@ -1324,6 +1407,34 @@ namespace MediaPortal.Frontend.ViewModels
 
     /// <summary>The id the server is told to look inside of, or <c>null</c> for the whole shelf.</summary>
     public Guid? Inside { get; }
+
+    /// <summary>
+    /// The season number the server is told to narrow this shelf to, or null for a shelf that is not one season.
+    /// </summary>
+    /// <remarks>
+    /// Only a season the library holds as nothing but a number on its episodes needs asking this way: it has no id of
+    /// its own to look inside of, so its shelf is the series' episodes narrowed by the number - the two parts the row
+    /// it was opened from carries (<see cref="TitleViewModel.AskId"/> and <see cref="TitleViewModel.AskSeason"/>).
+    /// </remarks>
+    public int? SeasonFilter { get; }
+
+    /// <summary>
+    /// Where the answers about a row that is not a title of the library's own have to be asked: the series the row
+    /// was counted out of, under its season number. Written as the rows are read and read by every ask that only has
+    /// the row's own id to go by - the pictures, which are keyed by that id so that two seasons of one series do not
+    /// share a cached poster.
+    /// </summary>
+    private readonly Dictionary<Guid, (Guid Id, int? Season)> _asks = new Dictionary<Guid, (Guid Id, int? Season)>();
+
+    /// <summary>
+    /// Turning the id of a row into the id and season number to ask the server with; for the thousand titles to one
+    /// counted season this is the row's own id and nothing else.
+    /// </summary>
+    private (Guid Id, int? Season) AskOf(Guid rowId)
+    {
+      (Guid Id, int? Season) ask;
+      return _asks.TryGetValue(rowId, out ask) ? ask : (rowId, null);
+    }
 
     /// <summary>
     /// Whether pressing a row of this list opens what it holds rather than playing it, which is decided by the
@@ -1850,14 +1961,23 @@ namespace MediaPortal.Frontend.ViewModels
       Guid asked = title.Title.Id;
       try
       {
-        MediaItemDetails details = await _client.GetItemAsync(asked);
+        // Asked of the title that holds the answers rather than of the row's own key, which for a counted season is
+        // not a title at all; the guards below stay keyed by the row, because that is what the viewer is looking at.
+        MediaItemDetails details = await _client.GetItemAsync(title.AskId, title.AskSeason);
         if (_detailsAskFor != asked)
           return;
 
         _detailsFor = asked;
 
-        string name = string.IsNullOrWhiteSpace(details.Title) ? title.Name : details.Title!.Trim();
-        DetailsHeading = details.Year.HasValue ? name + " (" + details.Year.Value + ")" : name;
+        // A season is named by its row rather than by the server: what MP2 writes in the title column of a season
+        // is the series' name, the series' year and the number ("Bones (2005) S01"), which is a heading for a shelf
+        // of every season in the house. Above one season's episodes that says the series twice and the year twice,
+        // and hides the one thing the panel is there to say - which season this is.
+        bool isSeason = MediaCatalog.IsSeason(title.ReadThrough);
+        string name = isSeason || string.IsNullOrWhiteSpace(details.Title)
+            ? title.Name
+            : details.Title!.Trim();
+        DetailsHeading = details.Year.HasValue && !isSeason ? name + " (" + details.Year.Value + ")" : name;
         // The reference's detail screens put the tagline under the title and above the facts - the sentence the
         // studio wrote, before the sentences about length and kind. A title without one simply shows no line.
         DetailsTagline = details.Tagline?.Trim() ?? "";
@@ -1899,7 +2019,12 @@ namespace MediaPortal.Frontend.ViewModels
     /// </remarks>
     private async Task ReadDetailsArtworkAsync(TitleViewModel title)
     {
-      Artwork? artwork = _artwork;
+      // The panel's picture is the poster the database holds, and a season has none - nothing writes a blob for a
+      // title that is a shelf of episodes. Its own poster is the one its shelf's tiles wear, so that is the source
+      // to ask, and the number that picks it out of the files beside the media travels with the ask.
+      Artwork? artwork = MediaCatalog.IsSeason(title.ReadThrough)
+          ? TileArtworkFor(GridViewType.Poster) ?? _artwork
+          : _artwork;
       if (artwork == null)
         return;
 
@@ -1994,7 +2119,18 @@ namespace MediaPortal.Frontend.ViewModels
     {
       List<string> parts = new List<string>();
 
-      if (details.Season.HasValue || details.Episode.HasValue)
+      // A season is not an episode and has no address inside one, so the "S03E00" the branch below builds would be
+      // an invented episode zero. What the reference's season panel answered with was the series the season
+      // belongs to and how many episodes the library counted inside it (MediaItemCoverSeasonDetails.inc:37-75),
+      // and the row's own name already says which season this is.
+      if (MediaCatalog.IsSeason(title.ReadThrough))
+      {
+        if (!string.IsNullOrWhiteSpace(details.SeriesName))
+          parts.Add(details.SeriesName!.Trim());
+        if (details.Episodes.HasValue)
+          parts.Add(details.Episodes.Value + (details.Episodes.Value == 1 ? " episode" : " episodes"));
+      }
+      else if (details.Season.HasValue || details.Episode.HasValue)
       {
         string number = "S" + (details.Season ?? 0).ToString("00", CultureInfo.InvariantCulture)
             + "E" + (details.Episode ?? 0).ToString("00", CultureInfo.InvariantCulture);
@@ -2074,13 +2210,27 @@ namespace MediaPortal.Frontend.ViewModels
         // Nothing asks for newest-first here any more: that order came with the "Latest media" tile alone.
         MediaTitles answer = await _client.GetTitlesAsync(AspectName, SortOrder, false, PAGE_SIZE, offset,
             string.IsNullOrEmpty(ActiveSearch) ? null : ActiveSearch,
-            string.IsNullOrEmpty(ActiveSeen) ? null : ActiveSeen, Inside, GroupBy, GroupValue, cancellation.Token);
+            string.IsNullOrEmpty(ActiveSeen) ? null : ActiveSeen, Inside, GroupBy, GroupValue, SeasonFilter,
+            cancellation.Token);
 
         if (offset == 0)
           Titles.Clear();
 
         foreach (MediaTitle title in answer.Titles ?? Array.Empty<MediaTitle>())
-          Titles.Add(new TitleViewModel(title, DrillsIn, _client) { WatchFlagsShown = WatchFlagsShown });
+        {
+          TitleViewModel row = new TitleViewModel(title, DrillsIn, _client, AspectName)
+          {
+            WatchFlagsShown = WatchFlagsShown
+          };
+
+          // A season the library only counts has its answers somewhere else - the pictures, the details and the
+          // shelf inside it all belong to the series it was counted from, under its number. The rows are painted and
+          // asked about by their own id, so that is where the detour has to be remembered.
+          if (title.ParentId.HasValue)
+            _asks[title.Id] = (title.ParentId.Value, title.Season);
+
+          Titles.Add(row);
+        }
 
         Selected = Selected ?? (Titles.Count > 0 ? Titles[0] : null);
         CanLoadMore = answer.Remaining > 0;

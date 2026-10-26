@@ -405,7 +405,7 @@ namespace MediaPortal.Frontend.ViewModels
         {
           MediaTitles answer = await _client!.GetTitlesAsync("AudioItem", null, false,
               MediaBrowserViewModel.PAGE_SIZE, page * MediaBrowserViewModel.PAGE_SIZE,
-              null, null, null, null, null, cancellation.Token);
+              null, null, null, null, null, null, cancellation.Token);
 
           if (answer.Error != null)
           {

@@ -151,7 +151,15 @@ namespace MediaPortal.Frontend.Api
       [property: JsonPropertyName("episode")] int? Episode = null,
       [property: JsonPropertyName("track")] int? Track = null,
       [property: JsonPropertyName("artist")] string? Artist = null,
-      [property: JsonPropertyName("trackCount")] int? TrackCount = null);
+      [property: JsonPropertyName("trackCount")] int? TrackCount = null,
+      // Appended rather than filed beside the season it belongs to: a row is read left to right by whoever wrote
+      // one, and an answer the server has always given keeps its place. What it means: for a season, how many
+      // episodes the library counts inside it - the count an album's row answers with its tracks.
+      [property: JsonPropertyName("episodes")] int? Episodes = null,
+      // For a season the library does not hold as a title of its own - one it only counted off the numbers its
+      // episodes carry - the series that season's answers have to be asked of, since the id above is a key to the
+      // list and nothing more. Null for every title the library holds.
+      [property: JsonPropertyName("parentId")] Guid? ParentId = null);
 
   /// <summary>
   /// The answer of <c>GET api/media/titles</c>: one page of titles plus what is left behind it.
@@ -252,7 +260,10 @@ namespace MediaPortal.Frontend.Api
       [property: JsonPropertyName("lastPlayed")] DateTime? LastPlayed,
       [property: JsonPropertyName("path")] string? Path,
       [property: JsonPropertyName("stub")] bool Stub,
-      [property: JsonPropertyName("error")] string? Error)
+      [property: JsonPropertyName("error")] string? Error,
+      // Appended for the same reason as the title list's: for a season, how many episodes the library counts in
+      // it, which is what the reference's season panel asked of <c>SeasonAspect.NUM_EPISODES</c>.
+      [property: JsonPropertyName("episodes")] int? Episodes = null)
   {
     /// <summary>
     /// The longest single line of prose the title carries, or null when it carries none. What a details screen

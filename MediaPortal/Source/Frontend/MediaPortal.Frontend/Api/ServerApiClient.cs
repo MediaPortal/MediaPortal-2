@@ -348,9 +348,15 @@ namespace MediaPortal.Frontend.Api
     /// browsing: the groups said which genres there are, this asks which films are in one of them. Sent together
     /// or not at all, because the server refuses a category whose value went missing, and rightly.
     /// </param>
+    /// <param name="season">
+    /// A season number to narrow a shelf of episodes to, for the seasons a library holds as nothing but a number
+    /// written on its episodes: the shelf of them hands out rows whose <see cref="MediaTitle.ParentId"/> names the
+    /// series to ask and whose <see cref="MediaTitle.Season"/> says which number to ask it with, and this is where
+    /// the number goes. Null for every shelf that is not one season of a series.
+    /// </param>
     public async Task<MediaTitles> GetTitlesAsync(string aspect, string? sort = null, bool descending = false,
         int limit = 0, int offset = 0, string? search = null, string? seen = null, Guid? inside = null,
-        string? by = null, string? value = null,
+        string? by = null, string? value = null, int? season = null,
         CancellationToken cancellation = default)
     {
       if (string.IsNullOrWhiteSpace(aspect))
@@ -389,6 +395,10 @@ namespace MediaPortal.Frontend.Api
         url += "&by=" + Uri.EscapeDataString(by.Trim())
             + "&value=" + Uri.EscapeDataString(value.Trim());
       }
+      if (season.HasValue)
+      {
+        url += "&season=" + season.Value.ToString(CultureInfo.InvariantCulture);
+      }
 
       return await GetJsonAsync<MediaTitles>(url, cancellation).ConfigureAwait(false);
     }
@@ -420,15 +430,31 @@ namespace MediaPortal.Frontend.Api
     /// What the server knows about one title, by the id a title list gave.
     /// </summary>
     /// <param name="mediaItemId">The id from <see cref="MediaTitle.Id"/>.</param>
+    /// <param name="season">
+    /// Set to a season number to ask about one season of that title rather than the title itself - the question a
+    /// season the library only counts has to be asked with, alongside the series' id
+    /// (<see cref="MediaTitle.ParentId"/>). Null asks about the title the id names, which is what it always meant.
+    /// </param>
     /// <remarks>
     /// A 404 is an exception like any other answer this client does not understand, and the message carries the
     /// server's own words: "this server has no title with the id ..." is what a details screen should say, because
     /// it is what happened - usually that the library was rebuilt between listing a title and asking about it.
     /// </remarks>
-    public async Task<MediaItemDetails> GetItemAsync(Guid mediaItemId, CancellationToken cancellation = default)
+    public async Task<MediaItemDetails> GetItemAsync(Guid mediaItemId, int? season = null,
+        CancellationToken cancellation = default)
     {
       return await GetJsonAsync<MediaItemDetails>(
-          "api/media/items/" + mediaItemId.ToString("D"), cancellation).ConfigureAwait(false);
+          "api/media/items/" + mediaItemId.ToString("D") + SeasonQuery(season), cancellation).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// The season part of a URL, which is either nothing at all or <c>?season=3</c>.
+    /// </summary>
+    private static string SeasonQuery(int? season)
+    {
+      return season.HasValue
+          ? "?season=" + season.Value.ToString(CultureInfo.InvariantCulture)
+          : string.Empty;
     }
 
     /// <summary>
@@ -472,11 +498,17 @@ namespace MediaPortal.Frontend.Api
     /// the server names - or null for the server's own choice of poster-or-backdrop. The kinds matter because a
     /// banner tile that drew a poster would stretch it, which is the lie the typed endpoint exists to prevent.
     /// </param>
-    public async Task<byte[]?> GetFanArtAsync(Guid mediaItemId, string? type = null,
+    /// <param name="season">
+    /// A season number to ask for the picture one season of this title wears, which is how the pictures of the
+    /// seasons a library only counts are reached: the files beside the media are named after that number, and the
+    /// id given here is the series they lie with (<see cref="MediaTitle.ParentId"/>).
+    /// </param>
+    public async Task<byte[]?> GetFanArtAsync(Guid mediaItemId, string? type = null, int? season = null,
         CancellationToken cancellation = default)
     {
       Uri url = new Uri(BaseUrl, "api/media/items/" + mediaItemId.ToString("D") + "/fanart"
-          + (string.IsNullOrEmpty(type) ? "" : "/" + Uri.EscapeDataString(type.Trim())));
+          + (string.IsNullOrEmpty(type) ? "" : "/" + Uri.EscapeDataString(type.Trim()))
+          + SeasonQuery(season));
       RawAnswer answer = await GetRawAsync(url, cancellation).ConfigureAwait(false);
       if (answer.Status == HttpStatusCode.NotFound)
         return null;

@@ -752,11 +752,22 @@ namespace Tests.Frontend
     {
       private readonly HttpStatusCode _code;
       private readonly string _details;
+      private readonly string _row;
 
       internal DetailsServer(HttpStatusCode code, string details)
+          : this(code, details, null)
+      {
+      }
+
+      /// <param name="row">
+      /// The one row of the shelf above the details, as a server would answer it. Tests that ask about a row of
+      /// some other kind - a season, whose row says something no film's row says - name their own.
+      /// </param>
+      internal DetailsServer(HttpStatusCode code, string details, string row)
       {
         _code = code;
         _details = details;
+        _row = row ?? "{\"id\":\"" + TITANIC + "\",\"title\":\"Titanic\",\"year\":1997}";
       }
 
       internal int TimesAsked { get; private set; }
@@ -779,7 +790,7 @@ namespace Tests.Frontend
 
         return Task.FromResult(Answer(request, HttpStatusCode.OK,
             "{\"total\":1,\"offset\":0,\"limit\":60,\"returned\":1,\"sort\":\"title\",\"titles\":"
-            + "[{\"id\":\"" + TITANIC + "\",\"title\":\"Titanic\",\"year\":1997}]}"));
+            + "[" + _row + "]}"));
       }
 
       private static HttpResponseMessage Answer(HttpRequestMessage request, HttpStatusCode code, string body)
@@ -1132,7 +1143,7 @@ namespace Tests.Frontend
 
       MediaTitles titles = Task.Run(delegate
       {
-        return client.GetTitlesAsync("MediaItem", null, false, 60, 0, null, null, null, null, null, CancellationToken.None);
+        return client.GetTitlesAsync("MediaItem", null, false, 60, 0, null, null, null, null, null, cancellation: CancellationToken.None);
       })
           .GetAwaiter().GetResult();
 
@@ -1304,7 +1315,7 @@ namespace Tests.Frontend
       {
         MediaTitles answer = Task.Run(delegate
         {
-          return client.GetTitlesAsync("MovieItem", null, false, 60, 0, "alien", null, null, null, null, CancellationToken.None);
+          return client.GetTitlesAsync("MovieItem", null, false, 60, 0, "alien", null, null, null, null, cancellation: CancellationToken.None);
         }).GetAwaiter().GetResult();
 
         Assert.That(server.Question, Is.EqualTo("alien"));
@@ -1322,7 +1333,7 @@ namespace Tests.Frontend
       {
         Task.Run(delegate
         {
-          return client.GetTitlesAsync("MovieItem", null, false, 60, 0, "R&D 2 + 2", null, null, null, null, CancellationToken.None);
+          return client.GetTitlesAsync("MovieItem", null, false, 60, 0, "R&D 2 + 2", null, null, null, null, cancellation: CancellationToken.None);
         }).GetAwaiter().GetResult();
 
         Assert.That(server.LastUrl, Does.Contain("search=R%26D%202%20%2B%202"),
@@ -1595,7 +1606,7 @@ namespace Tests.Frontend
       {
         MediaTitles answer = Task.Run(delegate
         {
-          return client.GetTitlesAsync("MovieItem", null, false, 60, 0, null, "watched", null, null, null, CancellationToken.None);
+          return client.GetTitlesAsync("MovieItem", null, false, 60, 0, null, "watched", null, null, null, cancellation: CancellationToken.None);
         }).GetAwaiter().GetResult();
 
         Assert.That(server.Filter, Is.EqualTo("watched"), "the word travels as the server's own two words");
@@ -1639,7 +1650,7 @@ namespace Tests.Frontend
       {
         MediaTitles answer = Task.Run(delegate
         {
-          return client.GetTitlesAsync("MovieItem", null, false, 60, 0, null, null, null, null, null, CancellationToken.None);
+          return client.GetTitlesAsync("MovieItem", null, false, 60, 0, null, null, null, null, null, cancellation: CancellationToken.None);
         }).GetAwaiter().GetResult();
 
         MediaTitle stopped = answer.Titles.Single(title => title.Title == "Army of Thieves");
@@ -1947,11 +1958,11 @@ namespace Tests.Frontend
     /// <summary>One row as a server that knows what is inside what answers it.</summary>
     private static MediaTitle ARow(string name, string? path = null, int? year = null, int? minutes = null,
         int? track = null, string? artist = null, int? season = null, int? episode = null,
-        int? trackCount = null)
+        int? trackCount = null, int? episodes = null, Guid? parentId = null)
     {
       return new MediaTitle(new Guid(7, 0, 1, new byte[] { 128, 0, 0, 0, 0, 0, 0, (byte) name.Length }), name, null,
           year, minutes, path, false, Season: season, Episode: episode, Track: track, Artist: artist,
-          TrackCount: trackCount);
+          TrackCount: trackCount, Episodes: episodes, ParentId: parentId);
     }
 
     internal static readonly Guid ALBUM_ID = new Guid("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
@@ -1974,7 +1985,22 @@ namespace Tests.Frontend
 
       internal string? Sort { get; private set; }
 
+      /// <summary>The season the shelf was narrowed to, which is how a counted season is opened.</summary>
+      internal string? Season { get; private set; }
+
+      /// <summary>
+      /// Hands out a shelf of seasons counted off episode numbers instead of seasons the library holds: rows whose
+      /// ids mean nothing outside the shelf, each saying which series it was counted from.
+      /// </summary>
+      internal bool Counted { get; set; }
+
       internal string? LastUrl { get; private set; }
+
+      /// <summary>
+      /// Where the screen last asked for one title's own story - its details or its pictures - which is how a test
+      /// sees that a row the library only counts is read through the title it was counted from.
+      /// </summary>
+      internal string? ItemUrl { get; private set; }
 
       /// <summary>Hands out empty shelves, for the difference between "nothing here" and "nothing matched".</summary>
       internal bool Empty { get; set; }
@@ -1990,6 +2016,7 @@ namespace Tests.Frontend
         // question, so it does not overwrite what the shelf was asked with.
         if (request.RequestUri.AbsoluteUri.Contains("/items/", StringComparison.OrdinalIgnoreCase))
         {
+          ItemUrl = request.RequestUri.PathAndQuery;
           return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
           {
             RequestMessage = request,
@@ -2003,6 +2030,7 @@ namespace Tests.Frontend
         Aspect = Asked(request.RequestUri.Query, "aspect");
         Inside = Asked(request.RequestUri.Query, "inside");
         Sort = Asked(request.RequestUri.Query, "sort");
+        Season = Asked(request.RequestUri.Query, "season");
 
         string playable = ",\"path\":\"" + (RESOURCE_SYSTEM_ID.ToString("B") + "://" + LOCAL_PATH)
             .Replace("\\", "\\\\") + "\"";
@@ -2022,8 +2050,37 @@ namespace Tests.Frontend
           }
           else if (Aspect == "EpisodeItem")
           {
+            // The number the shelf was narrowed to is spelled back into the row, so a test can tell a shelf asked
+            // for one season from the whole series' episodes by what came over the wire.
             rows.Add(RowJson(new Guid(1, 0, 4, new byte[] { 128, 0, 0, 0, 0, 0, 0, 3 }).ToString("D"),
-                "Low Tide", ",\"season\":1,\"episode\":2" + playable));
+                "Low Tide", ",\"season\":" + (Season ?? "1") + ",\"episode\":2" + playable));
+          }
+          else if (Aspect == "SeriesItem")
+          {
+            rows.Add(RowJson(new Guid(1, 0, 4, new byte[] { 128, 0, 0, 0, 0, 0, 0, 5 }).ToString("D"),
+                "Bones", ",\"year\":2005"));
+          }
+          else if (Aspect == "SeasonItem")
+          {
+            if (Counted)
+            {
+              // What a server answers when the library holds no seasons: rows whose ids are keys into this shelf
+              // only, and a "parentId" saying where the season's contents really have to be asked from.
+              rows.Add(RowJson(new Guid(1, 0, 4, new byte[] { 128, 0, 0, 0, 0, 0, 0, 8 }).ToString("D"),
+                  "Bones (2005) S01", ",\"season\":1,\"episodes\":24,\"parentId\":\"" + Inside + '"'));
+              rows.Add(RowJson(new Guid(1, 0, 4, new byte[] { 128, 0, 0, 0, 0, 0, 0, 9 }).ToString("D"),
+                  "Bones (2005) S02", ",\"season\":2,\"episodes\":26,\"parentId\":\"" + Inside + '"'));
+            }
+            else
+            {
+              // Spelled the way MP2 spells a season ("<series> (<year>) S<nn>", SeasonInfo.SEASON_FORMAT_STR), which
+              // is a name written for a shelf holding every season the house has - so a test can see the front end
+              // making the row say what the viewer is standing in instead.
+              rows.Add(RowJson(new Guid(1, 0, 4, new byte[] { 128, 0, 0, 0, 0, 0, 0, 6 }).ToString("D"),
+                  "Bones (2005) S01", ",\"season\":1,\"episodes\":24"));
+              rows.Add(RowJson(new Guid(1, 0, 4, new byte[] { 128, 0, 0, 0, 0, 0, 0, 7 }).ToString("D"),
+                  "Bones (2005) S02", ",\"season\":2,\"episodes\":26"));
+            }
           }
           else
           {
@@ -2158,10 +2215,13 @@ namespace Tests.Frontend
       Assert.That(MediaCatalog.ChildAspectFor("AlbumItem"), Is.EqualTo("AudioItem"));
       Assert.That(MediaCatalog.ChildSortFor("AlbumItem"), Is.EqualTo("track"),
           "an album is listened to in the order its tracks were pressed, not in alphabetical order");
-      Assert.That(MediaCatalog.ChildAspectFor("SeriesItem"), Is.EqualTo("EpisodeItem"),
-          "a series leads to its episodes directly; MP2 offers the same, and pressing through a season screen per "
-          + "series is a screen in the way of the thing the viewer came to do");
-      Assert.That(MediaCatalog.ChildSortFor("SeriesItem"), Is.EqualTo("episode"));
+      Assert.That(MediaCatalog.ChildAspectFor("SeriesItem"), Is.EqualTo("SeasonItem"),
+          "a series leads to its seasons, which is what the reference put between the two: MP2 files a season as "
+          + "its own media item (SeasonAspect, ROLE_SEASON) and Nereus has whole season screens, so the level is "
+          + "in the library and not invented by the skin");
+      Assert.That(MediaCatalog.ChildSortFor("SeriesItem"), Is.EqualTo("season"));
+      Assert.That(MediaCatalog.ChildAspectFor("SeasonItem"), Is.EqualTo("EpisodeItem"),
+          "a season leads to its episodes, which is the last step of the way down");
       Assert.That(MediaCatalog.ChildSortFor("SeasonItem"), Is.EqualTo("episode"));
       Assert.That(MediaCatalog.ChildAspectFor("MovieCollectionItem"), Is.EqualTo("MovieItem"));
       Assert.That(MediaCatalog.ChildSortFor("MovieCollectionItem"), Is.EqualTo("title"));
@@ -2328,7 +2388,7 @@ namespace Tests.Frontend
     }
 
     [AvaloniaTest]
-    public void TheEpisodesOfASeriesAreAskedForInOrderOfSeasonAndEpisode()
+    public void PressingIntoASeriesOpensItsSeasonsAndPressingIntoASeasonOpensItsEpisodes()
     {
       CatalogueServer server = new CatalogueServer();
       using (var client = new ServerApiClient(SIGN_IN_URL, new HttpClient(server)))
@@ -2337,15 +2397,187 @@ namespace Tests.Frontend
         series.OpenCommand.Execute(null);
         WaitUntil("the series to arrive", delegate { return series.Titles.Count == 1; });
 
-        MediaBrowserViewModel episodes =
+        MediaBrowserViewModel seasons =
             new MediaBrowserViewModel(client, ShelfCalled("SeriesItem"), series.Titles[0]);
+        seasons.OpenCommand.Execute(null);
+        WaitUntil("the seasons to arrive", delegate { return seasons.Titles.Count == 2; });
+
+        Assert.That(server.Aspect, Is.EqualTo("SeasonItem"),
+            "MP2 files a season as a title in its own right - its own aspect, its own role, its own relationship "
+            + "extractor - and the reference has whole season screens, so a viewer pressing into a series stands "
+            + "above the seasons, not above the episodes");
+        Assert.That(server.Inside, Is.EqualTo(series.Titles[0].Title.Id.ToString("D")));
+        Assert.That(seasons.SortOrder, Is.EqualTo("season"),
+            "a season is watched in the order it was made, which is the number the importer wrote and not the "
+            + "name it wrote above the number");
+        Assert.That(seasons.Heading, Is.EqualTo("Bones"),
+            "headed by the series the viewer pressed, because that is where they are");
+        Assert.That(seasons.Titles[0].Line, Is.EqualTo("Season 1"),
+            "the row says the season and nothing else: the name MP2 builds for a season spells out the series and "
+            + "its year, both of which the heading already said, and the row is not addressed inside anything the "
+            + "way an episode is");
+        Assert.That(seasons.Titles[0].Detail, Is.EqualTo("24 episodes"),
+            "how much is inside is the one thing a season has to say about itself, which is what an album's row "
+            + "answers with its tracks");
+        Assert.That(seasons.Status, Is.EqualTo("2 of 2 seasons, sorted by season"));
+        Assert.That(seasons.DrillsIn, Is.True);
+
+        MediaBrowserViewModel episodes =
+            new MediaBrowserViewModel(client, ShelfCalled("SeriesItem"), seasons.Titles[0]);
         episodes.OpenCommand.Execute(null);
         WaitUntil("the episodes to arrive", delegate { return episodes.Titles.Count == 1; });
 
-        Assert.That(server.LastUrl, Does.Contain("aspect=EpisodeItem"));
-        Assert.That(episodes.Titles[0].Line, Is.EqualTo("S01E02 Low Tide"));
-        Assert.That(episodes.Status, Is.EqualTo("1 of 1 episodes, sorted by episode"));
+        Assert.That(server.LastUrl, Does.Contain("aspect=EpisodeItem"),
+            "and the way down ends where the reference's own screens end: a season holds episodes");
+        Assert.That(server.LastUrl, Does.Contain("inside=" + seasons.Titles[0].Title.Id.ToString("D")),
+            "the episodes of the season that was pressed, not the whole series' - a screen that derived its "
+            + "contents from the tile it was opened from would read one series' seasons twice and never reach an "
+            + "episode, however often the viewer pressed OK");
+        Assert.That(episodes.SortOrder, Is.EqualTo("episode"));
+        Assert.That(episodes.Titles[0].Line, Is.EqualTo("S01E02 Low Tide"),
+            "an episode is addressed, and stays addressed however many levels it took to reach it");
+        Assert.That(episodes.DrillsIn, Is.False, "an episode is watched; the way down ends here");
       }
+    }
+
+    [AvaloniaTest]
+    public void ASeasonTheLibraryOnlyCountsIsOpenedByItsSeriesAndItsNumber()
+    {
+      CatalogueServer server = new CatalogueServer { Counted = true };
+      using (var client = new ServerApiClient(SIGN_IN_URL, new HttpClient(server)))
+      {
+        MediaBrowserViewModel series = new MediaBrowserViewModel(client, ShelfCalled("SeriesItem"));
+        series.OpenCommand.Execute(null);
+        WaitUntil("the series to arrive", delegate { return series.Titles.Count == 1; });
+
+        MediaBrowserViewModel seasons =
+            new MediaBrowserViewModel(client, ShelfCalled("SeriesItem"), series.Titles[0]);
+        seasons.OpenCommand.Execute(null);
+        WaitUntil("the counted seasons to arrive", delegate { return seasons.Titles.Count == 2; });
+
+        Assert.That(seasons.Titles[1].Line, Is.EqualTo("Season 2"),
+            "a season the server counted off its episodes' numbers is shown exactly like a season the library "
+            + "holds: the row is not addressed inside anything the way an episode is, and the name the server built "
+            + "for a shelf of every season in the house is not what the viewer is standing in");
+        Assert.That(seasons.Titles[1].Detail, Is.EqualTo("26 episodes"));
+
+        WaitUntil("the counted season to be read",
+            delegate { return server.ItemUrl != null && server.ItemUrl.Contains("season=", StringComparison.Ordinal); });
+        Assert.That(server.ItemUrl, Does.Contain("/items/" + series.Titles[0].Title.Id.ToString("D")),
+            "a counted season has no id of its own that means anything to the server - the row's key is a stand-in "
+            + "for a title that does not exist - so its story is read of the series it was counted from");
+        Assert.That(server.ItemUrl, Does.Match("season=[12]"),
+            "and with the number of one of the two counted seasons, because the series on its own cannot say which "
+            + "of its seasons the screen was standing on");
+
+        MediaBrowserViewModel episodes =
+            new MediaBrowserViewModel(client, ShelfCalled("SeriesItem"), seasons.Titles[1]);
+        episodes.OpenCommand.Execute(null);
+        WaitUntil("the season's episodes to arrive", delegate { return episodes.Titles.Count == 1; });
+
+        Assert.That(server.Inside, Is.EqualTo(series.Titles[0].Title.Id.ToString("D")),
+            "pressing into a counted season asks the series it was counted from, which is the only title the shelf "
+            + "inside it can be asked of");
+        Assert.That(server.Season, Is.EqualTo("2"),
+            "and it says which number it means, or the row of season two opens the whole series' episodes and the "
+            + "level the viewer pressed into is gone again");
+        Assert.That(episodes.Titles[0].Line, Is.EqualTo("S02E02 Low Tide"),
+            "the row shows what the narrowed question brought back, so a viewer who pressed season two and got "
+            + "season one's episodes can see it");
+      }
+    }
+
+    [Test]
+    public void ACountedSeasonRowIsReadThroughTheSeriesItWasCountedFrom()
+    {
+      TitleViewModel counted = new TitleViewModel(
+          ARow("Bones (2005) S02", season: 2, episodes: 26, parentId: ALBUM_ID), true, null, "SeasonItem");
+
+      Assert.That(counted.AskId, Is.EqualTo(ALBUM_ID),
+          "the two parts a season the library does not hold consists of are its series and its number, and "
+          + "everything about the row - its story, its pictures, the shelf inside it - has to be asked of the part "
+          + "that really exists");
+      Assert.That(counted.AskSeason, Is.EqualTo(2),
+          "with the number, which is what tells one row of the shelf from the next");
+    }
+
+    [Test]
+    public void ASeasonTheLibraryHoldsIsReadThroughItsOwnId()
+    {
+      TitleViewModel held = new TitleViewModel(ARow("Bones (2005) S03", season: 3, episodes: 15), true, null,
+          "SeasonItem");
+
+      Assert.That(held.AskId, Is.EqualTo(held.Title.Id),
+          "a season the library holds as a title is asked about by its own id, the way every other row is; the "
+          + "counting is a stand-in for libraries that have nothing else, and must not reach back and reinterpret a "
+          + "title that exists");
+      Assert.That(held.AskSeason, Is.Null,
+          "and no number goes with the question, which would ask the same season twice over");
+    }
+
+    [Test]
+    public void ASeasonRowSaysWhichSeasonItIsAndHowManyEpisodesItHolds()
+    {
+      TitleViewModel season = new TitleViewModel(ARow("Bones (2005) S03", season: 3, episodes: 15), true,
+          null, "SeasonItem");
+
+      Assert.That(season.Name, Is.EqualTo("Season 3"));
+      Assert.That(season.Position, Is.Empty,
+          "a season is not filed inside anything, so it has no address; writing the number in front of the name "
+          + "would print it twice");
+      Assert.That(season.Line, Is.EqualTo("Season 3"));
+      Assert.That(season.Detail, Is.EqualTo("15 episodes"));
+
+      TitleViewModel unnumbered = new TitleViewModel(ARow("Alien Earth"), true, null, "SeasonItem");
+      Assert.That(unnumbered.Name, Is.EqualTo("Alien Earth"),
+          "a season the importer never numbered keeps the name it does have rather than becoming 'Season '");
+      Assert.That(unnumbered.Detail, Is.Empty, "and a count the server never stored is said as nothing");
+    }
+
+    [Test]
+    public void ASeasonIsOnTheSeriesShelfBecauseOneShelfLeadsIntoTheNext()
+    {
+      Assert.That(MediaCatalog.SameShelf("SeriesItem", "SeasonItem"), Is.True);
+      Assert.That(MediaCatalog.SameShelf("SeasonItem", "EpisodeItem"), Is.True);
+      Assert.That(MediaCatalog.SameShelf("SeriesItem", "EpisodeItem"), Is.True,
+          "the tile a viewer came from and the episode they ended up watching are the same part of the library, "
+          + "or the home screen would dim the tile the viewer is standing in the middle of");
+      Assert.That(MediaCatalog.SameShelf("EpisodeItem", "SeriesItem"), Is.True,
+          "and it is the same answer whichever way the question is asked");
+
+      Assert.That(MediaCatalog.SameShelf("SeriesItem", "AudioItem"), Is.False,
+          "but a shelf is not the same shelf as one it has no road to");
+      Assert.That(MediaCatalog.SameShelf("SeriesItem", "SeriesItem"), Is.True);
+      Assert.That(MediaCatalog.SameShelf(null, "SeriesItem"), Is.False);
+    }
+
+    [AvaloniaTest]
+    public void ASeasonsDetailsSayWhichSeriesItBelongsToAndHowMuchIsInside()
+    {
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK,
+          "{\"id\":\"" + TITANIC + "\",\"title\":\"Bones (2005) S03\",\"year\":2005,\"seriesName\":\"Bones\","
+          + "\"season\":3,\"episodes\":15,\"overview\":\"The team adjusts to running the lab without its lead.\"}",
+          "{\"id\":\"" + TITANIC + "\",\"title\":\"Bones (2005) S03\",\"year\":2005,\"season\":3,\"episodes\":15}");
+
+      // The shelf is the seasons of one series, which is what makes its rows seasons rather than episodes - the
+      // two arrive with the same number on them and only the shelf they were read out of knows which is which.
+      MediaBrowserViewModel seasons = new MediaBrowserViewModel(
+          new ServerApiClient(SIGN_IN_URL, new HttpClient(server)), ShelfCalled("SeriesItem"),
+          new TitleViewModel(ARow("Bones", year: 2005), true, null, "SeriesItem"));
+      seasons.OpenCommand.Execute(null);
+      WaitUntil("the details to open", delegate { return seasons.DetailsVisible; });
+
+      Assert.That(seasons.DetailsHeading, Is.EqualTo("Season 3"),
+          "the panel is standing above one season, and the name MP2 wrote for a season says the series and its "
+          + "year - which the viewer is inside of and did not ask to read twice");
+      Assert.That(seasons.DetailsLine, Does.Contain("Bones"), "the series the season belongs to");
+      Assert.That(seasons.DetailsLine, Does.Contain("15 episodes"), "and how many episodes the library counted");
+      Assert.That(seasons.DetailsLine, Does.Not.Contain("S03E00"),
+          "a season has no episode nought; the number the panel would build from an episode's aspect is an "
+          + "invention here");
+      Assert.That(seasons.DetailsText, Does.StartWith("The team adjusts"),
+          "the prose the reference's season panel showed is on the season aspect, and it is the reason a viewer "
+          + "opened the season at all");
     }
 
     [AvaloniaTest]
