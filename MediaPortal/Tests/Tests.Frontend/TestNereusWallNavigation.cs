@@ -1,4 +1,4 @@
-/*
+﻿/*
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -478,6 +478,253 @@ namespace Tests.Frontend
     }
 
     /// <summary>
+    /// The home content is scrolled by its sections - "Last added", "Unwatched" - and never by its squares, which
+    /// is how the reference reads it: a section is looked at whole, from its heading to its last cover. So where
+    /// the wall stands follows the section the viewer is in and not the square under their feet: walking along a
+    /// section leaves the wall where it stands, and walking into a section stands that section before the right
+    /// edge of the screen with the gap the face writes between two sections breathing after it, instead of being
+    /// sliced in half by that edge as it was while the wall only drifted after the focused square.
+    /// </summary>
+    [AvaloniaTest]
+    public void WalkingIntoTheNextSectionStandsItWholeBeforeTheRightEdge()
+    {
+      OnWall(delegate (Wall wall)
+      {
+        // The highest square of the mosaic, so that a step down stays inside the same section.
+        Button top = wall.Covers
+            .Where(square => wall.SectionOf(square) == "Latest added")
+            .OrderBy(square => wall.Abs(square).Top)
+            .First();
+        wall.Stand(top);
+
+        double resting = wall.OffsetX;
+        wall.Press(Key.Down);
+        for (int i = 0; i < 3; i++)
+          Pump();
+
+        Assert.That(wall.SectionOf(wall.Focused), Is.EqualTo("Latest added"),
+            "a step down from the top square stays inside the section it started in; it landed on "
+            + wall.NameOf(wall.Focused));
+        Assert.That(wall.OffsetX, Is.EqualTo(resting).Within(0.5),
+            "and walking along a section leaves the wall standing where it stands - it scrolled by "
+            + (wall.OffsetX - resting).ToString("0.0"));
+
+        // Over the first section's edge. The fixture's wall begins with the shortcut column, so the section beside
+        // the mosaic still stands whole before the right edge where the wall begins - and a section that is
+        // already whole is not shoved around to reach for an edge it is clear of.
+        string WalkRightOutOf(string section)
+        {
+          for (int step = 0; step < 12 && wall.SectionOf(wall.Focused) == section; step++)
+            wall.Press(Key.Right);
+
+          return wall.SectionOf(wall.Focused);
+        }
+
+        string entered = WalkRightOutOf("Latest added");
+        Assert.That(entered, Is.EqualTo("Unplayed"),
+            "walking right out of the mosaic walks into the section beside it; the walk came back with "
+            + wall.NameOf(wall.Focused));
+
+        // The wall glides to wherever a section belongs; wait for the glide instead of reading it halfway.
+        for (int i = 0; i < 5; i++)
+          Pump();
+
+        Assert.That(wall.OffsetX, Is.EqualTo(resting).Within(0.5),
+            "a section that already stands whole before the right edge of the screen leaves the wall where it "
+            + "stands; the wall slid by " + (wall.OffsetX - resting).ToString("0.0"));
+
+        // One section further along, where the screen really does cut a section in half.
+        entered = WalkRightOutOf("Unplayed");
+        Assert.That(entered, Is.EqualTo("Recently added"),
+            "walking on reaches the third section of the wall; the walk came back with "
+            + wall.NameOf(wall.Focused));
+
+        for (int i = 0; i < 5; i++)
+          Pump();
+
+        double edge = wall.PaneEdgeX;
+        double drawn = wall.DrawnRightOf(entered);
+        double between = wall.DrawnLeftOf(entered) - wall.DrawnRightOf("Unplayed");
+
+        // The section's own box, found by the squares it holds: the box carries the face's gap as its trailing
+        // margin, so where the box ends is where a section ends for the eye.
+        Rect box = wall.BandsInPane()
+            .OrderBy(candidate => Math.Abs(candidate.Left - wall.DrawnLeftOf(entered)))
+            .First();
+
+        Assert.That(wall.OffsetX, Is.GreaterThan(resting),
+            "walking over the edge of a section the screen cannot show moves the wall, where a step along a "
+            + "section and a step into a whole section did not");
+        Assert.That(edge - box.Right, Is.EqualTo(0).Within(0.5),
+            "the section that was walked into stands whole before the right edge of the screen, ending with the "
+            + "gap the face writes between two sections; its box ended at " + box.Right.ToString("0.0")
+            + " of a screen ending at " + edge.ToString("0.0"));
+        Assert.That(edge - drawn, Is.GreaterThan(20.0),
+            "so that the section's last cover is not pressed flat against the edge of the television but keeps "
+            + "the room the face writes behind a section; it stands " + (edge - drawn).ToString("0.0")
+            + " lines clear of the edge, where two sections keep " + between.ToString("0.0") + " between them");
+
+        Rect stood = wall.InPane(wall.Focused);
+        Assert.That(stood.Right, Is.LessThanOrEqualTo(edge + 0.5),
+            "and the square stood upon lies inside the screen rather than hanging past its edge");
+
+        double placed = wall.OffsetX;
+        wall.Press(Key.Right);
+        for (int i = 0; i < 3; i++)
+          Pump();
+
+        Assert.That(wall.SectionOf(wall.Focused), Is.EqualTo(entered),
+            "a step right inside the section that was just stood stays inside it; it landed on "
+            + wall.NameOf(wall.Focused));
+        Assert.That(wall.OffsetX, Is.EqualTo(placed).Within(0.5),
+            "and walking along a section does not slide it cover by cover - the wall answers the section it "
+            + "stands in and not the square under the viewer's feet; it slid by "
+            + (wall.OffsetX - placed).ToString("0.0"));
+      });
+    }
+
+    /// <summary>
+    /// Where the home content leaves the screen on the left it used to end on a straight line beside the menu,
+    /// which is the one edge of the wall that is never meant to be seen: the wall slides behind the menu, so its
+    /// covers should thin out and be gone before they reach it. That needs the pane to reach into the gap between
+    /// menu and content - and the gap to keep belonging to the wall, so that nothing on the screen moves - and it
+    /// needs a mask rather than a veil of black, because what lies behind the wall is the entry's own picture,
+    /// which is exactly what a departing cover should sink into.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheWallThinsOutInsideTheGapAndIsGoneWhereTheMenuBegins()
+    {
+      OnWall(delegate (Wall wall)
+      {
+        // The wall's own box begins at the content gap, measured inside the pane. That is what proves the pane
+        // reaches into the gap: the forty is no longer the pane's place but the wall's own margin, so nothing on
+        // the screen moved and yet the wall now has room to dissolve in.
+        Rect first = wall.BandsInPane()[0];
+        Assert.That(first.Left, Is.EqualTo(HomeViewModel.CONTENT_GAP).Within(0.5),
+            "the standing wall keeps the content gap as its own margin, so a section at the wall's beginning "
+            + "still stands its forty from the menu; the wall's box begins at " + first.Left.ToString("0.0"));
+
+        double columnEnds = wall.Abs(wall.MenuColumn).Left
+            + wall.MenuColumn.ColumnDefinitions[0].Width.Value;
+        Assert.That(wall.Abs(wall.Pane).Left, Is.EqualTo(columnEnds).Within(0.5),
+            "and the pane begins exactly where the menu's column ends, so that the dissolving stretch of wall "
+            + "lies behind the menu instead of being cut off beside it; the pane begins at "
+            + wall.Abs(wall.Pane).Left.ToString("0.0") + " and the menu ends at " + columnEnds.ToString("0.0"));
+
+        Avalonia.Media.IBrush? mask = wall.PaneMask;
+        Assert.That(mask, Is.InstanceOf<Avalonia.Media.LinearGradientBrush>(),
+            "the wall's left edge is thinned by a mask - a veil of black would hide the picture behind the wall "
+            + "instead of letting the cover sink into it");
+
+        Avalonia.Media.LinearGradientBrush ramp = (Avalonia.Media.LinearGradientBrush) mask!;
+        Assert.That(ramp.StartPoint.Unit, Is.EqualTo(Avalonia.RelativeUnit.Absolute),
+            "measured in the screen's own numbers, so that the thinning keeps its width whatever the wall holds");
+        Assert.That(ramp.EndPoint.Unit, Is.EqualTo(Avalonia.RelativeUnit.Absolute), "and at its end");
+        Assert.That(ramp.EndPoint.Point.X, Is.LessThanOrEqualTo(HomeViewModel.CONTENT_GAP + 0.5),
+            "the whole of it lies inside the content gap, so that a cover is fully gone - and, standing still, "
+            + "fully whole - before the menu begins; the ramp ends at "
+            + ramp.EndPoint.Point.X.ToString("0.0"));
+        Assert.That(ramp.GradientStops[0].Color.A, Is.EqualTo(0),
+            "clear at the pane's left edge, which is where the menu stands");
+        Assert.That(ramp.GradientStops[ramp.GradientStops.Count - 1].Color.A, Is.EqualTo(255),
+            "and whole again at the content's beginning, so that a resting section is not dimmed");
+      });
+    }
+
+    /// <summary>
+    /// The wall ends, and the menu does not begin where the wall ends: the menu is the place a viewer steps to
+    /// with Left, and an arrow still pointing right past the last square points at nothing. The measurement answers
+    /// such a key with a menu entry standing somewhere off that edge, and standing the viewer there threw them out
+    /// of the entry whose wall they were reading - so the wall answers for itself, as it does at its foot: it is
+    /// thrown off its right end back into the screen, and the square stays the square.
+    /// </summary>
+    [AvaloniaTest]
+    public void RightPastTheLastSquareOfTheWallLeansTheContentAndKeepsTheSquare()
+    {
+      OnWall(delegate (Wall wall)
+      {
+        // The square hanging furthest right, so that nothing of the wall can lie to the right of the one this
+        // test stands on.
+        Button last = wall.Covers.Concat(wall.Shortcuts)
+            .OrderByDescending(square => wall.InPane(square).Right)
+            .First();
+        wall.Stand(last);
+        bool answered = wall.Press(Key.Right);
+
+        Assert.That(answered, Is.True,
+            "right past the last square was answered by this screen instead of being left to the focus navigation "
+            + "every control falls back on");
+        Assert.That(wall.Focused, Is.SameAs(last),
+            "and the viewer is still standing on the square they asked from; it came back with "
+            + wall.NameOf(wall.Focused));
+        Assert.That(wall.Focused, Is.Not.InstanceOf<ListBoxItem>(),
+            "and above all they were not thrown out of the wall onto the menu");
+
+        // As at the foot of the wall, a headless dispatcher never counts beats, so what a test can hold the screen
+        // to is the first line of the answer: the content was put out of its place, toward the edge that was
+        // asked for, which here means back into the screen.
+        Assert.That(wall.ContentLeanSideways, Is.LessThan(-6.0),
+            "the content was thrown off the edge that was asked for; it moved "
+            + wall.ContentLeanSideways.ToString("0.0") + " lines across the screen");
+
+        wall.Press(Key.Left);
+        Assert.That(wall.Focused, Is.Not.SameAs(last),
+            "the arrow that does lead somewhere still leads, after a refusal; it came back with "
+            + wall.NameOf(wall.Focused));
+      });
+    }
+
+    /// <summary>
+    /// A wall is stood at the share of the screen the face gives it, which is seldom one to the unit, so every
+    /// number the wall is moved by has to be read in the screen's own numbers and not in the numbers the controls
+    /// carry. Mixing the two is what once left the last cover standing flat against the right edge of the
+    /// television: the wall's place was measured in the pane, its width in itself, and the two only agree while
+    /// the wall happens to stand unscaled.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheLastSectionStandsItsGapBeforeTheEdgeOnAWallTheFaceHasShrunk()
+    {
+      OnWall(delegate (Wall wall)
+      {
+        // The square furthest right, stood on directly: what this test is about is where the wall stands a section,
+        // and not about the refusal that follows the last square - which leans the whole content out of its place
+        // and would be measured along with it.
+        Control lastSquare = wall.Covers.Concat<Control>(wall.Shortcuts)
+            .OrderByDescending(square => wall.InPane(square).Right)
+            .First();
+        wall.Stand(lastSquare);
+
+        string last = wall.SectionOf(wall.Focused);
+        Assert.That(last, Is.EqualTo("Recently added"),
+            "the square furthest right on the wall belongs to its last section; it came back with "
+            + wall.NameOf(wall.Focused) + " in " + last);
+
+        for (int i = 0; i < 6; i++)
+          Pump();
+
+        Assert.That(wall.ContentLeanSideways, Is.EqualTo(0).Within(0.5),
+            "and the wall stands where the face put it, unleaned, while it is measured; it leans "
+            + wall.ContentLeanSideways.ToString("0.0"));
+
+        double edge = wall.PaneEdgeX;
+        double drawn = wall.DrawnRightOf(last);
+        Rect box = wall.BandsInPane()
+            .OrderBy(candidate => Math.Abs(candidate.Left - wall.DrawnLeftOf(last)))
+            .First();
+
+        Assert.That(wall.OffsetX, Is.GreaterThan(0),
+            "a wall wider than its screen has to be scrolled to be read; it stood at "
+            + wall.OffsetX.ToString("0.0"));
+        Assert.That(edge - box.Right, Is.EqualTo(0).Within(0.5),
+            "the last section stands where a section stands, its box ending at the edge of the screen; its box "
+            + "ended at " + box.Right.ToString("0.0") + " of a screen ending at " + edge.ToString("0.0"));
+        Assert.That(edge - drawn, Is.GreaterThan(20.0),
+            "and its last cover is not pressed flat against the edge of the television; it stands "
+            + (edge - drawn).ToString("0.0") + " lines clear of it");
+      }, height: 1400);
+    }
+
+    /// <summary>
     /// The square the menu hands back on Right is the one the viewer was standing on - the reference's
     /// <c>NereusHomeListView.RestoreFocusItem</c>, which existed so that a viewer returning to the menu did not
     /// have to walk the wall from its beginning.
@@ -503,9 +750,12 @@ namespace Tests.Frontend
 
     /// <summary>
     /// The shown music home: the shortcut column the entry asks for, a <c>square1</c> band of six covers in
-    /// three sizes and a <c>square2</c> band beside it, on a television-sized window wearing the worn skin.
+    /// three sizes, a <c>square2</c> band beside it and a third one past that, on a television-sized window
+    /// wearing the worn skin. The third band is what makes the wall wider than the screen, so that the wall has
+    /// somewhere to scroll to. A <paramref name="height"/> other than the television's stands the wall at the
+    /// share of the screen the face would give it there, which is how a scaled wall gets tested.
     /// </summary>
-    private static void OnWall(Action<Wall> assert)
+    private static void OnWall(Action<Wall> assert, double height = 1080)
     {
       Application app = Application.Current!;
       string? previousFolder = SkinEngine.SkinsFolder;
@@ -535,10 +785,18 @@ namespace Tests.Frontend
           unplayed.AddTitle(NewTitle("Album " + index));
         home.ContentGroups.Add(unplayed);
 
+        // One band more than the screen can show. A wall no wider than the screen it stands on can never be
+        // scrolled, and what the wall does at its right edge - standing a section whole before that edge - is
+        // only to be seen on a wall that has to scroll.
+        HomeContentGroup recent = new HomeContentGroup("Recently added", "square2", 650, 4);
+        for (int index = 11; index <= 14; index++)
+          recent.AddTitle(NewTitle("Album " + index));
+        home.ContentGroups.Add(recent);
+
         window = new ShellWindow(new HomeView(home, new WorkflowManager(),
             sectionScreen: delegate (HomeSection section) { return null!; }));
         window.Width = 1920;
-        window.Height = 1080;
+        window.Height = height;
         window.Show();
         Pump();
 
@@ -613,6 +871,101 @@ namespace Tests.Frontend
           // is what a viewer sees move; anything else it might be asked to carry leans nothing.
           return _pane.RenderTransform is Avalonia.Media.ITransform shift ? shift.Value.M32 : 0;
         }
+      }
+
+      /// <summary>
+      /// How far the content pane leans across the television right now. The wall's right end throws its content
+      /// back into the screen, so an answer given at that edge is a negative number.
+      /// </summary>
+      public double ContentLeanSideways
+      {
+        get
+        {
+          // The same matrix as above, read along X: the offset a viewer sees move when the wall is thrown off its
+          // side rather than off its foot.
+          return _pane.RenderTransform is Avalonia.Media.ITransform shift ? shift.Value.M31 : 0;
+        }
+      }
+
+      /// <summary>How far the wall has been scrolled along itself, in the screen's own numbers.</summary>
+      public double OffsetX => _pane.Offset.X;
+
+      /// <summary>The pane the wall stands in, which is the thing whose edges the viewer sees.</summary>
+      public Control Pane => _pane;
+
+      /// <summary>
+      /// Where the right edge of the screen falls in the pane's own coordinates, which is what a section is
+      /// measured against: the pane's place on the window plays no part in that space.
+      /// </summary>
+      public double PaneEdgeX => ((ScrollViewer) _pane).Viewport.Width;
+
+      /// <summary>What dissolves the wall's left edge, if the face puts anything there at all.</summary>
+      public Avalonia.Media.IBrush? PaneMask => _pane.OpacityMask;
+
+      /// <summary>The grid the menu and the content share, which is where the line between them is drawn.</summary>
+      public Grid MenuColumn => (Grid) _rail.Parent!;
+
+      /// <summary>The section of the wall a square of it stands in, by the heading the section carries.</summary>
+      public string SectionOf(Control? control)
+      {
+        return control is Button button && button.Tag is HomeContentTile tile && tile.Group != null
+            ? tile.Group.Heading
+            : "(no section)";
+      }
+
+      /// <summary>
+      /// How far right the drawn squares of one section reach, in the pane's coordinates. The container a section
+      /// stands in carries the face's gap as its own trailing margin, which nobody can see, so the sections are
+      /// measured by what is painted on them.
+      /// </summary>
+      public double DrawnRightOf(string section)
+      {
+        return Covers.Concat<Control>(Shortcuts)
+            .Where(square => SectionOf(square) == section)
+            .Max(square => InPane(square).Right);
+      }
+
+      /// <summary>How far left the drawn squares of one section reach, in the pane's coordinates.</summary>
+      public double DrawnLeftOf(string section)
+      {
+        return Covers.Concat<Control>(Shortcuts)
+            .Where(square => SectionOf(square) == section)
+            .Min(square => InPane(square).Left);
+      }
+
+      /// <summary>
+      /// Where a square stands in the pane's own coordinates, which is the space the pane scrolls through and
+      /// therefore the space the wall's edges are spoken of in.
+      /// </summary>
+      public Rect InPane(Control control)
+      {
+        Point? at = control.TranslatePoint(new Point(), _pane);
+        // Both corners through the pane, because a control's own width is not the width a scaled wall stands
+        // on the screen with.
+        Point? end = control.TranslatePoint(
+            new Point(control.Bounds.Width, control.Bounds.Height), _pane);
+        Assert.That(at, Is.Not.Null, "the square lies under the pane, so it can be measured against it");
+        Assert.That(end, Is.Not.Null, "and it can be measured to its far corner too");
+        return new Rect(at!.Value, end!.Value);
+      }
+
+      /// <summary>The wall's sections as boxes in the pane's coordinates, container and all.</summary>
+      public List<Rect> BandsInPane()
+      {
+        ItemsControl standing = _pane.GetVisualDescendants().OfType<ItemsControl>()
+            .First(candidate => candidate.Name == "nereusWallStanding");
+
+        var boxes = new List<Rect>();
+        foreach (Control? container in standing.GetRealizedContainers())
+        {
+          Point? at = container?.TranslatePoint(new Point(), _pane);
+          Point? end = container?.TranslatePoint(
+              new Point(container.Bounds.Width, container.Bounds.Height), _pane);
+          if (container != null && at != null && end != null)
+            boxes.Add(new Rect(at.Value, end.Value));
+        }
+
+        return boxes;
       }
 
       public Button[] Covers { get; }

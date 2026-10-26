@@ -110,17 +110,20 @@ namespace MediaPortal.Frontend.Views
     /// <summary>
     /// How far the content pane is thrown when an arrow asks the wall for a row below its last one - down the
     /// television, so a positive number - and how far the corner row when an arrow asks above the head of the
-    /// screen - up, so a negative one.
+    /// screen - up, so a negative one. The wall's right end throws its content back into the screen, so a negative
+    /// number sideways: the pane is thrown off the edge the viewer asked for rather than after it.
     /// </summary>
     private const double WALL_LEAN_DOWN = 16.0;
     private const double CORNER_LEAN_UP = -10.0;
+    private const double WALL_LEAN_RIGHT = -18.0;
 
     /// <summary>
-    /// The two refusals this screen knows, one per edge, kept apart so that a wall mid-lean does not silence the
+    /// The refusals this screen knows, one per edge, kept apart so that a wall mid-lean does not silence the
     /// corner row and the other way round.
     /// </summary>
     private readonly LeanAtTheEnd _wallRefusal = new LeanAtTheEnd();
     private readonly LeanAtTheEnd _cornerRefusal = new LeanAtTheEnd();
+    private readonly LeanAtTheEnd _wallEndRefusal = new LeanAtTheEnd();
 
     /// <summary>
     /// The name the worn face gives the row of corner buttons in its own markup, which is the thing that leans
@@ -421,15 +424,21 @@ namespace MediaPortal.Frontend.Views
               LeanWallOffTheBottom();
               args.Handled = true;
             }
+            else if (args.Key == Key.Right)
+            {
+              // The same answer at the wall's other end, and for the same reason. Past the last square there is
+              // nothing of the wall to the right, and what the measurement still finds somewhere off that edge is
+              // an entry of the menu - a different place, reached with Left. Before, that key threw the viewer out
+              // of the wall and onto the menu; now the wall leans off its right end, which is the answer to
+              // "one more than the wall has", and the viewer keeps the square they stand on.
+              LeanWallOffTheRight();
+              args.Handled = true;
+            }
             else if (nextTile is Control entry && entry.Focus())
             {
               // The menu rail lies in that direction, and it is reached the way every other control on the
               // screen is: by the same measurement, not by a special case for the Left key.
               entry.BringIntoView();
-              args.Handled = true;
-            }
-            else if (args.Key == Key.Right && refreshButton.IsVisible && refreshButton.Focus())
-            {
               args.Handled = true;
             }
           },
@@ -754,7 +763,21 @@ namespace MediaPortal.Frontend.Views
           menuList.Height = double.NaN;
           menuList.VerticalAlignment = VerticalAlignment.Stretch;
           menuList.HorizontalAlignment = HorizontalAlignment.Stretch;
-          contentPane.Margin = new Thickness(40, 0, 0, 0);
+          contentPane.Margin = new Thickness(0);
+          // The reference's content begins forty to the right of its menu, and that forty is kept - but as the
+          // wall's own margin now rather than as the pane's place, so that the pane itself starts where the menu
+          // ends. The margin goes on the control the wall's scale rides on and not on the wall, because a margin
+          // inside that scale would be forty times the scale and would leave the standing wall dimmed behind a
+          // mask that is measured in the screen's own numbers. Nothing on the screen moved: the covers still
+          // stand their forty from the menu. What changed is where a cover that walked off the wall's left ends:
+          // it used to end on a straight line beside the menu column, and it now travels through the forty and
+          // dissolves in it, so that nothing still wearing a cut arrives at the menu's edge. The same gap is kept
+          // at the wall's far end, because the screen cannot be asked to cut the wall short of a section's own
+          // margin: without it the last section could never stand before the right edge the way every section
+          // before it does.
+          nereusContentWall.Margin = new Thickness(
+              HomeViewModel.CONTENT_GAP, 0, HomeViewModel.CONTENT_GAP, 0);
+          nereusContentPane.OpacityMask = WALL_EDGE_FADE;
           contentPane.MaxWidth = double.PositiveInfinity;
           contentPane.HorizontalAlignment = HorizontalAlignment.Stretch;
           contentPane.VerticalAlignment = VerticalAlignment.Stretch;
@@ -1014,6 +1037,16 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
+    /// The answer at the wall's right end, where the wall runs out and the menu does not begin: the content is
+    /// thrown off that end - which, being the right one, means thrown back into the screen - and settles. The
+    /// viewer keeps their square, and the key says what it is true to say: there is nothing more to the right.
+    /// </summary>
+    private void LeanWallOffTheRight()
+    {
+      _wallEndRefusal.Lean(nereusContentPane, WALL_LEAN_RIGHT, sideways: true);
+    }
+
+    /// <summary>
     /// The gesture that answers an arrow which asked for one more place than the screen has: the thing the viewer
     /// stands on is thrown toward that edge and settles back on its own, while the focus stays exactly where it
     /// was. One of these per edge, because each owns its transform and its beat.
@@ -1033,9 +1066,11 @@ namespace MediaPortal.Frontend.Views
       /// <summary>
       /// Throws <paramref name="thing"/> by <paramref name="howFar"/> lines down the television (a negative
       /// number throws it up) and lets it settle back. A thing already leaning leans no further: a key held down
-      /// repeats, and a fresh throw on every repeat is a shiver rather than an answer.
+      /// repeats, and a fresh throw on every repeat is a shiver rather than an answer. Pass
+      /// <paramref name="sideways"/> to throw it across the television instead, which is what the edges at the
+      /// sides of the screen ask for.
       /// </summary>
-      public void Lean(Control thing, double howFar)
+      public void Lean(Control thing, double howFar, bool sideways = false)
       {
         if (_beating != null)
           return;
@@ -1054,16 +1089,19 @@ namespace MediaPortal.Frontend.Views
 
         void Step()
         {
-          if (step < LEAN_SHAPE.Length)
+          double howMuch = step < LEAN_SHAPE.Length ? howFar * LEAN_SHAPE[step] : 0;
+          if (sideways)
+            _lean.X = howMuch;
+          else
+            _lean.Y = howMuch;
+
+          if (step >= LEAN_SHAPE.Length)
           {
-            _lean.Y = howFar * LEAN_SHAPE[step];
-            step++;
-            return;
+            beating.Stop();
+            _beating = null;
           }
 
-          _lean.Y = 0;
-          beating.Stop();
-          _beating = null;
+          step++;
         }
       }
     }
@@ -1671,6 +1709,33 @@ namespace MediaPortal.Frontend.Views
       {
         _home.SelectedContent = _home.ContentRows.FirstOrDefault(row => ReferenceEquals(row.Title, tile.Title));
       }
+
+      // A wall that is going out of the screen is not stood anywhere; only the wall the viewer is reading is.
+      if (tile.Group == null || !nereusWallStanding.GetVisualDescendants().Contains(button))
+        return;
+
+      // The wall is scrolled by section and not by square. Where the wall stands is decided by the section the
+      // viewer is reading - "Last added", "Unwatched" - and never by the square under their feet, so that walking
+      // along a section leaves the wall where it stands and a section is always seen whole, from its heading to
+      // its last cover, instead of drifting a cover at a time until the section the viewer is reading is split
+      // across the screen.
+      // A wall is still being measured while its covers are arriving, and a section the wall has not measured yet
+      // has no place to be stood in. Such a section is stood again on the beat the layout is answered in, because
+      // the fallback below stands a wall by the square under the viewer's feet alone - which is exactly how a last
+      // cover once came to be pressed flat against the edge of the television.
+      HomeContentGroup band = tile.Group;
+      if (StandBandAtTheEdge(band, button))
+        return;
+
+      button.BringIntoView();
+      Button stoodOn = button;
+      Dispatcher.UIThread.Post(
+          delegate
+          {
+            if (ReferenceEquals(LastWallStand(), stoodOn))
+              StandBandAtTheEdge(band, stoodOn);
+          },
+          DispatcherPriority.Loaded);
     }
 
     private Button[] GetFocusableNereusTiles()
@@ -1902,10 +1967,121 @@ namespace MediaPortal.Frontend.Views
     /// </summary>
     private MainMenuEntry? _lastRailStand;
 
+    /// <summary>
+    /// The wall's left edge: the content gap's width of screen in which a cover that has walked off the wall
+    /// dissolves, so that the wall gives its covers back to the picture behind them rather than cutting them at
+    /// a straight line beside the menu. A mask and not a veil of black, because what lies behind the wall is the
+    /// entry's own artwork, and that is what a departing cover should sink into.
+    /// </summary>
+    private static readonly Avalonia.Media.LinearGradientBrush WALL_EDGE_FADE =
+        new Avalonia.Media.LinearGradientBrush
+        {
+          StartPoint = new Avalonia.RelativePoint(0, 0, Avalonia.RelativeUnit.Absolute),
+          EndPoint = new Avalonia.RelativePoint(
+              HomeViewModel.CONTENT_GAP, 0, Avalonia.RelativeUnit.Absolute),
+          GradientStops =
+          {
+            new Avalonia.Media.GradientStop(Avalonia.Media.Colors.Transparent, 0),
+            new Avalonia.Media.GradientStop(Avalonia.Media.Color.Parse("#40FFFFFF"), 0.45),
+            new Avalonia.Media.GradientStop(Avalonia.Media.Colors.White, 1)
+          }
+        };
+
     private void FocusNereusTile(Button tile)
     {
-      if (tile.Focus())
-        tile.BringIntoView();
+      // Where the wall stands is not said here: the wall is stood by the square taking the focus, which is the one
+      // moment every way onto the wall - an arrow, a finger, the focus coming back - passes through.
+      tile.Focus();
+    }
+
+    /// <summary>
+    /// Stands the section the viewer is reading with its own edge against the right of the screen, which is where
+    /// a section is read: whole, with the gap the face writes between two sections breathing after it, and only
+    /// what comes after that gap cut by the edge.
+    /// </summary>
+    /// <returns>
+    /// Whether the section was stood. A section whose place is unknown cannot be stood, and a section too wide for
+    /// the screen is stood by the square the viewer stands on instead - which still keeps the gap, but is no longer
+    /// the section standing whole.
+    /// </returns>
+    /// <remarks>
+    /// Measured on the section's own container, because a container already carries that gap as its trailing
+    /// margin - the band's Grid in <c>HomeView.axaml</c> - so bringing the container's right edge to the
+    /// viewport's leaves exactly the margin a section keeps to its neighbour, and nobody has to hold the number in
+    /// two places. The gap itself is read off the difference between that container and the box inside it, so that
+    /// it is the wall's own number in the screen's own numbers rather than one kept here. The section stood is the
+    /// one the viewer is reading, not whatever already leans over the edge: a section that had merely begun to show
+    /// would tear the reader's own off the screen. The pane's offset is what moves, which is the same number the
+    /// wall's own easing curve runs on.
+    /// </remarks>
+    private bool StandBandAtTheEdge(HomeContentGroup band, Control? stood)
+    {
+      double viewport = nereusContentPane.Viewport.Width;
+      if (!nereusContentPane.IsVisible || viewport <= 0)
+        return false;
+
+      // Measured inside the wall and not inside the pane. A corner handed to the pane comes back at the place the
+      // pane has reached so far, and a wall that is still gliding to a section has reached somewhere else than the
+      // place it was asked for; a corner handed to the wall is the same number however far the glide has got.
+      // The wall's own left margin is where its numbers end and the pane's begin, and the wall carries its scale,
+      // so what a control calls its own width is not the width it stands on the television with - which is how a
+      // wall scaled away from one once stood its last cover flat against the edge of the screen.
+      double wallLeft = Math.Max(0, nereusContentWall.Margin.Left);
+
+      foreach (Control? container in nereusWallStanding.GetRealizedContainers())
+      {
+        if (container == null || !ReferenceEquals(container.DataContext, band))
+          continue;
+
+        double? end = RightOnWall(container);
+        double? beginning = LeftOnWall(container);
+        if (end == null || beginning == null)
+          return false;
+
+        double width = end.Value - beginning.Value;
+        double right = wallLeft + end.Value;
+
+        // The gap the section keeps to whatever stands beside it, in the same numbers: the difference between the
+        // container and the box the face drew inside it, which is the band's own trailing margin.
+        Control? drawn = container.GetVisualDescendants().OfType<Panel>()
+            .FirstOrDefault(panel => ReferenceEquals(panel.DataContext, band));
+        double? boxEnd = drawn == null ? null : RightOnWall(drawn);
+        double gap = boxEnd == null ? 0 : Math.Max(0, end.Value - boxEnd.Value);
+
+        if (width > viewport)
+        {
+          // A section too wide for the screen cannot be shown whole at all, so the square the viewer stands on is
+          // stood - and stood with the same gap, because the edge of a television is not a place to press a cover
+          // flat against.
+          double? stoodEnd = stood == null ? null : RightOnWall(stood);
+          if (stoodEnd != null)
+            right = Math.Min(right, wallLeft + stoodEnd.Value + gap);
+        }
+
+        // No gap is added here: the container's own edge already carries it, so standing that edge at the edge of
+        // the screen is what leaves the room the face writes between two sections breathing after the last cover.
+        double wanted = right - viewport;
+        double furthest = Math.Max(0, nereusContentPane.Extent.Width - viewport);
+        nereusContentPane.Offset = new Vector(Math.Clamp(wanted, 0, furthest), nereusContentPane.Offset.Y);
+        return true;
+      }
+
+      return false;
+
+      // The two corners of a control, counted by the wall it stands on. A control's Bounds are counted from its
+      // parent's corner, so handing Bounds.Right to a translate would count its place on the wall a second time.
+      double? RightOnWall(Control control)
+      {
+        Point? corner = control.TranslatePoint(
+            new Point(control.Bounds.Width, control.Bounds.Height), nereusContentWall);
+        return corner?.X;
+      }
+
+      double? LeftOnWall(Control control)
+      {
+        Point? corner = control.TranslatePoint(new Point(), nereusContentWall);
+        return corner?.X;
+      }
     }
 
     private DispatcherTimer? _restingPress;
