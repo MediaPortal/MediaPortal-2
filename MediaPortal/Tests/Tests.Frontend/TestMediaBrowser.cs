@@ -1313,16 +1313,16 @@ namespace Tests.Frontend
     }
 
     /// <summary>
-    /// The shelf's ends are masked, and masked still.  The reference laid one opacity mask over the whole
-    /// viewport of its media list (<c>VerticalMediaScrollViewerStyle</c>) - transparent at the edge, whole by a
-    /// twelfth of the height, whole again to eight twelfths, transparent at the other edge - and never touched it
-    /// again while the shelf moved.  A mask rewritten from the scroll offset throws the shelf's pixels away on
-    /// every step of a scroll, which is what made a scrolled shelf stutter rather than slide; the still mask
-    /// costs nothing to move and fades a row half out of either edge, which is the whole reason for fading.  A
-    /// row of covers wears no mask, because the reference left the covers whole.
+    /// Nothing cuts the shelf's rows off, at its head, at its foot, or at the title being stood on.  The
+    /// reference's wall mask (<c>HomeContentStyles.xaml:1868</c>) is black from offset 0 to offset 1 - a mask that
+    /// lets every pixel through - and the media shelf carries no mask at all; what the reference darkens at a
+    /// screen's head and foot is a gradient painted OVER the content panel, never a hole cut into the content.
+    /// A hole was worse than ugly: it dissolved the rows into the black behind the shelf, which read as two black
+    /// bars at the screen's ends, and it dimmed whatever stood at an edge - including the first title of a shelf,
+    /// standing there with nothing above it and no reason to be pale.
     /// </summary>
     [AvaloniaTest]
-    public void TheShelfWearsTheReferencesStillMaskAtBothEnds()
+    public void TheShelfIsCutByNothingEvenAtItsEnds()
     {
       LongShelf server = new LongShelf();
       MediaBrowserViewModel browser = BrowserOn(server);
@@ -1333,40 +1333,31 @@ namespace Tests.Frontend
       ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
           .First(list => list.Name == "titlesList");
       ScrollViewer scroller = titles.GetVisualDescendants().OfType<ScrollViewer>().First();
-      WaitUntil("the scroller to wear a mask", delegate { return scroller.OpacityMask is LinearGradientBrush; });
+      Pump();
+      Assert.That(scroller.OpacityMask, Is.Null,
+          "the shelf wears no mask, so its rows reach the screen's edges whole");
 
-      LinearGradientBrush mask = (LinearGradientBrush)scroller.OpacityMask;
-      Assert.That(mask.GradientStops.Count, Is.EqualTo(4), "one mask with the reference's four stops");
-      Assert.That(mask.GradientStops[0].Color, Is.EqualTo(Colors.Transparent));
-      Assert.That(mask.GradientStops[0].Offset, Is.EqualTo(0));
-      Assert.That(mask.GradientStops[1].Offset, Is.EqualTo(0.12).Within(0.001),
-          "the head fades out over a twelfth of the shelf, as the reference's mask did");
-      Assert.That(mask.GradientStops[2].Offset, Is.EqualTo(0.88).Within(0.001),
-          "and the foot over the same twelfth at the other end");
-      Assert.That(mask.GradientStops[3].Color, Is.EqualTo(Colors.Transparent));
-      Assert.That(mask.GradientStops[3].Offset, Is.EqualTo(1));
-
-      // Still, whatever the shelf does: the same four stops before a scroll, during one and at its end.
+      // And nothing puts one back while the shelf travels or when it has run out of shelf.
       scroller.Offset = new Vector(scroller.Offset.X, 400);
       Pump();
-      LinearGradientBrush while_moving = (LinearGradientBrush)scroller.OpacityMask;
-      Assert.That(ReferenceEquals(while_moving, mask), Is.True,
-          "the mask is the same brush while the shelf travels, so nothing is thrown away per step");
+      Assert.That(scroller.OpacityMask, Is.Null, "no mask appears while the wall travels");
 
       scroller.Offset = new Vector(scroller.Offset.X,
           Math.Max(0, scroller.Extent.Height - scroller.Viewport.Height));
       Pump();
-      Assert.That(ReferenceEquals((LinearGradientBrush)scroller.OpacityMask, mask), Is.True,
-          "and at the end of the shelf it is still the same mask");
+      Assert.That(scroller.OpacityMask, Is.Null, "nor at the foot of the wall");
 
-      // Covers are the one shape the reference left whole.
+      // The first title, stood on with the wall at its head, is whole too - which is what the mask used to break.
+      scroller.Offset = default;
+      browser.Selected = browser.Titles[0];
+      Pump();
+      Assert.That(scroller.OpacityMask, Is.Null,
+          "a title standing at the head of the wall is not faded, whatever else the screen does");
+
       browser.Layout = BrowserLayout.Cover;
-      WaitUntil("the mask to be put away for the covers",
-          delegate
-          {
-            ScrollViewer? again = titles.GetVisualDescendants().OfType<ScrollViewer>().FirstOrDefault();
-            return again == null || again.OpacityMask == null;
-          });
+      WaitUntil("the covers to be laid", delegate { return titles.Items.Count > 0; });
+      Assert.That(titles.GetVisualDescendants().OfType<ScrollViewer>().First().OpacityMask, Is.Null,
+          "and the covers are whole as well");
       window.Close();
     }
 

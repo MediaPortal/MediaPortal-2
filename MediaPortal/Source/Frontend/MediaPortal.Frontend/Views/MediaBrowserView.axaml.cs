@@ -858,18 +858,13 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
-    /// Puts the reference's fade over the ends of the shelf: a strip of the shelf's own height at the top and at
-    /// the bottom through which the rows pale out into the room, so that a title arriving at the edge of the screen
-    /// is not cut off at the neck.
+    /// Takes any mask off the scroller the shelf is read through, so that the shelf's rows reach the screen's edges
+    /// whole.
     /// </summary>
     /// <remarks>
-    /// Laid as one still opacity mask on the scroller, with the reference's own numbers from
-    /// <c>VerticalMediaScrollViewerStyle</c>: transparent at the edge, whole by a twelfth of the height, whole
-    /// again to eight-twelfths, transparent at the other edge.  Still, and not recomputed as the shelf moves, for
-    /// the same reason the reference's is still: a mask that is rewritten on every scroll step throws the whole
-    /// shelf's pixels away on every step, which is what made a scrolled shelf stutter instead of slide.  Covers
-    /// are answered with no mask at all - the reference faded its rows and its grid and left a row of covers
-    /// whole, and its head and floor gradients are its own, painted outside the content panel.
+    /// Kept as a call site because the scroller only exists once the list has been measured, so the answer has to
+    /// be given again on a later pass; and because a skin that ever did want its rows to pale at the ends would
+    /// want it here, as an overlay over the shelf rather than as a hole in it.
     /// </remarks>
     private void ApplyShelfFade(BrowserLayout layout)
     {
@@ -881,29 +876,16 @@ namespace MediaPortal.Frontend.Views
         if (scroller == null)
           return;
 
-        if (layout == BrowserLayout.Cover)
-        {
-          scroller.ClearValue(Visual.OpacityMaskProperty);
-          return;
-        }
-
-        if (_shelfFade == null)
-        {
-          LinearGradientBrush fade = new LinearGradientBrush();
-          fade.StartPoint = new RelativePoint(0.5, 0, RelativeUnit.Relative);
-          fade.EndPoint = new RelativePoint(0.5, 1, RelativeUnit.Relative);
-          fade.GradientStops.Add(new GradientStop(Colors.Transparent, 0));
-          fade.GradientStops.Add(new GradientStop(Colors.Black, 0.12));
-          fade.GradientStops.Add(new GradientStop(Colors.Black, 0.88));
-          fade.GradientStops.Add(new GradientStop(Colors.Transparent, 1));
-          _shelfFade = fade;
-        }
-
-        scroller.OpacityMask = _shelfFade;
+        // Whole, at both ends.  The reference's own wall mask (HomeContentStyles' ScrollViewerOpacityMask) is
+        // black from 0 to 1 - a mask that lets everything through - and its media shelf carries no mask at all;
+        // what the reference dims at the head and foot of a screen is a gradient painted OVER the content panel,
+        // never a hole cut into the content itself.  A mask instead of that gradient is what made the shelf look
+        // like it ended in two black bars: the rows did not pale into the picture behind them, they dissolved
+        // into the black behind the shelf.  It also faded whatever stood at an edge, including the title being
+        // stood on, which no reading of the reference allows.
+        scroller.ClearValue(Visual.OpacityMaskProperty);
       }, DispatcherPriority.Loaded);
     }
-
-    private LinearGradientBrush? _shelfFade;
 
     /// <summary>
     /// The covers' panel: the tiles' own panel turned, which is to say a strip that lays one cover beside the
