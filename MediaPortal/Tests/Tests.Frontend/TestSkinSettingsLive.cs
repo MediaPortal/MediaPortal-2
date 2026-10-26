@@ -85,13 +85,15 @@ namespace Tests.Frontend
         }
 
         /// <summary>
-        /// Nereus kept a details dial of its own for the grid and one for the cover, and its masters bound
-        /// the details pane to nothing else. A shelf that opens - or walks - into one of those layouts
-        /// takes its details answer from that layout's dial while the screen itself never answered; the
-        /// viewer's own answer on the screen outranks every dial and is the only thing remembered.
+        /// Nereus kept a details dial of its own for the grid and one for the cover, and its masters bound the
+        /// details pane to nothing else - which is why that skin put a strip of details along the foot whenever
+        /// the grid's dial said no.  The viewer of this front end settled the question differently: the plot
+        /// stands beside the shelf (above the covers in the cover view) and the shelf opens wearing it, so no
+        /// dial opens a shelf without its details.  What the viewer answers on the screen still outranks
+        /// everything and is the only thing remembered.
         /// </summary>
         [AvaloniaTest]
-        public void TheGridAndTheCoverKeepTheirOwnDetailsDial()
+        public void TheShelfOpensWearingItsDetailsWhateverTheDialSays()
         {
             string wasTheme = FrontendTheme.CurrentName(Application.Current!);
             string previousDir = Environment.GetEnvironmentVariable("MP2_SKIN_SETTINGS_DIR") ?? "";
@@ -109,20 +111,21 @@ namespace Tests.Frontend
                 ((NereusSkinSettings)opening).EnableGridDetails = false;
                 opening.Save(null, out _);
 
-                // Nereus answers the tile keys, so a fresh shelf opens in the grid - and the grid's own
-                // dial says no details, whatever the general dial says.
+                // Nereus answers the tile keys, so a fresh shelf opens in the grid - and it opens with its
+                // details beside it, although the grid's own dial says no.
                 MediaBrowserViewModel shelf = new MediaBrowserViewModel(null, (HomeSection?)null);
                 Assert.That(shelf.Layout, Is.EqualTo(BrowserLayout.Grid));
-                Assert.That(shelf.ShowDetails, Is.False, "the grid opens as its own dial draws it");
+                Assert.That(shelf.ShowDetails, Is.True,
+                    "the shelf opens wearing its details, because the place they were kept in without them is gone");
+                Assert.That(shelf.ShowsSideDetails, Is.True, "and what it wears is the column beside the shelf");
 
-                // Flipping the grid's dial reaches the live shelf, and the screen is not made to remember
-                // an answer it never gave.
+                // Turning the dial does not speak for a screen that has its own answer.
                 SkinSettingsBase flipping = SkinSettingsBase.LoadFor("nereus", null, out _) ?? new NereusSkinSettings();
                 ((NereusSkinSettings)flipping).EnableGridDetails = true;
                 flipping.Save(null, out _);
-                Assert.That(shelf.ShowDetails, Is.True, "the dial reaches the live shelf");
+                Assert.That(shelf.ShowDetails, Is.True, "the shelf still wears its details");
 
-                // The viewer answers on the screen itself - and from then on no dial speaks for it.
+                // The viewer answers on the screen itself - and that answer holds.
                 shelf.ToggleDetails();
                 Assert.That(shelf.ShowDetails, Is.False);
                 SkinSettingsBase back = SkinSettingsBase.LoadFor("nereus", null, out _) ?? new NereusSkinSettings();

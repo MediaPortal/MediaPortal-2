@@ -95,7 +95,14 @@ namespace Tests.Frontend
       try
       {
         Assert.That(width, Is.EqualTo(WIDE));
-        Assert.That(WidthOnTheScreen(window, clock), Is.EqualTo(clock.DesiredSize.Width).Within(0.5),
+
+        // The head line stands inside the worn skin, and the shell stands the skin at one factor over the
+        // window - Nereus is written for a television of 1080 lines and this window is shorter than that.  The
+        // question this test asks is about the head line's OWN shrinking, so the SIZE is asked in the skin's
+        // points: divided by the factor the skin stands at, the clock has to be the size the skin asked for.
+        // Where it STANDS stays a matter of the window, because that is where the viewer looks.
+        double scale = window.SkinScale;
+        Assert.That(WidthOnTheScreen(window, clock) / scale, Is.EqualTo(clock.DesiredSize.Width).Within(0.5),
             "on a screen with room the clock is drawn at the size the skin asked for, not scaled");
         Assert.That(RightEdgeOnTheScreen(window, clock), Is.LessThan(WIDE), "the clock stands inside the window");
         Assert.That(RightEdgeOnTheScreen(window, clock), Is.GreaterThan(WIDE - 40),

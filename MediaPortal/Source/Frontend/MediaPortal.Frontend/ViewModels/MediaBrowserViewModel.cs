@@ -674,6 +674,43 @@ namespace MediaPortal.Frontend.ViewModels
     [ObservableProperty]
     private string _detailsPath = "";
 
+    /// <summary>
+    /// The facts the details panel stands on, in the order the reference's own detail screens wrote them: what a
+    /// title is made of and how long it runs before who made it, and the things only one kind of title answers
+    /// (which season, which episode, how many episodes a season holds) first of all.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The reference laid these in three blocks under the plot with pictures and words beside each other - the
+    /// director, the studio's logo, the number of votes. Only some of that is asked of this server, and what it
+    /// does not answer is left out rather than drawn as an empty frame: a panel with a hole where "Regie" should
+    /// stand tells the viewer nothing except that something is missing.
+    /// </para>
+    /// <para>
+    /// Built as rows rather than as one sentence, because the reference laid them out in blocks a viewer's eye
+    /// runs down, and a wall of facts joined with points is a different thing to read.
+    /// </para>
+    /// </remarks>
+    public ObservableCollection<MediaBrowserFact> DetailsFacts { get; } = new ObservableCollection<MediaBrowserFact>();
+
+    /// <summary>The selected title's rating on the ten points the library gave it, or null when nobody rated it.</summary>
+    [ObservableProperty]
+    private double? _detailsRating;
+
+    /// <summary>
+    /// Five stars, each one holding the light the rating left it: whole for a star the rating filled, a quarter of
+    /// it for a star the rating never reached, and what lies between for the half star a rating of six and a half
+    /// of ten is.
+    /// </summary>
+    /// <remarks>
+    /// The reference drew five of the skin's own star pictures and lit as many of them as its number said
+    /// (<c>MultiDetails*.inc</c>, and the same five under a tile on the wall). Worked out here rather than in a
+    /// converter because a picture cannot be told "six and a half of ten" - it can only be told how much of its
+    /// light to keep - and the arithmetic belongs with the number it comes from.
+    /// </remarks>
+    public ObservableCollection<double> DetailsStars { get; } =
+        new ObservableCollection<double> { 0.25, 0.25, 0.25, 0.25, 0.25 };
+
     /// <summary>The title the last details read was for, so that opening it again costs nothing.</summary>
     private Guid _detailsFor;
 
@@ -812,12 +849,10 @@ namespace MediaPortal.Frontend.ViewModels
       // decides whether a shelf opens as rows, tiles or covers.
       HasCover = SkinEngine.TryTileTemplate(COVER_TEMPLATE_KEY) != null;
       _layout = RememberedLayout() ?? (HasTiles ? BrowserLayout.Grid : BrowserLayout.List);
-      // The details answer is the viewer's own for this screen first; where this screen was never asked,
-      // the worn skin's dial for exactly this layout speaks - the reference's EnableMediaItemDetailsView,
-      // with Nereus' own grid and cover dials layered over it the way its masters bound them.
-      _showDetails = _screens.HasDetails(AspectName)
-          ? _screens.Details[AspectName]
-          : DetailsDefaultFor(_layout);
+      // The shelf opens wearing its details, in every layout: SimpleShowItems.xaml lays its details column
+      // unconditionally, so a screen that opened without them is a screen missing a part.  What the viewer
+      // answers with D or with the button belongs to the visit - see OnShowDetailsChanged.
+      _showDetails = DetailsAlwaysShown();
       // The corners obey the setting of the layout they appear in - the reference gated the grid's corners on
       // extEnableGridWatchFlags and the cover's on extEnableCoverWatchFlags - and the list's quiet tick is the
       // screen's own old promise, which the list's setting speaks for since the reference gave it one too.
@@ -923,8 +958,8 @@ namespace MediaPortal.Frontend.ViewModels
       WatchFlagsShown = WatchFlagsFor(_layout);
       foreach (TitleViewModel row in Titles)
         row.WatchFlagsShown = WatchFlagsShown;
-      if (!_screens.HasDetails(AspectName))
-        DetailsDefaultShown(DetailsDefaultFor(_layout));
+      if (!_viewerAnsweredDetails)
+        DetailsDefaultShown(DetailsAlwaysShown());
       OnPropertyChanged(new System.ComponentModel.PropertyChangedEventArgs(null));
     }
 
@@ -1068,21 +1103,22 @@ namespace MediaPortal.Frontend.ViewModels
     partial void OnShowDetailsChanged(bool value)
     {
       OnPropertyChanged(nameof(DetailsLabel));
-      OnPropertyChanged(nameof(ShowsFloorGradient));
+      RaiseShelfCounters();
 
       if (value)
         _ = ShowDetailsForSelectedAsync();
       else
         DetailsVisible = false;
 
-      // Only the viewer's own answer is written down. What a skin or a layout hands over as its default
-      // changes the shelf without speaking for the screen - the screen keeps its freedom to answer later.
-      if (_skinDefaultDetails)
-        return;
-
-      _screens.Details[AspectName] = value;
-      _screens.Save(null, out _);
+      // The viewer's own answer stands for as long as the screen is open: the shelf stops asking the layouts
+      // and the skin on its behalf.  It is deliberately NOT written down - the reference's media screen has no
+      // memory of the question, and a screen that came back without its details column because somebody once
+      // pressed a key is the screen missing its right hand.
+      if (!_skinDefaultDetails)
+        _viewerAnsweredDetails = true;
     }
+
+    private bool _viewerAnsweredDetails;
 
     private bool _skinDefaultDetails;
 
@@ -1122,23 +1158,14 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
-    /// The details answer a screen wears when its viewer never gave one: the worn skin's dial for exactly
-    /// this layout - the reference's extEnableGridDetails and extEnableCoverDetails, which let Nereus keep
-    /// the grid and the cover as quiet as their masters drew them.
+    /// The details answer a screen opens with.  The reference asked its skin settings here
+    /// (extEnableGridDetails and friends) and those dials were off for the tile views, which is why that skin
+    /// fell back to a strip of details along the foot.  The viewer rejected that fallback: the plot belongs
+    /// beside the shelf - above the covers in the cover view - and nowhere else, so every layout opens with the
+    /// details on and no dial is asked.  Only the viewer's own D answers the question, and for that visit.
     /// </summary>
-    private bool DetailsDefaultFor(BrowserLayout layout)
-    {
-      SkinSettingsBase? settings = _skinSettings;
-      if (settings == null)
-        return true;
-
-      return layout switch
-      {
-        BrowserLayout.Cover => settings.EnableCoverDetailsView,
-        BrowserLayout.Grid => settings.EnableGridDetailsView,
-        _ => settings.EnableMediaItemDetailsView
-      };
-    }
+    private static bool DetailsAlwaysShown()
+      => true;
 
     /// <summary>How the titles are drawn right now.</summary>
     [ObservableProperty]
@@ -1225,7 +1252,7 @@ namespace MediaPortal.Frontend.ViewModels
       // "nothing but the title" the viewer rightly calls a missing feature.
       if (value == null)
         DetailsVisible = false;
-      else if (ShowDetails)
+      else if (WantsDetails)
         _ = ShowDetailsForSelectedAsync();
 
       Artwork? fanart = _fanart;
@@ -1333,7 +1360,7 @@ namespace MediaPortal.Frontend.ViewModels
     {
       OnPropertyChanged(nameof(LayoutLabel));
       OnPropertyChanged(nameof(GridTemplateKey));
-      OnPropertyChanged(nameof(ShowsFloorGradient));
+      RaiseShelfCounters();
 
       // The corners belong to the layout the viewer just walked into, and the covers wear the poster rather
       // than the grid's kinded picture - so the rows the shelf already holds are repainted with what this
@@ -1341,10 +1368,10 @@ namespace MediaPortal.Frontend.ViewModels
       WatchFlagsShown = WatchFlagsFor(value);
       foreach (TitleViewModel row in new List<TitleViewModel>(Titles))
         row.WatchFlagsShown = WatchFlagsShown;
-      // Walking into another layout also walks into that layout's details dial - but only while the screen
-      // itself never answered the details question; the viewer's own answer outranks every dial.
-      if (!_screens.HasDetails(AspectName))
-        DetailsDefaultShown(DetailsDefaultFor(value));
+      // Walking into another layout also walks into that layout's details dial - but only while the viewer
+      // never answered the question on this visit; the viewer's own answer outranks every dial.
+      if (!_viewerAnsweredDetails)
+        DetailsDefaultShown(DetailsAlwaysShown());
       // The rows the viewer is looking at are painted again by the screen, which is the one that knows which rows
       // those are; the generation bump throws away the pictures this layout was waiting for.
       PictureSourceChanged();
@@ -1516,19 +1543,48 @@ namespace MediaPortal.Frontend.ViewModels
     /// </summary>
     public bool DrillsIn { get; }
 
-    /// <summary>What this list is ordered by, in the server's own word.</summary>
-    public string SortOrder { get; }
+    /// <summary>
+    /// What this list is ordered by, in the server's own word. The shelf starts out ordered the way its kind is
+    /// always ordered - a season by episode number, an album by track - and the screen's menu hands the word over
+    /// to the viewer afterwards (<see cref="PickSortAsync"/>), because "show me the newest ones" is a question
+    /// every shelf has to answer.
+    /// </summary>
+    public string SortOrder { get; private set; }
+
+    /// <summary>The word the screen says for the order it is reading in.</summary>
+    public string SortLabel
+    {
+      get { return "Sort: " + SortWord(SortOrder); }
+    }
 
     /// <summary>
-    /// The category this list was browsed in - <c>genre</c>, <c>year</c>, <c>actors</c>, <c>directors</c> or
+    /// The category this list was cut by - <c>genre</c>, <c>year</c>, <c>actors</c>, <c>directors</c> or
     /// <c>writers</c> - or null when it is a whole shelf. With <see cref="GroupValue"/> it is the second half of
-    /// the browse screen: that screen counted the shelf, the viewer picked a value, and this list is the titles
-    /// that carry it.
+    /// the same question: the shelf was counted by a category, a value was picked out of that count, and this
+    /// list is the titles that carry it.
     /// </summary>
-    public string? GroupBy { get; }
+    /// <remarks>
+    /// Set from two places that ask the same question in two ways: the browse screen hands a cut over when it
+    /// opens the shelf, and the screen's own menu makes or clears one where the viewer stands.
+    /// </remarks>
+    public string? GroupBy { get; private set; }
 
-    /// <summary>The value picked on the browse screen, or null. Only means anything with <see cref="GroupBy"/>.</summary>
-    public string? GroupValue { get; }
+    /// <summary>The value picked out of the count, or null. Only means anything with <see cref="GroupBy"/>.</summary>
+    public string? GroupValue { get; private set; }
+
+    /// <summary>Whether the shelf on screen is a cut of the shelf rather than the whole of it.</summary>
+    public bool HasShelfFilter => !string.IsNullOrEmpty(GroupBy) && !string.IsNullOrEmpty(GroupValue);
+
+    /// <summary>The words the screen says about its cut, which is nothing when the whole shelf is showing.</summary>
+    public string FilterLabel
+    {
+      get
+      {
+        if (!HasShelfFilter)
+          return "Filter: whole shelf";
+        return "Filter: " + CategoryWord(GroupBy!) + " = " + GroupValue;
+      }
+    }
 
     /// <summary>The aspect the server is asked for, in its own spelling.</summary>
     public string AspectName { get; }
@@ -1553,11 +1609,39 @@ namespace MediaPortal.Frontend.ViewModels
     public bool HasTitles => Titles.Count > 0;
 
     /// <summary>
-    /// Whether the shelf draws the reference's floor gradient along its bottom edge: the dark band that
-    /// lifts the names off the fanart. The reference laid it under grid and list but never under covers,
-    /// and never while the details stood open beside the shelf - both of which this obeys.
+    /// Whether this shelf is worn as covers, which is the one layout the reference laid out sideways: the covers
+    /// in a row along the bottom, their details centred above them, and the screen's menu under them instead of
+    /// beside them.
     /// </summary>
-    public bool ShowsFloorGradient => Layout != BrowserLayout.Cover && !ShowDetails && Titles.Count > 0;
+    public bool IsCoverLayout => Layout == BrowserLayout.Cover;
+
+    /// <summary>
+    /// Whether the shelf wants the details of its highlighted title at all - the one panel it has, beside the
+    /// tiles or above the covers.  The reference also knew a strip of details along the foot for the tile views
+    /// whose side panel had been switched off; the viewer rejected that place, so the strip is gone and this
+    /// question is simply the viewer's answer to the details question.
+    /// </summary>
+    public bool WantsDetails => ShowDetails;
+
+    /// <summary>
+    /// Whether the details stand beside the shelf as the wide column the reference laid in the right-hand cell
+    /// of <c>SimpleShowItems.xaml</c>: grid and list only, and only while the viewer asked for the panel. Covers
+    /// answer the same question with <see cref="ShowsCoverDetails"/>.
+    /// </summary>
+    public bool ShowsSideDetails => ShowDetails && Layout != BrowserLayout.Cover;
+
+    /// <summary>
+    /// Whether the details lie centred above the covers, on the horizontal gradient the reference laid under
+    /// <c>MultiDetailsCover.inc</c> - the cover layout's answer, which never has a panel beside its row.
+    /// </summary>
+    public bool ShowsCoverDetails => ShowDetails && Layout == BrowserLayout.Cover;
+
+    /// <summary>
+    /// Whether the shelf draws the reference's floor gradient along its bottom edge: the dark band that lifts the
+    /// names off the fanart.  The reference's media master laid it under grid and list whatever the details said,
+    /// and only the cover view - which lays its own shadows over the wall of posters - went without it.
+    /// </summary>
+    public bool ShowsFloorGradient => Layout != BrowserLayout.Cover && Titles.Count > 0;
 
     private void RaiseShelfCounters()
     {
@@ -1565,6 +1649,10 @@ namespace MediaPortal.Frontend.ViewModels
       OnPropertyChanged(nameof(SelectedNumber));
       OnPropertyChanged(nameof(TotalNumber));
       OnPropertyChanged(nameof(ShowsFloorGradient));
+      OnPropertyChanged(nameof(IsCoverLayout));
+      OnPropertyChanged(nameof(WantsDetails));
+      OnPropertyChanged(nameof(ShowsSideDetails));
+      OnPropertyChanged(nameof(ShowsCoverDetails));
     }
 
     /// <summary>
@@ -1698,9 +1786,37 @@ namespace MediaPortal.Frontend.ViewModels
       get { return !string.IsNullOrEmpty(ActiveSearch); }
     }
 
+    /// <summary>
+    /// Whether the viewer asked to type: the <c>F</c> key and the menu's "Search" row both set it, and the field
+    /// itself is on the screen while it holds. The reference kept its search behind a screen of its own with a
+    /// keyboard on it; this screen has the field already and only has to get out of the shelf's way until the
+    /// viewer is done typing.
+    /// </summary>
+    [ObservableProperty]
+    private bool _searchOpen;
+
+    /// <summary>Whether the search field is on screen: opened to type in, or still holding what was typed.</summary>
+    public bool ShowsSearch => SearchOpen || HasSearch;
+
+    partial void OnSearchOpenChanged(bool value)
+    {
+      OnPropertyChanged(nameof(ShowsSearch));
+    }
+
+    /// <summary>
+    /// Puts the search field on the screen and asks for the caret to be moved into it - one key or one row of the
+    /// menu, and the shelf is searched from there.
+    /// </summary>
+    public void OpenSearch()
+    {
+      SearchOpen = true;
+      SearchFocusRequested?.Invoke(this, EventArgs.Empty);
+    }
+
     partial void OnActiveSearchChanged(string value)
     {
       OnPropertyChanged(nameof(HasSearch));
+      OnPropertyChanged(nameof(ShowsSearch));
     }
 
     /// <summary>
@@ -2013,6 +2129,442 @@ namespace MediaPortal.Frontend.ViewModels
       ShowDetails = !ShowDetails;
     }
 
+    // -------------------------------------------------------------------------
+    // The screen's own menu, which the reference slid in from the left edge
+    // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Which page the screen's menu is showing. The reference hung a dialog of its own behind every command in
+    /// the media menu - <c>DialogSwitchSort</c>, <c>DialogSwitchFilter</c>, <c>DialogSwitchViewMode</c> - and put
+    /// the menu away once a pick was made; this menu keeps those dialogs as pages of the one panel that slid in,
+    /// because walking out of a panel that is already on screen is two arrow keys rather than a closed dialog and
+    /// an opened one.
+    /// </summary>
+    private enum MenuPage
+    {
+      /// <summary>The commands themselves, which is what opening the menu shows.</summary>
+      Commands,
+
+      /// <summary>Rows, tiles, covers - and whether the details stand beside them.</summary>
+      View,
+
+      /// <summary>The picture a tile wears.</summary>
+      Picture,
+
+      /// <summary>The orders this shelf's kind can be read in.</summary>
+      Sort,
+
+      /// <summary>The categories the shelf has been counted by.</summary>
+      Filter,
+
+      /// <summary>The values of one category, as the server counted them.</summary>
+      Values
+    }
+
+    /// <summary>
+    /// Whether the screen's menu stands open. The reference kept it off the edge of the television and slid the
+    /// whole shelf 200 pixels into the room it left behind (<c>master_mediamenu.xaml</c> and its
+    /// <c>HiddenMenuSlideIn</c>, 350 ms), so that nothing is ever hidden under a panel and no command needs the
+    /// screen to change underneath the viewer.
+    /// </summary>
+    [ObservableProperty]
+    private bool _mediaMenuVisible;
+
+    /// <summary>The word above the menu, which says what page of it the viewer is standing on.</summary>
+    [ObservableProperty]
+    private string _mediaMenuHeading = "Menu";
+
+    /// <summary>The rows the menu shows right now, for the page <see cref="_menuPage"/> says it is on.</summary>
+    public ObservableCollection<MediaBrowserMenuEntry> MediaMenu { get; } = new ObservableCollection<MediaBrowserMenuEntry>();
+
+    /// <summary>Where in the menu the viewer stands.</summary>
+    private MenuPage _menuPage;
+
+    /// <summary>The category whose values are on the menu, while the values page is up.</summary>
+    private string? _menuCategory;
+
+    /// <summary>
+    /// Asks the screen to put the cursor into its search field. The reference opened a screen of its own for the
+    /// question (its filter menu's search entry led to a keyboard), and this screen has the field on it already -
+    /// so the menu says where the typing happens and gets out of the way.
+    /// </summary>
+    public event EventHandler? SearchFocusRequested;
+
+    /// <summary>Opens the menu at its first page, which is what the reference's Info key did.</summary>
+    [RelayCommand]
+    public void ShowMediaMenu()
+    {
+      _menuPage = MenuPage.Commands;
+      BuildMediaMenu();
+      MediaMenuVisible = true;
+    }
+
+    /// <summary>Slides the menu back off the edge of the screen.</summary>
+    [RelayCommand]
+    public void HideMediaMenu()
+    {
+      MediaMenuVisible = false;
+    }
+
+    /// <summary>
+    /// The Info key, which is the reference's key for this: opens the menu over the shelf, and puts it away when
+    /// it is already open.
+    /// </summary>
+    [RelayCommand]
+    public void ToggleMediaMenu()
+    {
+      if (MediaMenuVisible)
+        HideMediaMenu();
+      else
+        ShowMediaMenu();
+    }
+
+    /// <summary>
+    /// What the back key does while the menu is open: a page steps back to the commands, and the commands put the
+    /// menu away. The reference's dialogs closed on Escape, which is the same answer one level up.
+    /// </summary>
+    [RelayCommand]
+    public void MediaMenuBack()
+    {
+      if (_menuPage == MenuPage.Commands)
+        HideMediaMenu();
+      else
+        ShowMediaMenu();
+    }
+
+    /// <summary>
+    /// Builds the menu for the page the viewer is on. Every label is written from the shelf's state at the moment
+    /// the page goes up, which is why picking anything closes the menu: a menu whose row still says "View: Grid"
+    /// after the viewer laid the shelf out in covers is a menu that lies.
+    /// </summary>
+    private void BuildMediaMenu()
+    {
+      MediaMenu.Clear();
+      switch (_menuPage)
+      {
+        case MenuPage.View:
+          MediaMenuHeading = "View";
+          AddMenuRow("List", "size", new RelayCommand(() => PickLayout(BrowserLayout.List)), Layout == BrowserLayout.List);
+          AddMenuRow("Grid", "size", new RelayCommand(() => PickLayout(BrowserLayout.Grid)), Layout == BrowserLayout.Grid);
+          AddMenuRow("Cover", "size", new RelayCommand(() => PickLayout(BrowserLayout.Cover)), Layout == BrowserLayout.Cover);
+          // The reference kept the details switch beside the view modes rather than among the media commands,
+          // because details are the second half of the layout question and not a command of their own.
+          AddMenuRow(DetailsLabel, "setup", new RelayCommand(PickDetails), ShowDetails);
+          return;
+
+        case MenuPage.Picture:
+          MediaMenuHeading = "Picture";
+          AddMenuRow("Poster", "album", new RelayCommand(() => PickPicture(GridViewType.Poster)), _tileKind == GridViewType.Poster);
+          AddMenuRow("Banner", "album", new RelayCommand(() => PickPicture(GridViewType.Banner)), _tileKind == GridViewType.Banner);
+          AddMenuRow("Thumbnail", "album", new RelayCommand(() => PickPicture(GridViewType.Thumbnail)), _tileKind == GridViewType.Thumbnail);
+          return;
+
+        case MenuPage.Sort:
+          MediaMenuHeading = "Sort";
+          foreach ((string Word, string Key) choice in SortChoices())
+          {
+            string picked = choice.Key;
+            AddMenuRow(choice.Word, SortIcon(picked), new AsyncRelayCommand(() => PickSortAsync(picked)),
+                string.Equals(SortOrder, picked, StringComparison.OrdinalIgnoreCase));
+          }
+          return;
+
+        case MenuPage.Filter:
+          MediaMenuHeading = "Filter";
+          if (HasShelfFilter)
+            AddMenuRow("Whole shelf", "collection", new AsyncRelayCommand(() => PickFilterAsync(null, null)));
+          foreach (BrowseCategory category in BrowseViewModel.CATEGORIES)
+          {
+            string by = category.Word;
+            AddMenuRow(category.Label, CategoryIcon(by), new AsyncRelayCommand(() => ShowFilterValuesAsync(by)));
+          }
+          return;
+
+        case MenuPage.Values:
+          MediaMenuHeading = Capitalise(CategoryWord(_menuCategory ?? "")) + "s";
+          AddMenuRow("Everything", "collection", new AsyncRelayCommand(() => PickFilterAsync(null, null)));
+          return;
+
+        default:
+          MediaMenuHeading = "Menu";
+          AddMenuRow("Search", "search", new RelayCommand(() =>
+          {
+            HideMediaMenu();
+            SearchFocusRequested?.Invoke(this, EventArgs.Empty);
+          }));
+          AddMenuRow(FilterLabel, "b15ea757-905e-46fa-a71d-c132885c221e.png", new RelayCommand(() => GoToPage(MenuPage.Filter)));
+          AddMenuRow(SortLabel, "d205e9bc-a970-429d-88f8-bbb92cf3f19a.png", new RelayCommand(() => GoToPage(MenuPage.Sort)));
+          AddMenuRow(LayoutLabel, "f400fbea-6e32-4735-be52-15dfdbb64fcc.png", new RelayCommand(() => GoToPage(MenuPage.View)));
+          if (CanChooseMedia)
+            AddMenuRow(MediaLabel, "size", new RelayCommand(() => GoToPage(MenuPage.Picture)));
+          AddMenuRow(SeenLabel, new AsyncRelayCommand(async () =>
+          {
+            await CycleSeenAsync();
+            HideMediaMenu();
+          }));
+          AddMenuRow(DetailsLabel, "setup", new RelayCommand(PickDetails));
+          AddMenuRow("Title menu", "system", new RelayCommand(() =>
+          {
+            HideMediaMenu();
+            ShowMenu();
+          }));
+          return;
+      }
+    }
+
+    /// <summary>Puts another page of the menu up without reopening it, which is what a command's arrow does.</summary>
+    private void GoToPage(MenuPage page)
+    {
+      _menuPage = page;
+      BuildMediaMenu();
+    }
+
+    /// <summary>One row of the menu, with the skin's own picture beside it where the skin has one to give.</summary>
+    private void AddMenuRow(string label, string icon, System.Windows.Input.ICommand command, bool isCurrent = false)
+    {
+      MediaMenu.Add(new MediaBrowserMenuEntry(label, icon, command, isCurrent));
+    }
+
+    /// <summary>A menu row that says words and has no picture of its own.</summary>
+    private void AddMenuRow(string label, System.Windows.Input.ICommand command)
+    {
+      MediaMenu.Add(new MediaBrowserMenuEntry(label, "", command, false));
+    }
+
+    /// <summary>
+    /// Lays the shelf out in the picked shape and puts the menu away over it. The cycle is walked rather than the
+    /// property written, because walking it is what saves the viewer's answer for this screen.
+    /// </summary>
+    private void PickLayout(BrowserLayout layout)
+    {
+      for (int step = 0; step < 3 && Layout != layout; step++)
+        SwitchViewCommand.Execute(null);
+
+      HideMediaMenu();
+    }
+
+    /// <summary>Puts another picture on the tiles and puts the menu away.</summary>
+    private void PickPicture(GridViewType kind)
+    {
+      for (int step = 0; step < 3 && _tileKind != kind; step++)
+        SwitchMediaCommand.Execute(null);
+
+      HideMediaMenu();
+    }
+
+    /// <summary>Turns the details panel on or off, from the menu's own switch.</summary>
+    private void PickDetails()
+    {
+      ToggleDetails();
+      HideMediaMenu();
+    }
+
+    /// <summary>
+    /// The orders this kind of shelf can be read in, in the words the screen says them in. The four every shelf
+    /// answers are the name, the year, the day the library got the title and the last time it was played; the
+    /// orders that only mean something inside one series or one album are offered where they do, because a shelf
+    /// of films sorted "by track" is a shelf of films sorted by nothing.
+    /// </summary>
+    /// <remarks>
+    /// These are exactly the words the server answers (<c>MediaController.ReadSort</c>); one it did not know would
+    /// come back silently ordered by name, which is a menu row that lies about what it did.
+    /// </remarks>
+    private List<(string Word, string Key)> SortChoices()
+    {
+      List<(string Word, string Key)> choices = new List<(string Word, string Key)>
+      {
+          ("by title", "title"),
+          ("by year", "year"),
+          ("by date added", "added"),
+          ("by last played", "lastplayed")
+      };
+
+      if (MediaCatalog.IsSeason(AspectName))
+        choices.Insert(1, ("by season number", "season"));
+      else if (string.Equals(AspectName, "episodes", StringComparison.OrdinalIgnoreCase))
+      {
+        choices.Insert(1, ("by season number", "season"));
+        choices.Insert(2, ("by episode number", "episode"));
+      } else if (string.Equals(AspectName, "tracks", StringComparison.OrdinalIgnoreCase)
+          || string.Equals(AspectName, "songs", StringComparison.OrdinalIgnoreCase))
+        choices.Insert(1, ("by track number", "track"));
+
+      return choices;
+    }
+
+    /// <summary>
+    /// Reads the shelf again in another order. The list is thrown away rather than re-sorted on screen, because
+    /// the screen only ever holds the pages it has read: eleven hundred films sorted by year have to be re-asked,
+    /// not shuffled, or the first fifty the viewer is looking at are the wrong fifty.
+    /// </summary>
+    public async Task PickSortAsync(string sort)
+    {
+      if (string.IsNullOrWhiteSpace(sort)
+          || string.Equals(SortOrder, sort, StringComparison.OrdinalIgnoreCase))
+      {
+        HideMediaMenu();
+        return;
+      }
+
+      SortOrder = sort;
+      OnPropertyChanged(nameof(SortLabel));
+      HideMediaMenu();
+      await ReaskAsync();
+    }
+
+    /// <summary>
+    /// Asks the server how many titles carry each value of one category and puts them on the menu - the same
+    /// count the browse screen shows in its middle column, reached from the shelf it belongs to.
+    /// </summary>
+    /// <remarks>
+    /// The count is asked for when the page is opened rather than kept: a shelf gains titles while a viewer is
+    /// sitting in front of it, and a menu of stale counts is a menu that sends them to titles that are not there.
+    /// </remarks>
+    public async Task ShowFilterValuesAsync(string by)
+    {
+      if (_client == null)
+      {
+        Status = "There is no server to count this shelf by " + CategoryWord(by);
+        return;
+      }
+
+      _menuCategory = by;
+      _menuPage = MenuPage.Values;
+      BuildMediaMenu();
+      MediaMenu.Insert(0, new MediaBrowserMenuEntry("Counting the " + CategoryWord(by) + "s...", "",
+          new RelayCommand(() => { }), false));
+
+      try
+      {
+        MediaGroups groups = await _client.GetGroupsAsync(AspectName, by);
+        if (_menuPage != MenuPage.Values || !string.Equals(_menuCategory, by, StringComparison.OrdinalIgnoreCase))
+          return;
+
+        MediaMenu.RemoveAt(0);
+        foreach (MediaGroup group in groups.Values)
+        {
+          string value = group.Value!.Trim();
+          bool picked = string.Equals(GroupValue, value, StringComparison.OrdinalIgnoreCase)
+              && string.Equals(GroupBy, by, StringComparison.OrdinalIgnoreCase);
+          MediaMenu.Add(new MediaBrowserMenuEntry(value + "  (" + group.Count + ")", CategoryIcon(by),
+              new AsyncRelayCommand(() => PickFilterAsync(by, value)), picked));
+        }
+
+        if (groups.Values.Count == 0)
+          MediaMenu.Add(new MediaBrowserMenuEntry("Nothing on this server carries a " + CategoryWord(by), "",
+              new RelayCommand(() => { }), false));
+        if (!string.IsNullOrEmpty(groups.Error))
+          Status = groups.Error;
+      }
+      catch (ServerApiException ex)
+      {
+        MediaMenu.Clear();
+        Status = ex.Message;
+      }
+      catch (Exception ex)
+      {
+        MediaMenu.Clear();
+        Status = "Counting the shelf failed: " + ex.Message;
+      }
+    }
+
+    /// <summary>
+    /// Cuts the shelf to one value of one category, or takes the cut off again when either half is missing. The
+    /// list is a different list the moment the cut changes, so it starts again at its first title.
+    /// </summary>
+    public async Task PickFilterAsync(string? by, string? value)
+    {
+      bool same = string.Equals(GroupBy ?? "", by ?? "", StringComparison.OrdinalIgnoreCase)
+          && string.Equals(GroupValue ?? "", value ?? "", StringComparison.OrdinalIgnoreCase);
+      GroupBy = by;
+      GroupValue = value;
+      OnPropertyChanged(nameof(HasShelfFilter));
+      OnPropertyChanged(nameof(FilterLabel));
+      HideMediaMenu();
+      if (!same)
+        await ReaskAsync();
+    }
+
+    /// <summary>The screen's own words for a sort key, for the row that names the order the shelf is read in.</summary>
+    private static string SortWord(string sort)
+    {
+      switch (sort)
+      {
+        case "year":
+          return "year";
+        case "added":
+          return "date added";
+        case "lastplayed":
+          return "last played";
+        case "season":
+          return "season number";
+        case "episode":
+          return "episode number";
+        case "track":
+          return "track number";
+        default:
+          return "title";
+      }
+    }
+
+    /// <summary>The skin's own picture for an order, where the skin has one.</summary>
+    private static string SortIcon(string sort)
+    {
+      switch (sort)
+      {
+        case "year":
+          return "year";
+        case "season":
+        case "episode":
+        case "track":
+          return "track";
+        default:
+          return "setup";
+      }
+    }
+
+    /// <summary>The skin's own picture for a filter category, where the skin has one.</summary>
+    private static string CategoryIcon(string by)
+    {
+      switch (by)
+      {
+        case "year":
+          return "year";
+        case "actors":
+        case "directors":
+        case "writers":
+          return "actor";
+        default:
+          return "genre";
+      }
+    }
+
+    /// <summary>What the screen calls a category in a sentence.</summary>
+    private static string CategoryWord(string by)
+    {
+      switch (by)
+      {
+        case "year":
+          return "year";
+        case "actors":
+          return "actor";
+        case "directors":
+          return "director";
+        case "writers":
+          return "writer";
+        default:
+          return "genre";
+      }
+    }
+
+    /// <summary>Upper-cases the first letter of a word, for a heading the viewer reads.</summary>
+    private static string Capitalise(string word)
+    {
+      if (string.IsNullOrEmpty(word))
+        return word;
+      return char.ToUpperInvariant(word[0]) + word.Substring(1);
+    }
+
     /// <summary>
     /// The selected title's details, asked of the server when the screen wears details and the selection
     /// lands. A read already made for this title is not made again - walking off a row and back to it costs
@@ -2022,7 +2574,7 @@ namespace MediaPortal.Frontend.ViewModels
     private async Task ShowDetailsForSelectedAsync()
     {
       TitleViewModel? title = Selected;
-      if (!ShowDetails || title == null || _client == null)
+      if (!WantsDetails || title == null || _client == null)
         return;
 
       if (_detailsFor == title.Title.Id)
@@ -2042,7 +2594,13 @@ namespace MediaPortal.Frontend.ViewModels
     /// </summary>
     public void CloseDetails()
     {
+      // Two properties answer one question, and both have to go: the viewer's standing choice for the panel, and
+      // the reading that is on the screen right now. A grid reads the selected title even while its panel is off
+      // (its foot strip is laid out of the same reading), so putting only the choice away left the screen wearing
+      // details still - and a screen that answers Back with "away with the details" while it is still wearing
+      // them has taken the key away from the viewer for good.
       ShowDetails = false;
+      DetailsVisible = false;
     }
 
     /// <summary>
@@ -2140,6 +2698,9 @@ namespace MediaPortal.Frontend.ViewModels
         DetailsLine = DescribeLine(details, title);
         DetailsText = details.Description ?? "Nothing was written about this title on this server.";
         DetailsPath = details.Path ?? title.Title.Path ?? "This title has no resource the server can name.";
+        DetailsRating = details.Rating ?? details.TotalRating;
+        FillDetailsStars(DetailsRating);
+        FillDetailsFacts(details, title);
         DetailsVisible = true;
         await ReadDetailsArtworkAsync(title);
       }
@@ -2159,9 +2720,98 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
-    /// The picture of the title the details panel is now about.
+    /// Tells the five star pictures how much of their light the rating leaves them: whole for a star the rating
+    /// filled, a quarter for a star it never reached, and the part between for the star it filled half way.
+    /// </summary>
+    /// <param name="rating">
+    /// The rating on the library's ten points, or <c>null</c> for a title nobody rated - which leaves the five
+    /// pictures at the quarter of their light they wait at, and the number beside them is not drawn at all.
+    /// </param>
+    private void FillDetailsStars(double? rating)
+    {
+      // Ten points to five stars, so a point is half a star; the reference drew the fifth star the same size as
+      // the first and let the light say the rest.
+      double stars = Math.Clamp((rating ?? 0) / 2.0, 0, 5);
+      for (int star = 0; star < DetailsStars.Count; star++)
+        DetailsStars[star] = 0.25 + 0.75 * Math.Clamp(stars - star, 0, 1);
+    }
+
+    /// <summary>
+    /// Builds the facts the details panel and the home strip stand on, in the order the reference's screens put
+    /// them: the numbers that only this kind of title has (which season, how many episodes), then length, year,
+    /// the day it first ran, the age it was passed for, and the kinds of story it is told in.
     /// </summary>
     /// <remarks>
+    /// A fact the server did not answer is left out entirely rather than answered with a dash: the reference drew
+    /// an empty frame for a missing studio logo because it had a logo frame to draw, while a screen of this
+    /// front end's own showing "Studio: —" would be a screen asking the viewer to wonder about it.
+    /// </remarks>
+    private void FillDetailsFacts(MediaItemDetails details, TitleViewModel title)
+    {
+      DetailsFacts.Clear();
+      bool isSeason = MediaCatalog.IsSeason(title.ReadThrough);
+
+      if (isSeason)
+      {
+        if (!string.IsNullOrWhiteSpace(details.SeriesName))
+          AddFact("Series", details.SeriesName!.Trim());
+        if (details.Episodes.HasValue)
+          AddFact("Episodes", details.Episodes.Value + (details.Episodes.Value == 1 ? " episode" : " episodes"));
+      }
+      else
+      {
+        if (details.Season.HasValue)
+          AddFact("Season", details.Season.Value.ToString(CultureInfo.InvariantCulture));
+        if (details.Episode.HasValue)
+          AddFact("Episode", details.Episode.Value.ToString(CultureInfo.InvariantCulture));
+        if (!string.IsNullOrWhiteSpace(details.EpisodeName))
+          AddFact("Episode name", details.EpisodeName!.Trim());
+      }
+
+      int? minutes = details.RuntimeMinutes ?? title.Title.RuntimeMinutes;
+      if (minutes.HasValue && minutes.Value > 0)
+      {
+        int hours = minutes.Value / 60;
+        string length = hours > 0
+            ? hours + " h " + (minutes.Value % 60) + " min"
+            : minutes.Value + " min";
+        AddFact(isSeason || IsMusic ? "Length" : "Runtime", length);
+      }
+
+      if (details.Year.HasValue)
+        AddFact("Year", details.Year.Value.ToString(CultureInfo.InvariantCulture));
+      if (details.FirstAired.HasValue && !isSeason)
+        AddFact(IsMusic ? "Released" : "First aired",
+            details.FirstAired.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+      if (!string.IsNullOrWhiteSpace(details.Certification) && AgeLogosShown)
+        AddFact("Age", details.Certification!.Trim());
+      if (details.Genres != null && details.Genres.Count > 0)
+      {
+        List<string> kinds = new List<string>();
+        foreach (string genre in details.Genres)
+          if (!string.IsNullOrWhiteSpace(genre))
+            kinds.Add(genre.Trim());
+        if (kinds.Count > 0)
+          AddFact("Genre", string.Join(", ", kinds));
+      }
+      if (!string.IsNullOrWhiteSpace(details.Collection))
+        AddFact("Collection", details.Collection!.Trim());
+      if (details.PlayCount.HasValue && details.PlayCount.Value > 0)
+        AddFact("Played", details.PlayCount.Value
+            + (details.PlayCount.Value == 1 ? " time" : " times"));
+    }
+
+    /// <summary>One fact on the panel's list, which is only added when it has something to say.</summary>
+    private void AddFact(string label, string value)
+    {
+      if (string.IsNullOrWhiteSpace(value))
+        return;
+      DetailsFacts.Add(new MediaBrowserFact(label, value.Trim()));
+    }
+
+    /// <summary>
+    /// The picture of the title the details panel is now about.
+    /// </summary>    /// <remarks>
     /// <para>
     /// Read apart from the details themselves, because the two answers arrive at different speeds and mean
     /// different things when they fail: a details panel with no plot is still the film's details, while a poster
@@ -2522,5 +3172,75 @@ namespace MediaPortal.Frontend.ViewModels
         cancellation.Dispose();
       }
     }
+  }
+
+  /// <summary>
+  /// One row of the library screen's menu, in the shape the reference's media menu had: the command's words, the
+  /// skin's own round picture beside them, and a mark on the row that says what the screen is already doing.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// The reference built these at runtime too - <c>MenuModel.MenuItems</c> of <c>ListItem{Label, Command,
+  /// Selected}</c>, filled by the media plugin's workflow actions - and threw the list away when the menu closed,
+  /// which is why its labels were always the truth rather than a control that had been forgotten. This class is
+  /// that record: a row is written when the menu opens and is not kept afterwards.
+  /// </para>
+  /// <para>
+  /// <see cref="Icon"/> is a name in the worn skin, not a path or a bitmap: the skin is what decides whether a
+  /// command has a picture, and a screen that drew its own pictures would be a screen that changes when a
+  /// different face is put on it. An empty name is drawn as no picture at all.
+  /// </para>
+  /// </remarks>
+  public sealed class MediaBrowserMenuEntry
+  {
+    public MediaBrowserMenuEntry(string label, string icon, System.Windows.Input.ICommand command, bool isCurrent)
+    {
+      Label = label;
+      Icon = icon;
+      Command = command;
+      IsCurrent = isCurrent;
+    }
+
+    /// <summary>What the row says, which includes what the screen already answers where the command is a switch.</summary>
+    public string Label { get; }
+
+    /// <summary>The skin's name for this command's picture, or "" when the command has none.</summary>
+    public string Icon { get; }
+
+    /// <summary>The command the row presses.</summary>
+    public System.Windows.Input.ICommand Command { get; }
+
+    /// <summary>
+    /// Whether this row is what the screen is doing now - the grid in a list of layouts, the year in a list of
+    /// orders. The reference marked the same thing with <c>ListItem.Selected</c> and its styles drew a bright band
+    /// behind the row that carried it.
+    /// </summary>
+    public bool IsCurrent { get; }
+  }
+
+  /// <summary>
+  /// One line of what is known about a title, said as a word and an answer: "Year" over "2009", "Genre" over
+  /// "Krimi, Drama".
+  /// </summary>
+  /// <remarks>
+  /// The reference's details panels never printed sentences about a title; they printed these pairs, grouped into
+  /// blocks (<c>MediaItemListDetails.inc:109</c> and its cover sister), and a pair whose answer the library does
+  /// not know was left out rather than answered with "unknown". This is the same pair, held long enough to be
+  /// laid out - the reading code fills a fresh set for every title, so a pair never outlives the title it speaks
+  /// about.
+  /// </remarks>
+  public sealed class MediaBrowserFact
+  {
+    public MediaBrowserFact(string label, string value)
+    {
+      Label = label;
+      Value = value;
+    }
+
+    /// <summary>The word the reference printed under the answer, spelled as it spelled it.</summary>
+    public string Label { get; }
+
+    /// <summary>The answer itself, which is never empty - an unknown was left out instead.</summary>
+    public string Value { get; }
   }
 }

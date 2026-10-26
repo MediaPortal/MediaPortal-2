@@ -79,6 +79,30 @@ namespace MediaPortal.Frontend.Views
     private readonly Grid _layout = new Grid();
 
     /// <summary>
+    /// The whole skin standing in the size it was drawn for: the reference wrote every one of its numbers
+    /// against a television of a given height - Nereus names 1080 lines and says it stretches to any width
+    /// (its skin.xml carries NativeHeight and FlexibleAspectRatio), and the engine laid the master out in that
+    /// height and scaled the finished picture onto the panel in front of the viewer. A front end that instead
+    /// lays out in the window's own dots draws all of those numbers a third too small on a 1440 line panel and
+    /// twice too small on a 4K one, and then every proportion the skin was built on - a poster against a name
+    /// against a margin - is wrong at once. So the shell does what the reference did: the skin is measured in
+    /// its own lines and what comes out is scaled as one picture onto the window, which leaves the width free
+    /// to follow the screen's shape exactly as the reference's flexible aspect ratio did. A skin that names no
+    /// height is laid out in the window's dots as it always was.
+    /// </summary>
+    private readonly LayoutTransformControl _skinScale = new LayoutTransformControl
+    {
+      Name = "ChromeSkinScale"
+    };
+
+    /// <summary>
+    /// How much bigger the worn skin is currently drawn than the window's own dots, kept because the blurred
+    /// photograph of the screen has to be taken at the size the screen is really thrown at the viewer - see
+    /// <see cref="PhotographGround"/>.
+    /// </summary>
+    private double _skinScaleFactor = 1.0;
+
+    /// <summary>
     /// The screen behind a dialog thrown out of focus: a photograph of <see cref="_layout"/>, taken at a small
     /// fraction of its size when a question goes up and stretched back over the window for the length of it.
     /// The live screen hides under that photograph, which is what the viewer wants - a question is asked over
@@ -291,7 +315,17 @@ namespace MediaPortal.Frontend.Views
         IsVisible = false
       };
       shell.Children.Add(_screensaverLayer);
-      Content = shell;
+
+      // Everything the skin draws - the master, the dialogs, the keyboard, the screensaver's black - stands
+      // behind one transform, because the skin was written in the television's lines rather than in the
+      // window's dots. See WearSkinScale for the number, and for the skin that names none and is therefore
+      // laid out in dots as it always was.
+      _skinScale.Child = shell;
+      Content = _skinScale;
+      SizeChanged += delegate { WearSkinScale(); };
+      Theming.SkinEngine.Changed += delegate { WearSkinScale(); };
+      Theming.FrontendTheme.Changed += delegate { WearSkinScale(); };
+      WearSkinScale();
 
       // The first question of a run can be asked before this window has ever been laid out, and a ground with no
       // size yet cannot be photographed. The next layout pass knows better, and one pass after the question is a
@@ -442,6 +476,37 @@ namespace MediaPortal.Frontend.Views
           ? WindowState.FullScreen
           : WindowState.Maximized;
     }
+
+    /// <summary>
+    /// Puts the skin at the height it was written for. The reference measured its master in the television's
+    /// lines - Nereus names 1080 of them and says it stretches to any width it is given - and handed the
+    /// finished picture to the screen at one uniform factor, so the shell does the same: the window's height
+    /// over the skin's height is the factor, the width follows the window's own shape out of it, and a skin
+    /// that names no height stands in the window's dots as it always did. One factor for both axes, so a
+    /// poster keeps its shape and a rounded corner stays round instead of becoming an ellipse.
+    /// </summary>
+    private void WearSkinScale()
+    {
+      double lines = ClientSize.Height > 0.0 ? ClientSize.Height : Bounds.Height;
+      double native = Theming.SkinEngine.WornNumber("SkinNativeHeight") ?? 0.0;
+      double scale = native >= 2.0 && lines >= 2.0 ? lines / native : 1.0;
+      if (Math.Abs(scale - _skinScaleFactor) < 0.0005)
+        return; // the same factor worn twice would be a layout pass thrown away on every resize
+
+      _skinScaleFactor = scale;
+      _skinScale.LayoutTransform = Math.Abs(scale - 1.0) < 0.0005
+          ? null
+          : new Avalonia.Media.ScaleTransform(scale, scale);
+    }
+
+    /// <summary>
+    /// The factor the worn skin currently stands at under the shell's transform: one when the skin measures
+    /// itself in the window's dots, less when it stands at the height it was written for and the window is
+    /// smaller.  Anything that has to speak about a size the way it lands on the screen - a measurement of a
+    /// control that lives inside the skin, a photograph that has to be taken in the window's real pixels -
+    /// multiplies or divides by this one number; a control's own <c>Bounds</c> are always in the skin's points.
+    /// </summary>
+    public double SkinScale => _skinScaleFactor;
 
     /// <summary>
     /// Switches between the television and the desktop, which is what the playback screen's full-screen mark
@@ -823,8 +888,10 @@ namespace MediaPortal.Frontend.Views
         return; // the layout pass below tries again as soon as the window knows how big it is
 
       // Taken at the size the ground is really drawn in and shrunk by the skin's number, so the blur keeps the
-      // same character whether the television is told to draw one pixel or one and a half per dot.
-      double scaling = RenderScaling <= 0.0 ? 1.0 : RenderScaling;
+      // same character whether the television is told to draw one pixel or one and a half per dot - and whether
+      // or not the skin is standing at its own height under the shell's transform, which throws the same picture
+      // at the panel bigger than the lines it was measured in. See WearSkinScale.
+      double scaling = (RenderScaling <= 0.0 ? 1.0 : RenderScaling) * _skinScaleFactor;
       PixelSize pixels = new PixelSize(
           Math.Max(1, (int) Math.Round(ground.Width * scaling / shrink)),
           Math.Max(1, (int) Math.Round(ground.Height * scaling / shrink)));

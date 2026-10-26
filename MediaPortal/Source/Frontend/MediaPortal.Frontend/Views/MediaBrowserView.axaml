@@ -1,4 +1,4 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
         xmlns:theming="using:MediaPortal.Frontend.Theming"
@@ -10,17 +10,63 @@
         >
 
   <!--
-    The three frames every screen can be laid in when the worn skin answers none of the tile keys - and the
-    rows, which are what the screen was written with. The reference let only a skin dress a shelf; a viewer
-    who asked for tiles or covers on a machine wearing no skin got rows, which is the "only visible for
-    Nereus" complaint in its oldest form. Views are the screen's own promise now: the skin may dress them
-    better, and these are what it falls back to.
+    THE LIBRARY SCREEN AS NEREUS LAID IT OUT
+
+    Everything here is a translation of two reference files: <c>master_bare_media.xaml</c> (the room: a hundred
+    points of head, the shelf in the middle, two hundred and sixty points of floor) and
+    <c>master_mediamenu.xaml</c> (the way a screen's own menu is hung into that room). What those two files say,
+    and what is therefore done here:
+
+    - The whole content is one grid shifted two hundred points off the left edge (ClientGrid Margin
+      "-200,0,0,-200", columns "200,*"), and the menu panel stands in the two hundred points that are off the
+      screen. Opening the menu does not show anything - it slides the content two hundred points to the right and
+      the menu walks into the space that used to be off the screen, which is why the menu never covers the shelf.
+    - Covers are the exception: their menu hangs under the screen (rows "*,200" with the panel in the second row,
+      pushed two hundred points down) and slides up, because a row of covers has nothing to the left of it that a
+      rail could stand in.
+    - The details are a wide column beside the shelf, drawn on a translucent ground with the title's fanart
+      behind it; only covers put their details above their own row instead, centred on a horizontal gradient.
+    - Where the details are not beside the shelf, its bottom edge carries the home strip: the title, the studio's
+      sentence, the plot and the facts, over the fanart.
+    - A hundred points of gradient fall from the top edge and rise from the bottom, so that whatever the shelf
+      stands on stays readable.
   -->
   <UserControl.Resources>
 
     <!-- One row of the shelf, the way this screen is written: picture, mark, name, state. -->
     <DataTemplate x:Key="BuiltinRowsTemplate" x:DataType="vm:TitleViewModel">
-      <Grid ColumnDefinitions="Auto,Auto,5*,1.4*" ColumnSpacing="20" MinWidth="700" Margin="0,8">
+      <Panel>
+        <!--
+          The ground the reference laid under the row it was standing on (ButtonListViewControlStyle in
+          Buttons.xaml): the medium of the skin's colour over the whole row, a bar of the light of it eight
+          points wide along the left edge, a shadow of a tenth of a point hanging below so that the row lifts
+          off the shelf, and a whisper of white at the right edge.  It stands under the row and not around it -
+          Nereus never drew a box the height of one row's text, and it never drew the accent as a rectangle a
+          name sits inside.  The skin's styles decide when it is visible; nothing here decides.
+        -->
+        <Panel Classes="nereus-row-ground" IsVisible="False" IsHitTestVisible="False">
+          <Border Background="{DynamicResource PanelRaisedBrush}"/>
+          <Border Width="8" HorizontalAlignment="Left" Background="{DynamicResource AccentBrush}"/>
+          <Border Height="10" VerticalAlignment="Bottom" Margin="0,0,0,-10">
+            <Border.Background>
+              <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                <GradientStop Color="#66000000" Offset="0"/>
+                <GradientStop Color="#00000000" Offset="1"/>
+              </LinearGradientBrush>
+            </Border.Background>
+          </Border>
+          <Border Width="14" HorizontalAlignment="Right">
+            <Border.Background>
+              <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                <GradientStop Color="#80000000" Offset="0"/>
+                <GradientStop Color="#00000000" Offset="0.02"/>
+                <GradientStop Color="#00000000" Offset="0.5"/>
+                <GradientStop Color="#26FFFFFF" Offset="1"/>
+              </LinearGradientBrush>
+            </Border.Background>
+          </Border>
+        </Panel>
+        <Grid ColumnDefinitions="Auto,Auto,5*,1.4*" ColumnSpacing="20" MinWidth="700" Margin="30,8">
         <!--
           The title's picture, in the column MP2's own shelves put it: first, so that the eye runs down a
           column of pictures rather than past the names to find out what a row is. The box behind the image
@@ -31,7 +77,7 @@
         -->
         <Panel Width="64" Height="64">
           <Border Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" />
-          <Image Source="{Binding Artwork, Converter={StaticResource artwork}, ConverterParameter=tile}"
+          <Image Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance}, ConverterParameter=tile}"
                  Stretch="Uniform"
                  Width="64"
                  Height="64" />
@@ -52,7 +98,8 @@
                    HorizontalAlignment="Right"
                    Opacity="0.65"
                    TextTrimming="CharacterEllipsis" />
-      </Grid>
+        </Grid>
+      </Panel>
     </DataTemplate>
 
     <!--
@@ -113,26 +160,209 @@
         </StackPanel>
       </Border>
     </DataTemplate>
+
+    <!--
+      A row of the screen's own menu, as the reference's media menu drew every one of its rows
+      (OtherControlsOverrides.xaml:680 and :774): a plate a hundred and seventy points square, the command's
+      picture on it at six tenths of its light and at full light when something stands on it, and the command's
+      name in a band that grows out of the plate's bottom edge only when the row is stood on. The reference
+      painted the plate with MediaMenu\tile_background_focus.png; a skin that carries that picture gets it, and a
+      skin that carries none gets the flat round ground the reference put under the picture anyway.
+
+      What the plate is drawn with is written here rather than in the skin's styles on purpose. Every other tile
+      on this screen is a media tile, and the skin dresses those through its template keys; this menu is the
+      screen's own, no skin was ever written for it, and a menu whose pictures and band came from skin styles
+      would be a menu that is invisible on a machine wearing no skin. The PICTURES are still the skin's - the
+      converter asks the worn skin for MediaMenu\&lt;command&gt; and answers nothing when it has none, which is
+      the same answer the reference's own converter gave to a command it had no picture for.
+    -->
+    <DataTemplate x:Key="MediaMenuTile" x:DataType="vm:MediaBrowserMenuEntry">
+      <Panel Width="170" Height="162">
+        <!-- The plate, and the light the reference laid over it for the row that is stood on. -->
+        <Panel HorizontalAlignment="Center" VerticalAlignment="Center">
+          <!-- The flat ground, which is all a skin without the circle art has; under the art it never shows. -->
+          <Border Width="150" Height="150" Background="#222222" CornerRadius="75"/>
+          <!-- The plate the reference painted: its own circle art at six tenths, whole under a stood-on row. -->
+          <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='MediaMenu/tile_background_focus'}"
+                 Width="150"
+                 Height="150"
+                 Opacity="0.6"
+                 Classes="media-menu-focus"
+                 IsHitTestVisible="False"/>
+          <!-- The command's own picture, cropped to the circle the way the reference cropped its tile art:
+               some of those pictures fill their square, and a square laid over a round plate reads as a bug. -->
+          <Border Classes="media-menu-plate"
+                  Width="150"
+                  Height="150"
+                  Background="Transparent"
+                  CornerRadius="75"
+                  ClipToBounds="True">
+            <Image Source="{Binding Icon, Converter={x:Static views:SkinImageConverter.Instance},
+                                     ConverterParameter='MediaMenu/{0}'}"
+                   Stretch="UniformToFill"
+                   Opacity="0.6"/>
+          </Border>
+        </Panel>
+        <!-- The command's name, in the band the reference grew in from the plate's bottom edge. It stands under
+             the plate rather than over it: a band across the plate's foot would cover the command's picture,
+             which is the part a viewer reads the menu by. -->
+        <Border Classes="media-menu-band"
+                Height="40"
+                Width="150"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Bottom"
+                Background="#66000000"
+                CornerRadius="6"
+                Padding="8,0">
+          <TextBlock Text="{Binding Label}"
+                     FontSize="19"
+                     Foreground="#F2F2F2"
+                     TextAlignment="Center"
+                     VerticalAlignment="Center"
+                     TextTrimming="CharacterEllipsis"/>
+        </Border>
+        <!-- The mark the reference gave the row that is what the screen already answers - the grid in a list of
+             layouts, the year in a list of orders. Its styles lit the whole plate; a bar under the name says the
+             same thing without borrowing the focus ring, which belongs to the row being stood on and not to the
+             row being the answer. -->
+        <Border Height="5"
+                Width="90"
+                VerticalAlignment="Bottom"
+                Background="White"
+                CornerRadius="2"
+                Margin="0,0,0,-16"
+                IsVisible="{Binding IsCurrent}"/>
+      </Panel>
+    </DataTemplate>
+
+    <!--
+      One pair of what is known about a title: the answer, and the word under it, exactly as the reference's
+      detail panels wrote it (MediaItemListDetails.inc:109 - the answer first, the word under it in the smaller
+      size and at four tenths of its light). A pair is only ever in this list when the library knows the answer,
+      so the word never stands over an empty space.
+    -->
+    <DataTemplate x:Key="MediaFactTemplate" x:DataType="vm:MediaBrowserFact">
+      <StackPanel Spacing="2" Margin="0,0,26,10">
+        <TextBlock Text="{Binding Value}"
+                   FontSize="22"
+                   Foreground="{DynamicResource TextBrush}"
+                   TextTrimming="CharacterEllipsis"/>
+        <TextBlock Text="{Binding Label}"
+                   FontSize="15"
+                   Foreground="{DynamicResource TextBrush}"
+                   Opacity="0.4"/>
+      </StackPanel>
+    </DataTemplate>
   </UserControl.Resources>
 
   <!--
-    One section of the library, as a television shows it: a long list, one row per title, big enough to read
-    from a sofa, walked with the four arrow keys. OK plays the selected row - or opens the series, album or season
-    behind it, since those are questions rather than things to watch - and Back goes home. Nothing beside the list
-    asks to be pressed to see the rest of a shelf: the list reads on when the viewer comes near its end, which is
-    why there is no "more" row here either. The row itself says when a title cannot be watched from this machine,
-    so that the viewer does not have to discover it by pressing OK.
-  -->
+    The styles both halves of the screen's menu wear. They are here and not in the worn skin's styles for the
+    reason the tile template gives: this menu is the screen's own, no skin was ever written for it, and a menu
+    whose plate and band came from skin styles would be invisible on a machine wearing no skin. What they do is
+    what the reference's MediaMenuListViewStyle and its item container did, and nothing more:
 
+    - the platform's selection plate, its focus rectangle and its padding are taken away, down to the item's own
+      template, so that neither the row a viewer stands on nor the row the pointer rests on can grow a border of
+      the toolkit's own (the same reason the skin's rail gives at styles.xaml:135 - the part is deliberately not
+      named PART_ContentPresenter, because the platform's theme styles are aimed at that name);
+    - the plate's picture goes from six tenths of its light to whole, and the name's band grows out of the
+      plate's foot, both under a viewer or a pointer - which is the whole of what Nereus let a focused row have;
+    - the ring picture the skin carries for a focused plate (tile_background_focus.png) is drawn only on the row
+      that is stood on, which is what its name says it is for.
+  -->
+  <UserControl.Styles>
+    <Style Selector="ListBox.media-menu">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="FocusAdorner" Value="{x:Null}"/>
+    </Style>
+    <Style Selector="ListBox.media-menu ListBoxItem">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="Margin" Value="0"/>
+      <Setter Property="FocusAdorner" Value="{x:Null}"/>
+      <Setter Property="ClipToBounds" Value="False"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Setter Property="Template">
+        <ControlTemplate>
+          <ContentPresenter Name="mediaMenuPresenter"
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            Padding="{TemplateBinding Padding}"
+                            Background="Transparent"
+                            HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+    <!-- The name's band grows out of the plate's foot rather than fading in, which is the reference's own
+         answer (its label scaled from a hundredth of its height to its height) and reads as part of the plate
+         instead of as a caption dropped over it. -->
+    <Style Selector="ListBox.media-menu ListBoxItem Border.media-menu-band">
+      <Setter Property="Opacity" Value="0"/>
+      <Setter Property="RenderTransformOrigin" Value="50%,100%"/>
+      <Setter Property="RenderTransform" Value="scale(1,0.02)"/>
+      <Setter Property="Transitions">
+        <Transitions>
+          <DoubleTransition Property="Opacity" Duration="0:0:0.2" Easing="CubicEaseOut"/>
+          <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2" Easing="CubicEaseOut"/>
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="ListBox.media-menu ListBoxItem:pointerover Border.media-menu-band">
+      <Setter Property="Opacity" Value="1"/>
+      <Setter Property="RenderTransform" Value="scale(1,1)"/>
+    </Style>
+    <Style Selector="ListBox.media-menu ListBoxItem:selected Border.media-menu-band">
+      <Setter Property="Opacity" Value="1"/>
+      <Setter Property="RenderTransform" Value="scale(1,1)"/>
+    </Style>
+    <Style Selector="ListBox.media-menu ListBoxItem:selected:pointerover Border.media-menu-band">
+      <Setter Property="Opacity" Value="1"/>
+      <Setter Property="RenderTransform" Value="scale(1,1)"/>
+    </Style>
+    <!-- The plate's picture and its focus ring, both from six tenths to whole. Standing on a row is meant
+         strictly here: the row the arrows pass over on the way to a row is not a row anybody is standing on, so
+         the pointer only answers when it actually rests (the window's own pointer-resting class, which the shell
+         puts off while a viewer walks with the keyboard). -->
+    <Style Selector="ListBox.media-menu ListBoxItem Border.media-menu-plate Image,
+                    ListBox.media-menu ListBoxItem Image.media-menu-focus">
+      <Setter Property="Transitions">
+        <Transitions>
+          <DoubleTransition Property="Opacity" Duration="0:0:0.2" Easing="CubicEaseOut"/>
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="ListBox.media-menu ListBoxItem:pointerover Border.media-menu-plate Image,
+                    ListBox.media-menu ListBoxItem:pointerover Image.media-menu-focus">
+      <Setter Property="Opacity" Value="1"/>
+    </Style>
+    <Style Selector="ListBox.media-menu ListBoxItem:selected Border.media-menu-plate Image,
+                    ListBox.media-menu ListBoxItem:selected Image.media-menu-focus">
+      <Setter Property="Opacity" Value="1"/>
+    </Style>
+    <Style Selector="ListBox.media-menu ListBoxItem:selected:pointerover Border.media-menu-plate Image,
+                    ListBox.media-menu ListBoxItem:selected:pointerover Image.media-menu-focus">
+      <Setter Property="Opacity" Value="1"/>
+    </Style>
+  </UserControl.Styles>
   <!--
-    The two layers the reference's FanArtBackground_Template painted, and in the same order: the selected
-    title's fanart stretched over the whole screen, and the skin's darkening over it at the opacity the skin's
-    own setting says - which is why the room stays readable while the mood of the shelf changes underneath.
-    Whether there is a fanart at all is the skin setting's answer, not this file's.
+    The ground the whole screen stands on, in the one arrangement the worn skin uses everywhere and therefore
+    on the home screen too: this skin's Background.PNG fills the screen, and the highlighted title's fanart
+    lies over it wearing the skin setting's opacity as its OWN opacity - so the setting dims the fanart towards
+    the ground instead of dropping a black veil over everything, and a screen whose titles carry no fanart was
+    always only ever the ground. Whether there is a fanart at all is the skin setting's answer, not this file's.
   -->
   <Panel>
 
+    <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter=Background.PNG}"
+           Stretch="Fill"/>
     <views:DissolveImage Stretch="UniformToFill"
+           Opacity="{Binding FanartOverlay}"
            IsVisible="{Binding HasBackgroundArtwork}">
       <views:DissolveImage.Source>
         <MultiBinding Converter="{x:Static views:SkinFanartConverter.Instance}">
@@ -141,285 +371,568 @@
         </MultiBinding>
       </views:DissolveImage.Source>
     </views:DissolveImage>
-    <Border Background="Black"
-            Opacity="{Binding FanartOverlay}"
-            IsVisible="{Binding HasBackgroundArtwork}" />
-
-  <DockPanel Margin="44,20">
-
-    <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,6">
-      <TextBlock Text="{Binding Heading}"
-                 x:Name="shelfHeading"
-                 FontSize="40"
-                 FontWeight="SemiBold" />
-      <TextBlock Text="{Binding Status}"
-                 FontSize="18"
-                 Opacity="0.7"
-                 TextTrimming="CharacterEllipsis" />
-    </StackPanel>
 
     <!--
-      Finding a title by typing its name, because paging through two thousand rows to reach the one in your head
-      is not searching. It is always on screen rather than behind a key: a viewer who cannot see the box will never
-      think to look for it. Escape in the box puts the whole shelf back, Enter asks the server.
+      THE ROOM. Two hundred points of its left edge and two hundred of its bottom are off the screen: that is
+      where the two menus stand while they are shut (master_mediamenu.xaml:124-186). The code behind moves this
+      panel right by the two hundred points of the rail or up by the two hundred points of the floor, which is
+      the whole of the reference's opening animation - the menu does not appear, the room makes room for it.
+
+      Nothing here clips. The menus' pictures (MenuGlow, MenuGlowBottom) are made to spill past the edge of the
+      panel they stand in, and the details column is laid with negative margins so that its ground reaches the
+      very top and bottom edges of the window behind the shelf.
     -->
+    <Grid Name="room"
+          Margin="-200,0,0,-200"
+          ColumnDefinitions="200,*"
+          RowDefinitions="*,200"
+          ClipToBounds="False">
+      <Grid.RenderTransform>
+        <!--
+          The transform the screen's menu slides the room along, and the two transitions that make the sliding:
+          the reference animated exactly this transform on exactly these two axes with two storyboards of three
+          hundred and fifty milliseconds each (Animations.xaml:8-38, aimed at ClientGrid's TranslateTransform), so
+          the sliding here is declared the same way rather than driven from a timer of the front end's own. That
+          is not a preference: a dispatcher timer of one's own ticks on a window that is really being drawn and
+          nowhere else - neither in a test queue that is pumped by hand nor in the render probe, which is headless
+          - so a slide built on one is a slide that nobody but a television has ever seen arrive, while a
+          transition is the same mechanism the worn skin's own tile glow and the home wall's scrolling move on.
+          What a test and a probe read is the value the room was told to stand at; what happens between the old
+          value and that one belongs to the transition, exactly as it belonged to the storyboard there.
+        -->
+        <TranslateTransform X="0" Y="0">
+          <TranslateTransform.Transitions>
+            <Transitions>
+              <DoubleTransition Property="X" Duration="00:00:00.35"/>
+              <DoubleTransition Property="Y" Duration="00:00:00.35"/>
+            </Transitions>
+          </TranslateTransform.Transitions>
+        </TranslateTransform>
+      </Grid.RenderTransform>
+
+      <!--
+        What the two hundred off-screen points to the left hold: the screen's menu, for grid and list. Its top
+        edge starts below the head band (the reference's rail began where its master's head band ended), and it
+        runs past the bottom edge so that the glow along its right edge has ground to stand on; the glow itself is
+        lifted off the bottom by the two hundred points of the floor band, exactly as the reference's was.
+      -->
+      <Panel Name="sideMenu"
+             Grid.RowSpan="2"
+             Grid.Column="0"
+             Margin="0,90,0,0"
+             ClipToBounds="False"
+             IsVisible="{Binding !IsCoverLayout}">
+        <!-- The ground. The reference laid a black rectangle at nine tenths over the whole panel and the glow
+             picture along its right edge, so that the rail does not end at a line but pales into the shelf. -->
+        <Border Background="Black" Opacity="0.9"/>
+        <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter=MenuGlow}"
+               Width="159"
+               HorizontalAlignment="Right"
+               Margin="0,0,-38,200"
+               IsHitTestVisible="False"/>
+        <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter=LeftMenuIndicator}"
+               Width="25"
+               Height="45"
+               Opacity="0.9"
+               HorizontalAlignment="Right"
+               VerticalAlignment="Center"
+               Margin="0,0,-25,200"
+               IsHitTestVisible="False"/>
+        <DockPanel Margin="10,0,0,0">
+          <TextBlock DockPanel.Dock="Top"
+                     Text="{Binding MediaMenuHeading}"
+                     FontSize="17"
+                     Foreground="{DynamicResource TextBrush}"
+                     Opacity="0.55"
+                     Margin="14,8,0,2"
+                     IsHitTestVisible="False"/>
+          <!-- Every row of the screen's menu. The list is the reference's ListView with MediaMenuListViewStyle
+               on it; the styles that dress it are with the other menu styles above, for both halves. It is docked
+               rather than stacked so that the list is measured against the height that is left and can scroll a
+               menu longer than the rail. -->
+          <ListBox Name="mediaMenuList"
+                   Classes="media-menu"
+                   ItemsSource="{Binding MediaMenu}"
+                   ItemTemplate="{StaticResource MediaMenuTile}"
+                   Margin="0,6,0,0"
+                   Focusable="True"
+                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                   ScrollViewer.VerticalScrollBarVisibility="Hidden"/>
+        </DockPanel>
+      </Panel>
+
+      <!--
+        What the two hundred off-screen points at the bottom hold: the same menu, for covers. Its row IS the two
+        hundred points below the window's bottom edge, so the panel only has to fill the row - the reference's
+        panel needed a two hundred and fifty point shove because its row stood in the master's floor band, which
+        this room has no floor band to be.
+      -->
+      <Panel Name="bottomMenu"
+             Grid.Row="1"
+             Grid.ColumnSpan="2"
+             ClipToBounds="False"
+             IsVisible="{Binding IsCoverLayout}">
+        <Border Background="Black" Opacity="0.9" Margin="200,10,0,-10"/>
+        <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter=MenuGlowBottom}"
+               Height="270"
+               VerticalAlignment="Top"
+               Margin="230,-28,30,-30"
+               IsHitTestVisible="False"/>
+        <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance},
+                                ConverterParameter=BottomMenuIndicator}"
+               Width="50"
+               Height="25"
+               Opacity="0.9"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Top"
+               Margin="230,-15,30,0"
+               IsHitTestVisible="False"/>
+        <!-- The same rows, laid sideways. The reference's cover menu is its one list in its one style with the
+             panel turned; the left margin is the two hundred points that are off the screen while the menu is
+             shut, so that the row of plates stands centred on what a viewer can actually see. -->
+        <ListBox Name="mediaMenuListBottom"
+                 Classes="media-menu"
+                 ItemsSource="{Binding MediaMenu}"
+                 ItemTemplate="{StaticResource MediaMenuTile}"
+                 Margin="200,14,0,0"
+                 Focusable="True"
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Top"
+                 ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                 ScrollViewer.HorizontalScrollBarVisibility="Hidden">
+          <ListBox.ItemsPanel>
+            <ItemsPanelTemplate>
+              <StackPanel Orientation="Horizontal"/>
+            </ItemsPanelTemplate>
+          </ListBox.ItemsPanel>
+        </ListBox>
+      </Panel>
+
+      <!--
+        THE CONTENT, which the reference called the ContentPanel: the shelf and whatever is laid beside it. It
+        stands in the second column and the first row, which together are the part of the room on the screen while
+        the menus are shut; when a menu opens, this is the thing that moves.
+      -->
+      <Panel Name="contentPanel"
+             Grid.Row="0"
+             Grid.Column="1"
+             Margin="10,0,10,10">
+        <!--
+          The shelf and the details column, measured against each other in proportions rather than in points. The
+          reference could afford to hand its details column a thousand fixed points because its screens were
+          televisions of a known width; this front end is stood on desktop windows of every shape too, and a
+          details column that keeps its thousand points on a small window leaves the shelf a gutter to lay its
+          tiles in. At the width the reference drew for - nineteen hundred and twenty - the two columns come out at
+          the eight hundred and sixty points of shelf and the thousand of details that file had, because these two
+          numbers are that split.
+        -->
+        <Grid Name="contentGrid" ColumnDefinitions="45,55" ColumnSpacing="0" ClipToBounds="False">
+
+          <!-- The shelf itself, with its heading, its search field, its foot and the two overlays the reference
+               laid over its bottom or its top edge. -->
+          <Panel Grid.Column="0" ClipToBounds="False">
+            <DockPanel>
+              <!--
+                The screen's name and what the shelf is doing about it. The shell's chrome header carries the same
+                words at the window's top edge, so this is not the heading twice: it is the shelf's own line, it
+                slides in with the shelf, and it says how the shelf is being read - which of the two the chrome
+                header never says. The reference stood the screen's words in the same hundred points of head.
+              -->
+              <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,96,0,6">
+                <TextBlock Text="{Binding Heading}"
+                           x:Name="shelfHeading"
+                           FontSize="26"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource TextBrush}"
+                           TextTrimming="CharacterEllipsis"/>
+                <!--
+                  The reference's shelf head carries the heading and nothing else - it never tells the viewer
+                  "1130 of 1136, sorted by year" - so the screen's one line of speech only stands when the shelf
+                  has a problem to report: nothing to show, a server that will not answer, a search that found
+                  too little.  A filled shelf says nothing.
+                -->
+                <TextBlock Text="{Binding Status}"
+                           FontSize="15"
+                           Foreground="{DynamicResource TextBrush}"
+                           Opacity="0.62"
+                           TextTrimming="CharacterEllipsis"
+                           IsVisible="{Binding !HasTitles}"/>
+              </StackPanel>
+
+              <!--
+                Finding a title by typing its name. The reference kept the box off the screen until a viewer asked
+                for it - its search was a command in this very menu - and the shelf has no room to spare, so the
+                box does not stand here while nobody types: it comes up when the menu's Search row or the Find key
+                asks for it, and stays up while a search is being held. Escape in the box puts the whole shelf
+                back, Enter asks the server.
+              -->
+              <WrapPanel DockPanel.Dock="Top"
+                         Name="searchRow"
+                         Margin="0,0,0,8"
+                         IsVisible="{Binding ShowsSearch}">
+                <TextBox Name="searchBox"
+                         views:VirtualKeyboardService.Trigger="Menu"
+                         Text="{Binding SearchText, Mode=TwoWay}"
+                         PlaceholderText="Find a title"
+                         Width="300"
+                         FontSize="22"
+                         Padding="14,8"
+                         Margin="0,0,10,4"/>
+                <Button Name="findButton"
+                        Content="Find"
+                        Command="{Binding FindCommand}"
+                        MinWidth="110"
+                        Padding="20,8"
+                        FontSize="22"
+                        Margin="0,0,10,4"/>
+                <Button Name="clearButton"
+                        Content="Clear"
+                        Command="{Binding ClearSearchCommand}"
+                        IsVisible="{Binding HasSearch}"
+                        MinWidth="110"
+                        Padding="20,8"
+                        FontSize="22"
+                        Margin="0,0,10,4"/>
+              </WrapPanel>
+
+              <!--
+                The keys this screen answers, in the one line the reference's screens never needed - a remote
+                carries its own labels - and a keyboard does. It stands at the foot, out of the shelf's way, at
+                less than half the light.
+              -->
+              <TextBlock DockPanel.Dock="Bottom"
+                         FontSize="14"
+                         Opacity="0.45"
+                         Margin="0,12,0,0"
+                         Text="Arrows move Â· OK plays Â· Info opens the screen's menu Â· F finds Â· W filters watched Â· V switches rows, tiles or covers Â· M switches the tile picture Â· D shows or hides the details Â· Menu opens the title menu Â· Esc closes what is open Â· Back returns"/>
+
+              <!--
+                The shelf. The pictures it wears are the worn skin's answer to the tile key its layout names
+                (theming:SkinTemplates.TileTemplate), and the panel it lays them in is the view's own promise -
+                the wrap for a grid, the sideways stack for covers - which is what the code behind swaps.
+              -->
+              <ListBox Name="titlesList"
+                       Focusable="True"
+                       ItemsSource="{Binding Titles}"
+                       SelectedItem="{Binding Selected, Mode=TwoWay}"
+                       ItemTemplate="{StaticResource BuiltinRowsTemplate}"
+                       FontSize="24"
+                       ClipToBounds="False"/>
+            </DockPanel>
+
+            <!--
+              THE DETAILS OF A COVER, centred above its row: MultiDetailsCover.inc, which the reference laid over
+              a horizontal gradient - dark in the middle of the screen and clear at both edges, so that the strip
+              of covers keeps its own light at either end. The cover layout never has a column beside its row,
+              which is why its details had to go where the covers are.
+            -->
+            <Border Name="coverDetailsPanel"
+                    Height="480"
+                    VerticalAlignment="Top"
+                    Margin="70,96,70,0"
+                    IsVisible="{Binding ShowsCoverDetails}"
+                    IsHitTestVisible="False">
+              <Border.Background>
+                <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                  <GradientStop Color="#00000000" Offset="0"/>
+                  <GradientStop Color="#80000000" Offset="0.3"/>
+                  <GradientStop Color="#80000000" Offset="0.7"/>
+                  <GradientStop Color="#00000000" Offset="1"/>
+                </LinearGradientBrush>
+              </Border.Background>
+              <StackPanel Spacing="10" VerticalAlignment="Top">
+                <TextBlock Text="{Binding DetailsHeading}"
+                           FontSize="42"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource TextBrush}"
+                           TextAlignment="Center"
+                           TextTrimming="CharacterEllipsis"/>
+                <TextBlock Text="{Binding DetailsTagline}"
+                           FontSize="26"
+                           FontStyle="Italic"
+                           Foreground="{DynamicResource TextBrush}"
+                           Opacity="0.75"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"
+                           IsVisible="{Binding DetailsTagline, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                <TextBlock Text="{Binding DetailsLine}"
+                           FontSize="20"
+                           Foreground="{DynamicResource TextBrush}"
+                           Opacity="0.7"
+                           TextAlignment="Center"
+                           TextTrimming="CharacterEllipsis"/>
+                <TextBlock Text="{Binding DetailsText}"
+                           FontSize="21"
+                           LineHeight="29"
+                           Foreground="{DynamicResource TextBrush}"
+                           Opacity="0.92"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"
+                           MaxHeight="230"/>
+              </StackPanel>
+            </Border>
+
+            <!--
+              The reference's foot, and in the same pieces it drew there: the shelf's two numbers - where the
+              highlight stands, and how many titles there are - at the right hand end of the bottom edge, inside
+              the room so that they slide with the shelf. The numbers answer in every view, covers included,
+              because a cover viewer wants to know how deep the shelf is too. It is paint, not a control.
+            -->
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Margin="0,0,40,26"
+                        Spacing="9"
+                        IsHitTestVisible="False"
+                        IsVisible="{Binding HasTitles}">
+              <TextBlock Text="{Binding SelectedNumber}" FontSize="18" VerticalAlignment="Center" Opacity="0.75"/>
+              <TextBlock Text="|" FontSize="22" VerticalAlignment="Center" Opacity="0.45"/>
+              <TextBlock Text="{Binding TotalNumber}" FontSize="18" VerticalAlignment="Center" Opacity="0.75"/>
+            </StackPanel>
+          </Panel>
+
+          <!--
+            THE DETAILS BESIDE THE SHELF: what the reference called MultiDetails.xml, as it laid it for grid and
+            list - a thousand points wide, on a ground of a fifth of black over the title's own fanart (which is
+            the screen's fanart already, since the fanart follows the highlighted row), with the skin's
+            List_overlay darkening that ground further and the skin's ContentGlow along the column's left edge so
+            that it does not end at a line. The negative margins are the reference's: the ground has to reach past
+            the shelf's head and past the window's bottom edge, because a column that stopped level with the shelf
+            would float over the picture it belongs to.
+          -->
+          <Border Name="detailsPanel"
+                  Grid.Column="1"
+                  Margin="45,-96,-10,-270"
+                  ClipToBounds="False"
+                  IsVisible="{Binding ShowsSideDetails}">
+            <Border.Background>
+              <LinearGradientBrush StartPoint="1,0.3" EndPoint="0,1">
+                <GradientStop Color="#44000000" Offset="0"/>
+                <GradientStop Color="#77000000" Offset="1"/>
+              </LinearGradientBrush>
+            </Border.Background>
+            <Panel ClipToBounds="False">
+              <Border Background="#33000000"/>
+              <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance},
+                                      ConverterParameter=List_overlay}"
+                     Stretch="Fill"
+                     IsHitTestVisible="False"/>
+              <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance},
+                                      ConverterParameter=ContentGlow}"
+                     Width="13"
+                     HorizontalAlignment="Left"
+                     Stretch="Fill"
+                     IsHitTestVisible="False"/>
+
+              <StackPanel Margin="60,140,50,120" Spacing="12">
+                <!-- The title, and the reference's rule about it: as big as it needs to be, but on one line -
+                     its own label style trimmed the title rather than letting three words take two bands off the
+                     plot that every viewer actually reads. -->
+                <TextBlock Text="{Binding DetailsHeading}"
+                           FontSize="45"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource TextBrush}"
+                           TextTrimming="CharacterEllipsis"/>
+                <!-- The rating, as the reference wrote it: the number, and five of the skin's own stars with as
+                     much of their light left as the number says. A library that recorded no rating says nothing,
+                     which is what the reference's condition did too. -->
+                <StackPanel Orientation="Horizontal"
+                            Spacing="8"
+                            IsVisible="{Binding DetailsRating, Converter={x:Static ObjectConverters.IsNotNull}}">
+                  <TextBlock Text="{Binding DetailsRating, StringFormat={}{0:0.0}}"
+                             FontSize="32"
+                             Foreground="{DynamicResource TextBrush}"
+                             VerticalAlignment="Center"/>
+                  <ItemsControl ItemsSource="{Binding DetailsStars}" VerticalAlignment="Center">
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                      </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="x:Double">
+                        <!-- The number IS the star's light: whole for a star the rating filled, a quarter of it
+                             for a star the rating never reached. Computed where the rating is computed, because a
+                             control cannot do arithmetic. -->
+                        <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance},
+                                                ConverterParameter=star}"
+                               Width="25"
+                               Height="25"
+                               Margin="0,0,4,0"
+                               Opacity="{Binding}"/>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </StackPanel>
+                <TextBlock Text="{Binding DetailsTagline}"
+                           FontSize="30"
+                           FontStyle="Italic"
+                           Foreground="{DynamicResource TextBrush}"
+                           Opacity="0.75"
+                           TextWrapping="Wrap"
+                           IsVisible="{Binding DetailsTagline, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                <TextBlock Text="{Binding DetailsLine}"
+                           FontSize="20"
+                           Foreground="{DynamicResource TextBrush}"
+                           Opacity="0.7"
+                           TextWrapping="Wrap"/>
+                <!--
+                  The plot, in the reference's own two answers: Nereus' switches let it read itself down the panel
+                  (PlotAutoScroll - delay, speed, loop), and with the switches off or absent the panel shows a bar
+                  and waits for the viewer's own wheel. What it never does is clip a story off mid-sentence, and
+                  the mask below is the reference's own soft foot for the case where the story is longer than the
+                  panel: the words pale out at the bottom rather than ending against a cut.
+                -->
+                <ScrollViewer Name="plotScroller"
+                              MaxHeight="420"
+                              HorizontalScrollBarVisibility="Disabled"
+                              VerticalScrollBarVisibility="Hidden">
+                  <ScrollViewer.OpacityMask>
+                    <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                      <GradientStop Color="#FF000000" Offset="0"/>
+                      <GradientStop Color="#FF000000" Offset="0.78"/>
+                      <GradientStop Color="#00000000" Offset="1"/>
+                    </LinearGradientBrush>
+                  </ScrollViewer.OpacityMask>
+                  <TextBlock Name="detailsText"
+                             Text="{Binding DetailsText}"
+                             FontSize="23"
+                             LineHeight="32"
+                             Foreground="{DynamicResource TextBrush}"
+                             TextWrapping="Wrap"/>
+                </ScrollViewer>
+                <!-- What the library knows about the title, in the pairs the reference's panels printed. They
+                     stand at the foot of the column, which is where its own blocks of facts stood. -->
+                <ItemsControl ItemsSource="{Binding DetailsFacts}"
+                              ItemTemplate="{StaticResource MediaFactTemplate}"
+                              Margin="0,10,0,0">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <WrapPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                </ItemsControl>
+                <!-- The picture the server has of this title, where the reference laid its banner at the foot of
+                     the column. -->
+                <Panel MaxHeight="200"
+                       Margin="0,10,0,0"
+                       IsVisible="{Binding DetailsArtwork, Converter={x:Static ObjectConverters.IsNotNull}}">
+                  <Image Source="{Binding DetailsArtwork, Converter={x:Static views:ArtworkConverter.Instance}}"
+                         Stretch="Uniform"
+                         HorizontalAlignment="Left"/>
+                </Panel>
+                <!-- Where the file stands, in the words the server wrote down. Only for the machine that wants to
+                     know, which is why it is at the size and light of a footnote. -->
+                <TextBlock Text="{Binding DetailsPath}"
+                           FontSize="13"
+                           Foreground="{DynamicResource TextBrush}"
+                           Opacity="0.35"
+                           TextWrapping="Wrap"/>
+              </StackPanel>
+            </Panel>
+          </Border>
+        </Grid>
+      </Panel>
+    </Grid>
+
     <!--
-      The row holds the search box, the watched filter and the three screen questions - view, media, details -
-      inside 1280 pixels: narrow enough to walk in one line on the sofa screen, because a second line would
-      push the fifth row of the shelf off the frame. It wraps anyway on narrower windows; nothing may vanish.
+      The two gradients the reference laid in the hundred points of head above the shelf and the two hundred and
+      sixty points of floor under it (master_bare_media.xaml:50-90), with its own seven stops rather than the two
+      an ordinary fade uses: the band is meant to end in the colour it came from and not in a line. The head is
+      painted on every screen whatever else it does. The floor belongs to the view that has no foot strip lying
+      over it, which is what ShowsFloorGradient answers - the reference's own expression, and the one that reads
+      backwards until one has read its visibility binding: the floor band is painted while the details stand open
+      beside the shelf, because with the details off the same ground belongs to the foot strip, which brings its
+      own ground with it. Neither catches a click; both are paint.
     -->
-    <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,8">
-      <TextBox Name="searchBox"
-               views:VirtualKeyboardService.Trigger="Menu"
-               Text="{Binding SearchText, Mode=TwoWay}"
-               PlaceholderText="Find a title"
-               Width="300"
-               FontSize="22"
-               Padding="14,8"
-               Margin="0,0,10,4" />
-      <Button Name="findButton"
-              Content="Find"
-              Command="{Binding FindCommand}"
-              MinWidth="110"
-              Padding="20,8"
-              FontSize="22"
-              Margin="0,0,10,4" />
-      <Button Name="clearButton"
-              Content="Clear"
-              Command="{Binding ClearSearchCommand}"
-              IsVisible="{Binding HasSearch}"
-              MinWidth="110"
-              Padding="20,8"
-              FontSize="22"
-              Margin="0,0,10,4" />
-      <!--
-        The watched filter, on the same row as the search because it is the same kind of question - which of my
-        titles am I looking at - and a viewer who wants one usually wants to know the other. Its label says the
-        state it will leave, not the state it is in, so the screen reads as an answer without pressing anything.
-      -->
-      <Button Name="seenButton"
-              Content="{Binding SeenLabel}"
-              Command="{Binding CycleSeenCommand}"
-              MinWidth="170"
-              Padding="20,8"
-              FontSize="22"
-              Margin="0,0,10,4" />
-      <!--
-        The view of this screen - rows, tiles or covers - on every screen whatever it wears, because a view
-        is the screen's promise and not one skin's privilege. The tile shape inside the grid is still the
-        skin's own settings' answer; this button only chooses the shape the shelf is walked in, and the
-        screen remembers the answer it was last given.
-      -->
-      <Button Name="viewButton"
-              Content="{Binding LayoutLabel}"
-              Command="{Binding SwitchViewCommand}"
-              MinWidth="160"
-              Padding="20,8"
-              FontSize="22"
-              Margin="0,0,10,4" />
-      <!--
-        Which picture the tiles wear - poster, banner or thumbnail - asked next to the view it appears in
-        rather than buried in a skin's settings, and remembered for this screen alone. The button adds a
-        question, it never takes the view question away: view says the shape, media says the picture.
-      -->
-      <Button Name="mediaButton"
-              Content="{Binding MediaLabel}"
-              Command="{Binding SwitchMediaCommand}"
-              IsVisible="{Binding CanChooseMedia}"
-              MinWidth="180"
-              Padding="20,8"
-              FontSize="22"
-              Margin="0,0,10,4" />
-      <!--
-        Whether the selected title's details stand beside the shelf, asked here rather than buried in a
-        skin's settings, and remembered for this screen alone: the films may wear their details while the
-        episodes stay quiet.
-      -->
-      <Button Name="detailsButton"
-              Content="{Binding DetailsLabel}"
-              Command="{Binding ToggleDetailsCommand}"
-              MinWidth="170"
-              Padding="20,8"
-              FontSize="22"
-              Margin="0,0,10,4" />
-      <!--
-        The selected title's menu, so that the mouse finds what the remote's Menu key opens. It stands with
-        the screen's other buttons but asks a different kind of question: those answer "how does this screen
-        look", this one answers "what about this title" - and today that is the one thing the server takes
-        word about, whether the title was watched.
-      -->
-      <Button Name="menuButton"
-              Content="Title menu"
-              Command="{Binding ShowMenuCommand}"
-              IsVisible="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}"
-              MinWidth="150"
-              Padding="20,8"
-              FontSize="22"
-              Margin="0,0,10,4" />
-    </WrapPanel>
+    <Border Height="100"
+            VerticalAlignment="Top"
+            IsHitTestVisible="False">
+      <Border.Background>
+        <LinearGradientBrush StartPoint="0.5,1" EndPoint="0.5,0">
+          <GradientStop Color="#E6000000" Offset="1"/>
+          <GradientStop Color="#78000000" Offset="0.87"/>
+          <GradientStop Color="#46000000" Offset="0.75"/>
+          <GradientStop Color="#21000000" Offset="0.6"/>
+          <GradientStop Color="#0C000000" Offset="0.45"/>
+          <GradientStop Color="#01000000" Offset="0.3"/>
+          <GradientStop Color="#00000000" Offset="0"/>
+        </LinearGradientBrush>
+      </Border.Background>
+    </Border>
 
-    <TextBlock DockPanel.Dock="Bottom"
-               FontSize="14"
-               Opacity="0.45"
-               Margin="0,12,0,0"
-               Text="Arrows move · OK plays · F finds · W filters watched · V switches rows, tiles or covers · M switches the tile picture · I shows or hides the details · Menu opens the title menu · Esc clears the search · Back returns" />
+    <!--
+      One hundred points and not more: BottomGradient_Template (master_mediamenu.xaml:77-91) is a border of a
+      hundred points stood at the bottom of its band, and the two hundred and sixty points of floor under the
+      reference's client area are fanart the gradient only screens at its very edge. Given the height of the band
+      it stands in, the same border fades a third of the floor to black and the viewer reads a black bar lying
+      under the shelf where the reference has its picture going on to the edge of the television.
+    -->
+    <Border Height="100"
+            VerticalAlignment="Bottom"
+            IsHitTestVisible="False"
+            IsVisible="{Binding ShowsFloorGradient}">
+      <Border.Background>
+        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+          <GradientStop Color="#00000000" Offset="0"/>
+          <GradientStop Color="#01000000" Offset="0.3"/>
+          <GradientStop Color="#0C000000" Offset="0.45"/>
+          <GradientStop Color="#21000000" Offset="0.6"/>
+          <GradientStop Color="#46000000" Offset="0.75"/>
+          <GradientStop Color="#78000000" Offset="0.87"/>
+          <GradientStop Color="#E6000000" Offset="1"/>
+        </LinearGradientBrush>
+      </Border.Background>
+    </Border>
 
-    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24">
-
-      <ListBox Name="titlesList"
-               Focusable="True"
-               ItemsSource="{Binding Titles}"
-               SelectedItem="{Binding Selected, Mode=TwoWay}"
-               ItemTemplate="{StaticResource BuiltinRowsTemplate}"
-               FontSize="24" />
-
-      <!--
-        What the server knows about the selected title, in the column beside the list: the list stays where it is,
-        so closing the panel returns to the same row. Nothing in it takes the focus, because a details panel you have
-        to navigate to is a screen inside a screen, and the remote has one set of arrows.
-      -->
-      <Border Name="detailsPanel"
-              Grid.Column="1"
-              IsVisible="{Binding DetailsVisible}"
-              Background="{DynamicResource PanelBrush}"
+    <!--
+      The selected title's menu, standing over the shelf the way the reference's DialogEditMenu stood over the
+      list it was opened for: the shelf stays where it is, the menu speaks about one row, and Back puts it
+      away. What the menu asks is decided by what the server can actually answer - today exactly one thing,
+      whether a title was watched through - and where the library has no answer to give, the menu says so in
+      words instead of pressing a button that would do nothing. The markup is palette-only on purpose: the
+      worn skin's dialog frame is what makes this their style, and a screen that waits for its skin's dressing
+      never opens the dialog.
+    -->
+    <Border Background="{DynamicResource ScrimBrush}" IsVisible="{Binding MenuVisible}">
+      <Border Background="{DynamicResource PanelRaisedBrush}"
               BorderBrush="{DynamicResource OutlineBrush}"
               BorderThickness="2"
-              Padding="26,22"
-              Width="440"
-              VerticalAlignment="Stretch">
+              Padding="30,24"
+              MinWidth="480"
+              MaxWidth="760"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center">
         <StackPanel Spacing="14">
-          <!--
-            The title's picture above its own words, which is where MP2's details screens put it and where a
-            viewer looking for "is this the one with the red helicopter in it" looks first. The panel is not
-            reserved when there is no picture: a details panel is a tall column of text already, and an empty
-            frame above the plot would be a frame asking to be filled. When the picture does exist it arrives a
-            moment after the words, so the panel grows - which is the right way round for something that is a
-            confirmation rather than the answer.
-          -->
-          <Panel IsVisible="{Binding DetailsArtwork, Converter={x:Static ObjectConverters.IsNotNull}}">
-            <Image Source="{Binding DetailsArtwork, Converter={StaticResource artwork}}"
-                   Stretch="Uniform"
-                   MaxHeight="240" />
-          </Panel>
-          <TextBlock Text="{Binding DetailsHeading}"
+          <TextBlock Text="{Binding MenuTitle}"
                      FontSize="28"
                      FontWeight="SemiBold"
-                     TextWrapping="Wrap" />
-          <!-- The studio's own sentence about the film, where the reference's detail screens put it: under the
-               title, above the facts, in italics. Titles without one show no line at all. -->
-          <TextBlock Text="{Binding DetailsTagline}"
+                     TextWrapping="Wrap"/>
+          <Button Name="menuMarkButton"
+                  Content="Mark watched"
+                  Command="{Binding MarkWatchedCommand}"
+                  IsVisible="{Binding CanMarkWatched}"
+                  MinWidth="240"
+                  Padding="26,10"
+                  FontSize="22"
+                  HorizontalAlignment="Left"/>
+          <TextBlock Text="{Binding MenuWords}"
                      FontSize="18"
-                     FontStyle="Italic"
-                     Opacity="0.6"
-                     IsVisible="{Binding DetailsTagline, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                     TextWrapping="Wrap" />
-          <TextBlock Text="{Binding DetailsLine}"
-                     FontSize="17"
-                     Opacity="0.72"
-                     TextWrapping="Wrap" />
-          <!--
-            The plot, in the reference's own two answers: Nereus' switches let it read itself down the panel
-            (PlotAutoScroll - delay, speed, loop), and with the switches off or absent the panel shows a bar
-            and waits for the viewer's own wheel. What it never does is clip a story off mid-sentence.
-          -->
-          <ScrollViewer Name="plotScroller"
-                        MaxHeight="380"
-                        HorizontalScrollBarVisibility="Disabled"
-                        VerticalScrollBarVisibility="Auto">
-            <TextBlock Name="detailsText"
-                       Text="{Binding DetailsText}"
-                       FontSize="18"
-                       LineHeight="26"
-                       TextWrapping="Wrap" />
-          </ScrollViewer>
-          <TextBlock Text="{Binding DetailsPath}"
-                     FontSize="13"
-                     Opacity="0.42"
-                     TextWrapping="Wrap" />
+                     Opacity="0.75"
+                     TextWrapping="Wrap"
+                     IsVisible="{Binding MenuWords, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+          <Button Name="menuBackButton"
+                  Content="Back"
+                  Command="{Binding CloseMenuCommand}"
+                  MinWidth="140"
+                  Padding="24,10"
+                  FontSize="22"
+                  HorizontalAlignment="Left"/>
         </StackPanel>
       </Border>
-
-    </Grid>
-  </DockPanel>
-
-  <!--
-    The reference's foot, in the same two pieces it drew there: a gradient rising from the bottom edge so
-    that names stay readable over whatever fanart the shelf wears, and the shelf's two numbers - where the
-    highlight stands, and how many titles there are - at the right hand end. The gradient belongs to grid
-    and list and hides when the details stand open, exactly like the reference's band; the numbers answer
-    in every view, covers included, because a cover viewer wants to know how deep the shelf is too.
-    Neither catches a click - they are paint, not controls.
-  -->
-  <Border Height="100"
-          VerticalAlignment="Bottom"
-          IsHitTestVisible="False"
-          IsVisible="{Binding ShowsFloorGradient}">
-    <Border.Background>
-      <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-        <GradientStop Color="#00000000" Offset="0" />
-        <GradientStop Color="#E6000000" Offset="1" />
-      </LinearGradientBrush>
-    </Border.Background>
-  </Border>
-
-  <StackPanel Orientation="Horizontal"
-              HorizontalAlignment="Right"
-              VerticalAlignment="Bottom"
-              Margin="0,0,54,8"
-              Spacing="9"
-              IsHitTestVisible="False"
-              IsVisible="{Binding HasTitles}">
-    <TextBlock Text="{Binding SelectedNumber}" FontSize="18" VerticalAlignment="Center" Opacity="0.75" />
-    <TextBlock Text="|" FontSize="22" VerticalAlignment="Center" Opacity="0.45" />
-    <TextBlock Text="{Binding TotalNumber}" FontSize="18" VerticalAlignment="Center" Opacity="0.75" />
-  </StackPanel>
-
-  <!--
-    The selected title's menu, standing over the shelf the way the reference's DialogEditMenu stood over the
-    list it was opened for: the shelf stays where it is, the menu speaks about one row, and Back puts it
-    away. What the menu asks is decided by what the server can actually answer - today exactly one thing,
-    whether a title was watched through - and where the library has no answer to give, the menu says so in
-    words instead of pressing a button that would do nothing. The markup is palette-only on purpose: the
-    worn skins' dialog frame is what makes this their style, and a screen that waits for its skin's
-    dressing never opens the dialog.
-  -->
-  <Border Background="{DynamicResource ScrimBrush}" IsVisible="{Binding MenuVisible}">
-    <Border Background="{DynamicResource PanelRaisedBrush}"
-            BorderBrush="{DynamicResource OutlineBrush}"
-            BorderThickness="2"
-            Padding="30,24"
-            MinWidth="480"
-            MaxWidth="760"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center">
-      <StackPanel Spacing="14">
-        <TextBlock Text="{Binding MenuTitle}"
-                   FontSize="28"
-                   FontWeight="SemiBold"
-                   TextWrapping="Wrap" />
-        <Button Name="menuMarkButton"
-                Content="Mark watched"
-                Command="{Binding MarkWatchedCommand}"
-                IsVisible="{Binding CanMarkWatched}"
-                MinWidth="240"
-                Padding="26,10"
-                FontSize="22"
-                HorizontalAlignment="Left" />
-        <TextBlock Text="{Binding MenuWords}"
-                   FontSize="18"
-                   Opacity="0.75"
-                   TextWrapping="Wrap"
-                   IsVisible="{Binding MenuWords, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
-        <Button Name="menuBackButton"
-                Content="Back"
-                Command="{Binding CloseMenuCommand}"
-                MinWidth="140"
-                Padding="24,10"
-                FontSize="22"
-                HorizontalAlignment="Left" />
-      </StackPanel>
     </Border>
-  </Border>
-
   </Panel>
 </UserControl>

@@ -94,7 +94,7 @@
   <!-- The home rail uses its artwork and selection markers, not the generic selected-row panel. The settings
        wall wears the same treatment: its tiles dress themselves too, and a platform selection rectangle under a
        plate that is already a plate of its own is a blue box with a tile floating in it. -->
-  <Style Selector="ListBox.nereus-home-menu, ListBox.settings-tile-wall">
+  <Style Selector="ListBox.nereus-home-menu, ListBox.settings-tile-wall, ListBox.nereus-shelf-tiles">
     <Setter Property="Background" Value="Transparent"/>
     <Setter Property="BorderThickness" Value="0"/>
     <Setter Property="Padding" Value="0"/>
@@ -111,7 +111,8 @@
        while nothing stands on a tile. It stays a ring at rest here and is NOT lit by standing on the tile: the
        rail already answers a viewer with its band, its artwork and its bar, and a ring brightening over them was
        not asked for. Being lit under a viewer remains the covers' and the shortcuts' answer, not the rail's. -->
-  <Style Selector="ListBox.nereus-home-menu ListBoxItem, ListBox.settings-tile-wall ListBoxItem">
+  <Style Selector="ListBox.nereus-home-menu ListBoxItem, ListBox.settings-tile-wall ListBoxItem,
+                  ListBox.nereus-shelf-tiles ListBoxItem">
     <Setter Property="FocusAdorner" Value="{x:Null}"/>
     <Setter Property="Background" Value="Transparent"/>
     <Setter Property="BorderBrush" Value="Transparent"/>
@@ -176,6 +177,99 @@
   <Style Selector="ListBox.nereus-home-menu ListBoxItem:selected">
     <Setter Property="Background" Value="Transparent"/>
     <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+  </Style>
+
+  <!--
+    The library's shelf dresses its own tiles - the plate, the picture, the name's band and the ring are all
+    drawn by the tile, exactly as on the wall - so the container must not paint a row panel under them. A
+    selected row of tiles wearing the accent colour is a coloured box with a tile floating in it, which is the
+    very thing the home rail was given this treatment for.
+
+    What the container does answer instead is the walking, and with the same three things the wall's covers
+    answer: the light of the tile a viewer stands on, the ring at its edge coming up to full, and its picture
+    stepping a tenth nearer. The shelf's tiles are the wall's tiles, so the same numbers carry over; growth is
+    meant strictly here too, and only the tile that is both the title the screen is about and the tile someone
+    is actually on grows.
+  -->
+  <Style Selector="ListBox.nereus-shelf-tiles ListBoxItem:pointerover">
+    <Setter Property="Background" Value="Transparent"/>
+  </Style>
+  <Style Selector="ListBox.nereus-shelf-tiles ListBoxItem:selected">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+  </Style>
+  <Style Selector="ListBox.nereus-shelf-tiles Border.home-tile-shadow">
+    <Setter Property="Opacity" Value="0.86"/>
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.2"/>
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="ListBox.nereus-shelf-tiles ListBoxItem:selected Border.home-tile-shadow">
+    <Setter Property="Opacity" Value="1"/>
+  </Style>
+  <Style Selector="ListBox.nereus-shelf-tiles ListBoxItem:focus Border.home-tile-shadow">
+    <Setter Property="Opacity" Value="1"/>
+  </Style>
+  <Style Selector="Window:not(.pointer-resting) ListBox.nereus-shelf-tiles ListBoxItem:pointerover Border.home-tile-shadow">
+    <Setter Property="Opacity" Value="1"/>
+  </Style>
+  <!-- Which of these two answers the shelf's tiles with is written on the wall's own rules below, where the ring
+       and the picture are dressed: this list's tiles ARE the wall's tiles, so they are spelled into those rules
+       rather than given a copy of them here.  A copy is what used to sit here, and it lost - the copy stood above
+       the wall's own base rules in this file, and a resting tile retook its ghost ring from the base rule it
+       shared with them.  A tile that keeps its resting ring while somebody stands on it is a shelf nobody can
+       read, so the shelf wears the wall's rules themselves and nothing else. -->
+
+
+  <!--
+    A shelf of ROWS is dressed the way the reference dressed a row: ButtonListViewControlStyle laid the medium
+    of the skin's colour over the whole row, a bar of the light of it eight points wide along the row's left
+    edge, a shadow hanging a tenth of a point below it and a whisper of white at its right end, and the row's
+    own labels came up to white (MediaItemFocussedColor).  Nothing of the platform's is left on top of that:
+    the selected row's rectangle, the focus rectangle and the list's own ground are all switched off here,
+    because a square of the accent behind a row of names - which is what the generic rule draws - is neither
+    the reference's row nor readable, and a frame of the toolkit's own stands around a row the skin already
+    drew a ground for.  The ground itself is part of the row's template and only ever shows through these
+    selectors.
+  -->
+  <Style Selector="ListBox.nereus-shelf-rows">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="FocusAdorner" Value="{x:Null}"/>
+  </Style>
+  <Style Selector="ListBox.nereus-shelf-rows ListBoxItem:pointerover">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="FocusAdorner" Value="{x:Null}"/>
+  </Style>
+  <Style Selector="ListBox.nereus-shelf-rows ListBoxItem:selected">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="FocusAdorner" Value="{x:Null}"/>
+    <Setter Property="Foreground" Value="White"/>
+  </Style>
+  <!--
+    At rest a row wears nothing: the ground waits for the viewer to stand on the row, which is when the
+    reference brought ButtonListViewControlStyle into sight.  The rule is here rather than IsVisible="False"
+    on the row's own markup on purpose - a value written into the control is the last word and no trigger
+    could take the ground back up.
+  -->
+  <Style Selector="ListBox.nereus-shelf-rows Panel.nereus-row-ground">
+    <Setter Property="IsVisible" Value="False"/>
+  </Style>
+  <Style Selector="ListBox.nereus-shelf-rows ListBoxItem:selected Panel.nereus-row-ground,
+                  ListBox.nereus-shelf-rows ListBoxItem:focus Panel.nereus-row-ground">
+    <Setter Property="IsVisible" Value="True"/>
+  </Style>
+  <Style Selector="Window:not(.pointer-resting) ListBox.nereus-shelf-rows ListBoxItem:pointerover Panel.nereus-row-ground">
+    <Setter Property="IsVisible" Value="True"/>
+  </Style>
+  <Style Selector="ListBox.nereus-shelf-rows Panel.nereus-row-ground">
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.15" Easing="CubicEaseOut"/>
+      </Transitions>
+    </Setter>
   </Style>
   <Style Selector="ListBox.nereus-home-menu ListBoxItem Grid#nereusSelectionBand">
     <!-- The reference's selection band grows out of the bottom edge of its tile: ItemBandGrid turns on with
@@ -420,10 +514,10 @@
       </Transitions>
     </Setter>
   </Style>
-  <Style Selector="Button.nereus-content-tile:focus Image.home-tile-art">
+  <Style Selector="Button.nereus-content-tile:focus Image.home-tile-art, ListBox.nereus-shelf-tiles ListBoxItem:focus Image.home-tile-art">
     <Setter Property="RenderTransform" Value="scale(1.1)"/>
   </Style>
-  <Style Selector="Window:not(.pointer-resting) Button.nereus-content-tile:pointerover Image.home-tile-art">
+  <Style Selector="Window:not(.pointer-resting) Button.nereus-content-tile:pointerover Image.home-tile-art, Window:not(.pointer-resting) ListBox.nereus-shelf-tiles ListBoxItem:pointerover Image.home-tile-art">
     <Setter Property="RenderTransform" Value="scale(1.1)"/>
   </Style>
 
@@ -808,7 +902,7 @@
   </Style>
   <!-- The covers beside the glasses say it the same way, with the same four stops: the frame they used to answer
        focus with was a flat four pixel white line of their own, and one voice for a whole rail is the point. -->
-  <Style Selector="Button.nereus-content-tile:focus Border.home-tile-edge">
+  <Style Selector="Button.nereus-content-tile:focus Border.home-tile-edge, ListBox.nereus-shelf-tiles ListBoxItem:focus Border.home-tile-edge">
     <Setter Property="BorderBrush">
       <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
         <GradientStop Offset="0" Color="#FFFFFFFF"/>
@@ -818,7 +912,7 @@
       </LinearGradientBrush>
     </Setter>
   </Style>
-  <Style Selector="Window:not(.pointer-resting) Button.nereus-content-tile:pointerover Border.home-tile-edge">
+  <Style Selector="Window:not(.pointer-resting) Button.nereus-content-tile:pointerover Border.home-tile-edge, Window:not(.pointer-resting) ListBox.nereus-shelf-tiles ListBoxItem:pointerover Border.home-tile-edge">
     <Setter Property="BorderBrush">
       <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
         <GradientStop Offset="0" Color="#FFFFFFFF"/>

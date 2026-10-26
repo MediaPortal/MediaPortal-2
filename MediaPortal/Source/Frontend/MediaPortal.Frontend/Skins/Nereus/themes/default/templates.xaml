@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!--
   Nereus screen templates: how this skin draws the items of the screens that ask.
 
@@ -521,220 +521,302 @@
   <!--
     A title's row in the shelf: the name, and what the library knows about it - length, year, where you left
     off - in the right column, greyed the way Nereus greys everything that is not the headline.
+
+    The row is dressed the way the reference dressed it, and by its own parts rather than by the list's:
+    ButtonListViewControlStyle (Buttons.xaml 392-421) laid the medium of the skin's colour over the whole row, a
+    bar of the light of it eight points wide along the left edge, a shadow of a tenth of a point hanging below
+    and a whisper of white at the right end, while MediaStyles.xaml 5049 brought the row's labels up to white
+    (MediaItemFocussedColor).  What the row did NOT get there was a square of the accent behind its names or a
+    frame of the toolkit's own around it, which is what the generic selected-row panel draws; that panel is
+    turned off for this list in this skin's styles, and the ground below is what a viewer sees instead.  Who
+    shows it is the container's business, so it is spelled on ListBoxItem in the styles and not here.
   -->
   <DataTemplate x:Key="TitleRowTemplate" x:DataType="vm:TitleViewModel">
-    <Grid ColumnDefinitions="Auto,5*,1.4*" ColumnSpacing="20" MinWidth="700" Margin="0,8">
-      <TextBlock Text="{Binding SeenMark}" MinWidth="34" Opacity="0.55"
-                 Foreground="{DynamicResource TextBrush}"/>
-      <TextBlock Grid.Column="1" Text="{Binding Line}" TextTrimming="CharacterEllipsis"
-                 Foreground="{DynamicResource TextBrush}"/>
-      <TextBlock Grid.Column="2" Text="{Binding Detail}" HorizontalAlignment="Right" Opacity="0.65"
-                 TextTrimming="CharacterEllipsis"
-                 Foreground="{DynamicResource TextBrush}"/>
-    </Grid>
+    <Panel>
+      <Panel Classes="nereus-row-ground" IsHitTestVisible="False">
+        <Border Background="{DynamicResource PanelRaisedBrush}"/>
+        <Border Width="8" HorizontalAlignment="Left" Background="{DynamicResource AccentBrush}"/>
+        <Border Height="10" VerticalAlignment="Bottom" Margin="0,0,0,-10">
+          <Border.Background>
+            <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+              <GradientStop Color="#66000000" Offset="0"/>
+              <GradientStop Color="#00000000" Offset="1"/>
+            </LinearGradientBrush>
+          </Border.Background>
+        </Border>
+        <Border Width="14" HorizontalAlignment="Right">
+          <Border.Background>
+            <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+              <GradientStop Color="#80000000" Offset="0"/>
+              <GradientStop Color="#00000000" Offset="0.02"/>
+              <GradientStop Color="#00000000" Offset="0.5"/>
+              <GradientStop Color="#26FFFFFF" Offset="1"/>
+            </LinearGradientBrush>
+          </Border.Background>
+        </Border>
+      </Panel>
+      <Grid ColumnDefinitions="Auto,5*,1.4*" ColumnSpacing="20" MinWidth="700" Margin="30,4">
+        <!--
+          Nothing here names its own colour: the reference's row labels took the colour of the row they stand in
+          and were brought up to white by the trigger on the row's button, which only works while nothing under
+          them fixes a colour first.  The container carries the resting colour (TextBrush) and the white
+          (MediaItemFocussedColor), and the two dim numbers stay dim by their opacity rather than by a grey of
+          their own.
+        -->
+        <TextBlock Text="{Binding SeenMark}" MinWidth="34" Opacity="0.55"/>
+        <TextBlock Grid.Column="1" Text="{Binding Line}" TextTrimming="CharacterEllipsis"/>
+        <TextBlock Grid.Column="2" Text="{Binding Detail}" HorizontalAlignment="Right" Opacity="0.65"
+                   TextTrimming="CharacterEllipsis"/>
+      </Grid>
+    </Panel>
   </DataTemplate>
 
   <!--
-    The media tiles, as Nereus spelled its grid: the skin's own frame picture under everything, the library's
-    picture over it, and - when the library has no picture - the skin's ground with its type mark and the name
-    standing in for the art, which is the reference's fallback word for word (media_item_background.jpg under,
-    video.png at the corner, the title in the middle). A finished title wears the skin's watched corner, a
-    started one the partly flag, and the screen asks permission for both from the viewer's own grid setting -
-    the panel behind them carries that answer, so the rows can stay silent about it. The sizes are the
-    reference's MediaConsts: poster 162.5x250, banner 417x95, thumbnail 275x168.
+    The shelf's tiles, dressed the way a cover on the wall is dressed. This is the same set of parts the home
+    content's tiles wear and no other set: the outer Border is the ground the tile stands on and carries the
+    shadow (a shadow cannot live on a clipped edge), the inner Border is the face the picture stands on and does
+    the rounding and the clipping, the picture fills that face, the name fades up out of the face's own bottom
+    edge on the caption band, and the ghost ring lies over the edge of the face. Nothing here draws its own
+    frame any more: the shelf used to lay the skin's empty frame picture (Poster_small.png and its three
+    siblings) under every tile, which is a picture of a frame rather than a tile, and where a title had no
+    artwork all a viewer saw was that frame. What the shelf keeps from the reference's grid is what a tile says
+    about itself beyond its picture: the skin's ground, mark and name where the library has no picture, the
+    watched and partly watched corners, and the offline flag. The sizes are the reference's MediaConsts: poster
+    163x250, banner 417x95, thumbnail 275x168, cover 260x410, album and track 205x195.
+
+    Who answers a viewer standing on one of these tiles is the container, not the tile: the shelf walks its
+    containers, so the walking is spelled on ListBoxItem in this skin's styles, which is also why the generic
+    selected row panel is turned off for this list.
   -->
   <DataTemplate x:Key="MediaTilePosterTemplate" x:DataType="vm:TitleViewModel">
-    <Panel Width="163" Height="250" Margin="8,8,8,14">
-      <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                              ConverterParameter='Poster_small.png'}"
-             Stretch="Fill"/>
-      <Image Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance},
-                              ConverterParameter='tile'}"
-             Stretch="UniformToFill" Margin="3"
-             IsVisible="{Binding HasArtwork}"/>
-      <!-- no picture: the skin's ground, its mark, the name -->
-      <Panel IsVisible="{Binding HasNoArtwork}">
-        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='media_item_background.jpg'}"
-               Stretch="UniformToFill" Margin="3" Opacity="0.7"/>
-        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='video.png'}"
-               Stretch="Uniform" Width="70" Height="70" Opacity="0.6"
-               HorizontalAlignment="Left" VerticalAlignment="Top"/>
-        <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextBrush}"
-                   FontSize="{DynamicResource SmallFontSize}" TextWrapping="Wrap"
-                   TextTrimming="CharacterEllipsis" MaxLines="4" TextAlignment="Center"
-                   Margin="15,50,10,10" VerticalAlignment="Center"/>
+    <Border Classes="home-tile-shadow" Width="163" Height="250" Margin="8,8,8,14">
+      <Panel>
+        <Border Classes="home-tile-face" Background="#222222" ClipToBounds="True">
+          <Grid>
+            <Image Classes="home-tile-art"
+                   Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance},
+                                    ConverterParameter='tile'}"
+                   Stretch="UniformToFill"
+                   IsVisible="{Binding HasArtwork}"/>
+            <!-- no picture: the skin's ground, its mark, the name in place of the art -->
+            <Panel IsVisible="{Binding HasNoArtwork}">
+              <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                      ConverterParameter='media_item_background.jpg'}"
+                     Stretch="UniformToFill" Opacity="0.7"/>
+              <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                      ConverterParameter='video.png'}"
+                     Stretch="Uniform" Width="70" Height="70" Opacity="0.6"
+                     HorizontalAlignment="Left" VerticalAlignment="Top" Margin="8"/>
+              <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextBrush}"
+                         FontSize="{DynamicResource SmallFontSize}" TextWrapping="Wrap"
+                         TextTrimming="CharacterEllipsis" MaxLines="4" TextAlignment="Center"
+                         Margin="12,54,10,10" VerticalAlignment="Center"/>
+            </Panel>
+            <Border Classes="home-tile-caption" VerticalAlignment="Bottom" Padding="8,5,8,10"
+                    IsVisible="{Binding HasArtwork}">
+              <TextBlock Classes="home-tile-caption-title" Text="{Binding Name}"
+                         FontSize="{DynamicResource SmallFontSize}" TextTrimming="CharacterEllipsis"
+                         MaxLines="2"/>
+            </Border>
+          </Grid>
+        </Border>
+        <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
+        <!-- watched corners, if the grid's setting allows corners at all -->
+        <Panel IsVisible="{Binding WatchFlagsShown}">
+          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='watched.png'}"
+                 Height="33" Stretch="Uniform" Opacity="0.9"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,6,6,0"
+                 IsVisible="{Binding IsWatched}"/>
+          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='partlywatched.png'}"
+                 Height="33" Stretch="Uniform" Opacity="0.9"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,6,6,0"
+                 IsVisible="{Binding IsPartlyWatched}"/>
+        </Panel>
+        <!-- a title without a file behind it: the reference's corner flag with its offline mark -->
+        <Panel IsVisible="{Binding IsOffline}">
+          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='flag.png'}"
+                 Height="90" Stretch="Uniform"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,2,2,0"/>
+          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='offline.png'}"
+                 Height="35" Stretch="Uniform"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,10,10,0"/>
+        </Panel>
       </Panel>
-      <!-- the name under a picture, on the skin's quiet bar -->
-      <Border Background="#80000000" Height="45" VerticalAlignment="Bottom" Margin="3"
-              IsVisible="{Binding HasArtwork}">
-        <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextBrush}"
-                   FontSize="{DynamicResource SmallFontSize}" TextTrimming="CharacterEllipsis"
-                   TextAlignment="Center" VerticalAlignment="Center" Margin="5,0"/>
-      </Border>
-      <!-- watched corners, if the grid's setting allows corners at all -->
-      <Panel IsVisible="{Binding WatchFlagsShown}">
-        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='watched.png'}"
-               Height="33" Stretch="Uniform" Opacity="0.9"
-               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"
-               IsVisible="{Binding IsWatched}"/>
-        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='partlywatched.png'}"
-               Height="33" Stretch="Uniform" Opacity="0.9"
-               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"
-               IsVisible="{Binding IsPartlyWatched}"/>
-      </Panel>
-      <!-- a title without a file behind it: the reference's corner flag with its offline mark -->
-      <Panel IsVisible="{Binding IsOffline}">
-        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='flag.png'}"
-               Height="90" Stretch="Uniform"
-               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0"/>
-        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='offline.png'}"
-               Height="35" Stretch="Uniform"
-               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,7,7,0"/>
-      </Panel>
-    </Panel>
+    </Border>
   </DataTemplate>
 
   <DataTemplate x:Key="MediaTileBannerTemplate" x:DataType="vm:TitleViewModel">
-    <Panel Width="417" Height="95" Margin="8,6,8,10">
-      <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                              ConverterParameter='banner_small.png'}"
-             Stretch="Fill"/>
-      <Image Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance},
-                              ConverterParameter='tile'}"
-             Stretch="UniformToFill" Margin="3"
-             IsVisible="{Binding HasArtwork}"/>
-      <Panel IsVisible="{Binding HasNoArtwork}">
-        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='media_item_background.jpg'}"
-               Stretch="UniformToFill" Margin="3" Opacity="0.7"/>
-        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='video.png'}"
-               Stretch="Uniform" Width="60" Height="60" Opacity="0.6"
-               HorizontalAlignment="Left" VerticalAlignment="Center"/>
-        <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextBrush}"
-                   FontSize="{DynamicResource SmallFontSize}" TextWrapping="Wrap"
-                   TextTrimming="CharacterEllipsis" MaxLines="2"
-                   Margin="60,10,10,10" VerticalAlignment="Center"/>
+    <Border Classes="home-tile-shadow" Width="417" Height="95" Margin="8,6,8,10">
+      <Panel>
+        <Border Classes="home-tile-face" Background="#222222" ClipToBounds="True">
+          <Grid>
+            <Image Classes="home-tile-art"
+                   Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance},
+                                    ConverterParameter='tile'}"
+                   Stretch="UniformToFill"
+                   IsVisible="{Binding HasArtwork}"/>
+            <Panel IsVisible="{Binding HasNoArtwork}">
+              <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                      ConverterParameter='media_item_background.jpg'}"
+                     Stretch="UniformToFill" Opacity="0.7"/>
+              <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                      ConverterParameter='video.png'}"
+                     Stretch="Uniform" Width="60" Height="60" Opacity="0.6"
+                     HorizontalAlignment="Left" VerticalAlignment="Center" Margin="8,0,0,0"/>
+              <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextBrush}"
+                         FontSize="{DynamicResource SmallFontSize}" TextWrapping="Wrap"
+                         TextTrimming="CharacterEllipsis" MaxLines="2"
+                         Margin="64,10,10,10" VerticalAlignment="Center"/>
+            </Panel>
+            <!-- the band is shallower here than on a cover: a banner is ninety five points tall, and a
+                 forty five point band over it would be the tile rather than the name's ground -->
+            <Border Classes="home-tile-caption" MinHeight="0" VerticalAlignment="Bottom"
+                    Padding="8,4,8,7" IsVisible="{Binding HasArtwork}">
+              <TextBlock Classes="home-tile-caption-title" Text="{Binding Name}"
+                         FontSize="{DynamicResource SmallFontSize}" TextTrimming="CharacterEllipsis"
+                         MaxLines="1"/>
+            </Border>
+          </Grid>
+        </Border>
+        <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
+        <Panel IsVisible="{Binding WatchFlagsShown}">
+          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='watched.png'}"
+                 Height="28" Stretch="Uniform" Opacity="0.9"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,4,4,0"
+                 IsVisible="{Binding IsWatched}"/>
+          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='partlywatched.png'}"
+                 Height="28" Stretch="Uniform" Opacity="0.9"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,4,4,0"
+                 IsVisible="{Binding IsPartlyWatched}"/>
+        </Panel>
+        <!-- the corner flag of a title without a file, shrunk to the banner's height -->
+        <Panel IsVisible="{Binding IsOffline}">
+          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='flag.png'}"
+                 Height="45" Stretch="Uniform"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,1,4,0"/>
+          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='offline.png'}"
+                 Height="22" Stretch="Uniform"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,6,10,0"/>
+        </Panel>
       </Panel>
-      <Panel IsVisible="{Binding WatchFlagsShown}">
-        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='watched.png'}"
-               Height="28" Stretch="Uniform" Opacity="0.9"
-               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"
-               IsVisible="{Binding IsWatched}"/>
-        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='partlywatched.png'}"
-               Height="28" Stretch="Uniform" Opacity="0.9"
-               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"
-               IsVisible="{Binding IsPartlyWatched}"/>
-      </Panel>
-      <!-- the corner flag of a title without a file, shrunk to the banner's height -->
-      <Panel IsVisible="{Binding IsOffline}">
-        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='flag.png'}"
-               Height="45" Stretch="Uniform"
-               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2,-2,0"/>
-        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='offline.png'}"
-               Height="22" Stretch="Uniform"
-               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,4,4,0"/>
-      </Panel>
-    </Panel>
+    </Border>
   </DataTemplate>
 
   <DataTemplate x:Key="MediaTileThumbnailTemplate" x:DataType="vm:TitleViewModel">
-    <Panel Width="275" Height="168" Margin="8,6,8,10">
-      <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                              ConverterParameter='thumbnail_small.png'}"
-             Stretch="Fill"/>
-      <Image Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance},
-                              ConverterParameter='tile'}"
-             Stretch="UniformToFill" Margin="3"
-             IsVisible="{Binding HasArtwork}"/>
-      <Panel IsVisible="{Binding HasNoArtwork}">
-        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='media_item_background.jpg'}"
-               Stretch="UniformToFill" Margin="3" Opacity="0.7"/>
-        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='video.png'}"
-               Stretch="Uniform" Width="60" Height="60" Opacity="0.6"
-               HorizontalAlignment="Left" VerticalAlignment="Top"/>
-        <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextBrush}"
-                   FontSize="{DynamicResource SmallFontSize}" TextWrapping="Wrap"
-                   TextTrimming="CharacterEllipsis" MaxLines="3" TextAlignment="Center"
-                   Margin="5,40,5,8" VerticalAlignment="Stretch"/>
+    <Border Classes="home-tile-shadow" Width="275" Height="168" Margin="8,6,8,10">
+      <Panel>
+        <Border Classes="home-tile-face" Background="#222222" ClipToBounds="True">
+          <Grid>
+            <Image Classes="home-tile-art"
+                   Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance},
+                                    ConverterParameter='tile'}"
+                   Stretch="UniformToFill"
+                   IsVisible="{Binding HasArtwork}"/>
+            <Panel IsVisible="{Binding HasNoArtwork}">
+              <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                      ConverterParameter='media_item_background.jpg'}"
+                     Stretch="UniformToFill" Opacity="0.7"/>
+              <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                      ConverterParameter='video.png'}"
+                     Stretch="Uniform" Width="60" Height="60" Opacity="0.6"
+                     HorizontalAlignment="Left" VerticalAlignment="Top" Margin="8"/>
+              <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextBrush}"
+                         FontSize="{DynamicResource SmallFontSize}" TextWrapping="Wrap"
+                         TextTrimming="CharacterEllipsis" MaxLines="3" TextAlignment="Center"
+                         Margin="8,44,8,10" VerticalAlignment="Stretch"/>
+            </Panel>
+            <Border Classes="home-tile-caption" MinHeight="0" VerticalAlignment="Bottom"
+                    Padding="8,5,8,9" IsVisible="{Binding HasArtwork}">
+              <TextBlock Classes="home-tile-caption-title" Text="{Binding Name}"
+                         FontSize="{DynamicResource SmallFontSize}" TextTrimming="CharacterEllipsis"
+                         MaxLines="2"/>
+            </Border>
+          </Grid>
+        </Border>
+        <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
+        <Panel IsVisible="{Binding WatchFlagsShown}">
+          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='watched.png'}"
+                 Height="28" Stretch="Uniform" Opacity="0.9"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,4,4,0"
+                 IsVisible="{Binding IsWatched}"/>
+          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='partlywatched.png'}"
+                 Height="28" Stretch="Uniform" Opacity="0.9"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,4,4,0"
+                 IsVisible="{Binding IsPartlyWatched}"/>
+        </Panel>
+        <!-- the corner flag of a title without a file, at the thumbnail's height -->
+        <Panel IsVisible="{Binding IsOffline}">
+          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='flag.png'}"
+                 Height="60" Stretch="Uniform"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,1,2,0"/>
+          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='offline.png'}"
+                 Height="28" Stretch="Uniform"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,8,0"/>
+        </Panel>
       </Panel>
-      <Border Background="#80000000" Height="45" VerticalAlignment="Bottom" Margin="3"
-              IsVisible="{Binding HasArtwork}">
-        <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextBrush}"
-                   FontSize="{DynamicResource SmallFontSize}" TextTrimming="CharacterEllipsis"
-                   TextAlignment="Center" VerticalAlignment="Center" Margin="5,0"/>
-      </Border>
-      <Panel IsVisible="{Binding WatchFlagsShown}">
-        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='watched.png'}"
-               Height="28" Stretch="Uniform" Opacity="0.9"
-               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"
-               IsVisible="{Binding IsWatched}"/>
-        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='partlywatched.png'}"
-               Height="28" Stretch="Uniform" Opacity="0.9"
-               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"
-               IsVisible="{Binding IsPartlyWatched}"/>
-      </Panel>
-      <!-- the corner flag of a title without a file, at the thumbnail's height -->
-      <Panel IsVisible="{Binding IsOffline}">
-        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='flag.png'}"
-               Height="60" Stretch="Uniform"
-               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2,-2,0"/>
-        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='offline.png'}"
-               Height="28" Stretch="Uniform"
-               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,5,0"/>
-      </Panel>
-    </Panel>
+    </Border>
   </DataTemplate>
 
   <!--
-    The cover, as Nereus hung it in its third view: the reference's CoverView item is the poster frame
-    Poster_large.png, the title's poster in a 260x410 field (MediaConsts POSTER_COVER_WIDTH/HEIGHT) and the
-    name standing under the picture rather than on a bar over it - a cover is read like a shelf of DVDs, where
-    the box art and the title beneath are two things. A cover without a picture wears the skin's video mark in
-    the frame, and the corners are the cover's own setting's answer, scaled to the cover's size.
+    The cover of the third view, wearing the same tile as a cover on the wall. The reference hung this picture
+    in Poster_large.png and stood the name under it, which is how a shelf of DVD cases reads; the wall's cover
+    and this one are the same thing seen from the same distance, so the name now fades up out of the bottom edge
+    of the picture instead of sitting on the ground beneath it, and the case's frame is gone. The size is the
+    reference's MediaConsts POSTER_COVER_WIDTH x POSTER_COVER_HEIGHT.
   -->
   <DataTemplate x:Key="MediaTileCoverTemplate" x:DataType="vm:TitleViewModel">
-    <StackPanel Width="276" Margin="8,8,8,10">
-      <Panel Width="260" Height="410">
-        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='Poster_large.png'}"
-               Stretch="Fill"/>
-        <Image Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance},
-                                ConverterParameter='tile'}"
-               Stretch="UniformToFill" Margin="7"
-               IsVisible="{Binding HasArtwork}"/>
-        <!-- no picture: the skin's mark in the frame, which is all the reference drew here -->
-        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='video.png'}"
-               Stretch="Uniform" Width="110" Height="110" Opacity="0.6"
-               IsVisible="{Binding HasNoArtwork}"/>
+    <Border Classes="home-tile-shadow" Width="260" Height="410" Margin="8,8,8,10">
+      <Panel>
+        <Border Classes="home-tile-face" Background="#222222" ClipToBounds="True">
+          <Grid>
+            <Image Classes="home-tile-art"
+                   Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance},
+                                    ConverterParameter='tile'}"
+                   Stretch="UniformToFill"
+                   IsVisible="{Binding HasArtwork}"/>
+            <!-- no picture: the skin's mark in the plate, with the name where the art would stand -->
+            <Panel IsVisible="{Binding HasNoArtwork}">
+              <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                      ConverterParameter='video.png'}"
+                     Stretch="Uniform" Width="110" Height="110" Opacity="0.6"
+                     VerticalAlignment="Center" Margin="0,-40,0,0"/>
+              <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextBrush}"
+                         FontSize="{DynamicResource SmallFontSize}" FontWeight="SemiBold"
+                         TextWrapping="Wrap" TextTrimming="CharacterEllipsis" MaxLines="3"
+                         TextAlignment="Center" Margin="14,0,14,0" VerticalAlignment="Center"/>
+            </Panel>
+            <Border Classes="home-tile-caption" VerticalAlignment="Bottom" Padding="10,6,10,12"
+                    IsVisible="{Binding HasArtwork}">
+              <TextBlock Classes="home-tile-caption-title" Text="{Binding Name}"
+                         FontSize="{DynamicResource SmallFontSize}" TextTrimming="CharacterEllipsis"
+                         MaxLines="2"/>
+            </Border>
+          </Grid>
+        </Border>
+        <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
         <!-- watched corners, if the cover's setting allows corners at all -->
         <Panel IsVisible="{Binding WatchFlagsShown}">
           <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
                                   ConverterParameter='watched.png'}"
                  Height="53" Stretch="Uniform" Opacity="0.9"
-                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,5,0"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,8,0"
                  IsVisible="{Binding IsWatched}"/>
           <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
                                   ConverterParameter='partlywatched.png'}"
                  Height="53" Stretch="Uniform" Opacity="0.9"
-                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,5,0"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,8,0"
                  IsVisible="{Binding IsPartlyWatched}"/>
         </Panel>
         <!-- a title without a file behind it: the reference's corner flag with its offline mark -->
@@ -742,134 +824,147 @@
           <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
                                   ConverterParameter='flag.png'}"
                  Height="144" Stretch="Uniform"
-                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-5,-5,0"/>
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"/>
           <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
                                   ConverterParameter='offline.png'}"
                  Height="56" Stretch="Uniform"
-                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,11,11,0"/>
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,12,12,0"/>
         </Panel>
       </Panel>
-      <!-- the name under the cover, on the ground the reference left it: no bar, just the words -->
-      <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextBrush}"
-                 FontSize="{DynamicResource SmallFontSize}" FontWeight="SemiBold"
-                 TextWrapping="Wrap" TextTrimming="CharacterEllipsis" MaxLines="2"
-                 TextAlignment="Center" Margin="0,6,0,0"/>
-    </StackPanel>
+    </Border>
   </DataTemplate>
 
   <!--
-    The music tiles, as Nereus drew them for audio - GridViewAlbumItemTemplate and GridViewAudioItemTemplate.
-    Two things the film tiles are not, and the reference is uncompromising about both. The frame is its
-    MediaConsts' AUDIO_GRID_WIDTH x AUDIO_GRID_HEIGHT, 205x195, a square under Square_small.png, and not the
-    poster's 163x250: a thousand album covers are square and none of them is a film case. And a music tile
-    whose picture is missing wears the skin's OWN COLOUR with the music mark in it - never a film still, never
-    video.png - with the name standing in for the art. An album's square wears audio.png, a track's the media
-    menu's track mark, which is the pair the reference filed for the two shelves.
+    The music tiles, as Nereus drew them for audio and wearing the wall's tile like every other tile. Two things
+    the film tiles are not, and the reference is uncompromising about both. The plate is its MediaConsts'
+    AUDIO_GRID_WIDTH x AUDIO_GRID_HEIGHT, 205x195, a square rather than the poster's 163x250: a thousand album
+    covers are square and none of them is a film case. And a music tile whose picture is missing wears the
+    skin's OWN COLOUR with the music mark in it, never a film still and never video.png, with the name standing
+    in for the art. An album's square wears audio.png, a track's the media menu's track mark.
 
     The picture itself is asked for as a cover, because that is what music calls its front picture and what the
     import stores: once per album, under the album's id. A track is answered with its album's cover by the
-    server - the reference leaves a track's square empty because its importer stores nothing per track, and a
-    shelf of a thousand identical empty squares is not what the files say; here the tile wears what the wall
-    next to it wears. A picture is never stretched into the square, and a name is never painted over a picture
-    that exists, which is also what the reference's audio grid does not do.
+    server, and a picture is never stretched into the square.
   -->
   <DataTemplate x:Key="MediaTileAlbumTemplate" x:DataType="vm:TitleViewModel">
-    <Panel Width="205" Height="195" Margin="8,8,8,14">
-      <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                              ConverterParameter='Square_small.png'}"
-             Stretch="Fill" Margin="-5"/>
-      <Image Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance},
-                              ConverterParameter='tile'}"
-             Stretch="UniformToFill" Margin="3"
-             IsVisible="{Binding HasArtwork}"/>
-      <!-- no cover: the skin's own colour, its music mark, the name -->
-      <Panel IsVisible="{Binding HasNoArtwork}">
-        <Border Classes="nereus-music-ground" Margin="3"/>
-        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='audio.png'}"
-               Stretch="Uniform" Width="70" Height="70" Opacity="0.6"
-               HorizontalAlignment="Left" VerticalAlignment="Top"/>
-        <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextBrush}"
-                   FontSize="{DynamicResource SmallFontSize}" TextWrapping="Wrap"
-                   TextTrimming="CharacterEllipsis" MaxLines="4"
-                   Margin="15,50,10,10" VerticalAlignment="Center"/>
+    <Border Classes="home-tile-shadow" Width="205" Height="195" Margin="8,8,8,14">
+      <Panel>
+        <Border Classes="home-tile-face" Background="#222222" ClipToBounds="True">
+          <Grid>
+            <Image Classes="home-tile-art"
+                   Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance},
+                                    ConverterParameter='tile'}"
+                   Stretch="UniformToFill"
+                   IsVisible="{Binding HasArtwork}"/>
+            <!-- no cover: the skin's own colour, its music mark, the name in place of the art -->
+            <Panel IsVisible="{Binding HasNoArtwork}">
+              <Border Classes="nereus-music-ground"/>
+              <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                      ConverterParameter='audio.png'}"
+                     Stretch="Uniform" Width="70" Height="70" Opacity="0.6"
+                     HorizontalAlignment="Left" VerticalAlignment="Top" Margin="8"/>
+              <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextBrush}"
+                         FontSize="{DynamicResource SmallFontSize}" TextWrapping="Wrap"
+                         TextTrimming="CharacterEllipsis" MaxLines="4"
+                         Margin="14,54,10,10" VerticalAlignment="Center"/>
+            </Panel>
+            <Border Classes="home-tile-caption" MinHeight="0" VerticalAlignment="Bottom"
+                    Padding="8,5,8,9" IsVisible="{Binding HasArtwork}">
+              <TextBlock Classes="home-tile-caption-title" Text="{Binding Name}"
+                         FontSize="{DynamicResource SmallFontSize}" TextTrimming="CharacterEllipsis"
+                         MaxLines="2"/>
+            </Border>
+          </Grid>
+        </Border>
+        <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
+        <!-- watched corners, if the grid's setting allows corners at all -->
+        <Panel IsVisible="{Binding WatchFlagsShown}">
+          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='watched.png'}"
+                 Height="33" Stretch="Uniform" Opacity="0.9"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,6,6,0"
+                 IsVisible="{Binding IsWatched}"/>
+          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='partlywatched.png'}"
+                 Height="33" Stretch="Uniform" Opacity="0.9"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,6,6,0"
+                 IsVisible="{Binding IsPartlyWatched}"/>
+        </Panel>
+        <!-- a title without a file behind it: the reference's corner flag with its offline mark -->
+        <Panel IsVisible="{Binding IsOffline}">
+          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='flag.png'}"
+                 Height="90" Stretch="Uniform"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,2,2,0"/>
+          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='offline.png'}"
+                 Height="35" Stretch="Uniform"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,10,10,0"/>
+        </Panel>
       </Panel>
-      <!-- watched corners, if the grid's setting allows corners at all -->
-      <Panel IsVisible="{Binding WatchFlagsShown}">
-        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='watched.png'}"
-               Height="33" Stretch="Uniform" Opacity="0.9"
-               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"
-               IsVisible="{Binding IsWatched}"/>
-        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='partlywatched.png'}"
-               Height="33" Stretch="Uniform" Opacity="0.9"
-               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"
-               IsVisible="{Binding IsPartlyWatched}"/>
-      </Panel>
-      <!-- a title without a file behind it: the reference's corner flag with its offline mark -->
-      <Panel IsVisible="{Binding IsOffline}">
-        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='flag.png'}"
-               Height="90" Stretch="Uniform"
-               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0"/>
-        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='offline.png'}"
-               Height="35" Stretch="Uniform"
-               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,7,7,0"/>
-      </Panel>
-    </Panel>
+    </Border>
   </DataTemplate>
 
   <!--
-    A track's square: the same 205x195 frame as an album's, the album's cover in it where the server has one,
-    and the reference's own fallback where it has none - the skin's colour, the media menu's track mark at the
-    mark's reference size of 35, and the track's number and name over it.
+    A track's square: the same plate as an album's, the album's cover in it where the server has one, and the
+    reference's own fallback where it has none, the skin's colour, the media menu's track mark at the mark's
+    reference size of 35, and the track's name over it.
   -->
   <DataTemplate x:Key="MediaTileTrackTemplate" x:DataType="vm:TitleViewModel">
-    <Panel Width="205" Height="195" Margin="8,8,8,14">
-      <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                              ConverterParameter='Square_small.png'}"
-             Stretch="Fill" Margin="-5"/>
-      <Image Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance},
-                              ConverterParameter='tile'}"
-             Stretch="UniformToFill" Margin="3"
-             IsVisible="{Binding HasArtwork}"/>
-      <Panel IsVisible="{Binding HasNoArtwork}">
-        <Border Classes="nereus-music-ground" Margin="3"/>
-        <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
-                             ConverterParameter='MediaMenu/track'}"
-              Fill="{DynamicResource TextBrush}" Width="35" Height="35" Opacity="0.5"
-              Stretch="Uniform"
-              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"/>
-        <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextBrush}"
-                   FontSize="{DynamicResource SmallFontSize}" TextWrapping="Wrap"
-                   TextTrimming="CharacterEllipsis" MaxLines="4"
-                   Margin="15,50,10,10" VerticalAlignment="Center"/>
+    <Border Classes="home-tile-shadow" Width="205" Height="195" Margin="8,8,8,14">
+      <Panel>
+        <Border Classes="home-tile-face" Background="#222222" ClipToBounds="True">
+          <Grid>
+            <Image Classes="home-tile-art"
+                   Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance},
+                                    ConverterParameter='tile'}"
+                   Stretch="UniformToFill"
+                   IsVisible="{Binding HasArtwork}"/>
+            <Panel IsVisible="{Binding HasNoArtwork}">
+              <Border Classes="nereus-music-ground"/>
+              <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                   ConverterParameter='MediaMenu/track'}"
+                    Fill="{DynamicResource TextBrush}" Width="35" Height="35" Opacity="0.5"
+                    Stretch="Uniform"
+                    HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"/>
+              <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextBrush}"
+                         FontSize="{DynamicResource SmallFontSize}" TextWrapping="Wrap"
+                         TextTrimming="CharacterEllipsis" MaxLines="4"
+                         Margin="14,54,10,10" VerticalAlignment="Center"/>
+            </Panel>
+            <Border Classes="home-tile-caption" MinHeight="0" VerticalAlignment="Bottom"
+                    Padding="8,5,8,9" IsVisible="{Binding HasArtwork}">
+              <TextBlock Classes="home-tile-caption-title" Text="{Binding Name}"
+                         FontSize="{DynamicResource SmallFontSize}" TextTrimming="CharacterEllipsis"
+                         MaxLines="2"/>
+            </Border>
+          </Grid>
+        </Border>
+        <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
+        <Panel IsVisible="{Binding WatchFlagsShown}">
+          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='watched.png'}"
+                 Height="33" Stretch="Uniform" Opacity="0.9"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,6,6,0"
+                 IsVisible="{Binding IsWatched}"/>
+          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='partlywatched.png'}"
+                 Height="33" Stretch="Uniform" Opacity="0.9"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,6,6,0"
+                 IsVisible="{Binding IsPartlyWatched}"/>
+        </Panel>
+        <Panel IsVisible="{Binding IsOffline}">
+          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='flag.png'}"
+                 Height="90" Stretch="Uniform"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,2,2,0"/>
+          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='offline.png'}"
+                 Height="35" Stretch="Uniform"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,10,10,0"/>
+        </Panel>
       </Panel>
-      <Panel IsVisible="{Binding WatchFlagsShown}">
-        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='watched.png'}"
-               Height="33" Stretch="Uniform" Opacity="0.9"
-               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"
-               IsVisible="{Binding IsWatched}"/>
-        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='partlywatched.png'}"
-               Height="33" Stretch="Uniform" Opacity="0.9"
-               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"
-               IsVisible="{Binding IsPartlyWatched}"/>
-      </Panel>
-      <Panel IsVisible="{Binding IsOffline}">
-        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='flag.png'}"
-               Height="90" Stretch="Uniform"
-               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0"/>
-        <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='offline.png'}"
-               Height="35" Stretch="Uniform"
-               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,7,7,0"/>
-      </Panel>
-    </Panel>
+    </Border>
   </DataTemplate>
 
 

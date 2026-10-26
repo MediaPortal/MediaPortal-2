@@ -66,7 +66,7 @@ namespace FrontendProbe
   public static class RenderProbe
   {
     private const string USAGE =
-        "Frontend.RenderProbe --out <file.png> [--screen <home|continue|nowplaying|connect|browser|cover|details|search|seen|folders|pictures|browse|news|weather|party|settings>] [--server <url>] [--aspect <name>] [--theme <name>] [--width <n>] [--height <n>]\n" +
+        "Frontend.RenderProbe --out <file.png> [--screen <home|continue|nowplaying|connect|browser|cover|menu|covermenu|details|search|seen|folders|pictures|browse|news|weather|party|settings>] [--server <url>] [--aspect <name>] [--theme <name>] [--width <n>] [--height <n>]\n" +
         "  --out <file>     where to write the rendered frame (PNG); its directory is created\n" +
         "  --screen <name>  which screen to render (default home)\n" +
         "  --server <url>   render the populated screen by asking this server (otherwise MP2_SERVER,\n" +
@@ -246,6 +246,11 @@ namespace FrontendProbe
       // shelf stands in covers, so the frame is the proof that the key, the layout and the skin's cover
       // template hang together on screen.
       bool coverAsked = false;
+
+      // And the same for the screen's own menu, which the information key of a remote opens: nothing is painted
+      // over the rows for it - the room slides two hundred points out of the way and the menu walks into the space
+      // that sliding makes - so the frame is only worth having once the room has been put where the menu needs it.
+      bool menuAsked = false;
       HomeViewModel? home = null;
       ConnectionViewModel? connection = null;
       FoldersViewModel? foldersScreen = null;
@@ -516,6 +521,8 @@ namespace FrontendProbe
       }
       else if (screenName.Equals("browser", StringComparison.Ordinal)
           || screenName.Equals("cover", StringComparison.Ordinal)
+          || screenName.Equals("menu", StringComparison.Ordinal)
+          || screenName.Equals("covermenu", StringComparison.Ordinal)
           || screenName.Equals("details", StringComparison.Ordinal)
           || screenName.Equals("search", StringComparison.Ordinal)
           || screenName.Equals("seen", StringComparison.Ordinal))
@@ -595,7 +602,10 @@ namespace FrontendProbe
         detailsAsked = screenName.Equals("details", StringComparison.Ordinal);
         searchAsked = screenName.Equals("search", StringComparison.Ordinal);
         seenAsked = screenName.Equals("seen", StringComparison.Ordinal);
-        coverAsked = screenName.Equals("cover", StringComparison.Ordinal);
+        coverAsked = screenName.Equals("cover", StringComparison.Ordinal)
+            || screenName.Equals("covermenu", StringComparison.Ordinal);
+        menuAsked = screenName.Equals("menu", StringComparison.Ordinal)
+            || screenName.Equals("covermenu", StringComparison.Ordinal);
         window = new ShellWindow(new MediaBrowserView(browser));
       }
       else if (screenName.Equals("folders", StringComparison.Ordinal))
@@ -1032,6 +1042,64 @@ namespace FrontendProbe
         }
       }
 
+      if (menuAsked && (window as ShellWindow)?.Screen is MediaBrowserView menuScreen)
+      {
+        // The information key of a remote, which the reference bound to the media screen's own menu
+        // (master_mediamenu.xaml:400). Nothing is painted over the rows for it: the room slides two hundred points
+        // out of the way and the menu walks into the space that sliding makes, sideways beside a grid and upwards
+        // under a row of covers. The frames below are the proof that the key, the menu's rows and the room's shift
+        // hang together on a screen that is really being drawn, which is more than the pumped test queue can say.
+        MediaBrowserViewModel list = (MediaBrowserViewModel) menuScreen.DataContext!;
+        menuScreen.RaiseEvent(new KeyEventArgs
+        {
+          RoutedEvent = InputElement.KeyDownEvent,
+          Key = Key.I,
+          Source = menuScreen
+        });
+
+        // Twenty seconds is not impatience but arithmetic: a transition is advanced by the frames of the render
+        // loop, and this probe renders offscreen a frame at a time, so three hundred and fifty milliseconds of
+        // sliding take longer here than they do on a television that is drawing sixty of them a second.
+        if (!PumpUntil(delegate { return Math.Abs(RoomSlide(menuScreen)) >= 200; }, TimeSpan.FromSeconds(30)))
+        {
+          Console.WriteLine("FAILED:   the information key opened the menu but the room never slid the full two "
+              + "hundred points for it; it stands at " + Math.Round(RoomSlide(menuScreen), 1)
+              + ", menu visible: " + list.MediaMenuVisible + ".");
+          return 1;
+        }
+
+        Pump(TimeSpan.FromMilliseconds(500));
+        ListBox? rail = menuScreen.GetVisualDescendants().OfType<ListBox>()
+            .FirstOrDefault(list_box => list_box.Name == (list.IsCoverLayout ? "mediaMenuListBottom" : "mediaMenuList"));
+        Console.WriteLine("menu:     '" + list.MediaMenuHeading + "' with " + list.MediaMenu.Count + " row(s)"
+            + (rail == null ? ", but no menu list on the screen" : ", " + rail.Items.Count + " row(s) laid out")
+            + ", room slid " + Math.Round(RoomSlide(menuScreen), 1) + " points "
+            + (list.IsCoverLayout ? "up." : "aside."));
+        if (rail == null || rail.Items.Count == 0)
+        {
+          Console.WriteLine("FAILED:   the menu was open but its rows were never laid out, so the frame would picture "
+              + "an empty strip instead of a menu.");
+          return 1;
+        }
+
+        // Where the plates actually stand on the window. A menu whose rows are all laid out but whose last plate
+        // hangs over the edge of the screen is a menu a viewer cannot read to its end, and whether it does or not
+        // is something only a frame that is really being drawn can say.
+        ListBoxItem? firstPlate = rail.GetVisualDescendants().OfType<ListBoxItem>().FirstOrDefault();
+        ListBoxItem? lastPlate = rail.GetVisualDescendants().OfType<ListBoxItem>().LastOrDefault();
+        Point? firstAt = firstPlate?.TranslatePoint(new Point(0, 0), (Visual?) window);
+        Point? lastAt = lastPlate?.TranslatePoint(new Point(0, 0), (Visual?) window);
+        Console.WriteLine("rows:     the first plate stands at "
+            + (firstAt == null ? "nowhere" : Math.Round(firstAt.Value.X, 0) + ".."
+                                             + Math.Round(firstAt.Value.X + firstPlate!.Bounds.Width, 0))
+            + " and the last at "
+            + (lastAt == null ? "nowhere" : Math.Round(lastAt.Value.X, 0) + ".."
+                                            + Math.Round(lastAt.Value.X + lastPlate!.Bounds.Width, 0))
+            + " of the window's " + Math.Round(window.Bounds.Width, 0) + " points"
+            + (lastAt != null && lastAt.Value.X + lastPlate!.Bounds.Width > window.Bounds.Width
+                 ? " - PAST THE RIGHT EDGE." : "."));
+      }
+
       Console.WriteLine("screen:   " + screenName);
       if (weatherScreen != null)
       {
@@ -1297,6 +1365,31 @@ namespace FrontendProbe
         string shelfReport;
         string? shelfWrong = CheckShelfTiles(window, shelfScreen, out shelfReport);
         Console.WriteLine("shelf:    " + shelfReport);
+        {
+          // What the shelf is really drawing, printed rather than guessed: a frame of small squares cannot
+          // tell a wrapped grid of tiles from rows, and both claims matter - the layout and the tile style.
+          ListBox? shelfList = window.GetVisualDescendants().OfType<ListBox>()
+              .FirstOrDefault(list => list.Name == "titlesList");
+          string tiles = "";
+          if (shelfList != null)
+          {
+            foreach (Control? container in shelfList.GetRealizedContainers().Take(4))
+            {
+              if (container == null)
+                continue;
+              Control? plate = container.GetVisualDescendants().OfType<Control>()
+                  .FirstOrDefault(control => control.Classes.Contains("home-tile-shadow"));
+              tiles += " [" + container.Bounds.Width + "x" + container.Bounds.Height
+                  + " tile " + (plate == null ? "none" : plate.Bounds.Width + "x" + plate.Bounds.Height)
+                  + " on " + (container.TranslatePoint(new Point(0, 0), (Visual?) window)?.ToString() ?? "?")
+                  + "]";
+            }
+          }
+
+          Console.WriteLine("shelftree:panel '" + (shelfList?.ItemsPanelRoot?.GetType().Name ?? "none")
+              + "' classes '" + (shelfList == null ? "no shelf" : string.Join("+", shelfList.Classes)) + "'"
+              + tiles);
+        }
         if (shelfWrong != null)
         {
           Console.WriteLine("FAILED:   " + shelfWrong);
@@ -1586,6 +1679,23 @@ namespace FrontendProbe
     }
 
     /// <summary>
+    /// How far the room of a library screen stands out of where it was built to stand, read off the screen rather
+    /// than off the view model. The slide belongs to the room's own render transform, and the axis it moved along
+    /// is the axis its menu hangs on: aside for the rail beside a grid, upwards for the row of commands under a
+    /// row of covers.
+    /// </summary>
+    private static double RoomSlide(Control screen)
+    {
+      Grid? room = screen.GetVisualDescendants().OfType<Grid>()
+          .FirstOrDefault(grid => grid.Name == "room");
+      TranslateTransform? slide = room?.RenderTransform as TranslateTransform;
+      if (slide == null)
+        return double.NaN;
+
+      return Math.Abs(slide.X) >= Math.Abs(slide.Y) ? slide.X : slide.Y;
+    }
+
+    /// <summary>
     /// Whether the shelf's list on screen draws its tiles from the worn skin and lays them wrapped. The frame's
     /// claim is the same one the home menu makes - a skin changed a screen's shape, not just its colours - and
     /// the honest way to check it is to ask the on-screen list which template and which panel it is drawing with
@@ -1639,19 +1749,24 @@ namespace FrontendProbe
             shelf.GridTemplateKey);
       }
 
-      // Wrapped is the whole point of a tiled shelf: tiles laid left to right, not a single vertical strip. The
-      // tile panel lays them where the wrap panel laid them - the tests measure that - and what a frame can see
-      // is that the shelf stands on it at all: a shelf that fell back to wrapping lays its eleven hundred tiles
-      // out whole, which every other number this probe prints would only show as a still picture.
-      if (!(titles.ItemsPanelRoot is VirtualizingTilePanel))
+      // Wrapped is the whole point of a tiled shelf: tiles laid left to right, not a single vertical strip. Covers
+      // are the one shape the reference turned on its side - their row runs along the bottom edge of the room - so
+      // that shape is asked to be running sideways instead of wrapped. Either way the panel has to virtualise: a
+      // shelf that laid its eleven hundred tiles out whole would show up in every other number this probe prints
+      // only as a still picture.
+      bool sideways = shelf.Layout == BrowserLayout.Cover;
+      bool stands_as_it_should = titles.ItemsPanelRoot is VirtualizingTilePanel
+          || (sideways && titles.ItemsPanelRoot is VirtualizingStackPanel row
+              && row.Orientation == Orientation.Horizontal);
+      if (!stands_as_it_should)
       {
-        report = string.Format("the {0}'s panel is '{1}', not the tile panel", layoutName,
+        report = string.Format("the {0}'s panel is '{1}', not the panel that shape stands on", layoutName,
             titles.ItemsPanelRoot?.GetType().Name ?? "nothing");
-        return string.Format("the shelf wears a skin's tile but does not stand on the tile panel ({0})",
+        return string.Format("the shelf wears a skin's tile but does not stand on its own panel ({0})",
             layoutName);
       }
 
-      report = string.Format("the skin's '{0}' draws the shelf as {1}, wrapped on the virtualising tile panel",
+      report = string.Format("the skin's '{0}' draws the shelf as {1}, on the virtualising panel that shape wants",
           shelf.GridTemplateKey, layoutName);
       return null;
     }

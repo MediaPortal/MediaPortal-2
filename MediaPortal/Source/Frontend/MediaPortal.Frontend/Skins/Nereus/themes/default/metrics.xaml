@@ -11,6 +11,16 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
+  <!-- The height of the television this skin was written for, in lines. Every number in the skin's files - a
+       poster, a name, a margin - was measured against this many lines, and the reference laid its master out at
+       exactly this height before handing the finished picture to the panel in front of the viewer: its skin.xml
+       names this number NativeHeight and says the skin stretches to whatever width the screen's shape gives it.
+       The shell reads it and does the same, so a panel of 1440 lines gets the whole skin a third larger instead
+       of the same poster standing in it a quarter too small, and a 4K panel gets it twice as large. The width
+       needs no number of its own: it falls out of the window's shape at the same factor, which is what the
+       reference's flexible aspect ratio did. A skin that names no height is laid out in the window's own dots. -->
+  <x:Double x:Key="SkinNativeHeight">1080</x:Double>
+
   <!-- The master: the reference header and footer were both 100 of 1080 lines high. -->
   <x:Double x:Key="HeaderHeight">100</x:Double>
   <x:Double x:Key="FooterHeight">100</x:Double>

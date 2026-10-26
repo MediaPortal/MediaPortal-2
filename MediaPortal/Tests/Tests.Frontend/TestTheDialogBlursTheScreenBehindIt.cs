@@ -179,6 +179,18 @@ namespace Tests.Frontend
     {
       return BackdropLayer(window).IsVisible ? PhotographBrushOn(window)?.Source as Bitmap : null;
     }
+
+    /// <summary>
+    /// Where the far corner of a thing stands in the window's own coordinates, which is the only place a
+    /// viewer and a test can agree on: a thing inside the worn skin is laid out in the skin's points, and the
+    /// shell stands the whole skin at one factor over the window's dots.
+    /// </summary>
+    private static Point OnTheScreen(Visual window, Visual thing)
+    {
+      Point? on_screen = thing.TranslatePoint(new Point(thing.Bounds.Width, thing.Bounds.Height), window);
+      Assert.That(on_screen, Is.Not.Null, "the thing is not on the screen at all");
+      return on_screen!.Value;
+    }
     /// <summary>
     /// A dialog is asked over a screen that has been thrown out of focus: the question is the only thing on the
     /// television with edges on it.
@@ -234,9 +246,12 @@ namespace Tests.Frontend
       Bitmap? shot = PhotographOn(window);
       Assert.That(shot, Is.Not.Null, "the ground behind the question is a photograph of the screen");
 
-      int wanted = (int) Math.Round(BackdropLayer(window).Bounds.Width * window.RenderScaling / shrink);
+      // The ground is measured in the dots the window is drawn in, not in the points the skin was written in:
+      // a skin standing at its own height under the shell's transform lays out more points than the window has
+      // dots, and it is the dots that get photographed.
+      int wanted = (int) Math.Round(window.Bounds.Width * window.RenderScaling / shrink);
       Assert.That(shot!.PixelSize.Width, Is.EqualTo(wanted).Within(1),
-          "the photograph is a fifth of the ground wide, which is what shrinking by a fifth is: " + shot.PixelSize);
+          "the photograph is a seventh of the ground wide, which is what shrinking by a seventh is: " + shot.PixelSize);
 
       window.Close();
     }
@@ -263,10 +278,15 @@ namespace Tests.Frontend
       Assert.That(brush!.Stretch, Is.EqualTo(Stretch.Fill),
           "the photograph is stretched to the window rather than painted at its own pixels");
 
+      // Measured where the viewer sees it: the photograph stands inside the skin, and a skin standing at its
+      // own height under the shell's transform is laid out in more points than the window has dots, so its
+      // Bounds say nothing about the window. The corner is carried out to the window's coordinates, which is
+      // exactly what the viewer's eye compares.
       Control picture = (Control) BackdropLayer(window).Child!;
-      Assert.That(picture.Bounds.Width, Is.EqualTo(window.Bounds.Width).Within(1.0),
+      Point on_screen = OnTheScreen(window, picture);
+      Assert.That(on_screen.X, Is.EqualTo(window.Bounds.Width).Within(1.0),
           "the photograph stands over the whole width of the window");
-      Assert.That(picture.Bounds.Height, Is.EqualTo(window.Bounds.Height).Within(1.0),
+      Assert.That(on_screen.Y, Is.EqualTo(window.Bounds.Height).Within(1.0),
           "and over the whole height of it, so no corner of the home is left sharp or left black");
 
       window.Close();
@@ -296,7 +316,9 @@ namespace Tests.Frontend
       Bitmap? shot = PhotographOn(window);
       Assert.That(shot, Is.Not.Null);
 
-      double ground = BackdropLayer(window).Bounds.Width;
+      // The window's dots, not the skin's points: on a skin standing at its own height the ground is laid out
+      // in more points than there are dots to draw it in, and it is the dots the photograph has to answer to.
+      double ground = window.Bounds.Width;
       double shrink = SkinEngine.WornNumber("DialogBackdropBlur") ?? 1.0;
       Assert.That(window.RenderScaling, Is.EqualTo(1.45).Within(0.01), "the television was asked to draw bigger");
       Assert.That(shot!.PixelSize.Width, Is.EqualTo((int) Math.Round(ground * 1.45 / shrink)).Within(2),

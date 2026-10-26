@@ -21,14 +21,17 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Animation;
 using Avalonia.Controls;
 using Avalonia.Headless.NUnit;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Moq;
@@ -490,6 +493,257 @@ namespace Tests.Frontend
       window.Close();
     }
 
+    /// <summary>
+    /// The way out of a shelf. A viewer who opens a library and presses back expects to be standing in front of
+    /// the library again, however often they pressed - the screen's own layers first (the details, the watched
+    /// filter, a search, the screen's menu) and then the screen itself. The key has to travel through the shelf,
+    /// through the screen and into the workflow behind it, so this is proven over a real window with a real
+    /// workflow under it and not against a screen held on its own.
+    /// </summary>
+    [AvaloniaTest]
+    public void BackOutOfAShelfWalksOutOfTheScreenWhenItsOwnLayersAreAway()
+    {
+      RegisterLibrary(Title("Alien Earth", 2025, RESOURCE_SYSTEM_ID.ToString("B") + "://" + LOCAL_PATH));
+      InProcessApi server = StartServer();
+
+      HomeViewModel home = new HomeViewModel(new ServerApiClient(server.BaseUrl));
+      var opened = new List<MediaBrowserViewModel>();
+      var workflow = new WorkflowManager();
+      ShellWindow window = new ShellWindow(workflow, delegate (WorkflowFrame frame)
+      {
+        if (frame.StateId == "home")
+        {
+          return new HomeView(home, workflow, null, null,
+              delegate (HomeSection section)
+              {
+                var model = new MediaBrowserViewModel(home.Client, section);
+                opened.Add(model);
+                return new WorkflowFrame("titles", section.Label, model);
+              });
+        }
+        return new MediaBrowserView((MediaBrowserViewModel) frame.ViewModel);
+      });
+      workflow.Push(new WorkflowFrame("home", "Home", home));
+      window.Show();
+      home.RefreshCommand.Execute(null);
+      WaitUntil("the tiles to appear", delegate { return home.Sections.Count > 0; });
+
+      ListBox tiles = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "menuList");
+      tiles.Focus();
+      tiles.SelectedItem = EntryNamed(home.Menu, "Movies");
+      tiles.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Enter,
+        Source = tiles
+      });
+      Pump();
+      Assert.That(opened, Has.Count.EqualTo(1), "the tile opened the shelf");
+
+      ListBox shelf = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "titlesList");
+      shelf.Focus();
+
+      // Back is answered by whatever stands nearest: the screen undoes its own layers first, so a viewer pressing
+      // it a few times is undoing a few layers. Four presses is one more than this screen has layers to undo, so
+      // after them the key cannot still be the screen's business.
+      for (int presses = 0; presses < 4 && window.Screen is MediaBrowserView; presses++)
+      {
+        shelf.RaiseEvent(new KeyEventArgs
+        {
+          RoutedEvent = InputElement.KeyDownEvent,
+          Key = Key.Escape,
+          Source = shelf
+        });
+        Pump();
+      }
+
+      Assert.That(window.Screen, Is.Not.InstanceOf<MediaBrowserView>(),
+          "the back key walked out of the shelf and showed the home screen again");
+      window.Close();
+    }
+
+    /// <summary>
+    /// Back out of every layer the screen can be wearing at once. A viewer who has the details up, a watched
+    /// filter on, a search going and the screen's menu open presses back and expects the newest thing to go, then
+    /// the next, and eventually to be standing outside the screen again. If one of those layers ever answers the
+    /// key without putting itself away, the viewer is shut in: the key never reaches the workflow behind the
+    /// screen, and no number of presses helps. So the screen is dressed in everything it can wear at once and
+    /// then pressed back until it lets go.
+    /// </summary>
+    [AvaloniaTest]
+    public void BackLetsTheScreenGoEvenWhenEveryLayerIsUpAtOnce()
+    {
+      RegisterLibrary(Title("Alien Earth", 2025, RESOURCE_SYSTEM_ID.ToString("B") + "://" + LOCAL_PATH));
+      InProcessApi server = StartServer();
+
+      HomeViewModel home = new HomeViewModel(new ServerApiClient(server.BaseUrl));
+      var opened = new List<MediaBrowserViewModel>();
+      var workflow = new WorkflowManager();
+      ShellWindow window = new ShellWindow(workflow, delegate (WorkflowFrame frame)
+      {
+        if (frame.StateId == "home")
+        {
+          return new HomeView(home, workflow, null, null,
+              delegate (HomeSection section)
+              {
+                var model = new MediaBrowserViewModel(home.Client, section);
+                opened.Add(model);
+                return new WorkflowFrame("titles", section.Label, model);
+              });
+        }
+        return new MediaBrowserView((MediaBrowserViewModel) frame.ViewModel);
+      });
+      workflow.Push(new WorkflowFrame("home", "Home", home));
+      window.Show();
+      home.RefreshCommand.Execute(null);
+      WaitUntil("the tiles to appear", delegate { return home.Sections.Count > 0; });
+
+      ListBox tiles = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "menuList");
+      tiles.Focus();
+      tiles.SelectedItem = EntryNamed(home.Menu, "Movies");
+      tiles.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Enter,
+        Source = tiles
+      });
+      Pump();
+      MediaBrowserViewModel browser = opened[0];
+      WaitUntil("the shelf to fill", delegate { return browser.Titles.Count > 0; });
+
+      ListBox shelf = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "titlesList");
+      shelf.Focus();
+
+      // Everything the screen can wear, worn at once, the way a viewer ends up wearing it: the details, the
+      // watched filter, a search, the screen's own menu and the title's menu.
+      Press(shelf, MediaPortal.Frontend.Settings.KeyAction.Details);
+      Press(shelf, MediaPortal.Frontend.Settings.KeyAction.Watched);
+      browser.OpenSearch();
+      browser.FindCommand.Execute(null);
+      Press(shelf, MediaPortal.Frontend.Settings.KeyAction.MediaMenu);
+      WaitUntil("the menu to be out", delegate { return browser.MediaMenuVisible; });
+
+      int presses = 0;
+      while (window.Screen is MediaBrowserView && presses < 10)
+      {
+        shelf.RaiseEvent(new KeyEventArgs
+        {
+          RoutedEvent = InputElement.KeyDownEvent,
+          Key = Key.Escape,
+          Source = shelf
+        });
+        Pump();
+        presses++;
+      }
+
+      Assert.That(window.Screen, Is.Not.InstanceOf<MediaBrowserView>(),
+          "after " + presses + " presses of back the screen still would not let the viewer go; it is wearing "
+          + "details: " + browser.DetailsVisible + ", menu: " + browser.MediaMenuVisible
+          + ", title menu: " + browser.MenuVisible + ", search: " + browser.HasSearch
+          + ", watched filter: " + browser.HasSeenFilter);
+      window.Close();
+    }
+
+    /// <summary>
+    /// Back out of a shelf whose details the viewer had put away.  The screen used to answer a details layer it
+    /// could not actually put away - the strip along its foot, which was made of the same reading as the panel
+    /// and could not be dismissed - and a viewer pressing Escape on the 26th of October stayed shut in.  That
+    /// layer is gone: the shelf has one details layer, the panel beside it (or above its covers), and Back puts
+    /// that away first and then leaves, however many times it is pressed.
+    /// </summary>
+    [AvaloniaTest]
+    public void BackOutOfAShelfWearingDetailsNobodyAskedForLetsTheViewerGo()
+    {
+      RegisterLibrary(Title("Alien Earth", 2025, RESOURCE_SYSTEM_ID.ToString("B") + "://" + LOCAL_PATH));
+      InProcessApi server = StartServer();
+
+      HomeViewModel home = new HomeViewModel(new ServerApiClient(server.BaseUrl));
+      var opened = new List<MediaBrowserViewModel>();
+      var workflow = new WorkflowManager();
+      ShellWindow window = new ShellWindow(workflow, delegate (WorkflowFrame frame)
+      {
+        if (frame.StateId == "home")
+        {
+          return new HomeView(home, workflow, null, null,
+              delegate (HomeSection section)
+              {
+                var model = new MediaBrowserViewModel(home.Client, section);
+                model.ShowDetails = false;
+                opened.Add(model);
+                return new WorkflowFrame("titles", section.Label, model);
+              });
+        }
+        return new MediaBrowserView((MediaBrowserViewModel) frame.ViewModel);
+      });
+      workflow.Push(new WorkflowFrame("home", "Home", home));
+      window.Show();
+      home.RefreshCommand.Execute(null);
+      WaitUntil("the tiles to appear", delegate { return home.Sections.Count > 0; });
+
+      ListBox tiles = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "menuList");
+      tiles.Focus();
+      tiles.SelectedItem = EntryNamed(home.Menu, "Movies");
+      tiles.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Enter,
+        Source = tiles
+      });
+      Pump();
+      MediaBrowserViewModel browser = opened[0];
+      WaitUntil("the shelf to fill", delegate { return browser.Titles.Count > 0; });
+
+      // The state in question: the viewer put the details away, and a title is highlighted.
+      browser.Selected = browser.Titles[0];
+      Pump();
+      Assert.That(browser.ShowDetails, Is.False, "the viewer never asked for the panel");
+
+      ListBox shelf = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "titlesList");
+      shelf.Focus();
+
+      int presses = 0;
+      while (window.Screen is MediaBrowserView && presses < 5)
+      {
+        shelf.RaiseEvent(new KeyEventArgs
+        {
+          RoutedEvent = InputElement.KeyDownEvent,
+          Key = Key.Escape,
+          Source = shelf
+        });
+        Pump();
+        presses++;
+      }
+
+      Assert.That(window.Screen, Is.Not.InstanceOf<MediaBrowserView>(),
+          "back shut the viewer in: the screen kept answering a details layer it could not put away (presses: "
+          + presses + ", panel: " + browser.ShowDetails + ", read about a title: " + browser.DetailsVisible + ")");
+      window.Close();
+    }
+
+    /// <summary>Presses the key a bound action answers, into the control that really has the focus.</summary>
+    private static void Press(Control source, MediaPortal.Frontend.Settings.KeyAction action)
+    {
+      Key key = MediaPortal.Frontend.Settings.KeyAction.Details == action ? Key.D
+          : MediaPortal.Frontend.Settings.KeyAction.Watched == action ? Key.W
+          : MediaPortal.Frontend.Settings.KeyAction.MediaMenu == action ? Key.I
+          : MediaPortal.Frontend.Settings.KeyAction.Find == action ? Key.F
+          : throw new ArgumentException("No key named for " + action, nameof(action));
+
+      source.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = key,
+        Source = source
+      });
+      Pump();
+    }
+
     #endregion
 
     #region The list of titles
@@ -767,22 +1021,46 @@ namespace Tests.Frontend
       window.Show();
       WaitUntil("the whole shelf", delegate { return browser.Titles.Count == 600 && !browser.IsBusy; });
 
+      ListBox rows = window.GetVisualDescendants().OfType<ListBox>().First(list => list.Name == "titlesList");
+
+      // Every shape the screen has worn lays its own set of frames out, and each of those sets is painted - a
+      // shelf that is walked from rows into tiles has therefore asked for more pictures in total than the tiles
+      // standing at the end of the walk. What may never happen is that it asks for the picture of a title it has
+      // never laid a frame for, so the set of titles the screen ever had standing is what the count below is
+      // measured against, phase by phase.
+      HashSet<TitleViewModel> laid_out = new HashSet<TitleViewModel>();
+      void NoteFramesStanding()
+      {
+        foreach (Control? container in rows.GetRealizedContainers())
+          if (container?.DataContext is TitleViewModel title)
+            laid_out.Add(title);
+      }
+
+      Pump();
+      NoteFramesStanding();
       for (int press = 0; press < 3 && browser.Layout != BrowserLayout.Grid; press++)
+      {
         browser.SwitchViewCommand.Execute(null);
+        for (int pause = 0; pause < 10; pause++)
+          Pump();
+        NoteFramesStanding();
+      }
+
       Assert.That(browser.Layout, Is.EqualTo(BrowserLayout.Grid), "the screen stands in tiles");
 
       WaitUntil("the tiles the screen shows to wear their pictures", delegate { return server.PicturesAsked > 0; });
       for (int pause = 0; pause < 20; pause++)
         Pump();
+      NoteFramesStanding();
 
-      ListBox rows = window.GetVisualDescendants().OfType<ListBox>().First(list => list.Name == "titlesList");
       int standing = rows.GetRealizedContainers().Count();
       Assert.That(standing, Is.LessThan(150),
           "six hundred titles were read, but only the rows the screen could be looking at were built: "
           + standing + " of 600");
-      Assert.That(server.PicturesAsked, Is.LessThanOrEqualTo(standing),
-          "of the tiles that stand the screen asks for the pictures it can see, and for no others: "
-          + server.PicturesAsked + " asked for, " + standing + " standing");
+      Assert.That(server.PicturesAsked, Is.LessThanOrEqualTo(laid_out.Count),
+          "the screen asks for the picture of no title it has not laid a frame for: "
+          + server.PicturesAsked + " asked for, " + laid_out.Count + " titles ever laid out ("
+          + standing + " tiles standing now)");
       Assert.That(standing, Is.GreaterThan(0), "the tiles the viewer looks at are there");
       Assert.That(server.PicturesAsked, Is.LessThan(200),
           "a band of a few screenfuls around the eye, not a poster per tile of a shelf nobody will scroll to");
@@ -932,6 +1210,634 @@ namespace Tests.Frontend
     {
       return new MediaBrowserViewModel(
           new ServerApiClient(SIGN_IN_URL, new HttpClient(server)), MoviesSection);
+    }
+
+    /// <summary>
+    /// The shelf's leading edge is where the screen's menu stands.  The reference hung that menu on the remote's
+    /// Info key alone, but its own room says something else: the menu stands in the two hundred points the room
+    /// keeps off the left edge of the screen, so a viewer walking left past the edge of the shelf walked at it.
+    /// The edge is the whole first column, not the first title - a viewer standing on the fifth row and pointing
+    /// left is pointing at the menu too - and in a list, whose rows are one column wide, every row touches it.
+    /// A tile with tiles beside it is no edge, and the opposite key hands the arrows back.
+    /// </summary>
+    [AvaloniaTest]
+    public void WalkingOffTheFrontOfTheShelfOpensTheScreensMenuAndTheOppositeKeyWalksBack()
+    {
+      LongShelf server = new LongShelf();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      MediaBrowserView view = new MediaBrowserView(browser);
+      ShellWindow window = new ShellWindow(view);
+      window.Show();
+      WaitUntil("the shelf to fill", delegate { return browser.Titles.Count > 60; });
+
+      ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "titlesList");
+      ListBox rail = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "mediaMenuList");
+
+      // A row of a list has nothing beside it, so it stands on the edge and reaches the menu.
+      titles.Focus();
+      titles.SelectedIndex = 40;
+      SendKey(titles, Key.Left);
+      WaitUntil("the menu to stand open for a row in the middle of the shelf",
+          delegate { return browser.MediaMenuVisible; });
+
+      SendKey(rail, Key.Right);
+      WaitUntil("the menu to slide away", delegate { return !browser.MediaMenuVisible; });
+      Assert.That(titles.IsKeyboardFocusWithin, Is.True, "the shelf has the arrows back");
+
+      // A grid lays tiles beside one another, and only the column touching the shelf's left edge is an edge.
+      browser.Layout = BrowserLayout.Grid;
+      Pump();
+      VirtualizingTilePanel tiles_panel = window.GetVisualDescendants().OfType<VirtualizingTilePanel>()
+          .First();
+      WaitUntil("the tiles to be laid across the shelf", delegate { return tiles_panel.Columns > 1; });
+      int columns = tiles_panel.Columns;
+
+      titles.Focus();
+      titles.SelectedIndex = columns + 3;
+      SendKey(titles, Key.Left);
+      Assert.That(browser.MediaMenuVisible, Is.False,
+          "a tile with tiles beside it is not an edge, and the menu stays off the screen");
+
+      // The first tile of the second row is as much an edge as the first tile of the first one.
+      titles.Focus();
+      titles.SelectedIndex = columns;
+      SendKey(titles, Key.Left);
+      WaitUntil("the menu to stand open for the second row's first tile",
+          delegate { return browser.MediaMenuVisible; });
+      WaitUntil("the rail to be walked", delegate { return rail.IsKeyboardFocusWithin; });
+      WaitUntil("the room to stand aside for it", delegate { return view.SlideOffset >= 200; });
+      Assert.That(rail.Items.Count, Is.GreaterThan(0), "and the viewer lands on a menu that has commands on it");
+
+      SendKey(rail, Key.Right);
+      WaitUntil("the menu to slide away", delegate { return !browser.MediaMenuVisible; });
+      Assert.That(titles.IsKeyboardFocusWithin, Is.True, "the shelf has the arrows back");
+      WaitUntil("the room to slide back into the space the menu stood in", delegate { return view.SlideOffset == 0; });
+      window.Close();
+    }
+
+    /// <summary>
+    /// The same edge of a row of covers, which lies at its head rather than at its left: the cover layout hangs
+    /// its menu under the screen, so walking up past the first cover is what walking left past the first tile is
+    /// to a grid, and down is the way back.
+    /// </summary>
+    [AvaloniaTest]
+    public void WalkingOffTheHeadOfARowOfCoversOpensTheMenuUnderTheScreen()
+    {
+      LongShelf server = new LongShelf();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      MediaBrowserView view = new MediaBrowserView(browser);
+      ShellWindow window = new ShellWindow(view);
+      window.Show();
+      WaitUntil("the shelf to fill", delegate { return browser.Titles.Count > 60; });
+
+      ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "titlesList");
+      browser.Layout = BrowserLayout.Cover;
+      WaitUntil("the covers to be laid out", delegate { return browser.IsCoverLayout; });
+      titles.Focus();
+      titles.SelectedIndex = 0;
+
+      SendKey(titles, Key.Up);
+      WaitUntil("the menu to stand open", delegate { return browser.MediaMenuVisible; });
+      ListBox under = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "mediaMenuListBottom");
+      WaitUntil("the row under the covers to be walked", delegate { return under.IsKeyboardFocusWithin; });
+      WaitUntil("the room to slide up for the menu under it", delegate { return view.SlideOffset <= -200; });
+
+      SendKey(under, Key.Down);
+      WaitUntil("the menu to slide away", delegate { return !browser.MediaMenuVisible; });
+      Assert.That(titles.IsKeyboardFocusWithin, Is.True, "and the covers have the arrows back");
+      window.Close();
+    }
+
+    /// <summary>
+    /// The shelf's ends are masked, and masked still.  The reference laid one opacity mask over the whole
+    /// viewport of its media list (<c>VerticalMediaScrollViewerStyle</c>) - transparent at the edge, whole by a
+    /// twelfth of the height, whole again to eight twelfths, transparent at the other edge - and never touched it
+    /// again while the shelf moved.  A mask rewritten from the scroll offset throws the shelf's pixels away on
+    /// every step of a scroll, which is what made a scrolled shelf stutter rather than slide; the still mask
+    /// costs nothing to move and fades a row half out of either edge, which is the whole reason for fading.  A
+    /// row of covers wears no mask, because the reference left the covers whole.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheShelfWearsTheReferencesStillMaskAtBothEnds()
+    {
+      LongShelf server = new LongShelf();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      ShellWindow window = new ShellWindow(new MediaBrowserView(browser));
+      window.Show();
+      WaitUntil("the shelf to fill", delegate { return browser.Titles.Count > 60; });
+
+      ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "titlesList");
+      ScrollViewer scroller = titles.GetVisualDescendants().OfType<ScrollViewer>().First();
+      WaitUntil("the scroller to wear a mask", delegate { return scroller.OpacityMask is LinearGradientBrush; });
+
+      LinearGradientBrush mask = (LinearGradientBrush)scroller.OpacityMask;
+      Assert.That(mask.GradientStops.Count, Is.EqualTo(4), "one mask with the reference's four stops");
+      Assert.That(mask.GradientStops[0].Color, Is.EqualTo(Colors.Transparent));
+      Assert.That(mask.GradientStops[0].Offset, Is.EqualTo(0));
+      Assert.That(mask.GradientStops[1].Offset, Is.EqualTo(0.12).Within(0.001),
+          "the head fades out over a twelfth of the shelf, as the reference's mask did");
+      Assert.That(mask.GradientStops[2].Offset, Is.EqualTo(0.88).Within(0.001),
+          "and the foot over the same twelfth at the other end");
+      Assert.That(mask.GradientStops[3].Color, Is.EqualTo(Colors.Transparent));
+      Assert.That(mask.GradientStops[3].Offset, Is.EqualTo(1));
+
+      // Still, whatever the shelf does: the same four stops before a scroll, during one and at its end.
+      scroller.Offset = new Vector(scroller.Offset.X, 400);
+      Pump();
+      LinearGradientBrush while_moving = (LinearGradientBrush)scroller.OpacityMask;
+      Assert.That(ReferenceEquals(while_moving, mask), Is.True,
+          "the mask is the same brush while the shelf travels, so nothing is thrown away per step");
+
+      scroller.Offset = new Vector(scroller.Offset.X,
+          Math.Max(0, scroller.Extent.Height - scroller.Viewport.Height));
+      Pump();
+      Assert.That(ReferenceEquals((LinearGradientBrush)scroller.OpacityMask, mask), Is.True,
+          "and at the end of the shelf it is still the same mask");
+
+      // Covers are the one shape the reference left whole.
+      browser.Layout = BrowserLayout.Cover;
+      WaitUntil("the mask to be put away for the covers",
+          delegate
+          {
+            ScrollViewer? again = titles.GetVisualDescendants().OfType<ScrollViewer>().FirstOrDefault();
+            return again == null || again.OpacityMask == null;
+          });
+      window.Close();
+    }
+
+    /// <summary>
+    /// The shelf wears the wall's tile. A viewer who has seen the home screen's covers knows what a title looks
+    /// like on this skin, and the library's tiles are the same objects seen a metre closer - so they are built of
+    /// the same parts and answer the walking the same way. What the shelf used to wear instead was a picture of a
+    /// frame: the skin's empty poster frame lay under every tile, and where a title had no artwork that frame was
+    /// the whole of the tile, which read as a coloured box rather than as a film.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheShelfWearsTheWallsTileRatherThanAPictureOfAFrame()
+    {
+      Application app = Application.Current!;
+      string? previousFolder = SkinEngine.SkinsFolder;
+      string previousTheme = FrontendTheme.CurrentName(app);
+      SkinEngine.SkinsFolder = Path.Combine(MetadataPath("FrontendSource"), "Skins");
+      ShellWindow? window = null;
+      try
+      {
+        Assert.That(FrontendTheme.Apply(app, "nereus", out string? themeProblem), Is.EqualTo("nereus"),
+            themeProblem ?? "");
+        Assert.That(SkinEngine.Apply(app, "nereus", out string? skinProblem), Is.True, skinProblem ?? "");
+
+        LongShelf server = new LongShelf();
+        MediaBrowserViewModel browser = BrowserOn(server);
+        browser.Layout = BrowserLayout.Grid;
+        window = new ShellWindow(new MediaBrowserView(browser));
+        window.Show();
+        WaitUntil("the shelf to fill", delegate { return browser.Titles.Count > 60; });
+
+        ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
+            .First(list => list.Name == "titlesList");
+        Assert.That(titles.Classes.Contains("nereus-shelf-tiles"), Is.True,
+            "the shelf of tiles tells its list that the tiles dress themselves");
+
+        ListBoxItem? standing = titles.ContainerFromIndex(0) as ListBoxItem;
+        Assert.That(standing, Is.Not.Null, "the first row of a shown shelf is laid out");
+
+        foreach (string part in new[] { "home-tile-shadow", "home-tile-face", "home-tile-art",
+            "home-tile-caption", "home-tile-edge" })
+          Assert.That(standing!.GetVisualDescendants().OfType<Control>()
+              .Any(control => control.Classes.Contains(part)), Is.True,
+              "a shelf tile is built of the wall's " + part);
+
+        // The container is the thing that used to paint the accent colour under a selected tile, and a coloured
+        // box under a plate that is already a plate is a box with a tile floating in it.
+        titles.SelectedIndex = 0;
+        Pump();
+        Assert.That(standing.Background, Is.EqualTo(null).Or.EqualTo(Brushes.Transparent),
+            "the row a viewer stands on paints no selection box behind its own tile");
+
+        // Rows are the other reading, and there the panel is how a list says which row it means.
+        browser.Layout = BrowserLayout.List;
+        WaitUntil("the rows to be laid out", delegate { return !titles.Classes.Contains("nereus-shelf-tiles"); });
+      }
+      finally
+      {
+        window?.Close();
+        SkinEngine.Clear(app);
+        SkinEngine.SkinsFolder = previousFolder;
+        FrontendTheme.Apply(app, previousTheme, out string? _);
+      }
+    }
+
+    /// <summary>
+    /// A shelf of ROWS is dressed the way the reference dressed a row, and not with the platform's selection
+    /// rectangle.  <c>ButtonListViewControlStyle</c> laid the medium of the skin's colour over the whole row with
+    /// a bar of the light of it along the row's left edge, and <c>MediaStyles.xaml</c> brought the row's labels up
+    /// to white while a viewer stood on them; the bright square of the accent behind a row of names - which is
+    /// what the generic list style paints - is neither of those two, and a frame of the toolkit's own round a row
+    /// that already has a ground is a box inside a box.
+    /// </summary>
+    [AvaloniaTest]
+    public void AShelfOfRowsWearsTheReferencesRowGroundAndNoAccentBox()
+    {
+      Application app = Application.Current!;
+      string? previousFolder = SkinEngine.SkinsFolder;
+      string previousTheme = FrontendTheme.CurrentName(app);
+      SkinEngine.SkinsFolder = Path.Combine(MetadataPath("FrontendSource"), "Skins");
+      ShellWindow? window = null;
+      try
+      {
+        Assert.That(FrontendTheme.Apply(app, "nereus", out string? themeProblem), Is.EqualTo("nereus"),
+            themeProblem ?? "");
+        Assert.That(SkinEngine.Apply(app, "nereus", out string? skinProblem), Is.True, skinProblem ?? "");
+
+        LongShelf server = new LongShelf();
+        MediaBrowserViewModel browser = BrowserOn(server);
+        browser.Layout = BrowserLayout.List;
+        window = new ShellWindow(new MediaBrowserView(browser));
+        window.Show();
+        WaitUntil("the shelf to fill", delegate { return browser.Titles.Count > 60; });
+
+        ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
+            .First(list => list.Name == "titlesList");
+        Assert.That(titles.Classes.Contains("nereus-shelf-rows"), Is.True,
+            "the shelf of rows tells its list that the rows dress themselves");
+
+        titles.SelectedIndex = 3;
+        Pump();
+        ListBoxItem? standing = titles.ContainerFromIndex(3) as ListBoxItem;
+        Assert.That(standing, Is.Not.Null, "the row a viewer stands on is laid out");
+
+        Assert.That(standing.Background, Is.EqualTo(null).Or.EqualTo(Brushes.Transparent),
+            "the selected row carries no square of the accent behind its names");
+        Assert.That(standing.Foreground, Is.InstanceOf<ISolidColorBrush>(),
+            "the row a viewer stands on speaks in one colour");
+        Assert.That(((ISolidColorBrush)standing.Foreground!).Color, Is.EqualTo(Colors.White),
+            "and its labels come up to white, which is the reference's MediaItemFocussedColor");
+
+        Control? ground = standing.GetVisualDescendants().OfType<Control>()
+            .FirstOrDefault(control => control.Classes.Contains("nereus-row-ground"));
+        Assert.That(ground, Is.Not.Null, "the row is built with the reference's ground under it");
+        WaitUntil("the ground of the row a viewer stands on to show",
+            delegate { return ground!.IsEffectivelyVisible; });
+      }
+      finally
+      {
+        window?.Close();
+        SkinEngine.Clear(app);
+        SkinEngine.SkinsFolder = previousFolder;
+        FrontendTheme.Apply(app, previousTheme, out string? _);
+      }
+    }
+
+    /// <summary>
+    /// A library that opens takes the caret onto its own shelf.  The reference kept it there with
+    /// <c>RestoreFocus</c> and <c>SetFocusPrio</c>, and the port had <c>OnScreenActivated</c> ask for it too - but
+    /// it asked while the shelf was still empty, because the titles were on their way from the server, and a caret
+    /// handed to an unmeasured list is a caret nobody takes.  What a viewer then saw was a library with no tile
+    /// standing lit, and the first arrow key fell to the next focusable thing in the room: the screen's own menu,
+    /// which is standing two hundred points off the left edge precisely so that nobody sees it.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheShelfTakesTheCaretWhenTheScreenOpens()
+    {
+      CatalogueServer server = new CatalogueServer();
+      MediaBrowserViewModel films = new MediaBrowserViewModel(
+          new ServerApiClient(SIGN_IN_URL, new HttpClient(server)), MoviesSection);
+      MediaBrowserView view = new MediaBrowserView(films);
+      ShellWindow window = new ShellWindow(view);
+      window.Show();
+      window.Focus();
+      view.OnScreenActivated();
+      WaitUntil("the films to arrive", delegate { return films.Titles.Count == 1; });
+      Pump();
+
+      Visual? caret = window.FocusManager.GetFocusedElement() as Visual;
+      ListBox titles = view.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "titlesList");
+      Assert.That(StandsInside(caret, view), Is.True,
+          "the caret of a library stands inside the library, not on the room around it");
+      Assert.That(caret, Is.InstanceOf<ListBoxItem>(), "and it stands on a tile of the shelf");
+      Assert.That(StandsInside(caret, titles), Is.True,
+          "and the tile it stands on is one the shelf itself laid out");
+
+      window.Close();
+    }
+
+    /// <summary>
+    /// The shelf glides to the title being stood on, on the reference's own two numbers for its shape.  A shelf
+    /// whose offset is written outright walks one row per key press and stops dead at every one of them, and it
+    /// nudges a row's height every now and then instead of moving a whole row at a time; the reference answered
+    /// both with an <c>AnimatedWrapPanel</c> that keeps the stood title inside a band of four hundred points either
+    /// side over four hundred milliseconds (<c>MediaStyles.xaml:5230</c>), a stack of rows with a band of a hundred
+    /// and thirty over three hundred (<c>:5205</c>) and a row of covers with two hundred and eighty before and two
+    /// hundred and sixty after, also over four hundred (<c>:5253</c>).  Where a band cannot hold its own tile - a
+    /// grid's four hundred points on a shelf of a thousand - the tile is stood at the band's middle, which is what
+    /// makes a wall answer every step with the same glide.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheShelfGlidesToTheStoodTitleOnTheReferencesNumbers()
+    {
+      LongShelf server = new LongShelf();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.Layout = BrowserLayout.Grid;
+      MediaBrowserView view = new MediaBrowserView(browser);
+      ShellWindow window = new ShellWindow(view);
+      window.Show();
+      window.Focus();
+      view.OnScreenActivated();
+      WaitUntil("the shelf to fill", delegate { return browser.Titles.Count > 60; });
+
+      ListBox titles = view.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "titlesList");
+      ScrollViewer scroller = titles.GetVisualDescendants().OfType<ScrollViewer>().First();
+      WaitUntil("the scroller to wear the glide",
+          delegate
+          {
+            return scroller.Transitions != null && scroller.Transitions.Count > 0;
+          });
+
+      ITransition glide = scroller.Transitions![0];
+      Assert.That(glide, Is.InstanceOf<VectorTransition>(), "the offset the shelf travels by is animated");
+      Assert.That(((VectorTransition)glide).Property, Is.EqualTo(ScrollViewer.OffsetProperty));
+      Assert.That(((VectorTransition)glide).Duration, Is.EqualTo(TimeSpan.FromMilliseconds(400)),
+          "a grid walks its wall in the reference's four hundred milliseconds");
+
+      // Stand on the deepest tile the shelf has laid out: the wall is then asked to stand that tile at the middle
+      // of its band, which is the same as saying its centre meets the middle of the shelf's own viewport.  The
+      // tile is taken from what the shelf actually realized rather than from a number, because a tile deep enough
+      // to be out of the viewport has no place to stand at yet - the wall has to move before it exists.
+      int standing = -1;
+      for (int i = 0; i < browser.Titles.Count; i++)
+      {
+        if (titles.ContainerFromIndex(i) != null)
+          standing = i;
+      }
+
+      Assert.That(standing, Is.GreaterThan(0), "the shelf laid out more than the tile it opened on");
+      Control? stood = titles.ContainerFromIndex(standing) as Control;
+      Assert.That(stood, Is.Not.Null, "the tile stood on is laid out, or there is nothing to stand");
+
+      // Where that tile stands in the wall itself, before anybody moved: the shelf may still scroll a step of its
+      // own to answer the selection, which moves the tile and the offset by the same number of points and leaves
+      // this one answer untouched.
+      Point before = stood!.TranslatePoint(new Point(), scroller) ?? new Point();
+      double stoodAt = scroller.Offset.Y + before.Y;
+      double middle = stoodAt + stood.Bounds.Height / 2 - scroller.Viewport.Height / 2;
+      double furthest = Math.Max(0, scroller.Extent.Height - scroller.Viewport.Height);
+      titles.SelectedIndex = standing;
+      WaitUntil("the wall to be taken to the stood tile",
+          delegate { return Math.Abs(view.ShelfGlideOffset - Math.Clamp(middle, 0, furthest)) < 1.0; });
+      Assert.That(view.ShelfGlideOffset, Is.GreaterThan(0.0),
+          "a wall deep in the shelf moves, and moves the whole way rather than a row at a time");
+
+      // And back to the first title, where the band's middle lies before the shelf begins: the wall is walked back
+      // to its beginning and no further.
+      titles.SelectedIndex = 0;
+      WaitUntil("the wall to be walked back to its beginning",
+          delegate { return view.ShelfGlideOffset == 0.0; });
+
+      // Rows are read a different way: the reference gave them a band of a hundred and thirty points and a shorter
+      // walk, so that a shelf of rows only starts moving when the standing row reaches the band's edge.
+      browser.Layout = BrowserLayout.List;
+      WaitUntil("the rows to be walked at three hundred milliseconds",
+          delegate
+          {
+            ScrollViewer? again = titles.GetVisualDescendants().OfType<ScrollViewer>().FirstOrDefault();
+            return again?.Transitions != null && again.Transitions!.Count > 0
+                && ((VectorTransition)again.Transitions![0]).Duration == TimeSpan.FromMilliseconds(300);
+          });
+
+      window.Close();
+    }
+
+    /// <summary>
+    /// A library lays the chrome header over its own head.  The reference hung its fanart over all three bands of
+    /// its media master - head, client area, floor (<c>master_bare_media.xaml:57-59</c>, a <c>FanArtBackground</c>
+    /// with RowSpan 3) - so its clock and its screen name stood on the picture and the picture went to the very
+    /// edge of the television.  A header kept in a row above the screen does the opposite: the screen's fanart
+    /// stops where its row starts and a black bar lies over the head of the screen, which is what a viewer of a
+    /// 21:9 panel sees as the picture not filling the screen.  The home already asks the shell to float its header;
+    /// so does a library now, and hands it back on the way out for whatever screen plans its space under a header.
+    /// </summary>
+    [AvaloniaTest]
+    public void ALibraryLaysTheChromeHeaderOverItsOwnHead()
+    {
+      LongShelf server = new LongShelf();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      MediaBrowserView view = new MediaBrowserView(browser);
+      ShellWindow window = new ShellWindow(view);
+      window.Show();
+      view.OnScreenActivated();
+      Pump();
+
+      ContentControl chrome = window.GetVisualDescendants().OfType<ContentControl>()
+          .First(control => control.Name == "ChromeHeader");
+      Assert.That(Grid.GetRow(chrome), Is.EqualTo(1),
+          "the header stands in the screens' row, so the screen's fanart reaches the top edge of the window");
+      Assert.That(chrome.IsHitTestVisible, Is.False,
+          "and a header that only decorates a screen never steals its clicks");
+
+      window.Close();
+
+      // A screen that never asked for the floating header finds its head band back where it was: the header is
+      // floated by the screen that wants it and by nobody else, so a screen that plans its space under a header row
+      // is not left with its top cut off.
+      ShellWindow bare = new ShellWindow(new ContentControl());
+      bare.Show();
+      Pump();
+      ContentControl rest = bare.GetVisualDescendants().OfType<ContentControl>()
+          .First(control => control.Name == "ChromeHeader");
+      Assert.That(Grid.GetRow(rest), Is.EqualTo(0),
+          "with no screen asking, the header stands in a row of its own above the screens again");
+      bare.Close();
+    }
+
+    /// <summary>Whether a control stands in the visual subtree of another, however deep.</summary>
+    private static bool StandsInside(Visual? element, Visual ancestor)
+    {
+      for (Visual? at = element; at != null; at = at.GetVisualParent())
+      {
+        if (ReferenceEquals(at, ancestor))
+          return true;
+      }
+
+      return false;
+    }
+
+    /// <summary>
+    /// The tile a viewer stands on lights the wall's ring, zooms its picture and throws its shadow at full weight,
+    /// exactly as the cover beside the shortcut glasses on the home screen does.  <c>MediaStyles.xaml</c> knew no
+    /// second voice for a tile that is being walked on: <c>home-tile-edge</c> is a ghost of light at rest and the
+    /// whole of it under a viewer, the artwork steps a tenth nearer, and the tile's own opacity comes up from
+    /// .86 to 1.  A shelf whose tiles stay dressed as though nobody were standing on them is the wall's tile with
+    /// its answer taken away, and the viewer cannot see where they are.
+    /// </summary>
+    [AvaloniaTest]
+    public void ATileOfTheShelfLightsTheWallsRingWhenAViewerStandsOnIt()
+    {
+      Application app = Application.Current!;
+      string? previousFolder = SkinEngine.SkinsFolder;
+      string previousTheme = FrontendTheme.CurrentName(app);
+      SkinEngine.SkinsFolder = Path.Combine(MetadataPath("FrontendSource"), "Skins");
+      ShellWindow? window = null;
+      try
+      {
+        Assert.That(FrontendTheme.Apply(app, "nereus", out string? themeProblem), Is.EqualTo("nereus"),
+            themeProblem ?? "");
+        Assert.That(SkinEngine.Apply(app, "nereus", out string? skinProblem), Is.True, skinProblem ?? "");
+
+        LongShelf server = new LongShelf();
+        MediaBrowserViewModel browser = BrowserOn(server);
+        browser.Layout = BrowserLayout.Grid;
+        window = new ShellWindow(new MediaBrowserView(browser));
+        window.Show();
+        WaitUntil("the shelf to fill", delegate { return browser.Titles.Count > 60; });
+
+        ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
+            .First(list => list.Name == "titlesList");
+        ListBoxItem? standing = titles.ContainerFromIndex(0) as ListBoxItem;
+        Assert.That(standing, Is.Not.Null, "the tile a viewer stands on is laid out");
+
+        Border edge = (Border)standing!.GetVisualDescendants().OfType<Control>()
+            .First(control => control.Classes.Contains("home-tile-edge"));
+        Image art = standing.GetVisualDescendants().OfType<Image>()
+            .First(image => image.Classes.Contains("home-tile-art"));
+
+        // At rest a tile is the wall's tile: the ring is a fifth of its light and the picture stands where it is.
+        TestContext.Out.WriteLine($"rest edge={Describe(edge.BorderBrush)} transform={art.RenderTransform}");
+
+        titles.SelectedIndex = 0;
+        window.Focus();
+        Assert.That(standing.Focus(), Is.True, "the tile a viewer walks onto takes the keyboard");
+        Pump();
+        Assert.That(standing.IsFocused, Is.True, "and keeps it");
+        Assert.That(standing.Classes.Contains(":focus") || standing.IsFocused, Is.True);
+
+        WaitUntil("the ring of the tile a viewer stands on to come up to full light",
+            delegate { return IsFullLightRing(edge.BorderBrush); });
+        TestContext.Out.WriteLine($"standing edge={Describe(edge.BorderBrush)} transform={art.RenderTransform}");
+
+        Assert.That(IsFullLightRing(edge.BorderBrush), Is.True,
+            "the ring of the tile a viewer stands on is the wall's full light");
+        // The picture does not jump; it walks a tenth nearer over half a second, so the reading waits for it.
+        WaitUntil("the picture of the tile a viewer stands on to step a tenth nearer",
+            delegate { return TransformScale(art.RenderTransform) > 1.09; });
+        Assert.That(TransformScale(art.RenderTransform), Is.EqualTo(1.1).Within(0.01),
+            "and its picture steps a tenth nearer, as the wall's covers do");
+      }
+      finally
+      {
+        window?.Close();
+        SkinEngine.Clear(app);
+        SkinEngine.SkinsFolder = previousFolder;
+        FrontendTheme.Apply(app, previousTheme, out string? _);
+      }
+    }
+
+    private static string Describe(IBrush? brush)
+    {
+      if (brush is LinearGradientBrush gradient && gradient.GradientStops.Count > 0)
+      {
+        return "gradient[" + string.Join(",",
+            gradient.GradientStops.Select(stop => stop.Color.ToString())) + "]";
+      }
+      return brush?.ToString() ?? "null";
+    }
+
+    private static bool IsFullLightRing(IBrush? brush)
+    {
+      return brush is LinearGradientBrush gradient
+          && gradient.GradientStops.Count > 0
+          && gradient.GradientStops[0].Color == Colors.White;
+    }
+
+    private static double TransformScale(ITransform? transform)
+    {
+      if (transform is Avalonia.Media.Transformation.TransformOperations)
+      {
+        Matrix m = ((ITransform)transform).Value;
+        return Math.Sqrt(m.M11 * m.M11 + m.M12 * m.M12);
+      }
+      if (transform is TransformGroup group)
+      {
+        double best = 1;
+        foreach (ITransform child in group.Children)
+          best = Math.Max(best, TransformScale(child));
+        return best;
+      }
+      if (transform is ScaleTransform scale)
+        return scale.ScaleX;
+      if (transform is MatrixTransform matrix)
+        return Math.Sqrt(matrix.Value.M11 * matrix.Value.M11 + matrix.Value.M12 * matrix.Value.M12);
+      return 1;
+    }
+
+    /// <summary>
+    /// The plot of the highlighted title stands beside the shelf, and never along its foot.  The reference knew a
+    /// strip of details at the foot for the tile views whose side panel had been switched off
+    /// (<c>BottomDetails_Template</c>), and the port had made that strip the normal case - so every library screen
+    /// spoke underneath its shelf while <c>SimpleShowItems.xaml</c> laid its details in a column of a thousand
+    /// points at the shelf's right hand.  The strip is gone; the column answers for grid and list, the cover view
+    /// answers above its posters, and the screen has no third place for details left in it.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheDetailsStandBesideTheShelfAndNeverAlongItsFoot()
+    {
+      CatalogueServer server = new CatalogueServer();
+      MediaBrowserViewModel films = new MediaBrowserViewModel(
+          new ServerApiClient(SIGN_IN_URL, new HttpClient(server)), MoviesSection);
+      MediaBrowserView view = new MediaBrowserView(films);
+      ShellWindow window = new ShellWindow(view);
+      window.Show();
+      WaitUntil("the films to arrive", delegate { return films.Titles.Count == 1; });
+
+      Assert.That(films.ShowDetails, Is.True,
+          "a shelf opens wearing its details, because the column beside it is where they belong");
+      Assert.That(films.ShowsSideDetails, Is.True, "and the column beside the shelf is what it wears");
+
+      Border[] panels = window.GetVisualDescendants().OfType<Border>()
+          .Where(border => border.Name == "detailsPanel").ToArray();
+      Assert.That(panels.Length, Is.EqualTo(1), "the screen has one column of details");
+      Assert.That(panels[0].IsVisible, Is.True, "and it stands while the details are on");
+
+      Assert.That(window.GetVisualDescendants().OfType<Control>()
+          .Any(control => control.Name == "homeDetailsPanel"), Is.False,
+          "nothing speaks along the foot of the shelf any more");
+
+      films.Layout = BrowserLayout.Cover;
+      Assert.That(films.ShowsCoverDetails, Is.True, "the covers wear their plot above the posters");
+      Assert.That(films.ShowsSideDetails, Is.False, "and no column beside them");
+
+      films.Layout = BrowserLayout.Grid;
+      films.ShowDetails = false;
+      Assert.That(panels[0].IsVisible, Is.False,
+          "the viewer who puts the details away gets the shelf whole, with nothing at its foot instead");
+      window.Close();
+    }
+
+    /// <summary>The folder the built frontend's sources were copied from, which is where the shipped skins are.</summary>
+    private static string MetadataPath(string name)
+    {
+      AssemblyMetadataAttribute? value = typeof(TestMediaBrowser).Assembly
+          .GetCustomAttributes<AssemblyMetadataAttribute>()
+          .FirstOrDefault(a => string.Equals(a.Key, name, StringComparison.Ordinal));
+      return value?.Value ?? throw new InvalidOperationException("no " + name + " in the test assembly's metadata");
+    }
+
+    /// <summary>Presses a key into the control that really has the focus, the way a remote does.</summary>
+    private static void SendKey(Control source, Key key)
+    {
+      source.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = key,
+        Source = source
+      });
+      Pump();
     }
 
     #region What one title says about itself
@@ -1283,7 +2189,8 @@ namespace Tests.Frontend
     {
       DetailsServer server = new DetailsServer(HttpStatusCode.OK, TITANIC_DETAILS);
       MediaBrowserViewModel browser = BrowserOn(server);
-      ShellWindow window = new ShellWindow(new MediaBrowserView(browser));
+      MediaBrowserView view = new MediaBrowserView(browser);
+      ShellWindow window = new ShellWindow(view);
       window.Show();
       WaitUntil("the row to arrive", delegate { return browser.Titles.Count == 1; });
 
@@ -1300,19 +2207,62 @@ namespace Tests.Frontend
       Assert.That(browser.ShowDetails, Is.True, "a screen wears its details until its viewer says otherwise");
       Assert.That(titles.Items.Count, Is.EqualTo(1), "the list stayed where it was behind the panel");
 
+      // The information key of a remote is the screen's own menu in the reference, not the details question
+      // (master_mediamenu.xaml:400), and the room slides aside for it instead of a panel being painted over the
+      // rows. The details have a key of their own beside it.
       titles.RaiseEvent(new KeyEventArgs
       {
         RoutedEvent = InputElement.KeyDownEvent,
         Key = Key.I,
         Source = titles
       });
+      WaitUntil("the menu to stand open", delegate { return browser.MediaMenuVisible; });
+      Assert.That(browser.ShowDetails, Is.True, "and the info key left the details alone");
+      ListBox rail = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "mediaMenuList");
+      WaitUntil("the menu to fill with its commands", delegate { return rail.Items.Count > 0; });
+
+      // Nothing is painted over the rows for this menu: the room slides the reference's two hundred points out of
+      // the way and the menu walks into the space that sliding makes (Animations.xaml:8-38). The sliding itself
+      // belongs to the transition on the room's own transform - see the room in the markup for why it is not
+      // driven from a timer - so what the screen is asked here is where the room was told to stand.
+      WaitUntil("the room to stand aside for the menu", delegate { return view.SlideOffset >= 200; });
+
+      // And the same transform is what the menu's other axis uses: walking from a grid into covers hands the menu
+      // from the left edge of the room to its bottom edge, and the room is put where the new menu wants it without
+      // sliding across a diagonal (see SlideMenu's atOnce).
+      browser.Layout = BrowserLayout.Cover;
       Pump();
-      Assert.That(panel.IsVisible, Is.False, "the info key turns the details away");
+      Assert.That(view.SlideOffset, Is.EqualTo(-200),
+          "with the menu under a row of covers the room stands two hundred points up");
+      browser.Layout = BrowserLayout.Grid;
+      Pump();
+      Assert.That(view.SlideOffset, Is.EqualTo(200),
+          "and two hundred points to the right when the menu is back beside a grid");
 
       titles.RaiseEvent(new KeyEventArgs
       {
         RoutedEvent = InputElement.KeyDownEvent,
-        Key = Key.I,
+        Key = Key.Escape,
+        Source = titles
+      });
+      WaitUntil("the menu to go away", delegate { return !browser.MediaMenuVisible; });
+      WaitUntil("the room to slide back", delegate { return view.SlideOffset == 0; });
+      Assert.That(browser.MediaMenuVisible, Is.False, "back puts the menu away again");
+
+      titles.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.D,
+        Source = titles
+      });
+      Pump();
+      Assert.That(panel.IsVisible, Is.False, "the details key turns the details away");
+
+      titles.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.D,
         Source = titles
       });
       WaitUntil("the details to come back", delegate { return panel.IsVisible; });
@@ -2042,15 +2992,14 @@ namespace Tests.Frontend
     {
       SeenServer server = new SeenServer();
       MediaBrowserViewModel browser = BrowserOn(server);
-      ShellWindow window = new ShellWindow(new MediaBrowserView(browser));
+      MediaBrowserView view = new MediaBrowserView(browser);
+      ShellWindow window = new ShellWindow(view);
       window.Show();
       WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SEEN_SHELF.Length; });
 
       ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
           .First(list => list.Name == "titlesList");
-      Button seen = window.GetVisualDescendants().OfType<Button>()
-          .First(button => button.Name == "seenButton");
-      Assert.That(seen.Content, Is.EqualTo("All titles"));
+      Assert.That(browser.SeenLabel, Is.EqualTo("All titles"));
 
       titles.Focus();
       titles.RaiseEvent(new KeyEventArgs
@@ -2060,8 +3009,33 @@ namespace Tests.Frontend
         Source = titles
       });
       WaitUntil("the filtered list", delegate { return browser.Titles.Count == 2; });
-      Assert.That(seen.Content, Is.EqualTo("Unwatched only"),
-          "the button on the screen says the state the list is in, so the filter is visible without asking");
+      Assert.That(browser.SeenLabel, Is.EqualTo("Unwatched only"),
+          "the screen says the state the list is in, so the filter is visible without asking");
+
+      // The state is said on the screen by the screen's own menu, which is where the reference kept these commands
+      // (master_mediamenu.xaml): the row that cycles the filter wears the label of the state it is in, so a viewer
+      // who opens the menu can read what the shelf is showing before pressing anything.
+      titles.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.I,
+        Source = titles
+      });
+      WaitUntil("the menu to stand open", delegate { return browser.MediaMenuVisible; });
+      ListBox rail = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "mediaMenuList");
+      WaitUntil("the menu to fill", delegate { return rail.Items.Count > 0; });
+      Assert.That(rail.Items.OfType<MediaBrowserMenuEntry>()
+              .Any(row => row.Label == "Unwatched only"), Is.True,
+          "the menu's filter row says which filter is on");
+
+      titles.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Escape,
+        Source = titles
+      });
+      WaitUntil("the menu to go away", delegate { return !browser.MediaMenuVisible; });
 
       titles.RaiseEvent(new KeyEventArgs
       {
@@ -2649,8 +3623,9 @@ namespace Tests.Frontend
     public void TheFootOfTheShelfCountsWhatTheReferenceCounted()
     {
       // MediaItemsList.inc drew two numbers at the foot of every shelf - where the highlight stands, counted
-      // from one, and how many titles the server counted in all - and a dark band rising from the bottom edge
-      // under grid and list, but never under covers and never while the details stood open beside the shelf.
+      // from one, and how many titles the server counted in all.  The dark band rising from the bottom edge is
+      // the master's own (master_bare_media.xaml:66), and the master wore it under grid and list whatever the
+      // details said; only the covers, which lay their own shadows over the wall of posters, went without it.
       CatalogueServer server = new CatalogueServer();
       MediaBrowserViewModel films = new MediaBrowserViewModel(
           new ServerApiClient(SIGN_IN_URL, new HttpClient(server)), MoviesSection);
@@ -2664,17 +3639,25 @@ namespace Tests.Frontend
       Assert.That(films.TotalNumber, Is.EqualTo(1), "the number behind the bar is the server's total");
 
       films.ShowDetails = false;
-      Assert.That(films.ShowsFloorGradient, Is.True, "a list without details wears the floor gradient");
+      Assert.That(films.ShowsFloorGradient, Is.True,
+          "the band is the master's, not the details column's: a shelf whose details are away still darkens its "
+          + "foot, because nothing else stands there to lift the names off the fanart");
 
       films.Layout = BrowserLayout.Cover;
       Assert.That(films.ShowsFloorGradient, Is.False, "covers draw no floor beneath themselves");
 
       films.Layout = BrowserLayout.Grid;
-      Assert.That(films.ShowsFloorGradient, Is.True, "and grid does, whatever view was walked through before");
+      Assert.That(films.ShowsFloorGradient, Is.True,
+          "the band comes back with the grid, whatever view was walked through before");
 
       films.ShowDetails = true;
-      Assert.That(films.ShowsFloorGradient, Is.False, "details standing open lift the floor away again");
+      Assert.That(films.ShowsFloorGradient, Is.True, "under grid and list the band rises with the details");
 
+      films.Layout = BrowserLayout.Cover;
+      Assert.That(films.ShowsFloorGradient, Is.False,
+          "and a cover shelf wears no band, because its details are centred above it rather than beside it");
+
+      films.Layout = BrowserLayout.Grid;
       films.ShowDetails = false;
       films.Selected = null;
       Assert.That(films.SelectedNumber, Is.EqualTo(0), "no highlight is counted as nothing, not as a row");

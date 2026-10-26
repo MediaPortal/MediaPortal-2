@@ -42,8 +42,14 @@ namespace Tests.Frontend
       Assert.That(defaults.Is(KeyAction.Back, Key.Escape), Is.True);
       Assert.That(defaults.Is(KeyAction.Back, Key.Back), Is.True);
       Assert.That(defaults.Is(KeyAction.Menu, Key.F16), Is.True);
-      Assert.That(defaults.Is(KeyAction.Details, Key.I), Is.True);
-      Assert.That(defaults.Is(KeyAction.Details, Key.Apps), Is.True);
+      // The information key of a remote belongs to the screen's own menu, which is what the reference bound it to
+      // (master_mediamenu.xaml:400); the details question sits beside it on a letter of its own rather than
+      // sharing the key, because one key cannot answer two questions.
+      Assert.That(defaults.Is(KeyAction.MediaMenu, Key.I), Is.True);
+      Assert.That(defaults.Is(KeyAction.MediaMenu, Key.Apps), Is.True);
+      Assert.That(defaults.Is(KeyAction.Details, Key.D), Is.True);
+      Assert.That(defaults.Is(KeyAction.Details, Key.I), Is.False,
+          "and the info key is not quietly still the details as well");
       Assert.That(defaults.Is(KeyAction.PlayPause, Key.MediaPlayPause), Is.True);
       Assert.That(defaults.Is(KeyAction.Find, Key.F), Is.True);
       Assert.That(defaults.Is(KeyAction.Watched, Key.W), Is.True);
@@ -72,9 +78,51 @@ namespace Tests.Frontend
         foreach (var entry in read.Bindings)
           merged.Bindings[entry.Key] = entry.Value;
         Assert.That(merged.Is(KeyAction.Menu, Key.F5), Is.True);
-        Assert.That(merged.Is(KeyAction.Details, Key.I), Is.True,
+        Assert.That(merged.Is(KeyAction.Details, Key.D), Is.True,
             "an action the file forgot keeps its default keys - half a file silences nothing");
         Assert.That(merged.Is(KeyAction.Back, Key.BrowserBack), Is.True, "a key the front end never heard of works");
+      }
+      finally
+      {
+        File.Delete(file);
+      }
+    }
+
+    /// <summary>
+    /// The file a viewer has on disk when the front end has moved a question to a key of its own since the file
+    /// was written. Until the 26th of October the media menu and the details were the same I, and the split left
+    /// every existing file binding the details to the keys the menu had taken - which took the letter away from
+    /// the details and gave one key to two questions. Such an entry is the leftover of a split and not a choice,
+    /// so it is read as that; what a viewer chose themselves is never read away.
+    /// </summary>
+    [Test]
+    public void AFileWrittenBeforeTheSplitStillAnswersEachQuestionWithItsOwnKey()
+    {
+      string file = Path.Combine(Path.GetTempPath(), "mp2-keys-" + Guid.NewGuid().ToString("N") + ".json");
+      try
+      {
+        // The file as it stands on a machine that has been running the front end since before the split.
+        File.WriteAllText(file, ("{ 'bindings': { 'Back': ['Escape', 'Back'], 'Menu': ['F16'], "
+            + "'Details': ['I', 'Apps'], 'PlayPause': ['MediaPlayPause'], 'Find': ['F'], 'Watched': ['W'], "
+            + "'View': ['V'], 'Media': ['M'] } }").Replace('\'', '"'));
+
+        KeyBindings merged = KeyBindings.Merged(KeyBindings.Load(file, out _), KeyBindings.TheDefaults(),
+            out string? repaired);
+
+        Assert.That(merged.Is(KeyAction.Details, Key.D), Is.True,
+            "the details answer the letter of their own word again");
+        Assert.That(merged.Is(KeyAction.MediaMenu, Key.I), Is.True,
+            "and the screen's menu keeps the key the reference gave it");
+        Assert.That(merged.Is(KeyAction.MediaMenu, Key.Apps), Is.True,
+            "the remote's info button, which reaches this code as Apps, included");
+        Assert.That(merged.Is(KeyAction.Back, Key.Escape), Is.True, "everything else stands as the file has it");
+        Assert.That(repaired, Is.Not.Null.And.Contains("Details"), "and the repair says so to the console");
+
+        // The same file with a key a viewer really did choose, which is nobody's leftover and stands.
+        File.WriteAllText(file, "{ 'bindings': { 'Details': ['J'] } }".Replace('\'', '"'));
+        merged = KeyBindings.Merged(KeyBindings.Load(file, out _), KeyBindings.TheDefaults(), out repaired);
+        Assert.That(merged.Is(KeyAction.Details, Key.J), Is.True, "a viewer's own letter is theirs");
+        Assert.That(repaired, Is.Null, "and nothing is repaired away that was chosen");
       }
       finally
       {

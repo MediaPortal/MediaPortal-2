@@ -34,6 +34,9 @@ namespace MediaPortal.Frontend.Settings
     /// <summary>The remote's menu key: the list menu on a title screen, the on-screen keyboard on a field.</summary>
     Menu,
 
+    /// <summary>The screen's own menu, which the reference hung off the edge of every media screen.</summary>
+    MediaMenu,
+
     /// <summary>What the selected title is, next to it instead of playing it.</summary>
     Details,
 
@@ -107,7 +110,13 @@ namespace MediaPortal.Frontend.Settings
       KeyBindings defaults = new KeyBindings();
       defaults.Bindings[KeyAction.Back.ToString()] = new List<string> { "Escape", "Back" };
       defaults.Bindings[KeyAction.Menu.ToString()] = new List<string> { "F16" };
-      defaults.Bindings[KeyAction.Details.ToString()] = new List<string> { "I", "Apps" };
+      // The reference's media screens bound the remote's Info key to opening the screen's own menu
+      // (master_mediamenu.xaml:400), and that key reaches this code as Apps; the letter is the same question for a
+      // keyboard. The details, which this screen used to hang on the same key, are a second half of the view
+      // question and moved to the letter of their own word - which is also where the reference kept them, behind
+      // the view mode dialog rather than on a key of the shelf.
+      defaults.Bindings[KeyAction.MediaMenu.ToString()] = new List<string> { "I", "Apps" };
+      defaults.Bindings[KeyAction.Details.ToString()] = new List<string> { "D" };
       defaults.Bindings[KeyAction.PlayPause.ToString()] = new List<string> { "MediaPlayPause" };
       defaults.Bindings[KeyAction.Find.ToString()] = new List<string> { "F" };
       defaults.Bindings[KeyAction.Watched.ToString()] = new List<string> { "W" };
@@ -132,18 +141,103 @@ namespace MediaPortal.Frontend.Settings
             if (_current == null)
             {
               KeyBindings read = Load(null, out _);
-              KeyBindings merged = TheDefaults();
-              foreach (KeyValuePair<string, List<string>> entry in read.Bindings)
-              {
-                if (entry.Value != null)
-                  merged.Bindings[entry.Key] = entry.Value;
-              }
-              _current = merged;
+              _current = Merged(read, TheDefaults(), out string? repaired);
+              if (repaired != null)
+                Console.WriteLine("bindings: " + repaired);
             }
           }
         }
         return _current;
       }
+    }
+
+    /// <summary>
+    /// The defaults with a viewer's file laid over them, plus the one repair a file written before the front end
+    /// split an action out of another cannot do for itself.
+    /// </summary>
+    /// <param name="repaired">
+    /// What was repaired, for whoever reads the console; null when the file was taken as it stands.
+    /// </param>
+    public static KeyBindings Merged(KeyBindings read, KeyBindings defaults, out string? repaired)
+    {
+      repaired = null;
+      KeyBindings merged = new KeyBindings();
+      foreach (KeyValuePair<string, List<string>> entry in defaults.Bindings)
+        merged.Bindings[entry.Key] = new List<string>(entry.Value);
+
+      foreach (KeyValuePair<string, List<string>> entry in read.Bindings)
+      {
+        if (entry.Value == null)
+          continue;
+
+        string? leftover = LeftoverOfASplit(entry.Key, entry.Value, defaults);
+        if (leftover != null)
+        {
+          repaired = (repaired == null ? "" : repaired + "; ") + entry.Key + " was still bound to the keys of "
+              + leftover + ", which it answered before the two were split apart; it answers "
+              + string.Join("/", defaults.Bindings[entry.Key]) + " again";
+          continue;
+        }
+
+        merged.Bindings[entry.Key] = new List<string>(entry.Value);
+      }
+
+      return merged;
+    }
+
+    /// <summary>
+    /// The name of the action whose own default keys a file entry repeats, when it repeats one at all - and null
+    /// when the entry is the viewer's own choice.
+    /// </summary>
+    /// <remarks>
+    /// A file written while one key answered both questions - the screen's menu and the details having been the
+    /// same <c>I</c> - binds the older name to the keys the younger action has taken for itself. Kept, that gives
+    /// one key to two questions and takes away the letter the younger action moved to, so an entry that repeats
+    /// another action's default while its OWN default is a different pair is read as what it is: the leftover of
+    /// a split, not a choice. A viewer who really does want two actions on one key still gets it, because the
+    /// key they chose is not the other action's whole default pair.
+    /// </remarks>
+    private static string? LeftoverOfASplit(string action, List<string> keys, KeyBindings defaults)
+    {
+      List<string>? own;
+      if (!defaults.Bindings.TryGetValue(action, out own) || own == null)
+        return null;
+      if (SameKeys(own, keys))
+        return null;
+
+      foreach (KeyValuePair<string, List<string>> other in defaults.Bindings)
+      {
+        if (string.Equals(other.Key, action, StringComparison.OrdinalIgnoreCase))
+          continue;
+        if (SameKeys(other.Value, keys))
+          return other.Key;
+      }
+
+      return null;
+    }
+
+    private static bool SameKeys(List<string> first, List<string> second)
+    {
+      if (first == null || second == null || first.Count != second.Count)
+        return false;
+
+      foreach (string name in first)
+      {
+        bool found = false;
+        foreach (string other in second)
+        {
+          if (string.Equals((name ?? "").Trim(), (other ?? "").Trim(), StringComparison.OrdinalIgnoreCase))
+          {
+            found = true;
+            break;
+          }
+        }
+
+        if (!found)
+          return false;
+      }
+
+      return true;
     }
 
     private static readonly object _gate = new object();
