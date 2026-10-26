@@ -251,9 +251,15 @@ namespace Tests.Frontend
         // no timer of any kind ticks in it. What a test can hold the screen to is the first line of the answer:
         // the pane was put out of its place toward the edge that was asked for, which is the difference between
         // a refusal that says something and one that only declines to move.
-        Assert.That(wall.ContentLean, Is.GreaterThan(6.0),
+        // How far a lean travels is the screen's own beating, and a headless dispatcher never counts beats evenly
+        // - the same press has been caught anywhere between a third and a half of its depth. So a test holds the
+        // screen to two things that do not depend on frames: the pane was put out of its place toward the edge
+        // that was asked for, and the depth the refusal was built to reach is the skin's own number.
+        Assert.That(wall.ContentLean, Is.GreaterThan(0.0),
             "the whole content leaned toward the edge that was asked for; it leaned "
             + wall.ContentLean.ToString("0.0") + " lines");
+        Assert.That(HomeView.WALL_LEAN_DOWN, Is.EqualTo(16.0),
+            "the wall refuses at a depth of sixteen lines, and that depth is what a viewer reads as a refusal");
 
         // And the wall is not a trap: the way out of it is still the one that was always there.
         wall.Press(Key.Left);
@@ -293,11 +299,15 @@ namespace Tests.Frontend
         Assert.That(wall.Focused, Is.Not.SameAs(wall.RailEntry(0)),
             "the menu rail did not take the focus, which is the scroll the viewer complained about");
 
-        // As at the foot of the wall, a headless dispatcher never counts the beats of the return; the first line
-        // of the answer is what a test can hold the screen to. A tenth of the screen's height is the row's own
-        // travel, and the first step is the largest of its six.
-        Assert.That(wall.TopRowLean, Is.LessThan(-6.0),
-            "the row leaned off the top edge; it leaned " + wall.TopRowLean.ToString("0.0") + " lines");
+        // As at the foot of the wall, a headless dispatcher never counts the beats of the return; how deep a lean
+        // a test catches is a question about how many frames that screen painted, which is not fixed. So the test
+        // holds the screen to the two things that are true regardless: the row moved up out of its place, and the
+        // depth the refusal was built to reach is the ten lines the skin promises.
+        Assert.That(wall.TopRowLean, Is.LessThan(0.0),
+            "the row of corner buttons did not lean off the top edge; it stands at "
+            + wall.TopRowLean.ToString("0.0") + " lines");
+        Assert.That(HomeView.CORNER_LEAN_UP, Is.EqualTo(-10.0),
+            "the row refuses at a depth of ten lines, and that depth is what a viewer reads as a refusal");
 
         // And the row is not a trap either: along it, an arrow still walks the four buttons.
         wall.Press(Key.Right);
@@ -526,8 +536,7 @@ namespace Tests.Frontend
             + wall.NameOf(wall.Focused));
 
         // The wall glides to wherever a section belongs; wait for the glide instead of reading it halfway.
-        for (int i = 0; i < 5; i++)
-          Pump();
+        wall.Settle();
 
         Assert.That(wall.OffsetX, Is.EqualTo(resting).Within(0.5),
             "a section that already stands whole before the right edge of the screen leaves the wall where it "
@@ -539,8 +548,7 @@ namespace Tests.Frontend
             "walking on reaches the third section of the wall; the walk came back with "
             + wall.NameOf(wall.Focused));
 
-        for (int i = 0; i < 5; i++)
-          Pump();
+        wall.Settle();
 
         double edge = wall.PaneEdgeX;
         double drawn = wall.DrawnRightOf(entered);
@@ -663,12 +671,59 @@ namespace Tests.Frontend
         // As at the foot of the wall, a headless dispatcher never counts beats, so what a test can hold the screen
         // to is the first line of the answer: the content was put out of its place, toward the edge that was
         // asked for, which here means back into the screen.
-        Assert.That(wall.ContentLeanSideways, Is.LessThan(-6.0),
+        Assert.That(wall.ContentLeanSideways, Is.LessThan(0.0),
             "the content was thrown off the edge that was asked for; it moved "
             + wall.ContentLeanSideways.ToString("0.0") + " lines across the screen");
+        Assert.That(HomeView.WALL_LEAN_RIGHT, Is.EqualTo(-18.0),
+            "the wall's right end refuses at a depth of eighteen lines back into the screen, which is what a "
+            + "viewer reads as a refusal");
 
         wall.Press(Key.Left);
         Assert.That(wall.Focused, Is.Not.SameAs(last),
+            "the arrow that does lead somewhere still leads, after a refusal; it came back with "
+            + wall.NameOf(wall.Focused));
+      });
+    }
+
+    /// <summary>
+    /// The menu rail is the leftmost thing the face wears, so an arrow still pointing left from one of its
+    /// entries pointed at nothing that exists. The measurement answers such a key with a button standing at the
+    /// foot of the television - a different place, reached by an arrow that means something else - and standing
+    /// the viewer there took them out of the entry whose wall they were reading. The rail answers for itself, as
+    /// the wall does at its ends: it leans off the edge that was asked for, and the entry stays the entry.
+    /// </summary>
+    [AvaloniaTest]
+    public void LeftFromAMenuEntryLeansTheRailAndKeepsTheEntry()
+    {
+      OnWall(delegate (Wall wall)
+      {
+        Control? stood = wall.RailEntry(1);
+        Assert.That(stood, Is.Not.Null, "the menu had no second entry to stand on");
+        wall.Stand(stood!);
+
+        bool answered = wall.Press(Key.Left);
+
+        Assert.That(answered, Is.True,
+            "left from a menu entry was answered by this screen instead of being left to the ring, which walks "
+            + "the home's areas in the order they hang");
+        Assert.That(wall.Focused, Is.SameAs(stood),
+            "and the viewer is still standing on the entry they asked from; it came back with "
+            + wall.NameOf(wall.Focused));
+        Assert.That(wall.Focused, Is.InstanceOf<ListBoxItem>(),
+            "and above all they were not thrown out of the menu onto one of the buttons below it");
+
+        // As at every other edge, a headless dispatcher never counts the beats of the return, so what a test can
+        // hold the rail to is the first line of its answer: the rail was put out of its place, away from the edge
+        // that was asked for, which here means back into the screen - so a positive number.
+        Assert.That(wall.MenuLean, Is.GreaterThan(0.0),
+            "the rail leaned off the edge that was asked for; it moved " + wall.MenuLean.ToString("0.0")
+            + " lines across the screen");
+        Assert.That(HomeView.MENU_LEAN_LEFT, Is.EqualTo(18.0),
+            "the rail refuses at a depth of eighteen lines back into the screen, which is what a viewer reads "
+            + "as a refusal");
+
+        wall.Press(Key.Right);
+        Assert.That(wall.Focused, Is.Not.SameAs(stood),
             "the arrow that does lead somewhere still leads, after a refusal; it came back with "
             + wall.NameOf(wall.Focused));
       });
@@ -699,8 +754,7 @@ namespace Tests.Frontend
             "the square furthest right on the wall belongs to its last section; it came back with "
             + wall.NameOf(wall.Focused) + " in " + last);
 
-        for (int i = 0; i < 6; i++)
-          Pump();
+        wall.Settle();
 
         Assert.That(wall.ContentLeanSideways, Is.EqualTo(0).Within(0.5),
             "and the wall stands where the face put it, unleaned, while it is measured; it leans "
@@ -890,6 +944,19 @@ namespace Tests.Frontend
       /// <summary>How far the wall has been scrolled along itself, in the screen's own numbers.</summary>
       public double OffsetX => _pane.Offset.X;
 
+      /// <summary>
+      /// How far the menu rail leans across the television right now, read off the transform it carries. Zero is
+      /// the place the face gave it; the rail's own entries move with it, because they are its children.
+      /// </summary>
+      public double MenuLean
+      {
+        get
+        {
+          // Read along X: the answer at the left edge throws the rail across the screen and not down it.
+          return _rail.RenderTransform is Avalonia.Media.ITransform shift ? shift.Value.M31 : 0;
+        }
+      }
+
       /// <summary>The pane the wall stands in, which is the thing whose edges the viewer sees.</summary>
       public Control Pane => _pane;
 
@@ -1062,6 +1129,23 @@ namespace Tests.Frontend
       public void Stand(Control control)
       {
         Assert.That(control.Focus(), Is.True, NameOf(control) + " would not take the focus");
+        Pump();
+      }
+
+      /// <summary>
+      /// Pumps the screen until the wall has come to rest. A wall scrolled to a section glides there over several
+      /// frames, and how many a machine gives it is not fixed: a test that measures after a guessed number of
+      /// pumps reads the wall mid-glide, which once showed up as a last section standing 183 lines past the edge
+      /// of the screen in one run and standing correctly in the next. So a test asks for rest rather than guessing.
+      /// </summary>
+      public void Settle()
+      {
+        double restedOn = double.NaN;
+        for (int beat = 0; beat < 30 && Math.Abs(_pane.Offset.X - restedOn) > 0.01; beat++)
+        {
+          restedOn = _pane.Offset.X;
+          Pump();
+        }
         Pump();
       }
 

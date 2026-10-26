@@ -25,6 +25,7 @@ using Avalonia.Controls.Presenters;
 using Avalonia.Headless;
 using Avalonia.Headless.NUnit;
 using Avalonia.Media;
+using Avalonia.Styling;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
@@ -352,11 +353,17 @@ namespace Tests.Frontend
     }
 
     /// <summary>
-    /// What standing on one of the four does to the mark it carries: the glyph is lit with a small glow, and the
-    /// plate under it is left as quiet as it was. Two things could go quietly wrong about this. A setter aimed
-    /// through a button at the shape inside it only fires if the style really reaches into the button's content,
-    /// and an effect whose colour it could not resolve still exists afterwards - it simply draws in black, which
-    /// over this face's pictures is the same as drawing no light at all.
+    /// What standing on one of the four does to the mark it carries: it is lit with a white glow that spreads further
+    /// than the button's own square, and the plate under it is left as quiet as it was. Four things could go quietly
+    /// wrong about this. A setter aimed through a button at the shape inside it only fires if the style really
+    /// reaches into the button's content. An effect whose colour it could not resolve still exists afterwards - it
+    /// simply draws in black, which over this face's pictures is the same as drawing no light at all - and a glow
+    /// aimed at white that came back coloured is the same mistake in a nicer dress. A control that owns a template
+    /// clips what it draws to its own rectangle, so the light was cut on the button's circle halfway out of the
+    /// glyph, which is a ring under the mark and not a light out of it. And the glow was once written for the ring
+    /// alone, so a viewer with a mouse saw the button lighten while the glyph stayed dark: what the two ways of
+    /// standing on a button promise has to be read off the two rules, because no pointer can be pointed at a
+    /// headless screen.
     /// </summary>
     [AvaloniaTest]
     public void StandingOnACornerButtonLightsItsMarkAndNotItsPlate()
@@ -385,8 +392,8 @@ namespace Tests.Frontend
             .OfType<Avalonia.Controls.Shapes.Path>().First();
         ContentPresenter? plate = power.GetVisualDescendants().OfType<ContentPresenter>().FirstOrDefault();
 
-        Assert.That(mark.Effect, Is.Null,
-            "at rest a corner mark carries no glow - four quiet marks over the picture behind them is what the "
+        Assert.That(power.Effect, Is.Null,
+            "at rest a corner button carries no glow - four quiet marks over the picture behind them is what the "
             + "face shows until something stands on one");
         IEffect? restingPlate = plate?.Effect;
 
@@ -394,18 +401,55 @@ namespace Tests.Frontend
         Pump();
         Assert.That(power.IsFocused, Is.True, "something stands on the button");
 
-        DropShadowEffect? glow = mark.Effect as DropShadowEffect;
+        DropShadowEffect? glow = power.Effect as DropShadowEffect;
         Assert.That(glow, Is.Not.Null,
-            "standing on the button lit a glow, and lit it on the mark itself rather than on the button that "
-            + "carries it");
-        Assert.That(glow!.BlurRadius, Is.GreaterThan(0),
-            "the glow is light spread out rather than a hard copy of the mark standing behind it");
-        Assert.That(glow.Color, Is.Not.EqualTo(Colors.Black),
-            "and the glow wears the family's own accent: an effect whose colour could not be resolved is still "
-            + "there afterwards, but draws in black, which over this face's pictures would be no light at all");
+            "standing on the button lit a glow, and lit it on the button whose glyph it is, where the plate it "
+            + "stands on paints nothing and can therefore not swallow the light");
+        Assert.That(glow!.BlurRadius, Is.GreaterThan(13.0),
+            "the glow is light spread well out of the glyph rather than a hard edge behind it; it spreads "
+            + glow.BlurRadius.ToString("0.#") + " lines");
+        Assert.That(glow.Opacity, Is.GreaterThan(0.9),
+            "and it is lit at full strength, not a hint of a hint; it carries "
+            + glow.Opacity.ToString("0.00") + " of its light");
+        Assert.That(glow.Color, Is.EqualTo(Colors.White),
+            "the glow is white light: a coloured glow over this face's pictures reads as a tint laid over the "
+            + "mark rather than as light coming out of it, and an effect whose colour could not be resolved "
+            + "draws in black, which is no light at all; it came back " + glow.Color);
 
+        // The cut the reader complained about: a sixty-six square with a forty-six glyph in it has ten lines of
+        // room to its own edge, and a control that owns a template clips what it draws to that edge - so the
+        // light stopped on the button's own circle, halfway out of the glyph, like a ring laid under the mark.
+        Assert.That(power.ClipToBounds, Is.False,
+            "and the button lets its own light out: nothing but that light leans outside the square, so the clip "
+            + "that cut it in a circle is off");
+        Assert.That(mark.ClipToBounds, Is.False,
+            "and the glyph itself clips nothing either, which is where the light is drawn");
+
+        Assert.That(mark.Effect, Is.Null,
+            "the mark carries no glow of its own - it is the button that lights, and the mark is what the light "
+            + "has to work on");
         Assert.That(plate?.Effect, Is.SameAs(restingPlate),
             "the plate the mark stands on carries no glow of its own, so the mark alone answers the key");
+
+        // The hand and the ring are answered by one and the same glow. The pointer's half stands behind the
+        // window's own gate, which is why the two rules are two rules and not one.
+        Style? hand = EveryStyle(app.Styles).FirstOrDefault(s =>
+            s.Selector.ToString() == "Window:not(.pointer-resting) Button.nereus-corner-button:pointerover");
+        Assert.That(hand, Is.Not.Null,
+            "a viewer who drags a mouse across the row is answered by a rule of their own, so that the mark lights "
+            + "for the pointer as it does for the ring");
+        DropShadowEffect? pointed = hand?.Setters.OfType<Setter>()
+            .FirstOrDefault(s => s.Property.Name == "Effect")?.Value as DropShadowEffect;
+        Assert.That(pointed, Is.Not.Null,
+            "and that rule dresses the mark with a glow rather than only lightening the button it stands on");
+        Assert.That(pointed!.BlurRadius, Is.EqualTo(glow.BlurRadius),
+            "the pointer's glow spreads as far as the ring's; the ring's " + glow.BlurRadius.ToString("0.#")
+            + ", the pointer's " + pointed.BlurRadius.ToString("0.#"));
+        Assert.That(pointed.Color, Is.EqualTo(glow.Color),
+            "and wears the same light; the ring's " + glow.Color + ", the pointer's " + pointed.Color);
+        Assert.That(pointed.Opacity, Is.EqualTo(glow.Opacity),
+            "at the same strength; the ring's " + glow.Opacity.ToString("0.00") + ", the pointer's "
+            + pointed.Opacity.ToString("0.00"));
         window.Close();
       }
       finally
@@ -419,13 +463,34 @@ namespace Tests.Frontend
     }
 
     /// <summary>
+    /// Every single rule a face laid down, out of the groups it filed them in: the skin hands its files over as
+    /// <see cref="Styles"/> collections, and a rule a test wants to compare with another one is inside one of
+    /// those, not in the screen's own style list.
+    /// </summary>
+    private static IEnumerable<Style> EveryStyle(IEnumerable<IStyle> styles)
+    {
+      foreach (IStyle style in styles)
+      {
+        if (style is Style single)
+          yield return single;
+
+        if (style is Styles group)
+        {
+          foreach (Style nested in EveryStyle(group))
+            yield return nested;
+        }
+      }
+    }
+
+    /// <summary>
     /// What a main menu tile's picture does about the viewer standing on it and about being the entry the screen
-    /// is showing: the light comes up for both, the growth for the standing alone. A tile that is merely the
-    /// standing one used to stay a tenth grown while the viewer was away out on the wall, so two tiles on the
-    /// screen were grown at once and neither said where the viewer was.
+    /// is showing: the light comes up for either, but the growth belongs to the standing entry alone, and to that
+    /// only while someone is actually on it. A tile that is merely the tile the arrow points at has to keep its
+    /// picture in its frame, or the growth - which says "this entry is what the screen is about" - is said about
+    /// every tile a viewer walks past on the way to the one they meant.
     /// </summary>
     [AvaloniaTest]
-    public void AMenuTileGrowsOnlyWhileSomethingStandsOnIt()
+    public void OnlyTheStandingEntryGrowsItsPictureAndOnlyWhileSomeoneStandsOnIt()
     {
       Application app = Application.Current!;
       string previous = SkinEngine.SkinsFolder;
@@ -449,39 +514,64 @@ namespace Tests.Frontend
         Pump();
 
         Image art = (Image) standing.Content;
-        Assert.That(art.Opacity, Is.EqualTo(0.75).Within(0.01),
+        Image elsewhere = (Image) other.Content;
+
+        // The two pictures are measured with their animations taken off, because a headless screen never gets
+        // the beats a transition runs on: an animation started here is read halfway and stays there. What this
+        // test holds the face to is which rule wins for which tile, and a rule that wins half a second late is
+        // still the rule that wins - the speed it arrives at is not what is being asked here.
+        art.Transitions = new Avalonia.Animation.Transitions();
+        elsewhere.Transitions = new Avalonia.Animation.Transitions();
+        Pump();
+
+        const double BASE_MENU_ART_LIGHT = 0.75;
+        Assert.That(art.Opacity, Is.EqualTo(BASE_MENU_ART_LIGHT).Within(0.01),
             "a tile that waits wears three quarters of its picture");
         Assert.That(Growth(art), Is.EqualTo(1.0).Within(0.01), "and keeps it in its frame");
 
-        // The entry the screen is about: the light comes up, the picture stays where it is.
+        // The entry the screen is about, with nobody standing on it yet: the light comes up, the picture stays
+        // where it is.
         rail.SelectedIndex = 0;
-        Pump();
         Pump();
         Assert.That(art.Opacity, Is.EqualTo(1.0).Within(0.01),
             "the standing entry wears the full light wherever the viewer is, because the screen is about it");
         Assert.That(Growth(art), Is.EqualTo(1.0).Within(0.01),
-            "and standing on the screen is not standing on the tile: the picture does not step nearer until "
+            "standing on the screen is not standing on the tile: the picture does not step nearer until "
             + "someone is on it; it stands at " + Growth(art).ToString("0.000"));
 
-        // Now the viewer does stand on it, and the growth the dimness was kept for arrives.
-        Assert.That(standing.Focus(), Is.True, "the viewer steps onto the entry");
-        for (int round = 0; round < 8; round++)
-          Pump();
-        Assert.That(Growth(art), Is.GreaterThan(1.06),
-            "standing on the tile steps its picture a tenth nearer; it came to "
+        // A viewer who walks the rail lights every tile they pass and grows none of them, because the growth
+        // means "this is the entry the screen is showing" and is not to be said about the wrong one.
+        Assert.That(other.Focus(), Is.True, "the viewer steps onto the entry below the standing one");
+        Pump();
+        Assert.That(elsewhere.Opacity, Is.EqualTo(1.0).Within(0.01),
+            "the tile a viewer stands on wears the full light, whichever entry it is");
+        Assert.That(Growth(elsewhere), Is.EqualTo(1.0).Within(0.01),
+            "but a tile that is not the entry the screen is about keeps its picture in its frame even under the "
+            + "focus; it stands at " + Growth(elsewhere).ToString("0.000"));
+        Assert.That(Growth(art), Is.EqualTo(1.0).Within(0.02),
+            "and the standing entry does not grow while the viewer is away out on the rail either; it stands at "
             + Growth(art).ToString("0.000"));
 
-        // And the way back is the point of the whole thing: the viewer steps off, the tile is still the entry
-        // the screen is about, and the picture goes home to its frame.
+        // Now they come back onto the entry itself, and the growth the dimness was kept for arrives.
+        Assert.That(standing.Focus(), Is.True, "the viewer steps onto the standing entry");
+        Pump();
+        Assert.That(Growth(art), Is.EqualTo(1.1).Within(0.01),
+            "the standing entry under a viewer steps its picture a tenth nearer; it came to "
+            + Growth(art).ToString("0.000"));
+
+        // And the way off is the way back: still the entry the screen is about, nobody on it, and the picture
+        // goes home to its frame.
         Assert.That(other.Focus(), Is.True, "the viewer steps off onto the entry below");
-        for (int round = 0; round < 8; round++)
-          Pump();
+        Pump();
         Assert.That(rail.SelectedIndex, Is.EqualTo(0),
             "the first tile is still the entry the screen is showing, so what settles back has to be the "
             + "growth and not the selection");
-        Assert.That(Growth(art), Is.LessThan(1.02),
+        Assert.That(Growth(art), Is.EqualTo(1.0).Within(0.01),
             "and the picture settles back into its frame as soon as nobody stands on it; it came to "
             + Growth(art).ToString("0.000"));
+        Assert.That(art.Opacity, Is.EqualTo(1.0).Within(0.01),
+            "the standing entry keeps the light once it has it, wherever the viewer goes; it stands at "
+            + art.Opacity.ToString("0.000") + " of its picture");
         window.Close();
       }
       finally

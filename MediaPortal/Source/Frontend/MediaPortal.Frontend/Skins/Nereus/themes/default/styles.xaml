@@ -318,28 +318,46 @@
          carry half their own width and the light comes up as a disc. -->
     <Setter Property="CornerRadius" Value="33"/>
     <Setter Property="Opacity" Value="0.5"/>
+    <!-- A control that owns a template clips what it draws to its own rectangle, and these squares are sixty-six
+         lines wide with a forty-six glyph standing in the middle of them: ten lines of room, which is less than
+         the glow below spreads. The light was therefore cut off on a circle - the button's own rounded corner -
+         halfway out of the glyph, which reads as a ring laid under the mark rather than as light coming out of
+         it. What leans out of a square is nothing but that light, so the clip goes. -->
+    <Setter Property="ClipToBounds" Value="False"/>
     <Setter Property="Transitions">
       <Transitions>
         <DoubleTransition Property="Opacity" Duration="0:0:0.2"/>
       </Transitions>
     </Setter>
   </Style>
-  <Style Selector="Window:not(.pointer-resting) Button.nereus-corner-button:pointerover">
-    <Setter Property="Opacity" Value="1"/>
-  </Style>
+  <!-- The light and the glow a stood-on button takes are one rule per state, below, so that a viewer cannot
+     light one half of the answer and not the other. -->
+  <!-- Standing on one of the four lights its mark as well: a glow drawn round the glyph, and round nothing
+       else. The light sits on the button and not on the shape inside it, for two reasons that point the same way.
+       A control that owns a template clips what it draws to its own rectangle, and the shape is the clipped
+       child: a glow written on it was cut on the button's own circle halfway out of the glyph. And the plate the
+       mark stands on paints nothing at all - these four wear a transparent ground, which is what keeps the rest
+       of the fanart whole - so a light written on the button can only ever come out of the one thing the button
+       really draws, which is the glyph. A lit plate would answer the key from the whole sixty-six square instead
+       of from the mark the viewer is looking for, and that is what the transparent ground prevents.
+       The glow is white and it is generous: sixteen lines of it spread out of the glyph at full strength. A
+       coloured glow over this face's pictures - the family's accent, which is what this used to wear - reads as
+       a tint laid over the mark rather than as light coming out of it, and a white one of this size lifts the
+       glyph off whatever happens to be standing behind it, which is the whole point of the answer.
+       Both ways of standing on a button light the mark, and with the same glow: a viewer who walks the row with
+       the ring and a viewer who drags a mouse across it must see the same thing happen, or the screen looks
+       broken to whichever of them arrived second. The pointer's half stands behind the window's own gate, so a
+       pointer that was merely left on the screen does not go on claiming somebody stands there. -->
   <Style Selector="Button.nereus-corner-button:focus">
     <Setter Property="Opacity" Value="1"/>
-  </Style>
-  <!-- Standing on one of the four lights its mark as well: a small glow drawn round the glyph, and round nothing
-       else. The plate the mark stands on stays as quiet as it was - lit, the whole sixty-six square would answer
-       the key instead of the mark the viewer is looking for, and these four sit over fanart bright enough to
-       swallow a plate. The colour is the family's own accent, which the theme writes as a colour beside the
-       brush precisely so that an effect - which cannot hold a brush - can ask for it, and lightened two tenths
-       so it reads as light and not as a coloured sticker. -->
-  <Style Selector="Button.nereus-corner-button:focus Path">
     <Setter Property="Effect">
-      <DropShadowEffect BlurRadius="10" Color="{DynamicResource SystemAccentColorLight2}"
-                        OffsetX="0" OffsetY="0" Opacity="0.85"/>
+      <DropShadowEffect BlurRadius="16" Color="#FFFFFFFF" OffsetX="0" OffsetY="0" Opacity="1"/>
+    </Setter>
+  </Style>
+  <Style Selector="Window:not(.pointer-resting) Button.nereus-corner-button:pointerover">
+    <Setter Property="Opacity" Value="1"/>
+    <Setter Property="Effect">
+      <DropShadowEffect BlurRadius="16" Color="#FFFFFFFF" OffsetX="0" OffsetY="0" Opacity="1"/>
     </Setter>
   </Style>
 
@@ -422,20 +440,19 @@
   <!-- The picture a main menu tile wears, which the tile itself leaves undressed so that these numbers win:
        three quarters of light while the tile waits, and the full picture the moment something stands on it.
        Full light is the ceiling a picture has - opacity cannot pass 1, so "brighter than whole" is not a
-       thing glass or paint can do; the lift is the quarter the resting tile holds back. Standing on a tile
-       also steps the picture a tenth nearer, which is what the resting dimness was for: the same picture
-       simply glowing brighter would say little, growing out of its dimness says the tile was touched.
+       thing glass or paint can do; the lift is the quarter the resting tile holds back.
+       Standing on a tile is meant strictly here, and in two senses:
+       - Light is cheap. The entry whose wall the screen is showing wears the full light wherever the viewer
+         is, because the screen is about that entry, and so does any tile a viewer or a pointer is standing on.
+       - Growth is not. Only the standing entry's picture steps a tenth nearer, and only while someone is
+         actually on it. A tile that is merely the tile the arrow points at has to stay in its frame, because
+         the growth means "this entry is what you are looking at", and a tile that grows the moment the focus
+         passes it says that about nineteen entries in a row while the viewer walks the rail.
        The growth is meant to be felt rather than watched, so it takes a half second on a sine - no jerk at
        the start, nothing arriving all at once - while the light itself comes quicker, and a leaving tile
        settles back on the same curve. The zoom is about the middle of the picture, not its top left corner,
        and the tile clips the picture to its own rounded square, so the growth reads as the artwork filling
-       out of the frame rather than as the frame sliding.
-       Standing on a tile is meant strictly here, which is the difference between the two rules below: the
-       entry whose wall the screen is showing wears the full light wherever the viewer is, because the screen
-       is about that entry, but the picture steps nearer only while something is actually on it - the focus or
-       the pointer. A tile that was merely the standing one used to stay a tenth grown while the viewer was
-       away out on the wall, and a picture that stays grown when nobody is standing on it is a frame nobody
-       can find. -->
+       out of the frame rather than as the frame sliding. -->
   <Style Selector="Image.nereus-menu-art">
     <Setter Property="Opacity" Value="0.75"/>
     <Setter Property="RenderTransformOrigin" Value="50%,50%"/>
@@ -452,10 +469,15 @@
   </Style>
   <Style Selector="ListBoxItem:focus Image.nereus-menu-art">
     <Setter Property="Opacity" Value="1"/>
-    <Setter Property="RenderTransform" Value="scale(1.1)"/>
   </Style>
   <Style Selector="Window:not(.pointer-resting) ListBoxItem:pointerover Image.nereus-menu-art">
     <Setter Property="Opacity" Value="1"/>
+  </Style>
+  <!-- The two together, and only these: the entry the screen is about, with someone standing on it. -->
+  <Style Selector="ListBoxItem:selected:focus Image.nereus-menu-art">
+    <Setter Property="RenderTransform" Value="scale(1.1)"/>
+  </Style>
+  <Style Selector="Window:not(.pointer-resting) ListBoxItem:selected:pointerover Image.nereus-menu-art">
     <Setter Property="RenderTransform" Value="scale(1.1)"/>
   </Style>
 

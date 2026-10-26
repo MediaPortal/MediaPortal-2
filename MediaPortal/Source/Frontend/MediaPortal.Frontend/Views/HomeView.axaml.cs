@@ -111,11 +111,17 @@ namespace MediaPortal.Frontend.Views
     /// How far the content pane is thrown when an arrow asks the wall for a row below its last one - down the
     /// television, so a positive number - and how far the corner row when an arrow asks above the head of the
     /// screen - up, so a negative one. The wall's right end throws its content back into the screen, so a negative
-    /// number sideways: the pane is thrown off the edge the viewer asked for rather than after it.
+    /// number sideways: the pane is thrown off the edge the viewer asked for rather than after it. The menu's left
+    /// end is that answer mirrored - the rail is the leftmost thing the face wears, and it too is thrown back into
+    /// the screen, so a positive number.
+    /// The four numbers are the skin's promise about how strongly it refuses, and the fixture holds the face to
+    /// them: how far a lean actually travels depends on how many frames a screen paints, which is not something a
+    /// test can lean on, whereas the depth a refusal was built to reach is.
     /// </summary>
-    private const double WALL_LEAN_DOWN = 16.0;
-    private const double CORNER_LEAN_UP = -10.0;
-    private const double WALL_LEAN_RIGHT = -18.0;
+    public const double WALL_LEAN_DOWN = 16.0;
+    public const double CORNER_LEAN_UP = -10.0;
+    public const double WALL_LEAN_RIGHT = -18.0;
+    public const double MENU_LEAN_LEFT = 18.0;
 
     /// <summary>
     /// The refusals this screen knows, one per edge, kept apart so that a wall mid-lean does not silence the
@@ -124,6 +130,7 @@ namespace MediaPortal.Frontend.Views
     private readonly LeanAtTheEnd _wallRefusal = new LeanAtTheEnd();
     private readonly LeanAtTheEnd _cornerRefusal = new LeanAtTheEnd();
     private readonly LeanAtTheEnd _wallEndRefusal = new LeanAtTheEnd();
+    private readonly LeanAtTheEnd _menuRefusal = new LeanAtTheEnd();
 
     /// <summary>
     /// The name the worn face gives the row of corner buttons in its own markup, which is the thing that leans
@@ -661,6 +668,18 @@ namespace MediaPortal.Frontend.Views
                 && !aspectsList.IsKeyboardFocusWithin)
               return;
 
+            // The rail is the leftmost thing the face wears, so a viewer standing on a menu entry and pointing
+            // left pointed at nothing that exists. The ring measures where things stand and still answered with
+            // one of the buttons at the foot of the television, which threw the viewer out of the entry whose
+            // wall they were reading. The rail answers for itself, as the wall does at its ends: it leans off the
+            // edge that was asked for and the viewer keeps the tile they stand on.
+            if (_home.IsNereusHome && menuList.IsKeyboardFocusWithin && args.Key == Key.Left)
+            {
+              LeanMenuOffTheLeft();
+              args.Handled = true;
+              return;
+            }
+
             Control? next = DpadNavigation.NextReachableInRing(ring, args.Key);
             if (next != null && next.Focus())
               args.Handled = true;
@@ -1044,6 +1063,17 @@ namespace MediaPortal.Frontend.Views
     private void LeanWallOffTheRight()
     {
       _wallEndRefusal.Lean(nereusContentPane, WALL_LEAN_RIGHT, sideways: true);
+    }
+
+    /// <summary>
+    /// The answer at the menu's left end, where nothing lies at all: the rail is thrown off that end - which,
+    /// being the left one, means thrown back into the screen - and settles. The entry the viewer stands on stays
+    /// the entry they stand on, and the menu does not hand its entries out to a key that pointed off the
+    /// television.
+    /// </summary>
+    private void LeanMenuOffTheLeft()
+    {
+      _menuRefusal.Lean(menuList, MENU_LEAN_LEFT, sideways: true);
     }
 
     /// <summary>
