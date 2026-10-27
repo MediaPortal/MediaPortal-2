@@ -878,8 +878,8 @@ namespace MediaPortal.Frontend.ViewModels
       // What a tile wears is the picture of its own kind, and the reference asked for it kinded too: its banner
       // grid bound FanArtType="Banner", its thumbnail grid FanArtType="Thumbnail", and neither ever drew a
       // poster in the other's frame - without the kind's own picture they drew the skin's "no banner" layer.
-      // So a banner or thumbnail shelf reads that kind's bytes for its rows; a poster shelf keeps drawing the
-      // thumbnail blob MP2's importers store in the database, which is the poster. The pictures are made per
+      // So a banner or thumbnail shelf reads that kind's bytes for its rows, and so does a poster shelf: its
+      // rows are posters, asked of the server as posters. The pictures are made per
       // kind on first use (TileArtworkFor) so that the Media button can walk between kinds without throwing
       // either kind's already-read bytes away.
     }
@@ -892,9 +892,9 @@ namespace MediaPortal.Frontend.ViewModels
     /// <summary>
     /// The source of this tile kind's own pictures, made once per kind and kept: a viewer who walks the
     /// Media button round twice repaints from the bytes already read rather than asking the server again.
-    /// The poster kind has no source of its own - it is the database's thumbnail blob, which every shelf
-    /// already carries - and neither has a shelf with no server to ask. One shelf is the exception, and it is
-    /// said below.
+    /// Every kind asks its own picture - a poster shelf asks posters - and only a shelf with no server to ask
+    /// has no source. A title the server keeps no poster of wears the skin's empty plate, which is what the
+    /// reference's shelf did: a wide thumbnail hung in a portrait frame is cut to a slice.
     /// </summary>
     private Artwork? TileArtworkFor(GridViewType kind)
     {
@@ -902,9 +902,6 @@ namespace MediaPortal.Frontend.ViewModels
       // rather than a file somebody thumbnailed - least of all for a season the library only counts off those
       // episodes. Its front picture is the one beside the media with the season's number written into its name
       // ("season01-poster.jpg"), so a season shelf asks its posters of the server by name and number instead.
-      if (kind == GridViewType.Poster && !MediaCatalog.IsSeason(AspectName))
-        return null;
-
       if (_tileArtworks.TryGetValue(kind, out Artwork? known))
         return known;
 

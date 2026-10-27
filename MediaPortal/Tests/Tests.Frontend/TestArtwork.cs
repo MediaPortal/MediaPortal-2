@@ -397,10 +397,16 @@ namespace Tests.Frontend
       {
         string path = request.RequestUri!.AbsolutePath;
 
-        if (path.EndsWith("/thumbnail", StringComparison.Ordinal))
+        bool asks_thumbnail = path.EndsWith("/thumbnail", StringComparison.Ordinal);
+        bool asks_fanart = path.Contains("/fanart", StringComparison.Ordinal);
+        if (asks_thumbnail || asks_fanart)
         {
-          // The id the client put in the address, which is the thirty-six characters before the last slash.
-          Guid id = Guid.Parse(path.Substring(path.LastIndexOf('/') - 36, 36));
+          // The id the client put in the address, which is the thirty-six characters in front of the door:
+          // ".../items/{id}/thumbnail" ends with the door, ".../items/{id}/fanart/Poster" carries it before it.
+          int door = asks_thumbnail
+              ? path.LastIndexOf('/')
+              : path.IndexOf("/fanart", StringComparison.Ordinal);
+          Guid id = Guid.Parse(path.Substring(door - 36, 36));
           _asks[id] = AskedAbout(id) + 1;
 
           if (!NoPicturesAtAll && _pictures.TryGetValue(id, out byte[]? picture))

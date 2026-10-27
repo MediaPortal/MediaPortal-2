@@ -1057,9 +1057,9 @@ namespace Tests.Frontend
       Assert.That(standing, Is.LessThan(150),
           "six hundred titles were read, but only the rows the screen could be looking at were built: "
           + standing + " of 600");
-      Assert.That(server.PicturesAsked, Is.LessThanOrEqualTo(laid_out.Count),
+      Assert.That(server.PicturesAskedForTitles, Is.LessThanOrEqualTo(laid_out.Count),
           "the screen asks for the picture of no title it has not laid a frame for: "
-          + server.PicturesAsked + " asked for, " + laid_out.Count + " titles ever laid out ("
+          + server.PicturesAskedForTitles + " titles asked for, " + laid_out.Count + " titles ever laid out ("
           + standing + " tiles standing now)");
       Assert.That(standing, Is.GreaterThan(0), "the tiles the viewer looks at are there");
       Assert.That(server.PicturesAsked, Is.LessThan(200),
@@ -1126,6 +1126,15 @@ namespace Tests.Frontend
       /// </summary>
       internal int PicturesAsked { get; private set; }
 
+      /// <summary>
+      /// How many <em>titles</em> were ever asked a picture for, however many kinds of picture they were asked
+      /// for. A shelf walked from rows into tiles legitimately asks a poster of a title it had already asked a
+      /// thumbnail of, so it is the titles and not the requests that a shelf may not exceed.
+      /// </summary>
+      internal int PicturesAskedForTitles => _pictureTitles.Count;
+
+      private readonly HashSet<string> _pictureTitles = new HashSet<string>(StringComparer.Ordinal);
+
       /// <summary>The last question about titles, so that a test can say what was asked for.</summary>
       internal string LastQuestion { get; private set; } = "";
 
@@ -1138,6 +1147,10 @@ namespace Tests.Frontend
         if (IsPictureRequest(request))
         {
           PicturesAsked++;
+          string[] parts = request.RequestUri!.AbsolutePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+          for (int part = 0; part + 1 < parts.Length; part++)
+            if (string.Equals(parts[part], "items", StringComparison.Ordinal))
+              _pictureTitles.Add(parts[part + 1]);
           return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
           {
             RequestMessage = request,
@@ -1313,16 +1326,68 @@ namespace Tests.Frontend
     }
 
     /// <summary>
-    /// Nothing cuts the shelf's rows off, at its head, at its foot, or at the title being stood on.  The
-    /// reference's wall mask (<c>HomeContentStyles.xaml:1868</c>) is black from offset 0 to offset 1 - a mask that
-    /// lets every pixel through - and the media shelf carries no mask at all; what the reference darkens at a
-    /// screen's head and foot is a gradient painted OVER the content panel, never a hole cut into the content.
-    /// A hole was worse than ugly: it dissolved the rows into the black behind the shelf, which read as two black
-    /// bars at the screen's ends, and it dimmed whatever stood at an edge - including the first title of a shelf,
-    /// standing there with nothing above it and no reason to be pale.
+    /// A wall walked fast is still standing on a tile.  What the viewer sees when this breaks is the frame vanishing
+    /// while the key is held down: the caret is nowhere, so nothing wears the frame, and it only comes back when
+    /// the walk stops.  The wall recycles the containers it walks past, and the focused container is one of them -
+    /// so the promise this tests is the panel's hardest one, that the container holding the caret is never taken
+    /// down while the wall travels.
     /// </summary>
     [AvaloniaTest]
-    public void TheShelfIsCutByNothingEvenAtItsEnds()
+    public void AWallWalkedFastStillStandsOnAFocusedTile()
+    {
+      LongShelf server = new LongShelf();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      ShellWindow window = new ShellWindow(new MediaBrowserView(browser));
+      window.Show();
+      WaitUntil("the shelf to fill", delegate { return browser.Titles.Count > 60; });
+
+      ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "titlesList");
+      titles.Focus();
+      Pump();
+      titles.SelectedIndex = 0;
+      Pump();
+
+      // Eight steps down, and the caret is asked after EVERY one of them before anything is allowed to lay out:
+      // what the viewer sees is the frame missing while the wall is still travelling, so that instant is the one
+      // that has to be answered.  Asking only after the walk settles hides the defect, because by then the wall
+      // has caught up with the caret and stood a container under it again.
+      for (int step = 1; step <= 8; step++)
+      {
+        titles.RaiseEvent(new KeyEventArgs
+        {
+          RoutedEvent = InputElement.KeyDownEvent,
+          Key = Key.Down,
+          Source = titles
+        });
+
+        object? mid_walk = window.FocusManager.GetFocusedElement();
+        string why = "step " + step + " of a fast walk left the caret on a tile; a caret that fell back to the "
+            + "list wears no frame, which is the frame the viewer sees vanish while holding the key down";
+        Assert.That(mid_walk, Is.InstanceOf<ListBoxItem>(), why);
+      }
+
+      object? caret = window.FocusManager.GetFocusedElement();
+      Assert.That(caret, Is.InstanceOf<ListBoxItem>(),
+          "the caret is still on a tile after a fast walk; a caret that fell back to the list wears no frame");
+
+      Control stood = (Control)caret!;
+      Assert.That(stood.GetVisualParent(), Is.Not.Null, "the tile wearing the frame is on the screen");
+      Assert.That(titles.ContainerFromIndex(titles.SelectedIndex), Is.SameAs(stood),
+          "and it is the tile the selection stands on");
+      window.Close();
+    }
+
+    /// <summary>
+    /// The shelf dissolves at its ends and the mask doing it is still.  Taken off, the wall does not reach the
+    /// screen's edges as a picture but as a hard line across half a poster, at the head and at the foot.  Kept
+    /// honest about its cost, it is one brush worn for the whole shelf and never rewritten while the shelf
+    /// travels - a mask recomputed from the scroll offset throws the shelf's pixels away per step, which is the
+    /// stutter this screen argues against everywhere else.  The title being stood on is kept out of the strips by
+    /// the band the wall is held inside (the reference's ScrollMargin), not by a mask that changes mid-travel.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheShelfDissolvesAtItsEndsWithOneStillMask()
     {
       LongShelf server = new LongShelf();
       MediaBrowserViewModel browser = BrowserOn(server);
@@ -1333,31 +1398,25 @@ namespace Tests.Frontend
       ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
           .First(list => list.Name == "titlesList");
       ScrollViewer scroller = titles.GetVisualDescendants().OfType<ScrollViewer>().First();
-      Pump();
-      Assert.That(scroller.OpacityMask, Is.Null,
-          "the shelf wears no mask, so its rows reach the screen's edges whole");
+      WaitUntil("the shelf to wear its edge fade", delegate { return scroller.OpacityMask is LinearGradientBrush; });
 
-      // And nothing puts one back while the shelf travels or when it has run out of shelf.
+      LinearGradientBrush mask = (LinearGradientBrush)scroller.OpacityMask!;
+      Assert.That(mask.GradientStops.Count, Is.EqualTo(4), "one mask, four stops");
+      Assert.That(mask.GradientStops[0].Color, Is.EqualTo(Colors.Transparent));
+      Assert.That(mask.GradientStops[1].Offset, Is.EqualTo(0.12).Within(0.001),
+          "the head dissolves over the twelve percent the reference's menu column wears");
+      Assert.That(mask.GradientStops[2].Offset, Is.EqualTo(0.88).Within(0.001), "and the foot over the same");
+      Assert.That(mask.GradientStops[3].Color, Is.EqualTo(Colors.Transparent));
+
       scroller.Offset = new Vector(scroller.Offset.X, 400);
       Pump();
-      Assert.That(scroller.OpacityMask, Is.Null, "no mask appears while the wall travels");
+      Assert.That(ReferenceEquals(scroller.OpacityMask, mask), Is.True,
+          "the same brush while the wall travels, so nothing is thrown away per step");
 
       scroller.Offset = new Vector(scroller.Offset.X,
           Math.Max(0, scroller.Extent.Height - scroller.Viewport.Height));
       Pump();
-      Assert.That(scroller.OpacityMask, Is.Null, "nor at the foot of the wall");
-
-      // The first title, stood on with the wall at its head, is whole too - which is what the mask used to break.
-      scroller.Offset = default;
-      browser.Selected = browser.Titles[0];
-      Pump();
-      Assert.That(scroller.OpacityMask, Is.Null,
-          "a title standing at the head of the wall is not faded, whatever else the screen does");
-
-      browser.Layout = BrowserLayout.Cover;
-      WaitUntil("the covers to be laid", delegate { return titles.Items.Count > 0; });
-      Assert.That(titles.GetVisualDescendants().OfType<ScrollViewer>().First().OpacityMask, Is.Null,
-          "and the covers are whole as well");
+      Assert.That(ReferenceEquals(scroller.OpacityMask, mask), Is.True, "and at the end of the wall too");
       window.Close();
     }
 
@@ -1907,7 +1966,11 @@ namespace Tests.Frontend
     /// </remarks>
     private static bool IsPictureRequest(HttpRequestMessage request)
     {
-      return request.RequestUri!.AbsolutePath.EndsWith("/thumbnail", StringComparison.Ordinal);
+      // Both of the server's picture doors answer here: the media item's own thumbnail and the fanart cache's
+      // poster/banner/thumbnail, which is what a tile of those kinds wears.
+      string path = request.RequestUri!.AbsolutePath;
+      return path.EndsWith("/thumbnail", StringComparison.Ordinal)
+          || path.Contains("/fanart", StringComparison.Ordinal);
     }
 
     private static HttpResponseMessage NoPicture(HttpRequestMessage request)

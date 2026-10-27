@@ -818,8 +818,30 @@ namespace MediaPortal.Frontend.Views
       // Ask the worn skin for the shape's own frame; when it answers none, fall back to this file's frame
       // for that shape. That fallback is the whole point: the three views used to exist only while a skin
       // that drew them was worn, which left every other screen with rows no matter what its viewer picked.
-      titlesList.ItemTemplate = SkinEngine.TryTileTemplate(viewModel.GridTemplateKey)
+      IDataTemplate frame = SkinEngine.TryTileTemplate(viewModel.GridTemplateKey)
           ?? BuiltinTemplate(viewModel.Layout);
+      bool frame_changed = !ReferenceEquals(_wornFrame, frame);
+      _wornFrame = frame;
+      titlesList.ItemTemplate = frame;
+
+      // A wall that changes the frame its tiles wear has to throw its standing tiles away.  A virtualizing panel
+      // keeps the containers it stood up and re-hangs them on the next title, and a re-hung container keeps the
+      // tree it was generated with - so a shelf switched from posters to thumbnails grew thumbnails where its
+      // tiles had already stood and posters where they had not, and the mixing stayed until the viewer walked
+      // every row twice.  Clearing the source once rebuilds every tile from the new frame; it costs one
+      // realization, and it happens when the viewer presses the picture button, not while a wall travels.
+      if (frame_changed)
+      {
+        System.Collections.IEnumerable? titles = titlesList.ItemsSource;
+        object? stood_on = viewModel.Selected;
+        titlesList.ItemsSource = null;
+        titlesList.ItemsSource = titles;
+        // Emptying the source empties the selection with it, and the selection answers the details, the fanart
+        // and the caret - so the tile the viewer was standing on is stood on again, which is also what makes the
+        // wall glide back to it rather than leaving the viewer at the head of a rebuilt wall.
+        if (stood_on != null && titlesList.SelectedItem == null)
+          titlesList.SelectedItem = stood_on;
+      }
 
       // Tiles dress themselves - plate, picture, name and ring - so the list may not paint its selected row
       // panel under them; a shelf of rows is read by that panel and keeps it.
@@ -876,16 +898,43 @@ namespace MediaPortal.Frontend.Views
         if (scroller == null)
           return;
 
-        // Whole, at both ends.  The reference's own wall mask (HomeContentStyles' ScrollViewerOpacityMask) is
-        // black from 0 to 1 - a mask that lets everything through - and its media shelf carries no mask at all;
-        // what the reference dims at the head and foot of a screen is a gradient painted OVER the content panel,
-        // never a hole cut into the content itself.  A mask instead of that gradient is what made the shelf look
-        // like it ended in two black bars: the rows did not pale into the picture behind them, they dissolved
-        // into the black behind the shelf.  It also faded whatever stood at an edge, including the title being
-        // stood on, which no reading of the reference allows.
-        scroller.ClearValue(Visual.OpacityMaskProperty);
+        // Rows dissolve at the ends rather than being cut there, which is what the home wall and the reference's
+        // own menu column both do (styles.xaml gives the menu's ScrollViewer its fade over the top and bottom
+        // twelve percent for exactly that reason).  Taken off, the shelf did not show its picture to the edges -
+        // it showed a hard line across half a poster at the head and another at the foot, which is the "black
+        // bar" the shelf has been blamed for.
+        //
+        // What it must never do is pale the title being stood on.  The band the shelf is kept inside (130 points
+        // for rows, 400 for the grid, the reference's own ScrollMargin) already keeps a stood title out of a
+        // twelve percent strip in the middle of a wall; the one place it cannot is where the wall has run out -
+        // at its head the first row sits at the very top, inside the strip.  So the strip is put away while the
+        // wall is at the end it would fade, and only there.  That is two answers per wall, not one per step: the
+        // mask is only ever rewritten when the wall arrives at an end or leaves it, never while it travels.
+        if (_shelfFade == null)
+        {
+          LinearGradientBrush fade = new LinearGradientBrush
+          {
+            StartPoint = new RelativePoint(0.5, 0, RelativeUnit.Relative),
+            EndPoint = new RelativePoint(0.5, 1, RelativeUnit.Relative)
+          };
+          fade.GradientStops.Add(new GradientStop(Colors.Transparent, 0));
+          fade.GradientStops.Add(new GradientStop(Colors.Black, SHELF_EDGE_FADE));
+          fade.GradientStops.Add(new GradientStop(Colors.Black, 1.0 - SHELF_EDGE_FADE));
+          fade.GradientStops.Add(new GradientStop(Colors.Transparent, 1));
+          _shelfFade = fade;
+        }
+
+        scroller.OpacityMask = _shelfFade;
       }, DispatcherPriority.Loaded);
     }
+
+    /// <summary>How far in from an end of the shelf its rows dissolve: the twelve percent the menu column wears.</summary>
+    private const double SHELF_EDGE_FADE = 0.12;
+
+    private LinearGradientBrush? _shelfFade;
+
+    /// <summary>The frame the shelf's tiles were last told to wear; a change of it empties the wall (ApplyLayout).</summary>
+    private IDataTemplate? _wornFrame;
 
     /// <summary>
     /// The covers' panel: the tiles' own panel turned, which is to say a strip that lays one cover beside the

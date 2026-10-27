@@ -839,54 +839,18 @@
     </Grid>
 
     <!--
-      The two gradients the reference laid in the hundred points of head above the shelf and the two hundred and
-      sixty points of floor under it (master_bare_media.xaml:50-90), with its own seven stops rather than the two
-      an ordinary fade uses: the band is meant to end in the colour it came from and not in a line. The head is
-      painted on every screen whatever else it does. The floor belongs to the view that has no foot strip lying
-      over it, which is what ShowsFloorGradient answers - the reference's own expression, and the one that reads
-      backwards until one has read its visibility binding: the floor band is painted while the details stand open
-      beside the shelf, because with the details off the same ground belongs to the foot strip, which brings its
-      own ground with it. Neither catches a click; both are paint.
+      Nothing is painted over the shelf at its head or its foot; see the note below where the two gradient bands
+      used to stand.
     -->
-    <Border Height="100"
-            VerticalAlignment="Top"
-            IsHitTestVisible="False">
-      <Border.Background>
-        <LinearGradientBrush StartPoint="0.5,1" EndPoint="0.5,0">
-          <GradientStop Color="#E6000000" Offset="1"/>
-          <GradientStop Color="#78000000" Offset="0.87"/>
-          <GradientStop Color="#46000000" Offset="0.75"/>
-          <GradientStop Color="#21000000" Offset="0.6"/>
-          <GradientStop Color="#0C000000" Offset="0.45"/>
-          <GradientStop Color="#01000000" Offset="0.3"/>
-          <GradientStop Color="#00000000" Offset="0"/>
-        </LinearGradientBrush>
-      </Border.Background>
-    </Border>
-
     <!--
-      One hundred points and not more: BottomGradient_Template (master_mediamenu.xaml:77-91) is a border of a
-      hundred points stood at the bottom of its band, and the two hundred and sixty points of floor under the
-      reference's client area are fanart the gradient only screens at its very edge. Given the height of the band
-      it stands in, the same border fades a third of the floor to black and the viewer reads a black bar lying
-      under the shelf where the reference has its picture going on to the edge of the television.
+      The head and the floor used to be painted here, over the shelf, in the reference's own seven stops.  They
+      were the black bars: master_bare_media.xaml:50-90 lays its head band in the hundred points ABOVE the client
+      area and its floor under it, over the fanart, where ninety hundredths of black is a picture going dark;
+      stood over a wall of posters the same band is a black slab lying across the first row, and it did not even
+      answer whether the wall had anything left above it - it was simply always there.  The rows now dissolve at
+      the ends the shelf has run out of (ApplyShelfFade), which is the soft edge the viewer reads as "the wall
+      goes on", and nothing is painted over the pictures themselves.
     -->
-    <Border Height="100"
-            VerticalAlignment="Bottom"
-            IsHitTestVisible="False"
-            IsVisible="{Binding ShowsFloorGradient}">
-      <Border.Background>
-        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-          <GradientStop Color="#00000000" Offset="0"/>
-          <GradientStop Color="#01000000" Offset="0.3"/>
-          <GradientStop Color="#0C000000" Offset="0.45"/>
-          <GradientStop Color="#21000000" Offset="0.6"/>
-          <GradientStop Color="#46000000" Offset="0.75"/>
-          <GradientStop Color="#78000000" Offset="0.87"/>
-          <GradientStop Color="#E6000000" Offset="1"/>
-        </LinearGradientBrush>
-      </Border.Background>
-    </Border>
 
     <!--
       The selected title's menu, standing over the shelf the way the reference's DialogEditMenu stood over the

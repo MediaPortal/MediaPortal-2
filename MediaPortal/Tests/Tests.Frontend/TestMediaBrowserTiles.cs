@@ -454,6 +454,11 @@ namespace Tests.Frontend
               {
                 Content = new ByteArrayContent(new byte[] { 9, 8, 7, 6, 5 })
               };
+            if (string.Equals(kind, "Poster", StringComparison.OrdinalIgnoreCase))
+              return new HttpResponseMessage(HttpStatusCode.OK)
+              {
+                Content = new ByteArrayContent(new byte[] { 2, 2, 2, 2 })
+              };
             if (string.Equals(kind, "FanArt", StringComparison.OrdinalIgnoreCase))
               return new HttpResponseMessage(HttpStatusCode.OK)
               {
@@ -528,7 +533,7 @@ namespace Tests.Frontend
     }
 
     [AvaloniaTest]
-    public void APosterShelfStillDrawsFromThePosterBlob()
+    public void APosterShelfDrawsThePostersOwnBytes()
     {
       Application app = RequireApplication();
       FrontendTheme.Apply(app, "nereus", out _);
@@ -546,12 +551,13 @@ namespace Tests.Frontend
 
       TestBrowserArtwork.DrawRows(vm, vm.Titles[1]);
       WaitUntil("the poster to reach the row", delegate { return vm.Titles[1].Artwork != null; });
-      Assert.That(vm.Titles[1].Artwork, Is.EqualTo(new byte[] { 1, 1, 1, 1 }),
-          "the plain poster shelf still paints from the database's poster blob");
+      Assert.That(vm.Titles[1].Artwork, Is.EqualTo(new byte[] { 2, 2, 2, 2 }),
+          "a poster shelf paints from the poster, not from the wide thumbnail the /thumbnail endpoint answers");
       lock (handler.Kinds)
       {
+        Assert.That(handler.Kinds, Does.Contain("Poster"), "the poster shelf asks the server for posters");
         Assert.That(handler.Kinds, Has.None.EqualTo("Banner").And.None.EqualTo("Thumbnail"),
-            "a poster shelf asks for no kinded tile picture; only the background may ask for its backdrop");
+            "a poster shelf asks for no other kind's picture; only the background may ask for its backdrop");
       }
     }
 
@@ -645,7 +651,7 @@ namespace Tests.Frontend
       WaitUntil("the shelf to fill", delegate { return vm.Titles.Count == 2; });
       TestBrowserArtwork.DrawRows(vm, vm.Titles[1]);
       WaitUntil("the poster to reach the row", delegate { return vm.Titles[1].Artwork != null; });
-      Assert.That(vm.Titles[1].Artwork, Is.EqualTo(new byte[] { 1, 1, 1, 1 }));
+      Assert.That(vm.Titles[1].Artwork, Is.EqualTo(new byte[] { 2, 2, 2, 2 }));
 
       // The button repaints the rows that are already there, and the banner is the server's own banner
       // bytes - never a poster squeezed into the banner's frame, which is the complaint this answers. The
