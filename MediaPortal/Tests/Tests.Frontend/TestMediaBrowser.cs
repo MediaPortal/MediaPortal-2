@@ -1379,44 +1379,151 @@ namespace Tests.Frontend
     }
 
     /// <summary>
-    /// The shelf dissolves at its ends and the mask doing it is still.  Taken off, the wall does not reach the
-    /// screen's edges as a picture but as a hard line across half a poster, at the head and at the foot.  Kept
-    /// honest about its cost, it is one brush worn for the whole shelf and never rewritten while the shelf
-    /// travels - a mask recomputed from the scroll offset throws the shelf's pixels away per step, which is the
-    /// stutter this screen argues against everywhere else.  The title being stood on is kept out of the strips by
-    /// the band the wall is held inside (the reference's ScrollMargin), not by a mask that changes mid-travel.
+    /// The shelf fades where its wall has left a row out of the picture, and nowhere it has not.  Standing at its
+    /// head the wall has left nothing above itself, so the first row reaches the top edge whole; the rest of the
+    /// wall still stands below the window, so the foot dissolves.  Walked to its foot it is the other way round,
+    /// and halfway down both ends fade.  This is the reference's own answer, which is to say no answer at all -
+    /// <c>MediaStyles.xaml:5205</c>, <c>:5229</c> and <c>:5253</c> give their three media shapes a scroll margin
+    /// and no mask whatever, and the one mask the home content wears (<c>HomeContentStyles.xaml:1868</c>) is black
+    /// at every stop over a presenter wearing a solid black <c>DummyOpacityMask</c>, which hides nothing.  The
+    /// blanket blend that used to be worn here faded a first row that had never been scrolled by anybody, which is
+    /// exactly what it was blamed for.
     /// </summary>
     [AvaloniaTest]
-    public void TheShelfDissolvesAtItsEndsWithOneStillMask()
+    public void TheShelfFadesOnlyWhereTheWallHasLeftThePicture()
     {
       LongShelf server = new LongShelf();
       MediaBrowserViewModel browser = BrowserOn(server);
       ShellWindow window = new ShellWindow(new MediaBrowserView(browser));
       window.Show();
-      WaitUntil("the shelf to fill", delegate { return browser.Titles.Count > 60; });
+      WaitUntil("the whole wall to be read", delegate { return !browser.HasMore && browser.Titles.Count > 60; });
 
       ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
           .First(list => list.Name == "titlesList");
       ScrollViewer scroller = titles.GetVisualDescendants().OfType<ScrollViewer>().First();
-      WaitUntil("the shelf to wear its edge fade", delegate { return scroller.OpacityMask is LinearGradientBrush; });
+      WaitUntil("the wall to be longer than its window",
+          delegate { return scroller.Extent.Height > scroller.Viewport.Height + 1; });
 
+      double bottom = scroller.Extent.Height - scroller.Viewport.Height;
+
+      // How deeply an end of the wall is fading, read off the mask it wears: nought is an end whose row stands
+      // whole against the edge of the screen, one is an end with a whole fade zone of wall standing outside the
+      // picture.  An end with half a fade zone out of it is on the ladder in between.
+      double Depth(bool head)
+      {
+        Assert.That(scroller.OpacityMask, Is.InstanceOf<LinearGradientBrush>(),
+            "this wall has titles standing outside the picture at one end, so it wears its fade");
+        LinearGradientBrush mask = (LinearGradientBrush)scroller.OpacityMask!;
+        return 1.0 - mask.GradientStops[head ? 0 : 3].Color.A / 255.0;
+      }
+
+      void StandAt(double offset)
+      {
+        scroller.Offset = new Vector(scroller.Offset.X, offset);
+        WaitUntil("the wall to stand at " + offset,
+            delegate { return Math.Abs(scroller.Offset.Y - offset) < 1.0; });
+        Pump();
+      }
+
+      // The head of an untouched wall: nothing has been walked out of the picture, so the head fades nothing.
+      StandAt(0);
+      Assert.That(Depth(true), Is.EqualTo(0),
+          "the first row has never been scrolled out of the picture, so the head of the wall wears no fade");
+      Assert.That(Depth(false), Is.EqualTo(1),
+          "and the rows that still stand below the window are faded, which is the wall saying it goes on");
+
+      StandAt(bottom / 2);
+      Assert.That(Depth(true), Is.EqualTo(1), "rows have gone out of the picture above the wall's middle");
+      Assert.That(Depth(false), Is.EqualTo(1), "and rows are waiting out of it below");
+
+      StandAt(bottom);
+      Assert.That(Depth(false), Is.EqualTo(0),
+          "the wall has run out below, so its last row stands whole against the bottom edge");
+      Assert.That(Depth(true), Is.EqualTo(1), "while its head stands deep out of the picture above");
+
+      // And an end only a hand's breadth from the picture is faded a hand's breadth, not a whole strip at once:
+      // half the fade zone of wall out of the picture is half the fade.
+      StandAt(bottom - 0.06 * scroller.Viewport.Height);
+      Assert.That(Depth(false), Is.EqualTo(0.5).Within(0.01),
+          "the fade follows how much of the wall is out of the picture instead of arriving all at once");
+      window.Close();
+    }
+
+    /// <summary>
+    /// A wall shorter than the window it stands in has left nothing out of the picture at either end, and wears no
+    /// mask at all - the mask is not taken off because it is in the way, it was never put on.
+    /// </summary>
+    [AvaloniaTest]
+    public void AShelfShorterThanItsWindowWearsNoFade()
+    {
+      LongShelf server = new LongShelf();
+      server.Total = 2;
+      MediaBrowserViewModel browser = BrowserOn(server);
+      ShellWindow window = new ShellWindow(new MediaBrowserView(browser));
+      window.Show();
+      WaitUntil("the shelf to hold its two titles", delegate { return browser.Titles.Count == 2; });
+
+      ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "titlesList");
+      ScrollViewer scroller = titles.GetVisualDescendants().OfType<ScrollViewer>().First();
+      WaitUntil("the shelf to be laid out", delegate { return scroller.Viewport.Height > 0; });
+      Pump();
+
+      Assert.That(scroller.Extent.Height, Is.LessThanOrEqualTo(scroller.Viewport.Height),
+          "two rows fit on this screen, which is the whole point of the question - the window is "
+          + scroller.Viewport.Height + " tall and the wall is " + scroller.Extent.Height);
+      Assert.That(scroller.OpacityMask, Is.Null,
+          "a wall that stands wholly inside its window is faded at neither end");
+      window.Close();
+    }
+
+    /// <summary>
+    /// The cover wall is walked sideways, so the covers it leaves out of the picture stand out at its left and
+    /// right hands and never above or below.  Its fade therefore runs along the axis the wall runs along; a mask
+    /// drawn from top to bottom would dim the tops of covers that were never scrolled by anybody.
+    /// </summary>
+    [AvaloniaTest]
+    public void AWallThatRunsSidewaysFadesAlongItsOwnAxis()
+    {
+      LongShelf server = new LongShelf();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      ShellWindow window = new ShellWindow(new MediaBrowserView(browser));
+      window.Show();
+      WaitUntil("the whole wall to be read", delegate { return !browser.HasMore && browser.Titles.Count > 60; });
+
+      browser.Layout = BrowserLayout.Cover;
+      WaitUntil("the covers to be laid out", delegate { return browser.IsCoverLayout; });
+
+      ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "titlesList");
+      ScrollViewer scroller = titles.GetVisualDescendants().OfType<ScrollViewer>().First();
+      WaitUntil("the cover row to be wider than its window",
+          delegate { return scroller.Extent.Width > scroller.Viewport.Width + 1; });
+      Pump();
+
+      Assert.That(scroller.Offset.X, Is.EqualTo(0), "the cover wall starts at its first cover");
+      Assert.That(scroller.OpacityMask, Is.InstanceOf<LinearGradientBrush>(),
+          "covers stand out of the picture to the right, so this wall wears its fade");
       LinearGradientBrush mask = (LinearGradientBrush)scroller.OpacityMask!;
-      Assert.That(mask.GradientStops.Count, Is.EqualTo(4), "one mask, four stops");
-      Assert.That(mask.GradientStops[0].Color, Is.EqualTo(Colors.Transparent));
-      Assert.That(mask.GradientStops[1].Offset, Is.EqualTo(0.12).Within(0.001),
-          "the head dissolves over the twelve percent the reference's menu column wears");
-      Assert.That(mask.GradientStops[2].Offset, Is.EqualTo(0.88).Within(0.001), "and the foot over the same");
-      Assert.That(mask.GradientStops[3].Color, Is.EqualTo(Colors.Transparent));
+      Assert.That(mask.StartPoint.Point.X, Is.Not.EqualTo(mask.EndPoint.Point.X),
+          "the fade runs from side to side, because that is the way this wall travels");
+      Assert.That(mask.StartPoint.Point.Y, Is.EqualTo(mask.EndPoint.Point.Y), "and not from top to bottom");
+      Assert.That(mask.GradientStops[0].Color.A, Is.EqualTo((byte)255),
+          "the first cover has not been walked out of the picture, so the left hand hides nothing");
+      Assert.That(mask.GradientStops[3].Color.A, Is.EqualTo((byte)0),
+          "while covers are still waiting to the right out of the picture");
 
-      scroller.Offset = new Vector(scroller.Offset.X, 400);
+      double furthest = scroller.Extent.Width - scroller.Viewport.Width;
+      scroller.Offset = new Vector(furthest, scroller.Offset.Y);
+      WaitUntil("the cover wall to stand at its last cover",
+          delegate { return Math.Abs(scroller.Offset.X - furthest) < 1.0; });
       Pump();
-      Assert.That(ReferenceEquals(scroller.OpacityMask, mask), Is.True,
-          "the same brush while the wall travels, so nothing is thrown away per step");
 
-      scroller.Offset = new Vector(scroller.Offset.X,
-          Math.Max(0, scroller.Extent.Height - scroller.Viewport.Height));
-      Pump();
-      Assert.That(ReferenceEquals(scroller.OpacityMask, mask), Is.True, "and at the end of the wall too");
+      mask = (LinearGradientBrush)scroller.OpacityMask!;
+      Assert.That(mask.GradientStops[3].Color.A, Is.EqualTo((byte)255),
+          "the wall has run out to the right, so its last cover stands whole against the edge");
+      Assert.That(mask.GradientStops[0].Color.A, Is.EqualTo((byte)0),
+          "and its first covers are deep out of the picture to the left now");
       window.Close();
     }
 

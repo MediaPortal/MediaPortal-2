@@ -847,9 +847,11 @@
       were the black bars: master_bare_media.xaml:50-90 lays its head band in the hundred points ABOVE the client
       area and its floor under it, over the fanart, where ninety hundredths of black is a picture going dark;
       stood over a wall of posters the same band is a black slab lying across the first row, and it did not even
-      answer whether the wall had anything left above it - it was simply always there.  The rows now dissolve at
-      the ends the shelf has run out of (ApplyShelfFade), which is the soft edge the viewer reads as "the wall
-      goes on", and nothing is painted over the pictures themselves.
+      answer whether the wall had anything left above it - it was simply always there.  The same answer is what the
+      shelf's own edge fade is now asked for and asked for alone (ApplyShelfFade): an end the wall has left
+      something standing out of the picture dissolves that end, an end the wall has reached leaves its row standing
+      whole, and the reference - which fades nothing at all in any of its three media shapes - is not contradicted
+      more than that.  Nothing is painted over the pictures themselves.
     -->
 
     <!--

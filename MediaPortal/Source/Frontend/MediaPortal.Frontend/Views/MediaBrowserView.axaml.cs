@@ -880,16 +880,39 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
-    /// Takes any mask off the scroller the shelf is read through, so that the shelf's rows reach the screen's edges
-    /// whole.
+    /// Puts an edge fade on the scroller the shelf is read through, and holds it to one question at each of the
+    /// wall's two ends: has the wall left anything standing out of the picture there?
     /// </summary>
     /// <remarks>
-    /// Kept as a call site because the scroller only exists once the list has been measured, so the answer has to
-    /// be given again on a later pass; and because a skin that ever did want its rows to pale at the ends would
-    /// want it here, as an overlay over the shelf rather than as a hole in it.
+    /// The reference fades nothing.  <c>MediaStyles.xaml:5205</c>, <c>:5229</c> and <c>:5253</c> give their three
+    /// shapes a <c>ScrollMargin</c> and a negative <c>Margin</c> and no mask whatever - and the only mask its home
+    /// content does wear, <c>HomeContentStyles.xaml:1868</c>, is painted black at all four stops over a presenter
+    /// that itself wears a solid black <c>DummyOpacityMask</c>, which is a mask that hides nothing at all.  So the
+    /// fade here is this front end's own (twelve percent, borrowed from the menu column of styles.xaml) and it is
+    /// answerable to the one thing a viewer can say about it: a row that has been walked out of the picture may
+    /// dissolve at the edge it went out by, but the first row of a wall that stands at the top of the screen has
+    /// been walked out of nothing and stands whole - and so does the last row once the wall has run to its end.  A
+    /// blend laid over both ends whatever the wall was doing, which is what this method used to wear, took the head
+    /// off the first row of every wall there ever was.
+    /// <para>
+    /// So each end is asked, on every scroll, how much of the wall stands outside the picture: nothing out is no
+    /// fade at that end, a whole fade zone's worth out is the fade at full depth, and what lies between lies
+    /// between.  That reading is taken off a ladder of eight steps rather than off the offset itself, so a wall
+    /// travelling through its middle - where both ends have long been out of the picture - rewrites nothing, and
+    /// the writes are the handful of steps taken while leaving one end and arriving at the next.
+    /// </para>
     /// </remarks>
     private void ApplyShelfFade(BrowserLayout layout)
     {
+      // Covers are walked sideways, so their ends are the left and the right edge; every other shape is walked
+      // down.  The depths the mask remembers belong to an axis, so a wall turned from one to the other forgets them.
+      bool sideways = layout == BrowserLayout.Cover;
+      if (sideways != _fadeRunsSideways)
+      {
+        _fadeRunsSideways = sideways;
+        _fadeBefore = _fadeAfter = UNREAD;
+      }
+
       // The scroller lives inside the list's template and only exists once the list has been measured, so the
       // answer is asked for again on the next pass rather than given up on.
       Dispatcher.UIThread.Post(delegate
@@ -898,40 +921,121 @@ namespace MediaPortal.Frontend.Views
         if (scroller == null)
           return;
 
-        // Rows dissolve at the ends rather than being cut there, which is what the home wall and the reference's
-        // own menu column both do (styles.xaml gives the menu's ScrollViewer its fade over the top and bottom
-        // twelve percent for exactly that reason).  Taken off, the shelf did not show its picture to the edges -
-        // it showed a hard line across half a poster at the head and another at the foot, which is the "black
-        // bar" the shelf has been blamed for.
-        //
-        // What it must never do is pale the title being stood on.  The band the shelf is kept inside (130 points
-        // for rows, 400 for the grid, the reference's own ScrollMargin) already keeps a stood title out of a
-        // twelve percent strip in the middle of a wall; the one place it cannot is where the wall has run out -
-        // at its head the first row sits at the very top, inside the strip.  So the strip is put away while the
-        // wall is at the end it would fade, and only there.  That is two answers per wall, not one per step: the
-        // mask is only ever rewritten when the wall arrives at an end or leaves it, never while it travels.
-        if (_shelfFade == null)
+        if (!ReferenceEquals(_fadedScroller, scroller))
         {
-          LinearGradientBrush fade = new LinearGradientBrush
-          {
-            StartPoint = new RelativePoint(0.5, 0, RelativeUnit.Relative),
-            EndPoint = new RelativePoint(0.5, 1, RelativeUnit.Relative)
-          };
-          fade.GradientStops.Add(new GradientStop(Colors.Transparent, 0));
-          fade.GradientStops.Add(new GradientStop(Colors.Black, SHELF_EDGE_FADE));
-          fade.GradientStops.Add(new GradientStop(Colors.Black, 1.0 - SHELF_EDGE_FADE));
-          fade.GradientStops.Add(new GradientStop(Colors.Transparent, 1));
-          _shelfFade = fade;
+          // A retemplated list - which is what putting a skin on is - brings a new scroller, and the mask and the
+          // remembered depths both go with the old one.
+          _fadedScroller = scroller;
+          _fadeBefore = _fadeAfter = UNREAD;
+          scroller.AddHandler(ScrollViewer.ScrollChangedEvent, delegate { UpdateShelfFade(); });
         }
 
-        scroller.OpacityMask = _shelfFade;
+        UpdateShelfFade();
       }, DispatcherPriority.Loaded);
     }
 
-    /// <summary>How far in from an end of the shelf its rows dissolve: the twelve percent the menu column wears.</summary>
+    /// <summary>
+    /// Says what each end of the wall is hiding and, if that is not what the mask already says, writes it on.
+    /// </summary>
+    private void UpdateShelfFade()
+    {
+      ScrollViewer? scroller = _fadedScroller;
+      if (scroller == null)
+        return;
+
+      double view = _fadeRunsSideways ? scroller.Viewport.Width : scroller.Viewport.Height;
+      if (view <= 0)
+        return;
+
+      double extent = _fadeRunsSideways ? scroller.Extent.Width : scroller.Extent.Height;
+      double offset = _fadeRunsSideways ? scroller.Offset.X : scroller.Offset.Y;
+
+      // What stands outside the picture at either end.  A wall shorter than its window stands outside neither of
+      // them and is faded at neither.
+      double zone = SHELF_EDGE_FADE * view;
+      double before = FadeDepth(offset, zone);
+      double after = FadeDepth(extent - view - offset, zone);
+      if (before == _fadeBefore && after == _fadeAfter)
+        return;
+
+      _fadeBefore = before;
+      _fadeAfter = after;
+
+      // A wall that has left nothing out of the picture at either end wears no mask at all, which is both the
+      // honest answer and the cheap one: an unmasked shelf is a shelf whose pixels are not put through a brush.
+      if (before == 0 && after == 0)
+      {
+        scroller.OpacityMask = null;
+        return;
+      }
+
+      LinearGradientBrush fade = _shelfFade ??= NewShelfFade();
+      fade.StartPoint = new RelativePoint(_fadeRunsSideways ? 0.0 : 0.5,
+          _fadeRunsSideways ? 0.5 : 0.0, RelativeUnit.Relative);
+      fade.EndPoint = new RelativePoint(_fadeRunsSideways ? 1.0 : 0.5,
+          _fadeRunsSideways ? 0.5 : 1.0, RelativeUnit.Relative);
+
+      // A mask hides by its own transparency, so an end that is hiding nothing is written opaque and an end that
+      // has walked a whole fade zone of wall out of the picture is written clear.
+      fade.GradientStops[0].Color = FadeColour(before);
+      fade.GradientStops[3].Color = FadeColour(after);
+      scroller.OpacityMask = fade;
+    }
+
+    /// <summary>
+    /// How deeply one end of the wall fades: nothing out of the picture is no fade, a fade zone's worth out of it
+    /// is the full fade, and the way between is walked in eight steps so that a travelling wall only rewrites its
+    /// mask where the depth genuinely moved.
+    /// </summary>
+    private static double FadeDepth(double hidden, double zone)
+    {
+      if (hidden <= 0 || zone <= 0)
+        return 0;
+
+      double gone = Math.Min(1.0, hidden / zone);
+      return Math.Round(gone * FADE_STEPS) / FADE_STEPS;
+    }
+
+    /// <summary>The mask's colour for an end fading to the given depth.</summary>
+    private static Color FadeColour(double depth)
+      => Color.FromArgb((byte)Math.Round((1.0 - depth) * 255.0), 0xFF, 0xFF, 0xFF);
+
+    /// <summary>The shelf's mask with both ends standing opaque; the depths are written on it afterwards.</summary>
+    private static LinearGradientBrush NewShelfFade()
+    {
+      LinearGradientBrush fade = new LinearGradientBrush
+      {
+        StartPoint = new RelativePoint(0.5, 0, RelativeUnit.Relative),
+        EndPoint = new RelativePoint(0.5, 1, RelativeUnit.Relative)
+      };
+      fade.GradientStops.Add(new GradientStop(Colors.White, 0));
+      fade.GradientStops.Add(new GradientStop(Colors.White, SHELF_EDGE_FADE));
+      fade.GradientStops.Add(new GradientStop(Colors.White, 1.0 - SHELF_EDGE_FADE));
+      fade.GradientStops.Add(new GradientStop(Colors.White, 1));
+      return fade;
+    }
+
+    /// <summary>
+    /// How far in from an end of the shelf its rows dissolve once a whole fade zone of wall has gone out of the
+    /// picture: the twelve percent this front end's menu column wears.
+    /// </summary>
     private const double SHELF_EDGE_FADE = 0.12;
 
+    /// <summary>How finely the depth an end fades is read off the wall: eight steps between none and all.</summary>
+    private const double FADE_STEPS = 8;
+
+    /// <summary>A depth no end has been asked about yet, so that the first reading is always written.</summary>
+    private const double UNREAD = -1;
+
     private LinearGradientBrush? _shelfFade;
+
+    private ScrollViewer? _fadedScroller;
+
+    private double _fadeBefore = UNREAD;
+
+    private double _fadeAfter = UNREAD;
+
+    private bool _fadeRunsSideways;
 
     /// <summary>The frame the shelf's tiles were last told to wear; a change of it empties the wall (ApplyLayout).</summary>
     private IDataTemplate? _wornFrame;
