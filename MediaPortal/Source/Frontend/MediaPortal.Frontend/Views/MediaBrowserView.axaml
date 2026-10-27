@@ -654,7 +654,7 @@
                        SelectedItem="{Binding Selected, Mode=TwoWay}"
                        ItemTemplate="{StaticResource BuiltinRowsTemplate}"
                        FontSize="24"
-                       Margin="0,0,0,63"
+                       Margin="0,0,0,53"
                        ClipToBounds="False"/>
             </DockPanel>
 

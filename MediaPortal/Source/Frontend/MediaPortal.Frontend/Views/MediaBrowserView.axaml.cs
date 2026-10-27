@@ -46,6 +46,18 @@ namespace MediaPortal.Frontend.Views
     private readonly Func<TitleViewModel, WorkflowFrame>? _insideScreen;
     private bool _firstActivation;
 
+    /// <summary>
+    /// The floor the markup wrote under the shelf, kept from the moment the view was stood up.
+    /// </summary>
+    /// <remarks>
+    /// The covers lay their row against the bottom edge of the room and may not carry that floor, so the code
+    /// which swaps the shapes also swaps the margin - and a <c>ClearValue</c> there throws the markup's own
+    /// number away for good instead of handing it back: the local value the loader wrote is gone and nothing
+    /// restores it, which is why a floor written in the markup was never seen on the screen.  Reading it once
+    /// and putting that number back is what keeps the markup the one place the floor is written down.
+    /// </remarks>
+    private readonly Avalonia.Thickness _shelfFloor;
+
     public MediaBrowserView()
         : this(new MediaBrowserViewModel(), null)
     {
@@ -75,6 +87,7 @@ namespace MediaPortal.Frontend.Views
       _nowPlayingScreen = nowPlayingScreen;
       _insideScreen = insideScreen;
       InitializeComponent();
+      _shelfFloor = titlesList.Margin;
 
       // The arrow ring is the shelf and nothing else. The two buttons that used to stand beside it are gone: "Play"
       // was the Enter that the list already answers, and "More" asked for what the shelf now reads on its own as
@@ -998,7 +1011,9 @@ namespace MediaPortal.Frontend.Views
       else
       {
         titlesList.ClearValue(Layoutable.VerticalAlignmentProperty);
-        titlesList.ClearValue(Layoutable.MarginProperty);
+        // Not a ClearValue: that would take the markup's floor away for good, and the wall would stand on the
+        // bottom edge whatever the markup says.  The number is the markup's and is put back as it was read.
+        titlesList.Margin = _shelfFloor;
         ScrollViewer.SetVerticalScrollBarVisibility(titlesList, ScrollBarVisibility.Auto);
         ScrollViewer.SetHorizontalScrollBarVisibility(titlesList, ScrollBarVisibility.Disabled);
         if (viewModel.Layout != BrowserLayout.List)
