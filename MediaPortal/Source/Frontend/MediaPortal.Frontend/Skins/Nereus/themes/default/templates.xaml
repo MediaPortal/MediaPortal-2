@@ -190,8 +190,7 @@
           <RowDefinition Height="40*"/>
         </Grid.RowDefinitions>
         <Rectangle Grid.RowSpan="2"
-                   Fill="#222222"
-                   IsVisible="{Binding IsSquareHomeImage}"/>
+                   Fill="#222222"/>
         <!-- The tile's picture, dressed by the face's styles: three quarters lit and at its own size while
              nothing stands on the tile, full light and a tenth larger when something does. No
              number is written here on purpose - a number written on the element itself outranks every style
@@ -201,19 +200,7 @@
                Source="{Binding HomeImagePath,
                                 Converter={x:Static views:SkinImageConverter.Instance},
                                 ConverterParameter='{}{0}'}"
-               Stretch="Fill"
-               IsVisible="{Binding IsSquareHomeImage}"/>
-        <Image Grid.RowSpan="2"
-               Classes="nereus-menu-art"
-               Source="{Binding HomeImagePath,
-                                Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='{}{0}'}"
-               Width="150"
-               Height="150"
-               HorizontalAlignment="Center"
-               VerticalAlignment="Center"
-               Stretch="Fill"
-               IsVisible="{Binding IsCircleHomeImage}"/>
+               Stretch="Fill"/>
         <TextBlock Grid.RowSpan="2"
                    Text="{Binding Badge}"
                    TextAlignment="Center"
@@ -254,23 +241,12 @@
                Width="15"
                Stretch="Fill"
                HorizontalAlignment="Left"
-               IsVisible="{Binding IsSquareSelected}"/>
+               IsVisible="{Binding IsSelected}"/>
         <Rectangle Grid.RowSpan="2"
                    Fill="White"
                    Width="5"
                    HorizontalAlignment="Left"
-                   IsVisible="{Binding IsSquareSelected}"/>
-        <Image Grid.RowSpan="2"
-               Source="{Binding Label,
-                                Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter=focus.png}"
-               Width="25"
-               Height="93"
-               HorizontalAlignment="Left"
-               VerticalAlignment="Center"
-               Margin="10,13,10,10"
-               Stretch="Fill"
-               IsVisible="{Binding IsCircleSelected}"/>
+                   IsVisible="{Binding IsSelected}"/>
       </Grid>
     </Border>
     <!-- The resting edge, the same ghost ring a cover on the wall and a shortcut beside it wear at rest. Only the

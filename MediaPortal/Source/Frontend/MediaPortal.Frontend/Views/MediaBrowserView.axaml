@@ -162,78 +162,69 @@
     </DataTemplate>
 
     <!--
-      A row of the screen's own menu, as the reference's media menu drew every one of its rows
-      (OtherControlsOverrides.xaml:680 and :774): a plate a hundred and seventy points square, the command's
-      picture on it at six tenths of its light and at full light when something stands on it, and the command's
-      name in a band that grows out of the plate's bottom edge only when the row is stood on. The reference
-      painted the plate with MediaMenu\tile_background_focus.png; a skin that carries that picture gets it, and a
-      skin that carries none gets the flat round ground the reference put under the picture anyway.
+      A row of the screen's own menu. It wears the same tile a home shortcut wears - the face's menu-tile
+      square in the wall's one shadow, the command's picture over the tile, and the command's name on the
+      same fading band a shortcut's name stands on - because the rail's rows and the shortcut's squares
+      answer the same question ("which way now?"), and a menu that dresses differently from the wall it
+      slides out of reads as a second program.
 
-      What the plate is drawn with is written here rather than in the skin's styles on purpose. Every other tile
-      on this screen is a media tile, and the skin dresses those through its template keys; this menu is the
-      screen's own, no skin was ever written for it, and a menu whose pictures and band came from skin styles
-      would be a menu that is invisible on a machine wearing no skin. The PICTURES are still the skin's - the
-      converter asks the worn skin for MediaMenu\&lt;command&gt; and answers nothing when it has none, which is
-      the same answer the reference's own converter gave to a command it had no picture for.
+      The deviations from the shortcut tile are on purpose. The picture is no PNG any more: a command's
+      icon is a shape out of the skin's vector catalog, painted in the text's own colour, so it can be
+      lit and grown exactly like the shortcut's art. The white bar at the tile's left edge - the very bar
+      the main menu gives its selected tile - marks the row that is the screen's answer already. And the
+      name stands in its band always, not only when a viewer stands on the row: eight commands that hide
+      their names until touched are eight commands nobody can read at a glance.
     -->
     <DataTemplate x:Key="MediaMenuTile" x:DataType="vm:MediaBrowserMenuEntry">
-      <Panel Width="170" Height="162">
-        <!-- The plate, and the light the reference laid over it for the row that is stood on. -->
-        <Panel HorizontalAlignment="Center" VerticalAlignment="Center">
-          <!-- The flat ground, which is all a skin without the circle art has; under the art it never shows. -->
-          <Border Width="150" Height="150" Background="#222222" CornerRadius="75"/>
-          <!-- The plate the reference painted: its own circle art at six tenths, whole under a stood-on row. -->
-          <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance},
-                                  ConverterParameter='MediaMenu/tile_background_focus'}"
-                 Width="150"
-                 Height="150"
-                 Opacity="0.6"
-                 Classes="media-menu-focus"
-                 IsHitTestVisible="False"/>
-          <!-- The command's own picture, cropped to the circle the way the reference cropped its tile art:
-               some of those pictures fill their square, and a square laid over a round plate reads as a bug. -->
-          <Border Classes="media-menu-plate"
-                  Width="150"
-                  Height="150"
-                  Background="Transparent"
-                  CornerRadius="75"
-                  ClipToBounds="True">
-            <Image Source="{Binding Icon, Converter={x:Static views:SkinImageConverter.Instance},
-                                     ConverterParameter='MediaMenu/{0}'}"
-                   Stretch="UniformToFill"
-                   Opacity="0.6"/>
+      <Border Classes="home-tile-shadow" Margin="6" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Panel>
+          <Border Classes="nereus-menu-tile" ClipToBounds="True" Width="170" Height="170">
+            <Grid>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="130*"/>
+                <RowDefinition Height="40*"/>
+              </Grid.RowDefinitions>
+              <Rectangle Grid.RowSpan="2" Fill="#222222"/>
+              <!-- The command's shape, asked of the worn skin's vectors the way a shortcut asks for its
+                   picture. The box is the shortcut's own formula - thirty-two hundredths of the tile's width
+                   (HomeShelf.IconSize), centred on the square - so a rail row and a home shortcut carry the
+                   same amount of shape. -->
+              <Path Grid.RowSpan="2"
+                    Classes="media-menu-icon"
+                    Data="{Binding Icon, Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                   ConverterParameter='MediaMenu/{0}'}"
+                    Fill="{DynamicResource TextBrush}"
+                    Width="54"
+                    Height="54"
+                    Stretch="Uniform"
+                    Margin="0,0,0,22"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"/>
+              <Grid Grid.Row="1" VerticalAlignment="Stretch" IsHitTestVisible="False">
+                <Rectangle Classes="nereus-menu-band"/>
+                <TextBlock Text="{Binding Label}"
+                           FontSize="18"
+                           FontWeight="Bold"
+                           Foreground="{DynamicResource TextBrush}"
+                           TextAlignment="Center"
+                           VerticalAlignment="Center"
+                           TextTrimming="CharacterEllipsis"
+                           Margin="5,0"/>
+              </Grid>
+              <!-- The bar of the row that is what the screen answers already - the grid in a list of
+                   layouts, the year in a list of orders - worn as the main menu wears it on its selected
+                   tile: five of white down the tile's left edge. -->
+              <Rectangle Grid.RowSpan="2"
+                         Fill="White"
+                         Width="5"
+                         HorizontalAlignment="Left"
+                         IsVisible="{Binding IsCurrent}"/>
+            </Grid>
           </Border>
+          <!-- The resting ghost ring, exactly as the shortcut tiles and the wall's covers wear it. -->
+          <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
         </Panel>
-        <!-- The command's name, in the band the reference grew in from the plate's bottom edge. It stands under
-             the plate rather than over it: a band across the plate's foot would cover the command's picture,
-             which is the part a viewer reads the menu by. -->
-        <Border Classes="media-menu-band"
-                Height="40"
-                Width="150"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Bottom"
-                Background="#66000000"
-                CornerRadius="6"
-                Padding="8,0">
-          <TextBlock Text="{Binding Label}"
-                     FontSize="19"
-                     Foreground="#F2F2F2"
-                     TextAlignment="Center"
-                     VerticalAlignment="Center"
-                     TextTrimming="CharacterEllipsis"/>
-        </Border>
-        <!-- The mark the reference gave the row that is what the screen already answers - the grid in a list of
-             layouts, the year in a list of orders. Its styles lit the whole plate; a bar under the name says the
-             same thing without borrowing the focus ring, which belongs to the row being stood on and not to the
-             row being the answer. -->
-        <Border Height="5"
-                Width="90"
-                VerticalAlignment="Bottom"
-                Background="White"
-                CornerRadius="2"
-                Margin="0,0,0,-16"
-                IsVisible="{Binding IsCurrent}"/>
-      </Panel>
+      </Border>
     </DataTemplate>
 
     <!--
@@ -266,10 +257,8 @@
       template, so that neither the row a viewer stands on nor the row the pointer rests on can grow a border of
       the toolkit's own (the same reason the skin's rail gives at styles.xaml:135 - the part is deliberately not
       named PART_ContentPresenter, because the platform's theme styles are aimed at that name);
-    - the plate's picture goes from six tenths of its light to whole, and the name's band grows out of the
-      plate's foot, both under a viewer or a pointer - which is the whole of what Nereus let a focused row have;
-    - the ring picture the skin carries for a focused plate (tile_background_focus.png) is drawn only on the row
-      that is stood on, which is what its name says it is for.
+    - the command's shape goes from three quarters of its light to whole, and grows a tenth, under a viewer
+      or a pointer - the very answer the skin's shortcut art gives its tile, so the rail and the wall agree.
   -->
   <UserControl.Styles>
     <Style Selector="ListBox.media-menu">
@@ -299,55 +288,33 @@
         </ControlTemplate>
       </Setter>
     </Style>
-    <!-- The name's band grows out of the plate's foot rather than fading in, which is the reference's own
-         answer (its label scaled from a hundredth of its height to its height) and reads as part of the plate
-         instead of as a caption dropped over it. -->
-    <Style Selector="ListBox.media-menu ListBoxItem Border.media-menu-band">
-      <Setter Property="Opacity" Value="0"/>
-      <Setter Property="RenderTransformOrigin" Value="50%,100%"/>
-      <Setter Property="RenderTransform" Value="scale(1,0.02)"/>
+    <!-- The command's shape, dressed the way the face dresses its corner lights: four-tenths while the tile
+         waits, and on the row a viewer stands on it comes to full white with the top bar's glow - the same
+         white DropShadow the four corner buttons light their glyphs with (styles.xaml's nereus-corner-button),
+         and it fits here because the glyph sits a good deal farther from the tile's edge than the blur spreads.
+         The pointer lights the mark only when a hand is really on it, which is the corner buttons' guard too. -->
+    <Style Selector="ListBox.media-menu ListBoxItem Path.media-menu-icon">
+      <Setter Property="Opacity" Value="0.4"/>
+      <Setter Property="RenderTransformOrigin" Value="50%,50%"/>
+      <Setter Property="RenderTransform" Value="scale(1)"/>
       <Setter Property="Transitions">
         <Transitions>
-          <DoubleTransition Property="Opacity" Duration="0:0:0.2" Easing="CubicEaseOut"/>
-          <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2" Easing="CubicEaseOut"/>
+          <DoubleTransition Property="Opacity" Duration="0:0:0.3" Easing="CubicEaseOut"/>
+          <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.3" Easing="CubicEaseOut"/>
         </Transitions>
       </Setter>
     </Style>
-    <Style Selector="ListBox.media-menu ListBoxItem:pointerover Border.media-menu-band">
+    <Style Selector="ListBox.media-menu ListBoxItem:selected Path.media-menu-icon,
+                    ListBox.media-menu ListBoxItem:focus Path.media-menu-icon,
+                    Window:not(.pointer-resting) ListBox.media-menu ListBoxItem:pointerover Path.media-menu-icon">
       <Setter Property="Opacity" Value="1"/>
-      <Setter Property="RenderTransform" Value="scale(1,1)"/>
-    </Style>
-    <Style Selector="ListBox.media-menu ListBoxItem:selected Border.media-menu-band">
-      <Setter Property="Opacity" Value="1"/>
-      <Setter Property="RenderTransform" Value="scale(1,1)"/>
-    </Style>
-    <Style Selector="ListBox.media-menu ListBoxItem:selected:pointerover Border.media-menu-band">
-      <Setter Property="Opacity" Value="1"/>
-      <Setter Property="RenderTransform" Value="scale(1,1)"/>
-    </Style>
-    <!-- The plate's picture and its focus ring, both from six tenths to whole. Standing on a row is meant
-         strictly here: the row the arrows pass over on the way to a row is not a row anybody is standing on, so
-         the pointer only answers when it actually rests (the window's own pointer-resting class, which the shell
-         puts off while a viewer walks with the keyboard). -->
-    <Style Selector="ListBox.media-menu ListBoxItem Border.media-menu-plate Image,
-                    ListBox.media-menu ListBoxItem Image.media-menu-focus">
-      <Setter Property="Transitions">
-        <Transitions>
-          <DoubleTransition Property="Opacity" Duration="0:0:0.2" Easing="CubicEaseOut"/>
-        </Transitions>
+      <Setter Property="Effect">
+        <DropShadowEffect BlurRadius="16" Color="#FFFFFFFF" OffsetX="0" OffsetY="0" Opacity="1"/>
       </Setter>
     </Style>
-    <Style Selector="ListBox.media-menu ListBoxItem:pointerover Border.media-menu-plate Image,
-                    ListBox.media-menu ListBoxItem:pointerover Image.media-menu-focus">
-      <Setter Property="Opacity" Value="1"/>
-    </Style>
-    <Style Selector="ListBox.media-menu ListBoxItem:selected Border.media-menu-plate Image,
-                    ListBox.media-menu ListBoxItem:selected Image.media-menu-focus">
-      <Setter Property="Opacity" Value="1"/>
-    </Style>
-    <Style Selector="ListBox.media-menu ListBoxItem:selected:pointerover Border.media-menu-plate Image,
-                    ListBox.media-menu ListBoxItem:selected:pointerover Image.media-menu-focus">
-      <Setter Property="Opacity" Value="1"/>
+    <Style Selector="ListBox.media-menu ListBoxItem:selected:focus Path.media-menu-icon,
+                    ListBox.media-menu ListBoxItem:selected:pointerover Path.media-menu-icon">
+      <Setter Property="RenderTransform" Value="scale(1.06)"/>
     </Style>
   </UserControl.Styles>
   <!--
@@ -466,22 +433,8 @@
              IsVisible="{Binding !IsCoverLayout}">
         <!-- The ground. The reference laid a black rectangle at nine tenths over the whole panel and the glow
              picture along its right edge, so that the rail does not end at a line but pales into the shelf. -->
-        <Border Background="Black" Opacity="0.9"/>
-        <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter=MenuGlow}"
-               Width="159"
-               HorizontalAlignment="Right"
-               Margin="0,0,-38,200"
-               IsHitTestVisible="False"/>
-        <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter=LeftMenuIndicator}"
-               Width="25"
-               Height="45"
-               Opacity="0.9"
-               HorizontalAlignment="Right"
-               VerticalAlignment="Center"
-               Margin="0,0,-25,200"
-               IsHitTestVisible="False"/>
+        <!--border Background="Black" Opacity="0.9"/-->
+
         <DockPanel Margin="10,0,0,0">
           <TextBlock DockPanel.Dock="Top"
                      Text="{Binding MediaMenuHeading}"
@@ -493,7 +446,10 @@
           <!-- Every row of the screen's menu. The list is the reference's ListView with MediaMenuListViewStyle
                on it; the styles that dress it are with the other menu styles above, for both halves. It is docked
                rather than stacked so that the list is measured against the height that is left and can scroll a
-               menu longer than the rail. -->
+               menu longer than the rail.  The panel is a plain stack and not the toolkit's virtualizing one:
+               the rail never carries more than eight rows, and the virtualizing panel - measured against the
+               collapsed height a closing animation leaves behind while the room slides - realized a single row
+               and left the rows below it as empty plates until a key press woke the list up. -->
           <ListBox Name="mediaMenuList"
                    Classes="media-menu"
                    ItemsSource="{Binding MediaMenu}"
@@ -501,7 +457,13 @@
                    Margin="0,6,0,0"
                    Focusable="True"
                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                   ScrollViewer.VerticalScrollBarVisibility="Hidden"/>
+                   ScrollViewer.VerticalScrollBarVisibility="Hidden">
+            <ListBox.ItemsPanel>
+              <ItemsPanelTemplate>
+                <StackPanel Orientation="Vertical"/>
+              </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+          </ListBox>
         </DockPanel>
       </Panel>
 
@@ -646,7 +608,11 @@
               <!--
                 The shelf. The pictures it wears are the worn skin's answer to the tile key its layout names
                 (theming:SkinTemplates.TileTemplate), and the panel it lays them in is the view's own promise -
-                the wrap for a grid, the sideways stack for covers - which is what the code behind swaps.
+                the wrap for a grid, the sideways stack for covers - which is what the code behind swaps.  The
+                wall is not stretched to the scroller: it takes the width its own rows of tiles need and stands
+                in the middle of what the scroller offers (VirtualizingTilePanel), which leaves the same breath
+                of fanart at its left and at its right hand and keeps the scroller's bar at the edge of the
+                room, away from the last column of posters.
               -->
               <ListBox Name="titlesList"
                        Focusable="True"
@@ -748,11 +714,13 @@
                     device-independent pixels, not as the 0..1 fraction WPF uses: the
                     "1,0.3" -> "0,0.5" version was a line one DIP long in the top left
                     corner, which is why the wash never appeared. Only the '%' suffix
-                    means "of the panel". First stop is 90 % black (#E6 = 0.9 * 255),
-                    last one is fully transparent, and the vector runs from the top
-                    right corner to the bottom left one.  -->
+                    means "of the panel". The wash stands 60 % black (#99 = 0.6 * 255)
+                    from the right corner out to sixty hundredths of the line and only
+                    then thins to nothing at the left edge, so the words sit on an even
+                    ground instead of on a gradient that starts thinning behind them.  -->
               <LinearGradientBrush StartPoint="100%,45%" EndPoint="3%,50%">
-                <GradientStop Color="#E6000000" Offset="0"/>
+                <GradientStop Color="#99000000" Offset="0"/>
+                <GradientStop Color="#99000000" Offset="0.6"/>
                 <GradientStop Color="#00000000" Offset="1"/>
               </LinearGradientBrush>
             </Border.Background>
@@ -879,19 +847,26 @@
                   box of its own (MediaItemListMovieDetails.inc:23-38); the size here is the box that was drawn for
                   it.  A title the library keeps no poster of leaves the box empty - not a poster standing in for a
                   poster that is not there.
+
+                  The frame is the picture's own and not a fixed box: it is told the greatest width and height the
+                  box may take and then shrinks to the poster that arrives in it, because the corners are rounded on
+                  the frame and a frame wider than its picture would round nothing.  The rounding is the tiles'
+                  rounding (Border.home-tile-face, ten points) at twice the size, which is what the viewer asked for
+                  and what a picture this large can carry.
                 -->
-                <Panel Grid.Row="2"
-                       Grid.Column="1"
-                       Width="380"
-                       Height="500"
-                       Margin="20,12,0,0"
-                       VerticalAlignment="Top"
-                       IsVisible="{Binding DetailsArtwork, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <Border Grid.Row="2"
+                        Grid.Column="1"
+                        MaxWidth="380"
+                        MaxHeight="500"
+                        Margin="20,12,0,0"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        CornerRadius="10"
+                        ClipToBounds="True"
+                        IsVisible="{Binding DetailsArtwork, Converter={x:Static ObjectConverters.IsNotNull}}">
                   <Image Source="{Binding DetailsArtwork, Converter={x:Static views:ArtworkConverter.Instance}}"
-                         Stretch="Uniform"
-                         HorizontalAlignment="Right"
-                         VerticalAlignment="Top"/>
-                </Panel>
+                         Stretch="Uniform"/>
+                </Border>
 
                 <!--
                   Where the file stands is not said here any more.  A viewer choosing a film reads a story, not a

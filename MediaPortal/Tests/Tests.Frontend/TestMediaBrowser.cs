@@ -1327,7 +1327,10 @@ namespace Tests.Frontend
 
       SendKey(rail, Key.Right);
       WaitUntil("the menu to slide away", delegate { return !browser.MediaMenuVisible; });
-      Assert.That(titles.IsKeyboardFocusWithin, Is.True, "the shelf has the arrows back");
+      // Not merely "the list has the arrows" - the list holds the caret without wearing the frame.  The frame
+      // lives on the ListBoxItem (:focus), so the caret has to be ON a tile or the viewer sees a dark wall.
+      Assert.That(window.FocusManager.GetFocusedElement(), Is.InstanceOf<ListBoxItem>(),
+          "the shelf has the arrows back ON A TILE, which is the tile that wears the frame");
 
       // A grid lays tiles beside one another, and only the column touching the shelf's left edge is an edge.
       browser.Layout = BrowserLayout.Grid;
@@ -1355,7 +1358,8 @@ namespace Tests.Frontend
 
       SendKey(rail, Key.Right);
       WaitUntil("the menu to slide away", delegate { return !browser.MediaMenuVisible; });
-      Assert.That(titles.IsKeyboardFocusWithin, Is.True, "the shelf has the arrows back");
+      Assert.That(window.FocusManager.GetFocusedElement(), Is.InstanceOf<ListBoxItem>(),
+          "the shelf has the arrows back ON A TILE, which is the tile that wears the frame");
       WaitUntil("the room to slide back into the space the menu stood in", delegate { return view.SlideOffset == 0; });
       window.Close();
     }
@@ -1391,7 +1395,137 @@ namespace Tests.Frontend
 
       SendKey(under, Key.Down);
       WaitUntil("the menu to slide away", delegate { return !browser.MediaMenuVisible; });
-      Assert.That(titles.IsKeyboardFocusWithin, Is.True, "and the covers have the arrows back");
+      Assert.That(window.FocusManager.GetFocusedElement(), Is.InstanceOf<ListBoxItem>(),
+          "and the covers have the arrows back ON A TILE, which is the cover that wears the frame");
+      window.Close();
+    }
+
+    /// <summary>
+    /// The walls of the rail. A key that points past a wall - left past the rail's side, up past its head,
+    /// down past its foot - is answered with a nod of the whole rail toward that wall and a spring back; the
+    /// menu stays open, the caret stays on its row, and the viewer learns the wall is a wall rather than a
+    /// stuck key.
+    /// </summary>
+    [AvaloniaTest]
+    public void PointingPastAWallOfTheRailNodsTheRailAndKeepsEverythingWhereItIs()
+    {
+      LongShelf server = new LongShelf();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      MediaBrowserView view = new MediaBrowserView(browser);
+      ShellWindow window = new ShellWindow(view);
+      window.Show();
+      WaitUntil("the shelf to fill", delegate { return browser.Titles.Count > 60; });
+
+      ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "titlesList");
+      titles.Focus();
+      titles.SelectedIndex = 40;
+      SendKey(titles, Key.Left);
+      WaitUntil("the menu to stand open", delegate { return browser.MediaMenuVisible; });
+      ListBox rail = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "mediaMenuList");
+      WaitUntil("the rail to be walked", delegate { return rail.IsKeyboardFocusWithin; });
+      int rows = rail.Items.Count;
+
+      // The side toward the room's edge: nothing stands left of the rail.  The nod's frames ride the render
+      // timer, which the headless harness never turns - the very timer StandCaret asks for its caret on - so
+      // what a headless test can prove is the decision: the key reaches the rail's ground and is answered
+      // there, the menu stays open, and the caret stays put.  That the ground wears a nod transform afterwards
+      // is the witness that it was a nod and not a swallow.
+      Panel side_ground = window.GetVisualDescendants().OfType<Panel>()
+          .First(panel => panel.Name == "sideMenu");
+      SendKey(rail, Key.Left);
+      Pump();
+      Assert.That(side_ground.RenderTransform, Is.InstanceOf<TranslateTransform>(),
+          "the wall key is answered by a nod of the rail's ground");
+      Assert.That(browser.MediaMenuVisible, Is.True, "a wall does not put the menu away");
+      Assert.That(rail.SelectedIndex, Is.EqualTo(0), "and a wall does not walk the caret off its row");
+
+      // The head: up on the first row is a wall as well, and the caret keeps its row.
+      SendKey(rail, Key.Up);
+      Pump();
+      Assert.That(browser.MediaMenuVisible, Is.True, "the head of the rail is a wall, not an exit");
+      Assert.That(rail.SelectedIndex, Is.EqualTo(0), "and the head of the rail keeps its row");
+
+      // The foot: down on the last row is the third wall.
+      rail.SelectedIndex = rows - 1;
+      if (rail.ContainerFromIndex(rows - 1) is ListBoxItem last_row)
+        last_row.Focus();
+      Pump();
+      SendKey(rail, Key.Down);
+      Pump();
+      Assert.That(browser.MediaMenuVisible, Is.True, "the foot of the rail is a wall, not an exit");
+      Assert.That(rail.SelectedIndex, Is.EqualTo(rows - 1), "and the foot of the rail keeps its row");
+
+      // And a key with a road under it is still just walking: down on a row that is not the last one moves
+      // the caret instead of stopping at a wall.
+      rail.SelectedIndex = 0;
+      if (rail.ContainerFromIndex(0) is ListBoxItem first_row)
+        first_row.Focus();
+      Pump();
+      SendKey(rail, Key.Down);
+      Pump();
+      Assert.That(rail.SelectedIndex, Is.EqualTo(1), "a key with a row under it walks rather than nods");
+      window.Close();
+    }
+
+    /// <summary>
+    /// Climbing down into a page of the menu - over the "View" row onto the shapes - and back with the back key
+    /// keeps a caret standing: the new page wears the frame on its first row, and the way back hands the frame
+    /// to the row the viewer climbed down from.  A page is built by replacing every row of the rail underneath
+    /// the caret, and a rail rebuilt under a caret that is not replaced stands dark - which is what the viewer
+    /// sees as "no tile focused".
+    /// </summary>
+    [AvaloniaTest]
+    public void ClimbingDownAndBackUpTheMenuPagesKeepsTheCaretStanding()
+    {
+      LongShelf server = new LongShelf();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      MediaBrowserView view = new MediaBrowserView(browser);
+      ShellWindow window = new ShellWindow(view);
+      window.Show();
+      WaitUntil("the shelf to fill", delegate { return browser.Titles.Count > 60; });
+
+      ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "titlesList");
+      titles.Focus();
+      titles.SelectedIndex = 0;
+      Pump();
+      SendKey(titles, Key.Left);
+      WaitUntil("the menu to stand open", delegate { return browser.MediaMenuVisible; });
+      ListBox rail = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "mediaMenuList");
+      WaitUntil("the rail to be walked", delegate { return rail.IsKeyboardFocusWithin; });
+
+      // The row that opens the shapes page, walked to the way a viewer walks it.
+      int view_row = -1;
+      for (int i = 0; i < rail.Items.Count; i++)
+      {
+        if (((MediaBrowserMenuEntry) rail.Items[i]!).Label.StartsWith("View",
+            StringComparison.OrdinalIgnoreCase))
+        {
+          view_row = i;
+          break;
+        }
+      }
+
+      Assert.That(view_row, Is.GreaterThan(0), "the commands carry a row that opens the shapes page");
+      rail.SelectedIndex = view_row;
+      Pump();
+      SendKey(rail, Key.Enter);
+
+      WaitUntil("the shapes page to stand up", delegate { return browser.MediaMenuHeading == "View"; });
+      Assert.That(browser.MediaMenuVisible, Is.True, "climbing down keeps the menu open");
+      WaitUntil("the page to stand on its first row", delegate { return rail.SelectedIndex == 0; });
+      Assert.That(rail.IsKeyboardFocusWithin, Is.True, "and the caret stands inside the rail");
+
+      // Back: the commands come back, and the caret travels back to the row the viewer climbed down from -
+      // the same row, not merely some row.
+      SendKey(rail, Key.Escape);
+      WaitUntil("the commands to stand up again", delegate { return browser.MediaMenuHeading == "Menu"; });
+      Assert.That(browser.MediaMenuVisible, Is.True, "back from a page keeps the menu open");
+      WaitUntil("the caret back on the row the viewer climbed down from",
+          delegate { return rail.SelectedIndex == view_row; });
       window.Close();
     }
 
@@ -1655,6 +1789,79 @@ namespace Tests.Frontend
         // Rows are the other reading, and there the panel is how a list says which row it means.
         browser.Layout = BrowserLayout.List;
         WaitUntil("the rows to be laid out", delegate { return !titles.Classes.Contains("nereus-shelf-tiles"); });
+      }
+      finally
+      {
+        window?.Close();
+        SkinEngine.Clear(app);
+        SkinEngine.SkinsFolder = previousFolder;
+        FrontendTheme.Apply(app, previousTheme, out string? _);
+      }
+    }
+
+    /// <summary>
+    /// Every row of the screen's menu carries its picture the moment the rail stands open.  The rows used to
+    /// wait for a key press: the list's virtualizing panel - measured against the collapsed height a closing
+    /// animation leaves behind while the room slides - realized the first row alone, and the rows below it
+    /// stood as empty grey plates, which on a menu read as a menu of one command.  Eight rows is no reason
+    /// to virtualize anything, and a menu whose commands hide until touched is the failure a viewer sees.
+    /// </summary>
+    [AvaloniaTest]
+    public void EveryRowOfTheScreensMenuCarriesItsPictureWhileItStandsOpen()
+    {
+      Application app = Application.Current!;
+      string? previousFolder = SkinEngine.SkinsFolder;
+      string previousTheme = FrontendTheme.CurrentName(app);
+      SkinEngine.SkinsFolder = Path.Combine(MetadataPath("FrontendSource"), "Skins");
+      ShellWindow? window = null;
+      try
+      {
+        Assert.That(FrontendTheme.Apply(app, "nereus", out string? themeProblem), Is.EqualTo("nereus"),
+            themeProblem ?? "");
+        Assert.That(SkinEngine.Apply(app, "nereus", out string? skinProblem), Is.True, skinProblem ?? "");
+
+        LongShelf server = new LongShelf();
+        MediaBrowserViewModel browser = BrowserOn(server);
+        window = new ShellWindow(new MediaBrowserView(browser));
+        window.Show();
+        WaitUntil("the shelf to fill", delegate { return browser.Titles.Count > 60; });
+
+        ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
+            .First(list => list.Name == "titlesList");
+        ListBox rail = window.GetVisualDescendants().OfType<ListBox>()
+            .First(list => list.Name == "mediaMenuList");
+
+        titles.Focus();
+        browser.ShowMediaMenuCommand.Execute(null);
+        WaitUntil("the menu to stand open", delegate { return browser.MediaMenuVisible; });
+        WaitUntil("the rows of the menu to be there", delegate { return rail.Items.Count > 3; });
+        Pump();
+
+        Assert.That(rail.Items.Count, Is.GreaterThan(3), "the rail opened on a page of commands");
+        for (int i = 0; i < rail.Items.Count; i++)
+        {
+          ListBoxItem? container = rail.ContainerFromIndex(i) as ListBoxItem;
+          Assert.That(container, Is.Not.Null,
+              "row " + i + " of the rail is laid out while the rail stands open, not only after a key wakes it");
+          MediaBrowserMenuEntry? entry = container!.DataContext as MediaBrowserMenuEntry;
+          Assert.That(entry, Is.Not.Null, "row " + entry!.Label + " knows the command it carries");
+
+          // The row wears the shortcut's tile: a shape out of the skin's vectors where the command has an
+          // icon, and its name standing in the band whether or not anybody stands on the row.
+          List<Avalonia.Controls.Shapes.Path> shapes = container.GetVisualDescendants()
+              .OfType<Avalonia.Controls.Shapes.Path>()
+              .Where(shape => shape.Classes.Contains("media-menu-icon"))
+              .ToList();
+          Assert.That(shapes.Count, Is.EqualTo(1), "row '" + entry.Label + "' carries one command shape");
+          if (entry.Icon.Length > 0)
+            Assert.That(shapes[0].Data, Is.Not.Null,
+                "the command '" + entry.Label + "' shows its own shape '" + entry.Icon + "'");
+
+          TextBlock? name = container.GetVisualDescendants().OfType<TextBlock>()
+              .FirstOrDefault(text => text.Text == entry.Label);
+          Assert.That(name, Is.Not.Null, "row '" + entry.Label + "' says its name while it waits");
+          Assert.That(name!.IsVisible, Is.True, "and nobody has to stand on the row to read it");
+        }
       }
       finally
       {
@@ -2688,9 +2895,13 @@ namespace Tests.Frontend
       Assert.That(wash.EndPoint.Point.X, Is.EqualTo(0.03), "and runs to the left edge");
       Assert.That(wash.EndPoint.Point.Y, Is.EqualTo(0.5), "at its middle");
 
-      // Ninety per cent black over the bright fanart, thinning to nothing where the reader sits.
-      Assert.That(((GradientStop)wash.GradientStops![0]!).Color.ToUInt32(), Is.EqualTo(0xE6000000),
-          "the corner the light comes from is darkened to ninety per cent, which is #E6 and not #77");
+      // Sixty per cent black standing level from the light's corner out to sixty hundredths of the line, so the
+      // words sit on an even ground, thinning to nothing only at the reader's own edge.
+      Assert.That(((GradientStop)wash.GradientStops![0]!).Color.ToUInt32(), Is.EqualTo(0x99000000),
+          "the corner the light comes from is darkened to sixty per cent, which is #99");
+      Assert.That(((GradientStop)wash.GradientStops![1]!).Color.ToUInt32(), Is.EqualTo(0x99000000),
+          "and it stands at that darkness out to sixty hundredths of the line, rather than starting to thin "
+          + "behind the words");
       Assert.That(((GradientStop)wash.GradientStops![wash.GradientStops.Count - 1]!).Color.ToUInt32(),
           Is.EqualTo(0x00000000), "and the far corner is left alone completely");
       window.Close();
@@ -3086,8 +3297,10 @@ namespace Tests.Frontend
         Source = box
       });
       WaitUntil("the matches to arrive", delegate { return browser.Titles.Count == 2; });
-      Assert.That(titles.IsFocused, Is.True,
-          "Enter searched, so the arrows belong to the results again - not to the box they came from");
+      // ON A TILE, not merely in the list: the caret that came out of the box is the caret the viewer walks the
+      // results with, and a list holding it wears no frame - which is a wall of results with nothing lit.
+      Assert.That(window.FocusManager.GetFocusedElement(), Is.InstanceOf<ListBoxItem>(),
+          "Enter searched, so the arrows belong to a result - not to the box they came from");
 
       titles.RaiseEvent(new KeyEventArgs
       {

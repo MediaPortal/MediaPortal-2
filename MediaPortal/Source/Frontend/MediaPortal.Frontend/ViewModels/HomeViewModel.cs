@@ -279,22 +279,6 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
-    /// Which folder of the worn skin the home tiles ask their pictures from: Nereus keeps its home tiles
-    /// twice, square in <c>HomeMenu</c> and round in <c>HomeMenuRound</c>, and
-    /// <c>EnableCircleMenuImages</c> is the reference's one style over exactly that choice. Every other
-    /// face, and Nereus with the switch off, reads the square folder it has always read.
-    /// </summary>
-    public static string HomeTileFolder
-    {
-      get
-      {
-        return WornSkinSettingsOrNull() is NereusSkinSettings { EnableCircleMenuImages: true }
-            ? "HomeMenuRound"
-            : "HomeMenu";
-      }
-    }
-
-    /// <summary>
     /// Whether a tile has to be pressed before anything moves - the same answer the content pane is steered
     /// by, which the mouse also asks for: HomeMenuModel executed a clicked tile at once on a desktop (both
     /// switches off) and made a touch viewer select first and press again to work the tile.
@@ -685,8 +669,6 @@ namespace MediaPortal.Frontend.ViewModels
       OnPropertyChanged(nameof(IsPlainHome));
       OnPropertyChanged(nameof(FanartOverlay));
       OnPropertyChanged(nameof(DisplayMenu));
-      foreach (MainMenuEntry entry in Menu)
-        entry.RevealHomeTileFolder();
 
       // Which face is worn decides whether the standing backdrop is out of focus at all, so it is worn again
       // under the new face's answer.

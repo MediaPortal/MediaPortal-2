@@ -257,31 +257,6 @@ namespace Tests.Frontend
           "even a pane that waits for a press starts filled from the remembered tile");
     }
 
-    [AvaloniaTest]
-    public void TheCircleSwitchMovesTheTilesIntoTheirRoundFolder()
-    {
-      // The reference drew Nereus' home tiles from HomeMenu or HomeMenuRound through one style, and the
-      // style's question was EnableCircleMenuImages. Both folders ship; the switch alone answers which.
-      Application app = RequireApplication();
-      FrontendTheme.Apply(app, "nereus", out _);
-      Assert.That(HomeViewModel.HomeTileFolder, Is.EqualTo("HomeMenu"),
-          "the shipped answer is the square folder");
-
-      NereusSkinSettings round = new NereusSkinSettings();
-      round.EnableCircleMenuImages = true;
-      round.Save(null, out _);
-      Assert.That(HomeViewModel.HomeTileFolder, Is.EqualTo("HomeMenuRound"),
-          "the circle switch sends the tiles to the round folder the skin ships beside the square one");
-
-      MainMenuEntry entry = NthEntryWithAnAction(new HomeViewModel(), 0);
-      Assert.That(entry.HomeImagePath, Is.EqualTo("HomeMenuRound/" + entry.HomeImageId),
-          "and the tile asks for its picture by the full name the folder and its Id make");
-
-      FrontendTheme.Apply(app, "wmc", out _);
-      Assert.That(HomeViewModel.HomeTileFolder, Is.EqualTo("HomeMenu"),
-          "WMC's tiles are spelled by WMC's template and no circle switch of another face reaches them");
-    }
-
     private static Application RequireApplication()
     {
       Application? app = Application.Current;

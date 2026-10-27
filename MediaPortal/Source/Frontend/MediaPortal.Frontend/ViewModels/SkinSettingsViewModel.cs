@@ -360,8 +360,6 @@ public partial class SkinSettingsViewModel : ObservableObject
         () => n.EnableCoverDetails, v => n.EnableCoverDetails = v);
     Toggle("Touch display", "Bigger targets and touch behaviour",
         () => n.EnableTouchDisplay, v => n.EnableTouchDisplay = v);
-    Toggle("Circle menu images", "Pictures on the circle menu's buttons",
-        () => n.EnableCircleMenuImages, v => n.EnableCircleMenuImages = v);
     Toggle("Menu selection", "The sliding highlight on the home menu",
         () => n.EnableMenuSelection, v => n.EnableMenuSelection = v);
 

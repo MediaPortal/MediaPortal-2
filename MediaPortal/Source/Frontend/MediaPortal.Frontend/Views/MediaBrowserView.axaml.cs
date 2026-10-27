@@ -184,6 +184,11 @@ namespace MediaPortal.Frontend.Views
       {
         if (args.PropertyName == nameof(MediaBrowserViewModel.MediaMenuVisible))
         {
+          // A menu put away is a stepped-from row forgotten: the next visit climbs down wherever the viewer
+          // climbs down, not where the last one left a number behind.
+          if (!browser.MediaMenuVisible)
+            _menuSteppedFrom = -1;
+
           SlideMenu(browser.MediaMenuVisible, browser.IsCoverLayout, false);
 
           // And the caret goes with the menu, whoever opened it.  Walking off the leading edge of the shelf moved
@@ -191,6 +196,26 @@ namespace MediaPortal.Frontend.Views
           // button the viewer pressed with what the SHELF answers - the film started - and every command in the
           // rail stayed out of reach of the keyboard.
           FocusMediaMenu(browser.MediaMenuVisible, browser.IsCoverLayout);
+        }
+        else if (args.PropertyName == nameof(MediaBrowserViewModel.MediaMenuHeading)
+            && browser.MediaMenuVisible)
+        {
+          // A page of the open menu replaced its rows - the viewer climbed down over "View" or back with the
+          // back key - and every row the rail wore, caret included, went with the Clear that preceded them.
+          // Heading is the word the menu speaks when it rebuilds (see BuildMediaMenu), and while the menu stands
+          // open it is the only word: the menu itself never closed, so the handler above never wakes.
+          // Down a page, the caret belongs on its first row, which is what the menu's own opening does.  Back up
+          // to the commands, the caret goes to the row the viewer climbed down from - the way back is only half
+          // an answer if the viewer stands on nothing at its end.
+          bool up_to_the_commands = browser.MediaMenuHeading == COMMANDS_HEADING;
+          int wanted = up_to_the_commands && _menuSteppedFrom >= 0 ? _menuSteppedFrom : 0;
+          if (up_to_the_commands)
+            _menuSteppedFrom = -1;
+
+          // Asked after this pass, because the heading is set between the clearing and the adding: asked in the
+          // breath of the heading, the caret would select a row of an empty rail and stand on nothing again.
+          ListBox rail = browser.IsCoverLayout ? mediaMenuListBottom : mediaMenuList;
+          Dispatcher.UIThread.Post(delegate { StandCaretOnRailRow(rail, wanted); });
         }
       };
       // The menu's Search row and the Find key both ask for the caret to be in a field that is only on the screen
@@ -327,7 +352,9 @@ namespace MediaPortal.Frontend.Views
               // Enter means different things depending on where the caret is: "play this" on a row, "search for
               // this" in the box. The box gets asked first, or typing a title would start a film.
               viewModel.FindCommand.Execute(null);
-              titlesList.Focus();
+              // The caret goes onto a TILE, not merely into the list: a caret that gets no further than the list
+              // wears no frame, and the viewer who just spelled a title wants to stand on a result.
+              FocusShelf();
               args.Handled = true;
             }
             else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Back, args.Key))
@@ -347,15 +374,18 @@ namespace MediaPortal.Frontend.Views
                 // what stands there - which is the reference's own answer, its Escape binding being enabled solely
                 // while the menu was open (master_mediamenu.xaml:401).
                 viewModel.MediaMenuBackCommand.Execute(null);
-                if (!viewModel.MediaMenuVisible)
-                  titlesList.Focus();
+                // The caret goes back with the menu itself: the MediaMenuVisible handler answers a closing menu
+                // by standing the caret on a tile (FocusMediaMenu -> FocusShelf).  Asking the LIST for the caret
+                // here on top of that undid exactly that - the list wears no frame, so the wall the viewer walked
+                // back to was a wall of tiles with none of them lit.
                 args.Handled = true;
                 return;
               }
               if (viewModel.MenuVisible)
               {
+                // Again the caret travels with the MenuVisible handler (FocusMenu -> FocusShelf); the list must
+                // not be asked for it afterwards, or the tile just lit is put back into the dark.
                 viewModel.CloseMenu();
-                titlesList.Focus();
                 args.Handled = true;
                 return;
               }
@@ -365,7 +395,7 @@ namespace MediaPortal.Frontend.Views
                 // again and gives the arrows back to the shelf. A field holding a search is a different thing and
                 // is answered below.
                 viewModel.SearchOpen = false;
-                titlesList.Focus();
+                FocusShelf();
                 args.Handled = true;
                 return;
               }
@@ -441,8 +471,12 @@ namespace MediaPortal.Frontend.Views
             }
             else if (args.Key == back_to_the_shelf && viewModel.MediaMenuVisible && menu.IsKeyboardFocusWithin)
             {
+              // Hiding the menu already stands the caret back on the tile the viewer came from - the handler on
+              // MediaMenuVisible does that through FocusMediaMenu(false) -> FocusShelf - and this key's answer
+              // ENDS there.  It used to ask the list for the caret on top of that, which took it straight off the
+              // tile again: the ring lives on the tile (:focus on the ListBoxItem), the list wears nothing, so
+              // walking right out of the rail handed the viewer back a wall with no frame on any tile.
               viewModel.HideMediaMenuCommand.Execute(null);
-              titlesList.Focus();
               args.Handled = true;
             }
           },
@@ -585,6 +619,30 @@ namespace MediaPortal.Frontend.Views
       });
     }
 
+    /// <summary>The heading the menu wears while its commands page stands up (see the view model's BuildMediaMenu).</summary>
+    private const string COMMANDS_HEADING = "Menu";
+
+    /// <summary>
+    /// The row of the commands page that the viewer climbed down from into a subpage, or -1 while nobody is
+    /// standing below.  The way back is only half an answer if the viewer comes back standing on nothing, and
+    /// the row is the one thing the rebuilt page cannot remember by itself - the rows are new by then.
+    /// </summary>
+    private int _menuSteppedFrom = -1;
+
+    /// <summary>
+    /// Stands the caret on one row of a rail whose rows were just replaced underneath it - the same caret the
+    /// menu's opening stands, asked of a rail that is on the screen already and only changed its rows.
+    /// </summary>
+    private void StandCaretOnRailRow(ListBox rail, int row)
+    {
+      StandCaret(rail, delegate
+      {
+        if (rail.Items.Count == 0)
+          return;
+        rail.SelectedIndex = row < rail.Items.Count ? row : rail.Items.Count - 1;
+      });
+    }
+
     /// <summary>
     /// Makes a menu list answer the two ways the reference's menu rows were answered: the button of the remote
     /// while the focus stands on a row, and a pointer landing on one. Every row carries its own command, and the
@@ -610,7 +668,7 @@ namespace MediaPortal.Frontend.Views
         if (StoodOnRow(list) is MediaBrowserMenuEntry row)
         {
           list.SelectedItem = row;
-          RunMenuRow(row);
+          RunMenuRow(list, row);
           args.Handled = true;
         }
       }, RoutingStrategies.Bubble, true);
@@ -625,18 +683,70 @@ namespace MediaPortal.Frontend.Views
           if (item?.DataContext is MediaBrowserMenuEntry row)
           {
             list.SelectedItem = row;
-            RunMenuRow(row);
+            RunMenuRow(list, row);
             args.Handled = true;
           }
         }
       }, RoutingStrategies.Tunnel);
+
+      // The wall a viewer pointed at answers with a nod. Three kinds of key point at one: the key that leads
+      // away from the shelf - the left on a rail standing beside the shelf, the up on the rail under covers,
+      // whose other side holds nothing at all - and the two keys that lead past an end of the rail, which are
+      // walls only while the caret stands on that end. Every other key is the list's own arrow walking and is
+      // left to it. The whole rail nods, ground and glow with it, because a row of plates sliding on their
+      // ground is a row that fell off it.
+      //
+      // Heard on the rail's ground rather than on the list: a tunnel handler on the control a key arrives at is
+      // never heard there (the control itself is only served on the way back up), and the caret sometimes
+      // stands on the list and not on one of its rows - the ground is between the room and every key the rail
+      // ever receives, whichever of them wears the caret, and it hears them before the list walks its caret,
+      // which is the only moment where "this end is a wall" can still be answered.
+      bool sideways_rail = ReferenceEquals(list, mediaMenuListBottom);
+      Control rail_ground = sideways_rail ? bottomMenu : sideMenu;
+      rail_ground.AddHandler(KeyDownEvent, delegate (object? sender, KeyEventArgs args)
+      {
+        if (args.Handled || list.Items.Count == 0)
+          return;
+
+        Key away_from_the_shelf = sideways_rail ? Key.Up : Key.Left;
+        Key past_the_head = sideways_rail ? Key.Left : Key.Up;
+        Key past_the_foot = sideways_rail ? Key.Right : Key.Down;
+        object? stood = StoodOnRow(list);
+        int standing = stood == null ? -1 : list.Items.IndexOf(stood);
+
+        if (args.Key == away_from_the_shelf)
+          BounceRail(rail_ground, sideways_rail ? 0 : -RAIL_BOUNCE_DIVE, sideways_rail ? -RAIL_BOUNCE_DIVE : 0);
+        else if (args.Key == past_the_head && standing <= 0)
+          BounceRail(rail_ground, sideways_rail ? -RAIL_BOUNCE_DIVE : 0, sideways_rail ? 0 : -RAIL_BOUNCE_DIVE);
+        else if (args.Key == past_the_foot && standing == list.Items.Count - 1)
+          BounceRail(rail_ground, sideways_rail ? RAIL_BOUNCE_DIVE : 0, sideways_rail ? 0 : RAIL_BOUNCE_DIVE);
+        else
+          return;
+
+        args.Handled = true;
+      }, RoutingStrategies.Tunnel);
     }
 
-    /// <summary>Presses the command a menu row carries, when it has one that can be pressed.</summary>
-    private void RunMenuRow(MediaBrowserMenuEntry row)
+    /// <summary>
+    /// Presses the command a menu row carries, when it has one that can be pressed - and remembers the row when
+    /// the press was a climb down from the commands into a subpage, which the back key asks for by name.
+    /// </summary>
+    private void RunMenuRow(ListBox list, MediaBrowserMenuEntry row)
     {
-      if (row.Command.CanExecute(null))
-        row.Command.Execute(null);
+      if (!row.Command.CanExecute(null))
+        return;
+
+      if ((DataContext as MediaBrowserViewModel)?.MediaMenuHeading == COMMANDS_HEADING)
+        _menuSteppedFrom = list.Items.IndexOf(row);
+
+      row.Command.Execute(null);
+
+      // Climbing down a page replaced every row the rail wore, caret included; by this moment the page stands
+      // complete, so its first row is asked for at once.  A command that builds its page later - a filter still
+      // counting its values - is answered by the heading handler instead, which wakes when the page really comes.
+      if (DataContext is MediaBrowserViewModel owner
+          && owner.MediaMenuVisible && owner.MediaMenuHeading != COMMANDS_HEADING)
+        StandCaretOnRailRow(list, 0);
     }
 
     /// <summary>
@@ -704,8 +814,14 @@ namespace MediaPortal.Frontend.Views
 
       // The tiles are laid a pass after the screen is first measured, so the container the caret belongs in does
       // not exist yet at this moment. The list takes the caret meanwhile - which is not nothing, since the first
-      // arrow key then moves the caret inside it - and the tile is asked for again once it is laid.
+      // arrow key then moves the caret inside it - and the tile is asked for again once it is laid.  Laid, though,
+      // is the word: a virtualised wall only owns containers near its viewport, and a caret asked for at a title
+      // the wall has never scrolled to would wait a fifth of a second for a container that was never coming.
+      // So the wall is told to bring that title into view first - which is what the glide does for the picture
+      // anyway - and only then is the tile asked for.
       titlesList.Focus();
+      if (standing < titlesList.Items.Count)
+        titlesList.ScrollIntoView(titlesList.Items[standing]!);
       StandCaret(titlesList, delegate
       {
         if (titlesList.ContainerFromIndex(standing) is ListBoxItem tile && tile.IsEffectivelyVisible)
@@ -778,6 +894,108 @@ namespace MediaPortal.Frontend.Views
         }
 
         target.Focus();
+      };
+
+      timer.Start();
+    }
+
+    /// <summary>How far a rail nods toward the wall a viewer pointed at, in points.</summary>
+    private const double RAIL_BOUNCE_DIVE = 22;
+
+    /// <summary>The lean toward the wall and the spring back, both in milliseconds.</summary>
+    private const int RAIL_BOUNCE_DIVE_MS = 90;
+    private const int RAIL_BOUNCE_SPRING_MS = 430;
+
+    private DispatcherTimer? _railBounceTimer;
+    private TranslateTransform? _railBounceTransform;
+
+    /// <summary>
+    /// Where the nodding rail currently stands. A test - and the render probe - read these to know that a wall
+    /// was pointed at: while no wall has been pointed at since the last nod came to rest, the rail stands at
+    /// nothing at all.
+    /// </summary>
+    internal double RailBounceX => _railBounceTransform?.X ?? 0;
+
+    /// <inheritdoc cref="RailBounceX" />
+    internal double RailBounceY => _railBounceTransform?.Y ?? 0;
+
+    /// <summary>
+    /// Nods a rail the told number of points toward the wall the viewer pointed at and springs it back.
+    /// </summary>
+    /// <remarks>
+    /// A wall is answered rather than passed over, because a screen that says nothing when a key points at
+    /// nothing is a screen where the viewer cannot tell a wall from a broken key. The nod runs on the front
+    /// end's own timer, the way <see cref="StandCaret"/> asks for a caret: ninety milliseconds of lean out -
+    /// squared off, so the first frames carry most of it and the wall is named at once - and four hundred and
+    /// thirty of easeOutBack home, which carries the rail a tenth of the dive past its rest before it settles,
+    /// which is what makes the answer a bounce rather than a shuffle back.
+    /// </remarks>
+    /// <param name="rail">The rail's whole ground: the panel that carries the list, its heading and its glow.</param>
+    /// <param name="diveX">The lean along X, positive to the right; zero for a wall above or below.</param>
+    /// <param name="diveY">The lean along Y, positive downward; zero for a wall beside the rail.</param>
+    private void BounceRail(Control rail, double diveX, double diveY)
+    {
+      // One nod at a time. A key pressed while the previous nod is still travelling starts a new one from
+      // wherever the rail stands, because that is where the rail is and a viewer leaning on a key repeatedly
+      // should see the rail lean with every press.
+      _railBounceTimer?.Stop();
+
+      if (_railBounceTransform != null && !ReferenceEquals(rail.RenderTransform, _railBounceTransform))
+      {
+        // The other rail wore the last nod - walking from a grid into covers does that. Put it back to rest
+        // before nodding this one, so no rail is left hanging off its ground.
+        _railBounceTransform.X = 0;
+        _railBounceTransform.Y = 0;
+        _railBounceTransform = null;
+      }
+
+      TranslateTransform nod = rail.RenderTransform as TranslateTransform;
+      if (nod == null)
+      {
+        nod = new TranslateTransform();
+        rail.RenderTransform = nod;
+      }
+      _railBounceTransform = nod;
+
+      double fromX = nod.X;
+      double fromY = nod.Y;
+      long started = Environment.TickCount64;
+
+      DispatcherTimer timer = new DispatcherTimer(DispatcherPriority.Render)
+      {
+        Interval = TimeSpan.FromMilliseconds(16)
+      };
+      _railBounceTimer = timer;
+
+      timer.Tick += delegate
+      {
+        if (!ReferenceEquals(_railBounceTimer, timer))
+          return; // a newer nod drives this rail from here on
+
+        long elapsed = Environment.TickCount64 - started;
+        if (elapsed >= RAIL_BOUNCE_DIVE_MS + RAIL_BOUNCE_SPRING_MS)
+        {
+          timer.Stop();
+          nod.X = 0;
+          nod.Y = 0;
+          return;
+        }
+
+        if (elapsed <= RAIL_BOUNCE_DIVE_MS)
+        {
+          double u = elapsed / (double)RAIL_BOUNCE_DIVE_MS;
+          double lean = 1 - (1 - u) * (1 - u);
+          nod.X = fromX + (diveX - fromX) * lean;
+          nod.Y = fromY + (diveY - fromY) * lean;
+          return;
+        }
+
+        double v = (elapsed - RAIL_BOUNCE_DIVE_MS) / (double)RAIL_BOUNCE_SPRING_MS;
+        double c1 = 1.70158;
+        double c3 = c1 + 1;
+        double back = 1 + c3 * Math.Pow(v - 1, 3) + c1 * Math.Pow(v - 1, 2);
+        nod.X = diveX * (1 - back);
+        nod.Y = diveY * (1 - back);
       };
 
       timer.Start();

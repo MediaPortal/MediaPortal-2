@@ -51,9 +51,6 @@ public sealed class NereusSkinSettings : SkinSettingsBase
   [JsonPropertyName("enableTouchDisplay")]
   public bool EnableTouchDisplay { get; set; }
 
-  [JsonPropertyName("enableCircleMenuImages")]
-  public bool EnableCircleMenuImages { get; set; }
-
   [JsonPropertyName("enableMenuSelection")]
   public bool EnableMenuSelection { get; set; }
 

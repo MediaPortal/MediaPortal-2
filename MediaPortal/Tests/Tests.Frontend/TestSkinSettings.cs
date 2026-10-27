@@ -67,7 +67,6 @@ namespace Tests.Frontend
       Assert.That(s.EnableFanart, Is.True);
       Assert.That(s.FanartOverlayOpacity, Is.EqualTo(0.85));
       Assert.That(s.EnableTouchDisplay, Is.False);
-      Assert.That(s.EnableCircleMenuImages, Is.False);
       Assert.That(s.EnableMenuSelection, Is.False);
       Assert.That(s.EnableGridDetails, Is.True);
       Assert.That(s.EnableCoverDetails, Is.True);

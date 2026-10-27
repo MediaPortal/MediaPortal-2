@@ -183,28 +183,18 @@ namespace MediaPortal.Frontend.ViewModels
     public string? HomeImageId { get; }
 
     /// <summary>
-    /// The tile's picture asked for by its full name in the skin: <c>HomeMenuRound/&lt;id&gt;</c> while Nereus
-    /// is switched to the round tiles (<c>EnableCircleMenuImages</c> - the reference drew its home tiles from
-    /// that second folder through the same style), and <c>HomeMenu/&lt;id&gt;</c> for every other answer and
-    /// every other face. WMC keeps asking with <see cref="HomeImageId"/> and its own format, since its focus
-    /// and no-focus spellings belong to the template.
+    /// The tile's picture asked for by its full name in the skin: <c>HomeMenu/&lt;id&gt;</c> - the one folder
+    /// the home tiles read from. The reference shipped a second, round folder (<c>HomeMenuRound</c>) and drew
+    /// from it under its <c>EnableCircleMenuImages</c> switch; this front end does not offer that switch, and
+    /// the tiles stand square. WMC keeps asking with <see cref="HomeImageId"/> and its own format, since its
+    /// focus and no-focus spellings belong to the template.
     /// </summary>
     public string? HomeImagePath
     {
       get
       {
-        return HomeImageId == null ? null : HomeViewModel.HomeTileFolder + "/" + HomeImageId;
+        return HomeImageId == null ? null : "HomeMenu/" + HomeImageId;
       }
-    }
-
-    public bool IsCircleHomeImage
-    {
-      get { return HomeImagePath?.StartsWith("HomeMenuRound/", StringComparison.Ordinal) == true; }
-    }
-
-    public bool IsSquareHomeImage
-    {
-      get { return !IsCircleHomeImage; }
     }
 
     private bool _isSelected;
@@ -218,29 +208,7 @@ namespace MediaPortal.Frontend.ViewModels
           return;
         _isSelected = value;
         OnPropertyChanged(nameof(IsSelected));
-        OnPropertyChanged(nameof(IsSquareSelected));
-        OnPropertyChanged(nameof(IsCircleSelected));
       }
-    }
-
-    public bool IsSquareSelected
-    {
-      get { return IsSelected && IsSquareHomeImage; }
-    }
-
-    public bool IsCircleSelected
-    {
-      get { return IsSelected && IsCircleHomeImage; }
-    }
-
-    /// <summary>Says the tile's picture may be asked for again - the skin's switches moved underneath it.</summary>
-    public void RevealHomeTileFolder()
-    {
-      OnPropertyChanged(nameof(HomeImagePath));
-      OnPropertyChanged(nameof(IsCircleHomeImage));
-      OnPropertyChanged(nameof(IsSquareHomeImage));
-      OnPropertyChanged(nameof(IsSquareSelected));
-      OnPropertyChanged(nameof(IsCircleSelected));
     }
 
     /// <summary>

@@ -2318,9 +2318,9 @@ namespace MediaPortal.Frontend.ViewModels
       {
         case MenuPage.View:
           MediaMenuHeading = "View";
-          AddMenuRow("List", "size", new RelayCommand(() => PickLayout(BrowserLayout.List)), Layout == BrowserLayout.List);
-          AddMenuRow("Grid", "size", new RelayCommand(() => PickLayout(BrowserLayout.Grid)), Layout == BrowserLayout.Grid);
-          AddMenuRow("Cover", "size", new RelayCommand(() => PickLayout(BrowserLayout.Cover)), Layout == BrowserLayout.Cover);
+          AddMenuRow("List", "view_list", new RelayCommand(() => PickLayout(BrowserLayout.List)), Layout == BrowserLayout.List);
+          AddMenuRow("Grid", "grid_view", new RelayCommand(() => PickLayout(BrowserLayout.Grid)), Layout == BrowserLayout.Grid);
+          AddMenuRow("Cover", "cover", new RelayCommand(() => PickLayout(BrowserLayout.Cover)), Layout == BrowserLayout.Cover);
           // The reference kept the details switch beside the view modes rather than among the media commands,
           // because details are the second half of the layout question and not a command of their own.
           AddMenuRow(DetailsLabel, "setup", new RelayCommand(PickDetails), ShowDetails);
@@ -2328,9 +2328,9 @@ namespace MediaPortal.Frontend.ViewModels
 
         case MenuPage.Picture:
           MediaMenuHeading = "Picture";
-          AddMenuRow("Poster", "album", new RelayCommand(() => PickPicture(GridViewType.Poster)), _tileKind == GridViewType.Poster);
-          AddMenuRow("Banner", "album", new RelayCommand(() => PickPicture(GridViewType.Banner)), _tileKind == GridViewType.Banner);
-          AddMenuRow("Thumbnail", "album", new RelayCommand(() => PickPicture(GridViewType.Thumbnail)), _tileKind == GridViewType.Thumbnail);
+          AddMenuRow("Poster", "cover", new RelayCommand(() => PickPicture(GridViewType.Poster)), _tileKind == GridViewType.Poster);
+          AddMenuRow("Banner", "banner", new RelayCommand(() => PickPicture(GridViewType.Banner)), _tileKind == GridViewType.Banner);
+          AddMenuRow("Thumbnail", "media_format", new RelayCommand(() => PickPicture(GridViewType.Thumbnail)), _tileKind == GridViewType.Thumbnail);
           return;
 
         case MenuPage.Sort:
@@ -2346,7 +2346,7 @@ namespace MediaPortal.Frontend.ViewModels
         case MenuPage.Filter:
           MediaMenuHeading = "Filter";
           if (HasShelfFilter)
-            AddMenuRow("Whole shelf", "collection", new AsyncRelayCommand(() => PickFilterAsync(null, null)));
+            AddMenuRow("Whole shelf", "library_books", new AsyncRelayCommand(() => PickFilterAsync(null, null)));
           foreach (BrowseCategory category in BrowseViewModel.CATEGORIES)
           {
             string by = category.Word;
@@ -2356,7 +2356,7 @@ namespace MediaPortal.Frontend.ViewModels
 
         case MenuPage.Values:
           MediaMenuHeading = Capitalise(CategoryWord(_menuCategory ?? "")) + "s";
-          AddMenuRow("Everything", "collection", new AsyncRelayCommand(() => PickFilterAsync(null, null)));
+          AddMenuRow("Everything", "library_books", new AsyncRelayCommand(() => PickFilterAsync(null, null)));
           return;
 
         default:
@@ -2366,11 +2366,11 @@ namespace MediaPortal.Frontend.ViewModels
             HideMediaMenu();
             SearchFocusRequested?.Invoke(this, EventArgs.Empty);
           }));
-          AddMenuRow(FilterLabel, "b15ea757-905e-46fa-a71d-c132885c221e.png", new RelayCommand(() => GoToPage(MenuPage.Filter)));
-          AddMenuRow(SortLabel, "d205e9bc-a970-429d-88f8-bbb92cf3f19a.png", new RelayCommand(() => GoToPage(MenuPage.Sort)));
-          AddMenuRow(LayoutLabel, "f400fbea-6e32-4735-be52-15dfdbb64fcc.png", new RelayCommand(() => GoToPage(MenuPage.View)));
+          AddMenuRow(FilterLabel, "filter", new RelayCommand(() => GoToPage(MenuPage.Filter)));
+          AddMenuRow(SortLabel, "sort", new RelayCommand(() => GoToPage(MenuPage.Sort)));
+          AddMenuRow(LayoutLabel, "grid_view", new RelayCommand(() => GoToPage(MenuPage.View)));
           if (CanChooseMedia)
-            AddMenuRow(MediaLabel, "size", new RelayCommand(() => GoToPage(MenuPage.Picture)));
+            AddMenuRow(MediaLabel, "media_format", new RelayCommand(() => GoToPage(MenuPage.Picture)));
           AddMenuRow(SeenLabel, new AsyncRelayCommand(async () =>
           {
             await CycleSeenAsync();
@@ -2581,7 +2581,7 @@ namespace MediaPortal.Frontend.ViewModels
       }
     }
 
-    /// <summary>The skin's own picture for an order, where the skin has one.</summary>
+    /// <summary>The skin's own icon for an order, where the skin carries one.</summary>
     private static string SortIcon(string sort)
     {
       switch (sort)
@@ -2593,11 +2593,11 @@ namespace MediaPortal.Frontend.ViewModels
         case "track":
           return "track";
         default:
-          return "setup";
+          return "sort";
       }
     }
 
-    /// <summary>The skin's own picture for a filter category, where the skin has one.</summary>
+    /// <summary>The skin's own icon for a filter category, where the skin carries one.</summary>
     private static string CategoryIcon(string by)
     {
       switch (by)
@@ -3373,7 +3373,7 @@ namespace MediaPortal.Frontend.ViewModels
     /// <summary>What the row says, which includes what the screen already answers where the command is a switch.</summary>
     public string Label { get; }
 
-    /// <summary>The skin's name for this command's picture, or "" when the command has none.</summary>
+    /// <summary>The skin's name for this command's icon, or "" when the command has none.</summary>
     public string Icon { get; }
 
     /// <summary>The command the row presses.</summary>

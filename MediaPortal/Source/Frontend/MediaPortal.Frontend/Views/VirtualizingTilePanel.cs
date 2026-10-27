@@ -78,6 +78,11 @@ namespace MediaPortal.Frontend.Views
     private Size _cell;
     private int _columns = 1;
 
+    /// <summary>
+    /// How far the whole wall stands from the scroller's left edge: half of what the columns leave over.
+    /// </summary>
+    private double _xOffset;
+
     /// <summary>What the screen draws, in the shelf's own coordinates.</summary>
     private Rect _view;
 
@@ -151,6 +156,12 @@ namespace MediaPortal.Frontend.Views
           _columns = columns;
           TakeAllDown();
         }
+
+        // A whole number of columns seldom fills the scroller, and what it leaves over used to lie whole at the
+        // wall's right hand end, so the wall leaned against the room's left edge while a band of empty fanart
+        // waited before the details column.  The rest is shared between both hands now.  The scroller keeps its
+        // own width and therefore its bar at the edge of the room; only the tiles move.
+        _xOffset = Math.Max(0, (track - _columns * _cell.Width) / 2);
 
         Rect wanted = TheBandToStand(rows);
         int first = RowOf(wanted.Top) * _columns;
@@ -629,11 +640,12 @@ namespace MediaPortal.Frontend.Views
       }
     }
 
-    /// <summary>Where a title sits: its column across, its row down.</summary>
+    /// <summary>Where a title sits: its column across, its row down, the whole wall in the middle of the track.</summary>
     private Rect ThePlace(int index, Size size)
     {
       int row = RowOf(index);
-      return new Rect((index - row * _columns) * _cell.Width, row * _cell.Height, size.Width, size.Height);
+      return new Rect(_xOffset + (index - row * _columns) * _cell.Width, row * _cell.Height, size.Width,
+          size.Height);
     }
 
     /// <summary>The row a title belongs to.</summary>
