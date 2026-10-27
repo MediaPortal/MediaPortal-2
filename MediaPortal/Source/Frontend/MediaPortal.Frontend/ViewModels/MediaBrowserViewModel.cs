@@ -700,6 +700,18 @@ namespace MediaPortal.Frontend.ViewModels
     private double? _detailsRating;
 
     /// <summary>
+    /// The same number in the words the reference's panel put beside its stars: <c>(7.1)</c>, in brackets, and
+    /// nothing at all when the library has no number to show.
+    /// </summary>
+    /// <remarks>
+    /// Written here rather than with a binding format because the brackets are part of the sentence, not of the
+    /// number: <c>MediaItemListMovieDetails.inc:104-108</c> prints TotalRating through the string format
+    /// <c>"{}({0:F1})"</c> after the stars.
+    /// </remarks>
+    [ObservableProperty]
+    private string _detailsRatingWords = "";
+
+    /// <summary>
     /// Five stars, each one holding the light the rating left it: whole for a star the rating filled, a quarter of
     /// it for a star the rating never reached, and what lies between for the half star a rating of six and a half
     /// of ten is.
@@ -2750,8 +2762,11 @@ namespace MediaPortal.Frontend.ViewModels
         DetailsTagline = details.Tagline?.Trim() ?? "";
         DetailsLine = DescribeLine(details, title);
         DetailsText = details.Description ?? "Nothing was written about this title on this server.";
-        DetailsPath = details.Path ?? title.Title.Path ?? "This title has no resource the server can name.";
-        DetailsRating = details.Rating ?? details.TotalRating;
+        DetailsPath = ShownPath(details.Path ?? title.Title.Path);
+        DetailsRating = ToldRating(details);
+        DetailsRatingWords = DetailsRating.HasValue
+            ? "(" + DetailsRating.Value.ToString("0.0", CultureInfo.InvariantCulture) + ")"
+            : "";
         FillDetailsStars(DetailsRating);
         FillDetailsFacts(details, title);
         DetailsVisible = true;
@@ -2787,6 +2802,76 @@ namespace MediaPortal.Frontend.ViewModels
       double stars = Math.Clamp((rating ?? 0) / 2.0, 0, 5);
       for (int star = 0; star < DetailsStars.Count; star++)
         DetailsStars[star] = 0.25 + 0.75 * Math.Clamp(stars - star, 0, 1);
+    }
+
+    /// <summary>
+    /// The number the panel speaks and lights its stars with, or <c>null</c> when the library has no rating for
+    /// the title.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The reference binds <c>TotalRating</c> and nothing else, and hides the stars and their number together when
+    /// that number is missing (<c>MediaItemListMovieDetails.inc:92-108</c>, where both stand or fall with
+    /// <c>TotalRating</c> through <c>ReferenceToBoolConverter</c>). What the server answers for a title nobody
+    /// rated is not a missing number but a <c>0</c>, and taking that for a rating drew "0.0" and five dark stars
+    /// under every film in the library - which is a screen claiming a film was rated nought. So a nought counts as
+    /// no answer here, exactly as the reference's condition counts it.
+    /// </para>
+    /// <para>
+    /// The viewer's own rating (<c>Rating</c>) is the second answer rather than the first: the reference never
+    /// shows it at all, so it is only asked for when the library's own total is silent, and a nought is as silent
+    /// there as it is for the total.
+    /// </para>
+    /// </remarks>
+    private static double? ToldRating(MediaItemDetails details)
+    {
+      if (details.TotalRating.HasValue && details.TotalRating.Value > 0)
+        return details.TotalRating.Value;
+      if (details.Rating.HasValue && details.Rating.Value > 0)
+        return details.Rating.Value;
+      return null;
+    }
+
+    /// <summary>
+    /// The words the screen speaks a title's resource out of, from the address the server wrote down for it.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// What the server calls an item's path is a full resource address: the id of the media source the file was
+    /// imported from, in braces, then the address itself - <c>{e88e64a8-…}://///HTPC-SERVER/Video/…mkv</c>. The
+    /// source id is a key of the library's own books and no path a person reads, so it is dropped; the run of
+    /// slashes a resource address opens with is the server's spelling of the two a shared folder opens with, and
+    /// is spoken that way here.
+    /// </para>
+    /// <para>
+    /// Everything past that first address is left exactly as the server wrote it, and an address without the
+    /// source in front of it is left whole - the screen has nothing to guess from.
+    /// </para>
+    /// </remarks>
+    /// <param name="path">What the server answered for the title, or <c>null</c> when it answered nothing.</param>
+    internal static string ShownPath(string? path)
+    {
+      if (string.IsNullOrWhiteSpace(path))
+        return "This title has no resource the server can name.";
+
+      string spoken = path!.Trim();
+      if (spoken.Length > 2 && spoken[0] == '{')
+      {
+        int afterId = spoken.IndexOf('}');
+        if (afterId > 0)
+        {
+          spoken = spoken.Substring(afterId + 1);
+          if (spoken.StartsWith(":", StringComparison.Ordinal))
+            spoken = spoken.Substring(1);
+          spoken = spoken.TrimStart();
+        }
+      }
+
+      // A shared folder is spoken with two slashes; the resource address spells it with as many as it likes.
+      if (spoken.StartsWith("///", StringComparison.Ordinal))
+        spoken = "//" + spoken.TrimStart('/');
+
+      return spoken.Length == 0 ? "This title has no resource the server can name." : spoken;
     }
 
     /// <summary>
@@ -3063,10 +3148,11 @@ namespace MediaPortal.Frontend.ViewModels
       if (!string.IsNullOrWhiteSpace(details.Certification) && AgeLogosShown)
         parts.Add(details.Certification!.Trim());
 
-      if (details.Rating.HasValue && details.Rating.Value > 0)
-        parts.Add("rated " + details.Rating.Value + "/10");
-      else if (details.TotalRating.HasValue && details.TotalRating.Value > 0)
-        parts.Add("rated " + details.TotalRating.Value.ToString("0.#", CultureInfo.InvariantCulture) + "/10");
+      // The number the panel is lit with, said in words too - the same answer the stars are lit from, so that the
+      // sentence beside the plot and the stars above it can never say two different things.
+      double? rated = ToldRating(details);
+      if (rated.HasValue)
+        parts.Add("rated " + rated.Value.ToString("0.#", CultureInfo.InvariantCulture) + "/10");
 
       if (details.PlayCount.HasValue && details.PlayCount.Value > 0)
       {

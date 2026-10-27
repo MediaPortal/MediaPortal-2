@@ -536,23 +536,18 @@
           <Panel Grid.Column="0" ClipToBounds="False">
             <DockPanel>
               <!--
-                The screen's name and what the shelf is doing about it. The shell's chrome header carries the same
-                words at the window's top edge, so this is not the heading twice: it is the shelf's own line, it
-                slides in with the shelf, and it says how the shelf is being read - which of the two the chrome
-                header never says. The reference stood the screen's words in the same hundred points of head.
+                What the shelf has to say about itself, in the hundred points of head the reference gave it.  The
+                screen's NAME is not among those words: the shell's chrome header already stands at the window's
+                top edge with exactly that word in it, and a second copy under it - in a different size, saying
+                the same nothing - reads as a mistake to anyone looking at the screen.  So the shelf's own head
+                carries only what the chrome header never says.
               -->
               <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,96,0,6">
-                <TextBlock Text="{Binding Heading}"
-                           x:Name="shelfHeading"
-                           FontSize="26"
-                           FontWeight="SemiBold"
-                           Foreground="{DynamicResource TextBrush}"
-                           TextTrimming="CharacterEllipsis"/>
                 <!--
                   The reference's shelf head carries the heading and nothing else - it never tells the viewer
                   "1130 of 1136, sorted by year" - so the screen's one line of speech only stands when the shelf
                   has a problem to report: nothing to show, a server that will not answer, a search that found
-                  too little.  A filled shelf says nothing.
+                  too little.  A filled shelf says nothing, and then its head takes no room at all.
                 -->
                 <TextBlock Text="{Binding Status}"
                            FontSize="15"
@@ -599,16 +594,10 @@
               </WrapPanel>
 
               <!--
-                The keys this screen answers, in the one line the reference's screens never needed - a remote
-                carries its own labels - and a keyboard does. It stands at the foot, out of the shelf's way, at
-                less than half the light.
+                The keys this screen answers are not written on it.  A remote carries its labels on itself and
+                a keyboard viewer learns the keys by pressing them; a line of small print at the foot of the
+                shelf took room from the wall and told anybody who already knew the keys nothing.
               -->
-              <TextBlock DockPanel.Dock="Bottom"
-                         FontSize="14"
-                         Opacity="0.45"
-                         Margin="0,12,0,0"
-                         Text="Arrows move Â· OK plays Â· Info opens the screen's menu Â· F finds Â· W filters watched Â· V switches rows, tiles or covers Â· M switches the tile picture Â· D shows or hides the details Â· Menu opens the title menu Â· Esc closes what is open Â· Back returns"/>
-
               <!--
                 The shelf. The pictures it wears are the worn skin's answer to the tile key its layout names
                 (theming:SkinTemplates.TileTemplate), and the panel it lays them in is the view's own promise -
@@ -727,7 +716,26 @@
                      Stretch="Fill"
                      IsHitTestVisible="False"/>
 
-              <StackPanel Margin="60,140,50,120" Spacing="12">
+              <!--
+                The column of words beside the shelf, laid as the reference laid its MediaItemListMovieDetails.inc:
+                a head of everything that is said once, a foot of everything that is looked at now and then, and
+                between them the story, which is given all the height that is left (that file's own row for the
+                description is Height="*", under a row of Auto for the name). It is not given a cap of its own,
+                because a cap is what left a long story ending mid-sentence while a third of the column stood empty.
+                The bottom margin is bigger than the visible window needs: the ground behind these words runs past
+                the window's lower edge (the reference's own negative margin), and words may not follow it there.
+              -->
+              <Grid Margin="60,140,50,240">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <!-- The story's row.  A floor of its own, because a row of "*" shrinks to whatever the head and
+                       the foot leave, and on a screen that is stood up small or measured before it has a size that
+                       leaves nothing at all - which is not "a short story", it is a control with no room to be
+                       laid out.  The reference's row for the description was "*" too (MediaItemListMovieDetails.inc:17). -->
+                  <RowDefinition Height="*" MinHeight="160"/>
+                  <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0" Spacing="12">
                 <!-- The title, and the reference's rule about it: as big as it needs to be, but on one line -
                      its own label style trimmed the title rather than letting three words take two bands off the
                      plot that every viewer actually reads. -->
@@ -736,16 +744,14 @@
                            FontWeight="SemiBold"
                            Foreground="{DynamicResource TextBrush}"
                            TextTrimming="CharacterEllipsis"/>
-                <!-- The rating, as the reference wrote it: the number, and five of the skin's own stars with as
-                     much of their light left as the number says. A library that recorded no rating says nothing,
-                     which is what the reference's condition did too. -->
+                <!-- The rating, as the reference's movie panel wrote it: the skin's own five stars filled to half
+                     the number the library recorded - TotalRating/2 onto a Maximum of five - and the number itself
+                     after them, in brackets and in the smaller light. A library that recorded no rating (no number
+                     at all, or a nought) says nothing at all, which is that file's condition too: the stars and
+                     their number stand or fall with TotalRating through ReferenceToBoolConverter. -->
                 <StackPanel Orientation="Horizontal"
-                            Spacing="8"
+                            Spacing="12"
                             IsVisible="{Binding DetailsRating, Converter={x:Static ObjectConverters.IsNotNull}}">
-                  <TextBlock Text="{Binding DetailsRating, StringFormat={}{0:0.0}}"
-                             FontSize="32"
-                             Foreground="{DynamicResource TextBrush}"
-                             VerticalAlignment="Center"/>
                   <ItemsControl ItemsSource="{Binding DetailsStars}" VerticalAlignment="Center">
                     <ItemsControl.ItemsPanel>
                       <ItemsPanelTemplate>
@@ -766,6 +772,11 @@
                       </DataTemplate>
                     </ItemsControl.ItemTemplate>
                   </ItemsControl>
+                  <TextBlock Text="{Binding DetailsRatingWords}"
+                             FontSize="22"
+                             Foreground="{DynamicResource TextBrush}"
+                             Opacity="0.85"
+                             VerticalAlignment="Center"/>
                 </StackPanel>
                 <TextBlock Text="{Binding DetailsTagline}"
                            FontSize="30"
@@ -779,24 +790,54 @@
                            Foreground="{DynamicResource TextBrush}"
                            Opacity="0.7"
                            TextWrapping="Wrap"/>
+                </StackPanel>
+
+                <!-- What the library knows about the title, in the pairs the reference's panels printed, then the
+                     picture it has of the title, then where the file stands. They stand in the foot row so that
+                     none of them can take a line away from the story above them. -->
+                <StackPanel Grid.Row="2" Spacing="10" Margin="0,12,0,0">
+                  <ItemsControl ItemsSource="{Binding DetailsFacts}"
+                                ItemTemplate="{StaticResource MediaFactTemplate}">
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal"/>
+                      </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                  </ItemsControl>
+                  <!-- The picture the server has of this title, where the reference laid its banner at the foot of
+                       the column. -->
+                  <Panel MaxHeight="200"
+                         IsVisible="{Binding DetailsArtwork, Converter={x:Static ObjectConverters.IsNotNull}}">
+                    <Image Source="{Binding DetailsArtwork, Converter={x:Static views:ArtworkConverter.Instance}}"
+                           Stretch="Uniform"
+                           HorizontalAlignment="Left"/>
+                  </Panel>
+                  <!-- Where the file stands, in the words the server wrote down - and in the reference's own
+                       footnote light, because it is a fact for the machine that wants to know, not for the viewer
+                       who is choosing a film.  What the server calls a resource carries the id of the media source
+                       it belongs to in front of the path, in braces; that id is not part of any path a person
+                       reads, so the screen speaks the path alone (MediaBrowserViewModel.ShownPath). -->
+                  <TextBlock Text="{Binding DetailsPath}"
+                             FontSize="13"
+                             Foreground="{DynamicResource TextBrush}"
+                             Opacity="0.35"
+                             TextWrapping="Wrap"/>
+                </StackPanel>
+
                 <!--
-                  The plot, in the reference's own two answers: Nereus' switches let it read itself down the panel
-                  (PlotAutoScroll - delay, speed, loop), and with the switches off or absent the panel shows a bar
-                  and waits for the viewer's own wheel. What it never does is clip a story off mid-sentence, and
-                  the mask below is the reference's own soft foot for the case where the story is longer than the
-                  panel: the words pale out at the bottom rather than ending against a cut.
+                  The story, in the room that is left. The reference gave its description the whole second row of
+                  the panel (MediaItemListMovieDetails.inc:16-19: a row of Auto for the name and a row of "*" for
+                  MediaItemDescription, that one wrapping by Wrap="True") and never a height of its own; the plot
+                  of the player's own information area (MediaStyles.xaml:156) is the one that additionally reads
+                  itself down the screen, which is what PlotAutoScroll is for.  Neither of them was ever veiled:
+                  the reference's Label carries no mask of any kind, so a story that ends two thirds down the
+                  column ends in readable words rather than in a fade nobody asked for.
                 -->
-                <ScrollViewer Name="plotScroller"
-                              MaxHeight="420"
+                <ScrollViewer Grid.Row="1"
+                              Name="plotScroller"
+                              Margin="0,12,0,0"
                               HorizontalScrollBarVisibility="Disabled"
                               VerticalScrollBarVisibility="Hidden">
-                  <ScrollViewer.OpacityMask>
-                    <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                      <GradientStop Color="#FF000000" Offset="0"/>
-                      <GradientStop Color="#FF000000" Offset="0.78"/>
-                      <GradientStop Color="#00000000" Offset="1"/>
-                    </LinearGradientBrush>
-                  </ScrollViewer.OpacityMask>
                   <TextBlock Name="detailsText"
                              Text="{Binding DetailsText}"
                              FontSize="23"
@@ -804,34 +845,7 @@
                              Foreground="{DynamicResource TextBrush}"
                              TextWrapping="Wrap"/>
                 </ScrollViewer>
-                <!-- What the library knows about the title, in the pairs the reference's panels printed. They
-                     stand at the foot of the column, which is where its own blocks of facts stood. -->
-                <ItemsControl ItemsSource="{Binding DetailsFacts}"
-                              ItemTemplate="{StaticResource MediaFactTemplate}"
-                              Margin="0,10,0,0">
-                  <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                      <WrapPanel Orientation="Horizontal"/>
-                    </ItemsPanelTemplate>
-                  </ItemsControl.ItemsPanel>
-                </ItemsControl>
-                <!-- The picture the server has of this title, where the reference laid its banner at the foot of
-                     the column. -->
-                <Panel MaxHeight="200"
-                       Margin="0,10,0,0"
-                       IsVisible="{Binding DetailsArtwork, Converter={x:Static ObjectConverters.IsNotNull}}">
-                  <Image Source="{Binding DetailsArtwork, Converter={x:Static views:ArtworkConverter.Instance}}"
-                         Stretch="Uniform"
-                         HorizontalAlignment="Left"/>
-                </Panel>
-                <!-- Where the file stands, in the words the server wrote down. Only for the machine that wants to
-                     know, which is why it is at the size and light of a footnote. -->
-                <TextBlock Text="{Binding DetailsPath}"
-                           FontSize="13"
-                           Foreground="{DynamicResource TextBrush}"
-                           Opacity="0.35"
-                           TextWrapping="Wrap"/>
-              </StackPanel>
+              </Grid>
             </Panel>
           </Border>
         </Grid>

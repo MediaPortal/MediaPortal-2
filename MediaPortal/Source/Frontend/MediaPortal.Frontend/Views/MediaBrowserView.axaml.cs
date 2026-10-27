@@ -163,7 +163,15 @@ namespace MediaPortal.Frontend.Views
           System.ComponentModel.PropertyChangedEventArgs args)
       {
         if (args.PropertyName == nameof(MediaBrowserViewModel.MediaMenuVisible))
+        {
           SlideMenu(browser.MediaMenuVisible, browser.IsCoverLayout, false);
+
+          // And the caret goes with the menu, whoever opened it.  Walking off the leading edge of the shelf moved
+          // the caret by itself; a menu that slid in while the caret stayed behind on a tile answered the one
+          // button the viewer pressed with what the SHELF answers - the film started - and every command in the
+          // rail stayed out of reach of the keyboard.
+          FocusMediaMenu(browser.MediaMenuVisible, browser.IsCoverLayout);
+        }
       };
       // The menu's Search row and the Find key both ask for the caret to be in a field that is only on the screen
       // while somebody is searching, so the field is put on the screen and the caret moved in one motion.
@@ -547,13 +555,14 @@ namespace MediaPortal.Frontend.Views
 
       // The caret goes to the first command rather than to the list and nothing in it: a viewer who opens a menu
       // is asking for a command, and the arrows and the one Enter that follows are the shortest way to any of them.
-      // Posted, because the list has only just been made visible by the same answer and is not measurable yet.
-      Dispatcher.UIThread.Post(delegate
+      // Asked for over several frames (StandCaret), because the rail was made visible by this very answer and
+      // cannot hold a caret the frame it appears: asked once, the caret stayed on the tile behind the rail and
+      // the button the viewer pressed played the film instead of pressing the row they were standing on.
+      StandCaret(list, delegate
       {
-        list.Focus();
         if (list.Items.Count > 0)
           list.SelectedIndex = 0;
-      }, DispatcherPriority.Loaded);
+      });
     }
 
     /// <summary>
@@ -566,15 +575,25 @@ namespace MediaPortal.Frontend.Views
     {
       list.AddHandler(KeyDownEvent, delegate (object? sender, KeyEventArgs args)
       {
-        if (args.Key != Key.Enter && args.Key != Key.Return && args.Key != Key.Space)
+        // The button every input device has: Enter on a keyboard, the space bar where a remote has no letters, and
+        // the remote's own OK where it arrives as its own key. A rail of commands that cannot be pressed with any
+        // of them is a rail for the mouse only.  Heard though the list handled the key, because the list DOES
+        // handle it: a list walks its own caret with the arrows and answers the button itself by ending whatever
+        // it was doing, and a handler that only listens to keys nobody used never presses a row.
+        if (args.Key != Key.Enter && args.Key != Key.Return && args.Key != Key.Space && args.Key != Key.Select)
           return;
 
-        if (list.SelectedItem is MediaBrowserMenuEntry row)
+        // The row the caret stands on, and the list's own answer only where that says nothing: the arrows that
+        // walk this rail are answered by the screen's own walk, which moves the caret without asking the list to
+        // select, so a list left with its first row selected would press its first command from whichever row the
+        // viewer had walked to.
+        if (StoodOnRow(list) is MediaBrowserMenuEntry row)
         {
+          list.SelectedItem = row;
           RunMenuRow(row);
           args.Handled = true;
         }
-      }, RoutingStrategies.Bubble);
+      }, RoutingStrategies.Bubble, true);
 
       list.AddHandler(PointerPressedEvent, delegate (object? sender, PointerPressedEventArgs args)
       {
@@ -598,6 +617,32 @@ namespace MediaPortal.Frontend.Views
     {
       if (row.Command.CanExecute(null))
         row.Command.Execute(null);
+    }
+
+    /// <summary>
+    /// The row of a list that the caret stands on, or the list's own selected row when the caret is on the list
+    /// itself rather than inside one of its rows.
+    /// </summary>
+    /// <remarks>
+    /// Asked of the focused control and walked up, because on this screen the arrow keys are answered by the
+    /// skin's own walk (see <see cref="Input.SkinFocusWalk"/>) rather than by the list, and a list whose selection
+    /// the walk never touched keeps answering with the row it was opened on.  A rail the viewer walked to a command
+    /// on and then pressed a button for must press THAT command.
+    /// </remarks>
+    private object? StoodOnRow(ListBox list)
+    {
+      if ((TopLevel.GetTopLevel(this) as Window)?.FocusManager.GetFocusedElement() is Visual stood)
+      {
+        // The caret can be on the row itself or on anything painted inside it, so the row is asked for by walking
+        // up from the focused control - itself included.
+        for (Visual? at = stood; at != null; at = at.GetVisualParent())
+        {
+          if (at is ListBoxItem container && container.DataContext != null)
+            return container.DataContext;
+        }
+      }
+
+      return list.SelectedItem;
     }
 
     /// <summary>
@@ -629,19 +674,93 @@ namespace MediaPortal.Frontend.Views
         // The selection may well have stood here the whole time, in which case no SelectionChanged ever answered
         // the visit - the wall is stood at the caret by the caret itself, or it stays at the edge it came in at.
         GlideShelfToStoodTitle();
+        if (!container.IsKeyboardFocusWithin)
+        {
+          // Measurable is not yet able to hold the caret; see StandCaret for why that is a question of frames.
+          StandCaret(container, delegate { GlideShelfToStoodTitle(); });
+        }
         return;
       }
 
       // The tiles are laid a pass after the screen is first measured, so the container the caret belongs in does
       // not exist yet at this moment. The list takes the caret meanwhile - which is not nothing, since the first
-      // arrow key then moves the caret inside it - and the tile is asked for again once it is measurable.
+      // arrow key then moves the caret inside it - and the tile is asked for again once it is laid.
       titlesList.Focus();
-      Dispatcher.UIThread.Post(delegate
+      StandCaret(titlesList, delegate
       {
-        if (titlesList.ContainerFromIndex(standing) is ListBoxItem again
-            && again.IsEffectivelyVisible && !again.IsFocused)
-          again.Focus();
-      }, DispatcherPriority.Loaded);
+        if (titlesList.ContainerFromIndex(standing) is ListBoxItem tile && tile.IsEffectivelyVisible)
+          tile.Focus();
+      });
+    }
+
+    /// <summary>Frames a caret is asked for before the screen stops asking (a fifth of a second).</summary>
+    private const int CARET_TRIES = 12;
+
+    private DispatcherTimer? _caretTimer;
+
+    /// <summary>
+    /// Puts the caret on a control of this screen and keeps asking for it until it is there.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A control that has not been measured yet cannot hold the caret and says so by answering
+    /// <c>Focus()</c> with a failure and nothing else.  That is the state every control here is in at the moment
+    /// the screen decides the caret belongs to it - the menu was told to come on in the same breath, the tiles
+    /// came off the server one frame ago, the screen itself is still sliding in.  Asked once, the caret therefore
+    /// stayed wherever it was: behind a rail the viewer had just opened, so its commands could not be reached
+    /// with a button and the shelf answered them instead, or behind a shelf the viewer had just walked into, so
+    /// no tile was lit and the keys found nobody.  Asked once per frame for a fifth of a second, it lands the
+    /// moment the control can hold it.
+    /// </para>
+    /// <para>
+    /// A caret the viewer moved in the meantime is not fought over: a control that has the caret ends the asking
+    /// (see the first condition of the tick), and a field the viewer is typing into always wins, because a
+    /// screen that pulls the caret out of a search box while somebody is spelling a title into it is unusable.
+    /// </para>
+    /// </remarks>
+    /// <param name="target">The control the caret belongs on.</param>
+    /// <param name="whenStood">
+    /// What to do once the caret is standing there, which is where the follow-up that only makes sense with the
+    /// caret in place belongs - the wall being stood at its tile, the first row of a rail being taken.
+    /// </param>
+    private void StandCaret(Control target, Action? whenStood)
+    {
+      _caretTimer?.Stop();
+
+      target.Focus();
+      if (target.IsKeyboardFocusWithin)
+      {
+        whenStood?.Invoke();
+        return;
+      }
+
+      DispatcherTimer timer = new DispatcherTimer(DispatcherPriority.Render)
+      {
+        Interval = TimeSpan.FromMilliseconds(16)
+      };
+      _caretTimer = timer;
+      int left = CARET_TRIES;
+
+      timer.Tick += delegate
+      {
+        if (target.IsKeyboardFocusWithin)
+        {
+          timer.Stop();
+          whenStood?.Invoke();
+          return;
+        }
+
+        if ((TopLevel.GetTopLevel(this) as Window)?.FocusManager.GetFocusedElement() is TextBox
+            || left-- <= 0)
+        {
+          timer.Stop();
+          return;
+        }
+
+        target.Focus();
+      };
+
+      timer.Start();
     }
 
     /// <summary>

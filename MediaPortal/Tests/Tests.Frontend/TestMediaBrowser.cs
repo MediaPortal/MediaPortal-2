@@ -2320,6 +2320,141 @@ namespace Tests.Frontend
       Assert.That(browser.DetailsText, Does.StartWith("A young woman"));
     }
 
+    /// <summary>
+    /// What a server answers for a title nobody rated is not a missing number but a nought, and a panel that takes
+    /// that for a rating stands "0.0" and five dark stars under every film in the library - a screen claiming each
+    /// of them was rated nought.  The reference's own condition counts a nought as no answer (its stars and their
+    /// number stand or fall with <c>TotalRating</c> through <c>ReferenceToBoolConverter</c>), so this screen counts
+    /// it the same way and reads the number that IS there.
+    /// </summary>
+    [AvaloniaTest]
+    public void ARatingOfNoughtIsNoRatingAndTheNumberThatIsThereIsTheOneThatShows()
+    {
+      string details =
+          "{\"id\":\"" + TITANIC + "\",\"title\":\"The Creator\",\"year\":2023,\"runtimeMinutes\":134,"
+          + "\"rating\":0,\"totalRating\":7.1,"
+          + "\"overview\":\"A future war between the human race and the forces of artificial intelligence.\"}";
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK, details);
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.Selected = new TitleViewModel(
+          new MediaTitle(new Guid(TITANIC), "The Creator", null, 2023, null, null, false));
+
+      WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
+
+      Assert.That(browser.DetailsRating, Is.EqualTo(7.1),
+          "the nought the server writes for a title nobody rated is no rating; the library's own number is");
+      Assert.That(browser.DetailsRatingWords, Is.EqualTo("(7.1)"),
+          "and the reference's panel wrote that number after its stars, in brackets");
+      Assert.That(browser.DetailsStars[0], Is.EqualTo(1).Within(0.001),
+          "seven of ten fill the first star whole, since the reference lit five stars with the number halved");
+      Assert.That(browser.DetailsStars[3], Is.GreaterThan(0.25).And.LessThan(1),
+          "the fourth star is the one a rating of 7.1 left half lit");
+      Assert.That(browser.DetailsStars[4], Is.EqualTo(0.25), "and the fifth waits dark");
+    }
+
+    [AvaloniaTest]
+    public void ATitleNobodyRatedSpeaksNoRatingAtAll()
+    {
+      string details =
+          "{\"id\":\"" + TITANIC + "\",\"title\":\"The Room\",\"year\":2003,\"runtimeMinutes\":99,"
+          + "\"rating\":0,\"totalRating\":0,\"overview\":\"Oh, hi there.\"}";
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK, details);
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.Selected = new TitleViewModel(
+          new MediaTitle(new Guid(TITANIC), "The Room", null, 2003, null, null, false));
+
+      WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
+
+      Assert.That(browser.DetailsRating, Is.Null,
+          "a library that recorded nothing about a rating has nothing to show");
+      Assert.That(browser.DetailsRatingWords, Is.Empty,
+          "and the row of stars and number is hidden whole rather than showing five dark stars");
+      Assert.That(browser.DetailsLine, Does.Not.Contain("rated"),
+          "the sentence beside the plot keeps quiet about the number too, so that the panel cannot say two things");
+    }
+
+    /// <summary>
+    /// What the server calls a title's path is a whole resource address: the id of the media source the file was
+    /// imported from in braces, then the address.  The id is a key of the library's books and no path anybody
+    /// reads, so the footnote speaks the path alone.
+    /// </summary>
+    [AvaloniaTest]
+    public void ThePathIsSpokenWithoutTheSourceIdTheServerPutsInFrontOfIt()
+    {
+      string details =
+          "{\"id\":\"" + TITANIC + "\",\"title\":\"The Creator\",\"year\":2023,"
+          + "\"path\":\"{e88e64a8-0233-4fdf-ba27-0b44c6a39ae9}://///HTPC-SERVER/Video/Movies/"
+          + "The Creator (2023)/The Creator (2023) 1080p EAC3.mkv\"}";
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK, details);
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.Selected = new TitleViewModel(
+          new MediaTitle(new Guid(TITANIC), "The Creator", null, 2023, null, null, false));
+
+      WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
+
+      Assert.That(browser.DetailsPath,
+          Is.EqualTo("//HTPC-SERVER/Video/Movies/The Creator (2023)/The Creator (2023) 1080p EAC3.mkv"),
+          "the file's own address, and no id of the library's books in braces in front of it");
+    }
+
+    [AvaloniaTest]
+    public void AResourceAddressWithoutASourceIdInFrontOfItIsLeftAsTheServerWroteIt()
+    {
+      Assert.That(MediaBrowserViewModel.ShownPath("D:/Medien/Film.mkv"), Is.EqualTo("D:/Medien/Film.mkv"),
+          "a path the server wrote without the source in front is not this screen's to rewrite");
+      Assert.That(MediaBrowserViewModel.ShownPath(null),
+          Is.EqualTo("This title has no resource the server can name."),
+          "and a title the server cannot place is answered in words, not with a hole");
+    }
+
+    /// <summary>
+    /// The screen's menu is a rail of commands, and a command nobody can press with the one button every input
+    /// device carries is a command for the mouse only.  Two things had to come together for that: the caret, which
+    /// a menu opened by the Info key never received - it stayed behind on a tile, and a tile answers that button
+    /// by playing the film - and the row that button presses, which is the row the caret stands on rather than the
+    /// row the rail happened to be opened on.
+    /// </summary>
+    [AvaloniaTest]
+    public void ACommandOfTheScreensMenuIsPressedByTheButtonStandingOnItsRow()
+    {
+      LongShelf server = new LongShelf();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      MediaBrowserView view = new MediaBrowserView(browser);
+      ShellWindow window = new ShellWindow(view);
+      window.Show();
+      WaitUntil("the shelf to fill", delegate { return browser.Titles.Count > 60; });
+
+      ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "titlesList");
+      ListBox rail = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "mediaMenuList");
+
+      titles.Focus();
+      browser.ShowMediaMenuCommand.Execute(null);
+      WaitUntil("the menu to stand open", delegate { return browser.MediaMenuVisible; });
+
+      // The door the reference hung its menu on (master_mediamenu.xaml:400) is the Info key, and whoever walks
+      // through a door is standing on the other side of it: the caret goes with the menu.
+      WaitUntil("the caret to be in the rail", delegate { return rail.IsKeyboardFocusWithin; });
+      WaitUntil("the rows of the menu to be there", delegate { return rail.Items.Count > 3; });
+
+      // The fourth row of the commands page, "View: ...", which is where a viewer who wants another layout stops.
+      // Stood on by the list's own caret - the same state the arrow keys leave behind - and not reached by a click.
+      rail.SelectedIndex = 3;
+      Pump();
+      Assert.That(rail.SelectedIndex, Is.EqualTo(3), "the caret stands on the fourth row of the rail");
+
+      SendKey(rail, Key.Enter);
+      WaitUntil("the page that row opens to be the page on the screen",
+          delegate { return browser.MediaMenuHeading == "View"; });
+
+      Assert.That(browser.ShowsSearch, Is.False,
+          "the button pressed the row the caret stood on, not the first row of the rail - the first row would "
+          + "have called for the search field instead of opening the view page");
+      Assert.That(browser.MediaMenuVisible, Is.True, "and the rail stays open over its new page, as it did before");
+      window.Close();
+    }
+
     [AvaloniaTest]
     public void ThePanelClosesAndReopensWithoutAskingTheServerAgain()
     {

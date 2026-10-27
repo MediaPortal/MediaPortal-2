@@ -693,10 +693,15 @@ namespace MediaPortal.Frontend.Views
       AddHandler(KeyDownEvent,
           delegate (object? sender, KeyEventArgs args)
           {
-            if (args.Key != Key.Enter && args.Key != Key.Return)
+            if (args.Key != Key.Enter && args.Key != Key.Return && args.Key != Key.Space && args.Key != Key.Select)
               return;
 
-            if (menuList.IsKeyboardFocusWithin && menuList.SelectedItem is MainMenuEntry entry)
+            // The entry the caret stands on rather than the entry the list happens to have selected: the arrows
+            // that walk this rail are answered by the screen's own walk, which moves the caret and deliberately
+            // leaves the wall alone until the viewer presses (see StandingRailEntry), so a rail walked to another
+            // entry would else open the entry it was last left on - or, on a rail nobody had pressed yet, nothing
+            // at all.
+            if (menuList.IsKeyboardFocusWithin && StoodOnRail() is MainMenuEntry entry)
             {
               // Pressing a tile is the answer Nereus' switches wait for: it moves the content pane when the
               // pane was told not to follow the walk, and it is the press the reference remembered.
@@ -1996,6 +2001,24 @@ namespace MediaPortal.Frontend.Views
     /// returning to the menu means the entry, not the piece of chrome that happened to show it.
     /// </summary>
     private MainMenuEntry? _lastRailStand;
+
+    /// <summary>
+    /// The entry the caret stands on in the menu rail: the container the caret is in, the entry remembered from
+    /// the last time the caret was on the rail, and the list's own selection only when neither says anything.
+    /// </summary>
+    private MainMenuEntry? StoodOnRail()
+    {
+      if ((TopLevel.GetTopLevel(this) as Window)?.FocusManager.GetFocusedElement() is Visual stood)
+      {
+        for (Visual? at = stood; at != null; at = at.GetVisualParent())
+        {
+          if (at is ListBoxItem container && container.DataContext is MainMenuEntry stoodEntry)
+            return stoodEntry;
+        }
+      }
+
+      return _lastRailStand ?? (menuList.SelectedItem as MainMenuEntry);
+    }
 
     /// <summary>
     /// The wall's left edge: the content gap's width of screen in which a cover that has walked off the wall
