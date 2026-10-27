@@ -305,9 +305,14 @@ namespace MediaPortal.Frontend.Views
             else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Back, args.Key))
             {
               // Back means "away with the newest thing on the screen", which is the title's menu when one is
-              // standing open, then the search when there is one, then the watched filter, then the details
-              // the screen was wearing. A viewer who pressed back three times expects to be back where they
-              // started, not outside the screen.
+              // standing open, then the search when there is one, then the watched filter.  The details are NOT
+              // one of these and never were: the reference binds Escape to nothing on this screen at all - its
+              // only Escape binding (master_mediamenu.xaml:402) is enabled solely while the media menu is open -
+              // so a viewer pressing back on a wall wearing details means "away from this screen", which is the
+              // answer the shell behind this handler gives.  A details layer used to be taken away here first,
+              // which made every exit from this screen cost two presses of a key the viewer pressed once, and
+              // the panel the first press "closed" is put back by the next visit anyway; the key that opens and
+              // closes the panel is the details key, and the button that says so.
               if (viewModel.MediaMenuVisible)
               {
                 // Back puts the menu's current page away first, and the menu itself only when its commands page is
@@ -351,14 +356,14 @@ namespace MediaPortal.Frontend.Views
                 args.Handled = true;
                 return;
               }
-              if (viewModel.DetailsVisible)
-              {
-                viewModel.CloseDetails();
-                args.Handled = true;
-                return;
-              }
               // Nothing is open to undo, so the key is not this screen's: it reaches the shell behind it, which
-              // pops this screen off the workflow.
+              // pops this screen off the workflow.  The details panel is deliberately NOT closed here.  It was,
+              // and that is the reason this screen used to cost two presses of a key the viewer pressed once: the
+              // first press took a panel nobody had just opened, the screen looked the same but one layer poorer,
+              // and only the second press took the viewer home.  Nereus binds Escape to nothing on this screen at
+              // all (its single Escape binding, master_mediamenu.xaml:402, is enabled solely while the media menu
+              // stands open), and the key that opens and closes the panel is the details key - which the button
+              // beside the view button has always said out loud.
             }
             else if ((args.Key == Key.Enter || args.Key == Key.Return
                     || Settings.KeyBindings.Current.Is(Settings.KeyAction.PlayPause, args.Key))

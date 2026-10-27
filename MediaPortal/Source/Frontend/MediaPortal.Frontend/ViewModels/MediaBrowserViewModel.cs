@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.ComponentModel;
 using System.Globalization;
 using System.Threading;
@@ -30,6 +31,7 @@ using MediaPortal.Frontend.Caching;
 using MediaPortal.Frontend.Player;
 using MediaPortal.Frontend.Settings;
 using MediaPortal.Frontend.Theming;
+using MediaPortal.Frontend.Views;
 
 namespace MediaPortal.Frontend.ViewModels
 {
@@ -1264,12 +1266,46 @@ namespace MediaPortal.Frontend.ViewModels
       _fanartFor = id;
       if (fanart.TryPeek(id, out byte[]? held))
       {
+        //  Remembered, so wearing it costs nothing and the room may change its mood in this very breath.
         _ = WearFanartAsync(held);
         return;
       }
 
-      _ = WearFanartAsync(null);
-      _ = ReadFanartAsync(fanart, id);
+      //  Nothing is taken away and nothing is asked for yet. The reference makes a picture stand still half a
+      //  second before it is worn at all - <c>ImageSourceWrapper Delay="0.5" DelayInOut="true"</c> on its
+      //  background image (backgrounds/default-background.xaml:58-62), the same half second our own
+      //  <see cref="DissolveImage.DelaySeconds"/> mirrors - and a viewer walking a wall covers a hundred
+      //  titles in the time one backdrop takes to fetch, read and carry to the screen, of which at most the
+      //  last one is ever worn. What is worn while it stands is the previous title's picture, which is also
+      //  what the reference shows during those half a second rather than a blank room.
+      _ = ReadFanartWhenStillAsync(fanart, id);
+    }
+
+    /// <summary>
+    /// The reference's <c>Delay</c>: how long a title has to be stood on before its backdrop is fetched and
+    /// worn.
+    /// </summary>
+    internal static readonly TimeSpan FANART_SETTLING = TimeSpan.FromMilliseconds(500);
+
+    private int _fanartStillTurn;
+
+    /// <summary>
+    /// Asks the server for one title's backdrop once the viewer has stood on that title for
+    /// <see cref="FANART_SETTLING"/>, and asks for nothing at all when they walked on.
+    /// </summary>
+    private async Task ReadFanartWhenStillAsync(Artwork fanart, Guid id)
+    {
+      int turn = ++_fanartStillTurn;
+
+      //  Waited without ConfigureAwait(false) on purpose: what follows touches what the screen is bound to, and
+      //  that belongs to the thread that drew the first frame.
+      await Task.Delay(FANART_SETTLING);
+
+      //  Walked on - and the title behind this one already put its own question on the same counter.
+      if (turn != Volatile.Read(ref _fanartStillTurn) || _fanartFor != id)
+        return;
+
+      await ReadFanartAsync(fanart, id);
     }
 
     /// <summary>
@@ -1314,19 +1350,39 @@ namespace MediaPortal.Frontend.ViewModels
       _backgroundRaw = raw;
 
       double radius = _fanartBlur;
-      if (raw == null || radius <= 0 || !FanartShown)
+      if (raw == null || !FanartShown)
       {
         ShowBackground(raw, false);
         return;
       }
 
-      byte[]? blurred = await BackgroundBlur.BlurredAsync(raw, radius);
+      // A backdrop is the size of the television, and reading it costs about a tenth of a second. Asked of the
+      // binding, that tenth of a second is paid in front of the frame the viewer is waiting for, once for every
+      // step of a walk over the shelf - which is what a juddering wall is made of. So the bytes are read here,
+      // away from the thread that draws, and the screen is told about the picture afterwards; until then the
+      // shelf keeps wearing the backdrop it wore, which is a better answer than a blank moment.
+      byte[]? worn = raw;
+      if (radius > 0)
+        worn = (await BackgroundBlur.BlurredAsync(raw, radius)) ?? raw;
 
       // The viewer walked on, or the face - and with it the question - changed in the meantime.
       if (turn != Volatile.Read(ref _backgroundTurn))
         return;
 
-      ShowBackground(blurred ?? raw, blurred != null);
+      byte[]? toWear = worn;
+
+      //  But only when it is not already lying there: a shelf walked back onto a title it has just worn has the
+      //  answer in hand, and the room is expected to wear it in this very breath - a picture that arrives one
+      //  turn later leaves a screen that is plainly, for one frame, wearing nothing.
+      if (!SkinFanartConverter.Instance.StandsReady(toWear, 0))
+      {
+        await Task.Run(() => SkinFanartConverter.Instance.Warm(toWear, 0));
+
+        if (turn != Volatile.Read(ref _backgroundTurn))
+          return;
+      }
+
+      ShowBackground(toWear, !ReferenceEquals(toWear, raw));
     }
 
     /// <summary>
@@ -2835,6 +2891,15 @@ namespace MediaPortal.Frontend.ViewModels
       try
       {
         byte[]? picture = await artwork.LoadAsync(title.Title.Id);
+        if (picture != null)
+        {
+          // Read away from the thread that draws, for the same reason the backdrop is: the panel is looked at
+          // while it is being filled, and a poster the binding has to decode is a frame the viewer waits for.
+          byte[] toRead = picture;
+          if (!ArtworkConverter.Instance.Remembers(toRead, null))
+            await Task.Run(() => ArtworkConverter.Instance.Warm(toRead, null));
+        }
+
         if (_detailsFor == title.Title.Id)
           DetailsArtwork = picture;
       }
@@ -2897,8 +2962,20 @@ namespace MediaPortal.Frontend.ViewModels
       try
       {
         byte[]? picture = await artwork.LoadAsync(row.Title.Id);
+
+        // The picture is decoded here, on the errand's thread, and not by the binding when the row asks for it.
+        // That the difference is felt by the viewer rather than only measured: a wall walked over a shelf pulls
+        // a new row of posters every few centimetres, and a JPEG that is decoded between the frame the viewer
+        // waited for and the frame after it is experienced as the wall catching on every step.  Every media tile
+        // of the skin asks its picture at tile size (templates.xaml, ConverterParameter='tile' on all six), so
+        // that is the size the picture is readied at, and the binding afterwards costs a lookup.
         if (generation == Volatile.Read(ref _paintGeneration))
+        {
+          if (picture != null && picture.Length > 0)
+            await Task.Run(delegate { ArtworkConverter.Instance.Warm(picture, ArtworkConverter.TILE_PARAMETER); });
+
           row.ShowArtwork(picture);
+        }
       }
       catch (ServerApiException)
       {

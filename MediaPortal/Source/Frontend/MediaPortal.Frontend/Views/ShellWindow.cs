@@ -338,6 +338,7 @@ namespace MediaPortal.Frontend.Views
 
       WireScreensaver();
       WirePointerRest();
+      WireEmptyFocus();
 
       // The back key of the remote and the Escape of the keyboard, heard after every screen has declined it.
       AddHandler(KeyDownEvent,
@@ -1160,6 +1161,8 @@ namespace MediaPortal.Frontend.Views
           (opened.View as Control)?.Focus();
         if (dialog && view != null)
           HoldTheKeyboardForTheDialog(view);
+        else if (view != null)
+          HoldTheKeyboardForTheScreen(view);
       };
 
       if (_shown)
@@ -1193,6 +1196,67 @@ namespace MediaPortal.Frontend.Views
       }
 
       Ask();
+      Avalonia.Threading.Dispatcher.UIThread.Post(Ask, Avalonia.Threading.DispatcherPriority.Loaded);
+    }
+
+    /// <summary>
+    /// Watches for the window standing on nothing at all.
+    /// </summary>
+    /// <remarks>
+    /// A focus that walked out of a screen - the reading of the server emptying the menu it stood in, the shelf
+    /// recycling the tile it rested on - is not felt by the viewer as a picture missing a frame but as keys that
+    /// buy nothing: the arrow they pressed is spent on a focus manager with nowhere to go. Every screen is
+    /// therefore asked for its keys back the moment the window notices it is standing on none, which costs nothing
+    /// when a new element had already taken the focus, because the ask looks first at who stands there.
+    /// </remarks>
+    private void WireEmptyFocus()
+    {
+      AddHandler(LostFocusEvent,
+          delegate (object? sender, FocusChangedEventArgs args)
+          {
+            Control? screen = _screenArea.Content as Control;
+            if (screen != null)
+              HoldTheKeyboardForTheScreen(screen);
+          });
+    }
+
+    /// <summary>
+    /// Makes sure that a screen the viewer was left on also holds the keyboard it is looked at with.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Every screen decides where its own keys start, in <see cref="Workflow.IWorkflowScreen.OnScreenActivated"/>.
+    /// This is the net under that decision, for the case a screen cannot decide away: the thing standing under the
+    /// focus is taken out from under it - a reading of the server rebuilds its menu, a walk recycles the tile the
+    /// focus rested on - and Avalonia leaves the window standing on nothing. A viewer pressing an arrow then spends
+    /// the key on a focus manager that has nowhere to walk, which is felt as the whole front end being dead until
+    /// somebody points at it, and is the same key press that afterwards looks like the missing focus frame of the
+    /// tile they were standing on. The reference's window manager never left a screen without a focused element
+    /// (GUIWindowManager hands every newly shown window the keyboard), so a screen of ours standing without one is
+    /// this front end's own gap rather than the skin's.
+    /// </para>
+    /// <para>
+    /// Asked once at the layout's settled moment, because a screen that got its keys a moment ago must not be
+    /// walked over again, and a focus request aimed at controls that are not joined to a window yet answers
+    /// nothing at all.
+    /// </para>
+    /// </remarks>
+    private void HoldTheKeyboardForTheScreen(Control screenView)
+    {
+      void Ask()
+      {
+        if (!ReferenceEquals(_workflow.Current?.View, screenView))
+          return; // The viewer walked on while the layout was settling; the newest stop decides from here.
+        if (_dialogLayer.IsVisible || _keyboardLayer.IsVisible)
+          return; // A question over the screen owns the keys, and answered itself above.
+        if (this.FocusManager.GetFocusedElement() is Visual held && StandsInside(held, screenView))
+          return; // The screen already answers for its own keys, which is all this was for.
+
+        Control? first = FirstControlTakingFocus(screenView);
+        if (first != null)
+          first.Focus();
+      }
+
       Avalonia.Threading.Dispatcher.UIThread.Post(Ask, Avalonia.Threading.DispatcherPriority.Loaded);
     }
 

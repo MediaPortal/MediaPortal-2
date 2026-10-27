@@ -726,6 +726,76 @@ namespace Tests.Frontend
       window.Close();
     }
 
+    /// <summary>
+    /// One press of back on a wall wearing details leaves the screen.  The screen used to answer that press by
+    /// taking the details away and swallowing the key, so that a viewer who wanted out pressed a key they had
+    /// already pressed once and stayed exactly where they were, looking at the same wall minus a panel.  The
+    /// reference binds Escape to nothing on this screen - its one Escape binding (master_mediamenu.xaml:402) is
+    /// enabled solely while the media menu is open - so back on a wall with details open means "away from this
+    /// screen", and the details go out of the picture with the screen rather than one press ahead of it.
+    /// </summary>
+    [AvaloniaTest]
+    public void BackLeavesAWallWearingDetailsInOnePress()
+    {
+      RegisterLibrary(Title("Alien Earth", 2025, RESOURCE_SYSTEM_ID.ToString("B") + "://" + LOCAL_PATH));
+      InProcessApi server = StartServer();
+
+      HomeViewModel home = new HomeViewModel(new ServerApiClient(server.BaseUrl));
+      var opened = new List<MediaBrowserViewModel>();
+      var workflow = new WorkflowManager();
+      ShellWindow window = new ShellWindow(workflow, delegate (WorkflowFrame frame)
+      {
+        if (frame.StateId == "home")
+        {
+          return new HomeView(home, workflow, null, null,
+              delegate (HomeSection section)
+              {
+                var model = new MediaBrowserViewModel(home.Client, section);
+                opened.Add(model);
+                return new WorkflowFrame("titles", section.Label, model);
+              });
+        }
+        return new MediaBrowserView((MediaBrowserViewModel) frame.ViewModel);
+      });
+      workflow.Push(new WorkflowFrame("home", "Home", home));
+      window.Show();
+      home.RefreshCommand.Execute(null);
+      WaitUntil("the tiles to appear", delegate { return home.Sections.Count > 0; });
+
+      ListBox tiles = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "menuList");
+      tiles.Focus();
+      tiles.SelectedItem = EntryNamed(home.Menu, "Movies");
+      tiles.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Enter,
+        Source = tiles
+      });
+      Pump();
+      MediaBrowserViewModel browser = opened[0];
+      WaitUntil("the shelf to fill", delegate { return browser.Titles.Count > 0; });
+
+      ListBox shelf = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "titlesList");
+      shelf.Focus();
+      browser.Selected = browser.Titles[0];
+      WaitUntil("the details to be read", delegate { return browser.DetailsVisible; });
+
+      shelf.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Escape,
+        Source = shelf
+      });
+      Pump();
+
+      Assert.That(window.Screen, Is.Not.InstanceOf<MediaBrowserView>(),
+          "one press of back on a wall wearing details left the viewer on the same wall, without a panel; the "
+          + "key was pressed once and means one thing: away from this screen");
+      window.Close();
+    }
+
     /// <summary>Presses the key a bound action answers, into the control that really has the focus.</summary>
     private static void Press(Control source, MediaPortal.Frontend.Settings.KeyAction action)
     {
@@ -1874,10 +1944,9 @@ namespace Tests.Frontend
         Assert.That(standing.IsFocused, Is.True, "and keeps it");
         Assert.That(standing.Classes.Contains(":focus") || standing.IsFocused, Is.True);
 
-        WaitUntil("the ring of the tile a viewer stands on to come up to full light",
-            delegate { return IsFullLightRing(edge.BorderBrush); });
-        TestContext.Out.WriteLine($"standing edge={Describe(edge.BorderBrush)} transform={art.RenderTransform}");
-
+        // And the ring stands at full light WITHOUT being waited for: a ring that has to be faded up is a ring
+        // that is missing while it fades, which is exactly what a viewer walking two tiles in one breath sees.
+        Pump();
         Assert.That(IsFullLightRing(edge.BorderBrush), Is.True,
             "the ring of the tile a viewer stands on is the wall's full light");
         // The picture does not jump; it walks a tenth nearer over half a second, so the reading waits for it.
@@ -2430,6 +2499,12 @@ namespace Tests.Frontend
       Assert.That(server.TimesAsked, Is.EqualTo(1),
           "and they come back from what was already read, not from a second question to the server");
 
+      // Back is not the panel's key, and one press of it is one decision: away from this screen.  The wall used
+      // to answer the press by taking the details away and swallowing the key, so the viewer stood on the same
+      // wall looking at the same wall minus a panel, and had to press a key they had already pressed once a
+      // second time to get out.  Nereus binds Escape to nothing on this screen at all (master_mediamenu.xaml:402
+      // enables its only Escape binding while the media menu stands open), and the key that turns the panel off
+      // is the details key, which the two presses of D above just demonstrated.
       titles.RaiseEvent(new KeyEventArgs
       {
         RoutedEvent = InputElement.KeyDownEvent,
@@ -2437,18 +2512,10 @@ namespace Tests.Frontend
         Source = titles
       });
       Pump();
-      Assert.That(panel.IsVisible, Is.False);
-      Assert.That(window.IsVisible, Is.True, "back put the details away, not the screen");
-      Assert.That(browser.Selected, Is.Not.Null, "and the viewer is still on the same row");
-
-      titles.RaiseEvent(new KeyEventArgs
-      {
-        RoutedEvent = InputElement.KeyDownEvent,
-        Key = Key.Escape,
-        Source = titles
-      });
-      Pump();
-      Assert.That(window.IsVisible, Is.False, "the second back is the way out of the screen");
+      Assert.That(panel.IsVisible, Is.True,
+          "one press of back is not a press of the details key: the panel is still standing on the wall");
+      Assert.That(window.IsVisible, Is.False,
+          "and that one press is the way out of the screen, not the second one");
     }
 
     #endregion

@@ -337,7 +337,11 @@ namespace Tests.Frontend
         // change, which is the part a headless screen cannot show by waiting for it.
         Assert.That(IsAnimated(tint, "Opacity"), Is.True, "the veil draws together over time");
         Assert.That(IsAnimated(tint, "Background"), Is.True, "and its background lightens rather than cutting");
-        Assert.That(IsAnimated(face, "BorderBrush"), Is.True, "and the edge comes up over time");
+        Assert.That(IsAnimated(face, "BorderBrush"), Is.False,
+            "and the edge is the one thing that does NOT come up over time: a ring that has to be faded up is a "
+            + "ring that is missing while it fades, so a viewer walking two tiles in one breath - which is how "
+            + "anybody moves along a rail or a wall - lands on a tile that still looks unfocused.  Nereus hands "
+            + "the ring from tile to tile in one step; everything else above may keep its easing");
         Assert.That(IsAnimated(glyph, "Stroke"), Is.True, "the rim of the glyph is lit, not switched on");
         Assert.That(IsAnimated(glyph, "RenderTransform"), Is.True, "and the icon is eased off the glass");
 

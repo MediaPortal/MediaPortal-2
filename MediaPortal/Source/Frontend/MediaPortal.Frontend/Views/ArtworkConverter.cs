@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Threading.Tasks;
 using Avalonia.Data.Converters;
 using Avalonia.Media.Imaging;
 
@@ -165,7 +166,7 @@ namespace MediaPortal.Frontend.Views
     /// <summary>How many pictures this converter holds decoded, which is what the tests look at.</summary>
     public int Held
     {
-      get { return _held.Count; }
+      get { lock (_cache) { return _held.Count; } }
     }
 
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -173,18 +174,119 @@ namespace MediaPortal.Frontend.Views
       if (value is not byte[] bytes || bytes.Length == 0)
         return null;
 
-      int width = DecodeWidthFor(parameter);
-      Bitmap? already = LookForHeld(bytes, width);
-      if (already != null)
-        return already;
-
-      Bitmap? picture = Decode(bytes, width);
-      if (picture == null)
-        return null;
-
-      Hold(bytes, width, picture);
-      return picture;
+      return Decoded(bytes, DecodeWidthFor(parameter));
     }
+
+    /// <summary>
+    /// Decodes a picture and remembers it, from whomever's thread that suits, so that the screen finds it lying
+    /// there when its turn comes.
+    /// </summary>
+    /// <remarks>
+    /// A wall asked to walk over a thousand films pulls a new row of posters into the picture every few
+    /// centimetres, and a poster is a JPEG: read from disk or network, decoded, and scaled down to the tile.
+    /// Asked through <see cref="Convert"/> that work happens on the screen's own thread, between the frame the
+    /// viewer is waiting for and the frame after it, which is what "everything hitches while scrolling" is made
+    /// of.  A caller who already has the bytes - which is every caller who fetched them for a row - hands them
+    /// here instead, and the binding afterwards costs a lookup.
+    /// </remarks>
+    public void Warm(byte[]? bytes, object? parameter)
+    {
+      if (bytes == null || bytes.Length == 0)
+        return;
+
+      Decoded(bytes, DecodeWidthFor(parameter));
+    }
+
+    /// <summary>The picture these bytes hold, from the cache or from the decoder.</summary>
+    /// <remarks>
+    /// <para>
+    /// The lock is held for a lookup and for a bookkeeping step, never across a decode. It used to be held
+    /// across the decode as well, so that one picture was decoded once; what that bought in practice was the
+    /// screen's own thread standing behind every JPEG a row of posters had started, which is a hundredth of a
+    /// second per keypress added up into the "it hitches and judders while scrolling" a viewer complains about.
+    /// </para>
+    /// <para>
+    /// A picture nobody is decoding is therefore decoded outside the lock, and whoever asks for a picture that
+    /// somebody else is already decoding waits for <em>that one</em> through <see cref="_beingMade"/> - which
+    /// keeps the one-decode-per-picture the old code was after without making unrelated pictures anybody's
+    /// business.
+    /// </para>
+    /// </remarks>
+    private Bitmap? Decoded(byte[] bytes, int width)
+    {
+      TaskCompletionSource<Bitmap?> wanted;
+      bool oursToMake;
+
+      lock (_cache)
+      {
+        Bitmap? already = LookForHeld(bytes, width);
+        if (already != null)
+          return already;
+
+        if (!_beingMade.TryGetValue(bytes, out Dictionary<int, TaskCompletionSource<Bitmap?>>? forTheseWidths))
+        {
+          forTheseWidths = new Dictionary<int, TaskCompletionSource<Bitmap?>>();
+          _beingMade[bytes] = forTheseWidths;
+        }
+
+        oursToMake = !forTheseWidths.TryGetValue(width, out wanted!);
+        if (oursToMake)
+        {
+          wanted = new TaskCompletionSource<Bitmap?>(TaskCreationOptions.RunContinuationsAsynchronously);
+          forTheseWidths[width] = wanted;
+        }
+      }
+
+      if (!oursToMake)
+      {
+        // Somebody else is reading this very picture at this very width; their answer is the answer.
+        return wanted.Task.Wait(LONGEST_WAIT_FOR_OTHERS)
+            ? wanted.Task.IsCompletedSuccessfully ? wanted.Task.Result : null
+            : Decode(bytes, width);
+      }
+
+      Bitmap? made = Decode(bytes, width);
+
+      lock (_cache)
+      {
+        if (_beingMade.TryGetValue(bytes, out Dictionary<int, TaskCompletionSource<Bitmap?>>? forTheseWidths))
+        {
+          forTheseWidths.Remove(width);
+          if (forTheseWidths.Count == 0)
+            _beingMade.Remove(bytes);
+        }
+
+        if (made != null)
+          Hold(bytes, width, made);
+      }
+
+      // Told only after the picture is remembered, so that a waiter finding it in the cache and a waiter taking
+      // it from the answer both get the same picture rather than one of each.
+      wanted.TrySetResult(made);
+      return made;
+    }
+
+    /// <summary>Guards the remembered pictures, which the screen's thread and the fetchers' threads both reach.</summary>
+    private readonly object _cache = new object();
+
+    /// <summary>
+    /// The decodes under way, reached by the very bytes they are reading and then by the width they are reading
+    /// for, so that whoever asks for a picture already on its way can wait for <em>that</em> picture.
+    /// </summary>
+    /// <remarks>
+    /// Keyed by the array's identity for the same reason the cache is: the picture cache hands the same array to
+    /// every question about one title.
+    /// </remarks>
+    private readonly Dictionary<byte[], Dictionary<int, TaskCompletionSource<Bitmap?>>> _beingMade =
+        new Dictionary<byte[], Dictionary<int, TaskCompletionSource<Bitmap?>>>(
+            ReferenceEqualityComparer.Instance);
+
+    /// <summary>
+    /// How long a caller waits for a decode somebody else started before reading the picture itself rather than
+    /// waiting any longer. A decode is milliseconds of work, so this is only ever reached by a thread that has
+    /// stopped running, and a screen is better off decoding twice than waiting.
+    /// </summary>
+    private static readonly TimeSpan LONGEST_WAIT_FOR_OTHERS = TimeSpan.FromSeconds(5);
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
@@ -235,11 +337,48 @@ namespace MediaPortal.Frontend.Views
               : Bitmap.DecodeToWidth(picture, width, BitmapInterpolationMode.MediumQuality);
         }
       }
+      catch (InvalidOperationException)
+      {
+        //  Reading a picture at a width is not decoding alone: the platform shrinks what the decoder handed out
+        //  through a render target, and a render target belongs to the thread that drew the first frame. Asked
+        //  from a thread that fetches, that says so out loud. The picture is still wanted - a row without its
+        //  poster is worse than a poster at the size its file has - so it comes whole here, and the scaling is
+        //  the screen's to ask for on its own thread.
+        try
+        {
+          using MemoryStream picture = new MemoryStream(bytes, false);
+          return new Bitmap(picture);
+        }
+        catch (Exception)
+        {
+          return null;
+        }
+      }
       catch (Exception)
       {
         return null;
       }
     }
+
+    /// <summary>
+    /// Whether the picture for these bytes lies ready in the cache, so that a caller can tell an answer that
+    /// costs nothing from one that has to be made.
+    /// </summary>
+    /// <remarks>
+    /// Asked by whoever is about to send work away from the drawing thread: when the picture is already there,
+    /// sending anybody anywhere only delays the frame the viewer is waiting for.
+    /// </remarks>
+    public bool Remembers(byte[]? bytes, object? parameter)
+    {
+     if (bytes == null || bytes.Length == 0)
+       return false;
+
+     lock (_cache)
+     {
+       return LookForHeld(bytes, DecodeWidthFor(parameter)) != null;
+     }
+    }
+
 
     /// <summary>
     /// The picture these very bytes were decoded to this width before, moved to the recent end, or null when

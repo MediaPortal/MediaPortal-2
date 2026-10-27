@@ -112,14 +112,22 @@ namespace Tests.Frontend
     }
 
     [AvaloniaTest]
-    public void TheDialAtNoughtIsTheVeryPictureTheArtworkConverterHandsOut()
+    public void TheDialAtNoughtIsTheVeryPictureTheArtworkCacheHoldsForABackdrop()
     {
       byte[] bytes = PictureOfTwoHalves(96, 96);
-      object? plain = ArtworkConverter.Instance.Convert(bytes, typeof(object), null, CultureInfo.InvariantCulture);
+
+      //  The width a backdrop is read at is the reference's own: its background picture is bound with
+      //  ConverterParameter=FanArt;1920;1080;False (backgrounds/default-background.xaml:58-62), and that
+      //  converter puts the two numbers into MaxWidth and MaxHeight of the fanart source.  Named here rather
+      //  than read from the converter so that a converter quietly forgetting the size it was promised fails
+      //  here instead of quietly spending the pixels again.
+      const int BACKDROP_WIDTH = 1920;
+      object? plain = ArtworkConverter.Instance.Convert(bytes, typeof(object), BACKDROP_WIDTH,
+          CultureInfo.InvariantCulture);
 
       Assert.That(plain, Is.InstanceOf<Bitmap>());
       Assert.That(Worn(bytes, 0), Is.SameAs(plain),
-          "a picture nobody asked to blur is copied, resized and blurred anyway, and the artwork converter's "
+          "a picture nobody asked to blur is copied, resized and blurred anyway, and the artwork cache's "
           + "remembered picture is thrown away with it");
       Assert.That(Worn(bytes, 0), Is.SameAs(Worn(bytes, -4)), "nought way below nought is still no work");
     }

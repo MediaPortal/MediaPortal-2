@@ -83,10 +83,10 @@ namespace MediaPortal.Frontend.Views
           : 0;
 
       if (radius <= 0)
-        return Plain(bytes, culture);
+        return Plain(bytes);
 
       return Blurred(bytes, radius)
-          ?? Plain(bytes, culture);
+          ?? Plain(bytes);
     }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -95,6 +95,8 @@ namespace MediaPortal.Frontend.Views
     }
 
     // The one remembered copy: the bytes it came from, the turn it was blurred at, and the picture.
+    private readonly object _memo = new object();
+
     private byte[]? _bytes;
     private double _radius;
     private Bitmap? _picture;
@@ -103,37 +105,153 @@ namespace MediaPortal.Frontend.Views
     private Bitmap? _plainPicture;
 
     /// <summary>
-    /// The backdrop these bytes are as the library drew it - whole, by naming no width - held for the next time
-    /// the very same backdrop is bound.
+    /// The backdrops worn lately, held on purpose so that the garbage collector cannot reach them.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A picture the screen has just been turned away from is still being painted for a frame or two, and the
+    /// compositor holds it by its memory rather than by a reference a collector can see.  Let such a backdrop
+    /// go unreachable and the collector gives its memory back while a frame is still being drawn out of it,
+    /// which a process does not answer with a complaint but by dying inside native code - seen here as an
+    /// access violation (0xc0000005) in ntdll.dll a few seconds after a wall was opened.
+    /// </para>
+    /// <para>
+    /// A handful is kept rather than everything: the walk over a wall changes the backdrop once a step, and a
+    /// step is far more frames than lie between "turned away" and "not drawn any more".  What leaves this row
+    /// has been off the screen for seconds by then.
+    /// </para>
+    /// </remarks>
+    private readonly Queue<Bitmap> _wornLately = new Queue<Bitmap>();
+
+    /// <summary>How many backdrops out of the collector's reach are kept.</summary>
+    private const int WORN_LATELY = 4;
+
+    /// <summary>
+    /// Reads a backdrop - blurring it first when the worn face asks for that - away from the thread that draws,
+    /// and remembers it here, so that the binding afterwards costs a lookup.
+    /// </summary>
+    /// <remarks>
+    /// A backdrop is the size of the television, which makes reading one the dearest thing a step between two
+    /// rows used to cost: about a tenth of a second, paid by the screen's own thread in front of the frame the
+    /// viewer was waiting for, for every row of a thousand-film shelf. The caller who fetched the bytes hands
+    /// them here instead, from a thread that has the time.
+    /// </remarks>
+    public void Warm(byte[]? bytes, double radius)
+    {
+      if (bytes == null || bytes.Length == 0)
+        return;
+
+      // Asked of the same two answers the binding asks of, so that warming and binding can never end up holding
+      // a different picture for the same bytes - and so that whatever a picture is dressed in before it reaches
+      // the screen (a blur, a size) is dressed the same way from either door.
+      if (radius <= 0)
+        Plain(bytes);
+      else
+        Blurred(bytes, radius);
+    }
+
+    /// <summary>
+    /// Whether binding these bytes at this turn of the dial would cost nothing, because the picture is already
+    /// remembered here or in the artwork cache.
+    /// </summary>
+    /// <remarks>
+    /// A screen that is asked for the mood of the row it stands on should wear it in the same breath when the
+    /// answer is lying to hand - walking back to a title the shelf has just worn is exactly that case, and the
+    /// test of it is that the picture is there before the row is drawn.  Only when the answer still has to be
+    /// made is it worth sending the reading somewhere else and telling the screen a moment later.
+    /// </remarks>
+    public bool StandsReady(byte[]? bytes, double radius)
+    {
+      if (bytes == null || bytes.Length == 0)
+        return false;
+
+      lock (_memo)
+      {
+        if (radius <= 0)
+        {
+          if (ReferenceEquals(_plainBytes, bytes) && _plainPicture != null)
+            return true;
+        }
+        else if (ReferenceEquals(_bytes, bytes) && _radius == radius && _picture != null)
+        {
+          return true;
+        }
+      }
+
+      return radius <= 0 && ArtworkConverter.Instance.Remembers(bytes, BACKDROP_DECODE_WIDTH);
+    }
+
+    /// <summary>
+    /// Keeps a backdrop that has just been put on the screen out of the collector's reach, for as long as a
+    /// frame might still be painted out of it.  See <see cref="_wornLately"/>.
+    /// </summary>
+    /// <remarks>
+    /// Asked with the memo's lock held.
+    /// </remarks>
+    private void WearLately(Bitmap picture)
+    {
+      _wornLately.Enqueue(picture);
+      while (_wornLately.Count > WORN_LATELY)
+        _wornLately.Dequeue();
+    }
+
+    /// <summary>
+    /// The backdrop these bytes are, read at the size it is worn at, and held for the next time the very same
+    /// backdrop is bound.
     /// </summary>
     /// <remarks>
     /// <para>
     /// A screen wears one backdrop at a time, but it is bound again every time a wall is handed over: without a
-    /// copy kept here, the scan behind the wall was pulled out of the file anew on each of those bindings, which
-    /// is a good half of the time a new wall was felt as taking. The artwork cache cannot keep such a picture
-    /// either - it is larger than that cache's whole budget - so the repeat was certain, not merely likely. One
-    /// copy is remembered because one backdrop is worn; the picture itself belongs to whoever binds it, so it is
-    /// never disposed here.
+    /// copy kept here, the picture behind the wall was pulled out of the file anew on each of those bindings,
+    /// which is a good half of the time a new wall was felt as taking. The artwork cache remembers it, but that
+    /// cache tracks a bounded number of pictures and the standing wall's posters compete for those places, so
+    /// without this copy the repeat was likely, not merely possible. One copy is remembered because one backdrop
+    /// is worn; the picture itself belongs to whoever binds it, so it is never disposed here.
     /// </para>
     /// <para>
-    /// Asked for at a smaller width the backdrop was measured to be *slower* than read whole, because a JPEG
-    /// decoder hands out halves and quarters for free and resamples anything else by hand: one hundred and six
-    /// milliseconds at two and a half thousand pixels instead of eighty at the full 3812. It is also the one
-    /// picture that is genuinely drawn at the size of the television.
+    /// It is read at the size the worn skin asks its backdrop for, which is <see cref="BACKDROP_DECODE_WIDTH"/>
+    /// across: the reference's own background picture is bound with
+    /// <c>ConverterParameter=FanArt;1920;1080;False</c> (backgrounds/default-background.xaml:58-62), and that
+    /// converter turns the two numbers into <c>MaxWidth</c> and <c>MaxHeight</c> on the fanart source
+    /// (FanArtImageSourceConverter.cs:51-67). Reading the file at its own size instead was measured at three
+    /// thousand one hundred and twenty-six by one thousand seven hundred and fifty-eight: two and a half times
+    /// the pixels, carried twice over (here and by the screen that wears it), for a picture that is drawn behind
+    /// a wall of posters and through a veil.
+    /// </para>
+    /// <para>
+    /// It is asked of the artwork cache rather than decoded here on purpose: a picture inside that cache's
+    /// budget is remembered and never thrown away, which is how the front end keeps a backdrop alive while the
+    /// screen might still be drawing it. Read outside that care, the old backdrop is picked up by the garbage
+    /// collector some seconds after the next one arrives, and a background whose memory was given back while it
+    /// was still being drawn crashes the process.
     /// </para>
     /// </remarks>
-    private Bitmap? Plain(byte[] bytes, CultureInfo culture)
+    private Bitmap? Plain(byte[] bytes)
     {
-      if (ReferenceEquals(_plainBytes, bytes) && _plainPicture != null)
-        return _plainPicture;
+      lock (_memo)
+      {
+        if (ReferenceEquals(_plainBytes, bytes) && _plainPicture != null)
+          return _plainPicture;
+      }
 
-      if (ArtworkConverter.Instance.Convert(bytes, typeof(object), null, culture) is not Bitmap picture)
+      if (ArtworkConverter.Instance.Convert(bytes, typeof(object), BACKDROP_DECODE_WIDTH, CultureInfo.InvariantCulture)
+          is not Bitmap picture)
         return null;
 
-      _plainBytes = bytes;
-      _plainPicture = picture;
+      lock (_memo)
+      {
+        _plainBytes = bytes;
+        _plainPicture = picture;
+        WearLately(picture);
+      }
+
       return picture;
     }
+
+    /// <summary>
+    /// The width the backdrop is read at - the reference's own number, see <see cref="Plain"/>.
+    /// </summary>
+    internal const int BACKDROP_DECODE_WIDTH = 1920;
 
     /// <summary>
     /// The blurred copy of these bytes at this radius, made once and held until a different picture or a
@@ -141,8 +259,11 @@ namespace MediaPortal.Frontend.Views
     /// </summary>
     private Bitmap? Blurred(byte[] bytes, double radius)
     {
-      if (ReferenceEquals(_bytes, bytes) && _radius == radius && _picture != null)
-        return _picture;
+      lock (_memo)
+      {
+        if (ReferenceEquals(_bytes, bytes) && _radius == radius && _picture != null)
+          return _picture;
+      }
 
       byte[]? blurred = BlurToPng(bytes, radius, out _, out _);
       if (blurred == null)
@@ -152,9 +273,14 @@ namespace MediaPortal.Frontend.Views
       if (picture == null)
         return null;
 
-      _bytes = bytes;
-      _radius = radius;
-      _picture = picture;
+      lock (_memo)
+      {
+        _bytes = bytes;
+        _radius = radius;
+        _picture = picture;
+        WearLately(picture);
+      }
+
       return picture;
     }
 

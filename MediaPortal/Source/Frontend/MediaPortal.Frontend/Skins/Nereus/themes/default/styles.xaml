@@ -753,11 +753,12 @@
         <GradientStop Offset="1" Color="#16FFFFFF"/>
       </LinearGradientBrush>
     </Setter>
-    <Setter Property="Transitions">
-      <Transitions>
-        <BrushTransition Property="BorderBrush" Duration="0:0:0.3"/>
-      </Transitions>
-    </Setter>
+    <!-- Deliberately no transition on this brush. A ring that has to fade UP is a ring that is not there while
+         it fades: at three tenths of a second, a viewer walking two tiles to the right in one breath - which is
+         how anybody moves along a wall - arrives a third of the way into the fade, reads the tile they landed on
+         as standing on nothing, and still sees the light of the tile they left. Nereus knows no fade here at all;
+         its skin engine hands the ring from tile to tile in one step, and that is also the only answer which
+         stays honest on a screen that paints its frames slower than the walk goes over them. -->
   </Style>
 
   <!-- The glass is not styled here at all. It is the liquid glass surface in HomeView itself - the shader bends
