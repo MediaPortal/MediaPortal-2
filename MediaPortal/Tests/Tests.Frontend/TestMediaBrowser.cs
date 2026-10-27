@@ -1633,11 +1633,17 @@ namespace Tests.Frontend
         ListBoxItem? standing = titles.ContainerFromIndex(0) as ListBoxItem;
         Assert.That(standing, Is.Not.Null, "the first row of a shown shelf is laid out");
 
-        foreach (string part in new[] { "home-tile-shadow", "home-tile-face", "home-tile-art",
-            "home-tile-caption", "home-tile-edge" })
+        foreach (string part in new[] { "home-tile-shadow", "home-tile-face", "home-tile-art", "home-tile-edge" })
           Assert.That(standing!.GetVisualDescendants().OfType<Control>()
               .Any(control => control.Classes.Contains(part)), Is.True,
               "a shelf tile is built of the wall's " + part);
+
+        // No name lies over the picture.  The reference's tile prints its title only where the library keeps no
+        // picture to print (MediaStyles.xaml:3295, IsVisible="!thumbnail.HasImage"), and a band of words across
+        // the foot of a poster is a band of words across the poster.
+        Assert.That(standing!.GetVisualDescendants().OfType<Control>()
+            .Any(control => control.Classes.Contains("home-tile-caption")), Is.False,
+            "a shelf tile says its name with its picture, not over it");
 
         // The container is the thing that used to paint the accent colour under a selected tile, and a coloured
         // box under a plate that is already a plate is a box with a tile floating in it.
@@ -2651,6 +2657,43 @@ namespace Tests.Frontend
           "one press of back is not a press of the details key: the panel is still standing on the wall");
       Assert.That(window.IsVisible, Is.False,
           "and that one press is the way out of the screen, not the second one");
+    }
+
+    [AvaloniaTest]
+    public void TheWashBehindTheDetailsDarkensTheCornerTheFanartShinesThrough()
+    {
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK, TITANIC_DETAILS);
+      MediaBrowserViewModel browser = BrowserOn(server);
+      MediaBrowserView view = new MediaBrowserView(browser);
+      ShellWindow window = new ShellWindow(view);
+      window.Show();
+      WaitUntil("the row to arrive", delegate { return browser.Titles.Count == 1; });
+
+      Border panel = window.GetVisualDescendants().OfType<Border>()
+          .First(border => border.Name == "detailsPanel");
+      Assert.That(panel.Background, Is.InstanceOf<LinearGradientBrush>(),
+          "the details stand on a wash of their own, not on a flat plate");
+      LinearGradientBrush wash = (LinearGradientBrush)panel.Background;
+
+      // Avalonia reads a bare number in a gradient point as an amount in device independent pixels, while the
+      // reference skin is WPF markup where the same number means the fraction of the panel. Written the WPF way
+      // the wash is a line one pixel long in the top left corner and the panel is painted one flat colour, which
+      // is what its designer ran into. Only the '%' suffix makes a point follow the panel.
+      Assert.That(wash.StartPoint.Unit, Is.EqualTo(RelativeUnit.Relative),
+          "the wash starts on a corner of the panel, not on a pixel amount inside it");
+      Assert.That(wash.EndPoint.Unit, Is.EqualTo(RelativeUnit.Relative),
+          "and it ends on a corner too");
+      Assert.That(wash.StartPoint.Point.X, Is.EqualTo(1.0), "it starts at the right edge");
+      Assert.That(wash.StartPoint.Point.Y, Is.EqualTo(0.45), "a little under the middle of its top half");
+      Assert.That(wash.EndPoint.Point.X, Is.EqualTo(0.03), "and runs to the left edge");
+      Assert.That(wash.EndPoint.Point.Y, Is.EqualTo(0.5), "at its middle");
+
+      // Ninety per cent black over the bright fanart, thinning to nothing where the reader sits.
+      Assert.That(((GradientStop)wash.GradientStops![0]!).Color.ToUInt32(), Is.EqualTo(0xE6000000),
+          "the corner the light comes from is darkened to ninety per cent, which is #E6 and not #77");
+      Assert.That(((GradientStop)wash.GradientStops![wash.GradientStops.Count - 1]!).Color.ToUInt32(),
+          Is.EqualTo(0x00000000), "and the far corner is left alone completely");
+      window.Close();
     }
 
     #endregion

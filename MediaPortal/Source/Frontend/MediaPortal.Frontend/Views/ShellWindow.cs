@@ -793,7 +793,7 @@ namespace MediaPortal.Frontend.Views
       // A dialog asks about the screen behind it; the master's header and footer are that screen's furniture and
       // stand back for the question, the same way they stand back for a film.
       bool dialog = (_workflow.Current?.View as Control) is Workflow.IDialogScreen;
-      _header.IsVisible = _header.Template != null && !fullScreen && !dialog && !_viewFullBleed;
+      _header.IsVisible = _header.Template != null && !fullScreen && !dialog && !_viewFullBleed && !_headerStowed;
       _footer.IsVisible = _footer.Template != null && !fullScreen && !dialog && !_viewFullBleed;
     }
 
@@ -964,6 +964,33 @@ namespace MediaPortal.Frontend.Views
         return;
 
       _viewFullBleed = fullBleed;
+      UpdateChromeVisibility();
+    }
+
+    /// <summary>
+    /// Whether the screen on top would rather not wear the skin's head line at all.
+    /// </summary>
+    private bool _headerStowed;
+
+    /// <summary>
+    /// Lets one screen put the head line away for the length of its visit - the screen's name, the marks of what
+    /// the machines at home are doing, the day, the weather and the clock - while the footer under it stays where
+    /// it stands.
+    /// </summary>
+    /// <remarks>
+    /// The reference hung that line into every master (<c>NotificationsBar.inc</c> into
+    /// <c>master_home.xaml:184</c> and <c>master_bare.xaml:109</c>), so a media library wearing it is the
+    /// reference and not this method. What asked for it was the viewer standing in front of the wall: the word in
+    /// the header is the word he already read on the tile he walked in through, and the line cost him a band of
+    /// the picture he came to look at. A screen asks for the line to come back on the way out, the same way it
+    /// hands the floating header back, so the home never loses it.
+    /// </remarks>
+    public void SetChromeHeaderStowed(bool stowed)
+    {
+      if (_headerStowed == stowed)
+        return;
+
+      _headerStowed = stowed;
       UpdateChromeVisibility();
     }
 

@@ -673,6 +673,15 @@ namespace MediaPortal.Frontend.ViewModels
     [ObservableProperty]
     private string _detailsText = "";
 
+    /// <summary>
+    /// Where the file stands, in the words the server wrote down.
+    /// </summary>
+    /// <remarks>
+    /// The details column stopped painting this: a viewer who is choosing a film reads a story there, not a
+    /// resource address, and the line lay across the foot of the screen like a footnote nobody asked for.  The
+    /// answer is still read and still stripped of the media source id the server puts in front of it, because that
+    /// is the rule the path itself is subject to.
+    /// </remarks>
     [ObservableProperty]
     private string _detailsPath = "";
 
@@ -2963,12 +2972,12 @@ namespace MediaPortal.Frontend.ViewModels
     /// </remarks>
     private async Task ReadDetailsArtworkAsync(TitleViewModel title)
     {
-      // The panel's picture is the poster the database holds, and a season has none - nothing writes a blob for a
-      // title that is a shelf of episodes. Its own poster is the one its shelf's tiles wear, so that is the source
-      // to ask, and the number that picks it out of the files beside the media travels with the ask.
-      Artwork? artwork = MediaCatalog.IsSeason(title.ReadThrough)
-          ? TileArtworkFor(GridViewType.Poster) ?? _artwork
-          : _artwork;
+      // The panel's picture is the poster, whatever picture the shelf wears: the reference bound Poster into that
+      // box and nothing else (MediaItemListMovieDetails.inc:33-36, ConverterParameter=Poster;294;412), and a wide
+      // banner or a thumbnail hung in a portrait frame is cut to a slice.  A season has no poster blob of its own -
+      // nothing ever wrote one for a shelf of episodes - so its ask travels with the season's number, which is what
+      // the shelf's own poster picture already does.
+      Artwork? artwork = TileArtworkFor(GridViewType.Poster) ?? _artwork;
       if (artwork == null)
         return;
 

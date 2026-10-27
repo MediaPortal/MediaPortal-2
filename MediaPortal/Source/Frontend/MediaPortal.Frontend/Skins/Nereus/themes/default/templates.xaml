@@ -575,14 +575,16 @@
     The shelf's tiles, dressed the way a cover on the wall is dressed. This is the same set of parts the home
     content's tiles wear and no other set: the outer Border is the ground the tile stands on and carries the
     shadow (a shadow cannot live on a clipped edge), the inner Border is the face the picture stands on and does
-    the rounding and the clipping, the picture fills that face, the name fades up out of the face's own bottom
-    edge on the caption band, and the ghost ring lies over the edge of the face. Nothing here draws its own
-    frame any more: the shelf used to lay the skin's empty frame picture (Poster_small.png and its three
-    siblings) under every tile, which is a picture of a frame rather than a tile, and where a title had no
-    artwork all a viewer saw was that frame. What the shelf keeps from the reference's grid is what a tile says
-    about itself beyond its picture: the skin's ground, mark and name where the library has no picture, the
-    watched and partly watched corners, and the offline flag. The sizes are the reference's MediaConsts: poster
-    163x250, banner 417x95, thumbnail 275x168, cover 260x410, album and track 205x195.
+    the rounding and the clipping, the picture fills that face, and the ghost ring lies over the edge of the face.
+    Nothing here draws its own frame any more: the shelf used to lay the skin's empty frame picture
+    (Poster_small.png and its three siblings) under every tile, which is a picture of a frame rather than a tile,
+    and where a title had no artwork all a viewer saw was that frame.  No name is painted over the picture either,
+    which is what the reference's own grid does: its tile template prints the title only where there is no picture
+    to print (MediaStyles.xaml:3295, IsVisible="!thumbnail.HasImage"), and its poster grid keeps even that inside a
+    comment (:3250-3260).  What the shelf keeps from the reference's grid is what a tile says about itself beyond
+    its picture: the skin's ground, mark and name where the library has no picture, the watched and partly watched
+    corners, and the offline flag. The sizes are the reference's MediaConsts: poster 163x250, banner 417x95,
+    thumbnail 275x168, cover 260x410, album and track 205x195.
 
     Who answers a viewer standing on one of these tiles is the container, not the tile: the shelf walks its
     containers, so the walking is spelled on ListBoxItem in this skin's styles, which is also why the generic
@@ -612,12 +614,6 @@
                          TextTrimming="CharacterEllipsis" MaxLines="4" TextAlignment="Center"
                          Margin="12,54,10,10" VerticalAlignment="Center"/>
             </Panel>
-            <Border Classes="home-tile-caption" VerticalAlignment="Bottom" Padding="8,5,8,10"
-                    IsVisible="{Binding HasArtwork}">
-              <TextBlock Classes="home-tile-caption-title" Text="{Binding Name}"
-                         FontSize="{DynamicResource SmallFontSize}" TextTrimming="CharacterEllipsis"
-                         MaxLines="2"/>
-            </Border>
           </Grid>
         </Border>
         <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
@@ -672,14 +668,6 @@
                          TextTrimming="CharacterEllipsis" MaxLines="2"
                          Margin="64,10,10,10" VerticalAlignment="Center"/>
             </Panel>
-            <!-- the band is shallower here than on a cover: a banner is ninety five points tall, and a
-                 forty five point band over it would be the tile rather than the name's ground -->
-            <Border Classes="home-tile-caption" MinHeight="0" VerticalAlignment="Bottom"
-                    Padding="8,4,8,7" IsVisible="{Binding HasArtwork}">
-              <TextBlock Classes="home-tile-caption-title" Text="{Binding Name}"
-                         FontSize="{DynamicResource SmallFontSize}" TextTrimming="CharacterEllipsis"
-                         MaxLines="1"/>
-            </Border>
           </Grid>
         </Border>
         <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
@@ -733,12 +721,6 @@
                          TextTrimming="CharacterEllipsis" MaxLines="3" TextAlignment="Center"
                          Margin="8,44,8,10" VerticalAlignment="Stretch"/>
             </Panel>
-            <Border Classes="home-tile-caption" MinHeight="0" VerticalAlignment="Bottom"
-                    Padding="8,5,8,9" IsVisible="{Binding HasArtwork}">
-              <TextBlock Classes="home-tile-caption-title" Text="{Binding Name}"
-                         FontSize="{DynamicResource SmallFontSize}" TextTrimming="CharacterEllipsis"
-                         MaxLines="2"/>
-            </Border>
           </Grid>
         </Border>
         <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
@@ -797,12 +779,6 @@
                          TextWrapping="Wrap" TextTrimming="CharacterEllipsis" MaxLines="3"
                          TextAlignment="Center" Margin="14,0,14,0" VerticalAlignment="Center"/>
             </Panel>
-            <Border Classes="home-tile-caption" VerticalAlignment="Bottom" Padding="10,6,10,12"
-                    IsVisible="{Binding HasArtwork}">
-              <TextBlock Classes="home-tile-caption-title" Text="{Binding Name}"
-                         FontSize="{DynamicResource SmallFontSize}" TextTrimming="CharacterEllipsis"
-                         MaxLines="2"/>
-            </Border>
           </Grid>
         </Border>
         <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
@@ -868,12 +844,6 @@
                          TextTrimming="CharacterEllipsis" MaxLines="4"
                          Margin="14,54,10,10" VerticalAlignment="Center"/>
             </Panel>
-            <Border Classes="home-tile-caption" MinHeight="0" VerticalAlignment="Bottom"
-                    Padding="8,5,8,9" IsVisible="{Binding HasArtwork}">
-              <TextBlock Classes="home-tile-caption-title" Text="{Binding Name}"
-                         FontSize="{DynamicResource SmallFontSize}" TextTrimming="CharacterEllipsis"
-                         MaxLines="2"/>
-            </Border>
           </Grid>
         </Border>
         <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
@@ -932,12 +902,6 @@
                          TextTrimming="CharacterEllipsis" MaxLines="4"
                          Margin="14,54,10,10" VerticalAlignment="Center"/>
             </Panel>
-            <Border Classes="home-tile-caption" MinHeight="0" VerticalAlignment="Bottom"
-                    Padding="8,5,8,9" IsVisible="{Binding HasArtwork}">
-              <TextBlock Classes="home-tile-caption-title" Text="{Binding Name}"
-                         FontSize="{DynamicResource SmallFontSize}" TextTrimming="CharacterEllipsis"
-                         MaxLines="2"/>
-            </Border>
           </Grid>
         </Border>
         <Border Classes="home-tile-edge" IsHitTestVisible="False"/>

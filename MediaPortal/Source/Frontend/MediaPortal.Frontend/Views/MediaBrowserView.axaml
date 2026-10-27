@@ -373,6 +373,48 @@
     </views:DissolveImage>
 
     <!--
+      THE TWO BANDS AT THE EDGES.  Nothing but paint, and it stands between the picture and everything the screen
+      has to say: the ground and the fanart are darkened at the top and bottom edges, the wall, the menu and the
+      details column are laid over them untouched.
+
+      This is not an invention of this front end.  The reference's own media master hung exactly these two controls
+      over its layout (master_bare_media.xaml:69-73, TopGradient in the head row and BottomGradient in the floor
+      row, both drawn from TopGradient_Template and BottomGradient_Template), and those templates carry the seven
+      stops that the home's bands carry too - the same brush read from the top edge down and from the bottom edge
+      up.  The depths are what that master's rows measured: a hundred points of head, two hundred and sixty of
+      floor.  IsHitTestVisible="False" on the panel, so that a band which only paints can never stand between a
+      pointer and a tile.
+    -->
+    <Panel IsHitTestVisible="False">
+      <Border VerticalAlignment="Top" Height="100" HorizontalAlignment="Stretch">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
+            <GradientStop Color="#E6000000" Offset="0"/>
+            <GradientStop Color="#78000000" Offset="0.3"/>
+            <GradientStop Color="#46000000" Offset="0.45"/>
+            <GradientStop Color="#21000000" Offset="0.6"/>
+            <GradientStop Color="#0C000000" Offset="0.75"/>
+            <GradientStop Color="#01000000" Offset="0.87"/>
+            <GradientStop Color="#00000000" Offset="1"/>
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
+      <Border VerticalAlignment="Bottom" Height="260" HorizontalAlignment="Stretch">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="50%,100%" EndPoint="50%,0%">
+            <GradientStop Color="#E6000000" Offset="0"/>
+            <GradientStop Color="#78000000" Offset="0.3"/>
+            <GradientStop Color="#46000000" Offset="0.45"/>
+            <GradientStop Color="#21000000" Offset="0.6"/>
+            <GradientStop Color="#0C000000" Offset="0.75"/>
+            <GradientStop Color="#01000000" Offset="0.87"/>
+            <GradientStop Color="#00000000" Offset="1"/>
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
+    </Panel>
+
+    <!--
       THE ROOM. Two hundred points of its left edge and two hundred of its bottom are off the screen: that is
       where the two menus stand while they are shut (master_mediamenu.xaml:124-186). The code behind moves this
       panel right by the two hundred points of the rail or up by the two hundred points of the floor, which is
@@ -536,13 +578,16 @@
           <Panel Grid.Column="0" ClipToBounds="False">
             <DockPanel>
               <!--
-                What the shelf has to say about itself, in the hundred points of head the reference gave it.  The
-                screen's NAME is not among those words: the shell's chrome header already stands at the window's
-                top edge with exactly that word in it, and a second copy under it - in a different size, saying
-                the same nothing - reads as a mistake to anyone looking at the screen.  So the shelf's own head
-                carries only what the chrome header never says.
+                What the shelf has to say about itself.  The reference gave its media master a head band of a
+                hundred points (master_bare_media.xaml:57-59) and let the wall of titles begin under it, which on
+                a television of this height hangs the wall low: four rows of posters stand one under the other,
+                the last one is cut in half by the bottom edge, and the whole block leans to the floor while the
+                details column beside it is read from the top down.  The viewer asked for the wall to be pulled up
+                and stood in the middle of the room, so it begins fifty-one points down - still clear of the top
+                edge, still under nothing, because this screen wears no head line - and gives seventy-three points
+                back to the floor, which is where the count of the wall is said.
               -->
-              <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,96,0,6">
+              <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,51,0,6">
                 <!--
                   The reference's shelf head carries the heading and nothing else - it never tells the viewer
                   "1130 of 1136, sorted by year" - so the screen's one line of speech only stands when the shelf
@@ -609,6 +654,7 @@
                        SelectedItem="{Binding Selected, Mode=TwoWay}"
                        ItemTemplate="{StaticResource BuiltinRowsTemplate}"
                        FontSize="24"
+                       Margin="0,0,0,63"
                        ClipToBounds="False"/>
             </DockPanel>
 
@@ -698,13 +744,20 @@
                   ClipToBounds="False"
                   IsVisible="{Binding ShowsSideDetails}">
             <Border.Background>
-              <LinearGradientBrush StartPoint="1,0.3" EndPoint="0,1">
-                <GradientStop Color="#44000000" Offset="0"/>
-                <GradientStop Color="#77000000" Offset="1"/>
+              <!--  Avalonia reads a bare number in StartPoint/EndPoint as an amount in
+                    device-independent pixels, not as the 0..1 fraction WPF uses: the
+                    "1,0.3" -> "0,0.5" version was a line one DIP long in the top left
+                    corner, which is why the wash never appeared. Only the '%' suffix
+                    means "of the panel". First stop is 90 % black (#E6 = 0.9 * 255),
+                    last one is fully transparent, and the vector runs from the top
+                    right corner to the bottom left one.  -->
+              <LinearGradientBrush StartPoint="100%,45%" EndPoint="3%,50%">
+                <GradientStop Color="#E6000000" Offset="0"/>
+                <GradientStop Color="#00000000" Offset="1"/>
               </LinearGradientBrush>
             </Border.Background>
             <Panel ClipToBounds="False">
-              <Border Background="#33000000"/>
+              <!--Border Background="#33000000"/>
               <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance},
                                       ConverterParameter=List_overlay}"
                      Stretch="Fill"
@@ -714,28 +767,40 @@
                      Width="13"
                      HorizontalAlignment="Left"
                      Stretch="Fill"
-                     IsHitTestVisible="False"/>
+                     IsHitTestVisible="False"/-->
 
               <!--
                 The column of words beside the shelf, laid as the reference laid its MediaItemListMovieDetails.inc:
-                a head of everything that is said once, a foot of everything that is looked at now and then, and
-                between them the story, which is given all the height that is left (that file's own row for the
+                a head of everything that is said once - the name, the rating, the studio's sentence and the facts -
+                and under it the story, which is given all the height that is left (that file's own row for the
                 description is Height="*", under a row of Auto for the name). It is not given a cap of its own,
                 because a cap is what left a long story ending mid-sentence while a third of the column stood empty.
                 The bottom margin is bigger than the visible window needs: the ground behind these words runs past
                 the window's lower edge (the reference's own negative margin), and words may not follow it there.
               -->
-              <Grid Margin="60,140,50,240">
+              <Grid Margin="0,140,50,310">
                 <Grid.RowDefinitions>
+                  <!-- The head, which is said once: the name, its stars and the studio's sentence. -->
+                  <RowDefinition Height="Auto"/>
+                  <!-- The row the four pairs stand in, under the head and above the story. -->
                   <RowDefinition Height="Auto"/>
                   <!-- The story's row.  A floor of its own, because a row of "*" shrinks to whatever the head and
                        the foot leave, and on a screen that is stood up small or measured before it has a size that
                        leaves nothing at all - which is not "a short story", it is a control with no room to be
                        laid out.  The reference's row for the description was "*" too (MediaItemListMovieDetails.inc:17). -->
                   <RowDefinition Height="*" MinHeight="160"/>
-                  <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <StackPanel Grid.Row="0" Spacing="12">
+                <Grid.ColumnDefinitions>
+                  <!-- Two columns, but only the bottom row uses them: the story's column and the picture's column,
+                       which is how the reference split the same panel (MediaItemListMovieDetails.inc:19-23 - six
+                       hundred for the description, the rest for the poster).  The picture's column is a written
+                       number rather than Auto, because an Auto column is asked what it wants before the story is
+                       asked what it needs, and it grew to two thousand one hundred of the panel's pixels on a
+                       title whose poster had never been measured. -->
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="400"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Spacing="12">
                 <!-- The title, and the reference's rule about it: as big as it needs to be, but on one line -
                      its own label style trimmed the title rather than letting three words take two bands off the
                      plot that every viewer actually reads. -->
@@ -784,46 +849,55 @@
                            Foreground="{DynamicResource TextBrush}"
                            Opacity="0.75"
                            TextWrapping="Wrap"
+                           Margin="0,0,0,20"
                            IsVisible="{Binding DetailsTagline, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
-                <TextBlock Text="{Binding DetailsLine}"
-                           FontSize="20"
-                           Foreground="{DynamicResource TextBrush}"
-                           Opacity="0.7"
-                           TextWrapping="Wrap"/>
                 </StackPanel>
 
-                <!-- What the library knows about the title, in the pairs the reference's panels printed, then the
-                     picture it has of the title, then where the file stands. They stand in the foot row so that
-                     none of them can take a line away from the story above them. -->
-                <StackPanel Grid.Row="2" Spacing="10" Margin="0,12,0,0">
-                  <ItemsControl ItemsSource="{Binding DetailsFacts}"
-                                ItemTemplate="{StaticResource MediaFactTemplate}">
-                    <ItemsControl.ItemsPanel>
-                      <ItemsPanelTemplate>
-                        <WrapPanel Orientation="Horizontal"/>
-                      </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                  </ItemsControl>
-                  <!-- The picture the server has of this title, where the reference laid its banner at the foot of
-                       the column. -->
-                  <Panel MaxHeight="200"
-                         IsVisible="{Binding DetailsArtwork, Converter={x:Static ObjectConverters.IsNotNull}}">
-                    <Image Source="{Binding DetailsArtwork, Converter={x:Static views:ArtworkConverter.Instance}}"
-                           Stretch="Uniform"
-                           HorizontalAlignment="Left"/>
-                  </Panel>
-                  <!-- Where the file stands, in the words the server wrote down - and in the reference's own
-                       footnote light, because it is a fact for the machine that wants to know, not for the viewer
-                       who is choosing a film.  What the server calls a resource carries the id of the media source
-                       it belongs to in front of the path, in braces; that id is not part of any path a person
-                       reads, so the screen speaks the path alone (MediaBrowserViewModel.ShownPath). -->
-                  <TextBlock Text="{Binding DetailsPath}"
-                             FontSize="13"
-                             Foreground="{DynamicResource TextBrush}"
-                             Opacity="0.35"
-                             TextWrapping="Wrap"/>
-                </StackPanel>
+                <!--
+                  The facts, in the pairs the reference's panels printed (MediaItemListDetails.inc:109 - the answer
+                  first, the word under it in the smaller size).  They stand in their own row under the head and they
+                  have the whole width for themselves - only the story and the picture share the panel below them.
+                  They used to be said twice, once as a sentence above the story and once here, and to wait at the
+                  foot of the column below a band of nothing.
+                -->
+                <ItemsControl Grid.Row="1"
+                              Grid.ColumnSpan="2"
+                              ItemsSource="{Binding DetailsFacts}"
+                              ItemTemplate="{StaticResource MediaFactTemplate}"
+                              Margin="0,4,0,0">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <WrapPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                </ItemsControl>
 
+                <!--
+                  The poster, in the story's row and standing on the story's first line, which is where it was asked
+                  for: the top margin is the same twelve the story's own scroller carries, so the two begin together.
+                  The reference stood its MoviePoster at the right hand end of the panel with the picture inset in a
+                  box of its own (MediaItemListMovieDetails.inc:23-38); the size here is the box that was drawn for
+                  it.  A title the library keeps no poster of leaves the box empty - not a poster standing in for a
+                  poster that is not there.
+                -->
+                <Panel Grid.Row="2"
+                       Grid.Column="1"
+                       Width="380"
+                       Height="500"
+                       Margin="20,12,0,0"
+                       VerticalAlignment="Top"
+                       IsVisible="{Binding DetailsArtwork, Converter={x:Static ObjectConverters.IsNotNull}}">
+                  <Image Source="{Binding DetailsArtwork, Converter={x:Static views:ArtworkConverter.Instance}}"
+                         Stretch="Uniform"
+                         HorizontalAlignment="Right"
+                         VerticalAlignment="Top"/>
+                </Panel>
+
+                <!--
+                  Where the file stands is not said here any more.  A viewer choosing a film reads a story, not a
+                  resource address, and the line lay across the foot of the screen like a footnote nobody asked
+                  for; the screen still knows it (MediaBrowserViewModel.DetailsPath), it is simply not painted.
+                -->
                 <!--
                   The story, in the room that is left. The reference gave its description the whole second row of
                   the panel (MediaItemListMovieDetails.inc:16-19: a row of Auto for the name and a row of "*" for
@@ -833,7 +907,8 @@
                   the reference's Label carries no mask of any kind, so a story that ends two thirds down the
                   column ends in readable words rather than in a fade nobody asked for.
                 -->
-                <ScrollViewer Grid.Row="1"
+                <ScrollViewer Grid.Row="2"
+                              Grid.Column="0"
                               Name="plotScroller"
                               Margin="0,12,0,0"
                               HorizontalScrollBarVisibility="Disabled"

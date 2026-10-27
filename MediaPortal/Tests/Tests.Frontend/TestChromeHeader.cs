@@ -328,6 +328,60 @@ namespace Tests.Frontend
       }
     }
 
+    /// <summary>
+    /// The wall of titles asked for the head line to be put away while it is stood on: the word the line carries is
+    /// the word the viewer already read on the tile he walked in through, and the band cost him a strip of the
+    /// picture he came for. Asking is a screen's, not the window's, so it has to be reversible - and it must not
+    /// shake the screen that asked, which plans its own space with the head line floating over it.
+    /// </summary>
+    [AvaloniaTest]
+    public void AScreenCanPutTheHeadLineAwayAndGivesItBackOnTheWayOut()
+    {
+      WithHeader(WIDE, out ShellWindow window, out TextBlock clock, out double width);
+      try
+      {
+        ContentControl header = window.GetVisualDescendants()
+            .OfType<ContentControl>().Single(c => c.Name == "ChromeHeader");
+        ContentControl footer = window.GetVisualDescendants()
+            .OfType<ContentControl>().Single(c => c.Name == "ChromeFooter");
+        ContentControl screenArea = window.GetVisualDescendants()
+            .OfType<ContentControl>().Single(c => c.Name == "ChromeScreenArea");
+
+        // The wall floats its head line over its own picture before it puts the line away, so what the test is
+        // really checking is that the second asking takes the words off the television without moving the screen.
+        window.SetChromeHeaderOverlay(true);
+        Pump(4);
+        double topBefore = Where(window, screenArea, new Point(0, 0)).Y;
+
+        Assert.That(header.IsVisible, Is.True,
+            "a screen that asks for nothing wears the head line the skin drew - the day, the weather, the clock: "
+            + clock.Text);
+
+        window.SetChromeHeaderStowed(true);
+        Pump(6);
+
+        Assert.That(header.IsVisible, Is.False,
+            "a screen that asks for the head line to be put away wears none of it: not its word, not the marks of "
+            + "what the machines at home are doing, not the clock");
+        Assert.That(footer.IsVisible, Is.True,
+            "only the head was asked for - the floor under the screen keeps its place");
+        Assert.That(Where(window, screenArea, new Point(0, 0)).Y, Is.EqualTo(topBefore),
+            "and the screen does not slide up when the line goes: it was already standing at the top of the "
+            + "television with the line floating over it, which is why taking the line away costs nothing");
+
+        window.SetChromeHeaderStowed(false);
+        Pump(6);
+
+        Assert.That(header.IsVisible, Is.True,
+            "the line comes back the moment the screen stops asking, which is the way out of it - the home the "
+            + "viewer walks back to wears its head line");
+      }
+      finally
+      {
+        Close(window);
+      }
+    }
+
     /// <summary>The words a head line is saying, for a failure message that has to be read by a person.</summary>
     private static string OnTheScreen(ShellWindow window)
     {

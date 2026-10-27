@@ -120,13 +120,20 @@ namespace MediaPortal.Frontend.Views
         // starts and a black bar lies over the head of the screen. So this screen asks for the header the same way
         // the home does - floating over the screen's own row, hit-test invisible - and lays it back to rest on the
         // way out, for a screen that plans its space under a header row would have its top cut off otherwise.
+        //
+        // And it asks for that head line to be put away while it stands here: its word is the word the viewer
+        // already read on the tile he walked in through, and under it the marks of what the machines at home are
+        // doing, the day, the weather and the clock. What the viewer came for is the wall and the picture of the
+        // title he is standing on. The floor under the screen is not asked for - only the head line.
         _chromeShell = this.GetVisualAncestors().OfType<ShellWindow>().FirstOrDefault();
         _chromeShell?.SetChromeHeaderOverlay(true);
+        _chromeShell?.SetChromeHeaderStowed(true);
       };
       DetachedFromVisualTree += delegate
       {
         SkinEngine.Changed -= OnSkinChanged;
         _chromeShell?.SetChromeHeaderOverlay(false);
+        _chromeShell?.SetChromeHeaderStowed(false);
         _chromeShell = null;
       };
       ApplyLayout();
@@ -813,6 +820,7 @@ namespace MediaPortal.Frontend.Views
       // can land after this screen asked for the header to float.
       _chromeShell = this.GetVisualAncestors().OfType<ShellWindow>().FirstOrDefault();
       _chromeShell?.SetChromeHeaderOverlay(true);
+      _chromeShell?.SetChromeHeaderStowed(true);
 
       if (_firstActivation)
       {
@@ -980,12 +988,17 @@ namespace MediaPortal.Frontend.Views
       {
         titlesList.ItemsPanel = COVER_PANEL;
         titlesList.VerticalAlignment = VerticalAlignment.Bottom;
+        // The floor the grid and the list hand back to stand their wall in the middle of the room is not the
+        // covers' floor: their row lies along the bottom edge of the room itself, and lifting it by that floor
+        // would float the row off the edge it was laid against.
+        titlesList.Margin = new Avalonia.Thickness(0);
         ScrollViewer.SetHorizontalScrollBarVisibility(titlesList, ScrollBarVisibility.Auto);
         ScrollViewer.SetVerticalScrollBarVisibility(titlesList, ScrollBarVisibility.Disabled);
       }
       else
       {
         titlesList.ClearValue(Layoutable.VerticalAlignmentProperty);
+        titlesList.ClearValue(Layoutable.MarginProperty);
         ScrollViewer.SetVerticalScrollBarVisibility(titlesList, ScrollBarVisibility.Auto);
         ScrollViewer.SetHorizontalScrollBarVisibility(titlesList, ScrollBarVisibility.Disabled);
         if (viewModel.Layout != BrowserLayout.List)
