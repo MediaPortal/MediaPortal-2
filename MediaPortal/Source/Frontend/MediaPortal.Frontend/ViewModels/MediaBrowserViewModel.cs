@@ -2322,8 +2322,10 @@ namespace MediaPortal.Frontend.ViewModels
           AddMenuRow("Grid", "grid_view", new RelayCommand(() => PickLayout(BrowserLayout.Grid)), Layout == BrowserLayout.Grid);
           AddMenuRow("Cover", "cover", new RelayCommand(() => PickLayout(BrowserLayout.Cover)), Layout == BrowserLayout.Cover);
           // The reference kept the details switch beside the view modes rather than among the media commands,
-          // because details are the second half of the layout question and not a command of their own.
-          AddMenuRow(DetailsLabel, "setup", new RelayCommand(PickDetails), ShowDetails);
+          // because details are the second half of the layout question and not a command of their own. The one
+          // row the screen gives it is this one: the main page asking the same question a second time only
+          // made the viewer choose which "Details" to press.
+          AddMenuRow(DetailsLabel, "details", new RelayCommand(PickDetails), ShowDetails);
           return;
 
         case MenuPage.Picture:
@@ -2346,7 +2348,16 @@ namespace MediaPortal.Frontend.ViewModels
         case MenuPage.Filter:
           MediaMenuHeading = "Filter";
           if (HasShelfFilter)
-            AddMenuRow("Whole shelf", "library_books", new AsyncRelayCommand(() => PickFilterAsync(null, null)));
+            AddMenuRow("All", "library_books", new AsyncRelayCommand(() => PickFilterAsync(null, null)));
+          // The watched question is a filter, so it stands among the filters now rather than on the commands
+          // page. Its three answers keep their words; only the all-answers-one is named the way the reset
+          // beside it is - and pressing the row cycles through the three the way the button in front of the
+          // list always did.
+          AddMenuRow(ActiveSeen == "" ? "All" : SeenLabel, new AsyncRelayCommand(async () =>
+          {
+            await CycleSeenAsync();
+            HideMediaMenu();
+          }));
           foreach (BrowseCategory category in BrowseViewModel.CATEGORIES)
           {
             string by = category.Word;
@@ -2371,12 +2382,9 @@ namespace MediaPortal.Frontend.ViewModels
           AddMenuRow(LayoutLabel, "grid_view", new RelayCommand(() => GoToPage(MenuPage.View)));
           if (CanChooseMedia)
             AddMenuRow(MediaLabel, "media_format", new RelayCommand(() => GoToPage(MenuPage.Picture)));
-          AddMenuRow(SeenLabel, new AsyncRelayCommand(async () =>
-          {
-            await CycleSeenAsync();
-            HideMediaMenu();
-          }));
-          AddMenuRow(DetailsLabel, "setup", new RelayCommand(PickDetails));
+          // No watched row here: it is a filter, and it stands on the "Filter" page with the rest of them.
+          // No details row here either: the switch stands on the "View" page, beside the layouts it belongs
+          // to, and the same question asked twice in one rail only makes the viewer guess which is real.
           AddMenuRow("Title menu", "system", new RelayCommand(() =>
           {
             HideMediaMenu();

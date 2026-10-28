@@ -3,6 +3,7 @@
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
         xmlns:theming="using:MediaPortal.Frontend.Theming"
         xmlns:views="using:MediaPortal.Frontend.Views"
+        xmlns:lg="using:LiquidGlassAvaloniaUI"
         x:Class="MediaPortal.Frontend.Views.MediaBrowserView"
         x:DataType="vm:MediaBrowserViewModel"
         Name="browser"
@@ -162,35 +163,53 @@
     </DataTemplate>
 
     <!--
-      A row of the screen's own menu. It wears the same tile a home shortcut wears - the face's menu-tile
-      square in the wall's one shadow, the command's picture over the tile, and the command's name on the
-      same fading band a shortcut's name stands on - because the rail's rows and the shortcut's squares
-      answer the same question ("which way now?"), and a menu that dresses differently from the wall it
-      slides out of reads as a second program.
+      A row of the screen's own menu. It wears the shortcut tile's GLASS: the same liquid surface the home
+      shortcuts lens the wall through, the same veil over it, the same ring over the seam, and the name on the
+      glass with a shadow instead of a plate - because the rail's rows and the shortcut's squares answer the
+      same question ("which way now?"), and a menu that dresses differently from the wall it slides out of
+      reads as a second program. Every number on the surface is the shortcut's own, written where the shortcut
+      writes it (HomeView); the glass bends the ground and the fanart standing behind this screen, which is
+      what it does to the wallpaper on the home.
 
-      The deviations from the shortcut tile are on purpose. The picture is no PNG any more: a command's
-      icon is a shape out of the skin's vector catalog, painted in the text's own colour, so it can be
-      lit and grown exactly like the shortcut's art. The white bar at the tile's left edge - the very bar
-      the main menu gives its selected tile - marks the row that is the screen's answer already. And the
-      name stands in its band always, not only when a viewer stands on the row: eight commands that hide
-      their names until touched are eight commands nobody can read at a glance.
+      Two deviations from the shortcut tile remain on purpose. The picture is no PNG: a command's icon is a
+      shape out of the skin's vector catalog, painted in the text's own colour, dressed the way the rail's
+      icons were asked for - four tenths at rest, full white and the corner button's glow under a viewer. And
+      the white bar at the tile's left edge - the very bar the main menu gives its selected tile - marks the
+      row that is the screen's answer already.
     -->
     <DataTemplate x:Key="MediaMenuTile" x:DataType="vm:MediaBrowserMenuEntry">
-      <Border Classes="home-tile-shadow" Margin="6" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <Border Classes="home-tile-shadow"
+              Margin="6"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center"
+              lg:LiquidGlassBackdrop.IsExcludedFromCapture="True">
         <Panel>
-          <Border Classes="nereus-menu-tile" ClipToBounds="True" Width="170" Height="170">
-            <Grid>
-              <Grid.RowDefinitions>
-                <RowDefinition Height="130*"/>
-                <RowDefinition Height="40*"/>
-              </Grid.RowDefinitions>
-              <Rectangle Grid.RowSpan="2" Fill="#222222"/>
+          <!-- Transparent ground under the glass, which is what the shortcut tile's Button carries too: a
+               plate painted under a lens is a plate a viewer sees, not a glass - the class is kept here for
+               its corner, and the plate it paints from the skin styles is laid aside. -->
+          <Border Classes="nereus-menu-tile" Background="Transparent" ClipToBounds="True" Width="170" Height="170">
+            <Panel>
+              <!-- One glass, and it is liquid glass: the shortcut's lens, at the shortcut's numbers. Clipped
+                   by hand for the shortcut's own reason - the library turns clipping off in the surface's
+                   statics, and a rail of ten unclipped lenses came out as one plate. -->
+              <lg:LiquidGlassSurface ClipToBounds="True"
+                                     CornerRadius="10"
+                                     BlurRadius="10"
+                                     Vibrancy="1.15"
+                                     SurfaceColor="#33030810"
+                                     RefractionHeight="20"
+                                     RefractionAmount="45"
+                                     DepthEffect="True"
+                                     ChromaticAberration="True"
+                                     HighlightWidth="0.5"
+                                     HighlightOpacity="0.2"
+                                     ShadowEnabled="False"/>
+              <!-- The veil of the glass, above the lens it veils. -->
+              <Border Classes="home-shortcut-tint"/>
               <!-- The command's shape, asked of the worn skin's vectors the way a shortcut asks for its
-                   picture. The box is the shortcut's own formula - thirty-two hundredths of the tile's width
-                   (HomeShelf.IconSize), centred on the square - so a rail row and a home shortcut carry the
-                   same amount of shape. -->
-              <Path Grid.RowSpan="2"
-                    Classes="media-menu-icon"
+                   picture, at the size the rail was asked to carry - thirty-two hundredths of the tile,
+                   lifted off the name the way the shortcut lifts its glyph. -->
+              <Path Classes="media-menu-icon"
                     Data="{Binding Icon, Converter={x:Static views:SkinIconGeometryConverter.Instance},
                                    ConverterParameter='MediaMenu/{0}'}"
                     Fill="{DynamicResource TextBrush}"
@@ -200,26 +219,19 @@
                     Margin="0,0,0,22"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"/>
-              <Grid Grid.Row="1" VerticalAlignment="Stretch" IsHitTestVisible="False">
-                <Rectangle Classes="nereus-menu-band"/>
-                <TextBlock Text="{Binding Label}"
-                           FontSize="18"
-                           FontWeight="Bold"
-                           Foreground="{DynamicResource TextBrush}"
-                           TextAlignment="Center"
-                           VerticalAlignment="Center"
-                           TextTrimming="CharacterEllipsis"
-                           Margin="5,0"/>
-              </Grid>
+              <!-- The name, on the glass and not on a band of its own - the shortcut's own answer: a shadow
+                   instead of a plate, so it reads over the frost without covering any of it. -->
+              <TextBlock Classes="home-shortcut-caption"
+                         Text="{Binding Label}"
+                         TextTrimming="CharacterEllipsis"/>
               <!-- The bar of the row that is what the screen answers already - the grid in a list of
                    layouts, the year in a list of orders - worn as the main menu wears it on its selected
                    tile: five of white down the tile's left edge. -->
-              <Rectangle Grid.RowSpan="2"
-                         Fill="White"
+              <Rectangle Fill="White"
                          Width="5"
                          HorizontalAlignment="Left"
                          IsVisible="{Binding IsCurrent}"/>
-            </Grid>
+            </Panel>
           </Border>
           <!-- The resting ghost ring, exactly as the shortcut tiles and the wall's covers wear it. -->
           <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
@@ -315,6 +327,40 @@
     <Style Selector="ListBox.media-menu ListBoxItem:selected:focus Path.media-menu-icon,
                     ListBox.media-menu ListBoxItem:selected:pointerover Path.media-menu-icon">
       <Setter Property="RenderTransform" Value="scale(1.06)"/>
+    </Style>
+    <!-- What standing on the rail's glass does - the shortcut's own answer, at the shortcut's numbers: the
+         veil lightens, the ring comes up to full light, and the name stands at whole white. The rail wears
+         the skin's shortcut classes, but the shortcut's state rules are written against the shortcut's
+         Button, and these tiles stand in a list; the same four stops are therefore said here for the rail. -->
+    <Style Selector="ListBox.media-menu ListBoxItem:selected Border.home-shortcut-tint,
+                    ListBox.media-menu ListBoxItem:focus Border.home-shortcut-tint,
+                    Window:not(.pointer-resting) ListBox.media-menu ListBoxItem:pointerover Border.home-shortcut-tint">
+      <Setter Property="Opacity" Value="1"/>
+      <Setter Property="Background">
+        <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+          <GradientStop Offset="0" Color="#66FFFFFF"/>
+          <GradientStop Offset="0.3" Color="#40FFFFFF"/>
+          <GradientStop Offset="0.7" Color="#33141C26"/>
+          <GradientStop Offset="1" Color="#4D0C1218"/>
+        </LinearGradientBrush>
+      </Setter>
+    </Style>
+    <Style Selector="ListBox.media-menu ListBoxItem:selected Border.home-tile-edge,
+                    ListBox.media-menu ListBoxItem:focus Border.home-tile-edge,
+                    Window:not(.pointer-resting) ListBox.media-menu ListBoxItem:pointerover Border.home-tile-edge">
+      <Setter Property="BorderBrush">
+        <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+          <GradientStop Offset="0" Color="#FFFFFFFF"/>
+          <GradientStop Offset="0.35" Color="#B3FFFFFF"/>
+          <GradientStop Offset="0.72" Color="#66FFFFFF"/>
+          <GradientStop Offset="1" Color="#CCFFFFFF"/>
+        </LinearGradientBrush>
+      </Setter>
+    </Style>
+    <Style Selector="ListBox.media-menu ListBoxItem:selected TextBlock.home-shortcut-caption,
+                    ListBox.media-menu ListBoxItem:focus TextBlock.home-shortcut-caption,
+                    Window:not(.pointer-resting) ListBox.media-menu ListBoxItem:pointerover TextBlock.home-shortcut-caption">
+      <Setter Property="Opacity" Value="1"/>
     </Style>
   </UserControl.Styles>
   <!--

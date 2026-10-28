@@ -3644,9 +3644,25 @@ namespace Tests.Frontend
       ListBox rail = window.GetVisualDescendants().OfType<ListBox>()
           .First(list => list.Name == "mediaMenuList");
       WaitUntil("the menu to fill", delegate { return rail.Items.Count > 0; });
+      // The watched row stands on the "Filter" page now, beside the other filters it belongs to, so the test
+      // steps there the way a viewer does.
+      MediaBrowserMenuEntry filterPage = rail.Items.OfType<MediaBrowserMenuEntry>()
+          .First(row => row.Label.StartsWith("Filter", StringComparison.Ordinal));
+      filterPage.Command.Execute(null);
+      WaitUntil("the filter page to stand up", delegate { return browser.MediaMenuHeading == "Filter"; });
       Assert.That(rail.Items.OfType<MediaBrowserMenuEntry>()
               .Any(row => row.Label == "Unwatched only"), Is.True,
-          "the menu's filter row says which filter is on");
+          "the filter page says which watched filter is on");
+
+      // One back steps from the filter page to the commands, the next puts the menu away - the way a viewer
+      // climbing out of a submenu does it.
+      titles.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Escape,
+        Source = titles
+      });
+      WaitUntil("the commands page to stand up again", delegate { return browser.MediaMenuHeading == "Menu"; });
 
       titles.RaiseEvent(new KeyEventArgs
       {
