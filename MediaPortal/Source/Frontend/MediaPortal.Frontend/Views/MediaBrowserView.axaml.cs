@@ -1,4 +1,4 @@
-/*
+﻿/*
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -24,6 +24,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using MediaPortal.Frontend.Input;
@@ -246,6 +247,48 @@ namespace MediaPortal.Frontend.Views
       // keeps its Enter for the caret's sake and gets no second path. See HomeWindow for the general reason.
       MouseRemote.Attach(this, titlesList);
 
+      // The right press on a title asks the title's own dialog - the viewer moved that dialog off the rail
+      // and onto the thing it talks about. The press is caught as the context request it is (right button,
+      // long press, or the menu key of a keyboard, all of them arrive here), the row under the pointer is
+      // stood on first - a press about a tile is a press about THAT tile, not about whatever the caret
+      // happened to stand on - and the dialog opens over the shelf.
+      titlesList.AddHandler(ContextRequestedEvent, delegate (object? sender, ContextRequestedEventArgs args)
+      {
+        if (!(DataContext is MediaBrowserViewModel viewModel))
+          return;
+
+        if (args.Source is Visual source
+            && source.FindAncestorOfType<ListBoxItem>(includeSelf: true)?.DataContext is TitleViewModel stood)
+          viewModel.Selected = stood;
+
+        if (viewModel.Selected == null)
+          return;
+
+        viewModel.HideMediaMenu();
+        viewModel.ShowMenu();
+        args.Handled = true;
+      }, RoutingStrategies.Tunnel);
+
+      // The dialog grows on a transform the code holds, because a transform is no control for the markup to
+      // name - the same reason the room's slide is reached through the room itself.
+      menuDialog.RenderTransform = _menuDialogScale;
+      RenderOptions.SetBitmapInterpolationMode(menuGround, BitmapInterpolationMode.HighQuality);
+
+      // A press beside the dialog puts it away: the dialog answers the title it was opened for, and a viewer
+      // who presses beside it has stopped asking.
+      // The press is watched on the scrim the dialog stands in, and the point of it is read against the
+      // dialog's own bounds - a press inside those belongs to the dialog, whatever it hits there.
+      menuScrim.AddHandler(PointerPressedEvent, delegate (object? sender, PointerPressedEventArgs args)
+      {
+        if (!(DataContext is MediaBrowserViewModel viewModel) || !viewModel.MenuVisible)
+          return;
+
+        Point where = args.GetPosition(menuDialog);
+        if (where.X < 0 || where.Y < 0
+            || where.X > menuDialog.Bounds.Width || where.Y > menuDialog.Bounds.Height)
+          viewModel.CloseMenu();
+      }, RoutingStrategies.Tunnel);
+
       // A row the screen has laid out is a row that could be painted, but only the ones inside the viewport - plus
       // a screenful in each direction, so that scrolling arrives at pictures rather than at grey - are worth asking
       // the server for. The reference hangs its pictures the same way round: FanArtImageSource is composed into a
@@ -300,11 +343,18 @@ namespace MediaPortal.Frontend.Views
             else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.MediaMenu, args.Key)
                 && !searchBox.IsFocused)
             {
-              // The "info" key of a remote, which reaches this code as Apps, and the letter for a keyboard. The
-              // reference bound exactly this key to the media screen's own menu (master_mediamenu.xaml:400) - the
-              // menu that holds the commands a shelf answers: finding, filtering, sorting, the view, the details
-              // and the title's own menu - and bound it to closing it again when the menu is already out.
-              viewModel.ToggleMediaMenuCommand.Execute(null);
+              // The "info" key of a remote, which reaches this code as Apps, and the letter for a keyboard.
+              // It asks the title's own question: the dialog about the standing title, which the viewer
+              // moved off the rail and onto the title itself - the same door the right press opens. While
+              // the dialog is the newest thing on the screen the same key puts it away again; the rail's
+              // way in and out is the walking, and the info key never belongs to it any more.
+              if (viewModel.MenuVisible)
+                viewModel.CloseMenuCommand.Execute(null);
+              else
+              {
+                viewModel.HideMediaMenu();
+                viewModel.ShowMenuCommand.Execute(null);
+              }
               args.Handled = true;
             }
             else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Details, args.Key)
@@ -505,13 +555,110 @@ namespace MediaPortal.Frontend.Views
     {
       if (browser.MenuVisible)
       {
+        GrowDialog();
         if (menuMarkButton.IsVisible)
           menuMarkButton.Focus();
         else
           menuBackButton.Focus();
       }
       else
+      {
+        HandDialogGroundBack();
         FocusShelf();
+      }
+    }
+
+    /// <summary>
+    /// The photograph this dialog wears its ground in - its own copy of the shell's thrown-away picture, which
+    /// the shell would otherwise keep alive over the whole layout and bury the dialog standing inside a screen.
+    /// </summary>
+    private Bitmap? _dialogGround;
+
+    /// <summary>
+    /// Photographs the ground and lays it under the dialog, at the skin's own number and softened the same way
+    /// the workflow's dialogs soften it (<see cref="ShellWindow"/> took both halves from one recipe). The shot
+    /// is taken with the scrim already at nought opacity, so it is the wall that is captured and never the
+    /// dialog standing in front of it. A skin that names no blur leaves the picture away and the wall keeps
+    /// living behind the wash.
+    /// </summary>
+    private void PhotographDialogGround()
+    {
+      HandDialogGroundBack();
+      _dialogGround = _chromeShell?.PhotographGroundForOverlay();
+      if (_dialogGround != null)
+        menuGround.Fill = new ImageBrush(_dialogGround) { Stretch = Stretch.Fill };
+    }
+
+    /// <summary>Hands the wall back: the photograph goes away and the live screen underneath shows again.</summary>
+    private void HandDialogGroundBack()
+    {
+      menuGround.Fill = null;
+      if (_dialogGround != null)
+      {
+        _dialogGround.Dispose();
+        _dialogGround = null;
+      }
+    }
+
+    /// <summary>The opening times the dialog keeps: two tenths of fade over the ground, four of growth.</summary>
+    private const int DIALOG_FADE_MS = 200;
+    private const int DIALOG_GROW_MS = 400;
+
+    private DispatcherTimer? _dialogGrowTimer;
+
+    /// <summary>The dialog's own growth, read through the dialog - a transform is no control to name.</summary>
+    private readonly ScaleTransform _menuDialogScale = new ScaleTransform(1, 1);
+
+    /// <summary>
+    /// Grows the dialog out of nothing at its centre - the
+    /// screen it stands on fading up in two tenths while the dialog itself scales from nought to one in
+    /// four, with a deceleration on it so the first frames carry most of the growth.
+    /// </summary>
+    /// <remarks>
+    /// The growth rides a scale transform of its own and is put back to exactly one when it is over, so a
+    /// dialog at rest is a dialog at the size the markup wrote - and a test that never lets a render frame
+    /// pass still finds every logical thing of the dialog where the markup put it.
+    /// </remarks>
+    private void GrowDialog()
+    {
+      // One opening at a time; a dialog asked for again while growing simply grows again from where it is.
+      _dialogGrowTimer?.Stop();
+
+      menuScrim.Opacity = 0;
+      _menuDialogScale.ScaleX = 0;
+      _menuDialogScale.ScaleY = 0;
+
+      // The ground goes out of focus before the question grows into it.
+      PhotographDialogGround();
+
+      long started = Environment.TickCount64;
+
+      DispatcherTimer timer = new DispatcherTimer(DispatcherPriority.Render)
+      {
+        Interval = TimeSpan.FromMilliseconds(16)
+      };
+      _dialogGrowTimer = timer;
+
+      timer.Tick += delegate
+      {
+        if (!ReferenceEquals(_dialogGrowTimer, timer))
+          return; // a newer opening drives this dialog from here on
+
+        long elapsed = Environment.TickCount64 - started;
+        double u = Math.Min(1, elapsed / (double)DIALOG_GROW_MS);
+        double grow = 1 - (1 - u) * (1 - u);
+        _menuDialogScale.ScaleX = grow;
+        _menuDialogScale.ScaleY = grow;
+        menuScrim.Opacity = Math.Min(1, elapsed / (double)DIALOG_FADE_MS);
+
+        if (u >= 1)
+        {
+          timer.Stop();
+          menuScrim.Opacity = 1;
+        }
+      };
+
+      timer.Start();
     }
 
     /// <summary>The two hundred points the reference slid its room by (Animations.xaml:8-9).</summary>
@@ -1736,3 +1883,4 @@ namespace MediaPortal.Frontend.Views
     }
   }
 }
+

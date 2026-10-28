@@ -187,7 +187,7 @@
           <!-- Transparent ground under the glass, which is what the shortcut tile's Button carries too: a
                plate painted under a lens is a plate a viewer sees, not a glass - the class is kept here for
                its corner, and the plate it paints from the skin styles is laid aside. -->
-          <Border Classes="nereus-menu-tile" Background="Transparent" ClipToBounds="True" Width="170" Height="170">
+          <Border Classes="nereus-menu-tile" Background="Transparent" ClipToBounds="True" Width="145" Height="145">
             <Panel>
               <!-- One glass, and it is liquid glass: the shortcut's lens, at the shortcut's numbers. Clipped
                    by hand for the shortcut's own reason - the library turns clipping off in the surface's
@@ -213,10 +213,10 @@
                     Data="{Binding Icon, Converter={x:Static views:SkinIconGeometryConverter.Instance},
                                    ConverterParameter='MediaMenu/{0}'}"
                     Fill="{DynamicResource TextBrush}"
-                    Width="54"
-                    Height="54"
+                    Width="46"
+                    Height="46"
                     Stretch="Uniform"
-                    Margin="0,0,0,22"
+                    Margin="0,0,0,19"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"/>
               <!-- The name, on the glass and not on a band of its own - the shortcut's own answer: a shadow
@@ -228,7 +228,7 @@
                    layouts, the year in a list of orders - worn as the main menu wears it on its selected
                    tile: five of white down the tile's left edge. -->
               <Rectangle Fill="White"
-                         Width="5"
+                         Width="4"
                          HorizontalAlignment="Left"
                          IsVisible="{Binding IsCurrent}"/>
             </Panel>
@@ -305,6 +305,12 @@
          white DropShadow the four corner buttons light their glyphs with (styles.xaml's nereus-corner-button),
          and it fits here because the glyph sits a good deal farther from the tile's edge than the blur spreads.
          The pointer lights the mark only when a hand is really on it, which is the corner buttons' guard too. -->
+    <!-- The rail took a sixth off its tiles, and the name on the glass comes along: thirteen points where the
+         shortcut's own caption keeps fifteen, so the word stays in proportion with the forty-six-point mark
+         above it. Only here; the home's shortcuts wear their own size untouched. -->
+    <Style Selector="ListBox.media-menu TextBlock.home-shortcut-caption">
+      <Setter Property="FontSize" Value="13"/>
+    </Style>
     <Style Selector="ListBox.media-menu ListBoxItem Path.media-menu-icon">
       <Setter Property="Opacity" Value="0.4"/>
       <Setter Property="RenderTransformOrigin" Value="50%,50%"/>
@@ -482,25 +488,25 @@
         <!--border Background="Black" Opacity="0.9"/-->
 
         <DockPanel Margin="10,0,0,0">
-          <TextBlock DockPanel.Dock="Top"
-                     Text="{Binding MediaMenuHeading}"
-                     FontSize="17"
-                     Foreground="{DynamicResource TextBrush}"
-                     Opacity="0.55"
-                     Margin="14,8,0,2"
-                     IsHitTestVisible="False"/>
           <!-- Every row of the screen's menu. The list is the reference's ListView with MediaMenuListViewStyle
                on it; the styles that dress it are with the other menu styles above, for both halves. It is docked
                rather than stacked so that the list is measured against the height that is left and can scroll a
                menu longer than the rail.  The panel is a plain stack and not the toolkit's virtualizing one:
                the rail never carries more than eight rows, and the virtualizing panel - measured against the
                collapsed height a closing animation leaves behind while the room slides - realized a single row
-               and left the rows below it as empty plates until a key press woke the list up. -->
+               and left the rows below it as empty plates until a key press woke the list up.
+
+               The bottom margin is the two hundred points of the floor band: the rail's ground runs past the
+               window's bottom edge on purpose (the glow stands on it), but the LIST is measured to the bottom
+               edge a viewer can see, so a menu longer than the rail scrolls the way the home's main menu
+               scrolls its tiles - under the wheel, and after the caret walks onto a row that stood below.
+               The heading left the top of this panel for the line at the room's foot below, which stands
+               where the home says its media line. -->
           <ListBox Name="mediaMenuList"
                    Classes="media-menu"
                    ItemsSource="{Binding MediaMenu}"
                    ItemTemplate="{StaticResource MediaMenuTile}"
-                   Margin="0,6,0,0"
+                   Margin="0,14,0,200"
                    Focusable="True"
                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                    ScrollViewer.VerticalScrollBarVisibility="Hidden">
@@ -946,6 +952,28 @@
           </Border>
         </Grid>
       </Panel>
+
+      <!--
+        The word the rail speaks, laid at the room's foot. The viewer asked for it moved out of the rail's top
+        and down to where the home says its media line - the one line about the title a walker stands on - and
+        that line is the measure of this one in position as well as in letters: two and twenty points of the
+        face's own text, thirty-four points above the window's bottom edge, and two hundred and forty in from
+        the room's left, which is the rail's two hundred and the gap of forty the home leaves beside its rail.
+        It spans both columns so the margin counts from the room's own left edge, it is painted over the wall
+        the way the home's line is painted over its fanart, and it goes when the rail goes, because it is the
+        rail's word and not the wall's.
+      -->
+      <TextBlock Grid.Row="0"
+                 Grid.ColumnSpan="2"
+                 Text="{Binding MediaMenuHeading}"
+                 FontSize="22"
+                 Foreground="{DynamicResource TextBrush}"
+                 HorizontalAlignment="Left"
+                 VerticalAlignment="Bottom"
+                 Margin="240,0,0,34"
+                 IsHitTestVisible="False"
+                 TextTrimming="CharacterEllipsis"
+                 IsVisible="{Binding MediaMenuVisible}"/>
     </Grid>
 
     <!--
@@ -969,46 +997,66 @@
       list it was opened for: the shelf stays where it is, the menu speaks about one row, and Back puts it
       away. What the menu asks is decided by what the server can actually answer - today exactly one thing,
       whether a title was watched through - and where the library has no answer to give, the menu says so in
-      words instead of pressing a button that would do nothing. The markup is palette-only on purpose: the
-      worn skin's dialog frame is what makes this their style, and a screen that waits for its skin's dressing
-      never opens the dialog.
+      words instead of pressing a button that would do nothing.
+
+      The frame is this skin's own dialog frame, the very one the menu editor wears (the DialogHeadedFrame
+      template): the dark grey ground, the corners of twenty-five, the white halo falling off outward from the
+      panel's edge with nothing painted for it, the heading centred at the dialog title's size and nothing
+      drawn between heading and body, and the answers on the skin's primary button. Behind it the ground stands
+      washed dark, which is what the skin's dialog screens ask their home to be; a dialog over a wall of
+      readable detail would ask the viewer to read two things at once. The wall is washed <em>and</em> thrown
+      out of focus: the shell photographs its whole layout at the skin's <c>DialogBackdropBlur</c>, softened
+      the way the workflow's dialogs soften it, and this dialog wears that photograph under its wash - the
+      live wall hides under the picture, and a viewer who is being asked something is not watching the shelves
+      behind them scroll.
     -->
-    <Border Background="{DynamicResource ScrimBrush}" IsVisible="{Binding MenuVisible}">
-      <Border Background="{DynamicResource PanelRaisedBrush}"
-              BorderBrush="{DynamicResource OutlineBrush}"
-              BorderThickness="2"
-              Padding="30,24"
-              MinWidth="480"
+    <Panel Name="menuScrim" Background="Transparent" IsVisible="{Binding MenuVisible}">
+      <!-- The photograph of the ground, worn by the dialog rather than by the shell's own backdrop layer -
+           that one sits over the whole layout and would bury a dialog standing inside a screen with its own
+           ground. It is filled when the dialog opens and emptied when the dialog goes; a skin that names no
+           blur leaves it bare and the wall stays live behind the wash. -->
+      <Rectangle Name="menuGround" IsHitTestVisible="False"/>
+      <Panel Background="{DynamicResource DialogWashBrush}"/>
+      <Border Name="menuDialog"
+              Background="{DynamicResource DialogGroundBrush}"
+              CornerRadius="{DynamicResource DialogFrameCornerRadius}"
+              BoxShadow="0 0 120 0 #00FFFFFF, 0 0 26 0 #FFFFFFFF"
+              Margin="50"
               MaxWidth="760"
               HorizontalAlignment="Center"
-              VerticalAlignment="Center">
-        <StackPanel Spacing="14">
-          <TextBlock Text="{Binding MenuTitle}"
-                     FontSize="28"
-                     FontWeight="SemiBold"
-                     TextWrapping="Wrap"/>
-          <Button Name="menuMarkButton"
-                  Content="Mark watched"
-                  Command="{Binding MarkWatchedCommand}"
-                  IsVisible="{Binding CanMarkWatched}"
-                  MinWidth="240"
-                  Padding="26,10"
-                  FontSize="22"
-                  HorizontalAlignment="Left"/>
-          <TextBlock Text="{Binding MenuWords}"
-                     FontSize="18"
-                     Opacity="0.75"
+              VerticalAlignment="Center"
+              RenderTransformOrigin="50%,50%">
+        <DockPanel>
+          <TextBlock DockPanel.Dock="Top"
+                     Text="{Binding MenuTitle}"
+                     FontSize="{DynamicResource DialogTitleFontSize}"
+                     FontWeight="Bold"
+                     Foreground="{DynamicResource TextBrush}"
+                     Margin="10,5"
                      TextWrapping="Wrap"
-                     IsVisible="{Binding MenuWords, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
-          <Button Name="menuBackButton"
-                  Content="Back"
-                  Command="{Binding CloseMenuCommand}"
-                  MinWidth="140"
-                  Padding="24,10"
-                  FontSize="22"
-                  HorizontalAlignment="Left"/>
-        </StackPanel>
+                     TextAlignment="Center"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Center"/>
+          <StackPanel Margin="10" MinWidth="460">
+            <Button Name="menuMarkButton"
+                    Classes="nereus-primary"
+                    Content="Mark watched"
+                    Command="{Binding MarkWatchedCommand}"
+                    IsVisible="{Binding CanMarkWatched}"/>
+            <TextBlock Text="{Binding MenuWords}"
+                       FontSize="18"
+                       Margin="0,8,0,0"
+                       Opacity="0.75"
+                       TextWrapping="Wrap"
+                       IsVisible="{Binding MenuWords, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+            <Button Name="menuBackButton"
+                    Classes="nereus-primary"
+                    Content="Back"
+                    Command="{Binding CloseMenuCommand}"
+                    Margin="0,10,0,0"/>
+          </StackPanel>
+        </DockPanel>
       </Border>
-    </Border>
+    </Panel>
   </Panel>
 </UserControl>

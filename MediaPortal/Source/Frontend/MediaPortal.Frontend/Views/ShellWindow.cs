@@ -883,10 +883,30 @@ namespace MediaPortal.Frontend.Views
     /// </summary>
     private void PhotographGround()
     {
+      Bitmap? soft = TakeGroundShot();
+      if (soft == null)
+        return; // the layout pass below tries again as soon as the window knows how big it is
+
+      PutBackdropAway();
+      _backdropShot = soft;
+      _backdrop.Background = Background;
+      _backdropPicture.Fill = new ImageBrush(soft) { Stretch = Stretch.Fill };
+      _backdrop.IsVisible = true;
+    }
+
+    /// <summary>
+    /// Takes the photograph of the ground and answers with it, or answers with nothing when the skin names no
+    /// blur or the ground has no size to photograph yet. This is the whole of what a dialog's ground is: the
+    /// skin's number off its metrics, the layout drawn at that fraction of its size, and the picture softened
+    /// - see <see cref="BlurScreenBehind"/> for why it is a photograph and <see cref="SoftFocus"/> for why a
+    /// small picture alone is not a blur.
+    /// </summary>
+    private Bitmap? TakeGroundShot()
+    {
       double shrink = Theming.SkinEngine.WornNumber("DialogBackdropBlur") ?? 0.0;
       Size ground = _layout.Bounds.Size;
       if (shrink < 2.0 || ground.Width < 2.0 || ground.Height < 2.0)
-        return; // the layout pass below tries again as soon as the window knows how big it is
+        return null;
 
       // Taken at the size the ground is really drawn in and shrunk by the skin's number, so the blur keeps the
       // same character whether the television is told to draw one pixel or one and a half per dot - and whether
@@ -908,13 +928,24 @@ namespace MediaPortal.Frontend.Views
       // is a soft focus rather than a coarse one.
       Bitmap soft = SoftFocus.Of(shot, Math.Max(1, (int) Math.Round(shrink / 2.0)));
       shot.Dispose();
-
-      PutBackdropAway();
-      _backdropShot = soft;
-      _backdrop.Background = Background;
-      _backdropPicture.Fill = new ImageBrush(soft) { Stretch = Stretch.Fill };
-      _backdrop.IsVisible = true;
+      return soft;
     }
+
+    /// <summary>
+    /// Photographs the ground for a dialog that stands <em>inside</em> a screen rather than at a stop of its
+    /// own in the workflow: the shell's backdrop layer sits over the whole layout, which would bury such a
+    /// dialog with its own ground, so the shell only takes the picture here and the asking dialog wears it
+    /// itself, under its wash and over the live screen it throws out of focus. The numbers are the workflow
+    /// dialog's numbers - the skin's <c>DialogBackdropBlur</c> and the same softening - because the ground
+    /// behind a question looks the same whichever kind of dialog asked it. Nothing is photographed when the
+    /// skin names no blur; the dialog then stands over its live screen, which is what that skin wants.
+    /// </summary>
+    /// <returns>The softened ground, which the caller owns and must free, or nothing.</returns>
+    internal Bitmap? PhotographGroundForOverlay()
+    {
+      return TakeGroundShot();
+    }
+
 
     /// <summary>
     /// Hands the ground back: the photograph is put away, and with it the layer it was covering.

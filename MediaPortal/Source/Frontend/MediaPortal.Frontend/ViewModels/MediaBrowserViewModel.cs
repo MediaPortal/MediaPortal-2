@@ -2386,11 +2386,8 @@ namespace MediaPortal.Frontend.ViewModels
           // No watched row here: it is a filter, and it stands on the "Filter" page with the rest of them.
           // No details row here either: the switch stands on the "View" page, beside the layouts it belongs
           // to, and the same question asked twice in one rail only makes the viewer guess which is real.
-          AddMenuRow("Title menu", "system", new RelayCommand(() =>
-          {
-            HideMediaMenu();
-            ShowMenu();
-          }));
+          // No title menu row either: a title's own dialog is asked of the title - a right press on its
+          // tile, or the info key - and not of the screen's rail, which speaks about the shelf.
           return;
       }
     }
