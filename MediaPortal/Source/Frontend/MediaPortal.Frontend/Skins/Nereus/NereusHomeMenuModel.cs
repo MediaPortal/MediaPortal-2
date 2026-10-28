@@ -15,18 +15,29 @@ namespace MediaPortal.Frontend.Skins.Nereus
     /// of - the shortcuts are vectors now, so <c>MediaMenu/genre</c> is answered out of the skin's <c>.svg</c>
     /// files, and a face that ever wants a bitmap again answers the same name out of its pictures.
     /// </param>
-    public NereusHomeShortcut(string label, string iconName, string? browseBy = null, string? screenKey = null)
+    public NereusHomeShortcut(string label, string iconName, string? browseBy = null, string? screenKey = null,
+        bool refresh = false)
     {
       Label = label;
       IconName = iconName;
       BrowseBy = browseBy;
       ScreenKey = screenKey;
+      Refreshes = refresh;
     }
 
     public string Label { get; }
     public string IconName { get; }
     public string? BrowseBy { get; }
     public string? ScreenKey { get; }
+
+    /// <summary>
+    /// Whether pressing this shortcut throws the wall's information away and asks for it again, rather than
+    /// opening a screen. The reference's news and weather tiles had exactly this shortcut (their home contents
+    /// re-read their feeds and their forecast on it), and it stays on the wall rather than leaving for the
+    /// full screen: a viewer standing on the forecast who wants today's temperature again should not have to
+    /// walk through a screen and back.
+    /// </summary>
+    public bool Refreshes { get; }
   }
 
   /// <summary>
@@ -98,13 +109,13 @@ namespace MediaPortal.Frontend.Skins.Nereus
           [Guid.Parse("bb49a591-7705-408f-8177-45d633fdfad0")] = new[]
           {
             new NereusHomeShortcut("Setup", "MediaMenu/setup", screenKey: "news"),
-            new NereusHomeShortcut("Refresh", "MediaMenu/refresh", screenKey: "news")
+            new NereusHomeShortcut("Refresh", "MediaMenu/refresh", screenKey: "news", refresh: true)
           },
           [Guid.Parse("e34fdb62-1f3e-4aa9-8a61-d143e0af77b5")] = new[]
           {
             new NereusHomeShortcut("Location", "MediaMenu/location", screenKey: "weather"),
             new NereusHomeShortcut("Setup", "MediaMenu/setup", screenKey: "weather"),
-            new NereusHomeShortcut("Refresh", "MediaMenu/refresh", screenKey: "weather")
+            new NereusHomeShortcut("Refresh", "MediaMenu/refresh", screenKey: "weather", refresh: true)
           }
         };
 

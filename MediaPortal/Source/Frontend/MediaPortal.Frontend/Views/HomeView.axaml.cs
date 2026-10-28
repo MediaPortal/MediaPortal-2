@@ -1750,6 +1750,15 @@ namespace MediaPortal.Frontend.Views
       if (tile.Shortcut is not NereusHomeShortcut shortcut)
         return;
 
+      // The news and weather walls' own shortcut: it re-reads where the viewer stands rather than opening a
+      // screen, because the reference's home contents asked their feeds and their forecast on this press - a
+      // viewer who wants today's temperature again should not have to walk through a screen and back.
+      if (shortcut.Refreshes)
+      {
+        _home.RefreshInfoWall();
+        return;
+      }
+
       if (shortcut.BrowseBy != null && _home.SelectedEntry?.Section is HomeSection section)
       {
         BrowseCategory? category = BrowseViewModel.CATEGORIES.FirstOrDefault(candidate =>

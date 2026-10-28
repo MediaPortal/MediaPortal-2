@@ -1,8 +1,10 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        xmlns:api="using:MediaPortal.Frontend.Api"
         xmlns:theming="using:MediaPortal.Frontend.Theming"
         xmlns:views="using:MediaPortal.Frontend.Views"
+        xmlns:conv="using:Avalonia.Data.Converters"
         xmlns:lg="using:LiquidGlassAvaloniaUI"
         x:Class="MediaPortal.Frontend.Views.HomeView"
         x:DataType="vm:HomeViewModel"
@@ -431,6 +433,247 @@
                                              MaxLines="2"/>
                                 </Border>
                               </Grid>
+                            </Border>
+                            <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
+                          </Panel>
+                        </Button>
+                        </Border>
+
+                        <!-- The weather and news card. It answers a standing viewer exactly like a cover and a
+                             plaque on the same wall do - it takes the same shared class, comes up to full light,
+                             and lights the same edge - but it says words rather than wearing a picture: the
+                             reference's own weather and news templates were dressed like media tiles, and a
+                             press of one asked nothing of anybody, so the card keeps Focusable and a click
+                             that opens nothing. Its ground is the plaque's raised face rather than a cover's
+                             dark plate, because a card is written on, not looked through. -->
+                        <Border Classes="home-tile-shadow" IsVisible="{Binding IsCard}">
+                        <Button Classes="nereus-card-tile nereus-content-tile"
+                                Width="{Binding Width}"
+                                Height="{Binding Height}"
+                                Focusable="{Binding IsFocusable}"
+                                Tag="{Binding}"
+                                GotFocus="OnNereusTileGotFocus"
+                                Click="OnNereusTileClick">
+                          <Panel>
+                            <Border Classes="card-tile-face" ClipToBounds="True">
+                              <Panel>
+                                <!-- Today, as the design redrew it: the temperature biggest, the sky's word
+                                     under it, the picture centred, the place under the picture, and every
+                                     other reading the endpoint gave in a fact list. The air rides as a small
+                                     pill in the corner when it came in. No gradient anywhere - the name of
+                                     the place stands in the open, on the same card the numbers stand on. -->
+                                <Panel IsVisible="{Binding Card.IsToday}">
+                                  <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Top"
+                                              Margin="25,7,25,0" Spacing="0">
+                                    <TextBlock Classes="card-tile-big" Text="{Binding Card.BigText}"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Classes="card-tile-sub" Text="{Binding Card.Sub}"
+                                               FontSize="18" HorizontalAlignment="Center"/>
+                                    <Image Classes="home-tile-art"
+                                           Source="{Binding Card.IconName, Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter='{}{0}'}"
+                                           Stretch="Uniform" Width="200" Height="200" Margin="0,2,0,0"
+                                           HorizontalAlignment="Center"/>
+                                    <TextBlock Classes="home-tile-caption-title"
+                                               Text="{Binding Card.Label}" FontSize="24" FontWeight="SemiBold"
+                                               HorizontalAlignment="Center" Margin="0,6,0,0"
+                                               TextWrapping="Wrap" TextAlignment="Center"/>
+                                    <ItemsControl ItemsSource="{Binding Card.Facts}" Margin="0,16,0,0">
+                                      <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:CardFact">
+                                          <!-- One line of details, and above it the hairline the mockup drew
+                                             over every row - the rows hang under each other like slats. -->
+                                          <Border BorderBrush="#12FFFFFF" BorderThickness="0,1,0,0">
+                                            <Grid ColumnDefinitions="*,Auto" Margin="0,6">
+                                            <TextBlock Grid.Column="0" Text="{Binding Name}" FontSize="18"
+                                                       Opacity="0.6"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding Value}" FontSize="18"/>
+                                            </Grid>
+                                          </Border>
+                                        </DataTemplate>
+                                      </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                  </StackPanel>
+                                </Panel>
+
+                                <!-- The hours: a legend of its own, then every hour standing in a column
+                                     with its name and picture, then the chart - red temperature, light blue
+                                     chance, light blue millimetre bars - drawn by its own control. The
+                                     control's columns and this row's share their centres because both cut
+                                     the width into the same equal columns. -->
+                                <DockPanel Margin="14,10,14,6" IsVisible="{Binding Card.IsChart}">
+                                  <StackPanel Orientation="Horizontal" Spacing="18" DockPanel.Dock="Top"
+                                              HorizontalAlignment="Right" Margin="0,0,0,4">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                      <Border Width="18" Height="6" Background="#ff6a55" CornerRadius="3"
+                                              VerticalAlignment="Center"/>
+                                      <TextBlock Text="temperature" FontSize="18" Opacity="0.8"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                      <Border Width="18" Height="6" Background="#7fd0f7" CornerRadius="3"
+                                              VerticalAlignment="Center"/>
+                                      <TextBlock Text="rain chance" FontSize="18" Opacity="0.8"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                      <Border Width="14" Height="10" Background="#7fd0f7" CornerRadius="2"
+                                              VerticalAlignment="Center"/>
+                                      <TextBlock Text="mm" FontSize="18" Opacity="0.8"/>
+                                    </StackPanel>
+                                  </StackPanel>
+                                  <ItemsControl ItemsSource="{Binding Card.Slots}" DockPanel.Dock="Top">
+                                    <ItemsControl.ItemsPanel>
+                                      <ItemsPanelTemplate>
+                                        <UniformGrid Rows="1"/>
+                                      </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                      <DataTemplate x:DataType="api:WeatherSlot">
+                                        <StackPanel Spacing="2" HorizontalAlignment="Center">
+                                          <TextBlock Text="{Binding Time, StringFormat=\{0:HH:mm\}}"
+                                                     FontSize="30" FontWeight="SemiBold"
+                                                     HorizontalAlignment="Center"/>
+                                          <Image Source="{Binding Icon, Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter='Weather/128x128/{0}'}"
+                                                 Width="92" Height="92" Stretch="Uniform"/>
+                                        </StackPanel>
+                                      </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                  </ItemsControl>
+                                  <views:WeatherChartControl Slots="{Binding Card.Slots}"/>
+                                </DockPanel>
+
+                                <!-- A day of the forecast, narrow as the design asked: the day's name, its
+                                     picture between name and numbers, the swing in one line, and the rain
+                                     in two of its own - how likely, how much. -->
+                                <StackPanel IsVisible="{Binding Card.IsDayFace}" Spacing="6"
+                                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                                            Margin="8,6,8,6">
+                                  <TextBlock Classes="home-tile-caption-title" Text="{Binding Card.Label}"
+                                             FontSize="24" FontWeight="SemiBold"
+                                             HorizontalAlignment="Center" TextTrimming="CharacterEllipsis"
+                                             MaxLines="1"/>
+                                  <Image Classes="home-tile-art"
+                                         Source="{Binding Card.IconName, Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter='{}{0}'}"
+                                         Stretch="Uniform" Width="110" Height="110"
+                                         HorizontalAlignment="Center"/>
+                                  <TextBlock Text="{Binding Card.Detail}" FontSize="22"
+                                             HorizontalAlignment="Center"/>
+                                  <!-- Three readings, three rows: the hairlines between temperature, chance,
+                                       and millimetres are the same slats the current card's facts hang under. -->
+                                  <Border BorderBrush="#12FFFFFF" BorderThickness="0,1,0,0">
+                                    <TextBlock Text="{Binding Card.Sub}" FontSize="20" Opacity="0.85"
+                                               TextAlignment="Center" HorizontalAlignment="Center"
+                                               Margin="0,5,0,0"/>
+                                  </Border>
+                                  <Border BorderBrush="#12FFFFFF" BorderThickness="0,1,0,0">
+                                    <TextBlock Text="{Binding Card.Sub2}" FontSize="20" Opacity="0.85"
+                                               TextAlignment="Center" HorizontalAlignment="Center"
+                                               Margin="0,5,0,0"/>
+                                  </Border>
+                                </StackPanel>
+
+                                <!-- Air and radar on one card: the rain picture of the region above (asked
+                                     of the internet by the picture itself), the index as a huge figure in
+                                     its own colour under the caption, the named pollutants in a fact list,
+                                     and the card's name plain at the bottom - no gradient, as everywhere
+                                     on this wall. -->
+                                <DockPanel Margin="20,18,20,14" IsVisible="{Binding Card.IsAir}">
+                                  <StackPanel DockPanel.Dock="Bottom" Margin="0,8,0,0">
+                                    <TextBlock Classes="home-tile-caption-title"
+                                               Text="{Binding Card.Label}" FontSize="15" FontWeight="SemiBold"/>
+                                    <TextBlock Classes="card-tile-detail" Text="{Binding Card.Detail}"
+                                               TextAlignment="Left" FontSize="13" Opacity="0.75"
+                                               TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                  </StackPanel>
+                                  <Border DockPanel.Dock="Top" Height="280" CornerRadius="10"
+                                          ClipToBounds="True" Background="#FF1D2733"
+                                          IsVisible="{Binding Card.HasRadar}">
+                                    <views:HttpImage Url="{Binding Card.RadarUrl}" Stretch="UniformToFill"/>
+                                  </Border>
+                                  <StackPanel DockPanel.Dock="Top" Margin="0,8,0,0"
+                                             IsVisible="{Binding Card.HasRadar}">
+                                    <TextBlock Text="Rain radar" FontSize="15" FontWeight="SemiBold"/>
+                                    <TextBlock Text="now &#183; refreshes with the wall" FontSize="13"
+                                               Opacity="0.7"/>
+                                  </StackPanel>
+                                  <StackPanel Margin="0,14,0,0" Spacing="2"
+                                              IsVisible="{Binding Card.Air, Converter={x:Static conv:ObjectConverters.IsNotNull}}">
+                                    <StackPanel Orientation="Horizontal" Spacing="14">
+                                      <TextBlock Text="{Binding Card.AqiNumber}" FontSize="90"
+                                                 FontWeight="SemiBold" Foreground="{Binding Card.AqiBrush}"
+                                                 VerticalAlignment="Center"/>
+                                      <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Card.AqiGrade}" FontSize="24"/>
+                                        <TextBlock Text="air quality index" FontSize="14" Opacity="0.6"/>
+                                      </StackPanel>
+                                    </StackPanel>
+                                    <ItemsControl ItemsSource="{Binding Card.Facts}" Margin="0,10,0,0">
+                                      <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:CardFact">
+                                          <Grid ColumnDefinitions="*,Auto" Margin="0,3">
+                                            <TextBlock Grid.Column="0" Text="{Binding Name}" FontSize="15"
+                                                       Opacity="0.6"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding Value}" FontSize="15"/>
+                                          </Grid>
+                                        </DataTemplate>
+                                      </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                  </StackPanel>
+                                </DockPanel>
+
+                                <!-- Every other card - the news feeds and headlines - still wears the face
+                                     it always wore: the big number top left, the picture's place, the news
+                                     mark, and the name in the shared fade. -->
+                                <Panel IsVisible="{Binding Card.IsPlain}">
+                                <!-- The big number and its small lines, top left, as the reference's today-card
+                                     drew them. A card without a big number leaves this whole stack empty - an
+                                     empty TextBlock asks for no room, so no row has to be hidden by hand. -->
+                                <StackPanel Orientation="Vertical" Spacing="4" Margin="22,18,110,0"
+                                            HorizontalAlignment="Left" VerticalAlignment="Top">
+                                  <TextBlock Classes="card-tile-big" Text="{Binding Card.BigText}"/>
+                                  <TextBlock Classes="card-tile-sub" Text="{Binding Card.Sub}"/>
+                                </StackPanel>
+                                <!-- The sky itself, right of the numbers - the reference drew today's picture
+                                     three hundred wide at 1080; off the wall's own scale here. -->
+                                <Image Classes="home-tile-art"
+                                       Source="{Binding Card.IconName, Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter='{}{0}'}"
+                                       Stretch="Uniform" MaxWidth="220" MaxHeight="220"
+                                       Margin="0,30,26,0"
+                                       HorizontalAlignment="Right" VerticalAlignment="Top"
+                                       IsVisible="{Binding Card.HasRightIcon}"/>
+                                <!-- A day's or a feed's picture, alone in the middle above the title band -
+                                     the reference's BigIcon measure; the margins leave the band's room free. -->
+                                <Image Classes="home-tile-art"
+                                       Source="{Binding Card.IconName, Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter='{}{0}'}"
+                                       Stretch="Uniform"
+                                       Margin="24,24,24,90"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       IsVisible="{Binding Card.HasCenteredIcon}"/>
+                                <!-- The news mark where a thumbnail would stand, top right, as the reference's
+                                     TopNews template stamped it. -->
+                                <Image Source="{Binding Card.BadgeName, Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter='{}{0}'}"
+                                       Width="40" Height="40" Stretch="Uniform"
+                                       Margin="0,10,10,0"
+                                       HorizontalAlignment="Right" VerticalAlignment="Top"
+                                       IsVisible="{Binding Card.HasBadge}"/>
+                                <!-- The card's name in the very same fade a cover's title stands in, with the
+                                     small line the reference's templates carried under the name. -->
+                                <Border Classes="home-tile-caption"
+                                        VerticalAlignment="Bottom"
+                                        Padding="8,5,8,10">
+                                  <StackPanel Orientation="Vertical">
+                                    <TextBlock Classes="card-tile-detail"
+                                               Text="{Binding Card.Detail}"
+                                               TextTrimming="CharacterEllipsis"
+                                               MaxLines="2"/>
+                                    <TextBlock Classes="home-tile-caption-title"
+                                               Text="{Binding Label}"
+                                               FontSize="15"
+                                               FontWeight="SemiBold"
+                                               TextTrimming="CharacterEllipsis"
+                                               MaxLines="2"/>
+                                  </StackPanel>
+                                </Border>
+                                </Panel>
+                              </Panel>
                             </Border>
                             <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
                           </Panel>

@@ -266,9 +266,17 @@ namespace MediaPortal.Frontend
         CrashLog.Write(args.Exception, false);
       };
 
-      AppBuilder app = BuildAvaloniaApp(() => new App(new HomeViewModel(client, pictures), player, settings, null,
-          serverMayBeChanged, serverMayBeChanged && !settings.HasUsableUrl, playFile, playSeconds, shotPath,
-          playStart, theme));
+      AppBuilder app = BuildAvaloniaApp(() =>
+      {
+        // The two information walls - the weather tile and the news tile - read the internet through the same
+        // readers their full screens read it, and keep their answers fresh on the old plugins' own quarter
+        // of an hour, watched quietly in the background rather than waited on in front of the screen.
+        HomeViewModel home = new HomeViewModel(client, pictures);
+        HomeInfoWalls.Attach(home);
+        return new App(home, player, settings, null,
+            serverMayBeChanged, serverMayBeChanged && !settings.HasUsableUrl, playFile, playSeconds, shotPath,
+            playStart, theme);
+      });
       return app.StartWithClassicDesktopLifetime(args);
     }
 

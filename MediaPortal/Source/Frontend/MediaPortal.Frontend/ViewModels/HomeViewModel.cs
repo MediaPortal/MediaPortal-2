@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -54,6 +55,17 @@ namespace MediaPortal.Frontend.ViewModels
     private CancellationTokenSource? _pendingContentSelection;
     private CancellationTokenSource? _contentLoadCancellation;
     private readonly NereusHomeMenuModel _nereusMenu = new NereusHomeMenuModel();
+
+    // The two walls the front end fills from the internet rather than from the server, and how old each one's
+    // answer is. The quarter of an hour is the old news plugin's own collector interval: the plugin read its
+    // feeds on a timer and showed whatever the last round left, so a viewer never waited on the internet for
+    // the screen - and here, walking off a tile and back onto it does not ask the internet twice either.
+    private WeatherWallBrief? _weatherBrief;
+    private NewsWallBrief? _newsBrief;
+    private long _weatherBriefAt; // Environment.TickCount64 of the last ask; 0 for "never asked"
+    private long _newsBriefAt;
+    private System.Timers.Timer? _infoWatch;
+    private int _infoReading;
 
     /// <summary>
     /// How long the highlight has to stand on one tile before its wall is put up - the reference's own
@@ -375,6 +387,42 @@ namespace MediaPortal.Frontend.ViewModels
     /// places, so the tile in the rail and the head over the mosaic say the same word.
     /// </summary>
     public const string OTHER_PLUGINS_HEADING = "Others";
+
+    /// <summary>The reference's News home content action id (<c>HomeMenuModel.cs:132</c>).</summary>
+    public static readonly Guid NEWS_ACTION_ID = Guid.Parse("bb49a591-7705-408f-8177-45d633fdfad0");
+
+    /// <summary>The reference's Weather home content action id (<c>HomeMenuModel.cs:133</c>).</summary>
+    public static readonly Guid WEATHER_ACTION_ID = Guid.Parse("e34fdb62-1f3e-4aa9-8a61-d143e0af77b5");
+
+    /// <summary>
+    /// How long a weather or news answer stays good before the wall asks again, and how often the watch asks on
+    /// its own - the old news plugin's collector interval, which the reference's living rooms let run quietly in
+    /// the background so the screen was never the thing waiting on the internet.
+    /// </summary>
+    public const long INFO_WALL_REFRESH_MS = 15 * 60 * 1000;
+
+    /// <summary>
+    /// Where today's weather comes from. Set by the application to one that reads OpenWeatherMap; left null by
+    /// the tests and by a run that has no weather, in which case the weather tile keeps its help note rather
+    /// than promising a sky it cannot read. Read on the thread that asked for the wall, so it can be a plain
+    /// delegate and the view model needs nothing of timers or Avalonia to be tested with it.
+    /// </summary>
+    public Func<CancellationToken, Task<WeatherWallBrief?>>? WeatherWallReader { get; set; }
+
+    /// <summary>Where the feeds and their newest headlines come from; the same arrangement as <see cref="WeatherWallReader"/>.</summary>
+    public Func<CancellationToken, Task<NewsWallBrief?>>? NewsWallReader { get; set; }
+
+    /// <summary>Whether this tile is the weather one - the entry whose wall is a sky rather than a shelf.</summary>
+    public static bool IsWeatherEntry(MainMenuEntry? entry)
+    {
+      return entry != null && Guid.TryParse(entry.HomeImageId, out Guid actionId) && actionId == WEATHER_ACTION_ID;
+    }
+
+    /// <summary>Whether this tile is the news one.</summary>
+    public static bool IsNewsEntry(MainMenuEntry? entry)
+    {
+      return entry != null && Guid.TryParse(entry.HomeImageId, out Guid actionId) && actionId == NEWS_ACTION_ID;
+    }
 
     /// <summary>
     /// Where the content begins: the rail as this panel made it, and the gap the reference leaves beside it.
@@ -1069,6 +1117,14 @@ namespace MediaPortal.Frontend.ViewModels
         wall.Add(shortcutGroup);
       }
 
+      // Weather and news are the two tiles whose content was never the server's, and the reference gave each of
+      // them a home content of its own instead of media lists: the weather shows the sky right now and the days
+      // ahead, the news shows its feeds and their newest headlines. Those walls are built here, out of the
+      // front end's own internet readers rather than of any shelf - and by the reference's own HasItems rule,
+      // an answer with nothing in it builds no band at all, leaving the shortcuts and the help note behind.
+      if (await AddInfoWallAsync(entry, wall, cancellation))
+        return;
+
       string[] mediaListSettings = (WornSkinSettingsOrNull() as NereusSkinSettings)?.HomeMenuActionMediaLists
           ?? Array.Empty<string>();
       IReadOnlyList<HomeContentList> lists = HomeContentList.For(entry, mediaListSettings);
@@ -1213,6 +1269,360 @@ namespace MediaPortal.Frontend.ViewModels
       HomeContentGroup group = new HomeContentGroup(failed.Heading, failed.Layout, failed.Width, 1);
       groups[askedFor] = group;
       rows.Add(HomeRow.Heading(failed.Heading));
+    }
+
+    /// <summary>
+    /// Puts the weather's or the news wall's bands onto the wall being read, from the two briefs the front end
+    /// reads off the internet itself. Whether the entry is one of those two, whether anything came back, and
+    /// whether the bands have grown at all is answered here too - the reference's HasItems rule ("a list
+    /// without items is not shown") holds for these walls as it does for the shelves, so an empty answer
+    /// leaves no band and the help note gets its turn.
+    /// </summary>
+    /// <returns>Whether this entry's wall is an information wall now - a media reading would be nonsense.</returns>
+    private async Task<bool> AddInfoWallAsync(MainMenuEntry entry, List<HomeContentGroup> wall,
+        CancellationToken cancellation)
+    {
+      if (IsWeatherEntry(entry))
+      {
+        WeatherWallBrief? brief = await WeatherBriefAsync(cancellation);
+        if (brief == null)
+          return false;
+
+        bool any = false;
+        if (brief.Now != null)
+        {
+          // Today's weather takes a band of its own - one narrow card, the temperature the biggest number on
+          // it, the sky's picture under it, the place under that, and the rest of the sky written as a fact
+          // list. As designed: narrow as its content allows.
+          HomeContentGroup today = new HomeContentGroup("Current weather", "card1", 368, 1);
+          today.AddCard(TodayCard(brief));
+          wall.Add(today);
+          any = true;
+        }
+
+        IReadOnlyList<WeatherSlot> slots = brief.Slots ?? Array.Empty<WeatherSlot>();
+        if (slots.Count >= 2)
+        {
+          // The hours of the next two days as one chart: temperature in red and rain chance in light blue
+          // above, the millimetres as bars below. A line needs two hours at least; one alone draws nothing.
+          HomeContentGroup chart = new HomeContentGroup("Today", "cardchart", 980, 1);
+          chart.AddCard(new HomeInfoCard("Today", kind: "chart", slots: slots));
+          wall.Add(chart);
+          any = true;
+        }
+
+        IReadOnlyList<WeatherDay> days = brief.Days ?? Array.Empty<WeatherDay>();
+        if (days.Count > 0)
+        {
+          // The days as designed: two columns of two, each day an upright of its own - name, picture between
+          // name and numbers, chance and millimetres each in their own line. A fifth day has no place, the
+          // same way a twentieth leftover plugin has no square in "Others".
+          int places = Math.Min(4, days.Count);
+          HomeContentGroup forecast = new HomeContentGroup("Forecast", "cardday4", 410, places);
+          for (int i = 0; i < places; i++)
+            forecast.AddCard(DayCard(days[i], brief.Metric));
+          wall.Add(forecast);
+          any = true;
+        }
+
+        if (brief.Air != null || brief.RadarUrl != null)
+        {
+          // Air and radar share one card as designed: the rain picture above, the air the place breathes
+          // under it. Either half alone still stands - the radar answers without an air reading and the
+          // numbers without a picture.
+          HomeContentGroup air = new HomeContentGroup("Air & radar", "card1", 460, 1);
+          air.AddCard(AirCard(brief));
+          wall.Add(air);
+          any = true;
+        }
+
+        return any;
+      }
+
+      if (IsNewsEntry(entry))
+      {
+        NewsWallBrief? brief = await NewsBriefAsync(cancellation);
+        if (brief == null)
+          return false;
+
+        bool any = false;
+        if (brief.Feeds.Count > 0)
+        {
+          // The feeds stand in the reference's VeryNarrow column - three squares across, three down.
+          int places = Math.Min(9, brief.Feeds.Count);
+          HomeContentGroup feeds = new HomeContentGroup("Feeds", "card9", 400, places);
+          for (int i = 0; i < places; i++)
+            feeds.AddCard(FeedCard(brief.Feeds[i]));
+          wall.Add(feeds);
+          any = true;
+        }
+
+        if (brief.Headlines.Count > 0)
+        {
+          // Top news takes the same nineteen-place mosaic the leftover plugins stand on, and for the same
+          // reason the reference gives it: its TopNews hands the whole list to that one fixed grid, so the
+          // first headline takes the big square, the next ones fill the places in the order the grid names,
+          // and a twentieth has no square and no complaint.
+          int places = Math.Min(HomeContentGroup.PLUGINS_BAND_SLOTS, brief.Headlines.Count);
+          HomeContentGroup top = new HomeContentGroup("Top news", HomeContentGroup.PLUGINS_LAYOUT, 1500, places);
+          for (int i = 0; i < places; i++)
+            top.AddCard(HeadlineCard(brief.Headlines[i]));
+          wall.Add(top);
+          any = true;
+        }
+
+        return any;
+      }
+
+      return false;
+    }
+
+    /// <summary>
+    /// The weather the wall shows: what the last read left, while it is younger than a quarter of an hour,
+    /// and otherwise whatever the reader answers now. A service that does not answer keeps what was held
+    /// before - an old sky beats no sky - and marks itself asked, so a dead endpoint is asked again on the
+    /// watch's beat rather than on every step onto the tile.
+    /// </summary>
+    private async Task<WeatherWallBrief?> WeatherBriefAsync(CancellationToken cancellation)
+    {
+      WeatherWallBrief? held = _weatherBrief;
+      Func<CancellationToken, Task<WeatherWallBrief?>>? reader = WeatherWallReader;
+      if (reader == null || (held != null && IsBriefFresh(Volatile.Read(ref _weatherBriefAt))))
+        return held;
+
+      try
+      {
+        WeatherWallBrief? brief = await reader(cancellation);
+        Volatile.Write(ref _weatherBriefAt, Environment.TickCount64);
+        if (brief != null)
+          _weatherBrief = brief;
+        return _weatherBrief;
+      }
+      catch (OperationCanceledException)
+      {
+        // Somebody walked on. Nothing is marked asked - the read that follows asks again on its own - and
+        // the answer is what was held, which the caller's generation check will throw away anyway.
+        return held;
+      }
+      catch (Exception)
+      {
+        Volatile.Write(ref _weatherBriefAt, Environment.TickCount64);
+        return held;
+      }
+    }
+
+    /// <summary>The news standing of <see cref="WeatherBriefAsync"/>.</summary>
+    private async Task<NewsWallBrief?> NewsBriefAsync(CancellationToken cancellation)
+    {
+      NewsWallBrief? held = _newsBrief;
+      Func<CancellationToken, Task<NewsWallBrief?>>? reader = NewsWallReader;
+      if (reader == null || (held != null && IsBriefFresh(Volatile.Read(ref _newsBriefAt))))
+        return held;
+
+      try
+      {
+        NewsWallBrief? brief = await reader(cancellation);
+        Volatile.Write(ref _newsBriefAt, Environment.TickCount64);
+        if (brief != null)
+          _newsBrief = brief;
+        return _newsBrief;
+      }
+      catch (OperationCanceledException)
+      {
+        return held;
+      }
+      catch (Exception)
+      {
+        Volatile.Write(ref _newsBriefAt, Environment.TickCount64);
+        return held;
+      }
+    }
+
+    private static bool IsBriefFresh(long askedAtTickCount)
+    {
+      return askedAtTickCount != 0 && Environment.TickCount64 - askedAtTickCount < INFO_WALL_REFRESH_MS;
+    }
+
+    /// <summary>
+    /// Today's card as the design redrew it: the temperature biggest, the sky's own word under it, the
+    /// picture centred beneath that, the place under the picture, and everything else the endpoint answers
+    /// for the moment written as a fact list - feels-like, damp, pressure, wind (with its gusts when it has
+    /// any), the sun's two times, sight, clouds, and how much has fallen. The air's grade rides as a small
+    /// pill in the corner when it came in at all.
+    /// </summary>
+    private static HomeInfoCard TodayCard(WeatherWallBrief brief)
+    {
+      WeatherNow now = brief.Now!;
+      NumberFormatInfo numbers = CultureInfo.CurrentCulture.NumberFormat;
+      string degree = brief.Metric ? "C" : "F";
+
+      List<CardFact> facts = new List<CardFact>();
+      facts.Add(new CardFact("feels like", now.FeelsLike.ToString("0", numbers) + "°" + degree));
+      facts.Add(new CardFact("humidity", now.Humidity + " %"));
+      if (now.Pressure > 0)
+        facts.Add(new CardFact("pressure", now.Pressure + " hPa"));
+      string wind = now.WindDirection + " " + now.WindSpeed.ToString("0.0", numbers)
+          + (brief.Metric ? " m/s" : " mph");
+      if (now.WindGust > 0)
+        wind += " (gust " + now.WindGust.ToString("0", numbers) + ")";
+      facts.Add(new CardFact("wind", wind));
+      if (!string.IsNullOrEmpty(now.Sunrise) || !string.IsNullOrEmpty(now.Sunset))
+        facts.Add(new CardFact("sun", "\u2191 " + now.Sunrise + "  \u2193 " + now.Sunset));
+      if (now.VisibilityMeters > 0)
+        facts.Add(new CardFact("visibility", (brief.Metric
+            ? now.VisibilityMeters / 1000.0
+            : now.VisibilityMeters / 1609.34).ToString("0.#", numbers) + (brief.Metric ? " km" : " mi")));
+      facts.Add(new CardFact("clouds", now.CloudsPercent + " %"));
+      if (brief.Slots != null && brief.Slots.Count > 0)
+        facts.Add(new CardFact("rain 3 h", brief.Slots[0].PrecipMm.ToString("0.#", numbers) + " mm"));
+
+      return new HomeInfoCard(brief.Place,
+          bigText: now.Temp.ToString("0", numbers) + "°" + degree,
+          sub: now.Description,
+          iconName: now.Icon == null ? null : "Weather/128x128/" + now.Icon,
+          kind: "today",
+          facts: facts,
+          air: brief.Air);
+    }
+
+    /// <summary>
+    /// One day of the forecast as the design redrew its upright: the day's name, its high and low in one
+    /// line, and precipitation in two of its own - how likely and how much, the millimetres being what the
+    /// free endpoint has answered since the three-hourly entries carry them.
+    /// </summary>
+    private static HomeInfoCard DayCard(WeatherDay day, bool metric)
+    {
+      NumberFormatInfo numbers = CultureInfo.CurrentCulture.NumberFormat;
+      string degree = metric ? "C" : "F";
+      return new HomeInfoCard(
+          // The weekday in the same English the whole card speaks - the wall's words are English by design,
+          // and "Mittwoch" among "feels like" and "rain chance" reads like two skins on one wall.
+          day.Date.ToString("dddd", CultureInfo.InvariantCulture.DateTimeFormat),
+          detail: day.High.ToString("0", numbers) + "°" + degree + " / "
+              + day.Low.ToString("0", numbers) + "°" + degree,
+          // Chance and millimetres in two properties of their own, so the card can draw a hairline between
+          // the temperature, the chance, and the millimetres - three readings, three rows, two lines.
+          sub: Math.Round(day.PrecipitationChance * 100).ToString("0", numbers) + " %",
+          sub2: day.PrecipitationMm.ToString("0.#", numbers) + " mm",
+          iconName: day.Icon == null ? null : "Weather/128x128/" + day.Icon,
+          kind: "day");
+    }
+
+    /// <summary>
+    /// The air and the radar on one card: the rain picture of the region above, the index as a huge figure
+    /// in its own colour under it, and the four named pollutants as a fact list. Whichever half did not
+    /// arrive simply leaves its room empty.
+    /// </summary>
+    private static HomeInfoCard AirCard(WeatherWallBrief brief)
+    {
+      List<CardFact> facts = new List<CardFact>();
+      WeatherAir? air = brief.Air;
+      if (air != null)
+      {
+        NumberFormatInfo numbers = CultureInfo.CurrentCulture.NumberFormat;
+        facts.Add(new CardFact("PM2.5", air.Pm25.ToString("0.#", numbers) + " \u00B5g/m\u00B3"));
+        facts.Add(new CardFact("PM10", air.Pm10.ToString("0.#", numbers) + " \u00B5g/m\u00B3"));
+        facts.Add(new CardFact("NO\u2082", air.No2.ToString("0.#", numbers) + " \u00B5g/m\u00B3"));
+        facts.Add(new CardFact("O\u2083", air.O3.ToString("0.#", numbers) + " \u00B5g/m\u00B3"));
+      }
+
+      return new HomeInfoCard("Air quality",
+          detail: brief.Place,
+          kind: "air",
+          facts: facts,
+          air: air,
+          radarUrl: brief.RadarUrl);
+    }
+
+    /// <summary>
+    /// One feed's square: its name, how many headlines it handed over (or the reason it did not), and the
+    /// news mark in its middle - the reference's <c>FeedDataTemplate</c> said the same three things.
+    /// </summary>
+    private static HomeInfoCard FeedCard(FeedWallRow feed)
+    {
+      return new HomeInfoCard(feed.Name,
+          detail: feed.Error ?? feed.HeadlineCount + (feed.HeadlineCount == 1 ? " headline" : " headlines"),
+          iconName: "HomeContentIcons/news");
+    }
+
+    /// <summary>
+    /// One headline, as the reference's <c>TopNewsDataTemplate</c> drew the case without a picture: the words
+    /// themselves, which feed they came out of and when they were published, and the news mark stamped into
+    /// the card's top right corner in place of a thumbnail.
+    /// </summary>
+    private static HomeInfoCard HeadlineCard(NewsHeadline headline)
+    {
+      string when = headline.Published?.ToString("ddd d MMM", CultureInfo.CurrentCulture.DateTimeFormat) ?? "";
+      return new HomeInfoCard(headline.Title,
+          detail: when.Length > 0 ? headline.FeedName + " · " + when : headline.FeedName,
+          badgeName: "HomeContentIcons/news");
+    }
+
+    /// <summary>
+    /// Starts the quarter-of-an-hour watch that keeps the two briefs fresh while the application lives - what
+    /// the old news plugin's collector did on exactly this beat. Ask for it once, after the readers are set;
+    /// without readers there is nothing to keep fresh and nothing starts.
+    /// </summary>
+    public void StartInfoWallWatch()
+    {
+      if (_infoWatch != null || (WeatherWallReader == null && NewsWallReader == null))
+        return;
+
+      System.Timers.Timer watch = new System.Timers.Timer(INFO_WALL_REFRESH_MS) { AutoReset = true };
+      watch.Elapsed += delegate { _ = RenewInfoWallsAsync(); };
+      watch.Start();
+      _infoWatch = watch;
+    }
+
+    /// <summary>
+    /// The watch's round: ask whatever has aged out into the cache, and nothing else. The standing wall is not
+    /// rebuilt under the viewer's eyes - the collector refreshed what the next visit would show, and that is
+    /// what this keeps - while the Refresh shortcut is the one that throws the cache away and says so on the
+    /// screen, because there the viewer asked to see the answer.
+    /// </summary>
+    private async Task RenewInfoWallsAsync()
+    {
+      if (Interlocked.Exchange(ref _infoReading, 1) == 1)
+        return;
+
+      try
+      {
+        await WeatherBriefAsync(CancellationToken.None);
+        await NewsBriefAsync(CancellationToken.None);
+      }
+      finally
+      {
+        Volatile.Write(ref _infoReading, 0);
+      }
+    }
+
+    /// <summary>
+    /// What the news and weather walls' Refresh shortcut does: throw away what was held, and put the standing
+    /// wall up again through the ordinary door - down out of its light, read afresh, back up. An ordinary step
+    /// onto the tile would answer from the cache; this is the one that does not.
+    /// </summary>
+    public void RefreshInfoWall()
+    {
+      MainMenuEntry? entry = SelectedEntry;
+      if (entry == null)
+        return;
+
+      if (IsWeatherEntry(entry))
+      {
+        _weatherBrief = null;
+        Volatile.Write(ref _weatherBriefAt, 0);
+      }
+      else if (IsNewsEntry(entry))
+      {
+        _newsBrief = null;
+        Volatile.Write(ref _newsBriefAt, 0);
+      }
+      else
+      {
+        return;
+      }
+
+      QueueContentForSelection(entry);
     }
 
     private void QueueContentForSelection(MainMenuEntry? entry)

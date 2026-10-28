@@ -44,7 +44,9 @@ namespace MediaPortal.Frontend.Api
   /// by night as the city's own clock says whether the sun is up.
   /// </summary>
   public record WeatherNow(string Description, double Temp, double FeelsLike, int Humidity, int Pressure,
-      double WindSpeed, string WindDirection, string? Icon = null);
+      double WindSpeed, string WindDirection, string? Icon = null,
+      int VisibilityMeters = 0, int CloudsPercent = 0, double WindGust = 0,
+      string? Sunrise = null, string? Sunset = null);
 
   /// <summary>
   /// One day of the forecast. The description is the day's midday entry, falling back to its first: the free
@@ -53,14 +55,29 @@ namespace MediaPortal.Frontend.Api
   /// forecast days never asked whether it was night.
   /// </summary>
   public record WeatherDay(DateTimeOffset Date, string Description, double High, double Low,
-      double PrecipitationChance, string? Icon = null);
+      double PrecipitationChance, string? Icon = null, double PrecipitationMm = 0);
+
+  /// <summary>
+  /// One three-hourly entry of the forecast, kept as it arrived rather than folded into a day: the wall's
+  /// "Today" band shows the next hours standing in their own columns, and the hours are what the endpoint
+  /// really answers - the days are this same list grouped. The icon is the entry's own, from the day table.
+  /// </summary>
+  public record WeatherSlot(DateTimeOffset Time, string Description, double Temp, double PrecipChance,
+      double PrecipMm, string? Icon = null);
+
+  /// <summary>
+  /// The air one place is breathing: the five-level index OpenWeatherMap grades (1 good .. 5 extreme) and the
+  /// four pollutants the wall names by name. The endpoint needs no unit and no language - micrograms are
+  /// micrograms everywhere - which is why it is asked apart from the sky.
+  /// </summary>
+  public record WeatherAir(int Aqi, double Pm25, double Pm10, double No2, double O3);
 
   /// <summary>
   /// The answer for one city: the current weather and the days ahead, or the reason neither came. Like the
   /// feeds' answers, a refusal is data - a named reason - and never a silence.
   /// </summary>
   public record WeatherAnswer(WeatherCityBookmark City, WeatherNow? Now, IReadOnlyList<WeatherDay>? Days,
-      string? Error);
+      string? Error, IReadOnlyList<WeatherSlot>? Slots = null);
 
   /// <summary>
   /// Reads the current weather and the coming days from OpenWeatherMap, the provider MP2's weather plugin used.
@@ -115,6 +132,14 @@ namespace MediaPortal.Frontend.Api
         "https://api.openweathermap.org/data/2.5/weather?lat={0}&lon={1}&units={2}&lang={3}&appid=";
     private const string FORECAST_URL =
         "https://api.openweathermap.org/data/2.5/forecast?lat={0}&lon={1}&units={2}&lang={3}&appid=";
+    private const string AIR_URL = "https://api.openweathermap.org/data/2.5/air_pollution?lat={0}&lon={1}&appid=";
+
+    // The rain radar picture the weather map draws for one place: the same slippy-grid tiles the reference's
+    // radar screen stitched together, at the zoom that shows a region and not a street. The key rides on the
+    // end of it like everywhere else, which is why the URL is handed out by the client and never spelled
+    // outside it.
+    private const string RADAR_TILE_URL =
+        "https://tile.openweathermap.org/map/precipitation_new/{0}/{1}/{2}.png?appid=";
 
     private readonly HttpClient _http;
     private readonly bool _ownsHttpClient;
@@ -240,7 +265,8 @@ namespace MediaPortal.Frontend.Api
 
         WeatherNow now = ParseNow(nowBody);
         IReadOnlyList<WeatherDay> days = ParseDays(forecastBody);
-        return new WeatherAnswer(city, now, days, null);
+        IReadOnlyList<WeatherSlot> slots = ParseSlots(forecastBody);
+        return new WeatherAnswer(city, now, days, null, slots);
 
       }
       catch (OperationCanceledException)
@@ -251,6 +277,71 @@ namespace MediaPortal.Frontend.Api
       {
         return new WeatherAnswer(city, null, null, ex.Message);
       }
+    }
+
+    /// <summary>
+    /// The air the same place is breathing. Asked apart from the sky because the endpoint wants neither units
+    /// nor language and because a wall that got its weather but not its air keeps showing the weather - the
+    /// same refusal-is-data rule, answered here by simply being null.
+    /// </summary>
+    public async Task<WeatherAir?> ReadAirAsync(WeatherCityBookmark city, CancellationToken cancellation = default)
+    {
+      string lat = city.Lat.ToString("R", CultureInfo.InvariantCulture);
+      string lon = city.Lon.ToString("R", CultureInfo.InvariantCulture);
+      try
+      {
+        string body = await GetAsync(string.Format(AIR_URL, lat, lon), cancellation).ConfigureAwait(false);
+        using (JsonDocument document = JsonDocument.Parse(body))
+        {
+          if (!document.RootElement.TryGetProperty("list", out JsonElement list)
+              || list.ValueKind != JsonValueKind.Array)
+            return null;
+          foreach (JsonElement entry in list.EnumerateArray())
+          {
+            if (!entry.TryGetProperty("main", out JsonElement main)
+                || !main.TryGetProperty("aqi", out JsonElement aqi))
+              continue;
+            JsonElement components = entry.TryGetProperty("components", out JsonElement found)
+                ? found : default;
+            return new WeatherAir(
+                aqi.GetInt32(),
+                ReadDouble(components, "pm2_5"), ReadDouble(components, "pm10"),
+                ReadDouble(components, "no2"), ReadDouble(components, "o3"));
+          }
+        }
+        return null;
+      }
+      catch (OperationCanceledException)
+      {
+        throw;
+      }
+      catch (Exception)
+      {
+        // Air that will not arrive is air the wall does not show; the sky beside it keeps its answer.
+        return null;
+      }
+    }
+
+    /// <summary>
+    /// The radar picture of the place's region as one map tile: zoom 7 shows a country's worth of rain, which
+    /// is what a home tile can show at a glance. The key of the moment is put on the end here and now, so the
+    /// URL that travels to an image control carries a key while no URL in this file ever has.
+    /// </summary>
+    public string RadarTileUrl(WeatherCityBookmark city, int zoom = 7)
+    {
+      int tiles = 1 << zoom;
+      int x = (int) Math.Floor((city.Lon + 180.0) / 360.0 * tiles);
+      double radians = city.Lat * Math.PI / 180.0;
+      int y = (int) Math.Floor((1.0 - Math.Log(Math.Tan(radians) + 1.0 / Math.Cos(radians)) / Math.PI)
+          / 2.0 * tiles);
+      x = Math.Clamp(x, 0, tiles - 1);
+      y = Math.Clamp(y, 0, tiles - 1);
+      // The bucket of five minutes rides on the URL: the radar picture answers "now", so a wall that reads
+      // again an hour later must ask with an address nobody fetched, or the cache would cheerfully show an
+      // hour-old rain.
+      long bucket = DateTimeOffset.UtcNow.ToUnixTimeSeconds() / 300;
+      return string.Format(RADAR_TILE_URL, zoom, x, y) + _keys[_keyIndex]
+          + "&t=" + bucket.ToString(CultureInfo.InvariantCulture);
     }
 
     /// <summary>
@@ -287,14 +378,42 @@ namespace MediaPortal.Frontend.Api
         JsonElement root = document.RootElement;
         JsonElement main = root.GetProperty("main");
         JsonElement wind = root.GetProperty("wind");
+        int offset = root.TryGetProperty("timezone", out JsonElement timezone)
+            && timezone.TryGetInt32(out int seconds) ? seconds : 0;
+        string? sunrise = null;
+        string? sunset = null;
+        if (root.TryGetProperty("sys", out JsonElement sys))
+        {
+          if (sys.TryGetProperty("sunrise", out JsonElement rise) && rise.TryGetInt64(out long riseUnix))
+            sunrise = SunTimeOf(riseUnix, offset);
+          if (sys.TryGetProperty("sunset", out JsonElement set) && set.TryGetInt64(out long setUnix))
+            sunset = SunTimeOf(setUnix, offset);
+        }
+
         return new WeatherNow(ConditionOf(root), main.GetProperty("temp").GetDouble(),
             main.TryGetProperty("feels_like", out JsonElement feels) ? feels.GetDouble() : main.GetProperty("temp").GetDouble(),
             main.GetProperty("humidity").GetInt32(),
             main.TryGetProperty("pressure", out JsonElement pressure) ? pressure.GetInt32() : 0,
             wind.TryGetProperty("speed", out JsonElement speed) ? speed.GetDouble() : 0,
             WindDirectionOf(wind.TryGetProperty("deg", out JsonElement deg) ? deg.GetDouble() : 0),
-            CurrentIconOf(root));
+            CurrentIconOf(root),
+            root.TryGetProperty("visibility", out JsonElement visibility) ? visibility.GetInt32() : 0,
+            root.TryGetProperty("clouds", out JsonElement clouds)
+            && clouds.TryGetProperty("all", out JsonElement allClouds) ? allClouds.GetInt32() : 0,
+            wind.TryGetProperty("gust", out JsonElement gust) ? gust.GetDouble() : 0,
+            sunrise, sunset);
       }
+    }
+
+    /// <summary>
+    /// A sun time as the city's clock shows it - "07:12" and not a date, because a wall says when the sun
+    /// rises today and the answer's own city offset (which the response carries) says where today is.
+    /// </summary>
+    private static string SunTimeOf(long unixSeconds, int cityOffsetSeconds)
+    {
+      return DateTimeOffset.FromUnixTimeSeconds(unixSeconds)
+          .ToOffset(TimeSpan.FromSeconds(cityOffsetSeconds))
+          .ToString("HH:mm", CultureInfo.InvariantCulture);
     }
 
     /// <summary>
@@ -385,10 +504,69 @@ namespace MediaPortal.Frontend.Api
               ofDay.Max(entry => entry.TryGetProperty("pop", out JsonElement pop) ? pop.GetDouble() : 0),
               // The midday entry's picture, from the day table - a day is shown by day, exactly as the
               // reference's forecast lines passed isNight: false for every one of them.
-              ConditionCodeOf(midday) is int code ? WeatherIconCodes.IconName(code, false) : null));
+              ConditionCodeOf(midday) is int code ? WeatherIconCodes.IconName(code, false) : null,
+              // The day's own rain is its three-hourly entries' rain summed; a day's mm is the sum of the
+              // hours it is made of, which is also what a person means by "how much rained today".
+              ofDay.Sum(PrecipMmOf)));
         }
         return days;
       }
+    }
+
+    /// <summary>
+    /// The next hours, kept standing in a row instead of folded into days: the first eight entries the
+    /// forecast answers with, which is the next two days at the endpoint's own three-hour step - exactly the
+    /// eight columns the wall's "Today" band is drawn for.
+    /// </summary>
+    private static IReadOnlyList<WeatherSlot> ParseSlots(string body)
+    {
+      using (JsonDocument document = JsonDocument.Parse(body))
+      {
+        JsonElement root = document.RootElement;
+        int offsetSeconds = 0;
+        if (root.TryGetProperty("city", out JsonElement city) &&
+            city.TryGetProperty("timezone", out JsonElement timezone))
+          offsetSeconds = timezone.GetInt32();
+
+        List<WeatherSlot> slots = new List<WeatherSlot>();
+        foreach (JsonElement entry in root.GetProperty("list").EnumerateArray().Take(8))
+        {
+          slots.Add(new WeatherSlot(
+              DateTimeOffset.FromUnixTimeSeconds(entry.GetProperty("dt").GetInt64())
+                  .ToOffset(TimeSpan.FromSeconds(offsetSeconds)),
+              ConditionOf(entry),
+              entry.GetProperty("main").GetProperty("temp").GetDouble(),
+              entry.TryGetProperty("pop", out JsonElement pop) ? pop.GetDouble() : 0,
+              PrecipMmOf(entry),
+              ConditionCodeOf(entry) is int code ? WeatherIconCodes.IconName(code, false) : null));
+        }
+        return slots;
+      }
+    }
+
+    /// <summary>
+    /// One entry's precipitation in millimetres: the rain as it is answered, and the snow turned from the
+    /// centimetres the endpoint counts it in. The endpoint answers these either as a plain number or as an
+    /// object naming the span ("3h"), so both forms are read; a dry entry answers neither property and is zero.
+    /// </summary>
+    private static double PrecipMmOf(JsonElement entry)
+    {
+      // Snow is answered in centimetres; ten millimetres of melt stand in one of them.
+      return AmountMm(entry, "rain") + AmountMm(entry, "snow") * 10.0;
+    }
+
+    private static double AmountMm(JsonElement entry, string name)
+    {
+      if (!entry.TryGetProperty(name, out JsonElement amount))
+        return 0;
+      if (amount.ValueKind == JsonValueKind.Number)
+        return amount.GetDouble();
+      if (amount.ValueKind == JsonValueKind.Object
+          && (amount.TryGetProperty("3h", out JsonElement threeHours)
+              || amount.TryGetProperty("1h", out threeHours))
+          && threeHours.ValueKind == JsonValueKind.Number)
+        return threeHours.GetDouble();
+      return 0;
     }
 
     private static string ConditionOf(JsonElement entry)

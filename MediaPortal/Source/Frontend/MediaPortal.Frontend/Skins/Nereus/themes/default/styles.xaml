@@ -623,6 +623,34 @@
     <Setter Property="CornerRadius" Value="10"/>
   </Style>
 
+  <!-- The weather and news card, which answers a viewer exactly like a cover or a plaque on the same wall -
+       it wears the cover's class beside its own, so the quiet-at-rest, the lift to full light, the picture's
+       tenth and the shared edge all come from the cover's styles - and differs in its dress only in being
+       written on. Its ground is the plaque's raised face rather than a cover's dark plate, because a card
+       carries words and wants the light of the room it was read in. The measures are the reference's own
+       templates translated to this wall: the temperature in its ninety (CurrentWeatherControlTemplate's
+       FontSize 90), the small lines under it at the wall's own reading size carried at three fifths of
+       light - the reference's 0.6 - and the line under the card's name as the quietest thing on it. -->
+  <Style Selector="Button.nereus-card-tile">
+    <Setter Property="Background" Value="{DynamicResource PanelRaisedBrush}"/>
+  </Style>
+  <Style Selector="Border.card-tile-face">
+    <Setter Property="CornerRadius" Value="10"/>
+  </Style>
+  <Style Selector="TextBlock.card-tile-big">
+    <Setter Property="FontSize" Value="90"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+  </Style>
+  <Style Selector="TextBlock.card-tile-sub">
+    <Setter Property="FontSize" Value="14"/>
+    <Setter Property="Opacity" Value="0.6"/>
+  </Style>
+  <Style Selector="TextBlock.card-tile-detail">
+    <Setter Property="FontSize" Value="12"/>
+    <Setter Property="Opacity" Value="0.75"/>
+    <Setter Property="TextAlignment" Value="Center"/>
+  </Style>
+
   <!-- The shortcut tiles: glass, and only they are. A cover wants a plate to stand on, an icon wants the room
        behind it - so the icons are cut out of the picture behind them rather than painted over a dark square.
 

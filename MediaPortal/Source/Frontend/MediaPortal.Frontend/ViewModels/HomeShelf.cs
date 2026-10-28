@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
+using MediaPortal.Frontend.Api;
 using MediaPortal.Frontend.Skins.Nereus;
 
 namespace MediaPortal.Frontend.ViewModels
@@ -123,16 +124,171 @@ namespace MediaPortal.Frontend.ViewModels
     }
   }
 
+  /// <summary>
+  /// What one of the weather and news bands' cards says: words and numbers rather than pictures, because a
+  /// forecast and a headline have no artwork to wear.
+  /// </summary>
+  /// <remarks>
+  /// The reference drew these as templates of their own (<c>HomeContentStyles.xaml</c>'s
+  /// <c>CurrentWeatherControlTemplate</c> and <c>DayForecastControlTemplate</c>, its <c>FeedDataTemplate</c>
+  /// and <c>TopNewsDataTemplate</c>) and dressed every one of them like a media tile - the same plate, the
+  /// same fading title band - so a card here carries exactly what those templates showed and stands on the
+  /// wall like the covers beside it. All the text arrives spelled out: the temperature has already been put
+  /// in the viewer's units, the day already in the viewer's language, and a card that had to ask the screen
+  /// for either would leave the screen knowing the weather.
+  /// </remarks>
+  public sealed class HomeInfoCard
+  {
+    public HomeInfoCard(string label, string detail = "", string bigText = "", string sub = "",
+        string? iconName = null, bool iconAtRight = false, string? badgeName = null,
+        string kind = "plain", IReadOnlyList<CardFact>? facts = null,
+        IReadOnlyList<WeatherSlot>? slots = null, WeatherAir? air = null, string? radarUrl = null,
+        string sub2 = "")
+    {
+      Label = label;
+      Detail = detail;
+      BigText = bigText;
+      Sub = sub;
+      Sub2 = sub2;
+      IconName = iconName;
+      IconAtRight = iconAtRight;
+      BadgeName = badgeName;
+      Kind = kind;
+      Facts = facts;
+      Slots = slots;
+      Air = air;
+      RadarUrl = radarUrl;
+    }
+
+    /// <summary>The name the card's title band carries - the place, the day, the feed, the headline.</summary>
+    public string Label { get; }
+
+    /// <summary>The small line under the title: which feed a headline came from, how far a day swings.</summary>
+    public string Detail { get; }
+
+    /// <summary>The huge number - today's temperature, in the reference's own 90-point measure. Empty elsewhere.</summary>
+    public string BigText { get; }
+
+    /// <summary>The small lines under the big number, one per row; empty on a card that has no big number.</summary>
+    public string Sub { get; }
+
+    /// <summary>A third reading of the day card - the millimetres under the chance - so a hairline can stand
+    /// between them; empty on every other card.</summary>
+    public string Sub2 { get; }
+
+    /// <summary>The skin picture the card wears, spelled as the skin files it; null on a card that wears none.</summary>
+    public string? IconName { get; }
+
+    /// <summary>Whether the card's picture stands to the right of its numbers (today) or alone in the middle (day, feed).</summary>
+    public bool IconAtRight { get; }
+
+    public bool HasRightIcon => IconName != null && IconAtRight;
+    public bool HasCenteredIcon => IconName != null && !IconAtRight;
+
+    /// <summary>The small mark stamped into the card's top right corner - the news badge. Null when there is none.</summary>
+    public string? BadgeName { get; }
+
+    public bool HasBadge => BadgeName != null;
+
+    /// <summary>
+    /// Which of the wall's card faces this card wears. The reference drew each information card in a template
+    /// of its own - today's weather is not the day's forecast is not a headline - and the designed wall added
+    /// two faces the reference never had: the hours chart ("Today") and the air-and-radar card, both spelled
+    /// out in the design review. "plain" is the face every news card and every old-shaped card wears.
+    /// </summary>
+    public string Kind { get; }
+
+    public bool IsToday => Kind == "today";
+    public bool IsChart => Kind == "chart";
+    public bool IsDayFace => Kind == "day";
+    public bool IsAir => Kind == "air";
+    public bool IsPlain => Kind == "plain";
+
+    /// <summary>The small two-column rows the weather and air cards are written in: name left, value right.</summary>
+    public IReadOnlyList<CardFact>? Facts { get; }
+
+    public bool HasFacts => Facts != null && Facts.Count > 0;
+
+    /// <summary>The three-hourly hours the "Today" chart draws; null on every card that is not a chart.</summary>
+    public IReadOnlyList<WeatherSlot>? Slots { get; }
+
+    /// <summary>The air the place is breathing; null where it was not asked for or did not arrive.</summary>
+    public WeatherAir? Air { get; }
+
+    /// <summary>The index as a bare number - the huge figure on the air card. Empty when there is no air.</summary>
+    public string AqiNumber => Air == null ? string.Empty : Air.Aqi.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+    /// <summary>The index in its one word ("good", "poor"). Empty when there is no air.</summary>
+    public string AqiGrade => Air == null ? string.Empty : AirGrades.GradeOf(Air.Aqi);
+
+    private Avalonia.Media.IBrush? _aqiBrush;
+
+    /// <summary>The index's own colour - green for good air, red for bad - for the number and its dot alike.</summary>
+    public Avalonia.Media.IBrush AqiBrush => _aqiBrush ??= Air == null
+        ? Avalonia.Media.Brushes.Gray
+        : new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse(AirGrades.ColorHexOf(Air!.Aqi)));
+
+    /// <summary>The rain radar's picture address; null on every card that does not show the radar.</summary>
+    public string? RadarUrl { get; }
+
+    public bool HasRadar => RadarUrl != null;
+  }
+
+  /// <summary>
+  /// One row of a card's fact list: the thing's name on the left, its value on the right, both already in the
+  /// viewer's units and language - the same rule the rest of the wall holds, that a card arrives spelled out.
+  /// </summary>
+  public sealed record CardFact(string Name, string Value);
+
+  /// <summary>
+  /// The air index told in words and colour, the way every air application tells it: the endpoint answers a
+  /// bare 1..5 and the wall says "good · green" beside the number. The six words and six colours are the
+  /// scale's own, not a skin's.
+  /// </summary>
+  public static class AirGrades
+  {
+    private static readonly string[] GRADES = { "", "good", "fair", "moderate", "poor", "very poor", "extreme" };
+    private static readonly string[] COLORS =
+    {
+      "", "#00E400", "#E8D44D", "#FF9900", "#FF1E1E", "#8F3F97", "#7E0023"
+    };
+
+    public static string GradeOf(int aqi)
+    {
+      return aqi >= 1 && aqi < GRADES.Length ? GRADES[aqi] : "unknown";
+    }
+
+    public static string ColorHexOf(int aqi)
+    {
+      return aqi >= 1 && aqi < COLORS.Length ? COLORS[aqi] : "#9E9E9E";
+    }
+  }
+
+  /// <summary>
+  /// What a weather reader answers: the place the brief is for, its sky now, and the days ahead - plus, since
+  /// the designed wall, the next hours standing on their own, the air the place is breathing (null when it
+  /// refused), and the radar picture's address (null when there was no key to ask with).
+  /// </summary>
+  public sealed record WeatherWallBrief(string Place, WeatherNow? Now, IReadOnlyList<WeatherDay> Days, bool Metric,
+      IReadOnlyList<WeatherSlot>? Slots = null, WeatherAir? Air = null, string? RadarUrl = null);
+
+  /// <summary>One feed's standing in the news brief: how many headlines it handed over, or why it did not.</summary>
+  public sealed record FeedWallRow(string Name, int HeadlineCount, string? Error);
+
+  /// <summary>What a news reader answers: every feed that was asked, and the newest headlines across them.</summary>
+  public sealed record NewsWallBrief(IReadOnlyList<FeedWallRow> Feeds, IReadOnlyList<NewsHeadline> Headlines);
+
   /// <summary>A single focusable tile in the horizontal Nereus home-content wall.</summary>
   public sealed class HomeContentTile
   {
     private HomeContentTile(TitleViewModel? title, MainMenuEntry? menuEntry, NereusHomeShortcut? shortcut,
-        HomeRow? note, double x, double y, double width, double height)
+        HomeRow? note, HomeInfoCard? card, double x, double y, double width, double height)
     {
       Title = title;
       MenuEntry = menuEntry;
       Shortcut = shortcut;
       Note = note;
+      Card = card;
       X = x;
       Y = y;
       Width = width;
@@ -143,6 +299,14 @@ namespace MediaPortal.Frontend.ViewModels
     public MainMenuEntry? MenuEntry { get; }
     public NereusHomeShortcut? Shortcut { get; }
     public HomeRow? Note { get; }
+
+    /// <summary>
+    /// What a weather or news card says, on the one kind of square that carries words rather than a picture.
+    /// The reference's day, feed and headline tiles were focusable and did nothing when pressed - their screen
+    /// was one press of the entry's own shortcut away - and a card here keeps that: it lights its edge, and a
+    /// press of it asks nothing of anybody.
+    /// </summary>
+    public HomeInfoCard? Card { get; }
 
     /// <summary>
     /// The band this square stands in, which is the answer to "where does a viewer come back to when they leave
@@ -171,8 +335,10 @@ namespace MediaPortal.Frontend.ViewModels
     public bool IsPlugin => MenuEntry != null;
 
     /// <summary>A cover, or the one line of explanation a band falls back to. Everything the wall draws that is
-    /// neither an icon of glass nor a plugin plaque.</summary>
-    public bool IsCover => !IsShortcut && !IsPlugin;
+    /// neither an icon of glass, a plugin plaque nor a card of words.</summary>
+    public bool IsCover => !IsShortcut && !IsPlugin && !IsCard;
+
+    public bool IsCard => Card != null;
 
     public bool IsShortcut => Shortcut != null;
     public bool IsNote => Note != null;
@@ -189,7 +355,7 @@ namespace MediaPortal.Frontend.ViewModels
 
     public bool HasNoPicture => !HasPicture;
 
-    public string Label => Title?.Name ?? MenuEntry?.Label ?? Shortcut?.Label ?? Note?.Text ?? string.Empty;
+    public string Label => Title?.Name ?? MenuEntry?.Label ?? Shortcut?.Label ?? Card?.Label ?? Note?.Text ?? string.Empty;
     public string Detail => Title?.Detail ?? MenuEntry?.Detail ?? string.Empty;
 
     /// <summary>
@@ -209,22 +375,27 @@ namespace MediaPortal.Frontend.ViewModels
 
     internal static HomeContentTile ForTitle(TitleViewModel title, double x, double y, double width, double height)
     {
-      return new HomeContentTile(title, null, null, null, x, y, width, height);
+      return new HomeContentTile(title, null, null, null, null, x, y, width, height);
     }
 
     internal static HomeContentTile ForMenuEntry(MainMenuEntry entry, double x, double y, double width, double height)
     {
-      return new HomeContentTile(null, entry, null, null, x, y, width, height);
+      return new HomeContentTile(null, entry, null, null, null, x, y, width, height);
     }
 
     internal static HomeContentTile ForShortcut(NereusHomeShortcut shortcut, double x, double y, double width, double height)
     {
-      return new HomeContentTile(null, null, shortcut, null, x, y, width, height);
+      return new HomeContentTile(null, null, shortcut, null, null, x, y, width, height);
     }
 
     internal static HomeContentTile ForNote(HomeRow note, double x, double y, double width, double height)
     {
-      return new HomeContentTile(null, null, null, note, x, y, width, height);
+      return new HomeContentTile(null, null, null, note, null, x, y, width, height);
+    }
+
+    internal static HomeContentTile ForCard(HomeInfoCard card, double x, double y, double width, double height)
+    {
+      return new HomeContentTile(null, null, null, null, card, x, y, width, height);
     }
   }
 
@@ -345,6 +516,51 @@ namespace MediaPortal.Frontend.ViewModels
         (0, 2, 2, 2), (2, 2, 1, 1), (2, 3, 1, 1)
     };
 
+    /// <summary>
+    /// Where a weather or news card stands. The reference gave each of these its own measure rather than a
+    /// mosaic: today's weather is the whole of a Narrow group for itself, the forecast is four posters side by
+    /// side in a Wide one, the feeds are a VeryNarrow column of nine squares, and the top news takes the same
+    /// nineteen-place mosaic as the leftover plugins. So a band of cards keeps its table whatever it holds -
+    /// four columns of cards, and the days that stayed away leave their column empty the way a short media
+    /// band's missing covers leave theirs.
+    /// </summary>
+    private static readonly (int Column, int Row, int ColumnSpan, int RowSpan)[] CARD_LAYOUT_1 =
+    {
+        (0, 0, 3, 4)
+    };
+
+    private static readonly (int Column, int Row, int ColumnSpan, int RowSpan)[] CARD_LAYOUT_4 =
+    {
+        (0, 0, 1, 4), (1, 0, 1, 4), (2, 0, 1, 4), (3, 0, 1, 4)
+    };
+
+    private static readonly (int Column, int Row, int ColumnSpan, int RowSpan)[] CARD_LAYOUT_9 =
+    {
+        (0, 0, 1, 1), (1, 0, 1, 1), (2, 0, 1, 1),
+        (0, 1, 1, 1), (1, 1, 1, 1), (2, 1, 1, 1),
+        (0, 2, 1, 1), (1, 2, 1, 1), (2, 2, 1, 1)
+    };
+
+    /// <summary>
+    /// The "Today" chart's band: one card, the whole of it, because an hours chart cannot be cut into
+    /// columns - its own columns are the hours. Four cells wide only so that the card ends with the same
+    /// ten-pixel air beside it as every other band's square.
+    /// </summary>
+    private static readonly (int Column, int Row, int ColumnSpan, int RowSpan)[] CARD_LAYOUT_CHART =
+    {
+        (0, 0, 4, 4)
+    };
+
+    /// <summary>
+    /// The forecast as the design redrew it: two columns of two days, each day a narrow upright - the day's
+    /// name, its picture between name and numbers, and precipitation in its own two lines. Four days stand,
+    /// the same four the old row of posters held.
+    /// </summary>
+    private static readonly (int Column, int Row, int ColumnSpan, int RowSpan)[] CARD_LAYOUT_DAY4 =
+    {
+        (0, 0, 1, 2), (1, 0, 1, 2), (0, 2, 1, 2), (1, 2, 1, 2)
+    };
+
     private readonly int _columns;
     private readonly int _rows;
     private readonly (int Column, int Row, int ColumnSpan, int RowSpan)[] _layout;
@@ -414,6 +630,11 @@ namespace MediaPortal.Frontend.ViewModels
         "square5" => (7, 4, SQUARE_LAYOUT_5),
         "thumbnail1" => (3, 4, THUMBNAIL_LAYOUT_1),
         "thumbnail2" => (3, 4, THUMBNAIL_LAYOUT_2),
+        "card1" => (3, 4, CARD_LAYOUT_1),
+        "card4" => (4, 4, CARD_LAYOUT_4),
+        "card9" => (3, 3, CARD_LAYOUT_9),
+        "cardchart" => (4, 4, CARD_LAYOUT_CHART),
+        "cardday4" => (2, 4, CARD_LAYOUT_DAY4),
         _ => (4, 3, POSTER_LAYOUT_1)
       };
 
@@ -433,7 +654,10 @@ namespace MediaPortal.Frontend.ViewModels
       // The big first cover is the face's own, but only while the covers beside it arrive too: a cover over two
       // cells stands over 2 * columns - 4 cells in the row below it, and without those covers the cells it
       // should stand over are the gap again, only bigger.
-      _firstCoverSpan = !_designedMosaic && covers > 1 && _columns >= 2 && _rows >= 2
+      // A band of cards never gets it: a feed grid or a row of days is the reference's equal measure, not a
+      // mosaic with a hero square - nine feeds are nine alike squares, and the first is no bigger than the last.
+      _firstCoverSpan = !_designedMosaic && !layout.StartsWith("card", StringComparison.Ordinal)
+          && covers > 1 && _columns >= 2 && _rows >= 2
           && covers - 1 >= 2 * _columns - 4 ? 2 : 1;
     }
 
@@ -476,6 +700,11 @@ namespace MediaPortal.Frontend.ViewModels
     public void AddMenuEntry(MainMenuEntry entry)
     {
       AddTile((x, y, width, height) => HomeContentTile.ForMenuEntry(entry, x, y, width, height));
+    }
+
+    public void AddCard(HomeInfoCard card)
+    {
+      AddTile((x, y, width, height) => HomeContentTile.ForCard(card, x, y, width, height));
     }
 
     public void AddNote(HomeRow note)
