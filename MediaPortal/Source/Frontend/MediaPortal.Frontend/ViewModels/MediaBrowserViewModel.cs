@@ -2594,6 +2594,10 @@ namespace MediaPortal.Frontend.ViewModels
       {
         case "year":
           return "year";
+        case "added":
+          return "added";
+        case "lastplayed":
+          return "lastplayed";
         case "season":
         case "episode":
         case "track":
