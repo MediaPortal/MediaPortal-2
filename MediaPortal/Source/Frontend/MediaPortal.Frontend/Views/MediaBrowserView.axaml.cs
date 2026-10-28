@@ -160,9 +160,13 @@ namespace MediaPortal.Frontend.Views
       // the head, the details or a dialog of this screen is left where they put it.
       browser.Titles.CollectionChanged += delegate
       {
-        if (browser.Titles.Count == 0 || !NeedsCaretOnTheShelf())
+        if (browser.Titles.Count == 0)
           return;
 
+        // Asked again when this pass has laid its tiles, whatever the caret looks like right now: during a
+        // refill the containers are shells whose titles - and whose index - the panel has not handed out
+        // yet, and a caret check taken mid-burst reads every shell as settled. The re-ask at the post below
+        // is taken after the layout pass, where the answer means something.
         Dispatcher.UIThread.Post(delegate
         {
           if (NeedsCaretOnTheShelf())
@@ -173,6 +177,16 @@ namespace MediaPortal.Frontend.Views
       // The shelf answers the standing title with a glide rather than a jump: every step of the caret moves the
       // wall by the shape's own numbers, over the shape's own length of time.
       titlesList.SelectionChanged += delegate { GlideShelfToStoodTitle(); };
+
+      // The reference's <c>RestoreFocus</c> seen from this side: the shelf remembers which title the caret last
+      // stood on, so a visit to the screen's menu and back lands where the viewer left off rather than on
+      // whichever tile the wall happens to have realized.
+      titlesList.AddHandler(GotFocusEvent, delegate (object? sender, FocusChangedEventArgs args)
+      {
+        if (args.Source is ListBoxItem container
+            && titlesList.ItemFromContainer(container) is object stood)
+          _lastTileStand = stood;
+      }, RoutingStrategies.Bubble, true);
 
       // THE SCREEN'S OWN MENU, which the reference slid in off the left edge for grid and list and off the bottom
       // edge for covers (master_mediamenu.xaml:124-186, Animations.xaml:8-38 - two hundred points in three
@@ -943,11 +957,37 @@ namespace MediaPortal.Frontend.Views
       if (!titlesList.IsEffectivelyVisible)
         return;
 
+      // The reference's <c>RestoreFocus</c>: the tile the viewer last stood on takes the caret back, so closing
+      // the screen's menu hands back the wall exactly as they left it. A wall rebuilt under that title answers
+      // false - the remembered title is no longer a tile of this wall - and the standing index asks the usual
+      // patient question of the tiles instead.
+      if (TryRestoreLastStand())
+      {
+        GlideShelfToStoodTitle();
+        WatchShelfCaret();
+        return;
+      }
+
       int standing = titlesList.SelectedIndex < 0 ? 0 : titlesList.SelectedIndex;
 
-      if (titlesList.ContainerFromIndex(standing) is ListBoxItem container && container.IsEffectivelyVisible)
+      // A container the focus manager still names while it holds no caret is a stale claim, not a caret: a
+      // rebuilt wall hands its recycled shells out to new titles underneath the caret. Only a container that
+      // stands under the index and really wears the focus may answer the visit; a shell sends the caret the
+      // waiting-room way, where it is asked of the tiles again.
+      ListBoxItem claim = (TopLevel.GetTopLevel(this) as Window)?.FocusManager.GetFocusedElement()
+          as ListBoxItem;
+      bool claim_is_stale = claim != null && !claim.IsKeyboardFocusWithin;
+
+      if (!claim_is_stale
+          && titlesList.ContainerFromIndex(standing) is ListBoxItem container && container.IsEffectivelyVisible)
       {
-        container.Focus();
+        _shelfTileTimer?.Stop();
+        // The container can be laid and yet sit far outside the strip the viewer is looking at - a rebuilt wall
+        // realizes containers while its scroll stands at the top. Bring the tile into the view FIRST, so the
+        // frame the caret paints is a frame the viewer can see; the glide below then only smooths the ride.
+        if (standing < titlesList.Items.Count)
+          titlesList.ScrollIntoView(titlesList.Items[standing]);
+        FocusShelfTile(container);
         // The selection may well have stood here the whole time, in which case no SelectionChanged ever answered
         // the visit - the wall is stood at the caret by the caret itself, or it stays at the edge it came in at.
         GlideShelfToStoodTitle();
@@ -956,6 +996,9 @@ namespace MediaPortal.Frontend.Views
           // Measurable is not yet able to hold the caret; see StandCaret for why that is a question of frames.
           StandCaret(container, delegate { GlideShelfToStoodTitle(); });
         }
+        // And even a container that took the caret can have it knocked out of it by the recycling the glide
+        // starts a frame later - the watching covers every way out of this method, not just the waiting one.
+        WatchShelfCaret();
         return;
       }
 
@@ -969,11 +1012,202 @@ namespace MediaPortal.Frontend.Views
       titlesList.Focus();
       if (standing < titlesList.Items.Count)
         titlesList.ScrollIntoView(titlesList.Items[standing]!);
-      StandCaret(titlesList, delegate
+      WatchShelfCaret();
+    }
+
+    private DispatcherTimer? _shelfTileTimer;
+
+    /// <summary>
+    /// The title the caret last stood a tile of - the shelf's memory for the reference's <c>RestoreFocus</c>.
+    /// An object rather than a container: containers are the wall's to recycle, the titles are the viewer's.
+    /// </summary>
+    private object? _lastTileStand;
+
+    /// <summary>
+    /// Puts the caret back on the tile of the title it last stood on, and says whether it could.
+    /// </summary>
+    /// <remarks>
+    /// The remembered title is looked up by what it is, not by where the caret came from - a rebuilt wall hands
+    /// its containers out like hats, and the container the caret wore may now present a different title or
+    /// none. A title the wall no longer wears forgets the memory; a title it does wear is stood at again, its
+    /// tile brought into view and asked for through the one door that escapes the focus manager's stale claims.
+    /// </remarks>
+    private bool TryRestoreLastStand()
+    {
+      if (_lastTileStand == null)
+        return false;
+
+      int index = titlesList.Items.IndexOf(_lastTileStand);
+      if (index < 0)
       {
-        if (titlesList.ContainerFromIndex(standing) is ListBoxItem tile && tile.IsEffectivelyVisible)
-          tile.Focus();
-      });
+        _lastTileStand = null;
+        return false;
+      }
+
+      if (titlesList.SelectedIndex != index)
+        titlesList.SelectedIndex = index;
+
+      // Bring the tile into view FIRST: mid-rebuild a container can exist and be "visible" while sitting far
+      // outside the viewport (or at stale coordinates), and a caret on such a tile is a caret nobody sees.
+      titlesList.ScrollIntoView(titlesList.Items[index]);
+
+      if (titlesList.ContainerFromIndex(index) is not ListBoxItem tile || !tile.IsEffectivelyVisible)
+        return false;
+
+      FocusShelfTile(tile);
+      return tile.IsKeyboardFocusWithin;
+    }
+
+    /// <summary>
+    /// Keeps the caret on the tile of the standing title while the wall might still knock it off.
+    /// </summary>
+    /// <remarks>
+    /// Landing the caret is not the end of the story: a rebuilt wall recycles its containers a beat AFTER the
+    /// caret was placed - the focused container is pulled out of the tree by the very scroll that brought its
+    /// title into view, and the focus manager quietly hands the caret back to the bare list, which wears no
+    /// frame. Nothing announces that fall when the wall stopped changing (a sort that only re-asks the same
+    /// titles never fires a second refill), so an asker that stops after one landing leaves the viewer on
+    /// nothing again. This asks instead until the caret stands where it belongs or leaves the shelf: one tick
+    /// says "settled" (or "the viewer took the caret elsewhere - a dialog, the rail, the search field") and
+    /// ends the watching; every other tick puts the caret back on the tile of the standing title.
+    /// </remarks>
+    /// <summary>
+    /// Whether the told focused element belongs to one of the screen's two rails - the rail itself, one of its
+    /// rows, or a button inside one. A closed rail is off the window but not off the focus manager's reach.
+    /// </summary>
+    private bool HoldsRailCaret(object? focused)
+    {
+      for (Visual? at = focused as Visual; at != null; at = at.GetVisualParent())
+      {
+        if (ReferenceEquals(at, mediaMenuList) || ReferenceEquals(at, mediaMenuListBottom))
+          return true;
+      }
+
+      return false;
+    }
+
+    private void WatchShelfCaret()
+    {
+      _shelfTileTimer?.Stop();
+
+      // Asked for at once first: the caller has just scrolled the standing title into view, and scrolling
+      // realizes the container right here - a caret that lands in this breath is one that lands before
+      // whoever asked has looked again.
+      TryStandOnShelfTile(titlesList.SelectedIndex < 0 ? 0 : titlesList.SelectedIndex);
+
+      DispatcherTimer timer = new DispatcherTimer(DispatcherPriority.Render)
+      {
+        Interval = TimeSpan.FromMilliseconds(32)
+      };
+      _shelfTileTimer = timer;
+      int left = 3000;
+
+      // The wall keeps sliding for a second after a landing - and the tile the caret stands on is exactly the
+      // one that slide recycles. A watchdog that stops at the first tick therefore dies long before the fall
+      // it exists for, so a tile under the caret buys quiet watching instead of an end: only four seconds of
+      // undisturbed standing retire it, every rescue rewinds it, and a caret that went anywhere that ISN'T
+      // this shelf - the rail, a dialog, the search field, another screen - retires it at once.
+      int quiet = 120;
+
+      timer.Tick += delegate
+      {
+        object? fallen = (TopLevel.GetTopLevel(this) as Window)?.FocusManager.GetFocusedElement();
+
+        if (left-- <= 0)
+        {
+          timer.Stop();
+          return;
+        }
+
+        // A caret the closed rail still holds is a fall too: the rail slid off the screen but its list - or
+        // the button of the row that was clicked - stayed focusable, and Avalonia hands the caret to whatever
+        // was clicked last once the click settles, which lands a beat AFTER the close already handed the caret
+        // to the shelf. Left there, the viewer stands on an invisible row off the window and the wall wears no
+        // frame - which is the whole complaint in one sentence.
+        if (!(DataContext is MediaBrowserViewModel screen) || !screen.MediaMenuVisible)
+        {
+          if (HoldsRailCaret(fallen))
+          {
+            TryStandOnShelfTile(titlesList.SelectedIndex < 0 ? 0 : titlesList.SelectedIndex);
+            quiet = 120;
+            return;
+          }
+        }
+
+        if (ReferenceEquals(fallen, titlesList))
+        {
+          // The fall this watchdog exists for: the caret slipped back onto the bare list, which wears no
+          // frame. The tile of the standing title - read fresh, since the selection may have moved - takes
+          // the caret again and the quiet counting starts over.
+          TryStandOnShelfTile(titlesList.SelectedIndex < 0 ? 0 : titlesList.SelectedIndex);
+          quiet = 120;
+          return;
+        }
+
+        if (fallen is ListBoxItem tile
+            && !ReferenceEquals(tile, titlesList)   // ListBox IS A ListBoxItem - exclude the list itself
+            && titlesList.ItemFromContainer(tile) != null)
+        {
+          if (--quiet <= 0)
+            timer.Stop();
+          return;
+        }
+
+        // A shell the recycling stripped of its title (index -1) is a fall too: the caret stands on a body
+        // that presents nobody and wears no frame. A rail row reads the same way from here, so the rails are
+        // asked first - while the menu is open its rows are legitimate caret-holders.
+        if (fallen is ListBoxItem shell && !HoldsRailCaret(shell)
+            && titlesList.IndexFromContainer(shell) < 0)
+        {
+          int stand = titlesList.SelectedIndex < 0 ? 0 : titlesList.SelectedIndex;
+          if (titlesList.ContainerFromIndex(stand) is ListBoxItem stood_tile && stood_tile.IsEffectivelyVisible)
+            FocusShelfTile(stood_tile);
+          else if (stand < titlesList.Items.Count)
+            titlesList.ScrollIntoView(titlesList.Items[stand]);
+          quiet = 120;
+          return;
+        }
+
+        timer.Stop();
+      };
+
+      timer.Start();
+    }
+
+    /// <summary>
+    /// Puts the caret on a tile of the shelf, escaping the limbo the focus manager can leave it in.
+    /// </summary>
+    /// <remarks>
+    /// After a rebuild the focus manager can still <em>name</em> a container as the screen's focused element
+    /// while the container itself lost its focus state - a stale claim, not a caret. Asked to focus the very
+    /// element it already claims to hold, the focus manager answers "done" and changes nothing, so the tile
+    /// never lights and every asker who checks for success believes it. The caret is therefore put on the list
+    /// first - which is a different element and does move - and only then asked of the tile, where it lands
+    /// for real.
+    /// </remarks>
+    private void FocusShelfTile(ListBoxItem tile)
+    {
+      if (ReferenceEquals((TopLevel.GetTopLevel(this) as Window)?.FocusManager.GetFocusedElement(), tile)
+          && !tile.IsKeyboardFocusWithin)
+        titlesList.Focus();
+
+      tile.Focus();
+    }
+
+    /// <summary>
+    /// Puts the caret on the tile of the standing title when that tile is laid, and says whether it did.
+    /// </summary>
+    private bool TryStandOnShelfTile(int standing)
+    {
+      int place = standing < titlesList.Items.Count ? standing : titlesList.Items.Count - 1;
+      if (place >= 0 && titlesList.ContainerFromIndex(place) is ListBoxItem tile
+          && tile.IsEffectivelyVisible)
+      {
+        FocusShelfTile(tile);
+        return tile.IsKeyboardFocusWithin;
+      }
+
+      return false;
     }
 
     /// <summary>Frames a caret is asked for before the screen stops asking (a fifth of a second).</summary>
@@ -1168,7 +1402,16 @@ namespace MediaPortal.Frontend.Views
         {
           // The list itself is the caret's waiting room, not its place: a caret that got no further than the list
           // never lit a tile, which is what the caret is on the shelf for.
-          return focused == titlesList;
+          if (ReferenceEquals(focused, titlesList))
+            return true;
+
+          // And a container is the caret's place only while it is THE tile the wall stands on. A rebuilt wall
+          // hands its recycled shells out underneath the caret: the shell keeps answering keys, still shows a
+          // title - another one now - and the focus manager never lets go of it, while the tile the viewer is
+          // supposed to stand on wears no frame somewhere else or off the screen. A caret that drifted onto
+          // such a shell counts as nowhere, and the shelf asks for the standing tile again.
+          int stand = titlesList.SelectedIndex < 0 ? 0 : titlesList.SelectedIndex;
+          return !ReferenceEquals(focused, titlesList.ContainerFromIndex(stand));
         }
       }
 

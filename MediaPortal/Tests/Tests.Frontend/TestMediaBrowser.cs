@@ -624,7 +624,11 @@ namespace Tests.Frontend
       Press(shelf, MediaPortal.Frontend.Settings.KeyAction.Watched);
       browser.OpenSearch();
       browser.FindCommand.Execute(null);
+      // The info key is the title's dialog now and the rail comes out on its own command; the test wants both
+      // worn at once, so it opens the dialog first and the rail over it - the rail hides neither.
       Press(shelf, MediaPortal.Frontend.Settings.KeyAction.MediaMenu);
+      WaitUntil("the title's dialog to stand open", delegate { return browser.MenuVisible; });
+      browser.ShowMediaMenuCommand.Execute(null);
       WaitUntil("the menu to be out", delegate { return browser.MediaMenuVisible; });
 
       int presses = 0;
@@ -1397,6 +1401,208 @@ namespace Tests.Frontend
       WaitUntil("the menu to slide away", delegate { return !browser.MediaMenuVisible; });
       Assert.That(window.FocusManager.GetFocusedElement(), Is.InstanceOf<ListBoxItem>(),
           "and the covers have the arrows back ON A TILE, which is the cover that wears the frame");
+      window.Close();
+    }
+
+    /// <summary>
+    /// A filter picked from the rail closes the rail and re-reads the shelf, and the caret has to come back to
+    /// a tile of the shelf it was rebuilt into. The viewer stood on a rail row when the shelf underneath them
+    /// was thrown away and a new one asked for; a caret that went back to the tiles of the old shelf - or to
+    /// the list that only waits for them - is a wall that looks alive and answers no key.
+    /// </summary>
+    [AvaloniaTest]
+    public void PickingAFilterOffTheRailStandsTheCaretOnATileOfTheRebuiltShelf()
+    {
+      SeenServer server = new SeenServer();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      MediaBrowserView view = new MediaBrowserView(browser);
+      ShellWindow window = new ShellWindow(view);
+      window.Show();
+      WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SEEN_SHELF.Length; });
+
+      ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "titlesList");
+      titles.Focus();
+      titles.SelectedIndex = 1;
+      Pump();
+
+      browser.ShowMediaMenuCommand.Execute(null);
+      WaitUntil("the menu to stand open", delegate { return browser.MediaMenuVisible; });
+      ListBox rail = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "mediaMenuList");
+      WaitUntil("the rail to be walked", delegate { return rail.IsKeyboardFocusWithin; });
+
+      MediaBrowserMenuEntry filter_page = rail.Items.OfType<MediaBrowserMenuEntry>()
+          .First(row => row.Label.StartsWith("Filter", StringComparison.Ordinal));
+      filter_page.Command.Execute(null);
+      WaitUntil("the filter page to stand up", delegate { return browser.MediaMenuHeading == "Filter"; });
+
+      MediaBrowserMenuEntry watched = rail.Items.OfType<MediaBrowserMenuEntry>()
+          .First(row => row.Label == "All");
+      watched.Command.Execute(null);
+      WaitUntil("the rail to go away with the pick", delegate { return !browser.MediaMenuVisible; });
+      WaitUntil("the filtered shelf to arrive", delegate { return browser.Titles.Count == 2; });
+      Pump();
+      Pump();
+
+      object? caret = window.FocusManager.GetFocusedElement();
+      bool on_a_tile_of_this_shelf = false;
+      if (caret is ListBoxItem)
+      {
+        for (Visual? at = caret as Visual; at != null; at = at.GetVisualParent())
+        {
+          if (ReferenceEquals(at, titles))
+            on_a_tile_of_this_shelf = true;
+        }
+      }
+
+      Assert.That(on_a_tile_of_this_shelf, Is.True,
+          "the rebuilt shelf wears its caret ON ONE OF ITS OWN TILES - the list alone holds no frame and "
+          + "leaves the viewer with a closed rail and a wall that stands on nobody");
+      window.Close();
+    }
+
+    /// <summary>
+    /// The same pick as above, but with a server that takes its time - which is how a viewer meets it in the
+    /// living room. The rail goes away the moment its row is pressed while the shelf is still wearing the old
+    /// titles, so the caret is put on a tile of THAT shelf, and the rebuild then throws the tile away under it.
+    /// A screen that asks for its caret once, at the moment the rail left, therefore ends up with a caret on a
+    /// container that is no longer on the screen: the wall looks idle and the viewer stands on nothing.
+    /// </summary>
+    [AvaloniaTest]
+    public void PickingAFilterWhileTheServerIsStillAnsweringStandsTheCaretOnATile()
+    {
+      SeenServer server = new SeenServer();
+      server.DelayMs = 250;
+      MediaBrowserViewModel browser = BrowserOn(server);
+      MediaBrowserView view = new MediaBrowserView(browser);
+      ShellWindow window = new ShellWindow(view);
+      window.Show();
+      WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SEEN_SHELF.Length; });
+
+      ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "titlesList");
+      titles.Focus();
+      titles.SelectedIndex = 1;
+      Pump();
+
+      browser.ShowMediaMenuCommand.Execute(null);
+      WaitUntil("the menu to stand open", delegate { return browser.MediaMenuVisible; });
+      ListBox rail = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "mediaMenuList");
+      WaitUntil("the rail to be walked", delegate { return rail.IsKeyboardFocusWithin; });
+
+      MediaBrowserMenuEntry filter_page = rail.Items.OfType<MediaBrowserMenuEntry>()
+          .First(row => row.Label.StartsWith("Filter", StringComparison.Ordinal));
+      filter_page.Command.Execute(null);
+      WaitUntil("the filter page to stand up", delegate { return browser.MediaMenuHeading == "Filter"; });
+
+      MediaBrowserMenuEntry watched = rail.Items.OfType<MediaBrowserMenuEntry>()
+          .First(row => row.Label == "All");
+      watched.Command.Execute(null);
+
+      // The shelf is emptied the same breath; the answer from the server takes a quarter of a second, and the
+      // rail only follows when the new question is asked. During the waiting the caret can only stand on the
+      // empty list - which wears no frame, and is why the tiles must be asked for again the moment they arrive
+      // rather than only once when the rail left.
+      WaitUntil("the shelf to be emptied for the new question", delegate { return browser.Titles.Count == 0; });
+
+      WaitUntil("the filtered shelf to arrive", delegate { return browser.Titles.Count == 2; });
+      WaitUntil("the rail to go away with the pick", delegate { return !browser.MediaMenuVisible; });
+      Pump();
+      Pump();
+
+      object? caret = window.FocusManager.GetFocusedElement();
+      bool on_a_tile_of_the_new_shelf = false;
+      if (caret is ListBoxItem)
+      {
+        for (Visual? at = caret as Visual; at != null; at = at.GetVisualParent())
+        {
+          if (ReferenceEquals(at, titles))
+            on_a_tile_of_the_new_shelf = true;
+        }
+      }
+
+      Assert.That(on_a_tile_of_the_new_shelf, Is.True,
+          "the answer arrived, the tiles it names are laid, and one of them wears the caret - a viewer who "
+          + "presses the rail's filter and gets their arrows back must find them on a lit tile");
+      window.Close();
+    }
+
+    /// <summary>
+    /// The same pick again, on a wall big enough for the panel to recycle containers - and the caret is checked
+    /// where the viewer's eye is, not merely in the focus manager's books. A caret on a tile the wall has laid
+    /// outside the viewport answers "focused" to every question and shows no frame to anyone; the wall must
+    /// bring the tile it stands on back INTO the view, not just back onto a container.
+    /// </summary>
+    [AvaloniaTest]
+    public void PickingAFilterOnAWallThatRecyclesStandsTheCaretOnATileInsideTheView()
+    {
+      LongShelf server = new LongShelf();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      MediaBrowserView view = new MediaBrowserView(browser);
+      ShellWindow window = new ShellWindow(view);
+      window.Show();
+      WaitUntil("the wall to fill", delegate { return browser.Titles.Count > 60; });
+
+      ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "titlesList");
+      titles.Focus();
+      titles.SelectedIndex = 45;
+      titles.ScrollIntoView(titles.Items[45]);
+      Pump();
+      Pump();
+
+      object stood_on = titles.SelectedItem;
+      WaitUntil("the tile the test stands on to be one the wall has laid out",
+          delegate { return titles.ContainerFromIndex(45) is ListBoxItem; });
+
+      browser.ShowMediaMenuCommand.Execute(null);
+      WaitUntil("the menu to stand open", delegate { return browser.MediaMenuVisible; });
+      ListBox rail = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "mediaMenuList");
+      WaitUntil("the rail to be walked", delegate { return rail.IsKeyboardFocusWithin; });
+
+      MediaBrowserMenuEntry filter_page = rail.Items.OfType<MediaBrowserMenuEntry>()
+          .First(row => row.Label.StartsWith("Filter", StringComparison.Ordinal));
+      filter_page.Command.Execute(null);
+      WaitUntil("the filter page to stand up", delegate { return browser.MediaMenuHeading == "Filter"; });
+
+      MediaBrowserMenuEntry all = rail.Items.OfType<MediaBrowserMenuEntry>()
+          .First(row => row.Label == "All");
+      int wall_before = browser.Titles.Count;
+      all.Command.Execute(null);
+      WaitUntil("the rail to go away with the pick", delegate { return !browser.MediaMenuVisible; });
+      WaitUntil("the wall to be rebuilt", delegate { return browser.Titles.Count == wall_before; });
+      Pump();
+      Pump();
+
+      WaitUntil("a tile of the rebuilt wall to wear the caret", delegate
+      {
+        return window.FocusManager.GetFocusedElement() is ListBoxItem tile
+            && titles.ItemFromContainer(tile) != null;
+      });
+
+      object? caret = window.FocusManager.GetFocusedElement();
+      ListBoxItem stood = (ListBoxItem)caret!;
+
+      ScrollViewer viewport = titles.GetVisualDescendants().OfType<ScrollViewer>().First();
+
+      // The wall travels to its caret with a smoothed offset, and the strip the tile ends up in only settles
+      // when the ride is over - the question is asked until the glide has delivered, not one frame into it.
+      bool inside_the_view = false;
+      Point in_view = default;
+      WaitUntil("the wall to glide the caret's tile into the view", delegate
+      {
+        in_view = stood.TranslatePoint(new Point(), viewport) ?? default;
+        inside_the_view = in_view.Y + stood.Bounds.Height > 0 && in_view.Y < viewport.Bounds.Height;
+        return inside_the_view;
+      });
+
+      Assert.That(inside_the_view, Is.True,
+          "the caret's tile lies inside the strip of wall the viewer is looking at - a focus parked on a "
+          + "container above or below the view is the same invisible caret the viewer keeps reporting; "
+          + "y=" + in_view.Y + " off=" + viewport.Offset.Y + " sel=" + titles.SelectedIndex);
       window.Close();
     }
 
@@ -2785,17 +2991,11 @@ namespace Tests.Frontend
       Assert.That(browser.ShowDetails, Is.True, "a screen wears its details until its viewer says otherwise");
       Assert.That(titles.Items.Count, Is.EqualTo(1), "the list stayed where it was behind the panel");
 
-      // The information key of a remote is the screen's own menu in the reference, not the details question
-      // (master_mediamenu.xaml:400), and the room slides aside for it instead of a panel being painted over the
-      // rows. The details have a key of their own beside it.
-      titles.RaiseEvent(new KeyEventArgs
-      {
-        RoutedEvent = InputElement.KeyDownEvent,
-        Key = Key.I,
-        Source = titles
-      });
+      // The rail is the screen's own menu, and the room slides aside for it; the info key of the remote is the
+      // title's own dialog now, so the rail is asked the way its button asks it. The details keep their own key.
+      browser.ShowMediaMenuCommand.Execute(null);
       WaitUntil("the menu to stand open", delegate { return browser.MediaMenuVisible; });
-      Assert.That(browser.ShowDetails, Is.True, "and the info key left the details alone");
+      Assert.That(browser.ShowDetails, Is.True, "and the rail left the details alone");
       ListBox rail = window.GetVisualDescendants().OfType<ListBox>()
           .First(list => list.Name == "mediaMenuList");
       WaitUntil("the menu to fill with its commands", delegate { return rail.Items.Count > 0; });
@@ -3370,6 +3570,21 @@ namespace Tests.Frontend
       internal int TimesAsked { get; private set; }
 
       /// <summary>
+      /// How long the shelf makes everybody wait for its answer. A real server answers a library over the
+      /// network and its database, which takes longer than one dispatcher turn, and the caret's journey after
+      /// a rail pick crosses exactly that waiting - a fake that answers within the turn hides every hole the
+      /// waiting leaves behind.
+      /// </summary>
+      internal int DelayMs { get; set; }
+
+      /// <summary>
+      /// How many titles the shelf hands out, when a test needs a wall big enough for the panel to recycle
+      /// containers under the caret. Zero keeps the four-title shelf body; a bigger number trades it for
+      /// generated titles, which a recycling test cares nothing about the names of.
+      /// </summary>
+      internal int Size { get; set; }
+
+      /// <summary>
       /// Whether the shelf says a whole page is still behind what it hands over. See the search shelf's own
       /// version of this for why a test needs to say so.
       /// </summary>
@@ -3390,8 +3605,19 @@ namespace Tests.Frontend
           Filter = ParameterIn(request.RequestUri.Query, "seen");
         }
 
+        List<ShelfTitle> shelf = new List<ShelfTitle>();
+        if (Size > 0)
+        {
+          for (int i = 0; i < Size; i++)
+            shelf.Add(new ShelfTitle("Title " + i.ToString("D4"), 0, null));
+        }
+        else
+        {
+          shelf.AddRange(SEEN_SHELF);
+        }
+
         List<ShelfTitle> matching = new List<ShelfTitle>();
-        foreach (ShelfTitle title in SEEN_SHELF)
+        foreach (ShelfTitle title in shelf)
         {
           if (Filter == "watched" && title.PlayCount <= 0)
             continue;
@@ -3424,11 +3650,16 @@ namespace Tests.Frontend
         }
         body.Append("]}");
 
-        return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+        HttpResponseMessage answer = new HttpResponseMessage(HttpStatusCode.OK)
         {
           RequestMessage = request,
           Content = new StringContent(body.ToString(), Encoding.UTF8, "application/json")
-        });
+        };
+
+        // A server that answers within the dispatcher turn cannot show what the waiting does to the caret.
+        return DelayMs <= 0
+            ? Task.FromResult(answer)
+            : Task.Delay(DelayMs).ContinueWith(_ => answer, TaskScheduler.Default);
       }
 
       /// <summary>The value of one query parameter, or <c>null</c> when the request did not carry it.</summary>
@@ -3633,13 +3864,9 @@ namespace Tests.Frontend
 
       // The state is said on the screen by the screen's own menu, which is where the reference kept these commands
       // (master_mediamenu.xaml): the row that cycles the filter wears the label of the state it is in, so a viewer
-      // who opens the menu can read what the shelf is showing before pressing anything.
-      titles.RaiseEvent(new KeyEventArgs
-      {
-        RoutedEvent = InputElement.KeyDownEvent,
-        Key = Key.I,
-        Source = titles
-      });
+      // who opens the menu can read what the shelf is showing before pressing anything.  The rail comes out the
+      // way its button brings it - the info key is the title's dialog now, not the rail.
+      browser.ShowMediaMenuCommand.Execute(null);
       WaitUntil("the menu to stand open", delegate { return browser.MediaMenuVisible; });
       ListBox rail = window.GetVisualDescendants().OfType<ListBox>()
           .First(list => list.Name == "mediaMenuList");
