@@ -232,6 +232,37 @@ namespace Tests.Frontend
     }
 
     /// <summary>
+    /// Three leftover plugins stand on the mosaic's first three squares - the big one first - and not in a row
+    /// of little ones beside each other. A cover band the server answered short packs its squares from the left,
+    /// because kept-warm places read as a hole between bands; the plugins' grid is the reference's own fixed
+    /// nineteen squares handed the whole list, so a short list leaves squares empty and the viewer walks the
+    /// big square first. Packed, three leftovers read as a list of slivers, which is what this band was drawn
+    /// to never be.
+    /// </summary>
+    [Test]
+    public void FewLeftoverPluginsStillStandOnTheDesignedSquares()
+    {
+      HomeContentGroup plugins = new HomeContentGroup("Others", HomeContentGroup.PLUGINS_LAYOUT, 1500, 3);
+      for (int i = 0; i < 3; i++)
+        plugins.AddMenuEntry(Plugin(i));
+
+      Assert.That(plugins.Tiles.Count, Is.EqualTo(3), "every leftover the server answered stands on the wall");
+
+      HomeContentTile big = plugins.Tiles[0];
+      double small = plugins.Tiles[1].Width;
+      Assert.That(big.Width, Is.GreaterThan(small * 1.5),
+          $"the first square of a band of three is the grid's big one, not a third sliver: {big.Width} against "
+          + $"the small square's {small}");
+      Assert.That(big.X, Is.LessThan(plugins.Tiles[1].X),
+          "the big square stands at the band's left, where the grid drew it");
+      Assert.That(plugins.Tiles[2].Y, Is.Not.EqualTo(plugins.Tiles[1].Y),
+          "the two small ones stand on the grid's own places, one under the other, not side by side in one "
+          + $"reading row: they stand at y {plugins.Tiles[1].Y} and {plugins.Tiles[2].Y}");
+      Assert.That(plugins.OccupiedWidth, Is.EqualTo(1500),
+          "and the band keeps the whole width the face drew it, whether or not all nineteen squares came");
+    }
+
+    /// <summary>
     /// A mosaic has as many places as the face drew squares, and a plugin beyond the last of them is not shown -
     /// which is the reference's own answer, since its grid is built out of nineteen controls and its converter
     /// hands that grid the whole list to fill them. The place a leftover wants is made in the menu editor.

@@ -380,26 +380,25 @@
                     <ItemsControl.ItemTemplate>
                       <DataTemplate x:DataType="vm:HomeContentTile">
                         <!-- Three kinds of tile, written apart rather than sharing one Button with switches, because
-                             a cover, an icon and a plugin's plaque want opposite things from the surface they stand
+                             a cover, an icon and a plugin's plaque want different things from the surface they stand
                              on: a cover wants a plate and a picture filling it, an icon wants the room behind it and
                              is dressed as glass, and a plugin's plaque wants a ground of the face's own colour with
-                             its picture stretched over it and its name under it. Apart, the shortcut's glass, its
-                             plaque and its morph are nowhere in a tile that is not one, the plaque of a plugin is
-                             nowhere in a cover, and whoever changes one of them cannot move the other two's numbers
-                             by accident. -->
+                             its picture stretched over it. Apart, the shortcut's glass, its plaque and its morph are
+                             nowhere in a tile that is not one, the plaque of a plugin is nowhere in a cover, and
+                             whoever changes one of them cannot move the other two's numbers by accident. -->
                         <Panel>
-                        <!-- The plugin's plaque, and the reference dresses it in four things and nothing else: the
-                             ground is NereusColorMedium, the middle of the three colours the viewer's chosen colour
-                             family is spelled in (PanelRaisedBrush, tinted by FrontendTheme), the plugin's own
-                             picture from HomeMenu\<ActionId>.png is STRETCHED over it rather than cropped to it, and
-                             the name stands centred in a band forty lines high of black at four tenths. No frost
-                             behind it - the plaque has a ground of its own - no picture that steps nearer when
-                             something stands on it, and no second line: the reference shows a plugin's name and no
-                             description of it, because a wall of nineteen squares cannot hold a sentence anyway.
-                             What does change under a viewer is the name, from six tenths of light to full light,
-                             which is the whole of the reference's answer to being stood on. -->
+                        <!-- The plugin's plaque. Its ground is NereusColorMedium, the middle of the three colours
+                             the viewer's chosen colour family is spelled in (PanelRaisedBrush, tinted by
+                             FrontendTheme), and the plugin's own picture from HomeMenu\<ActionId>.png is STRETCHED
+                             over it rather than cropped to it, because an emblem may lose slack at its sides but not
+                             a wing. Everything else it does, it does exactly like a cover on the same wall: its
+                             button wears the cover's class beside its own, so at rest it holds itself a little
+                             quiet, and a viewer standing on it brings the tile to full light, steps the picture a
+                             tenth nearer and lights the shared edge - and its name stands in the very same fade a
+                             cover's title stands in, not in a plate of its own. Without a picture the plug's own
+                             mark fills in, centred on the ground. -->
                         <Border Classes="home-tile-shadow" IsVisible="{Binding IsPlugin}">
-                        <Button Classes="nereus-plugin-tile"
+                        <Button Classes="nereus-plugin-tile nereus-content-tile"
                                 Width="{Binding Width}"
                                 Height="{Binding Height}"
                                 Focusable="{Binding IsFocusable}"
@@ -409,14 +408,27 @@
                           <Panel>
                             <Border Classes="plugin-tile-face" ClipToBounds="True">
                               <Grid>
-                                <Image Classes="plugin-tile-art"
+                                <Image Classes="plugin-tile-art home-tile-art"
                                        Source="{Binding MenuEntry.HomeImagePath, Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter='{}{0}'}"
                                        Stretch="Fill"/>
-                                <Border Classes="plugin-tile-band" VerticalAlignment="Bottom">
-                                  <TextBlock Classes="plugin-tile-name"
+                                <!-- no picture for the plugin: the plug's own mark stands centred on the ground,
+                                     the way a cover without its poster wears the medium's mark; the parameter
+                                     names the icon outright, so no binding value is asked for -->
+                                <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance}, ConverterParameter='Media/extension'}"
+                                      Fill="{DynamicResource TextBrush}" Width="90" Height="90" Opacity="0.55"
+                                      Stretch="Uniform"
+                                      HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-20,0,20"
+                                      IsVisible="{Binding MenuEntry.HomeImagePath, Converter={x:Static views:SkinImageMissingConverter.Instance}, ConverterParameter='{}{0}'}"/>
+                                <Border Classes="home-tile-caption"
+                                        VerticalAlignment="Bottom"
+                                        Padding="8,5,8,10">
+                                  <TextBlock Classes="home-tile-caption-title"
                                              Text="{Binding Label}"
+                                             FontSize="15"
+                                             FontWeight="SemiBold"
+                                             VerticalAlignment="Bottom"
                                              TextTrimming="CharacterEllipsis"
-                                             MaxLines="1"/>
+                                             MaxLines="2"/>
                                 </Border>
                               </Grid>
                             </Border>
@@ -467,6 +479,13 @@
                                    Source="{Binding Title.Artwork, Converter={x:Static views:ArtworkConverter.Instance}, ConverterParameter=wall}"
                                    Stretch="UniformToFill"
                                    IsVisible="{Binding IsTitle}"/>
+                            <!-- no poster (and none on its way): the medium's mark stands on the plate, in the
+                                 same three spells as every media tile's fallback - audio, image or video -->
+                            <Path Data="{Binding Title.FallbackIcon, Converter={x:Static views:SkinIconGeometryConverter.Instance}}"
+                                  Fill="{DynamicResource TextBrush}" Width="70" Height="70" Opacity="0.55"
+                                  Stretch="Uniform"
+                                  HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-16,0,0"
+                                  IsVisible="{Binding Title.HasNoArtwork}"/>
                             <Border Classes="home-tile-caption"
                                     VerticalAlignment="Bottom"
                                     Padding="8,5,8,10">

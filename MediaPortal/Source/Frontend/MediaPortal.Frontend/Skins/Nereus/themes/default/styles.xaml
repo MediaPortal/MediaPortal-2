@@ -602,75 +602,25 @@
     <Setter Property="VerticalAlignment" Value="Top"/>
   </Style>
 
-  <!-- A leftover plugin's plaque, dressed the way the reference dresses it and not like a cover.
+  <!-- A leftover plugin's plaque, which answers a viewer exactly like a cover on the same wall and differs in
+       its dress only where a plugin cannot be a cover.
 
-       A cover stands on a dark plate with a photograph on it, so its picture is cropped to the plate and the
-       name fades up out of the tile's own bottom edge. A plugin's plaque is the other way round: its ground IS
-       the face's colour - the middle of the three the viewer's chosen colour family is spelled in, which is the
-       same brush the reference called NereusColorMedium - and the plugin's picture is stretched over that ground
-       rather than cropped to it, because the picture is an emblem and not a photograph: cutting the wing off a
-       logo is worse than a little slack at its sides.
+       A cover stands on a dark plate with a photograph cropped to it. A plugin's plaque is the other way round:
+       its ground IS the face's colour - the middle of the three the viewer's chosen colour family is spelled in,
+       which is the same brush the reference called NereusColorMedium - and the plugin's picture is stretched over
+       that ground rather than cropped to it, because the picture is an emblem and not a photograph: cutting the
+       wing off a logo is worse than a little slack at its sides.
 
-       Under the name the reference lays a flat plate of black at four tenths, forty lines of its 1080 high, and
-       nothing else: no second line explaining the plugin (nineteen squares cannot hold a sentence), no frost
-       behind it (a plaque has a ground of its own), and no picture stepping nearer when a viewer stands on it.
-       What does answer being stood on is the name, from six tenths of light to full light - and the shared edge
-       every other tile on the wall wears, because one edge for a whole wall is the point. -->
+       Everything else the plaque wears is the cover's own: the name stands in the same fade a cover's title
+       stands in (Border.home-tile-caption with its caption title, worn in the view), the resting tile holds
+       itself a little quiet and steps to full light when a viewer stands on it, its picture steps a tenth
+       nearer, and its edge lights with the same four stops - all of that answered by the cover's styles,
+       because the plaque's button wears the cover's class beside its own. This block is only the ground. -->
   <Style Selector="Button.nereus-plugin-tile">
     <Setter Property="Background" Value="{DynamicResource PanelRaisedBrush}"/>
-    <Setter Property="BorderBrush" Value="#00000000"/>
-    <Setter Property="BorderThickness" Value="0"/>
-    <Setter Property="FocusAdorner" Value="{x:Null}"/>
-    <Setter Property="Padding" Value="0"/>
-    <Setter Property="CornerRadius" Value="10"/>
-    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-    <Setter Property="VerticalContentAlignment" Value="Stretch"/>
   </Style>
   <Style Selector="Border.plugin-tile-face">
     <Setter Property="CornerRadius" Value="10"/>
-  </Style>
-  <Style Selector="Border.plugin-tile-band">
-    <Setter Property="MinHeight" Value="{DynamicResource PluginTileBandHeight}"/>
-    <Setter Property="Background" Value="{DynamicResource PluginTileBandBrush}"/>
-    <Setter Property="Padding" Value="6,2"/>
-  </Style>
-  <Style Selector="TextBlock.plugin-tile-name">
-    <Setter Property="FontSize" Value="{DynamicResource PluginTileNameFontSize}"/>
-    <Setter Property="FontWeight" Value="Bold"/>
-    <Setter Property="TextAlignment" Value="Center"/>
-    <Setter Property="Opacity" Value="{DynamicResource PluginTileNameRestingOpacity}"/>
-    <Setter Property="Transitions">
-      <Transitions>
-        <DoubleTransition Property="Opacity" Duration="0:0:0.2"/>
-      </Transitions>
-    </Setter>
-  </Style>
-  <Style Selector="Button.nereus-plugin-tile:focus TextBlock.plugin-tile-name">
-    <Setter Property="Opacity" Value="1"/>
-  </Style>
-  <Style Selector="Window:not(.pointer-resting) Button.nereus-plugin-tile:pointerover TextBlock.plugin-tile-name">
-    <Setter Property="Opacity" Value="1"/>
-  </Style>
-  <!-- The plaque's edge speaks with the same four stops as the glasses' and the covers', for the same reason. -->
-  <Style Selector="Button.nereus-plugin-tile:focus Border.home-tile-edge">
-    <Setter Property="BorderBrush">
-      <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
-        <GradientStop Offset="0" Color="#FFFFFFFF"/>
-        <GradientStop Offset="0.35" Color="#B3FFFFFF"/>
-        <GradientStop Offset="0.72" Color="#66FFFFFF"/>
-        <GradientStop Offset="1" Color="#CCFFFFFF"/>
-      </LinearGradientBrush>
-    </Setter>
-  </Style>
-  <Style Selector="Window:not(.pointer-resting) Button.nereus-plugin-tile:pointerover Border.home-tile-edge">
-    <Setter Property="BorderBrush">
-      <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
-        <GradientStop Offset="0" Color="#FFFFFFFF"/>
-        <GradientStop Offset="0.35" Color="#B3FFFFFF"/>
-        <GradientStop Offset="0.72" Color="#66FFFFFF"/>
-        <GradientStop Offset="1" Color="#CCFFFFFF"/>
-      </LinearGradientBrush>
-    </Setter>
   </Style>
 
   <!-- The shortcut tiles: glass, and only they are. A cover wants a plate to stand on, an icon wants the room

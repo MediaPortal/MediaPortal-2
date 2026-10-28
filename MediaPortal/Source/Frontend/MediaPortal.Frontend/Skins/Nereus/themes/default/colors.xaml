@@ -46,12 +46,6 @@
   <SolidColorBrush x:Key="DialogGroundBrush">#FF1B1B1B</SolidColorBrush>
   <SolidColorBrush x:Key="VideoBrush">#FF000000</SolidColorBrush>
 
-  <!-- The band a leftover plugin's name stands on. Flat black at four tenths, and NOT the fade above: the
-       reference paints a square plate under a plugin's name, the same plate on every one of the nineteen squares,
-       because the plaque behind it is a flat colour of the face's own rather than a photograph a fade would have
-       to thin out of. -->
-  <SolidColorBrush x:Key="PluginTileBandBrush">#66000000</SolidColorBrush>
-
   <!-- The fade a title stands on: black at ninety out of a hundred over the picture's own bottom edge, thinning
        to nothing two thirds up, so the name reads without a plate being laid across the cover. One fade, two
        places paint it - the strip under a cover on the wall and the band under a main menu tile - and they are

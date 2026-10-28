@@ -1133,7 +1133,7 @@ namespace MediaPortal.Frontend.ViewModels
             // square is a thing to play or a thing to open - an album holds tracks, and the reference's
             // wall opened the album rather than asking it for a file it never has.
             HomeRow row = HomeRow.For(new TitleViewModel(title,
-                MediaCatalog.HoldsTitles(section.Aspect.Name), _client));
+                MediaCatalog.HoldsTitles(section.Aspect.Name), _client, section.Aspect.Name));
             rows.Add(row);
             group.AddTitle(row.Title!);
             // The reference's pane is a wall of covers, and a cover arrives a moment after its name - the same

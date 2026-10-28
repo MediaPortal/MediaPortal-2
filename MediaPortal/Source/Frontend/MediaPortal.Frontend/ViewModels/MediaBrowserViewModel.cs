@@ -379,6 +379,24 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
+    /// The name of the vector mark a tile without a picture wears: the medium the shelf holds, spelled as one
+    /// of the skin's three media icons - audio, image or video. The shelf's aspect answers the question, since
+    /// it is the aspect that says whether this wall is albums, pictures or films.
+    /// </summary>
+    public string FallbackIcon
+    {
+      get
+      {
+        if (string.Equals(ReadThrough, "AlbumItem", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(ReadThrough, "AudioItem", StringComparison.OrdinalIgnoreCase))
+          return "Media/audio";
+        return string.Equals(ReadThrough, "ImageItem", StringComparison.OrdinalIgnoreCase)
+            ? "Media/image"
+            : "Media/video";
+      }
+    }
+
+    /// <summary>
     /// Whether this row's tile may show a watched corner at all - the worn skin's setting for the layout the
     /// shelf is standing in, carried down from the shelf onto the row. The template binds it on the row because
     /// the compiled skin XAML asks the row for everything it paints; the shelf is where the answer comes from,

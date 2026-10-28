@@ -36,16 +36,16 @@ namespace Tests.Frontend
 {
   /// <summary>
   /// A plugin that was not given a place in the main menu is not shown as a little cover: the reference dresses
-  /// it as a plaque. Its ground is the middle colour of the family the viewer chose, its own picture is stretched
-  /// over that ground rather than cropped to it, and its name stands centred in a flat band of black at the
-  /// bottom of the square - no second line explaining the plugin, no glass in front of it, and no picture
-  /// stepping nearer when a viewer stands on it.
+  /// it as a plaque. Its ground is the middle colour of the family the viewer chose and its own picture is
+  /// stretched over that ground rather than cropped to it - but in its answer to a viewer it behaves exactly like
+  /// the covers on the same wall: it brightens, its picture steps nearer, its edge lights, and its name stands in
+  /// the very same fade a cover's title stands on rather than in a flat band of its own.
   /// </summary>
   /// <remarks>
   /// <para>
   /// <see cref="TestHomeBandTakesItsRoom"/> holds the geometry of that band (seven columns, four rows, nineteen
   /// places). What this file holds is the dress: that a square the model says is a plugin is actually dressed as
-  /// one on a shown screen, and that the numbers of the dress belong to the worn face instead of to the view.
+  /// one on a shown screen, and that the fade its name stands on belongs to the worn face instead of to the view.
   /// Both halves matter, because the failure that happened here was silent either way - the view used to hand a
   /// plugin's square to the cover's markup, which painted a dark plate, cropped the emblem and added a line of
   /// description the reference never shows, while the band itself shrank its squares to slivers in one column.
@@ -58,42 +58,37 @@ namespace Tests.Frontend
     private const string MOVIES_ACTION = "80d2e2cc-baaa-4750-807b-f37714153751";
 
     /// <summary>
-    /// Every number of a plaque's dress is the face's, and the reference's own: forty lines for the band the name
-    /// stands on, SmallerFontSize for the name, and a name that rests dimmed and comes to full light under a
-    /// viewer. The head over a band is spelled with the same SmallerFontSize.
+    /// A plaque keeps no numbers of its own any more - its name stands on the shared fade every cover's title
+    /// stands on, so what the skin has to own is that fade: dark at the tile's edge, thinned to nothing above it.
+    /// The head over a band is still spelled with the reference's SmallerFontSize.
     /// </summary>
     [AvaloniaTest]
-    public void TheSkinOwnsTheNumbersOfAPlaque()
+    public void TheSkinOwnsTheFadeAPlaqueSharesWithTheCovers()
     {
       WearTheShippedSkin();
 
-      Assert.That(SkinEngine.WornNumber("PluginTileBandHeight") ?? 0, Is.EqualTo(40),
-          "the band a plugin's name stands on is forty of the reference's 1080 lines");
-      Assert.That(SkinEngine.WornNumber("PluginTileNameFontSize") ?? 0, Is.EqualTo(27),
-          "and the name is written in the size the reference set for it (SmallerFontSize)");
-
-      double resting = SkinEngine.WornNumber("PluginTileNameRestingOpacity") ?? 1;
-      Assert.That(resting, Is.GreaterThanOrEqualTo(0.3).And.LessThan(1),
-          $"a plaque's name rests dimmed at {resting} and comes to full light when a viewer stands on it; at one "
-          + "there is nothing left to come up to");
+      IGradientBrush? fade = SkinEngine.Worn(Application.Current!)?.Resources["TitleFadeBrush"]
+          as IGradientBrush;
+      Assert.That(fade, Is.Not.Null,
+          "the skin names no fade for a title to stand on, and a plaque's name stands on it now too");
+      GradientBrush? stops = fade as GradientBrush;
+      Assert.That(stops, Is.Not.Null, "the fade a title stands on has no stops to read");
+      Assert.That(stops!.GradientStops.Any(s => s.Offset <= 0.01 && s.Color.A > 0xC0), Is.True,
+          "the fade does not start dark at the tile's bottom edge, so a name would stand on nothing");
+      Assert.That(stops.GradientStops.Any(s => s.Offset >= 0.99 && s.Color.A == 0), Is.True,
+          "the fade does not thin to nothing above the name, so it would be a plate and not a fade");
 
       Assert.That(SkinEngine.WornNumber("HomeBandHeadingFontSize") ?? 0, Is.GreaterThanOrEqualTo(24),
           "the head over a band of the wall is written big enough to read across the room, as the reference's "
           + "SmallerFontSize is");
-
-      ISolidColorBrush? band = SkinEngine.Worn(Application.Current!)?.Resources["PluginTileBandBrush"]
-          as ISolidColorBrush;
-      Assert.That(band, Is.Not.Null, "the skin names no brush for the band a plugin's name stands on");
-      Assert.That(band!.Color.A, Is.InRange(0x40, 0x8C),
-          $"the band is black the picture shows through ({band.Color.A:X2} of 255), not a plate painted over it");
-      Assert.That(band.Color.R + band.Color.G + band.Color.B, Is.LessThanOrEqualTo(30),
-          "and it is black, which is what makes a name in any colour read on it");
     }
 
     /// <summary>
     /// On the shown home screen a plugin's square is dressed as a plaque and not as a cover: it stands on the
-    /// middle colour of the chosen family, it wears no glass and no second line, and its name carries the size
-    /// the skin says.
+    /// middle colour of the chosen family, it wears no glass and no second line - and beside that it answers a
+    /// viewer exactly like a cover, which is what its button wearing the cover's class beside its own buys it:
+    /// the same lift to full light, the same stepping picture, the same lit edge and the same fade under the
+    /// name, written in the same size as a cover's title.
     /// </summary>
     [AvaloniaTest]
     public void APluginStandsOnAPlaqueAndNotOnACover()
@@ -107,34 +102,39 @@ namespace Tests.Frontend
             as ISolidColorBrush;
         Assert.That(ground, Is.Not.Null, "the skin names no middle colour for a plaque to stand on");
 
+        TextBlock coverTitle = covers[0].GetVisualDescendants().OfType<TextBlock>()
+            .Single(line => line.Classes.Contains("home-tile-caption-title"));
+
         foreach (Button plaque in plaques)
         {
           Assert.That(((plaque.Background as ISolidColorBrush)?.Color), Is.EqualTo(ground!.Color),
               "a plugin's plaque does not stand on the middle colour of the family the viewer chose, which is what "
               + "the reference called NereusColorMedium");
 
+          // The cover's class beside its own is the whole of the plaque's answer to a viewer: the cover's styles
+          // lift the tile to full light, step its picture and light its edge, and no plugin of its own dresses
+          // any of that - so if the class were ever dropped, the focus frame would silently go with it.
+          Assert.That(plaque.Classes.Contains("nereus-content-tile"), Is.True,
+              "a plaque no longer wears the cover's class, so it stopped answering a viewer the way the covers do");
+
           TextBlock name = plaque.GetVisualDescendants().OfType<TextBlock>()
-              .Single(line => line.Classes.Contains("plugin-tile-name"));
-          Assert.That(name.FontSize, Is.EqualTo(27),
-              "the name is not written in the size the worn skin answers");
+              .Single(line => line.Classes.Contains("home-tile-caption-title"));
+          Assert.That(name.FontSize, Is.EqualTo(coverTitle.FontSize),
+              "the name is not written in the size a cover's title is written in");
           Assert.That(name.Bounds.Height, Is.GreaterThan(0), "the name was never laid out");
 
-          Border band = plaque.GetVisualDescendants().OfType<Border>()
-              .Single(face => face.Classes.Contains("plugin-tile-band"));
-          Assert.That(band.Bounds.Height, Is.GreaterThanOrEqualTo(40),
-              "the band the name stands on did not come to the height the skin drew it in");
+          Border caption = plaque.GetVisualDescendants().OfType<Border>()
+              .Single(face => face.Classes.Contains("home-tile-caption"));
+          Assert.That(caption.Bounds.Height, Is.GreaterThanOrEqualTo(40),
+              "the fade the name stands on did not come to the height the covers wear it at");
           Assert.That(plaque.GetVisualDescendants().OfType<TextBlock>().Count(), Is.EqualTo(1),
               "a plugin's square carries more than its name, and the reference shows nothing beside the name - "
               + "nineteen squares cannot hold a sentence");
 
-          // The two dressings that belong to a cover and to no plaque: the glass a shortcut wears, and the fade a
-          // cover's title stands on.
+          // The one dressing that belongs to a shortcut and to no plaque: the glass.
           Assert.That(plaque.GetVisualDescendants().OfType<LiquidGlassSurface>().Any(), Is.False,
               "a plaque wears no glass: it has a ground of the face's own colour, so a lens behind it would "
               + "sample the wall through a colour that was never meant to be see-through");
-          Assert.That(plaque.GetVisualDescendants().OfType<Border>()
-              .Any(face => face.Classes.Contains("home-tile-caption")), Is.False,
-              "a plugin's name stands on the fade a cover's title stands on; the reference lays a flat band there");
         }
 
         // A cover beside the plaques is untouched by any of this, and the dresses really are apart: every tile's

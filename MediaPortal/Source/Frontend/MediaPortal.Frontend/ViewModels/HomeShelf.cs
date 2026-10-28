@@ -419,7 +419,15 @@ namespace MediaPortal.Frontend.ViewModels
 
       _cellWidth = (Width - _inset * 2) / _columns;
       _cellHeight = (Height - CONTENT_TOP - _inset) / _rows;
-      _designedMosaic = covers >= _layout.Length;
+
+      // The leftover plugins' band is its mosaic whatever the server answered. The other bands pack their
+      // squares from the left when the covers stay away, because a mosaic of six with four places kept warm
+      // reads as a hole between the bands beside it; the plugins' grid is the opposite case - the reference
+      // builds it out of nineteen fixed squares and hands the list to that one grid, so a fifth leftover
+      // stands on the fifth square, a big one, and the empty squares are the wall's air, not a gap to close.
+      // Packed instead, three leftovers became a row of slivers the viewer called a list, which is exactly
+      // the face this band was drawn to not wear.
+      _designedMosaic = covers >= _layout.Length || string.Equals(layout, PLUGINS_LAYOUT, StringComparison.Ordinal);
       _railTileSize = 0;
 
       // The big first cover is the face's own, but only while the covers beside it arrive too: a cover over two

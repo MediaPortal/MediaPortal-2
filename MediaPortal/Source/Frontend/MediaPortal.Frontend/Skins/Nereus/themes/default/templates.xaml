@@ -466,9 +466,10 @@
                Stretch="UniformToFill" Margin="5"
                IsVisible="{Binding Title.HasArtwork}"/>
         <Panel IsVisible="{Binding Title.HasNoArtwork}">
-          <Image Source="{Binding Title.Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                  ConverterParameter='media_item_background.jpg'}"
-                 Stretch="UniformToFill" Margin="5" Opacity="0.7"/>
+          <!-- no picture: the medium's mark stands where the art would, above the name as it has always stood -->
+          <Path Data="{Binding Title.FallbackIcon, Converter={x:Static views:SkinIconGeometryConverter.Instance}}"
+                Fill="{DynamicResource TextBrush}" Width="110" Height="110" Opacity="0.55" Stretch="Uniform"
+                HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-90,0,0"/>
           <TextBlock Text="{Binding Title.Name}" Foreground="{DynamicResource TextBrush}"
                      FontSize="{DynamicResource SmallFontSize}" TextWrapping="Wrap"
                      TextTrimming="CharacterEllipsis" MaxLines="4" TextAlignment="Center"
@@ -576,20 +577,16 @@
                                     ConverterParameter='tile'}"
                    Stretch="UniformToFill"
                    IsVisible="{Binding HasArtwork}"/>
-            <!-- no picture: the skin's ground, its mark, the name in place of the art -->
-            <Panel IsVisible="{Binding HasNoArtwork}">
-              <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                      ConverterParameter='media_item_background.jpg'}"
-                     Stretch="UniformToFill" Opacity="0.7"/>
-              <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                      ConverterParameter='video.png'}"
-                     Stretch="Uniform" Width="70" Height="70" Opacity="0.6"
-                     HorizontalAlignment="Left" VerticalAlignment="Top" Margin="8"/>
+            <!-- no picture: the home tiles' backup plate, the medium's mark in its middle, the name under it -->
+            <StackPanel IsVisible="{Binding HasNoArtwork}" VerticalAlignment="Center" HorizontalAlignment="Center"
+                        Spacing="10" Margin="12,0">
+              <Path Data="{Binding FallbackIcon, Converter={x:Static views:SkinIconGeometryConverter.Instance}}"
+                    Fill="{DynamicResource TextBrush}" Width="60" Height="60" Opacity="0.55" Stretch="Uniform"
+                    HorizontalAlignment="Center"/>
               <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextBrush}"
-                         FontSize="{DynamicResource SmallFontSize}" TextWrapping="Wrap"
-                         TextTrimming="CharacterEllipsis" MaxLines="4" TextAlignment="Center"
-                         Margin="12,54,10,10" VerticalAlignment="Center"/>
-            </Panel>
+                         FontSize="{DynamicResource TinyFontSize}" TextWrapping="Wrap"
+                         TextTrimming="CharacterEllipsis" MaxLines="3" TextAlignment="Center"/>
+            </StackPanel>
           </Grid>
         </Border>
         <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
@@ -631,19 +628,17 @@
                                     ConverterParameter='tile'}"
                    Stretch="UniformToFill"
                    IsVisible="{Binding HasArtwork}"/>
-            <Panel IsVisible="{Binding HasNoArtwork}">
-              <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                      ConverterParameter='media_item_background.jpg'}"
-                     Stretch="UniformToFill" Opacity="0.7"/>
-              <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                      ConverterParameter='video.png'}"
-                     Stretch="Uniform" Width="60" Height="60" Opacity="0.6"
-                     HorizontalAlignment="Left" VerticalAlignment="Center" Margin="8,0,0,0"/>
+            <!-- no picture: the mark and the name side by side, as the banner's wide plate is too low to stack them -->
+            <StackPanel IsVisible="{Binding HasNoArtwork}" Orientation="Horizontal"
+                        VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="12" Margin="12,0">
+              <Path Data="{Binding FallbackIcon, Converter={x:Static views:SkinIconGeometryConverter.Instance}}"
+                    Fill="{DynamicResource TextBrush}" Width="36" Height="36" Opacity="0.55" Stretch="Uniform"
+                    VerticalAlignment="Center"/>
               <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextBrush}"
-                         FontSize="{DynamicResource SmallFontSize}" TextWrapping="Wrap"
-                         TextTrimming="CharacterEllipsis" MaxLines="2"
-                         Margin="64,10,10,10" VerticalAlignment="Center"/>
-            </Panel>
+                         FontSize="{DynamicResource TinyFontSize}" TextWrapping="Wrap"
+                         TextTrimming="CharacterEllipsis" MaxLines="2" MaxWidth="330"
+                         VerticalAlignment="Center"/>
+            </StackPanel>
           </Grid>
         </Border>
         <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
@@ -684,19 +679,15 @@
                                     ConverterParameter='tile'}"
                    Stretch="UniformToFill"
                    IsVisible="{Binding HasArtwork}"/>
-            <Panel IsVisible="{Binding HasNoArtwork}">
-              <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                      ConverterParameter='media_item_background.jpg'}"
-                     Stretch="UniformToFill" Opacity="0.7"/>
-              <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                      ConverterParameter='video.png'}"
-                     Stretch="Uniform" Width="60" Height="60" Opacity="0.6"
-                     HorizontalAlignment="Left" VerticalAlignment="Top" Margin="8"/>
+            <StackPanel IsVisible="{Binding HasNoArtwork}" VerticalAlignment="Center" HorizontalAlignment="Center"
+                        Spacing="8" Margin="10,0">
+              <Path Data="{Binding FallbackIcon, Converter={x:Static views:SkinIconGeometryConverter.Instance}}"
+                    Fill="{DynamicResource TextBrush}" Width="46" Height="46" Opacity="0.55" Stretch="Uniform"
+                    HorizontalAlignment="Center"/>
               <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextBrush}"
-                         FontSize="{DynamicResource SmallFontSize}" TextWrapping="Wrap"
-                         TextTrimming="CharacterEllipsis" MaxLines="3" TextAlignment="Center"
-                         Margin="8,44,8,10" VerticalAlignment="Stretch"/>
-            </Panel>
+                         FontSize="{DynamicResource TinyFontSize}" TextWrapping="Wrap"
+                         TextTrimming="CharacterEllipsis" MaxLines="2" TextAlignment="Center"/>
+            </StackPanel>
           </Grid>
         </Border>
         <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
@@ -744,17 +735,17 @@
                                     ConverterParameter='tile'}"
                    Stretch="UniformToFill"
                    IsVisible="{Binding HasArtwork}"/>
-            <!-- no picture: the skin's mark in the plate, with the name where the art would stand -->
-            <Panel IsVisible="{Binding HasNoArtwork}">
-              <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                      ConverterParameter='video.png'}"
-                     Stretch="Uniform" Width="110" Height="110" Opacity="0.6"
-                     VerticalAlignment="Center" Margin="0,-40,0,0"/>
+            <!-- no picture: the home tiles' backup plate, the medium's mark in its middle, the name under it -->
+            <StackPanel IsVisible="{Binding HasNoArtwork}" VerticalAlignment="Center" HorizontalAlignment="Center"
+                        Spacing="14" Margin="14,0">
+              <Path Data="{Binding FallbackIcon, Converter={x:Static views:SkinIconGeometryConverter.Instance}}"
+                    Fill="{DynamicResource TextBrush}" Width="100" Height="100" Opacity="0.55" Stretch="Uniform"
+                    HorizontalAlignment="Center"/>
               <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextBrush}"
-                         FontSize="{DynamicResource SmallFontSize}" FontWeight="SemiBold"
+                         FontSize="{DynamicResource TinyFontSize}" FontWeight="SemiBold"
                          TextWrapping="Wrap" TextTrimming="CharacterEllipsis" MaxLines="3"
-                         TextAlignment="Center" Margin="14,0,14,0" VerticalAlignment="Center"/>
-            </Panel>
+                         TextAlignment="Center"/>
+            </StackPanel>
           </Grid>
         </Border>
         <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
@@ -787,12 +778,12 @@
   </DataTemplate>
 
   <!--
-    The music tiles, as Nereus drew them for audio and wearing the wall's tile like every other tile. Two things
-    the film tiles are not, and the reference is uncompromising about both. The plate is its MediaConsts'
+    The music tiles, as Nereus drew them for audio and wearing the wall's tile like every other tile. One thing
+    the film tiles are not, and the reference is uncompromising about it: the plate is its MediaConsts'
     AUDIO_GRID_WIDTH x AUDIO_GRID_HEIGHT, 205x195, a square rather than the poster's 163x250: a thousand album
-    covers are square and none of them is a film case. And a music tile whose picture is missing wears the
-    skin's OWN COLOUR with the music mark in it, never a film still and never video.png, with the name standing
-    in for the art. An album's square wears audio.png, a track's the media menu's track mark.
+    covers are square and none of them is a film case. A music tile whose picture is missing wears the same
+    backup plate as every other tile on the front end - the plain dark face, the medium's mark in its middle
+    and the name under it - which for music is the audio mark, never a film still.
 
     The picture itself is asked for as a cover, because that is what music calls its front picture and what the
     import stores: once per album, under the album's id. A track is answered with its album's cover by the
@@ -808,18 +799,16 @@
                                     ConverterParameter='tile'}"
                    Stretch="UniformToFill"
                    IsVisible="{Binding HasArtwork}"/>
-            <!-- no cover: the skin's own colour, its music mark, the name in place of the art -->
-            <Panel IsVisible="{Binding HasNoArtwork}">
-              <Border Classes="nereus-music-ground"/>
-              <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                      ConverterParameter='audio.png'}"
-                     Stretch="Uniform" Width="70" Height="70" Opacity="0.6"
-                     HorizontalAlignment="Left" VerticalAlignment="Top" Margin="8"/>
+            <!-- no cover: the home tiles' backup plate, the music mark in its middle, the name under it -->
+            <StackPanel IsVisible="{Binding HasNoArtwork}" VerticalAlignment="Center" HorizontalAlignment="Center"
+                        Spacing="10" Margin="12,0">
+              <Path Data="{Binding FallbackIcon, Converter={x:Static views:SkinIconGeometryConverter.Instance}}"
+                    Fill="{DynamicResource TextBrush}" Width="60" Height="60" Opacity="0.55" Stretch="Uniform"
+                    HorizontalAlignment="Center"/>
               <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextBrush}"
-                         FontSize="{DynamicResource SmallFontSize}" TextWrapping="Wrap"
-                         TextTrimming="CharacterEllipsis" MaxLines="4"
-                         Margin="14,54,10,10" VerticalAlignment="Center"/>
-            </Panel>
+                         FontSize="{DynamicResource TinyFontSize}" TextWrapping="Wrap"
+                         TextTrimming="CharacterEllipsis" MaxLines="2" TextAlignment="Center"/>
+            </StackPanel>
           </Grid>
         </Border>
         <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
@@ -866,18 +855,15 @@
                                     ConverterParameter='tile'}"
                    Stretch="UniformToFill"
                    IsVisible="{Binding HasArtwork}"/>
-            <Panel IsVisible="{Binding HasNoArtwork}">
-              <Border Classes="nereus-music-ground"/>
-              <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
-                                   ConverterParameter='MediaMenu/track'}"
-                    Fill="{DynamicResource TextBrush}" Width="35" Height="35" Opacity="0.5"
-                    Stretch="Uniform"
-                    HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10"/>
+            <StackPanel IsVisible="{Binding HasNoArtwork}" VerticalAlignment="Center" HorizontalAlignment="Center"
+                        Spacing="10" Margin="12,0">
+              <Path Data="{Binding FallbackIcon, Converter={x:Static views:SkinIconGeometryConverter.Instance}}"
+                    Fill="{DynamicResource TextBrush}" Width="52" Height="52" Opacity="0.55" Stretch="Uniform"
+                    HorizontalAlignment="Center"/>
               <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextBrush}"
-                         FontSize="{DynamicResource SmallFontSize}" TextWrapping="Wrap"
-                         TextTrimming="CharacterEllipsis" MaxLines="4"
-                         Margin="14,54,10,10" VerticalAlignment="Center"/>
-            </Panel>
+                         FontSize="{DynamicResource TinyFontSize}" TextWrapping="Wrap"
+                         TextTrimming="CharacterEllipsis" MaxLines="2" TextAlignment="Center"/>
+            </StackPanel>
           </Grid>
         </Border>
         <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
