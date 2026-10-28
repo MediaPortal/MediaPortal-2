@@ -124,6 +124,13 @@ namespace MediaPortal.Frontend.Views
     public const double MENU_LEAN_LEFT = 18.0;
 
     /// <summary>
+    /// How far the menu rail is thrown when an arrow asks above its head entry or below its foot entry - up and
+    /// down the television, off the end the viewer asked for, the same answer its left edge gives sideways.
+    /// </summary>
+    public const double MENU_LEAN_UP = -16.0;
+    public const double MENU_LEAN_DOWN = 16.0;
+
+    /// <summary>
     /// The refusals this screen knows, one per edge, kept apart so that a wall mid-lean does not silence the
     /// corner row and the other way round.
     /// </summary>
@@ -131,6 +138,7 @@ namespace MediaPortal.Frontend.Views
     private readonly LeanAtTheEnd _cornerRefusal = new LeanAtTheEnd();
     private readonly LeanAtTheEnd _wallEndRefusal = new LeanAtTheEnd();
     private readonly LeanAtTheEnd _menuRefusal = new LeanAtTheEnd();
+    private readonly LeanAtTheEnd _menuEndRefusal = new LeanAtTheEnd();
 
     /// <summary>
     /// The name the worn face gives the row of corner buttons in its own markup, which is the thing that leans
@@ -686,6 +694,39 @@ namespace MediaPortal.Frontend.Views
           },
           RoutingStrategies.Tunnel);
 
+      // The head and the foot of the rail answer the same way its left edge does. An arrow that asked for one
+      // more entry than the rail has asked for a place that does not exist, and a screen that says nothing to
+      // that is a screen where the viewer cannot tell the end of the list from a broken key. So the rail is
+      // thrown off the end that was asked for - up at its head, down at its foot - and settles back under the
+      // viewer, who keeps the entry they stand on. Claimed on the way in, before the list's own walk answers
+      // the key with the step that cannot be taken.
+      AddHandler(KeyDownEvent,
+          delegate (object? sender, KeyEventArgs args)
+          {
+            if (!_home.IsNereusHome || args.Handled
+                || (args.Key != Key.Up && args.Key != Key.Down))
+              return;
+            if (!menuList.IsKeyboardFocusWithin || menuList.Items.Count == 0)
+              return;
+
+            MainMenuEntry? stood = StoodOnRail();
+            int at = stood == null ? -1 : menuList.Items.IndexOf(stood);
+            if (at < 0)
+              return;
+
+            if (args.Key == Key.Up && at == 0)
+            {
+              LeanMenuOffTheHead();
+              args.Handled = true;
+            }
+            else if (args.Key == Key.Down && at == menuList.Items.Count - 1)
+            {
+              LeanMenuOffTheFoot();
+              args.Handled = true;
+            }
+          },
+          RoutingStrategies.Tunnel);
+
       // Enter asks who has the focus, and the view model decides what the press means: pressing a tile opens
       // that part of the library, pressing a menu entry that cannot open shows the reason on screen instead of
       // clicking against nothing, and pressing a row - half way watched or in the lists beside it - resumes
@@ -1079,6 +1120,22 @@ namespace MediaPortal.Frontend.Views
     private void LeanMenuOffTheLeft()
     {
       _menuRefusal.Lean(menuList, MENU_LEAN_LEFT, sideways: true);
+    }
+
+    /// <summary>
+    /// The answer at the head of the rail, where no entry stands above the first one: the rail is thrown up
+    /// off that end and settles. The viewer keeps the entry they stand on, and the key says what is true to
+    /// say: the list begins here.
+    /// </summary>
+    private void LeanMenuOffTheHead()
+    {
+      _menuEndRefusal.Lean(menuList, MENU_LEAN_UP);
+    }
+
+    /// <inheritdoc cref="LeanMenuOffTheHead" />
+    private void LeanMenuOffTheFoot()
+    {
+      _menuEndRefusal.Lean(menuList, MENU_LEAN_DOWN);
     }
 
     /// <summary>
