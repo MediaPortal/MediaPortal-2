@@ -49,10 +49,21 @@ namespace MediaPortal.Frontend.Views
     public static readonly StyledProperty<string?> UrlProperty =
         AvaloniaProperty.Register<HttpImage, string?>(nameof(Url));
 
+    /// <summary>
+    /// The width to decode at, 0 for the picture's own. Feed CDNs serve their heroes enormous - FAZ answers
+    /// 6144 wide for a tile 430 across - and a wall of 19 headlines decoded at full size is a wall of a
+    /// gigabyte of pixels; the tile says how wide it hangs and the picture is born that wide.
+    /// </summary>
+    public static readonly StyledProperty<int> DecodeWidthProperty =
+        AvaloniaProperty.Register<HttpImage, int>(nameof(DecodeWidth), 0);
+
     private static readonly HttpClient HTTP = CreateClient();
     private static readonly object GATE = new object();
     private static readonly Dictionary<string, IImage?> ANSWERED = new Dictionary<string, IImage?>();
-    private const int KEPT_ANSWERS = 12;
+
+    /// <summary>Answers kept between walls: the news wall hangs nineteen story pictures and six feed marks,
+    /// and walking off to the weather and back should not fetch the newspapers again.</summary>
+    private const int KEPT_ANSWERS = 64;
 
     private static int _generation;
 
@@ -60,6 +71,12 @@ namespace MediaPortal.Frontend.Views
     {
       get => GetValue(UrlProperty);
       set => SetValue(UrlProperty, value);
+    }
+
+    public int DecodeWidth
+    {
+      get => GetValue(DecodeWidthProperty);
+      set => SetValue(DecodeWidthProperty, value);
     }
 
     private static HttpClient CreateClient()
@@ -88,9 +105,11 @@ namespace MediaPortal.Frontend.Views
         return;
       }
 
+      int width = DecodeWidth;
+      string key = width > 0 ? url + "@" + width : url!;
       lock (GATE)
       {
-        if (ANSWERED.TryGetValue(url!, out IImage? held))
+        if (ANSWERED.TryGetValue(key, out IImage? held))
         {
           Source = held;
           return;
@@ -106,12 +125,14 @@ namespace MediaPortal.Frontend.Views
         {
           Bitmap bitmap;
           using (MemoryStream picture = new MemoryStream(bytes, false))
-            bitmap = new Bitmap(picture);
+            bitmap = width > 0
+                ? Bitmap.DecodeToWidth(picture, width, BitmapInterpolationMode.MediumQuality)
+                : new Bitmap(picture);
           lock (GATE)
           {
             if (ANSWERED.Count >= KEPT_ANSWERS)
               ANSWERED.Clear();
-            ANSWERED[url!] = bitmap;
+            ANSWERED[key] = bitmap;
           }
           if (Volatile.Read(ref _asked) == mine)
             Source = bitmap;

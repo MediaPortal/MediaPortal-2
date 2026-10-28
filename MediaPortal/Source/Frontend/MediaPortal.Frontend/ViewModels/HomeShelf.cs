@@ -143,7 +143,8 @@ namespace MediaPortal.Frontend.ViewModels
         string? iconName = null, bool iconAtRight = false, string? badgeName = null,
         string kind = "plain", IReadOnlyList<CardFact>? facts = null,
         IReadOnlyList<WeatherSlot>? slots = null, WeatherAir? air = null, string? radarUrl = null,
-        string sub2 = "")
+        string sub2 = "", string? imageUrl = null, string? logoUrl = null, string? story = null,
+        bool hero = false, string? feedName = null)
     {
       Label = label;
       Detail = detail;
@@ -158,6 +159,11 @@ namespace MediaPortal.Frontend.ViewModels
       Slots = slots;
       Air = air;
       RadarUrl = radarUrl;
+      ImageUrl = imageUrl;
+      LogoUrl = logoUrl;
+      Story = story;
+      Hero = hero;
+      FeedName = feedName;
     }
 
     /// <summary>The name the card's title band carries - the place, the day, the feed, the headline.</summary>
@@ -204,6 +210,15 @@ namespace MediaPortal.Frontend.ViewModels
     public bool IsAir => Kind == "air";
     public bool IsPlain => Kind == "plain";
 
+    /// <summary>A feed's square: its mark in the middle, its name and how many it handed over below.</summary>
+    public bool IsFeedTile => Kind == "feedtile";
+
+    /// <summary>A headline standing on its story's own picture, the feed's mark in the corner.</summary>
+    public bool IsNewsPicture => Kind == "news" && HasImage;
+
+    /// <summary>A headline without a picture: the words themselves on the wall's own glass.</summary>
+    public bool IsNewsWords => Kind == "news" && !HasImage;
+
     /// <summary>The small two-column rows the weather and air cards are written in: name left, value right.</summary>
     public IReadOnlyList<CardFact>? Facts { get; }
 
@@ -232,6 +247,47 @@ namespace MediaPortal.Frontend.ViewModels
     public string? RadarUrl { get; }
 
     public bool HasRadar => RadarUrl != null;
+
+    /// <summary>
+    /// The story's own picture, asked of the internet by the tile it stands on; null on every card that
+    /// shows no photograph. A headline whose feed names no picture wears the word face instead - the wall's
+    /// own glass, the same ground a weather card stands on.
+    /// </summary>
+    public string? ImageUrl { get; }
+
+    public bool HasImage => ImageUrl != null;
+
+    /// <summary>
+    /// The little mark of whoever speaks - the feed's logo in a headline's corner chip and in the middle of
+    /// a feed's square. Null where the feed names neither a channel image nor an address to ask one from;
+    /// the card then paints the initial instead, which is what the chip and the square do while the picture
+    /// is on its way just the same.
+    /// </summary>
+    public string? LogoUrl { get; }
+
+    public bool HasLogo => LogoUrl != null;
+
+    /// <summary>The reverse, so a square paints its initial exactly where no mark was named - converterless.</summary>
+    public bool NoLogo => LogoUrl == null;
+
+    /// <summary>The words under a headline - the feed's summary - on the places that show them. Null elsewhere.</summary>
+    public string? Story { get; }
+
+    public bool HasStory => !string.IsNullOrWhiteSpace(Story);
+
+    /// <summary>Whether this headline stands on one of the mosaic's big places; false on every other card.</summary>
+    public bool Hero { get; }
+
+    /// <summary>The reverse, so a template can hide what a hero hides without a converter of its own.</summary>
+    public bool NotHero => !Hero;
+
+    /// <summary>Whoever carried the story; the word a headline's chip prints and takes its initial from.</summary>
+    public string? FeedName { get; }
+
+    /// <summary>The feed's first letter, which is what a chip or a square paints where a logo did not arrive.</summary>
+    public string Glyph => FeedName != null && FeedName.Length > 0
+        ? FeedName.Substring(0, 1).ToUpperInvariant()
+        : (Label.Length > 0 ? Label.Substring(0, 1).ToUpperInvariant() : "");
   }
 
   /// <summary>
@@ -272,8 +328,9 @@ namespace MediaPortal.Frontend.ViewModels
   public sealed record WeatherWallBrief(string Place, WeatherNow? Now, IReadOnlyList<WeatherDay> Days, bool Metric,
       IReadOnlyList<WeatherSlot>? Slots = null, WeatherAir? Air = null, string? RadarUrl = null);
 
-  /// <summary>One feed's standing in the news brief: how many headlines it handed over, or why it did not.</summary>
-  public sealed record FeedWallRow(string Name, int HeadlineCount, string? Error);
+  /// <summary>One feed's standing in the news brief: how many headlines it handed over, or why it did not,
+  /// and the mark it speaks under - its channel image, or the site's own favicon where it names none.</summary>
+  public sealed record FeedWallRow(string Name, int HeadlineCount, string? Error, string? LogoUrl = null);
 
   /// <summary>What a news reader answers: every feed that was asked, and the newest headlines across them.</summary>
   public sealed record NewsWallBrief(IReadOnlyList<FeedWallRow> Feeds, IReadOnlyList<NewsHeadline> Headlines);
@@ -504,6 +561,14 @@ namespace MediaPortal.Frontend.ViewModels
     /// <summary>The name of that mosaic's table, which is what the band of leftover plugins is built with.</summary>
     public const string PLUGINS_LAYOUT = "square5";
 
+    /// <summary>
+    /// How many feeds the "cardfeed" grid has squares for: six, because the mockup the viewer approved sets its
+    /// feed grid as "repeat(2,188px)" columns by "repeat(3,188px)" rows filled column first - two columns of
+    /// three squares and no more. A seventh feed has no square and is not shown, the same answer the plugins'
+    /// mosaic gives a twentieth plugin.
+    /// </summary>
+    public const int FEED_BAND_SLOTS = 6;
+
     private static readonly (int Column, int Row, int ColumnSpan, int RowSpan)[] THUMBNAIL_LAYOUT_1 =
     {
         (0, 0, 2, 2), (2, 0, 1, 1), (2, 1, 1, 1),
@@ -568,6 +633,12 @@ namespace MediaPortal.Frontend.ViewModels
     private readonly double _cellWidth;
     private readonly double _cellHeight;
 
+    /// <summary>The side of one feed square in the "cardfeed" grid - a square is a square, not a cell.</summary>
+    private readonly double _feedSquare;
+
+    /// <summary>How many feed squares stand in one column of the "cardfeed" grid before the next column starts.</summary>
+    private readonly int _feedRows;
+
     /// <summary>
     /// The square a shortcut is cut at. Not a number kept for itself: a column of five at the
     /// old 159 ended twelve lines below the band's own height and twenty-nine below the lowest cover of the
@@ -606,6 +677,8 @@ namespace MediaPortal.Frontend.ViewModels
         _columns = 1;
         _rows = 5;
         _layout = Array.Empty<(int, int, int, int)>();
+        _feedSquare = 0;
+        _feedRows = 0;
 
         // The room the mosaic's squares have for themselves: from the line their first row stands on down to the
         // line the lowest cover of a full band ends on (a cover stands five off its cell, and the band keeps
@@ -618,6 +691,24 @@ namespace MediaPortal.Frontend.ViewModels
         _railTileSize = covers > 1
             ? Math.Min(159.0, Math.Round((span - (covers - 1) * RAIL_GAP) / covers, 1))
             : 159.0;
+        return;
+      }
+
+      // The feeds as the mockup the viewer approved drew them: two columns of squares, filled from the top
+      // down because the columns are the feeds and not the rows, three squares to a column - the mockup's
+      // own "repeat(3,188px)" - so six feeds stand and a seventh is left out, the way the reference leaves
+      // the twentieth plugin out of its nineteen-place mosaic. A square is cut from the column's own width,
+      // so the grid reads as tiles and not as stretched cells.
+      if (layout == "cardfeed")
+      {
+        _columns = 2;
+        _layout = Array.Empty<(int, int, int, int)>();
+        _feedSquare = Math.Round((Width - _inset * 2) / 2 - 10, 1);
+        _feedRows = FEED_BAND_SLOTS / 2;
+        _rows = _feedRows;
+        _cellWidth = (Width - _inset * 2) / _columns;
+        _cellHeight = _feedSquare + 10;
+        _railTileSize = 0;
         return;
       }
 
@@ -650,6 +741,8 @@ namespace MediaPortal.Frontend.ViewModels
       // the face this band was drawn to not wear.
       _designedMosaic = covers >= _layout.Length || string.Equals(layout, PLUGINS_LAYOUT, StringComparison.Ordinal);
       _railTileSize = 0;
+      _feedSquare = 0;
+      _feedRows = 0;
 
       // The big first cover is the face's own, but only while the covers beside it arrive too: a cover over two
       // cells stands over 2 * columns - 4 cells in the row below it, and without those covers the cells it
@@ -727,6 +820,22 @@ namespace MediaPortal.Frontend.ViewModels
     /// </summary>
     private void AddTile(Func<double, double, double, double, HomeContentTile> create)
     {
+      if (Layout == "cardfeed")
+      {
+        // Column first: the first squares stand under each other in the left column, and only when it is
+        // full do they begin at the top of the right one - the feeds are read down, not across.
+        int place = Tiles.Count;
+        if (_feedRows <= 0 || place >= _columns * _feedRows)
+          return;
+
+        double fx = _inset + (place / _feedRows) * (_feedSquare + 10) + 5;
+        double fy = CONTENT_TOP + 5 + (place % _feedRows) * (_feedSquare + 10);
+        _right = Math.Max(_right, fx + _feedSquare);
+        AddSquareTo(create(fx, fy, _feedSquare, _feedSquare));
+        OccupiedWidth = Math.Min(Width, _right + _inset);
+        return;
+      }
+
       if (Layout == "shortcuts")
       {
         double size = _railTileSize;

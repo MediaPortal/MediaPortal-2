@@ -1348,9 +1348,10 @@ namespace MediaPortal.Frontend.ViewModels
         bool any = false;
         if (brief.Feeds.Count > 0)
         {
-          // The feeds stand in the reference's VeryNarrow column - three squares across, three down.
-          int places = Math.Min(9, brief.Feeds.Count);
-          HomeContentGroup feeds = new HomeContentGroup("Feeds", "card9", 400, places);
+          // The feeds as the mockup the viewer approved drew them: squares two columns wide, filled from the
+          // top down, three squares to the column - six feeds stand, a seventh has no square.
+          int places = Math.Min(HomeContentGroup.FEED_BAND_SLOTS, brief.Feeds.Count);
+          HomeContentGroup feeds = new HomeContentGroup("Feeds", "cardfeed", 400, places);
           for (int i = 0; i < places; i++)
             feeds.AddCard(FeedCard(brief.Feeds[i]));
           wall.Add(feeds);
@@ -1365,8 +1366,15 @@ namespace MediaPortal.Frontend.ViewModels
           // and a twentieth has no square and no complaint.
           int places = Math.Min(HomeContentGroup.PLUGINS_BAND_SLOTS, brief.Headlines.Count);
           HomeContentGroup top = new HomeContentGroup("Top news", HomeContentGroup.PLUGINS_LAYOUT, 1500, places);
+          Dictionary<string, string?> logos = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
+          foreach (FeedWallRow feed in brief.Feeds)
+            logos[feed.Name] = feed.LogoUrl;
           for (int i = 0; i < places; i++)
-            top.AddCard(HeadlineCard(brief.Headlines[i]));
+          {
+            // The mosaic's three big places - the first, sixth and thirteenth square, as the grid names them -
+            // carry their story's words beside its picture; the small ones are picture and title alone.
+            top.AddCard(HeadlineCard(brief.Headlines[i], i == 0 || i == 5 || i == 12, logos));
+          }
           wall.Add(top);
           any = true;
         }
@@ -1535,27 +1543,65 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
-    /// One feed's square: its name, how many headlines it handed over (or the reason it did not), and the
-    /// news mark in its middle - the reference's <c>FeedDataTemplate</c> said the same three things.
+    /// One feed's square as the mockup drew it: the feed's own mark in the middle of a glass square, its name
+    /// under it, and how many headlines it handed over (or the reason it did not) under that. The mark is the
+    /// channel image where the feed publishes one and the publisher's favicon where it does not; the square
+    /// paints the feed's initial behind both, so a mark that never lands is still a face.
     /// </summary>
     private static HomeInfoCard FeedCard(FeedWallRow feed)
     {
       return new HomeInfoCard(feed.Name,
           detail: feed.Error ?? feed.HeadlineCount + (feed.HeadlineCount == 1 ? " headline" : " headlines"),
-          iconName: "HomeContentIcons/news");
+          kind: "feedtile",
+          logoUrl: feed.LogoUrl,
+          feedName: feed.Name);
     }
 
     /// <summary>
-    /// One headline, as the reference's <c>TopNewsDataTemplate</c> drew the case without a picture: the words
-    /// themselves, which feed they came out of and when they were published, and the news mark stamped into
-    /// the card's top right corner in place of a thumbnail.
+    /// One headline: its own picture with the story's words and the feed's mark in a chip, or - where the feed
+    /// named no picture - the words themselves on the wall's own glass, the weather tile's ground and frame.
+    /// The when is told in how long ago, not on which date, because news is read as fresh or stale and a
+    /// "28 Oct" on a story from ten minutes ago says the wrong one of the two.
     /// </summary>
-    private static HomeInfoCard HeadlineCard(NewsHeadline headline)
+    private static HomeInfoCard HeadlineCard(NewsHeadline headline, bool hero,
+        IReadOnlyDictionary<string, string?> logos)
     {
-      string when = headline.Published?.ToString("ddd d MMM", CultureInfo.CurrentCulture.DateTimeFormat) ?? "";
+      string when = TimeAgo(headline.Published);
+      string meta = when.Length > 0 ? headline.FeedName + " \u00b7 " + when : headline.FeedName;
+      logos.TryGetValue(headline.FeedName, out string? logo);
+      string? image = headline.ImageUrl;
       return new HomeInfoCard(headline.Title,
-          detail: when.Length > 0 ? headline.FeedName + " · " + when : headline.FeedName,
-          badgeName: "HomeContentIcons/news");
+          detail: meta,
+          kind: "news",
+          imageUrl: string.IsNullOrEmpty(image) ? null : image,
+          logoUrl: string.IsNullOrEmpty(logo) ? null : logo,
+          story: string.IsNullOrEmpty(headline.Summary) ? null : headline.Summary,
+          hero: hero,
+          feedName: headline.FeedName);
+    }
+
+    /// <summary>The publication moment told as the wall tells it - "5 min ago", "3 h ago", "4 days ago" -
+    /// and as the reference's own words when it is old enough to want a date again.</summary>
+    private static string TimeAgo(DateTimeOffset? published)
+    {
+      if (published == null)
+        return "";
+      TimeSpan past = DateTimeOffset.Now - published.Value.ToLocalTime();
+      if (past < TimeSpan.Zero)
+        past = TimeSpan.Zero;
+      if (past.TotalMinutes < 1)
+        return "just now";
+      if (past.TotalMinutes < 60)
+        return (int) past.TotalMinutes + " min ago";
+      if (past.TotalHours < 24)
+        return (int) past.TotalHours + " h ago";
+      if (past.TotalDays < 7)
+      {
+        int days = (int) past.TotalDays;
+        return days + (days == 1 ? " day ago" : " days ago");
+      }
+
+      return published.Value.ToLocalTime().ToString("ddd d MMM", CultureInfo.CurrentCulture.DateTimeFormat);
     }
 
     /// <summary>

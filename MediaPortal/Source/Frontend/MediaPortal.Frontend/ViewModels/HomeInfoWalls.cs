@@ -103,7 +103,7 @@ namespace MediaPortal.Frontend.ViewModels
       foreach (NewsFeedAnswer answer in answers)
       {
         IReadOnlyList<NewsHeadline> arrived = answer.Headlines ?? Array.Empty<NewsHeadline>();
-        feeds.Add(new FeedWallRow(answer.Feed.Name, arrived.Count, answer.Error));
+        feeds.Add(new FeedWallRow(answer.Feed.Name, arrived.Count, answer.Error, answer.FeedImageUrl));
         headlines.AddRange(arrived);
       }
 

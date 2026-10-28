@@ -619,9 +619,111 @@
                                   </StackPanel>
                                 </DockPanel>
 
-                                <!-- Every other card - the news feeds and headlines - still wears the face
-                                     it always wore: the big number top left, the picture's place, the news
-                                     mark, and the name in the shared fade. -->
+                                <!-- A feed's square, as the mockup drew it: the feed's own mark in the
+                                     middle - channel image or favicon, asked by the tile itself, with the
+                                     feed's initial painted behind it so a square is never faceless - the
+                                     name under the mark, and how many it handed over under the name. Its
+                                     ground and frame are the weather tiles' glass, unchanged. -->
+                                <Panel IsVisible="{Binding Card.IsFeedTile}">
+                                  <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                                              Spacing="12">
+                                     <Panel Width="88" Height="88" HorizontalAlignment="Center">
+                                       <Border Background="#24FFFFFF" CornerRadius="44"
+                                               IsVisible="{Binding Card.NoLogo}">
+                                        <TextBlock Text="{Binding Card.Glyph}" FontSize="38"
+                                                   FontWeight="SemiBold" HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+                                      </Border>
+                                      <views:HttpImage Url="{Binding Card.LogoUrl}" Width="88" Height="88"
+                                                       DecodeWidth="132" Stretch="Uniform"/>
+                                    </Panel>
+                                    <TextBlock Text="{Binding Card.Label}" FontSize="19" FontWeight="SemiBold"
+                                               HorizontalAlignment="Center" TextTrimming="CharacterEllipsis"
+                                               MaxLines="1"/>
+                                    <TextBlock Text="{Binding Card.Detail}" FontSize="14" Opacity="0.55"
+                                               HorizontalAlignment="Center" TextTrimming="CharacterEllipsis"
+                                               MaxLines="2" TextAlignment="Center"/>
+                                  </StackPanel>
+                                </Panel>
+
+                                <!-- A headline standing on its story's own picture: the photograph full
+                                     bleed, a veil so the words stay readable on whatever the sky in the
+                                     picture happens to be, the feed's mark in a chip where a thumbnail
+                                     would not be in the way, and the words at the bottom in the same
+                                     place a cover's title stands. The big places tell the story too. -->
+                                <Panel IsVisible="{Binding Card.IsNewsPicture}">
+                                  <views:HttpImage Url="{Binding Card.ImageUrl}" Stretch="UniformToFill"
+                                                   DecodeWidth="512"/>
+                                  <Border>
+                                    <Border.Background>
+                                      <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                                        <GradientStop Offset="0.30" Color="#00000000"/>
+                                        <GradientStop Offset="0.62" Color="#8C000000"/>
+                                        <GradientStop Offset="1.00" Color="#D9000000"/>
+                                      </LinearGradientBrush>
+                                    </Border.Background>
+                                  </Border>
+                                  <Border Background="#6B000000" CornerRadius="12" Padding="7,4,10,4"
+                                          Margin="10,10,0,0" HorizontalAlignment="Left"
+                                          VerticalAlignment="Top">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                      <Panel Width="18" Height="18">
+                                        <Border Background="#40FFFFFF" CornerRadius="9"
+                                                IsVisible="{Binding Card.NoLogo}">
+                                          <TextBlock Text="{Binding Card.Glyph}" FontSize="10"
+                                                     FontWeight="Bold" HorizontalAlignment="Center"
+                                                     VerticalAlignment="Center"/>
+                                        </Border>
+                                        <views:HttpImage Url="{Binding Card.LogoUrl}" Width="18" Height="18"
+                                                         DecodeWidth="36" Stretch="Uniform"/>
+                                      </Panel>
+                                      <TextBlock Text="{Binding Card.FeedName}" FontSize="12"
+                                                 VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                  </Border>
+                                  <StackPanel Margin="14,0,14,12" VerticalAlignment="Bottom" Spacing="5">
+                                    <TextBlock Text="{Binding Card.Label}" FontWeight="SemiBold"
+                                               FontSize="24" MaxLines="3" TextWrapping="Wrap"
+                                               TextTrimming="CharacterEllipsis"
+                                               IsVisible="{Binding Card.Hero}"/>
+                                    <TextBlock Text="{Binding Card.Label}" FontWeight="SemiBold"
+                                               FontSize="15" MaxLines="2" TextWrapping="Wrap"
+                                               TextTrimming="CharacterEllipsis"
+                                               IsVisible="{Binding Card.NotHero}"/>
+                                    <TextBlock Text="{Binding Card.Story}" FontSize="13" Opacity="0.8"
+                                               MaxLines="2" TextWrapping="Wrap"
+                                               TextTrimming="CharacterEllipsis"
+                                               IsVisible="{Binding Card.Hero}"/>
+                                    <TextBlock Text="{Binding Card.Detail}" FontSize="12" Opacity="0.65"
+                                               TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                  </StackPanel>
+                                </Panel>
+
+                                <!-- A headline whose feed named no picture: the words themselves on the
+                                     wall's own glass - the weather tiles' ground and frame, untouched -
+                                     the title, the story under a hairline the way the fact rows hang
+                                     under each other, and the when at the bottom of the square. -->
+                                <DockPanel Margin="14,12,14,12" IsVisible="{Binding Card.IsNewsWords}">
+                                  <TextBlock DockPanel.Dock="Bottom" Text="{Binding Card.Detail}"
+                                             FontSize="11.5" Opacity="0.55" Margin="0,8,0,0"
+                                             TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                  <StackPanel Spacing="0">
+                                    <TextBlock Text="{Binding Card.Label}" FontSize="16" FontWeight="SemiBold"
+                                               TextWrapping="Wrap" MaxLines="4"
+                                               TextTrimming="CharacterEllipsis"/>
+                                    <Border BorderBrush="#12FFFFFF" BorderThickness="0,1,0,0" Margin="0,8,0,0"
+                                            IsVisible="{Binding Card.HasStory}">
+                                      <TextBlock Text="{Binding Card.Story}" FontSize="12" Opacity="0.7"
+                                                 Margin="0,8,0,0" TextWrapping="Wrap" MaxLines="4"
+                                                 TextTrimming="CharacterEllipsis"/>
+                                    </Border>
+                                  </StackPanel>
+                                </DockPanel>
+
+                                <!-- Every other card - none of the walls has one since the news squares
+                                     got their own faces - keeps the face it always wore: the big number
+                                     top left, the picture's place, the news mark, and the name in the
+                                     shared fade. -->
                                 <Panel IsVisible="{Binding Card.IsPlain}" Background="{DynamicResource PanelRaisedBrush}">
                                 <!-- The big number and its small lines, top left, as the reference's today-card
                                      drew them. A card without a big number leaves this whole stack empty - an
