@@ -632,7 +632,18 @@
        FontSize 90), the small lines under it at the wall's own reading size carried at three fifths of
        light - the reference's 0.6 - and the line under the card's name as the quietest thing on it. -->
   <Style Selector="Button.nereus-card-tile">
-    <Setter Property="Background" Value="{DynamicResource PanelRaisedBrush}"/>
+    <!-- Half-transparent glass instead of the solid plaque face: the wall's dark ground shines through,
+         a little more light on the top edge and darker towards the bottom, as a pane lying on the wall.
+         The news card keeps the solid plaque (it paints its own ground in HomeView). -->
+    <Setter Property="Background">
+      <Setter.Value>
+        <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+          <GradientStop Offset="0" Color="#30FFFFFF"/>
+          <GradientStop Offset="0.55" Color="#18FFFFFF"/>
+          <GradientStop Offset="1" Color="#0BFFFFFF"/>
+        </LinearGradientBrush>
+      </Setter.Value>
+    </Setter>
   </Style>
   <Style Selector="Border.card-tile-face">
     <Setter Property="CornerRadius" Value="10"/>

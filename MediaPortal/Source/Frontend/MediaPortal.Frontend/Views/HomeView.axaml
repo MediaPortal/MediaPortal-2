@@ -622,7 +622,7 @@
                                 <!-- Every other card - the news feeds and headlines - still wears the face
                                      it always wore: the big number top left, the picture's place, the news
                                      mark, and the name in the shared fade. -->
-                                <Panel IsVisible="{Binding Card.IsPlain}">
+                                <Panel IsVisible="{Binding Card.IsPlain}" Background="{DynamicResource PanelRaisedBrush}">
                                 <!-- The big number and its small lines, top left, as the reference's today-card
                                      drew them. A card without a big number leaves this whole stack empty - an
                                      empty TextBlock asks for no room, so no row has to be hidden by hand. -->

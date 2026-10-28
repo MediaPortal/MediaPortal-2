@@ -46,7 +46,7 @@ namespace MediaPortal.Frontend.Api
   public record WeatherNow(string Description, double Temp, double FeelsLike, int Humidity, int Pressure,
       double WindSpeed, string WindDirection, string? Icon = null,
       int VisibilityMeters = 0, int CloudsPercent = 0, double WindGust = 0,
-      string? Sunrise = null, string? Sunset = null);
+      string? Sunrise = null, string? Sunset = null, int? ConditionCode = null);
 
   /// <summary>
   /// One day of the forecast. The description is the day's midday entry, falling back to its first: the free
@@ -401,7 +401,7 @@ namespace MediaPortal.Frontend.Api
             root.TryGetProperty("clouds", out JsonElement clouds)
             && clouds.TryGetProperty("all", out JsonElement allClouds) ? allClouds.GetInt32() : 0,
             wind.TryGetProperty("gust", out JsonElement gust) ? gust.GetDouble() : 0,
-            sunrise, sunset);
+            sunrise, sunset, ConditionCodeOf(root));
       }
     }
 
@@ -457,6 +457,50 @@ namespace MediaPortal.Frontend.Api
         }
       }
       return null;
+    }
+
+    /// <summary>
+    /// What the sky is doing, in the English the home wall speaks by design - the weekday names there are
+    /// English too, and "Klarer Himmel" among "feels like" and "rain chance" reads like two skins on one wall.
+    /// The endpoint's <c>lang</c> stays the viewer's own because the weather screen still reads its words;
+    /// the wall rather asks the condition id, which speaks no language at all. Unknown codes fall back to
+    /// the answer's own words, so a code newer than this table still says something.
+    /// </summary>
+    public static string SkyWord(WeatherNow now)
+    {
+      switch (now.ConditionCode)
+      {
+        case null: return now.Description;
+        case 800: return "Clear sky";
+        case 801: return "Few clouds";
+        case 802: return "Scattered clouds";
+        case 803: return "Broken clouds";
+        case 804: return "Overcast clouds";
+      }
+      int group = now.ConditionCode.Value / 100;
+      switch (group)
+      {
+        case 2: return "Thunderstorm";
+        case 3: return "Drizzle";
+        case 5: return now.ConditionCode.Value == 511 ? "Freezing rain" : "Rain";
+        case 6: return "Snow";
+        case 7:
+          switch (now.ConditionCode.Value)
+          {
+            case 701: return "Mist";
+            case 711: return "Smoke";
+            case 721: return "Haze";
+            case 731:
+            case 751:
+            case 761: return "Sand and dust";
+            case 741: return "Fog";
+            case 762: return "Volcanic ash";
+            case 771: return "Squalls";
+            case 781: return "Tornado";
+            default: return now.Description;
+          }
+        default: return now.Description;
+      }
     }
 
     /// <summary>

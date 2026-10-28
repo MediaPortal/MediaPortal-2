@@ -1478,7 +1478,7 @@ namespace MediaPortal.Frontend.ViewModels
 
       return new HomeInfoCard(brief.Place,
           bigText: now.Temp.ToString("0", numbers) + "°" + degree,
-          sub: now.Description,
+          sub: WeatherApiClient.SkyWord(now),
           iconName: now.Icon == null ? null : "Weather/128x128/" + now.Icon,
           kind: "today",
           facts: facts,
