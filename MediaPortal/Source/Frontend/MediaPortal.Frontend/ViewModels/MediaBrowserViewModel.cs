@@ -1655,7 +1655,7 @@ namespace MediaPortal.Frontend.ViewModels
       get
       {
         if (!HasShelfFilter)
-          return "Filter: whole shelf";
+          return "Filter: All";
         return "Filter: " + CategoryWord(GroupBy!) + " = " + GroupValue;
       }
     }
@@ -2353,11 +2353,12 @@ namespace MediaPortal.Frontend.ViewModels
           // page. Its three answers keep their words; only the all-answers-one is named the way the reset
           // beside it is - and pressing the row cycles through the three the way the button in front of the
           // list always did.
-          AddMenuRow(ActiveSeen == "" ? "All" : SeenLabel, new AsyncRelayCommand(async () =>
-          {
-            await CycleSeenAsync();
-            HideMediaMenu();
-          }));
+          AddMenuRow(ActiveSeen == "" ? "All" : SeenLabel, ActiveSeen == "" ? "library_books" : "filter",
+              new AsyncRelayCommand(async () =>
+              {
+                await CycleSeenAsync();
+                HideMediaMenu();
+              }));
           foreach (BrowseCategory category in BrowseViewModel.CATEGORIES)
           {
             string by = category.Word;

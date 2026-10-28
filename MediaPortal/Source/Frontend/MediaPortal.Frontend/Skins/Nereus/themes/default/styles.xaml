@@ -949,15 +949,25 @@
       </LinearGradientBrush>
     </Setter>
   </Style>
+  <!-- And the mark lights the way the four corner buttons light theirs: the same white glow, sixteen lines of
+       it, written on the glyph and nothing else - the one thing the tile really draws, so the light comes out
+       of the mark the viewer is looking for rather than out of the glass around it. Both ways of standing on
+       the tile say it with the same glow, as they must. -->
   <Style Selector="Button.nereus-shortcut-tile:focus Path.home-shortcut-glyph">
     <Setter Property="Opacity" Value="1"/>
     <Setter Property="Stroke" Value="{DynamicResource TextBrush}"/>
     <Setter Property="RenderTransform" Value="scale(1.06)"/>
+    <Setter Property="Effect">
+      <DropShadowEffect BlurRadius="16" Color="#FFFFFFFF" OffsetX="0" OffsetY="0" Opacity="1"/>
+    </Setter>
   </Style>
   <Style Selector="Window:not(.pointer-resting) Button.nereus-shortcut-tile:pointerover Path.home-shortcut-glyph">
     <Setter Property="Opacity" Value="1"/>
     <Setter Property="Stroke" Value="{DynamicResource TextBrush}"/>
     <Setter Property="RenderTransform" Value="scale(1.06)"/>
+    <Setter Property="Effect">
+      <DropShadowEffect BlurRadius="16" Color="#FFFFFFFF" OffsetX="0" OffsetY="0" Opacity="1"/>
+    </Setter>
   </Style>
   <!-- The name comes up with the icon, not after it: standing on the tile takes both to full white. -->
   <Style Selector="Button.nereus-shortcut-tile:focus TextBlock.home-shortcut-caption">
