@@ -50,7 +50,9 @@
           <Border Width="8" HorizontalAlignment="Left" Background="{DynamicResource AccentBrush}"/>
           <Border Height="10" VerticalAlignment="Bottom" Margin="0,0,0,-10">
             <Border.Background>
-              <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+              <!--  Bare numbers in StartPoint/EndPoint are pixels for Avalonia, not the fractions WPF
+                    reads from them; only '%' says "of the panel".  -->
+              <LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
                 <GradientStop Color="#66000000" Offset="0"/>
                 <GradientStop Color="#00000000" Offset="1"/>
               </LinearGradientBrush>
@@ -58,7 +60,7 @@
           </Border>
           <Border Width="14" HorizontalAlignment="Right">
             <Border.Background>
-              <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+              <LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
                 <GradientStop Color="#80000000" Offset="0"/>
                 <GradientStop Color="#00000000" Offset="0.02"/>
                 <GradientStop Color="#00000000" Offset="0.5"/>
@@ -688,8 +690,12 @@
                     Margin="70,96,70,0"
                     IsVisible="{Binding ShowsCoverDetails}"
                     IsHitTestVisible="False">
+              <!--  The reference's MultiDetailsCoverGradient: dark in the middle of the strip, clear at
+                    both edges.  It has to say '%' at both ends: bare numbers are pixels for Avalonia, and
+                    a brush "from 0 to 1" is a gradient one pixel long - which is what left a single dark
+                    column of black at the panel's left edge instead of a wash across the whole screen.  -->
               <Border.Background>
-                <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                <LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
                   <GradientStop Color="#00000000" Offset="0"/>
                   <GradientStop Color="#80000000" Offset="0.3"/>
                   <GradientStop Color="#80000000" Offset="0.7"/>

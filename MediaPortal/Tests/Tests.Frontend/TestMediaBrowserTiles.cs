@@ -591,7 +591,7 @@ namespace Tests.Frontend
       vm.SwitchView();
       Assert.That(vm.Layout, Is.EqualTo(BrowserLayout.Cover));
       TestBrowserArtwork.DrawRows(vm, vm.Titles[1]);
-      WaitUntil("the cover to wear the poster", delegate { return vm.Titles[1].Artwork!.SequenceEqual(new byte[] { 1, 1, 1, 1 }); });
+      WaitUntil("the cover to wear the poster", delegate { return vm.Titles[1].Artwork!.SequenceEqual(new byte[] { 2, 2, 2, 2 }); });
 
       vm.SwitchView();
       Assert.That(vm.Layout, Is.EqualTo(BrowserLayout.List));

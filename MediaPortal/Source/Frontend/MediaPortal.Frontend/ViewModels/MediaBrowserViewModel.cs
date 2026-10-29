@@ -1493,10 +1493,12 @@ namespace MediaPortal.Frontend.ViewModels
           return Layout == BrowserLayout.List ? _artwork : CoverArtwork ?? _artwork;
 
         // A season's cover is the poster it wears on its tiles, which is not in the database - see TileArtworkFor.
+        // A movie's cover is the poster too: the reference sized its cover frame for a poster and asked
+        // FanArtType="Poster" for it (MediaStyles.xaml:5253), and the database's thumbnail blob - which is what
+        // _artwork reads - is a wide letterbox picture at best and empty for most of what the importers write,
+        // which left the cover wall a row of bare grey plates.
         if (Layout == BrowserLayout.Cover)
-          return MediaCatalog.IsSeason(AspectName)
-              ? TileArtworkFor(GridViewType.Poster) ?? _artwork
-              : _artwork;
+          return TileArtworkFor(GridViewType.Poster) ?? _artwork;
 
         return TileArtworkFor(_tileKind) ?? _artwork;
       }
