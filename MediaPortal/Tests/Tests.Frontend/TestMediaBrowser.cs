@@ -91,6 +91,17 @@ namespace Tests.Frontend
     [TearDown]
     public void TearDown()
     {
+      // Windows a test finished on but never closed: a stray window holds the keyboard globally, the cross-
+      // window ceasefire in ShellWindow correctly refuses to fight it back, and the next test times out on
+      // keys nobody receives. Every shell window enrolls itself in ShellWindow.StandingWindows; whatever
+      // still stands when a test ends is swept here, before the servers go.
+      foreach (ShellWindow stray in ShellWindow.StandingWindows.ToArray())
+      {
+        if (stray.IsVisible)
+          stray.Close();
+      }
+      Pump();
+
       foreach (IDisposable server in _servers)
       {
         if (!Task.Run(delegate { server.Dispose(); }).Wait(TimeSpan.FromSeconds(10)))

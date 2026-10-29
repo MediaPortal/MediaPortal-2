@@ -24,12 +24,19 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.LogicalTree;
+using Avalonia.Media;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using Avalonia.Headless.NUnit;
 using NUnit.Framework;
 using MediaPortal.Frontend.Api;
 using MediaPortal.Frontend.Settings;
 using MediaPortal.Frontend.ViewModels;
+using MediaPortal.Frontend.Views;
 
 namespace Tests.Frontend
 {
@@ -74,6 +81,9 @@ namespace Tests.Frontend
   <Region Code=""de-AT""><Feeds>
     <Feed Name=""ORF"">http://127.0.0.1:1/feeds/orf.rss</Feed>
   </Feeds></Region>
+  <Region Code=""big""><Feeds>
+    <Feed Name=""Big Paper"">http://127.0.0.1:1/feeds/big.rss</Feed>
+  </Feeds></Region>
 </RegionalFeeds>";
 
     /// <summary>
@@ -113,6 +123,23 @@ namespace Tests.Frontend
 </channel></rss>";
 
     /// <summary>
+    /// A paper with hundreds of headlines, because that is what a real one carries - and the number that decides
+    /// whether the headlines column builds a container for every story or only for the ones it could be showing.
+    /// </summary>
+    private static string BigFeed(int items)
+    {
+      StringBuilder feed = new StringBuilder(
+          @"<?xml version=""1.0"" encoding=""utf-8""?><rss version=""2.0""><channel><title>Big Paper</title>");
+      for (int i = 0; i < items; i++)
+        feed.Append("<item><title>Story number ").Append(i)
+            .Append("</title><pubDate>Sat, 03 Jan 2026 12:00:0").Append(i % 10)
+            .Append(@" GMT</pubDate><description>The words of story ").Append(i)
+            .Append("</description></item>");
+      feed.Append("</channel></rss>");
+      return feed.ToString();
+    }
+
+    /// <summary>
     /// The internet, scripted: the feed list under the address the client asks for, two feeds that answer, one
     /// that refuses with a 500, and a memory of every address it was asked for.
     /// </summary>
@@ -129,6 +156,8 @@ namespace Tests.Frontend
         string body;
         if (path.EndsWith("/DefaultFeeds.xml", StringComparison.Ordinal))
           body = DEFAULT_FEEDS_XML;
+        else if (path.EndsWith("/big.rss", StringComparison.Ordinal))
+          body = BigFeed(260);
         else if (path.EndsWith("/tv.rss", StringComparison.Ordinal))
           body = TV_RSS;
         else if (path.EndsWith("/tech.atom", StringComparison.Ordinal))
@@ -430,5 +459,361 @@ namespace Tests.Frontend
     }
 
     #endregion
+
+    #region Walking the screen
+
+    private static void SendKey(Control source, Key key)
+    {
+      source.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = key,
+        Source = source
+      });
+      Pump();
+    }
+
+    private static T Found<T>(Window window, string name) where T : Control
+    {
+      return window.GetVisualDescendants().OfType<T>().First(control => control.Name == name);
+    }
+
+    /// <summary>
+    /// The three columns are one ring: Right walks the caret from a paper onto its headlines and on to the
+    /// story, Left walks it back, Enter steps from a paper onto its headlines as the reference's Select did,
+    /// and Left at the leading edge of the papers slides the screen's own menu in - from where the opposite
+    /// key walks the caret back onto the papers.  None of this may depend on the mouse: the screen lives in a
+    /// room with a remote.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheCaretWalksFromThePapersThroughTheHeadlinesToTheStory()
+    {
+      NewsServer internet = new NewsServer();
+      NewsViewModel news = ScreenOn(internet, "en");
+      OpenAndWait(news, 4);
+
+      ShellWindow window = new ShellWindow(new NewsView(news));
+      window.Show();
+      ListBox feeds = Found<ListBox>(window, "feedsList");
+      ListBox headlines = Found<ListBox>(window, "headlinesList");
+      ScrollViewer story = Found<ScrollViewer>(window, "storyScroller");
+      WaitUntil("the papers to stand on the screen", () => feeds.Items.Count == 4);
+
+      feeds.Focus();
+      feeds.SelectedIndex = 0;
+      Pump();
+
+      SendKey(feeds, Key.Right);
+      Assert.That(headlines.IsKeyboardFocusWithin, Is.True,
+          "Right from a paper never reached the headlines - the middle column cannot be operated at all");
+
+      SendKey(headlines, Key.Right);
+      Assert.That(story.IsKeyboardFocusWithin, Is.True,
+          "Right from the headlines never reached the reading column");
+
+      SendKey(story, Key.Right);
+      Assert.That(feeds.IsKeyboardFocusWithin, Is.True,
+          "the ring does not wrap, so the caret stands on the story with no way back but Left");
+
+      SendKey(feeds, Key.Enter);
+      Assert.That(headlines.IsKeyboardFocusWithin, Is.True,
+          "Enter on a paper does not step onto its headlines");
+
+      SendKey(headlines, Key.Left);
+      Assert.That(feeds.IsKeyboardFocusWithin, Is.True,
+          "Left from the headlines does not walk back onto the papers");
+
+      // The papers' leading edge is the menu's door, and the menu is not the ring's.
+      feeds.SelectedIndex = 0;
+      SendKey(feeds, Key.Left);
+      ListBox menu = Found<ListBox>(window, "newsMenuList");
+      Assert.That(menu.IsKeyboardFocusWithin, Is.True,
+          "Left at the first paper does not slide the screen's menu in");
+      SendKey(menu, Key.Right);
+      Assert.That(feeds.IsKeyboardFocusWithin, Is.True,
+          "Right does not walk the caret out of the menu back onto the papers");
+
+      // A window left standing here goes on being laid out by every later pump, and a skin put on or off in a
+      // later test re-dresses its columns - a stranger's screen paying rent in somebody else's test.
+      window.Close();
+      Pump();
+    }
+
+    /// <summary>
+    /// The screen's menu stands with all the rows it promises, not with a solitary "Feeds" and the rest
+    /// vanished between the list and its panel - the disappearance a viewer kept seeing. The guard counts
+    /// the entries, walks every one of them to a realized container, and demands the row's name to stand
+    /// on the glass in a visible TextBlock, because a row the panel never built is exactly the bug.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheScreensMenuStandsWithEveryRowItPromises()
+    {
+      NewsServer internet = new NewsServer();
+      NewsViewModel news = ScreenOn(internet, "en");
+      OpenAndWait(news, 4);
+
+      ShellWindow window = new ShellWindow(new NewsView(news));
+      window.Show();
+      ListBox feeds = Found<ListBox>(window, "feedsList");
+      WaitUntil("the papers to stand on the screen", () => feeds.Items.Count == 4);
+
+      feeds.Focus();
+      feeds.SelectedIndex = 0;
+      SendKey(feeds, Key.Left);
+      ListBox menu = Found<ListBox>(window, "newsMenuList");
+      WaitUntil("the menu to hold its rows", () => menu.Items.Count >= 3);
+
+      // Built means seen: every entry wears a container the panel laid out with a real height, and the
+      // row's name reaches a visible caption. One row short of this and the rail offers commands
+      // without names - which is what the viewer called "nur ein Eintrag".
+      Assert.That(menu.Items.Count, Is.EqualTo(3),
+          "the rail carries the papers, the shape of the headlines and the refresh - no more without a frame to open the settings");
+      string stood = string.Join(" | ", menu.GetVisualDescendants().OfType<ListBoxItem>()
+          .Select(i => $"{i.Bounds} {(i.DataContext as NewsMenuEntry)?.Label ?? "?"}"));
+      for (int row = 0; row < menu.Items.Count; row++)
+      {
+        object entry = menu.Items[row]!;
+        ListBoxItem? container = menu.GetVisualDescendants().OfType<ListBoxItem>()
+            .FirstOrDefault(item => ReferenceEquals(item.DataContext, entry));
+        Assert.That(container, Is.Not.Null,
+            $"row {row} never got a container - the rail stands with: {stood}");
+        Assert.That(container!.Bounds.Height, Is.GreaterThan(50),
+            $"row {row} was built but stands with no height");
+      }
+
+      List<string?> names = menu.GetVisualDescendants().OfType<TextBlock>()
+          .Where(t => t.IsVisible && !string.IsNullOrEmpty(t.Text))
+          .Select(t => t.Text)
+          .ToList();
+      Assert.That(names, Does.Contain("Feeds"), "the papers' row wears no name");
+      Assert.That(names, Does.Contain("List"), "the headlines' shape row wears no name");
+      Assert.That(names, Does.Contain("Refresh"), "the refresh row wears no name");
+
+      window.Close();
+      Pump();
+    }
+
+    /// <summary>
+    /// The frame paints on the papers exactly as it paints on the headlines. Measured live as "bei den Feeds
+    /// fehlt der Focus-Rahmen, wenn ein Feed Fokus hat" while the accessibility tree proved a feed row held
+    /// the keyboard - a caret nobody can see is no caret at all. The row the keyboard stands on wears the
+    /// frame, and when the keyboard walks away the frame walks with it: one frame in the whole screen, which
+    /// is what answers the question "welche Liste hat den Fokus".
+    /// </summary>
+    [AvaloniaTest]
+    public void ThePaperUnderTheKeyboardWearsTheFrameAndLaysItDownWhenTheKeyboardLeaves()
+    {
+      NewsServer internet = new NewsServer();
+      NewsViewModel news = ScreenOn(internet, "en");
+      OpenAndWait(news, 4);
+
+      ShellWindow window = new ShellWindow(new NewsView(news));
+      window.Show();
+      ListBox feeds = Found<ListBox>(window, "feedsList");
+      ListBox headlines = Found<ListBox>(window, "headlinesList");
+      WaitUntil("the papers to stand on the screen", () => feeds.Items.Count == 4);
+
+      feeds.Focus();
+      feeds.SelectedIndex = 0;
+      SendKey(feeds, Key.Down);
+
+      ListBoxItem? caret = feeds.GetLogicalDescendants().OfType<ListBoxItem>()
+          .FirstOrDefault(row => row.IsFocused);
+      Assert.That(caret, Is.Not.Null, "the keyboard must stand ON a paper, not on the bare column");
+      Border? edge = caret!.GetVisualDescendants().OfType<Border>()
+          .FirstOrDefault(b => b.Classes.Contains("home-tile-edge"));
+      Assert.That(edge, Is.Not.Null, "the paper's tile carries no edge to paint the frame on");
+      Assert.That(edge!.BorderBrush, Is.Not.Null,
+          "the paper the keyboard stands on must wear the frame - live it wore nothing");
+
+      // Right hands the caret to the headlines; the frame must leave the paper and stand on the headline.
+      SendKey(feeds, Key.Right);
+      WaitUntil("the headlines to take the keyboard", () => headlines.IsKeyboardFocusWithin);
+
+      object left_behind = caret.DataContext!;
+      IBrush? kept = feeds.GetLogicalDescendants().OfType<ListBoxItem>()
+          .Where(row => ReferenceEquals(row.DataContext, left_behind))
+          .SelectMany(row => row.GetVisualDescendants().OfType<Border>()
+              .Where(b => b.Classes.Contains("home-tile-edge")))
+          .Select(b => (IBrush?)b.BorderBrush)
+          .FirstOrDefault();
+      Assert.That(kept, Is.Null,
+          "a paper that lost the keyboard wears the frame no longer - two frames ask nothing");
+
+      ListBoxItem? headline = headlines.GetLogicalDescendants().OfType<ListBoxItem>()
+          .FirstOrDefault(row => row.IsFocused);
+      Assert.That(headline, Is.Not.Null, "the caret never stood on a headline");
+      Border? theirs = headline!.GetVisualDescendants().OfType<Border>()
+          .FirstOrDefault(b => b.Classes.Contains("home-tile-edge"));
+      Assert.That(theirs!.BorderBrush, Is.Not.Null, "the headline the keyboard stands on wears no frame");
+
+      window.Close();
+      Pump();
+    }
+
+    /// <summary>
+    /// A wide screen lays the headlines as the mockup's grid of fixed-width tiles, in as many columns as the
+    /// area fills, and inside that grid Left and Right belong to the GRID: Right steps from a tile to its
+    /// right neighbour and Left back, the walk the shelf's wall gives its posters. Only a true edge of the
+    /// grid opens a column door - Right on the last column's tile walks onto the story, Left on the first
+    /// column's tile onto the papers. The narrow window's one-column shape is the same law with every row on
+    /// both edges, which is what the walk test above walks.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheWideGridWalksTileToTileAndOpensItsDoorsOnlyAtItsEdges()
+    {
+      NewsServer internet = new NewsServer();
+      // The wide column stands five tiles abreast, so the walking needs a paper with more than one row of
+      // headlines under it - the "en" fixture's three stories would run out mid-row. The big paper's two
+      // hundred and sixty are what a real one carries anyway.
+      NewsViewModel news = ScreenOn(internet, "big");
+      OpenAndWait(news, 2);
+
+      ShellWindow window = new ShellWindow(new NewsView(news)) { Width = 3440, Height = 1440 };
+      window.Show();
+      ListBox feeds = Found<ListBox>(window, "feedsList");
+      ListBox headlines = Found<ListBox>(window, "headlinesList");
+      ScrollViewer story = Found<ScrollViewer>(window, "storyScroller");
+      WaitUntil("the headlines to stand on the screen", () => headlines.Items.Count == 260);
+      VirtualizingTilePanel grid = headlines.GetVisualDescendants()
+          .OfType<VirtualizingTilePanel>().FirstOrDefault();
+      Assert.That(grid, Is.Not.Null, "the headlines are the grid shape, not the list shape");
+      // A wide column does not split in half any more: it fills with tiles of the mockup's fixed width, and
+      // a 3440-wide window must carry at least three of them side by side.
+      WaitUntil("the wide column to fill with at least three tile columns", () => grid.Columns >= 3);
+      int columns = grid.Columns;
+
+      feeds.Focus();
+      feeds.SelectedIndex = 0;
+      SendKey(feeds, Key.Right);
+      Pump();
+      Assert.That(headlines.IsKeyboardFocusWithin, Is.True, "Right from a paper must reach the headlines");
+      if (headlines.SelectedIndex < 0)
+        headlines.SelectedIndex = 0;
+
+      // Right on a tile that has a neighbour to its right steps sideways within the row; it may not leave.
+      SendKey(headlines, Key.Right);
+      Pump();
+      Assert.That(headlines.IsKeyboardFocusWithin, Is.True,
+          "Right inside a row of tiles jumped out of the column - the viewer cannot walk the grid");
+      Assert.That(headlines.SelectedIndex, Is.EqualTo(1),
+          "Right on the first tile did not step onto the tile beside it");
+
+      // Right steps tile to tile along the row - every step is the grid's own - until the last column's
+      // tile, where the next Right is the door to the story.
+      for (int step = 2; step <= columns - 1; step++)
+      {
+        SendKey(headlines, Key.Right);
+        Pump();
+        Assert.That(headlines.IsKeyboardFocusWithin, Is.True,
+            $"Right stepped out of the grid before reaching its right edge (at tile {step})");
+        Assert.That(headlines.SelectedIndex, Is.EqualTo(step),
+            $"Right did not step one tile sideways (wanted tile {step}; grid says {grid.Columns} columns, "
+            + $"standing {grid.StandingCount} containers from {grid.FirstStandingIndex})");
+      }
+
+      SendKey(headlines, Key.Right);
+      Pump();
+      Assert.That(story.IsKeyboardFocusWithin, Is.True,
+          "Right on the grid's right edge does not open the door to the reading column "
+          + $"(columns={grid.Columns}, selected={headlines.SelectedIndex})");
+      SendKey(story, Key.Left);
+      Pump();
+      Assert.That(headlines.IsKeyboardFocusWithin, Is.True,
+          "Left from the story does not walk back onto the headlines");
+
+      // Left walks one tile at a time back to the first column - every press belongs to the grid - and the
+      // press on the FIRST column's tile is the door to the papers.
+      for (int step = columns - 2; step >= 0; step--)
+      {
+        SendKey(headlines, Key.Left);
+        Pump();
+        Assert.That(headlines.IsKeyboardFocusWithin, Is.True,
+            $"Left stepped out of the grid before reaching its left edge (at tile {step + 1})");
+        Assert.That(headlines.SelectedIndex, Is.EqualTo(step),
+            $"Left did not step one tile back (wanted tile {step})");
+      }
+
+      SendKey(headlines, Key.Left);
+      Pump();
+      Assert.That(feeds.IsKeyboardFocusWithin, Is.True,
+          "Left on the grid's left edge does not open the door to the papers");
+
+      window.Close();
+      Pump();
+    }
+
+    /// <summary>
+    /// A real paper carries hundreds of headlines, and the column may only dress the ones the screen could be
+    /// drawing: every tile of this grid wears a photograph and a shadow, and when a whole paper's containers
+    /// stood at once the live screen froze the UI thread for seconds at a stretch - Windows filed the frozen
+    /// window as AppHangTransient and the viewer could not use the page at all. Walking to the last story is
+    /// the same handful of containers all the way, and it must stay walkable with the keyboard alone.
+    /// </summary>
+    [AvaloniaTest]
+    public void AHundredPapersWorthOfHeadlinesOnlyBuildsTheTilesTheScreenCouldShow()
+    {
+      NewsServer internet = new NewsServer();
+      NewsViewModel news = ScreenOn(internet, "big");
+      OpenAndWait(news, 2);
+      Assert.That(news.Headlines.Count, Is.EqualTo(260),
+          "the fixture paper must carry hundreds of headlines, or nothing here is testing the hundreds");
+
+      ShellWindow window = new ShellWindow(new NewsView(news)) { Width = 1920, Height = 1080 };
+      window.Show();
+      ListBox headlines = Found<ListBox>(window, "headlinesList");
+      WaitUntil("the headlines to stand", () => headlines.Items.Count == 260);
+
+      VirtualizingTilePanel panel = headlines.GetVisualDescendants()
+          .OfType<VirtualizingTilePanel>().FirstOrDefault();
+      Assert.That(panel, Is.Not.Null,
+          "the headlines grid lays its tiles on the shelf's virtualizing panel, not on a plain grid");
+      WaitUntil("a band of tiles to be realized", () => panel.StandingCount > 0);
+      int standingAtFirst = panel.StandingCount;
+      Assert.That(standingAtFirst, Is.LessThan(100),
+          "a column that builds all 260 tiles freezes the screen; only the band may stand");
+
+      // Down is the column's own key and stays the list's; forty presses must walk it through rows the panel
+      // only builds as they come near, without ever letting the whole paper stand at once.
+      headlines.Focus();
+      headlines.SelectedIndex = 0;
+      for (int press = 0; press < 40; press++)
+        SendKey(headlines, Key.Down);
+      // The column carries two of the mockup's fixed tiles at this window width, so the list's own geometric
+      // walk takes the caret one whole row per press - straight down to the tile under the one it stood on,
+      // which is two of the flat list's rows. Forty presses land on the eightieth headline.
+      Assert.That(headlines.SelectedIndex, Is.EqualTo(80),
+          "Down walks the grid one row at a time; it stopped at index " + headlines.SelectedIndex);
+      Assert.That(panel.StandingCount, Is.LessThan(100),
+          "walking the grid woke a hundred containers - the band is not being kept");
+      Assert.That(panel.FirstStandingIndex, Is.GreaterThan(0),
+          "the band never followed the caret down");
+      // What the glide makes unavoidable is that rows STOOD along the way - the caret travels, it does not
+      // teleport, and every station of a travelling caret realises its band once. The law that still holds,
+      // and the one that freezes screens when it breaks, is that never more than a band stands at a time
+      // (asserted above) and that the rows walked past went back into the pool rather than standing: the
+      // build count may therefore read the whole journey (here two tiles over forty rows), but it must stay
+      // clearly under the paper's 260, and the pool must visibly catch the handovers.
+      Assert.That(panel.ContainersBuilt, Is.LessThan(200),
+          "every row walked past built its own container instead of taking one from the pool");
+      Assert.That(panel.ContainersReused, Is.GreaterThan(50),
+          "the pool caught nothing - containers were thrown away rather than handed to the next band");
+
+      // And the list shape keeps its rows virtual too - the menu's second row turns the column over, and a
+      // stack panel would build all 260 rows of it just the same.
+      headlines.Classes.Remove("news-grid");
+      headlines.Classes.Add("news-list");
+      Pump();
+      Assert.That(headlines.GetVisualDescendants().Any(p => p is VirtualizingStackPanel), Is.True,
+          "the list shape lays its rows on something that does not build two hundred and sixty at once");
+      Assert.That(headlines.GetVisualDescendants().OfType<VirtualizingTilePanel>().Any(), Is.False,
+          "the grid's panel outlived the shape that asked for it");
+
+      window.Close();
+    }
+
+    #endregion
+
   }
 }
+

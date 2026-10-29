@@ -164,6 +164,12 @@ namespace MediaPortal.Frontend.Views
     private static readonly IBrush FactoryBackground = new SolidColorBrush(Color.FromRgb(0x10, 0x14, 0x18));
 
     /// <summary>
+    /// The shell windows this process stands with open, newest last. Enrolled by <see cref="BuildChrome"/>
+    /// and left again on close; only diagnostics and test fixtures ever sweep through it.
+    /// </summary>
+    public static readonly List<ShellWindow> StandingWindows = new List<ShellWindow>();
+
+    /// <summary>
     /// The application's window: an empty workflow the caller fills, and the factory that builds a screen for a
     /// frame the first time the viewer reaches that stop.
     /// </summary>
@@ -208,6 +214,11 @@ namespace MediaPortal.Frontend.Views
 
     private void BuildChrome()
     {
+      // Standing register: every chrome built enrolls its window, every closed window leaves again. The
+      // screens themselves never read this - a test fixture and a crash log are the ones who need to know
+      // which windows a process still holds open.
+      StandingWindows.Add(this);
+      Closed += delegate { StandingWindows.Remove(this); };
 
       // The window learns about every move through the workflow, whoever pushes it - both constructors, and the
       // opening code that fills the stack after the window exists.
@@ -1247,8 +1258,13 @@ namespace MediaPortal.Frontend.Views
       {
         if (!_dialogLayer.IsVisible || !ReferenceEquals(_dialogLayer.Content, dialogView))
           return; // the viewer walked on while the layout was settling; the newest stop decides from here
-        if (this.FocusManager.GetFocusedElement() is Visual held && StandsInside(held, dialogView))
-          return; // the dialog already answers for its own keys, which is all this was for
+        if (this.FocusManager.GetFocusedElement() is Visual held)
+        {
+          if (StandsInside(held, dialogView))
+            return; // the dialog already answers for its own keys, which is all this was for
+          if (StandsInAnotherStandingWindow(held))
+            return; // another window stands on the keyboard; see the screen's ask for the fight this avoids
+        }
         Control? first = FirstControlTakingFocus(dialogView);
         first?.Focus();
       }
@@ -1307,10 +1323,21 @@ namespace MediaPortal.Frontend.Views
           return; // The viewer walked on while the layout was settling; the newest stop decides from here.
         if (_dialogLayer.IsVisible || _keyboardLayer.IsVisible)
           return; // A question over the screen owns the keys, and answered itself above.
-        if (this.FocusManager.GetFocusedElement() is Visual held && StandsInside(held, screenView))
-          return; // The screen already answers for its own keys, which is all this was for.
+        if (this.FocusManager.GetFocusedElement() is Visual held)
+        {
+          if (StandsInside(held, screenView))
+            return; // The screen already answers for its own keys, which is all this was for.
+          if (StandsInAnotherStandingWindow(held))
+            return; // Another STANDING window owns the keyboard - a second window of this very test bench,
+                    // or a window the viewer turned to - and a window that is not the one looked at must not
+                    // pull the keys back, or two windows fight for them as long as both are shown. A closed
+                    // window is no such thing: it leaves its focused control behind as a ghost, and yielding
+                    // to a ghost means nobody ever answers the keys again.
+        }
 
-        Control? first = FirstControlTakingFocus(screenView);
+        Control? first = (screenView as Workflow.IWorkflowScreen)?.KeysStartAt();
+        if (first == null)
+          first = FirstControlTakingFocus(screenView);
         if (first != null)
           first.Focus();
       }
@@ -1328,6 +1355,22 @@ namespace MediaPortal.Frontend.Views
       }
 
       return false;
+    }
+
+    /// <summary>
+    /// Whether the focused element stands in ANOTHER window that is still open. Another window's focused
+    /// control owns the keyboard and only its own keys answer for it; a closed window's is a ghost - the
+    /// desktop remembers the control after the window is gone - and yielding to a ghost would leave the
+    /// keyboard stranded outside every window for good.
+    /// </summary>
+    private bool StandsInAnotherStandingWindow(Visual held)
+    {
+      // Walk to the root of the tree this control hangs in. No window at the top means the element left the
+      // tree - the same ghost as a closed one.
+      Visual top = held;
+      for (Visual? at = held; at != null; at = at.GetVisualParent())
+        top = at;
+      return top is Window other && !ReferenceEquals(other, this) && other.IsVisible;
     }
 
     /// <summary>

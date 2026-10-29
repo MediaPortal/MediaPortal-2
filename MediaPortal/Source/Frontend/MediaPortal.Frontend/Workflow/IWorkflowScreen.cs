@@ -43,6 +43,18 @@ namespace MediaPortal.Frontend.Workflow
     }
 
     /// <summary>
+    /// Where the shell's net - not the screen's own wish - starts looking for the keyboard, for the moment the
+    /// window notices it stands on none. The default says nothing, and the shell then takes the first control
+    /// in tree order that takes the focus; a screen whose first such control stands off-screen - a menu rail
+    /// slid behind the edge - says itself what the answer is, or the net drops the keyboard into the hidden
+    /// rail and every arrow the viewer presses is spent on a list nobody can see.
+    /// </summary>
+    Control? KeysStartAt()
+    {
+      return null;
+    }
+
+    /// <summary>
     /// Called once when the frame this screen was built for left the workflow for good - popped past on the way
     /// back, or replaced - so the screen can put down what it was holding: an open reading, a subscription, a
     /// player. A screen that was merely covered by the next one is not closed and hears nothing; its state stays

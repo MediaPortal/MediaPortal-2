@@ -1,7 +1,8 @@
 <UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
-        xmlns:theming="using:MediaPortal.Frontend.Theming"
+        xmlns:views="using:MediaPortal.Frontend.Views"
+        xmlns:lg="using:LiquidGlassAvaloniaUI"
         x:Class="MediaPortal.Frontend.Views.NewsView"
         x:DataType="vm:NewsViewModel"
         Name="news"
@@ -9,91 +10,644 @@
         >
 
   <!--
-    The news, from the feeds MediaPortal chooses for the viewer's language. Two lists and the story: the papers
-    on the left with what each answered, the headlines in the middle newest first, and the words of the selected
-    headline on the right where there is room for a sentence to end.
+    THE NEWS AS THE APPROVED MOCKUP DREW IT, IN THE ROOM THE MOVIE SCREEN ALREADY STANDS IN
+
+    No title, no header, no clock: the room is the skin's own - the ground is Background.PNG, a hundred points
+    of top band and two hundred and sixty of floor band lie over it exactly as the library screen lays them,
+    and everything a viewer can reach stands between them. From the left: the screen's own rail of glass
+    tiles (the library rail's tile, unchanged - feeds, grid-or-list, setup, refresh), the papers as squares
+    with their own faces, the headlines as a grid of picture tiles or as list rows - which of the two the rail
+    decides - and the story itself to read, its picture in sixteen by nine, its words under it, and no link
+    anywhere: the reading happens right here.
+
+    Nothing scrolls with a visible bar. Every column fades its edges the way the movie wall does, and only
+    while there IS something out of the picture at that edge - the rule the shelf learned, applied here by
+    the code-behind.
   -->
 
-  <DockPanel Margin="48,36">
+  <UserControl.Resources>
 
-    <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,20">
-      <TextBlock Text="News"
-                 FontSize="40"
-                 FontWeight="SemiBold" />
-      <TextBlock Text="MediaPortal's own feed list, read the moment this screen opens"
-                 FontSize="18"
-                 Opacity="0.7"
-                 TextWrapping="Wrap"
-                 MaxWidth="1500"
-                 HorizontalAlignment="Left" />
-    </StackPanel>
+    <!-- One paper: its face in the middle, its name under it, and what it brought under the name. The same
+         square the home wall's feed tiles are - the mark over the letter plate it wears where no mark came. -->
+    <DataTemplate x:Key="NewsFeedSquare" x:DataType="vm:NewsFeedRow">
+      <!-- The rail's law for a scrolled list (styles.xaml, "ListBox.nereus-home-menu ListBoxItem"): the
+           presenter keeps its clip at the ends, so the shadow's reach - twenty points - must be bought
+           with stand-off INSIDE the viewport, not with a wider tile or a bigger gap. Thirteen left (the
+           shadow leans three points right of the face's own edge), twenty right, the old ten below. -->
+      <Border Classes="home-tile-shadow" Width="160" Height="160"
+              Margin="13,0,20,10" HorizontalAlignment="Left" VerticalAlignment="Top">
+        <Panel>
+          <Border CornerRadius="10" ClipToBounds="True" Width="160" Height="160">
+            <Border.Background>
+              <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                <GradientStop Offset="0" Color="#30FFFFFF"/>
+                <GradientStop Offset="0.55" Color="#18FFFFFF"/>
+                <GradientStop Offset="1" Color="#0BFFFFFF"/>
+              </LinearGradientBrush>
+            </Border.Background>
+            <Panel>
+              <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="9">
+                <Panel Width="56" Height="56" HorizontalAlignment="Center">
+                  <Border Background="#24FFFFFF" CornerRadius="28" IsVisible="{Binding NoLogo}">
+                    <TextBlock Text="{Binding Glyph}" FontSize="24" FontWeight="SemiBold"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                  </Border>
+                  <views:HttpImage Url="{Binding LogoUrl}" Width="56" Height="56"
+                                   DecodeWidth="132" Stretch="Uniform"/>
+                </Panel>
+                <TextBlock Text="{Binding Name}" FontSize="15" FontWeight="SemiBold" MaxWidth="144"
+                           HorizontalAlignment="Center" TextTrimming="CharacterEllipsis" MaxLines="1"
+                           TextAlignment="Center"/>
+                <TextBlock Text="{Binding State}" FontSize="11.5" Opacity="0.55" MaxWidth="144"
+                           HorizontalAlignment="Center" TextTrimming="CharacterEllipsis" MaxLines="2"
+                           TextAlignment="Center"/>
+              </StackPanel>
+              <!-- The stripe of the chosen paper - THE SIDE MENU'S LAW, NOT A WORD DIFFERENT: the very
+                   element the rail's tiles wear (Rectangle Fill=White Width=4, flush left, top to bottom,
+                   clipped by the tile's rounded corner). No inset, no rounding of its own, no scaling.
+                   A chosen paper says "chosen" with this stripe and nothing else; no ring stands on it. -->
+              <Rectangle Classes="news-select-bar" Fill="White" Width="4"
+                         HorizontalAlignment="Left" IsHitTestVisible="False"/>
+            </Panel>
+          </Border>
+          <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
+        </Panel>
+      </Border>
+    </DataTemplate>
 
-    <TextBlock DockPanel.Dock="Bottom"
-               Name="statusLine"
-               Text="{Binding Status}"
-               FontSize="20"
-               Opacity="0.85"
-               Margin="0,18,0,0"
-               TextWrapping="Wrap" />
+    <!-- The chip a story wears on its picture: the paper's face, or its initial where no face was known.
+         The home wall's chip at the sizes the mockup asked for. -->
+    <DataTemplate x:Key="NewsChipLogo" x:DataType="vm:NewsHeadlineRow">
+      <Panel Width="45" Height="30">
+        <Border Background="#40FFFFFF" CornerRadius="15" IsVisible="{Binding NoLogo}">
+          <TextBlock Text="{Binding Glyph}" FontSize="18" FontWeight="Bold"
+                     HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Border>
+        <views:HttpImage Url="{Binding LogoUrl}" Width="45" Height="30"
+                         DecodeWidth="96" Stretch="Uniform"/>
+      </Panel>
+    </DataTemplate>
+    <!-- A headline as a tile of the grid: its story's photograph full bleed, the veil so the words read on
+         whatever the sky in it happens to be, the paper's mark in a chip, and the words at the foot - the
+         home wall's picture tile at the mockup's 216 points of height. A story without a photograph stands
+         on the same glass the feed squares stand on. -->
+    <DataTemplate x:Key="NewsGridTile" x:DataType="vm:NewsHeadlineRow">
+      <!-- The mockup's fixed tile width, given by the screen itself (NewsView.GridTileWidth), because the
+           virtualizing panel asks ONE tile how wide a cell is and lays whole columns by that answer - a tile
+           that stretches by itself has no width to answer with. How many of them stand side by side the
+           column decides from its own width; whatever is left over is shared out, margins included. -->
+      <Border Classes="home-tile-shadow" Margin="5"
+              Width="{Binding $parent[views:NewsView].(views:NewsView.GridTileWidth)}">
+        <Panel>
+          <Border CornerRadius="10" ClipToBounds="True" Height="216">
+            <Border.Background>
+              <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                <GradientStop Offset="0" Color="#30FFFFFF"/>
+                <GradientStop Offset="0.55" Color="#18FFFFFF"/>
+                <GradientStop Offset="1" Color="#0BFFFFFF"/>
+              </LinearGradientBrush>
+            </Border.Background>
+            <Panel>
+              <views:HttpImage Url="{Binding ImageUrl}" Stretch="UniformToFill"
+                               DecodeWidth="512" IsVisible="{Binding !NoImage}"/>
+              <Border IsVisible="{Binding !NoImage}">
+                <Border.Background>
+                  <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                    <GradientStop Offset="0.34" Color="#00000000"/>
+                    <GradientStop Offset="0.64" Color="#8C000000"/>
+                    <GradientStop Offset="1.00" Color="#DB000000"/>
+                  </LinearGradientBrush>
+                </Border.Background>
+              </Border>
+              <Border Background="#6B000000" CornerRadius="18" Padding="5,3,7,3"
+                      Margin="9,9,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
+                <ContentControl ContentTemplate="{StaticResource NewsChipLogo}"
+                                Content="{Binding}" Focusable="False"/>
+              </Border>
+              <StackPanel Margin="12,0,12,10" VerticalAlignment="Bottom" Spacing="5">
+                <TextBlock Text="{Binding Title}" FontSize="15" FontWeight="SemiBold" MaxLines="2"
+                           TextWrapping="Wrap" TextTrimming="CharacterEllipsis" LineHeight="19"/>
+                <TextBlock Text="{Binding MetaText}" FontSize="11.5" Opacity="0.65"
+                           TextTrimming="CharacterEllipsis" MaxLines="1"/>
+              </StackPanel>
+            </Panel>
+          </Border>
+          <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
+        </Panel>
+      </Border>
+    </DataTemplate>
 
-    <Grid ColumnDefinitions="260,*,460" ColumnSpacing="30">
+    <!-- The same headline as a row of the list view: a strip of the picture beside the words, or no strip at
+         all where the feed carried none. Same glass, the mark riding with the words, same voice. -->
+    <DataTemplate x:Key="NewsListRow" x:DataType="vm:NewsHeadlineRow">
+      <Border Classes="home-tile-shadow" Margin="0,0,0,12">
+        <Panel>
+          <Border CornerRadius="10" ClipToBounds="True" Padding="10">
+            <Border.Background>
+              <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                <GradientStop Offset="0" Color="#30FFFFFF"/>
+                <GradientStop Offset="0.55" Color="#18FFFFFF"/>
+                <GradientStop Offset="1" Color="#0BFFFFFF"/>
+              </LinearGradientBrush>
+            </Border.Background>
+            <Grid ColumnDefinitions="150,*" ColumnSpacing="12">
+              <Border CornerRadius="6" ClipToBounds="True" Width="150" Height="84"
+                      Background="#10FFFFFF" IsVisible="{Binding !NoImage}">
+                <views:HttpImage Url="{Binding ImageUrl}" Stretch="UniformToFill"
+                                 DecodeWidth="220"/>
+              </Border>
+              <Panel Grid.Column="1" VerticalAlignment="Center">
+                <StackPanel Spacing="6">
+                  <TextBlock Text="{Binding Title}" FontSize="15" FontWeight="SemiBold" MaxLines="2"
+                             TextWrapping="Wrap" TextTrimming="CharacterEllipsis" LineHeight="19"/>
+                  <StackPanel Orientation="Horizontal" Spacing="7">
+                    <ContentControl ContentTemplate="{StaticResource NewsChipLogo}"
+                                    Content="{Binding}" VerticalAlignment="Center" Focusable="False"/>
+                    <TextBlock Text="{Binding MetaText}" FontSize="11.5" Opacity="0.55"
+                               VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                  </StackPanel>
+                </StackPanel>
+              </Panel>
+            </Grid>
+          </Border>
+          <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
+        </Panel>
+      </Border>
+    </DataTemplate>
 
-      <ListBox Name="feedsList"
+    <!-- One row of this screen's own menu, standing in the two hundred points that are off the screen while
+         the menu is shut. It wears the library rail's tile complete: the shortcut's liquid glass at the
+         shortcut's numbers, the veil, the ghost ring, the mark out of the skin's vectors, the name on the
+         glass, and the white bar of the row that is the screen's answer already. -->
+    <DataTemplate x:Key="NewsMenuTile" x:DataType="views:NewsMenuEntry">
+      <Border Classes="home-tile-shadow"
+              Margin="6"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center"
+              lg:LiquidGlassBackdrop.IsExcludedFromCapture="True">
+        <Panel>
+          <Border Classes="nereus-menu-tile" Background="Transparent" ClipToBounds="True" Width="145" Height="145">
+            <Panel>
+              <lg:LiquidGlassSurface ClipToBounds="True"
+                                     CornerRadius="10"
+                                     BlurRadius="10"
+                                     Vibrancy="1.15"
+                                     SurfaceColor="#33030810"
+                                     RefractionHeight="20"
+                                     RefractionAmount="45"
+                                     DepthEffect="True"
+                                     ChromaticAberration="True"
+                                     HighlightWidth="0.5"
+                                     HighlightOpacity="0.2"
+                                     ShadowEnabled="False"/>
+              <Border Classes="home-shortcut-tint"/>
+              <Path Classes="media-menu-icon"
+                    Data="{Binding Icon, Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                   ConverterParameter='MediaMenu/{0}'}"
+                    Fill="{DynamicResource TextBrush}"
+                    Width="46"
+                    Height="46"
+                    Stretch="Uniform"
+                    Margin="0,0,0,19"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"/>
+              <TextBlock Classes="home-shortcut-caption"
+                         Text="{Binding Label}"
+                         TextTrimming="CharacterEllipsis"/>
+              <Rectangle Fill="White"
+                         Width="4"
+                         HorizontalAlignment="Left"
+                         IsVisible="{Binding IsCurrent}"/>
+            </Panel>
+          </Border>
+          <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
+        </Panel>
+      </Border>
+    </DataTemplate>
+  </UserControl.Resources>
+  <!--
+    The states of this screen's own lists. The states of the platform - selection plate, focus rectangle,
+    padding - are taken away down to the item's own template, exactly as the library rail does it, and what
+    says "this one" instead is this screen's own law: the ring for the row a viewer stands on and for the
+    row the model has picked, and the white edge band for the chosen paper - no glow anywhere, which is
+    what the mockup drew and what the viewer insisted on.
+  -->
+  <UserControl.Styles>
+    <Style Selector="ListBox.news-col">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="FocusAdorner" Value="{x:Null}"/>
+      <!-- A ListBox is a TemplatedControl, and TemplatedControl hands its ClipToBounds default over as
+           TRUE - the very default that saw the shadows off at the item's edge on the wall (styles.xaml,
+           "ListBox.nereus-home-menu ListBoxItem"). The wall's own ItemsControl puts its clip off for that
+           reason, and these columns are its neighbours: the clip that stays is the ScrollContentPresenter's
+           at the scrolled ends, and the tiles keep a shadow's reach clear of it by their own margins. -->
+      <Setter Property="ClipToBounds" Value="False"/>
+    </Style>
+    <Style Selector="ListBox.news-col ListBoxItem">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="Margin" Value="0"/>
+      <Setter Property="MinHeight" Value="0"/>
+      <Setter Property="MinWidth" Value="0"/>
+      <Setter Property="FocusAdorner" Value="{x:Null}"/>
+      <Setter Property="ClipToBounds" Value="False"/>
+      <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+      <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+      <Setter Property="Template">
+        <ControlTemplate>
+          <ContentPresenter Name="newsItemPresenter"
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            Padding="{TemplateBinding Padding}"
+                            Background="Transparent"
+                            HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+
+    <!-- The skin's general list style paints its selected row with the accent plate and the plate's dark
+         ink. That is right for a settings list and wrong here in every way the mockup drew it: the chosen
+         square and the chosen headline stay white on their glass, and say "chosen" with the lit ring and
+         the glow - nothing else. -->
+    <Style Selector="ListBox.news-col ListBoxItem:selected,
+                    ListBox.news-col ListBoxItem:focus,
+                    Window:not(.pointer-resting) ListBox.news-col ListBoxItem:pointerover">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+    </Style>
+
+    <!-- ONE RING, ONE BAND, AND EACH SAYS ITS OWN PIECE. The ring stands on the headline the list has picked
+         - the caret and the pick are the same row, since the arrows move the pick with the caret - and on
+         nothing else: no glow outside the mockup, no hover dressed like a caret. The PAPERS wear no ring at
+         all: their pick says itself with the white band at the tile's left edge, the very answer the home
+         rail's tiles give, and a ring over that band would be two voices claiming one row. Which list is
+         walked is told by its one mark moving under the arrow keys. -->
+    <Style Selector="ListBox.news-col:not(.news-feeds) ListBoxItem:selected Border.home-tile-edge">
+      <Setter Property="BorderBrush">
+        <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+          <GradientStop Offset="0" Color="#FFFFFFFF"/>
+          <GradientStop Offset="0.35" Color="#B3FFFFFF"/>
+          <GradientStop Offset="0.72" Color="#66FFFFFF"/>
+          <GradientStop Offset="1" Color="#CCFFFFFF"/>
+        </LinearGradientBrush>
+      </Setter>
+    </Style>
+    <!-- And wherever the keyboard STANDS, that row wears the frame, in every column including the papers:
+         the frame answers "the caret is here", the band answers "this paper is chosen", the pick answers
+         "these are its headlines" - three questions, three marks, none of them standing in for another.
+         (On the headlines the caret's row IS the picked row, so the two marks fall on one row as one.) -->
+    <Style Selector="ListBox.news-col ListBoxItem:focus Border.home-tile-edge,
+                    ListBox.news-col ListBoxItem.news-caret Border.home-tile-edge">
+      <Setter Property="BorderBrush">
+        <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+          <GradientStop Offset="0" Color="#FFFFFFFF"/>
+          <GradientStop Offset="0.35" Color="#B3FFFFFF"/>
+          <GradientStop Offset="0.72" Color="#66FFFFFF"/>
+          <GradientStop Offset="1" Color="#CCFFFFFF"/>
+        </LinearGradientBrush>
+      </Setter>
+    </Style>
+    <!-- The stripe's law is the rail's law, word for word: it stands while its paper is chosen and not
+         otherwise - the rail switches its stripe on IsCurrent, the papers switch it on :selected. The
+         keyboard never dresses this stripe; a focused row wears the caret's frame, nothing more. -->
+    <Style Selector="Rectangle.news-select-bar">
+      <Setter Property="IsVisible" Value="False"/>
+    </Style>
+    <Style Selector="ListBox.news-feeds ListBoxItem:selected Rectangle.news-select-bar">
+      <Setter Property="IsVisible" Value="True"/>
+    </Style>
+
+    <!-- NOTHING JUMPS HERE. The home rail's scroller slides its content over four hundred milliseconds on a
+         CubicEase instead of cutting (styles.xaml, "ListBox.nereus-home-menu ScrollViewer"), and the news
+         columns are the rail's neighbours - they answer the wheel, the arrow key and the drag with the same
+         travel. The platform's own wheel and caret-scrolling write the offset; this transition is what turns
+         every one of those writings from a cut into a glide, which is the mockup's smooth scrolling. -->
+    <Style Selector="ListBox.news-col ScrollViewer">
+      <Setter Property="Transitions">
+        <Transitions>
+          <VectorTransition Property="Offset" Duration="0:0:0.4" Easing="CubicEaseOut"/>
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="ScrollViewer#storyScroller">
+      <Setter Property="Transitions">
+        <Transitions>
+          <VectorTransition Property="Offset" Duration="0:0:0.4" Easing="CubicEaseOut"/>
+        </Transitions>
+      </Setter>
+    </Style>
+
+    <!-- Which of the two shapes the headlines column wears - the mockup's tiles of their fixed width, in as
+         many columns as the area fills, or the rows. The rail's second tile says which, and the code-behind
+         turns the class over. -->
+    <Style Selector="ListBox.news-story.news-grid">
+      <Setter Property="ItemTemplate" Value="{StaticResource NewsGridTile}"/>
+      <Setter Property="ItemsPanel">
+        <Setter.Value>
+          <ItemsPanelTemplate>
+            <!--
+              The shelf's own panel, and for the shelf's reason: a whole paper's worth of headlines is three
+              hundred tiles, every one of them wearing a photograph, and an ordinary grid builds every container
+              at once - measured live at a UI thread standing still for seconds at a time (Windows filed the
+              frozen window as AppHangTransient). Only the rows the screen could draw stand here, and the cell
+              is the tile's own width, which the screen keeps at the mockup's fixed measure
+              (NewsView.GridTileWidth) - the panel counts how many of them the column fills, so a wide screen
+              stands three or four columns and a narrow one stands one.
+            -->
+            <views:VirtualizingTilePanel/>
+          </ItemsPanelTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style Selector="ListBox.news-story.news-list">
+      <Setter Property="ItemTemplate" Value="{StaticResource NewsListRow}"/>
+      <Setter Property="ItemsPanel">
+        <Setter.Value>
+          <ItemsPanelTemplate>
+            <!-- The same reason as the grid's: a stack panel builds a row for every headline the feed brought,
+                 which is hundreds; this one only dresses the rows the screen could show. -->
+            <VirtualizingStackPanel Orientation="Vertical"/>
+          </ItemsPanelTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <!-- The screen's own menu, in the two hundred points off the screen. Its rows wear the library rail's
+         states wholesale - the same four stops the shortcut tiles light with - because the news menu and the
+         library menu answer the same question and must not dress differently. -->
+    <Style Selector="ListBox.news-menu">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="FocusAdorner" Value="{x:Null}"/>
+    </Style>
+    <Style Selector="ListBox.news-menu ListBoxItem">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="Margin" Value="0"/>
+      <Setter Property="FocusAdorner" Value="{x:Null}"/>
+      <Setter Property="ClipToBounds" Value="False"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Setter Property="Template">
+        <ControlTemplate>
+          <ContentPresenter Name="newsMenuPresenter"
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            Padding="{TemplateBinding Padding}"
+                            Background="Transparent"
+                            HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+    <!-- The rail took a sixth off its tiles, and the name on the glass comes along: thirteen points where the
+         shortcut's own caption keeps fifteen. Only on the menu; the tiles of the columns keep their sizes. -->
+    <Style Selector="ListBox.news-menu TextBlock.home-shortcut-caption">
+      <Setter Property="FontSize" Value="13"/>
+    </Style>
+    <Style Selector="ListBox.news-menu ListBoxItem Path.media-menu-icon">
+      <Setter Property="Opacity" Value="0.4"/>
+      <Setter Property="RenderTransformOrigin" Value="50%,50%"/>
+      <Setter Property="RenderTransform" Value="scale(1)"/>
+      <Setter Property="Transitions">
+        <Transitions>
+          <DoubleTransition Property="Opacity" Duration="0:0:0.3" Easing="CubicEaseOut"/>
+          <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.3" Easing="CubicEaseOut"/>
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="ListBox.news-menu ListBoxItem:selected Path.media-menu-icon,
+                    ListBox.news-menu ListBoxItem:focus Path.media-menu-icon,
+                    Window:not(.pointer-resting) ListBox.news-menu ListBoxItem:pointerover Path.media-menu-icon">
+      <Setter Property="Opacity" Value="1"/>
+    </Style>
+    <Style Selector="ListBox.news-menu ListBoxItem:selected:focus Path.media-menu-icon,
+                    ListBox.news-menu ListBoxItem:selected:pointerover Path.media-menu-icon">
+      <Setter Property="RenderTransform" Value="scale(1.06)"/>
+    </Style>
+    <Style Selector="ListBox.news-menu ListBoxItem:selected Border.home-shortcut-tint,
+                    ListBox.news-menu ListBoxItem:focus Border.home-shortcut-tint,
+                    Window:not(.pointer-resting) ListBox.news-menu ListBoxItem:pointerover Border.home-shortcut-tint">
+      <Setter Property="Opacity" Value="1"/>
+      <Setter Property="Background">
+        <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+          <GradientStop Offset="0" Color="#66FFFFFF"/>
+          <GradientStop Offset="0.3" Color="#40FFFFFF"/>
+          <GradientStop Offset="0.7" Color="#33141C26"/>
+          <GradientStop Offset="1" Color="#4D0C1218"/>
+        </LinearGradientBrush>
+      </Setter>
+    </Style>
+    <!-- The menu's ring follows the same law as the columns': it stands on the row the menu has picked and
+         glows at nothing. The mark's light and the glass's tint may still answer the pointer - the library
+         rail does, and reading a command's name before pressing it is not the same claim as claiming where
+         the caret is. -->
+    <Style Selector="ListBox.news-menu ListBoxItem:selected Border.home-tile-edge">
+      <Setter Property="BorderBrush">
+        <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+          <GradientStop Offset="0" Color="#FFFFFFFF"/>
+          <GradientStop Offset="0.35" Color="#B3FFFFFF"/>
+          <GradientStop Offset="0.72" Color="#66FFFFFF"/>
+          <GradientStop Offset="1" Color="#CCFFFFFF"/>
+        </LinearGradientBrush>
+      </Setter>
+    </Style>
+    <Style Selector="ListBox.news-menu ListBoxItem:selected TextBlock.home-shortcut-caption,
+                    ListBox.news-menu ListBoxItem:focus TextBlock.home-shortcut-caption,
+                    Window:not(.pointer-resting) ListBox.news-menu ListBoxItem:pointerover TextBlock.home-shortcut-caption">
+      <Setter Property="Opacity" Value="1"/>
+    </Style>
+  </UserControl.Styles>
+  <Panel>
+
+    <!-- The ground: this skin's own Background.PNG, as everywhere else the front end paints a whole screen.
+         The news has no fanart - its pictures are the stories' own, and they stand where they belong. -->
+    <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter=Background.PNG}"
+           Stretch="Fill"/>
+
+    <!-- The two bands, at the library's depths and with the library's seven stops; paint only, and they never
+         stand between a pointer and a tile. -->
+    <Panel IsHitTestVisible="False">
+      <Border VerticalAlignment="Top" Height="100" HorizontalAlignment="Stretch">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
+            <GradientStop Color="#E6000000" Offset="0"/>
+            <GradientStop Color="#78000000" Offset="0.3"/>
+            <GradientStop Color="#46000000" Offset="0.45"/>
+            <GradientStop Color="#21000000" Offset="0.6"/>
+            <GradientStop Color="#0C000000" Offset="0.75"/>
+            <GradientStop Color="#01000000" Offset="0.87"/>
+            <GradientStop Color="#00000000" Offset="1"/>
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
+      <Border VerticalAlignment="Bottom" Height="260" HorizontalAlignment="Stretch">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="50%,100%" EndPoint="50%,0%">
+            <GradientStop Color="#E6000000" Offset="0"/>
+            <GradientStop Color="#78000000" Offset="0.3"/>
+            <GradientStop Color="#46000000" Offset="0.45"/>
+            <GradientStop Color="#21000000" Offset="0.6"/>
+            <GradientStop Color="#0C000000" Offset="0.75"/>
+            <GradientStop Color="#01000000" Offset="0.87"/>
+            <GradientStop Color="#00000000" Offset="1"/>
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
+    </Panel>
+
+    <!--
+      THE ROOM, at the library screen's one arrangement: two hundred points of its left edge are off the
+      screen, and that is where this screen's own menu stands while it is shut. Opening the menu shows
+      nothing - the room makes room for it, sliding right by the two hundred points with the same
+      three-hundred-and-fifty-millisecond transition the library's Animations.xaml ran its ClientGrid on.
+    -->
+    <Grid Name="room"
+          Margin="-200,0,0,0"
+          ColumnDefinitions="200,*"
+          ClipToBounds="False">
+      <Grid.RenderTransform>
+        <TranslateTransform X="0" Y="0">
+          <TranslateTransform.Transitions>
+            <Transitions>
+              <DoubleTransition Property="X" Duration="00:00:00.35"/>
+              <DoubleTransition Property="Y" Duration="00:00:00.35"/>
+            </Transitions>
+          </TranslateTransform.Transitions>
+        </TranslateTransform>
+      </Grid.RenderTransform>
+
+      <!--
+        What the two hundred off-screen points hold: the screen's menu. Its top edge starts below the head
+        band as the library's rail does; the list is measured to what a viewer can see, so a menu longer
+        than the rail scrolls under the wheel. The commands it carries are the four the mockup asked the
+        rail for: the papers, the shape of the headlines column, the settings, and the refresh.
+      -->
+      <Panel Name="sideMenu"
+             Grid.Column="0"
+             Margin="0,90,0,0"
+             ClipToBounds="False">
+        <!-- No DockPanel in here, and no alignment that shrinks: a list left to its own desired height asks
+             its virtualizing panel, that panel builds only the rows already realized, and the rail starves
+             to a single tile - the solitary "Feeds" a viewer kept seeing. Stretched to the rail's height
+             the viewport is the rail, every row is built, and a menu longer than the rail still scrolls. -->
+        <Panel Margin="10,0,0,0">
+          <ListBox Name="newsMenuList"
+                   Classes="news-menu"
+                   ItemTemplate="{StaticResource NewsMenuTile}"
+                   Margin="0,14,0,0"
+                   HorizontalAlignment="Left"
+                   VerticalAlignment="Stretch"
+                   Focusable="True"
+                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                   ScrollViewer.VerticalScrollBarVisibility="Hidden">
+            <!-- A plain stack, no virtualizing panel: four rows are the most this rail ever carries, and the
+                 virtualizing one kept answering its own estimate with the single realized row - which is how
+                 the rail came to stand there with only "Feeds" on it. Stacking all four costs nothing and a
+                 menu taller than the rail still scrolls, because scrolling is the ScrollViewer's, not the
+                 panel's, affair. -->
+            <ListBox.ItemsPanel>
+              <ItemsPanelTemplate>
+                <StackPanel/>
+              </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+          </ListBox>
+        </Panel>
+      </Panel>
+
+      <!-- The room's content, measured off the mockup once the rail's two hundred points are taken back:
+           the papers twenty-four in, the headlines beside them, the story to the right. -->
+      <Grid Grid.Column="1" Margin="24,96,34,120" ColumnDefinitions="196,*,722">
+
+      <!-- The papers. Every one that MediaPortal names for the viewer's language, and the viewer's own on
+           top of them, each wearing its face; the first square is all of them together. -->
+      <ListBox Name="feedsList" Grid.Column="0"
+               Classes="news-col news-feeds"
                Focusable="True"
+               ItemTemplate="{StaticResource NewsFeedSquare}"
                ItemsSource="{Binding Feeds}"
                SelectedItem="{Binding SelectedFeed, Mode=TwoWay}"
-               FontSize="20">
-        <ListBox.ItemTemplate>
-          <DataTemplate x:DataType="vm:NewsFeedRow">
-            <StackPanel Spacing="2" Margin="4,8">
-              <TextBlock Text="{Binding Name}" FontSize="22" TextWrapping="Wrap" />
-              <TextBlock Text="{Binding State}" FontSize="16" Opacity="0.6" TextWrapping="Wrap" />
-            </StackPanel>
-          </DataTemplate>
-        </ListBox.ItemTemplate>
-      </ListBox>
+               Margin="0"
+               HorizontalAlignment="Left"
+               ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+               ScrollViewer.VerticalScrollBarVisibility="Hidden"/>
 
-      <ListBox Name="headlinesList"
-               Grid.Column="1"
+      <!-- The headlines, in whichever shape the rail says. Newest first, the undated ones last; a press or
+           Enter says which story the right half of the screen reads. -->
+      <ListBox Name="headlinesList" Grid.Column="1"
+               Classes="news-col news-story news-grid"
                Focusable="True"
-               theming:SkinTemplates.TileTemplate="NewsHeadlineTemplate"
                ItemsSource="{Binding Headlines}"
                SelectedItem="{Binding SelectedHeadline, Mode=TwoWay}"
-               FontSize="20">
-        <ListBox.ItemTemplate>
-          <DataTemplate x:DataType="vm:NewsHeadlineRow">
-            <StackPanel Spacing="2" Margin="4,8">
-              <TextBlock Text="{Binding Title}" FontSize="21" TextWrapping="Wrap" />
-              <StackPanel Orientation="Horizontal" Spacing="14">
-                <TextBlock Text="{Binding FeedName}" FontSize="16" Opacity="0.6" />
-                <TextBlock Text="{Binding DateText}" FontSize="16" Opacity="0.45" />
-              </StackPanel>
-            </StackPanel>
-          </DataTemplate>
-        </ListBox.ItemTemplate>
-      </ListBox>
+               Margin="0,0,20,0"
+               ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+               ScrollViewer.VerticalScrollBarVisibility="Hidden"/>
 
-      <!-- The story panel: not a third list but the third question - after who and what, the words. It says what
-           there is nothing to say, because an empty half of the screen reads as a broken one. -->
-      <StackPanel Grid.Column="2" Spacing="10">
-        <TextBlock Text="{Binding SelectedHeadline.Title}"
-                   FontSize="26"
-                   FontWeight="SemiBold"
-                   TextWrapping="Wrap" />
-        <TextBlock Text="{Binding SelectedHeadline.FeedName}"
-                   FontSize="18"
-                   Opacity="0.6" />
-        <TextBlock Text="{Binding SelectedHeadline.Summary}"
-                   FontSize="20"
-                   Opacity="0.85"
-                   TextWrapping="Wrap"
-                   MaxHeight="480"
-                   TextTrimming="CharacterEllipsis" />
-        <TextBlock Text="Nothing is selected - a headline on the middle shows its words here"
-                   FontSize="18"
-                   Opacity="0.5"
-                   IsVisible="{Binding SelectedHeadline, Converter={x:Static ObjectConverters.IsNull}}" />
-      </StackPanel>
+      <!-- The story itself. The picture in sixteen by nine with the paper's mark in its corner, the title,
+           the moment, and the words under it - the reading column the mockup asked for, with no link
+           standing where the reading should. It starts at the height the tiles start at (their own five
+           of margin), so the picture's top edge and the first row's top edge stand flush. -->
+      <ScrollViewer Name="storyScroller" Grid.Column="2" Margin="0,5,0,0"
+                    Focusable="True"
+                    HorizontalScrollBarVisibility="Disabled"
+                    VerticalScrollBarVisibility="Hidden">
+        <Panel>
+          <StackPanel Spacing="0" IsVisible="{Binding SelectedHeadline, Converter={x:Static ObjectConverters.IsNotNull}}">
+            <Border CornerRadius="10" ClipToBounds="True">
+              <!-- Sixteen by nine of the fixed reading column: seven hundred twenty-two wide, four hundred
+                   six tall - the ratio kept by the number, because the column it stands in is measured. -->
+              <Panel Height="406">
+                <views:HttpImage Url="{Binding SelectedHeadline.ImageUrl}" Stretch="UniformToFill"
+                                 DecodeWidth="768"/>
+                <Border>
+                  <Border.Background>
+                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                      <GradientStop Offset="0.55" Color="#00000000"/>
+                      <GradientStop Offset="1.00" Color="#8C000000"/>
+                    </LinearGradientBrush>
+                  </Border.Background>
+                </Border>
+                <Border Background="#6B000000" CornerRadius="19" Padding="7,4,10,4"
+                        Margin="12,12,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
+                  <ContentControl ContentTemplate="{StaticResource NewsChipLogo}"
+                                  Content="{Binding SelectedHeadline}" Focusable="False"/>
+                </Border>
+              </Panel>
+            </Border>
+            <TextBlock Text="{Binding SelectedHeadline.Title}" FontSize="27" FontWeight="SemiBold"
+                       TextWrapping="Wrap" LineHeight="34" Margin="2,18,2,0"/>
+            <TextBlock Text="{Binding SelectedHeadline.MetaText}" FontSize="13.5" Opacity="0.55"
+                       Margin="2,9,2,0"/>
+            <Border Height="1" Background="#1FFFFFFF" Margin="2,22,2,0"/>
+            <TextBlock Text="{Binding SelectedHeadline.Summary}" FontSize="16.5" Opacity="0.87"
+                       TextWrapping="Wrap" LineHeight="26" Margin="2,16,2,50"/>
+          </StackPanel>
+          <TextBlock Text="Nothing is selected - a headline on the left shows its words here"
+                     FontSize="18" Opacity="0.5" TextWrapping="Wrap"
+                     IsVisible="{Binding SelectedHeadline, Converter={x:Static ObjectConverters.IsNull}}"/>
+        </Panel>
+      </ScrollViewer>
+      </Grid>
+
+      <!-- The line the read leaves behind, along the foot of the content - it slides with the room, as the
+           library's own foot line does. -->
+      <TextBlock Name="statusLine" Grid.Column="1"
+                 Text="{Binding Status}"
+                 FontSize="21"
+                 Opacity="0.85"
+                 MaxLines="1"
+                 TextTrimming="CharacterEllipsis"
+                 HorizontalAlignment="Left"
+                 VerticalAlignment="Bottom"
+                 Margin="24,0,34,34"/>
     </Grid>
-  </DockPanel>
+  </Panel>
 </UserControl>

@@ -264,6 +264,9 @@ namespace Tests.Frontend
         try { window.Close(); } catch (ObjectDisposedException) { }
       }
       SkinEngine.Clear(app);
+      // The clearing takes the app's own colours with it, and a later fixture that reads the palette it is
+      // worn with would find none - so the same colours the application started with go back on the way out.
+      FrontendTheme.Apply(app, FrontendTheme.DEFAULT_NAME, out _);
       Pump();
     }
 

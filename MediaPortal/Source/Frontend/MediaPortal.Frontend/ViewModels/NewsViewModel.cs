@@ -31,33 +31,56 @@ using MediaPortal.Frontend.Settings;
 namespace MediaPortal.Frontend.ViewModels
 {
   /// <summary>
-  /// One row of the feeds column: a paper's name and what came of asking it for headlines.
+  /// One row of the feeds column: a paper's name, its own picture where one is known, and what came of asking
+  /// it for headlines. The squares of the news screen and of the home wall are painted from these.
   /// </summary>
   public sealed class NewsFeedRow
   {
-    public NewsFeedRow(string name, string state)
+    public NewsFeedRow(string name, string state, string? logoUrl = null)
     {
       Name = name;
       State = state;
+      LogoUrl = string.IsNullOrEmpty(logoUrl) ? null : logoUrl;
     }
+
+    /// <summary>The "read everything together" row. One instance, so selecting it again really is the same row.</summary>
+    public static NewsFeedRow ALL { get; } = new NewsFeedRow("All headlines", "Every feed");
 
     /// <summary>The feed's name, or "All headlines" for the row that merges them.</summary>
     public string Name { get; }
 
-    /// <summary>How many it answered with, or why it did not - both belong in the row, not in a footnote.</summary>
-    public string State { get; }
+    /// <summary>
+    /// How many it answered with, or why it did not - both belong in the row, not in a footnote. The merged row
+    /// carries the total of the read once one has happened.
+    /// </summary>
+    public string State { get; private set; }
+
+    /// <summary>The paper's own picture, when the endpoint or the feed root could name one.</summary>
+    public string? LogoUrl { get; }
+
+    /// <summary>The initial the square wears when no logo came - the home wall's letter plate.</summary>
+    public string Glyph => Name.Length == 0 ? "?" : Name.Substring(0, 1).ToUpperInvariant();
+
+    public bool NoLogo => LogoUrl == null;
+
+    public bool IsAll => ReferenceEquals(this, ALL);
+
+    internal void SetState(string state) => State = state;
   }
 
   /// <summary>
-  /// One row of the headlines column.
+  /// One row of the headlines column. It carries the story's own picture and its paper's logo so that the grid
+  /// tile, the list row and the reading pane can all be bound without reaching back into the api record.
   /// </summary>
   public sealed class NewsHeadlineRow
   {
     private readonly NewsHeadline _headline;
+    private readonly string? _logoUrl;
 
-    public NewsHeadlineRow(NewsHeadline headline)
+    public NewsHeadlineRow(NewsHeadline headline, string? logoUrl = null)
     {
       _headline = headline;
+      _logoUrl = string.IsNullOrEmpty(logoUrl) ? null : logoUrl;
     }
 
     public string Title
@@ -70,6 +93,19 @@ namespace MediaPortal.Frontend.ViewModels
     {
       get { return _headline.FeedName; }
     }
+
+    /// <summary>The story's own picture, when the feed carried one.</summary>
+    public string? ImageUrl => _headline.ImageUrl;
+
+    public bool NoImage => string.IsNullOrEmpty(_headline.ImageUrl);
+
+    /// <summary>The paper's logo, worn in the chip on the story's picture.</summary>
+    public string? LogoUrl => _logoUrl;
+
+    /// <summary>The initial that stands in the chip's round plate where no logo came.</summary>
+    public string Glyph => FeedName.Length == 0 ? "?" : FeedName.Substring(0, 1).ToUpperInvariant();
+
+    public bool NoLogo => _logoUrl == null;
 
     /// <summary>The date in the row's small print, or the words that say the feed did not give one.</summary>
     public string DateText
@@ -84,10 +120,50 @@ namespace MediaPortal.Frontend.ViewModels
       }
     }
 
+    /// <summary>
+    /// The publication moment told the way the wall tells it - "5 min ago", "3 h ago", "4 days ago" - and the
+    /// plain date once it is a week old. "no date" stays out of here: an undated story shows no time at all
+    /// rather than claiming one.
+    /// </summary>
+    public string TimeText
+    {
+      get
+      {
+        if (_headline.Published == null)
+          return "";
+        TimeSpan past = DateTimeOffset.Now - _headline.Published.Value.ToLocalTime();
+        if (past < TimeSpan.Zero)
+          past = TimeSpan.Zero;
+        if (past.TotalMinutes < 1)
+          return "just now";
+        if (past.TotalMinutes < 60)
+          return (int) past.TotalMinutes + " min ago";
+        if (past.TotalHours < 24)
+          return (int) past.TotalHours + " h ago";
+        if (past.TotalDays < 7)
+        {
+          int days = (int) past.TotalDays;
+          return days + (days == 1 ? " day ago" : " days ago");
+        }
+
+        return _headline.Published.Value.ToLocalTime().ToString("ddd d MMM", CultureInfo.CurrentCulture);
+      }
+    }
+
     /// <summary>The story's words, for the panel on the right.</summary>
     public string Summary
     {
       get { return _headline.Summary; }
+    }
+
+    /// <summary>The paper's name and the moment, as the reading pane's meta line - "tagesschau.de · 5 min ago".</summary>
+    public string MetaText
+    {
+      get
+      {
+        string when = TimeText;
+        return when.Length == 0 ? FeedName : FeedName + "  ·  " + when;
+      }
     }
   }
 
@@ -119,7 +195,8 @@ namespace MediaPortal.Frontend.ViewModels
   public partial class NewsViewModel : ObservableObject, IDisposable
   {
     /// <summary>The merged list, which is what the screen shows before anybody has picked a feed.</summary>
-    private static readonly NewsFeedRow ALL = new NewsFeedRow("All headlines", "");
+    /// <summary>The merged row at the head of the feed column - the one instance, worn from the row class.</summary>
+    private static readonly NewsFeedRow ALL = NewsFeedRow.ALL;
 
     private readonly NewsApiClient? _client;
     private readonly string _cultureName;
@@ -231,7 +308,11 @@ namespace MediaPortal.Frontend.ViewModels
         Feeds.Add(ALL);
         foreach (NewsFeedAnswer answer in answers)
           Feeds.Add(new NewsFeedRow(answer.Feed.Name,
-              answer.Error == null ? CountText(answer) : answer.Error));
+              answer.Error == null ? CountText(answer) : answer.Error, answer.FeedImageUrl));
+
+        // The merged row says what the read brought, so that the first square of the column tells the same
+        // story as the ones under it.
+        ALL.SetState(CountText(answers));
 
         // The viewer's place in the column survives a refresh; a feed that left the list because its paper left
         // MediaPortal's list is answered by falling back to the merged view.
@@ -311,13 +392,13 @@ namespace MediaPortal.Frontend.ViewModels
 
       // Newest first, and the undated ones last rather than first: a feed that gives no date is not claiming to
       // be the newest story on the internet, and "no date" printed above everything else would say it was.
-      IEnumerable<NewsHeadline> merged = _answers
+      IEnumerable<(NewsFeedAnswer Answer, NewsHeadline Headline)> merged = _answers
           .Where(answer => answer.Headlines != null && (all || answer.Feed.Name == SelectedFeed!.Name))
-          .SelectMany(answer => answer.Headlines!);
-      foreach (NewsHeadline headline in merged
-          .OrderBy(headline => headline.Published == null ? 1 : 0)
-          .ThenByDescending(headline => headline.Published))
-        Headlines.Add(new NewsHeadlineRow(headline));
+          .SelectMany(answer => answer.Headlines!.Select(headline => (answer, headline)));
+      foreach ((NewsFeedAnswer answer, NewsHeadline headline) in merged
+          .OrderBy(pair => pair.Headline.Published == null ? 1 : 0)
+          .ThenByDescending(pair => pair.Headline.Published))
+        Headlines.Add(new NewsHeadlineRow(headline, answer.FeedImageUrl));
 
       SelectedHeadline = Headlines.Count > 0 ? Headlines[0] : null;
     }
@@ -325,6 +406,13 @@ namespace MediaPortal.Frontend.ViewModels
     private static string CountText(NewsFeedAnswer answer)
     {
       int count = answer.Headlines?.Count ?? 0;
+      return count == 1 ? "1 headline" : count.ToString("N0") + " headlines";
+    }
+
+    /// <summary>The whole read told as one count, for the merged row of the feed column.</summary>
+    private static string CountText(NewsFeedAnswer[] answers)
+    {
+      int count = answers.Sum(answer => answer.Headlines?.Count ?? 0);
       return count == 1 ? "1 headline" : count.ToString("N0") + " headlines";
     }
 

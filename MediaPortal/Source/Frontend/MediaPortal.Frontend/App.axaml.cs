@@ -1296,7 +1296,11 @@ namespace MediaPortal.Frontend
         return new PicturesView((PicturesViewModel)frame.ViewModel);
 
       if (state == "news")
-        return new NewsView((NewsViewModel)frame.ViewModel);
+      {
+        // The rail's setup tile walks to the settings through the same door the home's tiles use - and it
+        // only sits on the rail when this application can answer that walk at all.
+        return new NewsView((NewsViewModel)frame.ViewModel, _workflow, BuildNamedFrame);
+      }
 
       if (state == "weather")
         return new WeatherView((WeatherViewModel)frame.ViewModel);

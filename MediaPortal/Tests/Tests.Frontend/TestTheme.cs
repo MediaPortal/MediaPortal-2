@@ -608,6 +608,8 @@ namespace Tests.Frontend
       // and draws that part of itself with nothing on it. Nothing at runtime complains, so the names are checked.
       List<string> unknown = new List<string>();
       HashSet<string> keys = new HashSet<string>(FrontendTheme.Keys, StringComparer.Ordinal);
+      foreach (string dialog in FrontendTheme.DialogKeys)
+        keys.Add(dialog);
 
       foreach (string file in ScreenFiles())
       {

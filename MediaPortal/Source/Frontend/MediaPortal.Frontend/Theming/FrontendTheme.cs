@@ -118,6 +118,17 @@ namespace MediaPortal.Frontend.Theming
     };
 
     /// <summary>
+    /// The frame a question wears: the wash the screen behind it sinks into, the ground the panel itself is
+    /// cut from, and the two measurements of its title. A skin may dress these in its own file - Nereus does -
+    /// but every palette answers them too, because a dialog drawn on an unanswered key is a dialog whose
+    /// ground is transparent and whose title stands wherever the default font feels like standing.
+    /// </summary>
+    public static readonly string[] DialogKeys =
+    {
+        "DialogWashBrush", "DialogGroundBrush", "DialogFrameCornerRadius", "DialogTitleFontSize"
+    };
+
+    /// <summary>
     /// The palettes. Each comment names the key in that skin's own colour file the value was read from.
     /// </summary>
     /// <remarks>
@@ -264,6 +275,15 @@ namespace MediaPortal.Frontend.Theming
 
         brushes[key] = new SolidColorBrush(ParseColor(name, key, argb));
       }
+
+      // The dialog frame is the same furniture on every palette - the numbers are the ones the shipped skin
+      // files state (Nereus spells them as A6000000 over the screen, a ground of 1B1B1B, corners of 25, and a
+      // title of 30) - and the palette answers them so a screen worn without that skin, 'default' above all,
+      // still stands a visible dialog instead of an invisible one painted on nothing.
+      brushes["DialogWashBrush"] = new SolidColorBrush(ParseColor(name, "DialogWashBrush", "#A6000000"));
+      brushes["DialogGroundBrush"] = new SolidColorBrush(ParseColor(name, "DialogGroundBrush", "#FF1B1B1B"));
+      brushes["DialogFrameCornerRadius"] = new CornerRadius(25);
+      brushes["DialogTitleFontSize"] = 30d;
 
       return brushes;
     }

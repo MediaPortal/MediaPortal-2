@@ -195,8 +195,8 @@ namespace Tests.Frontend
       await home.ShowContentAsync(entry);
 
       HomeContentGroup feeds = home.ContentGroups.Single(group => group.Heading == "Feeds");
-      Assert.That(feeds.Layout, Is.EqualTo("card9"),
-          "the feeds are not the three-by-three column the reference's NewsHomeContent drew");
+      Assert.That(feeds.Layout, Is.EqualTo("cardfeed"),
+          "the feeds are not the square grid the viewer's mockup drew them as");
       Assert.That(feeds.Tiles, Has.Count.EqualTo(3));
       Assert.That(feeds.Tiles[2].Card!.Detail, Is.EqualTo("did not answer"),
           "a feed that refused does not say so on its own square");
@@ -211,7 +211,8 @@ namespace Tests.Frontend
       Assert.That(headline.Label, Is.EqualTo("Headline 1"),
           "the headlines are not newest first on the mosaic");
       Assert.That(headline.Detail, Does.Contain("feed "), "a headline does not name its feed");
-      Assert.That(headline.HasBadge, Is.True, "the headline card is not stamped with the news mark");
+      Assert.That(headline.HasBadge, Is.False,
+          "the viewer sent the letter badges away, and no headline wears one again");
     }
 
     /// <summary>
