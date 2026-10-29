@@ -22,20 +22,31 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Avalonia.Threading;
+using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Headless.NUnit;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
+using Avalonia.Threading;
+using Avalonia.VisualTree;
 using NUnit.Framework;
 using MediaPortal.Frontend.Api;
+using MediaPortal.Frontend.Theming;
 using MediaPortal.Frontend.ViewModels;
+using MediaPortal.Frontend.Views;
+using MediaPortal.Frontend.Workflow;
 
 namespace Tests.Frontend
 {
   /// <summary>
-  /// The weather screen: the geocoder's matches, the sky right now, and what the free three-hourly answer has
-  /// to become - days of the city's own calendar.
+  /// The weather screen and the settings page of its places: the geocoder's matches, the wall of bands the
+  /// watched place is read into, and what the free three-hourly answer has to become - days of the city's own
+  /// calendar standing as the forecast band.
   /// </summary>
   /// <remarks>
   /// <para>
@@ -43,9 +54,9 @@ namespace Tests.Frontend
   /// answering with one fixed current sky and four three-hourly entries whose local times - in a city six hours
   /// east of Greenwich - deliberately split at a local midnight rather than at the UTC one. What is under test is
   /// this front end's half: the culture choosing units and language, coordinates replacing the city ids the old
-  /// plugin saved because the geocoder hands out coordinates now, a day taking its midday's words and its own
-  /// extremes, the watched places surviving a restart through their file, a spent key stepping aside for the
-  /// next one, and a refusal being said.
+  /// plugin saved because the geocoder hands out coordinates now, the watched places surviving a restart through
+  /// their file, a spent key stepping aside for the next one, a refusal being said by the place that met it, the
+  /// held brief answering a second showing, and "Refresh" being the one command that refuses to answer from it.
   /// </para>
   /// <para>
   /// No test awaits, for the reason spelled out in <c>TestMediaBrowser</c>; the view-model tests pump the queue
@@ -101,9 +112,6 @@ namespace Tests.Frontend
         + "\"pressure\":1029,\"humidity\":80},\"weather\":[{\"id\":600,\"main\":\"Snow\","
         + "\"description\":\"light snow\",\"icon\":\"13d\"}],\"pop\":0.4,\"wind\":{\"speed\":3.5,\"deg\":340}}"
         + "]}";
-
-    private static readonly WeatherCityBookmark BERLIN =
-        new WeatherCityBookmark("Berlin", "DE", 52.517, 13.389);
 
     /// <summary>
     /// OpenWeatherMap, scripted, with three moods: everything answers, the weather endpoint answers 500, or the
@@ -190,9 +198,14 @@ namespace Tests.Frontend
           new WeatherApiClient(new HttpClient(server), cultureName: culture), settingsFile, culture);
     }
 
+    private static WeatherPlacesEditorViewModel EditorOn(WeatherServer server, string settingsFile)
+    {
+      return new WeatherPlacesEditorViewModel(new WeatherApiClient(new HttpClient(server)), settingsFile);
+    }
+
     #endregion
 
-    #region The places
+    #region The places, behind the settings door
 
     [Test]
     [AvaloniaTest]
@@ -200,33 +213,34 @@ namespace Tests.Frontend
     {
       WeatherServer internet = new WeatherServer();
       string settings = FreshSettingsFile();
-      WeatherViewModel screen = ScreenOn(internet, "en", settings);
+      WeatherPlacesEditorViewModel page = EditorOn(internet, settings);
 
-      Assert.That(screen.Status, Does.Contain("No place watched yet"),
-          "a television nobody has told where it stands says that, and does not pretend to have weather");
+      Assert.That(page.Status, Does.Contain("places watched"),
+          "a television nobody has told where it stands says how few places it watches, and does not pretend "
+          + "to have weather");
 
-      screen.SearchText = "Berlin";
-      screen.SearchCommand.Execute(null);
-      WaitUntil("the geocoder to answer", () => screen.Found.Count == 2);
+      page.SearchText = "Berlin";
+      page.SearchCommand.Execute(null);
+      WaitUntil("the geocoder to answer", () => page.Found.Count == 2);
 
       Assert.That(internet.AskedPaths[0], Is.EqualTo("/geo/1.0/direct"),
           "places are looked up with the geocoder, which is the search the API still gives everybody");
-      Assert.That(screen.Found[1].Detail, Is.EqualTo("New Hampshire, US"),
+      Assert.That(page.Found[1].Detail, Is.EqualTo("New Hampshire, US"),
           "the state and the country are the second line that tells two Berlins apart");
 
-      screen.SelectedFound = screen.Found[1];
-      screen.AddSelectedFoundCommand.Execute(null);
+      page.SelectedFound = page.Found[1];
+      page.AddSelectedFoundCommand.Execute(null);
       Pump();
 
-      Assert.That(screen.Places.Select(row => row.Name), Is.EqualTo(new[] { "Berlin" }),
+      Assert.That(page.Places.Select(row => row.Name), Is.EqualTo(new[] { "Berlin" }),
           "one kept place is on the list");
-      Assert.That(screen.SelectedPlace!.Bookmark.Lat, Is.EqualTo(44.469),
-          "the American Berlin, the one that was picked, and the one now being read");
-      Assert.That(screen.Status, Does.Contain("added and saved"));
+      Assert.That(page.Places[0].Bookmark.Lat, Is.EqualTo(44.469),
+          "the American Berlin, the one that was picked");
+      Assert.That(page.Status, Does.Contain("added and saved"));
 
-      WeatherViewModel restarted = ScreenOn(internet, "en", settings);
+      WeatherPlacesEditorViewModel restarted = EditorOn(internet, settings);
       Assert.That(restarted.Places.Count, Is.EqualTo(1),
-          "and the next start of the screen knows the place too - the viewer picked it once from a couch and "
+          "and the next start of the page knows the place too - the viewer picked it once from a couch and "
           + "is not asked to type it again");
       Assert.That(restarted.Places[0].Detail, Is.EqualTo("New Hampshire, US"));
 
@@ -241,15 +255,42 @@ namespace Tests.Frontend
       // and the client has to try the next key before anybody is told the town does not exist.
       WeatherServer internet = new WeatherServer(refuseFirstRequests: 1);
       string settings = FreshSettingsFile();
-      WeatherViewModel screen = ScreenOn(internet, "en", settings);
+      WeatherPlacesEditorViewModel page = EditorOn(internet, settings);
 
-      screen.SearchText = "Berlin";
-      screen.SearchCommand.Execute(null);
-      WaitUntil("the second key to answer", () => screen.Found.Count == 2);
+      page.SearchText = "Berlin";
+      page.SearchCommand.Execute(null);
+      WaitUntil("the second key to answer", () => page.Found.Count == 2);
 
       Assert.That(internet.AskedPaths.Count, Is.EqualTo(2),
           "one refused, one asked again with the next key - the rotation happens before the viewer hears "
           + "anything about keys");
+
+      File.Delete(settings);
+    }
+
+    [Test]
+    [AvaloniaTest]
+    public void TakingAPlaceOffTheListRewritesTheFile()
+    {
+      WeatherServer internet = new WeatherServer();
+      string settings = FreshSettingsFile();
+      File.WriteAllText(settings, "{\"places\":["
+          + "{\"name\":\"Berlin\",\"detail\":\"DE\",\"lat\":52.517,\"lon\":13.389},"
+          + "{\"name\":\"Vienna\",\"detail\":\"AT\",\"lat\":48.208,\"lon\":16.373}]}");
+      WeatherPlacesEditorViewModel page = EditorOn(internet, settings);
+
+      page.SelectedPlace = page.Places[0];
+      page.RemoveSelectedPlaceCommand.Execute(null);
+      Pump();
+
+      Assert.That(page.Places.Select(row => row.Name), Is.EqualTo(new[] { "Vienna" }),
+          "the picked place is off the list, and the picker of what stays lands on the first of those that did");
+      Assert.That(page.Status, Does.Contain("Berlin is off the list"));
+
+      WeatherPlacesEditorViewModel restarted = EditorOn(internet, settings);
+      Assert.That(restarted.Places.Count, Is.EqualTo(1),
+          "and the file says the same - the page saves itself the moment an answer is given, and no Apply "
+          + "waits to be pressed by nobody");
 
       File.Delete(settings);
     }
@@ -272,7 +313,38 @@ namespace Tests.Frontend
 
     #endregion
 
-    #region The sky
+    #region The wall
+
+    [Test]
+    [AvaloniaTest]
+    public void TheScreenReadsTheWatchedPlaceIntoItsBands()
+    {
+      WeatherServer internet = new WeatherServer();
+      string settings = FreshSettingsFile();
+      File.WriteAllText(settings, "{\"places\":[{\"name\":\"Berlin\",\"detail\":\"DE\",\"lat\":52.517,"
+          + "\"lon\":13.389}]}");
+      WeatherViewModel screen = ScreenOn(internet, "de-DE", settings);
+
+      Assert.That(screen.CurrentPlace?.Name, Is.EqualTo("Berlin"),
+          "the first place on the list is home, and the screen opens speaking for it");
+
+      screen.ScreenOpened();
+      WaitUntil("the wall to rise", () => screen.Bands.Count == 4);
+
+      Assert.That(screen.Bands.Select(band => band.Heading),
+          Is.EqualTo(new[] { "Current weather", "Today", "Forecast", "Air & radar" }),
+          "the four bands of the designed wall, in the design's own order");
+      Assert.That(screen.Bands[0].Layout, Is.EqualTo("card1"),
+          "today's card narrow as its content allows, the chart in the room its columns need");
+      Assert.That(screen.Bands[1].OccupiedWidth, Is.EqualTo(980));
+      Assert.That(screen.Bands[2].Tiles.Count, Is.EqualTo(2),
+          "the two local days the three-hourly answer adds up to, each an upright of its own");
+      Assert.That(screen.Status, Does.Contain("Berlin, DE: few clouds 8°C"),
+          "and the line at the foot of the screen says which place and which sky");
+      Assert.That(screen.Status, Does.Contain("2 days ahead"));
+
+      File.Delete(settings);
+    }
 
     [Test]
     [AvaloniaTest]
@@ -283,16 +355,12 @@ namespace Tests.Frontend
           + "\"lon\":13.389}]}");
       WeatherServer viennasInternet = new WeatherServer();
       WeatherViewModel vienna = ScreenOn(viennasInternet, "de-AT", viennaSettings);
-      WaitUntil("Vienna's Berlin to be read", () => vienna.CurrentLine.Contains("°C", StringComparison.Ordinal));
+      vienna.ScreenOpened();
+      WaitUntil("Vienna's Berlin to be read", () => vienna.Status.Contains("°C", StringComparison.Ordinal));
 
-      Assert.That(vienna.CurrentLine, Does.StartWith("8°C"),
+      Assert.That(vienna.Status, Does.Contain("8°C"),
           "eight degrees, rounded the way the viewer rounds them, with the unit their culture asks for");
-      Assert.That(vienna.CurrentLine, Does.Contain("few clouds"));
-      Assert.That(vienna.CurrentDetail, Does.Contain("feels like 6°C"));
-      Assert.That(vienna.CurrentDetail, Does.Contain("78% humidity"));
-      Assert.That(vienna.CurrentDetail, Does.Contain("NE 3,1 m/s"),
-          "the German screen carries the German comma, and sixty degrees of wind is a north-easterly - the "
-          + "direction as the word a person reads, not the number on a dial");
+      Assert.That(vienna.Status, Does.Contain("few clouds"));
       string viennasWeatherQuery = viennasInternet.AskedQueries.First(q => q.Contains("units="));
       Assert.That(viennasWeatherQuery, Does.Contain("units=metric"));
       Assert.That(viennasWeatherQuery, Does.Contain("lang=de"));
@@ -302,15 +370,14 @@ namespace Tests.Frontend
           + "\"lon\":13.389}]}");
       WeatherServer texansInternet = new WeatherServer();
       WeatherViewModel texas = ScreenOn(texansInternet, "en-US", texasSettings);
-      WaitUntil("the Texan Berlin to be read", () => texas.CurrentLine.Contains("°F", StringComparison.Ordinal));
+      texas.ScreenOpened();
+      WaitUntil("the Texan Berlin to be read", () => texas.Status.Contains("°F", StringComparison.Ordinal));
 
-      Assert.That(texas.CurrentLine, Does.StartWith("8°F"),
+      Assert.That(texas.Status, Does.Contain("8°F"),
           "the same sky in Fahrenheit for a viewer whose culture never learned the other scale, and the "
           + "front end has no settings screen for it because it never needs one");
       Assert.That(texansInternet.AskedQueries.First(q => q.Contains("units=")), Does.Contain("units=imperial"));
       Assert.That(texansInternet.AskedQueries.First(q => q.Contains("lang=")), Does.Contain("lang=en"));
-      Assert.That(texas.CurrentDetail, Does.Contain("3.1 mph"),
-          "and the same wind in miles an hour - 3.09 of them either way, whatever the unit says");
 
       File.Delete(viennaSettings);
       File.Delete(texasSettings);
@@ -325,28 +392,23 @@ namespace Tests.Frontend
       File.WriteAllText(settings, "{\"places\":[{\"name\":\"Berlin\",\"detail\":\"DE\",\"lat\":52.517,"
           + "\"lon\":13.389}]}");
       WeatherViewModel screen = ScreenOn(internet, "de-DE", settings);
-      WaitUntil("the two days to arrive", () => screen.Days.Count == 2);
+      screen.ScreenOpened();
+      WaitUntil("the forecast band to stand", () => screen.Bands.Any(band => band.Heading == "Forecast"));
 
-      WeatherDayRow day = screen.Days[0];
-      Assert.That(day.Day.Date.Date, Is.EqualTo(new DateTime(2026, 1, 3)),
-          "the first day is the city's 3rd of January; two of the entries are past that day's UTC midnight but "
-          + "before the city's own, and grouping by UTC would start the day one entry late");
+      HomeContentGroup forecast = screen.Bands.First(band => band.Heading == "Forecast");
 
-      Assert.That(day.Overview, Is.EqualTo("broken clouds"),
-          "a day's words are its midday's, not its first entry's - the morning rain is true at ten and not what"
-          + " anybody means by 'what is tomorrow like'");
-      Assert.That(day.Range, Is.EqualTo("6°C / 1°C"),
-          "and its span is the day's own extremes across all its entries");
-      Assert.That(day.Rain, Is.EqualTo("rain 20%"),
-          "and its rain chance is the biggest the day carries");
+      // Grouping the four entries by the UTC date would stand THREE days on this band; the city's own
+      // midnight gives TWO - the entry at 18:30 UTC on the 4th is already the city's 5th. The weekday is
+      // the date wearing a name, so the band's two uprights say which calendar they were cut by.
+      Assert.That(forecast.Tiles.Select(tile => tile.Card!.Label), Is.EqualTo(new[] { "Saturday", "Monday" }),
+          "the city's 3rd and the city's 5th, not the 4th the UTC clock says: a forecast that renames its "
+          + "days at a plane's take-off is no forecast anybody plans around");
 
-      WeatherDayRow next = screen.Days[1];
-      Assert.That(next.Day.Date.Date, Is.EqualTo(new DateTime(2026, 1, 5)),
-          "the city's 5th, not the 4th the UTC clock says: the entry at midnight UTC is the city's noon on the"
-          + " 5th's neighbour already past");
-      Assert.That(next.Overview, Is.EqualTo("light snow"));
-
-      Assert.That(screen.Status, Does.Contain("Berlin: few clouds 8°C, 2 days ahead"));
+      HomeInfoCard first = forecast.Tiles[0].Card!;
+      Assert.That(first.Detail, Is.EqualTo("6°C / 1°C"),
+          "the day's span is its own extremes across all its entries, unit on both ends");
+      Assert.That(first.Sub, Is.EqualTo("20 %"),
+          "and its rain chance is the biggest the day carries, not the noon's alone");
 
       File.Delete(settings);
     }
@@ -361,21 +423,295 @@ namespace Tests.Frontend
           + "{\"name\":\"Berlin\",\"detail\":\"DE\",\"lat\":52.517,\"lon\":13.389},"
           + "{\"name\":\"Vienna\",\"detail\":\"AT\",\"lat\":48.208,\"lon\":16.373}]}");
       WeatherViewModel screen = ScreenOn(internet, "en", settings);
+      screen.ScreenOpened();
       WaitUntil("the refusal to be said", () => screen.Status.Contains("did not answer", StringComparison.Ordinal));
 
       Assert.That(screen.Status, Does.Contain("Berlin did not answer"),
           "the place names the failure - 'could not read the weather' from a screen with two places on it "
           + "leaves the viewer guessing which one went quiet");
-      Assert.That(screen.Days.Count, Is.EqualTo(0),
-          "and nothing is invented under a refusal - an empty panel and a named reason, not yesterday's numbers");
+      Assert.That(screen.Bands.Count, Is.EqualTo(0),
+          "and nothing is invented under a refusal - an empty wall and a named reason, not yesterday's numbers");
 
       Assert.That(screen.Places.Count, Is.EqualTo(2), "the other place is still on the list");
-      screen.SelectedPlace = screen.Places[1];
-      Assert.That(screen.SelectedPlace!.Name, Is.EqualTo("Vienna"),
-          "the walker through the column can still walk - the second place gets its own try at its own weather");
+      screen.ChoosePlace(screen.Places[1]);
+      WaitUntil("the second place's own try", () => screen.Status.Contains("Vienna", StringComparison.Ordinal));
+
+      Assert.That(screen.Status, Does.Contain("Vienna did not answer"),
+          "the walker through the picker gets their own try at their own weather - and the place that met "
+          + "the refusal this time is named as the one that met it");
 
       File.Delete(settings);
     }
+
+    [Test]
+    [AvaloniaTest]
+    public void AShowingAnswersFromTheHeldBriefAndRefreshIsTheOneThatAsksAgain()
+    {
+      WeatherServer internet = new WeatherServer();
+      string settings = FreshSettingsFile();
+      File.WriteAllText(settings, "{\"places\":[{\"name\":\"Berlin\",\"detail\":\"DE\",\"lat\":52.517,"
+          + "\"lon\":13.389}]}");
+      WeatherViewModel screen = ScreenOn(internet, "en", settings);
+      screen.ScreenOpened();
+      WaitUntil("the first read", () => screen.Bands.Count == 4);
+
+      int askedFirst = internet.AskedPaths.Count;
+      screen.ScreenOpened();
+      Pump();
+      Pump();
+
+      Assert.That(internet.AskedPaths.Count, Is.EqualTo(askedFirst),
+          "a screen shown again inside the wall's quarter answers from the brief the home wall would ask too - "
+          + "the same sky is not asked twice in one minute");
+
+      screen.RefreshCommand.Execute(null);
+      WaitUntil("the refresh to have asked", () => internet.AskedPaths.Count > askedFirst);
+
+      Assert.That(screen.Bands.Count, Is.EqualTo(4),
+          "and the wall stands on the new reading, which is all Refresh ever promised");
+
+      File.Delete(settings);
+    }
+
+    [Test]
+    [AvaloniaTest]
+    public void ChoosingAPlaceRereadsTheWallAndAScreenOpenedAfterwardsKnowsIt()
+    {
+      WeatherServer internet = new WeatherServer();
+      string settings = FreshSettingsFile();
+      File.WriteAllText(settings, "{\"places\":["
+          + "{\"name\":\"Berlin\",\"detail\":\"DE\",\"lat\":52.517,\"lon\":13.389},"
+          + "{\"name\":\"Vienna\",\"detail\":\"AT\",\"lat\":48.208,\"lon\":16.373}]}");
+      WeatherViewModel screen = ScreenOn(internet, "en", settings);
+      screen.ScreenOpened();
+      WaitUntil("Berlin's wall", () => screen.Status.Contains("Berlin, DE:", StringComparison.Ordinal));
+
+      screen.ChoosePlace(screen.Places[1]);
+      WaitUntil("Vienna's wall", () => screen.Status.Contains("Vienna, AT:", StringComparison.Ordinal));
+
+      Assert.That(screen.CurrentPlace?.Name, Is.EqualTo("Vienna"),
+          "the picker's answer is the screen's new standing place, not a one-off reading");
+
+      // And the file may have changed while the dialog was open - the settings page edits the same list.
+      File.WriteAllText(settings, "{\"places\":["
+          + "{\"name\":\"Vienna\",\"detail\":\"AT\",\"lat\":48.208,\"lon\":16.373}]}");
+      screen.ScreenOpened();
+      Pump();
+
+      Assert.That(screen.Places.Count, Is.EqualTo(1),
+          "a showing takes its places off the file again, so a place removed behind the settings door is on "
+          + "the picker gone without a restart");
+      Assert.That(screen.CurrentPlace?.Name, Is.EqualTo("Vienna"),
+          "and the place that survived the edit keeps the screen");
+
+      File.Delete(settings);
+    }
+
+    #endregion
+
+    #region The dialog that asks which place
+
+    /// <summary>
+    /// The question "which place does the wall speak for" as the machine raises it: over the weather screen,
+    /// on the skin's headed frame, naming itself, offering the button that says what Enter does, and lighting
+    /// every line of every row - because a second line left to its own colour inherits the platform's black
+    /// the moment the row is selected, which on the dialog's dark grey ground is no letter at all.
+    /// </summary>
+    [Test]
+    [AvaloniaTest]
+    public void ThePlacesDialogNamesItselfOffersItsButtonAndLightsItsRows()
+    {
+      Application app = Application.Current;
+      Assert.That(FrontendTheme.Apply(app, "nereus", out string themeProblem), Is.EqualTo("nereus"),
+          themeProblem ?? "");
+      Assert.That(SkinEngine.Apply(app, "nereus", out string skinProblem), Is.True, skinProblem ?? "");
+      SkinEngine.SkinsFolder = Path.Combine(FrontendSource(), "Skins");
+
+      WeatherServer internet = new WeatherServer();
+      string settings = FreshSettingsFile();
+      WeatherPlacesEditorViewModel editor = EditorOn(internet, settings);
+      editor.SearchText = "Berlin";
+      editor.SearchCommand.Execute(null);
+      WaitUntil("the geocoder to answer", () => editor.Found.Count == 2);
+      editor.SelectedFound = editor.Found[0];
+      editor.AddSelectedFoundCommand.Execute(null);
+      Pump();
+
+      WeatherViewModel screen = ScreenOn(internet, "de-DE", settings);
+      WorkflowManager workflow = new WorkflowManager();
+      ShellWindow window = new ShellWindow(workflow, delegate (WorkflowFrame frame)
+      {
+        if (frame.StateId == "weather")
+          return new WeatherView(screen, workflow, null);
+        if (frame.StateId == "weatherplaces")
+          return new WeatherPlacePickerView((WeatherViewModel)frame.ViewModel, workflow);
+        return null;
+      });
+      window.Width = 1920;
+      window.Height = 1080;
+      window.Show();
+      window.Workflow.Push(new WorkflowFrame("weather", "Weather", screen));
+      PumpRepeatedly();
+      window.Workflow.Push(new WorkflowFrame("weatherplaces", "Weather places", screen));
+      PumpRepeatedly();
+
+      try
+      {
+        Assert.That(window.Workflow.Current?.StateId, Is.EqualTo("weatherplaces"),
+            "the question is raised as a dialog of the weather screen, over the wall it changes");
+
+        ListBox? places = window.GetVisualDescendants().OfType<ListBox>()
+            .SingleOrDefault(list => list.Name == "placesList");
+        Assert.That(places, Is.Not.Null, "the dialog of places did not even show its list");
+
+        TextBlock? heading = window.GetVisualDescendants().OfType<TextBlock>()
+            .FirstOrDefault(line => line.Text == "Weather places");
+        Assert.That(heading, Is.Not.Null,
+            "a dialog that does not say what it asks is the strangeness the viewer complained of");
+
+        Button? choose = window.GetVisualDescendants().OfType<Button>()
+            .FirstOrDefault(button => button.Content as string == "Choose");
+        Assert.That(choose, Is.Not.Null,
+            "a row of places answers nothing by being looked at, so the dialog owes a button of its own");
+
+        // Every row has to have arrived and every line of it has to stand lighter than the dialog's ground.
+        WaitUntil("the place to stand on the dialog",
+            () => places!.GetVisualDescendants().OfType<TextBlock>().Any(line => line.Text == "Berlin"));
+
+        foreach (string line in new[] { "Berlin", "DE" })
+        {
+          TextBlock row = places!.GetVisualDescendants().OfType<TextBlock>().First(t => t.Text == line);
+          ISolidColorBrush ink = row.Foreground as ISolidColorBrush;
+          Assert.That(ink, Is.Not.Null, $"the line {line} must say its own colour");
+          double light = (0.299 * ink.Color.R + 0.587 * ink.Color.G + 0.114 * ink.Color.B) / 255.0
+              * ink.Opacity;
+          Assert.That(light, Is.GreaterThan(0.5),
+              $"the line {line} reads as dark on the dialog's dark grey ground, which is no letter at all");
+        }
+
+        // A developer's eye: MP2_SHOT names a file and the dialog is painted into it, because no screen
+        // capture on this machine's display adapter can see the dialog layer through the shell's blur.
+        string? shot = Environment.GetEnvironmentVariable("MP2_SHOT");
+        if (!string.IsNullOrEmpty(shot))
+        {
+          RenderTargetBitmap frame = new RenderTargetBitmap(new PixelSize(1920, 1080), new Vector(96, 96));
+          frame.Render(window);
+          byte[] pixels = new byte[1920 * 1080 * 4];
+          GCHandle pinned = GCHandle.Alloc(pixels, GCHandleType.Pinned);
+          try
+          {
+            frame.CopyPixels(new PixelRect(0, 0, 1920, 1080), pinned.AddrOfPinnedObject(), pixels.Length, 1920 * 4);
+          }
+          finally
+          {
+            pinned.Free();
+          }
+          File.WriteAllBytes(shot, pixels);
+        }
+      }
+      finally
+      {
+        window.Close();
+        File.Delete(settings);
+      }
+    }
+
+    private static void PumpRepeatedly()
+    {
+      for (int i = 0; i < 60; i++)
+      {
+        Pump();
+        Thread.Sleep(20);
+      }
+    }
+
+    private static string FrontendSource()
+    {
+      AssemblyMetadataAttribute? value = typeof(TestWeatherScreen).Assembly
+          .GetCustomAttributes<AssemblyMetadataAttribute>()
+          .FirstOrDefault(a => string.Equals(a.Key, "FrontendSource", StringComparison.Ordinal));
+      Assert.That(value?.Value, Is.Not.Null.And.Not.Empty);
+      return Path.GetFullPath(value!.Value!);
+    }
+
+    #endregion
+
+    /// <summary>
+    /// What the wall owes the keyboard when an answer arrives: the picked place's read rebuilds every band,
+    /// and the card the viewer stood on goes with the old ones - a control already out of the tree cannot
+    /// tell the window it took the focus with it. The keyboard must therefore come back to a card by itself,
+    /// which is the complaint the viewer has now made by name more than once.
+    /// </summary>
+    [Test]
+    [AvaloniaTest]
+    public void APickedPlaceRebuildsTheWallAndStillLeavesAStandingCard()
+    {
+      Application app = Application.Current;
+      Assert.That(FrontendTheme.Apply(app, "nereus", out string themeProblem), Is.EqualTo("nereus"),
+          themeProblem ?? "");
+      Assert.That(SkinEngine.Apply(app, "nereus", out string skinProblem), Is.True, skinProblem ?? "");
+      SkinEngine.SkinsFolder = Path.Combine(FrontendSource(), "Skins");
+
+      WeatherServer internet = new WeatherServer();
+      string settings = FreshSettingsFile();
+      WeatherPlacesEditorViewModel editor = EditorOn(internet, settings);
+      editor.SearchText = "Berlin";
+      editor.SearchCommand.Execute(null);
+      WaitUntil("the geocoder to answer", () => editor.Found.Count == 2);
+      editor.SelectedFound = editor.Found[0];
+      editor.AddSelectedFoundCommand.Execute(null);
+      Pump();
+
+      WeatherViewModel screen = ScreenOn(internet, "de-DE", settings);
+      WorkflowManager workflow = new WorkflowManager();
+      ShellWindow window = new ShellWindow(workflow, delegate (WorkflowFrame frame)
+      {
+        if (frame.StateId == "weather")
+          return new WeatherView(screen, workflow, null);
+        if (frame.StateId == "weatherplaces")
+          return new WeatherPlacePickerView((WeatherViewModel)frame.ViewModel, workflow);
+        return null;
+      });
+      window.Width = 1920;
+      window.Height = 1080;
+      window.Show();
+      window.Workflow.Push(new WorkflowFrame("weather", "Weather", screen));
+      PumpRepeatedly();
+      WaitUntil("the first wall to dress", () => screen.Bands.Count > 0);
+      WaitUntil("the screen to hand its keys to a card",
+          () => window.FocusManager.GetFocusedElement() is Button);
+      Assert.That(window.FocusManager.GetFocusedElement(), Is.InstanceOf<Button>(),
+          "the screen hands its keys to a card the moment its wall stands");
+
+      // The dialog as the menu raises it, and as the viewer answers it: the dialog steps aside and the
+      // picked place is handed to the screen - which is exactly when the wall is rebuilt from under the
+      // keyboard.
+      window.Workflow.Push(new WorkflowFrame("weatherplaces", "Weather places", screen));
+      PumpRepeatedly();
+      window.Workflow.Pop();
+      screen.ChoosePlace(screen.Places[0]);
+
+      DateTimeOffset deadline = DateTimeOffset.UtcNow + TimeSpan.FromSeconds(15);
+      while (DateTimeOffset.UtcNow < deadline)
+      {
+        Pump();
+        object? standing = window.FocusManager.GetFocusedElement();
+        if (standing is Button card && card.Classes.Contains("nereus-card-tile"))
+        {
+          window.Close();
+          File.Delete(settings);
+          return; // a card of the rebuilt wall stands on the keyboard - the debt is paid
+        }
+      }
+
+      string held = window.FocusManager.GetFocusedElement()?.GetType().Name ?? "nothing";
+      window.Close();
+      File.Delete(settings);
+      Assert.Fail("after the picked place rebuilt the wall the keyboard stood on " + held
+          + " - the viewer is left with keys that buy nothing");
+    }
+
+    #region The compass
 
     [Test]
     public void TheCompassHasEightPointsAndWrapsAround()

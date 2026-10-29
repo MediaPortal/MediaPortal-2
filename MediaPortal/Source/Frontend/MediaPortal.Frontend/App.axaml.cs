@@ -1303,7 +1303,17 @@ namespace MediaPortal.Frontend
       }
 
       if (state == "weather")
-        return new WeatherView((WeatherViewModel)frame.ViewModel);
+      {
+        // The menu's place row raises the picker with this screen's own model and its setup row walks to
+        // the settings through the same door the home's tiles use - and the setup row only sits on the menu
+        // when this application can answer that walk at all.
+        return new WeatherView((WeatherViewModel)frame.ViewModel, _workflow, BuildNamedFrame);
+      }
+
+      // The question the weather screen's place row raises, wearing the skin's dialog frame. Its model is
+      // the weather screen's own, which is the one whose wall changes when a place is picked.
+      if (state == "weatherplaces")
+        return new WeatherPlacePickerView((WeatherViewModel)frame.ViewModel, _workflow);
 
       if (state == "browse")
       {
@@ -1645,6 +1655,19 @@ namespace MediaPortal.Frontend
                     "TV", "TV"));
           },
           "TV");
+
+      // /Weather: the places the weather screen and the home's weather wall read their sky for, plus the
+      // viewer's own API key - the old weather screen's place management, filed behind the settings door
+      // now that the screen itself shows weather. One screen underneath, so the door opens it directly.
+      model.AddFolder("Weather", "Frontend", string.Empty,
+          delegate
+          {
+            return SettingsViewModel.PagesHere(
+                new SettingsSection("Weather", "Frontend", string.Empty,
+                    delegate { return new WeatherSettingsView(null); },
+                    "Weather", "Weather"));
+          },
+          "Weather");
 
       // /Plugins: one plate per settings class the server's parts keep, read from the server every time the
       // door opens. This is the reference's Plugins branch plate for plugin - Plugins_Weather beside

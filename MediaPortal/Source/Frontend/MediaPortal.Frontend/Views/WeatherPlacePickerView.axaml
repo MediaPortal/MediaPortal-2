@@ -1,0 +1,145 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        xmlns:conv="using:Avalonia.Data.Converters"
+        xmlns:theming="clr-namespace:MediaPortal.Frontend.Theming"
+        x:Class="MediaPortal.Frontend.Views.WeatherPlacePickerView"
+        x:DataType="vm:WeatherViewModel"
+        Name="weatherPlacePicker"
+        Classes="nereus-dialog-screen"
+        >
+
+  <!--
+    Which place the weather wall speaks for, asked on the skin's own dialog frame over the wall that stood
+    there. It is a dialog and not a screen, so the wall stays behind it - out of focus and washed dark, the
+    way the shell treats every question - and the answer is handed back to that wall: the picked place's
+    weather is read and the bands change under the dialog that has already left.
+
+    It holds nothing but places: the name, what surrounds it, and its coordinates in small print, so the
+    "Berlin, DE" at 52.52 13.39 is never confused with the other one at 39.95 9.77. Adding and taking places
+    away is no part of the question - that stands behind the settings door now - this dialog only answers
+    WHICH of the watched places the wall means.
+  -->
+
+  <ContentControl HorizontalAlignment="Center" VerticalAlignment="Center" ClipToBounds="False"
+                  theming:SkinTemplates.OverlayTemplate="DialogHeadedFrameTemplate">
+    <!-- The body of a dialog keeps the screen's data: the frame shows a body under its own data, so a plain
+         {Binding} here would ask the body for the places and find none. Every name in the rows still binds
+         to its own place, which is the item's data rather than the screen's. -->
+    <DockPanel MinWidth="560" MaxWidth="900"
+               DataContext="{Binding $parent[UserControl].DataContext}">
+
+      <!-- What the keys do, under the button, in the small print every dialog of this skin leaves there. -->
+      <TextBlock DockPanel.Dock="Bottom"
+                 Classes="nereus-editor-hint"
+                 Text="Up and down walk the places. Enter or OK takes the stood-on one; Escape leaves the wall speaking the place it did."
+                 TextWrapping="Wrap"
+                 Margin="0,8,0,0"/>
+
+      <!-- The taking, spelled out as a button and not only as a key: the household's wall of faces can be
+           answered by pressing a face, but a row of places answers nothing by being looked at, so the
+           dialog says with a button of the skin's own making what its Enter does. -->
+      <Button DockPanel.Dock="Bottom"
+              Name="okButton"
+              Classes="nereus-primary"
+              Content="Choose"
+              Click="OnOkPress"
+              HorizontalAlignment="Stretch"
+              Margin="0,10,0,0"/>
+
+      <ListBox Name="placesList"
+               ItemsSource="{Binding Places}"
+               Background="Transparent" BorderThickness="0"
+               MaxHeight="620"
+               ScrollViewer.VerticalScrollBarVisibility="Auto">
+      <ListBox.Styles>
+        <!-- The row's furniture stays out entirely and the row is given a template of its own whose presenter
+             carries a name of its own - the platform's selection and focus ground paint onto the part name
+             their ControlTheme aims at, and those styles outrank anything said out here. What a place stood
+             on does take is the white edge of the rail's law and a little more light on its words. -->
+        <Style Selector="ListBoxItem">
+          <Setter Property="Padding" Value="18,12"/>
+          <Setter Property="FocusAdorner" Value="{x:Null}"/>
+          <Setter Property="Background" Value="Transparent"/>
+          <Setter Property="BorderBrush" Value="Transparent"/>
+          <Setter Property="BorderThickness" Value="0"/>
+          <Setter Property="Foreground" Value="#C2FFFFFF"/>
+          <Setter Property="Template">
+            <ControlTemplate>
+              <ContentPresenter Name="weatherPlacePresenter"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Content="{TemplateBinding Content}"
+                                ContentTemplate="{TemplateBinding ContentTemplate}"
+                                Padding="{TemplateBinding Padding}"
+                                HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+            </ControlTemplate>
+          </Setter>
+        </Style>
+        <Style Selector="ListBoxItem TextBlock.placeName">
+          <Setter Property="Foreground" Value="#C2FFFFFF"/>
+        </Style>
+        <Style Selector="ListBoxItem:selected TextBlock.placeName,
+                        ListBoxItem:focus TextBlock.placeName,
+                        Window:not(.pointer-resting) ListBoxItem:pointerover TextBlock.placeName">
+          <Setter Property="Foreground" Value="#FFFFFFFF"/>
+        </Style>
+        <!-- The second line and the coordinates are said the same way the name is: left to themselves they
+             inherit the row's foreground, which the platform turns into the screen's own black the moment a
+             row is selected - black letters on the dialog's dark grey ground, which is no letter at all.
+             So they name their colour here, a step behind the name, and a step up when stood on. -->
+        <Style Selector="ListBoxItem TextBlock.placeDetail">
+          <Setter Property="Foreground" Value="#8CFFFFFF"/>
+        </Style>
+        <Style Selector="ListBoxItem:selected TextBlock.placeDetail,
+                        ListBoxItem:focus TextBlock.placeDetail,
+                        Window:not(.pointer-resting) ListBoxItem:pointerover TextBlock.placeDetail">
+          <Setter Property="Foreground" Value="#D9FFFFFF"/>
+        </Style>
+        <Style Selector="ListBoxItem TextBlock.placeWhere">
+          <Setter Property="Foreground" Value="#66FFFFFF"/>
+        </Style>
+        <Style Selector="ListBoxItem:selected TextBlock.placeWhere,
+                        ListBoxItem:focus TextBlock.placeWhere,
+                        Window:not(.pointer-resting) ListBoxItem:pointerover TextBlock.placeWhere">
+          <Setter Property="Foreground" Value="#B3FFFFFF"/>
+        </Style>
+        <!-- The stood-on place wears the rail's white edge band, the very edge the home tiles and the news
+             papers light with - a dialog of one question says "this one" the same way everywhere else. -->
+        <Style Selector="ListBoxItem Border.placeEdge">
+          <Setter Property="Background" Value="Transparent"/>
+        </Style>
+        <Style Selector="ListBoxItem:selected Border.placeEdge,
+                        ListBoxItem:focus Border.placeEdge,
+                        Window:not(.pointer-resting) ListBoxItem:pointerover Border.placeEdge">
+          <Setter Property="Background">
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+              <GradientStop Offset="0" Color="#FFFFFFFF"/>
+              <GradientStop Offset="0.35" Color="#B3FFFFFF"/>
+              <GradientStop Offset="0.72" Color="#66FFFFFF"/>
+              <GradientStop Offset="1" Color="#CCFFFFFF"/>
+            </LinearGradientBrush>
+          </Setter>
+        </Style>
+      </ListBox.Styles>
+      <ListBox.ItemTemplate>
+        <DataTemplate x:DataType="vm:WeatherPlaceRow">
+          <Grid ColumnDefinitions="4,*,Auto" ColumnSpacing="16">
+            <Border Classes="placeEdge" Width="4" CornerRadius="2" VerticalAlignment="Stretch"/>
+            <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
+              <TextBlock Text="{Binding Name}" Classes="placeName" FontSize="22" FontWeight="SemiBold"
+                         TextTrimming="CharacterEllipsis" MaxLines="1"/>
+              <TextBlock Text="{Binding Detail}" Classes="placeDetail" FontSize="15"
+                         IsVisible="{Binding Detail, Converter={x:Static conv:StringConverters.IsNotNullOrEmpty}}"
+                         TextTrimming="CharacterEllipsis" MaxLines="1"/>
+            </StackPanel>
+            <TextBlock Grid.Column="2" Text="{Binding Where}" Classes="placeWhere" FontSize="15"
+                       VerticalAlignment="Center"/>
+          </Grid>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+      </ListBox>
+    </DockPanel>
+  </ContentControl>
+</UserControl>

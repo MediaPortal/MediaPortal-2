@@ -1,0 +1,146 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="using:MediaPortal.Frontend.Views"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        x:Class="MediaPortal.Frontend.Views.WeatherSettingsView"
+        x:DataType="vm:WeatherPlacesEditorViewModel"
+        Name="weatherSettings"
+        Background="Transparent"
+        >
+
+  <!--
+    Who watches which places: the list of watched places, the search that adds one, and the viewer's own API
+    key. This is the old weather screen's place management, moved behind the settings door - the screen
+    itself shows weather now, and who watches which places is a setting like any other. Every answer saves
+    itself the moment it is given, exactly like the television's page: a couch viewer who walks away mid-edit
+    leaves a file that says what they meant, and no "Apply" is waiting to be pressed by nobody.
+  -->
+
+  <DockPanel Margin="48,14">
+
+    <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,8">
+      <TextBlock Text="Weather"
+                 FontSize="24"
+                 FontWeight="SemiBold" />
+      <TextBlock Text="The places the weather screen and the home's weather wall read their sky for. The first place on the list is home: it is the one the wall at home stands for."
+                 FontSize="14"
+                 Opacity="0.7"
+                 TextWrapping="Wrap"
+                 MaxWidth="1500"
+                 HorizontalAlignment="Left" />
+    </StackPanel>
+
+    <TextBlock DockPanel.Dock="Bottom"
+               Name="statusLine"
+               Text="{Binding Status}"
+               FontSize="14"
+               Opacity="0.85"
+               Margin="0,10,0,0"
+               TextWrapping="Wrap" />
+
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" Focusable="False">
+      <StackPanel Spacing="10" VerticalAlignment="Top" MaxWidth="1100" HorizontalAlignment="Left">
+
+        <!-- The watched places, home first. Taking one away needs no confirmation: the list and the file
+             both answer right away, and adding it back is one search away. -->
+        <TextBlock Text="Watched places" FontSize="18" FontWeight="SemiBold" Margin="0,10,0,0" />
+        <ListBox Name="placesList"
+                 ItemsSource="{Binding Places}"
+                 SelectedItem="{Binding SelectedPlace, Mode=TwoWay}"
+                 Focusable="True"
+                 MaxHeight="260"
+                 MinWidth="560"
+                 HorizontalAlignment="Left">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:WeatherPlaceRow">
+              <StackPanel Spacing="2">
+                <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding Where}" FontSize="12" Opacity="0.55"/>
+              </StackPanel>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+        <Button Name="removeButton"
+                Content="Remove this place"
+                Command="{Binding RemoveSelectedPlaceCommand}"
+                FontSize="16"
+                Focusable="True"
+                HorizontalAlignment="Left"
+                Padding="14,6" />
+
+        <!-- The search that adds one. Names are not unique - the two Berlins answer to the same word a
+             thousand kilometres apart - so a match shows its coordinates and the viewer picks which one
+             the weather means. -->
+        <TextBlock Text="Add a place" FontSize="18" FontWeight="SemiBold" Margin="0,10,0,0" />
+        <Grid ColumnDefinitions="320,Auto" ColumnSpacing="10">
+          <TextBox Grid.Column="0"
+                   Name="searchBox"
+                   views:VirtualKeyboardService.Trigger="EnterOrMenu"
+                   Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                   Watermark="the name of a town"
+                   FontSize="16"
+                   Focusable="True"
+                   Padding="10,4"
+                   Margin="0,4" />
+          <Button Grid.Column="1"
+                  Name="searchButton"
+                  Content="Search"
+                  Command="{Binding SearchCommand}"
+                  FontSize="16"
+                  Focusable="True"
+                  Padding="14,6"
+                  VerticalAlignment="Center"/>
+        </Grid>
+        <ListBox Name="foundList"
+                 ItemsSource="{Binding Found}"
+                 SelectedItem="{Binding SelectedFound, Mode=TwoWay}"
+                 Focusable="True"
+                 MaxHeight="220"
+                 MinWidth="560"
+                 HorizontalAlignment="Left">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:WeatherPlaceRow">
+              <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
+                <StackPanel Grid.Column="0" Spacing="2">
+                  <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold"/>
+                  <TextBlock Text="{Binding Detail}" FontSize="12" Opacity="0.55"/>
+                </StackPanel>
+                <TextBlock Grid.Column="1" Text="{Binding Where}" FontSize="12" Opacity="0.45"
+                           VerticalAlignment="Center"/>
+              </Grid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+        <Button Name="addButton"
+                Content="Add this place to the list"
+                Command="{Binding AddSelectedFoundCommand}"
+                FontSize="16"
+                Focusable="True"
+                HorizontalAlignment="Left"
+                Padding="14,6" />
+
+        <!-- The viewer's own key, the reference's WeatherUndergroundApiKey beside it: with one, the weather
+             asks with it; without one, it turns through the product's shared keys, which are spent things
+             now and then. The saved key rides on the next screen opening - this page's own client was built
+             before the typing. -->
+        <TextBlock Text="Your own API key" FontSize="18" FontWeight="SemiBold" Margin="0,10,0,0" />
+        <TextBox Name="apiKeyBox"
+                 views:VirtualKeyboardService.Trigger="EnterOrMenu"
+                 Text="{Binding ApiKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                 Watermark="an API key of your own, or empty for the shared keys"
+                 FontSize="16"
+                 Focusable="True"
+                 Width="480"
+                 HorizontalAlignment="Left"
+                 Padding="10,4"
+                 Margin="0,4" />
+        <TextBlock Text="Without a key of your own the weather turns through MediaPortal's shared keys, which the endpoint lets down now and then when too many ask at once. With one, the weather screens and the home wall ask with yours from the next opening on."
+                   FontSize="13"
+                   Opacity="0.75"
+                   TextWrapping="Wrap"
+                   MaxWidth="900"
+                   Margin="0,0,0,4" />
+      </StackPanel>
+    </ScrollViewer>
+  </DockPanel>
+</UserControl>

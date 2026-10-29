@@ -58,26 +58,12 @@ namespace MediaPortal.Frontend.ViewModels
       if (place == null)
         return null;
 
-      WeatherCityBookmark city = new WeatherCityBookmark(place.Name, place.Detail, place.Lat, place.Lon);
       WeatherApiClient client = new WeatherApiClient(
           userApiKey: places.ApiKey,
           cultureName: ClientSettings.Load(null, out _).Culture);
-      WeatherAnswer answer = await client.ReadAsync(city, cancellation);
-      if (answer.Error != null || answer.Now == null)
-        return null;
-
-      // The air is asked after the sky and apart from it: a refusal there is not a reason to lose the sky
-      // beside it, and the wall knows how to stand with the air half empty. The radar picture needs no
-      // asking - it is one address, and the image asks it when it hangs.
-      WeatherAir? air = await client.ReadAirAsync(city, cancellation);
-      return new WeatherWallBrief(
-          place.Name + (place.Detail.Length > 0 ? ", " + place.Detail : ""),
-          answer.Now,
-          answer.Days ?? Array.Empty<WeatherDay>(),
-          client.IsMetric,
-          answer.Slots,
-          air,
-          client.RadarTileUrl(city));
+      // The reading itself is the weather wall's one reader, which the weather screen uses too - the home
+      // wall and the screen must never disagree about what a degree is or whose air got asked.
+      return await WeatherWallCards.ReadBriefAsync(client, place, cancellation);
     }
 
     /// <summary>

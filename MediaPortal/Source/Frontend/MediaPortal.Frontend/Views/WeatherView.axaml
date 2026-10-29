@@ -1,162 +1,491 @@
 <UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        xmlns:api="using:MediaPortal.Frontend.Api"
         xmlns:views="using:MediaPortal.Frontend.Views"
-        xmlns:theming="using:MediaPortal.Frontend.Theming"
+        xmlns:conv="using:Avalonia.Data.Converters"
+        xmlns:lg="using:LiquidGlassAvaloniaUI"
         x:Class="MediaPortal.Frontend.Views.WeatherView"
         x:DataType="vm:WeatherViewModel"
-        Name="weather"
-        Background="Transparent"
-        >
+        Name="weather">
 
   <!--
-    The weather, for the places the viewer watches. The column of places on the left with its search box under
-    it, the days coming in the middle, and the sky right now on the right where there is room for the big
-    number - because the first question at a weather screen is "what is it outside", and everything else is
-    tomorrow's business.
+    The weather screen: the wall the home's weather entry grew on, stood in the room of a screen. The bands
+    and every card face in them are the home wall's own writing - the same HomeContentGroup objects from the
+    same builder, dressed by faces copied from HomeView without a number changed, standing side by side and
+    scrolling sideways exactly as the home wall stands and scrolls them - so the weather at home and the
+    weather on its screen cannot disagree about anything.
+
+    The three commands the home's weather entry carried as shortcut tiles - the place, the setup, the refresh -
+    stand here as the screen's own menu, in the two hundred points off the left edge, wearing the library
+    rail's tiles exactly as the news screen's menu does. Nothing scrolls with a visible bar, and the wall's
+    upper and lower edges fade only while their content stands out of the picture - the shelf's rule, put on
+    by the code behind.
   -->
 
-  <DockPanel Margin="48,36">
+  <UserControl.Resources>
+    <!-- One row of this screen's own menu. It wears the library rail's tile complete - the shortcut's liquid
+         glass at the shortcut's numbers, the veil, the ghost ring, the mark out of the skin's vectors, the
+         name on the glass, and the white bar of the row that is the screen's answer already - the very tile
+         the news screen's menu and the home rail's shortcuts stand on. -->
+    <DataTemplate x:Key="WeatherMenuTile" x:DataType="views:WeatherMenuEntry">
+      <Border Classes="home-tile-shadow"
+              Margin="6"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center"
+              lg:LiquidGlassBackdrop.IsExcludedFromCapture="True">
+        <Panel>
+          <Border Classes="nereus-menu-tile" Background="Transparent" ClipToBounds="True" Width="145" Height="145">
+            <Panel>
+              <lg:LiquidGlassSurface ClipToBounds="True"
+                                     CornerRadius="10"
+                                     BlurRadius="10"
+                                     Vibrancy="1.15"
+                                     SurfaceColor="#33030810"
+                                     RefractionHeight="20"
+                                     RefractionAmount="45"
+                                     DepthEffect="True"
+                                     ChromaticAberration="True"
+                                     HighlightWidth="0.5"
+                                     HighlightOpacity="0.2"
+                                     ShadowEnabled="False"/>
+              <Border Classes="home-shortcut-tint"/>
+              <Path Classes="media-menu-icon"
+                    Data="{Binding Icon, Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                   ConverterParameter='MediaMenu/{0}'}"
+                    Fill="{DynamicResource TextBrush}"
+                    Width="46"
+                    Height="46"
+                    Stretch="Uniform"
+                    Margin="0,0,0,19"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"/>
+              <TextBlock Classes="home-shortcut-caption"
+                         Text="{Binding Label}"
+                         TextTrimming="CharacterEllipsis"/>
+              <Rectangle Fill="White"
+                         Width="4"
+                         HorizontalAlignment="Left"
+                         IsVisible="{Binding IsCurrent}"/>
+            </Panel>
+          </Border>
+          <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
+        </Panel>
+      </Border>
+    </DataTemplate>
+  </UserControl.Resources>
 
-    <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,20">
-      <TextBlock Text="Weather"
-                 FontSize="40"
-                 FontWeight="SemiBold" />
-      <TextBlock Text="OpenWeatherMap, in the units and language your culture asks for"
-                 FontSize="18"
-                 Opacity="0.7"
-                 TextWrapping="Wrap"
-                 MaxWidth="1500"
-                 HorizontalAlignment="Left" />
-    </StackPanel>
+  <UserControl.Styles>
+    <!-- The screen's own menu, in the two hundred points off the screen. Its rows wear the library rail's
+         states wholesale - the same four stops the shortcut tiles light with - because the weather menu and
+         the news menu and the library menu answer the same question and must not dress differently. The
+         states of the platform are taken away down to the item's own template, exactly as the rail and the
+         news menu do it: a named presenter that nothing can reach, and one white edge band for the stood-on
+         row. -->
+    <Style Selector="ListBox.weather-menu">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="FocusAdorner" Value="{x:Null}"/>
+    </Style>
+    <Style Selector="ListBox.weather-menu ListBoxItem">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="Margin" Value="0"/>
+      <Setter Property="FocusAdorner" Value="{x:Null}"/>
+      <Setter Property="ClipToBounds" Value="False"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Setter Property="Template">
+        <ControlTemplate>
+          <ContentPresenter Name="weatherMenuPresenter"
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            Padding="{TemplateBinding Padding}"
+                            Background="Transparent"
+                            HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+    <!-- The rail took a sixth off its tiles, and the name on the glass comes along: thirteen points where the
+         shortcut's own caption keeps fifteen. -->
+    <Style Selector="ListBox.weather-menu TextBlock.home-shortcut-caption">
+      <Setter Property="FontSize" Value="13"/>
+    </Style>
+    <Style Selector="ListBox.weather-menu ListBoxItem Path.media-menu-icon">
+      <Setter Property="Opacity" Value="0.4"/>
+      <Setter Property="RenderTransformOrigin" Value="50%,50%"/>
+      <Setter Property="RenderTransform" Value="scale(1)"/>
+      <Setter Property="Transitions">
+        <Transitions>
+          <DoubleTransition Property="Opacity" Duration="0:0:0.3" Easing="CubicEaseOut"/>
+          <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.3" Easing="CubicEaseOut"/>
+        </Transitions>
+      </Setter>
+    </Style>
+    <Style Selector="ListBox.weather-menu ListBoxItem:selected Path.media-menu-icon,
+                    ListBox.weather-menu ListBoxItem:focus Path.media-menu-icon,
+                    Window:not(.pointer-resting) ListBox.weather-menu ListBoxItem:pointerover Path.media-menu-icon">
+      <Setter Property="Opacity" Value="1"/>
+    </Style>
+    <Style Selector="ListBox.weather-menu ListBoxItem:selected:focus Path.media-menu-icon,
+                    ListBox.weather-menu ListBoxItem:selected:pointerover Path.media-menu-icon">
+      <Setter Property="RenderTransform" Value="scale(1.06)"/>
+    </Style>
+    <Style Selector="ListBox.weather-menu ListBoxItem:selected Border.home-shortcut-tint,
+                    ListBox.weather-menu ListBoxItem:focus Border.home-shortcut-tint,
+                    Window:not(.pointer-resting) ListBox.weather-menu ListBoxItem:pointerover Border.home-shortcut-tint">
+      <Setter Property="Opacity" Value="1"/>
+      <Setter Property="Background">
+        <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+          <GradientStop Offset="0" Color="#66FFFFFF"/>
+          <GradientStop Offset="0.3" Color="#40FFFFFF"/>
+          <GradientStop Offset="0.7" Color="#33141C26"/>
+          <GradientStop Offset="1" Color="#4D0C1218"/>
+        </LinearGradientBrush>
+      </Setter>
+    </Style>
+    <!-- The menu's ring follows the same law as the wall's: it stands on the row the menu has picked and
+         glows at nothing. -->
+    <Style Selector="ListBox.weather-menu ListBoxItem:selected Border.home-tile-edge">
+      <Setter Property="BorderBrush">
+        <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+          <GradientStop Offset="0" Color="#FFFFFFFF"/>
+          <GradientStop Offset="0.35" Color="#B3FFFFFF"/>
+          <GradientStop Offset="0.72" Color="#66FFFFFF"/>
+          <GradientStop Offset="1" Color="#CCFFFFFF"/>
+        </LinearGradientBrush>
+      </Setter>
+    </Style>
+    <Style Selector="ListBox.weather-menu ListBoxItem:selected TextBlock.home-shortcut-caption,
+                    ListBox.weather-menu ListBoxItem:focus TextBlock.home-shortcut-caption,
+                    Window:not(.pointer-resting) ListBox.weather-menu ListBoxItem:pointerover TextBlock.home-shortcut-caption">
+      <Setter Property="Opacity" Value="1"/>
+    </Style>
+    <!-- The wall's cards are dressed by the skin's global classes - home-tile-shadow, nereus-card-tile,
+         nereus-content-tile, card-tile-face - and their states come from styles.xaml for free, exactly as
+         they come to the home wall's cards: the stood-on card comes up to full light and lights the white
+         edge, and no new style is written here to say it twice. -->
+  </UserControl.Styles>
+  <Panel>
 
-    <TextBlock DockPanel.Dock="Bottom"
-               Name="statusLine"
-               Text="{Binding Status}"
-               FontSize="20"
-               Opacity="0.85"
-               Margin="0,18,0,0"
-               TextWrapping="Wrap" />
+    <!-- The ground: this skin's own Background.PNG, as everywhere else the front end paints a whole screen.
+         The weather has no fanart - its pictures are the sky's own, and they stand on their cards. -->
+    <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter=Background.PNG}"
+           Stretch="Fill"/>
 
-    <Grid ColumnDefinitions="360,*,500" ColumnSpacing="30">
+    <!-- The two bands, at the library's depths and with the library's seven stops; paint only, and they never
+         stand between a pointer and a tile. -->
+    <Panel IsHitTestVisible="False">
+      <Border VerticalAlignment="Top" Height="100" HorizontalAlignment="Stretch">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
+            <GradientStop Color="#E6000000" Offset="0"/>
+            <GradientStop Color="#78000000" Offset="0.3"/>
+            <GradientStop Color="#46000000" Offset="0.45"/>
+            <GradientStop Color="#21000000" Offset="0.6"/>
+            <GradientStop Color="#0C000000" Offset="0.75"/>
+            <GradientStop Color="#01000000" Offset="0.87"/>
+            <GradientStop Color="#00000000" Offset="1"/>
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
+      <Border VerticalAlignment="Bottom" Height="260" HorizontalAlignment="Stretch">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="50%,100%" EndPoint="50%,0%">
+            <GradientStop Color="#E6000000" Offset="0"/>
+            <GradientStop Color="#78000000" Offset="0.3"/>
+            <GradientStop Color="#46000000" Offset="0.45"/>
+            <GradientStop Color="#21000000" Offset="0.6"/>
+            <GradientStop Color="#0C000000" Offset="0.75"/>
+            <GradientStop Color="#01000000" Offset="0.87"/>
+            <GradientStop Color="#00000000" Offset="1"/>
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
+    </Panel>
 
-      <StackPanel Spacing="14">
-        <ListBox Name="placesList"
-                 Focusable="True"
-                 Height="300"
-                 ItemsSource="{Binding Places}"
-                 SelectedItem="{Binding SelectedPlace, Mode=TwoWay}"
-                 FontSize="20">
-          <ListBox.ItemTemplate>
-            <DataTemplate x:DataType="vm:WeatherPlaceRow">
-              <StackPanel Spacing="2" Margin="4,8">
-                <TextBlock Text="{Binding Name}" FontSize="22" TextWrapping="Wrap" />
-                <StackPanel Orientation="Horizontal" Spacing="12">
-                  <TextBlock Text="{Binding Detail}" FontSize="16" Opacity="0.6" />
-                  <TextBlock Text="{Binding Where}" FontSize="15" Opacity="0.4" />
-                </StackPanel>
-              </StackPanel>
-            </DataTemplate>
-          </ListBox.ItemTemplate>
-        </ListBox>
+    <!--
+      THE ROOM, at the library screen's one arrangement: two hundred points of its left edge are off the
+      screen, and that is where this screen's own menu stands while it is shut. Opening the menu shows
+      nothing - the room makes room for it, sliding right by the two hundred points with the same
+      three-hundred-and-fifty-millisecond transition the library's Animations.xaml ran its ClientGrid on.
+    -->
+    <Grid Name="room"
+          Margin="-200,0,0,0"
+          ColumnDefinitions="200,*"
+          ClipToBounds="False">
+      <Grid.RenderTransform>
+        <TranslateTransform X="0" Y="0">
+          <TranslateTransform.Transitions>
+            <Transitions>
+              <DoubleTransition Property="X" Duration="00:00:00.35"/>
+              <DoubleTransition Property="Y" Duration="00:00:00.35"/>
+            </Transitions>
+          </TranslateTransform.Transitions>
+        </TranslateTransform>
+      </Grid.RenderTransform>
 
-        <Button Name="removeButton"
-                Content="Remove this place"
-                FontSize="18"
-                Focusable="True"
-                HorizontalAlignment="Left"
-                Command="{Binding RemoveSelectedPlaceCommand}" />
+      <!-- What the two hundred off-screen points hold: the screen's menu - the three commands the home's
+           weather entry carried as shortcut tiles. Its top edge starts below the head band as the library's
+           rail does; the list is measured to what a viewer can see, so a menu taller than the rail scrolls
+           under the wheel. -->
+      <Panel Name="sideMenu"
+             Grid.Column="0"
+             Margin="0,90,0,0"
+             ClipToBounds="False">
+        <!-- No DockPanel in here, and no alignment that shrinks: a list left to its own desired height asks
+             its virtualizing panel, and the rail starves to a single tile. Stretched to the rail's height
+             the viewport is the rail, every row is built. -->
+        <Panel Margin="10,0,0,0">
+          <ListBox Name="weatherMenuList"
+                   Classes="weather-menu"
+                   ItemTemplate="{StaticResource WeatherMenuTile}"
+                   Margin="0,14,0,0"
+                   HorizontalAlignment="Left"
+                   VerticalAlignment="Stretch"
+                   Focusable="True"
+                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                   ScrollViewer.VerticalScrollBarVisibility="Hidden">
+            <!-- A plain stack, no virtualizing panel: three rows are the most this rail ever carries, and the
+                 virtualizing one kept answering its own estimate with the single realized row. -->
+            <ListBox.ItemsPanel>
+              <ItemsPanelTemplate>
+                <StackPanel/>
+              </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+          </ListBox>
+        </Panel>
+      </Panel>
 
-        <TextBox Name="searchBox"
-                 views:VirtualKeyboardService.Trigger="Menu"
-                 FontSize="20"
-                 Focusable="True"
-                 Text="{Binding SearchText, Mode=TwoWay}" />
+      <!-- The room's content, measured off the news room's content column: the weather wall in one scroller,
+           the bands standing side by side in it and travelling sideways - the home wall's arrangement, taken
+           complete rather than translated. -->
+      <Grid Grid.Column="1" Margin="24,96,34,120">
+        <ScrollViewer Name="wallScroller"
+                      Focusable="True"
+                      HorizontalScrollBarVisibility="Hidden"
+                      VerticalScrollBarVisibility="Disabled">
+          <ItemsControl Name="bandsList" ItemsSource="{Binding Bands}" VerticalAlignment="Top">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <StackPanel Orientation="Horizontal"/>
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:HomeContentGroup">
+                <!-- The band at the wall's own numbers: OccupiedWidth and BoxHeight, the heading over it, and
+                     the tiles standing where the builder put them. Copied from the home wall complete, the
+                     twenty-four of space beside every band. -->
+                <Grid Width="{Binding OccupiedWidth}" Height="{Binding BoxHeight}" Margin="0,0,24,0"
+                      VerticalAlignment="Top">
+                  <TextBlock Text="{Binding Heading}" Classes="home-band-heading"/>
+                  <!-- Not clipped, and that is deliberate: this panel is exactly the size of the tiles it
+                       holds, so clipping it is a cut along the outside edge of every tile in the row - the
+                       glass throws its shadow a dozen DIP past that edge, which is the notch in the corner
+                       that no setting on the glass could reach. -->
+                  <ItemsControl ItemsSource="{Binding Tiles}" x:CompileBindings="False" ClipToBounds="False">
+                    <ItemsControl.Styles>
+                      <Style Selector="ContentPresenter">
+                        <Setter Property="Canvas.Left" Value="{Binding X}"/>
+                        <Setter Property="Canvas.Top" Value="{Binding Y}"/>
+                      </Style>
+                    </ItemsControl.Styles>
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <Canvas Width="{Binding OccupiedWidth}" Height="{Binding BoxHeight}"/>
+                      </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="vm:HomeContentTile">
+                        <!-- The weather card. Every number and every face here is the home wall's card,
+                             copied: it answers a standing viewer exactly like a cover and a plaque on the
+                             same wall do - the shared class, full light, the same edge - and it says words
+                             rather than wearing a picture. A press of one asks nothing of anybody, which is
+                             what the reference's weather templates always did. -->
+                        <Border Classes="home-tile-shadow">
+                        <Button Classes="nereus-card-tile nereus-content-tile"
+                                Width="{Binding Width}"
+                                Height="{Binding Height}"
+                                Focusable="{Binding IsFocusable}"
+                                Tag="{Binding}"
+                                GotFocus="OnWallCardGotFocus">
+                          <Panel>
+                            <Border Classes="card-tile-face" ClipToBounds="True">
+                              <Panel>
+                                <!-- Today, as the design redrew it: the temperature biggest, the sky's word
+                                     under it, the picture centred, the place under the picture, and every
+                                     other reading the endpoint gave in a fact list. The air rides as a small
+                                     pill in the corner when it came in. No gradient anywhere. -->
+                                <Panel IsVisible="{Binding Card.IsToday}">
+                                  <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Top"
+                                              Margin="25,7,25,0" Spacing="0">
+                                    <TextBlock Classes="card-tile-big" Text="{Binding Card.BigText}"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Classes="card-tile-sub" Text="{Binding Card.Sub}"
+                                               FontSize="18" HorizontalAlignment="Center"/>
+                                    <Image Classes="home-tile-art"
+                                           Source="{Binding Card.IconName, Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter='{}{0}'}"
+                                           Stretch="Uniform" Width="200" Height="200" Margin="0,2,0,0"
+                                           HorizontalAlignment="Center"/>
+                                    <TextBlock Classes="home-tile-caption-title"
+                                               Text="{Binding Card.Label}" FontSize="24" FontWeight="SemiBold"
+                                               HorizontalAlignment="Center" Margin="0,6,0,0"
+                                               TextWrapping="Wrap" TextAlignment="Center"/>
+                                    <ItemsControl ItemsSource="{Binding Card.Facts}" Margin="0,16,0,0">
+                                      <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:CardFact">
+                                          <Border BorderBrush="#12FFFFFF" BorderThickness="0,1,0,0">
+                                            <Grid ColumnDefinitions="*,Auto" Margin="0,6">
+                                            <TextBlock Grid.Column="0" Text="{Binding Name}" FontSize="18"
+                                                       Opacity="0.6"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding Value}" FontSize="18"/>
+                                            </Grid>
+                                          </Border>
+                                        </DataTemplate>
+                                      </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                  </StackPanel>
+                                </Panel>
 
-        <!-- The matches only crowd the screen while there are any; the column of watched places should not
-             shrink every time somebody types three letters. -->
-        <ListBox Name="foundList"
-                 Focusable="True"
-                 MaxHeight="260"
-                 IsVisible="{Binding Found.Count}"
-                 ItemsSource="{Binding Found}"
-                 SelectedItem="{Binding SelectedFound, Mode=TwoWay}"
-                 FontSize="20">
-          <ListBox.ItemTemplate>
-            <DataTemplate x:DataType="vm:WeatherPlaceRow">
-              <StackPanel Spacing="2" Margin="4,8">
-                <TextBlock Text="{Binding Name}" FontSize="21" TextWrapping="Wrap" />
-                <StackPanel Orientation="Horizontal" Spacing="12">
-                  <TextBlock Text="{Binding Detail}" FontSize="16" Opacity="0.6" />
-                  <TextBlock Text="{Binding Where}" FontSize="15" Opacity="0.4" />
-                </StackPanel>
-              </StackPanel>
-            </DataTemplate>
-          </ListBox.ItemTemplate>
-        </ListBox>
-      </StackPanel>
+                                <!-- The hours: a legend of its own, then every hour standing in a column
+                                     with its name and picture, then the chart drawn by its own control. -->
+                                <DockPanel Margin="14,10,14,6" IsVisible="{Binding Card.IsChart}">
+                                  <StackPanel Orientation="Horizontal" Spacing="18" DockPanel.Dock="Top"
+                                              HorizontalAlignment="Right" Margin="0,0,0,4">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                      <Border Width="18" Height="6" Background="#ff6a55" CornerRadius="3"
+                                              VerticalAlignment="Center"/>
+                                      <TextBlock Text="temperature" FontSize="18" Opacity="0.8"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                      <Border Width="18" Height="6" Background="#7fd0f7" CornerRadius="3"
+                                              VerticalAlignment="Center"/>
+                                      <TextBlock Text="rain chance" FontSize="18" Opacity="0.8"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                      <Border Width="14" Height="10" Background="#7fd0f7" CornerRadius="2"
+                                              VerticalAlignment="Center"/>
+                                      <TextBlock Text="mm" FontSize="18" Opacity="0.8"/>
+                                    </StackPanel>
+                                  </StackPanel>
+                                  <ItemsControl ItemsSource="{Binding Card.Slots}" DockPanel.Dock="Top">
+                                    <ItemsControl.ItemsPanel>
+                                      <ItemsPanelTemplate>
+                                        <UniformGrid Rows="1"/>
+                                      </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                      <DataTemplate x:DataType="api:WeatherSlot">
+                                        <StackPanel Spacing="2" HorizontalAlignment="Center">
+                                          <TextBlock Text="{Binding Time, StringFormat=\{0:HH:mm\}}"
+                                                     FontSize="30" FontWeight="SemiBold"
+                                                     HorizontalAlignment="Center"/>
+                                          <Image Source="{Binding Icon, Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter='Weather/128x128/{0}'}"
+                                                 Width="92" Height="92" Stretch="Uniform"/>
+                                        </StackPanel>
+                                      </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                  </ItemsControl>
+                                  <views:WeatherChartControl Slots="{Binding Card.Slots}"/>
+                                </DockPanel>
 
-      <ListBox Name="forecastList"
-               Grid.Column="1"
-               Focusable="True"
-               theming:SkinTemplates.TileTemplate="WeatherDayTemplate"
-               ItemsSource="{Binding Days}"
-               FontSize="20">
-        <ListBox.ItemTemplate>
-          <DataTemplate x:DataType="vm:WeatherDayRow">
-            <StackPanel Orientation="Horizontal" Spacing="14" Margin="4,10">
-              <!-- The day's own picture out of the worn skin's Weather folder; a front end wearing only a
-                   palette draws the row without it, exactly like a home tile whose skin picture is missing. -->
-              <Image Source="{Binding Icon,
-                                      Converter={x:Static views:SkinImageConverter.Instance},
-                                      ConverterParameter='Weather/64x64/{0}'}"
-                     Width="48"
-                     Height="48"
-                     Stretch="Uniform"
-                     VerticalAlignment="Center"/>
-              <StackPanel Spacing="2" VerticalAlignment="Center">
-                <TextBlock Text="{Binding DateText}" FontSize="21" />
-                <TextBlock Text="{Binding Overview}" FontSize="18" Opacity="0.8" TextWrapping="Wrap" />
-                <StackPanel Orientation="Horizontal" Spacing="18">
-                  <TextBlock Text="{Binding Range}" FontSize="18" Opacity="0.85" />
-                  <TextBlock Text="{Binding Rain}" FontSize="16" Opacity="0.55" />
-                </StackPanel>
-              </StackPanel>
-            </StackPanel>
-          </DataTemplate>
-        </ListBox.ItemTemplate>
-      </ListBox>
+                                <!-- A day of the forecast, narrow as the design asked: the day's picture
+                                     between name and numbers, the swing in one line, and the rain in two of
+                                     its own - how likely, how much. -->
+                                <StackPanel IsVisible="{Binding Card.IsDayFace}" Spacing="6"
+                                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                                            Margin="8,6,8,6">
+                                  <TextBlock Classes="home-tile-caption-title" Text="{Binding Card.Label}"
+                                             FontSize="24" FontWeight="SemiBold"
+                                             HorizontalAlignment="Center" TextTrimming="CharacterEllipsis"
+                                             MaxLines="1"/>
+                                  <Image Classes="home-tile-art"
+                                         Source="{Binding Card.IconName, Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter='{}{0}'}"
+                                         Stretch="Uniform" Width="110" Height="110"
+                                         HorizontalAlignment="Center"/>
+                                  <TextBlock Text="{Binding Card.Detail}" FontSize="22"
+                                             HorizontalAlignment="Center"/>
+                                  <Border BorderBrush="#12FFFFFF" BorderThickness="0,1,0,0">
+                                    <TextBlock Text="{Binding Card.Sub}" FontSize="20" Opacity="0.85"
+                                               TextAlignment="Center" HorizontalAlignment="Center"
+                                               Margin="0,5,0,0"/>
+                                  </Border>
+                                  <Border BorderBrush="#12FFFFFF" BorderThickness="0,1,0,0">
+                                    <TextBlock Text="{Binding Card.Sub2}" FontSize="20" Opacity="0.85"
+                                               TextAlignment="Center" HorizontalAlignment="Center"
+                                               Margin="0,5,0,0"/>
+                                  </Border>
+                                </StackPanel>
 
-      <StackPanel Grid.Column="2" Spacing="12">
-        <TextBlock Text="{Binding CurrentTitle}"
-                   FontSize="28"
-                   FontWeight="SemiBold"
-                   TextWrapping="Wrap" />
-        <StackPanel Orientation="Horizontal" Spacing="20">
-          <!-- The sky right now, in the skin's own big picture - the same numbered weather pictures the
-               reference's weather screen painted, asked by name and answered by whichever skin is worn. -->
-          <Image Source="{Binding CurrentIcon,
-                                  Converter={x:Static views:SkinImageConverter.Instance},
-                                  ConverterParameter='Weather/128x128/{0}'}"
-                 Width="110"
-                 Height="110"
-                 Stretch="Uniform"
-                 VerticalAlignment="Center"/>
-          <TextBlock Text="{Binding CurrentLine}"
-                     FontSize="44"
-                     Margin="0,8,0,4"
-                     TextWrapping="Wrap"
-                     VerticalAlignment="Center" />
-        </StackPanel>
-        <TextBlock Text="{Binding CurrentDetail}"
-                   FontSize="20"
-                   Opacity="0.85"
-                   TextWrapping="Wrap" />
-        <TextBlock Text="Nothing is being watched - search for a place on the left"
-                   FontSize="18"
-                   Opacity="0.5"
-                   IsVisible="{Binding SelectedPlace, Converter={x:Static ObjectConverters.IsNull}}" />
-      </StackPanel>
+                                <!-- Air and radar on one card: the rain picture of the region above, the
+                                     index as a huge figure in its own colour under the caption, the named
+                                     pollutants in a fact list, and the card's name plain at the bottom. -->
+                                <DockPanel Margin="20,18,20,14" IsVisible="{Binding Card.IsAir}">
+                                  <StackPanel DockPanel.Dock="Bottom" Margin="0,8,0,0">
+                                    <TextBlock Classes="home-tile-caption-title"
+                                               Text="{Binding Card.Label}" FontSize="15" FontWeight="SemiBold"/>
+                                    <TextBlock Classes="card-tile-detail" Text="{Binding Card.Detail}"
+                                               TextAlignment="Left" FontSize="13" Opacity="0.75"
+                                               TextTrimming="CharacterEllipsis" MaxLines="1"/>
+                                  </StackPanel>
+                                  <Border DockPanel.Dock="Top" Height="280" CornerRadius="10"
+                                          ClipToBounds="True" Background="#FF1D2733"
+                                          IsVisible="{Binding Card.HasRadar}">
+                                    <views:HttpImage Url="{Binding Card.RadarUrl}" Stretch="UniformToFill"/>
+                                  </Border>
+                                  <StackPanel DockPanel.Dock="Top" Margin="0,8,0,0"
+                                             IsVisible="{Binding Card.HasRadar}">
+                                    <TextBlock Text="Rain radar" FontSize="15" FontWeight="SemiBold"/>
+                                    <TextBlock Text="now &#183; refreshes with the wall" FontSize="13"
+                                               Opacity="0.7"/>
+                                  </StackPanel>
+                                  <StackPanel Margin="0,14,0,0" Spacing="2"
+                                              IsVisible="{Binding Card.Air, Converter={x:Static conv:ObjectConverters.IsNotNull}}">
+                                    <StackPanel Orientation="Horizontal" Spacing="14">
+                                      <TextBlock Text="{Binding Card.AqiNumber}" FontSize="90"
+                                                 FontWeight="SemiBold" Foreground="{Binding Card.AqiBrush}"
+                                                 VerticalAlignment="Center"/>
+                                      <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Card.AqiGrade}" FontSize="24"/>
+                                        <TextBlock Text="air quality index" FontSize="14" Opacity="0.6"/>
+                                      </StackPanel>
+                                    </StackPanel>
+                                    <ItemsControl ItemsSource="{Binding Card.Facts}" Margin="0,10,0,0">
+                                      <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:CardFact">
+                                          <Grid ColumnDefinitions="*,Auto" Margin="0,3">
+                                            <TextBlock Grid.Column="0" Text="{Binding Name}" FontSize="15"
+                                                       Opacity="0.6"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding Value}" FontSize="15"/>
+                                          </Grid>
+                                        </DataTemplate>
+                                      </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                  </StackPanel>
+                                </DockPanel>
+                              </Panel>
+                            </Border>
+                            <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
+                          </Panel>
+                        </Button>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+      </Grid>
+
+      <!-- The read leaves no line at the foot of this room: the place stands in its own card already, the
+           forecast cards count the days themselves, and a sentence that restates both in another language
+           than the wall beside it only misleads. -->
     </Grid>
-  </DockPanel>
+  </Panel>
 </UserControl>

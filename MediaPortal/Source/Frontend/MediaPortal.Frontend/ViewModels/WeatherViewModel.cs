@@ -60,7 +60,9 @@ namespace MediaPortal.Frontend.ViewModels
   }
 
   /// <summary>
-  /// One row of the forecast column: the day, the words, the span of temperatures, the rain chance.
+  /// One row of the forecast column: the day, the words, the span of temperatures, the rain chance. The
+  /// weather screen itself shows its days as wall cards now; this row dresses the skin's
+  /// "WeatherDayTemplate", which every skin must still answer to.
   /// </summary>
   public sealed class WeatherDayRow
   {
@@ -121,72 +123,58 @@ namespace MediaPortal.Frontend.ViewModels
   }
 
   /// <summary>
-  /// The weather: the places the viewer watches, the sky over the selected one right now, and the days coming
-  /// over it, from the same provider MP2's old weather plugin read.
+  /// The weather screen: the sky over one watched place, standing as the bands of the designed wall - today,
+  /// the hours, the days coming, and the air - in the room of a screen rather than beside the home menu. The
+  /// bands and their cards come from <see cref="WeatherWallCards"/>, the same builder the home's weather wall
+  /// calls, so the two walls wear one writing and cannot drift apart.
   /// </summary>
   /// <remarks>
   /// <para>
-  /// The screen's shape is the plugin's - places, current, forecast - and so is its memory: the watched places
-  /// live in <see cref="WeatherPlacesSettings"/> the way the plugin kept its locations list, and the first place
-  /// is what the screen opens on, because the first place is home.
+  /// What a screen adds over the wall: the viewer chooses which watched place the wall speaks for - the
+  /// screen's "Location" command walks to the picker - and the place list is re-read from its file on every
+  /// showing, because the settings page of its own adds and removes places while this frame waits behind
+  /// on the workflow stack. The first saved place is the standing answer, because the first place is home.
   /// </para>
   /// <para>
-  /// A place is read when it is selected and when the viewer presses refresh, and not from a clock: the old
-  /// plugin's collector woke every fifteen minutes for a home-screen strip, and this screen is only looked at
-  /// while it is on. What a refusal costs is one place's panel - the words of the refusal land in the status
-  /// line and in the panel, and the other places keep their weather.
+  /// The read answers from a quarter-hour-old brief of the same place, which is the home wall's own freshness
+  /// law - the wall at home and the screen must not ask the same sky twice in one minute - and "Refresh" is
+  /// the one command that throws the held brief away and asks again right now. A refusal costs the screen its
+  /// bands and says so on the status line; the screen asks again on the next showing rather than on every key.
   /// </para>
   /// </remarks>
   public partial class WeatherViewModel : ObservableObject, IDisposable
   {
+    /// <summary>How young a held brief has to be for a showing to answer from it - the home wall's own quarter.</summary>
+    private const long BRIEF_FRESH_MS = 15 * 60 * 1000;
+
     private readonly WeatherApiClient? _client;
-    private readonly WeatherPlacesSettings _settings;
     private readonly string? _settingsPath;
     private readonly CultureInfo _culture;
     private CancellationTokenSource? _running;
-    private bool _ready;
+    private WeatherWallBrief? _brief;
+    private long _briefAt;
+    private double _briefLat;
+    private double _briefLon;
 
     [ObservableProperty]
-    private WeatherPlaceRow? _selectedPlace;
-
-    [ObservableProperty]
-    private WeatherPlaceRow? _selectedFound;
-
-    [ObservableProperty]
-    private string _searchText = "";
-
-    [ObservableProperty]
-    private bool _isBusy;
+    private WeatherPlaceRow? _currentPlace;
 
     [ObservableProperty]
     private string _status = "Not read yet.";
 
-    [ObservableProperty]
-    private string _currentTitle = "";
-
-    [ObservableProperty]
-    private string _currentLine = "";
-
-    [ObservableProperty]
-    private string _currentDetail = "";
-
-    /// <summary>The worn skin's picture for the sky right now, named as the reference's weather pictures are
-    /// (a bare number like "32", or "na"); null when the answer carried no condition code.</summary>
-    [ObservableProperty]
-    private string? _currentIcon;
-
     /// <param name="client">Where to read the sky from, or null for a screen that says it has nowhere.</param>
     /// <param name="settingsPath">Where the watched places live; the user's own file by default.</param>
     /// <param name="cultureName">
-    /// Which culture numbers and day names are shown in - the machine's own by default, and named here so that a
-    /// test can be somebody from Vienna and see Celsius and German weekdays.
+    /// Which culture the status line numbers itself in - the machine's own by default, and named here so that
+    /// a test can be somebody from Vienna. The cards themselves speak with the application's current culture,
+    /// exactly as the home wall's do, since one builder dresses both.
     /// </param>
     public WeatherViewModel(WeatherApiClient? client = null, string? settingsPath = null,
         string? cultureName = null)
     {
       _settingsPath = settingsPath;
-      _settings = WeatherPlacesSettings.Load(settingsPath, out string? problem);
-      _culture = CultureInfo.InvariantCulture;
+      _client = client;
+      _culture = CultureInfo.CurrentCulture;
       if (!string.IsNullOrWhiteSpace(cultureName))
       {
         try
@@ -198,48 +186,235 @@ namespace MediaPortal.Frontend.ViewModels
           // Invariant numbers beat an exception on a weather screen.
         }
       }
-      else
-      {
-        _culture = CultureInfo.CurrentUICulture;
-      }
 
-      // The screen does not invent a client: a viewer who passed null gets the honest "No weather client" the
-      // same way the news screen does, and the application wires the real one with the saved key on it.
-      _client = client;
-      foreach (WeatherPlaceEntry entry in _settings.Places)
-        Places.Add(new WeatherPlaceRow(new WeatherCityBookmark(entry.Name, entry.Detail, entry.Lat,
-            entry.Lon)));
+      ReloadPlaces();
+      if (_client == null)
+        Status = "No weather client";
+    }
 
+    /// <summary>
+    /// The word the wall of places is asked under. The skin's dialog frame reads its heading off the dialog's
+    /// own body, so the picker names itself above the watched places the same way the household's wall says
+    /// "Select User" above the faces.
+    /// </summary>
+    public string Heading { get { return "Weather places"; } }
+
+    /// <summary>The watched places, home first, as their file last had them.</summary>
+    public ObservableCollection<WeatherPlaceRow> Places { get; } = new ObservableCollection<WeatherPlaceRow>();
+
+    /// <summary>The bands of the weather wall, in the order the design stands them.</summary>
+    public ObservableCollection<HomeContentGroup> Bands { get; } = new ObservableCollection<HomeContentGroup>();
+
+    /// <summary>Whether the screen has a client to ask at all - the picker and the walk check this first.</summary>
+    public bool HasClient
+    {
+      get { return _client != null; }
+    }
+
+    /// <summary>
+    /// Takes the watched places from their file again, so a place added or removed in the settings is on the
+    /// picker without a restart. The place being shown keeps its place when it survived the edit; a removed
+    /// one hands the screen to the first of those that stayed.
+    /// </summary>
+    public void ReloadPlaces()
+    {
+      WeatherPlacesSettings settings = WeatherPlacesSettings.Load(_settingsPath, out string? problem);
+      WeatherPlaceRow? was = CurrentPlace;
+
+      Places.Clear();
+      foreach (WeatherPlaceEntry entry in settings.Places)
+        Places.Add(new WeatherPlaceRow(new WeatherCityBookmark(entry.Name, entry.Detail, entry.Lat, entry.Lon)));
+
+      WeatherPlaceRow? kept = was == null
+          ? null
+          : Places.FirstOrDefault(row => row.Bookmark.Lat == was.Bookmark.Lat
+              && row.Bookmark.Lon == was.Bookmark.Lon);
+      CurrentPlace = kept ?? Places.FirstOrDefault();
+
+      if (Places.Count == 0 && problem == null && _client != null)
+        Status = "No place watched yet - add one in the settings, and the screen opens on it";
+      else if (problem != null)
+        Status = problem;
+    }
+
+    /// <summary>
+    /// Runs every time the workflow shows this screen: the places come off their file again (the settings page
+    /// may have edited them while this frame waited behind), and a place whose brief grew older than the
+    /// quarter is read again. A fresh brief answers at once - the wall at home asked the same sky minutes ago.
+    /// </summary>
+    public void ScreenOpened()
+    {
+      ReloadPlaces();
+      if (_brief == null || Environment.TickCount64 - _briefAt >= BRIEF_FRESH_MS)
+        _ = ReadAsync(CurrentPlace, force: false);
+    }
+
+    /// <summary>Asks the sky for the place being shown, whatever the held brief says.</summary>
+    [RelayCommand]
+    private Task RefreshAsync()
+    {
+      return ReadAsync(CurrentPlace, force: true);
+    }
+
+    /// <summary>
+    /// Makes <paramref name="place"/> the one the screen speaks for. From the picker this is the whole answer:
+    /// the old place's bands leave, the new one's are read.
+    /// </summary>
+    public void ChoosePlace(WeatherPlaceRow place)
+    {
+      CurrentPlace = place;
+      _ = ReadAsync(place, force: false);
+    }
+
+    partial void OnCurrentPlaceChanged(WeatherPlaceRow? value)
+    {
+      if (_client == null)
+        Status = "No weather client";
+    }
+
+    /// <summary>
+    /// Reads one place and puts its bands up. One read at a time: a walker through the picker must not end
+    /// with the weather of the place they left because that answer was the slowest.
+    /// </summary>
+    private async Task ReadAsync(WeatherPlaceRow? place, bool force)
+    {
       if (_client == null)
       {
         Status = "No weather client";
-        _ready = true;
         return;
       }
 
-      if (problem != null)
-        Status = problem;
+      if (place == null)
+      {
+        Status = "No place watched yet - add one in the settings, and the screen opens on it";
+        return;
+      }
 
-      _ready = true;
-      if (Places.Count > 0)
-        SelectedPlace = Places[0];
-      else if (problem == null)
-        Status = "No place watched yet - search for one below, and from then on the screen opens on it";
+      WeatherPlaceEntry entry = new WeatherPlaceEntry
+      {
+        Name = place.Name, Detail = place.Detail, Lat = place.Bookmark.Lat, Lon = place.Bookmark.Lon
+      };
+
+      // The held brief only answers for the place it was read for, and only while it is young.
+      bool holds = !force && _brief != null && Environment.TickCount64 - _briefAt < BRIEF_FRESH_MS
+          && _briefLat == entry.Lat && _briefLon == entry.Lon;
+      if (holds)
+      {
+        Show(_brief!);
+        return;
+      }
+
+      CancellationTokenSource? previous = _running;
+      CancellationTokenSource cancellation = new CancellationTokenSource();
+      _running = cancellation;
+      previous?.Cancel();
+
+      try
+      {
+        WeatherWallBrief? brief = await WeatherWallCards.ReadBriefAsync(_client, entry, cancellation.Token);
+        if (brief == null)
+        {
+          Status = place.Name + " did not answer";
+          return;
+        }
+
+        _brief = brief;
+        _briefAt = Environment.TickCount64;
+        _briefLat = entry.Lat;
+        _briefLon = entry.Lon;
+        if (ReferenceEquals(place, CurrentPlace))
+          Show(brief);
+      }
+      catch (OperationCanceledException)
+      {
+        // A newer pick won; it reports its own weather.
+      }
+      catch (Exception ex)
+      {
+        Status = "Reading the weather failed: " + ex.Message;
+      }
+      finally
+      {
+        if (ReferenceEquals(_running, cancellation))
+        {
+          _running = null;
+          cancellation.Dispose();
+        }
+      }
+    }
+
+    /// <summary>Swaps the wall over to this brief and says what came in, on the line at the screen's foot.</summary>
+    private void Show(WeatherWallBrief brief)
+    {
+      Bands.Clear();
+      WeatherWallCards.BuildBands(Bands, brief);
+
+      NumberFormatInfo numbers = _culture.NumberFormat;
+      string degree = brief.Metric ? "C" : "F";
+      string sky = brief.Now == null
+          ? ""
+          : brief.Now.Description + " " + brief.Now.Temp.ToString("0", numbers) + "°" + degree;
+      Status = brief.Place + ": " + sky + ", "
+          + brief.Days.Count + (brief.Days.Count == 1 ? " day" : " days") + " ahead";
+    }
+
+    public void Dispose()
+    {
+      _running?.Cancel();
+      _running?.Dispose();
+      _client?.Dispose();
+    }
+  }
+
+  /// <summary>
+  /// The settings page's half of the weather: the watched places, the search that adds one, the key that takes
+  /// one away, and the viewer's own API key. This is the old weather screen's place management, moved behind
+  /// the settings door - the screen itself shows weather now, and who watches which places is a setting.
+  /// </summary>
+  /// <remarks>
+  /// Every answer saves itself the moment it is given, exactly like the television's settings page: a couch
+  /// viewer who walks away mid-edit leaves a file that says what they meant, and no "Apply" is waiting to be
+  /// pressed by nobody.
+  /// </remarks>
+  public partial class WeatherPlacesEditorViewModel : ObservableObject, IDisposable
+  {
+    private readonly WeatherApiClient? _client;
+    private readonly WeatherPlacesSettings _settings;
+    private readonly string? _settingsPath;
+
+    [ObservableProperty]
+    private WeatherPlaceRow? _selectedPlace;
+
+    [ObservableProperty]
+    private WeatherPlaceRow? _selectedFound;
+
+    [ObservableProperty]
+    private string _searchText = "";
+
+    [ObservableProperty]
+    private string _apiKey = "";
+
+    [ObservableProperty]
+    private string _status = "";
+
+    public WeatherPlacesEditorViewModel(WeatherApiClient? client = null, string? settingsPath = null)
+    {
+      _client = client;
+      _settingsPath = settingsPath;
+      _settings = WeatherPlacesSettings.Load(settingsPath, out string? problem);
+      foreach (WeatherPlaceEntry entry in _settings.Places)
+        Places.Add(new WeatherPlaceRow(new WeatherCityBookmark(entry.Name, entry.Detail, entry.Lat, entry.Lon)));
+
+      _apiKey = _settings.ApiKey;
+      Status = problem ?? Places.Count + (Places.Count == 1 ? " place watched" : " places watched")
+          + (Places.Count > 0 ? ", the first is home" : "");
     }
 
     /// <summary>The watched places, home first, in the order they were added.</summary>
     public ObservableCollection<WeatherPlaceRow> Places { get; } = new ObservableCollection<WeatherPlaceRow>();
 
-    /// <summary>What the last search found, until it is closed or another search replaces it.</summary>
+    /// <summary>What the last search found, until another search replaces it.</summary>
     public ObservableCollection<WeatherPlaceRow> Found { get; } = new ObservableCollection<WeatherPlaceRow>();
-
-    /// <summary>The days coming, today first, for the selected place.</summary>
-    public ObservableCollection<WeatherDayRow> Days { get; } = new ObservableCollection<WeatherDayRow>();
-
-    private bool CanRead
-    {
-      get { return _client != null && SelectedPlace != null; }
-    }
 
     private bool CanSearch
     {
@@ -254,57 +429,6 @@ namespace MediaPortal.Frontend.ViewModels
     private bool CanRemove
     {
       get { return SelectedPlace != null; }
-    }
-
-    /// <summary>Reads the selected place again.</summary>
-    [RelayCommand(CanExecute = nameof(CanRead))]
-    private async Task ReadAsync()
-    {
-      WeatherPlaceRow? place = SelectedPlace;
-      if (_client == null || place == null)
-        return;
-
-      // One read at a time: a walker through the places column must not end with the weather of the place they
-      // left because that answer was the slowest.
-      CancellationTokenSource? previous = _running;
-      CancellationTokenSource cancellation = new CancellationTokenSource();
-      _running = cancellation;
-      previous?.Cancel();
-
-      IsBusy = true;
-      try
-      {
-        WeatherAnswer answer = await _client.ReadAsync(place.Bookmark, cancellation.Token);
-        if (answer.Error != null)
-        {
-          CurrentTitle = place.Name;
-          CurrentLine = "";
-          CurrentDetail = "";
-          CurrentIcon = null;
-          Days.Clear();
-          Status = place.Name + " did not answer: " + answer.Error;
-          return;
-        }
-
-        Show(answer);
-      }
-      catch (OperationCanceledException)
-      {
-        // A newer selection won; it reports its own weather.
-      }
-      catch (Exception ex)
-      {
-        Status = "Reading the weather failed: " + ex.Message;
-      }
-      finally
-      {
-        if (ReferenceEquals(_running, cancellation))
-        {
-          _running = null;
-          IsBusy = false;
-        }
-        cancellation.Dispose();
-      }
     }
 
     /// <summary>Asks the geocoder for places whose name the viewer typed.</summary>
@@ -324,7 +448,6 @@ namespace MediaPortal.Frontend.ViewModels
         return;
       }
 
-      IsBusy = true;
       try
       {
         var found = await _client.FindCitiesAsync(query);
@@ -345,16 +468,12 @@ namespace MediaPortal.Frontend.ViewModels
       catch (Exception ex)
       {
         // Including the key rotation running out: the shared demo keys are spent things, and when all three
-        // have answered "too many requests" the screen says that instead of pretending the town does not exist.
+        // have answered "too many requests" the page says that instead of pretending the town does not exist.
         Status = "The search refused: " + ex.Message;
-      }
-      finally
-      {
-        IsBusy = false;
       }
     }
 
-    /// <summary>Keeps the picked search match: onto the places column, into the file, and selected.</summary>
+    /// <summary>Keeps the picked match: onto the list, into the file, home stays first.</summary>
     [RelayCommand(CanExecute = nameof(CanAddFound))]
     private void AddSelectedFound()
     {
@@ -368,18 +487,16 @@ namespace MediaPortal.Frontend.ViewModels
         return;
       }
 
-      WeatherPlaceRow row = match;
-      Places.Add(row);
+      Places.Add(match);
       _settings.Places.Add(new WeatherPlaceEntry
       {
-        Name = row.Name, Detail = row.Detail, Lat = row.Bookmark.Lat, Lon = row.Bookmark.Lon
+        Name = match.Name, Detail = match.Detail, Lat = match.Bookmark.Lat, Lon = match.Bookmark.Lon
       });
       string saved = SaveSettings(out bool wasSaved);
-      SelectedPlace = row;
-      Status = row.Name + (wasSaved ? " added and saved" : " added") + (wasSaved ? "" : ", but " + saved);
+      Status = match.Name + (wasSaved ? " added and saved" : " added") + (wasSaved ? "" : ", but " + saved);
     }
 
-    /// <summary>Takes the selected place off the list. The weather it carried stays on screen until another is picked.</summary>
+    /// <summary>Takes the picked place off the list and out of the file.</summary>
     [RelayCommand(CanExecute = nameof(CanRemove))]
     private void RemoveSelectedPlace()
     {
@@ -395,28 +512,22 @@ namespace MediaPortal.Frontend.ViewModels
       Status = wasSaved ? gone : gone + ", but " + saved;
       SelectedPlace = Places.Count > 0 ? Places[0] : null;
       if (Places.Count == 0)
-        Status += " - that was the only one, so the screen opens on its search box now";
+        Status += " - that was the only one, and the weather screen has nothing to show until a new one is added";
     }
 
-    public void Dispose()
+    partial void OnApiKeyChanged(string value)
     {
-      _running?.Cancel();
-      _running?.Dispose();
-      _client?.Dispose();
-    }
+      if (_settings.ApiKey == value)
+        return;
 
-    partial void OnSelectedPlaceChanged(WeatherPlaceRow? value)
-    {
-      ReadCommand.NotifyCanExecuteChanged();
-      RemoveSelectedPlaceCommand.NotifyCanExecuteChanged();
-      if (!_ready || value == null)
-        return;
-      if (_client == null)
-      {
-        Status = "No weather client";
-        return;
-      }
-      ReadCommand.Execute(null);
+      // The saved key rides on the next screen opening - the client that answers THIS page was built before
+      // the typing, and its search keeps asking with the key it started on.
+      _settings.ApiKey = value;
+      string saved = SaveSettings(out bool wasSaved);
+      Status = value.Length == 0
+          ? (wasSaved ? "No own key - the shared keys answer again" : "No own key, but " + saved)
+          : wasSaved ? "Your own key saved; the weather screens ask with it from now on"
+              : "Key kept for this page, but " + saved;
     }
 
     partial void OnSelectedFoundChanged(WeatherPlaceRow? value)
@@ -424,38 +535,19 @@ namespace MediaPortal.Frontend.ViewModels
       AddSelectedFoundCommand.NotifyCanExecuteChanged();
     }
 
-    private void Show(WeatherAnswer answer)
+    partial void OnSelectedPlaceChanged(WeatherPlaceRow? value)
     {
-      bool metric = _client!.IsMetric;
-      NumberFormatInfo numbers = _culture.NumberFormat;
-      string degree = metric ? "C" : "F";
-      string speed = metric ? "m/s" : "mph";
-
-      CurrentTitle = answer.City.Name + (answer.City.Detail.Length > 0 ? ", " + answer.City.Detail : "");
-      CurrentLine = Temperature(answer.Now!.Temp, numbers, degree) + ", " + answer.Now.Description;
-      CurrentDetail = "feels like " + Temperature(answer.Now.FeelsLike, numbers, degree)
-          + " · " + answer.Now.Humidity + "% humidity · " + answer.Now.Pressure + " hPa"
-          + " · wind " + answer.Now.WindDirection + " " + answer.Now.WindSpeed.ToString("0.0", numbers) + " " + speed;
-      CurrentIcon = answer.Now.Icon;
-
-      Days.Clear();
-      foreach (WeatherDay day in answer.Days ?? Array.Empty<WeatherDay>())
-        Days.Add(new WeatherDayRow(day, metric, _culture));
-
-      Status = answer.City.Name + ": " + answer.Now.Description + " "
-          + Temperature(answer.Now.Temp, numbers, degree) + ", "
-          + Days.Count + (Days.Count == 1 ? " day" : " days") + " ahead";
-    }
-
-    /// <summary>"8°C" - one degree sign, whichever side of the Atlantic the number was measured on.</summary>
-    private static string Temperature(double value, NumberFormatInfo numbers, string degree)
-    {
-      return value.ToString("0", numbers) + "°" + degree;
+      RemoveSelectedPlaceCommand.NotifyCanExecuteChanged();
     }
 
     private string SaveSettings(out bool saved)
     {
       return _settings.Save(_settingsPath, out saved);
+    }
+
+    public void Dispose()
+    {
+      _client?.Dispose();
     }
   }
 }

@@ -1288,55 +1288,10 @@ namespace MediaPortal.Frontend.ViewModels
         if (brief == null)
           return false;
 
-        bool any = false;
-        if (brief.Now != null)
-        {
-          // Today's weather takes a band of its own - one narrow card, the temperature the biggest number on
-          // it, the sky's picture under it, the place under that, and the rest of the sky written as a fact
-          // list. As designed: narrow as its content allows.
-          HomeContentGroup today = new HomeContentGroup("Current weather", "card1", 368, 1);
-          today.AddCard(TodayCard(brief));
-          wall.Add(today);
-          any = true;
-        }
-
-        IReadOnlyList<WeatherSlot> slots = brief.Slots ?? Array.Empty<WeatherSlot>();
-        if (slots.Count >= 2)
-        {
-          // The hours of the next two days as one chart: temperature in red and rain chance in light blue
-          // above, the millimetres as bars below. A line needs two hours at least; one alone draws nothing.
-          HomeContentGroup chart = new HomeContentGroup("Today", "cardchart", 980, 1);
-          chart.AddCard(new HomeInfoCard("Today", kind: "chart", slots: slots));
-          wall.Add(chart);
-          any = true;
-        }
-
-        IReadOnlyList<WeatherDay> days = brief.Days ?? Array.Empty<WeatherDay>();
-        if (days.Count > 0)
-        {
-          // The days as designed: two columns of two, each day an upright of its own - name, picture between
-          // name and numbers, chance and millimetres each in their own line. A fifth day has no place, the
-          // same way a twentieth leftover plugin has no square in "Others".
-          int places = Math.Min(4, days.Count);
-          HomeContentGroup forecast = new HomeContentGroup("Forecast", "cardday4", 410, places);
-          for (int i = 0; i < places; i++)
-            forecast.AddCard(DayCard(days[i], brief.Metric));
-          wall.Add(forecast);
-          any = true;
-        }
-
-        if (brief.Air != null || brief.RadarUrl != null)
-        {
-          // Air and radar share one card as designed: the rain picture above, the air the place breathes
-          // under it. Either half alone still stands - the radar answers without an air reading and the
-          // numbers without a picture.
-          HomeContentGroup air = new HomeContentGroup("Air & radar", "card1", 460, 1);
-          air.AddCard(AirCard(brief));
-          wall.Add(air);
-          any = true;
-        }
-
-        return any;
+        // The bands and their cards are built by the weather wall's one builder, which the weather screen of
+        // its own calls too - the wall a viewer sees at home and the wall the screen puts up must be the same
+        // writing, and two copies of it would drift the week one of them was mended.
+        return WeatherWallCards.BuildBands(wall, brief);
       }
 
       if (IsNewsEntry(entry))
@@ -1451,96 +1406,8 @@ namespace MediaPortal.Frontend.ViewModels
       return askedAtTickCount != 0 && Environment.TickCount64 - askedAtTickCount < INFO_WALL_REFRESH_MS;
     }
 
-    /// <summary>
-    /// Today's card as the design redrew it: the temperature biggest, the sky's own word under it, the
-    /// picture centred beneath that, the place under the picture, and everything else the endpoint answers
-    /// for the moment written as a fact list - feels-like, damp, pressure, wind (with its gusts when it has
-    /// any), the sun's two times, sight, clouds, and how much has fallen. The air's grade rides as a small
-    /// pill in the corner when it came in at all.
-    /// </summary>
-    private static HomeInfoCard TodayCard(WeatherWallBrief brief)
-    {
-      WeatherNow now = brief.Now!;
-      NumberFormatInfo numbers = CultureInfo.CurrentCulture.NumberFormat;
-      string degree = brief.Metric ? "C" : "F";
-
-      List<CardFact> facts = new List<CardFact>();
-      facts.Add(new CardFact("feels like", now.FeelsLike.ToString("0", numbers) + "°" + degree));
-      facts.Add(new CardFact("humidity", now.Humidity + " %"));
-      if (now.Pressure > 0)
-        facts.Add(new CardFact("pressure", now.Pressure + " hPa"));
-      string wind = now.WindDirection + " " + now.WindSpeed.ToString("0.0", numbers)
-          + (brief.Metric ? " m/s" : " mph");
-      if (now.WindGust > 0)
-        wind += " (gust " + now.WindGust.ToString("0", numbers) + ")";
-      facts.Add(new CardFact("wind", wind));
-      if (!string.IsNullOrEmpty(now.Sunrise) || !string.IsNullOrEmpty(now.Sunset))
-        facts.Add(new CardFact("sun", "\u2191 " + now.Sunrise + "  \u2193 " + now.Sunset));
-      if (now.VisibilityMeters > 0)
-        facts.Add(new CardFact("visibility", (brief.Metric
-            ? now.VisibilityMeters / 1000.0
-            : now.VisibilityMeters / 1609.34).ToString("0.#", numbers) + (brief.Metric ? " km" : " mi")));
-      facts.Add(new CardFact("clouds", now.CloudsPercent + " %"));
-      if (brief.Slots != null && brief.Slots.Count > 0)
-        facts.Add(new CardFact("rain 3 h", brief.Slots[0].PrecipMm.ToString("0.#", numbers) + " mm"));
-
-      return new HomeInfoCard(brief.Place,
-          bigText: now.Temp.ToString("0", numbers) + "°" + degree,
-          sub: WeatherApiClient.SkyWord(now),
-          iconName: now.Icon == null ? null : "Weather/128x128/" + now.Icon,
-          kind: "today",
-          facts: facts,
-          air: brief.Air);
-    }
-
-    /// <summary>
-    /// One day of the forecast as the design redrew its upright: the day's name, its high and low in one
-    /// line, and precipitation in two of its own - how likely and how much, the millimetres being what the
-    /// free endpoint has answered since the three-hourly entries carry them.
-    /// </summary>
-    private static HomeInfoCard DayCard(WeatherDay day, bool metric)
-    {
-      NumberFormatInfo numbers = CultureInfo.CurrentCulture.NumberFormat;
-      string degree = metric ? "C" : "F";
-      return new HomeInfoCard(
-          // The weekday in the same English the whole card speaks - the wall's words are English by design,
-          // and "Mittwoch" among "feels like" and "rain chance" reads like two skins on one wall.
-          day.Date.ToString("dddd", CultureInfo.InvariantCulture.DateTimeFormat),
-          detail: day.High.ToString("0", numbers) + "°" + degree + " / "
-              + day.Low.ToString("0", numbers) + "°" + degree,
-          // Chance and millimetres in two properties of their own, so the card can draw a hairline between
-          // the temperature, the chance, and the millimetres - three readings, three rows, two lines.
-          sub: Math.Round(day.PrecipitationChance * 100).ToString("0", numbers) + " %",
-          sub2: day.PrecipitationMm.ToString("0.#", numbers) + " mm",
-          iconName: day.Icon == null ? null : "Weather/128x128/" + day.Icon,
-          kind: "day");
-    }
-
-    /// <summary>
-    /// The air and the radar on one card: the rain picture of the region above, the index as a huge figure
-    /// in its own colour under it, and the four named pollutants as a fact list. Whichever half did not
-    /// arrive simply leaves its room empty.
-    /// </summary>
-    private static HomeInfoCard AirCard(WeatherWallBrief brief)
-    {
-      List<CardFact> facts = new List<CardFact>();
-      WeatherAir? air = brief.Air;
-      if (air != null)
-      {
-        NumberFormatInfo numbers = CultureInfo.CurrentCulture.NumberFormat;
-        facts.Add(new CardFact("PM2.5", air.Pm25.ToString("0.#", numbers) + " \u00B5g/m\u00B3"));
-        facts.Add(new CardFact("PM10", air.Pm10.ToString("0.#", numbers) + " \u00B5g/m\u00B3"));
-        facts.Add(new CardFact("NO\u2082", air.No2.ToString("0.#", numbers) + " \u00B5g/m\u00B3"));
-        facts.Add(new CardFact("O\u2083", air.O3.ToString("0.#", numbers) + " \u00B5g/m\u00B3"));
-      }
-
-      return new HomeInfoCard("Air quality",
-          detail: brief.Place,
-          kind: "air",
-          facts: facts,
-          air: air,
-          radarUrl: brief.RadarUrl);
-    }
+    // Today's card, the day uprights and the air card are dressed by WeatherWallCards, which the weather
+    // screen calls with the same brief - the wall at home and the wall on the screen are one writing.
 
     /// <summary>
     /// One feed's square as the mockup drew it: the feed's own mark in the middle of a glass square, its name
