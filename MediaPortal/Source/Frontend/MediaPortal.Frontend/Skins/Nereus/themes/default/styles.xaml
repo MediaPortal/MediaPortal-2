@@ -1344,4 +1344,36 @@
   <Style Selector=":is(UserControl).nereus-dialog-screen > ContentControl">
     <Setter Property="ClipToBounds" Value="False"/>
   </Style>
+
+  <!--
+    A row of a dialog list that carries no buttons of its own - the shutdown menu is the case - takes the
+    keyboard on the ListBoxItem rather than inside the row, so the editor's "row:focus-within" never fires
+    there. The same law is therefore spelled for the container too: the word of the row the viewer stands on
+    burns at full white, every other word stays at the editor's sixty per cent.
+  -->
+  <Style Selector="ListBox.nereus-editor-rows ListBoxItem:selected TextBlock.nereus-editor-name,
+                  ListBox.nereus-editor-rows ListBoxItem:focus TextBlock.nereus-editor-name">
+    <Setter Property="Opacity" Value="1"/>
+  </Style>
+  <Style Selector="Window:not(.pointer-resting) ListBox.nereus-editor-rows ListBoxItem:pointerover TextBlock.nereus-editor-name">
+    <Setter Property="Opacity" Value="1"/>
+  </Style>
+
+  <!-- The face beside a dialog row's word is the word's equal: the skin's text colour at the same sixty
+       per cent, and it burns to full white on the same rows the word does - the container's focus, the
+       selection, and the pointer while the pointer is not resting. -->
+  <Style Selector="Path.nereus-editor-icon">
+    <Setter Property="Fill" Value="{DynamicResource TextBrush}"/>
+    <Setter Property="Opacity" Value="0.6"/>
+  </Style>
+  <Style Selector="Grid.nereus-editor-row:focus-within Path.nereus-editor-icon">
+    <Setter Property="Opacity" Value="1"/>
+  </Style>
+  <Style Selector="ListBox.nereus-editor-rows ListBoxItem:selected Path.nereus-editor-icon,
+                  ListBox.nereus-editor-rows ListBoxItem:focus Path.nereus-editor-icon">
+    <Setter Property="Opacity" Value="1"/>
+  </Style>
+  <Style Selector="Window:not(.pointer-resting) ListBox.nereus-editor-rows ListBoxItem:pointerover Path.nereus-editor-icon">
+    <Setter Property="Opacity" Value="1"/>
+  </Style>
 </Styles>

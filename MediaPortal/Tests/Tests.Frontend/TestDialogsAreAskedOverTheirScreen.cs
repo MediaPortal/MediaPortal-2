@@ -170,6 +170,33 @@ namespace Tests.Frontend
     }
 
     /// <summary>The marker a dialog answers with: the same control, asking to be raised over what is behind.</summary>
+    /// <summary>
+    /// The dialog views of this front end, standing in the one law the shell reads: a view that says
+    /// <see cref="IDialogScreen"/> is raised over its screen with the backdrop blurred and the chrome standing
+    /// back; a view that forgets it is a full page wearing a dialog's clothes - the same dialog five times
+    /// over, the viewer has said, and every forgetting was a new "invented design". So the law is checked
+    /// against the real views, not only against markers.
+    /// </summary>
+    [Test]
+    public void EveryDialogViewOfThisFrontEndSaysItIsADialog()
+    {
+      Type[] dialogs =
+      {
+          typeof(CloseView), typeof(SleepTimerView), typeof(NereusMenuEditView),
+          typeof(NotificationsView), typeof(UserPickerView), typeof(WeatherPlacePickerView),
+          typeof(TvProgramActionsView)
+      };
+
+      foreach (Type view in dialogs)
+      {
+        Assert.That(typeof(IDialogScreen).IsAssignableFrom(view), Is.True,
+            view.Name + " opens as a dialog but does not say IDialogScreen - the shell would host it as a "
+            + "full page with its own title and no blurred backdrop");
+        Assert.That(typeof(IWorkflowScreen).IsAssignableFrom(view), Is.True,
+            view.Name + " must take the keyboard when it is raised");
+      }
+    }
+
     private sealed class DialogMarker : ContentControl, IDialogScreen
     {
     }

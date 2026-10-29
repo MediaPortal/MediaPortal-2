@@ -22,6 +22,7 @@ using Avalonia.Controls;
 using Avalonia.Headless.NUnit;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
+using MediaPortal.Frontend.Services;
 using MediaPortal.Frontend.Theming;
 using MediaPortal.Frontend.ViewModels;
 using MediaPortal.Frontend.Views;
@@ -49,8 +50,9 @@ namespace Tests.Frontend
   public class TestTheDialogFrameKeepsTheScreensData
   {
     /// <summary>
-    /// The way out says what closing does, inside the frame that carries the words. A dialog nobody can read is
-    /// a dialog nobody can answer, and an empty frame is exactly that.
+    /// The way out shows its menu inside the frame that carries the words. A dialog nobody can read is a
+    /// dialog nobody can answer, and an empty frame is exactly that: the shutdown menu's rows and its heading
+    /// both have to survive the dialog frame's hand of the content, or the viewer stands in front of a glow.
     /// </summary>
     [AvaloniaTest]
     public void TheWordsOnTheWayOutStandInsideTheFrameThatCarriesThem()
@@ -71,17 +73,24 @@ namespace Tests.Frontend
       Pump();
       try
       {
+        ShutdownChoice leaving = close.Choices.First(c => c.Action == ShutdownAction.CloseMP);
         TextBlock words = view.GetVisualDescendants().OfType<TextBlock>()
-            .FirstOrDefault(t => t.Text == close.Message);
+            .FirstOrDefault(t => t.Text == leaving.Name);
         Assert.That(words, Is.Not.Null, "the way out opened without its words");
 
-        Border frame = words.GetSelfAndVisualAncestors().OfType<Border>()
+        Border frame = words.GetVisualAncestors().OfType<Border>()
             .FirstOrDefault(b => b.BoxShadow.ToString().Contains("120"));
         Assert.That(frame, Is.Not.Null, "the words stood outside any glowing frame");
         Assert.That(frame.Bounds.Height, Is.GreaterThan(150),
             "the frame stood " + frame.Bounds.Height + " high around its words");
         Assert.That(words.GetSelfAndVisualAncestors().Contains(frame), Is.True,
             "the words were shown somewhere else than by the frame");
+
+        // The heading belongs to the frame, not to the body, and it only stands when the body hands its
+        // data back through the overlay - the very law this screen once broke.
+        TextBlock heading = view.GetVisualDescendants().OfType<TextBlock>()
+            .FirstOrDefault(t => t.Text == close.Heading);
+        Assert.That(heading, Is.Not.Null, "the way out opened without its heading");
       }
       finally
       {

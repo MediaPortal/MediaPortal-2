@@ -76,6 +76,8 @@ namespace MediaPortal.Frontend.ViewModels
     private string _positionText;
     private string _positionLabel = "--:--";
     private string _durationLabel = "--:--";
+    private long _positionMs;
+    private long _lengthMs;
     private string _statusLine;
     private double _progress;
     private bool _isPlaying;
@@ -232,6 +234,21 @@ namespace MediaPortal.Frontend.ViewModels
     public string DurationLabel
     {
       get { return _durationLabel; }
+    }
+
+    /// <summary>
+    /// Where the picture stands, in milliseconds, as the engine last said it. The sleep timer counts its
+    /// "after this one" in these numbers - the labels above are for the eye and round to whole seconds.
+    /// </summary>
+    public long PositionMilliseconds
+    {
+      get { return _positionMs; }
+    }
+
+    /// <summary>The length the engine last said, in milliseconds; nought while nothing answers.</summary>
+    public long LengthMilliseconds
+    {
+      get { return _lengthMs; }
     }
 
     /// <summary>
@@ -1421,6 +1438,8 @@ namespace MediaPortal.Frontend.ViewModels
       _cover = null;
       _coverFor = null;
       _furthestMs = 0;
+      _positionMs = 0;
+      _lengthMs = 0;
       _reported = false;
       // The chapters and what codes the picture belong to the media that is over; the new one names its own,
       // and the question starts again from the beginning rather than showing the last film's marks.
@@ -1691,6 +1710,8 @@ namespace MediaPortal.Frontend.ViewModels
         _positionLabel = Format(args.TimeInMs);
         _durationLabel = args.LengthInMs > 0 ? Format(args.LengthInMs) : "--:--";
         _positionText = _positionLabel + " / " + _durationLabel;
+        _positionMs = args.TimeInMs;
+        _lengthMs = args.LengthInMs;
         double fraction = args.Fraction;
         _progress = fraction < 0 ? 0 : fraction;
         Raise();

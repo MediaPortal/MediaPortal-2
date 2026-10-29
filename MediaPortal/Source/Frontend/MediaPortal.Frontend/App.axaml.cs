@@ -53,6 +53,14 @@ namespace MediaPortal.Frontend
     private readonly Workflow.WorkflowManager _workflow = new Workflow.WorkflowManager();
     private NowPlayingViewModel? _nowPlaying;
     private NowPlayingView? _playView;
+
+    /// <summary>
+    /// The one sleep timer of this run, like the reference's workflow model: it keeps waiting while the
+    /// viewer walks through every screen, and the shutdown menu and the timer's own dialog both read the
+    /// same answer out of it. Started from <c>dialogSystemState</c>'s rows and the timer dialog, it ends
+    /// by doing the way out the viewer chose - which is why the application, not a screen, owns it.
+    /// </summary>
+    private readonly Services.SleepTimerService _sleepTimer;
     private ShellWindow? _shell;
     private MediaBrowserViewModel? _lastBrowser;
     private PartyViewModel? _party;
@@ -207,6 +215,22 @@ namespace MediaPortal.Frontend
       _shotPath = shotPath;
       _playStart = playStart;
       _theme = theme;
+
+      // The way out the sleep timer runs out into is the application's business, and the tick has to reach
+      // the screens the way every other late answer does - through the thread that draws. A run without a
+      // display thread (a plain test over the model) keeps the inline answer.
+      _sleepTimer = new Services.SleepTimerService(PerformWayOut);
+      _sleepTimer.TickMarshaller = delegate (Action action)
+      {
+        try
+        {
+          Dispatcher.UIThread.Post(action);
+        }
+        catch (Exception)
+        {
+          action();
+        }
+      };
     }
 
     public override void Initialize()
@@ -1111,14 +1135,88 @@ namespace MediaPortal.Frontend
     }
 
     /// <summary>
-    /// The screen that leaves the application, as a frame - this front end's <c>dialogSystemState</c>. It is a
-    /// stop of the workflow and not a window, so the header names it and the back key steps off it like any
-    /// other screen, and it says what leaving really does while something is playing before it lets anybody
-    /// press the button that does it.
+    /// The way out of the machine, as a frame - this front end's <c>dialogSystemState</c>: headed "Shutdown
+    /// menu" and full of the machine's ways out, a row being the whole answer. It is a stop of the workflow
+    /// and not a window, so the header names it and the back key steps off it like any other screen.
     /// </summary>
     private Workflow.WorkflowFrame CloseFrame()
     {
-      return new Workflow.WorkflowFrame("close", "Close", new CloseViewModel(_nowPlaying));
+      return new Workflow.WorkflowFrame("close", "Shutdown menu",
+          new CloseViewModel(_sleepTimer, PerformWayOut, WayOutSupport(),
+              delegate { _workflow.Push(SleepTimerFrame()); }));
+    }
+
+    /// <summary>
+    /// The sleep timer's own dialog, pushed over the shutdown menu the way the reference pushed
+    /// <c>dialogSleepTimer</c> over <c>dialogSystemState</c>. It reads and starts the one timer of this run,
+    /// so the menu's line and the dialog's wide button can never disagree about whether a wait stands.
+    /// </summary>
+    private Workflow.WorkflowFrame SleepTimerFrame()
+    {
+      return new Workflow.WorkflowFrame("sleeptimer", "Sleep Timer",
+          new SleepTimerViewModel(_sleepTimer, _nowPlaying, WayOutSupport()));
+    }
+
+    /// <summary>
+    /// Which ways out this running application can honestly promise. The machine's own power is Windows'
+    /// to hand (a Linux without a promised command and a phone without any stay out of the menu), and the
+    /// application's own two ways stand only where the lifetime underneath the windows may end the
+    /// application - which desktop lifetimes may and mobile ones, where the operating system owns every
+    /// window's life and death, may not.
+    /// </summary>
+    private Services.SystemStateSupport WayOutSupport()
+    {
+      return Services.SystemStateSupport.ThisMachine with
+      {
+        Application = ApplicationLifetime is IClassicDesktopStyleApplicationLifetime
+      };
+    }
+
+    /// <summary>
+    /// Doing the chosen way out. The machine's power goes through the operating system; the application's
+    /// own two ways - leave, and leave and come back - are answered here, because the lifetime the window
+    /// was built on is this object's to end and a hand-closed window would leave the desktop lifetime
+    /// waiting for a window that has gone.
+    /// </summary>
+    private void PerformWayOut(Services.ShutdownAction action)
+    {
+      Services.SystemStateActions.Execute(action, LeaveApplication, RestartApplication);
+    }
+
+    private void LeaveApplication()
+    {
+      if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        desktop.Shutdown();
+    }
+
+    /// <summary>
+    /// Coming back: the same program is started again before this one goes, with its window arguments left
+    /// as they are - the reference's <c>IScreenControl.Restart</c> promised exactly a start-over, nothing
+    /// more. A machine that will not start the copy answers with just the leaving, which is the nearest
+    /// honest answer to a restart it refused.
+    /// </summary>
+    private void RestartApplication()
+    {
+      string? path = Environment.ProcessPath;
+
+      // Starting another program is a desktop's privilege; on a phone the new copy cannot be asked for at
+      // all, so the honest nearest answer is the leaving, which a mobile lifetime declines in silence.
+      if (path != null && (OperatingSystem.IsWindows() || OperatingSystem.IsLinux()
+          || OperatingSystem.IsMacOS()))
+      {
+        try
+        {
+          System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path)
+          {
+            UseShellExecute = true
+          });
+        }
+        catch (Exception)
+        {
+          // The machine refused the new copy; the old one still leaves.
+        }
+      }
+      LeaveApplication();
     }
 
     /// <summary>
@@ -1288,6 +1386,9 @@ namespace MediaPortal.Frontend
 
       if (state == "close")
         return new CloseView((CloseViewModel)frame.ViewModel, _workflow);
+
+      if (state == "sleeptimer")
+        return new SleepTimerView((SleepTimerViewModel)frame.ViewModel);
 
       if (state == "folders")
         return new FoldersView((FoldersViewModel)frame.ViewModel);

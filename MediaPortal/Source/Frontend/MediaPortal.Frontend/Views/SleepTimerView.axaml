@@ -1,0 +1,106 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        xmlns:theming="using:MediaPortal.Frontend.Theming"
+        x:Class="MediaPortal.Frontend.Views.SleepTimerView"
+        x:DataType="vm:SleepTimerViewModel"
+        Name="sleepTimerScreen"
+        Classes="nereus-dialog-screen"
+        >
+
+  <!--
+    Setting the wait, question for question the way the reference laid out dialogSleepTimer: "Time:" with
+    a number and an up and a down step of five minutes, "min." after it; the red line when the number
+    cannot be read; the one line this back end can honestly offer - "After current media item", the rest
+    of the standing title plus one minute; "Action:" on a button that cycles the machine's ways out; and
+    one wide button underneath that says Start while nothing runs and Stop while something does. While a
+    wait runs every control but the wide one goes dead, exactly like the reference froze its dialog too.
+  -->
+
+  <ContentControl HorizontalAlignment="Center" VerticalAlignment="Center"
+                  theming:SkinTemplates.OverlayTemplate="DialogHeadedFrameTemplate">
+    <!-- The body of a dialog keeps the screen's data: the frame shows a body under the presenter's own
+         data, so a plain {Binding} here would ask the body for the screen's words and find none. -->
+    <StackPanel MinWidth="620" Spacing="6" DataContext="{Binding $parent[UserControl].DataContext}">
+
+      <!-- Time -->
+      <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock Grid.Column="0" Text="Time:" VerticalAlignment="Center"
+                   FontSize="{DynamicResource SmallFontSize}"
+                   Foreground="{DynamicResource TextBrush}"/>
+        <TextBox Name="timeBox" Grid.Column="1" Width="100"
+                 HorizontalAlignment="Right" VerticalAlignment="Center"
+                 IsEnabled="{Binding EditingEnabled}"
+                 Text="{Binding TimeText}"/>
+        <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="6,0,0,0">
+          <Button Name="addButton" Classes="nereus-editor-up nereus-editor-glyph"
+                  ToolTip.Tip="Five minutes more"
+                  IsEnabled="{Binding AddEnabled}"
+                  Click="OnAdd"/>
+          <Button Name="subButton" Classes="nereus-editor-down nereus-editor-glyph"
+                  ToolTip.Tip="Five minutes less"
+                  IsEnabled="{Binding SubEnabled}"
+                  Click="OnSub"/>
+        </StackPanel>
+        <TextBlock Grid.Column="3" Text="min." VerticalAlignment="Center" Margin="8,0,0,0"
+                   FontSize="{DynamicResource SmallFontSize}"
+                   Foreground="{DynamicResource TextBrush}"/>
+      </Grid>
+
+      <!-- The red line, standing only while the number cannot be read. The colour is the skin's own red,
+           NereusColorLight_Red from its colours; the reference spelled its mistake in the same red. -->
+      <TextBlock Name="errorLine"
+                 Text="{Binding ErrorText}"
+                 IsVisible="{Binding ErrorText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                 FontSize="{DynamicResource SmallerFontSize}"
+                 Foreground="#FFCC5350"
+                 Margin="5"/>
+
+      <!-- The rest of the title that is standing, asked of the player and not guessed. -->
+      <Button Name="mediaItemButton"
+              Content="After current media item"
+              IsVisible="{Binding MediaItemEnabled}"
+              IsEnabled="{Binding MediaItemEnabled}"
+              HorizontalAlignment="Stretch"
+              HorizontalContentAlignment="Center"
+              FontSize="{DynamicResource SmallFontSize}"
+              Margin="1,5"
+              Click="OnFromMediaItem"/>
+
+      <!-- Action: the one button the reference cycled through the machine's ways out. -->
+      <Grid Margin="1,10,0,0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock Grid.Column="0" Text="Action:" VerticalAlignment="Center"
+                   FontSize="{DynamicResource SmallFontSize}"
+                   Foreground="{DynamicResource TextBrush}"/>
+        <Button Name="actionButton" Grid.Column="1" Margin="20,0,5,0"
+                Content="{Binding ActionName}"
+                IsEnabled="{Binding ActionSelectEnabled}"
+                HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Center"
+                FontSize="{DynamicResource SmallFontSize}"
+                Click="OnSelectAction"/>
+      </Grid>
+
+      <!-- The wide button: the reference's last word, full width under everything. -->
+      <Button Name="activateButton"
+              Content="{Binding StartButtonText}"
+              IsEnabled="{Binding ActivateEnabled}"
+              HorizontalAlignment="Stretch"
+              HorizontalContentAlignment="Center"
+              FontSize="{DynamicResource SmallFontSize}"
+              Margin="0,30,0,0"
+              Padding="28,12"
+              Click="OnActivate"/>
+    </StackPanel>
+  </ContentControl>
+</UserControl>

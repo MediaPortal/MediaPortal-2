@@ -1,59 +1,71 @@
 <UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        xmlns:views="using:MediaPortal.Frontend.Views"
         xmlns:theming="using:MediaPortal.Frontend.Theming"
         x:Class="MediaPortal.Frontend.Views.CloseView"
         x:DataType="vm:CloseViewModel"
         Name="closeScreen"
-        Background="Transparent"
+        Classes="nereus-dialog-screen"
         >
 
   <!--
-    The way out of the application, which the reference kept in dialogSystemState: a small screen that
-    asks once, says what leaving really does, and answers a press of Back by putting the viewer back
-    where they came from. The body stands on the worn skin's dialog frame - Nereus' square slab with its
-    outline, WMC's rounded band - and a skin that answers nothing leaves the body standing on its own,
-    which is what it always did: a screen that needs its skin to open the door is a screen that never
-    opens.
+    The way out of the machine, dialog for dialog the way the reference drew it in dialogSystemState:
+    the heading says "Shutdown menu" and the rows underneath are the machine's ways out - sleep,
+    hibernate, shutdown, the sleep timer, restart, and the application's own two - each a shape out of
+    images\PowerMenu and the reference's word beside it. A row IS the answer: the reference had no
+    OK button, and pressing "Close MediaPortal" closes MediaPortal. While a sleep timer runs, its row
+    reads "Stop sleep timer" and the standing order is written under the list, "Shutdown in 12 minutes",
+    exactly where the reference wrote it.
   -->
+
   <ContentControl HorizontalAlignment="Center" VerticalAlignment="Center"
-                  theming:SkinTemplates.OverlayTemplate="DialogFrameTemplate">
-    <!-- The body of a dialog keeps the screen's data: a control the frame shows is shown under the frame's own
+                  theming:SkinTemplates.OverlayTemplate="DialogHeadedFrameTemplate">
+    <!-- The body of a dialog keeps the screen's data: the frame shows a body under the presenter's own
          data, so a plain {Binding} here would ask the body for the screen's words and find none. -->
-    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="18" MaxWidth="760"
-                Margin="48,36"
-                DataContext="{Binding $parent[UserControl].DataContext}">
-      <TextBlock Text="Close MediaPortal"
-                 FontSize="40"
-                 FontWeight="SemiBold"
-                 HorizontalAlignment="Center" />
-      <Border Background="{DynamicResource PanelBrush}"
-              BorderBrush="{DynamicResource OutlineBrush}"
-              BorderThickness="2"
-              Padding="26,20">
-        <TextBlock Text="{Binding Message}"
-                   FontSize="20"
-                   TextWrapping="Wrap"
-                   LineHeight="28" />
-      </Border>
-      <StackPanel Orientation="Horizontal" Spacing="14" HorizontalAlignment="Center">
-        <Button Name="confirmButton"
-                Content="Close MediaPortal"
-                Click="OnClose"
-                MinWidth="260"
-                Padding="28,12"
-                FontSize="22" />
-        <Button Name="backButton"
-                Content="Back"
-                Click="OnBack"
-                MinWidth="160"
-                Padding="28,12"
-                FontSize="22" />
-      </StackPanel>
-      <TextBlock FontSize="14"
-                 Opacity="0.45"
-                 HorizontalAlignment="Center"
-                 Text="Enter closes the application · Back returns to where you came from" />
+    <StackPanel MinWidth="640" DataContext="{Binding $parent[UserControl].DataContext}">
+      <ListBox Name="choiceList"
+               Classes="nereus-editor-rows"
+               ItemsSource="{Binding Choices}"
+               Focusable="True"
+               ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+               MaxHeight="420">
+        <ListBox.Styles>
+          <Style Selector="ListBoxItem">
+            <Setter Property="Padding" Value="10,2"/>
+          </Style>
+        </ListBox.Styles>
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="vm:ShutdownChoice">
+            <!-- The editor dialog's row, one for one: a Grid the skin knows, its name at sixty per cent
+                 until the keyboard stands on the row. The only thing the reference adds here is the way
+                 out's own face to the left of the word - a shape out of the skin's vector catalog rather
+                 than the reference's picture, so it tints with the word it stands beside - 28 by 28 as
+                 dialogSystemState drew it. -->
+            <Grid Classes="nereus-editor-row" ColumnDefinitions="Auto,*">
+              <Path Grid.Column="0"
+                    Classes="nereus-editor-icon"
+                    Width="28" Height="28"
+                    Stretch="Uniform"
+                    VerticalAlignment="Center"
+                    Data="{Binding Icon, Converter={x:Static views:SkinIconGeometryConverter.Instance}, ConverterParameter='{}{0}'}"/>
+              <TextBlock Grid.Column="1"
+                         Classes="nereus-editor-name"
+                         Text="{Binding Name}"
+                         VerticalAlignment="Center"
+                         Margin="10,0,10,0"/>
+            </Grid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+
+      <!-- The standing order, said only while one stands. -->
+      <TextBlock Name="noticeLine"
+                 Classes="nereus-editor-sub"
+                 Text="{Binding Notice}"
+                 IsVisible="{Binding HasNotice}"
+                 Margin="15"
+                 HorizontalAlignment="Center"/>
     </StackPanel>
   </ContentControl>
 </UserControl>

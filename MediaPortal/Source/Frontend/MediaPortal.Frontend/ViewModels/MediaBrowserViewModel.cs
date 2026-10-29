@@ -2348,9 +2348,9 @@ namespace MediaPortal.Frontend.ViewModels
 
         case MenuPage.Picture:
           MediaMenuHeading = "Picture";
-          AddMenuRow("Poster", "cover", new RelayCommand(() => PickPicture(GridViewType.Poster)), _tileKind == GridViewType.Poster);
+          AddMenuRow("Poster", "poster", new RelayCommand(() => PickPicture(GridViewType.Poster)), _tileKind == GridViewType.Poster);
           AddMenuRow("Banner", "banner", new RelayCommand(() => PickPicture(GridViewType.Banner)), _tileKind == GridViewType.Banner);
-          AddMenuRow("Thumbnail", "media_format", new RelayCommand(() => PickPicture(GridViewType.Thumbnail)), _tileKind == GridViewType.Thumbnail);
+          AddMenuRow("Thumbnail", "thumbnail", new RelayCommand(() => PickPicture(GridViewType.Thumbnail)), _tileKind == GridViewType.Thumbnail);
           return;
 
         case MenuPage.Sort:
