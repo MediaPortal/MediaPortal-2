@@ -1981,6 +1981,11 @@ namespace Tests.Frontend
         WaitUntil("the wall to stand at " + offset,
             delegate { return Math.Abs(scroller.Offset.Y - offset) < 1.0; });
         Pump();
+        // A rolling wall stows its mask (see StowShelfFadeWhileRolling) and takes it back once it rests, so the
+        // question "how deeply does this end fade" is put to the wall at rest - which is also when a viewer
+        // reads its edges.
+        WaitUntil("the resting wall to take its fade back up",
+            delegate { return scroller.OpacityMask is LinearGradientBrush; });
       }
 
       // The head of an untouched wall: nothing has been walked out of the picture, so the head fades nothing.
@@ -2057,7 +2062,8 @@ namespace Tests.Frontend
       ScrollViewer scroller = titles.GetVisualDescendants().OfType<ScrollViewer>().First();
       WaitUntil("the cover row to be wider than its window",
           delegate { return scroller.Extent.Width > scroller.Viewport.Width + 1; });
-      Pump();
+      WaitUntil("the resting wall to take its fade back up",
+          delegate { return scroller.OpacityMask is LinearGradientBrush; });
 
       Assert.That(scroller.Offset.X, Is.EqualTo(0), "the cover wall starts at its first cover");
       Assert.That(scroller.OpacityMask, Is.InstanceOf<LinearGradientBrush>(),
@@ -2075,13 +2081,55 @@ namespace Tests.Frontend
       scroller.Offset = new Vector(furthest, scroller.Offset.Y);
       WaitUntil("the cover wall to stand at its last cover",
           delegate { return Math.Abs(scroller.Offset.X - furthest) < 1.0; });
-      Pump();
+      WaitUntil("the resting wall to take its fade back up",
+          delegate { return scroller.OpacityMask is LinearGradientBrush; });
 
       mask = (LinearGradientBrush)scroller.OpacityMask!;
       Assert.That(mask.GradientStops[3].Color.A, Is.EqualTo((byte)255),
           "the wall has run out to the right, so its last cover stands whole against the edge");
       Assert.That(mask.GradientStops[0].Color.A, Is.EqualTo((byte)0),
           "and its first covers are deep out of the picture to the left now");
+      window.Close();
+    }
+
+    /// <summary>
+    /// A wall that is rolling travels unmasked and takes its fade back once it rests.  A scroller wearing a mask
+    /// renders its whole subtree through an off-screen surface every frame it draws, which at a television's
+    /// width is the dearest thing the wall pays for - and the reference pays nothing of it, giving its shapes a
+    /// scroll margin and no mask (<c>MediaStyles.xaml:5205</c>).  Since nobody inspects the edges of a wall in
+    /// motion, the mask is stowed for the duration of a roll; what the tests can hold the screen to is both
+    /// halves: the bare scroller under a hand that just moved the wall, and the fade back on it after the wall
+    /// has rested.
+    /// </summary>
+    [AvaloniaTest]
+    public void ARollingWallTravelsUnmaskedAndTakesItsFadeBackAtRest()
+    {
+      LongShelf server = new LongShelf();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      ShellWindow window = new ShellWindow(new MediaBrowserView(browser));
+      window.Show();
+      WaitUntil("the whole wall to be read", delegate { return !browser.HasMore && browser.Titles.Count > 60; });
+
+      ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "titlesList");
+      ScrollViewer scroller = titles.GetVisualDescendants().OfType<ScrollViewer>().First();
+      WaitUntil("the wall to be longer than its window",
+          delegate { return scroller.Extent.Height > scroller.Viewport.Height + 1; });
+
+      // Move the wall into the middle of itself, where both ends fade: the very act of moving stows the mask,
+      // and ScrollChanged answers a written offset in the same breath it is written.
+      double middle = (scroller.Extent.Height - scroller.Viewport.Height) / 2;
+      scroller.Offset = new Vector(scroller.Offset.X, middle);
+      Assert.That(scroller.OpacityMask, Is.Null,
+          "a wall mid-roll wears no mask, because a mask costs a whole off-screen picture every frame of the roll");
+
+      WaitUntil("the resting wall to take its fade back up",
+          delegate { return scroller.OpacityMask is LinearGradientBrush; });
+      LinearGradientBrush mask = (LinearGradientBrush)scroller.OpacityMask!;
+      Assert.That(mask.GradientStops[0].Color.A, Is.LessThan((byte)255),
+          "and it is the real fade that comes back, not an empty promise: rows stand out of the picture above");
+      Assert.That(mask.GradientStops[3].Color.A, Is.LessThan((byte)255),
+          "and below it too");
       window.Close();
     }
 
@@ -2348,7 +2396,13 @@ namespace Tests.Frontend
       ListBox titles = view.GetVisualDescendants().OfType<ListBox>()
           .First(list => list.Name == "titlesList");
       ScrollViewer scroller = titles.GetVisualDescendants().OfType<ScrollViewer>().First();
-      WaitUntil("the scroller to wear the glide",
+      // The scroller wears the glide only for the length of one travel - a permanently installed transition
+      // would answer every mouse wheel notch with the glide's full length, which is what made the wall feel
+      // sluggish under the pointer - so the shelf is first asked to travel.  The twentieth tile stands deep
+      // enough into the fifth row of a grid that no band or middle rule can leave the wall where it is, and
+      // only a wall that travels puts a glide on its scroller.
+      titles.SelectedIndex = 20;
+      WaitUntil("a travel to put its glide on the scroller",
           delegate
           {
             return scroller.Transitions != null && scroller.Transitions.Count > 0;
@@ -2395,8 +2449,11 @@ namespace Tests.Frontend
           delegate { return view.ShelfGlideOffset == 0.0; });
 
       // Rows are read a different way: the reference gave them a band of a hundred and thirty points and a shorter
-      // walk, so that a shelf of rows only starts moving when the standing row reaches the band's edge.
+      // walk, so that a shelf of rows only starts moving when the standing row reaches the band's edge.  Asking
+      // the rows to travel is the only way to see the length of their walk, since a scroller at rest wears none.
       browser.Layout = BrowserLayout.List;
+      Pump();
+      titles.SelectedIndex = titles.SelectedIndex == 1 ? 2 : 1;
       WaitUntil("the rows to be walked at three hundred milliseconds",
           delegate
           {

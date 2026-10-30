@@ -34,6 +34,7 @@ using MediaPortal.Frontend.Workflow;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Frontend.Views
 {
@@ -317,7 +318,18 @@ namespace MediaPortal.Frontend.Views
       // and cover views too, whose panel keeps a band of rows standing around the screen and re-dresses a
       // container as it moves from one title to the next: eleven hundred tiles that all asked for a poster would
       // be eleven hundred downloads wearing the shelf, whether they stand or not.
-      titlesList.ContainerPrepared += delegate { ScheduleRowPainting(); };
+      titlesList.ContainerPrepared += delegate (object? sender, ContainerPreparedEventArgs e)
+      {
+        ScheduleRowPainting();
+        // A travel asked for while the stood tile was not laid out yet waits for exactly this container; when it
+        // arrives, the question that was thrown away is asked again, and the wall glides instead of leaving the
+        // selection's own jump as the only movement the viewer sees.
+        if (e.Index == _glideAwaitContainer)
+        {
+          _glideAwaitContainer = -1;
+          Dispatcher.UIThread.Post(delegate { GlideShelfToStoodTitle(0); }, DispatcherPriority.Loaded);
+        }
+      };
 
       // Two things are done when the list is scrolled: the rows that came into sight are offered their pictures,
       // and a viewer who has come to the bottom of what is on the screen is answered with the next part of the
@@ -1102,19 +1114,88 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
-    /// Puts the caret back on the tile of the standing title - and brings that tile back onto the wall
-    /// first when the wall has just rolled it out. A rescue that only shakes its head at a container which
-    /// is not there waits forever: a virtualised wall lays its tiles out around what it SHOWS, so a wall
-    /// that is not looking at the standing title will never lay that tile again unless somebody tells it
-    /// to look, which is exactly what scrolling into view does.
+    /// Puts the caret back on the tile of the standing title while that tile stands where the viewer can
+    /// see it, brings it back from just outside the laid band when the wall was merely rebuilt under the
+    /// caret, and LETS THE CARET REST when the viewer has rolled the wall away from it.
     /// </summary>
-    private void RescueShelfCaret()
+    /// <remarks>
+    /// A rescue that only shakes its head at a container which is not there waits forever: a virtualised
+    /// wall lays its tiles out around what it SHOWS, so a wall that is not looking at the standing title
+    /// will never lay that tile again by itself - and after a rebuild the standing tile is exactly such a
+    /// container for a beat. Fetching it is what scrolling into view does. But a fetch is a wall that runs
+    /// to wherever the caret was left, and measured on the live tree, that fetch yanked a wall the viewer
+    /// had just scrolled away back to its first tile and back again with every wheel notch - a rescue that
+    /// fights the viewer is worse than no rescue. So the fetch is measured: near the laid band (one wall's
+    /// worth of containers either side) it is a rebuild the caret fell through, and the wall goes to get
+    /// the caret; further than that, the viewer left the caret behind on purpose and the watching is told
+    /// so - it runs its quiet length out rather than fetching, so a viewer who rolls back within that
+    /// length finds the frame lit again without pressing anything. The next step of a walk re-arms it:
+    /// the selection wakes the watching again and the glide takes the wall to the new standing tile
+    /// itself. Focusing a tile whose picture has left the window is given up for the same reason - asking
+    /// a control for the focus asks Avalonia to scroll it into view on the way, and that single call is
+    /// the whole snap-back.
+    /// </remarks>
+    private bool RescueShelfCaret()
     {
       int stand = titlesList.SelectedIndex < 0 ? 0 : titlesList.SelectedIndex;
-      if (titlesList.ContainerFromIndex(stand) is ListBoxItem tile && tile.IsEffectivelyVisible)
+      if (titlesList.ContainerFromIndex(stand) is ListBoxItem tile && StandsOnTheShownWall(tile))
+      {
         FocusShelfTile(tile);
-      else if (stand < titlesList.Items.Count)
-        titlesList.ScrollIntoView(titlesList.Items[stand]);
+        return true;
+      }
+
+      if (stand >= titlesList.Items.Count || CaretStillWithinReach(stand))
+      {
+        if (stand < titlesList.Items.Count)
+          titlesList.ScrollIntoView(titlesList.Items[stand]);
+        return true;
+      }
+
+      return false;
+    }
+
+    /// <summary>
+    /// Whether a container's picture stands inside the window the wall is read through.
+    /// </summary>
+    private bool StandsOnTheShownWall(Control tile)
+    {
+      ScrollViewer? scroller = ListScroller();
+      if (scroller == null)
+        return true;
+
+      Point? at = tile.TranslatePoint(new Point(), scroller);
+      if (at == null)
+        return true;
+
+      Rect sight = new Rect(0, 0, scroller.Viewport.Width, scroller.Viewport.Height);
+      Rect picture = new Rect(at.Value, tile.Bounds.Size);
+      return sight.Intersects(picture);
+    }
+
+    /// <summary>
+    /// Whether the standing index stands within one wall's worth of containers of the band the wall has
+    /// laid: close enough that the tile's absence reads as a rebuild rather than as a viewer who rolled
+    /// away. A wall with nothing laid at all answers yes - that IS the rebuild.
+    /// </summary>
+    private bool CaretStillWithinReach(int stand)
+    {
+      int low = int.MaxValue;
+      int high = int.MinValue;
+      foreach (Control? container in titlesList.GetRealizedContainers())
+      {
+        int at = titlesList.IndexFromContainer(container);
+        if (at < 0)
+          continue;
+
+        low = Math.Min(low, at);
+        high = Math.Max(high, at);
+      }
+
+      if (high < low)
+        return true;
+
+      int reach = Math.Max(1, high - low + 1);
+      return stand >= low - reach && stand <= high + reach;
     }
 
     private void WatchShelfCaret()
@@ -1154,16 +1235,18 @@ namespace MediaPortal.Frontend.Views
         // the button of the row that was clicked - stayed focusable, and Avalonia hands the caret to whatever
         // was clicked last once the click settles, which lands a beat AFTER the close already handed the caret
         // to the shelf. Left there, the viewer stands on an invisible row off the window and the wall wears no
-        // frame - which is the whole complaint in one sentence. The rescue has to be able to fetch a tile the
-        // wall rolled out of sight, though: a rescue that merely asks for a container which is not there waits
-        // forever, since the wall lays tiles around what it SHOWS and never lays the standing one again by
-        // itself - and every measurement of the live screen says the caret sat on the rail for seconds.
+        // frame - which is the whole complaint in one sentence. The rescue can fetch a tile the wall rolled
+        // out of sight while it stands within reach of the laid band - a rescue that merely asks for a
+        // container which is not there waits forever - but a caret left far behind by the viewer's own
+        // scrolling is not a fall; see RescueShelfCaret for where the fetch ends and letting-rest begins.
         if (!(DataContext is MediaBrowserViewModel screen) || !screen.MediaMenuVisible)
         {
           if (HoldsRailCaret(fallen))
           {
-            RescueShelfCaret();
-            quiet = 120;
+            if (RescueShelfCaret())
+              quiet = 120;
+            else if (--quiet <= 0)
+              timer.Stop();
             return;
           }
         }
@@ -1172,9 +1255,12 @@ namespace MediaPortal.Frontend.Views
         {
           // The fall this watchdog exists for: the caret slipped back onto the bare list, which wears no
           // frame. The tile of the standing title - read fresh, since the selection may have moved - takes
-          // the caret again and the quiet counting starts over.
-          RescueShelfCaret();
-          quiet = 120;
+          // the caret again and the quiet counting starts over. A viewer who rolled the wall clean away
+          // from the caret is not a fall though; the rescue says so, and the watching runs its length out.
+          if (RescueShelfCaret())
+            quiet = 120;
+          else if (--quiet <= 0)
+            timer.Stop();
           return;
         }
 
@@ -1193,8 +1279,10 @@ namespace MediaPortal.Frontend.Views
         if (fallen is ListBoxItem shell && !HoldsRailCaret(shell)
             && titlesList.IndexFromContainer(shell) < 0)
         {
-          RescueShelfCaret();
-          quiet = 120;
+          if (RescueShelfCaret())
+            quiet = 120;
+          else if (--quiet <= 0)
+            timer.Stop();
           return;
         }
 
@@ -1717,7 +1805,7 @@ namespace MediaPortal.Frontend.Views
           // remembered depths both go with the old one.
           _fadedScroller = scroller;
           _fadeBefore = _fadeAfter = UNREAD;
-          scroller.AddHandler(ScrollViewer.ScrollChangedEvent, delegate { UpdateShelfFade(); });
+          scroller.AddHandler(ScrollViewer.ScrollChangedEvent, delegate { StowShelfFadeWhileRolling(); });
         }
 
         UpdateShelfFade();
@@ -1773,6 +1861,57 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
+    /// Takes the mask off a wall that is rolling and promises it back once the wall rests.
+    /// </summary>
+    /// <remarks>
+    /// A scroller wearing a mask renders its whole subtree through an off-screen surface, every single frame -
+    /// at a television's width that is a second full picture per frame spent on hiding the ends of the wall,
+    /// and it is a bill the reference never pays (<c>MediaStyles.xaml:5205</c>, <c>:5229</c> and <c>:5253</c>
+    /// give their shapes a scroll margin and no mask whatever).  A wall at rest wears its fade for the viewer
+    /// who reads its edges; a wall mid-roll is a moving blur nobody inspects at its edges, so the mask is
+    /// stowed while the wall travels and taken up again after it has stood still for a settle's wait.  The
+    /// wait runs on the clock rather than on a dispatcher timer because the headless test platform never
+    /// turns a timer (measured in TestVideoSurface), and a fade that came back only in the live client would
+    /// be a fade no test could hold the screen to.
+    /// </remarks>
+    private void StowShelfFadeWhileRolling()
+    {
+      ScrollViewer? scroller = _fadedScroller;
+      if (scroller == null)
+        return;
+
+      // The shadow goes the same way as the mask: a BoxShadow is a live blur, and a rolling wall would
+      // re-run one per tile per frame.  The reference's walls carry no live shadow at all.
+      titlesList.Classes.Add("rolling");
+
+      if (scroller.OpacityMask != null)
+      {
+        scroller.OpacityMask = null;
+        _fadeBefore = _fadeAfter = UNREAD;
+      }
+
+      int roll = ++_fadeRoll;
+      _ = TakeUpShelfFadeAgain(roll);
+    }
+
+    /// <summary>
+    /// Puts the mask back once the wall has rested for a settle's wait; a promise overtaken by a newer roll is
+    /// dropped, because the roll that overtook it made its own promise.
+    /// </summary>
+    private async Task TakeUpShelfFadeAgain(int roll)
+    {
+      await Task.Delay(FADE_SETTLE);
+      Dispatcher.UIThread.Post(delegate
+      {
+        if (roll != _fadeRoll)
+          return;
+
+        titlesList.Classes.Remove("rolling");
+        UpdateShelfFade();
+      });
+    }
+
+    /// <summary>
     /// How deeply one end of the wall fades: nothing out of the picture is no fade, a fade zone's worth out of it
     /// is the full fade, and the way between is walked in eight steps so that a travelling wall only rewrites its
     /// mask where the depth genuinely moved.
@@ -1817,6 +1956,9 @@ namespace MediaPortal.Frontend.Views
     /// <summary>A depth no end has been asked about yet, so that the first reading is always written.</summary>
     private const double UNREAD = -1;
 
+    /// <summary>How long the wall must stand still before its stowed mask goes back on.</summary>
+    private static readonly TimeSpan FADE_SETTLE = TimeSpan.FromMilliseconds(150);
+
     private LinearGradientBrush? _shelfFade;
 
     private ScrollViewer? _fadedScroller;
@@ -1826,6 +1968,9 @@ namespace MediaPortal.Frontend.Views
     private double _fadeAfter = UNREAD;
 
     private bool _fadeRunsSideways;
+
+    /// <summary>Counted once per scroll change; the promise that hands the mask back belongs to the newest one.</summary>
+    private int _fadeRoll;
 
     /// <summary>The frame the shelf's tiles were last told to wear; a change of it empties the wall (ApplyLayout).</summary>
     private IDataTemplate? _wornFrame;
@@ -1985,30 +2130,109 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
-    /// Puts the reference's scroll animation on the scroller the shelf is read through: a transition on the offset
-    /// the shelf moves by, of the length the shape's own storyboard had. This is the same mechanism the home wall
-    /// glides on (HomeView's <c>nereusContentPane</c>), and for the same reason - a shelf whose offset is written
-    /// outright walks one row per key press and stops dead at every one of them, which is what a viewer of a
-    /// television calls a stutter.
+    /// Remembers the length of glide the shape walks its wall at.  What it does NOT do is install the transition
+    /// permanently on the scroller: a permanently installed one answers every mouse wheel notch with the glide's
+    /// full four hundred milliseconds, so the wall smears half a second behind the pointer and a viewer of it
+    /// calls the whole screen sluggish.  The reference's storyboards ran only when the scroll itself was told to
+    /// travel; so does the glide here, and only for the length of one travel - see <see cref="WearShelfGlide"/>.
     /// </summary>
     private void InstallShelfGlide(BrowserLayout layout)
     {
       (_, _, double milliseconds) = ShelfGlide(layout);
+      _glideLength = TimeSpan.FromMilliseconds(milliseconds);
       Dispatcher.UIThread.Post(delegate
       {
         ScrollViewer? scroller = ListScroller();
-        if (scroller == null)
+        if (scroller == null || ReferenceEquals(scroller, _glidingScroller))
           return;
 
+        // A retemplated list brings a bare scroller; whatever glide the old one wore retired with it.
+        _glidingScroller = scroller;
+        _wornGlide = null;
+        scroller.Transitions = null;
+      }, DispatcherPriority.Loaded);
+    }
+
+    /// <summary>
+    /// Puts the shelf's glide on the scroller for one travel and takes it off again once that travel has had
+    /// its say.  Re-wearing it while a travel is running keeps the same transition, so the next step of a walk
+    /// is handed the running animation rather than starting one over.  The way off waits on the clock rather
+    /// than a dispatcher timer because the headless test platform never turns a timer.
+    /// </summary>
+    private void WearShelfGlide(ScrollViewer scroller)
+    {
+      _glidingScroller = scroller;
+      if (!ReferenceEquals(scroller.Transitions, _wornGlide) || _wornGlideLength != _glideLength)
+      {
         Transitions glide = new Transitions();
         glide.Add(new VectorTransition
         {
           Property = ScrollViewer.OffsetProperty,
-          Duration = TimeSpan.FromMilliseconds(milliseconds)
+          Duration = _glideLength
         });
+        _wornGlide = glide;
+        _wornGlideLength = _glideLength;
         scroller.Transitions = glide;
-      }, DispatcherPriority.Loaded);
+      }
+
+      int travel = ++_glideTravel;
+      _ = LayShelfGlideAfterTravel(scroller, travel);
     }
+
+    /// <summary>
+    /// Takes the glide off the scroller again after one travel's length and a breath over it; a promise
+    /// overtaken by a newer travel belongs to that travel to keep.  Taking it off while the wall is still on
+    /// its way would freeze the wall mid-stride - removing a transition stops the animation it owns where the
+    /// animation stands - so the hand stays off the scroller until the wall has come to rest where the travel
+    /// meant it to, up to a bounded number of breaths for the case of a viewer who took the wheel over.
+    /// </summary>
+    private async Task LayShelfGlideAfterTravel(ScrollViewer scroller, int travel)
+    {
+      await Task.Delay(_glideLength + GLIDE_AFTERGLOW);
+      Dispatcher.UIThread.Post(delegate { LayShelfGlideWhenSettled(scroller, travel, 0); });
+    }
+
+    private async void LayShelfGlideWhenSettled(ScrollViewer scroller, int travel, int tries)
+    {
+      if (travel != _glideTravel || !ReferenceEquals(_glidingScroller, scroller))
+        return;
+
+      double resting = _glideTravelSideways ? scroller.Offset.X : scroller.Offset.Y;
+      if (tries >= GLIDE_SETTLE_TRIES || Math.Abs(resting - _glideTarget) < 1.0)
+      {
+        scroller.Transitions = null;
+        _wornGlide = null;
+        return;
+      }
+
+      await Task.Delay(GLIDE_SETTLE_POLL);
+      LayShelfGlideWhenSettled(scroller, travel, tries + 1);
+    }
+
+    private TimeSpan _glideLength = TimeSpan.FromMilliseconds(400);
+
+    private static readonly TimeSpan GLIDE_AFTERGLOW = TimeSpan.FromMilliseconds(120);
+
+    /// <summary>How many breaths the glide's hand waits for a travelling wall before taking the transition off anyway.</summary>
+    private const int GLIDE_SETTLE_TRIES = 18;
+
+    private static readonly TimeSpan GLIDE_SETTLE_POLL = TimeSpan.FromMilliseconds(80);
+
+    private ScrollViewer? _glidingScroller;
+
+    private Transitions? _wornGlide;
+
+    /// <summary>The container index a thrown-away travel waits for; -1 when nobody is waiting.</summary>
+    private int _glideAwaitContainer = -1;
+
+    private TimeSpan _wornGlideLength = TimeSpan.Zero;
+
+    private int _glideTravel;
+
+    /// <summary>Where the travel currently wearing a transition means the wall to come to rest, and on which axis.</summary>
+    private double _glideTarget;
+
+    private bool _glideTravelSideways;
 
     /// <summary>
     /// Stands the shelf so that the title being stood on sits inside the band the shape was given, and lets the
@@ -2039,6 +2263,12 @@ namespace MediaPortal.Frontend.Views
         if (tries > 0)
         {
           Dispatcher.UIThread.Post(delegate { GlideShelfToStoodTitle(tries - 1); }, DispatcherPriority.Loaded);
+        }
+        else if (stood == null && titlesList.SelectedIndex >= 0)
+        {
+          // The retries ran out with the tile still unrealized.  Rather than drop the travel, the shelf remembers
+          // which container it is waiting for and takes the glide up the moment that container is prepared.
+          _glideAwaitContainer = titlesList.SelectedIndex;
         }
 
         return;
@@ -2078,10 +2308,22 @@ namespace MediaPortal.Frontend.Views
       }
 
       wanted = Math.Clamp(wanted, 0, Math.Max(0, extent - view));
+      double standing_now = sideways ? scroller.Offset.X : scroller.Offset.Y;
+      _shelfGlide = wanted;
+      if (Math.Abs(wanted - standing_now) < 1.0)
+      {
+        // The stood title already stands inside its band: there is no travel to glide, and the scroller is
+        // left as bare as it was.  Wearing a transition for a travel that never happens would hand the next
+        // half second of wheel clicks to an animation nobody asked for.
+        return;
+      }
+
+      _glideTarget = wanted;
+      _glideTravelSideways = sideways;
+      WearShelfGlide(scroller);
       scroller.Offset = sideways
           ? new Vector(wanted, scroller.Offset.Y)
           : new Vector(scroller.Offset.X, wanted);
-      _shelfGlide = wanted;
     }
 
     /// <summary>

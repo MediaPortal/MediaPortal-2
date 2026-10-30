@@ -495,6 +495,16 @@
     <Setter Property="CornerRadius" Value="10"/>
     <Setter Property="BoxShadow" Value="3 4 16 0 #70000000"/>
   </Style>
+  <!-- A rolling wall pays for its shadows in blur: every tile's BoxShadow is a sixteen-wide blur re-run
+       over the whole shelf on every frame of the travel, which is a bill the reference never pays - its
+       walls (MediaStyles.xaml) dress their tiles with no live shadow at all.  While the wall rolls the
+       shelf carries the class below and the tiles stand shadowless for the few hundred milliseconds of
+       the travel; at rest the shadow is back, and nobody walking fast enough to blur the wall together
+       will notice the difference.  The class is put on and taken off by the same roll that stows the
+       shelf's fade mask (MediaBrowserView). -->
+  <Style Selector="ListBox.nereus-shelf-tiles.rolling Border.home-tile-shadow">
+    <Setter Property="BoxShadow" Value="0 0 0 0 #00000000"/>
+  </Style>
   <Style Selector="Border.home-tile-face">
     <Setter Property="CornerRadius" Value="10"/>
   </Style>
