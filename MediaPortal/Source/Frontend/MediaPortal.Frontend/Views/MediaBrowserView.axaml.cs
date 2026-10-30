@@ -1805,7 +1805,7 @@ namespace MediaPortal.Frontend.Views
           // remembered depths both go with the old one.
           _fadedScroller = scroller;
           _fadeBefore = _fadeAfter = UNREAD;
-          scroller.AddHandler(ScrollViewer.ScrollChangedEvent, delegate { StowShelfFadeWhileRolling(); });
+          scroller.AddHandler(ScrollViewer.ScrollChangedEvent, delegate { UpdateShelfFade(); });
         }
 
         UpdateShelfFade();
@@ -1861,57 +1861,6 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
-    /// Takes the mask off a wall that is rolling and promises it back once the wall rests.
-    /// </summary>
-    /// <remarks>
-    /// A scroller wearing a mask renders its whole subtree through an off-screen surface, every single frame -
-    /// at a television's width that is a second full picture per frame spent on hiding the ends of the wall,
-    /// and it is a bill the reference never pays (<c>MediaStyles.xaml:5205</c>, <c>:5229</c> and <c>:5253</c>
-    /// give their shapes a scroll margin and no mask whatever).  A wall at rest wears its fade for the viewer
-    /// who reads its edges; a wall mid-roll is a moving blur nobody inspects at its edges, so the mask is
-    /// stowed while the wall travels and taken up again after it has stood still for a settle's wait.  The
-    /// wait runs on the clock rather than on a dispatcher timer because the headless test platform never
-    /// turns a timer (measured in TestVideoSurface), and a fade that came back only in the live client would
-    /// be a fade no test could hold the screen to.
-    /// </remarks>
-    private void StowShelfFadeWhileRolling()
-    {
-      ScrollViewer? scroller = _fadedScroller;
-      if (scroller == null)
-        return;
-
-      // The shadow goes the same way as the mask: a BoxShadow is a live blur, and a rolling wall would
-      // re-run one per tile per frame.  The reference's walls carry no live shadow at all.
-      titlesList.Classes.Add("rolling");
-
-      if (scroller.OpacityMask != null)
-      {
-        scroller.OpacityMask = null;
-        _fadeBefore = _fadeAfter = UNREAD;
-      }
-
-      int roll = ++_fadeRoll;
-      _ = TakeUpShelfFadeAgain(roll);
-    }
-
-    /// <summary>
-    /// Puts the mask back once the wall has rested for a settle's wait; a promise overtaken by a newer roll is
-    /// dropped, because the roll that overtook it made its own promise.
-    /// </summary>
-    private async Task TakeUpShelfFadeAgain(int roll)
-    {
-      await Task.Delay(FADE_SETTLE);
-      Dispatcher.UIThread.Post(delegate
-      {
-        if (roll != _fadeRoll)
-          return;
-
-        titlesList.Classes.Remove("rolling");
-        UpdateShelfFade();
-      });
-    }
-
-    /// <summary>
     /// How deeply one end of the wall fades: nothing out of the picture is no fade, a fade zone's worth out of it
     /// is the full fade, and the way between is walked in eight steps so that a travelling wall only rewrites its
     /// mask where the depth genuinely moved.
@@ -1956,9 +1905,6 @@ namespace MediaPortal.Frontend.Views
     /// <summary>A depth no end has been asked about yet, so that the first reading is always written.</summary>
     private const double UNREAD = -1;
 
-    /// <summary>How long the wall must stand still before its stowed mask goes back on.</summary>
-    private static readonly TimeSpan FADE_SETTLE = TimeSpan.FromMilliseconds(150);
-
     private LinearGradientBrush? _shelfFade;
 
     private ScrollViewer? _fadedScroller;
@@ -1968,9 +1914,6 @@ namespace MediaPortal.Frontend.Views
     private double _fadeAfter = UNREAD;
 
     private bool _fadeRunsSideways;
-
-    /// <summary>Counted once per scroll change; the promise that hands the mask back belongs to the newest one.</summary>
-    private int _fadeRoll;
 
     /// <summary>The frame the shelf's tiles were last told to wear; a change of it empties the wall (ApplyLayout).</summary>
     private IDataTemplate? _wornFrame;
@@ -2130,11 +2073,13 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
-    /// Remembers the length of glide the shape walks its wall at.  What it does NOT do is install the transition
-    /// permanently on the scroller: a permanently installed one answers every mouse wheel notch with the glide's
-    /// full four hundred milliseconds, so the wall smears half a second behind the pointer and a viewer of it
-    /// calls the whole screen sluggish.  The reference's storyboards ran only when the scroll itself was told to
-    /// travel; so does the glide here, and only for the length of one travel - see <see cref="WearShelfGlide"/>.
+    /// Dresses the shelf's scroller in the glide permanently, at the length the shape walks its wall.  The
+    /// reference never takes its scroll animation off either: its AnimatedWrapPanel lerps EVERY offset change
+    /// through the skin's storyboards (<c>MediaStyles.xaml:5205</c>, <c>AnimatedWrapPanel.cs</c>), a stepped
+    /// caret and a mouse wheel notch alike, which is why its wall never jumps a row under the hand.  A previous
+    /// attempt here wore the glide only for the length of one travel - that made the wheel answer in hard row
+    /// jumps, a roughness the reference does not have, and the viewer's verdict put the smoothness above the
+    /// crispness of a bare scroller.
     /// </summary>
     private void InstallShelfGlide(BrowserLayout layout)
     {
@@ -2143,80 +2088,45 @@ namespace MediaPortal.Frontend.Views
       Dispatcher.UIThread.Post(delegate
       {
         ScrollViewer? scroller = ListScroller();
-        if (scroller == null || ReferenceEquals(scroller, _glidingScroller))
+        if (scroller == null)
           return;
 
-        // A retemplated list brings a bare scroller; whatever glide the old one wore retired with it.
+        // A retemplated list brings a bare scroller; the glide goes onto whichever one stands there now.
         _glidingScroller = scroller;
-        _wornGlide = null;
-        scroller.Transitions = null;
+        FitShelfGlide(scroller);
       }, DispatcherPriority.Loaded);
     }
 
+    /// <summary>Puts the glide on the scroller, at the length currently asked for, reusing the running one.</summary>
+    private void FitShelfGlide(ScrollViewer scroller)
+    {
+      if (ReferenceEquals(scroller.Transitions, _wornGlide) && _wornGlideLength == _glideLength)
+        return;
+
+      Transitions glide = new Transitions();
+      glide.Add(new VectorTransition
+      {
+        Property = ScrollViewer.OffsetProperty,
+        Duration = _glideLength
+      });
+      _wornGlide = glide;
+      _wornGlideLength = _glideLength;
+      scroller.Transitions = glide;
+    }
+
     /// <summary>
-    /// Puts the shelf's glide on the scroller for one travel and takes it off again once that travel has had
-    /// its say.  Re-wearing it while a travel is running keeps the same transition, so the next step of a walk
-    /// is handed the running animation rather than starting one over.  The way off waits on the clock rather
-    /// than a dispatcher timer because the headless test platform never turns a timer.
+    /// One travel of the wall: since the glide is worn permanently (see <see cref="InstallShelfGlide"/>), this
+    /// only makes sure a scroller that arrived without one - or with one of another length, after a shape
+    /// change - wears the right dress before the offset is written.  A travel that meets a running animation is
+    /// handed to it by the transition itself, which retargets rather than restarting.
     /// </summary>
     private void WearShelfGlide(ScrollViewer scroller)
     {
       _glidingScroller = scroller;
-      if (!ReferenceEquals(scroller.Transitions, _wornGlide) || _wornGlideLength != _glideLength)
-      {
-        Transitions glide = new Transitions();
-        glide.Add(new VectorTransition
-        {
-          Property = ScrollViewer.OffsetProperty,
-          Duration = _glideLength
-        });
-        _wornGlide = glide;
-        _wornGlideLength = _glideLength;
-        scroller.Transitions = glide;
-      }
-
-      int travel = ++_glideTravel;
-      _ = LayShelfGlideAfterTravel(scroller, travel);
-    }
-
-    /// <summary>
-    /// Takes the glide off the scroller again after one travel's length and a breath over it; a promise
-    /// overtaken by a newer travel belongs to that travel to keep.  Taking it off while the wall is still on
-    /// its way would freeze the wall mid-stride - removing a transition stops the animation it owns where the
-    /// animation stands - so the hand stays off the scroller until the wall has come to rest where the travel
-    /// meant it to, up to a bounded number of breaths for the case of a viewer who took the wheel over.
-    /// </summary>
-    private async Task LayShelfGlideAfterTravel(ScrollViewer scroller, int travel)
-    {
-      await Task.Delay(_glideLength + GLIDE_AFTERGLOW);
-      Dispatcher.UIThread.Post(delegate { LayShelfGlideWhenSettled(scroller, travel, 0); });
-    }
-
-    private async void LayShelfGlideWhenSettled(ScrollViewer scroller, int travel, int tries)
-    {
-      if (travel != _glideTravel || !ReferenceEquals(_glidingScroller, scroller))
-        return;
-
-      double resting = _glideTravelSideways ? scroller.Offset.X : scroller.Offset.Y;
-      if (tries >= GLIDE_SETTLE_TRIES || Math.Abs(resting - _glideTarget) < 1.0)
-      {
-        scroller.Transitions = null;
-        _wornGlide = null;
-        return;
-      }
-
-      await Task.Delay(GLIDE_SETTLE_POLL);
-      LayShelfGlideWhenSettled(scroller, travel, tries + 1);
+      FitShelfGlide(scroller);
     }
 
     private TimeSpan _glideLength = TimeSpan.FromMilliseconds(400);
-
-    private static readonly TimeSpan GLIDE_AFTERGLOW = TimeSpan.FromMilliseconds(120);
-
-    /// <summary>How many breaths the glide's hand waits for a travelling wall before taking the transition off anyway.</summary>
-    private const int GLIDE_SETTLE_TRIES = 18;
-
-    private static readonly TimeSpan GLIDE_SETTLE_POLL = TimeSpan.FromMilliseconds(80);
 
     private ScrollViewer? _glidingScroller;
 
@@ -2226,13 +2136,6 @@ namespace MediaPortal.Frontend.Views
     private int _glideAwaitContainer = -1;
 
     private TimeSpan _wornGlideLength = TimeSpan.Zero;
-
-    private int _glideTravel;
-
-    /// <summary>Where the travel currently wearing a transition means the wall to come to rest, and on which axis.</summary>
-    private double _glideTarget;
-
-    private bool _glideTravelSideways;
 
     /// <summary>
     /// Stands the shelf so that the title being stood on sits inside the band the shape was given, and lets the
@@ -2312,14 +2215,12 @@ namespace MediaPortal.Frontend.Views
       _shelfGlide = wanted;
       if (Math.Abs(wanted - standing_now) < 1.0)
       {
-        // The stood title already stands inside its band: there is no travel to glide, and the scroller is
-        // left as bare as it was.  Wearing a transition for a travel that never happens would hand the next
-        // half second of wheel clicks to an animation nobody asked for.
+        // The stood title already stands inside its band: there is no travel to glide and the offset is not
+        // written.  The glide stays on the scroller - it is worn permanently - but with nothing written there
+        // is nothing for it to animate, and a wheel notch of the viewer's own is still its own business.
         return;
       }
 
-      _glideTarget = wanted;
-      _glideTravelSideways = sideways;
       WearShelfGlide(scroller);
       scroller.Offset = sideways
           ? new Vector(wanted, scroller.Offset.Y)

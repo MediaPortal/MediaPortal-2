@@ -1981,11 +1981,11 @@ namespace Tests.Frontend
         WaitUntil("the wall to stand at " + offset,
             delegate { return Math.Abs(scroller.Offset.Y - offset) < 1.0; });
         Pump();
-        // A rolling wall stows its mask (see StowShelfFadeWhileRolling) and takes it back once it rests, so the
-        // question "how deeply does this end fade" is put to the wall at rest - which is also when a viewer
-        // reads its edges.
-        WaitUntil("the resting wall to take its fade back up",
-            delegate { return scroller.OpacityMask is LinearGradientBrush; });
+        // The fade is never taken off a rolling wall (see ARollingWallKeepsItsFadeAndOnlyItsDepthFollowsTheOffset);
+        // writing the offset runs the glide, so the question "where does the wall stand" - and with it the
+        // depth its ends fade at - is put to the wall after the glide has brought it to rest.
+        WaitUntil("the glide to have carried the wall to its stand",
+            delegate { return Math.Abs(scroller.Offset.Y - offset) < 1.0; });
       }
 
       // The head of an untouched wall: nothing has been walked out of the picture, so the head fades nothing.
@@ -2093,16 +2093,16 @@ namespace Tests.Frontend
     }
 
     /// <summary>
-    /// A wall that is rolling travels unmasked and takes its fade back once it rests.  A scroller wearing a mask
-    /// renders its whole subtree through an off-screen surface every frame it draws, which at a television's
-    /// width is the dearest thing the wall pays for - and the reference pays nothing of it, giving its shapes a
-    /// scroll margin and no mask (<c>MediaStyles.xaml:5205</c>).  Since nobody inspects the edges of a wall in
-    /// motion, the mask is stowed for the duration of a roll; what the tests can hold the screen to is both
-    /// halves: the bare scroller under a hand that just moved the wall, and the fade back on it after the wall
-    /// has rested.
+    /// A rolling wall keeps its fade.  An earlier answer here stowed the mask for the duration of a roll and
+    /// handed it back a settle's wait later - and the viewer saw exactly that: a fade popping on a wall that
+    /// had just stopped, a flicker at both edges after every scroll, worse than any mask cost.  The wall
+    /// therefore wears its fade the way it wears its shadows - always, like the reference's baked dressing -
+    /// and only the DEPTH of each end answers the scroll: nothing walked out of the picture at an end means
+    /// that end stands fully opaque, a fade zone's worth out of it means the full fade, and a wheel notch
+    /// walks between the two inside the running glide rather than through a bare-masked detour.
     /// </summary>
     [AvaloniaTest]
-    public void ARollingWallTravelsUnmaskedAndTakesItsFadeBackAtRest()
+    public void ARollingWallKeepsItsFadeAndOnlyItsDepthFollowsTheOffset()
     {
       LongShelf server = new LongShelf();
       MediaBrowserViewModel browser = BrowserOn(server);
@@ -2116,20 +2116,43 @@ namespace Tests.Frontend
       WaitUntil("the wall to be longer than its window",
           delegate { return scroller.Extent.Height > scroller.Viewport.Height + 1; });
 
-      // Move the wall into the middle of itself, where both ends fade: the very act of moving stows the mask,
-      // and ScrollChanged answers a written offset in the same breath it is written.
+      // At the very top nothing has walked out of the picture above: the head of the mask stands fully opaque,
+      // while the far end below still fades because rows wait out of the picture there.
+      Assert.That(scroller.Offset.Y, Is.LessThan(1.0), "the walk starts at the top");
+      Assert.That(scroller.OpacityMask, Is.InstanceOf<LinearGradientBrush>(),
+          "the wall already wears its fade before any hand moves it - there is no putting-on later");
+      LinearGradientBrush atTop = (LinearGradientBrush)scroller.OpacityMask!;
+      Assert.That(atTop.GradientStops[0].Color.A, Is.EqualTo((byte)255),
+          "the first row has never been scrolled out of the picture, so the head fades nothing");
+
+      // Move the wall into the middle of itself.  The glide carries the wall there, ScrollChanged answers every
+      // step of it, and the mask is ON the moving wall the whole way - it never was taken off, so there is
+      // nothing to take back up and no pop for a resting viewer to see.
       double middle = (scroller.Extent.Height - scroller.Viewport.Height) / 2;
       scroller.Offset = new Vector(scroller.Offset.X, middle);
-      Assert.That(scroller.OpacityMask, Is.Null,
-          "a wall mid-roll wears no mask, because a mask costs a whole off-screen picture every frame of the roll");
+      Assert.That(scroller.OpacityMask, Is.InstanceOf<LinearGradientBrush>(),
+          "the wall that just moved still wears its fade - a fade that blinked off and on is the flicker "
+          + "the viewer sent this back for");
 
-      WaitUntil("the resting wall to take its fade back up",
-          delegate { return scroller.OpacityMask is LinearGradientBrush; });
+      WaitUntil("the head to fade as its rows walk out of the picture",
+          delegate
+          {
+            return scroller.OpacityMask is LinearGradientBrush moving
+                   && moving.GradientStops[0].Color.A < 255;
+          });
       LinearGradientBrush mask = (LinearGradientBrush)scroller.OpacityMask!;
-      Assert.That(mask.GradientStops[0].Color.A, Is.LessThan((byte)255),
-          "and it is the real fade that comes back, not an empty promise: rows stand out of the picture above");
       Assert.That(mask.GradientStops[3].Color.A, Is.LessThan((byte)255),
           "and below it too");
+
+      // And walking back to the top takes the head's fade off again by depth, not by a timer: an end that
+      // hides nothing writes itself opaque again, with no blink between.
+      scroller.Offset = new Vector(scroller.Offset.X, 0.0);
+      WaitUntil("the head of the wall to fade nothing again",
+          delegate
+          {
+            return scroller.OpacityMask is LinearGradientBrush back
+                   && back.GradientStops[0].Color.A == 255;
+          });
       window.Close();
     }
 
@@ -2396,13 +2419,12 @@ namespace Tests.Frontend
       ListBox titles = view.GetVisualDescendants().OfType<ListBox>()
           .First(list => list.Name == "titlesList");
       ScrollViewer scroller = titles.GetVisualDescendants().OfType<ScrollViewer>().First();
-      // The scroller wears the glide only for the length of one travel - a permanently installed transition
-      // would answer every mouse wheel notch with the glide's full length, which is what made the wall feel
-      // sluggish under the pointer - so the shelf is first asked to travel.  The twentieth tile stands deep
-      // enough into the fifth row of a grid that no band or middle rule can leave the wall where it is, and
-      // only a wall that travels puts a glide on its scroller.
+      // The scroller wears the glide permanently now; the wait stands in for the dress being put on at Loaded
+      // priority after the skin's template arrived.  The twentieth tile stands deep enough into the fifth row
+      // of a grid that no band or middle rule can leave the wall where it is, and asking it to travel is how
+      // the test finds the scroller the wall actually runs on.
       titles.SelectedIndex = 20;
-      WaitUntil("a travel to put its glide on the scroller",
+      WaitUntil("the glide to stand on the scroller",
           delegate
           {
             return scroller.Transitions != null && scroller.Transitions.Count > 0;
@@ -2450,7 +2472,7 @@ namespace Tests.Frontend
 
       // Rows are read a different way: the reference gave them a band of a hundred and thirty points and a shorter
       // walk, so that a shelf of rows only starts moving when the standing row reaches the band's edge.  Asking
-      // the rows to travel is the only way to see the length of their walk, since a scroller at rest wears none.
+      // the rows to travel is how the test sees the length of their walk on the retemplated scroller.
       browser.Layout = BrowserLayout.List;
       Pump();
       titles.SelectedIndex = titles.SelectedIndex == 1 ? 2 : 1;

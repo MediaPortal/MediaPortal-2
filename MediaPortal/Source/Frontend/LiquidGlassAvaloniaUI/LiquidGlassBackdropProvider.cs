@@ -205,12 +205,18 @@ namespace LiquidGlassAvaloniaUI
                     && state.SnapshotPixelSize == pixelSize
                     && state.SnapshotOriginInPixels == originInPixels;
 
-                bool forcePublish = state.ForcePublishNextCapture;
-                state.ForcePublishNextCapture = false;
+                // A snapshot that looks identical to the one already published must never reach the subscribers
+                // again: their repaint dirties exactly the regions the compositor reports as changed, which used
+                // to set ForcePublishNextCapture and push an identical backdrop through - and the repaint the
+                // publish causes would then re-arm it, keeping the whole capture loop alive on a static scene.
+                // Measured at 3440x1440 behind fifteen shortcut glasses: 32 full-window readbacks a second,
+                // 559 MB/s of memcpy, 157 GPU filter passes, 52 % of an Intel HD 630 for a picture that never
+                // moved. The sampled content hash is therefore the single arbiter now - it already ends the
+                // chain early (the return below skips InvalidateSubscribers), so nothing but a real change of
+                // the captured backdrop can keep the loop running.
+                (SKImage? snapshotImage, ulong hash) = CreateSkImageWithHash(state.ScratchBitmap, isSameConfig, state.SnapshotHash);
 
-                (SKImage? snapshotImage, ulong hash) = CreateSkImageWithHash(state.ScratchBitmap, isSameConfig && !forcePublish, state.SnapshotHash);
-
-                if (!forcePublish && isSameConfig && state.SnapshotHash == hash)
+                if (isSameConfig && state.SnapshotHash == hash)
                 {
                     state.LastCaptureTicksUtc = nowTicks;
                     LiquidGlassDiagnostics.RecordCaptureSkippedByHash();
@@ -308,7 +314,6 @@ namespace LiquidGlassAvaloniaUI
                         return;
                     }
 
-                    bool forcePublishNextCapture = false;
                     if (!needsClipGrowthCapture && hasDirtyRect && state.HasLastClipRect)
                     {
                         if (!dirtyRect.Intersects(state.LastClipRect))
@@ -322,13 +327,11 @@ namespace LiquidGlassAvaloniaUI
                             LiquidGlassDiagnostics.RecordCaptureSkippedByDirtyRect();
                             return;
                         }
-
-                        forcePublishNextCapture = true;
                     }
 
-                    if (forcePublishNextCapture)
-                        state.ForcePublishNextCapture = true;
-
+                    // What the dirty rect can only promise is that SOMETHING inside the clip was repainted -
+                    // often one of the glasses themselves. Capture anyway (a real backdrop change has to get
+                    // through), but let the content hash inside Capture decide whether that is worth a publish.
                     QueueCapture(topLevel, state);
                 }, DispatcherPriority.Background);
             };
