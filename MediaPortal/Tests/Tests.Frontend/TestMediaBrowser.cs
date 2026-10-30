@@ -1800,6 +1800,143 @@ namespace Tests.Frontend
     }
 
     /// <summary>
+    /// A wall walked fast and LEFT TO SETTLE still wears its frame.  The walk above asks after the caret between
+    /// the steps; this one lets the wall actually travel - frames are pumped while the glide carries the offset,
+    /// so rows fall out of the band and are built again underneath the walk, which is the hour in which the live
+    /// screen was seen dropping the frame for good: the wall came to rest, no tile stood lit, and the caret had
+    /// fallen back onto the list itself.  The promise is therefore the settled one - when the travel ends, the
+    /// frame must still stand on the tile the selection stands on.
+    /// </summary>
+    [AvaloniaTest]
+    public void AWallWalkedFastAndLeftToSettleStillWearsItsFrame()
+    {
+      LongShelf server = new LongShelf();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      ShellWindow window = new ShellWindow(new MediaBrowserView(browser));
+      window.Show();
+      WaitUntil("the shelf to fill", delegate { return browser.Titles.Count > 60; });
+
+      ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "titlesList");
+      ScrollViewer scroller = titles.GetVisualDescendants().OfType<ScrollViewer>().First();
+      titles.Focus();
+      Pump();
+      titles.SelectedIndex = 0;
+      Pump();
+
+      // Twelve steps down, and between every one of them the wall is allowed to draw frames, the way a held key
+      // lets it on a real machine.  The glide is a transition on the scroller's offset; only pumping lets it run.
+      for (int step = 1; step <= 12; step++)
+      {
+        titles.RaiseEvent(new KeyEventArgs
+        {
+          RoutedEvent = InputElement.KeyDownEvent,
+          Key = Key.Down,
+          Source = titles
+        });
+
+        for (int frame = 0; frame < 8; frame++)
+          Pump();
+      }
+
+      // Let the travel end the way the viewer waits it out: the offset stops moving.
+      Vector last = new Vector(-1, -1);
+      WaitUntil("the glide to come to rest", delegate
+      {
+        Vector now = scroller.Offset;
+        bool still_now = now == last;
+        last = now;
+        return still_now;
+      });
+
+      object? caret = window.FocusManager.GetFocusedElement();
+      Assert.That(caret, Is.InstanceOf<ListBoxItem>(),
+          "the wall came to rest and the caret is still on a tile; on the live screen it fell back to the list, "
+          + "which wears no frame, and every tile went dark at once");
+      Assert.That(titles.ContainerFromIndex(titles.SelectedIndex), Is.SameAs(caret),
+          "and the tile wearing the frame is the tile the selection stands on");
+      window.Close();
+    }
+
+    /// <summary>
+    /// A walk keeps the watching of the shelf caret awake, which is the promise the live screen was seen
+    /// without: a walk along the wall, a beat where the caret lands somewhere that wears no frame - on the
+    /// live screen the screen's own rail, standing its full two hundred points off the left edge, where it sat
+    /// for seven and a half seconds while nothing anywhere wore a frame - and nobody came to pick the caret
+    /// up, because the watching that exists for exactly this had long since retired.  It wakes when the screen
+    /// hands the caret to the shelf, it counts four quiet seconds of a still-standing tile and then lies down,
+    /// and a walk - the one hour in which containers fall and carets get knocked - never once reached its
+    /// ear.  A fallen caret cannot be dealt to the headless wall (its focus manager hands every such knock
+    /// straight back, which is also why no headless test ever saw this bug), so what is pinned here is the
+    /// waking itself: every step of the walk has to wake the watching anew, which leaves the mark of a fresh
+    /// timer behind, and a step that walks past a watching nobody woke leaves that mark missing.
+    /// </summary>
+    [AvaloniaTest]
+    public void AWalkKeepsTheWatchingOfTheShelfCaretAwake()
+    {
+      LongShelf server = new LongShelf();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      MediaBrowserView view = new MediaBrowserView(browser);
+      ShellWindow window = new ShellWindow(view);
+      window.Show();
+      WaitUntil("the shelf to fill", delegate { return browser.Titles.Count > 60; });
+
+      ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "titlesList");
+      titles.Focus();
+      Pump();
+      titles.SelectedIndex = 0;
+      Pump();
+      WaitUntil("the caret to stand on a tile",
+          delegate { return window.FocusManager.GetFocusedElement() is ListBoxItem item
+              && titles.ItemFromContainer(item) != null; });
+      WaitUntil("the watching to wake with the caret on the shelf",
+          delegate { return view.IsWatchingShelfCaret; });
+
+      // What every step owes the watching is a fresh wake - the same promise the landing makes, renewed at
+      // every step, so that whenever the watching finally lies down after its quiet seconds it was woken by
+      // the LAST step and is still awake a fall could be caught in.  Whether a woken watching lies down
+      // cannot be watched headlessly (the headless focus manager keeps handing carets back and every such
+      // hand-back rewinds the quiet seconds), but the wake itself leaves a mark: each wake builds a new
+      // timer, so a step that woke the watching can be told from a step that walked past it asleep.
+      object? timer_before_step = ShelfWatchTimer(view);
+
+      for (int step = 1; step <= 3; step++)
+      {
+        titles.RaiseEvent(new KeyEventArgs
+        {
+          RoutedEvent = InputElement.KeyDownEvent,
+          Key = Key.Down,
+          Source = titles
+        });
+        for (int frame = 0; frame < 8; frame++)
+          Pump();
+        object? timer_after_step = ShelfWatchTimer(view);
+        Assert.That(view.IsWatchingShelfCaret, Is.True,
+            "step " + step + " of the walk left no watching standing at all");
+        Assert.That(timer_after_step, Is.Not.SameAs(timer_before_step),
+            "step " + step + " of the walk woke no fresh watching; a watching that is never woken by a step "
+            + "has long lain down by the time a fast walk knocks its caret - which is the seven-and-a-half-"
+            + "second frame the live screen lost");
+        timer_before_step = timer_after_step;
+      }
+      window.Close();
+    }
+
+    /// <summary>
+    /// The timer the shelf's caret watching currently runs on, which is a NEW object every time the watching
+    /// is woken.  Read from outside only so that a test can tell a step that woke the watching from one that
+    /// walked past it asleep.
+    /// </summary>
+    private static object? ShelfWatchTimer(MediaBrowserView view)
+    {
+      return typeof(MediaBrowserView)
+          .GetField("_shelfTileTimer", System.Reflection.BindingFlags.NonPublic
+              | System.Reflection.BindingFlags.Instance)!
+          .GetValue(view);
+    }
+
+    /// <summary>
     /// The shelf fades where its wall has left a row out of the picture, and nowhere it has not.  Standing at its
     /// head the wall has left nothing above itself, so the first row reaches the top edge whole; the rest of the
     /// wall still stands below the window, so the foot dissolves.  Walked to its foot it is the other way round,

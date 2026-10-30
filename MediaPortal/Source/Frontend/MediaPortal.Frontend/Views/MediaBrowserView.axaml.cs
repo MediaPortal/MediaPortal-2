@@ -175,8 +175,15 @@ namespace MediaPortal.Frontend.Views
       };
 
       // The shelf answers the standing title with a glide rather than a jump: every step of the caret moves the
-      // wall by the shape's own numbers, over the shape's own length of time.
-      titlesList.SelectionChanged += delegate { GlideShelfToStoodTitle(); };
+      // wall by the shape's own numbers, over the shape's own length of time. And every step re-arms the quiet
+      // watching, because the walk itself - not only the landing - is when the recycling can knock the tile
+      // under the caret away: a watchdog retired after the last still-standing breath has to be woken by the
+      // next step, or a fast walk drops its caret between two tiles and nobody picks it up.
+      titlesList.SelectionChanged += delegate
+      {
+        GlideShelfToStoodTitle();
+        WatchShelfCaret();
+      };
 
       // The reference's <c>RestoreFocus</c> seen from this side: the shelf remembers which title the caret last
       // stood on, so a visit to the screen's menu and back lands where the viewer left off rather than on
@@ -702,6 +709,14 @@ namespace MediaPortal.Frontend.Views
     internal double SlideOffset => _slideCovers ? RoomSlide.Y : RoomSlide.X;
 
     /// <summary>
+    /// Whether the shelf is watching its caret at this moment, which is what the walk is obliged to keep
+    /// true: the watching retires after four quiet seconds of a still-standing tile, and every step of a walk
+    /// has to wake it again, because the walk - not the still-standing - is the hour in which the caret gets
+    /// knocked off its tile and the frame goes missing.
+    /// </summary>
+    internal bool IsWatchingShelfCaret => _shelfTileTimer?.IsEnabled == true;
+
+    /// <summary>
     /// Slides the room by the two hundred points that make room for the screen's menu: sideways for the rail
     /// beside a grid or a list, upwards for the row of commands under a row of covers.
     /// </summary>
@@ -1086,6 +1101,22 @@ namespace MediaPortal.Frontend.Views
       return false;
     }
 
+    /// <summary>
+    /// Puts the caret back on the tile of the standing title - and brings that tile back onto the wall
+    /// first when the wall has just rolled it out. A rescue that only shakes its head at a container which
+    /// is not there waits forever: a virtualised wall lays its tiles out around what it SHOWS, so a wall
+    /// that is not looking at the standing title will never lay that tile again unless somebody tells it
+    /// to look, which is exactly what scrolling into view does.
+    /// </summary>
+    private void RescueShelfCaret()
+    {
+      int stand = titlesList.SelectedIndex < 0 ? 0 : titlesList.SelectedIndex;
+      if (titlesList.ContainerFromIndex(stand) is ListBoxItem tile && tile.IsEffectivelyVisible)
+        FocusShelfTile(tile);
+      else if (stand < titlesList.Items.Count)
+        titlesList.ScrollIntoView(titlesList.Items[stand]);
+    }
+
     private void WatchShelfCaret()
     {
       _shelfTileTimer?.Stop();
@@ -1123,12 +1154,15 @@ namespace MediaPortal.Frontend.Views
         // the button of the row that was clicked - stayed focusable, and Avalonia hands the caret to whatever
         // was clicked last once the click settles, which lands a beat AFTER the close already handed the caret
         // to the shelf. Left there, the viewer stands on an invisible row off the window and the wall wears no
-        // frame - which is the whole complaint in one sentence.
+        // frame - which is the whole complaint in one sentence. The rescue has to be able to fetch a tile the
+        // wall rolled out of sight, though: a rescue that merely asks for a container which is not there waits
+        // forever, since the wall lays tiles around what it SHOWS and never lays the standing one again by
+        // itself - and every measurement of the live screen says the caret sat on the rail for seconds.
         if (!(DataContext is MediaBrowserViewModel screen) || !screen.MediaMenuVisible)
         {
           if (HoldsRailCaret(fallen))
           {
-            TryStandOnShelfTile(titlesList.SelectedIndex < 0 ? 0 : titlesList.SelectedIndex);
+            RescueShelfCaret();
             quiet = 120;
             return;
           }
@@ -1139,7 +1173,7 @@ namespace MediaPortal.Frontend.Views
           // The fall this watchdog exists for: the caret slipped back onto the bare list, which wears no
           // frame. The tile of the standing title - read fresh, since the selection may have moved - takes
           // the caret again and the quiet counting starts over.
-          TryStandOnShelfTile(titlesList.SelectedIndex < 0 ? 0 : titlesList.SelectedIndex);
+          RescueShelfCaret();
           quiet = 120;
           return;
         }
@@ -1155,15 +1189,11 @@ namespace MediaPortal.Frontend.Views
 
         // A shell the recycling stripped of its title (index -1) is a fall too: the caret stands on a body
         // that presents nobody and wears no frame. A rail row reads the same way from here, so the rails are
-        // asked first - while the menu is open its rows are legitimate caret-holders.
+        // asked first - while the menu stands in sight its rows are legitimate caret-holders.
         if (fallen is ListBoxItem shell && !HoldsRailCaret(shell)
             && titlesList.IndexFromContainer(shell) < 0)
         {
-          int stand = titlesList.SelectedIndex < 0 ? 0 : titlesList.SelectedIndex;
-          if (titlesList.ContainerFromIndex(stand) is ListBoxItem stood_tile && stood_tile.IsEffectivelyVisible)
-            FocusShelfTile(stood_tile);
-          else if (stand < titlesList.Items.Count)
-            titlesList.ScrollIntoView(titlesList.Items[stand]);
+          RescueShelfCaret();
           quiet = 120;
           return;
         }
