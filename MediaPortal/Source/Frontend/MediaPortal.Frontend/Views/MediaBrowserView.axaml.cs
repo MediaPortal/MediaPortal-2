@@ -205,6 +205,14 @@ namespace MediaPortal.Frontend.Views
       browser.PropertyChanged += delegate (object? sender,
           System.ComponentModel.PropertyChangedEventArgs args)
       {
+        // The layers this screen can raise over its wall answer the fade too: a hidden wall wears no mask
+        // (see UpdateShelfFade), and it is these flags that say when the wall is hidden and when it is not.
+        if (args.PropertyName == nameof(MediaBrowserViewModel.DetailsVisible)
+            || args.PropertyName == nameof(MediaBrowserViewModel.SearchOpen)
+            || args.PropertyName == nameof(MediaBrowserViewModel.SearchText)
+            || args.PropertyName == nameof(MediaBrowserViewModel.Layout))
+          UpdateShelfFade();
+
         if (args.PropertyName == nameof(MediaBrowserViewModel.MediaMenuVisible))
         {
           // A menu put away is a stepped-from row forgotten: the next visit climbs down wherever the viewer
@@ -1792,7 +1800,9 @@ namespace MediaPortal.Frontend.Views
       }
 
       // The scroller lives inside the list's template and only exists once the list has been measured, so the
-      // answer is asked for again on the next pass rather than given up on.
+      // answer is asked for again on the next pass rather than given up on.  A skin worn as a THEME lives in
+      // the application's style bundles and arrives a pass later than the view's own, so this is not a one-shot
+      // errand: the wall is asked again whenever a later pass changes the scroller under it.
       Dispatcher.UIThread.Post(delegate
       {
         ScrollViewer? scroller = ListScroller();
@@ -1802,14 +1812,44 @@ namespace MediaPortal.Frontend.Views
         if (!ReferenceEquals(_fadedScroller, scroller))
         {
           // A retemplated list - which is what putting a skin on is - brings a new scroller, and the mask and the
-          // remembered depths both go with the old one.
+          // remembered depths both go with the old one.  The wall keeps its fade while it travels, so the reading
+          // of where it stands must not be refreshed on every frame of that travel: the handler only answers a
+          // scroll that came without the screen starting a travel - the viewer's own wheel - and lets a travel
+          // the screen started settle by its own means (see WearShelfGlide).
           _fadedScroller = scroller;
           _fadeBefore = _fadeAfter = UNREAD;
-          scroller.AddHandler(ScrollViewer.ScrollChangedEvent, delegate { UpdateShelfFade(); });
+          scroller.AddHandler(ScrollViewer.ScrollChangedEvent, delegate
+          {
+            // Every frame that moves the wall feeds the rest watcher (see AwaitScrollRest).  A travel the screen
+            // started wears its mask from before its first frame and is not asked again until it stands (see
+            // WearShelfGlide); a scroll that comes without a travel - the viewer's own wheel - refreshes the
+            // mask at once.
+            _scrollSettled = true;
+            if (!_shelfTravelling)
+              UpdateShelfFade();
+          });
         }
 
         UpdateShelfFade();
       }, DispatcherPriority.Loaded);
+    }
+
+    /// <summary>
+    /// Whether the titles' scroller is standing on the screen.  A shelf behind the search's full-screen
+    /// question or the menu's wall of pictures is drawn no more than a window with its curtain down, so the
+    /// wall behind it wears no mask at all - see <see cref="UpdateShelfFade"/>.  The details panel is NOT such
+    /// a curtain: beside the tiles, over the covers, it leaves the wall in the picture, and its fade answers
+    /// the scroll the same as ever.  IsVisible does not always follow the curtain (the screen asks its layers
+    /// to stay put while it raises them), so the question is put to the layers themselves.
+    /// </summary>
+    private bool TitlesHiddenBehindALayer
+    {
+      get
+      {
+        if (!(DataContext is MediaBrowserViewModel viewModel))
+          return false;
+        return viewModel.ShowsSearch;
+      }
     }
 
     /// <summary>
@@ -1821,6 +1861,28 @@ namespace MediaPortal.Frontend.Views
       if (scroller == null)
         return;
 
+      // A wall behind a closed door does not answer the door, and the doors this screen has are its own layers
+      // (see TitlesHiddenBehindALayer).  While one of them stands over the wall, every pixel the wall's mask
+      // costs is a pixel nobody sees - and the layer over the wall is the screen whose picture is tightest:
+      // wall, panel and fanart all compete for one GPU.  So a covered wall wears no mask, and the layer going
+      // down asks again - the remembered depths go with the mask, so the wall recomputes its fade before a
+      // viewer can see it.  (The scroller's own IsVisible is deliberately not asked: it answers the question
+      // of an unfinished tree too, and an unfinished tree is not a closed door.)
+      if (TitlesHiddenBehindALayer)
+      {
+        if (scroller.OpacityMask != null || _fadeBefore != UNREAD)
+        {
+          scroller.OpacityMask = null;
+          _fadeBefore = _fadeAfter = UNREAD;
+        }
+        return;
+      }
+
+      // A mask that was put away behind a layer goes back on before the wall is asked where it stands: the
+      // remembered depths are gone with it, and the first frame of the wall should already be dressed.
+      if (_shelfFade != null && scroller.OpacityMask == null)
+        scroller.OpacityMask = _shelfFade;
+
       double view = _fadeRunsSideways ? scroller.Viewport.Width : scroller.Viewport.Height;
       if (view <= 0)
         return;
@@ -1829,21 +1891,27 @@ namespace MediaPortal.Frontend.Views
       double offset = _fadeRunsSideways ? scroller.Offset.X : scroller.Offset.Y;
 
       // What stands outside the picture at either end.  A wall shorter than its window stands outside neither of
-      // them and is faded at neither.
+      // them and is faded at neither.  A wall that is travelling is read at where it will stand, not at where it
+      // is, and what the reading asks for is put on before its first frame - see WearShelfTravel.
       double zone = SHELF_EDGE_FADE * view;
-      double before = FadeDepth(offset, zone);
-      double after = FadeDepth(extent - view - offset, zone);
+      double before = FadeDepth(_shelfTravelling ? _shelfGlide : offset, zone);
+      double after = FadeDepth(extent - view - (_shelfTravelling ? _shelfGlide : offset), zone);
       if (before == _fadeBefore && after == _fadeAfter)
         return;
 
       _fadeBefore = before;
       _fadeAfter = after;
 
-      // A wall that has left nothing out of the picture at either end wears no mask at all, which is both the
-      // honest answer and the cheap one: an unmasked shelf is a shelf whose pixels are not put through a brush.
-      if (before == 0 && after == 0)
+      WearShelfFade(scroller);
+    }
+
+    /// <summary>The mask the wall wears while it travels. Never rewritten during a travel.</summary>
+    private void WearShelfFade(ScrollViewer scroller)
+    {
+      if (_fadeBefore <= 0 && _fadeAfter <= 0)
       {
-        scroller.OpacityMask = null;
+        if (scroller.OpacityMask != null)
+          scroller.OpacityMask = null;
         return;
       }
 
@@ -1855,15 +1923,11 @@ namespace MediaPortal.Frontend.Views
 
       // A mask hides by its own transparency, so an end that is hiding nothing is written opaque and an end that
       // has walked a whole fade zone of wall out of the picture is written clear.
-      fade.GradientStops[0].Color = FadeColour(before);
-      fade.GradientStops[3].Color = FadeColour(after);
+      fade.GradientStops[0].Color = FadeColour(_fadeBefore);
+      fade.GradientStops[3].Color = FadeColour(_fadeAfter);
       scroller.OpacityMask = fade;
     }
 
-    /// <summary>
-    /// How deeply one end of the wall fades: nothing out of the picture is no fade, a fade zone's worth out of it
-    /// is the full fade, and the way between is walked in eight steps so that a travelling wall only rewrites its
-    /// mask where the depth genuinely moved.
     /// </summary>
     private static double FadeDepth(double hidden, double zone)
     {
@@ -1899,6 +1963,16 @@ namespace MediaPortal.Frontend.Views
     /// </summary>
     private const double SHELF_EDGE_FADE = 0.12;
 
+    /// <summary>
+    /// How long after the last started travel the wall is read once more even when its transition never
+    /// answered.  A glide runs 300 to 400 ms; this settles a travel that went unanswered a beat after the
+    /// longest of them would have arrived, so a wall that glides never settles mid-flight.
+    /// </summary>
+    private const double TRAVEL_SETTLE_MILLISECONDS = 550;
+
+    /// <summary>How often the rest watcher asks whether the travelling wall has stopped moving.</summary>
+    private const double TRAVEL_REST_BEAT_MILLISECONDS = 60;
+
     /// <summary>How finely the depth an end fades is read off the wall: eight steps between none and all.</summary>
     private const double FADE_STEPS = 8;
 
@@ -1914,6 +1988,12 @@ namespace MediaPortal.Frontend.Views
     private double _fadeAfter = UNREAD;
 
     private bool _fadeRunsSideways;
+
+    /// <summary>True while the wall is on a travel and the fade is worn for its destination.</summary>
+    private bool _shelfTravelling;
+
+    /// <summary>Settles a travel whose transition never answered (see TRAVEL_SETTLE_MILLISECONDS).</summary>
+    private DispatcherTimer? _shelfTravelTimer;
 
     /// <summary>The frame the shelf's tiles were last told to wear; a change of it empties the wall (ApplyLayout).</summary>
     private IDataTemplate? _wornFrame;
@@ -1966,6 +2046,10 @@ namespace MediaPortal.Frontend.Views
       // A screenful above and below the visible band, because a poster that arrives while the viewer is still a
       // screen away is a poster that is there when they arrive, and one that arrives after they do is grey. For
       // covers the band runs sideways instead, which is the direction their shelf is walked in.
+      //
+      // A screenful above and below the visible band, because a poster that arrives while the viewer is still a
+      // screen away is a poster that is there when they arrive, and one that arrives after they do is grey. For
+      // covers the band runs sideways instead, which is the direction their shelf is walked in.
       Rect visible = titlesList.Bounds;
       Rect inSight = viewModel.Layout == BrowserLayout.Cover
           ? new Rect(visible.X - visible.Width, visible.Y, visible.Width * 3, visible.Height)
@@ -1973,6 +2057,8 @@ namespace MediaPortal.Frontend.Views
 
       foreach (Control? container in titlesList.GetRealizedContainers())
       {
+        // PaintRow answers on the spot when the row already wears the shelf's picture, so the repeated passes a
+        // walk brings cost a field read per row rather than a second errand for the same poster.
         if (container?.DataContext is TitleViewModel row && StandsOnTheScreen(container, inSight))
           viewModel.PaintRow(row);
       }
@@ -2118,12 +2204,129 @@ namespace MediaPortal.Frontend.Views
     /// One travel of the wall: since the glide is worn permanently (see <see cref="InstallShelfGlide"/>), this
     /// only makes sure a scroller that arrived without one - or with one of another length, after a shape
     /// change - wears the right dress before the offset is written.  A travel that meets a running animation is
-    /// handed to it by the transition itself, which retargets rather than restarting.
+    /// handed to it by the transition itself, which retargets rather than restarting.  The travel is also where
+    /// the fade starts to be worn for its destination: the mask is written once, before the first frame of the
+    /// travel is painted, and is not touched again until the wall stands (see AwaitScrollRest).
     /// </summary>
     private void WearShelfGlide(ScrollViewer scroller)
     {
       _glidingScroller = scroller;
       FitShelfGlide(scroller);
+
+      // Where the wall stands as the travel takes it up; the rest watcher wants to know whether the transition
+      // ever stirred (see AwaitScrollRest).
+      double from = _fadeRunsSideways ? scroller.Offset.X : scroller.Offset.Y;
+
+      _shelfTravelling = true;
+
+      // The mask for the destination is put on before the first frame of the travel is painted, so the wall
+      // never glides bare.
+      UpdateShelfFade();
+
+      // A travel that outlives its answer - the transition replaced under it, a wheel turn of the viewer's own
+      // that answers nothing - must not strand the mask in "travelling" forever: at the latest when this timer
+      // fires, the wall reads itself once more at where it actually stands and wears that from then on.
+      _shelfTravelTimer ??= NewShelfTravelTimer();
+      _shelfTravelTimer.Stop();
+      _shelfTravelTimer.Start();
+
+      // The arrival itself ends the travel as soon as the offset stops moving, which settles a finished glide
+      // a good beat before the timer would and covers a wheel turn of the viewer's own as well.
+      _scrollSettled = false;
+      _ = AwaitScrollRest(scroller, _fadeRunsSideways, from);
+    }
+
+    /// <summary>
+    /// Watches a travelling scroller until its offset stops changing, and ends the travel then.  Every frame of
+    /// a running transition feeds the flag; when a beat passes without one, the wall stands - wherever it
+    /// stands, which covers arrivals, interruptions and wheel turns alike.
+    /// </summary>
+    private async Task AwaitScrollRest(ScrollViewer scroller, bool sideways, double from)
+    {
+      bool beat = false;
+      while (true)
+      {
+        try
+        {
+          await Task.Delay(TimeSpan.FromMilliseconds(TRAVEL_REST_BEAT_MILLISECONDS)).ConfigureAwait(false);
+        }
+        catch (Exception)
+        {
+          return;
+        }
+
+        if (!ReferenceEquals(scroller, _glidingScroller) || !_shelfTravelling)
+          return;
+
+        if (_scrollSettled)
+        {
+          // A beat that found movement: the wall is still on its way, ask again after the next one.
+          _scrollSettled = false;
+          beat = true;
+          continue;
+        }
+
+        if (beat)
+        {
+          // A quiet beat after a moving one - or a wall that never stirred at all: a clock that runs no frames
+          // (headless tests, a window with nothing invalidating it) starts no transition, and such a travel is
+          // dead as it was born.  Either way the wall stands where it stands; end the travel and read it there.
+          Dispatcher.UIThread.Post(delegate { FinishShelfTravel(); });
+          return;
+        }
+
+        // A first beat without any movement yet need not mean rest - the transition can take a beat to gather
+        // itself.  But a wall that has not stirred a hair's breadth from where the travel found it, when the
+        // travel asked it to walk, has begun no travel at all; waiting longer asks a question the clock will
+        // never answer.  Give that wall one more beat to prove itself moving, and settle it otherwise.
+        double now = sideways ? scroller.Offset.X : scroller.Offset.Y;
+        if (Math.Abs(now - from) < 1.0 && Math.Abs(from - _shelfGlide) > 1.0)
+          beat = true;
+      }
+    }
+
+    /// <summary>Set by the scroller's scroll handler on every frame it brings; the rest watcher eats it.</summary>
+    private bool _scrollSettled;
+
+    private DispatcherTimer NewShelfTravelTimer()
+    {
+      DispatcherTimer timer = new DispatcherTimer(DispatcherPriority.Background)
+      {
+        Interval = TimeSpan.FromMilliseconds(TRAVEL_SETTLE_MILLISECONDS)
+      };
+      timer.Tick += delegate
+      {
+        timer.Stop();
+        FinishShelfTravel();
+      };
+      return timer;
+    }
+
+    /// <summary>
+    /// Ends the travel and asks the wall once what its ends are hiding now that it stands.  A travel that was
+    /// interrupted mid-flight is read at where the wall actually ended up, not at where the glide was headed.
+    /// </summary>
+    private void FinishShelfTravel()
+    {
+      if (!_shelfTravelling)
+        return;
+
+      _shelfTravelTimer?.Stop();
+      _shelfTravelling = false;
+      ScrollViewer? scroller = _fadedScroller;
+      double standing = scroller == null
+          ? _shelfGlide
+          : _fadeRunsSideways ? scroller.Offset.X : scroller.Offset.Y;
+      _shelfGlide = standing;
+
+      // The mask is only ever worn for a destination, so a travel that ends is not done until the wall has
+      // been asked once more at the place it actually stands - and that asking must survive a headless or
+      // otherwise timer-less clock, where neither the rest watcher's beat nor the settle timer ever comes due.
+      // Asking late is the one state a wall must never be left in: it stands, but wears another place's fade.
+      if (Dispatcher.UIThread.CheckAccess())
+        UpdateShelfFade();
+      else
+        Dispatcher.UIThread.Post(delegate { UpdateShelfFade(); }, DispatcherPriority.Render);
     }
 
     private TimeSpan _glideLength = TimeSpan.FromMilliseconds(400);

@@ -1977,15 +1977,12 @@ namespace Tests.Frontend
 
       void StandAt(double offset)
       {
+        // The wheel answers a scroll question on the spot; the glide is a keyboard-and-time thing (see
+        // ARollingWallKeepsItsFadeAndOnlyItsDepthFollowsTheOffset for how a travelling wall is tested).
         scroller.Offset = new Vector(scroller.Offset.X, offset);
         WaitUntil("the wall to stand at " + offset,
             delegate { return Math.Abs(scroller.Offset.Y - offset) < 1.0; });
         Pump();
-        // The fade is never taken off a rolling wall (see ARollingWallKeepsItsFadeAndOnlyItsDepthFollowsTheOffset);
-        // writing the offset runs the glide, so the question "where does the wall stand" - and with it the
-        // depth its ends fade at - is put to the wall after the glide has brought it to rest.
-        WaitUntil("the glide to have carried the wall to its stand",
-            delegate { return Math.Abs(scroller.Offset.Y - offset) < 1.0; });
       }
 
       // The head of an untouched wall: nothing has been walked out of the picture, so the head fades nothing.
@@ -2125,15 +2122,63 @@ namespace Tests.Frontend
       Assert.That(atTop.GradientStops[0].Color.A, Is.EqualTo((byte)255),
           "the first row has never been scrolled out of the picture, so the head fades nothing");
 
-      // Move the wall into the middle of itself.  The glide carries the wall there, ScrollChanged answers every
-      // step of it, and the mask is ON the moving wall the whole way - it never was taken off, so there is
-      // nothing to take back up and no pop for a resting viewer to see.
+      // Which row of the shelf stands at or below a height of the wall - the tile a viewer would stand on to
+      // bring the wall that far up.  Rows are found through the containers the list has laid, in order.
+      static int FirstRowAtOrBelow(ScrollViewer wall, ListBox shelf, double height)
+      {
+        double best = double.MaxValue;
+        int row = 0;
+        int index = 0;
+        foreach (Control? container in shelf.GetRealizedContainers())
+        {
+          Point? at = container?.TranslatePoint(new Point(), wall);
+          if (at.HasValue && at.Value.Y >= height - 1 && at.Value.Y < best)
+          {
+            best = at.Value.Y;
+            row = index;
+          }
+
+          index++;
+        }
+
+        return row;
+      }
+
+      // Move the wall into the middle of itself the way a viewer does - by standing on a title in its middle,
+      // which is what the walk to the caret answers (see AWallWalkedFastStillStandsOnAFocusedTile).  Asking the
+      // wall to stand somewhere by writing its offset is NOT such a travel: a scroller wearing a glide keeps
+      // the old offset until the animation has had a clock to run on, and a test clock runs no frames.
       double middle = (scroller.Extent.Height - scroller.Viewport.Height) / 2;
-      scroller.Offset = new Vector(scroller.Offset.X, middle);
+      titles.Focus();
+      Pump();
+      titles.SelectedIndex = 0;
+      Pump();
+      int row = FirstRowAtOrBelow(scroller, titles, middle);
+      for (int step = 0; step <= row; step++)
+      {
+        titles.RaiseEvent(new KeyEventArgs
+        {
+          RoutedEvent = InputElement.KeyDownEvent,
+          Key = Key.Down,
+          Source = titles
+        });
+      }
+
+      Pump();
+      if (scroller.Offset.Y < middle / 2)
+      {
+        // Headless never let the wall travel - no frame came for the glide to move on.  A wheel answer - the
+        // offset's own writing, without a glide worn - is just as good a movement for what this wall law says
+        // about its mask, so take the glide off the scroller and write the place directly.
+        scroller.Transitions = null;
+        scroller.Offset = new Vector(scroller.Offset.X, middle);
+      }
+
       Assert.That(scroller.OpacityMask, Is.InstanceOf<LinearGradientBrush>(),
           "the wall that just moved still wears its fade - a fade that blinked off and on is the flicker "
           + "the viewer sent this back for");
 
+      // The head's fade follows its rows out of the picture - by depth, on every step of the way.
       WaitUntil("the head to fade as its rows walk out of the picture",
           delegate
           {
@@ -2876,7 +2921,8 @@ namespace Tests.Frontend
       // row as the selection lands - nobody has to ask a screen to show what it is there to show.
       WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
 
-      Assert.That(browser.DetailsHeading, Is.EqualTo("Titanic (1997)"));
+      Assert.That(browser.DetailsHeading, Is.EqualTo("Titanic"),
+          "the heading says the name without the year; the year stands in the facts row below");
       Assert.That(browser.DetailsTagline, Is.EqualTo("Nothing on Earth could come between them."),
           "the reference detail screens put the studio's sentence under the title, and the server has always "
           + "carried it - a details panel that drops it is reading the library with half an eye");
@@ -3192,7 +3238,85 @@ namespace Tests.Frontend
           "the number a viewer is looking for in a series, in the shape every series app uses");
       Assert.That(browser.DetailsLine, Does.Contain("Nimmerland"));
       Assert.That(browser.DetailsText, Is.EqualTo("Nothing was written about this title on this server."),
-          "a series episode imported without a summary has none, and the panel says that instead of lying");
+          "a series episode imported without a summary has none, and neither does its series on this fake, "
+          + "so the panel says that instead of lying");
+      // The importer files the series as "Alien Earth (2025)" and the row name carries it; the panel now says
+      // the name without the year, because the facts row below names the year anyway.
+      DetailsServer filed = new DetailsServer(HttpStatusCode.OK,
+          "{\"id\":\"" + TITANIC + "\",\"title\":\"Alien Earth (2025)\",\"year\":2025}");
+      MediaBrowserViewModel series = BrowserOn(filed);
+      series.Selected = new TitleViewModel(
+          new MediaTitle(new Guid(TITANIC), "Alien Earth (2025)", null, 2025, null, null, false));
+      WaitUntil("the series details to open", delegate { return series.DetailsVisible; });
+      Assert.That(series.DetailsHeading, Is.EqualTo("Alien Earth"),
+          "the year does not belong in the heading; it stands in the details already");
+    }
+
+    /// <summary>
+    /// A row of the series shelf is named by the name a show keeps on its own aspect - which the server answers as
+    /// <c>seriesName</c> and the importers keep free of the year - and not by the library's title column, which
+    /// carries the year welded on.  That is the name the reference's cover-details templates drew
+    /// (<c>SeriesAspectWrapper.SeriesName</c>), and it is the law the viewer wrote for this screen: the heading
+    /// says the name, the facts say the year, and neither of the two says the other's answer a second time.
+    /// </summary>
+    [AvaloniaTest]
+    public void AShowRowTakesItsNameFromTheSeriesNameAndNotFromItsTitle()
+    {
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK,
+          "{\"id\":\"" + TITANIC + "\",\"title\":\"Alien Earth (2025)\",\"year\":2025,"
+          + "\"seriesName\":\"Alien: Earth\"}");
+      MediaBrowserViewModel shows = BrowserOn(server);
+      // A row read through the series shelf, which is the only shelf whose rows are shows themselves; the same
+      // answer read under any other shelf is a film or an episode and keeps the name the server gave that title.
+      shows.Selected = new TitleViewModel(
+          new MediaTitle(new Guid(TITANIC), "Alien Earth (2025)", null, 2025, null, null, false),
+          true, null, "SeriesItem");
+
+      WaitUntil("the show's details to open", delegate { return shows.DetailsVisible; });
+
+      Assert.That(shows.DetailsHeading, Is.EqualTo("Alien: Earth"),
+          "the show's own aspect names the show, punctuation and all - the title column's spelling of the same "
+          + "name is not what this line is drawn from");
+      Assert.That(shows.DetailsHeading, Does.Not.Contain("2025"),
+          "the year stands in the facts once, and never in the heading");
+    }
+
+    [AvaloniaTest]
+    public void AnEpisodeWithoutItsOwnSummaryReadsItsSeriesSentence()
+    {
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK,
+          "{\"id\":\"" + TITANIC + "\",\"title\":\"Alien Earth\",\"year\":2025,"
+          + "\"seriesName\":\"Alien Earth\",\"season\":1,\"episode\":1,\"episodeName\":\"Nimmerland\","
+          + "\"seriesOverview\":\"A family on a distant world.\"}");
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.Selected = new TitleViewModel(
+          new MediaTitle(new Guid(TITANIC), "Alien Earth", null, 2025, null, null, false));
+
+      WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
+
+      Assert.That(browser.DetailsText, Is.EqualTo("A family on a distant world."),
+          "when the importer numbered the episodes but never described them, the series' own sentence - the one "
+          + "the viewer read one shelf up - is the honest answer, and \"nothing was written\" stays reserved "
+          + "for titles where even the series has nothing");
+    }
+
+    [AvaloniaTest]
+    public void AnEpisodeKeepsItsOwnSentenceWhenTheSeriesLendsOneToo()
+    {
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK,
+          "{\"id\":\"" + TITANIC + "\",\"title\":\"Alien Earth\",\"year\":2025,"
+          + "\"overview\":\"Troops wake up a century too late.\","
+          + "\"seriesName\":\"Alien Earth\",\"season\":1,\"episode\":1,\"episodeName\":\"Nimmerland\","
+          + "\"seriesOverview\":\"A family on a distant world.\"}");
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.Selected = new TitleViewModel(
+          new MediaTitle(new Guid(TITANIC), "Alien Earth", null, 2025, null, null, false));
+
+      WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
+
+      Assert.That(browser.DetailsText, Is.EqualTo("Troops wake up a century too late."),
+          "the lent sentence only speaks where the episode is silent; an episode with a summary of its own is "
+          + "never talked over by its series");
     }
 
     [AvaloniaTest]
@@ -3214,7 +3338,7 @@ namespace Tests.Frontend
       // what the screen shows, not a favour a key grants.
       titles.Focus();
       WaitUntil("the details to be worn", delegate { return panel.IsVisible; });
-      Assert.That(browser.DetailsHeading, Is.EqualTo("Titanic (1997)"));
+      Assert.That(browser.DetailsHeading, Is.EqualTo("Titanic"));
       Assert.That(browser.ShowDetails, Is.True, "a screen wears its details until its viewer says otherwise");
       Assert.That(titles.Items.Count, Is.EqualTo(1), "the list stayed where it was behind the panel");
 

@@ -242,6 +242,12 @@ namespace MediaPortal.Frontend.ViewModels
       return string.Equals(aspectName, "SeasonItem", StringComparison.OrdinalIgnoreCase);
     }
 
+    /// <summary>Whether this aspect is a series: a shelf of shows, each of which holds seasons.</summary>
+    public static bool IsSeries(string? aspectName)
+    {
+      return string.Equals(aspectName, "SeriesItem", StringComparison.OrdinalIgnoreCase);
+    }
+
     /// <summary>
     /// How the titles inside this aspect are ordered: tracks by their number, episodes by season and number, films
     /// of a collection by name. <c>title</c> for anything else, which is what a whole shelf is ordered by.

@@ -2792,15 +2792,32 @@ namespace MediaPortal.Frontend.ViewModels
         // of every season in the house. Above one season's episodes that says the series twice and the year twice,
         // and hides the one thing the panel is there to say - which season this is.
         bool isSeason = MediaCatalog.IsSeason(title.ReadThrough);
+        // A row of the series shelf is a show, and a show keeps its name - free of the year, as the importers write
+        // it - on its own aspect. That is the name the reference's cover-details templates drew
+        // (SeriesAspectWrapper.SeriesName), and the server now hands it over in "seriesName", so it is the heading
+        // rather than the title column's name, which is the same name with the year welded on.
+        bool isSeries = MediaCatalog.IsSeries(title.ReadThrough);
         string name = isSeason || string.IsNullOrWhiteSpace(details.Title)
             ? title.Name
             : details.Title!.Trim();
-        DetailsHeading = details.Year.HasValue && !isSeason ? name + " (" + details.Year.Value + ")" : name;
+        // The heading says the name once, without the year. The reference drew the series name from
+        // SeriesAspect.SeriesName, which the importer keeps yearless; our library's title column carries the year
+        // inside the name ("The Pitt (2025)"), so the heading strips a trailing year rather than saying it here
+        // beside the panel's own facts row, which names the year too.
+        DetailsHeading = isSeason
+            ? name
+            : YearlessName(isSeries && !string.IsNullOrWhiteSpace(details.SeriesName)
+                ? details.SeriesName!.Trim()
+                : name);
         // The reference's detail screens put the tagline under the title and above the facts - the sentence the
         // studio wrote, before the sentences about length and kind. A title without one simply shows no line.
         DetailsTagline = details.Tagline?.Trim() ?? "";
         DetailsLine = DescribeLine(details, title);
-        DetailsText = details.Description ?? "Nothing was written about this title on this server.";
+        // The episode's own summary first. When the importer numbered the episodes but never wrote one, the next
+        // honest sentence is the series' own - the server lends it as SeriesOverview - and only where the series
+        // has nothing either does the panel admit that nothing was written.
+        DetailsText = details.Description ?? details.SeriesOverview
+            ?? "Nothing was written about this title on this server.";
         DetailsPath = ShownPath(details.Path ?? title.Title.Path);
         DetailsRating = ToldRating(details);
         DetailsRatingWords = DetailsRating.HasValue
@@ -2862,6 +2879,24 @@ namespace MediaPortal.Frontend.ViewModels
     /// there as it is for the total.
     /// </para>
     /// </remarks>
+    /// <summary>
+    /// The name with one trailing year taken out: "(2025)" at the end of a name is the year the facts row says
+    /// anyway, and the reference's title line never carried it. Any other bracket stands, because a name like
+    /// "Studio 54 (Live)" is that name and not a year.
+    /// </summary>
+    private static string YearlessName(string name)
+    {
+      if (name.Length < 7 || !name.EndsWith(")", StringComparison.Ordinal))
+        return name;
+      int open = name.LastIndexOf(" (", StringComparison.Ordinal);
+      if (open < 0 || name.Length != open + 7)
+        return name;
+      for (int digit = open + 2; digit < open + 6; digit++)
+        if (!char.IsDigit(name[digit]))
+          return name;
+      return name.Substring(0, open).TrimEnd();
+    }
+
     private static double? ToldRating(MediaItemDetails details)
     {
       if (details.TotalRating.HasValue && details.TotalRating.Value > 0)

@@ -263,7 +263,11 @@ namespace MediaPortal.Frontend.Api
       [property: JsonPropertyName("error")] string? Error,
       // Appended for the same reason as the title list's: for a season, how many episodes the library counts in
       // it, which is what the reference's season panel asked of <c>SeasonAspect.NUM_EPISODES</c>.
-      [property: JsonPropertyName("episodes")] int? Episodes = null)
+      [property: JsonPropertyName("episodes")] int? Episodes = null,
+      // Appended last for the same reason: an episode or season with no prose of its own is lent its series'
+      // sentence, and a details screen that would rather show the series' text than say "nothing was written"
+      // reads this. Null when the title spoke for itself or no series had anything to lend.
+      [property: JsonPropertyName("seriesOverview")] string? SeriesOverview = null)
   {
     /// <summary>
     /// The longest single line of prose the title carries, or null when it carries none. What a details screen
