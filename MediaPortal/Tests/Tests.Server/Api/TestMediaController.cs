@@ -991,6 +991,140 @@ namespace Tests.Server.Api
           + "would draw as a blank line");
     }
 
+    /// <summary>
+    /// A show answers with the name it keeps on its own aspect, which is the yearless one the importers write, and
+    /// not with the library's title column, which carries the year welded on.  The reference's cover-details
+    /// templates bound exactly that field (<c>SeriesAspectWrapper.SeriesName</c>), and a details screen that is
+    /// handed the title column's spelling says the year twice - once above its facts and once in them.
+    /// </summary>
+    [Test]
+    public void AShowAnswersWithTheNameItsOwnAspectKeeps()
+    {
+      Guid id = Guid.NewGuid();
+      SingleMediaItemAspect media = CreateMediaAspect("Alien Earth (2025)", "Alien Earth (2025)",
+          new DateTime(2025, 1, 1));
+      SingleMediaItemAspect show = new SingleMediaItemAspect(SeriesAspect.Metadata);
+      show.SetAttribute(SeriesAspect.ATTR_SERIES_NAME, "Alien: Earth");
+      MediaItem item = new TestItem(id, new Dictionary<Guid, IList<MediaItemAspect>>
+      {
+          { MediaAspect.ASPECT_ID, new List<MediaItemAspect> { media } },
+          { SeriesAspect.ASPECT_ID, new List<MediaItemAspect> { show } }
+      }, null, false);
+
+      ActionResult<MediaController.ItemResult> action;
+      MediaController.ItemResult result = GetItem(
+          CreateLibrary(new List<MediaItem> { item }, 1, out _, out _), id, out action);
+
+      Assert.That(Status(action), Is.Null, "the item was found, so the answer is a plain body");
+      Assert.That(result.Title, Is.EqualTo("Alien Earth (2025)"),
+          "the title column is answered as the library keeps it - the name is added to the answer, not rewritten "
+          + "out of the title");
+      Assert.That(result.SeriesName, Is.EqualTo("Alien: Earth"),
+          "the show's own aspect says its name, punctuation and all, and that is the name a details screen has to "
+          + "be given because the year already stands in the answer's own fields");
+    }
+
+    /// <summary>
+    /// A series as an importer that wrote summaries leaves it: the show aspect and its sentence on the media
+    /// aspect, which is where this endpoint reads every title's prose from.
+    /// </summary>
+    private static MediaItem CreateDescribedSeries(Guid id, string prose)
+    {
+      SingleMediaItemAspect media = CreateMediaAspect("Alien Earth", "Alien Earth", new DateTime(2025, 1, 1));
+      if (prose != null)
+        media.SetAttribute(MediaAspect.ATTR_COMMENT, prose);
+      SingleMediaItemAspect seriesAspect = new SingleMediaItemAspect(SeriesAspect.Metadata);
+      seriesAspect.SetAttribute(SeriesAspect.ATTR_SERIES_NAME, "Alien Earth");
+      return new TestItem(id, new Dictionary<Guid, IList<MediaItemAspect>>
+      {
+          { MediaAspect.ASPECT_ID, new List<MediaItemAspect> { media } },
+          { SeriesAspect.ASPECT_ID, new List<MediaItemAspect> { seriesAspect } }
+      }, null, false);
+    }
+
+    /// <summary>
+    /// An episode file tagged with a number but no summary, under a series whose importer did write one: the
+    /// shape the details endpoint has to answer when the viewer stands in front of an episode of a described show.
+    /// </summary>
+    /// <remarks>
+    /// The two questions are answered apart because the endpoint asks them apart - the title by its id, and the
+    /// series above it by walking the importer's relationship backwards - and a single answer for both would let
+    /// a borrow that never asked the relationship anything pass as one that did.
+    /// </remarks>
+    private static IMediaLibrary EpisodeUnderDescribedSeries(Guid episodeId, string seriesProse,
+        out List<MediaItemQuery> asked)
+    {
+      MediaItem bare = CreateEpisodeItem(episodeId, "Nimmerland", 1, 1);
+      MediaItem show = CreateDescribedSeries(Guid.NewGuid(), seriesProse);
+
+      List<MediaItemQuery> questions = new List<MediaItemQuery>();
+      var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+      library.Setup(get => get.GetManagedMediaItemAspectMetadata()).Returns(
+          new Dictionary<Guid, MediaItemAspectMetadata>
+          {
+              { MediaAspect.ASPECT_ID, MediaAspect.Metadata },
+              { EpisodeAspect.ASPECT_ID, EpisodeAspect.Metadata },
+              { SeriesAspect.ASPECT_ID, SeriesAspect.Metadata },
+              { SeasonAspect.ASPECT_ID, SeasonAspect.Metadata }
+          });
+      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, null, false))
+          .Callback<MediaItemQuery, bool, Guid?, bool>(
+              (query, online, profile, virtualItems) => questions.Add(query))
+          .Returns<MediaItemQuery, bool, Guid?, bool>((query, online, profile, virtualItems) =>
+              query.Filter is MediaItemIdFilter
+                  ? new List<MediaItem> { bare }
+                  : new List<MediaItem> { show });
+      library.Setup(get => get.CountMediaItems(It.IsAny<IEnumerable<Guid>>(), It.IsAny<IFilter>(), false, false))
+          .Returns(1);
+
+      asked = questions;
+      return library.Object;
+    }
+
+    [Test]
+    public void ADescribedSeriesLendsItsSentenceToAnEpisodeThatCarriesNone()
+    {
+      Guid episodeId = Guid.NewGuid();
+      List<MediaItemQuery> asked;
+      ActionResult<MediaController.ItemResult> action;
+      MediaController.ItemResult result = GetItem(
+          EpisodeUnderDescribedSeries(episodeId, "A family on a distant world.", out asked), episodeId, out action);
+
+      Assert.That(Status(action), Is.Null);
+      Assert.That(result.Overview, Is.Null,
+          "the lent sentence is not answered as the episode's own plot; the episode stays as bare as the importer "
+          + "left it, and the series' words arrive under the series' own field");
+      Assert.That(result.SeriesOverview, Is.EqualTo("A family on a distant world."),
+          "a details screen with nothing to say about an episode is the screen the viewer came to the series for, "
+          + "and the series' sentence beats admitting that nothing was written");
+
+      Assert.That(asked, Has.Count.EqualTo(2));
+      RelationshipFilter link = (RelationshipFilter) asked[1].Filter;
+      Assert.That(link.Role, Is.EqualTo(SeriesAspect.ROLE_SERIES));
+      Assert.That(link.LinkedRole, Is.EqualTo(EpisodeAspect.ROLE_EPISODE));
+      Assert.That(link.LinkedMediaItemId, Is.EqualTo(episodeId),
+          "the series is reached by walking the importer's own relationship backwards from this very episode, "
+          + "so the lent words are the words of this episode's series and no other");
+    }
+
+    [Test]
+    public void AnEpisodeWithItsOwnSummaryAsksNothingBesideIt()
+    {
+      Guid id = Guid.NewGuid();
+      MediaItem described = CreateDetailedItem(id, "Nimmerland", "Troops wake up a century too late.", "",
+          "Alien Earth", 1, 1, "Nimmerland");
+
+      List<MediaItemQuery> queries;
+      ActionResult<MediaController.ItemResult> action;
+      MediaController.ItemResult result = GetItem(
+          CreateLibrary(new List<MediaItem> { described }, 1, out queries, out _), id, out action);
+
+      Assert.That(result.SeriesOverview, Is.Null, "a title that speaks for itself borrows nothing");
+      Assert.That(queries, Has.Count.EqualTo(1),
+          "and the borrowing means one library question for every title that has prose, so that asking it there "
+          + "would double the cost of describing the described half of the library");
+    }
+
     [Test]
     public void TheDetailsAreAskedForByIdAndNotGuessedAt()
     {
@@ -2463,6 +2597,46 @@ namespace Tests.Server.Api
       Assert.That(result.Id, Is.Not.EqualTo(series),
           "the details of a season are not the details of its series, and answering them as such would have a "
           + "season panel open the whole library under one series' name");
+    }
+
+    [Test]
+    public void ACountedSeasonLendsItsSeriesSentenceWhenAskedAbout()
+    {
+      Guid series = Guid.NewGuid();
+
+      // The counted shelf's own question shape: the id question answers the series, and the episode question
+      // answers what to count - here one season's worth, so that the counting has something to count.
+      MediaItem show = CreateDescribedSeries(series, "Five seasons in a prison and one way out.");
+      IList<MediaItem> episodes = new List<MediaItem> { CreateEpisodeItem(Guid.NewGuid(), "Reconvene", 2, 1) };
+
+      var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+      library.Setup(get => get.GetManagedMediaItemAspectMetadata()).Returns(
+          new Dictionary<Guid, MediaItemAspectMetadata>
+          {
+              { MediaAspect.ASPECT_ID, MediaAspect.Metadata },
+              { EpisodeAspect.ASPECT_ID, EpisodeAspect.Metadata },
+              { SeriesAspect.ASPECT_ID, SeriesAspect.Metadata },
+              { SeasonAspect.ASPECT_ID, SeasonAspect.Metadata }
+          });
+      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, It.IsAny<Guid?>(), It.IsAny<bool>()))
+          .Returns<MediaItemQuery, bool, Guid?, bool>((query, online, profile, virtualItems) =>
+              query.NecessaryRequestedMIATypeIDs.Contains(EpisodeAspect.ASPECT_ID)
+                  ? new List<MediaItem>(episodes)
+                  : new List<MediaItem> { show });
+      library.Setup(get => get.CountMediaItems(It.IsAny<IEnumerable<Guid>>(), It.IsAny<IFilter>(), false, false))
+          .Returns(1);
+
+      ActionResult<MediaController.ItemResult> action;
+      MediaController.ItemResult result = GetItemOfSeason(library.Object, series, 2, out action);
+
+      Assert.That(Status(action), Is.Null);
+      Assert.That(result.Season, Is.EqualTo(2));
+      Assert.That(result.SeriesOverview, Is.EqualTo("Five seasons in a prison and one way out."),
+          "a season the library holds as nothing but a number was never described of its own, and the sentence of "
+          + "the series it was counted from is already in hand when its answer is made - the panel shows that "
+          + "rather than nothing");
+      Assert.That(result.Overview, Is.Null,
+          "and still as the series' sentence rather than as a plot the season never had");
     }
 
     [Test]

@@ -48,6 +48,11 @@ param(
 
   [string]$OutputDir,
 
+  # Where the live library lives. Written beside the host as data-directory.txt, which the headless host
+  # reads whenever it is started WITHOUT --data, so that no restart that forgot the argument can open an
+  # empty library beside the real one. An explicit --data still wins over the file.
+  [string]$DataDirectory,
+
   # Empty means framework-dependent, portable output - which is what you want on a machine that has
   # the .NET runtime. A RID is only needed for a self-contained deployment.
   [ValidatePattern('^$|^(win-x64|linux-x64)$')]
@@ -301,7 +306,16 @@ if (-not (Test-Path $audioTagLib)) {
 Copy-Item $audioTagLib $audioDest -Force
 
 # ---------------------------------------------------------------------------
-# 3. Report
+# 3. The library the layout serves without being told
+# ---------------------------------------------------------------------------
+
+if ($DataDirectory) {
+  Write-Step "data directory for starts without --data: $DataDirectory"
+  Set-Content -Path ([IO.Path]::Combine($OutputDir, 'data-directory.txt')) -Value $DataDirectory
+}
+
+# ---------------------------------------------------------------------------
+# 4. Report
 # ---------------------------------------------------------------------------
 
 Write-Step "layout at $OutputDir"

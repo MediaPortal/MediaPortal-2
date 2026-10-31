@@ -1058,6 +1058,15 @@ namespace MediaPortal.Server.Api
       /// <summary>For an episode: the series it belongs to. Null for anything else.</summary>
       public string SeriesName { get; set; }
 
+      /// <summary>
+      /// What the series an episode or season stands under is about, lent to the answer only while the asked
+      /// title carries no prose of its own (<see cref="Overview"/> and <see cref="StoryPlot"/> both null). A
+      /// details screen may show it where the episode's own summary would otherwise say nothing - the series
+      /// sentence is the honest next-best answer - and a screen that will not mix the two can leave it unread.
+      /// Null when the title spoke for itself, when no series is linked, or when the series was never described.
+      /// </summary>
+      public string SeriesOverview { get; set; }
+
       public int? Season { get; set; }
 
       public int? Episode { get; set; }
@@ -1163,6 +1172,7 @@ namespace MediaPortal.Server.Api
 
         ItemResult result = ToItem(item, profile.HasValue);
         FillMissingDetailsFromFiles(item, result);
+        FillMissingOverviewFromSeries(mediaLibrary, item, result, profile);
 
         // Translated last, because the file beside a title can be the only place its certificate is written down,
         // and a household that asked for its own country's mark should get it whichever of the two sources spoke.
@@ -1277,6 +1287,15 @@ namespace MediaPortal.Server.Api
       if (result.Certification == null
           && MediaItemAspect.TryGetAspect(item.Aspects, SeriesAspect.Metadata, out series))
         result.Certification = Text(series.GetAttributeValue<string>(SeriesAspect.ATTR_CERTIFICATION));
+
+      // A show keeps its own name on its own aspect, and the importers keep that name free of the year, while the
+      // Media aspect's title carries the same name with the year appended ("Alien: Earth (2025)"). The reference's
+      // cover-details templates bound that yearless name (SeriesAspectWrapper.SeriesName), so it is the one this
+      // answer has to hand over; nothing else on the item says the name the way the reference spelled it.
+      SingleMediaItemAspect show;
+      if (result.SeriesName == null
+          && MediaItemAspect.TryGetAspect(item.Aspects, SeriesAspect.Metadata, out show))
+        result.SeriesName = Text(show.GetAttributeValue<string>(SeriesAspect.ATTR_SERIES_NAME));
 
       SingleMediaItemAspect episode;
       if (MediaItemAspect.TryGetAspect(item.Aspects, EpisodeAspect.Metadata, out episode))
@@ -1860,6 +1879,72 @@ namespace MediaPortal.Server.Api
       if ((result.Rating == null || result.Rating.Value == 0) && result.TotalRating == null)
         result.TotalRating = first != null && first.Rating.HasValue ? first.Rating
             : second == null ? null : second.Rating;
+    }
+
+    /// <summary>
+    /// Lends an episode or season the prose of the series it stands under, for as long as the title carries
+    /// none of its own - as <see cref="ItemResult.SeriesOverview"/>, so the answer never claims the series'
+    /// sentence is the episode's plot.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// An importer that numbers episodes but never writes their summaries is ordinary (the tools that name a
+    /// season's pictures leave the episode files bare), and the details panel then says "nothing was written"
+    /// under a show the library describes at length one shelf up. The viewer's law is that the series' sentence
+    /// is the better answer than silence - and only the server can give it: the episode aspect holds the
+    /// series' <em>name</em> and no id, while the link itself lives in the relationship the importer laid
+    /// (<c>EpisodeAspect.ROLE_EPISODE</c> to <c>SeriesAspect.ROLE_SERIES</c>), which this walks backwards.
+    /// </para>
+    /// <para>
+    /// A season asked by number of its series (<see cref="CountedSeasonItem"/>) never comes here - that answer
+    /// is built with the series' item already in hand and lends its prose where it is made.
+    /// </para>
+    /// </remarks>
+    private static void FillMissingOverviewFromSeries(IMediaLibrary mediaLibrary, MediaItem item,
+        ItemResult result, Guid? profile)
+    {
+      // A title with prose of its own speaks for itself; the series is never asked a second opinion.
+      if (result.Overview != null || result.StoryPlot != null)
+        return;
+
+      Guid linkedRole;
+      if (MediaItemAspect.TryGetAspect(item.Aspects, EpisodeAspect.Metadata, out _))
+        linkedRole = EpisodeAspect.ROLE_EPISODE;
+      else if (MediaItemAspect.TryGetAspect(item.Aspects, SeasonAspect.Metadata, out _))
+        linkedRole = SeasonAspect.ROLE_SEASON;
+      else
+        return;
+
+      try
+      {
+        // The same walk the fanart search makes in reverse: instead of the episodes under a series, the one
+        // series above this episode (or season). The aspect named first is the one the found items must carry.
+        MediaItemQuery series = new MediaItemQuery(
+            new List<Guid> { SeriesAspect.ASPECT_ID },
+            new List<Guid> { MediaAspect.ASPECT_ID },
+            new RelationshipFilter(SeriesAspect.ROLE_SERIES, linkedRole, item.MediaItemId));
+        IList<MediaItem> held = mediaLibrary.Search(series, false, profile, VirtualTitles.LetsVirtualTitlesIn);
+        MediaItem show = held == null ? null : held.FirstOrDefault();
+        if (show == null)
+          return;
+
+        // The series' own overview is the comment on its Media aspect - the same field this endpoint reads as
+        // every title's prose; the show aspect's description is what an importer leaves when it wrote no comment.
+        SingleMediaItemAspect media;
+        SingleMediaItemAspect aspect;
+        result.SeriesOverview =
+            (MediaItemAspect.TryGetAspect(show.Aspects, MediaAspect.Metadata, out media)
+                ? Text(media.GetAttributeValue<string>(MediaAspect.ATTR_COMMENT))
+                : null)
+            ?? (MediaItemAspect.TryGetAspect(show.Aspects, SeriesAspect.Metadata, out aspect)
+                ? Text(aspect.GetAttributeValue<string>(SeriesAspect.ATTR_DESCRIPTION))
+                : null);
+      }
+      catch (IllegalCallException)
+      {
+        // A library that cannot answer the relationship question leaves the borrowing undone; the title's own
+        // answer, thin as it is, stands.
+      }
     }
 
     /// <summary>
@@ -2811,6 +2896,15 @@ namespace MediaPortal.Server.Api
           ? media.GetAttributeValue<string>(MediaAspect.ATTR_TITLE)
           : null;
 
+      // A season held as nothing but a number was never described of its own, so it borrows the sentence of the
+      // series it was counted from - the same lending FillMissingOverviewFromSeries does for episodes, with the
+      // series' item already in hand. `aspect` is the show aspect here: the season-aspect check above returned.
+      string seriesProse = MediaItemAspect.TryGetAspect(item.Aspects, MediaAspect.Metadata, out media)
+          ? Text(media.GetAttributeValue<string>(MediaAspect.ATTR_COMMENT))
+          : null;
+      if (seriesProse == null)
+        seriesProse = Text(aspect.GetAttributeValue<string>(SeriesAspect.ATTR_DESCRIPTION));
+
       // Spelled the way the library would spell a season it holds: the series' name with the number on the end.
       string title = SeasonTitle(seriesName, number);
       return new ItemResult
@@ -2820,7 +2914,8 @@ namespace MediaPortal.Server.Api
         SortTitle = title,
         SeriesName = seriesName,
         Season = number,
-        Episodes = group.Value
+        Episodes = group.Value,
+        SeriesOverview = seriesProse
       };
     }
 

@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -358,20 +359,82 @@ namespace MediaPortal.Server.Headless
     #region Entry point
 
     /// <summary>
+    /// The data directory written in <c>data-directory.txt</c> beside the executable, or <c>null</c> when no such
+    /// file is there.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A server started without <c>--data</c> takes the platform's default directory and opens - and creates - an
+    /// empty library in it, which on a machine whose real database lives elsewhere reads as "all my data is
+    /// gone". That has happened more than once on exactly this machine, always through a restart that forgot the
+    /// argument, so the layout itself now carries the answer: one path on the first line of the file (a
+    /// relative path is read against the executable's directory, lines starting with <c>#</c> are comments), and
+    /// every way of starting the server - double-click, service, script, this session's restart - loads the same
+    /// library the argument would have named.
+    /// </para>
+    /// <para>
+    /// The file decides only when no <c>--data</c> was asked for; an explicit argument stays the louder voice. A
+    /// file that exists but names nothing is said out loud rather than skipped quietly, because silence is how
+    /// the wrong library got loaded in the first place.
+    /// </para>
+    /// </remarks>
+    internal static string ReadDataDirectoryFile(string baseDirectory)
+    {
+      string path = Path.Combine(baseDirectory, DATA_DIRECTORY_FILE);
+      if (!File.Exists(path))
+        return null;
+
+      try
+      {
+        foreach (string raw in File.ReadAllLines(path))
+        {
+          string line = raw.Trim();
+          if (line.Length == 0 || line.StartsWith("#", StringComparison.Ordinal))
+            continue;
+          return Path.IsPathRooted(line) ? line : Path.GetFullPath(Path.Combine(baseDirectory, line));
+        }
+        Console.WriteLine("HeadlessServerLauncher: " + DATA_DIRECTORY_FILE + " names no directory; the default "
+            + "data location is used. Write the library's path into that file if that is not what you meant.");
+      }
+      catch (Exception e)
+      {
+        Console.WriteLine("HeadlessServerLauncher: " + DATA_DIRECTORY_FILE + " could not be read (" + e.Message
+            + "); the default data location is used.");
+      }
+      return null;
+    }
+
+    /// <summary>Name of the file beside the executable that can name the data directory without an argument.</summary>
+    internal const string DATA_DIRECTORY_FILE = "data-directory.txt";
+
+    /// <summary>
     /// Runs the server until the process is asked to stop.
     /// </summary>
-    /// <param name="args"><c>--data &lt;path&gt;</c> puts the media database and configuration somewhere specific; <c>--check</c> shuts down again as soon as the server is up; <c>--duration &lt;seconds&gt;</c> stays up for a fixed time first.</param>
+    /// <param name="args"><c>--data &lt;path&gt;</c> puts the media database and configuration somewhere specific; <c>--check</c> shuts down again as soon as the server is up; <c>--duration &lt;seconds&gt;</c> stays up for a fixed time first. Without <c>--data</c> the launcher reads <c>data-directory.txt</c> beside the executable (<see cref="ReadDataDirectoryFile"/>) before falling back to the platform default.</param>
     /// <returns>0 on a clean run, 1 if startup failed.</returns>
     public static int Main(string[] args)
     {
       string dataDirectory = null;
+      bool dataAskedFor = false;
       int durationSeconds = 0;
       for (int i = 0; i < args.Length - 1; i++)
       {
         if (args[i] == "--data" || args[i] == "-d")
+        {
           dataDirectory = args[i + 1];
+          dataAskedFor = true;
+        }
         else if (args[i] == "--duration")
           int.TryParse(args[i + 1], out durationSeconds);
+      }
+      if (!dataAskedFor)
+      {
+        string fromFile = ReadDataDirectoryFile(AppContext.BaseDirectory);
+        if (fromFile != null)
+        {
+          dataDirectory = fromFile;
+          Console.WriteLine("HeadlessServerLauncher: data directory taken from data-directory.txt: " + fromFile);
+        }
       }
       bool checkOnly = false;
       foreach (string arg in args)
