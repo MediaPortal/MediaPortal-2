@@ -542,6 +542,9 @@ namespace MediaPortal.Server.Api
         // "IS NULL" (CompiledFilter.cs:255), so the two together mean "nothing was ever written here, or zero was".
         string seeing = ReadSeen(seen);
         IFilter seenFilter = null;
+        IFilter startedFilter = null;
+        bool askedChildrenHalfWay = false;
+        Guid halfWayParentRole = Guid.Empty, halfWayChildRole = Guid.Empty, halfWayChildAspect = Guid.Empty;
         if (seeing == "watched")
           seenFilter = new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.GT, 0);
         else if (seeing == "unwatched")
@@ -556,11 +559,43 @@ namespace MediaPortal.Server.Api
           // which is what a server without profiles - this one - has. Without the second half the filter would
           // also hand back films that were watched to the end, because finishing a film leaves its last-played
           // date behind, and a "still to finish" list holding finished films is worse than no list.
-          seenFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
+          startedFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
               new NotFilter(new EmptyFilter(MediaAspect.ATTR_LASTPLAYED)),
               BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
                   new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.EQ, 0),
                   new EmptyFilter(MediaAspect.ATTR_PLAYCOUNT)));
+
+        if (startedFilter != null)
+        {
+          // A series is never played and an album is never heard - its episodes and its tracks are - so the
+          // half-way mark stands on the child, never on the parent, and asking "which series did I left half
+          // way?" of the parents' own columns answers "none, ever". MP2's own continue lists for the two
+          // containers are therefore relationship providers: ContinueWatchSeriesMediaListProvider asks for the
+          // series <i>whose linked episodes</i> carry the position, and ContinueWatchAlbumMediaListProvider asks
+          // for the albums whose linked tracks do (ContinueWatchSeriesMediaListProvider.cs:37-42,
+          // ContinueWatchAlbumMediaListProvider.cs:41-46). The same two questions are these two filters; every
+          // other aspect is playable itself and keeps the plain one.
+          if (aspectId == SeriesAspect.ASPECT_ID)
+          {
+            seenFilter = new FilteredRelationshipFilter(SeriesAspect.ROLE_SERIES, EpisodeAspect.ROLE_EPISODE, startedFilter);
+            halfWayParentRole = SeriesAspect.ROLE_SERIES;
+            halfWayChildRole = EpisodeAspect.ROLE_EPISODE;
+            halfWayChildAspect = EpisodeAspect.ASPECT_ID;
+            askedChildrenHalfWay = true;
+          }
+          else if (aspectId == AudioAlbumAspect.ASPECT_ID)
+          {
+            seenFilter = new FilteredRelationshipFilter(AudioAlbumAspect.ROLE_ALBUM, AudioAspect.ROLE_TRACK, startedFilter);
+            halfWayParentRole = AudioAlbumAspect.ROLE_ALBUM;
+            halfWayChildRole = AudioAspect.ROLE_TRACK;
+            halfWayChildAspect = AudioAspect.ASPECT_ID;
+            askedChildrenHalfWay = true;
+          }
+          else
+          {
+            seenFilter = startedFilter;
+          }
+        }
 
         // The titles inside one title: the tracks on an album, the episodes of a season or a series, the films of
         // a collection. MP2 does not store a parent on its children - an episode carries the <i>name</i> of its
@@ -753,6 +788,42 @@ namespace MediaPortal.Server.Api
         IList<MediaItem> items = mediaLibrary.Search(query, false, profile, invented);
 
         List<TitleResult> titles = items.Select(item => ToTitle(item, profile.HasValue)).ToList();
+
+        // A series is never paused and an album never stopped - the episode and the track are - so when the
+        // caller asks which containers they left half way and does it as themselves, every row is asked one
+        // question back: where did you last stop? The answer is the stored position of the most recently
+        // started child, which is exactly what the reference's continue screens show - they hand out the last
+        // watched episode itself (BaseContinueWatchRelationshipMediaListProvider.AllowDisplayTitleAsLastWatchedEpisode).
+        // The MP2 library does keep a container's own percentage from reports that carry a profile
+        // (MediaLibrary.UpdateParentPlayUserData, the "Always update Parents" overload), but it keeps it on the
+        // <i>playable</i> parent - the season, not the series - and a library whose positions were reported
+        // without one holds nothing on any parent at all; the child's own row is the one truth both cases share.
+        if (askedChildrenHalfWay && profile.HasValue)
+        {
+          for (int row = 0; row < items.Count && row < titles.Count; row++)
+          {
+            if (titles[row].Resume.HasValue)
+              continue;
+            // The pair of roles goes child-first, exactly the way TryRelationship pairs them when the same
+            // episodes are listed through "inside": the relationship row stands on the child and names the
+            // parent, so the question "which episodes hang off this series" is ROLE_EPISODE against ROLE_SERIES
+            // with the series' id - turned the other way round the row exists in no library and the answer is
+            // silently nothing.
+            IFilter within = BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
+                new RelationshipFilter(halfWayChildRole, halfWayParentRole, items[row].MediaItemId), startedFilter);
+            // The Media aspect travels with the child aspect on purpose: the library reads a profile's playback
+            // data onto every found item but strips the aspect - and with it the data - back off any item that
+            // did not ask for it (MediaLibrary.Search, the two "has to be removed" passes), and the stored
+            // position IS that data. Asked for, the child arrives wearing its resume; unasked, ReadResume would
+            // find nothing to read and the row would stay empty forever.
+            MediaItemQuery childQuery = new MediaItemQuery(new[] { halfWayChildAspect, MediaAspect.ASPECT_ID }, null, within);
+            childQuery.SetSortInformation(BuildSorts("lastplayed", "desc"));
+            childQuery.Limit = 1;
+            IList<MediaItem> children = mediaLibrary.Search(childQuery, false, profile.Value, false);
+            if (children != null && children.Count > 0)
+              titles[row].Resume = ReadResume(children[0]);
+          }
+        }
 
         // A season shelf that came back with nothing in it is asked one more question before it is called empty,
         // because the commonest reason a series has no season titles is that its library was pointed straight at the

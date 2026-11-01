@@ -1803,6 +1803,105 @@ namespace Tests.Server.Api
           "again the NULL half: a title whose play count was never written was not finished either");
     }
 
+    /// <summary>
+    /// A shelf library over the two containers and their children: series and episodes, albums and tracks,
+    /// beside the media aspect every one of them carries. For the questions whose answer stands on a child -
+    /// "which series did I leave half way?" is answered by an episode, never by the series itself.
+    /// </summary>
+    private static IMediaLibrary ContainersLibrary(out List<MediaItemQuery> asked, out List<IFilter> countedThrough)
+    {
+      List<MediaItemQuery> questions = new List<MediaItemQuery>();
+      List<IFilter> counts = new List<IFilter>();
+
+      var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+      library.Setup(get => get.GetManagedMediaItemAspectMetadata()).Returns(
+          new Dictionary<Guid, MediaItemAspectMetadata>
+          {
+              { MediaAspect.ASPECT_ID, MediaAspect.Metadata },
+              { SeriesAspect.ASPECT_ID, SeriesAspect.Metadata },
+              { EpisodeAspect.ASPECT_ID, EpisodeAspect.Metadata },
+              { AudioAlbumAspect.ASPECT_ID, AudioAlbumAspect.Metadata },
+              { AudioAspect.ASPECT_ID, AudioAspect.Metadata }
+          });
+      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, null, false))
+          .Callback<MediaItemQuery, bool, Guid?, bool>(
+              (query, online, profile, virtualItems) => questions.Add(query))
+          .Returns(new List<MediaItem>());
+      library.Setup(get => get.CountMediaItems(It.IsAny<IEnumerable<Guid>>(), It.IsAny<IFilter>(), false, false))
+          .Callback<IEnumerable<Guid>, IFilter, bool, bool>(
+              (necessary, filter, online, virtualItems) => counts.Add(filter))
+          .Returns(0);
+
+      asked = questions;
+      countedThrough = counts;
+      return library.Object;
+    }
+
+    /// <summary>
+    /// The half-way condition as the children of a container carry it: opened, and never finished.
+    /// </summary>
+    private static void AssertStartedOn(IFilter filter, string whosePosition)
+    {
+      BooleanCombinationFilter combined = (BooleanCombinationFilter) filter;
+      Assert.That(combined.Operator, Is.EqualTo(BooleanOperator.And));
+      Assert.That(combined.Operands.OfType<NotFilter>().Single().InnerFilter, Is.InstanceOf<EmptyFilter>(),
+          "a " + whosePosition + " left half way has to have been opened first");
+      Assert.That(combined.Operands.OfType<BooleanCombinationFilter>().Single().Operator, Is.EqualTo(BooleanOperator.Or),
+          "and never finished - which a play count of nothing or zero says");
+    }
+
+    [Test]
+    public void ASeriesLeftHalfWayIsAskedThroughItsEpisodes()
+    {
+      List<MediaItemQuery> asked;
+      List<IFilter> counted;
+      IMediaLibrary library = ContainersLibrary(out asked, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      MediaController.TitlesResult result =
+          GetTitles(library, "SeriesItem", "lastplayed", "desc", 6, 0, null, "started", out action);
+
+      FilteredRelationshipFilter through = (FilteredRelationshipFilter) asked[0].Filter;
+      Assert.That(through.Role, Is.EqualTo(SeriesAspect.ROLE_SERIES));
+      Assert.That(through.LinkedRole, Is.EqualTo(EpisodeAspect.ROLE_EPISODE),
+          "a series is never played - its episodes are - so the half-way mark stands on the episode, and asking "
+          + "the series' own columns would answer \"none, ever\" to the one shelf that wants an answer");
+      AssertStartedOn(through.Filter, "episode's");
+      Assert.That(result.Seen, Is.EqualTo("started"));
+    }
+
+    [Test]
+    public void AnAlbumLeftHalfWayIsAskedThroughItsTracks()
+    {
+      List<MediaItemQuery> asked;
+      List<IFilter> counted;
+      IMediaLibrary library = ContainersLibrary(out asked, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      GetTitles(library, "AlbumItem", "lastplayed", "desc", 6, 0, null, "started", out action);
+
+      FilteredRelationshipFilter through = (FilteredRelationshipFilter) asked[0].Filter;
+      Assert.That(through.Role, Is.EqualTo(AudioAlbumAspect.ROLE_ALBUM));
+      Assert.That(through.LinkedRole, Is.EqualTo(AudioAspect.ROLE_TRACK),
+          "the same for music: an album is heard track by track, and the track is where the listening was left");
+      AssertStartedOn(through.Filter, "track's");
+    }
+
+    [Test]
+    public void ATitlePlayableItselfIsAskedThroughItsOwnColumns()
+    {
+      List<MediaItemQuery> asked;
+      List<IFilter> counted;
+      IMediaLibrary library = ContainersLibrary(out asked, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      GetTitles(library, "AudioItem", "lastplayed", "desc", 6, 0, null, "started", out action);
+
+      Assert.That(asked[0].Filter, Is.InstanceOf<BooleanCombinationFilter>(),
+          "a track is played itself, so its own columns hold its own position - only the containers have to "
+          + "ask through their children");
+    }
+
     [Test]
     public void AListLeftHalfWayIsCountedThroughItsOwnQuestion()
     {
@@ -1957,6 +2056,55 @@ namespace Tests.Server.Api
     {
       ServiceRegistration.Set<IMediaLibrary>(library);
       return AskedBy(profile).ReportPlayback(id, new MediaController.PlaybackRequest { Percentage = percentage });
+    }
+
+    /// <summary>
+    /// The one question a container's continue row cannot answer from its own columns: the position stands on the
+    /// child, and the shelf has to ask there - but only of somebody, because the position is that person's own.
+    /// </summary>
+    [Test]
+    public void AStartedSeriesTakesItsPositionFromTheEpisodeItWasLeftOn()
+    {
+      Guid seriesId = new Guid("1d1a5a59-1111-4c4f-9a9d-0d4e5f607182");
+      MediaItem series = CreateItem(seriesId, "Silo", "Silo", new DateTime(2020, 5, 21));
+      MediaItem episode = TitleWithStoredPosition(new Guid("2e2b6b6a-2222-4d5e-8b1e-1e5f60718293"), "042");
+
+      List<MediaItemQuery> asked = new List<MediaItemQuery>();
+      var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+      library.Setup(get => get.GetManagedMediaItemAspectMetadata()).Returns(
+          new Dictionary<Guid, MediaItemAspectMetadata>
+          {
+              { MediaAspect.ASPECT_ID, MediaAspect.Metadata },
+              { SeriesAspect.ASPECT_ID, SeriesAspect.Metadata },
+              { EpisodeAspect.ASPECT_ID, EpisodeAspect.Metadata }
+          });
+      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, VIEWER, false))
+          .Callback<MediaItemQuery, bool, Guid?, bool>(
+              (query, online, profile, virtualItems) => asked.Add(query))
+          .Returns<MediaItemQuery, bool, Guid?, bool>((query, online, profile, virtualItems) =>
+              FilterTree(query.Filter).OfType<RelationshipFilter>().Any()
+                  ? (IList<MediaItem>) new List<MediaItem> { episode }
+                  : new List<MediaItem> { series });
+      library.Setup(count => count.CountMediaItems(It.IsAny<IEnumerable<Guid>>(), It.IsAny<IFilter>(), false, false))
+          .Returns(1);
+
+      ServiceRegistration.Set<IMediaLibrary>(library.Object);
+      MediaController.TitlesResult result =
+          Body(AskedBy(VIEWER).GetTitles("SeriesItem", "lastplayed", "desc", 6, 0, null, "started"));
+
+      RelationshipFilter where = FilterTree(asked[1].Filter).OfType<RelationshipFilter>().Single();
+      // Child role first, parent role second, the parent's id as the link - a relationship row stands on the
+      // child, so asking it the other way round finds no row in any library.
+      Assert.That(where.Role, Is.EqualTo(EpisodeAspect.ROLE_EPISODE));
+      Assert.That(where.LinkedRole, Is.EqualTo(SeriesAspect.ROLE_SERIES));
+      Assert.That(where.LinkedMediaItemId, Is.EqualTo(seriesId),
+          "the second question asks the episodes of this one series, not of the whole library");
+      Assert.That(asked[1].Limit, Is.EqualTo(1u), "the most recently started episode is the one asked for");
+      Assert.That(asked[1].NecessaryRequestedMIATypeIDs, Has.Member(MediaAspect.ASPECT_ID),
+          "the position stands on the episode's user data, and the library strips that data - together with an "
+          + "unasked Media aspect - back off every item, so an episode asked for without it comes back mute");
+      Assert.That(result.Titles[0].Resume, Is.EqualTo(42),
+          "where the viewer stopped stands on the episode, and the tile's bar reads it off the series' row");
     }
 
     [Test]
