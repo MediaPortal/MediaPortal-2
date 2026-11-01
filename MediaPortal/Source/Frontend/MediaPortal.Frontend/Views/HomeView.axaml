@@ -812,6 +812,23 @@
                                  TextTrimming="CharacterEllipsis"
                                  MaxLines="2"/>
                     </Border>
+                    <!-- How far the viewer got, laid along the tile's own lower edge: eight pixels, the whole
+                         width at a hundred, the skin's white over no ground at all - the picture under the
+                         rest of the line stays untouched. The reference hangs the same line at the foot of
+                         its home covers and hides it at the two ends where it would say nothing
+                         (HomeContentStyles.xaml:200-208 - nought has nothing to show, a hundred is watched).
+                         Inside the face, so the tile's rounded corners clip its ends like they clip the
+                         picture. -->
+                    <ProgressBar Height="8"
+                                 Minimum="0"
+                                 Maximum="100"
+                                 Value="{Binding Progress}"
+                                 VerticalAlignment="Bottom"
+                                 CornerRadius="0"
+                                 Background="Transparent"
+                                 Foreground="{DynamicResource TextBrush}"
+                                 IsVisible="{Binding HasProgress}"
+                                 IsHitTestVisible="False"/>
                   </Grid>
                   </Border>
                   <!-- The frame, laid over the edge of the face and not around it: the same ring the

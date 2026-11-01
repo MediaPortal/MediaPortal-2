@@ -419,6 +419,19 @@ namespace MediaPortal.Frontend.ViewModels
     /// </summary>
     public string Label => Title?.NameWithoutYear ?? MenuEntry?.Label ?? Shortcut?.Label ?? Card?.Label
         ?? Note?.Text ?? string.Empty;
+
+    /// <summary>
+    /// How far the viewer had got in this cover, as the server's own percentage. The reference reads the same
+    /// figure off the viewer's user data (UserDataWrapper.PlayPercentage behind the home tile's bar).
+    /// </summary>
+    public double Progress => Title?.ResumePercent ?? 0;
+
+    /// <summary>
+    /// Whether the cover wears its progress line: the reference shows the bar only between the ends
+    /// (HomeContentStyles.xaml:203-207 hides it at nought and at a hundred) - a film untouched has nothing
+    /// to say and a finished one wears the watched mark instead of a full line.
+    /// </summary>
+    public bool HasProgress => Progress > 0 && Progress < 100;
     public string Detail => Title?.Detail ?? MenuEntry?.Detail ?? string.Empty;
 
     /// <summary>
