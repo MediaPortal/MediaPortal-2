@@ -81,6 +81,12 @@ namespace MediaPortal.Frontend.Views
     private double _wallScale;
 
     /// <summary>
+    /// The height the hosts' Grid was last told to wear, so that a beat bringing no new wall writes nothing.
+    /// Zero means no height stands.
+    /// </summary>
+    private double _wallHostsHeight;
+
+    /// <summary>
     /// The shape of a refusal, as shares of the distance the thing stood on is thrown: out toward the edge in two
     /// beats, back in five, so that the last beat is a settling and not a snap. The numbers are the shape; a beat
     /// is <see cref="LEAN_STEP_MS"/> long.
@@ -190,8 +196,22 @@ namespace MediaPortal.Frontend.Views
       // A flip and a no-op write no band and send no notification - this is their turn to be heard with.
       _home.WallStood = QueueWallArrival;
 
-      home.WallGroups0.CollectionChanged += delegate { QueueWallArrival(); };
-      home.WallGroups1.CollectionChanged += delegate { QueueWallArrival(); };
+      // Only the host wearing the light may ask for the arrival beat. A wall always goes into the dark host
+      // (HomeViewModel.PutUpWallOn is reached from the step and from the neighbour probe), and the step's flip
+      // answers through WallStood above. Answering the dark host's filling as well re-ran the arrival beat for
+      // the wall that was already standing - a beat after it stood, when the neighbour's wall went in - and that
+      // beat measured and re-laid the whole shelf out again under the pointer of whoever was reading it, which
+      // started the cover's zoom curve and its focus frame from the beginning.
+      home.WallGroups0.CollectionChanged += delegate
+      {
+        if (home.WallIndex == 0)
+          QueueWallArrival();
+      };
+      home.WallGroups1.CollectionChanged += delegate
+      {
+        if (home.WallIndex == 1)
+          QueueWallArrival();
+      };
 
       // The labels of the main menu survive any skin change, by fiat: the moment this view is built it owns
       // its own tile tree, and any moment afterwards when no skin answers the home menu's key, the view's
@@ -943,8 +963,17 @@ namespace MediaPortal.Frontend.Views
       ItemsControl dark = _home.WallIndex == 0 ? nereusWall1 : nereusWall0;
       dark.IsEnabled = false;
       dark.Opacity = 0;
+      // Off the pointer as much as off the light. A wall kept for the walk back stays realized, and in this
+      // engine an invisible-to-pixel control is still a target: Opacity draws nothing away from the hit test,
+      // and a disabled control still answers :pointerover. Both hosts fill the same cell of the same Grid, so
+      // without this the parked wall's tiles sit over (or between) the tiles being read and take the pointer
+      // off them as the hand moves - which starts the cover's zoom curve and its focus frame again, tile by
+      // tile, in the middle of a tile the viewer never left. The reference's second ContentControl was hidden
+      // outright, and a hidden element is no target there; this is that law on this engine's terms.
+      dark.IsHitTestVisible = false;
       standing.IsEnabled = true;
       standing.Opacity = 1;
+      standing.IsHitTestVisible = true;
     }
 
     /// <summary>
@@ -1179,6 +1208,7 @@ namespace MediaPortal.Frontend.Views
       if (_home.HomeLayout != "nereus")
       {
         _wallScale = 0;
+        _wallHostsHeight = 0;
         nereusContentWall.LayoutTransform = null;
         return;
       }
@@ -1190,8 +1220,13 @@ namespace MediaPortal.Frontend.Views
       // than the one parked dark beside it would sit off-centre on the panel. The Grid wears the standing wall's
       // own drawn height - before the transform, which LayoutTransformControl applies on top of it - and the
       // dark host's bands simply keep their place in the dark.
-      if (drawn > 0)
+      if (drawn > 0 && Math.Abs(drawn - _wallHostsHeight) > 0.5)
+      {
+        // Writing a height is a layout answer like the transform below: a number that stands where it was must
+        // not be written again, or a beat that brings no new wall sends the whole shelf through a measure.
+        _wallHostsHeight = drawn;
         nereusWallHosts.Height = drawn;
+      }
       double panel = Bounds.Height;
       if (drawn <= 0 || panel <= 0)
         return;
