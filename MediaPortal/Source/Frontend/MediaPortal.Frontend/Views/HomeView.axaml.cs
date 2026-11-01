@@ -222,6 +222,7 @@ namespace MediaPortal.Frontend.Views
         // the window: find it on the way in, lay the floating header to rest on the way out.
         _chromeShell = this.GetVisualAncestors().OfType<ShellWindow>().FirstOrDefault();
         _chromeShell?.SetChromeHeaderOverlay(_home.HomeLayout == "nereus");
+        FitMenuFade();
       };
       DetachedFromVisualTree += delegate
       {
@@ -254,7 +255,18 @@ namespace MediaPortal.Frontend.Views
         _wmc.Rebuild(_home.SelectedEntry);
         RebuildCross();
         ScrollSelectedMenuItem();
+        FitMenuFade(); // a rebuilt menu is a rail of another length; both ends answer anew
         TakeTheMenuBackIfTheRebuildThrewItOut();
+      };
+      // A travel asked for while the stood-on entry was not laid out yet waits for exactly this container
+      // and takes the glide up the moment it arrives (see GlideShelfToStoodTitle's own waiter).
+      menuList.ContainerPrepared += delegate (object? sender, ContainerPreparedEventArgs e)
+      {
+        if (e.Index == _menuGlideAwaitContainer)
+        {
+          _menuGlideAwaitContainer = -1;
+          Dispatcher.UIThread.Post(delegate { ScrollSelectedMenuItem(0); }, DispatcherPriority.Loaded);
+        }
       };
       // The face's own home comes and goes with the face. Hang what its home.xaml answers on the three hosts
       // now - a view built after a skin went on never sees the event that put the skin on - and again whenever
@@ -1337,7 +1349,14 @@ namespace MediaPortal.Frontend.Views
       return host.GetVisualDescendants().OfType<T>().FirstOrDefault(control => control.Name == name);
     }
 
-    private void ScrollSelectedMenuItem()
+    /// <summary>
+    /// Keeps the entry the viewer stands on inside the rail's band of clear sight, exactly as the media
+    /// shelf stands its titles: an entry nearer an edge of the picture than the reference's scroll margin
+    /// pulls the rail until the entry stands free of the dissolve again. An entry at the very end is not
+    /// fetched further than the rail can travel - the end answers by going bright there (see
+    /// <see cref="UpdateMenuFade"/>) rather than by leaving a stood-on entry in the fade.
+    /// </summary>
+    private void ScrollSelectedMenuItem(int tries = 2)
     {
       MainMenuEntry? selected = _home.SelectedEntry;
       if (!_home.IsNereusHome || selected == null)
@@ -1345,21 +1364,249 @@ namespace MediaPortal.Frontend.Views
 
       Dispatcher.UIThread.Post(delegate
       {
-        ScrollViewer? scrollViewer = menuList.GetVisualDescendants().OfType<ScrollViewer>().FirstOrDefault();
-        Control? item = menuList.ContainerFromItem(selected) as Control;
-        if (scrollViewer == null || item == null)
+        ScrollViewer? scroller = menuList.GetVisualDescendants().OfType<ScrollViewer>().FirstOrDefault();
+        // The list's own index space asks where its own container stands - the view model's menu order is not
+        // necessarily the order the list lays (exactly as the shelf reads titlesList.SelectedIndex).
+        int standing = menuList.SelectedIndex;
+        Control? stood = standing >= 0 ? menuList.ContainerFromIndex(standing) as Control : null;
+        if (scroller == null || stood == null || !stood.IsArrangeValid || stood.Bounds.Height <= 0)
+        {
+          // A container that is not realized yet has no place to stand at, and one the panel has only just
+          // taken in has a size but no place - the travel waits for the arrange the way the shelf's glide
+          // waits for its tile (see GlideShelfToStoodTitle).
+          if (tries > 0)
+            Dispatcher.UIThread.Post(delegate { ScrollSelectedMenuItem(tries - 1); }, DispatcherPriority.Loaded);
+          else if (stood == null && standing >= 0)
+            _menuGlideAwaitContainer = standing;
+          return;
+        }
+
+        Point? at = stood.TranslatePoint(new Point(0, 0), scroller);
+        if (at == null)
           return;
 
-        Point? itemTop = item.TranslatePoint(new Point(0, 0), scrollViewer);
-        if (itemTop == null)
+        double view = scroller.Viewport.Height;
+        if (view <= 0)
           return;
 
-        double maxOffset = Math.Max(0, scrollViewer.Extent.Height - scrollViewer.Viewport.Height);
-        double centeredOffset = scrollViewer.Offset.Y + itemTop.Value.Y
-            + item.Bounds.Height / 2 - scrollViewer.Viewport.Height / 2;
-        scrollViewer.Offset = new Vector(scrollViewer.Offset.X, Math.Clamp(centeredOffset, 0, maxOffset));
+        double low = Math.Min(MENU_SCROLL_MARGIN, view / 2);
+        double high = Math.Max(low, view - MENU_SCROLL_MARGIN);
+        double start = at.Value.Y;
+        double end = start + stood.Bounds.Height;
+        double wanted = scroller.Offset.Y;
+
+        if (end - start > high - low)
+        {
+          // Taller than the whole band - no place holds it clear, so it stands in the band's middle.
+          wanted += (start + end) / 2 - (low + high) / 2;
+        }
+        else if (start < low)
+        {
+          wanted -= low - start;
+        }
+        else if (end > high)
+        {
+          wanted += end - high;
+        }
+
+        wanted = Math.Clamp(wanted, 0, Math.Max(0, scroller.Extent.Height - view));
+        _menuGlide = wanted;
+        if (Math.Abs(wanted - scroller.Offset.Y) < 1.0)
+          return;
+
+        // The mask is dressed for where the rail will stand before its first frame, the way the shelf
+        // dresses a travelling wall; the scroller's own transition carries it there.
+        UpdateMenuFade();
+        scroller.Offset = new Vector(scroller.Offset.X, wanted);
       }, DispatcherPriority.Loaded);
     }
+
+    /// <summary>Where a started rail travel is heading; NaN while the rail stands.</summary>
+    private double _menuGlide = double.NaN;
+
+    /// <summary>The container index a thrown-away travel waits for; -1 when nobody is waiting.</summary>
+    private int _menuGlideAwaitContainer = -1;
+
+    /// <summary>
+    /// Puts the edge fade on the scroller the menu is read through and holds it to one question at each of
+    /// the rail's two ends: has the rail left anything standing out of the picture there? Nothing out is no
+    /// fade at that end - so the first entry of a rail that stands at the top of the screen and the last
+    /// entry of a rail that has run to its end both stand bright, and an entry the viewer stands on never
+    /// stands in a fade the rail could still have travelled out of it.
+    /// </summary>
+    private void FitMenuFade()
+    {
+      if (!_home.IsNereusHome)
+        return;
+
+      Dispatcher.UIThread.Post(delegate
+      {
+        ScrollViewer? scroller = menuList.GetVisualDescendants().OfType<ScrollViewer>().FirstOrDefault();
+        if (scroller == null)
+          return;
+
+        // Both ends of the rail's content get the band's margin as standing room (the same room the shelf's
+        // wall has beyond its last tile): without it the first and the last row stand flush against the
+        // viewport edge at the rail's stops - inside the fade - and NO travel, however computed, can lift
+        // them out, because the extent ends where the fade begins. With the room written into the content,
+        // the rail can always carry the stood-on row clear of both fades.
+        scroller.Padding = new Thickness(0, MENU_SCROLL_MARGIN, 0, MENU_SCROLL_MARGIN);
+
+        if (!ReferenceEquals(_fadedMenuScroller, scroller))
+        {
+          // A retemplated list brings a new scroller, and the mask and the remembered depths go with the old one.
+          _fadedMenuScroller = scroller;
+          _menuFadeBefore = _menuFadeAfter = MENU_FADE_UNREAD;
+          scroller.AddHandler(ScrollViewer.ScrollChangedEvent, delegate
+          {
+            if (double.IsNaN(_menuGlide) || Math.Abs(scroller.Offset.Y - _menuGlide) < 1.0)
+            {
+              bool arrived = !double.IsNaN(_menuGlide);
+              _menuGlide = double.NaN;
+              if (arrived)
+              {
+                // The travel arrived. A rail that ran into its end could not carry the stood-on entry out of
+                // the fade, so the fade is asked once more with the standing it really reached - the way the
+                // shelf re-reads its wall after every travel (see AwaitScrollRest).
+                _menuFadeBefore = _menuFadeAfter = MENU_FADE_UNREAD;
+              }
+              // The band is held, not asked once: whenever the rail came to rest somewhere other than a
+              // travel this screen started - a focus jump's own bring-into-view, a wheel, a flick - the
+              // stood-on entry is read again where it really stands and pulled back inside the band if the
+              // other mover left it in a fade.
+              HoldBandWhenStill();
+            }
+            UpdateMenuFade();
+          });
+        }
+
+        UpdateMenuFade();
+      }, DispatcherPriority.Loaded);
+    }
+
+    /// <summary>
+    /// Asks the band again once the rail has stood still for a beat. The focus's own bring-into-view is a
+    /// mover of the rail too, and it answers with the least travel that shows a tile whole at an edge -
+    /// which is inside no band. Whatever moved the rail, the stood-on entry is read again where it really
+    /// stands and pulled back into the band when the mover left it in a fade.
+    /// </summary>
+    private void HoldBandWhenStill()
+    {
+      if (double.IsNaN(_menuGlide) == false)
+        return; // a travel this screen started is still running; it holds the band when it arrives
+
+      _menuSettleTimer ??= NewMenuSettleTimer();
+      _menuSettleTimer.Stop();
+      _menuSettleTimer.Start();
+    }
+
+    private DispatcherTimer NewMenuSettleTimer()
+    {
+      DispatcherTimer timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(150) };
+      timer.Tick += delegate
+      {
+        timer.Stop();
+        if (double.IsNaN(_menuGlide))
+          ScrollSelectedMenuItem(0);
+      };
+      return timer;
+    }
+
+    private DispatcherTimer? _menuSettleTimer;
+
+    /// <summary>
+    /// Says what each end of the rail is hiding and, if that is not what the mask already says, writes it on.
+    /// A rail that is travelling is read at where it will stand, not at where it is.
+    /// </summary>
+    private void UpdateMenuFade()
+    {
+      ScrollViewer? scroller = _fadedMenuScroller;
+      if (scroller == null)
+        return;
+
+      double view = scroller.Viewport.Height;
+      if (view <= 0)
+        return;
+
+      double offset = double.IsNaN(_menuGlide) ? scroller.Offset.Y : _menuGlide;
+      double zone = MENU_EDGE_FADE * view;
+      double before = MenuFadeDepth(offset, zone);
+      double after = MenuFadeDepth(scroller.Extent.Height - view - offset, zone);
+      if (before == _menuFadeBefore && after == _menuFadeAfter)
+        return;
+
+      _menuFadeBefore = before;
+      _menuFadeAfter = after;
+
+      if (before <= 0 && after <= 0)
+      {
+        // Written opaque rather than cleared: the skin's rule would answer a cleared local value with the
+        // static mask again, and an end hiding nothing must stand bright.
+        MenuFade().GradientStops[0].Color = MenuFadeColour(0);
+        MenuFade().GradientStops[3].Color = MenuFadeColour(0);
+        scroller.OpacityMask = MenuFade();
+        return;
+      }
+
+      Avalonia.Media.LinearGradientBrush fade = MenuFade();
+      fade.GradientStops[0].Color = MenuFadeColour(before);
+      fade.GradientStops[3].Color = MenuFadeColour(after);
+      scroller.OpacityMask = fade;
+    }
+
+    private Avalonia.Media.LinearGradientBrush MenuFade()
+    {
+      return _menuFade ??= NereusMenuFadeBrush();
+    }
+
+    /// <summary>The menu column's mask: four stops, the ends written by <see cref="UpdateMenuFade"/>.</summary>
+    private static Avalonia.Media.LinearGradientBrush NereusMenuFadeBrush()
+    {
+      Avalonia.Media.LinearGradientBrush fade = new Avalonia.Media.LinearGradientBrush
+      {
+        StartPoint = new RelativePoint(0.5, 0, RelativeUnit.Relative),
+        EndPoint = new RelativePoint(0.5, 1, RelativeUnit.Relative)
+      };
+      fade.GradientStops.Add(new Avalonia.Media.GradientStop(Avalonia.Media.Colors.White, 0));
+      fade.GradientStops.Add(new Avalonia.Media.GradientStop(Avalonia.Media.Colors.White, MENU_EDGE_FADE));
+      fade.GradientStops.Add(new Avalonia.Media.GradientStop(Avalonia.Media.Colors.White, 1.0 - MENU_EDGE_FADE));
+      fade.GradientStops.Add(new Avalonia.Media.GradientStop(Avalonia.Media.Colors.White, 1));
+      return fade;
+    }
+
+    /// <summary>How deeply an end hiding <paramref name="hidden"/> points of rail dissolves; quantized.</summary>
+    private static double MenuFadeDepth(double hidden, double zone)
+    {
+      if (hidden <= 0 || zone <= 0)
+        return 0;
+
+      double gone = Math.Min(1.0, hidden / zone);
+      return Math.Round(gone * MENU_FADE_STEPS) / MENU_FADE_STEPS;
+    }
+
+    /// <summary>The mask's colour for an end fading to the given depth.</summary>
+    private static Avalonia.Media.Color MenuFadeColour(double depth)
+      => Avalonia.Media.Color.FromArgb((byte)Math.Round((1.0 - depth) * 255.0), 0xFF, 0xFF, 0xFF);
+
+    /// <summary>
+    /// How far in from an end of the rail a stood-on entry is kept: the reference's own scroll margin of its
+    /// home menu column (OtherControlsOverrides.xaml:1019).
+    /// </summary>
+    private const double MENU_SCROLL_MARGIN = 190.0;
+
+    /// <summary>How far in from an end of the rail its entries dissolve: the menu column's twelve percent.</summary>
+    private const double MENU_EDGE_FADE = 0.12;
+
+    /// <summary>How coarsely the fade answers; a step per eighth of a zone, so a wheel notch can never thrash it.</summary>
+    private const double MENU_FADE_STEPS = 8.0;
+
+    /// <summary>A depth nobody has read yet.</summary>
+    private const double MENU_FADE_UNREAD = -1.0;
+
+    private ScrollViewer? _fadedMenuScroller;
+    private Avalonia.Media.LinearGradientBrush? _menuFade;
+    private double _menuFadeBefore = MENU_FADE_UNREAD;
+    private double _menuFadeAfter = MENU_FADE_UNREAD;
 
     /// <summary>
     /// The cross's arms refilled from WMC's own menu model: the <i>groups</i> written in Huge text above and below
