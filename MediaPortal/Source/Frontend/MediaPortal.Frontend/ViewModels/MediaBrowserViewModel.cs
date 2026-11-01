@@ -181,7 +181,10 @@ namespace MediaPortal.Frontend.ViewModels
       {
         PlayCount = after.PlayCount,
         LastPlayed = after.LastPlayed,
-        Resume = after.Resume
+        Resume = after.Resume,
+        // Folded only when the server named one: an answer from a request that named nobody carries no
+        // percentage, and "nobody asked" must not overwrite the figure this row already had.
+        Percentage = after.Percentage ?? _title.Percentage
       };
     }
 
@@ -331,13 +334,26 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
-    /// Whether the library was told this title was watched to the end. The play count is the only evidence there
-    /// is: it is the number this server itself wrote when a front end reported the end of the film, so a row is
-    /// marked seen exactly when the library says it was finished and not when a file happens to exist.
+    /// Whether this title was watched to the end: the viewer's own percentage at a hundred, and where the server
+    /// named no percentage - an anonymous request has nobody's figure to give - the play count the library holds.
     /// </summary>
+    /// <remarks>
+    /// The two are not two rules but the reference's one rule with its own fallback: it reads the percentage of
+    /// the person asking (<c>AbstractWatchedAction.cs:47-49</c>, which is also what decides which of its two
+    /// watched entries a menu shows), and where no percentage was ever written it takes a play count above nought
+    /// to mean a hundred (<c>PlayableMediaItem.cs:130-137</c>, <c>PlayableContainerMediaItem.cs:47-58</c>). The
+    /// fallback is what an MP2 without profiles does, which is why a title marked through by one front end shows
+    /// as watched to a second one that has not signed in.
+    /// </remarks>
     public bool Seen
     {
-      get { return Title.PlayCount > 0; }
+      get
+      {
+        int? percentage = Title.Percentage;
+        if (percentage.HasValue)
+          return percentage.Value >= 100;
+        return Title.PlayCount > 0;
+      }
     }
 
     /// <summary>
@@ -2150,25 +2166,72 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
+    /// Whether the menu may offer "mark watched": a server has to be there to be told, and the library has to
+    /// have something to learn. The reference draws the same line and reads it off the same number - a viewer
+    /// standing at a hundred per cent is offered the way back and not this way forward again
+    /// (<c>AbstractWatchedAction.cs:45-55</c>).
+    /// </summary>
+    public bool CanMarkWatched
+    {
+      get { return _client != null && Selected != null && !Selected.Seen; }
+    }
+
+    /// <summary>
+    /// Whether the menu may offer the way back: "mark unwatched", the reference's <i>Set unplayed</i>
+    /// (<c>plugin.xml:272</c>, <c>MediaItemActions\SetUnwatched.cs:27</c>), which the reference offers exactly
+    /// when it withholds the other one - a viewer at a hundred per cent.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This entry was missing here behind a wrong reading of the API. The comment that used to stand on
+    /// <see cref="MarkWatchedAsync"/> claimed the playback report could not go backwards, so no sibling was
+    /// built. The reference says otherwise with the very call this screen already makes: its "set unplayed" is
+    /// the same playback report carrying nought (<c>AbstractWatchedAction.cs:73-84</c>), and nought is a legal
+    /// answer here too.
+    /// </para>
+    /// <para>
+    /// What nought undoes, and what it leaves alone, are the reference's, not a choice: the position goes back to
+    /// the start while the number of viewings and the date of the last one stay written
+    /// (<c>MediaLibrary.cs:2852-2858</c>). A title therefore stops being offered as something to resume and stops
+    /// counting as watched through, and still remembers that it was watched twice in the past.
+    /// </para>
+    /// </remarks>
+    public bool CanMarkUnwatched
+    {
+      get { return _client != null && Selected != null && Selected.Seen; }
+    }
+
+    /// <summary>
     /// Tells the library that the selected title was watched to the end, and folds the server's answer into
     /// the row.
     /// </summary>
     /// <remarks>
-    /// <para>
-    /// This is the only mark this front end can make, and the reality of the API says so: the one write the
-    /// server has about watched state is the playback report, whose hundred means "finished" and whose
-    /// counts only ever move forward - <c>MediaLibrary.NotifyPlayback</c> adds a play and stamps the date,
-    /// and nothing subtracts a play or clears a date. So the menu offers exactly "mark watched" and no
-    /// invented sibling for the way back; a screen that hid the second button has nothing to lie about,
-    /// which is the rule this whole front end was written with.
-    /// </para>
-    /// <para>
-    /// The row is rewritten from the server's answer and not from the press - the same rule the end of a
-    /// real film follows through <see cref="ApplyPlayback"/> - so the tick says what the library believes.
-    /// </para>
+    /// The row is rewritten from the server's answer and not from the press - the same rule the end of a real
+    /// film follows through <see cref="ApplyPlayback"/> - so the tick says what the library believes.
     /// </remarks>
     [RelayCommand]
     public async Task MarkWatchedAsync()
+    {
+      await ReportWatchedAsync(100);
+    }
+
+    /// <summary>
+    /// Takes the watched mark back, as the reference's <i>Set unplayed</i> does, by reporting the position at
+    /// nought. The library keeps the count and the date and clears the position
+    /// (<c>MediaLibrary.cs:2852-2858</c>); a title nobody is signed in as cannot have its position cleared at all,
+    /// and <see cref="ReportWatchedAsync"/> says so rather than letting the tick sit there unchanged.
+    /// </summary>
+    [RelayCommand]
+    public async Task MarkUnwatchedAsync()
+    {
+      await ReportWatchedAsync(0);
+    }
+
+    /// <summary>
+    /// The one road both marks walk: tell the server how far this title was watched and rebuild the row from
+    /// what it answers back.
+    /// </summary>
+    private async Task ReportWatchedAsync(int percentage)
     {
       TitleViewModel? title = Selected;
       ServerApiClient? client = _client;
@@ -2180,11 +2243,21 @@ namespace MediaPortal.Frontend.ViewModels
 
       try
       {
-        MediaPlayback after = await client.ReportPlaybackAsync(title.Title.Id, 100);
+        MediaPlayback after = await client.ReportPlaybackAsync(title.Title.Id, percentage);
         ApplyPlayback(after);
-        Status = after.Watched
-            ? title.Name + " is watched now as far as the library is concerned"
-            : title.Name + " - the server took the report but does not count it as finished";
+        if (percentage >= 100)
+          Status = after.Watched
+              ? title.Name + " is watched now as far as the library is concerned"
+              : title.Name + " - the server took the report but does not count it as finished";
+        else if (after.Resume == null && after.PlayCount == 0)
+          Status = title.Name + " is unwatched now, and the library holds no viewing of it";
+        else if (!IsSignedInView())
+          // Nothing was taken back: a viewing that belongs to nobody has no position to return to the start.
+          Status = title.Name + " - the mark belongs to a viewer, and this screen speaks for nobody. Sign in on "
+              + "the server screen and the mark can be taken back.";
+        else
+          Status = title.Name + " is unwatched now; the library still remembers " + after.PlayCount
+              + (after.PlayCount == 1 ? " viewing" : " viewings") + " of it";
       }
       catch (ServerApiException ex)
       {
@@ -2206,6 +2279,17 @@ namespace MediaPortal.Frontend.ViewModels
       MenuVisible = false;
     }
 
+    /// <summary>
+    /// Whether this screen speaks for a viewer, which decides whether a watched mark can be taken back at all:
+    /// the library keeps the mark on a person, so an anonymous report has nothing to clear
+    /// (<c>MediaLibrary.cs:2852-2858</c> against <see cref="MediaLibrary.NotifyPlayback"/>).
+    /// </summary>
+    private bool IsSignedInView()
+    {
+      ServerApiClient? client = _client;
+      return client != null && !string.IsNullOrEmpty(client.AccessToken);
+    }
+
     /// <summary>The title the menu was opened for, or nothing while no row is picked.</summary>
     public string MenuTitle
     {
@@ -2213,18 +2297,9 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
-    /// Whether the menu may offer the mark: a server has to be there to be told, and the library has to
-    /// have something to learn - a title it already counts as finished has nothing left the report can do
-    /// for it, short of padding the play count of a film nobody watched again.
-    /// </summary>
-    public bool CanMarkWatched
-    {
-      get { return _client != null && Selected != null && !Selected.Seen; }
-    }
-
-    /// <summary>
     /// The words the menu says instead of offering a button: why there is nothing to press. Every case is
-    /// said, so the menu is never a frame with a hole where its purpose was.
+    /// said, so the menu is never a frame with a hole where its purpose was. One of the two marks is offered
+    /// for every title a server stands behind, so what is left to explain is the server being gone.
     /// </summary>
     public string MenuWords
     {
@@ -2232,8 +2307,6 @@ namespace MediaPortal.Frontend.ViewModels
       {
         if (Selected == null)
           return "Nothing is selected.";
-        if (Selected.Seen)
-          return "The library already says this title was watched through, and it has no way to be told otherwise.";
         if (_client == null)
           return "There is no server to tell.";
         return "";
@@ -2244,6 +2317,7 @@ namespace MediaPortal.Frontend.ViewModels
     {
       OnPropertyChanged(nameof(MenuTitle));
       OnPropertyChanged(nameof(CanMarkWatched));
+      OnPropertyChanged(nameof(CanMarkUnwatched));
       OnPropertyChanged(nameof(MenuWords));
     }
 

@@ -163,7 +163,12 @@ namespace MediaPortal.Frontend.Api
       // What kind of thing the title is, in the importer's own words - "Science-Fiction", "Drama". Null when the
       // title carries none, which files nobody ever described look like. A server that predates the field simply
       // leaves it null, which is the same answer as "nothing was written".
-      [property: JsonPropertyName("genres")] IReadOnlyList<string>? Genres = null);
+      [property: JsonPropertyName("genres")] IReadOnlyList<string>? Genres = null,
+      // Appended, like the fields before it. How far this viewer got, nought to a hundred, as the library holds it
+      // for the person who asked; null when the request named nobody. A play count says how often a title was
+      // finished, this says how far the last attempt got, and it is the number the reference decides "watched"
+      // and the shape of a title's menu from (AbstractWatchedAction.cs:47-49).
+      [property: JsonPropertyName("percentage")] int? Percentage = null);
 
   /// <summary>
   /// The answer of <c>GET api/media/titles</c>: one page of titles plus what is left behind it.
@@ -303,7 +308,11 @@ namespace MediaPortal.Frontend.Api
       [property: JsonPropertyName("lastPlayed")] DateTime? LastPlayed,
       [property: JsonPropertyName("watched")] bool Watched,
       [property: JsonPropertyName("error")] string? Error,
-      [property: JsonPropertyName("resume")] int? Resume = null);
+      [property: JsonPropertyName("resume")] int? Resume = null,
+      // Appended, like the fields before it: what the library now holds as this viewer's share of the title,
+      // nought to a hundred, and null when the request named nobody. A screen that just marked a title decides
+      // its own next question from this - at a hundred the offer is the way back, below it the way forward.
+      [property: JsonPropertyName("percentage")] int? Percentage = null);
 
   /// <summary>
   /// One folder the server builds its library from, from <c>GET api/media/shares</c>.

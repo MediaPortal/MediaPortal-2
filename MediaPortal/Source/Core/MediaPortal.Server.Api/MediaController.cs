@@ -285,6 +285,25 @@ namespace MediaPortal.Server.Api
       public int? Resume { get; set; }
 
       /// <summary>
+      /// How far the caller's own viewer got in this title, nought to a hundred, or null when the request named
+      /// nobody - an anonymous request has no viewer and so no figure of anybody's own.
+      /// </summary>
+      /// <remarks>
+      /// <para>
+      /// This is the number the reference decides with and the number screens have to have: a title counts as
+      /// watched at a hundred, which is what puts the "set unplayed" entry in its menu and keeps "set played" out
+      /// of it (<c>AbstractWatchedAction.cs:47-49</c>), a container carries the average of its children's numbers
+      /// (<c>MediaLibrary.cs:2494-2513</c>), and the bar under a home tile is drawn from it.
+      /// </para>
+      /// <para>
+      /// Unlike <see cref="Resume"/> this says the whole number, nought and a hundred included, because those two
+      /// are the answers a screen cannot do without: "opened and left at the very start" and "watched through" are
+      /// both things a resume position has nothing to say about.
+      /// </para>
+      /// </remarks>
+      public int? Percentage { get; set; }
+
+      /// <summary>
       /// For an episode: the season number the library holds. For a season: the season it is. Null for anything
       /// else, and for a title whose season was never written.
       /// </summary>
@@ -2631,6 +2650,15 @@ namespace MediaPortal.Server.Api
       /// </summary>
       public int? Resume { get; set; }
 
+      /// <summary>
+      /// How far the caller's own viewer got in this title, nought to a hundred, or null when the request named
+      /// nobody. Where <see cref="Resume"/> hides the two ends of that range - a finished film is not a position
+      /// to resume from - this one says them, because they are the two answers a menu needs: only somebody who
+      /// stands at a hundred is offered the way back to "unplayed"
+      /// (<c>AbstractWatchedAction.cs:47-49</c>), and only somebody below it is offered "played".
+      /// </summary>
+      public int? Percentage { get; set; }
+
       /// <summary>Set when the report was refused, in words a screen can show.</summary>
       public string Error { get; set; }
     }
@@ -2744,7 +2772,8 @@ namespace MediaPortal.Server.Api
       {
         Id = id,
         Watched = watched,
-        Resume = askedAsSomebody ? ReadResume(item) : null
+        Resume = askedAsSomebody ? ReadResume(item) : null,
+        Percentage = askedAsSomebody ? ReadPercentage(item) : null
       };
 
       SingleMediaItemAspect media;
@@ -3325,6 +3354,11 @@ namespace MediaPortal.Server.Api
       // named them, and asking per title would be one database round trip per row of a list.
       result.Resume = askedAsSomebody ? ReadResume(item) : null;
 
+      // And the whole number behind it, which the row's tick, the watched corner and the title's menu are all
+      // read from. Said beside Resume rather than instead of it because the two answer different questions: this
+      // title may be at nought, at a hundred, or at nothing at all, and each of those is an answer.
+      result.Percentage = askedAsSomebody ? ReadPercentage(item) : null;
+
       result.Path = ReadPath(item);
       return result;
     }
@@ -3350,6 +3384,31 @@ namespace MediaPortal.Server.Api
     /// </remarks>
     private static int? ReadResume(MediaItem item)
     {
+      int? stored = ReadPercentage(item);
+      if (!stored.HasValue)
+        return null;
+
+      // A hundred is not a position to resume from and nought is nothing to resume to, which is MP2's own reading
+      // of the same number (BaseContinueWatchMediaListProvider.cs:43-46).
+      int percentage = stored.Value;
+      if (percentage <= 0 || percentage >= 100)
+        return null;
+
+      return percentage;
+    }
+
+    /// <summary>
+    /// The caller's own play percentage for this title, nought to a hundred, or null when their user data holds
+    /// nothing - which is what a title nobody has opened looks like, and what every title looks like to a request
+    /// that named nobody, since such a request carries no user data at all.
+    /// </summary>
+    /// <remarks>
+    /// The whole range, where <see cref="ReadResume"/> reports only the stretch between the ends: the two ends are
+    /// the answers a screen needs for themselves - "watched through" is what puts <i>Set unplayed</i> in a menu
+    /// (<c>AbstractWatchedAction.cs:47-49</c>) and what a home tile's full bar is drawn from.
+    /// </remarks>
+    private static int? ReadPercentage(MediaItem item)
+    {
       if (item == null || item.UserData == null)
         return null;
 
@@ -3359,9 +3418,6 @@ namespace MediaPortal.Server.Api
 
       int percentage;
       if (!int.TryParse(stored, NumberStyles.Integer, CultureInfo.InvariantCulture, out percentage))
-        return null;
-
-      if (percentage <= 0 || percentage >= 100)
         return null;
 
       return percentage;

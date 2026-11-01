@@ -1069,6 +1069,14 @@
                     Content="Mark watched"
                     Command="{Binding MarkWatchedCommand}"
                     IsVisible="{Binding CanMarkWatched}"/>
+            <!-- The way back, and the reference's own sibling of the button above: Set unplayed
+                 (plugin.xml:272). Exactly one of the two is ever on show, which is how the reference's
+                 IsAvailableAsync has them (AbstractWatchedAction.cs:45-55). -->
+            <Button Name="menuUnmarkButton"
+                    Classes="nereus-primary"
+                    Content="Mark unwatched"
+                    Command="{Binding MarkUnwatchedCommand}"
+                    IsVisible="{Binding CanMarkUnwatched}"/>
             <TextBlock Text="{Binding MenuWords}"
                        FontSize="18"
                        Margin="0,8,0,0"

@@ -2327,6 +2327,52 @@ namespace Tests.Server.Api
     }
 
     [Test]
+    public void TheWholePercentageArrivesForThePersonItBelongsTo()
+    {
+      // Resume hides both ends of the range, so a row cannot tell "watched through" from "left at the first
+      // second" - and those two are exactly what the reference asks the percentage for: at a hundred it shows
+      // "set unplayed", below it "set played" (AbstractWatchedAction.cs:47-49).
+      MediaController.TitlesResult finished = TitlesAs(new NameAwareLibrary(
+          new List<MediaItem> { TitleWithStoredPosition(PLAYBACK_ID, "100") }).Library, VIEWER);
+      MediaController.TitlesResult untouched = TitlesAs(new NameAwareLibrary(
+          new List<MediaItem> { TitleWithStoredPosition(PLAYBACK_ID, "000") }).Library, VIEWER);
+      MediaController.TitlesResult half = TitlesAs(new NameAwareLibrary(
+          new List<MediaItem> { TitleWithStoredPosition(PLAYBACK_ID, "042") }).Library, VIEWER);
+
+      Assert.That(finished.Titles[0].Percentage, Is.EqualTo(100),
+          "a hundred has to survive the trip, or the menu can never offer the way back");
+      Assert.That(untouched.Titles[0].Percentage, Is.EqualTo(0),
+          "and nought is an answer of its own, not the absence of one");
+      Assert.That(half.Titles[0].Percentage, Is.EqualTo(42), "the middle comes through as the number, not as a bar width");
+    }
+
+    [Test]
+    public void ARequestFromNobodyReportsNoPercentage()
+    {
+      NameAwareLibrary library = new NameAwareLibrary(
+          new List<MediaItem> { TitleWithStoredPosition(PLAYBACK_ID, "100") });
+
+      MediaController.TitlesResult body = TitlesAs(library.Library, null);
+
+      Assert.That(body.Titles[0].Percentage, Is.Null,
+          "a percentage belongs to a person; an anonymous answer has nobody's figure to give and must not "
+          + "present one - the client falls back to the shared play count for such a request");
+    }
+
+    [Test]
+    public void AReportSaysBackThePercentageTheLibraryHoldsForTheCaller()
+    {
+      NameAwareLibrary library = new NameAwareLibrary(
+          new List<MediaItem> { TitleWithStoredPosition(PLAYBACK_ID, "100") });
+
+      ActionResult<MediaController.PlaybackResult> action = ReportedBy(library.Library, VIEWER, PLAYBACK_ID, 0);
+
+      Assert.That(Body(action).Percentage, Is.EqualTo(100),
+          "the answer is what the library holds afterwards, read the same way the lists read it - a screen "
+          + "folds this into the row it is looking at, so an echo of the press would be a screen believing itself");
+    }
+
+    [Test]
     public void AReportFromAPersonIsStoredUnderTheirName()
     {
       NameAwareLibrary library = new NameAwareLibrary(
