@@ -1727,6 +1727,56 @@ namespace Tests.Server.Api
         foreach (IFilter operand in combination.Operands)
           foreach (IFilter inner in FilterTree(operand))
             yield return inner;
+      else if (filter is FilteredRelationshipFilter filtered)
+        // A shelf of containers carries its question about the children inside the relationship itself.
+        foreach (IFilter inner in FilterTree(filtered.Filter))
+          yield return inner;
+    }
+
+    /// <summary>
+    /// A library which hands back no titles at all and only remembers the questions it was asked, for the tests
+    /// whose whole subject is the shape of a question.
+    /// </summary>
+    /// <param name="asked">The queries the endpoint ran, in the order it ran them.</param>
+    private static IMediaLibrary ShelfLibrary(out List<MediaItemQuery> asked)
+    {
+      var queries = new List<MediaItemQuery>();
+      var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+      library.Setup(get => get.GetManagedMediaItemAspectMetadata()).Returns(
+          new Dictionary<Guid, MediaItemAspectMetadata>
+          {
+              { MediaAspect.ASPECT_ID, MediaAspect.Metadata },
+              { SeriesAspect.ASPECT_ID, SeriesAspect.Metadata },
+              { SeasonAspect.ASPECT_ID, SeasonAspect.Metadata },
+              { EpisodeAspect.ASPECT_ID, EpisodeAspect.Metadata },
+              { AudioAlbumAspect.ASPECT_ID, AudioAlbumAspect.Metadata },
+              { AudioAspect.ASPECT_ID, AudioAspect.Metadata }
+          });
+      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), It.IsAny<bool>(), It.IsAny<Guid?>(), It.IsAny<bool>()))
+          .Callback<MediaItemQuery, bool, Guid?, bool>((query, online, profile, virtualItems) => queries.Add(query))
+          .Returns(new List<MediaItem>());
+      library.Setup(count => count.CountMediaItems(It.IsAny<IEnumerable<Guid>>(), It.IsAny<IFilter>(),
+          It.IsAny<bool>(), It.IsAny<bool>()))
+          .Returns(0);
+      asked = queries;
+      return library.Object;
+    }
+
+    /// <summary>
+    /// Asks the list endpoint for a shelf on behalf of one viewer, and hands back the first question the library
+    /// had to answer.
+    /// </summary>
+    private static IFilter ShelfAskedOf(IMediaLibrary library, Guid viewer, string aspect, string seen,
+        List<MediaItemQuery> asked)
+    {
+      ServiceRegistration.Set<IMediaLibrary>(library);
+      ActionResult<MediaController.TitlesResult> action =
+          AskedBy(viewer).GetTitles(aspect, null, null, 0, 0, null, seen);
+      Assert.That(Body(action), Is.Not.Null,
+        "the endpoint took the viewer's name on a watched shelf");
+      Assert.That(asked, Has.Count.GreaterThanOrEqualTo(1),
+        "a shelf named at the endpoint reached the library");
+      return asked[0].Filter;
     }
 
     [Test]
@@ -4564,6 +4614,108 @@ namespace Tests.Server.Api
       Assert.That(result.Title, Is.EqualTo("Over The Stream"),
           "the words the database holds still arrive; only the file's half of the answer is missing");
       Assert.That(result.Genres, Is.Null);
+    }
+
+    #endregion
+
+    #region Gesehen nach Profil: die Regale, wie die Referenz sie fragt
+
+    [Test]
+    public void SomeoneSUnplayedSeriesShelfIsAskedOfTheSeriesAndItsEpisodes()
+    {
+      List<MediaItemQuery> asked;
+      IMediaLibrary library = ShelfLibrary(out asked);
+
+      IFilter filter = ShelfAskedOf(library, VIEWER, "SeriesItem", "unwatched", asked);
+
+      List<IFilter> tree = FilterTree(filter).ToList();
+      List<RelationalUserDataFilter> percentages =
+          tree.OfType<RelationalUserDataFilter>()
+              .Where(f => f.UserDataKey == UserDataKeysKnown.KEY_PLAY_PERCENTAGE).ToList();
+      Assert.That(percentages, Has.Count.EqualTo(2),
+          "an unplayed shelf named at someone only asked about the percentage once; the reference asks it of the "
+          + "series itself and of its episodes, so a series halfway through is neither half of the shelf");
+      Assert.That(percentages.All(f => f.UserProfileId == VIEWER), Is.True,
+          "an unplayed shelf named at someone read someone else's numbers too");
+      Assert.That(percentages.Any(f => f.IncludeEmpty), Is.True,
+          "a series nobody has ever played holds no percentage at all, and had the shelf asked for one it would "
+          + "have been left out of its own unplayed half");
+      var throughChildren = tree.OfType<FilteredRelationshipFilter>().ToList();
+      Assert.That(throughChildren, Has.Count.EqualTo(1),
+          "the unplayed shelf of someone did not reach through to the children");
+      Assert.That(throughChildren[0].Role, Is.EqualTo(SeriesAspect.ROLE_SERIES));
+      Assert.That(throughChildren[0].LinkedRole, Is.EqualTo(EpisodeAspect.ROLE_EPISODE));
+      Assert.That(throughChildren[0].Filter, Is.InstanceOf<BooleanCombinationFilter>(),
+          "the question about an episode is whether it holds no percentage or a nought one, which is an \"or\"");
+      Assert.That(percentages.Any(f => !f.IncludeEmpty && f.FilterValue == "000"
+              && f.Operator == RelationalOperator.EQ), Is.True,
+          "the series' own question should ask for a nought percentage, the average the library keeps over its "
+          + "episodes");
+    }
+
+    [Test]
+    public void SomeoneSWatchedSeriesShelfIsTheOneWithADateUnderTheirName()
+    {
+      List<MediaItemQuery> asked;
+      IMediaLibrary library = ShelfLibrary(out asked);
+
+      IFilter filter = ShelfAskedOf(library, VIEWER, "SeriesItem", "watched", asked);
+
+      List<IFilter> tree = FilterTree(filter).ToList();
+      List<NotFilter> dated = tree.OfType<NotFilter>()
+          .Where(f => f.InnerFilter is EmptyUserDataFilter)
+          .ToList();
+      Assert.That(dated, Has.Count.EqualTo(2),
+          "the reference calls a container watched when either it or one of its children carries a play date, so "
+          + "the shelf asks the date of both");
+      Assert.That(dated.All(f => ((EmptyUserDataFilter)f.InnerFilter).UserDataKey == UserDataKeysKnown.KEY_PLAY_DATE),
+          Is.True);
+      Assert.That(tree.OfType<AbstractUserDataFilter>().All(f => f.UserProfileId == VIEWER), Is.True,
+          "a watched shelf named at someone read the household's dates");
+      Assert.That(tree.OfType<FilteredRelationshipFilter>(), Has.Exactly(1).Items,
+          "the date of an episode is reached through the relationship between series and episode");
+    }
+
+    [Test]
+    public void SomeoneSHalfWayShelfKeepsBothEndsOut()
+    {
+      List<MediaItemQuery> asked;
+      IMediaLibrary library = ShelfLibrary(out asked);
+
+      IFilter filter = ShelfAskedOf(library, VIEWER, "SeriesItem", "started", asked);
+
+      List<IFilter> tree = FilterTree(filter).ToList();
+      List<RelationalUserDataFilter> percentages =
+          tree.OfType<RelationalUserDataFilter>()
+              .Where(f => f.UserDataKey == UserDataKeysKnown.KEY_PLAY_PERCENTAGE).ToList();
+      Assert.That(percentages, Has.Count.EqualTo(3),
+          "the shelf of started titles asks a series for its percentage from below and from above, and asks an "
+          + "episode from below");
+      Assert.That(percentages.Any(f => f.Operator == RelationalOperator.LT && f.FilterValue == "100"),
+          Is.True, "a series finished to the last episode still belongs to the watched shelf, not to this one");
+      Assert.That(percentages.Any(f => f.Operator == RelationalOperator.GT && f.FilterValue == "000"),
+          Is.True, "a series nobody has touched still belongs to the unplayed shelf, not to this one");
+      Assert.That(tree.OfType<NotFilter>().Any(f => f.InnerFilter is EmptyUserDataFilter), Is.True,
+          "a percentage without a play date is a mark, not a start, and the reference keeps marks out of this "
+          + "shelf");
+      Assert.That(tree.OfType<FilteredRelationshipFilter>(), Has.Exactly(1).Items);
+    }
+
+    [Test]
+    public void AShelfAskedByNobodyStaysOnTheHouseholdCounters()
+    {
+      foreach (string question in new[] { "watched", "unwatched", "started" })
+      {
+        List<MediaItemQuery> asked;
+        IMediaLibrary library = ShelfLibrary(out asked);
+
+        IFilter filter = ShelfAskedOf(library, Guid.Empty, "SeriesItem", question, asked);
+
+        List<IFilter> tree = FilterTree(filter).ToList();
+        Assert.That(tree.OfType<AbstractUserDataFilter>(), Has.Exactly(0).Items,
+            $"the {question} shelf asked without a viewer reached into the profiles; it has to stay on the "
+            + "household's own counters, which is what the frontend sends without a signed-in viewer");
+      }
     }
 
     #endregion

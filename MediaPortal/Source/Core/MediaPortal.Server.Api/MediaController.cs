@@ -548,111 +548,173 @@ namespace MediaPortal.Server.Api
         // that the viewer cleared should show the whole shelf again rather than an empty one.
         string finding = string.IsNullOrWhiteSpace(search) ? null : search.Trim();
 
-        // Whether the viewer has finished a title is a question MP2 already answers with one condition on the
-        // number this server itself wrote when a front end reported the end of a film: its own
-        // BaseLastWatchedMediaListProvider filters PlayCount > 0 and BaseUnwatchedMediaListProvider PlayCount = 0
-        // (BaseUnwatchedMediaListProvider.cs:45). The two conditions here are those two.
+        // Whether the viewer has finished a title is a question MP2 answers twice over, and which of the two
+        // answers applies is who is asking. With a name, its shelves read that person's own play date and
+        // percentage (BaseLastWatchedMediaListProvider.cs:41-44, BaseUnwatchedMediaListProvider.cs:41-45,
+        // BaseContinueWatchMediaListProvider.cs:41-46). Without one, they fall back to the household's counters on
+        // the Media aspect: "PlayCount greater than nought" for watched and "PlayCount = 0" for unwatched
+        // (BaseLastWatchedMediaListProvider.cs:44, BaseUnwatchedMediaListProvider.cs:45). Both readings are here,
+        // and <see cref="AskedThroughChildren"/> adds the reference's second half - the children's own data - for
+        // the two containers.
         //
-        // The unwatched one needs a second half that MP2's provider does not, because PlayCount can be null rather
-        // than zero: an imported film nobody has opened has never had anything written to that column, and a
-        // condition of "PlayCount = 0" is not true about a column that holds nothing - in SQL it is unknown, and an
-        // unknown in a WHERE clause throws the title out of the list. That would mean a brand new library reporting
-        // "no unwatched titles", which is the one answer a viewer can tell is wrong. EmptyFilter compiles to
-        // "IS NULL" (CompiledFilter.cs:255), so the two together mean "nothing was ever written here, or zero was".
+        // The household's unwatched one needs a second half that MP2's provider does not, because PlayCount can be
+        // null rather than zero: an imported film nobody has opened has never had anything written to that column,
+        // and a condition of "PlayCount = 0" is not true about a column that holds nothing - in SQL it is unknown,
+        // and an unknown in a WHERE clause throws the title out of the list. That would mean a brand new library
+        // reporting "no unwatched titles", which is the one answer a viewer can tell is wrong. EmptyFilter compiles
+        // to "IS NULL" (CompiledFilter.cs:255), so the two together mean "nothing was ever written here, or zero
+        // was".
+        // Who is asking decides which of MP2's two readings of these three questions applies, so the answer is
+        // read from the same half of the library the marks were written to.
+        Guid? viewer = CallerProfile;
         string seeing = ReadSeen(seen);
         IFilter seenFilter = null;
-        IFilter startedFilter = null;
+        IFilter halfWayChildren = null;
         bool askedChildrenHalfWay = false;
         Guid halfWayParentRole = Guid.Empty, halfWayChildRole = Guid.Empty, halfWayChildAspect = Guid.Empty;
         if (seeing == "watched")
         {
-          // "Something of it was seen". A container is asked through its children here too, for the same reason
-          // the question below is: the reference's watched lists are built that way. LastWatchedSeries asks for
-          // "a series with a linked episode whose own play date is written" and states the same condition without
-          // a profile as "PlayCount greater than nought" (BaseLastWatchedMediaListProvider.cs:88-99) - on the
-          // episode, because that is where the library keeps the number; a series' own column is never written,
-          // so asked of the series this answered "not one of them" for every series and the browser's "seen"
-          // filter stayed empty over a library full of watched ones.
-          IFilter playedFilter = new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.GT, 0);
-          if (aspectId == SeriesAspect.ASPECT_ID)
-            seenFilter = new FilteredRelationshipFilter(SeriesAspect.ROLE_SERIES, EpisodeAspect.ROLE_EPISODE, playedFilter);
-          else if (aspectId == AudioAlbumAspect.ASPECT_ID)
-            seenFilter = new FilteredRelationshipFilter(AudioAlbumAspect.ROLE_ALBUM, AudioAspect.ROLE_TRACK, playedFilter);
+          if (viewer.HasValue)
+            // "Something of it was seen", asked of this person. MP2's watched shelves are one condition on the
+            // viewer's own play date: "this title has a date written under your name" and - because a series is
+            // watched through its episodes - "one of your episodes of it has a date written" too
+            // (BaseLastWatchedMediaListProvider.cs:41-44 plain, :92-99 for the two containers). The title's own
+            // date is the average pass of the library keeping up: a series gets its date when one of its
+            // episodes reports a viewing (MediaLibrary.cs:2535-2545, "if (updatePlayDate && watchPercentage > 0)").
+            seenFilter = AskedThroughChildren(aspectId,
+                new NotFilter(new EmptyUserDataFilter(viewer.Value, UserDataKeysKnown.KEY_PLAY_DATE)),
+                new NotFilter(new EmptyUserDataFilter(viewer.Value, UserDataKeysKnown.KEY_PLAY_DATE)));
           else
-            seenFilter = playedFilter;
-          // Two shelves can therefore hold one series: three episodes of nine seen puts it under "seen" (an
-          // episode was) and under "unplayed" (episodes remain). That is how the reference's own LastPlaySeries
-          // and UnplayedSeries shelves already overlap, so it is not smoothed away here.
+          {
+            // Nobody is asking, so there is no name to read dates under and the household's counters are all
+            // there is: "PlayCount greater than nought" is MP2's own spelling of this case
+            // (BaseLastWatchedMediaListProvider.cs:44). It is asked of the episodes and tracks, because that is
+            // where the library keeps the number - a container's own column is never written, so asked of the
+            // series it answered "not one of them" for every series and the browser's "seen" filter stayed empty
+            // over a library full of watched ones.
+            IFilter playedFilter = new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.GT, 0);
+            if (aspectId == SeriesAspect.ASPECT_ID)
+              seenFilter = new FilteredRelationshipFilter(SeriesAspect.ROLE_SERIES, EpisodeAspect.ROLE_EPISODE, playedFilter);
+            else if (aspectId == AudioAlbumAspect.ASPECT_ID)
+              seenFilter = new FilteredRelationshipFilter(AudioAlbumAspect.ROLE_ALBUM, AudioAspect.ROLE_TRACK, playedFilter);
+            else
+              seenFilter = playedFilter;
+            // Without a viewer the library's averages do not exist either, so two shelves can hold one series
+            // here: three episodes of nine seen put it under "seen" (an episode was) and under "unplayed"
+            // (episodes remain). That is the shape of MP2's own shelves in this half, so it is not smoothed away.
+          }
         }
         else if (seeing == "unwatched")
         {
-          // "Nothing of it seen yet", in the library's own two halves: zero was written here, or nothing was ever
-          // written - a column holding nothing is neither equal to nought nor unequal to it (see the note above).
-          IFilter neverPlayedFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
-              new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.EQ, 0),
-              new EmptyFilter(MediaAspect.ATTR_PLAYCOUNT));
-
-          // A series is not the thing a viewer watches and an album not the thing they hear - the episodes and the
-          // tracks are - so asking a container's own column whether anything was seen answers "never, about every
-          // one of them": a container's PlayCount is never written, and with the "nothing was written" half above
-          // that keeps every series unplayed for good, the completely watched ones included. MP2 asks the question
-          // of the children through the relationship instead - UnplayedSeries hands an
-          // UnwatchedSeriesMediaListProvider (:41-47 of plugin.xml), whose base builds "a linked episode whose own
-          // position is empty or nought" (BaseUnwatchedRelationshipMediaListProvider.cs:92-98) - which is the same
-          // step this method already takes for "started" below. The container's own half of MP2's condition is
-          // left out on purpose: the library keeps a container's position on the playable parent only, the season
-          // rather than the series, so about a series it holds true of every one and would say nothing.
-          if (aspectId == SeriesAspect.ASPECT_ID)
-            seenFilter = new FilteredRelationshipFilter(SeriesAspect.ROLE_SERIES, EpisodeAspect.ROLE_EPISODE, neverPlayedFilter);
-          else if (aspectId == AudioAlbumAspect.ASPECT_ID)
-            seenFilter = new FilteredRelationshipFilter(AudioAlbumAspect.ROLE_ALBUM, AudioAspect.ROLE_TRACK, neverPlayedFilter);
+          if (viewer.HasValue)
+          {
+            // "Nothing of it seen yet", about this person: an episode of theirs whose percentage is nought or was
+            // never written, and - the half that settles which shelf a series ends up in - the series' own
+            // average percentage also nought or never written
+            // (BaseUnwatchedRelationshipMediaListProvider.cs:91-98; the plain form is
+            // BaseUnwatchedMediaListProvider.cs:41-45). A series three episodes into nine has an average of
+            // thirty-odd and is therefore <i>not</i> unplayed any more, which is exactly why it is not in this
+            // shelf and in "continue watching" at the same time.
+            seenFilter = AskedThroughChildren(aspectId,
+                BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
+                    new EmptyUserDataFilter(viewer.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE),
+                    new RelationalUserDataFilter(viewer.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE,
+                        RelationalOperator.EQ, PlayPercentage(0))),
+                new RelationalUserDataFilter(viewer.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE,
+                    RelationalOperator.EQ, PlayPercentage(0), true));
+          }
           else
-            seenFilter = neverPlayedFilter;
+          {
+            // "Nothing of it seen yet", in the household's own two halves: zero was written here, or nothing was
+            // ever written - a column holding nothing is neither equal to nought nor unequal to it (see the note
+            // above).
+            IFilter neverPlayedFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
+                new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.EQ, 0),
+                new EmptyFilter(MediaAspect.ATTR_PLAYCOUNT));
+
+            // A series is not the thing a viewer watches and an album not the thing they hear - the episodes and
+            // the tracks are - so asking a container's own column whether anything was seen answers "never, about
+            // every one of them": a container's PlayCount is never written, and with the "nothing was written"
+            // half above that keeps every series unplayed for good, the completely watched ones included. MP2
+            // asks the question of the children through the relationship instead
+            // (UnwatchedSeriesMediaListProvider, whose base builds "a linked episode whose own position is empty
+            // or nought", BaseUnwatchedRelationshipMediaListProvider.cs:92-98). The container's own half of that
+            // condition is left out here on purpose: it is a viewer's percentage, and a request that names nobody
+            // has no viewer's percentage to ask about.
+            if (aspectId == SeriesAspect.ASPECT_ID)
+              seenFilter = new FilteredRelationshipFilter(SeriesAspect.ROLE_SERIES, EpisodeAspect.ROLE_EPISODE, neverPlayedFilter);
+            else if (aspectId == AudioAlbumAspect.ASPECT_ID)
+              seenFilter = new FilteredRelationshipFilter(AudioAlbumAspect.ROLE_ALBUM, AudioAspect.ROLE_TRACK, neverPlayedFilter);
+            else
+              seenFilter = neverPlayedFilter;
+          }
         }
         else if (seeing == "started")
-          // The third question a viewer asks: "what did I leave half way?". MP2's own
-          // BaseContinueWatchMediaListProvider answers it per profile, with "a play date exists, and the played
-          // percentage is between one and ninety-nine" (BaseContinueWatchMediaListProvider.cs:43-46); the two
-          // halves of that condition are exactly what LastPlayed-with-no-PlayCount means on the Media aspect,
-          // which is what a server without profiles - this one - has. Without the second half the filter would
-          // also hand back films that were watched to the end, because finishing a film leaves its last-played
-          // date behind, and a "still to finish" list holding finished films is worse than no list.
-          startedFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
-              new NotFilter(new EmptyFilter(MediaAspect.ATTR_LASTPLAYED)),
-              BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
-                  new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.EQ, 0),
-                  new EmptyFilter(MediaAspect.ATTR_PLAYCOUNT)));
-
-        if (startedFilter != null)
         {
-          // A series is never played and an album is never heard - its episodes and its tracks are - so the
-          // half-way mark stands on the child, never on the parent, and asking "which series did I left half
-          // way?" of the parents' own columns answers "none, ever". MP2's own continue lists for the two
-          // containers are therefore relationship providers: ContinueWatchSeriesMediaListProvider asks for the
-          // series <i>whose linked episodes</i> carry the position, and ContinueWatchAlbumMediaListProvider asks
-          // for the albums whose linked tracks do (ContinueWatchSeriesMediaListProvider.cs:37-42,
-          // ContinueWatchAlbumMediaListProvider.cs:41-46). The same two questions are these two filters; every
-          // other aspect is playable itself and keeps the plain one.
-          if (aspectId == SeriesAspect.ASPECT_ID)
+          if (viewer.HasValue)
+            // "What did I leave half way?", about this person: a title with a date under their name whose own
+            // percentage lies strictly between nought and a hundred, and a linked episode or track of theirs that
+            // is half way or has no date at all (BaseContinueWatchRelationshipMediaListProvider.cs:97-105; the
+            // plain form is BaseContinueWatchMediaListProvider.cs:41-46). The two ends are excluded on purpose:
+            // a finished film is not something left to finish, and one opened and abandoned at the first second
+            // has nothing a viewer would call half way.
           {
-            seenFilter = new FilteredRelationshipFilter(SeriesAspect.ROLE_SERIES, EpisodeAspect.ROLE_EPISODE, startedFilter);
-            halfWayParentRole = SeriesAspect.ROLE_SERIES;
-            halfWayChildRole = EpisodeAspect.ROLE_EPISODE;
-            halfWayChildAspect = EpisodeAspect.ASPECT_ID;
-            askedChildrenHalfWay = true;
-          }
-          else if (aspectId == AudioAlbumAspect.ASPECT_ID)
-          {
-            seenFilter = new FilteredRelationshipFilter(AudioAlbumAspect.ROLE_ALBUM, AudioAspect.ROLE_TRACK, startedFilter);
-            halfWayParentRole = AudioAlbumAspect.ROLE_ALBUM;
-            halfWayChildRole = AudioAspect.ROLE_TRACK;
-            halfWayChildAspect = AudioAspect.ASPECT_ID;
-            askedChildrenHalfWay = true;
+            IFilter childHalfWay = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
+                new EmptyUserDataFilter(viewer.Value, UserDataKeysKnown.KEY_PLAY_DATE),
+                new RelationalUserDataFilter(viewer.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE,
+                    RelationalOperator.LT, PlayPercentage(100)));
+            seenFilter = AskedThroughChildren(aspectId, childHalfWay,
+                BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
+                    new NotFilter(new EmptyUserDataFilter(viewer.Value, UserDataKeysKnown.KEY_PLAY_DATE)),
+                    new RelationalUserDataFilter(viewer.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE,
+                        RelationalOperator.LT, PlayPercentage(100)),
+                    new RelationalUserDataFilter(viewer.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE,
+                        RelationalOperator.GT, PlayPercentage(0))));
+            halfWayChildren = childHalfWay;
           }
           else
           {
-            seenFilter = startedFilter;
+            // The household's half of the same question. MP2's own BaseContinueWatchMediaListProvider answers it
+            // per profile; without one it states "PlayCount = 0", which is the answer of a shelf nobody has ever
+            // reported to. What this server has instead - and what every library it has served so far was built
+            // with - is the title's last-played date and play count, so the two halves of MP2's profile condition
+            // are read from those: a date exists, and nothing was counted. Without the second half the filter
+            // would also hand back films that were watched to the end, because finishing a film leaves its
+            // last-played date behind, and a "still to finish" list holding finished films is worse than no list.
+            halfWayChildren = BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
+                new NotFilter(new EmptyFilter(MediaAspect.ATTR_LASTPLAYED)),
+                BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
+                    new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.EQ, 0),
+                    new EmptyFilter(MediaAspect.ATTR_PLAYCOUNT)));
           }
+
+          if (aspectId == SeriesAspect.ASPECT_ID || aspectId == AudioAlbumAspect.ASPECT_ID)
+          {
+            // A series is never paused and an album never stopped - the episode and the track are - so the
+            // half-way mark stands on the child, and every row of this shelf is asked one question back to say
+            // where its viewer stopped (see the second pass below the search). MP2's continue shelves for the two
+            // containers are relationship providers for the same reason
+            // (ContinueWatchSeriesMediaListProvider.cs:37-42, ContinueWatchAlbumMediaListProvider.cs:41-46).
+            if (seenFilter == null)
+              // Nobody's report of "half way" is a date and a count on the child alone; a container has neither
+              // of those of its own, so its half of the question is not asked.
+              seenFilter = AskedThroughChildren(aspectId, halfWayChildren, null);
+            askedChildrenHalfWay = true;
+            if (aspectId == SeriesAspect.ASPECT_ID)
+            {
+              halfWayParentRole = SeriesAspect.ROLE_SERIES;
+              halfWayChildRole = EpisodeAspect.ROLE_EPISODE;
+              halfWayChildAspect = EpisodeAspect.ASPECT_ID;
+            }
+            else
+            {
+              halfWayParentRole = AudioAlbumAspect.ROLE_ALBUM;
+              halfWayChildRole = AudioAspect.ROLE_TRACK;
+              halfWayChildAspect = AudioAspect.ASPECT_ID;
+            }
+          }
+          else
+            seenFilter = seenFilter ?? halfWayChildren;
         }
 
         // The titles inside one title: the tracks on an album, the episodes of a season or a series, the films of
@@ -852,10 +914,12 @@ namespace MediaPortal.Server.Api
         // question back: where did you last stop? The answer is the stored position of the most recently
         // started child, which is exactly what the reference's continue screens show - they hand out the last
         // watched episode itself (BaseContinueWatchRelationshipMediaListProvider.AllowDisplayTitleAsLastWatchedEpisode).
-        // The MP2 library does keep a container's own percentage from reports that carry a profile
-        // (MediaLibrary.UpdateParentPlayUserData, the "Always update Parents" overload), but it keeps it on the
-        // <i>playable</i> parent - the season, not the series - and a library whose positions were reported
-        // without one holds nothing on any parent at all; the child's own row is the one truth both cases share.
+        // The MP2 library does keep a container's own percentage and date from reports that carry a viewer
+        // (MediaLibrary.UpdateParentPlayUserData, reached from NotifyUserPlayback at :2862-2863, over every
+        // relationship the child marks playable - which is how a series gets its own figure, not only its season),
+        // but it keeps nothing for a title whose viewing was reported without a name, and a library marked
+        // before that path worked holds nothing on any parent either; the child's own row is the one answer both
+        // cases share, so the position is still read from there.
         if (askedChildrenHalfWay && profile.HasValue)
         {
           for (int row = 0; row < items.Count && row < titles.Count; row++)
@@ -868,7 +932,7 @@ namespace MediaPortal.Server.Api
             // with the series' id - turned the other way round the row exists in no library and the answer is
             // silently nothing.
             IFilter within = BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
-                new RelationshipFilter(halfWayChildRole, halfWayParentRole, items[row].MediaItemId), startedFilter);
+                new RelationshipFilter(halfWayChildRole, halfWayParentRole, items[row].MediaItemId), halfWayChildren);
             // The Media aspect travels with the child aspect on purpose: the library reads a profile's playback
             // data onto every found item but strips the aspect - and with it the data - back off any item that
             // did not ask for it (MediaLibrary.Search, the two "has to be removed" passes), and the stored
@@ -2839,6 +2903,63 @@ namespace MediaPortal.Server.Api
     /// between the two readings of a one-row list - a short shelf, or a filter nobody remembers - is a field
     /// rather than a guess.
     /// </remarks>
+    /// <summary>
+    /// A play percentage spelled the way the library stores one.
+    /// </summary>
+    /// <remarks>
+    /// The reference writes a viewer's percentage as three digits
+    /// (<c>UserDataKeysKnown.GetSortablePlayPercentageString</c>, which is <c>value.ToString("000")</c>) so that
+    /// the text comparison its shelves compile to still orders the values as numbers - "004" is below "049" is
+    /// below "100". Its filters compare against that spelling, so this compares against it too.
+    /// </remarks>
+    private static string PlayPercentage(int value)
+    {
+      return UserDataKeysKnown.GetSortablePlayPercentageString(value);
+    }
+
+    /// <summary>
+    /// Asks a question of a container through the children that carry the answer, which is how the reference's
+    /// shelves for series and albums are built.
+    /// </summary>
+    /// <param name="aspectId">The aspect being listed.</param>
+    /// <param name="aboutChildren">What has to be true about a linked episode or track.</param>
+    /// <param name="aboutItem">
+    /// What has to be true about the listed title itself, or <c>null</c> to ask the children alone. The reference
+    /// always has both halves because both are read from a viewer's own data; a request that names nobody has
+    /// nothing to ask the container with, and passes <c>null</c> here.
+    /// </param>
+    /// <remarks>
+    /// <para>
+    /// A series is never watched and an album never heard - the episodes and the tracks are - so the reference
+    /// asks both halves together: "a linked episode whose own data says so" <i>and</i> "this title's own data says
+    /// so" (<c>BaseUnwatchedRelationshipMediaListProvider.cs:91-98</c>,
+    /// <c>BaseLastWatchedMediaListProvider.cs:88-99</c>,
+    /// <c>BaseContinueWatchRelationshipMediaListProvider.cs:97-105</c>). The second half is not decoration: the
+    /// library keeps the average of a container's children's percentages on the container itself
+    /// (<c>MediaLibrary.UpdateParentPlayUserData</c>, reached from <c>NotifyUserPlayback</c> at :2862-2863), and it
+    /// is that average which keeps a series with three of nine episodes seen out of the "unplayed" shelf while it
+    /// sits in the continue one. Without it, one title shows in both shelves at once - which is what this endpoint
+    /// used to answer.
+    /// </para>
+    /// <para>
+    /// The two pairs of roles are the ones the reference's providers name: <c>UnwatchedSeriesMediaListProvider</c>
+    /// pairs ROLE_SERIES with ROLE_EPISODE, the album shelves ROLE_ALBUM with ROLE_TRACK. Anything playable by
+    /// itself - a film, an episode, a track - is only asked its own half.
+    /// </para>
+    /// </remarks>
+    private static IFilter AskedThroughChildren(Guid aspectId, IFilter aboutChildren, IFilter aboutItem)
+    {
+      if (aspectId != SeriesAspect.ASPECT_ID && aspectId != AudioAlbumAspect.ASPECT_ID)
+        return aboutItem;
+
+      IFilter relationship = aspectId == SeriesAspect.ASPECT_ID
+          ? new FilteredRelationshipFilter(SeriesAspect.ROLE_SERIES, EpisodeAspect.ROLE_EPISODE, aboutChildren)
+          : new FilteredRelationshipFilter(AudioAlbumAspect.ROLE_ALBUM, AudioAspect.ROLE_TRACK, aboutChildren);
+      return aboutItem == null
+          ? relationship
+          : BooleanCombinationFilter.CombineFilters(BooleanOperator.And, relationship, aboutItem);
+    }
+
     private static string ReadSeen(string seen)
     {
       if (string.Equals(seen, "unwatched", StringComparison.OrdinalIgnoreCase))
