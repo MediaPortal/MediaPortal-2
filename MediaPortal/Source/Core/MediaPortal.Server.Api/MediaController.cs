@@ -47,6 +47,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.Utilities.DB;
 using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Server.Api
@@ -90,6 +91,12 @@ namespace MediaPortal.Server.Api
     /// JSON array while the front end that asked can show twenty of them.
     /// </summary>
     public const int MAX_LIMIT = 2000;
+
+    /// <summary>
+    /// The character the search's LIKE pattern hides wildcards behind - the same one the library's own text
+    /// search uses, so the escaping and the filter agree.
+    /// </summary>
+    private const char SEARCH_ESCAPE = '\\';
 
     /// <summary>
     /// The MediaPortal user profile the bearer token names, or null when the request carries no name.
@@ -683,18 +690,32 @@ namespace MediaPortal.Server.Api
               ? allowed
               : BooleanCombinationFilter.CombineFilters(BooleanOperator.And, asking, allowed);
 
-        // MP2 already knows how to look for words in the library, and it is not "compare the title":
-        // BuildSimpleTextSearchQuery asks the database whether any of the short text attributes of the aspects
-        // being asked about carry the words, which is what typing "star trek" has to mean - a film is found under
-        // its title, its sort title, its collection or its tagline, not under whichever one a hand-written filter
-        // happened to pick. It also escapes the LIKE wildcards, which a filter built here would forget and a viewer
-        // typing an underscore would notice as an empty list.
-        // The last two arguments are the two a viewer would notice if they were the other way round: CLOBs are left
-        // out, because every film whose plot mentions "spaceship" is not what a search for it asked for, and the
-        // match is not case sensitive, because a remote control has no shift key.
-        MediaItemQuery query = finding == null
-            ? new MediaItemQuery(necessary, optional, asking)
-            : mediaLibrary.BuildSimpleTextSearchQuery(finding, necessary, optional, asking, false, false);
+        // What the words are put to. MP2's own BuildSimpleTextSearchQuery offers to ask every short text attribute
+        // of every aspect the request touches, and measured against a real library that is the one question that
+        // takes the server down: the OR over those attributes drags the multi-value tables - every actor, director,
+        // writer, character and award row of every title - and three subqueries over the stored file paths into one
+        // statement, and the database thought about it for 214 seconds on a copy of that library while every other
+        // request queued behind it (36 seconds without the path branches; 0.06 for the title columns alone). A
+        // search box asks for titles; the questions "who acts in it" and "which genre" have their own shelves
+        // (by=actor, by=genre), and those stay fast. So the words go to the two title columns of the Media aspect,
+        // which every shelf of this endpoint carries anyway - escaped for LIKE (a viewer typing an underscore
+        // should get titles with underscores, not an empty shelf) and case-insensitive, because a remote control
+        // has no shift key.
+        MediaItemQuery query;
+        if (finding == null)
+        {
+          query = new MediaItemQuery(necessary, optional, asking);
+        }
+        else
+        {
+          string pattern = "%" + SqlUtils.LikeEscape(finding, SEARCH_ESCAPE) + "%";
+          IFilter words = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
+              new LikeFilter(MediaAspect.ATTR_TITLE, pattern, SEARCH_ESCAPE, false),
+              new LikeFilter(MediaAspect.ATTR_SORT_TITLE, pattern, SEARCH_ESCAPE, false));
+          query = new MediaItemQuery(necessary, optional, asking == null
+              ? words
+              : BooleanCombinationFilter.CombineFilters(BooleanOperator.And, asking, words));
+        }
 
         string sortBy = ReadSort(sort);
         List<ISortInformation> sorts = BuildSorts(sortBy, order);

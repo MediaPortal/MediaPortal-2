@@ -1398,29 +1398,17 @@ namespace Tests.Server.Api
     #region What a search asks the library
 
     /// <summary>
-    /// One "find these words" question, as the library heard it.
+    /// A library that writes down every query it was asked to search and every condition its total was counted
+    /// through - and that answers with <see cref="MockBehavior.Strict"/>, which here carries a meaning of its own:
+    /// the library offers a text search of its own (<c>BuildSimpleTextSearchQuery</c>) that asks every short text
+    /// attribute of every touched aspect at once, and that question measured 214 seconds over a copy of a real
+    /// library - 36 without the file-path branches, 0.06 for the title columns alone - while every other request
+    /// queued behind it. A strict stub refuses it, so a regression that reaches for it fails loudly.
     /// </summary>
-    private class Question
+    private static IMediaLibrary SearchingLibrary(IList<MediaItem> items, int matches,
+        out List<MediaItemQuery> searched, out List<IFilter> countedThrough)
     {
-      internal string Words;
-      internal List<Guid> Necessary;
-      internal List<Guid> Optional;
-      internal IFilter Extra;
-      internal bool LargeText;
-      internal bool CaseSensitive;
-    }
-
-    /// <summary>The filter the library says it built out of the words. Only its identity matters here.</summary>
-    private static readonly IFilter SEARCH_FILTER = new FalseFilter();
-
-    /// <summary>
-    /// A library that answers the search question the way MP2's real one does - by handing back a query it built
-    /// itself - and writes down every question it was asked and every total it was asked to count.
-    /// </summary>
-    private static IMediaLibrary SearchingLibrary(IList<MediaItem> items, int matches, out List<Question> questions,
-        out List<IFilter> countedThrough)
-    {
-      List<Question> asked = new List<Question>();
+      List<MediaItemQuery> searches = new List<MediaItemQuery>();
       List<IFilter> counts = new List<IFilter>();
 
       var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
@@ -1431,70 +1419,71 @@ namespace Tests.Server.Api
               { MovieAspect.ASPECT_ID, MovieAspect.Metadata }
           });
 
-      library.Setup(get => get.BuildSimpleTextSearchQuery(It.IsAny<string>(), It.IsAny<IEnumerable<Guid>>(),
-              It.IsAny<IEnumerable<Guid>>(), It.IsAny<IFilter>(), It.IsAny<bool>(), It.IsAny<bool>()))
-          .Returns((string words, IEnumerable<Guid> necessary, IEnumerable<Guid> optional, IFilter extra,
-              bool largeText, bool caseSensitive) =>
-          {
-            Question question = new Question();
-            question.Words = words;
-            question.Necessary = new List<Guid>(necessary);
-            question.Optional = new List<Guid>(optional);
-            question.Extra = extra;
-            question.LargeText = largeText;
-            question.CaseSensitive = caseSensitive;
-            asked.Add(question);
-            return new MediaItemQuery(necessary, optional, SEARCH_FILTER);
-          });
-
-      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, null, false)).Returns(items);
+      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, null, false))
+          .Callback<MediaItemQuery, bool, Guid?, bool>(
+              (query, online, profile, virtualItems) => searches.Add(query))
+          .Returns(items);
       library.Setup(get => get.CountMediaItems(It.IsAny<IEnumerable<Guid>>(), It.IsAny<IFilter>(), false, false))
           .Callback<IEnumerable<Guid>, IFilter, bool, bool>(
               (necessary, filter, online, virtualItems) => counts.Add(filter))
           .Returns(matches);
 
-      questions = asked;
+      searched = searches;
       countedThrough = counts;
       return library.Object;
     }
 
     [Test]
-    public void TheWordsArePutToTheLibrarysOwnSearchRatherThanToAFilterBuiltHere()
+    public void TheWordsArePutToTheTitleColumnsAndToNothingElse()
     {
-      List<Question> questions;
+      List<MediaItemQuery> searched;
       List<IFilter> counted;
-      IMediaLibrary library = SearchingLibrary(new List<MediaItem>(), 1, out questions, out counted);
+      IMediaLibrary library = SearchingLibrary(new List<MediaItem>(), 1, out searched, out counted);
 
       ActionResult<MediaController.TitlesResult> action;
       GetTitles(library, "MovieItem", null, null, 0, 0, "  alien earth  ", out action);
 
-      Assert.That(questions, Has.Count.EqualTo(1), "asked once, however the screen spells the question");
-      Assert.That(questions[0].Words, Is.EqualTo("alien earth"), "and asked without the spaces around it");
-      Assert.That(questions[0].Necessary, Is.EquivalentTo(new[] { MovieAspect.ASPECT_ID }),
-          "a search for a film is still a search among films");
-      Assert.That(questions[0].Optional, Does.Contain(MediaAspect.ASPECT_ID));
+      Assert.That(searched, Has.Count.EqualTo(1), "asked once, however the screen spells the question");
+      string asked = searched[0].Filter.ToString();
+      Assert.That(asked, Does.Contain("alien earth"), "the words as typed, the spaces around them trimmed");
+      Assert.That(asked, Does.Contain("UPPER([MediaItem.Title])").And.Contain("UPPER([MediaItem.SortTitle])"),
+          "a search box asks for titles, case-insensitively, because a remote control has no shift key");
+      Assert.That(asked, Does.Not.Contain("Actor").And.Not.Contain("Path"),
+          "not to the people tables and not to the stored file paths: measured, those are the branches that " +
+          "took the database minutes, and who acts in a film is what the by=actor shelf answers");
+    }
 
-      Assert.That(questions[0].LargeText, Is.False,
-          "plot text is not searched: every film mentioning a spaceship is not the answer to typing 'spaceship'");
-      Assert.That(questions[0].CaseSensitive, Is.False, "a remote control has no shift key");
+    [Test]
+    public void AWildcardTypedByTheViewerIsEscapedRatherThanWideningTheSearch()
+    {
+      List<MediaItemQuery> searched;
+      List<IFilter> counted;
+      IMediaLibrary library = SearchingLibrary(new List<MediaItem>(), 0, out searched, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      GetTitles(library, "MovieItem", null, null, 0, 0, "a_b%c", out action);
+
+      string asked = searched[0].Filter.ToString();
+      Assert.That(asked, Does.Contain(@"a\_b\%c").And.Contain("ESCAPE"),
+          "a viewer typing an underscore should get the titles with underscores, not every title there is");
     }
 
     [Test]
     public void TheNumberOfMatchesIsCountedThroughTheSameQuestionTheTitlesCameThrough()
     {
-      List<Question> questions;
+      List<MediaItemQuery> searched;
       List<IFilter> counted;
       IMediaLibrary library = SearchingLibrary(new List<MediaItem>
       {
           CreateItem(Guid.NewGuid(), "Alien", "Alien", new DateTime(1979, 5, 25)),
           CreateItem(Guid.NewGuid(), "Alien Earth", "Alien Earth", new DateTime(2025, 4, 6))
-      }, 2, out questions, out counted);
+      }, 2, out searched, out counted);
 
       ActionResult<MediaController.TitlesResult> action;
       MediaController.TitlesResult result = GetTitles(library, "MovieItem", null, null, 0, 0, "alien", out action);
 
       Assert.That(counted, Has.Count.EqualTo(1));
-      Assert.That(counted[0], Is.SameAs(SEARCH_FILTER),
+      Assert.That(counted[0], Is.SameAs(searched[0].Filter),
           "a total counted over the whole shelf while the list shows matches is a list that never stops offering more");
       Assert.That(result.Total, Is.EqualTo(2));
       Assert.That(result.Returned, Is.EqualTo(2));
@@ -1503,9 +1492,9 @@ namespace Tests.Server.Api
     [Test]
     public void TheAnswerSaysWhichWordsItIsAbout()
     {
-      List<Question> questions;
+      List<MediaItemQuery> searched;
       List<IFilter> counted;
-      IMediaLibrary library = SearchingLibrary(new List<MediaItem>(), 0, out questions, out counted);
+      IMediaLibrary library = SearchingLibrary(new List<MediaItem>(), 0, out searched, out counted);
 
       ActionResult<MediaController.TitlesResult> action;
       MediaController.TitlesResult result = GetTitles(library, "MovieItem", null, null, 0, 0, "star trek", out action);
@@ -1517,14 +1506,14 @@ namespace Tests.Server.Api
     [Test]
     public void AskingForTheWholeShelfAsksNoQuestion()
     {
-      List<Question> questions;
+      List<MediaItemQuery> searched;
       List<IFilter> counted;
-      IMediaLibrary library = SearchingLibrary(new List<MediaItem>(), 7, out questions, out counted);
+      IMediaLibrary library = SearchingLibrary(new List<MediaItem>(), 7, out searched, out counted);
 
       ActionResult<MediaController.TitlesResult> action;
       MediaController.TitlesResult result = GetTitles(library, "MovieItem", null, null, 0, 0, out action);
 
-      Assert.That(questions, Is.Empty, "no words, no search");
+      Assert.That(searched[0].Filter, Is.Null, "no words, no condition");
       Assert.That(counted[0], Is.Null, "and the whole shelf is what the total counts");
       Assert.That(result.Search, Is.Null);
       Assert.That(result.Total, Is.EqualTo(7));
@@ -1533,14 +1522,14 @@ namespace Tests.Server.Api
     [Test]
     public void SpacesAreNotAWord()
     {
-      List<Question> questions;
+      List<MediaItemQuery> searched;
       List<IFilter> counted;
-      IMediaLibrary library = SearchingLibrary(new List<MediaItem>(), 7, out questions, out counted);
+      IMediaLibrary library = SearchingLibrary(new List<MediaItem>(), 7, out searched, out counted);
 
       ActionResult<MediaController.TitlesResult> action;
       MediaController.TitlesResult result = GetTitles(library, "MovieItem", null, null, 0, 0, "   ", out action);
 
-      Assert.That(questions, Is.Empty,
+      Assert.That(searched[0].Filter, Is.Null,
           "a search box somebody emptied means \"show everything again\", not \"find the titles that are spaces\"");
       Assert.That(result.Search, Is.Null);
     }
@@ -1548,15 +1537,15 @@ namespace Tests.Server.Api
     [Test]
     public void SearchingAnAspectNobodyHasIsRefusedBeforeTheLibraryIsAsked()
     {
-      List<Question> questions;
+      List<MediaItemQuery> searched;
       List<IFilter> counted;
-      IMediaLibrary library = SearchingLibrary(new List<MediaItem>(), 0, out questions, out counted);
+      IMediaLibrary library = SearchingLibrary(new List<MediaItem>(), 0, out searched, out counted);
 
       ActionResult<MediaController.TitlesResult> action;
       GetTitles(library, "Novel", null, null, 0, 0, "alien", out action);
 
       Assert.That(Status(action), Is.EqualTo(404));
-      Assert.That(questions, Is.Empty, "the question is refused here rather than passed on to be answered with nothing");
+      Assert.That(searched, Is.Empty, "the question is refused here rather than passed on to be answered with nothing");
     }
 
     #endregion
@@ -1724,24 +1713,40 @@ namespace Tests.Server.Api
           "and a title that was never opened says no date rather than showing the year 1 on screen");
     }
 
+    /// <summary>
+    /// Every filter inside <paramref name="filter"/>, however deep the ANDs and ORs nest - so that a test can ask
+    /// whether a condition is in the question without restating the shape the combining happened to produce.
+    /// </summary>
+    private static IEnumerable<IFilter> FilterTree(IFilter filter)
+    {
+      yield return filter;
+      if (filter is NotFilter not)
+        foreach (IFilter inner in FilterTree(not.InnerFilter))
+          yield return inner;
+      else if (filter is BooleanCombinationFilter combination)
+        foreach (IFilter operand in combination.Operands)
+          foreach (IFilter inner in FilterTree(operand))
+            yield return inner;
+    }
+
     [Test]
     public void AWordAndAWatchedFilterAreAskedAsOneQuestion()
     {
-      List<Question> questions;
+      List<MediaItemQuery> searched;
       List<IFilter> counted;
-      IMediaLibrary library = SearchingLibrary(new List<MediaItem>(), 1, out questions, out counted);
+      IMediaLibrary library = SearchingLibrary(new List<MediaItem>(), 1, out searched, out counted);
 
       ActionResult<MediaController.TitlesResult> action;
       GetTitles(library, "MovieItem", null, null, 0, 0, "alien", "unwatched", out action);
 
-      Assert.That(questions, Has.Count.EqualTo(1),
+      Assert.That(searched, Has.Count.EqualTo(1),
           "a filtered search is one question to the library, not two that have to be joined here");
-      Assert.That(questions[0].Words, Is.EqualTo("alien"));
-
-      BooleanCombinationFilter extra = (BooleanCombinationFilter) questions[0].Extra;
-      Assert.That(extra, Is.Not.Null, "the watched condition travels into the library's own search builder");
-      Assert.That(extra.Operands.OfType<EmptyFilter>().Any(), Is.True,
-          "with the same second half, so that a search among unwatched titles finds the ones nobody ever opened");
+      Assert.That(searched[0].Filter.ToString(), Does.Contain("UPPER([MediaItem.Title])"),
+          "one half is the words in the title columns");
+      Assert.That(FilterTree(searched[0].Filter).OfType<EmptyFilter>().Any(empty =>
+                      empty.AttributeType == MediaAspect.ATTR_PLAYCOUNT), Is.True,
+          "the other half is the watched condition, so that a search among unwatched titles finds the ones "
+          + "nobody ever opened");
     }
 
     [Test]
@@ -1817,19 +1822,15 @@ namespace Tests.Server.Api
     [Test]
     public void AWordAndAHalfWayFilterAreAskedAsOneQuestion()
     {
-      List<Question> questions;
+      List<MediaItemQuery> searched;
       List<IFilter> counted;
-      IMediaLibrary library = SearchingLibrary(new List<MediaItem>(), 1, out questions, out counted);
+      IMediaLibrary library = SearchingLibrary(new List<MediaItem>(), 1, out searched, out counted);
 
       ActionResult<MediaController.TitlesResult> action;
       GetTitles(library, "MovieItem", null, null, 0, 0, "alien", "started", out action);
 
-      Assert.That(questions, Has.Count.EqualTo(1));
-      Assert.That(questions[0].Words, Is.EqualTo("alien"));
-
-      BooleanCombinationFilter extra = (BooleanCombinationFilter) questions[0].Extra;
-      Assert.That(extra, Is.Not.Null);
-      Assert.That(extra.Operands.OfType<NotFilter>().Any(), Is.True,
+      Assert.That(searched, Has.Count.EqualTo(1));
+      Assert.That(FilterTree(searched[0].Filter).OfType<NotFilter>().Any(), Is.True,
           "searching among the titles left half way keeps both halves of the watched question");
     }
 
