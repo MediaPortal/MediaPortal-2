@@ -548,9 +548,30 @@ namespace MediaPortal.Server.Api
         if (seeing == "watched")
           seenFilter = new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.GT, 0);
         else if (seeing == "unwatched")
-          seenFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
+        {
+          // "Nothing of it seen yet", in the library's own two halves: zero was written here, or nothing was ever
+          // written - a column holding nothing is neither equal to nought nor unequal to it (see the note above).
+          IFilter neverPlayedFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
               new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.EQ, 0),
               new EmptyFilter(MediaAspect.ATTR_PLAYCOUNT));
+
+          // A series is not the thing a viewer watches and an album not the thing they hear - the episodes and the
+          // tracks are - so asking a container's own column whether anything was seen answers "never, about every
+          // one of them": a container's PlayCount is never written, and with the "nothing was written" half above
+          // that keeps every series unplayed for good, the completely watched ones included. MP2 asks the question
+          // of the children through the relationship instead - UnplayedSeries hands an
+          // UnwatchedSeriesMediaListProvider (:41-47 of plugin.xml), whose base builds "a linked episode whose own
+          // position is empty or nought" (BaseUnwatchedRelationshipMediaListProvider.cs:92-98) - which is the same
+          // step this method already takes for "started" below. The container's own half of MP2's condition is
+          // left out on purpose: the library keeps a container's position on the playable parent only, the season
+          // rather than the series, so about a series it holds true of every one and would say nothing.
+          if (aspectId == SeriesAspect.ASPECT_ID)
+            seenFilter = new FilteredRelationshipFilter(SeriesAspect.ROLE_SERIES, EpisodeAspect.ROLE_EPISODE, neverPlayedFilter);
+          else if (aspectId == AudioAlbumAspect.ASPECT_ID)
+            seenFilter = new FilteredRelationshipFilter(AudioAlbumAspect.ROLE_ALBUM, AudioAspect.ROLE_TRACK, neverPlayedFilter);
+          else
+            seenFilter = neverPlayedFilter;
+        }
         else if (seeing == "started")
           // The third question a viewer asks: "what did I leave half way?". MP2's own
           // BaseContinueWatchMediaListProvider answers it per profile, with "a play date exists, and the played

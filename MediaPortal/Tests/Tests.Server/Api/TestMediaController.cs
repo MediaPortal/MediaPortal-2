@@ -1903,6 +1903,90 @@ namespace Tests.Server.Api
     }
 
     [Test]
+    public void ASeriesNobodyHasFinishedIsAskedThroughItsEpisodes()
+    {
+      List<MediaItemQuery> asked;
+      List<IFilter> counted;
+      IMediaLibrary library = ContainersLibrary(out asked, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      MediaController.TitlesResult result =
+          GetTitles(library, "SeriesItem", "year", "desc", 6, 0, null, "unwatched", out action);
+
+      FilteredRelationshipFilter through = (FilteredRelationshipFilter) asked[0].Filter;
+      Assert.That(through.Role, Is.EqualTo(SeriesAspect.ROLE_SERIES));
+      Assert.That(through.LinkedRole, Is.EqualTo(EpisodeAspect.ROLE_EPISODE),
+          "MP2's UnplayedSeries is a relationship provider (plugin.xml:346 → UnwatchedSeriesMediaListProvider), "
+          + "because a series is never watched - its episodes are. Asked of the series' own columns the question "
+          + "\"anything unseen?\" is answered with nothing written, ever, which puts every series in the shelf for "
+          + "good - the ones the viewer finished included, next to their own progress line");
+      AssertNeverPlayedOn(through.Filter, "episode's");
+      Assert.That(result.Seen, Is.EqualTo("unwatched"));
+    }
+
+    [Test]
+    public void TheUnplayedSeriesShelfIsCountedByItsOwnQuestion()
+    {
+      // Said out loud so nobody "fixes" the relationship away: the reference asks whether the series holds an
+      // unseen episode, not whether the viewer ever opened it. A series three episodes into nine therefore wears
+      // both the progress line and the Unplayed shelf until the last episode is seen
+      // (BaseUnwatchedRelationshipMediaListProvider.cs:92-98) - the library keeps a container's own position on
+      // the playable parent only, the season rather than the series, so no column of a series could ever say
+      // "seen". What does leave the shelf is a series with nothing left to see, which the plain column condition
+      // never did: it answered "unseen" for every series, forever.
+      List<MediaItemQuery> asked;
+      List<IFilter> counted;
+      IMediaLibrary library = ContainersLibrary(out asked, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      GetTitles(library, "SeriesItem", "year", "desc", 6, 0, null, "unwatched", out action);
+
+      Assert.That(counted, Has.Count.EqualTo(1));
+      Assert.That(counted[0], Is.SameAs(asked[0].Filter),
+          "the number the home screen prints under the shelf is counted through the same relationship question, "
+          + "or it would say \"4 000 titles unseen\" over a library whose series are all watched through");
+    }
+
+    [Test]
+    public void AnAlbumNobodyHasHeardIsAskedThroughItsTracks()
+    {
+      List<MediaItemQuery> asked;
+      List<IFilter> counted;
+      IMediaLibrary library = ContainersLibrary(out asked, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      GetTitles(library, "AlbumItem", "year", "desc", 6, 0, null, "unwatched", out action);
+
+      FilteredRelationshipFilter through = (FilteredRelationshipFilter) asked[0].Filter;
+      Assert.That(through.Role, Is.EqualTo(AudioAlbumAspect.ROLE_ALBUM));
+      Assert.That(through.LinkedRole, Is.EqualTo(AudioAspect.ROLE_TRACK),
+          "music is heard track by track, so an album's Unplayed shelf asks the tracks the same way the continue "
+          + "shelf does; an album nobody opened would otherwise never leave the shelf either");
+      AssertNeverPlayedOn(through.Filter, "track's");
+    }
+
+    /// <summary>
+    /// The unseen question as the library's own two halves: a play count of nought, or nothing written at all.
+    /// </summary>
+    private static void AssertNeverPlayedOn(IFilter filter, string whose)
+    {
+      BooleanCombinationFilter combined = filter as BooleanCombinationFilter;
+      Assert.That(combined, Is.Not.Null, "the " + whose + " unseen condition keeps both halves");
+      Assert.That(combined.Operator, Is.EqualTo(BooleanOperator.Or));
+
+      RelationalFilter zero = combined.Operands.OfType<RelationalFilter>().Single();
+      Assert.That(zero.AttributeType, Is.SameAs(MediaAspect.ATTR_PLAYCOUNT));
+      Assert.That(zero.Operator, Is.EqualTo(RelationalOperator.EQ),
+          "MP2's own unwatched condition, carried over to the " + whose + " column");
+      Assert.That(zero.FilterValue, Is.EqualTo(0));
+
+      EmptyFilter nothing = combined.Operands.OfType<EmptyFilter>().Single();
+      Assert.That(nothing.AttributeType, Is.SameAs(MediaAspect.ATTR_PLAYCOUNT),
+          "and the " + whose + " column holding nothing at all, which a library full of titles nobody ever "
+          + "opened is the common case of");
+    }
+
+    [Test]
     public void AListLeftHalfWayIsCountedThroughItsOwnQuestion()
     {
       List<MediaItemQuery> asked;
