@@ -16,10 +16,12 @@
 */
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading;
 using LibVLCSharp.Shared;
 using LibVLCSharp.Shared.Structures;
 
@@ -60,6 +62,13 @@ namespace MediaPortal.Frontend.Player
     private readonly object _gate = new object();
     private readonly LibVLC _libVlc;
     private readonly MediaPlayer _player;
+
+    // Seeks go onto this queue rather than into the engine directly, because libVLC's control calls deadlock when
+    // issued from inside one of libVLC's own event callbacks: the callback runs while the engine holds the player
+    // lock, and a control call asks for that same lock. Measured on live media - the resume seek raised from the
+    // length event parked a thread inside MediaPlayer.set_Time and the screen stayed black forever. This class's
+    // own thread works the queue, off any callback, and one thread keeps seeks in the order they were asked for.
+    private readonly BlockingCollection<Action> _seekQueue = new BlockingCollection<Action>();
 
     private Media? _media;
     private PlayerState _state = PlayerState.Idle;
@@ -130,6 +139,29 @@ namespace MediaPortal.Frontend.Player
       // numbers together, and a length that arrives after the first position tick is worth publishing on its own.
       _player.TimeChanged += (s, e) => PublishPosition();
       _player.LengthChanged += (s, e) => PublishPosition();
+
+      new Thread(WorkSeekQueue) { IsBackground = true, Name = "LibVlcPlayer.Seeks" }.Start();
+    }
+
+    /// <summary>
+    /// Works the seek queue on this player's own thread, where calling into the engine is allowed. An action that
+    /// finds the engine gone says nothing: the media it was meant for is over.
+    /// </summary>
+    private void WorkSeekQueue()
+    {
+      foreach (Action seek in _seekQueue.GetConsumingEnumerable())
+      {
+        try
+        {
+          seek();
+        }
+        catch (VLCException)
+        {
+        }
+        catch (ObjectDisposedException)
+        {
+        }
+      }
     }
 
     /// <summary>e.g. "libVLC 3.0.20" - the version of the native library actually loaded, not of the binding.</summary>
@@ -457,14 +489,17 @@ namespace MediaPortal.Frontend.Player
       }
       set
       {
+        long wanted = value < 0 ? 0 : value;
         try
         {
-          _player.Time = value < 0 ? 0 : value;
+          _seekQueue.Add(delegate
+          {
+            _player.Time = wanted;
+          });
         }
-        catch (VLCException)
+        catch (InvalidOperationException)
         {
-          // A seek on a stream that does not support seeking is not an error worth a dialog; the position simply
-          // does not move, which is what the screen will see when it reads TimeInMs next.
+          // Dispose closed the queue while this seek was on its way - the player is going away anyway.
         }
       }
     }
@@ -1087,6 +1122,9 @@ namespace MediaPortal.Frontend.Player
       {
         // Already on our way out; a native refusal here has nowhere to be reported.
       }
+
+      // No seek may outlive the engine it was asked for; the queue closes and its thread lets go.
+      _seekQueue.CompleteAdding();
 
       // The engine is stopped, so nothing can write any more: take the picture memory back before the native
       // objects go, which is the order that leaves a screen holding nothing but its own arrays.

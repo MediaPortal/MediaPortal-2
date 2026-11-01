@@ -1684,7 +1684,8 @@ namespace MediaPortal.Frontend.ViewModels
       // The resume seek, applied the first time an event says how long the media is. Out here rather than inside
       // the marshaller on purpose: the seek is the engine's business and can be issued from the thread the engine
       // is on, while waiting for a UI turn would have the viewer watch the first minutes of a film they had
-      // already seen before the seek landed at all.
+      // already seen before the seek landed at all. (An engine that hands its events from a thread which must
+      // not block inside them - libVLC - defers such calls to its own thread; see LibVlcPlayer.)
       long resumedToMs = 0;
       int resumedPercent = 0;
       if (_resumePercent > 0 && !_resumeApplied && args.LengthInMs > 0 && _player != null)
