@@ -264,6 +264,48 @@ namespace Tests.Server.Database
     }
 
     [Test]
+    public void TestGuidIdWrittenAgainToABuiltParameterStillFindsTheRowItBelongsTo()
+    {
+      // The shape of MediaLibrary.UpdateParentPlayUserData: a parameter is built once with a placeholder
+      // and then written again for every parent - "itemParam.Value = parentId" - in front of an UPDATE
+      // that meets the parent's existing row and an INSERT behind it for the parent that had none. The
+      // user data table carries foreign keys onto the media items and onto the profiles, so an id bound
+      // as text does not quietly miss here: the insert is refused outright, and that refusal is what a
+      // front end felt as a failing "watched" report while no series ever got its episodes' state.
+      var parentId = Guid.NewGuid();
+      var viewerId = Guid.NewGuid();
+      Exec("CREATE TABLE parents (id TEXT PRIMARY KEY) WITHOUT ROWID");
+      Exec("CREATE TABLE viewers (id TEXT PRIMARY KEY) WITHOUT ROWID");
+      Exec("CREATE TABLE playdata (viewer TEXT NOT NULL REFERENCES viewers(id), item TEXT NOT NULL "
+          + "REFERENCES parents(id), key TEXT NOT NULL, value TEXT, PRIMARY KEY (viewer, item, key)) "
+          + "WITHOUT ROWID");
+      Exec("INSERT INTO parents(id) VALUES(x'" + BitConverter.ToString(parentId.ToByteArray()).Replace("-", "") + "')");
+      Exec("INSERT INTO viewers(id) VALUES(x'" + BitConverter.ToString(viewerId.ToByteArray()).Replace("-", "") + "')");
+
+      using (var command = _connection.CreateCommand())
+      {
+        command.CommandText = "INSERT INTO playdata(viewer,item,key,value) VALUES(@PID,@ITEM,@KEY,@VALUE)";
+        var item = SQLiteValues.TryAddBinaryParameter(command, "@ITEM", Guid.Empty, typeof(Guid));
+        var pid = SQLiteValues.TryAddBinaryParameter(command, "@PID", Guid.Empty, typeof(Guid));
+        DBUtils.AddSimpleParameter(command, "@KEY", "PlayPercentage", typeof(string));
+        DBUtils.AddSimpleParameter(command, "@VALUE", "100", typeof(string));
+
+        // The caller's habit, kept as it is written there: the ids go in as Guids, not as bytes.
+        item.Value = parentId;
+        pid.Value = viewerId;
+        command.ExecuteNonQuery();
+
+        command.CommandText = "UPDATE playdata SET value=@VALUE WHERE item=@ITEM AND viewer=@PID "
+            + "AND key=@KEY";
+        Assert.That(command.ExecuteNonQuery(), Is.EqualTo(1),
+            "the id that wrote a row has to be the id that meets it again - both are the sixteen bytes "
+            + "this provider stores, whatever the caller handed the parameter");
+      }
+
+      Assert.That(Scalar("SELECT typeof(item) FROM playdata"), Is.EqualTo("blob"));
+    }
+
+    [Test]
     public void TestNullGuidAndNullBlobBecomeDBNull()
     {
       Assert.That(SQLiteValues.ConvertParameter(typeof(Guid), null), Is.EqualTo(DBNull.Value));

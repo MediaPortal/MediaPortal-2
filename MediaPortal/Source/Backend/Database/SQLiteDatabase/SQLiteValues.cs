@@ -84,12 +84,45 @@ namespace MediaPortal.Database.SQLite
       if (type != typeof(byte[]) && type != typeof(Guid))
         return null;
 
-      var result = (SqliteParameter)command.CreateParameter();
-      result.ParameterName = name;
-      result.DbType = DbType.Binary;
-      result.Value = ConvertParameter(type, value);
+      var result = new BinaryGuidParameter
+      {
+        ParameterName = name,
+        DbType = DbType.Binary,
+        Value = ConvertParameter(type, value),
+      };
       command.Parameters.Add(result);
       return result;
+    }
+
+    /// <summary>
+    /// A BLOB parameter that stores a Guid as its sixteen bytes however the value arrives - when the
+    /// parameter is made, and when it is written again afterwards.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <see cref="TryAddBinaryParameter"/> converts the value it is handed, but the database layer's
+    /// habit is to build a parameter once and then write <c>Value</c> again for every statement or
+    /// every row: <c>MediaLibrary.UpdateParentPlayUserData</c> creates an item id and a profile id this
+    /// way and reassigns both for every parent of every reported title. A plain parameter takes what it
+    /// is given and lets the driver pick a representation, and the driver picks text for a Guid - which
+    /// is no id anywhere in this database (see the remarks on <see cref="SQLiteValues"/>).
+    /// </para>
+    /// <para>
+    /// Measured on a real library, that read as follows: the update meant to meet a parent's existing
+    /// row met nothing, the insert behind it failed the foreign key onto the media items
+    /// (<c>SQLite Error 19: 'FOREIGN KEY constraint failed'</c>), the front end's report of a watched
+    /// film came back as a server error, and no series or album ever received the watched state its
+    /// episodes and tracks had earned. Converting at the assignment keeps the storage decision inside
+    /// the one class that owns it and takes the trap away from every caller at once.
+    /// </para>
+    /// </remarks>
+    public class BinaryGuidParameter : SqliteParameter
+    {
+      public override object Value
+      {
+        get { return base.Value; }
+        set { base.Value = value is Guid guid ? guid.ToByteArray() : value; }
+      }
     }
   }
 }
