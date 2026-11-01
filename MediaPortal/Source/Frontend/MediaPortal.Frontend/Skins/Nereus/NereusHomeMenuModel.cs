@@ -96,7 +96,7 @@ namespace MediaPortal.Frontend.Skins.Nereus
             new NereusHomeShortcut("EPG", "MediaMenu/EPG", screenKey: "tv"),
             new NereusHomeShortcut("Schedules", "MediaMenu/schedules", screenKey: "schedules"),
             new NereusHomeShortcut("Recordings", "MediaMenu/Recordings", screenKey: "recordings"),
-            new NereusHomeShortcut("Search", "MediaMenu/SearchProgram")
+            new NereusHomeShortcut("Search", "MediaMenu/search")
           },
           [Guid.Parse("e3bbc989-99db-40e9-a15f-ccb50b17a4c8")] = new[]
           {
@@ -104,7 +104,7 @@ namespace MediaPortal.Frontend.Skins.Nereus
             new NereusHomeShortcut("EPG", "MediaMenu/EPG", screenKey: "radio"),
             new NereusHomeShortcut("Schedules", "MediaMenu/schedules", screenKey: "schedules"),
             new NereusHomeShortcut("Recordings", "MediaMenu/Recordings", screenKey: "recordings"),
-            new NereusHomeShortcut("Search", "MediaMenu/SearchProgram")
+            new NereusHomeShortcut("Search", "MediaMenu/search")
           },
           [Guid.Parse("bb49a591-7705-408f-8177-45d633fdfad0")] = new[]
           {
