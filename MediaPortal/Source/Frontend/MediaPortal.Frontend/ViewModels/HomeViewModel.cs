@@ -508,9 +508,12 @@ namespace MediaPortal.Frontend.ViewModels
     private HomeRow? _selectedContent;
 
     /// <summary>
-    /// What the reference shows at the bottom left of the home screen about the chosen title: its name, the year,
-    /// how long it runs, and how much of it has been watched - the facts the row itself carries, since asking the
-    /// detail reader for a rating would put a second request behind every step of the walk.
+    /// What the home screen says at the bottom left about the chosen title: its plain name, then the year, then
+    /// the kinds of thing it is - the three separated by the dot, the genres between themselves by commas. The
+    /// importer writes series names with the year already on them ("Silo (2023)") while the row carries the year
+    /// again as a number, so a year the name already wears is taken off it and said once, as its own piece.
+    /// All of it is what the row itself carries; asking the detail reader would put a second request behind
+    /// every step of the walk.
     /// </summary>
     public string ContentInfo
     {
@@ -520,15 +523,16 @@ namespace MediaPortal.Frontend.ViewModels
         if (title == null)
           return string.Empty;
 
-        var parts = new List<string>();
-        if (title.Title.Year is int year)
-          parts.Add(year.ToString(System.Globalization.CultureInfo.InvariantCulture));
-        if (title.Title.RuntimeMinutes is int minutes && minutes > 0)
-          parts.Add(minutes + " min");
-        if (title.ResumeText.Length > 0)
-          parts.Add(title.ResumeText);
+        // The plain name and the year as its own piece - "Silo · 2023" - rather than the pair the importer wrote
+        // ("Silo (2023)") with the row's year number repeated after it.
+        var parts = new List<string> { title.NameWithoutYear };
+        if (title.Title.Year is int shown)
+          parts.Add(shown.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        IReadOnlyList<string> genres = title.Title.Genres ?? Array.Empty<string>();
+        if (genres.Count > 0)
+          parts.Add(string.Join(", ", genres));
 
-        return parts.Count == 0 ? title.Name : title.Name + "   ·   " + string.Join("   ·   ", parts);
+        return string.Join("   ·   ", parts);
       }
     }
 

@@ -159,7 +159,11 @@ namespace MediaPortal.Frontend.Api
       // For a season the library does not hold as a title of its own - one it only counted off the numbers its
       // episodes carry - the series that season's answers have to be asked of, since the id above is a key to the
       // list and nothing more. Null for every title the library holds.
-      [property: JsonPropertyName("parentId")] Guid? ParentId = null);
+      [property: JsonPropertyName("parentId")] Guid? ParentId = null,
+      // What kind of thing the title is, in the importer's own words - "Science-Fiction", "Drama". Null when the
+      // title carries none, which files nobody ever described look like. A server that predates the field simply
+      // leaves it null, which is the same answer as "nothing was written".
+      [property: JsonPropertyName("genres")] IReadOnlyList<string>? Genres = null);
 
   /// <summary>
   /// The answer of <c>GET api/media/titles</c>: one page of titles plus what is left behind it.

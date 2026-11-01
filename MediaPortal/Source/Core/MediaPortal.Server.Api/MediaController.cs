@@ -238,6 +238,13 @@ namespace MediaPortal.Server.Api
       public int? RuntimeMinutes { get; set; }
 
       /// <summary>
+      /// The title's genres as the importer wrote them, or null when the title carries none - which is ordinary
+      /// for files nobody described. Read off the genre aspect the request already asked along, so a screen can
+      /// say what kind of thing a title is without opening one request per row.
+      /// </summary>
+      public List<string> Genres { get; set; }
+
+      /// <summary>
       /// The item's primary resource, serialized as MP2 serializes a path. Null when the item has no primary
       /// resource at all, which a stub or an item whose provider went away looks like.
       /// </summary>
@@ -509,6 +516,14 @@ namespace MediaPortal.Server.Api
             entry != null && entry.AspectId == MovieAspect.ASPECT_ID);
         if (movie != null && aspectId != MovieAspect.ASPECT_ID)
           optional.Add(MovieAspect.ASPECT_ID);
+
+        // The genre aspect travels along for the same reason and pays the same price as the other optional
+        // aspects - one grouped read over the page the library hands back, not a join per row: the by=genre shelf
+        // has always filtered through this aspect in milliseconds, and the home band says the chosen title's
+        // genres without opening a second request per step of the walk.
+        bool hasGenres = metadata.Values.Any(entry => entry != null && entry.AspectId == GenreAspect.ASPECT_ID);
+        if (hasGenres && aspectId != GenreAspect.ASPECT_ID)
+          optional.Add(GenreAspect.ASPECT_ID);
 
         // What the viewer asked the library to contain. Whitespace counts as nothing asked, because a search box
         // that the viewer cleared should show the whole shelf again rather than an empty one.
@@ -3108,6 +3123,20 @@ namespace MediaPortal.Server.Api
         int runtime = movie.GetAttributeValue<int>(MovieAspect.ATTR_RUNTIME_M);
         if (runtime > 0)
           result.RuntimeMinutes = runtime;
+      }
+
+      // The genre aspect is one record per genre - a ManyToMany aspect, which is also why the by=genre shelf can
+      // point at a single value. The names come in the importer's order and keep it; a repeated word is said once.
+      IList<MultipleMediaItemAspect> genreAspects;
+      if (MediaItemAspect.TryGetAspects(item.Aspects, GenreAspect.Metadata, out genreAspects))
+      {
+        List<string> genres = genreAspects
+            .Select(genre => Text(genre.GetAttributeValue<string>(GenreAspect.ATTR_GENRE)))
+            .Where(genre => genre != null)
+            .Distinct()
+            .ToList();
+        if (genres.Count > 0)
+          result.Genres = genres;
       }
 
       // Where a title sits in the one that holds it, and who made it. Everything here comes off the aspect the

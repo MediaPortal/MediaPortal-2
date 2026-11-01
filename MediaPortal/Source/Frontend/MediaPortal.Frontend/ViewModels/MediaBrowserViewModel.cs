@@ -312,6 +312,25 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
+    /// The name without the year the importer wrote onto its end. Importers name a series "Silo (2023)" while the
+    /// row also carries the year as its own number; a screen that shows the number beside the name - or wants the
+    /// name alone - says the year once and takes it off here. A trailing "(...)" that holds any other word stays
+    /// part of the name, and so does everything the library gives no year for.
+    /// </summary>
+    public string NameWithoutYear
+    {
+      get
+      {
+        if (Title.Year is not int year)
+          return Name;
+        string worn = " (" + year.ToString(CultureInfo.InvariantCulture) + ")";
+        return Name.EndsWith(worn, StringComparison.Ordinal)
+            ? Name.Substring(0, Name.Length - worn.Length).TrimEnd()
+            : Name;
+      }
+    }
+
+    /// <summary>
     /// Whether the library was told this title was watched to the end. The play count is the only evidence there
     /// is: it is the number this server itself wrote when a front end reported the end of the film, so a row is
     /// marked seen exactly when the library says it was finished and not when a file happens to exist.

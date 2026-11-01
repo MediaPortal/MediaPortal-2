@@ -470,14 +470,14 @@
           <Path Data="{Binding Title.FallbackIcon, Converter={x:Static views:SkinIconGeometryConverter.Instance}}"
                 Fill="{DynamicResource TextBrush}" Width="110" Height="110" Opacity="0.55" Stretch="Uniform"
                 HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-90,0,0"/>
-          <TextBlock Text="{Binding Title.Name}" Foreground="{DynamicResource TextBrush}"
+          <TextBlock Text="{Binding Title.NameWithoutYear}" Foreground="{DynamicResource TextBrush}"
                      FontSize="{DynamicResource SmallFontSize}" TextWrapping="Wrap"
                      TextTrimming="CharacterEllipsis" MaxLines="4" TextAlignment="Center"
                      Margin="20,80,15,15" VerticalAlignment="Center"/>
         </Panel>
         <Border Background="#80000000" Height="70" VerticalAlignment="Bottom" Margin="4"
                 IsVisible="{Binding Title.HasArtwork}">
-          <TextBlock Text="{Binding Title.Name}" Foreground="{DynamicResource TextBrush}"
+          <TextBlock Text="{Binding Title.NameWithoutYear}" Foreground="{DynamicResource TextBrush}"
                      FontSize="{DynamicResource SmallFontSize}" TextTrimming="CharacterEllipsis"
                      TextAlignment="Center" VerticalAlignment="Center" Margin="8,0"/>
         </Border>

@@ -412,7 +412,13 @@ namespace MediaPortal.Frontend.ViewModels
 
     public bool HasNoPicture => !HasPicture;
 
-    public string Label => Title?.Name ?? MenuEntry?.Label ?? Shortcut?.Label ?? Card?.Label ?? Note?.Text ?? string.Empty;
+    /// <summary>
+    /// The word the tile wears. A cover wears its title without the year the importer wrote onto the end -
+    /// the reference keeps the year off its covers too (its home tiles bind the bare name and say the year
+    /// only in the detail band, MediaItemHomeSeriesDetails.inc:26-28 with the year icon beside it).
+    /// </summary>
+    public string Label => Title?.NameWithoutYear ?? MenuEntry?.Label ?? Shortcut?.Label ?? Card?.Label
+        ?? Note?.Text ?? string.Empty;
     public string Detail => Title?.Detail ?? MenuEntry?.Detail ?? string.Empty;
 
     /// <summary>
