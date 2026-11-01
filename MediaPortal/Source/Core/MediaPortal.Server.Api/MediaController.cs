@@ -546,7 +546,25 @@ namespace MediaPortal.Server.Api
         bool askedChildrenHalfWay = false;
         Guid halfWayParentRole = Guid.Empty, halfWayChildRole = Guid.Empty, halfWayChildAspect = Guid.Empty;
         if (seeing == "watched")
-          seenFilter = new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.GT, 0);
+        {
+          // "Something of it was seen". A container is asked through its children here too, for the same reason
+          // the question below is: the reference's watched lists are built that way. LastWatchedSeries asks for
+          // "a series with a linked episode whose own play date is written" and states the same condition without
+          // a profile as "PlayCount greater than nought" (BaseLastWatchedMediaListProvider.cs:88-99) - on the
+          // episode, because that is where the library keeps the number; a series' own column is never written,
+          // so asked of the series this answered "not one of them" for every series and the browser's "seen"
+          // filter stayed empty over a library full of watched ones.
+          IFilter playedFilter = new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.GT, 0);
+          if (aspectId == SeriesAspect.ASPECT_ID)
+            seenFilter = new FilteredRelationshipFilter(SeriesAspect.ROLE_SERIES, EpisodeAspect.ROLE_EPISODE, playedFilter);
+          else if (aspectId == AudioAlbumAspect.ASPECT_ID)
+            seenFilter = new FilteredRelationshipFilter(AudioAlbumAspect.ROLE_ALBUM, AudioAspect.ROLE_TRACK, playedFilter);
+          else
+            seenFilter = playedFilter;
+          // Two shelves can therefore hold one series: three episodes of nine seen puts it under "seen" (an
+          // episode was) and under "unplayed" (episodes remain). That is how the reference's own LastPlaySeries
+          // and UnplayedSeries shelves already overlap, so it is not smoothed away here.
+        }
         else if (seeing == "unwatched")
         {
           // "Nothing of it seen yet", in the library's own two halves: zero was written here, or nothing was ever

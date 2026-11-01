@@ -1965,6 +1965,71 @@ namespace Tests.Server.Api
       AssertNeverPlayedOn(through.Filter, "track's");
     }
 
+    [Test]
+    public void ASeriesWithASeenEpisodeIsAskedThroughItsEpisodes()
+    {
+      List<MediaItemQuery> asked;
+      List<IFilter> counted;
+      IMediaLibrary library = ContainersLibrary(out asked, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      GetTitles(library, "SeriesItem", "year", "desc", 6, 0, null, "watched", out action);
+
+      FilteredRelationshipFilter through = (FilteredRelationshipFilter) asked[0].Filter;
+      Assert.That(through.Role, Is.EqualTo(SeriesAspect.ROLE_SERIES));
+      Assert.That(through.LinkedRole, Is.EqualTo(EpisodeAspect.ROLE_EPISODE),
+          "the seen half of the browser's filter asked the series' own column too, and never wrote a number there "
+          + "- so \"seen\" stayed empty over a library of watched series; the reference's watched lists ask the "
+          + "same question of the episodes (BaseLastWatchedMediaListProvider.cs:88-99)");
+      AssertSeenOn(through.Filter, "episode's");
+    }
+
+    [Test]
+    public void AnAlbumThatWasHeardIsAskedThroughItsTracks()
+    {
+      List<MediaItemQuery> asked;
+      List<IFilter> counted;
+      IMediaLibrary library = ContainersLibrary(out asked, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      GetTitles(library, "AlbumItem", "year", "desc", 6, 0, null, "watched", out action);
+
+      FilteredRelationshipFilter through = (FilteredRelationshipFilter) asked[0].Filter;
+      Assert.That(through.Role, Is.EqualTo(AudioAlbumAspect.ROLE_ALBUM));
+      Assert.That(through.LinkedRole, Is.EqualTo(AudioAspect.ROLE_TRACK),
+          "an album was heard when one of its tracks was, which is what its own empty column could never say");
+      AssertSeenOn(through.Filter, "track's");
+    }
+
+    [Test]
+    public void APlayableTitleStillAnswersTheSeenQuestionItself()
+    {
+      List<MediaItemQuery> asked;
+      List<IFilter> counted;
+      IMediaLibrary library = ContainersLibrary(out asked, out counted);
+
+      ActionResult<MediaController.TitlesResult> action;
+      GetTitles(library, "AudioItem", "year", "desc", 6, 0, null, "watched", out action);
+
+      Assert.That(asked[0].Filter, Is.InstanceOf<RelationalFilter>(),
+          "a track is heard itself and its own column was written, so only the containers are asked through "
+          + "their children");
+      AssertSeenOn(asked[0].Filter, "track's");
+    }
+
+    /// <summary>
+    /// The seen condition as the reference states it: a play count above nought, on the named title's column.
+    /// </summary>
+    private static void AssertSeenOn(IFilter filter, string whose)
+    {
+      RelationalFilter played = filter as RelationalFilter;
+      Assert.That(played, Is.Not.Null, "the " + whose + " seen condition stays one plain comparison");
+      Assert.That(played.AttributeType, Is.SameAs(MediaAspect.ATTR_PLAYCOUNT));
+      Assert.That(played.Operator, Is.EqualTo(RelationalOperator.GT),
+          "MP2's own watched condition, carried over to the " + whose + " column");
+      Assert.That(played.FilterValue, Is.EqualTo(0));
+    }
+
     /// <summary>
     /// The unseen question as the library's own two halves: a play count of nought, or nothing written at all.
     /// </summary>
