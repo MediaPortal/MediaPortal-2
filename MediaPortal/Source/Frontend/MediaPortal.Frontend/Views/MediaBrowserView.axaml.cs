@@ -52,12 +52,18 @@ namespace MediaPortal.Frontend.Views
     /// Whether the caret is still owed its place in a reading whose bands were empty when it came up.
     /// </summary>
     /// <remarks>
-    /// A reading says it is up before the server has answered what the file holds, so the ask that stands the
-    /// caret at the head of the first band often finds no card to stand on - and, the reading having no button of
-    /// its own left at its foot, it then finds nothing at all.  That is the right answer for a moment - a caret
-    /// sent looking for a card that is not drawn is a caret lost off the screen - but it must not stay the answer:
-    /// in that first half second every arrow the viewer presses meets a screen that answers nobody, so the promise
-    /// here walks the caret onto the head card as soon as there is one to stand on.
+    /// <para>
+    /// A reading says it is up before its bands are on the screen - either because the server has not answered what
+    /// the file holds, or because the reading's own ground has not been laid out yet, which happens every time it
+    /// comes up.  So the ask that stands the caret at the head of the first band usually finds no card to stand on,
+    /// and, the reading having kept no button of its own at its foot, it then finds nothing at all.
+    /// </para>
+    /// <para>
+    /// That is the right answer for a moment - a caret sent looking for a card that is not drawn is a caret lost off
+    /// the screen - but it must not stay the answer: in that first half second every arrow the viewer presses meets
+    /// a screen that answers nobody.  The promise here therefore asks again over the layout rounds and again when the
+    /// bands say they have something to show, and it stops the moment the caret stands on a card.
+    /// </para>
     /// </remarks>
     private bool _caretWaitsForTheBands;
 
@@ -672,10 +678,14 @@ namespace MediaPortal.Frontend.Views
 
         if (browser.InfoShown)
         {
+          // The reading is on the screen a moment BEFORE its bands are - the band's own visibility is a binding
+          // that has to reach the layout, and a card the layout never grew cannot take a caret.  So the caret is
+          // not asked for once here but over the layout rounds, which is the same promise that waits for a server
+          // that answers late.  Asking once was the mistake the viewer caught on 2026-11-03: for a title whose
+          // answers the screen was holding already, nothing announced itself a second time, and the caret stood
+          // nowhere at all - every arrow met a screen that answered nobody.
           _caretWaitsForTheBands = true;
-          Control? head = FirstCaretOfTheReading();
-          if (head != null)
-            StandCaret(head, null);
+          SeatTheCaretOnTheFirstCardOfTheReading(browser, CARET_SEATING_ROUNDS);
         }
         else
         {
@@ -2508,32 +2518,12 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
-    /// Where the caret belongs when a reading comes up: the card at the head of its first band, so that the first
-    /// arrow the viewer presses walks something they can see.  Null while the reading has no card to stand on.
-    /// </summary>
-    /// <remarks>
-    /// A title whose facts are still travelling from the server - or one whose file carries neither tracks nor
-    /// people - answers with nothing, and nothing is the honest answer: a caret sent looking for a card that is not
-    /// drawn is a caret lost off the screen, while the promise that keeps the caret waiting for the bands
-    /// (<see cref="_caretWaitsForTheBands"/>) puts it on the head card as soon as there is one to stand on.
-    /// </remarks>
-    private Control? FirstCaretOfTheReading()
-    {
-      ScrollViewer? band = FirstBandOfTheReading();
-      if (band == null)
-        return null;
-
-      List<Border> cards = TrackCards(band);
-      return cards.Count == 0 ? null : cards[0];
-    }
-
-    /// <summary>
     /// Whether the caret stands on a card of the reading right now.
     /// </summary>
     /// <remarks>
     /// Asked by the promise that keeps the caret waiting for the bands: a caret that already found a card is not
-    /// to be moved by the arrival of a later answer, and a caret that did not - the way out at the foot, or
-    /// nowhere at all because the control it was asked for could not take it yet - is.
+    /// to be moved by the arrival of a later answer, and a caret that did not - nowhere at all, because the card
+    /// it was asked for could not take it yet - is.
     /// </remarks>
     private bool StandsOnACardOfTheReading()
     {
@@ -2545,10 +2535,12 @@ namespace MediaPortal.Frontend.Views
     /// How many layout rounds the caret is re-asked for while the head card of the first band is still being built.
     /// </summary>
     /// <remarks>
-    /// Four rounds is more than the panel needs to turn "there is something to show" into a card that can take the
-    /// focus, and few enough that a reading whose cards never arrive stops asking instead of hunting forever.
+    /// Six rounds, because two things have to happen before there is a card to stand on and each of them costs a
+    /// round of its own: the reading's own ground has to be laid out for a band to count as visible at all, and the
+    /// band then has to hand out a container per track.  Few enough that a reading whose cards never arrive stops
+    /// asking instead of hunting forever.
     /// </remarks>
-    private const int CARET_SEATING_ROUNDS = 4;
+    private const int CARET_SEATING_ROUNDS = 6;
 
     /// <summary>
     /// Walks a caret still waiting for its bands onto the card at the head of the reading's first band.
