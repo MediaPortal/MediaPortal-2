@@ -513,45 +513,12 @@ namespace MediaPortal.Server.Api
     [HttpPost("shares/{id}/import")]
     public ActionResult<ImportStatusResult> ImportShare(Guid id)
     {
-      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
-      IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>(false);
-      ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>(false);
-      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>(false);
-      if (mediaLibrary == null || importerWorker == null || systemResolver == null || mediaAccessor == null)
-        return StatusCode(StatusCodes.Status503ServiceUnavailable);
-
-      Share share;
       List<string> categories;
-      string categoryError;
-      try
-      {
-        share = mediaLibrary.GetShare(id);
-        if (share == null)
-          return NotFound(new ErrorResponse { Error = "this server has no share with the id " + id });
+      Share share = ReadShareForPass(id, out ActionResult<ImportStatusResult> failure, out categories);
+      if (failure != null)
+        return failure;
 
-        if (share.SystemId != systemResolver.LocalSystemId)
-          return new ObjectResult(new ErrorResponse
-          {
-            Error = "share '" + id + "' is on another system ('" + share.SystemId + "'), and this server's " +
-                "importer only reads folders it can reach itself"
-          })
-          {
-            StatusCode = StatusCodes.Status409Conflict
-          };
-
-        // A share registered elsewhere (an older server, a plugin) can hold categories this server has never
-        // heard of, which would queue a job with no extractors. Same rule as when a share is added.
-        if (!TryResolveCategories(share.MediaCategories, out categories, out categoryError))
-          return new ObjectResult(new ErrorResponse { Error = categoryError })
-          {
-            StatusCode = StatusCodes.Status409Conflict
-          };
-      }
-      catch (IllegalCallException ex)
-      {
-        return NotReady(ex);
-      }
-
+      IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>(false);
       importerWorker.ScheduleImport(share.BaseResourcePath, categories, true);
 
       // And, as when a folder is first registered, the pass that learns the pictures the import will have found -
@@ -559,6 +526,116 @@ namespace MediaPortal.Server.Api
       FanArtWarmingPass.Worn.StartAfterImport();
 
       return Accepted(ReadStatus(importerWorker));
+    }
+
+    /// <summary>
+    /// Queues the pass that reads the files a share already holds over again.
+    /// </summary>
+    /// <param name="id">The share id, as <c>GET api/media/shares</c> reported it.</param>
+    /// <remarks>
+    /// <para>
+    /// This is not the same pass as <c>POST api/media/shares/{id}/import</c>, and an import cannot do its job:
+    /// the import pass only takes files the library does not know yet - <c>FileUnfoldBlock.cs:225-231</c>, "Only
+    /// import new files so only add non existing paths" - so a film that is in the library is never looked at
+    /// again, however often its share is imported. The refresh pass is the pass that compares a file with what
+    /// the library recorded and asks the extractors again.
+    /// </para>
+    /// <para>
+    /// It re-reads the files the importer has marked dirty (<c>FileUnfoldBlock.cs:143</c>, which gives such a
+    /// file a last-import date of the beginning of time so that <c>MediaItemLoadBlock.cs:105-107</c> cannot
+    /// skip it) and the files whose date is later than the last import. A library that was imported before an
+    /// extractor was installed - the case for every film whose audio and subtitle tracks were never asked for -
+    /// is dirty only after somebody said so, which is why this endpoint exists beside the import one.
+    /// </para>
+    /// <para>
+    /// The answer is <c>202</c> like the import's, and <c>GET api/media/import</c> reports the queue.
+    /// </para>
+    /// </remarks>
+    [HttpPost("shares/{id}/refresh")]
+    public ActionResult<ImportStatusResult> RefreshShare(Guid id)
+    {
+      List<string> categories;
+      Share share = ReadShareForPass(id, out ActionResult<ImportStatusResult> failure, out categories);
+      if (failure != null)
+        return failure;
+
+      IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>(false);
+      importerWorker.ScheduleRefresh(share.BaseResourcePath, categories, true);
+
+      // The same picture pass the import queues: a refresh can find the poster of a film that gained one.
+      FanArtWarmingPass.Worn.StartAfterImport();
+
+      return Accepted(ReadStatus(importerWorker));
+    }
+
+    /// <summary>
+    /// The questions both passes ask before queueing anything: whether this server can import at all, whether
+    /// the share exists, whether it stands on a machine this server can reach, and whether it names categories
+    /// this server has extractors for.
+    /// </summary>
+    /// <param name="id">The share id the caller gave.</param>
+    /// <param name="failure">
+    /// The answer to hand back - <c>null</c> when every question was answered and the caller may queue its pass.
+    /// </param>
+    /// <param name="categories">The categories to choose the extractors for.</param>
+    /// <returns>The share, or <c>null</c> when <paramref name="failure"/> says what went wrong.</returns>
+    private Share ReadShareForPass(Guid id, out ActionResult<ImportStatusResult> failure, out List<string> categories)
+    {
+      failure = null;
+      categories = null;
+
+      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
+      IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>(false);
+      ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>(false);
+      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>(false);
+      if (mediaLibrary == null || importerWorker == null || systemResolver == null || mediaAccessor == null)
+      {
+        failure = StatusCode(StatusCodes.Status503ServiceUnavailable);
+        return null;
+      }
+
+      Share share;
+      string categoryError;
+      try
+      {
+        share = mediaLibrary.GetShare(id);
+        if (share == null)
+        {
+          failure = NotFound(new ErrorResponse { Error = "this server has no share with the id " + id });
+          return null;
+        }
+
+        if (share.SystemId != systemResolver.LocalSystemId)
+        {
+          failure = new ObjectResult(new ErrorResponse
+          {
+            Error = "share '" + id + "' is on another system ('" + share.SystemId + "'), and this server's " +
+                "importer only reads folders it can reach itself"
+          })
+          {
+            StatusCode = StatusCodes.Status409Conflict
+          };
+          return null;
+        }
+
+        // A share registered elsewhere (an older server, a plugin) can hold categories this server has never
+        // heard of, which would queue a job with no extractors. Same rule as when a share is added.
+        if (!TryResolveCategories(share.MediaCategories, out categories, out categoryError))
+        {
+          failure = new ObjectResult(new ErrorResponse { Error = categoryError })
+          {
+            StatusCode = StatusCodes.Status409Conflict
+          };
+          return null;
+        }
+      }
+      catch (IllegalCallException ex)
+      {
+        failure = NotReady(ex);
+        return null;
+      }
+
+      return share;
     }
 
     /// <summary>

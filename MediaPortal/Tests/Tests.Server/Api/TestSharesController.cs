@@ -500,6 +500,53 @@ namespace Tests.Server.Api
     }
 
     [Test]
+    public void RefreshingAShareQueuesTheReadingPassAndNotTheNewFilesPass()
+    {
+      Share share = BuildShare(SHARE_ID, LOCAL_SYSTEM, _folder, "Films", "Video");
+      ResourcePath queuedPath = null;
+      List<string> queuedCategories = null;
+      bool queuedSubs = false;
+
+      Mock<IMediaLibrary> library = GivenLibrary(MockBehavior.Strict);
+      Mock<IImporterWorker> worker = GivenImporter(MockBehavior.Strict);
+      GivenLocalSystem();
+      GivenCategories("Video", "Audio");
+      library.Setup(l => l.GetShare(SHARE_ID)).Returns(share);
+      worker.Setup(w => w.ScheduleRefresh(It.IsAny<ResourcePath>(), It.IsAny<IEnumerable<string>>(), It.IsAny<bool>()))
+          .Callback<ResourcePath, IEnumerable<string>, bool>((path, categories, subs) =>
+          {
+            queuedPath = path;
+            queuedCategories = categories.ToList();
+            queuedSubs = subs;
+          });
+      worker.SetupGet(w => w.ImportJobs).Returns(new List<ImportJobInformation>());
+      worker.SetupGet(w => w.IsSuspended).Returns(false);
+
+      ActionResult<SharesController.ImportStatusResult> result = Ask().RefreshShare(SHARE_ID);
+
+      // The two passes are not interchangeable: the import pass only takes files the library does not know
+      // yet, so asking for the files it already has means asking for the refresh pass by name.
+      Assert.That(Status(result), Is.EqualTo(202));
+      Assert.That(queuedPath, Is.EqualTo(share.BaseResourcePath));
+      Assert.That(queuedCategories, Is.EquivalentTo(new[] { "Video" }));
+      Assert.That(queuedSubs, Is.True);
+      worker.Verify(w => w.ScheduleImport(It.IsAny<ResourcePath>(), It.IsAny<IEnumerable<string>>(), It.IsAny<bool>()),
+          Times.Never());
+    }
+
+    [Test]
+    public void RefreshingAShareNobodyRegisteredIsNotFound()
+    {
+      Mock<IMediaLibrary> library = GivenLibrary(MockBehavior.Strict);
+      Mock<IImporterWorker> worker = GivenImporter(MockBehavior.Strict);
+      GivenLocalSystem();
+      GivenCategories("Video");
+      library.Setup(l => l.GetShare(SHARE_ID)).Returns((Share) null);
+
+      Assert.That(Status(Ask().RefreshShare(SHARE_ID)), Is.EqualTo(404));
+    }
+
+    [Test]
     public void AShareWithoutCategoriesIsImportedWithEveryCategoryTheServerKnows()
     {
       Share share = BuildShare(SHARE_ID, LOCAL_SYSTEM, _folder, "Everything");
