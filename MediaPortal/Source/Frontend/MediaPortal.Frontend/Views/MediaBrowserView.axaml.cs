@@ -49,6 +49,19 @@ namespace MediaPortal.Frontend.Views
     private bool _firstActivation;
 
     /// <summary>
+    /// Whether the caret is still owed its place in a reading whose bands were empty when it came up.
+    /// </summary>
+    /// <remarks>
+    /// A reading says it is up before the server has answered what the file holds, so the ask that stands the
+    /// caret at the head of the first band often finds no card to stand on - and, the reading having no button of
+    /// its own left at its foot, it then finds nothing at all.  That is the right answer for a moment - a caret
+    /// sent looking for a card that is not drawn is a caret lost off the screen - but it must not stay the answer:
+    /// in that first half second every arrow the viewer presses meets a screen that answers nobody, so the promise
+    /// here walks the caret onto the head card as soon as there is one to stand on.
+    /// </remarks>
+    private bool _caretWaitsForTheBands;
+
+    /// <summary>
     /// The floor the markup wrote under the shelf, kept from the moment the view was stood up.
     /// </summary>
     /// <remarks>
@@ -304,15 +317,34 @@ namespace MediaPortal.Frontend.Views
       menuDialog.RenderTransform = _menuDialogScale;
       RenderOptions.SetBitmapInterpolationMode(menuGround, BitmapInterpolationMode.HighQuality);
 
-      // The two bands of track cards under a title's picture hold more cards than fit the screen, and the caret
+      // The bands of cards under a title's picture hold more cards than fit the screen, and the caret
       // stands on a CARD - the question a viewer asks is WHICH track, and a ring around five cards answers
       // nothing.  A press lands on the card by itself (a focusable control takes the focus it is given), the
       // arrows walk from card to card, and the band slides along with the caret because that is what a scroller
       // does when the thing it holds walks out of sight.
       // The wheel over a band belongs to the band, but only while the band holds the caret: a viewer whose
       // pointer happens to lie over a band must still be able to scroll the reading of a title as a whole.
-      foreach (ScrollViewer band in new[] { audioTracksScroller, subtitleTracksScroller })
+      foreach (ScrollViewer band in new[]
+          { audioTracksScroller, subtitleTracksScroller, actorsScroller, directorsScroller })
       {
+        // A band glides to where its caret goes instead of jumping there.  The reference lerps EVERY offset
+        // change of its rows through the skin's storyboards - three hundred milliseconds with a ScrollMargin of a
+        // hundred and thirty points at either end (MediaStyles.xaml:5205, driven by AnimatedWrapPanel.cs) - which
+        // is why its wall never snaps a row past the eye, whether the offset moved because a caret walked or
+        // because a hand turned a wheel.  The browser's own shelf wears the same dress (InstallShelfGlide).
+        Transitions glide = new Transitions();
+        glide.Add(new VectorTransition { Property = ScrollViewer.OffsetProperty, Duration = BAND_GLIDE });
+        band.Transitions = glide;
+
+        // Whichever way a card comes by the caret - an arrow, a press, a Tab from another control - the band
+        // keeps it in sight with the reference's margin around it rather than flush against an end.
+        band.AddHandler(GotFocusEvent,
+            delegate (object? sender, RoutedEventArgs args)
+            {
+              if (args.Source is Control card && !ReferenceEquals(card, band))
+                KeepCardInSight(band, card);
+            }, RoutingStrategies.Bubble);
+
         band.AddHandler(PointerWheelChangedEvent,
             delegate (object? sender, PointerWheelEventArgs args)
             {
@@ -324,25 +356,12 @@ namespace MediaPortal.Frontend.Views
               band.Offset = new Vector(band.Offset.X - Math.Sign(args.Delta.Y) * amount, 0);
               args.Handled = true;
             }, RoutingStrategies.Tunnel);
+
+        // A band's cards walk out of its ends, and an end they walked out of dissolves the way the shelf's wall
+        // dissolves at the end its titles went out by - the viewer named that dress for the media lists, and a
+        // band of this screen is a media list of this screen (see FadeBandEnds).
+        FadeBandEnds(band);
       }
-
-      // The button at the foot of the reading is the third place a caret can stand on this screen, and an arrow
-      // opens the way back up out of it: with that, the whole reading is walked with the arrows alone - down from
-      // the first track card to the button, up from the button back onto a card - and no viewer has to look for
-      // the mouse to leave a band they entered by a press.
-      infoBackButton.AddHandler(KeyDownEvent,
-          delegate (object? sender, KeyEventArgs args)
-          {
-            if (args.Key != Key.Up)
-              return;
-
-            ScrollViewer? last_band = subtitleTracksScroller.IsEffectivelyVisible ? subtitleTracksScroller
-                : audioTracksScroller.IsEffectivelyVisible ? audioTracksScroller
-                : null;
-            // Asking for a place beyond the end of a band is asking for its last card.
-            StandsOnTrackCard(last_band, int.MaxValue, args);
-          },
-          RoutingStrategies.Tunnel);
 
       // The walking of the cards is asked on the way IN, before the scroller around them can spend an arrow on
       // its own offset: the caret moves first, and the band follows it.  The keys are asked literally rather than
@@ -652,9 +671,32 @@ namespace MediaPortal.Frontend.Views
           return;
 
         if (browser.InfoShown)
-          infoBackButton.Focus();
+        {
+          _caretWaitsForTheBands = true;
+          Control? head = FirstCaretOfTheReading();
+          if (head != null)
+            StandCaret(head, null);
+        }
         else
+        {
+          _caretWaitsForTheBands = false;
           FocusShelf();
+        }
+      };
+
+      // What the bands answer, the caret is asked for a second time.  The reading stood itself up over empty
+      // lists, so its first ask found no card to stand on; as soon as there is one, a caret the viewer never
+      // moved walks onto the card at the head of the first band, which is where the reading meant to take it.
+      browser.PropertyChanged += delegate (object? sender,
+          System.ComponentModel.PropertyChangedEventArgs args)
+      {
+        if (!_caretWaitsForTheBands || !browser.InfoShown)
+          return;
+        if (args.PropertyName != nameof(MediaBrowserViewModel.ShowsTracks)
+            && args.PropertyName != nameof(MediaBrowserViewModel.ShowsPersons))
+          return;
+
+        SeatTheCaretOnTheFirstCardOfTheReading(browser, CARET_SEATING_ROUNDS);
       };
 
       // The screen fills itself in the first time it appears; returning from the playback screen or from a list
@@ -2004,7 +2046,7 @@ namespace MediaPortal.Frontend.Views
       // What stands outside the picture at either end.  A wall shorter than its window stands outside neither of
       // them and is faded at neither.  A wall that is travelling is read at where it will stand, not at where it
       // is, and what the reading asks for is put on before its first frame - see WearShelfTravel.
-      double zone = SHELF_EDGE_FADE * view;
+      double zone = EDGE_FADE * view;
       double before = FadeDepth(_shelfTravelling ? _shelfGlide : offset, zone);
       double after = FadeDepth(extent - view - (_shelfTravelling ? _shelfGlide : offset), zone);
       if (before == _fadeBefore && after == _fadeAfter)
@@ -2026,7 +2068,7 @@ namespace MediaPortal.Frontend.Views
         return;
       }
 
-      LinearGradientBrush fade = _shelfFade ??= NewShelfFade();
+      LinearGradientBrush fade = _shelfFade ??= NewEdgeFade();
       fade.StartPoint = new RelativePoint(_fadeRunsSideways ? 0.0 : 0.5,
           _fadeRunsSideways ? 0.5 : 0.0, RelativeUnit.Relative);
       fade.EndPoint = new RelativePoint(_fadeRunsSideways ? 1.0 : 0.5,
@@ -2053,8 +2095,8 @@ namespace MediaPortal.Frontend.Views
     private static Color FadeColour(double depth)
       => Color.FromArgb((byte)Math.Round((1.0 - depth) * 255.0), 0xFF, 0xFF, 0xFF);
 
-    /// <summary>The shelf's mask with both ends standing opaque; the depths are written on it afterwards.</summary>
-    private static LinearGradientBrush NewShelfFade()
+    /// <summary>The edge mask with both ends standing opaque; the depths are written on it afterwards.</summary>
+    private static LinearGradientBrush NewEdgeFade()
     {
       LinearGradientBrush fade = new LinearGradientBrush
       {
@@ -2062,17 +2104,99 @@ namespace MediaPortal.Frontend.Views
         EndPoint = new RelativePoint(0.5, 1, RelativeUnit.Relative)
       };
       fade.GradientStops.Add(new GradientStop(Colors.White, 0));
-      fade.GradientStops.Add(new GradientStop(Colors.White, SHELF_EDGE_FADE));
-      fade.GradientStops.Add(new GradientStop(Colors.White, 1.0 - SHELF_EDGE_FADE));
+      fade.GradientStops.Add(new GradientStop(Colors.White, EDGE_FADE));
+      fade.GradientStops.Add(new GradientStop(Colors.White, 1.0 - EDGE_FADE));
       fade.GradientStops.Add(new GradientStop(Colors.White, 1));
       return fade;
     }
 
     /// <summary>
-    /// How far in from an end of the shelf its rows dissolve once a whole fade zone of wall has gone out of the
+    /// Puts the media lists' edge fade on one band of cards: the same dress <see cref="ApplyShelfFade"/> lays over
+    /// the shelf's wall, asked of a band's two ends instead of the wall's and answering the one question the wall's
+    /// ends answer - has anything walked out of the picture at this end?
+    /// </summary>
+    /// <remarks>
+    /// A band runs sideways where the shelf runs down, so a band's mask is laid from its left edge to its right
+    /// one; everything else is shared with the wall, down to the twelve percent and the eight steps, because two
+    /// dresses on one screen are read as one dress or they are noticed.
+    /// <para>
+    /// The reading is renewed on the band's <c>ScrollChanged</c>, which is the one event that answers all three of
+    /// the things that can change what an end is hiding: the offset (a card walked, a wheel turned), the viewport
+    /// (the window was resized) and the extent (a band's cards arrived after the reading opened).  The first
+    /// reading is asked on the pass the band's layout is finished, which is the first pass its extent is more than
+    /// a guess.
+    /// </para>
+    /// </remarks>
+    private void FadeBandEnds(ScrollViewer band)
+    {
+      BandEndFade fade = new BandEndFade(band);
+      _bandFades.Add(fade);
+      Dispatcher.UIThread.Post(fade.Update, DispatcherPriority.Loaded);
+    }
+
+    /// <summary>
+    /// One band's edge fade: the mask it wears and the depths its two ends were last read at.  The first card of a
+    /// band that stands at its left edge has walked out of nothing and stands whole; a card the caret walked past
+    /// an edge dissolves into that edge, and a band that still holds cards beyond an edge says so by dissolving the
+    /// card it shows there - which is what the shelf's wall does at its own ends.
+    /// </summary>
+    private sealed class BandEndFade
+    {
+      private readonly ScrollViewer _band;
+
+      private LinearGradientBrush? _mask;
+
+      private double _before = UNREAD;
+
+      private double _after = UNREAD;
+
+      internal BandEndFade(ScrollViewer band)
+      {
+        _band = band;
+        band.AddHandler(ScrollViewer.ScrollChangedEvent, delegate
+        {
+          Update();
+        });
+      }
+
+      /// <summary>Says what each end of the band is hiding and, if the mask says otherwise, writes it on.</summary>
+      internal void Update()
+      {
+        double view = _band.Viewport.Width;
+        if (view <= 0)
+          return;
+
+        double zone = EDGE_FADE * view;
+        double before = FadeDepth(_band.Offset.X, zone);
+        double after = FadeDepth(_band.Extent.Width - view - _band.Offset.X, zone);
+        if (before == _before && after == _after)
+          return;
+
+        _before = before;
+        _after = after;
+
+        // Neither end has anything standing out of the picture - the whole band fits its window - so it wears no
+        // mask at all, exactly as a wall shorter than its window wears none.
+        if (before <= 0 && after <= 0)
+        {
+          _band.OpacityMask = null;
+          return;
+        }
+
+        LinearGradientBrush mask = _mask ??= NewEdgeFade();
+        mask.StartPoint = new RelativePoint(0, 0.5, RelativeUnit.Relative);
+        mask.EndPoint = new RelativePoint(1, 0.5, RelativeUnit.Relative);
+        mask.GradientStops[0].Color = FadeColour(before);
+        mask.GradientStops[3].Color = FadeColour(after);
+        _band.OpacityMask = mask;
+      }
+    }
+
+    /// <summary>
+    /// How far in from an end of a list its rows dissolve once a whole fade zone of it has gone out of the
     /// picture: the twelve percent this front end's menu column wears.
     /// </summary>
-    private const double SHELF_EDGE_FADE = 0.12;
+    private const double EDGE_FADE = 0.12;
 
     /// <summary>
     /// How long after the last started travel the wall is read once more even when its transition never
@@ -2099,6 +2223,12 @@ namespace MediaPortal.Frontend.Views
     private double _fadeAfter = UNREAD;
 
     private bool _fadeRunsSideways;
+
+    /// <summary>
+    /// The edge fade of every band of cards the reading holds, kept because a mask that nobody holds a reading
+    /// for is a mask that is never renewed - each one watches its own band and remembers its own two ends.
+    /// </summary>
+    private readonly List<BandEndFade> _bandFades = new List<BandEndFade>();
 
     /// <summary>True while the wall is on a travel and the fade is worn for its destination.</summary>
     private bool _shelfTravelling;
@@ -2202,20 +2332,24 @@ namespace MediaPortal.Frontend.Views
     /// <summary>
     /// Whether the caret stands on one of the track cards under a title's picture and the pressed key means
     /// walking.  A card is looked at rather than chosen - nothing about it is ever started - so the arrows only
-    /// move the caret, and they move it over the three places this screen has for a caret at all: from card to
-    /// card along a band, from a band up or down into the band beside it, and out of the last band onto the
-    /// button at the foot of the reading.  A band that kept the caret to itself would be a band a viewer could
+    /// move the caret, and they move it over the places this screen has for a caret at all: from card to
+    /// card along a band, from a band up or down into the band above or below it, out of the head of one of the two
+    /// people bands into the band beside it - those two share a row of the screen, so the row is walked as one row.
+    /// A band that kept the caret to itself would be a band a viewer could
     /// get into and never out of.  Enter is taken and answered with nothing (Return being the very same key to
     /// Avalonia): this screen hands Enter to "play this" wherever else on it the key lands, and a film that
     /// starts because a viewer wanted to look at an audio track is an answer to a question nobody asked.  At the
-    /// ends of a row, and above the first band, the key is left alone, so that whatever the screen means by it
-    /// there keeps its meaning.
+    /// ends of a row, where the caret has nowhere left to walk, the band leans against that end and springs back
+    /// (see <see cref="BounceBand"/>); above the first band and below the last the key is left alone, so that
+    /// whatever the screen means by it there keeps its meaning.
     /// </summary>
     private bool WalksTrackCards(KeyEventArgs args)
     {
       ScrollViewer band =
           audioTracksScroller.IsKeyboardFocusWithin ? audioTracksScroller
           : subtitleTracksScroller.IsKeyboardFocusWithin ? subtitleTracksScroller
+          : actorsScroller.IsKeyboardFocusWithin ? actorsScroller
+          : directorsScroller.IsKeyboardFocusWithin ? directorsScroller
           : null;
       if (band == null)
         return false;
@@ -2231,13 +2365,33 @@ namespace MediaPortal.Frontend.Views
       switch (args.Key)
       {
         case Key.Left:
+          // Left walks the band, and out of the head of the RIGHT hand people band it walks into the tail of the
+          // band beside it: those two bands share one row of the screen, so the row is walked as the one row it is.
           if (at == 0)
-            return false;
+          {
+            if (band == directorsScroller && StandsOnTrackCard(actorsScroller, int.MaxValue, args))
+              break;
+
+            // The head of the row is here and the arrow asked for the card before it, so the band leans against
+            // that end and springs back - the answer this screen's rails already give a key that points at a wall.
+            BounceBand(band, true);
+            break;
+          }
+
           cards[at - 1].Focus();
           break;
         case Key.Right:
+          // The same row read the other way round, and no further: at the tail of the last band of the row the
+          // caret has nowhere to go, and the band leans against its end instead.
           if (at == cards.Count - 1)
-            return false;
+          {
+            if (band == actorsScroller && StandsOnTrackCard(directorsScroller, 0, args))
+              break;
+
+            BounceBand(band, false);
+            break;
+          }
+
           cards[at + 1].Focus();
           break;
         case Key.Home:
@@ -2251,21 +2405,16 @@ namespace MediaPortal.Frontend.Views
           cards[cards.Count - 1].Focus();
           break;
         case Key.Up:
-          // Up out of the band of subtitles walks into the band of audio at the same place ALONG it: a viewer who
-          // came down at the third card expects to come back up at the third card, not at the band's first.
-          // Above the audio band this screen has nothing else for a caret to take - its wall is put away while
-          // the reading of a title is up - so the key is left unanswered rather than swallowed.
-          if (band != subtitleTracksScroller)
-            return false;
-          return StandsOnTrackCard(audioTracksScroller, at, args);
+          // Up out of a band walks into the band above at the same place ALONG it: a viewer who came down at the
+          // third card expects to come back up at the third card, not at the band's first.  Above the first band
+          // this screen has nothing else for a caret to take - its wall is put away while the reading of a title is
+          // up - so the key is left unanswered rather than swallowed.
+          return StandsOnTrackCard(BandAbove(band), at, args);
         case Key.Down:
-          // Down goes the same way: into the band below at the same place along it, and out of the last band onto
-          // the button at the foot of the reading.
-          if (StandsOnTrackCard(band == audioTracksScroller ? subtitleTracksScroller : null, at, args))
-            break;
-          infoBackButton.Focus();
-          args.Handled = true;
-          break;
+          // Down goes the same way: into the band below at the same place along it.  Below the last band the
+          // reading has nothing left for a caret to take - the button that used to stand at its foot is gone - so
+          // the arrow is left alone there, exactly as it is above the first band.
+          return StandsOnTrackCard(BandBelow(band), at, args);
         case Key.Enter:
           break;
         default:
@@ -2273,6 +2422,234 @@ namespace MediaPortal.Frontend.Views
       }
 
       return true;
+    }
+
+    /// <summary>
+    /// Leans a band of cards against the end the caret asked to walk past and springs it back.
+    /// </summary>
+    /// <remarks>
+    /// The caret is on the card at the band's end, an arrow asked for the card beyond it, and the screen has no
+    /// such card: the honest answer is the band itself saying that it is at its end, which is what
+    /// <see cref="BounceRail"/> is on the home screen for.  A band's scroller cannot answer that itself - it holds
+    /// its offset inside its extent and cannot be pushed past an end, which is exactly what a lean is - so the lean
+    /// goes on the row of cards inside the band, where the band's own edge cuts it off at the end it leans into.
+    /// The people row is one row of two bands, so a lean is only ever asked where the ROW ends: the head of the
+    /// actors' band and the tail of the director's.
+    /// </remarks>
+    /// <param name="band">The band whose cards are to lean.</param>
+    /// <param name="pastLeft">Whether the caret asked past the band's left end; false for its right one.</param>
+    private void BounceBand(ScrollViewer band, bool pastLeft)
+    {
+      if (band.Content is Control cards)
+        BounceRail(cards, pastLeft ? -RAIL_BOUNCE_DIVE : RAIL_BOUNCE_DIVE, 0);
+    }
+
+    /// <summary>
+    /// The band of cards above the given one, or null where the screen has none above it.
+    /// </summary>
+    /// <remarks>
+    /// The people row is ONE row of two bands, so whatever band of cards the screen draws above that row is the
+    /// band a caret walking up out of it comes to - and a title whose file carries no subtitles has no subtitle
+    /// band to come up to, which is why this is asked of the screen instead of being written down as a pair.
+    /// </remarks>
+    private ScrollViewer? BandAbove(ScrollViewer band)
+    {
+      if (band == subtitleTracksScroller)
+        return audioTracksScroller;
+
+      if (band == actorsScroller || band == directorsScroller)
+        return subtitleTracksScroller.IsEffectivelyVisible ? subtitleTracksScroller
+            : audioTracksScroller.IsEffectivelyVisible ? audioTracksScroller
+            : null;
+
+      return null;
+    }
+
+    /// <summary>
+    /// The band of cards below the given one, or null where the caret already stands in the last row of the
+    /// reading - below which the reading has nothing left for a caret to stand on.
+    /// </summary>
+    private ScrollViewer? BandBelow(ScrollViewer band)
+    {
+      if (band == audioTracksScroller)
+        return subtitleTracksScroller;
+
+      return band == subtitleTracksScroller ? FirstBandOfThePeopleRow() : null;
+    }
+
+    /// <summary>
+    /// The first band of the people row that is on the screen, which is the band a caret walking DOWN into that row
+    /// is stood on.
+    /// </summary>
+    /// <remarks>
+    /// Usually the actors.  A library that named no actors but named a director leaves the row's left half away,
+    /// and a caret sent into a band that is not drawn is a caret lost off the screen.
+    /// </remarks>
+    private ScrollViewer? FirstBandOfThePeopleRow()
+    {
+      if (actorsScroller.IsEffectivelyVisible)
+        return actorsScroller;
+
+      return directorsScroller.IsEffectivelyVisible ? directorsScroller : null;
+    }
+
+    /// <summary>
+    /// The first band of cards this reading draws, or null when it draws none.  Which band that is depends on what
+    /// the title's file and the library have to say - a title without subtitles has no subtitle band to walk into.
+    /// </summary>
+    private ScrollViewer? FirstBandOfTheReading()
+    {
+      if (audioTracksScroller.IsEffectivelyVisible)
+        return audioTracksScroller;
+      if (subtitleTracksScroller.IsEffectivelyVisible)
+        return subtitleTracksScroller;
+
+      return FirstBandOfThePeopleRow();
+    }
+
+    /// <summary>
+    /// Where the caret belongs when a reading comes up: the card at the head of its first band, so that the first
+    /// arrow the viewer presses walks something they can see.  Null while the reading has no card to stand on.
+    /// </summary>
+    /// <remarks>
+    /// A title whose facts are still travelling from the server - or one whose file carries neither tracks nor
+    /// people - answers with nothing, and nothing is the honest answer: a caret sent looking for a card that is not
+    /// drawn is a caret lost off the screen, while the promise that keeps the caret waiting for the bands
+    /// (<see cref="_caretWaitsForTheBands"/>) puts it on the head card as soon as there is one to stand on.
+    /// </remarks>
+    private Control? FirstCaretOfTheReading()
+    {
+      ScrollViewer? band = FirstBandOfTheReading();
+      if (band == null)
+        return null;
+
+      List<Border> cards = TrackCards(band);
+      return cards.Count == 0 ? null : cards[0];
+    }
+
+    /// <summary>
+    /// Whether the caret stands on a card of the reading right now.
+    /// </summary>
+    /// <remarks>
+    /// Asked by the promise that keeps the caret waiting for the bands: a caret that already found a card is not
+    /// to be moved by the arrival of a later answer, and a caret that did not - the way out at the foot, or
+    /// nowhere at all because the control it was asked for could not take it yet - is.
+    /// </remarks>
+    private bool StandsOnACardOfTheReading()
+    {
+      Control? stood = TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement() as Control;
+      return stood != null && stood.Classes.Contains("trackcard");
+    }
+
+    /// <summary>
+    /// How many layout rounds the caret is re-asked for while the head card of the first band is still being built.
+    /// </summary>
+    /// <remarks>
+    /// Four rounds is more than the panel needs to turn "there is something to show" into a card that can take the
+    /// focus, and few enough that a reading whose cards never arrive stops asking instead of hunting forever.
+    /// </remarks>
+    private const int CARET_SEATING_ROUNDS = 4;
+
+    /// <summary>
+    /// Walks a caret still waiting for its bands onto the card at the head of the reading's first band.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A band announces that it has something to show one step ahead of the panel's own work: the word that it is
+    /// visible is written, and the card that carries it is built with the layout that follows.  Asking for the card
+    /// in the same breath as that word therefore usually finds none, which is why the ask is repeated over the
+    /// layout rounds until a card stands there to take the caret.
+    /// </para>
+    /// <para>
+    /// A caret the viewer moved in the meantime is left where the viewer put it: once the caret stands on any card
+    /// of the reading the promise is kept, and the arrival of a later answer - the people, say, after the tracks -
+    /// may not pull it back to the head of the first band.
+    /// </para>
+    /// </remarks>
+    /// <param name="reader">The reading the caret belongs to.</param>
+    /// <param name="rounds">How many layout rounds the ask may still be repeated over.</param>
+    private void SeatTheCaretOnTheFirstCardOfTheReading(MediaBrowserViewModel reader, int rounds)
+    {
+      if (!_caretWaitsForTheBands || !reader.InfoShown)
+        return;
+
+      ScrollViewer? band = FirstBandOfTheReading();
+      List<Border> cards = band != null ? TrackCards(band) : new List<Border>();
+      if (cards.Count > 0)
+      {
+        _caretWaitsForTheBands = false;
+        if (!StandsOnACardOfTheReading())
+          StandCaret(cards[0], null);
+        return;
+      }
+
+      if (rounds <= 0)
+        return;
+
+      Dispatcher.UIThread.Post(
+          delegate { SeatTheCaretOnTheFirstCardOfTheReading(reader, rounds - 1); },
+          DispatcherPriority.Loaded);
+    }
+
+    /// <summary>
+    /// How long a band takes to slide its cards along, and how far inside its own ends the stood card is held.
+    /// Both are the reference's own numbers for its rows: three hundred milliseconds and a <c>ScrollMargin</c> of
+    /// a hundred and thirty points at either end (<c>MediaStyles.xaml:5205</c>).
+    /// </summary>
+    private static readonly TimeSpan BAND_GLIDE = TimeSpan.FromMilliseconds(300);
+
+    private const double BAND_SCROLL_MARGIN = 130.0;
+
+    /// <summary>
+    /// Sliding a band so that the card the caret stands on lies inside it with the reference's margin between the
+    /// card and the ends of the band.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A scroller left to itself does bring a newly focused card into sight, but it does the minimum: the card
+    /// lands flush against the end it came in at, with nothing of the picture beside it to say where the band
+    /// goes on.  The reference keeps a stood item a margin's width from both ends instead, which is what makes
+    /// walking a row read as a walk rather than as a card appearing at an edge.
+    /// </para>
+    /// <para>
+    /// A band narrower than a card and two margins cannot hold the margin at both ends - a band of people cards is
+    /// two cards wide - so the margin is asked for and then given up towards the middle, which leaves the card
+    /// standing centred.  That is what the reference's grid band does with its four hundred points of margin on
+    /// either side of a shelf that is shorter than the sum: the tile is held at the band's middle.
+    /// </para>
+    /// </remarks>
+    private static void KeepCardInSight(ScrollViewer band, Control card)
+    {
+      GlideBandOntoCard(band, card);
+
+      // A card coming into focus from a long way off also asks the band to bring it in, and that answer lands the
+      // card flush against an end - during the focus itself, or at the layout that follows it.  So the margin is
+      // asked for once more when the layout has had its say; the glide retargets the running slide rather than
+      // restarting it, which is what keeps the whole move one smooth move.
+      Dispatcher.UIThread.Post(delegate { GlideBandOntoCard(band, card); }, DispatcherPriority.Loaded);
+    }
+
+    /// <summary>One pass of the margin: writes the band's offset if the card does not already lie inside it.</summary>
+    private static void GlideBandOntoCard(ScrollViewer band, Control card)
+    {
+      Point? at = card.TranslatePoint(new Point(0, 0), band);
+      if (at == null || band.Viewport.Width <= 0.0)
+        return;
+
+      double viewport = band.Viewport.Width;
+      double left = at.Value.X - band.Padding.Left;
+      double right = left + card.Bounds.Width;
+      double margin = Math.Max(0.0, Math.Min(BAND_SCROLL_MARGIN, (viewport - card.Bounds.Width) / 2.0));
+      double offset = band.Offset.X;
+
+      if (left < margin)
+        offset -= margin - left;
+      else if (right > viewport - margin)
+        offset += right - (viewport - margin);
+
+      offset = Math.Clamp(offset, 0.0, Math.Max(0.0, band.Extent.Width - viewport));
+      if (Math.Abs(offset - band.Offset.X) > 0.5)
+        band.Offset = new Vector(offset, band.Offset.Y);
     }
 
     /// <summary>

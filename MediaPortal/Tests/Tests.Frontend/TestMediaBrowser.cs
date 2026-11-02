@@ -2851,6 +2851,7 @@ namespace Tests.Frontend
       private readonly string _details;
       private readonly string _row;
       private readonly string _tracks;
+      private readonly string _persons;
 
       internal DetailsServer(HttpStatusCode code, string details)
           : this(code, details, null, null)
@@ -2872,17 +2873,50 @@ namespace Tests.Frontend
       /// looked inside the file answers.
       /// </param>
       internal DetailsServer(HttpStatusCode code, string details, string row, string tracks)
+          : this(code, details, row, tracks, null)
+      {
+      }
+
+      /// <param name="persons">
+      /// The people of this title, as the server answers them. A test that asks about the two people bands names
+      /// its own answer; the rest are served two empty groups, which is what a library that never named anybody
+      /// for this title answers - and what leaves both bands away, so that a test about the tracks is not suddenly
+      /// also a test about the people.
+      /// </param>
+      internal DetailsServer(HttpStatusCode code, string details, string row, string tracks, string persons)
       {
         _code = code;
         _details = details;
         _row = row ?? "{\"id\":\"" + TITANIC + "\",\"title\":\"Titanic\",\"year\":1997}";
         _tracks = tracks ?? "{\"id\":\"" + TITANIC + "\",\"videos\":[],\"audios\":[],\"subtitles\":[]}";
+        _persons = persons ?? "{\"id\":\"" + TITANIC + "\",\"groups\":[{\"role\":\"actor\",\"persons\":[]},"
+            + "{\"role\":\"director\",\"persons\":[]}]}";
       }
 
       internal int TimesAsked { get; private set; }
 
+      /// <summary>
+      /// How long the answers about the title itself are held back. A test that asks what a reading does while
+      /// the facts of a title are still travelling needs a server that is slow on purpose.
+      /// </summary>
+      internal int DelayMs { get; set; }
+
+      /// <summary>
+      /// An answer on its way, or already there when nothing was asked to wait.
+      /// </summary>
+      private Task<HttpResponseMessage> Later(HttpRequestMessage request, HttpStatusCode code, string body)
+      {
+        if (DelayMs <= 0)
+          return Task.FromResult(Answer(request, code, body));
+
+        return Task.Delay(DelayMs).ContinueWith(delegate { return Answer(request, code, body); });
+      }
+
       /// <summary>How often the tracks question came in, so a test can wait for the answer it triggers.</summary>
       internal int TracksAsked { get; private set; }
+
+      /// <summary>How often the people question came in, for the same reason.</summary>
+      internal int PeopleAsked { get; private set; }
 
       protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
           CancellationToken cancellation)
@@ -2894,12 +2928,22 @@ namespace Tests.Frontend
         if (request.RequestUri!.AbsolutePath.EndsWith("/streams"))
         {
           TracksAsked++;
-          return Task.FromResult(Answer(request, HttpStatusCode.OK, _tracks));
+          return Later(request, HttpStatusCode.OK, _tracks);
+        }
+
+        // Asked right after the tracks, about the same title, and with an answer of its own.
+        if (request.RequestUri!.AbsolutePath.EndsWith("/persons"))
+        {
+          PeopleAsked++;
+          return Later(request, HttpStatusCode.OK, _persons);
         }
 
         if (request.RequestUri!.AbsolutePath.EndsWith("api/media/items/" + TITANIC))
         {
           TimesAsked++;
+          if (DelayMs > 0)
+            return Later(request, _code, _details);
+
           return Task.FromResult(new HttpResponseMessage(_code)
           {
             RequestMessage = request,
@@ -3357,10 +3401,11 @@ namespace Tests.Frontend
 
     /// <summary>
     /// The arrows walk OUT of a band of track cards.  A first version put the caret on a card and never let it go
-    /// again, which the viewer caught the same evening (2026-11-02); the reading of a title has exactly three
-    /// places for a caret - the two bands of cards and the button at its foot - and an arrow at the edge of a band
-    /// has to lead into the next of them, or the screen is a shelf with one tile on it.  Measured over a real
-    /// window, because a caret is a thing a window holds and no view model has one.
+    /// again, which the viewer caught the same evening (2026-11-02); the reading of a title is a stack of bands of
+    /// cards and nothing else, so an arrow at the edge of a band has to lead into the band next to it - and where
+    /// the reading has no band left, the arrow is left alone rather than walking the caret off the screen.  Without
+    /// that, the screen is a shelf with one tile on it.  Measured over a real window, because a caret is a thing a
+    /// window holds and no view model has one.
     /// </summary>
     [AvaloniaTest]
     public async Task TheArrowsWalkOutOfABandOfTrackCardsIntoTheNextThingOnTheScreen()
@@ -3402,14 +3447,12 @@ namespace Tests.Frontend
 
       List<Border> audio = TrackCardsOf(window, "audioTracksScroller");
       List<Border> subtitles = TrackCardsOf(window, "subtitleTracksScroller");
-      Button back = window.GetVisualDescendants().OfType<Button>()
-          .First(button => button.Name == "infoBackButton");
       Assert.That(audio, Has.Count.EqualTo(2),
           "the band really did lay its cards out, or the walk below would be a walk over nothing");
       Assert.That(subtitles, Has.Count.EqualTo(2));
 
       // The walk a viewer makes with the arrows, one press at a time, from the first card of the first band down
-      // to the button at the foot of the reading and back up.
+      // to the last card of the reading and back up.
       audio[0].Focus();
       Pump();
       Assert.That(audio[0].IsKeyboardFocusWithin, Is.True, "a card takes the caret");
@@ -3438,15 +3481,23 @@ namespace Tests.Frontend
       Press(audio[0], Key.Down);
       Assert.That(subtitles[0].IsKeyboardFocusWithin, Is.True);
 
-      Press(subtitles[0], Key.Down);
-      Assert.That(back.IsFocused, Is.True,
-          "out of the last band the caret goes onto the button at the foot of the reading, so that no arrow ends "
-          + "at a card with nowhere left to go");
+      // The head of the first band is the head of the whole reading: an arrow pointing further left has no card to
+      // walk to, and the honest answer is the band leaning against that end (see BounceBand) while the caret stays
+      // on the card it was asked on - not a caret that walked off the screen.
+      Press(audio[0], Key.Left);
+      Assert.That(audio[0].IsKeyboardFocusWithin, Is.True,
+          "an arrow past the head of the first band leaves the caret where it stands and leans the band instead");
 
-      Press(back, Key.Up);
-      Assert.That(subtitles[1].IsKeyboardFocusWithin, Is.True,
-          "and the way back up out of the button is the last card of the last band: the reading is walked with the "
-          + "arrows alone, and nobody has to look for the mouse to leave a band they walked into");
+      // And below the last band the reading has nothing left for a caret to stand on - the button that used to wait
+      // at its foot is gone, and a viewer leaves the reading the way they leave every other screen - so the arrow
+      // is left alone there rather than walking the caret off the screen.
+      Press(subtitles[0], Key.Down);
+      Assert.That(subtitles[0].IsKeyboardFocusWithin, Is.True,
+          "down out of the last band of the reading leaves the caret on its card: an arrow that walked off the last "
+          + "card would leave the viewer with a screen that answers nobody");
+
+      subtitles[1].Focus();
+      Pump();
 
       Press(subtitles[1], Key.Enter);
       Assert.That(browser.InfoShown, Is.True,
@@ -3504,13 +3555,22 @@ namespace Tests.Frontend
           + "{\"streamIndex\":2,\"language\":\"en\",\"encoding\":\"DTS\",\"channels\":8,\"bitRate\":1509,"
           + "\"sampleRate\":48000}],"
           + "\"subtitles\":[{\"streamIndex\":3,\"language\":\"de\",\"format\":\"SRT\",\"isInternal\":true,"
-          + "\"isForced\":false}]}");
+          + "\"isForced\":false}]}",
+          // The people too, so that this measures every card of the reading at once and not the four bands of a
+          // title whose library named nobody - which is the state the bands were first measured in.
+          "{\"id\":\"" + TITANIC + "\",\"groups\":[{\"role\":\"actor\",\"persons\":["
+          + "{\"id\":\"11111111-1111-1111-1111-111111111111\",\"name\":\"Timothee Chalamet\"},"
+          + "{\"id\":\"22222222-2222-2222-2222-222222222222\",\"name\":\"Rebecca Ferguson\"},"
+          + "{\"id\":\"33333333-3333-3333-3333-333333333333\",\"name\":\"Josh Brolin\"}]},"
+          + "{\"role\":\"director\",\"persons\":[{\"id\":\"44444444-4444-4444-4444-444444444444\","
+          + "\"name\":\"Denis Villeneuve\"}]}]}");
       MediaBrowserViewModel browser = BrowserOn(server);
       TitleViewModel title = new TitleViewModel(
           new MediaTitle(new Guid(TITANIC), "Dune", null, 2021, null, null, false));
       browser.Titles.Add(title);
       browser.Selected = title;
-      WaitUntil("the tracks to arrive", delegate { return browser.ShowsAudioTracks; });
+      WaitUntil("the tracks and the people to arrive",
+          delegate { return browser.ShowsAudioTracks && browser.ShowsActors && browser.ShowsDirectors; });
 
       var workflow = new WorkflowManager();
       ShellWindow window = new ShellWindow(workflow, delegate (WorkflowFrame frame)
@@ -3561,6 +3621,15 @@ namespace Tests.Frontend
           Assert.That(here, Is.Not.Null);
           Rect leaves = new Rect(here.Value.X, here.Value.Y,
               control.Bounds.Width, control.Bounds.Height);
+
+          // A card that does not itself stand inside what this ancestor leaves visible is a card the band scrolls
+          // to: three actors do not fit beside one another in a band of half the reading's width, and the third is
+          // meant to run past its edge.  Its shadow is cut by the edge of the screen and not by the band, so
+          // asking for the air around it would measure the wrong thing.
+          Rect cardHere = new Rect(at.Value.X, at.Value.Y, card.Bounds.Width, card.Bounds.Height);
+          if (!leaves.Contains(cardHere.TopLeft) || !leaves.Contains(cardHere.BottomRight))
+            continue;
+
           if (!leaves.Contains(new Point(needs.Right, needs.Bottom))
               || !leaves.Contains(new Point(needs.Left, needs.Top)))
           {
@@ -3578,26 +3647,227 @@ namespace Tests.Frontend
           "the shadow of a track card is cut off by " + string.Join(" | ", cut));
 
       // And the room the shadow bought must not be bought from the screen: both bands, air included, still stand
-      // whole inside the window, and the button at the foot of the reading is not overlapped by the last of them.
+      // whole inside the window.
       ScrollViewer first = window.GetVisualDescendants().OfType<ScrollViewer>()
           .First(s => s.Name == "audioTracksScroller");
-      ScrollViewer last = window.GetVisualDescendants().OfType<ScrollViewer>()
-          .First(s => s.Name == "subtitleTracksScroller");
-      Button back = window.GetVisualDescendants().OfType<Button>()
-          .First(b => b.Name == "infoBackButton");
+      // The last band of cards the reading draws, asked of the screen: the people row stands last now, and for a
+      // library that named nobody it is the subtitles again - the two states have to be measured, not assumed.
+      ScrollViewer last = new[]
+          { "directorsScroller", "actorsScroller", "subtitleTracksScroller", "audioTracksScroller" }
+          .Select(name => window.GetVisualDescendants().OfType<ScrollViewer>().First(s => s.Name == name))
+          .First(band => band.IsEffectivelyVisible);
       Point? topOfFirst = first.TranslatePoint(new Point(0, 0), window);
       Point? bottomOfLast = last.TranslatePoint(new Point(0, last.Bounds.Height), window);
-      Point? topOfBack = back.TranslatePoint(new Point(0, 0), window);
       Assert.That(topOfFirst, Is.Not.Null);
       Assert.That(bottomOfLast, Is.Not.Null);
-      Assert.That(topOfBack, Is.Not.Null);
       Assert.That(topOfFirst!.Value.Y, Is.GreaterThanOrEqualTo(0),
           "the first band stands whole on the screen");
       Assert.That(bottomOfLast!.Value.Y, Is.LessThanOrEqualTo(window.Bounds.Height),
-          "the last band stands whole on the screen");
-      Assert.That(bottomOfLast.Value.Y, Is.LessThanOrEqualTo(topOfBack!.Value.Y),
-          "and the bands leave the button at the foot of the reading to itself - a band that grew into a button "
-          + "the viewer cannot see is a band that hides the way out");
+          "the last band stands whole on the screen - a band that grows past the foot of the window is a band that "
+          + "hides the last of its cards behind an edge the viewer cannot scroll past");
+      window.Close();
+    }
+
+    /// <summary>
+    /// The people a title names stand in two bands <b>beside</b> one another - one row of the reader's side, not
+    /// two rows of it, which is what the viewer agreed to on 2026-11-03 when it turned out that the reference's
+    /// four stacked bands do not stand above the foot of a window a thousand and eighty lines tall - and the arrows
+    /// walk that row the way they walk everything else on this screen: along it, into the band above it, and no
+    /// further.  Measured on a laid out window because "beside", "whole" and "reachable" are all about where a card
+    /// stands, and because the first version of a band that could not be walked out of was exactly the mistake the
+    /// viewer sent back once already.
+    /// </summary>
+    [AvaloniaTest]
+    public void ThePeopleOfATitleStandInTwoBandsBesideOneAnotherAndAreWalkedWithTheArrows()
+    {
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK,
+          "{\"id\":\"" + TITANIC + "\",\"title\":\"Alien\",\"year\":1979}",
+          null,
+          "{\"videos\":[],\"audios\":[{\"streamIndex\":1,\"language\":\"de\",\"encoding\":\"AC3\",\"channels\":6,"
+          + "\"bitRate\":640,\"sampleRate\":48000}],\"subtitles\":[{\"streamIndex\":2,\"language\":\"en\","
+          + "\"format\":\"SRT\",\"isInternal\":false,\"isForced\":false}]}",
+          "{\"id\":\"" + TITANIC + "\",\"groups\":[{\"role\":\"actor\",\"persons\":["
+          + "{\"id\":\"11111111-1111-1111-1111-111111111111\",\"name\":\"Sigourney Weaver\"},"
+          + "{\"id\":\"22222222-2222-2222-2222-222222222222\",\"name\":\"John Hurt\"},"
+          + "{\"id\":\"33333333-3333-3333-3333-333333333333\",\"name\":\"Ian Holm\"}]},"
+          + "{\"role\":\"director\",\"persons\":[{\"id\":\"44444444-4444-4444-4444-444444444444\","
+          + "\"name\":\"Ridley Scott\"}]}]}");
+      MediaBrowserViewModel browser = BrowserOn(server);
+      TitleViewModel alien = new TitleViewModel(
+          new MediaTitle(new Guid(TITANIC), "Alien", null, 1979, null, null, false));
+      browser.Titles.Add(alien);
+      browser.Selected = alien;
+      WaitUntil("the people to arrive", delegate { return browser.ShowsActors && browser.ShowsDirectors; });
+
+      var workflow = new WorkflowManager();
+      ShellWindow window = new ShellWindow(workflow, delegate (WorkflowFrame frame)
+      {
+        return new MediaBrowserView((MediaBrowserViewModel) frame.ViewModel);
+      });
+      window.Width = 1920;
+      window.Height = 1080;
+      workflow.Push(new WorkflowFrame("titles", "Movies", browser));
+      window.Show();
+      Pump();
+
+      MediaTitleAction reading = MediaTitleActions.For(alien, true, true)
+          .First(action => action.Kind == MediaTitleActionKind.Information);
+      ((CommunityToolkit.Mvvm.Input.IAsyncRelayCommand<MediaTitleAction>) browser.RunTitleActionCommand)
+          .ExecuteAsync(reading).Wait();
+      Pump();
+
+      List<Border> actors = TrackCardsOf(window, "actorsScroller");
+      List<Border> directors = TrackCardsOf(window, "directorsScroller");
+      List<Border> subtitles = TrackCardsOf(window, "subtitleTracksScroller");
+      Assert.That(actors, Has.Count.EqualTo(3),
+          "a card per person the library named, in the order it named them");
+      Assert.That(directors, Has.Count.EqualTo(1));
+      Assert.That(subtitles, Has.Count.EqualTo(1));
+
+      List<string> read = window.GetVisualDescendants().OfType<TextBlock>()
+          .Select(text => text.Text ?? "").ToList();
+      Assert.That(read, Does.Contain("Sigourney Weaver"),
+          "a name is read on the card, and not hidden behind a picture of a person");
+      Assert.That(read, Does.Contain("Ridley Scott"));
+      Assert.That(read, Does.Contain("Actors"), "the heads carry the reference's own words");
+      Assert.That(read, Does.Contain("Director"));
+
+      ScrollViewer actorsBand = window.GetVisualDescendants().OfType<ScrollViewer>()
+          .First(band => band.Name == "actorsScroller");
+      ScrollViewer directorsBand = window.GetVisualDescendants().OfType<ScrollViewer>()
+          .First(band => band.Name == "directorsScroller");
+      Point? atActors = actorsBand.TranslatePoint(new Point(0, 0), window);
+      Point? atDirectors = directorsBand.TranslatePoint(new Point(0, 0), window);
+      Assert.That(atActors, Is.Not.Null);
+      Assert.That(atDirectors, Is.Not.Null);
+      Assert.That(atActors!.Value.Y, Is.EqualTo(atDirectors!.Value.Y).Within(1),
+          "the two bands are one row of the screen, which is the whole point of putting them beside one another");
+      Assert.That(atActors.Value.X, Is.LessThan(atDirectors.Value.X),
+          "the actors at the reading side, the director to their right, as the words are read");
+
+      // The row must not buy its place from the window.
+      Point? belowRow = directorsBand.TranslatePoint(new Point(0, directorsBand.Bounds.Height), window);
+      Assert.That(belowRow, Is.Not.Null);
+      Assert.That(belowRow!.Value.Y, Is.LessThanOrEqualTo(window.Bounds.Height),
+          "the people row stands whole on a window of a thousand and eighty lines - a band that runs past the foot "
+          + "of the window is a band a viewer has to guess at");
+
+      // The walk, one press at a time, from the band of subtitles down into the row and back.
+      subtitles[0].Focus();
+      Pump();
+      Press(subtitles[0], Key.Down);
+      Assert.That(actors[0].IsKeyboardFocusWithin, Is.True,
+          "down out of the last band of cards before the people goes into the people row at the same place along "
+          + "it - the row a viewer can get into but not out of was the very thing sent back once");
+
+      Press(actors[0], Key.Right);
+      Assert.That(actors[1].IsKeyboardFocusWithin, Is.True);
+      Press(actors[1], Key.Right);
+      Assert.That(actors[2].IsKeyboardFocusWithin, Is.True);
+      Press(actors[2], Key.Right);
+      Assert.That(directors[0].IsKeyboardFocusWithin, Is.True,
+          "past the tail of the actors the caret steps into the band beside it, because the two bands are one row "
+          + "and a row is walked along, not jumped over");
+
+      Press(directors[0], Key.Down);
+      Assert.That(directors[0].IsKeyboardFocusWithin, Is.True,
+          "and below the last band of the reading the arrow is left alone: the people row is the last thing this "
+          + "screen has for a caret to stand on, so the caret keeps its card instead of walking off the screen - "
+          + "the button that used to wait at the foot of the reading is gone, and a viewer leaves the reading the "
+          + "way they leave every other screen");
+
+      Press(directors[0], Key.Left);
+      Assert.That(actors[2].IsKeyboardFocusWithin, Is.True,
+          "back past the head of the director band comes to the tail of the actors band");
+
+      Press(actors[2], Key.Up);
+      Assert.That(subtitles[0].IsKeyboardFocusWithin, Is.True,
+          "up out of the people row walks into the band above it, as far along that band as the row of people "
+          + "reaches - a band with one card cannot be walked to its third place, and its last card answers");
+
+      window.Close();
+    }
+
+    /// <summary>
+    /// A reading that stands up before the server has answered what the file holds still takes the caret onto
+    /// the card at the head of its first band, as soon as there is one to stand on.
+    /// </summary>
+    /// <remarks>
+    /// A reading says it is up the moment it is asked for, because waiting for the answer would leave the viewer
+    /// staring at the wall for as long as the server thinks. So the ask that stands the caret at the head of the
+    /// first band meets empty lists and finds nothing to stand on - the right answer for a moment, and a screen
+    /// nobody can walk for the rest of them: every arrow meets a screen that answers nobody. Measured on a server
+    /// that is slow on purpose.
+    /// </remarks>
+    [AvaloniaTest]
+    public void AReadingThatOutrunsItsOwnFactsTakesTheCaretOntoTheFirstCardWhenTheyArrive()
+    {
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK,
+          "{\"id\":\"" + TITANIC + "\",\"title\":\"Alien\",\"year\":1979}",
+          null,
+          "{\"videos\":[],\"audios\":[{\"streamIndex\":1,\"language\":\"de\",\"encoding\":\"AC3\",\"channels\":6,"
+          + "\"bitRate\":640,\"sampleRate\":48000}],\"subtitles\":[]}",
+          "{\"id\":\"" + TITANIC + "\",\"groups\":[{\"role\":\"actor\",\"persons\":["
+          + "{\"id\":\"11111111-1111-1111-1111-111111111111\",\"name\":\"Sigourney Weaver\"}]},"
+          + "{\"role\":\"director\",\"persons\":[]}]}");
+      server.DelayMs = 400;
+
+      MediaBrowserViewModel browser = BrowserOn(server);
+      TitleViewModel alien = new TitleViewModel(
+          new MediaTitle(new Guid(TITANIC), "Alien", null, 1979, null, null, false));
+      browser.Titles.Add(alien);
+      browser.Selected = alien;
+
+      var workflow = new WorkflowManager();
+      ShellWindow window = new ShellWindow(workflow, delegate (WorkflowFrame frame)
+      {
+        return new MediaBrowserView((MediaBrowserViewModel) frame.ViewModel);
+      });
+      window.Width = 1920;
+      window.Height = 1080;
+      workflow.Push(new WorkflowFrame("titles", "Movies", browser));
+      window.Show();
+      Pump();
+
+      MediaTitleAction reading = MediaTitleActions.For(alien, true, true)
+          .First(action => action.Kind == MediaTitleActionKind.Information);
+      ((CommunityToolkit.Mvvm.Input.IAsyncRelayCommand<MediaTitleAction>) browser.RunTitleActionCommand)
+          .ExecuteAsync(reading);
+
+      WaitUntil("the reading to stand open", delegate { return browser.InfoShown; });
+
+      // Nothing the caret could stand on is drawn yet, so it stands on nothing at all: the reading keeps no button
+      // of its own for a waiting caret to sit on.
+      Pump();
+      Assert.That(TrackCardsOf(window, "audioTracksScroller"), Has.Count.EqualTo(0),
+          "the slow server has not answered yet, so the first band has no card to take the caret");
+
+      WaitUntil("the bands to answer", delegate { return browser.ShowsAudioTracks; });
+      Pump();
+      Pump();
+
+      List<Border> audios = TrackCardsOf(window, "audioTracksScroller");
+      Assert.That(audios, Has.Count.EqualTo(1),
+          "one audio track is one card - and not one card per question the slow server happened to be asked "
+          + "(cards drawn: " + audios.Count + ", the reader's list holds "
+          + browser.DetailsAudioTracks.Count + ")");
+      Assert.That(audios[0].IsKeyboardFocusWithin, Is.True,
+          "the facts arrived, the first band has its head card, and the caret that was left waiting on nothing "
+          + "walks onto it - a viewer whose arrows come back must find them on a card they can see");
+
+      // One reading is one read of the title's answers, however many times the shelf settling and the reading
+      // opening both asked for them while the first question was still travelling.
+      Assert.That(server.TimesAsked, Is.EqualTo(1),
+          "the questions about the title itself, asked while an earlier one was still on its way, are not asked "
+          + "a second time: two reads empty the bands on the way out and fill them on the way back in, which is "
+          + "how a track comes to be drawn twice");
+
+      // Nothing may still be on its way when the test ends.  This server is slow on purpose, so an answer that
+      // lands after the window is gone hands the dispatcher a job that the next test's teardown would run.
+      WaitUntil("the people of the title to have arrived as well", delegate { return browser.ShowsActors; });
+      for (int round = 0; round < 60; round++)
+        Pump();
+
       window.Close();
     }
 

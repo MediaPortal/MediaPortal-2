@@ -5207,5 +5207,223 @@ namespace Tests.Server.Api
     }
 
     #endregion
+
+    #region People of a title
+
+    /// <summary>
+    /// A person the library knows, with the one aspect the answer reads.
+    /// </summary>
+    private static MediaItem Person(Guid id, string name)
+    {
+      SingleMediaItemAspect person = new SingleMediaItemAspect(PersonAspect.Metadata);
+      person.SetAttribute(PersonAspect.ATTR_PERSON_NAME, name);
+      return new TestItem(id, new Dictionary<Guid, IList<MediaItemAspect>>
+      {
+          { MediaAspect.ASPECT_ID, new List<MediaItemAspect> { CreateMediaAspect(name, name, DateTime.MinValue) } },
+          { PersonAspect.ASPECT_ID, new List<MediaItemAspect> { person } }
+      }, null);
+    }
+
+    /// <summary>
+    /// A library that answers a question about a title with that title and a question about one part of it with the
+    /// people standing in that part.
+    /// </summary>
+    /// <remarks>
+    /// Answering by the filter rather than handing out one list for every query is what lets a test see that the
+    /// endpoint really asked twice - once per part - instead of asking one question and sorting the answer itself.
+    /// </remarks>
+    private static IMediaLibrary CreatePeopleLibrary(MediaItem title, IDictionary<Guid, List<MediaItem>> peopleByRole,
+        out List<MediaItemQuery> queries)
+    {
+      var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+      List<MediaItemQuery> asked = new List<MediaItemQuery>();
+      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, null, false))
+          .Callback<MediaItemQuery, bool, Guid?, bool>((query, online, profile, virtualItems) => asked.Add(query))
+          .Returns<MediaItemQuery, bool, Guid?, bool>((query, online, profile, virtualItems) =>
+          {
+            RelationshipFilter filter = query.Filter as RelationshipFilter;
+            if (filter == null)
+              return title == null ? new List<MediaItem>() : new List<MediaItem> { title };
+
+            List<MediaItem> people;
+            return peopleByRole != null && peopleByRole.TryGetValue(filter.Role, out people)
+                ? people
+                : new List<MediaItem>();
+          });
+
+      queries = asked;
+      return library.Object;
+    }
+
+    /// <summary>
+    /// Asks the people endpoint for one title, the way <see cref="GetStreams"/> asks the tracks endpoint.
+    /// </summary>
+    private static MediaController.MediaPersonsResult GetPeople(IMediaLibrary library, Guid id, IList<string> roles,
+        out ActionResult<MediaController.MediaPersonsResult> action)
+    {
+      ServiceRegistration.Set<IMediaLibrary>(library);
+      action = new MediaController().GetPersons(id, roles);
+      return Body(action);
+    }
+
+    [Test]
+    public void ThePeopleOfATitleAreHandedOutByPart()
+    {
+      Guid titleId = Guid.NewGuid();
+      Guid actorOne = Guid.NewGuid();
+      Guid actorTwo = Guid.NewGuid();
+      Guid director = Guid.NewGuid();
+      Dictionary<Guid, List<MediaItem>> byRole = new Dictionary<Guid, List<MediaItem>>
+      {
+          { PersonAspect.ROLE_ACTOR, new List<MediaItem> { Person(actorOne, "Sigourney Weaver"),
+              Person(actorTwo, "John Hurt") } },
+          { PersonAspect.ROLE_DIRECTOR, new List<MediaItem> { Person(director, "Ridley Scott") } }
+      };
+
+      List<MediaItemQuery> asked;
+      ActionResult<MediaController.MediaPersonsResult> action;
+      MediaController.MediaPersonsResult result = GetPeople(
+          CreatePeopleLibrary(new TestItem(titleId, new Dictionary<Guid, IList<MediaItemAspect>>
+          {
+              { MediaAspect.ASPECT_ID,
+                  new List<MediaItemAspect> { CreateMediaAspect("Alien (1979)", "Alien", new DateTime(1979, 5, 25)) } }
+          }, null), byRole, out asked), titleId, new List<string> { "actor", "director" }, out action);
+
+      Assert.That(result.Groups, Has.Count.EqualTo(2));
+      Assert.That(result.Groups.Select(g => g.Role), Is.EqualTo(new[] { "actor", "director" }),
+          "the answer comes back in the order the parts were asked for and words it back in those same words, so "
+          + "a screen can sort it into its bands without knowing the library's identifiers");
+
+      Assert.That(result.Groups[0].Persons.Select(p => p.Name),
+          Is.EqualTo(new[] { "Sigourney Weaver", "John Hurt" }),
+          "the order is the library's - this endpoint sorts nothing away, exactly as the reference's lists did "
+          + "(MediaItemQueryExtension.cs:184 builds the query out of aspects and filter and nothing else)");
+      Assert.That(result.Groups[0].Persons[0].Id, Is.EqualTo(actorOne),
+          "the person's own id travels along, because that is the id the library files the portrait under - the "
+          + "reference asked for a person's picture by exactly this id "
+          + "(themes/default/styles/CurrentlyPlayingStyles.xaml:220-222)");
+      Assert.That(result.Groups[1].Persons, Has.Count.EqualTo(1));
+      Assert.That(result.Groups[1].Persons[0].Name, Is.EqualTo("Ridley Scott"));
+
+      List<MediaItemQuery> relationshipQueries = asked.Where(q => q.Filter is RelationshipFilter).ToList();
+      Assert.That(relationshipQueries, Has.Count.EqualTo(2),
+          "one question to the library per part, the way the reference asked it");
+      RelationshipFilter actorsFilter = relationshipQueries[0].Filter as RelationshipFilter;
+      Assert.That(actorsFilter.Role, Is.EqualTo(PersonAspect.ROLE_ACTOR),
+          "one part at a time is how the library answers this question, and how the reference asked it "
+          + "(RelationshipQueryExtension.cs:78-86 out of MediaInfoVideo.xaml:393-398)");
+      Assert.That(actorsFilter.LinkedMediaItemId, Is.EqualTo(titleId));
+      Assert.That(actorsFilter.LinkedRole, Is.EqualTo(Guid.Empty),
+          "what the title plays in the relationship is answered by the library and not asked for");
+      Assert.That(((RelationshipFilter)relationshipQueries[1].Filter).Role, Is.EqualTo(PersonAspect.ROLE_DIRECTOR));
+
+      MediaItemQuery peopleQuery = relationshipQueries[0];
+      Assert.That(peopleQuery.NecessaryRequestedMIATypeIDs,
+          Is.SupersetOf(new[] { MediaAspect.ASPECT_ID, PersonAspect.ASPECT_ID }),
+          "a person without its own aspect is no answer at all, so the aspects this reads are asked for as "
+          + "necessary ones");
+    }
+
+    [Test]
+    public void APartNobodyPlayedIsAnsweredAsAnEmptyBand()
+    {
+      Guid titleId = Guid.NewGuid();
+      List<MediaItemQuery> asked;
+      ActionResult<MediaController.MediaPersonsResult> action;
+      MediaController.MediaPersonsResult result = GetPeople(
+          CreatePeopleLibrary(new TestItem(titleId, new Dictionary<Guid, IList<MediaItemAspect>>
+          {
+              { MediaAspect.ASPECT_ID,
+                  new List<MediaItemAspect> { CreateMediaAspect("Alien (1979)", "Alien", new DateTime(1979, 5, 25)) } }
+          }, null), new Dictionary<Guid, List<MediaItem>>(), out asked), titleId,
+          new List<string> { "actor", "director" }, out action);
+
+      Assert.That(action.Result, Is.Null,
+          "a title the library has but never named people for is a title this server has, answered plainly and not "
+          + "as an error");
+      Assert.That(result.Groups, Has.Count.EqualTo(2),
+          "a band nobody filled is still a band that was asked about, so it is answered empty rather than left out "
+          + "- leaving it out would make \"nobody played that part\" and \"nobody asked\" read the same");
+      Assert.That(result.Groups[0].Persons, Has.Count.EqualTo(0));
+      Assert.That(result.Groups[1].Persons, Has.Count.EqualTo(0));
+    }
+
+    [Test]
+    public void APartThisServerDoesNotKnowIsRefusedByName()
+    {
+      Guid titleId = Guid.NewGuid();
+      List<MediaItemQuery> asked;
+      ActionResult<MediaController.MediaPersonsResult> action;
+      MediaController.MediaPersonsResult result = GetPeople(
+          CreatePeopleLibrary(new TestItem(titleId, new Dictionary<Guid, IList<MediaItemAspect>>
+          {
+              { MediaAspect.ASPECT_ID,
+                  new List<MediaItemAspect> { CreateMediaAspect("Alien (1979)", "Alien", new DateTime(1979, 5, 25)) } }
+          }, null), null, out asked), titleId, new List<string> { "producer" }, out action);
+
+      Assert.That(Status(action), Is.EqualTo(StatusCodes.Status400BadRequest),
+          "a part this server has never heard of is a mistake in the question, and an empty answer would hide it");
+      Assert.That(result.Error, Does.Contain("producer"));
+      Assert.That(asked, Has.Count.EqualTo(0),
+          "an unanswerable question is refused before the library is disturbed with it");
+    }
+
+    [Test]
+    public void AQuestionThatNamesNoPartIsRefused()
+    {
+      List<MediaItemQuery> asked;
+      ActionResult<MediaController.MediaPersonsResult> action;
+      MediaController.MediaPersonsResult result = GetPeople(
+          CreatePeopleLibrary(null, null, out asked), Guid.NewGuid(), new List<string>(), out action);
+
+      Assert.That(Status(action), Is.EqualTo(StatusCodes.Status400BadRequest),
+          "a screen that forgot to say which part it wants has a bug, and \"nobody played any part\" is the wrong "
+          + "way to say so");
+      Assert.That(result.Error, Is.Not.Null);
+      Assert.That(asked, Has.Count.EqualTo(0));
+    }
+
+    [Test]
+    public void AWordAskedTwiceIsAnsweredOnce()
+    {
+      Guid titleId = Guid.NewGuid();
+      Dictionary<Guid, List<MediaItem>> byRole = new Dictionary<Guid, List<MediaItem>>
+      {
+          { PersonAspect.ROLE_ACTOR, new List<MediaItem> { Person(Guid.NewGuid(), "Sigourney Weaver") } }
+      };
+
+      List<MediaItemQuery> asked;
+      ActionResult<MediaController.MediaPersonsResult> action;
+      MediaController.MediaPersonsResult result = GetPeople(
+          CreatePeopleLibrary(new TestItem(titleId, new Dictionary<Guid, IList<MediaItemAspect>>
+          {
+              { MediaAspect.ASPECT_ID,
+                  new List<MediaItemAspect> { CreateMediaAspect("Alien (1979)", "Alien", new DateTime(1979, 5, 25)) } }
+          }, null), byRole, out asked), titleId, new List<string> { "actor", "actor,director" }, out action);
+
+      Assert.That(result.Groups.Select(g => g.Role), Is.EqualTo(new[] { "actor", "director" }),
+          "a word asked twice is one band, and words arriving over a comma are the same as words arriving over two "
+          + "parameters - a person typing this address by hand should not be punished for either spelling");
+      Assert.That(asked.Count(q => q.Filter is RelationshipFilter), Is.EqualTo(2),
+          "one question to the library per band, and not one per time the word was typed");
+    }
+
+    [Test]
+    public void ATitleTheServerDoesNotHaveHasNoPeopleEither()
+    {
+      List<MediaItemQuery> asked;
+      ActionResult<MediaController.MediaPersonsResult> action;
+      MediaController.MediaPersonsResult result = GetPeople(CreatePeopleLibrary(null, null, out asked),
+          Guid.NewGuid(), new List<string> { "actor" }, out action);
+
+      Assert.That(Status(action), Is.EqualTo(StatusCodes.Status404NotFound),
+          "a title this server does not have is not a title with nobody in it");
+      Assert.That(result.Groups, Has.Count.EqualTo(0));
+      Assert.That(asked, Has.Count.EqualTo(1),
+          "when the title is not there the parts are not asked about either - the library is asked one question "
+          + "and gets one answer");
+    }
+
+    #endregion
   }
 }

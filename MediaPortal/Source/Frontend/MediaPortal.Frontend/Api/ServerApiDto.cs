@@ -526,4 +526,55 @@ namespace MediaPortal.Frontend.Api
     public IReadOnlyList<SubtitleStreamInfo> SubtitleStreams =>
         Subtitles ?? (IReadOnlyList<SubtitleStreamInfo>)Array.Empty<SubtitleStreamInfo>();
   }
+
+  /// <summary>
+  /// One person a title names, from <c>GET api/media/items/{id}/persons</c>.
+  /// </summary>
+  /// <remarks>
+  /// The id is the person's own item id, which is what the server files that person's portrait under - the
+  /// reference asked for a person's picture by exactly this id
+  /// (<c>themes/default/styles/CurrentlyPlayingStyles.xaml:220-222</c>).
+  /// </remarks>
+  public record PersonInfo(
+      [property: JsonPropertyName("id")] Guid Id,
+      [property: JsonPropertyName("name")] string? Name);
+
+  /// <summary>The people who played one part of a title.</summary>
+  public record PersonGroup(
+      [property: JsonPropertyName("role")] string? Role,
+      [property: JsonPropertyName("persons")] IReadOnlyList<PersonInfo>? Persons)
+  {
+    /// <summary>The people of this part, never null - empty when nobody played it.</summary>
+    public IReadOnlyList<PersonInfo> People => Persons ?? (IReadOnlyList<PersonInfo>)Array.Empty<PersonInfo>();
+  }
+
+  /// <summary>
+  /// The answer of <c>GET api/media/items/{id}/persons</c>: the people a title names, one group per asked part.
+  /// </summary>
+  /// <remarks>
+  /// The server answers one group per asked word, in the order asked, including empty ones - so a screen walks its
+  /// own bands and asks the answer for each of them, and never has to guess whether a missing group means "nobody
+  /// played that part" or "the server does not know the word".
+  /// </remarks>
+  public record MediaPersonsAnswer(
+      [property: JsonPropertyName("id")] Guid Id,
+      [property: JsonPropertyName("error")] string? Error,
+      [property: JsonPropertyName("groups")] IReadOnlyList<PersonGroup>? Groups)
+  {
+    /// <summary>The groups, never null.</summary>
+    public IReadOnlyList<PersonGroup> Bands => Groups ?? (IReadOnlyList<PersonGroup>)Array.Empty<PersonGroup>();
+
+    /// <summary>
+    /// The people of one part, empty when the answer holds no group for it.
+    /// </summary>
+    /// <param name="role">The part as it was asked for.</param>
+    public IReadOnlyList<PersonInfo> PeopleOf(string role)
+    {
+      foreach (PersonGroup group in Bands)
+        if (string.Equals(group.Role, role, StringComparison.OrdinalIgnoreCase))
+          return group.People;
+
+      return Array.Empty<PersonInfo>();
+    }
+  }
 }

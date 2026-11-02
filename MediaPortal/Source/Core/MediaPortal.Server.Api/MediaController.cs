@@ -2891,6 +2891,59 @@ namespace MediaPortal.Server.Api
     }
 
     /// <summary>
+    /// One of the people a title names.
+    /// </summary>
+    /// <remarks>
+    /// The name is handed over as the library holds it, without this server deciding what a good name looks like.
+    /// </remarks>
+    public class PersonInfo
+    {
+      /// <summary>
+      /// The person's own media item id, which is what the library files that person's picture under - the
+      /// reference asked for the portrait of a person by exactly this id (themes/default/styles/
+      /// CurrentlyPlayingStyles.xaml:220-222).
+      /// </summary>
+      public Guid Id { get; set; }
+
+      /// <summary>The name the person's own aspect carries.</summary>
+      public string Name { get; set; }
+    }
+
+    /// <summary>
+    /// The people who played one part of a title.
+    /// </summary>
+    public class PersonGroupInfo
+    {
+      /// <summary>
+      /// The part, in the word the caller asked it with - so the answer can be sorted back into the band it belongs
+      /// to without knowing anything about the library's own identifiers.
+      /// </summary>
+      public string Role { get; set; }
+
+      /// <summary>Empty rather than null when nobody played this part.</summary>
+      public List<PersonInfo> Persons { get; set; } = new List<PersonInfo>();
+    }
+
+    /// <summary>
+    /// The people a title names, one group per part that was asked for.
+    /// </summary>
+    /// <remarks>
+    /// One group per asked word, in the order the words were asked - including a group with nobody in it. A screen
+    /// then reads the answer by walking its own bands and never has to tell "nobody played that part" from "that
+    /// part was never asked about", which is the same difference the tracks answer settles by answering empty lists
+    /// instead of leaving them out.
+    /// </remarks>
+    public class MediaPersonsResult
+    {
+      public Guid Id { get; set; }
+
+      /// <summary>Set when the question itself was refused, and the only way such a refusal is explained.</summary>
+      public string Error { get; set; }
+
+      public List<PersonGroupInfo> Groups { get; set; } = new List<PersonGroupInfo>();
+    }
+
+    /// <summary>
     /// Tells the library that a title was watched, and answers with what it now believes.
     /// </summary>
     /// <param name="id">The media item id, as <c>GET api/media/titles</c> reported it.</param>
@@ -3179,6 +3232,165 @@ namespace MediaPortal.Server.Api
       return stream.Metadata.AttributeSpecifications.ContainsKey(attribute.AttributeName)
           ? ReadText(stream, attribute)
           : null;
+    }
+
+    /// <summary>
+    /// The people a title names, one group per part that was asked for.
+    /// </summary>
+    /// <param name="id">The media item id of the title, as <see cref="GetTitles"/> reported it.</param>
+    /// <param name="roles">
+    /// Which parts to answer for, spelled as words: <c>actor</c>, <c>director</c>, <c>writer</c>, <c>artist</c>,
+    /// <c>albumartist</c>, <c>composer</c>, <c>conductor</c>. The parameter may be repeated or its words separated
+    /// by commas. A part this server does not know is refused by name rather than skipped, because a screen that
+    /// believes it asked for directors and gets nothing back shows an empty band instead of its own mistake.
+    /// </param>
+    /// <remarks>
+    /// <para>
+    /// <b>How a title knows its people.</b> A person is an item of its own in the library, and what ties a title to
+    /// that person is a record naming the part the person played. The reference asked for one part at a time out of
+    /// exactly that record: its two lists on the information screen were built by
+    /// <c>RelationshipQueryExtension</c>, which turns a part and a title into the library's own
+    /// <see cref="RelationshipFilter"/> (SkinEngine/MarkupExtensions/RelationshipQueryExtension.cs:78-86, used from
+    /// screens/MediaInfoVideo.xaml:393-398 for the actors and :430-435 for the director). This endpoint asks that
+    /// same question per part, so a group holds what the library says stands in that part - nothing this server
+    /// sorted, merged or judged.
+    /// </para>
+    /// <para>
+    /// <b>Asked for as aspects.</b> The reference asked a person for its provider resource, its media data and its
+    /// person data (UiComponents/Media/General/Consts.cs:754-759). Two of those three are what this answer reads, so
+    /// two are asked for; the provider resource is left out because nothing in the answer comes from it, and asking
+    /// for an aspect has a cost in the database that a caller should not pay for a figure nobody reads.
+    /// </para>
+    /// <para>
+    /// <b>The order.</b> No sort is asked for, exactly as the reference asked for none
+    /// (SkinEngine/MarkupExtensions/MediaItemQueryExtension.cs:184 builds the query out of the aspects and the
+    /// filter and nothing else), so a group lists its people in the order the library's rows come back. A screen
+    /// that wants them by name sorts them itself.
+    /// </para>
+    /// </remarks>
+    [HttpGet("items/{id}/persons")]
+    public ActionResult<MediaPersonsResult> GetPersons(Guid id, [FromQuery] IList<string> roles)
+    {
+      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
+      if (mediaLibrary == null)
+        return StatusCode(StatusCodes.Status503ServiceUnavailable);
+
+      List<string> asked;
+      string refusal;
+      if (!TryReadRoles(roles, out asked, out refusal))
+        return BadRequest(new MediaPersonsResult { Id = id, Error = refusal });
+
+      if (FindTitle(mediaLibrary, id, CallerProfile) == null)
+        return NotFound(new MediaPersonsResult { Id = id });
+
+      MediaPersonsResult answer = new MediaPersonsResult { Id = id };
+      foreach (string role in asked)
+      {
+        PersonGroupInfo group = new PersonGroupInfo { Role = role };
+        foreach (MediaItem person in FindPeople(mediaLibrary, id, PersonRoles[role], CallerProfile))
+        {
+          SingleMediaItemAspect personAspect;
+          if (!MediaItemAspect.TryGetAspect(person.Aspects, PersonAspect.Metadata, out personAspect))
+            continue;
+
+          group.Persons.Add(new PersonInfo
+          {
+            Id = person.MediaItemId,
+            Name = personAspect.GetAttributeValue<string>(PersonAspect.ATTR_PERSON_NAME)
+          });
+        }
+        answer.Groups.Add(group);
+      }
+      return answer;
+    }
+
+    /// <summary>
+    /// The parts people are asked for by name, in the words a caller uses rather than the library's identifiers.
+    /// </summary>
+    /// <remarks>
+    /// A screen should not have to know that the library's own word for an actor is a GUID
+    /// (DefaultItemAspects/PersonAspect.cs:101-107), and an address that carries a GUID is one a person cannot
+    /// type into a browser to see what a title says about its director.
+    /// </remarks>
+    private static readonly Dictionary<string, Guid> PersonRoles = new Dictionary<string, Guid>(
+        StringComparer.OrdinalIgnoreCase)
+    {
+        { "actor", PersonAspect.ROLE_ACTOR },
+        { "director", PersonAspect.ROLE_DIRECTOR },
+        { "writer", PersonAspect.ROLE_WRITER },
+        { "artist", PersonAspect.ROLE_ARTIST },
+        { "albumartist", PersonAspect.ROLE_ALBUMARTIST },
+        { "composer", PersonAspect.ROLE_COMPOSER },
+        { "conductor", PersonAspect.ROLE_CONDUCTOR }
+    };
+
+    /// <summary>
+    /// The parts a question asks for, in the order it asked for them and without a word asked twice.
+    /// </summary>
+    /// <param name="roles">The words as they arrived, which may be one list or several.</param>
+    /// <param name="asked">The words to answer for, when the question is answerable.</param>
+    /// <param name="refusal">Why the question is not answerable, when it is not.</param>
+    /// <returns>False when a word is unknown or when no part at all was named.</returns>
+    /// <remarks>
+    /// Asking for nothing is refused instead of answered with an empty answer: a screen that forgot to say which
+    /// part it wants is a bug, and "nobody played any part" is the wrong way to say so.
+    /// </remarks>
+    private static bool TryReadRoles(IList<string> roles, out List<string> asked, out string refusal)
+    {
+      asked = new List<string>();
+      refusal = null;
+
+      if (roles != null)
+      {
+        foreach (string rough in roles)
+        {
+          if (string.IsNullOrEmpty(rough))
+            continue;
+
+          foreach (string word in rough.Split(','))
+          {
+            string role = word.Trim();
+            if (role.Length == 0)
+              continue;
+
+            if (!PersonRoles.ContainsKey(role))
+            {
+              refusal = string.Format("\"{0}\" is no part this server knows; it knows {1}", role,
+                  string.Join(", ", PersonRoles.Keys.OrderBy(k => k, StringComparer.Ordinal)));
+              return false;
+            }
+
+            if (!asked.Contains(role, StringComparer.OrdinalIgnoreCase))
+              asked.Add(role);
+          }
+        }
+      }
+
+      if (asked.Count == 0)
+      {
+        refusal = "at least one part has to be named, e.g. ?roles=actor,director";
+        return false;
+      }
+
+      return true;
+    }
+
+    /// <summary>
+    /// The people standing in one part of one title.
+    /// </summary>
+    /// <remarks>
+    /// The linked role is left empty, which is how the reference left it too
+    /// (RelationshipQueryExtension.cs:82-83: the part the title plays in the relationship is answered by the
+    /// library, not asked for) - asking for a part of a title is the whole question.
+    /// </remarks>
+    private static IList<MediaItem> FindPeople(IMediaLibrary mediaLibrary, Guid titleId, Guid role, Guid? profile)
+    {
+      MediaItemQuery query = new MediaItemQuery(
+          new List<Guid> { MediaAspect.ASPECT_ID, PersonAspect.ASPECT_ID }, null,
+          new RelationshipFilter(role, Guid.Empty, titleId));
+
+      IList<MediaItem> items = mediaLibrary.Search(query, false, profile, VirtualTitles.LetsVirtualTitlesIn);
+      return items ?? new List<MediaItem>();
     }
 
     /// <summary>

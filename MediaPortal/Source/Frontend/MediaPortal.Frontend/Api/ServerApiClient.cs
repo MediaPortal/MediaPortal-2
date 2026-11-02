@@ -619,6 +619,32 @@ namespace MediaPortal.Frontend.Api
     }
 
     /// <summary>
+    /// <c>GET api/media/items/{id}/persons</c> - the people a title names, in one group per part.
+    /// </summary>
+    /// <param name="mediaItemId">The title whose people are asked for.</param>
+    /// <param name="roles">
+    /// The parts to ask for, in the server's words: <c>"actor"</c>, <c>"director"</c>, <c>"writer"</c>,
+    /// <c>"artist"</c>, <c>"albumartist"</c>, <c>"composer"</c>, <c>"conductor"</c>. The screen asks for the two the
+    /// reference showed on its information screen - actors and director - and the others are there for the music
+    /// screen, which shows three of them (<c>MediaInfoAudio.xaml:204-296</c>).
+    /// </param>
+    /// <remarks>
+    /// One call for both bands rather than one per band: the server asks the library one question per part anyway,
+    /// and a screen that asks twice over HTTP has to keep two answers that arrived at different moments together.
+    /// A part the library never filled comes back as an empty group, so the screen learns the difference between
+    /// "nobody played that part" and "the server does not know this title", which answers 404.
+    /// </remarks>
+    public async Task<MediaPersonsAnswer> GetMediaPersonsAsync(Guid mediaItemId, IEnumerable<string> roles,
+        CancellationToken cancellation = default)
+    {
+      string asked = string.Join(",", roles.Select(Uri.EscapeDataString));
+      return await SendJsonAsync<MediaPersonsAnswer>(HttpMethod.Get,
+          "api/media/items/" + mediaItemId.ToString("D") + "/persons?roles=" + asked,
+          null, cancellation)
+          .ConfigureAwait(false);
+    }
+
+    /// <summary>
     /// <c>GET api/media/shares</c> - the folders the library is built from, and the media categories a new one
     /// can be filed under.
     /// </summary>

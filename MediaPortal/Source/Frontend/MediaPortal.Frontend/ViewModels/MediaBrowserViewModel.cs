@@ -870,11 +870,54 @@ namespace MediaPortal.Frontend.ViewModels
     private bool _showsSubtitleTracks;
 
     /// <summary>
-    /// Whether the whole tracks band costs its lines: any of its three parts has an answer. One answer because a
+    /// One card per person the library names as an actor of this title, in the order the library answered them.
+    /// </summary>
+    /// <remarks>
+    /// The reference stood these two bands under its two track bands, in the same left column and in the same shape
+    /// of a head and a row of cards that runs sideways (<c>MediaInfoVideo.xaml:384-420</c> for the actors,
+    /// <c>:421-457</c> for the director, both lists wearing <c>PersonCPListViewStyle</c>), and asked for them out
+    /// of the title's own relationships.  They stand SIDE BY SIDE here rather than under one another, which the
+    /// viewer agreed to on 2026-11-03: four bands of two hundred and sixty lines do not fit above the foot of a
+    /// window that is a thousand and eighty lines tall, and a band a viewer cannot reach is not a band.
+    /// </remarks>
+    public ObservableCollection<PersonCard> DetailsActors { get; } = new ObservableCollection<PersonCard>();
+
+    /// <summary>One card per person the library names as this title's director.</summary>
+    public ObservableCollection<PersonCard> DetailsDirectors { get; } = new ObservableCollection<PersonCard>();
+
+    /// <summary>Whether the library named anybody in the acting part.</summary>
+    [ObservableProperty]
+    private bool _showsActors;
+
+    /// <summary>Whether the library named anybody in the directing part.</summary>
+    [ObservableProperty]
+    private bool _showsDirectors;
+
+    /// <summary>
+    /// Whether the row of people costs its lines: either of its two bands has an answer. Needed because a window
+    /// half as tall as a television cannot spare four bands, so the two people bands share one row - and a row
+    /// whose both halves are empty would stand there as an empty head over nothing.
+    /// </summary>
+    public bool ShowsPersons => ShowsActors || ShowsDirectors;
+
+    partial void OnShowsActorsChanged(bool value)
+    {
+      OnPropertyChanged(nameof(ShowsPersons));
+      OnPropertyChanged(nameof(ShowsTracks));
+    }
+
+    partial void OnShowsDirectorsChanged(bool value)
+    {
+      OnPropertyChanged(nameof(ShowsPersons));
+      OnPropertyChanged(nameof(ShowsTracks));
+    }
+
+    /// <summary>
+    /// Whether the whole tracks band costs its lines: any of its parts has an answer. One answer because a
     /// screen cannot join three conditions by itself, and because the header the band carries would otherwise
     /// stand over nothing.
     /// </summary>
-    public bool ShowsTracks => ShowsPictureLine || ShowsAudioTracks || ShowsSubtitleTracks;
+    public bool ShowsTracks => ShowsPictureLine || ShowsAudioTracks || ShowsSubtitleTracks || ShowsPersons;
 
     partial void OnShowsPictureLineChanged(bool value) => OnPropertyChanged(nameof(ShowsTracks));
 
@@ -952,6 +995,27 @@ namespace MediaPortal.Frontend.ViewModels
     /// viewer walked on would otherwise sit under the next title's name.
     /// </summary>
     private Guid _detailsAskFor;
+
+    /// <summary>
+    /// The title whose answers a read is on its way for right now, or <see cref="Guid.Empty"/> for none.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The mark that a title's answers were read (<c>_detailsFor</c>) is only written once the story arrived,
+    /// because a read that came back failing has to be askable again.  Until the answer lands, nothing stops the
+    /// same title from being asked a second time: the shelf settles onto its row while a reading is being opened,
+    /// and a screen that wears details asks every time the selection lands.  Each of those questions walks the
+    /// whole way to the server and back.
+    /// </para>
+    /// <para>
+    /// <b>What the duplicates cost.</b> Every read empties the bands before filling them, and the emptying happens
+    /// on the way out while the filling happens after the answer.  So two overlapping reads for one title empty
+    /// twice and fill twice, and the viewer is shown the same audio track two or three times in a row - which a
+    /// slow server makes likely, since the answers stay in the air longer.  One read per title at a time is what
+    /// keeps the bands the length of what the file carries.
+    /// </para>
+    /// </remarks>
+    private Guid _detailsReadUnderway;
 
     /// <summary>The shapes the viewer picked for each screen; the constructor loads them.</summary>
     private readonly ScreenViewSettings _screens;
@@ -3179,6 +3243,12 @@ namespace MediaPortal.Frontend.ViewModels
         return;
 
       Guid asked = title.Title.Id;
+
+      // A question about the same title that is already on its way is not asked a second time; see the field.
+      if (_detailsReadUnderway == asked)
+        return;
+
+      _detailsReadUnderway = asked;
       try
       {
         // Asked of the title that holds the answers rather than of the row's own key, which for a counted season is
@@ -3237,6 +3307,7 @@ namespace MediaPortal.Frontend.ViewModels
         await ReadDetailsArtworkAsync(title);
         await ReadDetailsClearArtAsync(title);
         await ReadDetailsStreamsAsync(title);
+        await ReadDetailsPersonsAsync(title);
       }
       catch (ServerApiException ex)
       {
@@ -3250,6 +3321,13 @@ namespace MediaPortal.Frontend.ViewModels
       catch (Exception ex)
       {
         Status = "Reading the details failed: " + ex.Message;
+      }
+      finally
+      {
+        // Ended, however it ended.  Only this read's own title is cleared, because a newer question about a
+        // different title may already have taken the mark over while this one was in the air.
+        if (_detailsReadUnderway == asked)
+          _detailsReadUnderway = Guid.Empty;
       }
     }
 
@@ -3592,6 +3670,152 @@ namespace MediaPortal.Frontend.ViewModels
       {
         Status = "Reading the tracks failed: " + ex.Message;
       }
+    }
+
+    /// <summary>
+    /// The two parts the reading shows people for, in the server's words.
+    /// </summary>
+    /// <remarks>
+    /// The reference's information screen showed exactly these two (<c>MediaInfoVideo.xaml:384-457</c>). The music
+    /// screen shows three more - artist, album artist, composer (<c>MediaInfoAudio.xaml:204-296</c>) - which reach
+    /// this front end when the audio reading is rebuilt, and the server already answers them.
+    /// </remarks>
+    private static readonly string[] PEOPLE_ASKED = { "actor", "director" };
+
+    /// <summary>
+    /// The people the title names, asked of the server and laid into the two bands of the reading.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <b>Why a second question.</b> A title's people are not written on the title; they stand in relationships of
+    /// their own, which is how the reference read them too - its two lists were <c>RelationshipQuery</c> bindings
+    /// over the title's id (<c>MediaInfoVideo.xaml:395-398</c> and <c>:432-435</c>). Asking the details endpoint for
+    /// them as well would have made the server walk relationships for every title that only wants a story, so the
+    /// reading asks once more, here, where the answer is looked at.
+    /// </para>
+    /// <para>
+    /// <b>Names first, faces after.</b> A band of names is the answer; a portrait is a picture that may or may not
+    /// be in the library and arrives per person. The reference let each card fetch its own and drew the skin's
+    /// standing figure wherever the library had none
+    /// (<c>themes/default/styles/CurrentlyPlayingStyles.xaml:216-222</c>), so that is what happens here as well -
+    /// the names are on the screen before a single face has been asked for.
+    /// </para>
+    /// </remarks>
+    private async Task ReadDetailsPersonsAsync(TitleViewModel title)
+    {
+      DetailsActors.Clear();
+      DetailsDirectors.Clear();
+      ShowsActors = false;
+      ShowsDirectors = false;
+
+      if (_client == null)
+        return;
+
+      // A season the library counts is a shelf of episodes and carries no people of its own; the names stand on
+      // the episodes, so asking about the shelf would ask about a different title than the one the viewer stands on.
+      if (title.AskSeason.HasValue)
+        return;
+
+      Guid asked = title.Title.Id;
+      try
+      {
+        MediaPersonsAnswer answer = await _client.GetMediaPersonsAsync(title.AskId, PEOPLE_ASKED);
+        if (_detailsFor != asked)
+          return;
+
+        foreach (PersonCard card in MediaPersons.CardsFor(answer.PeopleOf("actor")))
+          DetailsActors.Add(card);
+        foreach (PersonCard card in MediaPersons.CardsFor(answer.PeopleOf("director")))
+          DetailsDirectors.Add(card);
+
+        ShowsActors = DetailsActors.Count > 0;
+        ShowsDirectors = DetailsDirectors.Count > 0;
+
+        List<PersonCard> faces = new List<PersonCard>(DetailsActors);
+        faces.AddRange(DetailsDirectors);
+        _ = PaintPersonPortraitsAsync(asked, faces);
+      }
+      catch (ServerApiException)
+      {
+        // A server too old to answer this question, or a title the library dropped between the two questions. The
+        // reading keeps the story and the tracks it already showed; the two bands simply do not appear.
+      }
+      catch (Exception ex)
+      {
+        Status = "Reading the people failed: " + ex.Message;
+      }
+    }
+
+    /// <summary>
+    /// The portraits of the people the bands now name, one errand per person, put behind the bands instead of in
+    /// front of them.
+    /// </summary>
+    /// <param name="askedFor">
+    /// The title the bands were filled for. A face that turns up after the viewer moved on to another title is a
+    /// face nobody is looking at, and it is thrown away rather than written onto a card that is gone.
+    /// </param>
+    /// <param name="cards">The cards of both bands, in the order they are walked.</param>
+    /// <remarks>
+    /// Asked one after the other rather than all at once: a film's credit list is twenty people, and twenty
+    /// pictures fetched together push the posters of the wall behind them off the wire. The holder of these
+    /// pictures limits what is on the way at a moment anyway (<see cref="Artwork.MAX_AT_ONCE"/>).
+    /// </remarks>
+    private async Task PaintPersonPortraitsAsync(Guid askedFor, IList<PersonCard> cards)
+    {
+      Artwork? portraits = PersonPortraits();
+      if (portraits == null)
+        return;
+
+      foreach (PersonCard card in cards)
+      {
+        try
+        {
+          byte[]? picture = await portraits.LoadAsync(card.Id);
+          if (picture == null || _detailsFor != askedFor)
+            continue;
+
+          // Decoded away from the thread that draws, the way every other picture of this panel is: a name the
+          // binding has to decode first is a card the viewer sees arrive.
+          byte[] toRead = picture;
+          if (!ArtworkConverter.Instance.Remembers(toRead, ArtworkConverter.TILE_PARAMETER))
+            await Task.Run(() => ArtworkConverter.Instance.Warm(toRead, ArtworkConverter.TILE_PARAMETER));
+
+          if (_detailsFor == askedFor)
+            card.Portrait = picture;
+        }
+        catch (ServerApiException)
+        {
+          // A library without this person's face is an ordinary library; the card draws the standing figure.
+        }
+        catch (Exception)
+        {
+          // The same answer for anything else that goes wrong over one picture: the card stays as it stood.
+        }
+      }
+    }
+
+    private Artwork? _personPortraits;
+    private bool _personPortraitsAsked;
+
+    /// <summary>
+    /// The holder of the people's portraits, made once. Kept apart from the panel's own pictures on purpose:
+    /// these are asked for under a PERSON's id, and mixing them into a cache keyed by title ids would hand one
+    /// person's face to a title with the same number.
+    /// </summary>
+    private Artwork? PersonPortraits()
+    {
+      if (_personPortraitsAsked)
+        return _personPortraits;
+
+      _personPortraitsAsked = true;
+      ServerApiClient? client = _client;
+      if (client == null)
+        return null;
+
+      // The kind is the one the reference asked a person's portrait under, by the person's own id
+      // (themes/default/styles/CurrentlyPlayingStyles.xaml:220-222).
+      return _personPortraits = PicturesOf(client, "PersonThumbnail",
+          id => client.GetFanArtAsync(id, "Thumbnail"));
     }
 
     private readonly Dictionary<string, Artwork?> _panelArtworks = new Dictionary<string, Artwork?>();

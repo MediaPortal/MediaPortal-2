@@ -1,4 +1,4 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
         xmlns:theming="using:MediaPortal.Frontend.Theming"
@@ -259,6 +259,72 @@
                    Opacity="0.4"/>
       </StackPanel>
     </DataTemplate>
+
+    <!-- A person of the title, as both people bands draw it.  The face fills the whole tile the way a cover's
+      poster fills its place on the wall, and the name stands in front of the black veil at the picture's foot:
+      the same veil the home screen's news pictures wear (HomeView.axaml:627-633), whose one job is to keep the
+      words readable on whatever the photograph behind them happens to be.
+
+      The photograph is cut by a second, inner face and not by the card itself, because a shadow cannot live on a
+      clipped edge - the outer border casts the tile's shadow, which has to fall OUTSIDE its own edges, while the
+      inner face is what stops the picture spilling over the rounded corner.  The wall's tiles are built in
+      exactly these two surfaces for exactly this reason (HomeView.axaml:753-756, with the face at
+      styles.xaml:505).  Where the library holds no portrait, the skin's own person figure - the vector its media
+      menu wears for an actor - stands in the MIDDLE of the face, at the size a glyph of this front end is written
+      and at the menu glyph's quietness, and not blown over the whole face the way the skin's standing bitmap used
+      to be: a card without a picture says that it has no picture, which is a different thing from saying it louder
+      than the name it carries.  The name keeps its veil either way, so a card is never a wordless rectangle.
+
+      The veil lies OUTSIDE that clipped face, over it, and not among the pictures inside it.  A face is one
+      hundred and fifty-four design lines tall, which at this screen's scale ends between two device pixels, so a
+      veil cut by the face was painted on its last line only by a third - the picture shone through that line as a
+      bright hairline across the foot of every card (measured on 2026-11-09: one row of #515151 between the veil's
+      #272727 above and the plate's #222222 below).  Lying outside the clip, the veil reaches the plate instead of
+      the clip, and a hairline of its own darkening over a dark plate asks for nothing.  It therefore has to carry
+      the face's corner itself - a veil that lies outside a clip is cut by nothing, so the rounding it shows is the
+      rounding it asks for, and a square one here darkened the two corners the face had left in the open. -->
+    <DataTemplate x:Key="PersonCardTile" x:DataType="vm:PersonCard">
+      <Border Classes="trackcard person-card home-tile-shadow"
+              Focusable="True"
+              Width="150"
+              Height="160"
+              Margin="0,0,8,0">
+        <Panel>
+          <Border Classes="person-face" ClipToBounds="True">
+            <Panel>
+              <Image Source="{Binding Portrait,
+                                      Converter={x:Static views:ArtworkConverter.Instance},
+                                      ConverterParameter=tile}"
+                     Stretch="UniformToFill"
+                     IsVisible="{Binding ShowsPortrait}"
+                     IsHitTestVisible="False"/>
+              <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                    ConverterParameter='MediaMenu/actor'}"
+                    Fill="{DynamicResource TextBrush}"
+                    Opacity="0.4"
+                    Width="64"
+                    Height="64"
+                    Stretch="Uniform"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    IsVisible="{Binding !ShowsPortrait}"
+                    IsHitTestVisible="False"/>
+            </Panel>
+          </Border>
+          <Border Classes="person-veil" IsHitTestVisible="False"/>
+          <TextBlock Text="{Binding Name}"
+                     FontSize="15"
+                     FontWeight="SemiBold"
+                     TextWrapping="Wrap"
+                     TextAlignment="Center"
+                     MaxLines="2"
+                     TextTrimming="CharacterEllipsis"
+                     Margin="8,0,8,8"
+                     VerticalAlignment="Bottom"
+                     Foreground="{DynamicResource TextBrush}"/>
+        </Panel>
+      </Border>
+    </DataTemplate>
   </UserControl.Resources>
 
   <!--
@@ -397,6 +463,35 @@
     </Style>
     <Style Selector="Border.trackcard:focus">
       <Setter Property="BorderBrush" Value="#FFFFFFFF"/>
+    </Style>
+
+    <!-- A person's card.  Its ground is the dark plate a cover without a picture stands on at the wall
+         (#222222, HomeView.axaml:781-785 - the worn skin's own plate, frosted by nothing), and the ring it grows
+         under a caret is the ring every other card of this reading already wears, from Border.trackcard above.
+
+         The inner face carries the corner the photograph is cut to: the ten points of rounding the tile wears
+         (styles.xaml:505-507), less the three points of ring that lie over it, so the picture's corner runs
+         under the ring instead of butting against it.
+
+         The veil is the home screen's news veil (HomeView.axaml:627-633) with its darkening pulled down to the
+         foot of a much smaller tile: over a hundred and sixty lines a veil that starts darkening at a third of
+         the height would grey the whole face, so it starts below the middle. -->
+    <Style Selector="Border.person-card">
+      <Setter Property="Background" Value="#222222"/>
+    </Style>
+    <Style Selector="Border.person-face">
+      <Setter Property="CornerRadius" Value="7"/>
+      <Setter Property="Background" Value="#222222"/>
+    </Style>
+    <Style Selector="Border.person-veil">
+      <Setter Property="CornerRadius" Value="7"/>
+      <Setter Property="Background">
+        <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+          <GradientStop Offset="0.45" Color="#00000000"/>
+          <GradientStop Offset="0.72" Color="#8C000000"/>
+          <GradientStop Offset="1.00" Color="#D9000000"/>
+        </LinearGradientBrush>
+      </Setter>
     </Style>
   </UserControl.Styles>
   <!--
@@ -646,15 +741,24 @@
               rather than on the band around it - the question a viewer asks in front of a track is WHICH track, so
               the arrows walk the cards and the band slides along with the caret, which is what a scroller does when
               the thing it holds walks out of sight.  The cards wear the skin's shared Border.home-tile-shadow, and
-              the band gives that shadow the room it needs outside the card - which is what the band's two hundred
-              and fifteen lines and its padding of twenty four and thirty are for, and not for looks: the shadow the
-              shared class paints stands nineteen points right of a card, twenty below it, thirteen left of it and
-              twelve above it, while the band clips at its own bounds (a band that did not clip let a scrolled
-              card paint itself across the rest of the screen).  Measured the first version of this had the band at
-              one hundred and ninety five lines and the items panel clipping at the exact height of a card, which
-              cut the shadow off above and below and left the cards sitting flat on the page - a test measures it
-              now (TestMediaBrowser.TheShadowOfATrackCardIsNotCutByTheBandItStandsIn), because a cut shadow is
-              exactly what a headless picture cannot show.
+              the band gives that shadow the room it needs outside the card - which is what the band's padding is
+              for, and not for looks: the shadow the shared class paints stands nineteen points right of a card,
+              twenty below it, thirteen left of it and twelve above it, while the band clips at its own bounds (a
+              band that did not clip let a scrolled card paint itself across the rest of the screen).  Measured the
+              first version of this had the band at one hundred and ninety five lines and the items panel clipping
+              at the exact height of a card, which cut the shadow off above and below and left the cards sitting
+              flat on the page - a test measures it now
+              (TestMediaBrowser.TheShadowOfATrackCardIsNotCutByTheBandItStandsIn), because a cut shadow is exactly
+              what a headless picture cannot show.
+
+              The room the shadow asks for is ALL the room a band takes, and that is the whole of the distance a
+              header stands above its cards: twenty four points of air at either end, fifteen above a card and
+              twenty three below it, which makes a band of one hundred and ninety three lines around a card of a
+              hundred and fifty five (and one hundred and ninety eight around a person's card of a hundred and
+              sixty).  Thirty above and thirty below it stood until 2026-11-02, which set the header's word forty
+              three lines above the cards it names - the viewer called that far too much and asked for a third of
+              it, so the header's row keeps no height of its own, stands hard against the band, and everything
+              between the word and the cards is the shadow's own air and nothing else.
             -->
             <StackPanel VerticalAlignment="Top"
                         Margin="60,40,60,170"
@@ -683,8 +787,13 @@
                              VerticalAlignment="Center"
                              Foreground="{DynamicResource TextBrush}"/>
                 </StackPanel>
+                <!-- The plaques stand at the same left edge the track and subtitle cards stand at, and not at the
+                     edge of the column: the bands put their cards twenty four points in from that edge - the air a
+                     card's shadow lies in - and the viewer asked on 2026-11-02 for these plaques to be flush with
+                     those cards rather than to start in that air. -->
                 <StackPanel Orientation="Horizontal"
                             Spacing="10"
+                            Margin="24,0,0,0"
                             HorizontalAlignment="Left">
                   <!-- A stereoscopic file wears its logo with the type's own word under it, and an ordinary file
                        wears nothing (MediaInfoVideo.xaml:176-194, which drew these only for HSBS, SBS, HTAB, TAB). -->
@@ -770,7 +879,7 @@
                   </Border>
 
                   <!-- The proportion: the frame's own glyph and both sayings of it together on one line - the class
-                       and the measured figure, "21:9 Â· 2.39:1".  The reference wrote those two on opposite edges of
+                       and the measured figure, "21:9 Ã‚Â· 2.39:1".  The reference wrote those two on opposite edges of
                        its proportion picture (MediaInfoVideo.xaml:226-244); read beside a glyph they are one
                        answer, which is what they always were. -->
                   <Border Classes="details-logo"
@@ -794,7 +903,7 @@
                   </Border>
 
                   <!-- The two figures the reference never had a picture for, said as one line about the file's rate
-                       - "3663 kbps Â· 24 fps" - with the frame glyph in front of them.  The reference stacked them in
+                       - "3663 kbps Ã‚Â· 24 fps" - with the frame glyph in front of them.  The reference stacked them in
                        its own cell (MediaInfoVideo.xaml:246-255); read together they take one line.  Both figures
                        still stand or fall on their own: a file whose bitrate never arrived says only its frame rate,
                        and says it with the same dot left out. -->
@@ -824,8 +933,8 @@
                    place of the glyph each of them wore.  They are the English words and not the skin's German
                    strings - [Nereus.Info.AudioTracks] and [Nereus.Info.Subtitles] - because a word written into the
                    skin is a word every language would have to translate by hand. -->
-              <StackPanel Spacing="6" IsVisible="{Binding ShowsAudioTracks}">
-                <StackPanel Orientation="Horizontal" Spacing="12" Height="40">
+              <StackPanel Spacing="0" IsVisible="{Binding ShowsAudioTracks}">
+                <StackPanel Orientation="Horizontal" Spacing="12">
                   <TextBlock Text="Audiotrack"
                              FontSize="21"
                              Opacity="0.5"
@@ -833,9 +942,9 @@
                              Foreground="{DynamicResource TextBrush}"/>
                 </StackPanel>
                 <ScrollViewer Name="audioTracksScroller"
-                              Height="215"
-                              Padding="24,30"
-                              HorizontalScrollBarVisibility="Auto"
+                              Height="193"
+                              Padding="24,15,24,23"
+                              HorizontalScrollBarVisibility="Hidden"
                               VerticalScrollBarVisibility="Disabled"
                               ClipToBounds="True">
                   <ItemsControl ItemsSource="{Binding DetailsAudioTracks}"
@@ -945,8 +1054,8 @@
                 </ScrollViewer>
               </StackPanel>
 
-              <StackPanel Spacing="6" IsVisible="{Binding ShowsSubtitleTracks}">
-                <StackPanel Orientation="Horizontal" Spacing="12" Height="40">
+              <StackPanel Spacing="0" IsVisible="{Binding ShowsSubtitleTracks}">
+                <StackPanel Orientation="Horizontal" Spacing="12">
                   <TextBlock Text="Subtitle"
                              FontSize="21"
                              Opacity="0.5"
@@ -954,9 +1063,9 @@
                              Foreground="{DynamicResource TextBrush}"/>
                 </StackPanel>
                 <ScrollViewer Name="subtitleTracksScroller"
-                              Height="215"
-                              Padding="24,30"
-                              HorizontalScrollBarVisibility="Auto"
+                              Height="193"
+                              Padding="24,15,24,23"
+                              HorizontalScrollBarVisibility="Hidden"
                               VerticalScrollBarVisibility="Disabled"
                               ClipToBounds="True">
                   <ItemsControl ItemsSource="{Binding DetailsSubtitleTracks}"
@@ -1061,16 +1170,97 @@
                   </ItemsControl>
                 </ScrollViewer>
               </StackPanel>
-            </StackPanel>
 
-            <Button Name="infoBackButton"
-                    Classes="nereus-primary"
-                    Content="Back"
-                    Command="{Binding CloseInfoCommand}"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Bottom"
-                    Margin="0,0,0,40"
-                    Focusable="True" />
+              <!--
+                ACTORS, DIRECTOR: the people the title names, in the two parts the reference showed them in.  Its
+                information screen stood both in the same left column as the tracks - actors in the third row,
+                director in the fourth, each a head of forty lines with a twenty seven point picture and a word at
+                half light over a band of cards that runs sideways
+                (MediaInfoVideo.xaml:384-420 for the actors, :421-457 for the director, both lists wearing
+                PersonCPListViewStyle, whose card is a hundred and forty five points of portrait over sixty lines of
+                name - themes/default/styles/CurrentlyPlayingStyles.xaml:194-237).
+
+                Here the two bands SHARE one row, which the viewer agreed to on 2026-11-03: four bands of two
+                hundred and sixty lines do not stand above the foot of a window that is a thousand and eighty lines
+                tall, and a band a viewer cannot reach is no band at all - the same reason the caret walks out of a
+                band rather than stopping at its edge.  Since 2026-11-04 the row is split one card to the left: a
+                title has ONE director, so the director's column is exactly wide enough for the one card it holds
+                and everything left of it belongs to the actors, who are a dozen strong for a series.  The heads
+                carry the reference's English words out of its own language file (Language/strings_en.xml:108 and
+                :110, "Director" and "Actors") in place of its two glyphs, which is what the viewer asked the track
+                heads to wear the same evening.  Neither band shows a scrollbar: the caret walks a band and the
+                wheel turns it, so the bar would only eat a line of the picture (see KeepCardInSight for how a
+                card walking out of a band is brought back with the reference's own margin around it).
+
+                A portrait is asked for per person, under that person's own id, and where the library has none the
+                card draws the skin's standing figure - exactly the two states the reference's card had
+                (CurrentlyPlayingStyles.xaml:216-222, Person.png shown by Path=!HasImage).  The cards take the caret
+                and wear the skin's shared shadow like the track cards above them, and the shadow is given the room
+                it needs outside the card by this band's padding - twenty five lines above and below a card of a
+                hundred and sixty standing in a band of two hundred and ten - which is what the test that measures a
+                cut shadow looks at.  A band that clips is where a shadow dies, so the clip that keeps a long list
+                from painting over its neighbour sits on the row of items and not on the band.
+              -->
+              <Grid ColumnDefinitions="*,Auto"
+                    ColumnSpacing="18"
+                    IsVisible="{Binding ShowsPersons}">
+                <StackPanel Grid.Column="0" Spacing="0" IsVisible="{Binding ShowsActors}">
+                  <StackPanel Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Actors"
+                               FontSize="21"
+                               Opacity="0.5"
+                               VerticalAlignment="Center"
+                               Foreground="{DynamicResource TextBrush}"/>
+                  </StackPanel>
+                  <ScrollViewer Name="actorsScroller"
+                                Height="198"
+                                Padding="24,15,24,23"
+                                HorizontalScrollBarVisibility="Hidden"
+                                VerticalScrollBarVisibility="Disabled"
+                                ClipToBounds="True">
+                    <ItemsControl ItemsSource="{Binding DetailsActors}"
+                                  VerticalAlignment="Center"
+                                  ClipToBounds="False"
+                                  ItemTemplate="{StaticResource PersonCardTile}">
+                      <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                          <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                      </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                  </ScrollViewer>
+                </StackPanel>
+                <!-- Wide enough for the one card a director is, and no wider: a hundred and fifty of card, eight of
+                     the gap that separates cards, and the twenty four of shadow air the band keeps at either end
+                     (the room Border.home-tile-shadow's shadow falls into, which the shadow test measures). -->
+                <StackPanel Grid.Column="1" Spacing="0" Width="206" IsVisible="{Binding ShowsDirectors}">
+                  <StackPanel Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Director"
+                               FontSize="21"
+                               Opacity="0.5"
+                               VerticalAlignment="Center"
+                               Foreground="{DynamicResource TextBrush}"/>
+                  </StackPanel>
+                  <ScrollViewer Name="directorsScroller"
+                                Height="198"
+                                Padding="24,15,24,23"
+                                HorizontalScrollBarVisibility="Hidden"
+                                VerticalScrollBarVisibility="Disabled"
+                                ClipToBounds="True">
+                    <ItemsControl ItemsSource="{Binding DetailsDirectors}"
+                                  VerticalAlignment="Center"
+                                  ClipToBounds="False"
+                                  ItemTemplate="{StaticResource PersonCardTile}">
+                      <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                          <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                      </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                  </ScrollViewer>
+                </StackPanel>
+              </Grid>
+            </StackPanel>
           </Panel>
 
           <!-- The shelf itself, with its heading, its search field, its foot and the two overlays the reference
