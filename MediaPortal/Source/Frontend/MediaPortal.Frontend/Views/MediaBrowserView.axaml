@@ -1083,6 +1083,12 @@
                 </DataTemplate>
               </ItemsControl.ItemTemplate>
             </ItemsControl>
+            <TextBlock Name="menuAnswerLine"
+                       FontSize="18"
+                       Margin="0,8,0,0"
+                       TextWrapping="Wrap"
+                       Text="{Binding MenuAnswer}"
+                       IsVisible="{Binding MenuAnswer, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
             <TextBlock Text="{Binding MenuWords}"
                        FontSize="18"
                        Margin="0,8,0,0"

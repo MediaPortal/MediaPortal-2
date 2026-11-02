@@ -77,11 +77,15 @@ namespace Tests.Frontend
       List<MediaTitleAction> actions = MediaTitleActions.For(Title("Alien", 100, 2), true, true);
 
       Assert.That(KindsOf(actions),
-          Is.EqualTo(new[] { MediaTitleActionKind.Information, MediaTitleActionKind.SetUnplayed }),
+          Is.EqualTo(new[]
+          {
+            MediaTitleActionKind.Information, MediaTitleActionKind.SetUnplayed, MediaTitleActionKind.Refresh
+          }),
           "the reference offers a title at a hundred per cent its way back to unplayed and never the mark it "
-          + "already carries (AbstractWatchedAction.cs:49-52, SetUnwatched.cs:27-37)");
+          + "already carries (AbstractWatchedAction.cs:49-52, SetUnwatched.cs:27-37), and the refresh line stands "
+          + "behind them because its key is C.3 (plugin.xml:275)");
       Assert.That(actions.Select(a => a.Word),
-          Is.EqualTo(new[] { "Media information", "Mark unwatched" }),
+          Is.EqualTo(new[] { "Media information", "Mark unwatched", "Refresh" }),
           "the reference's list is sorted by the string each action carries, which puts Media information (A.0) "
           + "above the watched marks (C.1) and registers Set unplayed first of those two (plugin.xml:270-272)");
     }
@@ -92,11 +96,15 @@ namespace Tests.Frontend
       List<MediaTitleAction> actions = MediaTitleActions.For(Title("Alien: Earth", 0), true, true);
 
       Assert.That(KindsOf(actions),
-          Is.EqualTo(new[] { MediaTitleActionKind.Information, MediaTitleActionKind.SetPlayed }),
+          Is.EqualTo(new[]
+          {
+              MediaTitleActionKind.Information, MediaTitleActionKind.SetPlayed, MediaTitleActionKind.Refresh
+          }),
           "a title below a hundred per cent is the reference's \"not watched\", which is offered Set played "
-          + "(SetWatched.cs:27-37)");
+          + "(SetWatched.cs:27-37), and the ask to read its file again, which the reference offers whatever the "
+          + "number says (RefreshMediaItem.cs:44-49)");
       Assert.That(actions.Select(a => a.Word),
-          Is.EqualTo(new[] { "Media information", "Mark watched" }));
+          Is.EqualTo(new[] { "Media information", "Mark watched", "Refresh" }));
     }
 
     [Test]
@@ -135,8 +143,8 @@ namespace Tests.Frontend
 
       Assert.That(actions.Any(a => a.Kind == MediaTitleActionKind.Information), Is.False,
           "the wall was offered a line it has nowhere to take the viewer to");
-      Assert.That(KindsOf(actions), Is.EqualTo(new[] { MediaTitleActionKind.SetUnplayed }),
-          "and the mark is still offered, since that one question the wall can ask of the server itself");
+      Assert.That(KindsOf(actions), Is.EqualTo(new[] { MediaTitleActionKind.SetUnplayed, MediaTitleActionKind.Refresh }),
+          "and the two lines the wall can ask of the server itself are still offered");
     }
 
     [Test]
@@ -171,6 +179,9 @@ namespace Tests.Frontend
       /// <summary>The percentages this server was told, in the order it was told them.</summary>
       internal List<int> Told { get; } = new List<int>();
 
+      /// <summary>Every path this server was asked about, in the order it was asked.</summary>
+      internal List<string> Asked { get; } = new List<string>();
+
       /// <summary>What the next answer should say how far the title is watched.</summary>
       internal int AnswersPercentage { get; set; }
 
@@ -180,11 +191,27 @@ namespace Tests.Frontend
       protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
           CancellationToken cancellation)
       {
-        string body = await request.Content.ReadAsStringAsync().ConfigureAwait(false);
-        string[] segments = request.RequestUri!.AbsolutePath.Split('/');
+        string path = request.RequestUri!.AbsolutePath;
+        Asked.Add(path);
+        string body = request.Content == null
+            ? ""
+            : await request.Content.ReadAsStringAsync().ConfigureAwait(false);
+        string[] segments = path.Split('/');
         string idText = segments[segments.Length - 2];
         if (!Guid.TryParse(idText, out Guid askedFor))
           askedFor = Guid.Empty;
+
+        // The one line that asks for something rather than reporting a number: it carries no percentage, and a
+        // server that wrote one down for it would have the tests above read a report that never happened.
+        if (path.EndsWith("/refresh", StringComparison.OrdinalIgnoreCase))
+        {
+          string took = "{\"id\":\"" + askedFor.ToString("D") + "\",\"error\":null}";
+          return new HttpResponseMessage(HttpStatusCode.OK)
+          {
+            RequestMessage = request,
+            Content = new StringContent(took, Encoding.UTF8, "application/json")
+          };
+        }
 
         int percentage = 0;
         int at = body.IndexOf("percentage", StringComparison.OrdinalIgnoreCase);
@@ -198,7 +225,11 @@ namespace Tests.Frontend
             percentage = int.Parse(body.Substring(digits, end - digits));
         }
 
-        Told.Add(percentage);
+        // Only a report of how far a title was watched belongs to the record; a screen that asked for the title
+        // or for its picture passed this way with nothing to write down, and a test reading the record would
+        // otherwise count the asking as the telling.
+        if (HttpMethod.Post.Equals(request.Method) && path.EndsWith("/playback", StringComparison.OrdinalIgnoreCase))
+          Told.Add(percentage);
 
         string json = "{\"id\":\"" + askedFor.ToString("D") + "\",\"playCount\":" + AnswersPlayCount
             + ",\"lastPlayed\":null,\"watched\":" + (AnswersPercentage >= 100 ? "true" : "false")
@@ -285,24 +316,171 @@ namespace Tests.Frontend
       browser.ShowMenuCommand.Execute(null);
 
       Assert.That(browser.TitleActions.Select(a => a.Word),
-          Is.EqualTo(new[] { "Media information", "Mark unwatched" }),
-          "the dialog of a watched title stands the reference's two lines for it - the reading first, the way "
-          + "back second (plugin.xml:270-272, sorted by MediaItemsActionModel.cs:376)");
+          Is.EqualTo(new[] { "Media information", "Mark unwatched", "Refresh" }),
+          "the dialog of a watched title stands the reference's lines for it - the reading first, the way back "
+          + "second, the ask to look at the file again third (plugin.xml:270-275, sorted by "
+          + "MediaItemsActionModel.cs:376)");
       Assert.That(browser.TitleActions.All(a => a.IsCommand), Is.True,
           "every line the dialog stands has an answer behind it; the sentence explaining why there is none is "
               + "spoken by the dialog's own words rather than pressed");
 
       var press = (CommunityToolkit.Mvvm.Input.IAsyncRelayCommand<MediaTitleAction>)
           browser.RunTitleActionCommand;
-      await press.ExecuteAsync(browser.TitleActions.Last());
+      await press.ExecuteAsync(browser.TitleActions.First(a => a.Kind == MediaTitleActionKind.SetUnplayed));
 
       Assert.That(server.Told, Is.EqualTo(new[] { 0 }),
           "pressing the way back reports nought, which is the reference's Set unplayed "
-          + "(AbstractWatchedAction.cs:75-80)");
+          + "(AbstractWatchedAction.cs:75-80); the server was asked: " + string.Join(" | ", server.Asked));
       Assert.That(browser.Selected.Seen, Is.False,
           "and the row is rewritten from the server's answer, so the tick that stood on it is off it now");
       Assert.That(browser.MenuVisible, Is.False,
           "the dialog is put away by the answer, as it was when the button did this by hand");
+    }
+
+    /// <summary>
+    /// The reference's <i>Refresh</i> line, measured to the wire. What matters here is which title is asked about
+    /// and how often: an endpoint that took the id from the wrong place would quietly ask about whatever title was
+    /// added last, and the viewer would watch the shelf for a change that was never planned.
+    /// </summary>
+    [AvaloniaTest]
+    public async Task PressingTheAskToReadTheFileAgainAsksTheServerAboutThisTitleAlone()
+    {
+      MarkedServer server = new MarkedServer();
+      var client = new ServerApiClient(SERVER, new HttpClient(server));
+      var browser = new MediaBrowserViewModel(client, null);
+      TitleViewModel alien = Title("Alien", 0);
+      browser.Titles.Add(alien);
+      browser.Selected = alien;
+
+      MediaTitleAction refresh = MediaTitleActions.For(alien, true, true)
+          .First(a => a.Kind == MediaTitleActionKind.Refresh);
+      browser.ShowMenu();
+      await ((CommunityToolkit.Mvvm.Input.IAsyncRelayCommand<MediaTitleAction>)browser.RunTitleActionCommand)
+          .ExecuteAsync(refresh);
+
+      Assert.That(server.Asked.Count(path => path.EndsWith("/refresh", StringComparison.OrdinalIgnoreCase)),
+          Is.EqualTo(1),
+          "one press, one ask - the reference's entry calls the directory once (RefreshMediaItem.cs:60-69); the "
+          + "server was asked: " + string.Join(" | ", server.Asked));
+      Assert.That(server.Asked.Last(),
+          Is.EqualTo("/MediaPortal/Server/api/media/items/" + alien.Title.Id.ToString("D") + "/refresh"),
+          "asked of this title and of no other");
+      Assert.That(server.Told, Has.Count.EqualTo(0),
+          "and it is not a playback report: nothing was watched, so no number may be written");
+      Assert.That(browser.MenuVisible, Is.True,
+          "the dialog stays under the press: an ask that shows nothing moving on the wall would otherwise leave "
+          + "the viewer with a button that took the question away and changed nothing, which reads as broken");
+      Assert.That(browser.MenuAnswer, Does.Contain("read"),
+          "the dialog says what its own button asked for, in its own line under the buttons - the screen's status "
+          + "line only speaks while the shelf is empty, so it is no place for an answer to a press");
+    }
+
+    /// <summary>
+    /// The reference's <i>Media information</i> pushed a screen of its own over the list
+    /// (<c>MediaInfoAction.cs:69-90</c> → <c>MediaInfoVideo.xaml</c>): the title's picture, its facts beside it,
+    /// and no wall of tiles standing in the way. Measured here as the wall going away and coming back, because the
+    /// facts themselves belong to the details panel and are tested where they are read.
+    /// </summary>
+    [AvaloniaTest]
+    public async Task PressingTheReadingOfTheTitleTakesTheWallAwayAndBackPutsItBack()
+    {
+      MarkedServer server = new MarkedServer { AnswersPercentage = 100, AnswersPlayCount = 3 };
+      var client = new ServerApiClient(SERVER, new HttpClient(server));
+      var browser = new MediaBrowserViewModel(client, null);
+      TitleViewModel alien = Title("Alien", 100, 3);
+      browser.Titles.Add(alien);
+      browser.Selected = alien;
+
+      MediaTitleAction reading = MediaTitleActions.For(alien, true, true)
+          .First(a => a.Kind == MediaTitleActionKind.Information);
+      await ((CommunityToolkit.Mvvm.Input.IAsyncRelayCommand<MediaTitleAction>)browser.RunTitleActionCommand)
+          .ExecuteAsync(reading);
+
+      Assert.That(browser.InfoShown, Is.True,
+          "the reading stands up: a line whose press left the wall exactly as it was is the dead end the viewer "
+          + "rightly refuses, whatever the panel beside the shelf was already showing");
+      Assert.That(browser.ShowsSideDetails, Is.True,
+          "the facts stand on the title's own picture while the reading lasts");
+      Assert.That(browser.MenuVisible, Is.False,
+          "the dialog goes for this answer, as it does for every answer that opens something of its own");
+
+      browser.CloseInfo();
+      Assert.That(browser.InfoShown, Is.False,
+          "back puts the wall of tiles back, which is the reference's screen being left and the list behind it "
+          + "being there again");
+    }
+
+    /// <summary>
+    /// The reading does not wait for the viewer's standing answer to the details question: somebody who pressed
+    /// the line asked to read this title, whatever they usually wear on this screen.
+    /// </summary>
+    [AvaloniaTest]
+    public async Task TheReadingStandsItsFactsUpOnAScreenWearingNoDetails()
+    {
+      MarkedServer server = new MarkedServer { AnswersPercentage = 0, AnswersPlayCount = 0 };
+      var client = new ServerApiClient(SERVER, new HttpClient(server));
+      var browser = new MediaBrowserViewModel(client, null) { ShowDetails = false };
+      TitleViewModel alien = Title("Alien", 0);
+      browser.Titles.Add(alien);
+      browser.Selected = alien;
+
+      MediaTitleAction reading = MediaTitleActions.For(alien, true, true)
+          .First(a => a.Kind == MediaTitleActionKind.Information);
+      await ((CommunityToolkit.Mvvm.Input.IAsyncRelayCommand<MediaTitleAction>)browser.RunTitleActionCommand)
+          .ExecuteAsync(reading);
+
+      Assert.That(browser.ShowsSideDetails, Is.True,
+          "the reading stands its facts up even on a screen whose details column is switched off");
+      Assert.That(browser.ShowDetails, Is.False,
+          "and it does that without rewriting the viewer's standing answer - the switch stays off for every later "
+          + "visit, because one press on one title was never a decision about how the screen is worn");
+    }
+
+    /// <summary>
+    /// The same ask on the home wall, where the dialog is a screen of its own: the answer has to stand in the
+    /// dialog, because the wall's own status line is worn in a head band the content pane covers.
+    /// </summary>
+    [Test]
+    public async Task TheAskToReadTheFileAgainLeavesItsDialogStandingAndAnswersInIt()
+    {
+      MediaTitleActionsModel model = null!;
+      var asked = new List<MediaTitleActionKind>();
+      model = new MediaTitleActionsModel(delegate (TitleViewModel title, MediaTitleActionKind kind)
+      {
+        asked.Add(kind);
+        model.Say("The library will read " + title.Name + " again and say what it finds");
+        return Task.CompletedTask;
+      });
+
+      TitleViewModel alien = Title("Alien", 0);
+      model.Open(alien, true, false);
+
+      await model.PressAsync(model.Actions.First(a => a.Kind == MediaTitleActionKind.Refresh));
+
+      Assert.That(asked, Is.EqualTo(new[] { MediaTitleActionKind.Refresh }), "one press, one answer");
+      Assert.That(model.IsOpen, Is.True,
+          "the dialog the ask came out of keeps standing under it - nothing on the wall moved, so a dialog that "
+          + "went away would leave the viewer holding a button that appears to have done nothing");
+      Assert.That(model.Status, Does.Contain("read"),
+          "and the answer is said in the dialog's own line, under the buttons");
+
+      await model.PressAsync(model.Actions.First(a => a.Kind == MediaTitleActionKind.SetPlayed));
+      Assert.That(model.IsOpen, Is.False,
+          "a mark rewrites the tile the viewer is looking at, so its dialog is put away as it always was");
+    }
+
+    [Test]
+    public void TheAskToReadTheFileAgainStandsBehindTheMarkAndDoesNotCareWhereTheFileLies()    {
+      // The reference looked at the item's own resources before offering this line, because the item was in its
+      // hand (RefreshMediaItem.cs:44-49). Here the file sits on the server, and a path this machine cannot open
+      // may be exactly right there - so the line is offered and the server refuses with its reason if there is
+      // nothing for it to read.
+      TitleViewModel onTheServer = new TitleViewModel(new MediaTitle(Guid.NewGuid(), "Frontera", null, 2021,
+          null, "smb://nas/filme/frontera.mkv", false, Percentage: 0));
+
+      Assert.That(MediaTitleActions.For(onTheServer, true, false).Select(a => a.Word),
+          Is.EqualTo(new[] { "Mark watched", "Refresh" }),
+          "the order is the reference's keys: C.1 for the mark, C.3 for the ask (plugin.xml:273, :275)");
     }
 
     [AvaloniaTest]
@@ -315,9 +493,9 @@ namespace Tests.Frontend
       home.OpenTitleActions(unwatched);
 
       Assert.That(home.TitleActions.IsOpen, Is.True, "the tile asked its question and a dialog has to stand up");
-      Assert.That(home.TitleActions.Actions.Select(a => a.Word), Is.EqualTo(new[] { "Mark watched" }),
-          "the wall offers the mark - which it can ask of the server itself - and withholds the reading it has "
-          + "nowhere to show");
+      Assert.That(home.TitleActions.Actions.Select(a => a.Word), Is.EqualTo(new[] { "Mark watched", "Refresh" }),
+          "the wall offers the two lines it can ask of the server itself - the mark and the ask to read the file "
+          + "again - and withholds the reading it has nowhere to show");
 
       home.CloseTitleActions();
       Assert.That(home.TitleActions.IsOpen, Is.False);

@@ -4718,6 +4718,190 @@ namespace Tests.Server.Api
       }
     }
 
+    [Test]
+    public void SomeonesFavouriteShelfIsTheTitlesTheyHavePlayedAndNothingElse()
+    {
+      List<MediaItemQuery> asked;
+      IMediaLibrary library = ShelfLibrary(out asked);
+
+      IFilter filter = ShelfAskedOf(library, VIEWER, "SeriesItem", "favorite", asked);
+
+      // There is no favourite to set in MP2 - none of the user data keys it knows is one - and the reference's
+      // favourites shelf is therefore the plain question "did this person play it", asked of the episodes for a
+      // container and ordered by how often (BaseFavoriteMediaListProvider.cs:41-57, its relationship half in the
+      // same file at :96-117).
+      List<IFilter> tree = FilterTree(filter).ToList();
+      List<RelationalUserDataFilter> counts = tree.OfType<RelationalUserDataFilter>()
+          .Where(f => f.UserDataKey == UserDataKeysKnown.KEY_PLAY_COUNT).ToList();
+      Assert.That(counts, Has.Exactly(1).Items,
+          "the shelf asks one count question, about the episodes - a series' own count column is never written");
+      Assert.That(counts[0].Operator, Is.EqualTo(RelationalOperator.GT),
+          "the reference asks for a count above nought, not for a written count, because a report of nought "
+          + "percent leaves a count row behind");
+      Assert.That(counts[0].FilterValue, Is.EqualTo(UserDataKeysKnown.GetSortablePlayCountString(0)),
+          "and it compares the fixed-width text the library stores counts as, so the comparison still orders "
+          + "them as numbers");
+      Assert.That(counts[0].UserProfileId, Is.EqualTo(VIEWER));
+      Assert.That(tree.OfType<NotFilter>().Count(f => f.InnerFilter is EmptyUserDataFilter),
+          Is.EqualTo(2),
+          "the two halves of the reference's container question: one episode of theirs was played, and the series "
+          + "carries the count of its own children they played");
+      Assert.That(tree.OfType<AbstractUserDataFilter>().All(f => f.UserProfileId == VIEWER), Is.True,
+          "a favourite belongs to a person; reading the household's numbers would hand every watched title to "
+              + "anybody who asks");
+      Assert.That(tree.OfType<FilteredRelationshipFilter>(), Has.Exactly(1).Items);
+    }
+
+    [Test]
+    public void SomeonesFavouriteShelfIsOrderedByHowOftenAndThenHowLately()
+    {
+      List<MediaItemQuery> asked;
+      IMediaLibrary library = ShelfLibrary(out asked);
+      ShelfAskedOf(library, VIEWER, "SeriesItem", "favorite", asked);
+
+      // The caller named no sort and the shelf keeps its own, which the reference states inside its provider
+      // rather than leaving to whoever asks: a series with twelve played episodes is a likelier favourite than
+      // one with one, and among equals the lately played one comes first.
+      List<ISortInformation> sorts = asked[0].SortInformation.ToList();
+      Assert.That(sorts, Has.Exactly(3).Items,
+          "how many of its children this viewer played, then how often the title was played, how lately last");
+      Assert.That(((DataSortInformation)sorts[0]).UserDataKey,
+          Is.EqualTo(UserDataKeysKnown.KEY_PLAY_MAX_CHILD_COUNT));
+      Assert.That(((DataSortInformation)sorts[1]).UserDataKey, Is.EqualTo(UserDataKeysKnown.KEY_PLAY_COUNT));
+      Assert.That(((DataSortInformation)sorts[2]).UserDataKey, Is.EqualTo(UserDataKeysKnown.KEY_PLAY_DATE));
+      Assert.That(((DataSortInformation)sorts[0]).Direction, Is.EqualTo(SortDirection.Descending));
+      Assert.That(((DataSortInformation)sorts[1]).Direction, Is.EqualTo(SortDirection.Descending));
+      Assert.That(((DataSortInformation)sorts[2]).Direction, Is.EqualTo(SortDirection.Descending),
+          "most played first, which is the whole point of the shelf");
+    }
+
+    [Test]
+    public void NoonesFavouriteShelfStaysOnTheHouseholdsOwnCounters()
+    {
+      List<MediaItemQuery> asked;
+      IMediaLibrary library = ShelfLibrary(out asked);
+
+      IFilter filter = ShelfAskedOf(library, Guid.Empty, "SeriesItem", "favorite", asked);
+
+      List<IFilter> tree = FilterTree(filter).ToList();
+      Assert.That(tree.OfType<AbstractUserDataFilter>(), Has.Exactly(0).Items,
+          "nobody asked, so nobody's counts may be read");
+      Assert.That(tree.OfType<RelationalFilter>().Any(f =>
+              f.AttributeType == MediaAspect.ATTR_PLAYCOUNT && f.Operator == RelationalOperator.GT),
+          Is.True, "the household's own count column is the reference's second half (:44)");
+      Assert.That(tree.OfType<FilteredRelationshipFilter>(), Has.Exactly(1).Items,
+          "asked of the episodes, because a container's count column is never written");
+
+      List<ISortInformation> sorts = asked[0].SortInformation.ToList();
+      Assert.That(sorts, Has.Exactly(2).Items, "count first, then the date it last happened");
+      Assert.That(((AttributeSortInformation)sorts[0]).AttributeType, Is.EqualTo(MediaAspect.ATTR_PLAYCOUNT));
+      Assert.That(((AttributeSortInformation)sorts[1]).AttributeType, Is.EqualTo(MediaAspect.ATTR_LASTPLAYED));
+    }
+
+    #endregion
+
+    #region Ein Titel, nach dem die Bibliothek ihre Dateien nochmal lesen soll
+
+    private static readonly Guid REFRESH_ID = new Guid("77777777-7777-7777-7777-777777777777");
+
+    /// <summary>
+    /// One title as the library holds it, with or without the file it was made from.
+    /// </summary>
+    private class RefreshableItem : MediaItem
+    {
+      private RefreshableItem(Guid id, IDictionary<Guid, IList<MediaItemAspect>> aspects)
+          : base(id, aspects)
+      {
+      }
+
+      public static MediaItem MadeFromAFile(Guid id)
+      {
+        SingleMediaItemAspect media = new SingleMediaItemAspect(MediaAspect.Metadata);
+        media.SetAttribute(MediaAspect.ATTR_TITLE, "Alien Earth");
+        return new RefreshableItem(id, new Dictionary<Guid, IList<MediaItemAspect>>
+        {
+            { MediaAspect.ASPECT_ID, new List<MediaItemAspect> { media } },
+            { ProviderResourceAspect.ASPECT_ID, new List<MediaItemAspect>
+                { new MultipleMediaItemAspect(ProviderResourceAspect.Metadata) } }
+        });
+      }
+
+      public static MediaItem WithoutAFile(Guid id)
+      {
+        SingleMediaItemAspect media = new SingleMediaItemAspect(MediaAspect.Metadata);
+        media.SetAttribute(MediaAspect.ATTR_TITLE, "Alien Earth");
+        return new RefreshableItem(id, new Dictionary<Guid, IList<MediaItemAspect>>
+        {
+            { MediaAspect.ASPECT_ID, new List<MediaItemAspect> { media } }
+        });
+      }
+
+      public override IResourceLocator GetResourceLocator()
+      {
+        return null;
+      }
+    }
+
+    /// <summary>
+    /// A library which hands back one title and writes down every refresh it is told to do.
+    /// </summary>
+    private static IMediaLibrary RefreshLibrary(MediaItem title, out List<string> refreshed)
+    {
+      var done = new List<string>();
+      var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+      library.Setup(get => get.GetManagedMediaItemAspectMetadata()).Returns(
+          new Dictionary<Guid, MediaItemAspectMetadata>
+          {
+              { MediaAspect.ASPECT_ID, MediaAspect.Metadata },
+              { ProviderResourceAspect.ASPECT_ID, ProviderResourceAspect.Metadata }
+          });
+      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), It.IsAny<bool>(), It.IsAny<Guid?>(),
+              It.IsAny<bool>()))
+          .Returns(new List<MediaItem> { title });
+      library.Setup(refresh => refresh.RefreshMediaItemMetadata(It.IsAny<Guid>(), It.IsAny<bool>()))
+          .Callback<Guid, bool>(delegate (Guid mediaItemId, bool clearMetadata)
+          {
+            done.Add(mediaItemId.ToString("D") + (clearMetadata ? " cleared" : " kept"));
+          });
+      refreshed = done;
+      return library.Object;
+    }
+
+    [Test]
+    public void AskingAboutATitleHandsTheLibraryThatOneTitleAndKeepsWhatWasFound()
+    {
+      List<string> refreshed;
+      IMediaLibrary library = RefreshLibrary(RefreshableItem.MadeFromAFile(REFRESH_ID), out refreshed);
+      ServiceRegistration.Set<IMediaLibrary>(library);
+
+      ActionResult<MediaController.RefreshResult> action = AskedBy(VIEWER).RefreshTitle(REFRESH_ID);
+
+      Assert.That(Body(action), Is.Not.Null, "the endpoint answered the question");
+      Assert.That(Body(action).Id, Is.EqualTo(REFRESH_ID),
+          "the answer names the title it took, so that a screen waiting on several knows which one this was");
+      Assert.That(Body(action).Error, Is.Null,
+          "an ask the library took carries no refusal");
+      Assert.That(refreshed, Is.EqualTo(new[] { REFRESH_ID.ToString("D") + " kept" }),
+          "the library reads the files again without throwing the existing metadata away first, which is what "
+          + "the reference's refresh job does (RefreshMediaItem.cs:29 hands ClearMetadata=false on)");
+    }
+
+    [Test]
+    public void ATitleWithNothingToReadAgainIsRefusedRatherThanAgreedWith()
+    {
+      List<string> refreshed;
+      IMediaLibrary library = RefreshLibrary(RefreshableItem.WithoutAFile(REFRESH_ID), out refreshed);
+      ServiceRegistration.Set<IMediaLibrary>(library);
+
+      ActionResult<MediaController.RefreshResult> action = AskedBy(VIEWER).RefreshTitle(REFRESH_ID);
+
+      Assert.That(action.Result, Is.InstanceOf<BadRequestObjectResult>(),
+          "asking about an unknown title must not be a request that does nothing quietly");
+      Assert.That(((BadRequestObjectResult)action.Result).Value, Is.InstanceOf<MediaController.RefreshResult>(),
+          "the refusal carries a reason in the same shape as the answer");
+      Assert.That(refreshed, Has.Count.EqualTo(0), "and nothing was scheduled");
+    }
+
     #endregion
   }
 }

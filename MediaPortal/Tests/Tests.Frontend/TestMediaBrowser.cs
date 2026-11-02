@@ -5377,11 +5377,14 @@ namespace Tests.Frontend
       {
           "heading:Latest added",
           "title",
+          "heading:Favorites",
+          "title",
           "heading:Unplayed",
           "title"
       }), "a list is only shown when it has items - AbstractHomeContent's one test, if (wrapper.HasItems). The "
-          + "empty continue-playing shelf and the favourites the server cannot keep over HTTP therefore take "
-          + "themselves off entirely, headings included, and no line of apology stands where they were");
+          + "empty continue-playing shelf therefore takes itself off entirely, heading included, and no line of "
+          + "apology stands where it was; the favourites stand, because the server answers that shelf the way the "
+          + "reference's providers do - titles this viewer has played (BaseFavoriteMediaListProvider.cs:41-57)");
 
       Assert.That(home.ContentRows.First(row => row.IsTitle).Title!.Line, Does.Contain("Alien Earth"),
           "the titles under the first heading are the server's own, not placeholders");

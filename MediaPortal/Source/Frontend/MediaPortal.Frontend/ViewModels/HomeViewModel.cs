@@ -2122,6 +2122,14 @@ namespace MediaPortal.Frontend.ViewModels
         return;
       }
 
+      if (kind == MediaTitleActionKind.Refresh)
+      {
+        // Not a number to report but a question to ask, so it leaves here rather than joining the two watched
+        // marks below, which are both playback reports.
+        await AskLibraryToLookAgainAsync(title, client);
+        return;
+      }
+
       int percentage = kind == MediaTitleActionKind.SetPlayed ? 100 : 0;
       try
       {
@@ -2143,6 +2151,45 @@ namespace MediaPortal.Frontend.ViewModels
       catch (Exception ex)
       {
         Status = "Telling the server failed: " + ex.Message;
+      }
+    }
+
+    /// <summary>
+    /// Asks the library to read a tile's title again, which is the reference's <i>Refresh</i> line and nothing
+    /// more than that (<c>RefreshMediaItem.cs:60-69</c>).
+    /// </summary>
+    /// <remarks>
+    /// Said in the words of an ask rather than of a result: the library schedules the read and its importer
+    /// worker carries it out later (<c>MediaLibrary.cs:1008-1034</c>), so the tile a viewer is looking at keeps
+    /// its old picture and figures until the read happened. The wall has no way to hurry that up, and pretending
+    /// otherwise would have the tile sit unchanged under a message claiming it was refreshed.
+    /// </remarks>
+    private async Task AskLibraryToLookAgainAsync(TitleViewModel title, ServerApiClient client)
+    {
+      // Said twice on purpose: once to the wall, whose line is only read while the plain home is up, and once
+      // into the dialog the press came out of, which stays open for this one answer (MediaTitleActionsModel.
+      // PressAsync) because nothing on the wall moves when a read is only being ordered.
+      void Say(string words)
+      {
+        Status = words;
+        TitleActions.Say(words);
+      }
+
+      Say("Asking the library to look at " + title.Name + " again");
+      try
+      {
+        RefreshAnswer answer = await client.RefreshTitleAsync(title.Title.Id);
+        Say(string.IsNullOrEmpty(answer.Error)
+            ? "The library will read " + title.Name + " again and say what it finds"
+            : title.Name + " - " + answer.Error);
+      }
+      catch (ServerApiException ex)
+      {
+        Say(ex.NotReady ? "The server is not ready yet: " + ex.Message : ex.Message);
+      }
+      catch (Exception ex)
+      {
+        Say("Asking the library failed: " + ex.Message);
       }
     }
 

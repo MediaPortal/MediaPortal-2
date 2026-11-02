@@ -452,8 +452,10 @@ namespace MediaPortal.Server.Api
     /// </param>
     /// <param name="seen">
     /// <c>unwatched</c> for the titles nobody has finished, <c>watched</c> for the ones somebody has,
-    /// <c>started</c> for the ones somebody began and did not finish, anything else - including nothing - for
-    /// both. The <c>seen</c> field of the answer says which of the four readings was applied.
+    /// <c>started</c> for the ones somebody began and did not finish, <c>favorite</c> for the ones somebody has
+    /// played at least once - which the library orders by how often and how lately, so a <c>sort</c> is only
+    /// needed if the caller wants a different order - and anything else, including nothing, for both. The
+    /// <c>seen</c> field of the answer says which of the five readings was applied.
     /// </param>
     /// <param name="inside">
     /// The id of a title that holds other titles - an album, a series, a season, a film collection - to list the
@@ -716,6 +718,37 @@ namespace MediaPortal.Server.Api
           else
             seenFilter = seenFilter ?? halfWayChildren;
         }
+        else if (seeing == "favorite")
+        {
+          // "What does this viewer keep coming back to?" The reference has no favourite marker to answer that
+          // with: none of the nineteen user data keys it knows is a favourite (UserDataKeysKnown.cs:32-50), and
+          // the whole shelf is one condition on the play count - "a count is written under your name"
+          // (BaseFavoriteMediaListProvider.cs:41-43). A favourite is therefore not something a viewer switches
+          // on; it is what the viewer has played, and the shelf's order does the rest.
+          if (viewer.HasValue)
+          {
+            // Asked of a series or an album the reference reaches through the children, because the counting was
+            // done there: a child of theirs whose count is written AND above nought, and the container carrying
+            // the count of its own children this viewer played - which is the second half of
+            // BaseFavoriteRelationshipMediaListProvider (in the favourite provider's own file, :96-117), and the
+            // figure the library keeps up as the parents are reported (MediaLibrary.UpdateParentPlayUserData).
+            IFilter childPlayed = BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
+                new NotFilter(new EmptyUserDataFilter(viewer.Value, UserDataKeysKnown.KEY_PLAY_COUNT)),
+                new RelationalUserDataFilter(viewer.Value, UserDataKeysKnown.KEY_PLAY_COUNT,
+                    RelationalOperator.GT, PlayCount(0)));
+            seenFilter = AskedThroughChildren(aspectId, childPlayed,
+                new NotFilter(new EmptyUserDataFilter(viewer.Value, UserDataKeysKnown.KEY_PLAY_MAX_CHILD_COUNT)));
+          }
+          else
+          {
+            // Nobody's name, so the household's own column answers "was this ever played"
+            // (BaseFavoriteMediaListProvider.cs:44). As under "watched", a container is asked through its
+            // children rather than through its own column, which the library never writes for a series or an
+            // album - asking the column would answer "never" about a library full of played series.
+            IFilter played = new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.GT, 0);
+            seenFilter = AskedThroughChildren(aspectId, played, null);
+          }
+        }
 
         // The titles inside one title: the tracks on an album, the episodes of a season or a series, the films of
         // a collection. MP2 does not store a parent on its children - an episode carries the <i>name</i> of its
@@ -888,7 +921,13 @@ namespace MediaPortal.Server.Api
         }
 
         string sortBy = ReadSort(sort);
-        List<ISortInformation> sorts = BuildSorts(sortBy, order);
+        // A favourites shelf keeps its own order, which is not the order of a plain list: the reference's
+        // provider states it itself rather than leaving it to whoever asked, most plays first and among equals
+        // the most recently played first (BaseFavoriteMediaListProvider.cs:46-57; a container first by how many
+        // of its children the viewer played, :112-117). A caller naming a sort still gets the sort they named.
+        List<ISortInformation> sorts = seeing == "favorite" && string.IsNullOrEmpty(sort)
+            ? FavoriteSorts(viewer, aspectId)
+            : BuildSorts(sortBy, order);
         if (sorts.Count > 0)
           query.SetSortInformation(sorts);
         query.Offset = (uint)skip;
@@ -2728,6 +2767,22 @@ namespace MediaPortal.Server.Api
     }
 
     /// <summary>
+    /// Whether the library took the ask to look at one title's file again.
+    /// </summary>
+    /// <remarks>
+    /// What a missing <see cref="Error"/> does not say is worth spelling out: the library schedules the second
+    /// look and carries it out later, so this answers "the ask was taken", not "the new figures are in". A
+    /// screen that re-reads the title straight after would be reading the old ones.
+    /// </remarks>
+    public class RefreshResult
+    {
+      public Guid Id { get; set; }
+
+      /// <summary>Set when the ask was refused, in words a screen can show.</summary>
+      public string Error { get; set; }
+    }
+
+    /// <summary>
     /// Tells the library that a title was watched, and answers with what it now believes.
     /// </summary>
     /// <param name="id">The media item id, as <c>GET api/media/titles</c> reported it.</param>
@@ -2797,6 +2852,85 @@ namespace MediaPortal.Server.Api
       {
         return NotReadyPlayback(ex, id);
       }
+    }
+
+    /// <summary>
+    /// <c>POST api/media/items/{id}/refresh</c> - ask the library to look at one title's file again.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This is the reference's "Refresh" entry (registered at plugin.xml:275, carried out by
+    /// <c>RefreshMediaItem.cs:60-69</c>) and it is the same call with the same argument: one title, metadata
+    /// kept. <c>clearMetadata</c> is false because the reference's refresh is the entry that does NOT throw the
+    /// found data away - the entry that does is re-import, which asks the viewer to pick a match first
+    /// (<c>RefreshMediaItem.cs:29</c>, <c>ReimportMediaItem.cs:60-73</c>).
+    /// </para>
+    /// <para>
+    /// What the library does with the ask is schedule the title's folder for its importer worker
+    /// (<c>MediaLibrary.cs:1008-1034</c>, which marks the item dirty and calls
+    /// <c>importerWorker.ScheduleRefresh(path, categories, includeSubDirectories: true)</c>), and it answers
+    /// later through its own change message. So this answer says that the ask was taken and not what the second
+    /// look found - a screen that re-read the title straight away would be reading the old figures and calling
+    /// them new.
+    /// </para>
+    /// <para>
+    /// A title with nothing to look at again is refused rather than agreed with. The reference's own condition is
+    /// that the title names resources or is a stub, and that a locator can be made from it
+    /// (<c>RefreshMediaItem.cs:44-49</c>); promising a refresh for a title whose file the library does not know
+    /// would report work that was never planned.
+    /// </para>
+    /// </remarks>
+    [HttpPost("items/{id}/refresh")]
+    public ActionResult<RefreshResult> RefreshTitle(Guid id)
+    {
+      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
+      if (mediaLibrary == null)
+        return StatusCode(StatusCodes.Status503ServiceUnavailable);
+
+      try
+      {
+        Guid? profile = CallerProfile;
+        MediaItem title = FindTitleWithResources(mediaLibrary, id, profile);
+        if (title == null)
+          return NotFound(new RefreshResult { Id = id, Error = "this server has no title with the id " + id });
+
+        if (title.PrimaryResources.Count == 0 && !title.IsStub)
+          return BadRequest(new RefreshResult
+          {
+            Id = id,
+            Error = "the library holds no file for this title, so there is nothing it could look at again"
+          });
+
+        mediaLibrary.RefreshMediaItemMetadata(id, false);
+        return new RefreshResult { Id = id };
+      }
+      catch (IllegalCallException ex)
+      {
+        ILogger logger = ServiceRegistration.Get<ILogger>(false);
+        if (logger != null)
+          logger.Info("MediaController: the media library refused a refresh, answering 503: {0}", ex.Message);
+        return new ObjectResult(new RefreshResult { Id = id, Error = ex.Message })
+        {
+          StatusCode = StatusCodes.Status503ServiceUnavailable
+        };
+      }
+    }
+
+    /// <summary>
+    /// The one item with this id, read together with the files it is made of.
+    /// </summary>
+    /// <remarks>
+    /// The Media aspect alone is what <see cref="FindTitle"/> asks for; this adds the provider resources as an
+    /// <i>optional</i> aspect, because a title without them is exactly the case the caller has to be able to tell
+    /// apart from a title that does not exist - and a necessary aspect would answer that second question with
+    /// "not found".
+    /// </remarks>
+    private static MediaItem FindTitleWithResources(IMediaLibrary mediaLibrary, Guid id, Guid? profile)
+    {
+      MediaItemQuery query = new MediaItemQuery(new List<Guid> { MediaAspect.ASPECT_ID },
+          new List<Guid> { ProviderResourceAspect.ASPECT_ID }, new MediaItemIdFilter(id));
+      IList<MediaItem> items = mediaLibrary.Search(query, false, profile, VirtualTitles.LetsVirtualTitlesIn);
+      return items == null ? null : items.FirstOrDefault();
     }
 
     /// <summary>
@@ -2918,6 +3052,56 @@ namespace MediaPortal.Server.Api
     }
 
     /// <summary>
+    /// A play count spelled the way the library stores one.
+    /// </summary>
+    /// <remarks>
+    /// Like the percentage, a count is written as a fixed-width string - ten digits
+    /// (<c>UserDataKeysKnown.GetSortablePlayCountString:52-55</c>) - so that the text comparison the shelves
+    /// compile to still orders the values as numbers. The reference compares its favourite shelves against that
+    /// spelling, so this does too.
+    /// </remarks>
+    private static string PlayCount(long value)
+    {
+      return UserDataKeysKnown.GetSortablePlayCountString(value);
+    }
+
+    /// <summary>
+    /// The order a favourites shelf is played in: the titles this viewer played most often first, and among them
+    /// the one they played most lately.
+    /// </summary>
+    /// <param name="viewer">The caller's profile, or null for the household's own counters.</param>
+    /// <param name="aspectId">The aspect being listed.</param>
+    /// <remarks>
+    /// <para>
+    /// The reference states this order inside each of its two favourite providers instead of leaving it to a
+    /// caller: <c>BaseFavoriteMediaListProvider.cs:46-57</c> sorts a playable by its count and then by its date,
+    /// and <c>BaseFavoriteRelationshipMediaListProvider</c> (in the same file, :112-117) puts one column in
+    /// front for a container - how many of its children the viewer played - because a series with twelve played
+    /// episodes is a likelier favourite than one with one.
+    /// </para>
+    /// <para>
+    /// Without a profile there are no figures of anybody's to order by, and the household's columns take over,
+    /// which is the reference's own second half: count, then last-played date.
+    /// </para>
+    /// </remarks>
+    private static List<ISortInformation> FavoriteSorts(Guid? viewer, Guid aspectId)
+    {
+      if (!viewer.HasValue)
+        return new List<ISortInformation>
+        {
+          new AttributeSortInformation(MediaAspect.ATTR_PLAYCOUNT, SortDirection.Descending),
+          new AttributeSortInformation(MediaAspect.ATTR_LASTPLAYED, SortDirection.Descending)
+        };
+
+      List<ISortInformation> sorts = new List<ISortInformation>();
+      if (aspectId == SeriesAspect.ASPECT_ID || aspectId == AudioAlbumAspect.ASPECT_ID)
+        sorts.Add(new DataSortInformation(UserDataKeysKnown.KEY_PLAY_MAX_CHILD_COUNT, SortDirection.Descending));
+      sorts.Add(new DataSortInformation(UserDataKeysKnown.KEY_PLAY_COUNT, SortDirection.Descending));
+      sorts.Add(new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending));
+      return sorts;
+    }
+
+    /// <summary>
     /// Asks a question of a container through the children that carry the answer, which is how the reference's
     /// shelves for series and albums are built.
     /// </summary>
@@ -2968,6 +3152,12 @@ namespace MediaPortal.Server.Api
         return "watched";
       if (string.Equals(seen, "started", StringComparison.OrdinalIgnoreCase))
         return "started";
+      // Spelled the way the reference spells its shelf keys ("FavoriteMovies", plugin.xml:299-307). The other
+      // spelling is taken for the same thing, because a caller writing English in a second language will send it
+      // and there is nothing to lose by understanding it.
+      if (string.Equals(seen, "favorite", StringComparison.OrdinalIgnoreCase)
+          || string.Equals(seen, "favourite", StringComparison.OrdinalIgnoreCase))
+        return "favorite";
       return null;
     }
 

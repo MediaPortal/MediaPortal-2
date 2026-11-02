@@ -315,6 +315,19 @@ namespace MediaPortal.Frontend.Api
       [property: JsonPropertyName("percentage")] int? Percentage = null);
 
   /// <summary>
+  /// What <c>POST api/media/items/{id}/refresh</c> says: whether the library took the ask to read this title's
+  /// file again.
+  /// </summary>
+  /// <remarks>
+  /// An absent <paramref name="Error"/> means the ask was taken, which is not the same as the read having
+  /// happened. The library schedules it and its importer worker carries it out afterwards, so a screen that
+  /// re-reads the title here gets the figures from before the ask, not the ones the ask will bring.
+  /// </remarks>
+  public record RefreshAnswer(
+      [property: JsonPropertyName("id")] Guid Id,
+      [property: JsonPropertyName("error")] string? Error);
+
+  /// <summary>
   /// One folder the server builds its library from, from <c>GET api/media/shares</c>.
   /// </summary>
   /// <remarks>

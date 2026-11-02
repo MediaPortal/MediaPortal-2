@@ -949,12 +949,15 @@ namespace MediaPortal.Frontend.ViewModels
   /// plugin's own English words.
   /// </para>
   /// <para>
-  /// What each list can be asked for over HTTP is written next to it. Three of the four can: the HTTP API sorts by
-  /// title, year, the date the library first saw the file, last-played, track and episode, so "Latest added",
-  /// "Continue playing" and "Unplayed" are all questions this server can answer. "Favorites" is the one that cannot,
-  /// because nothing on the server keeps favourites, and it stays on the pane as one line saying so - a heading that
-  /// quietly vanished would leave the viewer wondering whether the library has no favourites or the front end has
-  /// lost the list.
+  /// What each list can be asked for over HTTP is written next to it. All four of MP2's questions are questions
+  /// this server can answer about the media library: it sorts by title, year, the date the library first saw the
+  /// file and last-played, it filters by watched state, and it answers the favourites shelf as the reference's
+  /// providers do - titles the viewer has played at least once, most often played first, which is what
+  /// <c>BaseFavoriteMediaListProvider.cs:41-57</c> asks and there is no favourite flag anywhere to ask with.
+  /// The five lists that are not the media library's - a channel's favourites, an app, a webradio station, an
+  /// emulator's games, an online video site - are answered by other plugins in the reference and have no HTTP
+  /// counterpart here, so those stay on the pane as one line saying so: a heading that quietly vanished would
+  /// leave the viewer wondering whether the library has nothing to show or the front end has lost the list.
   /// </para>
   /// <para>
   /// The four headings are therefore Nereus' four, in his order, and the dates tell them apart from each other the
@@ -1148,14 +1151,22 @@ namespace MediaPortal.Frontend.ViewModels
         case "FavoriteAudio":
         case "FavoriteImages":
         case "FavoriteVideo":
+          // The server's favourite shelf is not a flag it keeps but the question "has this viewer played it",
+          // ordered by how often and how lately, which is exactly what the reference's favourites shelves ask
+          // (BaseFavoriteMediaListProvider.cs:41-57). No sort is named, so the shelf keeps its own order.
+          layout = audio ? "square1" : video || images ? "thumbnail1" : "poster1";
+          return new HomeContentList(key, "Favorites", null, true, "favorite", null, layout,
+              audio ? 650 : video || images ? 900 : 760);
         case "FavoriteGames":
         case "FavoriteTV":
         case "FavoriteRadio":
         case "FavoriteApps":
         case "FavoriteOnlineVideoSites":
         case "TopPlayedWebradio":
+          // Not the media library's titles: those five shelves are answered by the TV backend, the app launcher
+          // and the webradio plugin in the reference, and none of them speaks over this API.
           layout = audio ? "square1" : video || images ? "thumbnail1" : "poster1";
-          return new HomeContentList(key, "Favorites", null, false, null, "the server keeps no favourites over HTTP",
+          return new HomeContentList(key, "Favorites", null, false, null, "this list is not available over HTTP",
               layout, audio ? 650 : video || images ? 900 : 760);
         case "LastPlayTV":
         case "LastPlayRadio":

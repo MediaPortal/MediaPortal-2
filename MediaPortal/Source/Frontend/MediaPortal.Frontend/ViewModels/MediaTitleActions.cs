@@ -39,7 +39,13 @@ namespace MediaPortal.Frontend.ViewModels
     SetUnplayed,
 
     /// <summary>The reference's <i>Set played</i> (plugin.xml:273), for a title that is not watched through.</summary>
-    SetPlayed
+    SetPlayed,
+
+    /// <summary>
+    /// The reference's <i>Refresh</i> (plugin.xml:275, <c>RefreshMediaItem.cs:60-69</c>): ask the library to read
+    /// the title's file again, keeping the metadata it found.
+    /// </summary>
+    Refresh
   }
 
   /// <summary>
@@ -87,12 +93,15 @@ namespace MediaPortal.Frontend.ViewModels
   /// (<c>AbstractWatchedAction.cs:49-56</c>, <c>SetUnwatched.cs:27-37</c>, <c>SetWatched.cs:27-37</c>).
   /// </para>
   /// <para>
-  /// Three of the reference's lines are missing from this list, and each is missing because this front end has
-  /// nothing that could answer it rather than because nobody thought of it. <i>Add to playlist</i>
+  /// Several of the reference's lines are missing from this list, and each is missing because this front end
+  /// has nothing that could answer it rather than because nobody thought of it. <i>Add to playlist</i>
   /// (<c>AddSingleToPlaylist.cs:37-42</c>) hands the title to a queue, and this front end has no queue - it
-  /// opens one title at a time. <i>Refresh</i>, <i>Reimport</i>, <i>Subtitle search</i>, <i>Eject</i> and
-  /// <i>Delete from storage</i> each need an endpoint or a resource the API does not offer yet, which is what
-  /// the roadmap's fourth step is for.
+  /// opens one title at a time. <i>Reimport</i> and <i>Subtitle search</i> open a match picker belonging to
+  /// their plugins (<c>ReimportMediaItem.cs:44-73</c>, <c>SearchForSubtitles.cs:50-63</c>), which is a search
+  /// across online scrapers rather than a call to the library; <i>Eject</i> asks a drive this front end does
+  /// not browse (<c>EjectMediaItem.cs:41-85</c>); and <i>Delete from storage</i> deletes the file itself
+  /// (<c>DeleteFromStorage.cs:97-127</c>), which is a decision for whoever owns the library rather than a
+  /// missing button.
   /// </para>
   /// </remarks>
   public static class MediaTitleActions
@@ -131,6 +140,15 @@ namespace MediaPortal.Frontend.ViewModels
         actions.Add(new MediaTitleAction(MediaTitleActionKind.SetUnplayed, "Mark unwatched"));
       if (serverAnswers && !watched)
         actions.Add(new MediaTitleAction(MediaTitleActionKind.SetPlayed, "Mark watched"));
+
+      // The reference asked a title whether it had a file to look at again before offering this line, and it
+      // could ask because the item was in its hand (RefreshMediaItem.cs:44-49: a resource locator has to exist).
+      // Here the file is on the server and not here - a path this machine cannot open may be the right one there,
+      // which is the same reason a row is never called unplayable for a path only the server can read - so every
+      // title the library handed over is offered the line, and the server answers with its refusal when its own
+      // condition is not met.
+      if (serverAnswers)
+        actions.Add(new MediaTitleAction(MediaTitleActionKind.Refresh, "Refresh"));
 
       if (actions.Count == 0)
       {
@@ -227,6 +245,17 @@ namespace MediaPortal.Frontend.ViewModels
       }
     }
 
+    /// <summary>
+    /// Puts a sentence into the dialog that stands open, for the answer a host gives while the question is still
+    /// on screen. A screen's own line of speech is no place for such an answer: the home wall wears its status
+    /// line in a head band that its content pane covers, and the browser's stands over a shelf that is only read
+    /// when it is empty - a sentence written there is written where nobody is looking.
+    /// </summary>
+    public void Say(string words)
+    {
+      Status = words;
+    }
+
     /// <summary>Said when the answer was given and the dialog has to be taken away.</summary>
     public event Action? Closed;
 
@@ -265,13 +294,26 @@ namespace MediaPortal.Frontend.ViewModels
     /// that what an answer opens - a detail reading, a rewritten tile - stands over the wall rather than over a
     /// question that has already been answered.
     /// </summary>
+    /// <remarks>
+    /// One kind of answer is kept under the dialog on purpose: the ask to read a title's file again. The library
+    /// marks the title dirty and hands the folder to its importer worker
+    /// (<c>MediaLibrary.cs:1008-1034</c>), which reads it when it comes to it, so at the moment of the press
+    /// nothing on the wall moves - and a button that takes the question away and leaves the wall exactly as it
+    /// was reads as a broken button rather than as an order given. The ask therefore leaves the dialog standing
+    /// and answers in it, in the line under the buttons, and the viewer puts the dialog away themselves.
+    /// </remarks>
     public async Task PressAsync(MediaTitleAction? action)
     {
       TitleViewModel? title = _about;
       if (title == null || action == null || !action.IsCommand)
         return;
 
-      Close();
+      bool answeredInPlace = action.Kind == MediaTitleActionKind.Refresh;
+      if (answeredInPlace)
+        Status = "";
+      else
+        Close();
+
       try
       {
         await _press(title, action.Kind).ConfigureAwait(false);

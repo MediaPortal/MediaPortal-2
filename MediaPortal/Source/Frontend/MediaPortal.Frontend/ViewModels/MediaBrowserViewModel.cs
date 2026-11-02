@@ -714,6 +714,15 @@ namespace MediaPortal.Frontend.ViewModels
     [ObservableProperty]
     private bool _showDetails = true;
 
+    /// <summary>
+    /// What the last press inside the title's dialog answered, said in the dialog itself. A screen's status line
+    /// is no place for it: on this screen that line only stands while the shelf is empty (<c>HasTitles</c> false),
+    /// so every sentence written under a full wall - which is every sentence - is written where nobody is looking.
+    /// Cleared when the dialog opens, so that the line never repeats an answer from an earlier title.
+    /// </summary>
+    [ObservableProperty]
+    private string _menuAnswer = "";
+
     [ObservableProperty]
     private string _detailsHeading = "";
  
@@ -2152,6 +2161,7 @@ namespace MediaPortal.Frontend.ViewModels
       }
 
       RaiseMenuState();
+      MenuAnswer = "";
       MenuVisible = true;
     }
 
@@ -2203,6 +2213,10 @@ namespace MediaPortal.Frontend.ViewModels
 
         case MediaTitleActionKind.SetUnplayed:
           await MarkUnwatchedAsync();
+          break;
+
+        case MediaTitleActionKind.Refresh:
+          await RefreshSelectedAsync();
           break;
       }
     }
@@ -2303,6 +2317,65 @@ namespace MediaPortal.Frontend.ViewModels
 
       RaiseMenuState();
       MenuVisible = false;
+    }
+
+    /// <summary>
+    /// Asks the library to read the selected title's file again, which is the reference's <i>Refresh</i> entry
+    /// and its one call (<c>RefreshMediaItem.cs:60-69</c>).
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The sentence says what was asked and not what was found, because at this moment nothing was found: the
+    /// library marks the title dirty and hands its folder to the importer worker
+    /// (<c>MediaLibrary.cs:1008-1034</c>), which reads the file when it comes to it. A screen that promised new
+    /// figures here would show the row unchanged and read as though the press had done nothing.
+    /// </para>
+    /// <para>
+    /// The dialog is left standing for this one answer, unlike the two watched marks: a mark rewrites the row the
+    /// viewer is looking at and can therefore take the question away, while an ask that is only being given shows
+    /// nothing moving anywhere - so it is said in the dialog's own line, under the buttons the press came from,
+    /// and the viewer puts the dialog away when they have read it.
+    /// </para>
+    /// </remarks>
+    private async Task RefreshSelectedAsync()
+    {
+      TitleViewModel? title = Selected;
+      ServerApiClient? client = _client;
+      if (title == null || client == null)
+      {
+        Status = "There is no server to ask about " + (title == null ? "a title" : title.Name);
+        return;
+      }
+
+      // Said where the press came from (the dialog's own line) and on the screen's line as well, which is only
+      // read while the shelf is empty.
+      void Say(string words)
+      {
+        Status = words;
+        MenuAnswer = words;
+      }
+
+      Say("Asking the library to look at " + title.Name + " again");
+      try
+      {
+        RefreshAnswer answer = await client.RefreshTitleAsync(title.Title.Id);
+        Say(string.IsNullOrEmpty(answer.Error)
+            ? "The library will read " + title.Name + " again and say what it finds"
+            : title.Name + " - " + answer.Error);
+      }
+      catch (ServerApiException ex)
+      {
+        if (ex.NotReady)
+          Say("The server is not ready yet: " + ex.Message);
+        else if (ex.StatusCode == 404)
+          Say("The library no longer holds this title, so there is nothing left to read again");
+        else
+          Say(ex.Message);
+      }
+      catch (Exception ex)
+      {
+        Say("Asking the library failed: " + ex.Message);
+      }
     }
 
     /// <summary>

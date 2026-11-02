@@ -575,6 +575,32 @@ namespace MediaPortal.Frontend.Api
     }
 
     /// <summary>
+    /// <c>POST api/media/items/{id}/refresh</c> - ask the library to read one title's file again, keeping the
+    /// metadata it already found.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This is the reference's <i>Refresh</i> menu entry, which calls the library the same way and with the same
+    /// second argument (<c>RefreshMediaItem.cs:60-69</c>, <c>clearMetadata: false</c>). The entry that throws the
+    /// found data away is <i>Reimport</i>, and that one is a match picker rather than a call.
+    /// </para>
+    /// <para>
+    /// Nothing here says what the second look found. The library marks the title dirty and hands its folder to
+    /// the importer worker (<c>MediaLibrary.cs:1008-1034</c>), which reads the file when it gets to it and then
+    /// sends the library's own change message. A screen that asked the title again straight after this call
+    /// would be shown the old figures and would have no way to tell that they are the old ones.
+    /// </para>
+    /// </remarks>
+    public async Task<RefreshAnswer> RefreshTitleAsync(Guid mediaItemId,
+        CancellationToken cancellation = default)
+    {
+      return await SendJsonAsync<RefreshAnswer>(HttpMethod.Post,
+          "api/media/items/" + mediaItemId.ToString("D") + "/refresh",
+          null, cancellation)
+          .ConfigureAwait(false);
+    }
+
+    /// <summary>
     /// <c>GET api/media/shares</c> - the folders the library is built from, and the media categories a new one
     /// can be filed under.
     /// </summary>
