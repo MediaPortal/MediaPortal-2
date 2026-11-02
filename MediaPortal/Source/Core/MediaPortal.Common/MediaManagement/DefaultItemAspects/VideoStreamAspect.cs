@@ -135,6 +135,19 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_FPS =
         MediaItemAspectMetadata.CreateMultipleAttributeSpecification("FPS", typeof(float), Cardinality.Inline, false);
 
+    /// <summary>
+    /// The high dynamic range format the file's picture was mastered in, as the file named it ("HDR10", "HDR10+").
+    /// Empty when the file's picture is an ordinary one.
+    /// </summary>
+    /// <remarks>
+    /// The library stores the attributes of an aspect in one column each, and it builds those columns from the
+    /// aspect metadata it wrote into the database the first time it saw the aspect - changing this list therefore
+    /// does not change an existing database by itself. A database which does not know this attribute simply never
+    /// reads or writes it, which leaves the value empty and every consumer of it saying nothing.
+    /// </remarks>
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_HDRFORMAT =
+        MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("HdrFormat", 50, Cardinality.Inline, false);
+
     public static readonly MultipleMediaItemAspectMetadata Metadata = new MultipleMediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "VideoStreamItem", new[] {
@@ -152,6 +165,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_HEIGHT,
             ATTR_ASPECTRATIO,
             ATTR_FPS,
+            ATTR_HDRFORMAT,
         },
         new[] {
             ATTR_RESOURCE_INDEX,
@@ -163,10 +177,19 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         }
         );
 
+    /// <summary>
+    /// Whether the commercial format a file's video stream carries is a high dynamic range one. This is the one
+    /// place the library says what HDR is, so that the video type and the format attribute cannot disagree.
+    /// </summary>
+    public static bool IsHighDynamicRange(string commercialFormat)
+    {
+      return (commercialFormat ?? "").Contains("HDR");
+    }
+
     public static string GetVideoType(string stereoscopicMode, string stereoscopicType, string scanType, string commercialFormat, double? videoHeight, double? videoWidth)
     {
       bool interlaced = (scanType ?? "").ToLowerInvariant().Contains("interlaced");
-      bool hdr = (commercialFormat ?? "").Contains("HDR");
+      bool hdr = IsHighDynamicRange(commercialFormat);
 
       if (!string.IsNullOrWhiteSpace(stereoscopicMode) && !string.IsNullOrWhiteSpace(stereoscopicType))
       {

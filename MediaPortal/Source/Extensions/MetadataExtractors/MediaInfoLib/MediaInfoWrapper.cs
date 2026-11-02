@@ -233,10 +233,17 @@ namespace MediaInfoLib
     /// <param name="stream">Number of video stream to examine.</param>
     /// <returns>Name of the video codec or <c>null</c>, if the specified video
     /// stream doesn't exist.</returns>
+    /// <remarks>
+    /// MediaInfo's "CodecID/Hint" and "Codec/String" fields are empty in MediaInfo 19.09 and later for the
+    /// common container formats, so a codec name read from those two alone is never written to the database.
+    /// "Format" carries the codec name MediaInfo reports for the stream ("AVC", "HEVC", "MPEG-2 Video"),
+    /// which is what the skin shows, so it serves as the last source.
+    /// </remarks>
     public string GetVidCodec(int stream)
     {
       return StringUtils.TrimToNull(_mediaInfo.Get(StreamKind.Video, stream, "CodecID/Hint")) ??
-             StringUtils.TrimToNull(_mediaInfo.Get(StreamKind.Video, stream, "Codec/String"));
+             StringUtils.TrimToNull(_mediaInfo.Get(StreamKind.Video, stream, "Codec/String")) ??
+             StringUtils.TrimToNull(_mediaInfo.Get(StreamKind.Video, stream, "Format"));
     }
 
     /// <summary>
@@ -344,6 +351,37 @@ namespace MediaInfoLib
     }
 
     /// <summary>
+    /// Returns the commercial name the vendor gives the high dynamic range format of the video in the specified
+    /// video <paramref name="stream"/>.
+    /// </summary>
+    /// <param name="stream">Number of video stream to examine.</param>
+    /// <returns>Commercial HDR format of the stream (for example "HDR10") or an empty string, if the stream names
+    /// no HDR format. An ordinary file answers empty, which is the answer "not high dynamic range" and not a
+    /// missing piece of information.</returns>
+    /// <remarks>
+    /// The library's own field catalogue describes this field as "Commercial name used by vendor for theses HDR
+    /// settings or HDR Format field if there is no difference", so it already falls back to the plain HDR format
+    /// and is the first thing to ask. <see cref="GetCommercialVideoFormat"/> is not enough on its own: asked of
+    /// the MediaInfo that ships with this program (19.09), it answered empty string for every HEVC file tried,
+    /// while <c>Format_Commercial</c> said "HEVC" - the vendor's settings name is only there when there is one.
+    /// </remarks>
+    public string GetHdrFormatCommercial(int stream)
+    {
+      return _mediaInfo.Get(StreamKind.Video, stream, "HDR_Format_Commercial");
+    }
+
+    /// <summary>
+    /// Returns the high dynamic range format of the video in the specified video <paramref name="stream"/> as
+    /// MediaInfo writes it, which can name more than one format ("SMPTE ST 2086, HDR10").
+    /// </summary>
+    /// <param name="stream">Number of video stream to examine.</param>
+    /// <returns>HDR format of the stream or an empty string, if the stream names no HDR format.</returns>
+    public string GetHdrFormat(int stream)
+    {
+      return _mediaInfo.Get(StreamKind.Video, stream, "HDR_Format");
+    }
+
+    /// <summary>
     /// Returns the scan type of the video in the specified video <paramref name="stream"/>.
     /// </summary>
     /// <param name="stream">Number of video stream to examine.</param>
@@ -370,10 +408,15 @@ namespace MediaInfoLib
     /// </summary>
     /// <param name="stream">Number of audio stream to examine.</param>
     /// <returns>Name of the audio codec or <c>null</c>, if the specified audio stream doesn't exist.</returns>
+    /// <remarks>
+    /// Same three sources as <see cref="GetVidCodec"/>: the two MediaInfo fields that used to carry the codec
+    /// hint are empty in current MediaInfo versions, "Format" still names the codec ("DTS", "AC-3", "AAC").
+    /// </remarks>
     public string GetAudioCodec(int stream)
     {
       return StringUtils.TrimToNull(_mediaInfo.Get(StreamKind.Audio, stream, "CodecID/Hint")) ??
-             StringUtils.TrimToNull(_mediaInfo.Get(StreamKind.Audio, stream, "Codec/String"));
+             StringUtils.TrimToNull(_mediaInfo.Get(StreamKind.Audio, stream, "Codec/String")) ??
+             StringUtils.TrimToNull(_mediaInfo.Get(StreamKind.Audio, stream, "Format"));
     }
 
     /// <summary>

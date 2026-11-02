@@ -124,6 +124,61 @@ function Publish-PluginProject {
   }
 }
 
+# Fills Plugins\<Name> from one plugin's build output, the way MP2's own build.targets does it.
+#
+# The three copies that a plugin needs are not all obvious from a publish: the plugin's own assembly
+# and its plugin.xml, plus every assembly the build brought along (a plugin's assemblies are searched
+# for in the plugin's own folder, so a plugin's NuGet libraries have to be standing there), minus the
+# core assemblies the layout root already carries - MediaPortal.Common and friends are loaded from the
+# host, and a second copy in a plugin folder is only a second copy waiting to be stale.
+#
+# Native libraries go into an x64 subfolder, because that is where MP2's own P/Invoke helper looks
+# (NativeMethods.SetPlatformSearchDirectories, used by MediaInfoLib and OpenCvLib alike). Projects
+# carry their natives either in that shape already (MediaInfoLib builds an x64 folder) or under
+# runtimes\win-x64\native (OpenCvSharp, from its NuGet package); the upstream build.targets maps the
+# latter to x64 too, and -NativesToX64 says which of the two a plugin needs. Only x64 is copied: this
+# layout is a 64-bit host, and the 32-bit OpenCV binaries alone are sixty-five megabytes.
+function Copy-PluginContents {
+  param(
+    [Parameter(Mandatory)][string]$Name,
+    [Parameter(Mandatory)][object]$Plugin,
+    [switch]$NativesToX64
+  )
+
+  $dest = [IO.Path]::Combine($OutputDir, 'Plugins', $Name)
+  New-Item -ItemType Directory -Path $dest -Force | Out-Null
+  Write-Step "deploying $Name from $($Plugin.TargetDir)"
+
+  Copy-Item ([IO.Path]::Combine($Plugin.TargetDir, "$Name.dll")) $dest -Force
+  Copy-Item ([IO.Path]::Combine($Plugin.ProjectDir, 'plugin.xml')) $dest -Force
+  if ($Configuration -eq 'Debug') {
+    $pdb = [IO.Path]::Combine($Plugin.TargetDir, "$Name.pdb")
+    if (Test-Path $pdb) { Copy-Item $pdb $dest -Force }
+  }
+
+  $hostAssemblies = @{}
+  foreach ($rootDll in @(Get-ChildItem -Path $OutputDir -Filter '*.dll' -File)) {
+    $hostAssemblies[$rootDll.Name.ToLowerInvariant()] = $true
+  }
+  foreach ($dll in @(Get-ChildItem -Path $Plugin.TargetDir -Filter '*.dll' -File)) {
+    if ($dll.Name -eq "$Name.dll") { continue }
+    if ($hostAssemblies.ContainsKey($dll.Name.ToLowerInvariant())) { continue }
+    Copy-Item $dll.FullName $dest -Force
+  }
+
+  $platformSource = [IO.Path]::Combine($Plugin.TargetDir, 'x64')
+  if ($NativesToX64) {
+    $platformSource = [IO.Path]::Combine($Plugin.TargetDir, 'runtimes', 'win-x64', 'native')
+  }
+  if (Test-Path $platformSource) {
+    $platformDest = [IO.Path]::Combine($dest, 'x64')
+    New-Item -ItemType Directory -Path $platformDest -Force | Out-Null
+    Copy-Item ([IO.Path]::Combine($platformSource, '*')) $platformDest -Force
+  }
+
+  return $dest
+}
+
 # ---------------------------------------------------------------------------
 # 1. The host
 # ---------------------------------------------------------------------------
@@ -304,6 +359,52 @@ if (-not (Test-Path $audioTagLib)) {
   throw "TagLibSharp.dll was not copied to $audioTargetDir - the audio tag extractor cannot read a single tag without it"
 }
 Copy-Item $audioTagLib $audioDest -Force
+
+# ---------------------------------------------------------------------------
+# 2d. The extractor that reads the streams inside a video file
+# ---------------------------------------------------------------------------
+
+# Resolution, frame rate, audio tracks and subtitle tracks were missing from the library - not missing
+# from the front end: the three aspects that carry them (VideoStreamAspect, VideoAudioStreamAspect,
+# SubtitleAspect) are written by one extractor only, VideoMetadataExtractor, and that extractor was
+# never part of this layout. Every one of the 1241 films in the live library has zero rows in all three
+# of those tables, so the media information screen had nothing to show and no amount of front-end work
+# could have shown it.
+#
+# The extractor cannot be deployed alone. Its plugin.xml names four plugin references (MediaInfo,
+# MatroskaLib, TagLib, OpenCvLib), and PluginManager refuses a plugin whose references are not
+# standing in the plugin tree - FindMissingDependencies is what keeps a plugin out, not a warning. So
+# all four come along, and with them the native readers they are wrappers for: MediaInfo.dll for the
+# stream probe and OpenCvSharpExtern.dll for the picture work.
+$videoExtractors = @(
+  [pscustomobject]@{ Name = 'MediaInfoLib';   Project = 'MediaInfoLib';   Natives = 'Built' },
+  [pscustomobject]@{ Name = 'MatroskaLib';    Project = 'MatroskaLib';    Natives = 'None' },
+  [pscustomobject]@{ Name = 'TagLib';         Project = 'TagLib';         Natives = 'None' },
+  [pscustomobject]@{ Name = 'OpenCvLib';      Project = 'OpenCvLib';      Natives = 'Runtime' },
+  [pscustomobject]@{ Name = 'VideoMetadataExtractor';
+                     Project = 'VideoMetadataExtractor';                  Natives = 'Built' }
+)
+
+foreach ($extractor in $videoExtractors) {
+  $built = Publish-PluginProject -Name $extractor.Name -Project ([IO.Path]::Combine('Extensions', 'MetadataExtractors', $extractor.Project, "$($extractor.Project).csproj"))
+  Copy-PluginContents -Name $extractor.Name -Plugin $built -NativesToX64:($extractor.Natives -eq 'Runtime') | Out-Null
+}
+
+# One TagLibSharp for the whole layout.
+#
+# The audio reader was built against TagLibSharp 2.3.0, the TagLib plugin against MediaPortal.TagLib
+# 2.3.1, which carries TagLibSharp 2.3.1. .NET binds a reference to an older assembly to a newer one
+# but never the other way round, so with the audio plugin loading first the video extractor's item
+# build died on "Could not load file or assembly 'TagLibSharp, Version=2.3.1.0' - Assembly with same
+# name is already loaded". The newer assembly is stood in both folders, so nothing in the layout asks
+# for a version another folder cannot answer.
+$tagLibFolder = [IO.Path]::Combine($OutputDir, 'Plugins', 'TagLib')
+$audioFolder = [IO.Path]::Combine($OutputDir, 'Plugins', 'AudioTagMetadataExtractor')
+$tagSharpNew = [IO.Path]::Combine($tagLibFolder, 'TagLibSharp.dll')
+if ((Test-Path $tagSharpNew) -and (Test-Path $audioFolder)) {
+  Write-Step "unifying TagLibSharp: the TagLib plugin's copy also stands in the audio extractor"
+  Copy-Item $tagSharpNew ([IO.Path]::Combine($audioFolder, 'TagLibSharp.dll')) -Force
+}
 
 # ---------------------------------------------------------------------------
 # 3. The library the layout serves without being told

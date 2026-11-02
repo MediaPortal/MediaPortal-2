@@ -243,6 +243,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       protected int? _multiViewCount;
       protected string _scanType;
       protected string _commercialFormat;
+      protected string _hdrCommercialFormat;
+      protected string _hdrFormat;
       protected int _audioStreamCount;
       protected int _subStreamCount;
       protected long _fileSize;
@@ -258,6 +260,39 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       protected List<bool> _subDefaults = new List<bool>();
       protected List<bool> _subForceds = new List<bool>();
       protected List<string> _subLanguages = new List<string>();
+
+      /// <summary>
+      /// The high dynamic range format the file names for itself, or <c>null</c> when it names none.
+      /// </summary>
+      /// <remarks>
+      /// <para>
+      /// Asked in that order because that is what the shipped MediaInfo (19.09) answers: the commercial HDR name
+      /// first ("HDR10"), then the plain HDR format ("SMPTE ST 2086, HDR10"), and last the commercial video
+      /// format, which is where the reference read HDR and which a vendor can still fill with "HDR10" while the
+      /// two HDR fields stay empty. Asked of the shipped MediaInfo, that last field answered empty string for
+      /// every HEVC file tried, so on its own it would leave a real HDR file looking like an ordinary one.
+      /// </para>
+      /// <para>
+      /// An ordinary file answers nothing at all, which is the answer "not high dynamic range" and not a figure
+      /// that got lost - the four files tried here (HEVC, 8 bit, 1920 lines) left all three fields empty.
+      /// </para>
+      /// </remarks>
+      private string FindHdrFormat()
+      {
+        string answer = CleanedAnswer(_hdrCommercialFormat) ?? CleanedAnswer(_hdrFormat);
+        if (answer != null)
+          return answer;
+        return VideoStreamAspect.IsHighDynamicRange(_commercialFormat) ? CleanedAnswer(_commercialFormat) : null;
+      }
+
+      /// <summary>
+      /// The same text without surrounding spaces, and <c>null</c> when it says nothing ("", "N/A").
+      /// </summary>
+      private static string CleanedAnswer(string value)
+      {
+        string text = (value ?? string.Empty).Trim();
+        return text.Length == 0 || text.Equals("N/A", StringComparison.OrdinalIgnoreCase) ? null : text;
+      }
 
       public VideoResult(string videoTitle, MediaInfoWrapper mainInfo)
       {
@@ -299,6 +334,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             _multiViewCount = mediaInfo.GetMultiviewCount(i);
           if (string.IsNullOrEmpty(_commercialFormat))
             _commercialFormat = mediaInfo.GetCommercialVideoFormat(i);
+          if (string.IsNullOrEmpty(_hdrCommercialFormat))
+            _hdrCommercialFormat = mediaInfo.GetHdrFormatCommercial(i);
+          if (string.IsNullOrEmpty(_hdrFormat))
+            _hdrFormat = mediaInfo.GetHdrFormat(i);
           if (string.IsNullOrEmpty(_scanType))
             _scanType = mediaInfo.GetScanType(i);
           if (!_playTime.HasValue)
@@ -472,6 +511,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEOBITRATE, _vidBitRate.Value / 1000); // We store kbit/s
 
           videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEOENCODING, StringUtils.Join(", ", _vidCodecs));
+          // The high dynamic range format the file names for itself ("HDR10"), kept as an answer of its own instead
+          // of only living inside the video type computed above: a picture mastered in HDR is HDR at any height,
+          // while the type only ever says "UHD HDR" and so forgets HDR on anything below four thousand lines.
+          string hdrFormat = FindHdrFormat();
+          if (hdrFormat != null)
+            videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_HDRFORMAT, hdrFormat);
           videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT, _audioStreamCount);
           videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART, partNum);
           videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART_SET, partSet);
