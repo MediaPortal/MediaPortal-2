@@ -4903,5 +4903,309 @@ namespace Tests.Server.Api
     }
 
     #endregion
+
+    #region The tracks a file carries
+
+    /// <summary>
+    /// One picture of a file, as the importer would have written it.
+    /// </summary>
+    /// <remarks>
+    /// Every parameter is written except <paramref name="encoding"/> and <paramref name="type"/> when they are
+    /// null, which leaves those fields at the state a real importer leaves them in when the container does not
+    /// name them - never set, so never answered.
+    /// </remarks>
+    private static MultipleMediaItemAspect VideoTrack(int streamIndex, int width, int height, float aspectRatio,
+        float fps, long bitRate, string encoding, string type, string hdrFormat = null)
+    {
+      MultipleMediaItemAspect aspect = new MultipleMediaItemAspect(VideoStreamAspect.Metadata);
+      aspect.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, streamIndex);
+      aspect.SetAttribute(VideoStreamAspect.ATTR_WIDTH, width);
+      aspect.SetAttribute(VideoStreamAspect.ATTR_HEIGHT, height);
+      aspect.SetAttribute(VideoStreamAspect.ATTR_ASPECTRATIO, aspectRatio);
+      aspect.SetAttribute(VideoStreamAspect.ATTR_FPS, fps);
+      aspect.SetAttribute(VideoStreamAspect.ATTR_VIDEOBITRATE, bitRate);
+      if (encoding != null)
+        aspect.SetAttribute(VideoStreamAspect.ATTR_VIDEOENCODING, encoding);
+      if (type != null)
+        aspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, type);
+      if (hdrFormat != null)
+        aspect.SetAttribute(VideoStreamAspect.ATTR_HDRFORMAT, hdrFormat);
+      return aspect;
+    }
+
+    /// <summary>
+    /// One picture of a file as a library built before the high dynamic range answer existed kept it: its aspect
+    /// carries the attribute list that library wrote into its database, which does not know that answer.
+    /// </summary>
+    /// <remarks>
+    /// A database keeps the metadata an aspect had when the library first saw it (MIA_Management writes the
+    /// serialized metadata once, when it creates the aspect's table), so an aspect read from such a database
+    /// cannot be asked for a newer attribute - it was never given one. The state is reproduced the way the
+    /// library reaches it: write the metadata out the way the database stores it and take that attribute back
+    /// out of the writing.
+    /// </remarks>
+    private static MultipleMediaItemAspect VideoTrackOfAnOlderLibrary(int streamIndex, int width, int height)
+    {
+      // Each attribute is written as <AttributeType xsi:type="...">, and carries a nested <AttributeType> of its
+      // own for the .NET type - so the outer ones are told from the inner by that attribute.
+      const string open = "<AttributeType xsi:type=";
+      const string marker = "<AttributeName>HdrFormat</AttributeName>";
+
+      string xml = VideoStreamAspect.Metadata.Serialize();
+      int blockStart = xml.IndexOf("<Attributes>", StringComparison.Ordinal) + "<Attributes>".Length;
+      int blockEnd = xml.IndexOf("</Attributes>", StringComparison.Ordinal);
+      StringBuilder kept = new StringBuilder();
+      bool firstPiece = true;
+      foreach (string piece in xml.Substring(blockStart, blockEnd - blockStart)
+          .Split(new[] { open }, StringSplitOptions.None))
+      {
+        if (piece.Contains(marker))
+          continue;
+        if (!firstPiece)
+          kept.Append(open);
+        kept.Append(piece);
+        firstPiece = false;
+      }
+      Assert.That(kept.ToString(), Does.Not.Contain(marker), "or the surgery did nothing and the test proves nothing");
+
+      MediaItemAspectMetadata metadata =
+          MediaItemAspectMetadata.Deserialize(xml.Substring(0, blockStart) + kept + xml.Substring(blockEnd));
+      Assert.That(metadata.AttributeSpecifications.ContainsKey(VideoStreamAspect.ATTR_HDRFORMAT.AttributeName),
+          Is.False, "the writing this test builds really is the older one, or the test proves nothing");
+
+      MultipleMediaItemAspect aspect = new MultipleMediaItemAspect((MultipleMediaItemAspectMetadata)metadata);
+      aspect.SetAttribute(metadata.AttributeSpecifications[VideoStreamAspect.ATTR_STREAM_INDEX.AttributeName],
+          streamIndex);
+      aspect.SetAttribute(metadata.AttributeSpecifications[VideoStreamAspect.ATTR_WIDTH.AttributeName], width);
+      aspect.SetAttribute(metadata.AttributeSpecifications[VideoStreamAspect.ATTR_HEIGHT.AttributeName], height);
+      return aspect;
+    }
+
+    /// <summary>One audio track of a file, as the importer would have written it.</summary>
+    private static MultipleMediaItemAspect AudioTrack(int streamIndex, string language, string encoding,
+        int channels, long bitRate, long sampleRate)
+    {
+      MultipleMediaItemAspect aspect = new MultipleMediaItemAspect(VideoAudioStreamAspect.Metadata);
+      aspect.SetAttribute(VideoAudioStreamAspect.ATTR_STREAM_INDEX, streamIndex);
+      aspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE, language);
+      aspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOENCODING, encoding);
+      aspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOCHANNELS, channels);
+      aspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOBITRATE, bitRate);
+      aspect.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOSAMPLERATE, sampleRate);
+      return aspect;
+    }
+
+    /// <summary>One subtitle track of a file, as the importer would have written it.</summary>
+    private static MultipleMediaItemAspect SubtitleTrack(int streamIndex, string language, string format,
+        bool isInternal, bool isForced)
+    {
+      MultipleMediaItemAspect aspect = new MultipleMediaItemAspect(SubtitleAspect.Metadata);
+      aspect.SetAttribute(SubtitleAspect.ATTR_STREAM_INDEX, streamIndex);
+      aspect.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_LANGUAGE, language);
+      aspect.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_FORMAT, format);
+      aspect.SetAttribute(SubtitleAspect.ATTR_INTERNAL, isInternal);
+      aspect.SetAttribute(SubtitleAspect.ATTR_FORCED, isForced);
+      return aspect;
+    }
+
+    /// <summary>
+    /// A title with the track aspects the importer left on it. A null list means the importer wrote nothing of
+    /// that kind, which is a different state of the library from an empty one.
+    /// </summary>
+    private static MediaItem StreamedTitle(Guid id, IList<MediaItemAspect> videos, IList<MediaItemAspect> audios,
+        IList<MediaItemAspect> subtitles)
+    {
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>
+      {
+          { MediaAspect.ASPECT_ID,
+              new List<MediaItemAspect> { CreateMediaAspect("Alien (1979)", "Alien", new DateTime(1979, 5, 25)) } }
+      };
+      if (videos != null)
+        aspects[VideoStreamAspect.ASPECT_ID] = videos;
+      if (audios != null)
+        aspects[VideoAudioStreamAspect.ASPECT_ID] = audios;
+      if (subtitles != null)
+        aspects[SubtitleAspect.ASPECT_ID] = subtitles;
+      return new TestItem(id, aspects, null);
+    }
+
+    /// <summary>
+    /// Asks the tracks endpoint for one title, the way <see cref="GetItem"/> asks the details endpoint.
+    /// </summary>
+    private static MediaController.MediaStreamsResult GetStreams(IMediaLibrary library, Guid id,
+        out ActionResult<MediaController.MediaStreamsResult> action)
+    {
+      ServiceRegistration.Set<IMediaLibrary>(library);
+      action = new MediaController().GetStreams(id);
+      return Body(action);
+    }
+
+    [Test]
+    public void TheTracksOfATitleAreHandedOutInItsOwnOrder()
+    {
+      Guid id = Guid.NewGuid();
+      MediaItem title = StreamedTitle(id,
+          new List<MediaItemAspect>
+          {
+              VideoTrack(0, 1920, 1080, 1.7778f, 23.976f, 12500L, "AVC", "HD", "HDR10")
+          },
+          new List<MediaItemAspect>
+          {
+              AudioTrack(1, "de", "AC3", 6, 640L, 48000L),
+              AudioTrack(2, "en", "DTS", 8, 1509L, 48000L)
+          },
+          new List<MediaItemAspect>
+          {
+              SubtitleTrack(3, "de", "SRT", true, false),
+              SubtitleTrack(4, "en", "ASS", false, true)
+          });
+
+      List<MediaItemQuery> asked;
+      List<IEnumerable<Guid>> counted;
+      ActionResult<MediaController.MediaStreamsResult> action;
+      MediaController.MediaStreamsResult result =
+          GetStreams(CreateLibrary(new List<MediaItem> { title }, 1, out asked, out counted), id, out action);
+
+      Assert.That(result.Videos, Has.Count.EqualTo(1));
+      Assert.That(result.Videos[0].Width, Is.EqualTo(1920));
+      Assert.That(result.Videos[0].Height, Is.EqualTo(1080));
+      Assert.That(result.Videos[0].VideoEncoding, Is.EqualTo("AVC"));
+      Assert.That(result.Videos[0].VideoType, Is.EqualTo("HD"));
+      Assert.That(result.Videos[0].HdrFormat, Is.EqualTo("HDR10"),
+          "the format the file named for itself is handed over as it was written, so a picture mastered in HDR "
+          + "below four thousand lines is not lost the way the video type loses it");
+      Assert.That(result.Videos[0].BitRate, Is.EqualTo(12500L),
+          "the library keeps a thousand bits a second and the endpoint does not convert them, so the screen and "
+          + "the importer agree on the unit (VideoMetadataExtractor.cs:472, \"We store kbit/s\")");
+
+      Assert.That(result.Audios, Has.Count.EqualTo(2),
+          "every track the file carries is handed over, not the first one only - which track a viewer picks is "
+          + "their question and not one a server answers by leaving the others out");
+      Assert.That(result.Audios.Select(a => a.Language), Is.EqualTo(new[] { "de", "en" }),
+          "the order is the library's, which is the order the tracks lie in the file");
+      Assert.That(result.Audios[0].Channels, Is.EqualTo(6));
+      Assert.That(result.Audios[1].Encoding, Is.EqualTo("DTS"));
+
+      Assert.That(result.Subtitles, Has.Count.EqualTo(2));
+      Assert.That(result.Subtitles[0].IsInternal, Is.True);
+      Assert.That(result.Subtitles[0].IsForced, Is.False);
+      Assert.That(result.Subtitles[1].IsForced, Is.True,
+          "a track the file insists on is the one fact about a subtitle the reference marked on the card itself "
+          + "(CurrentlyPlayingStyles.xaml:186-190)");
+
+      Assert.That(asked[0].OptionalRequestedMIATypeIDs,
+          Is.SupersetOf(new[]
+          {
+              VideoStreamAspect.ASPECT_ID, VideoAudioStreamAspect.ASPECT_ID, SubtitleAspect.ASPECT_ID
+          }),
+          "the three track aspects are asked for as optional ones, so that a title the library knows but never "
+          + "looked inside is still the title it is and not a title that does not exist");
+    }
+
+    [Test]
+    public void ATitleTheImporterNeverLookedInsideAnswersWithThreeEmptyLists()
+    {
+      Guid id = Guid.NewGuid();
+      MediaItem title = StreamedTitle(id, null, null, null);
+
+      List<MediaItemQuery> asked;
+      List<IEnumerable<Guid>> counted;
+      ActionResult<MediaController.MediaStreamsResult> action;
+      MediaController.MediaStreamsResult result =
+          GetStreams(CreateLibrary(new List<MediaItem> { title }, 1, out asked, out counted), id, out action);
+
+      Assert.That(action.Result, Is.Null,
+          "a title nobody looked inside is a title this server has, answered plainly and not as an error - "
+          + "\"no tracks\" is its honest answer");
+      Assert.That(result.Videos, Has.Count.EqualTo(0));
+      Assert.That(result.Audios, Has.Count.EqualTo(0));
+      Assert.That(result.Subtitles, Has.Count.EqualTo(0));
+    }
+
+    [Test]
+    public void AFieldTheImporterLeftOutIsNoughtAndNotAComplaint()
+    {
+      Guid id = Guid.NewGuid();
+      // A picture whose container named nothing beyond its place in the file: no codec, no size, no rate.
+      MultipleMediaItemAspect bare = new MultipleMediaItemAspect(VideoStreamAspect.Metadata);
+      bare.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, 0);
+      MediaItem title = StreamedTitle(id, new List<MediaItemAspect> { bare }, null, null);
+
+      List<MediaItemQuery> asked;
+      List<IEnumerable<Guid>> counted;
+      ActionResult<MediaController.MediaStreamsResult> action;
+      MediaController.MediaStreamsResult result =
+          GetStreams(CreateLibrary(new List<MediaItem> { title }, 1, out asked, out counted), id, out action);
+
+      Assert.That(result.Videos, Has.Count.EqualTo(1), "the record stands even when nothing in it was written");
+      Assert.That(result.Videos[0].Width, Is.EqualTo(0),
+          "an unwritten figure is answered as nought, which is what a screen leaves out rather than printing");
+      Assert.That(result.Videos[0].VideoEncoding, Is.Null);
+    }
+
+    [Test]
+    public void ALibraryBuiltBeforeTheHdrAnswerStillAnswersItsOtherTracks()
+    {
+      Guid id = Guid.NewGuid();
+      // The database an aspect was created with keeps the attribute list of that moment, so an aspect read from
+      // a library built before the high dynamic range answer existed has never been given one. Asking it must
+      // say "nothing known" and must not take the whole answer down with it.
+      MediaItem title = StreamedTitle(id,
+          new List<MediaItemAspect> { VideoTrackOfAnOlderLibrary(0, 1920, 1080) },
+          new List<MediaItemAspect> { AudioTrack(1, "de", "AC3", 6, 640L, 48000L) },
+          null);
+
+      List<MediaItemQuery> asked;
+      List<IEnumerable<Guid>> counted;
+      ActionResult<MediaController.MediaStreamsResult> action;
+      MediaController.MediaStreamsResult result =
+          GetStreams(CreateLibrary(new List<MediaItem> { title }, 1, out asked, out counted), id, out action);
+
+      Assert.That(action.Result, Is.Null,
+          "an answer missing one figure the library never measured is still an answer, not a complaint");
+      Assert.That(result.Videos, Has.Count.EqualTo(1));
+      Assert.That(result.Videos[0].HdrFormat, Is.Null,
+          "a figure nobody wrote is left out; it is not read as \"no HDR\", which a screen would show as a "
+          + "crossed-out answer rather than as no answer at all");
+      Assert.That(result.Videos[0].Width, Is.EqualTo(1920), "the rest of the record is handed over as usual");
+      Assert.That(result.Audios, Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public void ATitlesTracksAreAskedForWithTheTitleInTheHouseholdsWithVirtualTitles()
+    {
+      Guid id = Guid.NewGuid();
+      MediaItem title = StreamedTitle(id, new List<MediaItemAspect> { VideoTrack(0, 720, 576, 1.3333f, 25f, 6000L, "MPEG2", "SD") },
+          null, null);
+
+      List<MediaItemQuery> asked;
+      List<IEnumerable<Guid>> counted;
+      ActionResult<MediaController.MediaStreamsResult> action;
+      MediaController.MediaStreamsResult result =
+          GetStreams(CreateLibrary(new List<MediaItem> { title }, 1, out asked, out counted), id, out action);
+
+      Assert.That(result.Videos[0].Width, Is.EqualTo(720));
+      Assert.That(asked[0].NecessaryRequestedMIATypeIDs, Is.EquivalentTo(new[] { MediaAspect.ASPECT_ID }),
+          "the Media aspect is the necessary one, which is what makes \"not found\" mean \"no such title\" and "
+          + "not \"no such track\"");
+    }
+
+    [Test]
+    public void ATitleTheServerDoesNotHaveHasNoTracksEither()
+    {
+      List<MediaItemQuery> asked;
+      List<IEnumerable<Guid>> counted;
+      ActionResult<MediaController.MediaStreamsResult> action;
+      MediaController.MediaStreamsResult result = GetStreams(
+          CreateLibrary(new List<MediaItem>(), 0, out asked, out counted), Guid.NewGuid(), out action);
+
+      Assert.That(Status(action), Is.EqualTo(StatusCodes.Status404NotFound),
+          "a title this server does not have is not a title with no tracks");
+      Assert.That(result.Videos, Has.Count.EqualTo(0));
+      Assert.That(result.Audios, Has.Count.EqualTo(0));
+      Assert.That(result.Subtitles, Has.Count.EqualTo(0));
+    }
+
+    #endregion
   }
 }

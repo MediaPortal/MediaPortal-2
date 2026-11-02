@@ -455,4 +455,75 @@ namespace MediaPortal.Frontend.Api
           + (Skipped == 0 ? "" : ", " + Skipped + " title(s) it already knew");
     }
   }
+
+  /// <summary>
+  /// One picture a title's file carries, from <c>GET api/media/items/{id}/streams</c>.
+  /// </summary>
+  /// <remarks>
+  /// The figures are what the server's importer wrote when it first looked at the file, not what a player reads
+  /// from the file while it plays; the two disagree for a file whose importer was run before the file changed.
+  /// A figure of nought means the importer left the field out, and a screen then leaves the figure out too -
+  /// see <see cref="MediaStreamWords"/> for what is made of them.
+  /// </remarks>
+  public record VideoStreamInfo(
+      [property: JsonPropertyName("streamIndex")] int StreamIndex,
+      [property: JsonPropertyName("videoType")] string? VideoType,
+      [property: JsonPropertyName("videoEncoding")] string? VideoEncoding,
+      [property: JsonPropertyName("width")] int Width,
+      [property: JsonPropertyName("height")] int Height,
+      [property: JsonPropertyName("aspectRatio")] float AspectRatio,
+      [property: JsonPropertyName("bitRate")] long BitRate,
+      [property: JsonPropertyName("fps")] float Fps,
+      [property: JsonPropertyName("durationSeconds")] long DurationSeconds,
+      /// <summary>
+      /// The high dynamic range format the file named for its picture, "HDR10" and the like. Empty when the
+      /// picture is an ordinary one - and empty as well when the library was built before the importer learned
+      /// to ask, which the front end must not read as "no HDR".
+      /// </summary>
+      [property: JsonPropertyName("hdrFormat")] string? HdrFormat);
+
+  /// <summary>One audio track of a title's file, from the same answer.</summary>
+  public record AudioStreamInfo(
+      [property: JsonPropertyName("streamIndex")] int StreamIndex,
+      [property: JsonPropertyName("language")] string? Language,
+      [property: JsonPropertyName("encoding")] string? Encoding,
+      [property: JsonPropertyName("channels")] int Channels,
+      [property: JsonPropertyName("bitRate")] long BitRate,
+      [property: JsonPropertyName("sampleRate")] long SampleRate);
+
+  /// <summary>One subtitle track of a title's file, from the same answer.</summary>
+  public record SubtitleStreamInfo(
+      [property: JsonPropertyName("streamIndex")] int StreamIndex,
+      [property: JsonPropertyName("language")] string? Language,
+      [property: JsonPropertyName("encoding")] string? Encoding,
+      [property: JsonPropertyName("format")] string? Format,
+      [property: JsonPropertyName("isInternal")] bool IsInternal,
+      [property: JsonPropertyName("isDefault")] bool IsDefault,
+      [property: JsonPropertyName("isForced")] bool IsForced);
+
+  /// <summary>
+  /// The answer of <c>GET api/media/items/{id}/streams</c>: the tracks a title's file carries.
+  /// </summary>
+  /// <remarks>
+  /// The three lists are what the reference's information screen showed - the row of logos above them was drawn
+  /// from the first picture (<c>MediaInfoVideo.xaml:152-296</c>), and one card per track below
+  /// (<c>:309-380</c>). A server that never looked inside the file answers with three empty lists, which is a
+  /// different statement from "there are no tracks": the screen says nothing rather than saying "none".
+  /// </remarks>
+  public record MediaStreamsAnswer(
+      [property: JsonPropertyName("id")] Guid Id,
+      [property: JsonPropertyName("videos")] IReadOnlyList<VideoStreamInfo>? Videos,
+      [property: JsonPropertyName("audios")] IReadOnlyList<AudioStreamInfo>? Audios,
+      [property: JsonPropertyName("subtitles")] IReadOnlyList<SubtitleStreamInfo>? Subtitles)
+  {
+    /// <summary>The pictures the file carries, never null.</summary>
+    public IReadOnlyList<VideoStreamInfo> VideoStreams => Videos ?? (IReadOnlyList<VideoStreamInfo>)Array.Empty<VideoStreamInfo>();
+
+    /// <summary>The audio tracks the file carries, never null.</summary>
+    public IReadOnlyList<AudioStreamInfo> AudioStreams => Audios ?? (IReadOnlyList<AudioStreamInfo>)Array.Empty<AudioStreamInfo>();
+
+    /// <summary>The subtitle tracks the file carries, never null.</summary>
+    public IReadOnlyList<SubtitleStreamInfo> SubtitleStreams =>
+        Subtitles ?? (IReadOnlyList<SubtitleStreamInfo>)Array.Empty<SubtitleStreamInfo>();
+  }
 }

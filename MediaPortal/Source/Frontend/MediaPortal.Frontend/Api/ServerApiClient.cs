@@ -601,6 +601,24 @@ namespace MediaPortal.Frontend.Api
     }
 
     /// <summary>
+    /// <c>GET api/media/items/{id}/streams</c> - the pictures, audio tracks and subtitle tracks the title's file
+    /// carries.
+    /// </summary>
+    /// <remarks>
+    /// Asked of the title itself, not of a season: a season is a count of episodes and carries no file of its own,
+    /// so its tracks are the episode's. Unlike the pictures, an answer with three empty lists is not a failure -
+    /// it says the importer never got inside this file, which most libraries answer for most titles.
+    /// </remarks>
+    public async Task<MediaStreamsAnswer> GetMediaStreamsAsync(Guid mediaItemId,
+        CancellationToken cancellation = default)
+    {
+      return await SendJsonAsync<MediaStreamsAnswer>(HttpMethod.Get,
+          "api/media/items/" + mediaItemId.ToString("D") + "/streams",
+          null, cancellation)
+          .ConfigureAwait(false);
+    }
+
+    /// <summary>
     /// <c>GET api/media/shares</c> - the folders the library is built from, and the media categories a new one
     /// can be filed under.
     /// </summary>

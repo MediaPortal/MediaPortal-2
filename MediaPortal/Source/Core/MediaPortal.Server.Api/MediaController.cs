@@ -2783,6 +2783,114 @@ namespace MediaPortal.Server.Api
     }
 
     /// <summary>
+    /// One picture a title's file carries, as the importer wrote it into the library.
+    /// </summary>
+    /// <remarks>
+    /// The figures are the library's own, stored in <c>VideoStreamAspect</c> when the file was first looked at;
+    /// nothing here is measured now. A title whose importer never got inside the file answers with an empty list
+    /// rather than with invented numbers.
+    /// </remarks>
+    public class VideoStreamInfo
+    {
+      /// <summary>Where in the file this picture sits.</summary>
+      public int StreamIndex { get; set; }
+
+      /// <summary>
+      /// What kind of picture it is, in the library's own words: "SD", "HD", "UHD", and for a stereoscopic file
+      /// one of "HSBS", "SBS", "HTAB", "TAB" (<c>VideoStreamAspect.cs:15-29</c>).
+      /// </summary>
+      public string VideoType { get; set; }
+
+      /// <summary>The codec the file named for its picture, for example "AVC" or "HEVC".</summary>
+      public string VideoEncoding { get; set; }
+
+      public int Width { get; set; }
+      public int Height { get; set; }
+
+      /// <summary>The picture's own proportion, as the importer measured it.</summary>
+      public float AspectRatio { get; set; }
+
+      /// <summary>Bits per second, as the importer read them.</summary>
+      public long BitRate { get; set; }
+
+      /// <summary>Pictures per second.</summary>
+      public float FPS { get; set; }
+
+      /// <summary>How long this picture runs, in seconds; zero when the importer did not write it.</summary>
+      public long DurationSeconds { get; set; }
+
+      /// <summary>
+      /// The high dynamic range format the file named for its picture, "HDR10" and the like; empty when the
+      /// picture is an ordinary one, or when the library was built before the importer learned to ask.
+      /// </summary>
+      public string HdrFormat { get; set; }
+    }
+
+    /// <summary>One of the audio tracks a title's file carries.</summary>
+    public class AudioStreamInfo
+    {
+      public int StreamIndex { get; set; }
+
+      /// <summary>The two-letter code the file gave this track, or empty when it named none.</summary>
+      public string Language { get; set; }
+
+      /// <summary>The codec the file named for this track, for example "AC3" or "DTS".</summary>
+      public string Encoding { get; set; }
+
+      /// <summary>How many channels the track carries.</summary>
+      public int Channels { get; set; }
+
+      /// <summary>Bits per second, as the importer read them.</summary>
+      public long BitRate { get; set; }
+
+      /// <summary>Samples per second.</summary>
+      public long SampleRate { get; set; }
+    }
+
+    /// <summary>One of the subtitle tracks a title's file carries.</summary>
+    public class SubtitleStreamInfo
+    {
+      public int StreamIndex { get; set; }
+
+      /// <summary>The two-letter code the file gave this track, or empty when it named none.</summary>
+      public string Language { get; set; }
+
+      /// <summary>The codec of the text, when the file named one.</summary>
+      public string Encoding { get; set; }
+
+      /// <summary>How the text is carried, for example "SRT" or "ASS".</summary>
+      public string Format { get; set; }
+
+      /// <summary>Whether the text lies inside the file or came to it from outside.</summary>
+      public bool IsInternal { get; set; }
+
+      /// <summary>Whether the file marks this track as the one to show by default.</summary>
+      public bool IsDefault { get; set; }
+
+      /// <summary>Whether the file insists on showing this track whatever else the viewer picks.</summary>
+      public bool IsForced { get; set; }
+    }
+
+    /// <summary>
+    /// The tracks one title's file carries, in the three kinds a viewer chooses between: picture, sound and text.
+    /// </summary>
+    /// <remarks>
+    /// Every list is empty rather than null when the library holds nothing of that kind, so a screen asks one
+    /// question - "is there anything to show" - and does not have to tell apart "the importer never looked inside
+    /// this file" from "the file has no second audio track", which it cannot answer anyway.
+    /// </remarks>
+    public class MediaStreamsResult
+    {
+      public Guid Id { get; set; }
+
+      public List<VideoStreamInfo> Videos { get; set; } = new List<VideoStreamInfo>();
+
+      public List<AudioStreamInfo> Audios { get; set; } = new List<AudioStreamInfo>();
+
+      public List<SubtitleStreamInfo> Subtitles { get; set; } = new List<SubtitleStreamInfo>();
+    }
+
+    /// <summary>
     /// Tells the library that a title was watched, and answers with what it now believes.
     /// </summary>
     /// <param name="id">The media item id, as <c>GET api/media/titles</c> reported it.</param>
@@ -2914,6 +3022,163 @@ namespace MediaPortal.Server.Api
           StatusCode = StatusCodes.Status503ServiceUnavailable
         };
       }
+    }
+
+    /// <summary>
+    /// The tracks a title's file carries: its pictures, its audio tracks and its subtitle tracks.
+    /// </summary>
+    /// <param name="id">The media item id, as <c>GET api/media/titles</c> reported it.</param>
+    /// <remarks>
+    /// <para>
+    /// <b>Where the figures come from.</b> Nothing is read from the file for this answer. When the importer first
+    /// looked at a file it wrote what it found into three aspects of the title - <c>VideoStreamAspect</c>,
+    /// <c>VideoAudioStreamAspect</c> and <c>SubtitleAspect</c> - and each of them holds one record per track, which
+    /// is precisely what the reference's information screen iterated over: six logos above, one card per audio
+    /// track and one per subtitle track below (<c>MediaInfoVideo.xaml:152-296</c> for the logos,
+    /// <c>:309-380</c> for the two lists, and the cards themselves at
+    /// <c>themes/default/styles/CurrentlyPlayingStyles.xaml:45-192</c>). Reading the same three aspects is
+    /// therefore not an invention of a shape; it is the same data the old skin drew.
+    /// </para>
+    /// <para>
+    /// <b>Asked for as optional aspects.</b> The Media aspect is the necessary one and the three track aspects are
+    /// optional, so a title the library knows but never got inside answers with three empty lists instead of
+    /// "no such title". That difference is the whole answer for a screen: an empty list is the ordinary state of a
+    /// title whose importer was never run over the file, and it must not be reported as a missing title.
+    /// </para>
+    /// <para>
+    /// The order is the library's own, which is the order the tracks lie in the file - the same order the
+    /// reference listed them in, since it walked the aspect records as they came.
+    /// </para>
+    /// </remarks>
+    [HttpGet("items/{id}/streams")]
+    public ActionResult<MediaStreamsResult> GetStreams(Guid id)
+    {
+      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
+      if (mediaLibrary == null)
+        return StatusCode(StatusCodes.Status503ServiceUnavailable);
+
+      MediaItem title = FindTitleWithStreams(mediaLibrary, id, CallerProfile);
+      MediaStreamsResult answer = new MediaStreamsResult { Id = id };
+      if (title == null)
+        return NotFound(answer);
+
+      IList<MultipleMediaItemAspect> streams;
+      if (MediaItemAspect.TryGetAspects(title.Aspects, VideoStreamAspect.Metadata, out streams))
+      {
+        foreach (MultipleMediaItemAspect stream in streams)
+          answer.Videos.Add(new VideoStreamInfo
+          {
+            StreamIndex = ReadInt(stream, VideoStreamAspect.ATTR_STREAM_INDEX),
+            VideoType = ReadText(stream, VideoStreamAspect.ATTR_VIDEO_TYPE),
+            VideoEncoding = ReadText(stream, VideoStreamAspect.ATTR_VIDEOENCODING),
+            Width = ReadInt(stream, VideoStreamAspect.ATTR_WIDTH),
+            Height = ReadInt(stream, VideoStreamAspect.ATTR_HEIGHT),
+            AspectRatio = ReadFloat(stream, VideoStreamAspect.ATTR_ASPECTRATIO),
+            BitRate = ReadLong(stream, VideoStreamAspect.ATTR_VIDEOBITRATE),
+            FPS = ReadFloat(stream, VideoStreamAspect.ATTR_FPS),
+            DurationSeconds = ReadLong(stream, VideoStreamAspect.ATTR_DURATION),
+            HdrFormat = ReadKnownText(stream, VideoStreamAspect.ATTR_HDRFORMAT)
+          });
+      }
+
+      if (MediaItemAspect.TryGetAspects(title.Aspects, VideoAudioStreamAspect.Metadata, out streams))
+      {
+        foreach (MultipleMediaItemAspect stream in streams)
+          answer.Audios.Add(new AudioStreamInfo
+          {
+            StreamIndex = ReadInt(stream, VideoAudioStreamAspect.ATTR_STREAM_INDEX),
+            Language = ReadText(stream, VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE),
+            Encoding = ReadText(stream, VideoAudioStreamAspect.ATTR_AUDIOENCODING),
+            Channels = ReadInt(stream, VideoAudioStreamAspect.ATTR_AUDIOCHANNELS),
+            BitRate = ReadLong(stream, VideoAudioStreamAspect.ATTR_AUDIOBITRATE),
+            SampleRate = ReadLong(stream, VideoAudioStreamAspect.ATTR_AUDIOSAMPLERATE)
+          });
+      }
+
+      if (MediaItemAspect.TryGetAspects(title.Aspects, SubtitleAspect.Metadata, out streams))
+      {
+        foreach (MultipleMediaItemAspect stream in streams)
+          answer.Subtitles.Add(new SubtitleStreamInfo
+          {
+            StreamIndex = ReadInt(stream, SubtitleAspect.ATTR_STREAM_INDEX),
+            Language = ReadText(stream, SubtitleAspect.ATTR_SUBTITLE_LANGUAGE),
+            Encoding = ReadText(stream, SubtitleAspect.ATTR_SUBTITLE_ENCODING),
+            Format = ReadText(stream, SubtitleAspect.ATTR_SUBTITLE_FORMAT),
+            IsInternal = ReadBool(stream, SubtitleAspect.ATTR_INTERNAL),
+            IsDefault = ReadBool(stream, SubtitleAspect.ATTR_DEFAULT),
+            IsForced = ReadBool(stream, SubtitleAspect.ATTR_FORCED)
+          });
+      }
+
+      return answer;
+    }
+
+    /// <summary>
+    /// The one item with this id, read together with the three aspects that hold its tracks.
+    /// </summary>
+    /// <remarks>
+    /// A separate read from <see cref="FindTitle"/> for the same reason <see cref="FindTitleWithResources"/> is:
+    /// the aspects a caller needs decide what "not found" means, and for the tracks the honest answer about a
+    /// title nobody looked inside is an empty list.
+    /// </remarks>
+    private static MediaItem FindTitleWithStreams(IMediaLibrary mediaLibrary, Guid id, Guid? profile)
+    {
+      MediaItemQuery query = new MediaItemQuery(new List<Guid> { MediaAspect.ASPECT_ID },
+          new List<Guid> { VideoStreamAspect.ASPECT_ID, VideoAudioStreamAspect.ASPECT_ID, SubtitleAspect.ASPECT_ID },
+          new MediaItemIdFilter(id));
+      IList<MediaItem> items = mediaLibrary.Search(query, false, profile, VirtualTitles.LetsVirtualTitlesIn);
+      return items == null ? null : items.FirstOrDefault();
+    }
+
+    /// <summary>
+    /// One number of a track's record, or nought where the importer left it out.
+    /// </summary>
+    /// <remarks>
+    /// Every one of these attributes is nullable in the library - a container that did not name its bitrate left
+    /// the field empty - and a screen cannot show "the file did not say", so the absence is answered by nought and
+    /// the screen leaves the figure out. A record whose value is missing and a record that is not there at all
+    /// then read the same way, which is what the reference did too: it hid the logo rather than drawing a nought
+    /// (<c>MediaInfoVideo.xaml:239-255</c>, where both labels are only visible when their figure is set).
+    /// </remarks>
+    private static int ReadInt(MultipleMediaItemAspect stream, MediaItemAspectMetadata.MultipleAttributeSpecification attribute)
+    {
+      return (int?)stream[attribute] ?? 0;
+    }
+
+    private static long ReadLong(MultipleMediaItemAspect stream, MediaItemAspectMetadata.MultipleAttributeSpecification attribute)
+    {
+      return (long?)stream[attribute] ?? 0L;
+    }
+
+    private static float ReadFloat(MultipleMediaItemAspect stream, MediaItemAspectMetadata.MultipleAttributeSpecification attribute)
+    {
+      return (float?)stream[attribute] ?? 0f;
+    }
+
+    private static bool ReadBool(MultipleMediaItemAspect stream, MediaItemAspectMetadata.MultipleAttributeSpecification attribute)
+    {
+      return (bool?)stream[attribute] ?? false;
+    }
+
+    private static string ReadText(MultipleMediaItemAspect stream, MediaItemAspectMetadata.MultipleAttributeSpecification attribute)
+    {
+      return (string)stream[attribute];
+    }
+
+    /// <summary>
+    /// Reads a text the aspect might not carry at all, and says so with <c>null</c> rather than by throwing.
+    /// </summary>
+    /// <remarks>
+    /// A database keeps the attribute list an aspect had when the library first saw it - adding an attribute to
+    /// the aspect in code does not add it to a database that is already built. Asking such an aspect for the
+    /// attribute throws, which would take the whole answer down for the sake of one figure an older library has
+    /// never measured. So the aspect's own list is consulted first.
+    /// </remarks>
+    private static string ReadKnownText(MultipleMediaItemAspect stream, MediaItemAspectMetadata.MultipleAttributeSpecification attribute)
+    {
+      return stream.Metadata.AttributeSpecifications.ContainsKey(attribute.AttributeName)
+          ? ReadText(stream, attribute)
+          : null;
     }
 
     /// <summary>
