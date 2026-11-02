@@ -597,16 +597,38 @@ namespace MediaPortal.Frontend.Views
       if (browser.MenuVisible)
       {
         GrowDialog();
-        if (menuMarkButton.IsVisible)
-          menuMarkButton.Focus();
-        else
-          menuBackButton.Focus();
+        // The lines are built from the model's table, so at the moment the dialog is switched on they are not on
+        // the screen yet - the containers come with the layout. The focus therefore goes to them one round later,
+        // the way the guide's own action dialog reaches its list, and lands on the way out until they arrive.
+        if (!FocusFirstTitleAction())
+          Dispatcher.UIThread.Post(delegate
+          {
+            if (!browser.MenuVisible)
+              return;
+            if (!FocusFirstTitleAction())
+              menuBackButton.Focus();
+          }, DispatcherPriority.Loaded);
       }
       else
       {
         HandDialogGroundBack();
         FocusShelf();
       }
+    }
+
+    /// <summary>
+    /// Stands the caret on the first line of the title's dialog: a viewer who opened the dialog by pressing a row
+    /// wants to press once more, not to walk first. False while the lines are not on the screen yet.
+    /// </summary>
+    private bool FocusFirstTitleAction()
+    {
+      foreach (Control child in menuActionList.GetVisualDescendants())
+      {
+        if (child is Button line && line.IsEnabled && line.Focus())
+          return true;
+      }
+
+      return false;
     }
 
     /// <summary>

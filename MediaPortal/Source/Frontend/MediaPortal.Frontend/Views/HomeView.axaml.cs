@@ -528,6 +528,38 @@ namespace MediaPortal.Frontend.Views
       menuList.AddHandler(PointerCaptureLostEvent,
           delegate { StopRestingPress(); }, RoutingStrategies.Tunnel);
 
+      // The same context gesture over the wall asks a different question, because it asks it of a different kind
+      // of thing. On the rail it rearranges the menu; on a poster of the wall it asks the reference's question
+      // about the title that poster shows - the reference hung exactly that on its tile template
+      // (HomeContentStyles.xaml:756-758), whose items are media objects, and left the menu of the menu rail
+      // alone. A square that shows no title - a shortcut, a note, a weather card - is left untouched: the
+      // reference's list never applied to anything but the library's objects
+      // (MediaItemsActionModel.cs:113-118).
+      contentList.AddHandler(PointerPressedEvent,
+          delegate (object? sender, PointerPressedEventArgs args)
+          {
+            if (!args.Properties.IsRightButtonPressed)
+              return;
+
+            HomeContentTile? tile = TileUnder(args.Source);
+            if (tile == null || tile.Title == null)
+              return;
+
+            _home.OpenTitleActions(tile.Title);
+            args.Handled = true;
+          },
+          RoutingStrategies.Tunnel);
+
+      // The dialog the wall raises over itself goes and comes with the model's own word for "asked" and
+      // "answered", exactly as the guide's "Choose program action..." dialog does (TvGuideView.axaml.cs): the wall
+      // pushes the stop, the same hand takes it away, and Back leaves the viewer standing on the tile they pressed.
+      _home.TitleActionsRequested += delegate
+      {
+        if (_home.TitleActions.IsOpen)
+          _workflow.Push(new WorkflowFrame("titleactions", _home.TitleActions.Heading, _home.TitleActions));
+      };
+      _home.TitleActions.Closed += delegate { _workflow.Pop(); };
+
       // The remote's context key, which is the key the reference's menu list answered. The virtual keyboard
       // works the very same key over its text fields, so a key that arrives from a box being typed in is not a
       // request to rearrange the menu behind it.
@@ -538,6 +570,18 @@ namespace MediaPortal.Frontend.Views
                 || !_home.IsNereusHome
                 || !Settings.KeyBindings.Current.Is(Settings.KeyAction.Menu, args.Key))
               return;
+
+            // The key belongs to whatever is stood on, which is the reference's own split: its menu rail answered
+            // the context key by rearranging the menu, its wall tiles answered it by asking what should be done
+            // with the title on the tile (HomeContentStyles.xaml:756). Standing on a square that shows no title
+            // leaves the key the rail's answer it always was.
+            HomeContentTile? tile = TileUnder(args.Source);
+            if (tile?.Title != null)
+            {
+              _home.OpenTitleActions(tile.Title);
+              args.Handled = true;
+              return;
+            }
 
             OpenMenuEditor();
             args.Handled = true;
@@ -2485,6 +2529,24 @@ namespace MediaPortal.Frontend.Views
     /// builds the same thing behind the <c>menuedit</c> screen key. An ordinary stop on the workflow, so Back
     /// steps off it and the header over the screen names it.
     /// </summary>
+    /// <summary>
+    /// The wall square a pointer or a key belongs to, walked out from the control the event arrived at up to the
+    /// square whose data is a tile. <c>null</c> for a gesture that came from anywhere the wall shows no tile,
+    /// which leaves the key or the button the answer it always had.
+    /// </summary>
+    private static HomeContentTile? TileUnder(object? source)
+    {
+      StyledElement? node = source as StyledElement;
+      while (node != null)
+      {
+        if (node.DataContext is HomeContentTile tile)
+          return tile;
+        node = node.Parent;
+      }
+
+      return null;
+    }
+
     private void OpenMenuEditor()
     {
       OpenScreen("menuedit");

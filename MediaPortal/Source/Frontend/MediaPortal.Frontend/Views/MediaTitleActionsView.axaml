@@ -1,0 +1,70 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        xmlns:theming="clr-namespace:MediaPortal.Frontend.Theming"
+        x:Class="MediaPortal.Frontend.Views.MediaTitleActionsView"
+        x:DataType="vm:MediaTitleActionsModel"
+        Name="mediaTitleActions"
+        Classes="nereus-dialog-screen"
+        >
+
+  <!--
+    "Media item actions" - the question the reference asked of a title, and it asked it of the titles standing on
+    the home wall too: its tile template carried the action model as the tile's context command, so a long press or
+    a context key on a poster asked the same question a media list asked (HomeContentStyles.xaml:743-758). The
+    lines on this list are the lines that table produces (MediaTitleActions.For), in its order, and the answers this
+    front end has nowhere to put are left off the list rather than faked - the reference built its list the same way,
+    by asking every action whether it applied to the object in hand (MediaItemsActionModel.cs:373-392).
+
+    Like the guide's dialog, and like the reference's, a line on the list IS the answer: there is no OK button,
+    because asking a viewer to press a line and then press something else would be two presses where one was asked
+    for. The wall stays lit behind the frame and Back leaves the viewer on the tile they pressed.
+  -->
+
+  <ContentControl HorizontalAlignment="Center" VerticalAlignment="Center"
+                  theming:SkinTemplates.OverlayTemplate="DialogHeadedFrameTemplate">
+    <!-- The body of a dialog keeps the screen's data: the frame shows a body under its own data, so a plain
+         {Binding} here would ask the body for the title's words and find none. -->
+    <DockPanel MinWidth="620" DataContext="{Binding $parent[UserControl].DataContext}">
+
+      <!-- Which title the question is about, so that the dialog never has to be read against the wall behind it
+           to know what a line would do. -->
+      <TextBlock DockPanel.Dock="Top"
+                 Classes="nereus-editor-sub"
+                 Name="aboutLine"
+                 Text="{Binding Words}"
+                 TextWrapping="Wrap"
+                 Margin="0,0,0,10"
+                 HorizontalAlignment="Left" />
+
+      <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,10,0,0" Spacing="10">
+        <Button Name="backButton"
+                Content="Back"
+                FontSize="14"
+                Padding="16,6"
+                Focusable="True" />
+        <TextBlock Name="statusLine"
+                   Classes="nereus-editor-status"
+                   Text="{Binding Status}"
+                   TextWrapping="Wrap"
+                   VerticalAlignment="Center"
+                   MaxWidth="420" />
+      </StackPanel>
+
+      <ListBox Name="actionList"
+               ItemsSource="{Binding Actions}"
+               Background="Transparent"
+               Focusable="True">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="vm:MediaTitleAction">
+            <TextBlock Text="{Binding Word}"
+                       FontSize="16"
+                       Padding="0,6"
+                       Opacity="1"
+                       IsEnabled="{Binding IsCommand}" />
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </DockPanel>
+  </ContentControl>
+</UserControl>

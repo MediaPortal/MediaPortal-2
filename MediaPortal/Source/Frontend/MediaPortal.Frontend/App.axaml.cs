@@ -1433,6 +1433,13 @@ namespace MediaPortal.Frontend
       if (state == "programactions")
         return new TvProgramActionsView((TvGuideViewModel)frame.ViewModel, _workflow);
 
+      // The question a title on the wall can be asked, in the reference's dialog heading "Media item actions".
+      // The reference asked it of its home tiles as well as of its media lists (HomeContentStyles.xaml:743-758),
+      // and the lines come from the one table both screens read (MediaTitleActions.For); the model is the wall's
+      // own, built when a tile was pressed, because only it knows which tile that was.
+      if (state == "titleactions")
+        return new MediaTitleActionsView((MediaTitleActionsModel)frame.ViewModel, _workflow);
+
       // The queue read out loud, wearing the skin's dialog frame: the shelf or the guide stays lit behind it, because
       // a notification is a word spoken to somebody who is doing something (WatchSystemNotifications.xaml).
       if (state == "notifications")

@@ -210,6 +210,7 @@ namespace MediaPortal.Frontend.ViewModels
       _client = client;
       Pictures = pictures;
       _status = client == null ? "No server configured" : "Not connected yet";
+      TitleActions = new MediaTitleActionsModel(ReportTileActionAsync);
       if (client != null)
       {
         _posters = PicturesOf(client, "Poster", id => client.GetFanArtAsync(id, "Poster"));
@@ -2060,6 +2061,89 @@ namespace MediaPortal.Frontend.ViewModels
       if (title == null)
         return;
       ResumeRequested?.Invoke(this, title);
+    }
+
+    /// <summary>
+    /// The question a tile can be asked about the title it shows, and the answer that was stood on. The reference
+    /// hung exactly this question on its home tiles - the tile template's
+    /// <c>ContextMenuCommand</c> led to <c>MediaItemsActionModel.ShowMediaItemActionsEx</c> with the tile's own
+    /// item (<c>HomeContentStyles.xaml:756-758</c>) - and the list of answers is the same table the media
+    /// browser's title dialog reads (<see cref="MediaTitleActions"/>).
+    /// </summary>
+    /// <remarks>
+    /// The wall cannot show the answer inside itself the way the browser does, so it asks through a dialog screen
+    /// of its own, which the home screen pushes onto the navigation. That is how the guide raises its "Choose
+    /// program action..." dialog, and for the same reason: the dialog is a question about one thing on the screen
+    /// behind it, and Back has to leave the viewer standing on that thing.
+    /// </remarks>
+    public MediaTitleActionsModel TitleActions { get; }
+
+    /// <summary>Said when the question is ready and a dialog has to be put up over the wall.</summary>
+    public event Action? TitleActionsRequested;
+
+    /// <summary>
+    /// Puts the question up for the title one tile shows. A tile that shows no title - a shortcut, a note, a
+    /// weather card - is refused with a word, because the reference's list only ever applied to objects the
+    /// library holds (<c>MediaItemsActionModel.cs:113-118</c>, and the tile wrapper hands over a
+    /// <c>MediaItemListItem</c> for a media tile and nothing else).
+    /// </summary>
+    public void OpenTitleActions(TitleViewModel? title)
+    {
+      if (title == null)
+      {
+        Status = "This tile stands for no title of the library, so there is nothing to ask of it";
+        return;
+      }
+
+      // No detail reading is offered here, and that is the one answer the reference's list has that the wall
+      // withholds: the reference pushed its media information screen from anywhere, while this front end writes a
+      // title's facts into the browser's detail panel - a place the home has no door to that would land the
+      // viewer at the title rather than at a shelf of titles.
+      TitleActions.Open(title, Client != null, false);
+      TitleActionsRequested?.Invoke();
+    }
+
+    /// <summary>Takes the question away, which leaves the viewer standing on the tile they pressed.</summary>
+    public void CloseTitleActions()
+    {
+      TitleActions.Close();
+    }
+
+    /// <summary>
+    /// What a line of the dialog does: the same playback report the browser's dialog sends, folded back into the
+    /// tile from the server's answer rather than from the press, so that the tile says what the library believes.
+    /// </summary>
+    private async Task ReportTileActionAsync(TitleViewModel title, MediaTitleActionKind kind)
+    {
+      ServerApiClient? client = Client;
+      if (client == null)
+      {
+        Status = "There is no server to tell about " + title.Name;
+        return;
+      }
+
+      int percentage = kind == MediaTitleActionKind.SetPlayed ? 100 : 0;
+      try
+      {
+        MediaPlayback after = await client.ReportPlaybackAsync(title.Title.Id, percentage);
+        title.ApplyPlayback(after);
+        Status = percentage >= 100
+            ? title.Name + " is watched now as far as the library is concerned"
+            : after.Resume == null && after.PlayCount == 0
+                ? title.Name + " is unwatched now, and the library holds no viewing of it"
+                : title.Name + " is unwatched now; the library still remembers " + after.PlayCount
+                    + (after.PlayCount == 1 ? " viewing" : " viewings") + " of it";
+      }
+      catch (ServerApiException ex)
+      {
+        Status = ex.StatusCode == 403
+            ? "The server wants to know who is reporting before it marks a title watched. Sign in on the server screen."
+            : ex.NotReady ? "The server is not ready yet: " + ex.Message : ex.Message;
+      }
+      catch (Exception ex)
+      {
+        Status = "Telling the server failed: " + ex.Message;
+      }
     }
 
     /// <summary>

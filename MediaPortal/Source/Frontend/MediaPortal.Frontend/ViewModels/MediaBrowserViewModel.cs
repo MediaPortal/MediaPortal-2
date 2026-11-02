@@ -2166,39 +2166,65 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
-    /// Whether the menu may offer "mark watched": a server has to be there to be told, and the library has to
-    /// have something to learn. The reference draws the same line and reads it off the same number - a viewer
-    /// standing at a hundred per cent is offered the way back and not this way forward again
-    /// (<c>AbstractWatchedAction.cs:45-55</c>).
+    /// The lines the title's dialog shows: the answers this title has, worked out by the same table the home wall
+    /// uses (<see cref="MediaTitleActions"/>), in the reference's order. The dialog used to carry one hard-built
+    /// button per answer, which is the reason the second answer had to be added by hand and a third one would be
+    /// added the same way again.
     /// </summary>
-    public bool CanMarkWatched
+    public ObservableCollection<MediaTitleAction> TitleActions { get; } =
+        new ObservableCollection<MediaTitleAction>();
+
+    /// <summary>
+    /// Gives the answer that was stood on. Every line goes through here so that the dialog is put away in one
+    /// place, and so that a line this screen cannot answer is a bug in the table rather than a dead button.
+    /// </summary>
+    [RelayCommand]
+    private async Task RunTitleActionAsync(MediaTitleAction? action)
     {
-      get { return _client != null && Selected != null && !Selected.Seen; }
+      if (action == null || !action.IsCommand)
+        return;
+
+      switch (action.Kind)
+      {
+        case MediaTitleActionKind.Information:
+          // The reference deferred its media information until the menu was left (MediaInfoAction.cs:53-62), which
+          // is what closing before reading does here. Where the panel already stands open and has this title
+          // written on it, pressing the line again asks the server once more rather than doing nothing.
+          MenuVisible = false;
+          if (!ShowDetails)
+            ShowDetails = true;
+          else
+            await ShowDetailsForSelectedAsync();
+          break;
+
+        case MediaTitleActionKind.SetPlayed:
+          await MarkWatchedAsync();
+          break;
+
+        case MediaTitleActionKind.SetUnplayed:
+          await MarkUnwatchedAsync();
+          break;
+      }
     }
 
     /// <summary>
-    /// Whether the menu may offer the way back: "mark unwatched", the reference's <i>Set unplayed</i>
-    /// (<c>plugin.xml:272</c>, <c>MediaItemActions\SetUnwatched.cs:27</c>), which the reference offers exactly
-    /// when it withholds the other one - a viewer at a hundred per cent.
+    /// Fills <see cref="TitleActions"/> for the title the dialog was opened for.
     /// </summary>
     /// <remarks>
-    /// <para>
-    /// This entry was missing here behind a wrong reading of the API. The comment that used to stand on
-    /// <see cref="MarkWatchedAsync"/> claimed the playback report could not go backwards, so no sibling was
-    /// built. The reference says otherwise with the very call this screen already makes: its "set unplayed" is
-    /// the same playback report carrying nought (<c>AbstractWatchedAction.cs:73-84</c>), and nought is a legal
-    /// answer here too.
-    /// </para>
-    /// <para>
-    /// What nought undoes, and what it leaves alone, are the reference's, not a choice: the position goes back to
-    /// the start while the number of viewings and the date of the last one stay written
-    /// (<c>MediaLibrary.cs:2852-2858</c>). A title therefore stops being offered as something to resume and stops
-    /// counting as watched through, and still remembers that it was watched twice in the past.
-    /// </para>
+    /// The one line that only explains something is left out here on purpose: this dialog already speaks its
+    /// reason through <see cref="MenuWords"/>, and a dialog that says the same sentence twice - once as a line
+    /// that cannot be pressed and once under it - reads like a mistake rather than like an answer.
     /// </remarks>
-    public bool CanMarkUnwatched
+    private void RebuildTitleActions()
     {
-      get { return _client != null && Selected != null && Selected.Seen; }
+      TitleActions.Clear();
+      foreach (MediaTitleAction action
+          in MediaTitleActions.For(Selected, _client != null, true))
+      {
+        if (action.Kind == MediaTitleActionKind.SaidOnly && !string.IsNullOrEmpty(MenuWords))
+          continue;
+        TitleActions.Add(action);
+      }
     }
 
     /// <summary>
@@ -2316,9 +2342,8 @@ namespace MediaPortal.Frontend.ViewModels
     private void RaiseMenuState()
     {
       OnPropertyChanged(nameof(MenuTitle));
-      OnPropertyChanged(nameof(CanMarkWatched));
-      OnPropertyChanged(nameof(CanMarkUnwatched));
       OnPropertyChanged(nameof(MenuWords));
+      RebuildTitleActions();
     }
 
     /// <summary>
