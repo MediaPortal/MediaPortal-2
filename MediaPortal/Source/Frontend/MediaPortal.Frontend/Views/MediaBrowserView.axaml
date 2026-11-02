@@ -957,16 +957,20 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                       <DataTemplate x:DataType="vm:AudioTrackCard">
-                        <!-- The four corners of one audio card, as the reference laid them in three hundred points
-                             of width: the flag of its language with the language's own name beside it at the top
-                             left, the channels as a loudspeaker picture of the plain count at the top right, the
-                             codec as a logo at the bottom left, and the bitrate over the sample rate at the bottom
-                             right (CurrentlyPlayingStyles.xaml:45-120). A corner whose picture the worn skin does
-                             not carry writes its figure in words instead.  The card itself takes the caret - the
-                             viewer looks AT a track, and the caret standing on it says which one is being looked
-                             at, exactly as it does on a tile of the wall.  The shadow is the skin's shared one, the
-                             same the wall's tiles, the news cards and the weather cards stand in - a card of this
-                             screen is no flatter than a tile of the wall. -->
+                        <!-- What one audio card says, and where the viewer asked to see it said (2026-11-03).  The
+                             four facts are the reference's (CurrentlyPlayingStyles.xaml:45-120) - the flag of the
+                             language, the channels as a loudspeaker picture of the plain count, the codec as a
+                             logo, and the bitrate over the sample rate - and so is the rule that a figure the worn
+                             skin has no picture of is written in words instead.  Where they stand is not: the
+                             picture, the channels and the codec stand in ONE LINE across the top of the card, and
+                             under them the language reads its NAME ("German", not "DE") over its two numbers.  The
+                             reference had the language as a two-letter abbreviation beside its flag and the codec
+                             under it, which left the top of the card to one picture and the bottom to two words;
+                             the line of pictures is what a viewer scans, and the words are what they read after.
+                             The card itself takes the caret - the viewer looks AT a track, and the caret standing
+                             on it says which one is being looked at, exactly as it does on a tile of the wall.  The
+                             shadow is the skin's shared one, the same the wall's tiles, the news cards and the
+                             weather cards stand in - a card of this screen is no flatter than a tile of the wall. -->
                         <Border Classes="trackcard home-tile-shadow"
                                 Focusable="True"
                                 Width="300"
@@ -974,7 +978,9 @@
                                 Background="#26FFFFFF"
                                 Padding="16,10,16,12"
                                 Margin="0,0,8,0">
-                          <Grid RowDefinitions="*,*" ColumnDefinitions="*,Auto">
+                          <Grid RowDefinitions="Auto,Auto,*"
+                                ColumnDefinitions="Auto,*,Auto"
+                                VerticalAlignment="Center">
                             <Panel Grid.Row="0"
                                    Grid.Column="0"
                                    VerticalAlignment="Center">
@@ -992,46 +998,43 @@
                                      HorizontalAlignment="Left"
                                      IsVisible="{Binding ShowsUnknownFlag}"/>
                             </Panel>
-                            <TextBlock Grid.Row="0"
-                                       Grid.Column="0"
-                                       Text="{Binding Language}"
-                                       FontSize="26"
-                                       FontWeight="Bold"
-                                       HorizontalAlignment="Right"
-                                       VerticalAlignment="Center"
-                                       Foreground="{DynamicResource TextBrush}"/>
                             <Panel Grid.Row="0"
                                    Grid.Column="1"
+                                   Margin="16,0,0,0"
+                                   HorizontalAlignment="Left"
                                    VerticalAlignment="Center">
                               <Image Source="{Binding ChannelsToken,
                                                       Converter={x:Static views:SkinImageConverter.Instance},
                                                       ConverterParameter='MediaLogos/audio/{0}'}"
                                      Height="48"
                                      Stretch="Uniform"
+                                     HorizontalAlignment="Left"
                                      IsVisible="{Binding ShowsChannels}"/>
                               <TextBlock Text="{Binding Channels}"
                                          FontSize="23"
                                          FontWeight="SemiBold"
+                                         HorizontalAlignment="Left"
                                          VerticalAlignment="Center"
                                          IsVisible="{Binding ChannelsToken,
                                                      Converter={x:Static views:SkinImageMissingConverter.Instance},
                                                      ConverterParameter='MediaLogos/audio/{0}'}"
                                          Foreground="{DynamicResource TextBrush}"/>
                             </Panel>
-                            <Panel Grid.Row="1"
-                                   Grid.Column="0"
+                            <Panel Grid.Row="0"
+                                   Grid.Column="2"
+                                   HorizontalAlignment="Right"
                                    VerticalAlignment="Center">
                               <Image Source="{Binding CodecToken,
                                                       Converter={x:Static views:SkinImageConverter.Instance},
                                                       ConverterParameter='MediaLogos/audio/{0}'}"
                                      Height="44"
                                      Stretch="Uniform"
-                                     HorizontalAlignment="Left"
+                                     HorizontalAlignment="Right"
                                      IsVisible="{Binding ShowsCodec}"/>
                               <TextBlock Text="{Binding Encoding}"
                                          FontSize="19"
                                          Opacity="0.85"
-                                         HorizontalAlignment="Left"
+                                         HorizontalAlignment="Right"
                                          VerticalAlignment="Center"
                                          IsVisible="{Binding CodecToken,
                                                      Converter={x:Static views:SkinImageMissingConverter.Instance},
@@ -1039,12 +1042,23 @@
                                          Foreground="{DynamicResource TextBrush}"/>
                             </Panel>
                             <TextBlock Grid.Row="1"
-                                       Grid.Column="1"
+                                       Grid.Column="0"
+                                       Grid.ColumnSpan="3"
+                                       Margin="0,8,0,0"
+                                       Text="{Binding Language}"
+                                       FontSize="22"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource TextBrush}"/>
+                            <TextBlock Grid.Row="2"
+                                       Grid.Column="0"
+                                       Grid.ColumnSpan="3"
+                                       Margin="0,2,0,0"
                                        Text="{Binding Detail}"
                                        FontSize="19"
                                        Opacity="0.85"
-                                       TextAlignment="Right"
-                                       VerticalAlignment="Center"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Top"
                                        Foreground="{DynamicResource TextBrush}"/>
                           </Grid>
                         </Border>
@@ -1078,14 +1092,15 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                       <DataTemplate x:DataType="vm:SubtitleTrackCard">
-                        <!-- The subtitle card's four corners (CurrentlyPlayingStyles.xaml:126-192): the flag of its
-                             language with the language's name beside it at the top left, the picture of whether the
-                             track lies inside the file at the top right, its format standing inside the skin's
-                             picture of a frame at the bottom left, and the word "Forced" for a track the file
-                             insists on at the bottom right - that word the reference wrote in English in the skin
-                             itself, the one corner of this card it never had a picture for.  As in the band above,
-                             the card is what the caret stands on, and as in the band above it wears the skin's
-                             shared shadow. -->
+                        <!-- What one subtitle card says, in the order the viewer asked to read it (2026-11-03).  Its
+                             facts are the reference's (CurrentlyPlayingStyles.xaml:126-192) - the flag of its
+                             language, the picture of whether the track lies inside the file, its format standing
+                             inside the skin's picture of a frame, and the word "Forced" for a track the file
+                             insists on, that word the reference wrote in English in the skin itself, the one corner
+                             of this card it never had a picture for.  Under the line of pictures the language reads
+                             its NAME ("German", not "de") and the word "Forced" stands under that, at the left.
+                             As in the band above, the card is what the caret stands on, and as in the band above it
+                             wears the skin's shared shadow. -->
                         <Border Classes="trackcard home-tile-shadow"
                                 Focusable="True"
                                 Width="300"
@@ -1093,7 +1108,9 @@
                                 Background="#26FFFFFF"
                                 Padding="16,10,16,12"
                                 Margin="0,0,8,0">
-                          <Grid RowDefinitions="*,*" ColumnDefinitions="*,Auto">
+                          <Grid RowDefinitions="Auto,Auto,*"
+                                ColumnDefinitions="Auto,*,Auto"
+                                VerticalAlignment="Center">
                             <Panel Grid.Row="0"
                                    Grid.Column="0"
                                    VerticalAlignment="Center">
@@ -1111,16 +1128,31 @@
                                      HorizontalAlignment="Left"
                                      IsVisible="{Binding ShowsUnknownFlag}"/>
                             </Panel>
-                            <TextBlock Grid.Row="0"
-                                       Grid.Column="0"
-                                       Text="{Binding Language}"
-                                       FontSize="26"
-                                       FontWeight="Bold"
-                                       HorizontalAlignment="Right"
-                                       VerticalAlignment="Center"
-                                       Foreground="{DynamicResource TextBrush}"/>
                             <Panel Grid.Row="0"
                                    Grid.Column="1"
+                                   Margin="16,0,0,0"
+                                   HorizontalAlignment="Left"
+                                   VerticalAlignment="Center"
+                                   IsVisible="{Binding ShowsFormat}">
+                              <TextBlock Text="{Binding Format}"
+                                         FontSize="19"
+                                         Opacity="0.85"
+                                         HorizontalAlignment="Center"
+                                         VerticalAlignment="Center"
+                                         Foreground="{DynamicResource TextBrush}"/>
+                              <!-- The word stands IN the frame, not beside it (CurrentlyPlayingStyles.xaml:177-182),
+                                   and in the middle of it: the reference pinned it to the frame's left edge, which
+                                   read as a word that had not quite got into its box. -->
+                              <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance},
+                                                      ConverterParameter='MediaLogos/subtitle/Frame'}"
+                                     Height="46"
+                                     Stretch="Uniform"
+                                     HorizontalAlignment="Left"
+                                     IsHitTestVisible="False"/>
+                            </Panel>
+                            <Panel Grid.Row="0"
+                                   Grid.Column="2"
+                                   HorizontalAlignment="Right"
                                    VerticalAlignment="Center">
                               <Image Source="{Binding CarriageToken,
                                                       Converter={x:Static views:SkinImageConverter.Instance},
@@ -1138,30 +1170,24 @@
                                                      ConverterParameter='MediaLogos/subtitle/{0}'}"
                                          Foreground="{DynamicResource TextBrush}"/>
                             </Panel>
-                            <Panel Grid.Row="1"
-                                   Grid.Column="0"
-                                   VerticalAlignment="Center"
-                                   IsVisible="{Binding ShowsFormat}">
-                              <TextBlock Text="{Binding Format}"
-                                         FontSize="19"
-                                         Opacity="0.85"
-                                         HorizontalAlignment="Left"
-                                         VerticalAlignment="Center"
-                                         Foreground="{DynamicResource TextBrush}"/>
-                              <!-- The word stands in the frame, not beside it (CurrentlyPlayingStyles.xaml:177-182). -->
-                              <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance},
-                                                      ConverterParameter='MediaLogos/subtitle/Frame'}"
-                                     Height="46"
-                                     Stretch="Uniform"
-                                     HorizontalAlignment="Left"
-                                     IsHitTestVisible="False"/>
-                            </Panel>
                             <TextBlock Grid.Row="1"
-                                       Grid.Column="1"
+                                       Grid.Column="0"
+                                       Grid.ColumnSpan="3"
+                                       Margin="0,8,0,0"
+                                       Text="{Binding Language}"
+                                       FontSize="22"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource TextBrush}"/>
+                            <TextBlock Grid.Row="2"
+                                       Grid.Column="0"
+                                       Grid.ColumnSpan="3"
+                                       Margin="0,2,0,0"
                                        Text="{Binding Forced}"
                                        FontSize="19"
                                        Opacity="0.85"
-                                       VerticalAlignment="Center"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Top"
                                        Foreground="{DynamicResource TextBrush}"/>
                           </Grid>
                         </Border>

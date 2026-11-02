@@ -147,6 +147,165 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
+    /// The language a track is in, in the words a viewer reads: "German" for "de", "English" for "eng", "French"
+    /// for "fra".
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The reference wrote the two-letter code on the card (<c>CurrentlyPlayingStyles.xaml:85-87</c>), which is the
+    /// one figure on these cards a viewer has to look up instead of reading.  The viewer asked for the language by
+    /// its name instead (2026-11-03), in English, which is the language this screen speaks.  The flag keeps its
+    /// picture - a flag is read faster than either word - but it stands over the name now rather than beside the
+    /// abbreviation.
+    /// </para>
+    /// <para>
+    /// What arrives here is whatever the container wrote, and containers are not of one mind about the alphabet: a
+    /// Matroska usually carries ISO 639-1 ("de"), an AVI, a DVD or a Blu-ray carries ISO 639-2/B ("ger", "deu"),
+    /// and the player's own track list is keyed by those same three letters
+    /// (<see cref="Settings.PlaybackSettings.TRACK_LANGUAGES"/>).  So three letters are turned into their two-letter
+    /// twin by the table below - the pairs the reference's own Blu-ray reader keeps
+    /// (<c>Metadata\BDROM\LanguageCodes.cs</c>) - and the name asked for is the one the framework gives that
+    /// language in English, which covers every language the skin has a flag for.
+    /// </para>
+    /// <para>
+    /// A code that neither the table nor the framework can name is written as it came, in capitals.  An unknown
+    /// language is better told by the code its own file carries than by nothing at all, and "QIC" is at least a
+    /// thing a viewer can search for.
+    /// </para>
+    /// </remarks>
+    public static string LanguageWord(string code)
+    {
+      string asked = (code ?? string.Empty).Trim();
+      if (asked.Length == 0)
+        return string.Empty;
+
+      string two = asked.Length == 2
+          ? asked
+          : asked.Length == 3 ? LanguageTwoLettersOf(asked) : string.Empty;
+      if (two.Length == 0)
+        return asked.ToUpperInvariant();
+
+      try
+      {
+        string name = CultureInfo.GetCultureInfo(two).EnglishName;
+        // Two shapes answer for a language the framework does not know: the code itself, and the sentence
+        // "Unknown Language (qic)" that the Windows catalog writes.  Neither of them belongs on a card, so both are
+        // taken as the refusal they are and the code the file wrote stands there instead.
+        if (name.Length == 0
+            || name.Equals(two, StringComparison.OrdinalIgnoreCase)
+            || name.StartsWith("Unknown", StringComparison.OrdinalIgnoreCase))
+          return asked.ToUpperInvariant();
+        return name;
+      }
+      catch (CultureNotFoundException)
+      {
+        return asked.ToUpperInvariant();
+      }
+    }
+
+    /// <summary>
+    /// The ISO 639-1 twin of a three-letter language code, or nothing when the language is not one of these.
+    /// </summary>
+    /// <remarks>
+    /// Both the bibliographic (639-2/B: "ger", "fre", "dut", "chi") and the terminological (639-2/T: "deu", "fra",
+    /// "nld", "zho") spellings are on the table, because which of the two a file carries depends on the tool that
+    /// wrote it and not on the language.  Languages whose three letters have no two-letter twin are left off: the
+    /// card then says the code, which is honest.
+    /// </remarks>
+    private static string LanguageTwoLettersOf(string three)
+    {
+      switch (three.ToLowerInvariant())
+      {
+        case "alb":
+        case "sqi": return "sq";
+        case "ara": return "ar";
+        case "hye":
+        case "arm": return "hy";
+        case "eus":
+        case "baq": return "eu";
+        case "bel": return "be";
+        case "bos": return "bs";
+        case "bul": return "bg";
+        case "cat": return "ca";
+        case "zho":
+        case "chi": return "zh";
+        case "ces":
+        case "cze": return "cs";
+        case "dan": return "da";
+        case "nld":
+        case "dut": return "nl";
+        case "eng": return "en";
+        case "est": return "et";
+        case "fra":
+        case "fre": return "fr";
+        case "fij": return "fj";
+        case "fin": return "fi";
+        case "glg":
+        case "gal": return "gl";
+        case "kat":
+        case "geo": return "ka";
+        case "deu":
+        case "ger": return "de";
+        case "ell":
+        case "gre": return "el";
+        case "heb": return "he";
+        case "hin": return "hi";
+        case "hrv": return "hr";
+        case "hun": return "hu";
+        case "isl":
+        case "ice": return "is";
+        case "ind": return "id";
+        case "gle":
+        case "ier": return "ga";
+        case "ita": return "it";
+        case "jav":
+        case "jaw": return "jv";
+        case "kor": return "ko";
+        case "kur": return "ku";
+        case "lav": return "lv";
+        case "ltz": return "lb";
+        case "lit": return "lt";
+        case "mkd":
+        case "mac": return "mk";
+        case "msa":
+        case "may": return "ms";
+        case "mol":
+        case "ron":
+        case "rum": return "ro";
+        case "mon": return "mn";
+        case "nep": return "ne";
+        case "nob": return "nb";
+        case "nno": return "nn";
+        case "nor": return "no";
+        case "fas":
+        case "per": return "fa";
+        case "pol": return "pl";
+        case "por": return "pt";
+        case "rus": return "ru";
+        case "srp":
+        case "scc": return "sr";
+        case "slk":
+        case "slo": return "sk";
+        case "slv": return "sl";
+        case "spa": return "es";
+        case "swe": return "sv";
+        case "tam": return "ta";
+        case "tel": return "te";
+        case "tha": return "th";
+        case "bod":
+        case "tib": return "bo";
+        case "tur": return "tr";
+        case "ukr": return "uk";
+        case "urd": return "ur";
+        case "vie": return "vi";
+        case "cym":
+        case "wel": return "cy";
+        case "zul": return "zu";
+        default: return string.Empty;
+      }
+    }
+
+    /// <summary>
     /// A bitrate in the unit the library keeps them in, which is a thousand bits a second
     /// (<c>VideoMetadataExtractor.cs:472</c>, "We store kbit/s"), as the reference wrote it: "{0} kbps".
     /// </summary>
@@ -192,11 +351,11 @@ namespace MediaPortal.Frontend.ViewModels
     /// the picture the reference drew instead.
     /// </summary>
     /// <remarks>
-    /// The four corners of the reference's audio card, in its order (<c>CurrentlyPlayingStyles.xaml:45-120</c>):
-    /// flag and language at the top left - the flag picked by the language, the language itself written in capitals
-    /// by the skin's own case converter - the channels at the top right as a loudspeaker picture of the plain
-    /// count, the codec at the bottom left as a logo, and the bitrate over the sample rate at the bottom right as
-    /// the two words they still are here.
+    /// The four facts are the reference's (<c>CurrentlyPlayingStyles.xaml:45-120</c>), the arrangement is the
+    /// viewer's (2026-11-03): the flag, the channels and the codec stand in one line at the top of the card, and the
+    /// language's NAME over its two rates under them.  The reference wrote the language as a two-letter
+    /// abbreviation beside its flag (<c>:85-87</c>); here it is read by name, which is the one fact on this card a
+    /// viewer looked up rather than read.
     /// </remarks>
     public static AudioTrackCard AudioCard(AudioStreamInfo audio)
     {
@@ -206,7 +365,7 @@ namespace MediaPortal.Frontend.ViewModels
       string language = audio.Language?.Trim() ?? string.Empty;
       string encoding = audio.Encoding?.Trim() ?? string.Empty;
       return new AudioTrackCard(
-          language.Length > 0 ? language.ToUpperInvariant() : string.Empty,
+          LanguageWord(language),
           Channels(audio.Channels),
           encoding,
           Joined(BitRate(audio.BitRate), SampleRate(audio.SampleRate)),
@@ -220,11 +379,12 @@ namespace MediaPortal.Frontend.ViewModels
     /// format, and whether the file forces it.
     /// </summary>
     /// <remarks>
-    /// Again the reference's four corners (<c>CurrentlyPlayingStyles.xaml:126-192</c>): flag and language, the
+    /// Again the reference's four facts (<c>CurrentlyPlayingStyles.xaml:126-192</c>): flag and language, the
     /// internal-or-external <b>picture</b>, the format in its picture of a frame, and the word "Forced" for a
-    /// track the file insists on - the one word of that card the reference did not have a picture for. The
-    /// language is written here as the file wrote it - the reference upper-cased the audio language and left the
-    /// subtitle language alone, and there is no reason to know better.
+    /// track the file insists on - the one word of that card the reference did not have a picture for.  The language
+    /// is read by its name here rather than as the file wrote it, which is the one place this card leaves the
+    /// reference behind on the viewer's word (2026-11-03): the reference upper-cased the audio language and left the
+    /// subtitle language alone, so one file said "DE" on one card and "de" on the other.
     /// </remarks>
     public static SubtitleTrackCard SubtitleCard(SubtitleStreamInfo subtitle)
     {
@@ -233,7 +393,7 @@ namespace MediaPortal.Frontend.ViewModels
 
       string language = subtitle.Language?.Trim() ?? string.Empty;
       return new SubtitleTrackCard(
-          language,
+          LanguageWord(language),
           subtitle.IsInternal ? "intern" : "extern",
           subtitle.Format?.Trim() ?? string.Empty,
           subtitle.IsForced ? "Forced" : string.Empty,
@@ -253,7 +413,7 @@ namespace MediaPortal.Frontend.ViewModels
   /// One audio track, in the four facts a card of it is built from - each of them as a word and as the name of the
   /// picture the reference drew for it.
   /// </summary>
-  /// <param name="Language">The language in capitals, empty when the file named none.</param>
+  /// <param name="Language">The language's name in English - "German", "English" - empty when the file named none.</param>
   /// <param name="Channels">"5.1" and the like, empty when the file counted none.</param>
   /// <param name="Encoding">The codec as the file wrote it.</param>
   /// <param name="Detail">Bitrate and sample rate in one line.</param>
@@ -287,7 +447,7 @@ namespace MediaPortal.Frontend.ViewModels
   /// <summary>
   /// One subtitle track, in the four facts a card of it is built from, again as words and as picture names.
   /// </summary>
-  /// <param name="Language">The language as the file wrote it.</param>
+  /// <param name="Language">The language's name in English, empty when the file named none.</param>
   /// <param name="Carriage">"intern" or "extern", for the case the skin carries no carriage picture.</param>
   /// <param name="Format">"SRT", "ASS" and the like, which the reference wrote inside a picture of a frame.</param>
   /// <param name="Forced">The word "Forced" for a track the file insists on, else empty.</param>

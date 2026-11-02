@@ -3386,7 +3386,8 @@ namespace Tests.Frontend
           + "three decimals it wrote the rate with are rounded away, since nobody chooses a television by 23.976");
       Assert.That(browser.DetailsAudioTracks, Has.Count.EqualTo(2),
           "every track the file carries is offered, not the first one only");
-      Assert.That(browser.DetailsAudioTracks[0].Language, Is.EqualTo("DE"));
+      Assert.That(browser.DetailsAudioTracks[0].Language, Is.EqualTo("German"),
+          "the card reads its language by name; the library wrote the two letters \"de\"");
       Assert.That(browser.DetailsAudioTracks[0].FlagToken, Is.EqualTo("de"),
           "the flag the reference stood beside that word, asked for by the language as the library wrote it");
       Assert.That(browser.DetailsAudioTracks[0].Channels, Is.EqualTo("5.1"));

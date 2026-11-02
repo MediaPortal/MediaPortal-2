@@ -302,8 +302,9 @@ namespace Tests.Frontend
     {
       AudioTrackCard card = MediaStreamWords.AudioCard(new AudioStreamInfo(1, "de", "AC3", 6, 640L, 48000L));
 
-      Assert.That(card.Language, Is.EqualTo("DE"),
-          "the reference wrote the audio language in capitals (CurrentlyPlayingStyles.xaml:85-87)");
+      Assert.That(card.Language, Is.EqualTo("German"),
+          "the language is read by its name, which the viewer asked for on 2026-11-03 in place of the two-letter "
+          + "code the reference wrote (CurrentlyPlayingStyles.xaml:85-87)");
       Assert.That(card.FlagToken, Is.EqualTo("de"), "the flag it stood beside that word");
       Assert.That(card.ShowsFlag, Is.True);
       Assert.That(card.ShowsUnknownFlag, Is.False);
@@ -347,8 +348,8 @@ namespace Tests.Frontend
       SubtitleTrackCard card =
           MediaStreamWords.SubtitleCard(new SubtitleStreamInfo(3, "de", null, "SRT", true, false, true));
 
-      Assert.That(card.Language, Is.EqualTo("de"),
-          "the reference upper-cased the audio language and left the subtitle language as the file wrote it");
+      Assert.That(card.Language, Is.EqualTo("German"),
+          "both cards of a file read their language by the same name, whichever way its file wrote it");
       Assert.That(card.FlagToken, Is.EqualTo("de"), "the flag it stood beside that word");
       Assert.That(card.Carriage, Is.EqualTo("intern"));
       Assert.That(card.CarriageToken, Is.EqualTo("Internal"),
@@ -375,6 +376,29 @@ namespace Tests.Frontend
       Assert.That(card.ShowsForced, Is.False);
       Assert.That(card.Format, Is.EqualTo("ASS"),
           "the format is on the card even when the codec of the text was never written");
+    }
+
+    /// <summary>
+    /// The words a card reads its language by.  What a container writes in that place is not one alphabet but
+    /// three - ISO 639-1 ("de"), ISO 639-2/B ("ger") and ISO 639-2/T ("deu") - and all three mean German, which is
+    /// the word the viewer asked to read (2026-11-03) in place of the two letters the reference printed
+    /// (<c>CurrentlyPlayingStyles.xaml:85-87</c>).  A code nobody can name stays the code it came as, in capitals:
+    /// "QIC" is at least a thing to search for, and nothing at all is left for a file that named no language.
+    /// </summary>
+    [Test]
+    public void ALanguageIsReadByItsNameAndAnUnknownOneByItsCode()
+    {
+      Assert.That(MediaStreamWords.LanguageWord("de"), Is.EqualTo("German"),
+          "the two letters a matroska usually writes");
+      Assert.That(MediaStreamWords.LanguageWord("deu"), Is.EqualTo("German"),
+          "ISO 639-2/T, which is what an importer that reads the nfo writes");
+      Assert.That(MediaStreamWords.LanguageWord("ger"), Is.EqualTo("German"),
+          "ISO 639-2/B, which is what a dvd and a blu-ray carry");
+      Assert.That(MediaStreamWords.LanguageWord(" EN "), Is.EqualTo("English"),
+          "asked case-blind and with the room around the letters cut off, because that is how files write them");
+      Assert.That(MediaStreamWords.LanguageWord("qic"), Is.EqualTo("QIC"),
+          "a language neither the table nor the framework can name is said by the code its own file carries");
+      Assert.That(MediaStreamWords.LanguageWord(string.Empty), Is.Empty, "no language, no word");
     }
   }
 }
