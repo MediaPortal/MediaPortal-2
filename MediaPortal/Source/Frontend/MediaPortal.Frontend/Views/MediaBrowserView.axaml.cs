@@ -459,6 +459,14 @@ namespace MediaPortal.Frontend.Views
               // which made every exit from this screen cost two presses of a key the viewer pressed once, and
               // the panel the first press "closed" is put back by the next visit anyway; the key that opens and
               // closes the panel is the details key, and the button that says so.
+              if (viewModel.InfoShown)
+              {
+                // The reading of a title is the newest thing on the screen and goes first, and the caret comes back
+                // with the wall - which the InfoShown handler below does, so nothing is asked of the list here.
+                viewModel.CloseInfo();
+                args.Handled = true;
+                return;
+              }
               if (viewModel.MediaMenuVisible)
               {
                 // Back puts the menu's current page away first, and the menu itself only when its commands page is
@@ -516,7 +524,7 @@ namespace MediaPortal.Frontend.Views
             }
             else if ((args.Key == Key.Enter || args.Key == Key.Return
                     || Settings.KeyBindings.Current.Is(Settings.KeyAction.PlayPause, args.Key))
-                && !viewModel.MenuVisible && !viewModel.MediaMenuVisible)
+                && !viewModel.MenuVisible && !viewModel.MediaMenuVisible && !viewModel.InfoShown)
             {
               // Enter is only "play the row" while nobody taller is wearing it: with the title's dialog or the
               // screen's menu open the key belongs to the row the focus rests on there, and a dialog whose own key
@@ -581,6 +589,21 @@ namespace MediaPortal.Frontend.Views
       {
         if (args.PropertyName == nameof(MediaBrowserViewModel.MenuVisible))
           FocusMenu(browser);
+      };
+
+      // The reading of one title takes the caret with it and brings it back with the wall. It has to: the shelf is
+      // off the screen while the reading stands, so a caret left behind on its list is standing on nothing, and
+      // the viewer who finished reading would find the arrows answering nobody.
+      browser.PropertyChanged += delegate (object? sender,
+          System.ComponentModel.PropertyChangedEventArgs args)
+      {
+        if (args.PropertyName != nameof(MediaBrowserViewModel.InfoShown))
+          return;
+
+        if (browser.InfoShown)
+          infoBackButton.Focus();
+        else
+          FocusShelf();
       };
 
       // The screen fills itself in the first time it appears; returning from the playback screen or from a list

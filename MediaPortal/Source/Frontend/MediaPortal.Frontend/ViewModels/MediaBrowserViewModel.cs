@@ -715,6 +715,20 @@ namespace MediaPortal.Frontend.ViewModels
     private bool _showDetails = true;
 
     /// <summary>
+    /// Whether the screen stands in its reading state: the wall of tiles put away and one title's facts left
+    /// standing on that title's own picture, which is what the reference's <i>Media information</i> screen is
+    /// (<c>MediaInfoAction.cs:69-90</c> pushing <c>MediaInfoVideo.xaml</c>). The reference had to push a screen
+    /// because its media list kept its wall up while its info screen did not; here the facts are the same column
+    /// the shelf already wears, so what the reading adds is the wall being gone.
+    /// </summary>
+    /// <remarks>
+    /// Not remembered anywhere: it is one title being read, not a choice about how the screen is worn, and the
+    /// next title the walk arrives at is standing on the wall again by itself.
+    /// </remarks>
+    [ObservableProperty]
+    private bool _infoShown;
+
+    /// <summary>
     /// What the last press inside the title's dialog answered, said in the dialog itself. A screen's status line
     /// is no place for it: on this screen that line only stands while the shelf is empty (<c>HasTitles</c> false),
     /// so every sentence written under a full wall - which is every sentence - is written where nobody is looking.
@@ -742,6 +756,58 @@ namespace MediaPortal.Frontend.ViewModels
     /// </summary>
     [ObservableProperty]
     private string _detailsEpisodeName = "";
+
+    /// <summary>
+    /// How far this viewer got in the title the panel is reading, said the way the reference said it: the number
+    /// in the middle of a ring of twenty sectors, one sector lit per five percent.
+    /// </summary>
+    /// <remarks>
+    /// The figure is the row's own, not the panel answer's, and that is the server's doing rather than an
+    /// oversight here: <c>MediaItemDetails</c> carries the count of how often a title was finished but never how
+    /// far the last attempt got, while every row of the list does carry it (<c>ServerApiDto.cs:139-181</c>). The
+    /// row is the title the viewer is standing on, so its number is the honest one.
+    /// </remarks>
+    [ObservableProperty]
+    private bool _detailsProgressShown;
+
+    /// <summary>The percent the ring's middle speaks, in the reference's own spelling: <c>42%</c>.</summary>
+    [ObservableProperty]
+    private string _detailsProgressWords = "";
+
+    /// <summary>
+    /// The ring the sweep turns in, which stands whether anything was watched or not - the ring has to say how
+    /// far is left as well as how far somebody got.
+    /// </summary>
+    public string DetailsDialTrack => PlayPercentageDial.Track();
+
+    /// <summary>
+    /// The watched part of the ring, turned as far as this viewer got. A title nobody started answers a bare
+    /// move, which paints nothing over the track; the track still stands, because an untouched title is an answer
+    /// the library gave and not a question that went unanswered - that second case draws no ring at all, see
+    /// <see cref="DetailsProgressShown"/>.
+    /// </summary>
+    [ObservableProperty]
+    private string _detailsDialArc = PlayPercentageDial.Arc(0);
+
+    /// <summary>
+    /// The title's own lettering without the studio's name in it, which is the picture the reference hung beside
+    /// its progress ring (<c>MediaInfoMovieDetails.inc:355-362</c>). Null when the library never filed one - the
+    /// frame is not drawn for a picture that is not there.
+    /// </summary>
+    [ObservableProperty]
+    private byte[]? _detailsClearArt;
+
+    /// <summary>
+    /// Whether the row the ring and the lettering stand in is worth the hundred and five lines it costs: either of
+    /// them has something to show. Asked as one answer because a screen cannot join two conditions by itself, and
+    /// because the two halves answer at different times - the figure is on the row already, the lettering arrives
+    /// with its picture.
+    /// </summary>
+    public bool ShowsProgressRow => DetailsProgressShown || DetailsClearArt != null;
+
+    partial void OnDetailsProgressShownChanged(bool value) => OnPropertyChanged(nameof(ShowsProgressRow));
+
+    partial void OnDetailsClearArtChanged(byte[]? value) => OnPropertyChanged(nameof(ShowsProgressRow));
 
     /// <summary>
     /// Where the file stands, in the words the server wrote down.
@@ -1219,6 +1285,16 @@ namespace MediaPortal.Frontend.ViewModels
     private bool _skinDefaultDetails;
 
     /// <summary>
+    /// The reading of one title went on or came to an end. The counters speak for a wall that is or is not on
+    /// screen, and the details column is stood up by the reading itself whatever layout the screen wears - the
+    /// reading is the one moment in which the facts are asked to be read rather than glanced at.
+    /// </summary>
+    partial void OnInfoShownChanged(bool value)
+    {
+      RaiseShelfCounters();
+    }
+
+    /// <summary>
     /// Sets the details column from a skin's or a layout's answer rather than from the viewer's. It is
     /// shown on the shelf and not remembered on the screen.
     /// </summary>
@@ -1339,6 +1415,9 @@ namespace MediaPortal.Frontend.ViewModels
     partial void OnSelectedChanged(TitleViewModel? value)
     {
       OnPropertyChanged(nameof(SelectedNumber));
+      // A reading is about one title; walking onto another one, or off the end of the shelf, is the reading
+      // ending by itself. The wall has to be back before the new row can be looked at.
+      InfoShown = false;
       // The menu names the row it was opened for and offers what that row can take, so it has to be told
       // when the walk moves onto a different title - the reference's edit menu always spoke about the
       // highlighted row, never about whatever was highlighted when the key was once pressed.
@@ -1783,7 +1862,7 @@ namespace MediaPortal.Frontend.ViewModels
     /// of <c>SimpleShowItems.xaml</c>: grid and list only, and only while the viewer asked for the panel. Covers
     /// answer the same question with <see cref="ShowsCoverDetails"/>.
     /// </summary>
-    public bool ShowsSideDetails => ShowDetails && Layout != BrowserLayout.Cover;
+    public bool ShowsSideDetails => (ShowDetails && Layout != BrowserLayout.Cover) || InfoShown;
 
     /// <summary>
     /// Whether the details lie centred above the covers, on the horizontal gradient the reference laid under
@@ -2176,6 +2255,17 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
+    /// Puts the wall of tiles back, which is what the back key answers while a reading is the newest thing on the
+    /// screen, and what the reading's own button does. The selection stays where it was: the viewer walked onto a
+    /// title, read it, and goes back onto that same title rather than to the head of the shelf.
+    /// </summary>
+    [RelayCommand]
+    public void CloseInfo()
+    {
+      InfoShown = false;
+    }
+
+    /// <summary>
     /// The lines the title's dialog shows: the answers this title has, worked out by the same table the home wall
     /// uses (<see cref="MediaTitleActions"/>), in the reference's order. The dialog used to carry one hard-built
     /// button per answer, which is the reason the second answer had to be added by hand and a third one would be
@@ -2197,14 +2287,13 @@ namespace MediaPortal.Frontend.ViewModels
       switch (action.Kind)
       {
         case MediaTitleActionKind.Information:
-          // The reference deferred its media information until the menu was left (MediaInfoAction.cs:53-62), which
-          // is what closing before reading does here. Where the panel already stands open and has this title
-          // written on it, pressing the line again asks the server once more rather than doing nothing.
+          // The reference pushed a screen of its own for this reading (MediaInfoAction.cs:69-90 →
+          // MediaInfoVideo.xaml): the title's picture filling the room, its facts beside it, and no wall of
+          // tiles standing between the viewer and the reading. This screen already carries those facts in the
+          // column beside the shelf, so the reading does not copy them - it takes the wall away, which is what
+          // makes the reference's screen a screen and not a second copy of the same words.
           MenuVisible = false;
-          if (!ShowDetails)
-            ShowDetails = true;
-          else
-            await ShowDetailsForSelectedAsync();
+          await ReadSelectedAsync();
           break;
 
         case MediaTitleActionKind.SetPlayed:
@@ -2883,6 +2972,33 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
+    /// Stands the reading of the selected title up: the wall goes away (the view obeys <see cref="InfoShown"/>)
+    /// and the title's facts are read for it, from the server if they were never read.
+    /// </summary>
+    /// <remarks>
+    /// The reading does not wait on the viewer's standing answer to the details question the way a walk over the
+    /// shelf does: somebody who pressed <i>Media information</i> asked to read this title whatever they usually
+    /// wear on this screen, and a reading that came back as an empty frame because the column is switched off
+    /// would be the reference's screen with nothing on it.
+    /// </remarks>
+    private async Task ReadSelectedAsync()
+    {
+      TitleViewModel? title = Selected;
+      InfoShown = true;
+      if (title == null || _client == null)
+        return;
+
+      if (_detailsFor == title.Title.Id)
+      {
+        DetailsVisible = true;
+        return;
+      }
+
+      _detailsAskFor = title.Title.Id;
+      await ReadDetailsAsync(title);
+    }
+
+    /// <summary>
     /// The selected title's details, asked of the server when the screen wears details and the selection
     /// lands. A read already made for this title is not made again - walking off a row and back to it costs
     /// nothing - and a failure leaves the panel as it was, because an empty panel about the wrong title is a
@@ -3043,8 +3159,10 @@ namespace MediaPortal.Frontend.ViewModels
             : "";
         FillDetailsStars(DetailsRating);
         FillDetailsFacts(details, title);
+        FillDetailsProgress(title);
         DetailsVisible = true;
         await ReadDetailsArtworkAsync(title);
+        await ReadDetailsClearArtAsync(title);
       }
       catch (ServerApiException ex)
       {
@@ -3255,6 +3373,91 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
+    /// Puts the reference's round progress figure on the panel: the sweep the library's figure turns, and the
+    /// number itself for the ring's middle.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The rule that decides how far the sweep turns is the library's per-profile figure, which every row of the
+    /// shelf already carries; a shelf read from a server that names nobody answers <c>null</c> there, and the
+    /// panel then draws no ring instead of a ring of nought — the difference between "nobody watched this" and
+    /// "nobody asked who watched this".
+    /// </para>
+    /// </remarks>
+    private void FillDetailsProgress(TitleViewModel title)
+    {
+      int? percentage = title.Title.Percentage;
+      DetailsDialArc = PlayPercentageDial.Arc(PlayPercentageDial.Sweep(percentage ?? 0));
+
+      DetailsProgressShown = percentage.HasValue;
+      DetailsProgressWords = percentage.HasValue
+          ? PlayPercentageDial.Words(percentage.Value)
+          : "";
+    }
+
+    /// <summary>
+    /// The lettering a title was released with, asked of the server under its own kind of picture.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A kind of picture of its own and not a second copy of the poster: <c>ClearArt</c> is the film's name drawn
+    /// as a logo, which is why the reference asked for it by that name and hung it beside the progress ring rather
+    /// than over the poster (<c>MediaInfoMovieDetails.inc:355-362</c>, <c>MediaInfoSeriesDetails.inc:297</c>).
+    /// </para>
+    /// <para>
+    /// Quiet when it fails, like the poster: most libraries hold no clear art for most titles, and a panel that
+    /// complained about every one of them would teach the viewer nothing except that the library is ordinary.
+    /// </para>
+    /// </remarks>
+    private async Task ReadDetailsClearArtAsync(TitleViewModel title)
+    {
+      DetailsClearArt = null;
+      Artwork? artwork = PanelArtworkFor("ClearArt");
+      if (artwork == null)
+        return;
+
+      try
+      {
+        byte[]? picture = await artwork.LoadAsync(title.Title.Id);
+        if (picture != null && !ArtworkConverter.Instance.Remembers(picture, null))
+        {
+          byte[] toRead = picture;
+          await Task.Run(() => ArtworkConverter.Instance.Warm(toRead, null));
+        }
+
+        if (_detailsFor == title.Title.Id)
+          DetailsClearArt = picture;
+      }
+      catch (ServerApiException)
+      {
+        // See above: a library without this picture is a library, not a failure.
+      }
+    }
+
+    private readonly Dictionary<string, Artwork?> _panelArtworks = new Dictionary<string, Artwork?>();
+
+    /// <summary>
+    /// The panel's own picture of one kind, made once per kind and kept. Separate from the tiles' pictures
+    /// (<see cref="TileArtworkFor"/>) because a panel asks for kinds no tile ever wears, and sharing one cache
+    /// between them would put a title's logo in a tile's bytes and a tile's banner in the logo's.
+    /// </summary>
+    private Artwork? PanelArtworkFor(string kind)
+    {
+      if (_panelArtworks.TryGetValue(kind, out Artwork? known))
+        return known;
+
+      Artwork? created = _client == null
+          ? null
+          : PicturesOf(_client, kind, id =>
+              {
+                (Guid asked, int? season) = AskOf(id);
+                return _client.GetFanArtAsync(asked, kind, season);
+              });
+      _panelArtworks.Add(kind, created);
+      return created;
+    }
+
+    /// <summary>
     /// The picture of the title the details panel is now about.
     /// </summary>    /// <remarks>
     /// <para>
@@ -3275,7 +3478,14 @@ namespace MediaPortal.Frontend.ViewModels
       // banner or a thumbnail hung in a portrait frame is cut to a slice.  A season has no poster blob of its own -
       // nothing ever wrote one for a shelf of episodes - so its ask travels with the season's number, which is what
       // the shelf's own poster picture already does.
-      Artwork? artwork = TileArtworkFor(GridViewType.Poster) ?? _artwork;
+      //
+      // One title is the exception, and the reference made it one: an episode wears its own thumbnail, asked under
+      // that kind (MediaInfoSeriesDetails.inc:23-42, FanArtType="Thumbnail" for the Episode media type), because
+      // nobody ever filed a poster for one episode of a series. An episode shelf already reads that kind for its
+      // tiles, so the panel's picture is usually the bytes the wall read a moment before.
+      Artwork? artwork = MediaCatalog.IsEpisode(title.ReadThrough)
+          ? TileArtworkFor(GridViewType.Thumbnail) ?? _artwork
+          : TileArtworkFor(GridViewType.Poster) ?? _artwork;
       if (artwork == null)
         return;
 

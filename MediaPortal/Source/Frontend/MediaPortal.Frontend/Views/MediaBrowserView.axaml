@@ -589,9 +589,29 @@
         -->
         <Grid Name="contentGrid" ColumnDefinitions="45,55" ColumnSpacing="0" ClipToBounds="False">
 
+          <!--
+            The way out of a reading. The reference's media information was a screen pushed over the list, so its
+            Back left the screen; here the reading is a state of this one screen, and with the wall away there is
+            nothing left on this side of the window to hold the caret. The caret comes to this button instead, and
+            Escape and the back key answer the reading the same way from the keyboard (MediaBrowserView's key
+            chain asks the reading before it asks the menus and the screen).
+          -->
+          <Panel Grid.Column="0" IsVisible="{Binding InfoShown}">
+            <Button Name="infoBackButton"
+                    Classes="nereus-primary"
+                    Content="Back"
+                    Command="{Binding CloseInfoCommand}"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Bottom"
+                    Margin="0,0,0,40"
+                    Focusable="True" />
+          </Panel>
+
           <!-- The shelf itself, with its heading, its search field, its foot and the two overlays the reference
-               laid over its bottom or its top edge. -->
-          <Panel Grid.Column="0" ClipToBounds="False">
+               laid over its bottom or its top edge. Put away while one title is being read, which is what the
+               reference's media information screen is: its workflow (MediaInfoAction.cs:69-90) pushed a screen of
+               its own over the list rather than drawing another copy of the facts beside the wall. -->
+          <Panel Grid.Column="0" ClipToBounds="False" IsVisible="{Binding !InfoShown}">
             <DockPanel>
               <!--
                 What the shelf has to say about itself.  The reference gave its media master a head band of a
@@ -804,7 +824,15 @@
                 The bottom margin is bigger than the visible window needs: the ground behind these words runs past
                 the window's lower edge (the reference's own negative margin), and words may not follow it there.
               -->
-              <Grid Margin="0,140,50,310">
+              <!--
+                The bottom of this grid used to sit three hundred and ten lines above the window's edge, which was
+                drawn when the panel's only children were the head, the facts and the story. The progress ring and
+                the title's lettering stand at the foot of the head now - where the reference stood them - and on a
+                living-room window of nine hundred and sixty lines that pushed the ring, and with it the last lines
+                of the story, past the bottom edge of the screen. Two hundred leaves the ground still running past
+                the edge (which is what it is for) and keeps the words and the ring inside the picture.
+              -->
+              <Grid Margin="0,140,50,200">
                 <Grid.RowDefinitions>
                   <!-- The head, which is said once: the name, its stars and the studio's sentence. -->
                   <RowDefinition Height="Auto"/>
@@ -952,6 +980,84 @@
                             Grid.Column="0"
                             Spacing="8"
                             Margin="0,40,0,0">
+                  <!--
+                    HOW FAR THIS VIEWER GOT, in the figure the reference drew in the middle of its detail panels:
+                    a ring round a centre, filled as far as the library counted progress for whoever asked, and
+                    the number itself standing in the middle
+                    (MediaInfoMovieDetails.inc:206-351, the sector styles in
+                    themes/default/styles/CircularIndicator.xaml:8-45).
+
+                    The reference stepped that ring in twenty marks, one for every five percent. This one sweeps in
+                    one piece instead, which is away from the reference and was asked for that way: at the sizes
+                    this panel works at, twenty marks read as a heap of bits where one band of the same diameter
+                    reads as what it is.  Everything that can be measured stayed the reference's - the box of a
+                    hundred and fifty points shrunk to seven tenths of itself, the band's outer edge on the edge of
+                    that box, the turning beginning at the top and going to the right, the number spelled
+                    "{0:F0}%".  Two things are not: the grain of the answer, since the reference counted fives and
+                    this counts every percent, and the colour, since the reference lit the watched part with the
+                    skin's accent (NereusColorLight, Colors.xaml:39) while this lights it with the skin's white -
+                    the colour everything else here that deserves attention is lit with.
+
+                    It stands at the foot of the head and above the story, in the words' own column, which is where
+                    the reference stood it: its head stack ran name, stars, year, kinds, length and then this ring
+                    (MediaInfoMovieDetails.inc:110-362), while the poster hung in the column beside it and the story
+                    took the row under both. The lettering goes to the row's right hand end because the reference
+                    stood it there too - its Image was aligned to the right of that row, a hundred and forty lines
+                    tall and asked of the server no wider than two hundred and forty (MediaInfoMovieDetails.inc:353-359),
+                    which are the two numbers the frame below repeats.
+
+                    Both shapes are arithmetic in PlayPercentageDial and arrive here as paths that name their own
+                    radius and their own endpoints, so nothing on this screen has to agree with anybody about where
+                    a turning point lies - the first dial asked exactly that question and its twenty marks landed
+                    in a heap at the top of the box with the number standing under them.  A Path drawn as a stroke
+                    needs no place of its own either, so both paths lie at the corner of the box and their
+                    coordinates do the work.
+
+                    The track the sweep turns in is NOT the reference's black at a fifth of its light: that black
+                    was laid over the reference's own bright fanart, and over this panel's darkened ground it
+                    vanished, which left a ring that could only say how far somebody had got and never how far they
+                    had left. A white at a third of its light reads on both grounds.
+                  -->
+                  <DockPanel LastChildFill="False"
+                             Margin="0,0,0,16"
+                             IsVisible="{Binding ShowsProgressRow}">
+                    <Panel Width="105" Height="105"
+                           DockPanel.Dock="Left"
+                           IsVisible="{Binding DetailsProgressShown}">
+                      <!-- The track first and the sweep over it, both on the same circle of the same box: the
+                           track is drawn whole, the sweep as far as this viewer got. An untouched title answers a
+                           path that paints nothing, so the track stands bare and the ring still says "nothing of
+                           this was seen" rather than showing no ring at all. -->
+                      <Path Data="{Binding DetailsDialTrack}"
+                            Stroke="#4DFFFFFF"
+                            StrokeThickness="{x:Static vm:PlayPercentageDial.BAND}"/>
+                      <Path Data="{Binding DetailsDialArc}"
+                            Stroke="{DynamicResource TextBrush}"
+                            StrokeThickness="{x:Static vm:PlayPercentageDial.BAND}"
+                            StrokeLineCap="Round"/>
+                      <TextBlock Text="{Binding DetailsProgressWords}"
+                                 FontSize="20"
+                                 FontWeight="SemiBold"
+                                 Foreground="{DynamicResource TextBrush}"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center"/>
+                    </Panel>
+                    <!--
+                      The title's own lettering, which is a picture of its own kind and not the poster written
+                      again: the reference asked for it under the name ClearArt and stood it beside the ring
+                      (MediaInfoMovieDetails.inc:355-362). Most libraries hold none, and the frame then costs
+                      nothing - the ring keeps its place at the column's left edge either way.
+                    -->
+                    <Image Source="{Binding DetailsClearArt, Converter={x:Static views:ArtworkConverter.Instance}}"
+                           DockPanel.Dock="Right"
+                           Height="140"
+                           MaxWidth="240"
+                           Margin="60,0,0,0"
+                           Stretch="Uniform"
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Center"
+                           IsVisible="{Binding DetailsClearArt, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                  </DockPanel>
                   <!-- The episode's name, in bold over its own story and out of the fact list: the story under
                        it is this episode's sentence, and a title over its sentence is what a viewer reads -
                        a number row cannot carry it without the story losing its head. Only episodes wear it;
