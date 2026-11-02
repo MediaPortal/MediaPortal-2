@@ -810,6 +810,79 @@ namespace MediaPortal.Frontend.ViewModels
     partial void OnDetailsClearArtChanged(byte[]? value) => OnPropertyChanged(nameof(ShowsProgressRow));
 
     /// <summary>
+    /// The row of pictures the file's picture is made of: whether it is stereoscopic, its codec, its size, its
+    /// proportion, and - as words, which is how the reference wrote those two - its bitrate with its frame rate.
+    /// </summary>
+    /// <remarks>
+    /// These are the cells the reference's information screen stood above its track lists
+    /// (<c>MediaInfoVideo.xaml:152-255</c>), and they are drawn from the same logo folders the old skin shipped,
+    /// which this front end now carries too (<c>Skins\Nereus\images\MediaLogos\</c>, asked for by
+    /// <see cref="MediaStreamLogos"/>). What the library never wrote leaves its cell away, so the row can
+    /// legitimately be empty - for a title whose importer never got inside the file it is the ordinary answer.
+    /// </remarks>
+    [ObservableProperty]
+    private PictureLine _detailsPicture = PictureLine.Empty;
+
+    /// <summary>
+    /// One card per audio track the file carries, in the order the tracks lie in the file.
+    /// </summary>
+    public ObservableCollection<AudioTrackCard> DetailsAudioTracks { get; } = new ObservableCollection<AudioTrackCard>();
+
+    /// <summary>
+    /// One card per subtitle track the file carries, same order.
+    /// </summary>
+    public ObservableCollection<SubtitleTrackCard> DetailsSubtitleTracks { get; } = new ObservableCollection<SubtitleTrackCard>();
+
+    /// <summary>Whether there is anything to say about the file's picture.</summary>
+    [ObservableProperty]
+    private bool _showsPictureLine;
+
+    /// <summary>
+    /// The channels of the file's <b>first</b> audio track, as the picture's name ("6" for a 5.1 arrangement) and
+    /// as the word a viewer reads ("5.1") - the two answers the first audio card carries at its top right corner.
+    /// </summary>
+    /// <remarks>
+    /// Asked for by the viewer on 2026-11-02 to stand beside the stars in the details, where a viewer decides
+    /// whether this is a surround file before reading a single track.  The first track and not the best one: the
+    /// card the picture is taken from is the first card of the list, and a plaque that quietly picked a different
+    /// track than the list's first would be a plaque a viewer cannot check.
+    /// </remarks>
+    [ObservableProperty]
+    private string _firstAudioChannelsToken = "";
+
+    /// <summary>The first audio track's channel count as the trade's word, for a count the skin has no picture of.</summary>
+    [ObservableProperty]
+    private string _firstAudioChannelsWord = "";
+
+    /// <summary>Whether the file's first audio track counted channels at all.</summary>
+    public bool ShowsFirstAudioChannels => FirstAudioChannelsToken.Length > 0 || FirstAudioChannelsWord.Length > 0;
+
+    partial void OnFirstAudioChannelsTokenChanged(string value) => OnPropertyChanged(nameof(ShowsFirstAudioChannels));
+
+    partial void OnFirstAudioChannelsWordChanged(string value) => OnPropertyChanged(nameof(ShowsFirstAudioChannels));
+
+    /// <summary>Whether the file carries audio tracks the library can name.</summary>
+    [ObservableProperty]
+    private bool _showsAudioTracks;
+
+    /// <summary>Whether the file carries subtitle tracks the library can name.</summary>
+    [ObservableProperty]
+    private bool _showsSubtitleTracks;
+
+    /// <summary>
+    /// Whether the whole tracks band costs its lines: any of its three parts has an answer. One answer because a
+    /// screen cannot join three conditions by itself, and because the header the band carries would otherwise
+    /// stand over nothing.
+    /// </summary>
+    public bool ShowsTracks => ShowsPictureLine || ShowsAudioTracks || ShowsSubtitleTracks;
+
+    partial void OnShowsPictureLineChanged(bool value) => OnPropertyChanged(nameof(ShowsTracks));
+
+    partial void OnShowsAudioTracksChanged(bool value) => OnPropertyChanged(nameof(ShowsTracks));
+
+    partial void OnShowsSubtitleTracksChanged(bool value) => OnPropertyChanged(nameof(ShowsTracks));
+
+    /// <summary>
     /// Where the file stands, in the words the server wrote down.
     /// </summary>
     /// <remarks>
@@ -3163,6 +3236,7 @@ namespace MediaPortal.Frontend.ViewModels
         DetailsVisible = true;
         await ReadDetailsArtworkAsync(title);
         await ReadDetailsClearArtAsync(title);
+        await ReadDetailsStreamsAsync(title);
       }
       catch (ServerApiException ex)
       {
@@ -3431,6 +3505,92 @@ namespace MediaPortal.Frontend.ViewModels
       catch (ServerApiException)
       {
         // See above: a library without this picture is a library, not a failure.
+      }
+    }
+
+    /// <summary>
+    /// The tracks the file carries, asked of the server and laid into the panel's three lists.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Asked separately from the details themselves, and after them, for the same reason the pictures are: the
+    /// story is what a viewer came for and arrives in one answer, while the tracks are a second question - and a
+    /// title whose importer never looked inside its file answers it with three empty lists, which is the ordinary
+    /// state of a library and not something to complain about on screen. The band is therefore stood up empty and
+    /// filled when the answer comes, and it costs its lines only once it has something in it.
+    /// </para>
+    /// <para>
+    /// The figures are the library's, written by the importer when the file was first read; nothing here is
+    /// measured from the file now, and the screen says nothing the importer did not write.
+    /// </para>
+    /// </remarks>
+    private async Task ReadDetailsStreamsAsync(TitleViewModel title)
+    {
+      DetailsAudioTracks.Clear();
+      DetailsSubtitleTracks.Clear();
+      DetailsPicture = PictureLine.Empty;
+      ShowsPictureLine = false;
+      ShowsAudioTracks = false;
+      ShowsSubtitleTracks = false;
+      FirstAudioChannelsToken = "";
+      FirstAudioChannelsWord = "";
+
+      if (_client == null)
+      {
+        FirstAudioChannelsToken = "";
+        FirstAudioChannelsWord = "";
+        return;
+      }
+
+      // A season the library only counts is read through its series and a number. There is no title behind that
+      // pair that could carry a file - a series is a shelf of seasons, not a file - so its tracks are not asked
+      // for: the question would be about a different title than the one the viewer stands on.
+      if (title.AskSeason.HasValue)
+      {
+        FirstAudioChannelsToken = "";
+        FirstAudioChannelsWord = "";
+        return;
+      }
+
+      Guid asked = title.Title.Id;
+      try
+      {
+        MediaStreamsAnswer streams = await _client.GetMediaStreamsAsync(title.AskId);
+        if (_detailsFor != asked)
+          return;
+
+        DetailsPicture = MediaStreamLogos.Picture(
+            streams.VideoStreams.Count > 0 ? streams.VideoStreams[0] : null);
+
+        foreach (AudioStreamInfo audio in streams.AudioStreams)
+        {
+          AudioTrackCard? card = MediaStreamWords.AudioCard(audio);
+          if (card != null)
+            DetailsAudioTracks.Add(card);
+        }
+
+        foreach (SubtitleStreamInfo subtitle in streams.SubtitleStreams)
+        {
+          SubtitleTrackCard? card = MediaStreamWords.SubtitleCard(subtitle);
+          if (card != null)
+            DetailsSubtitleTracks.Add(card);
+        }
+
+        ShowsPictureLine = DetailsPicture.ShowsAnything;
+        ShowsAudioTracks = DetailsAudioTracks.Count > 0;
+        ShowsSubtitleTracks = DetailsSubtitleTracks.Count > 0;
+        AudioTrackCard? first = DetailsAudioTracks.Count > 0 ? DetailsAudioTracks[0] : null;
+        FirstAudioChannelsToken = first?.ChannelsToken ?? "";
+        FirstAudioChannelsWord = first?.Channels ?? "";
+      }
+      catch (ServerApiException)
+      {
+        // An older server, or a title the library dropped between the two questions. Either way the panel keeps
+        // the story it already shows; the tracks band simply does not appear.
+      }
+      catch (Exception ex)
+      {
+        Status = "Reading the tracks failed: " + ex.Message;
       }
     }
 

@@ -1,4 +1,4 @@
-﻿<UserControl xmlns="https://github.com/avaloniaui"
+<UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
         xmlns:theming="using:MediaPortal.Frontend.Theming"
@@ -370,6 +370,34 @@
                     Window:not(.pointer-resting) ListBox.media-menu ListBoxItem:pointerover TextBlock.home-shortcut-caption">
       <Setter Property="Opacity" Value="1"/>
     </Style>
+    <!--
+      One plaque for every answer the details row wears as a picture, so that the row's boxes are one and the
+      same box: the subtitle glyph, the 3D logo, the codec, the size and the proportion's glyph all stand in a
+      plaque of the same height, and a figure the worn skin carries no picture of stands in the very same plaque
+      written in words.  A height is written here rather than padding, because padding lets every picture decide
+      the size of its own box - which is what made the row's boxes differ by a dozen lines.
+    -->
+    <Style Selector="Border.details-logo">
+      <Setter Property="Background" Value="#33FFFFFF"/>
+      <Setter Property="CornerRadius" Value="6"/>
+      <Setter Property="Height" Value="48"/>
+      <Setter Property="Padding" Value="16,0"/>
+      <Setter Property="HorizontalAlignment" Value="Center"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- The cards of the two track bands, and the ring one of them wears once the caret stands on it.  A track
+         card is looked at rather than chosen - nothing is ever "played" by standing on it - but the caret still
+         belongs on the card itself and not on the band around it: the question a viewer asks is " WHICH track",
+         and a ring around five cards answers nothing.  The ring is the white the viewer asked the focus to wear
+         everywhere (2026-11-02); the arrows walk from card to card and the band slides along by itself. -->
+    <Style Selector="Border.trackcard">
+      <Setter Property="BorderThickness" Value="3"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+    </Style>
+    <Style Selector="Border.trackcard:focus">
+      <Setter Property="BorderBrush" Value="#FFFFFFFF"/>
+    </Style>
   </UserControl.Styles>
   <!--
     The ground the whole screen stands on, in the one arrangement the worn skin uses everywhere and therefore
@@ -596,7 +624,445 @@
             Escape and the back key answer the reading the same way from the keyboard (MediaBrowserView's key
             chain asks the reading before it asks the menus and the screen).
           -->
-          <Panel Grid.Column="0" IsVisible="{Binding InfoShown}">
+          <Panel Grid.Column="0" ClipToBounds="False" IsVisible="{Binding InfoShown}">
+            <!--
+              WHAT THE FILE CARRIES, stood on this side of the window, which is where the reference stood it.  Its
+              information screen is a grid of two columns - the words in a thousand points at the right, and
+              everything else in the column that is left of them (MediaInfoVideo.xaml:85-89 for the two columns,
+              with the details field named Grid.Column="1" at :92).  Into that left column it put four bands under
+              one another, in this order and with these measures (MediaInfoVideo.xaml:296-459, the band grid at
+              :296): audio tracks, subtitle tracks, actors, director - each one a header of forty lines with a
+              twenty seven point picture and a word at half light (the audio header at :326-333, the subtitle
+              header at :364-371), and under the header a band of one hundred and seventy five lines carrying a
+              row of cards that runs sideways (the two list styles at
+              themes/default/styles/CurrentlyPlayingStyles.xaml:304-346, an horizontal stack of three hundred point
+              cards, :45-120 for the audio card and :126-192 for the subtitle one).
+
+              Two things are said here rather than left to be found.  The cards wear the reference's own pictures -
+              the flag of a language, the loudspeaker of a channel count, the logo of a codec, the frame a format
+              stands in - out of the same logo folders the old skin shipped, which this skin carries now too under
+              MediaLogos\ (MediaStreamLogos asks for them by name, the view spells the folder); only where the skin
+              carries no picture of a name does a corner write its figure in words.  And the caret stands on a card
+              rather than on the band around it - the question a viewer asks in front of a track is WHICH track, so
+              the arrows walk the cards and the band slides along with the caret, which is what a scroller does when
+              the thing it holds walks out of sight.  The cards wear the skin's shared Border.home-tile-shadow, and
+              the band gives that shadow the room it needs outside the card - which is what the band's two hundred
+              and fifteen lines and its padding of twenty four and thirty are for, and not for looks: the shadow the
+              shared class paints stands nineteen points right of a card, twenty below it, thirteen left of it and
+              twelve above it, while the band clips at its own bounds (a band that did not clip let a scrolled
+              card paint itself across the rest of the screen).  Measured the first version of this had the band at
+              one hundred and ninety five lines and the items panel clipping at the exact height of a card, which
+              cut the shadow off above and below and left the cards sitting flat on the page - a test measures it
+              now (TestMediaBrowser.TheShadowOfATrackCardIsNotCutByTheBandItStandsIn), because a cut shadow is
+              exactly what a headless picture cannot show.
+            -->
+            <StackPanel VerticalAlignment="Top"
+                        Margin="60,40,60,170"
+                        Spacing="18"
+                        IsVisible="{Binding ShowsTracks}">
+              <!--
+                VIDEO.  What the file's picture is answerable by, read here: whether it is stereoscopic, its codec,
+                its size, its high dynamic range, its proportion and its rate.  The viewer moved the row over here
+                on 2026-11-02, over the word that says what the band is about, so that the three bands under the
+                story read Video - Audiotrack - Subtitle.  Four of these answers are ALSO read behind the rating in
+                the details (the codec, the size, the HDR and the first track's channels): the viewer asked for
+                those four to be kept there, not carried over, and said so the same evening - a thing that is read
+                in two places is read in two places on purpose.  Whether the file carries text is read over there
+                only; it travelled back on the same evening and was not left behind here.
+
+                The plaques are the same grey plaques as ever (Border.details-logo, one height written once), and
+                they are still asked for by name out of the worn skin's logo folders (MediaStreamLogos); where the
+                skin carries no picture of a name the plaque writes its figure in words instead of drawing a hole.
+                What the reference could not do - name a codec its 2014 catalog never saw - is still done here.
+              -->
+              <StackPanel Spacing="6" IsVisible="{Binding ShowsPictureLine}">
+                <StackPanel Orientation="Horizontal" Spacing="12" Height="40">
+                  <TextBlock Text="Video"
+                             FontSize="21"
+                             Opacity="0.5"
+                             VerticalAlignment="Center"
+                             Foreground="{DynamicResource TextBrush}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal"
+                            Spacing="10"
+                            HorizontalAlignment="Left">
+                  <!-- A stereoscopic file wears its logo with the type's own word under it, and an ordinary file
+                       wears nothing (MediaInfoVideo.xaml:176-194, which drew these only for HSBS, SBS, HTAB, TAB). -->
+                  <Border Classes="details-logo"
+                          IsVisible="{Binding DetailsPicture.ShowsStereoscopic}">
+                    <StackPanel VerticalAlignment="Center"
+                                HorizontalAlignment="Center"
+                                Spacing="2">
+                      <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance},
+                                              ConverterParameter='MediaLogos/video/3d'}"
+                             Height="24"
+                             HorizontalAlignment="Center"
+                             Stretch="Uniform"/>
+                      <TextBlock Text="{Binding DetailsPicture.StereoscopicType}"
+                                 FontSize="12"
+                                 FontWeight="SemiBold"
+                                 HorizontalAlignment="Center"
+                                 Foreground="{DynamicResource TextBrush}"/>
+                    </StackPanel>
+                  </Border>
+
+                  <!-- Which codec the file's picture is packed in, out of the skin's own video folder and at the
+                       reference's own size (MediaInfoVideo.xaml:196-203).  Where its 2014 catalog has no picture of
+                       the name - "HEVC" was young then - the plaque writes the name instead of drawing a hole. -->
+                  <Border Classes="details-logo"
+                          IsVisible="{Binding DetailsPicture.ShowsCodec}">
+                    <Grid>
+                      <Image Source="{Binding DetailsPicture.CodecToken,
+                                              Converter={x:Static views:SkinImageConverter.Instance},
+                                              ConverterParameter='MediaLogos/video/{0}'}"
+                             Height="34"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center"
+                             Stretch="Uniform"/>
+                      <TextBlock Text="{Binding DetailsPicture.CodecWord}"
+                                 FontSize="17"
+                                 FontWeight="SemiBold"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center"
+                                 IsVisible="{Binding DetailsPicture.CodecToken,
+                                                     Converter={x:Static views:SkinImageMissingConverter.Instance},
+                                                     ConverterParameter='MediaLogos/video/{0}'}"
+                                 Foreground="{DynamicResource TextBrush}"/>
+                    </Grid>
+                  </Border>
+
+                  <!-- How big the picture is, at the reference's own bounds and out of its own folder
+                       (MediaInfoVideo.xaml:205-214), which named the file "1080p" and the word alike. -->
+                  <Border Classes="details-logo"
+                          IsVisible="{Binding DetailsPicture.ShowsResolution}">
+                    <Grid>
+                      <Image Source="{Binding DetailsPicture.Resolution,
+                                              Converter={x:Static views:SkinImageConverter.Instance},
+                                              ConverterParameter='MediaLogos/resolution/{0}'}"
+                             Height="34"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center"
+                             Stretch="Uniform"/>
+                      <TextBlock Text="{Binding DetailsPicture.Resolution}"
+                                 FontSize="17"
+                                 FontWeight="SemiBold"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center"
+                                 IsVisible="{Binding DetailsPicture.Resolution,
+                                                     Converter={x:Static views:SkinImageMissingConverter.Instance},
+                                                     ConverterParameter='MediaLogos/resolution/{0}'}"
+                                 Foreground="{DynamicResource TextBrush}"/>
+                    </Grid>
+                  </Border>
+
+                  <!-- Whether the picture was mastered in a high dynamic range format, and which one.  The
+                       reference never asked this question - it had no HDR answer to give - so this plaque is this
+                       front end's own, and it wears its word alone: the word says "HDR" twice over, so a glyph
+                       beside it would only repeat the answer.  An ordinary file leaves the plaque away entirely,
+                       which is the viewer's rule for it: no HDR, no container. -->
+                  <Border Classes="details-logo"
+                          IsVisible="{Binding DetailsPicture.ShowsHdr}">
+                    <TextBlock Text="{Binding DetailsPicture.HdrFormat}"
+                               FontSize="17"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center"
+                               Foreground="{DynamicResource TextBrush}"/>
+                  </Border>
+
+                  <!-- The proportion: the frame's own glyph and both sayings of it together on one line - the class
+                       and the measured figure, "21:9 Â· 2.39:1".  The reference wrote those two on opposite edges of
+                       its proportion picture (MediaInfoVideo.xaml:226-244); read beside a glyph they are one
+                       answer, which is what they always were. -->
+                  <Border Classes="details-logo"
+                          IsVisible="{Binding DetailsPicture.ShowsRatio}">
+                    <StackPanel Orientation="Horizontal"
+                                VerticalAlignment="Center"
+                                Spacing="10">
+                      <Grid Width="24"
+                            Height="24">
+                        <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                                ConverterParameter='MediaInfo/aspect_ratio'}"
+                              Fill="{DynamicResource TextBrush}"
+                              Stretch="Uniform"/>
+                      </Grid>
+                      <TextBlock Text="{Binding DetailsPicture.RatioText}"
+                                 FontSize="17"
+                                 FontWeight="SemiBold"
+                                 VerticalAlignment="Center"
+                                 Foreground="{DynamicResource TextBrush}"/>
+                    </StackPanel>
+                  </Border>
+
+                  <!-- The two figures the reference never had a picture for, said as one line about the file's rate
+                       - "3663 kbps Â· 24 fps" - with the frame glyph in front of them.  The reference stacked them in
+                       its own cell (MediaInfoVideo.xaml:246-255); read together they take one line.  Both figures
+                       still stand or fall on their own: a file whose bitrate never arrived says only its frame rate,
+                       and says it with the same dot left out. -->
+                  <Border Classes="details-logo"
+                          IsVisible="{Binding DetailsPicture.ShowsRate}">
+                    <StackPanel Orientation="Horizontal"
+                                VerticalAlignment="Center"
+                                Spacing="10">
+                      <Grid Width="22"
+                            Height="22">
+                        <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                                ConverterParameter='MediaInfo/frames'}"
+                              Fill="{DynamicResource TextBrush}"
+                              Stretch="Uniform"/>
+                      </Grid>
+                      <TextBlock Text="{Binding DetailsPicture.RateText}"
+                                 FontSize="17"
+                                 FontWeight="SemiBold"
+                                 VerticalAlignment="Center"
+                                 Foreground="{DynamicResource TextBrush}"/>
+                    </StackPanel>
+                  </Border>
+                </StackPanel>
+              </StackPanel>
+
+              <!-- AUDIOTRACK, SUBTITLE: the words the viewer asked these two headers to carry on 2026-11-02, in
+                   place of the glyph each of them wore.  They are the English words and not the skin's German
+                   strings - [Nereus.Info.AudioTracks] and [Nereus.Info.Subtitles] - because a word written into the
+                   skin is a word every language would have to translate by hand. -->
+              <StackPanel Spacing="6" IsVisible="{Binding ShowsAudioTracks}">
+                <StackPanel Orientation="Horizontal" Spacing="12" Height="40">
+                  <TextBlock Text="Audiotrack"
+                             FontSize="21"
+                             Opacity="0.5"
+                             VerticalAlignment="Center"
+                             Foreground="{DynamicResource TextBrush}"/>
+                </StackPanel>
+                <ScrollViewer Name="audioTracksScroller"
+                              Height="215"
+                              Padding="24,30"
+                              HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Disabled"
+                              ClipToBounds="True">
+                  <ItemsControl ItemsSource="{Binding DetailsAudioTracks}"
+                                VerticalAlignment="Center"
+                                ClipToBounds="False">
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                      </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="vm:AudioTrackCard">
+                        <!-- The four corners of one audio card, as the reference laid them in three hundred points
+                             of width: the flag of its language with the language's own name beside it at the top
+                             left, the channels as a loudspeaker picture of the plain count at the top right, the
+                             codec as a logo at the bottom left, and the bitrate over the sample rate at the bottom
+                             right (CurrentlyPlayingStyles.xaml:45-120). A corner whose picture the worn skin does
+                             not carry writes its figure in words instead.  The card itself takes the caret - the
+                             viewer looks AT a track, and the caret standing on it says which one is being looked
+                             at, exactly as it does on a tile of the wall.  The shadow is the skin's shared one, the
+                             same the wall's tiles, the news cards and the weather cards stand in - a card of this
+                             screen is no flatter than a tile of the wall. -->
+                        <Border Classes="trackcard home-tile-shadow"
+                                Focusable="True"
+                                Width="300"
+                                Height="155"
+                                Background="#26FFFFFF"
+                                Padding="16,10,16,12"
+                                Margin="0,0,8,0">
+                          <Grid RowDefinitions="*,*" ColumnDefinitions="*,Auto">
+                            <Panel Grid.Row="0"
+                                   Grid.Column="0"
+                                   VerticalAlignment="Center">
+                              <Image Source="{Binding FlagToken,
+                                                      Converter={x:Static views:SkinImageConverter.Instance},
+                                                      ConverterParameter='MediaLogos/flags/{0}'}"
+                                     Height="44"
+                                     Stretch="Uniform"
+                                     HorizontalAlignment="Left"
+                                     IsVisible="{Binding ShowsFlag}"/>
+                              <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance},
+                                                      ConverterParameter='MediaLogos/flags/Unknown'}"
+                                     Height="44"
+                                     Stretch="Uniform"
+                                     HorizontalAlignment="Left"
+                                     IsVisible="{Binding ShowsUnknownFlag}"/>
+                            </Panel>
+                            <TextBlock Grid.Row="0"
+                                       Grid.Column="0"
+                                       Text="{Binding Language}"
+                                       FontSize="26"
+                                       FontWeight="Bold"
+                                       HorizontalAlignment="Right"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource TextBrush}"/>
+                            <Panel Grid.Row="0"
+                                   Grid.Column="1"
+                                   VerticalAlignment="Center">
+                              <Image Source="{Binding ChannelsToken,
+                                                      Converter={x:Static views:SkinImageConverter.Instance},
+                                                      ConverterParameter='MediaLogos/audio/{0}'}"
+                                     Height="48"
+                                     Stretch="Uniform"
+                                     IsVisible="{Binding ShowsChannels}"/>
+                              <TextBlock Text="{Binding Channels}"
+                                         FontSize="23"
+                                         FontWeight="SemiBold"
+                                         VerticalAlignment="Center"
+                                         IsVisible="{Binding ChannelsToken,
+                                                     Converter={x:Static views:SkinImageMissingConverter.Instance},
+                                                     ConverterParameter='MediaLogos/audio/{0}'}"
+                                         Foreground="{DynamicResource TextBrush}"/>
+                            </Panel>
+                            <Panel Grid.Row="1"
+                                   Grid.Column="0"
+                                   VerticalAlignment="Center">
+                              <Image Source="{Binding CodecToken,
+                                                      Converter={x:Static views:SkinImageConverter.Instance},
+                                                      ConverterParameter='MediaLogos/audio/{0}'}"
+                                     Height="44"
+                                     Stretch="Uniform"
+                                     HorizontalAlignment="Left"
+                                     IsVisible="{Binding ShowsCodec}"/>
+                              <TextBlock Text="{Binding Encoding}"
+                                         FontSize="19"
+                                         Opacity="0.85"
+                                         HorizontalAlignment="Left"
+                                         VerticalAlignment="Center"
+                                         IsVisible="{Binding CodecToken,
+                                                     Converter={x:Static views:SkinImageMissingConverter.Instance},
+                                                     ConverterParameter='MediaLogos/audio/{0}'}"
+                                         Foreground="{DynamicResource TextBrush}"/>
+                            </Panel>
+                            <TextBlock Grid.Row="1"
+                                       Grid.Column="1"
+                                       Text="{Binding Detail}"
+                                       FontSize="19"
+                                       Opacity="0.85"
+                                       TextAlignment="Right"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource TextBrush}"/>
+                          </Grid>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </ScrollViewer>
+              </StackPanel>
+
+              <StackPanel Spacing="6" IsVisible="{Binding ShowsSubtitleTracks}">
+                <StackPanel Orientation="Horizontal" Spacing="12" Height="40">
+                  <TextBlock Text="Subtitle"
+                             FontSize="21"
+                             Opacity="0.5"
+                             VerticalAlignment="Center"
+                             Foreground="{DynamicResource TextBrush}"/>
+                </StackPanel>
+                <ScrollViewer Name="subtitleTracksScroller"
+                              Height="215"
+                              Padding="24,30"
+                              HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Disabled"
+                              ClipToBounds="True">
+                  <ItemsControl ItemsSource="{Binding DetailsSubtitleTracks}"
+                                VerticalAlignment="Center"
+                                ClipToBounds="False">
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                      </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="vm:SubtitleTrackCard">
+                        <!-- The subtitle card's four corners (CurrentlyPlayingStyles.xaml:126-192): the flag of its
+                             language with the language's name beside it at the top left, the picture of whether the
+                             track lies inside the file at the top right, its format standing inside the skin's
+                             picture of a frame at the bottom left, and the word "Forced" for a track the file
+                             insists on at the bottom right - that word the reference wrote in English in the skin
+                             itself, the one corner of this card it never had a picture for.  As in the band above,
+                             the card is what the caret stands on, and as in the band above it wears the skin's
+                             shared shadow. -->
+                        <Border Classes="trackcard home-tile-shadow"
+                                Focusable="True"
+                                Width="300"
+                                Height="155"
+                                Background="#26FFFFFF"
+                                Padding="16,10,16,12"
+                                Margin="0,0,8,0">
+                          <Grid RowDefinitions="*,*" ColumnDefinitions="*,Auto">
+                            <Panel Grid.Row="0"
+                                   Grid.Column="0"
+                                   VerticalAlignment="Center">
+                              <Image Source="{Binding FlagToken,
+                                                      Converter={x:Static views:SkinImageConverter.Instance},
+                                                      ConverterParameter='MediaLogos/flags/{0}'}"
+                                     Height="44"
+                                     Stretch="Uniform"
+                                     HorizontalAlignment="Left"
+                                     IsVisible="{Binding ShowsFlag}"/>
+                              <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance},
+                                                      ConverterParameter='MediaLogos/flags/Unknown'}"
+                                     Height="44"
+                                     Stretch="Uniform"
+                                     HorizontalAlignment="Left"
+                                     IsVisible="{Binding ShowsUnknownFlag}"/>
+                            </Panel>
+                            <TextBlock Grid.Row="0"
+                                       Grid.Column="0"
+                                       Text="{Binding Language}"
+                                       FontSize="26"
+                                       FontWeight="Bold"
+                                       HorizontalAlignment="Right"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource TextBrush}"/>
+                            <Panel Grid.Row="0"
+                                   Grid.Column="1"
+                                   VerticalAlignment="Center">
+                              <Image Source="{Binding CarriageToken,
+                                                      Converter={x:Static views:SkinImageConverter.Instance},
+                                                      ConverterParameter='MediaLogos/subtitle/{0}'}"
+                                     Height="42"
+                                     Stretch="Uniform"
+                                     HorizontalAlignment="Right"/>
+                              <TextBlock Text="{Binding Carriage}"
+                                         FontSize="21"
+                                         Opacity="0.85"
+                                         HorizontalAlignment="Right"
+                                         VerticalAlignment="Center"
+                                         IsVisible="{Binding CarriageToken,
+                                                     Converter={x:Static views:SkinImageMissingConverter.Instance},
+                                                     ConverterParameter='MediaLogos/subtitle/{0}'}"
+                                         Foreground="{DynamicResource TextBrush}"/>
+                            </Panel>
+                            <Panel Grid.Row="1"
+                                   Grid.Column="0"
+                                   VerticalAlignment="Center"
+                                   IsVisible="{Binding ShowsFormat}">
+                              <TextBlock Text="{Binding Format}"
+                                         FontSize="19"
+                                         Opacity="0.85"
+                                         HorizontalAlignment="Left"
+                                         VerticalAlignment="Center"
+                                         Foreground="{DynamicResource TextBrush}"/>
+                              <!-- The word stands in the frame, not beside it (CurrentlyPlayingStyles.xaml:177-182). -->
+                              <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance},
+                                                      ConverterParameter='MediaLogos/subtitle/Frame'}"
+                                     Height="46"
+                                     Stretch="Uniform"
+                                     HorizontalAlignment="Left"
+                                     IsHitTestVisible="False"/>
+                            </Panel>
+                            <TextBlock Grid.Row="1"
+                                       Grid.Column="1"
+                                       Text="{Binding Forced}"
+                                       FontSize="19"
+                                       Opacity="0.85"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource TextBrush}"/>
+                          </Grid>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </ScrollViewer>
+              </StackPanel>
+            </StackPanel>
+
             <Button Name="infoBackButton"
                     Classes="nereus-primary"
                     Content="Back"
@@ -834,6 +1300,12 @@
               -->
               <Grid Margin="0,140,50,200">
                 <Grid.RowDefinitions>
+                  <!-- The band the picture used to be described in.  The viewer moved those answers to the left
+                       hand side of the reading on 2026-11-02, under the word "Video"; four plaques were asked to
+                       stay here, and they now stand behind the stars (see the row below).  The row is not taken
+                       out of the grid because every row under it is named by its number, but it asks for nothing:
+                       nothing stands in it. -->
+                  <RowDefinition Height="Auto"/>
                   <!-- The head, which is said once: the name, its stars and the studio's sentence. -->
                   <RowDefinition Height="Auto"/>
                   <!-- The row the four pairs stand in, under the head and above the story. -->
@@ -854,7 +1326,7 @@
                   <ColumnDefinition Width="*"/>
                   <ColumnDefinition Width="400"/>
                 </Grid.ColumnDefinitions>
-                <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Spacing="12">
+                <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Spacing="12">
                 <!-- The title, and the reference's rule about it: as big as it needs to be, but on one line -
                      its own label style trimmed the title rather than letting three words take two bands off the
                      plot that every viewer actually reads. -->
@@ -874,36 +1346,201 @@
                      rating and the answers under it - twenty were asked for first, then ten more on the
                      viewer's word. Measured, not reckoned: the facts stood one hundred ninety-eight lines
                      down with four here, and ten lower with this. -->
-                <StackPanel Orientation="Horizontal"
-                            Spacing="12"
-                            Margin="0,0,0,14"
-                            IsVisible="{Binding DetailsRating, Converter={x:Static ObjectConverters.IsNotNull}}">
-                  <ItemsControl ItemsSource="{Binding DetailsStars}" VerticalAlignment="Center">
-                    <ItemsControl.ItemsPanel>
-                      <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal"/>
-                      </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                      <DataTemplate x:DataType="x:Double">
-                        <!-- The number IS the star's light: whole for a star the rating filled, a quarter of it
-                             for a star the rating never reached. Computed where the rating is computed, because a
-                             control cannot do arithmetic. -->
-                        <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance},
-                                                ConverterParameter=star}"
-                               Width="25"
-                               Height="25"
-                               Margin="0,0,4,0"
-                               Opacity="{Binding}"/>
-                      </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                  </ItemsControl>
-                  <TextBlock Text="{Binding DetailsRatingWords}"
-                             FontSize="22"
-                             Foreground="{DynamicResource TextBrush}"
-                             Opacity="0.85"
-                             VerticalAlignment="Center"/>
-                </StackPanel>
+                <!--
+                  The rating on the left, and the file's answers on the right of the same line.  The viewer set
+                  that on 2026-11-02: the rating stays where it has always stood - at the left edge, the first
+                  thing said on the line - while the plaques are pushed to the right edge of the panel, so that
+                  the two ends of the line are two ends and not one crowded crowd.
+
+                  Five answers stand here: the codec, the size, the high dynamic range the file was mastered in,
+                  the loudspeaker of the first audio track's channels (the picture the first audio card wears at
+                  its top right corner, which is the answer a viewer reaches for before reading a single track -
+                  "is this a surround file?"), and the framed "CC" that says whether the file carries text at all.
+                  That last one travelled over from the reader's side on the same evening, and it travelled - it
+                  was not copied: it is read here and nowhere else.  Every plaque wears its inner ground on
+                  itself (twenty points on each side) rather than taking it from the style, so that a logo of one
+                  width and a word of another stand in boxes measured the same way.
+
+                  The row outlives the rating: a library that recorded no number (none at all, or a nought) says
+                  nothing with stars - the reference's rule, through ReferenceToBoolConverter - but the file still
+                  has a codec, a size and its tracks, and those answers are not the rating's to withhold.  That is
+                  why the stars stand in a panel of their own inside this line rather than being the line itself,
+                  and why the line is a grid of "what the rating needs" and "all the room that is left": with no
+                  rating to its left the row still holds its plaques at the right edge.
+
+                  Fourteen here, twelve that the column itself puts between every pair of its children (the
+                  tagline stands here even when a title has none, and an invisible child still costs its
+                  twelve), and four the facts band carries above itself: thirty lines of ground between a
+                  rating and the answers under it - twenty were asked for first, then ten more on the
+                  viewer's word. Measured, not reckoned: the facts stood one hundred ninety-eight lines
+                  down with four here, and ten lower with this.
+                -->
+                <Grid ColumnDefinitions="Auto,*"
+                      Margin="0,0,0,14">
+                  <StackPanel Grid.Column="0"
+                              Orientation="Horizontal"
+                              Spacing="12"
+                              HorizontalAlignment="Left"
+                              VerticalAlignment="Center"
+                              IsVisible="{Binding DetailsRating, Converter={x:Static ObjectConverters.IsNotNull}}">
+                    <ItemsControl ItemsSource="{Binding DetailsStars}" VerticalAlignment="Center">
+                      <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                          <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                      </ItemsControl.ItemsPanel>
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="x:Double">
+                          <!-- The number IS the star's light: whole for a star the rating filled, a quarter of it
+                               for a star the rating never reached. Computed where the rating is computed, because a
+                               control cannot do arithmetic. -->
+                          <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance},
+                                                  ConverterParameter=star}"
+                                 Width="25"
+                                 Height="25"
+                                 Margin="0,0,4,0"
+                                 Opacity="{Binding}"/>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Text="{Binding DetailsRatingWords}"
+                               FontSize="22"
+                               Foreground="{DynamicResource TextBrush}"
+                               Opacity="0.85"
+                               VerticalAlignment="Center"/>
+                  </StackPanel>
+
+                  <!-- Every plaque of this row is the same grey plaque the reader's side uses
+                       (Border.details-logo, one height written once), and every one of them is a logo the worn skin
+                       carries or - where it carries no picture of that name - the figure in words.  Which is the
+                       one thing these rows do that the reference could not: a codec its 2014 catalog never saw
+                       ("HEVC", "MLP FBA") is named here rather than being silently missing. -->
+                  <StackPanel Grid.Column="1"
+                              Orientation="Horizontal"
+                              Spacing="10"
+                              Margin="28,0,0,0"
+                              HorizontalAlignment="Right"
+                              VerticalAlignment="Center"
+                              IsVisible="{Binding ShowsTracks}">
+                    <!-- Whether the file carries subtitle tracks at all, said with the glyph for it rather than with
+                         a word: the framed "CC" when the file has text, the same frame crossed out when it has none
+                         (MediaInfoVideo.xaml:157-174, "AspectCount < 1").  It stands at the head of this row because
+                         the reference asked that question first, and it stands here only: the reader's side lost its
+                         copy on 2026-11-02, since two answers of the same question on one screen is one answer too
+                         many.  Named because a test asks the screen whether the plaque was moved or copied. -->
+                    <Border Classes="details-logo"
+                            Name="subtitlesPlaque"
+                            Padding="20,0">
+                      <Grid Width="28"
+                            Height="28"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                        <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                                ConverterParameter='PlayerControl/subtitles'}"
+                              Fill="{DynamicResource TextBrush}"
+                              Stretch="Uniform"
+                              IsVisible="{Binding ShowsSubtitleTracks}"/>
+                        <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                                ConverterParameter='PlayerControl/subtitles_off'}"
+                              Fill="{DynamicResource TextBrush}"
+                              Stretch="Uniform"
+                              Opacity="0.6"
+                              IsVisible="{Binding !ShowsSubtitleTracks}"/>
+                      </Grid>
+                    </Border>
+
+                    <Border Classes="details-logo"
+                            Padding="20,0"
+                            IsVisible="{Binding DetailsPicture.ShowsCodec}">
+                      <Grid>
+                        <Image Source="{Binding DetailsPicture.CodecToken,
+                                                Converter={x:Static views:SkinImageConverter.Instance},
+                                                ConverterParameter='MediaLogos/video/{0}'}"
+                               Height="34"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Stretch="Uniform"/>
+                        <TextBlock Text="{Binding DetailsPicture.CodecWord}"
+                                   FontSize="17"
+                                   FontWeight="SemiBold"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   IsVisible="{Binding DetailsPicture.CodecToken,
+                                                       Converter={x:Static views:SkinImageMissingConverter.Instance},
+                                                       ConverterParameter='MediaLogos/video/{0}'}"
+                                   Foreground="{DynamicResource TextBrush}"/>
+                      </Grid>
+                    </Border>
+
+                    <!-- How big the picture is, at the reference's own bounds and out of its own folder
+                         (MediaInfoVideo.xaml:205-214), which named the file "1080p" and the word alike. -->
+                    <Border Classes="details-logo"
+                            Padding="20,0"
+                            IsVisible="{Binding DetailsPicture.ShowsResolution}">
+                      <Grid>
+                        <Image Source="{Binding DetailsPicture.Resolution,
+                                                Converter={x:Static views:SkinImageConverter.Instance},
+                                                ConverterParameter='MediaLogos/resolution/{0}'}"
+                               Height="34"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Stretch="Uniform"/>
+                        <TextBlock Text="{Binding DetailsPicture.Resolution}"
+                                   FontSize="17"
+                                   FontWeight="SemiBold"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   IsVisible="{Binding DetailsPicture.Resolution,
+                                                       Converter={x:Static views:SkinImageMissingConverter.Instance},
+                                                       ConverterParameter='MediaLogos/resolution/{0}'}"
+                                   Foreground="{DynamicResource TextBrush}"/>
+                      </Grid>
+                    </Border>
+
+                    <!-- Whether the picture was mastered in a high dynamic range format, and which one.  The
+                         reference never asked this question - it had no HDR answer to give - so this plaque is this
+                         front end's own, and it wears its word alone: the word says "HDR" twice over, so a glyph
+                         beside it would only repeat the answer.  An ordinary file leaves the plaque away entirely,
+                         which is the viewer's rule for it: no HDR, no container. -->
+                    <Border Classes="details-logo"
+                            Padding="20,0"
+                            IsVisible="{Binding DetailsPicture.ShowsHdr}">
+                      <TextBlock Text="{Binding DetailsPicture.HdrFormat}"
+                                 FontSize="17"
+                                 FontWeight="SemiBold"
+                                 VerticalAlignment="Center"
+                                 Foreground="{DynamicResource TextBrush}"/>
+                    </Border>
+
+                    <!-- The channels of the file's FIRST audio track, as the first audio card shows them at its
+                         top right corner: the loudspeaker picture of the plain count out of the skin's own folder
+                         (MediaLogos\audio\6.png for a 5.1 arrangement), and the trade's word for it where the skin
+                         carries no picture of that count.  Said here because it is the one question a viewer asks
+                         before reading any track list. -->
+                    <Border Classes="details-logo"
+                            Padding="20,0"
+                            IsVisible="{Binding ShowsFirstAudioChannels}">
+                      <Grid>
+                        <Image Source="{Binding FirstAudioChannelsToken,
+                                                Converter={x:Static views:SkinImageConverter.Instance},
+                                                ConverterParameter='MediaLogos/audio/{0}'}"
+                               Height="34"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Stretch="Uniform"/>
+                        <TextBlock Text="{Binding FirstAudioChannelsWord}"
+                                   FontSize="17"
+                                   FontWeight="SemiBold"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   IsVisible="{Binding FirstAudioChannelsToken,
+                                                       Converter={x:Static views:SkinImageMissingConverter.Instance},
+                                                       ConverterParameter='MediaLogos/audio/{0}'}"
+                                   Foreground="{DynamicResource TextBrush}"/>
+                      </Grid>
+                    </Border>
+                  </StackPanel>
+                </Grid>
                 <TextBlock Text="{Binding DetailsTagline}"
                            FontSize="30"
                            FontStyle="Italic"
@@ -921,7 +1558,7 @@
                   They used to be said twice, once as a sentence above the story and once here, and to wait at the
                   foot of the column below a band of nothing.
                 -->
-                <ItemsControl Grid.Row="1"
+                <ItemsControl Grid.Row="2"
                               Grid.ColumnSpan="2"
                               ItemsSource="{Binding DetailsFacts}"
                               ItemTemplate="{StaticResource MediaFactTemplate}"
@@ -948,7 +1585,7 @@
                   rounding (Border.home-tile-face, ten points) at twice the size, which is what the viewer asked for
                   and what a picture this large can carry.
                 -->
-                <Border Grid.Row="2"
+                <Border Grid.Row="3"
                         Grid.Column="1"
                         MaxWidth="380"
                         MaxHeight="500"
@@ -976,7 +1613,7 @@
                   the reference's Label carries no mask of any kind, so a story that ends two thirds down the
                   column ends in readable words rather than in a fade nobody asked for.
                 -->
-                <StackPanel Grid.Row="2"
+                <StackPanel Grid.Row="3"
                             Grid.Column="0"
                             Spacing="8"
                             Margin="0,40,0,0">

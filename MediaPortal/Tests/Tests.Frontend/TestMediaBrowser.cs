@@ -2850,9 +2850,10 @@ namespace Tests.Frontend
       private readonly HttpStatusCode _code;
       private readonly string _details;
       private readonly string _row;
+      private readonly string _tracks;
 
       internal DetailsServer(HttpStatusCode code, string details)
-          : this(code, details, null)
+          : this(code, details, null, null)
       {
       }
 
@@ -2861,19 +2862,40 @@ namespace Tests.Frontend
       /// some other kind - a season, whose row says something no film's row says - name their own.
       /// </param>
       internal DetailsServer(HttpStatusCode code, string details, string row)
+          : this(code, details, row, null)
+      {
+      }
+
+      /// <param name="tracks">
+      /// What the file of this title carries: the answer of the tracks question. A test that asks about the tracks
+      /// band names its own answer; the rest are served three empty lists, which is what a server that never
+      /// looked inside the file answers.
+      /// </param>
+      internal DetailsServer(HttpStatusCode code, string details, string row, string tracks)
       {
         _code = code;
         _details = details;
         _row = row ?? "{\"id\":\"" + TITANIC + "\",\"title\":\"Titanic\",\"year\":1997}";
+        _tracks = tracks ?? "{\"id\":\"" + TITANIC + "\",\"videos\":[],\"audios\":[],\"subtitles\":[]}";
       }
 
       internal int TimesAsked { get; private set; }
+
+      /// <summary>How often the tracks question came in, so a test can wait for the answer it triggers.</summary>
+      internal int TracksAsked { get; private set; }
 
       protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
           CancellationToken cancellation)
       {
         if (IsPictureRequest(request))
           return Task.FromResult(NoPicture(request));
+
+        // Asked right after the details, about the same title, and with an answer of its own.
+        if (request.RequestUri!.AbsolutePath.EndsWith("/streams"))
+        {
+          TracksAsked++;
+          return Task.FromResult(Answer(request, HttpStatusCode.OK, _tracks));
+        }
 
         if (request.RequestUri!.AbsolutePath.EndsWith("api/media/items/" + TITANIC))
         {
@@ -3279,6 +3301,626 @@ namespace Tests.Frontend
           + "name is not what this line is drawn from");
       Assert.That(shows.DetailsHeading, Does.Not.Contain("2025"),
           "the year stands in the facts once, and never in the heading");
+    }
+
+    /// <summary>
+    /// The tracks a file carries - its picture's facts, its audio tracks and its subtitle tracks - arrive under the
+    /// story once the server has answered, which is the reference's information screen: its row of logos and its
+    /// two lists of cards stood under the plot it showed (<c>MediaInfoVideo.xaml:144-380</c>).
+    /// </summary>
+    [AvaloniaTest]
+    public void TheTracksTheFileCarriesStandUnderTheStory()
+    {
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK,
+          "{\"id\":\"" + TITANIC + "\",\"title\":\"Alien\",\"year\":1979}",
+          null,
+          "{\"videos\":[{\"streamIndex\":0,\"videoType\":\"HD\",\"videoEncoding\":\"AVC\",\"width\":1920,"
+          + "\"height\":1080,\"aspectRatio\":1.7778,\"bitRate\":12500,\"fps\":23.976,\"durationSeconds\":7080}],"
+          + "\"audios\":[{\"streamIndex\":1,\"language\":\"de\",\"encoding\":\"AC3\",\"channels\":6,"
+          + "\"bitRate\":640,\"sampleRate\":48000},"
+          + "{\"streamIndex\":2,\"language\":\"en\",\"encoding\":\"DTS\",\"channels\":8,\"bitRate\":1509,"
+          + "\"sampleRate\":48000}],"
+          + "\"subtitles\":[{\"streamIndex\":3,\"language\":\"de\",\"format\":\"SRT\",\"isInternal\":true,"
+          + "\"isForced\":false}]}");
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.Selected = new TitleViewModel(
+          new MediaTitle(new Guid(TITANIC), "Alien", null, 1979, null, null, false));
+
+      WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
+      WaitUntil("the tracks to arrive", delegate { return browser.ShowsAudioTracks; });
+
+      Assert.That(browser.DetailsPicture.CodecToken, Is.EqualTo("AVC"),
+          "the row the reference drew as six logos, asked for by the names its own folders filed them under");
+      Assert.That(browser.DetailsPicture.Resolution, Is.EqualTo("1080p"));
+      Assert.That(browser.DetailsPicture.RatioClass, Is.EqualTo("16:9"));
+      Assert.That(browser.DetailsPicture.RatioFigure, Is.EqualTo("1.78:1"));
+      Assert.That(browser.DetailsPicture.RateText, Is.EqualTo("12500 kbps · 24 fps"),
+          "the last plaque says both figures on one line, with the frame glyph in front of them - and it says the "
+          + "frame rate as a whole number, though the file above was read as 23.976 frames a second");
+      Assert.That(browser.DetailsPicture.FrameRateText, Is.EqualTo("24 fps"),
+          "the reference stacked these two rather than writing them as one line, and so are they stacked here; the "
+          + "three decimals it wrote the rate with are rounded away, since nobody chooses a television by 23.976");
+      Assert.That(browser.DetailsAudioTracks, Has.Count.EqualTo(2),
+          "every track the file carries is offered, not the first one only");
+      Assert.That(browser.DetailsAudioTracks[0].Language, Is.EqualTo("DE"));
+      Assert.That(browser.DetailsAudioTracks[0].FlagToken, Is.EqualTo("de"),
+          "the flag the reference stood beside that word, asked for by the language as the library wrote it");
+      Assert.That(browser.DetailsAudioTracks[0].Channels, Is.EqualTo("5.1"));
+      Assert.That(browser.DetailsAudioTracks[0].ChannelsToken, Is.EqualTo("6"),
+          "the loudspeaker picture of six channels, filed by the count rather than by the trade's word");
+      Assert.That(browser.DetailsAudioTracks[1].Detail, Is.EqualTo("1509 kbps · 48000 Hz"),
+          "the library's figures arrive in the unit the importer wrote them in");
+      Assert.That(browser.DetailsSubtitleTracks[0].CarriageToken, Is.EqualTo("Internal"),
+          "the picture of a track lying inside the file");
+      Assert.That(browser.ShowsTracks, Is.True);
+    }
+
+    /// <summary>
+    /// The arrows walk OUT of a band of track cards.  A first version put the caret on a card and never let it go
+    /// again, which the viewer caught the same evening (2026-11-02); the reading of a title has exactly three
+    /// places for a caret - the two bands of cards and the button at its foot - and an arrow at the edge of a band
+    /// has to lead into the next of them, or the screen is a shelf with one tile on it.  Measured over a real
+    /// window, because a caret is a thing a window holds and no view model has one.
+    /// </summary>
+    [AvaloniaTest]
+    public async Task TheArrowsWalkOutOfABandOfTrackCardsIntoTheNextThingOnTheScreen()
+    {
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK,
+          "{\"id\":\"" + TITANIC + "\",\"title\":\"Alien\",\"year\":1979}",
+          null,
+          "{\"videos\":[{\"streamIndex\":0,\"videoType\":\"HD\",\"videoEncoding\":\"AVC\",\"width\":1920,"
+          + "\"height\":1080,\"aspectRatio\":1.7778,\"bitRate\":12500,\"fps\":24,\"durationSeconds\":7080}],"
+          + "\"audios\":[{\"streamIndex\":1,\"language\":\"de\",\"encoding\":\"AC3\",\"channels\":6,"
+          + "\"bitRate\":640,\"sampleRate\":48000},"
+          + "{\"streamIndex\":2,\"language\":\"en\",\"encoding\":\"DTS\",\"channels\":8,\"bitRate\":1509,"
+          + "\"sampleRate\":48000}],"
+          + "\"subtitles\":[{\"streamIndex\":3,\"language\":\"de\",\"format\":\"SRT\",\"isInternal\":true,"
+          + "\"isForced\":false},"
+          + "{\"streamIndex\":4,\"language\":\"en\",\"format\":\"SRT\",\"isInternal\":false,\"isForced\":true}]}");
+      MediaBrowserViewModel browser = BrowserOn(server);
+      TitleViewModel alien = new TitleViewModel(
+          new MediaTitle(new Guid(TITANIC), "Alien", null, 1979, null, null, false));
+      browser.Titles.Add(alien);
+      browser.Selected = alien;
+      WaitUntil("the tracks to arrive", delegate { return browser.ShowsAudioTracks; });
+
+      var workflow = new WorkflowManager();
+      ShellWindow window = new ShellWindow(workflow, delegate (WorkflowFrame frame)
+      {
+        return new MediaBrowserView((MediaBrowserViewModel) frame.ViewModel);
+      });
+      workflow.Push(new WorkflowFrame("titles", "Movies", browser));
+      window.Show();
+      Pump();
+
+      MediaTitleAction reading = MediaTitleActions.For(alien, true, true)
+          .First(action => action.Kind == MediaTitleActionKind.Information);
+      await ((CommunityToolkit.Mvvm.Input.IAsyncRelayCommand<MediaTitleAction>) browser.RunTitleActionCommand)
+          .ExecuteAsync(reading);
+      Pump();
+      Assert.That(browser.InfoShown, Is.True, "the reading stands up, which is where the two bands are");
+
+      List<Border> audio = TrackCardsOf(window, "audioTracksScroller");
+      List<Border> subtitles = TrackCardsOf(window, "subtitleTracksScroller");
+      Button back = window.GetVisualDescendants().OfType<Button>()
+          .First(button => button.Name == "infoBackButton");
+      Assert.That(audio, Has.Count.EqualTo(2),
+          "the band really did lay its cards out, or the walk below would be a walk over nothing");
+      Assert.That(subtitles, Has.Count.EqualTo(2));
+
+      // The walk a viewer makes with the arrows, one press at a time, from the first card of the first band down
+      // to the button at the foot of the reading and back up.
+      audio[0].Focus();
+      Pump();
+      Assert.That(audio[0].IsKeyboardFocusWithin, Is.True, "a card takes the caret");
+      Assert.That(audio[0].BoxShadow, Is.Not.Null,
+          "and a card stands in the skin's shared shadow - the same Border.home-tile-shadow the wall's tiles, the "
+          + "news cards and the weather cards stand in, so that a card of this screen is no flatter than a tile of "
+          + "the wall");
+
+      Press(audio[0], Key.Right);
+      Assert.That(audio[1].IsKeyboardFocusWithin, Is.True,
+          "along a band the arrows step one card at a time");
+
+      Press(audio[1], Key.Down);
+      Assert.That(subtitles[1].IsKeyboardFocusWithin, Is.True,
+          "down out of a band walks into the band beneath it, at the same place ALONG it: a viewer who came down "
+          + "at the second card comes back up at the second card, not at the band's first - this is the one press "
+          + "the viewer asked for and the first version refused");
+
+      Press(subtitles[1], Key.Up);
+      Assert.That(audio[1].IsKeyboardFocusWithin, Is.True,
+          "and up walks back the same way");
+
+      Press(audio[1], Key.Left);
+      Assert.That(audio[0].IsKeyboardFocusWithin, Is.True);
+
+      Press(audio[0], Key.Down);
+      Assert.That(subtitles[0].IsKeyboardFocusWithin, Is.True);
+
+      Press(subtitles[0], Key.Down);
+      Assert.That(back.IsFocused, Is.True,
+          "out of the last band the caret goes onto the button at the foot of the reading, so that no arrow ends "
+          + "at a card with nowhere left to go");
+
+      Press(back, Key.Up);
+      Assert.That(subtitles[1].IsKeyboardFocusWithin, Is.True,
+          "and the way back up out of the button is the last card of the last band: the reading is walked with the "
+          + "arrows alone, and nobody has to look for the mouse to leave a band they walked into");
+
+      Press(subtitles[1], Key.Enter);
+      Assert.That(browser.InfoShown, Is.True,
+          "Enter on a card is taken and answered with nothing: this screen hands Enter to \"play this\" wherever "
+          + "else it lands, and a film starting because a viewer looked at an audio track answers no question");
+      Assert.That(subtitles[1].IsKeyboardFocusWithin, Is.True,
+          "the caret stays on the card it was asked on");
+
+      window.Close();
+    }
+
+    /// <summary>
+    /// The track cards of one band of the reading, in the order they stand on the screen - which is the order a
+    /// viewer walks them.
+    /// </summary>
+    private static List<Border> TrackCardsOf(Window window, string band) =>
+        window.GetVisualDescendants().OfType<ScrollViewer>()
+            .First(scroller => scroller.Name == band)
+            .GetVisualDescendants().OfType<Border>()
+            .Where(card => card.Classes.Contains("trackcard"))
+            .ToList();
+
+    /// <summary>Presses one key on a control the way a viewer does, and lets the screen answer it.</summary>
+    private static void Press(Control control, Key key)
+    {
+      control.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = key,
+        Source = control
+      });
+      Pump();
+    }
+
+    /// <summary>
+    /// A card's shadow belongs to the card.  Every tile of this front end stands in the skin's shared
+    /// <c>Border.home-tile-shadow</c>, whose shadow lies three points to the right and four below the tile and
+    /// blurs sixteen points past that - which is to say it needs its room OUTSIDE the tile's own bounds, and
+    /// whatever clips at the tile's bounds cuts it off and leaves the card sitting flat.  Measured rather than
+    /// looked at, because the shadow is exactly what a headless render cannot show: this walks from a card up to
+    /// the window and asks every ancestor that clips anything whether the room the shadow needs is inside what it
+    /// leaves visible.  The first version of the bands failed this: the items panel clipped at the exact height of
+    /// a card and the scroller left the shadow's last twenty points twenty points of need.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheShadowOfATrackCardIsNotCutByTheBandItStandsIn()
+    {
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK,
+          "{\"id\":\"" + TITANIC + "\",\"title\":\"Dune\",\"year\":2021}",
+          null,
+          "{\"videos\":[{\"streamIndex\":0,\"videoType\":\"HD\",\"videoEncoding\":\"HEVC\",\"width\":1920,"
+          + "\"height\":1080,\"aspectRatio\":2.39,\"bitRate\":30000,\"fps\":24,\"durationSeconds\":7080}],"
+          + "\"audios\":[{\"streamIndex\":1,\"language\":\"de\",\"encoding\":\"AC3\",\"channels\":6,"
+          + "\"bitRate\":640,\"sampleRate\":48000},"
+          + "{\"streamIndex\":2,\"language\":\"en\",\"encoding\":\"DTS\",\"channels\":8,\"bitRate\":1509,"
+          + "\"sampleRate\":48000}],"
+          + "\"subtitles\":[{\"streamIndex\":3,\"language\":\"de\",\"format\":\"SRT\",\"isInternal\":true,"
+          + "\"isForced\":false}]}");
+      MediaBrowserViewModel browser = BrowserOn(server);
+      TitleViewModel title = new TitleViewModel(
+          new MediaTitle(new Guid(TITANIC), "Dune", null, 2021, null, null, false));
+      browser.Titles.Add(title);
+      browser.Selected = title;
+      WaitUntil("the tracks to arrive", delegate { return browser.ShowsAudioTracks; });
+
+      var workflow = new WorkflowManager();
+      ShellWindow window = new ShellWindow(workflow, delegate (WorkflowFrame frame)
+      {
+        return new MediaBrowserView((MediaBrowserViewModel) frame.ViewModel);
+      });
+      window.Width = 1920;
+      window.Height = 1080;
+      workflow.Push(new WorkflowFrame("titles", "Filme", browser));
+      window.Show();
+      Pump();
+
+      MediaTitleAction reading = MediaTitleActions.For(title, true, true)
+          .First(action => action.Kind == MediaTitleActionKind.Information);
+      ((CommunityToolkit.Mvvm.Input.IAsyncRelayCommand<MediaTitleAction>) browser.RunTitleActionCommand)
+          .ExecuteAsync(reading).Wait();
+      Pump();
+
+      // How far the skin's shared shadow reaches outside the card it is painted on: Border.home-tile-shadow
+      // carries "3 4 16 0", which is three points to the right and four below, blurred by sixteen - so the
+      // faintest trace of it stands 19 points right of the card, 20 below it, 13 left of it and 12 above it.
+      // Three points of slack on each side, because a shadow whose last faint line lands exactly on a cut is a
+      // shadow a viewer sees as cut.
+      const double airLeft = 16;
+      const double airRight = 22;
+      const double airTop = 15;
+      const double airBottom = 23;
+      List<string> cut = new List<string>();
+      foreach (Border card in window.GetVisualDescendants().OfType<Border>()
+          .Where(b => b.Classes.Contains("trackcard")))
+      {
+        Assert.That(card.BoxShadow, Is.Not.Null, "a track card wears the skin's shared shadow");
+        Point? at = card.TranslatePoint(new Point(0, 0), window);
+        Assert.That(at, Is.Not.Null, "a card on the screen knows where it stands");
+        Rect needs = new Rect(at.Value.X - airLeft, at.Value.Y - airTop,
+            card.Bounds.Width + airLeft + airRight, card.Bounds.Height + airTop + airBottom);
+
+        for (Visual? ancestor = card.GetVisualParent();
+            ancestor != null && ancestor != window;
+            ancestor = ancestor.GetVisualParent())
+        {
+          var control = ancestor as Control;
+          bool clips = control != null && (control.ClipToBounds || control.Clip != null);
+          if (!clips)
+            continue;
+
+          Point? here = ancestor.TranslatePoint(new Point(0, 0), window);
+          Assert.That(here, Is.Not.Null);
+          Rect leaves = new Rect(here.Value.X, here.Value.Y,
+              control.Bounds.Width, control.Bounds.Height);
+          if (!leaves.Contains(new Point(needs.Right, needs.Bottom))
+              || !leaves.Contains(new Point(needs.Left, needs.Top)))
+          {
+            cut.Add((string.IsNullOrEmpty(control.Name) ? "unnamed" : control.Name) + " ("
+                + control.GetType().Name + ") leaves "
+                + leaves.Width.ToString("F0") + "x" + leaves.Height.ToString("F0") + " at "
+                + leaves.X.ToString("F0") + "," + leaves.Y.ToString("F0")
+                + " while the card needs " + needs.Width.ToString("F0") + "x" + needs.Height.ToString("F0")
+                + " at " + needs.X.ToString("F0") + "," + needs.Y.ToString("F0"));
+          }
+        }
+      }
+
+      Assert.That(cut, Is.Empty,
+          "the shadow of a track card is cut off by " + string.Join(" | ", cut));
+
+      // And the room the shadow bought must not be bought from the screen: both bands, air included, still stand
+      // whole inside the window, and the button at the foot of the reading is not overlapped by the last of them.
+      ScrollViewer first = window.GetVisualDescendants().OfType<ScrollViewer>()
+          .First(s => s.Name == "audioTracksScroller");
+      ScrollViewer last = window.GetVisualDescendants().OfType<ScrollViewer>()
+          .First(s => s.Name == "subtitleTracksScroller");
+      Button back = window.GetVisualDescendants().OfType<Button>()
+          .First(b => b.Name == "infoBackButton");
+      Point? topOfFirst = first.TranslatePoint(new Point(0, 0), window);
+      Point? bottomOfLast = last.TranslatePoint(new Point(0, last.Bounds.Height), window);
+      Point? topOfBack = back.TranslatePoint(new Point(0, 0), window);
+      Assert.That(topOfFirst, Is.Not.Null);
+      Assert.That(bottomOfLast, Is.Not.Null);
+      Assert.That(topOfBack, Is.Not.Null);
+      Assert.That(topOfFirst!.Value.Y, Is.GreaterThanOrEqualTo(0),
+          "the first band stands whole on the screen");
+      Assert.That(bottomOfLast!.Value.Y, Is.LessThanOrEqualTo(window.Bounds.Height),
+          "the last band stands whole on the screen");
+      Assert.That(bottomOfLast.Value.Y, Is.LessThanOrEqualTo(topOfBack!.Value.Y),
+          "and the bands leave the button at the foot of the reading to itself - a band that grew into a button "
+          + "the viewer cannot see is a band that hides the way out");
+      window.Close();
+    }
+
+    /// <summary>
+    /// Where the answers about the file are read, measured on the laid out screen and not off a property list.
+    /// Asked for by the viewer on 2026-11-02: the picture is read on the reader's own side of the reading, under
+    /// the word "Video", while five answers - the codec, the size, the HDR, the first track's channels and whether
+    /// the file carries text at all - are read at the right end of the rating's line, the rating itself keeping
+    /// the line's left end.
+    /// </summary>
+    [AvaloniaTest]
+    public void ThePictureIsReadOnTheReadersSideAndFiveAnswersAreReadBehindTheRating()
+    {
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK,
+          "{\"id\":\"" + TITANIC + "\",\"title\":\"Dune\",\"year\":2021,\"rating\":0,\"totalRating\":7.3}",
+          null,
+          "{\"videos\":[{\"streamIndex\":0,\"videoType\":\"HD\",\"videoEncoding\":\"HEVC\",\"width\":1920,"
+          + "\"height\":1080,\"aspectRatio\":2.39,\"bitRate\":30000,\"fps\":23.976,\"durationSeconds\":7080}],"
+          + "\"audios\":[{\"streamIndex\":1,\"language\":\"de\",\"encoding\":\"AC3\",\"channels\":6,"
+          + "\"bitRate\":640,\"sampleRate\":48000}],"
+          + "\"subtitles\":[{\"streamIndex\":2,\"language\":\"de\",\"format\":\"SRT\",\"isInternal\":true,"
+          + "\"isForced\":false}]}");
+      MediaBrowserViewModel browser = BrowserOn(server);
+      TitleViewModel title = new TitleViewModel(
+          new MediaTitle(new Guid(TITANIC), "Dune", null, 2021, null, null, false));
+      browser.Titles.Add(title);
+      browser.Selected = title;
+      WaitUntil("the tracks to arrive", delegate { return browser.ShowsAudioTracks; });
+
+      var workflow = new WorkflowManager();
+      ShellWindow window = new ShellWindow(workflow, delegate (WorkflowFrame frame)
+      {
+        return new MediaBrowserView((MediaBrowserViewModel) frame.ViewModel);
+      });
+      window.Width = 1920;
+      window.Height = 1080;
+      workflow.Push(new WorkflowFrame("titles", "Filme", browser));
+      window.Show();
+      Pump();
+
+      MediaTitleAction reading = MediaTitleActions.For(title, true, true)
+          .First(action => action.Kind == MediaTitleActionKind.Information);
+      ((CommunityToolkit.Mvvm.Input.IAsyncRelayCommand<MediaTitleAction>) browser.RunTitleActionCommand)
+          .ExecuteAsync(reading).Wait();
+      Pump();
+
+      // Where a thing is drawn, which is the whole point of the move: a property that holds the figure says
+      // nothing about the place the viewer reads it from.  Measured against the window, which is the frame a
+      // viewer's eye has; an unattached visual answers no question about a place at all.
+      (double X, double Y, double Right, double Bottom) Frame(Visual visual)
+      {
+        Point top = visual.TranslatePoint(new Point(0, 0), window) ?? new Point(-1, -1);
+        return (top.X, top.Y, top.X + visual.Bounds.Width, top.Y + visual.Bounds.Height);
+      }
+
+      // The three headings are words, in the order the viewer gave them, and they stand on the reader's side.
+      // They are the one place of this screen where a localized word is written into the skin on purpose: the
+      // viewer asked for these three words on 2026-11-02, having first been shown headings made of glyphs.
+      (string Word, double X, double Y)[] headings = window.GetVisualDescendants()
+          .OfType<TextBlock>()
+          .Where(t => t.Text is "Video" or "Audiotrack" or "Subtitle")
+          .Select(t => (t.Text!, Frame(t).X, Frame(t).Y))
+          .OrderBy(h => h.Y)
+          .ToArray();
+      Assert.That(headings.Select(h => h.Word), Is.EqualTo(new[] { "Video", "Audiotrack", "Subtitle" }),
+          "the three headings stand in the order the viewer gave, got "
+          + string.Join(", ", headings.Select(h => "'" + h.Word + "' at " + h.Y.ToString("F0"))));
+      Assert.That(headings, Has.Length.EqualTo(3),
+          "three headings are written, and no fourth word crept in beside them");
+
+      // The rate of the picture - an answer that used to stand in the details - is read on that side too.  Sought
+      // by its figure and not by the whole line, because a file that knows its bitrate says that on the same line.
+      TextBlock rate = window.GetVisualDescendants().OfType<TextBlock>()
+          .Single(t => (t.Text ?? "").Contains("24 fps", StringComparison.Ordinal));
+      Assert.That(Frame(rate).X, Is.LessThan(window.Width / 2),
+          "the figure travelled out of the details column to the reader's side");
+
+      // All seven answers of the picture in one row of a narrower column is a row that can run over its edge, so
+      // the row is measured against the column it must stay inside of: the title of the reading names where the
+      // words' column begins, and no plaque of the reader's side may reach into it.
+      TextBlock name = window.GetVisualDescendants().OfType<TextBlock>()
+          .First(t => t.Text == "Dune");
+      foreach (Border plaque in window.GetVisualDescendants().OfType<Border>()
+                   .Where(b => b.Classes.Contains("details-logo") && Frame(b).X < Frame(name).X))
+      {
+        Assert.That(Frame(plaque).Right, Is.LessThanOrEqualTo(Frame(name).X),
+            "a plaque of the reader's side reaches into the column of words - the row of the picture's answers "
+            + "is wider than the side it stands on");
+      }
+
+      // And what is kept in the details is kept there IN ADDITION TO being read here - the viewer had to say so
+      // twice, because a first reading of the request moved the answers instead of copying them.  The codec is the
+      // one to measure with: it is read on the reader's side and behind the rating, and nowhere else.
+      TextBlock[] codecs = window.GetVisualDescendants().OfType<TextBlock>()
+          .Where(t => t.Text == "HEVC")
+          .ToArray();
+      Assert.That(codecs, Has.Length.EqualTo(2),
+          "the codec is read twice over, once under the word \"Video\" and once behind the rating, got "
+          + codecs.Length.ToString());
+
+      // And what stayed, stayed ON the row of the rating: behind it, with ground between, on the same line.  The
+      // row outlives a title without stars - which is why the rating stands in a panel of its own inside it -
+      // but where a rating is read, the plaques are read behind it.
+      TextBlock rating = window.GetVisualDescendants().OfType<TextBlock>().Single(t => t.Text == "(7.3)");
+      Border[] plaques = window.GetVisualDescendants().OfType<Border>()
+          .Where(b => b.Classes.Contains("details-logo"))
+          .ToArray();
+      Border first = plaques.FirstOrDefault(b => Frame(b).X > Frame(rating).Right)!;
+      Assert.That(first, Is.Not.Null,
+          "no plaque of the row stands right of the rating - the rating is at "
+          + Frame(rating).X.ToString("F0") + "," + Frame(rating).Y.ToString("F0")
+          + " and the plaques of the screen are at "
+          + string.Join(" | ", plaques.Select(p => Frame(p).X.ToString("F0") + "," + Frame(p).Y.ToString("F0"))));
+
+      (double X, double Y, double Right, double Bottom) words = Frame(rating);
+      (double X, double Y, double Right, double Bottom) kept = Frame(first);
+      Assert.That(kept.X, Is.GreaterThan(words.Right),
+          "the plaques stand behind the rating and not in front of it");
+      Assert.That(kept.X - words.Right, Is.GreaterThanOrEqualTo(8),
+          "a bit of ground lies between the rating and the plaques, as asked");
+      Assert.That(kept.Bottom > words.Y && kept.Y < words.Bottom, Is.True,
+          "the plaques are on the rating's own row, not under it");
+
+      // The plaques of that row wear their inner ground on themselves - twenty points on each side, written on
+      // every one of them - so that a logo of one width and a word of another stand in boxes that are measured
+      // the same way.  Asked for on 2026-11-02 for these four alone; the reader's own row keeps the style's padding.
+      foreach (Border plaque in window.GetVisualDescendants().OfType<Border>()
+                   .Where(b => b.Classes.Contains("details-logo") && Frame(b).X > Frame(rating).Right))
+      {
+        Assert.That(plaque.Padding, Is.EqualTo(new Thickness(20, 0)),
+            "the plaque of the rating's row carries its padding as its own, and not from the style");
+      }
+
+      // The two ends of the line: the plaques are pushed to the right edge of the line while the rating keeps the
+      // left edge it has always had (the viewer's word on 2026-11-02, and not a centre they crowd around).
+      StackPanel plaqueRow = (StackPanel) first.Parent!;
+      Visual line = (Visual) plaqueRow.Parent!;
+      Assert.That(Frame(plaqueRow).Right, Is.EqualTo(Frame(line).Right).Within(1),
+          "the plaques are read at the right edge of the line");
+      Visual ratingGroup = (Visual) rating.Parent!;
+      Assert.That(Frame(ratingGroup).X, Is.EqualTo(Frame(line).X).Within(1),
+          "and the rating keeps the left edge");
+
+      // The framed "CC" travelled from the reader's side to this row and was NOT left behind there, which is what
+      // the viewer insisted on: "richtig, hier nicht kopieren".  One plaque of that name on the whole screen.
+      Border[] subtitles = window.GetVisualDescendants().OfType<Border>()
+          .Where(b => b.Name == "subtitlesPlaque")
+          .ToArray();
+      Assert.That(subtitles, Has.Length.EqualTo(1),
+          "the subtitle plaque is moved, not copied - one on the screen, got " + subtitles.Length.ToString());
+      (double X, double Y, double Right, double Bottom) text = Frame(subtitles[0]);
+      Assert.That(text.Bottom > words.Y && text.Y < words.Bottom, Is.True,
+          "and it stands on the rating's own row, with the rest of the row's answers");
+      window.Close();
+    }
+
+    /// <summary>
+    /// A title whose server never looked inside its file says nothing about tracks, and the band under the story
+    /// costs no room at all - an empty frame there would only show the viewer that something is missing.
+    /// </summary>
+    [AvaloniaTest]
+    public void ATitleNobodyLookedInsideSaysNothingAboutItsTracks()
+    {
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK,
+          "{\"id\":\"" + TITANIC + "\",\"title\":\"Titanic\",\"year\":1997}");
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.Selected = new TitleViewModel(
+          new MediaTitle(new Guid(TITANIC), "Titanic", null, 1997, null, null, false));
+
+      WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
+      WaitUntil("the tracks to be asked and answered", delegate { return server.TracksAsked > 0; });
+
+      Assert.That(browser.DetailsPicture, Is.SameAs(PictureLine.Empty),
+          "nothing was ever measured, so the row above the story is not asked for at all");
+      Assert.That(browser.ShowsTracks, Is.False,
+          "three empty lists are the ordinary answer of a library and not a hole to draw a frame around");
+    }
+
+    /// <summary>
+    /// The subtitle answer of the tag band is the skin's own glyph, and both of its faces are on disk as shapes.
+    /// A file the reader cannot parse is worse than a missing one: the chip stands there and draws nothing, and a
+    /// picture line whose first cell is empty reads as a film without subtitles rather than as a picture the file
+    /// carries.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheSubtitleGlyphOfTheTagBandIsAShapeTheSkinCarries()
+    {
+      Application app = Application.Current!;
+      string previousFolder = SkinEngine.SkinsFolder;
+      string previousTheme = FrontendTheme.CurrentName(app);
+      SkinEngine.SkinsFolder = Path.Combine(MetadataPath("FrontendSource"), "Skins");
+      try
+      {
+        FrontendTheme.Apply(app, "nereus", out string? _);
+        Assert.That(SkinEngine.Apply(app, "nereus", out string? skinProblem), Is.True, skinProblem ?? "");
+        WornSkin? worn = SkinEngine.Worn(app);
+        Assert.That(worn, Is.Not.Null, "the shipped skin came off the disk and onto the application");
+
+        foreach (string face in new[] { "PlayerControl/subtitles", "PlayerControl/subtitles_off" })
+        {
+          Assert.That(worn!.Vectors.Has(face), Is.True,
+              "the tag band asks the skin for '" + face + "' and the skin carries no icon of that name");
+
+          Geometry? shape = worn.Vectors.Load(face);
+          Assert.That(shape, Is.Not.Null, "'" + face + "' is on disk and did not read as a shape");
+
+          Rect bounds = shape!.Bounds;
+          Assert.That(bounds.Width, Is.GreaterThan(0.0), face + " read as a shape with nothing in it");
+          Assert.That(bounds.Height, Is.GreaterThan(0.0), face + " read as a shape with nothing in it");
+          Assert.That(bounds.X, Is.GreaterThanOrEqualTo(-0.5), face + " stands left of the square");
+          Assert.That(bounds.Y, Is.GreaterThanOrEqualTo(-0.5), face + " stands above the square");
+          Assert.That(bounds.Right, Is.LessThanOrEqualTo(SvgGeometry.GLYPH_BOX + 0.5),
+              face + " reaches out of the square to the right");
+          Assert.That(bounds.Bottom, Is.LessThanOrEqualTo(SvgGeometry.GLYPH_BOX + 0.5),
+              face + " reaches out of the square downwards");
+        }
+      }
+      finally
+      {
+        SkinEngine.Clear(app);
+        SkinEngine.SkinsFolder = previousFolder;
+        FrontendTheme.Apply(app, previousTheme, out string? _);
+      }
+    }
+
+    /// <summary>
+    /// The row of pictures above the story and the corners of the track cards ask the skin for the names the old
+    /// skin filed its logos under, and for every figure this library actually holds the skin carries the picture -
+    /// except where the old catalog itself never had one, which is the case the cells answer in words instead of
+    /// drawing a hole.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheSkinCarriesTheLogoOfEveryFactTheLibraryWrites()
+    {
+      Application app = Application.Current!;
+      string previousFolder = SkinEngine.SkinsFolder;
+      string previousTheme = FrontendTheme.CurrentName(app);
+      SkinEngine.SkinsFolder = Path.Combine(MetadataPath("FrontendSource"), "Skins");
+      try
+      {
+        FrontendTheme.Apply(app, "nereus", out string? _);
+        Assert.That(SkinEngine.Apply(app, "nereus", out string? skinProblem), Is.True, skinProblem ?? "");
+        WornSkin? worn = SkinEngine.Worn(app);
+        Assert.That(worn, Is.Not.Null, "the shipped skin came off the disk and onto the application");
+
+        // The names are what MediaStreamLogos makes out of the figures this library holds: its languages ("de"
+        // written for audio, "DE" for subtitles, which is one and the same file to the catalog), its channel
+        // counts, the codecs the importer records since the fallback was added, the sizes the reference's own
+        // bounds name, and the three pictures the reference fixed in its skin.
+        foreach (string face in new[]
+        {
+            "MediaLogos/flags/de", "MediaLogos/flags/en", "MediaLogos/flags/es", "MediaLogos/flags/tr",
+            "MediaLogos/flags/Unknown",
+            "MediaLogos/audio/6", "MediaLogos/audio/2", "MediaLogos/audio/8", "MediaLogos/audio/DTS",
+            "MediaLogos/audio/AAC", "MediaLogos/audio/mp3", "MediaLogos/audio/flac",
+            "MediaLogos/video/AVC", "MediaLogos/video/HEVC", "MediaLogos/video/XviD", "MediaLogos/video/3d",
+            "MediaLogos/resolution/576", "MediaLogos/resolution/720p", "MediaLogos/resolution/1080p",
+            "MediaLogos/resolution/2160p",
+            "MediaLogos/subtitle/Internal", "MediaLogos/subtitle/External", "MediaLogos/subtitle/Frame"
+        })
+        {
+          Assert.That(worn!.Images.Has(face), Is.True,
+              "the details ask the skin for '" + face + "' and the skin carries no picture of that name");
+          Assert.That(worn.Images.Load(face), Is.Not.Null, face + " is on disk and did not read as a picture");
+        }
+
+        // The one honest hole, and the reason the two tables in MediaStreamLogos exist: the old catalog filed
+        // Dolby Digital under Dolby's name and the Japanese flag under the country's code, while the reference
+        // bound the library's own value ("AC-3", "ja") straight into the name - so it drew nothing for the most
+        // common audio codec in a German library and for every language its folder did not spell in ISO 639-1.
+        // A value no row speaks for still ends in a name the skin has no picture of, and the word fallback is
+        // what the card draws then; this sentence is that sentence.
+        Assert.That(worn.Images.Has("MediaLogos/audio/AC-3"), Is.False,
+            "if the skin ever carries this picture, the audio table's row for it is doing nothing and has to be "
+            + "told again");
+        Assert.That(worn.Images.Has("MediaLogos/flags/" + MediaStreamLogos.Flag("sq")), Is.False,
+            "a language no row speaks for asks the skin for a picture it has none of, which is what the word on "
+            + "the card is for");
+
+        // The proportion's glyph is not a picture but a shape, and the row asks for it by name the same way.
+        // Without it the cell stands with its figure and no frame, which is a hole in the row rather than a
+        // figure written in words: a glyph is the one answer no fallback can spell out.
+        Assert.That(worn.Vectors.Has("MediaInfo/aspect_ratio"), Is.True,
+            "the proportion's cell draws the frame glyph the viewer drew for it, which this skin ships as a "
+            + "vector under MediaInfo/aspect_ratio");
+        Assert.That(worn.Vectors.Load("MediaInfo/aspect_ratio"), Is.Not.Null,
+            "the file is on disk and did not read as a shape");
+        Assert.That(worn.Vectors.Has("MediaInfo/frames"), Is.True,
+            "the last plaque of the row leads its two figures with the frame glyph, which this skin ships as a "
+            + "vector under MediaInfo/frames");
+        Assert.That(worn.Vectors.Load("MediaInfo/frames"), Is.Not.Null,
+            "the file is on disk and did not read as a shape");
+        // The audio band is no longer headed by the track glyph - the viewer asked for the word on 2026-11-02 -
+        // but the picture stays in the skin: it is the viewer's own drawing, and a band that later wants a glyph
+        // should reach for that one rather than for a new file.
+
+        // What the library actually writes, run through the model and asked of the skin: this is the coverage
+        // that was measured by hand once, and it is the promise the cards make - a figure the importer records
+        // is drawn as a picture or written as a word, but does not stand there empty.
+        foreach (string language in new[]
+        {
+            "de", "en", "es", "fr", "hu", "it", "nl", "ru", "tr", "ja", "ZH", "da", "el", "cs", "ko", "uk", "he",
+            "hi", "nb", "te"
+        })
+        {
+          string flag = "MediaLogos/flags/" + MediaStreamLogos.Flag(language);
+          Assert.That(worn.Images.Has(flag), Is.True,
+              "the library writes the language '" + language + "' and the skin carries no picture for '" + flag + "'");
+        }
+
+        foreach (string codec in new[] { "DTS", "AC-3", "E-AC-3", "MLP FBA", "AAC", "MP3", "FLAC" })
+        {
+          string logo = "MediaLogos/audio/" + MediaStreamLogos.AudioCodec(codec);
+          Assert.That(worn.Images.Has(logo), Is.True,
+              "the library writes the codec '" + codec + "' and the skin carries no picture for '" + logo + "'");
+        }
+      }
+      finally
+      {
+        SkinEngine.Clear(app);
+        SkinEngine.SkinsFolder = previousFolder;
+        FrontendTheme.Apply(app, previousTheme, out string? _);
+      }
     }
 
     [AvaloniaTest]
@@ -4490,6 +5132,22 @@ namespace Tests.Frontend
       {
         if (IsPictureRequest(request))
           return Task.FromResult(NoPicture(request));
+
+        // The tracks the file carries are asked of the same title just after its details, but they are a second
+        // answer and not the details themselves. Served apart, so that this question does not write itself into
+        // ItemUrl - which stands for the one question a test is waiting for - and answered with three empty lists
+        // because the stand holds no file.
+        if (request.RequestUri.AbsoluteUri.EndsWith("/streams", StringComparison.OrdinalIgnoreCase))
+        {
+          return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+          {
+            RequestMessage = request,
+            Content = new StringContent("{\"id\":\"" + new Guid(1, 0, 4,
+                new byte[] { 128, 0, 0, 0, 0, 0, 0, 4 }).ToString("D")
+                + "\",\"videos\":[],\"audios\":[],\"subtitles\":[]}",
+                Encoding.UTF8, "application/json")
+          });
+        }
 
         // The details read the screen fires for the selected row arrives here too. It is answered - the
         // shelf's own list body parses well enough for the panel to stand - but it is not the shelf

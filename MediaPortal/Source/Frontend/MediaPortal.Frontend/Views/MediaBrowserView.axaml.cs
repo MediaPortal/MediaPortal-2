@@ -304,6 +304,57 @@ namespace MediaPortal.Frontend.Views
       menuDialog.RenderTransform = _menuDialogScale;
       RenderOptions.SetBitmapInterpolationMode(menuGround, BitmapInterpolationMode.HighQuality);
 
+      // The two bands of track cards under a title's picture hold more cards than fit the screen, and the caret
+      // stands on a CARD - the question a viewer asks is WHICH track, and a ring around five cards answers
+      // nothing.  A press lands on the card by itself (a focusable control takes the focus it is given), the
+      // arrows walk from card to card, and the band slides along with the caret because that is what a scroller
+      // does when the thing it holds walks out of sight.
+      // The wheel over a band belongs to the band, but only while the band holds the caret: a viewer whose
+      // pointer happens to lie over a band must still be able to scroll the reading of a title as a whole.
+      foreach (ScrollViewer band in new[] { audioTracksScroller, subtitleTracksScroller })
+      {
+        band.AddHandler(PointerWheelChangedEvent,
+            delegate (object? sender, PointerWheelEventArgs args)
+            {
+              if (Math.Abs(args.Delta.Y) < Math.Abs(args.Delta.X)
+                  || !band.IsKeyboardFocusWithin)
+                return;
+
+              double amount = band.Viewport.Width * 0.6;
+              band.Offset = new Vector(band.Offset.X - Math.Sign(args.Delta.Y) * amount, 0);
+              args.Handled = true;
+            }, RoutingStrategies.Tunnel);
+      }
+
+      // The button at the foot of the reading is the third place a caret can stand on this screen, and an arrow
+      // opens the way back up out of it: with that, the whole reading is walked with the arrows alone - down from
+      // the first track card to the button, up from the button back onto a card - and no viewer has to look for
+      // the mouse to leave a band they entered by a press.
+      infoBackButton.AddHandler(KeyDownEvent,
+          delegate (object? sender, KeyEventArgs args)
+          {
+            if (args.Key != Key.Up)
+              return;
+
+            ScrollViewer? last_band = subtitleTracksScroller.IsEffectivelyVisible ? subtitleTracksScroller
+                : audioTracksScroller.IsEffectivelyVisible ? audioTracksScroller
+                : null;
+            // Asking for a place beyond the end of a band is asking for its last card.
+            StandsOnTrackCard(last_band, int.MaxValue, args);
+          },
+          RoutingStrategies.Tunnel);
+
+      // The walking of the cards is asked on the way IN, before the scroller around them can spend an arrow on
+      // its own offset: the caret moves first, and the band follows it.  The keys are asked literally rather than
+      // through Settings.KeyBindings.Left/Right, because those carry the remote's navigation keys as well and a
+      // band that ate them would be a wall that cannot be walked any more.
+      AddHandler(KeyDownEvent,
+          delegate (object? sender, KeyEventArgs args)
+          {
+            if (WalksTrackCards(args))
+              args.Handled = true;
+          }, RoutingStrategies.Tunnel);
+
       // A press beside the dialog puts it away: the dialog answers the title it was opened for, and a viewer
       // who presses beside it has stopped asking.
       // The press is watched on the scrim the dialog stands in, and the point of it is read against the
@@ -2148,6 +2199,110 @@ namespace MediaPortal.Frontend.Views
     /// to itself; the same hunt is what the home screen does for its menu. Found once and kept - and asked for
     /// again should the screen ever be retemplated, which is what a skin being put on does.
     /// </remarks>
+    /// <summary>
+    /// Whether the caret stands on one of the track cards under a title's picture and the pressed key means
+    /// walking.  A card is looked at rather than chosen - nothing about it is ever started - so the arrows only
+    /// move the caret, and they move it over the three places this screen has for a caret at all: from card to
+    /// card along a band, from a band up or down into the band beside it, and out of the last band onto the
+    /// button at the foot of the reading.  A band that kept the caret to itself would be a band a viewer could
+    /// get into and never out of.  Enter is taken and answered with nothing (Return being the very same key to
+    /// Avalonia): this screen hands Enter to "play this" wherever else on it the key lands, and a film that
+    /// starts because a viewer wanted to look at an audio track is an answer to a question nobody asked.  At the
+    /// ends of a row, and above the first band, the key is left alone, so that whatever the screen means by it
+    /// there keeps its meaning.
+    /// </summary>
+    private bool WalksTrackCards(KeyEventArgs args)
+    {
+      ScrollViewer band =
+          audioTracksScroller.IsKeyboardFocusWithin ? audioTracksScroller
+          : subtitleTracksScroller.IsKeyboardFocusWithin ? subtitleTracksScroller
+          : null;
+      if (band == null)
+        return false;
+
+      // The cards are asked for by their class rather than by the item containers around them: an ItemsControl
+      // hands out a container per item and the card is what the template grew inside it, so the thing the viewer
+      // sees and presses is not the thing the list thinks it made.
+      List<Border> cards = TrackCards(band);
+      int at = cards.FindIndex(card => card.IsFocused);
+      if (at < 0)
+        return false;
+
+      switch (args.Key)
+      {
+        case Key.Left:
+          if (at == 0)
+            return false;
+          cards[at - 1].Focus();
+          break;
+        case Key.Right:
+          if (at == cards.Count - 1)
+            return false;
+          cards[at + 1].Focus();
+          break;
+        case Key.Home:
+          if (at == 0)
+            return false;
+          cards[0].Focus();
+          break;
+        case Key.End:
+          if (at == cards.Count - 1)
+            return false;
+          cards[cards.Count - 1].Focus();
+          break;
+        case Key.Up:
+          // Up out of the band of subtitles walks into the band of audio at the same place ALONG it: a viewer who
+          // came down at the third card expects to come back up at the third card, not at the band's first.
+          // Above the audio band this screen has nothing else for a caret to take - its wall is put away while
+          // the reading of a title is up - so the key is left unanswered rather than swallowed.
+          if (band != subtitleTracksScroller)
+            return false;
+          return StandsOnTrackCard(audioTracksScroller, at, args);
+        case Key.Down:
+          // Down goes the same way: into the band below at the same place along it, and out of the last band onto
+          // the button at the foot of the reading.
+          if (StandsOnTrackCard(band == audioTracksScroller ? subtitleTracksScroller : null, at, args))
+            break;
+          infoBackButton.Focus();
+          args.Handled = true;
+          break;
+        case Key.Enter:
+          break;
+        default:
+          return false;
+      }
+
+      return true;
+    }
+
+    /// <summary>
+    /// Standing the caret on the card at the given place of another band, as far along it as that band has
+    /// cards - asking for a place beyond its end is asking for its last card.  A band which is not on the screen
+    /// (a title whose file carries no subtitles has no subtitle band at all) answers false, and the caller keeps
+    /// the key's other answer.
+    /// </summary>
+    private static bool StandsOnTrackCard(ScrollViewer? band, int at, KeyEventArgs args)
+    {
+      if (band == null || !band.IsEffectivelyVisible)
+        return false;
+
+      List<Border> cards = TrackCards(band);
+      if (cards.Count == 0)
+        return false;
+
+      cards[Math.Min(at, cards.Count - 1)].Focus();
+      args.Handled = true;
+      return true;
+    }
+
+    /// <summary>
+    /// The track cards of one band, in the order they stand - which is the order a viewer walks them.
+    /// </summary>
+    private static List<Border> TrackCards(Visual band) =>
+        band.GetVisualDescendants().OfType<Border>()
+            .Where(card => card.Classes.Contains("trackcard"))
+            .ToList();
+
     /// <summary>
     /// Whether the highlighted title stands on the edge of the shelf beyond which the screen's own menu waits:
     /// the whole first column for a grid or a wall of tiles, any row at all for a list - whose rows are one
