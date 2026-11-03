@@ -95,12 +95,33 @@ namespace Tests.Frontend
       // window ceasefire in ShellWindow correctly refuses to fight it back, and the next test times out on
       // keys nobody receives. Every shell window enrolls itself in ShellWindow.StandingWindows; whatever
       // still stands when a test ends is swept here, before the servers go.
-      foreach (ShellWindow stray in ShellWindow.StandingWindows.ToArray())
+      //
+      // Only from the thread the windows belong to.  A plain [Test] - a view model asked a question, no screen
+      // stood up - is run off the UI thread, and asking a window whether it is visible from such a thread is
+      // answered with "the calling thread cannot access this object" rather than with the sweep.  That fault
+      // then lands on a test that never touched a window at all, over a window some OTHER test left standing,
+      // and the real failure is buried under it.  A thread that owns no window has none to sweep either; the
+      // hand-off below is for the ones it cannot reach, and it is the UI thread that closes them.
+      if (Dispatcher.UIThread.CheckAccess())
       {
-        if (stray.IsVisible)
-          stray.Close();
+        foreach (ShellWindow stray in ShellWindow.StandingWindows.ToArray())
+        {
+          if (stray.IsVisible)
+            stray.Close();
+        }
+        Pump();
       }
-      Pump();
+      else if (ShellWindow.StandingWindows.Count > 0)
+      {
+        Dispatcher.UIThread.Post(delegate
+        {
+          foreach (ShellWindow stray in ShellWindow.StandingWindows.ToArray())
+          {
+            if (stray.IsVisible)
+              stray.Close();
+          }
+        });
+      }
 
       foreach (IDisposable server in _servers)
       {
@@ -3482,12 +3503,24 @@ namespace Tests.Frontend
       Press(audio[0], Key.Down);
       Assert.That(subtitles[0].IsKeyboardFocusWithin, Is.True);
 
-      // The head of the first band is the head of the whole reading: an arrow pointing further left has no card to
-      // walk to, and the honest answer is the band leaning against that end (see BounceBand) while the caret stays
-      // on the card it was asked on - not a caret that walked off the screen.
+      // The head of the first band is the head of the whole reading, and the question about it is asked THERE: up
+      // out of the band below walks the caret back to it (the same walk three presses above, read at the head this
+      // time), and only then does an arrow pointing further left meet the end of the row.  Its honest answer is the
+      // band leaning against that end (see BounceBand) while the caret stays on the card it was asked on - not a
+      // caret that walked off the screen.  Standing elsewhere when that key is pressed proves nothing: the caret
+      // was told to stay where it stands, and it stood in the band below.
+      Press(subtitles[0], Key.Up);
+      Assert.That(audio[0].IsKeyboardFocusWithin, Is.True,
+          "up out of the band below comes back to the head of the first band, at the same place along it");
+
       Press(audio[0], Key.Left);
       Assert.That(audio[0].IsKeyboardFocusWithin, Is.True,
           "an arrow past the head of the first band leaves the caret where it stands and leans the band instead");
+
+      // Down to the last band again - the walk down was measured above and is only walked here to stand the caret
+      // where the last question is asked.
+      Press(audio[0], Key.Down);
+      Assert.That(subtitles[0].IsKeyboardFocusWithin, Is.True);
 
       // And below the last band the reading has nothing left for a caret to stand on - the button that used to wait
       // at its foot is gone, and a viewer leaves the reading the way they leave every other screen - so the arrow
