@@ -276,7 +276,12 @@ namespace MediaPortal.Frontend.Api
       // Appended last for the same reason: an episode or season with no prose of its own is lent its series'
       // sentence, and a details screen that would rather show the series' text than say "nothing was written"
       // reads this. Null when the title spoke for itself or no series had anything to lend.
-      [property: JsonPropertyName("seriesOverview")] string? SeriesOverview = null)
+      [property: JsonPropertyName("seriesOverview")] string? SeriesOverview = null,
+      // Appended last for the same reason: the id the library holds a film's collection under. A screen that only
+      // names the collection reads "collection", but a screen that shows it has to ask for pictures, and every
+      // picture of this library is reached over the id of the title it belongs to. Null for a film that names no
+      // collection, and for a collection the library does not hold as a title of its own.
+      [property: JsonPropertyName("collectionId")] string? CollectionId = null)
   {
     /// <summary>
     /// The longest single line of prose the title carries, or null when it carries none. What a details screen

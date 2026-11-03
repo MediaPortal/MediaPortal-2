@@ -414,9 +414,9 @@ namespace MediaPortal.Server.Api
       public Guid? Inside { get; set; }
 
       /// <summary>
-      /// The category the answer was narrowed to - <c>genre</c>, <c>year</c>, <c>actors</c>, <c>directors</c> or
-      /// <c>writers</c> - or null when it was not narrowed by one. Echoed because a genre list that came back empty
-      /// has to be able to say which genre it was asked for.
+      /// The category the answer was narrowed to - <c>genre</c>, <c>year</c>, <c>actors</c>, <c>directors</c>,
+      /// <c>writers</c> or <c>collection</c> - or null when it was not narrowed by one. Echoed because a genre list
+      /// that came back empty has to be able to say which genre it was asked for.
       /// </summary>
       public string By { get; set; }
 
@@ -466,9 +466,10 @@ namespace MediaPortal.Server.Api
     /// </param>
     /// <param name="by">
     /// One of the categories of <c>GET api/media/groups</c> - <c>genre</c>, <c>year</c>, <c>actors</c>,
-    /// <c>directors</c>, <c>writers</c> - to keep only the titles carrying <paramref name="value"/> under it.
-    /// Together with the value it answers the second half of browsing: the groups say which genres there are,
-    /// this says which films are in one of them.
+    /// <c>directors</c>, <c>writers</c>, <c>collection</c> - to keep only the titles carrying
+    /// <paramref name="value"/> under it.  Together with the value it answers the second half of browsing: the
+    /// groups say which genres there are, this says which films are in one of them.  <c>by=collection</c> is how a
+    /// screen asks which films a collection holds.
     /// </param>
     /// <param name="value">
     /// The value to match: a genre, an actor's name as the importer wrote it, or - under <c>by=year</c> - a year,
@@ -842,7 +843,8 @@ namespace MediaPortal.Server.Api
             return BadRequest(new TitlesResult
             {
               By = category,
-              Error = "this endpoint can pick titles out by genre, year, actors, directors and writers; '" +
+              Error = "this endpoint can pick titles out by genre, year, actors, directors, writers and "
+                  + "collections; '" +
                   category + "' is not one of them - see GET api/media/groups"
             });
           askedBy = known;
@@ -1083,8 +1085,8 @@ namespace MediaPortal.Server.Api
     /// not counted, so <c>aspect=MovieItem</c> counts genres as films have them and leaves the albums' out.
     /// </param>
     /// <param name="by">
-    /// <c>genre</c>, <c>year</c>, <c>actors</c>, <c>directors</c> or <c>writers</c> - the categories MP2's own
-    /// browse tree was built from. An unknown word is refused rather than guessed at: a browse screen that
+    /// <c>genre</c>, <c>year</c>, <c>actors</c>, <c>directors</c>, <c>writers</c> or <c>collection</c> - the
+    /// categories a shelf is grouped by. An unknown word is refused rather than guessed at: a browse screen that
     /// silently counted the wrong thing would sort the library into categories nobody asked for, and the list of
     /// what does work is in the refusal.
     /// </param>
@@ -1122,7 +1124,7 @@ namespace MediaPortal.Server.Api
         return BadRequest(new GroupsResult
         {
           By = by,
-          Error = "the library can be counted by genre, year, actors, directors and writers; '" + by +
+          Error = "the library can be counted by genre, year, actors, directors, writers and collections; '" + by +
               "' is not one of them"
         });
 
@@ -1221,7 +1223,8 @@ namespace MediaPortal.Server.Api
     }
 
     /// <summary>
-    /// The five categories MP2's own browse tree was built from, in the order a browse screen lists them.
+    /// The six categories a screen can group a shelf by: the five MP2's own browse tree was built from, in the
+    /// order a browse screen lists them, and the collection a film names.
     /// </summary>
     /// <remarks>
     /// These are the attributes the importer writes <i>on the title itself</i> - genre rows on the
@@ -1230,6 +1233,16 @@ namespace MediaPortal.Server.Api
     /// genre <i>items</i> would need. The year is not a stored column anywhere; it is taken from the recording
     /// time in the database itself, which is why it carries a projection and why the titles of one year are
     /// later asked for as a span of dates rather than an equality.
+    /// <para>
+    /// A collection is the sixth word and the one nobody browsed before: it is asked by the reading screen, which
+    /// shows the films of the collection the title it reads belongs to. Like the four above it is a name written on
+    /// the title - the <c>MovieAspect</c>'s collection name, the very text <see cref="ItemResult.Collection"/> is
+    /// answered from - so asking which films carry a collection's name is one query and no relationship walk. That
+    /// is also the honest way round in a library whose films were imported with their collection named but never
+    /// linked: counted over a library of 1136 films, all 228 films naming a collection name one the library also
+    /// holds as a title, while the film-to-collection relationship rows those two would be joined by number zero.
+    /// A shelf that is not films simply answers nothing, exactly as <c>by=actors</c> does for a shelf of music.
+    /// </para>
     /// </remarks>
     private static readonly Category[] CATEGORIES =
     {
@@ -1237,7 +1250,8 @@ namespace MediaPortal.Server.Api
         new Category("year", MediaAspect.ATTR_RECORDINGTIME, ProjectionFunction.DateToYear),
         new Category("actors", VideoAspect.ATTR_ACTORS, ProjectionFunction.None),
         new Category("directors", VideoAspect.ATTR_DIRECTORS, ProjectionFunction.None),
-        new Category("writers", VideoAspect.ATTR_WRITERS, ProjectionFunction.None)
+        new Category("writers", VideoAspect.ATTR_WRITERS, ProjectionFunction.None),
+        new Category("collection", MovieAspect.ATTR_COLLECTION_NAME, ProjectionFunction.None)
     };
 
     /// <summary>
@@ -1319,6 +1333,15 @@ namespace MediaPortal.Server.Api
 
       /// <summary>The collection a film belongs to, e.g. "Alien Collection". Null for the rest.</summary>
       public string Collection { get; set; }
+
+      /// <summary>
+      /// The title the library holds the collection under, as an id. A screen that shows the collection asks for
+      /// its pictures by this id, because MP2 files a collection as a title of its own and every picture of the
+      /// library is reached over the title it belongs to. Null when the film belongs to no collection, and null
+      /// when a collection is named on the film but the library has no title wearing that name - which is the
+      /// importer's doing, not this endpoint's.
+      /// </summary>
+      public string CollectionId { get; set; }
 
       /// <summary>The library's rating for the title, on MP2's 0-10 scale. Null when nothing rated it.</summary>
       public int? Rating { get; set; }
@@ -1441,6 +1464,7 @@ namespace MediaPortal.Server.Api
         ItemResult result = ToItem(item, profile.HasValue);
         FillMissingDetailsFromFiles(item, result);
         FillMissingOverviewFromSeries(mediaLibrary, item, result, profile);
+        FillCollectionTitle(mediaLibrary, result, profile);
 
         // Translated last, because the file beside a title can be the only place its certificate is written down,
         // and a household that asked for its own country's mark should get it whichever of the two sources spoke.
@@ -3391,6 +3415,50 @@ namespace MediaPortal.Server.Api
 
       IList<MediaItem> items = mediaLibrary.Search(query, false, profile, VirtualTitles.LetsVirtualTitlesIn);
       return items ?? new List<MediaItem>();
+    }
+
+    /// <summary>
+    /// The title the library holds a film's collection under, written onto the answer as
+    /// <see cref="ItemResult.CollectionId"/>. Left null when the film names no collection or when no title wears
+    /// that name.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// MP2 keeps a collection twice: the film carries its name as plain text on the Movie aspect, and the library
+    /// holds a title of its own wearing the collection aspect. A screen that merely names the collection gets
+    /// along with the text, but a screen that shows it - which is what a collection button does - has to ask for
+    /// pictures, and every picture in this library is reached over the id of the title it belongs to.
+    /// </para>
+    /// <para>
+    /// Looked up by name instead of over the relationship between film and collection, because the library files
+    /// that relationship from the film's side only (<c>ROLE_MOVIE</c> linked to <c>ROLE_MOVIE_COLLECTION</c>)
+    /// while <see cref="RelationshipFilter"/> walks the other way - it asks a collection which films it holds,
+    /// which is the question a collection's picture provider asks. Counted over a library of 1136 films: all 228
+    /// films naming a collection name one the library also holds as a title, so the name is a key that holds.
+    /// </para>
+    /// </remarks>
+    private static void FillCollectionTitle(IMediaLibrary mediaLibrary, ItemResult result, Guid? profile)
+    {
+      if (result == null || string.IsNullOrEmpty(result.Collection))
+        return;
+
+      try
+      {
+        MediaItemQuery query = new MediaItemQuery(
+            new List<Guid> { MediaAspect.ASPECT_ID, MovieCollectionAspect.ASPECT_ID }, null,
+            new RelationalFilter(MovieCollectionAspect.ATTR_COLLECTION_NAME, RelationalOperator.EQ,
+                result.Collection));
+
+        IList<MediaItem> titles = mediaLibrary.Search(query, false, profile, VirtualTitles.LetsVirtualTitlesIn);
+        MediaItem title = titles == null ? null : titles.FirstOrDefault();
+        if (title != null)
+          result.CollectionId = title.MediaItemId.ToString();
+      }
+      catch (IllegalCallException)
+      {
+        // A library that will not answer a question about collections still answers the question about the film;
+        // the collection stays named without a link, which is all the answer used to say about it.
+      }
     }
 
     /// <summary>

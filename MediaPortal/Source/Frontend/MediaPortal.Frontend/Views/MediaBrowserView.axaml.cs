@@ -331,7 +331,7 @@ namespace MediaPortal.Frontend.Views
       // The wheel over a band belongs to the band, but only while the band holds the caret: a viewer whose
       // pointer happens to lie over a band must still be able to scroll the reading of a title as a whole.
       foreach (ScrollViewer band in new[]
-          { audioTracksScroller, subtitleTracksScroller, actorsScroller, directorsScroller })
+          { audioTracksScroller, subtitleTracksScroller, actorsScroller, directorsScroller, collectionScroller })
       {
         // A band glides to where its caret goes instead of jumping there.  The reference lerps EVERY offset
         // change of its rows through the skin's storyboards - three hundred milliseconds with a ScrollMargin of a
@@ -703,7 +703,8 @@ namespace MediaPortal.Frontend.Views
         if (!_caretWaitsForTheBands || !browser.InfoShown)
           return;
         if (args.PropertyName != nameof(MediaBrowserViewModel.ShowsTracks)
-            && args.PropertyName != nameof(MediaBrowserViewModel.ShowsPersons))
+            && args.PropertyName != nameof(MediaBrowserViewModel.ShowsPersons)
+            && args.PropertyName != nameof(MediaBrowserViewModel.ShowsCollection))
           return;
 
         SeatTheCaretOnTheFirstCardOfTheReading(browser, CARET_SEATING_ROUNDS);
@@ -2350,8 +2351,15 @@ namespace MediaPortal.Frontend.Views
     /// Avalonia): this screen hands Enter to "play this" wherever else on it the key lands, and a film that
     /// starts because a viewer wanted to look at an audio track is an answer to a question nobody asked.  At the
     /// ends of a row, where the caret has nowhere left to walk, the band leans against that end and springs back
-    /// (see <see cref="BounceBand"/>); above the first band and below the last the key is left alone, so that
-    /// whatever the screen means by it there keeps its meaning.
+    /// (see <see cref="BounceBand"/>); above the first band the key is left alone, so that whatever the screen means
+    /// by it there keeps its meaning.  Below the last band of cards there IS one more place for a caret on this
+    /// reading - the collection's row of films, when the film belongs to a collection - so Down steps onto that, and
+    /// the key is left alone only below it.
+    ///
+    /// That row is walked like every other band of this reading and answers one key more than the others do: a press
+    /// on one of its posters READS the film it stands for, its posters being the collection's films and not a
+    /// picture of them (<see cref="ReadsCollectionFilm"/>).  Every other card of this reading still answers the key
+    /// with nothing, and no card of it anywhere ever starts a film.
     /// </summary>
     private bool WalksTrackCards(KeyEventArgs args)
     {
@@ -2360,6 +2368,7 @@ namespace MediaPortal.Frontend.Views
           : subtitleTracksScroller.IsKeyboardFocusWithin ? subtitleTracksScroller
           : actorsScroller.IsKeyboardFocusWithin ? actorsScroller
           : directorsScroller.IsKeyboardFocusWithin ? directorsScroller
+          : collectionScroller.IsKeyboardFocusWithin ? collectionScroller
           : null;
       if (band == null)
         return false;
@@ -2421,17 +2430,69 @@ namespace MediaPortal.Frontend.Views
           // up - so the key is left unanswered rather than swallowed.
           return StandsOnTrackCard(BandAbove(band), at, args);
         case Key.Down:
-          // Down goes the same way: into the band below at the same place along it.  Below the last band the
-          // reading has nothing left for a caret to take - the button that used to stand at its foot is gone - so
-          // the arrow is left alone there, exactly as it is above the first band.
-          return StandsOnTrackCard(BandBelow(band), at, args);
+          {
+            // Down goes the same way: into the band below at the same place along it.  Below the last band of
+            // tracks and people this reading still has one place for a caret when the film belongs to a collection
+            // - its row of films, which stands where the reference stood its button under the bands
+            // (MediaInfoVideo.xaml:457-530) - and BandBelow answers that.  With no band below the arrow is left
+            // alone, exactly as it is above the first band.
+            return StandsOnTrackCard(BandBelow(band), at, args);
+          }
         case Key.Enter:
+          if (band != collectionScroller)
+            break;
+
+          // Taken whether or not there was a film to read behind the card, because Enter means "play this"
+          // everywhere else on this screen and a poster that answered its own press with nothing would hand that
+          // very key to the player.
+          args.Handled = true;
+          ReadsCollectionFilm(cards[at]);
           break;
         default:
           return false;
       }
 
       return true;
+    }
+
+    /// <summary>
+    /// Reads the film one poster of the collection's row stands for, which is what a viewer standing on it and
+    /// pressing it asks for.
+    /// </summary>
+    /// <param name="card">The card of the row, keyed or pointed at.</param>
+    /// <remarks>
+    /// <para>
+    /// The reference's screen for a collection was a list of its films whose entries opened the film's information
+    /// (<c>MediaItemListMovieCollectionDetails.inc</c>), so a film of the collection stood under a viewer's hand is
+    /// a film they are asking about - and it is read, exactly as the wall's own dialog button reads a title, by
+    /// <see cref="MediaBrowserViewModel.OpenCollectionFilmAsync"/>.  Nothing is started by it, whatever the same key
+    /// means elsewhere on this screen.
+    /// </para>
+    /// <para>
+    /// The caret is left where it stands.  The row belongs to the collection and not to the film being read, so
+    /// reading the next film of it leaves the row standing and the ring on the same poster
+    /// (see <c>MediaBrowserViewModel.FillDetailsCollection</c>), which is what a viewer walking a collection with
+    /// the arrows wants: the row stays, the words beside it change.
+    /// </para>
+    /// </remarks>
+    private void ReadsCollectionFilm(Control card)
+    {
+      if (DataContext is MediaBrowserViewModel viewModel
+          && card.DataContext is CollectionFilmCard film)
+        _ = viewModel.OpenCollectionFilmAsync(film);
+    }
+
+    /// <summary>
+    /// Reading the film whose poster in the collection's row was pressed with a pointer, which is the same ask as
+    /// the key of the card under it.
+    /// </summary>
+    private void OnCollectionFilmTapped(object? sender, RoutedEventArgs args)
+    {
+      if (sender is Control card)
+      {
+        card.Focus();
+        ReadsCollectionFilm(card);
+      }
     }
 
     /// <summary>
@@ -2472,7 +2533,9 @@ namespace MediaPortal.Frontend.Views
             : audioTracksScroller.IsEffectivelyVisible ? audioTracksScroller
             : null;
 
-      return null;
+      // The collection's row is the last band of this reading, so whatever band of cards the screen drew above it
+      // is the band a caret walking up out of the row comes back to.
+      return band == collectionScroller ? LastBandOfTheReading() : null;
     }
 
     /// <summary>
@@ -2481,11 +2544,26 @@ namespace MediaPortal.Frontend.Views
     /// </summary>
     private ScrollViewer? BandBelow(ScrollViewer band)
     {
-      if (band == audioTracksScroller)
-        return subtitleTracksScroller;
+      ScrollViewer? people = FirstBandOfThePeopleRow();
 
-      return band == subtitleTracksScroller ? FirstBandOfThePeopleRow() : null;
+      if (band == audioTracksScroller)
+        return subtitleTracksScroller.IsEffectivelyVisible
+            ? subtitleTracksScroller
+            : people ?? CollectionBand();
+
+      if (band == subtitleTracksScroller)
+        return people ?? CollectionBand();
+
+      return band == actorsScroller || band == directorsScroller ? CollectionBand() : null;
     }
+
+    /// <summary>
+    /// The collection's row of films, or null where this reading drew none - a film naming no collection, or a
+    /// library holding no film of the one it names.  Asked and not remembered because both answers arrive a moment
+    /// after the reading stands up, and a caret sent into a band that is not drawn is a caret lost off the screen.
+    /// </summary>
+    private ScrollViewer? CollectionBand() =>
+        collectionScroller.IsEffectivelyVisible ? collectionScroller : null;
 
     /// <summary>
     /// The first band of the people row that is on the screen, which is the band a caret walking DOWN into that row
@@ -2515,6 +2593,23 @@ namespace MediaPortal.Frontend.Views
         return subtitleTracksScroller;
 
       return FirstBandOfThePeopleRow();
+    }
+
+    /// <summary>
+    /// The band of cards at the foot of this reading, or null when it draws none.  This is the band a caret walking
+    /// UP out of the collection's row of films walks back into, and - like <see cref="FirstBandOfTheReading"/> -
+    /// which band that is depends on what the title's file and the library had to say.
+    /// </summary>
+    private ScrollViewer? LastBandOfTheReading()
+    {
+      if (directorsScroller.IsEffectivelyVisible)
+        return directorsScroller;
+      if (actorsScroller.IsEffectivelyVisible)
+        return actorsScroller;
+      if (subtitleTracksScroller.IsEffectivelyVisible)
+        return subtitleTracksScroller;
+
+      return audioTracksScroller.IsEffectivelyVisible ? audioTracksScroller : null;
     }
 
     /// <summary>
@@ -2576,7 +2671,20 @@ namespace MediaPortal.Frontend.Views
       }
 
       if (rounds <= 0)
+      {
+        // Nothing of the tracks or the people ever arrived, which leaves the collection's row of films as the one
+        // thing this reading drew below its story - a film naming a collection while its file carries no tracks and
+        // the library knows no people for it.  Asked only in the last round on purpose: while a round is left, a
+        // band may still build itself, and a caret that had already taken a card would be held there by the promise
+        // above.
+        List<Border> films = TrackCards(collectionScroller);
+        if (films.Count > 0 && !StandsOnACardOfTheReading())
+        {
+          _caretWaitsForTheBands = false;
+          StandCaret(films[0], null);
+        }
         return;
+      }
 
       Dispatcher.UIThread.Post(
           delegate { SeatTheCaretOnTheFirstCardOfTheReading(reader, rounds - 1); },

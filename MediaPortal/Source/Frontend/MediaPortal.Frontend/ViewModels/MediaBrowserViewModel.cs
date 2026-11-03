@@ -903,7 +903,7 @@ namespace MediaPortal.Frontend.ViewModels
     partial void OnShowsActorsChanged(bool value)
     {
       OnPropertyChanged(nameof(ShowsPersons));
-      OnPropertyChanged(nameof(ShowsTracks));
+      RaiseTheBands();
     }
 
     partial void OnShowsDirectorsChanged(bool value)
@@ -919,11 +919,84 @@ namespace MediaPortal.Frontend.ViewModels
     /// </summary>
     public bool ShowsTracks => ShowsPictureLine || ShowsAudioTracks || ShowsSubtitleTracks || ShowsPersons;
 
-    partial void OnShowsPictureLineChanged(bool value) => OnPropertyChanged(nameof(ShowsTracks));
+    partial void OnShowsPictureLineChanged(bool value) => RaiseTheBands();
 
-    partial void OnShowsAudioTracksChanged(bool value) => OnPropertyChanged(nameof(ShowsTracks));
+    partial void OnShowsAudioTracksChanged(bool value) => RaiseTheBands();
 
-    partial void OnShowsSubtitleTracksChanged(bool value) => OnPropertyChanged(nameof(ShowsTracks));
+    partial void OnShowsSubtitleTracksChanged(bool value) => RaiseTheBands();
+
+    /// <summary>
+    /// Says again what the lower half of the reading has to show, because both of its properties are built from
+    /// parts that arrive one by one while a title is read.
+    /// </summary>
+    private void RaiseTheBands()
+    {
+      OnPropertyChanged(nameof(ShowsTracks));
+      OnPropertyChanged(nameof(ShowsBands));
+    }
+
+    /// <summary>
+    /// Whether the reading has anything below the story at all: a band of tracks, a row of people, or the card of
+    /// the collection the film belongs to.  The card shares the panel with the bands (the reference hung it under
+    /// them, <c>MediaInfoVideo.xaml:457-530</c>), so a film that names a collection but carries no tracks of its
+    /// own - a file the importer never counted - would otherwise lose its card to a panel that stayed away.
+    /// </summary>
+    public bool ShowsBands => ShowsTracks || ShowsCollection;
+
+    /// <summary>
+    /// The collection the read film belongs to, in the library's own words, or nothing when it belongs to none.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The name is the head of the band, not a line inside a card: the reference's screen for a collection was
+    /// headed by the collection's own name and stood its films underneath
+    /// (<c>MediaItemListMovieCollectionDetails.inc:52-54</c>), which is what the row of posters below this head is.
+    /// The framed button the reading used to carry (<c>MediaInfoVideo.xaml:457-530</c>) said the name beside a
+    /// poster of its own and answered no key; the name alone could not say WHICH films, so the button is gone and
+    /// the films stand in its place.
+    /// </para>
+    /// <para>
+    /// The collection's own picture is not asked for any more.  It was never in a library: counted over 1136 films,
+    /// 228 name one of the 164 collections this machine holds, and not one of those 164 collection titles carries a
+    /// picture, because MP2 files a collection's artwork as <c>movieset-*</c> pictures beside its films and this
+    /// library holds none of those either.  A head of words over a row of the films' own posters therefore says
+    /// everything the picture would have said and nothing that is missing.
+    /// </para>
+    /// </remarks>
+    [ObservableProperty]
+    private string _detailsCollection = "";
+
+    /// <summary>Whether the film names a collection, which is the one question the whole band asks.</summary>
+    public bool ShowsCollection => !string.IsNullOrWhiteSpace(DetailsCollection);
+
+    partial void OnDetailsCollectionChanged(string value)
+    {
+      OnPropertyChanged(nameof(ShowsCollection));
+      OnPropertyChanged(nameof(ShowsBands));
+    }
+
+    /// <summary>
+    /// The films the named collection holds <em>in this library</em>, which the band wears as a row of their posters
+    /// under its name.
+    /// </summary>
+    /// <remarks>
+    /// Asked of the shelf and not read off the collection's own title: MP2 counts a collection's films on the
+    /// collection aspect (<c>NUMMOVIES</c>), which says how many the site the importer asked knows and nothing about
+    /// which of them are on this machine - counted here, the collection whose aspect counts one film holds one film
+    /// of this library, and a collection aspecting <c>NUMMOVIES</c> of five can hold two.  A row of posters is a
+    /// statement about the library, so the library is asked.
+    /// </remarks>
+    public ObservableCollection<CollectionFilmCard> DetailsCollectionFilms { get; } =
+        new ObservableCollection<CollectionFilmCard>();
+
+    /// <summary>Whether there is a row of films to draw under the name.</summary>
+    public bool ShowsCollectionFilms => DetailsCollectionFilms.Count > 0;
+
+    // The collection the row of films was read for, which is nothing while it was read for none.  Kept because the
+    // row belongs to the COLLECTION and not to the film being read: opening the next film of the same collection
+    // must leave the row standing (see ReadDetailsCollectionFilmsAsync), and a film of another collection is the
+    // one answer that makes it start over.
+    private string _collectionFilmsFor = "";
 
     /// <summary>
     /// Where the file stands, in the words the server wrote down.
@@ -1549,12 +1622,26 @@ namespace MediaPortal.Frontend.ViewModels
     /// changes the room's mood one row at a time. Off with the setting off, off without a server, and a
     /// picture already remembered costs no second request - the walk back over a shelf asks nothing at all.
     /// </summary>
+    /// <summary>
+    /// Set while the READING itself moves its own selection - a press on a poster of the collection's band - and
+    /// read by <see cref="OnSelectedChanged"/> so that the step does not send the wall back and take the caret with
+    /// it.  See that method for the law and for the one case it answers to.
+    /// </summary>
+    private bool _readingHoldsTheSelection;
+
     partial void OnSelectedChanged(TitleViewModel? value)
     {
       OnPropertyChanged(nameof(SelectedNumber));
       // A reading is about one title; walking onto another one, or off the end of the shelf, is the reading
       // ending by itself. The wall has to be back before the new row can be looked at.
-      InfoShown = false;
+      //
+      // ONE reading answers that law to, and it is the reading's own: a film of the collection being read, asked
+      // for by a press on that collection's poster, is a step ACROSS the reading and not a step back to the wall.
+      // Sending the wall back for that moment took the caret with it (the shelf asks for it the moment the reading
+      // goes away) and the new reading then stood it on the first card of its first band, so the viewer who pressed
+      // a poster of the collection found the caret standing on somebody else's card (seen 2026-11-03).
+      if (!_readingHoldsTheSelection)
+        InfoShown = false;
       // The menu names the row it was opened for and offers what that row can take, so it has to be told
       // when the walk moves onto a different title - the reference's edit menu always spoke about the
       // highlighted row, never about whatever was highlighted when the key was once pressed.
@@ -3136,6 +3223,65 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
+    /// Reads one of the collection's films, which is what a viewer standing on its poster in the collection's row
+    /// and pressing it asks for.
+    /// </summary>
+    /// <param name="card">The poster that was stood on and pressed.</param>
+    /// <remarks>
+    /// <para>
+    /// This is the screen's own way into a title and not a second one: the row is put on <see cref="Selected"/> and
+    /// the reading is raised by <see cref="ReadSelectedAsync"/>, so the room's picture follows the new film as it
+    /// follows a walk over the shelf, and the facts are read by the same errand.  Where the pages of the shelf
+    /// already hold the film its own row is reused, which keeps the count at the shelf's foot telling the truth
+    /// about which row is being read.
+    /// </para>
+    /// <para>
+    /// Nothing is started, whatever else on this screen the same press means.  The reference's screen for a
+    /// collection was a list of its films whose entries opened the film's information
+    /// (<c>MediaItemListMovieCollectionDetails.inc</c>), and a viewer pressing a film of the collection from inside
+    /// a reading asks what the library says about that film - which is the question every other card of this
+    /// reading answers and never the question of playing one.
+    /// </para>
+    /// </remarks>
+    public async Task OpenCollectionFilmAsync(CollectionFilmCard card)
+    {
+      ServerApiClient? client = _client;
+      if (card == null || client == null)
+        return;
+
+      TitleViewModel? row = null;
+      foreach (TitleViewModel stood in Titles)
+      {
+        if (stood.Title.Id == card.Id)
+        {
+          row = stood;
+          break;
+        }
+      }
+
+      // A film of the collection that the pages read so far do not carry is still a title of this shelf and is
+      // stood on as the shelf would stand on it - the same server for its stream, the same aspect, the same answer
+      // about whether this machine can open its file.  The foot's count then says nought for it, which is honest:
+      // the row being read is not one of the rows the wall put up.
+      row ??= new TitleViewModel(card.Source, DrillsIn, client, AspectName);
+
+      // The reading steps ONTO one of its own collection's films, and that is a step inside the reading: the wall
+      // is not asked to come back between the two, and the caret the viewer put on the pressed poster stays there.
+      // Without this, OnSelectedChanged sends the reading away for one beat, the shelf takes the caret in that
+      // beat, and the new reading stands it on the first card of its first band - see the law written there.
+      _readingHoldsTheSelection = true;
+      try
+      {
+        Selected = row;
+        await ReadSelectedAsync();
+      }
+      finally
+      {
+        _readingHoldsTheSelection = false;
+      }
+    }
+
+    /// <summary>
     /// The selected title's details, asked of the server when the screen wears details and the selection
     /// lands. A read already made for this title is not made again - walking off a row and back to it costs
     /// nothing - and a failure leaves the panel as it was, because an empty panel about the wrong title is a
@@ -3302,12 +3448,14 @@ namespace MediaPortal.Frontend.ViewModels
             : "";
         FillDetailsStars(DetailsRating);
         FillDetailsFacts(details, title);
+        FillDetailsCollection(details);
         FillDetailsProgress(title);
         DetailsVisible = true;
         await ReadDetailsArtworkAsync(title);
         await ReadDetailsClearArtAsync(title);
         await ReadDetailsStreamsAsync(title);
         await ReadDetailsPersonsAsync(title);
+        _ = ReadDetailsCollectionFilmsAsync(DetailsCollection);
       }
       catch (ServerApiException ex)
       {
@@ -3499,6 +3647,32 @@ namespace MediaPortal.Frontend.ViewModels
       if (details.PlayCount.HasValue && details.PlayCount.Value > 0)
         AddFact("Played", details.PlayCount.Value
             + (details.PlayCount.Value == 1 ? " time" : " times"));
+    }
+
+    /// <summary>
+    /// The collection the read film names, and the id the library holds that collection under.
+    /// </summary>
+    /// <remarks>
+    /// The name comes straight off the film, and the id is the server's second lookup - see
+    /// <c>MediaController.FillCollectionTitle</c> for why the library has to be asked by name rather than over the
+    /// film's relationship.  An id that does not read as one is treated as no id at all: the card still stands
+    /// with its name, which is the part the library said for certain.
+    /// </remarks>
+    private void FillDetailsCollection(MediaItemDetails details)
+    {
+      string named = string.IsNullOrWhiteSpace(details.Collection) ? "" : details.Collection!.Trim();
+
+      // The row of films was read for THIS collection, so opening a second film of it - which is exactly what a
+      // viewer pressing one of those posters does - leaves the row where it is.  Tearing it down and asking again
+      // would answer the same question a second time, take the posters back off the wall while the answer was on
+      // the wire, and drop the caret, whose card had just been destroyed under it.
+      if (named == DetailsCollection && named.Length > 0 && DetailsCollectionFilms.Count > 0)
+        return;
+
+      DetailsCollectionFilms.Clear();
+      _collectionFilmsFor = "";
+      OnPropertyChanged(nameof(ShowsCollectionFilms));
+      DetailsCollection = named;
     }
 
     /// <summary>
@@ -3816,6 +3990,141 @@ namespace MediaPortal.Frontend.ViewModels
       // (themes/default/styles/CurrentlyPlayingStyles.xaml:220-222).
       return _personPortraits = PicturesOf(client, "PersonThumbnail",
           id => client.GetFanArtAsync(id, "Thumbnail"));
+    }
+
+    /// <summary>
+    /// The films the read film's collection holds, asked by the collection's name and laid into the band's row
+    /// before a single poster of theirs has been asked for.
+    /// </summary>
+    /// <param name="askedFor">
+    /// The collection this row is read for.  An answer that arrives after the viewer moved to a film of
+    /// <em>another</em> collection is an answer about a row nobody is looking at and is thrown away.
+    /// </param>
+    /// <remarks>
+    /// Asked once per collection and not once per film: a row already standing - or already on the wire - for this
+    /// collection is left alone, because the viewer opening the next film of the collection it belongs to is
+    /// exactly the case <see cref="FillDetailsCollection"/> keeps the row standing for.  Asking a second time laid
+    /// every film of the collection into the row AGAIN, which is how a collection of two films came to show four
+    /// posters (seen 2026-11-03: Ghostbusters Collection, "Frozen Empire" and "Afterlife" standing twice over").
+    /// A row that was asked and answered with nothing - an old server, a library that cannot answer - is given its
+    /// asking back, so the next film of that collection asks once more rather than standing empty for good.
+    /// </remarks>
+    /// <remarks>
+    /// <para>
+    /// The question is the shelf's own question with one category more (<c>GET api/media/titles?by=collection</c>,
+    /// which the server matches against the collection name written on every film), so the row is the same answer a
+    /// shelf of that collection would show - same films, same order - and not a second list with its own rules.
+    /// </para>
+    /// <para>
+    /// Asked by name and not by the collection's id because that is how a film is linked to its collection in a
+    /// library whose films were imported with the name written on them and never joined by a relationship row:
+    /// counted over a library of 1136 films, all 228 films naming a collection name one the library also holds as a
+    /// title, while the relationship rows between the two number zero.
+    /// </para>
+    /// </remarks>
+    private async Task ReadDetailsCollectionFilmsAsync(string askedFor)
+    {
+      string collection = DetailsCollection;
+      ServerApiClient? client = _client;
+      if (client == null || collection.Length == 0 || collection != askedFor)
+        return;
+
+      // The row is asked once for a collection.  A row of this collection standing OR on the wire means the answer
+      // is already there or already coming, and a second laying of the same answer is what duplicated the row.
+      if (_collectionFilmsFor == collection)
+        return;
+
+      // Asked before the answer is on the wire, so that the posters of the row started behind it have a row to
+      // arrive in: their errand stops the moment the collection it was asked for is no longer the one on screen.
+      _collectionFilmsFor = collection;
+
+      try
+      {
+        // No limit: the row is the collection's films, and its posters are places the viewer walks and presses, so
+        // a film left out of the row would be a film of the collection nobody can reach from the reading.  The band
+        // slides to hold them rather than growing (see the band's scroller), and the server's own ceiling of five
+        // hundred rows bounds the question.
+        MediaTitles members = await client.GetTitlesAsync(AspectName, "title", false, by: "collection",
+            value: collection);
+        if (_collectionFilmsFor != askedFor)
+          return;
+        if (members.Error != null)
+        {
+          // Nothing was answered, so nothing stands in the row's name either: the asking goes back, and the next
+          // film of this collection asks the question again instead of living with an empty band forever.
+          _collectionFilmsFor = "";
+          return;
+        }
+
+        // The whole answer, laid into an empty row: the row IS this collection's films, so what arrives replaces
+        // whatever was in it rather than adding to it.
+        DetailsCollectionFilms.Clear();
+        foreach (CollectionFilmCard card in MediaCollectionFilms.CardsFor(
+            members.Titles ?? Array.Empty<MediaTitle>()))
+          DetailsCollectionFilms.Add(card);
+
+        OnPropertyChanged(nameof(ShowsCollectionFilms));
+        _ = PaintCollectionFilmPostersAsync(askedFor, new List<CollectionFilmCard>(DetailsCollectionFilms));
+      }
+      catch (ServerApiException)
+      {
+        // A server that does not know the category yet refuses the question: the band keeps its head and stands
+        // without its row, which is exactly what it did before the question was ever thought of.
+        if (_collectionFilmsFor == askedFor)
+          _collectionFilmsFor = "";
+      }
+      catch (Exception)
+      {
+        // The same answer for anything else that goes wrong over one shelf query.  The reading's own story,
+        // tracks and people were answered before this was asked, and a band that cannot say which films belong to
+        // its collection says its name alone.
+        if (_collectionFilmsFor == askedFor)
+          _collectionFilmsFor = "";
+      }
+    }
+
+    /// <summary>
+    /// The posters of the films the collection row now names, one errand per film.
+    /// </summary>
+    /// <param name="askedFor">The collection the row was read for, as by <see cref="ReadDetailsCollectionFilmsAsync"/>.</param>
+    /// <param name="cards">The cards of the row, in the order the server answered the films.</param>
+    /// <remarks>
+    /// Asked one after the other rather than all at once, and out of the shelf's own holder of posters
+    /// (<see cref="TileArtworkFor"/>) rather than a holder of its own: these are ordinary films of this shelf filed
+    /// under their own ids, so a poster the wall already hung is not fetched a second time for being small here.
+    /// A film whose poster the library does not keep leaves its plate empty, which is what a plate behind a shelf
+    /// tile with no poster does.
+    /// </remarks>
+    private async Task PaintCollectionFilmPostersAsync(string askedFor, IList<CollectionFilmCard> cards)
+    {
+      Artwork? posters = TileArtworkFor(GridViewType.Poster);
+      if (posters == null)
+        return;
+
+      foreach (CollectionFilmCard card in cards)
+      {
+        try
+        {
+          byte[]? picture = await posters.LoadAsync(card.Id);
+          if (picture == null || _collectionFilmsFor != askedFor)
+            continue;
+
+          byte[] toRead = picture;
+          if (!ArtworkConverter.Instance.Remembers(toRead, ArtworkConverter.TILE_PARAMETER))
+            await Task.Run(() => ArtworkConverter.Instance.Warm(toRead, ArtworkConverter.TILE_PARAMETER));
+
+          if (_collectionFilmsFor == askedFor)
+            card.Poster = picture;
+        }
+        catch (ServerApiException)
+        {
+          // A library without this film's poster is an ordinary library; the tile stands on its dark plate.
+        }
+        catch (Exception)
+        {
+          // The same answer for anything else that goes wrong over one picture.
+        }
+      }
     }
 
     private readonly Dictionary<string, Artwork?> _panelArtworks = new Dictionary<string, Artwork?>();

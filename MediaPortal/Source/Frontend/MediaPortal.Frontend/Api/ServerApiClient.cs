@@ -344,9 +344,10 @@ namespace MediaPortal.Frontend.Api
     /// </param>
     /// <param name="by">
     /// A category of <see cref="GetGroupsAsync"/> - <c>genre</c>, <c>year</c>, <c>actors</c>, <c>directors</c>,
-    /// <c>writers</c> - to keep only the titles carrying <paramref name="value"/> under it, the second half of
-    /// browsing: the groups said which genres there are, this asks which films are in one of them. Sent together
-    /// or not at all, because the server refuses a category whose value went missing, and rightly.
+    /// <c>writers</c>, <c>collection</c> - to keep only the titles carrying <paramref name="value"/> under it, the
+    /// second half of browsing: the groups said which genres there are, this asks which films are in one of them.
+    /// Sent together or not at all, because the server refuses a category whose value went missing, and rightly.
+    /// <c>by=collection</c> is how a screen asks which films one collection holds.
     /// </param>
     /// <param name="season">
     /// A season number to narrow a shelf of episodes to, for the seasons a library holds as nothing but a number

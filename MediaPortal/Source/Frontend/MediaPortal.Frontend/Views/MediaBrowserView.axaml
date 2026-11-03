@@ -322,6 +322,42 @@
                      Margin="8,0,8,8"
                      VerticalAlignment="Bottom"
                      Foreground="{DynamicResource TextBrush}"/>
+          <!-- The edge, laid over the face and not round it, drawn last so the face's clip cannot saw off its
+               outer half - the wall's covers and the rail's shortcuts are built this same way (HomeView.axaml:834-
+               841).  At rest it is the skin's ghost of a ring; under a caret it comes up to full light by the rule
+               written on these two cards below. -->
+          <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
+        </Panel>
+      </Border>
+    </DataTemplate>
+
+    <!-- A film of the collection being read, as it stands in the collection's band: one poster, walked and pressed
+         like a person's card.  Its height is the height the collection's card always had - a hundred and fifty five
+         points - and its width is that height read at the poster's own proportion of two to three, which is the
+         proportion the shelf's posters are cut to: a hundred and three points.  The tile is the size of the tile it
+         replaced so that the band's head, the band, and everything above them stay exactly where they were. -->
+    <DataTemplate x:Key="CollectionFilmTile" x:DataType="vm:CollectionFilmCard">
+      <Border Classes="trackcard collection-film-card home-tile-shadow"
+              Focusable="True"
+              Width="103"
+              Height="155"
+              Margin="0,0,8,0"
+              ToolTip.Tip="{Binding Title}"
+              Tapped="OnCollectionFilmTapped">
+        <Panel>
+          <Border Classes="collection-film-face" ClipToBounds="True">
+            <Image Classes="home-tile-art"
+                   Source="{Binding Poster,
+                                    Converter={x:Static views:ArtworkConverter.Instance},
+                                    ConverterParameter=tile}"
+                   Stretch="UniformToFill"
+                   IsVisible="{Binding ShowsPoster}"
+                   IsHitTestVisible="False"/>
+          </Border>
+          <!-- The poster answers a caret with the same edge the person cards and the wall's covers wear, laid over
+               its own corner.  Its placeholder under a poster that has not landed is the plate's #222222, which is
+               what a cover of the wall stands on for the same moment (HomeView.axaml:781-785). -->
+          <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
         </Panel>
       </Border>
     </DataTemplate>
@@ -492,6 +528,57 @@
           <GradientStop Offset="1.00" Color="#D9000000"/>
         </LinearGradientBrush>
       </Setter>
+    </Style>
+    <!-- A film of the collection the reading names, standing as its poster in the collection's band.  It wears the
+         person card's dress and not the track card's, because it is the picture of a title rather than a line of
+         words: the same dark plate a cover without a picture stands on at the wall, the same shadow, the picture
+         cut to the tile's own corner, and the same ring laid over that corner.
+
+         No veil and no name: a film's poster already says which film it is, and a line of words laid over a
+         hundred and fifty five lines of picture would cover the face the viewer came to recognise.  The name is not
+         lost either - it stands in the tip a hovering pointer reads. -->
+    <Style Selector="Border.collection-film-card">
+      <Setter Property="Background" Value="#222222"/>
+    </Style>
+    <Style Selector="Border.collection-film-face">
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Background" Value="#222222"/>
+    </Style>
+
+    <!-- The two picture bands lay the word card's ring aside.  Border.trackcard above asks for three points of
+         border so that a card of words can answer the caret with an edge of its own, and on those cards the border
+         is a margin the words stand inside; on a picture the same three points are a gap between the photograph
+         and the tile, and the gap is painted with the tile's own dark plate.  What these two cards answer a caret
+         with is the edge the wall's covers wear, laid OVER the face by their own templates, so their picture runs
+         to the tile's edge and the ring sits on top of it: one edge, one corner, nothing between them.  Two class
+         names deep, so that the ring Border.trackcard:focus lights cannot push the picture back in. -->
+    <Style Selector="Border.person-card, Border.collection-film-card">
+      <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+    <!-- The ring, coming up to full light under a caret: the same four stops down the same line that the wall's
+         covers and the shortcuts brighten with (styles.xaml:903-922), so a card of this reading answers being
+         stood on in the one voice every other tile of this front end uses.  No fade, for the wall's own reason -
+         a ring that has to fade up is a ring that is not there while it fades, and the arrows walk further than a
+         fade. -->
+    <Style Selector="Border.person-card:focus Border.home-tile-edge,
+                    Border.collection-film-card:focus Border.home-tile-edge">
+      <Setter Property="BorderBrush">
+        <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+          <GradientStop Offset="0" Color="#FFFFFFFF"/>
+          <GradientStop Offset="0.35" Color="#B3FFFFFF"/>
+          <GradientStop Offset="0.72" Color="#66FFFFFF"/>
+          <GradientStop Offset="1" Color="#CCFFFFFF"/>
+        </LinearGradientBrush>
+      </Setter>
+    </Style>
+    <!-- And the picture steps a tenth nearer, as a cover of the wall does (styles.xaml:524-530).  The resting
+         scale and the half second of sine are the skin's own, carried by the Image.home-tile-art class the two
+         templates wear; what is written here is only the answer to a viewer standing on the card, which the skin's
+         rule cannot see because it is written for the wall's buttons and list items.  The face clips the growth,
+         so nothing spills past the tile's edge, and the name in its veil stays where it was. -->
+    <Style Selector="Border.person-card:focus Image.home-tile-art,
+                    Border.collection-film-card:focus Image.home-tile-art">
+      <Setter Property="RenderTransform" Value="scale(1.1)"/>
     </Style>
   </UserControl.Styles>
   <!--
@@ -1286,6 +1373,80 @@
                   </ScrollViewer>
                 </StackPanel>
               </Grid>
+
+              <!--
+                COLLECTION: the films the read film's collection holds, as the reference's own collection screen
+                stood them (MediaItemListMovieCollectionDetails.inc:52-54): the collection's name for a head, and its
+                films in a row underneath, every one of them a place the viewer stands on and presses to read that
+                film.  Nothing is ever started by standing on one of them - a film of a collection is read, and the
+                framed collection button this band replaced carried no command either
+                (MediaInfoVideo.xaml:457-530).
+
+                The head wears the collection's name instead of the word "Collection" for the reason every head of
+                this reading says what the row under it is, and because the word alone said less than the name those
+                films share - the viewer asked for that on 2026-11-09, having seen a card of text about a collection
+                instead of the collection.  Like the track heads, the word this head would otherwise have worn is
+                the skin's own (Language/strings_en.xml:111) and is not needed a second time here.
+
+                The collection's own picture is not asked for any more, and nothing was lost by stopping: MP2 files a
+                collection's artwork as "movieset-*" pictures beside its films
+                (FanArtService.Local/LocalMovieCollectionFanartProvider.cs:64-120), and a count over this machine's
+                library of eleven hundred and thirty six films found two hundred and twenty eight of them naming one
+                of the one hundred and sixty four collections it holds, with not one "movieset-*" picture beside any
+                of those films and not one picture under any of the collection titles themselves.
+
+                The band is built the way the bands above it are built and no differently: a head line, then a
+                scroller of a hundred and ninety three points holding cards of a hundred and fifty five with the
+                shadow's own air of fifteen and twenty three lines around them, the caret walking into the row from
+                the band above and back out of it, the row gliding along with the caret inside the reference's
+                scroll margin, and its ends dissolving like the ends of every other band
+                (see WalksTrackCards for the walk, KeepCardInSight for the margin, FadeBandEnds for the ends).  A
+                collection of thirty films therefore costs the reading no height, which is what the viewer asked for
+                on 2026-11-09 when the reading was to fit the screen's height: the row is as tall as the card it
+                replaced and everything above it stayed where it was measured.
+
+                A tile is a person's card in everything but its picture - the skin's ten points of rounding
+                (styles.xaml:501-503), the same shadow, the same ring under a caret, and the same dark plate under a
+                film whose poster the library does not keep.  It is a poster and not a portrait, so its width is its
+                height read at two to three, a hundred and three points; and it wears no veil and no name, because a
+                poster already says which film it is and the name stands in the tip a hovering pointer reads.
+              -->
+              <StackPanel Spacing="0" IsVisible="{Binding ShowsCollection}">
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                  <!-- The collection's own name, worn by the head every other head of this reading dresses the
+                       same way.  A collection whose name is the whole screen's subject does not need the word
+                       "Collection" over it: the row under the name is what a collection is. -->
+                  <TextBlock Text="{Binding DetailsCollection}"
+                             FontSize="21"
+                             Opacity="0.5"
+                             VerticalAlignment="Center"
+                             Foreground="{DynamicResource TextBrush}"/>
+                </StackPanel>
+                <!-- A poster arrives a moment after its tile does, and the tile is the size it keeps either way, so
+                     a row whose first poster lands while the rest are still on the wire does not move under the
+                     viewer's eyes - the same reason a shelf tile hangs its poster over its box.  Away goes the
+                     whole band when the library cannot name a single film of the collection, because a head over
+                     two hundred points of nothing is a hole in the reading, not an answer. -->
+                <ScrollViewer Name="collectionScroller"
+                              Height="193"
+                              Padding="24,15,24,23"
+                              Margin="0,-8,0,0"
+                              HorizontalScrollBarVisibility="Hidden"
+                              VerticalScrollBarVisibility="Disabled"
+                              ClipToBounds="True"
+                              IsVisible="{Binding ShowsCollectionFilms}">
+                  <ItemsControl ItemsSource="{Binding DetailsCollectionFilms}"
+                                VerticalAlignment="Center"
+                                ClipToBounds="False"
+                                ItemTemplate="{StaticResource CollectionFilmTile}">
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                      </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                  </ItemsControl>
+                </ScrollViewer>
+              </StackPanel>
             </StackPanel>
           </Panel>
 
