@@ -292,7 +292,8 @@
         <Panel>
           <Border Classes="person-face" ClipToBounds="True">
             <Panel>
-              <Image Source="{Binding Portrait,
+              <Image Classes="home-tile-art"
+                     Source="{Binding Portrait,
                                       Converter={x:Static views:ArtworkConverter.Instance},
                                       ConverterParameter=tile}"
                      Stretch="UniformToFill"
@@ -501,26 +502,34 @@
       <Setter Property="BorderBrush" Value="#FFFFFFFF"/>
     </Style>
 
-    <!-- A person's card.  Its ground is the dark plate a cover without a picture stands on at the wall
-         (#222222, HomeView.axaml:781-785 - the worn skin's own plate, frosted by nothing), and the ring it grows
-         under a caret is the ring every other card of this reading already wears, from Border.trackcard above.
+    <!-- A person's card, dressed as a cover of the wall is dressed: the plate, the face that carries the
+         picture to the tile's own edge, and the ring laid OVER that edge.  The plate is the dark ground a cover
+         without a picture stands on at the wall (#222222, HomeView.axaml:781-785 - the worn skin's own plate,
+         frosted by nothing), and it is only ever seen where a photograph is missing.
 
-         The inner face carries the corner the photograph is cut to: the ten points of rounding the tile wears
-         (styles.xaml:505-507), less the three points of ring that lie over it, so the picture's corner runs
-         under the ring instead of butting against it.
+         The picture is cut by the tile's OWN corner and by nothing else.  A card of words may wear its ring as a
+         border of its own, because a border of words is a margin; a border round a photograph is a second edge
+         drawn a few points outside the first, and where the two corners disagree a viewer sees a dark step -
+         which is exactly what these cards showed until 2026-11-03, a rim of the plate standing between every
+         photograph and the tile it stood on.  The wall has never had that step, because its covers clip their
+         face at the tile's own ten (HomeView.axaml:768, styles.xaml:505-508) and answer a viewer with a ring laid
+         over the finished edge (Border.home-tile-edge, styles.xaml:727-759) rather than with a border that pushes
+         the picture inward.  These cards do the same now, and the ring of Border.trackcard is laid aside for them
+         by the rule below.
 
          The veil is the home screen's news veil (HomeView.axaml:627-633) with its darkening pulled down to the
          foot of a much smaller tile: over a hundred and sixty lines a veil that starts darkening at a third of
-         the height would grey the whole face, so it starts below the middle. -->
+         the height would grey the whole face, so it starts below the middle.  It carries the tile's corner too,
+         which is the corner the picture is cut to. -->
     <Style Selector="Border.person-card">
       <Setter Property="Background" Value="#222222"/>
     </Style>
     <Style Selector="Border.person-face">
-      <Setter Property="CornerRadius" Value="7"/>
+      <Setter Property="CornerRadius" Value="10"/>
       <Setter Property="Background" Value="#222222"/>
     </Style>
     <Style Selector="Border.person-veil">
-      <Setter Property="CornerRadius" Value="7"/>
+      <Setter Property="CornerRadius" Value="10"/>
       <Setter Property="Background">
         <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
           <GradientStop Offset="0.45" Color="#00000000"/>
