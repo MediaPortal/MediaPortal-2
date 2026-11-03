@@ -281,7 +281,24 @@ namespace MediaPortal.Frontend.Api
       // names the collection reads "collection", but a screen that shows it has to ask for pictures, and every
       // picture of this library is reached over the id of the title it belongs to. Null for a film that names no
       // collection, and for a collection the library does not hold as a title of its own.
-      [property: JsonPropertyName("collectionId")] string? CollectionId = null)
+      [property: JsonPropertyName("collectionId")] string? CollectionId = null,
+      // Appended last for the same reason as the two above: an audio file's own details are only asked about when
+      // a viewer stands in front of one file, and a server too old to answer still reads as this record - every
+      // one of them null, which is the answer "this library did not write it down".  The six are the cells of the
+      // worn skin's audio row (MediaInfoAudio.xaml:115-170), and durationSeconds is the length in whole seconds,
+      // which the skin wrote as mm:ss rather than as the rounded minutes of runtimeMinutes.
+      [property: JsonPropertyName("durationSeconds")] int? DurationSeconds = null,
+      [property: JsonPropertyName("audioEncoding")] string? AudioEncoding = null,
+      [property: JsonPropertyName("audioChannels")] int? AudioChannels = null,
+      [property: JsonPropertyName("audioBitRate")] int? AudioBitRate = null,
+      [property: JsonPropertyName("audioSampleRate")] long? AudioSampleRate = null,
+      [property: JsonPropertyName("discId")] int? DiscId = null,
+      [property: JsonPropertyName("discCount")] int? DiscCount = null,
+      // Appended last for the same reason: how many tracks the library holds INSIDE an album.  The title list
+      // answers the same name with the number the album's tag wrote, because a wall cannot count a thousand
+      // albums' children; the one album a viewer is standing in front of is answered by counting them
+      // (MediaController.ItemResult.TrackCount), and that is the number this screen shows.
+      [property: JsonPropertyName("trackCount")] int? AlbumTrackCount = null)
   {
     /// <summary>
     /// The longest single line of prose the title carries, or null when it carries none. What a details screen

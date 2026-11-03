@@ -798,6 +798,116 @@ namespace MediaPortal.Frontend.ViewModels
     private byte[]? _detailsClearArt;
 
     /// <summary>
+    /// The lettering an album was released with, which stands over the album's story and not beside a progress
+    /// ring: the reference asked for it by the name <c>ClearArt</c> and stood it above the description
+    /// (<c>MediaItemListAudioAlbumDetails.inc:26-31</c>, the description itself at <c>:307</c>).
+    /// </summary>
+    /// <remarks>
+    /// Kept apart from <see cref="_detailsClearArt"/> on purpose. That one belongs to the head's progress row,
+    /// which is where the reference hung a film's lettering (<c>MediaInfoMovieDetails.inc:355-362</c>); an album
+    /// has no progress row to hang anything in, and letting one picture feed both places would draw an album's
+    /// name twice on one screen.
+    /// </remarks>
+    [ObservableProperty]
+    private byte[]? _detailsAlbumLettering;
+
+    /// <summary>
+    /// The disc an album was pressed on, which is laid <em>behind</em> the album's cover instead of beside it: the
+    /// reference put its <c>DiscArt</c> into the cover's own box - four hundred and twenty lines of disc behind
+    /// four hundred and forty of cover - and let it look out past the cover's edge
+    /// (<c>MediaItemListAudioAlbumDetails.inc:41-44</c> for the disc, <c>:52</c> for the cover, the box at
+    /// <c>:33</c>).  Null when the library keeps no picture of the disc, which is thirty four of the household's
+    /// forty three albums; the panel then draws no disc at all.
+    /// </summary>
+    [ObservableProperty]
+    private byte[]? _detailsAlbumDisc;
+
+    /// <summary>
+    /// Whether a disc lies under the cover.  It is asked as one answer because the panel is drawn in two pieces by
+    /// it: the cover is then painted over the disc, and the story - which stood in the column beside the cover -
+    /// gives that column to the disc and is told under the cover instead, in the viewer's words of 2026-11-03.
+    /// A disc is never laid out without a cover to lie under, which is why the cover is part of this answer: a
+    /// library that keeps the disc and not the cover shows its cover, not a disc floating where a cover should be.
+    /// </summary>
+    public bool ShowsDiscBehindCover => DetailsAlbumDisc != null && DetailsArtwork != null;
+
+    /// <summary>
+    /// The cover standing by itself, which is how every title without a disc and every film has always stood.
+    /// </summary>
+    public bool ShowsCoverAlone => DetailsArtwork != null && !ShowsDiscBehindCover;
+
+    /// <summary>
+    /// The album's writing over the story, which is where it was asked for as long as the story stands beside the
+    /// cover (<c>MediaItemListAudioAlbumDetails.inc:26-31</c>, the description a row under it at <c>:307</c>).
+    /// </summary>
+    public bool ShowsLetteringOverStory => !ShowsDiscBehindCover && DetailsAlbumLettering != null;
+
+    /// <summary>
+    /// The album's writing over the row the cover stands in, which is the same writing seen from a panel whose
+    /// story has moved under its cover: its top edge stays the cover's top edge either way, and a disc looking
+    /// out to the left of the cover leaves the story's old column too narrow to write in.
+    /// </summary>
+    public bool ShowsLetteringOverCover => ShowsDiscBehindCover && DetailsAlbumLettering != null;
+
+    /// <summary>
+    /// The writing the gradient over the row of covers wears: an album's ClearArt, or the ClearArt of a film and
+    /// of an episode, whichever family the shelf belongs to.  Both were read long since for the information screen
+    /// (<see cref="ReadDetailsClearArtAsync"/>); only the row of covers never showed them, though a film's lettering
+    /// asks for that row more than for any column.
+    /// </summary>
+    public byte[]? CoverLettering
+        => IsMusic
+            ? DetailsAlbumLettering
+            : DetailsClearArt;
+
+    /// <summary>
+    /// Whether that writing arrived.  A title that wears none leaves the place empty, and the story takes the room.
+    /// </summary>
+    public bool ShowsCoverLettering
+        => CoverLettering != null;
+
+    /// <summary>
+    /// The row the story is told in: its own row beside the cover, or - when a disc lies under the cover - the
+    /// row under it.  The panel asks for the number because a screen cannot weigh a condition by itself.
+    /// </summary>
+    public int DetailsStoryRow => ShowsDiscBehindCover ? 4 : 3;
+
+    /// <summary>
+    /// How many of the panel's two columns the story is given: its own column while the cover stands beside it,
+    /// and the whole width under a cover that stands over it.
+    /// </summary>
+    public int DetailsStoryColumns => ShowsDiscBehindCover ? 2 : 1;
+
+    partial void OnDetailsAlbumDiscChanged(byte[]? value) => RaiseCoverLayout();
+
+    partial void OnDetailsArtworkChanged(byte[]? value) => RaiseCoverLayout();
+
+    partial void OnDetailsAlbumLetteringChanged(byte[]? value)
+    {
+      OnPropertyChanged(nameof(ShowsLetteringOverStory));
+      OnPropertyChanged(nameof(ShowsLetteringOverCover));
+      OnPropertyChanged(nameof(CoverLettering));
+      OnPropertyChanged(nameof(ShowsCoverLettering));
+    }
+
+    /// <summary>
+    /// Tells the panel that the ground under its cover moved.  The cover, the disc, the writing and the row the
+    /// story is told in are all read off the same two pictures, and those two travel separately: the cover is
+    /// asked for first, the disc after it, so every one of the four answers is asked again whenever either of them
+    /// arrives - otherwise a panel that measured itself over the cover alone would keep the story in the cover's
+    /// column after its disc had come in and needed that column.
+    /// </summary>
+    private void RaiseCoverLayout()
+    {
+      OnPropertyChanged(nameof(ShowsDiscBehindCover));
+      OnPropertyChanged(nameof(ShowsCoverAlone));
+      OnPropertyChanged(nameof(ShowsLetteringOverStory));
+      OnPropertyChanged(nameof(ShowsLetteringOverCover));
+      OnPropertyChanged(nameof(DetailsStoryRow));
+      OnPropertyChanged(nameof(DetailsStoryColumns));
+    }
+
+    /// <summary>
     /// Whether the row the ring and the lettering stand in is worth the hundred and five lines it costs: either of
     /// them has something to show. Asked as one answer because a screen cannot join two conditions by itself, and
     /// because the two halves answer at different times - the figure is on the row already, the lettering arrives
@@ -807,7 +917,12 @@ namespace MediaPortal.Frontend.ViewModels
 
     partial void OnDetailsProgressShownChanged(bool value) => OnPropertyChanged(nameof(ShowsProgressRow));
 
-    partial void OnDetailsClearArtChanged(byte[]? value) => OnPropertyChanged(nameof(ShowsProgressRow));
+    partial void OnDetailsClearArtChanged(byte[]? value)
+    {
+      OnPropertyChanged(nameof(ShowsProgressRow));
+      OnPropertyChanged(nameof(CoverLettering));
+      OnPropertyChanged(nameof(ShowsCoverLettering));
+    }
 
     /// <summary>
     /// The row of pictures the file's picture is made of: whether it is stereoscopic, its codec, its size, its
@@ -822,6 +937,23 @@ namespace MediaPortal.Frontend.ViewModels
     /// </remarks>
     [ObservableProperty]
     private PictureLine _detailsPicture = PictureLine.Empty;
+
+    /// <summary>
+    /// The row of pictures an <b>audio</b> file is made of: its codec, its channels, its disc, and its bitrate over
+    /// its sample rate.
+    /// </summary>
+    /// <remarks>
+    /// These are the six cells the reference's audio screen stood above its details
+    /// (<c>MediaInfoAudio.xaml:115-170</c>), read off the same aspect the worn skin read.  They arrive with the
+    /// details answer rather than over a second question: an audio file's figures are written on the file's own
+    /// item, so unlike a film's streams they cost the server nothing extra to hand over.
+    /// </remarks>
+    [ObservableProperty]
+    private AudioFileLine _detailsAudio = AudioFileLine.Empty;
+
+    /// <summary>Whether the file answered any of its four audio cells.</summary>
+    [ObservableProperty]
+    private bool _showsAudioLine;
 
     /// <summary>
     /// One card per audio track the file carries, in the order the tracks lie in the file.
@@ -870,6 +1002,27 @@ namespace MediaPortal.Frontend.ViewModels
     private bool _showsSubtitleTracks;
 
     /// <summary>
+    /// The face of the subtitle plaque: the framed glyph when the file this reading wears carries text, the crossed
+    /// one when it does not.  It is asked apart from <see cref="ShowsSubtitleTracks"/> because the two can differ:
+    /// a series and a season are shelves rather than files, so their tracks lists are empty by nature while their
+    /// plaque answers from the first episode, which does carry text or does not.
+    /// </summary>
+    [ObservableProperty]
+    private bool _showsFileSubtitles;
+
+    /// <summary>
+    /// Whether this reading asks the subtitle question at all, which only a picture does.
+    /// </summary>
+    /// <remarks>
+    /// A sound file has no subtitle to carry and never had one, so the plaque would answer a question nobody asked -
+    /// and it answered it as a denial, "no subtitles", over a title that cannot have any.  The reference asked the
+    /// question in its video screens only (<c>MediaInfoVideo.xaml:157-174</c>, <c>CurrentlyPlayingVideo.xaml:164-181</c>,
+    /// both an <c>SubtitleAspectWrapper</c>), while its audio screen asks about the packing, the loudspeakers, the
+    /// disc and the two rates and about nothing else (<c>MediaInfoAudio.xaml:115-170</c>).
+    /// </remarks>
+    public bool ShowsSubtitlePlaque => !IsMusic;
+
+    /// <summary>
     /// One card per person the library names as an actor of this title, in the order the library answered them.
     /// </summary>
     /// <remarks>
@@ -884,6 +1037,23 @@ namespace MediaPortal.Frontend.ViewModels
 
     /// <summary>One card per person the library names as this title's director.</summary>
     public ObservableCollection<PersonCard> DetailsDirectors { get; } = new ObservableCollection<PersonCard>();
+
+    /// <summary>
+    /// One card per person the library names as the artist of this audio file, in the order it answered them.
+    /// </summary>
+    /// <remarks>
+    /// The three music bands are the reference's (<c>MediaInfoAudio.xaml:204-296</c>: Artists, Album Artists,
+    /// Composers, each a head and a sideways list of the same <c>PersonCPListViewStyle</c> the film's two bands
+    /// wear).  They stand in place of the film's two rather than under them, because a title is either one or the
+    /// other: an audio file names no actors, and a film names no composers.
+    /// </remarks>
+    public ObservableCollection<PersonCard> DetailsArtists { get; } = new ObservableCollection<PersonCard>();
+
+    /// <summary>One card per person the library names as the album's artist.</summary>
+    public ObservableCollection<PersonCard> DetailsAlbumArtists { get; } = new ObservableCollection<PersonCard>();
+
+    /// <summary>One card per person the library names as the composer.</summary>
+    public ObservableCollection<PersonCard> DetailsComposers { get; } = new ObservableCollection<PersonCard>();
 
     /// <summary>Whether the library named anybody in the acting part.</summary>
     [ObservableProperty]
@@ -912,12 +1082,54 @@ namespace MediaPortal.Frontend.ViewModels
       OnPropertyChanged(nameof(ShowsTracks));
     }
 
+    /// <summary>Whether the library named anybody as the artist of this audio file.</summary>
+    [ObservableProperty]
+    private bool _showsArtists;
+
+    /// <summary>Whether the library named an album artist.</summary>
+    [ObservableProperty]
+    private bool _showsAlbumArtists;
+
+    /// <summary>Whether the library named a composer.</summary>
+    [ObservableProperty]
+    private bool _showsComposers;
+
+    /// <summary>
+    /// Whether the row of <b>music</b> people costs its lines: any of its three bands has an answer. The three
+    /// share one row for the reason the film's two already do - the reading's column is a thousand lines tall and
+    /// three bands of two hundred are not in it - and a row whose every half is empty would stand there as three
+    /// heads over nothing.
+    /// </summary>
+    public bool ShowsMusicPersons => ShowsArtists || ShowsAlbumArtists || ShowsComposers;
+
+    partial void OnShowsArtistsChanged(bool value) => RaiseTheMusicRow();
+
+    partial void OnShowsAlbumArtistsChanged(bool value) => RaiseTheMusicRow();
+
+    partial void OnShowsComposersChanged(bool value) => RaiseTheMusicRow();
+
+    /// <summary>Says again what the row of music people and the whole lower half of the reading have to show.</summary>
+    private void RaiseTheMusicRow()
+    {
+      OnPropertyChanged(nameof(ShowsMusicPersons));
+      OnPropertyChanged(nameof(ShowsTracks));
+      RaiseTheBands();
+    }
+
+    /// <summary>Whether the audio file's own row of plaques has an answer.</summary>
+    partial void OnShowsAudioLineChanged(bool value)
+    {
+      OnPropertyChanged(nameof(ShowsTracks));
+      RaiseTheBands();
+    }
+
     /// <summary>
     /// Whether the whole tracks band costs its lines: any of its parts has an answer. One answer because a
     /// screen cannot join three conditions by itself, and because the header the band carries would otherwise
     /// stand over nothing.
     /// </summary>
-    public bool ShowsTracks => ShowsPictureLine || ShowsAudioTracks || ShowsSubtitleTracks || ShowsPersons;
+    public bool ShowsTracks => ShowsPictureLine || ShowsAudioTracks || ShowsSubtitleTracks || ShowsPersons
+        || ShowsMusicPersons || ShowsAudioLine;
 
     partial void OnShowsPictureLineChanged(bool value) => RaiseTheBands();
 
@@ -1029,6 +1241,24 @@ namespace MediaPortal.Frontend.ViewModels
     /// </remarks>
     public ObservableCollection<MediaBrowserFact> DetailsFacts { get; } = new ObservableCollection<MediaBrowserFact>();
 
+    /// <summary>
+    /// The handful of facts the gradient over the row of covers has room for: what a title <em>is</em>, said above
+    /// the plaques that say what its file <em>is</em>.  The whole band stays on the information screen; the shelf
+    /// names only the answers a viewer reaches for while walking the row - of what year, of what kind, how long,
+    /// how many - together with the two numbers of an episode and the two of a season, which are the only way a
+    /// series says where it stands.
+    /// </summary>
+    public ObservableCollection<MediaBrowserFact> CoverFacts { get; } = new ObservableCollection<MediaBrowserFact>();
+
+    /// <summary>
+    /// The words of <see cref="DetailsFacts"/> the cover flow repeats.  Ordinal, because every one of them is one
+    /// this front end wrote itself in <c>AddFact</c> and none came from a server.
+    /// </summary>
+    private static readonly HashSet<string> CoverFactLabels = new HashSet<string>(StringComparer.Ordinal)
+    {
+      "Season", "Episode", "Series", "Episodes", "Length", "Runtime", "Year", "Genre", "Tracks"
+    };
+
     /// <summary>The selected title's rating on the ten points the library gave it, or null when nobody rated it.</summary>
     [ObservableProperty]
     private double? _detailsRating;
@@ -1061,6 +1291,14 @@ namespace MediaPortal.Frontend.ViewModels
 
     /// <summary>The title the last details read was for, so that opening it again costs nothing.</summary>
     private Guid _detailsFor;
+
+    /// <summary>
+    /// The first episode of every shelf this screen has opened, by the id the shelf was asked under together with
+    /// the season number read through it.  A shelf is not a file, so its plaques answer from that episode; the
+    /// answer is remembered because a viewer walking a series row stops at several series and one series is read
+    /// more than once on the way.
+    /// </summary>
+    private readonly Dictionary<string, Guid?> _firstEpisodeOfShelf = new(StringComparer.Ordinal);
 
     /// <summary>
     /// The title the newest details read was asked for. Walking a shelf with the details panel on fires a
@@ -1393,6 +1631,13 @@ namespace MediaPortal.Frontend.ViewModels
     /// <summary>The frame a skin draws for an album's square.</summary>
     internal const string ALBUM_TEMPLATE_KEY = "MediaTileAlbumTemplate";
 
+    /// <summary>
+    /// The frame a skin draws for a music shelf's cover in the third view.  One frame for albums and tracks,
+    /// because the reference drew one: <c>CoverViewAudioItemTemplate</c> (MediaStyles.xaml:3599) is bound for
+    /// audio as audio, at <c>AUDIO_COVER_WIDTH</c> x <c>AUDIO_COVER_HEIGHT</c> - 260x260 (MediaConsts.xaml:57f).
+    /// </summary>
+    internal const string MUSIC_COVER_TEMPLATE_KEY = "MediaTileAlbumCoverTemplate";
+
     /// <summary>The frame a skin draws for a track's square.</summary>
     internal const string TRACK_TEMPLATE_KEY = "MediaTileTrackTemplate";
 
@@ -1407,8 +1652,10 @@ namespace MediaPortal.Frontend.ViewModels
         || string.Equals(AspectName, "AudioItem", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
-    /// The square frame the worn skin draws for this shelf's music, or <c>null</c> when it draws none - in
-    /// which case the shelf wears whatever frame the layout asks for, as every other skin's media does.
+    /// The frame the worn skin draws for this shelf's music, or <c>null</c> when it draws none - in which case
+    /// the shelf wears whatever frame the layout asks for, as every other skin's media does.  The third view
+    /// asks for its own frame first, because the reference's audio cover was a larger square than its audio
+    /// tile; a skin that draws no such frame is answered with the grid's square, as it was before.
     /// </summary>
     private string? MusicTemplateKey
     {
@@ -1416,6 +1663,10 @@ namespace MediaPortal.Frontend.ViewModels
       {
         if (!IsMusic)
           return null;
+
+        if (Layout == BrowserLayout.Cover
+            && SkinEngine.TryTileTemplate(MUSIC_COVER_TEMPLATE_KEY) != null)
+          return MUSIC_COVER_TEMPLATE_KEY;
 
         string key = string.Equals(AspectName, "AlbumItem", StringComparison.OrdinalIgnoreCase)
             ? ALBUM_TEMPLATE_KEY
@@ -1446,9 +1697,9 @@ namespace MediaPortal.Frontend.ViewModels
         if (Layout == BrowserLayout.List)
           return "TitleRowTemplate";
 
-        // The music square outranks every other frame the layout could ask for: the reference's audio cover
-        // view is as square as its audio grid, so walking a music shelf from tiles into covers never makes
-        // its covers grow a film case around them.
+        // The music frames outrank every other frame the layout could ask for: the reference drew its audio
+        // cover as a square too - a larger one than its audio tile, but never a film case - so walking a music
+        // shelf from tiles into covers changes the size of the square and not its shape.
         return MusicTemplateKey ?? (Layout == BrowserLayout.Cover
             ? COVER_TEMPLATE_KEY
             : TileKey(_tileKind));
@@ -3434,8 +3685,16 @@ namespace MediaPortal.Frontend.ViewModels
         // The episode's own summary first. When the importer numbered the episodes but never wrote one, the next
         // honest sentence is the series' own - the server lends it as SeriesOverview - and only where the series
         // has nothing either does the panel admit that nothing was written.
+        //
+        // A piece of music is never admitted to anything, because it has no story to be missing: the reference
+        // wrote a story block into its VIDEO screens only (StoryPlot through the VideoAspectWrapper at
+        // CurrentlyPlayingVideoDetails.inc:59, CurrentlyPlayingMovieDetails.inc:88,
+        // CurrentlyPlayingSeriesDetails.inc:339), while its audio screen has no prose block at all
+        // (CurrentlyPlayingAudioDetails.inc).  Where a record does carry prose - the album description a tag
+        // reader wrote, which the server now lends - it stands; where it carries none the panel says nothing,
+        // because empty means empty (the viewer's word on 2026-11-03).
         DetailsText = details.Description ?? details.SeriesOverview
-            ?? "Nothing was written about this title on this server.";
+            ?? (IsMusic ? "" : "Nothing was written about this title on this server.");
         // The episode's name walks out of the fact list and stands in bold over its own story - the story is
         // the sentence of THIS episode, and its title belongs over the sentence, not among the shelf numbers.
         DetailsEpisodeName = !isSeason && !string.IsNullOrWhiteSpace(details.EpisodeName)
@@ -3448,11 +3707,16 @@ namespace MediaPortal.Frontend.ViewModels
             : "";
         FillDetailsStars(DetailsRating);
         FillDetailsFacts(details, title);
+        // An audio file describes itself in its details answer, so this row is filled from what is already in
+        // hand; a film's answer carries none of the six figures and the row stays away.
+        DetailsAudio = MediaStreamLogos.Audio(details);
+        ShowsAudioLine = DetailsAudio.ShowsAnything;
         FillDetailsCollection(details);
         FillDetailsProgress(title);
         DetailsVisible = true;
         await ReadDetailsArtworkAsync(title);
         await ReadDetailsClearArtAsync(title);
+        await ReadDetailsDiscAsync(title);
         await ReadDetailsStreamsAsync(title);
         await ReadDetailsPersonsAsync(title);
         _ = ReadDetailsCollectionFilmsAsync(DetailsCollection);
@@ -3616,14 +3880,38 @@ namespace MediaPortal.Frontend.ViewModels
         // title belongs (see DetailsEpisodeName); the band keeps only the numbers, which are the catalogue.
       }
 
-      int? minutes = details.RuntimeMinutes ?? title.Title.RuntimeMinutes;
-      if (minutes.HasValue && minutes.Value > 0)
+      // An audio file's length is said in its own spelling. The worn skin wrote a track's duration as minutes and
+      // seconds (<c>MediaInfoAudioDetails.inc:308-315</c>, <c>Duration</c> through the skin's duration converter as
+      // <c>mm\:ss</c>), and it is right to: "3 min" is a song rounded away, while "03:26" is the length a viewer is
+      // about to listen to. Only an audio file answers the seconds, so nothing else changes its wording here.
+      // <para>
+      // An album is the one audio title that is NOT spelled that way, and the viewer asked for the difference: a
+      // record is not about to be listened to in the way a song is, and "105:45" is a stopwatch while "1 h 45 min"
+      // is how anybody says how long an album takes.  The album's seconds are the sum of its tracks
+      // (MediaController.FillTheTracksInsideItsAlbum), and the minutes below are cut off whole - 105 minutes and
+      // 45 seconds are one hour and forty-five minutes, and a screen that said "1 h 46 min" would promise a minute
+      // the record does not have.
+      // </para>
+      bool isAlbum = MediaCatalog.IsAlbum(AspectName);
+      int? seconds = isAlbum ? null : details.DurationSeconds;
+      if (seconds.HasValue && seconds.Value > 0)
       {
-        int hours = minutes.Value / 60;
-        string length = hours > 0
-            ? hours + " h " + (minutes.Value % 60) + " min"
-            : minutes.Value + " min";
-        AddFact(isSeason || IsMusic ? "Length" : "Runtime", length);
+        AddFact("Length",
+            (seconds.Value / 60).ToString("00", CultureInfo.InvariantCulture) + ":"
+            + (seconds.Value % 60).ToString("00", CultureInfo.InvariantCulture));
+      }
+      else
+      {
+        int? minutes = (isAlbum && details.DurationSeconds > 0 ? details.DurationSeconds.Value / 60 : (int?) null)
+            ?? details.RuntimeMinutes ?? title.Title.RuntimeMinutes;
+        if (minutes.HasValue && minutes.Value > 0)
+        {
+          int hours = minutes.Value / 60;
+          string length = hours > 0
+              ? hours + " h " + (minutes.Value % 60) + " min"
+              : minutes.Value + " min";
+          AddFact(isSeason || IsMusic ? "Length" : "Runtime", length);
+        }
       }
 
       if (details.Year.HasValue)
@@ -3642,11 +3930,28 @@ namespace MediaPortal.Frontend.ViewModels
         if (kinds.Count > 0)
           AddFact("Genre", string.Join(", ", kinds));
       }
+      // What stands on the album, which is the two facts the reference wrote under its album name: how many tracks
+      // and on how many discs (MediaItemListAudioAlbumDetails.inc:138-153, the "track.png" row reading
+      // AudioAlbumAspect.NUMTRACKS, and MediaInfoAudio.xaml:139-148 writing "{DiscId} | {NumDiscs}" beside a
+      // picture of a disc).  The count is the one the library has rather than the one the tag remembers
+      // (MediaController.ItemResult.TrackCount), and a set of one disc says no "Discs" at all - a number that
+      // chooses nothing between one and one is not an answer, it is the absence of a set.
+      if (details.AlbumTrackCount.HasValue && details.AlbumTrackCount.Value > 0)
+        AddFact("Tracks", details.AlbumTrackCount.Value.ToString(CultureInfo.InvariantCulture));
+      if (details.DiscCount.HasValue && details.DiscCount.Value > 1)
+        AddFact("Discs", details.DiscCount.Value.ToString(CultureInfo.InvariantCulture));
       if (!string.IsNullOrWhiteSpace(details.Collection))
         AddFact("Collection", details.Collection!.Trim());
       if (details.PlayCount.HasValue && details.PlayCount.Value > 0)
         AddFact("Played", details.PlayCount.Value
             + (details.PlayCount.Value == 1 ? " time" : " times"));
+
+      // What stands in the facts band is the whole answer; the gradient over the row of covers repeats the few of
+      // them it can wear, in the order the band already has them and in no order of its own.
+      CoverFacts.Clear();
+      foreach (MediaBrowserFact fact in DetailsFacts)
+        if (CoverFactLabels.Contains(fact.Label))
+          CoverFacts.Add(fact);
     }
 
     /// <summary>
@@ -3734,30 +4039,130 @@ namespace MediaPortal.Frontend.ViewModels
     /// Quiet when it fails, like the poster: most libraries hold no clear art for most titles, and a panel that
     /// complained about every one of them would teach the viewer nothing except that the library is ordinary.
     /// </para>
+    /// <para>
+    /// <b>An album is asked twice, because an album's lettering is filed under two names.</b> A media manager
+    /// leaving art beside the files writes <c>clearart.png</c> and <c>clearlogo.png</c>, and this library's
+    /// importers file them apart: the first under <c>ClearArt</c>, the second under <c>Logo</c>
+    /// (<c>LocalFanartHelper.LOGO_FILENAMES</c>, which names both words, filed by
+    /// <c>VideoFanArtHandler.FANART_FILENAMES</c> and the audio handlers).  Measured over the household's 43
+    /// albums: three answer <c>ClearArt</c>, thirty-nine answer <c>Logo</c>.  Asking only the reference's name
+    /// would therefore leave thirty-six of thirty-nine albums standing without the lettering they have, which is
+    /// why the album asks its second question when its first is answered with nothing.  A film asks once and keeps
+    /// its lettering in the head's row, where the reference hung it.
+    /// </para>
     /// </remarks>
     private async Task ReadDetailsClearArtAsync(TitleViewModel title)
     {
       DetailsClearArt = null;
-      Artwork? artwork = PanelArtworkFor("ClearArt");
-      if (artwork == null)
-        return;
+      DetailsAlbumLettering = null;
 
-      try
+      // The names in the order they are believed, which for a film is one name and for an album two.
+      string[] kinds = IsMusic
+          ? new[] { "ClearArt", "Logo" }
+          : new[] { "ClearArt" };
+
+      foreach (string kind in kinds)
       {
-        byte[]? picture = await artwork.LoadAsync(title.Title.Id);
-        if (picture != null && !ArtworkConverter.Instance.Remembers(picture, null))
+        Artwork? artwork = PanelArtworkFor(kind);
+        if (artwork == null)
+          return;
+
+        byte[]? picture;
+        try
+        {
+          picture = await artwork.LoadAsync(title.Title.Id);
+        }
+        catch (ServerApiException)
+        {
+          // See above: a library without this picture is a library, not a failure - and an album without this
+          // kind of picture still has its other question to ask.
+          continue;
+        }
+
+        if (picture == null)
+          continue;
+
+        if (!ArtworkConverter.Instance.Remembers(picture, null))
         {
           byte[] toRead = picture;
           await Task.Run(() => ArtworkConverter.Instance.Warm(toRead, null));
         }
 
-        if (_detailsFor == title.Title.Id)
+        // The last question asked is the one that may write, exactly as with the poster: a viewer walking two
+        // albums in quick succession must not end up with the first album's lettering over the second's story.
+        if (_detailsFor != title.Title.Id)
+          return;
+
+        if (IsMusic)
+          DetailsAlbumLettering = picture;
+        else
           DetailsClearArt = picture;
+        return;
+      }
+    }
+
+    /// <summary>
+    /// The disc the album was pressed on, asked of the same picture question the cover and the writing are asked
+    /// of, and laid behind the cover when the library has one.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The reference laid this picture in the cover's own box and let it look out past the cover's edge: four
+    /// hundred and twenty lines of disc behind four hundred and forty of cover, pushed a hundred and ninety of its
+    /// own four hundred and twenty beyond the cover it stood under
+    /// (<c>MediaItemListAudioAlbumDetails.inc:41-44</c>, the cover at <c>:52</c>, the box of four hundred and
+    /// fifty six at <c>:33</c>) - forty five percent of the disc showing.  This panel lays it out of the cover's
+    /// side instead and shows forty percent of it, which is what the viewer asked for on 2026-11-03; the size,
+    /// the order of the two pictures and the fact that the disc is never drawn without a cover over it are the
+    /// reference's.
+    /// </para>
+    /// <para>
+    /// Only a record asks the question.  A film's poster never had a disc behind it, and asking a film's id for
+    /// one costs a round trip to answer nothing.  Measured over the household's library on 2026-11-03, one request
+    /// per album: nine of forty three albums answer <c>DiscArt</c> and thirty four answer with a refusal, which is
+    /// the answer every library gives for every picture it does not hold - and the panel then draws no disc,
+    /// leaves the cover standing alone and tells the story in its own column beside it, exactly as it did before.
+    /// </para>
+    /// </remarks>
+    private async Task ReadDetailsDiscAsync(TitleViewModel title)
+    {
+      DetailsAlbumDisc = null;
+
+      if (!IsMusic)
+        return;
+
+      Artwork? artwork = PanelArtworkFor("DiscArt");
+      if (artwork == null)
+        return;
+
+      byte[]? picture;
+      try
+      {
+        picture = await artwork.LoadAsync(title.Title.Id);
       }
       catch (ServerApiException)
       {
-        // See above: a library without this picture is a library, not a failure.
+        // See above: a library that keeps no picture of the disc is an ordinary library, and the cover stands
+        // alone in a panel that never mentions the question.
+        return;
       }
+
+      if (picture == null)
+        return;
+
+      if (!ArtworkConverter.Instance.Remembers(picture, null))
+      {
+        byte[] toRead = picture;
+        await Task.Run(() => ArtworkConverter.Instance.Warm(toRead, null));
+      }
+
+      // The last title asked about is the one that may write, exactly as with the cover and the writing: a viewer
+      // walking two albums in quick succession must not end up with the first album's disc under the second's
+      // cover.
+      if (_detailsFor != title.Title.Id)
+        return;
+
+      DetailsAlbumDisc = picture;
     }
 
     /// <summary>
@@ -3784,6 +4189,7 @@ namespace MediaPortal.Frontend.ViewModels
       ShowsPictureLine = false;
       ShowsAudioTracks = false;
       ShowsSubtitleTracks = false;
+      ShowsFileSubtitles = false;
       FirstAudioChannelsToken = "";
       FirstAudioChannelsWord = "";
 
@@ -3794,44 +4200,58 @@ namespace MediaPortal.Frontend.ViewModels
         return;
       }
 
-      // A season the library only counts is read through its series and a number. There is no title behind that
-      // pair that could carry a file - a series is a shelf of seasons, not a file - so its tracks are not asked
-      // for: the question would be about a different title than the one the viewer stands on.
-      if (title.AskSeason.HasValue)
-      {
-        FirstAudioChannelsToken = "";
-        FirstAudioChannelsWord = "";
-        return;
-      }
+      // A season the library only counts is read through its series and a number, and a series is a shelf of
+      // seasons: neither pair has a title behind it that could carry a file, so its OWN tracks are not asked for.
+      // What IS asked - on the viewer's word of 2026-11-03, "the plaques are missing on series" - is the file
+      // answer of the series' FIRST episode, which is the answer to "what does this look like on the disk": the
+      // packing, the size, the high dynamic range, the sound and whether text rides along.  The tracks lists stay
+      // the title's own, and therefore empty; a series has no single file whose tracks could be named.
+      bool standsOnAShelf = title.AskSeason.HasValue
+          || MediaCatalog.IsSeries(ShelfAspectOf(title))
+          || MediaCatalog.IsSeason(ShelfAspectOf(title));
 
       Guid asked = title.Title.Id;
       try
       {
-        MediaStreamsAnswer streams = await _client.GetMediaStreamsAsync(title.AskId);
+        Guid? fileTitle = standsOnAShelf
+            ? await ReadFirstEpisodeOfShelfAsync(title, asked)
+            : title.AskId;
+        if (fileTitle == null || _detailsFor != asked)
+          return;
+
+        MediaStreamsAnswer streams = await _client.GetMediaStreamsAsync(fileTitle.Value);
         if (_detailsFor != asked)
           return;
 
         DetailsPicture = MediaStreamLogos.Picture(
             streams.VideoStreams.Count > 0 ? streams.VideoStreams[0] : null);
+        AudioStreamInfo? firstAudio = streams.AudioStreams.Count > 0 ? streams.AudioStreams[0] : null;
 
-        foreach (AudioStreamInfo audio in streams.AudioStreams)
+        if (!standsOnAShelf)
         {
-          AudioTrackCard? card = MediaStreamWords.AudioCard(audio);
-          if (card != null)
-            DetailsAudioTracks.Add(card);
-        }
+          foreach (AudioStreamInfo audio in streams.AudioStreams)
+          {
+            AudioTrackCard? card = MediaStreamWords.AudioCard(audio);
+            if (card != null)
+              DetailsAudioTracks.Add(card);
+          }
 
-        foreach (SubtitleStreamInfo subtitle in streams.SubtitleStreams)
-        {
-          SubtitleTrackCard? card = MediaStreamWords.SubtitleCard(subtitle);
-          if (card != null)
-            DetailsSubtitleTracks.Add(card);
+          foreach (SubtitleStreamInfo subtitle in streams.SubtitleStreams)
+          {
+            SubtitleTrackCard? card = MediaStreamWords.SubtitleCard(subtitle);
+            if (card != null)
+              DetailsSubtitleTracks.Add(card);
+          }
         }
 
         ShowsPictureLine = DetailsPicture.ShowsAnything;
         ShowsAudioTracks = DetailsAudioTracks.Count > 0;
         ShowsSubtitleTracks = DetailsSubtitleTracks.Count > 0;
-        AudioTrackCard? first = DetailsAudioTracks.Count > 0 ? DetailsAudioTracks[0] : null;
+        // The plaque asks the file, not the list: a shelf's list is empty by nature, its file answer is episode one's.
+        ShowsFileSubtitles = standsOnAShelf
+            ? streams.SubtitleStreams.Count > 0
+            : ShowsSubtitleTracks;
+        AudioTrackCard? first = firstAudio == null ? null : MediaStreamWords.AudioCard(firstAudio);
         FirstAudioChannelsToken = first?.ChannelsToken ?? "";
         FirstAudioChannelsWord = first?.Channels ?? "";
       }
@@ -3857,6 +4277,14 @@ namespace MediaPortal.Frontend.ViewModels
     private static readonly string[] PEOPLE_ASKED = { "actor", "director" };
 
     /// <summary>
+    /// The parts a music screen asks its people in, which are the three the reference's audio screen named
+    /// (<c>MediaInfoAudio.xaml:204-296</c>: Artists, Album Artists, Composers).  The server has answered these
+    /// roles since the people endpoint was built (<c>MediaController.cs</c>, the roles table's
+    /// <c>artist</c>/<c>albumartist</c>/<c>composer</c>); what was missing was a screen asking them.
+    /// </summary>
+    private static readonly string[] MUSIC_PEOPLE_ASKED = { "artist", "albumartist", "composer" };
+
+    /// <summary>
     /// The people the title names, asked of the server and laid into the two bands of the reading.
     /// </summary>
     /// <remarks>
@@ -3875,12 +4303,125 @@ namespace MediaPortal.Frontend.ViewModels
     /// the names are on the screen before a single face has been asked for.
     /// </para>
     /// </remarks>
+    /// <summary>
+    /// The aspect of the shelf this row was listed in, which is what tells a season from an episode and a shelf
+    /// from a thing to watch: whoever reads a list says it on the row (<see cref="TitleViewModel.ReadThrough"/>),
+    /// and for a row of this screen's own shelf the screen's aspect is the same answer.
+    /// </summary>
+    private string ShelfAspectOf(TitleViewModel title)
+    {
+      return title.ReadThrough ?? AspectName;
+    }
+
+    /// <summary>
+    /// The first episode inside the shelf the viewer stands on, which is what a shelf's file plaques answer from.
+    /// </summary>
+    /// <param name="title">The series or season the viewer stands on.</param>
+    /// <param name="asked">The title the running details read is for; a late answer about another one is dropped.</param>
+    /// <remarks>
+    /// <para>
+    /// The shelf is asked for the episodes filed inside it - <c>inside=series</c> for a series, and the same
+    /// question with the season number added for a season, which is how the screen reads a season's own shelf
+    /// too (a season row carries its series as parent and its number, <see cref="TitleViewModel.AskId"/> and
+    /// <see cref="TitleViewModel.AskSeason"/>).  A season is <b>not</b> asked as a parent: the seasons of this
+    /// library are counted rather than held, and such an id answers the episode question with 404 - which is why
+    /// the walk over the season title was tried once, on the live server, and then dropped.
+    /// </para>
+    /// <para>
+    /// Which of the answered episodes is <b>first</b> is settled here rather than by the server: <c>sort=episode</c>
+    /// orders by the two numbers the episode aspect carries (MediaController.cs:4131-4134), but the running server
+    /// was asked over every series of this library and answered Shōgun with S01E04, Raised by Wolves with S02E4 and
+    /// Prison Break with a row carrying no number at all, because its import left those two columns empty for
+    /// whole runs of episodes.  So the shelf's episodes are read once, remembered, and the lowest pair of numbers
+    /// wins - the episode a viewer reaching for a series would play first, which is the file the plaques answer
+    /// from.  A title with no numbers written on it loses to one that has them: no number is not a lower number.
+    /// </para>
+    /// <para>
+    /// A shelf without a single episode answers nothing, and a server too old for the question says so: both leave
+    /// the plaques away rather than guessing at a file.
+    /// </para>
+    /// </remarks>
+    private async Task<Guid?> ReadFirstEpisodeOfShelfAsync(TitleViewModel title, Guid asked)
+    {
+      string key = title.AskId.ToString("D") + "/"
+          + (title.AskSeason.HasValue
+              ? title.AskSeason.Value.ToString(CultureInfo.InvariantCulture)
+              : "-");
+      if (_firstEpisodeOfShelf.TryGetValue(key, out Guid? known))
+        return known;
+
+      ServerApiClient? client = _client;
+      if (client == null)
+        return null;
+
+      try
+      {
+        // Five hundred rather than one: the answer is picked from the whole shelf, and a shelf deeper than this
+        // is deep enough that its first two hundred episodes are inside the page anyway.
+        MediaTitles episodes = await client.GetTitlesAsync(
+            "EpisodeItem", null, false, 500, 0, null, null, title.AskId, null, null, title.AskSeason);
+        if (_detailsFor != asked)
+          return null;
+
+        IReadOnlyList<MediaTitle>? inside = episodes.Titles;
+        if (inside == null || inside.Count == 0)
+        {
+          _firstEpisodeOfShelf[key] = null;
+          return null;
+        }
+
+        MediaTitle first = inside[0];
+        foreach (MediaTitle candidate in inside)
+        {
+          if (CompareEpisodeNumbers(candidate, first) < 0)
+            first = candidate;
+        }
+
+        _firstEpisodeOfShelf[key] = first.Id;
+        return first.Id;
+      }
+      catch (ServerApiException)
+      {
+        // A server too old for the question, or a shelf the library dropped between the questions.  Nothing is
+        // guessed at: a shelf whose episode question went wrong wears no plaques.  Nothing is remembered either,
+        // so a shelf that was merely asked at a bad moment is asked again the next time the viewer stands on it.
+      }
+      catch (Exception)
+      {
+        // The same answer for anything else that goes wrong over one shelf.
+      }
+      return null;
+    }
+
+    /// <summary>
+    /// Whether one episode comes before another in the order a viewer watches a series in: season number first,
+    /// episode number second.
+    /// </summary>
+    /// <remarks>
+    /// A title whose numbers never arrived stands last rather than first: an empty column is not the smallest
+    /// number, and a shelf that sorts nothing would otherwise hand out its most nameless row as the series' first
+    /// episode.
+    /// </remarks>
+    private static int CompareEpisodeNumbers(MediaTitle a, MediaTitle b)
+    {
+      int bySeason = (a.Season ?? int.MaxValue).CompareTo(b.Season ?? int.MaxValue);
+      return bySeason != 0
+          ? bySeason
+          : (a.Episode ?? int.MaxValue).CompareTo(b.Episode ?? int.MaxValue);
+    }
+
     private async Task ReadDetailsPersonsAsync(TitleViewModel title)
     {
       DetailsActors.Clear();
       DetailsDirectors.Clear();
+      DetailsArtists.Clear();
+      DetailsAlbumArtists.Clear();
+      DetailsComposers.Clear();
       ShowsActors = false;
       ShowsDirectors = false;
+      ShowsArtists = false;
+      ShowsAlbumArtists = false;
+      ShowsComposers = false;
 
       if (_client == null)
         return;
@@ -3890,23 +4431,49 @@ namespace MediaPortal.Frontend.ViewModels
       if (title.AskSeason.HasValue)
         return;
 
+      // A song is not credited to an actor and a film is not credited to a composer, so the question itself turns on
+      // what kind of wall the viewer is standing in - one question either way, never six names nobody asked for.
+      bool music = IsMusic;
       Guid asked = title.Title.Id;
       try
       {
-        MediaPersonsAnswer answer = await _client.GetMediaPersonsAsync(title.AskId, PEOPLE_ASKED);
+        MediaPersonsAnswer answer = await _client.GetMediaPersonsAsync(title.AskId,
+            music ? MUSIC_PEOPLE_ASKED : PEOPLE_ASKED);
         if (_detailsFor != asked)
           return;
 
-        foreach (PersonCard card in MediaPersons.CardsFor(answer.PeopleOf("actor")))
-          DetailsActors.Add(card);
-        foreach (PersonCard card in MediaPersons.CardsFor(answer.PeopleOf("director")))
-          DetailsDirectors.Add(card);
+        List<PersonCard> faces = new List<PersonCard>();
+        if (music)
+        {
+          foreach (PersonCard card in MediaPersons.CardsFor(answer.PeopleOf("artist")))
+            DetailsArtists.Add(card);
+          foreach (PersonCard card in MediaPersons.CardsFor(answer.PeopleOf("albumartist")))
+            DetailsAlbumArtists.Add(card);
+          foreach (PersonCard card in MediaPersons.CardsFor(answer.PeopleOf("composer")))
+            DetailsComposers.Add(card);
 
-        ShowsActors = DetailsActors.Count > 0;
-        ShowsDirectors = DetailsDirectors.Count > 0;
+          ShowsArtists = DetailsArtists.Count > 0;
+          ShowsAlbumArtists = DetailsAlbumArtists.Count > 0;
+          ShowsComposers = DetailsComposers.Count > 0;
 
-        List<PersonCard> faces = new List<PersonCard>(DetailsActors);
-        faces.AddRange(DetailsDirectors);
+          faces.AddRange(DetailsArtists);
+          faces.AddRange(DetailsAlbumArtists);
+          faces.AddRange(DetailsComposers);
+        }
+        else
+        {
+          foreach (PersonCard card in MediaPersons.CardsFor(answer.PeopleOf("actor")))
+            DetailsActors.Add(card);
+          foreach (PersonCard card in MediaPersons.CardsFor(answer.PeopleOf("director")))
+            DetailsDirectors.Add(card);
+
+          ShowsActors = DetailsActors.Count > 0;
+          ShowsDirectors = DetailsDirectors.Count > 0;
+
+          faces.AddRange(DetailsActors);
+          faces.AddRange(DetailsDirectors);
+        }
+
         _ = PaintPersonPortraitsAsync(asked, faces);
       }
       catch (ServerApiException)

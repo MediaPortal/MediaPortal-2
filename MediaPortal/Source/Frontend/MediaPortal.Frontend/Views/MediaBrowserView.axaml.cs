@@ -331,7 +331,10 @@ namespace MediaPortal.Frontend.Views
       // The wheel over a band belongs to the band, but only while the band holds the caret: a viewer whose
       // pointer happens to lie over a band must still be able to scroll the reading of a title as a whole.
       foreach (ScrollViewer band in new[]
-          { audioTracksScroller, subtitleTracksScroller, actorsScroller, directorsScroller, collectionScroller })
+          {
+              audioTracksScroller, subtitleTracksScroller, actorsScroller, directorsScroller,
+              artistsScroller, albumArtistsScroller, composersScroller, collectionScroller
+          })
       {
         // A band glides to where its caret goes instead of jumping there.  The reference lerps EVERY offset
         // change of its rows through the skin's storyboards - three hundred milliseconds with a ScrollMargin of a
@@ -615,8 +618,11 @@ namespace MediaPortal.Frontend.Views
       // hung that menu on the remote's Info key alone (master_mediamenu.xaml:400), but a shelf is walked, not
       // memorised: a viewer pointing left past the first row pointed at the menu, which is the thing standing to
       // the left of the shelf in the reference's own room (ClientGrid Margin "-200,0,0,-200"). Covers lay their
-      // menu under the screen, so their leading edge is the top of the row. The way back is the opposite key,
-      // because a menu a viewer cannot leave is a second screen they never asked for.
+      // menu UNDER the screen, so their key points DOWN: lifting the caret off the row upward to reach a menu
+      // lying below it is a key that has to be memorised, which is what the viewer called irritating. The way
+      // back is the opposite key, because a menu a viewer cannot leave is a second screen they never asked for.
+      // And pointing down again from the menu is pointing at the floor behind it, so the menu is nudged into the
+      // floor and springs back - the same answer this front end gives every other wall.
       AddHandler(KeyDownEvent,
           delegate (object? sender, KeyEventArgs args)
           {
@@ -624,8 +630,8 @@ namespace MediaPortal.Frontend.Views
               return;
 
             bool sideways = viewModel.Layout == BrowserLayout.Cover;
-            Key off_the_shelf = sideways ? Key.Up : Key.Left;
-            Key back_to_the_shelf = sideways ? Key.Down : Key.Right;
+            Key off_the_shelf = sideways ? Key.Down : Key.Left;
+            Key back_to_the_shelf = sideways ? Key.Up : Key.Right;
             ListBox menu = sideways ? mediaMenuListBottom : mediaMenuList;
 
             if (args.Key == off_the_shelf && titlesList.IsKeyboardFocusWithin)
@@ -1035,11 +1041,11 @@ namespace MediaPortal.Frontend.Views
       }, RoutingStrategies.Tunnel);
 
       // The wall a viewer pointed at answers with a nod. Three kinds of key point at one: the key that leads
-      // away from the shelf - the left on a rail standing beside the shelf, the up on the rail under covers,
-      // whose other side holds nothing at all - and the two keys that lead past an end of the rail, which are
-      // walls only while the caret stands on that end. Every other key is the list's own arrow walking and is
-      // left to it. The whole rail nods, ground and glow with it, because a row of plates sliding on their
-      // ground is a row that fell off it.
+      // away from the shelf - the left on a rail standing beside the shelf, the DOWN on the rail under covers,
+      // whose other side is the floor the menu slides out of - and the two keys that lead past an end of the
+      // rail, which are walls only while the caret stands on that end. Every other key is the list's own arrow
+      // walking and is left to it. The whole rail nods, ground and glow with it, because a row of plates sliding
+      // on their ground is a row that fell off it.
       //
       // Heard on the rail's ground rather than on the list: a tunnel handler on the control a key arrives at is
       // never heard there (the control itself is only served on the way back up), and the caret sometimes
@@ -1053,14 +1059,16 @@ namespace MediaPortal.Frontend.Views
         if (args.Handled || list.Items.Count == 0)
           return;
 
-        Key away_from_the_shelf = sideways_rail ? Key.Up : Key.Left;
+        // Under covers the shelf is reached from above (Up) and the wall lies BELOW the row of plates, so the
+        // nod there dives downward into the floor the menu came out of.
+        Key away_from_the_shelf = sideways_rail ? Key.Down : Key.Left;
         Key past_the_head = sideways_rail ? Key.Left : Key.Up;
         Key past_the_foot = sideways_rail ? Key.Right : Key.Down;
         object? stood = StoodOnRow(list);
         int standing = stood == null ? -1 : list.Items.IndexOf(stood);
 
         if (args.Key == away_from_the_shelf)
-          BounceRail(rail_ground, sideways_rail ? 0 : -RAIL_BOUNCE_DIVE, sideways_rail ? -RAIL_BOUNCE_DIVE : 0);
+          BounceRail(rail_ground, sideways_rail ? 0 : -RAIL_BOUNCE_DIVE, sideways_rail ? RAIL_BOUNCE_DIVE : 0);
         else if (args.Key == past_the_head && standing <= 0)
           BounceRail(rail_ground, sideways_rail ? -RAIL_BOUNCE_DIVE : 0, sideways_rail ? 0 : -RAIL_BOUNCE_DIVE);
         else if (args.Key == past_the_foot && standing == list.Items.Count - 1)
@@ -1901,9 +1909,13 @@ namespace MediaPortal.Frontend.Views
         titlesList.VerticalAlignment = VerticalAlignment.Bottom;
         // The floor the grid and the list hand back to stand their wall in the middle of the room is not the
         // covers' floor: their row lies along the bottom edge of the room itself, and lifting it by that floor
-        // would float the row off the edge it was laid against.
-        titlesList.Margin = new Avalonia.Thickness(0);
-        ScrollViewer.SetHorizontalScrollBarVisibility(titlesList, ScrollBarVisibility.Auto);
+        // would float the row off the edge it was laid against.  Lying along the edge is not the same as being
+        // cut by it, though - laid flat against the floor the row read as sawn off, so it stands on a floor of
+        // its own: forty-five design pixels, which is the sixty the viewer counted on a screen drawn at 133%.
+        titlesList.Margin = new Avalonia.Thickness(0, 0, 0, COVER_SHELF_FLOOR);
+        // No bar under the row: the covers are walked with the caret and the room slides to the stood-on cover
+        // by itself, so the bar only ever drew a bright line across the bottom of the picture.
+        ScrollViewer.SetHorizontalScrollBarVisibility(titlesList, ScrollBarVisibility.Hidden);
         ScrollViewer.SetVerticalScrollBarVisibility(titlesList, ScrollBarVisibility.Disabled);
       }
       else
@@ -2258,6 +2270,14 @@ namespace MediaPortal.Frontend.Views
         new FuncTemplate<Panel?>(() => new VirtualizingStackPanel { Orientation = Orientation.Horizontal });
 
     /// <summary>
+    /// The floor the cover row stands on: how far the row is lifted off the bottom edge of the room.  Laid flat
+    /// against that edge the covers read as sawn off, which is what the viewer reported as sixty screen pixels
+    /// of missing cover - forty-five of them design pixels on the screen this port is measured on, which draws
+    /// at one and a third.
+    /// </summary>
+    private const double COVER_SHELF_FLOOR = 45;
+
+    /// <summary>
     /// Asks for the pictures of the rows the screen can see, once the layout pass that laid them out is over.
     /// </summary>
     /// <remarks>
@@ -2299,10 +2319,14 @@ namespace MediaPortal.Frontend.Views
       // screen away is a poster that is there when they arrive, and one that arrives after they do is grey. For
       // covers the band runs sideways instead, which is the direction their shelf is walked in.
       //
-      // A screenful above and below the visible band, because a poster that arrives while the viewer is still a
-      // screen away is a poster that is there when they arrive, and one that arrives after they do is grey. For
-      // covers the band runs sideways instead, which is the direction their shelf is walked in.
-      Rect visible = titlesList.Bounds;
+      // The band is laid in the list's OWN coordinates, which are the coordinates every container below is read
+      // in (see StandsOnTheScreen).  Reading the list's Bounds instead - which are its place in the room around
+      // it - worked for the wall and the rows because those stand at the top of the room, so the shift was small
+      // against a band three screens tall.  The covers hang at the BOTTOM of the room, and a band that started
+      // seven hundred design pixels below the row it was meant to catch caught nothing at all: not one cover of
+      // a music shelf ever asked for its picture, and the row wore its backup plates from the first frame to
+      // the last.
+      Rect visible = new Rect(0, 0, titlesList.Bounds.Width, titlesList.Bounds.Height);
       Rect inSight = viewModel.Layout == BrowserLayout.Cover
           ? new Rect(visible.X - visible.Width, visible.Y, visible.Width * 3, visible.Height)
           : new Rect(visible.X, visible.Y - visible.Height, visible.Width, visible.Height * 3);
@@ -2368,6 +2392,9 @@ namespace MediaPortal.Frontend.Views
           : subtitleTracksScroller.IsKeyboardFocusWithin ? subtitleTracksScroller
           : actorsScroller.IsKeyboardFocusWithin ? actorsScroller
           : directorsScroller.IsKeyboardFocusWithin ? directorsScroller
+          : artistsScroller.IsKeyboardFocusWithin ? artistsScroller
+          : albumArtistsScroller.IsKeyboardFocusWithin ? albumArtistsScroller
+          : composersScroller.IsKeyboardFocusWithin ? composersScroller
           : collectionScroller.IsKeyboardFocusWithin ? collectionScroller
           : null;
       if (band == null)
@@ -2384,11 +2411,13 @@ namespace MediaPortal.Frontend.Views
       switch (args.Key)
       {
         case Key.Left:
-          // Left walks the band, and out of the head of the RIGHT hand people band it walks into the tail of the
-          // band beside it: those two bands share one row of the screen, so the row is walked as the one row it is.
+          // Left walks the band, and out of the head of a band that shares its row with another it walks into the
+          // tail of the band beside it: the two people bands of a film, and the three of a song, each share one row
+          // of the screen, so the row is walked as the one row it is.
           if (at == 0)
           {
-            if (band == directorsScroller && StandsOnTrackCard(actorsScroller, int.MaxValue, args))
+            ScrollViewer? beside = BandLeftOfTheRow(band);
+            if (beside != null && StandsOnTrackCard(beside, int.MaxValue, args))
               break;
 
             // The head of the row is here and the arrow asked for the card before it, so the band leans against
@@ -2404,7 +2433,8 @@ namespace MediaPortal.Frontend.Views
           // caret has nowhere to go, and the band leans against its end instead.
           if (at == cards.Count - 1)
           {
-            if (band == actorsScroller && StandsOnTrackCard(directorsScroller, 0, args))
+            ScrollViewer? beyond = BandRightOfTheRow(band);
+            if (beyond != null && StandsOnTrackCard(beyond, 0, args))
               break;
 
             BounceBand(band, false);
@@ -2516,6 +2546,48 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
+    /// The row of people bands a band of cards belongs to: a film's two, or a song's three, in the order the screen
+    /// lays them out from left to right.
+    /// </summary>
+    /// <remarks>
+    /// Exactly one of the two rows is ever drawn - a song names no actors and a film names no composers - so the
+    /// question is answered by which band the caret stands in rather than by asking the screen what it is showing.
+    /// </remarks>
+    private IList<ScrollViewer> RowOfTheBand(ScrollViewer band)
+    {
+      if (band == artistsScroller || band == albumArtistsScroller || band == composersScroller)
+        return new ScrollViewer[] { artistsScroller, albumArtistsScroller, composersScroller };
+
+      return new[] { actorsScroller, directorsScroller };
+    }
+
+    /// <summary>
+    /// The band of cards left of the given one WITHIN ITS ROW, or null where the row begins here.
+    /// </summary>
+    private ScrollViewer? BandLeftOfTheRow(ScrollViewer band)
+    {
+      IList<ScrollViewer> row = RowOfTheBand(band);
+      for (int at = row.IndexOf(band) - 1; at >= 0; at--)
+        if (row[at].IsEffectivelyVisible)
+          return row[at];
+
+      return null;
+    }
+
+    /// <summary>
+    /// The band of cards right of the given one WITHIN ITS ROW, or null where the row ends here.
+    /// </summary>
+    private ScrollViewer? BandRightOfTheRow(ScrollViewer band)
+    {
+      IList<ScrollViewer> row = RowOfTheBand(band);
+      for (int at = row.IndexOf(band) + 1; at < row.Count; at++)
+        if (row[at].IsEffectivelyVisible)
+          return row[at];
+
+      return null;
+    }
+
+    /// <summary>
     /// The band of cards above the given one, or null where the screen has none above it.
     /// </summary>
     /// <remarks>
@@ -2528,7 +2600,7 @@ namespace MediaPortal.Frontend.Views
       if (band == subtitleTracksScroller)
         return audioTracksScroller;
 
-      if (band == actorsScroller || band == directorsScroller)
+      if (StandsInAPeopleRow(band))
         return subtitleTracksScroller.IsEffectivelyVisible ? subtitleTracksScroller
             : audioTracksScroller.IsEffectivelyVisible ? audioTracksScroller
             : null;
@@ -2536,6 +2608,17 @@ namespace MediaPortal.Frontend.Views
       // The collection's row is the last band of this reading, so whatever band of cards the screen drew above it
       // is the band a caret walking up out of the row comes back to.
       return band == collectionScroller ? LastBandOfTheReading() : null;
+    }
+
+    /// <summary>
+    /// Whether the given band is one of the bands of a row of people: a film's actors and director, or a song's
+    /// artist, album artist and composer.  Both rows are walked as one row and both stand under the same bands of
+    /// tracks, so the two questions - what is above them, what is below - have the same answer for both.
+    /// </summary>
+    private bool StandsInAPeopleRow(ScrollViewer band)
+    {
+      return band == actorsScroller || band == directorsScroller
+          || band == artistsScroller || band == albumArtistsScroller || band == composersScroller;
     }
 
     /// <summary>
@@ -2554,7 +2637,7 @@ namespace MediaPortal.Frontend.Views
       if (band == subtitleTracksScroller)
         return people ?? CollectionBand();
 
-      return band == actorsScroller || band == directorsScroller ? CollectionBand() : null;
+      return StandsInAPeopleRow(band) ? CollectionBand() : null;
     }
 
     /// <summary>
@@ -2577,8 +2660,16 @@ namespace MediaPortal.Frontend.Views
     {
       if (actorsScroller.IsEffectivelyVisible)
         return actorsScroller;
+      if (directorsScroller.IsEffectivelyVisible)
+        return directorsScroller;
 
-      return directorsScroller.IsEffectivelyVisible ? directorsScroller : null;
+      // A song's row, which stands in the same place the film's two bands do and is drawn instead of them.
+      if (artistsScroller.IsEffectivelyVisible)
+        return artistsScroller;
+      if (albumArtistsScroller.IsEffectivelyVisible)
+        return albumArtistsScroller;
+
+      return composersScroller.IsEffectivelyVisible ? composersScroller : null;
     }
 
     /// <summary>
@@ -2602,6 +2693,12 @@ namespace MediaPortal.Frontend.Views
     /// </summary>
     private ScrollViewer? LastBandOfTheReading()
     {
+      if (composersScroller.IsEffectivelyVisible)
+        return composersScroller;
+      if (albumArtistsScroller.IsEffectivelyVisible)
+        return albumArtistsScroller;
+      if (artistsScroller.IsEffectivelyVisible)
+        return artistsScroller;
       if (directorsScroller.IsEffectivelyVisible)
         return directorsScroller;
       if (actorsScroller.IsEffectivelyVisible)
@@ -2783,9 +2880,10 @@ namespace MediaPortal.Frontend.Views
     /// <summary>
     /// Whether the highlighted title stands on the edge of the shelf beyond which the screen's own menu waits:
     /// the whole first column for a grid or a wall of tiles, any row at all for a list - whose rows are one
-    /// column wide, so every row touches the left edge - and the head of the row for covers, which run along
-    /// the bottom of the room. A shelf that has not laid itself out yet has one column, which is the answer
-    /// that lets the very first title reach the menu, as it always did.
+    /// column wide, so every row touches the left edge - and any cover at all, because a cover shelf is one
+    /// row laid along the bottom of the room: every tile in it touches the edge the menu waits behind. A shelf
+    /// that has not laid itself out yet has one column, which is the answer that lets the very first title
+    /// reach the menu, as it always did.
     /// </summary>
     private bool StandingOnTheLeadingEdge(MediaBrowserViewModel viewModel)
     {
@@ -2793,8 +2891,11 @@ namespace MediaPortal.Frontend.Views
       if (standing < 0 || viewModel.Titles.Count == 0)
         return false;
 
+      // Standing on the first cover alone was the old answer, and it was a trap: a viewer who had walked one
+      // tile to the right found the key that had opened the menu a moment ago opening nothing at all, which
+      // is a menu that disappears the moment the shelf is used.
       if (viewModel.Layout == BrowserLayout.Cover)
-        return standing == 0;
+        return true;
 
       if (viewModel.Layout == BrowserLayout.List)
         return true;

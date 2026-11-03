@@ -1401,12 +1401,12 @@ namespace Tests.Frontend
     }
 
     /// <summary>
-    /// The same edge of a row of covers, which lies at its head rather than at its left: the cover layout hangs
-    /// its menu under the screen, so walking up past the first cover is what walking left past the first tile is
-    /// to a grid, and down is the way back.
+    /// The edge of a row of covers that reaches the screen's menu is its BOTTOM: the cover layout hangs that menu
+    /// under the screen, so pointing down out of the row is what pointing left out of a grid is, and up is the way
+    /// back.  Nodding up at a menu lying below the row is a key a viewer has to be told about.
     /// </summary>
     [AvaloniaTest]
-    public void WalkingOffTheHeadOfARowOfCoversOpensTheMenuUnderTheScreen()
+    public void WalkingDownOutOfARowOfCoversOpensTheMenuUnderTheScreen()
     {
       LongShelf server = new LongShelf();
       MediaBrowserViewModel browser = BrowserOn(server);
@@ -1422,14 +1422,14 @@ namespace Tests.Frontend
       titles.Focus();
       titles.SelectedIndex = 0;
 
-      SendKey(titles, Key.Up);
+      SendKey(titles, Key.Down);
       WaitUntil("the menu to stand open", delegate { return browser.MediaMenuVisible; });
       ListBox under = window.GetVisualDescendants().OfType<ListBox>()
           .First(list => list.Name == "mediaMenuListBottom");
       WaitUntil("the row under the covers to be walked", delegate { return under.IsKeyboardFocusWithin; });
       WaitUntil("the room to slide up for the menu under it", delegate { return view.SlideOffset <= -200; });
 
-      SendKey(under, Key.Down);
+      SendKey(under, Key.Up);
       WaitUntil("the menu to slide away", delegate { return !browser.MediaMenuVisible; });
       Assert.That(window.FocusManager.GetFocusedElement(), Is.InstanceOf<ListBoxItem>(),
           "and the covers have the arrows back ON A TILE, which is the cover that wears the frame");
@@ -2936,14 +2936,71 @@ namespace Tests.Frontend
       /// <summary>How often the tracks question came in, so a test can wait for the answer it triggers.</summary>
       internal int TracksAsked { get; private set; }
 
+      /// <summary>
+      /// The one kind of lettering this server has a picture of, or <c>null</c> (which is what it answers by) when
+      /// its libraries hold no lettering at all.  A test about the writing a record wears names the kind its library
+      /// happens to keep and reads back which kinds the screen asked for, in which order.
+      /// </summary>
+      internal string? Lettering { get; set; }
+
+      /// <summary>
+      /// The kind of picture this server holds as a title's front picture, which is the kind the tiles wear and the
+      /// details panel paints.  A test about the cover names it (<c>Poster</c>); every other test is served the
+      /// refusal it was always served, and stands with an empty cover frame as before.
+      /// </summary>
+      internal string? Cover { get; set; }
+
+      /// <summary>
+      /// The kind of picture this server holds as the disc an album was pressed on, which the reference laid behind
+      /// the cover of its album screen (<c>MediaItemListAudioAlbumDetails.inc:41-44</c>).  Nine of the household's
+      /// forty three albums answer that question; a test about the disc names the kind, and a library that holds no
+      /// disc answers with the refusal every other test was served before.
+      /// </summary>
+      internal string? Disc { get; set; }
+
+      /// <summary>Every kind of picture the screen asked for, in the order the questions came in.</summary>
+      internal List<string> LetteringAsked { get; } = new List<string>();
+
       /// <summary>How often the people question came in, for the same reason.</summary>
       internal int PeopleAsked { get; private set; }
+
+      /// <summary>
+      /// The whole query of the people question that last came in, so that a test can hear which roles the screen
+      /// asked for.  A band that stands empty cannot be told apart from a band asked for under a name the library
+      /// does not file its people under, and only the question shows the difference.
+      /// </summary>
+      internal string RolesAsked { get; private set; } = "";
+
+      /// <summary>
+      /// A picture for every kind this server holds - the writing, the front picture, the disc - and no picture for
+      /// every other question about a picture, which is what this fixture answered before any test asked about one
+      /// of them by name.
+      /// </summary>
+      private HttpResponseMessage PictureAnswer(HttpRequestMessage request)
+      {
+        string path = request.RequestUri!.AbsolutePath;
+        string kind = path.Substring(path.LastIndexOf('/') + 1);
+        lock (LetteringAsked)
+          LetteringAsked.Add(kind);
+
+        if (kind != Lettering && kind != Cover && kind != Disc)
+          return NoPicture(request);
+
+        return new HttpResponseMessage(HttpStatusCode.OK)
+        {
+          RequestMessage = request,
+          // The bytes of the smallest whole picture there is: the test asks which name the screen called the
+          // lettering by and what it did with the answer, and never how the pixels look.
+          Content = new ByteArrayContent(Convert.FromBase64String(
+              "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="))
+        };
+      }
 
       protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
           CancellationToken cancellation)
       {
         if (IsPictureRequest(request))
-          return Task.FromResult(NoPicture(request));
+          return Task.FromResult(PictureAnswer(request));
 
         // Asked right after the details, about the same title, and with an answer of its own.
         if (request.RequestUri!.AbsolutePath.EndsWith("/streams"))
@@ -2956,6 +3013,7 @@ namespace Tests.Frontend
         if (request.RequestUri!.AbsolutePath.EndsWith("/persons"))
         {
           PeopleAsked++;
+          RolesAsked = request.RequestUri!.Query;
           return Later(request, HttpStatusCode.OK, _persons);
         }
 
@@ -3903,6 +3961,762 @@ namespace Tests.Frontend
         Pump();
 
       window.Close();
+    }
+
+    /// <summary>
+    /// What a file that is only sound says about itself, read on the reading.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The worn skin gives such a file a row of its own: the packing, the loudspeakers, the disc, and under them
+    /// the two rates the file was written at (<c>MediaInfoAudio.xaml:115-170</c>), and it counts the length in
+    /// minutes and whole seconds rather than in the rounded minutes of a film
+    /// (<c>MediaInfoAudioDetails.inc:308-315</c>).
+    /// </para>
+    /// <para>
+    /// <b>Why this had to be asked of the server.</b> All six figures stand on the file's own record in the
+    /// library, in the aspect the importer filled when it looked inside the file (<c>AudioAspect.cs:47-77</c>).
+    /// The answer about a single title had never carried them, so a song stood in front of its viewer with the
+    /// row empty however carefully the library had read its file - and the pictures the row wears are named by
+    /// the library's own wording, which is the second thing this test pins: the skin's file for the packing is
+    /// called by exactly the name the library's tag reader writes.
+    /// </para>
+    /// </remarks>
+    [AvaloniaTest]
+    public void AFileOfPureSoundSaysItsPackingItsLoudspeakersItsDiscAndItsTwoRates()
+    {
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK,
+          "{\"id\":\"" + TITANIC + "\",\"title\":\"Blue in Green\",\"year\":1959,\"durationSeconds\":206,"
+          + "\"audioEncoding\":\"MPEG Version 1 Audio, Layer 3\",\"audioChannels\":2,\"audioBitRate\":320,"
+          + "\"audioSampleRate\":44100,\"discId\":1,\"discCount\":2}");
+      MediaBrowserViewModel browser = new MediaBrowserViewModel(
+          new ServerApiClient(SIGN_IN_URL, new HttpClient(server)), ShelfCalled("AudioItem"));
+      browser.Selected = new TitleViewModel(
+          new MediaTitle(new Guid(TITANIC), "Blue in Green", null, 1959, null, null, false));
+
+      WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
+
+      Assert.That(browser.ShowsAudioLine, Is.True,
+          "a file whose library looked inside it says what it is packed in - the row is there to be read");
+      Assert.That(browser.DetailsAudio!.CodecWord, Is.EqualTo("MPEG Version 1 Audio, Layer 3"),
+          "the packing is said in the library's own words, and not as an abbreviation the viewer has to learn");
+      Assert.That(browser.DetailsAudio.CodecToken, Is.EqualTo("MPEG Version 1 Audio, Layer 3"),
+          "the picture is asked for by the very name the library's tag reader writes, which is the name the "
+          + "worn skin's pictures carry - a name this front end invented would find no picture at all");
+      Assert.That(browser.DetailsAudio.ChannelsToken, Is.EqualTo("2"),
+          "the loudspeaker picture is named by the plain count, as the reference named it");
+      Assert.That(browser.DetailsAudio.ChannelsWord, Is.EqualTo("2.0"),
+          "and under it stands the arrangement in the trade's spelling, which is what a viewer compares");
+      Assert.That(browser.DetailsAudio.DiscText, Is.EqualTo("1 | 2"),
+          "the disc is said as the disc of a set, which is the shape the reference wrote");
+      Assert.That(browser.DetailsAudio.RatesText, Is.EqualTo("320 kbps · 44100 Hz"),
+          "the two rates stand on one line under the three plaques, as they did in the skin");
+
+      MediaBrowserFact? length = browser.DetailsFacts.FirstOrDefault(
+          delegate (MediaBrowserFact fact) { return fact.Label == "Length"; });
+      Assert.That(length, Is.Not.Null, "the reading says how long the piece is");
+      Assert.That(length!.Value, Is.EqualTo("03:26"),
+          "three minutes and twenty six seconds, in the shape the skin wrote for sound: a song rounded to "
+          + "\"4 min\" is a song the viewer cannot find again");
+
+      // The video row is filled by the second question about the file, which is still on its way at this point.
+      WaitUntil("the answer about the file to have been read", delegate { return browser.DetailsPicture != null; });
+      Assert.That(browser.DetailsPicture!.ShowsAnything, Is.False,
+          "a file of pure sound wears no video row - the tracks question comes back empty for such a file, and a "
+          + "row of blanks where a picture should be is worse than the row's being away");
+
+      // Drawn, and drawn ONCE.  A row that is inserted twice into the view answers its questions twice, and every
+      // property in the world still reads correct - only the laid out screen can be asked how often a band stands
+      // in the reading.  (Which is exactly what happened to this row: two versions of it were written into the
+      // view on the same evening, so a song wore its "Audio" heading twice, one under the other.)
+      var workflow = new WorkflowManager();
+      ShellWindow window = new ShellWindow(workflow, delegate (WorkflowFrame frame)
+      {
+        return new MediaBrowserView((MediaBrowserViewModel) frame.ViewModel);
+      });
+      window.Width = 1920;
+      window.Height = 1080;
+      workflow.Push(new WorkflowFrame("titles", "Musik", browser));
+      window.Show();
+      Pump();
+
+      List<TextBlock> audioHeads = window.GetVisualDescendants().OfType<TextBlock>()
+          .Where(delegate (TextBlock word) { return word.Text == "Audio"; })
+          .ToList();
+      Assert.That(audioHeads, Has.Count.EqualTo(1),
+          "one audio file is one row about its sound, standing once in the reading (headings found: "
+          + audioHeads.Count + ")");
+
+      window.Close();
+    }
+
+    /// <summary>
+    /// The four answers an album gives about itself and no shelf gave it before: how long the record runs, the
+    /// kinds of story it is told in, how many tracks stand on it, and how many discs the set has.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Measured over the household's library on 2026-11-03: 43 albums, 1018 tracks, every track carrying a duration
+    /// and every album naming a genre on its shelf - and the album's own screen standing there with two facts, one
+    /// of them a day nobody knew.  The band is the film band; the album is now read through the same words
+    /// <em>Length</em> and <em>Genre</em>, plus the two the record answers by.
+    /// </para>
+    /// <para>
+    /// The length is spelled as a record and not as a stopwatch: 6345 seconds are "1 h 45 min" here, while the very
+    /// same figure on a track is "03:26" (the track's own test above pins that).  The minutes are cut whole, so a
+    /// screen never promises a minute the record does not have.
+    /// </para>
+    /// </remarks>
+    [AvaloniaTest]
+    public void AnAlbumSaysHowLongItRunsItsKindsItsTracksAndItsDiscs()
+    {
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK,
+          "{\"id\":\"" + TITANIC + "\",\"title\":\"Born This Way (Special Edition)\",\"year\":2011,"
+          + "\"genres\":[\"Dance\"],\"durationSeconds\":6345,\"trackCount\":23,\"discCount\":2,"
+          + "\"audioEncoding\":\"MPEG Version 1 Audio, Layer 3\",\"audioChannels\":2}");
+      MediaBrowserViewModel browser = new MediaBrowserViewModel(
+          new ServerApiClient(SIGN_IN_URL, new HttpClient(server)), ShelfCalled("AlbumItem"));
+      browser.Selected = new TitleViewModel(
+          new MediaTitle(new Guid(TITANIC), "Born This Way (Special Edition)", null, 2011, null, null, false));
+
+      WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
+
+      Assert.That(AnswerOf(browser, "Length"), Is.EqualTo("1 h 45 min"),
+          "the record is said in hours, which is how anybody says how long an album takes; the same figure on a "
+          + "track is still 03:26 because a song is about to be listened to");
+      Assert.That(AnswerOf(browser, "Genre"), Is.EqualTo("Dance"),
+          "the kind the shelf named a moment before is still named here");
+      Assert.That(AnswerOf(browser, "Tracks"), Is.EqualTo("23"),
+          "the tracks standing on the record, which is what the library holds - the 17 its tag remembers are the "
+          + "title list's answer");
+      Assert.That(AnswerOf(browser, "Discs"), Is.EqualTo("2"),
+          "the two discs of the set, which the same answer has carried all along");
+      Assert.That(browser.DetailsFacts.Any(
+              delegate (MediaBrowserFact fact) { return fact.Label == "Runtime"; }), Is.False,
+          "music says its length as music does, whatever a film's word would have been");
+    }
+
+    /// <summary>
+    /// A set of one disc says no "Discs", because a number that chooses nothing is not an answer.
+    /// </summary>
+    [AvaloniaTest]
+    public void AnAlbumOfASingleDiscSaysNothingAboutDiscs()
+    {
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK,
+          "{\"id\":\"" + TITANIC + "\",\"title\":\"amo\",\"year\":2019,\"genres\":[\"Rock\"],"
+          + "\"durationSeconds\":3114,\"trackCount\":13,\"discCount\":1}");
+      MediaBrowserViewModel browser = new MediaBrowserViewModel(
+          new ServerApiClient(SIGN_IN_URL, new HttpClient(server)), ShelfCalled("AlbumItem"));
+      browser.Selected = new TitleViewModel(
+          new MediaTitle(new Guid(TITANIC), "amo", null, 2019, null, null, false));
+
+      WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
+
+      Assert.That(AnswerOf(browser, "Length"), Is.EqualTo("51 min"),
+          "fifty one minutes and fifty four seconds are fifty one minutes, and not a promised fifty second");
+      Assert.That(AnswerOf(browser, "Tracks"), Is.EqualTo("13"));
+      Assert.That(browser.DetailsFacts.Any(
+              delegate (MediaBrowserFact fact) { return fact.Label == "Discs"; }), Is.False,
+          "one disc is the absence of a set, so nothing is said about one");
+    }
+
+    /// <summary>
+    /// The answer one of the fact band's words got, or null when the word stands for nothing.
+    /// </summary>
+    private static string? AnswerOf(MediaBrowserViewModel browser, string label)
+    {
+      MediaBrowserFact? fact = browser.DetailsFacts.FirstOrDefault(
+          delegate (MediaBrowserFact candidate) { return candidate.Label == label; });
+      return fact?.Value;
+    }
+
+    /// <summary>
+    /// That a sound file's plaques are copied onto the details panel's plaque line rather than moved there: the
+    /// information screen still wears its own row, and the album now wears the same answers at the end of the line
+    /// under its name.
+    /// </summary>
+    /// <remarks>
+    /// The sound answers had always been read for the details panel too - <c>DetailsAudio</c> arrives with the
+    /// details answer - but were drawn on the information screen only, so an album stood at its own screen with an
+    /// empty end of the line while its packing, its loudspeakers and its two rates were in the answer in hand.
+    /// The viewer asked for a copy on 2026-11-03: "COPY them, not move!" - and, seeing the screen afterwards,
+    /// asked for the disc to stay out of that line, because the facts band under the name already says it.
+    /// </remarks>
+    [AvaloniaTest]
+    public void AnAlbumWearsItsSoundPlaquesAtTheEndOfTheLineUnderItsName()
+    {
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK,
+          "{\"id\":\"" + TITANIC + "\",\"title\":\"amo\",\"year\":2019,\"genres\":[\"Rock\"],"
+          + "\"durationSeconds\":3114,\"trackCount\":13,\"audioEncoding\":\"MPEG Version 1 Audio, Layer 3\","
+          + "\"audioChannels\":2,\"audioBitRate\":320,\"audioSampleRate\":44100,\"discId\":1,\"discCount\":2}");
+      MediaBrowserViewModel browser = new MediaBrowserViewModel(
+          new ServerApiClient(SIGN_IN_URL, new HttpClient(server)), ShelfCalled("AlbumItem"));
+      browser.Selected = new TitleViewModel(
+          new MediaTitle(new Guid(TITANIC), "amo", null, 2019, null, null, false));
+
+      WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
+      Assert.That(browser.ShowsAudioLine, Is.True);
+
+      var workflow = new WorkflowManager();
+      ShellWindow window = new ShellWindow(workflow, delegate (WorkflowFrame frame)
+      {
+        return new MediaBrowserView((MediaBrowserViewModel) frame.ViewModel);
+      });
+      window.Width = 1920;
+      window.Height = 1080;
+      workflow.Push(new WorkflowFrame("titles", "Musik", browser));
+      window.Show();
+      Pump();
+
+      Border copied = window.GetVisualDescendants().OfType<Border>()
+          .FirstOrDefault(delegate (Border plaque) { return plaque.Name == "detailsAudioCodecPlaque"; });
+      Assert.That(copied, Is.Not.Null, "the details panel's plaque line wears the packing of the record now");
+      Assert.That(copied.IsVisible, Is.True,
+          "and it is shown for an album, whose line used to end in nothing at all");
+
+      StackPanel line = (StackPanel) copied.Parent!;
+      Panel row = (Panel) line.Parent!;
+
+      // Copied and not moved: the information screen's own row is still built, with its own plaque of the same
+      // answer.  Named on the viewer's word, because "copied, not moved" is exactly the question a screen can be
+      // asked and a property cannot answer.
+      Border[] originals = window.GetVisualDescendants().OfType<Border>()
+          .Where(delegate (Border plaque) { return plaque.Name == "infoAudioCodecPlaque"; })
+          .ToArray();
+      Assert.That(originals, Has.Length.EqualTo(1),
+          "the row about sound keeps its own plaque of the packing - the information screen is a screen a viewer "
+          + "opens to read a file, and it was not robbed of its answer to give this one a second");
+
+      // The DISC is the one answer that was NOT copied: the facts band under the name already says it as "Discs",
+      // and the viewer pointed at the "1 | 2" plaque standing over that fact on 2026-11-03 - "ist falsch und gehört
+      // da nicht hin. Es steht schon in der tabelle."  So the figure is said once, in the facts.
+      Assert.That(AnswerOf(browser, "Discs"), Is.EqualTo("2"), "the table says the disc of the set");
+      Assert.That(line.GetVisualDescendants().OfType<TextBlock>()
+              .Any(delegate (TextBlock word) { return word.Text == "1 | 2"; }), Is.False,
+          "and the line under the name does not say the same figure a second time");
+      TextBlock[] rates = line.GetVisualDescendants().OfType<TextBlock>()
+          .Where(delegate (TextBlock word) { return word.Text == "320 kbps · 44100 Hz"; })
+          .ToArray();
+      Assert.That(rates, Has.Length.EqualTo(1),
+          "the two rates are said on the line, as the mockup's last two plaques said them");
+
+      // And the copied plaque stands where the line's other answers stand: at the right edge of the line, and the
+      // line at the right edge of the panel.  Bounds are spoken in the parent's coordinates, so the line's right
+      // edge is measured against the width of the row it stands in.
+      Assert.That(line.Bounds.Right, Is.EqualTo(row.Bounds.Width).Within(1),
+          "the plaques are read at the right edge of the line under the name, as the film's plaques always were");
+      Assert.That(copied.Bounds.Width, Is.GreaterThan(0),
+          "and the plaque of the packing is laid out, not merely present in a tree nobody sees");
+      Assert.That(copied.Padding, Is.EqualTo(new Thickness(20, 0)),
+          "and it wears its inner ground as the line's other plaques do, not as the information screen's row does");
+      window.Close();
+    }
+
+    /// <summary>
+    /// The writing a record wears is asked for under the two names this server's libraries keep it under, and it is
+    /// worn over the story - never in the row under the play button, where a record's name would stand twice.
+    /// </summary>
+    /// <remarks>
+    /// Measured over the household's library on 2026-11-03, one request per album: <c>ClearArt</c> answers for three
+    /// albums, <c>Logo</c> for thirty nine, and <c>ClearLogo</c> - the name the reference's film screen wrote
+    /// (<c>MediaItemListMovieDetails.inc:208-213</c>) - answers with a refusal for every title, because that is not
+    /// one of this server's kinds (<c>FanArtConstants.cs:123</c> names the kind <c>Logo</c>).  The album therefore
+    /// asks the reference's first question (<c>MediaItemListAudioAlbumDetails.inc:26-31</c>) and, when it is answered
+    /// with nothing, the library's second.  A film keeps its lettering in the head's row and asks once.
+    /// </remarks>
+    [AvaloniaTest]
+    public void ARecordWearsTheLetteringItsLibraryKeepsUnderThatName()
+    {
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK,
+          "{\"id\":\"" + TITANIC + "\",\"title\":\"Born This Way\",\"year\":2011,\"genres\":[\"Dance\"],"
+          + "\"durationSeconds\":3114,\"trackCount\":23,\"discCount\":2");
+      server.Lettering = "ClearArt";
+      MediaBrowserViewModel browser = new MediaBrowserViewModel(
+          new ServerApiClient(SIGN_IN_URL, new HttpClient(server)), ShelfCalled("AlbumItem"));
+      browser.Selected = new TitleViewModel(
+          new MediaTitle(new Guid(TITANIC), "Born This Way", null, 2011, null, null, false));
+
+      WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
+      WaitUntil("the lettering to arrive", delegate { return browser.DetailsAlbumLettering != null; });
+
+      Assert.That(LettereingsAsked(server).First(), Is.EqualTo("ClearArt"),
+          "the record's own art is asked for first, which is the name the reference's album screen wrote");
+      Assert.That(LettereingsAsked(server), Has.None.EqualTo("Logo"),
+          "the band's logo is the SECOND question and has nothing to look for once the first was answered");
+      Assert.That(LettereingsAsked(server), Has.None.EqualTo("ClearLogo"),
+          "the film screen's name for its lettering is not one of this server's kinds, and asking for it is "
+          + "answered with a refusal for every title in the library");
+      Assert.That(browser.DetailsClearArt, Is.Null,
+          "and the record's writing is not the second clear art of the row under the play button, which would "
+          + "stand the same name twice on one screen - once of it without a bar underneath");
+    }
+
+    /// <summary>
+    /// A record whose library keeps no clear art asks the library's second question and wears that answer: thirty
+    /// nine of the household's forty three albums are filed under <c>Logo</c> and would stand bare otherwise.
+    /// </summary>
+    [AvaloniaTest]
+    public void ARecordWithoutClearArtAsksForTheBandsLogo()
+    {
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK,
+          "{\"id\":\"" + TITANIC + "\",\"title\":\"amo\",\"year\":2019,\"genres\":[\"Rock\"],"
+          + "\"durationSeconds\":3114,\"trackCount\":13");
+      server.Lettering = "Logo";
+      MediaBrowserViewModel browser = new MediaBrowserViewModel(
+          new ServerApiClient(SIGN_IN_URL, new HttpClient(server)), ShelfCalled("AlbumItem"));
+      browser.Selected = new TitleViewModel(
+          new MediaTitle(new Guid(TITANIC), "amo", null, 2019, null, null, false));
+
+      WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
+      WaitUntil("the lettering to arrive", delegate { return browser.DetailsAlbumLettering != null; });
+
+      string[] asked = LettereingsAsked(server);
+      Assert.That(asked.First(), Is.EqualTo("ClearArt"), "the reference's name is asked first, as ever");
+      Assert.That(asked, Contains.Item("Logo"),
+          "and when that is answered with nothing the library's own name is asked, which is where the great "
+          + "majority of the records on this server have their writing");
+      Assert.That(asked, Has.None.EqualTo("ClearLogo"), "the film screen's name is never asked");
+      Assert.That(browser.DetailsClearArt, Is.Null, "and it is worn over the story, not under the play button");
+    }
+
+    /// <summary>
+    /// Which kinds of picture the screen asked this server for, in the order the questions came in.
+    /// </summary>
+    private static string[] LettereingsAsked(DetailsServer server)
+    {
+      lock (server.LetteringAsked)
+        return server.LetteringAsked.ToArray();
+    }
+
+    /// <summary>
+    /// A film asks once about its lettering, under the one name its screen always wrote, and takes the answer into
+    /// the row under the play button - which is where a record's writing must NOT go.
+    /// </summary>
+    [AvaloniaTest]
+    public void AFilmAsksOnceAboutItsLetteringAndTakesItIntoThePlayersRow()
+    {
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK,
+          "{\"id\":\"" + TITANIC + "\",\"title\":\"Titanic\",\"year\":1997}");
+      server.Lettering = "ClearArt";
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.Selected = new TitleViewModel(
+          new MediaTitle(new Guid(TITANIC), "Titanic", null, 1997, null, null, false));
+
+      WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
+      WaitUntil("the lettering to arrive", delegate { return browser.DetailsClearArt != null; });
+
+      Assert.That(browser.DetailsAlbumLettering, Is.Null,
+            "a film's lettering is not a record's writing: the two are worn at different places of the screen");
+      Assert.That(LettereingsAsked(server), Has.None.EqualTo("Logo"),
+          "a film never asks the record's second question - no film in this library is filed under it");
+      Assert.That(LettereingsAsked(server), Has.None.EqualTo("DiscArt"),
+          "and a film never asks about a disc either: a poster of a film has nothing round to stand on, and only "
+          + "a record lays one under its cover");
+      Assert.That(browser.DetailsAlbumDisc, Is.Null,
+          "so there is no disc to lay anywhere on a film's screen");
+    }
+
+    /// <summary>
+    /// An album whose library keeps a picture of its disc lays that disc <em>behind</em> its cover, lets forty
+    /// percent of it look out over the cover's left edge, and tells its story under the two - in the whole width
+    /// the cover leaves behind.
+    /// </summary>
+    /// <remarks>
+    /// The reference laid both pictures into the cover's own box and let the disc look out from under the cover:
+    /// four hundred twenty lines of disc behind four hundred forty of cover in a box of four hundred fifty six,
+    /// pushed a hundred ninety of its own four hundred twenty beyond the cover it lay under
+    /// (<c>MediaItemListAudioAlbumDetails.inc:41-44</c>, the cover at <c>:52</c>, the box at <c>:33</c>) - five
+    /// parts of eleven showing.  This panel turns that to the left and shows four parts of ten, which is what the
+    /// viewer asked for on 2026-11-03; the size of the two, the order they are painted in and the fact that the
+    /// story leaves the disc's column are the reference's and the viewer's.
+    /// <para>
+    /// Measured over the household's library on 2026-11-03, one request per album: nine of forty three albums
+    /// answer <c>DiscArt</c>, and their files are square scans of a printed disc (1000 × 1000), which is why the
+    /// frame below cuts them round - a square with a picture of a disc on it reads as a second cover.
+    /// </para>
+    /// </remarks>
+    [AvaloniaTest]
+    public void AnAlbumWithADiscLaysItBehindItsCoverAndTellsItsStoryUnderneath()
+    {
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK,
+          "{\"id\":\"" + TITANIC + "\",\"title\":\"Farbenspiel\",\"year\":2013,\"genres\":[\"Deutscher Schlager\"],"
+          + "\"durationSeconds\":4213,\"trackCount\":18,"
+          + "\"overview\":\"Zwolf Lieder, von einem Farbenstreifen zusammengehalten.\"}");
+      server.Cover = "Poster";
+      server.Disc = "DiscArt";
+      server.Lettering = "Logo";
+      MediaBrowserViewModel browser = new MediaBrowserViewModel(
+          new ServerApiClient(SIGN_IN_URL, new HttpClient(server)), ShelfCalled("AlbumItem"));
+      browser.Selected = new TitleViewModel(
+          new MediaTitle(new Guid(TITANIC), "Farbenspiel", null, 2013, null, null, false));
+
+      WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
+      WaitUntil("the disc to arrive", delegate { return browser.DetailsAlbumDisc != null; });
+      WaitUntil("the cover to arrive", delegate { return browser.DetailsArtwork != null; });
+
+      Assert.That(LettereingsAsked(server), Contains.Item("DiscArt"),
+          "the disc is asked of the same picture door the cover and the writing come out of");
+
+      WorkflowManager workflow = new WorkflowManager();
+      ShellWindow window = new ShellWindow(workflow, delegate (WorkflowFrame frame)
+      {
+        return new MediaBrowserView((MediaBrowserViewModel) frame.ViewModel);
+      });
+      window.Width = 1920;
+      window.Height = 1080;
+      workflow.Push(new WorkflowFrame("titles", "Musik", browser));
+      window.Show();
+      Pump();
+
+      (double X, double Y, double Right, double Bottom) Frame(Visual picture)
+      {
+        Point top = picture.TranslatePoint(new Point(0, 0), window) ?? new Point(-1, -1);
+        return (top.X, top.Y, top.X + picture.Bounds.Width, top.Y + picture.Bounds.Height);
+      }
+
+      Border disc = window.GetVisualDescendants().OfType<Border>().FirstOrDefault(
+          delegate (Border plate) { return plate.Name == "discBehindCover" && plate.IsVisible; });
+      Border cover = window.GetVisualDescendants().OfType<Border>().FirstOrDefault(
+          delegate (Border plate) { return plate.Name == "coverOnDisc" && plate.IsVisible; });
+      Assert.That(disc, Is.Not.Null, "the disc of the record is drawn");
+      Assert.That(cover, Is.Not.Null, "and its cover is drawn over it");
+
+      Border alone = window.GetVisualDescendants().OfType<Border>().First(
+          delegate (Border plate) { return plate.Name == "coverAlone"; });
+      Assert.That(alone.IsVisible, Is.False,
+          "and the cover is drawn once: not once plain at the old place and once again over its disc");
+
+      (double X, double Y, double Right, double Bottom) laid = Frame(disc);
+      (double X, double Y, double Right, double Bottom) over = Frame(cover);
+
+      Assert.That(disc.CornerRadius.TopLeft, Is.EqualTo(disc.Bounds.Width / 2).Within(1),
+          "the disc is cut round, because the file is a square scan of a printed disc and a square of it would "
+          + "read as a second cover rather than as the disc the record was pressed on");
+      double showing = over.X - laid.X;
+      Assert.That(showing, Is.GreaterThan(0.0), "the disc looks out past the cover's left edge");
+      Assert.That(showing / (laid.Right - laid.X), Is.EqualTo(0.4).Within(0.02),
+          "and it looks out by forty percent of itself, which is the reference's measure of five parts in eleven "
+          + "turned to the side the story can be moved out of");
+      Assert.That((laid.Y + laid.Bottom) / 2, Is.EqualTo((over.Y + over.Bottom) / 2).Within(2),
+          "the disc's middle stands on the cover's middle, as the reference centred the two in one box");
+      Assert.That(laid.X, Is.LessThan(over.X), "and it looks out to the left, not into the panel's edge");
+
+      ScrollViewer story = window.GetVisualDescendants().OfType<ScrollViewer>().First(
+          delegate (ScrollViewer reading) { return reading.Name == "plotScroller"; });
+      (double X, double Y, double Right, double Bottom) told = Frame(story);
+      Assert.That(told.Y, Is.GreaterThanOrEqualTo(over.Bottom - 1),
+          "the story has moved under the cover, because the disc needs the column the story stood in");
+      Assert.That(told.Right, Is.GreaterThanOrEqualTo(over.Right - 2),
+          "and it is told over the whole width the cover left, which is what the column beside the cover never was");
+      window.Close();
+    }
+
+    /// <summary>
+    /// An album whose library keeps no disc - thirty four of the household's forty three - keeps its cover standing
+    /// alone and its story standing beside it, exactly as both stood before the disc was ever asked about.
+    /// </summary>
+    [AvaloniaTest]
+    public void AnAlbumWithoutADiscKeepsItsCoverAloneAndItsStoryBesideIt()
+    {
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK,
+          "{\"id\":\"" + TITANIC + "\",\"title\":\"Born This Way\",\"year\":2011,\"genres\":[\"Dance\"],"
+          + "\"durationSeconds\":6300,\"trackCount\":23,\"discCount\":2,"
+          + "\"overview\":\"Zwanzig Lieder, geschrieben auf den Hochzeitsreisen einer Band.\"}");
+      server.Cover = "Poster";
+      MediaBrowserViewModel browser = new MediaBrowserViewModel(
+          new ServerApiClient(SIGN_IN_URL, new HttpClient(server)), ShelfCalled("AlbumItem"));
+      browser.Selected = new TitleViewModel(
+          new MediaTitle(new Guid(TITANIC), "Born This Way", null, 2011, null, null, false));
+
+      WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
+      WaitUntil("the cover to arrive", delegate { return browser.DetailsArtwork != null; });
+
+      Assert.That(browser.DetailsAlbumDisc, Is.Null, "a library that keeps no disc is answered with a refusal");
+      Assert.That(browser.ShowsDiscBehindCover, Is.False, "and the panel then says nothing about a disc");
+
+      WorkflowManager workflow = new WorkflowManager();
+      ShellWindow window = new ShellWindow(workflow, delegate (WorkflowFrame frame)
+      {
+        return new MediaBrowserView((MediaBrowserViewModel) frame.ViewModel);
+      });
+      window.Width = 1920;
+      window.Height = 1080;
+      workflow.Push(new WorkflowFrame("titles", "Musik", browser));
+      window.Show();
+      Pump();
+
+      (double X, double Y, double Right, double Bottom) Frame(Visual picture)
+      {
+        Point top = picture.TranslatePoint(new Point(0, 0), window) ?? new Point(-1, -1);
+        return (top.X, top.Y, top.X + picture.Bounds.Width, top.Y + picture.Bounds.Height);
+      }
+
+      Assert.That(window.GetVisualDescendants().OfType<Panel>().FirstOrDefault(
+          delegate (Panel pair) { return pair.Name == "discAndCover" && pair.IsVisible; }), Is.Null,
+          "no disc is drawn where the library keeps none");
+
+      Border cover = window.GetVisualDescendants().OfType<Border>().First(
+          delegate (Border plate) { return plate.Name == "coverAlone" && plate.IsVisible; });
+      Assert.That(cover, Is.Not.Null, "the cover stands by itself, as it always did");
+
+      ScrollViewer story = window.GetVisualDescendants().OfType<ScrollViewer>().First(
+          delegate (ScrollViewer reading) { return reading.Name == "plotScroller"; });
+      (double X, double Y, double Right, double Bottom) told = Frame(story);
+      (double X, double Y, double Right, double Bottom) over = Frame(cover);
+      Assert.That(told.Right, Is.LessThanOrEqualTo(over.X + 1),
+          "the story keeps the column beside the cover and does not run under it");
+      Assert.That(told.Y, Is.LessThan(over.Bottom - 100),
+          "and it begins at the cover's top, which is where a story beside a cover begins");
+      window.Close();
+    }
+
+    /// <summary>
+    /// A reading of sound never asks whether the file carries subtitles, on either of its two shelves.
+    /// </summary>
+    /// <remarks>
+    /// The plaque answers the question "does this file carry text?" with a framed "CC" or with the same frame
+    /// crossed out, and a sound file has no answer to give: it cannot carry subtitles, so the crossed frame would
+    /// deny a possibility nobody proposed (the viewer's word on 2026-11-03: "meaningless, because audiofiles never
+    /// have subtitles").  The reference asked the question in its video screens only
+    /// (<c>MediaInfoVideo.xaml:157-174</c>, <c>CurrentlyPlayingVideo.xaml:164-181</c>); its audio screen asks about
+    /// the packing, the loudspeakers, the disc and the two rates, and about nothing else
+    /// (<c>MediaInfoAudio.xaml:115-170</c>).
+    /// </remarks>
+    [AvaloniaTest]
+    public void AReadingOfSoundNeverAsksAboutSubtitles()
+    {
+      foreach (string shelf in new[] { "AudioItem", "AlbumItem" })
+      {
+        DetailsServer server = new DetailsServer(HttpStatusCode.OK,
+            "{\"id\":\"" + TITANIC + "\",\"title\":\"So What\",\"year\":1959,\"audioEncoding\":\"Flac Audio\","
+            + "\"audioChannels\":2,\"audioBitRate\":1023,\"audioSampleRate\":44100,\"discId\":1,\"discCount\":1}");
+        MediaBrowserViewModel browser = new MediaBrowserViewModel(
+            new ServerApiClient(SIGN_IN_URL, new HttpClient(server)), ShelfCalled(shelf));
+        browser.Selected = new TitleViewModel(
+            new MediaTitle(new Guid(TITANIC), "So What", null, 1959, null, null, false));
+
+        WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
+
+        Assert.That(browser.ShowsAudioLine, Is.True, "the shelf " + shelf + " did read its own row of sound");
+        Assert.That(browser.ShowsSubtitlePlaque, Is.False,
+            "a shelf of sound asks no question about subtitles, and neither does its answer");
+
+        var workflow = new WorkflowManager();
+        ShellWindow window = new ShellWindow(workflow, delegate (WorkflowFrame frame)
+        {
+          return new MediaBrowserView((MediaBrowserViewModel) frame.ViewModel);
+        });
+        window.Width = 1920;
+        window.Height = 1080;
+        workflow.Push(new WorkflowFrame("titles", "Musik", browser));
+        window.Show();
+        Pump();
+
+        TextBlock head = window.GetVisualDescendants().OfType<TextBlock>().FirstOrDefault(
+            delegate (TextBlock word) { return word.Text == "Audio" && word.IsVisible; });
+        Assert.That(head, Is.Not.Null,
+            "the reading of sound was drawn, so what follows is said about a screen and not about an empty one");
+
+        Border[] plaques = window.GetVisualDescendants().OfType<Border>()
+            .Where(delegate (Border plaque) { return plaque.Name == "subtitlesPlaque"; })
+            .ToArray();
+        Assert.That(plaques, Has.Length.EqualTo(1),
+            "the plaque is still built into the view - a film wears it, and this is the same view");
+        Assert.That(plaques[0].IsVisible, Is.False,
+            "but on a reading of sound it is not shown, so no song is asked about subtitles");
+        window.Close();
+      }
+    }
+
+    /// <summary>
+    /// That the film keeps the question the song lost: a picture is still asked whether it carries text.
+    /// </summary>
+    [AvaloniaTest]
+    public void AReadingOfAPictureStillAsksAboutSubtitles()
+    {
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK,
+          "{\"id\":\"" + TITANIC + "\",\"title\":\"Titanic\",\"year\":1997,\"runtimeMinutes\":195}");
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.Selected = new TitleViewModel(
+          new MediaTitle(new Guid(TITANIC), "Titanic", null, 1997, null, null, false));
+
+      WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
+
+      Assert.That(browser.ShowsSubtitlePlaque, Is.True,
+          "a film wears the plaque whether its file carries subtitles or not - the denial is an answer there");
+    }
+
+    /// <summary>
+    /// That a piece of music nobody wrote about says nothing at all, while a picture still admits the silence.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The sentence "Nothing was written about this title on this server." answers a question a viewer of music
+    /// never asked: the reference kept a story block in its VIDEO screens (StoryPlot through the VideoAspectWrapper
+    /// at <c>CurrentlyPlayingVideoDetails.inc:59</c>, <c>CurrentlyPlayingMovieDetails.inc:88</c>,
+    /// <c>CurrentlyPlayingSeriesDetails.inc:339</c>) and had none on its audio screen
+    /// (<c>CurrentlyPlayingAudioDetails.inc</c>).  Where a record does carry prose - an album description a tag
+    /// reader wrote - it is still said, in the album's own screens
+    /// (<c>MediaItemListAudioAlbumDetails.inc:307</c>).
+    /// </para>
+    /// <para>
+    /// "Empty means empty" (the viewer's word on 2026-11-03), and the empty story block costs its room too: an
+    /// empty strip under the facts reads as a broken panel.
+    /// </para>
+    /// </remarks>
+    [AvaloniaTest]
+    public void ASongNothingWasWrittenAboutSaysNothingAtAll()
+    {
+      foreach (string shelf in new[] { "AlbumItem", "AudioItem" })
+      {
+          DetailsServer unwritten = new DetailsServer(HttpStatusCode.OK,
+              "{\"id\":\"" + TITANIC + "\",\"title\":\"So What\",\"year\":1959,"
+              + "\"audioEncoding\":\"Flac Audio\",\"audioChannels\":2}");
+          MediaBrowserViewModel browser = new MediaBrowserViewModel(
+              new ServerApiClient(SIGN_IN_URL, new HttpClient(unwritten)), ShelfCalled(shelf));
+          browser.Selected = new TitleViewModel(
+              new MediaTitle(new Guid(TITANIC), "So What", null, 1959, null, null, false));
+
+          WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
+
+          Assert.That(browser.DetailsText, Is.EqualTo(string.Empty),
+              "the shelf " + shelf + " has no story to tell and says so by saying nothing, instead of announcing "
+              + "that this song is missing something a song cannot have");
+
+          Assert.That(DrawnStoryTakesRoom(browser, shelf), Is.False,
+              "with nothing to read the story block takes no room, since an empty strip under the facts is read "
+              + "as a broken panel");
+      }
+
+      // Prose that exists is still said, in the library's own words, and takes its room back.
+      DetailsServer written = new DetailsServer(HttpStatusCode.OK,
+            "{\"id\":\"" + TITANIC + "\",\"title\":\"Kind of Blue\",\"year\":1959,"
+            + "\"overview\":\"Recorded in two sessions at Columbia's 30th Street studio.\"}");
+      MediaBrowserViewModel described = new MediaBrowserViewModel(
+            new ServerApiClient(SIGN_IN_URL, new HttpClient(written)), ShelfCalled("AlbumItem"));
+      described.Selected = new TitleViewModel(
+            new MediaTitle(new Guid(TITANIC), "Kind of Blue", null, 1959, null, null, false));
+
+      WaitUntil("the album's own prose to arrive", delegate { return described.DetailsText.Length > 0; });
+      Assert.That(described.DetailsText,
+            Is.EqualTo("Recorded in two sessions at Columbia's 30th Street studio."),
+            "holding its tongue about an undescribed record must not silence the records somebody described");
+      Assert.That(DrawnStoryTakesRoom(described, "AlbumItem"), Is.True,
+            "and the prose a record does carry is drawn in the block the silent one vacated");
+
+      // The admission the music lost stays where it always stood: on a picture, whose story is the question.
+      DetailsServer film = new DetailsServer(HttpStatusCode.OK,
+            "{\"id\":\"" + TITANIC + "\",\"title\":\"Titanic\",\"year\":1997,\"runtimeMinutes\":195}");
+      MediaBrowserViewModel picture = BrowserOn(film);
+      picture.Selected = new TitleViewModel(
+            new MediaTitle(new Guid(TITANIC), "Titanic", null, 1997, null, null, false));
+
+      WaitUntil("the film's admission", delegate { return picture.DetailsText.Length > 0; });
+      Assert.That(picture.DetailsText, Is.EqualTo("Nothing was written about this title on this server."),
+            "a film without a plot is missing something, and that is worth saying");
+    }
+
+    /// <summary>
+    /// Whether the story block of a reading is drawn and takes room on the screen.
+    /// </summary>
+    /// <remarks>
+    /// Asked of the scroller and not of the letters inside it: the block is declared in the view, while its text
+    /// is only realized once the scroller is shown, so an absent TextBlock would prove nothing on its own.
+    /// </remarks>
+    private static bool DrawnStoryTakesRoom(MediaBrowserViewModel browser, string aspect)
+    {
+      var workflow = new WorkflowManager();
+      ShellWindow window = new ShellWindow(workflow, delegate (WorkflowFrame frame)
+      {
+        return new MediaBrowserView((MediaBrowserViewModel) frame.ViewModel);
+      });
+      window.Width = 1920;
+      window.Height = 1080;
+      workflow.Push(new WorkflowFrame("titles", "Musik", browser));
+      window.Show();
+      Pump();
+
+      ScrollViewer story = window.GetVisualDescendants().OfType<ScrollViewer>().FirstOrDefault(
+            delegate (ScrollViewer scroller) { return scroller.Name == "plotScroller"; });
+      Assert.That(story, Is.Not.Null,
+            "the story block is still built into the view - a film reads its plot in this very one " + aspect);
+      bool takesRoom = story.IsVisible;
+      window.Close();
+      return takesRoom;
+    }
+
+    /// <summary>
+    /// The three bands of people a piece of music names, and the roles they are asked for.
+    /// </summary>
+    /// <remarks>
+    /// The reference's audio screen asks for artist, album artist and composer and lays all three out under each
+    /// other, in three columns (<c>MediaInfoAudio.xaml:204-296</c>), while its film screens ask for actors and
+    /// directors.  A song read as a film names nobody at all, because the library files the musician under a
+    /// relationship the film question never asks about.
+    /// </remarks>
+    [AvaloniaTest]
+    public void ASongNamesItsArtistItsAlbumArtistAndItsComposer()
+    {
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK,
+          "{\"id\":\"" + TITANIC + "\",\"title\":\"Blue in Green\",\"year\":1959}",
+          null!, null!,
+          "{\"id\":\"" + TITANIC + "\",\"groups\":["
+          + "{\"role\":\"artist\",\"persons\":[{\"id\":\"11111111-1111-1111-1111-111111111111\","
+          + "\"name\":\"Miles Davis\"}]},"
+          + "{\"role\":\"albumartist\",\"persons\":[{\"id\":\"22222222-2222-2222-2222-222222222222\","
+          + "\"name\":\"Columbia Records\"}]},"
+          + "{\"role\":\"composer\",\"persons\":[{\"id\":\"33333333-3333-3333-3333-333333333333\","
+          + "\"name\":\"Bill Evans\"}]}]}");
+      MediaBrowserViewModel browser = new MediaBrowserViewModel(
+          new ServerApiClient(SIGN_IN_URL, new HttpClient(server)), ShelfCalled("AlbumItem"));
+      browser.Selected = new TitleViewModel(
+          new MediaTitle(new Guid(TITANIC), "Blue in Green", null, 1959, null, null, false));
+
+      WaitUntil("the three bands to fill", delegate { return browser.ShowsMusicPersons; });
+
+      Assert.That(browser.DetailsArtists.Select(delegate (PersonCard face) { return face.Name; }),
+          Is.EqualTo(new[] { "Miles Davis" }), "who sang it");
+      Assert.That(browser.DetailsAlbumArtists.Select(delegate (PersonCard face) { return face.Name; }),
+          Is.EqualTo(new[] { "Columbia Records" }), "who published it, which is whom a collector looks for");
+      Assert.That(browser.DetailsComposers.Select(delegate (PersonCard face) { return face.Name; }),
+          Is.EqualTo(new[] { "Bill Evans" }), "who wrote it, which for a standard is somebody else again");
+      Assert.That(browser.ShowsPersons, Is.False,
+          "a song names no actors and no director, so the two bands a film fills stay away from it");
+
+      Assert.That(server.RolesAsked, Is.EqualTo("?roles=artist,albumartist,composer"),
+          "the three roles are asked for by the names the library files its relationships under - asking for "
+          + "them by any other name comes back empty, and an empty band cannot be told from a song without "
+          + "musicians");
+    }
+
+    /// <summary>
+    /// That the film's reading is untouched by the song's: the two people it asks for, and no row of sound.
+    /// </summary>
+    [AvaloniaTest]
+    public void AFilmStillNamesItsActorsAndItsDirectorAndWearsNoRowOfSound()
+    {
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK,
+          "{\"id\":\"" + TITANIC + "\",\"title\":\"Titanic\",\"year\":1997,\"runtimeMinutes\":195}");
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.Selected = new TitleViewModel(
+          new MediaTitle(new Guid(TITANIC), "Titanic", null, 1997, null, null, false));
+
+      WaitUntil("the people to have been asked for", delegate { return server.PeopleAsked > 0; });
+      Pump();
+
+      Assert.That(server.RolesAsked, Is.EqualTo("?roles=actor,director"),
+          "the film's question is still the film's question");
+      Assert.That(browser.ShowsAudioLine, Is.False,
+          "a film's answer carries no figures of its own, so no row of blanks stands where the sound row would "
+          + "stand");
+      Assert.That(browser.ShowsMusicPersons, Is.False, "and no band of musicians stands under it either");
+
+      MediaBrowserFact? length = browser.DetailsFacts.FirstOrDefault(
+          delegate (MediaBrowserFact fact) { return fact.Label == "Runtime"; });
+      Assert.That(length, Is.Not.Null, "a film is asked for its length under the word a film has always used");
+      Assert.That(length!.Value, Is.EqualTo("3 h 15 min"),
+          "and in the film's own spelling of the same length: the song's shape came in for the song, not to "
+          + "rewrite the film");
     }
 
     /// <summary>

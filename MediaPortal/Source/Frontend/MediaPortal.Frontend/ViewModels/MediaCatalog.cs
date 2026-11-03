@@ -256,6 +256,16 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
+    /// Whether this aspect is a shelf of albums.  Spelled apart from the shelf of tracks on purpose: an album is
+    /// asked how long its record is and how many tracks stand on it, while a track is asked how long itself is -
+    /// the two lengths are not the same question and are not spelled the same way.
+    /// </summary>
+    public static bool IsAlbum(string? aspectName)
+    {
+      return string.Equals(aspectName, "AlbumItem", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
     /// How the titles inside this aspect are ordered: tracks by their number, episodes by season and number, films
     /// of a collection by name. <c>title</c> for anything else, which is what a whole shelf is ordered by.
     /// </summary>

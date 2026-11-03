@@ -165,6 +165,12 @@ namespace MediaPortal.Frontend.ViewModels
             ["DTS-HD MA"] = "dtshd_ma",
             ["DTS-HD HRA"] = "dtshra",
             ["HE-AAC"] = "aac lc-sbr",
+            // The importer's words for a plain audio FILE, as opposed to a track inside a video: the library writes
+            // "PCM Audio" where the catalog's picture is filed as "pcm".  The other three names this library's
+            // audio files turned out to carry ("MPEG Version 1 Audio, Layer 3", its VBR variant, "Flac Audio")
+            // need no entry, because the catalog carries a picture of each under that very name and the skin asks
+            // for pictures without minding their case.
+            ["PCM Audio"] = "pcm",
         };
 
     /// <summary>
@@ -271,6 +277,57 @@ namespace MediaPortal.Frontend.ViewModels
           MediaStreamWords.BitRate(video.BitRate),
           MediaStreamWords.FrameRate(video.Fps));
     }
+
+    /// <summary>
+    /// The row of pictures an <b>audio</b> file is made of, in the order the reference's audio screen drew them:
+    /// the codec's picture, the channels' picture, the disc with "<c>{DiscId} | {NumDiscs}</c>" beside it, and the
+    /// bitrate over the sample rate (<c>MediaInfoAudio.xaml:115-170</c>, a six-cell <c>UniformGrid</c> over an
+    /// <c>AudioAspectWrapper</c>).
+    /// </summary>
+    /// <param name="details">The title's answer, of which only the audio file's own six figures are read.</param>
+    /// <remarks>
+    /// <para>
+    /// The reference asked this of the audio aspect rather than of a stream list because an audio file <b>is</b>
+    /// its stream: there is no second picture in a song to describe.  Two of its six cells are therefore this
+    /// front end's own doing rather than the reference's - it had no channels-arrangement word beside the picture
+    /// of the count, and no word at all when the skin carries no picture of a codec - and both follow the rule the
+    /// track cards already follow: a plaque that has no picture to show writes its figure in words instead of
+    /// drawing a hole.
+    /// </para>
+    /// <para>
+    /// The disc cell is the reference's own oddity, kept on purpose: it is visible on the <b>number of discs</b>
+    /// and names the disc inside it, so a file the library counts as disc one of nothing at all says nothing
+    /// rather than "1 | ".
+    /// </para>
+    /// </remarks>
+    public static AudioFileLine Audio(MediaItemDetails? details)
+    {
+      if (details == null)
+        return AudioFileLine.Empty;
+
+      string encoding = (details.AudioEncoding ?? string.Empty).Trim();
+      int channels = details.AudioChannels ?? 0;
+
+      string disc = string.Empty;
+      int discCount = details.DiscCount ?? 0;
+      if (discCount > 0)
+      {
+        int discId = details.DiscId ?? 0;
+        disc = discId > 0
+            ? discId.ToString(System.Globalization.CultureInfo.InvariantCulture) + " | "
+              + discCount.ToString(System.Globalization.CultureInfo.InvariantCulture)
+            : discCount.ToString(System.Globalization.CultureInfo.InvariantCulture);
+      }
+
+      return new AudioFileLine(
+          AudioCodec(encoding),
+          encoding,
+          Channels(channels),
+          MediaStreamWords.Channels(channels),
+          disc,
+          MediaStreamWords.BitRate(details.AudioBitRate ?? 0),
+          MediaStreamWords.SampleRate(details.AudioSampleRate ?? 0));
+    }
   }
 
   /// <summary>
@@ -348,5 +405,56 @@ namespace MediaPortal.Frontend.ViewModels
     /// <summary>Whether the row costs its height, which is true as soon as one of its cells has an answer.</summary>
     public bool ShowsAnything =>
         ShowsStereoscopic || ShowsCodec || ShowsResolution || ShowsRatio || ShowsHdr || ShowsRate;
+  }
+
+  /// <summary>
+  /// One audio file, in the four cells its screen draws: what it is packed in, how many channels it carries, which
+  /// disc of how many it is, and its two rates - each of the first two as a picture's name and as the word that
+  /// stands when the worn skin carries no such picture.
+  /// </summary>
+  /// <param name="CodecToken">The codec as a logo's file name, empty when the importer wrote none.</param>
+  /// <param name="CodecWord">The codec in the importer's own words, for the case no picture answers.</param>
+  /// <param name="ChannelsToken">The channel <b>count</b> as a loudspeaker picture's file name ("2"), empty for a
+  /// file nobody counted.</param>
+  /// <param name="ChannelsWord">The same arrangement as the trade spells it ("2.0"), empty with the token.</param>
+  /// <param name="DiscText">"1 | 2" for the first disc of a two-disc set, empty when the library counted no discs.</param>
+  /// <param name="BitRateText">"320 kbps", empty when the importer wrote no bitrate.</param>
+  /// <param name="SampleRateText">"44100 Hz", empty when the importer wrote no sample rate.</param>
+  public sealed record AudioFileLine(
+      string CodecToken,
+      string CodecWord,
+      string ChannelsToken,
+      string ChannelsWord,
+      string DiscText,
+      string BitRateText,
+      string SampleRateText)
+  {
+    /// <summary>The row of a title that is no audio file, or of one nobody looked inside.</summary>
+    public static readonly AudioFileLine Empty = new AudioFileLine("", "", "", "", "", "", "");
+
+    /// <summary>Whether the importer named a codec.</summary>
+    public bool ShowsCodec => CodecWord.Length > 0;
+
+    /// <summary>Whether the importer counted channels.</summary>
+    public bool ShowsChannels => ChannelsToken.Length > 0;
+
+    /// <summary>Whether the library counts this file as one disc of a set.</summary>
+    public bool ShowsDisc => DiscText.Length > 0;
+
+    /// <summary>Whether either of the two rates arrived; the cell stands as soon as one of them did.</summary>
+    public bool ShowsRates => BitRateText.Length > 0 || SampleRateText.Length > 0;
+
+    /// <summary>
+    /// The two rates in the one line the plaque has room for: "320 kbps · 44100 Hz".  The reference stacked them in
+    /// its own cell (<c>MediaInfoAudio.xaml:150-165</c>); said beside the other plaques they are one answer about
+    /// the file's rate, which is how the film's row already says its bitrate with its frame rate.
+    /// </summary>
+    public string RatesText =>
+        BitRateText.Length > 0 && SampleRateText.Length > 0
+            ? BitRateText + " · " + SampleRateText
+            : BitRateText.Length > 0 ? BitRateText : SampleRateText;
+
+    /// <summary>Whether the row costs its height at all.</summary>
+    public bool ShowsAnything => ShowsCodec || ShowsChannels || ShowsDisc || ShowsRates;
   }
 }

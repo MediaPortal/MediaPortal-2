@@ -789,6 +789,65 @@
     import stores: once per album, under the album's id. A track is answered with its album's cover by the
     server, and a picture is never stretched into the square.
   -->
+  <!--
+    A music shelf's cover in the third view, which the reference drew larger than the square its audio grid
+    stands on: AUDIO_COVER_WIDTH x AUDIO_COVER_HEIGHT, 260x260 (MediaConsts.xaml:57f), against the grid's
+    AUDIO_GRID_WIDTH x AUDIO_GRID_HEIGHT of 205x195 (:16f).  CoverViewAudioItemTemplate (MediaStyles.xaml:3599)
+    is the frame that wears those two numbers, and it is one frame for albums and tracks alike - which is why
+    this is one template too.  Like every other cover on this front end the name stays out of the ground under
+    the picture: the reading of the stood-on title is the details' business above the row.
+  -->
+  <DataTemplate x:Key="MediaTileAlbumCoverTemplate" x:DataType="vm:TitleViewModel">
+    <Border Classes="home-tile-shadow" Width="260" Height="260" Margin="10,10,10,16">
+      <Panel>
+        <Border Classes="home-tile-face" Background="#222222" ClipToBounds="True">
+          <Grid>
+            <Image Classes="home-tile-art"
+                   Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance},
+                                    ConverterParameter='tile'}"
+                   Stretch="UniformToFill"
+                   IsVisible="{Binding HasArtwork}"/>
+            <!-- no cover: the home tiles' backup plate, the music mark in its middle, the name under it -->
+            <StackPanel IsVisible="{Binding HasNoArtwork}" VerticalAlignment="Center" HorizontalAlignment="Center"
+                        Spacing="14" Margin="16,0">
+              <Path Data="{Binding FallbackIcon, Converter={x:Static views:SkinIconGeometryConverter.Instance}}"
+                    Fill="{DynamicResource TextBrush}" Width="78" Height="78" Opacity="0.55" Stretch="Uniform"
+                    HorizontalAlignment="Center"/>
+              <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextBrush}"
+                         FontSize="{DynamicResource SmallerFontSize}" TextWrapping="Wrap"
+                         TextTrimming="CharacterEllipsis" MaxLines="3" TextAlignment="Center"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+        <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
+        <!-- watched corners, if the grid's setting allows corners at all -->
+        <Panel IsVisible="{Binding WatchFlagsShown}">
+          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='watched.png'}"
+                 Height="44" Stretch="Uniform" Opacity="0.9"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,8,0"
+                 IsVisible="{Binding IsWatched}"/>
+          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='partlywatched.png'}"
+                 Height="44" Stretch="Uniform" Opacity="0.9"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,8,0"
+                 IsVisible="{Binding IsPartlyWatched}"/>
+        </Panel>
+        <!-- a title without a file behind it: the reference's corner flag with its offline mark -->
+        <Panel IsVisible="{Binding IsOffline}">
+          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='flag.png'}"
+                 Height="120" Stretch="Uniform"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,3,0"/>
+          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
+                                  ConverterParameter='offline.png'}"
+                 Height="46" Stretch="Uniform"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,13,13,0"/>
+        </Panel>
+      </Panel>
+    </Border>
+  </DataTemplate>
+
   <DataTemplate x:Key="MediaTileAlbumTemplate" x:DataType="vm:TitleViewModel">
     <Border Classes="home-tile-shadow" Width="205" Height="195" Margin="8,8,8,14">
       <Panel>
