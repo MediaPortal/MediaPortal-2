@@ -855,11 +855,26 @@
               three lines above the cards it names - the viewer called that far too much and asked for a third of
               it, so the header's row keeps no height of its own, stands hard against the band, and everything
               between the word and the cards is the shadow's own air and nothing else.
+
+              On 2026-11-03 the same viewer asked for half of that distance again and three tenths off the room
+              under each band, because a reading that says Video, Audiotrack, Subtitle, the people and the
+              collection ran past the bottom of the screen and cut its last card off.  The air the shadow lives in
+              stayed exactly as it is - fifteen above a card, twenty three below, the test above still measures
+              them - and the band steps up into its own air instead: eight points of negative margin on the
+              scroller lay the word seven lines above its cards, and its top edge only leans over the word's row,
+              where there was nothing to clip.  Under a card the forty one lines of bottom air and band spacing
+              became twenty nine, the spacing going from eighteen to six.  A fifth of the reading's height is gone
+              and none of it came out of the shadow.
+
+              Ten lines of that shadow's bottom air went above the column on the same day, because the viewer
+              asked for the whole left side to stand further down from the top of the screen: forty lines became
+              fifty, and the air the reading keeps at the bottom fell from a hundred and seventy to a hundred and
+              sixty so that no band was pushed off the screen by the change.
             -->
             <StackPanel VerticalAlignment="Top"
-                        Margin="60,40,60,170"
-                        Spacing="18"
-                        IsVisible="{Binding ShowsTracks}">
+                        Margin="60,50,60,160"
+                        Spacing="6"
+                        IsVisible="{Binding ShowsBands}">
               <!--
                 VIDEO.  What the file's picture is answerable by, read here: whether it is stereoscopic, its codec,
                 its size, its high dynamic range, its proportion and its rate.  The viewer moved the row over here
@@ -875,8 +890,18 @@
                 skin carries no picture of a name the plaque writes its figure in words instead of drawing a hole.
                 What the reference could not do - name a codec its 2014 catalog never saw - is still done here.
               -->
-              <StackPanel Spacing="6" IsVisible="{Binding ShowsPictureLine}">
-                <StackPanel Orientation="Horizontal" Spacing="12" Height="40">
+              <!-- The band lays its plaques hard against its own bottom edge, and every other band holds twenty
+                   three lines of shadow air under its cards.  Without the same air below this one the word of the
+                   band under it stood six lines off the plaques while it stands twenty nine off a track card,
+                   which the viewer saw on 2026-11-03 and asked to be made even. -->
+              <StackPanel Spacing="6"
+                          Margin="0,0,0,23"
+                          IsVisible="{Binding ShowsPictureLine}">
+                <!-- The row of the word wears no height of its own (see the band air note above this panel): with
+                     forty points under it the word floated thirteen lines above its plaques while the track bands
+                     stood seven above theirs, and the viewer asked on 2026-11-03 for half the distance everywhere
+                     so that the reading fits the height of the screen. -->
+                <StackPanel Orientation="Horizontal" Spacing="12">
                   <TextBlock Text="Video"
                              FontSize="21"
                              Opacity="0.5"
@@ -1040,6 +1065,7 @@
                 <ScrollViewer Name="audioTracksScroller"
                               Height="193"
                               Padding="24,15,24,23"
+                              Margin="0,-8,0,0"
                               HorizontalScrollBarVisibility="Hidden"
                               VerticalScrollBarVisibility="Disabled"
                               ClipToBounds="True">
@@ -1067,11 +1093,14 @@
                              on it says which one is being looked at, exactly as it does on a tile of the wall.  The
                              shadow is the skin's shared one, the same the wall's tiles, the news cards and the
                              weather cards stand in - a card of this screen is no flatter than a tile of the wall. -->
+                        <!-- The ground of a card of words: four tenths of a light grey (#B3B3B3 at 0x66), which the
+                             viewer asked for on 2026-11-03 in place of the fifteen per cent white this stood in -
+                             a card should read as a card before the picture on it reads. -->
                         <Border Classes="trackcard home-tile-shadow"
                                 Focusable="True"
                                 Width="300"
                                 Height="155"
-                                Background="#26FFFFFF"
+                                Background="#66B3B3B3"
                                 Padding="16,10,16,12"
                                 Margin="0,0,8,0">
                           <Grid RowDefinitions="Auto,Auto,*"
@@ -1175,6 +1204,7 @@
                 <ScrollViewer Name="subtitleTracksScroller"
                               Height="193"
                               Padding="24,15,24,23"
+                              Margin="0,-8,0,0"
                               HorizontalScrollBarVisibility="Hidden"
                               VerticalScrollBarVisibility="Disabled"
                               ClipToBounds="True">
@@ -1201,7 +1231,7 @@
                                 Focusable="True"
                                 Width="300"
                                 Height="155"
-                                Background="#26FFFFFF"
+                                Background="#66B3B3B3"
                                 Padding="16,10,16,12"
                                 Margin="0,0,8,0">
                           <Grid RowDefinitions="Auto,Auto,*"
@@ -1337,6 +1367,7 @@
                   <ScrollViewer Name="actorsScroller"
                                 Height="198"
                                 Padding="24,15,24,23"
+                                Margin="0,-8,0,0"
                                 HorizontalScrollBarVisibility="Hidden"
                                 VerticalScrollBarVisibility="Disabled"
                                 ClipToBounds="True">
@@ -1366,6 +1397,7 @@
                   <ScrollViewer Name="directorsScroller"
                                 Height="198"
                                 Padding="24,15,24,23"
+                                Margin="0,-8,0,0"
                                 HorizontalScrollBarVisibility="Hidden"
                                 VerticalScrollBarVisibility="Disabled"
                                 ClipToBounds="True">
@@ -1826,11 +1858,13 @@
                               Fill="{DynamicResource TextBrush}"
                               Stretch="Uniform"
                               IsVisible="{Binding ShowsSubtitleTracks}"/>
+                        <!-- The crossed frame is the answer to the same question as the framed "CC", so it is said
+                             in the same white (the viewer asked for that on 2026-11-03; it stood at six tenths of
+                             the light before, which read as a word half spoken). -->
                         <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
                                                 ConverterParameter='PlayerControl/subtitles_off'}"
                               Fill="{DynamicResource TextBrush}"
                               Stretch="Uniform"
-                              Opacity="0.6"
                               IsVisible="{Binding !ShowsSubtitleTracks}"/>
                       </Grid>
                     </Border>
