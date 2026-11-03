@@ -2851,10 +2851,15 @@
         It spans both columns so the margin counts from the room's own left edge, it is painted over the wall
         the way the home's line is painted over its fanart, and it goes when the rail goes, because it is the
         rail's word and not the wall's.
+
+        It says more than the page's name now: the plate the caret stands on is named here with whatever that
+        plate has to add.  A plate on the rail is a picture and one word and has no room for anything else - the
+        reference's tiles had none either - so the second word a command carries, such as the end an order reads
+        the shelf from, is said down here, where a whole line lies free.
       -->
       <TextBlock Grid.Row="0"
                  Grid.ColumnSpan="2"
-                 Text="{Binding MediaMenuHeading}"
+                 Text="{Binding MediaMenuFootLine}"
                  FontSize="22"
                  Foreground="{DynamicResource TextBrush}"
                  HorizontalAlignment="Left"

@@ -1806,6 +1806,13 @@ namespace MediaPortal.Frontend.ViewModels
 
     partial void OnMediaMenuVisibleChanged(bool value)
     {
+      if (!value)
+      {
+        //  The menu went away; the foot line must not keep naming a plate nobody is standing on.
+        _menuTileLabel = "";
+        _menuTileDetail = "";
+      }
+      OnPropertyChanged(nameof(MediaMenuFootLine));
       OnPropertyChanged(nameof(ShowsContentInfo));
     }
 
@@ -2315,6 +2322,13 @@ namespace MediaPortal.Frontend.ViewModels
     /// every shelf has to answer.
     /// </summary>
     public string SortOrder { get; private set; }
+
+    /// <summary>
+    /// Whether the shelf is read against the direction of its order.  It is not a question of its own on the
+    /// menu: picking the order that already stands turns it around, which is what a viewer does with a list they
+    /// have just looked at - the same shelf, only the other way round.
+    /// </summary>
+    public bool SortDescending { get; private set; }
 
     /// <summary>The word the screen says for the order it is reading in.</summary>
     public string SortLabel
@@ -3096,6 +3110,52 @@ namespace MediaPortal.Frontend.ViewModels
     [ObservableProperty]
     private string _mediaMenuHeading = "Menu";
 
+    /// <summary>
+    /// The line at the screen's foot while the menu is out: the plate of the rail the caret stands on, together
+    /// with whatever that plate has to add.  A plate carries a picture and its name and has no room for more, so
+    /// the second word a command has - the end an order reads the shelf from - is said down here, where a whole
+    /// line is free.  Until the caret reaches a plate the line only names the page the rail is showing.
+    /// </summary>
+    public string MediaMenuFootLine
+    {
+      get
+      {
+        if (_menuTileLabel.Length == 0)
+          return MediaMenuHeading;
+        return _menuTileDetail.Length == 0 ? _menuTileLabel : _menuTileLabel + " · " + _menuTileDetail;
+      }
+    }
+
+    private string _menuTileLabel = "";
+    private string _menuTileDetail = "";
+
+    /// <summary>
+    /// Which plate of the rail the caret stands on.  Only the view knows: its arrows hand the caret from row to
+    /// row by moving the focus, so the view reports the plate every time the caret walks.
+    /// </summary>
+    public void MenuTileStood(string? label, string? detail)
+    {
+      string came = label ?? string.Empty;
+      string added = detail ?? string.Empty;
+      if (came == _menuTileLabel && added == _menuTileDetail)
+        return;
+
+      _menuTileLabel = came;
+      _menuTileDetail = added;
+      OnPropertyChanged(nameof(MediaMenuFootLine));
+    }
+
+    /// <summary>
+    /// A page of the rail being replaced means every plate the foot line ever spoke of is gone with it; the line
+    /// falls back to the page's name until the caret stands on a new plate.
+    /// </summary>
+    partial void OnMediaMenuHeadingChanged(string value)
+    {
+      _menuTileLabel = "";
+      _menuTileDetail = "";
+      OnPropertyChanged(nameof(MediaMenuFootLine));
+    }
+
     /// <summary>The rows the menu shows right now, for the page <see cref="_menuPage"/> says it is on.</summary>
     public ObservableCollection<MediaBrowserMenuEntry> MediaMenu { get; } = new ObservableCollection<MediaBrowserMenuEntry>();
 
@@ -3193,8 +3253,12 @@ namespace MediaPortal.Frontend.ViewModels
           foreach ((string Word, string Key) choice in SortChoices())
           {
             string picked = choice.Key;
-            AddMenuRow(choice.Word, SortIcon(picked), new AsyncRelayCommand(() => PickSortAsync(picked)),
-                string.Equals(SortOrder, picked, StringComparison.OrdinalIgnoreCase));
+            bool stands = string.Equals(SortOrder, picked, StringComparison.OrdinalIgnoreCase);
+            // Only the order's name fits the plate; the end it starts at goes into the line at the screen's foot,
+            // where there is room for it.  A row that stands answers with the end the shelf is read from now -
+            // pressing it again is what turns that around.
+            AddMenuRow(choice.Word, SortIcon(picked), new AsyncRelayCommand(() => PickSortAsync(picked)), stands,
+                SortDirectionWord(picked, stands && SortDescending));
           }
           return;
 
@@ -3232,7 +3296,8 @@ namespace MediaPortal.Frontend.ViewModels
             SearchFocusRequested?.Invoke(this, EventArgs.Empty);
           }));
           AddMenuRow(FilterLabel, "filter", new RelayCommand(() => GoToPage(MenuPage.Filter)));
-          AddMenuRow(SortLabel, "sort", new RelayCommand(() => GoToPage(MenuPage.Sort)));
+          AddMenuRow(SortLabel, "sort", new RelayCommand(() => GoToPage(MenuPage.Sort)), false,
+              SortDirectionWord(SortOrder));
           AddMenuRow(LayoutLabel, "grid_view", new RelayCommand(() => GoToPage(MenuPage.View)));
           if (CanChooseMedia)
             AddMenuRow(MediaLabel, "media_format", new RelayCommand(() => GoToPage(MenuPage.Picture)));
@@ -3253,9 +3318,10 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>One row of the menu, with the skin's own picture beside it where the skin has one to give.</summary>
-    private void AddMenuRow(string label, string icon, System.Windows.Input.ICommand command, bool isCurrent = false)
+    private void AddMenuRow(string label, string icon, System.Windows.Input.ICommand command, bool isCurrent = false,
+        string detail = "")
     {
-      MediaMenu.Add(new MediaBrowserMenuEntry(label, icon, command, isCurrent));
+      MediaMenu.Add(new MediaBrowserMenuEntry(label, icon, command, isCurrent, detail));
     }
 
     /// <summary>A menu row that says words and has no picture of its own.</summary>
@@ -3326,20 +3392,34 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
-    /// Reads the shelf again in another order. The list is thrown away rather than re-sorted on screen, because
-    /// the screen only ever holds the pages it has read: eleven hundred films sorted by year have to be re-asked,
-    /// not shuffled, or the first fifty the viewer is looking at are the wrong fifty.
+    /// Reads the shelf again in another order - and, when the order that already stands is picked a second time,
+    /// in the other direction.  The list is thrown away rather than re-sorted on screen, because the screen only
+    /// ever holds the pages it has read: eleven hundred films sorted by year have to be re-asked, not shuffled,
+    /// or the first fifty the viewer is looking at are the wrong fifty.
     /// </summary>
     public async Task PickSortAsync(string sort)
     {
-      if (string.IsNullOrWhiteSpace(sort)
-          || string.Equals(SortOrder, sort, StringComparison.OrdinalIgnoreCase))
+      if (string.IsNullOrWhiteSpace(sort))
       {
         HideMediaMenu();
         return;
       }
 
-      SortOrder = sort;
+      if (string.Equals(SortOrder, sort, StringComparison.OrdinalIgnoreCase))
+      {
+        // Asked twice is not the same question twice - it is the shelf the other way round.  A viewer standing in
+        // a list read A to Z who picks "by title" again means Z to A; answering with "already done, menu away"
+        // leaves the second half of the order unreachable, and no other row of this menu reaches it either.
+        SortDescending = !SortDescending;
+      }
+      else
+      {
+        // A new order starts straight: "by year" said without more is a question about the shelf, not about its
+        // end, and carrying a stale "reversed" over from the order before it would answer a question nobody asked.
+        SortOrder = sort;
+        SortDescending = false;
+      }
+
       OnPropertyChanged(nameof(SortLabel));
       HideMediaMenu();
       await ReaskAsync();
@@ -3437,6 +3517,34 @@ namespace MediaPortal.Frontend.ViewModels
           return "track number";
         default:
           return "title";
+      }
+    }
+
+    /// <summary>
+    /// The screen's word for the end of the order the shelf starts at.  Spelled per kind of order rather than as
+    /// one word for every one of them, because "Z to A" over a shelf of years is a sentence about letters the
+    /// shelf holds none of.
+    /// </summary>
+    private string SortDirectionWord(string sort) => SortDirectionWord(sort, SortDescending);
+
+    /// <summary>
+    /// The word for the end of one order when it is read from a given end.  An order that already stands names the
+    /// end it is read from today; an order nobody has picked yet starts at its front.
+    /// </summary>
+    private static string SortDirectionWord(string sort, bool reverse)
+    {
+      switch (sort)
+      {
+        case "title":
+          return reverse ? "Z to A" : "A to Z";
+        case "year":
+        case "added":
+          return reverse ? "newest first" : "oldest first";
+        case "lastplayed":
+          return reverse ? "least recent first" : "most recent first";
+        default:
+          //  The numbered orders - season, episode, track - which are watched from one end to the other.
+          return reverse ? "last to first" : "first to last";
       }
     }
 
@@ -5026,8 +5134,9 @@ namespace MediaPortal.Frontend.ViewModels
       {
         // Nothing asks for newest-first here any more: that order came with the "Latest media" tile alone. The
         // opening question is a screenful and every question after it is as much as the server will hand over, so
-        // that a shelf of eleven hundred films costs two questions rather than twenty.
-        MediaTitles answer = await _client.GetTitlesAsync(AspectName, SortOrder, false,
+        // that a shelf of eleven hundred films costs two questions rather than twenty.  Which END of the order the
+        // shelf starts at is the viewer's answer, changed by picking the standing order again (PickSortAsync).
+        MediaTitles answer = await _client.GetTitlesAsync(AspectName, SortOrder, SortDescending,
             offset == 0 ? OPENING_PAGE : REST_IN_ONE_ASK, offset,
             string.IsNullOrEmpty(ActiveSearch) ? null : ActiveSearch,
             string.IsNullOrEmpty(ActiveSeen) ? null : ActiveSeen, Inside, GroupBy, GroupValue, SeasonFilter,
@@ -5186,12 +5295,14 @@ namespace MediaPortal.Frontend.ViewModels
   /// </remarks>
   public sealed class MediaBrowserMenuEntry
   {
-    public MediaBrowserMenuEntry(string label, string icon, System.Windows.Input.ICommand command, bool isCurrent)
+    public MediaBrowserMenuEntry(string label, string icon, System.Windows.Input.ICommand command, bool isCurrent,
+        string detail = "")
     {
       Label = label;
       Icon = icon;
       Command = command;
       IsCurrent = isCurrent;
+      Detail = detail ?? string.Empty;
     }
 
     /// <summary>What the row says, which includes what the screen already answers where the command is a switch.</summary>
@@ -5209,6 +5320,13 @@ namespace MediaPortal.Frontend.ViewModels
     /// behind the row that carried it.
     /// </summary>
     public bool IsCurrent { get; }
+
+    /// <summary>
+    /// What the row has to say beyond its name, for the line at the screen's foot: the end an order reads the
+    /// shelf from, and nothing else.  Empty for the rows that have no second word to add, which is most of them -
+    /// a line that fills itself with guesses is worse than one that stays quiet.
+    /// </summary>
+    public string Detail { get; }
   }
 
   /// <summary>

@@ -1002,6 +1002,12 @@ namespace MediaPortal.Frontend.Views
     /// </summary>
     private void WireMenuList(ListBox list)
     {
+      // The line at the screen's foot speaks of the plate the caret stands on, so it is told whenever the caret
+      // walks: by the list's own selection, and by the focus arriving in a row - the screen's arrows hand the caret
+      // from plate to plate by moving the focus, which leaves the list's selection where it was.
+      list.SelectionChanged += delegate { TellFootLineAbout(list); };
+      list.AddHandler(GotFocusEvent, delegate { TellFootLineAbout(list); }, RoutingStrategies.Bubble);
+
       list.AddHandler(KeyDownEvent, delegate (object? sender, KeyEventArgs args)
       {
         // The button every input device has: Enter on a keyboard, the space bar where a remote has no letters, and
@@ -1100,6 +1106,20 @@ namespace MediaPortal.Frontend.Views
       if (DataContext is MediaBrowserViewModel owner
           && owner.MediaMenuVisible && owner.MediaMenuHeading != COMMANDS_HEADING)
         StandCaretOnRailRow(list, 0);
+    }
+
+    /// <summary>
+    /// Tells the screen's foot which plate of a rail the caret stands on.  The plate is asked for the same way every
+    /// other answer on this rail asks for it - the row the focus is in, falling back to the list's own selection -
+    /// because the screen's arrows move the caret without asking the list to select.
+    /// </summary>
+    private void TellFootLineAbout(ListBox list)
+    {
+      if (DataContext is not MediaBrowserViewModel owner)
+        return;
+
+      MediaBrowserMenuEntry? plate = StoodOnRow(list) as MediaBrowserMenuEntry;
+      owner.MenuTileStood(plate?.Label, plate?.Detail);
     }
 
     /// <summary>
