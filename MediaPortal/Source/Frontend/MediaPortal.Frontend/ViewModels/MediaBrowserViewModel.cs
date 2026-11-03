@@ -1727,6 +1727,7 @@ namespace MediaPortal.Frontend.ViewModels
     {
       OnPropertyChanged(nameof(DetailsLabel));
       RaiseShelfCounters();
+      OnPropertyChanged(nameof(ShowsContentInfo));
 
       if (value)
         _ = ShowDetailsForSelectedAsync();
@@ -1753,6 +1754,59 @@ namespace MediaPortal.Frontend.ViewModels
     partial void OnInfoShownChanged(bool value)
     {
       RaiseShelfCounters();
+      OnPropertyChanged(nameof(ShowsContentInfo));
+    }
+
+    /// <summary>
+    /// What the screen says at its bottom left about the title the walker stands on: the plain name, the year,
+    /// and the kinds of thing it is - the home screen's line, in the home screen's words and letters, because a
+    /// viewer who turned the details column off still wants to know what they are standing on.
+    /// </summary>
+    /// <remarks>
+    /// The three pieces are what the row itself carries, read off the same row the home reads them off
+    /// (<c>HomeViewModel.ContentInfo</c>), so walking a shelf of two hundred rows asks the server nothing: a line
+    /// that had to ask would put one request behind every arrow key.  A name the importer wrote with its year
+    /// ("Silo (2023)") says that year once, as its own piece, exactly as the home does.
+    /// </remarks>
+    public string ContentInfo
+    {
+      get
+      {
+        TitleViewModel? title = Selected;
+        if (title == null)
+          return string.Empty;
+
+        List<string> parts = new List<string> { title.NameWithoutYear };
+        if (title.Title.Year is int shown)
+          parts.Add(shown.ToString(CultureInfo.InvariantCulture));
+        IReadOnlyList<string> genres = title.Title.Genres ?? Array.Empty<string>();
+        if (genres.Count > 0)
+          parts.Add(string.Join(", ", genres));
+
+        return string.Join("   ·   ", parts);
+      }
+    }
+
+    /// <summary>
+    /// Whether that line stands. It is the answer for the one moment in which the screen has nothing else to say
+    /// about the stood-on title: the details column is off, no title is being read, and neither the menu's own
+    /// word nor a dialog is speaking at the same place at the foot of the room.
+    /// </summary>
+    public bool ShowsContentInfo
+    {
+      get { return Selected != null && !ShowDetails && !InfoShown && !MediaMenuVisible && !MenuVisible; }
+    }
+
+    // The line stands or steps aside with all five answers above it, every one of which can change under a
+    // viewer who never touches the line itself.
+    partial void OnMenuVisibleChanged(bool value)
+    {
+      OnPropertyChanged(nameof(ShowsContentInfo));
+    }
+
+    partial void OnMediaMenuVisibleChanged(bool value)
+    {
+      OnPropertyChanged(nameof(ShowsContentInfo));
     }
 
     /// <summary>
@@ -1883,6 +1937,8 @@ namespace MediaPortal.Frontend.ViewModels
     partial void OnSelectedChanged(TitleViewModel? value)
     {
       OnPropertyChanged(nameof(SelectedNumber));
+      OnPropertyChanged(nameof(ContentInfo));
+      OnPropertyChanged(nameof(ShowsContentInfo));
       // A reading is about one title; walking onto another one, or off the end of the shelf, is the reading
       // ending by itself. The wall has to be back before the new row can be looked at.
       //

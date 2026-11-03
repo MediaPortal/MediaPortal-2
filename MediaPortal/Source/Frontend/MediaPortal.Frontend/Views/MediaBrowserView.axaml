@@ -2863,6 +2863,34 @@
                  IsHitTestVisible="False"
                  TextTrimming="CharacterEllipsis"
                  IsVisible="{Binding MediaMenuVisible}"/>
+
+      <!--
+        What the screen says at its foot when it wears no details: the ONE line the home screen says about the
+        title a walker stands on - the name, the year, the kinds of thing it is - in the home's letters (two and
+        twenty) and at the home's measure, here measured off this room: two hundred and forty in from its left
+        edge (the rail's two hundred and the gap of forty) and thirty-four above its floor, the same two numbers
+        the menu's word above stands on.
+
+        The viewer turned the details column off, not the knowledge.  Without this line a wall of tiles or rows
+        answers nothing about the title the caret is on: the details column is away, the gradient over the covers
+        is away, and the name painted on a tile is the whole of what the screen knows out loud.
+
+        It steps aside for the three things that answer the same question better - the details column, the reading
+        of one title, and the menu's word at this very place - and it is paint, never a control: a line which
+        only speaks can never stand between a pointer and a tile.
+      -->
+      <TextBlock Grid.Row="0"
+                 Grid.ColumnSpan="2"
+                 Text="{Binding ContentInfo}"
+                 FontSize="22"
+                 Foreground="{DynamicResource TextBrush}"
+                 HorizontalAlignment="Left"
+                 VerticalAlignment="Bottom"
+                 Margin="240,0,0,34"
+                 MaxWidth="1200"
+                 IsHitTestVisible="False"
+                 TextTrimming="CharacterEllipsis"
+                 IsVisible="{Binding ShowsContentInfo}"/>
     </Grid>
 
     <!--
