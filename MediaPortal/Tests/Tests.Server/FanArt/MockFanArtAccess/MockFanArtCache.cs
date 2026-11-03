@@ -33,12 +33,21 @@ namespace Tests.Server.FanArt.MockFanArtAccess
   class MockFanArtCache : IFanArtCache
   {
     IDictionary<Guid, List<string>> _fanArt = new Dictionary<Guid, List<string>>();
+    IDictionary<Guid, List<string>> _kinds = new Dictionary<Guid, List<string>>();
 
     public IDictionary<Guid, List<string>> FanArt => _fanArt;
+
+    /// <summary>
+    /// What was stored under which kind, as "<c>Thumbnail|path</c>" and in the order it was offered. The cache
+    /// real to this mock keeps one thumbnail and one poster per id and stops at the first offer that fits, so
+    /// which picture is <em>first</em> under a kind is the answer a front end sees.
+    /// </summary>
+    public IDictionary<Guid, List<string>> Kinds => _kinds;
 
     public void Clear()
     {
       _fanArt.Clear();
+      _kinds.Clear();
     }
 
     public void DeleteFanArtFiles(Guid mediaItemId)
@@ -64,7 +73,10 @@ namespace Tests.Server.FanArt.MockFanArtAccess
     public Task<int> TrySaveFanArt<T>(Guid mediaItemId, string title, string fanArtType, ICollection<T> files, TrySaveMultipleFanArtAsyncDelegate<T> saveDlgt)
     {
       if (files != null && files.Count > 0)
+      {
         GetOrAddFanArtPathList(mediaItemId).AddRange(files.Select(f => f.ToString()));
+        GetOrAddKindList(mediaItemId).AddRange(files.Select(f => fanArtType + "|" + f));
+      }
       return Task.FromResult(files != null ? files.Count : 0);
     }
 
@@ -73,6 +85,14 @@ namespace Tests.Server.FanArt.MockFanArtAccess
       List<string> list;
       if (!_fanArt.TryGetValue(mediaItemId, out list))
         _fanArt[mediaItemId] = list = new List<string>();
+      return list;
+    }
+
+    protected List<string> GetOrAddKindList(Guid mediaItemId)
+    {
+      List<string> list;
+      if (!_kinds.TryGetValue(mediaItemId, out list))
+        _kinds[mediaItemId] = list = new List<string>();
       return list;
     }
   }

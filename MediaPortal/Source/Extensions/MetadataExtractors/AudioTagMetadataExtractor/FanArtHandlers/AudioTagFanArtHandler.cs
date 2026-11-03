@@ -74,8 +74,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioTagMetadataExtractor
   /// <b>What it leaves alone.</b> The user's files are opened read-only and never saved, so a tag this plugin
   /// reads comes back unchanged. Nothing is fetched over the network: the reference's online lookups go through
   /// matchers a portable server does not carry, and a cover that has to be downloaded is one somebody has first
-  /// to have found. Artist pictures are another handler's business - the nfo plugin stores the ones an
-  /// <c>artist.nfo</c> names - and a track that belongs to no album has no cover of its own to store.
+  /// to have found. A track that belongs to no album has no cover of its own to store.
+  /// </para>
+  /// <para>
+  /// <b>What it also answers for.</b> The artist of the album. A person is only ever asked for its
+  /// <c>Thumbnail</c>, the nfo plugin files an artist picture only when an <c>artist.nfo</c> names it by URL, and
+  /// a hand-tagged library carries that picture as <c>folder.jpg</c> in the artist's own folder - so without this
+  /// handler asking for it, no artist on a shelf had a face. See
+  /// <see cref="ExtractArtistFolderPictures"/> for the reference's order of names.
   /// </para>
   /// </remarks>
   public class AudioTagFanArtHandler : BaseFanArtHandler
@@ -216,8 +222,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioTagMetadataExtractor
       // happens to show those today. What a household does with a picture it keeps is its own question; this
       // server's job is to have it there when the question is asked.
       if (CachesFolderPictures(locator))
+      {
+        ResourcePath albumDirectory = AlbumFolderOf(locator.NativeResourcePath, albumTitle);
         await ExtractAlbumFolderCover(locator, fanArtCache, albumMediaItemId, albumTitle, hasCover)
             .ConfigureAwait(false);
+        await ExtractArtistFolderPictures(locator, fanArtCache, aspects, albumDirectory).ConfigureAwait(false);
+      }
     }
 
     /// <summary>
@@ -296,9 +306,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioTagMetadataExtractor
     protected virtual async Task ExtractAlbumFolderCover(IResourceLocator locator, IFanArtCache fanArtCache,
         Guid albumMediaItemId, string albumTitle, bool coverAlreadyStored = false)
     {
-      ResourcePath albumDirectory = ResourcePathHelper.Combine(locator.NativeResourcePath, "../");
-      if (IsDiscFolder(albumTitle, albumDirectory.FileName))
-        albumDirectory = ResourcePathHelper.Combine(albumDirectory, "../");
+      ResourcePath albumDirectory = AlbumFolderOf(locator.NativeResourcePath, albumTitle);
 
       try
       {
@@ -343,6 +351,205 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioTagMetadataExtractor
       {
         Logger.Warn("{0}: Could not read the pictures in '{1}'", ex, Metadata.Name, albumDirectory);
       }
+    }
+
+    /// <summary>
+    /// Storing the pictures lying in the folder of the album's artist, under the artist's own id.
+    /// </summary>
+    /// <param name="locator">Where one of the album's tracks is.</param>
+    /// <param name="fanArtCache">The cache the pictures go into.</param>
+    /// <param name="aspects">The track's aspects, which name its album artists and hold their ids.</param>
+    /// <param name="albumDirectory">The folder the album's files lie in.</param>
+    /// <returns>A <see cref="Task"/> that completes when the artist's folder has been walked.</returns>
+    /// <remarks>
+    /// <para>
+    /// <b>Why the music reader answers for a person.</b> A person's face is asked for as a
+    /// <c>Thumbnail</c> and as nothing else - the skin's person tile reads
+    /// <c>FanArtType="Thumbnail"</c> (themes/default/styles/CurrentlyPlayingStyles.xaml:220-222) - and the
+    /// reference answered that question for an artist at the moment it was asked, out of the folder one of the
+    /// artist's tracks stands in two levels below (<c>LocalArtistFanartProvider.cs:59-82</c> and
+    /// <c>:160-186</c>). A server that only answers from its cache has to have been told the picture exists
+    /// before anybody asks, and nothing in a library tagged by hand ever told it: the nfo plugin files the
+    /// pictures an <c>artist.nfo</c> names by URL, and an <c>artist.nfo</c> that only carries a biography names
+    /// none. The result, measured on a library of thirty-nine artists: one artist with a face.
+    /// </para>
+    /// <para>
+    /// <b>Which file is the face.</b> The reference's order for an artist: the folder's own <c>artist.*</c>
+    /// first, then <c>poster|folder|cover|keyart.*</c>, then <c>thumb|landscape.*</c>. The middle group is what
+    /// matters in practice, because <c>folder.jpg</c> beside an artist's albums is exactly what Kodi, MusicBrainz
+    /// Picard and Media-Buddy write for an artist; it is filed as the artist's thumbnail here, while the album
+    /// two levels below keeps its own <c>folder.jpg</c> as its cover.
+    /// </para>
+    /// <para>
+    /// <b>Why the folder has to be named after the artist.</b> The reference could afford to take whatever the
+    /// parent folder held because it looked at request time, at one known track of that artist. Storing the same
+    /// answer during the import means the walk has to be sure the folder it is standing in is the artist's and
+    /// not, say, the library root of a various-artist compilation - whose <c>folder.jpg</c> would otherwise be
+    /// filed as the face of whichever artist the import happened to reach first. An artist whose files do not
+    /// stand under a folder of its own name is left without a picture, which is the truth about that layout.
+    /// </para>
+    /// </remarks>
+    protected virtual async Task ExtractArtistFolderPictures(IResourceLocator locator, IFanArtCache fanArtCache,
+        IDictionary<Guid, IList<MediaItemAspect>> aspects, ResourcePath albumDirectory)
+    {
+      IList<Tuple<Guid, string>> artists = AlbumArtists(aspects);
+      if (artists == null || artists.Count == 0)
+        return;
+
+      ResourcePath artistDirectory = ResourcePathHelper.Combine(albumDirectory, "../");
+      Tuple<Guid, string> artist = artists.FirstOrDefault(a => string.Equals(a.Item2, artistDirectory.FileName,
+          StringComparison.InvariantCultureIgnoreCase));
+      if (artist == null)
+        return;
+
+      // One artist is looked at once per run, like one album: an artist of ten albums would otherwise open the
+      // same ten files to write the same picture.
+      if (!AddToCache(artist.Item1))
+        return;
+
+      FanArtPathCollection paths = new FanArtPathCollection();
+      AddArtistPictures(paths, locator, artistDirectory);
+      TryAddCentralArtistPictures(paths, locator, artist);
+      if (paths.Paths.Count == 0)
+        return;
+
+      try
+      {
+        foreach (KeyValuePair<string, List<ResourcePath>> typePaths in paths)
+        {
+          if (typePaths.Value.Count == 0)
+            continue;
+          await fanArtCache.TrySaveFanArt(artist.Item1, artist.Item2, typePaths.Key, typePaths.Value,
+              (saveDirectory, path) => TrySaveFolderImage(locator.NativeSystemId, path, saveDirectory))
+              .ConfigureAwait(false);
+        }
+      }
+      catch (Exception ex)
+      {
+        Logger.Warn("{0}: Could not store the pictures in '{1}'", ex, Metadata.Name, artistDirectory);
+      }
+    }
+
+    /// <summary>
+    /// The album artists the track's aspects name, with the id each of them has in the library.
+    /// </summary>
+    /// <param name="aspects">The track's aspects.</param>
+    /// <returns>Pairs of artist id and artist name, or <c>null</c> when the track names none.</returns>
+    /// <remarks>
+    /// The names come from the track's own tags and the ids from the relationships the import wrote for them,
+    /// which is how the reference's own music handler paired them before it walked an artist folder.
+    /// </remarks>
+    protected static IList<Tuple<Guid, string>> AlbumArtists(IDictionary<Guid, IList<MediaItemAspect>> aspects)
+    {
+      IList<Tuple<Guid, string>> artists = null;
+      if (MediaItemAspect.TryGetAspect(aspects, AudioAspect.Metadata, out SingleMediaItemAspect audio))
+      {
+        IList<string> names = audio.GetCollectionAttribute<string>(AudioAspect.ATTR_ALBUMARTISTS)?.ToList();
+        if (names != null && names.Count > 0)
+          RelationshipExtractorUtils.TryGetMappedLinkedIds(PersonAspect.ROLE_ALBUMARTIST, aspects, names, out artists);
+      }
+      return artists;
+    }
+
+    /// <summary>
+    /// Adding every picture of an artist that a folder holds to the collection of paths to store.
+    /// </summary>
+    /// <param name="paths">Collection the found pictures are added to, in the order a thumbnail is filled.</param>
+    /// <param name="locator">Where the artist's files are reached from; used to open the folder.</param>
+    /// <param name="artistDirectory">The artist's folder.</param>
+    protected void AddArtistPictures(FanArtPathCollection paths, IResourceLocator locator, ResourcePath artistDirectory)
+    {
+      try
+      {
+        using (IResourceAccessor accessor = new ResourceLocator(locator.NativeSystemId, artistDirectory).CreateAccessor())
+        {
+          IFileSystemResourceAccessor folder = accessor as IFileSystemResourceAccessor;
+          if (folder == null || folder.IsFile || !folder.Exists)
+            return;
+
+          List<ResourcePath> candidates = LocalFanartHelper.GetPotentialFanArtFiles(folder);
+
+          // The face, in the reference's order: the artist's own picture, then the folder's front picture,
+          // then a wide picture of the band. The cache keeps one thumbnail, so what is offered first is what a
+          // tile shows.
+          paths.AddRange(FanArtTypes.Thumbnail, LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(candidates,
+              LocalFanartHelper.ARTIST_FILENAMES));
+          paths.AddRange(FanArtTypes.Thumbnail, LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(candidates,
+              LocalFanartHelper.POSTER_FILENAMES));
+          paths.AddRange(FanArtTypes.Thumbnail, LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(candidates,
+              LocalFanartHelper.THUMB_FILENAMES));
+
+          // The rest of what the same reference provider asks an artist's folder for, so that a household which
+          // keeps banners and logos has them in the cache when it builds a screen for them.
+          paths.AddRange(FanArtTypes.Banner, LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(candidates,
+              LocalFanartHelper.BANNER_FILENAMES));
+          paths.AddRange(FanArtTypes.Logo, LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(candidates,
+              LocalFanartHelper.LOGO_FILENAMES));
+          paths.AddRange(FanArtTypes.ClearArt, LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(candidates,
+              LocalFanartHelper.CLEARART_FILENAMES));
+          paths.AddRange(FanArtTypes.FanArt, LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(candidates,
+              LocalFanartHelper.BACKDROP_FILENAMES));
+
+          if (folder.ResourceExists("ExtraFanArt/"))
+          {
+            using (IResourceAccessor extra = folder.GetResource("ExtraFanArt/"))
+            {
+              IFileSystemResourceAccessor extraFolder = extra as IFileSystemResourceAccessor;
+              if (extraFolder != null)
+                paths.AddRange(FanArtTypes.FanArt, LocalFanartHelper.GetPotentialFanArtFiles(extraFolder));
+            }
+          }
+        }
+      }
+      catch (Exception ex)
+      {
+        Logger.Warn("{0}: Could not read the pictures in '{1}'", ex, Metadata.Name, artistDirectory);
+      }
+    }
+
+    /// <summary>
+    /// Adding the pictures of a household's central artist folder, where pictures that do not belong to one
+    /// share are kept.
+    /// </summary>
+    /// <param name="paths">Collection the found pictures are added to.</param>
+    /// <param name="locator">Where the artist's files are reached from.</param>
+    /// <param name="artist">Pair of artist id and artist name.</param>
+    /// <remarks>
+    /// Pictures from here are added <em>after</em> the artist's own folder, so that a picture the household put
+    /// next to the music wins over a central collection of everything. The reference read the central folder the
+    /// same way round (<c>LocalArtistFanartProvider.cs:221</c> onwards).
+    /// </remarks>
+    protected void TryAddCentralArtistPictures(FanArtPathCollection paths, IResourceLocator locator,
+        Tuple<Guid, string> artist)
+    {
+      try
+      {
+        ResourcePath centralFolder = LocalFanartHelper.GetCentralPersonFolder(
+            ResourcePathHelper.Combine(locator.NativeResourcePath, "../../"), CentralPersonFolderType.AudioArtists);
+        if (centralFolder == null)
+          return;
+
+        AddArtistPictures(paths, locator,
+            ResourcePathHelper.Combine(centralFolder, LocalFanartHelper.GetSafePersonFolderName(artist.Item2) + "/"));
+      }
+      catch (Exception ex)
+      {
+        Logger.Warn("{0}: Could not read the central artist folder for '{1}'", ex, Metadata.Name, artist.Item2);
+      }
+    }
+
+    /// <summary>
+    /// The folder an album's files lie in, one level above a disc folder of a set.
+    /// </summary>
+    /// <param name="trackPath">Where one of the album's tracks is.</param>
+    /// <param name="albumTitle">The album's name.</param>
+    /// <returns>The folder to walk for the album's pictures.</returns>
+    internal static ResourcePath AlbumFolderOf(ResourcePath trackPath, string albumTitle)
+    {
+      ResourcePath albumDirectory = ResourcePathHelper.Combine(trackPath, "../");
+      if (IsDiscFolder(albumTitle, albumDirectory.FileName))
+        albumDirectory = ResourcePathHelper.Combine(albumDirectory, "../");
+      return albumDirectory;
     }
 
     /// <summary>

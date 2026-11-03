@@ -129,8 +129,11 @@ namespace Tests.Server.AudioTagMetadataExtractor
     /// <param name="albumFolder">Folder of the share the file lies in.</param>
     /// <param name="albumId">Album the track is linked to; pass <c>null</c> for a track that belongs to none.</param>
     /// <param name="virtualResource">Whether the library only knows the title without having its file.</param>
+    /// <param name="artistId">Album artist the track is linked to; pass <c>null</c> for a track that names none.</param>
+    /// <param name="artistName">The album artist's name as the track's tags carry it.</param>
     private IDictionary<Guid, IList<MediaItemAspect>> GivenATrack(string fixture, string fileName,
-        string albumFolder = "", Guid? albumId = null, bool virtualResource = false)
+        string albumFolder = "", Guid? albumId = null, bool virtualResource = false,
+        Guid? artistId = null, string artistName = null)
     {
       string folder = Path.Combine(_share, "Music", albumFolder);
       Directory.CreateDirectory(folder);
@@ -154,16 +157,33 @@ namespace Tests.Server.AudioTagMetadataExtractor
           { ProviderResourceAspect.ASPECT_ID, new List<MediaItemAspect> { provider } }
       };
 
+      var relationships = new List<MediaItemAspect>();
       if (albumId.HasValue)
+        relationships.Add(Relationship(AudioAlbumAspect.ROLE_ALBUM, albumId.Value));
+
+      if (artistId.HasValue)
       {
-        MultipleMediaItemAspect relationship = new MultipleMediaItemAspect(RelationshipAspect.Metadata);
-        relationship.SetAttribute(RelationshipAspect.ATTR_ROLE, AudioAspect.ROLE_TRACK);
-        relationship.SetAttribute(RelationshipAspect.ATTR_LINKED_ROLE, AudioAlbumAspect.ROLE_ALBUM);
-        relationship.SetAttribute(RelationshipAspect.ATTR_LINKED_ID, albumId.Value);
-        aspects[RelationshipAspect.ASPECT_ID] = new List<MediaItemAspect> { relationship };
+        audio.SetCollectionAttribute(AudioAspect.ATTR_ALBUMARTISTS, new[] { artistName });
+        relationships.Add(Relationship(PersonAspect.ROLE_ALBUMARTIST, artistId.Value));
       }
 
+      if (relationships.Count > 0)
+        aspects[RelationshipAspect.ASPECT_ID] = relationships;
+
       return aspects;
+    }
+
+    /// <summary>
+    /// One relationship row of the kind the import leaves behind for a track: this track stands in that role to
+    /// the item of that id.
+    /// </summary>
+    private static MultipleMediaItemAspect Relationship(Guid linkedRole, Guid linkedId)
+    {
+      MultipleMediaItemAspect relationship = new MultipleMediaItemAspect(RelationshipAspect.Metadata);
+      relationship.SetAttribute(RelationshipAspect.ATTR_ROLE, AudioAspect.ROLE_TRACK);
+      relationship.SetAttribute(RelationshipAspect.ATTR_LINKED_ROLE, linkedRole);
+      relationship.SetAttribute(RelationshipAspect.ATTR_LINKED_ID, linkedId);
+      return relationship;
     }
 
     /// <summary>
@@ -290,6 +310,71 @@ namespace Tests.Server.AudioTagMetadataExtractor
       Assert.That(_cache.GetFanArtFiles(_albumId, FanArtTypes.Cover), Has.Count.EqualTo(0));
       Assert.That(_cache.Writes, Has.Count.EqualTo(0),
           "an album without art is drawn as the skin's placeholder rather than with someone else's picture");
+    }
+
+    #endregion
+
+    #region The face of the artist
+
+    /// <summary>
+    /// That the picture standing in an artist's folder becomes that artist's <b>Thumbnail</b>, which is the one
+    /// and only kind a person is ever asked for: the skin's person tile reads <c>FanArtType="Thumbnail"</c>
+    /// (themes/default/styles/CurrentlyPlayingStyles.xaml:220-222), and the reference answered that question for
+    /// an artist out of this very folder (<c>LocalArtistFanartProvider.cs:160-186</c>).
+    /// </summary>
+    [Test]
+    public async Task TheArtistsOwnFolderGivesItItsFace()
+    {
+      Guid artistId = Guid.NewGuid();
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = GivenATrack("untagged.mp3", "track01.mp3",
+          Path.Combine("Fixture Artist", "Fixture Album"), _albumId, artistId: artistId, artistName: "Fixture Artist");
+      byte[] face = PictureOf("cover.mp3").Data.Data;
+      File.WriteAllBytes(Path.Combine(_share, "Music", "Fixture Artist", "folder.jpg"), face);
+
+      await Collect(Guid.NewGuid(), aspects);
+
+      IList<string> thumbs = _cache.GetFanArtFiles(artistId, FanArtTypes.Thumbnail);
+      Assert.That(thumbs, Has.Count.EqualTo(1),
+          "a person is asked for its thumbnail and nothing else, so that is where its face has to lie");
+      Assert.That(File.ReadAllBytes(thumbs[0]), Is.EqualTo(face));
+    }
+
+    /// <summary>
+    /// That an artist is not dressed in the picture of a folder that is not its own. A various-artist library
+    /// keeps one picture at its root; filing that as the face of whichever artist the import reached first would
+    /// put the same stranger on every tile.
+    /// </summary>
+    [Test]
+    public async Task AnArtistIsNotDressedInAFolderPictureThatIsNotItsOwn()
+    {
+      Guid artistId = Guid.NewGuid();
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = GivenATrack("untagged.mp3", "track01.mp3",
+          Path.Combine("Various Artists", "Fixture Album"), _albumId, artistId: artistId, artistName: "Fixture Artist");
+      File.WriteAllBytes(Path.Combine(_share, "Music", "folder.jpg"), PictureOf("cover.mp3").Data.Data);
+
+      await Collect(Guid.NewGuid(), aspects);
+
+      Assert.That(_cache.GetFanArtFiles(artistId, FanArtTypes.Thumbnail), Has.Count.EqualTo(0),
+          "the folder above an album is only asked when it is named after the artist");
+    }
+
+    /// <summary>
+    /// That the walk two levels up for the artist leaves the album's own pictures alone: the artist's
+    /// <c>folder.jpg</c> is the artist's face, not a cover for every album beneath it.
+    /// </summary>
+    [Test]
+    public async Task TheArtistPictureStaysTheArtistsAndDoesNotBecomeTheAlbumsCover()
+    {
+      Guid artistId = Guid.NewGuid();
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = GivenATrack("untagged.mp3", "track01.mp3",
+          Path.Combine("Fixture Artist", "Fixture Album"), _albumId, artistId: artistId, artistName: "Fixture Artist");
+      File.WriteAllBytes(Path.Combine(_share, "Music", "Fixture Artist", "folder.jpg"),
+          PictureOf("cover.mp3").Data.Data);
+
+      await Collect(Guid.NewGuid(), aspects);
+
+      Assert.That(_cache.GetFanArtFiles(_albumId, FanArtTypes.Cover), Has.Count.EqualTo(0),
+          "an album is not given a cover it does not hold just because its artist has one");
     }
 
     #endregion

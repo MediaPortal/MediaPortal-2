@@ -1120,9 +1120,20 @@ namespace Tests.Server.Api
           CreateLibrary(new List<MediaItem> { described }, 1, out queries, out _), id, out action);
 
       Assert.That(result.SeriesOverview, Is.Null, "a title that speaks for itself borrows nothing");
-      Assert.That(queries, Has.Count.EqualTo(1),
-          "and the borrowing means one library question for every title that has prose, so that asking it there "
-          + "would double the cost of describing the described half of the library");
+
+      // Two questions, and neither of them is the series: the title by its id, and - because this fixture's title
+      // names a collection - the title the library holds that collection under, which the collection button needs
+      // for its pictures.  The series would have been a third question, and it is not asked: the borrowing this
+      // test was written for is what a title without prose does, and a title that has prose leaves it be.
+      Assert.That(queries, Has.Count.EqualTo(2),
+          "the borrowing costs nothing, so the only questions left are the title itself and the collection its "
+          + "own metadata names");
+      Assert.That(queries[0].Filter, Is.InstanceOf<MediaItemIdFilter>(),
+          "the first question is this title, looked up by the id the caller gave");
+      Assert.That(queries[1].Filter, Is.InstanceOf<RelationalFilter>());
+      Assert.That(((RelationalFilter) queries[1].Filter).AttributeType,
+          Is.SameAs(MovieCollectionAspect.ATTR_COLLECTION_NAME),
+          "the second question is the collection by its name, which is the key the library holds it under");
     }
 
     [Test]
@@ -1174,6 +1185,465 @@ namespace Tests.Server.Api
       Assert.That(result.Rating, Is.EqualTo(0),
           "the library's own default for an unrated title is zero, and the endpoint reports the number rather "
           + "than quietly deciding that nobody meant it");
+    }
+
+    /// <summary>
+    /// What the details endpoint says about a file that is only sound.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The worn skin's audio screen is built from six figures that all stand on the file's own record, in the
+    /// aspect the importer filled when it looked inside the file (<c>AudioAspect.cs:47-77</c>): what it is packed
+    /// in, how many channels it carries, its bitrate, its sample rate, and which disc of how many it is.  The
+    /// endpoint had never read that aspect, so a song stood in front of its viewer with an empty row of plaques
+    /// however carefully the library had read its file - and a viewer cannot tell that reading from a library
+    /// that never wrote anything down.
+    /// </para>
+    /// <para>
+    /// <b>Why on the title and not in the tracks answer.</b> The question about the tracks inside a file reads the
+    /// aspects of a video container (<c>VideoAspect</c>, <c>VideoAudioStreamAspect</c>) and answers an audio file
+    /// with empty lists, which is right: a song's figures are not tracks inside it, they are what the whole file
+    /// is.  The reference read them the same way, from the title's own audio aspect wrapper
+    /// (<c>MediaInfoAudio.xaml:115-170</c>).
+    /// </para>
+    /// </remarks>
+    [Test]
+    public void TheDetailsOfASoundFileCarryWhatTheImporterReadFromItsFile()
+    {
+      Guid id = Guid.NewGuid();
+      SingleMediaItemAspect audio = new SingleMediaItemAspect(AudioAspect.Metadata);
+      audio.SetAttribute(AudioAspect.ATTR_ENCODING, "MPEG Version 1 Audio, Layer 3");
+      audio.SetAttribute(AudioAspect.ATTR_CHANNELS, 2);
+      audio.SetAttribute(AudioAspect.ATTR_BITRATE, 320);
+      audio.SetAttribute(AudioAspect.ATTR_SAMPLERATE, 44100L);
+      audio.SetAttribute(AudioAspect.ATTR_DISCID, 1);
+      audio.SetAttribute(AudioAspect.ATTR_NUMDISCS, 2);
+      audio.SetAttribute(AudioAspect.ATTR_DURATION, 206L);
+
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>
+      {
+          {
+              MediaAspect.ASPECT_ID, new List<MediaItemAspect>
+              { CreateMediaAspect("Blue in Green", "Blue in Green", new DateTime(1959, 8, 17)) }
+          },
+          { AudioAspect.ASPECT_ID, new List<MediaItemAspect> { audio } }
+      };
+
+      ActionResult<MediaController.ItemResult> action;
+      MediaController.ItemResult result = GetItem(
+          CreateLibrary(new List<MediaItem> { new TestItem(id, aspects, null, false) }, 1, out _, out _), id,
+          out action);
+
+      Assert.That(result.AudioEncoding, Is.EqualTo("MPEG Version 1 Audio, Layer 3"),
+          "the packing in the very words the library's tag reader wrote, because the screen asks for its picture "
+          + "by that name");
+      Assert.That(result.AudioChannels, Is.EqualTo(2));
+      Assert.That(result.AudioBitRate, Is.EqualTo(320), "the library keeps kilobits and says kilobits");
+      Assert.That(result.AudioSampleRate, Is.EqualTo(44100L), "hertz whole, not rounded to kilohertz");
+      Assert.That(result.DiscId, Is.EqualTo(1));
+      Assert.That(result.DiscCount, Is.EqualTo(2), "the disc and its set, which is what the skin wrote as a pair");
+      Assert.That(result.DurationSeconds, Is.EqualTo(206),
+          "the length in whole seconds, so that a screen can say 03:26 instead of rounding a song away to "
+          + "\"4 min\" - and in seconds rather than minutes, because a song is shorter than the unit the "
+          + "film's runtimeMinutes uses");
+    }
+
+    /// <summary>
+    /// That none of those figures is invented for a title the library never looked inside as sound.
+    /// </summary>
+    [Test]
+    public void AFilmsAnswerCarriesNoFiguresOfASoundFile()
+    {
+      Guid id = Guid.NewGuid();
+      MediaItem film = CreateItem(id, "Titanic", "Titanic", new DateTime(1997, 12, 19), 195);
+
+      ActionResult<MediaController.ItemResult> action;
+      MediaController.ItemResult result = GetItem(
+          CreateLibrary(new List<MediaItem> { film }, 1, out _, out _), id, out action);
+
+      Assert.That(result.DurationSeconds, Is.Null, "a film's length goes on standing in runtimeMinutes");
+      Assert.That(result.AudioEncoding, Is.Null);
+      Assert.That(result.AudioChannels, Is.Null);
+      Assert.That(result.AudioBitRate, Is.Null);
+      Assert.That(result.AudioSampleRate, Is.Null);
+      Assert.That(result.DiscId, Is.Null);
+      Assert.That(result.DiscCount, Is.Null,
+          "a zero answer from a screen would look like a file the importer failed to read, and the screen is "
+          + "only able to leave a plaque away when the answer says nothing at all");
+    }
+
+    /// <summary>
+    /// The album's answer about the record it was pressed from, which an album cannot give out of itself.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <b>Why the album has to ask its tracks.</b> The packing, the loudspeakers and the two rates live on the
+    /// <i>track's</i> audio aspect; an album wears the album aspect, whose columns are its name, its artists and its
+    /// counts.  Measured over the household's library (43 albums, 1018 tracks), every single album answered with
+    /// nothing at all, so an album's audio screen had no plaque to show - while the very same file, opened as a
+    /// track, named itself at length.  A screen that shows nothing because the shelf it asked is the wrong shelf is
+    /// a broken screen, not an honest one.
+    /// </para>
+    /// <para>
+    /// <b>Why the track that leads the record answers for all of them.</b> An album is one session pressed onto its
+    /// discs, so the first track's packing is the record's packing, and the reference's own album sort puts that
+    /// track at the head of the list (<c>AudioSortByAlbumTrack.cs</c>).  Its audio screen read the same six figures
+    /// out of one audio aspect and no more (<c>MediaInfoAudio.xaml:115-170</c>).
+    /// </para>
+    /// </remarks>
+    [Test]
+    public void AnAlbumNamesThePackingOfTheTrackThatLeadsIt()
+    {
+      Guid albumId = Guid.NewGuid();
+      Guid trackId = Guid.NewGuid();
+
+      SingleMediaItemAspect albumAspect = new SingleMediaItemAspect(AudioAlbumAspect.Metadata);
+      albumAspect.SetAttribute(AudioAlbumAspect.ATTR_ALBUM, "Kind of Blue");
+      albumAspect.SetAttribute(AudioAlbumAspect.ATTR_NUMDISCS, 1);
+      MediaItem album = new TestItem(albumId, new Dictionary<Guid, IList<MediaItemAspect>>
+      {
+          {
+              MediaAspect.ASPECT_ID, new List<MediaItemAspect>
+              { CreateMediaAspect("Kind of Blue (1959)", "Kind of Blue", new DateTime(1959, 8, 17)) }
+          },
+          { AudioAlbumAspect.ASPECT_ID, new List<MediaItemAspect> { albumAspect } }
+      }, null, false);
+
+      SingleMediaItemAspect trackAspect = new SingleMediaItemAspect(AudioAspect.Metadata);
+      trackAspect.SetAttribute(AudioAspect.ATTR_ENCODING, "Flac Audio");
+      trackAspect.SetAttribute(AudioAspect.ATTR_CHANNELS, 2);
+      trackAspect.SetAttribute(AudioAspect.ATTR_BITRATE, 1023);
+      trackAspect.SetAttribute(AudioAspect.ATTR_SAMPLERATE, 44100L);
+      trackAspect.SetAttribute(AudioAspect.ATTR_DISCID, 1);
+      trackAspect.SetAttribute(AudioAspect.ATTR_NUMDISCS, 1);
+      trackAspect.SetAttribute(AudioAspect.ATTR_TRACK, 1);
+      trackAspect.SetAttribute(AudioAspect.ATTR_DURATION, 337L);
+      MediaItem track = new TestItem(trackId, new Dictionary<Guid, IList<MediaItemAspect>>
+      {
+          {
+              MediaAspect.ASPECT_ID, new List<MediaItemAspect>
+              { CreateMediaAspect("Kind of Blue: 1 - So What", "So What", new DateTime(1959, 8, 17)) }
+          },
+          { AudioAspect.ASPECT_ID, new List<MediaItemAspect> { trackAspect } }
+      }, null, false);
+
+      // A second track, so that the album's length can only come from adding its tracks together and never from
+      // repeating the one that leads the record.
+      SingleMediaItemAspect secondTrackAspect = new SingleMediaItemAspect(AudioAspect.Metadata);
+      secondTrackAspect.SetAttribute(AudioAspect.ATTR_ENCODING, "Flac Audio");
+      secondTrackAspect.SetAttribute(AudioAspect.ATTR_DISCID, 1);
+      secondTrackAspect.SetAttribute(AudioAspect.ATTR_TRACK, 2);
+      secondTrackAspect.SetAttribute(AudioAspect.ATTR_DURATION, 245L);
+      MediaItem secondTrack = new TestItem(Guid.NewGuid(), new Dictionary<Guid, IList<MediaItemAspect>>
+      {
+          {
+              MediaAspect.ASPECT_ID, new List<MediaItemAspect>
+              { CreateMediaAspect("Kind of Blue: 2 - Freddie Freeloader", "Freddie Freeloader", new DateTime(1959, 8, 17)) }
+          },
+          { AudioAspect.ASPECT_ID, new List<MediaItemAspect> { secondTrackAspect } }
+      }, null, false);
+
+      var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+      library.Setup(get => get.GetManagedMediaItemAspectMetadata()).Returns(
+          new Dictionary<Guid, MediaItemAspectMetadata>
+          {
+              { MediaAspect.ASPECT_ID, MediaAspect.Metadata },
+              { AudioAspect.ASPECT_ID, AudioAspect.Metadata },
+              { AudioAlbumAspect.ASPECT_ID, AudioAlbumAspect.Metadata }
+          });
+      List<MediaItemQuery> asked = new List<MediaItemQuery>();
+      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, null, false))
+          .Callback<MediaItemQuery, bool, Guid?, bool>(
+              (query, online, profile, virtualItems) => asked.Add(query))
+          // The question by id is the album itself; the two questions left are about the tracks inside it - the one
+          // that leads the record, and all of them together.  Answered by the shape of the question rather than by
+          // counting calls, so that a reading which happened to ask in another order would still be handed the
+          // right titles.
+          .Returns((MediaItemQuery query, bool online, Guid? profile, bool virtualItems) =>
+              query.Filter is MediaItemIdFilter
+                  ? new List<MediaItem> { album }
+                  : new List<MediaItem> { track, secondTrack });
+
+      ActionResult<MediaController.ItemResult> action;
+      MediaController.ItemResult result = GetItem(library.Object, albumId, out action);
+
+      Assert.That(result.AudioEncoding, Is.EqualTo("Flac Audio"),
+          "the record is said to be what its songs are packed in, which is the only answer a listener cares about");
+      Assert.That(result.AudioChannels, Is.EqualTo(2));
+      Assert.That(result.AudioBitRate, Is.EqualTo(1023), "the borrowed figure is copied whole, not rounded");
+      Assert.That(result.AudioSampleRate, Is.EqualTo(44100L));
+      Assert.That(result.DiscId, Is.EqualTo(1));
+      Assert.That(result.DiscCount, Is.EqualTo(1));
+      Assert.That(result.DurationSeconds, Is.EqualTo(582),
+          "the record is as long as the songs on it: 337 seconds is the song that leads it, 582 is what its two "
+          + "songs add up to.  The borrowing above lends the file's packing and never its length");
+      Assert.That(result.DurationSeconds, Is.Not.EqualTo(337),
+          "said the other way round too, because those two figures are the whole difference between a song and an "
+          + "album - which is why an album's length had to be added and could not be borrowed");
+
+      Assert.That(asked, Has.Count.EqualTo(3),
+          "two extra questions for an album and exactly two: one track for the packing, one walk over the tracks "
+          + "for the length.  A list of tracks is the most expensive thing this screen can ask for, so it is asked "
+          + "once and read for both figures");
+      Assert.That(asked[0].OptionalRequestedMIATypeIDs, Has.Member(AudioAlbumAspect.ASPECT_ID),
+          "the question about the title itself has to ask for the album aspect too: without it the reading never "
+          + "learns it is standing in front of an album, and the borrowing is not asked for at all - which is "
+          + "exactly how this test failed the first time it was run against a live server");
+      Assert.That(asked[1].Filter, Is.InstanceOf<RelationshipFilter>(),
+          "the question is about the titles inside this album.  The library files the relationship row on the "
+          + "child, so the walk goes ROLE_TRACK against the album's id - the way the titles endpoint walks it for "
+          + "\"titles inside an album\" too, and not the other way round, which asks which albums hold a given "
+          + "track and answers an album's own question with nothing at all");
+      RelationshipFilter about = (RelationshipFilter) asked[1].Filter;
+      Assert.That(about.Role, Is.EqualTo(AudioAspect.ROLE_TRACK));
+      Assert.That(about.LinkedRole, Is.EqualTo(AudioAlbumAspect.ROLE_ALBUM));
+      Assert.That(about.LinkedMediaItemId, Is.EqualTo(albumId),
+          "and it is this album's tracks that are asked for, by the id the caller gave");
+      Assert.That(asked[1].Limit, Is.EqualTo(1u),
+          "one track is asked for rather than the album's whole list, because one track's packing is the answer");
+      Assert.That(asked[1].SortInformation.Cast<AttributeSortInformation>()
+              .Select(delegate (AttributeSortInformation sort) { return sort.AttributeType; }).ToArray(),
+          Is.EqualTo(new[] { AudioAspect.ATTR_DISCID, AudioAspect.ATTR_TRACK }),
+          "the first track of the first disc, which is the track the record leads with");
+
+      // The third question is the walk over every track, for the length and the count.
+      Assert.That(asked[2].Filter, Is.InstanceOf<RelationshipFilter>(),
+          "the same walk as the packing's question - the tracks are filed against the album, not the album against "
+          + "them");
+      Assert.That(((RelationshipFilter) asked[2].Filter).LinkedMediaItemId, Is.EqualTo(albumId));
+      Assert.That(asked[2].Limit, Is.Null,
+          "no limit at all, because a count that stopped at a limit and a sum that stopped at a limit would both be "
+          + "figures nobody could rely on");
+      Assert.That(asked[2].NecessaryRequestedMIATypeIDs, Has.Member(AudioAspect.ASPECT_ID),
+          "the audio aspect is the necessary one, which is what makes the answer sound files rather than rows");
+    }
+
+    /// <summary>
+    /// That the borrowing is an album's and nobody else's: a film's answer is still one question long.
+    /// </summary>
+    [Test]
+    public void AFilmIsNotAskedAboutTheTracksOfAnAlbumItDoesNotBelongTo()
+    {
+      Guid id = Guid.NewGuid();
+      MediaItem film = CreateItem(id, "Titanic", "Titanic", new DateTime(1997, 12, 19), 195);
+
+      List<MediaItemQuery> queries;
+      ActionResult<MediaController.ItemResult> action;
+      MediaController.ItemResult result = GetItem(
+          CreateLibrary(new List<MediaItem> { film }, 1, out queries, out _), id, out action);
+
+      Assert.That(queries, Has.Count.EqualTo(1),
+          "a title that wears no album aspect is never sent asking after tracks - the borrowing is an album's "
+          + "question, and asking it of a film would cost a database read for nothing");
+      Assert.That(queries[0].Filter, Is.InstanceOf<MediaItemIdFilter>());
+      Assert.That(result.AudioEncoding, Is.Null);
+    }
+
+    /// <summary>
+    /// That the kinds of story a title is told in are named on its details answer and not only on its shelf.
+    /// </summary>
+    /// <remarks>
+    /// Measured over the household's library on 2026-11-03: all 43 of its albums named a genre on the shelf
+    /// (<c>titles?aspect=AlbumItem</c>) and the same 43 named nothing on their own details answer
+    /// (<c>items/{id}</c>) - so a viewer pressing an album tile watched a fact appear on one screen and vanish on
+    /// the next, over nothing but the aspect each of the two readings happened to load.  One title with a shelf's
+    /// genres is therefore asked about here with the aspect named.
+    /// </remarks>
+    [Test]
+    public void TheDetailsOfATitleNameTheKindsOfStoryItsShelfNamed()
+    {
+      Guid id = Guid.NewGuid();
+      MediaItem film = FilmWithGenres(id, "Alien", "Science Fiction", "Horror", "Science Fiction");
+
+      List<MediaItemQuery> queries;
+      ActionResult<MediaController.ItemResult> action;
+      MediaController.ItemResult result = GetItem(
+          CreateLibrary(new List<MediaItem> { film }, 1, out queries, out _), id, out action);
+
+      Assert.That(Status(action), Is.Null);
+      Assert.That(queries, Has.Count.EqualTo(1),
+          "the kinds live on the title itself, so naming them costs no second question");
+      Assert.That(queries[0].OptionalRequestedMIATypeIDs, Has.Member(GenreAspect.ASPECT_ID),
+          "the genre aspect has to be asked for by name: an aspect the reading never loads is an aspect the "
+          + "answer cannot speak from, whatever the library holds about the title");
+      Assert.That(result.Genres, Is.EqualTo(new[] { "Science Fiction", "Horror" }),
+          "in the importer's order, and a word filed twice is said once");
+    }
+
+    /// <summary>
+    /// A title wearing the genres its shelf wears.
+    /// </summary>
+    private static MediaItem FilmWithGenres(Guid id, string title, params string[] genres)
+    {
+      List<MediaItemAspect> rows = new List<MediaItemAspect>();
+      foreach (string genre in genres)
+      {
+        MultipleMediaItemAspect row = new MultipleMediaItemAspect(GenreAspect.Metadata);
+        row.SetAttribute(GenreAspect.ATTR_GENRE, genre);
+        rows.Add(row);
+      }
+
+      return new TestItem(id, new Dictionary<Guid, IList<MediaItemAspect>>
+      {
+          {
+              MediaAspect.ASPECT_ID, new List<MediaItemAspect>
+              { CreateMediaAspect(title + " (1979)", title, new DateTime(1979, 5, 25)) }
+          },
+          { GenreAspect.ASPECT_ID, rows }
+      }, null, false);
+    }
+
+    /// <summary>
+    /// That an album says how many tracks stand on it and how long they play together.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <b>The length.</b> Measured over the household's library (43 albums, 1018 tracks): every one of the 1018
+    /// tracks answered a duration, so the length of every one of the 43 albums was known to the library and said by
+    /// none of them - nothing had ever added it up.
+    /// </para>
+    /// <para>
+    /// <b>The count.</b> The tag of a special edition remembers the ordinary pressing ("Born This Way" is tagged
+    /// with 17 tracks while the shelf holds 23 files under it), and the viewer decided which of the two a screen
+    /// standing in front of those 23 files says.  The title list keeps the tag's number because a wall cannot
+    /// count a thousand albums' children; this answer counts them, because it is about one album.
+    /// </para>
+    /// </remarks>
+    [Test]
+    public void AnAlbumSaysHowManyTracksStandOnItAndHowLongTheyPlay()
+    {
+      Guid albumId = Guid.NewGuid();
+
+      SingleMediaItemAspect albumAspect = new SingleMediaItemAspect(AudioAlbumAspect.Metadata);
+      albumAspect.SetAttribute(AudioAlbumAspect.ATTR_ALBUM, "amo");
+      albumAspect.SetAttribute(AudioAlbumAspect.ATTR_NUMTRACKS, 9);
+      MediaItem album = new TestItem(albumId, new Dictionary<Guid, IList<MediaItemAspect>>
+      {
+          {
+              MediaAspect.ASPECT_ID, new List<MediaItemAspect>
+              { CreateMediaAspect("amo (2019)", "amo", new DateTime(2019, 1, 1)) }
+          },
+          { AudioAlbumAspect.ASPECT_ID, new List<MediaItemAspect> { albumAspect } }
+      }, null, false);
+
+      List<MediaItem> held = new List<MediaItem>
+      {
+          AlbumTrack("Stupid Questions", 1, 192L),
+          AlbumTrack("Nihilist Blues", 2, 219L),
+          AlbumTrack("Mantra", 3, 198L)
+      };
+
+      var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+      library.Setup(get => get.GetManagedMediaItemAspectMetadata()).Returns(
+          new Dictionary<Guid, MediaItemAspectMetadata>
+          {
+              { MediaAspect.ASPECT_ID, MediaAspect.Metadata },
+              { AudioAspect.ASPECT_ID, AudioAspect.Metadata },
+              { AudioAlbumAspect.ASPECT_ID, AudioAlbumAspect.Metadata }
+          });
+      List<MediaItemQuery> asked = new List<MediaItemQuery>();
+      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, null, false))
+          .Callback<MediaItemQuery, bool, Guid?, bool>(
+              (query, online, profile, virtualItems) => asked.Add(query))
+          .Returns((MediaItemQuery query, bool online, Guid? profile, bool virtualItems) =>
+              query.Filter is MediaItemIdFilter
+                  ? new List<MediaItem> { album }
+                  : held);
+
+      ActionResult<MediaController.ItemResult> action;
+      MediaController.ItemResult result = GetItem(library.Object, albumId, out action);
+
+      Assert.That(Status(action), Is.Null);
+      Assert.That(result.TrackCount, Is.EqualTo(3),
+          "three tracks are standing on the shelf, so three is what the album says - the 9 its tag remembers is "
+          + "the number the title list repeats, and a screen in front of the record itself reads the record");
+      Assert.That(result.DurationSeconds, Is.EqualTo(609),
+          "192 + 219 + 198: an album is exactly as long as its tracks, and a screen can spell those seconds "
+          + "however it likes because the library is the one that knows them");
+
+      MediaItemQuery walk = asked[asked.Count - 1];
+      Assert.That(walk.Filter, Is.InstanceOf<RelationshipFilter>());
+      Assert.That(((RelationshipFilter) walk.Filter).LinkedMediaItemId, Is.EqualTo(albumId));
+      Assert.That(walk.Limit, Is.Null,
+          "every track of it - a count and a sum that stopped at a limit would be figures nobody could rely on");
+    }
+
+    /// <summary>
+    /// One track of an album, with nothing on it but its number and its length.
+    /// </summary>
+    private static MediaItem AlbumTrack(string title, int number, long seconds)
+    {
+      SingleMediaItemAspect audio = new SingleMediaItemAspect(AudioAspect.Metadata);
+      audio.SetAttribute(AudioAspect.ATTR_TRACK, number);
+      audio.SetAttribute(AudioAspect.ATTR_DURATION, seconds);
+      return new TestItem(Guid.NewGuid(), new Dictionary<Guid, IList<MediaItemAspect>>
+      {
+          {
+              MediaAspect.ASPECT_ID, new List<MediaItemAspect>
+              { CreateMediaAspect(title + " (2019)", title, new DateTime(2019, 1, 1)) }
+          },
+          { AudioAspect.ASPECT_ID, new List<MediaItemAspect> { audio } }
+      }, null, false);
+    }
+
+    /// <summary>
+    /// The prose a record carries on itself, and the silence of one that carries none.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A tag reader writes an album's description on the album aspect, and until now nothing in this endpoint ever
+    /// read that column - an album could therefore never speak about itself, whatever its file said.  The reference
+    /// drew the column on the album's own screens (<c>MediaItemListAudioAlbumDetails.inc:307</c>,
+    /// <c>MediaItemCoverAudioAlbumDetails.inc:7</c>) and drew <b>nothing</b> when it was empty, which is the other
+    /// half of what the viewer asked for on 2026-11-03: "Empty means empty."
+    /// </para>
+    /// <para>
+    /// The title's own comment still wins when it has one, in the same order the season's description takes.
+    /// </para>
+    /// </remarks>
+    [Test]
+    public void AnAlbumTellsWhatWasWrittenAboutItAndOtherwiseHoldsItsTongue()
+    {
+      Guid describedId = Guid.NewGuid();
+      Guid silentId = Guid.NewGuid();
+
+      SingleMediaItemAspect told = new SingleMediaItemAspect(AudioAlbumAspect.Metadata);
+      told.SetAttribute(AudioAlbumAspect.ATTR_ALBUM, "Kind of Blue");
+      told.SetAttribute(AudioAlbumAspect.ATTR_DESCRIPTION,
+          "Recorded in two sessions at Columbia's 30th Street studio in New York.");
+      MediaItem described = new TestItem(describedId, new Dictionary<Guid, IList<MediaItemAspect>>
+      {
+          {
+              MediaAspect.ASPECT_ID, new List<MediaItemAspect>
+              { CreateMediaAspect("Kind of Blue (1959)", "Kind of Blue", new DateTime(1959, 8, 17)) }
+          },
+          { AudioAlbumAspect.ASPECT_ID, new List<MediaItemAspect> { told } }
+      }, null, false);
+
+      SingleMediaItemAspect bare = new SingleMediaItemAspect(AudioAlbumAspect.Metadata);
+      bare.SetAttribute(AudioAlbumAspect.ATTR_ALBUM, "Birth Of The Cool");
+      MediaItem silent = new TestItem(silentId, new Dictionary<Guid, IList<MediaItemAspect>>
+      {
+          {
+              MediaAspect.ASPECT_ID, new List<MediaItemAspect>
+              { CreateMediaAspect("Birth Of The Cool (1957)", "Birth Of The Cool", new DateTime(1957, 1, 1)) }
+          },
+          { AudioAlbumAspect.ASPECT_ID, new List<MediaItemAspect> { bare } }
+      }, null, false);
+
+      ActionResult<MediaController.ItemResult> firstAction;
+      MediaController.ItemResult prose = GetItem(
+          CreateLibrary(new List<MediaItem> { described }, 1, out _, out _), describedId, out firstAction);
+      Assert.That(prose.Overview,
+          Is.EqualTo("Recorded in two sessions at Columbia's 30th Street studio in New York."),
+          "what was written about the record is said on its own screen, in the library's own words");
+
+      ActionResult<MediaController.ItemResult> secondAction;
+      MediaController.ItemResult nothing = GetItem(
+          CreateLibrary(new List<MediaItem> { silent }, 1, out _, out _), silentId, out secondAction);
+      Assert.That(nothing.Overview, Is.Null,
+          "a record nobody described answers with nothing at all - an empty string or a sentence about the "
+          + "emptiness would both be a screen claiming it had looked and found something");
     }
 
     [Test]

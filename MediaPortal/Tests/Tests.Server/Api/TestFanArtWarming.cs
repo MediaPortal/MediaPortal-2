@@ -391,6 +391,13 @@ namespace Tests.Server.Api
       library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, It.IsAny<Guid?>(), It.IsAny<bool>()))
           .Callback<MediaItemQuery, bool, Guid?, bool>((query, online, profile, virtualItems) => _queries.Add(query))
           .Returns<MediaItemQuery, bool, Guid?, bool>((query, online, profile, virtualItems) => Answer(query));
+      library.Setup(get => get.GetManagedMediaItemAspectMetadata())
+          .Returns(new Dictionary<Guid, MediaItemAspectMetadata>
+          {
+              { MediaAspect.ASPECT_ID, MediaAspect.Metadata },
+              { AudioAspect.ASPECT_ID, AudioAspect.Metadata },
+              { EpisodeAspect.ASPECT_ID, EpisodeAspect.Metadata }
+          });
       ServiceRegistration.Set<IMediaLibrary>(library.Object);
 
       var providers = new Dictionary<Guid, IResourceProvider>
@@ -860,6 +867,52 @@ namespace Tests.Server.Api
           "a handler is chosen by the aspects a title carries, so the walk has to fetch the aspects handlers serve");
       Assert.That(walked.OptionalRequestedMIATypeIDs, Contains.Item(RelationshipAspect.ASPECT_ID),
           "and it has to fetch the relationships, because the album a track's cover lies with is named by one");
+    }
+
+    /// <summary>
+    /// That a pass asked for one kind of title asks the storage for exactly that kind. The difference matters: the
+    /// library this was measured on holds twenty-odd thousand media items, forty-odd albums among them, so a pass
+    /// over everything spends an hour on titles whose pictures nobody changed.
+    /// </summary>
+    [Test]
+    public void AKindNamedOnTheCallNarrowsTheWalkToItsTitles()
+    {
+      GiveATitle("Test Track", AudioAspect.Metadata);
+      GiveATitle("Test Film");
+      RecordingFanArtHandler handler = new RecordingFanArtHandler(AudioAspect.Metadata);
+      GiveTheServerItsLibrary(Handlers(handler));
+
+      ActionResult<FanArtWarmingResult> action = new MediaController().WarmFanArt("AudioItem");
+      Assert.That(StatusOf(action), Is.EqualTo(202), "a pass limited to one kind is still work this call started");
+      FanArtWarmingResult done = WaitUntil(said => !said.Running);
+
+      Assert.That(done.Scope, Is.EqualTo("AudioItem"), "the pass says over what it walked, not over everything");
+      MediaItemQuery walked = _queries.Single(query => query.Filter == null);
+      Assert.That(walked.NecessaryRequestedMIATypeIDs, Contains.Item(AudioAspect.ASPECT_ID),
+          "the kind goes among the necessary aspects, which is how every shelf query here asks for one kind");
+      Assert.That(walked.NecessaryRequestedMIATypeIDs, Contains.Item(MediaAspect.ASPECT_ID),
+          "and a title is still a title");
+    }
+
+    /// <summary>
+    /// That a kind the server does not have is refused instead of quietly walking the whole library. "Music" is
+    /// the mistake to catch: it is a media category, while a walk is asked for by an aspect name ("AudioItem").
+    /// </summary>
+    [Test]
+    public void AKindTheServerDoesNotHaveIsRefusedRatherThanWalkedOverEverything()
+    {
+      GiveATitle("Silo");
+      GiveTheServerItsLibrary();
+
+      ActionResult<FanArtWarmingResult> action = new MediaController().WarmFanArt("Music");
+
+      Assert.That(StatusOf(action), Is.EqualTo(400),
+          "a media category is not an aspect, and the answer says so instead of walking everything");
+      FanArtWarmingResult said = (action.Result as ObjectResult)?.Value as FanArtWarmingResult ?? action.Value;
+      Assert.That(said != null ? said.Error : null, Does.Contain("Music"),
+          "the refusal names what was asked for, so that the caller sees the mix-up rather than guessing it");
+      Assert.That(new MediaController().GetFanArtWarming().Running, Is.False,
+          "a refused call starts no pass");
     }
 
     [Test]

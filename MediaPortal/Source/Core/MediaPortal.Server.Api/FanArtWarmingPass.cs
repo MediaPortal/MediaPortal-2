@@ -100,6 +100,7 @@ namespace MediaPortal.Server.Api
     private DateTimeOffset? _started;
     private DateTimeOffset? _ended;
     private string _stopped;
+    private string _scope;
 
     private FanArtWarmingPass()
     {
@@ -111,7 +112,7 @@ namespace MediaPortal.Server.Api
     /// </summary>
     internal bool Start()
     {
-      return Start(null);
+      return Start(null, null, null);
     }
 
     /// <summary>
@@ -121,7 +122,30 @@ namespace MediaPortal.Server.Api
     /// </summary>
     internal bool StartAfterImport()
     {
-      return Start(ServiceRegistration.Get<IImporterWorker>(false));
+      return Start(ServiceRegistration.Get<IImporterWorker>(false), null, null);
+    }
+
+    /// <summary>
+    /// Starting a pass over one kind of title only - the tracks of a music library, say.
+    /// </summary>
+    /// <param name="onlyWithAspect">Aspect a title has to carry to be walked; asked as a <em>necessary</em>
+    /// aspect of the library query, so the walk holds exactly the titles that have it.</param>
+    /// <param name="scopeName">The aspect's name, for the state this pass reports.</param>
+    /// <remarks>
+    /// <para>
+    /// A pass over the whole library is the right thing after an import and the wrong thing after a retag of one
+    /// genre: on the library this was measured on it walks every title the storage holds - films, seasons and
+    /// episodes included - which is a four-figure number of titles for the few dozen albums somebody actually
+    /// touched. Asking one aspect turns that into the handful of titles that carry it.
+    /// </para>
+    /// <para>
+    /// The handlers are still asked for every title walked, so the picture a plugin takes out of a title's own
+    /// files - an album cover, an artist's face - is stored just as it is by the full pass.
+    /// </para>
+    /// </remarks>
+    internal bool Start(Guid onlyWithAspect, string scopeName)
+    {
+      return Start(null, onlyWithAspect, scopeName);
     }
 
     /// <summary>
@@ -138,6 +162,7 @@ namespace MediaPortal.Server.Api
           Skipped = _skipped,
           KindsFound = _kindsFound,
           Answers = LocalFanArtSearch.Worn.RememberedCount,
+          Scope = _scope,
           Waiting = _waiting,
           Stopped = _stopped,
           Started = _started,
@@ -146,7 +171,7 @@ namespace MediaPortal.Server.Api
       }
     }
 
-    private bool Start(IImporterWorker importer)
+    private bool Start(IImporterWorker importer, Guid? onlyWithAspect, string scopeName)
     {
       lock (_gate)
       {
@@ -158,22 +183,23 @@ namespace MediaPortal.Server.Api
         _skipped = 0;
         _kindsFound = 0;
         _stopped = null;
+        _scope = scopeName;
         _waiting = importer == null ? null : "waiting for the importer to finish";
         _started = DateTimeOffset.UtcNow;
         _ended = null;
       }
 
-      Task.Run(delegate { Run(importer); });
+      Task.Run(delegate { Run(importer, onlyWithAspect); });
       return true;
     }
-    private void Run(IImporterWorker importer)
+    private void Run(IImporterWorker importer, Guid? onlyWithAspect)
     {
       try
       {
         if (importer != null && !WaitForImport(importer))
           return;
 
-        Sweep();
+        Sweep(onlyWithAspect);
       }
       catch (Exception ex)
       {
@@ -252,7 +278,7 @@ namespace MediaPortal.Server.Api
     /// Asking every title the library knows where its pictures are, page by page, and giving up the moment the
     /// importer wants the disc back.
     /// </summary>
-    private void Sweep()
+    private void Sweep(Guid? onlyWithAspect)
     {
       IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>(false);
       if (library == null)
@@ -268,7 +294,7 @@ namespace MediaPortal.Server.Api
 
       while (true)
       {
-        IList<MediaItem> page = AskPage(library, offset, handlers);
+        IList<MediaItem> page = AskPage(library, offset, handlers, onlyWithAspect);
         List<MediaItem> fresh = page.Where(title => seen.Add(title.MediaItemId)).ToList();
 
         // A whole page of titles this pass already looked at means the order tied over itself, which is as good
@@ -371,24 +397,35 @@ namespace MediaPortal.Server.Api
     }
 
     /// <summary>
-    /// One page of titles: every item the library holds that is a title with a file or folder of its own, in the
+    /// One page of titles: every item the library holds that is a title with a file or folder of its own - or,
+    /// when <paramref name="onlyWithAspect"/> names one, only the titles that carry that aspect - in the
     /// database's own order of the name it sorts by, which is stable enough for walking a library in pages.
     /// </summary>
     /// <remarks>
     /// The aspects asked for beside the file are the ones the handlers declared, plus the relationship aspect:
     /// a handler is asked about a title in the aspects it serves, and the album a track's cover belongs to is
     /// named by a relationship rather than by an attribute of the track itself.
+    /// <para>
+    /// The narrowing aspect goes into the query's <em>necessary</em> list rather than into a filter of its own,
+    /// which is how every other shelf query on this server asks for "only films" or "only tracks": the storage
+    /// answers a necessary aspect with a join on the table that holds it, so the titles that cannot carry the
+    /// picture in the first place never reach the pass.
+    /// </para>
     /// </remarks>
     private static IList<MediaItem> AskPage(IMediaLibrary library, uint offset,
-        IEnumerable<IMediaFanArtHandler> handlers)
+        IEnumerable<IMediaFanArtHandler> handlers, Guid? onlyWithAspect)
     {
       List<Guid> supplementary = new List<Guid> { ProviderResourceAspect.ASPECT_ID, RelationshipAspect.ASPECT_ID };
       foreach (Guid served in handlers.SelectMany(handler => handler.FanArtAspects).Distinct())
         if (!supplementary.Contains(served))
           supplementary.Add(served);
 
+      List<Guid> necessary = new List<Guid> { MediaAspect.ASPECT_ID };
+      if (onlyWithAspect.HasValue && !necessary.Contains(onlyWithAspect.Value))
+        necessary.Add(onlyWithAspect.Value);
+
       MediaItemQuery query = new MediaItemQuery(
-          new List<Guid> { MediaAspect.ASPECT_ID },
+          necessary,
           supplementary,
           null);
       query.SetSortInformation(new List<ISortInformation>
@@ -460,6 +497,17 @@ namespace MediaPortal.Server.Api
 
     /// <summary>Why a pass ended before walking the whole library, or null when it walked it.</summary>
     public string Stopped { get; set; }
+
+    /// <summary>
+    /// What the running or last pass limited itself to - an aspect name like <c>AudioItem</c> - or null when it
+    /// walked every title the library holds.
+    /// </summary>
+    public string Scope { get; set; }
+
+    /// <summary>
+    /// What the server is complaining about, when a call asking for a pass was refused. Null normally.
+    /// </summary>
+    public string Error { get; set; }
 
     /// <summary>When the running or last pass started.</summary>
     public DateTimeOffset? Started { get; set; }

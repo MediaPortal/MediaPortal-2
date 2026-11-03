@@ -310,7 +310,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
               FanArtPathCollection artistsPaths = new FanArtPathCollection();
 
               // First get the ResourcePath of the central directory
-              var artistFolderPath = ResourcePathHelper.Combine(centralArtistFolderPath, $"{FileUtils.GetSafeFilename(artistName, '¤').Replace("¤", "")}/");
+              var artistFolderPath = ResourcePathHelper.Combine(centralArtistFolderPath, $"{FileUtils.GetSafeFilename(artistName, 'ï¿½').Replace("ï¿½", "")}/");
 
               // Then try to create an IFileSystemResourceAccessor for this directory
               artistFolderPath.TryCreateLocalResourceAccessor(out var artistNfoDirectoryRa);
@@ -332,7 +332,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
                     artistsPaths.AddRange(FanArtTypes.FanArt, LocalFanartHelper.GetPotentialFanArtFiles(extraFanArtDirectoryFsra));
               }
 
-              await SaveFolderImagesToCache(nativeSystemId, paths, artist.Item1, title).ConfigureAwait(false);
+              // The artist's own pictures, under the artist's own id and name. Handing <c>paths</c> over here -
+              // which holds the album's folder images - gave every artist the album's cover as its face.
+              await SaveFolderImagesToCache(nativeSystemId, artistsPaths, artist.Item1, artist.Item2).ConfigureAwait(false);
             }
           }
         }
@@ -444,7 +446,29 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
       //Get all fanart in the current directory
       List<ResourcePath> potentialFanArtFiles = LocalFanartHelper.GetPotentialFanArtFiles(artistDirectory);
-      ExtractAllFanArtImages(potentialFanArtFiles, paths);
+
+      // <b>An artist's face is asked for as a Thumbnail and as nothing else.</b> The skin's person tile reads
+      // <c>FanArtType="Thumbnail"</c> (themes/default/styles/CurrentlyPlayingStyles.xaml:220-222), and the
+      // reference answered that question for an artist out of this very folder in one order - <c>artist.*</c>,
+      // then <c>poster|folder|cover|keyart.*</c>, then <c>thumb|landscape.*</c>
+      // (<c>LocalArtistFanartProvider.cs:163-166</c>). The folder's own picture therefore IS the artist's
+      // portrait: the tagging tools write exactly that file (Kodi's and Media-Buddy's <c>folder.jpg</c> beside
+      // the artist's albums). Filing it only under "Poster" - which is what naming the shared list of kinds
+      // here did - left every artist tile on the skin's standing figure, however carefully the library was
+      // tagged, because nobody ever asks a person for a poster.
+      paths.AddRange(FanArtTypes.Thumbnail, LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potentialFanArtFiles, LocalFanartHelper.ARTIST_FILENAMES));
+      paths.AddRange(FanArtTypes.Thumbnail, LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potentialFanArtFiles, LocalFanartHelper.POSTER_FILENAMES));
+      paths.AddRange(FanArtTypes.Thumbnail, LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potentialFanArtFiles, LocalFanartHelper.THUMB_FILENAMES));
+
+      // The rest of the kinds the same provider asks this folder for (Banner, Logo, ClearArt, FanArt at
+      // <c>LocalArtistFanartProvider.cs:171-186</c>), plus the poster and the disc art this handler always
+      // filed - a tile that asks an artist for a poster still wants the answer it used to get.
+      paths.AddRange(FanArtTypes.Poster, LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potentialFanArtFiles, LocalFanartHelper.POSTER_FILENAMES));
+      paths.AddRange(FanArtTypes.Banner, LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potentialFanArtFiles, LocalFanartHelper.BANNER_FILENAMES));
+      paths.AddRange(FanArtTypes.Logo, LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potentialFanArtFiles, LocalFanartHelper.LOGO_FILENAMES));
+      paths.AddRange(FanArtTypes.ClearArt, LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potentialFanArtFiles, LocalFanartHelper.CLEARART_FILENAMES));
+      paths.AddRange(FanArtTypes.DiscArt, LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potentialFanArtFiles, LocalFanartHelper.DISCART_FILENAMES));
+      paths.AddRange(FanArtTypes.FanArt, LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potentialFanArtFiles, LocalFanartHelper.BACKDROP_FILENAMES));
 
       //Add extra backdrops in ExtraFanArt directory
       if (artistDirectory.ResourceExists("ExtraFanArt/"))

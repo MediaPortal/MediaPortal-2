@@ -359,7 +359,9 @@ namespace MediaPortal.Server.Api
       /// <remarks>
       /// The number the album was tagged with, not a count of the track items that turned up - which is what a
       /// viewer reading "12 tracks" on a shelf of a half-ripped CD gets, and what the difference between the two
-      /// means is the importer's business, not this answer's.
+      /// means is the importer's business, not this answer's.  The details answer of one album counts the tracks it
+      /// really holds instead (<see cref="ItemResult.TrackCount"/>), which is the number a screen standing in
+      /// front of that one album should say.
       /// </remarks>
       public int? TrackCount { get; set; }
     }
@@ -1385,6 +1387,67 @@ namespace MediaPortal.Server.Api
 
       public bool Stub { get; set; }
 
+      /// <summary>
+      /// How long the file runs, in whole seconds, when the title is an audio file. Said in seconds rather than in
+      /// the minutes <see cref="RuntimeMinutes"/> carries because a song is not a rounding error away from nothing:
+      /// three and a half minutes read "3 min" here and "03:26" the way the worn skin writes an audio length
+      /// (<c>MediaInfoAudioDetails.inc:308-315</c>, <c>Duration</c> through the skin's own duration converter).
+      /// <para>
+      /// For an album this is the sum of the lengths of the tracks the library holds inside it
+      /// (<see cref="FillTheTracksInsideItsAlbum"/>), because an album runs exactly as long as its record and the
+      /// album aspect carries no length of its own.  How a screen spells either figure - a song as "03:26", an
+      /// album as "1 h 45 min" - is the screen's business, which is why both travel as seconds.
+      /// </para>
+      /// </summary>
+      public int? DurationSeconds { get; set; }
+
+      /// <summary>
+      /// What the audio file is packed in, in the importer's own words ("MPEG Version 1 Audio, Layer 3", "Flac
+      /// Audio"), or null for a title that is not an audio file. The worn skin asked for exactly this string: its
+      /// codec plaque was <c>Medialogos\audio\{0}.png</c> bound to <c>Encoding</c>
+      /// (<c>MediaInfoAudio.xaml:118-126</c>), so the words a front end needs are the words the library wrote.
+      /// </summary>
+      public string AudioEncoding { get; set; }
+
+      /// <summary>How many channels the file carries, or null when the importer counted none.</summary>
+      public int? AudioChannels { get; set; }
+
+      /// <summary>Its bitrate in kilobits per second, or null when the importer wrote none.</summary>
+      public int? AudioBitRate { get; set; }
+
+      /// <summary>Its sample rate in hertz, or null when the importer wrote none.</summary>
+      public long? AudioSampleRate { get; set; }
+
+      /// <summary>
+      /// Which disc of a set this file is, or null for a single disc the library never counted. Pairs with
+      /// <see cref="DiscCount"/> the way the worn skin paired them ("<c>{DiscId} | {NumDiscs}</c>" beside a picture
+      /// of a disc, <c>MediaInfoAudio.xaml:139-148</c>).
+      /// </summary>
+      public int? DiscId { get; set; }
+
+      /// <summary>How many discs the set has, or null when the library did not count them.</summary>
+      public int? DiscCount { get; set; }
+
+      /// <summary>
+      /// How many tracks the library holds <b>inside</b> this album, or null for a title that holds no tracks.
+      /// </summary>
+      /// <remarks>
+      /// <para>
+      /// Counted from the titles the library actually has, which is not the same number the title list answers
+      /// under the same name: <see cref="TitleResult.TrackCount"/> repeats what the file's own tag wrote
+      /// (<c>AudioAlbumAspect.ATTR_NUMTRACKS</c>), and a tag that was written for the ordinary pressing keeps
+      /// silent about the bonus disc of the special edition.  Measured over the household's library, the tag spoke
+      /// on 18 of 43 albums, and where it spoke it could still be short - the shelved copy of "Born This Way
+      /// (Special Edition)" holds 23 files while its tag counts 17.
+      /// </para>
+      /// <para>
+      /// The list keeps its tag number because counting a thousand rows' children to fill a wall would ask the
+      /// library a question for every tile on screen, while this answer is about the one title the viewer is
+      /// standing in front of.
+      /// </para>
+      /// </remarks>
+      public int? TrackCount { get; set; }
+
       /// <summary>Set when the answer is empty for a reason the caller can act on.</summary>
       public string Error { get; set; }
     }
@@ -1436,7 +1499,24 @@ namespace MediaPortal.Server.Api
           // Asked for here because the metadata search below detours from a series or a season to one of its
           // episodes, and it can only know it is talking to one of those when the answer carries the aspect.
           SeriesAspect.ASPECT_ID,
-          SeasonAspect.ASPECT_ID
+          SeasonAspect.ASPECT_ID,
+          // Asked for here because this is the one answer that is read for ONE title rather than for a shelf: an
+          // audio file's own details - its codec, its channels, its two rates, its disc - live on this aspect and
+          // nowhere else, and the title list cannot carry them for every row of a thousand-track wall to buy a
+          // reading that is looked at once.  The worn skin read the same aspect for the same screen
+          // (<c>MediaInfoAudio.xaml:115</c>, an <c>AudioAspectWrapper</c> over the item).
+          AudioAspect.ASPECT_ID,
+          // Asked for because it is what tells an album from everything else, and only an album is sent asking its
+          // tracks for the packing of the record (<see cref="FillAudioOfTheFirstTrackOfItsAlbum"/>).  Optional like
+          // the rest: a film is not an album and must still get its answer.
+          AudioAlbumAspect.ASPECT_ID,
+          // Asked for because this is the one answer read for ONE title, and the kinds of story a title is told in
+          // are a fact a viewer reads there: the title list already names them (it adds the aspect to its own
+          // reading whenever the shelf has any, <see cref="GetTitles"/>), while a details answer that left the
+          // aspect out could only ever say "genres: none" about a title whose shelf had been naming its genre a
+          // moment before.  Optional like the rest, because a title no importer ever put a genre on is a title and
+          // not a failure.
+          GenreAspect.ASPECT_ID
         };
 
         MediaItemQuery query = new MediaItemQuery(necessary, optional, new MediaItemIdFilter(id));
@@ -1465,6 +1545,16 @@ namespace MediaPortal.Server.Api
         FillMissingDetailsFromFiles(item, result);
         FillMissingOverviewFromSeries(mediaLibrary, item, result, profile);
         FillCollectionTitle(mediaLibrary, result, profile);
+        // An album keeps its packing on the tracks inside it, so its answer borrows the figures of the track that
+        // leads the record.  Asked last: every question above is about the title itself, this one is about its
+        // children, and a title that can answer for itself has already been answered by the time it is reached.
+        FillAudioOfTheFirstTrackOfItsAlbum(mediaLibrary, item, result, profile);
+
+        // How many tracks the album holds and how long they play together, which is the second question about its
+        // children.  Asked after the packing above because that one reads one track and can answer from the first,
+        // while this one walks all of them - and an album whose packing is settled should not wait for the walk to
+        // say what it is packed in.
+        FillTheTracksInsideItsAlbum(mediaLibrary, item, result, profile);
 
         // Translated last, because the file beside a title can be the only place its certificate is written down,
         // and a household that asked for its own country's mark should get it whichever of the two sources spoke.
@@ -1631,9 +1721,256 @@ namespace MediaPortal.Server.Api
           result.Overview = Text(seasonAspect.GetAttributeValue<string>(SeasonAspect.ATTR_DESCRIPTION));
       }
 
+      // The kinds of story this title is told in, read the same way the title list reads them - see
+      // <see cref="ReadGenres"/>.  Measured over the household's library: every one of its 43 albums names its
+      // genre on the shelf, and the album's own details answer named nothing, because the aspect was not asked for.
+      result.Genres = ReadGenres(item);
+
+      // An audio file's own facts, which the audio reading is built from: what it is packed in, how many channels
+      // it carries, its bitrate and sample rate, and which disc of how many it is.  Every one of them is the
+      // library's own number rather than something this answer works out, and every one of them is a plaque on the
+      // worn skin's audio screen (<c>MediaInfoAudio.xaml:115-170</c>, an <c>AudioAspectWrapper</c> whose six cells
+      // are the codec picture, the channels picture, the disc pair, and the two rates written as "kbps" and "Hz").
+      // Zero means the importer never wrote the fact, which is why each of them is asked for before it is set: a
+      // screen is left to tell "no bitrate" from "a bitrate of nought" by itself otherwise.
+      SingleMediaItemAspect audio;
+      if (MediaItemAspect.TryGetAspect(item.Aspects, AudioAspect.Metadata, out audio))
+        WriteAudioFigures(audio, result, takesLength: true);
+
+      // An album's own prose, which a tag reader writes on the album aspect and nowhere else.  The reference drew
+      // it on the album's screens (MediaItemListAudioAlbumDetails.inc:307, MediaItemCoverAudioAlbumDetails.inc:7)
+      // and drew NOTHING when the column was empty - which is the half of the rule a placeholder would break: an
+      // album without a description is an album nobody described, not an album this server has nothing to say
+      // about.  Only asked where the title's own comment stayed silent, the same order the season's description
+      // takes above.
+      SingleMediaItemAspect albumAspect;
+      if (result.Overview == null
+          && MediaItemAspect.TryGetAspect(item.Aspects, AudioAlbumAspect.Metadata, out albumAspect))
+        result.Overview = Text(albumAspect.GetAttributeValue<string>(AudioAlbumAspect.ATTR_DESCRIPTION));
+
       result.Stub = item.IsStub;
       result.Path = ReadPath(item);
       return result;
+    }
+
+    /// <summary>
+    /// The kinds of story a title is told in, or <c>null</c> when the library never wrote one.
+    /// </summary>
+    /// <remarks>
+    /// The genre aspect is one record per genre - a ManyToMany aspect, which is also why the by=genre shelf can
+    /// point at a single value. The names come in the importer's order and keep it; a repeated word is said once.
+    /// <para>
+    /// One reading for both endpoints on purpose. The shelf of albums names its genre and the album's own details
+    /// answer did not, which is two screens of the same library disagreeing about one title over nothing but which
+    /// aspect each of them happened to ask for.
+    /// </para>
+    /// </remarks>
+    private static List<string> ReadGenres(MediaItem item)
+    {
+      IList<MultipleMediaItemAspect> genreAspects;
+      if (!MediaItemAspect.TryGetAspects(item.Aspects, GenreAspect.Metadata, out genreAspects))
+        return null;
+
+      List<string> genres = genreAspects
+          .Select(genre => Text(genre.GetAttributeValue<string>(GenreAspect.ATTR_GENRE)))
+          .Where(genre => genre != null)
+          .Distinct()
+          .ToList();
+      return genres.Count > 0 ? genres : null;
+    }
+
+    /// <summary>
+    /// The six figures an audio aspect carries, written onto a details answer.
+    /// </summary>
+    /// <param name="takesLength">
+    /// Whether the answer may take the file's length too.  <c>true</c> for the title that <b>is</b> the file;
+    /// <c>false</c> when an album borrows the figures of one of its tracks, because an album is not as long as its
+    /// first song - its length is the sum of everything inside it, which nothing here has read.
+    /// </param>
+    /// <remarks>
+    /// Zero means the importer never wrote the fact, which is why each of them is asked for before it is set: a
+    /// screen is left to tell "no bitrate" from "a bitrate of nought" by itself otherwise.
+    /// </remarks>
+    private static void WriteAudioFigures(SingleMediaItemAspect audio, ItemResult result, bool takesLength)
+    {
+      if (takesLength)
+      {
+        long seconds = audio.GetAttributeValue<long>(AudioAspect.ATTR_DURATION);
+        if (seconds > 0)
+          result.DurationSeconds = (int) seconds;
+      }
+
+      result.AudioEncoding = Text(audio.GetAttributeValue<string>(AudioAspect.ATTR_ENCODING));
+
+      int channels = audio.GetAttributeValue<int>(AudioAspect.ATTR_CHANNELS);
+      if (channels > 0)
+        result.AudioChannels = channels;
+
+      int bitRate = audio.GetAttributeValue<int>(AudioAspect.ATTR_BITRATE);
+      if (bitRate > 0)
+        result.AudioBitRate = bitRate;
+
+      long sampleRate = audio.GetAttributeValue<long>(AudioAspect.ATTR_SAMPLERATE);
+      if (sampleRate > 0)
+        result.AudioSampleRate = sampleRate;
+
+      int discId = audio.GetAttributeValue<int>(AudioAspect.ATTR_DISCID);
+      if (discId > 0)
+        result.DiscId = discId;
+
+      int discCount = audio.GetAttributeValue<int>(AudioAspect.ATTR_NUMDISCS);
+      if (discCount > 0)
+        result.DiscCount = discCount;
+    }
+
+    /// <summary>
+    /// The packing of an album's first track, lent to the album's own answer.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <b>Why an album has to borrow at all.</b> The codec, the loudspeakers and the two rates are written on the
+    /// <i>track's</i> audio aspect, and an album does not carry that aspect - it carries the album aspect, whose
+    /// columns are the album's name, its artists and its counts.  Measured over the household's library (43 albums,
+    /// 1018 tracks): every album answered with nothing at all, so the audio screen of an album had no plaque to
+    /// show and stood there silent while the same file, opened as a track, named itself at length.
+    /// </para>
+    /// <para>
+    /// <b>Why the first track answers for the whole album.</b> The viewer asked for it, and the library supports the
+    /// reading: an album's tracks are one session pressed to one disc each, so the packing of the first is the
+    /// packing of the record.  The reference sorted an album's tracks by disc and number before drawing them
+    /// (<c>AudioSortByAlbumTrack</c>), which is the same track this question asks for, and its audio screen read
+    /// the six figures out of one audio aspect and no more (<c>MediaInfoAudio.xaml:115-170</c>).
+    /// </para>
+    /// <para>
+    /// Asked as one question for one track and not as a list, because the answer is a single file's packing; the
+    /// album's own track list is a different question, asked by the screen that shows it.
+    /// </para>
+    /// </remarks>
+    private static void FillAudioOfTheFirstTrackOfItsAlbum(IMediaLibrary mediaLibrary, MediaItem item,
+        ItemResult result, Guid? profile)
+    {
+      // Only an album asks this question, and only while it has nothing of its own to say - the guard that keeps a
+      // library which did file a track's aspect on its album from being talked over.
+      if (!MediaItemAspect.TryGetAspect(item.Aspects, AudioAlbumAspect.Metadata, out _))
+        return;
+      if (result.AudioEncoding != null || result.AudioChannels != null || result.AudioBitRate != null
+          || result.AudioSampleRate != null || result.DiscCount != null)
+        return;
+
+      try
+      {
+        // The tracks inside this album: the library files the relationship row on the <i>child</i>, naming the
+        // album it hangs on, so the question is "which titles play ROLE_TRACK against this album's id" - the same
+        // walk the titles endpoint makes for "titles inside an album" (its <c>inside</c> parameter,
+        // <see cref="TryRelationship"/>).  The aspect named first is the one the found item has to carry, which is
+        // what makes the answer a sound file rather than a row.
+        Guid role;
+        Guid linkedRole;
+        if (!TryRelationship(AudioAspect.ASPECT_ID, item, out role, out linkedRole))
+          return;
+
+        MediaItemQuery first = new MediaItemQuery(
+            new List<Guid> { AudioAspect.ASPECT_ID }, new List<Guid> { MediaAspect.ASPECT_ID },
+            new RelationshipFilter(role, linkedRole, item.MediaItemId));
+        first.SetSortInformation(new List<ISortInformation>
+        {
+          new AttributeSortInformation(AudioAspect.ATTR_DISCID, SortDirection.Ascending),
+          new AttributeSortInformation(AudioAspect.ATTR_TRACK, SortDirection.Ascending)
+        });
+        first.Limit = 1;
+
+        IList<MediaItem> held = mediaLibrary.Search(first, false, profile, VirtualTitles.LetsVirtualTitlesIn);
+        MediaItem track = held == null ? null : held.FirstOrDefault();
+        SingleMediaItemAspect audio;
+        if (track == null || !MediaItemAspect.TryGetAspect(track.Aspects, AudioAspect.Metadata, out audio))
+          return;
+
+        // Not the length: the album's first song is four minutes long, the album is not.
+        WriteAudioFigures(audio, result, takesLength: false);
+      }
+      catch (IllegalCallException)
+      {
+        // A library that will not say which track lies inside the album leaves the album as it found it - without
+        // figures, which is what every album's answer used to be.
+      }
+    }
+
+    /// <summary>
+    /// How many tracks an album holds inside itself and how long they play together.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <b>Why the album has to be asked of its children.</b> An album carries the album aspect, whose columns are
+    /// its name, its artists and the numbers its tag wrote; the length of a minute of music lives on a track's
+    /// audio aspect and nowhere else.  Measured over the household's library (43 albums, 1018 tracks): every one of
+    /// the 1018 tracks answered a duration, so the length of every one of the 43 albums is known - it is only never
+    /// added up, because no screen had asked an album how long it is.
+    /// </para>
+    /// <para>
+    /// <b>Why the count counts the files and not the tag.</b> The viewer decided it: a shelf standing in front of
+    /// 23 files answers "23", and the 17 the tag of a special edition's ordinary pressing remembers is said by the
+    /// title list, which reads the tag because it cannot count a thousand albums' children to fill one wall
+    /// (<see cref="TitleResult.TrackCount"/>).
+    /// </para>
+    /// <para>
+    /// Asked as one question for the whole album rather than as one per track. The largest album on this library's
+    /// shelves holds 26 tracks and the question is asked about one title at a time, so the answer costs one walk of
+    /// the relationship the shelf of tracks already walks.
+    /// </para>
+    /// </remarks>
+    private static void FillTheTracksInsideItsAlbum(IMediaLibrary mediaLibrary, MediaItem item, ItemResult result,
+        Guid? profile)
+    {
+      // Only an album asks this question. A film, a season, an episode: none of them holds tracks, and none of
+      // them pays for a relationship query that answers nothing.
+      if (!MediaItemAspect.TryGetAspect(item.Aspects, AudioAlbumAspect.Metadata, out _))
+        return;
+
+      try
+      {
+        Guid role;
+        Guid linkedRole;
+        if (!TryRelationship(AudioAspect.ASPECT_ID, item, out role, out linkedRole))
+          return;
+
+        // The audio aspect is the necessary one, which is what makes the answer a sound file rather than a row:
+        // the same walk the "titles inside an album" list makes (its <c>inside</c> parameter).  Unsorted and
+        // unlimited - a count and a sum do not care about the order, and an album missing from the count would be
+        // an album lying about its length.
+        MediaItemQuery tracks = new MediaItemQuery(
+            new List<Guid> { AudioAspect.ASPECT_ID }, new List<Guid> { MediaAspect.ASPECT_ID },
+            new RelationshipFilter(role, linkedRole, item.MediaItemId));
+
+        IList<MediaItem> held = mediaLibrary.Search(tracks, false, profile, VirtualTitles.LetsVirtualTitlesIn);
+        if (held == null || held.Count == 0)
+          return;
+
+        // Counted from what the library actually handed over as a track rather than from the number of rows it
+        // answered with: an album whose count and length come from different lists of titles would be an album
+        // saying two different things about itself in one answer.
+        int count = 0;
+        long seconds = 0;
+        foreach (MediaItem track in held)
+        {
+          SingleMediaItemAspect audio;
+          if (!MediaItemAspect.TryGetAspect(track.Aspects, AudioAspect.Metadata, out audio))
+            continue;
+          count++;
+          seconds += audio.GetAttributeValue<long>(AudioAspect.ATTR_DURATION);
+        }
+
+        if (count == 0)
+          return;
+
+        result.TrackCount = count;
+        if (seconds > 0)
+          result.DurationSeconds = (int) seconds;
+      }
+      catch (IllegalCallException)
+      {
+        // Said nothing, as everywhere else in this method: an album whose library will not name its tracks keeps
+        // its length to itself, which is a quieter answer than a wrong one.
+      }
     }
 
     /// <summary>
@@ -1889,13 +2226,41 @@ namespace MediaPortal.Server.Api
     /// Nothing here has to be pressed for the server to be quick: a picture asked for is answered and remembered
     /// as always. The pass only moves that work to a moment when nobody is waiting for it.
     /// </para>
+    /// <para>
+    /// <b>Asking for one kind of title.</b> <c>?aspect=AudioItem</c> limits the pass to the titles carrying that
+    /// aspect. A pass over everything is right after an import and wrong after a retag of the music: a library of
+    /// a few thousand titles takes a minute of background time here, and on the library this was measured on -
+    /// twenty-odd thousand media items, forty-odd albums among them - walking all of them to refresh a few dozen
+    /// album covers is an hour for a job of seconds.
+    /// </para>
     /// </remarks>
     [HttpPost("fanart/warming")]
-    public ActionResult<FanArtWarmingResult> WarmFanArt()
+    public ActionResult<FanArtWarmingResult> WarmFanArt([FromQuery] string aspect = null)
     {
-      bool started = FanArtWarmingPass.Worn.StartAfterImport();
-      FanArtWarmingResult state = FanArtWarmingPass.Worn.Read();
-      return started ? Accepted(state) : (ActionResult<FanArtWarmingResult>) Ok(state);
+      if (string.IsNullOrEmpty(aspect))
+      {
+        bool startedWhole = FanArtWarmingPass.Worn.StartAfterImport();
+        FanArtWarmingResult whole = FanArtWarmingPass.Worn.Read();
+        return startedWhole ? Accepted(whole) : (ActionResult<FanArtWarmingResult>) Ok(whole);
+      }
+
+      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
+      if (mediaLibrary == null)
+        return StatusCode(StatusCodes.Status503ServiceUnavailable);
+
+      IDictionary<Guid, MediaItemAspectMetadata> metadata = mediaLibrary.GetManagedMediaItemAspectMetadata();
+      KeyValuePair<Guid, MediaItemAspectMetadata> match = metadata.FirstOrDefault(entry =>
+          entry.Value != null && string.Equals(entry.Value.Name, aspect, StringComparison.OrdinalIgnoreCase));
+      if (match.Value == null)
+        return BadRequest(new FanArtWarmingResult
+        {
+          Error = "this server has no aspect called '" + aspect + "'; name one it has, e.g. AudioItem, MovieItem"
+              + " - see GET api/library/aspects"
+        });
+
+      bool startedScoped = FanArtWarmingPass.Worn.Start(match.Key, match.Value.Name);
+      FanArtWarmingResult scoped = FanArtWarmingPass.Worn.Read();
+      return startedScoped ? Accepted(scoped) : (ActionResult<FanArtWarmingResult>) Ok(scoped);
     }
 
     /// <summary>
@@ -4120,19 +4485,9 @@ namespace MediaPortal.Server.Api
           result.RuntimeMinutes = runtime;
       }
 
-      // The genre aspect is one record per genre - a ManyToMany aspect, which is also why the by=genre shelf can
-      // point at a single value. The names come in the importer's order and keep it; a repeated word is said once.
-      IList<MultipleMediaItemAspect> genreAspects;
-      if (MediaItemAspect.TryGetAspects(item.Aspects, GenreAspect.Metadata, out genreAspects))
-      {
-        List<string> genres = genreAspects
-            .Select(genre => Text(genre.GetAttributeValue<string>(GenreAspect.ATTR_GENRE)))
-            .Where(genre => genre != null)
-            .Distinct()
-            .ToList();
-        if (genres.Count > 0)
-          result.Genres = genres;
-      }
+      // The kinds of story this title is told in - the same reading the details answer gives, so a title cannot
+      // name one genre on its shelf and another on the screen standing in front of the viewer.
+      result.Genres = ReadGenres(item);
 
       // Where a title sits in the one that holds it, and who made it. Everything here comes off the aspect the
       // request was already about - a caller listing episodes asked for the episode aspect, one listing tracks
