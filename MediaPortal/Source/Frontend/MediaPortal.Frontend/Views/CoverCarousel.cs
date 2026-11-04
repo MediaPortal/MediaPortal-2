@@ -104,7 +104,7 @@ public sealed class CoverCarousel : Control
   internal const double LEAN_CEILING = 55.0;
   internal const double SHRINK_PER_PLACE = 0.06;
   internal const double SHRINK_CEILING = 0.40;
-  internal const double DARKEN_PER_PLACE = 0.15;
+  internal const double DARKEN_PER_PLACE = 0.08;
 
   /// <summary>
   /// How many places away from the cover being stood on the row begins to lose light.  Inside that many places a
@@ -114,9 +114,9 @@ public sealed class CoverCarousel : Control
   /// by <see cref="DARKEN_PER_PLACE"/> for every further place, so the number is where the fade BEGINS and the
   /// other number is how steep it is once begun.
   /// </summary>
-  internal const double FADE_FROM = 4.0;
+  internal const double FADE_FROM = 3.0;
 
-  internal const double LIGHT_FLOOR = 0.1;
+  internal const double LIGHT_FLOOR = 0.3;
 
   /// <summary>How round a cover's corners are, as a part of its own width; the turn takes the round with it.</summary>
   internal const double CORNER_RATIO = 0.045;
