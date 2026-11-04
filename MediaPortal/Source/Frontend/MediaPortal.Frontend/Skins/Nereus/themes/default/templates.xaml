@@ -185,6 +185,42 @@
             Width="{Binding $parent[ListBox].DataContext.MenuTileSize}"
             Height="{Binding $parent[ListBox].DataContext.MenuTileSize}">
       <Grid>
+        <Grid.Styles>
+          <!-- What plays on this shelf, in the skin's own drawing: the play glyph of images/PlayerControl/play.svg,
+               the same one the transport row and the player wear, stood at the tile's corner. Before it stood the
+               round spinner both rescued skins carry under the name IsPlaying (images/IsPlaying.png), which the
+               reference walked in a circle while it was up (WMCSkin themes/default/styles/Buttons.xaml:1618-1633).
+               The walking is dropped: the glyph is the mark the film itself answers with, and a tile's corner is
+               too small a place to read a direction of turning from. What it does instead is blink, and slowly,
+               because a home screen is walked past rather than watched: the mark stands at full light for a
+               second, goes away, comes back - two seconds to a beat, with the edges of the dip a fifth of a
+               second long so that it reads as an eyelid rather than a cut. Avalonia asks for a beat like this out
+               of a style rather than off the shape, because it is the style's selector that tells a Setter which
+               type it moves. -->
+          <Style Selector="Path.nereus-menu-playing">
+            <Style.Animations>
+              <Animation Duration="0:0:2"
+                         IterationCount="Infinite"
+                         Easing="LinearEasing">
+                <KeyFrame KeyTime="0:0:0">
+                  <Setter Property="Opacity" Value="1"/>
+                </KeyFrame>
+                <KeyFrame KeyTime="0:0:1.1">
+                  <Setter Property="Opacity" Value="1"/>
+                </KeyFrame>
+                <KeyFrame KeyTime="0:0:1.3">
+                  <Setter Property="Opacity" Value="0.06"/>
+                </KeyFrame>
+                <KeyFrame KeyTime="0:0:1.8">
+                  <Setter Property="Opacity" Value="0.06"/>
+                </KeyFrame>
+                <KeyFrame KeyTime="0:0:2">
+                  <Setter Property="Opacity" Value="1"/>
+                </KeyFrame>
+              </Animation>
+            </Style.Animations>
+          </Style>
+        </Grid.Styles>
         <Grid.RowDefinitions>
           <RowDefinition Height="130*"/>
           <RowDefinition Height="40*"/>
@@ -224,16 +260,25 @@
                      VerticalAlignment="Center"
                      Margin="5,0"/>
         </Grid>
-        <Image Grid.RowSpan="2"
-               Source="{Binding Label,
-                                Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter=IsPlaying}"
-               Height="24"
-               Stretch="Uniform"
-               HorizontalAlignment="Right"
-               VerticalAlignment="Top"
-               Margin="0,3,3,0"
-               IsVisible="{Binding IsPlaying}"/>
+        <!-- The mark stands on the cover, so it stands off it: the drip shadow the transport row's glyphs and
+             the film's line wear too (PlayerGlassStyles, PlaybackBar), the one that keeps a white glyph readable
+             over a poster that happens to be white behind it. -->
+        <Path Grid.RowSpan="2"
+              Classes="nereus-menu-playing"
+              Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                             ConverterParameter='PlayerControl/play'}"
+              Fill="{DynamicResource TextBrush}"
+              Stretch="Uniform"
+              Height="24"
+              HorizontalAlignment="Right"
+              VerticalAlignment="Top"
+              Margin="0,6,9,0"
+              IsHitTestVisible="False"
+              IsVisible="{Binding IsPlaying}">
+          <Path.Effect>
+            <DropShadowEffect BlurRadius="6" Color="#CC000000" OffsetX="0" OffsetY="1"/>
+          </Path.Effect>
+        </Path>
         <Image Grid.RowSpan="2"
                Source="{Binding Label,
                                 Converter={x:Static views:SkinImageConverter.Instance},
