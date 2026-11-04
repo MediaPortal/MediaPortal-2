@@ -283,6 +283,46 @@ namespace Tests.Frontend
       TestContext.Progress.WriteLine("  refusal: " + _player.LastFailure);
     }
 
+    /// <summary>
+    /// libVLC answers a media it cannot open with an error and, a moment later, with a stop of its own. The stop
+    /// must not become the last word: a screen told "stopped" after a failure shows the viewer a word that hides
+    /// the reason, which is how a film on a share nobody could reach became a black screen wearing the word
+    /// "Stopped".
+    /// </summary>
+    [Test]
+    public void AFailureStaysAFailureWhenTheEngineStopsAfterIt()
+    {
+      string path = PlayerFixture.MissingFile();
+      _player!.Open(MediaLocation.FromFile(path));
+
+      AssertThatWithin(15000, () => _player.State == PlayerState.Failed,
+          "a file that is not there left the player in " + _player.State + " rather than failing");
+
+      // The engine's own stop arrives after its error; give it the moment it takes and look again.
+      Thread.Sleep(1500);
+      Assert.That(_player.State, Is.EqualTo(PlayerState.Failed),
+          "the stop libVLC sends in the wake of its error was allowed to become what a screen reads");
+      Assert.That(_player.LastFailure, Is.Not.Null.And.Not.Empty, "the reason was lost on the way");
+    }
+
+    /// <summary>
+    /// Whoever presses stop after a failure ended the media's own story, so the word after that is "stopped" and
+    /// not the reason the media died by.
+    /// </summary>
+    [Test]
+    public void StoppingAfterAFailureIsAnsweredAsAStop()
+    {
+      string path = PlayerFixture.MissingFile();
+      _player!.Open(MediaLocation.FromFile(path));
+      AssertThatWithin(15000, () => _player.State == PlayerState.Failed,
+          "the media never failed, so there was nothing to stop out of");
+
+      Assert.That(_player.Stop(), Is.True, _player.LastFailure ?? "(no reason given)");
+      Thread.Sleep(1500);
+      Assert.That(_player.State, Is.EqualTo(PlayerState.Stopped),
+          "a stop a person asked for should read as a stop, got " + _player.State);
+    }
+
     [Test]
     public void PausingAnIdlePlayerIsRefusedWithAReason()
     {

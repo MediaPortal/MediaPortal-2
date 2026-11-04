@@ -79,6 +79,7 @@ namespace MediaPortal.Frontend.Player
     private long _lastPositionLengthMs = -1;
     private string? _lastFailure;
     private bool _ended;
+    private bool _failed;
     private bool _disposed;
 
     // libVLC's own default is 100 and no mute; the fields start there so that a player that has never been told
@@ -374,6 +375,7 @@ namespace MediaPortal.Frontend.Player
           return Fail("this player has been disposed.");
         _lastFailure = null;
         _ended = false;
+        _failed = false;
         _current = location;
 
         // A new media begins its own position story. Without this a second file of the same length would have its
@@ -444,6 +446,10 @@ namespace MediaPortal.Frontend.Player
     {
       try
       {
+        // Whoever pressed stop ended the media's own story, failure included; the word after this is "stopped",
+        // not the reason the media died by.
+        lock (_gate)
+          _failed = false;
         _player.Stop();
         ReleaseMedia();
         Publish(PlayerState.Stopped);
@@ -1161,6 +1167,10 @@ namespace MediaPortal.Frontend.Player
       string engine = _libVlc.LastLibVLCError ?? string.Empty;
       string where = Current.HasValue ? Current.Value.Describe() : "the current media";
       string reason = "libVLC stopped playing " + where + (engine.Length == 0 ? "." : ": " + engine);
+      // Remembered for the states that follow: libVLC answers its own error with a Stopped a moment later, and a
+      // screen that is told "stopped" after a failure shows a word that hides the reason.
+      lock (_gate)
+        _failed = true;
       Fail(reason);
       Publish(PlayerState.Failed);
       Failed?.Invoke(this, new PlayerFailedEventArgs(reason));
@@ -1170,6 +1180,11 @@ namespace MediaPortal.Frontend.Player
     /// libVLC's state, translated. <c>Error</c> and <c>Ended</c> come only from the events above - the engine has
     /// no state event for them - and the three "not yet" states collapse into <see cref="PlayerState.Opening"/>.
     /// </summary>
+    /// <remarks>
+    /// A media that failed or ran out keeps that answer through the <c>Stopped</c> and <c>NothingSpecial</c> the
+    /// engine sends in its wake: libVLC answers an unopenable file with an error and then a stop, and a screen
+    /// handed the stop alone shows the word "stopped" where the viewer needed the reason.
+    /// </remarks>
     private PlayerState StateOf(VLCState native)
     {
       switch (native)
@@ -1189,6 +1204,8 @@ namespace MediaPortal.Frontend.Player
             // only known from the events, so the answer here is the one EndReached already gave, if it did.
             if (_ended)
               return PlayerState.Ended;
+            if (_failed)
+              return PlayerState.Failed;
             // Before anything was opened, "nothing special" is idle, not stopped.
             return _current.HasValue ? PlayerState.Stopped : PlayerState.Idle;
           }
@@ -1197,6 +1214,8 @@ namespace MediaPortal.Frontend.Player
           {
             if (_ended)
               return PlayerState.Ended;
+            if (_failed)
+              return PlayerState.Failed;
           }
           return PlayerState.Stopped;
         default:
