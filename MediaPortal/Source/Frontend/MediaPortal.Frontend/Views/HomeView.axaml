@@ -818,8 +818,20 @@
                          its home covers and hides it at the two ends where it would say nothing
                          (HomeContentStyles.xaml:200-208 - nought has nothing to show, a hundred is watched).
                          Inside the face, so the tile's rounded corners clip its ends like they clip the
-                         picture. -->
+                         picture.
+                         The floor of nought is not decoration. The bar's own theme refuses to stand narrower
+                         than two hundred points, and a narrow cover on a band is a hundred and seventy-four in
+                         the layout's measures - so the bar hung over its face instead of fitting it: read off
+                         the automation tree at 3440x1440, two hundred and sixty-two pixels of bar over a face
+                         of two hundred and twenty-eight, seventeen pixels past the face on either side. The
+                         face clips, so the fill began seventeen pixels to the LEFT of the cover it belongs to,
+                         and everything under six per cent (Silo's four) was cut off whole - which is why the
+                         same four per cent showed on the wide cover of the band beside it, where the bar is
+                         exactly as wide as the tile. Without the floor the bar is the cover's own width and the
+                         fill starts at its edge, which is where the reference starts it: its indicator is
+                         left-aligned on the track (HomeContentStyles.xaml:68-69). -->
                     <ProgressBar Height="8"
+                                 MinWidth="0"
                                  Minimum="0"
                                  Maximum="100"
                                  Value="{Binding Progress}"
