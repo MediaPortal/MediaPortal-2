@@ -151,7 +151,7 @@ namespace Tests.Frontend
       vm.SwitchView();
       Assert.That(vm.Layout, Is.EqualTo(BrowserLayout.Carousel));
       Assert.That(vm.GridTemplateKey, Is.EqualTo("MediaTileCoverTemplate"));
-      Assert.That(vm.LayoutLabel, Is.EqualTo("View: Carousel"));
+      Assert.That(vm.LayoutLabel, Is.EqualTo("View: 3D Cover"));
 
       vm.SwitchView();
       Assert.That(vm.Layout, Is.EqualTo(BrowserLayout.List));

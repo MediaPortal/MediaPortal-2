@@ -2163,7 +2163,7 @@ namespace MediaPortal.Frontend.ViewModels
           BrowserLayout.Grid => "View: Grid",
           BrowserLayout.Cover => "View: Cover",
           BrowserLayout.Stacked => "View: Stacked",
-          BrowserLayout.Carousel => "View: Carousel",
+          BrowserLayout.Carousel => "View: 3D Cover",
           _ => "View: List"
         };
       }
@@ -3286,7 +3286,9 @@ namespace MediaPortal.Frontend.ViewModels
           // beside "Cover" and not under a question of their own: a viewer looking for "the covers, but stacked"
           // looks where the covers are.
           AddMenuRow("Stacked", "view_stacked", new RelayCommand(() => PickLayout(BrowserLayout.Stacked)), Layout == BrowserLayout.Stacked);
-          AddMenuRow("Carousel", "view_carousel", new RelayCommand(() => PickLayout(BrowserLayout.Carousel)), Layout == BrowserLayout.Carousel);
+          // The viewer's word for this shape is "3D Cover" - what it looks like, said to somebody standing at
+          // the television - while the code keeps calling the layout by the ring of covers it lays out.
+          AddMenuRow("3D Cover", "view_carousel", new RelayCommand(() => PickLayout(BrowserLayout.Carousel)), Layout == BrowserLayout.Carousel);
           // The reference kept the details switch beside the view modes rather than among the media commands,
           // because details are the second half of the layout question and not a command of their own. The one
           // row the screen gives it is this one: the main page asking the same question a second time only
