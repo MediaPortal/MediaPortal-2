@@ -1,0 +1,124 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!--
+    The plate a player button is made of, written once rather than in the middle of the playback screen,
+    because two places wear it: the row of controls a viewer calls over a film, and the compact bar that
+    stands at the foot of every other screen while something plays. Two copies of these rules would drift
+    apart within a month, and the drift would show up as two buttons of one program looking like they came
+    from two programs. The skin-wearers of the other classes of this screen (the position line, the track
+    pickers, the name) stay with the screen that draws them.
+  -->
+
+    <!--
+      The buttons of the display a viewer calls over a film. One shape throughout, on one ground: a control
+      whose ground is a little lighter than the panel it stands on, with a hairline of a frame and its corners
+      taken off. A row of bare glyphs over a moving picture reads as a smudge and a row of grey discs reads as
+      furniture; a row of same-shaped plates reads as buttons, which is what they are.
+
+      A button says where the viewer stands on it by lighting its ground and putting a ring of white round
+      itself - one ring for a pointer and for a keyboard or a remote alike, and no word beside it: a tooltip is
+      a grey box that lands on top of the button it explains, which on a screen read from across a room is
+      worse than no word at all. Pressing dims it, which is the answer a hand expects.
+    -->
+    <Style Selector="Button.glass">
+      <Setter Property="Background" Value="#182E4050"/>
+      <Setter Property="BorderBrush" Value="#40FFFFFF"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <!-- Round, because a control this size that is not a circle reads as a tile: half of the 70 the buttons
+        measure is a circle, and the two that carry a word keep the same radius, which makes them the ends of a
+        capsule rather than corners on a box. -->
+      <Setter Property="CornerRadius" Value="35"/>
+      <Setter Property="Padding" Value="20,15"/>
+      <Setter Property="Margin" Value="6,0"/>
+      <Setter Property="MinWidth" Value="70"/>
+      <Setter Property="MinHeight" Value="70"/>
+      <Setter Property="FontSize" Value="29"/>
+      <!-- One focus effect for a hand and for a remote: the ring this style draws when a key stands at the
+           button is the whole of what a mouse gets too, so the theme's own dotted rectangle - which only ever
+           appears for a keyboard - is off. -->
+      <Setter Property="FocusAdorner" Value="{x:Null}"/>
+      <Setter Property="Foreground" Value="{DynamicResource ButtonTextBrush}"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Transitions">
+        <Transitions>
+          <BrushTransition Property="Background" Duration="0:0:0.12"/>
+          <BrushTransition Property="BorderBrush" Duration="0:0:0.12"/>
+          <DoubleTransition Property="Opacity" Duration="0:0:0.12"/>
+        </Transitions>
+      </Setter>
+    </Style>
+    <!-- WHAT THE BUTTON WEARS IS WHAT ITS INSIDE WEARS.
+         The theme's own button rules dress the ContentPresenter inside the template rather than the button, so
+         the grey square it paints at rest and the lighter grey it paints under a pointer lie ON TOP of the glass
+         drawn here: the buttons measured 70x70 with a radius of 35 and showed up as grey tiles with a small
+         corner. Every class of button on this screen therefore hands its own dress down to that presenter, which
+         follows the button through its states because a template binding is live. -->
+    <Style Selector="Button.glass /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{TemplateBinding Background}"/>
+      <Setter Property="BorderBrush" Value="{TemplateBinding BorderBrush}"/>
+      <Setter Property="BorderThickness" Value="{TemplateBinding BorderThickness}"/>
+      <Setter Property="CornerRadius" Value="{TemplateBinding CornerRadius}"/>
+    </Style>
+    <Style Selector="Button.seek /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{TemplateBinding Background}"/>
+      <Setter Property="BorderBrush" Value="{TemplateBinding BorderBrush}"/>
+      <Setter Property="BorderThickness" Value="{TemplateBinding BorderThickness}"/>
+      <Setter Property="CornerRadius" Value="{TemplateBinding CornerRadius}"/>
+    </Style>
+    <Style Selector="Button.hit /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{TemplateBinding Background}"/>
+      <Setter Property="BorderBrush" Value="{TemplateBinding BorderBrush}"/>
+      <Setter Property="BorderThickness" Value="{TemplateBinding BorderThickness}"/>
+      <Setter Property="CornerRadius" Value="{TemplateBinding CornerRadius}"/>
+    </Style>
+    <Style Selector="Button.choice /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{TemplateBinding Background}"/>
+      <Setter Property="BorderBrush" Value="{TemplateBinding BorderBrush}"/>
+      <Setter Property="BorderThickness" Value="{TemplateBinding BorderThickness}"/>
+      <Setter Property="CornerRadius" Value="{TemplateBinding CornerRadius}"/>
+    </Style>
+    <!-- One light for a mouse and one ring for a keyboard would be two answers to the same question, so there is
+         one: whatever stands at a button - a pointer over it or a remote on it - lights its ground and puts a
+         ring of white round it. The pointer's half is written twice over on purpose: the worn skin
+         dresses every button of the whole program a raised panel under a pointer ("Window:not(.pointer-resting)
+         Button:pointerover"), and that rule outranks a shorter one, so this says the same thing in the same
+         words - and stands only while the pointer is about, exactly as the skin's does, so a button the invisible
+         pointer was left on does not go on claiming somebody is standing at it. -->
+    <Style Selector="Window:not(.pointer-resting) Button.glass:pointerover">
+      <Setter Property="Background" Value="#46658BAA"/>
+      <Setter Property="BorderBrush" Value="#FFFFFFFF"/>
+      <Setter Property="BorderThickness" Value="3"/>
+    </Style>
+    <Style Selector="Button.glass:focus">
+      <Setter Property="Background" Value="#46658BAA"/>
+      <Setter Property="BorderBrush" Value="#FFFFFFFF"/>
+      <Setter Property="BorderThickness" Value="3"/>
+    </Style>
+    <Style Selector="Button.glass:pressed">
+      <Setter Property="Background" Value="{DynamicResource PanelPressedBrush}"/>
+      <Setter Property="Opacity" Value="0.75"/>
+    </Style>
+    <Style Selector="Button.glass Path">
+      <Setter Property="Fill" Value="{DynamicResource ButtonTextBrush}"/>
+      <Setter Property="Width" Value="34"/>
+      <Setter Property="Height" Value="34"/>
+      <Setter Property="Stretch" Value="Uniform"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+      <Setter Property="IsHitTestVisible" Value="False"/>
+    </Style>
+    <Style Selector="Button.glass TextBlock">
+      <Setter Property="VerticalAlignment" Value="Center"/>
+      <Setter Property="IsHitTestVisible" Value="False"/>
+    </Style>
+
+    <!-- A button that carries nothing but its picture: the transport's neighbours, the loudspeaker and the two
+         switches of the machine. Square rather than wide, so the row of them reads as one height. -->
+    <Style Selector="Button.glass.icon">
+      <Setter Property="Width" Value="70"/>
+      <Setter Property="Height" Value="70"/>
+      <Setter Property="Padding" Value="0"/>
+    </Style>
+</Styles>
