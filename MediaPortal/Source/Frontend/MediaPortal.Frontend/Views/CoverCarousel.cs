@@ -99,8 +99,6 @@ public sealed class CoverCarousel : Control
   internal const double CORNER_RATIO = 0.045;
 
   static readonly SKColor FRAME_STOOD = new SKColor(245, 245, 255, 220);
-  static readonly SKColor FRAME_OTHER = new SKColor(255, 255, 255, 55);
-  static readonly SKColor COVER_GROUND = new SKColor(35, 35, 39);
   static readonly SKColor COVER_WAITING = new SKColor(65, 65, 72);
 
   private readonly List<object> _items = new List<object>();
@@ -764,66 +762,53 @@ public sealed class CoverCarousel : Control
 
       byte light = (byte) Math.Clamp(frame.Light * 255.0, 0.0, 255.0);
 
-      using (SKPaint shadow = new SKPaint
+      _pictures.TryGetValue(frame.Item, out SKImage? picture);
+
+      // THE GROUND, and only where a cover has no picture to wear.  This used to be laid under every cover - and
+      // offset downwards by nine lines as a shadow - which showed as a dark plate standing out below the poster it
+      // was meant to sit behind, and as a white edge around covers nobody had stood on.  Both were the row's own
+      // doing and nothing of the picture: what a cover shows is its poster, and what it has no poster to show is
+      // said by the waiting grey alone.
+      if (picture == null)
       {
-        IsAntialias = true,
-        Color = SKColors.Black.WithAlpha((byte) (frame.Light * 130.0)),
-        Style = SKPaintStyle.Fill
-      })
+        using SKPaint waiting = new SKPaint
+        {
+          IsAntialias = true,
+          Color = COVER_WAITING.WithAlpha(light),
+          Style = SKPaintStyle.Fill
+        };
+
+        canvas.DrawPath(shape, waiting);
+      }
+      else
       {
         canvas.Save();
-        canvas.Translate(0.0f, 9.0f);
-        canvas.DrawPath(shape, shadow);
+        canvas.ClipPath(shape);
+
+        canvas.Concat(ref onto);
+
+        using SKPaint poster = new SKPaint
+        {
+          IsAntialias = true,
+          Color = new SKColor(255, 255, 255, light)
+        };
+
+        canvas.DrawImage(picture, new SKRect(0, 0, (float) frame.Width, (float) frame.Height), poster);
         canvas.Restore();
       }
 
-      using (SKPaint ground = new SKPaint
+      // The frame belongs to the stood-on cover and to nothing else: an edge around every cover is a row of
+      // outlines rather than a row of covers, and the one the viewer asked for is the bright one marking where
+      // they stand.
+      if (frame.Stood)
       {
-        IsAntialias = true,
-        Color = COVER_GROUND.WithAlpha(light),
-        Style = SKPaintStyle.Fill
-      })
-      {
-        canvas.DrawPath(shape, ground);
-      }
-
-      _pictures.TryGetValue(frame.Item, out SKImage? picture);
-
-      using (SKPaint edge = new SKPaint
-      {
-        IsAntialias = true,
-        Color = frame.Stood ? FRAME_STOOD : FRAME_OTHER,
-        Style = SKPaintStyle.Stroke,
-        StrokeWidth = frame.Stood ? 2.2f : 1.0f
-      })
-      {
-        if (picture != null)
+        using SKPaint edge = new SKPaint
         {
-          canvas.Save();
-          canvas.ClipPath(shape);
-
-          canvas.Concat(ref onto);
-
-          using SKPaint poster = new SKPaint
-          {
-            IsAntialias = true,
-            Color = new SKColor(255, 255, 255, light)
-          };
-
-          canvas.DrawImage(picture, new SKRect(0, 0, (float) frame.Width, (float) frame.Height), poster);
-          canvas.Restore();
-        }
-        else
-        {
-          using SKPaint waiting = new SKPaint
-          {
-            IsAntialias = true,
-            Color = COVER_WAITING.WithAlpha(light),
-            Style = SKPaintStyle.Fill
-          };
-
-          canvas.DrawPath(shape, waiting);
-        }
+          IsAntialias = true,
+          Color = FRAME_STOOD,
+          Style = SKPaintStyle.Stroke,
+          StrokeWidth = 2.2f
+        };
 
         canvas.DrawPath(shape, edge);
       }
