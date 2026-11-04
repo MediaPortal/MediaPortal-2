@@ -91,8 +91,26 @@ namespace MediaPortal.Frontend.Api
 
       // Forward slashes are what MP2 stores; a Windows player takes them too, but the separators are normalized
       // so that what a person sees in a message is what their own shell would show.
-      if (Path.DirectorySeparatorChar != '/' && path.Contains('/') && LooksLikeWindowsPath(path))
-        path = path.Replace('/', Path.DirectorySeparatorChar);
+      // <para>
+      // A share is the one path a player does <i>not</i> take either way. Windows spells it <c>\\server\share</c>,
+      // and libVLC's step from a path to a URI recognizes a share by exactly those two leading backslashes -
+      // measured with VLC 3.0.20, given <c>//HTPC-SERVER/Video/Film.mkv</c> it builds <c>file:///HTPC-SERVER/…</c>
+      // and asks for a folder called HTPC-SERVER at the root of the current drive, so a film sitting on a share
+      // nobody can reach ends as a black screen. Hence the two leading slashes are kept and turned into the two
+      // the engine looks for, however many the provider wrote in front of the host.
+      // </para>
+      if (Path.DirectorySeparatorChar != '/')
+      {
+        if (path.StartsWith("//", StringComparison.Ordinal))
+        {
+          path = new string(Path.DirectorySeparatorChar, 2)
+              + path.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
+        }
+        else if (path.Contains('/') && LooksLikeWindowsPath(path))
+        {
+          path = path.Replace('/', Path.DirectorySeparatorChar);
+        }
+      }
 
       if (!Path.IsPathFullyQualified(path))
       {

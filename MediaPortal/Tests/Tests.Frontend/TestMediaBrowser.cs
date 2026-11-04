@@ -430,6 +430,31 @@ namespace Tests.Frontend
       Assert.That(reason, Does.Contain("did not name a file"));
     }
 
+    /// <summary>
+    /// A film standing on a share of another machine is the one path a player will not take with the slashes the
+    /// library stores. Measured with VLC 3.0.20: given <c>//HTPC-SERVER/Video/Film.mkv</c> as a <i>path</i> it
+    /// builds <c>file:///HTPC-SERVER/Video/Film.mkv</c> - a folder called HTPC-SERVER at the root of the current
+    /// drive - and answers with "No such file or directory", which on the television is a black screen and the
+    /// word "stopped". Windows calls a share <c>\\server\share</c>, so that is what the player is handed.
+    /// </summary>
+    [AvaloniaTest]
+    public void AShareOfAnotherMachineIsSpelledTheWayThisMachineCallsAShare()
+    {
+      string share = RESOURCE_SYSTEM_ID.ToString("B") + "://///HTPC-SERVER/Video/Movies/Film.mkv";
+      Assert.That(MediaLibraryPath.TryAsLocalFile(share, out string path, out string reason), Is.True, reason);
+      Assert.That(Path.IsPathFullyQualified(path), Is.True);
+      if (Path.DirectorySeparatorChar != '/')
+      {
+        Assert.That(path, Is.EqualTo(@"\\HTPC-SERVER\Video\Movies\Film.mkv"),
+            "a share kept its slashes, so the player looks for it on this machine's own drive");
+      }
+      else
+      {
+        Assert.That(path, Is.EqualTo("//HTPC-SERVER/Video/Movies/Film.mkv"),
+            "on a machine whose separators are slashes there is nothing to translate");
+      }
+    }
+
     #endregion
 
     #region The tiles on the home screen
