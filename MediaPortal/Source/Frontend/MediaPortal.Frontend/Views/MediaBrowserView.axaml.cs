@@ -217,6 +217,32 @@ namespace MediaPortal.Frontend.Views
         }, DispatcherPriority.Loaded);
       };
 
+      // The far keys belong to the drawn row while this shape is worn.  The list keeps the focus here - the
+      // menus, the details and the keys all walk in through it - but its own answer to ENDE and POS1 is to carry
+      // the far container into view, and that answer is a walk: on a shelf of a thousand titles it builds every
+      // container between the two places, measured as eleven hundred containers and two seconds of one frame.
+      // The painted row stands on no container, so it is asked instead, and its answer is a number.
+      AddHandler(KeyDownEvent, delegate (object? sender, KeyEventArgs args)
+      {
+        if (args.Handled
+            || DataContext is not MediaBrowserViewModel shaped
+            || shaped.Layout != BrowserLayout.Carousel)
+          return;
+
+        switch (args.Key)
+        {
+          case Key.End:
+            args.Handled = true;
+            coverRow.StandAtEitherEnd(true);
+            break;
+
+          case Key.Home:
+            args.Handled = true;
+            coverRow.StandAtEitherEnd(false);
+            break;
+        }
+      }, RoutingStrategies.Tunnel);
+
       // The shelf answers the standing title with a glide rather than a jump: every step of the caret moves the
       // wall by the shape's own numbers, over the shape's own length of time. And every step re-arms the quiet
       // watching, because the walk itself - not only the landing - is when the recycling can knock the tile
@@ -224,6 +250,10 @@ namespace MediaPortal.Frontend.Views
       // next step, or a fast walk drops its caret between two tiles and nobody picks it up.
       titlesList.SelectionChanged += delegate
       {
+        Services.HomeTrace.Log("selchg.begin", "index=" + titlesList.SelectedIndex
+            + " realized=" + (titlesList.GetRealizedContainers()?.Count() ?? -1)
+            + " asc=" + titlesList.AutoScrollToSelectedItem);
+
         // A caret step is deliberate motion; container preparation and remeasurement must settle directly or
         // they would keep retargeting the same animation while the virtualized wall is being rebuilt.
         _animate_shelf_shape_targets = true;
@@ -2002,6 +2032,17 @@ namespace MediaPortal.Frontend.Views
       // millisecond for a whole row.
       titlesList.Classes.Set("nereus-shelf-shaped",
           viewModel.Layout is BrowserLayout.Stacked or BrowserLayout.Carousel);
+
+      // The screen drawn by our own hand wears the row twice: the list still holds the caret, but the
+      // viewer sees the painted covers.  Avalonia carries a new selection into view on its own, and
+      // carrying a caret that jumped from the first title to the thousandth into view realises every
+      // container between them - measured at twenty-two seconds in a single frame and eleven hundred
+      // covers prepared for dressing.  The ledger does not have to see its caret; the row does, and
+      // the row keeps its own place by the numbers it paints from.  The other shapes keep the scroll:
+      // there the list IS the shelf the viewer walks, and a caret driven out of sight would be lost.
+      titlesList.AutoScrollToSelectedItem = viewModel.Layout != BrowserLayout.Carousel;
+      Services.HomeTrace.Log("shape.asc", "value=" + titlesList.AutoScrollToSelectedItem
+          + " layout=" + viewModel.Layout);
       // A grid and a list are laid one under the other, the grid wrapping whole tiles across the screen and the
       // list keeping its strip of rows. Covers are the third shape and the only one the reference turned on its
       // side: their row runs along the bottom edge of the room, their details are centred above it, and the
@@ -3654,6 +3695,16 @@ namespace MediaPortal.Frontend.Views
       if (!(DataContext is MediaBrowserViewModel viewModel))
         return;
 
+      // THE DRAWN ROW ASKS FOR ITS OWN PICTURES.  In this one shape the list underneath is the caret and nothing
+      // else - it stands at zero opacity - and the row above it asks for the handful of covers a viewer could be
+      // looking at by itself (CoverCarousel.PictureAsked).  Asking here too was not a second opinion but a second
+      // bill: a jump of the caret to the far end brings the list's own answer to "show the selected item" with it,
+      // which lays out EVERY container of a thousand-title shelf - measured as realized=1136 where ten had stood -
+      // and this pass then walked all of them and asked a poster for each.  Measured as 3038 asks, 3031 decodes
+      // and one frame gap of 24 seconds on a shelf of eleven hundred films.
+      if (viewModel.Layout == BrowserLayout.Carousel)
+        return;
+
       int caret = titlesList.SelectedIndex;
       List<(int distance, TitleViewModel row)> in_sight = new List<(int distance, TitleViewModel row)>();
 
@@ -3678,9 +3729,26 @@ namespace MediaPortal.Frontend.Views
       // walked to the right spends its whole queue on the wall the viewer has already left and stands looking at
       // backup plates until the queue drains - which is what "the pictures are missing from the sixtieth cover
       // onwards" is made of, and no amount of widening the band can mend an order that starts at the wrong end.
-      foreach ((int _, TitleViewModel row) pair in in_sight.OrderBy(stand => stand.Item1))
+      //
+      // And only the nearest of them at all.  A panel that has laid out more containers than the television can
+      // fill - its preheat band, or a panel asked to bring a distant caret into view - is not a statement about
+      // what the viewer can see, and every picture asked for a row he cannot see is a place in the queue taken
+      // from one he can.
+      Services.HomeTrace.Log("paintrows", "sighted=" + in_sight.Count + " asking="
+          + Math.Min(in_sight.Count, MAX_ROWS_PAINTED_AT_ONCE) + " caret=" + caret);
+
+      foreach ((int _, TitleViewModel row) pair in
+          in_sight.OrderBy(stand => stand.Item1).Take(MAX_ROWS_PAINTED_AT_ONCE))
+      {
         viewModel.PaintRow(pair.row);
+      }
     }
+
+    /// <summary>
+    /// How many rows are asked for their picture in one pass: about what a television fills with rows, twice
+    /// over, so that the rows coming into view are already on their way when the viewer reaches them.
+    /// </summary>
+    private const int MAX_ROWS_PAINTED_AT_ONCE = 48;
 
     private void OnSkinChanged(object? sender, EventArgs e)
     {

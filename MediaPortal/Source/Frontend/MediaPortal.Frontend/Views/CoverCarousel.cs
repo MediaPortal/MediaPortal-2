@@ -208,10 +208,12 @@ public sealed class CoverCarousel : Control
       // viewer could have been looking at is taken without a travel.
       if (Math.Abs(_position - clamped) > PAINTED_EACH_SIDE)
       {
+        Services.HomeTrace.Log("row.snap", "from=" + (int) Math.Round(_position) + " to=" + clamped);
         _position = clamped;
         _velocity = 0.0;
       }
 
+      Services.HomeTrace.Log("row.caret", "to=" + clamped + " items=" + _items.Count);
       WatchCoversThatMayAnswer();
       StartSpring();
       InvalidateVisual();
@@ -388,6 +390,9 @@ public sealed class CoverCarousel : Control
 
       _pictures.Add(title, picture);
       _remembered.AddFirst(title);
+
+      Services.HomeTrace.Log("row.pic",
+          "w=" + (picture?.Width ?? 0) + " h=" + (picture?.Height ?? 0) + " held=" + _remembered.Count);
 
       while (_remembered.Count > 96)
       {
@@ -567,7 +572,27 @@ public sealed class CoverCarousel : Control
     if (clamped == SelectedIndex)
       return;
 
+    Services.HomeTrace.Log("row.key", "from=" + SelectedIndex + " to=" + clamped);
+    Services.HomeTrace.NextFrames("rowjump", 4);
+
     SetCurrentValue(SelectedIndexProperty, clamped);
+  }
+
+  /// <summary>
+  /// Stands the caret on the first or the last cover of the row, from wherever it stood.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// The view hands this out for the far keys of the keyboard.  A list answers those keys by carrying the far
+  /// container into view, which is a walk through every container between - and the row is worn over a list of
+  /// a thousand titles, where that walk was measured at eleven hundred realised containers and two seconds of
+  /// one frame.  Asked of the row, the same key is a number: the place the eye is carried to is painted from
+  /// that number, and nothing between the two places is built at all.
+  /// </para>
+  /// </remarks>
+  internal void StandAtEitherEnd(bool at_the_end)
+  {
+    AskFor(at_the_end ? Math.Max(0, _items.Count - 1) : 0);
   }
 
   // ---- What the eye sees ---------------------------------------------------------------
