@@ -1,3 +1,4 @@
+using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
@@ -22,6 +23,13 @@ namespace MediaPortal.Frontend.Views;
 /// </remarks>
 public partial class PlaybackBar : UserControl
 {
+  /// <summary>
+  /// How wide the film's line stands, as a share of the screen's width, however many plates are under it. The
+  /// line is the one thing on this row that speaks about the film rather than about the row's own use, and a
+  /// film does not change length because the row beside it lost a chapter button.
+  /// </summary>
+  internal const double LINE_SHARE = 0.30;
+
   private readonly NowPlayingViewModel? _model;
 
   public PlaybackBar()
@@ -34,6 +42,28 @@ public partial class PlaybackBar : UserControl
     _model = model;
     DataContext = model;
     InitializeComponent();
+  }
+
+  /// <summary>
+  /// Holds the film's line to <see cref="LINE_SHARE"/> of the screen. The width arrives from the window because
+  /// a control knows no percentage of a screen and this row measures itself to the plates it carries, which are
+  /// not a measure of anything outside the row: the plates come and go with what plays (a stream has no chapters
+  /// to jump between), so a line left to the row's width would stretch and shrink while the film ran on.
+  /// </summary>
+  /// <param name="widthInPoints">
+  /// The screen's width in the points the skin lays out in - the window's dots divided by its skin scale, which
+  /// is what the row's own measures are in (see ShellWindow.SkinScale).
+  /// </param>
+  public void HoldLineToScreen(double widthInPoints)
+  {
+    if (progressLine == null || widthInPoints < 1.0)
+      return; // no screen to measure against yet; the first layout pass brings one
+
+    double across = Math.Round(widthInPoints * LINE_SHARE);
+    if (Math.Abs(progressLine.Width - across) < 0.5)
+      return; // the same answer twice would be a layout pass thrown away on every chrome tick
+
+    progressLine.Width = across;
   }
 
   /// <summary>

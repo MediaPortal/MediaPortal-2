@@ -20,6 +20,7 @@ using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Headless.NUnit;
+using Avalonia.LogicalTree;
 using Avalonia.VisualTree;
 using Avalonia.Threading;
 using NUnit.Framework;
@@ -192,6 +193,39 @@ namespace Tests.Frontend
       window.Chrome.ReportStopped();
       Pump();
       Assert.That(window.Chrome.HasMedia, Is.False, "nothing playing means the chrome has nothing to say");
+
+      window.Close();
+    }
+
+    [AvaloniaTest]
+    public void TheFilmLineIsThreeTenthsOfTheScreenAndNotOfTheRow()
+    {
+      Application app = Application.Current!;
+      FrontendTheme.Apply(app, "nereus", out _);
+
+      ShellWindow window = new ShellWindow(new Label { Content = "watching" });
+      window.Show();
+      Pump();
+
+      PlaybackBar bar = window.GetVisualDescendants().OfType<PlaybackBar>().Single();
+      // The line is looked for among the logical children: the row is hidden while nothing plays, and a hidden
+      // control's template - the part that presents its content - was never put up.
+      ProgressBar line = bar.GetLogicalDescendants().OfType<ProgressBar>().Single();
+
+      // The row itself is only worth showing while something plays, which no test drives; the measure is handed
+      // over all the same, on every chrome tick and on every resize.
+      bar.HoldLineToScreen(2000.0);
+      Assert.That(line.Width, Is.EqualTo(600.0), "three tenths of the screen, whatever the plates under it measure");
+
+      // The plates come and go with what plays - a stream has no chapters to jump between - so a line measured
+      // off the row would stretch and shrink while the film ran on unchanged. The screen does not do that.
+      bar.HoldLineToScreen(1200.0);
+      Assert.That(line.Width, Is.EqualTo(360.0), "the share follows the screen and not the row");
+
+      // And the window really does hand the row the screen it is worn on, in the points the worn skin lays in.
+      window.UpdatePlaybackBar();
+      double expected = Math.Round(window.ClientSize.Width / window.SkinScale * PlaybackBar.LINE_SHARE);
+      Assert.That(line.Width, Is.EqualTo(expected), "the window measures the line off its own screen");
 
       window.Close();
     }

@@ -349,7 +349,11 @@ namespace MediaPortal.Frontend.Views
       // laid out in dots as it always was.
       _skinScale.Child = shell;
       Content = _skinScale;
-      SizeChanged += delegate { WearSkinScale(); };
+      SizeChanged += delegate
+      {
+        WearSkinScale();
+        SizePlaybackBarToScreen(); // the film's line is measured against the screen, which only the window knows
+      };
       Theming.SkinEngine.Changed += delegate { WearSkinScale(); };
       Theming.FrontendTheme.Changed += delegate { WearSkinScale(); };
       WearSkinScale();
@@ -1156,6 +1160,19 @@ namespace MediaPortal.Frontend.Views
       bool standingAtThePlayer = _workflow.Current is Workflow.WorkflowFrame frame
           && frame.StateId == "nowplaying";
       _playbackBar.IsVisible = playing && !standingAtThePlayer && !_keyboardLayer.IsVisible;
+      SizePlaybackBarToScreen();
+    }
+
+    /// <summary>
+    /// Hands the transport row the screen's width in the points the worn skin lays out in, so that the film's
+    /// line keeps its share of the screen (see PlaybackBar.HoldLineToScreen for the share and for why the row
+    /// cannot measure itself). The window's dots are not the skin's points while a skin stands scaled, so the
+    /// one number belonging to that goes over the width first.
+    /// </summary>
+    private void SizePlaybackBarToScreen()
+    {
+      double dots = ClientSize.Width > 0.0 ? ClientSize.Width : Bounds.Width;
+      _playbackBar.HoldLineToScreen(dots / _skinScaleFactor);
     }
 
     public bool KeyboardOpen => _keyboardLayer.IsVisible;

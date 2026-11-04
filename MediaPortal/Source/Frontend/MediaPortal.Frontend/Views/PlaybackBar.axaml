@@ -27,7 +27,7 @@
     MediaBrowserView.axaml:682), and a second darkening over that would only muddy the floor.
 
     One thing this row says that the reference's did not: how far into the film the viewer is, as a line of
-    nothing above the row and no wider than the row. The window used to answer that with a strip over the whole
+    nothing above the row, three tenths of the screen wide. The window used to answer that with a strip over the whole
     width - name of the film, a line across the screen, and the word "Playing" beside it - which stood twice
     over the transport row and spelled in words what this front end has decided to say in pictures.
   -->
@@ -77,10 +77,17 @@
          One point thicker than it was, its ends taken round like the ends of the plates above it, and dripping
          a shadow onto the row below - the same shadow the player's own state marks carry (NowPlayingView:
          BlurRadius 7, #CC000000 one point down), which is what keeps a two-point line readable as a thing
-         lying OVER a picture rather than a seam scratched into it. -->
+         lying OVER a picture rather than a seam scratched into it.
+         How wide it is is not said here: a control knows no percentage of a screen, so the window hands the
+         row the screen's width and PlaybackBar.HoldLineToScreen keeps three tenths of it on the line. Measured off
+         the row it cannot be - the row is as wide as the plates it happens to carry just now, and plates come
+         and go with what plays (a stream has no chapters to jump between), so a line measured off it would grow
+         and shrink under the viewer while the film ran on unchanged. -->
     <Style Selector="ProgressBar.line">
       <Setter Property="Height" Value="3"/>
-      <Setter Property="Margin" Value="8,0,8,6"/>
+      <!-- Nothing on either side: the line's own edge is the share it was measured to, so a margin here would
+         set the film's answer a hair in from the right edge of the plates under it. -->
+      <Setter Property="Margin" Value="0,0,0,6"/>
       <Setter Property="CornerRadius" Value="1.5"/>
       <Setter Property="Foreground" Value="#FFFFFFFF"/>
       <Setter Property="Background" Value="{DynamicResource OutlineBrush}"/>
@@ -94,12 +101,13 @@
   <StackPanel Orientation="Vertical" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10,0,10,10">
     <!-- How far into it the viewer is, in a line above the row rather than under it: the row is what a hand
          aims at, so it goes to the bottom edge, where the corner of the screen already is, and the answer
-         about how far the film has run stands over it. The line is as wide as the row and nothing wider,
-         because the row is a hand's breadth and the answer belongs to it. Zero to one, which is the scale the
+         about how far the film has run stands over it. It is three tenths of the screen wide and the same width
+         whatever stands under it, its right edge in line with the right edge of the plates, so that the amount
+         of white always means the same amount of film from one screen to the next. Zero to one, which is the scale the
          model hands its position on (NowPlayingViewModel.Progress) and the scale the player screen's own line
          is bound to - on a scale of hundred the line would have stood at a hair of its length for the whole
          film. -->
-    <ProgressBar Classes="line" Minimum="0" Maximum="1" Value="{Binding Progress}"/>
+    <ProgressBar Classes="line" Name="progressLine" Minimum="0" Maximum="1" Value="{Binding Progress}"/>
 
     <StackPanel Orientation="Horizontal" Spacing="2" HorizontalAlignment="Right">
       <!-- First, because the reference puts it first (OtherControlsOverrides.xaml:1290): the door into the
@@ -147,12 +155,14 @@
                                 ConverterParameter='PlayerControl/next'}"/>
       </Button>
 
-      <!-- The sound is NOT on this row, although the reference's footer carried a loudspeaker and two keys of
-           volume (OtherControlsOverrides.xaml:1310-1316). The room's own volume keys already answer on every
-           screen of this front end and answer with the window's own bubble (ShellWindow), and a pair of keys
-           here would be a second door to the same room - one that also makes the row twice as tall as the
-           buttons it stands on. The reference's second divider went with the pair: a seam that divides
-           nothing stands out at the end of the row as a line that got lost there. -->
+      <Rectangle Classes="divider"/>
+
+      <!-- What did NOT come back is the reference's pair of volume keys under that loudspeaker (the same lines           1310-1316 of the footer's style). The room's own volume keys already answer on every screen of this
+           front end and answer with the window's own bubble (ShellWindow), and a pair here would be a second door
+           to the same room - one that also makes the row twice as tall as the buttons it stands on. The seam
+           before the loudspeaker came back with the plate, because it divides the transport from the sound the way
+           the reference's footer divides them; a seam at the very end of the row, after the last plate, would be a
+           line that got lost there. -->
     </StackPanel>
   </StackPanel>
 </UserControl>
