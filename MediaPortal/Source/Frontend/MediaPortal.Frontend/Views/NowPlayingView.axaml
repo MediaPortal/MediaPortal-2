@@ -382,33 +382,44 @@
       <views:VideoSurface Name="videoSurface"/>
 
       <!--
-        The reference's player-state overlay: a big centred icon at seventy per cent strength saying the
-        picture is waiting for something. The reference shows it while its player is rate-seeking; this
-        engine seeks by jumping, so the icon answers the escalating skip ladder instead - the moment a
-        viewer is actually in, on this front end - fast-forward while the run is pointing forwards,
-        fast-rewind while it points back, gone the moment the jump lands or is cancelled. The pictures
-        are the skins' own fastforward.png / fastrewind.png; a skin without them draws nothing, which is
-        the same silence the reference keeps on a missing texture. (The reference's pause icon in this
-        overlay binds "pause.png", a picture neither shipped skin carries - only the PlayerControl button
-        states - so it is not ported: not a decision to skip, just nothing to draw.)
+        What the player is doing, said as a shape in the middle of the picture: the worn skin's mark for the
+        state (NowPlayingViewModel.StateGlyph) - its pause mark over a paused film, its stop mark over a
+        stopped one, its error mark over a file that would not open. The word is not gone, it is only not
+        painted over the film: the foot bar of both faces carries it, and a screen reader reads it from the
+        model. While the film runs the model names no shape, so a running film is left to itself.
+
+        A hundred points across at four fifths strength, in the text colour, with the soft dark shadow the face
+        gives everything standing over artwork (styles.xaml's home-shortcut-caption) - a white glow, the face's
+        other shadow, would be gone the moment the film shows snow. The two marks over the film carry this
+        written out rather than shared in a style, because a mark that silently fails to be styled is a mark
+        nobody sees, and these two are the whole of what the screen says over a picture.
       -->
-      <Image Name="stateIcon" Width="250" Opacity="0.7" IsVisible="False"
-             IsHitTestVisible="False"
-             HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <Path Name="stateGlyph" Width="100" Height="100" Stretch="Uniform" Opacity="0.8"
+            Fill="{DynamicResource TextBrush}" IsHitTestVisible="False"
+            HorizontalAlignment="Center" VerticalAlignment="Center"
+            Data="{Binding StateGlyph, Converter={x:Static views:SkinIconGeometryConverter.Instance}}">
+        <Path.Effect>
+          <DropShadowEffect BlurRadius="7" Color="#CC000000" OffsetX="0" OffsetY="1"/>
+        </Path.Effect>
+      </Path>
 
       <!--
-        What the player is doing, said in the middle of the black - and only while the screen is black: the
-        first seconds of a file are empty anyway and a viewer wants to know whether "Starting" means starting,
-        but the moment a picture is on the screen the picture is the answer and the word over it is a caption
-        on a film. (The word is still on the foot bar for anybody reading the state of play.)
+        The reference's player-state overlay: a centred mark saying the picture is waiting for something. The
+        reference shows it while its player is rate-seeking; this engine seeks by jumping, so the mark answers
+        the escalating skip ladder instead - the moment a viewer is actually in, on this front end -
+        fast-forward while the run is pointing forwards, fast-rewind while it points back, gone the moment the
+        jump lands or is cancelled. It is drawn from the same two vectors the row of buttons draws its
+        transport marks from (PlayerControl/fast_forward and PlayerControl/fast_rewind) out of the same
+        catalog, so overlay and buttons cannot drift apart the way a second picture always does; a skin that
+        carries neither draws nothing, which is the same silence the reference keeps on a missing texture.
       -->
-      <TextBlock Name="stateText"
-                 Text="{Binding StateText}"
-                 FontSize="22"
-                 Foreground="{DynamicResource DimTextBrush}"
-                 IsVisible="{Binding !HasMedia}"
-                 HorizontalAlignment="Center"
-                 VerticalAlignment="Center"/>
+      <Path Name="stateIcon" Width="100" Height="100" Stretch="Uniform" Opacity="0.8"
+            Fill="{DynamicResource TextBrush}" IsHitTestVisible="False" IsVisible="False"
+            HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Path.Effect>
+          <DropShadowEffect BlurRadius="7" Color="#CC000000" OffsetX="0" OffsetY="1"/>
+        </Path.Effect>
+      </Path>
 
       <!-- What the library knows about this title, said over the picture at the side where it does not cover
            the film or the row of buttons along its foot: the Info button in the transport row calls it and

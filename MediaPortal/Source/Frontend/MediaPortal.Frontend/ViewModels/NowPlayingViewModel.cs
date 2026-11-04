@@ -73,6 +73,7 @@ namespace MediaPortal.Frontend.ViewModels
     private string _title;
     private string _fileName;
     private string _stateText;
+    private string _stateGlyph = "";
     private string _positionText;
     private string _positionLabel = "--:--";
     private string _durationLabel = "--:--";
@@ -213,6 +214,16 @@ namespace MediaPortal.Frontend.ViewModels
     public string StateText
     {
       get { return _stateText; }
+    }
+
+    /// <summary>
+    /// The shape the screen shows over the film instead of the word: the worn skin's own pause mark for a
+    /// pause, its stop mark for a stop. Empty for the two states that have nothing to report - the film
+    /// running and nothing ever played - because a mark over a running film covers the film.
+    /// </summary>
+    public string StateGlyph
+    {
+      get { return _stateGlyph; }
     }
 
     /// <summary>e.g. "0:12 / 1:04:05". The lengths come from the engine, never from a guess.</summary>
@@ -1735,6 +1746,7 @@ namespace MediaPortal.Frontend.ViewModels
       _marshal(delegate
       {
         _stateText = "Failed";
+        _stateGlyph = "Notification/error";
         _isPlaying = false;
         _isPaused = false;
         _statusLine = string.IsNullOrWhiteSpace(args.Reason)
@@ -1836,6 +1848,19 @@ namespace MediaPortal.Frontend.ViewModels
         PlayerState.Ended => "Finished",
         PlayerState.Failed => "Failed",
         _ => state.ToString()
+      };
+
+      // The same seven states as shapes, named out of the skin's own player marks so a screen can say the
+      // state over the picture without laying a word over it. A running film and an idle player are left
+      // empty: over a film that is doing what it should there is nothing to point at.
+      _stateGlyph = state switch
+      {
+        PlayerState.Opening => "PlayerControl/play",
+        PlayerState.Paused => "PlayerControl/pause",
+        PlayerState.Stopped => "PlayerControl/stop",
+        PlayerState.Ended => "PlayerControl/stop",
+        PlayerState.Failed => "Notification/error",
+        _ => ""
       };
 
       _isPlaying = state == PlayerState.Playing;

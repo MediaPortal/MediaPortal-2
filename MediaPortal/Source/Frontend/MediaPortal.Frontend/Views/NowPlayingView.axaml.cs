@@ -649,13 +649,13 @@ namespace MediaPortal.Frontend.Views
       };
       Say("Superlayer_SkipStep", words, _viewModel.SkipStepTimeoutMs + 300);
 
-      // The reference's centred overlay icon belongs to the seeking moment; on this engine the waiting
-      // ladder is that moment, so the big half-transparent arrows answer the ladder.
+      // The reference's centred overlay mark belongs to the seeking moment; on this engine the waiting
+      // ladder is that moment, so the arrows answer the ladder.
       int pending = _viewModel.PendingSkipStepSeconds;
       if (pending > 0)
-        ShowStateIcon("fastforward.png");
+        ShowStateIcon("PlayerControl/fast_forward");
       else if (pending < 0)
-        ShowStateIcon("fastrewind.png");
+        ShowStateIcon("PlayerControl/fast_rewind");
       else
         HideStateIcon();
 
@@ -683,12 +683,11 @@ namespace MediaPortal.Frontend.Views
       _viewModel.CancelSkipStep();
     }
 
-    /// <summary>Put one of the worn skin's pictures as the big centred state icon, if it carries one.</summary>
-    private void ShowStateIcon(string pictureName)
+    /// <summary>Put one of the worn skin's player marks as the centred overlay, if it carries one.</summary>
+    private void ShowStateIcon(string vectorName)
     {
-      var bitmap = SkinImageConverter.WornPictures()?.Images.Load(pictureName);
-      stateIcon.Source = bitmap;
-      stateIcon.IsVisible = bitmap != null;
+      stateIcon.Data = SkinImageConverter.WornPictures()?.Vectors.Load(vectorName);
+      stateIcon.IsVisible = stateIcon.Data != null;
     }
 
     private void HideStateIcon()
