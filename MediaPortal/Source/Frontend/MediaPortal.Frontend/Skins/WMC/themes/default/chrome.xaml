@@ -77,19 +77,8 @@
     </Grid>
   </ControlTemplate>
 
-  <!-- The footer: what is playing, in the reference's three columns; hidden while nothing plays. -->
-  <ControlTemplate x:Key="ChromeFooterTemplate" TargetType="ContentControl">
-    <Grid ColumnDefinitions="Auto,*,Auto" Margin="10,0" Background="{DynamicResource ScreenBackgroundBrush}"
-          IsVisible="{Binding HasMedia}">
-      <TextBlock Grid.Column="0" Text="{Binding NowPlayingTitle}"
-                 Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource SmallerFontSize}"
-                 VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="600"/>
-      <ProgressBar Grid.Column="1" Value="{Binding NowPlayingProgress}" Maximum="100"
-                   Foreground="{DynamicResource AccentBrush}" Background="{DynamicResource OutlineBrush}"
-                   Height="2" Margin="20,0" VerticalAlignment="Center"/>
-      <TextBlock Grid.Column="2" Text="{Binding NowPlayingState}"
-                 Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource SmallerFontSize}"
-                 VerticalAlignment="Center"/>
-    </Grid>
-  </ControlTemplate>
+  <!-- The footer's slot, empty for the same reason Nereus left it empty: the window's compact transport row
+       (Views/PlaybackBar.axaml) says what plays and how far into it the viewer is, and a strip over the whole
+       width under that row would be the same answer twice. -->
+  <ControlTemplate x:Key="ChromeFooterTemplate" TargetType="ContentControl"/>
 </ResourceDictionary>

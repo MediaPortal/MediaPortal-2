@@ -164,7 +164,7 @@ namespace Tests.Frontend
     }
 
     [AvaloniaTest]
-    public void TheFooterSaysWhatIsPlaying()
+    public void TheFooterNoLongerSpellsOutWhatIsPlaying()
     {
       Application app = Application.Current!;
       FrontendTheme.Apply(app, "nereus", out _);
@@ -176,14 +176,22 @@ namespace Tests.Frontend
       window.Chrome.ReportPlaying("Big Buck Bunny", 42, "Playing");
       Pump();
 
-      TextBlock? title = window.GetVisualDescendants().OfType<TextBlock>()
-          .FirstOrDefault(t => t.Text == "Big Buck Bunny");
-      Assert.That(title, Is.Not.Null,
-          "the footer drew the film's name out of the chrome file's own template");
+      // What is playing is no longer drawn across the foot of the window. The compact transport row at its
+      // bottom right-hand corner (Views/PlaybackBar.axaml) carries that answer with the film's place on a line
+      // of its own, and a strip of the same answer over the whole width under it was two pieces of furniture
+      // where the reference had one - besides spelling "Playing" in words where this front end says a shape.
+      Assert.That(
+          window.GetVisualDescendants().OfType<TextBlock>().Any(t => t.Text == "Big Buck Bunny"),
+          Is.False, "no now-playing strip stands over the width of the window under the transport row");
+
+      // What the chrome was told is still kept - a skin may want a footer of its own - it is only drawn by
+      // nobody of the skins this front end ships.
+      Assert.That(window.Chrome.NowPlayingProgress, Is.EqualTo(42),
+          "the chrome still knows how far into the film the viewer is");
 
       window.Chrome.ReportStopped();
       Pump();
-      Assert.That(window.Chrome.HasMedia, Is.False, "nothing playing means the footer has nothing to say");
+      Assert.That(window.Chrome.HasMedia, Is.False, "nothing playing means the chrome has nothing to say");
 
       window.Close();
     }

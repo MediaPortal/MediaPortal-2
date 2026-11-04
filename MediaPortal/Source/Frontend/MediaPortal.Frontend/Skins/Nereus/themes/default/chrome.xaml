@@ -160,21 +160,13 @@
   </ControlTemplate>
 
   <!--
-    The footer: title, a progress line, and the state of play, in the reference's three columns. The whole
-    row takes itself off while nothing plays - the AutoVisibility of the reference's PlayerControl elements.
+    The footer's slot, left empty. This is where the reference's masters docked their FooterPanel
+    (master_bare_media.xaml:181-200), and the slot carried the name of the film, a progress line over the whole
+    width of the window and the word "Playing" beside it. That answer is now given once, by the compact
+    transport row the window holds at the foot of every screen but the player's (Views/PlaybackBar.axaml),
+    which carries the film's place on two points of line of its own - a wide strip under a row of buttons is
+    two pieces of furniture where the reference had one, and it spelled in words what this front end has
+    decided to say in pictures. A skin that wants something in this row still has the row to put it in.
   -->
-  <ControlTemplate x:Key="ChromeFooterTemplate" TargetType="ContentControl">
-    <Grid ColumnDefinitions="Auto,*,Auto" Margin="10,0" Background="{DynamicResource ScreenBackgroundBrush}"
-          IsVisible="{Binding HasMedia}">
-      <TextBlock Grid.Column="0" Text="{Binding NowPlayingTitle}"
-                 Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource SmallerFontSize}"
-                 VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="600"/>
-      <ProgressBar Grid.Column="1" Value="{Binding NowPlayingProgress}" Maximum="100"
-                   Foreground="{DynamicResource AccentBrush}" Background="{DynamicResource OutlineBrush}"
-                   Height="2" Margin="20,0" VerticalAlignment="Center"/>
-      <TextBlock Grid.Column="2" Text="{Binding NowPlayingState}"
-                 Foreground="{DynamicResource MutedTextBrush}" FontSize="{DynamicResource SmallerFontSize}"
-                 VerticalAlignment="Center"/>
-    </Grid>
-  </ControlTemplate>
+  <ControlTemplate x:Key="ChromeFooterTemplate" TargetType="ContentControl"/>
 </ResourceDictionary>

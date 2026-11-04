@@ -148,19 +148,27 @@ namespace MediaPortal.Frontend.Theming
     [ObservableProperty]
     private string _screenTitle = "";
 
-    /// <summary>Whether the footer has anything to show at all - the AutoVisibility of the reference.</summary>
+    /// <summary>
+    /// Whether anything plays at all - the AutoVisibility of the reference's PlayerControl elements, kept in the
+    /// chrome because a skin may want the answer even though no shipped skin draws it.
+    /// </summary>
     [ObservableProperty]
     private bool _hasMedia;
 
-    /// <summary>The title of whatever is playing, as the footer's first column.</summary>
+    /// <summary>
+    /// The title of whatever is playing. Said, not drawn: the window's compact transport row
+    /// (Views/PlaybackBar.axaml) is what tells a viewer what plays and how far into it they are, and the wide
+    /// footer strip that used to spell it out over the whole width is gone. The chrome keeps the answer for any
+    /// skin that wants a footer of its own.
+    /// </summary>
     [ObservableProperty]
     private string _nowPlayingTitle = "";
 
-    /// <summary>How far into it we are, nought to a hundred, as the footer's progress line.</summary>
+    /// <summary>How far into it we are, nought to a hundred; kept with the title above.</summary>
     [ObservableProperty]
     private double _nowPlayingProgress;
 
-    /// <summary>Playing, paused, whatever the player says; the footer's quiet last column.</summary>
+    /// <summary>Playing, paused, whatever the player says; kept with the title above.</summary>
     [ObservableProperty]
     private string _nowPlayingState = "";
 
