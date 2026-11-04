@@ -5177,6 +5177,8 @@ namespace MediaPortal.Frontend.ViewModels
       _running = cancellation;
       previous?.Cancel();
 
+      Services.HomeTrace.Log("read.begin", "offset=" + offset + " titles=" + Titles.Count);
+
       // A read from the top is a new shelf, whatever made it happen - the tile that was pressed, a word typed into
       // the find box, the watched key. Every run that was finishing an older shelf notices at its next pause.
       if (offset == 0)
@@ -5220,6 +5222,9 @@ namespace MediaPortal.Frontend.ViewModels
         // foot of the shelf, the status line and the walk all agree with one another - and so that a shelf which
         // stopped early can say so below instead of scrolling quietly forever.
         HasMore = answer.Remaining > 0 && Titles.Count < MAX_ROWS;
+
+        Services.HomeTrace.Log("read.page", "got=" + (answer.Titles?.Count ?? 0)
+            + " titles=" + Titles.Count + " more=" + HasMore);
 
         Selected = Selected ?? (Titles.Count > 0 ? Titles[0] : null);
         // The shelf's foot counts what the server counted, not merely what has been read so far - the same

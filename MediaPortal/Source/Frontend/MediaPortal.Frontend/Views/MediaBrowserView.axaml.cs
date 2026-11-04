@@ -276,6 +276,21 @@ namespace MediaPortal.Frontend.Views
         WatchShelfWallHome(stood_on_index);
 
         WatchShelfCaret();
+
+        // Nachladen, weil der Zeiger an das Ende des Gelesenen kommt - und nicht, weil ein Scrollversatz eine
+        // Zahl berührt.  In der gemalten Form rührt der Versatz sich nicht, wenn der Betrachter läuft oder
+        // springt: die Liste sieht man nicht, und ihr Zeiger wird nicht ins Bild getragen.  Ein Regal, das
+        // früher endete als das Regal des Servers, wäre dann für den stehen geblieben, der ganz hinten steht.
+        // Gefragt wird, wer dem letzten gelesenen Titel näher steht als eine Bildschirmvoll voraus.
+        if (stood_on_index >= 0 && browser.HasMore
+            && stood_on_index >= browser.Titles.Count - READ_AHEAD_TITLES)
+        {
+          Services.HomeTrace.Log("read.step", "index=" + stood_on_index + " titles=" + browser.Titles.Count);
+          _ = browser.KeepReadingAsync();
+        }
+
+        Services.HomeTrace.Log("selchg.end", "index=" + stood_on_index
+            + " realized=" + (titlesList.GetRealizedContainers()?.Count() ?? -1));
       };
 
       // The reference's <c>RestoreFocus</c> seen from this side: the shelf remembers which title the caret last
@@ -547,7 +562,12 @@ namespace MediaPortal.Frontend.Views
             : scroller.Extent.Height - (scroller.Offset.Y + scroller.Viewport.Height);
         double viewport = sideways ? scroller.Viewport.Width : scroller.Viewport.Height;
         if (short_of_end <= viewport)
+        {
+          Services.HomeTrace.Log("read.ask",
+              string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                  "short={0:F0} viewport={1:F0} titles={2}", short_of_end, viewport, browser.Titles.Count));
           _ = browser.KeepReadingAsync();
+        }
       });
 
       // OK on the remote is Enter here, and Avalonia hands it to the focused control before anyone else; the
@@ -1638,6 +1658,20 @@ namespace MediaPortal.Frontend.Views
 
     /// <summary>Frames a caret is asked for before the screen stops asking (a fifth of a second).</summary>
     private const int CARET_TRIES = 12;
+
+    /// <summary>
+    /// How many titles must stand unread behind the caret before the screen asks the server for the next part
+    /// of the shelf.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// About what the eye reaches: the drawn row paints ten covers each side of the stood one and a wall of
+    /// tiles shows a few dozen, so a caret that comes this near the last read title is a viewer who is walking
+    /// off the end of what the screen has.  Asking then - rather than at the last title itself - is what keeps
+    /// the walk over the page boundary from standing in front of a gap while the answer is on its way.
+    /// </para>
+    /// </remarks>
+    private const int READ_AHEAD_TITLES = 24;
 
     private DispatcherTimer? _caretTimer;
 
