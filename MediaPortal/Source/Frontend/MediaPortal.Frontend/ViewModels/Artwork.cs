@@ -183,6 +183,7 @@ namespace MediaPortal.Frontend.ViewModels
       {
         if (_remembered.TryGetValue(id, out byte[]? held))
         {
+          Interlocked.Increment(ref READ_HITS);
           Touch(id);
           return Task.FromResult(held);
         }
@@ -252,17 +253,57 @@ namespace MediaPortal.Frontend.ViewModels
 
     private async Task<byte[]?> FetchWithASlotAsync(Guid id)
     {
+      long queued_at = ReadingsClock.ElapsedMilliseconds;
       await _slots.WaitAsync().ConfigureAwait(true);
+      Interlocked.Add(ref READ_QUEUED_MS, ReadingsClock.ElapsedMilliseconds - queued_at);
       Interlocked.Increment(ref _running);
+      Interlocked.Increment(ref READ_RUNNING);
+
+      long asked_at = ReadingsClock.ElapsedMilliseconds;
       try
       {
-        return await _fetch(id).ConfigureAwait(true);
+        byte[]? picture = await _fetch(id).ConfigureAwait(true);
+
+        Interlocked.Increment(ref READ_FETCHES);
+        Interlocked.Add(ref READ_FETCH_MS, ReadingsClock.ElapsedMilliseconds - asked_at);
+        Interlocked.Add(ref READ_BYTES, picture?.LongLength ?? 0L);
+
+        return picture;
       }
       finally
       {
         Interlocked.Decrement(ref _running);
+        Interlocked.Decrement(ref READ_RUNNING);
         _slots.Release();
       }
+    }
+
+    // WHAT THE WIRE COSTS.  A cover that arrives late is experienced as one that "pops in" while the viewer
+    // walks, and the three reasons for arriving late cannot be told apart from the screen: the picture was already
+    // remembered, it waited for one of the few places on the wire, or the server itself was slow.  These counters
+    // answer that, and whoever walks the shelf reads them into the trace with TakeFetchReadings.
+    private static readonly System.Diagnostics.Stopwatch ReadingsClock = System.Diagnostics.Stopwatch.StartNew();
+    private static long READ_HITS;
+    private static long READ_FETCHES;
+    private static long READ_FETCH_MS;
+    private static long READ_QUEUED_MS;
+    private static long READ_BYTES;
+    private static int READ_RUNNING;
+
+    /// <summary>
+    /// What the pictures have cost since this was last asked, and the counts start again from zero.
+    /// </summary>
+    public static string TakeFetchReadings()
+    {
+      long hits = Interlocked.Exchange(ref READ_HITS, 0);
+      long fetches = Interlocked.Exchange(ref READ_FETCHES, 0);
+      long fetch_ms = Interlocked.Exchange(ref READ_FETCH_MS, 0);
+      long queued_ms = Interlocked.Exchange(ref READ_QUEUED_MS, 0);
+      long bytes = Interlocked.Exchange(ref READ_BYTES, 0);
+
+      return string.Format(System.Globalization.CultureInfo.InvariantCulture,
+          "wire hits={0} fetched={1}/{2}ms queued={3}ms running={4} mb={5:0.0}",
+          hits, fetches, fetch_ms, queued_ms, Volatile.Read(ref READ_RUNNING), bytes / (1024.0 * 1024.0));
     }
 
     private void Remember(Guid id, byte[]? picture)

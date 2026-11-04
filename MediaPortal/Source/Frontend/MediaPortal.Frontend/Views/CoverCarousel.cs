@@ -122,6 +122,24 @@ public sealed class CoverCarousel : Control
   /// <summary>How round a cover's corners are, as a part of its own width; the turn takes the round with it.</summary>
   internal const double CORNER_RATIO = 0.045;
 
+  /// <summary>
+  /// How much wider a poster is read than the cover it will be painted into.  The slide carries a cover through
+  /// sizes as it comes round, and a poster read exactly at the standing width would already be too small on the
+  /// way in and on a screen whose scaling is not one; a quarter more than the widest the row paints is what the
+  /// slide needs and still a twentieth of the pixels a library's scan holds.
+  /// </summary>
+  internal const double PAINTED_ROOM_FOR_SLIDE = 1.25;
+
+  /// <summary>
+  /// The narrowest and widest poster the row will read.  The narrowest is the width a small tile is drawn from
+  /// elsewhere in this front end, so a poster that has to be read again for the row costs nothing new; the widest
+  /// is the width a wall tile is read at, which is the largest picture this front end remembers anywhere - a
+  /// cover painted wider than that would be a cover the row was never measured for.
+  /// </summary>
+  internal const int POSTER_NARROWEST = 256;
+
+  internal const int POSTER_WIDEST = 640;
+
   static readonly SKColor FRAME_STOOD = new SKColor(245, 245, 255, 220);
   static readonly SKColor COVER_WAITING = new SKColor(65, 65, 72);
 
@@ -295,18 +313,31 @@ public sealed class CoverCarousel : Control
   {
     int middle = (int) Math.Round(_position);
 
-    for (int place = middle - PAINTED_EACH_SIDE - 1; place <= middle + PAINTED_EACH_SIDE + 1; ++place)
+    // Asked from where the eye stands and outwards, never from the left edge of the row inwards.  Only four
+    // posters are on the wire at a time and a question already on its way is not overtaken, so the order this
+    // loop walks IS the order in which the row is answered.  Walking the places from the left was measured at
+    // fourteen posters asked per step with the cover stood on asked eleventh of them - which is what a viewer
+    // sees as the middle of the row lagging behind the walk while the covers beside it fill in.
+    for (int stride = 0; stride <= PAINTED_EACH_SIDE + 1; ++stride)
     {
-      if (place < 0 || place >= _items.Count)
-        continue;
+      for (int side = 0; side <= 1; ++side)
+      {
+        // The cover stood on is asked alone; every stride further is asked behind and before it, in that order.
+        if (stride == 0 && side == 1)
+          continue;
 
-      object item = _items[place];
+        int place = side == 0 ? middle - stride : middle + stride;
+        if (place < 0 || place >= _items.Count)
+          continue;
 
-      if (_askedAbout.Add(item) && item is INotifyPropertyChanged row)
-        row.PropertyChanged += OnCoverAnswered;
+        object item = _items[place];
 
-      PictureAsked?.Invoke(item);
-      DecodeWhenBytesArrive(item);
+        if (_askedAbout.Add(item) && item is INotifyPropertyChanged row)
+          row.PropertyChanged += OnCoverAnswered;
+
+        PictureAsked?.Invoke(item);
+        DecodeWhenBytesArrive(item);
+      }
     }
   }
 
@@ -346,18 +377,13 @@ public sealed class CoverCarousel : Control
 
     byte[] toRead = bytes;
 
+    //  Asked HERE, on the thread that owns the bounds: the width a cover is painted at is a question about the
+    //  screen, and a thread that fetches has no business reading the layout.
+    int across = PaintedCoverWidth();
+
     Task.Run(delegate
     {
-      SKImage? picture;
-      try
-      {
-        using SKBitmap? bitmap = SKBitmap.Decode(toRead);
-        picture = bitmap == null ? null : SKImage.FromBitmap(bitmap);
-      }
-      catch (Exception)
-      {
-        picture = null;
-      }
+      SKImage? picture = ReadPosterForPainting(toRead, across);
 
       Dispatcher.UIThread.Post(delegate
       {
@@ -374,6 +400,78 @@ public sealed class CoverCarousel : Control
         InvalidateVisual();
       });
     });
+  }
+
+  /// <summary>
+  /// How wide a cover stands on the screen this row is painted in, with room left for a scale.
+  /// </summary>
+  /// <remarks>
+  /// The standing cover is the widest thing the row draws, and it stands at the band's height times the cover's
+  /// own ratio; nothing further along the row is wider, since the lens only ever throws a cover smaller.  Asked
+  /// of the bounds rather than of a constant because the row is measured in the window's own units and a screen
+  /// with a scaling paints those units with more pixels.
+  /// </remarks>
+  private int PaintedCoverWidth()
+  {
+    double across = Bounds.Height * ROW_SHARE * COVER_RATIO * (TopLevel.GetTopLevel(this)?.RenderScaling ?? 1.0);
+    return Math.Clamp((int) Math.Ceiling(across * PAINTED_ROOM_FOR_SLIDE), POSTER_NARROWEST, POSTER_WIDEST);
+  }
+
+  /// <summary>
+  /// The poster these bytes hold, read no wider than the row can paint it.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// A library hands out scans of a thousand and of two thousand pixels while the widest cover the row paints
+  /// stands at about three hundred.  Measured over one walk of a shelf: the sixty-two posters the row remembered
+  /// averaged two point EIGHT megapixels each and amounted to six hundred and ninety megabytes of pixels, and
+  /// every frame of the slide sampled that lot down to the covers the viewer actually sees.  Reading the whole
+  /// scan therefore paid for the read three times over - once in the decoder, once in the memory it stands in,
+  /// and once on every frame it is drawn from.
+  /// </para>
+  /// <para>
+  /// So the small picture is asked of the decoder DIRECTLY rather than read large and shrunk afterwards: for a
+  /// JPEG that is the decoder's own trick of reading every other block of the image, which costs a fraction of
+  /// the reading instead of all of it.  A poster already narrower than the painted width is taken as it came,
+  /// since scaling upwards was never what a question about width meant, and bytes no codec will open still go
+  /// through the plain door, which knows more formats than this one.
+  /// </para>
+  /// </remarks>
+  private static SKImage? ReadPosterForPainting(byte[] bytes, int across)
+  {
+    try
+    {
+      //  The same ladder the tiles and backdrops are read at (ArtworkConverter.ReadScanAtLadder): a two-thousand
+      //  wide scan costs eleven milliseconds at a quarter and forty-two whole, and the row reads dozens of them a
+      //  second while a viewer walks its shelf.
+      using SKBitmap? rung = ArtworkConverter.ReadScanAtLadder(bytes, across);
+
+      if (rung == null)
+        return ReadWholePoster(bytes);
+
+      return SKImage.FromBitmap(rung);
+
+      //  A poster the small door would not open still goes through the big one: a cover read late and large is
+      //  worth more to the screen than a cover that stays a grey placeholder.
+    }
+    catch (Exception)
+    {
+      return null;
+    }
+  }
+
+  /// <summary>
+  /// The poster at the size the file itself holds, for the pictures no small reading applies to - a poster
+  /// already narrower than the cover, a format the scaled door does not know, a decoder that refused the sheet.
+  /// </summary>
+  private static SKImage? ReadWholePoster(byte[] bytes)
+  {
+    SKBitmap? whole = SKBitmap.Decode(bytes);
+    if (whole == null)
+      return null;
+
+    using (whole)
+      return SKImage.FromBitmap(whole);
   }
 
   /// <summary>Holds one poster and drops the oldest of the ninety-six the row remembers.</summary>

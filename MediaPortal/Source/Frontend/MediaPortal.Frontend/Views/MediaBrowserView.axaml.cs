@@ -2031,8 +2031,12 @@ namespace MediaPortal.Frontend.Views
       // Ask the worn skin for the shape's own frame; when it answers none, fall back to this file's frame
       // for that shape. That fallback is the whole point: the three views used to exist only while a skin
       // that drew them was worn, which left every other screen with rows no matter what its viewer picked.
-      IDataTemplate frame = SkinEngine.TryTileTemplate(viewModel.GridTemplateKey)
-          ?? BuiltinTemplate(viewModel.Layout);
+      // The one shape this screen paints with its own hand is asked of the skin for nothing: the row the
+      // viewer sees is drawn above the list, so the list wears this file's pictureless frame and its
+      // containers stop asking for posters the viewer cannot see.
+      IDataTemplate frame = viewModel.Layout == BrowserLayout.Carousel
+          ? BuiltinTemplate(viewModel.Layout)
+          : SkinEngine.TryTileTemplate(viewModel.GridTemplateKey) ?? BuiltinTemplate(viewModel.Layout);
       bool frame_changed = !ReferenceEquals(_wornFrame, frame);
       _wornFrame = frame;
       titlesList.ItemTemplate = frame;
@@ -4611,7 +4615,8 @@ namespace MediaPortal.Frontend.Views
             "index=" + titlesList.SelectedIndex + " layout=" + viewModel.Layout
             + " realized=" + _shelf_dress_tiles + " prepared=" + _shelf_prepared
             + " dress=" + _shelf_dress_passes + "x" + _shelf_dress_ms + "ms "
-            + ArtworkConverter.TakePictureReadings());
+            + ArtworkConverter.TakePictureReadings() + " "
+            + ViewModels.Artwork.TakeFetchReadings());
         Services.HomeTrace.NextFrames("shelfstep");
 
         _shelf_prepared = 0;
@@ -4863,9 +4868,12 @@ namespace MediaPortal.Frontend.Views
       string key = layout switch
       {
         BrowserLayout.Grid => "BuiltinTilesTemplate",
-        // The two shapes besides the walked row put the same covers differently, so they wear the same frame;
-        // only the class the list below wears changes, and the class is what leans the tiles.
-        BrowserLayout.Cover or BrowserLayout.Stacked or BrowserLayout.Carousel => "BuiltinCoversTemplate",
+        // The shape drawn by our own hand wears a frame of its own under the row: the covers are painted, so
+        // the containers underneath ask for no picture (see BuiltinCoversBlindTemplate).  The two shapes
+        // besides it put the same covers differently but wear the same frame; only the class the list wears
+        // changes, and the class is what leans the tiles.
+        BrowserLayout.Carousel => "BuiltinCoversBlindTemplate",
+        BrowserLayout.Cover or BrowserLayout.Stacked => "BuiltinCoversTemplate",
         _ => "BuiltinRowsTemplate"
       };
 

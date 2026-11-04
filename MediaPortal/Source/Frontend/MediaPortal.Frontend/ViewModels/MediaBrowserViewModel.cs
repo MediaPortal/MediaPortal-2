@@ -4288,10 +4288,14 @@ namespace MediaPortal.Frontend.ViewModels
         if (picture == null)
           continue;
 
-        if (!ArtworkConverter.Instance.Remembers(picture, null))
+        if (!ArtworkConverter.Instance.Remembers(picture, ArtworkConverter.POSTER_PARAMETER))
         {
+          //  The lettering is drawn a hundred and forty points high and never wider than two hundred and forty,
+          //  so it is read at the small width: read at the wall width it stood on about five times the pixels it
+          //  can ever paint, out of the one budget the shelf's covers are short of.
           byte[] toRead = picture;
-          await Task.Run(() => ArtworkConverter.Instance.Warm(toRead, null));
+          await Task.Run(() =>
+              ArtworkConverter.Instance.Warm(toRead, ArtworkConverter.POSTER_PARAMETER));
         }
 
         // The last question asked is the one that may write, exactly as with the poster: a viewer walking two
@@ -4722,10 +4726,12 @@ namespace MediaPortal.Frontend.ViewModels
             continue;
 
           // Decoded away from the thread that draws, the way every other picture of this panel is: a name the
-          // binding has to decode first is a card the viewer sees arrive.
+          // binding has to decode first is a card the viewer sees arrive.  At the SMALL width, which is what the
+          // card paints: eleven faces at the tile width filled more of the shared picture budget than all the
+          // covers of the shelf standing next to them, and the covers pushed out are the covers that arrive late.
           byte[] toRead = picture;
-          if (!ArtworkConverter.Instance.Remembers(toRead, ArtworkConverter.TILE_PARAMETER))
-            await Task.Run(() => ArtworkConverter.Instance.Warm(toRead, ArtworkConverter.TILE_PARAMETER));
+          if (!ArtworkConverter.Instance.Remembers(toRead, ArtworkConverter.POSTER_PARAMETER))
+            await Task.Run(() => ArtworkConverter.Instance.Warm(toRead, ArtworkConverter.POSTER_PARAMETER));
 
           if (_detailsFor == askedFor)
             card.Portrait = picture;
@@ -4882,9 +4888,11 @@ namespace MediaPortal.Frontend.ViewModels
           if (picture == null || _collectionFilmsFor != askedFor)
             continue;
 
+          //  The card is a hundred and three points across, so its poster is asked for at the small width too -
+          //  see the person cards above for the arithmetic this saves the covers of the shelf.
           byte[] toRead = picture;
-          if (!ArtworkConverter.Instance.Remembers(toRead, ArtworkConverter.TILE_PARAMETER))
-            await Task.Run(() => ArtworkConverter.Instance.Warm(toRead, ArtworkConverter.TILE_PARAMETER));
+          if (!ArtworkConverter.Instance.Remembers(toRead, ArtworkConverter.POSTER_PARAMETER))
+            await Task.Run(() => ArtworkConverter.Instance.Warm(toRead, ArtworkConverter.POSTER_PARAMETER));
 
           if (_collectionFilmsFor == askedFor)
             card.Poster = picture;
@@ -5039,7 +5047,12 @@ namespace MediaPortal.Frontend.ViewModels
         // that is the size the picture is readied at, and the binding afterwards costs a lookup.
         if (generation == Volatile.Read(ref _paintGeneration))
         {
-          if (picture != null && picture.Length > 0)
+          // The picture is readied at the size the tiles will paint it - except in the shape whose row is painted
+          // by our own hand.  That row takes the bytes and decodes them to the cover it is about to draw, so a
+          // tile picture readied for it is a JPEG decoded for a tile that does not exist: measured at fourteen
+          // decodes a step of the caret, none of them on the screen, on the same threads the row's own covers
+          // were waiting for.
+          if (picture != null && picture.Length > 0 && Layout != BrowserLayout.Carousel)
             await Task.Run(delegate { ArtworkConverter.Instance.Warm(picture, ArtworkConverter.TILE_PARAMETER); });
 
           row.ShowArtwork(picture);

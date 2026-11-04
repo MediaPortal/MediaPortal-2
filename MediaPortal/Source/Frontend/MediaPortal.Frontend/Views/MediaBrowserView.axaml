@@ -165,6 +165,41 @@
     </DataTemplate>
 
     <!--
+      The same cover with its picture taken out, for the one shape whose covers are PAINTED (BrowserLayout.
+      Carousel).  Under the drawn row the list keeps nothing but the caret, and yet its containers wore the frame
+      above: every container the panel stood up asked the artwork converter for its poster and had it decoded -
+      measured at fourteen decodes a step of the caret, one of which was on the screen at all, while the covers
+      the viewer does see were still waiting for the same thread.  The plate stays, the name stays, and every
+      number stays where the cover frame has it, because the caret still stands in a container of this size and
+      the scroller still measures its extent by it; only the picture is gone, which nothing under the row can
+      show.
+    -->
+    <DataTemplate x:Key="BuiltinCoversBlindTemplate" x:DataType="vm:TitleViewModel">
+      <Border Width="300"
+              Background="{DynamicResource PanelBrush}"
+              BorderBrush="{DynamicResource OutlineBrush}"
+              BorderThickness="1"
+              Padding="12"
+              Margin="10">
+        <StackPanel Spacing="9">
+          <Panel Width="272" Height="392">
+            <Border Background="{DynamicResource ScreenBackgroundBrush}" />
+          </Panel>
+          <TextBlock Text="{Binding SeenMark}"
+                     IsVisible="{Binding WatchFlagsShown}"
+                     HorizontalAlignment="Center"
+                     Opacity="0.8" />
+          <TextBlock Text="{Binding Line}"
+                     FontSize="22"
+                     TextAlignment="Center"
+                     TextTrimming="CharacterEllipsis"
+                     TextWrapping="Wrap"
+                     MaxHeight="60" />
+        </StackPanel>
+      </Border>
+    </DataTemplate>
+
+    <!--
       A row of the screen's own menu. It wears the shortcut tile's GLASS: the same liquid surface the home
       shortcuts lens the wall through, the same veil over it, the same ring over the seam, and the name on the
       glass with a shadow instead of a plate - because the rail's rows and the shortcut's squares answer the
@@ -313,10 +348,15 @@
         <Panel>
           <Border Classes="person-face" ClipToBounds="True">
             <Panel>
+              <!--  The face is asked for at the SMALL size, not the tile size: the card is a hundred and fifty
+                    points across, so a tile decode hands it eight times the pixels it can ever paint, and every
+                    one of those pixels stands in the one budget the covers of the shelf share.  Measured on a
+                    films shelf: eleven faces a step of the caret at the tile width filled nine of the sixteen
+                    megapixels, and the covers that were pushed out of it are the covers that arrive late. -->
               <Image Classes="home-tile-art"
                      Source="{Binding Portrait,
                                       Converter={x:Static views:ArtworkConverter.Instance},
-                                      ConverterParameter=tile}"
+                                      ConverterParameter=small}"
                      Stretch="UniformToFill"
                      IsVisible="{Binding ShowsPortrait}"
                      IsHitTestVisible="False"/>
@@ -371,7 +411,7 @@
             <Image Classes="home-tile-art"
                    Source="{Binding Poster,
                                     Converter={x:Static views:ArtworkConverter.Instance},
-                                    ConverterParameter=tile}"
+                                    ConverterParameter=small}"
                    Stretch="UniformToFill"
                    IsVisible="{Binding ShowsPoster}"
                    IsHitTestVisible="False"/>
@@ -2697,7 +2737,9 @@
                 -->
                 <Image Grid.Row="3"
                        Grid.Column="0"
-                       Source="{Binding DetailsAlbumLettering, Converter={x:Static views:ArtworkConverter.Instance}}"
+                       Source="{Binding DetailsAlbumLettering,
+                                        Converter={x:Static views:ArtworkConverter.Instance},
+                                        ConverterParameter=small}"
                        Height="120"
                        MaxWidth="250"
                        Margin="0,40,150,0"
@@ -2740,7 +2782,9 @@
                     same name twice on one screen is not showing it better.  An album that has neither kind says
                     nothing, which the frame below already promises by disappearing with the bytes.
                   -->
-                  <Image Source="{Binding DetailsAlbumLettering, Converter={x:Static views:ArtworkConverter.Instance}}"
+                  <Image Source="{Binding DetailsAlbumLettering,
+                                          Converter={x:Static views:ArtworkConverter.Instance},
+                                          ConverterParameter=small}"
                          Height="120"
                          MaxWidth="250"
                          Margin="0,0,0,7"
@@ -2816,7 +2860,9 @@
                       (MediaInfoMovieDetails.inc:355-362). Most libraries hold none, and the frame then costs
                       nothing - the ring keeps its place at the column's left edge either way.
                     -->
-                    <Image Source="{Binding DetailsClearArt, Converter={x:Static views:ArtworkConverter.Instance}}"
+                    <Image Source="{Binding DetailsClearArt,
+                                            Converter={x:Static views:ArtworkConverter.Instance},
+                                            ConverterParameter=small}"
                            DockPanel.Dock="Right"
                            Height="140"
                            MaxWidth="240"
