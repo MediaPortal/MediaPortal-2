@@ -1256,11 +1256,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         " FROM " + mediaTable + " M" +
         " INNER JOIN " + relationshipTable + " R ON R." + mediaItemIdAttribute + " = M." + mediaItemIdAttribute +
         additionalAttributeJoin +
+        //The play count key has to be filtered in the join condition, not in the WHERE clause: a child without user
+        //data of that key only appears through the left join's NULL row, and the WHERE clause would throw that row
+        //away as soon as the child has user data of another key - a watched episode carries PlayDate and
+        //PlayPercentage but no PlayCount. Such a child would be missing from the count, which makes the parent look
+        //childless; the parent is then marked virtual and never gets a play percentage of its own.
         " LEFT JOIN " + userProfileTable + " U ON M." + mediaItemIdAttribute + " = U." + mediaItemIdAttribute +
+        " AND U." + userDataKeyAttribute + " = @" + userPlayCountVar.Name +
         " WHERE M." + isVirtualAttribute + " = 0" +
         " AND R." + linkedIdAttribute + " = @" + parentIdVar.Name +
-        " AND (" + hierarchyCondition + ")" +
-        " AND (U." + userProfileIdAttribute + " IS NULL OR U." + userDataKeyAttribute + " = @" + userPlayCountVar.Name + ")";
+        " AND (" + hierarchyCondition + ")";
 
       //Add the bind vars to the command
       AddCommandParameters(transaction.Database, result, bindVars);
