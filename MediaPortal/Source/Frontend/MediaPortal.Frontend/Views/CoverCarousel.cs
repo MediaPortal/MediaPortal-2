@@ -64,8 +64,11 @@ public sealed class CoverCarousel : Control
   /// <summary>
   /// The band the row stands in.  The covers themselves are smaller than the band, as they are in the picture the
   /// viewer pointed at: a cover that fills its band edge to edge has no room left for the shadow it stands on.
+  /// The band is what a cover is measured against, so growing it is the one honest way of asking for bigger
+  /// covers: step and lens hang off the cover's own height and grow with it, which leaves the row's proportions
+  /// alone and only moves it further into the viewer's face - a quarter nearer, as the viewer counted.
   /// </summary>
-  internal const double ROW_HEIGHT = 344.0;
+  internal const double ROW_HEIGHT = 495.0;
 
   /// <summary>
   /// How tall a cover stands, as a share of the band the row is measured into, and the proportions belonging to it
