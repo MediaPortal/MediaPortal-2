@@ -59,7 +59,12 @@ public sealed class CoverCarousel : Control
   public static readonly StyledProperty<int> SelectedIndexProperty =
       AvaloniaProperty.Register<CoverCarousel, int>(nameof(SelectedIndex), 0);
 
-  internal const int PAINTED_EACH_SIDE = 7;
+  /// <summary>
+  /// How many covers are painted on each hand of the stood one.  The row is tighter than the room is wide, so this
+  /// has to reach past both edges of the screen: seven at the tighter step left the last cover of each hand
+  /// standing inside the edge with a gap of empty ground beside it.
+  /// </summary>
+  internal const int PAINTED_EACH_SIDE = 9;
 
   /// <summary>
   /// The band the row stands in.  The covers themselves are smaller than the band, as they are in the picture the
@@ -78,7 +83,15 @@ public sealed class CoverCarousel : Control
   /// </summary>
   internal const double ROW_SHARE = 0.85;
   internal const double COVER_RATIO = 230.0 / 344.0;
-  internal const double PITCH_RATIO = 160.0 / 344.0;
+
+  /// <summary>
+  /// How far the neighbours stand apart, as a share of a cover's own height - a little under a third, which is
+  /// half the width of a cover: the covers of the row lie one behind the other rather than standing side by side,
+  /// and the row of the picture the viewer pointed at runs to about fourteen of them across the screen.  Step and
+  /// height were tied together for a while, which made the step grow with every request for a bigger cover and
+  /// left eight covers in a room built for fourteen.
+  /// </summary>
+  internal const double PITCH_RATIO = 0.30;
 
   /// <summary>
   /// How far in front of the row the lens stands, relative to a cover's height, as the reference camera does.
@@ -87,13 +100,13 @@ public sealed class CoverCarousel : Control
   /// </summary>
   internal const double FOCAL_RATIO = 900.0 / 344.0;
 
-  internal const double LEAN_PER_PLACE = 19.0;
-  internal const double LEAN_CEILING = 68.0;
-  internal const double SHRINK_PER_PLACE = 0.085;
-  internal const double SHRINK_CEILING = 0.48;
-  internal const double DARKEN_PER_PLACE = 0.12;
+  internal const double LEAN_PER_PLACE = 14.0;
+  internal const double LEAN_CEILING = 55.0;
+  internal const double SHRINK_PER_PLACE = 0.06;
+  internal const double SHRINK_CEILING = 0.40;
+  internal const double DARKEN_PER_PLACE = 0.1;
 
-  internal const double LIGHT_FLOOR = 0.38;
+  internal const double LIGHT_FLOOR = 0.35;
 
   /// <summary>How round a cover's corners are, as a part of its own width; the turn takes the round with it.</summary>
   internal const double CORNER_RATIO = 0.045;
