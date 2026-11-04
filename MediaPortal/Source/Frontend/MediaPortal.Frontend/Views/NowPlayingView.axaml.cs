@@ -125,20 +125,9 @@ namespace MediaPortal.Frontend.Views
               ToggleOsd();
               args.Handled = true;
             }
-            else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Back, args.Key) && _tracksOpen)
+            else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Back, args.Key) && StepBackOneLayer())
             {
               // Back goes back before it leaves: the list of subtitles first, then the display, then the screen.
-              CloseTrackDialog();
-              args.Handled = true;
-            }
-            else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Back, args.Key) && _volumeOpen)
-            {
-              CloseVolumeDialog();
-              args.Handled = true;
-            }
-            else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Back, args.Key) && _osdVisible)
-            {
-              CloseOsd();
               args.Handled = true;
             }
             else if (args.Key == Key.MediaStop)
@@ -166,6 +155,21 @@ namespace MediaPortal.Frontend.Views
               Say("Superlayer_SkipStep", SkipWords(jump), 1200);
               args.Handled = true;
             }
+          },
+          RoutingStrategies.Tunnel);
+
+      // The right hand's button takes the back key's first step, because a mouse on a desk has no other way of
+      // sending something away: the reference routed an unmapped right click to its context menu key
+      // (Screen.cs:731-748) and its film screen answers no context menu at all, so what the reference left open is
+      // settled here in the one direction a viewer expects - the thing standing over the film goes, the film
+      // stays. Asked from the tunnel, before the line of the sound ever hears the press, so dismissing the dialog
+      // never also moves the level to wherever the pointer happened to be. With nothing over the film the click
+      // is left alone, exactly as the back key leaves the screen to the shell.
+      AddHandler(PointerPressedEvent,
+          delegate (object? sender, PointerPressedEventArgs args)
+          {
+            if (args.Properties.IsRightButtonPressed && StepBackOneLayer())
+              args.Handled = true;
           },
           RoutingStrategies.Tunnel);
 
@@ -751,6 +755,34 @@ namespace MediaPortal.Frontend.Views
     public bool VolumeDialogOpen
     {
       get { return _volumeOpen; }
+    }
+
+    /// <summary>
+    /// Take one step back over the film: the list of tracks first, then the line of the sound, then the row of
+    /// buttons. Answers whether it put anything away, which is how the back key knows not to leave the screen at
+    /// the same time and how a right click knows there was nothing to dismiss.
+    /// </summary>
+    private bool StepBackOneLayer()
+    {
+      if (_tracksOpen)
+      {
+        CloseTrackDialog();
+        return true;
+      }
+
+      if (_volumeOpen)
+      {
+        CloseVolumeDialog();
+        return true;
+      }
+
+      if (_osdVisible)
+      {
+        CloseOsd();
+        return true;
+      }
+
+      return false;
     }
 
     /// <summary>One step quieter, the step the viewer set in the playback answers.</summary>
