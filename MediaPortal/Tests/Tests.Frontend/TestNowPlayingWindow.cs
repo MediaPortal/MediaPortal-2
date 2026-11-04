@@ -275,8 +275,15 @@ namespace Tests.Frontend
 
       IEnumerable<string> texts = VisibleTexts(window);
       Assert.That(texts, Does.Contain("the-big-film.mkv"), "the name of the media is on screen");
-      Assert.That(texts.Any(text => text.Contains("Playing")), Is.True,
-          "what the player is doing is on screen too");
+
+      // What the player is doing was spelled out as a word ("Playing") in the chrome's footer, and that footer
+      // is empty now - the wide strip which painted the running title over every screen was taken down, and the
+      // reference's stub at the foot of a navigation screen carries no letters either, only plates
+      // (OtherControlsOverrides.xaml:1267-1323). The plate answers instead: a running film offers "Pause" on
+      // it, a paused one offers "Resume", so the state is still readable from the screen.
+      Assert.That(ButtonNamed(window, "pauseButton").GetValue(AutomationProperties.NameProperty),
+          Is.EqualTo("Pause"),
+          "what the player is doing is on screen too - the plate asking for the pause means the film is running");
     }
 
     [AvaloniaTest]
