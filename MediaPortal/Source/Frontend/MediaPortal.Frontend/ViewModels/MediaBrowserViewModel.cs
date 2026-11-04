@@ -1447,9 +1447,15 @@ namespace MediaPortal.Frontend.ViewModels
       Heading = parent == null ? section?.Label ?? "Titles" : parent.Name;
       // The two numbers at the shelf's foot speak whenever the shelf itself changes shape beneath them.
       Titles.CollectionChanged += (_, _) => RaiseShelfCounters();
+      //  A shelf that is filling says nothing.  The reference's shelf head carries its heading and no other
+      //  word, and while it reads it spins the BusyCursor superlayer (Skin/Nereus/superlayers/BusyCursor.xaml)
+      //  instead of writing a sentence over the empty wall - "Reading Movies" standing above a shelf that has
+      //  not arrived yet is this front end's own invention.  What the line has to say are the screen's problems,
+      //  and every one of them is said by the read itself: nothing found, a server that will not answer, a
+      //  search that found too little.
       _status = client == null ? "No server configured"
           : section == null ? "No section chosen"
-          : "Reading " + Heading;
+          : "";
 
       // A shelf opens in the shape the worn skin draws it, the way the reference screens opened in the layout
       // their view-mode carried: a skin is worn, it answers the tile keys, and the skin's own settings say what
