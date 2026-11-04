@@ -181,6 +181,24 @@ namespace MediaPortal.Frontend.Views
           },
           handledEventsToo: true);
 
+      // ... and a click anywhere on the film calls the display too: the pointer's way of asking what the Info
+      // key asks, and what a viewer does with a screen that shows no sign of itself - they touch it. Asked in
+      // the tunnel with the handled flag honoured, because the transport buttons, the position line and the
+      // line of the sound all take the press for themselves first, and the hand that pressed one of them
+      // plainly wanted the display anyway. Left button alone: the right button is the back step (see above)
+      // and must not call what it is about to send away.
+      AddHandler(PointerPressedEvent,
+          delegate (object? sender, PointerPressedEventArgs args)
+          {
+            if (!args.Properties.IsLeftButtonPressed)
+              return;
+
+            if (!_osdVisible && !_osdOpenOnDemand && DateTime.UtcNow > _osdMouseSuppressedUntil)
+              SetOsdVisible(true);
+          },
+          RoutingStrategies.Tunnel,
+          handledEventsToo: true);
+
       // The ring a remote walks, in the order the controls stand: the name of the film at the left of the top
       // row, the transport across the middle of it, the position line under it, and the choices along the
       // bottom. A control that is not drawn is not an area, so a film without a second sound walks straight from
