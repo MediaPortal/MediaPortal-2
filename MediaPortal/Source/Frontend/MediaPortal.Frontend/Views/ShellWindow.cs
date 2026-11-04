@@ -72,6 +72,15 @@ namespace MediaPortal.Frontend.Views
     private readonly PlaybackBar _playbackBar = new PlaybackBar();
 
     /// <summary>
+    /// The dialog of the sound that the transport row's loudspeaker plate raises over whatever screen the viewer
+    /// is standing on. The very same dialog the player's own loudspeaker mark raises - it is one control
+    /// (Views/VolumePicker.axaml) worn twice, because two copies would be two answers about one volume that
+    /// could disagree. It stands over the screens and under the keyboard's layer: a question about the film is
+    /// asked over the film, and the keys a field asks for still outrank it.
+    /// </summary>
+    private readonly VolumePicker _volumePicker = new VolumePicker();
+
+    /// <summary>
     /// The layer a question is raised on: a frame whose view is an <see cref="Workflow.IDialogScreen"/> stands
     /// here, over the screen it was asked from, which stays exactly where it was - lit, scrolled, selected. The
     /// reference's dialogs were never masters of their own, and a dialog that replaced the screen behind it would
@@ -324,6 +333,22 @@ namespace MediaPortal.Frontend.Views
       // window rather than on a screen, which is exactly why it survives walking from the shelves to the guide.
       shell.Children.Add(_playbackBar);
 
+      // The dialog of the sound, over the row that calls it: the reference's footer answered its own sound
+      // button by showing the level (OtherControlsOverrides.xaml:1267-1323), and a viewer standing in the shelves
+      // who reaches for the loudspeaker should not have to walk into the player first. It goes under the
+      // superlayer and the keyboard, which are a reading and a question of their own.
+      _volumePicker.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right;
+      _volumePicker.VerticalAlignment = Avalonia.Layout.VerticalAlignment.Bottom;
+      _volumePicker.Closed += delegate
+      {
+        // The dialog took the keyboard when it stood up; the screen underneath has to be asked for it again, or
+        // the viewer stands on nothing (see HoldTheKeyboardForTheScreen).
+        Control? screen = _screenArea.Content as Control;
+        if (screen != null)
+          HoldTheKeyboardForTheScreen(screen);
+      };
+      shell.Children.Add(_volumePicker);
+
       shell.Children.Add(_superlayer);
 
       // The keyboard dialog over the screens - above the superlayer, under the screensaver's black: a field
@@ -352,7 +377,8 @@ namespace MediaPortal.Frontend.Views
       SizeChanged += delegate
       {
         WearSkinScale();
-        SizePlaybackBarToScreen(); // the film's line is measured against the screen, which only the window knows
+        // The transport row's line is measured off the screen, so a screen that changed size has to tell it.
+        SizePlaybackBarToScreen();
       };
       Theming.SkinEngine.Changed += delegate { WearSkinScale(); };
       Theming.FrontendTheme.Changed += delegate { WearSkinScale(); };
@@ -406,12 +432,34 @@ namespace MediaPortal.Frontend.Views
 
             if (!Settings.KeyBindings.Current.Is(Settings.KeyAction.Back, args.Key))
               return;
+            if (StepBackOneLayer())
+            {
+              // A list this window raised over the screen goes back first; the screen behind it never heard the
+              // key, which is what the reference's "Back closes this list" promise under the list means.
+              args.Handled = true;
+              return;
+            }
             if (!_workflow.Pop())
               // At the root back means "leave the application", the same answer the home screen gave alone.
               Close();
             args.Handled = true;
           },
           RoutingStrategies.Bubble);
+
+      // The right hand's button takes the same first step over the layers this window raises, which is what the
+      // player panel already does for the things standing over its film (NowPlayingView). Without it a viewer
+      // who called the sound's dialog from the transport row can only send it away with a key - a mouse on a
+      // desk has no other way of dismissing anything, and the dialog stands over the screen they were reading.
+      // From the tunnel, so that a right click landing on the line of the sound dismisses the dialog instead of
+      // moving the level to wherever the pointer happened to be. With nothing standing up the click is left
+      // alone, exactly as the back key leaves the screen to the shells underneath.
+      AddHandler(PointerPressedEvent,
+          delegate (object? sender, PointerPressedEventArgs args)
+          {
+            if (args.Properties.IsRightButtonPressed && StepBackOneLayer())
+              args.Handled = true;
+          },
+          RoutingStrategies.Tunnel);
     }
 
     /// <summary>The television's volume keys, and the keyboard's stand-ins for a keyboard without them.</summary>
@@ -1175,6 +1223,41 @@ namespace MediaPortal.Frontend.Views
       _playbackBar.HoldLineToScreen(dots / _skinScaleFactor);
     }
 
+    /// <summary>
+    /// Raise the dialog of the sound over the screen the viewer is standing on, which is what the transport row's
+    /// loudspeaker plate asks for. The player's own loudspeaker mark opens the very same control over the film;
+    /// this is the reference's answer for the footer, whose sound button stood beside the transport and asked for
+    /// the level without moving the viewer anywhere (OtherControlsOverrides.xaml:1267-1323).
+    /// </summary>
+    public void OpenSoundDialog()
+    {
+      ViewModels.NowPlayingViewModel? playback = (Application.Current as App)?.Playback;
+      if (playback == null)
+        return; // no playback model means no sound to set
+
+      if (_keyboardLayer.IsVisible)
+        CloseVirtualKeyboard(); // two questions at once would be one of them unanswered
+
+      // Stood over the row that called it, the way the player stands its dialog over its own row of buttons: the
+      // height the row takes is a measure only the layout has, and the row is what the dialog must not cover.
+      _volumePicker.HoldAbove(_playbackBar.Bounds.Height);
+      _volumePicker.Open(playback);
+    }
+
+    /// <summary>
+    /// Take one step back over the layers this window raises itself: the dialog of the sound first. Answers
+    /// whether it put anything away, which is how the back key knows not to leave the screen at the same time -
+    /// the same answer the player panel gives for its own dialog (NowPlayingView.StepBackOneLayer).
+    /// </summary>
+    private bool StepBackOneLayer()
+    {
+      if (!_volumePicker.IsOpen)
+        return false;
+
+      _volumePicker.Close();
+      return true;
+    }
+
     public bool KeyboardOpen => _keyboardLayer.IsVisible;
 
     /// <summary>
@@ -1220,6 +1303,11 @@ namespace MediaPortal.Frontend.Views
       // that is no longer there.
       if (_keyboardLayer.IsVisible)
         CloseVirtualKeyboard();
+
+      // And it closes the dialog of the sound for the same reason: the dialog is a word about the film asked of
+      // the screen that asked it, not a piece of furniture to be carried from screen to screen.
+      if (_volumePicker.IsOpen)
+        _volumePicker.Close();
 
       if (frame.View == null && _viewFactory != null)
         frame.View = _viewFactory(frame);
@@ -1377,7 +1465,7 @@ namespace MediaPortal.Frontend.Views
       {
         if (!ReferenceEquals(_workflow.Current?.View, screenView))
           return; // The viewer walked on while the layout was settling; the newest stop decides from here.
-        if (_dialogLayer.IsVisible || _keyboardLayer.IsVisible)
+        if (_dialogLayer.IsVisible || _keyboardLayer.IsVisible || _volumePicker.IsOpen)
           return; // A question over the screen owns the keys, and answered itself above.
         if (this.FocusManager.GetFocusedElement() is Visual held)
         {

@@ -157,7 +157,20 @@
 
       <Rectangle Classes="divider"/>
 
-      <!-- What did NOT come back is the reference's pair of volume keys under that loudspeaker (the same lines           1310-1316 of the footer's style). The room's own volume keys already answer on every screen of this
+      <!-- The sound, last of the row, which is where the reference's footer wore it (OtherControlsOverrides.xaml:1267-1323,
+           after the second divider). A plate, not a pair of keys: the loudspeaker mark is the same one the player's
+           own volume button carries, read off the same answer of the model so that it says "Muted" when the film is
+           muted, and what it opens is the very dialog the player opens (Views/VolumePicker.axaml, asked of the
+           window through ShellWindow.OpenSoundDialog). A viewer standing in the shelves who reaches for the
+           loudspeaker gets the level without walking into the player first. -->
+      <Button Classes="glass bar" Name="volumeButton" Click="OnSound"
+              IsVisible="{Binding HasMedia}" AutomationProperties.Name="{Binding VolumeCaption}">
+        <Path Data="{Binding VolumeGlyph,
+                    Converter={x:Static views:SkinIconGeometryConverter.Instance}}"/>
+      </Button>
+
+      <!-- What did NOT come back is the reference's pair of volume keys under that loudspeaker (the same lines
+           1310-1316 of the footer's style). The room's own volume keys already answer on every screen of this
            front end and answer with the window's own bubble (ShellWindow), and a pair here would be a second door
            to the same room - one that also makes the row twice as tall as the buttons it stands on. The seam
            before the loudspeaker came back with the plate, because it divides the transport from the sound the way

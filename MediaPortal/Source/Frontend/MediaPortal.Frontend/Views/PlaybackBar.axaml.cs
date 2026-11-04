@@ -108,4 +108,14 @@ public partial class PlaybackBar : UserControl
   {
     _model?.NextChapter();
   }
+
+  /// <summary>
+  /// Ask for the level of the sound. The dialog is not this row's own: the window raises the very dialog the
+  /// player's loudspeaker mark raises (Views/VolumePicker.axaml) over the screen the viewer is standing on, so
+  /// the number a viewer reads is the number the film plays at, wherever they were standing when they changed it.
+  /// </summary>
+  private void OnSound(object? sender, RoutedEventArgs e)
+  {
+    (TopLevel.GetTopLevel(this) as ShellWindow)?.OpenSoundDialog();
+  }
 }

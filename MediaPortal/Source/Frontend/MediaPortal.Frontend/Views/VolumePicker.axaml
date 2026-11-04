@@ -1,0 +1,70 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        xmlns:views="using:MediaPortal.Frontend.Views"
+        x:Class="MediaPortal.Frontend.Views.VolumePicker"
+        x:DataType="vm:NowPlayingViewModel"
+        Name="volumePicker">
+
+  <UserControl.Styles>
+    <StyleInclude Source="avares://MediaPortal.Frontend/Views/PlayerGlassStyles.axaml"/>
+  </UserControl.Styles>
+
+  <!--
+    The sound, in a dialog of its own rather than as a line along the foot of the film. A line of sound laid
+    among the buttons steals the keys a viewer needs to walk to and from those buttons: standing on the line,
+    left and right mean the volume, and standing beside it they mean the next button, which is one key saying
+    two things depending on where nobody is looking. Asked for by the loudspeaker mark and shut by the back key
+    like the lists beside it, the level has room for its own line here - pressed, dragged, or stepped with
+    the keys.
+    Upright, and read from the top down: the number of it, the mark that lifts the sound, the line a hand
+    slides along, the mark that lowers it, and the mark that silences the film last of all. The sound grows
+    upward, which is how a viewer thinks of it, and the line is turned the same way rather than being a
+    horizontal line stood on its end.
+    It stands here rather than inside the player's own panel because two places call it: the player's
+    loudspeaker mark in its row of controls, and the compact transport row at the foot of every other screen,
+    whose own loudspeaker plate (the reference's <Button x:Name="Sound"> in the navigation screen's footer,
+    OtherControlsOverrides.xaml:1267-1323) asks for the same level without walking anybody into the player. Two
+    copies would be two answers about one volume that could disagree, so the player wears this control the same
+    way it wears the glass button family.
+    How far above the row of buttons or plates it has to stand is the height the row beneath it takes, which
+    only the layout knows - the host hands that over through HoldAbove.
+  -->
+  <Border Name="volumeDialog" IsVisible="False" Padding="20,18" CornerRadius="24"
+          Background="#F2101A24" BorderBrush="#80FFFFFF" BorderThickness="1">
+    <StackPanel Spacing="12">
+      <TextBlock Name="volumePercent" Classes="time" Text="{Binding VolumeLabel}" TextAlignment="Center"
+                 HorizontalAlignment="Center" AutomationProperties.Name="How loud the film is"/>
+      <Button Name="volumeUpButton" Classes="glass icon" Click="OnVolumeUp" HorizontalAlignment="Center"
+              AutomationProperties.Name="Louder">
+        <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                ConverterParameter='PlayerControl/volume_up'}"/>
+      </Button>
+      <!-- The line of the sound, and the control it is pressed on, are again the same rectangle: the painted
+           parts are the button's content, so a pointer and a reader find the area rather than nothing. Ten
+           pixels of room at its head and foot, because the control is cut at its own bounds and the knob
+           grows six pixels past its rest at either end. -->
+      <Button Name="volumeControl" Classes="hit" Width="56" Height="220" Padding="0,10"
+              HorizontalAlignment="Center" AutomationProperties.Name="Volume"
+              KeyDown="OnVolumeKey">
+        <Panel Name="volumeRow" Width="56">
+          <Border Width="12" CornerRadius="6" HorizontalAlignment="Center" Opacity="0.6"
+                  Background="{DynamicResource VideoOutlineBrush}" IsHitTestVisible="False"/>
+          <Border Name="volumePlayed" Width="12" CornerRadius="6" HorizontalAlignment="Center"
+                  VerticalAlignment="Bottom" Background="{DynamicResource AccentBrush}" IsHitTestVisible="False"/>
+          <Border Name="volumeKnob" Classes="knob upright" IsHitTestVisible="False"/>
+        </Panel>
+      </Button>
+      <Button Name="volumeDownButton" Classes="glass icon" Click="OnVolumeDown" HorizontalAlignment="Center"
+              AutomationProperties.Name="Quieter">
+        <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                ConverterParameter='PlayerControl/volume_down'}"/>
+      </Button>
+      <Button Name="muteButton" Classes="glass icon" Click="OnMute" HorizontalAlignment="Center"
+              AutomationProperties.Name="{Binding MuteCaption}">
+        <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                ConverterParameter='PlayerControl/volume_off'}"/>
+      </Button>
+    </StackPanel>
+  </Border>
+</UserControl>

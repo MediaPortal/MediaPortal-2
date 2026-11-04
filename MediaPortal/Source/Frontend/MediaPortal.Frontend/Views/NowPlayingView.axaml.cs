@@ -45,24 +45,10 @@ namespace MediaPortal.Frontend.Views
     private readonly NowPlayingViewModel _viewModel;
     private readonly WorkflowManager? _workflow;
 
-    // What the panel's own dialog and slider need to know about themselves: whether the list of tracks is up,
-    // whether the slider is being set by the model rather than by a hand, and how many chapter marks stood on
-    // the line last time it was painted.
+    // What the panel's own list of tracks needs to know about itself: whether it is up, and how many chapter
+    // marks stood on the position line last time it was painted. The sound has its own control now.
     private bool _tracksOpen;
 
-    /// <summary> How far one key on the line of the sound moves it - the same five percent the room's own
-    /// volume keys move it by, so that the two answers agree. </summary>
-    private const int VOLUME_STEP = 5;
-
-    /// <summary> How far the sound's dialog stands from the right edge of the screen, and how far above the row
-    /// of buttons it is lifted on top of the height that row takes. </summary>
-    private const double VOLUME_DIALOG_SIDE_MARGIN = 48;
-
-    private const double VOLUME_DIALOG_ABOVE_OSD = 24;
-
-    private double _osdKeptHeight;
-
-    private bool _volumeDragging;
     private int _marksPainted = -1;
 
     /// <summary>
@@ -222,20 +208,9 @@ namespace MediaPortal.Frontend.Views
       // point is.
       progressRow.SizeChanged += delegate { PaintMeasurements(); };
 
-      // The same for the line of the sound, which is a second line with a knob of its own.
-      volumeRow.SizeChanged += delegate { PaintVolume(); };
-
       // The sound's dialog is lifted above the row of buttons rather than left standing over them, and the height
       // that row takes is what decides how far - so a window that changes its size moves the dialog with it.
-      osdArea.SizeChanged += delegate { PlaceVolumeDialog(); };
-
-      // The line of the sound answers the hand as well as the key, and it asks for the press with the handled
-      // flag honoured: the control it lives in is a button, and a button takes the press for its own click first
-      // and marks it done with. Asked the ordinary way, the line would sit there stone deaf to a pointer and
-      // only a remote could move the volume.
-      volumeControl.AddHandler(PointerPressedEvent, OnVolumePointer, RoutingStrategies.Bubble, true);
-      volumeControl.AddHandler(PointerMovedEvent, OnVolumeMoved, RoutingStrategies.Bubble, true);
-      volumeControl.AddHandler(PointerCaptureLostEvent, OnVolumeReleased, RoutingStrategies.Bubble, true);
+      osdArea.SizeChanged += delegate { volumePicker.HoldAbove(osdArea.Bounds.Height); };
 
       // The line of the film answers the hand the same way, and it drags as well: a press puts the film where it
       // was pressed and holding the button down walks the film along with the hand, which is what every position
@@ -245,13 +220,9 @@ namespace MediaPortal.Frontend.Views
       seekBar.AddHandler(PointerMovedEvent, OnSeekMoved, RoutingStrategies.Bubble, true);
       seekBar.AddHandler(PointerCaptureLostEvent, OnSeekReleased, RoutingStrategies.Bubble, true);
 
-      // The room's own volume keys - the ones on the remote the television answers - move the sound without ever
-      // asking this panel, and the mute mark moves it too. The line follows whatever the number has become.
-      _viewModel.PropertyChanged += delegate
-      {
-        if (_osdVisible)
-          PaintVolume();
-      };
+      // The line of the sound, its knob, its drag and its reading of the room's volume keys all belong to the
+      // sound's own control (Views/VolumePicker.axaml) now, which the compact row at the foot of every other
+      // screen wears as well.
 
       // The cover question goes out while the screen can see its answer: opened, it asks once, and while it is
       // open every change of the player gets the same guarded question - a no-op until the id says otherwise.
@@ -552,7 +523,7 @@ namespace MediaPortal.Frontend.Views
       // controls have just been hidden would be a dialog nobody called.
       if (!visible && _tracksOpen)
         CloseTrackDialog();
-      if (!visible && _volumeOpen)
+      if (!visible && volumePicker.IsOpen)
         CloseVolumeDialog();
 
       osdArea.IsVisible = visible;
@@ -588,10 +559,9 @@ namespace MediaPortal.Frontend.Views
         PaintChapterMarks(width);
       }
 
-      // The line of the sound, painted the same way as the line of the film: its filled part as wide as the
-      // volume is high, and its knob at the end of that. Both are widths the layout has to have settled before
-      // they can be set, so they are measured here rather than bound.
-      PaintVolume();
+      // The line of the sound, painted by its own control: the dialog keeps the height of its line and asks the
+      // layout where its filled part and its knob go, which is a measure only the layout knows.
+      volumePicker.Repaint();
 
       // What the film is, as the pictures themselves said: a decoded frame cannot be a different size than the
       // film it is a frame of, which is worth knowing for the file whose container never named its picture.
@@ -737,41 +707,32 @@ namespace MediaPortal.Frontend.Views
       Say("Superlayer_SkipStep", words.Length > 0 ? words : NowPlayingViewModel.Format(_viewModel.PositionMs), 1500);
     }
 
-    private void OnMute(object? sender, RoutedEventArgs e)
-    {
-      _viewModel.ToggleMute();
-    }
-
     /// <summary>
     /// Raise the sound's own dialog over the film. The level used to lie along the foot of the picture among the
     /// buttons, which made one key mean two things - the volume where the line was and the next button beside it -
-    /// so the level moved into a question of its own, where left and right can only be the level.
+    /// so the level moved into a question of its own, where left and right can only be the level. The dialog is
+    /// the shared <see cref="VolumePicker"/>, which the compact transport row at the foot of every other screen
+    /// raises the same way: one answer about one volume, two doors to it.
     /// </summary>
     private void OnVolume(object? sender, RoutedEventArgs e)
     {
       if (_tracksOpen)
         CloseTrackDialog();
 
-      PlaceVolumeDialog();
-      PaintVolume();
-      _volumeOpen = true;
-      volumeDialog.IsVisible = true;
-      volumeControl.Focus();
+      volumePicker.HoldAbove(osdArea.Bounds.Height);
+      volumePicker.Open(_viewModel);
     }
 
     /// <summary>Send the sound's dialog back, and give the loudspeaker mark the standing back.</summary>
     private void CloseVolumeDialog()
     {
-      _volumeOpen = false;
-      volumeDialog.IsVisible = false;
+      volumePicker.Close();
     }
-
-    private bool _volumeOpen;
 
     /// <summary>Whether the dialog of the sound is standing over the film.</summary>
     public bool VolumeDialogOpen
     {
-      get { return _volumeOpen; }
+      get { return volumePicker.IsOpen; }
     }
 
     /// <summary>
@@ -787,7 +748,7 @@ namespace MediaPortal.Frontend.Views
         return true;
       }
 
-      if (_volumeOpen)
+      if (volumePicker.IsOpen)
       {
         CloseVolumeDialog();
         return true;
@@ -802,164 +763,14 @@ namespace MediaPortal.Frontend.Views
       return false;
     }
 
-    /// <summary>One step quieter, the step the viewer set in the playback answers.</summary>
-    private void OnVolumeDown(object? sender, RoutedEventArgs e)
-    {
-      StepVolume(-VOLUME_STEP);
-    }
-
-    /// <summary>One step louder.</summary>
-    private void OnVolumeUp(object? sender, RoutedEventArgs e)
-    {
-      StepVolume(VOLUME_STEP);
-    }
-
     /// <summary>
-    /// Move the sound by one step and say where it landed, which is what the keys standing on the line and the
-    /// two marks at its ends all do.
-    /// </summary>
-    private void StepVolume(int step)
-    {
-      _viewModel.SetVolume(_viewModel.Volume + step);
-      PaintVolume();
-      Say("Superlayer_Volume", "Volume " + _viewModel.Volume + " %", 2000);
-    }
-
-    /// <summary>
-    /// Where the viewer left the loudspeaker. The line of the sound answers a press and a drag anywhere along it,
-    /// the arrow keys while a remote stands on it, and nothing else - the television's own volume keys belong to
-    /// the room and reach it from anywhere, which is why this line does not have to answer the wheel as well.
-    /// </summary>
-    private void OnVolumePointer(object? sender, PointerPressedEventArgs args)
-    {
-      // The mark itself is not marked handled: the button keeps its own hold on the pointer for the length of the
-      // press, which is what brings the moving and the releasing back here from anywhere on the screen.
-      _volumeDragging = true;
-      SetVolumeWherePointed(args);
-    }
-
-    /// <summary>
-    /// Dragging along the line while the press still holds moves the sound with the hand.
-    /// </summary>
-    private void OnVolumeMoved(object? sender, PointerEventArgs args)
-    {
-      if (!_volumeDragging || !args.GetCurrentPoint(volumeRow).Properties.IsLeftButtonPressed)
-        return;
-
-      SetVolumeWherePointed(args);
-    }
-
-    /// <summary>
-    /// The hand left the line. The reading of the new volume goes up now rather than on every pixel of the drag,
-    /// because a number that flickers eighty times across the screen while a hand moves says nothing.
-    /// </summary>
-    private void OnVolumeReleased(object? sender, PointerCaptureLostEventArgs args)
-    {
-      if (!_volumeDragging)
-        return;
-
-      _volumeDragging = false;
-      Say("Superlayer_Volume", "Volume " + _viewModel.Volume + " %", 2000);
-    }
-
-    /// <summary>
-    /// Put the sound where the hand pointed, and follow the hand while it moves. The track, its filled part and
-    /// the knob are all out of the way of the pointer, so the whole height of the line belongs to this: a viewer
-    /// who aims at a third of the line means a third, not "one step quieter". The line stands upright, so the
-    /// hand is read from its foot upward.
-    /// </summary>
-    private void SetVolumeWherePointed(PointerEventArgs args)
-    {
-      double height = volumeRow.Bounds.Height;
-      if (height < 8)
-        return;
-
-      SetVolumeAtFraction(1.0 - args.GetPosition(volumeRow).Y / height);
-    }
-
-    /// <summary>
-    /// Put the sound at a fraction of the line: nothing of it for a press at its foot, all of it for a press at
-    /// its head. Asked for by the hand through <see cref="SetVolumeWherePointed"/>, and asked for directly by
-    /// the tests, which can hand over a fraction but not a place on a screen.
+    /// Put the sound at a fraction of the line. The line itself, its knob, its drag and its keys stand in the
+    /// sound's own control (Views/VolumePicker.axaml), which the compact transport row at the foot of every
+    /// other screen wears as well; this is the door the room's own keys and the tests walk through.
     /// </summary>
     public void SetVolumeAtFraction(double fraction)
     {
-      if (volumeRow.Bounds.Height < 8)
-        return;
-
-      if (fraction < 0)
-        fraction = 0;
-      if (fraction > 1)
-        fraction = 1;
-
-      _viewModel.SetVolume((int)Math.Round(fraction * 100));
-      PaintVolume();
-    }
-
-    /// <summary>
-    /// Standing on the line of the sound, the keys across it mean the sound: left takes the volume down, right
-    /// brings it up, by the same five percent the television's own volume keys move it. Up and down are left
-    /// alone - they belong to the ring, and a control that claimed all four keys would be a trap a remote could
-    /// only leave by guessing.
-    /// </summary>
-    private void OnVolumeKey(object? sender, KeyEventArgs args)
-    {
-      int step;
-      switch (args.Key)
-      {
-        case Key.Left:
-          step = -VOLUME_STEP;
-          break;
-        case Key.Right:
-          step = VOLUME_STEP;
-          break;
-        default:
-          return;
-      }
-
-      StepVolume(step);
-      args.Handled = true;
-    }
-
-    /// <summary>
-    /// Lay the filled part of the sound's line and its knob where the sound stands. The line is upright, so both
-    /// grow from its foot: the filled part is as tall as the sound is high, and the knob stands at the head of
-    /// that. Asked for whenever the number moved - by a hand on the line, a key standing on it, or the room's
-    /// own volume keys - and whenever the line was laid out again.
-    /// </summary>
-    private void PaintVolume()
-    {
-      double height = volumeRow.Bounds.Height;
-      if (height < 8)
-        return;
-
-      int volume = Math.Clamp(_viewModel.Volume, 0, 100);
-      double at = height * volume / 100.0;
-      volumePlayed.Height = at;
-
-      double knob = volumeKnob.Bounds.Height;
-      double fromFoot = at - knob / 2;
-      if (fromFoot < 0)
-        fromFoot = 0;
-      if (fromFoot > height - knob)
-        fromFoot = height - knob;
-      // the knob hangs from the foot of its line by that distance, which is what its bottom margin means to a
-      // panel that lays its children from the top down
-      volumeKnob.Margin = new Thickness(0, 0, 0, fromFoot);
-    }
-
-    /// <summary>
-    /// Stand the sound's dialog clear of the row of buttons rather than over them: how much room the row takes
-    /// is a height only the layout knows, so the dialog is lifted by that height and a margin of its own. The
-    /// last height the row was seen at is kept, because the row goes away with the buttons while the dialog is
-    /// still answering a hand.
-    /// </summary>
-    private void PlaceVolumeDialog()
-    {
-      if (osdArea.Bounds.Height > 8)
-        _osdKeptHeight = osdArea.Bounds.Height;
-      volumeDialog.Margin = new Thickness(VOLUME_DIALOG_SIDE_MARGIN, 0, VOLUME_DIALOG_SIDE_MARGIN,
-          _osdKeptHeight + VOLUME_DIALOG_ABOVE_OSD);
+      volumePicker.SetVolumeAtFraction(fraction);
     }
 
     /// <summary>
@@ -1008,7 +819,7 @@ namespace MediaPortal.Frontend.Views
     /// </summary>
     private void OpenTrackDialog(TrackKind kind)
     {
-      if (_volumeOpen)
+      if (volumePicker.IsOpen)
         CloseVolumeDialog();
 
       _viewModel.ReadTracks();

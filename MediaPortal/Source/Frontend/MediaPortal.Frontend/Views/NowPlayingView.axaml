@@ -120,33 +120,9 @@
       <Setter Property="BorderThickness" Value="3"/>
     </Style>
 
-    <!-- The line the hand presses on to set the sound. It is a control - not a painted panel - so that a remote
-         can stand on it and answer its keys, but it is drawn by nothing: the grey line, its coloured part, and
-         the white knob above it are all painted underneath and around it, and are out of the way of the
-         pointer. Nothing is drawn round it when it is stood on either - the knob below is what grows, and a
-         band of its own would be a frame round a line that already shows where it is. -->
-    <Style Selector="Button.hit">
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="Padding" Value="10,0"/>
-      <!-- Ten pixels of room at either end, which is not a margin of taste: the control is cut at its own
-           bounds, and the knob of the line grows six pixels past its rest at both ends - a knob standing at
-           the end of its line was therefore clipped while it grew. Inside the padding the growth stays inside
-           the control, and the painted line, the press and the numbers all keep to the same shortened line. -->
-      <Setter Property="MinHeight" Value="0"/>
-      <!-- Rounded by nothing, and therefore not rounded at all: the rounding is also the knife that cuts the
-           knob of the line where it grows over either end of it. -->
-      <Setter Property="CornerRadius" Value="0"/>
-      <Setter Property="HorizontalAlignment" Value="Stretch"/>
-    </Style>
-
-    <!-- The numbers at either end of the position line, and the percentage beside the line of the sound. White,
-         and big enough to read off a television from the other side of the room. -->
-    <Style Selector="TextBlock.time">
-      <Setter Property="Foreground" Value="#FFFFFFFF"/>
-      <Setter Property="FontSize" Value="22"/>
-      <Setter Property="VerticalAlignment" Value="Center"/>
-    </Style>
+    <!-- The line the hand presses on to set the sound (Button.hit), the knob that says where on a line a viewer
+         stands (Border.knob) and the numbers beside them (TextBlock.time) are dressed by PlayerGlassStyles.axaml
+         now, because the sound's dialog is worn by the compact row at the foot of every other screen as well. -->
 
     <!-- What the medium is, beside the name of the film. Said only when the file said it: an invented "HDR"
          next to a file nobody checked is a lie about a film somebody is watching. -->
@@ -180,48 +156,16 @@
       <Setter Property="VerticalAlignment" Value="Center"/>
       <Setter Property="IsHitTestVisible" Value="False"/>
     </Style>
-    <Style Selector="Border.knob">
-      <Setter Property="Width" Value="22"/>
-      <Setter Property="Height" Value="22"/>
-      <Setter Property="CornerRadius" Value="999"/>
-      <Setter Property="Background" Value="#FFFFFFFF"/>
-      <Setter Property="VerticalAlignment" Value="Center"/>
-      <Setter Property="HorizontalAlignment" Value="Left"/>
-      <Setter Property="IsHitTestVisible" Value="False"/>
-      <!-- Grown by scaling its own picture about its own middle rather than by becoming wider: the playhead's
-           place is worked out as "so far along, less half its width", and a knob that changes its width takes
-           that arithmetic with it - the middle jumps aside for a moment and the knob hops. A scale leaves the
-           measure alone, so the same place stays the same place while the knob grows around it. -->
-      <Setter Property="RenderTransformOrigin" Value="50%,50%"/>
-      <Setter Property="RenderTransform" Value="scale(1)"/>
-      <Setter Property="Transitions">
-        <Transitions>
-          <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.12"/>
-        </Transitions>
-      </Setter>
-    </Style>
-    <!-- The line of the sound stands upright, so its knob hangs from the bottom of that line and is stood in the
-         middle of its width: a sound is read as a height that grows upward, which is also the way the two marks
-         beside it are asked - the upper one lifts the sound, the lower one lowers it. -->
-    <Style Selector="Border.knob.upright">
-      <Setter Property="HorizontalAlignment" Value="Center"/>
-      <Setter Property="VerticalAlignment" Value="Bottom"/>
-    </Style>
     <!-- Where a viewer stands on a line is said by the knob of it growing, not by a frame round the line: the
          line of a film already reaches from one number of its length to the other, so a box drawn round it is a
          frame over the picture rather than a mark on the control. Written once for the pointer and once for the
          ring, because the pointer's half has to carry the window's gate - and the knob is the same size either
-         way, which is what makes it one effect rather than two. -->
+         way, which is what makes it one effect rather than two. The knob itself, its upright half for the line
+         of the sound, and the sound line's own half of these two rules are in PlayerGlassStyles.axaml. -->
     <Style Selector="Window:not(.pointer-resting) Button.seek:pointerover Border.knob">
       <Setter Property="RenderTransform" Value="scale(1.55)"/>
     </Style>
     <Style Selector="Button.seek:focus Border.knob">
-      <Setter Property="RenderTransform" Value="scale(1.55)"/>
-    </Style>
-    <Style Selector="Window:not(.pointer-resting) Button.hit:pointerover Border.knob">
-      <Setter Property="RenderTransform" Value="scale(1.55)"/>
-    </Style>
-    <Style Selector="Button.hit:focus Border.knob">
       <Setter Property="RenderTransform" Value="scale(1.55)"/>
     </Style>
 
@@ -572,44 +516,8 @@
       picture's middle. How far above the buttons it has to stand is the height the buttons take, which only the
       layout knows - see PlaceVolumeDialog.
     -->
-    <Border Name="volumeDialog" IsVisible="False" HorizontalAlignment="Right" VerticalAlignment="Bottom"
-            Margin="48,0,48,24" Padding="20,18" CornerRadius="24"
-            Background="#F2101A24" BorderBrush="#80FFFFFF" BorderThickness="1">
-      <StackPanel Spacing="12">
-        <TextBlock Name="volumePercent" Classes="time" Text="{Binding VolumeLabel}" TextAlignment="Center"
-                   HorizontalAlignment="Center" AutomationProperties.Name="How loud the film is"/>
-        <Button Name="volumeUpButton" Classes="glass icon" Click="OnVolumeUp" HorizontalAlignment="Center"
-                AutomationProperties.Name="Louder">
-          <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
-                                  ConverterParameter='PlayerControl/volume_up'}"/>
-        </Button>
-        <!-- The line of the sound, and the control it is pressed on, are again the same rectangle: the painted
-             parts are the button's content, so a pointer and a reader find the area rather than nothing. Ten
-             pixels of room at its head and foot, because the control is cut at its own bounds and the knob
-             grows six pixels past its rest at either end. -->
-        <Button Name="volumeControl" Classes="hit" Width="56" Height="220" Padding="0,10"
-                HorizontalAlignment="Center" AutomationProperties.Name="Volume"
-                KeyDown="OnVolumeKey">
-          <Panel Name="volumeRow" Width="56">
-            <Border Width="12" CornerRadius="6" HorizontalAlignment="Center" Opacity="0.6"
-                    Background="{DynamicResource VideoOutlineBrush}" IsHitTestVisible="False"/>
-            <Border Name="volumePlayed" Width="12" CornerRadius="6" HorizontalAlignment="Center"
-                    VerticalAlignment="Bottom" Background="{DynamicResource AccentBrush}" IsHitTestVisible="False"/>
-            <Border Name="volumeKnob" Classes="knob upright" IsHitTestVisible="False"/>
-          </Panel>
-        </Button>
-        <Button Name="volumeDownButton" Classes="glass icon" Click="OnVolumeDown" HorizontalAlignment="Center"
-                AutomationProperties.Name="Quieter">
-          <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
-                                  ConverterParameter='PlayerControl/volume_down'}"/>
-        </Button>
-        <Button Name="muteButton" Classes="glass icon" Click="OnMute" HorizontalAlignment="Center"
-                AutomationProperties.Name="{Binding MuteCaption}">
-          <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
-                                  ConverterParameter='PlayerControl/volume_off'}"/>
-        </Button>
-      </StackPanel>
-    </Border>
+    <views:VolumePicker Name="volumePicker" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                        Margin="48,0,48,24"/>
 
     <!--
       The list a viewer picks a subtitle or a sound from, raised over the middle of the film by the two buttons

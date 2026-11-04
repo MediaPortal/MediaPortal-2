@@ -121,4 +121,75 @@
       <Setter Property="Height" Value="70"/>
       <Setter Property="Padding" Value="0"/>
     </Style>
+
+    <!-- THE LINE OF THE SOUND AND ITS KNOB, written here for the same reason as the plate above: the dialog that
+         carries the sound is worn twice, over the film by the player's loudspeaker mark and over every other
+         screen by the compact row's own loudspeaker plate (Views/VolumePicker.axaml). Two copies of these rules
+         would be a sound that looks like two different machines. -->
+
+    <!-- The line the hand presses on to set the sound. It is a control - not a painted panel - so that a remote
+         can stand on it and answer its keys, but it is drawn by nothing: the grey line, its coloured part, and
+         the white knob above it are all painted underneath and around it, and are out of the way of the
+         pointer. Nothing is drawn round it when it is stood on either - the knob below is what grows, and a
+         band of its own would be a frame round a line that already shows where it is. -->
+    <Style Selector="Button.hit">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="10,0"/>
+      <!-- Ten pixels of room at either end, which is not a margin of taste: the control is cut at its own
+           bounds, and the knob of the line grows six pixels past its rest at both ends - a knob standing at
+           the end of its line was therefore clipped while it grew. Inside the padding the growth stays inside
+           the control, and the painted line, the press and the numbers all keep to the same shortened line. -->
+      <Setter Property="MinHeight" Value="0"/>
+      <!-- Rounded by nothing, and therefore not rounded at all: the rounding is also the knife that cuts the
+           knob of the line where it grows over either end of it. -->
+      <Setter Property="CornerRadius" Value="0"/>
+      <Setter Property="HorizontalAlignment" Value="Stretch"/>
+    </Style>
+
+    <!-- The numbers at either end of the position line, and the percentage beside the line of the sound. White,
+         and big enough to read off a television from the other side of the room. -->
+    <Style Selector="TextBlock.time">
+      <Setter Property="Foreground" Value="#FFFFFFFF"/>
+      <Setter Property="FontSize" Value="22"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- The knob of a line: a white disc that says where on the line a viewer stands. -->
+    <Style Selector="Border.knob">
+      <Setter Property="Width" Value="22"/>
+      <Setter Property="Height" Value="22"/>
+      <Setter Property="CornerRadius" Value="999"/>
+      <Setter Property="Background" Value="#FFFFFFFF"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+      <Setter Property="HorizontalAlignment" Value="Left"/>
+      <Setter Property="IsHitTestVisible" Value="False"/>
+      <!-- Grown by scaling its own picture about its own middle rather than by becoming wider: the playhead's
+           place is worked out as "so far along, less half its width", and a knob that changes its width takes
+           that arithmetic with it - the middle jumps aside for a moment and the knob hops. A scale leaves the
+           measure alone, so the same place stays the same place while the knob grows around it. -->
+      <Setter Property="RenderTransformOrigin" Value="50%,50%"/>
+      <Setter Property="RenderTransform" Value="scale(1)"/>
+      <Setter Property="Transitions">
+        <Transitions>
+          <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.12"/>
+        </Transitions>
+      </Setter>
+    </Style>
+    <!-- The line of the sound stands upright, so its knob hangs from the bottom of that line and is stood in the
+         middle of its width: a sound is read as a height that grows upward, which is also the way the two marks
+         beside it are asked - the upper one lifts the sound, the lower one lowers it. -->
+    <Style Selector="Border.knob.upright">
+      <Setter Property="HorizontalAlignment" Value="Center"/>
+      <Setter Property="VerticalAlignment" Value="Bottom"/>
+    </Style>
+    <!-- Where a viewer stands on a line is said by the knob of it growing, not by a frame round the line. The
+         half of the sound's line goes here because the line lives in the shared dialog; the film's own line is
+         asked for beside the screen that draws it. -->
+    <Style Selector="Window:not(.pointer-resting) Button.hit:pointerover Border.knob">
+      <Setter Property="RenderTransform" Value="scale(1.55)"/>
+    </Style>
+    <Style Selector="Button.hit:focus Border.knob">
+      <Setter Property="RenderTransform" Value="scale(1.55)"/>
+    </Style>
 </Styles>
