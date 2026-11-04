@@ -459,6 +459,25 @@ namespace MediaPortal.Frontend.Api
     }
 
     /// <summary>
+    /// The season and the width of a picture as one query: nothing, <c>?season=3</c>, <c>?width=640</c>, or
+    /// <c>?season=3&amp;width=640</c>.
+    /// </summary>
+    /// <remarks>
+    /// One helper instead of two because the first question of a URL has to be spelled with a <c>?</c> and every
+    /// question after it with an <c>&amp;</c>, and a picture asked by season needs both.
+    /// </remarks>
+    private static string SizeQuery(int? season, int? width)
+    {
+      string seasonPart = SeasonQuery(season);
+      if (!width.HasValue || width.Value <= 0)
+        return seasonPart;
+
+      return seasonPart
+          + (seasonPart.Length == 0 ? "?" : "&")
+          + "width=" + width.Value.ToString(CultureInfo.InvariantCulture);
+    }
+
+    /// <summary>
     /// The picture of a title, as the server's database holds it, or null when it has none.
     /// </summary>
     /// <param name="mediaItemId">The id from <see cref="MediaTitle.Id"/>.</param>
@@ -472,9 +491,11 @@ namespace MediaPortal.Frontend.Api
     /// no poster" and "the server went away".
     /// </para>
     /// <para>
-    /// Nothing here decodes or resizes the bytes. The server stores the picture at MP2's own thumbnail size (at
-    /// most 256 pixels across, which is what the old skin engine drew), so a front end that scaled it again would
-    /// only blur it.
+    /// Nothing here decodes or resizes the bytes. The server hands out the thumbnail its database holds, which is
+    /// the size the reference's importer capped pictures at (five hundred and twelve pixels across, BaseInfo.cs:49)
+    /// - and on a server whose import could not resize anything, which is this one, the answer is often no picture
+    /// at all rather than a large one. A wall therefore asks for fan art and not only for this, and the sizes of
+    /// what it asks for are in <see cref="PictureWidths"/>.
     /// </para>
     /// </remarks>
     public async Task<byte[]?> GetThumbnailAsync(Guid mediaItemId, CancellationToken cancellation = default)
@@ -504,12 +525,18 @@ namespace MediaPortal.Frontend.Api
     /// seasons a library only counts are reached: the files beside the media are named after that number, and the
     /// id given here is the series they lie with (<see cref="MediaTitle.ParentId"/>).
     /// </param>
+    /// <param name="width">
+    /// How wide this front end paints the picture, from <see cref="PictureWidths"/>. Saying a number is what makes
+    /// the server hand out its resized copy of the picture instead of the file the library holds - see
+    /// <see cref="PictureWidths"/> for why the asking belongs to the front end and the resizing to the server.
+    /// Nought, or nothing said, is the old ask and gets the old answer.
+    /// </param>
     public async Task<byte[]?> GetFanArtAsync(Guid mediaItemId, string? type = null, int? season = null,
-        CancellationToken cancellation = default)
+        int? width = null, CancellationToken cancellation = default)
     {
       Uri url = new Uri(BaseUrl, "api/media/items/" + mediaItemId.ToString("D") + "/fanart"
           + (string.IsNullOrEmpty(type) ? "" : "/" + Uri.EscapeDataString(type.Trim()))
-          + SeasonQuery(season));
+          + SizeQuery(season, width));
       RawAnswer answer = await GetRawAsync(url, cancellation).ConfigureAwait(false);
       if (answer.Status == HttpStatusCode.NotFound)
         return null;

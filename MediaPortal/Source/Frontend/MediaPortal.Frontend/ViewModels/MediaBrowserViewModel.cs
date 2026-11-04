@@ -1496,10 +1496,10 @@ namespace MediaPortal.Frontend.ViewModels
       SkinSettingsBase.Saved += delegate { ReapplySkinSettings(); };
       _fanart = client == null
           ? null
-          : PicturesOf(client, "FanArt", id =>
+          : PicturesOf(client, PictureWidths.Shelf("FanArt", PictureWidths.COVER), id =>
               {
                 (Guid asked, int? season) = AskOf(id);
-                return client.GetFanArtAsync(asked, "FanArt", season);
+                return client.GetFanArtAsync(asked, "FanArt", season, PictureWidths.COVER);
               });
       // What a tile wears is the picture of its own kind, and the reference asked for it kinded too: its banner
       // grid bound FanArtType="Banner", its thumbnail grid FanArtType="Thumbnail", and neither ever drew a
@@ -1534,12 +1534,23 @@ namespace MediaPortal.Frontend.ViewModels
       string wanted = kind == GridViewType.Banner
           ? "Banner"
           : kind == GridViewType.Poster ? "Poster" : "Thumbnail";
+
+      // How big this shelf paints the kind, which is the number the server resizes to. A poster is asked wide of a
+      // cover wall and small of a grid tile - the same picture, two frames, and the wall's five hundred and
+      // seventy three pixels are not the tile's two hundred and seventeen - so the width travels with the kind
+      // into the name of the shelf the bytes lie in on this machine. Without that, a viewer who walks from the
+      // wall into the grid is handed the wide copy by the local shelf and stands behind a decoder again for
+      // picture after picture, which is the whole cost this was added to take away.
+      int width = kind == GridViewType.Poster && IsCoverLayout
+          ? PictureWidths.COVER
+          : PictureWidths.TILE;
+
       Artwork? created = _client == null
           ? null
-          : PicturesOf(_client, wanted, id =>
+          : PicturesOf(_client, PictureWidths.Shelf(wanted, width), id =>
               {
                 (Guid asked, int? season) = AskOf(id);
-                return _client.GetFanArtAsync(asked, wanted, season);
+                return _client.GetFanArtAsync(asked, wanted, season, width);
               });
       _tileArtworks.Add(kind, created);
       return created;
@@ -2222,7 +2233,8 @@ namespace MediaPortal.Frontend.ViewModels
           return _coverArtwork;
 
         ServerApiClient client = _client;
-        _coverArtwork = PicturesOf(client, "Cover", id => client.GetFanArtAsync(id, "Cover"));
+        _coverArtwork = PicturesOf(client, PictureWidths.Shelf("Cover", PictureWidths.COVER),
+            id => client.GetFanArtAsync(id, "Cover", null, PictureWidths.COVER));
         return _coverArtwork;
       }
     }
@@ -4767,8 +4779,8 @@ namespace MediaPortal.Frontend.ViewModels
 
       // The kind is the one the reference asked a person's portrait under, by the person's own id
       // (themes/default/styles/CurrentlyPlayingStyles.xaml:220-222).
-      return _personPortraits = PicturesOf(client, "PersonThumbnail",
-          id => client.GetFanArtAsync(id, "Thumbnail"));
+      return _personPortraits = PicturesOf(client, PictureWidths.Shelf("PersonThumbnail", PictureWidths.SMALL),
+          id => client.GetFanArtAsync(id, "Thumbnail", null, PictureWidths.SMALL));
     }
 
     /// <summary>
@@ -4922,10 +4934,10 @@ namespace MediaPortal.Frontend.ViewModels
 
       Artwork? created = _client == null
           ? null
-          : PicturesOf(_client, kind, id =>
+          : PicturesOf(_client, PictureWidths.Shelf(kind, PictureWidths.SMALL), id =>
               {
                 (Guid asked, int? season) = AskOf(id);
-                return _client.GetFanArtAsync(asked, kind, season);
+                return _client.GetFanArtAsync(asked, kind, season, PictureWidths.SMALL);
               });
       _panelArtworks.Add(kind, created);
       return created;

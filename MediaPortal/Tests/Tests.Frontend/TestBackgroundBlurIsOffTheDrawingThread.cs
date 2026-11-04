@@ -259,7 +259,11 @@ namespace Tests.Frontend
           CancellationToken cancellation)
       {
         string url = request.RequestUri!.ToString();
-        bool asked = url.EndsWith("/fanart/FanArt", StringComparison.OrdinalIgnoreCase);
+
+        // The door the backdrop comes out of, whatever size the screen said it paints it at - the width is a
+        // question about the picture, not a different door.
+        string path = request.RequestUri!.AbsolutePath;
+        bool asked = path.EndsWith("/fanart/FanArt", StringComparison.OrdinalIgnoreCase);
         bool known = url.Contains(_title.ToString("D"), StringComparison.OrdinalIgnoreCase);
         if (asked && known)
           return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)

@@ -2092,8 +2092,16 @@ namespace MediaPortal.Server.Api
     /// fanart cache, just like the thumbnail lives in the media item's own blob. A missing file is a normal state,
     /// not a failure: the front end already draws the placeholder when the bytes are absent.
     /// </summary>
+    /// <param name="width">
+    /// How wide the caller paints the picture, in its own pixels. A caller that says nothing gets the file as the
+    /// library holds it, which is how every front end that existed before this question behaves. A caller that does
+    /// say gets the server's resized copy of it - made once for the whole house out of
+    /// <see cref="FanArtVariants"/> - because a fanart that is two thousand pixels wide is a bad thing to drag
+    /// across the house and stand a decoder in front of when somebody is going to paint it three hundred pixels
+    /// wide. See <see cref="GetFanArtOfType"/> for the same question on every other kind.
+    /// </param>
     [HttpGet("items/{id}/fanart")]
-    public IActionResult GetFanArt(Guid id)
+    public IActionResult GetFanArt(Guid id, [FromQuery] int? width = null)
     {
       IFanArtCache cache = ServiceRegistration.Get<IFanArtCache>(false);
       if (cache == null)
@@ -2108,7 +2116,7 @@ namespace MediaPortal.Server.Api
         return NotFound(new ItemResult { Id = id, Error = "this server has no fanart for the id " + id });
 
       string path = files.First();
-      byte[] picture = System.IO.File.ReadAllBytes(path);
+      byte[] picture = FanArtVariants.Worn.Sized(System.IO.File.ReadAllBytes(path), width ?? 0);
       Response.Headers["Cache-Control"] = "private, max-age=" + THUMBNAIL_CACHE_SECONDS;
       return File(picture, PictureMediaType(picture));
     }
@@ -2134,6 +2142,14 @@ namespace MediaPortal.Server.Api
     /// library filed one folder per season starts inside it. The library's own stored pictures are not consulted for
     /// such a question - they belong to the title the id names, not to one season of it.
     /// </param>
+    /// <param name="width">
+    /// How wide the caller paints the picture, in its own pixels, and nought or nothing at all for "as the library
+    /// holds it". A caller that says a number gets the server's resized copy of the picture out of
+    /// <see cref="FanArtVariants"/>, which is the reference's own arrangement: its client asked
+    /// <c>&amp;width=&amp;height=</c> of <c>FanartService</c> and the server kept a folder of resized copies so a
+    /// size was made once rather than once per viewer per screen. A backdrop asked at twelve hundred and a tile
+    /// asked at two hundred and fifty six are two files on the shelf and one read of the original.
+    /// </param>
     /// <remarks>
     /// <para>
     /// <b>Where the bytes come from - in the reference's order.</b> First the fanart cache, which is where MP2's
@@ -2151,7 +2167,8 @@ namespace MediaPortal.Server.Api
     /// </para>
     /// </remarks>
     [HttpGet("items/{id}/fanart/{type}")]
-    public IActionResult GetFanArtOfType(Guid id, string type, [FromQuery] int? season = null)
+    public IActionResult GetFanArtOfType(Guid id, string type, [FromQuery] int? season = null,
+        [FromQuery] int? width = null)
     {
       string fanArtType = KnownFanArtType(type);
       if (fanArtType == null)
@@ -2199,6 +2216,7 @@ namespace MediaPortal.Server.Api
           });
         }
 
+        picture = FanArtVariants.Worn.Sized(picture, width ?? 0);
         Response.Headers["Cache-Control"] = "private, max-age=" + THUMBNAIL_CACHE_SECONDS;
         return File(picture, PictureMediaType(picture));
       }

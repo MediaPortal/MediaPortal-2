@@ -558,8 +558,11 @@ namespace MediaPortal.Frontend
     /// </summary>
     private static async Task<byte[]?> CoverFrom(ServerApiClient client, Guid mediaItemId)
     {
-      byte[]? poster = await client.GetFanArtAsync(mediaItemId, "Poster");
-      return poster ?? await client.GetFanArtAsync(mediaItemId, "FanArt");
+      // Asked small because that is the size the playback screen paints it: the one picture a viewer stands in
+      // front of for two hours is worth asking at the width of its frame, and the server has to be told that
+      // width by the only program that knows the frame.
+      byte[]? poster = await client.GetFanArtAsync(mediaItemId, "Poster", null, PictureWidths.SMALL);
+      return poster ?? await client.GetFanArtAsync(mediaItemId, "FanArt", null, PictureWidths.SMALL);
     }
 
     /// <summary>

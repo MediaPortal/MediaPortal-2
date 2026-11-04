@@ -51,6 +51,17 @@
       entire reason to exist is ASP.NET Core, so it says so itself instead of inheriting the fact.
     -->
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <!--
+      The codec the resized pictures are made with (FanArtVariants). The reference asked its thumbnail service,
+      but every provider of that service in this tree is a Windows assembly and the transformer lives in
+      MediaPortal.Common.Windows, so the headless server - which is what this server is - has neither, as the fanart
+      tests here already wrote down. SkiaSharp is what this front end paints with anyway (Avalonia brings
+      3.119.4, so this adds no new version to the tree), it runs wherever the server runs, and it lets a picture be
+      read at the size it is wanted rather than read whole and shrunk afterwards. The Linux native library is named
+      because SkiaSharp only carries the Windows and macOS ones itself.
+    -->
+    <PackageReference Include="SkiaSharp" Version="3.119.4" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="3.119.4" />
     <ProjectReference Include="..\MediaPortal.Common\MediaPortal.Common.csproj" />
     <ProjectReference Include="..\MediaPortal.Backend\MediaPortal.Backend.csproj" />
   </ItemGroup>
