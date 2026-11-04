@@ -104,9 +104,19 @@ public sealed class CoverCarousel : Control
   internal const double LEAN_CEILING = 55.0;
   internal const double SHRINK_PER_PLACE = 0.06;
   internal const double SHRINK_CEILING = 0.40;
-  internal const double DARKEN_PER_PLACE = 0.1;
+  internal const double DARKEN_PER_PLACE = 0.15;
 
-  internal const double LIGHT_FLOOR = 0.35;
+  /// <summary>
+  /// How many places away from the cover being stood on the row begins to lose light.  Inside that many places a
+  /// cover stands at full light, which is what the middle of a cover flow is for: the viewer came for the picture
+  /// he is standing on and for its immediate neighbours, and a row that greys out from the first neighbour reads as
+  /// a row going out of focus rather than as a row going out of the room.  Beyond this many places the light falls
+  /// by <see cref="DARKEN_PER_PLACE"/> for every further place, so the number is where the fade BEGINS and the
+  /// other number is how steep it is once begun.
+  /// </summary>
+  internal const double FADE_FROM = 4.0;
+
+  internal const double LIGHT_FLOOR = 0.1;
 
   /// <summary>How round a cover's corners are, as a part of its own width; the turn takes the round with it.</summary>
   internal const double CORNER_RATIO = 0.045;
@@ -402,6 +412,34 @@ public sealed class CoverCarousel : Control
 
   // ---- The row own motion --------------------------------------------------------------
 
+  /// <summary>
+  /// How hard a cover that stands a place away is pulled towards its place, every tick.
+  /// </summary>
+  internal const double GLIDE_PULL = 0.4444;
+
+  /// <summary>
+  /// How much of the row's travel one tick hands to the next.  The two numbers are not free: a spring carried
+  /// along like this rocks past its target whenever the pull is stronger than this hold allows, and the pair
+  /// that was here (a pull of .16 on a hold of .76) was such a spring - its roots were complex, so a step of one
+  /// cover arrived by sailing past the cover, back over it and past it again, which a viewer standing in front of
+  /// the television reads as a row that will not keep still.  A hold of .36 and a pull of .4444 stand in the one
+  /// ratio that makes the roots equal - (1 - √hold)² / hold - which is the damping that arrives in a single
+  /// unbroken glide: same first stride as the rocking pair (one tick moves a sixth of a cover), no second stride
+  /// past the place, and the whole of a step walked in about three hundred milliseconds.
+  /// </summary>
+  internal const double GLIDE_HELD = 0.36;
+
+  /// <summary>
+  /// One tick of the row's glide: where the row stands next and what it carries into the tick after that.
+  /// Kept apart from the timer so that the numbers can be asked without a screen, a timer or a cover.
+  /// </summary>
+  internal static double NextGlideStep(double at, double carrying, double to, out double carries_next)
+  {
+    double next = (carrying + (to - at) * GLIDE_PULL) * GLIDE_HELD;
+    carries_next = next;
+    return at + next;
+  }
+
   private void StartSpring()
   {
     _spring ??= new DispatcherTimer(DispatcherPriority.Render)
@@ -424,13 +462,10 @@ public sealed class CoverCarousel : Control
   private void OnSpringTick(object? sender, EventArgs e)
   {
     double to = Math.Clamp(SelectedIndex, 0, Math.Max(0, _items.Count - 1));
-    double apart = to - _position;
 
-    _velocity += apart * 0.16;
-    _velocity *= 0.76;
-    _position += _velocity;
+    _position = NextGlideStep(_position, _velocity, to, out _velocity);
 
-    if (Math.Abs(apart) < 0.001 && Math.Abs(_velocity) < 0.001)
+    if (Math.Abs(to - _position) < 0.002 && Math.Abs(_velocity) < 0.002)
     {
       _position = to;
       _velocity = 0.0;
@@ -579,9 +614,15 @@ public sealed class CoverCarousel : Control
     int first = Math.Max(0, (int) Math.Floor(_position) - PAINTED_EACH_SIDE);
     int last = Math.Min(_items.Count - 1, (int) Math.Ceiling(_position) + PAINTED_EACH_SIDE);
 
+    // The bright frame follows the CARET and not the place the row happens to have reached.  It used to be given
+    // to whichever cover the row was standing on to within a hundredth of a place, which no cover is while the
+    // row still swings: the frame went away for most of the glide, came back as the row arrived, and jumped
+    // between two covers when the spring overshot - what the viewer counted as a flickering frame.
+    int stood_on = Math.Clamp(SelectedIndex, 0, Math.Max(0, _items.Count - 1));
+
     List<Frame> frames = new List<Frame>(last - first + 1);
     for (int place = first; place <= last; ++place)
-      frames.Add(FrameAt(place - _position, width, height, _items[place]));
+      frames.Add(FrameAt(place - _position, width, height, _items[place], place == stood_on));
 
     // The covers furthest from the viewer go down first, so that a cover always lies over the one it stands in
     // front of and the stood cover, being last, covers the edges of its neighbours.  This is the one place where
@@ -601,7 +642,7 @@ public sealed class CoverCarousel : Control
   /// signed distance from the cover being stood on, and out of nothing else.  That is the whole of the symmetry:
   /// two covers equally far from the middle are handed the same numbers with the sign of one reversed.
   /// </summary>
-  internal static Frame FrameAt(double apart, double width, double height, object item)
+  internal static Frame FrameAt(double apart, double width, double height, object item, bool stood = false)
   {
     double distance = Math.Abs(apart);
 
@@ -613,7 +654,11 @@ public sealed class CoverCarousel : Control
         : Math.Sign(apart) * Math.Min(LEAN_CEILING, distance * LEAN_PER_PLACE);
 
     double over = 1.0 - Math.Min(distance * SHRINK_PER_PLACE, SHRINK_CEILING);
-    double light = Math.Clamp(1.0 - distance * DARKEN_PER_PLACE, LIGHT_FLOOR, 1.0);
+
+    // The light counts the places BEYOND FADE_FROM, not the places as such: inside that distance a cover keeps
+    // everything it has, and only the row's outer reaches fade away.
+    double light = Math.Clamp(
+        1.0 - Math.Max(0.0, distance - FADE_FROM) * DARKEN_PER_PLACE, LIGHT_FLOOR, 1.0);
 
     double row_height = height * ROW_SHARE;
     double cover_width = row_height * COVER_RATIO;
@@ -625,7 +670,7 @@ public sealed class CoverCarousel : Control
         row_height * over,
         lean,
         light,
-        distance < 0.01);
+        stood);
   }
 
   /// <summary>

@@ -116,9 +116,28 @@ public class TestCoverCarousel
     }
 
     [Test]
+    public void TheFrameRidesWithTheCaretWhileTheRowStillSways()
+    {
+        // Mid-glide the row stands between two covers: no cover is within a hundredth of a place of it, so a frame
+        // asked from that distance vanishes for most of the swing and jumps between covers when the spring
+        // overshoots.  The frame is asked from the caret instead, and the caret does not wobble.
+        for (double apart = -0.9; apart <= 0.9; apart += 0.1)
+        {
+            CoverCarousel.Frame stood = CoverCarousel.FrameAt(apart, RowWidth, RowHeight, "cover", true);
+            CoverCarousel.Frame neighbour = CoverCarousel.FrameAt(apart + 1.0, RowWidth, RowHeight, "cover", false);
+
+            Assert.That(stood.Stood, Is.True,
+                "the cover the caret stands on carries its frame also at " + apart.ToString("0.00")
+                + " places from where the row has reached");
+            Assert.That(neighbour.Stood, Is.False,
+                "and its neighbour does not take the frame over while the row sways past");
+        }
+    }
+
+    [Test]
     public void TheDrawnRowKeepsTheStoodCoverUprightAndInTheMiddle()
     {
-        CoverCarousel.Frame stood = CoverCarousel.FrameAt(0.0, RowWidth, RowHeight, "cover");
+        CoverCarousel.Frame stood = CoverCarousel.FrameAt(0.0, RowWidth, RowHeight, "cover", true);
         SKPoint[] corners = CoverCarousel.CornersOf(stood);
 
         Assert.That(stood.Lean, Is.EqualTo(0.0), "the cover being stood on does not lean");
@@ -129,5 +148,44 @@ public class TestCoverCarousel
         Assert.That(leftmost, Is.EqualTo(MiddleX - stood.Width / 2.0).Within(0.02),
             "the stood cover is centred on the picture rather than pushed to one hand");
         Assert.That(rightmost, Is.EqualTo(MiddleX + stood.Width / 2.0).Within(0.02));
+    }
+
+    /// <summary>
+    /// The row's own travel.  A spring that is not damped enough walks past the cover it was aimed at, comes back
+    /// over it and past it again; on a television that is not a row gliding to a cover but a row that will not
+    /// keep still, and it is worst exactly where a viewer is looking - on the cover the caret has just arrived at.
+    /// The damping is a pair of numbers, so it can be asked here: a step must cover its ground, must never pass
+    /// the place it was aimed at, and must come to rest there.
+    /// </summary>
+    [Test]
+    public void TheRowGlidesToItsCoverWithoutRockingPastIt()
+    {
+        foreach (double to in new double[] { 1.0, 4.0, -3.0 })
+        {
+            double at = 0.0;
+            double carrying = 0.0;
+            double previous = at;
+
+            for (int tick = 0; tick < 60; ++tick)
+            {
+                at = CoverCarousel.NextGlideStep(at, carrying, to, out carrying);
+
+                Assert.That((at - previous) * Math.Sign(to), Is.GreaterThanOrEqualTo(-1e-9),
+                    "a row that has set out for a cover does not slide back over its own steps");
+                Assert.That(Math.Abs(at), Is.LessThanOrEqualTo(Math.Abs(to) + 1e-9),
+                    "the row never sails past the cover it was aimed at (target " + to + ", tick " + tick + ")");
+
+                previous = at;
+            }
+
+            Assert.That(at, Is.EqualTo(to).Within(0.01),
+                "and the whole of the step is walked, not left standing a fraction short");
+        }
+
+        // The first stride is what tells a viewer whether the row travels or a picture is replaced, so the
+        // re-damping was not allowed to blunt it: the old pair's first tick moved a sixth of a cover.
+        double first = CoverCarousel.NextGlideStep(0.0, 0.0, 1.0, out _);
+        Assert.That(first, Is.EqualTo(0.16).Within(0.005),
+            "the row sets out as briskly as it did before it was damped");
     }
 }
