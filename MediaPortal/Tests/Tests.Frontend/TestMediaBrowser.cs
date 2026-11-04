@@ -1237,9 +1237,19 @@ namespace Tests.Frontend
       /// for. A shelf walked from rows into tiles legitimately asks a poster of a title it had already asked a
       /// thumbnail of, so it is the titles and not the requests that a shelf may not exceed.
       /// </summary>
-      internal int PicturesAskedForTitles => _pictureTitles.Count;
+      internal int PicturesAskedForTitles
+      {
+        get { lock (_pictureGate) return _pictureTitles.Count; }
+      }
 
+      private readonly object _pictureGate = new object();
       private readonly HashSet<string> _pictureTitles = new HashSet<string>(StringComparer.Ordinal);
+
+      internal bool AskedForPicture(Guid id)
+      {
+        lock (_pictureGate)
+          return _pictureTitles.Contains(id.ToString("D"));
+      }
 
       /// <summary>The last question about titles, so that a test can say what was asked for.</summary>
       internal string LastQuestion { get; private set; } = "";
@@ -1256,7 +1266,10 @@ namespace Tests.Frontend
           string[] parts = request.RequestUri!.AbsolutePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
           for (int part = 0; part + 1 < parts.Length; part++)
             if (string.Equals(parts[part], "items", StringComparison.Ordinal))
-              _pictureTitles.Add(parts[part + 1]);
+            {
+              lock (_pictureGate)
+                _pictureTitles.Add(parts[part + 1]);
+            }
           return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
           {
             RequestMessage = request,
@@ -1575,7 +1588,7 @@ namespace Tests.Frontend
       MediaBrowserView view = new MediaBrowserView(browser);
       ShellWindow window = new ShellWindow(view);
       window.Show();
-      WaitUntil("the wall to fill", delegate { return browser.Titles.Count > 60; });
+      WaitUntil("the wall to fill beyond title seventy", delegate { return browser.Titles.Count > 70; });
 
       ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
           .First(list => list.Name == "titlesList");
@@ -1637,6 +1650,343 @@ namespace Tests.Frontend
           + "y=" + in_view.Y + " off=" + viewport.Offset.Y + " sel=" + titles.SelectedIndex);
       window.Close();
     }
+
+    /// <summary>
+    /// Starts in the carousel so its geometry can be tested without an earlier shape masking a carousel failure.
+    /// </summary>
+    [AvaloniaTest]
+    public void CarouselKeepsItsNeighboursMirrored()
+    {
+      LongShelf server = new LongShelf();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.Layout = BrowserLayout.Stacked;
+      MediaBrowserView view = new MediaBrowserView(browser);
+      ShellWindow window = new ShellWindow(view);
+      window.Show();
+      WaitUntil("the wall to fill", delegate { return browser.Titles.Count > 60; });
+
+      ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "titlesList");
+      titles.SelectedIndex = 30;
+      WaitUntil("the selection to reach title thirty", delegate { return titles.SelectedIndex == 30; });
+      browser.SwitchView();
+      WaitUntil("the carousel to replace the stack", delegate { return browser.Layout == BrowserLayout.Carousel; });
+      ScrollViewer viewport = titles.GetVisualDescendants().OfType<ScrollViewer>().First();
+
+      WearAndAskAboutTheRow(window, titles, viewport, browser, "carousel");
+      titles.SelectedIndex = 70;
+      WaitUntil("the selection to reach title seventy", delegate { return titles.SelectedIndex == 70; });
+      WearAndAskAboutTheRow(window, titles, viewport, browser, "carousel");
+      window.Close();
+    }
+
+    /// <summary>
+    /// A shape has to fill the picture it is seen through with covers of its own.  A stack gathers its covers
+    /// nearer one another than the panel laid them, so the covers the panel stands up - one picture's width of
+    /// them, laid a whole cover apart - would cover only the middle of the television and leave both edges empty:
+    /// the viewer walks the shelf and sees the stack fill up only when they reach the end of the wall, which is
+    /// where the row is short enough to stop reaching out.  The panel is therefore asked to stand covers up beside
+    /// the picture while a shape is worn, and the picture is asked whether it still cuts them off.
+    /// </summary>
+    [AvaloniaTest]
+    public void AStackStandsItsCoversPastBothEdgesOfThePicture()
+    {
+      LongShelf server = new LongShelf();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      MediaBrowserView view = new MediaBrowserView(browser);
+      ShellWindow window = new ShellWindow(view);
+      window.Show();
+      WaitUntil("the wall to fill", delegate { return browser.Titles.Count > 60; });
+
+      ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "titlesList");
+      titles.SelectedIndex = 30;
+      Pump();
+      Pump();
+      Assert.That(browser.Selected, Is.SameAs(browser.Titles[30]),
+          "the list selection is bound to the ViewModel before changing layouts");
+
+      ScrollViewer viewport = titles.GetVisualDescendants().OfType<ScrollViewer>().First();
+
+      Assert.That(viewport.GetVisualDescendants().OfType<VirtualizingStackPanel>().Any(), Is.True,
+          "the covers are laid in a panel that can stand covers up beside the picture");
+
+      // The walk from rows over the wall and the covers to the first shape of them, and on to the second.
+      browser.SwitchView();
+      WaitUntil("the grid to keep the stood-on title", delegate { return titles.SelectedIndex == 30; });
+      Assert.That(titles.SelectedIndex, Is.EqualTo(30),
+          "changing to grid keeps the stood-on title (ViewModel index "
+          + browser.Titles.IndexOf(browser.Selected!) + ")");
+      Assert.That(browser.Selected, Is.SameAs(browser.Titles[30]), "the selection binding stays connected");
+      browser.SwitchView();
+      WaitUntil("the covers to keep the stood-on title", delegate { return titles.SelectedIndex == 30; });
+      Assert.That(titles.SelectedIndex, Is.EqualTo(30),
+          "changing to covers keeps the stood-on title (ViewModel index "
+          + browser.Titles.IndexOf(browser.Selected!) + ")");
+      Assert.That(browser.Selected, Is.SameAs(browser.Titles[30]), "the selection binding stays connected");
+      browser.SwitchView();
+      WaitUntil("the stack to keep the stood-on title", delegate { return titles.SelectedIndex == 30; });
+      Assert.That(titles.SelectedIndex, Is.EqualTo(30),
+          "changing to stacked keeps the stood-on title (ViewModel index "
+          + browser.Titles.IndexOf(browser.Selected!) + ")");
+      Assert.That(browser.Selected, Is.SameAs(browser.Titles[30]), "the selection binding stays connected");
+      Assert.That(browser.Layout, Is.EqualTo(BrowserLayout.Stacked));
+      WearAndAskAboutTheRow(window, titles, viewport, browser, "stack");
+      browser.SwitchView();
+      WaitUntil("the carousel to keep the stood-on title", delegate { return titles.SelectedIndex == 30; });
+      Assert.That(titles.SelectedIndex, Is.EqualTo(30),
+          "changing to carousel keeps the stood-on title (ViewModel index "
+          + browser.Titles.IndexOf(browser.Selected!) + ")");
+      Assert.That(browser.Selected, Is.SameAs(browser.Titles[30]), "the selection binding stays connected");
+      Assert.That(browser.Layout, Is.EqualTo(BrowserLayout.Carousel));
+
+      Guid title_past_sixty = browser.Titles[70].Title.Id;
+      titles.SelectedIndex = 70;
+      WaitUntil("a picture request past the sixtieth title",
+          delegate { return server.AskedForPicture(title_past_sixty); });
+      Assert.That(server.AskedForPicture(title_past_sixty), Is.True,
+          "the realized cover row past title sixty is still offered its picture after the scroll offset grows");
+
+      titles.SelectedIndex = 30;
+      WaitUntil("the selection to return to title thirty", delegate { return titles.SelectedIndex == 30; });
+      WearAndAskAboutTheRow(window, titles, viewport, browser, "carousel");
+
+      // And a shelf walked plainly again is asked to stop: covers standing beside the picture of a list or a grid
+      // are covers nobody looks at, and a wall that leans out of its window while it is walked vertically paints
+      // rows over the whole screen.
+      browser.SwitchView();
+      Assert.That(browser.Layout, Is.EqualTo(BrowserLayout.List));
+      Pump();
+      Pump();
+      Pump();
+
+      VirtualizingStackPanel? naked = viewport.GetVisualDescendants().OfType<VirtualizingStackPanel>()
+          .FirstOrDefault();
+      if (naked != null)
+        Assert.That(naked.CacheLength, Is.EqualTo(0.0),
+            "a shelf walked in rows is asked to stand up no cover beside the picture");
+
+      window.Close();
+    }
+
+    /// <summary>
+    /// Asks a shelf wearing a shape the two questions the viewer asks it: does a cover of the shape reach past
+    /// both edges of the picture, and does the cover being stood on stand in the middle of the picture?  Both are
+    /// answered from the panel's own coordinates, which is where a dressed cover stands before the wall's travel
+    /// is taken off it - <c>TransformToVisual</c> answers nonsense as soon as a perspective stands in the chain.
+    /// </summary>
+    private static void WearAndAskAboutTheRow(ShellWindow window, ListBox titles, ScrollViewer viewport,
+        MediaBrowserViewModel browser, string shape)
+    {
+      Pump();
+      Pump();
+      Pump();
+
+      VirtualizingStackPanel panel =
+          viewport.GetVisualDescendants().OfType<VirtualizingStackPanel>().First();
+
+      // How many trees the list is standing in right now.  A shelf that has just been put on can leave the panel
+      // of the layout it came from standing beside the new one, and a shape that dresses the one while the screen
+      // shows the other is a shape nobody can see - which is what a viewer sees as covers that never fill in.
+      string trees = string.Join(" / ", viewport.GetVisualDescendants().OfType<VirtualizingStackPanel>()
+          .Select((p, i) => "panel" + i + " cache=" + p.CacheLength + " bounds=" + p.Bounds
+              + " alive=" + p.IsVisible));
+
+      Assert.That(panel.CacheLength, Is.GreaterThan(0.0),
+          "a gathered row is walked off covers the panel laid further out than the picture reaches, so the panel "
+          + "is asked to stand them up while a shape is worn");
+
+      Assert.That(
+          viewport.GetVisualDescendants()
+              .OfType<Avalonia.Controls.Presenters.ScrollContentPresenter>().First().ClipToBounds,
+          Is.False,
+          "a cover standing taller than the slot the panel laid it in is not sawn off at the row's edges");
+      Assert.That(viewport.ClipToBounds, Is.False,
+          "the scroll viewer does not clip the 3D covers at the sides or floor after its presenter's clip is opened");
+
+      double picture = viewport.Viewport.Width;
+
+      // First the ride, then the question.  A layout that has just been put on has to grow its scroller before the
+      // wall can be carried anywhere, so the wall is watched until it has STOOD STILL - a few samples in a row
+      // saying the same place - and not merely until two samples agree before the ride has started.
+      DateTimeOffset rest = DateTimeOffset.UtcNow + TimeSpan.FromSeconds(8);
+      double before = viewport.Offset.X;
+      DateTimeOffset? standing_still_since = null;
+      while (DateTimeOffset.UtcNow < rest
+          && (standing_still_since == null
+              || DateTimeOffset.UtcNow - standing_still_since < TimeSpan.FromMilliseconds(450)))
+      {
+        Pump();
+        if (Math.Abs(viewport.Offset.X - before) < 0.5)
+          standing_still_since ??= DateTimeOffset.UtcNow;
+        else
+          standing_still_since = null;
+
+        before = viewport.Offset.X;
+      }
+
+      for (int settled = 0; settled < 3; ++settled)
+        Pump();
+
+      double left = double.MaxValue;
+      double right = double.MinValue;
+      double centre_of_the_stood_cover = double.NaN;
+      string seen = "nothing";
+      int stood_index = titles.SelectedIndex;
+      int counted = 0;
+
+      // Where the covers are PAINTED, read the way a viewer sees them: every cover's middle is translated into the
+      // scroller's own space, which carries the wall's travel, the panel's place and every transform the shape wore
+      // into the number.  Measuring out of a container's Bounds instead was measured to be wrong - a recycled
+      // container answers with the Bounds of the place it came from (one stood at 118534 in its Bounds while it was
+      // drawn at 1662), which made this test report a wall standing far off the picture while it was centred.
+      for (int place_of_row = stood_index - 40; place_of_row <= stood_index + 40; ++place_of_row)
+      {
+        if (place_of_row < 0 || place_of_row >= titles.Items.Count)
+          continue;
+
+        if (titles.ContainerFromIndex(place_of_row) is not Control tile || tile.Bounds.Width <= 0.0)
+          continue;
+
+        Point? middle = tile.TranslatePoint(
+            new Point(tile.Bounds.Width / 2.0, tile.Bounds.Height / 2.0), viewport);
+        if (middle == null)
+          continue;
+
+        if (tile.RenderTransform is TransformGroup worn)
+          seen = worn.ToString() ?? "no transform";
+
+        double stood_at = middle.Value.X;
+        double half_of_the_tile = tile.Bounds.Width / 2.0;
+        if (tile.RenderTransform is TransformGroup shaped)
+        {
+          // A shape that shrinks a cover as it stands further off the middle paints a narrower cover than the one
+          // it laid out, so the edge a viewer sees is the projected one, not the laid half width.
+          Point? edge = tile.TranslatePoint(new Point(tile.Bounds.Width, 0.0), viewport);
+          if (edge != null)
+            half_of_the_tile = Math.Abs(edge.Value.X - stood_at);
+          _ = shaped;
+        }
+
+        left = Math.Min(left, stood_at - half_of_the_tile);
+        right = Math.Max(right, stood_at + half_of_the_tile);
+        ++counted;
+
+        if (place_of_row == stood_index)
+          centre_of_the_stood_cover = stood_at;
+      }
+
+      string read = counted + " covers answered to an index, the leftmost standing at " + left
+          + " and the rightmost ending at " + right + " of a picture running from 0 to " + picture
+          + " (cache " + panel.CacheLength + ", extent " + viewport.Extent.Width + ", offset "
+          + viewport.Offset.X + ", the panel trees: " + trees + ")"
+          + "; the cover stood on stands at " + centre_of_the_stood_cover + " wearing " + seen;
+      if (shape == "carousel")
+      {
+        Control? selected_tile = titles.ContainerFromIndex(stood_index) as Control;
+        Point? selected_at = selected_tile?.TranslatePoint(new Point(), viewport);
+        read += "; laid containers: " + string.Join(", ", titles.GetRealizedContainers()
+            .OfType<Control>()
+            .Select(tile => "i" + titles.IndexFromContainer(tile) + " x" + tile.Bounds.X
+                + " w" + tile.Bounds.Width + " m" + tile.Margin.Left + "/" + tile.Margin.Right))
+            + "; selected bounds=" + selected_tile?.Bounds + " translated=" + selected_at
+            + " items=" + titles.Items.Count + " selected=" + stood_index;
+      }
+      Assert.That(counted, Is.GreaterThan(2), "the shape is worn over covers the list knows " + read);
+      Assert.That(right - left, Is.LessThan(picture * 6.0),
+          "a row of covers is as wide as the covers in it, not as wide as the whole wall - a row dressed while "
+          + "its own measurements were still being changed has been seen standing eighty thousand pixels off the "
+          + "picture, which is a shelf that shows nothing " + read);
+      Assert.That(left, Is.LessThan(0.0), "a " + shape + " reaches past the left edge of the picture - " + read);
+      Assert.That(right, Is.GreaterThan(picture), "a " + shape + " reaches past its right edge - " + read);
+
+      if (shape == "carousel" && stood_index > 0 && stood_index + 1 < titles.Items.Count
+          && titles.ContainerFromIndex(stood_index - 1) is Control left_neighbour
+          && titles.ContainerFromIndex(stood_index + 1) is Control right_neighbour
+          && left_neighbour.RenderTransform is TransformGroup left_group
+          && right_neighbour.RenderTransform is TransformGroup right_group)
+      {
+        // What the viewer compares has never been the numbers written into a transform but the cover that comes out
+        // of it, so both neighbours are projected here the way the compositor projects them: their four corners are
+        // put through the whole transform the tile wears, and the points coming back are measured.  A turn whose
+        // perspective is worked out wrongly for one sign of the angle survives every assertion on written values
+        // and is caught by nothing else - it was measured at 143 px against 185 px for two covers written alike.
+        Point[] left_seen = ProjectCorners(left_neighbour, left_group);
+        Point[] right_seen = ProjectCorners(right_neighbour, right_group);
+
+        double left_width = left_seen.Max(p => p.X) - left_seen.Min(p => p.X);
+        double right_width = right_seen.Max(p => p.X) - right_seen.Min(p => p.X);
+        Assert.That(left_width, Is.EqualTo(right_width).Within(1.0),
+            "two covers standing equally far from the stood one are SEEN equally wide, not merely written so - "
+            + CornersRead(left_seen, right_seen));
+
+        // The vertical edge a neighbour shows the stood cover is the one nearer the viewer, so it must stand taller
+        // than the edge turned away - on both sides, and by the same amount on both sides.
+        double left_facing = Math.Abs(left_seen[3].Y - left_seen[1].Y);
+        double left_away = Math.Abs(left_seen[2].Y - left_seen[0].Y);
+        double right_facing = Math.Abs(right_seen[2].Y - right_seen[0].Y);
+        double right_away = Math.Abs(right_seen[3].Y - right_seen[1].Y);
+        Assert.That(left_facing, Is.GreaterThan(left_away),
+            "the left neighbour turns its focus-facing edge toward the viewer - " + CornersRead(left_seen, right_seen));
+        Assert.That(right_facing, Is.GreaterThan(right_away),
+            "the right neighbour turns its focus-facing edge toward the viewer - " + CornersRead(left_seen, right_seen));
+        Assert.That(left_facing, Is.EqualTo(right_facing).Within(1.0),
+            "the two neighbours face the stood cover with equally tall edges - " + CornersRead(left_seen, right_seen));
+        Assert.That(left_away, Is.EqualTo(right_away).Within(1.0),
+            "the two neighbours turn away from the stood cover with equally short edges - "
+            + CornersRead(left_seen, right_seen));
+
+        // And the lean carries both of them the same little step toward the middle of the picture, which is what
+        // closes a ring instead of leaving a hole where the stood cover stands.
+        double left_drift = (left_seen.Max(p => p.X) + left_seen.Min(p => p.X)) / 2.0 - left_neighbour.Bounds.Width / 2.0;
+        double right_drift = (right_seen.Max(p => p.X) + right_seen.Min(p => p.X)) / 2.0
+            - right_neighbour.Bounds.Width / 2.0;
+        Assert.That(left_drift, Is.EqualTo(-right_drift).Within(1.0),
+            "the two neighbours lean toward the middle of the picture by equally much - "
+            + CornersRead(left_seen, right_seen));
+
+        ScaleTransform left_measure = left_group.Children.OfType<ScaleTransform>().Single();
+        ScaleTransform right_measure = right_group.Children.OfType<ScaleTransform>().Single();
+        Assert.That(left_measure.ScaleX, Is.EqualTo(right_measure.ScaleX).Within(0.001),
+            "carousel neighbours at equal distances stand equally wide");
+        Assert.That(left_measure.ScaleY, Is.EqualTo(right_measure.ScaleY).Within(0.001),
+            "carousel neighbours at equal distances stand equally tall");
+        Assert.That(left_neighbour.DataContext, Is.SameAs(titles.Items[stood_index - 1]),
+            "recycled left containers wear the item at their current index");
+        Assert.That(right_neighbour.DataContext, Is.SameAs(titles.Items[stood_index + 1]),
+            "recycled right containers wear the item at their current index");
+      }
+
+      // The wall carries the stood cover to the middle of the picture and stops there; the row's own dressing must
+      // not pull it away again, which is the re-centring the viewer felt as a jerk after every key.
+      Assert.That(double.IsNaN(centre_of_the_stood_cover), Is.False,
+          "the cover the shelf stands on is one the panel stood up while the shape was worn - " + read);
+      // A carousel is built around the middle of the picture, so its stood cover answers to that middle: a stood
+      // cover standing a hundred points to one side is a row that reads bigger on the other side, which the looser
+      // band of the stacked shape has to keep allowing for.
+      double within_reach_of_the_middle = shape == "carousel" ? 60.0 : picture / 4.0;
+      Assert.That(Math.Abs(centre_of_the_stood_cover - picture / 2.0), Is.LessThan(within_reach_of_the_middle),
+          "the cover being stood on answers to the middle of the picture rather than to one of its edges - " + read);
+    }
+
+    /// <summary>
+    /// The four corners of a tile as the shape it wears puts them: the tile's own box, corner by corner, through
+    /// the matrix the compositor draws with.  This is what a cover looks like, and it is not what was written.
+    /// </summary>
+    private static Point[] ProjectCorners(Control tile, Transform worn)
+    {
+      Matrix through = worn.Value;
+      double width = tile.Bounds.Width;
+      double height = tile.Bounds.Height;
+      Point[] laid = { new Point(0.0, 0.0), new Point(width, 0.0), new Point(0.0, height), new Point(width, height) };
+      return laid.Select(corner => through.Transform(corner)).ToArray();
+    }
+
+    /// <summary>How the two projected neighbours read, for the mouth of a failing assertion.</summary>
+    private static string CornersRead(Point[] left, Point[] right)
+        => "left corners " + string.Join(" ", left.Select(p => "(" + p.X.ToString("F1") + "|" + p.Y.ToString("F1") + ")"))
+        + " against right corners " + string.Join(" ",
+            right.Select(p => "(" + p.X.ToString("F1") + "|" + p.Y.ToString("F1") + ")"));
 
     /// <summary>
     /// The walls of the rail. A key that points past a wall - left past the rail's side, up past its head,

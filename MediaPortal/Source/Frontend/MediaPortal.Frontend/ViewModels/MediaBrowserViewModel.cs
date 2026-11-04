@@ -50,7 +50,21 @@ namespace MediaPortal.Frontend.ViewModels
     /// The skin's covers: large posters with the name standing under them, which is the third view the
     /// reference's view mode knew besides list and grid (<c>LayoutType.CoverLayout</c>).
     /// </summary>
-    Cover
+    Cover,
+
+    /// <summary>
+    /// The same covers in a <em>stack</em>: the stood one in front, the ones still to come standing one behind
+    /// the other to its right, the ones already walked gone out of the picture.  Nothing about the screen
+    /// changes - only the way the row of covers is put down, and the fact that the stack holds its place in the
+    /// middle instead of sliding along the floor.
+    /// </summary>
+    Stacked,
+
+    /// <summary>
+    /// The same covers in a <em>carousel</em>: the stood one facing the viewer, its neighbours turned away from
+    /// it and overlapping it, which is the shape every cover wall was ever photographed in.
+    /// </summary>
+    Carousel
   }
   /// <summary>
   /// One row of the title list.
@@ -1664,7 +1678,7 @@ namespace MediaPortal.Frontend.ViewModels
         if (!IsMusic)
           return null;
 
-        if (Layout == BrowserLayout.Cover
+        if (IsCoverLayout
             && SkinEngine.TryTileTemplate(MUSIC_COVER_TEMPLATE_KEY) != null)
           return MUSIC_COVER_TEMPLATE_KEY;
 
@@ -1700,7 +1714,7 @@ namespace MediaPortal.Frontend.ViewModels
         // The music frames outrank every other frame the layout could ask for: the reference drew its audio
         // cover as a square too - a larger one than its audio tile, but never a film case - so walking a music
         // shelf from tiles into covers changes the size of the square and not its shape.
-        return MusicTemplateKey ?? (Layout == BrowserLayout.Cover
+        return MusicTemplateKey ?? (IsCoverLayout
             ? COVER_TEMPLATE_KEY
             : TileKey(_tileKind));
       }
@@ -1845,7 +1859,10 @@ namespace MediaPortal.Frontend.ViewModels
 
       return layout switch
       {
-        BrowserLayout.Cover => settings.EnableCoverWatchedFlags,
+        // The stack and the carousel are the cover row wearing another shape, so the cover's own dial speaks for
+        // their corners too - a viewer who switched the cover's corners off does not expect them back the moment
+        // the same covers are stacked.
+        BrowserLayout.Cover or BrowserLayout.Stacked or BrowserLayout.Carousel => settings.EnableCoverWatchedFlags,
         BrowserLayout.Grid => settings.EnableGridWatchedFlags,
         _ => settings.EnableListWatchedFlags
       };
@@ -1863,7 +1880,7 @@ namespace MediaPortal.Frontend.ViewModels
 
     /// <summary>How the titles are drawn right now.</summary>
     [ObservableProperty]
-    private BrowserLayout _layout = BrowserLayout.List;
+    private BrowserLayout _layout = BrowserLayout.Carousel;
 
     /// <summary>Whether a tile may show its watched corner at all - the skin setting's answer.</summary>
     [ObservableProperty]
@@ -2077,7 +2094,13 @@ namespace MediaPortal.Frontend.ViewModels
       // shelf keeps wearing the backdrop it wore, which is a better answer than a blank moment.
       byte[]? worn = raw;
       if (radius > 0)
+      {
+        Stopwatch blurred = Stopwatch.StartNew();
         worn = (await BackgroundBlur.BlurredAsync(raw, radius)) ?? raw;
+        blurred.Stop();
+        Services.HomeTrace.Log("fanartblur", "ms=" + (long)blurred.Elapsed.TotalMilliseconds + " bytes=" + raw.Length +
+                                   " radius=" + radius.ToString("0.#"));
+      }
 
       // The viewer walked on, or the face - and with it the question - changed in the meantime.
       if (turn != Volatile.Read(ref _backgroundTurn))
@@ -2108,6 +2131,10 @@ namespace MediaPortal.Frontend.ViewModels
       _backgroundBaked = baked;
       BackgroundArtwork = bytes;
       OnPropertyChanged(nameof(FanartBlurRadius));
+
+      // A backdrop is the size of the television, so the frames this change costs are worth their line in the
+      // ledger: a wall that stutters half a second after every stopped cover is stuttering here, not on the shelf.
+      Services.HomeTrace.NextFrames("background", 3);
     }
 
     public string LayoutLabel
@@ -2118,6 +2145,8 @@ namespace MediaPortal.Frontend.ViewModels
         {
           BrowserLayout.Grid => "View: Grid",
           BrowserLayout.Cover => "View: Cover",
+          BrowserLayout.Stacked => "View: Stacked",
+          BrowserLayout.Carousel => "View: Carousel",
           _ => "View: List"
         };
       }
@@ -2172,7 +2201,7 @@ namespace MediaPortal.Frontend.ViewModels
         // FanArtType="Poster" for it (MediaStyles.xaml:5253), and the database's thumbnail blob - which is what
         // _artwork reads - is a wide letterbox picture at best and empty for most of what the importers write,
         // which left the cover wall a row of bare grey plates.
-        if (Layout == BrowserLayout.Cover)
+        if (IsCoverLayout)
           return TileArtworkFor(GridViewType.Poster) ?? _artwork;
 
         return TileArtworkFor(_tileKind) ?? _artwork;
@@ -2209,11 +2238,15 @@ namespace MediaPortal.Frontend.ViewModels
     public void SwitchView()
     {
       // The reference's view mode walked list → grid → cover, and the cycle closes back onto the rows it
-      // started from; all three steps belong to every screen now.
+      // started from.  The two cover shapes this front end adds stand between the covers and the rows, so the
+      // walk stays one loop over every shape the screen knows: a button that skipped two of five would leave a
+      // viewer pressing it again for a shape they had already seen.
       Layout = Layout switch
       {
         BrowserLayout.List => BrowserLayout.Grid,
         BrowserLayout.Grid => BrowserLayout.Cover,
+        BrowserLayout.Cover => BrowserLayout.Stacked,
+        BrowserLayout.Stacked => BrowserLayout.Carousel,
         _ => BrowserLayout.List
       };
 
@@ -2388,11 +2421,13 @@ namespace MediaPortal.Frontend.ViewModels
     public bool HasTitles => Titles.Count > 0;
 
     /// <summary>
-    /// Whether this shelf is worn as covers, which is the one layout the reference laid out sideways: the covers
-    /// in a row along the bottom, their details centred above them, and the screen's menu under them instead of
-    /// beside them.
+    /// Whether this shelf is worn as <em>covers</em>, which is the family of layouts the reference laid out
+    /// sideways: the row of posters along the bottom edge, their details centred above them, and the screen's
+    /// menu under them instead of beside them.  Three shapes wear that family - the walked row, the stack and the
+    /// carousel - and everything the screen does besides putting the covers down is the same in all three, which
+    /// is why they answer this one question together.
     /// </summary>
-    public bool IsCoverLayout => Layout == BrowserLayout.Cover;
+    public bool IsCoverLayout => Layout is BrowserLayout.Cover or BrowserLayout.Stacked or BrowserLayout.Carousel;
 
     /// <summary>
     /// Whether the shelf wants the details of its highlighted title at all - the one panel it has, beside the
@@ -2407,20 +2442,20 @@ namespace MediaPortal.Frontend.ViewModels
     /// of <c>SimpleShowItems.xaml</c>: grid and list only, and only while the viewer asked for the panel. Covers
     /// answer the same question with <see cref="ShowsCoverDetails"/>.
     /// </summary>
-    public bool ShowsSideDetails => (ShowDetails && Layout != BrowserLayout.Cover) || InfoShown;
+    public bool ShowsSideDetails => (ShowDetails && !IsCoverLayout) || InfoShown;
 
     /// <summary>
     /// Whether the details lie centred above the covers, on the horizontal gradient the reference laid under
     /// <c>MultiDetailsCover.inc</c> - the cover layout's answer, which never has a panel beside its row.
     /// </summary>
-    public bool ShowsCoverDetails => ShowDetails && Layout == BrowserLayout.Cover;
+    public bool ShowsCoverDetails => ShowDetails && IsCoverLayout;
 
     /// <summary>
     /// Whether the shelf draws the reference's floor gradient along its bottom edge: the dark band that lifts the
     /// names off the fanart.  The reference's media master laid it under grid and list whatever the details said,
     /// and only the cover view - which lays its own shadows over the wall of posters - went without it.
     /// </summary>
-    public bool ShowsFloorGradient => Layout != BrowserLayout.Cover && Titles.Count > 0;
+    public bool ShowsFloorGradient => !IsCoverLayout && Titles.Count > 0;
 
     private void RaiseShelfCounters()
     {
@@ -3229,6 +3264,11 @@ namespace MediaPortal.Frontend.ViewModels
           AddMenuRow("List", "view_list", new RelayCommand(() => PickLayout(BrowserLayout.List)), Layout == BrowserLayout.List);
           AddMenuRow("Grid", "grid_view", new RelayCommand(() => PickLayout(BrowserLayout.Grid)), Layout == BrowserLayout.Grid);
           AddMenuRow("Cover", "cover", new RelayCommand(() => PickLayout(BrowserLayout.Cover)), Layout == BrowserLayout.Cover);
+          // The two shapes besides the walked row are the same covers put down differently, which is why they sit
+          // beside "Cover" and not under a question of their own: a viewer looking for "the covers, but stacked"
+          // looks where the covers are.
+          AddMenuRow("Stacked", "view_stacked", new RelayCommand(() => PickLayout(BrowserLayout.Stacked)), Layout == BrowserLayout.Stacked);
+          AddMenuRow("Carousel", "view_carousel", new RelayCommand(() => PickLayout(BrowserLayout.Carousel)), Layout == BrowserLayout.Carousel);
           // The reference kept the details switch beside the view modes rather than among the media commands,
           // because details are the second half of the layout question and not a command of their own. The one
           // row the screen gives it is this one: the main page asking the same question a second time only
@@ -3336,7 +3376,9 @@ namespace MediaPortal.Frontend.ViewModels
     /// </summary>
     private void PickLayout(BrowserLayout layout)
     {
-      for (int step = 0; step < 3 && Layout != layout; step++)
+      // The walk is round, so the bound is a whole turn of the cycle: with five shapes, four steps can lie between
+      // two of them, and a row that stopped one step short of the shape it names would be a row that lied.
+      for (int step = 0; step < 5 && Layout != layout; step++)
         SwitchViewCommand.Execute(null);
 
       HideMediaMenu();
@@ -5002,12 +5044,23 @@ namespace MediaPortal.Frontend.ViewModels
 
           row.ShowArtwork(picture);
         }
+        else
+        {
+          // The wall this errand was sent for is not the wall the room wears now, so nothing is shown.  What MUST not
+          // happen is leaving the row stamped as though it had been painted: the stamp is what keeps a row from being
+          // asked a second time, and a shape the viewer settled on afterwards would then keep wearing its backup
+          // plate for the rest of the evening - which is what "from the sixtieth cover on there are only plates" is
+          // made of, since a walk fires a hundred of these errands and only the last generation is kept.
+          row.PaintedFrom = null;
+        }
       }
       catch (ServerApiException)
       {
         // A shelf whose server went quiet mid-picture keeps the rows it has. The list itself was read
         // successfully - that is what the status line is already about - and a row without a poster is a row a
-        // viewer can still read, select and play.
+        // viewer can still read, select and play.  Left unmarked on purpose: one errand that came back empty is no
+        // reason to go without a poster for the rest of the evening when the server was only having a bad minute.
+        row.PaintedFrom = null;
       }
     }
 

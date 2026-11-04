@@ -528,6 +528,39 @@
     <Setter Property="RenderTransform" Value="scale(1.1)"/>
   </Style>
 
+  <!--
+    A shelf gathered into a SHAPE - the stack or the carousel - pays for its picture every frame, and pays for
+    two things here that a wall of standing tiles only pays once:
+
+    The shadow.  A BoxShadow is rasterised with its blur, and a tile the shape scales has to have that blur
+    drawn again at the new size on every frame of the travel and of every transition.  A wall of standing tiles
+    asks for this seventeen or twenty times over per frame, and the whole of the shelf's stutter was measured
+    (MP_TRACE_HOME) to sit NOT in the view's own dressing - three passes over a row of covers cost a millimetre
+    of a millisecond - but in what the screen paints afterwards.  So a gathered row casts no shadow, and the one
+    cover a viewer stands on casts the skin's own: the depth the wall reads is kept where it is looked for, and
+    the sixteen covers behind it are flat ground the shape moves about.
+
+    The picture INSIDE the tile.  Standing on a tile steps its picture a tenth nearer over half a second, which
+    is a second clock running against the shape's own third of a second - and it is a clipped, scaled bitmap
+    being redrawn inside a tile that is itself being scaled outside.  A shape says "this one" with its whole
+    cover already: the stood cover stands full-size, full-light and nearest the viewer, and its neighbours fall
+    back from it.  Nothing is won by the picture inside stepping a tenth nearer as well, so inside a shaped
+    shelf the picture keeps its place.  Both of these are one class on the list (nereus-shelf-shaped, which the
+    view sets with the layout) and both are undone by taking that class away again.
+  -->
+  <Style Selector="ListBox.nereus-shelf-tiles.nereus-shelf-shaped Border.home-tile-shadow">
+    <Setter Property="BoxShadow" Value="none"/>
+  </Style>
+  <Style Selector="ListBox.nereus-shelf-tiles.nereus-shelf-shaped ListBoxItem:selected Border.home-tile-shadow, ListBox.nereus-shelf-tiles.nereus-shelf-shaped ListBoxItem:focus Border.home-tile-shadow">
+    <Setter Property="BoxShadow" Value="3 4 16 0 #70000000"/>
+  </Style>
+  <Style Selector="ListBox.nereus-shelf-tiles.nereus-shelf-shaped Image.home-tile-art">
+    <Setter Property="RenderTransform" Value="scale(1)"/>
+  </Style>
+  <Style Selector="ListBox.nereus-shelf-tiles.nereus-shelf-shaped ListBoxItem:selected Image.home-tile-art, ListBox.nereus-shelf-tiles.nereus-shelf-shaped ListBoxItem:focus Image.home-tile-art, Window:not(.pointer-resting) ListBox.nereus-shelf-tiles.nereus-shelf-shaped ListBoxItem:pointerover Image.home-tile-art">
+    <Setter Property="RenderTransform" Value="scale(1)"/>
+  </Style>
+
   <!-- A tile of the main menu wears the same ten of rounding as the covers on the wall, and the template clips
        it to that corner: the tile paints its own square ground, its artwork and its label band over the whole
        of itself, and without the clip every one of them ends in a right angle the round corner would only

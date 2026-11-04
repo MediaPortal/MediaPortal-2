@@ -667,14 +667,22 @@ namespace Tests.Frontend
     }
 
     [Test]
-    public void AnythingThatIsNotASizeIsTheWholePicture()
+    public void ANameThatIsNotASizeIsStillAPictureOfTheBigSize()
     {
-      // Every existing caller - the poster on a details screen, the raised photograph, the shelf's covers - passes
-      // nothing and must keep getting the whole picture it was given before.
-      Assert.That(ArtworkConverter.DecodeWidthFor(null!), Is.EqualTo(0));
-      Assert.That(ArtworkConverter.DecodeWidthFor("poster"), Is.EqualTo(0));
-      Assert.That(ArtworkConverter.DecodeWidthFor(0), Is.EqualTo(0));
-      Assert.That(ArtworkConverter.DecodeWidthFor(-4), Is.EqualTo(0));
+      // No caller leaves this door with the file's own size.  A caller that names nothing at all is answered with
+      // the BIG of the two sizes this front end keeps - the whole file is read through ReadWhole alone, by the few
+      // places that draw a picture as big as the screen - because a two-thousand-wide scan remembered under a
+      // question that never asked for a width is the biggest landlord of the picture budget there is, and thirty-
+      // eight covers of a shelf landing in the large-object heap at once is a step the viewer feels.
+      Assert.That(ArtworkConverter.DecodeWidthFor(null!),
+          Is.EqualTo(ArtworkConverter.WALL_DECODE_WIDTH));
+      Assert.That(ArtworkConverter.DecodeWidthFor("poster"),
+          Is.EqualTo(ArtworkConverter.WALL_DECODE_WIDTH));
+      Assert.That(ArtworkConverter.DecodeWidthFor(ArtworkConverter.POSTER_PARAMETER),
+          Is.EqualTo(ArtworkConverter.POSTER_DECODE_WIDTH),
+          "the grid's small poster is the second of the two sizes");
+      Assert.That(ArtworkConverter.DecodeWidthFor(0), Is.EqualTo(ArtworkConverter.WALL_DECODE_WIDTH));
+      Assert.That(ArtworkConverter.DecodeWidthFor(-4), Is.EqualTo(ArtworkConverter.WALL_DECODE_WIDTH));
     }
 
     [AvaloniaTest]
@@ -706,6 +714,31 @@ namespace Tests.Frontend
           System.Globalization.CultureInfo.InvariantCulture);
 
       Assert.That(again, Is.SameAs(first), "asking for the same tile picture twice is one decode, not two");
+      Assert.That(converter.Held, Is.EqualTo(1));
+    }
+
+    [AvaloniaTest]
+    public void TheSamePosterInAnotherArrayIsTheSamePicture()
+    {
+      // The shelf and the details panel each fetch the poster of one title, so two arrays of one file go through
+      // this converter.  Read by the array's identity the second question is a picture nobody has decoded, and
+      // whoever asks it decodes the JPEG again - on the thread that draws, because a binding is asked while the
+      // screen is being built.  That is the hitch a viewer counts, and it is what the wall pays for with the
+      // frame it was waiting for, so the picture has to be remembered for the file and not for the array.
+      ArtworkConverter converter = new ArtworkConverter();
+      byte[] bytes = Picture();
+      byte[] sameFileAgain = (byte[]) bytes.Clone();
+
+      object? first = converter.Convert(bytes, typeof(Bitmap), ArtworkConverter.TILE_PARAMETER,
+          System.Globalization.CultureInfo.InvariantCulture);
+
+      Assert.That(converter.Remembers(sameFileAgain, ArtworkConverter.TILE_PARAMETER), Is.True,
+          "a picture decoded from one array is remembered for every array of the same file");
+
+      object? again = converter.Convert(sameFileAgain, typeof(Bitmap), ArtworkConverter.TILE_PARAMETER,
+          System.Globalization.CultureInfo.InvariantCulture);
+
+      Assert.That(again, Is.SameAs(first), "the second reader of one poster does not decode it again");
       Assert.That(converter.Held, Is.EqualTo(1));
     }
 

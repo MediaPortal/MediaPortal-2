@@ -1496,6 +1496,44 @@ namespace MediaPortal.Frontend.Views
       if (!Services.HomeTrace.Enabled)
         return;
 
+      // MP_TRACE_OVERLAYS draws the renderer's own numbers onto the screen for a measuring run: "fps", "dirty",
+      // "layout", "render", or "all", comma separated.  A ledger of frame gaps says only that frames came late;
+      // these overlays say whether it was the layout pass or the drawing of the picture that was late, and which
+      // rectangles of the screen get painted again on every frame - which is the difference between a wall standing
+      // inside a surface that is thrown away every frame and a wall whose covers are simply too many to paint.
+      // Being on the picture itself, they are read from a screenshot like any other symptom.
+      string asked = Environment.GetEnvironmentVariable("MP_TRACE_OVERLAYS");
+      if (!string.IsNullOrEmpty(asked))
+      {
+        Avalonia.Rendering.RendererDebugOverlays worn = Avalonia.Rendering.RendererDebugOverlays.None;
+        foreach (string word in asked.Split(',', ';', ' '))
+        {
+          switch (word.Trim().ToLowerInvariant())
+          {
+            case "fps":
+              worn |= Avalonia.Rendering.RendererDebugOverlays.Fps;
+              break;
+            case "dirty":
+              worn |= Avalonia.Rendering.RendererDebugOverlays.DirtyRects;
+              break;
+            case "layout":
+              worn |= Avalonia.Rendering.RendererDebugOverlays.LayoutTimeGraph;
+              break;
+            case "render":
+              worn |= Avalonia.Rendering.RendererDebugOverlays.RenderTimeGraph;
+              break;
+            case "all":
+              worn |= Avalonia.Rendering.RendererDebugOverlays.Fps |
+                  Avalonia.Rendering.RendererDebugOverlays.DirtyRects |
+                  Avalonia.Rendering.RendererDebugOverlays.LayoutTimeGraph |
+                  Avalonia.Rendering.RendererDebugOverlays.RenderTimeGraph;
+              break;
+          }
+        }
+
+        RendererDiagnostics.DebugOverlays = worn;
+      }
+
       RequestAnimationFrame(PumpHomeTraceFrame);
     }
 

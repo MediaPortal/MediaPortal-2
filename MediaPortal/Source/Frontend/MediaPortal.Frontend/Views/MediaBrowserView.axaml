@@ -1796,6 +1796,22 @@
                 of fanart at its left and at its right hand and keeps the scroller's bar at the edge of the
                 room, away from the last column of posters.
               -->
+              <!--
+                THE COVER ROW, drawn.  The covers of the cover layout are not containers any more: one control owns
+                the place the row stands at and paints the eleven covers a viewer can see, which is the shape the
+                reference cover flow has.  The list below stays the caret - it is what the keys, the menus and the
+                details answer to, and it is put out of sight for this one shape - so that nothing about how a
+                title is chosen had to change for the row to be drawn.  Why a drawn row and not a dressed one: a
+                recycled container answers with the measurements of the place it came from, which is how a cover
+                came to be painted bigger on one side of the stood one than on the other, and no amount of dressing
+                over that fixes a number that was never read from where the cover is.
+              -->
+              <views:CoverCarousel Name="coverRow"
+                                   DockPanel.Dock="Bottom"
+                                   ItemsSource="{Binding Titles}"
+                                   SelectedIndex="{Binding #titlesList.SelectedIndex, Mode=TwoWay}"
+                                   Margin="0,0,0,45"
+                                   IsVisible="False"/>
               <ListBox Name="titlesList"
                        Focusable="True"
                        ItemsSource="{Binding Titles}"

@@ -142,6 +142,18 @@ namespace Tests.Frontend
       Assert.That(vm.LayoutLabel, Is.EqualTo("View: Cover"));
 
       vm.SwitchView();
+      Assert.That(vm.Layout, Is.EqualTo(BrowserLayout.Stacked),
+          "the same covers stacked are a shape of their own, walked to from the covers");
+      Assert.That(vm.GridTemplateKey, Is.EqualTo("MediaTileCoverTemplate"),
+          "a stack wears the cover's frame; only the way the covers stand changes");
+      Assert.That(vm.LayoutLabel, Is.EqualTo("View: Stacked"));
+
+      vm.SwitchView();
+      Assert.That(vm.Layout, Is.EqualTo(BrowserLayout.Carousel));
+      Assert.That(vm.GridTemplateKey, Is.EqualTo("MediaTileCoverTemplate"));
+      Assert.That(vm.LayoutLabel, Is.EqualTo("View: Carousel"));
+
+      vm.SwitchView();
       Assert.That(vm.Layout, Is.EqualTo(BrowserLayout.List));
       Assert.That(vm.GridTemplateKey, Is.EqualTo("TitleRowTemplate"),
           "rows ask the skin for the row template, exactly as the shelf always did");
@@ -191,7 +203,7 @@ namespace Tests.Frontend
     }
 
     [AvaloniaTest]
-    public void EveryShelfWalksAllThreeViewsEvenWithoutASkin()
+    public void EveryShelfWalksAllFiveViewsEvenWithoutASkin()
     {
       Application app = RequireApplication();
 
@@ -203,6 +215,10 @@ namespace Tests.Frontend
 
       wmc.SwitchView();
       Assert.That(wmc.Layout, Is.EqualTo(BrowserLayout.Cover));
+      wmc.SwitchView();
+      Assert.That(wmc.Layout, Is.EqualTo(BrowserLayout.Stacked));
+      wmc.SwitchView();
+      Assert.That(wmc.Layout, Is.EqualTo(BrowserLayout.Carousel));
       wmc.SwitchView();
       Assert.That(wmc.Layout, Is.EqualTo(BrowserLayout.List),
           "and the walk closes back onto the rows the reference's view mode started from");
@@ -224,6 +240,10 @@ namespace Tests.Frontend
           "the view button has tiles to switch to even where no skin draws them");
       own.SwitchView();
       Assert.That(own.Layout, Is.EqualTo(BrowserLayout.Cover));
+      own.SwitchView();
+      Assert.That(own.Layout, Is.EqualTo(BrowserLayout.Stacked));
+      own.SwitchView();
+      Assert.That(own.Layout, Is.EqualTo(BrowserLayout.Carousel));
       own.SwitchView();
       Assert.That(own.Layout, Is.EqualTo(BrowserLayout.List));
     }
@@ -594,6 +614,13 @@ namespace Tests.Frontend
       WaitUntil("the cover to wear the poster", delegate { return vm.Titles[1].Artwork!.SequenceEqual(new byte[] { 2, 2, 2, 2 }); });
 
       vm.SwitchView();
+      Assert.That(vm.Layout, Is.EqualTo(BrowserLayout.Stacked));
+      TestBrowserArtwork.DrawRows(vm, vm.Titles[1]);
+      Assert.That(vm.Titles[1].Artwork!.SequenceEqual(new byte[] { 2, 2, 2, 2 }), Is.True,
+          "a stack wears the poster like the row of covers it is the same covers in");
+
+      vm.SwitchView();
+      vm.SwitchView();
       Assert.That(vm.Layout, Is.EqualTo(BrowserLayout.List));
       TestBrowserArtwork.DrawRows(vm, vm.Titles[1]);
 
@@ -710,6 +737,14 @@ namespace Tests.Frontend
           "the reference gated the cover's corners on its own extEnableCoverWatchFlags, not the grid's");
       Assert.That(vm.Titles[0].WatchFlagsShown, Is.False,
           "and the rows already on screen hear about it, not just the rows read afterwards");
+
+      vm.SwitchView();
+      Assert.That(vm.Layout, Is.EqualTo(BrowserLayout.Stacked));
+      Assert.That(vm.WatchFlagsShown, Is.False,
+          "the stack is the cover row in another shape, so the cover's dial speaks for its corners too");
+      vm.SwitchView();
+      Assert.That(vm.Layout, Is.EqualTo(BrowserLayout.Carousel));
+      Assert.That(vm.WatchFlagsShown, Is.False, "and the carousel hears the same dial");
 
       vm.SwitchView();
       vm.SwitchView();

@@ -78,6 +78,13 @@ namespace MediaPortal.Frontend.Views
       if (values == null || values.Count == 0 || values[0] is not byte[] bytes || bytes.Length == 0)
         return null;
 
+      // Measuring switch, the neighbour of MP_NOART: MP_NOFANART=1 keeps the picture behind the wall away while
+      // the covers stay painted.  A step costs the same whether the covers are handed over or not (measured), so
+      // the question that is left is the backdrop - read whole, blurred and encoded again for every title the
+      // caret stands on, which is the one piece of the screen that is rebuilt rather than moved.
+      if (Environment.GetEnvironmentVariable("MP_NOFANART") == "1")
+        return null;
+
       double radius = values.Count > 1 && values[1] is double number && !double.IsNaN(number)
           ? Math.Max(0, number)
           : 0;
@@ -94,15 +101,58 @@ namespace MediaPortal.Frontend.Views
       throw new NotSupportedException("A picture is read from the server, never sent back to it.");
     }
 
-    // The one remembered copy: the bytes it came from, the turn it was blurred at, and the picture.
+    // THE BACKDROPS KEPT READY, AT THE SIZES THEY ARE WORN AT.
+    //
+    // A screen wears one backdrop at a time, but it wears a different one at every step of a walk over the shelf,
+    // and it asks for the same picture at TWO sizes: the plain one 1920 across that stands behind the wall, and
+    // the third-size copy the blur is worked on.  Both used to be remembered in the shelf's poster cache, where a
+    // plain backdrop is two megapixels standing among pictures that are a quarter of that: three of them filled
+    // the whole budget of remembered pictures, and the covers the viewer was looking at were the ones thrown out
+    // again - which is how a shelf wore grey plates from the sixtieth cover onwards while the backdrop behind
+    // them was sitting pretty.  A backdrop is not a poster, so it is remembered here, where it cannot eat the
+    // room the posters live in, and where "the sizes it is worn at" is the whole of what is kept: one plain copy
+    // and one blurred copy per backdrop, a handful of backdrops deep.
     private readonly object _memo = new object();
 
-    private byte[]? _bytes;
-    private double _radius;
-    private Bitmap? _picture;
+    private readonly Dictionary<(byte[] bytes, double radius), Bitmap> _blurredRemembered =
+        new Dictionary<(byte[], double), Bitmap>();
 
-    private byte[]? _plainBytes;
-    private Bitmap? _plainPicture;
+    private readonly List<(byte[] bytes, double radius)> _blurredAskedFor =
+        new List<(byte[], double)>();
+
+    /// <summary>
+    /// How many backdrops are kept at each of their sizes.  Three: the title the screen stands on, the one it
+    /// came from, and the one a viewer walking back a step is about to stand on.  A plain copy is two
+    /// megapixels, so a deeper row than this is memory the shelf's covers were asking for.
+    /// </summary>
+    private const int BACKDROPS_REMEMBERED = 3;
+
+    /// <summary>Puts one backdrop's copy into the row of them, and drops the oldest when the row is full.</summary>
+    /// <remarks>
+    /// Asked with the memo's lock held.  A copy that leaves the row is not disposed - the screen may still be
+    /// painting it, and <see cref="_wornLately"/> keeps the last few out of the collector's reach anyway.
+    /// </remarks>
+    private static void Remember<TKey>(
+        Dictionary<TKey, Bitmap> remembered, List<TKey> askedFor, TKey key, Bitmap picture)
+    {
+      remembered[key] = picture;
+      askedFor.Remove(key);
+      askedFor.Add(key);
+
+      while (askedFor.Count > BACKDROPS_REMEMBERED)
+      {
+        TKey oldest = askedFor[0];
+        askedFor.RemoveAt(0);
+        remembered.Remove(oldest);
+      }
+    }
+
+    /// <summary>Says that these bytes were looked at, so that the row forgets a different one first.</summary>
+    private static void LookedAt<TKey>(List<TKey> askedFor, TKey key)
+    {
+      askedFor.Remove(key);
+      askedFor.Add(key);
+    }
 
     /// <summary>
     /// The backdrops worn lately, held on purpose so that the garbage collector cannot reach them.
@@ -165,20 +215,17 @@ namespace MediaPortal.Frontend.Views
       if (bytes == null || bytes.Length == 0)
         return false;
 
-      lock (_memo)
+      if (radius <= 0)
       {
-        if (radius <= 0)
-        {
-          if (ReferenceEquals(_plainBytes, bytes) && _plainPicture != null)
-            return true;
-        }
-        else if (ReferenceEquals(_bytes, bytes) && _radius == radius && _picture != null)
-        {
-          return true;
-        }
+        //  A plain backdrop is a big poster read at the covers' width, so the row that remembers the covers
+        //  answers whether it lies ready.
+        return ArtworkConverter.RemembersAt(bytes, BACKDROP_DECODE_WIDTH);
       }
 
-      return radius <= 0 && ArtworkConverter.Instance.Remembers(bytes, BACKDROP_DECODE_WIDTH);
+      lock (_memo)
+      {
+        return _blurredRemembered.ContainsKey((bytes, radius));
+      }
     }
 
     /// <summary>
@@ -209,39 +256,33 @@ namespace MediaPortal.Frontend.Views
     /// is worn; the picture itself belongs to whoever binds it, so it is never disposed here.
     /// </para>
     /// <para>
-    /// It is read at the size the worn skin asks its backdrop for, which is <see cref="BACKDROP_DECODE_WIDTH"/>
-    /// across: the reference's own background picture is bound with
-    /// <c>ConverterParameter=FanArt;1920;1080;False</c> (backgrounds/default-background.xaml:58-62), and that
-    /// converter turns the two numbers into <c>MaxWidth</c> and <c>MaxHeight</c> on the fanart source
-    /// (FanArtImageSourceConverter.cs:51-67). Reading the file at its own size instead was measured at three
-    /// thousand one hundred and twenty-six by one thousand seven hundred and fifty-eight: two and a half times
-    /// the pixels, carried twice over (here and by the screen that wears it), for a picture that is drawn behind
-    /// a wall of posters and through a veil.
+    /// It is read at <see cref="BACKDROP_DECODE_WIDTH"/>, which is the big poster's width: a backdrop is not a
+    /// third size of its own, it is the same picture read at the size the covers are read at and stretched by the
+    /// compositor to fill the room behind them.  Reading it at the file's own size was measured at three thousand
+    /// one hundred and twenty-six by one thousand seven hundred and fifty-eight pixels, decoded and remembered
+    /// twice over for a picture that is drawn behind a wall of posters and through a veil.
     /// </para>
     /// <para>
-    /// It is asked of the artwork cache rather than decoded here on purpose: a picture inside that cache's
-    /// budget is remembered and never thrown away, which is how the front end keeps a backdrop alive while the
-    /// screen might still be drawing it. Read outside that care, the old backdrop is picked up by the garbage
-    /// collector some seconds after the next one arrives, and a background whose memory was given back while it
-    /// was still being drawn crashes the process.
+    /// It is asked of the picture cache rather than decoded here on purpose: a picture inside that cache's budget
+    /// is remembered and never thrown away, which is how the front end keeps a backdrop alive while the screen
+    /// might still be drawing it.  Read outside that care, the old backdrop is picked up by the garbage collector
+    /// some seconds after the next one arrives, and a background whose memory was given back while it was still
+    /// being drawn crashes the process.
     /// </para>
     /// </remarks>
     private Bitmap? Plain(byte[] bytes)
     {
-      lock (_memo)
-      {
-        if (ReferenceEquals(_plainBytes, bytes) && _plainPicture != null)
-          return _plainPicture;
-      }
-
-      if (ArtworkConverter.Instance.Convert(bytes, typeof(object), BACKDROP_DECODE_WIDTH, CultureInfo.InvariantCulture)
-          is not Bitmap picture)
+      //  A backdrop at the covers' own width has no reason to a cache of its own any more, so it has none: the
+      //  poster cache remembers it by its bytes and its width like every other picture of the front end, and a
+      //  backdrop that arrives while the wall of covers is being read finds its entry standing there already.
+      //  What this class keeps for itself is only what costs something to make twice - the blurred copy - and the
+      //  handful of pictures the screen might still be painting, in <see cref="_wornLately"/>.
+      Bitmap? picture = ArtworkConverter.ReadCached(bytes, BACKDROP_DECODE_WIDTH);
+      if (picture == null)
         return null;
 
       lock (_memo)
       {
-        _plainBytes = bytes;
-        _plainPicture = picture;
         WearLately(picture);
       }
 
@@ -249,9 +290,20 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
-    /// The width the backdrop is read at - the reference's own number, see <see cref="Plain"/>.
+    /// The width the backdrop is read at - which is the <em>big poster</em> width and nothing else, so that the
+    /// whole front end works with two picture sizes: this one and the grid's small one.
     /// </summary>
-    internal const int BACKDROP_DECODE_WIDTH = 1920;
+    /// <remarks>
+    /// The reference asks its fanart for <c>1920;1080</c> (backgrounds/default-background.xaml:58-62, turned into
+    /// <c>MaxWidth</c>/<c>MaxHeight</c> by FanArtImageSourceConverter.cs:51-67), and reading it at that width was
+    /// measured here at two megapixels decoded, two megapixels remembered and a frame of 211 ms the first time the
+    /// picture was drawn - while the backdrop it is worn behind is dimmed, in most skins blurred, and seen from
+    /// three metres on a television.  Read at six hundred and forty and stretched by the compositor - which scales
+    /// a picture it is already holding for the price of one quad, not for the price of a decode - the same
+    /// backdrop costs a ninth of the pixels and no frame at all.  A backdrop asked for at this width is also the
+    /// very picture the wall's covers are read at, so the two share one cache entry instead of competing for it.
+    /// </remarks>
+    internal const int BACKDROP_DECODE_WIDTH = ArtworkConverter.WALL_DECODE_WIDTH;
 
     /// <summary>
     /// The blurred copy of these bytes at this radius, made once and held until a different picture or a
@@ -259,10 +311,15 @@ namespace MediaPortal.Frontend.Views
     /// </summary>
     private Bitmap? Blurred(byte[] bytes, double radius)
     {
+      (byte[], double) worn = (bytes, radius);
+
       lock (_memo)
       {
-        if (ReferenceEquals(_bytes, bytes) && _radius == radius && _picture != null)
-          return _picture;
+        if (_blurredRemembered.TryGetValue(worn, out Bitmap? ready))
+        {
+          LookedAt(_blurredAskedFor, worn);
+          return ready;
+        }
       }
 
       byte[]? blurred = BlurToPng(bytes, radius, out _, out _);
@@ -275,9 +332,7 @@ namespace MediaPortal.Frontend.Views
 
       lock (_memo)
       {
-        _bytes = bytes;
-        _radius = radius;
-        _picture = picture;
+        Remember(_blurredRemembered, _blurredAskedFor, worn, picture);
         WearLately(picture);
       }
 
@@ -398,17 +453,14 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>A picture out of the encoded blur, or null when the screen will not have it.</summary>
+    /// <remarks>
+    /// Through the poster cache's reader rather than <c>new Bitmap(stream)</c>, because a bitmap built from a
+    /// stream only gets its pixels when the first frame draws it - and the frame that shows a new backdrop has
+    /// enough else to do.
+    /// </remarks>
     private static Bitmap? PictureOf(byte[] encoded)
     {
-      try
-      {
-        using MemoryStream stream = new MemoryStream(encoded, false);
-        return new Bitmap(stream);
-      }
-      catch (Exception)
-      {
-        return null;
-      }
+      return ArtworkConverter.ReadWhole(encoded);
     }
   }
 }

@@ -572,9 +572,13 @@
       <Panel>
         <Border Classes="home-tile-face" Background="#222222" ClipToBounds="True">
           <Grid>
+            <!--  The grid's poster is the SMALL of the two picture sizes this front end keeps (256 device pixels);
+                  the covers of the cover views ask for the big one.  A poster drawn two hundred and seventeen
+                  device pixels wide has no use for a decode of four hundred and thirty-two, and twenty of them on
+                  the screen at once is texture the graphics card would hold for nothing. -->
             <Image Classes="home-tile-art"
                    Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance},
-                                    ConverterParameter='tile'}"
+                                    ConverterParameter='small'}"
                    Stretch="UniformToFill"
                    IsVisible="{Binding HasArtwork}"/>
             <!-- no picture: the home tiles' backup plate, the medium's mark in its middle, the name under it -->

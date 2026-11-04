@@ -68,7 +68,10 @@ namespace MediaPortal.Frontend.Services
 
     private static long _frames;
     private static long _slowFrames;
-    private static double _lastFrameAt;
+    private static int _lastGen0;
+    private static int _lastGen1;
+    private static int _lastGen2;
+    private static long _lastAllocated;    private static double _lastFrameAt;
     private static double _lastSummaryAt;
     private static double _worstGapMs;
 
@@ -157,8 +160,24 @@ namespace MediaPortal.Frontend.Services
       else if (now - _lastSummaryAt >= SUMMARY_INTERVAL_MS)
       {
         _lastSummaryAt = now;
+        // The collector's own ledger next to the frame ledger: a picture of a few megabytes is a large-object
+        // heap allocation by itself, ten of them a step, and a collection of that heap stops the thread that
+        // paints the screen.  A frame that came late is then not the drawing being late but the collector, and
+        // only these numbers tell the two apart - they stand here so that the question is never answered by
+        // opinion again.  What is written is the count since the last summary and the bytes allocated in it.
+        int g0 = GC.CollectionCount(0) - _lastGen0;
+        int g1 = GC.CollectionCount(1) - _lastGen1;
+        int g2 = GC.CollectionCount(2) - _lastGen2;
+        _lastGen0 = GC.CollectionCount(0);
+        _lastGen1 = GC.CollectionCount(1);
+        _lastGen2 = GC.CollectionCount(2);
+        long allocated = GC.GetTotalAllocatedBytes(true);
+        long got = allocated - _lastAllocated;
+        _lastAllocated = allocated;
+
         Write("frames", string.Format(CultureInfo.InvariantCulture,
-            "total={0} slow={1} worst={2:F1}", _frames, _slowFrames, _worstGapMs));
+            "total={0} slow={1} worst={2:F1} gc={3}/{4}/{5} allocated={6}MB", _frames, _slowFrames, _worstGapMs,
+            g0, g1, g2, got / (1024 * 1024)));
         _worstGapMs = 0;
       }
 

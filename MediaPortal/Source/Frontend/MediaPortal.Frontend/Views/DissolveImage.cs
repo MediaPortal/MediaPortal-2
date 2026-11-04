@@ -183,8 +183,19 @@ namespace MediaPortal.Frontend.Views
       BeginDissolve(waitedFor);
     }
 
+    /// <summary>
+    /// Measuring switch: <c>MP_NOART=1</c> keeps every picture off the screen.  It answers a question no ledger can
+    /// answer on its own - whether the frames a step costs are the frames of the covers being painted or of the
+    /// row being moved.  With the covers away and the row still stepping, a step that grows cheap had its price
+    /// in the pictures, and a step that stays expensive has it in the shapes.
+    /// </summary>
+    private static readonly bool NoPicturesWorn = Environment.GetEnvironmentVariable("MP_NOART") == "1";
+
     private void BeginDissolve(IImage? picture)
     {
+      if (NoPicturesWorn)
+        return;
+
       // A dissolve the viewer has meanwhile had better news about ends where it stands, so that the newer
       // picture starts over the one the screen actually shows - not over a half-faded third one.
       if (IsDissolving)

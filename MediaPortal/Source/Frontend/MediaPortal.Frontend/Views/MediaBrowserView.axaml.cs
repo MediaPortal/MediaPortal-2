@@ -34,6 +34,7 @@ using MediaPortal.Frontend.Workflow;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace MediaPortal.Frontend.Views
@@ -66,6 +67,8 @@ namespace MediaPortal.Frontend.Views
     /// </para>
     /// </remarks>
     private bool _caretWaitsForTheBands;
+
+    private TitleViewModel? _layoutStoodOn;
 
     /// <summary>
     /// The floor the markup wrote under the shelf, kept from the moment the view was stood up.
@@ -108,7 +111,27 @@ namespace MediaPortal.Frontend.Views
       _nowPlayingScreen = nowPlayingScreen;
       _insideScreen = insideScreen;
       InitializeComponent();
+
+      // Measuring switch: MP_NOGLASS=1 takes the command rail - the seven liquid-glass lenses - out of the screen.
+      // It exists because a thing that cannot be seen can still be paid for: a lens is not a picture that is
+      // skipped when it stands outside the window, it is a shader over the ground behind it, and whether the
+      // renderer runs that shader for a rail nobody looks at is a question for the frame ledger, not for opinion.
+      // With the rail away and the steps growing cheap, the glass was being paid for while invisible; with the
+      // steps staying as expensive as they were, the glass is innocent and can be left alone.
+      if (Environment.GetEnvironmentVariable("MP_NOGLASS") == "1")
+      {
+        foreach (Visual child in this.GetVisualDescendants())
+        {
+          if (child is Control rail && rail.Classes.Contains("media-menu"))
+            rail.IsVisible = false;
+        }
+      }
       _shelfFloor = titlesList.Margin;
+
+      // The drawn cover row wants its posters from its first frame on - whether the viewer walked into the shape or
+      // the screen opened in it.  Wiring this only when the shape is switched left every cover but the one the
+      // invisible list happened to paint without a picture.
+      coverRow.PictureAsked ??= AskForCoverPicture;
 
       // The arrow ring is the shelf and nothing else. The two buttons that used to stand beside it are gone: "Play"
       // was the Enter that the list already answers, and "More" asked for what the shelf now reads on its own as
@@ -201,7 +224,27 @@ namespace MediaPortal.Frontend.Views
       // next step, or a fast walk drops its caret between two tiles and nobody picks it up.
       titlesList.SelectionChanged += delegate
       {
-        GlideShelfToStoodTitle();
+        // A caret step is deliberate motion; container preparation and remeasurement must settle directly or
+        // they would keep retargeting the same animation while the virtualized wall is being rebuilt.
+        _animate_shelf_shape_targets = true;
+        try
+        {
+          GlideShelfToStoodTitle();
+        }
+        finally
+        {
+          _animate_shelf_shape_targets = false;
+        }
+
+        // The list answers its own selection too, by bringing the tile into view - and that answer is the smallest
+        // nudge that shows the tile, not the middle of the picture a ring is built around.  Landing after the
+        // glide above, it leaves the stood cover standing beside the middle, which is what the viewer reads as a
+        // row that is bigger on one side than on the other.  Once that nudge has landed the wall is put back where
+        // the shape asked for it; asked without the wait, this would be answered before the nudge and change
+        // nothing.
+        int stood_on_index = titlesList.SelectedIndex;
+        WatchShelfWallHome(stood_on_index);
+
         WatchShelfCaret();
       };
 
@@ -285,7 +328,13 @@ namespace MediaPortal.Frontend.Views
       };
       // The division is a measurement, and a measurement is only as good as the width it was taken at: a window
       // that is dragged wider, or thrown full screen from a laptop lid, is divided again.
-      SizeChanged += delegate { ApplyColumns(); };
+      SizeChanged += delegate
+      {
+        ApplyColumns();
+        // A window that changed size changed the middle of its picture, which is what both shapes hold their stood
+        // cover at and what the shift of their whole row is measured from.
+        WearShelfShape(true);
+      };
       ApplyColumns();
 
       // The plot reads itself down the panel when the worn face says so - the reference's three scroll
@@ -363,6 +412,10 @@ namespace MediaPortal.Frontend.Views
 
               double amount = band.Viewport.Width * 0.6;
               band.Offset = new Vector(band.Offset.X - Math.Sign(args.Delta.Y) * amount, 0);
+
+              // The wall now stands where the viewer put it, not where the last step asked for it.  Told so, the
+              // next step writes its travel again instead of believing the wall is still on its way there.
+              _shelfGlideIndex = -1;
               args.Handled = true;
             }, RoutingStrategies.Tunnel);
 
@@ -407,15 +460,40 @@ namespace MediaPortal.Frontend.Views
       // be eleven hundred downloads wearing the shelf, whether they stand or not.
       titlesList.ContainerPrepared += delegate (object? sender, ContainerPreparedEventArgs e)
       {
+        ++_shelf_prepared;
         ScheduleRowPainting();
+
+        // Measuring switch: MP_NOSHADOW=1 takes the ground shadow off every tile the shelf realises, once, as it
+        // arrives.  A BoxShadow is rasterised together with its blur, so a wall that stands sixty tiles in a
+        // shape carries sixty blurs with it wherever it goes - which is the kind of cost that has to be counted
+        // before anybody is allowed to call it cheap or dear.
+        Control prepared = e.Container;
+        if (NoShadowsWorn)
+          TakeShadowsFrom(prepared);
+
+        // A recycled container can still carry the previous title's side, scale and opacity. Clear that state
+        // before its new index is available; the deferred row pass below dresses it from the correct index.
+        if (DataContext is MediaBrowserViewModel viewModel
+            && viewModel.Layout is BrowserLayout.Stacked or BrowserLayout.Carousel)
+          BareTile(prepared, viewModel.Layout != BrowserLayout.Carousel);
+
+        // A list which is looked at through a shape must not scroll itself, because the wall travels to where the
+        // shape puts it - see KeepTileWhereTheWallStands.
+        KeepTileWhereTheWallStands(prepared);
+
         // A travel asked for while the stood tile was not laid out yet waits for exactly this container; when it
         // arrives, the question that was thrown away is asked again, and the wall glides instead of leaving the
         // selection's own jump as the only movement the viewer sees.
-        if (e.Index == _glideAwaitContainer)
+        if (_glideAwaitTitle != null && ReferenceEquals(prepared.DataContext, _glideAwaitTitle))
         {
-          _glideAwaitContainer = -1;
-          Dispatcher.UIThread.Post(delegate { GlideShelfToStoodTitle(0); }, DispatcherPriority.Loaded);
+          _glideAwaitTitle = null;
+          Dispatcher.UIThread.Post(delegate { GlideShelfToStoodTitle(0); }, DispatcherPriority.Background);
         }
+
+        // The panel has not finished assigning this container its item/index yet. Defer one whole-row pass and
+        // coalesce the posts: a single layout batch can prepare many containers, and each pass visits them all.
+        // This is independent of whether the same container also completed a pending glide request.
+        ScheduleShelfShape();
       };
 
       // Two things are done when the list is scrolled: the rows that came into sight are offered their pictures,
@@ -433,7 +511,7 @@ namespace MediaPortal.Frontend.Views
         // Covers are read sideways, so for them the end of the shelf is the end of the extent's width and not of
         // its height; asking the wrong axis would keep reading a shelf that is already whole and never read the one
         // a cover viewer is coming to the end of.
-        bool sideways = browser.Layout == BrowserLayout.Cover;
+        bool sideways = browser.IsCoverLayout;
         double short_of_end = sideways
             ? scroller.Extent.Width - (scroller.Offset.X + scroller.Viewport.Width)
             : scroller.Extent.Height - (scroller.Offset.Y + scroller.Viewport.Height);
@@ -629,7 +707,7 @@ namespace MediaPortal.Frontend.Views
             if (args.Handled || searchBox.IsFocused || !(DataContext is MediaBrowserViewModel viewModel))
               return;
 
-            bool sideways = viewModel.Layout == BrowserLayout.Cover;
+            bool sideways = viewModel.IsCoverLayout;
             Key off_the_shelf = sideways ? Key.Down : Key.Left;
             Key back_to_the_shelf = sideways ? Key.Up : Key.Right;
             ListBox menu = sideways ? mediaMenuListBottom : mediaMenuList;
@@ -1894,6 +1972,10 @@ namespace MediaPortal.Frontend.Views
       bool frame_changed = !ReferenceEquals(_wornFrame, frame);
       _wornFrame = frame;
       titlesList.ItemTemplate = frame;
+      TitleViewModel? stood_on = _layoutStoodOn
+          ?? titlesList.SelectedItem as TitleViewModel
+          ?? viewModel.Selected;
+      _layoutStoodOn = stood_on;
 
       // A wall that changes the frame its tiles wear has to throw its standing tiles away.  A virtualizing panel
       // keeps the containers it stood up and re-hangs them on the next title, and a re-hung container keeps the
@@ -1904,14 +1986,8 @@ namespace MediaPortal.Frontend.Views
       if (frame_changed)
       {
         System.Collections.IEnumerable? titles = titlesList.ItemsSource;
-        object? stood_on = viewModel.Selected;
-        titlesList.ItemsSource = null;
-        titlesList.ItemsSource = titles;
-        // Emptying the source empties the selection with it, and the selection answers the details, the fanart
-        // and the caret - so the tile the viewer was standing on is stood on again, which is also what makes the
-        // wall glide back to it rather than leaving the viewer at the head of a rebuilt wall.
-        if (stood_on != null && titlesList.SelectedItem == null)
-          titlesList.SelectedItem = stood_on;
+        titlesList.SetCurrentValue(ItemsControl.ItemsSourceProperty, null);
+        titlesList.SetCurrentValue(ItemsControl.ItemsSourceProperty, titles);
       }
 
       // Tiles dress themselves - plate, picture, name and ring - so the list may not paint its selected row
@@ -1919,11 +1995,18 @@ namespace MediaPortal.Frontend.Views
       titlesList.Classes.Set("nereus-shelf-tiles", viewModel.Layout != BrowserLayout.List);
       titlesList.Classes.Set("nereus-shelf-rows", viewModel.Layout == BrowserLayout.List);
 
+      // A gathered row is painted differently from a wall of standing tiles: it casts no shadow but for the cover
+      // stood on, and the picture inside its tiles keeps its place (styles.xaml, nereus-shelf-shaped).  Both
+      // because a shape scales its covers, and a blur and a clipped zoom that are re-drawn under a scale are
+      // what the viewer feels as the row catching - not the dressing, which was measured at a millimetre of a
+      // millisecond for a whole row.
+      titlesList.Classes.Set("nereus-shelf-shaped",
+          viewModel.Layout is BrowserLayout.Stacked or BrowserLayout.Carousel);
       // A grid and a list are laid one under the other, the grid wrapping whole tiles across the screen and the
       // list keeping its strip of rows. Covers are the third shape and the only one the reference turned on its
       // side: their row runs along the bottom edge of the room, their details are centred above it, and the
       // screen's menu waits under the edge of the screen for the room to be lifted up to it.
-      if (viewModel.Layout == BrowserLayout.Cover)
+      if (viewModel.IsCoverLayout)
       {
         titlesList.ItemsPanel = COVER_PANEL;
         titlesList.VerticalAlignment = VerticalAlignment.Bottom;
@@ -1952,6 +2035,17 @@ namespace MediaPortal.Frontend.Views
           titlesList.ClearValue(ItemsControl.ItemsPanelProperty);
       }
 
+      // THE COVER ROW, drawn.  For this one shape the covers are painted by a control of their own and the list
+      // keeps nothing but the caret, so the list is put out of sight rather than out of the tree: the keys, the
+      // menus and the details all answer to the list's selection, and a list that is collapsed cannot hold the
+      // focus they walk in from.  Out of sight also means out of the dressing - the shape asks nothing of a row
+      // nobody can see (see WearShelfShape), and the wall is asked to travel nowhere (see GlideShelfToStoodTitle),
+      // which is the whole of the per-step cost this shape used to have.
+      bool row_is_drawn = viewModel.Layout == BrowserLayout.Carousel;
+      coverRow.IsVisible = row_is_drawn;
+      coverRow.PictureAsked ??= AskForCoverPicture;
+      titlesList.Opacity = row_is_drawn ? 0.0 : 1.0;
+
       // A panel swapped under a standing list is laid out again, and with it the scroller it is read through - its
       // fade and its glide both live on that scroller, so both are put back on and the shelf is stood where the
       // title being stood on belongs in the new shape's band.
@@ -1959,6 +2053,1219 @@ namespace MediaPortal.Frontend.Views
       ApplyShelfFade(viewModel.Layout);
       InstallShelfGlide(viewModel.Layout);
       GlideShelfToStoodTitle();
+
+      // And the same questions are put again once the swapped panel has measured itself.  A wall asked where its
+      // caret belongs before the new panel has grown knows neither how long the wall is nor where the cover it
+      // stands on lies, so the first asking lands wherever the PREVIOUS layout left the wall - which for a viewer
+      // walking from rows into a stack is a stack standing at some other dozen covers than the one they are
+      // standing on, filling itself only when they walk the caret on.  The glide is fitted on a post of its own
+      // (see InstallShelfGlide), so this is asked after that: a glide asked of a bare scroller is a jump.  The
+      // glide itself dresses the shape; a second WearShelfShape here would repeat the full row pass.
+      Dispatcher.UIThread.Post(delegate
+      {
+        if (_layoutStoodOn is TitleViewModel stood_on)
+        {
+          if (!viewModel.Titles.Contains(stood_on))
+            _layoutStoodOn = null;
+          else
+          {
+            viewModel.Selected = stood_on;
+            titlesList.SetCurrentValue(SelectingItemsControl.SelectedItemProperty, stood_on);
+            if (ReferenceEquals(titlesList.SelectedItem, stood_on))
+              _layoutStoodOn = null;
+          }
+        }
+
+        if (viewModel.Layout == BrowserLayout.Carousel && titlesList.SelectedItem is object selected)
+        {
+          titlesList.ScrollIntoView(selected);
+          Dispatcher.UIThread.Post(delegate { GlideShelfToStoodTitle(); }, DispatcherPriority.Background);
+        }
+        else
+          GlideShelfToStoodTitle();
+
+        // A wall stood up under a shape it did not come from has to be carried to the middle of the picture the
+        // same way a step of the caret carries it: the swapped panel measures its length after this method has
+        // run, so the travel asked for here is answered by the watch below rather than by one more question.
+        WatchShelfWallHome(titlesList.SelectedIndex);
+      }, DispatcherPriority.Background);
+    }
+
+    // ── The shape the covers are put in ───────────────────────────────────────────────────────────────
+    //
+    // The cover family lays the same posters in the same row along the floor; what the three shapes differ in is
+    // only what happens to a tile according to how far it stands from the title being stood on.  The walked row
+    // leaves its tiles exactly as the panel put them down.  A carousel turns its neighbours away from the stood
+    // cover and lets them overlap it.  A stack keeps its place in the middle of the room: the stood cover faces
+    // the viewer, the covers still to come stand one behind the next to its right, and the ones already walked
+    // turn out of the picture.
+    //
+    // Avalonia knows no 3D transform string - "RotateY(45deg)" and "Perspective(500)" are WinUI words and the
+    // parser here answers them with a FormatException.  It does own Rotate3DTransform, and the carousel wears it.
+    // Two things were learned about that object and both are kept in the code:
+    //
+    // · It leans about whatever centre it is given, and given none it leans about the corner the tile was laid at.
+    //   That swings the far half of a cover sideways and shifts its whole height, which is why the neighbours of the
+    //   stood cover stood at different heights and with a hole in the middle.  Every turn here is given the tile's
+    //   own middle (WearCarouselTile), and a ring is a ring again.
+    // · A tilted tile is no longer square to the screen, and a visual the compositor cannot draw inside its own
+    //   axis-aligned rectangle is given a surface of its own to be rasterised into.  A carousel with its neighbours
+    //   leaned therefore costs one surface per turned cover - measured, and accepted for the look.  A stack wears
+    //   the same object at zero degrees, where the matrix is square again and nothing is paid.
+    //
+    // The measure, the place and the light still come out of the same walk, so one tile's whole look is written by
+    // one method.
+    //
+    // One boundary governs all of it.  The panel that lays the wall only stands up the tiles that fall inside the
+    // picture's window on that wall. The carousel now lays its overlap into the tile margins, so the panel's own
+    // item centres, scroll extent and virtualized window all use the same step; it no longer has to move a laid
+    // cover across the wall with a render transform. The stack still gathers its covers with transforms and asks
+    // the panel for enough <see cref="CacheLength"/> to stand those covers up before they are seen. Both shapes
+    // leave the wall's travel, fades and next-page reading to the panel that owns them.
+    //
+    // The stood cover is held in the middle of the picture by the wall's own travel in the middle of a shelf, and
+    // by one shift of the whole row at either end, where the wall can travel no further.  Never by a shift per
+    // place, which is the pull this boundary forbids.
+
+    /// <summary>
+    /// How far a carousel's neighbours turn away from the cover being stood on.  Well past a right angle's half:
+    /// a neighbour seen at forty-five degrees still shows half of itself and the row reads as a fence of boards,
+    /// while at these angles the neighbours are wedges the eye reads as a ring running out of the picture.
+    /// </summary>
+    private const double CAROUSEL_LEAN_DEGREES = 45.0;
+
+    /// <summary>
+    /// How much of a cover's height a carousel's neighbour gives up per place from the cover being stood on.
+    /// Every number of the ring - height, light and the step down towards the edge of the picture - is read off
+    /// the DISTANCE ALONE, never off which side a cover stands on: two covers standing equally far from the middle
+    /// are then the same size by construction, which is the one thing a row seen from the middle has to be.
+    /// </summary>
+    private const double CAROUSEL_MEASURE_LOSS = 0.055;
+
+    /// <summary>How far a carousel's covers may shrink before the row stops being a row of readable posters.</summary>
+    private const double CAROUSEL_MEASURE_FLOOR = 0.66;
+
+    /// <summary>How much of a cover's light a carousel's neighbour gives up per place from the stood cover.</summary>
+    private const double CAROUSEL_LIGHT_LOSS = 0.13;
+
+    /// <summary>How dark a carousel's covers may go at the edge of the picture.</summary>
+    private const double CAROUSEL_LIGHT_FLOOR = 0.28;
+
+    /// <summary>
+    /// How far a carousel's neighbours step DOWN per place from the cover being stood on.  The row is a ring seen
+    /// slightly from above, so its far parts fall away towards the floor instead of standing on one flat line.
+    /// </summary>
+    private const double CAROUSEL_DROP = 7.0;
+
+    /// <summary>
+    /// The camera distance every turn here projects through.  A cover of this skin is wide, and a camera standing
+    /// close magnifies the edge a turned cover brings near far past the other one - a row of covers whose near
+    /// edges are a third bigger than their far ones does not read as a ring any more.  This is the distance the
+    /// reference looks its covers through, and at it the near edge of a turned cover is a little bigger, no more.
+    /// </summary>
+    private const double SHELF_CAMERA_DEPTH = 900.0;
+
+    /// <summary>
+    /// The centre-to-centre distance of carousel covers. The overlap is laid into each cover's horizontal margin,
+    /// so the virtualizing panel measures the same spacing that the 3D row shows.
+    /// </summary>
+    /// <remarks>
+    /// This is also the distance the panel lays them at; unlike the stack, the carousel does not translate each
+    /// cover away from its virtualized slot.
+    /// </remarks>
+    private const double CAROUSEL_STEP = 160.0;
+
+    /// <summary>
+    /// Keeps a few carousel covers prepared beyond each edge without realizing another full screen of 3D tiles.
+    /// Avalonia applies CacheLength on both sides of the viewport.
+    /// </summary>
+    private const double CAROUSEL_CACHE_LENGTH = 0.15;
+
+    /// <summary>
+    /// How far the covers of a stack are seen from one another, to the left of the front cover and to its right: a
+    /// stack is a stack on both sides, and both of them run out to the edges of the picture.
+    /// </summary>
+    private const double STACK_STEP = 150.0;
+
+    /// <summary>How much of its size a stacked cover loses for every place it stands behind the front one.</summary>
+    private const double STACK_MEASURE_LOSS = 0.06;
+
+    /// <summary>The smallest a stacked cover stands, however far behind the front one it stands.</summary>
+    private const double STACK_MEASURE_FLOOR = 0.55;
+
+    /// <summary>How much of its light a stacked cover loses for every place it stands behind the front one.</summary>
+    private const double STACK_LIGHT_LOSS = 0.09;
+
+    /// <summary>The least light a stacked cover keeps, however far behind the front one it stands.</summary>
+    private const double STACK_LIGHT_FLOOR = 0.25;
+
+    /// <summary>
+    /// How much wall the panel is asked to stand up beside the picture while a shape is worn, in pictures' width:
+    /// a screenful and a half on each side.  A shape gathers its covers towards the middle, so a cover the panel
+    /// took down would leave a hole <em>inside</em> the gathered row rather than outside it, and the row has to be
+    /// stood up wide enough that the covers at its two ends reach the edges of the picture.
+    /// </summary>
+    /// <remarks>
+    /// This is only the guess for the moment before the row has been laid: as soon as two covers of it answer,
+    /// <see cref="ShelfWiden"/> works the window out of the row itself (half a picture seen, read back into the
+    /// pitch the panel lays in) and asks for that.  Kept below the panel's own ceiling of two either way: every
+    /// cover standing beside the picture is a cover standing with its poster in memory, its texture on the
+    /// graphics card and its shadow to be painted, and this screen was asked to get cheaper, not dearer.
+    /// </remarks>
+    private const double SHELF_REALIZED_BUFFER = 1.5;
+
+    /// <summary>
+    /// The breath put on the window a gathered row asks for, so that the cover standing at the edge of the
+    /// picture is stood up whole rather than half.
+    /// </summary>
+    private const double SHELF_REALIZED_BREATH = 1.15;
+
+    /// <summary>How long a tile takes to reach the place its shape asks for.</summary>
+    private static readonly TimeSpan SHELF_SHAPE_TRAVEL = TimeSpan.FromMilliseconds(300);
+
+    /// <summary>The shape the tiles on screen were last put in, so that leaving a shape can undress them once.</summary>
+    private BrowserLayout _wornShelfShape = BrowserLayout.List;
+
+    /// <summary>
+    /// Whether the row on screen dims its own covers towards the edges - which the two gathered shapes do, every
+    /// cover standing dimmer the further it is from the stood one.  Such a row wears no edge mask: a mask is an
+    /// offscreen surface of the whole band for the compositor to paint again on every frame of a step, and the
+    /// reference gives its shapes no mask at all (<c>MediaStyles.xaml:5205</c>, <c>:5229</c>, <c>:5253</c>).
+    /// </summary>
+    private bool RowFadesItsOwnCovers
+        => _wornShelfShape is BrowserLayout.Stacked or BrowserLayout.Carousel;
+
+    /// <summary>
+    /// The two transforms one tile of a shape is leaned with, kept beside the tile itself: the measure and the
+    /// place.  They are made once per tile and only ever written afterwards, which is what lets a tile walk from
+    /// one place to the next instead of jumping - a transform thrown away and built again carries no memory of
+    /// where it stood.
+    /// </summary>
+    /// <remarks>
+    /// The turn is the one object here that is NOT square to the screen, and that costs: a tile leaned away from the
+    /// viewer cannot be drawn inside its own axis-aligned rectangle, so the compositor rasterises it into a surface
+    /// of its own - one per turned cover, every frame of a step.  That is the price of a carousel and it is paid
+    /// knowingly; a stack, which wears the same object at zero degrees, pays nothing because its matrix is square
+    /// again.
+    /// <para>
+    /// The turn is a matrix built HERE rather than a <c>Rotate3DTransform</c>, and the reason is a measurement and not
+    /// a preference: leaning a cover 230 px wide by +45° through Avalonia's own 3D object projects it onto 143 px, and
+    /// by -45° onto 185 px.  That object mirrors the perspective term of its matrix but carries the term standing for
+    /// the lean's centre over unchanged, so the two neighbours of a stood cover come out of it a quarter apart in
+    /// width however equally they were written - which is the "links ist alles größer als rechts" the viewer has been
+    /// reporting since this carousel was first stood up, and no value written into that object can cure it.
+    /// </para>
+    /// <para>
+    /// A coverflow leaning is one camera looking at covers turned about their own upright line.  What that does to the
+    /// plane of a cover is written out in <see cref="Lean"/>, and because the writing follows the camera instead of
+    /// approximating it, the two sides come back as mirror images of one another by construction.
+    /// </para>
+    /// </remarks>
+    private sealed class LeanTurn
+    {
+      private double _angle;
+      private double _upright;
+      private double _camera_x;
+      private double _camera_y;
+
+      /// <summary>
+      /// The object the tile wears, which carries the matrix the compositor draws with.  Every number written below
+      /// puts a new matrix into it, and a matrix left standing at identity is square to the screen - which is why a
+      /// stack, wearing this at zero degrees, pays nothing for the object being there.
+      /// </summary>
+      public MatrixTransform Worn { get; } = new MatrixTransform(Matrix.Identity);
+
+      /// <summary>
+      /// The upright line the cover turns about, in the cover's own ground.  Given none, a cover leans about the
+      /// corner it was laid at, which swings its far half sideways and shifts its whole height.
+      /// </summary>
+      public double Upright
+      {
+        get => _upright;
+        set => Write(ref _upright, value);
+      }
+
+      /// <summary>
+      /// Where the camera stands, in the ground of the cover being turned: the middle of the PICTURE, which for a
+      /// cover standing three places to the right of the stood one lies three places to its left.  A camera in front
+      /// of every cover's own middle instead would flatten every cover alike and the row would read as a row of
+      /// boards, not as a ring opening out of the middle.
+      /// </summary>
+      public double CameraX
+      {
+        get => _camera_x;
+        set => Write(ref _camera_x, value);
+      }
+
+      /// <summary>How high the camera looks across the cover being turned.</summary>
+      public double CameraY
+      {
+        get => _camera_y;
+        set => Write(ref _camera_y, value);
+      }
+
+      /// <summary>
+      /// How far the cover stands from facing the viewer.  Worn at zero degrees by every cover of a stack, and at
+      /// zero degrees the matrix is square to the screen again, so a stack pays nothing for the object being there.
+      /// </summary>
+      public double Angle
+      {
+        get => _angle;
+        set => Write(ref _angle, value);
+      }
+
+      private void Write(ref double stored, double value)
+      {
+        if (Math.Abs(stored - value) < 1e-09)
+          return;
+
+        stored = value;
+        Worn.Matrix = Project();
+      }
+
+      /// <summary>
+      /// The matrix of the lean: the cover is turned by <see cref="Angle"/> degrees about <see cref="Upright"/> and
+      /// seen through a camera <see cref="SHELF_CAMERA_DEPTH"/> in front of the row, at
+      /// <see cref="CameraX"/>/<see cref="CameraY"/>.
+      /// </summary>
+      /// <remarks>
+      /// <para>
+      /// A point (x, y) of the cover lies in the plane z = 0 before the turn.  Turning it about the upright line
+      /// x = u by θ moves it to X = u + (x-u)·cos θ, Z = (x-u)·sin θ - so a positive θ pushes the half to the RIGHT
+      /// of the upright away from the viewer, which is the half a cover standing to the right of the stood one has
+      /// to give up.  The camera at (cx, cy, -D) projects that point onto the plane z = 0 through
+      /// t = D / (D + Z), and since Z is a multiple of (x-u), the divisor is a polynomial of x ALONE.  A mapping of a
+      /// plane whose divisor is linear in the coordinates is a projective matrix, so no corner-by-corner fitting is
+      /// needed: dividing numerator and denominator by D and ordering the terms gives the nine numbers below, with
+      /// k = sin θ / D standing for the turn's strength per pixel.
+      /// <code>
+      ///   w  = k·x + (1 - k·u)
+      ///   x' = [ (cos θ + cx·k)·x + (cx·(1 - k·u) + u - cx - cos θ·u) ] / w
+      ///   y' = [ (cy·k)·x + y + (cy·(1 - k·u) - cy) ] / w
+      /// </code>
+      /// Every term of the divisor and of the translation carries k, so changing θ's sign mirrors the WHOLE matrix
+      /// about the upright line instead of leaving one term behind - which is precisely what a lean has to do and
+      /// what <c>Rotate3DTransform</c> does not: measured here, that object projected a cover of 230 px onto 143 px
+      /// at +45° and onto 185 px at -45°, so the two neighbours of a stood cover stood a quarter apart in width
+      /// however equally they were written.
+      /// </para>
+      /// </remarks>
+      private Matrix Project()
+      {
+        if (Math.Abs(_angle) < 0.001)
+        {
+          // Square to the screen: no surface for the compositor to rasterise, which is why a stack is free.
+          return Matrix.Identity;
+        }
+
+        double radians = _angle * Math.PI / 180.0;
+        double k = Math.Sin(radians) / SHELF_CAMERA_DEPTH;
+        double cosine = Math.Cos(radians);
+        double depth_at_upright = 1.0 - k * _upright;
+
+        return new Matrix(
+            cosine + _camera_x * k, 0.0, k,
+            _camera_y * k, 1.0, 0.0,
+            _camera_x * depth_at_upright + _upright - _camera_x - cosine * _upright,
+            _camera_y * (depth_at_upright - 1.0),
+            depth_at_upright);
+      }
+    }
+
+    /// <summary>
+    /// The three transforms one tile of a shape is worn with, kept beside the tile itself: the lean, the measure and
+    /// the place.  They are made once per tile and only ever written afterwards, which is what lets a tile walk from
+    /// one place to the next instead of jumping - a transform thrown away and built again carries no memory of where
+    /// it stood.
+    /// </summary>
+    private sealed class ShelfShape
+    {
+      public ShelfShape()
+      {
+        Turn = new LeanTurn();
+        Measure = new ScaleTransform(1.0, 1.0);
+        Place = new TranslateTransform(0.0, 0.0);
+
+        Group = new TransformGroup();
+        Group.Children.Add(Turn.Worn);
+        Group.Children.Add(Measure);
+        // The place is applied last, in the tile's own ground: a place laid on top of a turn would be a place
+        // measured along the turned tile's own slant, which drags a turned cover down as it turns.
+        Group.Children.Add(Place);
+      }
+
+      /// <summary>The lean of a carousel's neighbour away from the cover being stood on.</summary>
+      public LeanTurn Turn { get; }
+
+      public ScaleTransform Measure { get; }
+      public TranslateTransform Place { get; }
+      public TransformGroup Group { get; }
+
+      public double FromAngle { get; set; }
+      public double FromScale { get; set; } = 1.0;
+      public double FromX { get; set; }
+      public double FromY { get; set; }
+      public double FromOpacity { get; set; } = 1.0;
+      public double TargetAngle { get; set; }
+      public double TargetScale { get; set; } = 1.0;
+      public double TargetX { get; set; }
+      public double TargetY { get; set; }
+      public double TargetOpacity { get; set; } = 1.0;
+      public long StartedAt { get; set; }
+      public bool IsAnimating { get; set; }
+    }
+
+    private readonly ConditionalWeakTable<Control, ShelfShape> _shelf_shapes =
+        new ConditionalWeakTable<Control, ShelfShape>();
+
+    private sealed class CarouselTileMargin
+    {
+      public CarouselTileMargin(Thickness original, double slotWidth, HorizontalAlignment contentAlignment)
+      {
+        Original = original;
+        SlotWidth = slotWidth;
+        ContentAlignment = contentAlignment;
+      }
+
+      public Thickness Original { get; }
+      public double SlotWidth { get; }
+      public HorizontalAlignment ContentAlignment { get; }
+    }
+
+    private readonly ConditionalWeakTable<Control, CarouselTileMargin> _carousel_tile_margins =
+        new ConditionalWeakTable<Control, CarouselTileMargin>();
+
+    /// <summary>Containers which were already told to leave the wall where the shape stands it.  One telling each.</summary>
+    private readonly ConditionalWeakTable<Control, object> _tiles_told_to_stay =
+        new ConditionalWeakTable<Control, object>();
+
+    private DispatcherTimer? _shelf_shape_animation;
+
+    private readonly List<Control> _animating_shelf_tiles = new List<Control>();
+
+    private bool _animate_shelf_shape_targets;
+
+    private bool _shelf_shape_asked;
+
+    private bool _shelf_shape_scheduled;
+
+    private bool _shelf_needs_realign;
+
+    /// <summary>
+    /// Coalesces container preparation into one shape pass after the panel has assigned its indices.
+    /// </summary>
+    private void ScheduleShelfShape()
+    {
+      if (_shelf_shape_scheduled)
+        return;
+
+      _shelf_shape_scheduled = true;
+      Dispatcher.UIThread.Post(delegate
+      {
+        _shelf_shape_scheduled = false;
+        if (!(DataContext is MediaBrowserViewModel viewModel))
+          return;
+
+        if (_shelf_needs_realign && viewModel.IsCoverLayout)
+          GlideShelfToStoodTitle();
+        else
+          WearShelfShape();
+        _shelf_needs_realign = false;
+      }, DispatcherPriority.Loaded);
+    }
+
+    // How often the row has been asked about its shape in a row, without a measurement ever agreeing.  Asking is
+    // a bet that the next breath reads better numbers than this one did; a breath that reads the same numbers
+    // again proves the bet wrong, and after a handful of them the row is left as it was dressed.  Without this
+    // ceiling a disagreement that cannot be resolved by waiting becomes a wake-up loop, and a wake-up loop at
+    // Loaded priority takes the whole screen with it.
+    private int _shelf_shape_quarrels;
+
+    private const int SHELF_SHAPE_QUARRELS_ALLOWED = 6;
+
+    // WHAT A STEP OF THE CARET COSTS.  A shelf that judders judders for one of three reasons - the view's own
+    // dressing, the posters arriving, or the screen painting what it was given - and a viewer in front of a
+    // television cannot tell them apart.  The first two are counted here and the third is the frame ledger beside
+    // these lines (MP_TRACE_HOME, Services.HomeTrace): a step whose dressing and pictures cost nothing and whose
+    // frames still came slow is a step the screen itself could not paint.
+    private static readonly System.Diagnostics.Stopwatch SHELF_CLOCK = System.Diagnostics.Stopwatch.StartNew();
+    /// <summary>
+    /// Whether the tiles arrive without their ground shadow.  Off unless <c>MP_NOSHADOW=1</c>, for one measured
+    /// run: what the shadow costs is a question the frame ledger answers and opinion does not.
+    /// </summary>
+    private static readonly bool NoShadowsWorn =
+        Environment.GetEnvironmentVariable("MP_NOSHADOW") == "1";
+
+    /// <summary>
+    /// Whether every shape pass writes the place of every container into the trace file.  Off unless
+    /// <c>MP_TRACE_SHELF=1</c>, because the line is built out of string concatenation and a row is dressed on every
+    /// step of a walk.
+    /// </summary>
+    private static readonly bool ShelfTraced =
+        Environment.GetEnvironmentVariable("MP_TRACE_SHELF") == "1";
+
+    /// <summary>Takes the skin's ground shadow off one container's tiles.</summary>
+    private static void TakeShadowsFrom(Control container)
+    {
+      foreach (Visual child in container.GetVisualDescendants())
+      {
+        if (child is Border shade && shade.Classes.Contains("home-tile-shadow"))
+          shade.IsVisible = false;
+      }
+    }
+
+    private int _shelf_prepared;
+    private int _shelf_dress_passes;
+    private int _shelf_dress_tiles;
+    private long _shelf_dress_ms;
+
+    /// <summary>
+    /// Puts the standing row into the shape the screen wears, and - when somebody asked for the numbers - says
+    /// afterward how much that cost.
+    /// </summary>
+    private void WearShelfShape(bool force = false, bool animate = false)
+    {
+      animate |= _animate_shelf_shape_targets;
+      if (!Services.HomeTrace.Enabled)
+      {
+        DressShelfShape(force, animate);
+        return;
+      }
+
+      long asked_at = SHELF_CLOCK.ElapsedMilliseconds;
+      DressShelfShape(force, animate);
+      ++_shelf_dress_passes;
+
+      int covers = 0;
+      if (titlesList != null)
+      {
+        foreach (Control? _ in titlesList.GetRealizedContainers())
+          ++covers;
+      }
+
+      _shelf_dress_tiles = covers;
+      _shelf_dress_ms += SHELF_CLOCK.ElapsedMilliseconds - asked_at;
+    }
+
+    /// <summary>
+    /// Asks the standing row to be dressed again once the wall has measured what it stands in, once per asking.
+    /// </summary>
+    /// <remarks>
+    /// A row whose covers and whose wall disagree on how long the row is was read across a change rather than
+    /// measured - a panel swapped under a wall that has not re-measured itself yet - and dressing on the reading
+    /// leaves the covers where they were read.  Nothing is fixed by waiting, so the asking is put behind the
+    /// layout pass this message is standing in, the same priority a resized picture is answered at.
+    /// </remarks>
+    private void AskAboutTheShelfShapeAgain()
+    {
+      if (_shelf_shape_asked || _shelf_shape_quarrels >= SHELF_SHAPE_QUARRELS_ALLOWED
+          || DataContext is not MediaBrowserViewModel)
+        return;
+
+      _shelf_shape_asked = true;
+      ++_shelf_shape_quarrels;
+      Dispatcher.UIThread.Post(
+          delegate
+          {
+            _shelf_shape_asked = false;
+            if (DataContext is MediaBrowserViewModel again && again.IsCoverLayout && titlesList != null)
+            {
+              GlideShelfToStoodTitle();
+              WearShelfShape(true);
+            }
+          },
+          DispatcherPriority.Loaded);
+    }
+
+    /// <summary>
+    /// Asks the panel how much wall it stands up beside the picture, and whether the picture is a window the wall
+    /// may lean out of. The stack gathers covers with transforms, so it needs extra wall outside the picture; the
+    /// carousel's overlap is already part of the panel's measured layout. Both shapes can extend beyond the slot
+    /// the presenter would otherwise clip. A shelf walked plainly again is asked to stop both: extra covers are
+    /// nobody's view, and a wall that leans out of its window while walked vertically paints rows over the screen.
+    /// </summary>
+    /// <remarks>
+    /// The panel is asked for realised covers and for nothing else - deliberately not for ground at its ends.  A
+    /// margin on the panel moves the panel's own content origin away from the wall's, and the panel works out
+    /// which covers to stand up from the wall's travel; a panel standing on a margin of half a picture therefore
+    /// realises its covers half a picture away from the covers the screen is showing. The room the ends of a
+    /// gathered stack needs is paid for where it is spent - see the shift in <see cref="WearShelfShape"/>.
+    /// </remarks>
+    private void ShelfWiden(ScrollViewer? scroller, bool worn, double step)
+    {
+      if (ShelfPanel(scroller) is VirtualizingStackPanel panel)
+      {
+        // No shape, no cover standing beside the picture: the panel goes back to standing up exactly what the
+        // picture shows, which is what a shelf walked in rows is asked to do and nothing else.
+        double wanted = 0.0;
+
+        if (worn)
+        {
+          wanted = _wornShelfShape == BrowserLayout.Carousel
+              ? CAROUSEL_CACHE_LENGTH
+              : SHELF_REALIZED_BUFFER;
+          if (_wornShelfShape != BrowserLayout.Carousel)
+          {
+            // A transformed stack reaches the edge of the picture when the panel stands up as much wall beside the
+            // picture as its gathering takes away: half a picture SEEN is half a picture times the laid step over
+            // the seen step, LAID. Asking for more leaves posters, shadows and textures standing for nobody to
+            // look at. Where nothing has been measured to go by, SHELF_REALIZED_BUFFER is the guess.
+            double view = scroller?.Viewport.Width ?? 0.0;
+            double laid = ShelfLaidPitch(out double place);
+
+            if (view > 0.0 && step > 0.0 && laid > 0.0 && place > 0.0)
+            {
+              double to_the_edge = view / 2.0 * (laid / step) + place;
+              wanted = Math.Clamp(to_the_edge / view * SHELF_REALIZED_BREATH, 0.25, 2.0);
+            }
+          }
+        }
+
+        if (panel.CacheLength != wanted)
+          panel.CacheLength = wanted;
+      }
+
+      // The window the wall is seen through has to be open while a shape leans covers out of it.  The presenter
+      // and the ScrollViewer that owns it both clip by default. Disabling only the presenter's clip still leaves
+      // the viewer's rectangle as a hard edge around the turned covers, which cuts their overflow at the sides and
+      // floor. Both clips are opened for a shape and restored when the shelf is walked plainly again.
+      if (scroller != null && scroller.ClipToBounds == worn)
+        scroller.ClipToBounds = !worn;
+
+      if (scroller != null &&
+          scroller.GetVisualDescendants().OfType<Avalonia.Controls.Presenters.ScrollContentPresenter>()
+              .FirstOrDefault() is { } presenter &&
+          presenter.ClipToBounds == worn)
+        presenter.ClipToBounds = !worn;
+    }
+
+    /// <summary>
+    /// How far the panel lays two neighbouring covers apart, and how wide one cover is; naught where the row has
+    /// not been laid far enough to be asked.
+    /// </summary>
+    private double ShelfLaidPitch(out double place_width)
+    {
+      place_width = 0.0;
+      double first = double.NaN;
+
+      foreach (Control? tile in titlesList.GetRealizedContainers())
+      {
+        if (tile == null || !(tile.Bounds.Width > 0.0))
+          continue;
+
+        place_width = tile.Bounds.Width;
+
+        if (double.IsNaN(first))
+        {
+          first = tile.Bounds.X;
+          continue;
+        }
+
+        double pitch = tile.Bounds.X - first;
+        return pitch > 0.0 ? pitch : 0.0;
+      }
+
+      return 0.0;
+    }
+
+    /// <summary>
+    /// The panel the cover row is laid in.  A list's panel is the child of its presenter, and its presenter is what
+    /// a scroller holds.
+    /// </summary>
+    private static Panel? ShelfPanel(ScrollViewer? scroller)
+    {
+      if (scroller?.Content is not Visual presenter)
+        return null;
+
+      return presenter.GetVisualChildren().OfType<Panel>().FirstOrDefault();
+    }
+
+    /// <summary>
+    /// Puts every tile the shelf is standing in the shape the screen wears: the plain row, the carousel, or the
+    /// stack.  Asked whenever the caret walks (the places belong to the distance from the stood title) and on every
+    /// step of the shelf's travel while a shape is worn, because both shapes hang their covers off where the wall
+    /// has travelled to.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A shelf is <em>laid out</em> by a scrolling panel, and the panel is what decides which tiles stand up at all:
+    /// a wall of five thousand titles cannot stand up all of them so that one may be looked at, and a tile the panel
+    /// laid outside the picture's window is taken down again. The carousel's margins make its overlap part of the
+    /// panel's own layout, while the stack still gathers covers with transforms. The latter is only honest while
+    /// the panel stands up more wall than the picture shows, so a stacked shape asks the panel for that (<see
+    /// cref="ShelfBuffer"/>); the carousel only needs its measured edge covers and a modest preheat buffer.
+    /// </para>
+    /// <para>
+    /// The row underneath is never touched: it is laid, travelled, faded and read exactly as the walked row is.  The
+    /// only thing a shape writes is where each cover is <em>seen</em> - one step of its own from the next, which the
+    /// panel laid a whole place apart - and the whole row is shifted by the one amount that brings the stood cover
+    /// to the middle of the picture.  In the middle of a shelf that amount is naught, because the wall's own travel
+    /// keeps the stood cover there (<see cref="ShelfGlide"/>, whose band both shapes narrow to the middle alone); at
+    /// either end of the shelf, where the wall can travel no further, it is what keeps the first cover and the last
+    /// one from standing against the edge of the screen instead of in the middle.
+    /// </para>
+    /// </remarks>
+    /// <summary>
+    /// Tells the shelf that a cover standing within the viewer's reach wants its poster.  Asking the server is the
+    /// view model's business, so the drawn row is handed this instead of a client of its own; the answer arrives
+    /// on the row and is decoded there, off the thread that draws.
+    /// </summary>
+    private void AskForCoverPicture(object item)
+    {
+      if (DataContext is MediaBrowserViewModel browser && item is TitleViewModel title)
+        browser.PaintRow(title);
+    }
+
+    private void DressShelfShape(bool force, bool animate)
+    {
+      if (!(DataContext is MediaBrowserViewModel viewModel))
+        return;
+
+      BrowserLayout shape = viewModel.Layout;
+
+      // Both shapes belong to the distance from the title being stood on, and the stack additionally holds its
+      // place while the wall underneath it travels, so both are rewritten on every step of that travel; a wall
+      // standing in any other shape has nothing to rewrite until something changes.
+      bool wears = shape is BrowserLayout.Stacked or BrowserLayout.Carousel;
+      if (!force && !wears && shape == _wornShelfShape)
+        return;
+
+      bool wore_a_shape = _wornShelfShape is BrowserLayout.Stacked or BrowserLayout.Carousel;
+      _wornShelfShape = shape;
+
+      // The carousel's covers are DRAWN now, by a control that owns the place the row stands at, so this shape
+      // asks nothing of the list's containers: what a previous shape wrote on them is taken back once, the fade is
+      // asked for the shape that is worn now, and the pass stops there.  A row nobody can see has no business
+      // being measured twice per cover on every step of the caret, which is what this pass cost a wall of a
+      // thousand covers - see CoverCarousel for why the row is drawn rather than dressed.
+      if (shape == BrowserLayout.Carousel)
+      {
+        if (wears != wore_a_shape)
+          UpdateShelfFade();
+
+        if (wore_a_shape)
+        {
+          ShelfWiden(ListScroller(), false, 0.0);
+          foreach (Control? tile in titlesList.GetRealizedContainers())
+          {
+            if (tile == null)
+              continue;
+
+            RestoreCarouselTileMargin(tile);
+            BareTile(tile);
+          }
+        }
+
+        return;
+      }
+
+      // The edge fade follows the shape: a gathered row dims every cover by its own distance from the stood one and
+      // needs no mask over the band, while a plain wall has nothing else to hide its edges with.  So the fade is
+      // asked again the moment the row changes sides, and not on every step - see UpdateShelfFade.
+      if (wears != wore_a_shape)
+        UpdateShelfFade();
+
+      bool carousel_margins_changed = false;
+      foreach (Control? tile in titlesList.GetRealizedContainers())
+      {
+        if (tile == null)
+          continue;
+
+        if (shape == BrowserLayout.Carousel)
+          carousel_margins_changed |= SetCarouselTileMargin(tile);
+        else if (wore_a_shape)
+          carousel_margins_changed |= RestoreCarouselTileMargin(tile);
+      }
+
+      if (carousel_margins_changed)
+      {
+        // The panel's own extent and the centres it assigns its containers must agree with the carousel's
+        // overlap before a shape pass can measure its step. Re-ask after the changed margins have been measured.
+        _shelf_needs_realign = true;
+        ScheduleShelfShape();
+        return;
+      }
+
+      ScrollViewer? scroller = ListScroller();
+
+      if (!wears)
+      {
+        // The wall stops standing outside the picture as soon as no shape gathers covers towards its middle
+        // anymore, and the tiles lose what the shape wrote on them - once, and only when a shape really was worn:
+        // tiles are asked for on every scroll, and clearing properties that were never written is a write per tile
+        // per frame for nothing.
+        ShelfWiden(scroller, false, 0.0);
+        if (wore_a_shape)
+        {
+          foreach (Control? tile in titlesList.GetRealizedContainers())
+          {
+            if (tile != null)
+              BareTile(tile);
+          }
+        }
+
+        return;
+      }
+
+      if (scroller == null)
+      {
+        // Both shapes want the middle of the picture and the distance the wall has travelled, and neither number
+        // exists before the tree has grown a scroller.  A tree that has not is asked again when it has - the
+        // glide's own fitting asks the fade, and the fade asks this.
+        _wornShelfShape = BrowserLayout.List;
+        return;
+      }
+
+      int stood = titlesList.SelectedIndex;
+      Control? stood_tile = stood >= 0 ? titlesList.ContainerFromIndex(stood) as Control : null;
+
+      // What one place of this row is, and how far the panel lays two neighbouring places apart.  Both are read
+      // and neither is known: the width belongs to the worn skin's tile, and the distance between two places
+      // belongs to that tile and to whatever ground the row wears around it.  The narrowest distance between the
+      // stood cover and any cover standing beside it is the step of the row, and a row that has only just stood up
+      // its first cover has no distance to read yet - one cover of it is then a whole place of it.
+      double place_width = stood_tile?.Bounds.Width ?? 0.0;
+      double laid_step = 0.0;
+      if (stood_tile != null)
+      {
+        foreach (Control? neighbour in titlesList.GetRealizedContainers())
+        {
+          if (neighbour == null || neighbour == stood_tile || neighbour.Bounds.Width <= 0.0)
+            continue;
+
+          double apart = Math.Abs(neighbour.Bounds.X - stood_tile.Bounds.X);
+          if (apart > 0.0 && (laid_step <= 0.0 || apart < laid_step))
+            laid_step = apart;
+        }
+      }
+
+      if (laid_step <= 0.0)
+        laid_step = place_width;
+
+      double seen_step = shape == BrowserLayout.Carousel ? CAROUSEL_STEP : STACK_STEP;
+      double view = scroller.Viewport.Width;
+
+      // The panel is asked for the window the row can be seen in BEFORE its covers are dressed, and with the
+      // shape's own step told to it: a row gathered to a narrow step has to be stood up wide, and the same row
+      // at a wide step needs far less wall standing around it.
+      ShelfWiden(scroller, true, seen_step);
+
+      // How far the panel lays two neighbouring places apart is bounded by what the row can be: one cover of it
+      // and whatever ground the skin wears beside a cover, so at most about twice a cover.  A wider reading did
+      // not come from this row - it came from containers of the layout the shelf came from, or from a wall that
+      // is still measuring itself - and dressing a row on a pitch of fifteen thousand pixels is dressing every
+      // cover of it a hundred screens off the picture.  Where the reading is wider than a row of covers can be,
+      // the row is dressed as the row it is: one cover beside the next.
+      if (laid_step <= 0.0 || laid_step > place_width * 2.0)
+        laid_step = place_width;
+
+      // And where the covers and the wall still disagree on how long the row is, the disagreement is a moment
+      // rather than a fact: a panel swapped under a standing wall has not told the wall its new length yet.  The
+      // row is dressed on what was read - so that a viewer never stands above an undressed shape - and asked
+      // again once the wall has measured what it stands in.
+      //
+      // Only where there is a row to disagree ABOUT, though.  With nothing stood under the caret there is no
+      // cover and no length to read, so "the numbers disagree" is true of every breath and asking again answers
+      // nothing - the next breath reads nothing either.  Woken that way, this pass wakes itself, the wake is
+      // answered at Loaded priority, and Loaded priority is answered before the ordinary work of the thread:
+      // measured, that was two thousand dresses a second, the whole screen at 50 ms a frame, and every poster
+      // errand that had already been sent sitting in a queue the loop never let be answered.  A row that has not
+      // stood its covers yet is woken by the container arriving (ContainerPrepared) and by the caret being put on
+      // the shelf, both of which say the same thing with a fact instead of a guess.
+      double laid_length = place_width > 0.0
+          ? (titlesList.Items.Count - 1) * laid_step + place_width
+          : 0.0;
+      if (view > 0.0 && place_width > 0.0
+          && Math.Abs(laid_length - scroller.Extent.Width) > Math.Max(laid_step, place_width))
+      {
+        AskAboutTheShelfShapeAgain();
+      }
+      else
+      {
+        _shelf_shape_quarrels = 0;
+      }
+
+      // The stack stands nearer its neighbours than the panel laid them, so its own length is shorter than the
+      // wall's: at the ends the wall runs out of travel before the stood cover does, and the cover is left standing
+      // at the edge of the picture instead of in its middle. What the wall could not travel is paid for here, in
+      // one shift that moves the whole row along - never in a shift per place, which would pull the row apart.
+      //
+      // The shift is worked out from where the wall CAN travel to, not from where it happens to stand this frame:
+      // the wall is still on its way when this is asked, and a shift read off the moving offset would be retargeted
+      // by the transition on every frame of that travel.  That rubber-band is the jerk the screen shows after every
+      // key, and it is the reason an earlier version of this shifted on every scroll event.
+      double travel = scroller.Extent.Width - view;
+      double shift = 0.0;
+      if (travel > 0.0)
+      {
+        double wanted = (stood_tile?.Bounds.X ?? 0.0) - (view / 2.0 - place_width / 2.0);
+        shift = Math.Min(Math.Max(wanted, 0.0), travel) - wanted;
+        if (Math.Abs(shift) > view)
+          shift = 0.0;
+      }
+
+      // Measuring: MP_TRACE_SHELF (with MP_TRACE_HOME, which opens the file) writes one line per dress - the place,
+      // distance and picture of every container the row is standing.  A row that reads wrong on the screen can be
+      // read off these numbers instead: distances that do not run -3 -2 -1 0 1 2 3 say the panel is standing the
+      // titles somewhere else than the shape thinks, and two containers carrying the same number after "c" say the
+      // same picture is standing twice.
+      string? shelf_trace = ShelfTraced
+          ? $"mode={shape} stood={stood} items={titlesList.Items.Count} laid={laid_step:0.#} seen={seen_step:0.#} shift={shift:0.#}"
+          : null;
+
+      // How big a turned cover may stand without climbing out of the slot it was laid in.  Worked out once from the
+      // cover this skin draws and carried into every cover of the row.
+      foreach (Control? tile in titlesList.GetRealizedContainers())
+      {
+        if (tile == null)
+          continue;
+
+        // A virtualizing panel can prepare a recycled container before its index map has caught up with the
+        // DataContext it just assigned. Resolve the shape from the title the tile actually wears, so a tile
+        // cannot inherit the distance of its previous neighbour for one pass of the carousel.
+        int index = tile.DataContext is TitleViewModel title
+            ? viewModel.Titles.IndexOf(title)
+            : -1;
+        if (index < 0)
+        {
+          // The panel is standing no title on this container at this moment.  It has no distance from the stood
+          // cover, so it has no place in the shape to be written - see ContainerPrepared, which is where this
+          // container comes from and why dressing it here used to put a cover of somebody else's title far out in
+          // the row.  It is left exactly as the panel laid it and asked again when it has a title: the pass posted
+          // from ContainerPrepared is that asking.
+          if (shelf_trace != null)
+            shelf_trace += $" | i- c{(tile.DataContext?.GetHashCode() ?? 0) & 0xffff}";
+          continue;
+        }
+
+        int distance = stood < 0 ? 0 : index - stood;
+
+        // Where the panel laid this cover and where its shape wants it seen: one step of the shape per place from
+        // the stood cover, counted from the place the panel laid the stood cover in.  A tile's bounds are its place
+        // before any transform, which is what keeps this reading from feeding on its own result.
+        //
+        // And that is all this number ever is - a distance between two places, never a distance measured from the
+        // picture or from where the wall has travelled to.  A wall walked in the middle keeps its stood cover in
+        // the middle by travelling one laid step per cover, and since every cover of a gathered row moves by what
+        // the shape took away from its own laid step, the row glides one step of the shape per cover along with the
+        // wall's own travel.  Writing anything that depends on that travel here - a shift that centres the row at
+        // this very moment, say - would be retargeted by the transition on every frame of the travel, which is the
+        // rubber-band the screen shows as a jerk after every key.
+        double place = shift + distance * (seen_step - laid_step);
+
+        if (shape == BrowserLayout.Carousel)
+          WearCarouselTile(tile, distance, place, animate);
+        else
+          WearStackTile(tile, distance, place, animate);
+
+        if (shelf_trace != null)
+          shelf_trace += $" | i{index} d{distance} x{place:0} c{(tile.DataContext?.GetHashCode() ?? 0) & 0xffff}";
+      }
+
+      if (shelf_trace != null)
+        Services.HomeTrace.Log("shelf", shelf_trace);
+    }
+
+    private void SetShelfTileTarget(Control tile, ShelfShape shape, double angle, double scale, double x, double y,
+        double opacity, int zIndex, bool animate)
+    {
+      tile.RenderTransform = shape.Group;
+      tile.ZIndex = zIndex;
+
+      bool same_target = Math.Abs(shape.TargetAngle - angle) < 0.001
+          && Math.Abs(shape.TargetScale - scale) < 0.001
+          && Math.Abs(shape.TargetX - x) < 0.001
+          && Math.Abs(shape.TargetY - y) < 0.001
+          && Math.Abs(shape.TargetOpacity - opacity) < 0.001;
+      if (same_target)
+      {
+        if (animate && shape.IsAnimating && _shelf_shape_animation?.IsEnabled == true)
+          return;
+        if (!animate && shape.IsAnimating)
+        {
+          shape.IsAnimating = false;
+          _animating_shelf_tiles.Remove(tile);
+          ApplyShelfTileState(tile, shape, 1.0);
+        }
+        return;
+      }
+
+      shape.FromAngle = shape.Turn.Angle;
+      shape.FromScale = shape.Measure.ScaleX;
+      shape.FromX = shape.Place.X;
+      shape.FromY = shape.Place.Y;
+      shape.FromOpacity = tile.Opacity;
+      shape.TargetAngle = angle;
+      shape.TargetScale = scale;
+      shape.TargetX = x;
+      shape.TargetY = y;
+      shape.TargetOpacity = opacity;
+      shape.StartedAt = System.Diagnostics.Stopwatch.GetTimestamp();
+      shape.IsAnimating = animate && (Math.Abs(shape.FromAngle - angle) >= 0.001
+          || Math.Abs(shape.FromScale - scale) >= 0.001
+          || Math.Abs(shape.FromX - x) >= 0.001
+          || Math.Abs(shape.FromY - y) >= 0.001
+          || Math.Abs(shape.FromOpacity - opacity) >= 0.001);
+
+      if (shape.IsAnimating)
+      {
+        if (!_animating_shelf_tiles.Contains(tile))
+          _animating_shelf_tiles.Add(tile);
+        StartShelfShapeAnimation();
+      }
+      else
+      {
+        _animating_shelf_tiles.Remove(tile);
+        ApplyShelfTileState(tile, shape, 1.0);
+      }
+    }
+
+    private void StartShelfShapeAnimation()
+    {
+      if (_shelf_shape_animation == null)
+      {
+        _shelf_shape_animation = new DispatcherTimer(DispatcherPriority.Render)
+        {
+          Interval = TimeSpan.FromMilliseconds(16)
+        };
+        _shelf_shape_animation.Tick += ShelfShapeAnimationTick;
+      }
+
+      if (!_shelf_shape_animation.IsEnabled)
+        _shelf_shape_animation.Start();
+    }
+
+    private void ShelfShapeAnimationTick(object? sender, EventArgs e)
+    {
+      if (titlesList == null || _animating_shelf_tiles.Count == 0)
+      {
+        _shelf_shape_animation?.Stop();
+        return;
+      }
+
+      long now = System.Diagnostics.Stopwatch.GetTimestamp();
+      double duration = SHELF_SHAPE_TRAVEL.TotalMilliseconds;
+      for (int i = _animating_shelf_tiles.Count - 1; i >= 0; --i)
+      {
+        Control tile = _animating_shelf_tiles[i];
+        if (!_shelf_shapes.TryGetValue(tile, out ShelfShape? shape) || !shape.IsAnimating)
+        {
+          _animating_shelf_tiles.RemoveAt(i);
+          continue;
+        }
+
+        double elapsed = (now - shape.StartedAt) * 1000.0 / System.Diagnostics.Stopwatch.Frequency;
+        double progress = Math.Clamp(elapsed / duration, 0.0, 1.0);
+        double eased = 1.0 - Math.Pow(1.0 - progress, 3.0);
+        ApplyShelfTileState(tile, shape, eased);
+        if (progress >= 1.0)
+        {
+          shape.IsAnimating = false;
+          _animating_shelf_tiles.RemoveAt(i);
+        }
+      }
+
+      if (_animating_shelf_tiles.Count == 0)
+        _shelf_shape_animation?.Stop();
+    }
+
+    private static void ApplyShelfTileState(Control tile, ShelfShape shape, double progress)
+    {
+      shape.Turn.Angle = Lerp(shape.FromAngle, shape.TargetAngle, progress);
+      double scale = Lerp(shape.FromScale, shape.TargetScale, progress);
+      shape.Measure.ScaleX = scale;
+      shape.Measure.ScaleY = scale;
+      shape.Place.X = Lerp(shape.FromX, shape.TargetX, progress);
+      shape.Place.Y = Lerp(shape.FromY, shape.TargetY, progress);
+      tile.Opacity = Lerp(shape.FromOpacity, shape.TargetOpacity, progress);
+    }
+
+    private static double Lerp(double from, double to, double progress)
+        => from + (to - from) * progress;
+
+    /// <summary>
+    /// Stands one tile of a carousel: the cover being stood on faces the viewer whole, its neighbours turn away from
+    /// it and stand smaller and dimmer the further they are, which is what makes the row read as a ring the viewer
+    /// looks through the middle of.  Where a tile stands was settled before this was asked - see
+    /// <see cref="WearShelfShape"/>.
+    /// </summary>
+    private void WearCarouselTile(Control tile, int distance, double place, bool animate)
+    {
+      ShelfShape shape = _shelf_shapes.GetValue(tile, _ => new ShelfShape());
+      int away = Math.Abs(distance);
+      int side = Math.Sign(distance);
+      double centre_x = tile.Bounds.Width / 2.0;
+      double half_height = tile.Bounds.Height / 2.0;
+
+      // The lean of a ring: the cover stood on faces the viewer, EVERY other cover turns by the same amount away
+      // from it - on whichever side it stands - about its OWN upright line, and is seen through the camera standing
+      // in front of the middle of the picture.  For a cover three places to the right of the stood one that camera
+      // stands three places to its LEFT, and that one number is what turns a row of boards into a ring: it is the
+      // only quantity here which is not the same on both sides, and it is written so that it mirrors.
+      //
+      // Given no upright line a lean goes about the corner the tile was laid at, which swings the far half of a
+      // cover sideways and shifts its whole height - neighbours standing at different heights and a hole where the
+      // stood cover should be.
+      shape.Turn.Upright = centre_x;
+      shape.Turn.CameraX = centre_x - distance * CAROUSEL_STEP;
+      shape.Turn.CameraY = half_height;
+      double angle = away == 0 ? 0.0 : side * CAROUSEL_LEAN_DEGREES;
+
+      // What a cover stands at, and how dark it stands, come out of its DISTANCE and of nothing else - not out of
+      // which side of the stood cover it lies, and not out of the angle's own sign.  The camera's own foreshortening
+      // needs no compensation and must be given none: it is worked out of the same numbers on both sides, mirrored
+      // about the upright line, so a cover standing three places left and one standing three places right come off
+      // the projection the same width.  Measuring a cover by hand from the turn's perspective (an earlier look here)
+      // took the two sides differently and is what left one side at 0.68 of itself against the other's 1.12.
+      double measure = away == 0
+          ? 1.0
+          : Math.Max(CAROUSEL_MEASURE_FLOOR, 1.0 - away * CAROUSEL_MEASURE_LOSS);
+
+      // What a turned cover gives up is given up about its middle too, so a cover that shrinks stays in the slot the
+      // row laid it in instead of climbing towards its corner.  A measure grows out of that corner, so the middle is
+      // paid for in the place: measuring a tile of width w by s about its centre is the same as measuring it by s
+      // and moving it back by (1 - s) · w/2.  The ring's far parts then fall away towards the floor with the
+      // distance, which is a ring seen a little from above rather than a row of boards on one line.
+      double x = place + (1.0 - measure) * centre_x;
+      double y = (1.0 - measure) * half_height + away * CAROUSEL_DROP;
+
+      // The light falls with the distance, which is the fade towards the edges of the picture that a gathered row
+      // wears instead of a mask over the whole band - a mask is an offscreen surface of that band, repainted on
+      // every frame of a step.
+      double opacity = away == 0
+          ? 1.0
+          : Math.Max(CAROUSEL_LIGHT_FLOOR, 1.0 - away * CAROUSEL_LIGHT_LOSS);
+
+      // The cover being stood on stands in front of its neighbours, and every cover nearer the middle in front of
+      // the ones further out, which is what makes a ring overlap towards the viewer instead of behind it.
+      // Only the focus and its immediate neighbours animate on a step. Further covers share the same angle,
+      // scale and light; transitioning every one of them on every key needlessly invalidates their 3D surfaces.
+      SetShelfTileTarget(tile, shape, angle, measure, x, y, opacity, 100 - away, animate && away <= 1);
+    }
+
+    private bool SetCarouselTileMargin(Control tile)
+    {
+      if (tile is not ListBoxItem item)
+        return false;
+
+      double width = item.Bounds.Width;
+      if (width <= 0.0)
+        return false;
+
+      CarouselTileMargin original = _carousel_tile_margins.GetValue(
+          tile, control => new CarouselTileMargin(control.Margin, width, item.HorizontalContentAlignment));
+      double side = (CAROUSEL_STEP - original.SlotWidth) / 2.0;
+      Thickness target = new Thickness(side, original.Original.Top, side, original.Original.Bottom);
+      bool changed = false;
+      if (!tile.Margin.Equals(target))
+      {
+        tile.Margin = target;
+        changed = true;
+      }
+
+      if (item.HorizontalContentAlignment != HorizontalAlignment.Center)
+      {
+        item.HorizontalContentAlignment = HorizontalAlignment.Center;
+        changed = true;
+      }
+
+      return changed;
+    }
+
+    private bool RestoreCarouselTileMargin(Control tile)
+    {
+      if (!_carousel_tile_margins.TryGetValue(tile, out CarouselTileMargin? original))
+        return false;
+
+      bool changed = false;
+      if (!tile.Margin.Equals(original.Original))
+      {
+        tile.Margin = original.Original;
+        changed = true;
+      }
+
+      if (tile is ListBoxItem item && item.HorizontalContentAlignment != original.ContentAlignment)
+      {
+        item.HorizontalContentAlignment = original.ContentAlignment;
+        changed = true;
+      }
+
+      return changed;
+    }
+
+    /// <summary>
+    /// Stands one tile of a stack: every cover upright and facing the viewer, the front one in the middle of the
+    /// picture and the others stepping away from it to the left and to the right, each a little smaller and a
+    /// little darker than the one before it, until they are gone into the fade at the edge of the screen.
+    /// </summary>
+    private void WearStackTile(Control tile, int distance, double place, bool animate)
+    {
+      ShelfShape shape = _shelf_shapes.GetValue(tile, _ => new ShelfShape());
+
+      int away = Math.Abs(distance);
+
+      // A stack does not turn; it draws its depth by standing its covers smaller the further back they are, which
+      // is the same distance on either side of the front cover.  They are measured about their own centre, which is
+      // where a cover's centre was when the row laid it, so a stacked cover shrinks into its own place instead of
+      // sliding towards the cover in front of it - the centre being paid for in the place, as in a carousel.
+      double measure = Math.Max(STACK_MEASURE_FLOOR, 1.0 - away * STACK_MEASURE_LOSS);
+      double x = place + (1.0 - measure) * tile.Bounds.Width / 2.0;
+      double y = (1.0 - measure) * tile.Bounds.Height / 2.0;
+
+      double opacity = Math.Max(STACK_LIGHT_FLOOR, 1.0 - away * STACK_LIGHT_LOSS);
+      SetShelfTileTarget(tile, shape, 0.0, measure, x, y, opacity, 100 - away, animate);
+    }
+
+    /// <summary>
+    /// Tells one container that it must not ask the list to scroll itself while a gathered shape is worn.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Avalonia answers its own selection: putting the caret on a tile ends in a bring-into-view of the panel, which
+    /// moves the scroller to the smallest offset showing that tile.  For a walked list that is the whole point.  For
+    /// a carousel it is a second opinion on where the wall stands, and it lands <em>after</em> the travel the shape
+    /// asked for - a wall whose stood cover was carried to the middle is found sitting beside the middle again, with
+    /// nothing to show for the travel but a jerk back.  The ask is therefore swallowed where it starts, which leaves
+    /// the panel realising the container it was asked for (the glide measures that container) and refuses only the
+    /// scrolling of it.
+    /// </para>
+    /// </remarks>
+    private void KeepTileWhereTheWallStands(Control container)
+    {
+      if (_tiles_told_to_stay.TryGetValue(container, out object? told) && told != null)
+        return;
+
+      _tiles_told_to_stay.Add(container, new object());
+      container.AddHandler(RequestBringIntoViewEvent, delegate (object? sender, RequestBringIntoViewEventArgs args)
+      {
+        if (DataContext is MediaBrowserViewModel viewModel && viewModel.IsCoverLayout)
+          args.Handled = true;
+      }, RoutingStrategies.Tunnel | RoutingStrategies.Bubble, handledEventsToo: true);
+    }
+
+    /// <summary>Takes a tile out of a shape: no turn, no measure, no place, no dimming, no foreground.</summary>
+    private void BareTile(Control tile, bool restoreCarouselMargin = true)
+    {
+      _animating_shelf_tiles.Remove(tile);
+      if (restoreCarouselMargin)
+        RestoreCarouselTileMargin(tile);
+      if (_shelf_shapes.TryGetValue(tile, out ShelfShape? shape))
+      {
+        shape.IsAnimating = false;
+        shape.Turn.Angle = 0.0;
+        shape.Measure.ScaleX = 1.0;
+        shape.Measure.ScaleY = 1.0;
+        shape.Place.X = 0.0;
+        shape.Place.Y = 0.0;
+        shape.TargetAngle = 0.0;
+        shape.TargetScale = 1.0;
+        shape.TargetX = 0.0;
+        shape.TargetY = 0.0;
+        shape.TargetOpacity = 1.0;
+      }
+      tile.ClearValue(RenderTransformProperty);
+      tile.ClearValue(OpacityProperty);
+      tile.ClearValue(ZIndexProperty);
     }
 
     /// <summary>
@@ -1988,7 +3295,7 @@ namespace MediaPortal.Frontend.Views
     {
       // Covers are walked sideways, so their ends are the left and the right edge; every other shape is walked
       // down.  The depths the mask remembers belong to an axis, so a wall turned from one to the other forgets them.
-      bool sideways = layout == BrowserLayout.Cover;
+      bool sideways = layout is BrowserLayout.Cover or BrowserLayout.Stacked or BrowserLayout.Carousel;
       if (sideways != _fadeRunsSideways)
       {
         _fadeRunsSideways = sideways;
@@ -2053,6 +3360,12 @@ namespace MediaPortal.Frontend.Views
     /// </summary>
     private void UpdateShelfFade()
     {
+      // Both shapes are dressed from the places the panel laid their covers in, which one travel of the wall never
+      // changes, so a scroll is NOT a reason to dress a shelf again: writing a transitioned property on every
+      // frame of that travel retargets the transition every frame, which the screen shows as a row that jerks.
+      // (The glide, the caret, a resizing picture and a container taking its place ARE such reasons - they ask
+      // WearShelfShape themselves.)
+
       ScrollViewer? scroller = _fadedScroller;
       if (scroller == null)
         return;
@@ -2064,7 +3377,12 @@ namespace MediaPortal.Frontend.Views
       // down asks again - the remembered depths go with the mask, so the wall recomputes its fade before a
       // viewer can see it.  (The scroller's own IsVisible is deliberately not asked: it answers the question
       // of an unfinished tree too, and an unfinished tree is not a closed door.)
-      if (TitlesHiddenBehindALayer)
+      //
+      // A gathered row stands in the same queue for the same reason: it already dims every cover by its own
+      // distance from the stood one, so the mask would hide nothing a cover does not hide itself, while making the
+      // whole band a surface the compositor paints again on every frame of a step.  The reference agrees - its
+      // carousel and its stack wear no fade over the row at all.
+      if (TitlesHiddenBehindALayer || RowFadesItsOwnCovers)
       {
         if (scroller.OpacityMask != null || _fadeBefore != UNREAD)
         {
@@ -2075,8 +3393,9 @@ namespace MediaPortal.Frontend.Views
       }
 
       // A mask that was put away behind a layer goes back on before the wall is asked where it stands: the
-      // remembered depths are gone with it, and the first frame of the wall should already be dressed.
-      if (_shelfFade != null && scroller.OpacityMask == null)
+      // remembered depths are gone with it, and the first frame of the wall should already be dressed.  A row that
+      // fades its own covers is not such a wall, and stays uncovered.
+      if (_shelfFade != null && scroller.OpacityMask == null && !RowFadesItsOwnCovers)
         scroller.OpacityMask = _shelfFade;
 
       double view = _fadeRunsSideways ? scroller.Viewport.Width : scroller.Viewport.Height;
@@ -2335,40 +3654,32 @@ namespace MediaPortal.Frontend.Views
       if (!(DataContext is MediaBrowserViewModel viewModel))
         return;
 
-      // A screenful above and below the visible band, because a poster that arrives while the viewer is still a
-      // screen away is a poster that is there when they arrive, and one that arrives after they do is grey. For
-      // covers the band runs sideways instead, which is the direction their shelf is walked in.
-      //
-      // The band is laid in the list's OWN coordinates, which are the coordinates every container below is read
-      // in (see StandsOnTheScreen).  Reading the list's Bounds instead - which are its place in the room around
-      // it - worked for the wall and the rows because those stand at the top of the room, so the shift was small
-      // against a band three screens tall.  The covers hang at the BOTTOM of the room, and a band that started
-      // seven hundred design pixels below the row it was meant to catch caught nothing at all: not one cover of
-      // a music shelf ever asked for its picture, and the row wore its backup plates from the first frame to
-      // the last.
-      Rect visible = new Rect(0, 0, titlesList.Bounds.Width, titlesList.Bounds.Height);
-      Rect inSight = viewModel.Layout == BrowserLayout.Cover
-          ? new Rect(visible.X - visible.Width, visible.Y, visible.Width * 3, visible.Height)
-          : new Rect(visible.X, visible.Y - visible.Height, visible.Width, visible.Height * 3);
+      int caret = titlesList.SelectedIndex;
+      List<(int distance, TitleViewModel row)> in_sight = new List<(int distance, TitleViewModel row)>();
 
       foreach (Control? container in titlesList.GetRealizedContainers())
       {
-        // PaintRow answers on the spot when the row already wears the shelf's picture, so the repeated passes a
-        // walk brings cost a field read per row rather than a second errand for the same poster.
-        if (container?.DataContext is TitleViewModel row && StandsOnTheScreen(container, inSight))
-          viewModel.PaintRow(row);
-      }
-    }
+        if (container?.DataContext is not TitleViewModel row)
+          continue;
 
-    /// <summary>
-    /// Whether a laid out row stands inside the band of the list that is drawn on the television.
-    /// </summary>
-    private bool StandsOnTheScreen(Control container, Rect inSight)
-    {
-      Point? corner = container.TranslatePoint(new Point(0, 0), titlesList);
-      if (!corner.HasValue)
-        return false;
-      return inSight.Intersects(new Rect(corner.Value, container.Bounds.Size));
+        int at = titlesList.IndexFromContainer(container);
+        if (at < 0)
+          continue;
+
+        // The panel already limits this set to realized rows, including its deliberate preheat band. Sort that
+        // bounded set by the selected item rather than translating transformed containers into viewport space:
+        // the scroll transform is already part of TranslatePoint, so comparing that point with Offset would count
+        // the walk twice and eventually stop asking for pictures farther down a cover shelf.
+        in_sight.Add((caret < 0 ? 0 : Math.Abs(at - caret), row));
+      }
+
+      // Nearest the caret first.  The picture fetcher keeps four errands on the wire and queues the rest, so the
+      // ORDER these are asked in decides what the viewer sees: asked in the order the panel laid them, a shelf
+      // walked to the right spends its whole queue on the wall the viewer has already left and stands looking at
+      // backup plates until the queue drains - which is what "the pictures are missing from the sixtieth cover
+      // onwards" is made of, and no amount of widening the band can mend an order that starts at the wrong end.
+      foreach ((int _, TitleViewModel row) pair in in_sight.OrderBy(stand => stand.Item1))
+        viewModel.PaintRow(pair.row);
     }
 
     private void OnSkinChanged(object? sender, EventArgs e)
@@ -2914,7 +4225,7 @@ namespace MediaPortal.Frontend.Views
       // Standing on the first cover alone was the old answer, and it was a trap: a viewer who had walked one
       // tile to the right found the key that had opened the menu a moment ago opening nothing at all, which
       // is a menu that disappears the moment the shelf is used.
-      if (viewModel.Layout == BrowserLayout.Cover)
+      if (viewModel.IsCoverLayout)
         return true;
 
       if (viewModel.Layout == BrowserLayout.List)
@@ -2961,11 +4272,26 @@ namespace MediaPortal.Frontend.Views
     /// the tile is then kept at the band's middle, which is how the reference's wall glides a whole row at a time
     /// instead of nudging a row's height every now and then.
     /// </remarks>
-    private static (double Before, double After, double Milliseconds) ShelfGlide(BrowserLayout layout)
+    private static (double Before, double After, double Milliseconds) ShelfGlide(BrowserLayout layout,
+        double view = 0.0)
     {
       return layout switch
       {
+        // The walked row of posters keeps the reference's band: a cover standing inside it is left where it is, and
+        // one that walks out of it is carried to the edge it walked out by.
         BrowserLayout.Cover => (280.0, 260.0, 400.0),
+
+        // A carousel holds its stood cover in the middle of the picture, which the reference reaches by the same
+        // means and not by moving its covers: its ScrollMargin is half a screen at both ends, so the band narrows
+        // to the middle alone and every step of the caret is answered by the wall carrying the cover back there.
+        BrowserLayout.Carousel => (view / 2.0, view / 2.0, 400.0),
+
+        // A stack is a stack on both sides of its front cover, so it wants the same thing a carousel wants: the
+        // stood cover held in the middle of the picture by the wall's own travel, and the covers of both its stacks
+        // standing up around it - which the panel is asked to do beside the picture, not by a band that would keep
+        // the front cover away from the middle.
+        BrowserLayout.Stacked => (view / 2.0, view / 2.0, 400.0),
+
         BrowserLayout.List => (130.0, 130.0, 300.0),
         _ => (400.0, 400.0, 400.0)
       };
@@ -3151,8 +4477,8 @@ namespace MediaPortal.Frontend.Views
 
     private Transitions? _wornGlide;
 
-    /// <summary>The container index a thrown-away travel waits for; -1 when nobody is waiting.</summary>
-    private int _glideAwaitContainer = -1;
+    /// <summary>The title whose container a thrown-away travel is waiting for.</summary>
+    private TitleViewModel? _glideAwaitTitle;
 
     private TimeSpan _wornGlideLength = TimeSpan.Zero;
 
@@ -3173,45 +4499,143 @@ namespace MediaPortal.Frontend.Views
       if (!(DataContext is MediaBrowserViewModel viewModel))
         return;
 
+      // One line per step of the caret, saying what the stretch since the last one cost: the tiles the panel stood
+      // up in it, the passes this view spent dressing them and what they took, and what the posters took - which
+      // thread they were read on is in those numbers as waiting.  The frames that carried the stretch are asked for
+      // as well, so a slow step can be read against the frames it was drawn in.
+      if (tries == 2 && Services.HomeTrace.Enabled)
+      {
+        Services.HomeTrace.Log("shelfstep",
+            "index=" + titlesList.SelectedIndex + " layout=" + viewModel.Layout
+            + " realized=" + _shelf_dress_tiles + " prepared=" + _shelf_prepared
+            + " dress=" + _shelf_dress_passes + "x" + _shelf_dress_ms + "ms "
+            + ArtworkConverter.TakePictureReadings());
+        Services.HomeTrace.NextFrames("shelfstep");
+
+        _shelf_prepared = 0;
+        _shelf_dress_passes = 0;
+        _shelf_dress_ms = 0;
+      }
+
+      // The places a shape gives its tiles belong to the distance from the title being stood on, so the walk that
+      // brings the wall to that title is also the walk that re-lays the shape.
+      WearShelfShape();
+
+      // The drawn cover row carries itself: it owns the one number the row stands at and springs to the cover the
+      // caret answers to, so the wall's travel - the scroller, its band and the watch that used to re-centre it -
+      // has nothing to do for this shape.  Asking it anyway would have the invisible wall glide along beside the
+      // drawn row and spend the step's time on a row nobody can see.
+      if (viewModel.Layout == BrowserLayout.Carousel)
+        return;
+
       ScrollViewer? scroller = ListScroller();
       Control? stood = titlesList.SelectedIndex >= 0
           ? titlesList.ContainerFromIndex(titlesList.SelectedIndex) as Control
           : null;
+      bool stood_is_realized = stood != null
+          && titlesList.GetRealizedContainers().Any(container => ReferenceEquals(container, stood));
 
-      if (scroller == null || stood == null)
+      if (scroller == null || stood == null || !stood_is_realized)
       {
         // A container that is not realized yet has no place to stand at, and the shelf is asked to move before its
         // tiles have been laid more often than not - the caret arrives with the titles, and so does this question.
+        // ScrollIntoView is what brings an off-window title into the virtualized panel; ContainerFromIndex alone
+        // can return a recycled shell whose bounds still belong to another part of the wall.
+        if (titlesList.SelectedIndex >= 0 && titlesList.SelectedIndex < viewModel.Titles.Count)
+        {
+          _glideAwaitTitle = viewModel.Titles[titlesList.SelectedIndex];
+          titlesList.ScrollIntoView(_glideAwaitTitle);
+        }
+
         if (tries > 0)
         {
-          Dispatcher.UIThread.Post(delegate { GlideShelfToStoodTitle(tries - 1); }, DispatcherPriority.Loaded);
-        }
-        else if (stood == null && titlesList.SelectedIndex >= 0)
-        {
-          // The retries ran out with the tile still unrealized.  Rather than drop the travel, the shelf remembers
-          // which container it is waiting for and takes the glide up the moment that container is prepared.
-          _glideAwaitContainer = titlesList.SelectedIndex;
+          Dispatcher.UIThread.Post(delegate { GlideShelfToStoodTitle(tries - 1); }, DispatcherPriority.Background);
         }
 
         return;
       }
 
-      (double before, double after, _) = ShelfGlide(viewModel.Layout);
-      bool sideways = viewModel.Layout == BrowserLayout.Cover;
-      Point? at = stood.TranslatePoint(new Point(), scroller);
-      if (at == null)
+      if (!WantedShelfWall(out double wanted, out bool sideways))
         return;
 
+      double standing_now = sideways ? scroller.Offset.X : scroller.Offset.Y;
+      if (Math.Abs(wanted - standing_now) < 1.0)
+      {
+        // The stood title already stands inside its band: there is no travel to glide and the offset is not
+        // written.  The glide stays on the scroller - it is worn permanently - but with nothing written there
+        // is nothing for it to animate, and a wheel notch of the viewer's own is still its own business.
+        _shelfGlide = wanted;
+        _shelfGlideIndex = titlesList.SelectedIndex;
+        return;
+      }
+
+      AskShelfWall(scroller, wanted, sideways);
+    }
+
+    /// <summary>
+    /// Writes a travel onto the wall's scroller, and only when the wall has not already been asked for that travel.
+    /// The wall wears a glide, and a glide is restarted by EVERY write to the offset it animates - so a second
+    /// asking of the same target, taken while the wall is still on its way and therefore standing nowhere near the
+    /// number asked for, begins the travel again from half way along.  Measured, one step of the caret asked the
+    /// same target eleven times over the container passes that step brings with it, and the wall crept a quarter of
+    /// its length and stopped: a stood cover standing beside the middle of the picture, and a step that reads as a
+    /// stutter rather than a glide.
+    /// </summary>
+    private void AskShelfWall(ScrollViewer scroller, double wanted, bool sideways)
+    {
+      int index = titlesList.SelectedIndex;
+      bool already_asked = _shelfGlideIndex == index && Math.Abs(_shelfGlide - wanted) < 0.5;
+      _shelfGlide = wanted;
+      _shelfGlideIndex = index;
+
+      if (already_asked)
+        return;
+
+      WearShelfGlide(scroller);
+      scroller.Offset = sideways
+          ? new Vector(wanted, scroller.Offset.Y)
+          : new Vector(scroller.Offset.X, wanted);
+    }
+
+    /// <summary>
+    /// Where the wall has to stand for the cover being stood on to answer to its band, read off the wall as it is
+    /// laid out now.  Asked without dressing a row, so that the question put after a layout pass costs one reading
+    /// of the stood container instead of a walk over every cover of the row - and asked out of the same band the
+    /// glide is written with, so that the two can never disagree about where the middle of the picture is.
+    /// </summary>
+    private bool WantedShelfWall(out double wanted, out bool sideways)
+    {
+      wanted = 0.0;
+      sideways = false;
+
+      if (!(DataContext is MediaBrowserViewModel viewModel))
+        return false;
+
+      ScrollViewer? scroller = ListScroller();
+      if (scroller == null || titlesList.SelectedIndex < 0)
+        return false;
+      if (titlesList.ContainerFromIndex(titlesList.SelectedIndex) is not Control stood)
+        return false;
+      if (!titlesList.GetRealizedContainers().Any(container => ReferenceEquals(container, stood)))
+        return false;
+
+      Point? at = stood.TranslatePoint(new Point(), scroller);
+      if (at == null)
+        return false;
+
+      sideways = viewModel.IsCoverLayout;
       double view = sideways ? scroller.Viewport.Width : scroller.Viewport.Height;
       double extent = sideways ? scroller.Extent.Width : scroller.Extent.Height;
       double start = sideways ? at.Value.X : at.Value.Y;
       double end = start + (sideways ? stood.Bounds.Width : stood.Bounds.Height);
+
       // The band, and the middle of the viewport belongs to it: a shelf of a window smaller than the reference's
       // television cannot hold four hundred points at either end of a tile, and a band that then hung its tile
       // below the bottom of a small window would be a wall that walks its stood title off the screen.
+      (double before, double after, _) = ShelfGlide(viewModel.Layout, view);
       double low = Math.Min(before, view / 2);
       double high = Math.Max(low, Math.Max(view - after, view / 2));
-      double wanted = sideways ? scroller.Offset.X : scroller.Offset.Y;
+      wanted = sideways ? scroller.Offset.X : scroller.Offset.Y;
 
       if (end - start > high - low)
       {
@@ -3230,20 +4654,81 @@ namespace MediaPortal.Frontend.Views
       }
 
       wanted = Math.Clamp(wanted, 0, Math.Max(0, extent - view));
-      double standing_now = sideways ? scroller.Offset.X : scroller.Offset.Y;
-      _shelfGlide = wanted;
-      if (Math.Abs(wanted - standing_now) < 1.0)
+      return true;
+    }
+
+    /// <summary>
+    /// Watches one step of the caret until the wall has come to rest in its band.  The list answers its own
+    /// selection as well, by the smallest nudge that shows the tile, and that answer lands AFTER the glide has been
+    /// asked for - leaving the stood cover standing beside the middle of the picture, which is what the viewer reads
+    /// as a row that is bigger on one side than on the other.  A watch of a few posted questions cannot catch that:
+    /// the wall wears a glide, so it is on its way for the length of that glide, and only a wall that has come to
+    /// REST away from its band has been moved by somebody else.  Hence a short timer, and hence a wall that is
+    /// asked for nothing while it is honestly travelling.
+    /// </summary>
+    private void WatchShelfWallHome(int stood_on_index)
+    {
+      _glide_check_index = stood_on_index;
+      _glide_check_left = 20;
+      _shelfWallSeen = double.NaN;
+
+      if (_glide_check == null)
       {
-        // The stood title already stands inside its band: there is no travel to glide and the offset is not
-        // written.  The glide stays on the scroller - it is worn permanently - but with nothing written there
-        // is nothing for it to animate, and a wheel notch of the viewer's own is still its own business.
+        _glide_check = new DispatcherTimer(DispatcherPriority.Background)
+        {
+          Interval = TimeSpan.FromMilliseconds(60)
+        };
+      }
+
+      _glide_check.Tick -= CheckShelfWallHome;
+      _glide_check.Tick += CheckShelfWallHome;
+      _glide_check.Start();
+    }
+
+    /// <summary>One look of the watch: has the wall rested, and if so, is it standing where its band wants it?</summary>
+    /// <remarks>
+    /// Deliberately cheap per look - one reading of the stood container and one of the scroller, never a pass over
+    /// the row - because a step of the caret walks the wall through a dozen container passes of its own.
+    /// </remarks>
+    private void CheckShelfWallHome(object? sender, EventArgs e)
+    {
+      if (_glide_check == null || titlesList == null || _glide_check_index != titlesList.SelectedIndex
+          || --_glide_check_left < 0)
+      {
+        _glide_check?.Stop();
         return;
       }
 
-      WearShelfGlide(scroller);
-      scroller.Offset = sideways
-          ? new Vector(wanted, scroller.Offset.Y)
-          : new Vector(scroller.Offset.X, wanted);
+      if (!WantedShelfWall(out double wanted, out bool sideways))
+        return;
+
+      ScrollViewer? scroller = ListScroller();
+      if (scroller == null)
+      {
+        _glide_check.Stop();
+        return;
+      }
+
+      double standing_now = sideways ? scroller.Offset.X : scroller.Offset.Y;
+      if (Math.Abs(standing_now - wanted) < 1.0)
+      {
+        _glide_check.Stop();
+        return;
+      }
+
+      // A wall that is STILL TRAVELLING is corrected at once, without waiting for it to rest.  The offset is worn
+      // by a transition, and a transition handed a new number retargets - it does not restart - so a correction
+      // written during the travel is woven into the same movement and is never seen.  Waiting for the rest first,
+      // which is what this watch did, lands the same correction a beat AFTER the wall has stood, and that second
+      // movement is what the viewer reported as a re-centring jerk at every step.
+      bool resting = !double.IsNaN(_shelfWallSeen) && Math.Abs(_shelfWallSeen - standing_now) < 0.5;
+      _shelfWallSeen = standing_now;
+      if (!resting && !_shelfTravelling)
+        return;
+
+      // The travel the wall was last asked for is no longer the one it is standing at, so the asking may write.
+      _shelfGlideIndex = -1;
+      AskShelfWall(scroller, wanted, sideways);
     }
 
     /// <summary>
@@ -3255,13 +4740,30 @@ namespace MediaPortal.Frontend.Views
 
     private double _shelfGlide;
 
+    /// <summary>The title the wall's last asked travel belongs to.</summary>
+    private int _shelfGlideIndex = -1;
+
+    /// <summary>Where the wall stood when the re-centring last looked at it, to tell a travel from a rest.</summary>
+    private double _shelfWallSeen = double.NaN;
+
+    /// <summary>Timer that watches one step of the caret until the wall has come to rest in its band.</summary>
+    private DispatcherTimer? _glide_check;
+
+    /// <summary>The title the wall home is being watched for.</summary>
+    private int _glide_check_index = -1;
+
+    /// <summary>How many more looks the watch of one step takes before it leaves the wall alone.</summary>
+    private int _glide_check_left;
+
     /// <summary>The frame this file draws for a shape the worn skin does not answer.</summary>
     private IDataTemplate BuiltinTemplate(BrowserLayout layout)
     {
       string key = layout switch
       {
         BrowserLayout.Grid => "BuiltinTilesTemplate",
-        BrowserLayout.Cover => "BuiltinCoversTemplate",
+        // The two shapes besides the walked row put the same covers differently, so they wear the same frame;
+        // only the class the list below wears changes, and the class is what leans the tiles.
+        BrowserLayout.Cover or BrowserLayout.Stacked or BrowserLayout.Carousel => "BuiltinCoversTemplate",
         _ => "BuiltinRowsTemplate"
       };
 
@@ -3318,4 +4820,3 @@ namespace MediaPortal.Frontend.Views
     }
   }
 }
-

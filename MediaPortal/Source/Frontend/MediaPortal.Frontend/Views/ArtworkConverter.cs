@@ -17,11 +17,17 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Data.Converters;
 using Avalonia.Media.Imaging;
+using Avalonia.Platform;
+using SkiaSharp;
 
 namespace MediaPortal.Frontend.Views
 {
@@ -123,17 +129,119 @@ namespace MediaPortal.Frontend.Views
     public const string WALL_PARAMETER = "wall";
 
     /// <summary>
+    /// How wide a poster that is only ever drawn small is decoded: the grid's rows of posters, the album squares,
+    /// the track rows.
+    /// </summary>
+    /// <remarks>
+    /// Two hundred and fifty-six device pixels, which is the second of the <em>two</em> sizes this front end keeps
+    /// - one picture big and one picture small, and everything between them scaled by the compositor instead of
+    /// decoded a third time.  A grid poster is drawn a hundred and sixty-three logical pixels across, two hundred
+    /// and seventeen on the screen this port is measured on, so this is the width it is drawn at with the morph's
+    /// tenth on top.  What is saved is not the decoding alone: twenty of these at the tile width are two and a
+    /// half megapixels of texture the graphics card holds in order to draw them two hundred and seventeen pixels
+    /// wide.
+    /// </remarks>
+    public const int POSTER_DECODE_WIDTH = 256;
+
+    /// <summary>
+    /// The converter parameter a template passes to ask for a small-poster decode.
+    /// </summary>
+    public const string POSTER_PARAMETER = "small";
+
+    /// <summary>
+    /// What one picture is, as far as this converter is concerned: the bytes it came from, compared by their
+    /// contents and not by which array happens to hold them.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Keying by the array's identity used to be the cheap question and is usually the right one, because the
+    /// view model hands the same array to every question about one title.  Usually is not always: a second
+    /// reader of the same poster - the row and the panel, a reload after the library changed - hands over a
+    /// new array of the same file, and the cache, asked by identity, answers "never seen it".  The consequence
+    /// is not a wasted lookup but a JPEG decoded again on the thread that draws, which is the hitch the viewer
+    /// counts: the ledger of a wall entering the screen read <c>asked=19 decoded=19/697ms</c>, every one of
+    /// those decodes on the screen's own thread, while the picture was already decoded twice over.
+    /// </para>
+    /// <para>
+    /// The fingerprint is only the bucket a picture is looked for in - head, middle and tail of the file plus
+    /// its length, so that a two megabyte poster costs a hundred byte reads and not two megabyte ones.  Two
+    /// different files can share a fingerprint, and when they do <see cref="Equals(PictureKey)"/> still says no,
+    /// byte for byte.  Correctness never rests on the sample.
+    /// </para>
+    /// </remarks>
+    private readonly struct PictureKey : IEquatable<PictureKey>
+    {
+      internal readonly byte[] Bytes;
+      private readonly int _fingerprint;
+
+      internal PictureKey(byte[] bytes)
+      {
+        Bytes = bytes;
+        _fingerprint = Fingerprint(bytes);
+      }
+
+      public override int GetHashCode()
+      {
+        return _fingerprint;
+      }
+
+      public override bool Equals(object? other)
+      {
+        return other is PictureKey key && Equals(key);
+      }
+
+      public bool Equals(PictureKey other)
+      {
+        return _fingerprint == other._fingerprint
+            && (ReferenceEquals(Bytes, other.Bytes)
+                || System.Collections.StructuralComparisons.StructuralEqualityComparer
+                    .Equals(Bytes, other.Bytes));
+      }
+
+      private static int Fingerprint(byte[] bytes)
+      {
+        uint hash = 2166136261u;
+        hash = Fold(hash, (uint) bytes.Length);
+
+        for (int part = 0; part < 3; ++part)
+        {
+          int from = part == 0
+              ? 0
+              : part == 1
+                  ? Math.Max(0, bytes.Length / 2 - SAMPLE / 2)
+                  : Math.Max(0, bytes.Length - SAMPLE);
+          int until = Math.Min(bytes.Length, from + SAMPLE);
+
+          for (int i = from; i < until; ++i)
+            hash = Fold(hash, bytes[i]);
+        }
+
+        return (int) hash;
+      }
+
+      /// <summary>How many bytes of each end and of the middle take part in the bucket.</summary>
+      private const int SAMPLE = 32;
+
+      private static uint Fold(uint hash, uint value)
+      {
+        hash *= 16777619u;
+        hash ^= value;
+        return hash;
+      }
+    }
+
+    /// <summary>
     /// One remembered picture: the bytes it came from, the width it was decoded for, and the picture.
     /// </summary>
     private sealed class Remembered
     {
-      internal readonly byte[] Bytes;
+      internal readonly PictureKey Key;
       internal readonly int Width;
       internal readonly Bitmap Picture;
 
-      internal Remembered(byte[] bytes, int width, Bitmap picture)
+      internal Remembered(PictureKey key, int width, Bitmap picture)
       {
-        Bytes = bytes;
+        Key = key;
         Width = width;
         Picture = picture;
       }
@@ -214,6 +322,7 @@ namespace MediaPortal.Frontend.Views
     /// </remarks>
     private Bitmap? Decoded(byte[] bytes, int width)
     {
+      PictureKey key = new PictureKey(bytes);
       TaskCompletionSource<Bitmap?> wanted;
       bool oursToMake;
 
@@ -221,12 +330,17 @@ namespace MediaPortal.Frontend.Views
       {
         Bitmap? already = LookForHeld(bytes, width);
         if (already != null)
+        {
+          Interlocked.Increment(ref READ_HELD);
           return already;
+        }
 
-        if (!_beingMade.TryGetValue(bytes, out Dictionary<int, TaskCompletionSource<Bitmap?>>? forTheseWidths))
+        Interlocked.Increment(ref READ_ASKED);
+
+        if (!_beingMade.TryGetValue(key, out Dictionary<int, TaskCompletionSource<Bitmap?>>? forTheseWidths))
         {
           forTheseWidths = new Dictionary<int, TaskCompletionSource<Bitmap?>>();
-          _beingMade[bytes] = forTheseWidths;
+          _beingMade[key] = forTheseWidths;
         }
 
         oursToMake = !forTheseWidths.TryGetValue(width, out wanted!);
@@ -240,20 +354,50 @@ namespace MediaPortal.Frontend.Views
       if (!oursToMake)
       {
         // Somebody else is reading this very picture at this very width; their answer is the answer.
-        return wanted.Task.Wait(LONGEST_WAIT_FOR_OTHERS)
+        //
+        // Asking them costs this thread the asking, which is the picture's whole decode when the thread asking is
+        // the one that draws - so it is counted, and a shelf that stalls on every step can be asked what it
+        // stalled on (SERVICES.HomeTrace reads these numbers on each step of the caret).
+        long waited_at = ReadingsClock.ElapsedMilliseconds;
+        bool answered = wanted.Task.Wait(LONGEST_WAIT_FOR_OTHERS);
+        Interlocked.Add(ref READ_WAIT_MS, ReadingsClock.ElapsedMilliseconds - waited_at);
+        Interlocked.Increment(ref READ_WAITS);
+
+        return answered
             ? wanted.Task.IsCompletedSuccessfully ? wanted.Task.Result : null
             : Decode(bytes, width);
       }
 
+      long asked_at = ReadingsClock.ElapsedMilliseconds;
+      bool on_the_pictures_thread = Avalonia.Threading.Dispatcher.UIThread.CheckAccess();
       Bitmap? made = Decode(bytes, width);
+      long cost = ReadingsClock.ElapsedMilliseconds - asked_at;
+      Interlocked.Increment(ref READ_DECODES);
+      Interlocked.Add(ref READ_DECODE_MS, cost);
+
+      if (on_the_pictures_thread)
+      {
+        // Read on the thread that draws: the shelf cannot paint while it waited, whatever the total says.
+        Interlocked.Increment(ref READ_DECODES_ON_SCREEN);
+        Interlocked.Add(ref READ_DECODE_MS_ON_SCREEN, cost);
+
+        if (WhoDecodesOnScreen)
+        {
+          // The station the ledger cannot answer on its own: it counts the decodes the screen pays for, but a
+          // wall that stalls on entry still has to say which of its builders asked.  Asked once, by hand, with
+          // MP_TRACE_DECODE=1 - a stack walk is far too dear to be anybody's standing expense.
+          Services.HomeTrace.Log("uidecode",
+              bytes.Length + "B@" + width + " cost=" + cost + "ms by " + AskedBy());
+        }
+      }
 
       lock (_cache)
       {
-        if (_beingMade.TryGetValue(bytes, out Dictionary<int, TaskCompletionSource<Bitmap?>>? forTheseWidths))
+        if (_beingMade.TryGetValue(key, out Dictionary<int, TaskCompletionSource<Bitmap?>>? forTheseWidths))
         {
           forTheseWidths.Remove(width);
           if (forTheseWidths.Count == 0)
-            _beingMade.Remove(bytes);
+            _beingMade.Remove(key);
         }
 
         if (made != null)
@@ -269,17 +413,68 @@ namespace MediaPortal.Frontend.Views
     /// <summary>Guards the remembered pictures, which the screen's thread and the fetchers' threads both reach.</summary>
     private readonly object _cache = new object();
 
+    // WHAT THE PICTURES COST.  A shelf that stutters can be stalling on its transforms, on the screen's painting,
+    // or on the pictures themselves - which is a decode of a poster on the thread that draws, or a wait for a
+    // poster another thread is already reading.  Those three cannot be told apart from a screen, so these counters
+    // are kept: whoever walks the shelf (MediaBrowserView, on each step of the caret) reads them into the trace
+    // with TakePictureReadings and they start again from zero for the step it is standing in.
+    private static readonly Stopwatch ReadingsClock = Stopwatch.StartNew();
+    private static long READ_HELD;
+    private static long READ_ASKED;
+    private static long READ_DECODES;
+    private static long READ_DECODE_MS;
+    private static long READ_DECODES_ON_SCREEN;
+    private static long READ_DECODE_MS_ON_SCREEN;
+    private static long READ_WAITS;
+    private static long READ_WAIT_MS;
+
     /// <summary>
-    /// The decodes under way, reached by the very bytes they are reading and then by the width they are reading
+    /// What the pictures have cost since this was last asked, and the counts start again from zero.
+    /// </summary>
+    public static string TakePictureReadings()
+    {
+      long held = Interlocked.Exchange(ref READ_HELD, 0);
+      long asked = Interlocked.Exchange(ref READ_ASKED, 0);
+      long decodes = Interlocked.Exchange(ref READ_DECODES, 0);
+      long decode_ms = Interlocked.Exchange(ref READ_DECODE_MS, 0);
+      long on_screen = Interlocked.Exchange(ref READ_DECODES_ON_SCREEN, 0);
+      long on_screen_ms = Interlocked.Exchange(ref READ_DECODE_MS_ON_SCREEN, 0);
+      long waits = Interlocked.Exchange(ref READ_WAITS, 0);
+      long wait_ms = Interlocked.Exchange(ref READ_WAIT_MS, 0);
+
+      // What is standing in the cache right now, and how wide the widest picture among it is: a shelf whose tiles
+      // ask for four hundred and thirty-two pixels but holds pictures of a thousand and two hundred is a shelf
+      // whose compositor samples a poster where it should sample a tile, which is a thing the screen pays for on
+      // every frame rather than once.
+      int standing;
+      long pixels;
+      int widest;
+      lock (Instance._cache)
+      {
+        standing = Instance._held.Count;
+        pixels = Instance._pixels;
+        widest = 0;
+        foreach (Remembered kept in Instance._held)
+          widest = Math.Max(widest, kept.Picture.PixelSize.Width);
+      }
+
+      return string.Format(CultureInfo.InvariantCulture,
+          "art held={0} asked={1} decoded={2}/{3}ms onscreen={4}/{5}ms waited={6}/{7}ms "
+          + "standing={8}/{9}Mpx widest={10}",
+          held, asked, decodes, decode_ms, on_screen, on_screen_ms, waits, wait_ms,
+          standing, pixels / (1024 * 1024), widest);
+    }
+
+    /// <summary>
+    /// The decodes under way, reached by the picture they are reading and then by the width they are reading
     /// for, so that whoever asks for a picture already on its way can wait for <em>that</em> picture.
     /// </summary>
     /// <remarks>
-    /// Keyed by the array's identity for the same reason the cache is: the picture cache hands the same array to
-    /// every question about one title.
+    /// Reached by <see cref="PictureKey"/> rather than by the array: a row and a panel that both fetched the
+    /// same poster are waiting for one decode of it, not for two.
     /// </remarks>
-    private readonly Dictionary<byte[], Dictionary<int, TaskCompletionSource<Bitmap?>>> _beingMade =
-        new Dictionary<byte[], Dictionary<int, TaskCompletionSource<Bitmap?>>>(
-            ReferenceEqualityComparer.Instance);
+    private readonly Dictionary<PictureKey, Dictionary<int, TaskCompletionSource<Bitmap?>>> _beingMade =
+        new Dictionary<PictureKey, Dictionary<int, TaskCompletionSource<Bitmap?>>>();
 
     /// <summary>
     /// How long a caller waits for a decode somebody else started before reading the picture itself rather than
@@ -297,10 +492,14 @@ namespace MediaPortal.Frontend.Views
     /// The width to decode for, or zero for the whole picture.
     /// </summary>
     /// <remarks>
-    /// A template that names no size gets the whole picture, which is what the raised photograph, a poster on a
-    /// details screen and every other existing caller want. A number is accepted as well, so a template whose
-    /// tiles are a different size can ask for its own; anything unrecognised is the whole picture again, because
-    /// guessing a size is how a picture ends up blurred for no reason.
+    /// A template that names no size gets the BIG of the two sizes this front end keeps, never the file's own size:
+    /// a two-thousand-wide scan remembered under a question that did not ask for a width is the single biggest
+    /// landlord of the picture budget, and measured here it was the reason the row of remembered pictures was full
+    /// again while covers were going wanting - thirty-eight covers of a shelf standing on four megapixels instead
+    /// of a fifth of that, and a step's worth of them landing in the large-object heap at once.  A number is
+    /// accepted as well, so a template whose tiles are a different size can ask for its own.  The whole file is
+    /// read by one door only, <see cref="ReadWhole"/>, for the few callers that really draw a picture as big as
+    /// the screen; nothing that stands in a list or on a wall goes through it.
     /// </remarks>
     public static int DecodeWidthFor(object? parameter)
     {
@@ -308,10 +507,14 @@ namespace MediaPortal.Frontend.Views
       {
         if (string.Equals(text, TILE_PARAMETER, StringComparison.OrdinalIgnoreCase))
           return TILE_DECODE_WIDTH;
-        return string.Equals(text, WALL_PARAMETER, StringComparison.OrdinalIgnoreCase) ? WALL_DECODE_WIDTH : 0;
+        if (string.Equals(text, WALL_PARAMETER, StringComparison.OrdinalIgnoreCase))
+          return WALL_DECODE_WIDTH;
+        if (string.Equals(text, POSTER_PARAMETER, StringComparison.OrdinalIgnoreCase))
+          return POSTER_DECODE_WIDTH;
+        return int.TryParse(text, out int named) && named > 0 ? named : WALL_DECODE_WIDTH;
       }
 
-      return parameter is int requested && requested > 0 ? requested : 0;
+      return parameter is int asked ? (asked > 0 ? asked : WALL_DECODE_WIDTH) : WALL_DECODE_WIDTH;
     }
 
     /// <summary>
@@ -328,35 +531,199 @@ namespace MediaPortal.Frontend.Views
     {
       try
       {
-        using (MemoryStream picture = new MemoryStream(bytes, false))
-        {
-          // Scaling is only ever downwards: a picture narrower than the width asked for comes back as it is,
-          // which is what a small thumbnail in a big tile wants anyway.
-          return width == 0
-              ? new Bitmap(picture)
-              : Bitmap.DecodeToWidth(picture, width, BitmapInterpolationMode.MediumQuality);
-        }
+        //  Scaling is only ever downwards: a picture narrower than the width asked for comes back as it is,
+        //  which is what a small thumbnail in a big tile wants anyway.
+        return ReadAtWidth(bytes, width);
       }
       catch (InvalidOperationException)
       {
         //  Reading a picture at a width is not decoding alone: the platform shrinks what the decoder handed out
         //  through a render target, and a render target belongs to the thread that drew the first frame. Asked
-        //  from a thread that fetches, that says so out loud. The picture is still wanted - a row without its
-        //  poster is worse than a poster at the size its file has - so it comes whole here, and the scaling is
-        //  the screen's to ask for on its own thread.
-        try
-        {
-          using MemoryStream picture = new MemoryStream(bytes, false);
-          return new Bitmap(picture);
-        }
-        catch (Exception)
-        {
-          return null;
-        }
+        //  from a thread that fetches, that says so out loud.
+        //
+        //  The picture is still wanted at the width it was asked for, and it is the width that matters here:
+        //  what this method hands back is REMEMBERED under the width that was asked, and a whole 3126x1758 scan
+        //  standing under a 432 key takes twenty times the room of the copy the tile is drawn from. Measured on
+        //  a shelf of covers: three of those whole scans filled the whole budget of remembered pictures, so
+        //  every poster the viewer had walked past was thrown out again before they walked back, and the next
+        //  binding paid for the read on the thread that draws - twenty-one reads, eight hundred and fifty-two
+        //  milliseconds, one forty millisecond frame after another. That is what "it hitches on every step" was.
+        //
+        //  So the shrinking is done here, by hand, on the thread that may not use a render target: Skia draws
+        //  the scan into a sheet of the asked width (the same sheet the blurred backdrop is made on, and for the
+        //  same reason), and the sheet goes back through the door a picture comes in at.
+        return ReadWholeAndShrink(bytes, width);
       }
       catch (Exception)
       {
         return null;
+      }
+    }
+
+    /// <summary>
+    /// The picture these bytes hold, read at the width asked for - the decoder's own door, with nothing kept of
+    /// the answer.  Read by whoever wants a picture of a size this cache has no business remembering: a backdrop
+    /// is a different size from a tile and is kept by the screen that wears it, not by the shelf's posters.
+    /// </summary>
+    internal static Bitmap? ReadAtWidth(byte[] bytes, int width)
+    {
+      try
+      {
+        return ReadWholeAndShrink(bytes, width);
+      }
+      catch (Exception)
+      {
+        return null;
+      }
+    }
+
+    /// <summary>
+    /// The picture these bytes hold at the width asked for, out of the one row of remembered pictures every
+    /// picture of the front end shares - for code that has the bytes in hand rather than a binding to answer.
+    /// A backdrop read at the covers' width belongs in that row, not in a row of its own.
+    /// </summary>
+    internal static Bitmap? ReadCached(byte[] bytes, int width)
+    {
+      return Instance.Decoded(bytes, width);
+    }
+
+    /// <summary>
+    /// Whether that row already holds the picture these bytes were read at this width to, so that a caller can
+    /// tell an answer that costs nothing from one that has to be made.
+    /// </summary>
+    internal static bool RemembersAt(byte[] bytes, int width)
+    {
+      lock (Instance._cache)
+      {
+        return Instance.LookForHeld(bytes, width) != null;
+      }
+    }
+
+    /// <summary>
+    /// The picture these bytes hold at the size it came in, with its pixels already made. For the blurred
+    /// backdrop sheet, which is its own size and must not cost a frame the decoder on the way to the screen.
+    /// </summary>
+    internal static Bitmap? ReadWhole(byte[] bytes)
+    {
+      return ReadAtWidth(bytes, 0);
+    }
+
+    /// <summary>
+    /// Reads a picture whole and hands back the width that was asked for, on a thread the platform will not let
+    /// scale while it decodes.
+    /// </summary>
+    /// <remarks>
+    /// Skia shrinks the scan on a sheet of the asked width - the same way the blurred backdrop is made, and for
+    /// the same reason: a sheet of pixels needs nobody's render target - and the pixels of that sheet are copied
+    /// straight into the bitmap here, so that what is remembered is a picture of the width its key says AND a
+    /// picture that is finished before a tile wears it.  A bitmap built from a stream is not decoded until the
+    /// first frame that draws it: measured on the backdrop, the three frames after a new one was shown cost 211,
+    /// 228 and 267 milliseconds, which is twenty times what a frame may cost and is what "it hitches whenever a
+    /// new picture appears" was.
+    /// </remarks>
+    private static Bitmap? ReadWholeAndShrink(byte[] bytes, int width)
+    {
+      try
+      {
+        using SKBitmap? scan = SKBitmap.Decode(bytes);
+        if (scan == null)
+          return AsItCame(bytes);
+
+        if (width <= 0 || scan.Width <= width)
+        {
+          //  Nothing to shrink - the file is no wider than the tile that asked for it, and scaling upwards was
+          //  never what a width question meant.  The pixels are copied all the same, for the reason in the
+          //  remark above: a stream holds a file, not a picture.
+          return Eager(scan);
+        }
+
+        int high = Math.Max(1, (int) Math.Round((double) scan.Height * width / scan.Width));
+        //  Bgra8888, not Rgba8888: the two are the same four colours in the opposite byte order, and the sheet is
+        //  copied into an Avalonia Bgra8888 bitmap a few lines further down.
+        using SKBitmap? shrunk = scan.Resize(
+            new SKImageInfo(width, high, SKColorType.Bgra8888, SKAlphaType.Premul),
+            new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.Linear));
+        //  No re-encoding into PNG on the way: the pixels are already in hand, and copying them keeps the
+        //  transparency of a logo exactly as it is.
+        return shrunk == null ? AsItCame(bytes) : Eager(shrunk);
+      }
+      catch (Exception)
+      {
+        return null;
+      }
+    }
+
+    /// <summary>
+    /// The last door, for bytes Skia would not open: the platform's own reader. Kept because a library holds
+    /// more formats than any one decoder, and a picture read late beats no picture at all - the cost being that
+    /// its decoding waits for the first frame that draws it.
+    /// </summary>
+    private static Bitmap? AsItCame(byte[] bytes)
+    {
+      try
+      {
+        using MemoryStream sheet = new MemoryStream(bytes, false);
+        return new Bitmap(sheet);
+      }
+      catch (Exception)
+      {
+        return null;
+      }
+    }
+
+    /// <summary>
+    /// A bitmap whose pixels already exist, copied out of a sheet Skia decoded.
+    /// </summary>
+    /// <remarks>
+    /// The sheet is first put into the byte order Avalonia's Bgra8888 bitmap holds its colours in - blue, green,
+    /// red, alpha.  Skia's Rgba8888 is the same four colours in the <em>opposite</em> order, and copying one of
+    /// those over unchanged paints every cover of the wall with its reds and its blues swapped; that swap is the
+    /// "die Farben der Bilder stimmen nicht" a shaped shelf showed the day this copy was written.  Once the sheet
+    /// is Bgra8888 premultiplied the two really are the same bytes, and apart from a differing row pitch the whole
+    /// thing is one block copy.  Nothing is decoded later, no thread is asked whether it may decode, and the size
+    /// of the answer is the size that was made here.
+    /// </remarks>
+    private static WriteableBitmap Eager(SKBitmap scan)
+    {
+      SKImageInfo ground = new SKImageInfo(scan.Width, scan.Height, SKColorType.Bgra8888, SKAlphaType.Premul);
+      SKBitmap sheet = scan;
+      SKBitmap? turned = null;
+      try
+      {
+        if (scan.ColorType != ground.ColorType || scan.AlphaType != ground.AlphaType)
+        {
+          //  A JPEG straight from the decoder usually already stands in this order - then nothing happens here at
+          //  all - and a sheet in another one is turned over at its own size, which converts the pixels and
+          //  resamples nothing.
+          turned = scan.Resize(ground, new SKSamplingOptions())
+              ?? throw new InvalidOperationException("the sheet would not turn to BGRA");
+          sheet = turned;
+        }
+
+        var picture = new WriteableBitmap(new PixelSize(sheet.Width, sheet.Height), new Vector(96, 96),
+            PixelFormats.Bgra8888, AlphaFormat.Premul);
+        int pitch = sheet.RowBytes;
+        byte[] pixels = new byte[pitch * sheet.Height];
+        Marshal.Copy(sheet.GetPixels(), pixels, 0, pixels.Length);
+        using ILockedFramebuffer surface = picture.Lock();
+        long room = (long) surface.RowBytes * surface.Size.Height;
+        if (surface.RowBytes == pitch && room >= pixels.Length)
+        {
+          Marshal.Copy(pixels, 0, surface.Address, pixels.Length);
+        }
+        else
+        {
+          for (int line = 0; line < sheet.Height; line++)
+          {
+            Marshal.Copy(pixels, line * pitch, surface.Address + line * surface.RowBytes, pitch);
+          }
+        }
+
+        return picture;
+      }
+      finally
+      {
+        turned?.Dispose();
       }
     }
 
@@ -381,24 +748,58 @@ namespace MediaPortal.Frontend.Views
 
 
     /// <summary>
+    /// Whether every decode the drawing thread pays for also names the caller that asked for it.  Off unless
+    /// <c>MP_TRACE_DECODE=1</c>: a stack walk costs more than the lookup it is standing in the middle of, so
+    /// this is an instrument for one measured run and never a standing expense.
+    /// </summary>
+    private static readonly bool WhoDecodesOnScreen =
+        Environment.GetEnvironmentVariable("MP_TRACE_DECODE") == "1";
+
+    /// <summary>The callers behind a decode, this file and the toolkit left out.</summary>
+    private static string AskedBy()
+    {
+      System.Diagnostics.StackTrace trace = new System.Diagnostics.StackTrace(2, false);
+      System.Text.StringBuilder asked = new System.Text.StringBuilder();
+
+      for (int i = 0; i < trace.FrameCount && asked.Length < 220; i++)
+      {
+        string? name = trace.GetFrame(i)?.GetMethod()?.DeclaringType?.FullName;
+        if (name == null
+            || name.IndexOf("ArtworkConverter", StringComparison.Ordinal) >= 0
+            || name.StartsWith("Avalonia", StringComparison.Ordinal)
+            || name.StartsWith("System.", StringComparison.Ordinal))
+          continue;
+
+        if (asked.Length > 0)
+          asked.Append(" < ");
+
+        asked.Append(name);
+      }
+
+      return asked.Length == 0 ? "?" : asked.ToString();
+    }
+
+    /// <summary>
     /// The picture these very bytes were decoded to this width before, moved to the recent end, or null when
     /// they have not been decoded at this width yet.
     /// </summary>
     /// <remarks>
-    /// Matched by the array itself rather than by its contents, because the bytes come out of the picture cache
-    /// held by the view model: the same title hands out the same array every time its row is laid out, so
-    /// reference equality is both enough and the cheapest question to ask.
+    /// Matched by the contents of the array rather than by which array holds them, because a poster that two
+    /// readers fetched twice is still one poster, and answering "never seen it" to the second one costs a JPEG
+    /// decoded on the thread that draws.
     /// </remarks>
     private Bitmap? LookForHeld(byte[] bytes, int width)
     {
+      PictureKey key = new PictureKey(bytes);
+
       for (int i = 0; i < _held.Count; i++)
       {
-        if (!ReferenceEquals(_held[i].Bytes, bytes) || _held[i].Width != width)
+        if (_held[i].Width != width || !_held[i].Key.Equals(key))
           continue;
 
         Bitmap picture = _held[i].Picture;
         _held.RemoveAt(i);
-        _held.Add(new Remembered(bytes, width, picture));
+        _held.Add(new Remembered(key, width, picture));
         return picture;
       }
       return null;
@@ -427,7 +828,7 @@ namespace MediaPortal.Frontend.Views
       if ((long)picture.PixelSize.Width * picture.PixelSize.Height > _budget)
         return;
 
-      Remembered entry = new Remembered(bytes, width, picture);
+      Remembered entry = new Remembered(new PictureKey(bytes), width, picture);
       _held.Add(entry);
       _pixels += entry.Pixels;
 
