@@ -60,9 +60,10 @@ public sealed class CoverCarousel : Control
       AvaloniaProperty.Register<CoverCarousel, int>(nameof(SelectedIndex), 0);
 
   /// <summary>
-  /// How many covers are painted on each hand of the stood one.  The row is tighter than the room is wide, so this
-  /// has to reach past both edges of the screen: seven at the tighter step left the last cover of each hand
-  /// standing inside the edge with a gap of empty ground beside it.
+  /// How many covers are asked for their picture on each hand of the stood one.  What is PAINTED is counted off
+  /// the room's width and the row's own step (see <see cref="Render"/>), because a row that paints a fixed count
+  /// leaves the last cover of a wide screen unpainted; what is ASKED FOR stays a fixed count, since a poster that
+  /// is on its way from the server costs bandwidth whether the television is wide or narrow.
   /// </summary>
   internal const int PAINTED_EACH_SIDE = 9;
 
@@ -611,8 +612,26 @@ public sealed class CoverCarousel : Control
     if (_items.Count == 0 || width <= 0.0 || height <= 0.0)
       return;
 
-    int first = Math.Max(0, (int) Math.Floor(_position) - PAINTED_EACH_SIDE);
-    int last = Math.Min(_items.Count - 1, (int) Math.Ceiling(_position) + PAINTED_EACH_SIDE);
+    double band = height * ROW_SHARE;
+    double cover = band * COVER_RATIO;
+    double pitch = band * PITCH_RATIO;
+
+    // THE REACH OF THE PAINTING.  A cover flow is ONE picture of a row that goes on past both edges of the
+    // television, so the row must not end where its own box ends - the box stands a breath inside the window
+    // (the content panel keeps ten points at each hand), and a cover travelling sideways was cut at those two
+    // lines: it came into being or left it in full sight of the viewer, which is the popping he counted.  The
+    // painting is therefore handed a ground that reaches a cover's width past the box on either hand, and the
+    // window's own edge becomes the only edge the row meets.  The box stays where the markup put it - nothing
+    // about the room's layout is moved for this - only what is painted on it grows.
+    double reach = cover + pitch;
+
+    // How many places lie within that ground, counted from where the row stands rather than from a number kept
+    // beside the other numbers: on a wider television the row has to paint further out, and a fixed count left
+    // the last cover of a wide screen unpainted - which is the same popping, arriving from the other side.
+    int places = (int) Math.Ceiling((width / 2.0 + reach) / Math.Max(1.0, pitch)) + 1;
+
+    int first = Math.Max(0, (int) Math.Floor(_position) - places);
+    int last = Math.Min(_items.Count - 1, (int) Math.Ceiling(_position) + places);
 
     // The bright frame follows the CARET and not the place the row happens to have reached.  It used to be given
     // to whichever cover the row was standing on to within a hundredth of a place, which no cover is while the
@@ -634,7 +653,8 @@ public sealed class CoverCarousel : Control
     // the posters may be guarded by a lock taken now.  Hence the gate travelling with the painting, which is what
     // keeps a poster from being dropped out from under a cover being drawn - seen as a hard crash of the front
     // end while a wall was walked, because a thousand-cover row drops posters as fast as it picks them up.
-    context.Custom(new CoverPainting(new Rect(0, 0, width, height), frames.ToArray(), _pictures, _picturesLock));
+    context.Custom(new CoverPainting(
+        new Rect(-reach, 0.0, width + 2.0 * reach, height), frames.ToArray(), _pictures, _picturesLock));
   }
 
   /// <summary>
