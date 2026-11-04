@@ -525,6 +525,28 @@ namespace MediaPortal.Frontend
       get { return _nowPlaying; }
     }
 
+    /// <summary>
+    /// Brings the player screen over whatever screen the viewer is standing in, which is what the first mark of
+    /// the compact footer row presses. The reference's footer opened its player the same way - a push of the
+    /// player screen onto the workflow (OtherControlsOverrides.xaml:1290) - because a film running behind the
+    /// shelves is a film somebody will want in front of them sooner or later.
+    /// </summary>
+    /// <remarks>
+    /// Nothing happens when nothing plays: a player screen over an empty player is a black room with a word in
+    /// it, and the row that asks for it is not on the screen then either. Nor is a second player screen pushed
+    /// over the one the viewer is already looking at.
+    /// </remarks>
+    public void ShowPlaybackScreen()
+    {
+      if (_nowPlaying == null || !_nowPlaying.HasMedia)
+        return;
+
+      if (_workflow.Current is Workflow.WorkflowFrame current && current.StateId == "nowplaying")
+        return;
+
+      _workflow.Push(NowPlayingFrame());
+    }
+
     /// <summary>Tell the window's chrome what the player is doing right now - see the wiring above.</summary>
     private void FeedChromeFromPlayback()
     {
@@ -535,6 +557,10 @@ namespace MediaPortal.Frontend
         _shell.Chrome.ReportPlaying(_nowPlaying.Title, _nowPlaying.Progress, _nowPlaying.StateText);
       else
         _shell.Chrome.ReportStopped();
+
+      // The same answer decides the compact transport row at the foot of the window, which is there while
+      // something plays and away when nothing does - the reference's AutoVisibility on its footer control.
+      _shell.UpdatePlaybackBar();
     }
 
     /// <summary>

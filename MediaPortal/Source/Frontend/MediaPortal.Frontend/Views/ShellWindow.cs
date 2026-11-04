@@ -64,6 +64,14 @@ namespace MediaPortal.Frontend.Views
     private readonly ContentControl _screenArea = new ContentControl();
 
     /// <summary>
+    /// The compact transport row that waits at the bottom right-hand corner of the window while something plays
+    /// - the reference master's footer control (master_bare_media.xaml:181-200, master_home.xaml:78-81), held
+    /// over every screen but the player's own. Built with the window, because a window outlives the screens it
+    /// shows and the film that plays through them.
+    /// </summary>
+    private readonly PlaybackBar _playbackBar = new PlaybackBar();
+
+    /// <summary>
     /// The layer a question is raised on: a frame whose view is an <see cref="Workflow.IDialogScreen"/> stands
     /// here, over the screen it was asked from, which stays exactly where it was - lit, scrolled, selected. The
     /// reference's dialogs were never masters of their own, and a dialog that replaced the screen behind it would
@@ -308,6 +316,14 @@ namespace MediaPortal.Frontend.Views
       // much as above a film, and a dialog belongs above the screen it is a question about.
       _dialogLayer.IsVisible = false;
       shell.Children.Add(_dialogLayer);
+
+      // The transport row over the screens and under the volume bubble: a film that plays behind a shelf is a
+      // film the viewer still wants to pause, and the reference agreed - its footer carried the very control on
+      // master_bare_media, master_bare and master_home alike (master_home.xaml:78-81), above the master's own
+      // content at Panel.ZIndex 2000 and out of the way again the moment nothing played. It is a hand on the
+      // window rather than on a screen, which is exactly why it survives walking from the shelves to the guide.
+      shell.Children.Add(_playbackBar);
+
       shell.Children.Add(_superlayer);
 
       // The keyboard dialog over the screens - above the superlayer, under the screensaver's black: a field
@@ -1125,6 +1141,23 @@ namespace MediaPortal.Frontend.Views
     /// Whether the on-screen keyboard stands over the screen right now. Screens ask this before they answer a
     /// key of their own - while the keys are out, the keys own the picture.
     /// </summary>
+    /// <summary>
+    /// Whether the compact transport row stands at the foot of the window: while something plays, and while the
+    /// viewer is standing anywhere but in front of it. Those are the reference's two answers - its footer control
+    /// was built with <c>AutoVisibility="True"</c>, so an empty player showed no row, and each of its rows
+    /// belonged to one player context and said nothing while that player was the whole screen in front of the
+    /// viewer (master_bare_media.xaml:193). The keyboard's keys are the one thing the row has to get out of,
+    /// because both live at the bottom of the window and the field being typed into outranks a film.
+    /// </summary>
+    public void UpdatePlaybackBar()
+    {
+      ViewModels.NowPlayingViewModel? playback = (Application.Current as App)?.Playback;
+      bool playing = playback != null && playback.HasMedia;
+      bool standingAtThePlayer = _workflow.Current is Workflow.WorkflowFrame frame
+          && frame.StateId == "nowplaying";
+      _playbackBar.IsVisible = playing && !standingAtThePlayer && !_keyboardLayer.IsVisible;
+    }
+
     public bool KeyboardOpen => _keyboardLayer.IsVisible;
 
     /// <summary>
@@ -1149,6 +1182,7 @@ namespace MediaPortal.Frontend.Views
 
       _keyboardLayer.Content = keyboard;
       _keyboardLayer.IsVisible = true;
+      UpdatePlaybackBar();
     }
 
     /// <summary>Takes the keyboard away again. Pressing Done, pressing back, or walking to another screen.</summary>
@@ -1156,6 +1190,7 @@ namespace MediaPortal.Frontend.Views
     {
       _keyboardLayer.IsVisible = false;
       _keyboardLayer.Content = null;
+      UpdatePlaybackBar();
     }
 
     private void ShowCurrentFrame()
@@ -1190,6 +1225,10 @@ namespace MediaPortal.Frontend.Views
 
       // A film is its own master screen - the chrome of the skin steps back while it is on (see IFullScreenScreen).
       UpdateChromeVisibility();
+
+      // And the transport row at its foot asks the same question the film does: is the viewer standing in front
+      // of the player, in which case the player's own row of controls already answers for it.
+      UpdatePlaybackBar();
 
       // What the television is showing is the screen that stayed lit: a dialog is a question about that screen,
       // not a new place the viewer walked to, so the window's name, the header's word and the weather all go on

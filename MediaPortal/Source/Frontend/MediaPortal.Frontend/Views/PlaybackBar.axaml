@@ -1,0 +1,158 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        xmlns:views="using:MediaPortal.Frontend.Views"
+        x:Class="MediaPortal.Frontend.Views.PlaybackBar"
+        x:DataType="vm:NowPlayingViewModel"
+        Name="playbackBar"
+        IsVisible="False"
+        HorizontalAlignment="Right"
+        VerticalAlignment="Bottom">
+
+  <!--
+    The compact row of controls that waits at the bottom right-hand corner of every screen while something is
+    playing, so that a viewer standing in the library can still silence, pause or send away the film running
+    behind the shelves. Both reference skins carried exactly this thing and put it in exactly this place:
+    master_bare_media.xaml:181-200 lays two PlayerControls into the master's 260-point footer row, held to the
+    right 920 points of a 1920-point skin by Margin="1000,0,0,0", bottom-aligned, ten points off the edges,
+    on a hundred-point-high row, at Panel.ZIndex 2000 and with AutoVisibility on - so the row is there when
+    something plays and simply not there when nothing does. master_home.xaml:78-81 gives the same control to
+    the start page. The style behind it (OtherControlsOverrides.xaml:1267-1323) holds nothing but buttons -
+    the mark that calls the player, stop, a divider, the jumps, play/pause, a divider and the sound.
+
+    What it wears is this front end's own player design rather than the reference's bare half-lit glyphs: the
+    glass plates of PlayerGlassStyles.axaml, the same buttons as the row over the film, at the size a thing
+    that shares the foot of a screen with other furniture takes. Nothing is drawn behind it and nothing
+    shadows it - the screens already raise a gradient out of their own bottom edge (Skins/Nereus/home.xaml:76,
+    MediaBrowserView.axaml:682), and a second darkening over that would only muddy the floor.
+
+    One thing this row says that the reference's did not: how far into the film the viewer is, as a line of
+    nothing above the row and no wider than the row. The window used to answer that with a strip over the whole
+    width - name of the film, a line across the screen, and the word "Playing" beside it - which stood twice
+    over the transport row and spelled in words what this front end has decided to say in pictures.
+  -->
+
+  <UserControl.Styles>
+    <StyleInclude Source="avares://MediaPortal.Frontend/Views/PlayerGlassStyles.axaml"/>
+
+    <!-- The row's own measure, which is the family's measure: seventy points round, the same plate the player
+         screen puts over a film. Two things the row takes differently. The padding, because the family's
+         padding of twenty by fifteen around a glyph of this size would push the plate wider than it is tall
+         and draw an ellipse instead of a circle - so the glyph sets the height and the floor of seventy keeps
+         the plate square. And the glyph itself, eight points smaller than over the film, because this row
+         shares the corner of a screen with shelves and rails.
+         A floor is the only way to size these plates: the family gives every glass plate a floor of seventy,
+         and a floor is not beaten by a width - the earlier sixty-two measured as sixty-two nowhere, the plate
+         stayed seventy wide under a radius of thirty-one, which is a rounded square and not a circle. -->
+    <Style Selector="Button.glass.bar">
+      <Setter Property="Padding" Value="0"/>
+      <!-- Not a place the keys stand on, and that is measured rather than tasteful: the window watches for
+           standing on no keys at all (ShellWindow.WireEmptyFocus) and hands them back to the screen underneath
+           as soon as anything loses them. In the shelves the list holds the keys, so a plate that took the
+           focus had it pulled away again between the press and the release, and the press was spent without
+           ever becoming a click - the pointer reached the plate, its handler never ran. The reference's footer
+           was the same kind of control: a MouseControlsPanel, while the keys of the remote belong to the player
+           screen, where the row is the screen's own. -->
+      <Setter Property="Focusable" Value="False"/>
+    </Style>
+    <Style Selector="Button.glass.bar Path">
+      <Setter Property="Width" Value="28"/>
+      <Setter Property="Height" Value="28"/>
+    </Style>
+
+    <!-- Where the row's groups are divided. The reference burns a DIVIDER.PNG of 35 points between them; the
+         same seam here is a hairline in the colour every glass plate already carries its frame in. -->
+    <Style Selector="Rectangle.divider">
+      <Setter Property="Width" Value="1"/>
+      <Setter Property="Height" Value="34"/>
+      <Setter Property="Fill" Value="#40FFFFFF"/>
+      <Setter Property="Margin" Value="7,0"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- The film's place on it: white for the part already seen, over the outline the line is drawn on. The
+         accent of the skin is the film's own colour everywhere else and would read as decoration here, while
+         white is what a viewer reads as "this much has run". Out of the pointer's way, because a press belongs
+         to the row and not to the line.
+         One point thicker than it was, its ends taken round like the ends of the plates above it, and dripping
+         a shadow onto the row below - the same shadow the player's own state marks carry (NowPlayingView:
+         BlurRadius 7, #CC000000 one point down), which is what keeps a two-point line readable as a thing
+         lying OVER a picture rather than a seam scratched into it. -->
+    <Style Selector="ProgressBar.line">
+      <Setter Property="Height" Value="3"/>
+      <Setter Property="Margin" Value="8,0,8,6"/>
+      <Setter Property="CornerRadius" Value="1.5"/>
+      <Setter Property="Foreground" Value="#FFFFFFFF"/>
+      <Setter Property="Background" Value="{DynamicResource OutlineBrush}"/>
+      <Setter Property="IsHitTestVisible" Value="False"/>
+      <Setter Property="Effect">
+        <DropShadowEffect BlurRadius="7" Color="#CC000000" OffsetX="0" OffsetY="1"/>
+      </Setter>
+    </Style>
+  </UserControl.Styles>
+
+  <StackPanel Orientation="Vertical" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10,0,10,10">
+    <!-- How far into it the viewer is, in a line above the row rather than under it: the row is what a hand
+         aims at, so it goes to the bottom edge, where the corner of the screen already is, and the answer
+         about how far the film has run stands over it. The line is as wide as the row and nothing wider,
+         because the row is a hand's breadth and the answer belongs to it. Zero to one, which is the scale the
+         model hands its position on (NowPlayingViewModel.Progress) and the scale the player screen's own line
+         is bound to - on a scale of hundred the line would have stood at a hair of its length for the whole
+         film. -->
+    <ProgressBar Classes="line" Minimum="0" Maximum="1" Value="{Binding Progress}"/>
+
+    <StackPanel Orientation="Horizontal" Spacing="2" HorizontalAlignment="Right">
+      <!-- First, because the reference puts it first (OtherControlsOverrides.xaml:1290): the door into the
+           player itself. On the reference it is the workflow's push onto the fullscreen player screen, and it
+           is there because a film that plays behind the shelves is a film somebody will want in front of them. -->
+      <Button Classes="glass bar" Name="playerButton" Click="OnPlayer" AutomationProperties.Name="Player">
+        <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                ConverterParameter='PlayerControl/fullscreen'}"/>
+      </Button>
+      <Button Classes="glass bar" Name="stopButton" Click="OnStop"
+              IsVisible="{Binding CanTransport}" AutomationProperties.Name="Stop">
+        <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                ConverterParameter='PlayerControl/stop'}"/>
+      </Button>
+
+      <Rectangle Classes="divider"/>
+
+      <Button Classes="glass bar" Name="chapterBackButton" Click="OnChapterBack"
+              IsVisible="{Binding CanChapterBack}" AutomationProperties.Name="Previous chapter">
+        <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                ConverterParameter='PlayerControl/previous'}"/>
+      </Button>
+      <Button Classes="glass bar" Name="backButton" Click="OnBack"
+              IsVisible="{Binding CanTransport}" AutomationProperties.Name="{Binding SkipBackCaption}">
+        <Path Data="{Binding SkipBackGlyph,
+                            Converter={x:Static views:SkinIconGeometryConverter.Instance}}"/>
+      </Button>
+      <!-- Play, which wears the same plate as its neighbours here. That is the reference's own answer for this
+           row: its footer carries PLAYER_PLAYBUTTON_IMAGE_64_64 in the same 80x80 box as the buttons beside it
+           (Buttons.xaml:2212ff) and lifts only its opacity when something stands at it, while the play plate
+           that is bigger than its row belongs to the player screen, where the row has room to breathe. -->
+      <Button Classes="glass bar" Name="playPauseButton" Click="OnPlayPause"
+              IsVisible="{Binding CanTransport}" AutomationProperties.Name="{Binding TransportLabel}">
+        <Path Data="{Binding TransportGlyph,
+                            Converter={x:Static views:SkinIconGeometryConverter.Instance}}"/>
+      </Button>
+      <Button Classes="glass bar" Name="forwardButton" Click="OnForward"
+              IsVisible="{Binding CanTransport}" AutomationProperties.Name="{Binding SkipForwardCaption}">
+        <Path Data="{Binding SkipForwardGlyph,
+                            Converter={x:Static views:SkinIconGeometryConverter.Instance}}"/>
+      </Button>
+      <Button Classes="glass bar" Name="chapterForwardButton" Click="OnChapterForward"
+              IsVisible="{Binding CanChapterForward}" AutomationProperties.Name="Next chapter">
+        <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                ConverterParameter='PlayerControl/next'}"/>
+      </Button>
+
+      <!-- The sound is NOT on this row, although the reference's footer carried a loudspeaker and two keys of
+           volume (OtherControlsOverrides.xaml:1310-1316). The room's own volume keys already answer on every
+           screen of this front end and answer with the window's own bubble (ShellWindow), and a pair of keys
+           here would be a second door to the same room - one that also makes the row twice as tall as the
+           buttons it stands on. The reference's second divider went with the pair: a seam that divides
+           nothing stands out at the end of the row as a line that got lost there. -->
+    </StackPanel>
+  </StackPanel>
+</UserControl>
