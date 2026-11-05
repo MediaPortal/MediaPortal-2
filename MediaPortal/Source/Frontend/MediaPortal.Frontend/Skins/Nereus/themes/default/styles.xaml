@@ -343,7 +343,8 @@
     The wall of settings plates, which is the reference's SettingsMenuItemDataTemplate
     (themes/default/styles/OtherControlsOverrides.xaml:632) dressed in this skin's own numbers. The reference's
     plate is three hundred fifty-five square: a picture area two hundred ninety lines high over a band of sixty
-    five, the plate itself #222222, the band black at a half, and the name standing at the left of the band
+    five, the plate itself #222222, the band black faded up from the bottom edge (the reference had it flat at a
+    half; this face fades it so no edge cuts the picture), and the name standing at the left of the band
     seventy six lines in at six tenths of light.
 
     Three layers make the plate, in the reference's order: the #222222 square, the section's own picture
@@ -358,8 +359,9 @@
     over it, so it is not painted here: it changes nothing there and would change nothing here.)
 
     What changes under a viewer is the name's and the icon's light, from six tenths to full, exactly as the
-    reference's SettingsItemContainerStyle answers focus (:978-996). No scale, no colour, no frame: the wall is
-    the same plate stood in a different light.
+    reference's SettingsItemContainerStyle answers focus (:978-996) - and the edge, which comes up to full
+    light the way the covers on the wall do, so a plate stood on answers in the one voice the skin knows.
+    No scale, no colour: the wall is the same plate stood in a different light, wearing the same ring.
   -->
   <Style Selector="Border.settings-tile-plate">
     <Setter Property="Width" Value="{DynamicResource SettingsTilePlateWidth}"/>
@@ -963,8 +965,10 @@
     </Setter>
   </Style>
   <!-- The covers beside the glasses say it the same way, with the same four stops: the frame they used to answer
-       focus with was a flat four pixel white line of their own, and one voice for a whole rail is the point. -->
-  <Style Selector="Button.nereus-content-tile:focus Border.home-tile-edge, ListBox.nereus-shelf-tiles ListBoxItem:focus Border.home-tile-edge">
+       focus with was a flat four pixel white line of their own, and one voice for a whole rail is the point. The
+       settings wall speaks this voice too - its plates already wear the edge (templates.xaml, SettingsTileTemplate),
+       they were only never told to light it. -->
+  <Style Selector="Button.nereus-content-tile:focus Border.home-tile-edge, ListBox.nereus-shelf-tiles ListBoxItem:focus Border.home-tile-edge, ListBox.settings-tile-wall ListBoxItem:focus Border.home-tile-edge">
     <Setter Property="BorderBrush">
       <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
         <GradientStop Offset="0" Color="#FFFFFFFF"/>
@@ -974,7 +978,7 @@
       </LinearGradientBrush>
     </Setter>
   </Style>
-  <Style Selector="Window:not(.pointer-resting) Button.nereus-content-tile:pointerover Border.home-tile-edge, Window:not(.pointer-resting) ListBox.nereus-shelf-tiles ListBoxItem:pointerover Border.home-tile-edge">
+  <Style Selector="Window:not(.pointer-resting) Button.nereus-content-tile:pointerover Border.home-tile-edge, Window:not(.pointer-resting) ListBox.nereus-shelf-tiles ListBoxItem:pointerover Border.home-tile-edge, Window:not(.pointer-resting) ListBox.settings-tile-wall ListBoxItem:pointerover Border.home-tile-edge">
     <Setter Property="BorderBrush">
       <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
         <GradientStop Offset="0" Color="#FFFFFFFF"/>

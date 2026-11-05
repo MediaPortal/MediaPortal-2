@@ -1137,6 +1137,18 @@ namespace MediaPortal.Frontend.Views
           : Avalonia.Layout.VerticalAlignment.Stretch;
     }
 
+    /// <summary>
+    /// Sets the word the header shows for the screen on screen. The shell names the header after the frame
+    /// the workflow stands on, which is right for every screen that IS its frame - but the settings hub
+    /// holds levels inside one frame, and a viewer who walked into "General" still read "Settings" over the
+    /// General wall. A screen that carries its own levels says its current word here; the next frame the
+    /// workflow shows recomputes the word from its own label, so nothing leaks past the screen that spoke.
+    /// </summary>
+    public void SetChromeTitle(string title)
+    {
+      _chrome.ScreenTitle = title;
+    }
+
     private static object? FindResource(string key)
     {
       Application? app = Application.Current;

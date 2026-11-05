@@ -217,6 +217,14 @@ namespace MediaPortal.Frontend.ViewModels
     /// </summary>
     public bool CanGoBack => ShowingContents || _trail.Count > 0;
 
+    /// <summary>
+    /// The word the header shows for this screen: the door the viewer last walked through, or "Settings" on
+    /// the first wall. <see cref="Location"/> spells the whole trail; the header says where the person
+    /// stands, not how they got there - and the frame the workflow holds is always the one "Settings", which
+    /// is why the view asks this instead of reading the frame's label (see SettingsView.ApplyHeaderTitle).
+    /// </summary>
+    public string HeaderTitle => _trail.Count == 0 ? "Settings" : _trail[_trail.Count - 1].Folder.Name;
+
     partial void OnShowingContentsChanged(bool value)
     {
       OnPropertyChanged(nameof(IsWall));
