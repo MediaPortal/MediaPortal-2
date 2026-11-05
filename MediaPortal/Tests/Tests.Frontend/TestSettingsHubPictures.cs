@@ -111,16 +111,16 @@ namespace Tests.Frontend
       string skins = SkinsRoot();
       List<SettingsSection> plates = await WalkWall();
 
-      // The wall is worth checking only if the walk actually walked it: eight branches, a page behind most of
-      // them, and the way out. Fewer plates than that means the wall was not built, not that it was bare.
-      Assert.That(plates.Count, Is.GreaterThanOrEqualTo(20),
+      // The wall is worth checking only if the walk actually walked it: eight branches and a page behind most
+      // of them. Fewer plates than that means the wall was not built, not that it was bare.
+      Assert.That(plates.Count, Is.GreaterThanOrEqualTo(19),
           "the walk found " + plates.Count + " plates; the wall is eight doors with pages behind them");
 
       foreach (SettingsSection plate in plates)
       {
         if (plate.Open != null)
         {
-          // The close screen is a leaf, not a place in the tree - the reference gave it no plate of its own.
+          // A leaf that opens a screen of its own rather than a place in the tree wears no plate picture.
           continue;
         }
 
@@ -141,7 +141,7 @@ namespace Tests.Frontend
     }
 
     [AvaloniaTest]
-    public void TheWallIsTheReferencesEightBranchesAndTheWayOut()
+    public void TheWallIsTheReferencesEightBranches()
     {
       App app = (App)Application.Current!;
       List<string> names = app.SettingsModel().Sections.Select(s => s.Name).ToList();
@@ -149,15 +149,37 @@ namespace Tests.Frontend
       List<string> branches = names.Where(n => BRANCHES.Contains(n)).ToList();
       Assert.That(branches, Is.EqualTo(BRANCHES),
           "the wall is the reference's branches in the reference's own order");
-      Assert.That(names[names.Count - 1], Is.EqualTo("Close"),
-          "the way out is the last plate, where a household without a mouse looks for it");
-      Assert.That(names.Count, Is.EqualTo(BRANCHES.Length + 1),
+
+      // The way out is NOT on the wall. The reference never filed leaving among the settings: it hung the
+      // power button on the home (master_home.xaml:173-174), and what its configuration tree keeps near the
+      // dialog (General/System) is the dialog's configuration, not the dialog. This front end answers the
+      // same way - the home's corner button - so a "Close" plate here would be a second, wrong voice.
+      Assert.That(names, Has.None.EqualTo("Close"),
+          "leaving is the home's power button, not a place in the tree");
+      Assert.That(names.Count, Is.EqualTo(BRANCHES.Length),
           "nothing else stands on the wall - a branch this front end cannot answer for is left off rather than "
           + "offered empty");
 
       // Every branch is a door: what a branch offers is a wall of pages, which is how the reference's own tree
       // was walked, and not one long list of every question at once.
-      Assert.That(app.SettingsModel().Sections.Where(s => s.Name != "Close").All(s => s.IsFolder), Is.True);
+      Assert.That(app.SettingsModel().Sections.All(s => s.IsFolder), Is.True);
+    }
+
+    [AvaloniaTest]
+    public async Task TheGeneralDoorCarriesTheShutdownMenuBesideItsSystemPage()
+    {
+      // The reference's dialogSystemStateConfiguration was a setting of its own, and this front end hangs it
+      // as a plate of its own - beside the System page, the Connectivity page and the server's answers, in
+      // the branch whose System node the reference kept the setting on.
+      App app = (App)Application.Current!;
+      SettingsSection general = app.SettingsModel().Sections.First(s => s.Name == "General");
+      Assert.That(general.Pages, Is.Not.Null);
+
+      List<string> plates = (await general.Pages()!).Select(p => p.Name).ToList();
+      Assert.That(plates, Is.EqualTo(new[]
+      {
+          "System", "Connectivity", "Server settings", "Shutdown menu"
+      }));
     }
 
     [Test]

@@ -18,6 +18,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using MediaPortal.Frontend.Services;
+using MediaPortal.Frontend.Settings;
 
 namespace MediaPortal.Frontend.ViewModels
 {
@@ -72,16 +73,19 @@ namespace MediaPortal.Frontend.ViewModels
     private readonly Action<ShutdownAction> _run;
     private readonly SystemStateSupport _support;
     private readonly Action? _openSleepTimer;
+    private readonly Func<ShutdownMenuSettings>? _menuSettings;
 
     public CloseViewModel(SleepTimerService? timer = null,
         Action<ShutdownAction>? run = null,
         SystemStateSupport? support = null,
-        Action? openSleepTimer = null)
+        Action? openSleepTimer = null,
+        Func<ShutdownMenuSettings>? menuSettings = null)
     {
       _timer = timer;
       _run = run ?? delegate { };
       _support = support ?? SystemStateSupport.ThisMachine;
       _openSleepTimer = openSleepTimer;
+      _menuSettings = menuSettings;
 
       if (_timer != null)
         _timer.Changed += Rebuild;
@@ -140,27 +144,51 @@ namespace MediaPortal.Frontend.ViewModels
     /// <summary>
     /// Laying the rows out again: the reference rebuilt its list every time the dialog opened and every
     /// time the sleep timer changed, so the row flips between "Setup sleep timer" and "Stop sleep timer"
-    /// while the dialog stands.
+    /// while the dialog stands. With the viewer's own menu settings the list is their order and their
+    /// hiding crossed with what this machine can do - a line hidden in the settings never stands, and a
+    /// way out the platform refuses never stands either, however visible its line is.
     /// </summary>
     private void Rebuild()
     {
       List<ShutdownChoice> rows = new List<ShutdownChoice>();
-      if (_support.Suspend)
-        rows.Add(Row(ShutdownAction.Suspend));
-      if (_support.Hibernate)
-        rows.Add(Row(ShutdownAction.Hibernate));
-      if (_support.SystemPower)
-        rows.Add(Row(ShutdownAction.Shutdown));
-      // The timer's own row is only honest where at least one way out can actually happen: a wait that
-      // ends in nothing is no wait. On a phone - no machine power, no leaving - the row stays off.
-      if (_support.SystemPower || _support.Application)
-        rows.Add(Row(ShutdownAction.SleepTimer));
-      if (_support.SystemPower)
-        rows.Add(Row(ShutdownAction.Restart));
-      if (_support.Application)
-        rows.Add(Row(ShutdownAction.CloseMP));
-      if (_support.Application)
-        rows.Add(Row(ShutdownAction.RestartMP));
+      if (_menuSettings == null)
+      {
+        if (_support.Suspend)
+          rows.Add(Row(ShutdownAction.Suspend));
+        if (_support.Hibernate)
+          rows.Add(Row(ShutdownAction.Hibernate));
+        if (_support.SystemPower)
+          rows.Add(Row(ShutdownAction.Shutdown));
+        // The timer's own row is only honest where at least one way out can actually happen: a wait that
+        // ends in nothing is no wait. On a phone - no machine power, no leaving - the row stays off.
+        if (_support.SystemPower || _support.Application)
+          rows.Add(Row(ShutdownAction.SleepTimer));
+        if (_support.SystemPower)
+          rows.Add(Row(ShutdownAction.Restart));
+        if (_support.Application)
+          rows.Add(Row(ShutdownAction.CloseMP));
+        if (_support.Application)
+          rows.Add(Row(ShutdownAction.RestartMP));
+      }
+      else
+      {
+        HashSet<ShutdownAction> known = new HashSet<ShutdownAction>();
+        foreach (ShutdownMenuItem item in _menuSettings().Items)
+        {
+          if (!known.Add(item.Action) || !item.Visible || !Supported(item.Action))
+            continue;
+          rows.Add(Row(item.Action));
+        }
+
+        // A settings file written by an older build knows fewer lines than this one; the reference's
+        // load merged the new ways out onto the end rather than losing them. A line the viewer hid is
+        // known - it stays off, and no merge ever hangs it back.
+        foreach (ShutdownMenuItem fallback in ShutdownMenuSettings.CreateDefaultMenu())
+        {
+          if (!known.Contains(fallback.Action) && Supported(fallback.Action))
+            rows.Add(Row(fallback.Action));
+        }
+      }
 
       Choices.Clear();
       foreach (ShutdownChoice row in rows)
@@ -168,6 +196,23 @@ namespace MediaPortal.Frontend.ViewModels
 
       OnPropertyChanged(nameof(Notice));
       OnPropertyChanged(nameof(HasNotice));
+    }
+
+    /// <summary>
+    /// Whether this machine hands the platform's power to a program for this way out - the same question
+    /// the fixed list above asks line by line.
+    /// </summary>
+    private bool Supported(ShutdownAction action)
+    {
+      switch (action)
+      {
+        case ShutdownAction.Suspend: return _support.Suspend;
+        case ShutdownAction.Hibernate: return _support.Hibernate;
+        case ShutdownAction.Shutdown:
+        case ShutdownAction.Restart: return _support.SystemPower;
+        case ShutdownAction.SleepTimer: return _support.SystemPower || _support.Application;
+        default: return _support.Application;
+      }
     }
 
     private ShutdownChoice Row(ShutdownAction action)

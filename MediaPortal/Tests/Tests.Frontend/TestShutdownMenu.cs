@@ -22,6 +22,7 @@ using Avalonia.Headless.NUnit;
 using Avalonia.Media;
 using MediaPortal.Frontend.Player;
 using MediaPortal.Frontend.Services;
+using MediaPortal.Frontend.Settings;
 using MediaPortal.Frontend.Theming;
 using MediaPortal.Frontend.ViewModels;
 using NUnit.Framework;
@@ -328,6 +329,183 @@ namespace Tests.Frontend
       {
         SkinEngine.SkinsFolder = before;
       }
+    }
+
+    // ---- the viewer's own menu (the reference's dialogSystemStateConfiguration) ----------------------
+
+    [Test]
+    public void AMissingFileAnswersTheReferencesDefaultMenu()
+    {
+      string file = MenuFile();
+      ShutdownMenuSettings settings = ShutdownMenuSettings.Load(file, out string? problem);
+
+      Assert.That(problem, Is.Null);
+      Assert.That(settings.Items.Select(i => i.Action), Is.EqualTo(new[]
+      {
+          ShutdownAction.Suspend, ShutdownAction.Hibernate, ShutdownAction.Shutdown,
+          ShutdownAction.SleepTimer, ShutdownAction.Restart, ShutdownAction.CloseMP,
+          ShutdownAction.RestartMP
+      }));
+      Assert.That(settings.Items.All(i => i.Visible), Is.True,
+          "the reference's CreateDefaultShutdownMenu showed all seven lines it knew");
+      Assert.That(settings.MaxSleepTimeout, Is.EqualTo(300));
+    }
+
+    [Test]
+    public void TheOrderAndTheHidingSurviveAFile()
+    {
+      string file = MenuFile();
+      ShutdownMenuSettings settings = new ShutdownMenuSettings();
+      settings.Items.Reverse();
+      settings.Items.First().Visible = false;
+      settings.MaxSleepTimeout = 45;
+
+      Assert.That(settings.Save(file, out bool saved), Does.StartWith("Saved in"));
+      Assert.That(saved, Is.True);
+
+      ShutdownMenuSettings again = ShutdownMenuSettings.Load(file, out string? problem);
+      Assert.That(problem, Is.Null);
+      Assert.That(again.Items.Select(i => i.Action), Is.EqualTo(settings.Items.Select(i => i.Action)));
+      Assert.That(again.Items.Select(i => i.Visible), Is.EqualTo(settings.Items.Select(i => i.Visible)));
+      Assert.That(again.MaxSleepTimeout, Is.EqualTo(45));
+      File.Delete(file);
+    }
+
+    [Test]
+    public void AFileThatKnowsFewerLinesLosesNoWayOut()
+    {
+      // The reference's GetShutdownActionsFromSettings hung every action it had never seen in the file
+      // onto the end of the operator's order. A file that names two lines keeps its order and its
+      // hiding; the five it forgot stand behind them, as defaults.
+      string file = MenuFile();
+      File.WriteAllText(file, @"{
+        // two lines and a comment, because the reader may have them
+        ""items"": [ { ""action"": ""Restart"", ""visible"": true },
+                     { ""action"": ""Shutdown"", ""visible"": false } ],
+        ""maxSleepTimeout"": 45 }");
+
+      ShutdownMenuSettings settings = ShutdownMenuSettings.Load(file, out string? problem);
+      Assert.That(problem, Is.Null);
+      Assert.That(settings.Items.Select(i => i.Action).Take(2),
+          Is.EqualTo(new[] { ShutdownAction.Restart, ShutdownAction.Shutdown }));
+      Assert.That(settings.Items.Count, Is.EqualTo(7));
+      Assert.That(settings.Items[0].Visible, Is.True);
+      Assert.That(settings.Items[1].Visible, Is.False);
+      Assert.That(settings.MaxSleepTimeout, Is.EqualTo(45));
+      File.Delete(file);
+    }
+
+    [Test]
+    public void TheMenuHangsTheViewersOrderAndHidesHisHiddenLines()
+    {
+      ShutdownMenuSettings settings = new ShutdownMenuSettings();
+      settings.Items = new List<ShutdownMenuItem>
+      {
+          new ShutdownMenuItem { Action = ShutdownAction.RestartMP },
+          new ShutdownMenuItem { Action = ShutdownAction.Suspend, Visible = false },
+          new ShutdownMenuItem { Action = ShutdownAction.Shutdown }
+      };
+
+      CloseViewModel menu = new CloseViewModel(null, null, Full, null, delegate { return settings; });
+
+      // The two shown lines keep their order, the hidden one stays off, and the four lines the file
+      // forgot are still hung behind them - a way out nobody offered an answer for is not a way out
+      // to lose.
+      Assert.That(menu.Choices.Select(c => c.Action), Is.EqualTo(new[]
+      {
+          ShutdownAction.RestartMP, ShutdownAction.Shutdown, ShutdownAction.Hibernate,
+          ShutdownAction.SleepTimer, ShutdownAction.Restart, ShutdownAction.CloseMP
+      }));
+      Assert.That(menu.Choices.Select(c => c.Action), Has.No.Member(ShutdownAction.Suspend));
+    }
+
+    [Test]
+    public void AVisibleLineOnAPlatformThatRefusesStillStaysOff()
+    {
+      // Settings say what the viewer wants; the platform says what it can do; the answer is both. On a
+      // platform that hands out no power and no leaving, every visible line still stays off.
+      CloseViewModel refusing = new CloseViewModel(null, null,
+          new SystemStateSupport(false, false, false, false), null,
+          delegate { return new ShutdownMenuSettings(); });
+      Assert.That(refusing.Choices, Is.Empty);
+
+      // And on a machine without the platform's power but with its own two ways - every application on
+      // any desktop - only the application's lines and the honest timer stand, however visible the
+      // machine's lines are in the file.
+      CloseViewModel appOnly = new CloseViewModel(null, null,
+          new SystemStateSupport(false, false, false), null,
+          delegate { return new ShutdownMenuSettings(); });
+      Assert.That(appOnly.Choices.Select(c => c.Action), Is.EqualTo(new[]
+      {
+          ShutdownAction.SleepTimer, ShutdownAction.CloseMP, ShutdownAction.RestartMP
+      }));
+    }
+
+    [Test]
+    public void TheEditorTogglesMovesAndSavesEachAnswerItself()
+    {
+      string file = MenuFile();
+      ShutdownMenuEditorViewModel editor = new ShutdownMenuEditorViewModel(file);
+
+      Assert.That(editor.Rows.Count, Is.EqualTo(7));
+      Assert.That(editor.MaxMinutesText, Is.EqualTo("300"));
+
+      editor.SelectedRow = editor.Rows[0];
+      Assert.That(editor.SelectedRow!.Action, Is.EqualTo(ShutdownAction.Suspend));
+      editor.MoveDownCommand.Execute(null);
+      Assert.That(editor.Status, Does.StartWith("Saved in"));
+
+      ShutdownMenuSettings moved = ShutdownMenuSettings.Load(file, out _);
+      Assert.That(moved.Items.Select(i => i.Action).Take(2),
+          Is.EqualTo(new[] { ShutdownAction.Hibernate, ShutdownAction.Suspend }));
+
+      // The moved row kept the selection - hiding it is the next press, and the next save.
+      editor.ToggleRowCommand.Execute(null);
+      Assert.That(editor.SelectedRow!.IsShown, Is.False);
+      Assert.That(editor.SelectedRow.ShownWord, Is.EqualTo("hidden"));
+
+      ShutdownMenuSettings hidden = ShutdownMenuSettings.Load(file, out _);
+      Assert.That(hidden.Items[1].Action, Is.EqualTo(ShutdownAction.Suspend));
+      Assert.That(hidden.Items[1].Visible, Is.False);
+
+      editor.MaxMinutesText = "45";
+      editor.SaveMaximumCommand.Execute(null);
+      Assert.That(ShutdownMenuSettings.Load(file, out _).MaxSleepTimeout, Is.EqualTo(45));
+
+      editor.MaxMinutesText = "nonsense";
+      editor.SaveMaximumCommand.Execute(null);
+      Assert.That(editor.MaxMinutesText, Is.EqualTo("300"),
+          "nonsense answers itself to the reference's default rather than writing a broken file");
+      Assert.That(ShutdownMenuSettings.Load(file, out _).MaxSleepTimeout, Is.EqualTo(300));
+      File.Delete(file);
+    }
+
+    [Test]
+    public void TheSleepTimerObeyesTheCeilingFromTheSettings()
+    {
+      SleepTimerService timer = new SleepTimerService();
+      Assert.That(timer.MaxMinutesAllowed, Is.EqualTo(SleepTimerService.MaxMinutes),
+          "an untouched file leaves the reference's three hundred");
+
+      // The application sets the ceiling from the settings file when the menu opens (CloseFrame); from
+      // there on the timer and its dialog both stop at it.
+      timer.MaxMinutesAllowed = 30;
+      timer.Start(30, ShutdownAction.Shutdown);
+      Assert.That(timer.IsActive, Is.True);
+      timer.Stop();
+      Assert.That(() => timer.Start(31, ShutdownAction.Shutdown),
+          Throws.TypeOf<ArgumentOutOfRangeException>());
+
+      SleepTimerViewModel dialog = Dialog(timer);
+      dialog.TimeText = "30";
+      Assert.That(dialog.AddEnabled, Is.False, "the up stepper dies at the ceiling the settings set");
+      Assert.That(dialog.ActivateEnabled, Is.True);
+    }
+
+    private static string MenuFile()
+    {
+      return Path.Combine(Path.GetTempPath(), "mp2-shutdown",
+          "menu-" + Guid.NewGuid().ToString("N") + ".json");
     }
 
     private static string FrontendSource()

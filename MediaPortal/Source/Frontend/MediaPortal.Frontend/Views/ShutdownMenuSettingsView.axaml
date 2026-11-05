@@ -1,0 +1,101 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        x:Class="MediaPortal.Frontend.Views.ShutdownMenuSettingsView"
+        x:DataType="vm:ShutdownMenuEditorViewModel"
+        Name="shutdownMenuSettings"
+        Background="Transparent"
+        >
+
+  <!--
+    Which lines the shutdown menu shows, in which order, and how long a wait may be at most - this front
+    end's dialogSystemStateConfiguration. The reference hung that setting at its General/System node
+    beside the "Version" line; here it stands as a plate of its own beside the System page. The lines are
+    listed in the order the dialog will hang them: a line is selected and then shown or hidden, moved up
+    or moved down - the reference's checkbox, "Move Up" and "Move Down" in our page's letters - and under
+    them the sleep timer's maximum, the reference's "Max Minutes". Every answer saves itself on the spot,
+    exactly like the weather's and the news' pages, and the menu reads the file again next time it opens.
+  -->
+
+  <DockPanel Margin="48,14">
+
+    <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,8">
+      <TextBlock Text="Shutdown menu"
+                 FontSize="24"
+                 FontWeight="SemiBold" />
+      <TextBlock Text="Which lines the shutdown menu shows, in which order, and how long a sleep timer may wait at most."
+                 FontSize="14"
+                 Opacity="0.7"
+                 TextWrapping="Wrap"
+                 MaxWidth="1500"
+                 HorizontalAlignment="Left" />
+    </StackPanel>
+
+    <TextBlock DockPanel.Dock="Bottom"
+               Name="statusLine"
+               Text="{Binding Status}"
+               FontSize="14"
+               Opacity="0.85"
+               Margin="0,10,0,0"
+               TextWrapping="Wrap" />
+
+    <StackPanel Spacing="10" VerticalAlignment="Top" MaxWidth="1100" HorizontalAlignment="Left">
+
+      <ListBox Name="rowsList"
+               ItemsSource="{Binding Rows}"
+               SelectedItem="{Binding SelectedRow, Mode=TwoWay}"
+               Focusable="True"
+               MaxHeight="300"
+               MinWidth="560"
+               HorizontalAlignment="Left">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="vm:ShutdownMenuRow">
+            <Grid ColumnDefinitions="360,Auto" ColumnSpacing="16" Margin="2,4">
+              <TextBlock Grid.Column="0"
+                         Text="{Binding Name}"
+                         FontSize="17" />
+              <TextBlock Grid.Column="1"
+                         Text="{Binding ShownWord}"
+                         FontSize="15"
+                         Opacity="0.6" />
+            </Grid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <Button Name="toggleRowButton"
+                Content="Show or hide this line"
+                Command="{Binding ToggleRowCommand}"
+                FontSize="16"
+                Focusable="True" />
+        <Button Name="moveUpButton"
+                Content="Move this line up"
+                Command="{Binding MoveUpCommand}"
+                FontSize="16"
+                Focusable="True" />
+        <Button Name="moveDownButton"
+                Content="Move this line down"
+                Command="{Binding MoveDownCommand}"
+                FontSize="16"
+                Focusable="True" />
+      </StackPanel>
+
+      <TextBlock Text="Sleep timer maximum (minutes)"
+                 FontSize="18"
+                 FontWeight="SemiBold"
+                 Margin="0,10,0,0" />
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <TextBox Name="maxMinutesBox"
+                 Text="{Binding MaxMinutesText}"
+                 Width="90"
+                 FontSize="16" />
+        <Button Name="saveMaximumButton"
+                Content="Save this maximum"
+                Command="{Binding SaveMaximumCommand}"
+                FontSize="16"
+                Focusable="True" />
+      </StackPanel>
+    </StackPanel>
+  </DockPanel>
+</UserControl>

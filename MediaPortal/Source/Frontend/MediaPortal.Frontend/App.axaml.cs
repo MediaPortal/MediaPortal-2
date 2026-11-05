@@ -1168,11 +1168,21 @@ namespace MediaPortal.Frontend
     /// menu" and full of the machine's ways out, a row being the whole answer. It is a stop of the workflow
     /// and not a window, so the header names it and the back key steps off it like any other screen.
     /// </summary>
+    /// <remarks>
+    /// The viewer's own menu is read on every open, exactly where the reference's <c>SystemStateModel</c>
+    /// called <c>LoadSettings</c> in its activation: the order and the hidden lines the configuration on
+    /// the System page left are the menu's next time, without an application restart - and the sleep
+    /// timer's ceiling comes from the same file, the way the reference's sleep timer dialog read its
+    /// <c>MaxMinutes</c> from the same settings.
+    /// </remarks>
     private Workflow.WorkflowFrame CloseFrame()
     {
+      ShutdownMenuSettings menu = ShutdownMenuSettings.Load(null, out _);
+      _sleepTimer.MaxMinutesAllowed = menu.MaxSleepTimeout;
       return new Workflow.WorkflowFrame("close", "Shutdown menu",
           new CloseViewModel(_sleepTimer, PerformWayOut, WayOutSupport(),
-              delegate { _workflow.Push(SleepTimerFrame()); }));
+              delegate { _workflow.Push(SleepTimerFrame()); },
+              delegate { return menu; }));
     }
 
     /// <summary>
@@ -1651,7 +1661,19 @@ namespace MediaPortal.Frontend
                       _ = serverSettings.ReloadAsync();
                       return new ServerSettingsView { DataContext = serverSettings };
                     },
-                    "General_System_Diagnostics", "General_System"));
+                    "General_System_Diagnostics", "General_System"),
+                new SettingsSection("Shutdown menu", "Frontend",
+                    "Which lines the shutdown menu shows, in which order, and how long a wait may be",
+                    delegate
+                    {
+                      // The reference's dialogSystemStateConfiguration, read from its file as the page
+                      // opens; the menu itself reads the same file again every time it is raised.
+                      return new ShutdownMenuSettingsView();
+                    },
+                    // The reference drew plate pictures for its tree nodes only, never for a configuration
+                    // line - so this plate wears the System family's picture, the way the Diagnostics plate
+                    // wore its icon before it.
+                    "General_System", "General_System"));
           },
           "General");
 
@@ -1870,13 +1892,12 @@ namespace MediaPortal.Frontend
             "Users");
       }
 
-      // The way out, the one plate that is a leaf: it opens no page of settings but the close screen itself.
-      // The reference front ends kept leaving the application in dialogSystemState, a dialog every viewer found
-      // because a television without a mouse still has to be left somehow; the settings hub is where this one
-      // advertises it, and it pushes the screen rather than embedding it - the header and the back key belong
-      // to the close screen, not to the hub.
-      model.Add("Close", "Frontend", "Leave the application, whatever is playing",
-          null, open: delegate { _workflow.Push(CloseFrame()); });
+      // No "Close" plate here, which an earlier shape of this wall carried: the reference never filed the way
+      // out among the settings - dialogSystemState is not a setting, and its place in the configuration tree
+      // (General/System, SystemStateMenu/plugin.xml:71-80) holds the dialog's CONFIGURATION, which this front
+      // end has none of. The way out stands where the reference hung it, on the home's own power button
+      // (master_home.xaml:173-174; home.xaml's corner button Tag="close"), and the workflow carries it from
+      // there exactly as the reference's NavigatePush did.
 
       return model;
     }

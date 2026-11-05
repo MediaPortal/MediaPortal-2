@@ -149,7 +149,7 @@ namespace MediaPortal.Frontend.ViewModels
     /// <summary>The up stepper: dead at the ceiling, alive under it.</summary>
     public bool AddEnabled
     {
-      get { return !IsRunning && Minutes < SleepTimerService.MaxMinutes; }
+      get { return !IsRunning && Minutes < _timer.MaxMinutesAllowed; }
     }
 
     /// <summary>The down stepper: dead at nought, alive above it.</summary>
@@ -175,7 +175,7 @@ namespace MediaPortal.Frontend.ViewModels
       {
         if (IsRunning)
           return true;
-        return _errorText.Length == 0 && Minutes > 0 && Minutes <= SleepTimerService.MaxMinutes;
+        return _errorText.Length == 0 && Minutes > 0 && Minutes <= _timer.MaxMinutesAllowed;
       }
     }
 
@@ -206,7 +206,7 @@ namespace MediaPortal.Frontend.ViewModels
     public void AddTime()
     {
       int minutes = ((Minutes / 5) + 1) * 5;
-      SetMinutes(Math.Min(minutes, SleepTimerService.MaxMinutes));
+      SetMinutes(Math.Min(minutes, _timer.MaxMinutesAllowed));
     }
 
     /// <summary>Five minutes down, the reference's step, never below nought.</summary>
@@ -231,7 +231,7 @@ namespace MediaPortal.Frontend.ViewModels
         return;
 
       int minutes = (int)TimeSpan.FromMilliseconds(remainingMs).TotalMinutes + 1;
-      SetMinutes(Math.Min(minutes, SleepTimerService.MaxMinutes));
+      SetMinutes(Math.Min(minutes, _timer.MaxMinutesAllowed));
     }
 
     /// <summary>

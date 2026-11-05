@@ -43,6 +43,14 @@ namespace MediaPortal.Frontend.Services
     /// <summary>The reference's ceiling for a sleep timer (<c>Consts.DEFAULT_MAX_SLEEPTIME</c>).</summary>
     public const int MaxMinutes = 300;
 
+    /// <summary>
+    /// How long a wait may be at most. The reference did not hard-code this - its sleep timer dialog read
+    /// the <c>MaxSleepTimeout</c> from the shutdown menu's settings, which its configuration dialog wrote
+    /// - so the application sets it from the same file each time the menu opens, and an untouched file
+    /// leaves the reference's three hundred.
+    /// </summary>
+    public int MaxMinutesAllowed { get; set; } = MaxMinutes;
+
     private readonly object _sync = new object();
     private readonly Action<ShutdownAction> _runAction;
     private Timer? _timer;
@@ -107,9 +115,9 @@ namespace MediaPortal.Frontend.Services
     /// </summary>
     public void Start(int minutes, ShutdownAction action)
     {
-      if (minutes <= 0 || minutes > MaxMinutes)
+      if (minutes <= 0 || minutes > MaxMinutesAllowed)
         throw new ArgumentOutOfRangeException(nameof(minutes),
-            "a sleep timer waits between one minute and " + MaxMinutes);
+            "a sleep timer waits between one minute and " + MaxMinutesAllowed);
 
       lock (_sync)
       {
