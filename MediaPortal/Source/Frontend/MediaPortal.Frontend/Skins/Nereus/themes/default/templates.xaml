@@ -699,17 +699,17 @@
                          VerticalAlignment="Center"/>
             </StackPanel>
             <Panel IsVisible="{Binding WatchFlagsShown}">
-              <Border Width="33" Height="33" Classes="nereus-watched-plate" CornerRadius="16.5" Margin="0,4,4,0"
+              <Border Width="38" Height="38" Classes="nereus-watched-plate" CornerRadius="19" Margin="0,6,6,0"
                       HorizontalAlignment="Right" VerticalAlignment="Top" IsHitTestVisible="False"
                       IsVisible="{Binding IsWatched}">
-                <Path Width="25" Height="25" HorizontalAlignment="Center" VerticalAlignment="Center"
+                <Path Width="28" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center"
                       Data="{Binding Name, Converter={x:Static views:SkinIconGeometryConverter.Instance},
                       ConverterParameter='watched'}" Classes="nereus-watched" Stretch="Uniform" Opacity="0.9"/>
               </Border>
-              <Border Width="33" Height="33" Classes="nereus-watched-plate" CornerRadius="16.5" Margin="0,4,4,0"
+              <Border Width="38" Height="38" Classes="nereus-watched-plate" CornerRadius="19" Margin="0,6,6,0"
                       HorizontalAlignment="Right" VerticalAlignment="Top" IsHitTestVisible="False"
                       IsVisible="{Binding IsPartlyWatched}">
-                <Path Width="25" Height="25" HorizontalAlignment="Center" VerticalAlignment="Center"
+                <Path Width="28" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center"
                       Data="{Binding Name, Converter={x:Static views:SkinIconGeometryConverter.Instance},
                       ConverterParameter='watched'}" Classes="nereus-watched partly" Stretch="Uniform" Opacity="0.9"/>
               </Border>
@@ -752,17 +752,17 @@
                          TextTrimming="CharacterEllipsis" MaxLines="2" TextAlignment="Center"/>
             </StackPanel>
             <Panel IsVisible="{Binding WatchFlagsShown}">
-              <Border Width="33" Height="33" Classes="nereus-watched-plate" CornerRadius="16.5" Margin="0,4,4,0"
+              <Border Width="38" Height="38" Classes="nereus-watched-plate" CornerRadius="19" Margin="0,6,6,0"
                       HorizontalAlignment="Right" VerticalAlignment="Top" IsHitTestVisible="False"
                       IsVisible="{Binding IsWatched}">
-                <Path Width="25" Height="25" HorizontalAlignment="Center" VerticalAlignment="Center"
+                <Path Width="28" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center"
                       Data="{Binding Name, Converter={x:Static views:SkinIconGeometryConverter.Instance},
                       ConverterParameter='watched'}" Classes="nereus-watched" Stretch="Uniform" Opacity="0.9"/>
               </Border>
-              <Border Width="33" Height="33" Classes="nereus-watched-plate" CornerRadius="16.5" Margin="0,4,4,0"
+              <Border Width="38" Height="38" Classes="nereus-watched-plate" CornerRadius="19" Margin="0,6,6,0"
                       HorizontalAlignment="Right" VerticalAlignment="Top" IsHitTestVisible="False"
                       IsVisible="{Binding IsPartlyWatched}">
-                <Path Width="25" Height="25" HorizontalAlignment="Center" VerticalAlignment="Center"
+                <Path Width="28" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center"
                       Data="{Binding Name, Converter={x:Static views:SkinIconGeometryConverter.Instance},
                       ConverterParameter='watched'}" Classes="nereus-watched partly" Stretch="Uniform" Opacity="0.9"/>
               </Border>
@@ -815,17 +815,17 @@
             </StackPanel>
             <!-- watched corners, if the cover's setting allows corners at all -->
             <Panel IsVisible="{Binding WatchFlagsShown}">
-              <Border Width="62" Height="62" Classes="nereus-watched-plate" CornerRadius="31" Margin="0,8,8,0"
+              <Border Width="38" Height="38" Classes="nereus-watched-plate" CornerRadius="19" Margin="0,6,6,0"
                       HorizontalAlignment="Right" VerticalAlignment="Top" IsHitTestVisible="False"
                       IsVisible="{Binding IsWatched}">
-                <Path Width="46" Height="46" HorizontalAlignment="Center" VerticalAlignment="Center"
+                <Path Width="28" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center"
                       Data="{Binding Name, Converter={x:Static views:SkinIconGeometryConverter.Instance},
                       ConverterParameter='watched'}" Classes="nereus-watched" Stretch="Uniform" Opacity="0.9"/>
               </Border>
-              <Border Width="62" Height="62" Classes="nereus-watched-plate" CornerRadius="31" Margin="0,8,8,0"
+              <Border Width="38" Height="38" Classes="nereus-watched-plate" CornerRadius="19" Margin="0,6,6,0"
                       HorizontalAlignment="Right" VerticalAlignment="Top" IsHitTestVisible="False"
                       IsVisible="{Binding IsPartlyWatched}">
-                <Path Width="46" Height="46" HorizontalAlignment="Center" VerticalAlignment="Center"
+                <Path Width="28" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center"
                       Data="{Binding Name, Converter={x:Static views:SkinIconGeometryConverter.Instance},
                       ConverterParameter='watched'}" Classes="nereus-watched partly" Stretch="Uniform" Opacity="0.9"/>
               </Border>
@@ -890,17 +890,17 @@
             </StackPanel>
             <!-- watched corners, if the grid's setting allows corners at all -->
             <Panel IsVisible="{Binding WatchFlagsShown}">
-              <Border Width="51" Height="51" Classes="nereus-watched-plate" CornerRadius="25.5" Margin="0,8,8,0"
+              <Border Width="38" Height="38" Classes="nereus-watched-plate" CornerRadius="19" Margin="0,6,6,0"
                       HorizontalAlignment="Right" VerticalAlignment="Top" IsHitTestVisible="False"
                       IsVisible="{Binding IsWatched}">
-                <Path Width="38" Height="38" HorizontalAlignment="Center" VerticalAlignment="Center"
+                <Path Width="28" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center"
                       Data="{Binding Name, Converter={x:Static views:SkinIconGeometryConverter.Instance},
                       ConverterParameter='watched'}" Classes="nereus-watched" Stretch="Uniform" Opacity="0.9"/>
               </Border>
-              <Border Width="51" Height="51" Classes="nereus-watched-plate" CornerRadius="25.5" Margin="0,8,8,0"
+              <Border Width="38" Height="38" Classes="nereus-watched-plate" CornerRadius="19" Margin="0,6,6,0"
                       HorizontalAlignment="Right" VerticalAlignment="Top" IsHitTestVisible="False"
                       IsVisible="{Binding IsPartlyWatched}">
-                <Path Width="38" Height="38" HorizontalAlignment="Center" VerticalAlignment="Center"
+                <Path Width="28" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center"
                       Data="{Binding Name, Converter={x:Static views:SkinIconGeometryConverter.Instance},
                       ConverterParameter='watched'}" Classes="nereus-watched partly" Stretch="Uniform" Opacity="0.9"/>
               </Border>
