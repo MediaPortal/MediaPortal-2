@@ -50,8 +50,10 @@
     The settings WALL, which is what the reference showed before anything was open and what it showed again
     whenever a folder of pages was opened: a wrap of plates, each one the section's picture under its name
     (OtherControlsOverrides.xaml:632, dressed by SettingsItemContainerStyle at :978). The plate is #222222 with
-    the section's own picture (SettingsMenu\<path>.jpg) stretched over it at eight tenths, a band of black at a
-    half along its bottom edge, the section's icon (SettingsMenu\Icon_<path>.png) in the band's left seventy
+    the section's own picture (SettingsMenu\<path>.jpg) stretched over it at eight tenths, its name and icon
+    standing on black that fades up from the bottom edge - the reference had a flat band of black at a half
+    there, this face fades it so no edge cuts the picture - the section's icon
+    (SettingsMenu\Icon_<path>.png) in the band's left seventy
     seven lines and the name standing beside it at six tenths of light, coming to full light under a viewer.
     A section whose picture the worn skin does not carry stands bare, which is what the reference's converter
     answered with too. Being a door rather than a screen changes nothing about a plate: the reference's Media

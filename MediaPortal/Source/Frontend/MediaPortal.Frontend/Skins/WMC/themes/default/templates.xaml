@@ -58,7 +58,8 @@
     The settings WALL as WMC wore it: its own configuration plate (WMC's OtherControlsOverrides.xaml:583) - a
     square of three hundred twenty-five lines, two hundred sixty of picture over a band of sixty five, the
     section's picture (SettingsMenu\<path>.jpg) stretched over the whole plate at eight tenths on the skin's
-    dark ground, the band black at a half, and inside it the section's icon
+    dark ground, black fading up from the bottom edge
+    (the reference had a flat band of black at a half there; this face fades it), and inside it the section's icon
     (SettingsMenu\Icon_<path>.png) in the band's first column of seventy seven with the name beside it at six
     tenths of light. The corners are rounded off, which is the one thing WMC did differently, and what says a
     plate is stood on is WMC's own answer rather than Nereus' light: the accent underline grows.
@@ -80,7 +81,14 @@
                Stretch="Fill"
                Opacity="0.8"/>
         <Panel Height="78" VerticalAlignment="Bottom">
-          <Border Background="#80000000"/>
+          <Border>
+            <Border.Background>
+              <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                <GradientStop Offset="0" Color="#00000000"/>
+                <GradientStop Offset="1" Color="#CC000000"/>
+              </LinearGradientBrush>
+            </Border.Background>
+          </Border>
           <Grid ColumnDefinitions="92,*">
             <Image Source="{Binding Icon,
                                     Converter={x:Static views:SkinImageConverter.Instance},

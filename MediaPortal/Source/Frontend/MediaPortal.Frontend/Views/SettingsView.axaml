@@ -32,6 +32,16 @@
     Back button as its tool tip instead, which is where the question "where does this take me" gets asked.
   -->
 
+  <Panel>
+
+    <!-- The home's own ground: the skin's Background.png stretched over the whole screen, asked for exactly
+         the way Nereus' and WMC's home backgrounds ask for it (home.xaml, HomeBackgroundTemplate). A settings
+         wall is configuration, but it is configuration inside the same room, and the room's ground is the
+         skin's picture rather than bare black. -->
+    <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter=Background.png}"
+           Stretch="Fill"
+           IsHitTestVisible="False"/>
+
   <Grid RowDefinitions="Auto,*" RowSpacing="8" Margin="40,20">
 
     <!-- The way back, alone on the right. The reference let the back key out of its configuration screen
@@ -57,13 +67,17 @@
                BorderThickness="0">
         <ListBox.ItemsPanel>
           <ItemsPanelTemplate>
-            <WrapPanel Orientation="Horizontal"/>
+            <!-- Centred on the height it is given: the reference's wall was a block that stood in the middle
+                 of the space under its header, not one glued to the top edge. When the plates do need more
+                 room than the screen has, the scroll above takes over and the wrap answers from its top
+                 again. -->
+            <WrapPanel Orientation="Horizontal" VerticalAlignment="Center"/>
           </ItemsPanelTemplate>
         </ListBox.ItemsPanel>
         <ListBox.ItemTemplate>
           <DataTemplate x:DataType="vm:SettingsSection">
             <!-- The plate a screen with no skin worn still stands: #222222, the section's picture over it at
-                 eight tenths, the band of black at a half along its bottom edge, and the icon and the name
+                 eight tenths, black fading up from its bottom edge, and the icon and the name
                  inside that band - the reference's own numbers, unscaled, because no skin is asking for its
                  own here. -->
             <Border Width="355" Background="#222222" Margin="8">
@@ -74,7 +88,14 @@
                        Stretch="Fill"
                        Opacity="0.8"/>
                 <Grid Height="65" VerticalAlignment="Bottom" ColumnDefinitions="77,*">
-                  <Border Grid.ColumnSpan="2" Background="#80000000"/>
+                  <Border Grid.ColumnSpan="2">
+                    <Border.Background>
+                      <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                        <GradientStop Offset="0" Color="#00000000"/>
+                        <GradientStop Offset="1" Color="#CC000000"/>
+                      </LinearGradientBrush>
+                    </Border.Background>
+                  </Border>
                   <Image Source="{Binding Icon,
                                           Converter={x:Static views:SkinImageConverter.Instance},
                                           ConverterParameter='SettingsMenu/Icon_{0}'}"
@@ -134,4 +155,37 @@
                  IsVisible="{Binding IsWall}" TextWrapping="Wrap"/>
     </Panel>
   </Grid>
+
+    <!--  Head and foot, in the home's own numbers and stops (home.xaml, HomeOverlaysTemplate - the very
+          Top/Bottom Gradient Overlay bands of master_homemenu.xaml): the top ninth-of-the-screen darkening
+          that carries the floating clock and the screen's word over any ground, and the bottom band of the
+          depth this face has always had. Endpoints in PERCENT, as the home file warns - bare fractions make
+          Avalonia read absolute pixels and leave a hard black stripe where the band begins.  -->
+    <Border VerticalAlignment="Top" Height="130" HorizontalAlignment="Stretch" IsHitTestVisible="False">
+      <Border.Background>
+        <LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
+          <GradientStop Color="#E6000000" Offset="0" />
+          <GradientStop Color="#78000000" Offset="0.3" />
+          <GradientStop Color="#46000000" Offset="0.45" />
+          <GradientStop Color="#21000000" Offset="0.6" />
+          <GradientStop Color="#0C000000" Offset="0.75" />
+          <GradientStop Color="#01000000" Offset="0.87" />
+          <GradientStop Color="#00000000" Offset="1" />
+        </LinearGradientBrush>
+      </Border.Background>
+    </Border>
+    <Border VerticalAlignment="Bottom" Height="220" HorizontalAlignment="Stretch" IsHitTestVisible="False">
+      <Border.Background>
+        <LinearGradientBrush StartPoint="50%,100%" EndPoint="50%,0%">
+          <GradientStop Color="#E6000000" Offset="0" />
+          <GradientStop Color="#78000000" Offset="0.3" />
+          <GradientStop Color="#46000000" Offset="0.45" />
+          <GradientStop Color="#21000000" Offset="0.6" />
+          <GradientStop Color="#0C000000" Offset="0.75" />
+          <GradientStop Color="#01000000" Offset="0.87" />
+          <GradientStop Color="#00000000" Offset="1" />
+        </LinearGradientBrush>
+      </Border.Background>
+    </Border>
+  </Panel>
 </UserControl>

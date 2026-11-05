@@ -92,8 +92,9 @@
   <!-- The settings wall's plates, measured off the reference's SettingsMenuItemDataTemplate
        (OtherControlsOverrides.xaml:632) and grown by a fifth the way every number in this skin is: the reference
        drew a plate three hundred fifty-five square - a picture area of two hundred ninety over a band of sixty
-       five, with the name standing seventy six lines in from the plate's left edge, on a band of black at a
-       half. The plate is a square and the band is the only thing inside it with a height of its own, so the
+       five, with the name standing seventy six lines in from the plate's left edge. (The reference painted that
+       band flat black at a half; this face fades it instead, so no edge cuts the picture - see the brush
+       below.) The plate is a square and the band is the only thing inside it with a height of its own, so the
        picture area is what the plate's height minus the band leaves.
 
        The band's left seventy seven lines belong to the section's icon (the Image in row 1 column 0, Margin 7,
@@ -109,7 +110,12 @@
   <Thickness x:Key="SettingsTileNameMargin">0,-6,6,1</Thickness>
   <Thickness x:Key="SettingsTileIconMargin">8</Thickness>
   <SolidColorBrush x:Key="SettingsTilePlateBrush">#222222</SolidColorBrush>
-  <SolidColorBrush x:Key="SettingsTileBandBrush">#80000000</SolidColorBrush>
+  <!-- The band wears no flat bar: the black rises from nothing at the band's top to eight tenths at the
+       plate's bottom edge, so the name and icon stand on darkening ground and no edge cuts the picture. -->
+  <LinearGradientBrush x:Key="SettingsTileBandBrush" StartPoint="0%,0%" EndPoint="0%,100%">
+    <GradientStop Offset="0" Color="#00000000"/>
+    <GradientStop Offset="1" Color="#CC000000"/>
+  </LinearGradientBrush>
 
   <!-- The main menu's tiles, the same way: this face drew a tile of 170 standing in a column of 200, and both
        numbers below are those grown by a fifth - 204 of the 1440 lines this front end is drawn on for the square

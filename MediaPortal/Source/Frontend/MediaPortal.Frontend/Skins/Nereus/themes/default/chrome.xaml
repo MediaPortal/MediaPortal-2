@@ -154,7 +154,7 @@
         the chair - the artifact the household noticed and named.
       -->
       <TextBlock Text="{Binding ScreenTitle}"
-                 Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeaderFontSize}"
+                 Foreground="{DynamicResource TextBrush}" FontSize="{DynamicResource HeadlineTimeFontSize}"
                  VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
     </DockPanel>
   </ControlTemplate>
