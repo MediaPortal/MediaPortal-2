@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using MediaPortal.Frontend.Input;
+using MediaPortal.Frontend.Theming;
 using MediaPortal.Frontend.ViewModels;
 using MediaPortal.Frontend.Workflow;
 
@@ -64,7 +66,18 @@ namespace MediaPortal.Frontend.Views
       {
         ForgetPlaces();
         ApplyHeaderTitle();
+        FitWall(); // another level is another number of plates, and the fit is the plates' business
         StandCaretOn(Target(), CARET_TRIES);
+      };
+
+      // The fit is asked for wherever the room or the wall changes: the host's size (the window grew, the
+      // first layout came), the wall coming back from beside a page (the hub's IsWall word), and the level
+      // changing above.
+      contentHost.SizeChanged += delegate { FitWall(); };
+      _model.PropertyChanged += delegate (object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+      {
+        if (e.PropertyName == nameof(SettingsViewModel.IsWall) && wallScale.IsVisible)
+          FitWall();
       };
 
       // No SECTION opens itself on arrival: opening the first one instead would be the hub deciding what a
@@ -91,6 +104,117 @@ namespace MediaPortal.Frontend.Views
     }
 
     private ShellWindow? _chromeShell;
+
+    /// <summary>
+    /// The scale the wall stands at right now; 0 while none has ever been written. Half a thousandth is
+    /// nothing a television can show, and a new transform object is a new measure for the whole wall, so
+    /// the number standing is remembered - the same law the home's wall keeps for its transform.
+    /// </summary>
+    private double _wallFitScale;
+
+    /// <summary>The column count the wall was last laid out in; -1 while it was never laid out.</summary>
+    private int _wallFitCols = -1;
+
+    /// <summary>While one <see cref="FitWall"/> measures, no re-arrange may ask it again.</summary>
+    private bool _wallFitting;
+
+    /// <summary>
+    /// How small the wall may shrink before it stops fitting and lets the scroll take over - the home wall's
+    /// own floor. A level with more plates than even that can carry reads its names at a quarter of a
+    /// hundredth of the television, and a plate nobody can read has stopped being a plate.
+    /// </summary>
+    private const double WALL_FLOOR = 0.35;
+
+    /// <summary>
+    /// Scaling the wall so every plate of the level stands on the screen - aspect locked, never grown past
+    /// the size the skin drew. The host between the gradient bands is the room. The arithmetic is done from
+    /// the plate's own step (the square the skin drew plus the gap it put around it) and the level's plate
+    /// count: try every column count, and the one whose scale is the largest is the wall - width written so
+    /// the wrap lays exactly that many per row, one transform over the whole of it. No measuring of the
+    /// control on the way: a wrap panel and a scale asked in turns can hand each other different row counts
+    /// and never settle, and a stale measure answer leaves the wall arranged to a size the screen does not
+    /// have - which is the scrolling wall this replaces.
+    /// </summary>
+    /// <remarks>
+    /// One transform for the whole wall - plates, bands, names and focus rings keep the proportion the face
+    /// drew them in - which is the home shelf's technique (HomeView.ScaleNereusWall) rather than a new one.
+    /// It is worked out for the tile views only: the narrowed list and the page beside it keep the full
+    /// room, which is what the viewer asked for and what a wall of text needs anyway.
+    /// </remarks>
+    private void FitWall()
+    {
+      if (_wallFitting)
+        return;
+
+      _wallFitting = true;
+      try
+      {
+        if (!wallScale.IsVisible)
+          return;
+
+        Avalonia.Thickness inset = wallScale.Margin;
+        double availW = contentHost.Bounds.Width - inset.Left - inset.Right;
+        double availH = contentHost.Bounds.Height - inset.Top - inset.Bottom;
+        int plates = wallList.ItemCount;
+        if (availW < 100 || availH < 100)
+          return; // nothing to fit into yet; the host's SizeChanged asks again
+
+        if (plates < 1)
+        {
+          wallList.ClearValue(WidthProperty);
+          _wallFitScale = 0;
+          _wallFitCols = 0;
+          wallScale.LayoutTransform = null;
+          return;
+        }
+
+        double step = WallPlateStep();
+        double best = -1;
+        int bestCols = plates;
+        for (int cols = 1; cols <= plates; cols++)
+        {
+          int rows = (plates + cols - 1) / cols;
+          double s = Math.Min(1.0, Math.Min(availW / (cols * step), availH / (rows * step)));
+          if (s > best + 0.0001)
+          {
+            // The first count to reach a scale wins its ties, which keeps the balanced wall out of the
+            // argument: six and five in two rows, not nine and two because the ninth plate was lonely.
+            best = s;
+            bestCols = cols;
+          }
+        }
+
+        double scale = Math.Max(best, WALL_FLOOR);
+        if (Math.Abs(scale - _wallFitScale) < 0.0005 && bestCols == _wallFitCols)
+          return;
+
+        _wallFitScale = scale;
+        _wallFitCols = bestCols;
+        wallList.Width = bestCols * step;
+        wallScale.LayoutTransform = scale < 0.9995
+            ? new Avalonia.Media.ScaleTransform(scale, scale)
+            : null;
+      }
+      finally
+      {
+        _wallFitting = false;
+      }
+    }
+
+    /// <summary>
+    /// The room one plate and its gap take in the worn skin's own numbers - the square plus the margin the
+    /// template hangs around it. A skin that keeps no numbers of its own for the wall answers with the
+    /// markup's own plate and gap, which is what that skin draws.
+    /// </summary>
+    private double WallPlateStep()
+    {
+      double plate = SkinEngine.WornNumber("SettingsTilePlateWidth") ?? 355;
+      object? found = null;
+      if (Application.Current != null)
+        Application.Current.TryFindResource("SettingsTileMargin", out found);
+      double gap = found is Avalonia.Thickness t ? (t.Left + t.Right) / 2 : 8;
+      return plate + gap * 2;
+    }
 
     /// <summary>
     /// Tells the shell header which word to show for this screen. The header names itself after the workflow

@@ -51,11 +51,22 @@
             ToolTip.Tip="{Binding Location}"
             IsVisible="{Binding CanGoBack}" Click="OnBackClick"/>
 
-    <Panel Grid.Row="1">
+    <Panel Grid.Row="1" Name="contentHost">
 
       <!-- The wall. A WrapPanel of plates, the reference's ItemsPanel spelled the same way; the plates
            themselves belong to the worn skin, which dresses them as its own SettingsMenuItemDataTemplate
-           dresses the reference's (OtherControlsOverrides.xaml:632). -->
+           dresses the reference's (OtherControlsOverrides.xaml:632).
+           The host stands between the two gradient bands - eleven tens from their top's edge, two hundred
+           from the foot's - because a plate under a gradient is a plate half-read through smoke (viewer:
+           "no overlap with gradients is possible"). And the wall wears one scale, aspect locked, worked
+           out by FitWall below: as many plates as the screen carries stand on it at full size, and when a
+           level has more than that the whole wall shrinks together - plates, bands, names and rings in
+           the skin's own proportion - until all of it fits. Never grown past full size. Only the tile
+           views travel in this host; a page of content beside the narrowed list keeps the full room. -->
+      <LayoutTransformControl Name="wallScale"
+                              IsVisible="{Binding IsWall}"
+                              Margin="0,110,0,200"
+                              HorizontalAlignment="Center" VerticalAlignment="Center">
       <ListBox Name="wallList"
                Classes="settings-tile-wall"
                IsVisible="{Binding IsWall}"
@@ -116,6 +127,7 @@
           </DataTemplate>
         </ListBox.ItemTemplate>
       </ListBox>
+      </LayoutTransformControl>
 
       <!-- The narrowed list beside the open screen, which is the shape this hub had before it had walls. -->
       <Grid ColumnDefinitions="330,*" ColumnSpacing="24" IsVisible="{Binding ShowingContents}">
