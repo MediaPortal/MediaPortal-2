@@ -502,7 +502,9 @@
                  Foreground="{DynamicResource MutedTextBrush}"/>
       <!-- the cover: the grid's poster tile, at twice the reference's 162.5x250 - the doubled size the
            whole port uses, since this screen shows the reference's 720 lines at 1440 -->
-      <Panel Width="326" Height="500" Margin="10,6,10,20" IsVisible="{Binding IsTitle}">
+      <!-- Clipped, because the watched corner inside it carries a size of its own: without the clip a row
+           container that was measured to nothing would still hang its eye in mid air. -->
+      <Panel Width="326" Height="500" Margin="10,6,10,20" ClipToBounds="True" IsVisible="{Binding IsTitle}">
         <Image Source="{Binding Title.Name, Converter={x:Static views:SkinImageConverter.Instance},
                                 ConverterParameter='Poster_small.png'}"
                Stretch="Fill"/>
@@ -526,16 +528,20 @@
                      FontSize="{DynamicResource SmallFontSize}" TextTrimming="CharacterEllipsis"
                      TextAlignment="Center" VerticalAlignment="Center" Margin="8,0"/>
         </Border>
-        <Image Source="{Binding Title.Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='watched.png'}"
-               Height="60" Stretch="Uniform" Opacity="0.9"
-               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,6,6,0"
-               IsVisible="{Binding Title.IsWatched}"/>
-        <Image Source="{Binding Title.Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                ConverterParameter='partlywatched.png'}"
-               Height="60" Stretch="Uniform" Opacity="0.9"
-               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,6,6,0"
-               IsVisible="{Binding Title.IsPartlyWatched}"/>
+        <Border Width="70" Height="70" Classes="nereus-watched-plate" CornerRadius="35" Margin="0,6,6,0"
+                HorizontalAlignment="Right" VerticalAlignment="Top" IsHitTestVisible="False"
+                IsVisible="{Binding Title.IsWatched}">
+          <Path Width="52" Height="52" HorizontalAlignment="Center" VerticalAlignment="Center"
+                Data="{Binding Title.Name, Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                ConverterParameter='watched'}" Classes="nereus-watched" Stretch="Uniform" Opacity="0.9"/>
+        </Border>
+        <Border Width="70" Height="70" Classes="nereus-watched-plate" CornerRadius="35" Margin="0,6,6,0"
+                HorizontalAlignment="Right" VerticalAlignment="Top" IsHitTestVisible="False"
+                IsVisible="{Binding Title.IsPartlyWatched}">
+          <Path Width="52" Height="52" HorizontalAlignment="Center" VerticalAlignment="Center"
+                Data="{Binding Title.Name, Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                ConverterParameter='watched'}" Classes="nereus-watched partly" Stretch="Uniform" Opacity="0.9"/>
+        </Border>
       </Panel>
     </Panel>
   </DataTemplate>
@@ -636,22 +642,26 @@
                          FontSize="{DynamicResource TinyFontSize}" TextWrapping="Wrap"
                          TextTrimming="CharacterEllipsis" MaxLines="3" TextAlignment="Center"/>
             </StackPanel>
+            <!-- watched corners, if the grid's setting allows corners at all -->
+            <Panel IsVisible="{Binding WatchFlagsShown}">
+              <Border Width="38" Height="38" Classes="nereus-watched-plate" CornerRadius="19" Margin="0,6,6,0"
+                      HorizontalAlignment="Right" VerticalAlignment="Top" IsHitTestVisible="False"
+                      IsVisible="{Binding IsWatched}">
+                <Path Width="28" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center"
+                      Data="{Binding Name, Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                      ConverterParameter='watched'}" Classes="nereus-watched" Stretch="Uniform" Opacity="0.9"/>
+              </Border>
+              <Border Width="38" Height="38" Classes="nereus-watched-plate" CornerRadius="19" Margin="0,6,6,0"
+                      HorizontalAlignment="Right" VerticalAlignment="Top" IsHitTestVisible="False"
+                      IsVisible="{Binding IsPartlyWatched}">
+                <Path Width="28" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center"
+                      Data="{Binding Name, Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                      ConverterParameter='watched'}" Classes="nereus-watched partly" Stretch="Uniform" Opacity="0.9"/>
+              </Border>
+            </Panel>
           </Grid>
         </Border>
         <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
-        <!-- watched corners, if the grid's setting allows corners at all -->
-        <Panel IsVisible="{Binding WatchFlagsShown}">
-          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                  ConverterParameter='watched.png'}"
-                 Height="33" Stretch="Uniform" Opacity="0.9"
-                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,6,6,0"
-                 IsVisible="{Binding IsWatched}"/>
-          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                  ConverterParameter='partlywatched.png'}"
-                 Height="33" Stretch="Uniform" Opacity="0.9"
-                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,6,6,0"
-                 IsVisible="{Binding IsPartlyWatched}"/>
-        </Panel>
         <!-- a title without a file behind it: the reference's corner flag with its offline mark -->
         <Panel IsVisible="{Binding IsOffline}">
           <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
@@ -688,21 +698,25 @@
                          TextTrimming="CharacterEllipsis" MaxLines="2" MaxWidth="330"
                          VerticalAlignment="Center"/>
             </StackPanel>
+            <Panel IsVisible="{Binding WatchFlagsShown}">
+              <Border Width="33" Height="33" Classes="nereus-watched-plate" CornerRadius="16.5" Margin="0,4,4,0"
+                      HorizontalAlignment="Right" VerticalAlignment="Top" IsHitTestVisible="False"
+                      IsVisible="{Binding IsWatched}">
+                <Path Width="25" Height="25" HorizontalAlignment="Center" VerticalAlignment="Center"
+                      Data="{Binding Name, Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                      ConverterParameter='watched'}" Classes="nereus-watched" Stretch="Uniform" Opacity="0.9"/>
+              </Border>
+              <Border Width="33" Height="33" Classes="nereus-watched-plate" CornerRadius="16.5" Margin="0,4,4,0"
+                      HorizontalAlignment="Right" VerticalAlignment="Top" IsHitTestVisible="False"
+                      IsVisible="{Binding IsPartlyWatched}">
+                <Path Width="25" Height="25" HorizontalAlignment="Center" VerticalAlignment="Center"
+                      Data="{Binding Name, Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                      ConverterParameter='watched'}" Classes="nereus-watched partly" Stretch="Uniform" Opacity="0.9"/>
+              </Border>
+            </Panel>
           </Grid>
         </Border>
         <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
-        <Panel IsVisible="{Binding WatchFlagsShown}">
-          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                  ConverterParameter='watched.png'}"
-                 Height="28" Stretch="Uniform" Opacity="0.9"
-                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,4,4,0"
-                 IsVisible="{Binding IsWatched}"/>
-          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                  ConverterParameter='partlywatched.png'}"
-                 Height="28" Stretch="Uniform" Opacity="0.9"
-                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,4,4,0"
-                 IsVisible="{Binding IsPartlyWatched}"/>
-        </Panel>
         <!-- the corner flag of a title without a file, shrunk to the banner's height -->
         <Panel IsVisible="{Binding IsOffline}">
           <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
@@ -737,21 +751,25 @@
                          FontSize="{DynamicResource TinyFontSize}" TextWrapping="Wrap"
                          TextTrimming="CharacterEllipsis" MaxLines="2" TextAlignment="Center"/>
             </StackPanel>
+            <Panel IsVisible="{Binding WatchFlagsShown}">
+              <Border Width="33" Height="33" Classes="nereus-watched-plate" CornerRadius="16.5" Margin="0,4,4,0"
+                      HorizontalAlignment="Right" VerticalAlignment="Top" IsHitTestVisible="False"
+                      IsVisible="{Binding IsWatched}">
+                <Path Width="25" Height="25" HorizontalAlignment="Center" VerticalAlignment="Center"
+                      Data="{Binding Name, Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                      ConverterParameter='watched'}" Classes="nereus-watched" Stretch="Uniform" Opacity="0.9"/>
+              </Border>
+              <Border Width="33" Height="33" Classes="nereus-watched-plate" CornerRadius="16.5" Margin="0,4,4,0"
+                      HorizontalAlignment="Right" VerticalAlignment="Top" IsHitTestVisible="False"
+                      IsVisible="{Binding IsPartlyWatched}">
+                <Path Width="25" Height="25" HorizontalAlignment="Center" VerticalAlignment="Center"
+                      Data="{Binding Name, Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                      ConverterParameter='watched'}" Classes="nereus-watched partly" Stretch="Uniform" Opacity="0.9"/>
+              </Border>
+            </Panel>
           </Grid>
         </Border>
         <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
-        <Panel IsVisible="{Binding WatchFlagsShown}">
-          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                  ConverterParameter='watched.png'}"
-                 Height="28" Stretch="Uniform" Opacity="0.9"
-                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,4,4,0"
-                 IsVisible="{Binding IsWatched}"/>
-          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                  ConverterParameter='partlywatched.png'}"
-                 Height="28" Stretch="Uniform" Opacity="0.9"
-                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,4,4,0"
-                 IsVisible="{Binding IsPartlyWatched}"/>
-        </Panel>
         <!-- the corner flag of a title without a file, at the thumbnail's height -->
         <Panel IsVisible="{Binding IsOffline}">
           <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
@@ -795,22 +813,26 @@
                          TextWrapping="Wrap" TextTrimming="CharacterEllipsis" MaxLines="3"
                          TextAlignment="Center"/>
             </StackPanel>
+            <!-- watched corners, if the cover's setting allows corners at all -->
+            <Panel IsVisible="{Binding WatchFlagsShown}">
+              <Border Width="62" Height="62" Classes="nereus-watched-plate" CornerRadius="31" Margin="0,8,8,0"
+                      HorizontalAlignment="Right" VerticalAlignment="Top" IsHitTestVisible="False"
+                      IsVisible="{Binding IsWatched}">
+                <Path Width="46" Height="46" HorizontalAlignment="Center" VerticalAlignment="Center"
+                      Data="{Binding Name, Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                      ConverterParameter='watched'}" Classes="nereus-watched" Stretch="Uniform" Opacity="0.9"/>
+              </Border>
+              <Border Width="62" Height="62" Classes="nereus-watched-plate" CornerRadius="31" Margin="0,8,8,0"
+                      HorizontalAlignment="Right" VerticalAlignment="Top" IsHitTestVisible="False"
+                      IsVisible="{Binding IsPartlyWatched}">
+                <Path Width="46" Height="46" HorizontalAlignment="Center" VerticalAlignment="Center"
+                      Data="{Binding Name, Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                      ConverterParameter='watched'}" Classes="nereus-watched partly" Stretch="Uniform" Opacity="0.9"/>
+              </Border>
+            </Panel>
           </Grid>
         </Border>
         <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
-        <!-- watched corners, if the cover's setting allows corners at all -->
-        <Panel IsVisible="{Binding WatchFlagsShown}">
-          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                  ConverterParameter='watched.png'}"
-                 Height="53" Stretch="Uniform" Opacity="0.9"
-                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,8,0"
-                 IsVisible="{Binding IsWatched}"/>
-          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                  ConverterParameter='partlywatched.png'}"
-                 Height="53" Stretch="Uniform" Opacity="0.9"
-                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,8,0"
-                 IsVisible="{Binding IsPartlyWatched}"/>
-        </Panel>
         <!-- a title without a file behind it: the reference's corner flag with its offline mark -->
         <Panel IsVisible="{Binding IsOffline}">
           <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
@@ -866,22 +888,26 @@
                          FontSize="{DynamicResource SmallerFontSize}" TextWrapping="Wrap"
                          TextTrimming="CharacterEllipsis" MaxLines="3" TextAlignment="Center"/>
             </StackPanel>
+            <!-- watched corners, if the grid's setting allows corners at all -->
+            <Panel IsVisible="{Binding WatchFlagsShown}">
+              <Border Width="51" Height="51" Classes="nereus-watched-plate" CornerRadius="25.5" Margin="0,8,8,0"
+                      HorizontalAlignment="Right" VerticalAlignment="Top" IsHitTestVisible="False"
+                      IsVisible="{Binding IsWatched}">
+                <Path Width="38" Height="38" HorizontalAlignment="Center" VerticalAlignment="Center"
+                      Data="{Binding Name, Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                      ConverterParameter='watched'}" Classes="nereus-watched" Stretch="Uniform" Opacity="0.9"/>
+              </Border>
+              <Border Width="51" Height="51" Classes="nereus-watched-plate" CornerRadius="25.5" Margin="0,8,8,0"
+                      HorizontalAlignment="Right" VerticalAlignment="Top" IsHitTestVisible="False"
+                      IsVisible="{Binding IsPartlyWatched}">
+                <Path Width="38" Height="38" HorizontalAlignment="Center" VerticalAlignment="Center"
+                      Data="{Binding Name, Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                      ConverterParameter='watched'}" Classes="nereus-watched partly" Stretch="Uniform" Opacity="0.9"/>
+              </Border>
+            </Panel>
           </Grid>
         </Border>
         <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
-        <!-- watched corners, if the grid's setting allows corners at all -->
-        <Panel IsVisible="{Binding WatchFlagsShown}">
-          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                  ConverterParameter='watched.png'}"
-                 Height="44" Stretch="Uniform" Opacity="0.9"
-                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,8,0"
-                 IsVisible="{Binding IsWatched}"/>
-          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                  ConverterParameter='partlywatched.png'}"
-                 Height="44" Stretch="Uniform" Opacity="0.9"
-                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,8,0"
-                 IsVisible="{Binding IsPartlyWatched}"/>
-        </Panel>
         <!-- a title without a file behind it: the reference's corner flag with its offline mark -->
         <Panel IsVisible="{Binding IsOffline}">
           <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
@@ -917,22 +943,26 @@
                          FontSize="{DynamicResource TinyFontSize}" TextWrapping="Wrap"
                          TextTrimming="CharacterEllipsis" MaxLines="2" TextAlignment="Center"/>
             </StackPanel>
+            <!-- watched corners, if the grid's setting allows corners at all -->
+            <Panel IsVisible="{Binding WatchFlagsShown}">
+              <Border Width="38" Height="38" Classes="nereus-watched-plate" CornerRadius="19" Margin="0,6,6,0"
+                      HorizontalAlignment="Right" VerticalAlignment="Top" IsHitTestVisible="False"
+                      IsVisible="{Binding IsWatched}">
+                <Path Width="28" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center"
+                      Data="{Binding Name, Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                      ConverterParameter='watched'}" Classes="nereus-watched" Stretch="Uniform" Opacity="0.9"/>
+              </Border>
+              <Border Width="38" Height="38" Classes="nereus-watched-plate" CornerRadius="19" Margin="0,6,6,0"
+                      HorizontalAlignment="Right" VerticalAlignment="Top" IsHitTestVisible="False"
+                      IsVisible="{Binding IsPartlyWatched}">
+                <Path Width="28" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center"
+                      Data="{Binding Name, Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                      ConverterParameter='watched'}" Classes="nereus-watched partly" Stretch="Uniform" Opacity="0.9"/>
+              </Border>
+            </Panel>
           </Grid>
         </Border>
         <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
-        <!-- watched corners, if the grid's setting allows corners at all -->
-        <Panel IsVisible="{Binding WatchFlagsShown}">
-          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                  ConverterParameter='watched.png'}"
-                 Height="33" Stretch="Uniform" Opacity="0.9"
-                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,6,6,0"
-                 IsVisible="{Binding IsWatched}"/>
-          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                  ConverterParameter='partlywatched.png'}"
-                 Height="33" Stretch="Uniform" Opacity="0.9"
-                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,6,6,0"
-                 IsVisible="{Binding IsPartlyWatched}"/>
-        </Panel>
         <!-- a title without a file behind it: the reference's corner flag with its offline mark -->
         <Panel IsVisible="{Binding IsOffline}">
           <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
@@ -972,21 +1002,25 @@
                          FontSize="{DynamicResource TinyFontSize}" TextWrapping="Wrap"
                          TextTrimming="CharacterEllipsis" MaxLines="2" TextAlignment="Center"/>
             </StackPanel>
+            <Panel IsVisible="{Binding WatchFlagsShown}">
+              <Border Width="38" Height="38" Classes="nereus-watched-plate" CornerRadius="19" Margin="0,6,6,0"
+                      HorizontalAlignment="Right" VerticalAlignment="Top" IsHitTestVisible="False"
+                      IsVisible="{Binding IsWatched}">
+                <Path Width="28" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center"
+                      Data="{Binding Name, Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                      ConverterParameter='watched'}" Classes="nereus-watched" Stretch="Uniform" Opacity="0.9"/>
+              </Border>
+              <Border Width="38" Height="38" Classes="nereus-watched-plate" CornerRadius="19" Margin="0,6,6,0"
+                      HorizontalAlignment="Right" VerticalAlignment="Top" IsHitTestVisible="False"
+                      IsVisible="{Binding IsPartlyWatched}">
+                <Path Width="28" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center"
+                      Data="{Binding Name, Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                      ConverterParameter='watched'}" Classes="nereus-watched partly" Stretch="Uniform" Opacity="0.9"/>
+              </Border>
+            </Panel>
           </Grid>
         </Border>
         <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
-        <Panel IsVisible="{Binding WatchFlagsShown}">
-          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                  ConverterParameter='watched.png'}"
-                 Height="33" Stretch="Uniform" Opacity="0.9"
-                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,6,6,0"
-                 IsVisible="{Binding IsWatched}"/>
-          <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
-                                  ConverterParameter='partlywatched.png'}"
-                 Height="33" Stretch="Uniform" Opacity="0.9"
-                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,6,6,0"
-                 IsVisible="{Binding IsPartlyWatched}"/>
-        </Panel>
         <Panel IsVisible="{Binding IsOffline}">
           <Image Source="{Binding Name, Converter={x:Static views:SkinImageConverter.Instance},
                                   ConverterParameter='flag.png'}"

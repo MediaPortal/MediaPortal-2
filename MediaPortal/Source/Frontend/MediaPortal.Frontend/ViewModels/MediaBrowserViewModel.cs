@@ -384,7 +384,7 @@ namespace MediaPortal.Frontend.ViewModels
 
     /// <summary>
     /// Whether a tile may wear the watched corner: the library was told this one was finished. The tiles draw
-    /// the skin's own <c>watched.png</c>; the list keeps its quiet tick, and both read this one answer.
+    /// the skin's own eye (<c>watched.svg</c>); the list keeps its quiet tick, and both read this one answer.
     /// </summary>
     public bool IsWatched
     {
