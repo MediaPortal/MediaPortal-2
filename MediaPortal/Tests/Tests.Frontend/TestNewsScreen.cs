@@ -1,4 +1,4 @@
-/*
+﻿/*
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -432,6 +432,107 @@ namespace Tests.Frontend
         Assert.That(NewsFeedsSettings.Combine(Array.Empty<NewsFeedBookmark>(), read.ExtraBookmarks()).Count,
             Is.EqualTo(1),
             "and an official list with nothing on it still carries the viewer's own feeds");
+      }
+      finally
+      {
+        File.Delete(file);
+      }
+    }
+
+    [Test]
+    public void ATypedFeedJoinsTheListAndSurvivesARestart()
+    {
+      // The settings page the Plugins door opens (the reference's News/plugin.xml files its branch as the
+      // feed management): what is typed lands on the list, into the file, and the next opening knows it.
+      string file = Path.Combine(Path.GetTempPath(),
+          "news-feeds-" + Guid.NewGuid().ToString("N") + ".json");
+      try
+      {
+        NewsFeedsEditorViewModel page = new NewsFeedsEditorViewModel(file);
+        Assert.That(page.Status, Does.Contain("own feeds"),
+            "a screen nobody has fed yet says how few own feeds it carries, and does not pretend otherwise");
+
+        page.NewName = "Mein Blog";
+        page.NewUrl = "http://example.org/feed";
+        Assert.That(page.AddFeedCommand.CanExecute(null), Is.True);
+        page.AddFeedCommand.Execute(null);
+
+        Assert.That(page.Feeds.Select(row => row.Name), Is.EqualTo(new[] { "Mein Blog" }));
+        Assert.That(page.Status, Does.Contain("added and saved"));
+        Assert.That(page.NewUrl, Is.Empty, "the typing box empties itself, so the next feed is typed into peace");
+
+        page.SelectedRefresh = page.RefreshOptions[2];
+        Assert.That(page.Status, Does.Contain("asks every 15 minutes"));
+
+        NewsFeedsEditorViewModel restarted = new NewsFeedsEditorViewModel(file);
+        Assert.That(restarted.Feeds.Select(row => row.Url), Is.EqualTo(new[] { "http://example.org/feed" }),
+            "and the next start of the page knows the feed too - the viewer typed it once from a couch and "
+            + "is not asked to type it again");
+        Assert.That(restarted.SelectedRefresh!.Minutes, Is.EqualTo(15),
+            "and the rhythm the picker was left on stands in the file");
+      }
+      finally
+      {
+        File.Delete(file);
+      }
+    }
+
+    [Test]
+    public void AFeedWithoutAnAddressIsNoFeedAndADuplicateIsRefused()
+    {
+      string file = Path.Combine(Path.GetTempPath(),
+          "news-feeds-" + Guid.NewGuid().ToString("N") + ".json");
+      try
+      {
+        NewsFeedsEditorViewModel page = new NewsFeedsEditorViewModel(file);
+
+        page.NewName = "name without an address";
+        Assert.That(page.AddFeedCommand.CanExecute(null), Is.False,
+            "half an answer waits for the address - a feed that would only refuse is not added");
+
+        page.NewName = "";
+        page.NewUrl = "http://example.org/feed";
+        page.AddFeedCommand.Execute(null);
+        Assert.That(page.Feeds.Select(row => row.Name), Is.EqualTo(new[] { "http://example.org/feed" }),
+            "a feed typed without a name wears its address as its name, the way every reader does it");
+
+        page.NewUrl = "HTTP://EXAMPLE.ORG/FEED";
+        page.AddFeedCommand.Execute(null);
+        Assert.That(page.Feeds.Count, Is.EqualTo(1),
+            "the same address twice is one feed - the same word in another case does not make a second paper");
+        Assert.That(page.Status, Does.Contain("already on the list"));
+      }
+      finally
+      {
+        File.Delete(file);
+      }
+    }
+
+    [Test]
+    public void TakingAFeedOffTheListRewritesTheFile()
+    {
+      string file = Path.Combine(Path.GetTempPath(),
+          "news-feeds-" + Guid.NewGuid().ToString("N") + ".json");
+      try
+      {
+        File.WriteAllText(file, "{\"intervalMinutes\":30,\"extraFeeds\":["
+            + "{\"name\":\"Mein Blog\",\"url\":\"http://example.org/feed\"},"
+            + "{\"name\":\"Noch eins\",\"url\":\"http://example.org/zwei\"}]}");
+        NewsFeedsEditorViewModel page = new NewsFeedsEditorViewModel(file);
+
+        page.SelectedFeed = page.Feeds[0];
+        page.RemoveSelectedFeedCommand.Execute(null);
+
+        Assert.That(page.Feeds.Select(row => row.Name), Is.EqualTo(new[] { "Noch eins" }),
+            "the picked feed is off the list, and the picker of what stays lands on the first of those that did");
+        Assert.That(page.Status, Does.Contain("Mein Blog is off the list"));
+
+        NewsFeedsEditorViewModel restarted = new NewsFeedsEditorViewModel(file);
+        Assert.That(restarted.Feeds.Count, Is.EqualTo(1),
+            "and the file says the same - the page saves itself the moment an answer is given, and no Apply "
+            + "waits to be pressed by nobody");
+        Assert.That(restarted.SelectedRefresh!.Minutes, Is.EqualTo(30),
+            "and a rhythm the file already knew stands where the picker shows it");
       }
       finally
       {

@@ -1,0 +1,117 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="using:MediaPortal.Frontend.Views"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        x:Class="MediaPortal.Frontend.Views.NewsFeedsSettingsView"
+        x:DataType="vm:NewsFeedsEditorViewModel"
+        Name="newsFeedsSettings"
+        Background="Transparent"
+        >
+
+  <!--
+    Which feeds the news screen reads beside MediaPortal's own, and how often it asks again. The reference
+    kept this as the news plugin's settings branch (News/plugin.xml files it at
+    '/Configuration/Settings/Plugins/News'); here the answers keep their own file beside the weather's
+    places, because the news is read over the internet rather than through the server. Every answer saves
+    itself the moment it is given, exactly like the weather's page.
+  -->
+
+  <DockPanel Margin="48,14">
+
+    <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,8">
+      <TextBlock Text="News"
+                 FontSize="24"
+                 FontWeight="SemiBold" />
+      <TextBlock Text="The feeds the news screen reads on top of MediaPortal's own list, and how often an open news screen asks again."
+                 FontSize="14"
+                 Opacity="0.7"
+                 TextWrapping="Wrap"
+                 MaxWidth="1500"
+                 HorizontalAlignment="Left" />
+    </StackPanel>
+
+    <TextBlock DockPanel.Dock="Bottom"
+               Name="statusLine"
+               Text="{Binding Status}"
+               FontSize="14"
+               Opacity="0.85"
+               Margin="0,10,0,0"
+               TextWrapping="Wrap" />
+
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" Focusable="False">
+      <StackPanel Spacing="10" VerticalAlignment="Top" MaxWidth="1100" HorizontalAlignment="Left">
+
+        <!-- The viewer's own feeds, in the order they were added. Taking one away needs no confirmation:
+             the list and the file both answer right away, and adding it back is one typing away. -->
+        <TextBlock Text="Your own feeds" FontSize="18" FontWeight="SemiBold" Margin="0,10,0,0" />
+        <ListBox Name="feedsList"
+                 ItemsSource="{Binding Feeds}"
+                 SelectedItem="{Binding SelectedFeed, Mode=TwoWay}"
+                 Focusable="True"
+                 MaxHeight="260"
+                 MinWidth="560"
+                 HorizontalAlignment="Left">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:NewsFeedEditorRow">
+              <StackPanel Spacing="2">
+                <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding Url}" FontSize="12" Opacity="0.55"/>
+              </StackPanel>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+        <Button Name="removeButton"
+                Content="Remove this feed"
+                Command="{Binding RemoveSelectedFeedCommand}"
+                FontSize="16"
+                Focusable="True"
+                HorizontalAlignment="Left"
+                Padding="14,6" />
+
+        <!-- The typing that adds one. The name may stay out - the address then stands as the name on the
+             news screen too, the way every reader of the feeds does it when a feed comes without one. -->
+        <TextBlock Text="Add a feed" FontSize="18" FontWeight="SemiBold" Margin="0,10,0,0" />
+        <Grid ColumnDefinitions="320,480,Auto" ColumnSpacing="10">
+          <TextBox Grid.Column="0"
+                   Name="nameBox"
+                   views:VirtualKeyboardService.Trigger="EnterOrMenu"
+                   Text="{Binding NewName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                   Watermark="what the feed should be called"
+                   FontSize="16"
+                   Focusable="True"
+                   Padding="10,4"
+                   Margin="0,4" />
+          <TextBox Grid.Column="1"
+                   Name="urlBox"
+                   views:VirtualKeyboardService.Trigger="EnterOrMenu"
+                   Text="{Binding NewUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                   Watermark="the feed's address"
+                   FontSize="16"
+                   Focusable="True"
+                   Padding="10,4"
+                   Margin="0,4" />
+          <Button Grid.Column="2"
+                  Name="addButton"
+                  Content="Add this feed"
+                  Command="{Binding AddFeedCommand}"
+                  FontSize="16"
+                  Focusable="True"
+                  Padding="14,6"
+                  VerticalAlignment="Center"/>
+        </Grid>
+
+        <!-- How often an open news screen asks again. Zero - the default here, unlike the reference's
+             fifteen - reads when the screen opens and when the viewer says so. -->
+        <TextBlock Text="How often the news asks again" FontSize="18" FontWeight="SemiBold" Margin="0,10,0,0" />
+        <ComboBox Name="refreshBox"
+                  ItemsSource="{Binding RefreshOptions}"
+                  SelectedItem="{Binding SelectedRefresh, Mode=TwoWay}"
+                  FontSize="16"
+                  Focusable="True"
+                  MinWidth="320"
+                  HorizontalAlignment="Left"
+                  Margin="0,4" />
+      </StackPanel>
+    </ScrollViewer>
+  </DockPanel>
+</UserControl>

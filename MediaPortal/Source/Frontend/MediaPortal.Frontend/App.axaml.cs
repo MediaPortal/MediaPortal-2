@@ -1793,25 +1793,58 @@ namespace MediaPortal.Frontend
           },
           "TV");
 
-      // /Weather: the places the weather screen and the home's weather wall read their sky for, plus the
-      // viewer's own API key - the old weather screen's place management, filed behind the settings door
-      // now that the screen itself shows weather. One screen underneath, so the door opens it directly.
-      model.AddFolder("Weather", "Frontend", string.Empty,
-          delegate
-          {
-            return SettingsViewModel.PagesHere(
-                new SettingsSection("Weather", "Frontend", string.Empty,
-                    delegate { return new WeatherSettingsView(null); },
-                    "Weather", "Weather"));
-          },
-          "Weather");
-
       // /Plugins: one plate per settings class the server's parts keep, read from the server every time the
       // door opens. This is the reference's Plugins branch plate for plugin - Plugins_Weather beside
       // Plugins_Trakt - and it is why the plugin screen no longer lists the sections in one column of its own:
       // the wall outside already did that.
+      //
+      // The weather's plate stands here too, because that is where the reference hung it: the Weather plugin
+      // registers '/Configuration/Settings/Plugins/Weather' (Weather/plugin.xml:53-79) and the reference's wall
+      // dressed its plate with Plugins_Weather.jpg. This front end reads the sky straight over the internet
+      // rather than through the server, so the plate is the front end's own - the places and the key it asks
+      // the viewer for are the same two lines the reference's branch carried, on one screen.
       model.AddFolder("Plugins", "Server", string.Empty,
-          () => PluginSettingsPages.PagesAsync(() => _home.Client),
+          async delegate
+          {
+            var pages = new List<SettingsSection>(
+                await PluginSettingsPages.PagesAsync(() => _home.Client).ConfigureAwait(false));
+
+            // A server that carries the Weather plugin itself answers the section; the front end's plate
+            // stands only where the server's wall has no weather of its own. News likewise: the reference
+            // hung it at '/Configuration/Settings/Plugins/News' (News/plugin.xml:52-64) as the feed
+            // management, and the feeds here - MediaPortal's own list plus whatever the viewer saved in
+            // news-feeds.json - are read over the internet rather than through the server, so the plate is
+            // the front end's own.
+            bool serverWeather = false;
+            bool serverNews = false;
+            foreach (SettingsSection page in pages)
+            {
+              if (page.Name.IndexOf("weather", StringComparison.OrdinalIgnoreCase) >= 0)
+              {
+                serverWeather = true;
+              }
+              if (page.Name.IndexOf("news", StringComparison.OrdinalIgnoreCase) >= 0)
+              {
+                serverNews = true;
+              }
+            }
+            if (!serverWeather)
+            {
+              pages.Add(new SettingsSection("Weather", "Frontend",
+                  "The places the weather is read for, and the key it is read with",
+                  delegate { return new WeatherSettingsView(null); },
+                  "Plugins_Weather", "Plugins_Weather"));
+            }
+            if (!serverNews)
+            {
+              pages.Add(new SettingsSection("News", "Frontend",
+                  "The feeds the news screen reads beside MediaPortal's own, and how often it asks again",
+                  delegate { return new NewsFeedsSettingsView(); },
+                  "Plugins_News", "Plugins_News"));
+            }
+
+            return pages;
+          },
           "Plugins");
 
       // /Users: "Users", the plate MP2 ships its own Users.jpg for. Who may sign in is read from the server's
