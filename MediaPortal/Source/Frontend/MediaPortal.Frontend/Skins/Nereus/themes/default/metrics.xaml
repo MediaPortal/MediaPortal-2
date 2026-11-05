@@ -54,6 +54,9 @@
        bar is a pill. Both dialog frames wear this number - the headed one and the plain one - so that a dialog
        is the same shape whether or not it brings a heading, and it is a corner the eye reads across the room. -->
   <CornerRadius x:Key="DialogFrameCornerRadius">25</CornerRadius>
+  <!-- The corner of the plate a dialog lays its contents on - inside the frame's own corner, so the sheet
+       sits within the panel instead of echoing it at the same radius and the two edges grind into one. -->
+  <CornerRadius x:Key="DialogPlateCornerRadius">20</CornerRadius>
   <x:Double x:Key="TextBoxBorderThickness">3</x:Double>
   <x:Double x:Key="TextBoxCornerRadius">5</x:Double>
   <x:Double x:Key="ProgressBarRadius">2</x:Double>

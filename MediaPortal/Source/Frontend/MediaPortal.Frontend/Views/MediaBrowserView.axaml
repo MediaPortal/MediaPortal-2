@@ -3025,7 +3025,7 @@
       <Border Name="menuDialog"
               Background="{DynamicResource DialogGroundBrush}"
               CornerRadius="{DynamicResource DialogFrameCornerRadius}"
-              BoxShadow="0 0 120 0 #00FFFFFF, 0 0 26 0 #FFFFFFFF"
+              BoxShadow="0 0 120 0 #59FFFFFF, 0 0 26 0 #FFFFFFFF"
               Margin="50"
               MaxWidth="760"
               HorizontalAlignment="Center"
@@ -3038,47 +3038,83 @@
                      FontWeight="Bold"
                      Foreground="{DynamicResource TextBrush}"
                      Margin="10,5"
+                     Padding="0,5"
                      TextWrapping="Wrap"
                      TextAlignment="Center"
                      HorizontalAlignment="Center"
                      VerticalAlignment="Center"/>
           <StackPanel Margin="10" MinWidth="460">
             <!--
-              The answers this title has, one line each, straight off the table the home wall reads too
-              (MediaTitleActions.For). Above this the dialog carried one button per answer and the table lived in
-              nothing, which is how the reference's list ended up as a single button here: adding the second
-              answer meant adding markup, and the reference's remaining answers would have meant more of the same.
-              The order and the availability of a line are the reference's (MediaItemsActionModel.cs:373-392);
-              what the table leaves out, it says why.
+              The contents plate: a sheet of DialogPlateBrush inside the frame, its own smaller corner inside the
+              frame's, holding everything the dialog answers WITH - the lines and the two quiet lines under them.
+              The answer row the sheet stands over (below) is no part of it: Back leaves the question, it does not
+              answer it. The mockup the viewer drew this from gave the sheet five of margin against the body's ten
+              and fifteen within against the lines, so the lines and the sheet's own top edge keep the same
+              distance the rows keep to one another.
             -->
-            <ItemsControl Name="menuActionList" ItemsSource="{Binding TitleActions}">
-              <ItemsControl.ItemTemplate>
-                <DataTemplate x:DataType="vm:MediaTitleAction">
-                  <Button Classes="nereus-primary"
-                          Content="{Binding Word}"
-                          IsEnabled="{Binding IsCommand}"
-                          Command="{Binding $parent[UserControl].DataContext.RunTitleActionCommand}"
-                          CommandParameter="{Binding}"/>
-                </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
-            <TextBlock Name="menuAnswerLine"
-                       FontSize="18"
-                       Margin="0,8,0,0"
-                       TextWrapping="Wrap"
-                       Text="{Binding MenuAnswer}"
-                       IsVisible="{Binding MenuAnswer, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
-            <TextBlock Text="{Binding MenuWords}"
-                       FontSize="18"
-                       Margin="0,8,0,0"
-                       Opacity="0.75"
-                       TextWrapping="Wrap"
-                       IsVisible="{Binding MenuWords, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
-            <Button Name="menuBackButton"
-                    Classes="nereus-primary"
-                    Content="Back"
-                    Command="{Binding CloseMenuCommand}"
-                    Margin="0,10,0,0"/>
+            <Border Name="menuPlate"
+                    Background="{DynamicResource DialogPlateBrush}"
+                    CornerRadius="{DynamicResource DialogPlateCornerRadius}"
+                    Margin="5"
+                    Padding="10,15">
+              <StackPanel>
+                <!--
+                  The answers this title has, one line each, straight off the table the home wall reads too
+                  (MediaTitleActions.For). Above this the dialog carried one button per answer and the table lived
+                  in nothing, which is how the reference's list ended up as a single button here: adding the second
+                  answer meant adding markup, and the reference's remaining answers would have meant more of the
+                  same. The order and the availability of a line are the reference's
+                  (MediaItemsActionModel.cs:373-392); what the table leaves out, it says why.
+
+                  Every line fills the sheet's width - the reference stretched its dialog lines too
+                  (HorizontalContentAlignment=Stretch on its own button, Buttons.xaml) and a ragged left-aligned
+                  list of pills read as words laid on a ground rather than as things to press. The ten between
+                  the lines is the ten the sheet keeps to its own top edge; the corner twenty-eight of a line
+                  needs that much of a neighbour's corner not to graze it.
+                -->
+                <ItemsControl Name="menuActionList" ItemsSource="{Binding TitleActions}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <StackPanel Spacing="10"/>
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:MediaTitleAction">
+                      <Button Classes="nereus-primary"
+                              Content="{Binding Word}"
+                              HorizontalAlignment="Stretch"
+                              IsEnabled="{Binding IsCommand}"
+                              Command="{Binding $parent[UserControl].DataContext.RunTitleActionCommand}"
+                              CommandParameter="{Binding}"/>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock Name="menuAnswerLine"
+                           FontSize="18"
+                           Margin="0,8,0,0"
+                           TextWrapping="Wrap"
+                           Text="{Binding MenuAnswer}"
+                           IsVisible="{Binding MenuAnswer, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                <TextBlock Text="{Binding MenuWords}"
+                           FontSize="18"
+                           Margin="0,8,0,0"
+                           Opacity="0.75"
+                           TextWrapping="Wrap"
+                           IsVisible="{Binding MenuWords, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+              </StackPanel>
+            </Border>
+            <!--
+              The row under the contents. Five within, as the mockup drew it, so the button stands as far from
+              the sheet's edge as the sheet stands from the body's - and Back keeps its own word's width rather
+              than the sheet's: it is one way out, not another thing to choose.
+            -->
+            <Border Padding="5">
+              <Button Name="menuBackButton"
+                      Classes="nereus-primary"
+                      Content="Back"
+                      Command="{Binding CloseMenuCommand}"
+                      HorizontalAlignment="Left"/>
+            </Border>
           </StackPanel>
         </DockPanel>
       </Border>

@@ -2739,6 +2739,136 @@ namespace Tests.Frontend
     }
 
     /// <summary>
+    /// The title's dialog lays its answers on a sheet: a plate one shade lighter than the panel, with a tighter
+    /// corner than the panel itself, and every answer stretched across the sheet's width - the shape the viewer
+    /// drew and signed off.  Before the sheet the rows lay shoulder to shoulder in the panel and each one measured
+    /// only its own word, so the dialog read as a scatter of labels rather than as a question with answers; a
+    /// dialog whose answers float at word-width inside a wide panel is the regression this holds shut.  The back
+    /// answer keeps its word's width and stands under the sheet rather than among the answers, because it steps
+    /// the dialog away instead of answering it.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheTitleDialogLaysItsAnswersStretchedOnASheetInsideThePanel()
+    {
+      Application app = Application.Current!;
+      string? previousFolder = SkinEngine.SkinsFolder;
+      string previousTheme = FrontendTheme.CurrentName(app);
+      SkinEngine.SkinsFolder = Path.Combine(MetadataPath("FrontendSource"), "Skins");
+      ShellWindow? window = null;
+      try
+      {
+        Assert.That(FrontendTheme.Apply(app, "nereus", out string? themeProblem), Is.EqualTo("nereus"),
+            themeProblem ?? "");
+        Assert.That(SkinEngine.Apply(app, "nereus", out string? skinProblem), Is.True, skinProblem ?? "");
+        WornSkin worn = SkinEngine.Worn(app)!;
+
+        LongShelf server = new LongShelf();
+        MediaBrowserViewModel browser = BrowserOn(server);
+        window = new ShellWindow(new MediaBrowserView(browser));
+        window.Show();
+        WaitUntil("the shelf to fill", delegate { return browser.Titles.Count > 0; });
+        browser.Selected = browser.Titles[0];
+        browser.ShowMenuCommand.Execute(null);
+        WaitUntil("the title's dialog to stand open", delegate { return browser.MenuVisible; });
+        Pump();
+
+        Border plate = window.GetVisualDescendants().OfType<Border>().First(b => b.Name == "menuPlate");
+        Border panel = window.GetVisualDescendants().OfType<Border>().First(b => b.Name == "menuDialog");
+        ItemsControl answers = window.GetVisualDescendants().OfType<ItemsControl>()
+            .First(c => c.Name == "menuActionList");
+        Button back = window.GetVisualDescendants().OfType<Button>().First(b => b.Name == "menuBackButton");
+
+        // The dialog opens by growing, and a ruler held against a thing mid-grow measures a smaller thing.  The
+        // grow is a plain scale on top of whatever the shell's own fit already scales the screen by, so every
+        // distance here is the skin's point times one factor - the dialog's matrix, waited out until it settles
+        // and read off the dialog itself instead of assumed.
+        double settledOn = -1.0;
+        WaitUntil("the dialog to finish growing", delegate
+        {
+          Matrix? grow = plate.TransformToVisual(window);
+          if (!grow.HasValue)
+            return false;
+          bool settled = Math.Abs(grow.Value.M11 - settledOn) < 0.000001;
+          settledOn = grow.Value.M11;
+          return settled;
+        });
+        Pump();
+        double scale = plate.TransformToVisual(window)!.Value.M11;
+        Assert.That(scale, Is.GreaterThan(0.0), "the dialog stands on the screen through some scale");
+
+        Point TopLeft(Visual visual)
+        {
+          return visual.TranslatePoint(new Point(0, 0), window) ?? new Point(-1, -1);
+        }
+
+        // The sheet is the skin's own shade and corner, brighter than the panel it lies in - which is what makes
+        // the answers read as one body, and the panel as the frame around the body.
+        ISolidColorBrush? sheet = plate.Background as ISolidColorBrush;
+        ISolidColorBrush? ground = panel.Background as ISolidColorBrush;
+        Assert.That(sheet, Is.Not.Null.And.Not.SameAs(ground), "the sheet wears its own one colour");
+        Assert.That(sheet!.Color.A, Is.EqualTo((byte) 0xFF), "and nothing of the blur shows through it");
+        Assert.That(sheet.Color.R, Is.GreaterThan(ground!.Color.R),
+            "the sheet is a shade brighter than the panel, not a hole cut into it");
+
+        CornerRadius sheetCorner = (CornerRadius) worn.Resources["DialogPlateCornerRadius"]!;
+        CornerRadius frameCorner = (CornerRadius) worn.Resources["DialogFrameCornerRadius"]!;
+        Assert.That(sheetCorner.TopLeft, Is.GreaterThan(0.0), "the palette says how round a dialog sheet is");
+        Assert.That(frameCorner.TopLeft, Is.GreaterThan(sheetCorner.TopLeft),
+            "and its corner is tighter than the panel's, so the nested roundings do not collide");
+        Assert.That(plate.CornerRadius, Is.EqualTo(sheetCorner),
+            "and the plate in the dialog wears that rounding");
+
+        // The answers fill the sheet from inner edge to inner edge, with the sheet's own air above and below.
+        Assert.That(answers.Items.Count, Is.GreaterThanOrEqualTo(2), "a title asks more than one question");
+        List<Button> rows = new List<Button>();
+        for (int i = 0; i < answers.Items.Count; i++)
+        {
+          Control? holder = answers.ContainerFromIndex(i) as Control;
+          Assert.That(holder, Is.Not.Null, "answer " + i + " is laid out");
+          Button? row = holder!.GetVisualDescendants().OfType<Button>().FirstOrDefault();
+          Assert.That(row, Is.Not.Null, "answer " + i + " wears its button");
+          rows.Add(row!);
+        }
+
+        double inner = plate.Bounds.Width - plate.Padding.Left - plate.Padding.Right;
+        Assert.That(inner, Is.GreaterThan(0), "the sheet has an inside to fill");
+        Point sheetTopLeft = TopLeft(plate);
+        foreach (Button row in rows)
+        {
+          Assert.That(row.Bounds.Width, Is.EqualTo(inner).Within(1.0),
+              "the answer '" + row.Content + "' stretches across the whole sheet instead of only its word");
+          Assert.That(TopLeft(row).X, Is.EqualTo(sheetTopLeft.X + plate.Padding.Left * scale).Within(1.0),
+              "and starts at the sheet's inner edge");
+        }
+
+        Assert.That(plate.Padding.Top, Is.GreaterThanOrEqualTo(10.0),
+            "the sheet keeps air above the first answer, so the plate's corner reads as a corner");
+        Assert.That(plate.Padding.Bottom, Is.GreaterThanOrEqualTo(10.0), "and below the last one");
+
+        for (int i = 0; i + 1 < rows.Count; i++)
+        {
+          double foot = TopLeft(rows[i]).Y + rows[i].Bounds.Height * scale;
+          Assert.That(TopLeft(rows[i + 1]).Y - foot, Is.EqualTo(10.0 * scale).Within(1.0),
+              "answers stand " + (i + 1) + " steps apart on the sheet");
+        }
+
+        // The way out of the dialog stands under the sheet, in its own row, and keeps its word's width.
+        double sheetBottom = sheetTopLeft.Y + plate.Bounds.Height * scale;
+        Assert.That(TopLeft(back).Y, Is.GreaterThanOrEqualTo(sheetBottom - 1.0),
+            "the way back is not one of the answers - it stands under the sheet");
+        Assert.That(back.Bounds.Width, Is.LessThan(rows[0].Bounds.Width),
+            "and it keeps its word's width instead of stretching across the dialog like an answer");
+      }
+      finally
+      {
+        window?.Close();
+        SkinEngine.Clear(app);
+        SkinEngine.SkinsFolder = previousFolder;
+        FrontendTheme.Apply(app, previousTheme, out string? _);
+      }
+    }
+
+    /// <summary>
     /// A shelf of ROWS is dressed the way the reference dressed a row, and not with the platform's selection
     /// rectangle.  <c>ButtonListViewControlStyle</c> laid the medium of the skin's colour over the whole row with
     /// a bar of the light of it along the row's left edge, and <c>MediaStyles.xaml</c> brought the row's labels up

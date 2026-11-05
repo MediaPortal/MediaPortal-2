@@ -44,6 +44,10 @@
        Deliberately apart from DialogPanelBrush, the tinted slab the reference hung its dialog master and its
        volume bar on, which still follows the viewer's accent and transparency settings. -->
   <SolidColorBrush x:Key="DialogGroundBrush">#FF1B1B1B</SolidColorBrush>
+  <!-- The ground of the contents plate a dialog lays its answers or its question on: a sheet a shade lighter
+       than the panel, its own corner (DialogPlateCornerRadius) inside the frame's, so the dialog reads as
+       ground over sheet rather than as letters pasted on one flat field. -->
+  <SolidColorBrush x:Key="DialogPlateBrush">#FF262626</SolidColorBrush>
   <SolidColorBrush x:Key="VideoBrush">#FF000000</SolidColorBrush>
 
   <!-- The fade a title stands on: black at ninety out of a hundred over the picture's own bottom edge, thinning
