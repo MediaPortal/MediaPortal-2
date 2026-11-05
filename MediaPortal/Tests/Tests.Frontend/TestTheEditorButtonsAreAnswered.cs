@@ -443,7 +443,11 @@ namespace Tests.Frontend
       // screen is on top is the shell's business, the push above is the plus's whole answer.
       workflow.Pop();
 
-      Button ok = FaceOf(view, "nereus-primary");
+      // The keeping answer stands in the frame now, under the contents plate - the row is the frame's shape,
+      // the word and the press the screen's - so it is looked for by name in the visual tree rather than as a
+      // button the view wrote into its own body.
+      Button ok = view.GetVisualDescendants().OfType<Button>()
+          .First(b => b.Name == "dialogAnswerOk");
       Click(window, PlaceOf(ok, window));
 
       Assert.That(workflow.Current!.StateId, Is.EqualTo("menuedit"), "and OK steps back off the home content");

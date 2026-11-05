@@ -42,24 +42,15 @@
               Margin="0,0,0,6"
               IsVisible="False" />
 
+      <!-- The write's own word, small print under the rows. The keeping answer itself is no longer here: the
+           frame carries it under the contents plate now, and the picker's hint words are gone - the viewer drew
+           the dialog without them. -->
       <TextBlock DockPanel.Dock="Bottom"
-                 Classes="nereus-editor-hint"
-                 Name="hintLine"
+                 Name="statusLine"
+                 Classes="nereus-editor-status"
+                 Text="{Binding Status}"
                  TextWrapping="Wrap"
                  Margin="0,8,0,0" />
-
-      <StackPanel DockPanel.Dock="Bottom" Margin="0,10,0,0">
-        <Button Name="okButton"
-                Classes="nereus-primary"
-                Content="OK"
-                Click="OnOkPress"
-                HorizontalAlignment="Stretch" />
-        <TextBlock Name="statusLine"
-                   Classes="nereus-editor-status"
-                   Text="{Binding Status}"
-                   TextWrapping="Wrap"
-                   Margin="0,6,0,0" />
-      </StackPanel>
 
       <Grid>
         <!--

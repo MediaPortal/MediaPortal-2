@@ -15,7 +15,8 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:vm="clr-namespace:MediaPortal.Frontend.ViewModels"
                     xmlns:dis="using:MediaPortal.Frontend.Discovery"
-                    xmlns:views="clr-namespace:MediaPortal.Frontend.Views">
+                    xmlns:views="clr-namespace:MediaPortal.Frontend.Views"
+                    xmlns:wf="clr-namespace:MediaPortal.Frontend.Workflow">
 
   <!--
     The home menu, as Nereus wore it: the entry's own picture from this skin's images/HomeMenu - which the
@@ -1128,24 +1129,63 @@
     once, and dimming alone does not settle that - a dimmed cover is still a readable cover. See
     ShellWindow.BlurScreenBehind.
 
-    What the frames glow with is written as a BoxShadow on each of them - spelled out twice, because a shadow
+    What the frames glow with is written as a BoxShadow on each of them - spelled out at every frame rather than
+    once, because a shadow
     keeps its colour inside its own value and no DynamicResource reaches in there: white falling off outward from
     the panel's rounded edge, nothing of it spread, since spread pads a shadow out to the panel's shape before it
-    falls off and that is a mat rather than a glow. Both frames wear the same numbers, so a dialog is recognised
-    by its halo whether or not it brings a heading. Nothing here clips, which a shadow needs: it is drawn outside
-    the bounds of the thing that carries it.
+    falls off and that is a mat rather than a glow. The white stands at 35 % (#59). Written at 0 % it painted
+    nothing, which left the panel a sticker on the darkened home - exactly what the paragraph below the headed
+    frame promises it is not - and a fall fainter than this over a ground that is blurred AND washed dark reads as
+    nothing either, so the number is the least one that lights the ground. Both frames wear the same numbers, so a
+    dialog is recognised by its halo whether or not it brings a heading. The context menu a shelf draws for
+    itself (MediaBrowserView's own scrim) wears the same numbers, so the three spellings belong together.
+    Nothing here clips, which a shadow needs:
+    it is drawn outside the bounds of the thing that carries it.
   -->
-  <DataTemplate x:Key="DialogFrameTemplate" x:DataType="x:Object">
+  <DataTemplate x:Key="DialogFrameTemplate" x:DataType="x:Object" x:CompileBindings="False">
     <Border Background="{DynamicResource DialogGroundBrush}"
             BorderBrush="{DynamicResource DialogBorderBrush}"
             CornerRadius="{DynamicResource DialogFrameCornerRadius}"
             BorderThickness="2"
-            BoxShadow="0 0 120 0 #00FFFFFF, 0 0 26 0 #FFFFFFFF"
-            Padding="30,24"
+            BoxShadow="0 0 120 0 #59FFFFFF, 0 0 26 0 #FFFFFFFF"
+            Padding="10"
             MaxWidth="760"
             HorizontalAlignment="Center"
             VerticalAlignment="Center">
-      <ContentPresenter Content="{Binding}"/>
+      <DockPanel>
+        <!-- The answer row of the headed frame's paragraph, for the frames that bring no heading.
+             The bottom margin matches the plate's measure above it, so the answer keeps the same
+             air to the frame's edge as the title dialog's rows do (15 + the row's own 5). -->
+        <Border DockPanel.Dock="Bottom"
+                Padding="5"
+                Margin="0,0,0,5"
+                IsVisible="{Binding $parent[ContentControl].DataContext, Converter={x:Static wf:DialogAnswersRowIsUp.Instance}}">
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Name="dialogAnswerOk"
+                    Classes="nereus-primary"
+                    Content="{Binding $parent[ContentControl].DataContext.DialogOkWord}"
+                    Command="{Binding $parent[ContentControl].DataContext.DialogOkCommand}"
+                    IsVisible="{Binding $parent[ContentControl].DataContext.DialogOkWord, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+            <Button Name="dialogAnswerCancel"
+                    Classes="nereus-primary"
+                    Margin="10,0,0,0"
+                    Content="{Binding $parent[ContentControl].DataContext.DialogCancelWord}"
+                    Command="{Binding $parent[ContentControl].DataContext.DialogCancelCommand}"
+                    IsVisible="{Binding $parent[ContentControl].DataContext.DialogCancelWord, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+          </StackPanel>
+        </Border>
+        <!-- The contents plate: every dialog's content sits on this sheet of DialogPlateBrush, the same sheet the
+             shelf's own title dialog (MediaBrowserView's scrim) spreads under its answers - ten to the frame, five
+             of the sheet's own margin, fifteen of air above the content and ten below, exactly as the viewer drew
+             it. A dialog's body is then the same question dressed everywhere: a darker panel holding a lighter
+             sheet, never words pasted onto the panel. -->
+        <Border Background="{DynamicResource DialogPlateBrush}"
+                CornerRadius="{DynamicResource DialogPlateCornerRadius}"
+                Margin="5"
+                Padding="10,15">
+          <ContentPresenter Content="{Binding}"/>
+        </Border>
+      </DockPanel>
     </Border>
   </DataTemplate>
 
@@ -1172,7 +1212,7 @@
     <Panel Margin="50" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="900">
       <Border Background="{DynamicResource DialogGroundBrush}"
               CornerRadius="{DynamicResource DialogFrameCornerRadius}"
-              BoxShadow="0 0 120 0 #00FFFFFF, 0 0 26 0 #FFFFFFFF">
+              BoxShadow="0 0 120 0 #59FFFFFF, 0 0 26 0 #FFFFFFFF">
         <DockPanel>
           <!-- The head is the same grey as the rest of the panel and carries no line under it: one surface with
                a word at its top, not a band laid over a body. The reference drew its band in the medium accent
@@ -1184,9 +1224,44 @@
                      FontWeight="Bold"
                      Foreground="{DynamicResource TextBrush}"
                      Margin="10,5"
+                     Padding="0,5"
                      HorizontalAlignment="Center"
                      VerticalAlignment="Center"/>
-          <ContentPresenter Content="{Binding}" Margin="10"/>
+          <!-- The answer row, under the sheet and never on it: an answer is not a piece of the content, and the
+               reference drew its keeping and throwing-away pair under the master (GenericDialog's button row,
+               master_configuration_dialog_wb's Ok | Cancel at the bottom) for exactly that reason. The words and
+               what they do come from the dialog's own data through Workflow.IDialogAnswers; data that speaks no
+               word gets no row at all - most dialogs of this front end are still answered by Back alone. The
+               words keep their width and the row centers under the content, the way every plain dialog's answer
+               is centered ("GenericDialog.xaml:49 HorizontalAlignment=Center"), ten apart as the reference's
+               button sheets are ("master_configuration_dialog_wb.xaml:31-56"). -->
+          <Border DockPanel.Dock="Bottom"
+                  Padding="5"
+                  Margin="0,0,0,15"
+                  IsVisible="{Binding $parent[ContentControl].DataContext, Converter={x:Static wf:DialogAnswersRowIsUp.Instance}}">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+              <Button Name="dialogAnswerOk"
+                      Classes="nereus-primary"
+                      Content="{Binding $parent[ContentControl].DataContext.DialogOkWord}"
+                      Command="{Binding $parent[ContentControl].DataContext.DialogOkCommand}"
+                      IsVisible="{Binding $parent[ContentControl].DataContext.DialogOkWord, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+              <Button Name="dialogAnswerCancel"
+                      Classes="nereus-primary"
+                      Margin="10,0,0,0"
+                      Content="{Binding $parent[ContentControl].DataContext.DialogCancelWord}"
+                      Command="{Binding $parent[ContentControl].DataContext.DialogCancelCommand}"
+                      IsVisible="{Binding $parent[ContentControl].DataContext.DialogCancelWord, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+            </StackPanel>
+          </Border>
+          <!-- The same contents plate the plain frame wears and the shelf's title dialog spreads: the body's
+               words and buttons stand on the lighter sheet, not on the panel. The fifteen to the panel's edge
+               are the body's ten plus the sheet's own five, as in the title dialog. -->
+          <Border Margin="15"
+                  Background="{DynamicResource DialogPlateBrush}"
+                  CornerRadius="{DynamicResource DialogPlateCornerRadius}"
+                  Padding="10,15">
+            <ContentPresenter Content="{Binding}"/>
+          </Border>
         </DockPanel>
       </Border>
     </Panel>

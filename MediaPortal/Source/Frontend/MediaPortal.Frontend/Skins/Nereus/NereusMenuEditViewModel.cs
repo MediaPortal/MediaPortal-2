@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using MediaPortal.Frontend.Settings;
 using MediaPortal.Frontend.ViewModels;
+using MediaPortal.Frontend.Workflow;
 
 namespace MediaPortal.Frontend.Skins.Nereus
 {
@@ -26,7 +29,7 @@ namespace MediaPortal.Frontend.Skins.Nereus
   /// offer are the home screen's business.
   /// </para>
   /// </remarks>
-  public sealed partial class NereusMenuEditViewModel : ObservableObject
+  public sealed partial class NereusMenuEditViewModel : ObservableObject, IDialogAnswers
   {
     /// <summary>
     /// The skin whose file the editor writes. The editor cannot be reached while another face is worn, and the
@@ -65,6 +68,7 @@ namespace MediaPortal.Frontend.Skins.Nereus
           startActionId,
           settings?.HomeMenuActionMediaLists);
       Status = problem ?? "";
+      DialogOkCommand = new RelayCommand(delegate { ConfirmAndLeave?.Invoke(); });
     }
 
     /// <summary>The tiles, their order, their lists, and everything that can be done to them.</summary>
@@ -86,6 +90,34 @@ namespace MediaPortal.Frontend.Skins.Nereus
     /// </summary>
     [ObservableProperty]
     private string _heading = "";
+
+    /// <summary>
+    /// The word the dialog frame shows on its answer row under the contents plate. The frame asks the screen's
+    /// data for this word, and a screen that answers with none - here the two picking stops, where one press on
+    /// a line already was the answer - writes the empty string and the row leaves the dialog.
+    /// </summary>
+    [ObservableProperty]
+    private string _dialogOkWord = "OK";
+
+    /// <summary>
+    /// What pressing that word does. The frame only presses; the screen that was opened wires this up, because
+    /// only the screen knows which stop it is showing and which workflow it has to step back off.
+    /// </summary>
+    public ICommand? DialogOkCommand { get; }
+
+    /// <summary>
+    /// The screen's side of that press, handed over by the screen itself.
+    /// </summary>
+    public Action? ConfirmAndLeave { get; set; }
+
+    /// <summary>
+    /// The editor has no throwing-away button: Back already throws the menu away - nothing is on disk until the
+    /// keeping word is pressed - and the reference's editor spelled no Cancel either.
+    /// </summary>
+    public string DialogCancelWord => "";
+
+    /// <inheritdoc/>
+    public ICommand? DialogCancelCommand => null;
 
     /// <summary>
     /// Closes the editor with the answer kept: both settings go out in one write, the way the reference wrote

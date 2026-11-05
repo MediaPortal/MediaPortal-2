@@ -73,6 +73,9 @@ namespace MediaPortal.Frontend.Views
       DataContext = editor;
       InitializeComponent();
 
+      // The frame's answer row under the contents plate only presses; what a press means - keep the choice or
+      // keep the menu, then step off this stop - is what the screen knows.
+      editor.ConfirmAndLeave = ConfirmAndLeave;
       Arrange();
       editor.Model.PropertyChanged += (_, _) => Arrange();
       editor.Model.FocusRequested += OnFocusWanted;
@@ -141,9 +144,14 @@ namespace MediaPortal.Frontend.Views
             editList.SelectedIndex = 0;
           editList.Focus();
         }
-        else if (okButton.IsVisible)
+        else
         {
-          okButton.Focus();
+          // Nothing to stand on: the keyboard goes to the frame's answer instead, which stands under the plate
+          // of the rows - the same fallback the OK button inside the body used to be, now reached through the
+          // frame that draws it.
+          Button? answer = this.GetVisualDescendants().OfType<Button>()
+              .FirstOrDefault(b => b.Name == "dialogAnswerOk" && b.IsEffectivelyVisible);
+          answer?.Focus();
         }
       }
 
@@ -175,16 +183,15 @@ namespace MediaPortal.Frontend.Views
       subText.IsVisible = subText.Text.Length > 0;
 
       plusButton.IsVisible = !picking && (lists ? model.HasOtherMediaListRows : model.HasOtherRows);
-      okButton.IsVisible = !picking;
+      // The frame's answer row under the plate: the two picking stops answer with one press on a line, exactly
+      // as the reference's pickers did, so they speak no keeping word and the row leaves the dialog.
+      _editor.DialogOkWord = picking ? "" : "OK";
 
       if (picking)
       {
         editList.IsVisible = false;
         pickList.IsVisible = true;
         pickList.ItemsSource = lists ? model.OtherMediaListRows : model.OtherRows;
-        hintLine.Text = lists
-            ? "A press puts the list at the end of the tile's lists · Back returns to the tile"
-            : "A press puts the tile at the end of the menu · Back returns to the menu";
         return;
       }
 
@@ -198,10 +205,6 @@ namespace MediaPortal.Frontend.Views
       else
         editList.Classes.Remove("nereus-editor-lists");
       editList.ItemsSource = lists ? model.MediaListRows : model.Rows;
-      hintLine.Text = lists
-          ? "The arrows order the lists, the bin takes one out · OK keeps the choice, Back throws it away"
-          : "The arrows move a tile, the bin takes it out of the menu, the gear says which lists it may show · "
-            + "OK keeps the menu, Back leaves it as it was";
     }
 
     private void OnAddPress(object? sender, RoutedEventArgs args)
@@ -213,7 +216,7 @@ namespace MediaPortal.Frontend.Views
       _workflow.Push(_frames(lists ? "menulistadd" : "menuadd"));
     }
 
-    private void OnOkPress(object? sender, RoutedEventArgs args)
+    private void ConfirmAndLeave()
     {
       if (_editor == null)
         return;
