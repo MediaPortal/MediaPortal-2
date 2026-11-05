@@ -117,7 +117,7 @@ namespace MediaPortal.Frontend.ViewModels
       // A feed without an address is half an answer, and half an answer saved would stand on the news
       // screen as a feed that refuses - so the button waits for the address. The name may stay out: the
       // address itself becomes the name on the screen then, like everywhere else the feeds are read.
-      get { return _newUrl.Trim().Length > 0; }
+      get { return NewUrl.Trim().Length > 0; }
     }
 
     private bool CanRemove
