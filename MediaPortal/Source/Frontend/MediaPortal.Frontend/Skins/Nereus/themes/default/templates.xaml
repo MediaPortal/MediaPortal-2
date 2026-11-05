@@ -541,48 +541,42 @@
     A title's row in the shelf: the name, and what the library knows about it - length, year, where you left
     off - in the right column, greyed the way Nereus greys everything that is not the headline.
 
-    The row is dressed the way the reference dressed it, and by its own parts rather than by the list's:
-    ButtonListViewControlStyle (Buttons.xaml 392-421) laid the medium of the skin's colour over the whole row, a
-    bar of the light of it eight points wide along the left edge, a shadow of a tenth of a point hanging below
-    and a whisper of white at the right end, while MediaStyles.xaml 5049 brought the row's labels up to white
-    (MediaItemFocussedColor).  What the row did NOT get there was a square of the accent behind its names or a
-    frame of the toolkit's own around it, which is what the generic selected-row panel draws; that panel is
-    turned off for this list in this skin's styles, and the ground below is what a viewer sees instead.  Who
-    shows it is the container's business, so it is spelled on ListBoxItem in the styles and not here.
+    The reference dressed a row in the skin's turquoise: ButtonListViewControlStyle (Buttons.xaml 392-421)
+    laid the medium of the skin's colour over the whole row with a bar of the light of it eight points wide
+    along the left edge, and MediaStyles.xaml 5049 brought the labels up to white (MediaItemFocussedColor).
+    This face stopped wearing it - the viewer named it: "remove the turquoise parts" - and a coloured box
+    under the one row a person stands on says rest where the row is standing. The row now takes the same
+    white sheet every selected row takes (styles.xaml, the ContentPresenter rules) and speaks on it in the
+    screen's own black. The ground is gone from the row's parts, not merely hidden: a dressed-up panel
+    nobody may ever show again is a row that still claims to own a dress.
   -->
   <DataTemplate x:Key="TitleRowTemplate" x:DataType="vm:TitleViewModel">
     <Panel>
-      <Panel Classes="nereus-row-ground" IsHitTestVisible="False">
-        <Border Background="{DynamicResource PanelRaisedBrush}"/>
-        <Border Width="8" HorizontalAlignment="Left" Background="{DynamicResource AccentBrush}"/>
-        <Border Height="10" VerticalAlignment="Bottom" Margin="0,0,0,-10">
-          <Border.Background>
-            <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-              <GradientStop Color="#66000000" Offset="0"/>
-              <GradientStop Color="#00000000" Offset="1"/>
-            </LinearGradientBrush>
-          </Border.Background>
-        </Border>
-        <Border Width="14" HorizontalAlignment="Right">
-          <Border.Background>
-            <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
-              <GradientStop Color="#80000000" Offset="0"/>
-              <GradientStop Color="#00000000" Offset="0.02"/>
-              <GradientStop Color="#00000000" Offset="0.5"/>
-              <GradientStop Color="#26FFFFFF" Offset="1"/>
-            </LinearGradientBrush>
-          </Border.Background>
-        </Border>
-      </Panel>
       <Grid ColumnDefinitions="Auto,5*,1.4*" ColumnSpacing="20" MinWidth="700" Margin="30,4">
         <!--
-          Nothing here names its own colour: the reference's row labels took the colour of the row they stand in
-          and were brought up to white by the trigger on the row's button, which only works while nothing under
-          them fixes a colour first.  The container carries the resting colour (TextBrush) and the white
-          (MediaItemFocussedColor), and the two dim numbers stay dim by their opacity rather than by a grey of
-          their own.
+          Nothing here names its own colour: the row labels take the colour of the row they stand in, which
+          is the container's to carry - the screen's light at rest, and the screen's black on the white sheet
+          of the row a viewer stands on - and the two dim numbers stay dim by their opacity rather than by a
+          grey of their own.
         -->
-        <TextBlock Text="{Binding SeenMark}" MinWidth="34" Opacity="0.55"/>
+        <!--
+          The mark in front of a watched title is the skin's own eye, the one the tiles wear in their corner -
+          the viewer asked the row to say "watched" and "partly watched" in the same voice the posters do, not
+          in a text tick. Partly watched is the same eye fading in from the left, and only one of the two ever
+          stands on a row: a finished title is never partly one.
+        -->
+        <Panel MinWidth="34">
+          <Path Width="22" Height="22" VerticalAlignment="Center" Stretch="Uniform" Opacity="0.75"
+                Data="{Binding Name, Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                               ConverterParameter='watched'}"
+                Classes="nereus-watched nereus-row-watched"
+                IsVisible="{Binding IsWatched}"/>
+          <Path Width="22" Height="22" VerticalAlignment="Center" Stretch="Uniform" Opacity="0.75"
+                Data="{Binding Name, Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                               ConverterParameter='watched'}"
+                Classes="nereus-watched partly nereus-row-watched"
+                IsVisible="{Binding IsPartlyWatched}"/>
+        </Panel>
         <TextBlock Grid.Column="1" Text="{Binding Line}" TextTrimming="CharacterEllipsis"/>
         <TextBlock Grid.Column="2" Text="{Binding Detail}" HorizontalAlignment="Right" Opacity="0.65"
                    TextTrimming="CharacterEllipsis"/>

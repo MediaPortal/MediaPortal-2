@@ -521,9 +521,21 @@ namespace MediaPortal.Frontend.ViewModels
       get
       {
         string where = Position;
-        string what = Title.Year.HasValue ? Name + " (" + Title.Year.Value + ")" : Name;
+        string what = Title.Year.HasValue && !SaysYearAlready(Name, Title.Year.Value)
+            ? Name + " (" + Title.Year.Value + ")"
+            : Name;
         return string.IsNullOrEmpty(where) ? what : where + " " + what;
       }
+    }
+
+    /// <summary>
+    /// Whether the name already carries the year on its own end - <c>"Alien: Earth (2005) (2005)"</c> is the
+    /// importers' doing (the tagger files a series under the name with the year ON it, and the year column
+    /// agrees), and writing the year a second time says the same fact twice in one breath.
+    /// </summary>
+    private static bool SaysYearAlready(string name, int year)
+    {
+      return name.EndsWith(" (" + year.ToString(CultureInfo.InvariantCulture) + ")", StringComparison.Ordinal);
     }
 
     /// <summary>

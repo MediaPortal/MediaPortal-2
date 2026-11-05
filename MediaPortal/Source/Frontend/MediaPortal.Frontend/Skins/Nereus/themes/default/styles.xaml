@@ -251,53 +251,56 @@
 
 
   <!--
-    A shelf of ROWS is dressed the way the reference dressed a row: ButtonListViewControlStyle laid the medium
-    of the skin's colour over the whole row, a bar of the light of it eight points wide along the row's left
-    edge, a shadow hanging a tenth of a point below it and a whisper of white at its right end, and the row's
-    own labels came up to white (MediaItemFocussedColor).  Nothing of the platform's is left on top of that:
-    the selected row's rectangle, the focus rectangle and the list's own ground are all switched off here,
-    because a square of the accent behind a row of names - which is what the generic rule draws - is neither
-    the reference's row nor readable, and a frame of the toolkit's own stands around a row the skin already
-    drew a ground for.  The ground itself is part of the row's template and only ever shows through these
-    selectors.
+    A shelf of ROWS wears the same law every other list wears: the screen's white sheet under the row a
+    viewer stands on, and the row's words in the screen's own black.  The reference had dressed this row in
+    the skin's turquoise instead (ButtonListViewControlStyle laid the medium of the skin's colour over the
+    whole row with a bar of its light eight points wide along the left edge), and an earlier shape of this
+    face wore that dress; the viewer named it and it is gone - the ground left the row's parts altogether.
+    What stays switched off here is only what never belonged: the selected row's rectangle of the accent,
+    the focus rectangle and the list's own ground, because a square of the platform behind a row that is
+    already wearing its sheet is a box inside a box, and a frame of the toolkit's own stands around a row
+    the screen already dressed.
   -->
   <Style Selector="ListBox.nereus-shelf-rows">
     <Setter Property="Background" Value="Transparent"/>
     <Setter Property="BorderThickness" Value="0"/>
     <Setter Property="FocusAdorner" Value="{x:Null}"/>
   </Style>
-  <Style Selector="ListBox.nereus-shelf-rows ListBoxItem:pointerover">
-    <Setter Property="Background" Value="Transparent"/>
-    <Setter Property="FocusAdorner" Value="{x:Null}"/>
-  </Style>
   <Style Selector="ListBox.nereus-shelf-rows ListBoxItem:selected">
     <Setter Property="Background" Value="Transparent"/>
     <Setter Property="FocusAdorner" Value="{x:Null}"/>
-    <Setter Property="Foreground" Value="White"/>
   </Style>
-  <!--
-    At rest a row wears nothing: the ground waits for the viewer to stand on the row, which is when the
-    reference brought ButtonListViewControlStyle into sight.  The rule is here rather than IsVisible="False"
-    on the row's own markup on purpose - a value written into the control is the last word and no trigger
-    could take the ground back up.
-  -->
-  <Style Selector="ListBox.nereus-shelf-rows Panel.nereus-row-ground">
-    <Setter Property="IsVisible" Value="False"/>
+  <Style Selector="ListBox.nereus-shelf-rows ListBoxItem:pointerover">
+    <Setter Property="FocusAdorner" Value="{x:Null}"/>
   </Style>
-  <Style Selector="ListBox.nereus-shelf-rows ListBoxItem:selected Panel.nereus-row-ground,
-                  ListBox.nereus-shelf-rows ListBoxItem:focus Panel.nereus-row-ground">
-    <Setter Property="IsVisible" Value="True"/>
+  <!-- The keyboard's row and the mouse's row are one effect (the viewer's law), so the caret's row takes
+       the white sheet too - the generic rules spell the sheet for :selected, and a walked caret has the
+       focus before it has a selection. The words burn the screen's own black on the sheet, chosen row and
+       stood-on row alike, and they stand BOLD on it (the viewer's law: the row you are on says itself
+       louder); out of the sheet they keep the screen's light and their resting weight. Colour and weight
+       are spelled on the ContentPresenter as well as on the row, because the row's own voice demonstrably
+       does not reach through its presenter down to the words - the sheet taught that the hard way. -->
+  <Style Selector="ListBox.nereus-shelf-rows ListBoxItem:focus /template/ ContentPresenter#PART_ContentPresenter">
+    <!-- The sheet is the screen's own white come down to about half its strength (alpha 0x88, as the
+         viewer dialled it against the ground behind the shelf), so that ground reads faintly through.
+         Spelled literally and inside .nereus-shelf-rows only - every other list (settings, editors)
+         keeps its full sheet. -->
+    <Setter Property="Background" Value="#88FFFFFF"/>
+    <Setter Property="Foreground" Value="{DynamicResource ScreenBackgroundBrush}"/>
+    <Setter Property="FontWeight" Value="Bold"/>
   </Style>
-  <Style Selector="Window:not(.pointer-resting) ListBox.nereus-shelf-rows ListBoxItem:pointerover Panel.nereus-row-ground">
-    <Setter Property="IsVisible" Value="True"/>
+  <Style Selector="ListBox.nereus-shelf-rows ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Foreground" Value="{DynamicResource ScreenBackgroundBrush}"/>
+    <Setter Property="FontWeight" Value="Bold"/>
   </Style>
-  <Style Selector="ListBox.nereus-shelf-rows Panel.nereus-row-ground">
-    <Setter Property="Transitions">
-      <Transitions>
-        <DoubleTransition Property="Opacity" Duration="0:0:0.15" Easing="CubicEaseOut"/>
-      </Transitions>
-    </Setter>
+  <Style Selector="ListBox.nereus-shelf-rows ListBoxItem:selected,
+                  ListBox.nereus-shelf-rows ListBoxItem:focus">
+    <Setter Property="Foreground" Value="{DynamicResource ScreenBackgroundBrush}"/>
+    <Setter Property="FontWeight" Value="Bold"/>
   </Style>
+  <!-- The watched eye on the sheet has its own block at the foot of this file, behind the resting eye's
+       rule: Avalonia asks the LAST match, not the most specific one (measured), so a state rule that wants
+       to overrule the resting colour has to stand behind it. -->
   <Style Selector="ListBox.nereus-home-menu ListBoxItem Grid#nereusSelectionBand">
     <!-- The reference's selection band grows out of the bottom edge of its tile: ItemBandGrid turns on with
          ScaleY 0 to 1 over 0.7 seconds on a BackEase of amplitude 0.6, and shrinks back over 0.35 seconds on
@@ -1485,6 +1488,28 @@
       <LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
         <GradientStop Offset="0.25" Color="#00FFFFFF"/>
         <GradientStop Offset="0.85" Color="#FFFFFFFF"/>
+      </LinearGradientBrush>
+    </Setter>
+  </Style>
+  <!-- The watched eye on the sheet of the LIST shelf (and only there - the rules hang under
+       ListBox.nereus-shelf-rows, so the eyes on the tiles keep their light): drawn in the screen's light
+       like the words at rest, it burns the screen's black on the white sheet - solid when finished,
+       fading in from the left when only begun, exactly the way the corner on a poster does
+       (ScreenBackgroundBrush is the screen's black, which is why the partly gradient may name it
+       literally).  This block stands behind the resting rule above on purpose, and the plain "row then
+       eye" descent is deliberate: Avalonia asks the LAST match rather than the most specific one, and a
+       /template/ crossing lands beside the eye's parts rather than among them - both measured, by probes
+       that painted the row's eyes and asked which selector reached them. -->
+  <Style Selector="ListBox.nereus-shelf-rows ListBoxItem:selected Path.nereus-row-watched,
+                  ListBox.nereus-shelf-rows ListBoxItem:focus Path.nereus-row-watched">
+    <Setter Property="Fill" Value="{DynamicResource ScreenBackgroundBrush}"/>
+  </Style>
+  <Style Selector="ListBox.nereus-shelf-rows ListBoxItem:selected Path.nereus-row-watched.partly,
+                  ListBox.nereus-shelf-rows ListBoxItem:focus Path.nereus-row-watched.partly">
+    <Setter Property="Fill">
+      <LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
+        <GradientStop Offset="0.25" Color="#00000000"/>
+        <GradientStop Offset="0.85" Color="#FF000000"/>
       </LinearGradientBrush>
     </Setter>
   </Style>

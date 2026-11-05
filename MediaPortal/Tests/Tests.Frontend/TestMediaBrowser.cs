@@ -28,6 +28,7 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Controls;
+using Avalonia.Controls.Presenters;
 using Avalonia.Headless.NUnit;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -2869,15 +2870,16 @@ namespace Tests.Frontend
     }
 
     /// <summary>
-    /// A shelf of ROWS is dressed the way the reference dressed a row, and not with the platform's selection
-    /// rectangle.  <c>ButtonListViewControlStyle</c> laid the medium of the skin's colour over the whole row with
-    /// a bar of the light of it along the row's left edge, and <c>MediaStyles.xaml</c> brought the row's labels up
-    /// to white while a viewer stood on them; the bright square of the accent behind a row of names - which is
-    /// what the generic list style paints - is neither of those two, and a frame of the toolkit's own round a row
-    /// that already has a ground is a box inside a box.
+    /// A shelf of ROWS wears the same law every other list wears: the screen's white sheet under the row a
+    /// viewer stands on and the row's words in the screen's own black.  The reference had dressed this row in
+    /// the skin's turquoise (<c>ButtonListViewControlStyle</c> laid the medium of the skin's colour over the
+    /// whole row with a bar of its light eight points wide along the left edge, and <c>MediaStyles.xaml</c>
+    /// brought the labels up to white); the viewer asked for the turquoise parts to go and the ground left
+    /// the row's parts altogether.  What stays forbidden is what never belonged anyway: a platform rectangle
+    /// or frame around a row that already wears its sheet.
     /// </summary>
     [AvaloniaTest]
-    public void AShelfOfRowsWearsTheReferencesRowGroundAndNoAccentBox()
+    public void AShelfOfRowsWearsTheWhiteSheetAndNoTurquoiseDress()
     {
       Application app = Application.Current!;
       string? previousFolder = SkinEngine.SkinsFolder;
@@ -2908,17 +2910,86 @@ namespace Tests.Frontend
         Assert.That(standing, Is.Not.Null, "the row a viewer stands on is laid out");
 
         Assert.That(standing.Background, Is.EqualTo(null).Or.EqualTo(Brushes.Transparent),
-            "the selected row carries no square of the accent behind its names");
+            "the row carries no square of the platform behind its names");
+        Assert.That(standing.GetVisualDescendants().OfType<Control>()
+                .Any(control => control.Classes.Contains("nereus-row-ground")),
+            Is.False, "the turquoise ground and its left bar are gone from the row's parts, not hidden");
+
+        ContentPresenter? sheet = standing.GetVisualDescendants().OfType<ContentPresenter>()
+            .FirstOrDefault(cp => cp.Name == "PART_ContentPresenter");
+        Assert.That(sheet, Is.Not.Null);
+        app.TryFindResource("TextBrush", out object? light);
+        ISolidColorBrush? lightBrush = light as ISolidColorBrush;
+        Assert.That(lightBrush, Is.Not.Null, "the palette owes the skin a TextBrush");
+        ISolidColorBrush? sheetBrush = sheet!.Background as ISolidColorBrush;
+        Assert.That(sheetBrush, Is.Not.Null);
+        Color sheetColor = sheetBrush!.Color;
+        Assert.That(sheetColor.R, Is.EqualTo(lightBrush!.Color.R),
+            "the sheet a row stands on is the screen's own light in colour...");
+        Assert.That(sheetColor.G, Is.EqualTo(lightBrush.Color.G));
+        Assert.That(sheetColor.B, Is.EqualTo(lightBrush.Color.B));
+        Assert.That(sheetColor.A, Is.GreaterThan((byte)0).And.LessThan((byte)255),
+            " ... but see-through, so a shade of the ground behind the shelf reads faintly through it "
+            + "(how faint is the viewer's dial - the law only binds it to be neither painted over nor gone)");
+
         Assert.That(standing.Foreground, Is.InstanceOf<ISolidColorBrush>(),
             "the row a viewer stands on speaks in one colour");
-        Assert.That(((ISolidColorBrush)standing.Foreground!).Color, Is.EqualTo(Colors.White),
-            "and its labels come up to white, which is the reference's MediaItemFocussedColor");
+        app.TryFindResource("ScreenBackgroundBrush", out object? ground);
+        ISolidColorBrush? groundBrush = ground as ISolidColorBrush;
+        Assert.That(groundBrush, Is.Not.Null, "the palette owes the skin a ScreenBackgroundBrush");
+        Assert.That(((ISolidColorBrush)standing.Foreground!).Color, Is.EqualTo(groundBrush!.Color),
+            "and its words burn the screen's own black on the sheet - not the reference's white");
 
-        Control? ground = standing.GetVisualDescendants().OfType<Control>()
-            .FirstOrDefault(control => control.Classes.Contains("nereus-row-ground"));
-        Assert.That(ground, Is.Not.Null, "the row is built with the reference's ground under it");
-        WaitUntil("the ground of the row a viewer stands on to show",
-            delegate { return ground!.IsEffectivelyVisible; });
+        // The row's colour is worth nothing if it never reaches the glyphs: what a viewer reads are the
+        // labels inside the row's parts, and they may only learn their colour by inheritance.  A sheet
+        // whose presenters do not pass the row's voice down leaves white words on a white sheet, which is
+        // the very bug the viewer named twice - so the law asks the labels themselves.
+        foreach (TextBlock label in standing.GetVisualDescendants().OfType<TextBlock>()
+                     .Where(t => !string.IsNullOrEmpty(t.Text)))
+        {
+          Assert.That(((label.Foreground as ISolidColorBrush)?.Color).GetValueOrDefault(),
+              Is.EqualTo(groundBrush!.Color),
+              "the word \"" + label.Text + "\" on the stood-on row is black on the sheet");
+          Assert.That(label.FontWeight, Is.EqualTo(Avalonia.Media.FontWeight.Bold),
+              "the word \"" + label.Text + "\" stands bold on the sheet");
+        }
+
+        // The keyboard's row without a pick: a walked caret has the focus before it has a selection, and
+        // the viewer's law says it wears the one effect the mouse wears - sheet and black words alike.
+        titles.SelectedIndex = -1;
+        ListBoxItem? walked = titles.ContainerFromIndex(5) as ListBoxItem;
+        Assert.That(walked, Is.Not.Null);
+        ((Control)walked!).Focus();
+        Pump();
+        ContentPresenter? walkedSheet = walked.GetVisualDescendants().OfType<ContentPresenter>()
+            .FirstOrDefault(cp => cp.Name == "PART_ContentPresenter");
+        Assert.That(((walkedSheet!.Background as ISolidColorBrush)?.Color).GetValueOrDefault(),
+            Is.EqualTo(sheetColor),
+            "the row the caret stands on wears the very same see-through sheet");
+        Assert.That(((walked.Foreground as ISolidColorBrush)?.Color).GetValueOrDefault(),
+            Is.EqualTo(groundBrush!.Color),
+            "and its words are black on it too - white on white is not an effect");
+        foreach (TextBlock label in walked.GetVisualDescendants().OfType<TextBlock>()
+                     .Where(t => !string.IsNullOrEmpty(t.Text)))
+        {
+          Assert.That(((label.Foreground as ISolidColorBrush)?.Color).GetValueOrDefault(),
+              Is.EqualTo(groundBrush!.Color),
+              "the word \"" + label.Text + "\" on the caret's row is black on the sheet");
+          Assert.That(label.FontWeight, Is.EqualTo(Avalonia.Media.FontWeight.Bold),
+              "the word \"" + label.Text + "\" stands bold on the caret's sheet too");
+        }
+
+        // The control that keeps the law honest: a row nobody stands on keeps the screen's light.  Were
+        // this one black too, the sheet would merely have traded who gets white on white.
+        ListBoxItem? resting = titles.GetVisualDescendants().OfType<ListBoxItem>()
+            .First(item => !item.IsSelected);
+        Assert.That(resting, Is.Not.Null);
+        Assert.That(resting.IsSelected, Is.False);
+        Assert.That(((resting!.Foreground as ISolidColorBrush)?.Color).GetValueOrDefault(),
+            Is.EqualTo(lightBrush!.Color),
+            "a row at rest still speaks the screen's light");
+        Assert.That(resting.FontWeight, Is.Not.EqualTo(Avalonia.Media.FontWeight.Bold),
+            "and it keeps its resting weight - only the stood-on row speaks bold");
       }
       finally
       {
@@ -2927,6 +2998,134 @@ namespace Tests.Frontend
         SkinEngine.SkinsFolder = previousFolder;
         FrontendTheme.Apply(app, previousTheme, out string? _);
       }
+    }
+
+    /// <summary>
+    /// The row of a shelf speaks "watched" with the skin's own eye - the one the posters wear in their
+    /// corner - and not with a tick of text: the viewer asked it by name ("statt des checkmark-symbol
+    /// das watched oder partly watched icon"). A finished row wears the full eye, a begun row the eye
+    /// fading in from its left, and a row nobody has opened wears neither; whichever eye stands there
+    /// wears the row class the sheet paints black on the white ground.
+    /// </summary>
+    [AvaloniaTest]
+    public void AWatchedRowWearsTheSkinsEyeAndNotATextTick()
+    {
+      Application app = Application.Current!;
+      string? previousFolder = SkinEngine.SkinsFolder;
+      string previousTheme = FrontendTheme.CurrentName(app);
+      SkinEngine.SkinsFolder = Path.Combine(MetadataPath("FrontendSource"), "Skins");
+      ShellWindow? window = null;
+      try
+      {
+        Assert.That(FrontendTheme.Apply(app, "nereus", out string? themeProblem), Is.EqualTo("nereus"),
+            themeProblem ?? "");
+        Assert.That(SkinEngine.Apply(app, "nereus", out string? skinProblem), Is.True, skinProblem ?? "");
+
+        Avalonia.Controls.Templates.IDataTemplate? template = SkinEngine.TryTileTemplate("TitleRowTemplate");
+        Assert.That(template, Is.Not.Null, "the worn skin owes the shelf a row to wear");
+
+        //  The skin hands a template whose DataContext arrives by DelayedBinding when the row is attached
+        //  under the list; a lone built row has no parent to take it from, so the test feeds it by hand -
+        //  exactly what the shelf does for the row when it hangs it up.
+        Control Row(MediaTitle title)
+        {
+          TitleViewModel model = new TitleViewModel(title, false);
+          Control row = (Control)template!.Build(model)!;
+          row.DataContext = model;
+          row.Measure(new Size(400, 60));
+          row.Arrange(new Rect(0, 0, 400, 60));
+          return row;
+        }
+        MediaTitle ATitle(string name, int? percentage, int? resume) =>
+            new MediaTitle(Guid.NewGuid(), name, null, 2025, null, null, false,
+                Resume: resume, Percentage: percentage);
+
+        Control finished = Row(ATitle("Finished", 100, null));
+        Control half = Row(ATitle("Half way", 40, 40));
+        Control untouched = Row(ATitle("Untouched", null, null));
+
+        Assert.That(StandingEyes(finished).Count(eye => !eye.Classes.Contains("partly")), Is.EqualTo(1),
+            "the finished row stands one whole eye, and no half one beside it");
+        Assert.That(StandingEyes(half).Count(eye => eye.Classes.Contains("partly")), Is.EqualTo(1),
+            "the begun row stands the eye that fades in from its left");
+        Assert.That(StandingEyes(untouched), Is.Empty, "a row nobody has opened wears no eye at all");
+
+        Assert.That(StandingEyes(finished).All(eye => eye.Classes.Contains("nereus-row-watched")),
+            Is.True, "and the eye on a row wears the class that turns it black on the white sheet");
+
+        //  The class means nothing until the sheet's rules are shown to REACH the eye through the row's
+        //  presenter - the words taught that a row's voice does not travel down on its own.  So the law
+        //  hangs the eyes on a living shelf and asks the stood-on, the walked-on and the resting row
+        //  what colour their eye actually wears.
+        TitleViewModel finishedModel = new TitleViewModel(ATitle("Shelf finished", 100, null), false);
+        TitleViewModel halfModel = new TitleViewModel(ATitle("Shelf half way", 40, 40), false);
+        TitleViewModel restModel = new TitleViewModel(ATitle("Shelf resting", 100, null), false);
+        ListBox shelf = new ListBox();
+        shelf.Classes.Add("nereus-shelf-rows");
+        shelf.ItemTemplate = template!;
+        shelf.ItemsSource = new object[] { finishedModel, halfModel, restModel };
+        window = new ShellWindow(shelf);
+        window.Show();
+        Pump();
+
+        app.TryFindResource("ScreenBackgroundBrush", out object? dark);
+        ISolidColorBrush? darkBrush = dark as ISolidColorBrush;
+        Assert.That(darkBrush, Is.Not.Null, "the palette owes the skin a ScreenBackgroundBrush");
+        app.TryFindResource("TextBrush", out object? light);
+        ISolidColorBrush? lightBrush = light as ISolidColorBrush;
+        Assert.That(lightBrush, Is.Not.Null, "and a TextBrush for the rows at rest");
+
+        shelf.SelectedIndex = 0;
+        Pump();
+        ListBoxItem chosen = (ListBoxItem)shelf.ContainerFromIndex(0)!;
+        Avalonia.Controls.Shapes.Path chosenEye = StandingEyes(chosen).Single();
+        Assert.That(((chosenEye.Fill as ISolidColorBrush)?.Color).GetValueOrDefault(),
+            Is.EqualTo(darkBrush!.Color),
+            "the eye on the chosen row burns the screen's black on the white sheet");
+
+        shelf.SelectedIndex = 1;
+        Pump();
+        ListBoxItem chosenHalf = (ListBoxItem)shelf.ContainerFromIndex(1)!;
+        Avalonia.Controls.Shapes.Path chosenHalfEye = StandingEyes(chosenHalf).Single();
+        Assert.That(chosenHalfEye.Fill, Is.InstanceOf<IGradientBrush>(),
+            "the half eye on the chosen row keeps its fade, ...");
+        Assert.That(((IGradientBrush)chosenHalfEye.Fill!).GradientStops
+                .Any(stop => stop.Color == Colors.Black && stop.Color.A == 255),
+            Is.True, " ... and fades into the screen's black, not into its light");
+
+        //  The keyboard's row without a pick - the very case the viewer named: walked onto, sheet and all,
+        //  and the eye still shining light on light.
+        shelf.SelectedIndex = -1;
+        Pump();
+        ListBoxItem walked = (ListBoxItem)shelf.ContainerFromIndex(0)!;
+        ((Control)walked).Focus();
+        Pump();
+        Avalonia.Controls.Shapes.Path walkedEye = StandingEyes(walked).Single();
+        Assert.That(((walkedEye.Fill as ISolidColorBrush)?.Color).GetValueOrDefault(),
+            Is.EqualTo(darkBrush!.Color),
+            "the eye on the row the caret stands on is black on the sheet too");
+
+        ListBoxItem atRest = (ListBoxItem)shelf.ContainerFromIndex(2)!;
+        Avalonia.Controls.Shapes.Path restEye = StandingEyes(atRest).Single();
+        Assert.That(((restEye.Fill as ISolidColorBrush)?.Color).GetValueOrDefault(),
+            Is.EqualTo(lightBrush!.Color),
+            "and a row nobody stands on keeps its eye in the screen's light - the black belongs to the "
+            + "sheet's rows only, and to the list view only");
+      }
+      finally
+      {
+        window?.Close();
+        SkinEngine.Clear(app);
+        SkinEngine.SkinsFolder = previousFolder;
+        FrontendTheme.Apply(app, previousTheme, out string? _);
+      }
+    }
+
+    /// <summary>The eyes a built row actually shows - the visible ones out of the pair the template holds.</summary>
+    private static IEnumerable<Avalonia.Controls.Shapes.Path> StandingEyes(Control row)
+    {
+      return row.GetVisualDescendants().OfType<Avalonia.Controls.Shapes.Path>()
+          .Where(eye => eye.Classes.Contains("nereus-watched") && eye.IsVisible);
     }
 
     /// <summary>
@@ -6948,6 +7147,35 @@ namespace Tests.Frontend
 
       Assert.That(film.Position, Is.Empty);
       Assert.That(film.Line, Is.EqualTo("Alien (1979)"));
+    }
+
+    [Test]
+    public void ARowWhoseNameBearsTheYearWearsItOnce()
+    {
+      // The taggers file series under the name WITH the year on the end and the year column agrees; the row
+      // that printed the year again read "Alien Earth (2025) (2025)", which is one fact standing in two places.
+      TitleViewModel worn = new TitleViewModel(ARow("Alien Earth (2025)", year: 2025));
+      Assert.That(worn.Line, Is.EqualTo("Alien Earth (2025)"),
+          "a name that has said its year does not hear it said back to it");
+
+      TitleViewModel bare = new TitleViewModel(ARow("Alien Earth", year: 2025));
+      Assert.That(bare.Line, Is.EqualTo("Alien Earth (2025)"),
+          "a name that has not said its year still hears it on the row");
+
+      TitleViewModel other = new TitleViewModel(ARow("Alien Earth (2024)", year: 2025));
+      Assert.That(other.Line, Is.EqualTo("Alien Earth (2024) (2025)"),
+          "and a name ending in a DIFFERENT year keeps both: that ending is part of the name, not the year");
+    }
+
+    [Test]
+    public void ASeriesRowIsCountedByItsEpisodes()
+    {
+      // The right of a series row says what an album's row says about its tracks - how many things are inside.
+      TitleViewModel series = new TitleViewModel(ARow("Alien Earth (2025)", year: 2025, episodes: 8),
+          MediaCatalog.HoldsTitles("SeriesItem"));
+
+      Assert.That(series.Detail, Is.EqualTo("8 episodes"),
+          "the server counts the episodes under the series and the row says it on the right, where the counts live");
     }
 
     [Test]

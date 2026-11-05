@@ -35,41 +35,13 @@
   -->
   <UserControl.Resources>
 
-    <!-- One row of the shelf, the way this screen is written: picture, mark, name, state. -->
+    <!-- One row of the shelf, the way this screen is written: picture, mark, name, state. The reference
+         laid a turquoise ground and a light bar under the row it stood on (ButtonListViewControlStyle in
+         Buttons.xaml); this face stopped wearing it - the viewer named it - and the row takes the same
+         white sheet every selected row wears, its words in the screen's own black. Nothing under the row
+         here decides any colour. -->
     <DataTemplate x:Key="BuiltinRowsTemplate" x:DataType="vm:TitleViewModel">
       <Panel>
-        <!--
-          The ground the reference laid under the row it was standing on (ButtonListViewControlStyle in
-          Buttons.xaml): the medium of the skin's colour over the whole row, a bar of the light of it eight
-          points wide along the left edge, a shadow of a tenth of a point hanging below so that the row lifts
-          off the shelf, and a whisper of white at the right edge.  It stands under the row and not around it -
-          Nereus never drew a box the height of one row's text, and it never drew the accent as a rectangle a
-          name sits inside.  The skin's styles decide when it is visible; nothing here decides.
-        -->
-        <Panel Classes="nereus-row-ground" IsVisible="False" IsHitTestVisible="False">
-          <Border Background="{DynamicResource PanelRaisedBrush}"/>
-          <Border Width="8" HorizontalAlignment="Left" Background="{DynamicResource AccentBrush}"/>
-          <Border Height="10" VerticalAlignment="Bottom" Margin="0,0,0,-10">
-            <Border.Background>
-              <!--  Bare numbers in StartPoint/EndPoint are pixels for Avalonia, not the fractions WPF
-                    reads from them; only '%' says "of the panel".  -->
-              <LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
-                <GradientStop Color="#66000000" Offset="0"/>
-                <GradientStop Color="#00000000" Offset="1"/>
-              </LinearGradientBrush>
-            </Border.Background>
-          </Border>
-          <Border Width="14" HorizontalAlignment="Right">
-            <Border.Background>
-              <LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
-                <GradientStop Color="#80000000" Offset="0"/>
-                <GradientStop Color="#00000000" Offset="0.02"/>
-                <GradientStop Color="#00000000" Offset="0.5"/>
-                <GradientStop Color="#26FFFFFF" Offset="1"/>
-              </LinearGradientBrush>
-            </Border.Background>
-          </Border>
-        </Panel>
         <Grid ColumnDefinitions="Auto,Auto,5*,1.4*" ColumnSpacing="20" MinWidth="700" Margin="30,8">
         <!--
           The title's picture, in the column MP2's own shelves put it: first, so that the eye runs down a
