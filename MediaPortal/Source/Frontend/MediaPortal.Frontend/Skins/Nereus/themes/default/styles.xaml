@@ -285,7 +285,7 @@
          viewer dialled it against the ground behind the shelf), so that ground reads faintly through.
          Spelled literally and inside .nereus-shelf-rows only - every other list (settings, editors)
          keeps its full sheet. -->
-    <Setter Property="Background" Value="#88FFFFFF"/>
+    <Setter Property="Background" Value="#FFFFFF"/>
     <Setter Property="Foreground" Value="{DynamicResource ScreenBackgroundBrush}"/>
     <Setter Property="FontWeight" Value="Bold"/>
   </Style>
