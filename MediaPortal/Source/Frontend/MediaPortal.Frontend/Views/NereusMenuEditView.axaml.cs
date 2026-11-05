@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
@@ -91,6 +92,8 @@ namespace MediaPortal.Frontend.Views
       // button of its own, and the entry the viewer aimed at is the entry that is taken.
       AddHandler(PointerPressedEvent, OnPickPressed, handledEventsToo: true);
       AddHandler(KeyDownEvent, OnKeyDown);
+      // The arrows' way into the row's buttons, before the list can spend Left/Right on its own selection.
+      AddHandler(KeyDownEvent, OnRowKeysTunnel, RoutingStrategies.Tunnel);
     }
 
     /// <summary>
@@ -245,6 +248,223 @@ namespace MediaPortal.Frontend.Views
         PickSelected();
         args.Handled = true;
       }
+    }
+
+    /// <summary>The row's buttons in the order they stand, same names the focus request from the model uses.</summary>
+    private static readonly string[] ROW_GLYPHS = { "nereus-editor-up", "nereus-editor-down", "nereus-editor-remove", "nereus-editor-config" };
+
+    private Control? FocusedControl()
+    {
+        return (TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement()) as Control;
+    }
+
+    private static bool IsRowGlyph(Control control)
+    {
+      return control is Button && ROW_GLYPHS.Any(glyph => control.Classes.Contains(glyph));
+    }
+
+    /// <summary>The row's buttons as realized in <paramref name="container"/>, in their screen order.</summary>
+    private static List<Button> RowButtons(Control container)
+    {
+      return container.GetLogicalDescendants().OfType<Button>()
+          .Where(button => ROW_GLYPHS.Any(glyph => button.Classes.Contains(glyph)))
+          .OrderBy(button => System.Array.FindIndex(ROW_GLYPHS, glyph => button.Classes.Contains(glyph)))
+          .ToList();
+    }
+
+    /// <summary>
+    /// The arrows' path through the arranged list, in the language the skin already speaks on its other screens:
+    /// the list keeps up and down for its lines, and left and right - which a vertical list has no use for - are
+    /// the way in and out of one line's buttons. On a button, left and right walk its row and up and down step to
+    /// the same button of the row above or below, because moving a tile is a walk, not a hunt. Above the first
+    /// row stands the plus, which is otherwise a mouse's private button.
+    /// </summary>
+    /// <remarks>
+    /// From the tunnel, exactly as the connection screen takes the arrows off its list: the list would otherwise
+    /// spend left and right on moving the selection, which is where every key went and no button ever lit.
+    /// </remarks>
+    private void OnRowKeysTunnel(object? sender, KeyEventArgs args)
+    {
+      if (_editor == null || !editList.IsVisible || editList.Items.Count == 0)
+        return;
+
+      Control? focused = FocusedControl();
+      if (focused == null)
+        return;
+
+      if (ReferenceEquals(focused, plusButton))
+      {
+        // Down walks back off the plus into the lines, onto the line the viewer left.
+        if (args.Key == Key.Down)
+        {
+          StepBackIntoList();
+          args.Handled = true;
+        }
+        return;
+      }
+
+      if (focused is Button keeping && keeping.Name == "dialogAnswerOk")
+      {
+        // Up walks back off the frame's keeping answer into the lines, as from the plus.
+        if (args.Key == Key.Up)
+        {
+          StepBackIntoList();
+          args.Handled = true;
+        }
+        return;
+      }
+
+      if (IsRowGlyph(focused))
+      {
+        ListBoxItem? item = focused.GetVisualAncestors().OfType<ListBoxItem>().FirstOrDefault();
+        if (item == null)
+          return;
+
+        int index = editList.Items.IndexOf(item.DataContext!);
+        if (index < 0)
+          return;
+
+        switch (args.Key)
+        {
+          case Key.Left:
+          case Key.Right:
+          {
+            List<Button> reachable = RowButtons(item).Where(button => button.IsEnabled).ToList();
+            int at = reachable.IndexOf((Button)focused);
+            if (reachable.Count == 0 || at < 0)
+              return;
+            Button next = reachable[(at + (args.Key == Key.Right ? 1 : reachable.Count - 1)) % reachable.Count];
+            if (next.Focus())
+              args.Handled = true;
+            return;
+          }
+          case Key.Up:
+          case Key.Down:
+          {
+            bool upward = args.Key == Key.Up;
+            if (upward && index == 0)
+            {
+              if (plusButton.IsVisible)
+              {
+                StepOutOfListInto(plusButton);
+                args.Handled = true;
+              }
+              return;
+            }
+
+            int neighbour = index + (upward ? -1 : 1);
+            if (neighbour >= editList.Items.Count)
+            {
+              // Below the last line's buttons stands the frame's keeping answer.
+              Button? answer = FrameAnswer();
+              if (answer != null)
+              {
+                StepOutOfListInto(answer);
+                args.Handled = true;
+              }
+              return;
+            }
+            if (neighbour < 0)
+              return;
+
+            string wanted = System.Array.Find(ROW_GLYPHS, glyph => focused.Classes.Contains(glyph));
+            Control? container = editList.ContainerFromIndex(neighbour) as Control;
+            editList.SelectedItem = editList.Items[neighbour];
+            editList.ScrollIntoView(editList.SelectedItem);
+            Button? same = container == null
+                ? null
+                : RowButtons(container).FirstOrDefault(button => button.Classes.Contains(wanted) && button.IsEnabled);
+            // The same button of the next line if it can be stood on - the first row's up and the last row's
+            // down cannot - and the line itself otherwise, which keeps the arrow's promise either way.
+            if ((same != null && same.Focus()) || editList.Focus())
+              args.Handled = true;
+            return;
+          }
+        }
+        return;
+      }
+
+      if (!editList.IsKeyboardFocusWithin)
+        return;
+
+      switch (args.Key)
+      {
+        case Key.Left:
+        case Key.Right:
+        {
+          if (!(editList.SelectedItem is NereusMenuEditRow))
+            return;
+          Control? container = editList.ContainerFromIndex(editList.Items.IndexOf(editList.SelectedItem!)) as Control;
+          if (container == null)
+            return;
+          List<Button> reachable = RowButtons(container).Where(button => button.IsEnabled).ToList();
+          if (reachable.Count == 0)
+            return;
+          // Right enters the row at its first button and Left at its last, so the key points where it walks.
+          Button want = args.Key == Key.Right ? reachable[0] : reachable[reachable.Count - 1];
+          if (want.Focus())
+            args.Handled = true;
+          return;
+        }
+        case Key.Up:
+        {
+          // The plus is reached the way it stands: above the first line.
+          if (editList.SelectedIndex == 0 && plusButton.IsVisible)
+          {
+            StepOutOfListInto(plusButton);
+            args.Handled = true;
+          }
+          return;
+        }
+        case Key.Down:
+        {
+          // The keeping answer is reached the way it stands: below the last line. Away from the last line, the
+          // key belongs to the answer and not to the list, which has nowhere further down to go anyway.
+          if (editList.SelectedIndex == editList.Items.Count - 1)
+          {
+            Button? answer = FrameAnswer();
+            if (answer != null)
+            {
+              StepOutOfListInto(answer);
+              args.Handled = true;
+            }
+          }
+          return;
+        }
+      }
+    }
+
+    /// <summary>The line the caret stood on when the keyboard walked out of the list, kept to be given back.</summary>
+    private NereusMenuEditRow? _caretLeftBehind;
+
+    /// <summary>The frame's keeping answer, when this stop of the editor speaks one.</summary>
+    private Button? FrameAnswer()
+    {
+      return this.GetVisualDescendants().OfType<Button>()
+          .FirstOrDefault(b => b.Name == "dialogAnswerOk" && b.IsEffectivelyVisible && b.IsEffectivelyEnabled);
+    }
+
+    /// <summary>
+    /// Walking the keyboard out of the list - to the plus above, to the keeping answer below - hands the white
+    /// sheet of its line back too: a line standing marked while the key is somewhere else is a caret the viewer
+    /// does not have. The line it stood on is kept, and stepped back onto when the key returns.
+    /// </summary>
+    private void StepOutOfListInto(Control target)
+    {
+      _caretLeftBehind = editList.SelectedItem as NereusMenuEditRow;
+      editList.SelectedItem = null;
+      target.Focus();
+    }
+
+    private void StepBackIntoList()
+    {
+      NereusMenuEditRow? keep = _caretLeftBehind;
+      _caretLeftBehind = null;
+      if (keep != null && editList.Items.Contains(keep))
+        editList.SelectedItem = keep;
+      else if (editList.SelectedItem == null && editList.Items.Count > 0)
+        editList.SelectedIndex = 0;
+      editList.Focus();
     }
 
     /// <summary>
