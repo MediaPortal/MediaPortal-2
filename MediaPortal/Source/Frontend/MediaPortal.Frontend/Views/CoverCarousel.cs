@@ -16,6 +16,7 @@ using Avalonia.Media;
 using Avalonia.Rendering.SceneGraph;
 using Avalonia.Skia;
 using Avalonia.Threading;
+using MediaPortal.Frontend.Theming;
 using MediaPortal.Frontend.ViewModels;
 using SkiaSharp;
 
@@ -143,6 +144,65 @@ public sealed class CoverCarousel : Control
   static readonly SKColor FRAME_STOOD = new SKColor(245, 245, 255, 220);
   static readonly SKColor COVER_WAITING = new SKColor(65, 65, 72);
 
+  /// <summary>How many readings of the light the resting ring is worked out for.</summary>
+  const int RING_LIGHT_STEPS = 9;
+
+  /// <summary>Where the four stops of the resting ring lie down the cover's own upright line.</summary>
+  static readonly float[] FRAME_RESTING_STOPS = { 0.0f, 0.35f, 0.72f, 1.0f };
+
+  /// <summary>
+  /// The ring a cover wears while the viewer does not stand on it: the resting edge of the wall's covers
+  /// (styles.xaml, <c>Border.home-tile-edge</c>), the light above the row catching the top of the plate and dying
+  /// away down its sides, so that a row of turned covers reads as plates standing in the room rather than as
+  /// pictures floating over the television.  It is worked out once for nine readings of the light a cover's place
+  /// leaves it, so that a travelling row asks for no colour while it moves.
+  /// </summary>
+  static readonly SKColor[][] FRAME_RESTING = RestingRingAtEveryLight();
+
+  static SKColor[][] RestingRingAtEveryLight()
+  {
+    SKColor[] stops =
+    {
+      new SKColor(255, 255, 255, 0x21),
+      new SKColor(255, 255, 255, 0x0D),
+      new SKColor(255, 255, 255, 0x08),
+      new SKColor(255, 255, 255, 0x16)
+    };
+
+    SKColor[][] steps = new SKColor[RING_LIGHT_STEPS + 1][];
+    for (int step = 0; step <= RING_LIGHT_STEPS; ++step)
+    {
+      double dim = step / (double) RING_LIGHT_STEPS;
+      SKColor[] at_light = new SKColor[stops.Length];
+      for (int stop = 0; stop < stops.Length; ++stop)
+        at_light[stop] = stops[stop].WithAlpha((byte) Math.Round(stops[stop].Alpha * dim));
+      steps[step] = at_light;
+    }
+
+    return steps;
+  }
+
+  /// <summary>
+  /// The watched corner's numbers, which are the ones the tiles' templates give it: a disc of thirty-eight with
+  /// the eye of twenty-eight centred in it, standing six from the cover's top and right edge.  The drawn row
+  /// wears no template, so it says the same numbers here.
+  /// </summary>
+  internal const double MARK_DISC = 38.0;
+  internal const double MARK_EYE = 28.0;
+  internal const double MARK_MARGIN = 6.0;
+
+  /// <summary>The corner's ground and light: the skin's plate darkening, and its text colour at the nine tenths
+  /// the templates give the eye.</summary>
+  static readonly SKColor MARK_DISC_GROUND = new SKColor(0, 0, 0, 0x99);
+  static readonly SKColor MARK_EYE_LIGHT = new SKColor(255, 255, 255, 230);
+
+  /// <summary>The partly-watched eye, which the skin paints as a light running across it: nothing at a quarter
+  /// of its way, whole white at six sevenths.</summary>
+  static readonly float[] MARK_PARTLY_STOPS = { 0.25f, 0.85f };
+
+  /// <summary>The icon the corner wears, asked of the worn skin the way a template asks for it.</summary>
+  internal const string MARK_ICON = "watched";
+
   private readonly List<object> _items = new List<object>();
   private readonly Dictionary<object, SKImage?> _pictures = new Dictionary<object, SKImage?>();
 
@@ -153,6 +213,15 @@ public sealed class CoverCarousel : Control
   /// <summary>The posters whose bytes are being read right now, so that one poster is never read twice.</summary>
   private readonly HashSet<object> _being_read = new HashSet<object>();
   private readonly object _picturesLock = new object();
+
+  /// <summary>
+  /// The watched corner's eye, read off the worn skin the first time the row is painted (see
+  /// <see cref="EyeGlyph"/>).  Once per row, because a skin comes onto the front end together with the screens
+  /// that read it; a skin taken off again takes this control with it.
+  /// </summary>
+  private SKPath? _glyph;
+
+  private bool _glyph_read;
 
   private DispatcherTimer? _spring;
   private INotifyCollectionChanged? _watched;
@@ -699,7 +768,7 @@ public sealed class CoverCarousel : Control
   internal readonly struct Frame
   {
     internal Frame(object item, SKPoint middle, double width, double height, double lean, double light,
-        bool stood)
+        bool stood, bool watched = false, bool partly_watched = false)
     {
       Item = item;
       Middle = middle;
@@ -708,6 +777,8 @@ public sealed class CoverCarousel : Control
       Lean = lean;
       Light = light;
       Stood = stood;
+      Watched = watched;
+      PartlyWatched = partly_watched;
     }
 
     internal object Item { get; }
@@ -724,6 +795,11 @@ public sealed class CoverCarousel : Control
     internal double Light { get; }
 
     internal bool Stood { get; }
+
+    /// <summary>Whether this cover wears the watched corner, and which of the two answers the corner gives.</summary>
+    internal bool Watched { get; }
+
+    internal bool PartlyWatched { get; }
   }
 
   public override void Render(DrawingContext context)
@@ -777,7 +853,8 @@ public sealed class CoverCarousel : Control
     // keeps a poster from being dropped out from under a cover being drawn - seen as a hard crash of the front
     // end while a wall was walked, because a thousand-cover row drops posters as fast as it picks them up.
     context.Custom(new CoverPainting(
-        new Rect(-reach, 0.0, width + 2.0 * reach, height), frames.ToArray(), _pictures, _picturesLock));
+        new Rect(-reach, 0.0, width + 2.0 * reach, height), frames.ToArray(), _pictures, _picturesLock,
+        EyeGlyph()));
   }
 
   /// <summary>
@@ -807,13 +884,20 @@ public sealed class CoverCarousel : Control
     double cover_width = row_height * COVER_RATIO;
     double pitch = row_height * PITCH_RATIO;
 
+    // The corner a title wears travels with its cover, so it is read here, on the thread that lays the row out;
+    // the painting that happens later on the drawing thread only carries the two answers it found.
+    TitleViewModel? title = item as TitleViewModel;
+    bool wears_corner = title != null && title.WatchFlagsShown;
+
     return new Frame(item,
         new SKPoint((float) (width / 2.0 + apart * pitch), (float) (height / 2.0)),
         cover_width * over,
         row_height * over,
         lean,
         light,
-        stood);
+        stood,
+        wears_corner && title!.IsWatched,
+        wears_corner && title!.IsPartlyWatched);
   }
 
   /// <summary>
@@ -849,6 +933,64 @@ public sealed class CoverCarousel : Control
     }
 
     return corners;
+  }
+
+  /// <summary>
+  /// The eye the watched corner wears, read from the worn skin once and kept.  A tile is handed the same icon as
+  /// a geometry by the template's converter; this row paints with the other toolkit and is therefore handed the
+  /// file's own paths, fitted into the same square the skin's reader fits every glyph into
+  /// (<see cref="SvgGeometry.GLYPH_BOX"/>), so that the eye on a painted cover and the eye on a tile are one and
+  /// the same drawing.  Null when the skin carries no eye, which leaves the corner its disc alone.
+  /// </summary>
+  private SKPath? EyeGlyph()
+  {
+    if (!_glyph_read)
+    {
+      _glyph_read = true;
+      _glyph = ReadWatchedGlyph();
+    }
+
+    return _glyph;
+  }
+
+  private static SKPath? ReadWatchedGlyph()
+  {
+    WornSkin? worn = SkinImageConverter.WornPictures();
+    if (worn == null || !worn.Vectors.TryGetLocation(MARK_ICON, out string file))
+      return null;
+
+    string? text = SvgGeometry.ReadText(file);
+    if (text == null)
+      return null;
+
+    List<SvgGeometry.SvgPath> paths = SvgGeometry.PathsIn(text);
+    if (paths.Count == 0)
+      return null;
+
+    Rect box = SvgGeometry.BoxOf(text, paths);
+    SvgGeometry.Fitting(box, out double fit, out double offset_x, out double offset_y);
+    if (fit <= 0.0 || double.IsInfinity(fit) || double.IsNaN(fit))
+      return null;
+
+    SKPath glyph = new SKPath();
+    bool even_odd = false;
+
+    foreach (SvgGeometry.SvgPath path in paths)
+    {
+      SKPath? piece = SKPath.ParseSvgPathData(path.Data);
+      if (piece == null)
+        continue;
+
+      even_odd |= path.EvenOdd;
+      glyph.AddPath(piece);
+      piece.Dispose();
+    }
+
+    // Asked once for the whole drawing rather than per figure, because the hole in an eye is a matter of how its
+    // figures wind together.
+    glyph.FillType = even_odd ? SKPathFillType.EvenOdd : SKPathFillType.Winding;
+    glyph.Transform(SKMatrix.CreateScaleTranslation((float) fit, (float) fit, (float) offset_x, (float) offset_y));
+    return glyph;
   }
 
   /// <summary>
@@ -902,12 +1044,18 @@ public sealed class CoverCarousel : Control
 
     private readonly object _gate;
 
-    internal CoverPainting(Rect bounds, Frame[] frames, Dictionary<object, SKImage?> pictures, object gate)
+    /// <summary>The watched corner's eye, already fitted into the skin's glyph square; see
+    /// <see cref="CoverCarousel.EyeGlyph"/>.</summary>
+    private readonly SKPath? _glyph;
+
+    internal CoverPainting(
+        Rect bounds, Frame[] frames, Dictionary<object, SKImage?> pictures, object gate, SKPath? glyph)
     {
       Bounds = bounds;
       _frames = frames;
       _pictures = pictures;
       _gate = gate;
+      _glyph = glyph;
     }
 
     public Rect Bounds { get; }
@@ -967,9 +1115,10 @@ public sealed class CoverCarousel : Control
 
       // THE GROUND, and only where a cover has no picture to wear.  This used to be laid under every cover - and
       // offset downwards by nine lines as a shadow - which showed as a dark plate standing out below the poster it
-      // was meant to sit behind, and as a white edge around covers nobody had stood on.  Both were the row's own
-      // doing and nothing of the picture: what a cover shows is its poster, and what it has no poster to show is
-      // said by the waiting grey alone.
+      // was meant to sit behind, and as an outline of its own around covers nobody had stood on.  Both were the
+      // row's own doing and nothing of the picture: what a cover shows is its poster, and what it has no poster to
+      // show is said by the waiting grey alone.  (The edge a cover does wear is the skin's resting ring, said
+      // under THE EDGE below; it is the tile's own, not a second plate behind it.)
       if (picture == null)
       {
         using SKPaint waiting = new SKPaint
@@ -998,9 +1147,17 @@ public sealed class CoverCarousel : Control
         canvas.Restore();
       }
 
-      // The frame belongs to the stood-on cover and to nothing else: an edge around every cover is a row of
-      // outlines rather than a row of covers, and the one the viewer asked for is the bright one marking where
-      // they stand.
+      // THE CORNER, worn by a title the library knows was watched.  It goes on before the edge, because the edge
+      // is the plate's own rim and the corner stands inside it.
+      if (frame.Watched || frame.PartlyWatched)
+        PaintWatchedCorner(canvas, onto, frame);
+
+      // THE EDGE.  The cover a viewer stands on wears the bright answer that says where they are; every other
+      // cover wears the resting ring the wall's covers wear, so that a row of turned covers reads as plates
+      // standing in the room rather than as pictures floating over the television.  Earlier the row painted no
+      // edge at all here, because what it painted instead was its own dark ground pushed nine lines down, which
+      // came out below the poster as a plate and around the un-stood covers as an outline - that ground is gone,
+      // and what remains is the skin's own resting edge, faint at its top and fainter down its sides.
       if (frame.Stood)
       {
         using SKPaint edge = new SKPaint
@@ -1013,6 +1170,98 @@ public sealed class CoverCarousel : Control
 
         canvas.DrawPath(shape, edge);
       }
+      else
+      {
+        // The ring's light runs down the cover's own upright line, from the middle of its top edge to the middle
+        // of its bottom one, so that a turned cover is lit along its own face and not along the screen.
+        int step = (int) Math.Round(Math.Clamp(frame.Light, 0.0, 1.0) * RING_LIGHT_STEPS);
+        SKPoint above = new SKPoint(
+            (target[0].X + target[1].X) / 2.0f, (target[0].Y + target[1].Y) / 2.0f);
+        SKPoint below = new SKPoint(
+            (target[2].X + target[3].X) / 2.0f, (target[2].Y + target[3].Y) / 2.0f);
+
+        using SKShader ring_light = SKShader.CreateLinearGradient(
+            above, below, FRAME_RESTING[step], FRAME_RESTING_STOPS, SKShaderTileMode.Clamp);
+        using SKPaint edge = new SKPaint
+        {
+          IsAntialias = true,
+          Shader = ring_light,
+          Style = SKPaintStyle.Stroke,
+          StrokeWidth = 2.0f
+        };
+
+        canvas.DrawPath(shape, edge);
+      }
+    }
+
+    /// <summary>
+    /// The watched corner: its disc and the eye standing on it, painted in the cover's OWN space so that the
+    /// corner lies on the plate and turns with it rather than floating over the screen.  The numbers are the
+    /// templates' numbers (thirty-eight of disc, twenty-eight of eye, six from the cover's top and right edge),
+    /// and the whole corner is dimmed to the light the cover's place in the row left it, which is what a stacked
+    /// tile does to its corner through the tile's opacity.
+    /// </summary>
+    private void PaintWatchedCorner(SKCanvas canvas, SKMatrix onto, Frame frame)
+    {
+      double kept = Math.Clamp(frame.Light, 0.0, 1.0);
+      float middle_x = (float) (frame.Width - MARK_MARGIN - MARK_DISC / 2.0);
+      float middle_y = (float) (MARK_MARGIN + MARK_DISC / 2.0);
+
+      canvas.Save();
+      canvas.Concat(ref onto);
+
+      using (SKPaint ground = new SKPaint
+      {
+        IsAntialias = true,
+        Color = MARK_DISC_GROUND.WithAlpha((byte) Math.Round(MARK_DISC_GROUND.Alpha * kept)),
+        Style = SKPaintStyle.Fill
+      })
+      {
+        canvas.DrawCircle(middle_x, middle_y, (float) (MARK_DISC / 2.0), ground);
+      }
+
+      if (_glyph == null)
+      {
+        // A skin that carries no eye leaves the corner its disc alone, exactly as a tile does.
+        canvas.Restore();
+        return;
+      }
+
+      double measure = MARK_EYE / SvgGeometry.GLYPH_BOX;
+      SKMatrix onto_eye = SKMatrix.CreateScaleTranslation(
+          (float) measure,
+          (float) measure,
+          middle_x - (float) (SvgGeometry.GLYPH_BOX / 2.0 * measure),
+          middle_y - (float) (SvgGeometry.GLYPH_BOX / 2.0 * measure));
+      canvas.Concat(ref onto_eye);
+
+      if (frame.PartlyWatched)
+      {
+        // The part answer is a light running ACROSS the eye -- nothing at its left hand, whole white at its right
+        // -- which is the skin's gradient read across the eye's own square.
+        byte whole = (byte) Math.Round(0xFF * kept);
+        using SKShader across_the_eye = SKShader.CreateLinearGradient(
+            new SKPoint(0.0f, 0.0f),
+            new SKPoint((float) SvgGeometry.GLYPH_BOX, 0.0f),
+            new SKColor[] { new SKColor(255, 255, 255, 0), new SKColor(255, 255, 255, whole) },
+            MARK_PARTLY_STOPS,
+            SKShaderTileMode.Clamp);
+        using SKPaint eye = new SKPaint { IsAntialias = true, Shader = across_the_eye };
+
+        canvas.DrawPath(_glyph, eye);
+      }
+      else
+      {
+        using SKPaint eye = new SKPaint
+        {
+          IsAntialias = true,
+          Color = MARK_EYE_LIGHT.WithAlpha((byte) Math.Round(MARK_EYE_LIGHT.Alpha * kept))
+        };
+
+        canvas.DrawPath(_glyph, eye);
+      }
+
+      canvas.Restore();
     }
   }
 

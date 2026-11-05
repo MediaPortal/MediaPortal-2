@@ -92,12 +92,29 @@ namespace MediaPortal.Frontend.Theming
     {
       try
       {
-        return Read(File.ReadAllText(path));
+        string? text = ReadText(path);
+        return text == null ? null : Read(text);
       }
       catch (Exception)
       {
         // A skin file a screen cannot use is a skin file that is not there. The front end is showing somebody
         // their television; a malformed icon has no claim on it.
+        return null;
+      }
+    }
+
+    /// <summary>
+    /// The file's text, or null when it is not there or cannot be read. Handed out separately because a painter
+    /// that paints with another toolkit wants the paths as the file writes them rather than as a geometry.
+    /// </summary>
+    internal static string? ReadText(string path)
+    {
+      try
+      {
+        return File.ReadAllText(path);
+      }
+      catch (Exception)
+      {
         return null;
       }
     }
