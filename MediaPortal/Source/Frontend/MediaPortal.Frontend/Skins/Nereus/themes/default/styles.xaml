@@ -57,7 +57,10 @@
     <Setter Property="Background" Value="{DynamicResource PanelPressedBrush}"/>
   </Style>
 
-  <!-- Lists stand on the panel; a selected row takes the accent and the screen's own black. -->
+  <!-- Lists stand on the panel; a selected row takes the screen's own white and the screen's own black,
+       rounded at five: the row becomes a sheet the viewer stands on, the same plate-under-words law the
+       dialogs follow. It used to wear the accent turquoise, which is the skin's colour for surfaces at
+       rest, not for the one row a person is actually on. -->
   <Style Selector="ListBox">
     <Setter Property="Background" Value="{DynamicResource PanelBrush}"/>
     <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
@@ -65,12 +68,36 @@
   <Style Selector="ListBoxItem">
     <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
   </Style>
-  <Style Selector="Window:not(.pointer-resting) ListBoxItem:pointerover">
+  <!-- The raised ground is a stand-in for the row a person is reaching for; a row they already stand on
+       keeps its white sheet, so the hover never paints the accent back over the selection. It wears the
+       sheet's five as well - what is raised off the panel is rounded like what is laid on it. -->
+  <Style Selector="Window:not(.pointer-resting) ListBoxItem:pointerover:not(:selected)">
     <Setter Property="Background" Value="{DynamicResource PanelRaisedBrush}"/>
+    <Setter Property="CornerRadius" Value="5"/>
   </Style>
   <Style Selector="ListBoxItem:selected">
-    <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+    <Setter Property="Background" Value="{DynamicResource TextBrush}"/>
     <Setter Property="Foreground" Value="{DynamicResource ScreenBackgroundBrush}"/>
+    <Setter Property="CornerRadius" Value="5"/>
+  </Style>
+  <!-- The theme paints its own selected ground inside the item's template, behind which no word spoken on
+       the item itself reaches. So the white sheet is spelled where the theme spells its accent: on the
+       ContentPresenter, in every dress the theme puts a selected row in - plain, under the pointer, with
+       the keyboard on it, and in the moment of the press. -->
+  <Style Selector="ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource TextBrush}"/>
+  </Style>
+  <Style Selector="ListBoxItem:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource TextBrush}"/>
+  </Style>
+  <Style Selector="ListBoxItem:selected:focus /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource TextBrush}"/>
+  </Style>
+  <Style Selector="ListBoxItem:selected:focus:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource TextBrush}"/>
+  </Style>
+  <Style Selector="ListBoxItem:selected:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource TextBrush}"/>
   </Style>
 
   <!--
@@ -1208,9 +1235,8 @@
   <Style Selector="ListBox.nereus-editor-picks ListBoxItem:selected TextBlock.nereus-editor-pick">
     <Setter Property="Opacity" Value="1"/>
     <Setter Property="FontWeight" Value="SemiBold"/>
-  </Style>
-  <Style Selector="ListBox.nereus-editor-picks ListBoxItem:selected">
-    <Setter Property="Background" Value="{DynamicResource PanelBrush}"/>
+    <!-- On the sheet of the selected row the word burns black, at the same full light it burned white in. -->
+    <Setter Property="Foreground" Value="{DynamicResource ScreenBackgroundBrush}"/>
   </Style>
 
   <!-- The five buttons of the editor. Flat and borderless, because the face is the button; the face is what
@@ -1399,6 +1425,14 @@
     <Setter Property="Opacity" Value="1"/>
   </Style>
 
+  <!-- And the same law spelled for the classes that wear their white from a style rather than inherit it:
+       inside a selected row the name and the small print take the screen's own black. Out of a row they keep
+       the white they were written for - dialog heads and key hints stand on darkness, not on a sheet. -->
+  <Style Selector="ListBoxItem:selected TextBlock.nereus-editor-name,
+                  ListBoxItem:selected TextBlock.nereus-editor-sub">
+    <Setter Property="Foreground" Value="{DynamicResource ScreenBackgroundBrush}"/>
+  </Style>
+
   <!-- The face beside a dialog row's word is the word's equal: the skin's text colour at the same sixty
        per cent, and it burns to full white on the same rows the word does - the container's focus, the
        selection, and the pointer while the pointer is not resting. -->
@@ -1412,6 +1446,14 @@
   <Style Selector="ListBox.nereus-editor-rows ListBoxItem:selected Path.nereus-editor-icon,
                   ListBox.nereus-editor-rows ListBoxItem:focus Path.nereus-editor-icon">
     <Setter Property="Opacity" Value="1"/>
+  </Style>
+  <!-- ...and on the white sheet of the selected row it burns black instead of white, at the very same
+       lights: half under the row, full on the button, a tenth when unpressable. -->
+  <Style Selector="ListBox.nereus-editor-rows ListBoxItem:selected Path.nereus-editor-icon">
+    <Setter Property="Fill" Value="{DynamicResource ScreenBackgroundBrush}"/>
+  </Style>
+  <Style Selector="ListBox.nereus-editor-rows ListBoxItem:selected Button.nereus-editor-glyph /template/ Path.nereus-editor-face">
+    <Setter Property="Fill" Value="{DynamicResource ScreenBackgroundBrush}"/>
   </Style>
   <Style Selector="Window:not(.pointer-resting) ListBox.nereus-editor-rows ListBoxItem:pointerover Path.nereus-editor-icon">
     <Setter Property="Opacity" Value="1"/>
