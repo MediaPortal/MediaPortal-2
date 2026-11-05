@@ -365,6 +365,10 @@
     <Setter Property="Width" Value="{DynamicResource SettingsTilePlateWidth}"/>
     <Setter Property="Height" Value="{DynamicResource SettingsTilePlateHeight}"/>
     <Setter Property="Background" Value="{DynamicResource SettingsTilePlateBrush}"/>
+    <!-- The frame covers, so the surface has to cut itself to the same circle, exactly as the main menu
+         tile does - which is radius ten on the border and a clip handed to the children it carries. -->
+    <Setter Property="CornerRadius" Value="10"/>
+    <Setter Property="ClipToBounds" Value="True"/>
   </Style>
   <Style Selector="Image.settings-tile-art">
     <Setter Property="Opacity" Value="{DynamicResource SettingsTileArtOpacity}"/>
