@@ -1505,19 +1505,22 @@ namespace MediaPortal.Frontend.ViewModels
       // follows the selected row, the whole layer stands or falls with EnableFanart, and the dimming layer on
       // top of it wears FanartOverlayOpacity as its opacity - the two settings the skin-settings screen writes.
       // A machine wearing its own face has no setting to read and no fanart, which is also what the reference's
-      // default skin did: no background model, no picture.
+      // default skin did: no background model, no picture.  Asked at the screen's own width, not the frames':
+      // this picture's frame is the whole screen, and a copy asked at the wall's size arrives three times too
+      // small for it - the blur the viewer named.
       FanartShown = _skinSettings?.EnableFanart ?? false;
       FanartOverlay = _skinSettings?.FanartOverlayOpacity ?? 0.85;
       FanartBlurRadius = BlurOf(_skinSettings);
       // A setting the viewer flips on the skin-settings screen while this shelf lives takes its effect on
       // the television at once - the screen is a remote control, not an application form.
       SkinSettingsBase.Saved += delegate { ReapplySkinSettings(); };
+      int backdrop = PictureWidths.PaintedScreenWidth();
       _fanart = client == null
           ? null
-          : PicturesOf(client, PictureWidths.Shelf("FanArt", PictureWidths.COVER), id =>
+          : PicturesOf(client, PictureWidths.Shelf("FanArt", backdrop), id =>
               {
                 (Guid asked, int? season) = AskOf(id);
-                return client.GetFanArtAsync(asked, "FanArt", season, PictureWidths.COVER);
+                return client.GetFanArtAsync(asked, "FanArt", season, backdrop);
               });
       // What a tile wears is the picture of its own kind, and the reference asked for it kinded too: its banner
       // grid bound FanArtType="Banner", its thumbnail grid FanArtType="Thumbnail", and neither ever drew a

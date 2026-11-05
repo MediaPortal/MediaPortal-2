@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Globalization;
 
 namespace MediaPortal.Frontend.Api
@@ -56,9 +57,22 @@ namespace MediaPortal.Frontend.Api
   public static class PictureWidths
   {
     /// <summary>
-    /// A cover the size of the wall's frames and the backdrop behind everything: the widest thing a shelf paints.
+    /// A cover the size of the wall's frames: the widest thing a shelf paints INSIDE its frames.
     /// </summary>
     public const int COVER = 640;
+
+    /// <summary>
+    /// A picture that fills the whole screen behind everything - the backdrop a wall and a shelf stand on.
+    /// </summary>
+    /// <remarks>
+    /// Measured, the hard way: the backdrop once asked at COVER and every viewer saw it blown up three to five
+    /// times across the television - a fanart at six hundred and forty pixels stretched over a screen twice
+    /// that wide is a blur by arithmetic.  The backdrop's frame is the screen, and the screen of a media centre
+    /// is a full high definition one; asking nineteen hundred and twenty lets the server's ladder answer the
+    /// two thousand and forty-eighth step for the big originals and the picture itself for everything smaller
+    /// (a variant is never grown), which is the sharpest copy the ladder can hand and still a bounded one.
+    /// </remarks>
+    public const int BACKGROUND = 1920;
 
     /// <summary>
     /// A picture inside a grid tile, which is the same poster two thirds smaller.
@@ -70,6 +84,31 @@ namespace MediaPortal.Frontend.Api
     /// name, a title's lettering or a disc - all of them drawn inside two hundred and forty pixels.
     /// </summary>
     public const int SMALL = 256;
+
+    /// <summary>
+    /// The width the backdrop is actually painted at right now: the window's own pixel width.
+    /// </summary>
+    /// <remarks>
+    /// The backdrop's frame is the window, and the reference asked the size of the frame it painted
+    /// (FanArtImageSource.cs:236) - so this says the same thing the reference said on every screen.  On a
+    /// nineteen-hundred-and-twenty television that answers nineteen hundred and twenty; on a thirty-four hundred
+    /// ultra-wide it answers thirty-four hundred, and the server's ladder then hands the original for everything
+    /// narrower (a variant is never grown), so the picture is stretched by the window's arithmetic only, never by
+    /// the asking.  Measured on this machine: asked at nineteen hundred and twenty, a full high definition
+    /// backdrop was still blown up one and eight tenths times across the screen and the viewer called it blurry -
+    /// which is why the asking reads the window rather than a constant.  While no window is there to read -
+    /// during startup, or in a headless run - BACKGROUND is the answer.
+    /// </remarks>
+    public static int PaintedScreenWidth()
+    {
+      if (Avalonia.Application.Current?.ApplicationLifetime
+              is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime
+              { MainWindow: { } window }
+          && window.ClientSize.Width > 0)
+        return (int) Math.Round(window.ClientSize.Width * Math.Max(window.RenderScaling, 1.0));
+
+      return BACKGROUND;
+    }
 
     /// <summary>
     /// The name of the local shelf one kind's bytes lie in, said at the width they were asked at.

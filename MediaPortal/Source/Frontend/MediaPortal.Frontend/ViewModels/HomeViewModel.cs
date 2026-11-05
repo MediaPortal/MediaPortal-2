@@ -213,14 +213,16 @@ namespace MediaPortal.Frontend.ViewModels
       TitleActions = new MediaTitleActionsModel(ReportTileActionAsync);
       if (client != null)
       {
-        // The wall's covers and the backdrop behind them are the widest things the home paints, so both are asked
-        // at that width: the server resizes its copy of the picture to it once, and the shelf of bytes this
-        // machine keeps files it under that size so a grid tile of the same kind later cannot be answered with the
-        // wide copy.
+        // The wall's covers are asked at the width of their frames; the backdrop behind everything is asked at
+        // the width of its frame, which is the window - the reference asked the same question of its frames.
+        // The server resizes its copy to the width asked once, and the shelf of bytes this machine keeps files
+        // it under that size - so a grid tile of the same kind later cannot be answered with the wide copy, and
+        // a backdrop never with the narrow one.
+        int backdrop = PictureWidths.PaintedScreenWidth();
         _posters = PicturesOf(client, PictureWidths.Shelf("Poster", PictureWidths.COVER),
             id => client.GetFanArtAsync(id, "Poster", null, PictureWidths.COVER));
-        _fanart = PicturesOf(client, PictureWidths.Shelf("FanArt", PictureWidths.COVER),
-            id => client.GetFanArtAsync(id, "FanArt", null, PictureWidths.COVER));
+        _fanart = PicturesOf(client, PictureWidths.Shelf("FanArt", backdrop),
+            id => client.GetFanArtAsync(id, "FanArt", null, backdrop));
       }
 
       // The face on the machine can change while this screen sits open - the skin settings are one move

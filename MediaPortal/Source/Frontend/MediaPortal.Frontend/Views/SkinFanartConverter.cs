@@ -219,7 +219,7 @@ namespace MediaPortal.Frontend.Views
       {
         //  A plain backdrop is a big poster read at the covers' width, so the row that remembers the covers
         //  answers whether it lies ready.
-        return ArtworkConverter.RemembersAt(bytes, BACKDROP_DECODE_WIDTH);
+        return ArtworkConverter.RemembersAt(bytes, BackdropDecodeWidth);
       }
 
       lock (_memo)
@@ -256,11 +256,10 @@ namespace MediaPortal.Frontend.Views
     /// is worn; the picture itself belongs to whoever binds it, so it is never disposed here.
     /// </para>
     /// <para>
-    /// It is read at <see cref="BACKDROP_DECODE_WIDTH"/>, which is the big poster's width: a backdrop is not a
-    /// third size of its own, it is the same picture read at the size the covers are read at and stretched by the
-    /// compositor to fill the room behind them.  Reading it at the file's own size was measured at three thousand
-    /// one hundred and twenty-six by one thousand seven hundred and fifty-eight pixels, decoded and remembered
-    /// twice over for a picture that is drawn behind a wall of posters and through a veil.
+    /// It is read at <see cref="BackdropDecodeWidth"/>, which is the width it is worn at - see that property for
+    /// the arithmetic and the history.  Reading it at the file's own size beyond that was measured at three
+    /// thousand one hundred and twenty-six by one thousand seven hundred and fifty-eight pixels, decoded and
+    /// remembered twice over for a picture that is drawn behind a wall of posters and through a veil.
     /// </para>
     /// <para>
     /// It is asked of the picture cache rather than decoded here on purpose: a picture inside that cache's budget
@@ -277,7 +276,7 @@ namespace MediaPortal.Frontend.Views
       //  backdrop that arrives while the wall of covers is being read finds its entry standing there already.
       //  What this class keeps for itself is only what costs something to make twice - the blurred copy - and the
       //  handful of pictures the screen might still be painting, in <see cref="_wornLately"/>.
-      Bitmap? picture = ArtworkConverter.ReadCached(bytes, BACKDROP_DECODE_WIDTH);
+      Bitmap? picture = ArtworkConverter.ReadCached(bytes, BackdropDecodeWidth);
       if (picture == null)
         return null;
 
@@ -290,20 +289,26 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
-    /// The width the backdrop is read at - which is the <em>big poster</em> width and nothing else, so that the
-    /// whole front end works with two picture sizes: this one and the grid's small one.
+    /// The width the backdrop is read at: the window's own pixel width - the size it is worn at.
     /// </summary>
     /// <remarks>
-    /// The reference asks its fanart for <c>1920;1080</c> (backgrounds/default-background.xaml:58-62, turned into
-    /// <c>MaxWidth</c>/<c>MaxHeight</c> by FanArtImageSourceConverter.cs:51-67), and reading it at that width was
-    /// measured here at two megapixels decoded, two megapixels remembered and a frame of 211 ms the first time the
-    /// picture was drawn - while the backdrop it is worn behind is dimmed, in most skins blurred, and seen from
-    /// three metres on a television.  Read at six hundred and forty and stretched by the compositor - which scales
-    /// a picture it is already holding for the price of one quad, not for the price of a decode - the same
-    /// backdrop costs a ninth of the pixels and no frame at all.  A backdrop asked for at this width is also the
-    /// very picture the wall's covers are read at, so the two share one cache entry instead of competing for it.
+    /// <para>
+    /// This was once the <em>big poster</em> width (640) on purpose: reading a full high definition backdrop was
+    /// measured at two megapixels decoded and a frame of 211 ms the first time it was drawn, and a backdrop read
+    /// at six hundred and forty and stretched by the compositor costs a ninth of the pixels and no frame at all.
+    /// That bargain bought its blur honestly - and the viewer named it: since the backdrop was also asked of the
+    /// server at that width, every fanart on the screen was a stretched photocopy, "alles unscharf".
+    /// </para>
+    /// <para>
+    /// It now says the width the backdrop is actually painted at (<see cref="Api.PictureWidths.PaintedScreenWidth"/>),
+    /// which is the reference's own answer - its client asked the fanart for the size of the frame it filled.  A
+    /// decode of the worn size happens once per new backdrop (the picture cache and this class's one remembered
+    /// copy serve every later binding of it), and it is the price of a sharp backdrop, which the viewer has now
+    /// said they want to pay.  On a full high definition television it decodes the two megapixels the reference
+    /// decoded; the frame cost is that reference's cost, not a new one.
+    /// </para>
     /// </remarks>
-    internal const int BACKDROP_DECODE_WIDTH = ArtworkConverter.WALL_DECODE_WIDTH;
+    internal static int BackdropDecodeWidth => Api.PictureWidths.PaintedScreenWidth();
 
     /// <summary>
     /// The blurred copy of these bytes at this radius, made once and held until a different picture or a
