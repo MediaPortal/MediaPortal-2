@@ -990,6 +990,22 @@ namespace MediaPortal.Server.Api
           }
         }
 
+        // A series whose row says nothing about episodes is asked one question of its own: a tagger that never
+        // wrote a total onto the show still left the library holding the episodes, and they hang off the series
+        // by relationship - the same walk CountSeasonsOfSeries makes to count one series' seasons, stopped one
+        // step short at a plain number. A row that already carries the tagged figure is not asked twice.
+        if (aspectId == SeriesAspect.ASPECT_ID)
+        {
+          for (int row = 0; row < items.Count && row < titles.Count; row++)
+          {
+            if (titles[row].Episodes.HasValue)
+              continue;
+            int onShelf = CountEpisodesOfSeries(mediaLibrary, items[row].MediaItemId);
+            if (onShelf > 0)
+              titles[row].Episodes = onShelf;
+          }
+        }
+
         // A season shelf that came back with nothing in it is asked one more question before it is called empty,
         // because the commonest reason a series has no season titles is that its library was pointed straight at the
         // episode files: every one of those episodes knows its season number, and no title wears it (see
@@ -4242,6 +4258,22 @@ namespace MediaPortal.Server.Api
     }
 
     /// <summary>
+    /// The episodes hanging off one series, counted - the answer for a series shelf no tagger ever told a
+    /// figure. The same walk <see cref="CountSeasonsOfSeries"/> makes (episodes with a file behind them,
+    /// tied to this one series), stopped at the number rather than grouped by season.
+    /// </summary>
+    private static int CountEpisodesOfSeries(IMediaLibrary mediaLibrary, Guid seriesId)
+    {
+      MediaItemQuery episodes = new MediaItemQuery(
+          new List<Guid> { EpisodeAspect.ASPECT_ID },
+          new List<Guid> { ProviderResourceAspect.ASPECT_ID },
+          new RelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES, seriesId));
+
+      IList<MediaItem> held = mediaLibrary.Search(episodes, false, null, false);
+      return held == null ? 0 : held.Count;
+    }
+
+    /// <summary>
     /// The row for one of those counted seasons, in the shape a season row has anyway - number, how much is inside,
     /// and the series it was counted from.
     /// </summary>
@@ -4543,6 +4575,24 @@ namespace MediaPortal.Server.Api
         int episodes = seasonAspect.GetAttributeValue<int>(SeasonAspect.ATTR_NUM_EPISODES);
         if (episodes > 0)
           result.Episodes = episodes;
+      }
+
+      // A series says how many episodes the library counts under it, which is what the reference's series
+      // filter item read of the show aspect (SeriesFilterItem.cs:80-88): the tagged total when the tagger
+      // wrote one, and the count of episodes that are really there when it did not. The shelf says it on
+      // the right of the row, where an album says its tracks.
+      SingleMediaItemAspect seriesAspect;
+      if (MediaItemAspect.TryGetAspect(item.Aspects, SeriesAspect.Metadata, out seriesAspect))
+      {
+        int total = seriesAspect.GetAttributeValue<int>(SeriesAspect.ATTR_NUM_EPISODES);
+        if (total > 0)
+          result.Episodes = total;
+        else
+        {
+          int available = seriesAspect.GetAttributeValue<int>(SeriesAspect.ATTR_AVAILABLE_EPISODES);
+          if (available > 0)
+            result.Episodes = available;
+        }
       }
 
       SingleMediaItemAspect album;
