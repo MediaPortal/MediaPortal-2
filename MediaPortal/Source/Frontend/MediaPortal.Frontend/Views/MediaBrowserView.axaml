@@ -4,6 +4,7 @@
         xmlns:theming="using:MediaPortal.Frontend.Theming"
         xmlns:views="using:MediaPortal.Frontend.Views"
         xmlns:lg="using:LiquidGlassAvaloniaUI"
+        xmlns:sys="using:System"
         x:Class="MediaPortal.Frontend.Views.MediaBrowserView"
         x:DataType="vm:MediaBrowserViewModel"
         Name="browser"
@@ -263,10 +264,11 @@
                          TextTrimming="CharacterEllipsis"/>
               <!-- The bar of the row that is what the screen answers already - the grid in a list of
                    layouts, the year in a list of orders - worn as the main menu wears it on its selected
-                   tile: five of white down the tile's left edge. -->
-              <Rectangle Fill="White"
-                         Width="4"
-                         HorizontalAlignment="Left"
+                   tile.  Which edge it wears it on is said in the styles below rather than here, because the
+                   same tile is laid in two rails: down the left edge in the rail at the screen's side, along
+                   the bottom edge in the row that lies under the covers. -->
+              <Rectangle Classes="media-menu-mark"
+                         Fill="White"
                          IsVisible="{Binding IsCurrent}"/>
             </Panel>
           </Border>
@@ -476,6 +478,25 @@
          above it. Only here; the home's shortcuts wear their own size untouched. -->
     <Style Selector="ListBox.media-menu TextBlock.home-shortcut-caption">
       <Setter Property="FontSize" Value="13"/>
+    </Style>
+    <!-- THE BAR THAT MARKS the row the screen answers with, which the two rails wear on two different edges:
+         down the tile's left edge in the rail at the screen's side, exactly as the home's main menu runs it
+         down its tiles, and along the tile's BOTTOM edge in the row that lies under the covers - the cover,
+         stacked and three dimensional views lay their menu sideways, where a left edge points at nothing.
+         It is said in styles rather than on the tile because both rails dress the very same tile. -->
+    <Style Selector="ListBox.media-menu Rectangle.media-menu-mark">
+      <Setter Property="Width" Value="4"/>
+      <Setter Property="HorizontalAlignment" Value="Left"/>
+      <Setter Property="VerticalAlignment" Value="Stretch"/>
+      <Setter Property="IsHitTestVisible" Value="False"/>
+    </Style>
+    <Style Selector="ListBox.media-menu#mediaMenuListBottom Rectangle.media-menu-mark">
+      <!-- NaN is the width a layout element leaves to the space it is given, which frees the bar from the
+           four points the rail at the screen's side gives it. -->
+      <Setter Property="Width" Value="{x:Static sys:Double.NaN}"/>
+      <Setter Property="Height" Value="4"/>
+      <Setter Property="HorizontalAlignment" Value="Stretch"/>
+      <Setter Property="VerticalAlignment" Value="Bottom"/>
     </Style>
     <Style Selector="ListBox.media-menu ListBoxItem Path.media-menu-icon">
       <Setter Property="Opacity" Value="0.4"/>
