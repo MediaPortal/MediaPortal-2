@@ -24,6 +24,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using MediaPortal.Frontend.Input;
 using MediaPortal.Frontend.Player;
 using MediaPortal.Frontend.ViewModels;
@@ -197,6 +198,55 @@ namespace MediaPortal.Frontend.Views
             settingsButton
           };
       DpadNavigation.Attach(this, _ring);
+
+      // The ring above walks its controls as one line, so it reads a direction as "the next one along", which on
+      // this panel - whose controls stand in three rows - sends a downward key to the button beside rather than the
+      // one below and wraps the far edges into other rows. While the caret stands on one of the panel's own
+      // controls, this earlier claim takes all four keys back for the rows: left and right step along the row, up
+      // and down climb a row onto whichever control sits most under the one left, and where the row has no further
+      // control or the panel no further row, the whole panel nods against that edge and springs back. Only on the
+      // position line are left and right left alone - there they walk the film, which is the line's own purpose -
+      // and the ring keeps its one-line walk for the first step onto the panel from elsewhere.
+      AddHandler(KeyDownEvent, delegate (object? sender, KeyEventArgs args)
+          {
+            if (args.Handled || !_osdVisible)
+              return;
+
+            bool vertical = args.Key == Key.Up || args.Key == Key.Down;
+            bool sideways = args.Key == Key.Left || args.Key == Key.Right;
+            if (!vertical && !sideways)
+              return;
+
+            // Only while the caret stands on the panel itself. The sound's dialog and a list of tracks are the
+            // panel's own answers to a button but sit outside it, and both walk their keys themselves.
+            Visual? stood = (TopLevel.GetTopLevel(this) as Window)?.FocusManager.GetFocusedElement() as Visual;
+            if (stood == null || !IsWithinOsd(stood))
+              return;
+
+            // On the position line the keys across it belong to the film, not to the panel: standing on the line,
+            // left and right walk it - the line's own answer (OnSeekBarKey) - so this hands them back untouched.
+            if (sideways && seekBar.IsKeyboardFocusWithin)
+              return;
+
+            switch (args.Key)
+            {
+              case Key.Up:
+                MoveVertical(-1);
+                break;
+              case Key.Down:
+                MoveVertical(1);
+                break;
+              case Key.Left:
+                MoveHorizontal(-1);
+                break;
+              case Key.Right:
+                MoveHorizontal(1);
+                break;
+            }
+
+            args.Handled = true;
+          },
+          RoutingStrategies.Tunnel);
 
       // Holding a skip mark keeps doing what one press does - see RepeatWhileHeld. The volume is not among them:
       // a line of sound follows the hand that is on it, which is a better answer than stepping.
@@ -761,6 +811,250 @@ namespace MediaPortal.Frontend.Views
       }
 
       return false;
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Walking the panel by rows, and nodding it against the screen's top and bottom edges.
+    //
+    // The shared ring (DpadNavigation) walks its controls as one line and reads Down as "the next one", which on
+    // a panel of three rows is the button beside rather than the one below. The vertical keys are taken back here
+    // for the span where the caret stands on the panel: they move a row up or down, onto whichever control of
+    // that row sits most directly under (or over) the one being left, and where there is no row beyond the top or
+    // bottom the whole panel nods against that edge and springs back - the same answer the home rails give a key
+    // pointed at a wall, so a viewer can tell the end of the panel from a key nobody answered.
+    // ---------------------------------------------------------------------------------------------
+
+    /// <summary>How far the panel leans against an edge, and the lean and spring in milliseconds - the rail's own numbers.</summary>
+    private const double OSD_BOUNCE_DIVE = 22;
+    private const int OSD_BOUNCE_DIVE_MS = 90;
+    private const int OSD_BOUNCE_SPRING_MS = 430;
+
+    private DispatcherTimer? _osdBounceTimer;
+    private TranslateTransform? _osdBounceTransform;
+
+    /// <summary>
+    /// The direction the panel last nodded against an edge, in points: positive leaning off the bottom, negative
+    /// off the top, zero when it rests. The rail's nod is read the same way by its tests and the render probe; this
+    /// is the panel's equivalent, so a test can tell a nod against an edge from a key that did nothing at all.
+    /// </summary>
+    internal double OsdBounceDiveY { get; private set; }
+
+    /// <summary>The horizontal mate of <see cref="OsdBounceDiveY"/>: positive leaning off the right, negative off the left.</summary>
+    internal double OsdBounceDiveX { get; private set; }
+
+    /// <summary>Whether <paramref name="element"/> is the panel itself or stands inside it.</summary>
+    private bool IsWithinOsd(Visual element)
+    {
+      for (Visual? at = element; at != null; at = at.GetVisualParent())
+        if (ReferenceEquals(at, osdArea))
+          return true;
+      return false;
+    }
+
+    /// <summary>
+    /// The panel's controls grouped into the rows they stand in, top row first, each row left to right, with the
+    /// controls that are not drawn or cannot take the focus walked over. An empty row is left out, so a film with
+    /// nothing to seek does not park a phantom row between the transport and the choices.
+    /// </summary>
+    private List<List<Control>> OsdRows()
+    {
+      List<Control> top = StandingAmong(infoButton, chapterBackButton, backButton, pauseButton, stopButton,
+          forwardButton, chapterForwardButton);
+      List<Control> middle = StandingAmong(seekBar);
+      List<Control> bottom = StandingAmong(subtitleButton, audioButton, volumeButton, fullscreenButton, settingsButton);
+
+      List<List<Control>> rows = new List<List<Control>>();
+      if (top.Count > 0)
+        rows.Add(top);
+      if (middle.Count > 0)
+        rows.Add(middle);
+      if (bottom.Count > 0)
+        rows.Add(bottom);
+      return rows;
+    }
+
+    private static List<Control> StandingAmong(params Control[] controls)
+    {
+      List<Control> standing = new List<Control>();
+      foreach (Control control in controls)
+        if (CanStand(control))
+          standing.Add(control);
+      return standing;
+    }
+
+    /// <summary>
+    /// Whether the caret can be put on this control now: drawn, enabled and focusable. The effective answers are
+    /// the ones that matter - a button inside the hidden panel is not somewhere to stand - matching what the ring
+    /// already uses to decide which areas it may walk into.
+    /// </summary>
+    private static bool CanStand(Control control)
+    {
+      if (!control.IsEffectivelyEnabled || !control.Focusable)
+        return false;
+      for (Visual? at = control; at != null; at = at.GetVisualParent())
+        if (!at.IsVisible)
+          return false;
+      return true;
+    }
+
+    /// <summary>
+    /// Which way a vertical key moves: the control of <paramref name="row"/> whose middle stands nearest to
+    /// <paramref name="centerX"/>, so stepping down from a button lands under the button and not at a row's end.
+    /// </summary>
+    private static Control? NearestInRow(List<Control> row, double centerX)
+    {
+      Control? nearest = null;
+      double best = double.MaxValue;
+      foreach (Control control in row)
+      {
+        double distance = Math.Abs(control.Bounds.Center.X - centerX);
+        if (distance < best)
+        {
+          best = distance;
+          nearest = control;
+        }
+      }
+      return nearest;
+    }
+
+    /// <summary>
+    /// Move the caret one row up (-1) or down (+1), landing on the control most under the one left; where there
+    /// is no such row, nod the panel against that edge instead.
+    /// </summary>
+    private void MoveVertical(int downward)
+    {
+      Visual? stood = (TopLevel.GetTopLevel(this) as Window)?.FocusManager.GetFocusedElement() as Visual;
+      List<List<Control>> rows = OsdRows();
+
+      int row = -1;
+      Control? left = null;
+      for (int r = 0; r < rows.Count && row < 0; r++)
+        for (int i = 0; i < rows[r].Count; i++)
+          if (rows[r][i].IsKeyboardFocusWithin)
+          {
+            row = r;
+            left = rows[r][i];
+            break;
+          }
+
+      if (row < 0)
+        return; // the caret stands on none of the panel's controls; the key is the ring's to answer
+
+      int toward = row + downward;
+      if (toward < 0 || toward >= rows.Count)
+      {
+        BounceOsd(0, downward);
+        return;
+      }
+
+      double centerX = (stood ?? left)?.Bounds.Center.X ?? 0;
+      Control? move = NearestInRow(rows[toward], centerX);
+      move?.Focus();
+    }
+
+    /// <summary>
+    /// Move the caret one control left (-1) or right (+1) along its own row, running to the end of the row and no
+    /// further; where the row has no control that way, nod the panel against that side edge instead. This is the
+    /// panel walking itself as the rows it is built from rather than as one long line, so a right key never wraps
+    /// from one row into another.
+    /// </summary>
+    private void MoveHorizontal(int rightward)
+    {
+      List<List<Control>> rows = OsdRows();
+
+      int row = -1;
+      int index = -1;
+      for (int r = 0; r < rows.Count && row < 0; r++)
+        for (int i = 0; i < rows[r].Count; i++)
+          if (rows[r][i].IsKeyboardFocusWithin)
+          {
+            row = r;
+            index = i;
+            break;
+          }
+
+      if (row < 0)
+        return; // the caret stands on none of the panel's controls; the key is the ring's to answer
+
+      List<Control> line = rows[row];
+      int toward = index + rightward;
+      if (toward < 0 || toward >= line.Count)
+      {
+        BounceOsd(rightward, 0);
+        return;
+      }
+
+      line[toward].Focus();
+    }
+
+    /// <summary>
+    /// Nod the whole panel toward an edge of the screen and spring it back - the rail's nod (MediaBrowserView's
+    /// <c>BounceRail</c>): ninety milliseconds of lean squared off so the first frames name the edge at once, and
+    /// four hundred and thirty of easeOutBack home, which carries the panel a tenth of the lean past its rest before
+    /// it settles, which is what makes it a bounce and not a slide. The lean is along whichever axis the key asked.
+    /// </summary>
+    /// <param name="directionX">+1 to lean off the right edge, -1 off the left, 0 for a vertical nod.</param>
+    /// <param name="directionY">+1 to lean off the bottom edge, -1 off the top, 0 for a sideways nod.</param>
+    private void BounceOsd(int directionX, int directionY)
+    {
+      // One nod at a time; a key pressed while the panel is still travelling starts a fresh lean from wherever it
+      // stands, so a viewer leaning on the arrow sees the panel lean with every press.
+      _osdBounceTimer?.Stop();
+
+      TranslateTransform nod = osdArea.RenderTransform as TranslateTransform;
+      if (nod == null)
+      {
+        nod = new TranslateTransform();
+        osdArea.RenderTransform = nod;
+      }
+      _osdBounceTransform = nod;
+
+      double diveX = directionX * OSD_BOUNCE_DIVE;
+      double diveY = directionY * OSD_BOUNCE_DIVE;
+      double fromX = nod.X;
+      double fromY = nod.Y;
+      long started = Environment.TickCount64;
+      OsdBounceDiveX = diveX;
+      OsdBounceDiveY = diveY;
+
+      DispatcherTimer timer = new DispatcherTimer(DispatcherPriority.Render)
+      {
+        Interval = TimeSpan.FromMilliseconds(16)
+      };
+      _osdBounceTimer = timer;
+
+      timer.Tick += delegate
+      {
+        if (!ReferenceEquals(_osdBounceTimer, timer))
+          return; // a newer nod drives the panel from here on
+
+        long elapsed = Environment.TickCount64 - started;
+        if (elapsed >= OSD_BOUNCE_DIVE_MS + OSD_BOUNCE_SPRING_MS)
+        {
+          timer.Stop();
+          nod.X = 0;
+          nod.Y = 0;
+          return;
+        }
+
+        if (elapsed <= OSD_BOUNCE_DIVE_MS)
+        {
+          double u = elapsed / (double)OSD_BOUNCE_DIVE_MS;
+          double lean = 1 - (1 - u) * (1 - u);
+          nod.X = fromX + (diveX - fromX) * lean;
+          nod.Y = fromY + (diveY - fromY) * lean;
+          return;
+        }
+
+        double v = (elapsed - OSD_BOUNCE_DIVE_MS) / (double)OSD_BOUNCE_SPRING_MS;
+        const double c1 = 1.70158;
+        const double c3 = c1 + 1;
+        double back = 1 + c3 * Math.Pow(v - 1, 3) + c1 * Math.Pow(v - 1, 2);
+        nod.X = diveX * (1 - back);
+        nod.Y = diveY * (1 - back);
+      };
+
+      timer.Start();
     }
 
     /// <summary>

@@ -660,23 +660,31 @@ namespace Tests.Frontend
       // control that is not there is not an area, which is why walking back from the rewind mark wraps.
       OpenOsd(window);
       Button pause = ButtonNamed(window, "pauseButton");
-      Assert.That(pause.Focus(), Is.True, "with the display open, the pause button takes the focus");
+      Assert.That(pause.Focus(), Is.True, "with the display open, the play button takes the focus");
       Pump();
 
-      Assert.That(PressKey(pause, Key.Up), Is.True, "the ring used the key");
-      Assert.That(ButtonNamed(window, "backButton").IsFocused, Is.True,
-          "up from play walks to the rewind button, which stands beside it");
+      // Up and down walk the panel by the rows its controls stand in, rather than along the one-line ring the
+      // horizontal keys still use. The play button wears the top row, so a key up asks for a row that is not
+      // there: the whole panel nods against the top edge and the ring stays where it stands - the honest answer
+      // that this is the top of the panel, not a sideways jump to a button that lies beside rather than above.
+      Assert.That(PressKey(pause, Key.Up), Is.True, "the panel answered the upward key");
+      Assert.That(pause.IsFocused, Is.True, "the ring stayed on play, for no row stands above the transport");
+      Assert.That(PlaybackView(window).OsdBounceDiveY, Is.LessThan(0),
+          "and the whole panel nodded up against the top edge, ready to spring back");
       Assert.That(ButtonNamed(window, "infoButton").IsEnabled, Is.False,
-          "and the name of this film is no button, because a file nobody put in a library has nothing to say");
+          "the name of this film is still no button, because a file nobody put in a library has nothing to say");
 
-      Assert.That(PressKey(ButtonNamed(window, "backButton"), Key.Up), Is.True, "the ring used the key again");
-      Assert.That(ButtonNamed(window, "settingsButton").IsFocused, Is.True,
-          "with nothing before it to stop on, the ring wrapped to the last control a viewer can reach");
+      // A key down from the transport steps onto the position line that stands directly under it.
+      Assert.That(PressKey(pause, Key.Down), Is.True, "the panel used the downward key");
+      Button line = ButtonNamed(window, "seekBar");
+      Assert.That(line.IsFocused, Is.True, "down from the transport stands the viewer on the position line");
+
+      // And back up climbs a row again - off the position line and onto the transport - without moving the film.
+      // Which transport button it lands on depends on where the line's middle sits over the row, so only the row
+      // change is asserted, not the exact button.
+      Assert.That(PressKey(line, Key.Up), Is.True, "and up again climbs a row off the line");
+      Assert.That(line.IsFocused, Is.False, "the caret left the position line");
       Assert.That(player.TimeInMs, Is.EqualTo(40_000), "while the film did not move at all");
-
-      Assert.That(PressKey(ButtonNamed(window, "settingsButton"), Key.Down), Is.True, "and it wraps the other way");
-      Assert.That(ButtonNamed(window, "backButton").IsFocused, Is.True,
-          "back onto the transport rather than into the controls this film cannot offer");
     }
 
     [AvaloniaTest]
@@ -699,35 +707,61 @@ namespace Tests.Frontend
       ShellWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
       OpenOsd(window);
       screen.Play(Film("film.mkv"));
+      // Give the line a length so it is drawn (a zero-length stream has no seek line) while leaving the playhead
+      // at the very start, so the later "the film did not jump about" check still reads zero.
+      player.RaisePosition(0, 60_000);
       Pump();
 
       Button subtitles = ButtonNamed(window, "subtitleButton");
       Assert.That(subtitles.Focus(), Is.True);
       Pump();
 
-      Assert.That(PressKey(subtitles, Key.Down), Is.True, "the ring took the key past the end of the transport");
+      // The pickers and the switches all stand in the one bottom row, so the key across the row walks them as the
+      // ring always has - Right steps to the next, and the row wraps. (The key down is no longer this walk; the
+      // vertical keys walk the rows now, tested at the end of this method.)
+      Assert.That(PressKey(subtitles, Key.Right), Is.True, "the ring took the key along the bottom row");
       Assert.That(ButtonNamed(window, "audioButton").IsFocused, Is.True,
           "the subtitle picker is followed by the sound picker, which the visible track row just put into the ring");
 
-      Assert.That(PressKey(ButtonNamed(window, "audioButton"), Key.Down), Is.True);
+      Assert.That(PressKey(ButtonNamed(window, "audioButton"), Key.Right), Is.True);
       Assert.That(ButtonNamed(window, "volumeButton").IsFocused, Is.True,
           "and past the pickers comes the loudspeaker, which every film has whether it has a choice of tracks or not");
 
       // The loudspeaker no longer carries its line of sound beside it on the row, so the keys across the row
       // belong to the ring everywhere along it. One key used to mean two things - the volume where the line
       // stood and the next button beside it - and that is exactly the conflict the sound's own dialog ended.
-      Assert.That(PressKey(ButtonNamed(window, "volumeButton"), Key.Down), Is.True);
+      Assert.That(PressKey(ButtonNamed(window, "volumeButton"), Key.Right), Is.True);
       Assert.That(ButtonNamed(window, "fullscreenButton").IsFocused, Is.True,
           "the row walks on past the loudspeaker to the switches of the machine");
 
-      Assert.That(PressKey(ButtonNamed(window, "fullscreenButton"), Key.Down), Is.True);
+      Assert.That(PressKey(ButtonNamed(window, "fullscreenButton"), Key.Right), Is.True);
       Assert.That(ButtonNamed(window, "settingsButton").IsFocused, Is.True,
           "which ends at the gear: how this machine plays is asked for where the rest of the player is");
 
-      Assert.That(PressKey(ButtonNamed(window, "settingsButton"), Key.Down), Is.True);
-      Assert.That(ButtonNamed(window, "backButton").IsFocused, Is.True,
-          "one further still wraps to the beginning of the loop, over the name of a film nobody catalogued, so "
-          + "the pickers are part of the same loop rather than a screen of their own");
+      // The gear is the rightmost control on the row, so one further right asks past the edge: rather than wrap
+      // into another row as the old one-line ring did, the whole panel nods against the right edge and the gear
+      // keeps the ring - the same answer the top and bottom rows give a key pointed off their edge.
+      Assert.That(PressKey(ButtonNamed(window, "settingsButton"), Key.Right), Is.True,
+          "the panel answered the rightward key");
+      Assert.That(ButtonNamed(window, "settingsButton").IsFocused, Is.True,
+          "the ring stayed on the gear, for no control stands further right on the row");
+      Assert.That(PlaybackView(window).OsdBounceDiveX, Is.GreaterThan(0),
+          "and the whole panel nodded right against the right edge, ready to spring back");
+
+      // The vertical keys walk the rows instead. A key down from this bottom row asks for a row that is not
+      // there, so the whole panel nods against the bottom edge and the ring holds its place; a key up steps
+      // onto the position line that stands directly above the pickers.
+      Button audio = ButtonNamed(window, "audioButton");
+      Assert.That(audio.Focus(), Is.True);
+      Pump();
+      Assert.That(PressKey(audio, Key.Down), Is.True, "the panel answered the downward key");
+      Assert.That(audio.IsFocused, Is.True, "the ring stayed on the bottom row, for no row stands below it");
+      Assert.That(PlaybackView(window).OsdBounceDiveY, Is.GreaterThan(0),
+          "and the whole panel nodded down against the bottom edge, ready to spring back");
+
+      Assert.That(PressKey(audio, Key.Up), Is.True, "and the upward key climbs one row");
+      Assert.That(ButtonNamed(window, "seekBar").IsFocused, Is.True,
+          "onto the position line that stands over the pickers");
 
       // And the sound itself, which is asked for by the loudspeaker and answered by a dialog the keys of their
       // own belong to.
@@ -793,13 +827,22 @@ namespace Tests.Frontend
       Assert.That(loudspeaker.Focus(), Is.True);
       Pump();
 
-      Assert.That(PressKey(loudspeaker, Key.Up), Is.True, "the ring took the key back off the loudspeaker");
+      Assert.That(PressKey(loudspeaker, Key.Left), Is.True, "the ring took the key back off the loudspeaker");
       Assert.That(ButtonNamed(window, "audioButton").IsFocused, Is.True,
-          "up from the loudspeaker is the round mark of the sound, which this film now carries on its ring");
+          "back from the loudspeaker is the round mark of the sound, which this film now carries on its ring");
 
-      Assert.That(PressKey(ButtonNamed(window, "audioButton"), Key.Up), Is.True, "and the ring took it again");
+      Assert.That(PressKey(ButtonNamed(window, "audioButton"), Key.Left), Is.True, "and the ring took it again");
       Assert.That(ButtonNamed(window, "subtitleButton").IsFocused, Is.True,
-          "which is followed by the subtitle switch, the two marks standing side by side as they do on the row");
+          "which is preceded by the subtitle switch, the two marks standing side by side as they do on the row");
+
+      // The subtitle switch is the leftmost control of the row, so a further left asks past the edge and the whole
+      // panel nods against the left edge rather than wrapping around to the row's far end.
+      Assert.That(PressKey(ButtonNamed(window, "subtitleButton"), Key.Left), Is.True,
+          "and one further left asks past the left-hand edge of the row");
+      Assert.That(ButtonNamed(window, "subtitleButton").IsFocused, Is.True,
+          "the ring stays on the subtitle switch, for nothing stands to its left on the row");
+      Assert.That(PlaybackView(window).OsdBounceDiveX, Is.LessThan(0),
+          "and the whole panel nods left against the left edge, ready to spring back");
 
       // Standing on it and pressing it raises the list rather than changing anything behind the viewer's back:
       // a subtitle that switches itself while a film plays is a subtitle the viewer did not choose.
