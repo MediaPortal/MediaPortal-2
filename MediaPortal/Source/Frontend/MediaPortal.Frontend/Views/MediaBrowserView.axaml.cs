@@ -620,6 +620,86 @@ namespace MediaPortal.Frontend.Views
         }
       });
 
+      // The wall answers the keys that point past its edges with a nod rather than a step. A grid walks as the
+      // two-dimensional wall it is: Right at the last column, Up at the top row and Down below the last row are
+      // walls, and the wall leans against them and springs back. A list only ever has a first row and a last one.
+      // And the sideways shapes - covers, stacked, carousel - lay their beginning at the left hand and their end
+      // at the right, so THEY nod to Left at the first title, Up at the top-side of that beginning and Right at
+      // the last; their Down stays the key that opens the menu under the screen (see the shelf's own menu
+      // handler), which is why the floor is not one of their walls. Changing rows is Up and Down's business in a
+      // grid, not Right's.
+      //
+      // Heard on the shelf's ground - the panel behind the list - because a tunnel handler on the control a key
+      // arrives at is never heard there, and the wall's ground lies between the room and every key the wall
+      // ever receives, whichever of its tiles wears the caret. The nod shakes the face the viewer can see:
+      // under the carousel that is the painted row, for the list there wears nothing but the caret.
+      Control wall_ground = (Control?)titlesList.Parent ?? titlesList;
+      wall_ground.AddHandler(KeyDownEvent, delegate (object? sender, KeyEventArgs args)
+      {
+        if (args.Handled || titlesList.Items.Count == 0)
+          return;
+
+        if (DataContext is not MediaBrowserViewModel wall_owner)
+          return;
+
+        if (wall_owner.Layout != BrowserLayout.Grid && wall_owner.Layout != BrowserLayout.List
+            && !wall_owner.IsCoverLayout)
+          return;
+
+        int stood = titlesList.SelectedIndex;
+        if (stood < 0)
+          return;
+
+        bool sideways = wall_owner.IsCoverLayout;
+        int columns = sideways || wall_owner.Layout == BrowserLayout.List
+            ? 1
+            : (titlesList.ItemsPanelRoot as VirtualizingTilePanel)?.Columns ?? 1;
+        Control face = wall_owner.Layout == BrowserLayout.Carousel ? (Control)coverRow : titlesList;
+
+        double diveX = 0;
+        double diveY = 0;
+        bool at_a_wall = false;
+
+        switch (args.Key)
+        {
+          case Key.Right when sideways:
+            at_a_wall = stood == titlesList.Items.Count - 1;
+            diveX = RAIL_BOUNCE_DIVE;
+            break;
+          case Key.Left when sideways:
+            at_a_wall = stood == 0;
+            diveX = -RAIL_BOUNCE_DIVE;
+            break;
+          //  Up at the beginning of a sideways row is the top-side wall of that row.  (When the menu under the
+          //  screen is UP, Up is the key that steps back onto the shelf - that handler speaks first, and this
+          //  one only ever hears the key while the shelf itself wears the focus.)
+          case Key.Up when sideways:
+            at_a_wall = stood == 0;
+            diveY = -RAIL_BOUNCE_DIVE;
+            break;
+          case Key.Right when wall_owner.Layout == BrowserLayout.Grid:
+            at_a_wall = stood % columns == columns - 1 || stood == titlesList.Items.Count - 1;
+            diveX = RAIL_BOUNCE_DIVE;
+            break;
+          case Key.Up when !sideways:
+            at_a_wall = stood < columns;
+            diveY = -RAIL_BOUNCE_DIVE;
+            break;
+          case Key.Down when !sideways:
+            at_a_wall = stood + columns >= titlesList.Items.Count;
+            diveY = RAIL_BOUNCE_DIVE;
+            break;
+          default:
+            return;
+        }
+
+        if (!at_a_wall)
+          return;
+
+        BounceRail(face, diveX, diveY);
+        args.Handled = true;
+      }, RoutingStrategies.Tunnel);
+
       // OK on the remote is Enter here, and Avalonia hands it to the focused control before anyone else; the
       // list does nothing with it, so it is caught on the way in and turns into "play this", which is what a
       // viewer means by it on a screen whose whole content is a list of things to watch.
