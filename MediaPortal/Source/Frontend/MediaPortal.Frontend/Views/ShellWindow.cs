@@ -72,6 +72,42 @@ namespace MediaPortal.Frontend.Views
     private readonly PlaybackBar _playbackBar = new PlaybackBar();
 
     /// <summary>
+    /// The pointer's way out: the two round corner marks - a step back and the way home - that wait at the top
+    /// left-hand corner of every screen but the home, which is itself the way out. Like the transport row this
+    /// is furniture of the WINDOW, not of the head line: several screens stow the head line away to keep their
+    /// picture whole (see SetChromeHeaderStowed), and a hand on a desk needs its way out on exactly those
+    /// screens most of all.
+    /// </summary>
+    private readonly Avalonia.Controls.StackPanel _cornerNav = new Avalonia.Controls.StackPanel();
+
+    // The two marks, kept to be re-dressed when another skin comes on - glyphs and colour both belong to it.
+    private Avalonia.Controls.Shapes.Path? _cornerBackGlyph;
+    private Avalonia.Controls.Shapes.Path? _cornerHomeGlyph;
+
+    /// <summary>
+    /// The pointer's hold over the window itself at the top RIGHT-hand corner: the mark that hands the
+    /// television back to the desktop and the exit that closes the program. The same pointer's furniture as
+    /// the way out - same rest, same screens, same measure - and just as invisible in window mode, where the
+    /// desktop's own frame already carries its title bar and its close box and a second pair would be noise.
+    /// </summary>
+    private readonly Avalonia.Controls.StackPanel _cornerSystem = new Avalonia.Controls.StackPanel();
+
+    private Avalonia.Controls.Shapes.Path? _cornerWindowGlyph;
+    private Avalonia.Controls.Shapes.Path? _cornerExitGlyph;
+
+    // The two marks as buttons, so the window's state can dress them: the exit steps down in window mode,
+    // and the toggle changes its face - and the word it says - with the mode.
+    private Avalonia.Controls.Button? _cornerToggleMark;
+    private Avalonia.Controls.Button? _cornerExitMark;
+
+    // The two faces of one mark, kept from the catalog so the mark can change faces with the window's
+    // state without re-reading the skin: in full screen it carries the window's frame (press me to hand
+    // the television back to the desktop), in window mode it carries the full screen (press me to take it
+    // back). A skin that carries only one of the two keeps that one.
+    private Avalonia.Media.Geometry? _cornerWindowFace;
+    private Avalonia.Media.Geometry? _cornerFullScreenFace;
+
+    /// <summary>
     /// The dialog of the sound that the transport row's loudspeaker plate raises over whatever screen the viewer
     /// is standing on. The very same dialog the player's own loudspeaker mark raises - it is one control
     /// (Views/VolumePicker.axaml) worn twice, because two copies would be two answers about one volume that
@@ -333,6 +369,47 @@ namespace MediaPortal.Frontend.Views
       // window rather than on a screen, which is exactly why it survives walking from the shelves to the guide.
       shell.Children.Add(_playbackBar);
 
+      // The pointer's way out, over the screens and under the questions: the same two round corner marks the
+      // home wears its four ways out with (styles.xaml's Button.nereus-corner-button), standing at the top
+      // left-hand corner of every screen but the home. A hand on a desk has no other way to walk back when a
+      // screen has stown the head line away, and neither key chord the remote uses is written for a mouse.
+      // They are marks for the pointer alone, so they refuse the caret's walk; each answer is the back key's
+      // own first step - through the window's raised layers, then one frame off the stack - and neither can
+      // ever leave the application, because under the home there is nothing for them to answer.
+      _cornerNav.Orientation = Avalonia.Layout.Orientation.Horizontal;
+      _cornerNav.Spacing = 14;
+      _cornerNav.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left;
+      _cornerNav.VerticalAlignment = Avalonia.Layout.VerticalAlignment.Top;
+      _cornerNav.Margin = new Avalonia.Thickness(10, 0, 0, 0);
+      _cornerNav.IsVisible = false;
+      _cornerBackGlyph = CornerMark(_cornerNav, "One step back", delegate
+      {
+        if (!StepBackOneLayer())
+          _workflow.Pop();
+      });
+      _cornerHomeGlyph = CornerMark(_cornerNav, "Home",
+          delegate { _workflow.PopToState("home"); });
+      shell.Children.Add(_cornerNav);
+
+      // And the window's own two marks at the top right-hand corner, one measure and one behaviour away:
+      // the frame that gives the television back to the desktop, and the exit that ends the program. A hand
+      // on a desk reaches for these the way a hand on a remote never has to - a remote leaves through its
+      // own door - so they answer to the mouse being used just like the way out, and in window mode the
+      // desktop draws its own frame and close box and these step down.
+      _cornerSystem.Orientation = Avalonia.Layout.Orientation.Horizontal;
+      _cornerSystem.Spacing = 14;
+      _cornerSystem.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right;
+      _cornerSystem.VerticalAlignment = Avalonia.Layout.VerticalAlignment.Top;
+      _cornerSystem.Margin = new Avalonia.Thickness(0, 0, 10, 0);
+      _cornerSystem.IsVisible = false;
+      _cornerWindowGlyph = CornerMark(_cornerSystem, "Window mode",
+          delegate { ToggleFullScreen(); });
+      _cornerExitGlyph = CornerMark(_cornerSystem, "Exit", delegate { Close(); });
+      _cornerToggleMark = _cornerSystem.Children[0] as Avalonia.Controls.Button;
+      _cornerExitMark = _cornerSystem.Children[1] as Avalonia.Controls.Button;
+      shell.Children.Add(_cornerSystem);
+      WearCornerNav();
+
       // The dialog of the sound, over the row that calls it: the reference's footer answered its own sound
       // button by showing the level (OtherControlsOverrides.xaml:1267-1323), and a viewer standing in the shelves
       // who reaches for the loudspeaker should not have to walk into the player first. It goes under the
@@ -478,6 +555,65 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
+    /// Builds one corner mark of the pointer's way out: a round corner button in the row, answering with the
+    /// window's own back step. Returns the glyph, which is the part a new skin has to re-dress.
+    /// </summary>
+    private static Avalonia.Controls.Shapes.Path CornerMark(Avalonia.Controls.StackPanel row, string tip,
+        Action answer)
+    {
+      var shape = new Avalonia.Controls.Shapes.Path
+      {
+        MaxWidth = 34,
+        MaxHeight = 34,
+        Stretch = Avalonia.Media.Stretch.Uniform,
+        HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+        VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+      };
+
+      var mark = new Button
+      {
+        Content = shape,
+        Focusable = false
+      };
+      ToolTip.SetTip(mark, tip);
+      mark.Classes.Add("nereus-corner-button");
+      mark.Classes.Add("nereus-corner-small");
+      mark.Click += delegate { answer(); };
+      row.Children.Add(mark);
+      return shape;
+    }
+
+    /// <summary>
+    /// Hands the corner marks the shapes and the colour the worn skin carries - the same vector catalog the
+    /// screens' own glyphs come out of, and for the same reason: a shape takes the palette's colour and stays
+    /// sharp at any scale. Said again whenever a skin comes on, which is when either changes.
+    /// </summary>
+    private void WearCornerNav()
+    {
+      if (_cornerBackGlyph == null || _cornerHomeGlyph == null)
+        return; // the first chrome pass is older than the marks
+
+      Theming.WornSkin? worn = Views.SkinImageConverter.WornPictures();
+      _cornerBackGlyph.Data = worn?.Vectors.Load("NotificationMenu/back");
+      _cornerHomeGlyph.Data = worn?.Vectors.Load("NotificationMenu/home");
+      _cornerBackGlyph.Fill = FindResource("TextBrush") as Avalonia.Media.IBrush
+          ?? Avalonia.Media.Brushes.White;
+      _cornerHomeGlyph.Fill = _cornerBackGlyph.Fill;
+
+      if (_cornerWindowGlyph != null && _cornerExitGlyph != null)
+      {
+        _cornerWindowFace = worn?.Vectors.Load("NotificationMenu/window");
+        _cornerFullScreenFace = worn?.Vectors.Load("NotificationMenu/full_screen");
+        _cornerWindowGlyph.Data = WindowState == WindowState.FullScreen
+            ? _cornerWindowFace : _cornerFullScreenFace;
+        _cornerExitGlyph.Data = worn?.Vectors.Load("NotificationMenu/exit");
+        _cornerWindowGlyph.Fill = _cornerBackGlyph.Fill;
+        _cornerExitGlyph.Fill = _cornerBackGlyph.Fill;
+        ChangeCornerToggleFace();
+      }
+    }
+
+    /// <summary>
     /// What the skin's chrome shows about this window: the clock, the screen's name, and what is playing.
     /// The application feeds it; the chrome.xaml templates of the worn skin read it.
     /// </summary>
@@ -542,6 +678,7 @@ namespace MediaPortal.Frontend.Views
           }
           : FindResource("ScreenBackgroundBrush") as IBrush ?? FactoryBackground;
       UpdateChromeVisibility();
+      WearCornerNav();
       Console.WriteLine("chrome:   header=" + (_header.Template != null) + " footer=" + (_footer.Template != null)
           + " visible=" + _header.IsVisible + " state=" + WindowState + " background=" + Background?.GetType().Name);
     }
@@ -555,6 +692,10 @@ namespace MediaPortal.Frontend.Views
       WindowState = Settings.ClientSettings.Load(null, out _).FullScreen
           ? WindowState.FullScreen
           : WindowState.Maximized;
+
+      // The window's own two marks at the right-hand corner answer to this very state, and they have heard
+      // about it first-hand - before the layout has even started to move the window.
+      UpdateCornerNav((_workflow.Current?.View as Control) is Workflow.IFullScreenScreen);
     }
 
     /// <summary>
@@ -834,8 +975,10 @@ namespace MediaPortal.Frontend.Views
           + "s of quiet");
 
       // The transport row at the foot of the window goes with the pointer it belongs to: it is the mouse hand's
-      // transport, and a remote-steered viewer reads the state off the chrome. Same goes, same stays.
+      // transport, and a remote-steered viewer reads the state off the chrome. Same goes, same stays. The two
+      // corner marks at the head of the window are the mouse hand's way back, and they go the same way.
       UpdatePlaybackBar();
+      UpdateCornerNav((_workflow.Current?.View as Control) is Workflow.IFullScreenScreen);
 
       // The beat has nothing left to count until the pointer is back; the moves do the rest of the work.
       if (_pointerBeat != null)
@@ -861,8 +1004,10 @@ namespace MediaPortal.Frontend.Views
 
       Console.WriteLine("pointer:  back - it moved past its threshold, or somebody pressed something");
 
-      // And the transport row comes back with the pointer it belongs to.
+      // And the transport row comes back with the pointer it belongs to - and with it the two corner marks,
+      // which are wanted by this hand and no other.
       UpdatePlaybackBar();
+      UpdateCornerNav((_workflow.Current?.View as Control) is Workflow.IFullScreenScreen);
 
       // The beat only exists while the window is open, and it is what notices the next quiet spell.
       _pointerBeat?.Start();
@@ -881,6 +1026,47 @@ namespace MediaPortal.Frontend.Views
       bool dialog = (_workflow.Current?.View as Control) is Workflow.IDialogScreen;
       _header.IsVisible = _header.Template != null && !fullScreen && !dialog && !_viewFullBleed && !_headerStowed;
       _footer.IsVisible = _footer.Template != null && !fullScreen && !dialog && !_viewFullBleed;
+
+      // The pointer's way out stands on every screen but the home - the home IS the way out and hangs its own
+      // four corners - and it stands there whether or not the head line itself stands: a screen that stows the
+      // header to keep its picture whole owes the hand on its desk the way back all the more. Only a film,
+      // which wears the whole television alone, outbids it.
+      UpdateCornerNav(fullScreen);
+    }
+
+    /// <summary>
+    /// The pointer's two corner marks: the mouse hand's own way back, so they answer to the mouse being used -
+    /// they stand on every screen but the home while the pointer is about, and go with it into its rest. The
+    /// keyboard and remote hands have their keys; they do not need the marks.
+    /// </summary>
+    private void UpdateCornerNav(bool fullScreen)
+    {
+      bool way_out = !(_workflow.Current is Workflow.WorkflowFrame current_frame
+          && current_frame.StateId == "home")
+          && !fullScreen && !_viewFullBleed && !_pointerRest.Resting;
+      _cornerNav.IsVisible = way_out;
+
+      // The window's two marks at the right stand on the same screens as the way out. The exit belongs to
+      // the television alone - in window mode the desktop keeps its own close box - but the way between the
+      // two modes is wanted in both, so that one mark stays and only changes its face.
+      _cornerSystem.IsVisible = way_out;
+      if (_cornerExitMark != null)
+        _cornerExitMark.IsVisible = WindowState == WindowState.FullScreen;
+      ChangeCornerToggleFace();
+    }
+
+    /// <summary>
+    /// Dressed the toggle the way the window's own state says: the frame's mark while the front end wears
+    /// the television, the full screen's mark while it stands on the desktop - the mark's word with it.
+    /// </summary>
+    private void ChangeCornerToggleFace()
+    {
+      if (_cornerWindowGlyph == null)
+        return;
+      bool on_television = WindowState == WindowState.FullScreen;
+      _cornerWindowGlyph.Data = on_television ? _cornerWindowFace : _cornerFullScreenFace;
+      if (_cornerToggleMark != null)
+        ToolTip.SetTip(_cornerToggleMark, on_television ? "Window mode" : "Full screen");
     }
 
     /// <summary>

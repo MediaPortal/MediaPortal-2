@@ -460,6 +460,15 @@
       </Transitions>
     </Setter>
   </Style>
+  <!-- The pointer's way out - the two marks the window holds at the top left-hand corner for hands on a desk
+       (Views/ShellWindow.cs) - hangs in the same quiet as the home's four, just smaller: three quarters of
+       the corner marks' own measure, so that the row stays a hint at the edge of the picture and not a second
+       head line. -->
+  <Style Selector="Button.nereus-corner-button.nereus-corner-small">
+    <Setter Property="Width" Value="50"/>
+    <Setter Property="Height" Value="50"/>
+    <Setter Property="CornerRadius" Value="25"/>
+  </Style>
   <!-- The light and the glow a stood-on button takes are one rule per state, below, so that a viewer cannot
      light one half of the answer and not the other. -->
   <!-- Standing on one of the four lights its mark as well: a glow drawn round the glyph, and round nothing
