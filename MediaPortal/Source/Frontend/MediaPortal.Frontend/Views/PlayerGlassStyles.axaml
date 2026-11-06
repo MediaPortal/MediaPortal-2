@@ -38,6 +38,12 @@
            button is the whole of what a mouse gets too, so the theme's own dotted rectangle - which only ever
            appears for a keyboard - is off. -->
       <Setter Property="FocusAdorner" Value="{x:Null}"/>
+      <!-- The ring's light has to reach past the button, and a button is a ContentControl, which hands its
+           ClipToBounds default over as TRUE - so its own seventy-point square was the end of the halo, a
+           straight edge cut clean around the ring, which is the shadow severed mid-fade the rail's tiles hit
+           for the very same reason (styles.xaml). Turning the button's own clip off lets the light spread;
+           the neighbours leave it room (six points of margin each side) and nothing above clips. -->
+      <Setter Property="ClipToBounds" Value="False"/>
       <Setter Property="Foreground" Value="{DynamicResource ButtonTextBrush}"/>
       <Setter Property="HorizontalContentAlignment" Value="Center"/>
       <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -97,9 +103,36 @@
       <Setter Property="BorderBrush" Value="#FFFFFFFF"/>
       <Setter Property="BorderThickness" Value="3"/>
     </Style>
+    <!-- The ring does not end at its own edge: a wide, quiet white light stands round the plate. The light is
+         the skin's own instrument - a BoxShadow on the presenter that paints the plate, spelled in white with
+         the corners taken round like the plate's - because that shadow is drawn OUTSIDE the bounds of the thing
+         that carries it, so it spreads past the plate the way a glow must. (An Effect on the button would not:
+         it paints behind a plate that fills its control and never lights the air around the ring, which is what
+         this is for.) The skin frames its dialogs the same way (templates.xaml:1134). Broad blur, a touch of
+         spread to keep the light off the ring's own edge, faint enough that no plate lights louder than the film
+         behind it. Nothing between here and the window clips, so the light spreads freely; only the screen's
+         edge, which no drawing escapes, stops it. -->
+    <Style Selector="Window:not(.pointer-resting) Button.glass:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="BoxShadow" Value="0 0 22 4 #73FFFFFF"/>
+    </Style>
+    <Style Selector="Button.glass:focus /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="BoxShadow" Value="0 0 22 4 #73FFFFFF"/>
+    </Style>
     <Style Selector="Button.glass:pressed">
       <Setter Property="Background" Value="{DynamicResource PanelPressedBrush}"/>
       <Setter Property="Opacity" Value="0.75"/>
+    </Style>
+    <!-- The glyph wears the standing place's light too, and it can only be lit the way a bare shape is lit - a
+         DropShadow of its own colour, whose blur spills a halo past the glyph's own strokes. -->
+    <Style Selector="Button.glass:focus Path">
+      <Setter Property="Effect">
+        <DropShadowEffect BlurRadius="10" Color="#B3FFFFFF" OffsetX="0" OffsetY="0"/>
+      </Setter>
+    </Style>
+    <Style Selector="Window:not(.pointer-resting) Button.glass:pointerover Path">
+      <Setter Property="Effect">
+        <DropShadowEffect BlurRadius="10" Color="#B3FFFFFF" OffsetX="0" OffsetY="0"/>
+      </Setter>
     </Style>
     <Style Selector="Button.glass Path">
       <Setter Property="Fill" Value="{DynamicResource ButtonTextBrush}"/>
