@@ -84,7 +84,7 @@
          and go with what plays (a stream has no chapters to jump between), so a line measured off it would grow
          and shrink under the viewer while the film ran on unchanged. -->
     <Style Selector="ProgressBar.line">
-      <Setter Property="Height" Value="3"/>
+      <Setter Property="Height" Value="5"/>
       <!-- Nothing on either side: the line's own edge is the share it was measured to, so a margin here would
          set the film's answer a hair in from the right edge of the plates under it. -->
       <Setter Property="Margin" Value="0,0,0,6"/>
