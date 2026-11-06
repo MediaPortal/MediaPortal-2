@@ -262,6 +262,16 @@ public sealed class CoverCarousel : Control
   public Action<object>? PictureAsked { get; set; }
 
   /// <summary>
+  /// The covers this row has asked a picture for so far - the covers whose frames this row itself laid. The
+  /// wall's law ("ask a picture of no title you have not laid a frame for") is measured against the titles, and
+  /// a drawn cover is a frame the screen laid just as much as a container of the list is.
+  /// </summary>
+  internal IReadOnlyCollection<object> CoversAsked
+  {
+    get { lock (_askedAbout) return new List<object>(_askedAbout); }
+  }
+
+  /// <summary>
   /// Where the row stands, counted in covers.  Read by the tests, which want to ask whether the row came to rest
   /// without pressing keys and waiting for a screen a headless test has never drawn.
   /// </summary>

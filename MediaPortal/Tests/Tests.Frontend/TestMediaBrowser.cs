@@ -1166,6 +1166,14 @@ namespace Tests.Frontend
         foreach (Control? container in rows.GetRealizedContainers())
           if (container?.DataContext is TitleViewModel title)
             laid_out.Add(title);
+
+        // The drawn cover row lays its frames too - it paints the covers itself and asks their pictures by
+        // itself (CoverCarousel.PictureAsked), while the list underneath it stands as caret only. A cover the
+        // row drew is a frame the screen laid as much as a container of the list, so its title counts here.
+        foreach (CoverCarousel row in window.GetVisualDescendants().OfType<CoverCarousel>())
+          foreach (object cover in row.CoversAsked)
+            if (cover is TitleViewModel cover_title)
+              laid_out.Add(cover_title);
       }
 
       Pump();

@@ -329,16 +329,27 @@ namespace Tests.Frontend
       protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
           CancellationToken cancellation)
       {
-        string url = request.RequestUri!.ToString();
+        // The front end says how wide it paints, so the picture doors carry a ?width= question since the server
+        // learned to resize; the fake answers the door, whatever width was asked, as a server holding one picture
+        // really would. The absolute path is the door without the question.
+        string url = request.RequestUri!.AbsolutePath;
         bool asked = url.EndsWith("/fanart/FanArt", StringComparison.OrdinalIgnoreCase);
         bool known = url.Contains(_withPicture.ToString("D"), StringComparison.OrdinalIgnoreCase);
         if (asked && known)
           return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
           {
-            Content = new ByteArrayContent(new byte[] { 1, 2, 3, 4 })
+            // A real picture, not four stray bytes: the backdrop is decoded, blurred and warmed before it is
+            // worn, and only bytes that decode can answer a remembered walk-back in the same breath.
+            Content = new ByteArrayContent(PNG_BACKDROP)
           });
         return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
       }
+
+      /// <summary>A sixty-four by thirty-six PNG: small, and decodable by everything a backdrop runs through.</summary>
+      private static readonly byte[] PNG_BACKDROP = Convert.FromBase64String(
+          "iVBORw0KGgoAAAANSUhEUgAAAEAAAAAkCAYAAAA5DDySAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQU"
+          + "AAAAJcEhZcwAADsMAAA7DAcdvqGQAAABzSURBVGhD7ZChDYBQEMX+sKzEmMwAvgZx5pL2JTUVT/Rc9/OaORQ2CkBhowAUNgpAYeM3"
+          + "wHT820YBKMh0/NtGASjIdPzbRgEoyHT820YBKGwUgMJGAShsFIDCRgEobBSAwkYBKGwUgMJGAShsFIDChj7ABzEumgdmt8OaAAAAAElFTkSuQmCC");
     }
 
     private static void WaitUntil(string because, Func<bool> condition)
@@ -442,6 +453,7 @@ namespace Tests.Frontend
           CancellationToken cancellation)
       {
         string url = request.RequestUri!.ToString();
+        string path = request.RequestUri!.AbsolutePath;
         if (url.Contains("/titles?", StringComparison.OrdinalIgnoreCase))
         {
           string json = await Task.FromResult(
@@ -455,10 +467,12 @@ namespace Tests.Frontend
           };
         }
 
-        int typed = url.IndexOf("/fanart/", StringComparison.OrdinalIgnoreCase);
+        // A picture door, whatever width question hangs behind it: "?width=" rides after the kind since the
+        // server resizes, and the kind the fake answers and remembers is the door alone.
+        int typed = path.IndexOf("/fanart/", StringComparison.OrdinalIgnoreCase);
         if (typed >= 0)
         {
-          string kind = url.Substring(typed + "/fanart/".Length);
+          string kind = path.Substring(typed + "/fanart/".Length);
           lock (Kinds)
           {
             Kinds.Add(kind);
@@ -488,8 +502,8 @@ namespace Tests.Frontend
           return new HttpResponseMessage(HttpStatusCode.NotFound);
         }
 
-        if (url.EndsWith("/thumbnail", StringComparison.OrdinalIgnoreCase)
-            && url.Contains(_title.ToString("D"), StringComparison.OrdinalIgnoreCase))
+        if (path.EndsWith("/thumbnail", StringComparison.OrdinalIgnoreCase)
+            && path.Contains(_title.ToString("D"), StringComparison.OrdinalIgnoreCase))
           return new HttpResponseMessage(HttpStatusCode.OK)
           {
             Content = new ByteArrayContent(new byte[] { 1, 1, 1, 1 })
