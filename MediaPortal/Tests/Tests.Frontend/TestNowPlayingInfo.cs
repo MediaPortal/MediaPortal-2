@@ -70,6 +70,43 @@ namespace Tests.Frontend
     }
 
     [Test]
+    public async Task TheYearReadsUnderTheNameOnceTheLibraryHasAnswered()
+    {
+      // The foot of the panel writes the year under the name instead of the file's name. Nothing is claimed
+      // before the library has spoken - a year invented for a film would be a lie about it.
+      NowPlayingViewModel nowPlaying = Player();
+      Guid id = Guid.NewGuid();
+      nowPlaying.DetailsReader = delegate (Guid asked) { return Task.FromResult(Film(asked)); };
+      nowPlaying.Play(MediaLocation.FromFile("d:\\media\\the.film.mkv"), id, 0);
+      Assert.That(nowPlaying.YearText, Is.Empty, "no year is claimed before the library has answered");
+
+      await nowPlaying.ReadMediaInfoAsync();
+      Assert.That(nowPlaying.YearText, Is.EqualTo("1999"),
+          "and once it has, the year it knows stands under the name");
+    }
+
+    [Test]
+    public async Task TheLetteringIsReadOnceAndGuardedAgainstTheOldFilm()
+    {
+      // The styled lettering is asked once per title, and a late answer about a film that has already moved on
+      // is dropped - otherwise the new film on screen could be dressed in the old film's name.
+      NowPlayingViewModel nowPlaying = Player();
+      Guid id = Guid.NewGuid();
+      int reads = 0;
+      nowPlaying.ClearArtReader = delegate (Guid asked)
+      {
+        reads++;
+        return Task.FromResult<byte[]?>(new byte[] { 1, 2, 3 });
+      };
+      nowPlaying.Play(MediaLocation.FromFile("d:\\media\\the.film.mkv"), id, 0);
+
+      await nowPlaying.ReadClearArtAsync();
+      Assert.That(nowPlaying.ClearArt, Is.Not.Null, "the lettering the library holds is read for the film");
+      await nowPlaying.ReadClearArtAsync();
+      Assert.That(reads, Is.EqualTo(1), "a film does not redraw its own lettering while it is watched");
+    }
+
+    [Test]
     public async Task OneTitleIsAskedOnce()
     {
       NowPlayingViewModel nowPlaying = Player();

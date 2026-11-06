@@ -347,6 +347,17 @@ namespace MediaPortal.Frontend
             return CoverFrom(client, mediaItemId);
           };
 
+          // The title's lettering: its ClearArt, or the logo the importer filed under its own name when the
+          // library holds no ClearArt. No server, and a library without either, both answer "no picture" quietly -
+          // the reference always kept the lettering optional, and most libraries carry none.
+          _nowPlaying.ClearArtReader = delegate (Guid mediaItemId)
+          {
+            ServerApiClient? client = _home.Client;
+            if (client == null)
+              return Task.FromResult<byte[]?>(null);
+            return ClearArtFrom(client, mediaItemId);
+          };
+
           // The player goes with it. Without this the engine and its threads stay behind when the last window
           // closes, which a viewer notices as a process that never goes away.
           desktop.Exit += delegate { _nowPlaying.Dispose(); };
@@ -589,6 +600,17 @@ namespace MediaPortal.Frontend
       // width by the only program that knows the frame.
       byte[]? poster = await client.GetFanArtAsync(mediaItemId, "Poster", null, PictureWidths.SMALL);
       return poster ?? await client.GetFanArtAsync(mediaItemId, "FanArt", null, PictureWidths.SMALL);
+    }
+
+    /// <summary>
+    /// The playback screen's lettering for a title: its ClearArt, or the logo the importer filed apart from it
+    /// under the name the second importer uses. A server that has neither answers null, and the screen shows no
+    /// lettering - which is the ordinary answer, since most libraries hold none.
+    /// </summary>
+    private static async Task<byte[]?> ClearArtFrom(ServerApiClient client, Guid mediaItemId)
+    {
+      byte[]? clearArt = await client.GetFanArtAsync(mediaItemId, "ClearArt", null, PictureWidths.SMALL);
+      return clearArt ?? await client.GetFanArtAsync(mediaItemId, "Logo", null, PictureWidths.SMALL);
     }
 
     /// <summary>

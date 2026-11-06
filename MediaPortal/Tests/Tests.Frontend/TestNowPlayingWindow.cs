@@ -1011,8 +1011,12 @@ namespace Tests.Frontend
     }
 
     [AvaloniaTest]
-    public void TheBandNamesTheFilmAndReadsTheFileItIsMadeOf()
+    public void TheNameReadsUnderTheLineAndTheFileIsNotWrittenOnTheFilm()
     {
+      // The name of the film used to stand at the top with the file it was cut from under it and the picture's
+      // size and codec spelled as two pills beside it. It reads at the bottom-left now, and the file's name and
+      // the two pills are gone - the lettering above the transport is the name's picture form, and a name does
+      // not have to be written three times over the film.
       var player = new FakePlayer();
       ShellWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
       window.Width = 1920;
@@ -1026,30 +1030,20 @@ namespace Tests.Frontend
       var title = TextOn(window, "Big Buck Bunny");
       Assert.That(title, Is.Not.Null,
           "a film picked out of the library is named by what the viewer called it, not by the path to it");
-      var file = TextOn(window, "big_buck_bunny_4k.mkv");
-      Assert.That(file, Is.Not.Null, "and the file it is made of is read underneath, once");
-      Assert.That(TopLeftOf(file!, window).Y, Is.GreaterThan(TopLeftOf(title!, window).Y),
-          "underneath, not beside it - the name is the line a viewer reads first");
+      Assert.That(TextOn(window, "big_buck_bunny_4k.mkv"), Is.Null,
+          "the file the film is made of is no longer written under the name");
 
-      // And the two lines are read above the position line, which is above the marks.
       var track = ProgressBarOn(window);
-      Assert.That(TopLeftOf(file, window).Y + file.Bounds.Height,
-          Is.LessThan(TopLeftOf(track, window).Y),
-          "the reading of the film is finished before the position line begins");
+      Assert.That(TopLeftOf(title!, window).Y, Is.GreaterThan(TopLeftOf(track, window).Y),
+          "the name reads under the position line now, at the foot of the panel");
 
-      // What the file is made of is read beside its name, but only once the engine has said it: the name of a
-      // film whose picture nobody described carries no size, because a size invented for it would be a lie
-      // about the viewer's own file.
-      Assert.That(TextOn(window, "4K"), Is.Null, "nothing was reported about this file, so no size is claimed");
-
+      // The size and the codec of the picture are no longer spelled as pills, even once the engine has said them.
       player.Quality = new PlaybackQuality(3840, 2160, "hev1");
       screen.Play(Film("big_buck_bunny_4k.mkv"), Guid.NewGuid(), 0, "Big Buck Bunny");
       Pump();
-      PumpFor(400);
-
-      Assert.That(TextOn(window, "4K"), Is.Not.Null,
-          "and when the file does say what it is, the name of the picture it carries stands beside its name");
-      Assert.That(TextOn(window, "HEVC"), Is.Not.Null, "and so does the word for the codec it is cut in");
+      PumpFor(200);
+      Assert.That(TextOn(window, "4K"), Is.Null, "the picture's size is no longer a pill on the panel");
+      Assert.That(TextOn(window, "HEVC"), Is.Null, "and neither is the word for the codec it is cut in");
     }
 
     [AvaloniaTest]

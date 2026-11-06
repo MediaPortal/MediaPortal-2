@@ -858,7 +858,7 @@ namespace MediaPortal.Frontend.Views
     /// </summary>
     private List<List<Control>> OsdRows()
     {
-      List<Control> top = StandingAmong(infoButton, chapterBackButton, backButton, pauseButton, stopButton,
+      List<Control> top = StandingAmong(chapterBackButton, backButton, pauseButton, stopButton,
           forwardButton, chapterForwardButton);
       List<Control> middle = StandingAmong(seekBar);
       List<Control> bottom = StandingAmong(subtitleButton, audioButton, volumeButton, fullscreenButton, settingsButton);
@@ -1179,6 +1179,11 @@ namespace MediaPortal.Frontend.Views
     {
       _viewModel.Changed += OnPlaybackChanged;
       _ = _viewModel.ReadCoverAsync();
+      // The lettering and the year are asked for as soon as the screen follows a film, not only when the viewer
+      // calls the info panel: the lettering stands by the transport and the year under the name from the first
+      // moment the panel is up. Both are guarded to ask a title once.
+      _ = _viewModel.ReadClearArtAsync();
+      _ = _viewModel.ReadMediaInfoAsync();
 
       // The two jump marks carry their reach in the name drawn under them - "Rewind 20 %" - which the view model
       // rewrites whenever the settings change, so nothing is written onto the marks here. Writing a text onto a
@@ -1222,7 +1227,11 @@ namespace MediaPortal.Frontend.Views
     private void OnPlaybackChanged(object? sender, EventArgs e)
     {
       if (_viewModel.HasMedia)
+      {
         _ = _viewModel.ReadCoverAsync();
+        _ = _viewModel.ReadClearArtAsync();
+        _ = _viewModel.ReadMediaInfoAsync();
+      }
       if (_osdVisible)
       {
         // The playhead has to follow the film, and the line of the sound follows whatever the number has become

@@ -210,6 +210,16 @@ namespace MediaPortal.Frontend.ViewModels
       get { return _hasMedia && !string.Equals(_fileName, _title, StringComparison.Ordinal); }
     }
 
+    /// <summary>
+    /// The year the library gives the title, as the small line under its name. Empty when the library does not
+    /// know one (or has not answered yet), which is what hides the line rather than showing a blank after the
+    /// name. The reading arrives with the media info, so this says nothing until that has come back.
+    /// </summary>
+    public string YearText
+    {
+      get { return _mediaInfo?.Year is int year ? year.ToString(CultureInfo.InvariantCulture) : string.Empty; }
+    }
+
     /// <summary>"Playing", "Paused", "Starting", "Finished", "Stopped", "Failed" - the word a screen shows.</summary>
     public string StateText
     {
@@ -1312,6 +1322,57 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
+    /// How to ask the library for a title's lettering - its name drawn as a picture, the ClearArt - or null while
+    /// there is no server. The playback screen stands it over the film at the side where it does not cover the
+    /// controls, the way the reference hung the title's lettering by the transport.
+    /// </summary>
+    public Func<Guid, Task<byte[]?>>? ClearArtReader { get; set; }
+
+    private byte[]? _clearArt;
+
+    /// <summary>Which title <see cref="_clearArt"/> was read for, so the same title is asked once.</summary>
+    private Guid? _clearArtFor;
+
+    /// <summary>
+    /// The bytes of the playing title's lettering, or null while none has arrived. The screen paints a picture
+    /// from them when there are some and nothing at all when there are none, which is most libraries.
+    /// </summary>
+    public byte[]? ClearArt
+    {
+      get { return _clearArt; }
+      private set
+      {
+        _clearArt = value;
+        Raise();
+      }
+    }
+
+    /// <summary>
+    /// Asks the library once for the playing title's lettering, guarded exactly as the cover is: the same title
+    /// is not asked twice, a file with no library id is not asked at all, and a refused read - which is what a
+    /// library without this kind of picture answers - leaves the screen lettering-less rather than interrupting
+    /// the film.
+    /// </summary>
+    public async Task ReadClearArtAsync()
+    {
+      Guid? id = _mediaItemId;
+      if (id == null || ClearArtReader == null || _clearArtFor == id)
+        return;
+
+      try
+      {
+        byte[]? bytes = await ClearArtReader(id.Value);
+        if (_mediaItemId == id)
+          ClearArt = bytes;
+        _clearArtFor = bytes != null ? id : null;
+      }
+      catch (Exception)
+      {
+        _clearArtFor = null;
+      }
+    }
+
+    /// <summary>
     /// Asks the library once what it says about the title being played. A second call for the same title is
     /// deliberately not a second read - the library does not rewrite a film's plot while it is watched - and
     /// a file without a library id is not asked at all, because the question would have no subject.
@@ -1448,6 +1509,8 @@ namespace MediaPortal.Frontend.ViewModels
       _mediaInfoFor = null;
       _cover = null;
       _coverFor = null;
+      _clearArt = null;
+      _clearArtFor = null;
       _furthestMs = 0;
       _positionMs = 0;
       _lengthMs = 0;
