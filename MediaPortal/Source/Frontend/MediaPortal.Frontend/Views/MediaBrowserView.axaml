@@ -2936,6 +2936,44 @@
                  IsHitTestVisible="False"
                  TextTrimming="CharacterEllipsis"
                  IsVisible="{Binding ShowsContentInfo}"/>
+
+      <!--
+        The pointer's handle to the screen's own menu, for the shelves that lay their menu UNDER themselves.
+
+        A cover, a stack and the three dimensional row have no rail to their left - the reference hung their
+        menu in the two hundred points below the window's floor and slid the room up over it - and a menu that
+        arrives from under the television has no edge a hand can see. This mark is that edge: it stands at the
+        foot of the content, centred on the room's width, and it is painted inside the room, so it rides up with
+        the room and comes to rest above the row of plates it opened. Put the menu away and it travels back down
+        with it, which is what keeps one mark in one place through the whole move instead of leaving a handle
+        behind at the window's edge claiming an edge the menu already left.
+
+        It is an icon button and nothing more - see Button.nereus-panel-mark in this face's styles, which is
+        where its quiet, its answer to the pointer and its refusal to outlive the pointer are written - and the
+        icon is the move the click makes, which the view model names. The shelf's own key (the reference's Info)
+        opens and closes the same menu, and needs no mark to say so.
+      -->
+      <Panel Grid.Row="0"
+             Grid.ColumnSpan="2"
+             IsVisible="{Binding IsCoverLayout}">
+        <Button Name="bottomMenuMark"
+                Classes="nereus-panel-mark"
+                Command="{Binding ToggleMediaMenuCommand}"
+                ToolTip.Tip="Menu"
+                Focusable="False"
+                Width="48"
+                Height="48"
+                Margin="0,0,0,8"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Bottom">
+          <Path Data="{Binding MenuMarkIcon, Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                ConverterParameter='MediaMenu/{0}'}"
+                Fill="{DynamicResource TextBrush}"
+                Width="30"
+                Height="30"
+                Stretch="Uniform"/>
+        </Button>
+      </Panel>
     </Grid>
 
     <!--

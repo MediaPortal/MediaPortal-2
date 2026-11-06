@@ -1522,4 +1522,56 @@
       </LinearGradientBrush>
     </Setter>
   </Style>
+
+  <!--
+    The pointer's handle to a screen's own menu: the mark that pulls the menu over the edge it lies behind and
+    pushes it back. Two of them exist and a screen shows one at a time - the shelf whose menu lies under its
+    covers is opened off the bottom edge, the shelf whose menu stands in the rail at its side is opened off the
+    left - and both are laid by the same rule, so they are dressed here together.
+
+    It is an icon and nothing but an icon: no plate, no ring. Every other button of this face earns a ground
+    because a viewer walks onto it with a key and must see where he stands; this mark is never walked onto, it is
+    only ever pointed at, and a plate under it would be a picture frame lying on the wall. What it wears is the
+    icon's own quiet - the half-lit rest the corner marks keep (Opacity 0.5, see Button.nereus-corner-button
+    above) - and the same answer to the pointer that
+    the corner marks give: full white and a glow of sixteen lines drawn round the glyph, because a mark that is
+    pointed at must answer exactly like the marks at the window's corner - an answer that only dims the icon reads
+    as a mark that is not quite alive. Nothing lights but the glyph: the ground of its template is kept
+    transparent in both states, because the control's own theme dresses that surface with a grey disc for a
+    pointer over it and no colour written on the button itself outbids that (see Button.nereus-corner-button
+    above, which learned it the same way), and because a light written on the button can only come out of the one
+    thing the button really draws.
+
+    It stands while the pointer stands: the window wears "pointer-resting" while the pointer is put away
+    (Views/ShellWindow.cs), and a handle that outlives the pointer is a picture on the television answering to
+    nobody. A keyboard and a remote open the same menu with their own key; they never needed the handle.
+  -->
+  <Style Selector="Button.nereus-panel-mark">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderBrush" Value="#00000000"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="FocusAdorner" Value="{x:Null}"/>
+    <Setter Property="ClipToBounds" Value="False"/>
+    <Setter Property="Opacity" Value="0.5"/>
+    <Setter Property="IsVisible" Value="False"/>
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.2"/>
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Window:not(.pointer-resting) Button.nereus-panel-mark">
+    <Setter Property="IsVisible" Value="True"/>
+  </Style>
+  <Style Selector="Button.nereus-panel-mark:pointerover, Button.nereus-panel-mark:focus">
+    <Setter Property="Opacity" Value="1"/>
+    <Setter Property="Effect">
+      <DropShadowEffect BlurRadius="16" Color="#FFFFFFFF" OffsetX="0" OffsetY="0" Opacity="1"/>
+    </Setter>
+  </Style>
+  <Style Selector="Button.nereus-panel-mark:pointerover /template/ ContentPresenter#PART_ContentPresenter,
+                  Button.nereus-panel-mark:focus /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="Transparent"/>
+  </Style>
 </Styles>

@@ -158,7 +158,12 @@ namespace MediaPortal.Frontend.Views
           // the third answer below is for: the room is put where the new direction wants it with nothing to slide,
           // because a viewer who changed the view already watched enough moving.
           if (args.PropertyName == nameof(MediaBrowserViewModel.Layout))
+          {
             SlideMenu(browser.MediaMenuVisible, browser.IsCoverLayout, true);
+            // ...and the pointer's handle to it changes side with it: covers open their menu off the bottom of the
+            // room and draw their own mark there, so the row of marks at the window's head gets none.
+            PushMenuMark();
+          }
         }
       };
       // A skin put on or taken off while this screen is open changes which frames answer the tile keys, and
@@ -185,12 +190,17 @@ namespace MediaPortal.Frontend.Views
         _chromeShell = this.GetVisualAncestors().OfType<ShellWindow>().FirstOrDefault();
         _chromeShell?.SetChromeHeaderOverlay(true);
         _chromeShell?.SetChromeHeaderStowed(true);
+
+        // And the pointer's handle to this screen's menu, which the window holds in its row of marks for as long
+        // as this screen is the one being looked at.
+        PushMenuMark();
       };
       DetachedFromVisualTree += delegate
       {
         SkinEngine.Changed -= OnSkinChanged;
         _chromeShell?.SetChromeHeaderOverlay(false);
         _chromeShell?.SetChromeHeaderStowed(false);
+        _chromeShell?.SetCornerMenuMark(null, null);
         _chromeShell = null;
       };
       ApplyLayout();
@@ -371,6 +381,10 @@ namespace MediaPortal.Frontend.Views
           // button the viewer pressed with what the SHELF answers - the film started - and every command in the
           // rail stayed out of reach of the keyboard.
           FocusMediaMenu(browser.MediaMenuVisible, browser.IsCoverLayout);
+
+          // The handle in the window's row of marks pictures the move the next click makes, which is the other
+          // move from the one the click just made.
+          PushMenuMark();
         }
         else if (args.PropertyName == nameof(MediaBrowserViewModel.MediaMenuHeading)
             && browser.MediaMenuVisible)
@@ -4533,6 +4547,33 @@ namespace MediaPortal.Frontend.Views
     /// so that its fanart reaches the top edge of the window, and hands it back on the way out.
     /// </summary>
     private ShellWindow? _chromeShell;
+
+    /// <summary>
+    /// Hands the window the pointer's handle to this screen's menu, or takes it back.
+    /// </summary>
+    /// <remarks>
+    /// A shelf whose menu stands in the rail at its room's LEFT edge is opened off that edge, and the pointer's
+    /// handle for it belongs to the row of marks the window keeps at its top - in front of the way back, because
+    /// that is the order the two questions come in: "what is this screen's menu?" before "how do I leave?".
+    /// Covers, stacks and the three dimensional row open their menu off the room's BOTTOM edge instead; their
+    /// handle is drawn by the screen itself, riding up with the room, and the window's row is left holding
+    /// nothing - a left-pointing arrow over a shelf whose menu lies under its covers points at an edge that has
+    /// never had a menu behind it.
+    /// </remarks>
+    private void PushMenuMark()
+    {
+      if (_chromeShell == null)
+        return;
+
+      if (DataContext is not MediaBrowserViewModel browser || browser.IsCoverLayout)
+      {
+        _chromeShell.SetCornerMenuMark(null, null);
+        return;
+      }
+
+      // The icon's name is the catalog's, and the catalog is the skin's; the window is the one wearing it.
+      _chromeShell.SetCornerMenuMark("MediaMenu/" + browser.MenuMarkIcon, browser.ToggleMediaMenu);
+    }
 
     /// <summary>
     /// The two numbers the reference gave each of its three shapes for moving a shelf: how far the stood title is

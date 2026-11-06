@@ -84,6 +84,16 @@ namespace MediaPortal.Frontend.Views
     private Avalonia.Controls.Shapes.Path? _cornerBackGlyph;
     private Avalonia.Controls.Shapes.Path? _cornerHomeGlyph;
 
+    // A third mark for the same row, belonging to whichever screen stands on top: a screen whose own menu lies
+    // behind an edge hands the pointer a handle for it, standing in front of the way back. Which move the handle
+    // pictures is the screen's word (it changes when its menu opens and closes), what the click does is the
+    // screen's answer, and the row keeps the mark exactly as long as the screen that handed it is being looked
+    // at. The window knows nothing about menus between those two calls.
+    private Avalonia.Controls.Button? _cornerMenuMark;
+    private Avalonia.Controls.Shapes.Path? _cornerMenuGlyph;
+    private string? _cornerMenuFace;
+    private Action? _cornerMenuAnswer;
+
     /// <summary>
     /// The pointer's hold over the window itself at the top RIGHT-hand corner: the mark that hands the
     /// television back to the desktop and the exit that closes the program. The same pointer's furniture as
@@ -612,14 +622,7 @@ namespace MediaPortal.Frontend.Views
     private static Avalonia.Controls.Shapes.Path CornerMark(Avalonia.Controls.StackPanel row, string tip,
         Action answer)
     {
-      var shape = new Avalonia.Controls.Shapes.Path
-      {
-        MaxWidth = 34,
-        MaxHeight = 34,
-        Stretch = Avalonia.Media.Stretch.Uniform,
-        HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
-        VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
-      };
+      var shape = CornerGlyph();
 
       var mark = new Button
       {
@@ -632,6 +635,98 @@ namespace MediaPortal.Frontend.Views
       mark.Click += delegate { answer(); };
       row.Children.Add(mark);
       return shape;
+    }
+
+    /// <summary>
+    /// The glyph a corner mark carries: the shape the worn skin names, kept inside the mark's own square and
+    /// painted in the palette's word colour - both of which a mark is told, never draws for itself.
+    /// </summary>
+    private static Avalonia.Controls.Shapes.Path CornerGlyph()
+    {
+      return new Avalonia.Controls.Shapes.Path
+      {
+        MaxWidth = 34,
+        MaxHeight = 34,
+        Stretch = Avalonia.Media.Stretch.Uniform,
+        HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+        VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+      };
+    }
+
+    /// <summary>
+    /// Puts - or takes away - the pointer's handle to the screen's own menu, standing in front of the way back.
+    /// </summary>
+    /// <param name="face">
+    /// The name the worn skin's catalog knows the icon under, which is the name of the MOVE the click makes: a
+    /// screen says the name again every time its menu opens or closes, because the arrow has to point the way its
+    /// menu goes from here. Null takes the mark away - which is what a screen says on its way out, and what a
+    /// shelf whose menu lies UNDER its covers says instead, because that one draws its handle at the foot of its
+    /// own room, where the menu it opens arrives.
+    /// </param>
+    /// <param name="answer">What the click does, which belongs to the screen and never to the window.</param>
+    /// <remarks>
+    /// The mark shares the row's whole life with the way back - the same screens, the same rest of the pointer -
+    /// because <see cref="UpdateCornerNav"/> decides for the row and not mark by mark. Nothing here has to hear
+    /// when the pointer came back.
+    /// </remarks>
+    public void SetCornerMenuMark(string? face, Action? answer)
+    {
+      if (face == null || answer == null)
+      {
+        if (_cornerMenuMark != null)
+        {
+          _cornerNav.Children.Remove(_cornerMenuMark);
+          _cornerMenuMark = null;
+          _cornerMenuGlyph = null;
+        }
+
+        _cornerMenuFace = null;
+        _cornerMenuAnswer = null;
+        return;
+      }
+
+      _cornerMenuAnswer = answer;
+
+      if (_cornerMenuMark == null)
+      {
+        _cornerMenuGlyph = CornerGlyph();
+        var mark = new Button
+        {
+          Content = _cornerMenuGlyph,
+          Focusable = false,
+          Width = 50,
+          Height = 50
+        };
+        ToolTip.SetTip(mark, "Menu");
+        mark.Classes.Add("nereus-panel-mark");
+        // What the click does belongs to the screen in front, and a screen says it again without the mark being
+        // laid twice - so the mark asks its field at the moment it is pressed, and never keeps an old answer.
+        mark.Click += delegate { _cornerMenuAnswer?.Invoke(); };
+        // The screen asked for the handle in front of the way out, and the row is walked left to right.
+        _cornerNav.Children.Insert(0, mark);
+        _cornerMenuMark = mark;
+      }
+
+      if (face == _cornerMenuFace)
+        return;
+
+      _cornerMenuFace = face;
+      WearCornerMenuFace();
+    }
+
+    /// <summary>
+    /// What the menu's handle wears right now, out of the skin the window is wearing - said again when a skin
+    /// comes on (which is when the catalog changes) and when the screen in front names another move.
+    /// </summary>
+    private void WearCornerMenuFace()
+    {
+      if (_cornerMenuGlyph == null || _cornerMenuFace == null)
+        return;
+
+      Theming.WornSkin? worn = Views.SkinImageConverter.WornPictures();
+      _cornerMenuGlyph.Data = worn?.Vectors.Load(_cornerMenuFace);
+      _cornerMenuGlyph.Fill = FindResource("TextBrush") as Avalonia.Media.IBrush
+          ?? Avalonia.Media.Brushes.White;
     }
 
     /// <summary>
@@ -662,6 +757,10 @@ namespace MediaPortal.Frontend.Views
         _cornerExitGlyph.Fill = _cornerBackGlyph.Fill;
         ChangeCornerToggleFace();
       }
+
+      // And the handle the screen in front asked for, out of the same catalog and in the same colour: a skin
+      // coming on changes where these shapes come from for every mark of the row at once.
+      WearCornerMenuFace();
     }
 
     /// <summary>

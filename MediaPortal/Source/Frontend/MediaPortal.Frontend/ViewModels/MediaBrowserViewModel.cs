@@ -1836,6 +1836,7 @@ namespace MediaPortal.Frontend.ViewModels
       }
       OnPropertyChanged(nameof(MediaMenuFootLine));
       OnPropertyChanged(nameof(ShowsContentInfo));
+      OnPropertyChanged(nameof(MenuMarkIcon));
     }
 
     /// <summary>
@@ -2570,6 +2571,7 @@ namespace MediaPortal.Frontend.ViewModels
       OnPropertyChanged(nameof(WantsDetails));
       OnPropertyChanged(nameof(ShowsSideDetails));
       OnPropertyChanged(nameof(ShowsCoverDetails));
+      OnPropertyChanged(nameof(MenuMarkIcon));
     }
 
     /// <summary>
@@ -3347,6 +3349,22 @@ namespace MediaPortal.Frontend.ViewModels
       else
         ShowMediaMenu();
     }
+
+    /// <summary>
+    /// The name of the icon the pointer's handle to this menu wears, which the view asks the worn skin about:
+    /// the picture of the MOVE the click makes rather than of the state it finds, which is how the catalog these
+    /// icons come out of names them - a panel that lies shut behind its edge is drawn with the arrow pointing
+    /// the way the panel goes, and the same panel stood up is drawn with the arrow pointing back.
+    /// </summary>
+    /// <remarks>
+    /// The axis travels with the shape of the shelf, because that is what decides where the menu lies: covers
+    /// (walked, stacked or three dimensional) are opened off the room's bottom edge and everything else off its
+    /// left. A handle whose arrow points at an edge this screen has no menu behind would send the viewer's eye
+    /// to a place nothing ever comes out of.
+    /// </remarks>
+    public string MenuMarkIcon => IsCoverLayout
+        ? MediaMenuVisible ? "bottom_panel_close" : "bottom_panel_open"
+        : MediaMenuVisible ? "left_panel_close" : "left_panel_open";
 
     /// <summary>
     /// What the back key does while the menu is open: a page steps back to the commands, and the commands put the
