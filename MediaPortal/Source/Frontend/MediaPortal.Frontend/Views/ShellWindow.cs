@@ -833,6 +833,10 @@ namespace MediaPortal.Frontend.Views
           + (_pointerRest.QuietMs / 1000).ToString(System.Globalization.CultureInfo.InvariantCulture)
           + "s of quiet");
 
+      // The transport row at the foot of the window goes with the pointer it belongs to: it is the mouse hand's
+      // transport, and a remote-steered viewer reads the state off the chrome. Same goes, same stays.
+      UpdatePlaybackBar();
+
       // The beat has nothing left to count until the pointer is back; the moves do the rest of the work.
       if (_pointerBeat != null)
         _pointerBeat.Stop();
@@ -856,6 +860,9 @@ namespace MediaPortal.Frontend.Views
       }
 
       Console.WriteLine("pointer:  back - it moved past its threshold, or somebody pressed something");
+
+      // And the transport row comes back with the pointer it belongs to.
+      UpdatePlaybackBar();
 
       // The beat only exists while the window is open, and it is what notices the next quiet spell.
       _pointerBeat?.Start();
@@ -1206,12 +1213,15 @@ namespace MediaPortal.Frontend.Views
     /// key of their own - while the keys are out, the keys own the picture.
     /// </summary>
     /// <summary>
-    /// Whether the compact transport row stands at the foot of the window: while something plays, and while the
-    /// viewer is standing anywhere but in front of it. Those are the reference's two answers - its footer control
-    /// was built with <c>AutoVisibility="True"</c>, so an empty player showed no row, and each of its rows
-    /// belonged to one player context and said nothing while that player was the whole screen in front of the
-    /// viewer (master_bare_media.xaml:193). The keyboard's keys are the one thing the row has to get out of,
-    /// because both live at the bottom of the window and the field being typed into outranks a film.
+    /// Whether the compact transport row stands at the foot of the window: while something plays, while the
+    /// viewer is standing anywhere but in front of it, and while the pointer is about - the row is the mouse
+    /// hand's transport, and a viewer steered from the sofa with a remote reads the state off the chrome
+    /// instead, so the row goes out of sight together with the pointer it belongs to. Those are the reference's
+    /// two answers - its footer control was built with <c>AutoVisibility="True"</c>, so an empty player showed
+    /// no row, and each of its rows belonged to one player context and said nothing while that player was the
+    /// whole screen in front of the viewer (master_bare_media.xaml:193). The keyboard's keys are the one thing
+    /// the row has to get out of, because both live at the bottom of the window and the field being typed into
+    /// outranks a film.
     /// </summary>
     public void UpdatePlaybackBar()
     {
@@ -1219,7 +1229,8 @@ namespace MediaPortal.Frontend.Views
       bool playing = playback != null && playback.HasMedia;
       bool standingAtThePlayer = _workflow.Current is Workflow.WorkflowFrame frame
           && frame.StateId == "nowplaying";
-      _playbackBar.IsVisible = playing && !standingAtThePlayer && !_keyboardLayer.IsVisible;
+      _playbackBar.IsVisible = playing && !standingAtThePlayer && !_keyboardLayer.IsVisible
+          && !_pointerRest.Resting;
       SizePlaybackBarToScreen();
     }
 
