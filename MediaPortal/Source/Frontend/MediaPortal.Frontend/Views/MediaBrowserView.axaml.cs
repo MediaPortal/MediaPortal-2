@@ -681,6 +681,12 @@ namespace MediaPortal.Frontend.Views
             at_a_wall = stood % columns == columns - 1 || stood == titlesList.Items.Count - 1;
             diveX = RAIL_BOUNCE_DIVE;
             break;
+          //  A list is one column wide, so the right hand is a wall from every row.  (While the media menu
+          //  stands open, Right is the key that steps back onto the shelf - that handler speaks first.)
+          case Key.Right when wall_owner.Layout == BrowserLayout.List:
+            at_a_wall = true;
+            diveX = RAIL_BOUNCE_DIVE;
+            break;
           case Key.Up when !sideways:
             at_a_wall = stood < columns;
             diveY = -RAIL_BOUNCE_DIVE;
