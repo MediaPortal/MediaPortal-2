@@ -179,8 +179,11 @@
          stand on is where they differ, and a label per chapter would be a row of words over the film. -->
     <Style Selector="Border.tick">
       <Setter Property="Width" Value="5"/>
-      <Setter Property="Height" Value="22"/>
-      <Setter Property="CornerRadius" Value="2"/>
+      <!-- As tall as the twelve points of the line it stands on, and level with it: the mark is a notch in the
+          line, not a stake driven through it, so it grows neither over its top nor under its bottom. Square,
+          because a round notch in a straight line reads as a hole. -->
+      <Setter Property="Height" Value="12"/>
+      <Setter Property="CornerRadius" Value="0"/>
       <Setter Property="Background" Value="#DCE8F8"/>
     </Style>
 
@@ -365,7 +368,7 @@
           <GradientStop Offset="1" Color="#00000000"/>
         </LinearGradientBrush>
       </Panel.Background>
-      <StackPanel Margin="62,120,62,40" Spacing="0">
+      <StackPanel Margin="62,120,62,15" Spacing="0">
 
         <!--
           Row one: what is playing, on the left, and the transport in the middle of the television where the
@@ -375,35 +378,22 @@
           name, not a mark in the row, and a label that grows a frame when something walks past it lies about
           being a button.
         -->
-        <Grid Height="110" ColumnDefinitions="*,Auto,*">
-          <Button Grid.Column="0" Name="infoButton" Classes="title" Click="OnMediaInfo"
-                  IsEnabled="{Binding CanInform}"
-                  AutomationProperties.Name="What the library knows about this title"
-                  HorizontalAlignment="Left" VerticalAlignment="Center">
-            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
-              <StackPanel Grid.Column="0" Orientation="Vertical" Spacing="2" VerticalAlignment="Center">
-                <TextBlock Text="{Binding Title}" FontSize="23" FontWeight="SemiBold"
-                           Foreground="#FFFFFFFF" TextTrimming="CharacterEllipsis"/>
-                <!-- The file the film is made of, in the smaller voice under the name the viewer chose. It
-                     stands there only when the two differ, because a file picked up by its own name needs no
-                     second line saying the same thing. -->
-                <TextBlock Text="{Binding FileName}" FontSize="15" Foreground="#B3FFFFFF"
-                           IsVisible="{Binding ShowsFileName}" TextTrimming="CharacterEllipsis"/>
-              </StackPanel>
-              <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" IsVisible="{Binding ShowsTags}" VerticalAlignment="Center">
-                <Border Classes="tag" IsVisible="{Binding ResolutionTag,
-                                Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
-                  <TextBlock Text="{Binding ResolutionTag}"/>
-                </Border>
-                <Border Classes="tag" IsVisible="{Binding CodecTag,
-                                Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
-                  <TextBlock Text="{Binding CodecTag}"/>
-                </Border>
-              </StackPanel>
-            </Grid>
-          </Button>
+        <Grid Height="180" ColumnDefinitions="*,Auto,*">
+          <!--
+            The title's own lettering - its ClearArt, the name drawn as a picture - stood where its name used to
+            be: over the film's upper-left hand, above the controls along the foot and clear of the picture's
+            middle, which is where the reference hung a film's lettering. Most libraries carry none, and the image
+            then costs nothing: it is simply not there.
+          -->
+          <Image Grid.Column="0" Name="clearArt"
+                 Source="{Binding ClearArt, Converter={x:Static views:ArtworkConverter.Instance}, ConverterParameter=small}"
+                 IsVisible="{Binding ClearArt, Converter={x:Static ObjectConverters.IsNotNull}}"
+                 Height="176" MaxWidth="840" Stretch="Uniform" StretchDirection="DownOnly"
+                 Margin="6,0,12,0" HorizontalAlignment="Left" VerticalAlignment="Center"
+                 IsHitTestVisible="False"/>
 
-          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center"
+                      Margin="0,50,0,30">
             <!--
               A chapter jump is drawn when the film has a chapter to jump to that way, and not drawn when it has
               none: this panel shows only what works, and a mark that has never done anything is a promise the
@@ -464,7 +454,7 @@
           whole row. Pressing it puts the film there; holding and dragging moves the film along as the hand
           moves. A remote reaches the line as a control of its own and walks it with left and right.
         -->
-        <Grid Height="64" ColumnDefinitions="Auto,*,Auto">
+        <Grid Height="55" ColumnDefinitions="Auto,*,Auto">
           <TextBlock Name="positionLabel" Grid.Column="0" Classes="time" MinWidth="104" Margin="6,0,20,0"
                      VerticalAlignment="Center" Text="{Binding PositionLabel}"
                      AutomationProperties.Name="Where the viewer stands in the film"/>
@@ -487,7 +477,7 @@
                    containers back whenever the film turns over, and the Canvas.Left a mark had been given went
                    back with them, so every mark of a chaptered film ended up standing at the start of the
                    line. The screen lays these out itself and keeps them, which the film needs. -->
-              <Canvas Name="chapterMarks" Height="22" VerticalAlignment="Center" IsHitTestVisible="False"/>
+              <Canvas Name="chapterMarks" Height="12" VerticalAlignment="Center" IsHitTestVisible="False"/>
               <Border Name="scrubKnob" Classes="knob"/>
             </Panel>
           </Button>
@@ -497,35 +487,51 @@
         </Grid>
 
         <!--
-          Row three: the two that open a list on the left, and the three switches of the machine on the right -
-          the sound, the television, the settings. Nothing stands in the middle: the row belongs to its ends, and
-          the film behind the middle of it is the thing a viewer is watching. The two on the left say which track
-          they are on in their own body, because a viewer choosing between subtitles wants to read what is
-          currently chosen without opening anything first.
+          Row three: the name of the film at the left, and every control a viewer stands on pushed to the right
+          hand - the two that open a list, then the three switches of the machine. Nothing stands in the middle;
+          the film behind it is the thing a viewer is watching. The name sits at the bottom-left now, under the
+          position line: its lettering (the ClearArt up by the transport) is the picture form of the same words,
+          so the name no longer has to stand at the top as well. The two that open a list say which track they are
+          on in their own body, because a viewer choosing between subtitles wants to read what is currently chosen
+          without opening anything first.
         -->
-        <Grid Height="92" ColumnDefinitions="Auto,Auto,*,Auto" Margin="0,16,0,0">
-          <Button Classes="glass pick" Name="subtitleButton" Click="OnSubtitles"
-                  IsVisible="{Binding HasMedia}"
-                  AutomationProperties.Name="{Binding SubtitleTrackLine}">
-            <StackPanel Orientation="Horizontal" Spacing="12">
-              <Path Data="{Binding SubtitlesGlyph,
-                          Converter={x:Static views:SkinIconGeometryConverter.Instance}}"/>
-              <TextBlock Text="{Binding SubtitleTrackName}" TextTrimming="CharacterEllipsis" MaxWidth="240"/>
-              <TextBlock Classes="chevron" Text="&#8250;"/>
-            </StackPanel>
-          </Button>
-          <Button Grid.Column="1" Classes="glass pick" Name="audioButton" Click="OnAudio"
-                  IsVisible="{Binding HasMedia}"
-                  AutomationProperties.Name="{Binding AudioTrackLine}">
-            <StackPanel Orientation="Horizontal" Spacing="12">
-              <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
-                                      ConverterParameter='MediaMenu/track'}"/>
-              <TextBlock Text="{Binding AudioTrackName}" TextTrimming="CharacterEllipsis" MaxWidth="240"/>
-              <TextBlock Classes="chevron" Text="&#8250;"/>
+        <Grid Height="92" ColumnDefinitions="Auto,*,Auto">
+          <Button Grid.Column="0" Name="infoButton" Classes="title" Click="OnMediaInfo"
+                  IsEnabled="{Binding CanInform}"
+                  AutomationProperties.Name="What the library knows about this title"
+                  HorizontalAlignment="Left" VerticalAlignment="Center">
+            <StackPanel Orientation="Vertical" Spacing="2" VerticalAlignment="Center">
+              <TextBlock Text="{Binding Title}" FontSize="34" FontWeight="SemiBold"
+                         Foreground="#FFFFFFFF" TextTrimming="CharacterEllipsis"/>
+              <!-- The year the library knows, in the smaller voice under the name - where the file's own name used
+                   to stand. It shows only when the library named a year, so a title it knows nothing about wears
+                   its name alone. -->
+              <TextBlock Text="{Binding YearText}" FontSize="20" Foreground="#B3FFFFFF"
+                         IsVisible="{Binding YearText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
             </StackPanel>
           </Button>
 
-          <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+          <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+            <Button Classes="glass pick" Name="subtitleButton" Click="OnSubtitles"
+                    IsVisible="{Binding HasMedia}"
+                    AutomationProperties.Name="{Binding SubtitleTrackLine}">
+              <StackPanel Orientation="Horizontal" Spacing="12">
+                <Path Data="{Binding SubtitlesGlyph,
+                            Converter={x:Static views:SkinIconGeometryConverter.Instance}}"/>
+                <TextBlock Text="{Binding SubtitleTrackName}" TextTrimming="CharacterEllipsis" MaxWidth="240"/>
+                <TextBlock Classes="chevron" Text="&#8250;"/>
+              </StackPanel>
+            </Button>
+            <Button Classes="glass pick" Name="audioButton" Click="OnAudio"
+                    IsVisible="{Binding HasMedia}"
+                    AutomationProperties.Name="{Binding AudioTrackLine}">
+              <StackPanel Orientation="Horizontal" Spacing="12">
+                <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                        ConverterParameter='MediaMenu/track'}"/>
+                <TextBlock Text="{Binding AudioTrackName}" TextTrimming="CharacterEllipsis" MaxWidth="240"/>
+                <TextBlock Classes="chevron" Text="&#8250;"/>
+              </StackPanel>
+            </Button>
             <Button Classes="glass icon" Name="volumeButton" Click="OnVolume"
                     AutomationProperties.Name="{Binding VolumeCaption}">
               <Path Data="{Binding VolumeGlyph,
