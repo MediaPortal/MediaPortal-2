@@ -73,13 +73,14 @@ namespace MediaPortal.Frontend.Views
         _model?.ReadNoMore();
       };
 
-      // Enter is the reference's answer to a dialog: it opened this one from a press and finished it with another.
+      // The remote's OK is the reference's answer to a dialog: it opened this one from a press and finished
+      // it with another. The back action leaves the dialog alone, whatever key a given remote reports for it.
       KeyDown += delegate (object? sender, KeyEventArgs args)
       {
-        if (args.Key == Key.Escape)
+        if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Back, args))
           return;
 
-        if (args.Key == Key.Enter || args.Key == Key.Space || args.Key == Key.Select)
+        if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Select, args))
         {
           _model?.ReadThat();
           args.Handled = true;

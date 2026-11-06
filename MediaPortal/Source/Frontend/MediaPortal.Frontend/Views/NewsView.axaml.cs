@@ -270,17 +270,18 @@ namespace MediaPortal.Frontend.Views
               {
                 args.Handled = true;
               }
-              else if (args.Key == Key.Escape)
+              else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Back, args))
               {
                 // The reference's own answer: the escape of a whole screen first puts away a menu that
                 // stands open on it (master_mediamenu.xaml:402); only an already closed menu lets the
-                // escape leave the screen.
+                // escape leave the screen. The key is the back action's, so a remote whose back button
+                // reports as something else still puts the menu away.
                 args.Handled = true;
                 HideNewsMenu();
                 feedsList.Focus();
                 StandCaretOn(feedsList);
               }
-              else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.MediaMenu, args.Key))
+              else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.MediaMenu, args))
               {
                 args.Handled = true;
                 HideNewsMenu();
@@ -290,7 +291,7 @@ namespace MediaPortal.Frontend.Views
               return;
             }
 
-            if (Settings.KeyBindings.Current.Is(Settings.KeyAction.MediaMenu, args.Key))
+            if (Settings.KeyBindings.Current.Is(Settings.KeyAction.MediaMenu, args))
             {
               // The reference's other half: the remote's info key (Apps, or the letter I) toggles the
               // screen's menu from wherever the caret stands (master_mediamenu.xaml:401). On the library

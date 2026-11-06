@@ -60,6 +60,54 @@ namespace Tests.Frontend
       Assert.That(defaults.Is(KeyAction.Back, Key.F16), Is.False);
     }
 
+    /// <summary>
+    /// The keys a television's own remote reports its buttons as, which the front end has to answer to be used
+    /// in front of a set. Where each name comes from is not a guess: the kernel turns a CEC remote's button into
+    /// an ordinary input key with its CEC keymap (drivers/media/rc/keymaps/rc-cec.c), and the name written under
+    /// each assertion below is the Avalonia key of the input key that map produces. A viewer whose remote reports
+    /// a button differently refits it in keybindings.json rather than in code.
+    /// </summary>
+    [Test]
+    public void TheDefaultsAnswerTheKeysATelevisionSOwnRemoteReports()
+    {
+      KeyBindings defaults = KeyBindings.TheDefaults();
+
+      // 0x61 Play-Pause becomes KEY_PLAYPAUSE, 0x45/0x64 Stop becomes KEY_STOPCD, 0x35 Info becomes KEY_INFO,
+      // 0x41/0x42 become KEY_VOLUMEUP/DOWN and 0x43/0x65 become KEY_MUTE.
+      Assert.That(defaults.Is(KeyAction.PlayPause, Key.Play), Is.True, "the remote's play key, not only its pause key");
+      Assert.That(defaults.Is(KeyAction.PlayPause, Key.MediaPlayPause), Is.True);
+      Assert.That(defaults.Is(KeyAction.Stop, Key.MediaStop), Is.True);
+      Assert.That(defaults.Is(KeyAction.MediaMenu, Key.MediaInfo), Is.True,
+          "the television's Info button asks the screen's own menu, as the reference hung it");
+      Assert.That(defaults.Is(KeyAction.MediaMenu, Key.MediaMenu), Is.True, "and so does its contents-menu button");
+      Assert.That(defaults.Is(KeyAction.VolumeUp, Key.VolumeUp), Is.True);
+      Assert.That(defaults.Is(KeyAction.VolumeUp, Key.OemPlus), Is.True, "the keyboard's stand-in kept its job");
+      Assert.That(defaults.Is(KeyAction.VolumeDown, Key.VolumeDown), Is.True);
+      Assert.That(defaults.Is(KeyAction.VolumeDown, Key.OemMinus), Is.True);
+      Assert.That(defaults.Is(KeyAction.Mute, Key.VolumeMute), Is.True);
+
+      // X11 hands a remote's volume button over as no key at all with a physical key under it - Avalonia's own X11
+      // table (src/Avalonia.X11/X11KeyTransform.cs) leaves the media and volume keys unmapped while its physical
+      // table covers them - so the event is what has to be asked, and one spelling in the file answers both.
+      var unnamedLouder = new Avalonia.Input.KeyEventArgs
+      {
+        Key = Key.None,
+        PhysicalKey = Avalonia.Input.PhysicalKey.AudioVolumeUp
+      };
+      Assert.That(defaults.Is(KeyAction.VolumeUp, unnamedLouder), Is.True,
+          "the button a windowing system cannot name still means the room's louder key");
+      var unnamedPause = new Avalonia.Input.KeyEventArgs
+      {
+        Key = Key.None,
+        PhysicalKey = Avalonia.Input.PhysicalKey.MediaPlayPause
+      };
+      Assert.That(defaults.Is(KeyAction.PlayPause, unnamedPause), Is.True);
+
+      Assert.That(defaults.Is(KeyAction.Stop, Key.Escape), Is.False,
+          "and stopping a film is not what the keyboard's escape means");
+      Assert.That(defaults.Is(KeyAction.Mute, Key.VolumeUp), Is.False);
+    }
+
     [Test]
     public void AnEditedFileRefitsTheRemoteAndAnUnknownKeyIsIgnored()
     {
@@ -157,6 +205,25 @@ namespace Tests.Frontend
       Assert.That(KeyBindings.TheDefaults().KeysFor(KeyAction.Back),
           Is.EquivalentTo(new[] { Key.Escape, Key.Back }));
       Assert.That(KeyBindings.TheDefaults().KeysFor(KeyAction.Menu), Is.EquivalentTo(new[] { Key.F16 }));
+    }
+
+    /// <summary>
+    /// The remote's OK is one action carrying the platforms' disagreements inside it, so that a screen asks
+    /// "is this the OK button" instead of naming keys of its own: the enter key as every windowing system
+    /// prints it, the space bar as the D-pad centre of an Android remote arrives
+    /// (AndroidKeyboardDevice.cs maps DpadCenter to it), and a remote's own select key.
+    /// </summary>
+    [Test]
+    public void TheRemoteSOwnOkButtonIsOneActionRatherThanAKeyPerScreen()
+    {
+      KeyBindings defaults = KeyBindings.TheDefaults();
+      Assert.That(defaults.Is(KeyAction.Select, Key.Return), Is.True, "the enter key as Avalonia prints it");
+      Assert.That(defaults.Is(KeyAction.Select, Key.Space), Is.True,
+          "the D-pad centre of an Android remote, which arrives as the space bar");
+      Assert.That(defaults.Is(KeyAction.Select, Key.Select), Is.True, "a remote with a key of its own for it");
+      Assert.That(defaults.Is(KeyAction.Select, Key.A), Is.False, "and no other key became an OK by this");
+      Assert.That(defaults.Is(KeyAction.Back, Key.Escape) && defaults.Is(KeyAction.Back, Key.Back), Is.True,
+          "back answers under both names the platforms hand it over as");
     }
 
     /// <summary>

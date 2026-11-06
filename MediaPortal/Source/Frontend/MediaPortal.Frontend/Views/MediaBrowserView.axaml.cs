@@ -715,7 +715,7 @@ namespace MediaPortal.Frontend.Views
             if (!(DataContext is MediaBrowserViewModel viewModel))
               return;
 
-            if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Menu, args.Key))
+            if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Menu, args))
             {
               // The "Menu" key of a remote - F16 by default, whatever a viewer's remote really reports is read
               // from keybindings.json. The apps key is not the default here because this screen already wears
@@ -724,7 +724,7 @@ namespace MediaPortal.Frontend.Views
               viewModel.ShowMenuCommand.Execute(null);
               args.Handled = true;
             }
-            else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.MediaMenu, args.Key)
+            else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.MediaMenu, args)
                 && !searchBox.IsFocused)
             {
               // The "info" key of a remote, which reaches this code as Apps, and the letter for a keyboard.
@@ -741,7 +741,7 @@ namespace MediaPortal.Frontend.Views
               }
               args.Handled = true;
             }
-            else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Details, args.Key)
+            else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Details, args)
                 && !searchBox.IsFocused)
             {
               // The details question, which the reference kept behind its view mode dialog and this screen answers
@@ -750,7 +750,7 @@ namespace MediaPortal.Frontend.Views
               viewModel.ToggleDetailsCommand.Execute(null);
               args.Handled = true;
             }
-            else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Find, args.Key) && !searchBox.IsFocused)
+            else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Find, args) && !searchBox.IsFocused)
             {
               // Finding is the one thing on this screen that needs the keyboard, so it is the one key that moves
               // the focus out of the list - and Enter or Escape brings it straight back, because the next thing a
@@ -759,7 +759,7 @@ namespace MediaPortal.Frontend.Views
               viewModel.OpenSearch();
               args.Handled = true;
             }
-            else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Watched, args.Key) && !searchBox.IsFocused)
+            else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Watched, args) && !searchBox.IsFocused)
             {
               // W for watched: everything, then what nobody has finished, then what somebody has. One key round
               // three states rather than two switches, because a remote reaches its keyboard through one button
@@ -767,14 +767,14 @@ namespace MediaPortal.Frontend.Views
               viewModel.CycleSeenCommand.Execute(null);
               args.Handled = true;
             }
-            else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.View, args.Key) && !searchBox.IsFocused)
+            else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.View, args) && !searchBox.IsFocused)
             {
               // V for view: rows or the skin's tiles. What shape the tiles take is not this key's business - the
               // Media button asks that - so the key only has the one question left for the viewer.
               viewModel.SwitchViewCommand.Execute(null);
               args.Handled = true;
             }
-            else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Media, args.Key) && !searchBox.IsFocused)
+            else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Media, args) && !searchBox.IsFocused)
             {
               // M for media: the picture the tiles wear, poster to banner to thumbnail. The same question the
               // button beside the view button asks, reachable from the sofa.
@@ -784,14 +784,16 @@ namespace MediaPortal.Frontend.Views
             else if (searchBox.IsFocused && (args.Key == Key.Enter || args.Key == Key.Return))
             {
               // Enter means different things depending on where the caret is: "play this" on a row, "search for
-              // this" in the box. The box gets asked first, or typing a title would start a film.
+              // this" in the box. The box gets asked first, or typing a title would start a film - and the box is
+              // asked about the enter key ALONE, never about the OK action, because the space bar is the letter
+              // the viewer is still spelling with and Android's D-pad centre reports itself as exactly that.
               viewModel.FindCommand.Execute(null);
               // The caret goes onto a TILE, not merely into the list: a caret that gets no further than the list
               // wears no frame, and the viewer who just spelled a title wants to stand on a result.
               FocusShelf();
               args.Handled = true;
             }
-            else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Back, args.Key))
+            else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Back, args))
             {
               // Back means "away with the newest thing on the screen", which is the title's menu when one is
               // standing open, then the search when there is one, then the watched filter.  The details are NOT
@@ -865,9 +867,10 @@ namespace MediaPortal.Frontend.Views
               // stands open), and the key that opens and closes the panel is the details key - which the button
               // beside the view button has always said out loud.
             }
-            else if ((args.Key == Key.Enter || args.Key == Key.Return
-                    || Settings.KeyBindings.Current.Is(Settings.KeyAction.PlayPause, args.Key))
-                && !viewModel.MenuVisible && !viewModel.MediaMenuVisible && !viewModel.InfoShown)
+            else if ((Settings.KeyBindings.Current.Is(Settings.KeyAction.Select, args)
+                    || Settings.KeyBindings.Current.Is(Settings.KeyAction.PlayPause, args))
+                && !viewModel.MenuVisible && !viewModel.MediaMenuVisible && !viewModel.InfoShown
+                && !searchBox.IsFocused)
             {
               // Enter is only "play the row" while nobody taller is wearing it: with the title's dialog or the
               // screen's menu open the key belongs to the row the focus rests on there, and a dialog whose own key
@@ -1274,12 +1277,13 @@ namespace MediaPortal.Frontend.Views
 
       list.AddHandler(KeyDownEvent, delegate (object? sender, KeyEventArgs args)
       {
-        // The button every input device has: Enter on a keyboard, the space bar where a remote has no letters, and
-        // the remote's own OK where it arrives as its own key. A rail of commands that cannot be pressed with any
-        // of them is a rail for the mouse only.  Heard though the list handled the key, because the list DOES
-        // handle it: a list walks its own caret with the arrows and answers the button itself by ending whatever
-        // it was doing, and a handler that only listens to keys nobody used never presses a row.
-        if (args.Key != Key.Enter && args.Key != Key.Return && args.Key != Key.Space && args.Key != Key.Select)
+        // The button every input device has: the enter key on a keyboard, the space bar where a remote has no
+        // letters, and the remote's own OK where it arrives as its own key - which keys those are is the
+        // table's business (KeyAction.Select). A rail of commands that cannot be pressed with any of them is a
+        // rail for the mouse only.  Heard though the list handled the key, because the list DOES handle it: a
+        // list walks its own caret with the arrows and answers the button itself by ending whatever it was
+        // doing, and a handler that only listens to keys nobody used never presses a row.
+        if (!Settings.KeyBindings.Current.Is(Settings.KeyAction.Select, args))
           return;
 
         // The row the caret stands on, and the list's own answer only where that says nothing: the arrows that

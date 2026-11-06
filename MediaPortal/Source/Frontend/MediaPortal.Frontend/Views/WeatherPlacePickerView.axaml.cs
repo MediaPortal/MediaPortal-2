@@ -112,7 +112,7 @@ namespace MediaPortal.Frontend.Views
       AddHandler(KeyDownEvent,
           delegate (object? sender, KeyEventArgs args)
           {
-            if (!Settings.KeyBindings.Current.Is(Settings.KeyAction.Back, args.Key)
+            if (!Settings.KeyBindings.Current.Is(Settings.KeyAction.Back, args)
                 && args.Key != Key.Escape && args.Key != Key.Back)
               return;
 

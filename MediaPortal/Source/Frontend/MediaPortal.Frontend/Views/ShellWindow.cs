@@ -488,26 +488,48 @@ namespace MediaPortal.Frontend.Views
 
             if (args.Handled)
             {
-              // A screen answered it about its own business; but the volume keys below belong to the room,
-              // not the screen, so fall through only for them.
-              if (!IsVolumeKey(args.Key))
+              // A screen answered it about its own business; but the sound's keys below belong to the room,
+              // not the screen, so fall through only for them. Heard with handled events too - a wall that
+              // claims every key for itself would otherwise be the one screen a viewer cannot turn the sound
+              // down on, and the reference's handler (WindowMessageHandler.cs:298) asks its question of every
+              // key before any screen has said a word about it.
+              if (!IsRoomKey(args))
+                return;
+              // A hand that is typing is not a hand turning the sound down. The keyboard's stand-ins for the
+              // television's volume buttons are printable characters, so whoever is writing a server address
+              // in a settings field keeps their "+" and "-" as text.
+              if (FocusIsWriting())
                 return;
             }
 
-            if (IsVolumeKey(args.Key))
+            if (IsRoomKey(args))
             {
-              ViewModels.NowPlayingViewModel? playback = (Application.Current as App)?.Playback;
+              ViewModels.NowPlayingViewModel? playback = PlaybackModel;
               if (playback == null)
                 return;
 
-              int step = args.Key == Key.VolumeUp || args.Key == Key.OemPlus ? 5 : -5;
-              playback.SetVolume(Math.Max(0, Math.Min(100, playback.Volume + step)));
+              if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Mute, args))
+              {
+                // The remote's silence key says what it did, because a bar cannot be read from across a room and
+                // the viewer who just pressed the key wants the number either way. The model's own word for the
+                // silenced state is the one that goes up.
+                playback.ToggleMute();
+                string said = playback.Muted ? "Muted" : "Volume " + playback.Volume + " %";
+                if (ShowSuperlayer("Superlayer_Volume", said, 2000))
+                  args.Handled = true;
+                return;
+              }
+
+              int step = Settings.KeyBindings.Current.Is(Settings.KeyAction.VolumeUp, args)
+                  ? playback.VolumeStep
+                  : -playback.VolumeStep;
+              playback.SetVolume(playback.Volume + step);
               if (ShowSuperlayer("Superlayer_Volume", "Volume " + playback.Volume + " %", 2000))
                 args.Handled = true;
               return;
             }
 
-            if (!Settings.KeyBindings.Current.Is(Settings.KeyAction.Back, args.Key))
+            if (!Settings.KeyBindings.Current.Is(Settings.KeyAction.Back, args))
               return;
             if (StepBackOneLayer())
             {
@@ -521,7 +543,7 @@ namespace MediaPortal.Frontend.Views
               Close();
             args.Handled = true;
           },
-          RoutingStrategies.Bubble);
+          RoutingStrategies.Bubble, true);
 
       // The right hand's button takes the same first step over the layers this window raises, which is what the
       // player panel already does for the things standing over its film (NowPlayingView). Without it a viewer
@@ -539,10 +561,39 @@ namespace MediaPortal.Frontend.Views
           RoutingStrategies.Tunnel);
     }
 
-    /// <summary>The television's volume keys, and the keyboard's stand-ins for a keyboard without them.</summary>
-    private static bool IsVolumeKey(Key key)
+    /// <summary>
+    /// The room's playback model: the one the application made, or the one the tests handed over. A headless test
+    /// has no application of this front end to ask, and the sound of the room belongs to the window rather than to
+    /// any one screen, so without this the room's keys could only be answered by a running front end.
+    /// </summary>
+    internal ViewModels.NowPlayingViewModel? PlaybackOverride { get; set; }
+
+    private ViewModels.NowPlayingViewModel? PlaybackModel
     {
-      return key == Key.VolumeUp || key == Key.VolumeDown || key == Key.OemPlus || key == Key.OemMinus;
+      get { return PlaybackOverride ?? (Application.Current as App)?.Playback; }
+    }
+
+    /// <summary>
+    /// The keys that belong to the room rather than to any one screen: the television's louder, quieter and
+    /// silent buttons, whatever a given remote reports them as, which is what the binding table answers. The
+    /// keyboard's stand-ins (the plus and minus above the letters) ride along in the table's defaults.
+    /// </summary>
+    private static bool IsRoomKey(KeyEventArgs args)
+    {
+      return Settings.KeyBindings.Current.Is(Settings.KeyAction.VolumeUp, args)
+          || Settings.KeyBindings.Current.Is(Settings.KeyAction.VolumeDown, args)
+          || Settings.KeyBindings.Current.Is(Settings.KeyAction.Mute, args);
+    }
+
+    /// <summary>
+    /// Whether a hand is writing rather than holding a remote: the focused element takes typed text. Asked
+    /// before the room answers a key a screen has already claimed, because the keyboard's stand-ins for the
+    /// television's louder and quieter buttons are the printable "+" and "-", and those belong to the address
+    /// or the number somebody is typing as long as a field is standing under the caret.
+    /// </summary>
+    private bool FocusIsWriting()
+    {
+      return this.FocusManager.GetFocusedElement() is Avalonia.Controls.TextBox;
     }
 
     /// <summary>
@@ -1411,7 +1462,7 @@ namespace MediaPortal.Frontend.Views
     /// </summary>
     public void UpdatePlaybackBar()
     {
-      ViewModels.NowPlayingViewModel? playback = (Application.Current as App)?.Playback;
+      ViewModels.NowPlayingViewModel? playback = PlaybackModel;
       bool playing = playback != null && playback.HasMedia;
       bool standingAtThePlayer = _workflow.Current is Workflow.WorkflowFrame frame
           && frame.StateId == "nowplaying";
@@ -1440,7 +1491,7 @@ namespace MediaPortal.Frontend.Views
     /// </summary>
     public void OpenSoundDialog()
     {
-      ViewModels.NowPlayingViewModel? playback = (Application.Current as App)?.Playback;
+      ViewModels.NowPlayingViewModel? playback = PlaybackModel;
       if (playback == null)
         return; // no playback model means no sound to set
 

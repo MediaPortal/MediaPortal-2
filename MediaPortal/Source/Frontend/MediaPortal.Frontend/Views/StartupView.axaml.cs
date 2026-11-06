@@ -291,7 +291,7 @@ namespace MediaPortal.Frontend.Views
       if (_model == null)
         return;
 
-      if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Back, args.Key)
+      if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Back, args)
           || args.Key == Key.Escape
           || args.Key == Key.Back)
       {

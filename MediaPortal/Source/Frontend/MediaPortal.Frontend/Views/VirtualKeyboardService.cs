@@ -94,7 +94,7 @@ namespace MediaPortal.Frontend.Views
       if (trigger == VirtualKeyboardTrigger.None)
         return;
 
-      bool menu = Settings.KeyBindings.Current.Is(Settings.KeyAction.Menu, args.Key);
+      bool menu = Settings.KeyBindings.Current.Is(Settings.KeyAction.Menu, args);
       bool enter = args.Key == Key.Enter || args.Key == Key.Return;
       if (menu || (enter && trigger == VirtualKeyboardTrigger.EnterOrMenu))
       {

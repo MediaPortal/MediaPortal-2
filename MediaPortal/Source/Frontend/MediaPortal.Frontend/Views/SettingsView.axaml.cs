@@ -370,7 +370,7 @@ namespace MediaPortal.Frontend.Views
       if (stood < 0)
         return;
 
-      if (e.Key == Key.Enter || e.Key == Key.Return || e.Key == Key.Space)
+      if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Select, e))
       {
         // The press of the plate the viewer stands on. Selection stays out of it: the press goes to the hub
         // as the pointer's press of the same plate goes, and the caret alone does not pick.
@@ -434,7 +434,7 @@ namespace MediaPortal.Frontend.Views
     {
       // The back key, for a viewer on a keyboard. The remote's Back reaches the same answer through the shell;
       // this is the hub's own half of it, which stops at the first level and hands the key back from there.
-      if ((e.Key == Key.Escape || e.Key == Key.Back) && _model.GoBack())
+      if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Back, e) && _model.GoBack())
       {
         e.Handled = true;
         Target().Focus();

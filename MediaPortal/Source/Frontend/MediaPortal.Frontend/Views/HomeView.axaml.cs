@@ -568,7 +568,7 @@ namespace MediaPortal.Frontend.Views
           {
             if (args.Source is TextBox
                 || !_home.IsNereusHome
-                || !Settings.KeyBindings.Current.Is(Settings.KeyAction.Menu, args.Key))
+                || !Settings.KeyBindings.Current.Is(Settings.KeyAction.Menu, args))
               return;
 
             // The key belongs to whatever is stood on, which is the reference's own split: its menu rail answered
@@ -771,14 +771,14 @@ namespace MediaPortal.Frontend.Views
           },
           RoutingStrategies.Tunnel);
 
-      // Enter asks who has the focus, and the view model decides what the press means: pressing a tile opens
-      // that part of the library, pressing a menu entry that cannot open shows the reason on screen instead of
-      // clicking against nothing, and pressing a row - half way watched or in the lists beside it - resumes
-      // through the view model, which tells the server who is watching.
+      // The remote's OK asks who has the focus, and the view model decides what the press means: pressing a
+      // tile opens that part of the library, pressing a menu entry that cannot open shows the reason on screen
+      // instead of clicking against nothing, and pressing a row - half way watched or in the lists beside it -
+      // resumes through the view model, which tells the server who is watching.
       AddHandler(KeyDownEvent,
           delegate (object? sender, KeyEventArgs args)
           {
-            if (args.Key != Key.Enter && args.Key != Key.Return && args.Key != Key.Space && args.Key != Key.Select)
+            if (!Settings.KeyBindings.Current.Is(Settings.KeyAction.Select, args))
               return;
 
             // The entry the caret stands on rather than the entry the list happens to have selected: the arrows

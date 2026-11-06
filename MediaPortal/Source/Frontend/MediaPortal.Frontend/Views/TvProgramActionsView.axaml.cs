@@ -77,12 +77,13 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
-    /// The keys that answer: the same ones every list here answers to, and Enter foremost because the reference's
-    /// dialog was reached by pressing Enter on a programme and finished by pressing it once more on an answer.
+    /// The keys that answer: the same ones every list here answers to, and the remote's OK foremost because
+    /// the reference's dialog was reached by pressing OK on a programme and finished by pressing it once more
+    /// on an answer. Which keys mean OK is the table's business, not this list's.
     /// </summary>
     private void OnListKey(object? sender, KeyEventArgs args)
     {
-      if (args.Key == Key.Enter || args.Key == Key.Space || args.Key == Key.Select)
+      if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Select, args))
       {
         Answer();
         args.Handled = true;

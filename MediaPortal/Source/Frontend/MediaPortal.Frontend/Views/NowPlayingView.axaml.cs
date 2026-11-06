@@ -98,30 +98,43 @@ namespace MediaPortal.Frontend.Views
 
       // The remote's key map, ported from the reference's FullScreenContentVideoKeyBindings.inc and its
       // IsOSDVisible conditions: with the on-screen buttons away, left and right climb the escalating skip
-      // ladder and up and down make one instant jump each - the film alone on the screen answers only skip
-      // keys. With the buttons shown, the same keys belong to the d-pad ring and the skip bindings are off,
-      // exactly as the reference switches them. Info (the keyboard's I, which is what its key map calls
-      // Info) calls the buttons or sends them away; back closes the buttons before it ever closes the
-      // screen. The reference shows its buttons automatically for a mouse; this asks its own window, the
-      // same portable question the screensaver watch asks.
+      // ladder and up and down make one instant jump each - the film alone on the screen answers the skip keys
+      // and its transport keys, and nothing else. With the buttons shown, the same four keys belong to the
+      // d-pad ring and the skip bindings are off, exactly as the reference switches them, while the transport
+      // keys keep answering because a remote has a pause button whatever the screen is showing. Which remote
+      // button is which key is the binding table's business (Settings/KeyBindings.cs). The screen's own menu -
+      // the buttons - is called by whatever the binding table calls the screen's menu key, which by default is
+      // the keyboard's I, the remote's Apps key (what the reference's key map reported its Info button as) and
+      // the television's Info and contents-menu buttons; back closes the buttons before it ever closes the
+      // screen. The reference shows its buttons automatically for a mouse; this asks its own window, the same
+      // portable question the screensaver watch asks.
       AddHandler(KeyDownEvent,
           delegate (object? sender, KeyEventArgs args)
           {
-            if (args.Key == Key.I)
+            if (Settings.KeyBindings.Current.Is(Settings.KeyAction.MediaMenu, args))
             {
               ToggleOsd();
               args.Handled = true;
             }
-            else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Back, args.Key) && StepBackOneLayer())
+            else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Back, args) && StepBackOneLayer())
             {
               // Back goes back before it leaves: the list of subtitles first, then the display, then the screen.
               args.Handled = true;
             }
-            else if (args.Key == Key.MediaStop)
+            else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Stop, args))
             {
               // The remote's stop key and the bar's stop button say the same thing: the film stops and the
-              // screen leaves, back to where the viewer came from.
+              // screen leaves, back to where the viewer came from. Which key a given remote reports its stop
+              // button as is the table's business, not this screen's.
               StopAndLeave();
+              args.Handled = true;
+            }
+            else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.PlayPause, args))
+            {
+              // The remote's play/pause button means the same thing as the bar's pause mark. Nothing is said
+              // here: the pause mark of the worn skin already rises in the middle of the picture from the
+              // model's own state, and the bar's mark and its word change with it.
+              _viewModel.TogglePause();
               args.Handled = true;
             }
             else if (!_osdVisible && args.Key == Key.Left)

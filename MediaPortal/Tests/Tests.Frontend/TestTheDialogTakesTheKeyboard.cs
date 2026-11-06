@@ -182,6 +182,51 @@ namespace Tests.Frontend
     }
 
     /// <summary>
+    /// The remote's OK is an action of its own rather than a key each dialog compares by hand, because the
+    /// platforms disagree about its name: a television sends ENTER, the windowing system prints the same key as
+    /// Return, and the D-pad centre of an Android hand arrives as Space. Whichever spelling a dialog is handed,
+    /// it presses the plate the viewer stands on.
+    /// </summary>
+    [AvaloniaTest]
+    public void ADialogIsAnsweredByWhicheverKeyARemotesOkButtonReports()
+    {
+      foreach (Key ok in new[] { Key.Return, Key.Space, Key.Select })
+      {
+        Button ground = Ground(out WorkflowManager workflow);
+        ShellWindow window = new ShellWindow(workflow, null);
+        workflow.Push(new WorkflowFrame("ground", "Ground", ground) { View = ground });
+        window.Show();
+        Pump();
+
+        NotificationQueue queue = new NotificationQueue();
+        queue.Enqueue(NotificationType.Info, "a word for the viewer", "that wants reading");
+        NotificationsViewModel model = new NotificationsViewModel(queue);
+        bool finished = false;
+        model.Finished += delegate { finished = true; };
+        NotificationsView dialog = new NotificationsView(model, workflow);
+        workflow.Push(new WorkflowFrame("notifications", "Notifications", model) { View = dialog });
+        Pump();
+
+        Visual? stood = Focused(window);
+        Assert.That(stood, Is.InstanceOf<Button>(), "the dialog's first plate was left stood on by nobody");
+        // Down and up, because that is what a hand sends: a plate of a dialog is a button, and a button is
+        // clicked by the space bar when the bar is RELEASED, while the enter key is answered on the press.
+        Press((Control)stood!, ok);
+        ((Control)stood!).RaiseEvent(new KeyEventArgs
+        {
+          RoutedEvent = InputElement.KeyUpEvent,
+          Key = ok,
+          Source = stood
+        });
+        Pump();
+        Assert.That(finished, Is.True,
+            $"'{ok}' is how one platform reports a remote's OK button, and a dialog that lets it pass leaves the "
+            + "viewer pressing a plate that answers to nobody");
+        window.Close();
+      }
+    }
+
+    /// <summary>
     /// A dialog that never said where its keys start still holds the keyboard: the shell's net, so that the next
     /// dialog written without an <see cref="IWorkflowScreen.OnScreenActivated"/> is a dialog that can be answered
     /// rather than a wall the viewer has to Escape out of.

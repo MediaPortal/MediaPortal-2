@@ -261,6 +261,23 @@ namespace Tests.Frontend
       return args.Handled;
     }
 
+    /// <summary>
+    /// Raises a key the way a windowing system that only knows the key under the button does it: no logical key
+    /// at all, and the physical key of the button the remote reported.
+    /// </summary>
+    private static void PressPhysicalKey(Control on, PhysicalKey physical)
+    {
+      var args = new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.None,
+        PhysicalKey = physical,
+        Source = on
+      };
+      on.RaiseEvent(args);
+      Pump();
+    }
+
     private static MediaLocation Film(string name)
     {
       return MediaLocation.FromFile(System.IO.Path.Combine(
@@ -519,6 +536,174 @@ namespace Tests.Frontend
       Assert.That(player.Calls, Does.Contain("Stop"), "the button stopped the film");
       Assert.That(screen.IsPlaying, Is.False, "and the screen knows it");
       Assert.That(window.IsVisible, Is.False, "and the screen went with the film, not the film with the screen");
+    }
+
+    /// <summary>
+    /// The same screen driven by a television's own remote rather than by a keyboard. What such a remote's button
+    /// reports is not a guess: the kernel turns a CEC remote's buttons into ordinary input keys with its CEC
+    /// keymap (drivers/media/rc/keymaps/rc-cec.c), and the names pressed below are the Avalonia keys of those
+    /// input keys. That the screen and the window answer them is the whole of the first tier of the CEC plan -
+    /// see docs/multiplatform/Hdmi-Cec-Plan.md.
+    /// </summary>
+    [AvaloniaTest]
+    public void ATelevisionSOwnRemoteDrivesTheButtonsTheFilmAndTheSound()
+    {
+      var player = new FakePlayer();
+      ShellWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
+      window.PlaybackOverride = screen;
+      screen.Play(Film("film.mkv"));
+      Pump();
+
+      NowPlayingView view = PlaybackView(window);
+
+      // The set's Info button, which the kernel reports as KEY_INFO and this code reads as MediaInfo. Whether the
+      // buttons stood out before the press is not the question; that this one button turns them round is.
+      bool stood = view.OsdVisible;
+      Assert.That(PressKey(view, Key.MediaInfo), Is.True, "the screen answers the television's Info button");
+      Assert.That(view.OsdVisible, Is.Not.EqualTo(stood), "and the buttons changed with it");
+      Assert.That(PressKey(view, Key.MediaInfo), Is.True);
+      Assert.That(view.OsdVisible, Is.EqualTo(stood), "and the same button found them as they were");
+
+      // Its play key means the same as the mark on the bar, and it answers whatever the screen is showing,
+      // because a remote carries that button even with the buttons away.
+      Assert.That(PressKey(view, Key.Play), Is.True, "the remote's play key reached the screen");
+      Assert.That(player.Calls, Does.Contain("Pause"), "and it paused the film");
+      Assert.That(screen.IsPaused, Is.True, "which the screen knows");
+      PressKey(view, Key.Play);
+      Assert.That(player.Calls, Does.Contain("Play"), "and the same key played it again");
+
+      // The louder, quieter and silence keys belong to the room rather than to the screen, so the window answers
+      // them - over the film, without the viewer having to call the sound's dialog first.
+      int was = player.Volume;
+      PressKey(view, Key.VolumeDown);
+      Assert.That(player.Volume, Is.EqualTo(was - screen.VolumeStep), "the room's quieter key took one step off");
+      PressKey(view, Key.VolumeUp);
+      Assert.That(player.Volume, Is.EqualTo(was), "and the louder key brought the sound back");
+
+      PressKey(view, Key.VolumeMute);
+      Assert.That(player.Muted, Is.True, "and the room's silence key took the sound away");
+      PressKey(view, Key.VolumeMute);
+      Assert.That(player.Muted, Is.False, "and gave it back");
+
+      // Its stop button ends the film, which leaves the screen as the keyboard's stop key leaves it.
+      Assert.That(PressKey(view, Key.MediaStop), Is.True, "and its stop button ends the film");
+      Assert.That(player.Calls, Does.Contain("Stop"));
+      Assert.That(window.IsVisible, Is.False, "and the screen went with it");
+    }
+
+    /// <summary>
+    /// The same remote on a windowing system that does not know its buttons. Avalonia's X11 key table
+    /// (src/Avalonia.X11/X11KeyTransform.cs) leaves the media and volume keys unmapped while its physical key
+    /// table covers them, and an evdev device's scan code is the kernel's key code plus eight, so
+    /// <c>KEY_PLAYPAUSE</c> (164) arrives as the physical key <c>MediaPlayPause</c> (0xAC) with no logical key
+    /// beside it. The binding file names both spellings of those buttons, which is what keeps a remote working
+    /// there - and where neither spelling arrives, as under X11 for the set's Info button, the viewer's own
+    /// <c>keybindings.json</c> hands the button a key the front end does hear.
+    /// </summary>
+    [AvaloniaTest]
+    public void ARemoteWhoseButtonsTheWindowingSystemDoesNotNameStillAnswers()
+    {
+      var player = new FakePlayer();
+      ShellWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
+      window.PlaybackOverride = screen;
+      screen.Play(Film("film.mkv"));
+      Pump();
+
+      NowPlayingView view = PlaybackView(window);
+
+      PressPhysicalKey(view, PhysicalKey.MediaPlayPause);
+      Assert.That(player.Calls, Does.Contain("Pause"), "the unnamed pause button paused the film");
+      PressPhysicalKey(view, PhysicalKey.MediaPlayPause);
+      Assert.That(player.Calls, Does.Contain("Play"), "and played it again");
+
+      int was = player.Volume;
+      PressPhysicalKey(view, PhysicalKey.AudioVolumeDown);
+      Assert.That(player.Volume, Is.EqualTo(was - screen.VolumeStep), "the unnamed quieter key took one step off");
+      PressPhysicalKey(view, PhysicalKey.AudioVolumeUp);
+      Assert.That(player.Volume, Is.EqualTo(was), "and the louder key brought the sound back");
+      PressPhysicalKey(view, PhysicalKey.AudioVolumeMute);
+      Assert.That(player.Muted, Is.True, "and the unnamed silence key took the sound away");
+
+      PressPhysicalKey(view, PhysicalKey.MediaStop);
+      Assert.That(player.Calls, Does.Contain("Stop"), "and the unnamed stop button ended the film");
+      Assert.That(screen.IsPlaying, Is.False, "and the screen knows it");
+    }
+
+    /// <summary>
+    /// A screen that claims every key it is offered - which is what the home wall does, and what any screen may
+    /// do - must still leave the room's sound to the room. The wall was exactly where this broke: the volume key
+    /// was swallowed by the screen and the window never heard it, so a viewer standing in the wall could not turn
+    /// the sound down. The window hears these keys with handled events too, which is how the reference's handler
+    /// works (WindowMessageHandler.cs:298, asked of every key before any screen has spoken).
+    /// </summary>
+    [AvaloniaTest]
+    public void TheRoomsSoundIsHeardEvenOverAScreenThatClaimsEveryKey()
+    {
+      var player = new FakePlayer();
+      ShellWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
+      window.PlaybackOverride = screen;
+      screen.Play(Film("film.mkv"));
+      Pump();
+
+      NowPlayingView view = PlaybackView(window);
+      view.AddHandler(InputElement.KeyDownEvent,
+          delegate (object? sender, KeyEventArgs args) { args.Handled = true; },
+          RoutingStrategies.Bubble, true);
+
+      int was = player.Volume;
+      PressKey(view, Key.VolumeDown);
+      Assert.That(player.Volume, Is.EqualTo(was - screen.VolumeStep),
+          "the room answered the quieter key although the screen had claimed it");
+
+      Assert.That(PressKey(view, Key.Back), Is.True, "the screen kept the back key it claimed");
+      Assert.That(window.IsVisible, Is.True, "and the window is still standing behind it");
+    }
+
+    /// <summary>
+    /// The keyboard's stand-ins for the television's louder and quieter buttons are the printable "+" and "-",
+    /// so a hand that is writing a server address in a field keeps its characters: a claimed printable key is
+    /// left alone while the caret stands in a text field.
+    /// </summary>
+    [AvaloniaTest]
+    public void AHandThatIsTypingKeepsItsPlusAndMinusForTheText()
+    {
+      var player = new FakePlayer();
+      ShellWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
+      window.PlaybackOverride = screen;
+      screen.Play(Film("film.mkv"));
+      Pump();
+
+      var field = new TextBox();
+      Panel host = PlaybackView(window).GetVisualDescendants().OfType<Panel>().First();
+      host.Children.Add(field);
+      Pump();
+      field.Focus();
+      Pump();
+
+      // What a text field does with a printable key: it writes the character and marks the key used. Said here
+      // rather than got from the field, because a headless field has no input method to write with and so claims
+      // nothing on its own.
+      field.AddHandler(InputElement.KeyDownEvent,
+          delegate (object? sender, KeyEventArgs args) { args.Handled = true; },
+          RoutingStrategies.Bubble, true);
+
+      int was = player.Volume;
+      PressKey(field, Key.OemPlus);
+      Assert.That(player.Volume, Is.EqualTo(was),
+          "the room did not turn the sound up on a hand that was writing");
+
+      // The very same key, claimed by the very same screen, does move the sound the moment the caret is out of
+      // the field - the guard is about writing, not about the screen underneath.
+      // The caret leaves the field - to a mark beside it, since a focus scope keeps the field it was left with -
+      // and a claimed key of the same kind belongs to the room again.
+      var elsewhere = new Button { Content = "somewhere else" };
+      host.Children.Add(elsewhere);
+      Pump();
+      elsewhere.Focus();
+      Pump();
+      PressKey(field, Key.OemMinus);
+      Assert.That(player.Volume, Is.EqualTo(was - screen.VolumeStep),
+          "and away from a field the claimed quieter key reached the room");
     }
 
     [AvaloniaTest]

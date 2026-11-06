@@ -70,12 +70,12 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
-    /// The keys that answer: Enter foremost, because the reference's menu was reached by pressing the
-    /// power plate and finished by pressing once more on a row.
+    /// The keys that answer: the remote's OK foremost, because the reference's menu was reached by pressing
+    /// the power plate and finished by pressing once more on a row. Which keys mean OK is the table's business.
     /// </summary>
     private void OnListKey(object? sender, KeyEventArgs args)
     {
-      if (args.Key == Key.Enter || args.Key == Key.Space || args.Key == Key.Select)
+      if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Select, args))
       {
         Answer();
         args.Handled = true;
