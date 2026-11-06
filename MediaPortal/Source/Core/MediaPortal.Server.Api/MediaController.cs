@@ -990,6 +990,64 @@ namespace MediaPortal.Server.Api
           }
         }
 
+        // The figure a container shows over its cover is the average of its children's figures, which is what the
+        // reference displays (PlayableContainerMediaItem.cs:47-58): the library keeps that average on the parents
+        // its play reports reach through playable relationship cells, but the episode→season cell an importer
+        // writes is not one of those, so a season carries nobody's figure and its shelf would say nothing about
+        // a half-watched season. Asked live, the children answer: every child of this row is read with the
+        // caller's own data, untouched children count as nought, and the rounded mean becomes the row's figure.
+        // Only a row whose own stored figure is missing is asked, and only a container with at least one child
+        // that holds a figure gets an average - a shelf nobody watched keeps its nothing, which is the household
+        // answer's (PlayCount's) ground, not this one's.
+        if (profile.HasValue)
+        {
+          Guid childAspect = Guid.Empty, childRole = Guid.Empty, parentRole = Guid.Empty;
+          if (aspectId == SeasonAspect.ASPECT_ID)
+          {
+            childAspect = EpisodeAspect.ASPECT_ID;
+            childRole = EpisodeAspect.ROLE_EPISODE;
+            parentRole = SeasonAspect.ROLE_SEASON;
+          }
+          else if (aspectId == SeriesAspect.ASPECT_ID)
+          {
+            childAspect = EpisodeAspect.ASPECT_ID;
+            childRole = EpisodeAspect.ROLE_EPISODE;
+            parentRole = SeriesAspect.ROLE_SERIES;
+          }
+          else if (aspectId == AudioAlbumAspect.ASPECT_ID)
+          {
+            childAspect = AudioAspect.ASPECT_ID;
+            childRole = AudioAspect.ROLE_TRACK;
+            parentRole = AudioAlbumAspect.ROLE_ALBUM;
+          }
+
+          if (childAspect != Guid.Empty)
+          {
+            for (int row = 0; row < items.Count && row < titles.Count; row++)
+            {
+              if (titles[row].Percentage.HasValue)
+                continue;
+              // Child-first roles, as every relationship walk in this file spells them: the row stands on the
+              // child and names this container.
+              IFilter within = new RelationshipFilter(childRole, parentRole, items[row].MediaItemId);
+              MediaItemQuery childQuery = new MediaItemQuery(new[] { childAspect, MediaAspect.ASPECT_ID }, null, within);
+              IList<MediaItem> children = mediaLibrary.Search(childQuery, false, profile.Value, false);
+              if (children == null || children.Count == 0)
+                continue;
+              int sum = 0;
+              bool anyChildSaid = false;
+              foreach (MediaItem child in children)
+              {
+                int? own = ReadPercentage(child);
+                anyChildSaid |= own.HasValue;
+                sum += own ?? 0;
+              }
+              if (anyChildSaid)
+                titles[row].Percentage = (int)Math.Round(sum / (double)children.Count, MidpointRounding.AwayFromZero);
+            }
+          }
+        }
+
         // A series whose row says nothing about episodes is asked one question of its own: a tagger that never
         // wrote a total onto the show still left the library holding the episodes, and they hang off the series
         // by relationship - the same walk CountSeasonsOfSeries makes to count one series' seasons, stopped one
@@ -1019,8 +1077,27 @@ namespace MediaPortal.Server.Api
           if (counted.Count == 0)
             counted = null;
           else
+          {
             titles = counted.Skip(skip).Take(take)
                 .Select(group => CountedSeasonTitle(inside, insideName, group.Key, group.Value)).ToList();
+
+            // The figure a counted season row shows is worked out of the very episodes that were just counted
+            // into it, and asked once for the whole shelf instead of per row: these seasons have no id of their
+            // own to hang a relationship on, but every episode names its series and its number, which is the
+            // same two facts the counting read. Asked under a name, because a figure belongs to a person; the
+            // law is the containers' (see the averaging above) - empty episodes count as nought, and a season
+            // nobody of whose episodes holds a figure keeps the row's figure unnamed.
+            if (profile.HasValue)
+            {
+              Dictionary<int, int> figures = AverageEpisodePercentagePerSeason(mediaLibrary, inside, profile.Value);
+              foreach (TitleResult row in titles)
+              {
+                int figure;
+                if (row.Season.HasValue && figures.TryGetValue(row.Season.Value, out figure))
+                  row.Percentage = figure;
+              }
+            }
+          }
         }
 
         // "how many are there" is asked through the same filter the list was read through, or a front end that
@@ -4255,6 +4332,51 @@ namespace MediaPortal.Server.Api
       }
 
       return counted.OrderBy(pair => pair.Key).ToList();
+    }
+
+    /// <summary>
+    /// The figure of each season of a series that holds its seasons as nothing but a number written on the
+    /// episodes: the episodes asked once under the caller's name, grouped by the number they wear, each group
+    /// averaged the way a container's children are (<see cref="ReadPercentage"/>; an episode nobody watched
+    /// counts as nought). A season whose episodes all answer nothing is left out of the answer entirely -
+    /// inventing a nought there would rob the client of the difference between untouched and unasked.
+    /// </summary>
+    private static Dictionary<int, int> AverageEpisodePercentagePerSeason(IMediaLibrary mediaLibrary,
+        Guid seriesId, Guid profile)
+    {
+      Dictionary<int, int> figures = new Dictionary<int, int>();
+      MediaItemQuery episodes = new MediaItemQuery(
+          new List<Guid> { EpisodeAspect.ASPECT_ID, MediaAspect.ASPECT_ID },
+          null,
+          new RelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES, seriesId));
+
+      IList<MediaItem> held = mediaLibrary.Search(episodes, false, profile, false);
+      if (held == null)
+        return figures;
+
+      Dictionary<int, int> sums = new Dictionary<int, int>();
+      Dictionary<int, int> amounts = new Dictionary<int, int>();
+      HashSet<int> somebodySaid = new HashSet<int>();
+      foreach (MediaItem episode in held)
+      {
+        SingleMediaItemAspect numbered;
+        int number = MediaItemAspect.TryGetAspect(episode.Aspects, EpisodeAspect.Metadata, out numbered)
+            ? numbered.GetAttributeValue<int>(EpisodeAspect.ATTR_SEASON)
+            : 0;
+        int? own = ReadPercentage(episode);
+        if (own.HasValue)
+          somebodySaid.Add(number);
+        sums[number] = sums.ContainsKey(number) ? sums[number] + (own ?? 0) : own ?? 0;
+        amounts[number] = amounts.ContainsKey(number) ? amounts[number] + 1 : 1;
+      }
+
+      foreach (KeyValuePair<int, int> season in sums)
+      {
+        if (somebodySaid.Contains(season.Key))
+          figures[season.Key] = (int)Math.Round(season.Value / (double)amounts[season.Key],
+              MidpointRounding.AwayFromZero);
+      }
+      return figures;
     }
 
     /// <summary>

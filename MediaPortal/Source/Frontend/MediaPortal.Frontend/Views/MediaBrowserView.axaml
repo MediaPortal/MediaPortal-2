@@ -2656,8 +2656,36 @@
                         CornerRadius="10"
                         ClipToBounds="True"
                         IsVisible="{Binding ShowsCoverAlone}">
-                  <Image Source="{Binding DetailsArtwork, Converter={x:Static views:ArtworkConverter.Instance}}"
-                         Stretch="Uniform"/>
+                  <Panel>
+                    <Image Source="{Binding DetailsArtwork, Converter={x:Static views:ArtworkConverter.Instance}}"
+                           Stretch="Uniform"/>
+                    <!--
+                      How far this viewer got, as the home tiles say it: a line at the cover's own foot, as wide
+                      as the cover and no wider - the frame above shrinks to the poster, so the line measures the
+                      picture and not the box (the home learned that lesson the hard way, commit 0515db5598).
+                      The line wears the home's ground too: a black fade rising from the cover's bottom edge (the
+                      same TitleFadeBrush the tile caption stands on, HomeView.axaml's bar over a 45-line fade),
+                      so a white line over a bright cover still reads. Quiet line, the skin's white for the part
+                      that was watched, between the ends only: an untouched title has nothing to measure and a
+                      finished one is watched, which the watched mark says (HomeContentStyles.xaml:203-207).
+                    -->
+                    <Border Height="45"
+                            VerticalAlignment="Bottom"
+                            Background="{DynamicResource TitleFadeBrush}"
+                            IsVisible="{Binding DetailsProgressShown}"
+                            IsHitTestVisible="False"/>
+                    <ProgressBar Height="8"
+                                 MinWidth="0"
+                                 Minimum="0"
+                                 Maximum="100"
+                                 Value="{Binding DetailsProgress}"
+                                 VerticalAlignment="Bottom"
+                                 CornerRadius="0"
+                                 Background="Transparent"
+                                 Foreground="{DynamicResource TextBrush}"
+                                 IsVisible="{Binding DetailsProgressShown}"
+                                 IsHitTestVisible="False"/>
+                  </Panel>
                 </Border>
 
                 <!--
@@ -2707,8 +2735,27 @@
                           ClipToBounds="True"
                           HorizontalAlignment="Left"
                           VerticalAlignment="Top">
-                    <Image Source="{Binding DetailsArtwork, Converter={x:Static views:ArtworkConverter.Instance}}"
-                           Stretch="Uniform"/>
+                    <Panel>
+                      <Image Source="{Binding DetailsArtwork, Converter={x:Static views:ArtworkConverter.Instance}}"
+                             Stretch="Uniform"/>
+                      <!-- the same ground and line at the same foot as the stand-alone cover wears -->
+                      <Border Height="45"
+                              VerticalAlignment="Bottom"
+                              Background="{DynamicResource TitleFadeBrush}"
+                              IsVisible="{Binding DetailsProgressShown}"
+                              IsHitTestVisible="False"/>
+                      <ProgressBar Height="8"
+                                   MinWidth="0"
+                                   Minimum="0"
+                                   Maximum="100"
+                                   Value="{Binding DetailsProgress}"
+                                   VerticalAlignment="Bottom"
+                                   CornerRadius="0"
+                                   Background="Transparent"
+                                   Foreground="{DynamicResource TextBrush}"
+                                   IsVisible="{Binding DetailsProgressShown}"
+                                   IsHitTestVisible="False"/>
+                    </Panel>
                   </Border>
                 </Panel>
 
@@ -2786,85 +2833,23 @@
                          VerticalAlignment="Top"
                          IsVisible="{Binding ShowsLetteringOverStory}"/>
                   <!--
-                    HOW FAR THIS VIEWER GOT, in the figure the reference drew in the middle of its detail panels:
-                    a ring round a centre, filled as far as the library counted progress for whoever asked, and
-                    the number itself standing in the middle
-                    (MediaInfoMovieDetails.inc:206-351, the sector styles in
-                    themes/default/styles/CircularIndicator.xaml:8-45).
-
-                    The reference stepped that ring in twenty marks, one for every five percent. This one sweeps in
-                    one piece instead, which is away from the reference and was asked for that way: at the sizes
-                    this panel works at, twenty marks read as a heap of bits where one band of the same diameter
-                    reads as what it is.  Everything that can be measured stayed the reference's - the box of a
-                    hundred and fifty points shrunk to seven tenths of itself, the band's outer edge on the edge of
-                    that box, the turning beginning at the top and going to the right, the number spelled
-                    "{0:F0}%".  Two things are not: the grain of the answer, since the reference counted fives and
-                    this counts every percent, and the colour, since the reference lit the watched part with the
-                    skin's accent (NereusColorLight, Colors.xaml:39) while this lights it with the skin's white -
-                    the colour everything else here that deserves attention is lit with.
-
-                    It stands at the foot of the head and above the story, in the words' own column, which is where
-                    the reference stood it: its head stack ran name, stars, year, kinds, length and then this ring
-                    (MediaInfoMovieDetails.inc:110-362), while the poster hung in the column beside it and the story
-                    took the row under both. The lettering goes to the row's right hand end because the reference
-                    stood it there too - its Image was aligned to the right of that row, a hundred and forty lines
-                    tall and asked of the server no wider than two hundred and forty (MediaInfoMovieDetails.inc:353-359),
-                    which are the two numbers the frame below repeats.
-
-                    Both shapes are arithmetic in PlayPercentageDial and arrive here as paths that name their own
-                    radius and their own endpoints, so nothing on this screen has to agree with anybody about where
-                    a turning point lies - the first dial asked exactly that question and its twenty marks landed
-                    in a heap at the top of the box with the number standing under them.  A Path drawn as a stroke
-                    needs no place of its own either, so both paths lie at the corner of the box and their
-                    coordinates do the work.
-
-                    The track the sweep turns in is NOT the reference's black at a fifth of its light: that black
-                    was laid over the reference's own bright fanart, and over this panel's darkened ground it
-                    vanished, which left a ring that could only say how far somebody had got and never how far they
-                    had left. A white at a third of its light reads on both grounds.
+                    THE TITLE'S OWN LETTERING, which is a picture of its own kind and not the poster written
+                    again: the reference asked for it under the name ClearArt and hung it beside the progress
+                    ring (MediaInfoMovieDetails.inc:355-362). The ring is gone - how far this viewer got is read
+                    off the line at the cover's foot now, the home tiles' way of saying it - and the lettering
+                    keeps the row's right hand end alone, its height and ask unchanged: a hundred and forty
+                    lines, no wider than two hundred and forty. Most libraries hold none, and the frame then
+                    costs nothing.
                   -->
-                  <DockPanel LastChildFill="False"
-                             Margin="0,0,0,16"
-                             IsVisible="{Binding ShowsProgressRow}">
-                    <Panel Width="105" Height="105"
-                           DockPanel.Dock="Left"
-                           IsVisible="{Binding DetailsProgressShown}">
-                      <!-- The track first and the sweep over it, both on the same circle of the same box: the
-                           track is drawn whole, the sweep as far as this viewer got. An untouched title answers a
-                           path that paints nothing, so the track stands bare and the ring still says "nothing of
-                           this was seen" rather than showing no ring at all. -->
-                      <Path Data="{Binding DetailsDialTrack}"
-                            Stroke="#4DFFFFFF"
-                            StrokeThickness="{x:Static vm:PlayPercentageDial.BAND}"/>
-                      <Path Data="{Binding DetailsDialArc}"
-                            Stroke="{DynamicResource TextBrush}"
-                            StrokeThickness="{x:Static vm:PlayPercentageDial.BAND}"
-                            StrokeLineCap="Round"/>
-                      <TextBlock Text="{Binding DetailsProgressWords}"
-                                 FontSize="20"
-                                 FontWeight="SemiBold"
-                                 Foreground="{DynamicResource TextBrush}"
-                                 HorizontalAlignment="Center"
-                                 VerticalAlignment="Center"/>
-                    </Panel>
-                    <!--
-                      The title's own lettering, which is a picture of its own kind and not the poster written
-                      again: the reference asked for it under the name ClearArt and stood it beside the ring
-                      (MediaInfoMovieDetails.inc:355-362). Most libraries hold none, and the frame then costs
-                      nothing - the ring keeps its place at the column's left edge either way.
-                    -->
-                    <Image Source="{Binding DetailsClearArt,
-                                            Converter={x:Static views:ArtworkConverter.Instance},
-                                            ConverterParameter=small}"
-                           DockPanel.Dock="Right"
-                           Height="140"
-                           MaxWidth="240"
-                           Margin="60,0,0,0"
-                           Stretch="Uniform"
-                           HorizontalAlignment="Right"
-                           VerticalAlignment="Center"
-                           IsVisible="{Binding DetailsClearArt, Converter={x:Static ObjectConverters.IsNotNull}}"/>
-                  </DockPanel>
+                  <Image Source="{Binding DetailsClearArt,
+                                          Converter={x:Static views:ArtworkConverter.Instance},
+                                          ConverterParameter=small}"
+                         Height="140"
+                         MaxWidth="240"
+                         Margin="0,0,0,16"
+                         Stretch="Uniform"
+                         HorizontalAlignment="Right"
+                         IsVisible="{Binding DetailsClearArt, Converter={x:Static ObjectConverters.IsNotNull}}"/>
                   <!-- The episode's name, in bold over its own story and out of the fact list: the story under
                        it is this episode's sentence, and a title over its sentence is what a viewer reads -
                        a number row cannot carry it without the story losing its head. Only episodes wear it;

@@ -2754,6 +2754,10 @@ namespace Tests.Server.Api
               FilterTree(query.Filter).OfType<RelationshipFilter>().Any()
                   ? (IList<MediaItem>) new List<MediaItem> { episode }
                   : new List<MediaItem> { series });
+      // The episode count a series row never carried is asked of the library without a name - counting episodes
+      // belongs to nobody - so that walk answers from its own setup, empty handed: a figure, not a shelf.
+      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, null, false))
+          .Returns(new List<MediaItem>());
       library.Setup(count => count.CountMediaItems(It.IsAny<IEnumerable<Guid>>(), It.IsAny<IFilter>(), false, false))
           .Returns(1);
 
@@ -2774,6 +2778,168 @@ namespace Tests.Server.Api
           + "unasked Media aspect - back off every item, so an episode asked for without it comes back mute");
       Assert.That(result.Titles[0].Resume, Is.EqualTo(42),
           "where the viewer stopped stands on the episode, and the tile's bar reads it off the series' row");
+    }
+
+    /// <summary>
+    /// The figure a container's cover-line measures is the average of its children's figures, which is the
+    /// reference's law (<c>PlayableContainerMediaItem.cs:47-58</c>). A season needs it asked live: the library
+    /// keeps the figure where playback was reported - on the episode - and the importer's episode→season cell is
+    /// not one of the playable cells a play report walks up through, so the season row itself never learned
+    /// anybody's number and its shelf would hide the bar the viewer earned.
+    /// </summary>
+    [Test]
+    public void ASeasonTakesItsFigureFromTheEpisodesInsideIt()
+    {
+      Guid seasonId = new Guid("3f3c7c7b-3333-4e6f-9c2f-2f6071829304");
+      MediaItem season = CreateParentItem(seasonId, "Fallout S01", SeasonAspect.Metadata);
+      MediaItem watched = TitleWithStoredPosition(new Guid("4a4d8d8c-4444-4f70-ad30-307182930415"), "049");
+      MediaItem finished = TitleWithStoredPosition(new Guid("5b5e9e9d-5555-4081-be41-418293041526"), "100");
+      MediaItem untouched = TitleWithStoredPosition(new Guid("6c6f0f0e-6666-4192-cf52-529304152637"), null);
+
+      List<MediaItemQuery> asked = new List<MediaItemQuery>();
+      var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+      library.Setup(get => get.GetManagedMediaItemAspectMetadata()).Returns(
+          new Dictionary<Guid, MediaItemAspectMetadata>
+          {
+              { MediaAspect.ASPECT_ID, MediaAspect.Metadata },
+              { SeasonAspect.ASPECT_ID, SeasonAspect.Metadata },
+              { EpisodeAspect.ASPECT_ID, EpisodeAspect.Metadata }
+          });
+      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, VIEWER, false))
+          .Callback<MediaItemQuery, bool, Guid?, bool>(
+              (query, online, profile, virtualItems) => asked.Add(query))
+          .Returns<MediaItemQuery, bool, Guid?, bool>((query, online, profile, virtualItems) =>
+              FilterTree(query.Filter).OfType<RelationshipFilter>().Any()
+                  ? (IList<MediaItem>) new List<MediaItem> { watched, finished, untouched }
+                  : new List<MediaItem> { season });
+      library.Setup(count => count.CountMediaItems(It.IsAny<IEnumerable<Guid>>(), It.IsAny<IFilter>(), false, false))
+          .Returns(1);
+
+      ServiceRegistration.Set<IMediaLibrary>(library.Object);
+      MediaController.TitlesResult result =
+          Body(AskedBy(VIEWER).GetTitles("SeasonItem", null, null, 6, 0, null, null));
+
+      RelationshipFilter where = FilterTree(asked[1].Filter).OfType<RelationshipFilter>().Single();
+      // Child-first roles again, and the same episode→season pair the shelf itself is listed by - the average
+      // has to be taken over exactly the episodes the viewer sees under this season.
+      Assert.That(where.Role, Is.EqualTo(EpisodeAspect.ROLE_EPISODE));
+      Assert.That(where.LinkedRole, Is.EqualTo(SeasonAspect.ROLE_SEASON));
+      Assert.That(where.LinkedMediaItemId, Is.EqualTo(seasonId),
+          "the figure is averaged over this season's episodes, not over the series' or the library's");
+
+      // 49 and 100 and an untouched nought: the reference counts an empty child as nought rather than leaving
+      // it out of the mean (its own children answer zero, never nothing), so the mean is 49.67 -> 50.
+      Assert.That(result.Titles[0].Percentage, Is.EqualTo(50),
+          "a third of a season watched through stands as a third of the season's bar, not as nothing");
+    }
+
+    /// <summary>
+    /// The nothing stays nothing: a season none of whose episodes carries anybody's figure has no average to
+    /// show, and inventing a nought there would rob the client of its fallback - the row's nameless figure is
+    /// what tells "nobody watched this" from "nobody asked who watched this", and what lets the shared play
+    /// count speak on the tile.
+    /// </summary>
+    [Test]
+    public void ASeasonWhoseEpisodesNobodyWatchedKeepsItsNothing()
+    {
+      Guid seasonId = new Guid("7d70101f-7777-42a3-da63-630415263748");
+      MediaItem season = CreateParentItem(seasonId, "Fallout S01", SeasonAspect.Metadata);
+      MediaItem untouched = TitleWithStoredPosition(new Guid("8e812120-8888-43b4-eb74-741526374859"), null);
+
+      var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+      library.Setup(get => get.GetManagedMediaItemAspectMetadata()).Returns(
+          new Dictionary<Guid, MediaItemAspectMetadata>
+          {
+              { MediaAspect.ASPECT_ID, MediaAspect.Metadata },
+              { SeasonAspect.ASPECT_ID, SeasonAspect.Metadata },
+              { EpisodeAspect.ASPECT_ID, EpisodeAspect.Metadata }
+          });
+      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, VIEWER, false))
+          .Returns<MediaItemQuery, bool, Guid?, bool>((query, online, profile, virtualItems) =>
+              FilterTree(query.Filter).OfType<RelationshipFilter>().Any()
+                  ? (IList<MediaItem>) new List<MediaItem> { untouched, untouched }
+                  : new List<MediaItem> { season });
+      library.Setup(count => count.CountMediaItems(It.IsAny<IEnumerable<Guid>>(), It.IsAny<IFilter>(), false, false))
+          .Returns(1);
+
+      ServiceRegistration.Set<IMediaLibrary>(library.Object);
+      MediaController.TitlesResult result =
+          Body(AskedBy(VIEWER).GetTitles("SeasonItem", null, null, 6, 0, null, null));
+
+      Assert.That(result.Titles[0].Percentage, Is.Null,
+          "averaging noughts is not measuring - the figure stays unnamed so the client can tell an untouched "
+          + "season from an unasked one");
+    }
+
+    /// <summary>
+    /// The shelf the household actually stands on: a library pointed straight at its episode files holds no
+    /// season titles at all, and the season shelf is counted out of the numbers written on the episodes. Those
+    /// counted rows carry no id a relationship could hang on - so their figures are averaged from the very
+    /// episodes the counting read, in one question for the whole shelf.
+    /// </summary>
+    [Test]
+    public void ACountedSeasonTakesItsFigureFromTheEpisodesCountedIntoIt()
+    {
+      Guid seriesId = new Guid("9f923231-9999-44c5-fc85-852637485960");
+      MediaItem series = CreateParentItem(seriesId, "Fallout", SeriesAspect.Metadata);
+      MediaItem watched = EpisodeOfSeason(new Guid("0a034342-aaaa-45d6-ad96-963748596071"), 1, "049");
+      MediaItem watchedToo = EpisodeOfSeason(new Guid("1b145453-bbbb-46e7-bea7-a74859607182"), 1, "031");
+      MediaItem untouched = EpisodeOfSeason(new Guid("2c256564-cccc-47f8-cfb8-b85960718293"), 1, null);
+      MediaItem otherSeason = EpisodeOfSeason(new Guid("3d367675-dddd-4809-dfc9-c96071829304"), 2, "100");
+      IList<MediaItem> episodes = new List<MediaItem> { watched, watchedToo, untouched, otherSeason };
+
+      var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+      library.Setup(get => get.GetManagedMediaItemAspectMetadata()).Returns(
+          new Dictionary<Guid, MediaItemAspectMetadata>
+          {
+              { MediaAspect.ASPECT_ID, MediaAspect.Metadata },
+              { SeasonAspect.ASPECT_ID, SeasonAspect.Metadata },
+              { SeriesAspect.ASPECT_ID, SeriesAspect.Metadata },
+              { EpisodeAspect.ASPECT_ID, EpisodeAspect.Metadata }
+          });
+      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, VIEWER, false))
+          .Returns<MediaItemQuery, bool, Guid?, bool>((query, online, profile, virtualItems) =>
+              FilterTree(query.Filter).OfType<RelationshipFilter>().Any(link => link.LinkedRole == SeriesAspect.ROLE_SERIES
+                  && link.Role == EpisodeAspect.ROLE_EPISODE)
+                  ? (IList<MediaItem>) episodes
+                  : new List<MediaItem>());
+      // The parent lookup and the counting of the seasons walk without a name, as they always have.
+      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, null, false))
+          .Returns<MediaItemQuery, bool, Guid?, bool>((query, online, profile, virtualItems) =>
+              query.Filter is MediaItemIdFilter
+                  ? new List<MediaItem> { series }
+                  : (IList<MediaItem>) episodes);
+      library.Setup(count => count.CountMediaItems(It.IsAny<IEnumerable<Guid>>(), It.IsAny<IFilter>(), false, false))
+          .Returns(0);
+
+      ServiceRegistration.Set<IMediaLibrary>(library.Object);
+      MediaController.TitlesResult result = Body(AskedBy(VIEWER)
+          .GetTitles("SeasonItem", null, null, 0, 0, null, null, seriesId));
+
+      Assert.That(result.Titles, Has.Count.EqualTo(2), "the shelf is still the counted one");
+      // (49 + 31 + 0) / 3 = 26.67 -> 27; season 2 holds its one finished episode alone.
+      Assert.That(result.Titles[0].Season, Is.EqualTo(1));
+      Assert.That(result.Titles[0].Percentage, Is.EqualTo(27),
+          "the counted shelf carries the figure its episodes were counted with");
+      Assert.That(result.Titles[1].Season, Is.EqualTo(2));
+      Assert.That(result.Titles[1].Percentage, Is.EqualTo(100),
+          "and each season averages its own episodes, not the series'");
+    }
+
+    /// <summary>One episode under a season number, holding whatever figure the caller left on it.</summary>
+    private static MediaItem EpisodeOfSeason(Guid id, int season, string storedPercentage)
+    {
+      SingleMediaItemAspect episodeAspect = new SingleMediaItemAspect(EpisodeAspect.Metadata);
+      episodeAspect.SetAttribute(EpisodeAspect.ATTR_SEASON, season);
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>
+      {
+          { MediaAspect.ASPECT_ID, new List<MediaItemAspect> { CreateMediaAspect("Episode", "Episode", new DateTime(2024, 1, 1)) } },
+          { EpisodeAspect.ASPECT_ID, new List<MediaItemAspect> { episodeAspect } }
+      };
+      IDictionary<string, string> userData = storedPercentage == null
+          ? null
+          : new Dictionary<string, string> { { UserDataKeysKnown.KEY_PLAY_PERCENTAGE, storedPercentage } };
+      return new TestItem(id, aspects, null, userData);
     }
 
     [Test]

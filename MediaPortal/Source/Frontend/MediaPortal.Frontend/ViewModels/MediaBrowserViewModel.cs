@@ -784,8 +784,9 @@ namespace MediaPortal.Frontend.ViewModels
     private string _detailsEpisodeName = "";
 
     /// <summary>
-    /// How far this viewer got in the title the panel is reading, said the way the reference said it: the number
-    /// in the middle of a ring of twenty sectors, one sector lit per five percent.
+    /// Whether the cover's foot wears its progress line: only between the ends, which is the home tiles' law -
+    /// a title untouched has nothing to measure and a finished one is watched, which the watched mark says
+    /// (<c>HomeContentStyles.xaml:203-207</c> hides the bar at nought and at a hundred).
     /// </summary>
     /// <remarks>
     /// The figure is the row's own, not the panel answer's, and that is the server's doing rather than an
@@ -796,43 +797,29 @@ namespace MediaPortal.Frontend.ViewModels
     [ObservableProperty]
     private bool _detailsProgressShown;
 
-    /// <summary>The percent the ring's middle speaks, in the reference's own spelling: <c>42%</c>.</summary>
-    [ObservableProperty]
-    private string _detailsProgressWords = "";
-
     /// <summary>
-    /// The ring the sweep turns in, which stands whether anything was watched or not - the ring has to say how
-    /// far is left as well as how far somebody got.
-    /// </summary>
-    public string DetailsDialTrack => PlayPercentageDial.Track();
-
-    /// <summary>
-    /// The watched part of the ring, turned as far as this viewer got. A title nobody started answers a bare
-    /// move, which paints nothing over the track; the track still stands, because an untouched title is an answer
-    /// the library gave and not a question that went unanswered - that second case draws no ring at all, see
-    /// <see cref="DetailsProgressShown"/>.
+    /// How far this viewer got, as the whole number the line at the cover's foot measures out of a hundred.
     /// </summary>
     [ObservableProperty]
-    private string _detailsDialArc = PlayPercentageDial.Arc(0);
+    private double _detailsProgress;
 
     /// <summary>
-    /// The title's own lettering without the studio's name in it, which is the picture the reference hung beside
-    /// its progress ring (<c>MediaInfoMovieDetails.inc:355-362</c>). Null when the library never filed one - the
+    /// The title's own lettering without the studio's name in it, which is the picture the reference hung in its
+    /// details head (<c>MediaInfoMovieDetails.inc:355-362</c>). Null when the library never filed one - the
     /// frame is not drawn for a picture that is not there.
     /// </summary>
     [ObservableProperty]
     private byte[]? _detailsClearArt;
 
     /// <summary>
-    /// The lettering an album was released with, which stands over the album's story and not beside a progress
-    /// ring: the reference asked for it by the name <c>ClearArt</c> and stood it above the description
+    /// The lettering an album was released with, which stands over the album's story and not beside the cover:
+    /// the reference asked for it by the name <c>ClearArt</c> and stood it above the description
     /// (<c>MediaItemListAudioAlbumDetails.inc:26-31</c>, the description itself at <c>:307</c>).
     /// </summary>
     /// <remarks>
-    /// Kept apart from <see cref="_detailsClearArt"/> on purpose. That one belongs to the head's progress row,
-    /// which is where the reference hung a film's lettering (<c>MediaInfoMovieDetails.inc:355-362</c>); an album
-    /// has no progress row to hang anything in, and letting one picture feed both places would draw an album's
-    /// name twice on one screen.
+    /// Kept apart from <see cref="_detailsClearArt"/> on purpose. That one belongs to the head's lettering row,
+    /// which is where the reference hung a film's lettering (<c>MediaInfoMovieDetails.inc:355-362</c>); letting
+    /// one picture feed both places would draw an album's name twice on one screen.
     /// </remarks>
     [ObservableProperty]
     private byte[]? _detailsAlbumLettering;
@@ -933,19 +920,8 @@ namespace MediaPortal.Frontend.ViewModels
       OnPropertyChanged(nameof(DetailsStoryColumns));
     }
 
-    /// <summary>
-    /// Whether the row the ring and the lettering stand in is worth the hundred and five lines it costs: either of
-    /// them has something to show. Asked as one answer because a screen cannot join two conditions by itself, and
-    /// because the two halves answer at different times - the figure is on the row already, the lettering arrives
-    /// with its picture.
-    /// </summary>
-    public bool ShowsProgressRow => DetailsProgressShown || DetailsClearArt != null;
-
-    partial void OnDetailsProgressShownChanged(bool value) => OnPropertyChanged(nameof(ShowsProgressRow));
-
     partial void OnDetailsClearArtChanged(byte[]? value)
     {
-      OnPropertyChanged(nameof(ShowsProgressRow));
       OnPropertyChanged(nameof(CoverLettering));
       OnPropertyChanged(nameof(ShowsCoverLettering));
     }
@@ -4366,26 +4342,23 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
-    /// Puts the reference's round progress figure on the panel: the sweep the library's figure turns, and the
-    /// number itself for the ring's middle.
+    /// Puts the figure on the panel: how far this viewer got, which the cover's own foot-line measures out of a
+    /// hundred, shown only between the ends - the home tiles' law, where a title untouched has nothing to measure
+    /// and a finished one is watched, which the watched mark says (<c>HomeContentStyles.xaml:203-207</c>).
     /// </summary>
     /// <remarks>
-    /// <para>
-    /// The rule that decides how far the sweep turns is the library's per-profile figure, which every row of the
-    /// shelf already carries; a shelf read from a server that names nobody answers <c>null</c> there, and the
-    /// panel then draws no ring instead of a ring of nought — the difference between "nobody watched this" and
-    /// "nobody asked who watched this".
-    /// </para>
+    /// The figure is the row's own, not the panel answer's, and that is the server's doing rather than an
+    /// oversight here: <c>MediaItemDetails</c> carries the count of how often a title was finished but never how
+    /// far the last attempt got, while every row of the list does carry it (<c>ServerApiDto.cs:139-181</c>). The
+    /// row is the title the viewer is standing on, so its number is the honest one. A row whose shelf was read
+    /// from a server that names nobody answers <c>null</c> there, and the cover then wears no line - the
+    /// difference between "nobody watched this" and "nobody asked who watched this".
     /// </remarks>
     private void FillDetailsProgress(TitleViewModel title)
     {
       int? percentage = title.Title.Percentage;
-      DetailsDialArc = PlayPercentageDial.Arc(PlayPercentageDial.Sweep(percentage ?? 0));
-
-      DetailsProgressShown = percentage.HasValue;
-      DetailsProgressWords = percentage.HasValue
-          ? PlayPercentageDial.Words(percentage.Value)
-          : "";
+      DetailsProgress = percentage ?? 0;
+      DetailsProgressShown = percentage.HasValue && percentage.Value > 0 && percentage.Value < 100;
     }
 
     /// <summary>
@@ -4394,7 +4367,7 @@ namespace MediaPortal.Frontend.ViewModels
     /// <remarks>
     /// <para>
     /// A kind of picture of its own and not a second copy of the poster: <c>ClearArt</c> is the film's name drawn
-    /// as a logo, which is why the reference asked for it by that name and hung it beside the progress ring rather
+    /// as a logo, which is why the reference asked for it by that name and hung it in the details head rather
     /// than over the poster (<c>MediaInfoMovieDetails.inc:355-362</c>, <c>MediaInfoSeriesDetails.inc:297</c>).
     /// </para>
     /// <para>
