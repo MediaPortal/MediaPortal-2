@@ -31,20 +31,55 @@
       <Setter Property="FontWeight" Value="Normal"/>
     </Style>
 
-    <!-- Play, in the middle of everything: the biggest thing in the panel and the only control whose ground is
-         already lit when nothing stands at it, because it is the one a viewer looks for first. -->
+    <!-- Play, in the middle of everything: the biggest thing in the panel, and now the only control filled plain
+         white with its mark struck in black - the one button a viewer looks for first, so it wears the loudest
+         dress on the screen. -->
     <Style Selector="Button.glass.transport">
       <Setter Property="Width" Value="99"/>
       <Setter Property="Height" Value="99"/>
       <Setter Property="CornerRadius" Value="50"/>
       <Setter Property="Padding" Value="0"/>
       <Setter Property="FontSize" Value="36"/>
-      <Setter Property="Background" Value="#42618CB8"/>
+      <Setter Property="Background" Value="#FFFFFFFF"/>
+      <Setter Property="BorderBrush" Value="#33000000"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="Foreground" Value="#FF000000"/>
       <Setter Property="Margin" Value="12,0"/>
     </Style>
     <Style Selector="Button.glass.transport Path">
       <Setter Property="Width" Value="44"/>
       <Setter Property="Height" Value="44"/>
+      <Setter Property="Fill" Value="#FF000000"/>
+    </Style>
+    <!-- Standing on the white plate cannot light it up (it is already the brightest thing here) and cannot ring it
+         in white (a white ring on a white plate is no ring at all), so its frame darkens to a firm black ring -
+         but the light that stands round it is the same quiet white every other control glows with, so play answers
+         a standing place with the very same halo the rest of the panel does, only bounded by the black ring. Written
+         against the transport's own class rather than left to the shared glass rules, which would fill it blue and
+         ring it white - the fill lost on white, the ring invisible on white. -->
+    <Style Selector="Button.glass.transport:focus">
+      <Setter Property="Background" Value="#FFFFFFFF"/>
+      <Setter Property="BorderBrush" Value="#FF000000"/>
+      <Setter Property="BorderThickness" Value="3"/>
+    </Style>
+    <Style Selector="Window:not(.pointer-resting) Button.glass.transport:pointerover">
+      <Setter Property="Background" Value="#FFFFFFFF"/>
+      <Setter Property="BorderBrush" Value="#FF000000"/>
+      <Setter Property="BorderThickness" Value="3"/>
+    </Style>
+    <Style Selector="Button.glass.transport:focus Path">
+      <Setter Property="Fill" Value="#FF000000"/>
+      <Setter Property="Effect" Value="{x:Null}"/>
+    </Style>
+    <Style Selector="Window:not(.pointer-resting) Button.glass.transport:pointerover Path">
+      <Setter Property="Fill" Value="#FF000000"/>
+      <Setter Property="Effect" Value="{x:Null}"/>
+    </Style>
+    <Style Selector="Button.glass.transport:focus /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="BoxShadow" Value="0 0 22 4 #73FFFFFF"/>
+    </Style>
+    <Style Selector="Window:not(.pointer-resting) Button.glass.transport:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="BoxShadow" Value="0 0 22 4 #73FFFFFF"/>
     </Style>
 
     <!-- The name of the film. It is a name, not a mark in the row: the ring never stands on it, so it draws no
@@ -203,6 +238,17 @@
     <Style Selector="Button.choice.current">
       <Setter Property="Background" Value="#42618CB8"/>
       <Setter Property="BorderBrush" Value="#80FFFFFF"/>
+    </Style>
+    <!-- The fill of the position line is white in both its states, not the theme's turquoise: a played part of a
+         film reads as a clean white mark over the line. At rest it stands at three quarters strength, and where a
+         viewer stands on the line it comes up to full white, so the line answers the caret by brightening rather
+         than by changing hue. The colour comes from a style rather than the bar itself on purpose: a colour written
+         on the bar would outrank the focused answer and never change. -->
+    <Style Selector="ProgressBar#progressBar">
+      <Setter Property="Foreground" Value="#BFFFFFFF"/>
+    </Style>
+    <Style Selector="Button.seek:focus ProgressBar#progressBar">
+      <Setter Property="Foreground" Value="#FFFFFFFF"/>
     </Style>
   </UserControl.Styles>
 
@@ -436,7 +482,7 @@
                       Background="{DynamicResource VideoOutlineBrush}" IsHitTestVisible="False"/>
               <ProgressBar Name="progressBar" Classes="track" Minimum="0" Maximum="1"
                            Value="{Binding Progress}" MinHeight="12" CornerRadius="6"
-                           Background="Transparent" Foreground="{DynamicResource AccentBrush}"/>
+                           Background="Transparent"/>
               <!-- The chapter marks. Not a list bound to the chapters: the toolkit takes an ItemsControl's
                    containers back whenever the film turns over, and the Canvas.Left a mark had been given went
                    back with them, so every mark of a chaptered film ended up standing at the start of the
