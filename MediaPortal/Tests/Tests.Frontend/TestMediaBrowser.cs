@@ -5450,7 +5450,7 @@ namespace Tests.Frontend
     {
       DetailsServer server = new DetailsServer(HttpStatusCode.OK,
           "{\"id\":\"" + TITANIC + "\",\"title\":\"Born This Way\",\"year\":2011,\"genres\":[\"Dance\"],"
-          + "\"durationSeconds\":3114,\"trackCount\":23,\"discCount\":2");
+          + "\"durationSeconds\":3114,\"trackCount\":23,\"discCount\":2}");
       server.Lettering = "ClearArt";
       MediaBrowserViewModel browser = new MediaBrowserViewModel(
           new ServerApiClient(SIGN_IN_URL, new HttpClient(server)), ShelfCalled("AlbumItem"));
@@ -5460,11 +5460,11 @@ namespace Tests.Frontend
       WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
       WaitUntil("the lettering to arrive", delegate { return browser.DetailsAlbumLettering != null; });
 
-      Assert.That(LettereingsAsked(server).First(), Is.EqualTo("ClearArt"),
+      Assert.That(LetteringKindsAsked(server).First(), Is.EqualTo("ClearArt"),
           "the record's own art is asked for first, which is the name the reference's album screen wrote");
-      Assert.That(LettereingsAsked(server), Has.None.EqualTo("Logo"),
+      Assert.That(LetteringKindsAsked(server), Has.None.EqualTo("Logo"),
           "the band's logo is the SECOND question and has nothing to look for once the first was answered");
-      Assert.That(LettereingsAsked(server), Has.None.EqualTo("ClearLogo"),
+      Assert.That(LetteringKindsAsked(server), Has.None.EqualTo("ClearLogo"),
           "the film screen's name for its lettering is not one of this server's kinds, and asking for it is "
           + "answered with a refusal for every title in the library");
       Assert.That(browser.DetailsClearArt, Is.Null,
@@ -5481,7 +5481,7 @@ namespace Tests.Frontend
     {
       DetailsServer server = new DetailsServer(HttpStatusCode.OK,
           "{\"id\":\"" + TITANIC + "\",\"title\":\"amo\",\"year\":2019,\"genres\":[\"Rock\"],"
-          + "\"durationSeconds\":3114,\"trackCount\":13");
+          + "\"durationSeconds\":3114,\"trackCount\":13}");
       server.Lettering = "Logo";
       MediaBrowserViewModel browser = new MediaBrowserViewModel(
           new ServerApiClient(SIGN_IN_URL, new HttpClient(server)), ShelfCalled("AlbumItem"));
@@ -5491,7 +5491,7 @@ namespace Tests.Frontend
       WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
       WaitUntil("the lettering to arrive", delegate { return browser.DetailsAlbumLettering != null; });
 
-      string[] asked = LettereingsAsked(server);
+      string[] asked = LetteringKindsAsked(server);
       Assert.That(asked.First(), Is.EqualTo("ClearArt"), "the reference's name is asked first, as ever");
       Assert.That(asked, Contains.Item("Logo"),
           "and when that is answered with nothing the library's own name is asked, which is where the great "
@@ -5507,6 +5507,19 @@ namespace Tests.Frontend
     {
       lock (server.LetteringAsked)
         return server.LetteringAsked.ToArray();
+    }
+
+    /// <summary>
+    /// Of the kinds the screen asked for, the ones a WRITING can be filed under, in the order they came in.  A
+    /// record's panel asks for its front picture before it asks for its writing - the cover is the first question
+    /// of the screen, not one of the two about lettering - and a test about the order of the two writings is
+    /// about nothing the cover can answer.
+    /// </summary>
+    private static string[] LetteringKindsAsked(DetailsServer server)
+    {
+      return LettereingsAsked(server)
+          .Where(delegate (string kind) { return kind == "ClearArt" || kind == "Logo" || kind == "ClearLogo"; })
+          .ToArray();
     }
 
     /// <summary>
@@ -5563,7 +5576,7 @@ namespace Tests.Frontend
           "{\"id\":\"" + TITANIC + "\",\"title\":\"Farbenspiel\",\"year\":2013,\"genres\":[\"Deutscher Schlager\"],"
           + "\"durationSeconds\":4213,\"trackCount\":18,"
           + "\"overview\":\"Zwolf Lieder, von einem Farbenstreifen zusammengehalten.\"}");
-      server.Cover = "Poster";
+      server.Cover = "Cover";
       server.Disc = "DiscArt";
       server.Lettering = "Logo";
       MediaBrowserViewModel browser = new MediaBrowserViewModel(
@@ -5643,7 +5656,7 @@ namespace Tests.Frontend
           "{\"id\":\"" + TITANIC + "\",\"title\":\"Born This Way\",\"year\":2011,\"genres\":[\"Dance\"],"
           + "\"durationSeconds\":6300,\"trackCount\":23,\"discCount\":2,"
           + "\"overview\":\"Zwanzig Lieder, geschrieben auf den Hochzeitsreisen einer Band.\"}");
-      server.Cover = "Poster";
+      server.Cover = "Cover";
       MediaBrowserViewModel browser = new MediaBrowserViewModel(
           new ServerApiClient(SIGN_IN_URL, new HttpClient(server)), ShelfCalled("AlbumItem"));
       browser.Selected = new TitleViewModel(
@@ -5688,6 +5701,68 @@ namespace Tests.Frontend
           "the story keeps the column beside the cover and does not run under it");
       Assert.That(told.Y, Is.LessThan(over.Bottom - 100),
           "and it begins at the cover's top, which is where a story beside a cover begins");
+      window.Close();
+    }
+
+    /// <summary>
+    /// A record somebody stopped half way through wears the listener's line at the foot of its cover, as a film
+    /// wears it at the foot of its poster - which means the panel has to ask for the record's front picture under
+    /// the name the library keeps it at, since the line is drawn inside that picture's frame.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Music files its front picture as <c>Cover</c> and not as <c>Poster</c>, once for the album and under no
+    /// other name (the server's own answer says so: <c>MediaController.GetFanArtOfType</c> looks for a file called
+    /// "cover" beside the music and, for anything but a track, has nothing else to offer).  A track that asks for
+    /// a poster is lent its album's picture (the detour at <c>MediaController.cs:2314-2321</c>), so a track's
+    /// panel always stood on a cover and could draw its line; an album asking for its own poster had no album
+    /// behind it to borrow from, was answered with a refusal, and stood there with neither cover nor line - the
+    /// figure of how far the listener had got arrived, the picture it is drawn over did not.
+    /// </para>
+    /// <para>
+    /// The figure of a container is the container's own: the mean of its tracks, which is why the reference draws
+    /// it on the album and not only on the song (<c>PlayableContainerMediaItem.cs:47-58</c>).
+    /// </para>
+    /// </remarks>
+    [AvaloniaTest]
+    public void ARecordHalfListenedToWearsItsListenersLineAtTheFootOfItsCover()
+    {
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK,
+          "{\"id\":\"" + TITANIC + "\",\"title\":\"amo\",\"year\":2019,\"genres\":[\"Rock\"],"
+          + "\"durationSeconds\":3114,\"trackCount\":13}");
+      server.Cover = "Cover";
+      MediaBrowserViewModel browser = new MediaBrowserViewModel(
+          new ServerApiClient(SIGN_IN_URL, new HttpClient(server)), ShelfCalled("AlbumItem"));
+      browser.Selected = new TitleViewModel(
+          new MediaTitle(new Guid(TITANIC), "amo", null, 2019, null, null, false, Percentage: 35));
+
+      WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
+      WaitUntil("the cover to arrive", delegate { return browser.DetailsArtwork != null; });
+
+      Assert.That(browser.DetailsProgressShown, Is.True,
+          "a record that was stopped at a third is not started and not finished, so it has something to show");
+      Assert.That(browser.DetailsProgress, Is.EqualTo(35),
+          "and what it shows is the figure of its own row, which is the mean the library drew from its tracks");
+
+      WorkflowManager workflow = new WorkflowManager();
+      ShellWindow window = new ShellWindow(workflow, delegate (WorkflowFrame frame)
+      {
+        return new MediaBrowserView((MediaBrowserViewModel) frame.ViewModel);
+      });
+      window.Width = 1920;
+      window.Height = 1080;
+      workflow.Push(new WorkflowFrame("titles", "Musik", browser));
+      window.Show();
+      Pump();
+
+      Border cover = window.GetVisualDescendants().OfType<Border>().First(
+          delegate (Border plate) { return plate.Name == "coverAlone" && plate.IsVisible; });
+      ProgressBar line = cover.GetVisualDescendants().OfType<ProgressBar>().FirstOrDefault();
+      Assert.That(line, Is.Not.Null,
+          "the line is drawn inside the cover's frame, which is why a panel without a cover has no line at all");
+      Assert.That(line.IsVisible, Is.True, "and it is visible, because the figure is between nought and a hundred");
+      Assert.That(line.Value, Is.EqualTo(35), "at the figure the row carried");
+      Assert.That(line.Bounds.Width, Is.GreaterThan(0.0), "measured over the whole foot of the cover");
       window.Close();
     }
 

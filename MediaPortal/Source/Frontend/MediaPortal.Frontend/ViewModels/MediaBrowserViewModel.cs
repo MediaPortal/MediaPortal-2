@@ -5082,13 +5082,24 @@ namespace MediaPortal.Frontend.ViewModels
       // nothing ever wrote one for a shelf of episodes - so its ask travels with the season's number, which is what
       // the shelf's own poster picture already does.
       //
-      // One title is the exception, and the reference made it one: an episode wears its own thumbnail, asked under
-      // that kind (MediaInfoSeriesDetails.inc:23-42, FanArtType="Thumbnail" for the Episode media type), because
-      // nobody ever filed a poster for one episode of a series. An episode shelf already reads that kind for its
-      // tiles, so the panel's picture is usually the bytes the wall read a moment before.
-      Artwork? artwork = MediaCatalog.IsEpisode(title.ReadThrough)
-          ? TileArtworkFor(GridViewType.Thumbnail) ?? _artwork
-          : TileArtworkFor(GridViewType.Poster) ?? _artwork;
+      // Two titles are exceptions, and the library itself made both of them.
+      //
+      // A record calls its front picture a cover and not a poster, which is the one name the import files an
+      // album's art under, so the panel asks a record's cover - the picture its tiles already wear, read from the
+      // same bytes a moment before.  Asking a poster of an album goes unanswered: the server lends a track the
+      // album's picture when a track asks for a poster, but an album has no album behind it to be lent from.  The
+      // missing picture is not only a missing picture, because the listener's line is drawn at the foot of that
+      // very frame - a record whose panel stands without a cover stands without its line too.
+      //
+      // An episode wears its own thumbnail, asked under that kind (MediaInfoSeriesDetails.inc:23-42,
+      // FanArtType="Thumbnail" for the Episode media type), because nobody ever filed a poster for one episode of
+      // a series. An episode shelf already reads that kind for its tiles, so the panel's picture is usually the
+      // bytes the wall read a moment before.
+      Artwork? artwork = IsMusic
+          ? CoverArtwork ?? _artwork
+          : MediaCatalog.IsEpisode(title.ReadThrough)
+              ? TileArtworkFor(GridViewType.Thumbnail) ?? _artwork
+              : TileArtworkFor(GridViewType.Poster) ?? _artwork;
       if (artwork == null)
         return;
 
