@@ -3,6 +3,8 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Media;
+using Avalonia.Threading;
 using Avalonia.VisualTree;
 using MediaPortal.Frontend.ViewModels;
 
@@ -33,9 +35,16 @@ public partial class VolumePicker : UserControl
   /// <summary>The room between the head of the row below it and the foot of the dialog.</summary>
   private const double ABOVE_ROW = 24;
 
+  /// <summary>How far the dialog leans against an edge and springs back - the player panel's own numbers.</summary>
+  private const double DIALOG_BOUNCE_DIVE = 22;
+  private const int DIALOG_BOUNCE_DIVE_MS = 90;
+  private const int DIALOG_BOUNCE_SPRING_MS = 430;
+
   private NowPlayingViewModel? _model;
   private bool _dragging;
   private double _keptRowHeight;
+  private DispatcherTimer? _bounceTimer;
+  private TranslateTransform? _bounceTransform;
 
   public VolumePicker()
   {
@@ -52,6 +61,46 @@ public partial class VolumePicker : UserControl
     volumeControl.AddHandler(PointerPressedEvent, OnVolumePointer, RoutingStrategies.Bubble, true);
     volumeControl.AddHandler(PointerMovedEvent, OnVolumeMoved, RoutingStrategies.Bubble, true);
     volumeControl.AddHandler(PointerCaptureLostEvent, OnVolumeReleased, RoutingStrategies.Bubble, true);
+
+    // The dialog is an upright column, and the four keys answer to that column rather than to a ring: up and
+    // down step from mark to mark - over the line of the level, which is a thing a hand points at rather than a
+    // mark a remote stands on - and a key aimed past the head, the foot or either side of a one-mark-wide
+    // dialog leans the whole dialog against that edge and springs it back, which is how the player's panel
+    // answers the same question. Claimed on the way in, so the answer is the dialog's before any ring or list
+    // of the screen behind it can take the key.
+    AddHandler(KeyDownEvent, delegate (object? sender, KeyEventArgs args)
+        {
+          if (args.Handled || !IsOpen)
+            return;
+
+          bool upward = args.Key == Key.Up;
+          bool downward = args.Key == Key.Down;
+          bool leftward = args.Key == Key.Left;
+          bool rightward = args.Key == Key.Right;
+          if (!upward && !downward && !leftward && !rightward)
+            return;
+
+          // Only while the caret stands inside the dialog; the screen behind it keeps its own walk.
+          if (!(args.Source is Visual stood) || !IsWithinDialog(stood))
+            return;
+
+          // The keys across the line of the sound belong to the sound itself, as they always have.
+          if ((leftward || rightward) && ReferenceEquals(stood, volumeControl))
+            return;
+
+          if (upward || downward)
+          {
+            MoveToMark(downward ? 1 : -1, stood);
+          }
+          else
+          {
+            // A dialog one mark wide has nothing to the side of the mark it stands on.
+            Bounce(leftward ? -1 : 1, 0);
+          }
+
+          args.Handled = true;
+        },
+        RoutingStrategies.Tunnel);
   }
 
   /// <summary>Raised when the dialog goes back down, so that the host can ask its screen for the keyboard.</summary>
@@ -73,7 +122,9 @@ public partial class VolumePicker : UserControl
     HoldModel(model);
     Repaint();
     volumeDialog.IsVisible = true;
-    volumeControl.Focus();
+    // Stood on the first mark of the dialog rather than on its line: a viewer who came for the sound stands
+    // first where a press does something, and the line of the level is read from there.
+    volumeUpButton.Focus();
   }
 
   /// <summary>Send the dialog back down, and give the plate that called it the standing back.</summary>
@@ -96,6 +147,128 @@ public partial class VolumePicker : UserControl
     if (heightOfRowBelow > 8)
       _keptRowHeight = heightOfRowBelow;
     Margin = new Thickness(SIDE_MARGIN, 0, SIDE_MARGIN, _keptRowHeight + ABOVE_ROW);
+  }
+
+  /// <summary>
+  /// The direction the dialog last leaned against an edge, in points: positive off the bottom or the right,
+  /// negative off the top or the left, zero when it rests. A seam for the tests, like the player panel's own.
+  /// </summary>
+  internal double VolumeBounceDiveY { get; private set; }
+
+  /// <summary>The sideways mate of <see cref="VolumeBounceDiveY"/>.</summary>
+  internal double VolumeBounceDiveX { get; private set; }
+
+  /// <summary>
+  /// The marks a remote stands on, in the order they stand down the dialog. The line of the level is not among
+  /// them: it is the sound itself, pointed at or dragged by a hand and answered by the marks either side of it,
+  /// which is why stepping through the dialog walks from one mark to the next and over it.
+  /// </summary>
+  private Control[] Marks
+  {
+    get { return new Control[] { volumeUpButton, volumeDownButton, muteButton }; }
+  }
+
+  /// <summary>Whether <paramref name="element"/> is the dialog itself or stands inside it.</summary>
+  private bool IsWithinDialog(Visual element)
+  {
+    for (Visual? at = element; at != null; at = at.GetVisualParent())
+      if (ReferenceEquals(at, volumeDialog))
+        return true;
+    return false;
+  }
+
+  /// <summary>
+  /// Step one mark up or down the dialog, and lean the dialog against its edge when nothing stands further.
+  /// A caret that was put on the line of the level by a hand rather than by this walk steps to the nearest
+  /// mark that the key asks for.
+  /// </summary>
+  private void MoveToMark(int downward, Visual stood)
+  {
+    Control[] marks = Marks;
+    int at = -1;
+    for (int i = 0; i < marks.Length; i++)
+      if (ReferenceEquals(marks[i], stood))
+        at = i;
+
+    // Not standing on a mark means standing on the line of the level between them: the key then reaches for the
+    // nearest mark that way, which is the mark under the line downward and the mark over it upward.
+    int toward = at >= 0 ? at + downward : (downward > 0 ? 1 : 0);
+
+    if (toward < 0 || toward >= marks.Length)
+    {
+      Bounce(0, downward);
+      return;
+    }
+
+    marks[toward].Focus();
+  }
+
+  /// <summary>
+  /// Lean the whole dialog against one of its edges and spring it back - the player panel's own answer to a key
+  /// aimed past an edge, and read the same way: ninety milliseconds of lean squared off, four hundred and thirty
+  /// of easeOutBack home, which carries it a tenth of the lean past its rest before it settles.
+  /// </summary>
+  /// <param name="directionX">+1 off the right edge, -1 off the left, 0 for a vertical nod.</param>
+  /// <param name="directionY">+1 off the bottom edge, -1 off the top, 0 for a sideways nod.</param>
+  private void Bounce(int directionX, int directionY)
+  {
+    // One lean at a time; a key pressed while the dialog is still travelling starts a fresh one from wherever
+    // it stands, so a viewer leaning on the arrow sees the dialog lean with every press.
+    _bounceTimer?.Stop();
+
+    TranslateTransform nod = volumeDialog.RenderTransform as TranslateTransform;
+    if (nod == null)
+    {
+      nod = new TranslateTransform();
+      volumeDialog.RenderTransform = nod;
+    }
+    _bounceTransform = nod;
+
+    double diveX = directionX * DIALOG_BOUNCE_DIVE;
+    double diveY = directionY * DIALOG_BOUNCE_DIVE;
+    double fromX = nod.X;
+    double fromY = nod.Y;
+    long started = Environment.TickCount64;
+    VolumeBounceDiveX = diveX;
+    VolumeBounceDiveY = diveY;
+
+    DispatcherTimer timer = new DispatcherTimer(DispatcherPriority.Render)
+    {
+      Interval = TimeSpan.FromMilliseconds(16)
+    };
+    _bounceTimer = timer;
+
+    timer.Tick += delegate
+    {
+      if (!ReferenceEquals(_bounceTimer, timer))
+        return; // a newer lean drives the dialog from here on
+
+      long elapsed = Environment.TickCount64 - started;
+      if (elapsed >= DIALOG_BOUNCE_DIVE_MS + DIALOG_BOUNCE_SPRING_MS)
+      {
+        timer.Stop();
+        nod.X = 0;
+        nod.Y = 0;
+        return;
+      }
+
+      if (elapsed <= DIALOG_BOUNCE_DIVE_MS)
+      {
+        double u = elapsed / (double)DIALOG_BOUNCE_DIVE_MS;
+        double lean = 1 - (1 - u) * (1 - u);
+        nod.X = fromX + (diveX - fromX) * lean;
+        nod.Y = fromY + (diveY - fromY) * lean;
+        return;
+      }
+
+      double v = (elapsed - DIALOG_BOUNCE_DIVE_MS) / (double)DIALOG_BOUNCE_SPRING_MS;
+      const double c1 = 1.70158;
+      const double c3 = c1 + 1;
+      double back = 1 + c3 * Math.Pow(v - 1, 3) + c1 * Math.Pow(v - 1, 2);
+      nod.X = diveX * (1 - back);
+      nod.Y = diveY * (1 - back);
+    };
+    timer.Start();
   }
 
   /// <summary>

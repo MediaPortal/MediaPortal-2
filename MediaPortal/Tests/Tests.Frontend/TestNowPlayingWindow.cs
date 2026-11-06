@@ -207,9 +207,16 @@ namespace Tests.Frontend
           ?? throw new AssertionException("the screen has no button named \"" + name + "\"");
     }
 
-    private static void AssertThatVolumeLineIsFocused(Window window, string because)
+    /// <summary>
+    /// The dialog of the sound, walked mark by mark: it opens on its topmost mark, the keys down the column
+    /// step from one mark to the next over the line of the level, and a key aimed past an edge leans the whole
+    /// dialog against that edge.
+    /// </summary>
+    private static VolumePicker VolumeDialogOn(ShellWindow window)
     {
-      Assert.That(ButtonNamed(window, "volumeControl").IsFocused, Is.True, because);
+      // The shell keeps a dialog of the sound of its own for the compact transport row, so this asks the
+      // playback screen for the one it raises itself.
+      return PlaybackView(window).GetVisualDescendants().OfType<VolumePicker>().Single();
     }
 
     private static ProgressBar ProgressBarOn(Window window)
@@ -627,6 +634,139 @@ namespace Tests.Frontend
           Is.EqualTo(window.Bounds.Width - 48).Within(1), "the dialog stands at the right hand edge");
       Assert.That(Bottom(host), Is.LessThan(Top(buttons)),
           "and it is lifted above the row of buttons rather than standing over them");
+
+      // And the level wears the film's own line colour: the part of the sound that is there is read in the same
+      // white as the part of the film that is played, rather than in a colour of the dialog's own.
+      var played = (ISolidColorBrush)ControlNamed<Border>(window, "volumePlayed").Background;
+      var filmLine = (ISolidColorBrush)ProgressBarOn(window).Foreground;
+      Assert.That(played.Color, Is.EqualTo(filmLine.Color),
+          "the line of the sound wears the position line's white");
+    }
+
+    [AvaloniaTest]
+    public void TheNodOfTheSoundDialogIsNotCutByTheBoxesItStandsIn()
+    {
+      // The dialog of the sound is drawn by a control whose own bounds are exactly the dialog's, and a
+      // UserControl is a ContentControl, which hands its ClipToBounds default over as TRUE - the same trap that
+      // squared the halo off round a focused player button. A dialog that cuts at its own bounds cannot lean
+      // twenty-two points out of them to answer a key aimed past its edge, so nothing between the dialog and
+      // the window may cut tighter than its deepest nod.
+      var player = new FakePlayer();
+      ShellWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
+      window.Width = 1920;
+      window.Height = 1080;
+      Pump();
+      screen.Play(Film("film.mkv"));
+      Pump();
+      OpenOsd(window);
+      Press(ButtonNamed(window, "volumeButton"));
+      Pump();
+
+      Border dialog = ControlNamed<Border>(window, "volumeDialog");
+      VolumePicker picker = VolumeDialogOn(window);
+      Assert.That(picker.ClipToBounds, Is.False,
+          "the control that draws the dialog does not cut it at the dialog's own bounds");
+
+      // How much room each box that cuts leaves the dialog above and below it, measured while it still rests.
+      var rooms = new List<(string Box, double Below, double Above)>();
+      double at = TopLeftOf(dialog, window).Y;
+      for (Avalonia.Visual visual = dialog; visual != null && visual is not Window;
+           visual = visual.GetVisualParent())
+      {
+        if (visual is not Control box || !box.ClipToBounds)
+          continue;
+
+        double top = TopLeftOf(box, window).Y;
+        rooms.Add((box.GetType().Name + (string.IsNullOrEmpty(box.Name) ? "" : "#" + box.Name),
+            top + box.Bounds.Height - (at + dialog.Bounds.Height),
+            at - top));
+      }
+
+      // The nod itself, in both directions.
+      PressKey(ButtonNamed(window, "volumeUpButton"), Key.Up);
+      double dive = Math.Abs(picker.VolumeBounceDiveY);
+      PressKey(ButtonNamed(window, "muteButton"), Key.Down);
+      dive = Math.Max(dive, Math.Abs(picker.VolumeBounceDiveY));
+
+      Assert.That(dive, Is.GreaterThan(0), "the dialog nodded");
+      Assert.That(rooms, Is.Not.Empty, "the dialog stands in boxes that could cut it");
+      foreach ((string name, double below, double above) in rooms)
+      {
+        TestContext.Progress.WriteLine("ROOM " + name + " below=" + below + " above=" + above
+            + " dive=" + dive);
+        Assert.That(below, Is.GreaterThanOrEqualTo(dive),
+            "the nod down is not cut at " + name + ", which cuts at its own bounds");
+        Assert.That(above, Is.GreaterThanOrEqualTo(dive),
+            "and neither is the nod up cut at " + name);
+      }
+    }
+
+    [AvaloniaTest]
+    public void TheDialogOfTheSoundIsWalkedByItsMarksAndNodsAtItsEdges()
+    {
+      // The dialog of the sound is an upright column of marks with the line of the level between two of them.
+      // It rises standing on its topmost mark, one key down is the next mark rather than the line - which a
+      // hand points at rather than stands on - and a key aimed past any of its four edges leans the whole
+      // dialog against that edge, which is how the player's panel says the same thing.
+      var player = new FakePlayer();
+      ShellWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
+      window.Width = 1920;
+      window.Height = 1080;
+      Pump();
+      screen.Play(Film("film.mkv"));
+      Pump();
+      OpenOsd(window);
+      Press(ButtonNamed(window, "volumeButton"));
+      Pump();
+
+      VolumePicker dialog = VolumeDialogOn(window);
+      Button up = ButtonNamed(window, "volumeUpButton");
+      Button line = ButtonNamed(window, "volumeControl");
+      Button down = ButtonNamed(window, "volumeDownButton");
+      Button mute = ButtonNamed(window, "muteButton");
+
+      Assert.That(up.IsFocused, Is.True, "the dialog rises standing on the topmost of its marks");
+
+      Assert.That(PressKey(up, Key.Down), Is.True, "the dialog answered the downward key");
+      Assert.That(down.IsFocused, Is.True, "and the key stepped to the mark under the line");
+      Assert.That(line.IsFocused, Is.False, "the line of the level is stepped over, not walked onto");
+
+      Assert.That(PressKey(down, Key.Down), Is.True);
+      Assert.That(mute.IsFocused, Is.True, "and one step further came to the mark that silences the film");
+
+      Assert.That(PressKey(mute, Key.Down), Is.True);
+      Assert.That(mute.IsFocused, Is.True, "past the foot of the dialog nothing stands to be walked to");
+      Assert.That(dialog.VolumeBounceDiveY, Is.GreaterThan(0),
+          "and the whole dialog nodded down against its bottom edge, ready to spring back");
+
+      Assert.That(PressKey(mute, Key.Up), Is.True);
+      Assert.That(down.IsFocused, Is.True, "and the way back climbs the marks again");
+
+      Assert.That(up.Focus(), Is.True);
+      Pump();
+      Assert.That(PressKey(up, Key.Up), Is.True);
+      Assert.That(up.IsFocused, Is.True, "over the head of the dialog nothing stands either");
+      Assert.That(dialog.VolumeBounceDiveY, Is.LessThan(0), "and the dialog nodded up against its top edge");
+
+      // Across a dialog that is one mark wide there is nothing to walk to in either direction.
+      Assert.That(PressKey(up, Key.Right), Is.True);
+      Assert.That(up.IsFocused, Is.True, "the key across the column left the mark it stood on");
+      Assert.That(dialog.VolumeBounceDiveX, Is.GreaterThan(0), "and the dialog answered it by nodding right");
+
+      Assert.That(PressKey(up, Key.Left), Is.True);
+      Assert.That(up.IsFocused, Is.True);
+      Assert.That(dialog.VolumeBounceDiveX, Is.LessThan(0), "and the same answer to the left");
+
+      // A hand that was pointed at the line of the level still gets out of it with the keys, and the keys
+      // across it still belong to the sound.
+      Assert.That(line.Focus(), Is.True);
+      Pump();
+      int level = player.Volume;
+      Assert.That(PressKey(line, Key.Left), Is.True);
+      Assert.That(player.Volume, Is.EqualTo(level - 5),
+          "standing on the line, the key across it moves the sound as it always did");
+      Assert.That(PressKey(line, Key.Down), Is.True);
+      Assert.That(down.IsFocused, Is.True, "and the key down reaches the nearest mark under the line");
     }
 
     [AvaloniaTest]
@@ -764,11 +904,12 @@ namespace Tests.Frontend
           "onto the position line that stands over the pickers");
 
       // And the sound itself, which is asked for by the loudspeaker and answered by a dialog the keys of their
-      // own belong to.
+      // own belong to. The dialog stands on its topmost mark when it rises: a viewer who came for the sound is
+      // put where a press does something, not on the line that only shows the level.
       Press(ButtonNamed(window, "volumeButton"));
       Pump();
-      AssertThatVolumeLineIsFocused(window,
-          "the loudspeaker raised its dialog and put the viewer on the line of the sound, where the level is set");
+      Assert.That(ButtonNamed(window, "volumeUpButton").IsFocused, Is.True,
+          "the loudspeaker raised its dialog and stood the viewer on its topmost mark");
 
       int before = player.Volume;
       Assert.That(PressKey(ButtonNamed(window, "volumeControl"), Key.Left), Is.True,

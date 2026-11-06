@@ -4,7 +4,8 @@
         xmlns:views="using:MediaPortal.Frontend.Views"
         x:Class="MediaPortal.Frontend.Views.VolumePicker"
         x:DataType="vm:NowPlayingViewModel"
-        Name="volumePicker">
+        Name="volumePicker"
+        ClipToBounds="False">
 
   <UserControl.Styles>
     <StyleInclude Source="avares://MediaPortal.Frontend/Views/PlayerGlassStyles.axaml"/>
@@ -29,9 +30,12 @@
     way it wears the glass button family.
     How far above the row of buttons or plates it has to stand is the height the row beneath it takes, which
     only the layout knows - the host hands that over through HoldAbove.
+    This control wears no cut of its own: a UserControl is a ContentControl, and a ContentControl hands its
+    ClipToBounds default over as TRUE, which would end the dialog - its focused halo and the lean of its nod
+    against an edge - at the square of its own bounds. Measured, not assumed.
   -->
   <Border Name="volumeDialog" IsVisible="False" Padding="20,18" CornerRadius="24"
-          Background="#F2101A24" BorderBrush="#80FFFFFF" BorderThickness="1">
+          Background="#F2101A24" BorderBrush="#80FFFFFF" BorderThickness="1" ClipToBounds="False">
     <StackPanel Spacing="12">
       <TextBlock Name="volumePercent" Classes="time" Text="{Binding VolumeLabel}" TextAlignment="Center"
                  HorizontalAlignment="Center" AutomationProperties.Name="How loud the film is"/>
@@ -51,7 +55,7 @@
           <Border Width="12" CornerRadius="6" HorizontalAlignment="Center" Opacity="0.6"
                   Background="{DynamicResource VideoOutlineBrush}" IsHitTestVisible="False"/>
           <Border Name="volumePlayed" Width="12" CornerRadius="6" HorizontalAlignment="Center"
-                  VerticalAlignment="Bottom" Background="{DynamicResource AccentBrush}" IsHitTestVisible="False"/>
+                  VerticalAlignment="Bottom" Background="#BFFFFFFF" IsHitTestVisible="False"/>
           <Border Name="volumeKnob" Classes="knob upright" IsHitTestVisible="False"/>
         </Panel>
       </Button>
